@@ -1,54 +1,108 @@
 import { Router } from "express";
 import { z } from "zod";
-import { memoryItems, personas } from "../lib/mock-db";
 import { requireAuth } from "../middleware/require-auth";
+import { getSupabaseAdmin } from "../lib/supabase";
+import { addMemoryItem } from "../services/archive.service";
 
 const createSchema = z.object({
-  title: z.string().optional(),
-  content: z.string().min(1),
-  summary: z.string().optional(),
+  title: z.string().max(200).optional(),
+  content: z.string().min(1).max(20000),
+  summary: z.string().max(500).optional(),
   sourceType: z.enum(["chat", "import", "document", "calibration", "manual"]).default("manual"),
-  relevanceWeight: z.number().optional(),
+  relevanceWeight: z.number().min(0.1).max(5).optional(),
 });
 
 export const memoryRouter = Router();
 memoryRouter.use(requireAuth);
 
-memoryRouter.get("/persona/:personaId", (req, res) => {
-  const persona = personas.find((item) => item.id === req.params.personaId);
-  if (!persona) return res.status(404).json({ error: "Persona not found" });
-  return res.json({ memory: memoryItems.filter((item) => item.personaId === persona.id) });
+// ── List memory items for a persona ──────────────────────────────────────────
+memoryRouter.get("/persona/:personaId", async (req, res) => {
+  const sb = getSupabaseAdmin();
+  const userId = req.user!.id;
+
+  const { data, error } = await sb
+    .from("memory_items")
+    .select("id, persona_id, title, content, summary, source_type, relevance_weight, created_at")
+    .eq("persona_id", req.params.personaId)
+    .eq("owner_user_id", userId)
+    .order("created_at", { ascending: false });
+
+  if (error) return res.status(500).json({ error: error.message });
+  return res.json({ memory: data });
 });
 
-memoryRouter.post("/persona/:personaId", (req, res) => {
-  const persona = personas.find((item) => item.id === req.params.personaId);
-  if (!persona) return res.status(404).json({ error: "Persona not found" });
-  const parsed = createSchema.parse(req.body);
-  const item = {
-    id: `mem-${memoryItems.length + 1}`,
-    personaId: persona.id,
-    title: parsed.title,
-    content: parsed.content,
-    summary: parsed.summary,
-    sourceType: parsed.sourceType,
-    relevanceWeight: parsed.relevanceWeight ?? 1,
-    createdAt: new Date().toISOString(),
-  };
-  memoryItems.unshift(item);
-  return res.status(201).json({ memoryItem: item });
+// ── Create a memory item (generates embedding automatically) ──────────────────
+memoryRouter.post("/persona/:personaId", async (req, res) => {
+  const parsed = createSchema.safeParse(req.body);
+  if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
+
+  const userId = req.user!.id;
+  const sb = getSupabaseAdmin();
+
+  // Verify ownership
+  const { data: persona } = await sb
+    .from("personas")
+    .select("id, owner_user_id")
+    .eq("id", req.params.personaId)
+    .single();
+
+  if (!persona || persona.owner_user_id !== userId) {
+    return res.status(404).json({ error: "Persona not found." });
+  }
+
+  try {
+    const item = await addMemoryItem({
+      personaId: persona.id,
+      ownerUserId: userId,
+      title: parsed.data.title,
+      content: parsed.data.content,
+      summary: parsed.data.summary,
+      sourceType: parsed.data.sourceType,
+      relevanceWeight: parsed.data.relevanceWeight,
+    });
+    return res.status(201).json({ memoryItem: item });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Failed to create memory item.";
+    return res.status(500).json({ error: message });
+  }
 });
 
-memoryRouter.patch("/:id", (req, res) => {
-  const item = memoryItems.find((entry) => entry.id === req.params.id);
-  if (!item) return res.status(404).json({ error: "Memory item not found" });
-  const parsed = createSchema.partial().parse(req.body);
-  Object.assign(item, parsed);
-  return res.json({ memoryItem: item });
+// ── Update a memory item ──────────────────────────────────────────────────────
+memoryRouter.patch("/:id", async (req, res) => {
+  const sb = getSupabaseAdmin();
+  const userId = req.user!.id;
+  const parsed = createSchema.partial().safeParse(req.body);
+  if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
+
+  const { data, error } = await sb
+    .from("memory_items")
+    .update({
+      ...(parsed.data.title !== undefined && { title: parsed.data.title }),
+      ...(parsed.data.content !== undefined && { content: parsed.data.content }),
+      ...(parsed.data.summary !== undefined && { summary: parsed.data.summary }),
+      ...(parsed.data.relevanceWeight !== undefined && { relevance_weight: parsed.data.relevanceWeight }),
+    })
+    .eq("id", req.params.id)
+    .eq("owner_user_id", userId)
+    .select("*")
+    .single();
+
+  if (error) return res.status(500).json({ error: error.message });
+  if (!data) return res.status(404).json({ error: "Memory item not found." });
+  return res.json({ memoryItem: data });
 });
 
-memoryRouter.delete("/:id", (req, res) => {
-  const index = memoryItems.findIndex((entry) => entry.id === req.params.id);
-  if (index === -1) return res.status(404).json({ error: "Memory item not found" });
-  const [removed] = memoryItems.splice(index, 1);
-  return res.json({ removed });
+// ── Delete a memory item ──────────────────────────────────────────────────────
+memoryRouter.delete("/:id", async (req, res) => {
+  const sb = getSupabaseAdmin();
+  const userId = req.user!.id;
+
+  const { error } = await sb
+    .from("memory_items")
+    .delete()
+    .eq("id", req.params.id)
+    .eq("owner_user_id", userId);
+
+  if (error) return res.status(500).json({ error: error.message });
+  return res.status(204).send();
 });
