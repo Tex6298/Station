@@ -22,6 +22,15 @@ import { reportsRouter } from "./routes/reports";
 export function createApp() {
   const app = express();
   app.use(cors());
+
+  // ── Stripe webhook needs raw body for signature verification ─────────────────
+  // Must be registered BEFORE express.json() so only this route gets raw bytes
+  app.use(
+    "/billing/webhook",
+    express.raw({ type: "application/json" })
+  );
+
+  // ── All other routes use parsed JSON ─────────────────────────────────────────
   app.use(express.json({ limit: "2mb" }));
 
   app.use(healthRouter);

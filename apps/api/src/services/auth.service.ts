@@ -32,7 +32,7 @@ export async function signUp(input: SignUpInput): Promise<AuthResult> {
   const { data, error } = await sb.auth.admin.createUser({
     email: input.email,
     password: input.password,
-    email_confirm: false, // set true in production to require email verification
+    email_confirm: false,
     user_metadata: {
       username: input.username,
       display_name: input.displayName ?? input.username,
@@ -43,18 +43,13 @@ export async function signUp(input: SignUpInput): Promise<AuthResult> {
     throw new Error(error?.message ?? "Failed to create user.");
   }
 
-  // Sign in immediately to get tokens
-  const signInResult = await signIn({ email: input.email, password: input.password });
-  return signInResult;
+  return signIn({ email: input.email, password: input.password });
 }
 
 /**
  * Sign in an existing user and return tokens + tier.
  */
 export async function signIn(input: SignInInput): Promise<AuthResult> {
-  const sb = getSupabaseAdmin();
-
-  // Use signInWithPassword via the anon-key client
   const { createClient } = await import("@supabase/supabase-js");
   const anonClient = createClient(
     process.env.SUPABASE_URL!,
@@ -70,7 +65,7 @@ export async function signIn(input: SignInInput): Promise<AuthResult> {
     throw new Error(error?.message ?? "Invalid credentials.");
   }
 
-  // Fetch tier from profiles
+  const sb = getSupabaseAdmin();
   const { data: profile } = await sb
     .from("profiles")
     .select("tier")
@@ -87,12 +82,12 @@ export async function signIn(input: SignInInput): Promise<AuthResult> {
 }
 
 /**
- * Validate a JWT and return the user's id + tier.
+ * Validates a JWT and returns the user's id, email, tier, and admin flag.
  * Used by requireAuth middleware.
  */
 export async function validateToken(
   accessToken: string
-): Promise<{ userId: string; tier: Tier; isAdmin: boolean } | null> {
+): Promise<{ userId: string; email: string; tier: Tier; isAdmin: boolean } | null> {
   const sb = getSupabaseAdmin();
 
   const { data: { user }, error } = await sb.auth.getUser(accessToken);
@@ -106,6 +101,7 @@ export async function validateToken(
 
   return {
     userId: user.id,
+    email: user.email!,
     tier: (profile?.tier ?? "visitor") as Tier,
     isAdmin: profile?.is_admin ?? false,
   };

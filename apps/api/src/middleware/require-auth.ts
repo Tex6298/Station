@@ -6,6 +6,7 @@ export interface AuthenticatedUser {
   id: string;
   tier: Tier;
   isAdmin: boolean;
+  email: string;
 }
 
 declare global {
@@ -43,6 +44,7 @@ export async function requireAuth(
       id: result.userId,
       tier: result.tier,
       isAdmin: result.isAdmin,
+      email: result.email,
     };
     next();
   } catch {
@@ -69,6 +71,7 @@ export async function optionalAuth(
           id: result.userId,
           tier: result.tier,
           isAdmin: result.isAdmin,
+          email: result.email,
         };
       }
     } catch {
