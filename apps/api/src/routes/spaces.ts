@@ -1,64 +1,267 @@
-import { Router } from 'express';
-import { z } from 'zod';
-import { spaces, spacePages, personas, documents } from '../lib/mock-db';
-import { requireAuth } from '../middleware/require-auth';
+import { Router } from "express";
+import { z } from "zod";
+import { requireAuth } from "../middleware/require-auth";
+import { requireTier } from "../middleware/require-tier";
+import { getSupabaseAdmin } from "../lib/supabase";
+import { canCreateSpace } from "@station/auth/permissions";
+import type { AuthUser } from "@station/types";
 
 const createSpaceSchema = z.object({
-  slug: z.string().min(1),
-  title: z.string().min(1),
-  shortDescription: z.string().optional(),
-  longDescription: z.string().optional(),
+  slug: z
+    .string()
+    .min(2)
+    .max(60)
+    .regex(/^[a-z0-9-]+$/, "Slug may only contain lowercase letters, numbers, and hyphens."),
+  title: z.string().min(1).max(100),
+  shortDescription: z.string().max(300).optional(),
+  longDescription: z.string().max(5000).optional(),
+  theme: z.string().max(40).optional(),
   isPublic: z.boolean().default(true),
+  commentsDefaultEnabled: z.boolean().default(true),
 });
 
+const updateSpaceSchema = createSpaceSchema.partial();
+
 const createPageSchema = z.object({
-  title: z.string().min(1),
-  slug: z.string().min(1),
-  pageType: z.enum(['home', 'about', 'personas', 'documents', 'custom']).default('custom'),
-  body: z.string().optional(),
+  title: z.string().min(1).max(120),
+  slug: z
+    .string()
+    .min(1)
+    .max(80)
+    .regex(/^[a-z0-9-]+$/, "Slug may only contain lowercase letters, numbers, and hyphens."),
+  pageType: z.enum(["home", "about", "personas", "documents", "custom"]).default("custom"),
+  body: z.string().max(50000).optional(),
   commentsEnabled: z.boolean().default(false),
   isPublished: z.boolean().default(true),
+  sortOrder: z.number().int().optional(),
 });
+
+const updatePageSchema = createPageSchema.partial();
 
 export const spacesRouter = Router();
 
-spacesRouter.get('/', (_req, res) => {
-  res.json({ spaces });
+// ── Public routes (no auth) ───────────────────────────────────────────────────
+
+// GET /spaces/:slug — public Space view
+spacesRouter.get("/:slug", async (req, res) => {
+  const sb = getSupabaseAdmin();
+
+  const { data: space, error } = await sb
+    .from("spaces")
+    .select("*")
+    .eq("slug", req.params.slug)
+    .single();
+
+  if (error || !space) return res.status(404).json({ error: "Space not found." });
+  if (!space.is_public) return res.status(403).json({ error: "This Space is private." });
+
+  const [{ data: pages }, { data: documents }, { data: personas }] = await Promise.all([
+    sb
+      .from("space_pages")
+      .select("id, slug, title, page_type, body, sort_order, is_published, comments_enabled")
+      .eq("space_id", space.id)
+      .eq("is_published", true)
+      .order("sort_order", { ascending: true }),
+    sb
+      .from("documents")
+      .select("id, title, slug, document_type, body, visibility, published_at, created_at")
+      .eq("space_id", space.id)
+      .eq("status", "published")
+      .eq("visibility", "public")
+      .order("published_at", { ascending: false })
+      .limit(20),
+    sb
+      .from("personas")
+      .select("id, name, short_description, visibility, provider, avatar_url")
+      .eq("owner_user_id", space.owner_user_id)
+      .eq("visibility", "public"),
+  ]);
+
+  // Fetch owner profile for display
+  const { data: owner } = await sb
+    .from("profiles")
+    .select("username, display_name, avatar_url, bio")
+    .eq("id", space.owner_user_id)
+    .single();
+
+  return res.json({
+    space,
+    pages: pages ?? [],
+    documents: documents ?? [],
+    personas: personas ?? [],
+    owner,
+  });
 });
 
-spacesRouter.get('/:slug', (req, res) => {
-  const space = spaces.find((item) => item.slug === req.params.slug || item.id === req.params.slug);
-  if (!space) return res.status(404).json({ error: 'Space not found' });
-  const pages = spacePages.filter((p) => p.spaceId === space.id).sort((a, b) => a.sortOrder - b.sortOrder);
-  const linkedPersonas = personas.filter((p) => p.visibility === 'public');
-  const linkedDocuments = documents.filter((d) => d.spaceId === space.id);
-  return res.json({ space, pages, personas: linkedPersonas, documents: linkedDocuments });
-});
-
+// ── Authenticated routes ──────────────────────────────────────────────────────
 spacesRouter.use(requireAuth);
 
-spacesRouter.post('/', (req, res) => {
-  const parsed = createSpaceSchema.parse(req.body);
-  const space = {
-    id: `space-${spaces.length + 1}`,
-    ownerUserId: 'demo-user',
-    commentsDefaultEnabled: true,
-    ...parsed,
-  };
-  spaces.push(space);
-  res.status(201).json({ space });
+// GET /spaces — list the current user's spaces
+spacesRouter.get("/", async (req, res) => {
+  const sb = getSupabaseAdmin();
+  const { data, error } = await sb
+    .from("spaces")
+    .select("id, slug, title, short_description, is_public, created_at, updated_at")
+    .eq("owner_user_id", req.user!.id)
+    .order("created_at", { ascending: false });
+
+  if (error) return res.status(500).json({ error: error.message });
+  return res.json({ spaces: data ?? [] });
 });
 
-spacesRouter.post('/:id/pages', (req, res) => {
-  const parsed = createPageSchema.parse(req.body);
-  const space = spaces.find((item) => item.id === req.params.id);
-  if (!space) return res.status(404).json({ error: 'Space not found' });
-  const page = {
-    id: `page-${spacePages.length + 1}`,
-    spaceId: space.id,
-    sortOrder: spacePages.filter((p) => p.spaceId === space.id).length + 1,
-    ...parsed,
-  };
-  spacePages.push(page);
-  res.status(201).json({ page });
+// POST /spaces — create a Space (creator tier minimum)
+spacesRouter.post("/", requireTier("creator"), async (req, res) => {
+  const parsed = createSpaceSchema.safeParse(req.body);
+  if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
+
+  const sb = getSupabaseAdmin();
+  const userId = req.user!.id;
+
+  // Check space count against tier limit
+  const { count } = await sb
+    .from("spaces")
+    .select("id", { count: "exact", head: true })
+    .eq("owner_user_id", userId);
+
+  const authUser: AuthUser = { id: userId, tier: req.user!.tier, isAdmin: req.user!.isAdmin };
+  if (!canCreateSpace(authUser, count ?? 0)) {
+    return res.status(403).json({
+      error: `You have reached the Space limit for your tier. Upgrade to create more.`,
+    });
+  }
+
+  // Check slug uniqueness
+  const { data: existing } = await sb
+    .from("spaces")
+    .select("id")
+    .eq("slug", parsed.data.slug)
+    .single();
+
+  if (existing) return res.status(409).json({ error: "That slug is already taken." });
+
+  const { data, error } = await sb
+    .from("spaces")
+    .insert({
+      owner_user_id: userId,
+      slug: parsed.data.slug,
+      title: parsed.data.title,
+      short_description: parsed.data.shortDescription ?? null,
+      long_description: parsed.data.longDescription ?? null,
+      theme: parsed.data.theme ?? "default",
+      is_public: parsed.data.isPublic,
+      comments_default_enabled: parsed.data.commentsDefaultEnabled,
+    })
+    .select("*")
+    .single();
+
+  if (error) return res.status(500).json({ error: error.message });
+
+  // Auto-create default pages
+  await sb.from("space_pages").insert([
+    { space_id: data.id, slug: "home",    title: "Home",    page_type: "home",      sort_order: 0, is_published: true,  body: `Welcome to ${parsed.data.title}.` },
+    { space_id: data.id, slug: "about",   title: "About",   page_type: "about",     sort_order: 1, is_published: false, body: "" },
+    { space_id: data.id, slug: "posts",   title: "Posts",   page_type: "documents", sort_order: 2, is_published: true,  body: "" },
+    { space_id: data.id, slug: "personas",title: "Personas",page_type: "personas",  sort_order: 3, is_published: false, body: "" },
+  ]);
+
+  return res.status(201).json({ space: data });
+});
+
+// PATCH /spaces/:id — update Space settings
+spacesRouter.patch("/:id", async (req, res) => {
+  const parsed = updateSpaceSchema.safeParse(req.body);
+  if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
+
+  const sb = getSupabaseAdmin();
+  const update: Record<string, unknown> = {};
+  if (parsed.data.title !== undefined)               update.title = parsed.data.title;
+  if (parsed.data.shortDescription !== undefined)    update.short_description = parsed.data.shortDescription;
+  if (parsed.data.longDescription !== undefined)     update.long_description = parsed.data.longDescription;
+  if (parsed.data.theme !== undefined)               update.theme = parsed.data.theme;
+  if (parsed.data.isPublic !== undefined)            update.is_public = parsed.data.isPublic;
+  if (parsed.data.commentsDefaultEnabled !== undefined) update.comments_default_enabled = parsed.data.commentsDefaultEnabled;
+
+  const { data, error } = await sb
+    .from("spaces")
+    .update(update)
+    .eq("id", req.params.id)
+    .eq("owner_user_id", req.user!.id)
+    .select("*")
+    .single();
+
+  if (error) return res.status(500).json({ error: error.message });
+  if (!data) return res.status(404).json({ error: "Space not found." });
+  return res.json({ space: data });
+});
+
+// DELETE /spaces/:id
+spacesRouter.delete("/:id", async (req, res) => {
+  const sb = getSupabaseAdmin();
+  const { error } = await sb
+    .from("spaces")
+    .delete()
+    .eq("id", req.params.id)
+    .eq("owner_user_id", req.user!.id);
+
+  if (error) return res.status(500).json({ error: error.message });
+  return res.status(204).send();
+});
+
+// ── Pages ──────────────────────────────────────────────────────────────────────
+
+// POST /spaces/:id/pages
+spacesRouter.post("/:id/pages", async (req, res) => {
+  const parsed = createPageSchema.safeParse(req.body);
+  if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
+
+  const sb = getSupabaseAdmin();
+  const { data: space } = await sb.from("spaces").select("id, owner_user_id").eq("id", req.params.id).single();
+  if (!space || space.owner_user_id !== req.user!.id) return res.status(404).json({ error: "Space not found." });
+
+  const { count } = await sb.from("space_pages").select("id", { count: "exact", head: true }).eq("space_id", space.id);
+
+  const { data, error } = await sb
+    .from("space_pages")
+    .insert({
+      space_id: space.id,
+      slug: parsed.data.slug,
+      title: parsed.data.title,
+      page_type: parsed.data.pageType,
+      body: parsed.data.body ?? "",
+      comments_enabled: parsed.data.commentsEnabled,
+      is_published: parsed.data.isPublished,
+      sort_order: parsed.data.sortOrder ?? (count ?? 0),
+    })
+    .select("*")
+    .single();
+
+  if (error) return res.status(500).json({ error: error.message });
+  return res.status(201).json({ page: data });
+});
+
+// PATCH /spaces/:id/pages/:pageId
+spacesRouter.patch("/:id/pages/:pageId", async (req, res) => {
+  const parsed = updatePageSchema.safeParse(req.body);
+  if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
+
+  const sb = getSupabaseAdmin();
+  const { data: space } = await sb.from("spaces").select("id, owner_user_id").eq("id", req.params.id).single();
+  if (!space || space.owner_user_id !== req.user!.id) return res.status(403).json({ error: "Not authorised." });
+
+  const update: Record<string, unknown> = {};
+  if (parsed.data.title !== undefined)          update.title = parsed.data.title;
+  if (parsed.data.body !== undefined)           update.body = parsed.data.body;
+  if (parsed.data.isPublished !== undefined)    update.is_published = parsed.data.isPublished;
+  if (parsed.data.commentsEnabled !== undefined) update.comments_enabled = parsed.data.commentsEnabled;
+
+  const { data, error } = await sb
+    .from("space_pages")
+    .update(update)
+    .eq("id", req.params.pageId)
+    .eq("space_id", space.id)
+    .select("*")
+    .single();
+
+  if (error) return res.status(500).json({ error: error.message });
+  return res.json({ page: data });
 });
