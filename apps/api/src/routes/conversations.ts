@@ -1,125 +1,284 @@
 import { Router } from "express";
 import { z } from "zod";
-import { DeepseekProvider } from "@station/ai/providers/deepseek";
-import { buildPersonaChatPrompt } from "@station/ai/prompts/persona-chat";
-import { selectContinuityContext } from "@station/ai";
-import { canonItems, conversationMessages, conversations, memoryItems, personas } from "../lib/mock-db";
-import { env } from "../lib/env";
 import { requireAuth } from "../middleware/require-auth";
+import { getSupabaseAdmin } from "../lib/supabase";
+import { buildPersonaContext } from "@station/ai/retrieval/context-builder";
+import { resolveProvider } from "@station/ai/providers/router";
+import { saveMessageAsMemory } from "../services/archive.service";
+import { env } from "../lib/env";
 
 const chatSchema = z.object({
-  content: z.string().min(1),
+  content: z.string().min(1).max(8000),
+  conversationId: z.string().uuid().optional(),
 });
 
-const provider = new DeepseekProvider({
-  apiKey: env.DEEPSEEK_API_KEY,
-  baseUrl: env.DEEPSEEK_BASE_URL,
-  model: env.DEEPSEEK_MODEL,
+const saveMemorySchema = z.object({
+  messageId: z.string().uuid(),
+  relevanceWeight: z.number().min(0.1).max(5).optional(),
+});
+
+const saveCanonSchema = z.object({
+  messageId: z.string().uuid(),
+  title: z.string().max(120).optional(),
+  priority: z.number().int().min(1).max(10).optional(),
 });
 
 export const conversationsRouter = Router();
 conversationsRouter.use(requireAuth);
 
-conversationsRouter.get("/persona/:personaId", (req, res) => {
-  const results = conversations.filter((item) => item.personaId === req.params.personaId);
-  res.json({ conversations: results });
+// ── List conversations for a persona ─────────────────────────────────────────
+conversationsRouter.get("/persona/:personaId", async (req, res) => {
+  const sb = getSupabaseAdmin();
+  const userId = req.user!.id;
+
+  const { data, error } = await sb
+    .from("conversations")
+    .select("id, persona_id, title, mode, created_at, updated_at")
+    .eq("persona_id", req.params.personaId)
+    .eq("owner_user_id", userId)
+    .order("updated_at", { ascending: false });
+
+  if (error) return res.status(500).json({ error: error.message });
+  return res.json({ conversations: data });
 });
 
-conversationsRouter.get("/:conversationId", (req, res) => {
-  const conversation = conversations.find((item) => item.id === req.params.conversationId);
-  if (!conversation) return res.status(404).json({ error: "Conversation not found" });
-  return res.json({ conversation, messages: conversationMessages[conversation.id] || [] });
+// ── Get a single conversation with messages ───────────────────────────────────
+conversationsRouter.get("/:conversationId", async (req, res) => {
+  const sb = getSupabaseAdmin();
+  const userId = req.user!.id;
+
+  const { data: conv, error } = await sb
+    .from("conversations")
+    .select("*")
+    .eq("id", req.params.conversationId)
+    .eq("owner_user_id", userId)
+    .single();
+
+  if (error || !conv) return res.status(404).json({ error: "Conversation not found." });
+
+  const { data: messages } = await sb
+    .from("conversation_messages")
+    .select("id, role, content, tokens_used, provider_used, created_at")
+    .eq("conversation_id", conv.id)
+    .order("created_at", { ascending: true });
+
+  return res.json({ conversation: conv, messages: messages ?? [] });
 });
 
-conversationsRouter.post("/persona/:personaId", async (req, res) => {
-  const parsed = chatSchema.parse(req.body);
-  const persona = personas.find((item) => item.id === req.params.personaId);
-  if (!persona) return res.status(404).json({ error: "Persona not found" });
+// ── Send a message (main chat endpoint) ──────────────────────────────────────
+conversationsRouter.post("/persona/:personaId/chat", async (req, res) => {
+  const parsed = chatSchema.safeParse(req.body);
+  if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
 
-  let conversation = conversations.find((item) => item.personaId === persona.id);
-  if (!conversation) {
-    conversation = {
-      id: `conv-${conversations.length + 1}`,
-      personaId: persona.id,
-      title: `${persona.name} chat`,
-      mode: "private",
-      createdAt: new Date().toISOString(),
-    };
-    conversations.push(conversation);
-    conversationMessages[conversation.id] = [];
+  const sb = getSupabaseAdmin();
+  const userId = req.user!.id;
+  const { personaId } = req.params;
+  const { content, conversationId } = parsed.data;
+
+  // Load persona (verify ownership)
+  const { data: persona, error: personaErr } = await sb
+    .from("personas")
+    .select("id, name, short_description, long_description, visibility, provider, awakening_prompt, style_notes, owner_user_id")
+    .eq("id", personaId)
+    .single();
+
+  if (personaErr || !persona) return res.status(404).json({ error: "Persona not found." });
+  if (persona.owner_user_id !== userId) return res.status(403).json({ error: "Not your persona." });
+
+  // Load user profile for BYOK keys + ai_mode
+  const { data: profile } = await sb
+    .from("profiles")
+    .select("ai_mode, byok_openai_key, byok_anthropic_key, byok_deepseek_key")
+    .eq("id", userId)
+    .single();
+
+  // Get or create conversation
+  let convId = conversationId;
+  if (!convId) {
+    const { data: newConv, error: convErr } = await sb
+      .from("conversations")
+      .insert({
+        persona_id: personaId,
+        owner_user_id: userId,
+        title: `${persona.name} — ${new Date().toLocaleDateString("en-GB")}`,
+        mode: "private",
+      })
+      .select("id")
+      .single();
+
+    if (convErr || !newConv) return res.status(500).json({ error: "Could not create conversation." });
+    convId = newConv.id;
   }
 
-  const existing = conversationMessages[conversation.id] || [];
-  existing.push({ id: `msg-${existing.length + 1}`, role: "user", content: parsed.content, createdAt: new Date().toISOString() });
+  // Load existing messages for this conversation (last 20 turns)
+  const { data: history } = await sb
+    .from("conversation_messages")
+    .select("role, content")
+    .eq("conversation_id", convId)
+    .order("created_at", { ascending: true })
+    .limit(20);
 
-  const continuity = selectContinuityContext({
-    canon: canonItems.filter((item) => item.personaId === persona.id),
-    memory: memoryItems.filter((item) => item.personaId === persona.id),
-    query: parsed.content,
+  // Save the user message
+  await sb.from("conversation_messages").insert({
+    conversation_id: convId,
+    role: "user",
+    content,
   });
 
-  const system = buildPersonaChatPrompt({
-    name: persona.name,
-    shortDescription: persona.shortDescription || "",
-    visibility: persona.visibility,
-    canon: continuity.canon.map((item) => item.content),
-    memory: continuity.memory.map((item) => item.summary || item.content),
+  // Build RAG system prompt
+  const { systemPrompt, canonCount, memoryCount } = await buildPersonaContext({
+    supabase: sb,
+    persona: {
+      id: persona.id,
+      name: persona.name,
+      shortDescription: persona.short_description,
+      longDescription: persona.long_description,
+      visibility: persona.visibility as "private" | "public",
+      awakeningPrompt: persona.awakening_prompt,
+      styleNotes: persona.style_notes,
+    },
+    userQuery: content,
+    embeddingApiKey: profile?.byok_openai_key ?? env.OPENAI_API_KEY,
   });
 
-  const response = await provider.sendMessage({
-    system,
-    messages: existing.map((message) => ({ role: message.role, content: message.content })),
+  // Resolve provider
+  const provider = resolveProvider({
+    provider: persona.provider as "platform" | "openai" | "anthropic" | "deepseek" | "gemini",
+    aiMode: (profile?.ai_mode ?? "platform") as "platform" | "byok",
+    byokOpenaiKey: profile?.byok_openai_key,
+    byokAnthropicKey: profile?.byok_anthropic_key,
+    byokDeepseekKey: profile?.byok_deepseek_key,
+    platformDeepseekKey: env.DEEPSEEK_API_KEY,
+    platformDeepseekBaseUrl: env.DEEPSEEK_BASE_URL,
+    platformDeepseekModel: env.DEEPSEEK_MODEL,
   });
 
-  const assistantMessage = {
-    id: `msg-${existing.length + 1}`,
-    role: "assistant" as const,
-    content: response.content,
-    createdAt: new Date().toISOString(),
-  };
+  // Send to LLM
+  const messages = [
+    ...(history ?? []).map((m) => ({ role: m.role as "user" | "assistant", content: m.content })),
+    { role: "user" as const, content },
+  ];
 
-  existing.push(assistantMessage);
-  conversationMessages[conversation.id] = existing;
+  const aiResponse = await provider.sendMessage({ system: systemPrompt, messages });
 
-  res.json({ conversation, reply: assistantMessage, messages: existing });
+  // Save assistant reply
+  const { data: savedReply } = await sb
+    .from("conversation_messages")
+    .insert({
+      conversation_id: convId,
+      role: "assistant",
+      content: aiResponse.content,
+      provider_used: aiResponse.model,
+    })
+    .select("id, role, content, provider_used, created_at")
+    .single();
+
+  // Touch conversation updated_at
+  await sb
+    .from("conversations")
+    .update({ updated_at: new Date().toISOString() })
+    .eq("id", convId);
+
+  return res.json({
+    conversationId: convId,
+    reply: savedReply,
+    _debug: { canonCount, memoryCount, provider: aiResponse.model },
+  });
 });
 
+// ── Save last assistant message as memory ─────────────────────────────────────
+conversationsRouter.post("/:conversationId/save-memory", async (req, res) => {
+  const parsed = saveMemorySchema.safeParse(req.body);
+  if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
 
-conversationsRouter.post("/:conversationId/save-memory", (req, res) => {
-  const conversation = conversations.find((item) => item.id === req.params.conversationId);
-  if (!conversation) return res.status(404).json({ error: "Conversation not found" });
-  const messages = conversationMessages[conversation.id] || [];
-  const lastAssistant = [...messages].reverse().find((m) => m.role === "assistant");
-  if (!lastAssistant) return res.status(400).json({ error: "No assistant message available to save." });
-  const item = {
-    id: `mem-${memoryItems.length + 1}`,
-    personaId: conversation.personaId,
-    title: "Saved from chat",
-    content: lastAssistant.content,
-    summary: lastAssistant.content.slice(0, 200),
-    sourceType: "chat" as const,
-    relevanceWeight: 1.25,
-    createdAt: new Date().toISOString(),
-  };
-  memoryItems.unshift(item);
+  const sb = getSupabaseAdmin();
+  const userId = req.user!.id;
+
+  const { data: conv } = await sb
+    .from("conversations")
+    .select("persona_id, owner_user_id")
+    .eq("id", req.params.conversationId)
+    .single();
+
+  if (!conv || conv.owner_user_id !== userId) return res.status(403).json({ error: "Not authorised." });
+
+  const { data: message } = await sb
+    .from("conversation_messages")
+    .select("content, role")
+    .eq("id", parsed.data.messageId)
+    .eq("conversation_id", req.params.conversationId)
+    .single();
+
+  if (!message || message.role !== "assistant") {
+    return res.status(400).json({ error: "Message not found or not an assistant message." });
+  }
+
+  const item = await saveMessageAsMemory({
+    conversationId: req.params.conversationId,
+    personaId: conv.persona_id,
+    ownerUserId: userId,
+    content: message.content,
+    relevanceWeight: parsed.data.relevanceWeight,
+  });
+
   return res.status(201).json({ memoryItem: item });
 });
 
-conversationsRouter.post("/:conversationId/save-canon", (req, res) => {
-  const conversation = conversations.find((item) => item.id === req.params.conversationId);
-  if (!conversation) return res.status(404).json({ error: "Conversation not found" });
-  const messages = conversationMessages[conversation.id] || [];
-  const lastAssistant = [...messages].reverse().find((m) => m.role === "assistant");
-  if (!lastAssistant) return res.status(400).json({ error: "No assistant message available to save." });
-  const item = {
-    id: `can-${canonItems.length + 1}`,
-    personaId: conversation.personaId,
-    title: "Saved from chat",
-    content: lastAssistant.content,
-    sourceType: "chat" as const,
-    priority: 2,
-    createdAt: new Date().toISOString(),
-  };
-  canonItems.unshift(item);
-  return res.status(201).json({ canonItem: item });
+// ── Save last assistant message as canon ──────────────────────────────────────
+conversationsRouter.post("/:conversationId/save-canon", async (req, res) => {
+  const parsed = saveCanonSchema.safeParse(req.body);
+  if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
+
+  const sb = getSupabaseAdmin();
+  const userId = req.user!.id;
+
+  const { data: conv } = await sb
+    .from("conversations")
+    .select("persona_id, owner_user_id")
+    .eq("id", req.params.conversationId)
+    .single();
+
+  if (!conv || conv.owner_user_id !== userId) return res.status(403).json({ error: "Not authorised." });
+
+  const { data: message } = await sb
+    .from("conversation_messages")
+    .select("content, role")
+    .eq("id", parsed.data.messageId)
+    .eq("conversation_id", req.params.conversationId)
+    .single();
+
+  if (!message || message.role !== "assistant") {
+    return res.status(400).json({ error: "Message not found or not an assistant message." });
+  }
+
+  const { data: canon, error } = await sb
+    .from("canon_items")
+    .insert({
+      persona_id: conv.persona_id,
+      owner_user_id: userId,
+      title: parsed.data.title ?? "Saved from chat",
+      content: message.content,
+      source_type: "chat",
+      priority: parsed.data.priority ?? 2,
+    })
+    .select("*")
+    .single();
+
+  if (error) return res.status(500).json({ error: error.message });
+  return res.status(201).json({ canonItem: canon });
+});
+
+// ── Delete a conversation ─────────────────────────────────────────────────────
+conversationsRouter.delete("/:conversationId", async (req, res) => {
+  const sb = getSupabaseAdmin();
+  const userId = req.user!.id;
+
+  const { error } = await sb
+    .from("conversations")
+    .delete()
+    .eq("id", req.params.conversationId)
+    .eq("owner_user_id", userId);
+
+  if (error) return res.status(500).json({ error: error.message });
+  return res.status(204).send();
 });
