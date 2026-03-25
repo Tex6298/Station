@@ -150,7 +150,7 @@ export function TopNav() {
                   </div>
                 </div>
 
-                {[["/studio", "Studio"], ["/space", "My Space"], ["/billing", "Billing"]].map(([href, label]) => (
+                {[["/studio", "Studio"], ["/space", "My Space"], ["/billing", "Billing"], ["/settings", "Settings"]].map(([href, label]) => (
                   <Link key={href} href={href} onClick={() => setMenuOpen(false)} style={{
                     display: "block", padding: "0.45rem 0.75rem", borderRadius: 7,
                     fontSize: "0.85rem", textDecoration: "none", color: "#ccc",

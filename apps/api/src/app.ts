@@ -18,6 +18,7 @@ import { forumsRouter } from "./routes/forums";
 import { threadsRouter } from "./routes/threads";
 import { commentsRouter } from "./routes/comments";
 import { reportsRouter } from "./routes/reports";
+import { socialRouter } from "./routes/social";
 
 export function createApp() {
   const app = express();
@@ -50,6 +51,7 @@ export function createApp() {
   app.use("/threads", threadsRouter);
   app.use("/comments", commentsRouter);
   app.use("/reports", reportsRouter);
+  app.use("/social", socialRouter);
 
   app.use(errorHandler);
   return app;

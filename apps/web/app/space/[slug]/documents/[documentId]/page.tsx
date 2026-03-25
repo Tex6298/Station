@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { apiGet, apiPost } from "@/lib/api-client";
 import { getSession } from "@/lib/auth";
+import { PostComposer } from "@/components/social/post-composer";
 
 interface Document {
   id: string; title: string; slug: string; body: string | null;
@@ -20,12 +21,13 @@ const DOC_TYPE_LABELS: Record<string, string> = {
 
 export default function DocumentPage() {
   const { slug, documentId } = useParams<{ slug: string; documentId: string }>();
-  const [doc, setDoc]         = useState<Document | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [isOwner, setIsOwner] = useState(false);
+  const [doc, setDoc]               = useState<Document | null>(null);
+  const [loading, setLoading]       = useState(true);
+  const [isOwner, setIsOwner]       = useState(false);
   const [publishing, setPublishing] = useState(false);
-  const [error, setError]     = useState<string | null>(null);
-  const [token, setToken]     = useState<string | null>(null);
+  const [showComposer, setShowComposer] = useState(false);
+  const [error, setError]           = useState<string | null>(null);
+  const [token, setToken]           = useState<string | null>(null);
 
   useEffect(() => {
     if (!documentId) return;
@@ -90,14 +92,40 @@ export default function DocumentPage() {
             </span>
           )}
         </div>
-        <h1 style={{ margin: "0 0 0.5rem", fontSize: "1.9rem", lineHeight: 1.2 }}>{doc.title}</h1>
-        {isOwner && doc.status !== "published" && (
-          <button onClick={handlePublish} disabled={publishing}
-            style={{ marginTop: "0.75rem", padding: "0.45rem 1rem", background: "#7c6af7", border: "none", borderRadius: 7, color: "#fff", cursor: "pointer", fontSize: "0.825rem" }}>
-            {publishing ? "Publishing…" : "Publish now"}
-          </button>
+
+        <h1 style={{ margin: "0 0 0.75rem", fontSize: "1.9rem", lineHeight: 1.2 }}>{doc.title}</h1>
+
+        {isOwner && (
+          <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
+            {doc.status !== "published" && (
+              <button onClick={handlePublish} disabled={publishing}
+                style={{ padding: "0.4rem 0.9rem", background: "#7c6af7", border: "none", borderRadius: 7, color: "#fff", cursor: "pointer", fontSize: "0.82rem" }}>
+                {publishing ? "Publishing…" : "Publish"}
+              </button>
+            )}
+            <button
+              onClick={() => setShowComposer((v) => !v)}
+              style={{ padding: "0.4rem 0.9rem", background: "transparent", border: "1px solid #334155", borderRadius: 7, color: "#aaa", cursor: "pointer", fontSize: "0.82rem", display: "flex", alignItems: "center", gap: "0.35rem" }}
+            >
+              📡 Share to socials
+            </button>
+          </div>
         )}
       </div>
+
+      {/* Social composer panel */}
+      {showComposer && (
+        <div className="card" style={{ marginBottom: "1.5rem" }}>
+          <div style={{ fontSize: "0.72rem", color: "#888", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: "0.85rem" }}>
+            Share to social media
+          </div>
+          <PostComposer
+            documentId={doc.id}
+            documentTitle={doc.title}
+            onClose={() => setShowComposer(false)}
+          />
+        </div>
+      )}
 
       <div style={{ lineHeight: 1.85, fontSize: "1rem", color: "#d1d5db", whiteSpace: "pre-wrap" }}>
         {doc.body ?? <span style={{ color: "#555", fontStyle: "italic" }}>No content yet.</span>}
