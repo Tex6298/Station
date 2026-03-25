@@ -8,16 +8,22 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@station/ai":    "workspace:*",
+    "@station/auth":  "workspace:*",
+    "@station/db":    "workspace:*",
+    "@station/types": "workspace:*",
     "@supabase/supabase-js": "^2.45.0",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
+    "jsonwebtoken": "^9.0.2",
     "stripe": "^16.0.0",
     "zod": "^3.23.8"
   },
   "devDependencies": {
     "@types/cors": "^2.8.17",
     "@types/express": "^5.0.0",
+    "@types/jsonwebtoken": "^9.0.6",
     "tsx": "^4.16.2"
   }
 }
