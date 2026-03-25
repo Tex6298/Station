@@ -1,31 +1,49 @@
+export type PersonaProvider = "platform" | "openai" | "anthropic" | "deepseek" | "gemini";
+export type PersonaVisibility = "private" | "public";
+
 export interface PersonaSummary {
   id: string;
   name: string;
-  shortDescription?: string;
-  visibility: "private" | "public";
+  shortDescription?: string | null;
+  visibility: PersonaVisibility;
+  provider: PersonaProvider;
+  avatarUrl?: string | null;
+  sortOrder?: number;
+  createdAt?: string;
+}
+
+export interface Persona extends PersonaSummary {
+  ownerUserId: string;
+  longDescription?: string | null;
+  awakeningPrompt?: string | null;
+  styleNotes?: string | null;
+  updatedAt?: string;
 }
 
 export interface Conversation {
   id: string;
   personaId: string;
-  title?: string;
+  title?: string | null;
   mode: "private" | "public";
   createdAt: string;
+  updatedAt?: string;
 }
 
 export interface ConversationMessage {
   id: string;
+  conversationId?: string;
   role: "system" | "user" | "assistant";
   content: string;
+  providerUsed?: string | null;
   createdAt: string;
 }
 
 export interface MemoryItem {
   id: string;
   personaId: string;
-  title?: string;
+  title?: string | null;
   content: string;
-  summary?: string;
+  summary?: string | null;
   sourceType: "chat" | "import" | "document" | "calibration" | "manual";
   relevanceWeight?: number;
   createdAt: string;
@@ -34,7 +52,7 @@ export interface MemoryItem {
 export interface CanonItem {
   id: string;
   personaId: string;
-  title?: string;
+  title?: string | null;
   content: string;
   sourceType: "chat" | "import" | "document" | "calibration" | "manual";
   priority?: number;
@@ -45,9 +63,11 @@ export interface PersonaFile {
   id: string;
   personaId: string;
   fileName: string;
-  fileType?: string;
+  fileType?: string | null;
+  fileSize?: number | null;
   storagePath: string;
   sourceType: "upload" | "import" | "calibration" | "generated";
+  processed?: boolean;
   createdAt: string;
 }
 
@@ -57,9 +77,10 @@ export interface ImportJob {
   kind: "file" | "chat";
   status: "queued" | "processing" | "completed" | "failed";
   sourceName: string;
+  errorMessage?: string | null;
   createdAt: string;
+  updatedAt?: string;
 }
-
 
 export interface CalibrationSession {
   id: string;
