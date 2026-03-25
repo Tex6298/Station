@@ -1,38 +1,107 @@
+"use client";
 
-import { notFound } from "next/navigation";
-import { mockComments, mockDocuments, mockPersonas, mockSpaces } from "@/lib/mock-data";
+import { useEffect, useState } from "react";
+import Link from "next/link";
+import { useParams } from "next/navigation";
+import { apiGet, apiPost } from "@/lib/api-client";
+import { getSession } from "@/lib/auth";
 
-export default function DocumentDetailPage({ params }: { params: { slug: string; documentId: string } }) {
-  const space = mockSpaces.find((item) => item.slug === params.slug);
-  const document = mockDocuments.find((item) => item.id === params.documentId && item.spaceId === space?.id);
-  if (!space || !document) return notFound();
-  const persona = document.personaId ? mockPersonas.find((item) => item.id === document.personaId) : null;
-  const comments = mockComments.filter((item) => item.parentType === 'document' && item.parentId === document.id);
+interface Document {
+  id: string; title: string; slug: string; body: string | null;
+  document_type: string; status: string; visibility: string;
+  published_at: string | null; author_user_id: string;
+  persona_id: string | null; space_id: string | null;
+}
+
+const DOC_TYPE_LABELS: Record<string, string> = {
+  post: "Post", essay: "Essay", manifesto: "Manifesto",
+  constitution: "Constitution", update: "Update", other: "Other",
+};
+
+export default function DocumentPage() {
+  const { slug, documentId } = useParams<{ slug: string; documentId: string }>();
+  const [doc, setDoc]         = useState<Document | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [isOwner, setIsOwner] = useState(false);
+  const [publishing, setPublishing] = useState(false);
+  const [error, setError]     = useState<string | null>(null);
+  const [token, setToken]     = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!documentId) return;
+    getSession().then(async (session) => {
+      if (session) setToken(session.access_token);
+      try {
+        const data = await apiGet<{ document: Document }>(
+          `/documents/${documentId}`,
+          session?.access_token
+        );
+        setDoc(data.document);
+        if (session && data.document.author_user_id) setIsOwner(true);
+      } catch {
+        try {
+          const data = await apiGet<{ document: Document }>(`/documents/public/${documentId}`);
+          setDoc(data.document);
+        } catch (e) {
+          setError(e instanceof Error ? e.message : "Document not found.");
+        }
+      }
+      setLoading(false);
+    });
+  }, [documentId]);
+
+  async function handlePublish() {
+    if (!token || !doc) return;
+    setPublishing(true);
+    try {
+      const data = await apiPost<{ document: Document }>(`/documents/${doc.id}/publish`, {}, token);
+      setDoc(data.document);
+    } catch { /* silent */ }
+    finally { setPublishing(false); }
+  }
+
+  if (loading) return <main className="container"><div className="card" style={{ textAlign: "center", padding: "3rem", color: "#555" }}>Loading…</div></main>;
+  if (error || !doc) return <main className="container"><div className="card" style={{ background: "#2d1515", borderColor: "#7d2e2e", color: "#eb5757" }}>{error ?? "Not found."}</div></main>;
 
   return (
-    <main style={{ padding: 24, display: 'grid', gap: 20, maxWidth: 900 }}>
-      <div>
-        <div style={{ color: '#666', fontSize: 14 }}>{space.title}</div>
-        <h1 style={{ fontSize: 32 }}>{document.title}</h1>
-        <div style={{ color: '#666' }}>{document.documentType} · {document.status} · {document.visibility}</div>
-        {persona ? <div style={{ marginTop: 8 }}>Linked persona: {persona.name}</div> : null}
+    <main className="container" style={{ maxWidth: 720 }}>
+      <div style={{ fontSize: "0.78rem", color: "#555", marginBottom: "1.5rem" }}>
+        <Link href="/space" style={{ color: "#666" }}>Spaces</Link>{" › "}
+        <Link href={"/space/" + slug} style={{ color: "#666" }}>{slug}</Link>{" › "}
+        <span style={{ color: "#aaa" }}>{doc.title}</span>
       </div>
-      <article style={{ whiteSpace: 'pre-wrap', lineHeight: 1.6 }}>{document.body}</article>
-      <section>
-        <h2 style={{ fontSize: 22 }}>Comments</h2>
-        {document.commentsEnabled ? (
-          <div style={{ display: 'grid', gap: 12 }}>
-            {comments.map((comment) => (
-              <div key={comment.id} style={{ border: '1px solid #ddd', borderRadius: 12, padding: 16 }}>
-                <div>{comment.body}</div>
-                <div style={{ color: '#666', fontSize: 12, marginTop: 8 }}>Score {comment.score}</div>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <p style={{ color: '#666' }}>Comments are disabled for this document.</p>
+
+      <div style={{ marginBottom: "1.75rem" }}>
+        <div style={{ display: "flex", gap: "0.5rem", alignItems: "center", marginBottom: "0.65rem", flexWrap: "wrap" }}>
+          <span style={{ fontSize: "0.72rem", color: "#555", background: "#111827", border: "1px solid #1f2937", borderRadius: 999, padding: "0.1rem 0.45rem" }}>
+            {DOC_TYPE_LABELS[doc.document_type] ?? doc.document_type}
+          </span>
+          <span style={{
+            fontSize: "0.72rem", padding: "0.1rem 0.45rem", borderRadius: 999,
+            background: doc.status === "published" ? "#0f2d1a" : "#1a1a2e",
+            border: "1px solid " + (doc.status === "published" ? "#2e7d4f" : "#2a2a5a"),
+            color: doc.status === "published" ? "#6fcf97" : "#7c6af7",
+          }}>
+            {doc.status}
+          </span>
+          {doc.published_at && (
+            <span style={{ fontSize: "0.72rem", color: "#555" }}>
+              {new Date(doc.published_at).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })}
+            </span>
+          )}
+        </div>
+        <h1 style={{ margin: "0 0 0.5rem", fontSize: "1.9rem", lineHeight: 1.2 }}>{doc.title}</h1>
+        {isOwner && doc.status !== "published" && (
+          <button onClick={handlePublish} disabled={publishing}
+            style={{ marginTop: "0.75rem", padding: "0.45rem 1rem", background: "#7c6af7", border: "none", borderRadius: 7, color: "#fff", cursor: "pointer", fontSize: "0.825rem" }}>
+            {publishing ? "Publishing…" : "Publish now"}
+          </button>
         )}
-      </section>
+      </div>
+
+      <div style={{ lineHeight: 1.85, fontSize: "1rem", color: "#d1d5db", whiteSpace: "pre-wrap" }}>
+        {doc.body ?? <span style={{ color: "#555", fontStyle: "italic" }}>No content yet.</span>}
+      </div>
     </main>
   );
 }
