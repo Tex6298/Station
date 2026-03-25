@@ -51,6 +51,21 @@ export async function signIn(email: string, password: string) {
 }
 
 /**
+ * Sign up with email + password + display name.
+ * Creates the Supabase auth user; the DB trigger auto-creates the profile row.
+ */
+export async function signUp(email: string, password: string, displayName: string) {
+  const sb = getSupabaseClient();
+  const { data, error } = await sb.auth.signUp({
+    email,
+    password,
+    options: { data: { display_name: displayName } },
+  });
+  if (error) throw new Error(error.message);
+  return data.session;
+}
+
+/**
  * Sign out the current user.
  */
 export async function signOut() {
