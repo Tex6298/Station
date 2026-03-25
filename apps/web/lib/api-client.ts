@@ -1,7 +1,73 @@
-const API_URL = process.env.API_URL || process.env.NEXT_PUBLIC_APP_URL || "http://localhost:4000";
+const API_URL =
+  process.env.NEXT_PUBLIC_API_URL ??
+  process.env.API_URL ??
+  "http://localhost:4000";
 
-export async function apiGet<T>(path: string): Promise<T> {
-  const response = await fetch(`${API_URL}${path}`, { cache: "no-store" });
-  if (!response.ok) throw new Error(`GET ${path} failed`);
-  return response.json();
+// ── Generic helpers ───────────────────────────────────────────────────────────
+
+async function request<T>(
+  path: string,
+  options: RequestInit = {},
+  token?: string
+): Promise<T> {
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+    ...(options.headers as Record<string, string>),
+  };
+  if (token) headers["Authorization"] = `Bearer ${token}`;
+
+  const res = await fetch(`${API_URL}${path}`, {
+    ...options,
+    headers,
+    cache: "no-store",
+  });
+
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}));
+    throw new Error(body?.error ?? `${options.method ?? "GET"} ${path} failed (${res.status})`);
+  }
+
+  if (res.status === 204) return undefined as T;
+  return res.json();
+}
+
+export function apiGet<T>(path: string, token?: string): Promise<T> {
+  return request<T>(path, { method: "GET" }, token);
+}
+
+export function apiPost<T>(path: string, body: unknown, token?: string): Promise<T> {
+  return request<T>(path, { method: "POST", body: JSON.stringify(body) }, token);
+}
+
+export function apiPatch<T>(path: string, body: unknown, token?: string): Promise<T> {
+  return request<T>(path, { method: "PATCH", body: JSON.stringify(body) }, token);
+}
+
+export function apiDelete<T>(path: string, token?: string): Promise<T> {
+  return request<T>(path, { method: "DELETE" }, token);
+}
+
+// ── Billing ───────────────────────────────────────────────────────────────────
+
+export interface BillingStatus {
+  tier: string;
+  subscriptionId: string | null;
+  subscriptionStatus: string | null;
+  customerId: string | null;
+}
+
+export async function getBillingStatus(token: string): Promise<BillingStatus> {
+  return apiGet<BillingStatus>("/billing/me", token);
+}
+
+export async function createCheckoutSession(
+  token: string,
+  tier: "private" | "creator" | "canon",
+  interval: "monthly" | "yearly" = "monthly"
+): Promise<{ url: string }> {
+  return apiPost<{ url: string }>("/billing/checkout", { tier, interval }, token);
+}
+
+export async function createPortalSession(token: string): Promise<{ url: string }> {
+  return apiPost<{ url: string }>("/billing/portal", {}, token);
 }

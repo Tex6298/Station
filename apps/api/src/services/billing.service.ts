@@ -1,1 +1,262 @@
-export {};
+import type Stripe from "stripe";
+import { getStripe } from "../lib/stripe";
+import { getSupabaseAdmin } from "../lib/supabase";
+import type { Tier } from "@station/db";
+
+// ── Price ID helpers ──────────────────────────────────────────────────────────
+
+/**
+ * Stripe Price IDs are configured in the dashboard and stored as env vars.
+ * Create products + prices at https://dashboard.stripe.com/products
+ * then set these environment variables.
+ */
+function getPriceId(tier: "private" | "creator" | "canon", interval: "monthly" | "yearly"): string {
+  const map: Record<string, string | undefined> = {
+    private_monthly:  process.env.STRIPE_PRICE_SEEKER_MONTHLY,
+    private_yearly:   process.env.STRIPE_PRICE_SEEKER_YEARLY,
+    creator_monthly:  process.env.STRIPE_PRICE_KEEPER_MONTHLY,
+    creator_yearly:   process.env.STRIPE_PRICE_KEEPER_YEARLY,
+    canon_monthly:    process.env.STRIPE_PRICE_CANON_MONTHLY,
+    canon_yearly:     process.env.STRIPE_PRICE_CANON_YEARLY,
+  };
+
+  const key = `${tier}_${interval}`;
+  const priceId = map[key];
+  if (!priceId) {
+    throw new Error(
+      `Stripe price ID not configured for ${tier} ${interval}. ` +
+      `Set STRIPE_PRICE_${tier.toUpperCase()}_${interval.toUpperCase()} in your environment.`
+    );
+  }
+  return priceId;
+}
+
+/**
+ * Maps a Stripe Price ID back to a Station tier.
+ * Used in webhook handlers to determine which tier to grant.
+ */
+function tierFromPriceId(priceId: string): Tier {
+  const seeker  = [process.env.STRIPE_PRICE_SEEKER_MONTHLY, process.env.STRIPE_PRICE_SEEKER_YEARLY];
+  const keeper  = [process.env.STRIPE_PRICE_KEEPER_MONTHLY, process.env.STRIPE_PRICE_KEEPER_YEARLY];
+  const canon   = [process.env.STRIPE_PRICE_CANON_MONTHLY,  process.env.STRIPE_PRICE_CANON_YEARLY];
+
+  if (seeker.includes(priceId)) return "private";
+  if (keeper.includes(priceId)) return "creator";
+  if (canon.includes(priceId))  return "canon";
+  return "visitor";
+}
+
+// ── Customer management ───────────────────────────────────────────────────────
+
+/**
+ * Gets the Stripe customer ID for a user, or creates one if it doesn't exist.
+ */
+export async function getOrCreateCustomer(userId: string, email: string): Promise<string> {
+  const sb = getSupabaseAdmin();
+
+  const { data: profile } = await sb
+    .from("profiles")
+    .select("stripe_customer_id")
+    .eq("id", userId)
+    .single();
+
+  if (profile?.stripe_customer_id) return profile.stripe_customer_id;
+
+  const stripe = getStripe();
+  const customer = await stripe.customers.create({
+    email,
+    metadata: { station_user_id: userId },
+  });
+
+  await sb
+    .from("profiles")
+    .update({ stripe_customer_id: customer.id })
+    .eq("id", userId);
+
+  return customer.id;
+}
+
+// ── Checkout + portal ─────────────────────────────────────────────────────────
+
+/**
+ * Creates a Stripe Checkout session for upgrading to a paid tier.
+ */
+export async function createCheckoutSession(input: {
+  userId: string;
+  email: string;
+  tier: "private" | "creator" | "canon";
+  interval: "monthly" | "yearly";
+  successUrl: string;
+  cancelUrl: string;
+}): Promise<string> {
+  const stripe = getStripe();
+  const customerId = await getOrCreateCustomer(input.userId, input.email);
+  const priceId = getPriceId(input.tier, input.interval);
+
+  const session = await stripe.checkout.sessions.create({
+    customer: customerId,
+    mode: "subscription",
+    payment_method_types: ["card"],
+    line_items: [{ price: priceId, quantity: 1 }],
+    success_url: input.successUrl,
+    cancel_url: input.cancelUrl,
+    subscription_data: {
+      metadata: {
+        station_user_id: input.userId,
+        station_tier: input.tier,
+      },
+    },
+    metadata: {
+      station_user_id: input.userId,
+      station_tier: input.tier,
+    },
+  });
+
+  return session.url!;
+}
+
+/**
+ * Creates a Stripe Customer Portal session so users can manage or cancel.
+ */
+export async function createPortalSession(input: {
+  userId: string;
+  email: string;
+  returnUrl: string;
+}): Promise<string> {
+  const stripe = getStripe();
+  const customerId = await getOrCreateCustomer(input.userId, input.email);
+
+  const session = await stripe.billingPortal.sessions.create({
+    customer: customerId,
+    return_url: input.returnUrl,
+  });
+
+  return session.url;
+}
+
+// ── Subscription sync ─────────────────────────────────────────────────────────
+
+/**
+ * Syncs a Stripe subscription to the matching user's profile tier.
+ * Called from webhook handlers.
+ */
+export async function syncSubscriptionToProfile(subscription: Stripe.Subscription): Promise<void> {
+  const sb = getSupabaseAdmin();
+
+  const userId = subscription.metadata?.station_user_id;
+  if (!userId) {
+    // Fall back to looking up by customer ID
+    const { data: profile } = await sb
+      .from("profiles")
+      .select("id")
+      .eq("stripe_customer_id", subscription.customer as string)
+      .single();
+    if (!profile) return;
+  }
+
+  const targetUserId = userId ?? (
+    await sb
+      .from("profiles")
+      .select("id")
+      .eq("stripe_customer_id", subscription.customer as string)
+      .single()
+  ).data?.id;
+
+  if (!targetUserId) return;
+
+  const isActive = ["active", "trialing"].includes(subscription.status);
+  const priceId  = subscription.items.data[0]?.price.id ?? "";
+  const tier: Tier = isActive ? tierFromPriceId(priceId) : "visitor";
+
+  await sb
+    .from("profiles")
+    .update({
+      tier,
+      stripe_subscription_id: subscription.id,
+      subscription_status: subscription.status,
+    })
+    .eq("id", targetUserId);
+}
+
+// ── Webhook event handler ─────────────────────────────────────────────────────
+
+/**
+ * Validates and processes an incoming Stripe webhook event.
+ * Returns the event type for logging.
+ */
+export async function handleWebhookEvent(
+  rawBody: Buffer,
+  signature: string
+): Promise<string> {
+  const stripe = getStripe();
+  const secret = process.env.STRIPE_WEBHOOK_SECRET;
+
+  if (!secret) throw new Error("STRIPE_WEBHOOK_SECRET is not set.");
+
+  let event: Stripe.Event;
+  try {
+    event = stripe.webhooks.constructEvent(rawBody, signature, secret);
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : "Webhook signature invalid.";
+    throw new Error(`Webhook verification failed: ${msg}`);
+  }
+
+  switch (event.type) {
+    case "checkout.session.completed": {
+      const session = event.data.object as Stripe.Checkout.Session;
+      if (session.mode === "subscription" && session.subscription) {
+        const subscription = await stripe.subscriptions.retrieve(
+          session.subscription as string
+        );
+        await syncSubscriptionToProfile(subscription);
+      }
+      break;
+    }
+
+    case "customer.subscription.created":
+    case "customer.subscription.updated": {
+      const subscription = event.data.object as Stripe.Subscription;
+      await syncSubscriptionToProfile(subscription);
+      break;
+    }
+
+    case "customer.subscription.deleted": {
+      const subscription = event.data.object as Stripe.Subscription;
+      // Downgrade to visitor on cancellation
+      await syncSubscriptionToProfile({ ...subscription, status: "canceled" });
+      break;
+    }
+
+    // Silently ignore other event types
+    default:
+      break;
+  }
+
+  return event.type;
+}
+
+// ── Status query ──────────────────────────────────────────────────────────────
+
+export interface BillingStatus {
+  tier: Tier;
+  subscriptionId: string | null;
+  subscriptionStatus: string | null;
+  customerId: string | null;
+}
+
+export async function getBillingStatus(userId: string): Promise<BillingStatus> {
+  const sb = getSupabaseAdmin();
+
+  const { data: profile } = await sb
+    .from("profiles")
+    .select("tier, stripe_subscription_id, subscription_status, stripe_customer_id")
+    .eq("id", userId)
+    .single();
+
+  return {
+    tier: (profile?.tier ?? "visitor") as Tier,
+    subscriptionId: profile?.stripe_subscription_id ?? null,
+    subscriptionStatus: profile?.subscription_status ?? null,
+    customerId: profile?.stripe_customer_id ?? null,
+  };
+}
