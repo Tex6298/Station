@@ -18,8 +18,8 @@ import type {
 const now = new Date().toISOString();
 
 export const mockPersonas: PersonaSummary[] = [
-  { id: "persona-1", name: "Station", shortDescription: "A calm, reflective continuity persona.", visibility: "public" },
-  { id: "persona-2", name: "Harbor", shortDescription: "A more analytical persona used for drafts.", visibility: "private" },
+  { id: "persona-1", name: "Station", shortDescription: "A calm, reflective continuity persona.", visibility: "public", provider: "anthropic" },
+  { id: "persona-2", name: "Harbor", shortDescription: "A more analytical persona used for drafts.", visibility: "private", provider: "openai" },
 ];
 
 export const mockSpaces: SpaceRecord[] = [

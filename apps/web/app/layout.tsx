@@ -1,6 +1,11 @@
 import "./globals.css";
 import type { Metadata } from "next";
-import { TopNav } from "@/components/nav/top-nav";
+import dynamic from "next/dynamic";
+
+const TopNav = dynamic(() => import("@/components/nav/top-nav").then((m) => m.TopNav), {
+  ssr: false,
+  loading: () => <nav style={{ height: 52 }} />,
+});
 
 export const metadata: Metadata = {
   title: "Station",

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { apiGet, apiPost, apiDelete, apiPatch } from "@/lib/api-client";
 import { getSession } from "@/lib/auth";
@@ -28,7 +28,7 @@ const CHAR_LIMITS: Record<string, number> = {
   linkedin: 3000, reddit: 40000, wordpress: 0, ghost: 0,
 };
 
-export default function SocialSettingsPage() {
+function SocialSettingsContent() {
   const searchParams = useSearchParams();
   const [connections, setConnections] = useState<Connection[]>([]);
   const [loading, setLoading]         = useState(true);
@@ -280,5 +280,13 @@ export default function SocialSettingsPage() {
         })}
       </div>
     </main>
+  );
+}
+
+export default function SocialSettingsPage() {
+  return (
+    <Suspense fallback={<main className="container"><div className="card" style={{ padding: "3rem", textAlign: "center", color: "#555" }}>Loading…</div></main>}>
+      <SocialSettingsContent />
+    </Suspense>
   );
 }
