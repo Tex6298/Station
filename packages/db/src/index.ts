@@ -1,7 +1,7 @@
 import { createClient } from "@supabase/supabase-js";
 import type { Database } from "./types";
 
-export type { Database } from "./types";
+export type { Database, Tier } from "./types";
 
 /**
  * Server-side Supabase client (uses service role key — never expose to browser).

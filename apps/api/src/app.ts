@@ -19,6 +19,7 @@ import { threadsRouter } from "./routes/threads";
 import { commentsRouter } from "./routes/comments";
 import { reportsRouter } from "./routes/reports";
 import { socialRouter } from "./routes/social";
+import { developerSpacesRouter } from "./routes/developer-spaces";
 
 export function createApp() {
   const app = express();
@@ -52,6 +53,7 @@ export function createApp() {
   app.use("/comments", commentsRouter);
   app.use("/reports", reportsRouter);
   app.use("/social", socialRouter);
+  app.use("/developer-spaces", developerSpacesRouter);
 
   app.use(errorHandler);
   return app;

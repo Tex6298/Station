@@ -11,6 +11,11 @@ export type DocumentVisibility = "private" | "public" | "members";
 export type DocumentStatus = "draft" | "published" | "archived";
 export type DocumentType = "post" | "essay" | "manifesto" | "constitution" | "update" | "other";
 export type Provider = "platform" | "openai" | "anthropic" | "deepseek" | "gemini";
+export type DeveloperSpaceVisibility = "private" | "unlisted" | "community" | "public";
+export type DeveloperSpaceVisualisationType = "node_field" | "timeline" | "world_map" | "constellation";
+export type DeveloperSpaceTopologyType = "radial" | "branching" | "lattice" | "custom";
+export type DeveloperSpaceEventVisibility = "private" | "community" | "public";
+export type DeveloperSpaceEventProvenance = "api" | "imported" | "user" | "system" | "ai_generated";
 
 export interface Database {
   public: {
@@ -222,6 +227,90 @@ export interface Database {
           updated_at?: string;
         };
         Update: Partial<Database["public"]["Tables"]["threads"]["Insert"]>;
+      };
+      developer_spaces: {
+        Row: {
+          id: string;
+          owner_user_id: string;
+          project_name: string;
+          slug: string;
+          description: string | null;
+          visibility: DeveloperSpaceVisibility;
+          visualisation_type: DeveloperSpaceVisualisationType;
+          visualisation_config: Record<string, unknown>;
+          api_key_hash: string | null;
+          api_key_last_four: string | null;
+          api_key_created_at: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: Omit<Database["public"]["Tables"]["developer_spaces"]["Row"], "id" | "created_at" | "updated_at"> & {
+          id?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["developer_spaces"]["Insert"]>;
+      };
+      developer_space_nodes: {
+        Row: {
+          id: string;
+          developer_space_id: string;
+          external_id: string;
+          node_name: string;
+          topology_type: DeveloperSpaceTopologyType;
+          fragment_count: number;
+          self_similarity_score: number | null;
+          dimensionality: number | null;
+          metrics: Record<string, unknown>;
+          last_event_at: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: Omit<Database["public"]["Tables"]["developer_space_nodes"]["Row"], "id" | "created_at" | "updated_at"> & {
+          id?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["developer_space_nodes"]["Insert"]>;
+      };
+      developer_space_events: {
+        Row: {
+          id: string;
+          developer_space_id: string;
+          node_id: string | null;
+          external_node_id: string | null;
+          event_type: string;
+          event_label: string | null;
+          event_data: Record<string, unknown>;
+          similarity_score: number | null;
+          source_refs: string[];
+          provenance: DeveloperSpaceEventProvenance;
+          visibility: DeveloperSpaceEventVisibility;
+          occurred_at: string;
+          created_at: string;
+        };
+        Insert: Omit<Database["public"]["Tables"]["developer_space_events"]["Row"], "id" | "created_at"> & {
+          id?: string;
+          created_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["developer_space_events"]["Insert"]>;
+      };
+      developer_space_snapshots: {
+        Row: {
+          id: string;
+          developer_space_id: string;
+          snapshot_data: Record<string, unknown>;
+          source_refs: string[];
+          provenance: DeveloperSpaceEventProvenance;
+          visibility: DeveloperSpaceEventVisibility;
+          occurred_at: string;
+          created_at: string;
+        };
+        Insert: Omit<Database["public"]["Tables"]["developer_space_snapshots"]["Row"], "id" | "created_at"> & {
+          id?: string;
+          created_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["developer_space_snapshots"]["Insert"]>;
       };
       comments: {
         Row: {

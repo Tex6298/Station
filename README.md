@@ -28,3 +28,7 @@ Not yet included:
 ## Included milestone
 
 This scaffold currently includes Community Beta: public Spaces, documents, Discover, forums, comments, and report-route scaffolding.
+
+## Developer Spaces observatory patch
+
+The Intelhub transfer patch adds a first Station-native Developer Spaces slice: owner-created project observatories, hashed ingestion keys, node/event/snapshot ingestion endpoints, a public live observatory page, and a private management console. See `docs/integration/intelhub-to-station-developer-spaces.md` for the fit/reject analysis and follow-up plan.

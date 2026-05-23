@@ -14,6 +14,10 @@ In the Supabase dashboard, go to **SQL Editor** and run the migrations in order:
 
 1. `migrations/001_initial_schema.sql` — creates all tables, triggers, and indexes
 2. `migrations/002_rls_policies.sql` — enables Row Level Security on all tables
+3. `migrations/003_rag_functions.sql` — adds pgvector helper RPCs
+4. `migrations/004_forum_seed_and_helpers.sql` — seeds forum categories
+5. `migrations/005_social_publishing.sql` — social publishing connections
+6. `migrations/006_developer_spaces.sql` — Developer Space observatories and ingestion
 
 Or use the Supabase CLI:
 ```bash
@@ -65,3 +69,7 @@ In Supabase → **Authentication → Settings**:
 | `comments` | Comments on threads, documents, and space pages |
 | `moderation_reports` | User-submitted reports for moderation review |
 | `discover_feed` | Feed events for the Discover page |
+| `developer_spaces` | Public/private observatories for research and builder projects |
+| `developer_space_nodes` | Live entities/nodes tracked inside Developer Spaces |
+| `developer_space_events` | Ingested event stream for observatory timelines |
+| `developer_space_snapshots` | Periodic full-state snapshots for history/playback |
