@@ -73,8 +73,8 @@ export function TopNav() {
       position: "sticky", top: 0, zIndex: 50,
       display: "flex", alignItems: "center", gap: "0.25rem",
       padding: "0 1.25rem", height: 52,
-      background: "rgba(10,10,20,0.85)", backdropFilter: "blur(12px)",
-      borderBottom: "1px solid #1a1f2e",
+      background: "rgba(8, 11, 19, 0.86)", backdropFilter: "blur(12px)",
+      borderBottom: "1px solid #1c2535",
     }}>
       <Link href="/" style={{ fontWeight: 700, fontSize: "1rem", letterSpacing: "-0.01em", marginRight: "0.5rem", textDecoration: "none", color: "inherit" }}>
         Station
@@ -83,7 +83,7 @@ export function TopNav() {
       {NAV_LINKS.map(([href, label]) => (
         <Link key={href} href={href} style={{
           padding: "0.3rem 0.65rem", borderRadius: 7, fontSize: "0.85rem", textDecoration: "none",
-          color: pathname.startsWith(href) ? "#fff" : "#888",
+          color: pathname.startsWith(href) ? "#fff" : "#94a3b8",
           background: pathname.startsWith(href) ? "#1a1f2e" : "transparent",
         }}>
           {label}
@@ -93,7 +93,7 @@ export function TopNav() {
       {profile && AUTH_NAV_LINKS.map(([href, label]) => (
         <Link key={href} href={href} style={{
           padding: "0.3rem 0.65rem", borderRadius: 7, fontSize: "0.85rem", textDecoration: "none",
-          color: pathname.startsWith(href) ? "#fff" : "#888",
+          color: pathname.startsWith(href) ? "#fff" : "#94a3b8",
           background: pathname.startsWith(href) ? "#1a1f2e" : "transparent",
         }}>
           {label}
@@ -129,7 +129,7 @@ export function TopNav() {
               <span style={{ fontSize: "0.82rem", maxWidth: 110, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                 {profile.display_name ?? profile.username}
               </span>
-              <span style={{ fontSize: "0.65rem", color: "#555" }}>▾</span>
+              <span style={{ fontSize: "0.65rem", color: "#68738a" }}>v</span>
             </button>
 
             {menuOpen && (

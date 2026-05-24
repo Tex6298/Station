@@ -15,7 +15,7 @@ const createSchema = z.object({
 export const memoryRouter = Router();
 memoryRouter.use(requireAuth);
 
-// ── List memory items for a persona ──────────────────────────────────────────
+// -- List memory items for a persona ------------------------------------------
 memoryRouter.get("/persona/:personaId", async (req, res) => {
   const sb = getSupabaseAdmin();
   const userId = req.user!.id;
@@ -31,7 +31,7 @@ memoryRouter.get("/persona/:personaId", async (req, res) => {
   return res.json({ memory: data });
 });
 
-// ── Create a memory item (generates embedding automatically) ──────────────────
+// -- Create a memory item (generates embedding automatically) ------------------
 memoryRouter.post("/persona/:personaId", async (req, res) => {
   const parsed = createSchema.safeParse(req.body);
   if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
@@ -67,7 +67,7 @@ memoryRouter.post("/persona/:personaId", async (req, res) => {
   }
 });
 
-// ── Update a memory item ──────────────────────────────────────────────────────
+// -- Update a memory item ------------------------------------------------------
 memoryRouter.patch("/:id", async (req, res) => {
   const sb = getSupabaseAdmin();
   const userId = req.user!.id;
@@ -92,7 +92,7 @@ memoryRouter.patch("/:id", async (req, res) => {
   return res.json({ memoryItem: data });
 });
 
-// ── Delete a memory item ──────────────────────────────────────────────────────
+// -- Delete a memory item ------------------------------------------------------
 memoryRouter.delete("/:id", async (req, res) => {
   const sb = getSupabaseAdmin();
   const userId = req.user!.id;

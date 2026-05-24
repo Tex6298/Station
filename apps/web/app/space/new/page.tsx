@@ -54,7 +54,7 @@ export default function NewSpacePage() {
       <div style={{ marginBottom: "1.5rem" }}>
         <h1 style={{ margin: "0 0 0.25rem" }}>Create a Space</h1>
         <p style={{ margin: 0, color: "#666", fontSize: "0.875rem" }}>
-          Your public home — part website, part Substack.
+          Your public home - part website, part Substack.
         </p>
       </div>
 
@@ -74,7 +74,7 @@ export default function NewSpacePage() {
 
         <div>
           <label style={{ display: "block", fontSize: "0.8rem", color: "#999", textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: "0.35rem" }}>
-            Slug * <span style={{ color: "#555", textTransform: "none", letterSpacing: 0 }}>— station.build/space/<strong>{form.slug || "your-slug"}</strong></span>
+            Slug * <span style={{ color: "#555", textTransform: "none", letterSpacing: 0 }}>- station.build/space/<strong>{form.slug || "your-slug"}</strong></span>
           </label>
           <input
             className="input"
@@ -112,7 +112,7 @@ export default function NewSpacePage() {
                 border: "1px solid " + (form.isPublic === v ? "#7c6af7" : "#2a3242"),
                 color: form.isPublic === v ? "#c4b5fd" : "#888", fontSize: "0.875rem",
               }}>
-                {v ? "🌐 Public" : "🔒 Private"}
+                {v ? "Public" : "Private"}
               </button>
             ))}
           </div>
@@ -123,7 +123,7 @@ export default function NewSpacePage() {
             Cancel
           </button>
           <button type="submit" disabled={submitting} style={{ flex: 2, padding: "0.65rem", background: "#7c6af7", border: "none", borderRadius: 8, color: "#fff", fontWeight: 600, cursor: "pointer" }}>
-            {submitting ? "Creating…" : "Create Space"}
+            {submitting ? "Creating..." : "Create Space"}
           </button>
         </div>
       </form>

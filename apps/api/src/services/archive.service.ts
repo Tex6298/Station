@@ -117,7 +117,7 @@ export async function processUploadedFile(input: {
     const rawText = await fileData.text();
     let extractedText = rawText;
 
-    // JSON chat export — extract message content
+    // JSON chat export - extract message content
     if (
       input.fileType === "application/json" ||
       input.fileName.endsWith(".json")

@@ -74,7 +74,7 @@ export default function ThreadPage() {
     } catch { /* silent */ }
   }
 
-  if (loading) return <main className="container"><div className="card" style={{ textAlign: "center", padding: "3rem", color: "#555" }}>Loading…</div></main>;
+  if (loading) return <main className="container"><div className="card" style={{ textAlign: "center", padding: "3rem", color: "#555" }}>Loading...</div></main>;
   if (error || !thread) return <main className="container"><div className="card" style={{ background: "#2d1515", borderColor: "#7d2e2e", color: "#eb5757" }}>{error ?? "Not found."}</div></main>;
 
   const isLocked   = thread.status === "locked";
@@ -85,11 +85,11 @@ export default function ThreadPage() {
       {/* Breadcrumb */}
       <div style={{ fontSize: "0.78rem", color: "#555", marginBottom: "1.5rem" }}>
         <Link href="/forums" style={{ color: "#666" }}>Forums</Link>
-        {" › "}
+        {" / "}
         <Link href={`/forums/${categorySlug}`} style={{ color: "#666" }}>
           {thread.category?.title ?? categorySlug}
         </Link>
-        {" › "}
+        {" / "}
         <span style={{ color: "#aaa" }}>{thread.title}</span>
       </div>
 
@@ -132,7 +132,7 @@ export default function ThreadPage() {
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "0.5rem", gap: "0.5rem" }}>
                 <span style={{ fontSize: "0.75rem", color: "#555" }}>
                   {c.author?.display_name ?? c.author?.username ?? "unknown"}
-                  {" · "}
+                  {" / "}
                   {new Date(c.created_at).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}
                 </span>
                 {session?.user.id === c.author_user_id && (
@@ -141,7 +141,7 @@ export default function ThreadPage() {
                     style={{ background: "none", border: "none", color: "#555", cursor: "pointer", fontSize: "0.72rem", padding: "0.1rem 0.3rem" }}
                     title="Delete"
                   >
-                    ✕
+                    x
                   </button>
                 )}
               </div>
@@ -171,7 +171,7 @@ export default function ThreadPage() {
               value={newComment}
               onChange={(e) => setNewComment(e.target.value)}
               onKeyDown={(e) => { if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) handleComment(e as unknown as React.FormEvent); }}
-              placeholder="Write your reply… (Ctrl+Enter to submit)"
+              placeholder="Write your reply... (Ctrl+Enter to submit)"
               style={{ minHeight: 100, fontSize: "0.9rem", lineHeight: 1.65 }}
             />
             <div style={{ display: "flex", justifyContent: "flex-end" }}>
@@ -180,7 +180,7 @@ export default function ThreadPage() {
                 disabled={submitting || !newComment.trim()}
                 style={{ padding: "0.5rem 1.25rem", background: "#7c6af7", border: "none", borderRadius: 8, color: "#fff", fontWeight: 600, cursor: "pointer", fontSize: "0.875rem" }}
               >
-                {submitting ? "Posting…" : "Post reply"}
+                {submitting ? "Posting..." : "Post reply"}
               </button>
             </div>
           </form>

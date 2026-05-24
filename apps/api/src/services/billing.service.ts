@@ -3,7 +3,7 @@ import { getStripe } from "../lib/stripe";
 import { getSupabaseAdmin } from "../lib/supabase";
 import type { Tier } from "@station/db";
 
-// ── Price ID helpers ──────────────────────────────────────────────────────────
+// Price ID helpers
 
 /**
  * Stripe Price IDs are configured in the dashboard and stored as env vars.
@@ -12,10 +12,10 @@ import type { Tier } from "@station/db";
  */
 function getPriceId(tier: "private" | "creator" | "canon", interval: "monthly" | "yearly"): string {
   const map: Record<string, string | undefined> = {
-    private_monthly:  process.env.STRIPE_PRICE_SEEKER_MONTHLY,
-    private_yearly:   process.env.STRIPE_PRICE_SEEKER_YEARLY,
-    creator_monthly:  process.env.STRIPE_PRICE_KEEPER_MONTHLY,
-    creator_yearly:   process.env.STRIPE_PRICE_KEEPER_YEARLY,
+    private_monthly:  process.env.STRIPE_PRICE_BASIC_MONTHLY  ?? process.env.STRIPE_PRICE_SEEKER_MONTHLY,
+    private_yearly:   process.env.STRIPE_PRICE_BASIC_YEARLY   ?? process.env.STRIPE_PRICE_SEEKER_YEARLY,
+    creator_monthly:  process.env.STRIPE_PRICE_CREATOR_MONTHLY ?? process.env.STRIPE_PRICE_KEEPER_MONTHLY,
+    creator_yearly:   process.env.STRIPE_PRICE_CREATOR_YEARLY  ?? process.env.STRIPE_PRICE_KEEPER_YEARLY,
     canon_monthly:    process.env.STRIPE_PRICE_CANON_MONTHLY,
     canon_yearly:     process.env.STRIPE_PRICE_CANON_YEARLY,
   };
@@ -25,7 +25,7 @@ function getPriceId(tier: "private" | "creator" | "canon", interval: "monthly" |
   if (!priceId) {
     throw new Error(
       `Stripe price ID not configured for ${tier} ${interval}. ` +
-      `Set STRIPE_PRICE_${tier.toUpperCase()}_${interval.toUpperCase()} in your environment.`
+      "Use STRIPE_PRICE_BASIC_*, STRIPE_PRICE_CREATOR_*, or STRIPE_PRICE_CANON_* in your environment."
     );
   }
   return priceId;
@@ -36,17 +36,17 @@ function getPriceId(tier: "private" | "creator" | "canon", interval: "monthly" |
  * Used in webhook handlers to determine which tier to grant.
  */
 function tierFromPriceId(priceId: string): Tier {
-  const seeker  = [process.env.STRIPE_PRICE_SEEKER_MONTHLY, process.env.STRIPE_PRICE_SEEKER_YEARLY];
-  const keeper  = [process.env.STRIPE_PRICE_KEEPER_MONTHLY, process.env.STRIPE_PRICE_KEEPER_YEARLY];
-  const canon   = [process.env.STRIPE_PRICE_CANON_MONTHLY,  process.env.STRIPE_PRICE_CANON_YEARLY];
+  const basic = [process.env.STRIPE_PRICE_BASIC_MONTHLY, process.env.STRIPE_PRICE_BASIC_YEARLY, process.env.STRIPE_PRICE_SEEKER_MONTHLY, process.env.STRIPE_PRICE_SEEKER_YEARLY];
+  const creator = [process.env.STRIPE_PRICE_CREATOR_MONTHLY, process.env.STRIPE_PRICE_CREATOR_YEARLY, process.env.STRIPE_PRICE_KEEPER_MONTHLY, process.env.STRIPE_PRICE_KEEPER_YEARLY];
+  const canon = [process.env.STRIPE_PRICE_CANON_MONTHLY, process.env.STRIPE_PRICE_CANON_YEARLY];
 
-  if (seeker.includes(priceId)) return "private";
-  if (keeper.includes(priceId)) return "creator";
-  if (canon.includes(priceId))  return "canon";
+  if (basic.includes(priceId)) return "private";
+  if (creator.includes(priceId)) return "creator";
+  if (canon.includes(priceId)) return "canon";
   return "visitor";
 }
 
-// ── Customer management ───────────────────────────────────────────────────────
+// Customer management
 
 /**
  * Gets the Stripe customer ID for a user, or creates one if it doesn't exist.
@@ -76,7 +76,7 @@ export async function getOrCreateCustomer(userId: string, email: string): Promis
   return customer.id;
 }
 
-// ── Checkout + portal ─────────────────────────────────────────────────────────
+// Checkout and portal
 
 /**
  * Creates a Stripe Checkout session for upgrading to a paid tier.
@@ -134,7 +134,7 @@ export async function createPortalSession(input: {
   return session.url;
 }
 
-// ── Subscription sync ─────────────────────────────────────────────────────────
+// Subscription sync
 
 /**
  * Syncs a Stripe subscription to the matching user's profile tier.
@@ -178,7 +178,7 @@ export async function syncSubscriptionToProfile(subscription: Stripe.Subscriptio
     .eq("id", targetUserId);
 }
 
-// ── Webhook event handler ─────────────────────────────────────────────────────
+// Webhook event handler
 
 /**
  * Validates and processes an incoming Stripe webhook event.
@@ -235,7 +235,7 @@ export async function handleWebhookEvent(
   return event.type;
 }
 
-// ── Status query ──────────────────────────────────────────────────────────────
+// Status query
 
 export interface BillingStatus {
   tier: Tier;

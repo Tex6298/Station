@@ -110,7 +110,7 @@ async function findNodeByExternalId(developerSpaceId: string, externalId?: strin
   return data ?? null;
 }
 
-// ── Ingestion API: key-authenticated, no Station user session required ───────
+// -- Ingestion API: key-authenticated, no Station user session required -------
 developerSpacesRouter.post("/ingest/nodes/:nodeId/state", async (req, res) => {
   const space = await loadSpaceForIngestion(req, res);
   if (!space) return;
@@ -305,7 +305,7 @@ developerSpacesRouter.post("/ingest/import", async (req, res) => {
 });
 
 
-// ── Public gallery for Discover-style browsing ───────────────────────────────
+// -- Public gallery for Discover-style browsing -------------------------------
 developerSpacesRouter.get("/public", optionalAuth, async (_req, res) => {
   const sb = getSupabaseAdmin();
   const { data, error } = await sb
@@ -319,7 +319,7 @@ developerSpacesRouter.get("/public", optionalAuth, async (_req, res) => {
   return res.json({ spaces: (data ?? []).map((space) => serializeDeveloperSpace(space, { includeOperationalFields: false })) });
 });
 
-// ── User-facing Developer Space management ───────────────────────────────────
+// -- User-facing Developer Space management -----------------------------------
 developerSpacesRouter.get("/", requireAuth, async (req, res) => {
   const sb = getSupabaseAdmin();
   const { data, error } = await sb
@@ -412,7 +412,7 @@ developerSpacesRouter.patch("/:id", requireAuth, async (req, res) => {
   return res.json({ space: serializeDeveloperSpace(data) });
 });
 
-// ── Public/community/owner observatory view ──────────────────────────────────
+// -- Public/community/owner observatory view ----------------------------------
 developerSpacesRouter.get("/:slug", optionalAuth, async (req, res) => {
   const sb = getSupabaseAdmin();
   const { data: space, error } = await sb

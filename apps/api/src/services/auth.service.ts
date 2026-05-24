@@ -108,7 +108,7 @@ export async function validateToken(
 }
 
 /**
- * Sign out — revokes the session server-side.
+ * Sign out - revokes the session server-side.
  */
 export async function signOut(accessToken: string): Promise<void> {
   const { createClient } = await import("@supabase/supabase-js");

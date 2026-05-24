@@ -34,7 +34,7 @@ export default function ForumsPage() {
       </div>
 
       {loading && (
-        <div className="card" style={{ textAlign: "center", padding: "3rem", color: "#555" }}>Loading…</div>
+        <div className="card" style={{ textAlign: "center", padding: "3rem", color: "#555" }}>Loading...</div>
       )}
       {error && (
         <div className="card" style={{ background: "#2d1515", borderColor: "#7d2e2e", color: "#eb5757" }}>{error}</div>
@@ -61,7 +61,7 @@ export default function ForumsPage() {
                   display: "flex", alignItems: "center", justifyContent: "center",
                   fontSize: "1.2rem",
                 }}>
-                  💬
+                  Replies
                 </div>
                 <div>
                   <div style={{ fontWeight: 600, fontSize: "1rem", marginBottom: "0.2rem" }}>{cat.title}</div>
@@ -70,7 +70,7 @@ export default function ForumsPage() {
                   )}
                 </div>
                 <div style={{ marginLeft: "auto", color: "#555", fontSize: "0.75rem", paddingTop: "0.15rem", whiteSpace: "nowrap" }}>
-                  View →
+                  View
                 </div>
               </div>
             </Link>

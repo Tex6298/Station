@@ -11,9 +11,9 @@ import {
 
 const TIER_LABELS: Record<string, string> = {
   visitor:       "Free",
-  private:       "Seeker",
-  creator:       "Keeper",
-  canon:         "Canon",
+  private:       "Basic",
+  creator:       "Creator",
+  canon:         "Canon / Developer",
   institutional: "Institutional",
 };
 
@@ -81,7 +81,7 @@ export default function BillingPage() {
   if (loading) {
     return (
       <main className="container">
-        <div className="card"><p>Loading billing info…</p></div>
+        <div className="card"><p>Loading billing info...</p></div>
       </main>
     );
   }
@@ -93,14 +93,14 @@ export default function BillingPage() {
       {success && (
         <div className="card" style={{ background: "#1a3d2b", borderColor: "#2e7d4f", marginBottom: "1.5rem" }}>
           <p style={{ color: "#6fcf97", margin: 0 }}>
-            ✓ Subscription activated. Welcome to {TIER_LABELS[currentTier]}!
+            Subscription activated. Welcome to {TIER_LABELS[currentTier]}!
           </p>
         </div>
       )}
 
       {cancelled && (
         <div className="card" style={{ background: "#3d1a1a", borderColor: "#7d2e2e", marginBottom: "1.5rem" }}>
-          <p style={{ color: "#eb5757", margin: 0 }}>Checkout cancelled — no charge was made.</p>
+          <p style={{ color: "#eb5757", margin: 0 }}>Checkout cancelled - no charge was made.</p>
         </div>
       )}
 
@@ -152,7 +152,7 @@ export default function BillingPage() {
               fontSize: "0.9rem",
             }}
           >
-            {actionLoading ? "Opening…" : "Manage / cancel subscription"}
+            {actionLoading ? "Opening..." : "Manage / cancel subscription"}
           </button>
         )}
       </div>
@@ -164,9 +164,9 @@ export default function BillingPage() {
 
       <div style={{ display: "grid", gap: "1rem", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))" }}>
         <PlanCard
-          name="Seeker"
+          name="Basic"
           tier="private"
-          price="£10"
+          price="GBP 10"
           interval="month"
           features={["2 personas", "Private archive", "Forum access", "Chat (BYOK or platform)"]}
           current={currentTier === "private"}
@@ -174,11 +174,11 @@ export default function BillingPage() {
           loading={actionLoading}
         />
         <PlanCard
-          name="Keeper"
+          name="Creator"
           tier="creator"
-          price="£100"
+          price="GBP 100"
           interval="month"
-          yearlyPrice="£1,000/year"
+          yearlyPrice="GBP 1,000/year"
           features={["Unlimited personas", "Full archive + RAG", "Public page (Space)", "Publish posts & essays", "Forum access"]}
           current={currentTier === "creator"}
           onUpgrade={() => handleUpgrade("creator", "monthly")}
@@ -189,9 +189,9 @@ export default function BillingPage() {
         <PlanCard
           name="Canon"
           tier="canon"
-          price="£250"
+          price="GBP 250"
           interval="month"
-          features={["Everything in Keeper", "3 Spaces", "50 GB storage", "Priority support", "Early access to new features"]}
+          features={["Everything in Creator", "3 Spaces", "50 GB storage", "Priority support", "Early access to new features"]}
           current={currentTier === "canon"}
           onUpgrade={() => handleUpgrade("canon", "monthly")}
           loading={actionLoading}
@@ -206,7 +206,7 @@ export default function BillingPage() {
           and research analytics.
         </p>
         <a href="mailto:hello@station.build" style={{ color: "#7c6af7", fontSize: "0.9rem" }}>
-          Contact us →
+          Contact us
         </a>
       </div>
     </main>
@@ -283,7 +283,7 @@ function PlanCard({
             disabled={loading}
             style={{ width: "100%", padding: "0.5rem", background: featured ? "#7c6af7" : "#333", border: "none", borderRadius: 6, color: "#fff", cursor: "pointer", fontSize: "0.875rem" }}
           >
-            {loading ? "Loading…" : `Upgrade — ${price}/mo`}
+            {loading ? "Loading..." : `Upgrade - ${price}/mo`}
           </button>
           {yearlyPrice && onUpgradeYearly && (
             <button
@@ -291,7 +291,7 @@ function PlanCard({
               disabled={loading}
               style={{ width: "100%", padding: "0.5rem", background: "transparent", border: "1px solid #7c6af7", borderRadius: 6, color: "#7c6af7", cursor: "pointer", fontSize: "0.8rem" }}
             >
-              {loading ? "Loading…" : `Save 17% — ${yearlyPrice}`}
+              {loading ? "Loading..." : `Save 17% - ${yearlyPrice}`}
             </button>
           )}
         </div>

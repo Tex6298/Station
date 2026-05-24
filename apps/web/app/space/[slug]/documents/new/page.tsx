@@ -88,9 +88,9 @@ export default function NewDocumentPage() {
     <main className="container" style={{ maxWidth: 760 }}>
       <div style={{ marginBottom: "1rem", fontSize: "0.8rem", color: "#555" }}>
         <Link href="/space" style={{ color: "#666" }}>Spaces</Link>
-        {" › "}
+        {" / "}
         <Link href={`/space/${slug}`} style={{ color: "#666" }}>{space?.title ?? slug}</Link>
-        {" › "}
+        {" / "}
         <span style={{ color: "#aaa" }}>New post</span>
       </div>
 
@@ -124,7 +124,7 @@ export default function NewDocumentPage() {
 
         {/* Body */}
         <textarea className="textarea" value={form.body} onChange={(e) => set("body", e.target.value)}
-          placeholder="Write your post here…" style={{ minHeight: 360, fontSize: "0.95rem", lineHeight: 1.75 }} />
+          placeholder="Write your post here..." style={{ minHeight: 360, fontSize: "0.95rem", lineHeight: 1.75 }} />
 
         {/* Options + actions */}
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "0.75rem" }}>
@@ -143,11 +143,11 @@ export default function NewDocumentPage() {
           <div style={{ display: "flex", gap: "0.6rem" }}>
             <button onClick={() => handleSave(false)} disabled={submitting}
               style={{ padding: "0.55rem 1.1rem", background: "transparent", border: "1px solid #334155", borderRadius: 8, color: "#aaa", cursor: "pointer", fontSize: "0.875rem" }}>
-              {submitting ? "Saving…" : "Save draft"}
+              {submitting ? "Saving..." : "Save draft"}
             </button>
             <button onClick={() => handleSave(true)} disabled={submitting}
               style={{ padding: "0.55rem 1.25rem", background: "#7c6af7", border: "none", borderRadius: 8, color: "#fff", fontWeight: 600, cursor: "pointer", fontSize: "0.875rem" }}>
-              {submitting ? "Publishing…" : "Publish"}
+              {submitting ? "Publishing..." : "Publish"}
             </button>
           </div>
         </div>

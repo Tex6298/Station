@@ -5,7 +5,7 @@ import { requireAuth } from "../middleware/require-auth";
 export const threadsRouter = Router();
 const sb = getSupabaseAdmin();
 
-// ─── Public: get thread + its comments ──────────────────────────────────────
+// --- Public: get thread + its comments --------------------------------------
 threadsRouter.get("/:id", async (req: Request, res: Response) => {
   const { id } = req.params;
 
@@ -37,10 +37,10 @@ threadsRouter.get("/:id", async (req: Request, res: Response) => {
   res.json({ thread, comments: comments ?? [] });
 });
 
-// ─── Auth-gated below ────────────────────────────────────────────────────────
+// --- Auth-gated below --------------------------------------------------------
 threadsRouter.use(requireAuth);
 
-// ─── Delete own thread ───────────────────────────────────────────────────────
+// --- Delete own thread -------------------------------------------------------
 threadsRouter.delete("/:id", async (req: Request, res: Response) => {
   const userId = req.user!.id;
 

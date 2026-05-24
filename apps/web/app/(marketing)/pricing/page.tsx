@@ -4,7 +4,7 @@ const TIERS = [
   {
     name: "Free",
     tier: "visitor",
-    price: "£0",
+    price: "GBP 0",
     interval: null,
     description: "See what Station is about. No commitment.",
     features: [
@@ -17,9 +17,9 @@ const TIERS = [
     featured: false,
   },
   {
-    name: "Seeker",
+    name: "Basic",
     tier: "private",
-    price: "£10",
+    price: "GBP 10",
     interval: "month",
     description: "Your private studio. Two personas, full archive, community access.",
     features: [
@@ -30,16 +30,16 @@ const TIERS = [
       "2 GB storage",
       "BYOK or platform AI",
     ],
-    cta: "Start as Seeker",
+    cta: "Start Basic",
     href: "/signup?tier=private",
     featured: false,
   },
   {
-    name: "Keeper",
+    name: "Creator",
     tier: "creator",
-    price: "£100",
+    price: "GBP 100",
     interval: "month",
-    yearlyPrice: "£1,000",
+    yearlyPrice: "GBP 1,000",
     description: "Unlimited personas, a public Space, and the tools to publish and share.",
     features: [
       "Unlimited personas",
@@ -50,24 +50,24 @@ const TIERS = [
       "BYOK or platform AI",
       "Forum + community access",
     ],
-    cta: "Become a Keeper",
+    cta: "Become a Creator",
     href: "/signup?tier=creator",
     featured: true,
   },
   {
-    name: "Canon",
+    name: "Canon / Developer",
     tier: "canon",
-    price: "£250",
+    price: "GBP 250",
     interval: "month",
     description: "For serious practitioners. Everything, plus more space and early access.",
     features: [
-      "Everything in Keeper",
+      "Everything in Creator",
       "3 Spaces",
       "50 GB storage",
       "Priority support",
       "Early access to new features",
     ],
-    cta: "Join Canon",
+    cta: "Join Canon / Developer",
     href: "/signup?tier=canon",
     featured: false,
   },
@@ -130,7 +130,7 @@ export default function PricingPage() {
               )}
               {t.yearlyPrice && (
                 <span style={{ display: "block", color: "#7c6af7", fontSize: "0.78rem", marginTop: "0.2rem" }}>
-                  or {t.yearlyPrice}/year — save 17%
+                  or {t.yearlyPrice}/year - save 17%
                 </span>
               )}
             </p>
@@ -177,7 +177,7 @@ export default function PricingPage() {
             <h2 style={{ margin: "0 0 0.4rem" }}>Institutional</h2>
             <p style={{ color: "#888", margin: 0, maxWidth: 480, fontSize: "0.9rem", lineHeight: 1.6 }}>
               For universities, research departments, newsrooms, and government bodies
-              that need structured access to this community — its practitioners, beliefs,
+              that need structured access to this community - its practitioners, beliefs,
               methods, and data. Custom pricing, multi-seat access, research analytics.
             </p>
           </div>
@@ -205,7 +205,7 @@ export default function PricingPage() {
           {[
             {
               q: "What is BYOK?",
-              a: "Bring Your Own Key. You paste your own OpenAI, Anthropic, or DeepSeek API key into your account settings. Your key hits the provider directly — we never proxy or log it.",
+              a: "Bring Your Own Key. You paste your own OpenAI, Anthropic, or DeepSeek API key into your account settings. Your key hits the provider directly - we never proxy or log it.",
             },
             {
               q: "What is the platform AI?",

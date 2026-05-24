@@ -1,5 +1,5 @@
 -- ============================================================
--- Developer Spaces — live observatory + data ingestion
+-- Developer Spaces - live observatory + data ingestion
 -- Run after 005_social_publishing.sql
 -- ============================================================
 

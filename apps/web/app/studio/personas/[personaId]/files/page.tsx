@@ -13,7 +13,7 @@ export default function PersonaFilesPage({ params }: { params: { personaId: stri
         <ul>
           {items.map((item) => (
             <li key={item.id}>
-              <strong>{item.fileName}</strong> — {item.sourceType}
+              <strong>{item.fileName}</strong> - {item.sourceType}
               <div>{item.storagePath}</div>
             </li>
           ))}

@@ -15,7 +15,7 @@ const createThreadSchema = z.object({
 export const forumsRouter = Router();
 const sb = getSupabaseAdmin();
 
-// ─── Public: list all categories ────────────────────────────────────────────
+// --- Public: list all categories --------------------------------------------
 forumsRouter.get("/categories", async (_req: Request, res: Response) => {
   const { data, error } = await sb
     .from("forum_categories")
@@ -26,7 +26,7 @@ forumsRouter.get("/categories", async (_req: Request, res: Response) => {
   res.json({ categories: data ?? [] });
 });
 
-// ─── Public: get category + its threads ─────────────────────────────────────
+// --- Public: get category + its threads -------------------------------------
 forumsRouter.get("/categories/:slug", async (req: Request, res: Response) => {
   const { slug } = req.params;
 
@@ -54,10 +54,10 @@ forumsRouter.get("/categories/:slug", async (req: Request, res: Response) => {
   res.json({ category, threads: threads ?? [] });
 });
 
-// ─── Auth-gated below ────────────────────────────────────────────────────────
+// --- Auth-gated below --------------------------------------------------------
 forumsRouter.use(requireAuth);
 
-// ─── Create thread (minimum: private/Seeker tier) ───────────────────────────
+// --- Create thread (minimum: Basic tier) ---------------------------
 forumsRouter.post(
   "/threads",
   requireTier("private"),

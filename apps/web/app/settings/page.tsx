@@ -3,13 +3,13 @@ import Link from "next/link";
 const sections = [
   {
     href: "/settings/social",
-    icon: "📡",
+    icon: "Signal",
     title: "Social publishing",
     description: "Connect Bluesky, Mastodon, Tumblr, LinkedIn, Reddit, WordPress, and Ghost to publish directly from Station.",
   },
   {
     href: "/billing",
-    icon: "💳",
+    icon: "Billing",
     title: "Billing & plan",
     description: "Manage your subscription, upgrade your tier, or access the Stripe customer portal.",
   },
@@ -34,7 +34,7 @@ export default function SettingsPage() {
                 <div style={{ fontWeight: 600, marginBottom: "0.2rem" }}>{s.title}</div>
                 <div style={{ fontSize: "0.83rem", color: "#666", lineHeight: 1.5 }}>{s.description}</div>
               </div>
-              <span style={{ color: "#444", fontSize: "0.85rem", paddingTop: "0.1rem" }}>→</span>
+              <span style={{ color: "#444", fontSize: "0.85rem", paddingTop: "0.1rem" }}>Open</span>
             </div>
           </Link>
         ))}

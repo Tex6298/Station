@@ -14,7 +14,7 @@ const chatImportSchema = z.object({
 export const importsRouter = Router();
 importsRouter.use(requireAuth);
 
-// ── Import raw text / pasted chat ─────────────────────────────────────────────
+// -- Import raw text / pasted chat ---------------------------------------------
 importsRouter.post("/chat", async (req, res) => {
   const parsed = chatImportSchema.safeParse(req.body);
   if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
@@ -71,7 +71,7 @@ importsRouter.post("/chat", async (req, res) => {
   }
 });
 
-// ── Poll import job status ─────────────────────────────────────────────────────
+// -- Poll import job status -----------------------------------------------------
 importsRouter.get("/:id/status", async (req, res) => {
   const sb = getSupabaseAdmin();
   const userId = req.user!.id;
@@ -87,7 +87,7 @@ importsRouter.get("/:id/status", async (req, res) => {
   return res.json({ job });
 });
 
-// ── List all import jobs for a persona ────────────────────────────────────────
+// -- List all import jobs for a persona ----------------------------------------
 importsRouter.get("/persona/:personaId", async (req, res) => {
   const sb = getSupabaseAdmin();
   const userId = req.user!.id;

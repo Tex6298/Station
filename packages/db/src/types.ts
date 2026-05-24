@@ -1,5 +1,5 @@
 /**
- * Supabase Database type definitions — mirrors the schema in 001_initial_schema.sql
+ * Supabase Database type definitions - mirrors the schema in 001_initial_schema.sql
  * Keeping this hand-authored for now. You can replace with `supabase gen types`
  * once your project is connected: `npx supabase gen types typescript --project-id <id>`
  */

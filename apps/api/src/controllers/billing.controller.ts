@@ -9,7 +9,7 @@ import { checkoutSchema, portalSchema } from "../schemas/billing.schema";
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
 
-// ── GET /billing/me ───────────────────────────────────────────────────────────
+// -- GET /billing/me -----------------------------------------------------------
 export async function handleGetBillingStatus(req: Request, res: Response): Promise<void> {
   try {
     const status = await getBillingStatus(req.user!.id);
@@ -19,7 +19,7 @@ export async function handleGetBillingStatus(req: Request, res: Response): Promi
   }
 }
 
-// ── POST /billing/checkout ────────────────────────────────────────────────────
+// -- POST /billing/checkout ----------------------------------------------------
 export async function handleCreateCheckout(req: Request, res: Response): Promise<void> {
   const parsed = checkoutSchema.safeParse(req.body);
   if (!parsed.success) {
@@ -43,7 +43,7 @@ export async function handleCreateCheckout(req: Request, res: Response): Promise
   }
 }
 
-// ── POST /billing/portal ──────────────────────────────────────────────────────
+// -- POST /billing/portal ------------------------------------------------------
 export async function handleCreatePortal(req: Request, res: Response): Promise<void> {
   const parsed = portalSchema.safeParse(req.body);
   if (!parsed.success) {
@@ -64,8 +64,8 @@ export async function handleCreatePortal(req: Request, res: Response): Promise<v
   }
 }
 
-// ── POST /billing/webhook ─────────────────────────────────────────────────────
-// NOTE: This route receives raw Buffer body — wired separately in app.ts
+// -- POST /billing/webhook -----------------------------------------------------
+// NOTE: This route receives raw Buffer body - wired separately in app.ts
 export async function handleWebhook(req: Request, res: Response): Promise<void> {
   const signature = req.headers["stripe-signature"] as string;
 

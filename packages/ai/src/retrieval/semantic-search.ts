@@ -36,7 +36,7 @@ export async function searchMemory(options: {
   try {
     const embedding = await generateEmbedding(query, embeddingApiKey);
 
-    // pgvector RPC — defined below in 003_rag_functions.sql
+    // pgvector RPC - defined below in 003_rag_functions.sql
     const { data, error } = await supabase.rpc("match_memory_items", {
       p_persona_id: personaId,
       query_embedding: embedding,

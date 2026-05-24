@@ -10,7 +10,7 @@ const TIER_RANK: Record<Tier, number> = {
 };
 
 /**
- * Middleware factory — blocks requests from users below the required tier.
+ * Middleware factory - blocks requests from users below the required tier.
  * Must be used after requireAuth (which attaches req.user).
  *
  * Usage:

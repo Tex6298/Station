@@ -137,7 +137,7 @@ export default function DeveloperSpaceManagePage() {
   if (loading) {
     return (
       <main className="container">
-        <div className="card" style={{ textAlign: "center", padding: "3rem", color: "#94a3b8" }}>Loading management console…</div>
+        <div className="card" style={{ textAlign: "center", padding: "3rem", color: "#94a3b8" }}>Loading management console...</div>
       </main>
     );
   }
@@ -178,9 +178,9 @@ export default function DeveloperSpaceManagePage() {
     <main className="container" style={{ display: "grid", gap: "1.25rem", maxWidth: 1120 }}>
       <div style={{ fontSize: "0.82rem", color: "#64748b" }}>
         <Link href="/developer-spaces" style={{ color: "#94a3b8" }}>Developer Spaces</Link>
-        <span style={{ margin: "0 0.4rem" }}>›</span>
+        <span style={{ margin: "0 0.4rem" }}>/</span>
         <Link href={`/developer-spaces/${detail.space.slug}`} style={{ color: "#94a3b8" }}>{detail.space.projectName}</Link>
-        <span style={{ margin: "0 0.4rem" }}>›</span>
+        <span style={{ margin: "0 0.4rem" }}>/</span>
         <span>Manage</span>
       </div>
 
@@ -215,12 +215,12 @@ export default function DeveloperSpaceManagePage() {
           <div style={{ display: "grid", gap: "0.35rem", fontSize: "0.82rem", color: "#cbd5e1" }}>
             <span>Current key</span>
             <span className="pill" style={{ width: "fit-content" }}>
-              {detail.space.apiKeyLastFour ? `•••• ${detail.space.apiKeyLastFour}` : "No key generated"}
+              {detail.space.apiKeyLastFour ? `**** ${detail.space.apiKeyLastFour}` : "No key generated"}
             </span>
           </div>
 
           <button className="button primary" onClick={rotateKey} disabled={rotating}>
-            {rotating ? "Rotating…" : detail.space.apiKeyLastFour ? "Rotate key" : "Generate key"}
+            {rotating ? "Rotating..." : detail.space.apiKeyLastFour ? "Rotate key" : "Generate key"}
           </button>
 
           {apiKey ? (

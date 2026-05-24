@@ -117,7 +117,7 @@ export function PersonaChat({ personaId, personaName }: Props) {
         { messageId },
         token
       );
-    } catch { /* silent — show toast in future */ }
+    } catch { /* silent - show toast in future */ }
     finally { setSaving(null); }
   }
 
@@ -144,7 +144,7 @@ export function PersonaChat({ personaId, personaName }: Props) {
   if (state.loading) {
     return (
       <div className="card" style={{ minHeight: 320, display: "flex", alignItems: "center", justifyContent: "center" }}>
-        <span style={{ color: "#555" }}>Loading conversation…</span>
+        <span style={{ color: "#555" }}>Loading conversation...</span>
       </div>
     );
   }
@@ -182,7 +182,7 @@ export function PersonaChat({ personaId, personaName }: Props) {
       }}>
         {state.messages.length === 0 && (
           <div style={{ textAlign: "center", color: "#444", marginTop: "4rem", fontSize: "0.9rem" }}>
-            <div style={{ fontSize: "1.5rem", marginBottom: "0.5rem" }}>◎</div>
+            <div style={{ fontSize: "1.5rem", marginBottom: "0.5rem" }}>Signal</div>
             Begin speaking to {personaName}.
           </div>
         )}
@@ -225,7 +225,7 @@ export function PersonaChat({ personaId, personaName }: Props) {
                     }}
                     title="Save to archive as memory"
                   >
-                    {saving === msg.id ? "…" : "Save to memory"}
+                    {saving === msg.id ? "..." : "Save to memory"}
                   </button>
                   <button
                     onClick={() => saveAsCanon(msg.id)}
@@ -241,7 +241,7 @@ export function PersonaChat({ personaId, personaName }: Props) {
                     }}
                     title="Promote to canon (always injected)"
                   >
-                    {saving === msg.id ? "…" : "Promote to canon"}
+                    {saving === msg.id ? "..." : "Promote to canon"}
                   </button>
                 </div>
               )}
@@ -258,7 +258,7 @@ export function PersonaChat({ personaId, personaName }: Props) {
             color: "#444",
             fontSize: "0.85rem",
           }}>
-            <span className="typing-dots">{personaName} is responding…</span>
+            <span className="typing-dots">{personaName} is responding...</span>
           </div>
         )}
 
@@ -291,7 +291,7 @@ export function PersonaChat({ personaId, personaName }: Props) {
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={handleKey}
-          placeholder={`Speak to ${personaName}… (Enter to send, Shift+Enter for newline)`}
+          placeholder={`Speak to ${personaName}... (Enter to send, Shift+Enter for newline)`}
           disabled={state.sending}
           style={{
             flex: 1,
@@ -307,7 +307,7 @@ export function PersonaChat({ personaId, personaName }: Props) {
           className="button primary"
           style={{ height: 44, whiteSpace: "nowrap", flexShrink: 0 }}
         >
-          {state.sending ? "…" : "Send"}
+          {state.sending ? "..." : "Send"}
         </button>
       </div>
     </div>

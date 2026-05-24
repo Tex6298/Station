@@ -40,9 +40,9 @@ const updatePageSchema = createPageSchema.partial();
 
 export const spacesRouter = Router();
 
-// ── Public routes (no auth) ───────────────────────────────────────────────────
+// -- Public routes (no auth) ---------------------------------------------------
 
-// GET /spaces/:slug — public Space view
+// GET /spaces/:slug - public Space view
 spacesRouter.get("/:slug", async (req, res) => {
   const sb = getSupabaseAdmin();
 
@@ -93,10 +93,10 @@ spacesRouter.get("/:slug", async (req, res) => {
   });
 });
 
-// ── Authenticated routes ──────────────────────────────────────────────────────
+// -- Authenticated routes ------------------------------------------------------
 spacesRouter.use(requireAuth);
 
-// GET /spaces — list the current user's spaces
+// GET /spaces - list the current user's spaces
 spacesRouter.get("/", async (req, res) => {
   const sb = getSupabaseAdmin();
   const { data, error } = await sb
@@ -109,7 +109,7 @@ spacesRouter.get("/", async (req, res) => {
   return res.json({ spaces: data ?? [] });
 });
 
-// POST /spaces — create a Space (creator tier minimum)
+// POST /spaces - create a Space (creator tier minimum)
 spacesRouter.post("/", requireTier("creator"), async (req, res) => {
   const parsed = createSpaceSchema.safeParse(req.body);
   if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
@@ -167,7 +167,7 @@ spacesRouter.post("/", requireTier("creator"), async (req, res) => {
   return res.status(201).json({ space: data });
 });
 
-// PATCH /spaces/:id — update Space settings
+// PATCH /spaces/:id - update Space settings
 spacesRouter.patch("/:id", async (req, res) => {
   const parsed = updateSpaceSchema.safeParse(req.body);
   if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
@@ -207,7 +207,7 @@ spacesRouter.delete("/:id", async (req, res) => {
   return res.status(204).send();
 });
 
-// ── Pages ──────────────────────────────────────────────────────────────────────
+// -- Pages ----------------------------------------------------------------------
 
 // POST /spaces/:id/pages
 spacesRouter.post("/:id/pages", async (req, res) => {

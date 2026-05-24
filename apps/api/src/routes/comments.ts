@@ -13,7 +13,7 @@ const createCommentSchema = z.object({
 export const commentsRouter = Router();
 const sb = getSupabaseAdmin();
 
-// ─── Public: list comments by parent ────────────────────────────────────────
+// --- Public: list comments by parent ----------------------------------------
 commentsRouter.get("/", async (req: Request, res: Response) => {
   const parentType = String(req.query.parentType || "");
   const parentId   = String(req.query.parentId   || "");
@@ -35,10 +35,10 @@ commentsRouter.get("/", async (req: Request, res: Response) => {
   res.json({ comments: data ?? [] });
 });
 
-// ─── Auth-gated below ────────────────────────────────────────────────────────
+// --- Auth-gated below --------------------------------------------------------
 commentsRouter.use(requireAuth);
 
-// ─── Post a comment (minimum: private/Seeker tier) ──────────────────────────
+// --- Post a comment (minimum: Basic tier) --------------------------
 commentsRouter.post(
   "/",
   requireTier("private"),
@@ -95,7 +95,7 @@ commentsRouter.post(
     // Bump comment_count on thread
     if (parentType === "thread") {
       await sb.rpc("increment_thread_comment_count", { thread_id: parentId }).catch(() => {
-        // Non-fatal — comment_count is denormalised, can sync later
+        // Non-fatal - comment_count is denormalised, can sync later
       });
     }
 
@@ -103,7 +103,7 @@ commentsRouter.post(
   }
 );
 
-// ─── Delete own comment ──────────────────────────────────────────────────────
+// --- Delete own comment ------------------------------------------------------
 commentsRouter.delete("/:id", async (req: Request, res: Response) => {
   const userId = req.user!.id;
 

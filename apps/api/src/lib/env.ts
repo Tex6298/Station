@@ -12,12 +12,12 @@ const envSchema = z.object({
   // App URL (used for Stripe redirect URLs)
   NEXT_PUBLIC_APP_URL: z.string().default("http://localhost:3000"),
 
-  // AI — platform provider (DeepSeek for chat)
+  // AI - platform provider (DeepSeek for chat)
   DEEPSEEK_API_KEY: z.string().optional(),
   DEEPSEEK_BASE_URL: z.string().default("https://api.deepseek.com"),
   DEEPSEEK_MODEL: z.string().default("deepseek-chat"),
 
-  // AI — embeddings
+  // AI - embeddings
   OPENAI_API_KEY: z.string().optional(),
 
   // Stripe
@@ -25,14 +25,18 @@ const envSchema = z.object({
   STRIPE_WEBHOOK_SECRET: z.string().optional(),
 
   // Stripe Price IDs (set these after creating products in the Stripe dashboard)
-  STRIPE_PRICE_SEEKER_MONTHLY:  z.string().optional(),
-  STRIPE_PRICE_SEEKER_YEARLY:   z.string().optional(),
-  STRIPE_PRICE_KEEPER_MONTHLY:  z.string().optional(),
-  STRIPE_PRICE_KEEPER_YEARLY:   z.string().optional(),
+  STRIPE_PRICE_BASIC_MONTHLY:   z.string().optional(),
+  STRIPE_PRICE_BASIC_YEARLY:    z.string().optional(),
+  STRIPE_PRICE_CREATOR_MONTHLY: z.string().optional(),
+  STRIPE_PRICE_CREATOR_YEARLY:  z.string().optional(),
+  STRIPE_PRICE_SEEKER_MONTHLY:  z.string().optional(), // legacy alias
+  STRIPE_PRICE_SEEKER_YEARLY:   z.string().optional(), // legacy alias
+  STRIPE_PRICE_KEEPER_MONTHLY:  z.string().optional(), // legacy alias
+  STRIPE_PRICE_KEEPER_YEARLY:   z.string().optional(), // legacy alias
   STRIPE_PRICE_CANON_MONTHLY:   z.string().optional(),
   STRIPE_PRICE_CANON_YEARLY:    z.string().optional(),
 
-  // Social publishing — OAuth app credentials
+  // Social publishing - OAuth app credentials
   // Create apps at: tumblr.com/oauth/apps, linkedin.com/developers, reddit.com/prefs/apps
   TUMBLR_CLIENT_ID:     z.string().optional(),
   TUMBLR_CLIENT_SECRET: z.string().optional(),

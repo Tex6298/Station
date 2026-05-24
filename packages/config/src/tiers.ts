@@ -20,8 +20,8 @@ export const TIER_PRICES_GBP = {
 
 export const TIER_LABELS: Record<Tier, string> = {
   visitor:       "Free",
-  private:       "Seeker",
-  creator:       "Keeper",
-  canon:         "Canon",
+  private:       "Basic",
+  creator:       "Creator",
+  canon:         "Canon / Developer",
   institutional: "Institutional",
 };

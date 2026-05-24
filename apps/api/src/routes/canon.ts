@@ -13,7 +13,7 @@ const createSchema = z.object({
 export const canonRouter = Router();
 canonRouter.use(requireAuth);
 
-// ── List canon items for a persona ────────────────────────────────────────────
+// -- List canon items for a persona --------------------------------------------
 canonRouter.get("/persona/:personaId", async (req, res) => {
   const sb = getSupabaseAdmin();
   const userId = req.user!.id;
@@ -29,7 +29,7 @@ canonRouter.get("/persona/:personaId", async (req, res) => {
   return res.json({ canon: data });
 });
 
-// ── Create a canon item ───────────────────────────────────────────────────────
+// -- Create a canon item -------------------------------------------------------
 canonRouter.post("/persona/:personaId", async (req, res) => {
   const parsed = createSchema.safeParse(req.body);
   if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
@@ -64,7 +64,7 @@ canonRouter.post("/persona/:personaId", async (req, res) => {
   return res.status(201).json({ canonItem: data });
 });
 
-// ── Update a canon item ───────────────────────────────────────────────────────
+// -- Update a canon item -------------------------------------------------------
 canonRouter.patch("/:id", async (req, res) => {
   const parsed = createSchema.partial().safeParse(req.body);
   if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
@@ -89,7 +89,7 @@ canonRouter.patch("/:id", async (req, res) => {
   return res.json({ canonItem: data });
 });
 
-// ── Delete a canon item ───────────────────────────────────────────────────────
+// -- Delete a canon item -------------------------------------------------------
 canonRouter.delete("/:id", async (req, res) => {
   const sb = getSupabaseAdmin();
   const userId = req.user!.id;

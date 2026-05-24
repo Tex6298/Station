@@ -6,7 +6,7 @@ import { getSession } from "@/lib/auth";
 import { apiPost } from "@/lib/api-client";
 import type { Persona, PersonaProvider } from "@station/types/persona";
 
-// ── Types ─────────────────────────────────────────────────────────────────────
+// -- Types ---------------------------------------------------------------------
 
 interface FlowData {
   name: string;
@@ -28,7 +28,7 @@ const EMPTY: FlowData = {
   visibility: "private",
 };
 
-// ── Step definitions ──────────────────────────────────────────────────────────
+// -- Step definitions ----------------------------------------------------------
 
 const STEPS = [
   {
@@ -65,7 +65,7 @@ const STEPS = [
 
 type StepId = (typeof STEPS)[number]["id"];
 
-// ── Provider options ──────────────────────────────────────────────────────────
+// -- Provider options ----------------------------------------------------------
 
 const PROVIDERS: { value: PersonaProvider; label: string; description: string; badge?: string }[] = [
   { value: "platform",  label: "Station (DeepSeek)",  description: "Our platform AI. No API key needed. Good for most personas.", badge: "Included" },
@@ -74,7 +74,7 @@ const PROVIDERS: { value: PersonaProvider; label: string; description: string; b
   { value: "deepseek",  label: "DeepSeek (BYOK)",      description: "Use your own DeepSeek key for full control." },
 ];
 
-// ── Styles ───────────────────────────────────────────────────────────────────
+// -- Styles -------------------------------------------------------------------
 
 const S = {
   wrap: {
@@ -212,7 +212,7 @@ const S = {
   } as React.CSSProperties,
 } as const;
 
-// ── Component ─────────────────────────────────────────────────────────────────
+// -- Component -----------------------------------------------------------------
 
 export function AwakeningFlow() {
   const router = useRouter();
@@ -281,7 +281,7 @@ export function AwakeningFlow() {
         {STEPS.map((s, i) => (
           <div key={s.id} style={{ display: "contents" }}>
             <div style={S.stepDot(i === step, i < step)} title={s.label}>
-              {i < step ? "✓" : i + 1}
+              {i < step ? "Done" : i + 1}
             </div>
             {i < STEPS.length - 1 && <div style={S.stepLine(i < step)} />}
           </div>
@@ -297,7 +297,7 @@ export function AwakeningFlow() {
 
       {error && <div style={S.error}>{error}</div>}
 
-      {/* ── Step content ──────────────────────────────────────────────────── */}
+      {/* -- Step content ---------------------------------------------------- */}
 
       {current.id === "emergence" && (
         <div style={{ display: "grid", gap: "1.25rem" }}>
@@ -307,7 +307,7 @@ export function AwakeningFlow() {
               className="input"
               value={data.name}
               onChange={(e) => set("name", e.target.value)}
-              placeholder="e.g. Lyra, The Archivist, Mirror…"
+              placeholder="e.g. Lyra, The Archivist, Mirror..."
               maxLength={80}
               autoFocus
             />
@@ -342,7 +342,7 @@ export function AwakeningFlow() {
                     textTransform: "capitalize",
                   }}
                 >
-                  {v === "private" ? "🔒 Private" : "🌐 Public"}
+                  {v === "private" ? "Private" : "Public"}
                 </button>
               ))}
             </div>
@@ -378,7 +378,7 @@ export function AwakeningFlow() {
               className="textarea"
               value={data.styleNotes}
               onChange={(e) => set("styleNotes", e.target.value)}
-              placeholder={"How do they speak?\n\nExamples:\n— Uses short sentences and pauses\n— Never deflects, always answers\n— Refers to the keeper by name\n— Speaks in a calm, lightly archaic register"}
+              placeholder={"How do they speak?\n\nExamples:\n- Uses short sentences and pauses\n- Never deflects, always answers\n- Refers to the keeper by name\n- Speaks in a calm, lightly archaic register"}
               style={{ minHeight: 160 }}
             />
             <p style={S.hint}>These become part of the system prompt on every turn.</p>
@@ -389,7 +389,7 @@ export function AwakeningFlow() {
               className="textarea"
               value={data.longDescription}
               onChange={(e) => set("longDescription", e.target.value)}
-              placeholder="Deeper background — origin, nature, relationship to their keeper, anything you want to record."
+              placeholder="Deeper background - origin, nature, relationship to their keeper, anything you want to record."
               style={{ minHeight: 120 }}
             />
           </div>
@@ -432,11 +432,11 @@ export function AwakeningFlow() {
         <div className="card" style={{ background: "#0d1220" }}>
           {[
             { label: "Name",        value: data.name },
-            { label: "Description", value: data.shortDescription || "—" },
+            { label: "Description", value: data.shortDescription || "-" },
             { label: "Visibility",  value: data.visibility },
             { label: "Channel",     value: PROVIDERS.find((p) => p.value === data.provider)?.label ?? data.provider },
-            { label: "Awakening",   value: data.awakeningPrompt ? `${data.awakeningPrompt.slice(0, 120)}${data.awakeningPrompt.length > 120 ? "…" : ""}` : "—" },
-            { label: "Style notes", value: data.styleNotes ? `${data.styleNotes.slice(0, 120)}${data.styleNotes.length > 120 ? "…" : ""}` : "—" },
+            { label: "Awakening",   value: data.awakeningPrompt ? `${data.awakeningPrompt.slice(0, 120)}${data.awakeningPrompt.length > 120 ? "..." : ""}` : "-" },
+            { label: "Style notes", value: data.styleNotes ? `${data.styleNotes.slice(0, 120)}${data.styleNotes.length > 120 ? "..." : ""}` : "-" },
           ].map(({ label, value }) => (
             <div key={label} style={S.reviewRow}>
               <span style={{ fontSize: "0.75rem", color: "#666", textTransform: "uppercase", letterSpacing: "0.07em" }}>{label}</span>
@@ -457,7 +457,7 @@ export function AwakeningFlow() {
           disabled={step === 0 || submitting}
           style={{ ...S.btnSecondary, visibility: step === 0 ? "hidden" : "visible" }}
         >
-          ← Back
+          Back
         </button>
 
         {isLast ? (
@@ -467,11 +467,11 @@ export function AwakeningFlow() {
             disabled={submitting}
             style={{ ...S.btnPrimary, background: submitting ? "#4a3a9f" : "#7c6af7" }}
           >
-            {submitting ? "Kindling…" : "🔥 Kindle"}
+            {submitting ? "Kindling..." : "Kindle"}
           </button>
         ) : (
           <button type="button" onClick={advance} style={S.btnPrimary}>
-            Continue →
+            Continue
           </button>
         )}
       </div>

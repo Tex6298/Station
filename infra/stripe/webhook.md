@@ -6,12 +6,12 @@ Go to https://dashboard.stripe.com/products and create three products:
 
 | Product     | Price       | Billing    | Env var                        |
 |-------------|-------------|------------|-------------------------------|
-| Seeker      | £10.00      | Monthly    | `STRIPE_PRICE_SEEKER_MONTHLY` |
-| Seeker      | £100.00     | Yearly     | `STRIPE_PRICE_SEEKER_YEARLY`  |
-| Keeper      | £100.00     | Monthly    | `STRIPE_PRICE_KEEPER_MONTHLY` |
-| Keeper      | £1,000.00   | Yearly     | `STRIPE_PRICE_KEEPER_YEARLY`  |
-| Canon       | £250.00     | Monthly    | `STRIPE_PRICE_CANON_MONTHLY`  |
-| Canon       | £2,500.00   | Yearly     | `STRIPE_PRICE_CANON_YEARLY`   |
+| Basic      | GBP 10.00      | Monthly    | `STRIPE_PRICE_BASIC_MONTHLY` |
+| Basic      | GBP 100.00     | Yearly     | `STRIPE_PRICE_BASIC_YEARLY`  |
+| Creator      | GBP 100.00     | Monthly    | `STRIPE_PRICE_CREATOR_MONTHLY` |
+| Creator      | GBP 1,000.00   | Yearly     | `STRIPE_PRICE_CREATOR_YEARLY`  |
+| Canon       | GBP 250.00     | Monthly    | `STRIPE_PRICE_CANON_MONTHLY`  |
+| Canon       | GBP 2,500.00   | Yearly     | `STRIPE_PRICE_CANON_YEARLY`   |
 
 Copy each Price ID (starts with `price_`) into your `.env` file.
 
@@ -21,7 +21,7 @@ Copy each Price ID (starts with `price_`) into your `.env` file.
 ```bash
 stripe listen --forward-to localhost:4000/billing/webhook
 ```
-This prints a webhook signing secret — set it as `STRIPE_WEBHOOK_SECRET`.
+This prints a webhook signing secret - set it as `STRIPE_WEBHOOK_SECRET`.
 
 ### Production
 1. Go to https://dashboard.stripe.com/webhooks
@@ -31,7 +31,7 @@ This prints a webhook signing secret — set it as `STRIPE_WEBHOOK_SECRET`.
    - `customer.subscription.created`
    - `customer.subscription.updated`
    - `customer.subscription.deleted`
-4. Copy the signing secret → `STRIPE_WEBHOOK_SECRET`
+4. Copy the signing secret -> `STRIPE_WEBHOOK_SECRET`
 
 ## 3. Enable the Customer Portal
 
@@ -45,10 +45,10 @@ STRIPE_SECRET_KEY=sk_live_...          # or sk_test_... for dev
 STRIPE_WEBHOOK_SECRET=whsec_...
 NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_live_...
 
-STRIPE_PRICE_SEEKER_MONTHLY=price_...
-STRIPE_PRICE_SEEKER_YEARLY=price_...
-STRIPE_PRICE_KEEPER_MONTHLY=price_...
-STRIPE_PRICE_KEEPER_YEARLY=price_...
+STRIPE_PRICE_BASIC_MONTHLY=price_...
+STRIPE_PRICE_BASIC_YEARLY=price_...
+STRIPE_PRICE_CREATOR_MONTHLY=price_...
+STRIPE_PRICE_CREATOR_YEARLY=price_...
 STRIPE_PRICE_CANON_MONTHLY=price_...
 STRIPE_PRICE_CANON_YEARLY=price_...
 ```
@@ -56,9 +56,9 @@ STRIPE_PRICE_CANON_YEARLY=price_...
 ## How it works
 
 1. User clicks upgrade on `/billing` or `/pricing`
-2. Frontend calls `POST /billing/checkout` → API creates a Stripe Checkout session → returns URL
+2. Frontend calls `POST /billing/checkout` -> API creates a Stripe Checkout session -> returns URL
 3. User completes payment on Stripe's hosted page
 4. Stripe sends `checkout.session.completed` to `/billing/webhook`
-5. Webhook handler calls `syncSubscriptionToProfile` → updates `profiles.tier` in Supabase
+5. Webhook handler calls `syncSubscriptionToProfile` -> updates `profiles.tier` in Supabase
 6. User is redirected back to `/billing?success=1`
-7. On cancellation: `customer.subscription.deleted` fires → tier downgraded to `visitor`
+7. On cancellation: `customer.subscription.deleted` fires -> tier downgraded to `visitor`

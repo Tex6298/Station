@@ -53,7 +53,7 @@ export default function StudioPage() {
 
       {loading && (
         <div className="card" style={{ color: "#555", textAlign: "center", padding: "3rem" }}>
-          Loading your personas…
+          Loading your personas...
         </div>
       )}
 
@@ -65,7 +65,7 @@ export default function StudioPage() {
 
       {!loading && !error && personas.length === 0 && (
         <div className="card" style={{ textAlign: "center", padding: "4rem 2rem" }}>
-          <div style={{ fontSize: "2.5rem", marginBottom: "1rem" }}>◎</div>
+          <div style={{ fontSize: "2.5rem", marginBottom: "1rem" }}>Signal</div>
           <h2 style={{ margin: "0 0 0.5rem" }}>No personas yet</h2>
           <p style={{ color: "#666", margin: "0 0 1.5rem", fontSize: "0.9rem" }}>
             Begin the awakening flow to bring your first persona through.

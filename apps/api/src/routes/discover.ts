@@ -5,11 +5,11 @@ import { optionalAuth } from "../middleware/require-auth";
 export const discoverRouter = Router();
 const sb = getSupabaseAdmin();
 
-// ─── Unified feed item shape ─────────────────────────────────────────────────
+// --- Unified feed item shape -------------------------------------------------
 // Each item has a normalised shape so the frontend can render generically.
 // type: 'document' | 'thread' | 'space' | 'persona'
 
-// ─── GET /discover/feed?tab=new|rising|featured&limit=20&offset=0 ────────────
+// --- GET /discover/feed?tab=new|rising|featured&limit=20&offset=0 ------------
 discoverRouter.get("/feed", async (req: Request, res: Response) => {
   const tab    = String(req.query.tab    ?? "new");
   const limit  = Math.min(Number(req.query.limit  ?? 20), 50);
@@ -49,7 +49,7 @@ discoverRouter.get("/feed", async (req: Request, res: Response) => {
       id:          d.id,
       type:        "document" as const,
       title:       d.title,
-      excerpt:     d.body ? d.body.slice(0, 220).replace(/\n/g, " ") + (d.body.length > 220 ? "…" : "") : null,
+      excerpt:     d.body ? d.body.slice(0, 220).replace(/\n/g, " ") + (d.body.length > 220 ? "..." : "") : null,
       href:        d.space ? `/space/${d.space.slug}/documents/${d.id}` : `/documents/${d.id}`,
       meta:        d.document_type,
       space:       d.space  ?? null,
@@ -65,7 +65,7 @@ discoverRouter.get("/feed", async (req: Request, res: Response) => {
       id:         t.id,
       type:       "thread" as const,
       title:      t.title,
-      excerpt:    t.body ? t.body.slice(0, 220).replace(/\n/g, " ") + (t.body.length > 220 ? "…" : "") : null,
+      excerpt:    t.body ? t.body.slice(0, 220).replace(/\n/g, " ") + (t.body.length > 220 ? "..." : "") : null,
       href:       t.category ? `/forums/${t.category.slug}/${t.id}` : `/forums/${t.id}`,
       meta:       t.category?.title ?? "Forum",
       space:      null,
@@ -112,7 +112,7 @@ discoverRouter.get("/feed", async (req: Request, res: Response) => {
   }
 });
 
-// ─── GET /discover/sidebar ─── data for the logged-in sidebar ────────────────
+// --- GET /discover/sidebar --- data for the logged-in sidebar ----------------
 discoverRouter.get("/sidebar", optionalAuth, async (req: Request, res: Response) => {
   const userId = req.user?.id ?? null;
 
@@ -170,7 +170,7 @@ discoverRouter.get("/sidebar", optionalAuth, async (req: Request, res: Response)
   }
 });
 
-// ─── GET /discover/search?q= ─────────────────────────────────────────────────
+// --- GET /discover/search?q= -------------------------------------------------
 discoverRouter.get("/search", async (req: Request, res: Response) => {
   const q = String(req.query.q ?? "").trim();
   if (!q) return res.json({ documents: [], threads: [], spaces: [], personas: [] });

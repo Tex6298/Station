@@ -40,7 +40,7 @@ export default function ResetPasswordPage() {
         <div className="card" style={{ padding: "2rem" }}>
           {sent ? (
             <div style={{ textAlign: "center" }}>
-              <div style={{ fontSize: "2rem", marginBottom: "0.75rem" }}>✉️</div>
+              <div style={{ fontSize: "2rem", marginBottom: "0.75rem" }}>Email</div>
               <p style={{ color: "#ccc", fontSize: "0.9rem", lineHeight: 1.7 }}>
                 If an account exists for <strong>{email}</strong>, a reset link is on its way.
               </p>
@@ -78,7 +78,7 @@ export default function ResetPasswordPage() {
                     cursor: loading ? "not-allowed" : "pointer", opacity: loading ? 0.7 : 1,
                   }}
                 >
-                  {loading ? "Sending…" : "Send reset link"}
+                  {loading ? "Sending..." : "Send reset link"}
                 </button>
               </form>
             </>

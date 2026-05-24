@@ -4,7 +4,7 @@ import type { Database } from "./types";
 export type { Database, Tier } from "./types";
 
 /**
- * Server-side Supabase client (uses service role key — never expose to browser).
+ * Server-side Supabase client (uses service role key - never expose to browser).
  * Import this in API routes and server actions only.
  */
 export function createServerClient() {

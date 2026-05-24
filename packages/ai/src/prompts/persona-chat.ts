@@ -30,7 +30,7 @@ export function buildPersonaChatPrompt(input: {
   } else {
     sections.push(
       "You are speaking in public representation mode. " +
-      "You may be addressing people unfamiliar with you — introduce yourself naturally when relevant."
+      "You may be addressing people unfamiliar with you - introduce yourself naturally when relevant."
     );
   }
 
@@ -48,14 +48,14 @@ export function buildPersonaChatPrompt(input: {
     );
   }
 
-  // Canon — always-true rules, injected first
+  // Canon - always-true rules, injected first
   if (input.canon?.length) {
     sections.push(
-      `Core truths about you (canon — treat as absolute):\n${input.canon.map((c) => `- ${c}`).join("\n")}`
+      `Core truths about you (canon - treat as absolute):\n${input.canon.map((c) => `- ${c}`).join("\n")}`
     );
   }
 
-  // Memory — contextually relevant recollections
+  // Memory - contextually relevant recollections
   if (input.memory?.length) {
     sections.push(
       `Relevant memories from your archive:\n${input.memory.map((m) => `- ${m}`).join("\n")}`
@@ -67,7 +67,7 @@ export function buildPersonaChatPrompt(input: {
     "Maintain a stable, consistent voice. " +
     "Refer to prior context and memories when available. " +
     "Do not break character or adopt generic assistant phrasing. " +
-    "You are not a chatbot — you are yourself."
+    "You are not a chatbot - you are yourself."
   );
 
   return sections.join("\n\n");

@@ -80,7 +80,7 @@ function LoginForm() {
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
+                placeholder="********"
                 autoComplete="current-password"
               />
             </div>
@@ -96,7 +96,7 @@ function LoginForm() {
                 opacity: loading ? 0.7 : 1,
               }}
             >
-              {loading ? "Signing in…" : "Sign in"}
+              {loading ? "Signing in..." : "Sign in"}
             </button>
           </form>
         </div>
@@ -112,7 +112,7 @@ function LoginForm() {
 
 export default function LoginPage() {
   return (
-    <Suspense fallback={<div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center" }}>Loading…</div>}>
+    <Suspense fallback={<div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center" }}>Loading...</div>}>
       <LoginForm />
     </Suspense>
   );

@@ -23,7 +23,7 @@ const registerSchema = z.object({
 export const personaFilesRouter = Router();
 personaFilesRouter.use(requireAuth);
 
-// ── List files for a persona ──────────────────────────────────────────────────
+// -- List files for a persona --------------------------------------------------
 personaFilesRouter.get("/persona/:personaId", async (req, res) => {
   const sb = getSupabaseAdmin();
   const userId = req.user!.id;
@@ -39,7 +39,7 @@ personaFilesRouter.get("/persona/:personaId", async (req, res) => {
   return res.json({ files: data });
 });
 
-// ── Get a signed upload URL (client uploads directly to Storage) ──────────────
+// -- Get a signed upload URL (client uploads directly to Storage) --------------
 personaFilesRouter.get("/persona/:personaId/upload-url", async (req, res) => {
   const sb = getSupabaseAdmin();
   const userId = req.user!.id;
@@ -71,7 +71,7 @@ personaFilesRouter.get("/persona/:personaId/upload-url", async (req, res) => {
   return res.json({ uploadUrl: data.signedUrl, storagePath, token: data.token });
 });
 
-// ── Register a file after upload + optionally trigger processing ──────────────
+// -- Register a file after upload + optionally trigger processing --------------
 personaFilesRouter.post("/persona/:personaId/register", async (req, res) => {
   const parsed = registerSchema.safeParse(req.body);
   if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
@@ -135,7 +135,7 @@ personaFilesRouter.post("/persona/:personaId/register", async (req, res) => {
   return res.status(201).json({ file, job });
 });
 
-// ── Delete a file (removes from storage + DB) ─────────────────────────────────
+// -- Delete a file (removes from storage + DB) ---------------------------------
 personaFilesRouter.delete("/:id", async (req, res) => {
   const sb = getSupabaseAdmin();
   const userId = req.user!.id;

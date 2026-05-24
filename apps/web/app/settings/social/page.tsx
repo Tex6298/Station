@@ -14,13 +14,13 @@ interface Connection {
 }
 
 const PLATFORM_INFO: Record<string, { label: string; icon: string; color: string; authType: "simple" | "oauth"; hint?: string }> = {
-  bluesky:   { label: "Bluesky",    icon: "🦋", color: "#0085ff", authType: "simple",  hint: "Use an App Password from bsky.app → Settings → App Passwords" },
-  mastodon:  { label: "Mastodon",   icon: "🐘", color: "#563acc", authType: "simple",  hint: "Get an access token from your instance → Settings → Development → New Application" },
-  tumblr:    { label: "Tumblr",     icon: "📝", color: "#35465c", authType: "oauth"  },
-  linkedin:  { label: "LinkedIn",   icon: "💼", color: "#0a66c2", authType: "oauth"  },
-  reddit:    { label: "Reddit",     icon: "🤖", color: "#ff4500", authType: "oauth",  hint: "After connecting, set your default subreddit below" },
-  wordpress: { label: "WordPress",  icon: "🌐", color: "#21759b", authType: "simple",  hint: "Use an Application Password from WP Admin → Users → Profile → Application Passwords" },
-  ghost:     { label: "Ghost",      icon: "👻", color: "#212121", authType: "simple",  hint: "Create an Admin API key in Ghost Admin → Integrations → Add custom integration" },
+  bluesky:   { label: "Bluesky",    icon: "Bluesky", color: "#0085ff", authType: "simple",  hint: "Use an App Password from bsky.app -> Settings -> App Passwords" },
+  mastodon:  { label: "Mastodon",   icon: "Mastodon", color: "#563acc", authType: "simple",  hint: "Get an access token from your instance -> Settings -> Development -> New Application" },
+  tumblr:    { label: "Tumblr",     icon: "Write", color: "#35465c", authType: "oauth"  },
+  linkedin:  { label: "LinkedIn",   icon: "LinkedIn", color: "#0a66c2", authType: "oauth"  },
+  reddit:    { label: "Reddit",     icon: "Bot", color: "#ff4500", authType: "oauth",  hint: "After connecting, set your default subreddit below" },
+  wordpress: { label: "WordPress",  icon: "Public", color: "#21759b", authType: "simple",  hint: "Use an Application Password from WP Admin -> Users -> Profile -> Application Passwords" },
+  ghost:     { label: "Ghost",      icon: "Ghost", color: "#212121", authType: "simple",  hint: "Create an Admin API key in Ghost Admin -> Integrations -> Add custom integration" },
 };
 
 const CHAR_LIMITS: Record<string, number> = {
@@ -138,7 +138,7 @@ function SocialSettingsContent() {
     }
   }
 
-  if (loading) return <main className="container"><div className="card" style={{ padding: "3rem", textAlign: "center", color: "#555" }}>Loading…</div></main>;
+  if (loading) return <main className="container"><div className="card" style={{ padding: "3rem", textAlign: "center", color: "#555" }}>Loading...</div></main>;
 
   return (
     <main className="container" style={{ maxWidth: 700 }}>
@@ -158,7 +158,7 @@ function SocialSettingsContent() {
           fontSize: "0.875rem", display: "flex", justifyContent: "space-between", alignItems: "center",
         }}>
           {banner.text}
-          <button onClick={() => setBanner(null)} style={{ background: "none", border: "none", color: "inherit", cursor: "pointer", fontSize: "1rem", lineHeight: 1 }}>✕</button>
+          <button onClick={() => setBanner(null)} style={{ background: "none", border: "none", color: "inherit", cursor: "pointer", fontSize: "1rem", lineHeight: 1 }}>x</button>
         </div>
       )}
 
@@ -187,7 +187,7 @@ function SocialSettingsContent() {
                 </div>
                 {conn ? (
                   <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                    <span style={{ fontSize: "0.75rem", color: "#4ade80" }}>● Connected</span>
+                    <span style={{ fontSize: "0.75rem", color: "#4ade80" }}>Connected</span>
                     <span style={{ fontSize: "0.75rem", color: "#555" }}>{conn.handle}</span>
                     <button
                       onClick={() => disconnect(conn.id, platform)}
@@ -203,7 +203,7 @@ function SocialSettingsContent() {
                       disabled={isBusy}
                       style={{ padding: "0.35rem 0.85rem", background: info.color, border: "none", borderRadius: 8, color: "#fff", fontWeight: 500, cursor: "pointer", fontSize: "0.8rem", opacity: isBusy ? 0.7 : 1 }}
                     >
-                      {isBusy ? "Redirecting…" : "Connect"}
+                      {isBusy ? "Redirecting..." : "Connect"}
                     </button>
                   ) : null
                 )}
@@ -249,7 +249,7 @@ function SocialSettingsContent() {
                     disabled={isBusy}
                     style={{ padding: "0.45rem 1rem", background: info.color, border: "none", borderRadius: 8, color: "#fff", fontWeight: 500, cursor: "pointer", fontSize: "0.82rem", opacity: isBusy ? 0.7 : 1, justifySelf: "start" }}
                   >
-                    {isBusy ? "Connecting…" : "Connect"}
+                    {isBusy ? "Connecting..." : "Connect"}
                   </button>
                 </div>
               )}
@@ -285,7 +285,7 @@ function SocialSettingsContent() {
 
 export default function SocialSettingsPage() {
   return (
-    <Suspense fallback={<main className="container"><div className="card" style={{ padding: "3rem", textAlign: "center", color: "#555" }}>Loading…</div></main>}>
+    <Suspense fallback={<main className="container"><div className="card" style={{ padding: "3rem", textAlign: "center", color: "#555" }}>Loading...</div></main>}>
       <SocialSettingsContent />
     </Suspense>
   );

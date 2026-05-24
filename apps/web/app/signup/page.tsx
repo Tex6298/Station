@@ -29,7 +29,7 @@ export default function SignupPage() {
       if (session) {
         router.push("/studio");
       } else {
-        // Email confirmation required — redirect to a holding page
+        // Email confirmation required - redirect to a holding page
         router.push("/signup/confirm");
       }
     } catch (err) {
@@ -112,7 +112,7 @@ export default function SignupPage() {
                 type="password"
                 value={confirm}
                 onChange={(e) => setConfirm(e.target.value)}
-                placeholder="••••••••"
+                placeholder="********"
                 autoComplete="new-password"
               />
             </div>
@@ -128,12 +128,12 @@ export default function SignupPage() {
                 opacity: loading ? 0.7 : 1,
               }}
             >
-              {loading ? "Creating account…" : "Create account"}
+              {loading ? "Creating account..." : "Create account"}
             </button>
           </form>
 
           <div style={{ marginTop: "1.5rem", padding: "1rem", background: "#0d111a", borderRadius: 8, fontSize: "0.78rem", color: "#555", lineHeight: 1.6 }}>
-            By creating an account you agree to our terms of service. Station is a platform for the AI persona community — be kind.
+            By creating an account you agree to our terms of service. Station is a platform for the AI persona community - be kind.
           </div>
         </div>
 

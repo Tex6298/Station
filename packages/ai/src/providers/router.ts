@@ -62,6 +62,6 @@ export function resolveProvider(config: ProviderConfig): ChatProvider {
       break;
   }
 
-  // BYOK was requested but no key was found — fall back to platform
+  // BYOK was requested but no key was found - fall back to platform
   return platformProvider;
 }

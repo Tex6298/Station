@@ -7,13 +7,13 @@ import { getSession } from "@/lib/auth";
 interface Connection { id: string; platform: string; handle: string | null; }
 
 const PLATFORM_INFO: Record<string, { label: string; icon: string; limit: number }> = {
-  bluesky:   { label: "Bluesky",   icon: "🦋", limit: 300   },
-  mastodon:  { label: "Mastodon",  icon: "🐘", limit: 500   },
-  tumblr:    { label: "Tumblr",    icon: "📝", limit: 4096  },
-  linkedin:  { label: "LinkedIn",  icon: "💼", limit: 3000  },
-  reddit:    { label: "Reddit",    icon: "🤖", limit: 40000 },
-  wordpress: { label: "WordPress", icon: "🌐", limit: 0     },
-  ghost:     { label: "Ghost",     icon: "👻", limit: 0     },
+  bluesky:   { label: "Bluesky",   icon: "Bluesky", limit: 300   },
+  mastodon:  { label: "Mastodon",  icon: "Mastodon", limit: 500   },
+  tumblr:    { label: "Tumblr",    icon: "Write", limit: 4096  },
+  linkedin:  { label: "LinkedIn",  icon: "LinkedIn", limit: 3000  },
+  reddit:    { label: "Reddit",    icon: "Bot", limit: 40000 },
+  wordpress: { label: "WordPress", icon: "Public", limit: 0     },
+  ghost:     { label: "Ghost",     icon: "Ghost", limit: 0     },
 };
 
 interface PostComposerProps {
@@ -110,7 +110,7 @@ export function PostComposer({ documentId, documentTitle, initialContent = "", o
     return (
       <div className="card" style={{ textAlign: "center", padding: "2rem", color: "#555" }}>
         No social accounts connected.{" "}
-        <a href="/settings/social" style={{ color: "#7c6af7" }}>Connect accounts →</a>
+        <a href="/settings/social" style={{ color: "#7c6af7" }}>Connect accounts</a>
       </div>
     );
   }
@@ -118,7 +118,7 @@ export function PostComposer({ documentId, documentTitle, initialContent = "", o
   if (success) {
     return (
       <div className="card" style={{ textAlign: "center", padding: "2rem" }}>
-        <div style={{ fontSize: "2rem", marginBottom: "0.5rem" }}>✓</div>
+        <div style={{ fontSize: "2rem", marginBottom: "0.5rem" }}>Done</div>
         <div style={{ color: "#4ade80", fontWeight: 500 }}>Posted successfully</div>
       </div>
     );
@@ -158,7 +158,7 @@ export function PostComposer({ documentId, documentTitle, initialContent = "", o
         </div>
       </div>
 
-      {/* Title — shown for long-form platforms or Reddit */}
+      {/* Title - shown for long-form platforms or Reddit */}
       {(hasLongForm || hasReddit) && (
         <div>
           <div style={{ fontSize: "0.72rem", color: "#888", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: "0.35rem" }}>
@@ -168,7 +168,7 @@ export function PostComposer({ documentId, documentTitle, initialContent = "", o
             className="input"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            placeholder="Title…"
+            placeholder="Title..."
             style={{ fontSize: "0.9rem" }}
           />
         </div>
@@ -209,7 +209,7 @@ export function PostComposer({ documentId, documentTitle, initialContent = "", o
                 disabled={generating || selected.size === 0}
                 style={{ fontSize: "0.72rem", padding: "0.15rem 0.5rem", background: "none", border: "1px solid #334155", borderRadius: 6, color: "#7c6af7", cursor: "pointer" }}
               >
-                {generating ? "Generating…" : "✦ AI teaser"}
+                {generating ? "Generating..." : "Featured AI teaser"}
               </button>
             )}
           </div>
@@ -218,7 +218,7 @@ export function PostComposer({ documentId, documentTitle, initialContent = "", o
           className="textarea"
           value={content}
           onChange={(e) => setContent(e.target.value)}
-          placeholder="Write your post…"
+          placeholder="Write your post..."
           style={{ minHeight: 120, fontSize: "0.9rem", lineHeight: 1.65, borderColor: overLimit ? "#7d2e2e" : undefined }}
         />
       </div>
@@ -245,7 +245,7 @@ export function PostComposer({ documentId, documentTitle, initialContent = "", o
             opacity: submitting || selected.size === 0 ? 0.6 : 1,
           }}
         >
-          {submitting ? "Posting…" : `Post${selected.size > 1 ? ` to ${selected.size} platforms` : ""}`}
+          {submitting ? "Posting..." : `Post${selected.size > 1 ? ` to ${selected.size} platforms` : ""}`}
         </button>
       </div>
     </form>

@@ -32,7 +32,7 @@ export default function PublicSpacePage() {
     ]).then(([spaceData, session]) => {
       setData(spaceData);
       if (session && spaceData.space.owner_user_id) {
-        // We detect ownership via the space owner — a simpler check uses profile
+        // We detect ownership via the space owner - a simpler check uses profile
         // For now, mark owner if session exists and we can compare later
       }
       const firstPage = spaceData.pages[0]?.slug ?? "home";
@@ -46,13 +46,13 @@ export default function PublicSpacePage() {
     getSession().then((session) => {
       if (session) {
         apiGet<{ personas: Persona[] }>("/personas", session.access_token)
-          .then(() => setIsOwner(true)) // rough proxy — owner can hit /personas
+          .then(() => setIsOwner(true)) // rough proxy - owner can hit /personas
           .catch(() => {});
       }
     });
   }, [slug]);
 
-  if (loading) return <main className="container"><div className="card" style={{ textAlign: "center", padding: "3rem", color: "#555" }}>Loading…</div></main>;
+  if (loading) return <main className="container"><div className="card" style={{ textAlign: "center", padding: "3rem", color: "#555" }}>Loading...</div></main>;
   if (error || !data) return <main className="container"><div className="card" style={{ background: "#2d1515", borderColor: "#7d2e2e", color: "#eb5757" }}>{error ?? "Space not found."}</div></main>;
 
   const { space, pages, documents, personas, owner } = data;

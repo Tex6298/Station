@@ -53,7 +53,7 @@ export async function requireAuth(
 }
 
 /**
- * Optional auth — attaches req.user if a valid token is present,
+ * Optional auth - attaches req.user if a valid token is present,
  * but does not block the request if no token is provided.
  */
 export async function optionalAuth(
@@ -75,7 +75,7 @@ export async function optionalAuth(
         };
       }
     } catch {
-      // silently ignore — optional auth doesn't block
+      // silently ignore - optional auth doesn't block
     }
   }
   next();

@@ -95,7 +95,7 @@ export default function DeveloperSpacesPage() {
     return (
       <main className="container">
         <div className="card" style={{ textAlign: "center", padding: "3rem", color: "#94a3b8" }}>
-          Loading Developer Spaces…
+          Loading Developer Spaces...
         </div>
       </main>
     );
@@ -136,7 +136,7 @@ export default function DeveloperSpacesPage() {
         <p className="pill" style={{ width: "fit-content", color: "#c4b5fd" }}>Developer Spaces</p>
         <h1 style={{ margin: 0, fontSize: "2rem" }}>Project observatories</h1>
         <p style={{ margin: 0, color: "#94a3b8", maxWidth: 900, lineHeight: 1.6 }}>
-          Adapted from Intelhub’s observatory pattern: a builder-friendly public layer that keeps the live system, research notes, and community-facing evidence separate from the private researcher interface.
+          Give running AI projects a public home that visitors can understand: live signals, provenance, research notes, and a clear boundary between the observatory and the private builder console.
         </p>
       </section>
 
@@ -156,7 +156,7 @@ export default function DeveloperSpacesPage() {
           <div>
             <h2 style={{ margin: 0, fontSize: "1.1rem" }}>Create a Developer Space</h2>
             <p style={{ margin: "0.3rem 0 0", color: "#64748b", fontSize: "0.9rem", lineHeight: 1.5 }}>
-              Canon tier and above. Start private, then make it public when your feed is ready.
+              Canon / Developer tier and above. Start private, then make it public when your feed is ready.
             </p>
           </div>
 
@@ -180,19 +180,19 @@ export default function DeveloperSpacesPage() {
           <label style={{ display: "grid", gap: "0.35rem", fontSize: "0.85rem", color: "#cbd5e1" }}>
             Visibility
             <select className="select" value={visibility} onChange={(e) => setVisibility(e.target.value as DeveloperSpaceVisibility)}>
-              {VISIBILITY_OPTIONS.map((option) => <option key={option.value} value={option.value}>{option.label} — {option.help}</option>)}
+              {VISIBILITY_OPTIONS.map((option) => <option key={option.value} value={option.value}>{option.label} - {option.help}</option>)}
             </select>
           </label>
 
           <button className="button primary" disabled={creating || !projectName.trim()} type="submit">
-            {creating ? "Creating…" : "Create observatory"}
+            {creating ? "Creating..." : "Create observatory"}
           </button>
         </form>
 
         <div style={{ display: "grid", gap: "0.75rem" }}>
           {spaces.length === 0 ? (
             <div className="card" style={{ textAlign: "center", padding: "3rem 1.5rem", color: "#94a3b8" }}>
-              <div style={{ fontSize: "2.5rem", marginBottom: "0.75rem" }}>✦</div>
+              <div className="kicker" style={{ justifyContent: "center", marginBottom: "0.75rem" }}>Ready for a signal</div>
               <h2 style={{ margin: "0 0 0.4rem", color: "#f8fafc" }}>No observatories yet</h2>
               <p style={{ margin: 0 }}>Create one, rotate an ingestion key, then stream nodes and events from your existing runtime.</p>
             </div>
@@ -209,8 +209,8 @@ export default function DeveloperSpacesPage() {
               </div>
               <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap", color: "#64748b", fontSize: "0.8rem" }}>
                 <span>{space.visualisationType.replace("_", " ")}</span>
-                <span>·</span>
-                <span>{space.apiKeyLastFour ? `key ••••${space.apiKeyLastFour}` : "no ingestion key yet"}</span>
+                <span>/</span>
+                <span>{space.apiKeyLastFour ? `key ****${space.apiKeyLastFour}` : "no ingestion key yet"}</span>
               </div>
               <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
                 <Link className="button" href={`/developer-spaces/${space.slug}`} style={{ textDecoration: "none" }}>View observatory</Link>

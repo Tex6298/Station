@@ -2,7 +2,7 @@ import { createBrowserClient } from "@station/db";
 
 /**
  * Returns a Supabase browser client for use in React components.
- * Lazily created — safe to call on every render.
+ * Lazily created - safe to call on every render.
  */
 let _client: ReturnType<typeof createBrowserClient> | null = null;
 

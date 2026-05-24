@@ -27,7 +27,7 @@ const updateSchema = createSchema.partial().extend({
 
 export const documentsRouter = Router();
 
-// ── Public: read published public documents ───────────────────────────────────
+// -- Public: read published public documents -----------------------------------
 documentsRouter.get("/public/:id", async (req, res) => {
   const sb = getSupabaseAdmin();
   const { data, error } = await sb
@@ -42,10 +42,10 @@ documentsRouter.get("/public/:id", async (req, res) => {
   return res.json({ document: data });
 });
 
-// ── Authenticated routes ──────────────────────────────────────────────────────
+// -- Authenticated routes ------------------------------------------------------
 documentsRouter.use(requireAuth);
 
-// GET /documents — list the user's own documents
+// GET /documents - list the user's own documents
 documentsRouter.get("/", async (req, res) => {
   const sb = getSupabaseAdmin();
   const { spaceId } = req.query;
@@ -63,7 +63,7 @@ documentsRouter.get("/", async (req, res) => {
   return res.json({ documents: data ?? [] });
 });
 
-// GET /documents/:id — get a single document (owner or public)
+// GET /documents/:id - get a single document (owner or public)
 documentsRouter.get("/:id", async (req, res) => {
   const sb = getSupabaseAdmin();
   const userId = req.user!.id;
@@ -86,7 +86,7 @@ documentsRouter.get("/:id", async (req, res) => {
   return res.json({ document: data });
 });
 
-// POST /documents — create a document (creator tier)
+// POST /documents - create a document (creator tier)
 documentsRouter.post("/", requireTier("creator"), async (req, res) => {
   const parsed = createSchema.safeParse(req.body);
   if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
@@ -127,7 +127,7 @@ documentsRouter.post("/", requireTier("creator"), async (req, res) => {
   return res.status(201).json({ document: data });
 });
 
-// PATCH /documents/:id — update a document
+// PATCH /documents/:id - update a document
 documentsRouter.patch("/:id", async (req, res) => {
   const parsed = updateSchema.safeParse(req.body);
   if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });

@@ -5,19 +5,19 @@
 Go to https://supabase.com and create a new project. Note your:
 - **Project URL** (`SUPABASE_URL` / `NEXT_PUBLIC_SUPABASE_URL`)
 - **Anon key** (`SUPABASE_ANON_KEY` / `NEXT_PUBLIC_SUPABASE_ANON_KEY`)
-- **Service role key** (`SUPABASE_SERVICE_ROLE_KEY`) — keep this secret, server-side only
-- **Database URL** (`DATABASE_URL`) — found in Project Settings → Database
+- **Service role key** (`SUPABASE_SERVICE_ROLE_KEY`) - keep this secret, server-side only
+- **Database URL** (`DATABASE_URL`) - found in Project Settings -> Database
 
 ## 2. Run migrations
 
 In the Supabase dashboard, go to **SQL Editor** and run the migrations in order:
 
-1. `migrations/001_initial_schema.sql` — creates all tables, triggers, and indexes
-2. `migrations/002_rls_policies.sql` — enables Row Level Security on all tables
-3. `migrations/003_rag_functions.sql` — adds pgvector helper RPCs
-4. `migrations/004_forum_seed_and_helpers.sql` — seeds forum categories
-5. `migrations/005_social_publishing.sql` — social publishing connections
-6. `migrations/006_developer_spaces.sql` — Developer Space observatories and ingestion
+1. `migrations/001_initial_schema.sql` - creates all tables, triggers, and indexes
+2. `migrations/002_rls_policies.sql` - enables Row Level Security on all tables
+3. `migrations/003_rag_functions.sql` - adds pgvector helper RPCs
+4. `migrations/004_forum_seed_and_helpers.sql` - seeds forum categories
+5. `migrations/005_social_publishing.sql` - social publishing connections
+6. `migrations/006_developer_spaces.sql` - Developer Space observatories and ingestion
 
 Or use the Supabase CLI:
 ```bash
@@ -27,7 +27,7 @@ npx supabase db push
 ## 3. Enable pgvector
 
 The schema migration enables pgvector automatically. If it fails, go to
-**Database → Extensions** in the Supabase dashboard and enable `vector`.
+**Database -> Extensions** in the Supabase dashboard and enable `vector`.
 
 ## 4. Storage bucket
 
@@ -43,7 +43,7 @@ Both the API and the web app need the Supabase URL and keys.
 
 ## 6. Email auth settings
 
-In Supabase → **Authentication → Settings**:
+In Supabase -> **Authentication -> Settings**:
 - Enable **Email provider**
 - For beta: you can disable "Confirm email" to allow instant sign-in
 - Set your site URL to `http://localhost:3000` for local dev

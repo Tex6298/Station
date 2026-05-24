@@ -3,7 +3,7 @@ import { getSupabaseAdmin } from "../lib/supabase";
 
 const sb = getSupabaseAdmin();
 
-// ─── Types ────────────────────────────────────────────────────────────────────
+// --- Types --------------------------------------------------------------------
 export interface SocialConnection {
   id: string;
   user_id: string;
@@ -20,7 +20,7 @@ export interface PostResult {
   error?: string;
 }
 
-// ─── Bluesky (AT Protocol — app password, no OAuth) ──────────────────────────
+// --- Bluesky (AT Protocol - app password, no OAuth) --------------------------
 export async function postToBluesky(
   connection: SocialConnection,
   text: string
@@ -45,7 +45,7 @@ export async function postToBluesky(
     const { accessJwt, did } = await sessionRes.json();
 
     // Truncate to 300 chars (Bluesky limit)
-    const postText = text.length > 300 ? text.slice(0, 297) + "…" : text;
+    const postText = text.length > 300 ? text.slice(0, 297) + "..." : text;
 
     const postRes = await fetch(
       "https://bsky.social/xrpc/com.atproto.repo.createRecord",
@@ -82,7 +82,7 @@ export async function postToBluesky(
   }
 }
 
-// ─── Mastodon (user provides instance URL + access token) ────────────────────
+// --- Mastodon (user provides instance URL + access token) --------------------
 export async function postToMastodon(
   connection: SocialConnection,
   text: string
@@ -92,7 +92,7 @@ export async function postToMastodon(
     if (!instance) throw new Error("Mastodon instance URL not configured");
 
     // 500 char limit (default; some instances allow more)
-    const status = text.length > 500 ? text.slice(0, 497) + "…" : text;
+    const status = text.length > 500 ? text.slice(0, 497) + "..." : text;
 
     const res = await fetch(`${instance}/api/v1/statuses`, {
       method: "POST",
@@ -113,7 +113,7 @@ export async function postToMastodon(
   }
 }
 
-// ─── Tumblr (OAuth2) ──────────────────────────────────────────────────────────
+// --- Tumblr (OAuth2) ----------------------------------------------------------
 export async function postToTumblr(
   connection: SocialConnection,
   text: string,
@@ -155,7 +155,7 @@ export async function postToTumblr(
   }
 }
 
-// ─── LinkedIn (OAuth2) ────────────────────────────────────────────────────────
+// --- LinkedIn (OAuth2) --------------------------------------------------------
 export async function postToLinkedIn(
   connection: SocialConnection,
   text: string
@@ -165,7 +165,7 @@ export async function postToLinkedIn(
     if (!personUrn) throw new Error("LinkedIn person URN not configured");
 
     // 3000 char limit for personal posts
-    const commentary = text.length > 3000 ? text.slice(0, 2997) + "…" : text;
+    const commentary = text.length > 3000 ? text.slice(0, 2997) + "..." : text;
 
     const res = await fetch("https://api.linkedin.com/v2/ugcPosts", {
       method: "POST",
@@ -199,7 +199,7 @@ export async function postToLinkedIn(
   }
 }
 
-// ─── WordPress (application password) ────────────────────────────────────────
+// --- WordPress (application password) ----------------------------------------
 export async function postToWordPress(
   connection: SocialConnection,
   title: string,
@@ -235,7 +235,7 @@ export async function postToWordPress(
   }
 }
 
-// ─── Ghost (Admin API key → JWT) ──────────────────────────────────────────────
+// --- Ghost (Admin API key -> JWT) ----------------------------------------------
 export async function postToGhost(
   connection: SocialConnection,
   title: string,
@@ -282,7 +282,7 @@ export async function postToGhost(
   }
 }
 
-// ─── Reddit (OAuth2) ──────────────────────────────────────────────────────────
+// --- Reddit (OAuth2) ----------------------------------------------------------
 export async function postToReddit(
   connection: SocialConnection,
   title: string,
@@ -291,7 +291,7 @@ export async function postToReddit(
 ): Promise<PostResult> {
   try {
     const sr = subreddit || connection.meta.defaultSubreddit;
-    if (!sr) throw new Error("No subreddit specified — set a default in your Reddit connection settings");
+    if (!sr) throw new Error("No subreddit specified - set a default in your Reddit connection settings");
 
     const res = await fetch("https://oauth.reddit.com/api/submit", {
       method: "POST",
@@ -325,7 +325,7 @@ export async function postToReddit(
   }
 }
 
-// ─── Dispatcher — routes to the right platform ───────────────────────────────
+// --- Dispatcher - routes to the right platform -------------------------------
 export async function dispatchPost(postId: string): Promise<void> {
   const { data: post, error: postErr } = await sb
     .from("social_posts")

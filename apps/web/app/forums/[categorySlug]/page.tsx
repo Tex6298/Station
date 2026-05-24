@@ -44,7 +44,7 @@ export default function ForumCategoryPage() {
     }).finally(() => setLoading(false));
   }, [categorySlug]);
 
-  if (loading) return <main className="container"><div className="card" style={{ textAlign: "center", padding: "3rem", color: "#555" }}>Loading…</div></main>;
+  if (loading) return <main className="container"><div className="card" style={{ textAlign: "center", padding: "3rem", color: "#555" }}>Loading...</div></main>;
   if (error || !category) return <main className="container"><div className="card" style={{ background: "#2d1515", borderColor: "#7d2e2e", color: "#eb5757" }}>{error ?? "Not found."}</div></main>;
 
   return (
@@ -52,7 +52,7 @@ export default function ForumCategoryPage() {
       {/* Breadcrumb */}
       <div style={{ fontSize: "0.78rem", color: "#555", marginBottom: "1.5rem" }}>
         <Link href="/forums" style={{ color: "#666" }}>Forums</Link>
-        {" › "}
+        {" / "}
         <span style={{ color: "#aaa" }}>{category.title}</span>
       </div>
 

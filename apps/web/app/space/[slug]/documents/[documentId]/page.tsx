@@ -62,14 +62,14 @@ export default function DocumentPage() {
     finally { setPublishing(false); }
   }
 
-  if (loading) return <main className="container"><div className="card" style={{ textAlign: "center", padding: "3rem", color: "#555" }}>Loading…</div></main>;
+  if (loading) return <main className="container"><div className="card" style={{ textAlign: "center", padding: "3rem", color: "#555" }}>Loading...</div></main>;
   if (error || !doc) return <main className="container"><div className="card" style={{ background: "#2d1515", borderColor: "#7d2e2e", color: "#eb5757" }}>{error ?? "Not found."}</div></main>;
 
   return (
     <main className="container" style={{ maxWidth: 720 }}>
       <div style={{ fontSize: "0.78rem", color: "#555", marginBottom: "1.5rem" }}>
-        <Link href="/space" style={{ color: "#666" }}>Spaces</Link>{" › "}
-        <Link href={"/space/" + slug} style={{ color: "#666" }}>{slug}</Link>{" › "}
+        <Link href="/space" style={{ color: "#666" }}>Spaces</Link>{" / "}
+        <Link href={"/space/" + slug} style={{ color: "#666" }}>{slug}</Link>{" / "}
         <span style={{ color: "#aaa" }}>{doc.title}</span>
       </div>
 
@@ -100,14 +100,14 @@ export default function DocumentPage() {
             {doc.status !== "published" && (
               <button onClick={handlePublish} disabled={publishing}
                 style={{ padding: "0.4rem 0.9rem", background: "#7c6af7", border: "none", borderRadius: 7, color: "#fff", cursor: "pointer", fontSize: "0.82rem" }}>
-                {publishing ? "Publishing…" : "Publish"}
+                {publishing ? "Publishing..." : "Publish"}
               </button>
             )}
             <button
               onClick={() => setShowComposer((v) => !v)}
               style={{ padding: "0.4rem 0.9rem", background: "transparent", border: "1px solid #334155", borderRadius: 7, color: "#aaa", cursor: "pointer", fontSize: "0.82rem", display: "flex", alignItems: "center", gap: "0.35rem" }}
             >
-              📡 Share to socials
+              Signal Share to socials
             </button>
           </div>
         )}

@@ -26,7 +26,7 @@ const saveCanonSchema = z.object({
 export const conversationsRouter = Router();
 conversationsRouter.use(requireAuth);
 
-// ── List conversations for a persona ─────────────────────────────────────────
+// -- List conversations for a persona -----------------------------------------
 conversationsRouter.get("/persona/:personaId", async (req, res) => {
   const sb = getSupabaseAdmin();
   const userId = req.user!.id;
@@ -42,7 +42,7 @@ conversationsRouter.get("/persona/:personaId", async (req, res) => {
   return res.json({ conversations: data });
 });
 
-// ── Get a single conversation with messages ───────────────────────────────────
+// -- Get a single conversation with messages -----------------------------------
 conversationsRouter.get("/:conversationId", async (req, res) => {
   const sb = getSupabaseAdmin();
   const userId = req.user!.id;
@@ -65,7 +65,7 @@ conversationsRouter.get("/:conversationId", async (req, res) => {
   return res.json({ conversation: conv, messages: messages ?? [] });
 });
 
-// ── Send a message (main chat endpoint) ──────────────────────────────────────
+// -- Send a message (main chat endpoint) --------------------------------------
 conversationsRouter.post("/persona/:personaId/chat", async (req, res) => {
   const parsed = chatSchema.safeParse(req.body);
   if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
@@ -100,7 +100,7 @@ conversationsRouter.post("/persona/:personaId/chat", async (req, res) => {
       .insert({
         persona_id: personaId,
         owner_user_id: userId,
-        title: `${persona.name} — ${new Date().toLocaleDateString("en-GB")}`,
+        title: `${persona.name} - ${new Date().toLocaleDateString("en-GB")}`,
         mode: "private",
       })
       .select("id")
@@ -186,7 +186,7 @@ conversationsRouter.post("/persona/:personaId/chat", async (req, res) => {
   });
 });
 
-// ── Save last assistant message as memory ─────────────────────────────────────
+// -- Save last assistant message as memory -------------------------------------
 conversationsRouter.post("/:conversationId/save-memory", async (req, res) => {
   const parsed = saveMemorySchema.safeParse(req.body);
   if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
@@ -224,7 +224,7 @@ conversationsRouter.post("/:conversationId/save-memory", async (req, res) => {
   return res.status(201).json({ memoryItem: item });
 });
 
-// ── Save last assistant message as canon ──────────────────────────────────────
+// -- Save last assistant message as canon --------------------------------------
 conversationsRouter.post("/:conversationId/save-canon", async (req, res) => {
   const parsed = saveCanonSchema.safeParse(req.body);
   if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
@@ -268,7 +268,7 @@ conversationsRouter.post("/:conversationId/save-canon", async (req, res) => {
   return res.status(201).json({ canonItem: canon });
 });
 
-// ── Delete a conversation ─────────────────────────────────────────────────────
+// -- Delete a conversation -----------------------------------------------------
 conversationsRouter.delete("/:conversationId", async (req, res) => {
   const sb = getSupabaseAdmin();
   const userId = req.user!.id;

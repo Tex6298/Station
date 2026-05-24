@@ -49,7 +49,7 @@ export default function PersonaPage() {
     return (
       <main className="container">
         <div className="card" style={{ textAlign: "center", padding: "3rem", color: "#555" }}>
-          Loading…
+          Loading...
         </div>
       </main>
     );
@@ -71,7 +71,7 @@ export default function PersonaPage() {
       {/* Breadcrumb */}
       <div style={{ fontSize: "0.8rem", color: "#555", marginBottom: "1rem" }}>
         <Link href="/studio" style={{ color: "#666" }}>Studio</Link>
-        <span style={{ margin: "0 0.4rem" }}>›</span>
+        <span style={{ margin: "0 0.4rem" }}>/</span>
         <span style={{ color: "#aaa" }}>{persona.name}</span>
       </div>
 

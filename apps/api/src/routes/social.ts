@@ -20,7 +20,7 @@ function redirectBase() {
   return (env.API_URL || "http://localhost:4000").replace(/\/$/, "");
 }
 
-// ─── Schemas ─────────────────────────────────────────────────────────────────
+// --- Schemas -----------------------------------------------------------------
 
 const connectSimpleSchema = z.object({
   platform:    z.enum(["bluesky", "mastodon", "wordpress", "ghost"]),
@@ -38,10 +38,10 @@ const composeSchema = z.object({
   scheduleFor: z.string().datetime().optional(),
 });
 
-// ─── All routes require auth ──────────────────────────────────────────────────
+// --- All routes require auth --------------------------------------------------
 socialRouter.use(requireAuth);
 
-// ─── GET /social/connections ─── list connected accounts ─────────────────────
+// --- GET /social/connections --- list connected accounts ---------------------
 socialRouter.get("/connections", async (req: Request, res: Response) => {
   const { data, error } = await sb
     .from("social_connections")
@@ -53,8 +53,8 @@ socialRouter.get("/connections", async (req: Request, res: Response) => {
   res.json({ connections: data ?? [] });
 });
 
-// ─── POST /social/connections/simple ─── Bluesky / Mastodon / WP / Ghost ─────
-// These platforms don't use OAuth redirect flows — just provide credentials.
+// --- POST /social/connections/simple --- Bluesky / Mastodon / WP / Ghost -----
+// These platforms don't use OAuth redirect flows - just provide credentials.
 socialRouter.post("/connections/simple", async (req: Request, res: Response) => {
   const parsed = connectSimpleSchema.safeParse(req.body);
   if (!parsed.success) return res.status(400).json({ error: parsed.error.errors[0].message });
@@ -92,7 +92,7 @@ socialRouter.post("/connections/simple", async (req: Request, res: Response) => 
   res.status(201).json({ connection: { id: data.id, platform: data.platform, handle: data.handle } });
 });
 
-// ─── GET /social/auth/:platform ─── initiate OAuth (Tumblr/LinkedIn/Reddit) ──
+// --- GET /social/auth/:platform --- initiate OAuth (Tumblr/LinkedIn/Reddit) --
 socialRouter.get("/auth/:platform", (req: Request, res: Response) => {
   const { platform } = req.params;
   const creds = OAUTH_CREDS[platform as keyof typeof OAUTH_CREDS];
@@ -127,7 +127,7 @@ socialRouter.get("/auth/:platform", (req: Request, res: Response) => {
   res.json({ authUrl });
 });
 
-// ─── GET /social/callback/:platform ─── OAuth token exchange ─────────────────
+// --- GET /social/callback/:platform --- OAuth token exchange -----------------
 socialRouter.get("/callback/:platform", async (req: Request, res: Response) => {
   const { platform } = req.params;
   const { code, state, error: oauthError } = req.query as Record<string, string>;
@@ -274,7 +274,7 @@ socialRouter.get("/callback/:platform", async (req: Request, res: Response) => {
   }
 });
 
-// ─── PATCH /social/connections/:id ─── update meta (e.g. default subreddit) ─
+// --- PATCH /social/connections/:id --- update meta (e.g. default subreddit) -
 socialRouter.patch("/connections/:id", async (req: Request, res: Response) => {
   const { meta } = req.body;
   if (!meta) return res.status(400).json({ error: "meta required" });
@@ -296,7 +296,7 @@ socialRouter.patch("/connections/:id", async (req: Request, res: Response) => {
   res.json({ ok: true });
 });
 
-// ─── DELETE /social/connections/:id ─── disconnect a platform ────────────────
+// --- DELETE /social/connections/:id --- disconnect a platform ----------------
 socialRouter.delete("/connections/:id", async (req: Request, res: Response) => {
   const { data: conn } = await sb
     .from("social_connections")
@@ -311,7 +311,7 @@ socialRouter.delete("/connections/:id", async (req: Request, res: Response) => {
   res.json({ ok: true });
 });
 
-// ─── POST /social/compose ─── create + dispatch posts to selected platforms ──
+// --- POST /social/compose --- create + dispatch posts to selected platforms --
 socialRouter.post("/compose", async (req: Request, res: Response) => {
   const parsed = composeSchema.safeParse(req.body);
   if (!parsed.success) return res.status(400).json({ error: parsed.error.errors[0].message });
@@ -370,7 +370,7 @@ socialRouter.post("/compose", async (req: Request, res: Response) => {
   res.status(201).json({ results });
 });
 
-// ─── GET /social/posts ─── post history ──────────────────────────────────────
+// --- GET /social/posts --- post history --------------------------------------
 socialRouter.get("/posts", async (req: Request, res: Response) => {
   const limit  = Math.min(Number(req.query.limit  ?? 20), 50);
   const offset = Number(req.query.offset ?? 0);
@@ -386,7 +386,7 @@ socialRouter.get("/posts", async (req: Request, res: Response) => {
   res.json({ posts: data ?? [] });
 });
 
-// ─── POST /social/generate-teaser ─── AI-generate a social teaser ────────────
+// --- POST /social/generate-teaser --- AI-generate a social teaser ------------
 socialRouter.post("/generate-teaser", async (req: Request, res: Response) => {
   const { documentId, platform, customPrompt } = req.body;
 

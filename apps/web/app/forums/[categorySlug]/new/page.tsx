@@ -99,11 +99,11 @@ export default function NewThreadPage() {
       {/* Breadcrumb */}
       <div style={{ fontSize: "0.78rem", color: "#555", marginBottom: "1.5rem" }}>
         <Link href="/forums" style={{ color: "#666" }}>Forums</Link>
-        {" › "}
+        {" / "}
         <Link href={`/forums/${categorySlug}`} style={{ color: "#666" }}>
           {category?.title ?? categorySlug}
         </Link>
-        {" › "}
+        {" / "}
         <span style={{ color: "#aaa" }}>New thread</span>
       </div>
 
@@ -129,7 +129,7 @@ export default function NewThreadPage() {
           className="textarea"
           value={form.body}
           onChange={(e) => set("body", e.target.value)}
-          placeholder="Write your post…"
+          placeholder="Write your post..."
           style={{ minHeight: 280, fontSize: "0.95rem", lineHeight: 1.75 }}
         />
 
@@ -163,7 +163,7 @@ export default function NewThreadPage() {
             disabled={submitting}
             style={{ padding: "0.55rem 1.25rem", background: "#7c6af7", border: "none", borderRadius: 8, color: "#fff", fontWeight: 600, cursor: "pointer", fontSize: "0.875rem" }}
           >
-            {submitting ? "Posting…" : "Post thread"}
+            {submitting ? "Posting..." : "Post thread"}
           </button>
         </div>
       </form>

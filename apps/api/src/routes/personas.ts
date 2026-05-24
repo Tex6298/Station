@@ -21,7 +21,7 @@ const updateSchema = createSchema.partial();
 export const personasRouter = Router();
 personasRouter.use(requireAuth);
 
-// ── List user's personas ──────────────────────────────────────────────────────
+// -- List user's personas ------------------------------------------------------
 personasRouter.get("/", async (req, res) => {
   const sb = getSupabaseAdmin();
   const { data, error } = await sb
@@ -34,7 +34,7 @@ personasRouter.get("/", async (req, res) => {
   return res.json({ personas: data });
 });
 
-// ── Get a single persona ──────────────────────────────────────────────────────
+// -- Get a single persona ------------------------------------------------------
 personasRouter.get("/:id", async (req, res) => {
   const sb = getSupabaseAdmin();
   const { data, error } = await sb
@@ -53,7 +53,7 @@ personasRouter.get("/:id", async (req, res) => {
   return res.json({ persona: data });
 });
 
-// ── Create a persona (requires private tier minimum) ──────────────────────────
+// -- Create a persona (requires private tier minimum) --------------------------
 personasRouter.post("/", requireTier("private"), async (req, res) => {
   const parsed = createSchema.safeParse(req.body);
   if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
@@ -94,7 +94,7 @@ personasRouter.post("/", requireTier("private"), async (req, res) => {
   return res.status(201).json({ persona: data });
 });
 
-// ── Update a persona ──────────────────────────────────────────────────────────
+// -- Update a persona ----------------------------------------------------------
 personasRouter.patch("/:id", async (req, res) => {
   const parsed = updateSchema.safeParse(req.body);
   if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
@@ -123,7 +123,7 @@ personasRouter.patch("/:id", async (req, res) => {
   return res.json({ persona: data });
 });
 
-// ── Delete a persona ──────────────────────────────────────────────────────────
+// -- Delete a persona ----------------------------------------------------------
 personasRouter.delete("/:id", async (req, res) => {
   const sb = getSupabaseAdmin();
 

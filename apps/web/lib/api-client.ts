@@ -3,7 +3,7 @@ const API_URL =
   process.env.API_URL ??
   "http://localhost:4000";
 
-// ── Generic helpers ───────────────────────────────────────────────────────────
+// -- Generic helpers -----------------------------------------------------------
 
 async function request<T>(
   path: string,
@@ -47,7 +47,7 @@ export function apiDelete<T>(path: string, token?: string): Promise<T> {
   return request<T>(path, { method: "DELETE" }, token);
 }
 
-// ── Billing ───────────────────────────────────────────────────────────────────
+// -- Billing -------------------------------------------------------------------
 
 export interface BillingStatus {
   tier: string;

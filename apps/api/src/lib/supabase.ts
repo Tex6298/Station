@@ -5,7 +5,7 @@ let _client: ReturnType<typeof createClient<Database>> | null = null;
 
 /**
  * Returns a singleton Supabase service-role client for the API.
- * The service role bypasses RLS — only use server-side.
+ * The service role bypasses RLS - only use server-side.
  */
 export function getSupabaseAdmin() {
   if (_client) return _client;
