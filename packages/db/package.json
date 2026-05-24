@@ -1,9 +1,27 @@
 {
   "name": "@station/db",
   "private": true,
-  "main": "src/index.ts",
-  "types": "src/index.ts",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc -p tsconfig.json"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "require": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
+    "./types": {
+      "types": "./dist/types.d.ts",
+      "require": "./dist/types.js",
+      "default": "./dist/types.js"
+    }
+  },
   "dependencies": {
     "@supabase/supabase-js": "^2.45.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.0"
   }
 }

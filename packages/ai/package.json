@@ -1,15 +1,38 @@
 {
   "name": "@station/ai",
   "private": true,
-  "main": "src/index.ts",
-  "types": "src/index.ts",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc -p tsconfig.json"
+  },
   "exports": {
-    ".": "./src/index.ts",
-    "./prompts/*": "./src/prompts/*",
-    "./providers/*": "./src/providers/*",
-    "./retrieval/*": "./src/retrieval/*"
+    ".": {
+      "types": "./dist/index.d.ts",
+      "require": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
+    "./prompts/*": {
+      "types": "./dist/prompts/*.d.ts",
+      "require": "./dist/prompts/*.js",
+      "default": "./dist/prompts/*.js"
+    },
+    "./providers/*": {
+      "types": "./dist/providers/*.d.ts",
+      "require": "./dist/providers/*.js",
+      "default": "./dist/providers/*.js"
+    },
+    "./retrieval/*": {
+      "types": "./dist/retrieval/*.d.ts",
+      "require": "./dist/retrieval/*.js",
+      "default": "./dist/retrieval/*.js"
+    }
   },
   "dependencies": {
+    "@station/types": "workspace:*",
     "@supabase/supabase-js": "^2.45.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.0"
   }
 }

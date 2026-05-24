@@ -1,1 +1,25 @@
-{ "name": "@station/auth", "private": true, "main": "src/index.ts", "types": "src/index.ts" }
+{
+  "name": "@station/auth",
+  "private": true,
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc -p tsconfig.json"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "require": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
+    "./permissions": {
+      "types": "./dist/permissions.d.ts",
+      "require": "./dist/permissions.js",
+      "default": "./dist/permissions.js"
+    }
+  },
+  "dependencies": {
+    "@station/config": "workspace:*",
+    "@station/types": "workspace:*"
+  }
+}
