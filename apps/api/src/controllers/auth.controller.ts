@@ -10,7 +10,7 @@ export async function handleSignUp(req: Request, res: Response): Promise<void> {
   }
 
   try {
-    const result = await signUp(parsed.data);
+    const result = await signUp(parsed.data as Parameters<typeof signUp>[0]);
     res.status(201).json({
       userId: result.userId,
       email: result.email,
@@ -32,7 +32,7 @@ export async function handleSignIn(req: Request, res: Response): Promise<void> {
   }
 
   try {
-    const result = await signIn(parsed.data);
+    const result = await signIn(parsed.data as Parameters<typeof signIn>[0]);
     res.status(200).json({
       userId: result.userId,
       email: result.email,

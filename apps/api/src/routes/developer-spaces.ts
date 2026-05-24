@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { z } from "zod";
+import type { DeveloperSpaceEventVisibility } from "@station/types";
 import { requireAuth, optionalAuth } from "../middleware/require-auth";
 import { requireTier } from "../middleware/require-tier";
 import { getSupabaseAdmin } from "../lib/supabase";
@@ -329,7 +330,7 @@ developerSpacesRouter.get("/", requireAuth, async (req, res) => {
     .order("updated_at", { ascending: false });
 
   if (error) return res.status(500).json({ error: error.message });
-  return res.json({ spaces: (data ?? []).map(serializeDeveloperSpace) });
+  return res.json({ spaces: (data ?? []).map((space) => serializeDeveloperSpace(space)) });
 });
 
 developerSpacesRouter.post("/", requireAuth, requireTier("canon"), async (req, res) => {
@@ -427,7 +428,7 @@ developerSpacesRouter.get("/:slug", optionalAuth, async (req, res) => {
   }
 
   const access = accessLevelForDeveloperSpace(space.owner_user_id, req.user);
-  const eventVisibility = access === "owner"
+  const eventVisibility: DeveloperSpaceEventVisibility[] = access === "owner"
     ? ["private", "community", "public"]
     : access === "member"
       ? ["community", "public"]

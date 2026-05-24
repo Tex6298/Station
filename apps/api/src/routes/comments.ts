@@ -9,6 +9,11 @@ const createCommentSchema = z.object({
   parentId: z.string().uuid(),
   body: z.string().min(1).max(10000),
 });
+type CommentParentType = z.infer<typeof createCommentSchema>["parentType"];
+
+function isCommentParentType(value: string): value is CommentParentType {
+  return value === "thread" || value === "document" || value === "space_page";
+}
 
 export const commentsRouter = Router();
 const sb = getSupabaseAdmin();
@@ -27,7 +32,7 @@ commentsRouter.get("/", async (req: Request, res: Response) => {
     .eq("status", "active")
     .order("created_at", { ascending: true });
 
-  if (parentType) query = query.eq("parent_type", parentType);
+  if (parentType && isCommentParentType(parentType)) query = query.eq("parent_type", parentType);
   if (parentId)   query = query.eq("parent_id", parentId);
 
   const { data, error } = await query;
@@ -94,9 +99,11 @@ commentsRouter.post(
 
     // Bump comment_count on thread
     if (parentType === "thread") {
-      await sb.rpc("increment_thread_comment_count", { thread_id: parentId }).catch(() => {
+      try {
+        await sb.rpc("increment_thread_comment_count", { thread_id: parentId });
+      } catch {
         // Non-fatal - comment_count is denormalised, can sync later
-      });
+      }
     }
 
     res.status(201).json({ comment });

@@ -5,6 +5,7 @@ import { requireAuth } from "../middleware/require-auth";
 import { getSupabaseAdmin } from "../lib/supabase";
 import { env } from "../lib/env";
 import { dispatchPost } from "../services/social.service";
+import type { SocialPlatform } from "@station/db";
 
 export const socialRouter = Router();
 const sb = getSupabaseAdmin();
@@ -316,7 +317,8 @@ socialRouter.post("/compose", async (req: Request, res: Response) => {
   const parsed = composeSchema.safeParse(req.body);
   if (!parsed.success) return res.status(400).json({ error: parsed.error.errors[0].message });
 
-  const { platforms, content, title, documentId, subreddit, scheduleFor } = parsed.data;
+  const platforms = parsed.data.platforms as SocialPlatform[];
+  const { content, title, documentId, subreddit, scheduleFor } = parsed.data;
   const userId = req.user!.id;
 
   // Load user's connections for the selected platforms
@@ -394,7 +396,7 @@ socialRouter.post("/generate-teaser", async (req: Request, res: Response) => {
 
   const { data: doc } = await sb
     .from("documents")
-    .select("title, body, type")
+    .select("title, body, document_type")
     .eq("id", documentId)
     .single();
 
@@ -417,11 +419,13 @@ socialRouter.post("/generate-teaser", async (req: Request, res: Response) => {
   // Use the existing AI provider router
   try {
     const { resolveProvider } = await import("@station/ai");
-    const provider = resolveProvider({ aiMode: "platform" });
-    const response = await provider.chat([
-      { role: "system", content: "You are a creative writing promotional assistant. Be concise and compelling." },
-      { role: "user",   content: prompt },
-    ]);
+    const provider = resolveProvider({ provider: "platform", aiMode: "platform" });
+    const response = await provider.sendMessage({
+      messages: [
+        { role: "system", content: "You are a creative writing promotional assistant. Be concise and compelling." },
+        { role: "user",   content: prompt },
+      ],
+    });
     res.json({ teaser: response.content });
   } catch (e) {
     res.status(500).json({ error: (e as Error).message });

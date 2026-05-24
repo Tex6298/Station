@@ -3,6 +3,7 @@ import { Router } from "express";
 import { z } from "zod";
 import { moderationReports } from "../lib/mock-db";
 import { requireAuth } from "../middleware/require-auth";
+import type { ModerationReportRecord } from "@station/types";
 
 const createReportSchema = z.object({
   targetType: z.enum(['user', 'space', 'document', 'thread', 'comment']),
@@ -15,8 +16,8 @@ export const reportsRouter = Router();
 reportsRouter.use(requireAuth);
 
 reportsRouter.post('/', (req, res) => {
-  const parsed = createReportSchema.parse(req.body);
-  const report = {
+  const parsed = createReportSchema.parse(req.body) as Pick<ModerationReportRecord, "targetType" | "targetId" | "reason" | "notes">;
+  const report: ModerationReportRecord = {
     id: `report-${moderationReports.length + 1}`,
     reporterUserId: 'demo-user',
     status: 'open' as const,

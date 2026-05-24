@@ -275,7 +275,7 @@ async function requestJson<TBody = any>(
 
 function listen(app: Express) {
   return new Promise<Server>((resolve) => {
-    const server = app.listen(0, "127.0.0.1", () => resolve(server));
+    const server = app.listen(0, "127.0.0.1", () => resolve(server as unknown as Server));
   });
 }
 

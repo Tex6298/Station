@@ -130,7 +130,7 @@ discoverRouter.get("/sidebar", optionalAuth, async (req: Request, res: Response)
 
       // User's personas
       userId
-        ? sb.from("personas").select("id, name, visibility, provider").eq("owner_id", userId).order("created_at", { ascending: false }).limit(8)
+        ? sb.from("personas").select("id, name, visibility, provider").eq("owner_user_id", userId).order("created_at", { ascending: false }).limit(8)
         : Promise.resolve({ data: [] }),
 
       // Platform-wide stats (public)
@@ -178,7 +178,7 @@ discoverRouter.get("/search", async (req: Request, res: Response) => {
   const [docs, threads, spaces, personas] = await Promise.all([
     sb.from("documents").select("id, title, body, document_type, space:spaces!space_id(slug)").eq("status", "published").eq("visibility", "public").ilike("title", `%${q}%`).limit(8),
     sb.from("threads").select("id, title, body, category:forum_categories!category_id(slug, title)").eq("status", "active").ilike("title", `%${q}%`).limit(8),
-    sb.from("spaces").select("id, slug, title, short_description").eq("visibility", "public").ilike("title", `%${q}%`).limit(6),
+    sb.from("spaces").select("id, slug, title, short_description").eq("is_public", true).ilike("title", `%${q}%`).limit(6),
     sb.from("personas").select("id, name, short_description, visibility").eq("visibility", "public").ilike("name", `%${q}%`).limit(6),
   ]);
 

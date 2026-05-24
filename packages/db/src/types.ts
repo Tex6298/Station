@@ -11,15 +11,45 @@ export type DocumentVisibility = "private" | "public" | "members";
 export type DocumentStatus = "draft" | "published" | "archived";
 export type DocumentType = "post" | "essay" | "manifesto" | "constitution" | "update" | "other";
 export type Provider = "platform" | "openai" | "anthropic" | "deepseek" | "gemini";
+export type SourceType = "chat" | "import" | "document" | "calibration" | "manual";
+export type PersonaFileSourceType = "upload" | "import" | "calibration" | "generated";
+export type ImportJobKind = "file" | "chat";
+export type ImportJobStatus = "queued" | "processing" | "completed" | "failed";
+export type CalibrationSaveTarget = "persona" | "global" | "public_mode" | "other";
+export type SpacePageType = "home" | "about" | "personas" | "documents" | "custom";
+export type ThreadStatus = "active" | "locked" | "removed";
+export type CommentParentType = "thread" | "document" | "space_page";
+export type CommentStatus = "active" | "removed" | "flagged";
+export type ModerationTargetType = "thread" | "comment" | "document" | "persona" | "space";
+export type ModerationStatus = "open" | "reviewed" | "dismissed" | "actioned";
+export type DiscoverItemType = "document" | "thread" | "space" | "persona";
+export type DiscoverEventType = "published" | "created" | "featured" | "updated";
+export type SocialPlatform = "bluesky" | "mastodon" | "tumblr" | "linkedin" | "wordpress" | "ghost" | "reddit";
+export type SocialPostStatus = "pending" | "sent" | "failed" | "scheduled";
 export type DeveloperSpaceVisibility = "private" | "unlisted" | "community" | "public";
 export type DeveloperSpaceVisualisationType = "node_field" | "timeline" | "world_map" | "constellation";
 export type DeveloperSpaceTopologyType = "radial" | "branching" | "lattice" | "custom";
 export type DeveloperSpaceEventVisibility = "private" | "community" | "public";
 export type DeveloperSpaceEventProvenance = "api" | "imported" | "user" | "system" | "ai_generated";
 
+type SupabaseTable<Row, Insert = Row, Update = Partial<Insert>> = {
+  Row: Row;
+  Insert: Insert;
+  Update: Update;
+};
+
+type TablesWithRelationships<T extends Record<string, SupabaseTable<any, any, any>>> = {
+  [K in keyof T]: {
+    Row: T[K]["Row"];
+    Insert: Partial<T[K]["Row"]>;
+    Update: Partial<T[K]["Row"]>;
+    Relationships: [];
+  };
+};
+
 export interface Database {
   public: {
-    Tables: {
+    Tables: TablesWithRelationships<{
       profiles: {
         Row: {
           id: string;
@@ -109,7 +139,7 @@ export interface Database {
           title: string | null;
           content: string;
           summary: string | null;
-          source_type: "chat" | "import" | "document" | "calibration" | "manual";
+          source_type: SourceType;
           relevance_weight: number;
           embedding: number[] | null;
           created_at: string;
@@ -129,7 +159,7 @@ export interface Database {
           owner_user_id: string;
           title: string | null;
           content: string;
-          source_type: "chat" | "import" | "document" | "calibration" | "manual";
+          source_type: SourceType;
           priority: number;
           created_at: string;
           updated_at: string;
@@ -150,7 +180,7 @@ export interface Database {
           file_type: string | null;
           file_size: number | null;
           storage_path: string;
-          source_type: "upload" | "import" | "calibration" | "generated";
+          source_type: PersonaFileSourceType;
           processed: boolean;
           created_at: string;
         };
@@ -159,6 +189,47 @@ export interface Database {
           created_at?: string;
         };
         Update: Partial<Database["public"]["Tables"]["persona_files"]["Insert"]>;
+      };
+      import_jobs: {
+        Row: {
+          id: string;
+          persona_id: string;
+          owner_user_id: string;
+          kind: ImportJobKind;
+          status: ImportJobStatus;
+          source_name: string;
+          error_message: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: Omit<Database["public"]["Tables"]["import_jobs"]["Row"], "id" | "created_at" | "updated_at"> & {
+          id?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["import_jobs"]["Insert"]>;
+      };
+      calibration_sessions: {
+        Row: {
+          id: string;
+          owner_user_id: string;
+          persona_id: string | null;
+          session_title: string | null;
+          transcript: string;
+          extracted_style_notes: string | null;
+          extracted_public_rules: string | null;
+          extracted_private_rules: string | null;
+          extracted_uncertainty_rules: string | null;
+          save_target: CalibrationSaveTarget;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: Omit<Database["public"]["Tables"]["calibration_sessions"]["Row"], "id" | "created_at" | "updated_at"> & {
+          id?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["calibration_sessions"]["Insert"]>;
       };
       spaces: {
         Row: {
@@ -181,6 +252,27 @@ export interface Database {
           updated_at?: string;
         };
         Update: Partial<Database["public"]["Tables"]["spaces"]["Insert"]>;
+      };
+      space_pages: {
+        Row: {
+          id: string;
+          space_id: string;
+          slug: string;
+          title: string;
+          page_type: SpacePageType;
+          body: string | null;
+          sort_order: number;
+          is_published: boolean;
+          comments_enabled: boolean;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: Omit<Database["public"]["Tables"]["space_pages"]["Row"], "id" | "created_at" | "updated_at"> & {
+          id?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["space_pages"]["Insert"]>;
       };
       documents: {
         Row: {
@@ -215,7 +307,7 @@ export interface Database {
           linked_persona_id: string | null;
           title: string;
           body: string;
-          status: "active" | "locked" | "removed";
+          status: ThreadStatus;
           score: number;
           comment_count: number;
           created_at: string;
@@ -227,6 +319,21 @@ export interface Database {
           updated_at?: string;
         };
         Update: Partial<Database["public"]["Tables"]["threads"]["Insert"]>;
+      };
+      forum_categories: {
+        Row: {
+          id: string;
+          slug: string;
+          title: string;
+          description: string | null;
+          sort_order: number;
+          created_at: string;
+        };
+        Insert: Omit<Database["public"]["Tables"]["forum_categories"]["Row"], "id" | "created_at"> & {
+          id?: string;
+          created_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["forum_categories"]["Insert"]>;
       };
       developer_spaces: {
         Row: {
@@ -316,10 +423,10 @@ export interface Database {
         Row: {
           id: string;
           author_user_id: string;
-          parent_type: "thread" | "document" | "space_page";
+          parent_type: CommentParentType;
           parent_id: string;
           body: string;
-          status: "active" | "removed" | "flagged";
+          status: CommentStatus;
           score: number;
           created_at: string;
           updated_at: string;
@@ -331,6 +438,111 @@ export interface Database {
         };
         Update: Partial<Database["public"]["Tables"]["comments"]["Insert"]>;
       };
+      moderation_reports: {
+        Row: {
+          id: string;
+          reporter_id: string;
+          target_type: ModerationTargetType;
+          target_id: string;
+          reason: string;
+          status: ModerationStatus;
+          reviewed_by: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: Omit<Database["public"]["Tables"]["moderation_reports"]["Row"], "id" | "status" | "reviewed_by" | "created_at" | "updated_at"> & {
+          id?: string;
+          status?: ModerationStatus;
+          reviewed_by?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["moderation_reports"]["Insert"]>;
+      };
+      discover_feed: {
+        Row: {
+          id: string;
+          item_type: DiscoverItemType;
+          event_type: DiscoverEventType;
+          item_id: string;
+          title: string;
+          description: string | null;
+          href: string;
+          created_at: string;
+        };
+        Insert: Omit<Database["public"]["Tables"]["discover_feed"]["Row"], "id" | "created_at"> & {
+          id?: string;
+          created_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["discover_feed"]["Insert"]>;
+      };
+      social_connections: {
+        Row: {
+          id: string;
+          user_id: string;
+          platform: SocialPlatform;
+          handle: string | null;
+          access_token: string | null;
+          refresh_token: string | null;
+          meta: Record<string, unknown>;
+          connected_at: string;
+        };
+        Insert: Omit<Database["public"]["Tables"]["social_connections"]["Row"], "id" | "connected_at"> & {
+          id?: string;
+          connected_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["social_connections"]["Insert"]>;
+      };
+      social_posts: {
+        Row: {
+          id: string;
+          user_id: string;
+          connection_id: string;
+          document_id: string | null;
+          platform: string;
+          title: string | null;
+          content: string;
+          status: SocialPostStatus;
+          scheduled_for: string | null;
+          sent_at: string | null;
+          external_post_id: string | null;
+          external_url: string | null;
+          error_message: string | null;
+          created_at: string;
+        };
+        Insert: Omit<Database["public"]["Tables"]["social_posts"]["Row"], "id" | "status" | "sent_at" | "external_post_id" | "external_url" | "error_message" | "created_at"> & {
+          id?: string;
+          status?: SocialPostStatus;
+          sent_at?: string | null;
+          external_post_id?: string | null;
+          external_url?: string | null;
+          error_message?: string | null;
+          created_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["social_posts"]["Insert"]>;
+      };
+    }>;
+    Views: {};
+    Functions: {
+      increment_thread_comment_count: {
+        Args: { thread_id: string };
+        Returns: void;
+      };
+      match_memory_items: {
+        Args: { p_persona_id: string; query_embedding: number[]; match_count?: number };
+        Returns: Array<{
+          id: string;
+          persona_id: string;
+          title: string | null;
+          content: string;
+          summary: string | null;
+          source_type: SourceType;
+          relevance_weight: number;
+          similarity: number;
+        }>;
+      };
     };
+    Enums: {};
+    CompositeTypes: {};
   };
 }

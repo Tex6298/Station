@@ -21,8 +21,8 @@ import type {
 const now = new Date().toISOString();
 
 export const personas: PersonaSummary[] = [
-  { id: "persona-1", name: "Station", shortDescription: "A calm, reflective continuity persona.", visibility: "public" },
-  { id: "persona-2", name: "Harbor", shortDescription: "An analytical drafting persona.", visibility: "private" },
+  { id: "persona-1", name: "Station", shortDescription: "A calm, reflective continuity persona.", visibility: "public", provider: "platform" },
+  { id: "persona-2", name: "Harbor", shortDescription: "An analytical drafting persona.", visibility: "private", provider: "platform" },
 ];
 
 export const spaces: SpaceRecord[] = [

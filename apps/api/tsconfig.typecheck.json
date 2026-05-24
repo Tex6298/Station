@@ -1,0 +1,40 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "rootDir": "../..",
+    "noEmit": true,
+    "baseUrl": ".",
+    "paths": {
+      "@station/ai": [
+        "../../packages/ai/src/index.ts"
+      ],
+      "@station/ai/*": [
+        "../../packages/ai/src/*"
+      ],
+      "@station/auth": [
+        "../../packages/auth/src/index.ts"
+      ],
+      "@station/auth/*": [
+        "../../packages/auth/src/*"
+      ],
+      "@station/config": [
+        "../../packages/config/src/index.ts"
+      ],
+      "@station/config/*": [
+        "../../packages/config/src/*"
+      ],
+      "@station/db": [
+        "../../packages/db/src/index.ts"
+      ],
+      "@station/db/*": [
+        "../../packages/db/src/*"
+      ],
+      "@station/types": [
+        "../../packages/types/src/index.ts"
+      ],
+      "@station/types/*": [
+        "../../packages/types/src/*"
+      ]
+    }
+  }
+}

@@ -335,7 +335,8 @@ export async function dispatchPost(postId: string): Promise<void> {
 
   if (postErr || !post) return;
 
-  const conn = post.connection as SocialConnection;
+  const postWithConnection = post as unknown as typeof post & { connection: SocialConnection };
+  const conn = postWithConnection.connection;
   let result: PostResult;
 
   switch (post.platform) {
