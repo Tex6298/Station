@@ -5,74 +5,23 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { apiGet } from "@/lib/api-client";
 import { getSession } from "@/lib/auth";
+import {
+  formatDate,
+  formatValue,
+  humaniseKey,
+  metricEntries,
+  nodePosition,
+  publicEntries,
+  shouldShowRawDeveloperSpaceData,
+  similarityPercent,
+  visualisationLabel,
+} from "@/lib/developer-space-observatory";
 import type {
   DeveloperSpaceDetail,
   DeveloperSpaceEvent,
   DeveloperSpaceNode,
   DeveloperSpaceSnapshot,
-  DeveloperSpaceVisualisationType,
 } from "@station/types/developer-space";
-
-function formatDate(value?: string | null) {
-  if (!value) return "Never";
-  return new Intl.DateTimeFormat("en-GB", {
-    day: "2-digit",
-    month: "short",
-    hour: "2-digit",
-    minute: "2-digit",
-  }).format(new Date(value));
-}
-
-function nodePosition(index: number, total: number) {
-  if (total <= 1) return { left: "50%", top: "50%" };
-  const angle = (Math.PI * 2 * index) / total - Math.PI / 2;
-  const radius = 35;
-  return {
-    left: `${50 + Math.cos(angle) * radius}%`,
-    top: `${50 + Math.sin(angle) * radius}%`,
-  };
-}
-
-function similarityPercent(node: DeveloperSpaceNode | { selfSimilarityScore?: number | null }) {
-  if (node.selfSimilarityScore === null || node.selfSimilarityScore === undefined) return null;
-  return Math.round(node.selfSimilarityScore * 100);
-}
-
-function metricEntries(node: DeveloperSpaceNode) {
-  return Object.entries(node.metrics ?? {}).filter(([, value]) => typeof value !== "object").slice(0, 4);
-}
-
-function humaniseKey(value: string) {
-  return value
-    .replaceAll("_", " ")
-    .replaceAll("-", " ")
-    .replace(/\b\w/g, (match) => match.toUpperCase());
-}
-
-function formatValue(value: unknown): string {
-  if (value === null || value === undefined || value === "") return "Not recorded";
-  if (typeof value === "number") return Number.isInteger(value) ? value.toLocaleString() : value.toFixed(3).replace(/0+$/, "").replace(/\.$/, "");
-  if (typeof value === "boolean") return value ? "Yes" : "No";
-  if (Array.isArray(value)) return value.slice(0, 4).map(formatValue).join(", ");
-  if (typeof value === "object") return "Structured record";
-  return String(value);
-}
-
-function publicEntries(record: Record<string, unknown> | null | undefined, limit = 4) {
-  return Object.entries(record ?? {})
-    .filter(([, value]) => value !== null && value !== undefined && typeof value !== "object")
-    .slice(0, limit);
-}
-
-function visualisationLabel(type: DeveloperSpaceVisualisationType) {
-  const labels: Record<DeveloperSpaceVisualisationType, string> = {
-    node_field: "Node field",
-    timeline: "Timeline",
-    world_map: "World map",
-    constellation: "Constellation",
-  };
-  return labels[type] ?? "Observatory";
-}
 
 function EmptyVisualisation() {
   return (
@@ -359,7 +308,7 @@ export default function DeveloperSpacePublicPage() {
 
   const latestEvent = detail.events[0];
   const mostActiveNode = detail.nodes[0];
-  const showRaw = detail.access === "owner";
+  const showRaw = shouldShowRawDeveloperSpaceData(detail.access);
 
   return (
     <main className="container observatory-shell">

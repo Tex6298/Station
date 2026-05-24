@@ -1,7 +1,16 @@
 import { createClient } from "@supabase/supabase-js";
 import type { Database } from "@station/db";
 
-let _client: ReturnType<typeof createClient<Database>> | null = null;
+type SupabaseAdminClient = ReturnType<typeof createClient<Database>>;
+
+let _client: SupabaseAdminClient | null = null;
+
+export function setSupabaseAdminForTests(client: SupabaseAdminClient | null) {
+  if (process.env.NODE_ENV !== "test") {
+    throw new Error("setSupabaseAdminForTests can only be used while NODE_ENV is test.");
+  }
+  _client = client;
+}
 
 /**
  * Returns a singleton Supabase service-role client for the API.

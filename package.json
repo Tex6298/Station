@@ -6,9 +6,11 @@
     "dev": "turbo run dev",
     "build": "turbo run build",
     "lint": "turbo run lint",
-    "typecheck": "turbo run typecheck"
+    "typecheck": "turbo run typecheck",
+    "test:developer-spaces": "tsx --test apps/api/src/routes/developer-spaces.test.ts apps/web/lib/developer-space-observatory.test.ts"
   },
   "devDependencies": {
+    "tsx": "^4.21.0",
     "turbo": "^2.3.0",
     "typescript": "^5.5.4"
   }

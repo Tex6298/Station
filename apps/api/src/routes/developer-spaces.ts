@@ -22,7 +22,7 @@ const visualisationSchema = z.enum(["node_field", "timeline", "world_map", "cons
 const topologySchema = z.enum(["radial", "branching", "lattice", "custom"]);
 const eventVisibilitySchema = z.enum(["private", "community", "public"]);
 const provenanceSchema = z.enum(["api", "imported", "user", "system", "ai_generated"]);
-const sourceRefsSchema = z.array(z.string().min(1).max(500)).max(24).default([]);
+const sourceRefsSchema = z.array(z.string().max(500)).max(24).default([]);
 const jsonObjectSchema = z.record(z.unknown());
 
 const createSpaceSchema = z.object({
