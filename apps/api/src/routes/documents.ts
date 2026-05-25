@@ -54,6 +54,7 @@ const publishFromContinuitySchema = z.object({
 export const documentsRouter = Router();
 
 const COMMUNITY_TIERS = new Set(["private", "creator", "canon", "institutional"]);
+const DISCUSSION_CATEGORY_SLUG = "documents-and-constitutions";
 const PROVENANCE_LABELS: Record<string, string> = {
   user_authored: "User-authored",
   ai_assisted: "AI-assisted",
@@ -80,6 +81,27 @@ function canReadDocument(document: any, user?: AuthenticatedUser | null) {
   return false;
 }
 
+function canReadThread(thread: any, user?: AuthenticatedUser | null) {
+  if (!thread || thread.is_hidden || thread.status === "removed") return false;
+  if (thread.author_user_id === user?.id || user?.isAdmin) return true;
+  if (thread.visibility === "public" || thread.visibility === "unlisted") return true;
+  return thread.visibility === "community" && isCommunityEligible(user);
+}
+
+function discussionVisibilityForDocument(visibility: string) {
+  if (visibility === "community" || visibility === "members") return "community";
+  if (visibility === "unlisted") return "unlisted";
+  return "public";
+}
+
+function canHaveDiscussion(document: any) {
+  return (
+    document.status === "published" &&
+    document.comments_enabled !== false &&
+    ["public", "community", "members", "unlisted"].includes(document.visibility)
+  );
+}
+
 function slugify(value: string) {
   const slug = value
     .toLowerCase()
@@ -88,6 +110,11 @@ function slugify(value: string) {
     .replace(/^-+|-+$/g, "")
     .slice(0, 100);
   return slug || "continuity-note";
+}
+
+function excerpt(value: string | null | undefined, length: number) {
+  const clean = (value ?? "").replace(/\s+/g, " ").trim();
+  return clean.length > length ? `${clean.slice(0, length).trim()}...` : clean;
 }
 
 async function uniqueSlug(authorUserId: string, preferred: string) {
@@ -104,6 +131,111 @@ async function uniqueSlug(authorUserId: string, preferred: string) {
     if (!data) return candidate;
   }
   return `${base}-${Date.now()}`;
+}
+
+async function loadDiscussionCategory() {
+  const sb = getSupabaseAdmin();
+  const { data: existing } = await sb
+    .from("forum_categories")
+    .select("id, slug, title")
+    .eq("slug", DISCUSSION_CATEGORY_SLUG)
+    .single();
+
+  if (existing) return existing;
+
+  const { data } = await sb
+    .from("forum_categories")
+    .insert({
+      slug: DISCUSSION_CATEGORY_SLUG,
+      title: "Documents & Constitutions",
+      description: "Discussion around published Station documents, canon texts, and continuity artifacts.",
+      sort_order: 5,
+    })
+    .select("id, slug, title")
+    .single();
+
+  return data;
+}
+
+async function ensureDocumentDiscussion(document: any) {
+  if (!canHaveDiscussion(document)) return null;
+
+  const sb = getSupabaseAdmin();
+  const desiredVisibility = discussionVisibilityForDocument(document.visibility);
+  if (document.discussion_thread_id) {
+    const { data: existing } = await sb
+      .from("threads")
+      .select("id, title, status, visibility, comment_count, category_id, linked_document_id, is_pinned, is_hidden, reported_count")
+      .eq("id", document.discussion_thread_id)
+      .single();
+    if (existing) {
+      if (existing.visibility !== desiredVisibility || existing.is_hidden || existing.status === "removed") {
+        const { data: updated } = await sb
+          .from("threads")
+          .update({
+            visibility: desiredVisibility,
+            status: existing.status === "removed" || existing.is_hidden ? "active" : existing.status,
+            is_hidden: false,
+          })
+          .eq("id", existing.id)
+          .select("id, title, status, visibility, comment_count, category_id, linked_document_id, is_pinned, is_hidden, reported_count")
+          .single();
+        return updated ?? existing;
+      }
+      return existing;
+    }
+  }
+
+  const category = await loadDiscussionCategory();
+  if (!category) return null;
+
+  const { data: thread } = await sb
+    .from("threads")
+    .insert({
+      category_id: category.id,
+      author_user_id: document.author_user_id,
+      linked_space_id: document.space_id ?? null,
+      linked_persona_id: document.persona_id ?? null,
+      linked_document_id: document.id,
+      title: `Discuss: ${document.title}`,
+      body: [
+        `Discussion attached to the published Station document "${document.title}".`,
+        excerpt(document.body, 260),
+      ].filter(Boolean).join("\n\n"),
+      status: "active",
+      visibility: desiredVisibility,
+      is_pinned: false,
+      is_hidden: false,
+      reported_count: 0,
+      score: 0,
+      comment_count: 0,
+    })
+    .select("id, title, status, visibility, comment_count, category_id, linked_document_id, is_pinned, is_hidden, reported_count")
+    .single();
+
+  if (!thread) return null;
+
+  await sb
+    .from("documents")
+    .update({ discussion_thread_id: thread.id })
+    .eq("id", document.id);
+
+  return thread;
+}
+
+async function syncExistingDiscussion(document: any) {
+  if (!document.discussion_thread_id) return null;
+
+  const sb = getSupabaseAdmin();
+  if (!canHaveDiscussion(document)) {
+    await sb
+      .from("threads")
+      .update({ status: "locked", is_hidden: true })
+      .eq("id", document.discussion_thread_id);
+    return null;
+  }
+
+  return ensureDocumentDiscussion(document);
 }
 
 function provenanceLabel(value: string) {
@@ -264,7 +396,7 @@ documentsRouter.get("/public/:id", optionalAuth, async (req, res) => {
   const sb = getSupabaseAdmin();
   const { data, error } = await sb
     .from("documents")
-    .select("id, title, slug, body, document_type, status, visibility, published_at, created_at, author_user_id, persona_id, space_id, provenance_type, source_type, source_id, source_label, source_persona_id")
+    .select("id, title, slug, body, document_type, status, visibility, comments_enabled, published_at, created_at, author_user_id, persona_id, space_id, provenance_type, source_type, source_id, source_label, source_persona_id, discussion_thread_id")
     .eq("id", req.params.id)
     .single();
 
@@ -272,6 +404,69 @@ documentsRouter.get("/public/:id", optionalAuth, async (req, res) => {
     return res.status(404).json({ error: "Document not found." });
   }
   return res.json({ document: data });
+});
+
+// -- Public/readable: document discussion link ---------------------------------
+documentsRouter.get("/:id/discussion", optionalAuth, async (req, res) => {
+  const sb = getSupabaseAdmin();
+  const { data: document, error } = await sb
+    .from("documents")
+    .select("id, title, status, visibility, comments_enabled, author_user_id, discussion_thread_id")
+    .eq("id", req.params.id)
+    .single();
+
+  if (error || !document || !canReadDocument(document, req.user)) {
+    return res.status(404).json({ error: "Document not found." });
+  }
+
+  if (!canHaveDiscussion(document)) {
+    return res.json({ eligible: false, discussion: null });
+  }
+
+  if (!document.discussion_thread_id) {
+    return res.json({ eligible: true, discussion: null });
+  }
+
+  const { data: thread } = await sb
+    .from("threads")
+    .select(
+      `id, title, body, status, visibility, comment_count, linked_document_id, is_pinned, is_hidden, reported_count, created_at,
+       category:forum_categories!category_id(id, slug, title)`
+    )
+    .eq("id", document.discussion_thread_id)
+    .single();
+
+  if (!thread || !canReadThread(thread, req.user)) {
+    return res.json({ eligible: true, discussion: null });
+  }
+
+  return res.json({ eligible: true, discussion: thread });
+});
+
+// -- Authenticated: start/get a discussion for an eligible document ------------
+documentsRouter.post("/:id/discussion", requireAuth, requireTier("private"), async (req, res) => {
+  const sb = getSupabaseAdmin();
+  const { data: document, error } = await sb
+    .from("documents")
+    .select("*")
+    .eq("id", req.params.id)
+    .single();
+
+  if (error || !document || !canReadDocument(document, req.user)) {
+    return res.status(404).json({ error: "Document not found." });
+  }
+
+  if (document.author_user_id !== req.user!.id && !req.user!.isAdmin) {
+    return res.status(403).json({ error: "Only the document owner can start its discussion." });
+  }
+
+  if (!canHaveDiscussion(document)) {
+    return res.status(400).json({ error: "This document is not eligible for public discussion." });
+  }
+
+  const thread = await ensureDocumentDiscussion(document);
+  if (!thread) return res.status(500).json({ error: "Could not create discussion thread." });
+  return res.status(document.discussion_thread_id ? 200 : 201).json({ discussion: thread });
 });
 
 // -- Authenticated routes ------------------------------------------------------
@@ -284,7 +479,7 @@ documentsRouter.get("/", async (req, res) => {
 
   let query = sb
     .from("documents")
-    .select("id, title, slug, document_type, status, visibility, published_at, created_at, updated_at, space_id, persona_id, provenance_type, source_type, source_id, source_label, source_persona_id")
+    .select("id, title, slug, document_type, status, visibility, published_at, created_at, updated_at, space_id, persona_id, provenance_type, source_type, source_id, source_label, source_persona_id, discussion_thread_id")
     .eq("author_user_id", req.user!.id)
     .order("updated_at", { ascending: false });
 
@@ -386,7 +581,13 @@ documentsRouter.patch("/:id", async (req, res) => {
 
   if (error) return res.status(500).json({ error: error.message });
   if (!data) return res.status(404).json({ error: "Document not found." });
-  return res.json({ document: data });
+  const discussion = canHaveDiscussion(data)
+    ? await ensureDocumentDiscussion(data)
+    : await syncExistingDiscussion(data);
+  return res.json({
+    document: discussion && !data.discussion_thread_id ? { ...data, discussion_thread_id: discussion.id } : data,
+    discussion,
+  });
 });
 
 // POST /documents/publish-from-continuity
@@ -431,7 +632,12 @@ documentsRouter.post("/publish-from-continuity", requireTier("creator"), async (
     .single();
 
   if (error) return res.status(500).json({ error: error.message });
-  return res.status(201).json({ document: data, space });
+  const discussion = await ensureDocumentDiscussion(data);
+  return res.status(201).json({
+    document: discussion && !data.discussion_thread_id ? { ...data, discussion_thread_id: discussion.id } : data,
+    discussion,
+    space,
+  });
 });
 
 // POST /documents/:id/publish
@@ -443,6 +649,7 @@ documentsRouter.post("/:id/publish", async (req, res) => {
   const update: Record<string, unknown> = {
     status: "published",
     published_at: new Date().toISOString(),
+    visibility: "public",
   };
   if (parsed.data.visibility) update.visibility = normalizeVisibility(parsed.data.visibility);
 
@@ -456,7 +663,11 @@ documentsRouter.post("/:id/publish", async (req, res) => {
 
   if (error) return res.status(500).json({ error: error.message });
   if (!data) return res.status(404).json({ error: "Document not found." });
-  return res.json({ document: data });
+  const discussion = await ensureDocumentDiscussion(data);
+  return res.json({
+    document: discussion && !data.discussion_thread_id ? { ...data, discussion_thread_id: discussion.id } : data,
+    discussion,
+  });
 });
 
 // DELETE /documents/:id

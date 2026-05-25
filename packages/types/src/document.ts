@@ -15,6 +15,7 @@ export interface DocumentRecord {
   sourceId?: string | null;
   sourceLabel?: string | null;
   sourcePersonaId?: string | null;
+  discussionThreadId?: string | null;
   publishedAt?: string;
   createdAt: string;
   updatedAt: string;

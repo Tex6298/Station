@@ -13,9 +13,14 @@ export interface ThreadRecord {
   authorUserId: string;
   linkedSpaceId?: string | null;
   linkedPersonaId?: string | null;
+  linkedDocumentId?: string | null;
   title: string;
   body: string;
   status: 'active' | 'locked' | 'removed';
+  visibility?: 'public' | 'community' | 'unlisted';
+  isPinned?: boolean;
+  isHidden?: boolean;
+  reportedCount?: number;
   score: number;
   commentCount: number;
   createdAt: string;
@@ -25,10 +30,13 @@ export interface ThreadRecord {
 export interface CommentRecord {
   id: string;
   authorUserId: string;
-  parentType: 'thread' | 'document' | 'page';
+  parentType: 'thread' | 'document' | 'space_page';
   parentId: string;
   body: string;
-  status: 'active' | 'hidden' | 'removed';
+  status: 'active' | 'flagged' | 'removed';
+  isPinned?: boolean;
+  isHidden?: boolean;
+  reportedCount?: number;
   score: number;
   createdAt: string;
   updatedAt: string;

@@ -9,12 +9,15 @@ import { getSession } from "@/lib/auth";
 interface Author { username: string; display_name: string | null; avatar_url: string | null; }
 interface Thread {
   id: string; title: string; body: string; status: string;
+  visibility?: string; is_pinned?: boolean; linked_document_id?: string | null;
   score: number; comment_count: number; created_at: string;
   author_user_id: string; author: Author | null;
   category: { id: string; slug: string; title: string } | null;
+  document?: { id: string; title: string; space: { slug: string } | null } | null;
 }
 interface Comment {
   id: string; body: string; status: string; score: number;
+  is_pinned?: boolean; is_hidden?: boolean; reported_count?: number;
   created_at: string; author_user_id: string; author: Author | null;
 }
 
@@ -33,10 +36,11 @@ export default function ThreadPage() {
 
   useEffect(() => {
     if (!threadId) return;
-    Promise.all([
-      apiGet<{ thread: Thread; comments: Comment[] }>(`/threads/${threadId}`),
-      getSession(),
-    ]).then(([data, sess]) => {
+    getSession().then(async (sess) => {
+      const data = await apiGet<{ thread: Thread; comments: Comment[] }>(
+        `/threads/${threadId}`,
+        sess?.access_token
+      );
       setThread(data.thread);
       setComments(data.comments);
       if (sess) setSession(sess as typeof session);
@@ -101,6 +105,16 @@ export default function ThreadPage() {
               locked
             </span>
           )}
+          {thread.visibility && (
+            <span style={{ fontSize: "0.72rem", padding: "0.1rem 0.45rem", borderRadius: 999, background: "#111827", border: "1px solid #1f2937", color: "#9ca3af" }}>
+              {thread.visibility}
+            </span>
+          )}
+          {thread.linked_document_id && (
+            <span style={{ fontSize: "0.72rem", padding: "0.1rem 0.45rem", borderRadius: 999, background: "#10251a", border: "1px solid #22583a", color: "#86efac" }}>
+              document discussion
+            </span>
+          )}
           <span style={{ fontSize: "0.72rem", color: "#555" }}>
             {new Date(thread.created_at).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })}
           </span>
@@ -114,6 +128,16 @@ export default function ThreadPage() {
         <div style={{ lineHeight: 1.8, color: "#d1d5db", whiteSpace: "pre-wrap", fontSize: "0.975rem" }}>
           {thread.body}
         </div>
+        {thread.document?.space && (
+          <div style={{ marginTop: "1rem" }}>
+            <Link
+              href={`/space/${thread.document.space.slug}/documents/${thread.document.id}`}
+              style={{ color: "#86efac", fontSize: "0.82rem", textDecoration: "none" }}
+            >
+              Read source document: {thread.document.title}
+            </Link>
+          </div>
+        )}
       </div>
 
       {/* Comments */}

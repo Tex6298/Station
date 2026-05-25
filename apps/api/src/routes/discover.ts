@@ -1,6 +1,6 @@
 import { Router, Request, Response } from "express";
 import { normalizeSpacePresentation } from "@station/config/space-presentation";
-import type { DocumentVisibility } from "@station/db";
+import type { DocumentVisibility, ThreadVisibility } from "@station/db";
 import { getSupabaseAdmin } from "../lib/supabase";
 import { optionalAuth } from "../middleware/require-auth";
 
@@ -18,12 +18,18 @@ function discoverableDocumentVisibilities(req: Request): DocumentVisibility[] {
     : ["public"];
 }
 
+function discoverableThreadVisibilities(req: Request): ThreadVisibility[] {
+  return canSeeCommunityDocuments(req)
+    ? ["public", "community"]
+    : ["public"];
+}
+
 function documentFeedQuery(visibility: DocumentVisibility, tab: string, offset: number, limit: number) {
   return sb
     .from("documents")
     .select(`
       id, title, body, document_type, published_at, created_at, visibility,
-      provenance_type, source_type, source_label,
+      provenance_type, source_type, source_label, discussion_thread_id,
       space:spaces!space_id(slug, title),
       author:profiles!author_user_id(username, display_name, avatar_url),
       persona:personas!persona_id(id, name)
@@ -45,23 +51,27 @@ discoverRouter.get("/feed", optionalAuth, async (req: Request, res: Response) =>
   const offset = Number(req.query.offset ?? 0);
 
   try {
-    const [docResults, threadsResult] = await Promise.all([
+    const [docResults, threadResults] = await Promise.all([
       Promise.all(
         discoverableDocumentVisibilities(req).map((visibility) =>
           documentFeedQuery(visibility, tab, offset, limit)
         )
       ),
       // Active forum threads
-      sb
-        .from("threads")
-        .select(`
-          id, title, body, score, comment_count, created_at,
-          category:forum_categories!category_id(slug, title),
-          author:profiles!author_user_id(username, display_name, avatar_url)
-        `)
-        .eq("status", "active")
-        .order(tab === "rising" ? "comment_count" : "created_at", { ascending: false })
-        .range(offset, offset + limit - 1),
+      Promise.all(discoverableThreadVisibilities(req).map((visibility) =>
+        sb
+          .from("threads")
+          .select(`
+            id, title, body, visibility, linked_document_id, score, comment_count, is_hidden, created_at,
+            category:forum_categories!category_id(slug, title),
+            author:profiles!author_user_id(username, display_name, avatar_url)
+          `)
+          .eq("status", "active")
+          .eq("visibility", visibility)
+          .eq("is_hidden", false)
+          .order(tab === "rising" ? "comment_count" : "created_at", { ascending: false })
+          .range(offset, offset + limit - 1)
+      )),
     ]);
 
     // Normalise into a unified feed shape
@@ -77,6 +87,7 @@ discoverRouter.get("/feed", optionalAuth, async (req: Request, res: Response) =>
       provenanceType: d.provenance_type,
       sourceType:  d.source_type,
       sourceLabel: d.source_label,
+      discussionThreadId: d.discussion_thread_id ?? null,
       space:       d.space  ?? null,
       author:      d.author ?? null,
       persona:     d.persona ?? null,
@@ -86,7 +97,8 @@ discoverRouter.get("/feed", optionalAuth, async (req: Request, res: Response) =>
       promoted:    false,
     }));
 
-    const threadItems = (threadsResult.data ?? []).map((t: any) => ({
+    const threadRows = threadResults.flatMap((result) => result.data ?? []);
+    const threadItems = threadRows.filter((t: any) => !t.linked_document_id).map((t: any) => ({
       id:         t.id,
       type:       "thread" as const,
       title:      t.title,
@@ -200,24 +212,32 @@ discoverRouter.get("/search", optionalAuth, async (req: Request, res: Response) 
   const q = String(req.query.q ?? "").trim();
   if (!q) return res.json({ documents: [], threads: [], spaces: [], personas: [] });
 
-  const [docResults, threads, spaces, personas] = await Promise.all([
+  const [docResults, threadResults, spaces, personas] = await Promise.all([
     Promise.all(discoverableDocumentVisibilities(req).map((visibility) =>
       sb
         .from("documents")
-        .select("id, title, body, document_type, visibility, provenance_type, source_type, source_label, space:spaces!space_id(slug)")
+        .select("id, title, body, document_type, visibility, provenance_type, source_type, source_label, discussion_thread_id, space:spaces!space_id(slug)")
         .eq("status", "published")
         .eq("visibility", visibility)
         .ilike("title", `%${q}%`)
         .limit(8)
     )),
-    sb.from("threads").select("id, title, body, category:forum_categories!category_id(slug, title)").eq("status", "active").ilike("title", `%${q}%`).limit(8),
+    Promise.all(discoverableThreadVisibilities(req).map((visibility) =>
+      sb.from("threads")
+        .select("id, title, body, visibility, linked_document_id, category:forum_categories!category_id(slug, title)")
+        .eq("status", "active")
+        .eq("visibility", visibility)
+        .eq("is_hidden", false)
+        .ilike("title", `%${q}%`)
+        .limit(8)
+    )),
     sb.from("spaces").select("id, slug, title, short_description, theme").eq("is_public", true).ilike("title", `%${q}%`).limit(6),
     sb.from("personas").select("id, name, short_description, visibility").eq("visibility", "public").ilike("name", `%${q}%`).limit(6),
   ]);
 
   res.json({
     documents: docResults.flatMap((result) => result.data ?? []).slice(0, 8),
-    threads:   threads.data ?? [],
+    threads:   threadResults.flatMap((result) => result.data ?? []).filter((thread: any) => !thread.linked_document_id).slice(0, 8),
     spaces:    (spaces.data ?? []).map((space: any) => ({
       ...space,
       presentation: normalizeSpacePresentation(space.theme),

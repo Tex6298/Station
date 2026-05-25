@@ -16,6 +16,7 @@ interface FeedItem {
   provenanceType?: string | null;
   sourceType?: string | null;
   sourceLabel?: string | null;
+  discussionThreadId?: string | null;
   space: { slug: string; title: string } | null;
   author: { username: string; display_name: string | null; avatar_url: string | null } | null;
   persona: { id: string; name: string } | null;
@@ -97,6 +98,11 @@ function FeedCard({ item }: { item: FeedItem }) {
           {item.provenanceType && (
             <span style={{ fontSize: "0.68rem", color: "#7dd3fc" }}>
               {PROVENANCE_LABELS[item.provenanceType] ?? item.provenanceType}
+            </span>
+          )}
+          {item.discussionThreadId && (
+            <span style={{ fontSize: "0.68rem", color: "#86efac" }}>
+              Discussion open
             </span>
           )}
           {item.promoted && (
@@ -389,6 +395,11 @@ export default function DiscoverFrontDoor() {
                               {key === "documents" && r.provenance_type && (
                                 <span style={{ color: "#7dd3fc", fontSize: "0.72rem", marginLeft: "0.45rem" }}>
                                   {PROVENANCE_LABELS[r.provenance_type] ?? r.provenance_type}
+                                </span>
+                              )}
+                              {key === "documents" && r.discussion_thread_id && (
+                                <span style={{ color: "#86efac", fontSize: "0.72rem", marginLeft: "0.45rem" }}>
+                                  Discussion open
                                 </span>
                               )}
                               {(r.short_description || r.body) && (

@@ -28,6 +28,7 @@ interface Document {
   visibility?: string | null;
   provenance_type?: string | null;
   source_label?: string | null;
+  discussion_thread_id?: string | null;
 }
 
 interface Persona {
@@ -253,6 +254,9 @@ function FeaturedDocuments({ documents, spaceSlug }: { documents: Document[]; sp
           {doc.provenance_type && (
             <small>{PROVENANCE_LABELS[doc.provenance_type] ?? doc.provenance_type}</small>
           )}
+          {doc.discussion_thread_id && (
+            <small style={{ color: "#86efac" }}>Discussion open</small>
+          )}
           {doc.body && <p>{excerpt(doc.body, 150)}</p>}
         </Link>
       ))}
@@ -292,6 +296,7 @@ function LibraryList({ documents, spaceSlug }: { documents: Document[]; spaceSlu
           <span>{DOC_TYPE_LABELS[doc.document_type] ?? doc.document_type}</span>
           <strong>{doc.title}</strong>
           {doc.provenance_type && <em>{PROVENANCE_LABELS[doc.provenance_type] ?? doc.provenance_type}</em>}
+          {doc.discussion_thread_id && <em>Discussion open</em>}
           <time>{formatDate(doc.published_at ?? doc.created_at)}</time>
         </Link>
       ))}

@@ -55,5 +55,8 @@ jobs:
       - name: Continuity publication tests
         run: pnpm test:continuity-publication
 
+      - name: Document discussion tests
+        run: pnpm test:document-discussions
+
       - name: Full build
         run: pnpm build

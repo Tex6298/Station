@@ -1,7 +1,7 @@
 import { Router, Request, Response } from "express";
 import { z } from "zod";
 import { getSupabaseAdmin } from "../lib/supabase";
-import { requireAuth } from "../middleware/require-auth";
+import { optionalAuth, requireAuth, type AuthenticatedUser } from "../middleware/require-auth";
 import { requireTier } from "../middleware/require-tier";
 
 const createCommentSchema = z.object({
@@ -17,23 +17,96 @@ function isCommentParentType(value: string): value is CommentParentType {
 
 export const commentsRouter = Router();
 const sb = getSupabaseAdmin();
+const COMMUNITY_TIERS = new Set(["private", "creator", "canon", "institutional"]);
+
+function canSeeCommunity(user?: AuthenticatedUser | null) {
+  return Boolean(user && COMMUNITY_TIERS.has(user.tier));
+}
+
+function canReadDocument(document: any, user?: AuthenticatedUser | null) {
+  if (!document) return false;
+  if (document.author_user_id === user?.id || user?.isAdmin) return true;
+  if (document.status !== "published") return false;
+  const visibility = document.visibility ?? "private";
+  if (visibility === "public" || visibility === "unlisted") return true;
+  return (visibility === "community" || visibility === "members") && canSeeCommunity(user);
+}
+
+function canReadThread(thread: any, user?: AuthenticatedUser | null) {
+  if (!thread) return false;
+  if (thread.author_user_id === user?.id || user?.isAdmin) return thread.status !== "removed";
+  if (thread.status === "removed" || thread.is_hidden) return false;
+  const visibility = thread.visibility ?? "public";
+  if (visibility === "public" || visibility === "unlisted") return true;
+  return visibility === "community" && canSeeCommunity(user);
+}
+
+function canDiscussDocument(document: any, user?: AuthenticatedUser | null) {
+  if (!canReadDocument(document, user)) return false;
+  return (
+    document.status === "published" &&
+    document.comments_enabled !== false &&
+    ["public", "community", "members", "unlisted"].includes(document.visibility)
+  );
+}
+
+async function validateReadableParent(parentType: CommentParentType, parentId: string, user?: AuthenticatedUser | null) {
+  if (parentType === "thread") {
+    const { data: thread } = await sb
+      .from("threads")
+      .select("id, status, visibility, is_hidden, author_user_id")
+      .eq("id", parentId)
+      .single();
+    return canReadThread(thread, user);
+  }
+
+  if (parentType === "document") {
+    const { data: document } = await sb
+      .from("documents")
+      .select("id, status, visibility, comments_enabled, author_user_id")
+      .eq("id", parentId)
+      .single();
+    return canDiscussDocument(document, user);
+  }
+
+  const { data: page } = await sb
+    .from("space_pages")
+    .select("id, comments_enabled, is_published, space_id")
+    .eq("id", parentId)
+    .single();
+  if (!page?.comments_enabled) return false;
+
+  const { data: space } = await sb
+    .from("spaces")
+    .select("id, is_public, owner_user_id")
+    .eq("id", page.space_id)
+    .single();
+  const ownerAccess = space?.owner_user_id === user?.id || user?.isAdmin;
+  return Boolean(space && (ownerAccess || (page.is_published && space.is_public)));
+}
 
 // --- Public: list comments by parent ----------------------------------------
-commentsRouter.get("/", async (req: Request, res: Response) => {
+commentsRouter.get("/", optionalAuth, async (req: Request, res: Response) => {
   const parentType = String(req.query.parentType || "");
   const parentId   = String(req.query.parentId   || "");
+  if (!parentType || !parentId || !isCommentParentType(parentType)) {
+    return res.json({ comments: [] });
+  }
+
+  const canRead = await validateReadableParent(parentType, parentId, req.user);
+  if (!canRead) return res.status(404).json({ error: "Comment parent not found" });
 
   let query = sb
     .from("comments")
     .select(
-      `id, body, status, score, created_at, updated_at, parent_type, parent_id, author_user_id,
+      `id, body, status, score, is_pinned, is_hidden, reported_count, created_at, updated_at, parent_type, parent_id, author_user_id,
        author:profiles!author_user_id(username, display_name, avatar_url)`
     )
     .eq("status", "active")
+    .eq("is_hidden", false)
     .order("created_at", { ascending: true });
 
-  if (parentType && isCommentParentType(parentType)) query = query.eq("parent_type", parentType);
-  if (parentId)   query = query.eq("parent_id", parentId);
+  query = query.eq("parent_type", parentType).eq("parent_id", parentId);
 
   const { data, error } = await query;
   if (error) return res.status(500).json({ error: error.message });
@@ -58,10 +131,14 @@ commentsRouter.post(
     if (parentType === "document") {
       const { data: doc } = await sb
         .from("documents")
-        .select("id, comments_enabled")
+        .select("id, status, visibility, comments_enabled, author_user_id")
         .eq("id", parentId)
         .single();
       if (!doc) return res.status(404).json({ error: "Document not found" });
+      if (!canReadDocument(doc, req.user)) return res.status(404).json({ error: "Document not found" });
+      if (["private"].includes(doc.visibility) || doc.status !== "published") {
+        return res.status(400).json({ error: "This document cannot be discussed publicly" });
+      }
       if (!doc.comments_enabled) return res.status(400).json({ error: "Comments are disabled for this document" });
     } else if (parentType === "space_page") {
       const { data: page } = await sb
@@ -74,10 +151,11 @@ commentsRouter.post(
     } else if (parentType === "thread") {
       const { data: thread } = await sb
         .from("threads")
-        .select("id, status")
+        .select("id, status, visibility, is_hidden, author_user_id")
         .eq("id", parentId)
         .single();
       if (!thread) return res.status(404).json({ error: "Thread not found" });
+      if (!canReadThread(thread, req.user)) return res.status(404).json({ error: "Thread not found" });
       if (thread.status === "locked") return res.status(400).json({ error: "This thread is locked" });
       if (thread.status === "removed") return res.status(404).json({ error: "Thread not found" });
     }
@@ -90,6 +168,9 @@ commentsRouter.post(
         parent_id: parentId,
         body,
         status: "active",
+        is_pinned: false,
+        is_hidden: false,
+        reported_count: 0,
         score: 0,
       })
       .select()

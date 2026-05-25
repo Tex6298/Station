@@ -12,6 +12,9 @@ interface Thread {
   title: string;
   body: string;
   status: string;
+  visibility?: string;
+  is_pinned?: boolean;
+  linked_document_id?: string | null;
   score: number;
   comment_count: number;
   created_at: string;
@@ -31,10 +34,11 @@ export default function ForumCategoryPage() {
   useEffect(() => {
     if (!categorySlug) return;
 
-    Promise.all([
-      apiGet<{ category: Category; threads: Thread[] }>(`/forums/categories/${categorySlug}`),
-      getSession(),
-    ]).then(([data, session]) => {
+    getSession().then(async (session) => {
+      const data = await apiGet<{ category: Category; threads: Thread[] }>(
+        `/forums/categories/${categorySlug}`,
+        session?.access_token
+      );
       setCategory(data.category);
       setThreads(data.threads);
       // Any authenticated user can see the post button; tier check happens on API
@@ -83,6 +87,11 @@ export default function ForumCategoryPage() {
               <div className="card" style={{ cursor: "pointer" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: "1rem" }}>
                   <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ display: "flex", gap: "0.35rem", alignItems: "center", marginBottom: "0.25rem", flexWrap: "wrap" }}>
+                      {t.is_pinned && <span style={{ fontSize: "0.68rem", color: "#fbbf24" }}>Pinned</span>}
+                      {t.linked_document_id && <span style={{ fontSize: "0.68rem", color: "#86efac" }}>Document discussion</span>}
+                      {t.visibility && t.visibility !== "public" && <span style={{ fontSize: "0.68rem", color: "#9ca3af" }}>{t.visibility}</span>}
+                    </div>
                     <div style={{ fontWeight: 600, fontSize: "0.975rem", marginBottom: "0.2rem", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                       {t.title}
                     </div>
