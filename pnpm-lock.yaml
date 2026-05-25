@@ -26,6 +26,9 @@ importers:
       '@station/auth':
         specifier: workspace:*
         version: link:../../packages/auth
+      '@station/config':
+        specifier: workspace:*
+        version: link:../../packages/config
       '@station/db':
         specifier: workspace:*
         version: link:../../packages/db

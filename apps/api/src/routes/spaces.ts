@@ -1,10 +1,19 @@
 import { Router } from "express";
 import { z } from "zod";
-import { requireAuth } from "../middleware/require-auth";
+import {
+  encodeSpacePresentation,
+  normalizeSpacePresentation,
+  SPACE_LAYOUT_IDS,
+  SPACE_THEME_IDS,
+} from "@station/config/space-presentation";
+import { optionalAuth, requireAuth } from "../middleware/require-auth";
 import { requireTier } from "../middleware/require-tier";
 import { getSupabaseAdmin } from "../lib/supabase";
 import { canCreateSpace } from "@station/auth/permissions";
 import type { AuthUser } from "@station/types";
+
+const spaceThemeSchema = z.enum(SPACE_THEME_IDS);
+const spaceLayoutSchema = z.enum(SPACE_LAYOUT_IDS);
 
 const createSpaceSchema = z.object({
   slug: z
@@ -15,7 +24,9 @@ const createSpaceSchema = z.object({
   title: z.string().min(1).max(100),
   shortDescription: z.string().max(300).optional(),
   longDescription: z.string().max(5000).optional(),
-  theme: z.string().max(40).optional(),
+  tagline: z.string().max(160).optional(),
+  theme: spaceThemeSchema.optional(),
+  layout: spaceLayoutSchema.optional(),
   isPublic: z.boolean().default(true),
   commentsDefaultEnabled: z.boolean().default(true),
 });
@@ -40,10 +51,34 @@ const updatePageSchema = createPageSchema.partial();
 
 export const spacesRouter = Router();
 
+function serializeSpace(space: any) {
+  if (!space) return space;
+
+  return {
+    ...space,
+    presentation: normalizeSpacePresentation(space.theme),
+  };
+}
+
+function buildPresentation(payload: {
+  tagline?: string;
+  theme?: string;
+  layout?: string;
+  shortDescription?: string;
+}, existing?: unknown) {
+  const base = normalizeSpacePresentation(existing);
+  const tagline = payload.tagline ?? (base.tagline || payload.shortDescription || "");
+  return encodeSpacePresentation({
+    theme: payload.theme ?? base.theme,
+    layout: payload.layout ?? base.layout,
+    tagline,
+  });
+}
+
 // -- Public routes (no auth) ---------------------------------------------------
 
 // GET /spaces/:slug - public Space view
-spacesRouter.get("/:slug", async (req, res) => {
+spacesRouter.get("/:slug", optionalAuth, async (req, res) => {
   const sb = getSupabaseAdmin();
 
   const { data: space, error } = await sb
@@ -53,7 +88,11 @@ spacesRouter.get("/:slug", async (req, res) => {
     .single();
 
   if (error || !space) return res.status(404).json({ error: "Space not found." });
-  if (!space.is_public) return res.status(403).json({ error: "This Space is private." });
+
+  const hasOwnerAccess = Boolean(req.user?.isAdmin || req.user?.id === space.owner_user_id);
+  if (!space.is_public && !hasOwnerAccess) {
+    return res.status(403).json({ error: "This Space is private." });
+  }
 
   const [{ data: pages }, { data: documents }, { data: personas }] = await Promise.all([
     sb
@@ -85,7 +124,8 @@ spacesRouter.get("/:slug", async (req, res) => {
     .single();
 
   return res.json({
-    space,
+    access: hasOwnerAccess ? "owner" : "public",
+    space: serializeSpace(space),
     pages: pages ?? [],
     documents: documents ?? [],
     personas: personas ?? [],
@@ -96,17 +136,32 @@ spacesRouter.get("/:slug", async (req, res) => {
 // -- Authenticated routes ------------------------------------------------------
 spacesRouter.use(requireAuth);
 
+// GET /spaces/:slug/manage - owner Space settings
+spacesRouter.get("/:slug/manage", async (req, res) => {
+  const sb = getSupabaseAdmin();
+
+  const { data, error } = await sb
+    .from("spaces")
+    .select("*")
+    .eq("slug", req.params.slug)
+    .eq("owner_user_id", req.user!.id)
+    .single();
+
+  if (error || !data) return res.status(404).json({ error: "Space not found." });
+  return res.json({ space: serializeSpace(data) });
+});
+
 // GET /spaces - list the current user's spaces
 spacesRouter.get("/", async (req, res) => {
   const sb = getSupabaseAdmin();
   const { data, error } = await sb
     .from("spaces")
-    .select("id, slug, title, short_description, is_public, created_at, updated_at")
+    .select("id, slug, title, short_description, long_description, theme, is_public, created_at, updated_at")
     .eq("owner_user_id", req.user!.id)
     .order("created_at", { ascending: false });
 
   if (error) return res.status(500).json({ error: error.message });
-  return res.json({ spaces: data ?? [] });
+  return res.json({ spaces: (data ?? []).map(serializeSpace) });
 });
 
 // POST /spaces - create a Space (creator tier minimum)
@@ -147,7 +202,7 @@ spacesRouter.post("/", requireTier("creator"), async (req, res) => {
       title: parsed.data.title,
       short_description: parsed.data.shortDescription ?? null,
       long_description: parsed.data.longDescription ?? null,
-      theme: parsed.data.theme ?? "default",
+      theme: buildPresentation(parsed.data),
       is_public: parsed.data.isPublic,
       comments_default_enabled: parsed.data.commentsDefaultEnabled,
     })
@@ -164,7 +219,7 @@ spacesRouter.post("/", requireTier("creator"), async (req, res) => {
     { space_id: data.id, slug: "personas",title: "Personas",page_type: "personas",  sort_order: 3, is_published: false, body: "" },
   ]);
 
-  return res.status(201).json({ space: data });
+  return res.status(201).json({ space: serializeSpace(data) });
 });
 
 // PATCH /spaces/:id - update Space settings
@@ -177,9 +232,25 @@ spacesRouter.patch("/:id", async (req, res) => {
   if (parsed.data.title !== undefined)               update.title = parsed.data.title;
   if (parsed.data.shortDescription !== undefined)    update.short_description = parsed.data.shortDescription;
   if (parsed.data.longDescription !== undefined)     update.long_description = parsed.data.longDescription;
-  if (parsed.data.theme !== undefined)               update.theme = parsed.data.theme;
   if (parsed.data.isPublic !== undefined)            update.is_public = parsed.data.isPublic;
   if (parsed.data.commentsDefaultEnabled !== undefined) update.comments_default_enabled = parsed.data.commentsDefaultEnabled;
+
+  const presentationChanged =
+    parsed.data.theme !== undefined ||
+    parsed.data.layout !== undefined ||
+    parsed.data.tagline !== undefined;
+
+  if (presentationChanged) {
+    const { data: existingSpace, error: loadError } = await sb
+      .from("spaces")
+      .select("theme")
+      .eq("id", req.params.id)
+      .eq("owner_user_id", req.user!.id)
+      .single();
+
+    if (loadError || !existingSpace) return res.status(404).json({ error: "Space not found." });
+    update.theme = buildPresentation(parsed.data, existingSpace.theme);
+  }
 
   const { data, error } = await sb
     .from("spaces")
@@ -191,7 +262,7 @@ spacesRouter.patch("/:id", async (req, res) => {
 
   if (error) return res.status(500).json({ error: error.message });
   if (!data) return res.status(404).json({ error: "Space not found." });
-  return res.json({ space: data });
+  return res.json({ space: serializeSpace(data) });
 });
 
 // DELETE /spaces/:id

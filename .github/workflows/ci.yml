@@ -43,5 +43,8 @@ jobs:
       - name: API build
         run: pnpm --filter @station/api build
 
+      - name: Public Spaces smoke tests
+        run: pnpm test:spaces
+
       - name: Full build
         run: pnpm build

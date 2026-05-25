@@ -7,7 +7,8 @@
     "build": "turbo run build",
     "lint": "turbo run lint",
     "typecheck": "turbo run typecheck",
-    "test:developer-spaces": "tsx --test apps/api/src/routes/developer-spaces.test.ts apps/web/lib/developer-space-observatory.test.ts"
+    "test:developer-spaces": "tsx --test apps/api/src/routes/developer-spaces.test.ts apps/web/lib/developer-space-observatory.test.ts",
+    "test:spaces": "pnpm --filter @station/types --filter @station/config --filter @station/db --filter @station/auth build && tsx --test apps/api/src/routes/spaces.test.ts"
   },
   "devDependencies": {
     "tsx": "^4.21.0",

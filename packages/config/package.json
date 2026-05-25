@@ -16,6 +16,11 @@
       "types": "./dist/tiers.d.ts",
       "require": "./dist/tiers.js",
       "default": "./dist/tiers.js"
+    },
+    "./space-presentation": {
+      "types": "./dist/space-presentation.d.ts",
+      "require": "./dist/space-presentation.js",
+      "default": "./dist/space-presentation.js"
     }
   }
 }

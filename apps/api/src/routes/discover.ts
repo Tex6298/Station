@@ -1,4 +1,5 @@
 import { Router, Request, Response } from "express";
+import { normalizeSpacePresentation } from "@station/config/space-presentation";
 import { getSupabaseAdmin } from "../lib/supabase";
 import { optionalAuth } from "../middleware/require-auth";
 
@@ -178,14 +179,17 @@ discoverRouter.get("/search", async (req: Request, res: Response) => {
   const [docs, threads, spaces, personas] = await Promise.all([
     sb.from("documents").select("id, title, body, document_type, space:spaces!space_id(slug)").eq("status", "published").eq("visibility", "public").ilike("title", `%${q}%`).limit(8),
     sb.from("threads").select("id, title, body, category:forum_categories!category_id(slug, title)").eq("status", "active").ilike("title", `%${q}%`).limit(8),
-    sb.from("spaces").select("id, slug, title, short_description").eq("is_public", true).ilike("title", `%${q}%`).limit(6),
+    sb.from("spaces").select("id, slug, title, short_description, theme").eq("is_public", true).ilike("title", `%${q}%`).limit(6),
     sb.from("personas").select("id, name, short_description, visibility").eq("visibility", "public").ilike("name", `%${q}%`).limit(6),
   ]);
 
   res.json({
     documents: docs.data ?? [],
     threads:   threads.data ?? [],
-    spaces:    spaces.data ?? [],
+    spaces:    (spaces.data ?? []).map((space: any) => ({
+      ...space,
+      presentation: normalizeSpacePresentation(space.theme),
+    })),
     personas:  personas.data ?? [],
   });
 });

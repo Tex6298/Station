@@ -309,6 +309,16 @@ export default function DiscoverFrontDoor() {
             <Link className="button" href="/developer-spaces">Live observatories</Link>
             <Link className="button" href="/forums">Forums</Link>
           </div>
+          <div className="discover-surface-grid">
+            <Link href="/space">
+              <strong>Authored Spaces</strong>
+              <span>Personal microsites, public works, personas, and archive previews.</span>
+            </Link>
+            <Link href="/developer-spaces">
+              <strong>Developer Spaces</strong>
+              <span>Live observatories for project state, events, nodes, and snapshots.</span>
+            </Link>
+          </div>
         </section>
 
         <div style={{ marginBottom: "1rem", position: "relative" }}>
@@ -352,6 +362,11 @@ export default function DiscoverFrontDoor() {
                           return (
                             <Link key={r.id} href={href} onClick={() => setSearch("")} style={{ textDecoration: "none", display: "block", padding: "0.3rem 0.5rem", borderRadius: 6, fontSize: "0.85rem", color: "#cbd5e1" }}>
                               {r.name ?? r.title}
+                              {key === "spaces" && r.presentation && (
+                                <span style={{ color: "#a7f3d0", fontSize: "0.72rem", marginLeft: "0.45rem", textTransform: "capitalize" }}>
+                                  {r.presentation.theme} / {r.presentation.layout}
+                                </span>
+                              )}
                               {(r.short_description || r.body) && (
                                 <span style={{ color: "#7f8aa0", fontSize: "0.75rem", marginLeft: "0.5rem" }}>
                                   - {(r.short_description ?? r.body ?? "").slice(0, 60)}

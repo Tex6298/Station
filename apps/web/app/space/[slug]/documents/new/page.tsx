@@ -35,7 +35,7 @@ export default function NewDocumentPage() {
     getSession().then(async (session) => {
       if (!session) return;
       const [spaceData, personaData] = await Promise.all([
-        apiGet<{ space: Space }>(`/spaces/${slug}`).catch(() => null),
+        apiGet<{ space: Space }>(`/spaces/${slug}`, session.access_token).catch(() => null),
         apiGet<{ personas: Persona[] }>("/personas", session.access_token).catch(() => ({ personas: [] })),
       ]);
       if (spaceData) setSpace(spaceData.space);

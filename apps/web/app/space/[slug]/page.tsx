@@ -1,188 +1,313 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
+import type { SpacePresentationConfig } from "@station/config/space-presentation";
+import { SPACE_LAYOUT_OPTIONS, SPACE_THEME_OPTIONS } from "@station/config/space-presentation";
 import { getSession } from "@/lib/auth";
 import { apiGet } from "@/lib/api-client";
 
-interface SpacePage { id: string; slug: string; title: string; page_type: string; body: string | null; sort_order: number; }
-interface Document  { id: string; title: string; slug: string; document_type: string; published_at: string | null; }
-interface Persona   { id: string; name: string; short_description: string | null; visibility: string; }
-interface Owner     { username: string; display_name: string | null; avatar_url: string | null; bio: string | null; }
-interface Space     { id: string; slug: string; title: string; short_description: string | null; long_description: string | null; is_public: boolean; owner_user_id: string; }
+interface SpacePage {
+  id: string;
+  slug: string;
+  title: string;
+  page_type: string;
+  body: string | null;
+  sort_order: number;
+}
 
-interface SpaceData { space: Space; pages: SpacePage[]; documents: Document[]; personas: Persona[]; owner: Owner | null; }
+interface Document {
+  id: string;
+  title: string;
+  slug: string;
+  document_type: string;
+  body: string | null;
+  published_at: string | null;
+  created_at: string | null;
+}
 
-const DOC_TYPE_LABELS: Record<string, string> = { post: "Post", essay: "Essay", manifesto: "Manifesto", constitution: "Constitution", update: "Update", other: "Other" };
+interface Persona {
+  id: string;
+  name: string;
+  short_description: string | null;
+  visibility: string;
+  provider?: string | null;
+  avatar_url?: string | null;
+}
+
+interface Owner {
+  username: string;
+  display_name: string | null;
+  avatar_url: string | null;
+  bio: string | null;
+}
+
+interface Space {
+  id: string;
+  slug: string;
+  title: string;
+  short_description: string | null;
+  long_description: string | null;
+  is_public: boolean;
+  owner_user_id: string;
+  presentation: SpacePresentationConfig;
+}
+
+interface SpaceData {
+  access: "owner" | "public";
+  space: Space;
+  pages: SpacePage[];
+  documents: Document[];
+  personas: Persona[];
+  owner: Owner | null;
+}
+
+const DOC_TYPE_LABELS: Record<string, string> = {
+  post: "Post",
+  essay: "Essay",
+  manifesto: "Manifesto",
+  constitution: "Constitution",
+  update: "Update",
+  other: "Other",
+};
 
 export default function PublicSpacePage() {
-  const { slug }    = useParams<{ slug: string }>();
-  const [data, setData]         = useState<SpaceData | null>(null);
-  const [activePage, setActive] = useState<string>("home");
-  const [loading, setLoading]   = useState(true);
-  const [isOwner, setIsOwner]   = useState(false);
-  const [error, setError]       = useState<string | null>(null);
+  const { slug } = useParams<{ slug: string }>();
+  const [data, setData] = useState<SpaceData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!slug) return;
-    Promise.all([
-      apiGet<SpaceData>(`/spaces/${slug}`),
-      getSession(),
-    ]).then(([spaceData, session]) => {
-      setData(spaceData);
-      if (session && spaceData.space.owner_user_id) {
-        // We detect ownership via the space owner - a simpler check uses profile
-        // For now, mark owner if session exists and we can compare later
-      }
-      const firstPage = spaceData.pages[0]?.slug ?? "home";
-      setActive(firstPage);
-      setLoading(false);
-    }).catch((e) => {
-      setError(e instanceof Error ? e.message : "Space not found.");
-      setLoading(false);
-    });
+    let cancelled = false;
 
-    getSession().then((session) => {
-      if (session) {
-        apiGet<{ personas: Persona[] }>("/personas", session.access_token)
-          .then(() => setIsOwner(true)) // rough proxy - owner can hit /personas
-          .catch(() => {});
+    async function loadSpace() {
+      setLoading(true);
+      setError(null);
+      try {
+        const session = await getSession();
+        const spaceData = await apiGet<SpaceData>(`/spaces/${slug}`, session?.access_token);
+        if (!cancelled) setData(spaceData);
+      } catch (e) {
+        if (!cancelled) setError(e instanceof Error ? e.message : "Space not found.");
+      } finally {
+        if (!cancelled) setLoading(false);
       }
-    });
+    }
+
+    loadSpace();
+    return () => {
+      cancelled = true;
+    };
   }, [slug]);
 
-  if (loading) return <main className="container"><div className="card" style={{ textAlign: "center", padding: "3rem", color: "#555" }}>Loading...</div></main>;
-  if (error || !data) return <main className="container"><div className="card" style={{ background: "#2d1515", borderColor: "#7d2e2e", color: "#eb5757" }}>{error ?? "Space not found."}</div></main>;
+  const authoredPages = useMemo(
+    () => (data?.pages ?? []).filter((page) => !["documents", "personas"].includes(page.page_type)),
+    [data?.pages]
+  );
 
-  const { space, pages, documents, personas, owner } = data;
-  const currentPage = pages.find((p) => p.slug === activePage);
+  if (loading) {
+    return (
+      <main className="container">
+        <div className="card" style={{ textAlign: "center", padding: "3rem", color: "#7f8aa0" }}>Loading...</div>
+      </main>
+    );
+  }
+
+  if (error || !data) {
+    return (
+      <main className="container">
+        <div className="card" style={{ background: "#2d1515", borderColor: "#7d2e2e", color: "#eb5757" }}>
+          {error ?? "Space not found."}
+        </div>
+      </main>
+    );
+  }
+
+  const { space, documents, personas, owner, access } = data;
+  const presentation = space.presentation;
+  const themeOption = SPACE_THEME_OPTIONS.find((theme) => theme.id === presentation.theme);
+  const layoutOption = SPACE_LAYOUT_OPTIONS.find((layout) => layout.id === presentation.layout);
+  const tagline = presentation.tagline || space.short_description || "A public Station Space.";
+  const ownerLabel = owner?.display_name ?? owner?.username ?? "Station member";
+  const featuredDocuments = documents.slice(0, presentation.layout === "archive" ? 6 : 3);
+  const statPages = authoredPages.length;
 
   return (
-    <main className="container" style={{ maxWidth: 1100 }}>
-      {/* Space header */}
-      <div style={{ marginBottom: "1.5rem", paddingBottom: "1.5rem", borderBottom: "1px solid #1e2535" }}>
-        <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", flexWrap: "wrap", gap: "1rem" }}>
+    <main className={`space-site space-theme-${presentation.theme} space-layout-${presentation.layout}`}>
+      <section className="space-hero-shell">
+        <div className="space-hero-copy">
+          <div className="space-kicker">{layoutOption?.label ?? "Public"} Space</div>
+          <h1>{space.title}</h1>
+          <p className="space-tagline">{tagline}</p>
+          <div className="space-owner-row">
+            <IdentityMark owner={owner} title={space.title} />
+            <div>
+              <div>{ownerLabel}</div>
+              <span>{themeOption?.label ?? "Atlas"} presentation</span>
+            </div>
+          </div>
+          {access === "owner" && (
+            <div className="space-owner-actions">
+              <Link className="button primary" href={`/space/${space.slug}/manage`}>Edit Space</Link>
+              <Link className="button" href={`/space/${space.slug}/documents/new`}>New Post</Link>
+            </div>
+          )}
+        </div>
+
+        <aside className="space-hero-panel">
+          <div className="space-panel-label">Public surface</div>
+          <div className="space-stat-grid">
+            <SpaceStat label="Pages" value={statPages} />
+            <SpaceStat label="Works" value={documents.length} />
+            <SpaceStat label="Personas" value={personas.length} />
+          </div>
+          {owner?.bio && <p>{owner.bio}</p>}
+        </aside>
+      </section>
+
+      <nav className="space-section-nav" aria-label="Space sections">
+        {authoredPages.map((page) => (
+          <a key={page.id} href={`#${page.slug}`}>{page.title}</a>
+        ))}
+        <a href="#works">Works</a>
+        <a href="#personas">Personas</a>
+        <a href="#library">Library</a>
+      </nav>
+
+      <div className="space-content-shell">
+        <section className="space-authored-stack" aria-label="Authored sections">
+          {authoredPages.length > 0 ? authoredPages.map((page, index) => (
+            <AuthoredSection key={page.id} page={page} fallback={index === 0 ? space.long_description : null} />
+          )) : (
+            <section className="space-authored-section">
+              <div className="space-section-label">Home</div>
+              <h2>{space.title}</h2>
+              <p>{space.long_description || space.short_description || "This Space is still being shaped."}</p>
+            </section>
+          )}
+        </section>
+
+        <section id="works" className="space-featured-section">
           <div>
-            <h1 style={{ margin: "0 0 0.3rem", fontSize: "1.8rem" }}>{space.title}</h1>
-            {space.short_description && <p style={{ margin: 0, color: "#888", fontSize: "0.95rem" }}>{space.short_description}</p>}
-            {owner && (
-              <p style={{ margin: "0.4rem 0 0", fontSize: "0.8rem", color: "#555" }}>
-                by {owner.display_name ?? owner.username}
-              </p>
-            )}
+            <div className="space-section-label">Featured Works</div>
+            <h2>Published from this Space</h2>
           </div>
-          {isOwner && (
-            <div style={{ display: "flex", gap: "0.5rem" }}>
-              <Link href={`/space/${slug}/documents/new`} className="button primary" style={{ fontSize: "0.8rem", textDecoration: "none" }}>
-                + New post
-              </Link>
-            </div>
-          )}
-        </div>
-      </div>
+          <FeaturedDocuments documents={featuredDocuments} spaceSlug={space.slug} />
+        </section>
 
-      <div style={{ display: "grid", gridTemplateColumns: "200px 1fr", gap: "1.5rem" }}>
-        {/* Left sidebar nav */}
-        <nav>
-          <div style={{ display: "flex", flexDirection: "column", gap: "0.25rem" }}>
-            {pages.map((p) => (
-              <button
-                key={p.slug}
-                onClick={() => setActive(p.slug)}
-                style={{
-                  width: "100%",
-                  textAlign: "left",
-                  padding: "0.5rem 0.75rem",
-                  borderRadius: 8,
-                  border: "none",
-                  background: activePage === p.slug ? "#1a1535" : "transparent",
-                  color: activePage === p.slug ? "#c4b5fd" : "#888",
-                  cursor: "pointer",
-                  fontSize: "0.875rem",
-                  transition: "all 0.15s",
-                }}
-              >
-                {p.title}
-              </button>
-            ))}
+        <section id="personas" className="space-featured-section">
+          <div>
+            <div className="space-section-label">Personas</div>
+            <h2>Public characters and collaborators</h2>
           </div>
+          <PersonaGrid personas={personas} />
+        </section>
 
-          {owner?.bio && (
-            <div style={{ marginTop: "1.5rem", padding: "0.75rem", background: "#0f1218", borderRadius: 8, border: "1px solid #1e2535" }}>
-              <p style={{ margin: 0, fontSize: "0.8rem", color: "#666", lineHeight: 1.6 }}>{owner.bio}</p>
-            </div>
-          )}
-        </nav>
-
-        {/* Main content */}
-        <div>
-          {currentPage?.page_type === "documents" || activePage === "posts" ? (
-            <DocumentsList documents={documents} spaceSlug={slug} />
-          ) : currentPage?.page_type === "personas" ? (
-            <PersonasList personas={personas} />
-          ) : (
-            <PageBody page={currentPage ?? null} />
-          )}
-        </div>
+        <section id="library" className="space-library-section">
+          <div>
+            <div className="space-section-label">Public Library</div>
+            <h2>Archive preview</h2>
+          </div>
+          <LibraryList documents={documents} spaceSlug={space.slug} />
+        </section>
       </div>
     </main>
   );
 }
 
-function PageBody({ page }: { page: SpacePage | null }) {
-  if (!page) return <div className="card" style={{ color: "#555" }}>Page not found.</div>;
+function AuthoredSection({ page, fallback }: { page: SpacePage; fallback: string | null }) {
+  const body = page.body || fallback;
   return (
-    <div className="card">
-      <h2 style={{ margin: "0 0 1rem" }}>{page.title}</h2>
-      {page.body ? (
-        <div style={{ lineHeight: 1.75, color: "#ccc", whiteSpace: "pre-wrap" }}>{page.body}</div>
-      ) : (
-        <p style={{ color: "#555", fontStyle: "italic" }}>Nothing here yet.</p>
-      )}
-    </div>
+    <section id={page.slug} className="space-authored-section">
+      <div className="space-section-label">{page.page_type === "home" ? "Home" : page.page_type}</div>
+      <h2>{page.title}</h2>
+      {body ? <p>{body}</p> : <p>This section is waiting for its first note.</p>}
+    </section>
   );
 }
 
-function DocumentsList({ documents, spaceSlug }: { documents: Document[]; spaceSlug: string }) {
+function FeaturedDocuments({ documents, spaceSlug }: { documents: Document[]; spaceSlug: string }) {
   if (documents.length === 0) {
-    return <div className="card" style={{ color: "#555", fontStyle: "italic" }}>No posts published yet.</div>;
+    return <div className="space-empty-state">No public works have been published yet.</div>;
   }
+
   return (
-    <div style={{ display: "grid", gap: "0.75rem" }}>
+    <div className="space-featured-grid">
       {documents.map((doc) => (
-        <Link key={doc.id} href={`/space/${spaceSlug}/documents/${doc.id}`} style={{ textDecoration: "none" }}>
-          <div className="card" style={{ cursor: "pointer" }}>
-            <div style={{ display: "flex", gap: "0.5rem", alignItems: "center", marginBottom: "0.3rem" }}>
-              <span style={{ fontSize: "0.7rem", color: "#555", background: "#111827", border: "1px solid #1f2937", borderRadius: 999, padding: "0.1rem 0.4rem" }}>
-                {DOC_TYPE_LABELS[doc.document_type] ?? doc.document_type}
-              </span>
-              {doc.published_at && (
-                <span style={{ fontSize: "0.72rem", color: "#555" }}>
-                  {new Date(doc.published_at).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}
-                </span>
-              )}
-            </div>
-            <h3 style={{ margin: 0, fontSize: "1rem", fontWeight: 600 }}>{doc.title}</h3>
-          </div>
+        <Link key={doc.id} href={`/space/${spaceSlug}/documents/${doc.id}`} className="space-document-card">
+          <span>{DOC_TYPE_LABELS[doc.document_type] ?? doc.document_type}</span>
+          <h3>{doc.title}</h3>
+          {doc.body && <p>{excerpt(doc.body, 150)}</p>}
         </Link>
       ))}
     </div>
   );
 }
 
-function PersonasList({ personas }: { personas: Persona[] }) {
+function PersonaGrid({ personas }: { personas: Persona[] }) {
   if (personas.length === 0) {
-    return <div className="card" style={{ color: "#555", fontStyle: "italic" }}>No public personas yet.</div>;
+    return <div className="space-empty-state">No public personas are attached to this Space yet.</div>;
   }
+
   return (
-    <div style={{ display: "grid", gap: "0.75rem", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))" }}>
-      {personas.map((p) => (
-        <div key={p.id} className="card">
-          <strong style={{ fontSize: "0.95rem" }}>{p.name}</strong>
-          {p.short_description && <p style={{ margin: "0.35rem 0 0", color: "#666", fontSize: "0.825rem" }}>{p.short_description}</p>}
-        </div>
+    <div className="space-persona-grid">
+      {personas.map((persona) => (
+        <article key={persona.id} className="space-persona-card">
+          <IdentityMark title={persona.name} imageUrl={persona.avatar_url ?? null} />
+          <div>
+            <h3>{persona.name}</h3>
+            {persona.short_description && <p>{persona.short_description}</p>}
+          </div>
+        </article>
       ))}
     </div>
   );
+}
+
+function LibraryList({ documents, spaceSlug }: { documents: Document[]; spaceSlug: string }) {
+  if (documents.length === 0) {
+    return <div className="space-empty-state">The public library is empty for now.</div>;
+  }
+
+  return (
+    <div className="space-library-list">
+      {documents.map((doc) => (
+        <Link key={doc.id} href={`/space/${spaceSlug}/documents/${doc.id}`}>
+          <span>{DOC_TYPE_LABELS[doc.document_type] ?? doc.document_type}</span>
+          <strong>{doc.title}</strong>
+          <time>{formatDate(doc.published_at ?? doc.created_at)}</time>
+        </Link>
+      ))}
+    </div>
+  );
+}
+
+function SpaceStat({ label, value }: { label: string; value: number }) {
+  return (
+    <div>
+      <strong>{value}</strong>
+      <span>{label}</span>
+    </div>
+  );
+}
+
+function IdentityMark({ owner, title, imageUrl }: { owner?: Owner | null; title: string; imageUrl?: string | null }) {
+  const src = imageUrl ?? owner?.avatar_url ?? null;
+  const label = title.slice(0, 2).toUpperCase();
+  if (src) {
+    return <img className="space-identity-mark" src={src} alt="" />;
+  }
+  return <div className="space-identity-mark" aria-hidden="true">{label}</div>;
+}
+
+function excerpt(value: string, length: number) {
+  const clean = value.replace(/\s+/g, " ").trim();
+  return clean.length > length ? `${clean.slice(0, length).trim()}...` : clean;
+}
+
+function formatDate(value: string | null) {
+  if (!value) return "";
+  return new Date(value).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
 }

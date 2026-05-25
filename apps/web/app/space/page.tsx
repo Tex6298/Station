@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import type { SpacePresentationConfig } from "@station/config/space-presentation";
 import { getSession } from "@/lib/auth";
 import { apiGet } from "@/lib/api-client";
 
@@ -12,6 +13,7 @@ interface SpaceSummary {
   short_description: string | null;
   is_public: boolean;
   created_at: string;
+  presentation: SpacePresentationConfig;
 }
 
 export default function MySpacesPage() {
@@ -82,8 +84,12 @@ export default function MySpacesPage() {
               {s.short_description && (
                 <p style={{ margin: "0 0 0.75rem", color: "#666", fontSize: "0.85rem" }}>{s.short_description}</p>
               )}
+              <div style={{ fontSize: "0.72rem", color: "#7f8aa0", marginBottom: "0.75rem", textTransform: "capitalize" }}>
+                {s.presentation.theme} / {s.presentation.layout}
+              </div>
               <div style={{ display: "flex", gap: "0.5rem" }}>
                 <Link href={"/space/" + s.slug} style={{ fontSize: "0.8rem", color: "#7c6af7", textDecoration: "none" }}>View</Link>
+                <Link href={"/space/" + s.slug + "/manage"} style={{ fontSize: "0.8rem", color: "#7c6af7", textDecoration: "none" }}>Edit</Link>
                 <Link href={"/space/" + s.slug + "/documents/new"} style={{ fontSize: "0.8rem", color: "#666", textDecoration: "none" }}>New post</Link>
               </div>
             </div>
