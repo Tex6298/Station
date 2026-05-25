@@ -49,5 +49,8 @@ jobs:
       - name: Continuity smoke tests
         run: pnpm test:continuity
 
+      - name: Persona runtime context tests
+        run: pnpm test:persona-context
+
       - name: Full build
         run: pnpm build

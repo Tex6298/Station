@@ -30,8 +30,9 @@ export async function searchMemory(options: {
   query: string;
   limit?: number;
   embeddingApiKey?: string;
+  ownerUserId?: string;
 }): Promise<MemorySearchResult[]> {
-  const { supabase, personaId, query, limit = 6, embeddingApiKey } = options;
+  const { supabase, personaId, query, limit = 6, embeddingApiKey, ownerUserId } = options;
 
   try {
     const embedding = await generateEmbedding(query, embeddingApiKey);
@@ -68,7 +69,7 @@ export async function searchMemory(options: {
     );
   } catch {
     // Fallback: keyword search
-    return keywordFallbackSearch(supabase, personaId, query, limit);
+    return keywordFallbackSearch(supabase, personaId, query, limit, ownerUserId);
   }
 }
 
@@ -78,14 +79,19 @@ export async function searchMemory(options: {
 export async function loadCanon(
   supabase: SupabaseClient,
   personaId: string,
-  limit = 5
+  limit = 5,
+  ownerUserId?: string
 ): Promise<CanonResult[]> {
-  const { data, error } = await supabase
+  const query = supabase
     .from("canon_items")
     .select("id, persona_id, title, content, priority")
     .eq("persona_id", personaId)
     .order("priority", { ascending: false })
     .limit(limit);
+
+  if (ownerUserId) query.eq("owner_user_id", ownerUserId);
+
+  const { data, error } = await query;
 
   if (error) throw error;
 
@@ -103,14 +109,19 @@ async function keywordFallbackSearch(
   supabase: SupabaseClient,
   personaId: string,
   query: string,
-  limit: number
+  limit: number,
+  ownerUserId?: string
 ): Promise<MemorySearchResult[]> {
-  const { data } = await supabase
+  const memoryQuery = supabase
     .from("memory_items")
     .select("id, persona_id, title, content, summary, source_type, relevance_weight")
     .eq("persona_id", personaId)
     .order("relevance_weight", { ascending: false })
     .limit(limit * 3);
+
+  if (ownerUserId) memoryQuery.eq("owner_user_id", ownerUserId);
+
+  const { data } = await memoryQuery;
 
   if (!data) return [];
 

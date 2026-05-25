@@ -2,7 +2,7 @@ import { Router } from "express";
 import { z } from "zod";
 import { requireAuth } from "../middleware/require-auth";
 import { getSupabaseAdmin } from "../lib/supabase";
-import { buildPersonaContext } from "@station/ai/retrieval/context-builder";
+import { assemblePersonaRuntimeContext, buildPersonaContext } from "@station/ai/retrieval/context-builder";
 import { resolveProvider } from "@station/ai/providers/router";
 import { saveMessageAsMemory } from "../services/archive.service";
 import { env } from "../lib/env";
@@ -10,6 +10,10 @@ import { env } from "../lib/env";
 const chatSchema = z.object({
   content: z.string().min(1).max(8000),
   conversationId: z.string().uuid().optional(),
+});
+
+const contextPreviewSchema = z.object({
+  query: z.string().max(8000).optional(),
 });
 
 const saveMemorySchema = z.object({
@@ -40,6 +44,50 @@ conversationsRouter.get("/persona/:personaId", async (req, res) => {
 
   if (error) return res.status(500).json({ error: error.message });
   return res.json({ conversations: data });
+});
+
+// -- Preview the private continuity context that would be sent at runtime ------
+conversationsRouter.get("/persona/:personaId/context-preview", async (req, res) => {
+  const parsed = contextPreviewSchema.safeParse({ query: req.query.query });
+  if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
+
+  const sb = getSupabaseAdmin();
+  const userId = req.user!.id;
+  const { personaId } = req.params;
+
+  const { data: persona, error: personaErr } = await sb
+    .from("personas")
+    .select("id, name, short_description, long_description, visibility, provider, awakening_prompt, style_notes, owner_user_id")
+    .eq("id", personaId)
+    .single();
+
+  if (personaErr || !persona) return res.status(404).json({ error: "Persona not found." });
+  if (persona.owner_user_id !== userId) return res.status(403).json({ error: "Not your persona." });
+
+  const { data: profile } = await sb
+    .from("profiles")
+    .select("byok_openai_key")
+    .eq("id", userId)
+    .single();
+
+  const query = parsed.data.query?.trim() || "Preview how this persona loads private continuity.";
+  const context = await assemblePersonaRuntimeContext({
+    supabase: sb,
+    persona: {
+      id: persona.id,
+      name: persona.name,
+      shortDescription: persona.short_description,
+      longDescription: persona.long_description,
+      visibility: persona.visibility as "private" | "public",
+      awakeningPrompt: persona.awakening_prompt,
+      styleNotes: persona.style_notes,
+    },
+    ownerUserId: userId,
+    userQuery: query,
+    embeddingApiKey: profile?.byok_openai_key ?? env.OPENAI_API_KEY,
+  });
+
+  return res.json({ query, context });
 });
 
 // -- Get a single conversation with messages -----------------------------------
@@ -126,7 +174,7 @@ conversationsRouter.post("/persona/:personaId/chat", async (req, res) => {
   });
 
   // Build RAG system prompt
-  const { systemPrompt, canonCount, memoryCount } = await buildPersonaContext({
+  const { systemPrompt, canonCount, memoryCount, integrityCount, archiveCount } = await buildPersonaContext({
     supabase: sb,
     persona: {
       id: persona.id,
@@ -137,6 +185,7 @@ conversationsRouter.post("/persona/:personaId/chat", async (req, res) => {
       awakeningPrompt: persona.awakening_prompt,
       styleNotes: persona.style_notes,
     },
+    ownerUserId: userId,
     userQuery: content,
     embeddingApiKey: profile?.byok_openai_key ?? env.OPENAI_API_KEY,
   });
@@ -182,7 +231,7 @@ conversationsRouter.post("/persona/:personaId/chat", async (req, res) => {
   return res.json({
     conversationId: convId,
     reply: savedReply,
-    _debug: { canonCount, memoryCount, provider: aiResponse.model },
+    _debug: { canonCount, memoryCount, integrityCount, archiveCount, provider: aiResponse.model },
   });
 });
 

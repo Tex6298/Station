@@ -6,7 +6,9 @@ export function buildPersonaChatPrompt(input: {
   awakeningPrompt?: string;
   styleNotes?: string;
   canon?: string[];
+  integrity?: string[];
   memory?: string[];
+  archive?: string[];
 }): string {
   const sections: string[] = [];
 
@@ -55,10 +57,24 @@ export function buildPersonaChatPrompt(input: {
     );
   }
 
+  // Integrity - owner-guided continuity notes
+  if (input.integrity?.length) {
+    sections.push(
+      `Integrity notes from owner-guided sessions:\n${input.integrity.map((note) => `- ${note}`).join("\n")}`
+    );
+  }
+
   // Memory - contextually relevant recollections
   if (input.memory?.length) {
     sections.push(
       `Relevant memories from your archive:\n${input.memory.map((m) => `- ${m}`).join("\n")}`
+    );
+  }
+
+  // Archive references - source material that can be cited or requested
+  if (input.archive?.length) {
+    sections.push(
+      `Available archive/source material:\n${input.archive.map((item) => `- ${item}`).join("\n")}`
     );
   }
 
