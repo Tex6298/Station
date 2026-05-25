@@ -42,7 +42,7 @@ importsRouter.post("/chat", async (req, res) => {
       status: "processing",
       source_name: parsed.data.sourceName,
     })
-    .select("id")
+    .select("id, kind, status, source_name, error_message, created_at, updated_at")
     .single();
 
   try {
@@ -55,12 +55,14 @@ importsRouter.post("/chat", async (req, res) => {
       relevanceWeight: parsed.data.relevanceWeight ?? 1.5,
     });
 
-    await sb
+    const { data: completedJob } = await sb
       .from("import_jobs")
       .update({ status: "completed" })
-      .eq("id", job!.id);
+      .eq("id", job!.id)
+      .select("id, kind, status, source_name, error_message, created_at, updated_at")
+      .single();
 
-    return res.status(201).json({ job, chunksCreated, imported: true });
+    return res.status(201).json({ job: completedJob ?? job, chunksCreated, imported: true });
   } catch (err) {
     const message = err instanceof Error ? err.message : "Import failed.";
     await sb

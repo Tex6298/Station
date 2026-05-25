@@ -21,6 +21,61 @@ const updateSchema = createSchema.partial();
 export const personasRouter = Router();
 personasRouter.use(requireAuth);
 
+function serializePersona(row: any, continuity?: any) {
+  if (!row) return row;
+
+  return {
+    id: row.id,
+    ownerUserId: row.owner_user_id,
+    name: row.name,
+    shortDescription: row.short_description,
+    longDescription: row.long_description,
+    visibility: row.visibility,
+    provider: row.provider,
+    avatarUrl: row.avatar_url,
+    awakeningPrompt: row.awakening_prompt,
+    styleNotes: row.style_notes,
+    sortOrder: row.sort_order,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+    continuity,
+  };
+}
+
+async function loadContinuitySummary(personaId: string, ownerUserId: string) {
+  const sb = getSupabaseAdmin();
+
+  const [memory, canon, files, sessions] = await Promise.all([
+    sb
+      .from("memory_items")
+      .select("id, created_at", { count: "exact", head: true })
+      .eq("persona_id", personaId)
+      .eq("owner_user_id", ownerUserId),
+    sb
+      .from("canon_items")
+      .select("id, created_at", { count: "exact", head: true })
+      .eq("persona_id", personaId)
+      .eq("owner_user_id", ownerUserId),
+    sb
+      .from("persona_files")
+      .select("id, created_at", { count: "exact", head: true })
+      .eq("persona_id", personaId)
+      .eq("owner_user_id", ownerUserId),
+    sb
+      .from("calibration_sessions")
+      .select("id, created_at", { count: "exact", head: true })
+      .eq("persona_id", personaId)
+      .eq("owner_user_id", ownerUserId),
+  ]);
+
+  return {
+    memoryCount: memory.count ?? 0,
+    canonCount: canon.count ?? 0,
+    archiveFileCount: files.count ?? 0,
+    integritySessionCount: sessions.count ?? 0,
+  };
+}
+
 // -- List user's personas ------------------------------------------------------
 personasRouter.get("/", async (req, res) => {
   const sb = getSupabaseAdmin();
@@ -31,7 +86,7 @@ personasRouter.get("/", async (req, res) => {
     .order("sort_order", { ascending: true });
 
   if (error) return res.status(500).json({ error: error.message });
-  return res.json({ personas: data });
+  return res.json({ personas: (data ?? []).map((row) => serializePersona(row)) });
 });
 
 // -- Get a single persona ------------------------------------------------------
@@ -45,12 +100,13 @@ personasRouter.get("/:id", async (req, res) => {
 
   if (error || !data) return res.status(404).json({ error: "Persona not found." });
 
-  // Private personas only visible to owner
-  if (data.visibility === "private" && data.owner_user_id !== req.user!.id) {
+  const isOwner = data.owner_user_id === req.user!.id;
+  if (!isOwner && data.visibility === "private") {
     return res.status(403).json({ error: "Not authorised." });
   }
 
-  return res.json({ persona: data });
+  const continuity = isOwner ? await loadContinuitySummary(data.id, req.user!.id) : null;
+  return res.json({ persona: serializePersona(data, continuity) });
 });
 
 // -- Create a persona (requires private tier minimum) --------------------------
@@ -91,7 +147,7 @@ personasRouter.post("/", requireTier("private"), async (req, res) => {
     .single();
 
   if (error) return res.status(500).json({ error: error.message });
-  return res.status(201).json({ persona: data });
+  return res.status(201).json({ persona: serializePersona(data) });
 });
 
 // -- Update a persona ----------------------------------------------------------
@@ -120,7 +176,7 @@ personasRouter.patch("/:id", async (req, res) => {
 
   if (error) return res.status(500).json({ error: error.message });
   if (!data) return res.status(404).json({ error: "Persona not found." });
-  return res.json({ persona: data });
+  return res.json({ persona: serializePersona(data) });
 });
 
 // -- Delete a persona ----------------------------------------------------------

@@ -7,21 +7,24 @@ import { apiGet } from "@/lib/api-client";
 import type { PersonaSummary } from "@station/types/persona";
 
 const PROVIDER_LABELS: Record<string, string> = {
-  platform:  "Station",
-  openai:    "OpenAI",
+  platform: "Station",
+  openai: "OpenAI",
   anthropic: "Anthropic",
-  deepseek:  "DeepSeek",
-  gemini:    "Gemini",
+  deepseek: "DeepSeek",
+  gemini: "Gemini",
 };
 
 export default function StudioPage() {
   const [personas, setPersonas] = useState<PersonaSummary[]>([]);
-  const [loading, setLoading]   = useState(true);
-  const [error, setError]       = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     getSession().then(async (session) => {
-      if (!session) { setLoading(false); return; }
+      if (!session) {
+        setLoading(false);
+        return;
+      }
       try {
         const data = await apiGet<{ personas: PersonaSummary[] }>("/personas", session.access_token);
         setPersonas(data.personas ?? []);
@@ -34,96 +37,46 @@ export default function StudioPage() {
   }, []);
 
   return (
-    <main className="container">
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "1.5rem" }}>
+    <main className="container studio-workspace">
+      <section className="studio-persona-header">
         <div>
-          <h1 style={{ margin: 0 }}>Studio</h1>
-          <p style={{ margin: "0.25rem 0 0", color: "#666", fontSize: "0.875rem" }}>
-            Your private space. Kindle and tend your personas here.
+          <div className="studio-kicker">Studio</div>
+          <h1>Private continuity home</h1>
+          <p>
+            Tend personas, preserve memory, promote canon, import archive material, and run integrity sessions before anything becomes public.
           </p>
         </div>
-        <Link
-          href="/studio/new"
-          className="button primary"
-          style={{ textDecoration: "none", whiteSpace: "nowrap" }}
-        >
-          + New persona
-        </Link>
-      </div>
-
-      {loading && (
-        <div className="card" style={{ color: "#555", textAlign: "center", padding: "3rem" }}>
-          Loading your personas...
+        <div className="studio-persona-tabs">
+          <Link href="/studio/new" data-active="true">New Persona</Link>
+          <Link href="/space">Public Spaces</Link>
+          <Link href="/discover">Discover</Link>
         </div>
-      )}
+      </section>
 
-      {error && (
-        <div className="card" style={{ background: "#2d1515", borderColor: "#7d2e2e", color: "#eb5757" }}>
-          {error}
-        </div>
-      )}
+      {loading && <div className="card" style={{ textAlign: "center", padding: "3rem", color: "#7f8aa0", marginTop: "1rem" }}>Loading your personas...</div>}
+      {error && <div className="space-form-error" style={{ marginTop: "1rem" }}>{error}</div>}
 
       {!loading && !error && personas.length === 0 && (
-        <div className="card" style={{ textAlign: "center", padding: "4rem 2rem" }}>
-          <div style={{ fontSize: "2.5rem", marginBottom: "1rem" }}>Signal</div>
-          <h2 style={{ margin: "0 0 0.5rem" }}>No personas yet</h2>
-          <p style={{ color: "#666", margin: "0 0 1.5rem", fontSize: "0.9rem" }}>
-            Begin the awakening flow to bring your first persona through.
+        <section className="studio-editor-panel" style={{ marginTop: "1rem", textAlign: "center", padding: "4rem 2rem" }}>
+          <div className="section-label">No personas yet</div>
+          <h2 style={{ margin: "0.4rem 0 0.6rem" }}>Start the private layer</h2>
+          <p style={{ margin: "0 auto 1.5rem", maxWidth: 560, color: "#94a3b8", lineHeight: 1.7 }}>
+            The first persona creates the workspace where memory, canon, archive, and integrity sessions can begin to accumulate.
           </p>
-          <Link href="/studio/new" className="button primary" style={{ textDecoration: "none" }}>
-            Kindle your first persona
-          </Link>
-        </div>
+          <Link href="/studio/new" className="button primary">Kindle your first persona</Link>
+        </section>
       )}
 
       {!loading && personas.length > 0 && (
-        <div style={{ display: "grid", gap: "0.75rem", gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))" }}>
-          {personas.map((p) => (
-            <Link
-              key={p.id}
-              href={`/studio/personas/${p.id}`}
-              style={{ textDecoration: "none" }}
-            >
-              <div
-                className="card"
-                style={{
-                  cursor: "pointer",
-                  transition: "border-color 0.15s",
-                  height: "100%",
-                }}
-              >
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "0.5rem" }}>
-                  <strong style={{ fontSize: "1rem" }}>{p.name}</strong>
-                  <div style={{ display: "flex", gap: "0.3rem" }}>
-                    <span style={{
-                      fontSize: "0.68rem",
-                      padding: "0.1rem 0.45rem",
-                      borderRadius: 999,
-                      background: p.visibility === "public" ? "#0f2d1a" : "#1a1a2e",
-                      border: `1px solid ${p.visibility === "public" ? "#2e7d4f" : "#2a2a5a"}`,
-                      color: p.visibility === "public" ? "#6fcf97" : "#7c6af7",
-                    }}>
-                      {p.visibility}
-                    </span>
-                    <span style={{
-                      fontSize: "0.68rem",
-                      padding: "0.1rem 0.45rem",
-                      borderRadius: 999,
-                      background: "#111827",
-                      border: "1px solid #1f2937",
-                      color: "#6b7280",
-                    }}>
-                      {PROVIDER_LABELS[p.provider] ?? p.provider}
-                    </span>
-                  </div>
-                </div>
-                <p style={{ margin: 0, color: "#666", fontSize: "0.85rem", lineHeight: 1.5 }}>
-                  {p.shortDescription || <span style={{ fontStyle: "italic" }}>No description yet.</span>}
-                </p>
-              </div>
+        <section className="studio-continuity-grid" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))" }}>
+          {personas.map((persona) => (
+            <Link key={persona.id} href={`/studio/personas/${persona.id}`} className="studio-continuity-card">
+              <span>{persona.visibility} / {PROVIDER_LABELS[persona.provider] ?? persona.provider}</span>
+              <strong style={{ fontSize: "1.45rem" }}>{persona.name}</strong>
+              <p>{persona.shortDescription || "No continuity brief yet."}</p>
             </Link>
           ))}
-        </div>
+        </section>
       )}
     </main>
   );

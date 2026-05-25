@@ -46,5 +46,8 @@ jobs:
       - name: Public Spaces smoke tests
         run: pnpm test:spaces
 
+      - name: Continuity smoke tests
+        run: pnpm test:continuity
+
       - name: Full build
         run: pnpm build
