@@ -74,7 +74,7 @@ export default function NewDocumentPage() {
       );
 
       if (publish) {
-        await apiPost(`/documents/${document.id}/publish`, {}, session.access_token);
+        await apiPost(`/documents/${document.id}/publish`, { visibility: form.visibility }, session.access_token);
       }
 
       router.push(`/space/${slug}/documents/${document.id}`);
@@ -131,7 +131,8 @@ export default function NewDocumentPage() {
           <div style={{ display: "flex", gap: "1rem", alignItems: "center" }}>
             <select className="select" value={form.visibility} onChange={(e) => set("visibility", e.target.value)} style={{ fontSize: "0.8rem" }}>
               <option value="public">Public</option>
-              <option value="members">Members only</option>
+              <option value="community">Community</option>
+              <option value="unlisted">Unlisted</option>
               <option value="private">Private</option>
             </select>
             <label style={{ display: "flex", gap: "0.4rem", alignItems: "center", fontSize: "0.8rem", color: "#888", cursor: "pointer" }}>

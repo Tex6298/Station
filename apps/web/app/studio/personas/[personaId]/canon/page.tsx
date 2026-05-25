@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { getSession } from "@/lib/auth";
 import { apiGet, apiPost } from "@/lib/api-client";
+import { PublishContinuityButton } from "@/components/studio/publish-continuity-button";
 import {
   PersonaWorkspaceHeader,
   type PersonaWithContinuity,
@@ -126,6 +127,11 @@ export default function PersonaCanonPage() {
                 </div>
                 <h3>{item.title || "Untitled canon"}</h3>
                 <p>{item.content}</p>
+                <PublishContinuityButton
+                  sourceType="canon"
+                  sourceId={item.id}
+                  defaultTitle={item.title || "Canon note"}
+                />
               </article>
             ))}
           </div>

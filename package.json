@@ -10,7 +10,8 @@
     "test:developer-spaces": "tsx --test apps/api/src/routes/developer-spaces.test.ts apps/web/lib/developer-space-observatory.test.ts",
     "test:spaces": "pnpm --filter @station/types --filter @station/config --filter @station/db --filter @station/auth build && tsx --test apps/api/src/routes/spaces.test.ts",
     "test:continuity": "pnpm --filter @station/types --filter @station/config --filter @station/db --filter @station/auth --filter @station/ai build && tsx --test apps/api/src/routes/continuity.test.ts",
-    "test:persona-context": "pnpm --filter @station/types --filter @station/config --filter @station/db --filter @station/auth --filter @station/ai build && tsx --test apps/api/src/routes/persona-context.test.ts"
+    "test:persona-context": "pnpm --filter @station/types --filter @station/config --filter @station/db --filter @station/auth --filter @station/ai build && tsx --test apps/api/src/routes/persona-context.test.ts",
+    "test:continuity-publication": "pnpm --filter @station/types --filter @station/config --filter @station/db --filter @station/auth --filter @station/ai build && tsx --test apps/api/src/routes/continuity-publication.test.ts"
   },
   "devDependencies": {
     "tsx": "^4.21.0",

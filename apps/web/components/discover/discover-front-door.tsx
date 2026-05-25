@@ -12,6 +12,10 @@ interface FeedItem {
   excerpt: string | null;
   href: string;
   meta: string | null;
+  visibility?: string | null;
+  provenanceType?: string | null;
+  sourceType?: string | null;
+  sourceLabel?: string | null;
   space: { slug: string; title: string } | null;
   author: { username: string; display_name: string | null; avatar_url: string | null } | null;
   persona: { id: string; name: string } | null;
@@ -69,6 +73,13 @@ const TYPE_TEXT: Record<string, string> = {
   document: "#60a5fa", thread: "#4ade80",
   post: "#60a5fa", essay: "#c084fc", manifesto: "#f87171",
 };
+const PROVENANCE_LABELS: Record<string, string> = {
+  user_authored: "User-authored",
+  ai_assisted: "AI-assisted",
+  archive_import: "Archive import",
+  integrity_session: "Integrity Session",
+  persona_derived: "Persona-derived",
+};
 
 function FeedCard({ item }: { item: FeedItem }) {
   const typeLabel = item.type === "thread" ? "Forum" : (item.meta ?? "Post");
@@ -83,6 +94,11 @@ function FeedCard({ item }: { item: FeedItem }) {
             {typeLabel}
           </span>
           {item.space && <span style={{ fontSize: "0.68rem", color: "#68738a" }}>in {item.space.title}</span>}
+          {item.provenanceType && (
+            <span style={{ fontSize: "0.68rem", color: "#7dd3fc" }}>
+              {PROVENANCE_LABELS[item.provenanceType] ?? item.provenanceType}
+            </span>
+          )}
           {item.promoted && (
             <span style={{ fontSize: "0.65rem", padding: "0.1rem 0.4rem", borderRadius: 999, background: "#2a1a00", border: "1px solid #7d5a00", color: "#f59e0b" }}>
               Featured
@@ -111,6 +127,7 @@ function FeedCard({ item }: { item: FeedItem }) {
             </div>
           )}
           {item.persona && <span style={{ fontSize: "0.72rem", color: "#a89af7" }}>via {item.persona.name}</span>}
+          {item.sourceLabel && <span style={{ fontSize: "0.72rem", color: "#68738a" }}>{item.sourceLabel}</span>}
           {item.replyCount > 0 && <span style={{ fontSize: "0.72rem", color: "#68738a", marginLeft: "auto" }}>Replies {item.replyCount}</span>}
         </div>
       </article>
@@ -244,6 +261,7 @@ export default function DiscoverFrontDoor() {
   const [tab, setTab] = useState<Tab>("new");
   const [items, setItems] = useState<FeedItem[]>([]);
   const [feedLoading, setFeedLoading] = useState(true);
+  const [token, setToken] = useState<string | null>(null);
 
   const [sidebar, setSidebar] = useState<SidebarData | null>(null);
   const [profile, setProfile] = useState<{ display_name: string | null; username: string; tier: string; avatar_url: string | null } | null>(null);
@@ -255,15 +273,16 @@ export default function DiscoverFrontDoor() {
 
   useEffect(() => {
     setFeedLoading(true);
-    apiGet<{ items: FeedItem[] }>(`/discover/feed?tab=${tab}&limit=30`)
+    apiGet<{ items: FeedItem[] }>(`/discover/feed?tab=${tab}&limit=30`, token ?? undefined)
       .then((d) => setItems(d.items ?? []))
       .catch(() => setItems([]))
       .finally(() => setFeedLoading(false));
-  }, [tab]);
+  }, [tab, token]);
 
   useEffect(() => {
     getSession().then(async (session) => {
       const token = session?.access_token;
+      setToken(token ?? null);
 
       apiGet<SidebarData>("/discover/sidebar", token)
         .then(setSidebar)
@@ -285,13 +304,13 @@ export default function DiscoverFrontDoor() {
     const timeout = setTimeout(async () => {
       setSearching(true);
       try {
-        const data = await apiGet<any>(`/discover/search?q=${encodeURIComponent(search)}`);
+        const data = await apiGet<any>(`/discover/search?q=${encodeURIComponent(search)}`, token ?? undefined);
         setSearchResults(data);
       } catch { setSearchResults(null); }
       finally { setSearching(false); }
     }, 350);
     return () => clearTimeout(timeout);
-  }, [search]);
+  }, [search, token]);
 
   return (
     <div className="discover-layout">
@@ -365,6 +384,11 @@ export default function DiscoverFrontDoor() {
                               {key === "spaces" && r.presentation && (
                                 <span style={{ color: "#a7f3d0", fontSize: "0.72rem", marginLeft: "0.45rem", textTransform: "capitalize" }}>
                                   {r.presentation.theme} / {r.presentation.layout}
+                                </span>
+                              )}
+                              {key === "documents" && r.provenance_type && (
+                                <span style={{ color: "#7dd3fc", fontSize: "0.72rem", marginLeft: "0.45rem" }}>
+                                  {PROVENANCE_LABELS[r.provenance_type] ?? r.provenance_type}
                                 </span>
                               )}
                               {(r.short_description || r.body) && (

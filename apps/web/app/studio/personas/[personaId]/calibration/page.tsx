@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useParams } from "next/navigation";
 import { getSession } from "@/lib/auth";
 import { apiGet, apiPost } from "@/lib/api-client";
+import { PublishContinuityButton } from "@/components/studio/publish-continuity-button";
 import {
   PersonaWorkspaceHeader,
   type PersonaWithContinuity,
@@ -203,6 +204,11 @@ export default function PersonaCalibrationPage() {
               </div>
               <h3>{active.sessionTitle || "Integrity session"}</h3>
               <p>{active.transcript || "Answer prompts to build the transcript."}</p>
+              <PublishContinuityButton
+                sourceType="integrity"
+                sourceId={active.id}
+                defaultTitle={active.sessionTitle || "Integrity Session notes"}
+              />
             </div>
           )}
 

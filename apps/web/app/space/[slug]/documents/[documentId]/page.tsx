@@ -12,11 +12,22 @@ interface Document {
   document_type: string; status: string; visibility: string;
   published_at: string | null; author_user_id: string;
   persona_id: string | null; space_id: string | null;
+  provenance_type?: string | null;
+  source_type?: string | null;
+  source_label?: string | null;
 }
 
 const DOC_TYPE_LABELS: Record<string, string> = {
   post: "Post", essay: "Essay", manifesto: "Manifesto",
   constitution: "Constitution", update: "Update", other: "Other",
+};
+
+const PROVENANCE_LABELS: Record<string, string> = {
+  user_authored: "User-authored",
+  ai_assisted: "AI-assisted",
+  archive_import: "Archive import",
+  integrity_session: "Integrity Session",
+  persona_derived: "Persona-derived",
 };
 
 export default function DocumentPage() {
@@ -34,12 +45,12 @@ export default function DocumentPage() {
     getSession().then(async (session) => {
       if (session) setToken(session.access_token);
       try {
-        const data = await apiGet<{ document: Document }>(
+        const data = await apiGet<{ document: Document; access?: "owner" | "reader" }>(
           `/documents/${documentId}`,
           session?.access_token
         );
         setDoc(data.document);
-        if (session && data.document.author_user_id) setIsOwner(true);
+        setIsOwner(data.access === "owner");
       } catch {
         try {
           const data = await apiGet<{ document: Document }>(`/documents/public/${documentId}`);
@@ -86,6 +97,11 @@ export default function DocumentPage() {
           }}>
             {doc.status}
           </span>
+          {doc.provenance_type && (
+            <span style={{ fontSize: "0.72rem", color: "#7dd3fc", background: "#0c2536", border: "1px solid #1d4f68", borderRadius: 999, padding: "0.1rem 0.45rem" }}>
+              {PROVENANCE_LABELS[doc.provenance_type] ?? doc.provenance_type}
+            </span>
+          )}
           {doc.published_at && (
             <span style={{ fontSize: "0.72rem", color: "#555" }}>
               {new Date(doc.published_at).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })}
@@ -109,6 +125,11 @@ export default function DocumentPage() {
             >
               Signal Share to socials
             </button>
+          </div>
+        )}
+        {doc.source_label && (
+          <div style={{ marginTop: "0.9rem", color: "#7f8aa0", fontSize: "0.82rem" }}>
+            Source: {doc.source_label}
           </div>
         )}
       </div>

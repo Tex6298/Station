@@ -52,5 +52,8 @@ jobs:
       - name: Persona runtime context tests
         run: pnpm test:persona-context
 
+      - name: Continuity publication tests
+        run: pnpm test:continuity-publication
+
       - name: Full build
         run: pnpm build

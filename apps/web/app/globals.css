@@ -753,6 +753,14 @@ html, body {
   line-height: 1.2;
 }
 
+.space-document-card small,
+.space-library-list em {
+  margin-top: 0.45rem;
+  color: var(--space-muted);
+  font-size: 0.75rem;
+  font-style: normal;
+}
+
 .space-document-card p {
   margin: auto 0 0;
   color: var(--space-muted);
@@ -789,7 +797,7 @@ html, body {
 
 .space-library-list a {
   display: grid;
-  grid-template-columns: minmax(72px, 0.18fr) minmax(0, 1fr) auto;
+  grid-template-columns: minmax(72px, 0.16fr) minmax(0, 1fr) minmax(110px, auto) auto;
   gap: 0.75rem;
   align-items: center;
   padding: 0.8rem 0.9rem;
@@ -1278,6 +1286,93 @@ html, body {
   white-space: pre-wrap;
 }
 
+.studio-publish-control {
+  display: grid;
+  gap: 0.55rem;
+  margin-top: 0.65rem;
+}
+
+.studio-publish-panel {
+  display: grid;
+  gap: 0.65rem;
+  padding: 0.75rem;
+  border: 1px solid #243246;
+  border-radius: 8px;
+  background: #0b1120;
+}
+
+.studio-publish-panel > div:first-child {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.studio-publish-panel span {
+  color: #7dd3fc;
+  font-size: 0.72rem;
+  font-weight: 760;
+  text-transform: uppercase;
+}
+
+.studio-publish-panel strong {
+  color: #f8fafc;
+  font-size: 0.88rem;
+}
+
+.studio-publish-row,
+.studio-publish-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.55rem;
+}
+
+.studio-publish-result {
+  color: #a7f3d0;
+  font-size: 0.82rem;
+}
+
+.studio-published-history {
+  display: grid;
+  gap: 0.85rem;
+  margin-top: 1rem;
+  padding: 1rem;
+  border: 1px solid #253044;
+  border-radius: 8px;
+  background: rgba(18, 24, 38, 0.94);
+}
+
+.studio-published-list {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.studio-published-row {
+  display: grid;
+  gap: 0.4rem;
+  padding: 0.75rem;
+  border: 1px solid #243246;
+  border-radius: 8px;
+  background: #0f172a;
+}
+
+.studio-published-row div {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.studio-published-row strong {
+  color: #f8fafc;
+}
+
+.studio-published-row span,
+.studio-published-row p {
+  margin: 0;
+  color: #93a4ba;
+  font-size: 0.82rem;
+  line-height: 1.5;
+}
+
 .studio-range-field {
   display: grid;
   gap: 0.4rem;
@@ -1354,6 +1449,11 @@ html, body {
   }
 
   .studio-runtime-query {
+    grid-template-columns: 1fr;
+  }
+
+  .studio-publish-row,
+  .studio-publish-actions {
     grid-template-columns: 1fr;
   }
 }

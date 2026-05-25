@@ -6,7 +6,8 @@ import {
   SPACE_LAYOUT_IDS,
   SPACE_THEME_IDS,
 } from "@station/config/space-presentation";
-import { optionalAuth, requireAuth } from "../middleware/require-auth";
+import type { DocumentVisibility } from "@station/db";
+import { optionalAuth, requireAuth, type AuthenticatedUser } from "../middleware/require-auth";
 import { requireTier } from "../middleware/require-tier";
 import { getSupabaseAdmin } from "../lib/supabase";
 import { canCreateSpace } from "@station/auth/permissions";
@@ -50,6 +51,14 @@ const createPageSchema = z.object({
 const updatePageSchema = createPageSchema.partial();
 
 export const spacesRouter = Router();
+const COMMUNITY_TIERS = new Set(["private", "creator", "canon", "institutional"]);
+
+function listedDocumentVisibilities(user: AuthenticatedUser | undefined, ownerAccess: boolean): DocumentVisibility[] {
+  if (ownerAccess || (user && COMMUNITY_TIERS.has(user.tier))) {
+    return ["public", "community", "members"];
+  }
+  return ["public"];
+}
 
 function serializeSpace(space: any) {
   if (!space) return space;
@@ -94,21 +103,24 @@ spacesRouter.get("/:slug", optionalAuth, async (req, res) => {
     return res.status(403).json({ error: "This Space is private." });
   }
 
-  const [{ data: pages }, { data: documents }, { data: personas }] = await Promise.all([
+  const documentVisibilities = listedDocumentVisibilities(req.user, hasOwnerAccess);
+  const [{ data: pages }, documentResults, { data: personas }] = await Promise.all([
     sb
       .from("space_pages")
       .select("id, slug, title, page_type, body, sort_order, is_published, comments_enabled")
       .eq("space_id", space.id)
       .eq("is_published", true)
       .order("sort_order", { ascending: true }),
-    sb
-      .from("documents")
-      .select("id, title, slug, document_type, body, visibility, published_at, created_at")
-      .eq("space_id", space.id)
-      .eq("status", "published")
-      .eq("visibility", "public")
-      .order("published_at", { ascending: false })
-      .limit(20),
+    Promise.all(documentVisibilities.map((visibility) =>
+      sb
+        .from("documents")
+        .select("id, title, slug, document_type, body, visibility, published_at, created_at, provenance_type, source_type, source_label")
+        .eq("space_id", space.id)
+        .eq("status", "published")
+        .eq("visibility", visibility)
+        .order("published_at", { ascending: false })
+        .limit(20)
+    )),
     sb
       .from("personas")
       .select("id, name, short_description, visibility, provider, avatar_url")
@@ -127,7 +139,10 @@ spacesRouter.get("/:slug", optionalAuth, async (req, res) => {
     access: hasOwnerAccess ? "owner" : "public",
     space: serializeSpace(space),
     pages: pages ?? [],
-    documents: documents ?? [],
+    documents: documentResults
+      .flatMap((result) => result.data ?? [])
+      .sort((a, b) => new Date(b.published_at ?? b.created_at ?? 0).getTime() - new Date(a.published_at ?? a.created_at ?? 0).getTime())
+      .slice(0, 20),
     personas: personas ?? [],
     owner,
   });

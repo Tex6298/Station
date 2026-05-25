@@ -25,6 +25,9 @@ interface Document {
   body: string | null;
   published_at: string | null;
   created_at: string | null;
+  visibility?: string | null;
+  provenance_type?: string | null;
+  source_label?: string | null;
 }
 
 interface Persona {
@@ -70,6 +73,14 @@ const DOC_TYPE_LABELS: Record<string, string> = {
   constitution: "Constitution",
   update: "Update",
   other: "Other",
+};
+
+const PROVENANCE_LABELS: Record<string, string> = {
+  user_authored: "User-authored",
+  ai_assisted: "AI-assisted",
+  archive_import: "Archive import",
+  integrity_session: "Integrity Session",
+  persona_derived: "Persona-derived",
 };
 
 export default function PublicSpacePage() {
@@ -239,6 +250,9 @@ function FeaturedDocuments({ documents, spaceSlug }: { documents: Document[]; sp
         <Link key={doc.id} href={`/space/${spaceSlug}/documents/${doc.id}`} className="space-document-card">
           <span>{DOC_TYPE_LABELS[doc.document_type] ?? doc.document_type}</span>
           <h3>{doc.title}</h3>
+          {doc.provenance_type && (
+            <small>{PROVENANCE_LABELS[doc.provenance_type] ?? doc.provenance_type}</small>
+          )}
           {doc.body && <p>{excerpt(doc.body, 150)}</p>}
         </Link>
       ))}
@@ -277,6 +291,7 @@ function LibraryList({ documents, spaceSlug }: { documents: Document[]; spaceSlu
         <Link key={doc.id} href={`/space/${spaceSlug}/documents/${doc.id}`}>
           <span>{DOC_TYPE_LABELS[doc.document_type] ?? doc.document_type}</span>
           <strong>{doc.title}</strong>
+          {doc.provenance_type && <em>{PROVENANCE_LABELS[doc.provenance_type] ?? doc.provenance_type}</em>}
           <time>{formatDate(doc.published_at ?? doc.created_at)}</time>
         </Link>
       ))}

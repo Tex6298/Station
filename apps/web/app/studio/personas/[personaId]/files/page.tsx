@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { getSession } from "@/lib/auth";
 import { apiGet, apiPost } from "@/lib/api-client";
+import { PublishContinuityButton } from "@/components/studio/publish-continuity-button";
 import {
   PersonaWorkspaceHeader,
   type PersonaWithContinuity,
@@ -141,6 +142,11 @@ export default function PersonaFilesPage() {
                 </div>
                 <h3>{job.source_name}</h3>
                 <p>{job.error_message || "Imported text is chunked into private memory items for retrieval."}</p>
+                <PublishContinuityButton
+                  sourceType="archive_import"
+                  sourceId={job.id}
+                  defaultTitle={job.source_name}
+                />
               </article>
             ))}
             {files.map((file) => (
@@ -151,6 +157,11 @@ export default function PersonaFilesPage() {
                 </div>
                 <h3>{file.file_name}</h3>
                 <p>{file.file_type || file.storage_path}</p>
+                <PublishContinuityButton
+                  sourceType="archive_file"
+                  sourceId={file.id}
+                  defaultTitle={file.file_name}
+                />
               </article>
             ))}
           </div>

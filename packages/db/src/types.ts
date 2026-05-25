@@ -7,9 +7,11 @@
 export type Tier = "visitor" | "private" | "creator" | "canon" | "institutional";
 export type AiMode = "platform" | "byok";
 export type Visibility = "private" | "public";
-export type DocumentVisibility = "private" | "public" | "members";
+export type DocumentVisibility = "private" | "unlisted" | "community" | "public" | "members";
 export type DocumentStatus = "draft" | "published" | "archived";
 export type DocumentType = "post" | "essay" | "manifesto" | "constitution" | "update" | "other";
+export type DocumentProvenanceType = "user_authored" | "ai_assisted" | "archive_import" | "integrity_session" | "persona_derived";
+export type DocumentSourceType = "manual" | "canon" | "integrity" | "archive_file" | "archive_import" | "persona";
 export type Provider = "platform" | "openai" | "anthropic" | "deepseek" | "gemini";
 export type SourceType = "chat" | "import" | "document" | "calibration" | "manual";
 export type PersonaFileSourceType = "upload" | "import" | "calibration" | "generated";
@@ -288,6 +290,11 @@ export interface Database {
           visibility: DocumentVisibility;
           comments_enabled: boolean;
           published_at: string | null;
+          provenance_type: DocumentProvenanceType;
+          source_type: DocumentSourceType | null;
+          source_id: string | null;
+          source_label: string | null;
+          source_persona_id: string | null;
           created_at: string;
           updated_at: string;
         };

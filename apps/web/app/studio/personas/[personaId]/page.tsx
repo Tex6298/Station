@@ -15,6 +15,7 @@ import {
 export default function PersonaPage() {
   const { personaId } = useParams<{ personaId: string }>();
   const [persona, setPersona] = useState<PersonaWithContinuity | null>(null);
+  const [documents, setDocuments] = useState<PublishedContinuityDocument[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -30,8 +31,14 @@ export default function PersonaPage() {
           return;
         }
 
-        const data = await apiGet<{ persona: PersonaWithContinuity }>(`/personas/${personaId}`, session.access_token);
-        if (!cancelled) setPersona(data.persona);
+        const [personaData, documentData] = await Promise.all([
+          apiGet<{ persona: PersonaWithContinuity }>(`/personas/${personaId}`, session.access_token),
+          apiGet<{ documents: PublishedContinuityDocument[] }>(`/documents?personaId=${personaId}`, session.access_token).catch(() => ({ documents: [] })),
+        ]);
+        if (!cancelled) {
+          setPersona(personaData.persona);
+          setDocuments(documentData.documents ?? []);
+        }
       } catch (e) {
         if (!cancelled) setError(e instanceof Error ? e.message : "Could not load persona.");
       } finally {
@@ -89,8 +96,22 @@ export default function PersonaPage() {
       </section>
 
       <RuntimeContextPreview personaId={persona.id} />
+      <PublishedContinuityHistory documents={documents} />
     </main>
   );
+}
+
+interface PublishedContinuityDocument {
+  id: string;
+  title: string;
+  status: string;
+  visibility: string;
+  published_at: string | null;
+  created_at: string;
+  space_id: string | null;
+  provenance_type: string;
+  source_type: string | null;
+  source_label: string | null;
 }
 
 interface RuntimeContextSource {
@@ -116,6 +137,43 @@ const CONTEXT_SECTIONS: Array<{ type: RuntimeContextSource["type"]; label: strin
   { type: "memory", label: "Memory" },
   { type: "archive", label: "Archive" },
 ];
+
+const PROVENANCE_LABELS: Record<string, string> = {
+  user_authored: "User-authored",
+  ai_assisted: "AI-assisted",
+  archive_import: "Archive import",
+  integrity_session: "Integrity Session",
+  persona_derived: "Persona-derived",
+};
+
+function PublishedContinuityHistory({ documents }: { documents: PublishedContinuityDocument[] }) {
+  return (
+    <section className="studio-published-history">
+      <div className="studio-section-heading">
+        <div className="section-label">Published Continuity</div>
+        <h2>Documents created from Studio</h2>
+      </div>
+
+      {documents.length === 0 ? (
+        <div className="studio-empty">No continuity artifacts have been copied into public documents yet.</div>
+      ) : (
+        <div className="studio-published-list">
+          {documents.map((document) => (
+            <article key={document.id} className="studio-published-row">
+              <div>
+                <strong>{document.title}</strong>
+                <span>
+                  {PROVENANCE_LABELS[document.provenance_type] ?? "Continuity"} / {document.visibility} / {document.status}
+                </span>
+              </div>
+              {document.source_label && <p>{document.source_label}</p>}
+            </article>
+          ))}
+        </div>
+      )}
+    </section>
+  );
+}
 
 function RuntimeContextPreview({ personaId }: { personaId: string }) {
   const [query, setQuery] = useState("What should this persona keep steady right now?");

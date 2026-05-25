@@ -1,37 +1,56 @@
 import { Router, Request, Response } from "express";
 import { normalizeSpacePresentation } from "@station/config/space-presentation";
+import type { DocumentVisibility } from "@station/db";
 import { getSupabaseAdmin } from "../lib/supabase";
 import { optionalAuth } from "../middleware/require-auth";
 
 export const discoverRouter = Router();
 const sb = getSupabaseAdmin();
+const COMMUNITY_TIERS = new Set(["private", "creator", "canon", "institutional"]);
+
+function canSeeCommunityDocuments(req: Request) {
+  return Boolean(req.user && COMMUNITY_TIERS.has(req.user.tier));
+}
+
+function discoverableDocumentVisibilities(req: Request): DocumentVisibility[] {
+  return canSeeCommunityDocuments(req)
+    ? ["public", "community", "members"]
+    : ["public"];
+}
+
+function documentFeedQuery(visibility: DocumentVisibility, tab: string, offset: number, limit: number) {
+  return sb
+    .from("documents")
+    .select(`
+      id, title, body, document_type, published_at, created_at, visibility,
+      provenance_type, source_type, source_label,
+      space:spaces!space_id(slug, title),
+      author:profiles!author_user_id(username, display_name, avatar_url),
+      persona:personas!persona_id(id, name)
+    `)
+    .eq("status", "published")
+    .eq("visibility", visibility)
+    .order(tab === "rising" ? "created_at" : "published_at", { ascending: false })
+    .range(offset, offset + limit - 1);
+}
 
 // --- Unified feed item shape -------------------------------------------------
 // Each item has a normalised shape so the frontend can render generically.
 // type: 'document' | 'thread' | 'space' | 'persona'
 
 // --- GET /discover/feed?tab=new|rising|featured&limit=20&offset=0 ------------
-discoverRouter.get("/feed", async (req: Request, res: Response) => {
+discoverRouter.get("/feed", optionalAuth, async (req: Request, res: Response) => {
   const tab    = String(req.query.tab    ?? "new");
   const limit  = Math.min(Number(req.query.limit  ?? 20), 50);
   const offset = Number(req.query.offset ?? 0);
 
   try {
-    const [docsResult, threadsResult] = await Promise.all([
-      // Published public documents
-      sb
-        .from("documents")
-        .select(`
-          id, title, body, document_type, published_at, created_at,
-          space:spaces!space_id(slug, title),
-          author:profiles!author_user_id(username, display_name, avatar_url),
-          persona:personas!persona_id(id, name)
-        `)
-        .eq("status", "published")
-        .eq("visibility", "public")
-        .order(tab === "rising" ? "created_at" : "published_at", { ascending: false })
-        .range(offset, offset + limit - 1),
-
+    const [docResults, threadsResult] = await Promise.all([
+      Promise.all(
+        discoverableDocumentVisibilities(req).map((visibility) =>
+          documentFeedQuery(visibility, tab, offset, limit)
+        )
+      ),
       // Active forum threads
       sb
         .from("threads")
@@ -46,13 +65,18 @@ discoverRouter.get("/feed", async (req: Request, res: Response) => {
     ]);
 
     // Normalise into a unified feed shape
-    const docItems = (docsResult.data ?? []).map((d: any) => ({
+    const docRows = docResults.flatMap((result) => result.data ?? []);
+    const docItems = docRows.map((d: any) => ({
       id:          d.id,
       type:        "document" as const,
       title:       d.title,
       excerpt:     d.body ? d.body.slice(0, 220).replace(/\n/g, " ") + (d.body.length > 220 ? "..." : "") : null,
       href:        d.space ? `/space/${d.space.slug}/documents/${d.id}` : `/documents/${d.id}`,
       meta:        d.document_type,
+      visibility:  d.visibility,
+      provenanceType: d.provenance_type,
+      sourceType:  d.source_type,
+      sourceLabel: d.source_label,
       space:       d.space  ?? null,
       author:      d.author ?? null,
       persona:     d.persona ?? null,
@@ -172,19 +196,27 @@ discoverRouter.get("/sidebar", optionalAuth, async (req: Request, res: Response)
 });
 
 // --- GET /discover/search?q= -------------------------------------------------
-discoverRouter.get("/search", async (req: Request, res: Response) => {
+discoverRouter.get("/search", optionalAuth, async (req: Request, res: Response) => {
   const q = String(req.query.q ?? "").trim();
   if (!q) return res.json({ documents: [], threads: [], spaces: [], personas: [] });
 
-  const [docs, threads, spaces, personas] = await Promise.all([
-    sb.from("documents").select("id, title, body, document_type, space:spaces!space_id(slug)").eq("status", "published").eq("visibility", "public").ilike("title", `%${q}%`).limit(8),
+  const [docResults, threads, spaces, personas] = await Promise.all([
+    Promise.all(discoverableDocumentVisibilities(req).map((visibility) =>
+      sb
+        .from("documents")
+        .select("id, title, body, document_type, visibility, provenance_type, source_type, source_label, space:spaces!space_id(slug)")
+        .eq("status", "published")
+        .eq("visibility", visibility)
+        .ilike("title", `%${q}%`)
+        .limit(8)
+    )),
     sb.from("threads").select("id, title, body, category:forum_categories!category_id(slug, title)").eq("status", "active").ilike("title", `%${q}%`).limit(8),
     sb.from("spaces").select("id, slug, title, short_description, theme").eq("is_public", true).ilike("title", `%${q}%`).limit(6),
     sb.from("personas").select("id, name, short_description, visibility").eq("visibility", "public").ilike("name", `%${q}%`).limit(6),
   ]);
 
   res.json({
-    documents: docs.data ?? [],
+    documents: docResults.flatMap((result) => result.data ?? []).slice(0, 8),
     threads:   threads.data ?? [],
     spaces:    (spaces.data ?? []).map((space: any) => ({
       ...space,
