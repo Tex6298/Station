@@ -58,5 +58,8 @@ jobs:
       - name: Document discussion tests
         run: pnpm test:document-discussions
 
+      - name: Export trust tests
+        run: pnpm test:exports
+
       - name: Full build
         run: pnpm build

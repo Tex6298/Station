@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { getSession } from "@/lib/auth";
-import { apiGet } from "@/lib/api-client";
+import { apiGet, apiPost } from "@/lib/api-client";
 import { PersonaChat } from "@/components/studio/persona-chat";
 import {
   ContinuityCards,
@@ -16,6 +16,8 @@ export default function PersonaPage() {
   const { personaId } = useParams<{ personaId: string }>();
   const [persona, setPersona] = useState<PersonaWithContinuity | null>(null);
   const [documents, setDocuments] = useState<PublishedContinuityDocument[]>([]);
+  const [exportPackages, setExportPackages] = useState<ArchiveExportPackage[]>([]);
+  const [token, setToken] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -30,14 +32,17 @@ export default function PersonaPage() {
           setLoading(false);
           return;
         }
+        setToken(session.access_token);
 
-        const [personaData, documentData] = await Promise.all([
+        const [personaData, documentData, exportData] = await Promise.all([
           apiGet<{ persona: PersonaWithContinuity }>(`/personas/${personaId}`, session.access_token),
           apiGet<{ documents: PublishedContinuityDocument[] }>(`/documents?personaId=${personaId}`, session.access_token).catch(() => ({ documents: [] })),
+          apiGet<{ exports: ArchiveExportPackage[] }>(`/exports/persona/${personaId}`, session.access_token).catch(() => ({ exports: [] })),
         ]);
         if (!cancelled) {
           setPersona(personaData.persona);
           setDocuments(documentData.documents ?? []);
+          setExportPackages(exportData.exports ?? []);
         }
       } catch (e) {
         if (!cancelled) setError(e instanceof Error ? e.message : "Could not load persona.");
@@ -96,6 +101,12 @@ export default function PersonaPage() {
       </section>
 
       <RuntimeContextPreview personaId={persona.id} />
+      <ArchiveExportHistory
+        personaId={persona.id}
+        token={token}
+        exportPackages={exportPackages}
+        onCreated={(exportPackage) => setExportPackages((current) => [exportPackage, ...current])}
+      />
       <PublishedContinuityHistory documents={documents} />
     </main>
   );
@@ -123,6 +134,19 @@ interface RuntimeContextSource {
   reason: string;
   sourceType?: string | null;
   createdAt?: string | null;
+}
+
+interface ArchiveExportPackage {
+  id: string;
+  status: string;
+  format: string;
+  includedSections: string[];
+  contentSummary: Record<string, number>;
+  errorMessage: string | null;
+  requestedAt: string;
+  completedAt: string | null;
+  createdAt: string;
+  updatedAt: string;
 }
 
 interface RuntimeContextPreviewData {
@@ -170,6 +194,99 @@ function PublishedContinuityHistory({ documents }: { documents: PublishedContinu
             </article>
           ))}
         </div>
+      )}
+    </section>
+  );
+}
+
+function ArchiveExportHistory({
+  personaId,
+  token,
+  exportPackages,
+  onCreated,
+}: {
+  personaId: string;
+  token: string | null;
+  exportPackages: ArchiveExportPackage[];
+  onCreated: (exportPackage: ArchiveExportPackage) => void;
+}) {
+  const [creating, setCreating] = useState(false);
+  const [manifest, setManifest] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  async function createExportPackage() {
+    if (!token) return;
+    setCreating(true);
+    setError(null);
+    try {
+      const response = await apiPost<{
+        exportPackage: ArchiveExportPackage;
+        manifestMarkdown: string;
+      }>(`/exports/persona/${personaId}`, {}, token);
+      onCreated(response.exportPackage);
+      setManifest(response.manifestMarkdown);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Could not create export package.");
+    } finally {
+      setCreating(false);
+    }
+  }
+
+  async function loadManifest(packageId: string) {
+    if (!token) return;
+    setError(null);
+    try {
+      const response = await apiGet<{ manifestMarkdown: string }>(`/exports/${packageId}`, token);
+      setManifest(response.manifestMarkdown);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Could not load export manifest.");
+    }
+  }
+
+  return (
+    <section className="studio-published-history">
+      <div className="studio-section-heading">
+        <div className="section-label">Archive Trust</div>
+        <h2>Export packages</h2>
+      </div>
+
+      <div className="studio-context-panel" style={{ marginBottom: "1rem" }}>
+        <p>
+          Packages collect this persona profile, private continuity, archive metadata, integrity notes, and published document references into a portable manifest.
+        </p>
+        <button className="button primary" type="button" onClick={createExportPackage} disabled={creating || !token}>
+          {creating ? "Creating..." : "Create export package"}
+        </button>
+      </div>
+
+      {error && <div className="space-form-error">{error}</div>}
+
+      {exportPackages.length === 0 ? (
+        <div className="studio-empty">No export packages have been created yet.</div>
+      ) : (
+        <div className="studio-published-list">
+          {exportPackages.map((exportPackage) => (
+            <article key={exportPackage.id} className="studio-published-row">
+              <div>
+                <strong>{formatDate(exportPackage.createdAt)}</strong>
+                <span>
+                  {exportPackage.status} / {exportPackage.format.replace("_", " + ")}
+                </span>
+              </div>
+              <p>{summaryLine(exportPackage.contentSummary)}</p>
+              <button className="button" type="button" onClick={() => loadManifest(exportPackage.id)}>
+                View manifest
+              </button>
+            </article>
+          ))}
+        </div>
+      )}
+
+      {manifest && (
+        <details className="studio-runtime-prompt" open style={{ marginTop: "1rem" }}>
+          <summary>Latest manifest</summary>
+          <pre>{manifest}</pre>
+        </details>
       )}
     </section>
   );
@@ -288,4 +405,23 @@ function StudioMessage({ children, tone = "normal" }: { children: React.ReactNod
       </div>
     </main>
   );
+}
+
+function summaryLine(summary: Record<string, number>) {
+  const parts = [
+    ["memory", summary.memory],
+    ["canon", summary.canon],
+    ["files", summary.archiveFiles],
+    ["imports", summary.archiveImports],
+    ["integrity", summary.integritySessions],
+    ["published", summary.publishedDocuments],
+  ].filter(([, value]) => typeof value === "number");
+
+  return parts.length > 0
+    ? parts.map(([label, value]) => `${value} ${label}`).join(" / ")
+    : "Manifest is waiting for its first summary.";
+}
+
+function formatDate(value: string) {
+  return new Date(value).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
 }

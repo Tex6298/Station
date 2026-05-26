@@ -12,7 +12,8 @@
     "test:continuity": "pnpm --filter @station/types --filter @station/config --filter @station/db --filter @station/auth --filter @station/ai build && tsx --test apps/api/src/routes/continuity.test.ts",
     "test:persona-context": "pnpm --filter @station/types --filter @station/config --filter @station/db --filter @station/auth --filter @station/ai build && tsx --test apps/api/src/routes/persona-context.test.ts",
     "test:continuity-publication": "pnpm --filter @station/types --filter @station/config --filter @station/db --filter @station/auth --filter @station/ai build && tsx --test apps/api/src/routes/continuity-publication.test.ts",
-    "test:document-discussions": "pnpm --filter @station/types --filter @station/config --filter @station/db --filter @station/auth --filter @station/ai build && tsx --test apps/api/src/routes/document-discussions.test.ts"
+    "test:document-discussions": "pnpm --filter @station/types --filter @station/config --filter @station/db --filter @station/auth --filter @station/ai build && tsx --test apps/api/src/routes/document-discussions.test.ts",
+    "test:exports": "pnpm --filter @station/types --filter @station/config --filter @station/db --filter @station/auth --filter @station/ai build && tsx --test apps/api/src/routes/exports.test.ts"
   },
   "devDependencies": {
     "tsx": "^4.21.0",

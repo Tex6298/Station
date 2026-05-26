@@ -34,6 +34,9 @@ export type DeveloperSpaceVisualisationType = "node_field" | "timeline" | "world
 export type DeveloperSpaceTopologyType = "radial" | "branching" | "lattice" | "custom";
 export type DeveloperSpaceEventVisibility = "private" | "community" | "public";
 export type DeveloperSpaceEventProvenance = "api" | "imported" | "user" | "system" | "ai_generated";
+export type ExportPackageKind = "persona_archive";
+export type ExportPackageStatus = "requested" | "processing" | "completed" | "failed";
+export type ExportPackageFormat = "json_markdown";
 
 type SupabaseTable<Row, Insert = Row, Update = Partial<Insert>> = {
   Row: Row;
@@ -233,6 +236,31 @@ export interface Database {
           updated_at?: string;
         };
         Update: Partial<Database["public"]["Tables"]["calibration_sessions"]["Insert"]>;
+      };
+      export_packages: {
+        Row: {
+          id: string;
+          owner_user_id: string;
+          persona_id: string;
+          package_kind: ExportPackageKind;
+          status: ExportPackageStatus;
+          format: ExportPackageFormat;
+          included_sections: string[];
+          manifest_json: Record<string, unknown>;
+          manifest_markdown: string;
+          content_summary: Record<string, unknown>;
+          error_message: string | null;
+          requested_at: string;
+          completed_at: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: Omit<Database["public"]["Tables"]["export_packages"]["Row"], "id" | "created_at" | "updated_at"> & {
+          id?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["export_packages"]["Insert"]>;
       };
       spaces: {
         Row: {
