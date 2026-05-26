@@ -4,7 +4,7 @@ import { requireAuth } from "../middleware/require-auth";
 import { getSupabaseAdmin } from "../lib/supabase";
 import { assemblePersonaRuntimeContext, buildPersonaContext } from "@station/ai/retrieval/context-builder";
 import { resolveProvider } from "@station/ai/providers/router";
-import { saveMessageAsMemory } from "../services/archive.service";
+import { addMemoryItem, saveMessageAsMemory } from "../services/archive.service";
 import { env } from "../lib/env";
 
 const chatSchema = z.object({
@@ -27,8 +27,166 @@ const saveCanonSchema = z.object({
   priority: z.number().int().min(1).max(10).optional(),
 });
 
+const candidateReviewSchema = z.object({
+  action: z.enum(["accept", "reject"]),
+  title: z.string().max(160).optional(),
+  content: z.string().max(20000).optional(),
+  priority: z.number().int().min(1).max(10).optional(),
+  relevanceWeight: z.number().min(0.1).max(5).optional(),
+});
+
+type ConversationMessageRow = {
+  id: string;
+  role: "system" | "user" | "assistant";
+  content: string;
+  provider_used?: string | null;
+  created_at: string;
+};
+
+type CandidateSeed = {
+  candidate_type: "memory" | "canon";
+  title: string;
+  content: string;
+  rationale: string;
+  source_message_ids: string[];
+};
+
 export const conversationsRouter = Router();
 conversationsRouter.use(requireAuth);
+
+function transcriptRow(row: any) {
+  return {
+    id: row.id,
+    conversationId: row.conversation_id,
+    personaId: row.persona_id,
+    title: row.title,
+    transcriptMarkdown: row.transcript_markdown,
+    messageCount: row.message_count,
+    sourceSummary: row.source_summary,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+  };
+}
+
+function candidateRow(row: any) {
+  return {
+    id: row.id,
+    archivedChatTranscriptId: row.archived_chat_transcript_id,
+    personaId: row.persona_id,
+    candidateType: row.candidate_type,
+    title: row.title,
+    content: row.content,
+    rationale: row.rationale,
+    status: row.status,
+    sourceMessageIds: row.source_message_ids ?? [],
+    acceptedTargetType: row.accepted_target_type,
+    acceptedTargetId: row.accepted_target_id,
+    acceptedAt: row.accepted_at,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+  };
+}
+
+function trimTo(value: string, maxLength: number) {
+  const compact = value.replace(/\s+/g, " ").trim();
+  if (compact.length <= maxLength) return compact;
+  return `${compact.slice(0, Math.max(0, maxLength - 3)).trim()}...`;
+}
+
+function summarizeMessages(messages: ConversationMessageRow[]) {
+  const firstUser = messages.find((message) => message.role === "user");
+  const lastAssistant = [...messages].reverse().find((message) => message.role === "assistant");
+  return [firstUser, lastAssistant]
+    .filter((message): message is ConversationMessageRow => Boolean(message))
+    .map((message) => `${message.role}: ${trimTo(message.content, 180)}`)
+    .join("\n");
+}
+
+function buildTranscriptMarkdown(conversation: any, messages: ConversationMessageRow[]) {
+  const title = conversation.title?.trim() || "Archived conversation";
+  const lines = [
+    `# ${title}`,
+    "",
+    `Conversation: ${conversation.id}`,
+    `Archived: ${new Date().toISOString()}`,
+    `Messages: ${messages.filter((message) => message.role !== "system").length}`,
+    "",
+  ];
+
+  for (const message of messages) {
+    if (message.role === "system") continue;
+    lines.push(`## ${message.role === "assistant" ? "Persona" : "Owner"} - ${message.created_at}`);
+    lines.push("");
+    lines.push(message.content.trim());
+    lines.push("");
+  }
+
+  return lines.join("\n").trim();
+}
+
+function generateContinuityCandidates(messages: ConversationMessageRow[]): CandidateSeed[] {
+  const visible = messages.filter((message) => message.role !== "system" && message.content.trim());
+  const ownerMessages = visible.filter((message) => message.role === "user");
+  const assistantMessages = visible.filter((message) => message.role === "assistant");
+  const candidateMessages = ownerMessages.length > 0 ? ownerMessages : visible;
+  const memoryMessages = candidateMessages.slice(-3);
+  const memoryContent = memoryMessages
+    .map((message) => `- ${trimTo(message.content, 280)}`)
+    .join("\n")
+    .trim();
+
+  const canonicalPattern = /\b(always|never|must|should|prefer|remember|rule|boundary|canon|principle)\b/i;
+  const canonSource =
+    visible.find((message) => canonicalPattern.test(message.content)) ??
+    assistantMessages.at(-1) ??
+    visible.at(-1);
+
+  const seeds: CandidateSeed[] = [];
+  if (memoryContent) {
+    seeds.push({
+      candidate_type: "memory",
+      title: "Memory from archived chat",
+      content: memoryContent,
+      rationale: "Generated from owner-authored turns in the archived conversation.",
+      source_message_ids: memoryMessages.map((message) => message.id),
+    });
+  }
+
+  if (canonSource) {
+    seeds.push({
+      candidate_type: "canon",
+      title: "Canon candidate from archived chat",
+      content: trimTo(canonSource.content, 900),
+      rationale: "Generated from a turn that reads like durable persona guidance.",
+      source_message_ids: [canonSource.id],
+    });
+  }
+
+  return seeds;
+}
+
+async function loadArchiveBundle(sb: ReturnType<typeof getSupabaseAdmin>, conversationId: string, ownerUserId: string) {
+  const { data: transcript } = await sb
+    .from("archived_chat_transcripts")
+    .select("*")
+    .eq("conversation_id", conversationId)
+    .eq("owner_user_id", ownerUserId)
+    .single();
+
+  if (!transcript) return null;
+
+  const { data: candidates } = await sb
+    .from("continuity_candidates")
+    .select("*")
+    .eq("archived_chat_transcript_id", transcript.id)
+    .eq("owner_user_id", ownerUserId)
+    .order("created_at", { ascending: true });
+
+  return {
+    transcript: transcriptRow(transcript),
+    candidates: (candidates ?? []).map(candidateRow),
+  };
+}
 
 // -- List conversations for a persona -----------------------------------------
 conversationsRouter.get("/persona/:personaId", async (req, res) => {
@@ -37,7 +195,7 @@ conversationsRouter.get("/persona/:personaId", async (req, res) => {
 
   const { data, error } = await sb
     .from("conversations")
-    .select("id, persona_id, title, mode, created_at, updated_at")
+    .select("id, persona_id, title, mode, status, archived_at, message_count, created_at, updated_at")
     .eq("persona_id", req.params.personaId)
     .eq("owner_user_id", userId)
     .order("updated_at", { ascending: false });
@@ -110,7 +268,11 @@ conversationsRouter.get("/:conversationId", async (req, res) => {
     .eq("conversation_id", conv.id)
     .order("created_at", { ascending: true });
 
-  return res.json({ conversation: conv, messages: messages ?? [] });
+  const archive = conv.status === "archived"
+    ? await loadArchiveBundle(sb, conv.id, userId)
+    : null;
+
+  return res.json({ conversation: conv, messages: messages ?? [], archive });
 });
 
 // -- Send a message (main chat endpoint) --------------------------------------
@@ -156,6 +318,20 @@ conversationsRouter.post("/persona/:personaId/chat", async (req, res) => {
 
     if (convErr || !newConv) return res.status(500).json({ error: "Could not create conversation." });
     convId = newConv.id;
+  } else {
+    const { data: existingConv } = await sb
+      .from("conversations")
+      .select("id, persona_id, owner_user_id, status")
+      .eq("id", convId)
+      .single();
+
+    if (!existingConv || existingConv.owner_user_id !== userId || existingConv.persona_id !== personaId) {
+      return res.status(403).json({ error: "Not authorised for this conversation." });
+    }
+
+    if (existingConv.status === "archived") {
+      return res.status(409).json({ error: "Archived conversations are read-only. Start a new chat to continue." });
+    }
   }
 
   // Load existing messages for this conversation (last 20 turns)
@@ -315,6 +491,215 @@ conversationsRouter.post("/:conversationId/save-canon", async (req, res) => {
 
   if (error) return res.status(500).json({ error: error.message });
   return res.status(201).json({ canonItem: canon });
+});
+
+// -- Archive a conversation into transcript + continuity candidates ------------
+conversationsRouter.post("/:conversationId/archive", async (req, res) => {
+  const sb = getSupabaseAdmin();
+  const userId = req.user!.id;
+
+  const { data: conv, error } = await sb
+    .from("conversations")
+    .select("*")
+    .eq("id", req.params.conversationId)
+    .single();
+
+  if (error || !conv) return res.status(404).json({ error: "Conversation not found." });
+  if (conv.owner_user_id !== userId) return res.status(403).json({ error: "Not authorised." });
+
+  const existingArchive = await loadArchiveBundle(sb, conv.id, userId);
+  if (conv.status === "archived" && existingArchive) {
+    return res.json({ conversation: conv, archive: existingArchive });
+  }
+
+  const { data: messages, error: messageError } = await sb
+    .from("conversation_messages")
+    .select("id, role, content, provider_used, created_at")
+    .eq("conversation_id", conv.id)
+    .order("created_at", { ascending: true });
+
+  if (messageError) return res.status(500).json({ error: messageError.message });
+
+  const messageRows = (messages ?? []) as ConversationMessageRow[];
+  const messageCount = messageRows.filter((message) => message.role !== "system").length;
+  if (messageCount === 0) return res.status(400).json({ error: "Cannot archive an empty conversation." });
+
+  const transcriptMarkdown = buildTranscriptMarkdown(conv, messageRows);
+  const sourceSummary = summarizeMessages(messageRows);
+  const archivedAt = new Date().toISOString();
+
+  const { data: transcript, error: transcriptError } = await sb
+    .from("archived_chat_transcripts")
+    .insert({
+      conversation_id: conv.id,
+      persona_id: conv.persona_id,
+      owner_user_id: userId,
+      title: conv.title ?? "Archived conversation",
+      transcript_markdown: transcriptMarkdown,
+      message_count: messageCount,
+      source_summary: sourceSummary || null,
+    })
+    .select("*")
+    .single();
+
+  if (transcriptError || !transcript) {
+    return res.status(500).json({ error: transcriptError?.message ?? "Could not archive conversation." });
+  }
+
+  const candidateSeeds = generateContinuityCandidates(messageRows);
+  let candidates: any[] = [];
+  if (candidateSeeds.length > 0) {
+    const { data: candidateRows, error: candidateError } = await sb
+      .from("continuity_candidates")
+      .insert(candidateSeeds.map((seed) => ({
+        archived_chat_transcript_id: transcript.id,
+        persona_id: conv.persona_id,
+        owner_user_id: userId,
+        candidate_type: seed.candidate_type,
+        title: seed.title,
+        content: seed.content,
+        rationale: seed.rationale,
+        source_message_ids: seed.source_message_ids,
+      })))
+      .select("*");
+
+    if (candidateError) return res.status(500).json({ error: candidateError.message });
+    candidates = candidateRows ?? [];
+  }
+
+  const { data: archivedConversation } = await sb
+    .from("conversations")
+    .update({
+      status: "archived",
+      archived_at: archivedAt,
+      message_count: messageCount,
+      updated_at: archivedAt,
+    })
+    .eq("id", conv.id)
+    .eq("owner_user_id", userId)
+    .select("*")
+    .single();
+
+  return res.status(201).json({
+    conversation: archivedConversation ?? {
+      ...conv,
+      status: "archived",
+      archived_at: archivedAt,
+      message_count: messageCount,
+    },
+    archive: {
+      transcript: transcriptRow(transcript),
+      candidates: (candidates ?? []).map(candidateRow),
+    },
+  });
+});
+
+// -- Read archived transcript + candidates for a conversation ------------------
+conversationsRouter.get("/:conversationId/archive", async (req, res) => {
+  const sb = getSupabaseAdmin();
+  const userId = req.user!.id;
+
+  const { data: conv } = await sb
+    .from("conversations")
+    .select("id, owner_user_id")
+    .eq("id", req.params.conversationId)
+    .single();
+
+  if (!conv) return res.status(404).json({ error: "Conversation not found." });
+  if (conv.owner_user_id !== userId) return res.status(403).json({ error: "Not authorised." });
+
+  const archive = await loadArchiveBundle(sb, conv.id, userId);
+  if (!archive) return res.status(404).json({ error: "Archive not found." });
+  return res.json({ archive });
+});
+
+// -- Accept/edit/reject generated continuity candidates ------------------------
+conversationsRouter.patch("/candidates/:candidateId", async (req, res) => {
+  const parsed = candidateReviewSchema.safeParse(req.body);
+  if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
+
+  const sb = getSupabaseAdmin();
+  const userId = req.user!.id;
+  const { action } = parsed.data;
+
+  const { data: candidate } = await sb
+    .from("continuity_candidates")
+    .select("*")
+    .eq("id", req.params.candidateId)
+    .eq("owner_user_id", userId)
+    .single();
+
+  if (!candidate) return res.status(404).json({ error: "Continuity candidate not found." });
+  if (candidate.status !== "pending") {
+    return res.status(409).json({ error: "This candidate has already been reviewed." });
+  }
+
+  if (action === "reject") {
+    const { data: rejected, error } = await sb
+      .from("continuity_candidates")
+      .update({ status: "rejected" })
+      .eq("id", candidate.id)
+      .eq("owner_user_id", userId)
+      .select("*")
+      .single();
+
+    if (error || !rejected) return res.status(500).json({ error: error?.message ?? "Could not reject candidate." });
+    return res.json({ candidate: candidateRow(rejected) });
+  }
+
+  const title = parsed.data.title?.trim() || candidate.title || "Accepted from archived chat";
+  const content = parsed.data.content?.trim() || candidate.content;
+  const acceptedAt = new Date().toISOString();
+
+  let target: any;
+  if (candidate.candidate_type === "memory") {
+    target = await addMemoryItem({
+      personaId: candidate.persona_id,
+      ownerUserId: userId,
+      title,
+      content,
+      summary: content.slice(0, 300),
+      sourceType: "chat",
+      relevanceWeight: parsed.data.relevanceWeight ?? 1.5,
+    });
+  } else {
+    const { data: canon, error } = await sb
+      .from("canon_items")
+      .insert({
+        persona_id: candidate.persona_id,
+        owner_user_id: userId,
+        title,
+        content,
+        source_type: "chat",
+        priority: parsed.data.priority ?? 3,
+      })
+      .select("*")
+      .single();
+
+    if (error || !canon) return res.status(500).json({ error: error?.message ?? "Could not accept canon candidate." });
+    target = canon;
+  }
+
+  const { data: accepted, error } = await sb
+    .from("continuity_candidates")
+    .update({
+      status: "accepted",
+      title,
+      content,
+      accepted_target_type: candidate.candidate_type,
+      accepted_target_id: target.id,
+      accepted_at: acceptedAt,
+    })
+    .eq("id", candidate.id)
+    .eq("owner_user_id", userId)
+    .select("*")
+    .single();
+
+  if (error || !accepted) return res.status(500).json({ error: error?.message ?? "Could not update candidate." });
+  return res.json({
+    candidate: candidateRow(accepted),
+    target,
+  });
 });
 
 // -- Delete a conversation -----------------------------------------------------

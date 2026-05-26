@@ -2,8 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 import { getSession } from "@/lib/auth";
-import { apiGet, apiPost } from "@/lib/api-client";
-import type { ConversationMessage } from "@station/types/persona";
+import { apiGet, apiPatch, apiPost } from "@/lib/api-client";
+import type { ArchivedChatTranscript, ContinuityCandidate, ConversationMessage } from "@station/types/persona";
 
 interface Props {
   personaId: string;
@@ -12,9 +12,15 @@ interface Props {
 
 interface ChatState {
   conversationId: string | null;
+  conversationStatus: "active" | "archived";
   messages: ConversationMessage[];
+  archive: {
+    transcript: ArchivedChatTranscript;
+    candidates: ContinuityCandidate[];
+  } | null;
   loading: boolean;
   sending: boolean;
+  archiving: boolean;
   error: string | null;
 }
 
@@ -22,13 +28,17 @@ export function PersonaChat({ personaId, personaName }: Props) {
   const [token, setToken]     = useState<string | null>(null);
   const [input, setInput]     = useState("");
   const [saving, setSaving]   = useState<string | null>(null); // message id being saved
+  const [reviewing, setReviewing] = useState<string | null>(null);
   const bottomRef             = useRef<HTMLDivElement>(null);
 
   const [state, setState] = useState<ChatState>({
     conversationId: null,
+    conversationStatus: "active",
     messages: [],
+    archive: null,
     loading: true,
     sending: false,
+    archiving: false,
     error: null,
   });
 
@@ -44,11 +54,22 @@ export function PersonaChat({ personaId, personaName }: Props) {
         );
         if (conversations.length > 0) {
           const latest = conversations[0];
-          const { messages } = await apiGet<{ messages: ConversationMessage[] }>(
+          const { conversation, messages, archive } = await apiGet<{
+            conversation: { id: string; status?: "active" | "archived" };
+            messages: ConversationMessage[];
+            archive: ChatState["archive"];
+          }>(
             `/conversations/${latest.id}`,
             session.access_token
           );
-          setState((s) => ({ ...s, conversationId: latest.id, messages: messages ?? [], loading: false }));
+          setState((s) => ({
+            ...s,
+            conversationId: latest.id,
+            conversationStatus: conversation.status ?? "active",
+            messages: messages ?? [],
+            archive: archive ?? null,
+            loading: false,
+          }));
         } else {
           setState((s) => ({ ...s, loading: false }));
         }
@@ -65,7 +86,7 @@ export function PersonaChat({ personaId, personaName }: Props) {
 
   async function send() {
     const content = input.trim();
-    if (!content || state.sending || !token) return;
+    if (!content || state.sending || state.conversationStatus === "archived" || !token) return;
     setInput("");
 
     // Optimistic user message
@@ -90,7 +111,9 @@ export function PersonaChat({ personaId, personaName }: Props) {
       setState((s) => ({
         ...s,
         conversationId,
+        conversationStatus: "active",
         sending: false,
+        archive: null,
         messages: [
           ...s.messages.filter((m) => m.id !== tempId),
           { id: tempId, role: "user" as const, content, createdAt: new Date().toISOString() },
@@ -134,6 +157,81 @@ export function PersonaChat({ personaId, personaName }: Props) {
     finally { setSaving(null); }
   }
 
+  async function archiveChat() {
+    if (!token || !state.conversationId || state.archiving || state.messages.length === 0) return;
+    setState((s) => ({ ...s, archiving: true, error: null }));
+
+    try {
+      const { conversation, archive } = await apiPost<{
+        conversation: { id: string; status?: "active" | "archived" };
+        archive: ChatState["archive"];
+      }>(
+        `/conversations/${state.conversationId}/archive`,
+        {},
+        token
+      );
+
+      setState((s) => ({
+        ...s,
+        conversationStatus: conversation.status ?? "archived",
+        archive,
+        archiving: false,
+      }));
+    } catch (e) {
+      setState((s) => ({
+        ...s,
+        archiving: false,
+        error: e instanceof Error ? e.message : "Could not archive this chat.",
+      }));
+    }
+  }
+
+  function startNewChat() {
+    setInput("");
+    setState((s) => ({
+      ...s,
+      conversationId: null,
+      conversationStatus: "active",
+      messages: [],
+      archive: null,
+      sending: false,
+      error: null,
+    }));
+  }
+
+  async function reviewCandidate(
+    candidateId: string,
+    action: "accept" | "reject",
+    edits?: { title: string; content: string }
+  ) {
+    if (!token) return;
+    setReviewing(candidateId);
+    try {
+      const { candidate } = await apiPatch<{ candidate: ContinuityCandidate }>(
+        `/conversations/candidates/${candidateId}`,
+        { action, ...edits },
+        token
+      );
+
+      setState((s) => ({
+        ...s,
+        archive: s.archive
+          ? {
+              ...s.archive,
+              candidates: s.archive.candidates.map((item) => item.id === candidate.id ? candidate : item),
+            }
+          : null,
+      }));
+    } catch (e) {
+      setState((s) => ({
+        ...s,
+        error: e instanceof Error ? e.message : "Could not review candidate.",
+      }));
+    } finally {
+      setReviewing(null);
+    }
+  }
+
   function handleKey(e: React.KeyboardEvent<HTMLTextAreaElement>) {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
@@ -163,11 +261,48 @@ export function PersonaChat({ personaId, personaName }: Props) {
         <span style={{ fontWeight: 600, fontSize: "0.9rem" }}>
           Talking with {personaName}
         </span>
-        {state.conversationId && (
-          <span style={{ fontSize: "0.7rem", color: "#444" }}>
-            {state.messages.filter((m) => m.role !== "system").length} messages
-          </span>
-        )}
+        <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", flexWrap: "wrap", justifyContent: "flex-end" }}>
+          {state.conversationId && (
+            <span style={{ fontSize: "0.7rem", color: "#7b8498" }}>
+              {state.messages.filter((m) => m.role !== "system").length} messages
+            </span>
+          )}
+          {state.conversationStatus === "archived" ? (
+            <>
+              <span style={{ fontSize: "0.7rem", color: "#9fb7ff" }}>Archived</span>
+              <button
+                onClick={startNewChat}
+                style={{
+                  padding: "0.25rem 0.65rem",
+                  fontSize: "0.72rem",
+                  background: "#20283a",
+                  border: "1px solid #313c55",
+                  borderRadius: 6,
+                  color: "#d7def2",
+                  cursor: "pointer",
+                }}
+              >
+                New chat
+              </button>
+            </>
+          ) : state.conversationId && (
+            <button
+              onClick={archiveChat}
+              disabled={state.archiving || state.sending || state.messages.length === 0}
+              style={{
+                padding: "0.25rem 0.65rem",
+                fontSize: "0.72rem",
+                background: "transparent",
+                border: "1px solid #313c55",
+                borderRadius: 6,
+                color: "#d7def2",
+                cursor: state.archiving ? "default" : "pointer",
+              }}
+            >
+              {state.archiving ? "Archiving..." : "Archive"}
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Message list */}
@@ -278,6 +413,38 @@ export function PersonaChat({ personaId, personaName }: Props) {
         <div ref={bottomRef} />
       </div>
 
+      {state.archive && (
+        <div style={{
+          borderTop: "1px solid #1e2535",
+          padding: "0.9rem 1rem",
+          display: "flex",
+          flexDirection: "column",
+          gap: "0.75rem",
+          background: "#111722",
+        }}>
+          <div style={{ display: "flex", justifyContent: "space-between", gap: "1rem", alignItems: "center" }}>
+            <div>
+              <div style={{ fontSize: "0.78rem", color: "#9fb7ff", fontWeight: 700 }}>
+                Continuity candidates
+              </div>
+              <div style={{ fontSize: "0.72rem", color: "#7b8498" }}>
+                {state.archive.transcript.messageCount} archived messages
+              </div>
+            </div>
+          </div>
+          <div style={{ display: "grid", gap: "0.75rem" }}>
+            {state.archive.candidates.map((candidate) => (
+              <CandidateReviewCard
+                key={candidate.id}
+                candidate={candidate}
+                busy={reviewing === candidate.id}
+                onReview={reviewCandidate}
+              />
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Input */}
       <div style={{
         borderTop: "1px solid #1e2535",
@@ -291,8 +458,8 @@ export function PersonaChat({ personaId, personaName }: Props) {
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={handleKey}
-          placeholder={`Speak to ${personaName}... (Enter to send, Shift+Enter for newline)`}
-          disabled={state.sending}
+          placeholder={state.conversationStatus === "archived" ? "Start a new chat to continue." : `Speak to ${personaName}... (Enter to send, Shift+Enter for newline)`}
+          disabled={state.sending || state.conversationStatus === "archived"}
           style={{
             flex: 1,
             minHeight: 60,
@@ -303,13 +470,104 @@ export function PersonaChat({ personaId, personaName }: Props) {
         />
         <button
           onClick={send}
-          disabled={state.sending || !input.trim()}
+          disabled={state.sending || state.conversationStatus === "archived" || !input.trim()}
           className="button primary"
           style={{ height: 44, whiteSpace: "nowrap", flexShrink: 0 }}
         >
-          {state.sending ? "..." : "Send"}
+          {state.conversationStatus === "archived" ? "Archived" : state.sending ? "..." : "Send"}
         </button>
       </div>
+    </div>
+  );
+}
+
+function CandidateReviewCard({
+  candidate,
+  busy,
+  onReview,
+}: {
+  candidate: ContinuityCandidate;
+  busy: boolean;
+  onReview: (candidateId: string, action: "accept" | "reject", edits?: { title: string; content: string }) => void;
+}) {
+  const [title, setTitle] = useState(candidate.title ?? "");
+  const [content, setContent] = useState(candidate.content);
+  const pending = candidate.status === "pending";
+
+  return (
+    <div style={{
+      border: "1px solid #253049",
+      borderRadius: 8,
+      padding: "0.75rem",
+      background: "#151c2a",
+      display: "grid",
+      gap: "0.6rem",
+    }}>
+      <div style={{ display: "flex", justifyContent: "space-between", gap: "0.75rem", alignItems: "center" }}>
+        <span style={{ fontSize: "0.72rem", color: candidate.candidateType === "canon" ? "#f4c56d" : "#9fb7ff", textTransform: "uppercase", letterSpacing: 0 }}>
+          {candidate.candidateType}
+        </span>
+        <span style={{ fontSize: "0.7rem", color: pending ? "#7b8498" : "#a7b0c4" }}>
+          {candidate.status}
+        </span>
+      </div>
+
+      <input
+        className="input"
+        value={title}
+        onChange={(event) => setTitle(event.target.value)}
+        disabled={!pending || busy}
+        style={{ margin: 0, fontSize: "0.82rem" }}
+      />
+
+      <textarea
+        className="textarea"
+        value={content}
+        onChange={(event) => setContent(event.target.value)}
+        disabled={!pending || busy}
+        style={{ minHeight: 92, margin: 0, fontSize: "0.82rem", resize: "vertical" }}
+      />
+
+      {candidate.rationale && (
+        <div style={{ fontSize: "0.72rem", color: "#7b8498", lineHeight: 1.5 }}>
+          {candidate.rationale}
+        </div>
+      )}
+
+      {pending && (
+        <div style={{ display: "flex", gap: "0.5rem", justifyContent: "flex-end", flexWrap: "wrap" }}>
+          <button
+            onClick={() => onReview(candidate.id, "reject")}
+            disabled={busy}
+            style={{
+              padding: "0.3rem 0.7rem",
+              fontSize: "0.72rem",
+              background: "transparent",
+              border: "1px solid #3a2631",
+              borderRadius: 6,
+              color: "#e0a0aa",
+              cursor: busy ? "default" : "pointer",
+            }}
+          >
+            Reject
+          </button>
+          <button
+            onClick={() => onReview(candidate.id, "accept", { title, content })}
+            disabled={busy || !content.trim()}
+            style={{
+              padding: "0.3rem 0.7rem",
+              fontSize: "0.72rem",
+              background: "#24406f",
+              border: "1px solid #355a99",
+              borderRadius: 6,
+              color: "#eef4ff",
+              cursor: busy ? "default" : "pointer",
+            }}
+          >
+            {busy ? "Saving..." : "Accept"}
+          </button>
+        </div>
+      )}
     </div>
   );
 }

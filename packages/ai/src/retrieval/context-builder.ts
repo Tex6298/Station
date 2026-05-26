@@ -203,8 +203,9 @@ async function loadArchiveReferences(
   input: PersonaContextInput,
   limit: number
 ): Promise<PersonaContextSource[]> {
-  const fileLimit = Math.max(1, Math.ceil(limit / 2));
-  const importLimit = Math.max(1, limit - fileLimit);
+  const fileLimit = Math.max(1, Math.ceil(limit / 3));
+  const importLimit = Math.max(1, Math.ceil(limit / 3));
+  const transcriptLimit = Math.max(1, limit - fileLimit - importLimit);
 
   const fileQuery = input.supabase
     .from("persona_files")
@@ -224,9 +225,19 @@ async function loadArchiveReferences(
 
   if (input.ownerUserId) importQuery.eq("owner_user_id", input.ownerUserId);
 
-  const [filesResult, importsResult] = await Promise.all([fileQuery, importQuery]);
+  const transcriptQuery = input.supabase
+    .from("archived_chat_transcripts")
+    .select("id, title, source_summary, message_count, created_at")
+    .eq("persona_id", input.persona.id)
+    .order("created_at", { ascending: false })
+    .limit(transcriptLimit);
+
+  if (input.ownerUserId) transcriptQuery.eq("owner_user_id", input.ownerUserId);
+
+  const [filesResult, importsResult, transcriptsResult] = await Promise.all([fileQuery, importQuery, transcriptQuery]);
   if (filesResult.error) throw filesResult.error;
   if (importsResult.error) throw importsResult.error;
+  if (transcriptsResult.error) throw transcriptsResult.error;
 
   const files = (filesResult.data ?? []).map<PersonaContextSource>((row) => ({
     id: row.id,
@@ -250,7 +261,18 @@ async function loadArchiveReferences(
     createdAt: row.created_at,
   }));
 
-  return [...files, ...imports]
+  const transcripts = (transcriptsResult.data ?? []).map<PersonaContextSource>((row) => ({
+    id: row.id,
+    type: "archive",
+    title: row.title,
+    content: `${row.title} (${row.message_count} archived chat messages). ${row.source_summary ?? "Transcript available as source material."}`,
+    priority: 24,
+    reason: "Archived conversation transcript reference; use as source material when continuity from a past chat is relevant.",
+    sourceType: "chat",
+    createdAt: row.created_at,
+  }));
+
+  return [...files, ...imports, ...transcripts]
     .sort((a, b) => (b.createdAt ?? "").localeCompare(a.createdAt ?? ""))
     .slice(0, limit);
 }

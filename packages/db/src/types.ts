@@ -14,6 +14,9 @@ export type DocumentProvenanceType = "user_authored" | "ai_assisted" | "archive_
 export type DocumentSourceType = "manual" | "canon" | "integrity" | "archive_file" | "archive_import" | "persona";
 export type Provider = "platform" | "openai" | "anthropic" | "deepseek" | "gemini";
 export type SourceType = "chat" | "import" | "document" | "calibration" | "manual";
+export type ConversationStatus = "active" | "archived";
+export type ContinuityCandidateType = "memory" | "canon";
+export type ContinuityCandidateStatus = "pending" | "accepted" | "rejected";
 export type PersonaFileSourceType = "upload" | "import" | "calibration" | "generated";
 export type ImportJobKind = "file" | "chat";
 export type ImportJobStatus = "queued" | "processing" | "completed" | "failed";
@@ -111,11 +114,17 @@ export interface Database {
           owner_user_id: string;
           title: string | null;
           mode: "private" | "public";
+          status: ConversationStatus;
+          archived_at: string | null;
+          message_count: number;
           created_at: string;
           updated_at: string;
         };
-        Insert: Omit<Database["public"]["Tables"]["conversations"]["Row"], "id" | "created_at" | "updated_at"> & {
+        Insert: Omit<Database["public"]["Tables"]["conversations"]["Row"], "id" | "status" | "archived_at" | "message_count" | "created_at" | "updated_at"> & {
           id?: string;
+          status?: ConversationStatus;
+          archived_at?: string | null;
+          message_count?: number;
           created_at?: string;
           updated_at?: string;
         };
@@ -176,6 +185,55 @@ export interface Database {
           updated_at?: string;
         };
         Update: Partial<Database["public"]["Tables"]["canon_items"]["Insert"]>;
+      };
+      archived_chat_transcripts: {
+        Row: {
+          id: string;
+          conversation_id: string;
+          persona_id: string;
+          owner_user_id: string;
+          title: string;
+          transcript_markdown: string;
+          message_count: number;
+          source_summary: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: Omit<Database["public"]["Tables"]["archived_chat_transcripts"]["Row"], "id" | "created_at" | "updated_at"> & {
+          id?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["archived_chat_transcripts"]["Insert"]>;
+      };
+      continuity_candidates: {
+        Row: {
+          id: string;
+          archived_chat_transcript_id: string;
+          persona_id: string;
+          owner_user_id: string;
+          candidate_type: ContinuityCandidateType;
+          title: string | null;
+          content: string;
+          rationale: string | null;
+          status: ContinuityCandidateStatus;
+          source_message_ids: string[];
+          accepted_target_type: ContinuityCandidateType | null;
+          accepted_target_id: string | null;
+          accepted_at: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: Omit<Database["public"]["Tables"]["continuity_candidates"]["Row"], "id" | "status" | "accepted_target_type" | "accepted_target_id" | "accepted_at" | "created_at" | "updated_at"> & {
+          id?: string;
+          status?: ContinuityCandidateStatus;
+          accepted_target_type?: ContinuityCandidateType | null;
+          accepted_target_id?: string | null;
+          accepted_at?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["continuity_candidates"]["Insert"]>;
       };
       persona_files: {
         Row: {

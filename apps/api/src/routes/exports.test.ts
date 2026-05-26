@@ -158,6 +158,68 @@ class InMemorySupabase {
         updated_at: "2026-05-26T09:04:00.000Z",
       },
     ],
+    archived_chat_transcripts: [
+      {
+        id: "transcript-1",
+        conversation_id: "conversation-1",
+        persona_id: PERSONA_ID,
+        owner_user_id: OWNER_ID,
+        title: "Harbor working chat",
+        transcript_markdown: "# Harbor working chat\n\nPrivate transcript text.",
+        message_count: 4,
+        source_summary: "user: Preserve continuity before novelty.",
+        created_at: "2026-05-26T09:04:30.000Z",
+        updated_at: "2026-05-26T09:04:30.000Z",
+      },
+      {
+        id: "transcript-other",
+        conversation_id: "conversation-other",
+        persona_id: OTHER_PERSONA_ID,
+        owner_user_id: OTHER_ID,
+        title: "Other private chat",
+        transcript_markdown: "# Other private chat",
+        message_count: 2,
+        source_summary: "Other owner transcript must not leak.",
+        created_at: "2026-05-26T09:04:30.000Z",
+        updated_at: "2026-05-26T09:04:30.000Z",
+      },
+    ],
+    continuity_candidates: [
+      {
+        id: "candidate-1",
+        archived_chat_transcript_id: "transcript-1",
+        persona_id: PERSONA_ID,
+        owner_user_id: OWNER_ID,
+        candidate_type: "memory",
+        title: "Archive boundary memory",
+        content: "Harbor asks before turning private grief into public material.",
+        rationale: "Generated from archived chat.",
+        status: "accepted",
+        source_message_ids: ["55555555-5555-4555-8555-555555555555"],
+        accepted_target_type: "memory",
+        accepted_target_id: "memory-1",
+        accepted_at: "2026-05-26T09:04:45.000Z",
+        created_at: "2026-05-26T09:04:35.000Z",
+        updated_at: "2026-05-26T09:04:45.000Z",
+      },
+      {
+        id: "candidate-other",
+        archived_chat_transcript_id: "transcript-other",
+        persona_id: OTHER_PERSONA_ID,
+        owner_user_id: OTHER_ID,
+        candidate_type: "memory",
+        title: "Other candidate",
+        content: "Other owner candidate must not leak.",
+        rationale: null,
+        status: "pending",
+        source_message_ids: [],
+        accepted_target_type: null,
+        accepted_target_id: null,
+        accepted_at: null,
+        created_at: "2026-05-26T09:04:35.000Z",
+        updated_at: "2026-05-26T09:04:35.000Z",
+      },
+    ],
     calibration_sessions: [
       {
         id: "integrity-1",
@@ -510,6 +572,8 @@ test("owner can export persona archive while preserving provenance and privacy b
     assert.equal(created.body.manifest.counts.canon, 1);
     assert.equal(created.body.manifest.counts.archiveFiles, 1);
     assert.equal(created.body.manifest.counts.archiveImports, 1);
+    assert.equal(created.body.manifest.counts.archivedChats, 1);
+    assert.equal(created.body.manifest.counts.continuityCandidates, 1);
     assert.equal(created.body.manifest.counts.integritySessions, 1);
     assert.equal(created.body.manifest.counts.publishedDocuments, 1);
     assert.equal(created.body.manifest.trust.provenancePreserved, true);
@@ -519,8 +583,12 @@ test("owner can export persona archive while preserving provenance and privacy b
     assert.match(manifestText, /Harbor remembers the owner values grounded continuity/);
     assert.match(manifestText, /Preserve continuity before novelty/);
     assert.match(manifestText, /private\/source-notebook\.md/);
+    assert.match(manifestText, /Harbor working chat/);
+    assert.match(manifestText, /Archive boundary memory/);
     assert.match(manifestText, /Private transcript is owner exportable/);
     assert.doesNotMatch(manifestText, /Other owner memory must not leak/);
+    assert.doesNotMatch(manifestText, /Other owner transcript must not leak/);
+    assert.doesNotMatch(manifestText, /Other owner candidate must not leak/);
     assert.doesNotMatch(manifestText, /Private Draft/);
 
     const documentRef = created.body.manifest.publishedDocumentRefs[0];

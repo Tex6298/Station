@@ -10,6 +10,8 @@ const INCLUDED_SECTIONS = [
   "memory",
   "canon",
   "archive",
+  "archived_chats",
+  "continuity_candidates",
   "integrity",
   "published_documents",
   "discussion_refs",
@@ -107,7 +109,7 @@ async function loadThreadDiscussion(threadId: string, ownerUserId: string) {
 async function buildPersonaExportManifest(persona: any, packageId: string, ownerUserId: string) {
   const sb = getSupabaseAdmin();
 
-  const [memoryRes, canonRes, fileRes, importRes, integrityRes, personaDocsRes, sourceDocsRes] = await Promise.all([
+  const [memoryRes, canonRes, fileRes, importRes, chatTranscriptRes, candidateRes, integrityRes, personaDocsRes, sourceDocsRes] = await Promise.all([
     sb
       .from("memory_items")
       .select("id, title, content, summary, source_type, relevance_weight, created_at, updated_at")
@@ -129,6 +131,18 @@ async function buildPersonaExportManifest(persona: any, packageId: string, owner
     sb
       .from("import_jobs")
       .select("id, kind, status, source_name, error_message, created_at, updated_at")
+      .eq("persona_id", persona.id)
+      .eq("owner_user_id", ownerUserId)
+      .order("created_at", { ascending: false }),
+    sb
+      .from("archived_chat_transcripts")
+      .select("id, conversation_id, title, source_summary, message_count, created_at, updated_at")
+      .eq("persona_id", persona.id)
+      .eq("owner_user_id", ownerUserId)
+      .order("created_at", { ascending: false }),
+    sb
+      .from("continuity_candidates")
+      .select("id, archived_chat_transcript_id, candidate_type, title, content, rationale, status, source_message_ids, accepted_target_type, accepted_target_id, accepted_at, created_at, updated_at")
       .eq("persona_id", persona.id)
       .eq("owner_user_id", ownerUserId)
       .order("created_at", { ascending: false }),
@@ -225,6 +239,32 @@ async function buildPersonaExportManifest(persona: any, packageId: string, owner
     updatedAt: row.updated_at,
   }));
 
+  const chatTranscripts = compactRows(chatTranscriptRes.data ?? [], (row: any) => ({
+    id: row.id,
+    conversationId: row.conversation_id,
+    title: row.title,
+    sourceSummary: row.source_summary,
+    messageCount: row.message_count,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+  }));
+
+  const continuityCandidates = compactRows(candidateRes.data ?? [], (row: any) => ({
+    id: row.id,
+    archivedChatTranscriptId: row.archived_chat_transcript_id,
+    candidateType: row.candidate_type,
+    title: row.title,
+    content: row.content,
+    rationale: row.rationale,
+    status: row.status,
+    sourceMessageIds: row.source_message_ids ?? [],
+    acceptedTargetType: row.accepted_target_type,
+    acceptedTargetId: row.accepted_target_id,
+    acceptedAt: row.accepted_at,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+  }));
+
   const integritySessions = compactRows(integrityRes.data ?? [], (row: any) => ({
     id: row.id,
     sessionTitle: row.session_title,
@@ -243,6 +283,8 @@ async function buildPersonaExportManifest(persona: any, packageId: string, owner
     canon: canon.length,
     archiveFiles: files.length,
     archiveImports: imports.length,
+    archivedChats: chatTranscripts.length,
+    continuityCandidates: continuityCandidates.length,
     integritySessions: integritySessions.length,
     publishedDocuments: publishedDocuments.length,
     discussionComments: publishedDocuments.reduce((sum, document: any) => sum + (document.discussion?.comments?.length ?? 0), 0),
@@ -280,7 +322,9 @@ async function buildPersonaExportManifest(persona: any, packageId: string, owner
       archive: {
         files,
         imports,
+        chatTranscripts,
       },
+      continuityCandidates,
       integritySessions,
     },
     publishedDocumentRefs: publishedDocuments,
@@ -335,6 +379,12 @@ function buildManifestMarkdown(manifest: any) {
     "",
     "## Archive Imports",
     markdownList(manifest.continuity.archive.imports, "sourceName"),
+    "",
+    "## Archived Chat Transcripts",
+    markdownList(manifest.continuity.archive.chatTranscripts),
+    "",
+    "## Continuity Candidates",
+    markdownList(manifest.continuity.continuityCandidates),
     "",
     "## Integrity Sessions",
     markdownList(manifest.continuity.integritySessions, "sessionTitle"),

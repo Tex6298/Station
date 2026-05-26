@@ -25,6 +25,9 @@ export interface Conversation {
   personaId: string;
   title?: string | null;
   mode: "private" | "public";
+  status?: "active" | "archived";
+  archivedAt?: string | null;
+  messageCount?: number;
   createdAt: string;
   updatedAt?: string;
 }
@@ -36,6 +39,34 @@ export interface ConversationMessage {
   content: string;
   providerUsed?: string | null;
   createdAt: string;
+}
+
+export interface ArchivedChatTranscript {
+  id: string;
+  conversationId: string;
+  personaId: string;
+  title: string;
+  transcriptMarkdown: string;
+  messageCount: number;
+  sourceSummary?: string | null;
+  createdAt: string;
+}
+
+export interface ContinuityCandidate {
+  id: string;
+  archivedChatTranscriptId: string;
+  personaId: string;
+  candidateType: "memory" | "canon";
+  title?: string | null;
+  content: string;
+  rationale?: string | null;
+  status: "pending" | "accepted" | "rejected";
+  sourceMessageIds?: string[];
+  acceptedTargetType?: "memory" | "canon" | null;
+  acceptedTargetId?: string | null;
+  acceptedAt?: string | null;
+  createdAt: string;
+  updatedAt?: string;
 }
 
 export interface MemoryItem {
