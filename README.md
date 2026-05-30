@@ -26,6 +26,11 @@ Use these roadmap docs as the source of truth:
 - `docs/roadmap/ACTIVE_STATUS.md` - current lane and validation status.
 - `docs/roadmap/SUPERSEDED.md` - older notes that should not drive new work.
 
+## Validation
+
+Use `docs/testing/VALIDATION_BASELINE.md` for the current install, build, lint,
+typecheck, and named test gate.
+
 
 ## Included milestone
 

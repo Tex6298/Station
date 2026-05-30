@@ -7,22 +7,23 @@ when a PR lands, or when validation truth changes.
 ## Active roadmap
 
 - Source of truth: `docs/roadmap/STATION_PR_PLAN_V2.md`.
-- Current lane: PR-00, roadmap reset and source-of-truth docs.
-- Next lane: PR-01, repo health and validation baseline.
-- Foundation block after PR-01: PR-02 Supabase schema baseline, PR-03
-  Supabase auth/session wiring, and PR-05 persistent DB repos.
+- PR-00 is complete and visible on `main`.
+- PR-01 is complete: the validation baseline in
+  `docs/testing/VALIDATION_BASELINE.md` is green.
+- Next foundation block: PR-02 Supabase schema baseline, PR-03 Supabase
+  auth/session wiring, and PR-05 persistent DB repos.
 
 ## Current repo truth
 
 - The repo is a pnpm/Turbo monorepo with `apps/web`, `apps/api`, shared packages,
   docs, and Supabase infra.
-- The working tree was clean on `main` when this reset was started.
-- README still described Station Studio Alpha and loose next steps before PR-00.
+- PR-01 uses `pnpm@10.32.1`, as declared in the root `packageManager` field.
 - Existing docs describe protected alpha loops, but v2 treats auth, persistence,
   and validation as the required foundation before more product expansion.
 - Developer Spaces exists as a Station-native observatory slice, with hardening,
   live updates, Discover integration, linked documents, exports/quotas, SDK, and
   visual editors moved into PR-10 through PR-16.
+- As of 2026-05-30, the full PR-01 baseline passes with the pinned pnpm runner.
 
 ## Near-term rule
 
@@ -37,8 +38,9 @@ Do the boring foundation work before the attractive surface work:
 
 ## Current validation commands
 
-Use the narrow command set required by each PR. PR-01 should establish the full
-local gate:
+Use the narrow command set required by each PR. PR-01 established this full
+local gate. See `docs/testing/VALIDATION_BASELINE.md` for the command notes,
+warning inventory, and latest PR-01 result.
 
 ```bash
 pnpm install
@@ -63,4 +65,3 @@ pnpm test:developer-spaces
   Developer Spaces hardening are sane.
 - Developer Spaces visual polish before ingestion auth, validation, limits, and
   safe serialization.
-
