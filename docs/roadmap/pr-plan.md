@@ -1,5 +1,8 @@
 # Station PR plan
 
+> Superseded: this is the historical PR backlog. Use
+> `docs/roadmap/STATION_PR_PLAN_V2.md` as the active Station roadmap.
+
 This is the PR-ready backlog for moving the current protected alpha spine toward the prepared Station MVP. Each PR should stay narrow, keep the validation gate green, and avoid claiming doc-level completion unless the acceptance criteria below are met.
 
 ## PR-01 — `fix: make remote deployment status truthful`

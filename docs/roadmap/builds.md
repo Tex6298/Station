@@ -1,5 +1,8 @@
 # Station build roadmap
 
+> Planning source of truth moved to `docs/roadmap/STATION_PR_PLAN_V2.md`.
+> Use `docs/roadmap/ACTIVE_STATUS.md` for the current lane and validation status.
+
 This roadmap is the conservative prep-lane truth for the current Station tree. It is intentionally stricter than a progress report: a lane is only marked **protected** when code plus a test/CI guard exists, and a lane is only marked **done** when it satisfies the prepared Station product documents end-to-end.
 
 Current state: **alpha spine with several protected loops, not a finished Station MVP**.
@@ -67,4 +70,6 @@ Remote deployment status is tracked separately from local validation. Do not cal
 ## Planning documents
 
 - [`prep-lane-audit.md`](./prep-lane-audit.md) records the conservative status audit.
-- [`pr-plan.md`](./pr-plan.md) is the full PR-ready backlog with deliverables and acceptance criteria.
+- [`STATION_PR_PLAN_V2.md`](./STATION_PR_PLAN_V2.md) is the active PR-ready roadmap with deliverables and acceptance criteria.
+- [`ACTIVE_STATUS.md`](./ACTIVE_STATUS.md) records the current lane and validation posture.
+- [`SUPERSEDED.md`](./SUPERSEDED.md) records historical notes that should not drive new work.

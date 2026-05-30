@@ -27,6 +27,8 @@ Station v1 is currently an **alpha spine** with several protected loops. It is n
 
 See:
 
+- [`../roadmap/STATION_PR_PLAN_V2.md`](../roadmap/STATION_PR_PLAN_V2.md)
+- [`../roadmap/ACTIVE_STATUS.md`](../roadmap/ACTIVE_STATUS.md)
 - [`../roadmap/builds.md`](../roadmap/builds.md)
 - [`../roadmap/prep-lane-audit.md`](../roadmap/prep-lane-audit.md)
-- [`../roadmap/pr-plan.md`](../roadmap/pr-plan.md)
+- [`../roadmap/SUPERSEDED.md`](../roadmap/SUPERSEDED.md)

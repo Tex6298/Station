@@ -415,7 +415,7 @@ export default function DiscoverFrontDoor() {
                   );
                 })}
                 {!["personas", "spaces", "documents", "threads"].some((k) => (searchResults[k] ?? []).length > 0) && (
-                  <div style={{ color: "#8b96aa", fontSize: "0.85rem" }}>No results for "{search}".</div>
+                  <div style={{ color: "#8b96aa", fontSize: "0.85rem" }}>No results for &quot;{search}&quot;.</div>
                 )}
               </div>
             )}

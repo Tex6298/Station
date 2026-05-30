@@ -74,6 +74,9 @@ That is the shortest path from â€œI built something strange and alive elsewhereâ
 
 ## Follow-up patches
 
+This list is no longer a separate queue. Its accepted work is folded into
+`docs/roadmap/STATION_PR_PLAN_V2.md`, especially PR-10 through PR-16.
+
 1. Add WebSocket/SSE updates so observatories update without polling.
 2. Add Discover cards for public Developer Spaces and high-signal events.
 3. Add linked Station documents for methodology, findings, field logs, and archive notes.

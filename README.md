@@ -16,13 +16,15 @@ Not yet included:
 - persistent database implementation
 - production-ready validation and tests
 
-## Next steps
-1. `pnpm install`
-2. Create `.env` from `.env.example`
-3. Wire Supabase auth and database
-4. Replace in-memory repos with real DB calls
-5. Connect frontend forms to live auth
-6. Build Continuity Alpha next
+## Active roadmap
+
+The active roadmap is now `docs/roadmap/STATION_PR_PLAN_V2.md`.
+
+Use these roadmap docs as the source of truth:
+
+- `docs/roadmap/STATION_PR_PLAN_V2.md` - PR sequence and acceptance gates.
+- `docs/roadmap/ACTIVE_STATUS.md` - current lane and validation status.
+- `docs/roadmap/SUPERSEDED.md` - older notes that should not drive new work.
 
 
 ## Included milestone
@@ -31,4 +33,6 @@ This scaffold currently includes Community Beta: public Spaces, documents, Disco
 
 ## Developer Spaces observatory patch
 
-The Intelhub transfer patch adds a first Station-native Developer Spaces slice: owner-created project observatories, hashed ingestion keys, node/event/snapshot ingestion endpoints, a public live observatory page, and a private management console. See `docs/integration/intelhub-to-station-developer-spaces.md` for the fit/reject analysis and follow-up plan.
+The Intelhub transfer patch adds a first Station-native Developer Spaces slice: owner-created project observatories, hashed ingestion keys, node/event/snapshot ingestion endpoints, a public live observatory page, and a private management console.
+
+See `docs/integration/intelhub-to-station-developer-spaces.md` for the fit/reject analysis. Its follow-up list is now absorbed into `docs/roadmap/STATION_PR_PLAN_V2.md`.
