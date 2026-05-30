@@ -29,6 +29,7 @@ pnpm install
 pnpm build
 pnpm lint
 pnpm typecheck
+pnpm test:auth
 pnpm test:spaces
 pnpm test:continuity
 pnpm test:persona-context
@@ -65,6 +66,12 @@ Revalidated on 2026-05-30 after the Supabase schema/type baseline. All commands
 above passed with the pinned runner (`npx --yes pnpm@10.32.1 ...`). The same
 warning-only output listed below remains.
 
+## PR-03 result
+
+Revalidated on 2026-05-30 after auth/session hardening. `pnpm test:auth` was
+added to the named gate and passed along with the PR-01/PR-02 commands using the
+pinned runner. The same warning-only output listed below remains.
+
 ## Known warning-only output
 
 These warnings do not currently fail the baseline:
@@ -89,5 +96,5 @@ These warnings do not currently fail the baseline:
 
 ## Remaining failures
 
-None. The current scaffold is measurable enough to serve as the base for PR-03
-auth/session wiring and PR-05 persistent repository work.
+None. The current scaffold is measurable enough to serve as the base for PR-04
+frontend auth/protected routes and PR-05 persistent repository work.

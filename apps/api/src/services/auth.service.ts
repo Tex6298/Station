@@ -1,4 +1,4 @@
-import { getSupabaseAdmin } from "../lib/supabase";
+import { getSupabaseAdmin, getSupabaseAuthClient } from "../lib/supabase";
 import type { Tier } from "@station/db";
 
 export interface SignUpInput {
@@ -32,7 +32,9 @@ export async function signUp(input: SignUpInput): Promise<AuthResult> {
   const { data, error } = await sb.auth.admin.createUser({
     email: input.email,
     password: input.password,
-    email_confirm: false,
+    // API signup returns a session immediately in this beta flow, so the
+    // server deliberately confirms admin-created email users.
+    email_confirm: true,
     user_metadata: {
       username: input.username,
       display_name: input.displayName ?? input.username,
@@ -50,11 +52,7 @@ export async function signUp(input: SignUpInput): Promise<AuthResult> {
  * Sign in an existing user and return tokens + tier.
  */
 export async function signIn(input: SignInInput): Promise<AuthResult> {
-  const { createClient } = await import("@supabase/supabase-js");
-  const anonClient = createClient(
-    process.env.SUPABASE_URL!,
-    process.env.SUPABASE_ANON_KEY!
-  );
+  const anonClient = getSupabaseAuthClient();
 
   const { data, error } = await anonClient.auth.signInWithPassword({
     email: input.email,
@@ -111,11 +109,9 @@ export async function validateToken(
  * Sign out - revokes the session server-side.
  */
 export async function signOut(accessToken: string): Promise<void> {
-  const { createClient } = await import("@supabase/supabase-js");
-  const client = createClient(
-    process.env.SUPABASE_URL!,
-    process.env.SUPABASE_ANON_KEY!,
-    { global: { headers: { Authorization: `Bearer ${accessToken}` } } }
-  );
-  await client.auth.signOut();
+  const client = getSupabaseAuthClient(accessToken);
+  const { error } = await client.auth.signOut();
+  if (error) {
+    throw new Error(error.message ?? "Sign out failed.");
+  }
 }

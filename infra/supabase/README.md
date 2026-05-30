@@ -50,7 +50,10 @@ Both the API and the web app need the Supabase URL and keys.
 
 In Supabase -> **Authentication -> Settings**:
 - Enable **Email provider**
-- For beta: you can disable "Confirm email" to allow instant sign-in
+- API beta signup uses the service-role admin API and deliberately creates
+  confirmed email users so `/auth/signup` can return a session immediately.
+  Before public launch, revisit this if Station should require email
+  confirmation before first sign-in.
 - Set your site URL to `http://localhost:3000` for local dev
 
 ## Tables created

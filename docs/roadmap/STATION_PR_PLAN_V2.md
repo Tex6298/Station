@@ -25,9 +25,9 @@ Developer Spaces.
 - Studio routes, API persona/conversation routes, shared config/types/permissions,
   AI adapter scaffolding, in-memory local data, and the first DeepSeek-compatible
   wrapper shape exist.
-- The tree has Supabase-shaped API services, migrations, and tests, but the roadmap
-  still treats real Supabase auth/session wiring, persistent DB repos, and validation
-  hardening as foundation work until they are proven end to end.
+- The tree has Supabase-shaped API services, migrations, and tests. API
+  auth/session behavior is now proven; frontend auth flow and persistent DB repos
+  remain foundation work before product expansion.
 - Real Stripe and paid entitlements are not product-ready.
 - Developer Spaces has a Station-native observatory slice: owner-created project
   observatories, hashed ingestion keys, node/event/snapshot ingestion endpoints,
@@ -125,24 +125,24 @@ pnpm --filter @station/db build
 pnpm typecheck
 ```
 
-## PR-03 - Supabase auth/session wiring
+## PR-03 - Supabase auth/session hardening and proof
 
-Purpose: replace fake/local auth assumptions.
+Purpose: prove and harden the existing Supabase-shaped API auth/session layer.
 
 Tasks:
 
-- Wire Supabase auth in the API.
-- Add session middleware.
-- Add current-user route.
-- Add owner/member permission checks.
-- Replace hardcoded/dev-user assumptions.
-- Keep local dev ergonomic.
+- Audit existing auth routes, controller, service, middleware, Supabase helpers,
+  shared auth package, and user types.
+- Prove `requireAuth`, `optionalAuth`, `/auth/me`, and auth-gated signout.
+- Decide and document beta signup email-confirmation behavior.
+- Normalize API/shared auth user shape where useful.
+- Add or update env examples/docs for API and browser Supabase keys.
+- Keep frontend auth UX and repository replacement out of scope.
 
 Acceptance:
 
 ```bash
-pnpm test:spaces
-pnpm test:persona-context
+pnpm test:auth
 pnpm typecheck
 ```
 
@@ -443,4 +443,3 @@ pnpm test:developer-spaces
 The immediate first PR is PR-00, followed by PR-01. PR-02, PR-03, and PR-05 are
 the foundation block and should land before expanding into shiny Developer Spaces
 visuals or paid entitlements.
-

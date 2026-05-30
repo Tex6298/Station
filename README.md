@@ -11,9 +11,9 @@ Included:
 - first DeepSeek-compatible provider wrapper shape
 
 Not yet included:
-- real Supabase auth/session wiring
+- frontend auth UX/protected-route polish
 - real Stripe integration
-- persistent database implementation
+- persistent repository implementation
 - production-ready validation and tests
 
 ## Active roadmap

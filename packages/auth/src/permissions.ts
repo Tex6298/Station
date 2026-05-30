@@ -6,6 +6,10 @@ export interface PersonaRecord { id: string; ownerUserId: string; visibility: "p
 
 const TIER_ORDER: Tier[] = ["visitor", "private", "creator", "canon", "institutional"];
 
+function withinLimit(limit: number, count: number): boolean {
+  return limit < 0 || count < limit;
+}
+
 export function isAdmin(user?: AuthUser | null): boolean {
   return !!user?.isAdmin;
 }
@@ -24,13 +28,14 @@ export function tierLimits(user: AuthUser | null | undefined) {
 export function canCreatePersona(user: AuthUser | null, existingPersonaCount: number): boolean {
   if (!user) return false;
   if (isAdmin(user)) return true;
-  return existingPersonaCount < tierLimits(user).personas;
+  return withinLimit(tierLimits(user).personas, existingPersonaCount);
 }
 
 export function canCreateSpace(user: AuthUser | null, existingSpaceCount: number): boolean {
-  if (!user || !hasTier(user, "creator")) return false;
+  if (!user) return false;
   if (isAdmin(user)) return true;
-  return existingSpaceCount < tierLimits(user).spaces;
+  if (!hasTier(user, "creator")) return false;
+  return withinLimit(tierLimits(user).spaces, existingSpaceCount);
 }
 
 export function canCreateThread(user: AuthUser | null): boolean {

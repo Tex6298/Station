@@ -4,6 +4,7 @@ export interface AuthUser {
   id: string;
   tier: Tier;
   isAdmin?: boolean;
+  email?: string;
 }
 
 export interface Profile {

@@ -1,10 +1,8 @@
 import type { NextFunction, Request, Response } from "express";
 import { validateToken } from "../services/auth.service";
-import type { Tier } from "@station/db";
+import type { AuthUser } from "@station/types";
 
-export interface AuthenticatedUser {
-  id: string;
-  tier: Tier;
+export interface AuthenticatedUser extends AuthUser {
   isAdmin: boolean;
   email: string;
 }
