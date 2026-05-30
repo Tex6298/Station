@@ -22,12 +22,12 @@ Developer Spaces.
 ## Current truth
 
 - Station Studio Alpha scaffold exists.
-- Studio routes, API persona/conversation routes, shared config/types/permissions,
-  AI adapter scaffolding, in-memory local data, and the first DeepSeek-compatible
-  wrapper shape exist.
+- Studio routes, Supabase-backed API persistence boundaries, shared
+  config/types/permissions, AI adapter scaffolding, and the first
+  DeepSeek-compatible wrapper shape exist.
 - The tree has Supabase-shaped API services, migrations, and tests. API and
-  frontend auth/session behavior are now proven; persistent DB repos remain
-  foundation work before product expansion.
+  frontend auth/session behavior are now proven; core API routes are backed by
+  persistent DB repositories with deterministic fake-client tests.
 - Real Stripe and paid entitlements are not product-ready.
 - Developer Spaces has a Station-native observatory slice: owner-created project
   observatories, hashed ingestion keys, node/event/snapshot ingestion endpoints,
@@ -44,6 +44,7 @@ pnpm build
 pnpm lint
 pnpm typecheck
 pnpm test:auth
+pnpm test:reports
 pnpm test:spaces
 pnpm test:continuity
 pnpm test:persona-context
@@ -183,6 +184,7 @@ Tasks:
 Acceptance:
 
 ```bash
+pnpm test:reports
 pnpm test:spaces
 pnpm test:conversation-archive
 pnpm test:document-discussions

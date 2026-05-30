@@ -10,6 +10,7 @@
     "test:auth": "pnpm --filter @station/types --filter @station/config --filter @station/db --filter @station/auth build && tsx --test apps/api/src/routes/auth.test.ts apps/web/lib/auth-routes.test.ts apps/web/lib/auth-session.test.ts",
     "test:developer-spaces": "tsx --test apps/api/src/routes/developer-spaces.test.ts apps/web/lib/developer-space-observatory.test.ts",
     "test:spaces": "pnpm --filter @station/types --filter @station/config --filter @station/db --filter @station/auth build && tsx --test apps/api/src/routes/spaces.test.ts",
+    "test:reports": "pnpm --filter @station/types --filter @station/config --filter @station/db --filter @station/auth build && tsx --test apps/api/src/routes/reports.test.ts",
     "test:continuity": "pnpm --filter @station/types --filter @station/config --filter @station/db --filter @station/auth --filter @station/ai build && tsx --test apps/api/src/routes/continuity.test.ts",
     "test:persona-context": "pnpm --filter @station/types --filter @station/config --filter @station/db --filter @station/auth --filter @station/ai build && tsx --test apps/api/src/routes/persona-context.test.ts",
     "test:conversation-archive": "pnpm --filter @station/types --filter @station/config --filter @station/db --filter @station/auth --filter @station/ai build && tsx --test apps/api/src/routes/conversation-archive.test.ts",

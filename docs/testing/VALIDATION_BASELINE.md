@@ -30,6 +30,7 @@ pnpm build
 pnpm lint
 pnpm typecheck
 pnpm test:auth
+pnpm test:reports
 pnpm test:spaces
 pnpm test:continuity
 pnpm test:persona-context
@@ -79,6 +80,15 @@ Revalidated on 2026-05-30 after frontend auth/protected route wiring.
 commands passed with the pinned runner. The warning-only output below is the
 current inventory.
 
+## PR-05 result
+
+Revalidated on 2026-05-30 after persistent repository replacement.
+`pnpm test:reports` was added to prove moderation report writes through the
+Supabase persistence boundary, auth scoping, and stable response serialization.
+Core API route modules no longer import local in-memory mock data. All baseline
+commands passed with the pinned runner. The warning-only output below remains
+the current inventory.
+
 ## Known warning-only output
 
 These warnings do not currently fail the baseline:
@@ -102,5 +112,5 @@ These warnings do not currently fail the baseline:
 
 ## Remaining failures
 
-None. The current scaffold is measurable enough to serve as the base for PR-05
-persistent repository work.
+None. The current scaffold is measurable enough to serve as the base for PR-06
+community persistence and permissions hardening.

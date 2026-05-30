@@ -1,7 +1,9 @@
 # Persistence schema baseline
 
-PR-02 establishes the database shape Station already assumes, without wiring
-runtime auth, replacing repositories, or changing product behavior.
+PR-02 established the database shape Station already assumes, without wiring
+runtime auth, replacing repositories, or changing product behavior. PR-05
+verified the runtime API persistence boundary and removed the remaining live
+in-memory moderation report route.
 
 ## Assumed entities
 
@@ -29,5 +31,9 @@ The current scaffold assumes these persistence entities:
 - RLS is enabled on user-facing tables. Broad public reads should continue to go
   through API serializers or future public-safe SQL views when tables contain
   private source data or key material.
-- In-memory/local data remains a test/local fallback until PR-05 replaces repo
-  calls with persistent implementations.
+- Runtime API route persistence goes through the Supabase client boundary.
+  Route tests may use injected in-memory fake Supabase clients, but local mock
+  arrays are not a production repository fallback.
+- Moderation report creation now writes `moderation_reports` with the
+  authenticated user id as `reporter_id` and serializes the existing camelCase
+  `ModerationReportRecord` API shape.
