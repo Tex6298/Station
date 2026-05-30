@@ -1,14 +1,18 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { signUp, signIn } from "@/lib/auth";
+import { useRouter, useSearchParams } from "next/navigation";
+import { deriveUsername } from "@/lib/auth-session";
+import { signUp } from "@/lib/auth";
 
-export default function SignupPage() {
+function SignupForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirectTo = searchParams.get("redirect") ?? "/studio";
 
   const [displayName, setDisplayName] = useState("");
+  const [username,    setUsername]    = useState("");
   const [email,       setEmail]       = useState("");
   const [password,    setPassword]    = useState("");
   const [confirm,     setConfirm]     = useState("");
@@ -17,21 +21,18 @@ export default function SignupPage() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    const finalUsername = deriveUsername({ username, displayName, email });
     if (!displayName || !email || !password) { setError("Please fill in all fields."); return; }
+    if (finalUsername.length < 3) { setError("Username must be at least 3 characters."); return; }
     if (password.length < 8) { setError("Password must be at least 8 characters."); return; }
     if (password !== confirm) { setError("Passwords don't match."); return; }
 
     setError(null);
     setLoading(true);
     try {
-      const session = await signUp(email, password, displayName);
-      // If Supabase email confirmation is disabled the session is returned immediately
-      if (session) {
-        router.push("/studio");
-      } else {
-        // Email confirmation required - redirect to a holding page
-        router.push("/signup/confirm");
-      }
+      await signUp(email, password, displayName, finalUsername);
+      router.replace(redirectTo);
+      router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Sign up failed.");
     } finally {
@@ -72,6 +73,20 @@ export default function SignupPage() {
                 placeholder="How you appear to others"
                 autoComplete="name"
                 autoFocus
+              />
+            </div>
+
+            <div>
+              <label style={{ display: "block", fontSize: "0.78rem", color: "#888", marginBottom: "0.35rem", textTransform: "uppercase", letterSpacing: "0.06em" }}>
+                Username
+              </label>
+              <input
+                className="input"
+                type="text"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                placeholder={deriveUsername({ displayName, email })}
+                autoComplete="username"
               />
             </div>
 
@@ -143,5 +158,13 @@ export default function SignupPage() {
         </div>
       </div>
     </main>
+  );
+}
+
+export default function SignupPage() {
+  return (
+    <Suspense fallback={<div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center" }}>Loading...</div>}>
+      <SignupForm />
+    </Suspense>
   );
 }

@@ -3,15 +3,11 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
-import { getSession, signOut } from "@/lib/auth";
-import { apiGet } from "@/lib/api-client";
+import type { AuthUser } from "@station/types";
+import { restoreSession, signOut } from "@/lib/auth";
+import { LOGIN_REDIRECT_PARAM, isProtectedRoute } from "@/lib/auth-routes";
 
-interface Profile {
-  display_name: string | null;
-  username: string;
-  avatar_url: string | null;
-  tier: string;
-}
+type NavUser = AuthUser & { email: string; isAdmin: boolean };
 
 const NAV_LINKS = [
   ["/discover", "Discover"],
@@ -28,24 +24,27 @@ export function TopNav() {
   const router   = useRouter();
   const pathname = usePathname();
 
-  const [profile,     setProfile]     = useState<Profile | null>(null);
+  const [user,        setUser]        = useState<NavUser | null>(null);
   const [authChecked, setAuthChecked] = useState(false);
   const [menuOpen,    setMenuOpen]    = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    getSession().then(async (session) => {
-      if (!session) { setAuthChecked(true); return; }
-      try {
-        const data = await apiGet<{ profile: Profile }>("/auth/me", session.access_token);
-        setProfile(data.profile ?? null);
-      } catch {
-        setProfile(null);
-      } finally {
-        setAuthChecked(true);
+    let cancelled = false;
+    setAuthChecked(false);
+    restoreSession().then((session) => {
+      if (cancelled) return;
+      setUser(session?.user ?? null);
+      setAuthChecked(true);
+      if (!session && isProtectedRoute(pathname)) {
+        const loginUrl = `/login?${LOGIN_REDIRECT_PARAM}=${encodeURIComponent(pathname)}`;
+        router.replace(loginUrl);
       }
     });
-  }, [pathname]);
+    return () => {
+      cancelled = true;
+    };
+  }, [pathname, router]);
 
   useEffect(() => {
     function handleClick(e: MouseEvent) {
@@ -60,12 +59,14 @@ export function TopNav() {
   async function handleSignOut() {
     setMenuOpen(false);
     await signOut();
-    setProfile(null);
+    setUser(null);
     router.push("/");
+    router.refresh();
   }
 
-  const initials = profile
-    ? (profile.display_name ?? profile.username).slice(0, 2).toUpperCase()
+  const displayName = user?.email ?? "";
+  const initials = user
+    ? displayName.slice(0, 2).toUpperCase()
     : "";
 
   return (
@@ -90,7 +91,7 @@ export function TopNav() {
         </Link>
       ))}
 
-      {profile && AUTH_NAV_LINKS.map(([href, label]) => (
+      {user && AUTH_NAV_LINKS.map(([href, label]) => (
         <Link key={href} href={href} style={{
           padding: "0.3rem 0.65rem", borderRadius: 7, fontSize: "0.85rem", textDecoration: "none",
           color: pathname.startsWith(href) ? "#fff" : "#94a3b8",
@@ -103,7 +104,7 @@ export function TopNav() {
       <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: "0.5rem" }}>
         {!authChecked ? (
           <div style={{ width: 32, height: 32, borderRadius: "50%", background: "#1a1f2e" }} />
-        ) : profile ? (
+        ) : user ? (
           <div ref={menuRef} style={{ position: "relative" }}>
             <button
               onClick={() => setMenuOpen((o) => !o)}
@@ -115,19 +116,15 @@ export function TopNav() {
                 cursor: "pointer", color: "inherit",
               }}
             >
-              {profile.avatar_url ? (
-                <img src={profile.avatar_url} alt="" style={{ width: 28, height: 28, borderRadius: "50%", objectFit: "cover" }} />
-              ) : (
-                <div style={{
-                  width: 28, height: 28, borderRadius: "50%",
-                  background: "#7c6af7", display: "flex", alignItems: "center",
-                  justifyContent: "center", fontSize: "0.72rem", fontWeight: 700, color: "#fff",
-                }}>
-                  {initials}
-                </div>
-              )}
+              <div style={{
+                width: 28, height: 28, borderRadius: "50%",
+                background: "#7c6af7", display: "flex", alignItems: "center",
+                justifyContent: "center", fontSize: "0.72rem", fontWeight: 700, color: "#fff",
+              }}>
+                {initials}
+              </div>
               <span style={{ fontSize: "0.82rem", maxWidth: 110, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                {profile.display_name ?? profile.username}
+                {displayName}
               </span>
               <span style={{ fontSize: "0.65rem", color: "#68738a" }}>v</span>
             </button>
@@ -140,14 +137,14 @@ export function TopNav() {
                 zIndex: 100,
               }}>
                 <div style={{ padding: "0.5rem 0.75rem 0.6rem", borderBottom: "1px solid #1e2535", marginBottom: "0.3rem" }}>
-                  <div style={{ fontSize: "0.82rem", fontWeight: 600 }}>{profile.display_name ?? profile.username}</div>
+                  <div style={{ fontSize: "0.82rem", fontWeight: 600 }}>{displayName}</div>
                   <div style={{
                     display: "inline-block", marginTop: "0.2rem",
                     fontSize: "0.68rem", padding: "0.1rem 0.4rem", borderRadius: 999,
                     background: "#1a1535", border: "1px solid #2a2050", color: "#7c6af7",
                     textTransform: "capitalize",
                   }}>
-                    {profile.tier}
+                    {user.tier}
                   </div>
                 </div>
 

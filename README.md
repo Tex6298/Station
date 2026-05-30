@@ -11,7 +11,6 @@ Included:
 - first DeepSeek-compatible provider wrapper shape
 
 Not yet included:
-- frontend auth UX/protected-route polish
 - real Stripe integration
 - persistent repository implementation
 - production-ready validation and tests

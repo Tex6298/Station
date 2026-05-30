@@ -72,6 +72,13 @@ Revalidated on 2026-05-30 after auth/session hardening. `pnpm test:auth` was
 added to the named gate and passed along with the PR-01/PR-02 commands using the
 pinned runner. The same warning-only output listed below remains.
 
+## PR-04 result
+
+Revalidated on 2026-05-30 after frontend auth/protected route wiring.
+`pnpm test:auth` now also covers web auth route/session helpers. All baseline
+commands passed with the pinned runner. The warning-only output below is the
+current inventory.
+
 ## Known warning-only output
 
 These warnings do not currently fail the baseline:
@@ -84,7 +91,6 @@ These warnings do not currently fail the baseline:
   `<img>` usage in:
   - `apps/web/app/space/[slug]/page.tsx`
   - `apps/web/components/discover/discover-front-door.tsx`
-  - `apps/web/components/nav/top-nav.tsx`
 
 ## Package script notes
 
@@ -96,5 +102,5 @@ These warnings do not currently fail the baseline:
 
 ## Remaining failures
 
-None. The current scaffold is measurable enough to serve as the base for PR-04
-frontend auth/protected routes and PR-05 persistent repository work.
+None. The current scaffold is measurable enough to serve as the base for PR-05
+persistent repository work.

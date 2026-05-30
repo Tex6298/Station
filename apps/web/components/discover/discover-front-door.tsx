@@ -2,8 +2,9 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import type { AuthUser } from "@station/types";
 import { apiGet } from "@/lib/api-client";
-import { getSession } from "@/lib/auth";
+import { restoreSession } from "@/lib/auth";
 
 interface FeedItem {
   id: string;
@@ -141,9 +142,11 @@ function FeedCard({ item }: { item: FeedItem }) {
   );
 }
 
-function Sidebar({ sidebar, profile, loading }: {
+type SidebarUser = AuthUser & { email: string; isAdmin?: boolean };
+
+function Sidebar({ sidebar, user, loading }: {
   sidebar: SidebarData | null;
-  profile: { display_name: string | null; username: string; tier: string; avatar_url: string | null } | null;
+  user: SidebarUser | null;
   loading: boolean;
 }) {
   if (loading) {
@@ -160,26 +163,22 @@ function Sidebar({ sidebar, profile, loading }: {
 
   return (
     <aside className="discover-sidebar" style={{ width: 260, flexShrink: 0, display: "flex", flexDirection: "column", gap: "0.75rem" }}>
-      {profile ? (
+      {user ? (
         <div className="card" style={{ padding: "1.25rem" }}>
           <div style={{ display: "flex", gap: "0.75rem", alignItems: "center", marginBottom: "0.85rem" }}>
-            {profile.avatar_url ? (
-              <img src={profile.avatar_url} alt="" style={{ width: 44, height: 44, borderRadius: "50%", objectFit: "cover" }} />
-            ) : (
-              <div style={{
-                width: 44, height: 44, borderRadius: "50%",
-                background: "#7c6af7", display: "flex", alignItems: "center",
-                justifyContent: "center", fontSize: "1rem", fontWeight: 700, color: "#fff", flexShrink: 0,
-              }}>
-                {(profile.display_name ?? profile.username).slice(0, 2).toUpperCase()}
-              </div>
-            )}
+            <div style={{
+              width: 44, height: 44, borderRadius: "50%",
+              background: "#7c6af7", display: "flex", alignItems: "center",
+              justifyContent: "center", fontSize: "1rem", fontWeight: 700, color: "#fff", flexShrink: 0,
+            }}>
+              {user.email.slice(0, 2).toUpperCase()}
+            </div>
             <div style={{ minWidth: 0 }}>
               <div style={{ fontWeight: 650, fontSize: "0.9rem", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                {profile.display_name ?? profile.username}
+                {user.email}
               </div>
               <div className="pill" style={{ fontSize: "0.68rem", marginTop: "0.25rem", color: "#c4b5fd", textTransform: "capitalize" }}>
-                {profile.tier}
+                {user.tier}
               </div>
             </div>
           </div>
@@ -270,7 +269,7 @@ export default function DiscoverFrontDoor() {
   const [token, setToken] = useState<string | null>(null);
 
   const [sidebar, setSidebar] = useState<SidebarData | null>(null);
-  const [profile, setProfile] = useState<{ display_name: string | null; username: string; tier: string; avatar_url: string | null } | null>(null);
+  const [user, setUser] = useState<SidebarUser | null>(null);
   const [sideLoading, setSideLoading] = useState(true);
 
   const [search, setSearch] = useState("");
@@ -286,22 +285,17 @@ export default function DiscoverFrontDoor() {
   }, [tab, token]);
 
   useEffect(() => {
-    getSession().then(async (session) => {
+    restoreSession().then(async (session) => {
       const token = session?.access_token;
       setToken(token ?? null);
+      setUser(session?.user ?? null);
 
       apiGet<SidebarData>("/discover/sidebar", token)
         .then(setSidebar)
         .catch(() => setSidebar(null))
         .finally(() => setSideLoading(false));
 
-      if (token) {
-        apiGet<{ profile: typeof profile }>("/auth/me", token)
-          .then((d) => setProfile(d.profile ?? null))
-          .catch(() => setProfile(null));
-      } else {
-        setSideLoading(false);
-      }
+      if (!token) setSideLoading(false);
     });
   }, []);
 
@@ -320,7 +314,7 @@ export default function DiscoverFrontDoor() {
 
   return (
     <div className="discover-layout">
-      <Sidebar sidebar={sidebar} profile={profile} loading={sideLoading} />
+      <Sidebar sidebar={sidebar} user={user} loading={sideLoading} />
 
       <main style={{ flex: 1, minWidth: 0 }}>
         <section className="hero-card" style={{ marginBottom: "1rem" }}>

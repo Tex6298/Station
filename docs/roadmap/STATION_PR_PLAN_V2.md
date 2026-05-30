@@ -25,9 +25,9 @@ Developer Spaces.
 - Studio routes, API persona/conversation routes, shared config/types/permissions,
   AI adapter scaffolding, in-memory local data, and the first DeepSeek-compatible
   wrapper shape exist.
-- The tree has Supabase-shaped API services, migrations, and tests. API
-  auth/session behavior is now proven; frontend auth flow and persistent DB repos
-  remain foundation work before product expansion.
+- The tree has Supabase-shaped API services, migrations, and tests. API and
+  frontend auth/session behavior are now proven; persistent DB repos remain
+  foundation work before product expansion.
 - Real Stripe and paid entitlements are not product-ready.
 - Developer Spaces has a Station-native observatory slice: owner-created project
   observatories, hashed ingestion keys, node/event/snapshot ingestion endpoints,
@@ -43,6 +43,7 @@ pnpm install
 pnpm build
 pnpm lint
 pnpm typecheck
+pnpm test:auth
 pnpm test:spaces
 pnpm test:continuity
 pnpm test:persona-context

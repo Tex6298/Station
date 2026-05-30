@@ -1,8 +1,21 @@
 import { createBrowserClient } from "@station/db";
+import type { AuthUser } from "@station/types";
+import { apiGet, apiPost } from "./api-client";
+import { STATION_AUTH_COOKIE } from "./auth-routes";
+import {
+  AUTH_STORAGE_KEY,
+  deriveUsername,
+  parseStoredSession,
+  serializeSession,
+  sessionFromAuthResponse,
+  sessionWithUser,
+  type AuthApiResponse,
+  type StationSession,
+} from "./auth-session";
 
 /**
- * Returns a Supabase browser client for use in React components.
- * Lazily created - safe to call on every render.
+ * Returns a Supabase browser client for flows that still use Supabase directly,
+ * such as password reset emails.
  */
 let _client: ReturnType<typeof createBrowserClient> | null = null;
 
@@ -13,62 +26,122 @@ export function getSupabaseClient() {
   return _client;
 }
 
-/**
- * Returns true if there is an active Supabase session.
- */
 export async function isAuthenticated(): Promise<boolean> {
-  const sb = getSupabaseClient();
-  const { data } = await sb.auth.getSession();
-  return !!data.session;
+  return Boolean(await restoreSession());
 }
 
-/**
- * Returns the current session, or null if unauthenticated.
- */
-export async function getSession() {
-  const sb = getSupabaseClient();
-  const { data } = await sb.auth.getSession();
-  return data.session;
+export async function getSession(): Promise<StationSession | null> {
+  return readStoredSession();
 }
 
-/**
- * Returns the current user object, or null if unauthenticated.
- */
+export async function restoreSession(): Promise<StationSession | null> {
+  const session = readStoredSession();
+  if (!session) return null;
+
+  try {
+    const user = await fetchCurrentUser(session.accessToken);
+    const restored = sessionWithUser(session, user);
+    saveSession(restored);
+    return restored;
+  } catch {
+    clearStoredSession();
+    return null;
+  }
+}
+
 export async function getCurrentUser() {
-  const sb = getSupabaseClient();
-  const { data } = await sb.auth.getUser();
-  return data.user ?? null;
+  const session = await restoreSession();
+  return session?.user ?? null;
 }
 
-/**
- * Sign in with email + password.
- */
-export async function signIn(email: string, password: string) {
-  const sb = getSupabaseClient();
-  const { data, error } = await sb.auth.signInWithPassword({ email, password });
-  if (error) throw new Error(error.message);
-  return data.session;
+export async function signIn(email: string, password: string): Promise<StationSession> {
+  const result = await apiPost<AuthApiResponse>("/auth/signin", { email, password });
+  return saveAndVerify(result);
 }
 
-/**
- * Sign up with email + password + display name.
- * Creates the Supabase auth user; the DB trigger auto-creates the profile row.
- */
-export async function signUp(email: string, password: string, displayName: string) {
-  const sb = getSupabaseClient();
-  const { data, error } = await sb.auth.signUp({
+export async function signUp(
+  email: string,
+  password: string,
+  displayName: string,
+  username?: string
+): Promise<StationSession> {
+  const result = await apiPost<AuthApiResponse>("/auth/signup", {
     email,
     password,
-    options: { data: { display_name: displayName } },
+    username: deriveUsername({ username, displayName, email }),
+    displayName,
   });
-  if (error) throw new Error(error.message);
-  return data.session;
+  return saveAndVerify(result);
 }
 
-/**
- * Sign out the current user.
- */
-export async function signOut() {
-  const sb = getSupabaseClient();
-  await sb.auth.signOut();
+export async function signOut(): Promise<void> {
+  const session = readStoredSession();
+  try {
+    if (session) {
+      await apiPost<void>("/auth/signout", {}, session.accessToken);
+    }
+  } finally {
+    clearStoredSession();
+  }
+}
+
+export function readStoredSession(): StationSession | null {
+  const storage = browserStorage();
+  return parseStoredSession(storage?.getItem(AUTH_STORAGE_KEY) ?? null);
+}
+
+export function saveSession(session: StationSession): void {
+  const storage = browserStorage();
+  storage?.setItem(AUTH_STORAGE_KEY, serializeSession(session));
+  setAuthCookie(true);
+}
+
+export function clearStoredSession(): void {
+  const storage = browserStorage();
+  storage?.removeItem(AUTH_STORAGE_KEY);
+  setAuthCookie(false);
+}
+
+async function saveAndVerify(response: AuthApiResponse): Promise<StationSession> {
+  const initial = sessionFromAuthResponse(response);
+  saveSession(initial);
+  try {
+    const user = await fetchCurrentUser(initial.accessToken);
+    const verified = sessionWithUser(initial, user);
+    saveSession(verified);
+    return verified;
+  } catch (error) {
+    clearStoredSession();
+    throw error;
+  }
+}
+
+async function fetchCurrentUser(accessToken: string): Promise<AuthUser & { email: string; isAdmin: boolean }> {
+  const data = await apiGet<{ user: AuthUser }>("/auth/me", accessToken);
+  if (!data.user.email) {
+    throw new Error("Authenticated user is missing an email address.");
+  }
+  return {
+    id: data.user.id,
+    email: data.user.email,
+    tier: data.user.tier,
+    isAdmin: data.user.isAdmin ?? false,
+  };
+}
+
+function browserStorage(): Storage | null {
+  if (typeof window === "undefined") return null;
+  return window.localStorage;
+}
+
+function setAuthCookie(authenticated: boolean): void {
+  if (typeof document === "undefined") return;
+
+  if (!authenticated) {
+    document.cookie = `${STATION_AUTH_COOKIE}=; Path=/; SameSite=Lax; Max-Age=0`;
+    return;
+  }
+
+  const secure = window.location.protocol === "https:" ? "; Secure" : "";
+  document.cookie = `${STATION_AUTH_COOKIE}=1; Path=/; SameSite=Lax; Max-Age=2592000${secure}`;
 }

@@ -1,19 +1,17 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-
-const protectedPrefixes = ["/studio", "/space", "/billing", "/settings"];
+import { LOGIN_REDIRECT_PARAM, STATION_AUTH_COOKIE, isProtectedRoute } from "./lib/auth-routes";
 
 export function middleware(request: NextRequest) {
-  const isProtected = protectedPrefixes.some((prefix) =>
-    request.nextUrl.pathname.startsWith(prefix)
-  );
+  if (!isProtectedRoute(request.nextUrl.pathname)) return NextResponse.next();
 
-  if (!isProtected) return NextResponse.next();
-
-  const userCookie = request.cookies.get("station-dev-user");
-  if (!userCookie) {
+  const authCookie = request.cookies.get(STATION_AUTH_COOKIE);
+  if (!authCookie) {
     const loginUrl = new URL("/login", request.url);
-    loginUrl.searchParams.set("next", request.nextUrl.pathname);
+    loginUrl.searchParams.set(
+      LOGIN_REDIRECT_PARAM,
+      `${request.nextUrl.pathname}${request.nextUrl.search}`
+    );
     return NextResponse.redirect(loginUrl);
   }
 
@@ -21,5 +19,12 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/studio/:path*", "/space/:path*", "/billing/:path*", "/settings/:path*"],
+  matcher: [
+    "/studio/:path*",
+    "/space/:path*",
+    "/billing/:path*",
+    "/settings/:path*",
+    "/developer-spaces/:path*",
+    "/forums/:path*",
+  ],
 };

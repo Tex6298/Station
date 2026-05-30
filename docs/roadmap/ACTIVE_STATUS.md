@@ -14,8 +14,10 @@ when a PR lands, or when validation truth changes.
   persistence without auth wiring or repository replacement.
 - PR-03 is complete: existing Supabase-shaped API auth/session behavior is
   hardened, documented, and covered by focused tests.
-- Next foundation block: PR-04 frontend auth/protected routes and PR-05
-  persistent DB repos.
+- PR-04 is complete: frontend signup/signin/signout, session restore,
+  auth-aware navigation, and protected route redirects use the proven API auth
+  contract.
+- Next foundation block: PR-05 persistent DB repos.
 
 ## Current repo truth
 
@@ -30,15 +32,18 @@ when a PR lands, or when validation truth changes.
 - Developer Spaces exists as a Station-native observatory slice, with hardening,
   live updates, Discover integration, linked documents, exports/quotas, SDK, and
   visual editors moved into PR-10 through PR-16.
-- As of PR-03 on 2026-05-30, the full validation baseline still passes with the
+- As of PR-04 on 2026-05-30, the full validation baseline still passes with the
   pinned pnpm runner.
 - As of PR-02, `docs/architecture/persistence-schema-baseline.md` records the
   current table/entity map for future auth and repository work.
 - API auth routes, controllers, service helpers, `requireAuth`, `optionalAuth`,
-  and permission helpers are now covered by `pnpm test:auth`.
+  web auth route/session helpers, and permission helpers are now covered by
+  `pnpm test:auth`.
 - API beta signup deliberately confirms service-role-created email users so it
   can return a session immediately. Revisit before public launch if first login
   should require email confirmation.
+- The web shell stores Station API sessions in browser storage and uses a
+  non-secret auth cookie only as middleware redirect state.
 
 ## Near-term rule
 

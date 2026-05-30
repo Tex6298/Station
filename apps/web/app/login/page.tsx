@@ -1,19 +1,35 @@
 "use client";
 
-import { Suspense, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { signIn } from "@/lib/auth";
+import { restoreSession, signIn } from "@/lib/auth";
 
 function LoginForm() {
   const router       = useRouter();
   const searchParams = useSearchParams();
-  const redirectTo   = searchParams.get("redirect") ?? "/studio";
+  const redirectTo   = searchParams.get("redirect") ?? searchParams.get("next") ?? "/studio";
 
   const [email,    setEmail]    = useState("");
   const [password, setPassword] = useState("");
   const [error,    setError]    = useState<string | null>(null);
   const [loading,  setLoading]  = useState(false);
+  const [checking, setChecking] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+    restoreSession().then((session) => {
+      if (cancelled) return;
+      if (session) {
+        router.replace(redirectTo);
+        return;
+      }
+      setChecking(false);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [redirectTo, router]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -22,12 +38,23 @@ function LoginForm() {
     setLoading(true);
     try {
       await signIn(email, password);
-      router.push(redirectTo);
+      router.replace(redirectTo);
+      router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Login failed.");
     } finally {
       setLoading(false);
     }
+  }
+
+  if (checking) {
+    return (
+      <main style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", padding: "1rem" }}>
+        <div className="card" style={{ color: "#94a3b8", padding: "2rem", textAlign: "center" }}>
+          Restoring session...
+        </div>
+      </main>
+    );
   }
 
   return (
