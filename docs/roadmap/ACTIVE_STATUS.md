@@ -10,8 +10,10 @@ when a PR lands, or when validation truth changes.
 - PR-00 is complete and visible on `main`.
 - PR-01 is complete: the validation baseline in
   `docs/testing/VALIDATION_BASELINE.md` is green.
-- Next foundation block: PR-02 Supabase schema baseline, PR-03 Supabase
-  auth/session wiring, and PR-05 persistent DB repos.
+- PR-02 is complete: Supabase schema/types are baselined for core Station
+  persistence without auth wiring or repository replacement.
+- Next foundation block: PR-03 Supabase auth/session wiring and PR-05
+  persistent DB repos.
 
 ## Current repo truth
 
@@ -20,10 +22,16 @@ when a PR lands, or when validation truth changes.
 - PR-01 uses `pnpm@10.32.1`, as declared in the root `packageManager` field.
 - Existing docs describe protected alpha loops, but v2 treats auth, persistence,
   and validation as the required foundation before more product expansion.
+- Supabase migrations now cover profiles, personas, spaces, documents,
+  conversations, archived chats, continuity candidates, continuity records,
+  forums, comments, reports, exports, social publishing, and Developer Spaces.
 - Developer Spaces exists as a Station-native observatory slice, with hardening,
   live updates, Discover integration, linked documents, exports/quotas, SDK, and
   visual editors moved into PR-10 through PR-16.
-- As of 2026-05-30, the full PR-01 baseline passes with the pinned pnpm runner.
+- As of PR-02 on 2026-05-30, the full validation baseline still passes with the
+  pinned pnpm runner.
+- As of PR-02, `docs/architecture/persistence-schema-baseline.md` records the
+  current table/entity map for future auth and repository work.
 
 ## Near-term rule
 

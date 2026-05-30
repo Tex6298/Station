@@ -18,6 +18,11 @@ In the Supabase dashboard, go to **SQL Editor** and run the migrations in order:
 4. `migrations/004_forum_seed_and_helpers.sql` - seeds forum categories
 5. `migrations/005_social_publishing.sql` - social publishing connections
 6. `migrations/006_developer_spaces.sql` - Developer Space observatories and ingestion
+7. `migrations/007_document_provenance_and_visibility.sql` - publication provenance and visibility
+8. `migrations/008_document_discussions.sql` - document discussion threads
+9. `migrations/009_archive_export_packages.sql` - archive export packages
+10. `migrations/010_archived_chat_candidates.sql` - archived chats and continuity candidates
+11. `migrations/011_schema_baseline_alignment.sql` - PR-02 schema/type alignment, continuity records, and ingestion-key baseline
 
 Or use the Supabase CLI:
 ```bash
@@ -56,6 +61,9 @@ In Supabase -> **Authentication -> Settings**:
 | `personas` | Named AI personas per user |
 | `conversations` | Chat sessions per persona |
 | `conversation_messages` | Individual messages in a conversation |
+| `archived_chat_transcripts` | Owner-only archived chat transcript records |
+| `continuity_candidates` | Memory/canon candidates extracted from archived chats |
+| `continuity_records` | Owner-scoped continuity ledger for cross-source timelines/views |
 | `memory_items` | Searchable memory archive per persona (with pgvector embeddings) |
 | `canon_items` | High-priority rules always injected into persona context |
 | `persona_files` | Uploaded documents/images for the persona archive |
@@ -69,7 +77,11 @@ In Supabase -> **Authentication -> Settings**:
 | `comments` | Comments on threads, documents, and space pages |
 | `moderation_reports` | User-submitted reports for moderation review |
 | `discover_feed` | Feed events for the Discover page |
+| `social_connections` | Owner OAuth/app-password connections for publishing |
+| `social_posts` | Social publishing history |
+| `export_packages` | Owner-only archive export manifests/packages |
 | `developer_spaces` | Public/private observatories for research and builder projects |
+| `developer_space_ingestion_keys` | Server/owner-only ingestion key hashes for future rotation |
 | `developer_space_nodes` | Live entities/nodes tracked inside Developer Spaces |
 | `developer_space_events` | Ingested event stream for observatory timelines |
 | `developer_space_snapshots` | Periodic full-state snapshots for history/playback |

@@ -3,6 +3,7 @@ export type DeveloperSpaceVisualisationType = "node_field" | "timeline" | "world
 export type DeveloperSpaceTopologyType = "radial" | "branching" | "lattice" | "custom";
 export type DeveloperSpaceEventVisibility = "private" | "community" | "public";
 export type DeveloperSpaceEventProvenance = "api" | "imported" | "user" | "system" | "ai_generated";
+export type DeveloperSpaceIngestionKeyStatus = "active" | "revoked";
 
 export interface DeveloperSpaceRecord {
   id: string;
@@ -67,6 +68,19 @@ export interface DeveloperSpaceDetail {
   events: DeveloperSpaceEvent[];
   latestSnapshot?: DeveloperSpaceSnapshot | null;
   access: "owner" | "member" | "public";
+}
+
+export interface DeveloperSpaceIngestionKey {
+  id: string;
+  developerSpaceId: string;
+  ownerUserId: string;
+  keyLastFour: string;
+  label?: string | null;
+  status: DeveloperSpaceIngestionKeyStatus;
+  createdAt: string;
+  updatedAt: string;
+  lastUsedAt?: string | null;
+  revokedAt?: string | null;
 }
 
 export interface DeveloperSpaceNodeStatePayload {

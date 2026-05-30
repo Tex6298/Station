@@ -3,12 +3,14 @@ export interface SpaceRecord {
   ownerUserId: string;
   slug: string;
   title: string;
-  shortDescription?: string;
-  longDescription?: string;
+  shortDescription?: string | null;
+  longDescription?: string | null;
+  theme?: string | null;
+  customCss?: string | null;
   isPublic: boolean;
   commentsDefaultEnabled: boolean;
-  avatarUrl?: string;
-  bannerUrl?: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface SpacePageRecord {
@@ -21,4 +23,6 @@ export interface SpacePageRecord {
   sortOrder: number;
   isPublished: boolean;
   commentsEnabled: boolean;
+  createdAt?: string;
+  updatedAt?: string;
 }

@@ -59,6 +59,12 @@ Validated on 2026-05-30 from base
 | `pnpm test:exports` | Pass | 1 test passed. |
 | `pnpm test:developer-spaces` | Pass | 2 tests passed. Also passed after clearing generated package `dist` output, so it does not depend on stale local build artifacts. |
 
+## PR-02 result
+
+Revalidated on 2026-05-30 after the Supabase schema/type baseline. All commands
+above passed with the pinned runner (`npx --yes pnpm@10.32.1 ...`). The same
+warning-only output listed below remains.
+
 ## Known warning-only output
 
 These warnings do not currently fail the baseline:
@@ -83,6 +89,5 @@ These warnings do not currently fail the baseline:
 
 ## Remaining failures
 
-None. The current scaffold is measurable enough to serve as the base for PR-02,
-PR-03, and PR-05 foundation work.
-
+None. The current scaffold is measurable enough to serve as the base for PR-03
+auth/session wiring and PR-05 persistent repository work.

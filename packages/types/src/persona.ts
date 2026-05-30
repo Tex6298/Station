@@ -44,17 +44,20 @@ export interface ConversationMessage {
 export interface ArchivedChatTranscript {
   id: string;
   conversationId: string;
+  ownerUserId?: string;
   personaId: string;
   title: string;
   transcriptMarkdown: string;
   messageCount: number;
   sourceSummary?: string | null;
   createdAt: string;
+  updatedAt?: string;
 }
 
 export interface ContinuityCandidate {
   id: string;
   archivedChatTranscriptId: string;
+  ownerUserId?: string;
   personaId: string;
   candidateType: "memory" | "canon";
   title?: string | null;
@@ -69,8 +72,39 @@ export interface ContinuityCandidate {
   updatedAt?: string;
 }
 
+export type ContinuityRecordType =
+  | "memory"
+  | "canon"
+  | "integrity"
+  | "archive_file"
+  | "archive_import"
+  | "archived_chat"
+  | "candidate"
+  | "publication"
+  | "timeline";
+
+export interface ContinuityRecord {
+  id: string;
+  ownerUserId: string;
+  personaId?: string | null;
+  recordType: ContinuityRecordType;
+  title?: string | null;
+  body?: string | null;
+  summary?: string | null;
+  sourceTable?: string | null;
+  sourceId?: string | null;
+  sourceLabel?: string | null;
+  visibility: "private" | "community" | "public";
+  version: number;
+  metadata: Record<string, unknown>;
+  occurredAt?: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface MemoryItem {
   id: string;
+  ownerUserId?: string;
   personaId: string;
   title?: string | null;
   content: string;
@@ -78,20 +112,24 @@ export interface MemoryItem {
   sourceType: "chat" | "import" | "document" | "calibration" | "manual";
   relevanceWeight?: number;
   createdAt: string;
+  updatedAt?: string;
 }
 
 export interface CanonItem {
   id: string;
+  ownerUserId?: string;
   personaId: string;
   title?: string | null;
   content: string;
   sourceType: "chat" | "import" | "document" | "calibration" | "manual";
   priority?: number;
   createdAt: string;
+  updatedAt?: string;
 }
 
 export interface PersonaFile {
   id: string;
+  ownerUserId?: string;
   personaId: string;
   fileName: string;
   fileType?: string | null;
@@ -104,6 +142,7 @@ export interface PersonaFile {
 
 export interface ImportJob {
   id: string;
+  ownerUserId?: string;
   personaId: string;
   kind: "file" | "chat";
   status: "queued" | "processing" | "completed" | "failed";

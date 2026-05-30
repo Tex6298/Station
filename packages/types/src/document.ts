@@ -1,12 +1,12 @@
 export interface DocumentRecord {
   id: string;
   authorUserId: string;
-  spaceId: string;
+  spaceId?: string | null;
   personaId?: string | null;
   title: string;
   slug: string;
-  body: string;
-  documentType: 'post' | 'constitution' | 'canon_note' | 'essay' | 'note' | 'manifesto';
+  body: string | null;
+  documentType: 'post' | 'essay' | 'manifesto' | 'constitution' | 'update' | 'other';
   status: 'draft' | 'published' | 'archived';
   visibility: 'private' | 'unlisted' | 'community' | 'public' | 'members';
   commentsEnabled: boolean;

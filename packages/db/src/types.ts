@@ -1,5 +1,5 @@
 /**
- * Supabase Database type definitions - mirrors the schema in 001_initial_schema.sql
+ * Supabase Database type definitions - mirrors infra/supabase/migrations.
  * Keeping this hand-authored for now. You can replace with `supabase gen types`
  * once your project is connected: `npx supabase gen types typescript --project-id <id>`
  */
@@ -17,6 +17,8 @@ export type SourceType = "chat" | "import" | "document" | "calibration" | "manua
 export type ConversationStatus = "active" | "archived";
 export type ContinuityCandidateType = "memory" | "canon";
 export type ContinuityCandidateStatus = "pending" | "accepted" | "rejected";
+export type ContinuityRecordType = "memory" | "canon" | "integrity" | "archive_file" | "archive_import" | "archived_chat" | "candidate" | "publication" | "timeline";
+export type ContinuityRecordVisibility = "private" | "community" | "public";
 export type PersonaFileSourceType = "upload" | "import" | "calibration" | "generated";
 export type ImportJobKind = "file" | "chat";
 export type ImportJobStatus = "queued" | "processing" | "completed" | "failed";
@@ -26,8 +28,8 @@ export type ThreadStatus = "active" | "locked" | "removed";
 export type ThreadVisibility = "public" | "community" | "unlisted";
 export type CommentParentType = "thread" | "document" | "space_page";
 export type CommentStatus = "active" | "removed" | "flagged";
-export type ModerationTargetType = "thread" | "comment" | "document" | "persona" | "space";
-export type ModerationStatus = "open" | "reviewed" | "dismissed" | "actioned";
+export type ModerationTargetType = "user" | "space" | "document" | "thread" | "comment" | "persona";
+export type ModerationStatus = "open" | "reviewing" | "resolved" | "dismissed";
 export type DiscoverItemType = "document" | "thread" | "space" | "persona";
 export type DiscoverEventType = "published" | "created" | "featured" | "updated";
 export type SocialPlatform = "bluesky" | "mastodon" | "tumblr" | "linkedin" | "wordpress" | "ghost" | "reddit";
@@ -37,6 +39,7 @@ export type DeveloperSpaceVisualisationType = "node_field" | "timeline" | "world
 export type DeveloperSpaceTopologyType = "radial" | "branching" | "lattice" | "custom";
 export type DeveloperSpaceEventVisibility = "private" | "community" | "public";
 export type DeveloperSpaceEventProvenance = "api" | "imported" | "user" | "system" | "ai_generated";
+export type DeveloperSpaceIngestionKeyStatus = "active" | "revoked";
 export type ExportPackageKind = "persona_archive";
 export type ExportPackageStatus = "requested" | "processing" | "completed" | "failed";
 export type ExportPackageFormat = "json_markdown";
@@ -234,6 +237,43 @@ export interface Database {
           updated_at?: string;
         };
         Update: Partial<Database["public"]["Tables"]["continuity_candidates"]["Insert"]>;
+      };
+      continuity_records: {
+        Row: {
+          id: string;
+          owner_user_id: string;
+          persona_id: string | null;
+          record_type: ContinuityRecordType;
+          title: string | null;
+          body: string | null;
+          summary: string | null;
+          source_table: string | null;
+          source_id: string | null;
+          source_label: string | null;
+          visibility: ContinuityRecordVisibility;
+          version: number;
+          metadata: Record<string, unknown>;
+          occurred_at: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: Omit<Database["public"]["Tables"]["continuity_records"]["Row"], "id" | "persona_id" | "title" | "body" | "summary" | "source_table" | "source_id" | "source_label" | "visibility" | "version" | "metadata" | "occurred_at" | "created_at" | "updated_at"> & {
+          id?: string;
+          persona_id?: string | null;
+          title?: string | null;
+          body?: string | null;
+          summary?: string | null;
+          source_table?: string | null;
+          source_id?: string | null;
+          source_label?: string | null;
+          visibility?: ContinuityRecordVisibility;
+          version?: number;
+          metadata?: Record<string, unknown>;
+          occurred_at?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["continuity_records"]["Insert"]>;
       };
       persona_files: {
         Row: {
@@ -458,6 +498,31 @@ export interface Database {
         };
         Update: Partial<Database["public"]["Tables"]["developer_spaces"]["Insert"]>;
       };
+      developer_space_ingestion_keys: {
+        Row: {
+          id: string;
+          developer_space_id: string;
+          owner_user_id: string;
+          key_hash: string;
+          key_last_four: string;
+          label: string | null;
+          status: DeveloperSpaceIngestionKeyStatus;
+          created_at: string;
+          updated_at: string;
+          last_used_at: string | null;
+          revoked_at: string | null;
+        };
+        Insert: Omit<Database["public"]["Tables"]["developer_space_ingestion_keys"]["Row"], "id" | "label" | "status" | "created_at" | "updated_at" | "last_used_at" | "revoked_at"> & {
+          id?: string;
+          label?: string | null;
+          status?: DeveloperSpaceIngestionKeyStatus;
+          created_at?: string;
+          updated_at?: string;
+          last_used_at?: string | null;
+          revoked_at?: string | null;
+        };
+        Update: Partial<Database["public"]["Tables"]["developer_space_ingestion_keys"]["Insert"]>;
+      };
       developer_space_nodes: {
         Row: {
           id: string;
@@ -548,15 +613,19 @@ export interface Database {
           target_type: ModerationTargetType;
           target_id: string;
           reason: string;
+          notes: string | null;
           status: ModerationStatus;
           reviewed_by: string | null;
+          reviewed_at: string | null;
           created_at: string;
           updated_at: string;
         };
-        Insert: Omit<Database["public"]["Tables"]["moderation_reports"]["Row"], "id" | "status" | "reviewed_by" | "created_at" | "updated_at"> & {
+        Insert: Omit<Database["public"]["Tables"]["moderation_reports"]["Row"], "id" | "notes" | "status" | "reviewed_by" | "reviewed_at" | "created_at" | "updated_at"> & {
           id?: string;
+          notes?: string | null;
           status?: ModerationStatus;
           reviewed_by?: string | null;
+          reviewed_at?: string | null;
           created_at?: string;
           updated_at?: string;
         };

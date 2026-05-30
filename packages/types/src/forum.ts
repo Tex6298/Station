@@ -45,11 +45,13 @@ export interface CommentRecord {
 export interface ModerationReportRecord {
   id: string;
   reporterUserId: string;
-  targetType: 'user' | 'space' | 'document' | 'thread' | 'comment';
+  targetType: 'user' | 'space' | 'document' | 'thread' | 'comment' | 'persona';
   targetId: string;
   reason: string;
-  notes?: string;
+  notes?: string | null;
   status: 'open' | 'reviewing' | 'resolved' | 'dismissed';
+  reviewedBy?: string | null;
+  reviewedAt?: string | null;
   createdAt: string;
   updatedAt: string;
 }
