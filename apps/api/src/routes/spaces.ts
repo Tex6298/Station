@@ -69,6 +69,11 @@ function serializeSpace(space: any) {
   };
 }
 
+function isMissingSingleError(error: any) {
+  const message = String(error?.message ?? "");
+  return error?.code === "PGRST116" || message.includes("Expected one");
+}
+
 function buildPresentation(payload: {
   tagline?: string;
   theme?: string;
@@ -275,7 +280,7 @@ spacesRouter.patch("/:id", async (req, res) => {
     .select("*")
     .single();
 
-  if (error) return res.status(500).json({ error: error.message });
+  if (error && !isMissingSingleError(error)) return res.status(500).json({ error: error.message });
   if (!data) return res.status(404).json({ error: "Space not found." });
   return res.json({ space: serializeSpace(data) });
 });

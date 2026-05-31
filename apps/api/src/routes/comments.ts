@@ -16,7 +16,6 @@ function isCommentParentType(value: string): value is CommentParentType {
 }
 
 export const commentsRouter = Router();
-const sb = getSupabaseAdmin();
 const COMMUNITY_TIERS = new Set(["private", "creator", "canon", "institutional"]);
 
 function canSeeCommunity(user?: AuthenticatedUser | null) {
@@ -51,6 +50,8 @@ function canDiscussDocument(document: any, user?: AuthenticatedUser | null) {
 }
 
 async function validateReadableParent(parentType: CommentParentType, parentId: string, user?: AuthenticatedUser | null) {
+  const sb = getSupabaseAdmin();
+
   if (parentType === "thread") {
     const { data: thread } = await sb
       .from("threads")
@@ -96,6 +97,7 @@ commentsRouter.get("/", optionalAuth, async (req: Request, res: Response) => {
   const canRead = await validateReadableParent(parentType, parentId, req.user);
   if (!canRead) return res.status(404).json({ error: "Comment parent not found" });
 
+  const sb = getSupabaseAdmin();
   let query = sb
     .from("comments")
     .select(
@@ -126,6 +128,7 @@ commentsRouter.post(
 
     const { parentType, parentId, body } = parsed.data;
     const userId = req.user!.id;
+    const sb = getSupabaseAdmin();
 
     // Validate parent exists and comments are enabled
     if (parentType === "document") {
@@ -143,11 +146,21 @@ commentsRouter.post(
     } else if (parentType === "space_page") {
       const { data: page } = await sb
         .from("space_pages")
-        .select("id, comments_enabled")
+        .select("id, comments_enabled, is_published, space_id")
         .eq("id", parentId)
         .single();
       if (!page) return res.status(404).json({ error: "Page not found" });
       if (!page.comments_enabled) return res.status(400).json({ error: "Comments are disabled for this page" });
+
+      const { data: space } = await sb
+        .from("spaces")
+        .select("id, is_public, owner_user_id")
+        .eq("id", page.space_id)
+        .single();
+      const ownerAccess = space?.owner_user_id === req.user!.id || req.user!.isAdmin;
+      if (!space || (!ownerAccess && (!page.is_published || !space.is_public))) {
+        return res.status(404).json({ error: "Page not found" });
+      }
     } else if (parentType === "thread") {
       const { data: thread } = await sb
         .from("threads")
@@ -194,6 +207,7 @@ commentsRouter.post(
 // --- Delete own comment ------------------------------------------------------
 commentsRouter.delete("/:id", async (req: Request, res: Response) => {
   const userId = req.user!.id;
+  const sb = getSupabaseAdmin();
 
   const { data: comment, error: findErr } = await sb
     .from("comments")

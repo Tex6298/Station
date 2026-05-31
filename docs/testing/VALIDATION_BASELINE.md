@@ -31,6 +31,7 @@ pnpm lint
 pnpm typecheck
 pnpm test:auth
 pnpm test:reports
+pnpm test:community
 pnpm test:spaces
 pnpm test:continuity
 pnpm test:persona-context
@@ -89,6 +90,15 @@ Core API route modules no longer import local in-memory mock data. All baseline
 commands passed with the pinned runner. The warning-only output below remains
 the current inventory.
 
+## PR-06 result
+
+Revalidated on 2026-05-31 after Community Beta persistence and permission
+hardening. `pnpm test:community` was added to prove forum link validation,
+comment parent visibility, document persona ownership, owner-only document
+updates, and featured Discover visibility filtering. All baseline commands
+passed with the pinned runner. The warning-only output below remains the
+current inventory.
+
 ## Known warning-only output
 
 These warnings do not currently fail the baseline:
@@ -112,5 +122,5 @@ These warnings do not currently fail the baseline:
 
 ## Remaining failures
 
-None. The current scaffold is measurable enough to serve as the base for PR-06
-community persistence and permissions hardening.
+None. The current scaffold is measurable enough to serve as the base for PR-07
+continuity alpha data model work.

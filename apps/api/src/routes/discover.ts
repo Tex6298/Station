@@ -5,7 +5,6 @@ import { getSupabaseAdmin } from "../lib/supabase";
 import { optionalAuth } from "../middleware/require-auth";
 
 export const discoverRouter = Router();
-const sb = getSupabaseAdmin();
 const COMMUNITY_TIERS = new Set(["private", "creator", "canon", "institutional"]);
 
 function canSeeCommunityDocuments(req: Request) {
@@ -24,7 +23,13 @@ function discoverableThreadVisibilities(req: Request): ThreadVisibility[] {
     : ["public"];
 }
 
-function documentFeedQuery(visibility: DocumentVisibility, tab: string, offset: number, limit: number) {
+function documentFeedQuery(
+  sb: ReturnType<typeof getSupabaseAdmin>,
+  visibility: DocumentVisibility,
+  tab: string,
+  offset: number,
+  limit: number
+) {
   return sb
     .from("documents")
     .select(`
@@ -40,6 +45,52 @@ function documentFeedQuery(visibility: DocumentVisibility, tab: string, offset: 
     .range(offset, offset + limit - 1);
 }
 
+async function canShowFeaturedItem(item: any, req: Request) {
+  const sb = getSupabaseAdmin();
+
+  if (item.item_type === "document") {
+    const { data } = await sb
+      .from("documents")
+      .select("id, status, visibility")
+      .eq("id", item.item_id)
+      .single();
+    if (!data || data.status !== "published") return false;
+    if (data.visibility === "public") return true;
+    return (data.visibility === "community" || data.visibility === "members") && canSeeCommunityDocuments(req);
+  }
+
+  if (item.item_type === "thread") {
+    const { data } = await sb
+      .from("threads")
+      .select("id, status, visibility, is_hidden, linked_document_id")
+      .eq("id", item.item_id)
+      .single();
+    if (!data || data.status !== "active" || data.is_hidden || data.linked_document_id) return false;
+    if (data.visibility === "public") return true;
+    return data.visibility === "community" && canSeeCommunityDocuments(req);
+  }
+
+  if (item.item_type === "space") {
+    const { data } = await sb
+      .from("spaces")
+      .select("id, is_public")
+      .eq("id", item.item_id)
+      .single();
+    return Boolean(data?.is_public);
+  }
+
+  if (item.item_type === "persona") {
+    const { data } = await sb
+      .from("personas")
+      .select("id, visibility")
+      .eq("id", item.item_id)
+      .single();
+    return data?.visibility === "public";
+  }
+
+  return false;
+}
+
 // --- Unified feed item shape -------------------------------------------------
 // Each item has a normalised shape so the frontend can render generically.
 // type: 'document' | 'thread' | 'space' | 'persona'
@@ -49,12 +100,13 @@ discoverRouter.get("/feed", optionalAuth, async (req: Request, res: Response) =>
   const tab    = String(req.query.tab    ?? "new");
   const limit  = Math.min(Number(req.query.limit  ?? 20), 50);
   const offset = Number(req.query.offset ?? 0);
+  const sb = getSupabaseAdmin();
 
   try {
     const [docResults, threadResults] = await Promise.all([
       Promise.all(
         discoverableDocumentVisibilities(req).map((visibility) =>
-          documentFeedQuery(visibility, tab, offset, limit)
+          documentFeedQuery(sb, visibility, tab, offset, limit)
         )
       ),
       // Active forum threads
@@ -135,7 +187,12 @@ discoverRouter.get("/feed", optionalAuth, async (req: Request, res: Response) =>
         .order("created_at", { ascending: false })
         .limit(limit);
 
-      return res.json({ items: featured ?? [], tab });
+      const visible = [];
+      for (const item of featured ?? []) {
+        if (await canShowFeaturedItem(item, req)) visible.push(item);
+      }
+
+      return res.json({ items: visible, tab });
     } else {
       // New: most recent first
       items = items.sort((a, b) =>
@@ -152,6 +209,7 @@ discoverRouter.get("/feed", optionalAuth, async (req: Request, res: Response) =>
 // --- GET /discover/sidebar --- data for the logged-in sidebar ----------------
 discoverRouter.get("/sidebar", optionalAuth, async (req: Request, res: Response) => {
   const userId = req.user?.id ?? null;
+  const sb = getSupabaseAdmin();
 
   try {
     const [recentDocs, recentThreads, personas, stats] = await Promise.all([
@@ -211,6 +269,7 @@ discoverRouter.get("/sidebar", optionalAuth, async (req: Request, res: Response)
 discoverRouter.get("/search", optionalAuth, async (req: Request, res: Response) => {
   const q = String(req.query.q ?? "").trim();
   if (!q) return res.json({ documents: [], threads: [], spaces: [], personas: [] });
+  const sb = getSupabaseAdmin();
 
   const [docResults, threadResults, spaces, personas] = await Promise.all([
     Promise.all(discoverableDocumentVisibilities(req).map((visibility) =>

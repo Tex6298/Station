@@ -37,3 +37,6 @@ The current scaffold assumes these persistence entities:
 - Moderation report creation now writes `moderation_reports` with the
   authenticated user id as `reporter_id` and serializes the existing camelCase
   `ModerationReportRecord` API shape.
+- Community route hardening keeps runtime persistence on Supabase while
+  enforcing public-safe linked forum entities, page-comment visibility, featured
+  Discover visibility checks, and document/persona ownership at the API layer.

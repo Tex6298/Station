@@ -88,6 +88,11 @@ function canReadThread(thread: any, user?: AuthenticatedUser | null) {
   return thread.visibility === "community" && isCommunityEligible(user);
 }
 
+function isMissingSingleError(error: any) {
+  const message = String(error?.message ?? "");
+  return error?.code === "PGRST116" || message.includes("Expected one");
+}
+
 function discussionVisibilityForDocument(visibility: string) {
   if (visibility === "community" || visibility === "members") return "community";
   if (visibility === "unlisted") return "unlisted";
@@ -531,6 +536,17 @@ documentsRouter.post("/", requireTier("creator"), async (req, res) => {
     }
   }
 
+  if (parsed.data.personaId) {
+    const { data: persona } = await sb
+      .from("personas")
+      .select("id, owner_user_id")
+      .eq("id", parsed.data.personaId)
+      .single();
+    if (!persona || persona.owner_user_id !== userId) {
+      return res.status(403).json({ error: "Persona not found or not yours." });
+    }
+  }
+
   const { data, error } = await sb
     .from("documents")
     .insert({
@@ -579,7 +595,7 @@ documentsRouter.patch("/:id", async (req, res) => {
     .select("*")
     .single();
 
-  if (error) return res.status(500).json({ error: error.message });
+  if (error && !isMissingSingleError(error)) return res.status(500).json({ error: error.message });
   if (!data) return res.status(404).json({ error: "Document not found." });
   const discussion = canHaveDiscussion(data)
     ? await ensureDocumentDiscussion(data)
@@ -661,7 +677,7 @@ documentsRouter.post("/:id/publish", async (req, res) => {
     .select("*")
     .single();
 
-  if (error) return res.status(500).json({ error: error.message });
+  if (error && !isMissingSingleError(error)) return res.status(500).json({ error: error.message });
   if (!data) return res.status(404).json({ error: "Document not found." });
   const discussion = await ensureDocumentDiscussion(data);
   return res.json({

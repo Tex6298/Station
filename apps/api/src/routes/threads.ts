@@ -3,7 +3,6 @@ import { getSupabaseAdmin } from "../lib/supabase";
 import { optionalAuth, requireAuth, type AuthenticatedUser } from "../middleware/require-auth";
 
 export const threadsRouter = Router();
-const sb = getSupabaseAdmin();
 const COMMUNITY_TIERS = new Set(["private", "creator", "canon", "institutional"]);
 
 function canSeeCommunity(user?: AuthenticatedUser | null) {
@@ -22,6 +21,7 @@ function canReadThread(thread: any, user?: AuthenticatedUser | null) {
 // --- Public: get thread + its comments --------------------------------------
 threadsRouter.get("/:id", optionalAuth, async (req: Request, res: Response) => {
   const { id } = req.params;
+  const sb = getSupabaseAdmin();
 
   const { data: thread, error: threadErr } = await sb
     .from("threads")
@@ -59,6 +59,7 @@ threadsRouter.use(requireAuth);
 // --- Delete own thread -------------------------------------------------------
 threadsRouter.delete("/:id", async (req: Request, res: Response) => {
   const userId = req.user!.id;
+  const sb = getSupabaseAdmin();
 
   const { data: thread, error: findErr } = await sb
     .from("threads")

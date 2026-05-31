@@ -20,7 +20,11 @@ when a PR lands, or when validation truth changes.
 - PR-05 is complete: the remaining live in-memory API report path now writes to
   Supabase-backed persistence, core API routes were checked for local mock-data
   imports, and `pnpm test:reports` proves the reports boundary.
-- Next foundation block: PR-06 community persistence and permissions hardening.
+- PR-06 is complete: Community Beta routes keep Supabase persistence, validate
+  public-safe forum links and comment parents, filter featured Discover rows by
+  visibility, protect document persona ownership, and are covered by
+  `pnpm test:community`.
+- Next foundation block: PR-07 continuity alpha data model.
 
 ## Current repo truth
 
@@ -35,13 +39,20 @@ when a PR lands, or when validation truth changes.
 - Developer Spaces exists as a Station-native observatory slice, with hardening,
   live updates, Discover integration, linked documents, exports/quotas, SDK, and
   visual editors moved into PR-10 through PR-16.
-- As of PR-05 on 2026-05-30, the full validation baseline still passes with the
+- As of PR-06 on 2026-05-31, the full validation baseline still passes with the
   pinned pnpm runner.
 - As of PR-02, `docs/architecture/persistence-schema-baseline.md` records the
   current table/entity map for future auth and repository work.
 - Core API route modules no longer import local in-memory mock data. Runtime
   persistence goes through the Supabase client boundary; route tests use
   injected fake Supabase clients for deterministic proof.
+- Community route modules resolve the Supabase client at request/helper time so
+  test fakes and production bootstrapping stay deterministic.
+- Forum thread creation rejects private linked Spaces/personas/documents and
+  inherits community/unlisted visibility from linked documents when a link is
+  allowed.
+- Featured Discover rows are filtered against current item visibility instead
+  of trusting curated feed rows blindly.
 - API auth routes, controllers, service helpers, `requireAuth`, `optionalAuth`,
   web auth route/session helpers, and permission helpers are now covered by
   `pnpm test:auth`.
@@ -75,6 +86,7 @@ pnpm lint
 pnpm typecheck
 pnpm test:auth
 pnpm test:reports
+pnpm test:community
 pnpm test:spaces
 pnpm test:continuity
 pnpm test:persona-context

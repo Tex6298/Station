@@ -45,6 +45,7 @@ pnpm lint
 pnpm typecheck
 pnpm test:auth
 pnpm test:reports
+pnpm test:community
 pnpm test:spaces
 pnpm test:continuity
 pnpm test:persona-context
@@ -209,6 +210,7 @@ Tasks:
 Acceptance:
 
 ```bash
+pnpm test:community
 pnpm test:spaces
 pnpm test:document-discussions
 pnpm build

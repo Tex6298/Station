@@ -15,17 +15,97 @@ const createThreadSchema = z.object({
 });
 
 export const forumsRouter = Router();
-const sb = getSupabaseAdmin();
 const COMMUNITY_TIERS = new Set(["private", "creator", "canon", "institutional"]);
 
+function canSeeCommunity(user?: AuthenticatedUser | null) {
+  return Boolean(user && COMMUNITY_TIERS.has(user.tier));
+}
+
 function listableThreadVisibilities(user?: AuthenticatedUser | null): ThreadVisibility[] {
-  return user && COMMUNITY_TIERS.has(user.tier)
+  return canSeeCommunity(user)
     ? ["public", "community"]
     : ["public"];
 }
 
+function canReadLinkedDocument(document: any, user?: AuthenticatedUser | null) {
+  if (!document) return false;
+  if (document.author_user_id === user?.id || user?.isAdmin) return true;
+  if (document.status !== "published") return false;
+  const visibility = document.visibility ?? "private";
+  if (visibility === "public" || visibility === "unlisted") return true;
+  return (visibility === "community" || visibility === "members") && canSeeCommunity(user);
+}
+
+function threadVisibilityForDocument(document: any): ThreadVisibility {
+  if (document.visibility === "community" || document.visibility === "members") return "community";
+  if (document.visibility === "unlisted") return "unlisted";
+  return "public";
+}
+
+async function validateThreadLinks(
+  input: z.infer<typeof createThreadSchema>,
+  user: AuthenticatedUser
+): Promise<
+  | { ok: true; visibility: ThreadVisibility }
+  | { ok: false; status: number; error: string }
+> {
+  const sb = getSupabaseAdmin();
+  let visibility: ThreadVisibility = "public";
+
+  if (input.linkedDocumentId) {
+    const { data: document } = await sb
+      .from("documents")
+      .select("id, status, visibility, comments_enabled, author_user_id")
+      .eq("id", input.linkedDocumentId)
+      .single();
+
+    if (!document || !canReadLinkedDocument(document, user)) {
+      return { ok: false, status: 404, error: "Linked document not found" };
+    }
+
+    if (
+      document.status !== "published" ||
+      document.comments_enabled === false ||
+      document.visibility === "private"
+    ) {
+      return { ok: false, status: 400, error: "Linked document cannot be discussed publicly." };
+    }
+
+    visibility = threadVisibilityForDocument(document);
+  }
+
+  if (input.linkedSpaceId) {
+    const { data: space } = await sb
+      .from("spaces")
+      .select("id, is_public")
+      .eq("id", input.linkedSpaceId)
+      .single();
+
+    if (!space) return { ok: false, status: 404, error: "Linked Space not found" };
+    if (!space.is_public) {
+      return { ok: false, status: 400, error: "Linked Space must be public." };
+    }
+  }
+
+  if (input.linkedPersonaId) {
+    const { data: persona } = await sb
+      .from("personas")
+      .select("id, visibility")
+      .eq("id", input.linkedPersonaId)
+      .single();
+
+    if (!persona) return { ok: false, status: 404, error: "Linked persona not found" };
+    if (persona.visibility !== "public") {
+      return { ok: false, status: 400, error: "Linked persona must be public." };
+    }
+  }
+
+  return { ok: true, visibility };
+}
+
 // --- Public: list all categories --------------------------------------------
 forumsRouter.get("/categories", async (_req: Request, res: Response) => {
+  const sb = getSupabaseAdmin();
   const { data, error } = await sb
     .from("forum_categories")
     .select("*")
@@ -38,6 +118,7 @@ forumsRouter.get("/categories", async (_req: Request, res: Response) => {
 // --- Public: get category + its threads -------------------------------------
 forumsRouter.get("/categories/:slug", optionalAuth, async (req: Request, res: Response) => {
   const { slug } = req.params;
+  const sb = getSupabaseAdmin();
 
   const { data: category, error: catErr } = await sb
     .from("forum_categories")
@@ -86,6 +167,7 @@ forumsRouter.post(
     if (!parsed.success) return res.status(400).json({ error: parsed.error.errors[0].message });
 
     const userId = req.user!.id;
+    const sb = getSupabaseAdmin();
 
     // Verify category exists
     const { data: category, error: catErr } = await sb
@@ -95,6 +177,9 @@ forumsRouter.post(
       .single();
 
     if (catErr || !category) return res.status(404).json({ error: "Category not found" });
+
+    const links = await validateThreadLinks(parsed.data, req.user!);
+    if (links.ok === false) return res.status(links.status).json({ error: links.error });
 
     const { data: thread, error } = await sb
       .from("threads")
@@ -107,7 +192,7 @@ forumsRouter.post(
         linked_persona_id: parsed.data.linkedPersonaId ?? null,
         linked_document_id: parsed.data.linkedDocumentId ?? null,
         status: "active",
-        visibility: "public",
+        visibility: links.visibility,
         is_pinned: false,
         is_hidden: false,
         reported_count: 0,
