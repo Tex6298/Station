@@ -11,6 +11,7 @@ type NavUser = AuthUser & { email: string; isAdmin: boolean };
 
 const NAV_LINKS = [
   ["/discover", "Discover"],
+  ["/writing", "Writing"],
   ["/forums",   "Forums"],
 ];
 
