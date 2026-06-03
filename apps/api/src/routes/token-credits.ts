@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { z } from "zod";
 import { requireAuth } from "../middleware/require-auth";
-import { createTopupCheckoutSession, getTokenUsage } from "../services/token-credits.service";
+import { createTopupCheckoutSession, getTokenUsage, runMonthlyTokenReset } from "../services/token-credits.service";
 
 export const tokenCreditsRouter = Router();
 
@@ -42,6 +42,19 @@ tokenCreditsRouter.post("/topups/checkout", async (req, res) => {
   } catch (error) {
     return res.status(400).json({
       error: error instanceof Error ? error.message : "Could not create top-up checkout.",
+    });
+  }
+});
+
+tokenCreditsRouter.post("/monthly-reset", async (req, res) => {
+  if (!req.user!.isAdmin) return res.status(403).json({ error: "Admin access required." });
+
+  try {
+    const result = await runMonthlyTokenReset();
+    return res.json({ reset: result });
+  } catch (error) {
+    return res.status(500).json({
+      error: error instanceof Error ? error.message : "Could not run monthly token reset.",
     });
   }
 });

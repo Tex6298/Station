@@ -16,7 +16,9 @@ const createSchema = z.object({
   styleNotes: z.string().max(4000).optional(),
 });
 
-const updateSchema = createSchema.partial();
+const updateSchema = createSchema.extend({
+  skipIntegrityPreflight: z.boolean().optional(),
+}).partial();
 
 export const personasRouter = Router();
 personasRouter.use(requireAuth);
@@ -61,8 +63,8 @@ async function loadContinuitySummary(personaId: string, ownerUserId: string) {
       .select("id, created_at", { count: "exact", head: true })
       .eq("persona_id", personaId)
       .eq("owner_user_id", ownerUserId),
-    sb
-      .from("calibration_sessions")
+    (sb as any)
+      .from("integrity_sessions")
       .select("id, created_at", { count: "exact", head: true })
       .eq("persona_id", personaId)
       .eq("owner_user_id", ownerUserId),
@@ -156,6 +158,38 @@ personasRouter.patch("/:id", async (req, res) => {
   if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
 
   const sb = getSupabaseAdmin();
+
+  const { data: existing } = await sb
+    .from("personas")
+    .select("id, name, owner_user_id, visibility")
+    .eq("id", req.params.id)
+    .single();
+
+  if (!existing || existing.owner_user_id !== req.user!.id) {
+    return res.status(404).json({ error: "Persona not found." });
+  }
+
+  if (
+    parsed.data.visibility === "public" &&
+    existing.visibility !== "public" &&
+    !parsed.data.skipIntegrityPreflight
+  ) {
+    const { count } = await (sb as any)
+      .from("integrity_sessions")
+      .select("id", { count: "exact", head: true })
+      .eq("persona_id", existing.id)
+      .eq("owner_user_id", req.user!.id)
+      .eq("status", "completed")
+      .in("session_type", ["pre_publication", "initial", "periodic"]);
+
+    if ((count ?? 0) === 0) {
+      return res.status(409).json({
+        error: `Before making ${existing.name} public, run a short Integrity Session or retry with skipIntegrityPreflight.`,
+        integrityRequired: true,
+        sessionType: "pre_publication",
+      });
+    }
+  }
 
   const updatePayload: Record<string, unknown> = {};
   if (parsed.data.name !== undefined)             updatePayload.name = parsed.data.name;

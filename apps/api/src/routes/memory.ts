@@ -8,7 +8,7 @@ const createSchema = z.object({
   title: z.string().max(200).optional(),
   content: z.string().min(1).max(20000),
   summary: z.string().max(500).optional(),
-  sourceType: z.enum(["chat", "import", "document", "calibration", "manual"]).default("manual"),
+  sourceType: z.enum(["chat", "import", "document", "calibration", "integrity_session", "manual"]).default("manual"),
   relevanceWeight: z.number().min(0.1).max(5).optional(),
 });
 

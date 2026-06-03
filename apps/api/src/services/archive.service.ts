@@ -16,7 +16,7 @@ export async function addMemoryItem(input: {
   title?: string;
   content: string;
   summary?: string;
-  sourceType: "chat" | "import" | "document" | "calibration" | "manual";
+  sourceType: "chat" | "import" | "document" | "calibration" | "integrity_session" | "manual";
   relevanceWeight?: number;
 }) {
   const sb = getSupabaseAdmin();

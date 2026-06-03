@@ -109,7 +109,7 @@ export interface MemoryItem {
   title?: string | null;
   content: string;
   summary?: string | null;
-  sourceType: "chat" | "import" | "document" | "calibration" | "manual";
+  sourceType: "chat" | "import" | "document" | "calibration" | "integrity_session" | "manual";
   relevanceWeight?: number;
   createdAt: string;
   updatedAt?: string;
@@ -121,7 +121,7 @@ export interface CanonItem {
   personaId: string;
   title?: string | null;
   content: string;
-  sourceType: "chat" | "import" | "document" | "calibration" | "manual";
+  sourceType: "chat" | "import" | "document" | "calibration" | "integrity_session" | "manual";
   priority?: number;
   createdAt: string;
   updatedAt?: string;

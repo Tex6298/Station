@@ -232,6 +232,13 @@ export async function grantTopupFromStripeMetadata(metadata: Record<string, stri
   return true;
 }
 
+export async function runMonthlyTokenReset() {
+  const sb = getSupabaseAdmin();
+  const { data, error } = await (sb as any).rpc("run_monthly_token_reset");
+  if (error) throw new Error(error.message);
+  return data;
+}
+
 export function tokenErrorResponse(error: unknown) {
   if (error instanceof TokenQuotaError) {
     return { status: error.statusCode, body: { error: error.message } };

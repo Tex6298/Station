@@ -13,6 +13,15 @@ type SessionType = "initial" | "periodic" | "migration" | "pre_publication" | "m
 type NextType = "followup" | "summary" | "anchor" | "end";
 type OutputStatus = "pending" | "accepted" | "rejected" | "edited";
 
+const CLUSTERS = [
+  { id: "identity", label: "Identity", description: "How this companion came to exist" },
+  { id: "relationship", label: "Relationship", description: "What role this companion plays" },
+  { id: "tone", label: "Tone", description: "How the companion speaks and feels" },
+  { id: "continuity", label: "Continuity", description: "Memory and persistence across time" },
+  { id: "boundaries", label: "Boundaries", description: "What should and should not happen" },
+  { id: "themes", label: "Themes", description: "Recurring subjects and frameworks" },
+] as const;
+
 interface ActivePrompt {
   sessionId: string;
   turnId?: string;
@@ -50,6 +59,7 @@ export default function PersonaCalibrationPage() {
   const [activePrompt, setActivePrompt] = useState<ActivePrompt | null>(null);
   const [answer, setAnswer] = useState("");
   const [sessionType, setSessionType] = useState<SessionType>("periodic");
+  const [manualClusters, setManualClusters] = useState<string[]>(["identity", "relationship", "tone", "continuity"]);
   const [outputs, setOutputs] = useState<IntegrityOutput[]>([]);
   const [editing, setEditing] = useState<Record<string, string>>({});
   const [history, setHistory] = useState<HistorySession[]>([]);
@@ -106,7 +116,11 @@ export default function PersonaCalibrationPage() {
         turnId: string;
         clustersPlanned: string[];
         clusterIndex: number;
-      }>("/integrity/start", { personaId: persona.id, sessionType }, token);
+      }>("/integrity/start", {
+        personaId: persona.id,
+        sessionType,
+        ...(sessionType === "manual" ? { clusters: manualClusters } : {}),
+      }, token);
       setActivePrompt({ ...response, nextType: "anchor" });
       setOutputs([]);
       setAnswer("");
@@ -227,8 +241,30 @@ export default function PersonaCalibrationPage() {
                   <option value="periodic">Periodic</option>
                   <option value="migration">Migration</option>
                   <option value="pre_publication">Pre-publication</option>
+                  <option value="manual">Manual</option>
                 </select>
               </label>
+              {sessionType === "manual" ? (
+                <div style={{ display: "grid", gap: 8 }}>
+                  {CLUSTERS.map((cluster) => (
+                    <label key={cluster.id} style={clusterRow}>
+                      <input
+                        type="checkbox"
+                        checked={manualClusters.includes(cluster.id)}
+                        onChange={(e) => {
+                          setManualClusters((current) => e.target.checked
+                            ? [...current, cluster.id]
+                            : current.filter((item) => item !== cluster.id));
+                        }}
+                      />
+                      <span>
+                        <strong>{cluster.label}</strong>
+                        <small>{cluster.description}</small>
+                      </span>
+                    </label>
+                  ))}
+                </div>
+              ) : null}
               <button className="button primary" type="button" onClick={startSession} disabled={saving}>
                 {saving ? "Starting..." : "Start Integrity Session"}
               </button>
@@ -388,3 +424,15 @@ const inputStyle = {
   padding: "10px 11px",
   marginTop: 7,
 };
+
+const clusterRow = {
+  display: "flex",
+  gap: 10,
+  alignItems: "flex-start",
+  border: "1px solid #253044",
+  borderRadius: 8,
+  background: "#0c1320",
+  padding: 10,
+  color: "#d1d5db",
+  fontSize: 13,
+} as const;

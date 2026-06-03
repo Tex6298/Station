@@ -1,7 +1,10 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import type { Persona } from "@station/types/persona";
+import { apiGet } from "@/lib/api-client";
+import { getSession } from "@/lib/auth";
 
 const topologyOptions = [
   {
@@ -33,7 +36,27 @@ const archiveRows = [
   { title: "Station tone pass", type: "integrity", source: "calibration" },
 ];
 
+interface IntegrityHistorySession {
+  id: string;
+  session_type: string;
+  status: string;
+  clusters_covered: string[];
+  started_at: string;
+  completed_at: string | null;
+  integrity_session_outputs?: Array<{ id: string; output_type: string; content: string; status: string }>;
+}
+
 export function PersonaManagement({ persona, personaId }: { persona: Persona; personaId: string }) {
+  const [integrityHistory, setIntegrityHistory] = useState<IntegrityHistorySession[]>([]);
+
+  useEffect(() => {
+    getSession().then(async (session) => {
+      if (!session) return;
+      const data = await apiGet<{ sessions: IntegrityHistorySession[] }>(`/integrity/history/${personaId}`, session.accessToken ?? session.access_token).catch(() => ({ sessions: [] }));
+      setIntegrityHistory(data.sessions ?? []);
+    });
+  }, [personaId]);
+
   return (
     <main style={{ minHeight: "calc(100vh - 52px)", background: "#0b0e14" }}>
       <div style={{ maxWidth: 1180, margin: "0 auto", padding: "24px clamp(16px, 4vw, 32px) 48px" }}>
@@ -139,12 +162,20 @@ export function PersonaManagement({ persona, personaId }: { persona: Persona; pe
           <aside style={{ display: "grid", gap: 18 }}>
             <section style={panel}>
               <SectionTitle title="Integrity History" action="Start new" href={`/studio/personas/${personaId}/calibration`} />
-              <div style={listRow}>
-                <span style={{ ...pinBox, color: "#facc15", borderColor: "#6b4e0c", background: "#2d2108" }}>!</span>
-                <div>
-                  <div style={{ color: "#f8fafc", fontSize: 14, fontWeight: 800 }}>Station tone pass</div>
-                  <div style={muted}>Calm, reflective, lightly mythic</div>
-                </div>
+              <div style={{ display: "grid", gap: 10 }}>
+                {integrityHistory.length === 0 ? (
+                  <div style={muted}>No sessions yet. Your first Integrity Session will appear here once complete.</div>
+                ) : integrityHistory.slice(0, 5).map((session) => (
+                  <article key={session.id} style={listRow}>
+                    <span style={{ ...pinBox, color: "#facc15", borderColor: "#6b4e0c", background: "#2d2108" }}>I</span>
+                    <div>
+                      <div style={{ color: "#f8fafc", fontSize: 14, fontWeight: 800 }}>{session.session_type}</div>
+                      <div style={muted}>
+                        {session.status} - {(session.clusters_covered ?? []).join(", ") || "in progress"} - {acceptedCount(session)} accepted
+                      </div>
+                    </div>
+                  </article>
+                ))}
               </div>
             </section>
 
@@ -195,6 +226,12 @@ function SectionTitle({ title, action, href }: { title: string; action?: string;
       {action && href ? <Link href={href} style={{ marginLeft: "auto", color: "#93c5fd", fontSize: 12, textDecoration: "none" }}>{action}</Link> : null}
     </div>
   );
+}
+
+function acceptedCount(session: IntegrityHistorySession) {
+  return (session.integrity_session_outputs ?? [])
+    .filter((output) => output.status === "accepted" || output.status === "edited")
+    .length;
 }
 
 const panel = {

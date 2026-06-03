@@ -63,7 +63,16 @@ importsRouter.post("/chat", async (req, res) => {
       .select("id, kind, status, source_name, error_message, created_at, updated_at")
       .single();
 
-    return res.status(201).json({ job: completedJob ?? job, chunksCreated, imported: true });
+    return res.status(201).json({
+      job: completedJob ?? job,
+      chunksCreated,
+      imported: true,
+      integrityTrigger: {
+        sessionType: "migration",
+        personaId: persona.id,
+        message: "Imported content is ready. A Migration Integrity Session can help Station carry this history forward.",
+      },
+    });
   } catch (err) {
     const storageError = storageErrorResponse(err);
     if (storageError) {

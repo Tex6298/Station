@@ -3,6 +3,7 @@ import { AnthropicProvider } from "@station/ai/providers/anthropic";
 import { env } from "../lib/env";
 import { enqueueLlmCall } from "./llm-queue.service";
 import { selectStationModel } from "./token-credits.service";
+import { addMemoryItem } from "./archive.service";
 
 export type IntegrityCluster = "identity" | "relationship" | "tone" | "continuity" | "boundaries" | "themes";
 export type IntegritySessionType = "initial" | "periodic" | "migration" | "pre_publication" | "manual";
@@ -248,19 +249,14 @@ export async function writeAcceptedOutput(outputId: string, ownerUserId: string,
 
   if (output.output_type === "memory_candidate" || output.output_type === "boundary") {
     const isBoundary = output.output_type === "boundary";
-    const { data: memory, error: memoryError } = await (sb as any)
-      .from("memory_items")
-      .insert({
-        owner_user_id: ownerUserId,
-        persona_id: output.persona_id,
-        title: isBoundary ? "Boundary from integrity session" : "Memory from integrity session",
-        content: isBoundary ? `BOUNDARY: ${content}` : content,
-        source_type: "integrity_session",
-        relevance_weight: isBoundary ? 9 : 7,
-      })
-      .select("id")
-      .single();
-    if (memoryError) throw new Error(memoryError.message);
+    const memory = await addMemoryItem({
+      ownerUserId,
+      personaId: output.persona_id,
+      title: isBoundary ? "Boundary from integrity session" : "Memory from integrity session",
+      content: isBoundary ? `BOUNDARY: ${content}` : content,
+      sourceType: "integrity_session",
+      relevanceWeight: isBoundary ? 9 : 7,
+    });
     return { writtenTo: "memory", writtenTargetId: memory.id };
   }
 

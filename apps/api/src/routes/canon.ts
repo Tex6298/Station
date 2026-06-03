@@ -6,7 +6,7 @@ import { getSupabaseAdmin } from "../lib/supabase";
 const createSchema = z.object({
   title: z.string().max(200).optional(),
   content: z.string().min(1).max(10000),
-  sourceType: z.enum(["chat", "import", "document", "calibration", "manual"]).default("manual"),
+  sourceType: z.enum(["chat", "import", "document", "calibration", "integrity_session", "manual"]).default("manual"),
   priority: z.number().int().min(1).max(10).optional(),
 });
 

@@ -4,6 +4,7 @@ import { requireAuth } from "../middleware/require-auth";
 import { getSupabaseAdmin } from "../lib/supabase";
 import { assemblePersonaRuntimeContext, buildPersonaContext } from "@station/ai/retrieval/context-builder";
 import { resolveProvider } from "@station/ai/providers/router";
+import { AnthropicProvider } from "@station/ai/providers/anthropic";
 import { addMemoryItem, saveMessageAsMemory } from "../services/archive.service";
 import { env } from "../lib/env";
 import {
@@ -11,6 +12,7 @@ import {
   estimateConversationTokens,
   estimateTokensFromText,
   recordLlmTokenUsage,
+  selectStationModel,
   tokenErrorResponse,
 } from "../services/token-credits.service";
 import { enqueueLlmCall } from "../services/llm-queue.service";
@@ -375,7 +377,11 @@ conversationsRouter.post("/persona/:personaId/chat", async (req, res) => {
   });
 
   // Resolve provider
-  const provider = resolveProvider({
+  const stationModel = selectStationModel(req.user!.tier);
+  const useStationAnthropic = profile?.ai_mode !== "byok" && Boolean(env.ANTHROPIC_API_KEY);
+  const provider = useStationAnthropic
+    ? new AnthropicProvider({ apiKey: env.ANTHROPIC_API_KEY, model: stationModel.model })
+    : resolveProvider({
     provider: persona.provider as "platform" | "openai" | "anthropic" | "deepseek" | "gemini",
     aiMode: (profile?.ai_mode ?? "platform") as "platform" | "byok",
     byokOpenaiKey: profile?.byok_openai_key,
@@ -404,7 +410,11 @@ conversationsRouter.post("/persona/:personaId/chat", async (req, res) => {
     throw error;
   }
 
-  const aiResponse = await enqueueLlmCall(provider, { system: systemPrompt, messages });
+  const aiResponse = await enqueueLlmCall(provider, {
+    system: systemPrompt,
+    messages,
+    ...(useStationAnthropic ? { model: stationModel.model } : {}),
+  });
   await recordLlmTokenUsage({
     userId,
     model: aiResponse.model,
