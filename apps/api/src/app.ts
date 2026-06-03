@@ -21,6 +21,7 @@ import { reportsRouter } from "./routes/reports";
 import { socialRouter } from "./routes/social";
 import { developerSpacesRouter } from "./routes/developer-spaces";
 import { exportsRouter } from "./routes/exports";
+import { storageRouter } from "./routes/storage";
 
 export function createApp() {
   const app = express();
@@ -56,6 +57,7 @@ export function createApp() {
   app.use("/social", socialRouter);
   app.use("/developer-spaces", developerSpacesRouter);
   app.use("/exports", exportsRouter);
+  app.use("/storage", storageRouter);
 
   app.use(errorHandler);
   return app;

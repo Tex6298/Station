@@ -3,6 +3,7 @@ import { z } from "zod";
 import { requireAuth } from "../middleware/require-auth";
 import { getSupabaseAdmin } from "../lib/supabase";
 import { ingestTextIntoArchive } from "../services/archive.service";
+import { storageErrorResponse } from "../services/storage.service";
 
 const chatImportSchema = z.object({
   personaId: z.string().uuid(),
@@ -64,6 +65,15 @@ importsRouter.post("/chat", async (req, res) => {
 
     return res.status(201).json({ job: completedJob ?? job, chunksCreated, imported: true });
   } catch (err) {
+    const storageError = storageErrorResponse(err);
+    if (storageError) {
+      await sb
+        .from("import_jobs")
+        .update({ status: "failed", error_message: storageError.body.error })
+        .eq("id", job!.id);
+      return res.status(storageError.status).json(storageError.body);
+    }
+
     const message = err instanceof Error ? err.message : "Import failed.";
     await sb
       .from("import_jobs")

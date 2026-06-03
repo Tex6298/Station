@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { StorageUsagePanel } from "@/components/settings/storage-usage-panel";
 
 const settingSections = [
   {
@@ -80,6 +81,11 @@ export default function SettingsPage() {
           </section>
 
           <aside style={{ display: "grid", gap: 14 }}>
+            <section style={panel}>
+              <h2 style={sectionTitle}>Storage</h2>
+              <StorageUsagePanel />
+            </section>
+
             <section style={panel}>
               <h2 style={sectionTitle}>Profile Snapshot</h2>
               <div style={{ display: "flex", alignItems: "center", gap: 12 }}>

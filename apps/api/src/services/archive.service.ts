@@ -5,6 +5,7 @@ import {
   chunkText,
 } from "@station/ai/retrieval/embeddings";
 import { env } from "../lib/env";
+import { estimateStorageBytes, releaseStorageBytes, reserveStorageBytes } from "./storage.service";
 
 /**
  * Adds a single memory item to a persona's archive and generates its embedding.
@@ -19,28 +20,40 @@ export async function addMemoryItem(input: {
   relevanceWeight?: number;
 }) {
   const sb = getSupabaseAdmin();
-
-  const embedding = await generateEmbedding(input.content, env.OPENAI_API_KEY).catch(
-    () => null
+  const reservedBytes = estimateStorageBytes(
+    [input.title, input.content, input.summary].filter(Boolean).join("\n")
   );
+  let reserved = false;
 
-  const { data, error } = await sb
-    .from("memory_items")
-    .insert({
-      persona_id: input.personaId,
-      owner_user_id: input.ownerUserId,
-      title: input.title ?? null,
-      content: input.content,
-      summary: input.summary ?? null,
-      source_type: input.sourceType,
-      relevance_weight: input.relevanceWeight ?? 1,
-      embedding: embedding ?? null,
-    })
-    .select("*")
-    .single();
+  await reserveStorageBytes(input.ownerUserId, reservedBytes);
+  reserved = true;
 
-  if (error) throw new Error(error.message);
-  return data;
+  try {
+    const embedding = await generateEmbedding(input.content, env.OPENAI_API_KEY).catch(
+      () => null
+    );
+
+    const { data, error } = await sb
+      .from("memory_items")
+      .insert({
+        persona_id: input.personaId,
+        owner_user_id: input.ownerUserId,
+        title: input.title ?? null,
+        content: input.content,
+        summary: input.summary ?? null,
+        source_type: input.sourceType,
+        relevance_weight: input.relevanceWeight ?? 1,
+        embedding: embedding ?? null,
+      })
+      .select("*")
+      .single();
+
+    if (error) throw new Error(error.message);
+    return data;
+  } catch (error) {
+    if (reserved) await releaseStorageBytes(input.ownerUserId, reservedBytes).catch(() => null);
+    throw error;
+  }
 }
 
 /**
@@ -61,25 +74,35 @@ export async function ingestTextIntoArchive(input: {
 
   if (chunks.length === 0) return 0;
 
-  const embeddings = await generateEmbeddings(chunks, env.OPENAI_API_KEY).catch(
-    () => chunks.map(() => null)
-  );
+  const reservedBytes = estimateStorageBytes(input.text);
+  let reserved = false;
+  await reserveStorageBytes(input.ownerUserId, reservedBytes);
+  reserved = true;
 
-  const rows = chunks.map((chunk, i) => ({
-    persona_id: input.personaId,
-    owner_user_id: input.ownerUserId,
-    title: `${input.sourceName} [chunk ${i + 1}/${chunks.length}]`,
-    content: chunk,
-    summary: chunk.slice(0, 200),
-    source_type: input.sourceType,
-    relevance_weight: input.relevanceWeight ?? 1,
-    embedding: embeddings[i] ?? null,
-  }));
+  try {
+    const embeddings = await generateEmbeddings(chunks, env.OPENAI_API_KEY).catch(
+      () => chunks.map(() => null)
+    );
 
-  const { error } = await sb.from("memory_items").insert(rows);
-  if (error) throw new Error(error.message);
+    const rows = chunks.map((chunk, i) => ({
+      persona_id: input.personaId,
+      owner_user_id: input.ownerUserId,
+      title: `${input.sourceName} [chunk ${i + 1}/${chunks.length}]`,
+      content: chunk,
+      summary: chunk.slice(0, 200),
+      source_type: input.sourceType,
+      relevance_weight: input.relevanceWeight ?? 1,
+      embedding: embeddings[i] ?? null,
+    }));
 
-  return chunks.length;
+    const { error } = await sb.from("memory_items").insert(rows);
+    if (error) throw new Error(error.message);
+
+    return chunks.length;
+  } catch (error) {
+    if (reserved) await releaseStorageBytes(input.ownerUserId, reservedBytes).catch(() => null);
+    throw error;
+  }
 }
 
 /**

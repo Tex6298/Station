@@ -1,6 +1,8 @@
 import { createClient } from "@supabase/supabase-js";
 import type { Database } from "./types";
 
+declare const process: { env: Record<string, string | undefined> };
+
 export type * from "./types";
 
 /**

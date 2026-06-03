@@ -2,10 +2,10 @@ export type Tier = "visitor" | "private" | "creator" | "canon" | "institutional"
 
 export const TIER_LIMITS = {
   visitor:       { personas: 0,  spaces: 0, publicPersonas: 0,  pagesPerSpace: 0,  storageGb: 0,  canComment: false, canCreateThreads: false, canPublishDocuments: false },
-  private:       { personas: 2,  spaces: 0, publicPersonas: 0,  pagesPerSpace: 0,  storageGb: 2,  canComment: true,  canCreateThreads: true,  canPublishDocuments: false },
-  creator:       { personas: -1, spaces: 1, publicPersonas: -1, pagesPerSpace: 20, storageGb: 20, canComment: true,  canCreateThreads: true,  canPublishDocuments: true  },
-  canon:         { personas: -1, spaces: 3, publicPersonas: -1, pagesPerSpace: 50, storageGb: 50, canComment: true,  canCreateThreads: true,  canPublishDocuments: true  },
-  institutional: { personas: -1, spaces: 5, publicPersonas: -1, pagesPerSpace: 50, storageGb: 100, canComment: true, canCreateThreads: true,  canPublishDocuments: true  },
+  private:       { personas: 2,  spaces: 0, publicPersonas: 0,  pagesPerSpace: 0,  storageGb: 5,   canComment: true,  canCreateThreads: true,  canPublishDocuments: false },
+  creator:       { personas: -1, spaces: 1, publicPersonas: -1, pagesPerSpace: 20, storageGb: 50,  canComment: true,  canCreateThreads: true,  canPublishDocuments: true  },
+  canon:         { personas: -1, spaces: 3, publicPersonas: -1, pagesPerSpace: 50, storageGb: 200, canComment: true,  canCreateThreads: true,  canPublishDocuments: true  },
+  institutional: { personas: -1, spaces: 5, publicPersonas: -1, pagesPerSpace: 50, storageGb: 200, canComment: true, canCreateThreads: true,  canPublishDocuments: true  },
 } as const;
 
 // -1 = unlimited

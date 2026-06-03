@@ -3,6 +3,7 @@ import { z } from "zod";
 import { requireAuth } from "../middleware/require-auth";
 import { getSupabaseAdmin } from "../lib/supabase";
 import { processUploadedFile } from "../services/archive.service";
+import { releaseStorageBytes, reserveStorageBytes, storageErrorResponse } from "../services/storage.service";
 
 /**
  * File upload flow:
@@ -14,7 +15,7 @@ import { processUploadedFile } from "../services/archive.service";
 const registerSchema = z.object({
   fileName: z.string().min(1).max(255),
   fileType: z.string().optional(),
-  fileSize: z.number().int().positive().optional(),
+  fileSize: z.number().int().positive(),
   storagePath: z.string().min(1),
   sourceType: z.enum(["upload", "import", "calibration", "generated"]).default("upload"),
   processImmediately: z.boolean().default(true),
@@ -44,9 +45,14 @@ personaFilesRouter.get("/persona/:personaId/upload-url", async (req, res) => {
   const sb = getSupabaseAdmin();
   const userId = req.user!.id;
   const { fileName } = req.query;
+  const fileSize = Number(req.query.fileSize);
 
   if (!fileName || typeof fileName !== "string") {
     return res.status(400).json({ error: "fileName query param required." });
+  }
+
+  if (!Number.isFinite(fileSize) || fileSize <= 0) {
+    return res.status(400).json({ error: "fileSize query param required." });
   }
 
   // Verify persona ownership
@@ -58,6 +64,15 @@ personaFilesRouter.get("/persona/:personaId/upload-url", async (req, res) => {
 
   if (!persona || persona.owner_user_id !== userId) {
     return res.status(404).json({ error: "Persona not found." });
+  }
+
+  try {
+    await reserveStorageBytes(userId, fileSize);
+    await releaseStorageBytes(userId, fileSize);
+  } catch (error) {
+    const storageError = storageErrorResponse(error);
+    if (storageError) return res.status(storageError.status).json(storageError.body);
+    throw error;
   }
 
   const storagePath = `${userId}/${persona.id}/${Date.now()}_${fileName}`;
@@ -89,50 +104,70 @@ personaFilesRouter.post("/persona/:personaId/register", async (req, res) => {
     return res.status(404).json({ error: "Persona not found." });
   }
 
-  // Insert file record
-  const { data: file, error: fileErr } = await sb
-    .from("persona_files")
-    .insert({
-      persona_id: persona.id,
-      owner_user_id: userId,
-      file_name: parsed.data.fileName,
-      file_type: parsed.data.fileType ?? null,
-      file_size: parsed.data.fileSize ?? null,
-      storage_path: parsed.data.storagePath,
-      source_type: parsed.data.sourceType,
-      processed: false,
-    })
-    .select("*")
-    .single();
-
-  if (fileErr || !file) return res.status(500).json({ error: fileErr?.message ?? "File insert failed." });
-
-  // Create import job
-  const { data: job } = await sb
-    .from("import_jobs")
-    .insert({
-      persona_id: persona.id,
-      owner_user_id: userId,
-      kind: "file",
-      status: "queued",
-      source_name: parsed.data.fileName,
-    })
-    .select("id, status")
-    .single();
-
-  // Process synchronously for now (queue in v2)
-  if (parsed.data.processImmediately) {
-    processUploadedFile({
-      personaId: persona.id,
-      ownerUserId: userId,
-      fileId: file.id,
-      fileName: parsed.data.fileName,
-      fileType: parsed.data.fileType ?? null,
-      storagePath: parsed.data.storagePath,
-    }).catch(console.error); // fire and forget
+  try {
+    await reserveStorageBytes(userId, parsed.data.fileSize);
+  } catch (error) {
+    const storageError = storageErrorResponse(error);
+    if (storageError) {
+      return res.status(storageError.status).json(storageError.body);
+    }
+    throw error;
   }
 
-  return res.status(201).json({ file, job });
+  let fileReserved = true;
+
+  try {
+    // Insert file record
+    const { data: file, error: fileErr } = await sb
+      .from("persona_files")
+      .insert({
+        persona_id: persona.id,
+        owner_user_id: userId,
+        file_name: parsed.data.fileName,
+        file_type: parsed.data.fileType ?? null,
+        file_size: parsed.data.fileSize,
+        storage_path: parsed.data.storagePath,
+        source_type: parsed.data.sourceType,
+        processed: false,
+      })
+      .select("*")
+      .single();
+
+    if (fileErr || !file) throw new Error(fileErr?.message ?? "File insert failed.");
+    fileReserved = false;
+
+    // Create import job
+    const { data: job } = await sb
+      .from("import_jobs")
+      .insert({
+        persona_id: persona.id,
+        owner_user_id: userId,
+        kind: "file",
+        status: "queued",
+        source_name: parsed.data.fileName,
+      })
+      .select("id, status")
+      .single();
+
+    // Process synchronously for now (queue in v2)
+    if (parsed.data.processImmediately) {
+      processUploadedFile({
+        personaId: persona.id,
+        ownerUserId: userId,
+        fileId: file.id,
+        fileName: parsed.data.fileName,
+        fileType: parsed.data.fileType ?? null,
+        storagePath: parsed.data.storagePath,
+      }).catch(console.error); // fire and forget
+    }
+
+    return res.status(201).json({ file, job });
+  } catch (error) {
+    if (fileReserved) await releaseStorageBytes(userId, parsed.data.fileSize).catch(() => null);
+    const storageError = storageErrorResponse(error);
+    if (storageError) return res.status(storageError.status).json(storageError.body);
+    return res.status(500).json({ error: error instanceof Error ? error.message : "File insert failed." });
+  }
 });
 
 // -- Delete a file (removes from storage + DB) ---------------------------------
@@ -142,7 +177,7 @@ personaFilesRouter.delete("/:id", async (req, res) => {
 
   const { data: file } = await sb
     .from("persona_files")
-    .select("id, storage_path, owner_user_id")
+    .select("id, storage_path, owner_user_id, file_size")
     .eq("id", req.params.id)
     .single();
 
@@ -155,6 +190,10 @@ personaFilesRouter.delete("/:id", async (req, res) => {
 
   // Remove DB record
   await sb.from("persona_files").delete().eq("id", file.id);
+
+  if (file.file_size) {
+    await releaseStorageBytes(userId, file.file_size).catch(() => null);
+  }
 
   return res.status(204).send();
 });
