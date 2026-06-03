@@ -1,4 +1,8 @@
 import { getSupabaseAdmin } from "../lib/supabase";
+import { AnthropicProvider } from "@station/ai/providers/anthropic";
+import { env } from "../lib/env";
+import { enqueueLlmCall } from "./llm-queue.service";
+import { selectStationModel } from "./token-credits.service";
 
 export type IntegrityCluster = "identity" | "relationship" | "tone" | "continuity" | "boundaries" | "themes";
 export type IntegritySessionType = "initial" | "periodic" | "migration" | "pre_publication" | "manual";
@@ -83,6 +87,66 @@ export async function getFallbackFollowup(cluster: IntegrityCluster, usedQuestio
     ?? "What feels most important for them to carry forward from that?";
 }
 
+export async function generateFollowupQuestion(input: {
+  ownerUserId: string;
+  cluster: IntegrityCluster;
+  anchorQuestion: string;
+  userAnswer: string;
+  usedQuestions: string[];
+}) {
+  const fallback = await getFallbackFollowup(input.cluster, input.usedQuestions);
+  const provider = await integrityProvider(input.ownerUserId);
+  if (!provider) return fallback;
+
+  try {
+    const response = await enqueueLlmCall(provider.provider, {
+      model: provider.model,
+      system: [
+        "You are conducting an Integrity Session for a Station user.",
+        "You are warm, curious, and unhurried. Ask one question at a time.",
+        "Your follow-up comes directly from what the user just said.",
+        "Do not ask yes/no questions. Do not ask compound questions.",
+        "Do not refer to yourself. Just ask the question. Maximum 25 words.",
+      ].join(" "),
+      messages: [{
+        role: "user",
+        content: `Cluster: ${input.cluster}\nAnchor question: ${input.anchorQuestion}\nUser answer: ${input.userAnswer}\n\nGenerate a single follow-up question.`,
+      }],
+    });
+    return firstQuestion(response.content) ?? fallback;
+  } catch {
+    return fallback;
+  }
+}
+
+export async function generateClusterSummary(input: {
+  ownerUserId: string;
+  cluster: string;
+  turns: any[];
+}) {
+  const fallback = buildClusterSummary(input.cluster, input.turns);
+  const provider = await integrityProvider(input.ownerUserId);
+  if (!provider) return fallback;
+
+  try {
+    const response = await enqueueLlmCall(provider.provider, {
+      model: provider.model,
+      system: [
+        "You are summarising one cluster of an Integrity Session.",
+        "Write 2 to 4 warm, accurate sentences using 'you'.",
+        "Do not add interpretation or advice. End with: Does that feel right?",
+      ].join(" "),
+      messages: [{
+        role: "user",
+        content: `Cluster: ${input.cluster}\n\n${formatTurns(input.turns)}\n\nWrite a brief summary for the user to confirm.`,
+      }],
+    });
+    return response.content.trim() || fallback;
+  } catch {
+    return fallback;
+  }
+}
+
 export function getNextAction(session: any, currentClusterTurns: any[]) {
   const answeredFollowups = currentClusterTurns.filter((turn) => turn.turn_type === "follow_up" && turn.answer).length;
   const hasSummary = currentClusterTurns.some((turn) => turn.turn_type === "summary");
@@ -136,6 +200,36 @@ export function generateOutputsFromTurns(turns: any[]) {
   }
 
   return Array.from(outputs.values()).slice(0, 15);
+}
+
+export async function generateIntegrityOutputs(input: {
+  ownerUserId: string;
+  turns: any[];
+}) {
+  const fallback = generateOutputsFromTurns(input.turns);
+  const provider = await integrityProvider(input.ownerUserId);
+  if (!provider) return fallback;
+
+  try {
+    const response = await enqueueLlmCall(provider.provider, {
+      model: provider.model,
+      system: [
+        "You are extracting structured data from an Integrity Session transcript.",
+        "Extract only what the user actually said, not inferences.",
+        "Each item must be one clear statement, 10 to 40 words.",
+        "Return ONLY valid JSON with this shape:",
+        "{\"outputs\":[{\"type\":\"MEMORY|CANON|TONE|BOUNDARY|THEME\",\"content\":\"string\"}]}",
+      ].join(" "),
+      messages: [{
+        role: "user",
+        content: `Here is the full session transcript:\n${formatTurns(input.turns)}`,
+      }],
+    });
+    const parsed = parseOutputJson(response.content);
+    return parsed.length > 0 ? parsed : fallback;
+  } catch {
+    return fallback;
+  }
 }
 
 export async function writeAcceptedOutput(outputId: string, ownerUserId: string, editedContent?: string) {
@@ -269,4 +363,48 @@ function uniqueAppend(values: string[], next: string) {
 
 function shortPhrase(value: string) {
   return value.replace(/^(the user|user|they|i)\s+/i, "").replace(/[.?!]+$/g, "").slice(0, 90);
+}
+
+async function integrityProvider(ownerUserId: string) {
+  if (!env.ANTHROPIC_API_KEY) return null;
+  const sb = getSupabaseAdmin();
+  const { data: profile } = await sb.from("profiles").select("tier").eq("id", ownerUserId).single();
+  const selected = selectStationModel(profile?.tier);
+  return {
+    model: selected.model,
+    provider: new AnthropicProvider({ apiKey: env.ANTHROPIC_API_KEY, model: selected.model }),
+  };
+}
+
+function firstQuestion(value: string) {
+  const trimmed = value.replace(/\s+/g, " ").trim();
+  const match = trimmed.match(/[^?]+\?/);
+  return match?.[0]?.trim() || trimmed.slice(0, 180).trim() || null;
+}
+
+function formatTurns(turns: any[]) {
+  return turns
+    .filter((turn) => turn.turn_type !== "summary")
+    .map((turn) => `Q: ${turn.question}\nA: ${turn.answer ?? ""}`)
+    .join("\n\n");
+}
+
+function parseOutputJson(value: string) {
+  const jsonText = value.trim().replace(/^```json/i, "").replace(/^```/, "").replace(/```$/, "").trim();
+  const parsed = JSON.parse(jsonText) as { outputs?: Array<{ type?: string; content?: string }> };
+  const outputType: Record<string, string> = {
+    MEMORY: "memory_candidate",
+    CANON: "canon_candidate",
+    TONE: "preference",
+    BOUNDARY: "boundary",
+    THEME: "theme",
+  };
+  return (parsed.outputs ?? [])
+    .map((item) => ({
+      output_type: outputType[String(item.type ?? "").toUpperCase()] ?? "memory_candidate",
+      content: item.content?.trim() ?? "",
+      cluster_source: "llm",
+    }))
+    .filter((item) => item.content.length >= 10)
+    .slice(0, 15);
 }

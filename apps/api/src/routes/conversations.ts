@@ -13,6 +13,7 @@ import {
   recordLlmTokenUsage,
   tokenErrorResponse,
 } from "../services/token-credits.service";
+import { enqueueLlmCall } from "../services/llm-queue.service";
 
 const chatSchema = z.object({
   content: z.string().min(1).max(8000),
@@ -403,7 +404,7 @@ conversationsRouter.post("/persona/:personaId/chat", async (req, res) => {
     throw error;
   }
 
-  const aiResponse = await provider.sendMessage({ system: systemPrompt, messages });
+  const aiResponse = await enqueueLlmCall(provider, { system: systemPrompt, messages });
   await recordLlmTokenUsage({
     userId,
     model: aiResponse.model,

@@ -2,6 +2,7 @@ import type Stripe from "stripe";
 import { getStripe } from "../lib/stripe";
 import { getSupabaseAdmin } from "../lib/supabase";
 import type { Tier } from "@station/db";
+import { grantTopupFromStripeMetadata } from "./token-credits.service";
 
 // Price ID helpers
 
@@ -204,12 +205,23 @@ export async function handleWebhookEvent(
   switch (event.type) {
     case "checkout.session.completed": {
       const session = event.data.object as Stripe.Checkout.Session;
-      if (session.mode === "subscription" && session.subscription) {
+      if (session.mode === "payment") {
+        const paymentId = typeof session.payment_intent === "string"
+          ? session.payment_intent
+          : session.id;
+        await grantTopupFromStripeMetadata(session.metadata ?? {}, paymentId);
+      } else if (session.mode === "subscription" && session.subscription) {
         const subscription = await stripe.subscriptions.retrieve(
           session.subscription as string
         );
         await syncSubscriptionToProfile(subscription);
       }
+      break;
+    }
+
+    case "payment_intent.succeeded": {
+      const intent = event.data.object as Stripe.PaymentIntent;
+      await grantTopupFromStripeMetadata(intent.metadata ?? {}, intent.id);
       break;
     }
 

@@ -1,5 +1,6 @@
 import { TIER_LABELS, type Tier } from "@station/config";
 import { getSupabaseAdmin } from "../lib/supabase";
+import { getStripe } from "../lib/stripe";
 
 export type TokenWarningLevel = "ok" | "notice" | "warning" | "blocked" | "review";
 
@@ -75,6 +76,13 @@ export async function getTokenUsage(userId: string) {
 
   if (error) throw new Error(error.message);
 
+  const { data: purchases } = await (sb as any)
+    .from("topup_purchases")
+    .select("id, pack_id, amount_pence, tokens_purchased, expires_at, status, created_at")
+    .eq("user_id", userId)
+    .order("created_at", { ascending: false })
+    .limit(8);
+
   const tokensLimit = usage?.tokens_limit ?? TOKEN_LIMITS[tier] ?? 0;
   const topupTokens = usage?.topup_tokens ?? 0;
   const tokensUsed = usage?.tokens_used ?? 0;
@@ -96,6 +104,15 @@ export async function getTokenUsage(userId: string) {
     warningLevel: warningLevel(tier, tokensUsed, effectiveLimit, tokensLimit),
     modelExperience: model.experienceLabel,
     availableTopups: topupPacksForTier(tier),
+    purchaseHistory: (purchases ?? []).map((purchase: any) => ({
+      id: purchase.id,
+      packId: purchase.pack_id,
+      amountPence: purchase.amount_pence,
+      tokensPurchased: purchase.tokens_purchased,
+      expiresAt: purchase.expires_at,
+      status: purchase.status,
+      createdAt: purchase.created_at,
+    })),
   };
 }
 
@@ -133,6 +150,86 @@ export async function recordLlmTokenUsage(input: {
 
   if (error) throw new Error(error.message);
   return data;
+}
+
+export async function createTopupCheckoutSession(input: {
+  userId: string;
+  email: string;
+  packId: string;
+  successUrl: string;
+  cancelUrl: string;
+}) {
+  const usage = await getTokenUsage(input.userId);
+  const pack = usage.availableTopups.find((candidate) => candidate.id === input.packId);
+  if (!pack) throw new Error("This top-up pack is not available for your current tier.");
+
+  const stripe = getStripe();
+  const session = await stripe.checkout.sessions.create({
+    mode: "payment",
+    customer_email: input.email || undefined,
+    payment_method_types: ["card"],
+    line_items: [
+      {
+        price_data: {
+          currency: "gbp",
+          product_data: {
+            name: `Station ${pack.name} token top-up`,
+            metadata: {
+              station_pack_id: pack.id,
+            },
+          },
+          unit_amount: pack.priceGbp * 100,
+        },
+        quantity: 1,
+      },
+    ],
+    success_url: input.successUrl,
+    cancel_url: input.cancelUrl,
+    metadata: {
+      station_kind: "token_topup",
+      station_user_id: input.userId,
+      station_pack_id: pack.id,
+      station_tokens: String(pack.tokens),
+      station_model_tier: pack.modelTier,
+      station_amount_pence: String(pack.priceGbp * 100),
+    },
+    payment_intent_data: {
+      metadata: {
+        station_kind: "token_topup",
+        station_user_id: input.userId,
+        station_pack_id: pack.id,
+        station_tokens: String(pack.tokens),
+        station_model_tier: pack.modelTier,
+        station_amount_pence: String(pack.priceGbp * 100),
+      },
+    },
+  });
+
+  return session.url!;
+}
+
+export async function grantTopupFromStripeMetadata(metadata: Record<string, string | undefined>, paymentId: string) {
+  if (metadata.station_kind !== "token_topup") return false;
+  const userId = metadata.station_user_id;
+  const packId = metadata.station_pack_id;
+  const tokens = Number(metadata.station_tokens);
+  const amountPence = Number(metadata.station_amount_pence);
+  const modelTier = metadata.station_model_tier;
+  if (!userId || !packId || !Number.isFinite(tokens) || !Number.isFinite(amountPence) || !modelTier) {
+    throw new Error("Token top-up metadata is incomplete.");
+  }
+
+  const sb = getSupabaseAdmin();
+  const { error } = await (sb as any).rpc("grant_topup_purchase", {
+    p_user_id: userId,
+    p_stripe_payment_id: paymentId,
+    p_pack_id: packId,
+    p_amount_pence: amountPence,
+    p_tokens_purchased: tokens,
+    p_model_tier: modelTier,
+  });
+  if (error) throw new Error(error.message);
+  return true;
 }
 
 export function tokenErrorResponse(error: unknown) {

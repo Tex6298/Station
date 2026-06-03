@@ -3,10 +3,10 @@ import { z } from "zod";
 import { requireAuth } from "../middleware/require-auth";
 import { getSupabaseAdmin } from "../lib/supabase";
 import {
-  buildClusterSummary,
-  generateOutputsFromTurns,
+  generateClusterSummary,
+  generateFollowupQuestion,
+  generateIntegrityOutputs,
   getAnchorQuestion,
-  getFallbackFollowup,
   getNextAction,
   loadOwnedPersona,
   selectClusters,
@@ -141,7 +141,14 @@ integrityRouter.post("/answer", async (req, res) => {
   const next = getNextAction(session, currentTurns);
 
   if (next.action === "followup") {
-    const question = await getFallbackFollowup(turn.cluster, currentTurns.map((item: any) => item.question));
+    const anchorQuestion = currentTurns.find((item: any) => item.turn_type === "anchor")?.question ?? turn.question;
+    const question = await generateFollowupQuestion({
+      ownerUserId,
+      cluster: turn.cluster,
+      anchorQuestion,
+      userAnswer: parsed.data.answer,
+      usedQuestions: currentTurns.map((item: any) => item.question),
+    });
     const { data: nextTurn, error } = await (sb as any)
       .from("integrity_session_turns")
       .insert({
@@ -160,7 +167,7 @@ integrityRouter.post("/answer", async (req, res) => {
   }
 
   if (next.action === "summary") {
-    const summary = buildClusterSummary(turn.cluster, currentTurns);
+    const summary = await generateClusterSummary({ ownerUserId, cluster: turn.cluster, turns: currentTurns });
     const { data: summaryTurn, error } = await (sb as any)
       .from("integrity_session_turns")
       .insert({
@@ -372,7 +379,7 @@ async function completeSession(sessionId: string, ownerUserId: string, res: any)
 
   if (turnsError) return res.status(500).json({ error: turnsError.message });
 
-  const outputs = generateOutputsFromTurns(turns ?? []);
+  const outputs = await generateIntegrityOutputs({ ownerUserId, turns: turns ?? [] });
   if (outputs.length > 0) {
     const { error: outputError } = await (sb as any)
       .from("integrity_session_outputs")

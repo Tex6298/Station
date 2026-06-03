@@ -16,6 +16,7 @@ const envSchema = z.object({
   DEEPSEEK_API_KEY: z.string().optional(),
   DEEPSEEK_BASE_URL: z.string().default("https://api.deepseek.com"),
   DEEPSEEK_MODEL: z.string().default("deepseek-chat"),
+  ANTHROPIC_API_KEY: z.string().optional(),
 
   // AI - embeddings
   OPENAI_API_KEY: z.string().optional(),

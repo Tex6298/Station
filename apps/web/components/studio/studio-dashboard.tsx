@@ -1,8 +1,16 @@
 import Link from "next/link";
 import type { PersonaSummary } from "@station/types/persona";
 
+export interface IntegrityDuePersona {
+  id: string;
+  name: string;
+  lastSession: string | null;
+  sessionStatus: "never" | "overdue" | "due_soon" | "ok";
+}
+
 type StudioDashboardProps = {
   personas: PersonaSummary[];
+  integrityDue: IntegrityDuePersona[];
   loading: boolean;
   error: string | null;
   signedIn: boolean;
@@ -23,10 +31,11 @@ const archiveEvents = [
   { icon: "D", label: "Document update", detail: "What Station Is For saved as published writing" },
 ];
 
-function integrityStatus(index: number) {
-  if (index === 0) return { label: "Overdue", detail: "Integrity session overdue", color: "#f87171", background: "#2d1515" };
-  if (index === 1) return { label: "Due soon", detail: "Session due this week", color: "#facc15", background: "#2d2108" };
-  return { label: "Up to date", detail: "Continuity check current", color: "#6ee7b7", background: "#09261f" };
+function integrityStatus(status: IntegrityDuePersona["sessionStatus"]) {
+  if (status === "never") return { label: "No session", detail: "Start one to strengthen continuity", color: "#f87171", background: "#2d1515", action: "Start" };
+  if (status === "overdue") return { label: "Overdue", detail: "Integrity session overdue", color: "#f87171", background: "#2d1515", action: "Start" };
+  if (status === "due_soon") return { label: "Due soon", detail: "Session due this week", color: "#facc15", background: "#2d2108", action: "Start" };
+  return { label: "Up to date", detail: "Continuity check current", color: "#6ee7b7", background: "#09261f", action: "View" };
 }
 
 function Shell({ children }: { children: React.ReactNode }) {
@@ -95,16 +104,25 @@ function ContinueList({ personas }: { personas: PersonaSummary[] }) {
   );
 }
 
-function IntegrityList({ personas }: { personas: PersonaSummary[] }) {
+function IntegrityList({ personas, integrityDue }: { personas: PersonaSummary[]; integrityDue: IntegrityDuePersona[] }) {
+  const rows = integrityDue.length > 0
+    ? integrityDue
+    : personas.map((persona, index) => ({
+      id: persona.id,
+      name: persona.name,
+      lastSession: null,
+      sessionStatus: index === 0 ? "overdue" as const : index === 1 ? "due_soon" as const : "ok" as const,
+    }));
+
   return (
     <section style={panel}>
       <SectionTitle title="Integrity Sessions Due" action="View All" href="/studio" />
-      {personas.length === 0 ? (
+      {rows.length === 0 ? (
         <EmptyLine text="Integrity checks appear after you create a persona." />
       ) : (
         <div style={{ display: "grid", gap: 10 }}>
-          {personas.slice(0, 5).map((persona, index) => {
-            const status = integrityStatus(index);
+          {rows.slice(0, 5).map((persona) => {
+            const status = integrityStatus(persona.sessionStatus);
             return (
               <article key={persona.id} style={listRow}>
                 <span style={{ ...statusPill, background: status.background, color: status.color, borderColor: `${status.color}66` }}>
@@ -112,10 +130,10 @@ function IntegrityList({ personas }: { personas: PersonaSummary[] }) {
                 </span>
                 <div style={{ minWidth: 0 }}>
                   <div style={{ color: "#f8fafc", fontSize: 14, fontWeight: 700 }}>{persona.name}</div>
-                  <div style={mutedLine}>{status.detail}</div>
+                  <div style={mutedLine}>{persona.lastSession ? `${status.detail} - ${formatDate(persona.lastSession)}` : status.detail}</div>
                 </div>
                 <Link href={`/studio/personas/${persona.id}/calibration`} style={miniButton}>
-                  {index < 2 ? "Start" : "View"}
+                  {status.action}
                 </Link>
               </article>
             );
@@ -221,7 +239,7 @@ function ColorDot({ index }: { index: number }) {
   return <span style={{ width: 10, height: 10, borderRadius: "50%", background: colors[index % colors.length], flex: "0 0 auto", marginTop: 5 }} />;
 }
 
-export function StudioDashboard({ personas, loading, error, signedIn }: StudioDashboardProps) {
+export function StudioDashboard({ personas, integrityDue, loading, error, signedIn }: StudioDashboardProps) {
   if (loading) {
     return (
       <Shell>
@@ -268,7 +286,7 @@ export function StudioDashboard({ personas, loading, error, signedIn }: StudioDa
       <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr) 300px", gap: 18, alignItems: "start" }}>
         <div style={{ display: "grid", gap: 18, minWidth: 0 }}>
           <ContinueList personas={personas} />
-          <IntegrityList personas={personas} />
+          <IntegrityList personas={personas} integrityDue={integrityDue} />
           <UsageStats personas={personas} />
           <ArchiveActivity />
         </div>
@@ -276,6 +294,10 @@ export function StudioDashboard({ personas, loading, error, signedIn }: StudioDa
       </div>
     </Shell>
   );
+}
+
+function formatDate(value: string) {
+  return new Date(value).toLocaleDateString("en-GB", { day: "numeric", month: "short" });
 }
 
 const panel = {
