@@ -12,4 +12,8 @@ export interface ChatProviderInput {
 export interface ChatProviderResponse {
   content: string;
   model: string;
+  usage?: {
+    inputTokens?: number;
+    outputTokens?: number;
+  };
 }

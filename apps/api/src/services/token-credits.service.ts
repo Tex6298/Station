@@ -1,0 +1,186 @@
+import { TIER_LABELS, type Tier } from "@station/config";
+import { getSupabaseAdmin } from "../lib/supabase";
+
+export type TokenWarningLevel = "ok" | "notice" | "warning" | "blocked" | "review";
+
+const TOKEN_LIMITS: Record<string, number> = {
+  visitor: 0,
+  basic: 750_000,
+  private: 750_000,
+  creator: 7_500_000,
+  developer: 20_000_000,
+  canon: 20_000_000,
+  institutional: 20_000_000,
+};
+
+export class TokenQuotaError extends Error {
+  statusCode = 402;
+
+  constructor(message = "Your monthly token allocation has been used.") {
+    super(message);
+    this.name = "TokenQuotaError";
+  }
+}
+
+export function selectStationModel(tier: string | null | undefined) {
+  switch (tier) {
+    case "creator":
+    case "developer":
+    case "canon":
+    case "institutional":
+      return {
+        model: "claude-sonnet-4-6",
+        modelTier: "sonnet" as const,
+        experienceLabel: "Creator depth",
+      };
+    case "basic":
+    case "private":
+    default:
+      return {
+        model: "claude-haiku-4-5-20251001",
+        modelTier: "haiku" as const,
+        experienceLabel: "Basic companion",
+      };
+  }
+}
+
+export function estimateTokensFromText(value: string) {
+  if (!value) return 0;
+  return Math.ceil(value.length / 4);
+}
+
+export function estimateConversationTokens(input: {
+  systemPrompt?: string;
+  userMessage: string;
+  history?: Array<{ content: string | null }>;
+}) {
+  const historyTokens = (input.history ?? []).reduce((total, message) => total + estimateTokensFromText(message.content ?? ""), 0);
+  return estimateTokensFromText(input.systemPrompt ?? "") + estimateTokensFromText(input.userMessage) + historyTokens + 1200;
+}
+
+export async function getTokenUsage(userId: string) {
+  const sb = getSupabaseAdmin();
+  const { data: profile } = await sb
+    .from("profiles")
+    .select("tier")
+    .eq("id", userId)
+    .single();
+
+  const tier = profile?.tier ?? "visitor";
+  const model = selectStationModel(tier);
+
+  const { data: usage, error } = await (sb as any).rpc("ensure_current_token_usage", {
+    p_user_id: userId,
+  });
+
+  if (error) throw new Error(error.message);
+
+  const tokensLimit = usage?.tokens_limit ?? TOKEN_LIMITS[tier] ?? 0;
+  const topupTokens = usage?.topup_tokens ?? 0;
+  const tokensUsed = usage?.tokens_used ?? 0;
+  const effectiveLimit = tokensLimit + topupTokens;
+  const percentUsed = effectiveLimit > 0 ? Math.min(100, Math.round((tokensUsed / effectiveLimit) * 1000) / 10) : 0;
+  const subscriptionPercent = tokensLimit > 0 ? Math.round((tokensUsed / tokensLimit) * 1000) / 10 : 0;
+
+  return {
+    tier,
+    tierLabel: TIER_LABELS[(tier as Tier) in TIER_LABELS ? tier as Tier : "visitor"],
+    periodStart: usage?.period_start ?? currentPeriodStart(),
+    resetDate: nextResetDate(),
+    tokensUsed,
+    tokensLimit,
+    topupTokens,
+    effectiveLimit,
+    percentUsed,
+    subscriptionPercent,
+    warningLevel: warningLevel(tier, tokensUsed, effectiveLimit, tokensLimit),
+    modelExperience: model.experienceLabel,
+    availableTopups: topupPacksForTier(tier),
+  };
+}
+
+export async function assertTokenBudgetForEstimate(userId: string, estimatedTokens: number) {
+  const usage = await getTokenUsage(userId);
+  if (isSoftCapTier(usage.tier)) {
+    return usage;
+  }
+
+  const projected = usage.tokensUsed + Math.max(0, Math.ceil(estimatedTokens));
+  const hardRejectAt = Math.floor(usage.effectiveLimit * 1.2);
+  if (usage.effectiveLimit <= 0 || projected > hardRejectAt || usage.tokensUsed >= usage.effectiveLimit) {
+    throw new TokenQuotaError(
+      `Your monthly token allocation has been used. Your allocation resets on ${usage.resetDate}.`
+    );
+  }
+  return usage;
+}
+
+export async function recordLlmTokenUsage(input: {
+  userId: string;
+  model: string;
+  chatId?: string | null;
+  inputTokens: number;
+  outputTokens: number;
+}) {
+  const sb = getSupabaseAdmin();
+  const { data, error } = await (sb as any).rpc("record_token_usage", {
+    p_user_id: input.userId,
+    p_model: input.model,
+    p_chat_id: input.chatId ?? null,
+    p_input_tokens: Math.ceil(Math.max(0, input.inputTokens)),
+    p_output_tokens: Math.ceil(Math.max(0, input.outputTokens)),
+  });
+
+  if (error) throw new Error(error.message);
+  return data;
+}
+
+export function tokenErrorResponse(error: unknown) {
+  if (error instanceof TokenQuotaError) {
+    return { status: error.statusCode, body: { error: error.message } };
+  }
+  return null;
+}
+
+function warningLevel(tier: string, used: number, effectiveLimit: number, subscriptionLimit: number): TokenWarningLevel {
+  if (isSoftCapTier(tier) && subscriptionLimit > 0 && used >= 18_000_000) return "review";
+  if (effectiveLimit <= 0) return "blocked";
+  const percent = (used / effectiveLimit) * 100;
+  if (percent >= 100) return "blocked";
+  if (percent >= 90) return "warning";
+  if (percent >= 75) return "notice";
+  return "ok";
+}
+
+function isSoftCapTier(tier: string) {
+  return tier === "developer" || tier === "canon" || tier === "institutional";
+}
+
+function topupPacksForTier(tier: string) {
+  if (tier === "creator") {
+    return [
+      { id: "creator-starter", name: "Starter", priceGbp: 10, tokens: 500_000, approximateTurns: 125, modelTier: "sonnet" },
+      { id: "creator-standard", name: "Standard", priceGbp: 25, tokens: 1_500_000, approximateTurns: 375, modelTier: "sonnet" },
+      { id: "creator-large", name: "Large", priceGbp: 50, tokens: 3_500_000, approximateTurns: 875, modelTier: "sonnet" },
+    ];
+  }
+
+  if (tier === "private" || tier === "basic") {
+    return [
+      { id: "basic-starter", name: "Starter", priceGbp: 5, tokens: 1_500_000, approximateTurns: 425, modelTier: "haiku" },
+      { id: "basic-standard", name: "Standard", priceGbp: 10, tokens: 3_500_000, approximateTurns: 1000, modelTier: "haiku" },
+    ];
+  }
+
+  return [];
+}
+
+function currentPeriodStart() {
+  const now = new Date();
+  return `${now.getUTCFullYear()}-${String(now.getUTCMonth() + 1).padStart(2, "0")}-01`;
+}
+
+function nextResetDate() {
+  const now = new Date();
+  return new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 1)).toISOString().slice(0, 10);
+}

@@ -22,6 +22,8 @@ import { socialRouter } from "./routes/social";
 import { developerSpacesRouter } from "./routes/developer-spaces";
 import { exportsRouter } from "./routes/exports";
 import { storageRouter } from "./routes/storage";
+import { integrityRouter } from "./routes/integrity";
+import { tokenCreditsRouter } from "./routes/token-credits";
 
 export function createApp() {
   const app = express();
@@ -58,6 +60,8 @@ export function createApp() {
   app.use("/developer-spaces", developerSpacesRouter);
   app.use("/exports", exportsRouter);
   app.use("/storage", storageRouter);
+  app.use("/integrity", integrityRouter);
+  app.use("/token-credits", tokenCreditsRouter);
 
   app.use(errorHandler);
   return app;

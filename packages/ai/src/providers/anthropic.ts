@@ -37,9 +37,20 @@ export class AnthropicProvider implements ChatProvider {
     const data = (await response.json()) as {
       content?: Array<{ type: string; text?: string }>;
       model?: string;
+      usage?: {
+        input_tokens?: number;
+        output_tokens?: number;
+      };
     };
 
     const text = data.content?.find((c) => c.type === "text")?.text ?? "";
-    return { content: text, model: data.model ?? model };
+    return {
+      content: text,
+      model: data.model ?? model,
+      usage: {
+        inputTokens: data.usage?.input_tokens,
+        outputTokens: data.usage?.output_tokens,
+      },
+    };
   }
 }

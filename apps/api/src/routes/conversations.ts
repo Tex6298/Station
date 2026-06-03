@@ -6,6 +6,13 @@ import { assemblePersonaRuntimeContext, buildPersonaContext } from "@station/ai/
 import { resolveProvider } from "@station/ai/providers/router";
 import { addMemoryItem, saveMessageAsMemory } from "../services/archive.service";
 import { env } from "../lib/env";
+import {
+  assertTokenBudgetForEstimate,
+  estimateConversationTokens,
+  estimateTokensFromText,
+  recordLlmTokenUsage,
+  tokenErrorResponse,
+} from "../services/token-credits.service";
 
 const chatSchema = z.object({
   content: z.string().min(1).max(8000),
@@ -384,7 +391,26 @@ conversationsRouter.post("/persona/:personaId/chat", async (req, res) => {
     { role: "user" as const, content },
   ];
 
+  try {
+    await assertTokenBudgetForEstimate(userId, estimateConversationTokens({
+      systemPrompt,
+      userMessage: content,
+      history: history ?? [],
+    }));
+  } catch (error) {
+    const quota = tokenErrorResponse(error);
+    if (quota) return res.status(quota.status).json(quota.body);
+    throw error;
+  }
+
   const aiResponse = await provider.sendMessage({ system: systemPrompt, messages });
+  await recordLlmTokenUsage({
+    userId,
+    model: aiResponse.model,
+    chatId: convId,
+    inputTokens: aiResponse.usage?.inputTokens ?? estimateConversationTokens({ systemPrompt, userMessage: content, history: history ?? [] }),
+    outputTokens: aiResponse.usage?.outputTokens ?? estimateTokensFromText(aiResponse.content),
+  });
 
   // Save assistant reply
   const { data: savedReply } = await sb

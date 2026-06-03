@@ -85,7 +85,7 @@ export async function buildPersonaContext(
 export async function assemblePersonaRuntimeContext(
   input: PersonaContextInput
 ): Promise<PersonaRuntimeContext> {
-  const [canon, memory, integrity, archive] = await Promise.all([
+  const [canon, memory, integrity, preferenceProfile, archive] = await Promise.all([
     loadCanon(input.supabase, input.persona.id, input.maxCanon ?? 6, input.ownerUserId),
     searchMemory({
       supabase: input.supabase,
@@ -96,6 +96,7 @@ export async function assemblePersonaRuntimeContext(
       ownerUserId: input.ownerUserId,
     }),
     loadIntegrityNotes(input, input.maxIntegrity ?? 4),
+    loadPreferenceProfile(input),
     loadArchiveReferences(input, input.maxArchive ?? 8),
   ]);
 
@@ -122,6 +123,7 @@ export async function assemblePersonaRuntimeContext(
 
   const sources = [
     ...canonSources,
+    ...(preferenceProfile ? [preferenceProfile] : []),
     ...integrity,
     ...memorySources,
     ...archive,
@@ -135,7 +137,10 @@ export async function assemblePersonaRuntimeContext(
     awakeningPrompt: input.persona.awakeningPrompt ?? undefined,
     styleNotes: input.persona.styleNotes ?? undefined,
     canon: canonSources.map((source) => source.content),
-    integrity: integrity.map((source) => formatSourceForPrompt(source)),
+    integrity: [
+      ...(preferenceProfile ? [formatSourceForPrompt(preferenceProfile)] : []),
+      ...integrity.map((source) => formatSourceForPrompt(source)),
+    ],
     memory: memorySources.map((source) => source.content),
     archive: archive.map((source) => formatSourceForPrompt(source)),
   });
@@ -145,15 +150,84 @@ export async function assemblePersonaRuntimeContext(
     counts: {
       canon: canonSources.length,
       memory: memorySources.length,
-      integrity: integrity.length,
+      integrity: integrity.length + (preferenceProfile ? 1 : 0),
       archive: archive.length,
     },
     sources,
     canon: canonSources,
     memory: memorySources,
-    integrity,
+    integrity: preferenceProfile ? [preferenceProfile, ...integrity] : integrity,
     archive,
   };
+}
+
+async function loadPreferenceProfile(
+  input: PersonaContextInput
+): Promise<PersonaContextSource | null> {
+  if (!input.ownerUserId) return null;
+
+  const { data, error } = await input.supabase
+    .from("persona_preferences")
+    .select("id, warmth_level, playfulness, register_preference, depth_preference, challenge_preference, disclaimer_sensitivity, relationship_tone, recurring_topics, tone_notes, updated_at")
+    .eq("persona_id", input.persona.id)
+    .eq("owner_user_id", input.ownerUserId)
+    .single();
+
+  if (error && error.code !== "PGRST116") throw error;
+
+  const prefs = data ?? {
+    id: `default-preferences-${input.persona.id}`,
+    warmth_level: "high",
+    playfulness: "moderate",
+    register_preference: "balanced",
+    depth_preference: "expansive",
+    challenge_preference: "balanced",
+    disclaimer_sensitivity: "low",
+    relationship_tone: "companion",
+    recurring_topics: [],
+    tone_notes: [],
+    updated_at: null,
+  };
+
+  return {
+    id: prefs.id,
+    type: "integrity",
+    title: "User preference profile",
+    content: preferencesToNaturalLanguage(prefs),
+    priority: 80,
+    reason: "Included from the per-persona preference profile.",
+    sourceType: "preference_profile",
+    createdAt: prefs.updated_at,
+  };
+}
+
+function preferencesToNaturalLanguage(prefs: any) {
+  const lines: string[] = [];
+  const warmthMap: Record<string, string> = {
+    high: "This user prefers high warmth and emotional presence.",
+    moderate: "This user prefers moderate warmth.",
+    neutral: "This user prefers a more neutral, less emotionally expressive tone.",
+  };
+  const challengeMap: Record<string, string> = {
+    challenge: "They prefer to be challenged and pushed on their ideas.",
+    support: "They prefer validation and support over challenge.",
+    balanced: "They appreciate a balance of challenge and support.",
+  };
+
+  if (warmthMap[prefs.warmth_level]) lines.push(warmthMap[prefs.warmth_level]);
+  if (prefs.depth_preference === "expansive") lines.push("They prefer expansive, richly developed responses.");
+  if (prefs.depth_preference === "concise") lines.push("They prefer concise responses.");
+  if (prefs.playfulness === "high") lines.push("They enjoy playful and witty exchanges.");
+  if (prefs.playfulness === "low") lines.push("They prefer a more serious register.");
+  if (prefs.register_preference === "mystical") lines.push("They are comfortable with speculative and mystical framing.");
+  if (prefs.register_preference === "grounded") lines.push("They prefer grounded, empirical framing over speculative language.");
+  if (prefs.disclaimer_sensitivity === "low") lines.push("They dislike safety disclaimers and hedging language - avoid these.");
+  if (challengeMap[prefs.challenge_preference]) lines.push(challengeMap[prefs.challenge_preference]);
+  if (prefs.relationship_tone) lines.push(`Relationship tone: ${prefs.relationship_tone}.`);
+  if (prefs.recurring_topics?.length) lines.push(`Recurring topics: ${prefs.recurring_topics.join(", ")}.`);
+  if (prefs.tone_notes?.length) lines.push(prefs.tone_notes.join(" "));
+
+  return `USER PREFERENCE PROFILE:\n${lines.filter(Boolean).join("\n")}`;
 }
 
 async function loadIntegrityNotes(

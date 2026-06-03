@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { apiGet } from "@/lib/api-client";
 import { getSession } from "@/lib/auth";
 import { StorageUsagePanel } from "@/components/settings/storage-usage-panel";
+import { TokenUsagePanel } from "@/components/settings/token-usage-panel";
 import type { PersonaSummary } from "@station/types/persona";
 
 const publicLinks = [
@@ -186,6 +187,9 @@ export function StudioSidebar() {
       </div>
 
       <div style={{ borderTop: "1px solid #1f2937", padding: 12 }}>
+        <div style={{ marginBottom: 10 }}>
+          <TokenUsagePanel compact />
+        </div>
         <div style={{ marginBottom: 10 }}>
           <StorageUsagePanel compact />
         </div>
