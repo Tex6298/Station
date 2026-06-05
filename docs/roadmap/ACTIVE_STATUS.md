@@ -24,7 +24,12 @@ when a PR lands, or when validation truth changes.
   public-safe forum links and comment parents, filter featured Discover rows by
   visibility, protect document persona ownership, and are covered by
   `pnpm test:community`.
-- Next foundation block: PR-07 continuity alpha data model.
+- Current `main` is under reconciliation before PR-07 starts. Commits
+  `65a8328` through `63d9754` landed broader storage, integrity, token-credit,
+  Stripe-adjacent, and UX work after PR-06. See
+  `docs/roadmap/CURRENT_MAIN_RECONCILIATION.md`.
+- Next instruction: resolve the reconciliation decision and validation
+  regressions before implementing PR-07.
 
 ## Current repo truth
 
@@ -39,8 +44,12 @@ when a PR lands, or when validation truth changes.
 - Developer Spaces exists as a Station-native observatory slice, with hardening,
   live updates, Discover integration, linked documents, exports/quotas, SDK, and
   visual editors moved into PR-10 through PR-16.
-- As of PR-06 on 2026-05-31, the full validation baseline still passes with the
-  pinned pnpm runner.
+- As of PR-06 on 2026-05-31, the full validation baseline passed with the pinned
+  pnpm runner.
+- As of the 2026-06-05 current-main reconciliation, the full gate is no longer
+  green: `pnpm test:continuity` fails and `pnpm test:persona-context` plus
+  `pnpm test:conversation-archive` time out. Build, lint, typecheck, and the
+  other named tests pass. See `docs/testing/VALIDATION_BASELINE.md`.
 - As of PR-02, `docs/architecture/persistence-schema-baseline.md` records the
   current table/entity map for future auth and repository work.
 - Core API route modules no longer import local in-memory mock data. Runtime
@@ -76,8 +85,8 @@ Do the boring foundation work before the attractive surface work:
 ## Current validation commands
 
 Use the narrow command set required by each PR. PR-01 established this full
-local gate. See `docs/testing/VALIDATION_BASELINE.md` for the command notes,
-warning inventory, and latest PR-01 result.
+local gate. See `docs/testing/VALIDATION_BASELINE.md` for command notes,
+warning inventory, and the latest current-main result.
 
 ```bash
 pnpm install

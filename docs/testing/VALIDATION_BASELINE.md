@@ -99,6 +99,34 @@ updates, and featured Discover visibility filtering. All baseline commands
 passed with the pinned runner. The warning-only output below remains the
 current inventory.
 
+## Current main reconciliation result
+
+Revalidated on 2026-06-05 after auditing the post-PR-06 stack from
+`0d06823 api: harden community permissions` through
+`63d975499544d8f81aa444b4d39f396017c74bb8 feat: close remaining integrity credit gaps`.
+
+Current main is not green. Most commands pass, but continuity/context/archive
+validation regressed after the storage, integrity, token-credit, and UX stack
+landed.
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `pnpm install` | Pass | Run through `npx --yes pnpm@10.32.1 install`. Lockfile was current. Warnings only: ignored `unrs-resolver` build scripts and npm warnings about pnpm-only config keys. |
+| `pnpm build` | Pass | Next build completed. Warning-only lint output is listed below. |
+| `pnpm lint` | Pass | Warning-only output matched the current inventory. |
+| `pnpm typecheck` | Pass | Workspace typecheck completed. |
+| `pnpm test:auth` | Pass | 10 tests passed. |
+| `pnpm test:reports` | Pass | 1 test passed. |
+| `pnpm test:community` | Pass | 4 tests passed. |
+| `pnpm test:spaces` | Pass | 1 test passed. |
+| `pnpm test:continuity` | Fail | `apps/api/src/routes/continuity.test.ts:330` expected the owner memory write to return `201`; current main returned `500`. The likely owner is the new storage/archive persistence path, but this still needs targeted debugging. |
+| `pnpm test:persona-context` | Timeout | No completed test output after 184 seconds; leftover worker processes were stopped. |
+| `pnpm test:conversation-archive` | Timeout | No completed test output after 184 seconds; leftover worker processes were stopped. |
+| `pnpm test:continuity-publication` | Pass | 1 test passed. |
+| `pnpm test:document-discussions` | Pass | 1 test passed. |
+| `pnpm test:exports` | Pass | 1 test passed. |
+| `pnpm test:developer-spaces` | Pass | 2 tests passed. |
+
 ## Known warning-only output
 
 These warnings do not currently fail the baseline:
@@ -122,5 +150,15 @@ These warnings do not currently fail the baseline:
 
 ## Remaining failures
 
-None. The current scaffold is measurable enough to serve as the base for PR-07
+Current main is not yet measurable enough to serve as the base for PR-07
 continuity alpha data model work.
+
+- `pnpm test:continuity` fails at
+  `apps/api/src/routes/continuity.test.ts:330`: expected `201`, got `500` for
+  owner memory creation.
+- `pnpm test:persona-context` timed out after 184 seconds with no completed test
+  output.
+- `pnpm test:conversation-archive` timed out after 184 seconds with no completed
+  test output.
+
+Resolve or explicitly accept these failures before starting PR-07.
