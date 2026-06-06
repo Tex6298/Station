@@ -1124,3 +1124,30 @@ V3-03 is accepted for token-credit accounting hardening. Scope remains
 accounting and one-off top-up validation only; it does not expand into a
 broader Stripe platform, marketplace, Connect, or usage-based subscription
 lane.
+
+## V3-04 DAEDALUS implementation result
+
+Validated on 2026-06-06 after adding archive/export job reliability hardening
+for the active v3 roadmap:
+
+- `test:conversation-archive` now covers chat import jobs that complete after
+  archive ingest, fail after a deterministic memory insert error, persist the
+  failed job error message, and expose status/list reads only to the owner.
+- `test:exports` now covers persona export source-query failures that leave the
+  owner-visible export package in `failed` status with `error_message` while
+  blocking other users from reading the failed package.
+- Persona and Developer Space export package creation now marks post-insert
+  manifest/build failures as failed before returning an error. Developer Space
+  usage accounting still records only after successful package completion.
+
+Targeted commands run with the pinned runner:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npx --yes pnpm@10.32.1 test:conversation-archive` | Pass | 2 tests passed, including owner-only completed/failed import job status coverage. |
+| `npx --yes pnpm@10.32.1 test:exports` | Pass | 2 tests passed, including failed persona export package visibility and owner scoping. |
+| `npx --yes pnpm@10.32.1 typecheck` | Pass | API and web typecheck tasks completed. |
+| `git diff --check` | Pass | CRLF normalization warnings only. |
+
+At the DAEDALUS implementation checkpoint, ARGUS still needs to review V3-04
+before the roadmap can mark it accepted.

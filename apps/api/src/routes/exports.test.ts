@@ -570,6 +570,8 @@ class InMemorySupabase {
     export_packages: [],
   };
 
+  failSelectTables = new Set<string>();
+
   private idCounters: Record<string, number> = {};
   private clock = Date.parse("2026-05-26T10:00:00.000Z");
   private usersByToken = new Map([
@@ -725,6 +727,13 @@ class QueryBuilder {
       this.db.tables[this.table] = this.db.rows(this.table).filter((row) => !rowsToDelete.has(row));
       rows = [...rowsToDelete];
     } else {
+      if (this.db.failSelectTables.has(this.table)) {
+        return {
+          data: mode === "single" ? null : [],
+          error: { message: `Injected ${this.table} select failure.` },
+          count: this.countRequested ? 0 : null,
+        };
+      }
       rows = this.matchingRows();
     }
 
@@ -1034,6 +1043,44 @@ test("owner can export persona archive while preserving provenance and privacy b
       token: "other-token",
     });
     assert.equal(blockedDeveloperSpaceReadBack.status, 404);
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
+
+test("persona export source failures leave an owner-visible failed package", async () => {
+  const db = new InMemorySupabase();
+  db.failSelectTables.add("memory_items");
+  setSupabaseAdminForTests(db.client as any);
+  const app = await createExportsApp();
+
+  try {
+    const failed = await requestJson(app, "POST", `/exports/persona/${PERSONA_ID}`, {
+      token: "owner-token",
+    });
+    assert.equal(failed.status, 500);
+    assert.match(failed.body.error, /memory export source/);
+
+    const packageRow = db.tables.export_packages[0];
+    assert.equal(packageRow.owner_user_id, OWNER_ID);
+    assert.equal(packageRow.persona_id, PERSONA_ID);
+    assert.equal(packageRow.package_kind, "persona_archive");
+    assert.equal(packageRow.status, "failed");
+    assert.match(packageRow.error_message, /Injected memory_items select failure/);
+    assert.equal(typeof packageRow.completed_at, "string");
+
+    const listed = await requestJson(app, "GET", `/exports/persona/${PERSONA_ID}`, {
+      token: "owner-token",
+    });
+    assert.equal(listed.status, 200);
+    assert.equal(listed.body.exports.length, 1);
+    assert.equal(listed.body.exports[0].status, "failed");
+    assert.match(listed.body.exports[0].errorMessage, /Injected memory_items select failure/);
+
+    const blocked = await requestJson(app, "GET", `/exports/${packageRow.id}`, {
+      token: "other-token",
+    });
+    assert.equal(blocked.status, 404);
   } finally {
     setSupabaseAdminForTests(null);
   }

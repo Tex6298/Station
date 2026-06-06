@@ -119,7 +119,7 @@ pnpm test:billing
 
 ### V3-04 - Archive and export job reliability
 
-Status: active as of 2026-06-06.
+Status: DAEDALUS implementation ready for ARGUS review as of 2026-06-06.
 
 Purpose: prepare long-running archive/export work without changing the product
 promise.

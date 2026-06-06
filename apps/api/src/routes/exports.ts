@@ -149,6 +149,10 @@ function countBy<T extends Record<string, any>>(rows: T[], key: keyof T) {
   }, {});
 }
 
+function throwIfQueryError(result: { error?: { message?: string } | null }, label: string) {
+  if (result.error) throw new Error(`${label}: ${result.error.message ?? "query failed"}`);
+}
+
 function exportedTargetIds(publishedDocuments: Array<Record<string, any>>) {
   const ids = new Set<string>();
   for (const document of publishedDocuments) {
@@ -266,6 +270,17 @@ async function buildPersonaExportManifest(persona: any, packageId: string, owner
       .eq("status", "published")
       .order("published_at", { ascending: false }),
   ]);
+
+  throwIfQueryError(memoryRes, "memory export source");
+  throwIfQueryError(canonRes, "canon export source");
+  throwIfQueryError(fileRes, "archive file export source");
+  throwIfQueryError(importRes, "archive import export source");
+  throwIfQueryError(chatTranscriptRes, "archived chat export source");
+  throwIfQueryError(candidateRes, "continuity candidate export source");
+  throwIfQueryError(continuityRecordRes, "continuity record export source");
+  throwIfQueryError(integrityRes, "integrity export source");
+  throwIfQueryError(personaDocsRes, "persona document export source");
+  throwIfQueryError(sourceDocsRes, "source document export source");
 
   const documentsById = new Map<string, any>();
   for (const document of [...(personaDocsRes.data ?? []), ...(sourceDocsRes.data ?? [])]) {
@@ -713,26 +728,32 @@ async function createExportPackage(persona: any, ownerUserId: string) {
 
   if (error || !initial) throw new Error(error?.message ?? "Could not create export package.");
 
-  const manifest = await buildPersonaExportManifest(persona, initial.id, ownerUserId);
-  const manifestMarkdown = buildManifestMarkdown(manifest);
-  const completedAt = new Date().toISOString();
+  try {
+    const manifest = await buildPersonaExportManifest(persona, initial.id, ownerUserId);
+    const manifestMarkdown = buildManifestMarkdown(manifest);
+    const completedAt = new Date().toISOString();
 
-  const { data: completed, error: updateError } = await sb
-    .from("export_packages")
-    .update({
-      status: "completed",
-      manifest_json: manifest,
-      manifest_markdown: manifestMarkdown,
-      content_summary: manifest.counts,
-      completed_at: completedAt,
-    })
-    .eq("id", initial.id)
-    .eq("owner_user_id", ownerUserId)
-    .select("*")
-    .single();
+    const { data: completed, error: updateError } = await sb
+      .from("export_packages")
+      .update({
+        status: "completed",
+        manifest_json: manifest,
+        manifest_markdown: manifestMarkdown,
+        content_summary: manifest.counts,
+        completed_at: completedAt,
+      })
+      .eq("id", initial.id)
+      .eq("owner_user_id", ownerUserId)
+      .select("*")
+      .single();
 
-  if (updateError || !completed) throw new Error(updateError?.message ?? "Could not finish export package.");
-  return { row: completed, manifest, manifestMarkdown };
+    if (updateError || !completed) throw new Error(updateError?.message ?? "Could not finish export package.");
+    return { row: completed, manifest, manifestMarkdown };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Could not finish export package.";
+    await markExportPackageFailed(initial.id, ownerUserId, message);
+    throw new Error(message);
+  }
 }
 
 async function createDeveloperSpaceExportPackage(space: any, ownerUserId: string) {
@@ -760,30 +781,49 @@ async function createDeveloperSpaceExportPackage(space: any, ownerUserId: string
 
   if (error || !initial) throw new Error(error?.message ?? "Could not create Developer Space export package.");
 
-  const manifest = await buildDeveloperSpaceExportManifest(space, initial.id, ownerUserId);
-  const manifestMarkdown = buildDeveloperSpaceManifestMarkdown(manifest);
-  const completedAt = new Date().toISOString();
+  try {
+    const manifest = await buildDeveloperSpaceExportManifest(space, initial.id, ownerUserId);
+    const manifestMarkdown = buildDeveloperSpaceManifestMarkdown(manifest);
+    const completedAt = new Date().toISOString();
 
-  const { data: completed, error: updateError } = await sb
+    const { data: completed, error: updateError } = await sb
+      .from("export_packages")
+      .update({
+        status: "completed",
+        manifest_json: manifest,
+        manifest_markdown: manifestMarkdown,
+        content_summary: manifest.counts,
+        completed_at: completedAt,
+      })
+      .eq("id", initial.id)
+      .eq("owner_user_id", ownerUserId)
+      .select("*")
+      .single();
+
+    if (updateError || !completed) {
+      throw new Error(updateError?.message ?? "Could not finish Developer Space export package.");
+    }
+
+    await recordDeveloperSpaceUsage(space, { exports: 1 }).catch(() => null);
+    return { row: completed, manifest, manifestMarkdown };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Could not finish Developer Space export package.";
+    await markExportPackageFailed(initial.id, ownerUserId, message);
+    throw new Error(message);
+  }
+}
+
+async function markExportPackageFailed(packageId: string, ownerUserId: string, message: string) {
+  const sb = getSupabaseAdmin();
+  await sb
     .from("export_packages")
     .update({
-      status: "completed",
-      manifest_json: manifest,
-      manifest_markdown: manifestMarkdown,
-      content_summary: manifest.counts,
-      completed_at: completedAt,
+      status: "failed",
+      error_message: message,
+      completed_at: new Date().toISOString(),
     })
-    .eq("id", initial.id)
-    .eq("owner_user_id", ownerUserId)
-    .select("*")
-    .single();
-
-  if (updateError || !completed) {
-    throw new Error(updateError?.message ?? "Could not finish Developer Space export package.");
-  }
-
-  await recordDeveloperSpaceUsage(space, { exports: 1 }).catch(() => null);
-  return { row: completed, manifest, manifestMarkdown };
+    .eq("id", packageId)
+    .eq("owner_user_id", ownerUserId);
 }
 
 exportsRouter.get("/developer-spaces/:spaceId", async (req, res) => {

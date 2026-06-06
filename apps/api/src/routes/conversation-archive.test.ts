@@ -88,6 +88,8 @@ class InMemorySupabase {
     calibration_sessions: [],
   };
 
+  failInsertTables = new Set<string>();
+
   private idCounters: Record<string, number> = {};
   private clock = Date.parse("2026-05-26T10:00:00.000Z");
   private usersByToken = new Map([
@@ -175,6 +177,12 @@ class InMemorySupabase {
       row.updated_at ??= now;
     }
 
+    if (table === "import_jobs") {
+      row.error_message ??= null;
+      row.created_at ??= now;
+      row.updated_at ??= now;
+    }
+
     return row;
   }
 }
@@ -257,6 +265,12 @@ class QueryBuilder {
     let rows: Row[];
 
     if (this.operation === "insert") {
+      if (this.db.failInsertTables.has(this.table)) {
+        return {
+          data: mode === "single" ? null : [],
+          error: { message: `Injected ${this.table} insert failure.` },
+        };
+      }
       const payloads = Array.isArray(this.payload) ? this.payload : [this.payload as Row];
       rows = payloads.map((payload) => this.db.insertRow(this.table, payload));
     } else if (this.operation === "update") {
@@ -302,10 +316,14 @@ function clone<T>(value: T): T {
 }
 
 async function createConversationArchiveApp() {
-  const { conversationsRouter } = await import("./conversations.js");
+  const [{ conversationsRouter }, { importsRouter }] = await Promise.all([
+    import("./conversations.js"),
+    import("./imports.js"),
+  ]);
   const app = express();
   app.use(express.json());
   app.use("/conversations", conversationsRouter);
+  app.use("/imports", importsRouter);
   return app;
 }
 
@@ -432,6 +450,71 @@ test("owner can archive a chat into private continuity candidates", async () => 
       token: "other-token",
     });
     assert.equal(otherContext.status, 403);
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
+
+test("chat import jobs expose completed and failed status transitions owner-only", async () => {
+  const db = new InMemorySupabase();
+  setSupabaseAdminForTests(db.client as any);
+  const app = await createConversationArchiveApp();
+
+  try {
+    const imported = await requestJson(app, "POST", "/imports/chat", {
+      token: "owner-token",
+      body: {
+        personaId: PERSONA_ID,
+        sourceName: "migration-chat.txt",
+        content: "This imported chat is long enough to become archive memory for job reliability testing.",
+      },
+    });
+    assert.equal(imported.status, 201);
+    assert.equal(imported.body.job.status, "completed");
+    assert.equal(imported.body.imported, true);
+    assert.equal(imported.body.integrityTrigger.sessionType, "migration");
+    assert.equal(db.tables.import_jobs[0].status, "completed");
+    assert.equal(db.tables.memory_items.some((row) => row.source_type === "import"), true);
+
+    const ownerStatus = await requestJson(app, "GET", `/imports/${imported.body.job.id}/status`, {
+      token: "owner-token",
+    });
+    assert.equal(ownerStatus.status, 200);
+    assert.equal(ownerStatus.body.job.status, "completed");
+
+    const otherStatus = await requestJson(app, "GET", `/imports/${imported.body.job.id}/status`, {
+      token: "other-token",
+    });
+    assert.equal(otherStatus.status, 404);
+
+    const listed = await requestJson(app, "GET", `/imports/persona/${PERSONA_ID}`, {
+      token: "owner-token",
+    });
+    assert.equal(listed.status, 200);
+    assert.deepEqual(listed.body.jobs.map((job: Row) => job.status), ["completed"]);
+
+    db.failInsertTables.add("memory_items");
+    const failed = await requestJson(app, "POST", "/imports/chat", {
+      token: "owner-token",
+      body: {
+        personaId: PERSONA_ID,
+        sourceName: "broken-import.txt",
+        content: "This import should fail after the job row is created.",
+      },
+    });
+    assert.equal(failed.status, 500);
+    assert.match(failed.body.error, /Injected memory_items insert failure/);
+
+    const failedJob = db.tables.import_jobs.find((job) => job.source_name === "broken-import.txt");
+    assert.equal(failedJob.status, "failed");
+    assert.match(failedJob.error_message, /Injected memory_items insert failure/);
+
+    const failedStatus = await requestJson(app, "GET", `/imports/${failedJob.id}/status`, {
+      token: "owner-token",
+    });
+    assert.equal(failedStatus.status, 200);
+    assert.equal(failedStatus.body.job.status, "failed");
+    assert.match(failedStatus.body.job.error_message, /Injected memory_items insert failure/);
   } finally {
     setSupabaseAdminForTests(null);
   }
