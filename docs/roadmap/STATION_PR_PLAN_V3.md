@@ -72,6 +72,8 @@ pnpm test:conversation-archive
 
 ### V3-02 - Integrity and calibration hardening
 
+Status: active as of 2026-06-06.
+
 Purpose: make Integrity useful as a protected alpha workflow, not just schema
 and route scaffolding.
 
