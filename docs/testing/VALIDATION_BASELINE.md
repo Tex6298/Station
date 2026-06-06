@@ -771,3 +771,30 @@ PR-14 is accepted for bounded Developer Space export packages and API-level
 usage/quota display. This does not add PR-15 SDK work, PR-16 visual config
 editors, Stripe/token-credit billing, broad quota productization, background
 export jobs, binary archive bundles, or public export UI.
+
+## PR-15 DAEDALUS implementation result
+
+Validated on 2026-06-06 after adding the bounded Developer Space client package:
+
+- Added `packages/developer-space-client` as a tiny TypeScript workspace
+  package.
+- The package exposes `createDeveloperSpaceClient`, `DeveloperSpaceClient`, and
+  helpers for node state, event, snapshot, and batch import ingestion.
+- The client uses `fetch` and the existing `X-Station-Developer-Key` ingestion
+  header; it does not introduce publish/release automation or a broad SDK
+  ecosystem.
+- Added README docs with Node and curl examples plus
+  `examples/node-ingest.ts`.
+
+Targeted commands run with the pinned runner:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npx --yes pnpm@10.32.1 --filter @station/developer-space-client build` | Pass | New package compiled with declarations. |
+| `npx --yes pnpm@10.32.1 test:developer-spaces` | Pass | 2 tests passed; existing ingestion route contracts remain green. |
+| `npx --yes pnpm@10.32.1 typecheck` | Pass | Workspace typecheck completed; the new package's required check is its package build. |
+
+ARGUS still needs to review the PR-15 implementation before the roadmap should
+mark PR-15 accepted. Main risks to review: package API naming, fetch/error
+semantics, server-side key guidance, and whether the docs/examples stay aligned
+with the ingestion route contracts.
