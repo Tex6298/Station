@@ -3,6 +3,10 @@ const API_URL =
   process.env.API_URL ??
   "http://localhost:4000";
 
+export function apiUrl(path: string): string {
+  return `${API_URL}${path}`;
+}
+
 // -- Generic helpers -----------------------------------------------------------
 
 async function request<T>(

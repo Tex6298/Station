@@ -283,6 +283,38 @@ async function requestJson<TBody = any>(
   }
 }
 
+async function requestText(app: Express, method: string, path: string) {
+  const server = await listen(app);
+  try {
+    const address = server.address() as AddressInfo;
+    const response = await fetch(`http://127.0.0.1:${address.port}${path}`, { method });
+    return {
+      status: response.status,
+      contentType: response.headers.get("content-type") ?? "",
+      body: await response.text(),
+    };
+  } finally {
+    await close(server);
+  }
+}
+
+function parseSseUpdate<T = any>(body: string) {
+  const lines = body.split(/\r?\n/);
+  const id = lines.find((line) => line.startsWith("id: "))?.slice(4) ?? null;
+  const event = lines.find((line) => line.startsWith("event: "))?.slice(7) ?? null;
+  const retry = lines.find((line) => line.startsWith("retry: "))?.slice(7) ?? null;
+  const data = lines
+    .filter((line) => line.startsWith("data: "))
+    .map((line) => line.slice(6))
+    .join("\n");
+  return {
+    id,
+    event,
+    retry,
+    data: JSON.parse(data) as T,
+  };
+}
+
 function listen(app: Express) {
   return new Promise<Server>((resolve) => {
     const server = app.listen(0, "127.0.0.1", () => resolve(server as unknown as Server));
@@ -508,6 +540,27 @@ test("Developer Spaces smoke covers creation, keying, ingestion, and public/owne
       assert.equal(ownerText.includes(retained), true, `${retained} missing from owner detail`);
     }
 
+    const publicStream = await requestText(app, "GET", "/developer-spaces/animus-field/stream?once=1");
+    assert.equal(publicStream.status, 200);
+    assert.match(publicStream.contentType, /text\/event-stream/);
+    const publicSse = parseSseUpdate(publicStream.body);
+    assert.equal(publicSse.event, "developer_space.update");
+    assert.equal(publicSse.retry, "5000");
+    assert.equal(typeof publicSse.id, "string");
+    assert.equal(publicSse.data.kind, "detail");
+    assert.equal(publicSse.data.detail.access, "public");
+    assert.equal(publicSse.data.detail.events.some((event: Row) => event.visibility === "private"), false);
+    assert.equal(JSON.stringify(publicSse.data).includes("public-db-password"), false);
+    assert.equal(typeof publicSse.data.freshness.streamId, "string");
+
+    const ownerStream = await requestText(app, "GET", "/developer-spaces/animus-field/stream?once=1&access_token=owner-token");
+    assert.equal(ownerStream.status, 200);
+    const ownerSse = parseSseUpdate(ownerStream.body);
+    assert.equal(ownerSse.data.detail.access, "owner");
+    assert.equal(ownerSse.data.detail.events.some((event: Row) => event.visibility === "private"), true);
+    assert.equal(JSON.stringify(ownerSse.data).includes("public-db-password"), true);
+    assert.equal(JSON.stringify(ownerSse.data).includes("api_key_hash"), false);
+
     const rotatedKeyResponse = await requestJson(app, "POST", `/developer-spaces/${spaceId}/api-key`, {
       token: "owner-token",
     });
@@ -539,6 +592,13 @@ test("Developer Spaces smoke covers creation, keying, ingestion, and public/owne
       },
     });
     assert.equal(revokedKeyBlocked.status, 401);
+
+    db.tables.developer_spaces[0].visibility = "private";
+    const blockedPrivateStream = await requestText(app, "GET", "/developer-spaces/animus-field/stream?once=1");
+    assert.equal(blockedPrivateStream.status, 403);
+    const ownerPrivateStream = await requestText(app, "GET", "/developer-spaces/animus-field/stream?once=1&access_token=owner-token");
+    assert.equal(ownerPrivateStream.status, 200);
+    assert.equal(parseSseUpdate(ownerPrivateStream.body).data.detail.access, "owner");
   } finally {
     setSupabaseAdminForTests(null);
   }

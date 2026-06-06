@@ -65,10 +65,12 @@ when a PR lands, or when validation truth changes.
   capitalized `Authorization`, `refreshToken`, `secretKey`, `clientSecret`,
   `credentials`, `cookie`, `sessionCookie`, `setCookie`, and `xApiKey` while
   owner responses retain operational detail.
-- PR-11 is the active next roadmap move: add Developer Spaces live updates with
-  the smallest useful SSE path, reconnect behavior, public freshness indicator,
-  and owner ingestion-log stream. Do not jump to WebSockets unless SSE cannot
-  satisfy the current slice.
+- PR-11 DAEDALUS implementation is ready for ARGUS review, 2026-06-06:
+  Developer Spaces now has a bounded SSE stream at
+  `/developer-spaces/:slug/stream` with reconnect IDs, retry metadata, public/
+  community/owner visibility matching the detail route, a visitor freshness
+  indicator, and an owner live ingestion log in the manage console. This does
+  not add WebSockets or move into PR-12 through PR-14 scope.
 
 ## Current repo truth
 
@@ -116,6 +118,11 @@ when a PR lands, or when validation truth changes.
   oversized/deep JSON payloads are rejected, `api_key_hash` is never serialized,
   and public/community observatory responses scrub obvious secret-shaped JSON
   keys while preserving owner-only operational detail.
+- As of PR-11 DAEDALUS implementation, Developer Spaces live updates are SSE
+  based: the stream reuses the detail-route serializer, emits reconnect-friendly
+  `developer_space.update` payloads with freshness metadata, supports
+  EventSource query-token auth for owner views, and keeps public visitors on
+  public-safe event/snapshot/node data.
 - Core API route modules no longer import local in-memory mock data. Runtime
   persistence goes through the Supabase client boundary; route tests use
   injected fake Supabase clients for deterministic proof.

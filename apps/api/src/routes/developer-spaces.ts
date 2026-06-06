@@ -1,9 +1,14 @@
-import { Router } from "express";
+import { Router, type Request, type Response } from "express";
 import { z } from "zod";
-import type { DeveloperSpaceEventVisibility } from "@station/types";
-import { requireAuth, optionalAuth } from "../middleware/require-auth";
+import type {
+  DeveloperSpaceEventVisibility,
+  DeveloperSpaceFreshness,
+  DeveloperSpaceLiveUpdate,
+} from "@station/types";
+import { requireAuth, optionalAuth, type AuthenticatedUser } from "../middleware/require-auth";
 import { requireTier } from "../middleware/require-tier";
 import { getSupabaseAdmin } from "../lib/supabase";
+import { validateToken } from "../services/auth.service";
 import {
   accessLevelForDeveloperSpace,
   canReadDeveloperSpace,
@@ -26,6 +31,8 @@ const provenanceSchema = z.enum(["api", "imported", "user", "system", "ai_genera
 const sourceRefsSchema = z.array(z.string().max(500)).max(24).default([]);
 const MAX_JSON_CHARS = 32_000;
 const MAX_JSON_DEPTH = 8;
+const SSE_RETRY_MS = 5_000;
+const SSE_POLL_MS = Number(process.env.DEVELOPER_SPACE_SSE_POLL_MS ?? 5_000);
 
 function jsonDepth(value: unknown, depth = 0): number {
   if (!value || typeof value !== "object") return depth;
@@ -163,6 +170,152 @@ async function findNodeByExternalId(developerSpaceId: string, externalId?: strin
     .eq("external_id", externalId)
     .maybeSingle();
   return data ?? null;
+}
+
+function eventVisibilitiesForAccess(access: "owner" | "member" | "public"): DeveloperSpaceEventVisibility[] {
+  if (access === "owner") return ["private", "community", "public"];
+  if (access === "member") return ["community", "public"];
+  return ["public"];
+}
+
+function latestIso(values: Array<string | null | undefined>) {
+  const dates = values.filter((value): value is string => typeof value === "string" && value.length > 0);
+  if (dates.length === 0) return null;
+  return dates.sort((a, b) => Date.parse(b) - Date.parse(a))[0] ?? null;
+}
+
+function buildFreshness(space: any, nodes: any[], events: any[], latestSnapshot: any | null, emittedAt: string): DeveloperSpaceFreshness {
+  const latestNodeAt = latestIso(nodes.flatMap((node) => [node.last_event_at, node.updated_at, node.created_at]));
+  const latestEventAt = latestIso(events.flatMap((event) => [event.occurred_at, event.created_at]));
+  const latestSnapshotAt = latestSnapshot
+    ? latestIso([latestSnapshot.occurred_at, latestSnapshot.created_at])
+    : null;
+  const spaceUpdatedAt = space.updated_at ?? space.created_at ?? emittedAt;
+  const streamId = [
+    spaceUpdatedAt,
+    latestNodeAt ?? "nodes:none",
+    latestEventAt ?? "events:none",
+    latestSnapshotAt ?? "snapshots:none",
+    nodes.length,
+    events.length,
+    latestSnapshot?.id ?? "snapshot:none",
+  ].join("|");
+
+  return {
+    streamId,
+    spaceUpdatedAt,
+    latestNodeAt,
+    latestEventAt,
+    latestSnapshotAt,
+    emittedAt,
+  };
+}
+
+async function buildDeveloperSpaceLiveUpdate(
+  slug: string,
+  user?: AuthenticatedUser | null
+): Promise<{ status: 200; update: DeveloperSpaceLiveUpdate } | { status: 403 | 404 | 500; error: string }> {
+  const sb = getSupabaseAdmin();
+  const { data: space, error } = await sb
+    .from("developer_spaces")
+    .select("*")
+    .eq("slug", slug)
+    .single();
+
+  if (error || !space) return { status: 404, error: "Developer Space not found." };
+  if (!canReadDeveloperSpace(space.visibility, space.owner_user_id, user)) {
+    return { status: 403, error: "This Developer Space is not public." };
+  }
+
+  const access = accessLevelForDeveloperSpace(space.owner_user_id, user);
+  const eventVisibility = eventVisibilitiesForAccess(access);
+
+  const [nodesResult, eventsResult, snapshotsResult] = await Promise.all([
+    sb
+      .from("developer_space_nodes")
+      .select("*")
+      .eq("developer_space_id", space.id)
+      .order("last_event_at", { ascending: false, nullsFirst: false })
+      .limit(80),
+    sb
+      .from("developer_space_events")
+      .select("*")
+      .eq("developer_space_id", space.id)
+      .in("visibility", eventVisibility)
+      .order("occurred_at", { ascending: false })
+      .limit(80),
+    sb
+      .from("developer_space_snapshots")
+      .select("*")
+      .eq("developer_space_id", space.id)
+      .in("visibility", eventVisibility)
+      .order("occurred_at", { ascending: false })
+      .limit(1),
+  ]);
+
+  if (nodesResult.error) return { status: 500, error: nodesResult.error.message };
+  if (eventsResult.error) return { status: 500, error: eventsResult.error.message };
+  if (snapshotsResult.error) return { status: 500, error: snapshotsResult.error.message };
+
+  const nodes = nodesResult.data ?? [];
+  const events = eventsResult.data ?? [];
+  const latestSnapshot = snapshotsResult.data?.[0] ?? null;
+  const includeRawData = access === "owner";
+  const emittedAt = new Date().toISOString();
+  const detail = {
+    space: serializeDeveloperSpace(space, { includeOperationalFields: access === "owner" }),
+    nodes: nodes.map((node) => serializeDeveloperSpaceNode(node, { includeRawData })),
+    events: events.map((event) => serializeDeveloperSpaceEvent(event, { includeRawData })),
+    latestSnapshot: latestSnapshot ? serializeDeveloperSpaceSnapshot(latestSnapshot, { includeRawData }) : null,
+    access,
+  };
+
+  return {
+    status: 200,
+    update: {
+      kind: "detail",
+      detail,
+      freshness: buildFreshness(space, nodes, events, latestSnapshot, emittedAt),
+      emittedAt,
+    },
+  };
+}
+
+function queryStringValue(value: unknown): string | null {
+  if (typeof value === "string") return value;
+  if (Array.isArray(value) && typeof value[0] === "string") return value[0];
+  return null;
+}
+
+async function attachSseQueryUser(req: Request) {
+  if (req.user) return;
+  const accessToken = queryStringValue(req.query.access_token);
+  if (!accessToken) return;
+
+  try {
+    const result = await validateToken(accessToken);
+    if (result) {
+      req.user = {
+        id: result.userId,
+        tier: result.tier,
+        isAdmin: result.isAdmin,
+        email: result.email,
+      };
+    }
+  } catch {
+    // SSE streams stay public if the optional query token is invalid.
+  }
+}
+
+function writeSse(res: Response, event: string, data: unknown, id?: string) {
+  res.write(`retry: ${SSE_RETRY_MS}\n`);
+  if (id) res.write(`id: ${id}\n`);
+  res.write(`event: ${event}\n`);
+  res.write(`data: ${JSON.stringify(data)}\n\n`);
+}
+
+function writeSseHeartbeat(res: Response) {
+  res.write(`: heartbeat ${new Date().toISOString()}\n\n`);
 }
 
 // -- Ingestion API: key-authenticated, no Station user session required -------
@@ -527,59 +680,53 @@ developerSpacesRouter.patch("/:id", requireAuth, async (req, res) => {
 });
 
 // -- Public/community/owner observatory view ----------------------------------
-developerSpacesRouter.get("/:slug", optionalAuth, async (req, res) => {
-  const sb = getSupabaseAdmin();
-  const { data: space, error } = await sb
-    .from("developer_spaces")
-    .select("*")
-    .eq("slug", req.params.slug)
-    .single();
+developerSpacesRouter.get("/:slug/stream", optionalAuth, async (req, res) => {
+  await attachSseQueryUser(req);
+  const initial = await buildDeveloperSpaceLiveUpdate(req.params.slug, req.user);
+  if (initial.status !== 200) return res.status(initial.status).json({ error: initial.error });
 
-  if (error || !space) return res.status(404).json({ error: "Developer Space not found." });
-  if (!canReadDeveloperSpace(space.visibility, space.owner_user_id, req.user)) {
-    return res.status(403).json({ error: "This Developer Space is not public." });
+  const once = req.query.once === "1";
+  const lastEventId = typeof req.headers["last-event-id"] === "string" ? req.headers["last-event-id"] : null;
+  let lastStreamId = lastEventId;
+
+  res.status(200);
+  res.setHeader("Content-Type", "text/event-stream; charset=utf-8");
+  res.setHeader("Cache-Control", "no-cache, no-transform");
+  res.setHeader("Connection", "keep-alive");
+  res.setHeader("X-Accel-Buffering", "no");
+  res.flushHeaders?.();
+
+  function emitUpdate(update: DeveloperSpaceLiveUpdate, force = false) {
+    if (!force && update.freshness.streamId === lastStreamId) {
+      writeSseHeartbeat(res);
+      return;
+    }
+    lastStreamId = update.freshness.streamId;
+    writeSse(res, "developer_space.update", update, update.freshness.streamId);
   }
 
-  const access = accessLevelForDeveloperSpace(space.owner_user_id, req.user);
-  const eventVisibility: DeveloperSpaceEventVisibility[] = access === "owner"
-    ? ["private", "community", "public"]
-    : access === "member"
-      ? ["community", "public"]
-      : ["public"];
+  emitUpdate(initial.update, lastStreamId === null || once);
+  if (once) {
+    res.end();
+    return;
+  }
 
-  const [nodesResult, eventsResult, snapshotsResult] = await Promise.all([
-    sb
-      .from("developer_space_nodes")
-      .select("*")
-      .eq("developer_space_id", space.id)
-      .order("last_event_at", { ascending: false, nullsFirst: false })
-      .limit(80),
-    sb
-      .from("developer_space_events")
-      .select("*")
-      .eq("developer_space_id", space.id)
-      .in("visibility", eventVisibility)
-      .order("occurred_at", { ascending: false })
-      .limit(80),
-    sb
-      .from("developer_space_snapshots")
-      .select("*")
-      .eq("developer_space_id", space.id)
-      .in("visibility", eventVisibility)
-      .order("occurred_at", { ascending: false })
-      .limit(1),
-  ]);
+  const timer = setInterval(async () => {
+    const next = await buildDeveloperSpaceLiveUpdate(req.params.slug, req.user);
+    if (next.status !== 200) {
+      writeSse(res, "developer_space.error", { error: next.error }, new Date().toISOString());
+      clearInterval(timer);
+      res.end();
+      return;
+    }
+    emitUpdate(next.update);
+  }, SSE_POLL_MS);
 
-  if (nodesResult.error) return res.status(500).json({ error: nodesResult.error.message });
-  if (eventsResult.error) return res.status(500).json({ error: eventsResult.error.message });
-  if (snapshotsResult.error) return res.status(500).json({ error: snapshotsResult.error.message });
+  req.on("close", () => clearInterval(timer));
+});
 
-  const includeRawData = access === "owner";
-  return res.json({
-    space: serializeDeveloperSpace(space, { includeOperationalFields: access === "owner" }),
-    nodes: (nodesResult.data ?? []).map((node) => serializeDeveloperSpaceNode(node, { includeRawData })),
-    events: (eventsResult.data ?? []).map((event) => serializeDeveloperSpaceEvent(event, { includeRawData })),
-    latestSnapshot: snapshotsResult.data?.[0] ? serializeDeveloperSpaceSnapshot(snapshotsResult.data[0], { includeRawData }) : null,
-    access,
-  });
+developerSpacesRouter.get("/:slug", optionalAuth, async (req, res) => {
+  const result = await buildDeveloperSpaceLiveUpdate(req.params.slug, req.user);
+  if (result.status !== 200) return res.status(result.status).json({ error: result.error });
+  return res.json(result.update.detail);
 });

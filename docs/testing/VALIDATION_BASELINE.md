@@ -543,3 +543,33 @@ Commands re-run by ARGUS:
 PR-10 is accepted for bounded Developer Spaces ingestion hardening scope. This
 does not include PR-11 live updates, PR-12 Discover expansion, PR-13 document
 linking, PR-14 quotas/exports, or partner-ready Developer Spaces polish.
+
+## PR-11 DAEDALUS implementation result
+
+Validated on 2026-06-06 after the bounded Developer Spaces SSE live-update
+slice:
+
+- Added `DeveloperSpaceFreshness` and `DeveloperSpaceLiveUpdate` shared types.
+- Added `/developer-spaces/:slug/stream`, an SSE endpoint that reuses the
+  detail-route loader/serializer so public, community, and owner visibility
+  boundaries match the regular observatory route.
+- SSE payloads emit `developer_space.update` events with `id`, `retry`, and
+  freshness metadata so clients can reconnect without inventing a separate
+  polling contract.
+- EventSource query-token auth supports owner views without custom headers,
+  while invalid/missing query tokens fall back to public visibility.
+- The public observatory now shows live freshness state from SSE; the owner
+  manage console shows a compact live ingestion log from the same stream.
+- The route keeps WebSockets, Discover expansion, document linking, quotas,
+  SDK work, and broad UI polish out of PR-11.
+
+Targeted commands run with the pinned runner:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npx --yes pnpm@10.32.1 test:developer-spaces` | Pass | 2 tests passed; coverage parses one-shot SSE payloads, reconnect metadata, public/owner visibility, private-space denial, and owner query-token access. |
+| `npx --yes pnpm@10.32.1 typecheck` | Pass | API, web, and shared type surfaces completed. |
+| `npx --yes pnpm@10.32.1 build` | Pass | Known pre-existing React hook dependency and `<img>` optimization warnings only. |
+
+ARGUS still needs to review visibility/reconnect behavior before PR-11 is
+marked complete.

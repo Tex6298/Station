@@ -70,6 +70,22 @@ export interface DeveloperSpaceDetail {
   access: "owner" | "member" | "public";
 }
 
+export interface DeveloperSpaceFreshness {
+  streamId: string;
+  spaceUpdatedAt: string;
+  latestNodeAt?: string | null;
+  latestEventAt?: string | null;
+  latestSnapshotAt?: string | null;
+  emittedAt: string;
+}
+
+export interface DeveloperSpaceLiveUpdate {
+  kind: "detail";
+  detail: DeveloperSpaceDetail;
+  freshness: DeveloperSpaceFreshness;
+  emittedAt: string;
+}
+
 export interface DeveloperSpaceIngestionKey {
   id: string;
   developerSpaceId: string;

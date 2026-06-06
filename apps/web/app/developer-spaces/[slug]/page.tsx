@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { apiGet } from "@/lib/api-client";
+import { apiGet, apiUrl } from "@/lib/api-client";
 import { getSession } from "@/lib/auth";
 import {
   formatDate,
@@ -19,6 +19,7 @@ import {
 import type {
   DeveloperSpaceDetail,
   DeveloperSpaceEvent,
+  DeveloperSpaceLiveUpdate,
   DeveloperSpaceNode,
   DeveloperSpaceSnapshot,
 } from "@station/types/developer-space";
@@ -259,10 +260,12 @@ export default function DeveloperSpacePublicPage() {
   const [detail, setDetail] = useState<DeveloperSpaceDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [liveStatus, setLiveStatus] = useState<"connecting" | "live" | "reconnecting">("connecting");
+  const [lastLiveAt, setLastLiveAt] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
-    let timer: ReturnType<typeof setInterval> | null = null;
+    let stream: EventSource | null = null;
 
     async function load() {
       if (!slug) return;
@@ -272,19 +275,40 @@ export default function DeveloperSpacePublicPage() {
         if (!cancelled) {
           setDetail(data);
           setError(null);
+          setLiveStatus("connecting");
         }
+
+        const streamUrl = new URL(apiUrl(`/developer-spaces/${slug}/stream`));
+        if (session?.access_token) streamUrl.searchParams.set("access_token", session.access_token);
+        stream = new EventSource(streamUrl.toString());
+        stream.onopen = () => {
+          if (!cancelled) setLiveStatus("live");
+        };
+        stream.onerror = () => {
+          if (!cancelled) setLiveStatus("reconnecting");
+        };
+        stream.addEventListener("developer_space.update", (event) => {
+          const update = JSON.parse((event as MessageEvent).data) as DeveloperSpaceLiveUpdate;
+          if (!cancelled) {
+            setDetail(update.detail);
+            setLastLiveAt(update.freshness.emittedAt);
+            setLiveStatus("live");
+          }
+        });
       } catch (e) {
-        if (!cancelled) setError(e instanceof Error ? e.message : "Could not load Developer Space.");
+        if (!cancelled) {
+          setError(e instanceof Error ? e.message : "Could not load Developer Space.");
+          setLiveStatus("reconnecting");
+        }
       } finally {
         if (!cancelled) setLoading(false);
       }
     }
 
     load();
-    timer = setInterval(load, 15000);
     return () => {
       cancelled = true;
-      if (timer) clearInterval(timer);
+      stream?.close();
     };
   }, [slug]);
 
@@ -309,6 +333,11 @@ export default function DeveloperSpacePublicPage() {
   const latestEvent = detail.events[0];
   const mostActiveNode = detail.nodes[0];
   const showRaw = shouldShowRawDeveloperSpaceData(detail.access);
+  const liveLabel = liveStatus === "live"
+    ? lastLiveAt ? `Live ${formatDate(lastLiveAt)}` : "Live"
+    : liveStatus === "connecting"
+      ? "Connecting"
+      : "Reconnecting";
 
   return (
     <main className="container observatory-shell">
@@ -319,6 +348,7 @@ export default function DeveloperSpacePublicPage() {
               <span className="pill" style={{ color: "#c4b5fd" }}>Live observatory</span>
               <span className="pill" style={{ textTransform: "capitalize" }}>{detail.space.visibility}</span>
               <span className="pill" style={{ textTransform: "capitalize" }}>{visualisationLabel(detail.space.visualisationType)}</span>
+              <span className="pill" style={{ color: liveStatus === "live" ? "#86efac" : "#fbbf24" }}>{liveLabel}</span>
             </div>
             <h1 style={{ margin: 0, fontSize: "clamp(2rem, 4vw, 3.7rem)", maxWidth: 980 }}>{detail.space.projectName}</h1>
             <p style={{ margin: "0.8rem 0 0", color: "#b7c1d6", lineHeight: 1.75, maxWidth: 880 }}>

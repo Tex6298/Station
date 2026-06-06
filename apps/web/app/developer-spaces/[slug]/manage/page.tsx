@@ -3,9 +3,10 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { apiGet, apiPost } from "@/lib/api-client";
+import { apiGet, apiPost, apiUrl } from "@/lib/api-client";
 import { getSession } from "@/lib/auth";
-import type { DeveloperSpaceDetail } from "@station/types/developer-space";
+import { formatDate, humaniseKey } from "@/lib/developer-space-observatory";
+import type { DeveloperSpaceDetail, DeveloperSpaceLiveUpdate } from "@station/types/developer-space";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
 
@@ -36,6 +37,8 @@ export default function DeveloperSpaceManagePage() {
   const [loading, setLoading] = useState(true);
   const [rotating, setRotating] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [liveStatus, setLiveStatus] = useState<"connecting" | "live" | "reconnecting">("connecting");
+  const [lastLiveAt, setLastLiveAt] = useState<string | null>(null);
 
   async function load(sessionToken: string) {
     const data = await apiGet<DeveloperSpaceDetail>(`/developer-spaces/${slug}`, sessionToken);
@@ -58,6 +61,24 @@ export default function DeveloperSpaceManagePage() {
       }
     });
   }, [slug]);
+
+  useEffect(() => {
+    if (!slug || !token) return;
+    const streamUrl = new URL(apiUrl(`/developer-spaces/${slug}/stream`));
+    streamUrl.searchParams.set("access_token", token);
+    const stream = new EventSource(streamUrl.toString());
+
+    stream.onopen = () => setLiveStatus("live");
+    stream.onerror = () => setLiveStatus("reconnecting");
+    stream.addEventListener("developer_space.update", (event) => {
+      const update = JSON.parse((event as MessageEvent).data) as DeveloperSpaceLiveUpdate;
+      setDetail(update.detail);
+      setLastLiveAt(update.freshness.emittedAt);
+      setLiveStatus("live");
+    });
+
+    return () => stream.close();
+  }, [slug, token]);
 
   async function rotateKey() {
     if (!token || !detail) return;
@@ -174,6 +195,13 @@ export default function DeveloperSpaceManagePage() {
     );
   }
 
+  const liveLabel = liveStatus === "live"
+    ? lastLiveAt ? `Live ${formatDate(lastLiveAt)}` : "Live"
+    : liveStatus === "connecting"
+      ? "Connecting"
+      : "Reconnecting";
+  const ingestionEvents = detail.events.slice(0, 5);
+
   return (
     <main className="container" style={{ display: "grid", gap: "1.25rem", maxWidth: 1120 }}>
       <div style={{ fontSize: "0.82rem", color: "#64748b" }}>
@@ -239,6 +267,27 @@ export default function DeveloperSpaceManagePage() {
             <span><strong style={{ color: "#f8fafc" }}>Nodes:</strong> {detail.nodes.length}</span>
             <span><strong style={{ color: "#f8fafc" }}>Recent events:</strong> {detail.events.length}</span>
             <span><strong style={{ color: "#f8fafc" }}>Visibility:</strong> {detail.space.visibility}</span>
+          </div>
+
+          <hr />
+
+          <div style={{ display: "grid", gap: "0.6rem" }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "0.75rem" }}>
+              <h2 style={{ margin: 0, fontSize: "1rem" }}>Live ingestion</h2>
+              <span className="pill" style={{ color: liveStatus === "live" ? "#86efac" : "#fbbf24" }}>{liveLabel}</span>
+            </div>
+            {ingestionEvents.length === 0 ? (
+              <p style={{ margin: 0, color: "#94a3b8", fontSize: "0.84rem" }}>No ingested events yet.</p>
+            ) : (
+              <div style={{ display: "grid", gap: "0.45rem" }}>
+                {ingestionEvents.map((event) => (
+                  <div key={event.id} style={{ borderTop: "1px solid #1e293b", paddingTop: "0.45rem" }}>
+                    <strong style={{ display: "block", fontSize: "0.82rem" }}>{event.eventLabel || humaniseKey(event.eventType)}</strong>
+                    <span style={{ color: "#64748b", fontSize: "0.74rem" }}>{formatDate(event.occurredAt)} / {event.visibility}</span>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </aside>
 
