@@ -138,11 +138,12 @@ when a PR lands, or when validation truth changes.
   preserving the existing completed-package provenance and privacy boundaries.
   This remains protected-alpha synchronous job behavior; it does not add queue
   or worker infrastructure.
-- V3-05 is active, 2026-06-06: visibility-safe search should add owner-private
-  search over archive/documents/continuity/runtime memory, public/community
-  search over published documents, Spaces, forums, and Developer Spaces, and
-  hostile-path proof that private artifacts never appear in public/community
-  result sets.
+- V3-05 is ready for ARGUS review, 2026-06-06: `/discover/search` now keeps the
+  existing public/community result arrays while adding authenticated
+  `privateResults` for owner-scoped documents, continuity records, memory,
+  canon, archive files, import jobs, and archived chats. Hostile community
+  coverage proves anonymous visitors and other authenticated users do not see
+  owner-private artifacts or other-owner private artifacts.
 - Post-V3 UI/UX successor planning is drafted in
   `docs/roadmap/STATION_UI_UX_ROADMAP.md` for ARIADNE review. It is not active
   implementation scope while V3 is open unless MIMIR explicitly marks a tiny UX
@@ -283,6 +284,11 @@ when a PR lands, or when validation truth changes.
   archive ingest error persistence, failed persona export package visibility to
   the owner, nested discussion/moderation export source failure marking, and
   owner-only exclusion for other users.
+- As of V3-05 DAEDALUS implementation, Discover search keeps public/community
+  search over published documents, Spaces, forum threads, personas, and
+  Developer Spaces, and adds a separate authenticated private-results bucket for
+  owner-scoped documents, continuity, runtime memory/canon, and archive sources.
+  ARGUS still needs to review before V3-05 can be marked accepted.
 
 ## Near-term rule
 

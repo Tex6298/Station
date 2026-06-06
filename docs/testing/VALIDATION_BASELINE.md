@@ -1178,3 +1178,30 @@ Targeted commands run with the pinned runner:
 V3-04 is accepted for protected-alpha archive/export job reliability. Scope
 remains synchronous status and failure visibility only; it does not add queues,
 workers, realtime progress, portable bundles, or storage redundancy.
+
+## V3-05 DAEDALUS implementation result
+
+Validated on 2026-06-06 after adding visibility-safe search hardening for the
+active v3 roadmap:
+
+- `/discover/search` keeps the existing public/community arrays for published
+  documents, Spaces, forum threads, public personas, and Developer Spaces.
+- Authenticated callers now receive a separate `privateResults` object for their
+  own documents, continuity records, memory items, canon items, archive files,
+  import jobs, and archived chat transcripts.
+- `test:community` now proves anonymous visitors do not receive private results,
+  authenticated non-owners only receive empty owner-scoped private buckets, the
+  owner receives their own private archive/continuity/runtime memory matches,
+  and other-owner private rows never appear.
+
+Targeted commands run with the pinned runner:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npx --yes pnpm@10.32.1 test:community` | Pass | 6 tests passed, including public/community Discover visibility and owner-private search leak checks. |
+| `npx --yes pnpm@10.32.1 test:developer-spaces` | Pass | 3 tests passed; existing Developer Space visibility and observatory helpers remain green. |
+| `npx --yes pnpm@10.32.1 test:continuity` | Pass | 4 tests passed; continuity owner/source boundaries remain green. |
+| `npx --yes pnpm@10.32.1 typecheck` | Pass | API and web typecheck tasks completed. |
+
+At the DAEDALUS implementation checkpoint, ARGUS still needs to review V3-05
+before the roadmap can mark it accepted.

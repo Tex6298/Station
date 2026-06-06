@@ -32,6 +32,7 @@ const PUBLIC_DOC_ID = "88888888-8888-4888-8888-888888888881";
 const COMMUNITY_DOC_ID = "88888888-8888-4888-8888-888888888882";
 const UNLISTED_DOC_ID = "88888888-8888-4888-8888-888888888883";
 const PRIVATE_DOC_ID = "88888888-8888-4888-8888-888888888884";
+const OTHER_PRIVATE_DOC_ID = "88888888-8888-4888-8888-888888888885";
 const LOCKED_THREAD_ID = "99999999-9999-4999-8999-999999999991";
 const HIDDEN_THREAD_ID = "99999999-9999-4999-8999-999999999992";
 const PUBLIC_THREAD_ID = "99999999-9999-4999-8999-999999999993";
@@ -65,7 +66,86 @@ class CommunitySupabase {
       document(PUBLIC_DOC_ID, "Public Document", "public-document", "public"),
       document(COMMUNITY_DOC_ID, "Community Document", "community-document", "community"),
       document(UNLISTED_DOC_ID, "Unlisted Document", "unlisted-document", "unlisted"),
-      document(PRIVATE_DOC_ID, "Private Document", "private-document", "private"),
+      document(PRIVATE_DOC_ID, "Private Aurora Document", "private-document", "private"),
+      document(OTHER_PRIVATE_DOC_ID, "Other Aurora Document", "other-private-document", "private", {
+        author_user_id: OTHER_ID,
+        persona_id: OTHER_PERSONA_ID,
+        source_persona_id: OTHER_PERSONA_ID,
+      }),
+    ],
+    continuity_records: [
+      privateSearchRow("continuity-owner", "Aurora continuity record", OWNER_ID, PUBLIC_PERSONA_ID, {
+        record_type: "timeline",
+        summary: "Owner-only continuity marker.",
+        visibility: "private",
+      }),
+      privateSearchRow("continuity-other", "Other Aurora continuity record", OTHER_ID, OTHER_PERSONA_ID, {
+        record_type: "timeline",
+        summary: "Other-owner continuity marker.",
+        visibility: "private",
+      }),
+    ],
+    memory_items: [
+      privateSearchRow("memory-owner", "Aurora memory", OWNER_ID, PUBLIC_PERSONA_ID, {
+        summary: "Owner-only runtime memory.",
+        source_type: "manual",
+        relevance_weight: 3,
+      }),
+      privateSearchRow("memory-other", "Other Aurora memory", OTHER_ID, OTHER_PERSONA_ID, {
+        summary: "Other-owner runtime memory.",
+        source_type: "manual",
+        relevance_weight: 3,
+      }),
+    ],
+    canon_items: [
+      privateSearchRow("canon-owner", "Aurora canon", OWNER_ID, PUBLIC_PERSONA_ID, {
+        source_type: "manual",
+        priority: 8,
+      }),
+      privateSearchRow("canon-other", "Other Aurora canon", OTHER_ID, OTHER_PERSONA_ID, {
+        source_type: "manual",
+        priority: 8,
+      }),
+    ],
+    persona_files: [
+      privateSearchRow("file-owner", "Aurora archive file", OWNER_ID, PUBLIC_PERSONA_ID, {
+        file_name: "aurora-notebook.md",
+        file_type: "text/markdown",
+        source_type: "upload",
+        processed: true,
+      }),
+      privateSearchRow("file-other", "Other Aurora archive file", OTHER_ID, OTHER_PERSONA_ID, {
+        file_name: "other-aurora-notebook.md",
+        file_type: "text/markdown",
+        source_type: "upload",
+        processed: true,
+      }),
+    ],
+    import_jobs: [
+      privateSearchRow("import-owner", "Aurora import", OWNER_ID, PUBLIC_PERSONA_ID, {
+        kind: "chat",
+        status: "completed",
+        source_name: "aurora-import.txt",
+        error_message: null,
+      }),
+      privateSearchRow("import-other", "Other Aurora import", OTHER_ID, OTHER_PERSONA_ID, {
+        kind: "chat",
+        status: "completed",
+        source_name: "other-aurora-import.txt",
+        error_message: null,
+      }),
+    ],
+    archived_chat_transcripts: [
+      privateSearchRow("chat-owner", "Aurora archived chat", OWNER_ID, PUBLIC_PERSONA_ID, {
+        conversation_id: "conversation-owner",
+        source_summary: "Owner-only archived chat.",
+        message_count: 4,
+      }),
+      privateSearchRow("chat-other", "Other Aurora archived chat", OTHER_ID, OTHER_PERSONA_ID, {
+        conversation_id: "conversation-other",
+        source_summary: "Other-owner archived chat.",
+        message_count: 4,
+      }),
     ],
     forum_categories: [
       {
@@ -468,7 +548,7 @@ function persona(id: string, ownerUserId: string, name: string, visibility: stri
   };
 }
 
-function document(id: string, title: string, slug: string, visibility: string): Row {
+function document(id: string, title: string, slug: string, visibility: string, overrides: Row = {}): Row {
   return {
     id,
     author_user_id: OWNER_ID,
@@ -490,6 +570,19 @@ function document(id: string, title: string, slug: string, visibility: string): 
     discussion_thread_id: null,
     created_at: "2026-05-25T09:10:00.000Z",
     updated_at: "2026-05-25T09:10:00.000Z",
+    ...overrides,
+  };
+}
+
+function privateSearchRow(id: string, title: string, ownerUserId: string, personaId: string, overrides: Row = {}): Row {
+  return {
+    id,
+    owner_user_id: ownerUserId,
+    persona_id: personaId,
+    title,
+    created_at: "2026-05-25T09:16:00.000Z",
+    updated_at: "2026-05-25T09:16:00.000Z",
+    ...overrides,
   };
 }
 
@@ -914,6 +1007,65 @@ test("Discover feed and search include public-safe Developer Spaces", async () =
       memberSearch.body.developerSpaces.map((space: Row) => space.id).sort(),
       [COMMUNITY_DEV_SPACE_ID, PUBLIC_DEV_SPACE_ID].sort()
     );
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
+
+test("Discover search separates owner-private archive, continuity, and memory results", async () => {
+  const db = new CommunitySupabase();
+  setSupabaseAdminForTests(db.client as any);
+  const app = createCommunityApp();
+
+  try {
+    const visitor = await requestJson(app, "GET", "/discover/search?q=Aurora");
+    assert.equal(visitor.status, 200);
+    assert.equal(visitor.body.privateResults, undefined);
+    assert.equal(JSON.stringify(visitor.body).includes(PRIVATE_DOC_ID), false);
+    assert.equal(JSON.stringify(visitor.body).includes("memory-owner"), false);
+    assert.equal(JSON.stringify(visitor.body).includes("canon-owner"), false);
+    assert.equal(JSON.stringify(visitor.body).includes("continuity-owner"), false);
+    assert.equal(JSON.stringify(visitor.body).includes("file-owner"), false);
+    assert.equal(JSON.stringify(visitor.body).includes("import-owner"), false);
+    assert.equal(JSON.stringify(visitor.body).includes("chat-owner"), false);
+
+    const member = await requestJson(app, "GET", "/discover/search?q=Aurora", {
+      token: "member-token",
+    });
+    assert.equal(member.status, 200);
+    assert.deepEqual(member.body.privateResults, {
+      documents: [],
+      continuityRecords: [],
+      memoryItems: [],
+      canonItems: [],
+      archiveFiles: [],
+      importJobs: [],
+      archivedChats: [],
+    });
+    assert.equal(JSON.stringify(member.body).includes(PRIVATE_DOC_ID), false);
+    assert.equal(JSON.stringify(member.body).includes("memory-owner"), false);
+
+    const owner = await requestJson(app, "GET", "/discover/search?q=Aurora", {
+      token: "owner-token",
+    });
+    assert.equal(owner.status, 200);
+    assert.equal(owner.body.documents.some((row: Row) => row.id === PRIVATE_DOC_ID), false);
+    assert.deepEqual(owner.body.privateResults.documents.map((row: Row) => row.id), [PRIVATE_DOC_ID]);
+    assert.deepEqual(owner.body.privateResults.continuityRecords.map((row: Row) => row.id), ["continuity-owner"]);
+    assert.deepEqual(owner.body.privateResults.memoryItems.map((row: Row) => row.id), ["memory-owner"]);
+    assert.deepEqual(owner.body.privateResults.canonItems.map((row: Row) => row.id), ["canon-owner"]);
+    assert.deepEqual(owner.body.privateResults.archiveFiles.map((row: Row) => row.id), ["file-owner"]);
+    assert.deepEqual(owner.body.privateResults.importJobs.map((row: Row) => row.id), ["import-owner"]);
+    assert.deepEqual(owner.body.privateResults.archivedChats.map((row: Row) => row.id), ["chat-owner"]);
+
+    const ownerText = JSON.stringify(owner.body);
+    assert.equal(ownerText.includes(OTHER_PRIVATE_DOC_ID), false);
+    assert.equal(ownerText.includes("memory-other"), false);
+    assert.equal(ownerText.includes("canon-other"), false);
+    assert.equal(ownerText.includes("continuity-other"), false);
+    assert.equal(ownerText.includes("file-other"), false);
+    assert.equal(ownerText.includes("import-other"), false);
+    assert.equal(ownerText.includes("chat-other"), false);
   } finally {
     setSupabaseAdminForTests(null);
   }

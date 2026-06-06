@@ -47,6 +47,93 @@ function scalarSummary(value: unknown, max = 80) {
   return excerpt(String(value).replace(/\s+/g, " "), max);
 }
 
+function emptyPrivateSearchResults() {
+  return {
+    documents: [],
+    continuityRecords: [],
+    memoryItems: [],
+    canonItems: [],
+    archiveFiles: [],
+    importJobs: [],
+    archivedChats: [],
+  };
+}
+
+async function ownerPrivateSearchResults(ownerUserId: string, q: string) {
+  const sb = getSupabaseAdmin();
+  const like = `%${q}%`;
+
+  const [
+    documents,
+    continuityRecords,
+    memoryItems,
+    canonItems,
+    archiveFiles,
+    importJobs,
+    archivedChats,
+  ] = await Promise.all([
+    sb
+      .from("documents")
+      .select("id, title, slug, document_type, status, visibility, persona_id, space_id, updated_at")
+      .eq("author_user_id", ownerUserId)
+      .ilike("title", like)
+      .order("updated_at", { ascending: false })
+      .limit(8),
+    sb
+      .from("continuity_records")
+      .select("id, persona_id, record_type, title, summary, visibility, source_table, source_id, updated_at")
+      .eq("owner_user_id", ownerUserId)
+      .ilike("title", like)
+      .order("updated_at", { ascending: false })
+      .limit(8),
+    sb
+      .from("memory_items")
+      .select("id, persona_id, title, summary, source_type, relevance_weight, updated_at")
+      .eq("owner_user_id", ownerUserId)
+      .ilike("title", like)
+      .order("updated_at", { ascending: false })
+      .limit(8),
+    sb
+      .from("canon_items")
+      .select("id, persona_id, title, source_type, priority, updated_at")
+      .eq("owner_user_id", ownerUserId)
+      .ilike("title", like)
+      .order("updated_at", { ascending: false })
+      .limit(8),
+    sb
+      .from("persona_files")
+      .select("id, persona_id, file_name, file_type, source_type, processed, created_at")
+      .eq("owner_user_id", ownerUserId)
+      .ilike("file_name", like)
+      .order("created_at", { ascending: false })
+      .limit(8),
+    sb
+      .from("import_jobs")
+      .select("id, persona_id, kind, status, source_name, error_message, updated_at")
+      .eq("owner_user_id", ownerUserId)
+      .ilike("source_name", like)
+      .order("updated_at", { ascending: false })
+      .limit(8),
+    sb
+      .from("archived_chat_transcripts")
+      .select("id, persona_id, conversation_id, title, source_summary, message_count, updated_at")
+      .eq("owner_user_id", ownerUserId)
+      .ilike("title", like)
+      .order("updated_at", { ascending: false })
+      .limit(8),
+  ]);
+
+  return {
+    documents: documents.data ?? [],
+    continuityRecords: continuityRecords.data ?? [],
+    memoryItems: memoryItems.data ?? [],
+    canonItems: canonItems.data ?? [],
+    archiveFiles: archiveFiles.data ?? [],
+    importJobs: importJobs.data ?? [],
+    archivedChats: archivedChats.data ?? [],
+  };
+}
+
 function documentFeedQuery(
   sb: ReturnType<typeof getSupabaseAdmin>,
   visibility: DocumentVisibility,
@@ -380,10 +467,19 @@ discoverRouter.get("/sidebar", optionalAuth, async (req: Request, res: Response)
 // --- GET /discover/search?q= -------------------------------------------------
 discoverRouter.get("/search", optionalAuth, async (req: Request, res: Response) => {
   const q = String(req.query.q ?? "").trim();
-  if (!q) return res.json({ documents: [], threads: [], spaces: [], personas: [], developerSpaces: [] });
+  if (!q) {
+    return res.json({
+      documents: [],
+      threads: [],
+      spaces: [],
+      personas: [],
+      developerSpaces: [],
+      privateResults: req.user ? emptyPrivateSearchResults() : undefined,
+    });
+  }
   const sb = getSupabaseAdmin();
 
-  const [docResults, threadResults, spaces, personas, developerSpaceResults] = await Promise.all([
+  const [docResults, threadResults, spaces, personas, developerSpaceResults, privateResults] = await Promise.all([
     Promise.all(discoverableDocumentVisibilities(req).map((visibility) =>
       sb
         .from("documents")
@@ -412,6 +508,7 @@ discoverRouter.get("/search", optionalAuth, async (req: Request, res: Response) 
         .ilike("project_name", `%${q}%`)
         .limit(6)
     )),
+    req.user ? ownerPrivateSearchResults(req.user.id, q) : Promise.resolve(undefined),
   ]);
 
   res.json({
@@ -432,5 +529,6 @@ discoverRouter.get("/search", optionalAuth, async (req: Request, res: Response) 
       updatedAt: space.updated_at,
       href: `/developer-spaces/${space.slug}`,
     })),
+    privateResults,
   });
 });
