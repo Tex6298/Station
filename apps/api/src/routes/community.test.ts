@@ -1066,6 +1066,20 @@ test("Discover search separates owner-private archive, continuity, and memory re
     assert.equal(ownerText.includes("file-other"), false);
     assert.equal(ownerText.includes("import-other"), false);
     assert.equal(ownerText.includes("chat-other"), false);
+
+    const otherOwner = await requestJson(app, "GET", "/discover/search?q=Aurora", {
+      token: "other-token",
+    });
+    assert.equal(otherOwner.status, 200);
+    assert.deepEqual(otherOwner.body.privateResults.documents.map((row: Row) => row.id), [OTHER_PRIVATE_DOC_ID]);
+    assert.deepEqual(otherOwner.body.privateResults.continuityRecords.map((row: Row) => row.id), ["continuity-other"]);
+    assert.deepEqual(otherOwner.body.privateResults.memoryItems.map((row: Row) => row.id), ["memory-other"]);
+    assert.deepEqual(otherOwner.body.privateResults.canonItems.map((row: Row) => row.id), ["canon-other"]);
+    assert.deepEqual(otherOwner.body.privateResults.archiveFiles.map((row: Row) => row.id), ["file-other"]);
+    assert.deepEqual(otherOwner.body.privateResults.importJobs.map((row: Row) => row.id), ["import-other"]);
+    assert.deepEqual(otherOwner.body.privateResults.archivedChats.map((row: Row) => row.id), ["chat-other"]);
+    assert.equal(JSON.stringify(otherOwner.body).includes(PRIVATE_DOC_ID), false);
+    assert.equal(JSON.stringify(otherOwner.body).includes("memory-owner"), false);
   } finally {
     setSupabaseAdminForTests(null);
   }

@@ -142,7 +142,7 @@ pnpm test:exports
 
 ### V3-05 - Visibility-safe search
 
-Status: DAEDALUS implementation ready for ARGUS review as of 2026-06-06.
+Status: accepted by ARGUS on 2026-06-06.
 
 Purpose: make private, public, community, and Developer Space content findable
 without weakening visibility rules.

@@ -1203,5 +1203,33 @@ Targeted commands run with the pinned runner:
 | `npx --yes pnpm@10.32.1 test:continuity` | Pass | 4 tests passed; continuity owner/source boundaries remain green. |
 | `npx --yes pnpm@10.32.1 typecheck` | Pass | API and web typecheck tasks completed. |
 
-At the DAEDALUS implementation checkpoint, ARGUS still needs to review V3-05
-before the roadmap can mark it accepted.
+At the DAEDALUS implementation checkpoint, ARGUS still needed to review V3-05
+before the roadmap could mark it accepted. The acceptance result below
+supersedes that pending-review state.
+
+## V3-05 ARGUS acceptance result
+
+ARGUS reviewed the visibility-safe search implementation on 2026-06-06 and
+found the response boundary sound: public/community arrays remain separate from
+authenticated owner-only `privateResults`, and the implementation stays on
+simple `ilike` queries rather than vector or search-platform scope.
+
+- `test:community` now also proves a second authenticated owner receives only
+  their own private document, continuity, memory, canon, archive file, import
+  job, and archived-chat matches.
+- The first owner's private rows remain absent from the second owner's full
+  response body.
+
+Targeted commands run with the pinned runner:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npx --yes pnpm@10.32.1 test:community` | Pass | 6 tests passed, including public/community Discover visibility, anonymous/member leak checks, and symmetric owner-private search checks. |
+| `npx --yes pnpm@10.32.1 test:developer-spaces` | Pass | 3 tests passed; existing Developer Space visibility and observatory helpers remain green. |
+| `npx --yes pnpm@10.32.1 test:continuity` | Pass | 4 tests passed; continuity owner/source boundaries remain green. |
+| `npx --yes pnpm@10.32.1 typecheck` | Pass | API and web typecheck tasks completed. |
+| `git diff --check` | Pass | CRLF normalization warnings only. |
+
+V3-05 is accepted for visibility-safe search. Scope remains simple query-backed
+search and result-shape separation only; it does not add embeddings, ranking,
+saved search, external search infrastructure, or public/private result mixing.
