@@ -20,6 +20,9 @@ const SPACE_ID = "55555555-5555-4555-8555-555555555555";
 const DOC_ID = "66666666-6666-4666-8666-666666666666";
 const PRIVATE_DOC_ID = "77777777-7777-4777-8777-777777777777";
 const THREAD_ID = "88888888-8888-4888-8888-888888888888";
+const COMMUNITY_DOC_ID = "99999999-9999-4999-8999-999999999999";
+const UNLISTED_DOC_ID = "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa";
+const PRIVATE_PUBLISHED_DOC_ID = "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb";
 
 class InMemorySupabase {
   tables: Record<string, Row[]> = {
@@ -321,6 +324,9 @@ class InMemorySupabase {
         created_at: "2026-05-26T09:07:00.000Z",
         updated_at: "2026-05-26T09:07:00.000Z",
       },
+      publishedDocument(COMMUNITY_DOC_ID, "Community Continuity Note", "community", "2026-05-26T09:06:30.000Z"),
+      publishedDocument(UNLISTED_DOC_ID, "Unlisted Continuity Note", "unlisted", "2026-05-26T09:06:40.000Z"),
+      publishedDocument(PRIVATE_PUBLISHED_DOC_ID, "Private Published Continuity Note", "private", "2026-05-26T09:06:50.000Z"),
     ],
     threads: [
       {
@@ -348,6 +354,13 @@ class InMemorySupabase {
       commentRow("comment-hidden-other", OTHER_ID, "Hidden other-user moderation note must not leak.", "active", true),
       commentRow("comment-removed-other", OTHER_ID, "Removed other-user comment must not leak.", "removed", false),
       commentRow("comment-hidden-owner", OWNER_ID, "Owner-authored hidden note stays in owner export.", "removed", true),
+    ],
+    moderation_reports: [
+      reportRow("report-owner-document", OWNER_ID, "document", DOC_ID, "owner document report", "Owner-owned report note.", "open"),
+      reportRow("report-owner-comment", OWNER_ID, "comment", "comment-visible", "owner comment report", "Visible comment report note.", "reviewed"),
+      reportRow("report-owner-private-draft", OWNER_ID, "document", PRIVATE_DOC_ID, "draft report must not export", "Draft-only report note.", "open"),
+      reportRow("report-other-document", OTHER_ID, "document", DOC_ID, "other reporter must not leak", "Other reporter private note.", "open"),
+      reportRow("report-hidden-comment", OWNER_ID, "comment", "comment-hidden-other", "hidden comment must not export", "Hidden comment report note.", "open"),
     ],
     export_packages: [],
   };
@@ -538,6 +551,55 @@ function commentRow(id: string, authorUserId: string, body: string, status: stri
   };
 }
 
+function publishedDocument(id: string, title: string, visibility: string, publishedAt: string): Row {
+  return {
+    id,
+    author_user_id: OWNER_ID,
+    space_id: SPACE_ID,
+    persona_id: PERSONA_ID,
+    title,
+    slug: title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, ""),
+    body: `${title} body.`,
+    document_type: "essay",
+    status: "published",
+    visibility,
+    comments_enabled: true,
+    published_at: publishedAt,
+    provenance_type: "persona_derived",
+    source_type: "publication",
+    source_id: "record-1",
+    source_label: `Continuity record / ${visibility}`,
+    source_persona_id: PERSONA_ID,
+    discussion_thread_id: null,
+    created_at: publishedAt,
+    updated_at: publishedAt,
+  };
+}
+
+function reportRow(
+  id: string,
+  reporterId: string,
+  targetType: string,
+  targetId: string,
+  reason: string,
+  notes: string,
+  status: string
+): Row {
+  return {
+    id,
+    reporter_id: reporterId,
+    target_type: targetType,
+    target_id: targetId,
+    reason,
+    notes,
+    status,
+    reviewed_by: status === "reviewed" ? OWNER_ID : null,
+    reviewed_at: status === "reviewed" ? "2026-05-26T09:10:30.000Z" : null,
+    created_at: "2026-05-26T09:10:00.000Z",
+    updated_at: "2026-05-26T09:10:00.000Z",
+  };
+}
+
 function clone<T>(value: T): T {
   return JSON.parse(JSON.stringify(value));
 }
@@ -616,10 +678,12 @@ test("owner can export persona archive while preserving provenance and privacy b
     assert.equal(created.body.manifest.counts.continuityCandidates, 1);
     assert.equal(created.body.manifest.counts.continuityRecords, 1);
     assert.equal(created.body.manifest.counts.integritySessions, 1);
-    assert.equal(created.body.manifest.counts.publishedDocuments, 1);
+    assert.equal(created.body.manifest.counts.publishedDocuments, 4);
+    assert.equal(created.body.manifest.counts.moderationReports, 2);
     assert.equal(created.body.manifest.trust.provenancePreserved, true);
     assert.equal(created.body.manifest.trust.publicationStatesPreserved, true);
     assert.equal(created.body.manifest.trust.continuityRecordVisibilityPreserved, true);
+    assert.equal(created.body.manifest.trust.ownerReportsOnly, true);
     assert.equal(created.body.manifest.trust.sourceRowsRemainPrivate, true);
 
     const manifestText = JSON.stringify(created.body.manifest);
@@ -636,17 +700,32 @@ test("owner can export persona archive while preserving provenance and privacy b
     assert.doesNotMatch(manifestText, /Other owner candidate must not leak/);
     assert.doesNotMatch(manifestText, /Other owner continuity record must not leak/);
     assert.doesNotMatch(manifestText, /Private Draft/);
+    assert.doesNotMatch(manifestText, /Draft-only report note/);
+    assert.doesNotMatch(manifestText, /Other reporter private note/);
+    assert.doesNotMatch(manifestText, /Hidden comment report note/);
 
     const continuityRecord = created.body.manifest.continuity.continuityRecords[0];
     assert.equal(continuityRecord.visibility, "public");
     assert.equal(continuityRecord.source.table, "documents");
     assert.equal(continuityRecord.metadata.publicationState, "published");
 
-    const documentRef = created.body.manifest.publishedDocumentRefs[0];
+    const publicationVisibility = created.body.manifest.publicationState.documentVisibility;
+    assert.deepEqual(publicationVisibility, {
+      private: 1,
+      unlisted: 1,
+      community: 1,
+      public: 1,
+    });
+
+    const documentRef = created.body.manifest.publishedDocumentRefs.find((doc: Row) => doc.id === DOC_ID);
     assert.equal(documentRef.provenanceType, "persona_derived");
     assert.equal(documentRef.sourceType, "canon");
     assert.equal(documentRef.sourceLabel, "Canon / priority 8");
     assert.equal(documentRef.visibility, "public");
+    assert.deepEqual(
+      created.body.manifest.publishedDocumentRefs.map((doc: Row) => doc.visibility).sort(),
+      ["community", "private", "public", "unlisted"],
+    );
 
     const exportedComments = documentRef.discussion.comments.map((comment: Row) => comment.body);
     assert.deepEqual(exportedComments.sort(), [
@@ -661,6 +740,17 @@ test("owner can export persona archive while preserving provenance and privacy b
       exportedComments.some((body: string) => body.includes("Removed other-user")),
       false
     );
+    const reports = created.body.manifest.moderationReportRefs;
+    assert.deepEqual(reports.map((report: Row) => report.id).sort(), [
+      "report-owner-comment",
+      "report-owner-document",
+    ].sort());
+    assert.equal(reports.some((report: Row) => report.reason === "other reporter must not leak"), false);
+    assert.equal(reports.some((report: Row) => report.reason === "draft report must not export"), false);
+    assert.deepEqual(created.body.manifest.publicationState.moderationReportStatus, {
+      reviewed: 1,
+      open: 1,
+    });
 
     const listed = await requestJson(app, "GET", `/exports/persona/${PERSONA_ID}`, {
       token: "owner-token",
@@ -668,6 +758,7 @@ test("owner can export persona archive while preserving provenance and privacy b
     assert.equal(listed.status, 200);
     assert.equal(listed.body.exports.length, 1);
     assert.equal(listed.body.exports[0].contentSummary.discussionComments, 2);
+    assert.equal(listed.body.exports[0].contentSummary.moderationReports, 2);
 
     const readBack = await requestJson(app, "GET", `/exports/${created.body.exportPackage.id}`, {
       token: "owner-token",
@@ -676,6 +767,8 @@ test("owner can export persona archive while preserving provenance and privacy b
     assert.match(readBack.body.manifestMarkdown, /Station Export: Harbor/);
     assert.match(readBack.body.manifestMarkdown, /Provenance preserved: yes/);
     assert.match(readBack.body.manifestMarkdown, /Continuity Timeline Records/);
+    assert.match(readBack.body.manifestMarkdown, /Publication States/);
+    assert.match(readBack.body.manifestMarkdown, /Moderation Report References/);
 
     const blockedRead = await requestJson(app, "GET", `/exports/${created.body.exportPackage.id}`, {
       token: "other-token",

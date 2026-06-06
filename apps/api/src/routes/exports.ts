@@ -16,6 +16,7 @@ const INCLUDED_SECTIONS = [
   "integrity",
   "published_documents",
   "discussion_refs",
+  "moderation_reports",
 ];
 
 function exportRow(row: any) {
@@ -105,6 +106,53 @@ async function loadThreadDiscussion(threadId: string, ownerUserId: string) {
     createdAt: thread.created_at,
     updatedAt: thread.updated_at,
   };
+}
+
+function countBy<T extends Record<string, any>>(rows: T[], key: keyof T) {
+  return rows.reduce<Record<string, number>>((counts, row) => {
+    const value = String(row[key] ?? "unknown");
+    counts[value] = (counts[value] ?? 0) + 1;
+    return counts;
+  }, {});
+}
+
+function exportedTargetIds(publishedDocuments: Array<Record<string, any>>) {
+  const ids = new Set<string>();
+  for (const document of publishedDocuments) {
+    ids.add(`document:${document.id}`);
+    if (document.discussion?.id) ids.add(`thread:${document.discussion.id}`);
+    for (const comment of document.discussion?.comments ?? []) {
+      ids.add(`comment:${comment.id}`);
+    }
+  }
+  return ids;
+}
+
+async function loadOwnerModerationReportRefs(ownerUserId: string, publishedDocuments: Array<Record<string, any>>) {
+  const sb = getSupabaseAdmin();
+  const targetIds = exportedTargetIds(publishedDocuments);
+  if (targetIds.size === 0) return [];
+
+  const { data } = await sb
+    .from("moderation_reports")
+    .select("id, reporter_id, target_type, target_id, reason, notes, status, reviewed_by, reviewed_at, created_at, updated_at")
+    .eq("reporter_id", ownerUserId)
+    .order("created_at", { ascending: false });
+
+  return (data ?? [])
+    .filter((report: any) => targetIds.has(`${report.target_type}:${report.target_id}`))
+    .map((report: any) => ({
+      id: report.id,
+      targetType: report.target_type,
+      targetId: report.target_id,
+      reason: report.reason,
+      notes: report.notes,
+      status: report.status,
+      reviewedBy: report.reviewed_by,
+      reviewedAt: report.reviewed_at,
+      createdAt: report.created_at,
+      updatedAt: report.updated_at,
+    }));
 }
 
 async function buildPersonaExportManifest(persona: any, packageId: string, ownerUserId: string) {
@@ -214,6 +262,7 @@ async function buildPersonaExportManifest(persona: any, packageId: string, owner
       updatedAt: document.updated_at,
     };
   }));
+  const moderationReportRefs = await loadOwnerModerationReportRefs(ownerUserId, publishedDocuments);
 
   const memory = compactRows(memoryRes.data ?? [], (row: any) => ({
     id: row.id,
@@ -329,6 +378,7 @@ async function buildPersonaExportManifest(persona: any, packageId: string, owner
     integritySessions: integritySessions.length,
     publishedDocuments: publishedDocuments.length,
     discussionComments: publishedDocuments.reduce((sum, document: any) => sum + (document.discussion?.comments?.length ?? 0), 0),
+    moderationReports: moderationReportRefs.length,
   };
 
   const generatedAt = new Date().toISOString();
@@ -370,13 +420,20 @@ async function buildPersonaExportManifest(persona: any, packageId: string, owner
       integritySessions,
     },
     publishedDocumentRefs: publishedDocuments,
+    moderationReportRefs,
+    publicationState: {
+      documentVisibility: countBy(publishedDocuments, "visibility"),
+      moderationReportStatus: countBy(moderationReportRefs, "status"),
+    },
     trust: {
       provenancePreserved: true,
       publicationStatesPreserved: true,
       continuityRecordVisibilityPreserved: true,
+      ownerReportsOnly: true,
       publicCopiesAreSeparateDocuments: true,
       sourceRowsRemainPrivate: true,
       discussionPolicy: "Visible discussion comments are included. Removed or hidden comments are included only when authored by the export owner.",
+      moderationReportPolicy: "Only reports filed by the export owner against exported document, thread, or visible comment references are included.",
     },
   };
 }
@@ -441,6 +498,16 @@ function buildManifestMarkdown(manifest: any) {
       ? "- None"
       : manifest.publishedDocumentRefs.map((document: any) =>
         `- ${document.title} (${document.visibility}, ${document.provenanceType})`
+      ).join("\n"),
+    "",
+    "## Publication States",
+    ...Object.entries(manifest.publicationState?.documentVisibility ?? {}).map(([key, value]) => `- ${key}: ${value}`),
+    "",
+    "## Moderation Report References",
+    manifest.moderationReportRefs.length === 0
+      ? "- None"
+      : manifest.moderationReportRefs.map((report: any) =>
+        `- ${report.reason} (${report.targetType}:${report.targetId}, ${report.status})`
       ).join("\n"),
     "",
   ].join("\n");

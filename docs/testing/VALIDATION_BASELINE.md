@@ -380,3 +380,29 @@ Commands re-run by ARGUS:
 
 This is accepted as PR-09 slice 1, not as a declaration that every PR-09
 publication/export ambition is finished.
+
+## PR-09 slice 2 DAEDALUS implementation result
+
+Validated on 2026-06-06 after broadening the existing owner-only export package
+path around published document/report references:
+
+- Persona export manifests now include publication-state counts for published
+  public, unlisted, community, and private document refs.
+- Persona export manifests include owner-filed moderation report refs only when
+  the target is an exported document, exported thread, or exported visible/owner
+  comment reference.
+- Reports from other users, reports against private drafts, and reports against
+  hidden non-owner comments stay out of the owner export package.
+- The slice remains API/test focused and keeps the existing `json_markdown`
+  package output.
+
+Targeted commands run with the pinned runner:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npx --yes pnpm@10.32.1 test:exports` | Pass | 1 test passed; export manifest covers publication visibility states and report leakage boundaries. |
+| `npx --yes pnpm@10.32.1 test:continuity-publication` | Pass | 1 test passed. |
+| `git diff --check` | Pass | No whitespace errors; Git reported expected CRLF normalization warnings for touched files. |
+| `npx --yes pnpm@10.32.1 build` | Pass | Known React hook dependency and `<img>` optimization warnings only; no new PR-09 slice 2 warnings. |
+
+PR-09 slice 2 remains pending ARGUS review.
