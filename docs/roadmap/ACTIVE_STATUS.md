@@ -173,10 +173,16 @@ when a PR lands, or when validation truth changes.
   mobile menu does not cover dashboard content. Existing API behavior, routes,
   auth/session semantics, global Archive, Export workspace, and Station
   Assistant behavior were not changed.
-- UX-01A ARIADNE experience review is active, 2026-06-06: ARIADNE should review
-  the accepted Studio frame/mobile navigation slice for private-workbench tone,
-  wayfinding, mobile ergonomics, empty/loading/error states, and whether UX-02A
-  should open next.
+- UX-01A ARIADNE experience review is complete, 2026-06-06: ARIADNE accepts
+  the Studio frame/mobile navigation slice as a Station-fit private workbench
+  foundation. The frame now gives Studio a clearer private place label, desktop
+  and mobile wayfinding, and reusable loading/error/empty primitives without
+  broadening backend, auth, global Archive, Export workspace, or Station
+  Assistant scope. Product-experience caveat: the dashboard still contains
+  derived/static usage and archive activity snippets, so it should not become
+  the archive-trust surface. ARIADNE recommends opening UX-02A next, bounded to
+  per-persona Archive trust states, with global Archive/Export workspace and
+  dashboard authority still deferred.
 
 ## Current repo truth
 
