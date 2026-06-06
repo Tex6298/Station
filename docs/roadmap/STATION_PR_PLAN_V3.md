@@ -142,6 +142,8 @@ pnpm test:exports
 
 ### V3-05 - Visibility-safe search
 
+Status: active as of 2026-06-06.
+
 Purpose: make private, public, community, and Developer Space content findable
 without weakening visibility rules.
 

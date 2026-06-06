@@ -138,6 +138,11 @@ when a PR lands, or when validation truth changes.
   preserving the existing completed-package provenance and privacy boundaries.
   This remains protected-alpha synchronous job behavior; it does not add queue
   or worker infrastructure.
+- V3-05 is active, 2026-06-06: visibility-safe search should add owner-private
+  search over archive/documents/continuity/runtime memory, public/community
+  search over published documents, Spaces, forums, and Developer Spaces, and
+  hostile-path proof that private artifacts never appear in public/community
+  result sets.
 - Post-V3 UI/UX successor planning is drafted in
   `docs/roadmap/STATION_UI_UX_ROADMAP.md` for ARIADNE review. It is not active
   implementation scope while V3 is open unless MIMIR explicitly marks a tiny UX
