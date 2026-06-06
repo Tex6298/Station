@@ -22,8 +22,10 @@ Codename: MIMIR
 
 ```text
 triad:watch:mimir
-triad:sleep:mimir
 ```
+
+Foreground waiting is the watch command. Wakeups come only from git commit
+bodies containing the header above.
 
 ## Handoff Shape
 

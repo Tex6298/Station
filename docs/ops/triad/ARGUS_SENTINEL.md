@@ -22,8 +22,10 @@ Codename: ARGUS
 
 ```text
 triad:watch:argus
-triad:sleep:argus
 ```
+
+Foreground waiting is the watch command. Wakeups come only from git commit
+bodies containing the header above.
 
 ## Handoff Shape
 

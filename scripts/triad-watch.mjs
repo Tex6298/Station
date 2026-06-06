@@ -35,9 +35,6 @@ function poll(agent, { quiet = false } = {}) {
     ...state,
     lastSeenCommit: latest.hash,
     lastWakeupAt: latest.authoredAt,
-    isSleeping: false,
-    sleepStartedAt: null,
-    sleepReason: null,
     updatedAt: new Date().toISOString(),
   });
 
@@ -54,15 +51,6 @@ function main() {
 
   const agent = getAgent(agentId);
   const shouldWatch = flags.includes("--watch");
-
-  if (shouldWatch) {
-    const state = readState(agent);
-    writeState(agent, {
-      ...state,
-      watchStartedAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    });
-  }
 
   poll(agent);
 

@@ -22,8 +22,10 @@ Codename: DAEDALUS
 
 ```text
 triad:watch:daedalus
-triad:sleep:daedalus
 ```
+
+Foreground waiting is the watch command. Wakeups come only from git commit
+bodies containing the header above.
 
 ## Handoff Shape
 

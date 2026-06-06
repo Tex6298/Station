@@ -55,10 +55,6 @@ export function defaultState(agent) {
     title: agent.title,
     lastSeenCommit: null,
     lastWakeupAt: null,
-    isSleeping: false,
-    sleepStartedAt: null,
-    sleepReason: null,
-    watchStartedAt: null,
     updatedAt: null,
   };
 }
@@ -74,9 +70,19 @@ export function readState(agent) {
 }
 
 export function writeState(agent, nextState) {
+  const merged = { ...defaultState(agent), ...nextState };
+  const cleanState = {
+    agentId: agent.id,
+    codename: agent.codename,
+    title: agent.title,
+    lastSeenCommit: merged.lastSeenCommit,
+    lastWakeupAt: merged.lastWakeupAt,
+    updatedAt: merged.updatedAt,
+  };
+
   writeFileSync(
     statePath(agent),
-    `${JSON.stringify({ ...defaultState(agent), ...nextState }, null, 2)}\n`,
+    `${JSON.stringify(cleanState, null, 2)}\n`,
     "utf8",
   );
 }
