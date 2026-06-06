@@ -48,8 +48,15 @@ when a PR lands, or when validation truth changes.
   now preserve published document visibility state across public, unlisted,
   community, and private published documents, and they include only owner-filed
   moderation report refs attached to exported document, thread, or visible/owner
-  comment references. Treat this as an accepted bounded slice; MIMIR should
-  decide whether PR-09 needs another slice or can move forward.
+  comment references.
+- PR-09 is complete for bounded roadmap scope, 2026-06-06: the accepted slices
+  cover continuity archive export, publication state metadata, provenance,
+  report-reference privacy, and the existing JSON/Markdown package path. Deeper
+  public export UI, PDF/binary packaging, and richer download workflows are
+  future export enhancements, not blockers for PR-10.
+- PR-10 is the active next roadmap move: Developer Spaces hardening should start
+  with ingestion auth, key rotation/revocation semantics, payload guardrails,
+  and public-safe serialization.
 
 ## Current repo truth
 
@@ -89,6 +96,9 @@ when a PR lands, or when validation truth changes.
   publication-state counts and owner-filed moderation report refs for exported
   document/discussion targets. Other reporters' notes and reports against
   non-exported/private-draft targets remain excluded.
+- As of bounded PR-09 completion, exports remain the existing owner-only
+  JSON/Markdown package path. Public export UI and binary/PDF packaging are not
+  required for PR-10 to begin.
 - Core API route modules no longer import local in-memory mock data. Runtime
   persistence goes through the Supabase client boundary; route tests use
   injected fake Supabase clients for deterministic proof.
