@@ -25,6 +25,11 @@ import {
   serializeDeveloperSpaceSnapshot,
   slugifyProjectName,
 } from "../services/developer-space.service";
+import {
+  estimateDeveloperSpaceStorageBytes,
+  getDeveloperSpaceUsage,
+  recordDeveloperSpaceUsage,
+} from "../services/developer-space-usage.service";
 
 const visibilitySchema = z.enum(["private", "unlisted", "community", "public"]);
 const visualisationSchema = z.enum(["node_field", "timeline", "world_map", "constellation"]);
@@ -191,6 +196,13 @@ async function findNodeByExternalId(developerSpaceId: string, externalId?: strin
     .eq("external_id", externalId)
     .maybeSingle();
   return data ?? null;
+}
+
+async function recordUsageSilently(
+  space: { id: string; owner_user_id: string },
+  delta: Parameters<typeof recordDeveloperSpaceUsage>[1]
+) {
+  await recordDeveloperSpaceUsage(space, delta).catch(() => null);
 }
 
 function eventVisibilitiesForAccess(access: "owner" | "member" | "public"): DeveloperSpaceEventVisibility[] {
@@ -545,6 +557,12 @@ developerSpacesRouter.post("/ingest/nodes/:nodeId/state", async (req, res) => {
     occurred_at: now,
   });
 
+  await recordUsageSilently(space, {
+    nodes: 1,
+    events: 1,
+    storageBytes: estimateDeveloperSpaceStorageBytes(req.body),
+  });
+
   return res.status(202).json({ node: serializeDeveloperSpaceNode(node, { includeRawData: true }) });
 });
 
@@ -585,6 +603,11 @@ developerSpacesRouter.post("/ingest/events", async (req, res) => {
       .eq("id", node.id);
   }
 
+  await recordUsageSilently(space, {
+    events: 1,
+    storageBytes: estimateDeveloperSpaceStorageBytes(req.body),
+  });
+
   return res.status(202).json({ event: serializeDeveloperSpaceEvent(data, { includeRawData: true }) });
 });
 
@@ -610,6 +633,10 @@ developerSpacesRouter.post("/ingest/snapshots", async (req, res) => {
     .single();
 
   if (error || !data) return res.status(500).json({ error: error?.message ?? "Could not ingest snapshot." });
+  await recordUsageSilently(space, {
+    snapshots: 1,
+    storageBytes: estimateDeveloperSpaceStorageBytes(req.body),
+  });
   return res.status(202).json({ snapshot: serializeDeveloperSpaceSnapshot(data, { includeRawData: true }) });
 });
 
@@ -680,6 +707,13 @@ developerSpacesRouter.post("/ingest/import", async (req, res) => {
     const { error } = await sb.from("developer_space_snapshots").insert(snapshotsPayload);
     if (error) return res.status(500).json({ error: error.message });
   }
+
+  await recordUsageSilently(space, {
+    nodes: nodes.length,
+    events: eventsPayload.length,
+    snapshots: snapshotsPayload.length,
+    storageBytes: estimateDeveloperSpaceStorageBytes(req.body),
+  });
 
   return res.status(202).json({
     imported: {
@@ -943,6 +977,18 @@ developerSpacesRouter.post("/:id/documents/template", requireAuth, async (req, r
   });
 });
 
+developerSpacesRouter.get("/:id/usage", requireAuth, async (req, res) => {
+  const ownerLoad = await loadDeveloperSpaceForOwner(req.params.id, req.user!);
+  if (ownerLoad.status !== 200) return res.status(ownerLoad.status).json({ error: ownerLoad.error });
+
+  try {
+    const usage = await getDeveloperSpaceUsage(ownerLoad.space);
+    return res.json({ usage });
+  } catch (e) {
+    return res.status(500).json({ error: e instanceof Error ? e.message : "Could not load usage." });
+  }
+});
+
 developerSpacesRouter.patch("/:id", requireAuth, async (req, res) => {
   const parsed = updateSpaceSchema.safeParse(req.body);
   if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
@@ -974,6 +1020,12 @@ developerSpacesRouter.get("/:slug/stream", optionalAuth, async (req, res) => {
   await attachSseQueryUser(req);
   const initial = await buildDeveloperSpaceLiveUpdate(req.params.slug, req.user);
   if (initial.status !== 200) return res.status(initial.status).json({ error: initial.error });
+  if (initial.update.detail.access !== "owner") {
+    await recordUsageSilently({
+      id: initial.update.detail.space.id,
+      owner_user_id: initial.update.detail.space.ownerUserId,
+    }, { publicReads: 1 });
+  }
 
   const once = req.query.once === "1";
   const lastEventId = typeof req.headers["last-event-id"] === "string" ? req.headers["last-event-id"] : null;
@@ -1018,5 +1070,11 @@ developerSpacesRouter.get("/:slug/stream", optionalAuth, async (req, res) => {
 developerSpacesRouter.get("/:slug", optionalAuth, async (req, res) => {
   const result = await buildDeveloperSpaceLiveUpdate(req.params.slug, req.user);
   if (result.status !== 200) return res.status(result.status).json({ error: result.error });
+  if (result.update.detail.access !== "owner") {
+    await recordUsageSilently({
+      id: result.update.detail.space.id,
+      owner_user_id: result.update.detail.space.ownerUserId,
+    }, { publicReads: 1 });
+  }
   return res.json(result.update.detail);
 });

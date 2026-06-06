@@ -1,6 +1,18 @@
 import { Router } from "express";
 import { requireAuth } from "../middleware/require-auth";
 import { getSupabaseAdmin } from "../lib/supabase";
+import {
+  getDeveloperSpaceUsage,
+  recordDeveloperSpaceUsage,
+  zeroDeveloperSpaceUsage,
+} from "../services/developer-space-usage.service";
+import {
+  serializeDeveloperSpace,
+  serializeDeveloperSpaceEvent,
+  serializeDeveloperSpaceLinkedDocument,
+  serializeDeveloperSpaceNode,
+  serializeDeveloperSpaceSnapshot,
+} from "../services/developer-space.service";
 
 export const exportsRouter = Router();
 exportsRouter.use(requireAuth);
@@ -19,11 +31,21 @@ const INCLUDED_SECTIONS = [
   "moderation_reports",
 ];
 
+const DEVELOPER_SPACE_INCLUDED_SECTIONS = [
+  "space",
+  "nodes",
+  "events",
+  "snapshots",
+  "linked_public_documents",
+  "usage",
+];
+
 function exportRow(row: any) {
   return {
     id: row.id,
     ownerUserId: row.owner_user_id,
     personaId: row.persona_id,
+    developerSpaceId: row.developer_space_id ?? null,
     packageKind: row.package_kind,
     status: row.status,
     format: row.format,
@@ -43,6 +65,17 @@ async function loadOwnedPersona(personaId: string, ownerUserId: string) {
     .from("personas")
     .select("*")
     .eq("id", personaId)
+    .single();
+
+  return data?.owner_user_id === ownerUserId ? data : null;
+}
+
+async function loadOwnedDeveloperSpace(spaceId: string, ownerUserId: string) {
+  const sb = getSupabaseAdmin();
+  const { data } = await sb
+    .from("developer_spaces")
+    .select("*")
+    .eq("id", spaceId)
     .single();
 
   return data?.owner_user_id === ownerUserId ? data : null;
@@ -513,6 +546,149 @@ function buildManifestMarkdown(manifest: any) {
   ].join("\n");
 }
 
+async function loadLinkedPublicDocumentRefs(developerSpaceId: string) {
+  const sb = getSupabaseAdmin();
+  const { data: links, error } = await sb
+    .from("developer_space_documents")
+    .select("*")
+    .eq("developer_space_id", developerSpaceId)
+    .eq("link_visibility", "public")
+    .order("sort_order", { ascending: true });
+
+  if (error) throw new Error(error.message);
+
+  const refs = [];
+  for (const link of links ?? []) {
+    const { data: document } = await sb
+      .from("documents")
+      .select("id, author_user_id, title, slug, body, document_type, status, visibility, published_at, created_at, updated_at")
+      .eq("id", link.document_id)
+      .single();
+
+    if (!document || document.status !== "published" || document.visibility !== "public") continue;
+    refs.push(serializeDeveloperSpaceLinkedDocument(link, document));
+  }
+
+  return refs;
+}
+
+async function buildDeveloperSpaceExportManifest(space: any, packageId: string, ownerUserId: string) {
+  const sb = getSupabaseAdmin();
+  const [nodesRes, eventsRes, snapshotsRes, linkedPublicDocumentRefs, usage] = await Promise.all([
+    sb
+      .from("developer_space_nodes")
+      .select("*")
+      .eq("developer_space_id", space.id)
+      .order("last_event_at", { ascending: false }),
+    sb
+      .from("developer_space_events")
+      .select("*")
+      .eq("developer_space_id", space.id)
+      .order("occurred_at", { ascending: false }),
+    sb
+      .from("developer_space_snapshots")
+      .select("*")
+      .eq("developer_space_id", space.id)
+      .order("occurred_at", { ascending: false }),
+    loadLinkedPublicDocumentRefs(space.id),
+    getDeveloperSpaceUsage(space).catch(() => zeroDeveloperSpaceUsage(space)),
+  ]);
+
+  if (nodesRes.error) throw new Error(nodesRes.error.message);
+  if (eventsRes.error) throw new Error(eventsRes.error.message);
+  if (snapshotsRes.error) throw new Error(snapshotsRes.error.message);
+
+  const nodes = (nodesRes.data ?? []).map((node: any) =>
+    serializeDeveloperSpaceNode(node, { includeRawData: true })
+  );
+  const events = (eventsRes.data ?? []).map((event: any) =>
+    serializeDeveloperSpaceEvent(event, { includeRawData: true })
+  );
+  const snapshots = (snapshotsRes.data ?? []).map((snapshot: any) =>
+    serializeDeveloperSpaceSnapshot(snapshot, { includeRawData: true })
+  );
+
+  const generatedAt = new Date().toISOString();
+  return {
+    schema: "station.developer_space.export.v1" as const,
+    generatedAt,
+    package: {
+      id: packageId,
+      status: "completed",
+      format: "json_markdown",
+    },
+    privacy: {
+      ownerOnly: true,
+      note: "This package is generated for the Developer Space owner. Ingestion keys and key hashes are excluded.",
+    },
+    space: serializeDeveloperSpace(space, { includeOperationalFields: false }),
+    counts: {
+      nodes: nodes.length,
+      events: events.length,
+      snapshots: snapshots.length,
+      linkedPublicDocuments: linkedPublicDocumentRefs.length,
+    },
+    usage,
+    nodes,
+    events,
+    snapshots,
+    linkedPublicDocumentRefs,
+    trust: {
+      apiKeysExcluded: true,
+      ownerOnlyPackage: true,
+      rawIngestionDataIncluded: true,
+      linkedDocumentsPublicSafeOnly: true,
+      privateLinkedDraftsExcluded: true,
+      quotaLimitsIncluded: true,
+      ownerUserId,
+    },
+  };
+}
+
+function buildDeveloperSpaceManifestMarkdown(manifest: any) {
+  return [
+    `# Station Developer Space Export: ${manifest.space.projectName}`,
+    "",
+    `Generated: ${manifest.generatedAt}`,
+    `Package: ${manifest.package.id}`,
+    "",
+    "## Trust Notes",
+    `- Owner-only package: ${manifest.privacy.ownerOnly ? "yes" : "no"}`,
+    `- API keys excluded: ${manifest.trust.apiKeysExcluded ? "yes" : "no"}`,
+    `- Linked documents public-safe only: ${manifest.trust.linkedDocumentsPublicSafeOnly ? "yes" : "no"}`,
+    "",
+    "## Space",
+    `- Project: ${manifest.space.projectName}`,
+    `- Visibility: ${manifest.space.visibility}`,
+    `- Visualisation: ${manifest.space.visualisationType}`,
+    "",
+    "## Counts",
+    ...Object.entries(manifest.counts).map(([key, value]) => `- ${key}: ${value}`),
+    "",
+    "## Usage",
+    ...Object.entries(manifest.usage.counters ?? {}).map(([key, value]) => `- ${key}: ${value}`),
+    "",
+    "## Nodes",
+    markdownList(manifest.nodes, "nodeName"),
+    "",
+    "## Events",
+    markdownList(manifest.events, "eventLabel"),
+    "",
+    "## Snapshots",
+    manifest.snapshots.length === 0
+      ? "- None"
+      : manifest.snapshots.map((snapshot: any) => `- ${snapshot.id} (${snapshot.occurredAt})`).join("\n"),
+    "",
+    "## Linked Public Documents",
+    manifest.linkedPublicDocumentRefs.length === 0
+      ? "- None"
+      : manifest.linkedPublicDocumentRefs.map((link: any) =>
+        `- ${link.document.title} (${link.role}, ${link.document.visibility})`
+      ).join("\n"),
+    "",
+  ].join("\n");
+}
+
 async function createExportPackage(persona: any, ownerUserId: string) {
   const sb = getSupabaseAdmin();
   const requestedAt = new Date().toISOString();
@@ -558,6 +734,91 @@ async function createExportPackage(persona: any, ownerUserId: string) {
   if (updateError || !completed) throw new Error(updateError?.message ?? "Could not finish export package.");
   return { row: completed, manifest, manifestMarkdown };
 }
+
+async function createDeveloperSpaceExportPackage(space: any, ownerUserId: string) {
+  const sb = getSupabaseAdmin();
+  const requestedAt = new Date().toISOString();
+
+  const { data: initial, error } = await sb
+    .from("export_packages")
+    .insert({
+      owner_user_id: ownerUserId,
+      persona_id: null,
+      developer_space_id: space.id,
+      package_kind: "developer_space_archive",
+      status: "processing",
+      format: "json_markdown",
+      included_sections: DEVELOPER_SPACE_INCLUDED_SECTIONS,
+      manifest_json: {},
+      manifest_markdown: "",
+      content_summary: {},
+      requested_at: requestedAt,
+      completed_at: null,
+    })
+    .select("*")
+    .single();
+
+  if (error || !initial) throw new Error(error?.message ?? "Could not create Developer Space export package.");
+
+  const manifest = await buildDeveloperSpaceExportManifest(space, initial.id, ownerUserId);
+  const manifestMarkdown = buildDeveloperSpaceManifestMarkdown(manifest);
+  const completedAt = new Date().toISOString();
+
+  const { data: completed, error: updateError } = await sb
+    .from("export_packages")
+    .update({
+      status: "completed",
+      manifest_json: manifest,
+      manifest_markdown: manifestMarkdown,
+      content_summary: manifest.counts,
+      completed_at: completedAt,
+    })
+    .eq("id", initial.id)
+    .eq("owner_user_id", ownerUserId)
+    .select("*")
+    .single();
+
+  if (updateError || !completed) {
+    throw new Error(updateError?.message ?? "Could not finish Developer Space export package.");
+  }
+
+  await recordDeveloperSpaceUsage(space, { exports: 1 }).catch(() => null);
+  return { row: completed, manifest, manifestMarkdown };
+}
+
+exportsRouter.get("/developer-spaces/:spaceId", async (req, res) => {
+  const space = await loadOwnedDeveloperSpace(req.params.spaceId, req.user!.id);
+  if (!space) return res.status(404).json({ error: "Developer Space not found." });
+
+  const sb = getSupabaseAdmin();
+  const { data, error } = await sb
+    .from("export_packages")
+    .select("id, owner_user_id, persona_id, developer_space_id, package_kind, status, format, included_sections, content_summary, error_message, requested_at, completed_at, created_at, updated_at")
+    .eq("developer_space_id", space.id)
+    .eq("owner_user_id", req.user!.id)
+    .order("created_at", { ascending: false });
+
+  if (error) return res.status(500).json({ error: error.message });
+  return res.json({ exports: (data ?? []).map(exportRow) });
+});
+
+exportsRouter.post("/developer-spaces/:spaceId", async (req, res) => {
+  const space = await loadOwnedDeveloperSpace(req.params.spaceId, req.user!.id);
+  if (!space) return res.status(404).json({ error: "Developer Space not found." });
+
+  try {
+    const { row, manifest, manifestMarkdown } = await createDeveloperSpaceExportPackage(space, req.user!.id);
+    return res.status(201).json({
+      exportPackage: exportRow(row),
+      manifest,
+      manifestMarkdown,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      error: error instanceof Error ? error.message : "Could not create Developer Space export package.",
+    });
+  }
+});
 
 exportsRouter.get("/persona/:personaId", async (req, res) => {
   const persona = await loadOwnedPersona(req.params.personaId, req.user!.id);

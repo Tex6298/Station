@@ -42,7 +42,7 @@ export type DeveloperSpaceEventProvenance = "api" | "imported" | "user" | "syste
 export type DeveloperSpaceIngestionKeyStatus = "active" | "revoked";
 export type DeveloperSpaceDocumentRole = "methodology" | "finding" | "field_log" | "note";
 export type DeveloperSpaceDocumentLinkVisibility = "owner" | "public";
-export type ExportPackageKind = "persona_archive";
+export type ExportPackageKind = "persona_archive" | "developer_space_archive";
 export type ExportPackageStatus = "requested" | "processing" | "completed" | "failed";
 export type ExportPackageFormat = "json_markdown";
 
@@ -343,7 +343,8 @@ export interface Database {
         Row: {
           id: string;
           owner_user_id: string;
-          persona_id: string;
+          persona_id: string | null;
+          developer_space_id: string | null;
           package_kind: ExportPackageKind;
           status: ExportPackageStatus;
           format: ExportPackageFormat;
@@ -363,6 +364,29 @@ export interface Database {
           updated_at?: string;
         };
         Update: Partial<Database["public"]["Tables"]["export_packages"]["Insert"]>;
+      };
+      developer_space_usage: {
+        Row: {
+          developer_space_id: string;
+          owner_user_id: string;
+          ingested_nodes_count: number;
+          ingested_events_count: number;
+          ingested_snapshots_count: number;
+          storage_bytes: number;
+          public_detail_reads_count: number;
+          export_count: number;
+          updated_at: string;
+        };
+        Insert: Omit<Database["public"]["Tables"]["developer_space_usage"]["Row"], "ingested_nodes_count" | "ingested_events_count" | "ingested_snapshots_count" | "storage_bytes" | "public_detail_reads_count" | "export_count" | "updated_at"> & {
+          ingested_nodes_count?: number;
+          ingested_events_count?: number;
+          ingested_snapshots_count?: number;
+          storage_bytes?: number;
+          public_detail_reads_count?: number;
+          export_count?: number;
+          updated_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["developer_space_usage"]["Insert"]>;
       };
       spaces: {
         Row: {

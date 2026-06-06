@@ -11,7 +11,9 @@ import type {
   DeveloperSpaceDocumentRole,
   DeveloperSpaceLinkedDocument,
   DeveloperSpaceLiveUpdate,
+  DeveloperSpaceUsage,
 } from "@station/types/developer-space";
+import type { ArchiveExportPackage } from "@station/types/export";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
 
@@ -39,6 +41,18 @@ function linkedDocumentRoleLabel(role: DeveloperSpaceLinkedDocument["role"]) {
   return role.charAt(0).toUpperCase() + role.slice(1);
 }
 
+function formatBytes(bytes: number) {
+  if (bytes < 1024) return `${bytes} B`;
+  const units = ["KB", "MB", "GB"];
+  let value = bytes / 1024;
+  let index = 0;
+  while (value >= 1024 && index < units.length - 1) {
+    value /= 1024;
+    index += 1;
+  }
+  return `${value.toFixed(value >= 10 ? 0 : 1)} ${units[index]}`;
+}
+
 export default function DeveloperSpaceManagePage() {
   const { slug } = useParams<{ slug: string }>();
   const [token, setToken] = useState<string | null>(null);
@@ -54,10 +68,19 @@ export default function DeveloperSpaceManagePage() {
   const [documentBody, setDocumentBody] = useState("");
   const [publishDocument, setPublishDocument] = useState(false);
   const [savingDocument, setSavingDocument] = useState(false);
+  const [usage, setUsage] = useState<DeveloperSpaceUsage | null>(null);
+  const [exportsList, setExportsList] = useState<ArchiveExportPackage[]>([]);
+  const [exporting, setExporting] = useState(false);
 
   async function load(sessionToken: string) {
     const data = await apiGet<DeveloperSpaceDetail>(`/developer-spaces/${slug}`, sessionToken);
     setDetail(data);
+    const [usageData, exportsData] = await Promise.all([
+      apiGet<{ usage: DeveloperSpaceUsage }>(`/developer-spaces/${data.space.id}/usage`, sessionToken),
+      apiGet<{ exports: ArchiveExportPackage[] }>(`/exports/developer-spaces/${data.space.id}`, sessionToken),
+    ]);
+    setUsage(usageData.usage);
+    setExportsList(exportsData.exports);
   }
 
   useEffect(() => {
@@ -239,6 +262,24 @@ export default function DeveloperSpaceManagePage() {
     }
   }
 
+  async function createExportPackage() {
+    if (!token || !detail) return;
+    setExporting(true);
+    setError(null);
+    try {
+      const data = await apiPost<{
+        exportPackage: ArchiveExportPackage;
+      }>(`/exports/developer-spaces/${detail.space.id}`, {}, token);
+      setExportsList([data.exportPackage, ...exportsList]);
+      const usageData = await apiGet<{ usage: DeveloperSpaceUsage }>(`/developer-spaces/${detail.space.id}/usage`, token);
+      setUsage(usageData.usage);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Could not create export package.");
+    } finally {
+      setExporting(false);
+    }
+  }
+
   const liveLabel = liveStatus === "live"
     ? lastLiveAt ? `Live ${formatDate(lastLiveAt)}` : "Live"
     : liveStatus === "connecting"
@@ -311,7 +352,24 @@ export default function DeveloperSpaceManagePage() {
             <span><strong style={{ color: "#f8fafc" }}>Nodes:</strong> {detail.nodes.length}</span>
             <span><strong style={{ color: "#f8fafc" }}>Recent events:</strong> {detail.events.length}</span>
             <span><strong style={{ color: "#f8fafc" }}>Notes:</strong> {detail.linkedDocuments?.length ?? 0}</span>
+            <span><strong style={{ color: "#f8fafc" }}>Exports:</strong> {usage?.counters.exports ?? exportsList.length}</span>
             <span><strong style={{ color: "#f8fafc" }}>Visibility:</strong> {detail.space.visibility}</span>
+          </div>
+
+          <hr />
+
+          <div style={{ display: "grid", gap: "0.45rem", color: "#94a3b8", fontSize: "0.84rem", lineHeight: 1.5 }}>
+            <h2 style={{ margin: 0, fontSize: "1rem" }}>Usage</h2>
+            {!usage ? (
+              <span>Loading usage...</span>
+            ) : (
+              <>
+                <span><strong style={{ color: "#f8fafc" }}>Ingested:</strong> {usage.counters.events} events / {usage.counters.snapshots} snapshots</span>
+                <span><strong style={{ color: "#f8fafc" }}>Storage:</strong> {formatBytes(usage.counters.storageBytes)} of {usage.limits.storageBytes < 0 ? "unlimited" : formatBytes(usage.limits.storageBytes)}</span>
+                <span><strong style={{ color: "#f8fafc" }}>Public reads:</strong> {usage.counters.publicReads}</span>
+                <span className="pill" style={{ color: usage.warningLevel === "ok" ? "#86efac" : "#fbbf24", width: "fit-content", textTransform: "capitalize" }}>{usage.warningLevel}</span>
+              </>
+            )}
           </div>
 
           <hr />
@@ -337,6 +395,35 @@ export default function DeveloperSpaceManagePage() {
         </aside>
 
         <section style={{ display: "grid", gap: "1rem" }}>
+          <div className="card" style={{ display: "grid", gap: "0.8rem" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", gap: "0.75rem", alignItems: "flex-start", flexWrap: "wrap" }}>
+              <div>
+                <h2 style={{ margin: "0 0 0.35rem", fontSize: "1.05rem" }}>Exports</h2>
+                <p style={{ margin: 0, color: "#94a3b8", lineHeight: 1.55 }}>
+                  Owner-only JSON/Markdown packages include nodes, events, snapshots, usage, and public-safe linked document refs.
+                </p>
+              </div>
+              <button className="button primary" onClick={createExportPackage} disabled={exporting}>
+                {exporting ? "Exporting..." : "Create export"}
+              </button>
+            </div>
+            {exportsList.length === 0 ? (
+              <p style={{ margin: 0, color: "#94a3b8" }}>No export packages yet.</p>
+            ) : (
+              <div style={{ display: "grid", gap: "0.55rem" }}>
+                {exportsList.slice(0, 5).map((item) => (
+                  <div key={item.id} style={{ borderTop: "1px solid #1e293b", paddingTop: "0.55rem", display: "flex", justifyContent: "space-between", gap: "0.75rem", flexWrap: "wrap" }}>
+                    <div>
+                      <strong style={{ display: "block" }}>{item.packageKind.replace("_", " ")}</strong>
+                      <span style={{ color: "#64748b", fontSize: "0.78rem" }}>{formatDate(item.completedAt ?? item.requestedAt)}</span>
+                    </div>
+                    <span className="pill" style={{ textTransform: "capitalize" }}>{item.status}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
           <div className="card" style={{ display: "grid", gap: "0.9rem" }}>
             <div>
               <h2 style={{ margin: "0 0 0.4rem", fontSize: "1.05rem" }}>Project notes</h2>

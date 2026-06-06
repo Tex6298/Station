@@ -83,10 +83,11 @@ when a PR lands, or when validation truth changes.
   manage console, visitor observatory pages show only public linked documents
   that are also published/public, owner-only drafts remain visible only to
   owner/admin detail reads, and the relation now has owner-only RLS guardrails.
-- PR-14 is the active next roadmap move: add bounded Developer Spaces export
-  packages, usage counters, quota model, public traffic/storage/ingestion
-  counters, and owner-facing usage visibility without widening into SDK or
-  visual editor work.
+- PR-14 DAEDALUS implementation is ready for ARGUS review, 2026-06-06:
+  Developer Spaces now have owner-only JSON/Markdown export packages through
+  the existing `export_packages` path, `developer_space_usage` counters for
+  ingestion/storage/public reads/exports, an API-level quota model for owner
+  visibility, and manage-console usage/export controls.
 
 ## Current repo truth
 
@@ -100,8 +101,8 @@ when a PR lands, or when validation truth changes.
   forums, comments, reports, exports, social publishing, and Developer Spaces.
 - Developer Spaces exists as a Station-native observatory slice, with ingestion
   hardening, bounded SSE live updates, Discover integration, and linked
-  Station documents accepted. Exports/quotas, SDK, and visual editors remain
-  PR-14 through PR-16.
+  Station documents accepted. Exports/quotas are implemented for PR-14 review;
+  SDK and visual editors remain PR-15 through PR-16.
 - As of PR-06 on 2026-05-31, the full validation baseline passed with the pinned
   pnpm runner.
 - As of the 2026-06-05 current-main reconciliation, the full gate was no longer
@@ -153,6 +154,12 @@ when a PR lands, or when validation truth changes.
   published with `public` visibility. The relation has owner-only RLS policies,
   and the manage console can create methodology, finding, field-log, and note
   templates without adding normal Station Space relation modeling.
+- As of PR-14 DAEDALUS implementation, `/exports/developer-spaces/:spaceId`
+  creates owner-only Developer Space export packages over nodes, events,
+  snapshots, usage, and public-safe linked document refs. Developer Space
+  ingestion and visitor reads update bounded usage counters, and
+  `/developer-spaces/:id/usage` exposes owner-only quota/usage status for the
+  manage console.
 - Core API route modules no longer import local in-memory mock data. Runtime
   persistence goes through the Supabase client boundary; route tests use
   injected fake Supabase clients for deterministic proof.

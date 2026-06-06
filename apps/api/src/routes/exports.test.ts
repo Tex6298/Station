@@ -23,6 +23,9 @@ const THREAD_ID = "88888888-8888-4888-8888-888888888888";
 const COMMUNITY_DOC_ID = "99999999-9999-4999-8999-999999999999";
 const UNLISTED_DOC_ID = "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa";
 const PRIVATE_PUBLISHED_DOC_ID = "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb";
+const DEVELOPER_SPACE_ID = "cccccccc-cccc-4ccc-8ccc-cccccccccccc";
+const DEV_PUBLIC_DOC_ID = "dddddddd-dddd-4ddd-8ddd-dddddddddddd";
+const DEV_PRIVATE_DOC_ID = "eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee";
 
 class InMemorySupabase {
   tables: Record<string, Row[]> = {
@@ -33,7 +36,7 @@ class InMemorySupabase {
         username: "owner",
         display_name: "Owner",
         avatar_url: null,
-        tier: "creator",
+        tier: "canon",
         is_admin: false,
       },
       {
@@ -327,6 +330,208 @@ class InMemorySupabase {
       publishedDocument(COMMUNITY_DOC_ID, "Community Continuity Note", "community", "2026-05-26T09:06:30.000Z"),
       publishedDocument(UNLISTED_DOC_ID, "Unlisted Continuity Note", "unlisted", "2026-05-26T09:06:40.000Z"),
       publishedDocument(PRIVATE_PUBLISHED_DOC_ID, "Private Published Continuity Note", "private", "2026-05-26T09:06:50.000Z"),
+      {
+        id: DEV_PUBLIC_DOC_ID,
+        author_user_id: OWNER_ID,
+        space_id: null,
+        persona_id: null,
+        title: "Animus public field log",
+        slug: "animus-public-field-log",
+        body: "Public field log body is safe to reference.",
+        document_type: "update",
+        status: "published",
+        visibility: "public",
+        comments_enabled: true,
+        published_at: "2026-05-26T09:11:00.000Z",
+        provenance_type: "user_authored",
+        source_type: "manual",
+        source_id: DEVELOPER_SPACE_ID,
+        source_label: "Developer Space: Animus Field",
+        source_persona_id: null,
+        discussion_thread_id: null,
+        created_at: "2026-05-26T09:11:00.000Z",
+        updated_at: "2026-05-26T09:11:00.000Z",
+      },
+      {
+        id: DEV_PRIVATE_DOC_ID,
+        author_user_id: OWNER_ID,
+        space_id: null,
+        persona_id: null,
+        title: "Animus private method",
+        slug: "animus-private-method",
+        body: "Private Developer Space method must not leave public-safe export refs.",
+        document_type: "essay",
+        status: "draft",
+        visibility: "private",
+        comments_enabled: false,
+        published_at: null,
+        provenance_type: "user_authored",
+        source_type: "manual",
+        source_id: DEVELOPER_SPACE_ID,
+        source_label: "Developer Space: Animus Field",
+        source_persona_id: null,
+        discussion_thread_id: null,
+        created_at: "2026-05-26T09:11:30.000Z",
+        updated_at: "2026-05-26T09:11:30.000Z",
+      },
+    ],
+    developer_spaces: [
+      {
+        id: DEVELOPER_SPACE_ID,
+        owner_user_id: OWNER_ID,
+        project_name: "Animus Field",
+        slug: "animus-field",
+        description: "Live project export fixture.",
+        visibility: "public",
+        visualisation_type: "world_map",
+        visualisation_config: { palette: "signal" },
+        api_key_hash: "must-not-export",
+        api_key_last_four: "1234",
+        api_key_created_at: "2026-05-26T09:12:00.000Z",
+        created_at: "2026-05-26T09:12:00.000Z",
+        updated_at: "2026-05-26T09:12:00.000Z",
+      },
+      {
+        id: "other-dev-space",
+        owner_user_id: OTHER_ID,
+        project_name: "Other Field",
+        slug: "other-field",
+        description: null,
+        visibility: "private",
+        visualisation_type: "node_field",
+        visualisation_config: {},
+        api_key_hash: "other-secret",
+        api_key_last_four: "9999",
+        api_key_created_at: null,
+        created_at: "2026-05-26T09:12:00.000Z",
+        updated_at: "2026-05-26T09:12:00.000Z",
+      },
+    ],
+    developer_space_nodes: [
+      {
+        id: "dev-node-1",
+        developer_space_id: DEVELOPER_SPACE_ID,
+        external_id: "animus-alpha",
+        node_name: "Animus Alpha",
+        topology_type: "radial",
+        fragment_count: 144,
+        self_similarity_score: 0.81,
+        dimensionality: 12,
+        metrics: { rawSignal: "owner exportable" },
+        last_event_at: "2026-05-26T09:13:00.000Z",
+        created_at: "2026-05-26T09:12:30.000Z",
+        updated_at: "2026-05-26T09:13:00.000Z",
+      },
+      {
+        id: "other-dev-node",
+        developer_space_id: "other-dev-space",
+        external_id: "other-alpha",
+        node_name: "Other Alpha",
+        topology_type: "custom",
+        fragment_count: 1,
+        self_similarity_score: null,
+        dimensionality: null,
+        metrics: { mustNotLeak: true },
+        last_event_at: null,
+        created_at: "2026-05-26T09:12:30.000Z",
+        updated_at: "2026-05-26T09:12:30.000Z",
+      },
+    ],
+    developer_space_events: [
+      {
+        id: "dev-event-public",
+        developer_space_id: DEVELOPER_SPACE_ID,
+        node_id: "dev-node-1",
+        external_node_id: "animus-alpha",
+        event_type: "signal.detected",
+        event_label: "Signal detected",
+        event_data: { confidence: 0.92 },
+        similarity_score: 0.88,
+        source_refs: ["station:signal"],
+        provenance: "api",
+        visibility: "public",
+        occurred_at: "2026-05-26T09:13:00.000Z",
+        created_at: "2026-05-26T09:13:00.000Z",
+      },
+      {
+        id: "dev-event-private",
+        developer_space_id: DEVELOPER_SPACE_ID,
+        node_id: null,
+        external_node_id: null,
+        event_type: "debug.private",
+        event_label: "Private diagnostic",
+        event_data: { raw: "owner-only diagnostic" },
+        similarity_score: null,
+        source_refs: [],
+        provenance: "api",
+        visibility: "private",
+        occurred_at: "2026-05-26T09:13:30.000Z",
+        created_at: "2026-05-26T09:13:30.000Z",
+      },
+      {
+        id: "other-dev-event",
+        developer_space_id: "other-dev-space",
+        node_id: "other-dev-node",
+        external_node_id: "other-alpha",
+        event_type: "other.secret",
+        event_label: "Other secret",
+        event_data: { mustNotLeak: true },
+        similarity_score: null,
+        source_refs: [],
+        provenance: "api",
+        visibility: "private",
+        occurred_at: "2026-05-26T09:13:30.000Z",
+        created_at: "2026-05-26T09:13:30.000Z",
+      },
+    ],
+    developer_space_snapshots: [
+      {
+        id: "dev-snapshot-1",
+        developer_space_id: DEVELOPER_SPACE_ID,
+        snapshot_data: { summary: "Weekly manifold snapshot" },
+        source_refs: ["weekly-snapshot-18"],
+        provenance: "api",
+        visibility: "public",
+        occurred_at: "2026-05-26T09:14:00.000Z",
+        created_at: "2026-05-26T09:14:00.000Z",
+      },
+    ],
+    developer_space_documents: [
+      {
+        id: "dev-link-public",
+        developer_space_id: DEVELOPER_SPACE_ID,
+        document_id: DEV_PUBLIC_DOC_ID,
+        owner_user_id: OWNER_ID,
+        document_role: "field_log",
+        link_visibility: "public",
+        sort_order: 1,
+        created_at: "2026-05-26T09:15:00.000Z",
+        updated_at: "2026-05-26T09:15:00.000Z",
+      },
+      {
+        id: "dev-link-private",
+        developer_space_id: DEVELOPER_SPACE_ID,
+        document_id: DEV_PRIVATE_DOC_ID,
+        owner_user_id: OWNER_ID,
+        document_role: "methodology",
+        link_visibility: "owner",
+        sort_order: 2,
+        created_at: "2026-05-26T09:15:30.000Z",
+        updated_at: "2026-05-26T09:15:30.000Z",
+      },
+    ],
+    developer_space_usage: [
+      {
+        developer_space_id: DEVELOPER_SPACE_ID,
+        owner_user_id: OWNER_ID,
+        ingested_nodes_count: 1,
+        ingested_events_count: 2,
+        ingested_snapshots_count: 1,
+        storage_bytes: 4096,
+        public_detail_reads_count: 7,
+        export_count: 0,
+        updated_at: "2026-05-26T09:16:00.000Z",
+      },
     ],
     threads: [
       {
@@ -413,6 +618,8 @@ class InMemorySupabase {
 
     if (table === "export_packages") {
       row.package_kind ??= "persona_archive";
+      row.persona_id ??= null;
+      row.developer_space_id ??= null;
       row.status ??= "completed";
       row.format ??= "json_markdown";
       row.included_sections ??= [];
@@ -774,6 +981,59 @@ test("owner can export persona archive while preserving provenance and privacy b
       token: "other-token",
     });
     assert.equal(blockedRead.status, 404);
+
+    const blockedDeveloperSpaceExport = await requestJson(app, "POST", `/exports/developer-spaces/${DEVELOPER_SPACE_ID}`, {
+      token: "other-token",
+    });
+    assert.equal(blockedDeveloperSpaceExport.status, 404);
+
+    const developerSpaceExport = await requestJson(app, "POST", `/exports/developer-spaces/${DEVELOPER_SPACE_ID}`, {
+      token: "owner-token",
+    });
+    assert.equal(developerSpaceExport.status, 201);
+    assert.equal(developerSpaceExport.body.exportPackage.packageKind, "developer_space_archive");
+    assert.equal(developerSpaceExport.body.exportPackage.developerSpaceId, DEVELOPER_SPACE_ID);
+    assert.equal(developerSpaceExport.body.exportPackage.personaId, null);
+    assert.equal(developerSpaceExport.body.manifest.schema, "station.developer_space.export.v1");
+    assert.equal(developerSpaceExport.body.manifest.space.projectName, "Animus Field");
+    assert.equal(developerSpaceExport.body.manifest.counts.nodes, 1);
+    assert.equal(developerSpaceExport.body.manifest.counts.events, 2);
+    assert.equal(developerSpaceExport.body.manifest.counts.snapshots, 1);
+    assert.equal(developerSpaceExport.body.manifest.counts.linkedPublicDocuments, 1);
+    assert.equal(developerSpaceExport.body.manifest.usage.counters.publicReads, 7);
+    assert.equal(developerSpaceExport.body.manifest.usage.limits.events, 100000);
+    assert.equal(developerSpaceExport.body.manifest.trust.apiKeysExcluded, true);
+    assert.equal(developerSpaceExport.body.manifest.trust.linkedDocumentsPublicSafeOnly, true);
+    assert.equal(developerSpaceExport.body.manifest.events.some((event: Row) => event.eventLabel === "Private diagnostic"), true);
+    assert.equal(developerSpaceExport.body.manifest.linkedPublicDocumentRefs.length, 1);
+    assert.equal(developerSpaceExport.body.manifest.linkedPublicDocumentRefs[0].document.title, "Animus public field log");
+    const developerManifestText = JSON.stringify(developerSpaceExport.body.manifest);
+    assert.match(developerManifestText, /owner-only diagnostic/);
+    assert.match(developerManifestText, /Public field log body is safe/);
+    assert.doesNotMatch(developerManifestText, /must-not-export/);
+    assert.doesNotMatch(developerManifestText, /Private Developer Space method/);
+    assert.doesNotMatch(developerManifestText, /Other secret/);
+    assert.doesNotMatch(developerManifestText, /mustNotLeak/);
+    assert.equal(db.tables.developer_space_usage[0].export_count, 1);
+
+    const listedDeveloperSpaceExports = await requestJson(app, "GET", `/exports/developer-spaces/${DEVELOPER_SPACE_ID}`, {
+      token: "owner-token",
+    });
+    assert.equal(listedDeveloperSpaceExports.status, 200);
+    assert.equal(listedDeveloperSpaceExports.body.exports.length, 1);
+    assert.equal(listedDeveloperSpaceExports.body.exports[0].contentSummary.linkedPublicDocuments, 1);
+
+    const developerSpaceReadBack = await requestJson(app, "GET", `/exports/${developerSpaceExport.body.exportPackage.id}`, {
+      token: "owner-token",
+    });
+    assert.equal(developerSpaceReadBack.status, 200);
+    assert.match(developerSpaceReadBack.body.manifestMarkdown, /Station Developer Space Export: Animus Field/);
+    assert.match(developerSpaceReadBack.body.manifestMarkdown, /Linked Public Documents/);
+
+    const blockedDeveloperSpaceReadBack = await requestJson(app, "GET", `/exports/${developerSpaceExport.body.exportPackage.id}`, {
+      token: "other-token",
+    });
+    assert.equal(blockedDeveloperSpaceReadBack.status, 404);
   } finally {
     setSupabaseAdminForTests(null);
   }

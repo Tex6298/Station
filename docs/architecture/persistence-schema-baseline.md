@@ -18,7 +18,7 @@ The current scaffold assumes these persistence entities:
 | Public Spaces/documents | `spaces`, `space_pages`, `documents` |
 | Community | `forum_categories`, `threads`, `comments`, `moderation_reports`, `discover_feed` |
 | Publishing/export | `social_connections`, `social_posts`, `export_packages` |
-| Developer Spaces | `developer_spaces`, `developer_space_ingestion_keys`, `developer_space_nodes`, `developer_space_events`, `developer_space_snapshots`, `developer_space_documents` |
+| Developer Spaces | `developer_spaces`, `developer_space_ingestion_keys`, `developer_space_nodes`, `developer_space_events`, `developer_space_snapshots`, `developer_space_documents`, `developer_space_usage` |
 
 ## Baseline notes
 
@@ -34,6 +34,10 @@ The current scaffold assumes these persistence entities:
   findings, field logs, and notes. Public reads must continue through API
   serializers because public link visibility is not sufficient unless the
   linked document is also published with public document visibility.
+- PR-14 extends `export_packages` with `developer_space_id` for owner-only
+  Developer Space archives and adds `developer_space_usage` for bounded
+  ingestion, estimated storage, public-read, and export counters. Quota limits
+  are currently an API-level model for owner visibility, not Stripe billing.
 - RLS is enabled on user-facing tables. Broad public reads should continue to go
   through API serializers or future public-safe SQL views when tables contain
   private source data or key material.

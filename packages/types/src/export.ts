@@ -1,8 +1,9 @@
 export interface ArchiveExportPackage {
   id: string;
   ownerUserId: string;
-  personaId: string;
-  packageKind: 'persona_archive';
+  personaId?: string | null;
+  developerSpaceId?: string | null;
+  packageKind: 'persona_archive' | 'developer_space_archive';
   status: 'requested' | 'processing' | 'completed' | 'failed';
   format: 'json_markdown';
   includedSections: string[];
@@ -26,5 +27,24 @@ export interface ArchiveExportManifest {
   counts: Record<string, number>;
   continuity: Record<string, unknown>;
   publishedDocumentRefs: Array<Record<string, unknown>>;
+  trust: Record<string, unknown>;
+}
+
+export interface DeveloperSpaceExportManifest {
+  schema: 'station.developer_space.export.v1';
+  generatedAt: string;
+  package: {
+    id: string;
+    status: string;
+    format: string;
+  };
+  privacy: Record<string, unknown>;
+  space: Record<string, unknown>;
+  counts: Record<string, number>;
+  usage: Record<string, unknown>;
+  nodes: Array<Record<string, unknown>>;
+  events: Array<Record<string, unknown>>;
+  snapshots: Array<Record<string, unknown>>;
+  linkedPublicDocumentRefs: Array<Record<string, unknown>>;
   trust: Record<string, unknown>;
 }

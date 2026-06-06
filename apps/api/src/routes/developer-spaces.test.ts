@@ -20,6 +20,7 @@ class InMemorySupabase {
     developer_spaces: [],
     developer_space_ingestion_keys: [],
     developer_space_documents: [],
+    developer_space_usage: [],
     developer_space_nodes: [],
     developer_space_events: [],
     developer_space_snapshots: [],
@@ -96,6 +97,16 @@ class InMemorySupabase {
       row.link_visibility ??= "owner";
       row.sort_order ??= 0;
       row.created_at ??= now;
+      row.updated_at ??= now;
+    }
+
+    if (table === "developer_space_usage") {
+      row.ingested_nodes_count ??= 0;
+      row.ingested_events_count ??= 0;
+      row.ingested_snapshots_count ??= 0;
+      row.storage_bytes ??= 0;
+      row.public_detail_reads_count ??= 0;
+      row.export_count ??= 0;
       row.updated_at ??= now;
     }
 
@@ -676,6 +687,24 @@ test("Developer Spaces smoke covers creation, keying, ingestion, and public/owne
     assert.equal(JSON.stringify(ownerSse.data).includes("public-db-password"), true);
     assert.equal(JSON.stringify(ownerSse.data).includes("Draft-only calibration method"), true);
     assert.equal(JSON.stringify(ownerSse.data).includes("api_key_hash"), false);
+
+    const otherUsageBlocked = await requestJson(app, "GET", `/developer-spaces/${spaceId}/usage`, {
+      token: "other-token",
+    });
+    assert.equal(otherUsageBlocked.status, 403);
+
+    const usage = await requestJson(app, "GET", `/developer-spaces/${spaceId}/usage`, {
+      token: "owner-token",
+    });
+    assert.equal(usage.status, 200);
+    assert.equal(usage.body.usage.counters.nodes, 1);
+    assert.equal(usage.body.usage.counters.events, 3);
+    assert.equal(usage.body.usage.counters.snapshots, 1);
+    assert.equal(usage.body.usage.counters.publicReads, 3);
+    assert.equal(usage.body.usage.counters.exports, 0);
+    assert.equal(usage.body.usage.limits.events, 100000);
+    assert.equal(usage.body.usage.warningLevel, "ok");
+    assert.equal(usage.body.usage.counters.storageBytes > 0, true);
 
     const rotatedKeyResponse = await requestJson(app, "POST", `/developer-spaces/${spaceId}/api-key`, {
       token: "owner-token",

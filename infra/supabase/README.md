@@ -23,6 +23,14 @@ In the Supabase dashboard, go to **SQL Editor** and run the migrations in order:
 9. `migrations/009_archive_export_packages.sql` - archive export packages
 10. `migrations/010_archived_chat_candidates.sql` - archived chats and continuity candidates
 11. `migrations/011_schema_baseline_alignment.sql` - PR-02 schema/type alignment, continuity records, and ingestion-key baseline
+12. `migrations/012_storage_usage.sql` - storage usage counters and reservation RPCs
+13. `migrations/013_integrity_sessions.sql` - integrity sessions
+14. `migrations/014_integrity_questions_token_credits.sql` - integrity questions and token credits
+15. `migrations/015_token_topup_grants.sql` - token top-up grants
+16. `migrations/016_monthly_token_reset.sql` - monthly token reset RPC
+17. `migrations/017_continuity_alpha_data_model.sql` - continuity source-version alignment
+18. `migrations/018_developer_space_documents.sql` - Developer Space linked documents
+19. `migrations/019_developer_space_exports_usage.sql` - Developer Space export packages and usage counters
 
 Or use the Supabase CLI:
 ```bash
@@ -82,9 +90,11 @@ In Supabase -> **Authentication -> Settings**:
 | `discover_feed` | Feed events for the Discover page |
 | `social_connections` | Owner OAuth/app-password connections for publishing |
 | `social_posts` | Social publishing history |
-| `export_packages` | Owner-only archive export manifests/packages |
+| `export_packages` | Owner-only persona and Developer Space export manifests/packages |
 | `developer_spaces` | Public/private observatories for research and builder projects |
-| `developer_space_ingestion_keys` | Server/owner-only ingestion key hashes for future rotation |
+| `developer_space_ingestion_keys` | Server/owner-only ingestion key hashes for rotation/revocation |
 | `developer_space_nodes` | Live entities/nodes tracked inside Developer Spaces |
 | `developer_space_events` | Ingested event stream for observatory timelines |
 | `developer_space_snapshots` | Periodic full-state snapshots for history/playback |
+| `developer_space_documents` | Linked methodology, findings, field logs, and notes |
+| `developer_space_usage` | Developer Space ingestion/storage/public-read/export counters |

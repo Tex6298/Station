@@ -714,3 +714,35 @@ PR-13 is accepted for bounded Developer Spaces linked documents, methodology,
 findings, field logs, and notes. This does not include normal Station Space
 relation modeling, Developer Space quotas/exports, SDK package work, visual
 editors, or broader document authoring/versioning.
+
+## PR-14 DAEDALUS implementation result
+
+Validated on 2026-06-06 after the bounded Developer Spaces export/quota slice:
+
+- Added `infra/supabase/migrations/019_developer_space_exports_usage.sql` to
+  allow Developer Space archive packages in `export_packages` and add
+  owner-scoped `developer_space_usage` counters.
+- Added `developer_space_archive` package types and Developer Space usage/quota
+  DTOs.
+- Added `/exports/developer-spaces/:spaceId` list/create routes for owner-only
+  JSON/Markdown packages containing nodes, events, snapshots, usage, and
+  public-safe linked document refs.
+- Developer Space ingestion and public detail/SSE reads now update bounded
+  usage counters; `/developer-spaces/:id/usage` exposes owner-only quota status.
+- The manage console shows usage, export count, and an owner-only export create
+  control without widening into SDK, billing, or visual-editor work.
+
+Targeted commands run with the pinned runner:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npx --yes pnpm@10.32.1 test:exports` | Pass | 1 test passed; coverage now includes Developer Space owner-only exports, public-safe linked document refs, key exclusion, other-owner denial, listing/readback, and export counter increment. |
+| `npx --yes pnpm@10.32.1 test:developer-spaces` | Pass | 2 tests passed; coverage now includes usage counters for ingestion and public reads plus owner-only usage access. |
+| `npx --yes pnpm@10.32.1 typecheck` | Pass | API, web, shared type, and DB type surfaces completed. |
+| `npx --yes pnpm@10.32.1 build` | Pass | Known pre-existing React hook dependency and `<img>` optimization warnings only. |
+
+ARGUS still needs to review the PR-14 implementation before the roadmap should
+mark PR-14 accepted. Main risks to review: owner-only export boundaries,
+private event inclusion inside owner archives, public-safe linked document refs,
+quota-counter semantics, and the decision to keep quota limits API-level rather
+than Stripe/billing-backed.

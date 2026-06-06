@@ -88,6 +88,28 @@ export interface DeveloperSpaceLinkedDocument {
   };
 }
 
+export interface DeveloperSpaceUsageCounters {
+  nodes: number;
+  events: number;
+  snapshots: number;
+  storageBytes: number;
+  publicReads: number;
+  exports: number;
+}
+
+export interface DeveloperSpaceQuotaLimits extends DeveloperSpaceUsageCounters {}
+
+export interface DeveloperSpaceUsage {
+  developerSpaceId: string;
+  ownerUserId: string;
+  tier: string;
+  counters: DeveloperSpaceUsageCounters;
+  limits: DeveloperSpaceQuotaLimits;
+  percentUsed: DeveloperSpaceUsageCounters;
+  warningLevel: "ok" | "notice" | "warning" | "blocked";
+  updatedAt?: string | null;
+}
+
 export interface DeveloperSpaceDetail {
   space: DeveloperSpaceRecord;
   nodes: DeveloperSpaceNode[];
