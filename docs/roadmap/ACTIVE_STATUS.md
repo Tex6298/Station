@@ -173,6 +173,10 @@ when a PR lands, or when validation truth changes.
   mobile menu does not cover dashboard content. Existing API behavior, routes,
   auth/session semantics, global Archive, Export workspace, and Station
   Assistant behavior were not changed.
+- UX-01A ARIADNE experience review is active, 2026-06-06: ARIADNE should review
+  the accepted Studio frame/mobile navigation slice for private-workbench tone,
+  wayfinding, mobile ergonomics, empty/loading/error states, and whether UX-02A
+  should open next.
 
 ## Current repo truth
 
