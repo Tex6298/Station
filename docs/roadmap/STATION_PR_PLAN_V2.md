@@ -33,11 +33,11 @@ Developer Spaces.
 - Developer Spaces has a Station-native observatory slice: owner-created project
   observatories, hashed ingestion keys, node/event/snapshot ingestion endpoints,
   public observatory pages, and private management surfaces.
-- Current `main` includes post-PR-06 storage, integrity, token-credit,
-  Stripe-adjacent, and UX work from commits `65a8328` through `63d9754`. Those
-  commits are audited in `docs/roadmap/CURRENT_MAIN_RECONCILIATION.md`; they are
-  not yet roadmap-complete because the current full validation gate has
-  continuity/context/archive regressions.
+- Current `main` includes the post-PR-06 storage, integrity, token-credit,
+  Stripe-adjacent, and UX work audited in
+  `docs/roadmap/CURRENT_MAIN_RECONCILIATION.md`. That file is now a historical
+  checkpoint: its validation failures were repaired before PR-07, and PR-00
+  through PR-17 are closed in `docs/roadmap/ACTIVE_STATUS.md`.
 
 ## Validation baseline
 
@@ -63,10 +63,9 @@ pnpm test:exports
 pnpm test:developer-spaces
 ```
 
-As of the 2026-06-06 full-baseline repair, PR-07 may proceed only as Continuity
-Alpha data-model work. Keep Continuity Studio UI, publication/export expansion,
-Developer Spaces polish, Stripe, token-credit expansion, and broad UX out of
-PR-07.
+As of the 2026-06-06 PR-17 closeout, the bounded v2 roadmap is complete from
+PR-00 through PR-17. Do not invent PR-18 from this file; open a successor
+roadmap before starting another product implementation lane.
 
 ## PR-00 - Roadmap reset and source-of-truth docs
 

@@ -155,7 +155,7 @@ when a PR lands, or when validation truth changes.
   oversized/deep JSON payloads are rejected, `api_key_hash` is never serialized,
   and public/community observatory responses scrub obvious secret-shaped JSON
   keys while preserving owner-only operational detail.
-- As of PR-11 DAEDALUS implementation, Developer Spaces live updates are SSE
+- As of PR-11 ARGUS acceptance, Developer Spaces live updates are SSE
   based: the stream reuses the detail-route serializer, emits reconnect-friendly
   `developer_space.update` payloads with freshness metadata, supports
   EventSource query-token auth for owner views, and keeps public visitors on
@@ -254,6 +254,9 @@ pnpm test:continuity-publication
 pnpm test:document-discussions
 pnpm test:exports
 pnpm test:developer-spaces
+pnpm test:developer-space-client
+pnpm --filter @station/api build
+git diff --check
 ```
 
 ## Out of scope for the current roadmap

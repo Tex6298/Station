@@ -107,9 +107,9 @@ Revalidated on 2026-06-05 after auditing the post-PR-06 stack from
 `0d06823 api: harden community permissions` through
 `63d975499544d8f81aa444b4d39f396017c74bb8 feat: close remaining integrity credit gaps`.
 
-Current main is not green. Most commands pass, but continuity/context/archive
-validation regressed after the storage, integrity, token-credit, and UX stack
-landed.
+At the 2026-06-05 current-main reconciliation checkpoint, current main was not
+green. Most commands passed, but continuity/context/archive validation regressed
+after the storage, integrity, token-credit, and UX stack landed.
 
 | Command | Result | Notes |
 | --- | --- | --- |
@@ -150,10 +150,11 @@ These warnings do not currently fail the baseline:
 - `dev` and `start` scripts are runtime commands, not part of the non-interactive
   validation baseline.
 
-## Remaining failures
+## Historical remaining failures
 
 Current main was not measurable enough to serve as the base for PR-07 continuity
-alpha data model work at the 2026-06-05 reconciliation checkpoint.
+alpha data model work at the 2026-06-05 reconciliation checkpoint. This section
+is retained as the failure record; the next section records the repair.
 
 - `pnpm test:continuity` fails at
   `apps/api/src/routes/continuity.test.ts:330`: expected `201`, got `500` for
@@ -911,10 +912,9 @@ Targeted commands run with the pinned runner:
 | `npx --yes pnpm@10.32.1 typecheck` | Pass | API and web typecheck tasks completed after adapting Stripe v22 type usage. |
 | `npx --yes pnpm@10.32.1 build` | Pass | Full workspace build passed with known React hook and `<img>` warnings only. |
 
-ARGUS still needs to review PR-17 before the roadmap should mark it accepted.
-Main risks to review: Stripe SDK/API bump, Checkout metadata shape, webhook
-sync/downgrade semantics, and whether one Canon Developer Space is the right
-initial paid limit.
+At the DAEDALUS implementation checkpoint, ARGUS still needed to review PR-17
+before the roadmap could mark it accepted. The acceptance result below
+supersedes that pending-review state.
 
 ## PR-17 ARGUS acceptance result
 

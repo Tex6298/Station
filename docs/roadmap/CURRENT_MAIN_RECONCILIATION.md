@@ -2,6 +2,12 @@
 
 Date: 2026-06-05
 
+Status: historical checkpoint. This file records the post-PR-06 audit before
+the 2026-06-06 validation repair and PR-07 through PR-17 sequence. Its failing
+validation table is not the current repo status; use
+`docs/roadmap/ACTIVE_STATUS.md` and `docs/testing/VALIDATION_BASELINE.md` for
+current validation truth.
+
 Base inspected: `0d06823 api: harden community permissions`
 
 Current HEAD inspected: `63d975499544d8f81aa444b4d39f396017c74bb8 feat: close remaining integrity credit gaps`
@@ -63,7 +69,7 @@ Commands were run from the repository root using
 | `pnpm test:exports` | Pass | 1 test passed. |
 | `pnpm test:developer-spaces` | Pass | 2 tests passed. |
 
-Current main is therefore not a clean green base for PR-07.
+At this checkpoint, current main was therefore not a clean green base for PR-07.
 
 ## Untested or under-tested behavior
 
@@ -78,9 +84,12 @@ Current main is therefore not a clean green base for PR-07.
   handling.
 - New UX surfaces beyond build/lint/typecheck.
 
-## Recommended next instruction
+## Historical recommended next instruction
 
-Do not start PR-07 implementation yet.
+At this checkpoint, the recommendation was not to start PR-07 implementation
+yet. That recommendation was superseded by the targeted validation repair and
+the accepted PR-07 through PR-17 sequence recorded in the active status and
+validation baseline docs.
 
 First choose one of these paths:
 
