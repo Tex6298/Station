@@ -71,6 +71,9 @@ when a PR lands, or when validation truth changes.
   visitor freshness indicator, and an owner live ingestion log in the manage
   console. This is database-poll backed SSE, not pub/sub, and does not add
   WebSockets or move into PR-12 through PR-14 scope.
+- PR-12 is the active next roadmap move: integrate public-safe Developer Spaces
+  into Discover with cards, high-signal event summaries, search/filter/sort,
+  and normal Station Space linking where it fits the bounded slice.
 
 ## Current repo truth
 
