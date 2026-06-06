@@ -24,7 +24,33 @@ const topologySchema = z.enum(["radial", "branching", "lattice", "custom"]);
 const eventVisibilitySchema = z.enum(["private", "community", "public"]);
 const provenanceSchema = z.enum(["api", "imported", "user", "system", "ai_generated"]);
 const sourceRefsSchema = z.array(z.string().max(500)).max(24).default([]);
-const jsonObjectSchema = z.record(z.unknown());
+const MAX_JSON_CHARS = 32_000;
+const MAX_JSON_DEPTH = 8;
+
+function jsonDepth(value: unknown, depth = 0): number {
+  if (!value || typeof value !== "object") return depth;
+  if (depth > MAX_JSON_DEPTH) return depth;
+  const values = Array.isArray(value)
+    ? value
+    : Object.values(value as Record<string, unknown>);
+  return values.reduce((max, item) => Math.max(max, jsonDepth(item, depth + 1)), depth);
+}
+
+const jsonObjectSchema = z.record(z.unknown()).superRefine((value, ctx) => {
+  if (JSON.stringify(value).length > MAX_JSON_CHARS) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: `JSON payload must be ${MAX_JSON_CHARS} characters or less.`,
+    });
+  }
+
+  if (jsonDepth(value) > MAX_JSON_DEPTH) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: `JSON payload depth must be ${MAX_JSON_DEPTH} levels or less.`,
+    });
+  }
+});
 
 const createSpaceSchema = z.object({
   projectName: z.string().min(1).max(120),
@@ -85,6 +111,34 @@ async function loadSpaceForIngestion(req: any, res: any) {
 
   const apiKeyHash = hashDeveloperSpaceApiKey(rawKey);
   const sb = getSupabaseAdmin();
+
+  const { data: ingestionKey } = await sb
+    .from("developer_space_ingestion_keys")
+    .select("*")
+    .eq("key_hash", apiKeyHash)
+    .eq("status", "active")
+    .maybeSingle();
+
+  if (ingestionKey) {
+    await sb
+      .from("developer_space_ingestion_keys")
+      .update({ last_used_at: new Date().toISOString() })
+      .eq("id", ingestionKey.id);
+
+    const { data: keyedSpace, error: keyedSpaceError } = await sb
+      .from("developer_spaces")
+      .select("*")
+      .eq("id", ingestionKey.developer_space_id)
+      .single();
+
+    if (keyedSpaceError || !keyedSpace) {
+      res.status(401).json({ error: "Invalid Developer Space API key." });
+      return null;
+    }
+
+    return keyedSpace;
+  }
+
   const { data, error } = await sb
     .from("developer_spaces")
     .select("*")
@@ -160,7 +214,7 @@ developerSpacesRouter.post("/ingest/nodes/:nodeId/state", async (req, res) => {
     occurred_at: now,
   });
 
-  return res.status(202).json({ node: serializeDeveloperSpaceNode(node) });
+  return res.status(202).json({ node: serializeDeveloperSpaceNode(node, { includeRawData: true }) });
 });
 
 developerSpacesRouter.post("/ingest/events", async (req, res) => {
@@ -200,7 +254,7 @@ developerSpacesRouter.post("/ingest/events", async (req, res) => {
       .eq("id", node.id);
   }
 
-  return res.status(202).json({ event: serializeDeveloperSpaceEvent(data) });
+  return res.status(202).json({ event: serializeDeveloperSpaceEvent(data, { includeRawData: true }) });
 });
 
 developerSpacesRouter.post("/ingest/snapshots", async (req, res) => {
@@ -225,7 +279,7 @@ developerSpacesRouter.post("/ingest/snapshots", async (req, res) => {
     .single();
 
   if (error || !data) return res.status(500).json({ error: error?.message ?? "Could not ingest snapshot." });
-  return res.status(202).json({ snapshot: serializeDeveloperSpaceSnapshot(data) });
+  return res.status(202).json({ snapshot: serializeDeveloperSpaceSnapshot(data, { includeRawData: true }) });
 });
 
 developerSpacesRouter.post("/ingest/import", async (req, res) => {
@@ -372,12 +426,36 @@ developerSpacesRouter.post("/:id/api-key", requireAuth, async (req, res) => {
   }
 
   const apiKey = generateDeveloperSpaceApiKey();
+  const apiKeyHash = hashDeveloperSpaceApiKey(apiKey);
+  const now = new Date().toISOString();
+
+  await sb
+    .from("developer_space_ingestion_keys")
+    .update({ status: "revoked", revoked_at: now })
+    .eq("developer_space_id", space.id)
+    .eq("status", "active");
+
+  const { error: keyError } = await sb
+    .from("developer_space_ingestion_keys")
+    .insert({
+      developer_space_id: space.id,
+      owner_user_id: space.owner_user_id,
+      key_hash: apiKeyHash,
+      key_last_four: apiKey.slice(-4),
+      label: "Default ingestion key",
+      status: "active",
+    })
+    .select("*")
+    .single();
+
+  if (keyError) return res.status(500).json({ error: keyError.message });
+
   const { data, error } = await sb
     .from("developer_spaces")
     .update({
-      api_key_hash: hashDeveloperSpaceApiKey(apiKey),
+      api_key_hash: apiKeyHash,
       api_key_last_four: apiKey.slice(-4),
-      api_key_created_at: new Date().toISOString(),
+      api_key_created_at: now,
     })
     .eq("id", space.id)
     .select("*")
@@ -385,6 +463,41 @@ developerSpacesRouter.post("/:id/api-key", requireAuth, async (req, res) => {
 
   if (error || !data) return res.status(500).json({ error: error?.message ?? "Could not rotate API key." });
   return res.status(201).json({ apiKey, space: serializeDeveloperSpace(data) });
+});
+
+developerSpacesRouter.post("/:id/api-key/revoke", requireAuth, async (req, res) => {
+  const sb = getSupabaseAdmin();
+  const { data: space, error: loadError } = await sb
+    .from("developer_spaces")
+    .select("*")
+    .eq("id", req.params.id)
+    .single();
+
+  if (loadError || !space) return res.status(404).json({ error: "Developer Space not found." });
+  if (space.owner_user_id !== req.user!.id && !req.user!.isAdmin) {
+    return res.status(403).json({ error: "Not authorised." });
+  }
+
+  const now = new Date().toISOString();
+  await sb
+    .from("developer_space_ingestion_keys")
+    .update({ status: "revoked", revoked_at: now })
+    .eq("developer_space_id", space.id)
+    .eq("status", "active");
+
+  const { data, error } = await sb
+    .from("developer_spaces")
+    .update({
+      api_key_hash: null,
+      api_key_last_four: null,
+      api_key_created_at: null,
+    })
+    .eq("id", space.id)
+    .select("*")
+    .single();
+
+  if (error || !data) return res.status(500).json({ error: error?.message ?? "Could not revoke API key." });
+  return res.json({ space: serializeDeveloperSpace(data) });
 });
 
 developerSpacesRouter.patch("/:id", requireAuth, async (req, res) => {
@@ -461,11 +574,12 @@ developerSpacesRouter.get("/:slug", optionalAuth, async (req, res) => {
   if (eventsResult.error) return res.status(500).json({ error: eventsResult.error.message });
   if (snapshotsResult.error) return res.status(500).json({ error: snapshotsResult.error.message });
 
+  const includeRawData = access === "owner";
   return res.json({
     space: serializeDeveloperSpace(space, { includeOperationalFields: access === "owner" }),
-    nodes: (nodesResult.data ?? []).map(serializeDeveloperSpaceNode),
-    events: (eventsResult.data ?? []).map(serializeDeveloperSpaceEvent),
-    latestSnapshot: snapshotsResult.data?.[0] ? serializeDeveloperSpaceSnapshot(snapshotsResult.data[0]) : null,
+    nodes: (nodesResult.data ?? []).map((node) => serializeDeveloperSpaceNode(node, { includeRawData })),
+    events: (eventsResult.data ?? []).map((event) => serializeDeveloperSpaceEvent(event, { includeRawData })),
+    latestSnapshot: snapshotsResult.data?.[0] ? serializeDeveloperSpaceSnapshot(snapshotsResult.data[0], { includeRawData }) : null,
     access,
   });
 });

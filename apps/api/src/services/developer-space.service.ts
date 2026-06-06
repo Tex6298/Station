@@ -12,6 +12,16 @@ import type { AuthenticatedUser } from "../middleware/require-auth";
 const API_KEY_PREFIX = "station_dev_";
 
 const PAID_TIERS = new Set(["private", "creator", "canon", "institutional"]);
+const SENSITIVE_JSON_KEYS = new Set([
+  "authorization",
+  "api_key",
+  "apiKey",
+  "key",
+  "prompt",
+  "raw",
+  "secret",
+  "token",
+]);
 
 export function slugifyProjectName(input: string): string {
   const slug = input
@@ -40,6 +50,17 @@ export function normaliseSourceRefs(refs: unknown): string[] {
     .filter((ref): ref is string => typeof ref === "string" && ref.trim().length > 0)
     .map((ref) => ref.trim())
     .slice(0, 24);
+}
+
+export function publicSafeDeveloperSpaceData(value: unknown): unknown {
+  if (Array.isArray(value)) return value.map(publicSafeDeveloperSpaceData);
+  if (!value || typeof value !== "object") return value;
+
+  return Object.fromEntries(
+    Object.entries(value as Record<string, unknown>)
+      .filter(([key]) => !SENSITIVE_JSON_KEYS.has(key))
+      .map(([key, nested]) => [key, publicSafeDeveloperSpaceData(nested)])
+  );
 }
 
 export function extractDeveloperApiKey(headerValue?: string | string[]): string | null {
@@ -89,7 +110,11 @@ export function serializeDeveloperSpace(row: any, options: { includeOperationalF
   };
 }
 
-export function serializeDeveloperSpaceNode(row: any): DeveloperSpaceNode {
+export function serializeDeveloperSpaceNode(
+  row: any,
+  options: { includeRawData?: boolean } = {}
+): DeveloperSpaceNode {
+  const includeRawData = options.includeRawData ?? false;
   return {
     id: row.id,
     developerSpaceId: row.developer_space_id,
@@ -103,14 +128,18 @@ export function serializeDeveloperSpaceNode(row: any): DeveloperSpaceNode {
     dimensionality: row.dimensionality === null || row.dimensionality === undefined
       ? null
       : Number(row.dimensionality),
-    metrics: row.metrics ?? {},
+    metrics: includeRawData ? row.metrics ?? {} : publicSafeDeveloperSpaceData(row.metrics ?? {}) as Record<string, unknown>,
     lastEventAt: row.last_event_at ?? null,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   };
 }
 
-export function serializeDeveloperSpaceEvent(row: any): DeveloperSpaceEvent {
+export function serializeDeveloperSpaceEvent(
+  row: any,
+  options: { includeRawData?: boolean } = {}
+): DeveloperSpaceEvent {
+  const includeRawData = options.includeRawData ?? false;
   return {
     id: row.id,
     developerSpaceId: row.developer_space_id,
@@ -118,7 +147,7 @@ export function serializeDeveloperSpaceEvent(row: any): DeveloperSpaceEvent {
     externalNodeId: row.external_node_id ?? null,
     eventType: row.event_type,
     eventLabel: row.event_label ?? null,
-    eventData: row.event_data ?? {},
+    eventData: includeRawData ? row.event_data ?? {} : publicSafeDeveloperSpaceData(row.event_data ?? {}) as Record<string, unknown>,
     similarityScore: row.similarity_score === null || row.similarity_score === undefined
       ? null
       : Number(row.similarity_score),
@@ -130,11 +159,15 @@ export function serializeDeveloperSpaceEvent(row: any): DeveloperSpaceEvent {
   };
 }
 
-export function serializeDeveloperSpaceSnapshot(row: any): DeveloperSpaceSnapshot {
+export function serializeDeveloperSpaceSnapshot(
+  row: any,
+  options: { includeRawData?: boolean } = {}
+): DeveloperSpaceSnapshot {
+  const includeRawData = options.includeRawData ?? false;
   return {
     id: row.id,
     developerSpaceId: row.developer_space_id,
-    snapshotData: row.snapshot_data ?? {},
+    snapshotData: includeRawData ? row.snapshot_data ?? {} : publicSafeDeveloperSpaceData(row.snapshot_data ?? {}) as Record<string, unknown>,
     sourceRefs: normaliseSourceRefs(row.source_refs),
     provenance: row.provenance ?? "api",
     visibility: row.visibility ?? "public",

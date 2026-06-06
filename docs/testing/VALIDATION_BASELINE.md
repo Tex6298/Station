@@ -434,3 +434,33 @@ Commands re-run by ARGUS:
 
 This is accepted as PR-09 slice 2, not as a declaration that every PR-09
 publication/export ambition is finished.
+
+## PR-10 DAEDALUS implementation result
+
+Validated on 2026-06-06 after the bounded Developer Spaces hardening slice:
+
+- Ingestion API keys now resolve through active
+  `developer_space_ingestion_keys` rows first, with legacy
+  `developer_spaces.api_key_hash` fallback retained for existing keys.
+- Rotating a Developer Space API key revokes prior active ingestion keys and
+  creates a new active key row; revocation clears the legacy hash/last-four
+  fields and blocks the revoked key.
+- Ingestion JSON payloads reject oversized or overly deep object payloads before
+  persistence.
+- Public/community observatory responses scrub sensitive raw JSON fields such as
+  token, prompt, key, secret, and raw data while owner responses retain
+  operational detail.
+- Serialized API responses never expose `api_key_hash`.
+
+Targeted commands run with the pinned runner:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npx --yes pnpm@10.32.1 test:developer-spaces` | Pass | 2 tests passed; coverage includes key creation, ingestion, rotation, revocation, payload guardrails, and public/owner serialization. |
+| `npx --yes pnpm@10.32.1 typecheck` | Pass | Route/service type surfaces passed after serializer option changes. |
+| `git diff --check` | Pass | No whitespace errors; Git reported expected CRLF normalization warnings for touched files. |
+| `npx --yes pnpm@10.32.1 build` | Pass | Known pre-existing React hook dependency and `<img>` optimization warnings only; no new PR-10 build warnings. |
+
+ARGUS still needs to review ingestion auth, key lifecycle semantics, conservative
+public JSON scrubbing, and the retained legacy key-hash fallback before PR-10 is
+marked complete.

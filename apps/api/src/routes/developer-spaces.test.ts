@@ -17,6 +17,7 @@ class InMemorySupabase {
       { id: "owner-user", tier: "canon", is_admin: false },
     ],
     developer_spaces: [],
+    developer_space_ingestion_keys: [],
     developer_space_nodes: [],
     developer_space_events: [],
     developer_space_snapshots: [],
@@ -73,6 +74,15 @@ class InMemorySupabase {
       row.api_key_hash ??= null;
       row.api_key_last_four ??= null;
       row.api_key_created_at ??= null;
+      row.created_at ??= now;
+      row.updated_at ??= now;
+    }
+
+    if (table === "developer_space_ingestion_keys") {
+      row.label ??= null;
+      row.status ??= "active";
+      row.last_used_at ??= null;
+      row.revoked_at ??= null;
       row.created_at ??= now;
       row.updated_at ??= now;
     }
@@ -314,6 +324,10 @@ test("Developer Spaces smoke covers creation, keying, ingestion, and public/owne
     assert.match(apiKeyResponse.body.apiKey, /^station_dev_/);
     assert.equal(apiKeyResponse.body.space.apiKeyLastFour, apiKeyResponse.body.apiKey.slice(-4));
     assert.equal(db.tables.developer_spaces[0].api_key_hash, hashDeveloperSpaceApiKey(apiKeyResponse.body.apiKey));
+    assert.equal(db.tables.developer_space_ingestion_keys.length, 1);
+    assert.equal(db.tables.developer_space_ingestion_keys[0].status, "active");
+    assert.equal(db.tables.developer_space_ingestion_keys[0].key_hash, hashDeveloperSpaceApiKey(apiKeyResponse.body.apiKey));
+    assert.equal(JSON.stringify(apiKeyResponse.body.space).includes("api_key_hash"), false);
 
     const nodeResponse = await requestJson(app, "POST", "/developer-spaces/ingest/nodes/animus-alpha/state", {
       developerKey: apiKeyResponse.body.apiKey,
@@ -330,6 +344,16 @@ test("Developer Spaces smoke covers creation, keying, ingestion, and public/owne
     assert.equal(nodeResponse.status, 202);
     assert.equal(nodeResponse.body.node.externalId, "animus-alpha");
     assert.deepEqual(db.tables.developer_space_events[0].source_refs, ["station:log:node", "station:archive:alpha"]);
+    assert.equal(typeof db.tables.developer_space_ingestion_keys[0].last_used_at, "string");
+
+    const rejectedLargePayload = await requestJson(app, "POST", "/developer-spaces/ingest/events", {
+      developerKey: apiKeyResponse.body.apiKey,
+      body: {
+        eventType: "payload.too_large",
+        eventData: { blob: "x".repeat(33_000) },
+      },
+    });
+    assert.equal(rejectedLargePayload.status, 400);
 
     const privateEvent = await requestJson(app, "POST", "/developer-spaces/ingest/events", {
       developerKey: apiKeyResponse.body.apiKey,
@@ -349,7 +373,7 @@ test("Developer Spaces smoke covers creation, keying, ingestion, and public/owne
         eventType: "signal.detected",
         eventLabel: "Signal detected",
         nodeId: "animus-alpha",
-        eventData: { zone: "North Array", confidence: 0.92 },
+        eventData: { zone: "North Array", confidence: 0.92, raw: { prompt: "owner-only" }, token: "secret-token" },
         similarityScore: 0.88,
         sourceRefs: ["station:log:signal"],
         visibility: "public",
@@ -376,9 +400,15 @@ test("Developer Spaces smoke covers creation, keying, ingestion, and public/owne
     assert.equal(publicDetail.body.space.apiKeyLastFour, null);
     assert.equal(publicDetail.body.space.visualisationType, "world_map");
     assert.equal(publicDetail.body.nodes.length, 1);
+    assert.equal(publicDetail.body.nodes[0].metrics.raw, undefined);
     assert.equal(publicDetail.body.latestSnapshot.snapshotData.summary, "Stable");
+    assert.equal(publicDetail.body.latestSnapshot.snapshotData.raw, undefined);
     assert.equal(publicDetail.body.events.some((event: Row) => event.visibility === "private"), false);
     assert.equal(publicDetail.body.events.some((event: Row) => event.eventType === "signal.detected"), true);
+    const publicText = JSON.stringify(publicDetail.body);
+    assert.equal(publicText.includes("api_key_hash"), false);
+    assert.equal(publicText.includes("secret-token"), false);
+    assert.equal(publicText.includes("owner-only"), false);
 
     const ownerDetail = await requestJson(app, "GET", "/developer-spaces/animus-field", {
       token: "owner-token",
@@ -388,6 +418,41 @@ test("Developer Spaces smoke covers creation, keying, ingestion, and public/owne
     assert.equal(ownerDetail.body.access, "owner");
     assert.equal(ownerDetail.body.space.apiKeyLastFour, apiKeyResponse.body.apiKey.slice(-4));
     assert.equal(ownerDetail.body.events.some((event: Row) => event.visibility === "private"), true);
+    assert.equal(ownerDetail.body.nodes[0].metrics.raw.hidden, true);
+    assert.equal(ownerDetail.body.latestSnapshot.snapshotData.raw.prompt, "owner-only");
+    assert.equal(JSON.stringify(ownerDetail.body).includes("api_key_hash"), false);
+
+    const rotatedKeyResponse = await requestJson(app, "POST", `/developer-spaces/${spaceId}/api-key`, {
+      token: "owner-token",
+    });
+    assert.equal(rotatedKeyResponse.status, 201);
+    assert.notEqual(rotatedKeyResponse.body.apiKey, apiKeyResponse.body.apiKey);
+    assert.equal(db.tables.developer_space_ingestion_keys[0].status, "revoked");
+    assert.equal(db.tables.developer_space_ingestion_keys[1].status, "active");
+
+    const oldKeyBlocked = await requestJson(app, "POST", "/developer-spaces/ingest/events", {
+      developerKey: apiKeyResponse.body.apiKey,
+      body: {
+        eventType: "old.key.blocked",
+      },
+    });
+    assert.equal(oldKeyBlocked.status, 401);
+
+    const revoked = await requestJson(app, "POST", `/developer-spaces/${spaceId}/api-key/revoke`, {
+      token: "owner-token",
+    });
+    assert.equal(revoked.status, 200);
+    assert.equal(revoked.body.space.apiKeyLastFour, null);
+    assert.equal(db.tables.developer_spaces[0].api_key_hash, null);
+    assert.equal(db.tables.developer_space_ingestion_keys[1].status, "revoked");
+
+    const revokedKeyBlocked = await requestJson(app, "POST", "/developer-spaces/ingest/events", {
+      developerKey: rotatedKeyResponse.body.apiKey,
+      body: {
+        eventType: "revoked.key.blocked",
+      },
+    });
+    assert.equal(revokedKeyBlocked.status, 401);
   } finally {
     setSupabaseAdminForTests(null);
   }

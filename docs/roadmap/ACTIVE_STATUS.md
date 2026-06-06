@@ -54,9 +54,11 @@ when a PR lands, or when validation truth changes.
   report-reference privacy, and the existing JSON/Markdown package path. Deeper
   public export UI, PDF/binary packaging, and richer download workflows are
   future export enhancements, not blockers for PR-10.
-- PR-10 is the active next roadmap move: Developer Spaces hardening should start
-  with ingestion auth, key rotation/revocation semantics, payload guardrails,
-  and public-safe serialization.
+- PR-10 DAEDALUS implementation is ready for ARGUS review, 2026-06-06:
+  Developer Spaces ingestion now prefers active ingestion-key rows with legacy
+  hash fallback, rotation revokes prior active keys, key revocation clears the
+  legacy hash surface, JSON payload guardrails are enforced, and non-owner
+  observatory serialization scrubs sensitive raw fields.
 
 ## Current repo truth
 
@@ -99,6 +101,11 @@ when a PR lands, or when validation truth changes.
 - As of bounded PR-09 completion, exports remain the existing owner-only
   JSON/Markdown package path. Public export UI and binary/PDF packaging are not
   required for PR-10 to begin.
+- As of PR-10 DAEDALUS implementation, Developer Spaces API key rotation writes
+  `developer_space_ingestion_keys`, revoked keys no longer authorize ingestion,
+  oversized/deep JSON payloads are rejected, `api_key_hash` is never serialized,
+  and public/community observatory responses remove sensitive raw JSON keys while
+  owner responses retain operational detail.
 - Core API route modules no longer import local in-memory mock data. Runtime
   persistence goes through the Supabase client boundary; route tests use
   injected fake Supabase clients for deterministic proof.
