@@ -28,8 +28,8 @@ Developer Spaces.
 - The tree has Supabase-shaped API services, migrations, and tests. API and
   frontend auth/session behavior are now proven; core API routes are backed by
   persistent DB repositories with deterministic fake-client tests.
-- Real Stripe and paid entitlements have a bounded PR-17 implementation pending
-  ARGUS review; they are not broad billing-platform scope.
+- Real Stripe and paid entitlements have a bounded PR-17 implementation accepted
+  by ARGUS; they are not broad billing-platform scope.
 - Developer Spaces has a Station-native observatory slice: owner-created project
   observatories, hashed ingestion keys, node/event/snapshot ingestion endpoints,
   public observatory pages, and private management surfaces.

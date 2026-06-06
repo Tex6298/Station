@@ -193,7 +193,23 @@ export async function syncSubscriptionToProfile(subscription: StripeSubscription
   const userId = subscription.metadata?.station_user_id;
   const customerId = stripeObjectId(subscription.customer);
   let targetUserId = userId ?? null;
-  if (!userId) {
+  let targetCustomerId = customerId;
+
+  if (userId) {
+    const { data: profile } = await sb
+      .from("profiles")
+      .select("id, stripe_customer_id")
+      .eq("id", userId)
+      .single();
+
+    if (!profile?.id) return;
+
+    if (customerId && profile.stripe_customer_id && profile.stripe_customer_id !== customerId) {
+      throw new Error("Stripe subscription customer does not match the Station profile.");
+    }
+
+    targetCustomerId = customerId ?? profile.stripe_customer_id ?? null;
+  } else {
     if (!customerId) return;
     // Fall back to looking up by customer ID
     const { data: profile } = await sb
@@ -213,13 +229,16 @@ export async function syncSubscriptionToProfile(subscription: StripeSubscription
     throw new Error("Active Stripe subscription used an unknown Station Price ID.");
   }
 
+  const update: Record<string, string | null> = {
+    tier,
+    stripe_subscription_id: subscription.id,
+    subscription_status: subscription.status,
+  };
+  if (targetCustomerId) update.stripe_customer_id = targetCustomerId;
+
   await sb
     .from("profiles")
-    .update({
-      tier,
-      stripe_subscription_id: subscription.id,
-      subscription_status: subscription.status,
-    })
+    .update(update)
     .eq("id", targetUserId);
 }
 

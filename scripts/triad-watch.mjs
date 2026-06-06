@@ -52,11 +52,15 @@ function main() {
   const agent = getAgent(agentId);
   const shouldWatch = flags.includes("--watch");
 
-  poll(agent);
+  const foundWakeup = poll(agent);
 
   if (shouldWatch) {
+    if (foundWakeup) return;
+
     console.log(`${agent.codename} is watching for WAKEUP ${agent.id}: every ${POLL_MS / 1_000}s.`);
-    setInterval(() => poll(agent, { quiet: true }), POLL_MS);
+    setInterval(() => {
+      if (poll(agent, { quiet: true })) process.exit(0);
+    }, POLL_MS);
   }
 }
 

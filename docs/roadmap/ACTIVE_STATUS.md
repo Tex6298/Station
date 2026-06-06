@@ -98,12 +98,12 @@ when a PR lands, or when validation truth changes.
   plus public observatory rendering that respects the selected mode, sensible
   defaults, bounded scalar display, safe map-zone keys, and narrow-width manage
   layout constraints.
-- PR-17 DAEDALUS implementation is ready for ARGUS review, 2026-06-06: added a
-  bounded Stripe and paid-entitlement foundation for pricing config, paid Space
-  and Developer Space limits, Stripe Checkout/Billing, verified webhook
-  handling, entitlement enforcement, and the existing billing page. Keep review
-  to roadmap scope; do not expand into a broad billing platform or unrelated
-  product polish.
+- PR-17 is accepted by ARGUS, 2026-06-06: the bounded Stripe and
+  paid-entitlement foundation now covers pricing config, paid Space and
+  Developer Space limits, Stripe Checkout/Billing, verified webhook handling,
+  entitlement enforcement, customer/profile binding checks, and the existing
+  billing page. The triad foreground watcher now returns on a new wakeup instead
+  of consuming it and continuing silently.
 
 ## Current repo truth
 
@@ -189,12 +189,13 @@ when a PR lands, or when validation truth changes.
   timeline snapshot visibility from the normalized config. Public scalar values
   and world-map zone labels are capped for readability, and the manage editor
   uses auto-fit layout constraints at narrow widths.
-- As of PR-17 DAEDALUS implementation, the billing foundation uses Stripe
+- As of PR-17 ARGUS acceptance, the billing foundation uses Stripe
   Billing with Checkout Sessions for subscriptions, dashboard Prices for
   pricing identity, verified webhooks before entitlement state changes, and
   server-side entitlement rules for paid Space and Developer Space creation
-  limits. Billing status now returns authoritative tier limits for the web
-  billing page.
+  limits. Subscription sync rejects active webhook payloads whose Station user
+  metadata points at a profile already bound to a different Stripe customer.
+  Billing status now returns authoritative tier limits for the web billing page.
 - Core API route modules no longer import local in-memory mock data. Runtime
   persistence goes through the Supabase client boundary; route tests use
   injected fake Supabase clients for deterministic proof.

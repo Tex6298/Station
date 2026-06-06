@@ -425,3 +425,46 @@ test("billing webhooks reject unknown active Price IDs without mutating tier", a
     resetFakes();
   }
 });
+
+test("billing webhooks reject Station user and Stripe customer mismatches", async () => {
+  const db = new InMemorySupabase();
+  db.tables.profiles[0].tier = "private";
+  db.tables.profiles[0].stripe_customer_id = "cus_owner";
+  db.tables.profiles[0].stripe_subscription_id = "sub_existing";
+  db.tables.profiles[0].subscription_status = "active";
+  const stripe = createFakeStripe();
+  setSupabaseAdminForTests(db.client as any);
+  setStripeForTests(stripe as any);
+  const app = createBillingApp();
+
+  try {
+    const response = await requestWebhook(app, {
+      id: "evt_customer_mismatch",
+      type: "customer.subscription.updated",
+      data: {
+        object: {
+          id: "sub_attacker",
+          customer: "cus_other",
+          status: "active",
+          metadata: {
+            station_user_id: "owner-user",
+          },
+          items: {
+            data: [
+              { price: { id: "price_canon_monthly" } },
+            ],
+          },
+        },
+      },
+    }, "valid-signature");
+
+    assert.equal(response.status, 400);
+    assert.match(response.body.error, /customer does not match/);
+    assert.equal(db.tables.profiles[0].tier, "private");
+    assert.equal(db.tables.profiles[0].stripe_customer_id, "cus_owner");
+    assert.equal(db.tables.profiles[0].stripe_subscription_id, "sub_existing");
+    assert.equal(db.tables.profiles[0].subscription_status, "active");
+  } finally {
+    resetFakes();
+  }
+});

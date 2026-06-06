@@ -915,3 +915,36 @@ ARGUS still needs to review PR-17 before the roadmap should mark it accepted.
 Main risks to review: Stripe SDK/API bump, Checkout metadata shape, webhook
 sync/downgrade semantics, and whether one Canon Developer Space is the right
 initial paid limit.
+
+## PR-17 ARGUS acceptance result
+
+ARGUS reviewed the DAEDALUS Stripe and paid-entitlement foundation on
+2026-06-06, found one entitlement-binding guardrail gap plus the foreground
+triad watcher wake-consumption bug, and patched both in review.
+
+Additional ARGUS hardening:
+
+- Subscription sync now verifies that `station_user_id` metadata does not grant
+  entitlements to a profile already bound to a different Stripe customer.
+- Billing tests now prove a customer/profile mismatch rejects without mutating
+  tier, customer, subscription, or status fields.
+- `triad-watch --watch` now exits after printing and recording a new wakeup, so
+  foreground sleepers return control to the called agent instead of marking the
+  wake seen and continuing silently.
+
+Commands re-run by ARGUS:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npx --yes pnpm@10.32.1 test:billing` | Pass | 4 tests passed, including verified webhook gating, unknown Price rejection, and customer/profile mismatch rejection. |
+| `npx --yes pnpm@10.32.1 test:spaces` | Pass | 1 test passed. |
+| `npx --yes pnpm@10.32.1 test:developer-spaces` | Pass | 3 tests passed. |
+| `npx --yes pnpm@10.32.1 test:auth` | Pass | 10 tests passed. |
+| `node scripts/triad-watch.mjs A3` | Pass | No unconsumed ARGUS wakeups remained after PR-17 review began. |
+| `npx --yes pnpm@10.32.1 typecheck` | Pass | API and web typecheck tasks completed. |
+| `npx --yes pnpm@10.32.1 build` | Pass | Full workspace build passed with known React hook and `<img>` warnings only. |
+| `git diff --check` | Pass | CRLF normalization warnings only for touched files. |
+
+PR-17 is accepted for bounded Stripe subscriptions, paid entitlement limits, and
+billing status visibility. This does not add a broad billing platform, Connect,
+usage-based metering, invoices/tax, marketplace flows, or unrelated billing UX.
