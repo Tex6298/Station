@@ -47,6 +47,11 @@ when a PR lands, or when validation truth changes.
   preference profile, and persona continuity summaries count both new integrity
   sessions and existing calibration sessions. Full baseline re-run is still
   pending ARGUS review.
+- Full baseline, 2026-06-06: the complete PR-01 validation gate passed with the
+  pinned `npx --yes pnpm@10.32.1` runner. Known warning-only output remains the
+  existing pnpm config/build-script notice, React hook dependency warnings, and
+  `<img>` optimization warnings. PR-07 is cleared to begin, limited to
+  Continuity Alpha data model scope only.
 
 ## Current repo truth
 
@@ -66,9 +71,8 @@ when a PR lands, or when validation truth changes.
 - As of the 2026-06-05 current-main reconciliation, the full gate was no longer
   green: `pnpm test:continuity` failed and `pnpm test:persona-context` plus
   `pnpm test:conversation-archive` timed out. As of the 2026-06-06 targeted
-  validation repair, those three named commands pass again with `pnpm
-  typecheck`; the full baseline has not yet been re-run. See
-  `docs/testing/VALIDATION_BASELINE.md`.
+  validation repair and full baseline re-run, the complete local gate passes
+  again with the pinned pnpm runner. See `docs/testing/VALIDATION_BASELINE.md`.
 - As of PR-02, `docs/architecture/persistence-schema-baseline.md` records the
   current table/entity map for future auth and repository work.
 - Core API route modules no longer import local in-memory mock data. Runtime

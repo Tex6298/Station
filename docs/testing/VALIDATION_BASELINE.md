@@ -184,5 +184,29 @@ Targeted commands run with the pinned runner:
 | `npx --yes pnpm@10.32.1 test:conversation-archive` | Pass | 1 test passed. |
 | `npx --yes pnpm@10.32.1 typecheck` | Pass | API typecheck ran; web typecheck replayed from cache. |
 
-The full baseline should still be re-run or reviewed before PR-07 product work
-starts.
+## 2026-06-06 full baseline result
+
+After the targeted validation repair, the complete local gate passed with the
+pinned runner.
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npx --yes pnpm@10.32.1 install` | Pass | Lockfile current. Warnings only: ignored `unrs-resolver` build scripts and npm warnings about pnpm-only config keys. |
+| `npx --yes pnpm@10.32.1 build` | Pass | Known React hook dependency and `<img>` optimization warnings only. |
+| `npx --yes pnpm@10.32.1 lint` | Pass | Known warning-only output matched the inventory. |
+| `npx --yes pnpm@10.32.1 typecheck` | Pass | API and web typecheck tasks completed. |
+| `npx --yes pnpm@10.32.1 test:auth` | Pass | 10 tests passed. |
+| `npx --yes pnpm@10.32.1 test:reports` | Pass | 1 test passed. |
+| `npx --yes pnpm@10.32.1 test:community` | Pass | 4 tests passed. |
+| `npx --yes pnpm@10.32.1 test:spaces` | Pass | 1 test passed. |
+| `npx --yes pnpm@10.32.1 test:continuity` | Pass | 1 test passed. |
+| `npx --yes pnpm@10.32.1 test:persona-context` | Pass | 1 test passed. |
+| `npx --yes pnpm@10.32.1 test:conversation-archive` | Pass | 1 test passed. |
+| `npx --yes pnpm@10.32.1 test:continuity-publication` | Pass | 1 test passed. |
+| `npx --yes pnpm@10.32.1 test:document-discussions` | Pass | 1 test passed. |
+| `npx --yes pnpm@10.32.1 test:exports` | Pass | 1 test passed. |
+| `npx --yes pnpm@10.32.1 test:developer-spaces` | Pass | 2 tests passed. |
+
+PR-07 Continuity Alpha data model work is cleared to begin from a green local
+gate, provided scope stays limited to the PR-07 data-model tasks in
+`docs/roadmap/STATION_PR_PLAN_V2.md`.
