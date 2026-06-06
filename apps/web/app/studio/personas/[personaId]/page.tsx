@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { getSession } from "@/lib/auth";
@@ -161,6 +161,7 @@ const CONTEXT_SECTIONS: Array<{ type: RuntimeContextSource["type"]; label: strin
   { type: "memory", label: "Memory" },
   { type: "archive", label: "Archive" },
 ];
+const DEFAULT_CONTEXT_QUERY = "What should this persona keep steady right now?";
 
 const PROVENANCE_LABELS: Record<string, string> = {
   user_authored: "User-authored",
@@ -293,12 +294,12 @@ function ArchiveExportHistory({
 }
 
 function RuntimeContextPreview({ personaId }: { personaId: string }) {
-  const [query, setQuery] = useState("What should this persona keep steady right now?");
+  const [query, setQuery] = useState(DEFAULT_CONTEXT_QUERY);
   const [preview, setPreview] = useState<RuntimeContextPreviewData | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  async function loadPreview(nextQuery = query) {
+  const loadPreview = useCallback(async (nextQuery: string) => {
     setLoading(true);
     setError(null);
     try {
@@ -319,11 +320,11 @@ function RuntimeContextPreview({ personaId }: { personaId: string }) {
     } finally {
       setLoading(false);
     }
-  }
+  }, [personaId]);
 
   useEffect(() => {
-    loadPreview();
-  }, [personaId]);
+    loadPreview(DEFAULT_CONTEXT_QUERY);
+  }, [loadPreview]);
 
   return (
     <section className="studio-runtime-preview">

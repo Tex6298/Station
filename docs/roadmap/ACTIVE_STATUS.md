@@ -164,9 +164,13 @@ when a PR lands, or when validation truth changes.
   is safe to open as a narrow frame/mobile-navigation slice with no API changes;
   UX-02A should stay on the per-persona Archive tab and defer global
   Archive/Export workspace implementation.
-- UX-01A is active, 2026-06-06: implement only the narrow Studio frame/mobile
-  navigation slice, preserving routes, page behavior, auth/session semantics,
-  and API behavior.
+- UX-01A is ready for ARGUS review, 2026-06-06: Studio now has shared frame
+  primitives, helper-tested navigation route matching, a desktop sidebar plus
+  narrow-width mobile Studio menu, and dashboard adoption of the shared loading,
+  error, action-row, panel, and status primitives. The touched Studio persona
+  hook warning was fixed. Existing API behavior, routes, auth/session semantics,
+  global Archive, Export workspace, and Station Assistant behavior were not
+  changed.
 
 ## Current repo truth
 

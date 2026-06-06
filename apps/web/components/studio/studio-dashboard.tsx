@@ -1,5 +1,13 @@
 import Link from "next/link";
 import type { PersonaSummary } from "@station/types/persona";
+import {
+  StudioActionRow,
+  StudioEmptyState,
+  StudioErrorState,
+  StudioFrame,
+  StudioPanel,
+  StudioStatusBadge,
+} from "./studio-frame";
 
 export interface IntegrityDuePersona {
   id: string;
@@ -32,19 +40,15 @@ const archiveEvents = [
 ];
 
 function integrityStatus(status: IntegrityDuePersona["sessionStatus"]) {
-  if (status === "never") return { label: "No session", detail: "Start one to strengthen continuity", color: "#f87171", background: "#2d1515", action: "Start" };
-  if (status === "overdue") return { label: "Overdue", detail: "Integrity session overdue", color: "#f87171", background: "#2d1515", action: "Start" };
-  if (status === "due_soon") return { label: "Due soon", detail: "Session due this week", color: "#facc15", background: "#2d2108", action: "Start" };
-  return { label: "Up to date", detail: "Continuity check current", color: "#6ee7b7", background: "#09261f", action: "View" };
+  if (status === "never") return { label: "No session", detail: "Start one to strengthen continuity", tone: "danger" as const, action: "Start" };
+  if (status === "overdue") return { label: "Overdue", detail: "Integrity session overdue", tone: "danger" as const, action: "Start" };
+  if (status === "due_soon") return { label: "Due soon", detail: "Session due this week", tone: "warning" as const, action: "Start" };
+  return { label: "Up to date", detail: "Continuity check current", tone: "good" as const, action: "View" };
 }
 
 function Shell({ children }: { children: React.ReactNode }) {
   return (
-    <main style={{ minHeight: "calc(100vh - 52px)", background: "#0b0e14" }}>
-      <div style={{ maxWidth: 1180, margin: "0 auto", padding: "24px clamp(16px, 4vw, 32px) 48px" }}>
-        {children}
-      </div>
-    </main>
+    <StudioFrame>{children}</StudioFrame>
   );
 }
 
@@ -64,10 +68,10 @@ function Header({ personaCount }: { personaCount: number }) {
             : "Set up your first persona, then Studio becomes your private workspace for chat, memory, notes, and publishing."}
         </p>
       </div>
-      <div style={{ display: "flex", gap: 10, flexWrap: "wrap", justifyContent: "flex-end" }}>
+      <StudioActionRow>
         <Link href="/studio/new" style={primaryButton}>New Persona</Link>
         <Link href="/space" style={secondaryButton}>Public Space</Link>
-      </div>
+      </StudioActionRow>
     </header>
   );
 }
@@ -125,9 +129,7 @@ function IntegrityList({ personas, integrityDue }: { personas: PersonaSummary[];
             const status = integrityStatus(persona.sessionStatus);
             return (
               <article key={persona.id} style={listRow}>
-                <span style={{ ...statusPill, background: status.background, color: status.color, borderColor: `${status.color}66` }}>
-                  {status.label}
-                </span>
+                <StudioStatusBadge tone={status.tone}>{status.label}</StudioStatusBadge>
                 <div style={{ minWidth: 0 }}>
                   <div style={{ color: "#f8fafc", fontSize: 14, fontWeight: 700 }}>{persona.name}</div>
                   <div style={mutedLine}>{persona.lastSession ? `${status.detail} - ${formatDate(persona.lastSession)}` : status.detail}</div>
@@ -244,9 +246,9 @@ export function StudioDashboard({ personas, integrityDue, loading, error, signed
     return (
       <Shell>
         <Header personaCount={0} />
-        <section style={panel}>
-          <EmptyLine text="Loading your workspace..." />
-        </section>
+        <StudioPanel>
+          <StudioEmptyState>Loading your workspace...</StudioEmptyState>
+        </StudioPanel>
       </Shell>
     );
   }
@@ -255,7 +257,7 @@ export function StudioDashboard({ personas, integrityDue, loading, error, signed
     return (
       <Shell>
         <Header personaCount={0} />
-        <section style={{ ...panel, maxWidth: 680 }}>
+        <StudioPanel className="studio-auth-panel">
           <h2 style={{ margin: "0 0 8px", color: "#f8fafc" }}>Sign in to open Studio</h2>
           <p style={{ margin: "0 0 18px", color: "#a9b0bd", lineHeight: 1.6 }}>
             Studio is the private side of Station: personas, chat, notes, archive, and publishing tools.
@@ -264,7 +266,7 @@ export function StudioDashboard({ personas, integrityDue, loading, error, signed
             <Link href="/login" style={primaryButton}>Sign In</Link>
             <Link href="/signup" style={secondaryButton}>Join Station</Link>
           </div>
-        </section>
+        </StudioPanel>
       </Shell>
     );
   }
@@ -273,9 +275,9 @@ export function StudioDashboard({ personas, integrityDue, loading, error, signed
     return (
       <Shell>
         <Header personaCount={0} />
-        <section style={{ ...panel, borderColor: "#7d2e2e", background: "#2d1515", color: "#fecaca" }}>
+        <StudioErrorState>
           {error}
-        </section>
+        </StudioErrorState>
       </Shell>
     );
   }
@@ -356,15 +358,6 @@ const miniButton = {
   padding: "6px 9px",
   fontSize: 12,
   textDecoration: "none",
-};
-
-const statusPill = {
-  border: "1px solid",
-  borderRadius: 999,
-  padding: "5px 8px",
-  fontSize: 11,
-  fontWeight: 700,
-  whiteSpace: "nowrap" as const,
 };
 
 const metricCard = {

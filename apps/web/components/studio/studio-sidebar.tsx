@@ -5,26 +5,16 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { apiGet } from "@/lib/api-client";
 import { getSession } from "@/lib/auth";
+import {
+  activeStudioHref,
+  studioPersonaHref,
+  studioPersonaMeta,
+  studioPublicLinks,
+  studioWorkspaceLinks,
+} from "@/lib/studio-navigation";
 import { StorageUsagePanel } from "@/components/settings/storage-usage-panel";
 import { TokenUsagePanel } from "@/components/settings/token-usage-panel";
 import type { PersonaSummary } from "@station/types/persona";
-
-const publicLinks = [
-  { label: "Blog Posts", href: "/studio/publishing", mark: "B" },
-  { label: "Public Space", href: "/space", mark: "P" },
-];
-
-const workspaceLinks = [
-  { label: "Global Archive", href: "/studio/archive", mark: "A", detail: "Recent import queue" },
-  { label: "Notes and Scratchpad", href: "/studio/notes", mark: "N" },
-  { label: "Export Workspace", href: "/studio/export", mark: "E" },
-  { label: "Settings", href: "/settings", mark: "S" },
-];
-
-function activeFor(pathname: string, href: string) {
-  if (href === "/studio") return pathname === "/studio";
-  return pathname.startsWith(href);
-}
 
 function NavLink({
   label,
@@ -38,7 +28,7 @@ function NavLink({
   detail?: string;
 }) {
   const pathname = usePathname();
-  const active = activeFor(pathname, href);
+  const active = activeStudioHref(pathname, href);
 
   return (
     <Link
@@ -66,7 +56,7 @@ function NavLink({
 
 function PersonaRow({ persona, index }: { persona: PersonaSummary; index: number }) {
   const pathname = usePathname();
-  const href = `/studio/personas/${persona.id}`;
+  const href = studioPersonaHref(persona);
   const active = pathname.startsWith(href);
   const colors = ["#2563eb", "#0f766e", "#be123c", "#7c3aed", "#ca8a04"];
 
@@ -89,7 +79,7 @@ function PersonaRow({ persona, index }: { persona: PersonaSummary; index: number
           {persona.name}
         </span>
         <span style={{ display: "block", color: "#687386", fontSize: 11 }}>
-          {persona.visibility} - 0 chats
+          {studioPersonaMeta(persona)}
         </span>
       </span>
     </Link>
@@ -120,20 +110,9 @@ export function StudioSidebar() {
   }, []);
 
   return (
-    <aside
-      style={{
-        width: 292,
-        minHeight: "calc(100vh - 52px)",
-        maxHeight: "calc(100vh - 52px)",
-        position: "sticky",
-        top: 52,
-        display: "flex",
-        flexDirection: "column",
-        borderRight: "1px solid #1f2937",
-        background: "#0d121c",
-        flex: "0 0 auto",
-      }}
-    >
+    <>
+    <StudioMobileNav personas={personas} />
+    <aside className="studio-sidebar-desktop">
       <div style={{ padding: "16px 14px 12px", borderBottom: "1px solid #1f2937" }}>
         <Link href="/studio" style={{ display: "flex", alignItems: "center", gap: 10, color: "#f8fafc", textDecoration: "none" }}>
           <span style={{ ...markBox, width: 34, height: 34, color: "#dbeafe", background: "#12305f", borderColor: "#2563eb" }}>S</span>
@@ -169,7 +148,7 @@ export function StudioSidebar() {
 
         <SectionLabel>Your Public Presence</SectionLabel>
         <div style={{ display: "grid", gap: 2 }}>
-          {publicLinks.map((link) => <NavLink key={link.label} {...link} />)}
+          {studioPublicLinks.map((link) => <NavLink key={link.label} {...link} />)}
         </div>
 
         <SectionLabel>Personas</SectionLabel>
@@ -182,7 +161,7 @@ export function StudioSidebar() {
 
         <div style={{ height: 1, background: "#1f2937", margin: "16px 0 0" }} />
         <div style={{ display: "grid", gap: 2, marginTop: 12 }}>
-          {workspaceLinks.map((link) => <NavLink key={link.label} {...link} />)}
+          {studioWorkspaceLinks.map((link) => <NavLink key={link.label} {...link} />)}
         </div>
       </div>
 
@@ -218,6 +197,60 @@ export function StudioSidebar() {
         </button>
       </div>
     </aside>
+    </>
+  );
+}
+
+function StudioMobileNav({ personas }: { personas: PersonaSummary[] }) {
+  return (
+    <details className="studio-mobile-nav">
+      <summary>
+        <span>
+          <strong>Studio</strong>
+          <small>Private workbench</small>
+        </span>
+      </summary>
+      <nav className="studio-mobile-nav-panel" aria-label="Studio mobile navigation">
+        <div className="studio-mobile-nav-grid">
+          <MobileNavLink href="/studio" label="Dashboard" />
+          <MobileNavLink href="/studio/new" label="New Persona" />
+          <MobileNavLink href="/studio/publish" label="Publish" />
+          {studioWorkspaceLinks.map((link) => (
+            <MobileNavLink key={link.href} href={link.href} label={link.label} />
+          ))}
+        </div>
+
+        <div className="studio-mobile-nav-section">
+          <span>Your Public Presence</span>
+          <div className="studio-mobile-nav-grid">
+            {studioPublicLinks.map((link) => (
+              <MobileNavLink key={link.href} href={link.href} label={link.label} />
+            ))}
+          </div>
+        </div>
+
+        <div className="studio-mobile-nav-section">
+          <span>Personas</span>
+          <div className="studio-mobile-persona-list">
+            {personas.length > 0
+              ? personas.slice(0, 6).map((persona) => (
+                <MobileNavLink key={persona.id} href={studioPersonaHref(persona)} label={persona.name} />
+              ))
+              : <p>No personas yet.</p>}
+          </div>
+        </div>
+      </nav>
+    </details>
+  );
+}
+
+function MobileNavLink({ href, label }: { href: string; label: string }) {
+  const pathname = usePathname();
+  const active = activeStudioHref(pathname, href);
+  return (
+    <Link href={href} data-active={active}>
+      {label}
+    </Link>
   );
 }
 

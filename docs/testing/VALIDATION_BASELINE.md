@@ -1252,3 +1252,37 @@ Targeted command:
 | Command | Result | Notes |
 | --- | --- | --- |
 | `git diff --check` | Pass | CRLF normalization warnings only. |
+
+## UX-01A DAEDALUS implementation result
+
+Validated on 2026-06-06 after adding the narrow Studio frame/mobile navigation
+slice:
+
+- Added shared Studio shell primitives for frame, panel, empty/error states,
+  status badges, and action rows.
+- Added helper-tested Studio navigation utilities and root `pnpm test:studio-ui`.
+- Replaced fixed-sidebar-only Studio behavior with a desktop sidebar plus a
+  sticky mobile Studio menu below 920px.
+- Adopted the frame primitives on the Studio dashboard and fixed the existing
+  runtime-context preview hook dependency warning on the touched persona
+  workspace route.
+- Preserved existing routes, API calls, auth/session semantics, global Archive,
+  Export workspace, and Station Assistant behavior.
+
+Targeted commands run with the pinned runner:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npx --yes pnpm@10.32.1 test:studio-ui` | Pass | 2 helper tests passed for route matching and private persona navigation labels. |
+| `npx --yes pnpm@10.32.1 typecheck` | Pass | API and web typecheck tasks completed. |
+| `npx --yes pnpm@10.32.1 lint` | Pass with warnings | Remaining warnings are outside touched Studio UX-01A surfaces: Developer Space manage hook dependency, Space page raw `<img>`, and Discover avatar raw `<img>`. The touched Studio persona hook warning is fixed. |
+| `npx --yes pnpm@10.32.1 build` | Pass with same warnings | Next build completed and reports the same pre-existing warnings outside this slice. |
+| `npx --yes pnpm@10.32.1 test:auth` | Pass | 10 tests passed. |
+| `npx --yes pnpm@10.32.1 test:persona-context` | Pass | 1 test passed. |
+| `npx --yes pnpm@10.32.1 test:continuity` | Pass | 4 tests passed. |
+| `npx --yes pnpm@10.32.1 test:integrity` | Pass | 2 tests passed. |
+| `git diff --check` | Pass | CRLF normalization warnings only. |
+| Local web dev probe | Pass | `http://127.0.0.1:3001/studio` returned HTTP 200 after starting `@station/web` dev server. |
+
+At the DAEDALUS implementation checkpoint, ARGUS still needs to review UX-01A
+before the roadmap can mark it accepted.

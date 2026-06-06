@@ -1,0 +1,26 @@
+import type { PersonaSummary } from "@station/types/persona";
+
+export const studioPublicLinks = [
+  { label: "Blog Posts", href: "/studio/publishing", mark: "B" },
+  { label: "Public Space", href: "/space", mark: "P" },
+] as const;
+
+export const studioWorkspaceLinks = [
+  { label: "Global Archive", href: "/studio/archive", mark: "A", detail: "Recent import queue" },
+  { label: "Notes and Scratchpad", href: "/studio/notes", mark: "N" },
+  { label: "Export Workspace", href: "/studio/export", mark: "E" },
+  { label: "Settings", href: "/settings", mark: "S" },
+] as const;
+
+export function activeStudioHref(pathname: string, href: string) {
+  if (href === "/studio") return pathname === "/studio";
+  return pathname === href || pathname.startsWith(`${href}/`);
+}
+
+export function studioPersonaHref(persona: Pick<PersonaSummary, "id">) {
+  return `/studio/personas/${persona.id}`;
+}
+
+export function studioPersonaMeta(persona: Pick<PersonaSummary, "visibility">) {
+  return `${persona.visibility} - private Studio`;
+}
