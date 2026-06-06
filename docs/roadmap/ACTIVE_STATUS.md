@@ -65,6 +65,10 @@ when a PR lands, or when validation truth changes.
   capitalized `Authorization`, `refreshToken`, `secretKey`, `clientSecret`,
   `credentials`, `cookie`, `sessionCookie`, `setCookie`, and `xApiKey` while
   owner responses retain operational detail.
+- PR-11 is the active next roadmap move: add Developer Spaces live updates with
+  the smallest useful SSE path, reconnect behavior, public freshness indicator,
+  and owner ingestion-log stream. Do not jump to WebSockets unless SSE cannot
+  satisfy the current slice.
 
 ## Current repo truth
 
