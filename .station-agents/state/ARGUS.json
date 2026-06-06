@@ -1,0 +1,12 @@
+{
+  "agentId": "A3",
+  "codename": "ARGUS",
+  "title": "The Sentinel",
+  "lastSeenCommit": "8aca8c23887e4b3561aed029acb6982f774727e0",
+  "lastWakeupAt": "2026-06-05T19:32:11+01:00",
+  "isSleeping": true,
+  "sleepStartedAt": "2026-06-05T18:34:51.978Z",
+  "sleepReason": "Passive watch requested",
+  "watchStartedAt": "2026-06-05T18:35:20.817Z",
+  "updatedAt": "2026-06-05T18:35:20.818Z"
+}

@@ -28,8 +28,16 @@ when a PR lands, or when validation truth changes.
   `65a8328` through `63d9754` landed broader storage, integrity, token-credit,
   Stripe-adjacent, and UX work after PR-06. See
   `docs/roadmap/CURRENT_MAIN_RECONCILIATION.md`.
-- Next instruction: resolve the reconciliation decision and validation
-  regressions before implementing PR-07.
+- Direction checkpoint, 2026-06-06: do not start PR-07 product work yet. First
+  close the current-main validation repair lane by fixing or explicitly
+  accepting the `test:continuity`, `test:persona-context`, and
+  `test:conversation-archive` regressions. Treat the early storage,
+  integrity, token-credit, Stripe-adjacent, and broad UX stack as present but
+  not roadmap-complete until ARGUS confirms the reconciliation and validation
+  posture.
+- Next instruction: ARGUS should confirm or correct this direction. If ARGUS
+  agrees, wake DAEDALUS with a narrow validation-repair task rather than a new
+  feature lane. If ARGUS disagrees, wake MIMIR with the corrected risk call.
 
 ## Current repo truth
 
