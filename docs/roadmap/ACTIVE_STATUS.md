@@ -71,9 +71,12 @@ when a PR lands, or when validation truth changes.
   visitor freshness indicator, and an owner live ingestion log in the manage
   console. This is database-poll backed SSE, not pub/sub, and does not add
   WebSockets or move into PR-12 through PR-14 scope.
-- PR-12 is the active next roadmap move: integrate public-safe Developer Spaces
-  into Discover with cards, high-signal event summaries, search/filter/sort,
-  and normal Station Space linking where it fits the bounded slice.
+- PR-12 DAEDALUS implementation is ready for ARGUS review, 2026-06-06:
+  Discover now includes public-safe Developer Space cards in the normal feed,
+  high-signal public/community event summaries, and Developer Space search
+  results. Visitor feeds see public Developer Spaces only; eligible members also
+  see community Developer Spaces. Private, unlisted, private-event, key-hash,
+  and scrubbed event-data fields stay out of Discover.
 
 ## Current repo truth
 
@@ -86,8 +89,9 @@ when a PR lands, or when validation truth changes.
   conversations, archived chats, continuity candidates, continuity records,
   forums, comments, reports, exports, social publishing, and Developer Spaces.
 - Developer Spaces exists as a Station-native observatory slice, with ingestion
-  hardening and bounded SSE live updates accepted. Discover integration, linked
-  documents, exports/quotas, SDK, and visual editors remain PR-12 through PR-16.
+  hardening and bounded SSE live updates accepted. Discover integration is ready
+  for PR-12 review; linked documents, exports/quotas, SDK, and visual editors
+  remain PR-13 through PR-16.
 - As of PR-06 on 2026-05-31, the full validation baseline passed with the pinned
   pnpm runner.
 - As of the 2026-06-05 current-main reconciliation, the full gate was no longer
@@ -126,6 +130,11 @@ when a PR lands, or when validation truth changes.
   `developer_space.update` payloads with freshness metadata, supports
   EventSource query-token auth for owner views, and keeps public visitors on
   public-safe event/snapshot/node data.
+- As of PR-12 DAEDALUS implementation, `/discover/feed` includes
+  `developer_space` feed items for public-safe observatories and
+  `/discover/search` returns Developer Space hits. The Discover route uses
+  public/community Developer Space visibility rules and the public-safe event
+  serializer; it does not expose private/unlisted spaces or private events.
 - Core API route modules no longer import local in-memory mock data. Runtime
   persistence goes through the Supabase client boundary; route tests use
   injected fake Supabase clients for deterministic proof.

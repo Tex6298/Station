@@ -1,8 +1,10 @@
 import { Router, Request, Response } from "express";
 import { normalizeSpacePresentation } from "@station/config/space-presentation";
+import type { DeveloperSpaceEventVisibility, DeveloperSpaceVisibility } from "@station/types";
 import type { DocumentVisibility, ThreadVisibility } from "@station/db";
 import { getSupabaseAdmin } from "../lib/supabase";
 import { optionalAuth } from "../middleware/require-auth";
+import { serializeDeveloperSpaceEvent } from "../services/developer-space.service";
 
 export const discoverRouter = Router();
 const COMMUNITY_TIERS = new Set(["private", "creator", "canon", "institutional"]);
@@ -21,6 +23,24 @@ function discoverableThreadVisibilities(req: Request): ThreadVisibility[] {
   return canSeeCommunityDocuments(req)
     ? ["public", "community"]
     : ["public"];
+}
+
+function discoverableDeveloperSpaceVisibilities(req: Request): DeveloperSpaceVisibility[] {
+  return canSeeCommunityDocuments(req)
+    ? ["public", "community"]
+    : ["public"];
+}
+
+function discoverableDeveloperSpaceEventVisibilities(req: Request): DeveloperSpaceEventVisibility[] {
+  return canSeeCommunityDocuments(req)
+    ? ["public", "community"]
+    : ["public"];
+}
+
+function excerpt(value?: string | null, max = 220) {
+  if (!value) return null;
+  const normalized = value.replace(/\n/g, " ");
+  return normalized.slice(0, max) + (normalized.length > max ? "..." : "");
 }
 
 function documentFeedQuery(
@@ -88,7 +108,94 @@ async function canShowFeaturedItem(item: any, req: Request) {
     return data?.visibility === "public";
   }
 
+  if (item.item_type === "developer_space") {
+    const { data } = await sb
+      .from("developer_spaces")
+      .select("id, visibility")
+      .eq("id", item.item_id)
+      .single();
+    if (data?.visibility === "public") return true;
+    return data?.visibility === "community" && canSeeCommunityDocuments(req);
+  }
+
   return false;
+}
+
+async function developerSpaceFeedItems(req: Request, tab: string, offset: number, limit: number) {
+  const sb = getSupabaseAdmin();
+  const [spaceResults] = await Promise.all([
+    Promise.all(discoverableDeveloperSpaceVisibilities(req).map((visibility) =>
+      sb
+        .from("developer_spaces")
+        .select(`
+          id, owner_user_id, slug, project_name, description, visibility,
+          visualisation_type, created_at, updated_at,
+          owner:profiles!owner_user_id(username, display_name, avatar_url)
+        `)
+        .eq("visibility", visibility)
+        .order(tab === "rising" ? "updated_at" : "created_at", { ascending: false })
+        .range(offset, offset + limit - 1)
+    )),
+  ]);
+
+  const eventVisibility = discoverableDeveloperSpaceEventVisibilities(req);
+  const rows = spaceResults.flatMap((result) => result.data ?? []);
+
+  return Promise.all(rows.map(async (space: any) => {
+    const [nodesResult, eventsResult] = await Promise.all([
+      sb
+        .from("developer_space_nodes")
+        .select("id")
+        .eq("developer_space_id", space.id)
+        .limit(200),
+      sb
+        .from("developer_space_events")
+        .select("*")
+        .eq("developer_space_id", space.id)
+        .in("visibility", eventVisibility)
+        .order("occurred_at", { ascending: false })
+        .limit(12),
+    ]);
+
+    const safeEvents = (eventsResult.data ?? []).map((event: any) =>
+      serializeDeveloperSpaceEvent(event, { includeRawData: false })
+    );
+    const latestEvent = safeEvents[0] ?? null;
+    const latestEventSummary = latestEvent
+      ? Object.entries(latestEvent.eventData ?? {})
+        .filter(([, value]) => value !== null && value !== undefined && typeof value !== "object")
+        .slice(0, 3)
+        .map(([key, value]) => `${key}: ${String(value)}`)
+        .join(" / ")
+      : null;
+
+    return {
+      id: space.id,
+      type: "developer_space" as const,
+      title: space.project_name,
+      excerpt: excerpt(space.description),
+      href: `/developer-spaces/${space.slug}`,
+      meta: space.visualisation_type,
+      visibility: space.visibility,
+      space: null,
+      author: space.owner ?? null,
+      persona: null,
+      score: safeEvents.length + (nodesResult.data?.length ?? 0),
+      replyCount: safeEvents.length,
+      createdAt: latestEvent?.occurredAt ?? space.updated_at ?? space.created_at,
+      promoted: false,
+      developerSpace: {
+        slug: space.slug,
+        visualisationType: space.visualisation_type,
+        nodeCount: nodesResult.data?.length ?? 0,
+        eventCount: safeEvents.length,
+        latestEventLabel: latestEvent?.eventLabel ?? null,
+        latestEventType: latestEvent?.eventType ?? null,
+        latestEventAt: latestEvent?.occurredAt ?? null,
+        latestEventSummary,
+      },
+    };
+  }));
 }
 
 // --- Unified feed item shape -------------------------------------------------
@@ -103,7 +210,7 @@ discoverRouter.get("/feed", optionalAuth, async (req: Request, res: Response) =>
   const sb = getSupabaseAdmin();
 
   try {
-    const [docResults, threadResults] = await Promise.all([
+    const [docResults, threadResults, developerSpaceItems] = await Promise.all([
       Promise.all(
         discoverableDocumentVisibilities(req).map((visibility) =>
           documentFeedQuery(sb, visibility, tab, offset, limit)
@@ -124,6 +231,7 @@ discoverRouter.get("/feed", optionalAuth, async (req: Request, res: Response) =>
           .order(tab === "rising" ? "comment_count" : "created_at", { ascending: false })
           .range(offset, offset + limit - 1)
       )),
+      developerSpaceFeedItems(req, tab, offset, limit),
     ]);
 
     // Normalise into a unified feed shape
@@ -132,7 +240,7 @@ discoverRouter.get("/feed", optionalAuth, async (req: Request, res: Response) =>
       id:          d.id,
       type:        "document" as const,
       title:       d.title,
-      excerpt:     d.body ? d.body.slice(0, 220).replace(/\n/g, " ") + (d.body.length > 220 ? "..." : "") : null,
+      excerpt:     excerpt(d.body),
       href:        d.space ? `/space/${d.space.slug}/documents/${d.id}` : `/documents/${d.id}`,
       meta:        d.document_type,
       visibility:  d.visibility,
@@ -154,7 +262,7 @@ discoverRouter.get("/feed", optionalAuth, async (req: Request, res: Response) =>
       id:         t.id,
       type:       "thread" as const,
       title:      t.title,
-      excerpt:    t.body ? t.body.slice(0, 220).replace(/\n/g, " ") + (t.body.length > 220 ? "..." : "") : null,
+      excerpt:    excerpt(t.body),
       href:       t.category ? `/forums/${t.category.slug}/${t.id}` : `/forums/${t.id}`,
       meta:       t.category?.title ?? "Forum",
       space:      null,
@@ -167,7 +275,7 @@ discoverRouter.get("/feed", optionalAuth, async (req: Request, res: Response) =>
     }));
 
     // Interleave docs and threads, then sort
-    let items = [...docItems, ...threadItems];
+    let items = [...docItems, ...threadItems, ...developerSpaceItems];
 
     if (tab === "rising") {
       // Rising: weight = replyCount * 3 + score, decay by age
@@ -268,10 +376,10 @@ discoverRouter.get("/sidebar", optionalAuth, async (req: Request, res: Response)
 // --- GET /discover/search?q= -------------------------------------------------
 discoverRouter.get("/search", optionalAuth, async (req: Request, res: Response) => {
   const q = String(req.query.q ?? "").trim();
-  if (!q) return res.json({ documents: [], threads: [], spaces: [], personas: [] });
+  if (!q) return res.json({ documents: [], threads: [], spaces: [], personas: [], developerSpaces: [] });
   const sb = getSupabaseAdmin();
 
-  const [docResults, threadResults, spaces, personas] = await Promise.all([
+  const [docResults, threadResults, spaces, personas, developerSpaceResults] = await Promise.all([
     Promise.all(discoverableDocumentVisibilities(req).map((visibility) =>
       sb
         .from("documents")
@@ -292,6 +400,14 @@ discoverRouter.get("/search", optionalAuth, async (req: Request, res: Response) 
     )),
     sb.from("spaces").select("id, slug, title, short_description, theme").eq("is_public", true).ilike("title", `%${q}%`).limit(6),
     sb.from("personas").select("id, name, short_description, visibility").eq("visibility", "public").ilike("name", `%${q}%`).limit(6),
+    Promise.all(discoverableDeveloperSpaceVisibilities(req).map((visibility) =>
+      sb
+        .from("developer_spaces")
+        .select("id, slug, project_name, description, visibility, visualisation_type, updated_at")
+        .eq("visibility", visibility)
+        .ilike("project_name", `%${q}%`)
+        .limit(6)
+    )),
   ]);
 
   res.json({
@@ -302,5 +418,15 @@ discoverRouter.get("/search", optionalAuth, async (req: Request, res: Response) 
       presentation: normalizeSpacePresentation(space.theme),
     })),
     personas:  personas.data ?? [],
+    developerSpaces: developerSpaceResults.flatMap((result) => result.data ?? []).slice(0, 8).map((space: any) => ({
+      id: space.id,
+      slug: space.slug,
+      projectName: space.project_name,
+      description: space.description ?? null,
+      visibility: space.visibility,
+      visualisationType: space.visualisation_type,
+      updatedAt: space.updated_at,
+      href: `/developer-spaces/${space.slug}`,
+    })),
   });
 });

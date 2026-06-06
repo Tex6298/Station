@@ -8,7 +8,7 @@ import { restoreSession } from "@/lib/auth";
 
 interface FeedItem {
   id: string;
-  type: "document" | "thread";
+  type: "document" | "thread" | "developer_space";
   title: string;
   excerpt: string | null;
   href: string;
@@ -25,6 +25,16 @@ interface FeedItem {
   replyCount: number;
   createdAt: string;
   promoted: boolean;
+  developerSpace?: {
+    slug: string;
+    visualisationType: string;
+    nodeCount: number;
+    eventCount: number;
+    latestEventLabel?: string | null;
+    latestEventType?: string | null;
+    latestEventAt?: string | null;
+    latestEventSummary?: string | null;
+  };
 }
 
 interface Persona { id: string; name: string; visibility: string; provider: string; }
@@ -68,11 +78,11 @@ function Avatar({ author, size = 28 }: { author: FeedItem["author"]; size?: numb
 }
 
 const TYPE_COLOURS: Record<string, string> = {
-  document: "#1e3a5f", thread: "#1a2e1a",
+  document: "#1e3a5f", thread: "#1a2e1a", developer_space: "#082f49",
   post: "#1e3a5f", essay: "#2a1a3a", manifesto: "#3a1a1a",
 };
 const TYPE_TEXT: Record<string, string> = {
-  document: "#60a5fa", thread: "#4ade80",
+  document: "#60a5fa", thread: "#4ade80", developer_space: "#67e8f9",
   post: "#60a5fa", essay: "#c084fc", manifesto: "#f87171",
 };
 const PROVENANCE_LABELS: Record<string, string> = {
@@ -84,7 +94,9 @@ const PROVENANCE_LABELS: Record<string, string> = {
 };
 
 function FeedCard({ item }: { item: FeedItem }) {
-  const typeLabel = item.type === "thread" ? "Forum" : (item.meta ?? "Post");
+  const typeLabel = item.type === "developer_space"
+    ? "Developer Space"
+    : item.type === "thread" ? "Forum" : (item.meta ?? "Post");
   const bg = TYPE_COLOURS[item.meta ?? item.type] ?? TYPE_COLOURS.document;
   const col = TYPE_TEXT[item.meta ?? item.type] ?? TYPE_TEXT.document;
 
@@ -106,6 +118,11 @@ function FeedCard({ item }: { item: FeedItem }) {
               Discussion open
             </span>
           )}
+          {item.developerSpace && (
+            <span style={{ fontSize: "0.68rem", color: "#67e8f9" }}>
+              {item.developerSpace.nodeCount} nodes / {item.developerSpace.eventCount} signals
+            </span>
+          )}
           {item.promoted && (
             <span style={{ fontSize: "0.65rem", padding: "0.1rem 0.4rem", borderRadius: 999, background: "#2a1a00", border: "1px solid #7d5a00", color: "#f59e0b" }}>
               Featured
@@ -124,6 +141,13 @@ function FeedCard({ item }: { item: FeedItem }) {
           </div>
         )}
 
+        {item.developerSpace?.latestEventLabel || item.developerSpace?.latestEventType ? (
+          <div style={{ marginTop: "0.6rem", padding: "0.55rem 0.65rem", borderRadius: 7, background: "#08111f", border: "1px solid #14354a", color: "#9cc7df", fontSize: "0.78rem", lineHeight: 1.45 }}>
+            <strong style={{ color: "#d8f3ff" }}>{item.developerSpace.latestEventLabel ?? item.developerSpace.latestEventType}</strong>
+            {item.developerSpace.latestEventSummary ? <span> / {item.developerSpace.latestEventSummary}</span> : null}
+          </div>
+        ) : null}
+
         <div style={{ display: "flex", gap: "0.75rem", alignItems: "center", marginTop: "0.65rem" }}>
           {item.author && (
             <div style={{ display: "flex", alignItems: "center", gap: "0.35rem" }}>
@@ -135,7 +159,11 @@ function FeedCard({ item }: { item: FeedItem }) {
           )}
           {item.persona && <span style={{ fontSize: "0.72rem", color: "#a89af7" }}>via {item.persona.name}</span>}
           {item.sourceLabel && <span style={{ fontSize: "0.72rem", color: "#68738a" }}>{item.sourceLabel}</span>}
-          {item.replyCount > 0 && <span style={{ fontSize: "0.72rem", color: "#68738a", marginLeft: "auto" }}>Replies {item.replyCount}</span>}
+          {item.type === "developer_space" && item.developerSpace ? (
+            <span style={{ fontSize: "0.72rem", color: "#68738a", marginLeft: "auto" }}>
+              {item.developerSpace.visualisationType.replace("_", " ")}
+            </span>
+          ) : item.replyCount > 0 && <span style={{ fontSize: "0.72rem", color: "#68738a", marginLeft: "auto" }}>Replies {item.replyCount}</span>}
         </div>
       </article>
     </Link>
@@ -365,22 +393,29 @@ export default function DiscoverFrontDoor() {
             {searching && <div style={{ color: "#8b96aa", fontSize: "0.85rem" }}>Searching...</div>}
             {!searching && searchResults && (
               <div style={{ display: "grid", gap: "1rem" }}>
-                {(["personas", "spaces", "documents", "threads"] as const).map((key) => {
+                {(["personas", "developerSpaces", "spaces", "documents", "threads"] as const).map((key) => {
                   const results = searchResults[key] ?? [];
                   if (!results.length) return null;
-                  const label = key.charAt(0).toUpperCase() + key.slice(1);
+                  const label = key === "developerSpaces" ? "Developer spaces" : key.charAt(0).toUpperCase() + key.slice(1);
                   return (
                     <div key={key}>
                       <div className="section-label">{label}</div>
                       <div style={{ display: "grid", gap: "0.3rem" }}>
                         {results.map((r: any) => {
                           const href = key === "personas" ? `/studio/personas/${r.id}`
+                            : key === "developerSpaces" ? `/developer-spaces/${r.slug}`
                             : key === "spaces" ? `/space/${r.slug}`
                             : key === "documents" ? (r.space ? `/space/${r.space.slug}/documents/${r.id}` : `/documents/${r.id}`)
                             : r.category ? `/forums/${r.category.slug}/${r.id}` : `/forums`;
+                          const title = r.name ?? r.title ?? r.projectName;
                           return (
                             <Link key={r.id} href={href} onClick={() => setSearch("")} style={{ textDecoration: "none", display: "block", padding: "0.3rem 0.5rem", borderRadius: 6, fontSize: "0.85rem", color: "#cbd5e1" }}>
-                              {r.name ?? r.title}
+                              {title}
+                              {key === "developerSpaces" && (
+                                <span style={{ color: "#67e8f9", fontSize: "0.72rem", marginLeft: "0.45rem", textTransform: "capitalize" }}>
+                                  {r.visualisationType?.replace("_", " ")} / {r.visibility}
+                                </span>
+                              )}
                               {key === "spaces" && r.presentation && (
                                 <span style={{ color: "#a7f3d0", fontSize: "0.72rem", marginLeft: "0.45rem", textTransform: "capitalize" }}>
                                   {r.presentation.theme} / {r.presentation.layout}
@@ -408,7 +443,7 @@ export default function DiscoverFrontDoor() {
                     </div>
                   );
                 })}
-                {!["personas", "spaces", "documents", "threads"].some((k) => (searchResults[k] ?? []).length > 0) && (
+                {!["personas", "developerSpaces", "spaces", "documents", "threads"].some((k) => (searchResults[k] ?? []).length > 0) && (
                   <div style={{ color: "#8b96aa", fontSize: "0.85rem" }}>No results for &quot;{search}&quot;.</div>
                 )}
               </div>

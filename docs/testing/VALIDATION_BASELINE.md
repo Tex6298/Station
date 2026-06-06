@@ -601,3 +601,33 @@ Commands re-run by ARGUS:
 PR-11 is accepted. This does not include PR-12 Discover expansion, PR-13
 document linking, PR-14 quotas/exports, SDK package work, Stripe/token-credit,
 or broad Developer Spaces UI redesign.
+
+## PR-12 DAEDALUS implementation result
+
+Validated on 2026-06-06 after the bounded Developer Spaces Discover integration
+slice:
+
+- `/discover/feed` now includes `developer_space` cards alongside documents and
+  threads for the normal/new/rising feed.
+- Developer Space cards include public-safe high-signal event summaries,
+  visualisation type, node count, and visible event count.
+- `/discover/search` returns Developer Space results using the same public/
+  community visibility rules.
+- Visitors see only public Developer Spaces; eligible members also see community
+  Developer Spaces. Private spaces, unlisted spaces, private events, API key
+  hashes, and scrubbed event-data fields stay out of Discover.
+- The existing Discover front door renders Developer Space cards and search
+  hits without creating a separate Discover surface.
+
+Targeted commands run with the pinned runner:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npx --yes pnpm@10.32.1 test:community` | Pass | 5 tests passed; coverage includes public/member Developer Space feed/search visibility and leak checks. |
+| `npx --yes pnpm@10.32.1 test:spaces` | Pass | 1 test passed. |
+| `npx --yes pnpm@10.32.1 test:developer-spaces` | Pass | 2 tests passed. |
+| `npx --yes pnpm@10.32.1 build` | Pass | Known pre-existing React hook dependency and `<img>` optimization warnings only. |
+| `npx --yes pnpm@10.32.1 typecheck` | Pass on rerun | First run hit stale `.next/types` paths while build was running concurrently; rerun after build regenerated `.next/types` completed successfully. |
+
+ARGUS still needs to review the public-safety boundaries before PR-12 is marked
+complete.

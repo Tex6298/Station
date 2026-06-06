@@ -36,6 +36,10 @@ const LOCKED_THREAD_ID = "99999999-9999-4999-8999-999999999991";
 const HIDDEN_THREAD_ID = "99999999-9999-4999-8999-999999999992";
 const PUBLIC_THREAD_ID = "99999999-9999-4999-8999-999999999993";
 const COMMUNITY_THREAD_ID = "99999999-9999-4999-8999-999999999994";
+const PUBLIC_DEV_SPACE_ID = "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaa1";
+const COMMUNITY_DEV_SPACE_ID = "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaa2";
+const PRIVATE_DEV_SPACE_ID = "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaa3";
+const UNLISTED_DEV_SPACE_ID = "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaa4";
 
 class CommunitySupabase {
   tables: Record<string, Row[]> = {
@@ -92,6 +96,36 @@ class CommunitySupabase {
       feed("feed-private-space", "space", PRIVATE_SPACE_ID, "Private Space"),
       feed("feed-public-persona", "persona", PUBLIC_PERSONA_ID, "Public Persona"),
       feed("feed-private-persona", "persona", PRIVATE_PERSONA_ID, "Private Persona"),
+      feed("feed-public-dev-space", "developer_space", PUBLIC_DEV_SPACE_ID, "Public Dev Space"),
+      feed("feed-community-dev-space", "developer_space", COMMUNITY_DEV_SPACE_ID, "Community Dev Space"),
+      feed("feed-private-dev-space", "developer_space", PRIVATE_DEV_SPACE_ID, "Private Dev Space"),
+    ],
+    developer_spaces: [
+      developerSpace(PUBLIC_DEV_SPACE_ID, "public-observatory", "Public Observatory", "public"),
+      developerSpace(COMMUNITY_DEV_SPACE_ID, "community-observatory", "Community Observatory", "community"),
+      developerSpace(PRIVATE_DEV_SPACE_ID, "private-observatory", "Private Observatory", "private"),
+      developerSpace(UNLISTED_DEV_SPACE_ID, "unlisted-observatory", "Unlisted Observatory", "unlisted"),
+    ],
+    developer_space_nodes: [
+      developerSpaceNode("dev-node-public", PUBLIC_DEV_SPACE_ID),
+      developerSpaceNode("dev-node-community", COMMUNITY_DEV_SPACE_ID),
+    ],
+    developer_space_events: [
+      developerSpaceEvent("dev-event-public", PUBLIC_DEV_SPACE_ID, "signal.public", "Public signal", "public", {
+        zone: "North Array",
+        token: "public-token-should-scrub",
+      }),
+      developerSpaceEvent("dev-event-private", PUBLIC_DEV_SPACE_ID, "signal.private", "Private signal", "private", {
+        zone: "Private Array",
+        password: "private-password-should-not-leak",
+      }),
+      developerSpaceEvent("dev-event-community", COMMUNITY_DEV_SPACE_ID, "signal.community", "Community signal", "community", {
+        zone: "Member Array",
+        bearerToken: "community-token-should-scrub",
+      }),
+      developerSpaceEvent("dev-event-hidden-space", PRIVATE_DEV_SPACE_ID, "signal.hidden", "Hidden signal", "public", {
+        zone: "Hidden Array",
+      }),
     ],
   };
 
@@ -165,6 +199,13 @@ class CommunitySupabase {
       copy.persona = foundPersona ? { id: foundPersona.id, name: foundPersona.name } : null;
     }
 
+    if (table === "developer_spaces" && columns.includes("owner:profiles")) {
+      const owner = this.rows("profiles").find((candidate) => candidate.id === row.owner_user_id);
+      copy.owner = owner
+        ? { username: owner.username, display_name: owner.display_name, avatar_url: owner.avatar_url }
+        : null;
+    }
+
     return copy;
   }
 
@@ -226,6 +267,7 @@ class CommunitySupabase {
 
 class QueryBuilder {
   private filters: Array<[string, unknown]> = [];
+  private inFilters: Array<[string, unknown[]]> = [];
   private ilikeFilters: Array<[string, string]> = [];
   private orderSpec: { field: string; ascending: boolean } | null = null;
   private limitCount: number | null = null;
@@ -247,6 +289,11 @@ class QueryBuilder {
 
   eq(field: string, value: unknown) {
     this.filters.push([field, value]);
+    return this;
+  }
+
+  in(field: string, values: unknown[]) {
+    this.inFilters.push([field, values]);
     return this;
   }
 
@@ -300,6 +347,10 @@ class QueryBuilder {
 
     for (const [field, value] of this.filters) {
       rows = rows.filter((row) => row[field] === value);
+    }
+
+    for (const [field, values] of this.inFilters) {
+      rows = rows.filter((row) => values.includes(row[field]));
     }
 
     for (const [field, pattern] of this.ilikeFilters) {
@@ -474,6 +525,66 @@ function feed(id: string, itemType: string, itemId: string, title: string): Row 
     description: null,
     href: `/${itemType}/${itemId}`,
     created_at: "2026-05-25T09:30:00.000Z",
+  };
+}
+
+function developerSpace(id: string, slug: string, projectName: string, visibility: string): Row {
+  return {
+    id,
+    owner_user_id: OWNER_ID,
+    slug,
+    project_name: projectName,
+    description: `${projectName} public summary.`,
+    visibility,
+    visualisation_type: "world_map",
+    visualisation_config: {},
+    api_key_hash: "hidden-hash",
+    api_key_last_four: "1234",
+    api_key_created_at: "2026-05-25T09:30:00.000Z",
+    created_at: "2026-05-25T09:30:00.000Z",
+    updated_at: "2026-05-25T09:45:00.000Z",
+  };
+}
+
+function developerSpaceNode(id: string, developerSpaceId: string): Row {
+  return {
+    id,
+    developer_space_id: developerSpaceId,
+    external_id: id,
+    node_name: id,
+    topology_type: "radial",
+    fragment_count: 12,
+    self_similarity_score: 0.7,
+    dimensionality: 4,
+    metrics: {},
+    last_event_at: "2026-05-25T09:45:00.000Z",
+    created_at: "2026-05-25T09:35:00.000Z",
+    updated_at: "2026-05-25T09:45:00.000Z",
+  };
+}
+
+function developerSpaceEvent(
+  id: string,
+  developerSpaceId: string,
+  eventType: string,
+  eventLabel: string,
+  visibility: string,
+  eventData: Row
+): Row {
+  return {
+    id,
+    developer_space_id: developerSpaceId,
+    node_id: null,
+    external_node_id: null,
+    event_type: eventType,
+    event_label: eventLabel,
+    event_data: eventData,
+    similarity_score: 0.82,
+    source_refs: ["station:test"],
+    provenance: "api",
+    visibility,
+    occurred_at: "2026-05-25T09:50:00.000Z",
+    created_at: "2026-05-25T09:50:00.000Z",
   };
 }
 
@@ -723,7 +834,7 @@ test("featured Discover feed filters to public-safe and community-eligible items
     assert.equal(visitor.status, 200);
     assert.deepEqual(
       visitor.body.items.map((item: Row) => item.item_id).sort(),
-      [PUBLIC_DOC_ID, PUBLIC_PERSONA_ID, PUBLIC_SPACE_ID, PUBLIC_THREAD_ID].sort()
+      [PUBLIC_DEV_SPACE_ID, PUBLIC_DOC_ID, PUBLIC_PERSONA_ID, PUBLIC_SPACE_ID, PUBLIC_THREAD_ID].sort()
     );
 
     const member = await requestJson(app, "GET", "/discover/feed?tab=featured&limit=20", {
@@ -734,12 +845,71 @@ test("featured Discover feed filters to public-safe and community-eligible items
       member.body.items.map((item: Row) => item.item_id).sort(),
       [
         COMMUNITY_DOC_ID,
+        COMMUNITY_DEV_SPACE_ID,
         COMMUNITY_THREAD_ID,
+        PUBLIC_DEV_SPACE_ID,
         PUBLIC_DOC_ID,
         PUBLIC_PERSONA_ID,
         PUBLIC_SPACE_ID,
         PUBLIC_THREAD_ID,
       ].sort()
+    );
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
+
+test("Discover feed and search include public-safe Developer Spaces", async () => {
+  const db = new CommunitySupabase();
+  setSupabaseAdminForTests(db.client as any);
+  const app = createCommunityApp();
+
+  try {
+    const visitorFeed = await requestJson(app, "GET", "/discover/feed?tab=new&limit=30");
+    assert.equal(visitorFeed.status, 200);
+    const visitorDeveloperSpaces = visitorFeed.body.items.filter((item: Row) => item.type === "developer_space");
+    assert.deepEqual(visitorDeveloperSpaces.map((item: Row) => item.id), [PUBLIC_DEV_SPACE_ID]);
+
+    const publicItem = visitorDeveloperSpaces[0];
+    assert.equal(publicItem.href, "/developer-spaces/public-observatory");
+    assert.equal(publicItem.developerSpace.nodeCount, 1);
+    assert.equal(publicItem.developerSpace.eventCount, 1);
+    assert.equal(publicItem.developerSpace.latestEventLabel, "Public signal");
+    assert.equal(publicItem.developerSpace.latestEventSummary.includes("zone: North Array"), true);
+    const visitorText = JSON.stringify(publicItem);
+    assert.equal(visitorText.includes("private-password-should-not-leak"), false);
+    assert.equal(visitorText.includes("public-token-should-scrub"), false);
+    assert.equal(visitorText.includes("hidden-hash"), false);
+
+    const memberFeed = await requestJson(app, "GET", "/discover/feed?tab=new&limit=30", {
+      token: "member-token",
+    });
+    assert.equal(memberFeed.status, 200);
+    assert.deepEqual(
+      memberFeed.body.items
+        .filter((item: Row) => item.type === "developer_space")
+        .map((item: Row) => item.id)
+        .sort(),
+      [COMMUNITY_DEV_SPACE_ID, PUBLIC_DEV_SPACE_ID].sort()
+    );
+    const memberText = JSON.stringify(memberFeed.body.items);
+    assert.equal(memberText.includes(PRIVATE_DEV_SPACE_ID), false);
+    assert.equal(memberText.includes(UNLISTED_DEV_SPACE_ID), false);
+    assert.equal(memberText.includes("community-token-should-scrub"), false);
+
+    const visitorSearch = await requestJson(app, "GET", "/discover/search?q=Observatory");
+    assert.equal(visitorSearch.status, 200);
+    assert.deepEqual(
+      visitorSearch.body.developerSpaces.map((space: Row) => space.id),
+      [PUBLIC_DEV_SPACE_ID]
+    );
+
+    const memberSearch = await requestJson(app, "GET", "/discover/search?q=Observatory", {
+      token: "member-token",
+    });
+    assert.deepEqual(
+      memberSearch.body.developerSpaces.map((space: Row) => space.id).sort(),
+      [COMMUNITY_DEV_SPACE_ID, PUBLIC_DEV_SPACE_ID].sort()
     );
   } finally {
     setSupabaseAdminForTests(null);
