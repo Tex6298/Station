@@ -1,6 +1,7 @@
 import { createHash, randomBytes } from "crypto";
 import type {
   DeveloperSpaceDetail,
+  DeveloperSpaceLinkedDocument,
   DeveloperSpaceEvent,
   DeveloperSpaceNode,
   DeveloperSpaceRecord,
@@ -192,5 +193,39 @@ export function serializeDeveloperSpaceSnapshot(
     visibility: row.visibility ?? "public",
     occurredAt: row.occurred_at,
     createdAt: row.created_at,
+  };
+}
+
+function excerpt(value: string | null | undefined, length = 220) {
+  const clean = (value ?? "").replace(/\s+/g, " ").trim();
+  return clean.length > length ? `${clean.slice(0, length).trim()}...` : clean;
+}
+
+export function serializeDeveloperSpaceLinkedDocument(
+  link: any,
+  document: any
+): DeveloperSpaceLinkedDocument {
+  return {
+    id: link.id,
+    developerSpaceId: link.developer_space_id,
+    documentId: link.document_id,
+    ownerUserId: link.owner_user_id,
+    role: link.document_role,
+    linkVisibility: link.link_visibility,
+    sortOrder: Number(link.sort_order ?? 0),
+    createdAt: link.created_at,
+    updatedAt: link.updated_at,
+    document: {
+      id: document.id,
+      title: document.title,
+      slug: document.slug,
+      excerpt: excerpt(document.body),
+      documentType: document.document_type,
+      status: document.status,
+      visibility: document.visibility,
+      publishedAt: document.published_at ?? null,
+      createdAt: document.created_at,
+      updatedAt: document.updated_at,
+    },
   };
 }

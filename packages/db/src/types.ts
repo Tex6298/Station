@@ -40,6 +40,8 @@ export type DeveloperSpaceTopologyType = "radial" | "branching" | "lattice" | "c
 export type DeveloperSpaceEventVisibility = "private" | "community" | "public";
 export type DeveloperSpaceEventProvenance = "api" | "imported" | "user" | "system" | "ai_generated";
 export type DeveloperSpaceIngestionKeyStatus = "active" | "revoked";
+export type DeveloperSpaceDocumentRole = "methodology" | "finding" | "field_log" | "note";
+export type DeveloperSpaceDocumentLinkVisibility = "owner" | "public";
 export type ExportPackageKind = "persona_archive";
 export type ExportPackageStatus = "requested" | "processing" | "completed" | "failed";
 export type ExportPackageFormat = "json_markdown";
@@ -524,6 +526,28 @@ export interface Database {
           revoked_at?: string | null;
         };
         Update: Partial<Database["public"]["Tables"]["developer_space_ingestion_keys"]["Insert"]>;
+      };
+      developer_space_documents: {
+        Row: {
+          id: string;
+          developer_space_id: string;
+          document_id: string;
+          owner_user_id: string;
+          document_role: DeveloperSpaceDocumentRole;
+          link_visibility: DeveloperSpaceDocumentLinkVisibility;
+          sort_order: number;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: Omit<Database["public"]["Tables"]["developer_space_documents"]["Row"], "id" | "document_role" | "link_visibility" | "sort_order" | "created_at" | "updated_at"> & {
+          id?: string;
+          document_role?: DeveloperSpaceDocumentRole;
+          link_visibility?: DeveloperSpaceDocumentLinkVisibility;
+          sort_order?: number;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["developer_space_documents"]["Insert"]>;
       };
       developer_space_nodes: {
         Row: {

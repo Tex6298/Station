@@ -4,6 +4,8 @@ export type DeveloperSpaceTopologyType = "radial" | "branching" | "lattice" | "c
 export type DeveloperSpaceEventVisibility = "private" | "community" | "public";
 export type DeveloperSpaceEventProvenance = "api" | "imported" | "user" | "system" | "ai_generated";
 export type DeveloperSpaceIngestionKeyStatus = "active" | "revoked";
+export type DeveloperSpaceDocumentRole = "methodology" | "finding" | "field_log" | "note";
+export type DeveloperSpaceDocumentLinkVisibility = "owner" | "public";
 
 export interface DeveloperSpaceRecord {
   id: string;
@@ -62,11 +64,36 @@ export interface DeveloperSpaceSnapshot {
   createdAt: string;
 }
 
+export interface DeveloperSpaceLinkedDocument {
+  id: string;
+  developerSpaceId: string;
+  documentId: string;
+  ownerUserId: string;
+  role: DeveloperSpaceDocumentRole;
+  linkVisibility: DeveloperSpaceDocumentLinkVisibility;
+  sortOrder: number;
+  createdAt: string;
+  updatedAt: string;
+  document: {
+    id: string;
+    title: string;
+    slug: string;
+    excerpt: string;
+    documentType: string;
+    status: string;
+    visibility: string;
+    publishedAt?: string | null;
+    createdAt: string;
+    updatedAt: string;
+  };
+}
+
 export interface DeveloperSpaceDetail {
   space: DeveloperSpaceRecord;
   nodes: DeveloperSpaceNode[];
   events: DeveloperSpaceEvent[];
   latestSnapshot?: DeveloperSpaceSnapshot | null;
+  linkedDocuments: DeveloperSpaceLinkedDocument[];
   access: "owner" | "member" | "public";
 }
 

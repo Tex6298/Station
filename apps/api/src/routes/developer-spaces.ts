@@ -1,6 +1,8 @@
 import { Router, type Request, type Response } from "express";
 import { z } from "zod";
 import type {
+  DeveloperSpaceDocumentLinkVisibility,
+  DeveloperSpaceDocumentRole,
   DeveloperSpaceEventVisibility,
   DeveloperSpaceFreshness,
   DeveloperSpaceLiveUpdate,
@@ -18,6 +20,7 @@ import {
   normaliseSourceRefs,
   serializeDeveloperSpace,
   serializeDeveloperSpaceEvent,
+  serializeDeveloperSpaceLinkedDocument,
   serializeDeveloperSpaceNode,
   serializeDeveloperSpaceSnapshot,
   slugifyProjectName,
@@ -28,6 +31,8 @@ const visualisationSchema = z.enum(["node_field", "timeline", "world_map", "cons
 const topologySchema = z.enum(["radial", "branching", "lattice", "custom"]);
 const eventVisibilitySchema = z.enum(["private", "community", "public"]);
 const provenanceSchema = z.enum(["api", "imported", "user", "system", "ai_generated"]);
+const documentRoleSchema = z.enum(["methodology", "finding", "field_log", "note"]);
+const documentLinkVisibilitySchema = z.enum(["owner", "public"]);
 const sourceRefsSchema = z.array(z.string().max(500)).max(24).default([]);
 const MAX_JSON_CHARS = 32_000;
 const MAX_JSON_DEPTH = 8;
@@ -107,6 +112,22 @@ const batchImportSchema = z.object({
   snapshots: z.array(snapshotSchema).max(100).default([]),
 });
 
+const attachDocumentSchema = z.object({
+  documentId: z.string().min(1).max(120),
+  role: documentRoleSchema.default("note"),
+  linkVisibility: documentLinkVisibilitySchema.default("owner"),
+  sortOrder: z.number().int().min(0).max(100_000).default(0),
+});
+
+const templateDocumentSchema = z.object({
+  role: documentRoleSchema.default("note"),
+  title: z.string().min(1).max(200).optional(),
+  body: z.string().max(100_000).optional(),
+  linkVisibility: documentLinkVisibilitySchema.default("owner"),
+  publish: z.boolean().default(false),
+  sortOrder: z.number().int().min(0).max(100_000).default(0),
+});
+
 export const developerSpacesRouter = Router();
 
 async function loadSpaceForIngestion(req: any, res: any) {
@@ -184,21 +205,161 @@ function latestIso(values: Array<string | null | undefined>) {
   return dates.sort((a, b) => Date.parse(b) - Date.parse(a))[0] ?? null;
 }
 
-function buildFreshness(space: any, nodes: any[], events: any[], latestSnapshot: any | null, emittedAt: string): DeveloperSpaceFreshness {
+function slugifyDocumentTitle(input: string): string {
+  const slug = input
+    .toLowerCase()
+    .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .replace(/-{2,}/g, "-")
+    .slice(0, 120);
+
+  return slug || `developer-space-note-${Date.now()}`;
+}
+
+async function uniqueDocumentSlug(authorUserId: string, preferred: string) {
+  const sb = getSupabaseAdmin();
+  const base = slugifyDocumentTitle(preferred);
+  for (let index = 0; index < 50; index += 1) {
+    const candidate = index === 0 ? base : `${base}-${index + 1}`;
+    const { data } = await sb
+      .from("documents")
+      .select("id")
+      .eq("author_user_id", authorUserId)
+      .eq("slug", candidate)
+      .single();
+    if (!data) return candidate;
+  }
+  return `${base}-${Date.now()}`;
+}
+
+function defaultTemplateTitle(projectName: string, role: DeveloperSpaceDocumentRole) {
+  const labels: Record<DeveloperSpaceDocumentRole, string> = {
+    methodology: "Methodology",
+    finding: "Finding",
+    field_log: "Field log",
+    note: "Research note",
+  };
+  return `${projectName} ${labels[role]}`;
+}
+
+function defaultTemplateBody(projectName: string, role: DeveloperSpaceDocumentRole) {
+  const labels: Record<DeveloperSpaceDocumentRole, string> = {
+    methodology: "Methodology notes",
+    finding: "Findings",
+    field_log: "Field log",
+    note: "Research note",
+  };
+  return `# ${projectName} ${labels[role]}\n\n`;
+}
+
+function documentTypeForRole(role: DeveloperSpaceDocumentRole) {
+  if (role === "field_log") return "update";
+  if (role === "note") return "post";
+  return "essay";
+}
+
+function isOwnerOrAdmin(space: any, user?: AuthenticatedUser | null) {
+  return space.owner_user_id === user?.id || user?.isAdmin;
+}
+
+function isPublicSafeLinkedDocument(document: any) {
+  return document.status === "published" && document.visibility === "public";
+}
+
+function publicDocumentLinkIsReadable(link: any, document: any) {
+  return link.link_visibility === "public" && isPublicSafeLinkedDocument(document);
+}
+
+async function loadDeveloperSpaceForOwner(id: string, user: AuthenticatedUser) {
+  const sb = getSupabaseAdmin();
+  const { data: space, error } = await sb
+    .from("developer_spaces")
+    .select("*")
+    .eq("id", id)
+    .single();
+
+  if (error || !space) return { status: 404 as const, error: "Developer Space not found." };
+  if (!isOwnerOrAdmin(space, user)) return { status: 403 as const, error: "Not authorised." };
+  return { status: 200 as const, space };
+}
+
+async function loadLinkedDocumentsForSpace(space: any, access: "owner" | "member" | "public") {
+  const sb = getSupabaseAdmin();
+  let query = sb
+    .from("developer_space_documents")
+    .select("*")
+    .eq("developer_space_id", space.id)
+    .order("sort_order", { ascending: true });
+
+  if (access !== "owner") query = query.eq("link_visibility", "public");
+
+  const { data: links, error: linkError } = await query;
+  if (linkError) throw new Error(linkError.message);
+
+  const documentIds = [...new Set((links ?? []).map((link: any) => link.document_id))];
+  if (documentIds.length === 0) {
+    return {
+      linkedDocuments: [],
+      linkRows: [],
+      documentRows: [],
+    };
+  }
+
+  const { data: documents, error: documentError } = await sb
+    .from("documents")
+    .select("id, author_user_id, title, slug, body, document_type, status, visibility, published_at, created_at, updated_at")
+    .in("id", documentIds);
+
+  if (documentError) throw new Error(documentError.message);
+
+  const documentById = new Map((documents ?? []).map((document: any) => [document.id, document]));
+  const readablePairs = (links ?? [])
+    .map((link: any) => ({ link, document: documentById.get(link.document_id) }))
+    .filter(({ link, document }: any) => {
+      if (!document) return false;
+      if (access === "owner") return true;
+      return publicDocumentLinkIsReadable(link, document);
+    });
+
+  return {
+    linkedDocuments: readablePairs.map(({ link, document }: any) =>
+      serializeDeveloperSpaceLinkedDocument(link, document)
+    ),
+    linkRows: readablePairs.map(({ link }: any) => link),
+    documentRows: readablePairs.map(({ document }: any) => document),
+  };
+}
+
+function buildFreshness(
+  space: any,
+  nodes: any[],
+  events: any[],
+  latestSnapshot: any | null,
+  linkedRows: { links: any[]; documents: any[] },
+  emittedAt: string
+): DeveloperSpaceFreshness {
   const latestNodeAt = latestIso(nodes.flatMap((node) => [node.last_event_at, node.updated_at, node.created_at]));
   const latestEventAt = latestIso(events.flatMap((event) => [event.occurred_at, event.created_at]));
   const latestSnapshotAt = latestSnapshot
     ? latestIso([latestSnapshot.occurred_at, latestSnapshot.created_at])
     : null;
+  const latestDocumentAt = latestIso([
+    ...linkedRows.links.flatMap((link) => [link.updated_at, link.created_at]),
+    ...linkedRows.documents.flatMap((document) => [document.updated_at, document.published_at, document.created_at]),
+  ]);
   const spaceUpdatedAt = space.updated_at ?? space.created_at ?? emittedAt;
   const streamId = [
     spaceUpdatedAt,
     latestNodeAt ?? "nodes:none",
     latestEventAt ?? "events:none",
     latestSnapshotAt ?? "snapshots:none",
+    latestDocumentAt ?? "documents:none",
     nodes.length,
     events.length,
     latestSnapshot?.id ?? "snapshot:none",
+    linkedRows.links.length,
   ].join("|");
 
   return {
@@ -260,6 +421,12 @@ async function buildDeveloperSpaceLiveUpdate(
   const nodes = nodesResult.data ?? [];
   const events = eventsResult.data ?? [];
   const latestSnapshot = snapshotsResult.data?.[0] ?? null;
+  let linkedDocumentsResult: Awaited<ReturnType<typeof loadLinkedDocumentsForSpace>>;
+  try {
+    linkedDocumentsResult = await loadLinkedDocumentsForSpace(space, access);
+  } catch (e) {
+    return { status: 500, error: e instanceof Error ? e.message : "Could not load linked documents." };
+  }
   const includeRawData = access === "owner";
   const emittedAt = new Date().toISOString();
   const detail = {
@@ -267,6 +434,7 @@ async function buildDeveloperSpaceLiveUpdate(
     nodes: nodes.map((node) => serializeDeveloperSpaceNode(node, { includeRawData })),
     events: events.map((event) => serializeDeveloperSpaceEvent(event, { includeRawData })),
     latestSnapshot: latestSnapshot ? serializeDeveloperSpaceSnapshot(latestSnapshot, { includeRawData }) : null,
+    linkedDocuments: linkedDocumentsResult.linkedDocuments,
     access,
   };
 
@@ -275,7 +443,17 @@ async function buildDeveloperSpaceLiveUpdate(
     update: {
       kind: "detail",
       detail,
-      freshness: buildFreshness(space, nodes, events, latestSnapshot, emittedAt),
+      freshness: buildFreshness(
+        space,
+        nodes,
+        events,
+        latestSnapshot,
+        {
+          links: linkedDocumentsResult.linkRows,
+          documents: linkedDocumentsResult.documentRows,
+        },
+        emittedAt
+      ),
       emittedAt,
     },
   };
@@ -651,6 +829,118 @@ developerSpacesRouter.post("/:id/api-key/revoke", requireAuth, async (req, res) 
 
   if (error || !data) return res.status(500).json({ error: error?.message ?? "Could not revoke API key." });
   return res.json({ space: serializeDeveloperSpace(data) });
+});
+
+developerSpacesRouter.post("/:id/documents", requireAuth, async (req, res) => {
+  const parsed = attachDocumentSchema.safeParse(req.body);
+  if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
+
+  const sb = getSupabaseAdmin();
+  const ownerLoad = await loadDeveloperSpaceForOwner(req.params.id, req.user!);
+  if (ownerLoad.status !== 200) return res.status(ownerLoad.status).json({ error: ownerLoad.error });
+
+  const { data: document, error: documentError } = await sb
+    .from("documents")
+    .select("*")
+    .eq("id", parsed.data.documentId)
+    .single();
+
+  if (documentError || !document) return res.status(404).json({ error: "Document not found." });
+  if (document.author_user_id !== req.user!.id && !req.user!.isAdmin) {
+    return res.status(403).json({ error: "Not authorised for that document." });
+  }
+
+  if (parsed.data.linkVisibility === "public" && !isPublicSafeLinkedDocument(document)) {
+    return res.status(400).json({
+      error: "Public Developer Space links require a published public document.",
+    });
+  }
+
+  const { data: link, error } = await sb
+    .from("developer_space_documents")
+    .upsert({
+      developer_space_id: ownerLoad.space.id,
+      document_id: document.id,
+      owner_user_id: ownerLoad.space.owner_user_id,
+      document_role: parsed.data.role,
+      link_visibility: parsed.data.linkVisibility,
+      sort_order: parsed.data.sortOrder,
+    }, { onConflict: "developer_space_id,document_id" })
+    .select("*")
+    .single();
+
+  if (error || !link) return res.status(500).json({ error: error?.message ?? "Could not link document." });
+
+  const linkedDocuments = await loadLinkedDocumentsForSpace(ownerLoad.space, "owner");
+  return res.status(201).json({
+    link: serializeDeveloperSpaceLinkedDocument(link, document),
+    linkedDocuments: linkedDocuments.linkedDocuments,
+  });
+});
+
+developerSpacesRouter.post("/:id/documents/template", requireAuth, async (req, res) => {
+  const parsed = templateDocumentSchema.safeParse(req.body);
+  if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
+
+  const sb = getSupabaseAdmin();
+  const ownerLoad = await loadDeveloperSpaceForOwner(req.params.id, req.user!);
+  if (ownerLoad.status !== 200) return res.status(ownerLoad.status).json({ error: ownerLoad.error });
+
+  const linkVisibility: DeveloperSpaceDocumentLinkVisibility =
+    parsed.data.publish || parsed.data.linkVisibility === "public" ? "public" : "owner";
+  const publishPublic = linkVisibility === "public";
+  const now = new Date().toISOString();
+  const title = parsed.data.title?.trim() || defaultTemplateTitle(ownerLoad.space.project_name, parsed.data.role);
+  const slug = await uniqueDocumentSlug(req.user!.id, title);
+
+  const { data: document, error: documentError } = await sb
+    .from("documents")
+    .insert({
+      author_user_id: req.user!.id,
+      space_id: null,
+      persona_id: null,
+      title,
+      slug,
+      body: parsed.data.body ?? defaultTemplateBody(ownerLoad.space.project_name, parsed.data.role),
+      document_type: documentTypeForRole(parsed.data.role),
+      status: publishPublic ? "published" : "draft",
+      visibility: publishPublic ? "public" : "private",
+      comments_enabled: publishPublic,
+      published_at: publishPublic ? now : null,
+      provenance_type: "user_authored",
+      source_type: "manual",
+      source_id: ownerLoad.space.id,
+      source_label: `Developer Space: ${ownerLoad.space.project_name}`,
+      source_persona_id: null,
+    })
+    .select("*")
+    .single();
+
+  if (documentError || !document) {
+    return res.status(500).json({ error: documentError?.message ?? "Could not create document." });
+  }
+
+  const { data: link, error: linkError } = await sb
+    .from("developer_space_documents")
+    .insert({
+      developer_space_id: ownerLoad.space.id,
+      document_id: document.id,
+      owner_user_id: ownerLoad.space.owner_user_id,
+      document_role: parsed.data.role,
+      link_visibility: linkVisibility,
+      sort_order: parsed.data.sortOrder,
+    })
+    .select("*")
+    .single();
+
+  if (linkError || !link) return res.status(500).json({ error: linkError?.message ?? "Could not link document." });
+
+  const linkedDocuments = await loadLinkedDocumentsForSpace(ownerLoad.space, "owner");
+  return res.status(201).json({
+    link: serializeDeveloperSpaceLinkedDocument(link, document),
+    document,
+    linkedDocuments: linkedDocuments.linkedDocuments,
+  });
 });
 
 developerSpacesRouter.patch("/:id", requireAuth, async (req, res) => {

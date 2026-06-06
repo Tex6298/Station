@@ -1,12 +1,17 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { type FormEvent, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { apiGet, apiPost, apiUrl } from "@/lib/api-client";
 import { getSession } from "@/lib/auth";
 import { formatDate, humaniseKey } from "@/lib/developer-space-observatory";
-import type { DeveloperSpaceDetail, DeveloperSpaceLiveUpdate } from "@station/types/developer-space";
+import type {
+  DeveloperSpaceDetail,
+  DeveloperSpaceDocumentRole,
+  DeveloperSpaceLinkedDocument,
+  DeveloperSpaceLiveUpdate,
+} from "@station/types/developer-space";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
 
@@ -29,6 +34,11 @@ function CodeBlock({ code }: { code: string }) {
   );
 }
 
+function linkedDocumentRoleLabel(role: DeveloperSpaceLinkedDocument["role"]) {
+  if (role === "field_log") return "Field log";
+  return role.charAt(0).toUpperCase() + role.slice(1);
+}
+
 export default function DeveloperSpaceManagePage() {
   const { slug } = useParams<{ slug: string }>();
   const [token, setToken] = useState<string | null>(null);
@@ -39,6 +49,11 @@ export default function DeveloperSpaceManagePage() {
   const [error, setError] = useState<string | null>(null);
   const [liveStatus, setLiveStatus] = useState<"connecting" | "live" | "reconnecting">("connecting");
   const [lastLiveAt, setLastLiveAt] = useState<string | null>(null);
+  const [documentRole, setDocumentRole] = useState<DeveloperSpaceDocumentRole>("methodology");
+  const [documentTitle, setDocumentTitle] = useState("");
+  const [documentBody, setDocumentBody] = useState("");
+  const [publishDocument, setPublishDocument] = useState(false);
+  const [savingDocument, setSavingDocument] = useState(false);
 
   async function load(sessionToken: string) {
     const data = await apiGet<DeveloperSpaceDetail>(`/developer-spaces/${slug}`, sessionToken);
@@ -195,6 +210,35 @@ export default function DeveloperSpaceManagePage() {
     );
   }
 
+  async function createLinkedDocument(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!token || !detail) return;
+    setSavingDocument(true);
+    setError(null);
+    try {
+      const data = await apiPost<{
+        linkedDocuments: DeveloperSpaceLinkedDocument[];
+      }>(
+        `/developer-spaces/${detail.space.id}/documents/template`,
+        {
+          role: documentRole,
+          title: documentTitle.trim() || undefined,
+          body: documentBody.trim() || undefined,
+          linkVisibility: publishDocument ? "public" : "owner",
+        },
+        token
+      );
+      setDetail({ ...detail, linkedDocuments: data.linkedDocuments });
+      setDocumentTitle("");
+      setDocumentBody("");
+      setPublishDocument(false);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Could not create linked document.");
+    } finally {
+      setSavingDocument(false);
+    }
+  }
+
   const liveLabel = liveStatus === "live"
     ? lastLiveAt ? `Live ${formatDate(lastLiveAt)}` : "Live"
     : liveStatus === "connecting"
@@ -266,6 +310,7 @@ export default function DeveloperSpaceManagePage() {
           <div style={{ display: "grid", gap: "0.45rem", color: "#94a3b8", fontSize: "0.86rem", lineHeight: 1.5 }}>
             <span><strong style={{ color: "#f8fafc" }}>Nodes:</strong> {detail.nodes.length}</span>
             <span><strong style={{ color: "#f8fafc" }}>Recent events:</strong> {detail.events.length}</span>
+            <span><strong style={{ color: "#f8fafc" }}>Notes:</strong> {detail.linkedDocuments?.length ?? 0}</span>
             <span><strong style={{ color: "#f8fafc" }}>Visibility:</strong> {detail.space.visibility}</span>
           </div>
 
@@ -292,6 +337,64 @@ export default function DeveloperSpaceManagePage() {
         </aside>
 
         <section style={{ display: "grid", gap: "1rem" }}>
+          <div className="card" style={{ display: "grid", gap: "0.9rem" }}>
+            <div>
+              <h2 style={{ margin: "0 0 0.4rem", fontSize: "1.05rem" }}>Project notes</h2>
+              <p style={{ margin: 0, color: "#94a3b8", lineHeight: 1.55 }}>
+                Keep methodology and field logs beside the live observatory. Drafts stay owner-only; public notes are published into the visitor view.
+              </p>
+            </div>
+
+            <form onSubmit={createLinkedDocument} style={{ display: "grid", gap: "0.75rem" }}>
+              <div style={{ display: "grid", gridTemplateColumns: "minmax(150px, 0.45fr) minmax(0, 1fr)", gap: "0.75rem" }}>
+                <label style={{ display: "grid", gap: "0.35rem", color: "#cbd5e1", fontSize: "0.82rem" }}>
+                  Type
+                  <select className="input" value={documentRole} onChange={(event) => setDocumentRole(event.target.value as DeveloperSpaceDocumentRole)}>
+                    <option value="methodology">Methodology</option>
+                    <option value="finding">Finding</option>
+                    <option value="field_log">Field log</option>
+                    <option value="note">Note</option>
+                  </select>
+                </label>
+                <label style={{ display: "grid", gap: "0.35rem", color: "#cbd5e1", fontSize: "0.82rem" }}>
+                  Title
+                  <input className="input" value={documentTitle} onChange={(event) => setDocumentTitle(event.target.value)} placeholder="Use default title" />
+                </label>
+              </div>
+              <label style={{ display: "grid", gap: "0.35rem", color: "#cbd5e1", fontSize: "0.82rem" }}>
+                Body
+                <textarea className="textarea" value={documentBody} onChange={(event) => setDocumentBody(event.target.value)} placeholder="Draft notes, method, finding, or field log" />
+              </label>
+              <label style={{ display: "flex", gap: "0.5rem", alignItems: "center", color: "#cbd5e1", fontSize: "0.86rem" }}>
+                <input type="checkbox" checked={publishDocument} onChange={(event) => setPublishDocument(event.target.checked)} />
+                Publish publicly on the observatory
+              </label>
+              <button className="button primary" type="submit" disabled={savingDocument}>
+                {savingDocument ? "Saving..." : "Save note"}
+              </button>
+            </form>
+
+            {(detail.linkedDocuments ?? []).length === 0 ? (
+              <p style={{ margin: 0, color: "#94a3b8" }}>No linked notes yet.</p>
+            ) : (
+              <div style={{ display: "grid", gap: "0.65rem" }}>
+                {(detail.linkedDocuments ?? []).map((link) => (
+                  <article key={link.id} style={{ borderTop: "1px solid #1e293b", paddingTop: "0.65rem" }}>
+                    <div style={{ display: "flex", gap: "0.35rem", flexWrap: "wrap", marginBottom: "0.35rem" }}>
+                      <span className="pill" style={{ fontSize: "0.68rem" }}>{linkedDocumentRoleLabel(link.role)}</span>
+                      <span className="pill" style={{ fontSize: "0.68rem", textTransform: "capitalize" }}>{link.document.status}</span>
+                      <span className="pill" style={{ fontSize: "0.68rem", textTransform: "capitalize" }}>{link.linkVisibility}</span>
+                    </div>
+                    <strong style={{ display: "block" }}>{link.document.title}</strong>
+                    {link.document.excerpt ? (
+                      <p style={{ margin: "0.35rem 0 0", color: "#94a3b8", lineHeight: 1.55 }}>{link.document.excerpt}</p>
+                    ) : null}
+                  </article>
+                ))}
+              </div>
+            )}
+          </div>
+
           <div className="card" style={{ display: "grid", gap: "0.75rem" }}>
             <h2 style={{ margin: 0, fontSize: "1.05rem" }}>1. Send node state updates</h2>
             <p style={{ margin: 0, color: "#94a3b8", lineHeight: 1.55 }}>

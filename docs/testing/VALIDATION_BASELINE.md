@@ -658,3 +658,35 @@ PR-12 is accepted for bounded Developer Spaces Discover integration scope. This
 does not include PR-13 document linking, PR-14 quotas/exports, SDK package work,
 normal Station Space relation modeling, featured-feed remodel, Stripe/
 token-credit, or broad Discover redesign.
+
+## PR-13 DAEDALUS implementation result
+
+Validated on 2026-06-06 after the bounded Developer Spaces linked-document
+slice:
+
+- Added `infra/supabase/migrations/018_developer_space_documents.sql` for the
+  Developer Space to Station document relation used by methodology, findings,
+  field logs, and notes.
+- Added shared/db types and serializers for `linkedDocuments` on Developer
+  Space detail/SSE payloads.
+- Added owner-only API routes to attach an existing owned public document or
+  create a template document linked to a Developer Space.
+- Public observatory reads include only public links whose linked document is
+  published and `public`; owner/admin reads include owner-only drafts.
+- The owner manage console can create private draft notes or public published
+  notes, and the public observatory renders the returned linked-document cards.
+
+Targeted commands run with the pinned runner:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npx --yes pnpm@10.32.1 test:developer-spaces` | Pass | 2 tests passed; coverage now includes unauthenticated/other-owner rejection, owner-only draft methodology, public published field logs, public-link rejection for private drafts, detail/SSE public safety, and owner visibility. |
+| `npx --yes pnpm@10.32.1 test:document-discussions` | Pass | 1 test passed; existing document discussion visibility boundaries remain green. |
+| `npx --yes pnpm@10.32.1 typecheck` | Pass | API, web, shared type, and DB type surfaces completed. |
+| `npx --yes pnpm@10.32.1 build` | Pass | Known pre-existing React hook dependency and `<img>` optimization warnings only. |
+| `git diff --check` | Pass | CRLF normalization warnings only for touched files. |
+
+ARGUS still needs to review the PR-13 implementation before the roadmap should
+mark PR-13 accepted. Main risks to review: linked-document visibility
+composition, owner/admin attach permissions, and the decision not to add normal
+Station Space relation modeling in this bounded slice.

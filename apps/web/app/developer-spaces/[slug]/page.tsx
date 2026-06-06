@@ -19,10 +19,16 @@ import {
 import type {
   DeveloperSpaceDetail,
   DeveloperSpaceEvent,
+  DeveloperSpaceLinkedDocument,
   DeveloperSpaceLiveUpdate,
   DeveloperSpaceNode,
   DeveloperSpaceSnapshot,
 } from "@station/types/developer-space";
+
+function linkedDocumentRoleLabel(role: DeveloperSpaceLinkedDocument["role"]) {
+  if (role === "field_log") return "Field log";
+  return role.charAt(0).toUpperCase() + role.slice(1);
+}
 
 function EmptyVisualisation() {
   return (
@@ -255,6 +261,35 @@ function SnapshotCard({ snapshot, showRaw }: { snapshot?: DeveloperSpaceSnapshot
   );
 }
 
+function LinkedDocumentsPanel({ documents, ownerView }: { documents: DeveloperSpaceLinkedDocument[]; ownerView: boolean }) {
+  if (documents.length === 0) return null;
+
+  return (
+    <div className="card">
+      <h2 style={{ margin: "0 0 0.5rem", fontSize: "1rem" }}>Project notes</h2>
+      <div style={{ display: "grid", gap: "0.75rem" }}>
+        {documents.map((link) => (
+          <article key={link.id} style={{ borderTop: "1px solid #1e293b", paddingTop: "0.7rem" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "0.35rem", flexWrap: "wrap", marginBottom: "0.35rem" }}>
+              <span className="pill" style={{ fontSize: "0.68rem" }}>{linkedDocumentRoleLabel(link.role)}</span>
+              {ownerView ? (
+                <>
+                  <span className="pill" style={{ fontSize: "0.68rem", textTransform: "capitalize" }}>{link.document.status}</span>
+                  <span className="pill" style={{ fontSize: "0.68rem", textTransform: "capitalize" }}>{link.linkVisibility}</span>
+                </>
+              ) : null}
+            </div>
+            <strong style={{ display: "block", color: "#f8fafc", fontSize: "0.92rem" }}>{link.document.title}</strong>
+            {link.document.excerpt ? (
+              <p style={{ margin: "0.35rem 0 0", color: "#94a3b8", lineHeight: 1.55, fontSize: "0.84rem" }}>{link.document.excerpt}</p>
+            ) : null}
+          </article>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export default function DeveloperSpacePublicPage() {
   const { slug } = useParams<{ slug: string }>();
   const [detail, setDetail] = useState<DeveloperSpaceDetail | null>(null);
@@ -392,6 +427,8 @@ export default function DeveloperSpacePublicPage() {
               This is the public layer of a running project. Nodes are entities or systems being tracked. Events are live signals from the runtime. Snapshots are curated state summaries for the archive.
             </p>
           </div>
+
+          <LinkedDocumentsPanel documents={detail.linkedDocuments ?? []} ownerView={detail.access === "owner"} />
 
           <div className="card">
             <h2 style={{ margin: "0 0 0.5rem", fontSize: "1rem" }}>Current nodes</h2>

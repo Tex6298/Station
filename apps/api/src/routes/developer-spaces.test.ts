@@ -15,18 +15,22 @@ class InMemorySupabase {
   tables: Record<string, Row[]> = {
     profiles: [
       { id: "owner-user", tier: "canon", is_admin: false },
+      { id: "other-user", tier: "canon", is_admin: false },
     ],
     developer_spaces: [],
     developer_space_ingestion_keys: [],
+    developer_space_documents: [],
     developer_space_nodes: [],
     developer_space_events: [],
     developer_space_snapshots: [],
+    documents: [],
   };
 
   private idCounters: Record<string, number> = {};
   private clock = Date.parse("2026-05-24T09:00:00.000Z");
   private usersByToken = new Map([
     ["owner-token", { id: "owner-user", email: "owner@example.test" }],
+    ["other-token", { id: "other-user", email: "other@example.test" }],
   ]);
 
   client = {
@@ -83,6 +87,33 @@ class InMemorySupabase {
       row.status ??= "active";
       row.last_used_at ??= null;
       row.revoked_at ??= null;
+      row.created_at ??= now;
+      row.updated_at ??= now;
+    }
+
+    if (table === "developer_space_documents") {
+      row.document_role ??= "note";
+      row.link_visibility ??= "owner";
+      row.sort_order ??= 0;
+      row.created_at ??= now;
+      row.updated_at ??= now;
+    }
+
+    if (table === "documents") {
+      row.space_id ??= null;
+      row.persona_id ??= null;
+      row.body ??= "";
+      row.document_type ??= "post";
+      row.status ??= "draft";
+      row.visibility ??= "private";
+      row.comments_enabled ??= false;
+      row.published_at ??= null;
+      row.provenance_type ??= "user_authored";
+      row.source_type ??= "manual";
+      row.source_id ??= null;
+      row.source_label ??= null;
+      row.source_persona_id ??= null;
+      row.discussion_thread_id ??= null;
       row.created_at ??= now;
       row.updated_at ??= now;
     }
@@ -463,6 +494,66 @@ test("Developer Spaces smoke covers creation, keying, ingestion, and public/owne
 
     assert.equal(snapshot.status, 202);
 
+    const unauthenticatedTemplate = await requestJson(app, "POST", `/developer-spaces/${spaceId}/documents/template`, {
+      body: {
+        role: "methodology",
+        title: "Unauthenticated note",
+      },
+    });
+    assert.equal(unauthenticatedTemplate.status, 401);
+
+    const otherUserTemplate = await requestJson(app, "POST", `/developer-spaces/${spaceId}/documents/template`, {
+      token: "other-token",
+      body: {
+        role: "methodology",
+        title: "Other user note",
+      },
+    });
+    assert.equal(otherUserTemplate.status, 403);
+
+    const draftMethodology = await requestJson(app, "POST", `/developer-spaces/${spaceId}/documents/template`, {
+      token: "owner-token",
+      body: {
+        role: "methodology",
+        title: "Animus private method",
+        body: "Draft-only calibration method with internal assumptions.",
+      },
+    });
+
+    assert.equal(draftMethodology.status, 201);
+    assert.equal(draftMethodology.body.link.role, "methodology");
+    assert.equal(draftMethodology.body.link.linkVisibility, "owner");
+    assert.equal(draftMethodology.body.document.status, "draft");
+    assert.equal(draftMethodology.body.document.visibility, "private");
+    assert.equal(db.tables.developer_space_documents.length, 1);
+    assert.equal(db.tables.documents[0].source_id, spaceId);
+
+    const publicFieldLog = await requestJson(app, "POST", `/developer-spaces/${spaceId}/documents/template`, {
+      token: "owner-token",
+      body: {
+        role: "field_log",
+        title: "Animus field log one",
+        body: "Published field log for visitors.",
+        linkVisibility: "public",
+      },
+    });
+
+    assert.equal(publicFieldLog.status, 201);
+    assert.equal(publicFieldLog.body.link.role, "field_log");
+    assert.equal(publicFieldLog.body.link.linkVisibility, "public");
+    assert.equal(publicFieldLog.body.document.status, "published");
+    assert.equal(publicFieldLog.body.document.visibility, "public");
+
+    const privateAttachBlocked = await requestJson(app, "POST", `/developer-spaces/${spaceId}/documents`, {
+      token: "owner-token",
+      body: {
+        documentId: draftMethodology.body.document.id,
+        role: "methodology",
+        linkVisibility: "public",
+      },
+    });
+    assert.equal(privateAttachBlocked.status, 400);
+
     const publicDetail = await requestJson(app, "GET", "/developer-spaces/animus-field");
     assert.equal(publicDetail.status, 200);
     assert.equal(publicDetail.body.access, "public");
@@ -474,8 +565,13 @@ test("Developer Spaces smoke covers creation, keying, ingestion, and public/owne
     assert.equal(publicDetail.body.latestSnapshot.snapshotData.raw, undefined);
     assert.equal(publicDetail.body.events.some((event: Row) => event.visibility === "private"), false);
     assert.equal(publicDetail.body.events.some((event: Row) => event.eventType === "signal.detected"), true);
+    assert.equal(publicDetail.body.linkedDocuments.length, 1);
+    assert.equal(publicDetail.body.linkedDocuments[0].role, "field_log");
+    assert.equal(publicDetail.body.linkedDocuments[0].document.title, "Animus field log one");
     const publicText = JSON.stringify(publicDetail.body);
     assert.equal(publicText.includes("api_key_hash"), false);
+    assert.equal(publicText.includes("Draft-only calibration method"), false);
+    assert.equal(publicText.includes("Published field log"), true);
     for (const hidden of [
       "secret-token",
       "owner-only",
@@ -514,8 +610,12 @@ test("Developer Spaces smoke covers creation, keying, ingestion, and public/owne
     assert.equal(ownerDetail.body.events.some((event: Row) => event.visibility === "private"), true);
     assert.equal(ownerDetail.body.nodes[0].metrics.raw.hidden, true);
     assert.equal(ownerDetail.body.latestSnapshot.snapshotData.raw.prompt, "owner-only");
+    assert.equal(ownerDetail.body.linkedDocuments.length, 2);
+    assert.equal(ownerDetail.body.linkedDocuments.some((link: Row) => link.role === "methodology" && link.linkVisibility === "owner"), true);
+    assert.equal(ownerDetail.body.linkedDocuments.some((link: Row) => link.role === "field_log" && link.linkVisibility === "public"), true);
     const ownerText = JSON.stringify(ownerDetail.body);
     assert.equal(ownerText.includes("api_key_hash"), false);
+    assert.equal(ownerText.includes("Draft-only calibration method"), true);
     for (const retained of [
       "node-auth",
       "node-access-token",
@@ -550,6 +650,8 @@ test("Developer Spaces smoke covers creation, keying, ingestion, and public/owne
     assert.equal(publicSse.data.kind, "detail");
     assert.equal(publicSse.data.detail.access, "public");
     assert.equal(publicSse.data.detail.events.some((event: Row) => event.visibility === "private"), false);
+    assert.equal(publicSse.data.detail.linkedDocuments.length, 1);
+    assert.equal(JSON.stringify(publicSse.data).includes("Draft-only calibration method"), false);
     assert.equal(JSON.stringify(publicSse.data).includes("public-db-password"), false);
     assert.equal(typeof publicSse.data.freshness.streamId, "string");
 
@@ -558,7 +660,9 @@ test("Developer Spaces smoke covers creation, keying, ingestion, and public/owne
     const ownerSse = parseSseUpdate(ownerStream.body);
     assert.equal(ownerSse.data.detail.access, "owner");
     assert.equal(ownerSse.data.detail.events.some((event: Row) => event.visibility === "private"), true);
+    assert.equal(ownerSse.data.detail.linkedDocuments.length, 2);
     assert.equal(JSON.stringify(ownerSse.data).includes("public-db-password"), true);
+    assert.equal(JSON.stringify(ownerSse.data).includes("Draft-only calibration method"), true);
     assert.equal(JSON.stringify(ownerSse.data).includes("api_key_hash"), false);
 
     const rotatedKeyResponse = await requestJson(app, "POST", `/developer-spaces/${spaceId}/api-key`, {
