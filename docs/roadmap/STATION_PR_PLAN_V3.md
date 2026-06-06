@@ -1,10 +1,11 @@
-# Station PR plan v3 draft
+# Station PR plan v3
 
 Date: 2026-06-06
-Status: reviewed draft pending activation. This does not replace
-`docs/roadmap/STATION_PR_PLAN_V2.md` until accepted.
+Status: active successor roadmap. Activated after ARGUS reviewed the draft on
+2026-06-06. `docs/roadmap/STATION_PR_PLAN_V2.md` remains the historical record
+for PR-00 through PR-17.
 
-## Why this draft exists
+## Why this roadmap exists
 
 The bounded v2 roadmap is complete through PR-17. The next useful lane is not
 new product surface by default; it is making the post-v2 foundation measurable,
@@ -20,26 +21,26 @@ boring, and hard to accidentally break.
 - Keep every PR narrow enough for DAEDALUS to build and ARGUS to review with a
   focused validation command.
 
-## Proposed sequence
+## Active sequence
 
 ## Validation-script rule
 
 Some proposed acceptance commands are new named gates, not current root scripts.
 If a v3 slice references a missing script, that slice must add the script and
-focused test file before claiming acceptance. As of this draft,
+focused test file before claiming acceptance. At activation time,
 `test:storage`, `test:integrity`, and `test:token-credits` are proposed gates
 that still need to be created by their owning slices.
 
 ### V3-00 - Successor roadmap acceptance
 
-Purpose: turn this draft into an accepted roadmap or reject it cleanly.
+Purpose: turn the reviewed draft into the accepted successor roadmap.
 
 Tasks:
 
-- Review this draft against `ACTIVE_STATUS`, `CURRENT_MAIN_RECONCILIATION`, and
-  `VALIDATION_BASELINE`.
-- Decide whether to activate v3, revise it, or pause.
-- If activated, update `ACTIVE_STATUS` so v3 is the active planning source.
+- Complete: ARGUS reviewed the draft against `ACTIVE_STATUS`,
+  `CURRENT_MAIN_RECONCILIATION`, and `VALIDATION_BASELINE`.
+- Complete: MIMIR activated v3 after accepting ARGUS's storage-led direction.
+- Keep `ACTIVE_STATUS` aligned when each v3 lane starts or closes.
 
 Acceptance:
 
@@ -151,7 +152,7 @@ pnpm test:developer-spaces
 pnpm test:continuity
 ```
 
-## Not in this draft
+## Not in this roadmap
 
 - New IntelHub domain imports.
 - Marketplace, Connect, financial-account, or broad Stripe expansion.

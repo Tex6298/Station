@@ -1,12 +1,13 @@
 # Station active status
 
 This file is the short operational status companion to
-`docs/roadmap/STATION_PR_PLAN_V2.md`. Update it when the active roadmap changes,
+`docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
 ## Active roadmap
 
-- Source of truth: `docs/roadmap/STATION_PR_PLAN_V2.md`.
+- Source of truth: `docs/roadmap/STATION_PR_PLAN_V3.md`. The v2 roadmap remains
+  the historical record for PR-00 through PR-17.
 - PR-00 is complete and visible on `main`.
 - PR-01 is complete: the validation baseline in
   `docs/testing/VALIDATION_BASELINE.md` is green.
@@ -107,12 +108,15 @@ when a PR lands, or when validation truth changes.
 - PR-00 through PR-17 are complete for the bounded v2 roadmap. No PR-18 is
   defined in `docs/roadmap/STATION_PR_PLAN_V2.md`; the next lane is a closeout
   audit and future-roadmap recommendation, not an invented implementation PR.
-- Successor planning is open as a draft in
-  `docs/roadmap/STATION_PR_PLAN_V3_DRAFT.md`. It is not active implementation
-  scope until accepted after review. ARGUS review identified the ordering as
-  maintenance-first and storage-led, with one validation caveat: new proposed
-  gates such as `test:storage`, `test:integrity`, and `test:token-credits` must
-  be added by their owning v3 slices before acceptance.
+- V3-00 is complete, 2026-06-06: ARGUS reviewed the successor roadmap draft and
+  MIMIR activated `docs/roadmap/STATION_PR_PLAN_V3.md` as the active planning
+  source. ARGUS identified the ordering as maintenance-first and storage-led,
+  with one validation caveat: new proposed gates such as `test:storage`,
+  `test:integrity`, and `test:token-credits` must be added by their owning v3
+  slices before acceptance.
+- V3-01 is active, 2026-06-06: storage quota hardening should add the missing
+  `test:storage` gate, cover quota reserve/release and `/storage/me`, and prove
+  archive/import/persona-file accounting stays balanced.
 
 ## Current repo truth
 
@@ -205,13 +209,12 @@ when a PR lands, or when validation truth changes.
   limits. Subscription sync rejects active webhook payloads whose Station user
   metadata points at a profile already bound to a different Stripe customer.
   Billing status now returns authoritative tier limits for the web billing page.
-- As the v2 roadmap closes, the next operating step is to audit roadmap/status
-  and validation truth before opening any new implementation lane.
-- MIMIR opened a v3 draft focused on storage, integrity, token-credit, archive
-  job reliability, and visibility-safe search hardening. Treat it as a proposal
-  until activation. The draft intentionally starts with storage quota hardening
-  because storage accounting is cross-cutting archive, import, export, and paid
-  entitlement infrastructure.
+- The v2 closeout audit is complete; v3 activation opened a storage-led
+  maintenance hardening lane before any new product expansion.
+- MIMIR activated v3 with storage, integrity, token-credit, archive job
+  reliability, and visibility-safe search hardening lanes. V3 intentionally
+  starts with storage quota hardening because storage accounting is cross-cutting
+  archive, import, export, and paid entitlement infrastructure.
 - Core API route modules no longer import local in-memory mock data. Runtime
   persistence goes through the Supabase client boundary; route tests use
   injected fake Supabase clients for deterministic proof.
