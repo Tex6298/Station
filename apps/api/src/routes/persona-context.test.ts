@@ -263,7 +263,7 @@ class QueryBuilder {
     if (mode === "single") {
       return data.length === 1
         ? { data: data[0], error: null }
-        : { data: null, error: { message: `Expected one ${this.table} row.` } };
+        : { data: null, error: { code: "PGRST116", message: `Expected one ${this.table} row.` } };
     }
 
     return { data, error: null };
@@ -343,7 +343,7 @@ test("persona runtime context is owner-only and orders canon ahead of memory", a
     assert.deepEqual(context.counts, {
       canon: 2,
       memory: 2,
-      integrity: 1,
+      integrity: 2,
       archive: 2,
     });
 
@@ -351,6 +351,7 @@ test("persona runtime context is owner-only and orders canon ahead of memory", a
     assert.equal(context.sources[1].id, "canon-low");
     assert.equal(context.sources.findIndex((source: Row) => source.type === "canon") < context.sources.findIndex((source: Row) => source.type === "memory"), true);
     assert.match(context.systemPrompt, /Canon outranks memory when continuity conflicts/);
+    assert.match(context.systemPrompt, /USER PREFERENCE PROFILE/);
     assert.match(context.systemPrompt, /The morning ritual is private continuity context/);
     assert.match(context.systemPrompt, /Stay steady under ambiguity/);
     assert.match(context.systemPrompt, /source-notebook\.md/);

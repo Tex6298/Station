@@ -41,6 +41,12 @@ when a PR lands, or when validation truth changes.
   validation-repair lane. Scope is limited to restoring or clearly isolating
   `test:continuity`, `test:persona-context`, and `test:conversation-archive`.
   Do not add PR-07 product surface while repairing this base.
+- Validation repair, 2026-06-06: the three targeted regressions now pass with
+  the pinned pnpm runner. The repair kept scope narrow: Supabase test fakes now
+  model storage RPC/no-row behavior, persona runtime context expects the default
+  preference profile, and persona continuity summaries count both new integrity
+  sessions and existing calibration sessions. Full baseline re-run is still
+  pending ARGUS review.
 
 ## Current repo truth
 
@@ -57,10 +63,12 @@ when a PR lands, or when validation truth changes.
   visual editors moved into PR-10 through PR-16.
 - As of PR-06 on 2026-05-31, the full validation baseline passed with the pinned
   pnpm runner.
-- As of the 2026-06-05 current-main reconciliation, the full gate is no longer
-  green: `pnpm test:continuity` fails and `pnpm test:persona-context` plus
-  `pnpm test:conversation-archive` time out. Build, lint, typecheck, and the
-  other named tests pass. See `docs/testing/VALIDATION_BASELINE.md`.
+- As of the 2026-06-05 current-main reconciliation, the full gate was no longer
+  green: `pnpm test:continuity` failed and `pnpm test:persona-context` plus
+  `pnpm test:conversation-archive` timed out. As of the 2026-06-06 targeted
+  validation repair, those three named commands pass again with `pnpm
+  typecheck`; the full baseline has not yet been re-run. See
+  `docs/testing/VALIDATION_BASELINE.md`.
 - As of PR-02, `docs/architecture/persistence-schema-baseline.md` records the
   current table/entity map for future auth and repository work.
 - Core API route modules no longer import local in-memory mock data. Runtime

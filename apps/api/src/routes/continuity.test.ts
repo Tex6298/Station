@@ -63,6 +63,13 @@ class InMemorySupabase {
           : { data: { user: null }, error: { message: "Invalid token" } };
       },
     },
+    rpc: async (functionName: string) => {
+      if (functionName === "reserve_storage_bytes" || functionName === "release_storage_bytes") {
+        return { data: null, error: null };
+      }
+
+      return { data: null, error: { message: `No ${functionName} RPC in tests.` } };
+    },
     from: (table: string) => new QueryBuilder(this, table),
   };
 
@@ -230,7 +237,11 @@ class QueryBuilder {
     if (mode === "single") {
       return data.length === 1
         ? { data: data[0], error: null, count }
-        : { data: null, error: { message: `Expected one ${this.table} row.` }, count };
+        : {
+          data: null,
+          error: { code: "PGRST116", message: `Expected one ${this.table} row.` },
+          count,
+        };
     }
 
     return { data: this.head ? null : data, error: null, count };

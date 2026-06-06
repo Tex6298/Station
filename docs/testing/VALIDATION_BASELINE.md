@@ -150,8 +150,8 @@ These warnings do not currently fail the baseline:
 
 ## Remaining failures
 
-Current main is not yet measurable enough to serve as the base for PR-07
-continuity alpha data model work.
+Current main was not measurable enough to serve as the base for PR-07 continuity
+alpha data model work at the 2026-06-05 reconciliation checkpoint.
 
 - `pnpm test:continuity` fails at
   `apps/api/src/routes/continuity.test.ts:330`: expected `201`, got `500` for
@@ -161,4 +161,28 @@ continuity alpha data model work.
 - `pnpm test:conversation-archive` timed out after 184 seconds with no completed
   test output.
 
-Resolve or explicitly accept these failures before starting PR-07.
+## Targeted validation repair result
+
+Repaired on 2026-06-06 before starting PR-07 product work. The repair kept scope
+to current-main validation:
+
+- Supabase route test fakes now model storage quota RPCs used by archive memory
+  writes.
+- Empty `.single()` test-fake reads now return a Supabase-shaped `PGRST116`
+  no-row error so optional persona preference reads fall back deterministically.
+- Persona runtime context tests expect the default preference profile integrity
+  source now included by current runtime context.
+- Persona continuity summaries count both newer integrity sessions and existing
+  calibration sessions.
+
+Targeted commands run with the pinned runner:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npx --yes pnpm@10.32.1 test:continuity` | Pass | 1 test passed. |
+| `npx --yes pnpm@10.32.1 test:persona-context` | Pass | 1 test passed. |
+| `npx --yes pnpm@10.32.1 test:conversation-archive` | Pass | 1 test passed. |
+| `npx --yes pnpm@10.32.1 typecheck` | Pass | API typecheck ran; web typecheck replayed from cache. |
+
+The full baseline should still be re-run or reviewed before PR-07 product work
+starts.

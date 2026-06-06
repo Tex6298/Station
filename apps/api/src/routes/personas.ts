@@ -47,7 +47,7 @@ function serializePersona(row: any, continuity?: any) {
 async function loadContinuitySummary(personaId: string, ownerUserId: string) {
   const sb = getSupabaseAdmin();
 
-  const [memory, canon, files, sessions] = await Promise.all([
+  const [memory, canon, files, integritySessions, calibrationSessions] = await Promise.all([
     sb
       .from("memory_items")
       .select("id, created_at", { count: "exact", head: true })
@@ -68,13 +68,18 @@ async function loadContinuitySummary(personaId: string, ownerUserId: string) {
       .select("id, created_at", { count: "exact", head: true })
       .eq("persona_id", personaId)
       .eq("owner_user_id", ownerUserId),
+    sb
+      .from("calibration_sessions")
+      .select("id, created_at", { count: "exact", head: true })
+      .eq("persona_id", personaId)
+      .eq("owner_user_id", ownerUserId),
   ]);
 
   return {
     memoryCount: memory.count ?? 0,
     canonCount: canon.count ?? 0,
     archiveFileCount: files.count ?? 0,
-    integritySessionCount: sessions.count ?? 0,
+    integritySessionCount: (integritySessions.count ?? 0) + (calibrationSessions.count ?? 0),
   };
 }
 
