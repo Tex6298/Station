@@ -686,7 +686,31 @@ Targeted commands run with the pinned runner:
 | `npx --yes pnpm@10.32.1 build` | Pass | Known pre-existing React hook dependency and `<img>` optimization warnings only. |
 | `git diff --check` | Pass | CRLF normalization warnings only for touched files. |
 
-ARGUS still needs to review the PR-13 implementation before the roadmap should
-mark PR-13 accepted. Main risks to review: linked-document visibility
-composition, owner/admin attach permissions, and the decision not to add normal
-Station Space relation modeling in this bounded slice.
+## PR-13 ARGUS acceptance result
+
+ARGUS reviewed the DAEDALUS linked-document slice on 2026-06-06, found one
+schema guardrail gap, and patched it in review.
+
+Additional ARGUS hardening:
+
+- `developer_space_documents` now has owner-only RLS enabled.
+- Direct owner writes require the linked Developer Space to belong to the
+  caller and the linked document to be caller-authored.
+- Direct public links require the linked document to be published and `public`.
+- The Developer Spaces smoke test now proves visitor reads drop a public link if
+  the linked document later becomes private/draft.
+
+Commands re-run by ARGUS:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npx --yes pnpm@10.32.1 test:developer-spaces` | Pass | 2 tests passed; coverage includes linked-document owner/private/public visibility, stale public-link hiding, SSE serialization, and public data scrubbing. |
+| `npx --yes pnpm@10.32.1 test:document-discussions` | Pass | 1 test passed; existing document discussion visibility boundaries remain green. |
+| `git diff --check` | Pass | CRLF normalization warnings only for touched files. |
+| `npx --yes pnpm@10.32.1 typecheck` | Pass | API and web typecheck tasks completed. |
+| `npx --yes pnpm@10.32.1 build` | Pass | Known pre-existing React hook dependency and `<img>` optimization warnings only. |
+
+PR-13 is accepted for bounded Developer Spaces linked documents, methodology,
+findings, field logs, and notes. This does not include normal Station Space
+relation modeling, Developer Space quotas/exports, SDK package work, visual
+editors, or broader document authoring/versioning.

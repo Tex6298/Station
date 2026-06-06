@@ -77,12 +77,12 @@ when a PR lands, or when validation truth changes.
   Developer Spaces only; eligible members also see community Developer Spaces.
   Private, unlisted, private-event, key-hash, scrubbed event-data fields, and
   oversized raw scalar values stay out of Discover cards.
-- PR-13 DAEDALUS implementation is ready for ARGUS review, 2026-06-06:
-  Developer Spaces can now link Station documents through a bounded
-  `developer_space_documents` relation, owners can create methodology/finding/
-  field-log/note templates from the manage console, visitor observatory pages
-  show only public linked documents that are also published/public, and
-  owner-only drafts remain visible only to owner/admin detail reads.
+- PR-13 is accepted by ARGUS, 2026-06-06: Developer Spaces can now link
+  Station documents through a bounded `developer_space_documents` relation,
+  owners can create methodology/finding/field-log/note templates from the
+  manage console, visitor observatory pages show only public linked documents
+  that are also published/public, owner-only drafts remain visible only to
+  owner/admin detail reads, and the relation now has owner-only RLS guardrails.
 
 ## Current repo truth
 
@@ -95,9 +95,9 @@ when a PR lands, or when validation truth changes.
   conversations, archived chats, continuity candidates, continuity records,
   forums, comments, reports, exports, social publishing, and Developer Spaces.
 - Developer Spaces exists as a Station-native observatory slice, with ingestion
-  hardening, bounded SSE live updates, and Discover integration accepted.
-  Linked documents are implemented for PR-13 review; exports/quotas, SDK, and
-  visual editors remain PR-14 through PR-16.
+  hardening, bounded SSE live updates, Discover integration, and linked
+  Station documents accepted. Exports/quotas, SDK, and visual editors remain
+  PR-14 through PR-16.
 - As of PR-06 on 2026-05-31, the full validation baseline passed with the pinned
   pnpm runner.
 - As of the 2026-06-05 current-main reconciliation, the full gate was no longer
@@ -142,13 +142,13 @@ when a PR lands, or when validation truth changes.
   public/community Developer Space visibility rules and the public-safe event
   serializer; it does not expose private/unlisted spaces, private events, API
   key hashes, scrubbed event fields, or oversized raw event-summary values.
-- As of PR-13 DAEDALUS implementation, Developer Space detail/SSE responses
-  include linked Station documents through the bounded
-  `developer_space_documents` relation. Owner/admin reads include owner-only
-  draft notes; visitor/member reads include only links marked public where the
-  linked document is also published with `public` visibility. The manage console
-  can create methodology, finding, field-log, and note templates without adding
-  normal Station Space relation modeling.
+- As of PR-13 ARGUS acceptance, Developer Space detail/SSE responses include
+  linked Station documents through the bounded `developer_space_documents`
+  relation. Owner/admin reads include owner-only draft notes; visitor/member
+  reads include only links marked public where the linked document is also
+  published with `public` visibility. The relation has owner-only RLS policies,
+  and the manage console can create methodology, finding, field-log, and note
+  templates without adding normal Station Space relation modeling.
 - Core API route modules no longer import local in-memory mock data. Runtime
   persistence goes through the Supabase client boundary; route tests use
   injected fake Supabase clients for deterministic proof.

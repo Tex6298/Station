@@ -36,6 +36,49 @@ create trigger trg_developer_space_documents_updated_at
   before update on public.developer_space_documents
   for each row execute function public.handle_updated_at();
 
+alter table public.developer_space_documents enable row level security;
+
+drop policy if exists "developer_space_documents_all_owner"
+  on public.developer_space_documents;
+
+create policy "developer_space_documents_all_owner"
+  on public.developer_space_documents
+  for all
+  using (
+    auth.uid() = owner_user_id
+    and exists (
+      select 1
+      from public.developer_spaces s
+      where s.id = developer_space_id
+      and s.owner_user_id = auth.uid()
+    )
+  )
+  with check (
+    auth.uid() = owner_user_id
+    and exists (
+      select 1
+      from public.developer_spaces s
+      where s.id = developer_space_id
+      and s.owner_user_id = auth.uid()
+    )
+    and exists (
+      select 1
+      from public.documents d
+      where d.id = document_id
+      and d.author_user_id = auth.uid()
+    )
+    and (
+      link_visibility = 'owner'
+      or exists (
+        select 1
+        from public.documents d
+        where d.id = document_id
+        and d.status = 'published'
+        and d.visibility = 'public'
+      )
+    )
+  );
+
 comment on table public.developer_space_documents is
   'Bounded PR-13 relation from Developer Spaces to Station documents for methodology, findings, field logs, and owner/public notes.';
 

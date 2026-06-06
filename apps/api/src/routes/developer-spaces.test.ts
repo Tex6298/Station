@@ -554,6 +554,18 @@ test("Developer Spaces smoke covers creation, keying, ingestion, and public/owne
     });
     assert.equal(privateAttachBlocked.status, 400);
 
+    const publicFieldLogRow = db.tables.documents.find((document) => document.id === publicFieldLog.body.document.id);
+    assert.ok(publicFieldLogRow);
+    publicFieldLogRow.status = "draft";
+    publicFieldLogRow.visibility = "private";
+
+    const hiddenPublicLinkDetail = await requestJson(app, "GET", "/developer-spaces/animus-field");
+    assert.equal(hiddenPublicLinkDetail.status, 200);
+    assert.equal(hiddenPublicLinkDetail.body.linkedDocuments.length, 0);
+
+    publicFieldLogRow.status = "published";
+    publicFieldLogRow.visibility = "public";
+
     const publicDetail = await requestJson(app, "GET", "/developer-spaces/animus-field");
     assert.equal(publicDetail.status, 200);
     assert.equal(publicDetail.body.access, "public");
