@@ -1,7 +1,7 @@
 # Station UI/UX feasibility - DAEDALUS
 
 Date: 2026-06-06
-Status: DAEDALUS feasibility pitch for MIMIR. Planning only.
+Status: DAEDALUS feasibility pitch with ARGUS gate addendum. Planning only.
 
 ## Scope
 
@@ -159,6 +159,127 @@ was done.
   helper tests.
 - For UX-02C: add web helper tests around private search result grouping and run
   `pnpm test:community` to keep V3-05 leak checks green.
+
+## ARGUS Gate Addendum
+
+ARGUS reviewed the feasibility pitch on 2026-06-06. UX-01A is safe to open
+only as a narrow Studio frame/mobile-navigation slice. UX-02A is safe to open
+after UX-01A, or separately if MIMIR explicitly keeps it on the per-persona
+Archive tab. Neither slice should start a broad redesign.
+
+### UX-01A - Studio frame/mobile navigation gates
+
+Allowed scope:
+
+- Extract shared Studio shell primitives such as `StudioFrame`,
+  `StudioMobileNav`, `StudioPanel`, `StudioEmptyState`, `StudioErrorState`,
+  `StudioStatusBadge`, and `StudioActionRow`.
+- Replace fixed-sidebar-only behavior with a mobile navigation pattern at
+  narrow widths while preserving existing routes and page behavior.
+- Add place/private-state labels, consistent loading/error/empty states, and
+  action-row structure to touched Studio surfaces.
+- Touch `apps/web/app/studio/layout.tsx`,
+  `apps/web/components/studio/studio-sidebar.tsx`, Studio dashboard, and
+  persona workspace surfaces only as needed to adopt the frame.
+
+Do not include:
+
+- API behavior changes, new backend routes, Station Assistant work, global
+  search, global Archive implementation, Export workspace implementation, or
+  broad brand/visual redesign.
+- New mocked counts or static activity that looks authoritative.
+- Changes to auth/session storage or protected route semantics unless a bug is
+  found and separately justified.
+
+Required validation before ARGUS acceptance:
+
+```bash
+npx --yes pnpm@10.32.1 typecheck
+npx --yes pnpm@10.32.1 lint
+npx --yes pnpm@10.32.1 build
+npx --yes pnpm@10.32.1 test:auth
+npx --yes pnpm@10.32.1 test:persona-context
+npx --yes pnpm@10.32.1 test:continuity
+npx --yes pnpm@10.32.1 test:integrity
+git diff --check
+```
+
+Also run or add any touched web helper tests. If the slice creates layout
+helpers, add focused tests for route/link helpers or state-formatting helpers
+instead of relying only on screenshots.
+
+ARGUS review risks:
+
+- Studio remains private-only under mobile navigation; no protected route should
+  become reachable without auth.
+- Persona IDs and private continuity/archive labels must not be surfaced in
+  public navigation, metadata, or static marketing pages.
+- Existing hook dependency or raw `<img>` lint warnings on touched screens must
+  be fixed or explicitly listed in the acceptance notes with a reason they are
+  retained.
+- New mobile navigation must be checked at 375px and desktop width for readable
+  labels, no overlap, and no hidden primary action.
+
+### UX-02A - Per-persona Archive trust states gates
+
+Allowed scope:
+
+- Improve `/studio/personas/:personaId/files` and directly reusable archive
+  trust components.
+- Surface import job status, source name, failure message, privacy state,
+  storage/quota context, and safe next actions using existing APIs.
+- Reuse the existing storage usage API/panel near paste/import actions.
+- Clarify completed and failed archive/import states without changing backend
+  job behavior.
+
+Do not include:
+
+- Global Archive implementation, Export workspace implementation, downloadable
+  bundles, retryable workers, background job infrastructure, external imports,
+  API Bridge, Document Migrator, or private search UI unless MIMIR opens that
+  as UX-02C.
+- Backend schema/API changes unless the implementation finds a bug and wakes
+  MIMIR before broadening scope.
+- Copy that implies failed imports destroyed existing user material or that
+  export bundles exist beyond current JSON/Markdown manifests.
+
+Required validation before ARGUS acceptance:
+
+```bash
+npx --yes pnpm@10.32.1 typecheck
+npx --yes pnpm@10.32.1 lint
+npx --yes pnpm@10.32.1 build
+npx --yes pnpm@10.32.1 test:storage
+npx --yes pnpm@10.32.1 test:conversation-archive
+npx --yes pnpm@10.32.1 test:exports
+npx --yes pnpm@10.32.1 test:continuity
+git diff --check
+```
+
+Also run or add any touched web helper tests for archive status formatting,
+quota display, or import/export state grouping.
+
+ARGUS review risks:
+
+- Owner-only archive files, import jobs, exports, and storage usage must remain
+  reachable only through authenticated owner paths.
+- Failed import/export states must stay visible and specific; the UI must not
+  hide `error_message` or collapse failed jobs into generic emptiness.
+- Storage/quota messaging must remain server-authoritative and must not invent
+  limits in frontend constants.
+- The static `/studio/archive` and `/studio/export` shells must not be polished
+  into apparently live product surfaces during UX-02A.
+
+### Shared warning policy
+
+- `pnpm lint` is an acceptance gate for both slices. New warnings are blockers.
+- Existing warnings on untouched files may be documented, but warnings on
+  touched Studio/archive files must be fixed or explicitly called out in the
+  wakeup with file paths and residual risk.
+- Do not add broad `eslint-disable` comments for hook dependencies or raw image
+  rules without a narrow explanation.
+- If `pnpm build` exposes unrelated pre-existing warnings, record them in the
+  wakeup and prove they are unchanged.
 
 ## DAEDALUS Recommendation
 
