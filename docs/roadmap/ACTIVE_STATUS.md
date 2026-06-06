@@ -109,7 +109,10 @@ when a PR lands, or when validation truth changes.
   audit and future-roadmap recommendation, not an invented implementation PR.
 - Successor planning is open as a draft in
   `docs/roadmap/STATION_PR_PLAN_V3_DRAFT.md`. It is not active implementation
-  scope until accepted after review.
+  scope until accepted after review. ARGUS review identified the ordering as
+  maintenance-first and storage-led, with one validation caveat: new proposed
+  gates such as `test:storage`, `test:integrity`, and `test:token-credits` must
+  be added by their owning v3 slices before acceptance.
 
 ## Current repo truth
 
@@ -206,7 +209,9 @@ when a PR lands, or when validation truth changes.
   and validation truth before opening any new implementation lane.
 - MIMIR opened a v3 draft focused on storage, integrity, token-credit, archive
   job reliability, and visibility-safe search hardening. Treat it as a proposal
-  until ARGUS review or human acceptance.
+  until activation. The draft intentionally starts with storage quota hardening
+  because storage accounting is cross-cutting archive, import, export, and paid
+  entitlement infrastructure.
 - Core API route modules no longer import local in-memory mock data. Runtime
   persistence goes through the Supabase client boundary; route tests use
   injected fake Supabase clients for deterministic proof.

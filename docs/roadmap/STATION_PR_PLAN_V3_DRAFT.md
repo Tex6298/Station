@@ -1,7 +1,7 @@
 # Station PR plan v3 draft
 
 Date: 2026-06-06
-Status: draft for ARGUS review. This does not replace
+Status: reviewed draft pending activation. This does not replace
 `docs/roadmap/STATION_PR_PLAN_V2.md` until accepted.
 
 ## Why this draft exists
@@ -21,6 +21,14 @@ boring, and hard to accidentally break.
   focused validation command.
 
 ## Proposed sequence
+
+## Validation-script rule
+
+Some proposed acceptance commands are new named gates, not current root scripts.
+If a v3 slice references a missing script, that slice must add the script and
+focused test file before claiming acceptance. As of this draft,
+`test:storage`, `test:integrity`, and `test:token-credits` are proposed gates
+that still need to be created by their owning slices.
 
 ### V3-00 - Successor roadmap acceptance
 
