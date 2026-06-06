@@ -12,6 +12,7 @@ const INCLUDED_SECTIONS = [
   "archive",
   "archived_chats",
   "continuity_candidates",
+  "continuity_records",
   "integrity",
   "published_documents",
   "discussion_refs",
@@ -109,7 +110,18 @@ async function loadThreadDiscussion(threadId: string, ownerUserId: string) {
 async function buildPersonaExportManifest(persona: any, packageId: string, ownerUserId: string) {
   const sb = getSupabaseAdmin();
 
-  const [memoryRes, canonRes, fileRes, importRes, chatTranscriptRes, candidateRes, integrityRes, personaDocsRes, sourceDocsRes] = await Promise.all([
+  const [
+    memoryRes,
+    canonRes,
+    fileRes,
+    importRes,
+    chatTranscriptRes,
+    candidateRes,
+    continuityRecordRes,
+    integrityRes,
+    personaDocsRes,
+    sourceDocsRes,
+  ] = await Promise.all([
     sb
       .from("memory_items")
       .select("id, title, content, summary, source_type, relevance_weight, created_at, updated_at")
@@ -143,6 +155,12 @@ async function buildPersonaExportManifest(persona: any, packageId: string, owner
     sb
       .from("continuity_candidates")
       .select("id, archived_chat_transcript_id, candidate_type, title, content, rationale, status, source_message_ids, accepted_target_type, accepted_target_id, accepted_at, created_at, updated_at")
+      .eq("persona_id", persona.id)
+      .eq("owner_user_id", ownerUserId)
+      .order("created_at", { ascending: false }),
+    sb
+      .from("continuity_records")
+      .select("id, record_type, title, body, summary, source_table, source_id, source_label, source_version, visibility, version, metadata, occurred_at, created_at, updated_at")
       .eq("persona_id", persona.id)
       .eq("owner_user_id", ownerUserId)
       .order("created_at", { ascending: false }),
@@ -265,6 +283,28 @@ async function buildPersonaExportManifest(persona: any, packageId: string, owner
     updatedAt: row.updated_at,
   }));
 
+  const continuityRecords = compactRows(continuityRecordRes.data ?? [], (row: any) => ({
+    id: row.id,
+    recordType: row.record_type,
+    title: row.title,
+    body: row.body,
+    summary: row.summary,
+    source: row.source_table
+      ? {
+        table: row.source_table,
+        id: row.source_id,
+        label: row.source_label,
+        version: row.source_version ?? 1,
+      }
+      : null,
+    visibility: row.visibility,
+    version: row.version,
+    metadata: row.metadata ?? {},
+    occurredAt: row.occurred_at,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+  }));
+
   const integritySessions = compactRows(integrityRes.data ?? [], (row: any) => ({
     id: row.id,
     sessionTitle: row.session_title,
@@ -285,6 +325,7 @@ async function buildPersonaExportManifest(persona: any, packageId: string, owner
     archiveImports: imports.length,
     archivedChats: chatTranscripts.length,
     continuityCandidates: continuityCandidates.length,
+    continuityRecords: continuityRecords.length,
     integritySessions: integritySessions.length,
     publishedDocuments: publishedDocuments.length,
     discussionComments: publishedDocuments.reduce((sum, document: any) => sum + (document.discussion?.comments?.length ?? 0), 0),
@@ -325,11 +366,14 @@ async function buildPersonaExportManifest(persona: any, packageId: string, owner
         chatTranscripts,
       },
       continuityCandidates,
+      continuityRecords,
       integritySessions,
     },
     publishedDocumentRefs: publishedDocuments,
     trust: {
       provenancePreserved: true,
+      publicationStatesPreserved: true,
+      continuityRecordVisibilityPreserved: true,
       publicCopiesAreSeparateDocuments: true,
       sourceRowsRemainPrivate: true,
       discussionPolicy: "Visible discussion comments are included. Removed or hidden comments are included only when authored by the export owner.",
@@ -385,6 +429,9 @@ function buildManifestMarkdown(manifest: any) {
     "",
     "## Continuity Candidates",
     markdownList(manifest.continuity.continuityCandidates),
+    "",
+    "## Continuity Timeline Records",
+    markdownList(manifest.continuity.continuityRecords),
     "",
     "## Integrity Sessions",
     markdownList(manifest.continuity.integritySessions, "sessionTitle"),

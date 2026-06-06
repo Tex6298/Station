@@ -15,6 +15,11 @@ type Row = Record<string, any>;
 const OWNER_ID = "11111111-1111-4111-8111-111111111111";
 const OTHER_ID = "22222222-2222-4222-8222-222222222222";
 const PERSONA_ID = "33333333-3333-4333-8333-333333333333";
+const DOCUMENT_ID = "77777777-7777-4777-8777-777777777777";
+const OTHER_DOCUMENT_ID = "88888888-8888-4888-8888-888888888888";
+const CONVERSATION_ID = "99999999-9999-4999-8999-999999999999";
+const OTHER_CONVERSATION_ID = "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa";
+const TRANSCRIPT_ID = "66666666-6666-4666-8666-666666666666";
 
 class InMemorySupabase {
   tables: Record<string, Row[]> = {
@@ -31,6 +36,52 @@ class InMemorySupabase {
         provider: "platform",
         created_at: "2026-06-06T04:00:00.000Z",
         updated_at: "2026-06-06T04:00:00.000Z",
+      },
+    ],
+    documents: [
+      {
+        id: DOCUMENT_ID,
+        author_user_id: OWNER_ID,
+        persona_id: PERSONA_ID,
+        source_persona_id: null,
+        title: "Owner continuity note",
+        source_label: "Document / public / published",
+      },
+      {
+        id: OTHER_DOCUMENT_ID,
+        author_user_id: OTHER_ID,
+        persona_id: PERSONA_ID,
+        source_persona_id: null,
+        title: "Other owner note",
+        source_label: "Other private document",
+      },
+    ],
+    conversations: [
+      {
+        id: CONVERSATION_ID,
+        persona_id: PERSONA_ID,
+        owner_user_id: OWNER_ID,
+        title: "Owner working chat",
+        status: "archived",
+        message_count: 6,
+      },
+      {
+        id: OTHER_CONVERSATION_ID,
+        persona_id: PERSONA_ID,
+        owner_user_id: OTHER_ID,
+        title: "Other owner chat",
+        status: "archived",
+        message_count: 3,
+      },
+    ],
+    archived_chat_transcripts: [
+      {
+        id: TRANSCRIPT_ID,
+        conversation_id: CONVERSATION_ID,
+        persona_id: PERSONA_ID,
+        owner_user_id: OWNER_ID,
+        title: "Harbor working chat",
+        message_count: 4,
       },
     ],
     continuity_records: [
@@ -283,8 +334,8 @@ test("owner can create and read continuity alpha records without spoofing owners
         body: "The owner names a stable timeline marker.",
         source: {
           table: "archived_chat_transcripts",
-          id: "66666666-6666-4666-8666-666666666666",
-          label: "Archived chat / Harbor working chat",
+          id: TRANSCRIPT_ID,
+          label: "spoofed transcript label",
           version: 2,
         },
         visibility: "private",
@@ -296,6 +347,7 @@ test("owner can create and read continuity alpha records without spoofing owners
     assert.equal(created.body.record.ownerUserId, OWNER_ID);
     assert.equal(created.body.record.source.version, 2);
     assert.equal(created.body.record.sourceTable, "archived_chat_transcripts");
+    assert.equal(created.body.record.sourceLabel, "Archived conversation / 4 messages");
     assert.equal(created.body.record.sourceVersion, 2);
     assert.equal(db.tables.continuity_records.at(-1)!.owner_user_id, OWNER_ID);
     assert.equal(db.tables.continuity_records.at(-1)!.ownerUserId, undefined);
@@ -327,6 +379,72 @@ test("owner can create and read continuity alpha records without spoofing owners
       },
     });
     assert.equal(invalid.status, 400);
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
+
+test("continuity record sources must belong to the owner and persona", async () => {
+  const db = new InMemorySupabase();
+  setSupabaseAdminForTests(db.client as any);
+  const app = await createContinuityRecordsApp();
+
+  try {
+    const linkedDocument = await requestJson(app, "POST", `/continuity/persona/${PERSONA_ID}/records`, {
+      token: "owner-token",
+      body: {
+        recordType: "publication",
+        title: "Linked document marker",
+        source: {
+          table: "documents",
+          id: DOCUMENT_ID,
+          label: "client supplied document label",
+        },
+      },
+    });
+    assert.equal(linkedDocument.status, 201);
+    assert.equal(linkedDocument.body.record.sourceTable, "documents");
+    assert.equal(linkedDocument.body.record.sourceLabel, "Document / public / published");
+
+    const linkedConversation = await requestJson(app, "POST", `/continuity/persona/${PERSONA_ID}/records`, {
+      token: "owner-token",
+      body: {
+        recordType: "archived_chat",
+        title: "Linked conversation marker",
+        source: {
+          table: "conversations",
+          id: CONVERSATION_ID,
+        },
+      },
+    });
+    assert.equal(linkedConversation.status, 201);
+    assert.equal(linkedConversation.body.record.sourceLabel, "Archived conversation / 6 messages");
+
+    const blockedDocument = await requestJson(app, "POST", `/continuity/persona/${PERSONA_ID}/records`, {
+      token: "owner-token",
+      body: {
+        recordType: "publication",
+        title: "Spoofed document marker",
+        source: {
+          table: "documents",
+          id: OTHER_DOCUMENT_ID,
+        },
+      },
+    });
+    assert.equal(blockedDocument.status, 404);
+
+    const blockedConversation = await requestJson(app, "POST", `/continuity/persona/${PERSONA_ID}/records`, {
+      token: "owner-token",
+      body: {
+        recordType: "archived_chat",
+        title: "Spoofed conversation marker",
+        source: {
+          table: "conversations",
+          id: OTHER_CONVERSATION_ID,
+        },
+      },
+    });
+    assert.equal(blockedConversation.status, 404);
   } finally {
     setSupabaseAdminForTests(null);
   }

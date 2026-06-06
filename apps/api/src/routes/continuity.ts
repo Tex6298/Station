@@ -18,9 +18,22 @@ const recordTypeSchema = z.enum([
 
 const visibilitySchema = z.enum(["private", "community", "public"]);
 
+const sourceTableSchema = z.enum([
+  "documents",
+  "conversations",
+  "memory_items",
+  "canon_items",
+  "persona_files",
+  "import_jobs",
+  "archived_chat_transcripts",
+  "continuity_candidates",
+  "calibration_sessions",
+  "integrity_sessions",
+]);
+
 const sourceSchema = z.object({
-  table: z.string().min(1).max(80),
-  id: z.string().uuid().optional(),
+  table: sourceTableSchema,
+  id: z.string().uuid(),
   label: z.string().max(200).optional(),
   version: z.number().int().min(1).optional(),
 });
@@ -94,6 +107,77 @@ async function loadOwnedPersona(personaId: string, ownerUserId: string) {
   return data;
 }
 
+function sourceLabelFor(row: any, table: z.infer<typeof sourceTableSchema>) {
+  if (table === "documents") return row.source_label || `Document / ${row.title}`;
+  if (table === "conversations") {
+    return row.status === "archived"
+      ? `Archived conversation / ${row.message_count ?? 0} messages`
+      : "Active conversation";
+  }
+  if (table === "memory_items") return `Memory / ${row.title || "Untitled"}`;
+  if (table === "canon_items") return `Canon / priority ${row.priority ?? 1}`;
+  if (table === "persona_files") return `Archive file / ${row.source_type ?? "upload"}`;
+  if (table === "import_jobs") return `Archive import / ${row.kind ?? "import"}`;
+  if (table === "archived_chat_transcripts") return `Archived conversation / ${row.message_count ?? 0} messages`;
+  if (table === "continuity_candidates") return `Continuity candidate / ${row.candidate_type ?? "candidate"}`;
+  if (table === "integrity_sessions") return `Integrity Session / ${row.session_type ?? "manual"}`;
+  return `Integrity Session / ${row.save_target ?? "persona"}`;
+}
+
+async function loadOwnedSourceRef(
+  source: z.infer<typeof sourceSchema>,
+  personaId: string,
+  ownerUserId: string
+) {
+  const sb = getSupabaseAdmin();
+
+  if (source.table === "documents") {
+    const { data } = await (sb as any)
+      .from("documents")
+      .select("id, title, author_user_id, persona_id, source_persona_id, source_label")
+      .eq("id", source.id)
+      .eq("author_user_id", ownerUserId)
+      .single();
+
+    if (!data || (data.persona_id !== personaId && data.source_persona_id !== personaId)) return null;
+    return {
+      table: source.table,
+      id: data.id,
+      label: sourceLabelFor(data, source.table),
+      version: source.version ?? 1,
+    };
+  }
+
+  const tableConfig: Record<Exclude<z.infer<typeof sourceTableSchema>, "documents">, { ownerColumn: string; personaColumn: string | null }> = {
+    conversations: { ownerColumn: "owner_user_id", personaColumn: "persona_id" },
+    memory_items: { ownerColumn: "owner_user_id", personaColumn: "persona_id" },
+    canon_items: { ownerColumn: "owner_user_id", personaColumn: "persona_id" },
+    persona_files: { ownerColumn: "owner_user_id", personaColumn: "persona_id" },
+    import_jobs: { ownerColumn: "owner_user_id", personaColumn: "persona_id" },
+    archived_chat_transcripts: { ownerColumn: "owner_user_id", personaColumn: "persona_id" },
+    continuity_candidates: { ownerColumn: "owner_user_id", personaColumn: "persona_id" },
+    calibration_sessions: { ownerColumn: "owner_user_id", personaColumn: "persona_id" },
+    integrity_sessions: { ownerColumn: "owner_user_id", personaColumn: "persona_id" },
+  };
+  const config = tableConfig[source.table];
+  const { data } = await (sb as any)
+    .from(source.table)
+    .select("*")
+    .eq("id", source.id)
+    .eq(config.ownerColumn, ownerUserId)
+    .single();
+
+  if (!data) return null;
+  if (config.personaColumn && data[config.personaColumn] && data[config.personaColumn] !== personaId) return null;
+
+  return {
+    table: source.table,
+    id: data.id,
+    label: sourceLabelFor(data, source.table),
+    version: source.version ?? 1,
+  };
+}
+
 // -- List owner-scoped continuity timeline records for a persona --------------
 continuityRouter.get("/persona/:personaId/records", async (req, res) => {
   const parsed = listRecordsSchema.safeParse(req.query);
@@ -131,6 +215,13 @@ continuityRouter.post("/persona/:personaId/records", async (req, res) => {
   const persona = await loadOwnedPersona(req.params.personaId, ownerUserId);
   if (!persona) return res.status(404).json({ error: "Persona not found." });
 
+  const source = parsed.data.source
+    ? await loadOwnedSourceRef(parsed.data.source, persona.id, ownerUserId)
+    : null;
+  if (parsed.data.source && !source) {
+    return res.status(404).json({ error: "Continuity source not found." });
+  }
+
   const sb = getSupabaseAdmin();
   const { data, error } = await (sb as any)
     .from("continuity_records")
@@ -141,10 +232,10 @@ continuityRouter.post("/persona/:personaId/records", async (req, res) => {
       title: parsed.data.title?.trim() || null,
       body: parsed.data.body?.trim() || null,
       summary: parsed.data.summary?.trim() || null,
-      source_table: parsed.data.source?.table ?? null,
-      source_id: parsed.data.source?.id ?? null,
-      source_label: parsed.data.source?.label ?? null,
-      source_version: parsed.data.source?.version ?? 1,
+      source_table: source?.table ?? null,
+      source_id: source?.id ?? null,
+      source_label: source?.label ?? null,
+      source_version: source?.version ?? 1,
       visibility: parsed.data.visibility,
       version: parsed.data.version,
       metadata: parsed.data.metadata,

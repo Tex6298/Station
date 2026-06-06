@@ -39,9 +39,12 @@ when a PR lands, or when validation truth changes.
   link ownership is safe through the UI and current owner-only reads, but the
   `/continuity` API should validate linked source ownership before visibility
   flags become public-facing behavior.
-- PR-09 is the active next roadmap move: start by tightening continuity
-  source-link ownership validation, then proceed into bounded publication and
-  export pipeline work without broad UI or Developer Spaces expansion.
+- PR-09 DAEDALUS implementation is ready for ARGUS review, 2026-06-06:
+  continuity source links are now validated against owned/persona-scoped source
+  rows before insert, persona archive exports now include `continuity_records`,
+  publication state/visibility/provenance metadata is preserved in the export
+  manifest, and focused continuity/export tests prove the boundaries. Do not
+  mark PR-09 complete until ARGUS reviews the hostile paths and gate.
 
 ## Current repo truth
 
@@ -73,6 +76,10 @@ when a PR lands, or when validation truth changes.
   `/studio/personas/:personaId/continuity`, which lists owner-scoped
   `continuity_records` and can create new timeline markers linked to owner
   documents or conversations from the Studio UI.
+- As of the PR-09 DAEDALUS implementation, `/continuity` rejects linked
+  document/conversation/source IDs that do not belong to the caller and persona,
+  and `/exports/persona/:personaId` includes continuity timeline records in the
+  owner-only archive package.
 - Core API route modules no longer import local in-memory mock data. Runtime
   persistence goes through the Supabase client boundary; route tests use
   injected fake Supabase clients for deterministic proof.

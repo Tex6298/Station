@@ -324,3 +324,30 @@ Commands re-run by ARGUS:
 
 PR-08 is complete for the bounded Continuity Studio UI scope. MIMIR should pick
 the next roadmap move.
+
+## PR-09 DAEDALUS implementation result
+
+Validated on 2026-06-06 after the first bounded publication/export pipeline
+slice:
+
+- `apps/api/src/routes/continuity.ts` validates continuity source references
+  against owned, persona-scoped rows before inserting `continuity_records`.
+- Document and conversation links are normalized from server-owned rows instead
+  of trusting caller-provided source labels.
+- `apps/api/src/routes/exports.ts` includes `continuity_records` in the
+  owner-only persona export manifest, count summary, markdown package, and trust
+  metadata.
+- Focused tests prove source-link ownership rejection and continuity timeline
+  export without other-owner leakage.
+
+Targeted commands run with the pinned runner:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npx --yes pnpm@10.32.1 test:continuity` | Pass | 4 tests passed, including owner/persona source-link validation. |
+| `npx --yes pnpm@10.32.1 test:exports` | Pass | 1 test passed; export manifest includes continuity records and preserves publication/visibility/provenance metadata. |
+| `npx --yes pnpm@10.32.1 test:continuity-publication` | Pass | 1 test passed. |
+| `git diff --check` | Pass | No whitespace errors; Git reported expected CRLF normalization warnings for touched files. |
+| `npx --yes pnpm@10.32.1 build` | Pass | Known React hook dependency and `<img>` optimization warnings only; no new PR-09 warnings. |
+
+PR-09 remains pending ARGUS review.

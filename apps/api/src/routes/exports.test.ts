@@ -220,6 +220,46 @@ class InMemorySupabase {
         updated_at: "2026-05-26T09:04:35.000Z",
       },
     ],
+    continuity_records: [
+      {
+        id: "record-1",
+        owner_user_id: OWNER_ID,
+        persona_id: PERSONA_ID,
+        record_type: "publication",
+        title: "Public continuity milestone",
+        body: "A curated public continuity marker.",
+        summary: "Publication state is part of the export.",
+        source_table: "documents",
+        source_id: DOC_ID,
+        source_label: "Document / public / published",
+        source_version: 1,
+        visibility: "public",
+        version: 1,
+        metadata: { publicationState: "published" },
+        occurred_at: "2026-05-26T09:06:30.000Z",
+        created_at: "2026-05-26T09:06:30.000Z",
+        updated_at: "2026-05-26T09:06:30.000Z",
+      },
+      {
+        id: "record-other",
+        owner_user_id: OTHER_ID,
+        persona_id: OTHER_PERSONA_ID,
+        record_type: "timeline",
+        title: "Other owner record",
+        body: "Other owner continuity record must not leak.",
+        summary: null,
+        source_table: null,
+        source_id: null,
+        source_label: null,
+        source_version: 1,
+        visibility: "private",
+        version: 1,
+        metadata: {},
+        occurred_at: "2026-05-26T09:06:30.000Z",
+        created_at: "2026-05-26T09:06:30.000Z",
+        updated_at: "2026-05-26T09:06:30.000Z",
+      },
+    ],
     calibration_sessions: [
       {
         id: "integrity-1",
@@ -574,9 +614,12 @@ test("owner can export persona archive while preserving provenance and privacy b
     assert.equal(created.body.manifest.counts.archiveImports, 1);
     assert.equal(created.body.manifest.counts.archivedChats, 1);
     assert.equal(created.body.manifest.counts.continuityCandidates, 1);
+    assert.equal(created.body.manifest.counts.continuityRecords, 1);
     assert.equal(created.body.manifest.counts.integritySessions, 1);
     assert.equal(created.body.manifest.counts.publishedDocuments, 1);
     assert.equal(created.body.manifest.trust.provenancePreserved, true);
+    assert.equal(created.body.manifest.trust.publicationStatesPreserved, true);
+    assert.equal(created.body.manifest.trust.continuityRecordVisibilityPreserved, true);
     assert.equal(created.body.manifest.trust.sourceRowsRemainPrivate, true);
 
     const manifestText = JSON.stringify(created.body.manifest);
@@ -585,11 +628,19 @@ test("owner can export persona archive while preserving provenance and privacy b
     assert.match(manifestText, /private\/source-notebook\.md/);
     assert.match(manifestText, /Harbor working chat/);
     assert.match(manifestText, /Archive boundary memory/);
+    assert.match(manifestText, /Public continuity milestone/);
+    assert.match(manifestText, /Document \/ public \/ published/);
     assert.match(manifestText, /Private transcript is owner exportable/);
     assert.doesNotMatch(manifestText, /Other owner memory must not leak/);
     assert.doesNotMatch(manifestText, /Other owner transcript must not leak/);
     assert.doesNotMatch(manifestText, /Other owner candidate must not leak/);
+    assert.doesNotMatch(manifestText, /Other owner continuity record must not leak/);
     assert.doesNotMatch(manifestText, /Private Draft/);
+
+    const continuityRecord = created.body.manifest.continuity.continuityRecords[0];
+    assert.equal(continuityRecord.visibility, "public");
+    assert.equal(continuityRecord.source.table, "documents");
+    assert.equal(continuityRecord.metadata.publicationState, "published");
 
     const documentRef = created.body.manifest.publishedDocumentRefs[0];
     assert.equal(documentRef.provenanceType, "persona_derived");
@@ -624,6 +675,7 @@ test("owner can export persona archive while preserving provenance and privacy b
     assert.equal(readBack.status, 200);
     assert.match(readBack.body.manifestMarkdown, /Station Export: Harbor/);
     assert.match(readBack.body.manifestMarkdown, /Provenance preserved: yes/);
+    assert.match(readBack.body.manifestMarkdown, /Continuity Timeline Records/);
 
     const blockedRead = await requestJson(app, "GET", `/exports/${created.body.exportPackage.id}`, {
       token: "other-token",
