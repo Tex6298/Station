@@ -336,7 +336,12 @@ test("Developer Spaces smoke covers creation, keying, ingestion, and public/owne
         topologyType: "radial",
         fragmentCount: 144,
         selfSimilarityScore: 0.81,
-        metrics: { uptime: 99.8, raw: { hidden: true } },
+        metrics: {
+          uptime: 99.8,
+          raw: { hidden: true },
+          Authorization: "node-auth",
+          accessToken: "node-access-token",
+        },
         sourceRefs: [" station:log:node ", "", "station:archive:alpha"],
       },
     });
@@ -373,7 +378,24 @@ test("Developer Spaces smoke covers creation, keying, ingestion, and public/owne
         eventType: "signal.detected",
         eventLabel: "Signal detected",
         nodeId: "animus-alpha",
-        eventData: { zone: "North Array", confidence: 0.92, raw: { prompt: "owner-only" }, token: "secret-token" },
+        eventData: {
+          zone: "North Array",
+          confidence: 0.92,
+          raw: { prompt: "owner-only" },
+          token: "secret-token",
+          password: "public-password",
+          accessToken: "public-access-token",
+          Authorization: "Bearer public-auth",
+          secretKey: "public-secret-key",
+          nested: {
+            safe: "public-safe-value",
+            refreshToken: "public-refresh-token",
+            clientSecret: "public-client-secret",
+            credentials: { username: "operator", password: "nested-password" },
+            cookie: "public-cookie",
+            setCookie: "public-set-cookie",
+          },
+        },
         similarityScore: 0.88,
         sourceRefs: ["station:log:signal"],
         visibility: "public",
@@ -386,7 +408,13 @@ test("Developer Spaces smoke covers creation, keying, ingestion, and public/owne
     const snapshot = await requestJson(app, "POST", "/developer-spaces/ingest/snapshots", {
       developerKey: apiKeyResponse.body.apiKey,
       body: {
-        snapshotData: { summary: "Stable", load: 0.44, raw: { prompt: "owner-only" } },
+        snapshotData: {
+          summary: "Stable",
+          load: 0.44,
+          raw: { prompt: "owner-only" },
+          secretKey: "snapshot-secret-key",
+          nested: { safe: "snapshot-safe-value", setCookie: "snapshot-set-cookie" },
+        },
         sourceRefs: ["station:snapshot:1"],
         visibility: "public",
       },
@@ -407,8 +435,27 @@ test("Developer Spaces smoke covers creation, keying, ingestion, and public/owne
     assert.equal(publicDetail.body.events.some((event: Row) => event.eventType === "signal.detected"), true);
     const publicText = JSON.stringify(publicDetail.body);
     assert.equal(publicText.includes("api_key_hash"), false);
-    assert.equal(publicText.includes("secret-token"), false);
-    assert.equal(publicText.includes("owner-only"), false);
+    for (const hidden of [
+      "secret-token",
+      "owner-only",
+      "node-auth",
+      "node-access-token",
+      "public-password",
+      "public-access-token",
+      "Bearer public-auth",
+      "public-secret-key",
+      "public-refresh-token",
+      "public-client-secret",
+      "nested-password",
+      "public-cookie",
+      "public-set-cookie",
+      "snapshot-secret-key",
+      "snapshot-set-cookie",
+    ]) {
+      assert.equal(publicText.includes(hidden), false, `${hidden} leaked into public detail`);
+    }
+    assert.equal(publicText.includes("public-safe-value"), true);
+    assert.equal(publicText.includes("snapshot-safe-value"), true);
 
     const ownerDetail = await requestJson(app, "GET", "/developer-spaces/animus-field", {
       token: "owner-token",
@@ -420,7 +467,25 @@ test("Developer Spaces smoke covers creation, keying, ingestion, and public/owne
     assert.equal(ownerDetail.body.events.some((event: Row) => event.visibility === "private"), true);
     assert.equal(ownerDetail.body.nodes[0].metrics.raw.hidden, true);
     assert.equal(ownerDetail.body.latestSnapshot.snapshotData.raw.prompt, "owner-only");
-    assert.equal(JSON.stringify(ownerDetail.body).includes("api_key_hash"), false);
+    const ownerText = JSON.stringify(ownerDetail.body);
+    assert.equal(ownerText.includes("api_key_hash"), false);
+    for (const retained of [
+      "node-auth",
+      "node-access-token",
+      "public-password",
+      "public-access-token",
+      "Bearer public-auth",
+      "public-secret-key",
+      "public-refresh-token",
+      "public-client-secret",
+      "nested-password",
+      "public-cookie",
+      "public-set-cookie",
+      "snapshot-secret-key",
+      "snapshot-set-cookie",
+    ]) {
+      assert.equal(ownerText.includes(retained), true, `${retained} missing from owner detail`);
+    }
 
     const rotatedKeyResponse = await requestJson(app, "POST", `/developer-spaces/${spaceId}/api-key`, {
       token: "owner-token",

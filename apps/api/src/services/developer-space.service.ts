@@ -14,12 +14,19 @@ const API_KEY_PREFIX = "station_dev_";
 const PAID_TIERS = new Set(["private", "creator", "canon", "institutional"]);
 const SENSITIVE_JSON_KEYS = new Set([
   "authorization",
-  "api_key",
-  "apiKey",
+  "apikey",
+  "accesstoken",
+  "clientsecret",
+  "cookie",
+  "credentials",
   "key",
+  "password",
   "prompt",
   "raw",
+  "refreshtoken",
   "secret",
+  "secretkey",
+  "setcookie",
   "token",
 ]);
 
@@ -52,13 +59,17 @@ export function normaliseSourceRefs(refs: unknown): string[] {
     .slice(0, 24);
 }
 
+function normaliseSensitiveJsonKey(key: string): string {
+  return key.replace(/[^a-z0-9]/gi, "").toLowerCase();
+}
+
 export function publicSafeDeveloperSpaceData(value: unknown): unknown {
   if (Array.isArray(value)) return value.map(publicSafeDeveloperSpaceData);
   if (!value || typeof value !== "object") return value;
 
   return Object.fromEntries(
     Object.entries(value as Record<string, unknown>)
-      .filter(([key]) => !SENSITIVE_JSON_KEYS.has(key))
+      .filter(([key]) => !SENSITIVE_JSON_KEYS.has(normaliseSensitiveJsonKey(key)))
       .map(([key, nested]) => [key, publicSafeDeveloperSpaceData(nested)])
   );
 }

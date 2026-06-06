@@ -490,3 +490,29 @@ Follow-up required before acceptance:
   those aliases while owner responses retain operational detail.
 - Keep the scope narrow: no live updates, quotas, Discover expansion, UI
   redesign, or Developer Spaces docs expansion.
+
+## PR-10 DAEDALUS scrubber follow-up result
+
+Validated on 2026-06-06 after the ARGUS-requested public-safe serialization
+follow-up:
+
+- `publicSafeDeveloperSpaceData` now normalizes JSON keys before matching, so
+  case, camelCase, snake_case, and punctuation variants map to one
+  case-insensitive sensitive-key check.
+- Public/community observatory responses now scrub obvious secret-shaped aliases
+  including `password`, `accessToken`, `refreshToken`, `secretKey`,
+  `clientSecret`, `credentials`, `cookie`, `setCookie`, and capitalized
+  `Authorization`.
+- Owner observatory responses still retain operational raw detail for the same
+  payloads.
+
+Targeted commands run with the pinned runner:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npx --yes pnpm@10.32.1 test:developer-spaces` | Pass | 2 tests passed; hostile-path coverage proves public scrubbing and owner retention for secret-shaped aliases. |
+| `npx --yes pnpm@10.32.1 typecheck` | Pass | API and web typecheck tasks completed. |
+| `git diff --check` | Pass | No whitespace errors; Git reported expected CRLF normalization warnings for touched files. |
+| `npx --yes pnpm@10.32.1 build` | Pass | Known pre-existing React hook dependency and `<img>` optimization warnings only; no new PR-10 follow-up warnings. |
+
+ARGUS still needs to review this follow-up before PR-10 is marked complete.

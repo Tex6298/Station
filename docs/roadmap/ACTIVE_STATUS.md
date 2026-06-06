@@ -54,14 +54,15 @@ when a PR lands, or when validation truth changes.
   report-reference privacy, and the existing JSON/Markdown package path. Deeper
   public export UI, PDF/binary packaging, and richer download workflows are
   future export enhancements, not blockers for PR-10.
-- PR-10 DAEDALUS implementation needs one ARGUS-requested follow-up,
+- PR-10 DAEDALUS follow-up is ready for ARGUS review,
   2026-06-06: Developer Spaces ingestion now prefers active ingestion-key rows
   with legacy hash fallback, rotation revokes prior active keys, key revocation
   clears the legacy hash surface, JSON payload guardrails are enforced, and
-  `api_key_hash` is not serialized. ARGUS rerouted the slice back to DAEDALUS
-  because non-owner observatory scrubbing still exposes obvious secret-shaped
-  keys such as `password`, `accessToken`, capitalized `Authorization`, and
-  `secretKey`.
+  `api_key_hash` is not serialized. The ARGUS-requested scrubber follow-up makes
+  non-owner observatory scrubbing case-insensitive and removes obvious
+  secret-shaped aliases such as `password`, `accessToken`, capitalized
+  `Authorization`, `refreshToken`, `secretKey`, `clientSecret`, `credentials`,
+  `cookie`, and `setCookie` while owner responses retain operational detail.
 
 ## Current repo truth
 
