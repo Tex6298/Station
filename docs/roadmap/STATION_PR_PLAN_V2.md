@@ -61,9 +61,10 @@ pnpm test:exports
 pnpm test:developer-spaces
 ```
 
-As of the 2026-06-05 current-main reconciliation, do not start PR-07
-implementation until the post-PR-06 stack is either accepted with targeted
-validation repairs or explicitly narrowed by human decision.
+As of the 2026-06-06 full-baseline repair, PR-07 may proceed only as Continuity
+Alpha data-model work. Keep Continuity Studio UI, publication/export expansion,
+Developer Spaces polish, Stripe, token-credit expansion, and broad UX out of
+PR-07.
 
 ## PR-00 - Roadmap reset and source-of-truth docs
 
@@ -236,6 +237,12 @@ Tasks:
 - Add migrations and types.
 - Add API skeleton.
 - Add tests around data shape only.
+
+Implementation note:
+
+- `continuity_records` was first baselined in PR-02 as the cross-source
+  owner-scoped continuity ledger. PR-07 should extend that ledger narrowly
+  rather than inventing a parallel continuity store.
 
 Acceptance:
 

@@ -25,6 +25,9 @@ The current scaffold assumes these persistence entities:
 - Existing specialized continuity tables remain canonical for their current
   flows. `continuity_records` is the stable cross-source ledger for future
   repository-backed timeline/context views.
+- PR-07 adds source-version metadata and a narrow owner-scoped API skeleton over
+  `continuity_records`. Specialized tables still remain the source of truth for
+  memory, canon, archived chats, integrity sessions, and publication flows.
 - Developer Space routes still use the single-key columns on
   `developer_spaces`. `developer_space_ingestion_keys` is a schema baseline for
   future key rotation/revocation work.

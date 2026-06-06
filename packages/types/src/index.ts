@@ -1,4 +1,5 @@
 export * from "./persona";
+export * from "./continuity";
 export * from "./user";
 
 export * from "./space";

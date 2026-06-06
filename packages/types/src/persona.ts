@@ -41,66 +41,19 @@ export interface ConversationMessage {
   createdAt: string;
 }
 
-export interface ArchivedChatTranscript {
-  id: string;
-  conversationId: string;
-  ownerUserId?: string;
-  personaId: string;
-  title: string;
-  transcriptMarkdown: string;
-  messageCount: number;
-  sourceSummary?: string | null;
-  createdAt: string;
-  updatedAt?: string;
-}
-
-export interface ContinuityCandidate {
-  id: string;
-  archivedChatTranscriptId: string;
-  ownerUserId?: string;
-  personaId: string;
-  candidateType: "memory" | "canon";
-  title?: string | null;
-  content: string;
-  rationale?: string | null;
-  status: "pending" | "accepted" | "rejected";
-  sourceMessageIds?: string[];
-  acceptedTargetType?: "memory" | "canon" | null;
-  acceptedTargetId?: string | null;
-  acceptedAt?: string | null;
-  createdAt: string;
-  updatedAt?: string;
-}
-
-export type ContinuityRecordType =
-  | "memory"
-  | "canon"
-  | "integrity"
-  | "archive_file"
-  | "archive_import"
-  | "archived_chat"
-  | "candidate"
-  | "publication"
-  | "timeline";
-
-export interface ContinuityRecord {
-  id: string;
-  ownerUserId: string;
-  personaId?: string | null;
-  recordType: ContinuityRecordType;
-  title?: string | null;
-  body?: string | null;
-  summary?: string | null;
-  sourceTable?: string | null;
-  sourceId?: string | null;
-  sourceLabel?: string | null;
-  visibility: "private" | "community" | "public";
-  version: number;
-  metadata: Record<string, unknown>;
-  occurredAt?: string | null;
-  createdAt: string;
-  updatedAt: string;
-}
+export type {
+  ArchivedChatTranscript,
+  ContinuityCandidate,
+  ContinuityPublicationCandidate,
+  ContinuityRecord,
+  ContinuityRecordType,
+  ContinuityRecordVisibility,
+  ContinuitySourceRef,
+  ContinuityTimelineItem,
+  ContinuityVersion,
+  CreateContinuityRecordInput,
+  PersonaContextSummary,
+} from "./continuity";
 
 export interface MemoryItem {
   id: string;

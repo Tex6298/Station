@@ -52,6 +52,11 @@ when a PR lands, or when validation truth changes.
   existing pnpm config/build-script notice, React hook dependency warnings, and
   `<img>` optimization warnings. PR-07 is cleared to begin, limited to
   Continuity Alpha data model scope only.
+- PR-07 DAEDALUS implementation, 2026-06-06: the Continuity Alpha data model
+  now has a narrow owner-scoped `/continuity` API skeleton over
+  `continuity_records`, shared continuity DTOs, source-version schema alignment,
+  and a focused `test:continuity` data-shape test. PR-07 is awaiting ARGUS
+  review before it should be marked complete.
 
 ## Current repo truth
 
@@ -75,6 +80,10 @@ when a PR lands, or when validation truth changes.
   again with the pinned pnpm runner. See `docs/testing/VALIDATION_BASELINE.md`.
 - As of PR-02, `docs/architecture/persistence-schema-baseline.md` records the
   current table/entity map for future auth and repository work.
+- As of PR-07, `continuity_records` remains the canonical cross-source ledger
+  while specialized tables such as `memory_items`, `canon_items`,
+  `archived_chat_transcripts`, `continuity_candidates`, and
+  `integrity_sessions` remain canonical for their own flows.
 - Core API route modules no longer import local in-memory mock data. Runtime
   persistence goes through the Supabase client boundary; route tests use
   injected fake Supabase clients for deterministic proof.

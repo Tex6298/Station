@@ -250,6 +250,7 @@ export interface Database {
           source_table: string | null;
           source_id: string | null;
           source_label: string | null;
+          source_version: number;
           visibility: ContinuityRecordVisibility;
           version: number;
           metadata: Record<string, unknown>;
@@ -257,7 +258,7 @@ export interface Database {
           created_at: string;
           updated_at: string;
         };
-        Insert: Omit<Database["public"]["Tables"]["continuity_records"]["Row"], "id" | "persona_id" | "title" | "body" | "summary" | "source_table" | "source_id" | "source_label" | "visibility" | "version" | "metadata" | "occurred_at" | "created_at" | "updated_at"> & {
+        Insert: Omit<Database["public"]["Tables"]["continuity_records"]["Row"], "id" | "persona_id" | "title" | "body" | "summary" | "source_table" | "source_id" | "source_label" | "source_version" | "visibility" | "version" | "metadata" | "occurred_at" | "created_at" | "updated_at"> & {
           id?: string;
           persona_id?: string | null;
           title?: string | null;
@@ -266,6 +267,7 @@ export interface Database {
           source_table?: string | null;
           source_id?: string | null;
           source_label?: string | null;
+          source_version?: number;
           visibility?: ContinuityRecordVisibility;
           version?: number;
           metadata?: Record<string, unknown>;
