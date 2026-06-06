@@ -107,6 +107,9 @@ when a PR lands, or when validation truth changes.
 - PR-00 through PR-17 are complete for the bounded v2 roadmap. No PR-18 is
   defined in `docs/roadmap/STATION_PR_PLAN_V2.md`; the next lane is a closeout
   audit and future-roadmap recommendation, not an invented implementation PR.
+- Successor planning is open as a draft in
+  `docs/roadmap/STATION_PR_PLAN_V3_DRAFT.md`. It is not active implementation
+  scope until accepted after review.
 
 ## Current repo truth
 
@@ -201,6 +204,9 @@ when a PR lands, or when validation truth changes.
   Billing status now returns authoritative tier limits for the web billing page.
 - As the v2 roadmap closes, the next operating step is to audit roadmap/status
   and validation truth before opening any new implementation lane.
+- MIMIR opened a v3 draft focused on storage, integrity, token-credit, archive
+  job reliability, and visibility-safe search hardening. Treat it as a proposal
+  until ARGUS review or human acceptance.
 - Core API route modules no longer import local in-memory mock data. Runtime
   persistence goes through the Supabase client boundary; route tests use
   injected fake Supabase clients for deterministic proof.
