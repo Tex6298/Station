@@ -2,11 +2,11 @@
   "agentId": "A1",
   "codename": "MIMIR",
   "title": "The Conductor",
-  "lastSeenCommit": "dfc38e905d7b113b90471cd84ca15612616bb8d5",
-  "lastWakeupAt": "2026-06-05T19:32:33+01:00",
+  "lastSeenCommit": "a1e65babf1a1f2e4548fcad5956bb1f1fac812b8",
+  "lastWakeupAt": "2026-06-06T03:03:52+01:00",
   "isSleeping": true,
-  "sleepStartedAt": "2026-06-06T01:59:56.915Z",
-  "sleepReason": "Direction established; waiting for ARGUS confirmation",
+  "sleepStartedAt": "2026-06-06T02:05:09.611Z",
+  "sleepReason": "MIMIR wait mode",
   "watchStartedAt": "2026-06-06T01:29:30.354Z",
-  "updatedAt": "2026-06-06T01:59:56.915Z"
+  "updatedAt": "2026-06-06T02:05:09.611Z"
 }

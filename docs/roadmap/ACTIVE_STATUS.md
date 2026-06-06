@@ -37,8 +37,10 @@ when a PR lands, or when validation truth changes.
   posture.
 - ARGUS confirmation, 2026-06-06: this direction is confirmed. The next active
   work should be a narrow validation-repair lane, not PR-07 product scope.
-- Next instruction: MIMIR should wake DAEDALUS with a narrow validation-repair
-  task rather than a new feature lane.
+- MIMIR handoff, 2026-06-06: DAEDALUS is assigned the narrow
+  validation-repair lane. Scope is limited to restoring or clearly isolating
+  `test:continuity`, `test:persona-context`, and `test:conversation-archive`.
+  Do not add PR-07 product surface while repairing this base.
 
 ## Current repo truth
 
