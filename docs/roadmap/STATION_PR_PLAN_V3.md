@@ -1,9 +1,9 @@
 # Station PR plan v3
 
 Date: 2026-06-06
-Status: active successor roadmap. Activated after ARGUS reviewed the draft on
-2026-06-06. `docs/roadmap/STATION_PR_PLAN_V2.md` remains the historical record
-for PR-00 through PR-17.
+Status: implementation sequence complete through V3-05 and pending closeout
+audit. `docs/roadmap/STATION_PR_PLAN_V2.md` remains the historical record for
+PR-00 through PR-17.
 
 ## Why this roadmap exists
 

@@ -145,6 +145,9 @@ when a PR lands, or when validation truth changes.
   coverage proves anonymous visitors do not receive private buckets,
   authenticated non-owners do not see another owner's private artifacts, and a
   second owner receives only their own matching private rows.
+- V3-00 through V3-05 are accepted for the bounded v3 roadmap. No V3-06 is
+  defined; v3 implementation is paused for closeout audit before any post-V3
+  UI/UX feasibility or implementation handoff.
 - Post-V3 UI/UX successor planning is ARIADNE-reviewed in
   `docs/roadmap/STATION_UI_UX_ROADMAP.md`. It is not active implementation
   scope while V3 is open unless MIMIR explicitly marks a tiny UX slice as
