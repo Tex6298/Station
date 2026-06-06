@@ -151,10 +151,14 @@ class QueryBuilder {
   private operation: "select" | "insert" | "upsert" | "update" = "select";
   private payload: Row | Row[] | null = null;
   private upsertConflictFields: string[] = ["id"];
+  private countRequested = false;
+  private head = false;
 
   constructor(private db: InMemorySupabase, private table: string) {}
 
-  select(_columns = "*") {
+  select(_columns = "*", options: { count?: string; head?: boolean } = {}) {
+    this.countRequested = Boolean(options.count);
+    this.head = Boolean(options.head);
     return this;
   }
 
@@ -273,15 +277,17 @@ class QueryBuilder {
     }
 
     const data = clone(rows);
+    const count = this.countRequested ? rows.length : null;
+
     if (mode === "single") {
       return data.length === 1
-        ? { data: data[0], error: null }
-        : { data: null, error: { message: `Expected one ${this.table} row.` } };
+        ? { data: data[0], error: null, count }
+        : { data: null, error: { message: `Expected one ${this.table} row.` }, count };
     }
     if (mode === "maybeSingle") {
-      return { data: data[0] ?? null, error: null };
+      return { data: data[0] ?? null, error: null, count };
     }
-    return { data, error: null };
+    return { data: this.head ? null : data, error: null, count };
   }
 }
 
@@ -390,6 +396,16 @@ test("Developer Spaces smoke covers creation, keying, ingestion, and public/owne
     assert.equal(created.body.space.visualisationType, "world_map");
 
     const spaceId = created.body.space.id;
+    const secondSpaceBlocked = await requestJson(app, "POST", "/developer-spaces", {
+      token: "owner-token",
+      body: {
+        projectName: "Second Observatory",
+        visibility: "private",
+      },
+    });
+    assert.equal(secondSpaceBlocked.status, 403);
+    assert.match(secondSpaceBlocked.body.error, /Developer Space limit/);
+
     const visualConfigUpdate = await requestJson(app, "PATCH", `/developer-spaces/${spaceId}`, {
       token: "owner-token",
       body: {

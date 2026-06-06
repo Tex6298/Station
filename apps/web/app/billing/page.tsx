@@ -25,6 +25,11 @@ const TIER_COLOUR: Record<string, string> = {
   institutional: "#2a7de1",
 };
 
+function formatLimit(value: number, unit: string) {
+  if (value < 0) return `Unlimited ${unit}`;
+  return `${value} ${unit}`;
+}
+
 export default function BillingPage() {
   const [token, setToken]   = useState<string | null>(null);
   const [status, setStatus] = useState<BillingStatus | null>(null);
@@ -154,6 +159,23 @@ export default function BillingPage() {
           >
             {actionLoading ? "Opening..." : "Manage / cancel subscription"}
           </button>
+        )}
+
+        {status?.limits && (
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(130px, 1fr))", gap: "0.75rem", marginTop: "1rem" }}>
+            <div>
+              <p style={{ color: "#888", fontSize: "0.75rem", margin: "0 0 0.25rem" }}>Spaces</p>
+              <p style={{ margin: 0, color: "#ddd", fontSize: "0.95rem" }}>{formatLimit(status.limits.spaces, "Spaces")}</p>
+            </div>
+            <div>
+              <p style={{ color: "#888", fontSize: "0.75rem", margin: "0 0 0.25rem" }}>Developer Spaces</p>
+              <p style={{ margin: 0, color: "#ddd", fontSize: "0.95rem" }}>{formatLimit(status.limits.developerSpaces, "Developer Spaces")}</p>
+            </div>
+            <div>
+              <p style={{ color: "#888", fontSize: "0.75rem", margin: "0 0 0.25rem" }}>Storage</p>
+              <p style={{ margin: 0, color: "#ddd", fontSize: "0.95rem" }}>{formatLimit(status.limits.storageGb, "GB")}</p>
+            </div>
+          </div>
         )}
       </div>
 

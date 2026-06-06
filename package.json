@@ -10,6 +10,7 @@
     "test:auth": "pnpm --filter @station/types --filter @station/config --filter @station/db --filter @station/auth build && tsx --test apps/api/src/routes/auth.test.ts apps/web/lib/auth-routes.test.ts apps/web/lib/auth-session.test.ts",
     "test:developer-spaces": "tsx --test apps/api/src/routes/developer-spaces.test.ts apps/web/lib/developer-space-observatory.test.ts",
     "test:spaces": "pnpm --filter @station/types --filter @station/config --filter @station/db --filter @station/auth build && tsx --test apps/api/src/routes/spaces.test.ts",
+    "test:billing": "pnpm --filter @station/types --filter @station/config --filter @station/db --filter @station/auth build && tsx --test apps/api/src/routes/billing.test.ts",
     "test:reports": "pnpm --filter @station/types --filter @station/config --filter @station/db --filter @station/auth build && tsx --test apps/api/src/routes/reports.test.ts",
     "test:community": "pnpm --filter @station/types --filter @station/config --filter @station/db --filter @station/auth build && tsx --test apps/api/src/routes/community.test.ts",
     "test:continuity": "pnpm --filter @station/types --filter @station/config --filter @station/db --filter @station/auth --filter @station/ai build && tsx --test apps/api/src/routes/continuity.test.ts apps/api/src/routes/continuity-records.test.ts apps/web/lib/continuity-ui.test.ts",

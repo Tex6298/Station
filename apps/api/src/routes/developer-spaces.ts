@@ -11,6 +11,8 @@ import { requireAuth, optionalAuth, type AuthenticatedUser } from "../middleware
 import { requireTier } from "../middleware/require-tier";
 import { getSupabaseAdmin } from "../lib/supabase";
 import { validateToken } from "../services/auth.service";
+import { canCreateDeveloperSpace } from "@station/auth/permissions";
+import type { AuthUser } from "@station/types";
 import {
   accessLevelForDeveloperSpace,
   canReadDeveloperSpace,
@@ -758,6 +760,24 @@ developerSpacesRouter.post("/", requireAuth, requireTier("canon"), async (req, r
 
   const sb = getSupabaseAdmin();
   const slug = parsed.data.slug ?? slugifyProjectName(parsed.data.projectName);
+
+  const { count } = await sb
+    .from("developer_spaces")
+    .select("id", { count: "exact", head: true })
+    .eq("owner_user_id", req.user!.id);
+
+  const authUser: AuthUser = {
+    id: req.user!.id,
+    tier: req.user!.tier,
+    isAdmin: req.user!.isAdmin,
+    email: req.user!.email,
+  };
+
+  if (!canCreateDeveloperSpace(authUser, count ?? 0)) {
+    return res.status(403).json({
+      error: "You have reached the Developer Space limit for your tier. Upgrade to create more.",
+    });
+  }
 
   const { data, error } = await sb
     .from("developer_spaces")

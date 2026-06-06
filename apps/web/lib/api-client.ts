@@ -58,6 +58,17 @@ export interface BillingStatus {
   subscriptionId: string | null;
   subscriptionStatus: string | null;
   customerId: string | null;
+  limits: {
+    personas: number;
+    spaces: number;
+    developerSpaces: number;
+    publicPersonas: number;
+    pagesPerSpace: number;
+    storageGb: number;
+    canComment: boolean;
+    canCreateThreads: boolean;
+    canPublishDocuments: boolean;
+  };
 }
 
 export async function getBillingStatus(token: string): Promise<BillingStatus> {

@@ -30,6 +30,7 @@ pnpm build
 pnpm lint
 pnpm typecheck
 pnpm test:auth
+pnpm test:billing
 pnpm test:reports
 pnpm test:community
 pnpm test:spaces
@@ -879,3 +880,38 @@ PR-16 is accepted for bounded Developer Space visual config editors and public
 observatory config application. This does not add PR-17 Stripe/paid
 entitlements, billing, broad visual-editor frameworks, broad Developer Spaces UI
 redesign, or unrelated product polish.
+
+## PR-17 DAEDALUS implementation result
+
+Validated on 2026-06-06 after adding the bounded Stripe and paid-entitlement
+foundation:
+
+- Updated the API Stripe SDK to `stripe@22.2.0` and the local Stripe wrapper to
+  the SDK's current API version, `2026-05-27.dahlia`.
+- Added shared paid-tier pricing env mapping and explicit `developerSpaces`
+  limits to `@station/config`.
+- Added `canCreateDeveloperSpace` and enforced Developer Space creation counts
+  server-side in addition to the existing Canon-tier gate.
+- Billing Checkout uses Stripe Billing subscription mode with configured
+  dashboard Price IDs and Station user/tier metadata.
+- Billing webhooks verify the Stripe signature before retrieving subscriptions
+  or mutating `profiles.tier`; active subscriptions with unknown Price IDs are
+  rejected without changing entitlement state.
+- Billing status returns server-authoritative tier limits, and the existing
+  billing page displays Space, Developer Space, and storage limits from the API.
+
+Targeted commands run with the pinned runner:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npx --yes pnpm@10.32.1 test:billing` | Pass | 3 tests passed; coverage includes Checkout metadata, portal customer reuse, verified webhook gating, cancellation downgrade, and unknown Price rejection. |
+| `npx --yes pnpm@10.32.1 test:spaces` | Pass | 1 test passed; coverage now includes creator-tier Space limit rejection. |
+| `npx --yes pnpm@10.32.1 test:developer-spaces` | Pass | 3 tests passed; coverage now includes Canon-tier Developer Space count rejection plus existing visual/ingestion contracts. |
+| `npx --yes pnpm@10.32.1 test:auth` | Pass | 10 tests passed; coverage now includes Developer Space permission-helper behavior. |
+| `npx --yes pnpm@10.32.1 typecheck` | Pass | API and web typecheck tasks completed after adapting Stripe v22 type usage. |
+| `npx --yes pnpm@10.32.1 build` | Pass | Full workspace build passed with known React hook and `<img>` warnings only. |
+
+ARGUS still needs to review PR-17 before the roadmap should mark it accepted.
+Main risks to review: Stripe SDK/API bump, Checkout metadata shape, webhook
+sync/downgrade semantics, and whether one Canon Developer Space is the right
+initial paid limit.

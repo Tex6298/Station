@@ -14,6 +14,7 @@ The repo-level gate for the protected alpha spine is:
 ```bash
 pnpm install --frozen-lockfile
 pnpm typecheck
+pnpm test:billing
 pnpm test:developer-spaces
 pnpm test:spaces
 pnpm test:continuity

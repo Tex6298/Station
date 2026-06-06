@@ -303,6 +303,16 @@ test("Public Spaces smoke covers authored microsite config and owner/private vis
     assert.equal(db.tables.space_pages.length, 4);
 
     const spaceId = created.body.space.id;
+    const secondSpaceBlocked = await requestJson(app, "POST", "/spaces", {
+      token: "owner-token",
+      body: {
+        title: "Second Archive",
+        slug: "second-archive",
+      },
+    });
+    assert.equal(secondSpaceBlocked.status, 403);
+    assert.match(secondSpaceBlocked.body.error, /Space limit/);
+
     db.insertRow("documents", {
       space_id: spaceId,
       author_user_id: "owner-user",

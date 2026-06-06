@@ -4,6 +4,7 @@ import type { AddressInfo } from "node:net";
 import test from "node:test";
 import express, { type Express } from "express";
 import {
+  canCreateDeveloperSpace,
   canCreatePersona,
   canCreateSpace,
   canCreateThread,
@@ -331,8 +332,12 @@ test("tier and admin permission helpers use normalized AuthUser shape", () => {
   assert.equal(canCreatePersona(creator, 250), true);
   assert.equal(canCreateSpace(creator, 0), true);
   assert.equal(canCreateSpace(creator, 1), false);
+  assert.equal(canCreateDeveloperSpace(creator, 0), false);
+  assert.equal(canCreateDeveloperSpace({ id: "canon", tier: "canon", email: "canon@example.test" }, 0), true);
+  assert.equal(canCreateDeveloperSpace({ id: "canon", tier: "canon", email: "canon@example.test" }, 1), false);
   assert.equal(canCreateThread(visitor), false);
   assert.equal(canCreateThread(creator), true);
   assert.equal(canPublishDocuments(creator), true);
   assert.equal(canCreateSpace(admin, 999), true);
+  assert.equal(canCreateDeveloperSpace(admin, 999), true);
 });

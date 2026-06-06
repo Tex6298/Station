@@ -30,7 +30,7 @@ export async function handleCreateCheckout(req: Request, res: Response): Promise
   try {
     const url = await createCheckoutSession({
       userId: req.user!.id,
-      email: (req as Request & { userEmail?: string }).userEmail ?? "",
+      email: req.user!.email,
       tier: parsed.data.tier,
       interval: parsed.data.interval,
       successUrl: parsed.data.successUrl ?? `${APP_URL}/billing?success=1`,
@@ -54,7 +54,7 @@ export async function handleCreatePortal(req: Request, res: Response): Promise<v
   try {
     const url = await createPortalSession({
       userId: req.user!.id,
-      email: (req as Request & { userEmail?: string }).userEmail ?? "",
+      email: req.user!.email,
       returnUrl: parsed.data.returnUrl ?? `${APP_URL}/billing`,
     });
     res.json({ url });

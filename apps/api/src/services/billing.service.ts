@@ -1,8 +1,49 @@
-import type Stripe from "stripe";
+import {
+  LEGACY_STRIPE_PRICE_ENV_ALIASES,
+  PAID_TIERS,
+  STRIPE_PRICE_ENV_BY_TIER_INTERVAL,
+  TIER_LIMITS,
+  type BillingInterval,
+  type PaidTier,
+} from "@station/config";
 import { getStripe } from "../lib/stripe";
 import { getSupabaseAdmin } from "../lib/supabase";
 import type { Tier } from "@station/db";
 import { grantTopupFromStripeMetadata } from "./token-credits.service";
+
+interface StripeSubscriptionForEntitlement {
+  id: string;
+  customer: string | { id?: string | null } | null;
+  status: string;
+  metadata?: Record<string, string | undefined> | null;
+  items: {
+    data: Array<{
+      price?: {
+        id?: string | null;
+      } | null;
+    }>;
+  };
+}
+
+interface StripeWebhookEvent {
+  type: string;
+  data: {
+    object: unknown;
+  };
+}
+
+interface StripeCheckoutSessionForWebhook {
+  id: string;
+  mode?: string | null;
+  subscription?: string | { id?: string | null } | null;
+  payment_intent?: string | { id?: string | null } | null;
+  metadata?: Record<string, string | undefined> | null;
+}
+
+interface StripePaymentIntentForWebhook {
+  id: string;
+  metadata?: Record<string, string | undefined> | null;
+}
 
 // Price ID helpers
 
@@ -11,18 +52,22 @@ import { grantTopupFromStripeMetadata } from "./token-credits.service";
  * Create products + prices at https://dashboard.stripe.com/products
  * then set these environment variables.
  */
-function getPriceId(tier: "private" | "creator" | "canon", interval: "monthly" | "yearly"): string {
-  const map: Record<string, string | undefined> = {
-    private_monthly:  process.env.STRIPE_PRICE_BASIC_MONTHLY  ?? process.env.STRIPE_PRICE_SEEKER_MONTHLY,
-    private_yearly:   process.env.STRIPE_PRICE_BASIC_YEARLY   ?? process.env.STRIPE_PRICE_SEEKER_YEARLY,
-    creator_monthly:  process.env.STRIPE_PRICE_CREATOR_MONTHLY ?? process.env.STRIPE_PRICE_KEEPER_MONTHLY,
-    creator_yearly:   process.env.STRIPE_PRICE_CREATOR_YEARLY  ?? process.env.STRIPE_PRICE_KEEPER_YEARLY,
-    canon_monthly:    process.env.STRIPE_PRICE_CANON_MONTHLY,
-    canon_yearly:     process.env.STRIPE_PRICE_CANON_YEARLY,
-  };
+function envValue(name: string): string | undefined {
+  const value = process.env[name];
+  return value && value.trim().length > 0 ? value.trim() : undefined;
+}
 
-  const key = `${tier}_${interval}`;
-  const priceId = map[key];
+function stripeObjectId(value: string | { id?: string | null } | null | undefined): string | null {
+  if (!value) return null;
+  if (typeof value === "string") return value;
+  return value.id ?? null;
+}
+
+export function getPriceId(tier: PaidTier, interval: BillingInterval): string {
+  const primaryEnv = STRIPE_PRICE_ENV_BY_TIER_INTERVAL[tier][interval];
+  const legacyEnvs = LEGACY_STRIPE_PRICE_ENV_ALIASES[tier]?.[interval] ?? [];
+  const priceId = envValue(primaryEnv) ?? legacyEnvs.map(envValue).find(Boolean);
+
   if (!priceId) {
     throw new Error(
       `Stripe price ID not configured for ${tier} ${interval}. ` +
@@ -36,14 +81,14 @@ function getPriceId(tier: "private" | "creator" | "canon", interval: "monthly" |
  * Maps a Stripe Price ID back to a Station tier.
  * Used in webhook handlers to determine which tier to grant.
  */
-function tierFromPriceId(priceId: string): Tier {
-  const basic = [process.env.STRIPE_PRICE_BASIC_MONTHLY, process.env.STRIPE_PRICE_BASIC_YEARLY, process.env.STRIPE_PRICE_SEEKER_MONTHLY, process.env.STRIPE_PRICE_SEEKER_YEARLY];
-  const creator = [process.env.STRIPE_PRICE_CREATOR_MONTHLY, process.env.STRIPE_PRICE_CREATOR_YEARLY, process.env.STRIPE_PRICE_KEEPER_MONTHLY, process.env.STRIPE_PRICE_KEEPER_YEARLY];
-  const canon = [process.env.STRIPE_PRICE_CANON_MONTHLY, process.env.STRIPE_PRICE_CANON_YEARLY];
-
-  if (basic.includes(priceId)) return "private";
-  if (creator.includes(priceId)) return "creator";
-  if (canon.includes(priceId)) return "canon";
+export function tierFromPriceId(priceId: string): Tier {
+  for (const tier of PAID_TIERS) {
+    for (const interval of ["monthly", "yearly"] as const) {
+      const primaryEnv = STRIPE_PRICE_ENV_BY_TIER_INTERVAL[tier][interval];
+      const envNames = [primaryEnv, ...(LEGACY_STRIPE_PRICE_ENV_ALIASES[tier]?.[interval] ?? [])];
+      if (envNames.some((name) => envValue(name) === priceId)) return tier;
+    }
+  }
   return "visitor";
 }
 
@@ -65,7 +110,7 @@ export async function getOrCreateCustomer(userId: string, email: string): Promis
 
   const stripe = getStripe();
   const customer = await stripe.customers.create({
-    email,
+    email: email || undefined,
     metadata: { station_user_id: userId },
   });
 
@@ -85,8 +130,8 @@ export async function getOrCreateCustomer(userId: string, email: string): Promis
 export async function createCheckoutSession(input: {
   userId: string;
   email: string;
-  tier: "private" | "creator" | "canon";
-  interval: "monthly" | "yearly";
+  tier: PaidTier;
+  interval: BillingInterval;
   successUrl: string;
   cancelUrl: string;
 }): Promise<string> {
@@ -113,7 +158,8 @@ export async function createCheckoutSession(input: {
     },
   });
 
-  return session.url!;
+  if (!session.url) throw new Error("Stripe did not return a Checkout URL.");
+  return session.url;
 }
 
 /**
@@ -141,33 +187,31 @@ export async function createPortalSession(input: {
  * Syncs a Stripe subscription to the matching user's profile tier.
  * Called from webhook handlers.
  */
-export async function syncSubscriptionToProfile(subscription: Stripe.Subscription): Promise<void> {
+export async function syncSubscriptionToProfile(subscription: StripeSubscriptionForEntitlement): Promise<void> {
   const sb = getSupabaseAdmin();
 
   const userId = subscription.metadata?.station_user_id;
+  const customerId = stripeObjectId(subscription.customer);
+  let targetUserId = userId ?? null;
   if (!userId) {
+    if (!customerId) return;
     // Fall back to looking up by customer ID
     const { data: profile } = await sb
       .from("profiles")
       .select("id")
-      .eq("stripe_customer_id", subscription.customer as string)
+      .eq("stripe_customer_id", customerId)
       .single();
-    if (!profile) return;
+    targetUserId = profile?.id ?? null;
   }
-
-  const targetUserId = userId ?? (
-    await sb
-      .from("profiles")
-      .select("id")
-      .eq("stripe_customer_id", subscription.customer as string)
-      .single()
-  ).data?.id;
 
   if (!targetUserId) return;
 
   const isActive = ["active", "trialing"].includes(subscription.status);
-  const priceId  = subscription.items.data[0]?.price.id ?? "";
+  const priceId = subscription.items.data[0]?.price?.id ?? "";
   const tier: Tier = isActive ? tierFromPriceId(priceId) : "visitor";
+  if (isActive && tier === "visitor") {
+    throw new Error("Active Stripe subscription used an unknown Station Price ID.");
+  }
 
   await sb
     .from("profiles")
@@ -194,9 +238,9 @@ export async function handleWebhookEvent(
 
   if (!secret) throw new Error("STRIPE_WEBHOOK_SECRET is not set.");
 
-  let event: Stripe.Event;
+  let event: StripeWebhookEvent;
   try {
-    event = stripe.webhooks.constructEvent(rawBody, signature, secret);
+    event = stripe.webhooks.constructEvent(rawBody, signature, secret) as StripeWebhookEvent;
   } catch (err) {
     const msg = err instanceof Error ? err.message : "Webhook signature invalid.";
     throw new Error(`Webhook verification failed: ${msg}`);
@@ -204,36 +248,36 @@ export async function handleWebhookEvent(
 
   switch (event.type) {
     case "checkout.session.completed": {
-      const session = event.data.object as Stripe.Checkout.Session;
+      const session = event.data.object as StripeCheckoutSessionForWebhook;
       if (session.mode === "payment") {
-        const paymentId = typeof session.payment_intent === "string"
-          ? session.payment_intent
-          : session.id;
+        const paymentId = stripeObjectId(session.payment_intent) ?? session.id;
         await grantTopupFromStripeMetadata(session.metadata ?? {}, paymentId);
       } else if (session.mode === "subscription" && session.subscription) {
+        const subscriptionId = stripeObjectId(session.subscription);
+        if (!subscriptionId) break;
         const subscription = await stripe.subscriptions.retrieve(
-          session.subscription as string
+          subscriptionId
         );
-        await syncSubscriptionToProfile(subscription);
+        await syncSubscriptionToProfile(subscription as StripeSubscriptionForEntitlement);
       }
       break;
     }
 
     case "payment_intent.succeeded": {
-      const intent = event.data.object as Stripe.PaymentIntent;
+      const intent = event.data.object as StripePaymentIntentForWebhook;
       await grantTopupFromStripeMetadata(intent.metadata ?? {}, intent.id);
       break;
     }
 
     case "customer.subscription.created":
     case "customer.subscription.updated": {
-      const subscription = event.data.object as Stripe.Subscription;
+      const subscription = event.data.object as StripeSubscriptionForEntitlement;
       await syncSubscriptionToProfile(subscription);
       break;
     }
 
     case "customer.subscription.deleted": {
-      const subscription = event.data.object as Stripe.Subscription;
+      const subscription = event.data.object as StripeSubscriptionForEntitlement;
       // Downgrade to visitor on cancellation
       await syncSubscriptionToProfile({ ...subscription, status: "canceled" });
       break;
@@ -254,6 +298,7 @@ export interface BillingStatus {
   subscriptionId: string | null;
   subscriptionStatus: string | null;
   customerId: string | null;
+  limits: (typeof TIER_LIMITS)[Tier];
 }
 
 export async function getBillingStatus(userId: string): Promise<BillingStatus> {
@@ -270,5 +315,6 @@ export async function getBillingStatus(userId: string): Promise<BillingStatus> {
     subscriptionId: profile?.stripe_subscription_id ?? null,
     subscriptionStatus: profile?.subscription_status ?? null,
     customerId: profile?.stripe_customer_id ?? null,
+    limits: TIER_LIMITS[(profile?.tier ?? "visitor") as Tier],
   };
 }

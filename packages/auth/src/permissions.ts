@@ -21,8 +21,7 @@ export function hasTier(user: AuthUser | null | undefined, minimum: Tier): boole
 
 export function tierLimits(user: AuthUser | null | undefined) {
   const tier = user?.tier ?? "visitor";
-  // institutional gets canon limits (expand later with its own limits)
-  return TIER_LIMITS[tier === "institutional" ? "canon" : tier];
+  return TIER_LIMITS[tier];
 }
 
 export function canCreatePersona(user: AuthUser | null, existingPersonaCount: number): boolean {
@@ -36,6 +35,16 @@ export function canCreateSpace(user: AuthUser | null, existingSpaceCount: number
   if (isAdmin(user)) return true;
   if (!hasTier(user, "creator")) return false;
   return withinLimit(tierLimits(user).spaces, existingSpaceCount);
+}
+
+export function canCreateDeveloperSpace(
+  user: AuthUser | null,
+  existingDeveloperSpaceCount: number
+): boolean {
+  if (!user) return false;
+  if (isAdmin(user)) return true;
+  if (!hasTier(user, "canon")) return false;
+  return withinLimit(tierLimits(user).developerSpaces, existingDeveloperSpaceCount);
 }
 
 export function canCreateThread(user: AuthUser | null): boolean {

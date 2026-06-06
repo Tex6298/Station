@@ -8,17 +8,17 @@
     "typecheck": "tsc -p tsconfig.typecheck.json"
   },
   "dependencies": {
-    "@station/ai":    "workspace:*",
-    "@station/auth":  "workspace:*",
+    "@station/ai": "workspace:*",
+    "@station/auth": "workspace:*",
     "@station/config": "workspace:*",
-    "@station/db":    "workspace:*",
+    "@station/db": "workspace:*",
     "@station/types": "workspace:*",
     "@supabase/supabase-js": "^2.45.0",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
     "jsonwebtoken": "^9.0.2",
-    "stripe": "^16.0.0",
+    "stripe": "^22.2.0",
     "zod": "^3.23.8"
   },
   "devDependencies": {
