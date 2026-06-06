@@ -88,6 +88,10 @@ when a PR lands, or when validation truth changes.
   `developer_space_usage` counters for ingestion/storage/public reads/exports,
   an API-level quota model for owner visibility, manage-console usage/export
   controls, and target/ownership guardrails on Developer Space export rows.
+- PR-15 is the active next roadmap move: add the tiny
+  `@station/developer-space-client` package with TypeScript ingestion helpers,
+  curl examples, minimal Node example, and focused docs without moving into
+  PR-16 visual config editors.
 
 ## Current repo truth
 
