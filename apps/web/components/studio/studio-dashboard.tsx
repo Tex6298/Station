@@ -59,7 +59,7 @@ function Header({ personaCount }: { personaCount: number }) {
         <div style={{ color: "#93c5fd", fontSize: 11, textTransform: "uppercase", letterSpacing: "0.12em", fontWeight: 700 }}>
           Studio Dashboard
         </div>
-        <h1 style={{ margin: "8px 0 6px", fontSize: "clamp(30px, 5vw, 48px)", lineHeight: 1.05, letterSpacing: 0 }}>
+        <h1 className="studio-dashboard-title" style={{ margin: "8px 0 6px" }}>
           Welcome back.
         </h1>
         <p style={{ margin: 0, color: "#a9b0bd", fontSize: 15, lineHeight: 1.6 }}>
@@ -285,8 +285,8 @@ export function StudioDashboard({ personas, integrityDue, loading, error, signed
   return (
     <Shell>
       <Header personaCount={personas.length} />
-      <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr) 300px", gap: 18, alignItems: "start" }}>
-        <div style={{ display: "grid", gap: 18, minWidth: 0 }}>
+      <div className="studio-dashboard-grid">
+        <div className="studio-dashboard-main">
           <ContinueList personas={personas} />
           <IntegrityList personas={personas} integrityDue={integrityDue} />
           <UsageStats personas={personas} />

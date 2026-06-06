@@ -1284,5 +1284,37 @@ Targeted commands run with the pinned runner:
 | `git diff --check` | Pass | CRLF normalization warnings only. |
 | Local web dev probe | Pass | `http://127.0.0.1:3001/studio` returned HTTP 200 after starting `@station/web` dev server. |
 
-At the DAEDALUS implementation checkpoint, ARGUS still needs to review UX-01A
-before the roadmap can mark it accepted.
+## UX-01A ARGUS acceptance result
+
+ARGUS reviewed the DAEDALUS UX-01A implementation on 2026-06-06 and accepted
+the narrow Studio frame/mobile navigation slice after two small UI hardening
+fixes on touched Studio surfaces:
+
+- Removed viewport-scaled heading font sizes from the shared Studio frame,
+  Studio dashboard title, and touched persona workspace header.
+- Moved the Studio dashboard two-column grid into CSS and stacked it below
+  920px so the persona side rail cannot crowd or overlap the main dashboard
+  cards on 375px mobile.
+
+ARGUS also added a closed-state guard for the mobile Studio `<details>` panel so
+author CSS cannot force hidden menu content visible. Browser review used a local
+production web server with a temporary fake API/proxy harness: unauthenticated
+`/studio` redirected to `/login?redirect=%2Fstudio`, cookie-authenticated
+`/studio` returned HTTP 200, and Edge screenshots at 375x900 and 1365x900 showed
+the Studio shell without mobile menu/content overlap. Existing routes, API
+behavior, auth/session semantics, global Archive, Export workspace, and Station
+Assistant behavior stayed out of scope.
+
+Commands re-run by ARGUS:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npx --yes pnpm@10.32.1 test:studio-ui` | Pass | 2 helper tests passed. |
+| `npx --yes pnpm@10.32.1 typecheck` | Pass | API and web typecheck tasks completed. |
+| `npx --yes pnpm@10.32.1 lint` | Pass with warnings | Same non-Studio warnings: Developer Space manage hook dependency, Space page raw `<img>`, and Discover avatar raw `<img>`. |
+| `npx --yes pnpm@10.32.1 build` | Pass with same warnings | Full build completed after the ARGUS layout fixes. |
+| `npx --yes pnpm@10.32.1 test:auth` | Pass | 10 tests passed. |
+| `npx --yes pnpm@10.32.1 test:persona-context` | Pass | 1 test passed. |
+| `npx --yes pnpm@10.32.1 test:continuity` | Pass | 4 tests passed. |
+| `npx --yes pnpm@10.32.1 test:integrity` | Pass | 2 tests passed. |
+| `git diff --check` | Pass | CRLF normalization warnings only. |
