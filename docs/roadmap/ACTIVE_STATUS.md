@@ -39,12 +39,12 @@ when a PR lands, or when validation truth changes.
   link ownership is safe through the UI and current owner-only reads, but the
   `/continuity` API should validate linked source ownership before visibility
   flags become public-facing behavior.
-- PR-09 DAEDALUS implementation is ready for ARGUS review, 2026-06-06:
-  continuity source links are now validated against owned/persona-scoped source
-  rows before insert, persona archive exports now include `continuity_records`,
-  publication state/visibility/provenance metadata is preserved in the export
-  manifest, and focused continuity/export tests prove the boundaries. Do not
-  mark PR-09 complete until ARGUS reviews the hostile paths and gate.
+- PR-09 slice 1 is accepted by ARGUS, 2026-06-06: continuity source links are
+  now validated against owned/persona-scoped source rows before insert, persona
+  archive exports now include `continuity_records`, and publication
+  state/visibility/provenance metadata is preserved in the owner-only export
+  manifest. Treat this as an accepted bounded slice; MIMIR should decide whether
+  PR-09 needs another slice or can move forward.
 
 ## Current repo truth
 
@@ -76,7 +76,7 @@ when a PR lands, or when validation truth changes.
   `/studio/personas/:personaId/continuity`, which lists owner-scoped
   `continuity_records` and can create new timeline markers linked to owner
   documents or conversations from the Studio UI.
-- As of the PR-09 DAEDALUS implementation, `/continuity` rejects linked
+- As of PR-09 slice 1, `/continuity` rejects linked
   document/conversation/source IDs that do not belong to the caller and persona,
   and `/exports/persona/:personaId` includes continuity timeline records in the
   owner-only archive package.

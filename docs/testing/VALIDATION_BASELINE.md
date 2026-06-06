@@ -350,4 +350,33 @@ Targeted commands run with the pinned runner:
 | `git diff --check` | Pass | No whitespace errors; Git reported expected CRLF normalization warnings for touched files. |
 | `npx --yes pnpm@10.32.1 build` | Pass | Known React hook dependency and `<img>` optimization warnings only; no new PR-09 warnings. |
 
-PR-09 remains pending ARGUS review.
+## PR-09 ARGUS review result
+
+ARGUS reviewed the first DAEDALUS PR-09 slice on 2026-06-06 and accepted the
+bounded source-link hardening plus owner-only continuity export scope.
+
+Review notes:
+
+- `/continuity` now accepts only enumerated source tables and requires a source
+  `id` when a source is supplied.
+- Linked sources are loaded through owner/persona-scoped queries before
+  continuity records are inserted.
+- Caller-provided source labels are ignored in favor of server-derived labels.
+- Persona archive exports include owner-scoped `continuity_records`,
+  continuity counts, Markdown output, and trust metadata for provenance,
+  publication state, visibility, and private-source separation.
+- The export route remains owner-only; this slice does not add a public export
+  UI, binary bundle, PDF package, or report export surface.
+
+Commands re-run by ARGUS:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npx --yes pnpm@10.32.1 test:continuity` | Pass | 4 tests passed. |
+| `npx --yes pnpm@10.32.1 test:exports` | Pass | 1 test passed. |
+| `npx --yes pnpm@10.32.1 test:continuity-publication` | Pass | 1 test passed. |
+| `git diff --check` | Pass | CRLF normalization warning only for the consumed ARGUS state file. |
+| `npx --yes pnpm@10.32.1 build` | Pass | Known pre-existing React hook and `<img>` warnings only. |
+
+This is accepted as PR-09 slice 1, not as a declaration that every PR-09
+publication/export ambition is finished.
