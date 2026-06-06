@@ -104,6 +104,9 @@ when a PR lands, or when validation truth changes.
   entitlement enforcement, customer/profile binding checks, and the existing
   billing page. The triad foreground watcher now returns on a new wakeup instead
   of consuming it and continuing silently.
+- PR-00 through PR-17 are complete for the bounded v2 roadmap. No PR-18 is
+  defined in `docs/roadmap/STATION_PR_PLAN_V2.md`; the next lane is a closeout
+  audit and future-roadmap recommendation, not an invented implementation PR.
 
 ## Current repo truth
 
@@ -196,6 +199,8 @@ when a PR lands, or when validation truth changes.
   limits. Subscription sync rejects active webhook payloads whose Station user
   metadata points at a profile already bound to a different Stripe customer.
   Billing status now returns authoritative tier limits for the web billing page.
+- As the v2 roadmap closes, the next operating step is to audit roadmap/status
+  and validation truth before opening any new implementation lane.
 - Core API route modules no longer import local in-memory mock data. Runtime
   persistence goes through the Supabase client boundary; route tests use
   injected fake Supabase clients for deterministic proof.
