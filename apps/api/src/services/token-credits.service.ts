@@ -23,6 +23,8 @@ export class TokenQuotaError extends Error {
   }
 }
 
+const TOPUP_MODEL_TIERS = new Set(["haiku", "sonnet"]);
+
 export function selectStationModel(tier: string | null | undefined) {
   switch (tier) {
     case "creator":
@@ -217,6 +219,12 @@ export async function grantTopupFromStripeMetadata(metadata: Record<string, stri
   const modelTier = metadata.station_model_tier;
   if (!userId || !packId || !Number.isFinite(tokens) || !Number.isFinite(amountPence) || !modelTier) {
     throw new Error("Token top-up metadata is incomplete.");
+  }
+  if (tokens <= 0 || amountPence <= 0) {
+    throw new Error("Token top-up metadata must contain positive token and amount values.");
+  }
+  if (!TOPUP_MODEL_TIERS.has(modelTier)) {
+    throw new Error("Token top-up metadata used an unsupported model tier.");
   }
 
   const sb = getSupabaseAdmin();

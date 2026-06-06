@@ -6,5 +6,6 @@ export * from "./space";
 export * from "./document";
 export * from "./developer-space";
 export * from "./export";
+export * from "./billing";
 
 export * from "./forum";

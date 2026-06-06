@@ -125,10 +125,11 @@ when a PR lands, or when validation truth changes.
   shared DB/API type surfaces, runtime-context and continuity-summary proof, and
   idempotent completion so repeated end calls do not duplicate integrity
   outputs.
-- V3-03 is active, 2026-06-06: token-credit accounting hardening should add the
-  missing `test:token-credits` gate, cover spend accounting, insufficient-credit
-  behavior, admin/unlimited tier behavior, monthly reset, transaction history,
-  and reconcile token-credit top-ups with PR-17 subscription entitlement rules.
+- V3-03 DAEDALUS implementation is ready for ARGUS review, 2026-06-06:
+  token-credit accounting hardening now has the missing `test:token-credits`
+  gate, focused spend/quota/top-up/monthly-reset coverage, typed token
+  persistence and API surfaces, Stripe top-up metadata guardrails, and
+  validation against the existing PR-17 billing gate.
 
 ## Current repo truth
 
@@ -254,6 +255,11 @@ when a PR lands, or when validation truth changes.
   question-bank selection, deterministic non-provider fallback behavior, public
   persona preflight, accepted-output writes into canon/preference context, and
   continuity-publication privacy/provenance boundaries.
+- As of V3-03 DAEDALUS implementation, token-credit accounting has focused
+  coverage for LLM spend recording, exhausted-credit rejection, soft-cap Canon
+  review behavior, top-up checkout metadata, verified top-up grant idempotency,
+  unsupported/zero top-up metadata rejection, admin-only monthly reset, and
+  transaction-history serialization.
 
 ## Near-term rule
 
@@ -281,6 +287,7 @@ pnpm test:auth
 pnpm test:billing
 pnpm test:storage
 pnpm test:integrity
+pnpm test:token-credits
 pnpm test:reports
 pnpm test:community
 pnpm test:spaces

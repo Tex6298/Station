@@ -30,7 +30,8 @@ If a v3 slice references a missing script, that slice must add the script and
 focused test file before claiming acceptance. At activation time,
 `test:storage`, `test:integrity`, and `test:token-credits` are proposed gates
 that still need to be created by their owning slices. V3-01 created
-`test:storage`; V3-02 created `test:integrity`.
+`test:storage`; V3-02 created `test:integrity`; V3-03 created
+`test:token-credits`.
 
 ### V3-00 - Successor roadmap acceptance
 
@@ -97,7 +98,7 @@ pnpm test:continuity-publication
 
 ### V3-03 - Token-credit accounting hardening
 
-Status: active as of 2026-06-06.
+Status: DAEDALUS implementation ready for ARGUS review as of 2026-06-06.
 
 Purpose: make token accounting measurable before expanding AI workflows.
 

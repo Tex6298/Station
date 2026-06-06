@@ -33,6 +33,7 @@ pnpm test:auth
 pnpm test:billing
 pnpm test:storage
 pnpm test:integrity
+pnpm test:token-credits
 pnpm test:reports
 pnpm test:community
 pnpm test:spaces
@@ -1064,3 +1065,34 @@ Commands re-run by ARGUS:
 V3-02 is accepted for integrity and calibration hardening. This keeps accepted
 integrity output writes bounded to existing memory, canon, and preference
 profile targets, and it does not expand into V3-03 token-credit accounting.
+
+## V3-03 DAEDALUS implementation result
+
+Validated on 2026-06-06 after adding token-credit accounting hardening for the
+active v3 roadmap:
+
+- Added root `pnpm test:token-credits` over
+  `apps/api/src/routes/token-credits.test.ts`.
+- Added hand-authored `@station/db` table/RPC types for `token_usage`,
+  `token_transactions`, `topup_purchases`, `ensure_current_token_usage`,
+  `record_token_usage`, `grant_topup_purchase`, and
+  `run_monthly_token_reset`.
+- Added shared `@station/types` DTOs for token usage, top-up packs, purchase
+  history, and warning levels.
+- Focused token-credit tests now cover LLM spend recording, exhausted-credit
+  rejection, soft-cap Canon review behavior, top-up checkout metadata,
+  verified top-up grant idempotency, unsupported/zero top-up metadata
+  rejection, admin-only monthly reset, and transaction-history serialization.
+- Token top-up metadata grants now reject non-positive token/amount values and
+  unsupported model tiers before calling the Supabase grant RPC.
+
+Targeted commands run with the pinned runner:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npx --yes pnpm@10.32.1 test:token-credits` | Pass | 3 tests passed. |
+| `npx --yes pnpm@10.32.1 typecheck` | Pass | API and web typecheck tasks completed. |
+| `npx --yes pnpm@10.32.1 test:billing` | Pass | 4 tests passed; existing PR-17 subscription entitlement gate remains green. |
+
+At the DAEDALUS implementation checkpoint, ARGUS still needs to review V3-03
+before the roadmap can mark it accepted.

@@ -30,6 +30,9 @@ export type IntegrityTurnType = "anchor" | "follow_up" | "summary" | "confirmati
 export type IntegrityOutputType = "memory_candidate" | "canon_candidate" | "preference" | "boundary" | "theme";
 export type IntegrityOutputStatus = "pending" | "accepted" | "rejected" | "edited";
 export type IntegrityWrittenTo = "memory" | "canon" | "preference_profile";
+export type TokenTransactionType = "llm_call" | "topup_purchase" | "monthly_reset" | "refund";
+export type TopupModelTier = "haiku" | "sonnet";
+export type TopupPurchaseStatus = "pending" | "completed" | "refunded";
 export type SpacePageType = "home" | "about" | "personas" | "documents" | "custom";
 export type ThreadStatus = "active" | "locked" | "removed";
 export type ThreadVisibility = "public" | "community" | "unlisted";
@@ -108,6 +111,68 @@ export interface Database {
           updated_at?: string;
         };
         Update: Partial<Database["public"]["Tables"]["storage_usage"]["Insert"]>;
+      };
+      token_usage: {
+        Row: {
+          id: string;
+          user_id: string;
+          period_start: string;
+          tokens_used: number;
+          tokens_limit: number;
+          topup_tokens: number;
+          updated_at: string;
+        };
+        Insert: Omit<Database["public"]["Tables"]["token_usage"]["Row"], "id" | "tokens_used" | "topup_tokens" | "updated_at"> & {
+          id?: string;
+          tokens_used?: number;
+          topup_tokens?: number;
+          updated_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["token_usage"]["Insert"]>;
+      };
+      token_transactions: {
+        Row: {
+          id: string;
+          user_id: string;
+          period_start: string;
+          transaction_type: TokenTransactionType;
+          tokens_delta: number;
+          model_used: string | null;
+          chat_id: string | null;
+          input_tokens: number | null;
+          output_tokens: number | null;
+          created_at: string;
+        };
+        Insert: Omit<Database["public"]["Tables"]["token_transactions"]["Row"], "id" | "model_used" | "chat_id" | "input_tokens" | "output_tokens" | "created_at"> & {
+          id?: string;
+          model_used?: string | null;
+          chat_id?: string | null;
+          input_tokens?: number | null;
+          output_tokens?: number | null;
+          created_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["token_transactions"]["Insert"]>;
+      };
+      topup_purchases: {
+        Row: {
+          id: string;
+          user_id: string;
+          stripe_payment_id: string;
+          pack_id: string;
+          amount_pence: number;
+          tokens_purchased: number;
+          model_tier: TopupModelTier;
+          period_start: string;
+          expires_at: string;
+          status: TopupPurchaseStatus;
+          created_at: string;
+        };
+        Insert: Omit<Database["public"]["Tables"]["topup_purchases"]["Row"], "id" | "status" | "created_at"> & {
+          id?: string;
+          status?: TopupPurchaseStatus;
+          created_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["topup_purchases"]["Insert"]>;
       };
       personas: {
         Row: {
@@ -902,6 +967,35 @@ export interface Database {
           relevance_weight: number;
           similarity: number;
         }>;
+      };
+      ensure_current_token_usage: {
+        Args: { p_user_id: string };
+        Returns: Database["public"]["Tables"]["token_usage"]["Row"];
+      };
+      record_token_usage: {
+        Args: {
+          p_user_id: string;
+          p_model: string;
+          p_chat_id: string | null;
+          p_input_tokens: number;
+          p_output_tokens: number;
+        };
+        Returns: Database["public"]["Tables"]["token_usage"]["Row"];
+      };
+      grant_topup_purchase: {
+        Args: {
+          p_user_id: string;
+          p_stripe_payment_id: string;
+          p_pack_id: string;
+          p_amount_pence: number;
+          p_tokens_purchased: number;
+          p_model_tier: TopupModelTier;
+        };
+        Returns: Database["public"]["Tables"]["token_usage"]["Row"];
+      };
+      run_monthly_token_reset: {
+        Args: Record<string, never>;
+        Returns: Record<string, unknown>;
       };
     };
     Enums: {};
