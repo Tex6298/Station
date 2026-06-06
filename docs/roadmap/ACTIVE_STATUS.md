@@ -77,6 +77,9 @@ when a PR lands, or when validation truth changes.
   Developer Spaces only; eligible members also see community Developer Spaces.
   Private, unlisted, private-event, key-hash, scrubbed event-data fields, and
   oversized raw scalar values stay out of Discover cards.
+- PR-13 is the active next roadmap move: connect Developer Spaces to Station
+  documents with owner-attached methodology, findings, and field-log notes plus
+  public-safe published document display on observatory pages.
 
 ## Current repo truth
 
