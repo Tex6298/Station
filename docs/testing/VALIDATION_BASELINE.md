@@ -1094,5 +1094,33 @@ Targeted commands run with the pinned runner:
 | `npx --yes pnpm@10.32.1 typecheck` | Pass | API and web typecheck tasks completed. |
 | `npx --yes pnpm@10.32.1 test:billing` | Pass | 4 tests passed; existing PR-17 subscription entitlement gate remains green. |
 
-At the DAEDALUS implementation checkpoint, ARGUS still needs to review V3-03
-before the roadmap can mark it accepted.
+At the DAEDALUS implementation checkpoint, ARGUS still needed to review V3-03
+before the roadmap could mark it accepted. The acceptance result below
+supersedes that pending-review state.
+
+## V3-03 ARGUS acceptance result
+
+ARGUS reviewed the token-credit accounting hardening on 2026-06-06 and found
+one verified top-up grant gap: webhook metadata was bounded for positivity and
+model tier, but did not yet prove the requested pack still matched a
+server-defined pack available to the target user's tier.
+
+- Verified top-up grants now reload the target user's tier and require Stripe
+  metadata for pack, tokens, price, and model tier to match the server-defined
+  pack for that tier.
+- `test:token-credits` now proves wrong token amounts and tier-ineligible
+  packs reject before the Supabase grant RPC.
+
+Targeted commands run with the pinned runner:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npx --yes pnpm@10.32.1 test:token-credits` | Pass | 3 tests passed, including spend, exhausted budget, soft-cap review, top-up checkout/grant idempotency, metadata mismatch rejection, tier-ineligible pack rejection, and admin monthly reset. |
+| `npx --yes pnpm@10.32.1 typecheck` | Pass | API and web typecheck tasks completed. |
+| `npx --yes pnpm@10.32.1 test:billing` | Pass | 4 tests passed; PR-17 subscription webhook guardrails remain green. |
+| `git diff --check` | Pass | CRLF normalization warnings only. |
+
+V3-03 is accepted for token-credit accounting hardening. Scope remains
+accounting and one-off top-up validation only; it does not expand into a
+broader Stripe platform, marketplace, Connect, or usage-based subscription
+lane.

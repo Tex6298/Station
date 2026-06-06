@@ -217,7 +217,7 @@ export async function grantTopupFromStripeMetadata(metadata: Record<string, stri
   const tokens = Number(metadata.station_tokens);
   const amountPence = Number(metadata.station_amount_pence);
   const modelTier = metadata.station_model_tier;
-  if (!userId || !packId || !Number.isFinite(tokens) || !Number.isFinite(amountPence) || !modelTier) {
+  if (!userId || !packId || !Number.isSafeInteger(tokens) || !Number.isSafeInteger(amountPence) || !modelTier) {
     throw new Error("Token top-up metadata is incomplete.");
   }
   if (tokens <= 0 || amountPence <= 0) {
@@ -228,6 +228,20 @@ export async function grantTopupFromStripeMetadata(metadata: Record<string, stri
   }
 
   const sb = getSupabaseAdmin();
+  const { data: profile } = await sb
+    .from("profiles")
+    .select("tier")
+    .eq("id", userId)
+    .single();
+
+  const pack = topupPacksForTier(profile?.tier ?? "visitor").find((candidate) => candidate.id === packId);
+  if (!pack) {
+    throw new Error("Token top-up pack is not available for this user's tier.");
+  }
+  if (pack.tokens !== tokens || pack.priceGbp * 100 !== amountPence || pack.modelTier !== modelTier) {
+    throw new Error("Token top-up metadata does not match the server pack configuration.");
+  }
+
   const { error } = await (sb as any).rpc("grant_topup_purchase", {
     p_user_id: userId,
     p_stripe_payment_id: paymentId,

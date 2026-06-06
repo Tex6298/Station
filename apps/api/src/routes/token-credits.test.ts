@@ -606,6 +606,14 @@ test("token top-up checkout and verified grants stay tied to server tier rules",
       /positive token/
     );
     await assert.rejects(
+      () => grantTopupFromStripeMetadata({ ...checkoutCall.metadata, station_tokens: "999999" }, "pi_wrong_amount"),
+      /server pack configuration/
+    );
+    await assert.rejects(
+      () => grantTopupFromStripeMetadata({ ...checkoutCall.metadata, station_user_id: OWNER_ID }, "pi_wrong_tier"),
+      /not available/
+    );
+    await assert.rejects(
       () => grantTopupFromStripeMetadata({ ...checkoutCall.metadata, station_model_tier: "opus" }, "pi_opus"),
       /unsupported model tier/
     );
