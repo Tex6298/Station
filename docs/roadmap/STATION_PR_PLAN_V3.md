@@ -52,8 +52,8 @@ git diff --check
 
 Status: accepted by ARGUS on 2026-06-06.
 
-Purpose: make storage quota behavior trustworthy enough to support archive,
-import, export, and paid limits.
+Purpose: make storage quota behavior trustworthy as archive infrastructure for
+archive, import, export, and paid limits.
 
 Tasks:
 

@@ -114,11 +114,11 @@ when a PR lands, or when validation truth changes.
   with one validation caveat: new proposed gates such as `test:storage`,
   `test:integrity`, and `test:token-credits` must be added by their owning v3
   slices before acceptance.
-- V3-01 is accepted by ARGUS, 2026-06-06: storage quota hardening now has the
-  missing `test:storage` gate, focused storage quota/accounting coverage,
-  `storage_usage` DB type surface, persona-file registration rollback hardening,
-  and an additional chat-import guard that stops before archive ingest when the
-  import-job row cannot be created.
+- V3-01 is accepted by ARGUS, 2026-06-06: archive-trust storage quota
+  hardening now has the missing `test:storage` gate, focused storage
+  quota/accounting coverage, `storage_usage` DB type surface, persona-file
+  registration rollback hardening, and an additional chat-import guard that
+  stops before archive ingest when the import-job row cannot be created.
 - V3-02 is active, 2026-06-06: integrity and calibration hardening should add
   the missing `test:integrity` gate, cover integrity session lifecycle and
   review/fallback behavior, prove public-publishing preflight safety, and
