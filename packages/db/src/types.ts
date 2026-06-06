@@ -23,6 +23,13 @@ export type PersonaFileSourceType = "upload" | "import" | "calibration" | "gener
 export type ImportJobKind = "file" | "chat";
 export type ImportJobStatus = "queued" | "processing" | "completed" | "failed";
 export type CalibrationSaveTarget = "persona" | "global" | "public_mode" | "other";
+export type IntegrityCluster = "identity" | "relationship" | "tone" | "continuity" | "boundaries" | "themes";
+export type IntegritySessionType = "initial" | "periodic" | "migration" | "pre_publication" | "manual";
+export type IntegritySessionStatus = "in_progress" | "completed" | "abandoned";
+export type IntegrityTurnType = "anchor" | "follow_up" | "summary" | "confirmation";
+export type IntegrityOutputType = "memory_candidate" | "canon_candidate" | "preference" | "boundary" | "theme";
+export type IntegrityOutputStatus = "pending" | "accepted" | "rejected" | "edited";
+export type IntegrityWrittenTo = "memory" | "canon" | "preference_profile";
 export type SpacePageType = "home" | "about" | "personas" | "documents" | "custom";
 export type ThreadStatus = "active" | "locked" | "removed";
 export type ThreadVisibility = "public" | "community" | "unlisted";
@@ -351,6 +358,126 @@ export interface Database {
           updated_at?: string;
         };
         Update: Partial<Database["public"]["Tables"]["calibration_sessions"]["Insert"]>;
+      };
+      integrity_sessions: {
+        Row: {
+          id: string;
+          owner_user_id: string;
+          persona_id: string;
+          session_type: IntegritySessionType;
+          status: IntegritySessionStatus;
+          clusters_covered: IntegrityCluster[];
+          clusters_planned: IntegrityCluster[];
+          started_at: string;
+          completed_at: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: Omit<Database["public"]["Tables"]["integrity_sessions"]["Row"], "id" | "status" | "clusters_covered" | "clusters_planned" | "started_at" | "completed_at" | "created_at" | "updated_at"> & {
+          id?: string;
+          status?: IntegritySessionStatus;
+          clusters_covered?: IntegrityCluster[];
+          clusters_planned?: IntegrityCluster[];
+          started_at?: string;
+          completed_at?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["integrity_sessions"]["Insert"]>;
+      };
+      integrity_session_turns: {
+        Row: {
+          id: string;
+          session_id: string;
+          owner_user_id: string;
+          persona_id: string;
+          cluster: IntegrityCluster;
+          question: string;
+          answer: string | null;
+          turn_type: IntegrityTurnType;
+          created_at: string;
+        };
+        Insert: Omit<Database["public"]["Tables"]["integrity_session_turns"]["Row"], "id" | "answer" | "created_at"> & {
+          id?: string;
+          answer?: string | null;
+          created_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["integrity_session_turns"]["Insert"]>;
+      };
+      integrity_session_outputs: {
+        Row: {
+          id: string;
+          session_id: string;
+          owner_user_id: string;
+          persona_id: string;
+          output_type: IntegrityOutputType;
+          content: string;
+          status: IntegrityOutputStatus;
+          edited_content: string | null;
+          written_to: IntegrityWrittenTo | null;
+          written_target_id: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: Omit<Database["public"]["Tables"]["integrity_session_outputs"]["Row"], "id" | "status" | "edited_content" | "written_to" | "written_target_id" | "created_at" | "updated_at"> & {
+          id?: string;
+          status?: IntegrityOutputStatus;
+          edited_content?: string | null;
+          written_to?: IntegrityWrittenTo | null;
+          written_target_id?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["integrity_session_outputs"]["Insert"]>;
+      };
+      integrity_questions: {
+        Row: {
+          id: string;
+          cluster: IntegrityCluster;
+          question: string;
+          turn_type: "anchor" | "optional_followup";
+          sort_order: number;
+          active: boolean;
+          created_at: string;
+        };
+        Insert: Omit<Database["public"]["Tables"]["integrity_questions"]["Row"], "id" | "sort_order" | "active" | "created_at"> & {
+          id?: string;
+          sort_order?: number;
+          active?: boolean;
+          created_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["integrity_questions"]["Insert"]>;
+      };
+      persona_preferences: {
+        Row: {
+          id: string;
+          owner_user_id: string;
+          persona_id: string;
+          warmth_level: "high" | "moderate" | "neutral";
+          playfulness: "high" | "moderate" | "low";
+          register_preference: "mystical" | "balanced" | "grounded";
+          depth_preference: "expansive" | "balanced" | "concise";
+          challenge_preference: "challenge" | "balanced" | "support";
+          disclaimer_sensitivity: "high" | "neutral" | "low";
+          relationship_tone: string;
+          recurring_topics: string[];
+          tone_notes: string[];
+          updated_at: string;
+        };
+        Insert: Omit<Database["public"]["Tables"]["persona_preferences"]["Row"], "id" | "warmth_level" | "playfulness" | "register_preference" | "depth_preference" | "challenge_preference" | "disclaimer_sensitivity" | "relationship_tone" | "recurring_topics" | "tone_notes" | "updated_at"> & {
+          id?: string;
+          warmth_level?: "high" | "moderate" | "neutral";
+          playfulness?: "high" | "moderate" | "low";
+          register_preference?: "mystical" | "balanced" | "grounded";
+          depth_preference?: "expansive" | "balanced" | "concise";
+          challenge_preference?: "challenge" | "balanced" | "support";
+          disclaimer_sensitivity?: "high" | "neutral" | "low";
+          relationship_tone?: string;
+          recurring_topics?: string[];
+          tone_notes?: string[];
+          updated_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["persona_preferences"]["Insert"]>;
       };
       export_packages: {
         Row: {

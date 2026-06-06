@@ -29,7 +29,8 @@ Some proposed acceptance commands are new named gates, not current root scripts.
 If a v3 slice references a missing script, that slice must add the script and
 focused test file before claiming acceptance. At activation time,
 `test:storage`, `test:integrity`, and `test:token-credits` are proposed gates
-that still need to be created by their owning slices.
+that still need to be created by their owning slices. V3-01 created
+`test:storage`; V3-02 created `test:integrity`.
 
 ### V3-00 - Successor roadmap acceptance
 
@@ -72,7 +73,7 @@ pnpm test:conversation-archive
 
 ### V3-02 - Integrity and calibration hardening
 
-Status: active as of 2026-06-06.
+Status: DAEDALUS implementation ready for ARGUS review as of 2026-06-06.
 
 Purpose: make Integrity useful as a protected alpha workflow, not just schema
 and route scaffolding.

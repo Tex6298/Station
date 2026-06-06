@@ -32,6 +32,7 @@ pnpm typecheck
 pnpm test:auth
 pnpm test:billing
 pnpm test:storage
+pnpm test:integrity
 pnpm test:reports
 pnpm test:community
 pnpm test:spaces
@@ -1005,3 +1006,34 @@ V3-01 is accepted for storage quota/accounting hardening. Archived transcript
 storage remains `/storage/me` estimated category accounting for this slice;
 moving transcript rows into reserved-byte accounting should be a separate
 storage model decision, not a hidden V3-01 expansion.
+
+## V3-02 DAEDALUS implementation result
+
+Validated on 2026-06-06 after adding integrity and calibration hardening for the
+active v3 roadmap:
+
+- Added root `pnpm test:integrity` over
+  `apps/api/src/routes/integrity.test.ts`.
+- Added hand-authored `@station/db` table types and shared `@station/types`
+  DTOs for integrity sessions, turns, outputs, question-bank rows, and persona
+  preference profiles.
+- Focused integrity tests now cover owner-only start/answer/complete flows,
+  periodic question-bank selection, deterministic follow-up and summary
+  fallback behavior when no provider key is configured, output rejection/edit
+  review, accepted canon/preference writes, persona public preflight, runtime
+  context injection, and persona continuity summary counts.
+- `test:continuity-publication` now explicitly proves integrity-derived public
+  documents keep provenance/source metadata while omitting private rules and
+  private transcript text.
+
+Targeted commands run with the pinned runner:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npx --yes pnpm@10.32.1 test:integrity` | Pass | 2 tests passed. |
+| `npx --yes pnpm@10.32.1 typecheck` | Pass | API and web typecheck tasks completed. |
+| `npx --yes pnpm@10.32.1 test:persona-context` | Pass | 1 test passed. |
+| `npx --yes pnpm@10.32.1 test:continuity-publication` | Pass | 1 test passed with stronger provenance/privacy assertions. |
+
+At the DAEDALUS implementation checkpoint, ARGUS still needs to review V3-02
+before the roadmap can mark it accepted.

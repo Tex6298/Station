@@ -119,10 +119,12 @@ when a PR lands, or when validation truth changes.
   quota/accounting coverage, `storage_usage` DB type surface, persona-file
   registration rollback hardening, and an additional chat-import guard that
   stops before archive ingest when the import-job row cannot be created.
-- V3-02 is active, 2026-06-06: integrity and calibration hardening should add
-  the missing `test:integrity` gate, cover integrity session lifecycle and
-  review/fallback behavior, prove public-publishing preflight safety, and
-  clarify how integrity outputs feed runtime context and continuity summaries.
+- V3-02 DAEDALUS implementation is ready for ARGUS review, 2026-06-06:
+  integrity and calibration hardening now has the missing `test:integrity`
+  gate, focused lifecycle/question-bank/fallback/review coverage, public
+  preflight and publication privacy assertions, shared DB/API type surfaces,
+  and explicit proof that accepted integrity outputs feed runtime context while
+  completed integrity sessions feed persona continuity summaries.
 
 ## Current repo truth
 
@@ -243,6 +245,11 @@ when a PR lands, or when validation truth changes.
   coverage for reserve/release RPC semantics, `/storage/me` owner response
   shape, tier limits, upload preflight, persona-file register/delete/rollback,
   chat import rollback, and archive memory rollback.
+- As of V3-02 DAEDALUS implementation, integrity routes have focused coverage
+  for owner-only start/answer/summary/complete/output-review flows, periodic
+  question-bank selection, deterministic non-provider fallback behavior, public
+  persona preflight, accepted-output writes into canon/preference context, and
+  continuity-publication privacy/provenance boundaries.
 
 ## Near-term rule
 
@@ -269,6 +276,7 @@ pnpm typecheck
 pnpm test:auth
 pnpm test:billing
 pnpm test:storage
+pnpm test:integrity
 pnpm test:reports
 pnpm test:community
 pnpm test:spaces

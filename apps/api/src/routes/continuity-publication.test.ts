@@ -454,8 +454,14 @@ test("continuity artifacts publish as separate provenance-labelled documents", a
     });
     assert.equal(integrity.status, 201);
     assert.equal(integrity.body.document.provenance_type, "integrity_session");
+    assert.equal(integrity.body.document.source_type, "integrity");
+    assert.equal(integrity.body.document.source_id, INTEGRITY_ID);
+    assert.equal(integrity.body.document.source_label, "Integrity Session / public_mode");
+    assert.equal(integrity.body.document.source_persona_id, PERSONA_ID);
     assert.match(integrity.body.document.body, /Speak with steady precision/);
+    assert.match(integrity.body.document.body, /Keep public claims bounded/);
     assert.doesNotMatch(integrity.body.document.body, /Do not expose private owner details/);
+    assert.doesNotMatch(integrity.body.document.body, /Private transcript/);
 
     const unlistedArchive = await requestJson(app, "POST", "/documents/publish-from-continuity", {
       token: "owner-token",

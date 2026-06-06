@@ -119,3 +119,68 @@ export interface CalibrationSession {
   createdAt: string;
   updatedAt: string;
 }
+
+export type IntegrityCluster = "identity" | "relationship" | "tone" | "continuity" | "boundaries" | "themes";
+export type IntegritySessionType = "initial" | "periodic" | "migration" | "pre_publication" | "manual";
+export type IntegritySessionStatus = "in_progress" | "completed" | "abandoned";
+export type IntegrityTurnType = "anchor" | "follow_up" | "summary" | "confirmation";
+export type IntegrityOutputType = "memory_candidate" | "canon_candidate" | "preference" | "boundary" | "theme";
+export type IntegrityOutputStatus = "pending" | "accepted" | "rejected" | "edited";
+export type IntegrityWrittenTo = "memory" | "canon" | "preference_profile";
+
+export interface IntegritySession {
+  id: string;
+  ownerUserId: string;
+  personaId: string;
+  sessionType: IntegritySessionType;
+  status: IntegritySessionStatus;
+  clustersCovered: IntegrityCluster[];
+  clustersPlanned: IntegrityCluster[];
+  startedAt: string;
+  completedAt?: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface IntegritySessionTurn {
+  id: string;
+  sessionId: string;
+  ownerUserId: string;
+  personaId: string;
+  cluster: IntegrityCluster;
+  question: string;
+  answer?: string | null;
+  turnType: IntegrityTurnType;
+  createdAt: string;
+}
+
+export interface IntegritySessionOutput {
+  id: string;
+  sessionId: string;
+  ownerUserId: string;
+  personaId: string;
+  outputType: IntegrityOutputType;
+  content: string;
+  status: IntegrityOutputStatus;
+  editedContent?: string | null;
+  writtenTo?: IntegrityWrittenTo | null;
+  writtenTargetId?: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface PersonaPreferenceProfile {
+  id: string;
+  ownerUserId: string;
+  personaId: string;
+  warmthLevel: "high" | "moderate" | "neutral";
+  playfulness: "high" | "moderate" | "low";
+  registerPreference: "mystical" | "balanced" | "grounded";
+  depthPreference: "expansive" | "balanced" | "concise";
+  challengePreference: "challenge" | "balanced" | "support";
+  disclaimerSensitivity: "high" | "neutral" | "low";
+  relationshipTone: string;
+  recurringTopics: string[];
+  toneNotes: string[];
+  updatedAt: string;
+}
