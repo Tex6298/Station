@@ -2,16 +2,16 @@
 
 Date: 2026-06-06
 Status: ARIADNE-reviewed post-V3 planning base. This is not active
-implementation scope while `docs/roadmap/STATION_PR_PLAN_V3.md` is open.
+implementation scope until MIMIR explicitly opens a UI/UX lane.
 
 ## Why this roadmap exists
 
 The Station north star is bigger than the current maintenance roadmap: private
 continuity, archive trust, public authorship, managed community, Developer
 Space observability, billing clarity, and long-range research infrastructure.
-V3 is correctly making the foundation reliable first. This roadmap translates
-the product vision into UI/UX lanes that can begin after V3 closes, or sooner
-only when a small interface slice is required to support a V3 lane.
+V3 made the foundation reliable first. This roadmap translates the product
+vision into UI/UX lanes that can begin only after MIMIR explicitly opens a
+post-V3 UI/UX feasibility or implementation handoff.
 
 This is not a vague redesign. Every lane should be narrow enough for DAEDALUS to
 estimate, ARGUS to gate, and ARIADNE to review against real user journeys.
@@ -39,10 +39,11 @@ estimate, ARGUS to gate, and ARIADNE to review against real user journeys.
 
 ## Current UI/UX truth
 
-- V3 remains active and maintenance-led: storage, integrity, token-credit,
-  archive/export job reliability, and visibility-safe search hardening.
-- Post-V3 UI work should not begin as implementation until V3 is closed or
-  MIMIR explicitly marks a tiny UX slice as support work for a V3 lane.
+- V3 implementation is closed through V3-05: storage, integrity, token-credit,
+  archive/export job reliability, and visibility-safe search hardening are
+  accepted.
+- Post-V3 UI work should not begin as implementation until MIMIR explicitly
+  opens a UI/UX lane.
 - Existing frontend surfaces cover many domains, but they need a deliberate
   information architecture pass before broad polish.
 - The first UX question is wayfinding, not decoration: every major surface
@@ -341,8 +342,7 @@ text, and whether each surface feels like Station rather than generic SaaS.
 
 ## Out of scope
 
-- Starting UI implementation before V3 closes, unless MIMIR marks a small slice
-  as support work for a V3 lane.
+- Starting UI implementation before MIMIR opens a UI/UX lane.
 - Broad visual redesign or brand overhaul.
 - Station Press implementation, production queues, institutional Spaces, Salon
   events, API platform, marketplace, Connect, or research-product UI.
@@ -352,10 +352,12 @@ text, and whether each surface feels like Station rather than generic SaaS.
 
 ## Suggested order of work
 
-1. ARIADNE reviews this roadmap and wakes MIMIR with product-experience changes.
-2. DAEDALUS reviews accepted lanes for feasibility and cheap/expensive cuts.
+1. MIMIR chooses the next handoff: DAEDALUS UI/UX feasibility, ARGUS gates
+   review, maintenance pause, or human decision.
+2. If opened, DAEDALUS reviews accepted lanes for feasibility and cheap/
+   expensive cuts.
 3. ARGUS adds acceptance gates, especially for tests and known warnings.
-4. After V3 closes, start with UX-01 Studio IA/mobile and UX-02 Archive trust
+4. Start with UX-01 Studio IA/mobile and UX-02 Archive trust
    because they support the paid center and the archive promise.
 5. Then move through UX-03 continuity/integrity, UX-04 public Spaces,
    UX-05 Discover/community, UX-06 Developer Spaces, UX-07 billing,

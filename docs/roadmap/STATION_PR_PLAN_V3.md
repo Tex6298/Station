@@ -1,9 +1,11 @@
 # Station PR plan v3
 
 Date: 2026-06-06
-Status: implementation sequence complete through V3-05 and pending closeout
-audit. `docs/roadmap/STATION_PR_PLAN_V2.md` remains the historical record for
-PR-00 through PR-17.
+Status: implementation sequence complete through V3-05 and ARGUS
+closeout-audited on 2026-06-06. No V3-06 is defined. Post-V3 UI/UX planning is
+separate and inactive until MIMIR opens a new lane.
+`docs/roadmap/STATION_PR_PLAN_V2.md` remains the historical record for PR-00
+through PR-17.
 
 ## Why this roadmap exists
 
@@ -21,7 +23,7 @@ boring, and hard to accidentally break.
 - Keep every PR narrow enough for DAEDALUS to build and ARGUS to review with a
   focused validation command.
 
-## Active sequence
+## Closed sequence
 
 ## Validation-script rule
 

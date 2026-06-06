@@ -1233,3 +1233,22 @@ Targeted commands run with the pinned runner:
 V3-05 is accepted for visibility-safe search. Scope remains simple query-backed
 search and result-shape separation only; it does not add embeddings, ranking,
 saved search, external search infrastructure, or public/private result mixing.
+
+## V3 closeout audit result
+
+ARGUS audited V3 closeout truth on 2026-06-06 after MIMIR marked the bounded
+sequence complete through V3-05.
+
+- `docs/roadmap/STATION_PR_PLAN_V3.md` now records the sequence as closed, not
+  pending closeout.
+- No V3-06 is defined.
+- `docs/roadmap/STATION_UI_UX_ROADMAP.md` remains ARIADNE-reviewed successor
+  planning, not active implementation scope.
+- Any post-V3 UI/UX feasibility or implementation work requires a fresh MIMIR
+  handoff.
+
+Targeted command:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `git diff --check` | Pass | CRLF normalization warnings only. |
