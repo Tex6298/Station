@@ -83,6 +83,10 @@ when a PR lands, or when validation truth changes.
   manage console, visitor observatory pages show only public linked documents
   that are also published/public, owner-only drafts remain visible only to
   owner/admin detail reads, and the relation now has owner-only RLS guardrails.
+- PR-14 is the active next roadmap move: add bounded Developer Spaces export
+  packages, usage counters, quota model, public traffic/storage/ingestion
+  counters, and owner-facing usage visibility without widening into SDK or
+  visual editor work.
 
 ## Current repo truth
 
