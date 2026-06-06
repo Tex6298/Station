@@ -114,7 +114,8 @@ personaFilesRouter.post("/persona/:personaId/register", async (req, res) => {
     throw error;
   }
 
-  let fileReserved = true;
+  let storageReserved = true;
+  let insertedFile: { id: string; storage_path?: string | null } | null = null;
 
   try {
     // Insert file record
@@ -134,10 +135,10 @@ personaFilesRouter.post("/persona/:personaId/register", async (req, res) => {
       .single();
 
     if (fileErr || !file) throw new Error(fileErr?.message ?? "File insert failed.");
-    fileReserved = false;
+    insertedFile = file;
 
     // Create import job
-    const { data: job } = await sb
+    const { data: job, error: jobErr } = await sb
       .from("import_jobs")
       .insert({
         persona_id: persona.id,
@@ -148,6 +149,8 @@ personaFilesRouter.post("/persona/:personaId/register", async (req, res) => {
       })
       .select("id, status")
       .single();
+
+    if (jobErr || !job) throw new Error(jobErr?.message ?? "Import job insert failed.");
 
     // Process synchronously for now (queue in v2)
     if (parsed.data.processImmediately) {
@@ -163,7 +166,21 @@ personaFilesRouter.post("/persona/:personaId/register", async (req, res) => {
 
     return res.status(201).json({ file, job });
   } catch (error) {
-    if (fileReserved) await releaseStorageBytes(userId, parsed.data.fileSize).catch(() => null);
+    if (insertedFile?.id) {
+      try {
+        await sb.from("persona_files").delete().eq("id", insertedFile.id);
+      } catch {
+        // Best-effort cleanup after a failed registration.
+      }
+    }
+    if (insertedFile?.storage_path) {
+      try {
+        await sb.storage.from("persona-files").remove([insertedFile.storage_path]);
+      } catch {
+        // Best-effort cleanup after a failed registration.
+      }
+    }
+    if (storageReserved) await releaseStorageBytes(userId, parsed.data.fileSize).catch(() => null);
     const storageError = storageErrorResponse(error);
     if (storageError) return res.status(storageError.status).json(storageError.body);
     return res.status(500).json({ error: error instanceof Error ? error.message : "File insert failed." });

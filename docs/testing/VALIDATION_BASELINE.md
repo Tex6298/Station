@@ -31,6 +31,7 @@ pnpm lint
 pnpm typecheck
 pnpm test:auth
 pnpm test:billing
+pnpm test:storage
 pnpm test:reports
 pnpm test:community
 pnpm test:spaces
@@ -948,3 +949,33 @@ Commands re-run by ARGUS:
 PR-17 is accepted for bounded Stripe subscriptions, paid entitlement limits, and
 billing status visibility. This does not add a broad billing platform, Connect,
 usage-based metering, invoices/tax, marketplace flows, or unrelated billing UX.
+
+## V3-01 DAEDALUS implementation result
+
+Validated on 2026-06-06 after adding storage quota hardening for the active v3
+roadmap:
+
+- Added root `pnpm test:storage` over `apps/api/src/routes/storage.test.ts`.
+- Added `storage_usage` to the hand-authored `@station/db` type surface.
+- Hardened `POST /persona-files/persona/:personaId/register` so import-job
+  insert failure no longer returns success and instead best-effort removes the
+  file row/storage object and releases reserved bytes.
+- Focused storage tests now cover tier limit bytes, reserve/release RPC
+  behavior, clamp-on-release, limit-exceeded errors, `/storage/me` owner response
+  shape, upload URL quota preflight, persona-file register/delete accounting,
+  registration rollback, chat import rollback, and archive memory rollback.
+
+Targeted commands run with the pinned runner:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npx --yes pnpm@10.32.1 test:storage` | Pass | 6 tests passed after fixing ignored import-job insert errors in persona-file registration. |
+| `npx --yes pnpm@10.32.1 typecheck` | Pass | API and web typecheck tasks completed. |
+| `npx --yes pnpm@10.32.1 test:conversation-archive` | Pass | 1 test passed; existing archive candidate flow remains green. |
+| `git diff --check` | Pass | CRLF normalization warnings only for touched files. |
+
+ARGUS still needs to review V3-01 before the roadmap should mark it accepted.
+Main risks to review: whether transcript storage should move from estimated
+`/storage/me` category accounting into reserved byte accounting, and whether the
+persona-file cleanup path should delete uploaded storage objects on every
+registration failure in production.

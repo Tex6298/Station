@@ -89,6 +89,19 @@ export interface Database {
         };
         Update: Partial<Database["public"]["Tables"]["profiles"]["Insert"]>;
       };
+      storage_usage: {
+        Row: {
+          user_id: string;
+          bytes_used: number;
+          bytes_limit: number;
+          updated_at: string;
+        };
+        Insert: Omit<Database["public"]["Tables"]["storage_usage"]["Row"], "bytes_used" | "updated_at"> & {
+          bytes_used?: number;
+          updated_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["storage_usage"]["Insert"]>;
+      };
       personas: {
         Row: {
           id: string;

@@ -114,9 +114,10 @@ when a PR lands, or when validation truth changes.
   with one validation caveat: new proposed gates such as `test:storage`,
   `test:integrity`, and `test:token-credits` must be added by their owning v3
   slices before acceptance.
-- V3-01 is active, 2026-06-06: storage quota hardening should add the missing
-  `test:storage` gate, cover quota reserve/release and `/storage/me`, and prove
-  archive/import/persona-file accounting stays balanced.
+- V3-01 DAEDALUS implementation is ready for ARGUS review, 2026-06-06: added
+  the missing `test:storage` gate, focused storage quota/accounting coverage,
+  `storage_usage` DB type surface, and persona-file registration rollback
+  hardening. Keep review to storage quota/accounting scope only.
 
 ## Current repo truth
 
@@ -233,6 +234,10 @@ when a PR lands, or when validation truth changes.
   should require email confirmation.
 - The web shell stores Station API sessions in browser storage and uses a
   non-secret auth cookie only as middleware redirect state.
+- As of V3-01 DAEDALUS implementation, storage quota behavior has focused test
+  coverage for reserve/release RPC semantics, `/storage/me` owner response
+  shape, tier limits, upload preflight, persona-file register/delete/rollback,
+  chat import rollback, and archive memory rollback.
 
 ## Near-term rule
 
@@ -258,6 +263,7 @@ pnpm lint
 pnpm typecheck
 pnpm test:auth
 pnpm test:billing
+pnpm test:storage
 pnpm test:reports
 pnpm test:community
 pnpm test:spaces
