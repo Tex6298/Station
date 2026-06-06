@@ -1,7 +1,7 @@
 # Station UI/UX roadmap
 
 Date: 2026-06-06
-Status: draft for ARIADNE review. This is post-V3 planning, not active
+Status: ARIADNE-reviewed post-V3 planning base. This is not active
 implementation scope while `docs/roadmap/STATION_PR_PLAN_V3.md` is open.
 
 ## Why this roadmap exists

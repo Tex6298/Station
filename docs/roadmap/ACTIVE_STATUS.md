@@ -144,10 +144,10 @@ when a PR lands, or when validation truth changes.
   canon, archive files, import jobs, and archived chats. Hostile community
   coverage proves anonymous visitors and other authenticated users do not see
   owner-private artifacts or other-owner private artifacts.
-- Post-V3 UI/UX successor planning is drafted in
-  `docs/roadmap/STATION_UI_UX_ROADMAP.md` for ARIADNE review. It is not active
-  implementation scope while V3 is open unless MIMIR explicitly marks a tiny UX
-  slice as support work for a V3 lane.
+- Post-V3 UI/UX successor planning is ARIADNE-reviewed in
+  `docs/roadmap/STATION_UI_UX_ROADMAP.md`. It is not active implementation
+  scope while V3 is open unless MIMIR explicitly marks a tiny UX slice as
+  support work for a V3 lane.
 
 ## Current repo truth
 
