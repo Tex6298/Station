@@ -158,6 +158,10 @@ when a PR lands, or when validation truth changes.
   per-persona Archive trust states. Defer global Archive/Export workspace
   implementation until a backend/API shape is explicitly opened. This remains
   planning/feasibility only, not UI implementation.
+- Post-V3 UI/UX ARGUS gates review is active, 2026-06-06: ARGUS should define
+  acceptance gates for UX-01A Studio frame/mobile navigation and UX-02A
+  per-persona Archive trust states before MIMIR opens either implementation
+  slice.
 
 ## Current repo truth
 
