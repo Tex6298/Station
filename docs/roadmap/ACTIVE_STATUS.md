@@ -151,6 +151,11 @@ when a PR lands, or when validation truth changes.
 - Post-V3 UI/UX successor planning is ARIADNE-reviewed in
   `docs/roadmap/STATION_UI_UX_ROADMAP.md`. It is a planning base, not active
   implementation scope, until MIMIR explicitly opens a UI/UX lane.
+- Post-V3 UI/UX feasibility review is active, 2026-06-06: DAEDALUS should
+  inspect UX-01 Studio IA/mobile and UX-02 Archive trust for cheap versus
+  expensive changes, fragile frontend structure, refactors needed before
+  polish, and safe small slices. This is planning/feasibility only, not UI
+  implementation.
 
 ## Current repo truth
 

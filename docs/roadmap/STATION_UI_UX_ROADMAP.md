@@ -42,6 +42,8 @@ estimate, ARGUS to gate, and ARIADNE to review against real user journeys.
 - V3 implementation is closed through V3-05: storage, integrity, token-credit,
   archive/export job reliability, and visibility-safe search hardening are
   accepted.
+- MIMIR opened DAEDALUS feasibility review for UX-01 Studio IA/mobile and UX-02
+  Archive trust. This is planning/feasibility only, not implementation.
 - Post-V3 UI work should not begin as implementation until MIMIR explicitly
   opens a UI/UX lane.
 - Existing frontend surfaces cover many domains, but they need a deliberate
