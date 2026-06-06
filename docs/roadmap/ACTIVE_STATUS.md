@@ -43,8 +43,10 @@ when a PR lands, or when validation truth changes.
   now validated against owned/persona-scoped source rows before insert, persona
   archive exports now include `continuity_records`, and publication
   state/visibility/provenance metadata is preserved in the owner-only export
-  manifest. Treat this as an accepted bounded slice; MIMIR should decide whether
-  PR-09 needs another slice or can move forward.
+  manifest.
+- PR-09 slice 2 is active: broaden the existing export package path around
+  published document/report references and publication-state proof without
+  introducing PR-10 Developer Spaces scope or a broad public export UI.
 
 ## Current repo truth
 
