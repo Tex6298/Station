@@ -16,6 +16,7 @@ import {
   similarityPercent,
   visualisationLabel,
 } from "@/lib/developer-space-observatory";
+import { normaliseDeveloperSpaceVisualConfig } from "@/lib/developer-space-visual-config";
 import type {
   DeveloperSpaceDetail,
   DeveloperSpaceEvent,
@@ -102,8 +103,10 @@ function EventTimeline({ events, showRaw }: { events: DeveloperSpaceEvent[]; sho
   );
 }
 
-function NodeField({ nodes }: { nodes: DeveloperSpaceNode[] }) {
-  const sortedNodes = useMemo(() => [...nodes].sort((a, b) => b.fragmentCount - a.fragmentCount), [nodes]);
+function NodeField({ nodes, config }: { nodes: DeveloperSpaceNode[]; config: Record<string, unknown> }) {
+  const maxNodes = Number(config.maxNodes ?? 12);
+  const showMetrics = config.showMetrics !== false;
+  const sortedNodes = useMemo(() => [...nodes].sort((a, b) => b.fragmentCount - a.fragmentCount).slice(0, maxNodes), [nodes, maxNodes]);
   if (nodes.length === 0) return <EmptyVisualisation />;
 
   return (
@@ -119,8 +122,8 @@ function NodeField({ nodes }: { nodes: DeveloperSpaceNode[] }) {
             <div>
               <strong style={{ display: "block", fontSize: "0.82rem" }}>{node.nodeName}</strong>
               <span style={{ display: "block", color: "#94a3b8", fontSize: "0.68rem", textTransform: "capitalize" }}>{node.topologyType}</span>
-              <span style={{ display: "block", color: "#64748b", fontSize: "0.68rem" }}>{node.fragmentCount} fragments</span>
-              {similarity !== null ? <span style={{ display: "block", color: "#93c5fd", fontSize: "0.68rem" }}>{similarity}%</span> : null}
+              {showMetrics ? <span style={{ display: "block", color: "#64748b", fontSize: "0.68rem" }}>{node.fragmentCount} fragments</span> : null}
+              {showMetrics && similarity !== null ? <span style={{ display: "block", color: "#93c5fd", fontSize: "0.68rem" }}>{similarity}%</span> : null}
             </div>
           </div>
         );
@@ -129,9 +132,11 @@ function NodeField({ nodes }: { nodes: DeveloperSpaceNode[] }) {
   );
 }
 
-function TimelineVisualisation({ nodes, events }: { nodes: DeveloperSpaceNode[]; events: DeveloperSpaceEvent[] }) {
+function TimelineVisualisation({ nodes, events, config }: { nodes: DeveloperSpaceNode[]; events: DeveloperSpaceEvent[]; config: Record<string, unknown> }) {
   if (nodes.length === 0 && events.length === 0) return <EmptyVisualisation />;
-  const recentEvents = [...events].slice(0, 8).reverse();
+  const eventLimit = Number(config.eventLimit ?? 8);
+  const nodeLimit = Number(config.nodeLimit ?? 8);
+  const recentEvents = [...events].slice(0, eventLimit).reverse();
   const maxFragments = Math.max(1, ...nodes.map((node) => node.fragmentCount));
 
   return (
@@ -139,7 +144,7 @@ function TimelineVisualisation({ nodes, events }: { nodes: DeveloperSpaceNode[];
       <div>
         <div className="section-label">Current trajectory</div>
         <div style={{ display: "grid", gap: "0.7rem" }}>
-          {nodes.slice(0, 8).map((node) => {
+          {nodes.slice(0, nodeLimit).map((node) => {
             const width = Math.max(6, Math.round((node.fragmentCount / maxFragments) * 100));
             return (
               <div key={node.id}>
@@ -169,10 +174,13 @@ function TimelineVisualisation({ nodes, events }: { nodes: DeveloperSpaceNode[];
   );
 }
 
-function WorldMapVisualisation({ events }: { events: DeveloperSpaceEvent[] }) {
+function WorldMapVisualisation({ events, config }: { events: DeveloperSpaceEvent[]; config: Record<string, unknown> }) {
+  const zoneField = String(config.zoneField ?? "zone");
+  const maxZones = Number(config.maxZones ?? 9);
+  const staggerZones = config.staggerZones !== false;
   const zones = new Map<string, DeveloperSpaceEvent[]>();
   for (const event of events) {
-    const zone = String(event.eventData?.zone ?? event.eventData?.location ?? event.eventData?.room ?? "Project core");
+    const zone = String(event.eventData?.[zoneField] ?? event.eventData?.zone ?? event.eventData?.location ?? event.eventData?.room ?? "Project core");
     const list = zones.get(zone) ?? [];
     list.push(event);
     zones.set(zone, list);
@@ -181,8 +189,8 @@ function WorldMapVisualisation({ events }: { events: DeveloperSpaceEvent[] }) {
 
   return (
     <div className="card world-map-panel">
-      {Array.from(zones.entries()).slice(0, 9).map(([zone, zoneEvents], index) => (
-        <article key={zone} className="zone-card" style={{ transform: `translateY(${index % 2 === 0 ? 0 : 18}px)` }}>
+      {Array.from(zones.entries()).slice(0, maxZones).map(([zone, zoneEvents], index) => (
+        <article key={zone} className="zone-card" style={{ transform: staggerZones ? `translateY(${index % 2 === 0 ? 0 : 18}px)` : "none" }}>
           <div className="section-label">Zone</div>
           <strong>{zone}</strong>
           <p>{zoneEvents.length} recent public {zoneEvents.length === 1 ? "event" : "events"}</p>
@@ -193,9 +201,11 @@ function WorldMapVisualisation({ events }: { events: DeveloperSpaceEvent[] }) {
   );
 }
 
-function ConstellationVisualisation({ nodes, events }: { nodes: DeveloperSpaceNode[]; events: DeveloperSpaceEvent[] }) {
+function ConstellationVisualisation({ nodes, events, config }: { nodes: DeveloperSpaceNode[]; events: DeveloperSpaceEvent[]; config: Record<string, unknown> }) {
   if (nodes.length === 0) return <EmptyVisualisation />;
-  const sortedNodes = [...nodes].sort((a, b) => b.fragmentCount - a.fragmentCount).slice(0, 12);
+  const maxNodes = Number(config.maxNodes ?? 12);
+  const showEventCounts = config.showEventCounts !== false;
+  const sortedNodes = [...nodes].sort((a, b) => b.fragmentCount - a.fragmentCount).slice(0, maxNodes);
 
   return (
     <div className="card constellation-panel">
@@ -206,7 +216,7 @@ function ConstellationVisualisation({ nodes, events }: { nodes: DeveloperSpaceNo
           <article key={node.id} className="constellation-node" style={{ gridColumn: `${(index % 3) + 1} / span 1` }}>
             <span className="constellation-dot" />
             <strong>{node.nodeName}</strong>
-            <small>{nodeEvents} events / {node.fragmentCount} fragments</small>
+            <small>{showEventCounts ? `${nodeEvents} events / ` : ""}{node.fragmentCount} fragments</small>
             {similarity !== null ? <small>{similarity}% self-similarity</small> : null}
           </article>
         );
@@ -216,16 +226,17 @@ function ConstellationVisualisation({ nodes, events }: { nodes: DeveloperSpaceNo
 }
 
 function ObservatoryVisualisation({ detail }: { detail: DeveloperSpaceDetail }) {
+  const config = normaliseDeveloperSpaceVisualConfig(detail.space.visualisationType, detail.space.visualisationConfig ?? {});
   switch (detail.space.visualisationType) {
     case "timeline":
-      return <TimelineVisualisation nodes={detail.nodes} events={detail.events} />;
+      return <TimelineVisualisation nodes={detail.nodes} events={detail.events} config={config} />;
     case "world_map":
-      return <WorldMapVisualisation events={detail.events} />;
+      return <WorldMapVisualisation events={detail.events} config={config} />;
     case "constellation":
-      return <ConstellationVisualisation nodes={detail.nodes} events={detail.events} />;
+      return <ConstellationVisualisation nodes={detail.nodes} events={detail.events} config={config} />;
     case "node_field":
     default:
-      return <NodeField nodes={detail.nodes} />;
+      return <NodeField nodes={detail.nodes} config={config} />;
   }
 }
 
@@ -368,6 +379,8 @@ export default function DeveloperSpacePublicPage() {
   const latestEvent = detail.events[0];
   const mostActiveNode = detail.nodes[0];
   const showRaw = shouldShowRawDeveloperSpaceData(detail.access);
+  const visualConfig = normaliseDeveloperSpaceVisualConfig(detail.space.visualisationType, detail.space.visualisationConfig ?? {});
+  const showSnapshotPanel = detail.space.visualisationType !== "timeline" || visualConfig.showSnapshots !== false;
   const liveLabel = liveStatus === "live"
     ? lastLiveAt ? `Live ${formatDate(lastLiveAt)}` : "Live"
     : liveStatus === "connecting"
@@ -462,10 +475,12 @@ export default function DeveloperSpacePublicPage() {
             </div>
           </div>
 
-          <div className="card">
-            <h2 style={{ margin: "0 0 0.5rem", fontSize: "1rem" }}>Latest snapshot</h2>
-            <SnapshotCard snapshot={detail.latestSnapshot} showRaw={showRaw} />
-          </div>
+          {showSnapshotPanel ? (
+            <div className="card">
+              <h2 style={{ margin: "0 0 0.5rem", fontSize: "1rem" }}>Latest snapshot</h2>
+              <SnapshotCard snapshot={detail.latestSnapshot} showRaw={showRaw} />
+            </div>
+          ) : null}
         </aside>
       </section>
     </main>

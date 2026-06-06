@@ -390,6 +390,22 @@ test("Developer Spaces smoke covers creation, keying, ingestion, and public/owne
     assert.equal(created.body.space.visualisationType, "world_map");
 
     const spaceId = created.body.space.id;
+    const visualConfigUpdate = await requestJson(app, "PATCH", `/developer-spaces/${spaceId}`, {
+      token: "owner-token",
+      body: {
+        visualisationType: "world_map",
+        visualisationConfig: {
+          zoneField: "room",
+          maxZones: 6,
+          staggerZones: false,
+        },
+      },
+    });
+    assert.equal(visualConfigUpdate.status, 200);
+    assert.equal(visualConfigUpdate.body.space.visualisationType, "world_map");
+    assert.equal(visualConfigUpdate.body.space.visualisationConfig.zoneField, "room");
+    assert.equal(visualConfigUpdate.body.space.visualisationConfig.maxZones, 6);
+
     const apiKeyResponse = await requestJson(app, "POST", `/developer-spaces/${spaceId}/api-key`, {
       token: "owner-token",
     });
@@ -582,6 +598,8 @@ test("Developer Spaces smoke covers creation, keying, ingestion, and public/owne
     assert.equal(publicDetail.body.access, "public");
     assert.equal(publicDetail.body.space.apiKeyLastFour, null);
     assert.equal(publicDetail.body.space.visualisationType, "world_map");
+    assert.equal(publicDetail.body.space.visualisationConfig.zoneField, "room");
+    assert.equal(publicDetail.body.space.visualisationConfig.maxZones, 6);
     assert.equal(publicDetail.body.nodes.length, 1);
     assert.equal(publicDetail.body.nodes[0].metrics.raw, undefined);
     assert.equal(publicDetail.body.latestSnapshot.snapshotData.summary, "Stable");

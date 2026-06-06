@@ -93,10 +93,10 @@ when a PR lands, or when validation truth changes.
   curl examples, a minimal Node example, focused docs, a package test gate, and
   client-side header/error guardrails without moving into PR-16 visual config
   editors.
-- PR-16 is active, 2026-06-06: add bounded Developer Spaces visual config
-  editors for node field, timeline, world map, and constellation modes with
-  sensible defaults. Keep this out of PR-17 Stripe/paid entitlements, broad
-  Developer Spaces UI redesign, and unrelated visual polish.
+- PR-16 DAEDALUS implementation is ready for ARGUS review, 2026-06-06: added
+  bounded Developer Spaces visual config editors for node field, timeline,
+  world map, and constellation modes, plus public observatory rendering that
+  respects the selected mode and sensible defaults.
 
 ## Current repo truth
 
@@ -111,7 +111,7 @@ when a PR lands, or when validation truth changes.
 - Developer Spaces exists as a Station-native observatory slice, with ingestion
   hardening, bounded SSE live updates, Discover integration, linked Station
   documents, owner-only export/usage primitives, and the tiny ingestion client
-  package accepted. Visual editors remain PR-16.
+  package accepted. Visual config editors are implemented for PR-16 review.
 - As of PR-06 on 2026-05-31, the full validation baseline passed with the pinned
   pnpm runner.
 - As of the 2026-06-05 current-main reconciliation, the full gate was no longer
@@ -175,10 +175,11 @@ when a PR lands, or when validation truth changes.
   state, event, snapshot, and batch import routes. It is workspace-local,
   server-side-key oriented, documented with curl plus Node examples, and covered
   by `pnpm test:developer-space-client`.
-- As PR-16 begins, the next bounded Developer Spaces slice is visual config
-  editing: owner-facing controls should write the existing
-  `visualisation_type` and `visualisation_config` shape, and public observatory
-  rendering should respect the selected mode with sensible defaults.
+- As of PR-16 DAEDALUS implementation, the manage console can edit visual mode
+  and bounded per-mode config using the existing `visualisation_type` and
+  `visualisation_config` fields. The public observatory applies node limits,
+  timeline limits, map zone settings, constellation event-count visibility, and
+  timeline snapshot visibility from the normalized config.
 - Core API route modules no longer import local in-memory mock data. Runtime
   persistence goes through the Supabase client boundary; route tests use
   injected fake Supabase clients for deterministic proof.

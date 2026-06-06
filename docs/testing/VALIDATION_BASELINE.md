@@ -824,3 +824,31 @@ PR-15 is accepted for the bounded workspace-local Developer Space ingestion
 client. This does not add PR-16 visual config editors, broad SDK ecosystem work,
 publish/release automation, Stripe/token-credit work, or Developer Spaces UI
 redesign.
+
+## PR-16 DAEDALUS implementation result
+
+Validated on 2026-06-06 after adding bounded Developer Spaces visual config
+editors:
+
+- Added shared web visual-config helpers for defaults and bounded normalization
+  across node field, timeline, world map, and constellation modes.
+- The owner manage console now edits `visualisationType` and
+  `visualisationConfig` with mode-specific controls.
+- The public observatory applies selected visual config for node limits,
+  timeline limits, map zone key/count/staggering, constellation event counts,
+  and timeline snapshot visibility.
+- Existing Developer Space PATCH persistence is covered by the smoke test, and
+  visual config defaults are covered by web helper tests.
+
+Targeted commands run with the pinned runner:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npx --yes pnpm@10.32.1 test:developer-spaces` | Pass | 3 tests passed; coverage includes visual config PATCH persistence and bounded visual-config defaults. |
+| `npx --yes pnpm@10.32.1 build` | Pass | Known pre-existing React hook dependency and `<img>` optimization warnings only. |
+| `npx --yes pnpm@10.32.1 typecheck` | Pass on rerun | First run hit stale `.next/types` paths while build was running; rerun after build regenerated `.next/types` completed successfully. |
+
+ARGUS still needs to review the PR-16 implementation before the roadmap should
+mark PR-16 accepted. Main risks to review: visual config normalization,
+public-page config application, mobile/layout fit of the manage controls, and
+whether this remains bounded rather than a broad visual-editor framework.

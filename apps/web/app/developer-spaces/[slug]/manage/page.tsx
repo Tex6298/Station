@@ -3,15 +3,20 @@
 import { type FormEvent, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { apiGet, apiPost, apiUrl } from "@/lib/api-client";
+import { apiGet, apiPatch, apiPost, apiUrl } from "@/lib/api-client";
 import { getSession } from "@/lib/auth";
 import { formatDate, humaniseKey } from "@/lib/developer-space-observatory";
+import {
+  defaultDeveloperSpaceVisualConfig,
+  normaliseDeveloperSpaceVisualConfig,
+} from "@/lib/developer-space-visual-config";
 import type {
   DeveloperSpaceDetail,
   DeveloperSpaceDocumentRole,
   DeveloperSpaceLinkedDocument,
   DeveloperSpaceLiveUpdate,
   DeveloperSpaceUsage,
+  DeveloperSpaceVisualisationType,
 } from "@station/types/developer-space";
 import type { ArchiveExportPackage } from "@station/types/export";
 
@@ -71,10 +76,24 @@ export default function DeveloperSpaceManagePage() {
   const [usage, setUsage] = useState<DeveloperSpaceUsage | null>(null);
   const [exportsList, setExportsList] = useState<ArchiveExportPackage[]>([]);
   const [exporting, setExporting] = useState(false);
+  const [visualisationType, setVisualisationType] = useState<DeveloperSpaceVisualisationType>("node_field");
+  const [visualisationConfig, setVisualisationConfig] = useState<Record<string, unknown>>(
+    defaultDeveloperSpaceVisualConfig("node_field")
+  );
+  const [savingVisualConfig, setSavingVisualConfig] = useState(false);
+
+  function syncVisualState(data: DeveloperSpaceDetail) {
+    setVisualisationType(data.space.visualisationType);
+    setVisualisationConfig(normaliseDeveloperSpaceVisualConfig(
+      data.space.visualisationType,
+      data.space.visualisationConfig ?? {}
+    ));
+  }
 
   async function load(sessionToken: string) {
     const data = await apiGet<DeveloperSpaceDetail>(`/developer-spaces/${slug}`, sessionToken);
     setDetail(data);
+    syncVisualState(data);
     const [usageData, exportsData] = await Promise.all([
       apiGet<{ usage: DeveloperSpaceUsage }>(`/developer-spaces/${data.space.id}/usage`, sessionToken),
       apiGet<{ exports: ArchiveExportPackage[] }>(`/exports/developer-spaces/${data.space.id}`, sessionToken),
@@ -280,12 +299,49 @@ export default function DeveloperSpaceManagePage() {
     }
   }
 
+  function updateVisualConfig(key: string, value: unknown) {
+    setVisualisationConfig((current) => ({
+      ...current,
+      [key]: value,
+    }));
+  }
+
+  function changeVisualisationType(nextType: DeveloperSpaceVisualisationType) {
+    setVisualisationType(nextType);
+    setVisualisationConfig(defaultDeveloperSpaceVisualConfig(nextType));
+  }
+
+  async function saveVisualConfig() {
+    if (!token || !detail) return;
+    setSavingVisualConfig(true);
+    setError(null);
+    try {
+      const config = normaliseDeveloperSpaceVisualConfig(visualisationType, visualisationConfig);
+      const data = await apiPatch<{ space: DeveloperSpaceDetail["space"] }>(
+        `/developer-spaces/${detail.space.id}`,
+        {
+          visualisationType,
+          visualisationConfig: config,
+        },
+        token
+      );
+      const nextDetail = { ...detail, space: data.space };
+      setDetail(nextDetail);
+      syncVisualState(nextDetail);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Could not save visual config.");
+    } finally {
+      setSavingVisualConfig(false);
+    }
+  }
+
   const liveLabel = liveStatus === "live"
     ? lastLiveAt ? `Live ${formatDate(lastLiveAt)}` : "Live"
     : liveStatus === "connecting"
       ? "Connecting"
       : "Reconnecting";
   const ingestionEvents = detail.events.slice(0, 5);
+  const boundedVisualConfig = normaliseDeveloperSpaceVisualConfig(visualisationType, visualisationConfig);
 
   return (
     <main className="container" style={{ display: "grid", gap: "1.25rem", maxWidth: 1120 }}>
@@ -395,6 +451,93 @@ export default function DeveloperSpaceManagePage() {
         </aside>
 
         <section style={{ display: "grid", gap: "1rem" }}>
+          <div className="card" style={{ display: "grid", gap: "0.9rem" }}>
+            <div>
+              <h2 style={{ margin: "0 0 0.35rem", fontSize: "1.05rem" }}>Visual mode</h2>
+              <p style={{ margin: 0, color: "#94a3b8", lineHeight: 1.55 }}>
+                Configure how the public observatory frames live project data.
+              </p>
+            </div>
+
+            <div style={{ display: "grid", gridTemplateColumns: "minmax(180px, 0.5fr) minmax(0, 1fr)", gap: "0.75rem" }}>
+              <label style={{ display: "grid", gap: "0.35rem", color: "#cbd5e1", fontSize: "0.82rem" }}>
+                Mode
+                <select className="input" value={visualisationType} onChange={(event) => changeVisualisationType(event.target.value as DeveloperSpaceVisualisationType)}>
+                  <option value="node_field">Node field</option>
+                  <option value="timeline">Timeline</option>
+                  <option value="world_map">World map</option>
+                  <option value="constellation">Constellation</option>
+                </select>
+              </label>
+
+              <div style={{ display: "grid", gap: "0.65rem" }}>
+                {visualisationType === "node_field" ? (
+                  <>
+                    <label style={{ display: "grid", gap: "0.35rem", color: "#cbd5e1", fontSize: "0.82rem" }}>
+                      Max nodes
+                      <input className="input" type="number" min={4} max={32} value={Number(boundedVisualConfig.maxNodes)} onChange={(event) => updateVisualConfig("maxNodes", Number(event.target.value))} />
+                    </label>
+                    <label style={{ display: "flex", gap: "0.5rem", alignItems: "center", color: "#cbd5e1", fontSize: "0.86rem" }}>
+                      <input type="checkbox" checked={boundedVisualConfig.showMetrics !== false} onChange={(event) => updateVisualConfig("showMetrics", event.target.checked)} />
+                      Show node metrics
+                    </label>
+                  </>
+                ) : null}
+
+                {visualisationType === "timeline" ? (
+                  <>
+                    <label style={{ display: "grid", gap: "0.35rem", color: "#cbd5e1", fontSize: "0.82rem" }}>
+                      Event limit
+                      <input className="input" type="number" min={3} max={30} value={Number(boundedVisualConfig.eventLimit)} onChange={(event) => updateVisualConfig("eventLimit", Number(event.target.value))} />
+                    </label>
+                    <label style={{ display: "grid", gap: "0.35rem", color: "#cbd5e1", fontSize: "0.82rem" }}>
+                      Node limit
+                      <input className="input" type="number" min={3} max={20} value={Number(boundedVisualConfig.nodeLimit)} onChange={(event) => updateVisualConfig("nodeLimit", Number(event.target.value))} />
+                    </label>
+                    <label style={{ display: "flex", gap: "0.5rem", alignItems: "center", color: "#cbd5e1", fontSize: "0.86rem" }}>
+                      <input type="checkbox" checked={boundedVisualConfig.showSnapshots !== false} onChange={(event) => updateVisualConfig("showSnapshots", event.target.checked)} />
+                      Show snapshots
+                    </label>
+                  </>
+                ) : null}
+
+                {visualisationType === "world_map" ? (
+                  <>
+                    <label style={{ display: "grid", gap: "0.35rem", color: "#cbd5e1", fontSize: "0.82rem" }}>
+                      Zone field
+                      <input className="input" value={String(boundedVisualConfig.zoneField)} onChange={(event) => updateVisualConfig("zoneField", event.target.value)} />
+                    </label>
+                    <label style={{ display: "grid", gap: "0.35rem", color: "#cbd5e1", fontSize: "0.82rem" }}>
+                      Max zones
+                      <input className="input" type="number" min={3} max={24} value={Number(boundedVisualConfig.maxZones)} onChange={(event) => updateVisualConfig("maxZones", Number(event.target.value))} />
+                    </label>
+                    <label style={{ display: "flex", gap: "0.5rem", alignItems: "center", color: "#cbd5e1", fontSize: "0.86rem" }}>
+                      <input type="checkbox" checked={boundedVisualConfig.staggerZones !== false} onChange={(event) => updateVisualConfig("staggerZones", event.target.checked)} />
+                      Stagger zone cards
+                    </label>
+                  </>
+                ) : null}
+
+                {visualisationType === "constellation" ? (
+                  <>
+                    <label style={{ display: "grid", gap: "0.35rem", color: "#cbd5e1", fontSize: "0.82rem" }}>
+                      Max nodes
+                      <input className="input" type="number" min={4} max={32} value={Number(boundedVisualConfig.maxNodes)} onChange={(event) => updateVisualConfig("maxNodes", Number(event.target.value))} />
+                    </label>
+                    <label style={{ display: "flex", gap: "0.5rem", alignItems: "center", color: "#cbd5e1", fontSize: "0.86rem" }}>
+                      <input type="checkbox" checked={boundedVisualConfig.showEventCounts !== false} onChange={(event) => updateVisualConfig("showEventCounts", event.target.checked)} />
+                      Show event counts
+                    </label>
+                  </>
+                ) : null}
+              </div>
+            </div>
+
+            <button className="button primary" onClick={saveVisualConfig} disabled={savingVisualConfig} style={{ width: "fit-content" }}>
+              {savingVisualConfig ? "Saving..." : "Save visual mode"}
+            </button>
+          </div>
+
           <div className="card" style={{ display: "grid", gap: "0.8rem" }}>
             <div style={{ display: "flex", justifyContent: "space-between", gap: "0.75rem", alignItems: "flex-start", flexWrap: "wrap" }}>
               <div>
