@@ -98,6 +98,11 @@ when a PR lands, or when validation truth changes.
   plus public observatory rendering that respects the selected mode, sensible
   defaults, bounded scalar display, safe map-zone keys, and narrow-width manage
   layout constraints.
+- PR-17 is active, 2026-06-06: add a bounded Stripe and paid-entitlement
+  foundation for pricing config, paid Space and Developer Space limits, Stripe
+  Checkout/Billing, verified webhook handling, entitlement enforcement, and a
+  billing page. Keep it to roadmap scope; do not expand into a broad billing
+  platform or unrelated product polish.
 
 ## Current repo truth
 
@@ -183,6 +188,10 @@ when a PR lands, or when validation truth changes.
   timeline snapshot visibility from the normalized config. Public scalar values
   and world-map zone labels are capped for readability, and the manage editor
   uses auto-fit layout constraints at narrow widths.
+- As PR-17 begins, paid-entitlement work should use Stripe Billing with Checkout
+  Sessions for subscription flows, Prices for pricing identity, verified
+  webhooks before state changes, and server-side entitlement rules for paid
+  Space and Developer Space limits.
 - Core API route modules no longer import local in-memory mock data. Runtime
   persistence goes through the Supabase client boundary; route tests use
   injected fake Supabase clients for deterministic proof.
@@ -241,7 +250,7 @@ pnpm test:developer-spaces
 
 - IntelHub CTI, finance, exposure, recon, dark-provider, browser-worker, PM, and
   model-gateway layers.
-- Stripe/paid entitlements before auth, persistence, validation, continuity, and
-  Developer Spaces hardening are sane.
+- Broad Stripe/billing expansion beyond the bounded PR-17 paid-entitlement
+  foundation.
 - Developer Spaces visual polish before ingestion auth, validation, limits, and
   safe serialization.
