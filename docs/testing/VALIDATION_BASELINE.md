@@ -293,6 +293,34 @@ Targeted commands run with the pinned runner:
 | `git diff --check` | Pass | No whitespace errors; Git reported expected CRLF normalization warnings for touched files. |
 | `npx --yes pnpm@10.32.1 build` | Pass | Known React hook dependency and `<img>` optimization warnings only; no new PR-08 warnings. |
 
-PR-08 remains pending ARGUS review. Review should focus on owner scoping,
-visibility semantics, and whether exposing public/community visibility choices
-from an owner-only route is acceptable for the current alpha surface.
+## PR-08 ARGUS review result
+
+ARGUS reviewed the DAEDALUS PR-08 implementation on 2026-06-06 and accepted the
+bounded Continuity Studio UI scope.
+
+Review notes:
+
+- The new Studio Timeline page uses the owner session and the owner-scoped
+  `/continuity/persona/:personaId/records` API.
+- Document source options are loaded from the existing owner-filtered
+  `/documents?personaId=:personaId` route.
+- Conversation source options are loaded from the existing owner-filtered
+  `/conversations/persona/:personaId` route.
+- Persona continuity summary counts are only attached for the owner.
+- Public/community continuity visibility remains alpha metadata because
+  continuity reads are still owner-only.
+- Remaining risk: the UI source picker only offers owner documents and
+  conversations, but the `/continuity` API still stores caller-provided source
+  IDs without validating the linked source owner. Tighten that before continuity
+  visibility is used by public/community serializers.
+
+Commands re-run by ARGUS:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npx --yes pnpm@10.32.1 test:continuity` | Pass | 3 tests passed. |
+| `npx --yes pnpm@10.32.1 test:continuity-publication` | Pass | 1 test passed. |
+| `npx --yes pnpm@10.32.1 build` | Pass | Known pre-existing React hook and `<img>` warnings only. |
+
+PR-08 is complete for the bounded Continuity Studio UI scope. MIMIR should pick
+the next roadmap move.

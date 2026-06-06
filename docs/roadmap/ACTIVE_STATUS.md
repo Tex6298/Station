@@ -32,11 +32,13 @@ when a PR lands, or when validation truth changes.
   scope. The owner-scoped `/continuity` API skeleton over `continuity_records`,
   shared continuity DTOs, source-version schema alignment, and focused
   data-shape test passed hostile-path review.
-- PR-08 DAEDALUS implementation is ready for ARGUS review, 2026-06-06:
-  Continuity Studio now has a persona Timeline tab/page, a cross-source
-  continuity record list/create form, document/conversation source linking, and
-  focused UI helper tests. Do not mark PR-08 complete until ARGUS reviews the
-  visibility and owner-scoping edges.
+- PR-08 is complete, 2026-06-06: ARGUS accepted the bounded Continuity Studio UI
+  slice. Studio now has a persona Timeline tab/page, a cross-source continuity
+  record list/create form, document/conversation source linking, persona summary
+  continuity counts, and focused UI helper tests. Remaining alpha risk: source
+  link ownership is safe through the UI and current owner-only reads, but the
+  `/continuity` API should validate linked source ownership before visibility
+  flags become public-facing behavior.
 
 ## Current repo truth
 
@@ -64,10 +66,10 @@ when a PR lands, or when validation truth changes.
   while specialized tables such as `memory_items`, `canon_items`,
   `archived_chat_transcripts`, `continuity_candidates`, and
   `integrity_sessions` remain canonical for their own flows.
-- As of the PR-08 DAEDALUS implementation, the Studio persona workspace links
-  to `/studio/personas/:personaId/continuity`, which lists owner-scoped
-  `continuity_records` and can create new timeline markers linked to documents
-  or conversations. This is pending ARGUS review before PR-08 is complete.
+- As of PR-08, the Studio persona workspace links to
+  `/studio/personas/:personaId/continuity`, which lists owner-scoped
+  `continuity_records` and can create new timeline markers linked to owner
+  documents or conversations from the Studio UI.
 - Core API route modules no longer import local in-memory mock data. Runtime
   persistence goes through the Supabase client boundary; route tests use
   injected fake Supabase clients for deterministic proof.
