@@ -10,7 +10,7 @@ import { formatWakeup, newWakeupsFor } from "./triad-wakeups.mjs";
 const POLL_MS = 5_000;
 
 function usage() {
-  console.log("Usage: node scripts/triad-watch.mjs <A1|A2|A3> [--watch]");
+  console.log("Usage: node scripts/triad-watch.mjs <A1|A2|A3|A4> [--watch]");
 }
 
 function poll(agent, { quiet = false } = {}) {

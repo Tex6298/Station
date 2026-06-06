@@ -6,6 +6,7 @@ export const AGENTS = {
   A1: { codename: "MIMIR", title: "The Conductor" },
   A2: { codename: "DAEDALUS", title: "The Machinist" },
   A3: { codename: "ARGUS", title: "The Sentinel" },
+  A4: { codename: "ARIADNE", title: "The UX Navigator", inboxName: "A4" },
 };
 
 export const REPO_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -28,7 +29,7 @@ export function getAgents() {
 }
 
 export function inboxPath(agent) {
-  return path.join(TRIAD_ROOT, "inbox", agent.codename);
+  return path.join(TRIAD_ROOT, "inbox", agent.inboxName ?? agent.codename);
 }
 
 export function statePath(agent) {

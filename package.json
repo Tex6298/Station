@@ -26,6 +26,7 @@
     "triad:watch:mimir": "node scripts/triad-watch.mjs A1 --watch",
     "triad:watch:daedalus": "node scripts/triad-watch.mjs A2 --watch",
     "triad:watch:argus": "node scripts/triad-watch.mjs A3 --watch",
+    "triad:watch:ariadne": "node scripts/triad-watch.mjs A4 --watch",
     "triad:status": "node scripts/triad-status.mjs"
   },
   "devDependencies": {
