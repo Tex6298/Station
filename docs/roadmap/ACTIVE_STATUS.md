@@ -39,6 +39,9 @@ when a PR lands, or when validation truth changes.
   link ownership is safe through the UI and current owner-only reads, but the
   `/continuity` API should validate linked source ownership before visibility
   flags become public-facing behavior.
+- PR-09 is the active next roadmap move: start by tightening continuity
+  source-link ownership validation, then proceed into bounded publication and
+  export pipeline work without broad UI or Developer Spaces expansion.
 
 ## Current repo truth
 
