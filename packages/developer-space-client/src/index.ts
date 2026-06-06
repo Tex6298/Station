@@ -65,13 +65,15 @@ export class DeveloperSpaceClient {
   private readonly headers: Record<string, string>;
 
   constructor(options: DeveloperSpaceClientOptions) {
-    if (!options.baseUrl) throw new Error("DeveloperSpaceClient requires baseUrl.");
-    if (!options.apiKey) throw new Error("DeveloperSpaceClient requires apiKey.");
+    const baseUrl = options.baseUrl.trim();
+    const apiKey = options.apiKey.trim();
+    if (!baseUrl) throw new Error("DeveloperSpaceClient requires baseUrl.");
+    if (!apiKey) throw new Error("DeveloperSpaceClient requires apiKey.");
     const fetchImpl = options.fetch ?? globalThis.fetch;
     if (!fetchImpl) throw new Error("DeveloperSpaceClient requires a fetch implementation.");
 
-    this.baseUrl = options.baseUrl.replace(/\/+$/, "");
-    this.apiKey = options.apiKey;
+    this.baseUrl = baseUrl.replace(/\/+$/, "");
+    this.apiKey = apiKey;
     this.fetchImpl = fetchImpl;
     this.headers = options.headers ?? {};
   }
@@ -97,9 +99,9 @@ export class DeveloperSpaceClient {
     const response = await this.fetchImpl(`${this.baseUrl}${path}`, {
       method: "POST",
       headers: {
+        ...this.headers,
         "Content-Type": "application/json",
         "X-Station-Developer-Key": this.apiKey,
-        ...this.headers,
       },
       body: JSON.stringify(payload ?? {}),
     });

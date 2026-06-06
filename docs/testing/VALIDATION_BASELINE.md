@@ -40,6 +40,7 @@ pnpm test:continuity-publication
 pnpm test:document-discussions
 pnpm test:exports
 pnpm test:developer-spaces
+pnpm test:developer-space-client
 ```
 
 ## PR-01 result
@@ -794,7 +795,32 @@ Targeted commands run with the pinned runner:
 | `npx --yes pnpm@10.32.1 test:developer-spaces` | Pass | 2 tests passed; existing ingestion route contracts remain green. |
 | `npx --yes pnpm@10.32.1 typecheck` | Pass | Workspace typecheck completed; the new package's required check is its package build. |
 
-ARGUS still needs to review the PR-15 implementation before the roadmap should
-mark PR-15 accepted. Main risks to review: package API naming, fetch/error
-semantics, server-side key guidance, and whether the docs/examples stay aligned
-with the ingestion route contracts.
+## PR-15 ARGUS acceptance result
+
+ARGUS reviewed the DAEDALUS Developer Space client package on 2026-06-06, found
+one client-header guardrail gap, and patched it in review.
+
+Additional ARGUS hardening:
+
+- The client trims `baseUrl` and `apiKey` before validation/storage.
+- Required `Content-Type` and `X-Station-Developer-Key` headers now override
+  optional custom headers so callers cannot accidentally break ingestion auth.
+- Added `pnpm test:developer-space-client` as a root validation alias.
+- Added package-level tests for encoded node paths, required headers,
+  structured API errors, and blank credential rejection.
+
+Commands re-run by ARGUS:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npx --yes pnpm@10.32.1 test:developer-space-client` | Pass | 3 package tests passed. |
+| `npx --yes pnpm@10.32.1 --filter @station/developer-space-client build` | Pass | Client package compiled with declarations. |
+| `npx --yes pnpm@10.32.1 test:developer-spaces` | Pass | 2 tests passed; existing ingestion route contracts remain green. |
+| `git diff --check` | Pass | CRLF normalization warnings only for touched files. |
+| `npx --yes pnpm@10.32.1 typecheck` | Pass | Workspace typecheck completed. |
+| `npx --yes pnpm@10.32.1 build` | Pass | Full workspace build passed with known warnings only. |
+
+PR-15 is accepted for the bounded workspace-local Developer Space ingestion
+client. This does not add PR-16 visual config editors, broad SDK ecosystem work,
+publish/release automation, Stripe/token-credit work, or Developer Spaces UI
+redesign.

@@ -88,10 +88,11 @@ when a PR lands, or when validation truth changes.
   `developer_space_usage` counters for ingestion/storage/public reads/exports,
   an API-level quota model for owner visibility, manage-console usage/export
   controls, and target/ownership guardrails on Developer Space export rows.
-- PR-15 DAEDALUS implementation is ready for ARGUS review, 2026-06-06: added
-  the tiny `@station/developer-space-client` package with TypeScript ingestion
-  helpers, curl examples, a minimal Node example, and focused docs without
-  moving into PR-16 visual config editors.
+- PR-15 is accepted by ARGUS, 2026-06-06: added the tiny
+  `@station/developer-space-client` package with TypeScript ingestion helpers,
+  curl examples, a minimal Node example, focused docs, a package test gate, and
+  client-side header/error guardrails without moving into PR-16 visual config
+  editors.
 
 ## Current repo truth
 
@@ -105,8 +106,8 @@ when a PR lands, or when validation truth changes.
   forums, comments, reports, exports, social publishing, and Developer Spaces.
 - Developer Spaces exists as a Station-native observatory slice, with ingestion
   hardening, bounded SSE live updates, Discover integration, linked Station
-  documents, and owner-only export/usage primitives accepted. The client
-  package is implemented for PR-15 review; visual editors remain PR-16.
+  documents, owner-only export/usage primitives, and the tiny ingestion client
+  package accepted. Visual editors remain PR-16.
 - As of PR-06 on 2026-05-31, the full validation baseline passed with the pinned
   pnpm runner.
 - As of the 2026-06-05 current-main reconciliation, the full gate was no longer
@@ -165,10 +166,11 @@ when a PR lands, or when validation truth changes.
   exposes owner-only quota/usage status for the manage console, and
   `export_packages` enforces persona-vs-Developer-Space target shape for the
   supported package kinds.
-- As of PR-15 DAEDALUS implementation, `packages/developer-space-client`
-  provides a small TypeScript ingestion client for the existing Developer Space
-  node state, event, snapshot, and batch import routes. It is workspace-local,
-  server-side-key oriented, and documented with curl plus Node examples.
+- As of PR-15 ARGUS acceptance, `packages/developer-space-client` provides a
+  small TypeScript ingestion client for the existing Developer Space node
+  state, event, snapshot, and batch import routes. It is workspace-local,
+  server-side-key oriented, documented with curl plus Node examples, and covered
+  by `pnpm test:developer-space-client`.
 - Core API route modules no longer import local in-memory mock data. Runtime
   persistence goes through the Supabase client boundary; route tests use
   injected fake Supabase clients for deterministic proof.
