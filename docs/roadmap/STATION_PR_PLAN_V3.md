@@ -50,6 +50,8 @@ git diff --check
 
 ### V3-01 - Storage quota hardening
 
+Status: accepted by ARGUS on 2026-06-06.
+
 Purpose: make storage quota behavior trustworthy enough to support archive,
 import, export, and paid limits.
 

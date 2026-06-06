@@ -602,6 +602,30 @@ test("chat imports reserve text bytes and roll back when archive insert fails", 
     resetStorageFake();
   }
 
+  const jobFailingDb = new InMemorySupabase();
+  jobFailingDb.failInsertTables.add("import_jobs");
+  setSupabaseAdminForTests(jobFailingDb.client as any);
+  const jobFailingApp = await createImportsApp();
+
+  try {
+    const failedBeforeIngest = await requestJson(jobFailingApp, "POST", "/imports/chat", {
+      token: "owner-token",
+      body: {
+        personaId: PERSONA_ID,
+        content,
+        sourceName: "failed-job-import",
+      },
+    });
+
+    assert.equal(failedBeforeIngest.status, 500);
+    assert.match(failedBeforeIngest.body.error, /import_jobs/);
+    assert.equal(storageRow(jobFailingDb).bytes_used, 0);
+    assert.equal(jobFailingDb.tables.memory_items.length, 0);
+    assert.equal(jobFailingDb.tables.import_jobs.length, 0);
+  } finally {
+    resetStorageFake();
+  }
+
   const failingDb = new InMemorySupabase();
   failingDb.failInsertTables.add("memory_items");
   setSupabaseAdminForTests(failingDb.client as any);

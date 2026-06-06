@@ -34,7 +34,7 @@ importsRouter.post("/chat", async (req, res) => {
   }
 
   // Create import job
-  const { data: job } = await sb
+  const { data: job, error: jobError } = await sb
     .from("import_jobs")
     .insert({
       persona_id: persona.id,
@@ -45,6 +45,10 @@ importsRouter.post("/chat", async (req, res) => {
     })
     .select("id, kind, status, source_name, error_message, created_at, updated_at")
     .single();
+
+  if (jobError || !job) {
+    return res.status(500).json({ error: jobError?.message ?? "Import job insert failed." });
+  }
 
   try {
     const chunksCreated = await ingestTextIntoArchive({
@@ -59,7 +63,7 @@ importsRouter.post("/chat", async (req, res) => {
     const { data: completedJob } = await sb
       .from("import_jobs")
       .update({ status: "completed" })
-      .eq("id", job!.id)
+      .eq("id", job.id)
       .select("id, kind, status, source_name, error_message, created_at, updated_at")
       .single();
 
@@ -79,7 +83,7 @@ importsRouter.post("/chat", async (req, res) => {
       await sb
         .from("import_jobs")
         .update({ status: "failed", error_message: storageError.body.error })
-        .eq("id", job!.id);
+        .eq("id", job.id);
       return res.status(storageError.status).json(storageError.body);
     }
 
@@ -87,7 +91,7 @@ importsRouter.post("/chat", async (req, res) => {
     await sb
       .from("import_jobs")
       .update({ status: "failed", error_message: message })
-      .eq("id", job!.id);
+      .eq("id", job.id);
     return res.status(500).json({ error: message });
   }
 });

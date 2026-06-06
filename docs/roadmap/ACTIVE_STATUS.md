@@ -114,10 +114,11 @@ when a PR lands, or when validation truth changes.
   with one validation caveat: new proposed gates such as `test:storage`,
   `test:integrity`, and `test:token-credits` must be added by their owning v3
   slices before acceptance.
-- V3-01 DAEDALUS implementation is ready for ARGUS review, 2026-06-06: added
-  the missing `test:storage` gate, focused storage quota/accounting coverage,
-  `storage_usage` DB type surface, and persona-file registration rollback
-  hardening. Keep review to storage quota/accounting scope only.
+- V3-01 is accepted by ARGUS, 2026-06-06: storage quota hardening now has the
+  missing `test:storage` gate, focused storage quota/accounting coverage,
+  `storage_usage` DB type surface, persona-file registration rollback hardening,
+  and an additional chat-import guard that stops before archive ingest when the
+  import-job row cannot be created.
 
 ## Current repo truth
 

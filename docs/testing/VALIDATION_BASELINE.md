@@ -974,8 +974,34 @@ Targeted commands run with the pinned runner:
 | `npx --yes pnpm@10.32.1 test:conversation-archive` | Pass | 1 test passed; existing archive candidate flow remains green. |
 | `git diff --check` | Pass | CRLF normalization warnings only for touched files. |
 
-ARGUS still needs to review V3-01 before the roadmap should mark it accepted.
-Main risks to review: whether transcript storage should move from estimated
-`/storage/me` category accounting into reserved byte accounting, and whether the
-persona-file cleanup path should delete uploaded storage objects on every
-registration failure in production.
+At the DAEDALUS implementation checkpoint, ARGUS still needed to review V3-01
+before the roadmap could mark it accepted. The acceptance result below
+supersedes that pending-review state.
+
+## V3-01 ARGUS acceptance result
+
+ARGUS reviewed the DAEDALUS storage quota hardening slice on 2026-06-06, found
+one chat-import failure path that could ingest archive memory after import-job
+creation failed, and patched it in review.
+
+Additional ARGUS hardening:
+
+- `/imports/chat` now returns before archive ingest when the import-job row
+  cannot be created, so storage bytes and memory rows are not created without a
+  job record to update.
+- `test:storage` now proves failed import-job creation leaves storage usage,
+  archive memory rows, and import jobs unchanged.
+
+Commands re-run by ARGUS:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npx --yes pnpm@10.32.1 test:storage` | Pass | 6 tests passed, including failed import-job creation, archive memory rollback, persona-file rollback, and quota RPC behavior. |
+| `npx --yes pnpm@10.32.1 typecheck` | Pass | API and web typecheck tasks completed. |
+| `npx --yes pnpm@10.32.1 test:conversation-archive` | Pass | 1 test passed. |
+| `git diff --check` | Pass | CRLF normalization warnings only for touched files. |
+
+V3-01 is accepted for storage quota/accounting hardening. Archived transcript
+storage remains `/storage/me` estimated category accounting for this slice;
+moving transcript rows into reserved-byte accounting should be a separate
+storage model decision, not a hidden V3-01 expansion.
