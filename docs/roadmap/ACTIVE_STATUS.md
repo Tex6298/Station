@@ -164,6 +164,9 @@ when a PR lands, or when validation truth changes.
   is safe to open as a narrow frame/mobile-navigation slice with no API changes;
   UX-02A should stay on the per-persona Archive tab and defer global
   Archive/Export workspace implementation.
+- UX-01A is active, 2026-06-06: implement only the narrow Studio frame/mobile
+  navigation slice, preserving routes, page behavior, auth/session semantics,
+  and API behavior.
 
 ## Current repo truth
 
