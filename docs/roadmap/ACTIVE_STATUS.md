@@ -93,6 +93,10 @@ when a PR lands, or when validation truth changes.
   curl examples, a minimal Node example, focused docs, a package test gate, and
   client-side header/error guardrails without moving into PR-16 visual config
   editors.
+- PR-16 is active, 2026-06-06: add bounded Developer Spaces visual config
+  editors for node field, timeline, world map, and constellation modes with
+  sensible defaults. Keep this out of PR-17 Stripe/paid entitlements, broad
+  Developer Spaces UI redesign, and unrelated visual polish.
 
 ## Current repo truth
 
@@ -171,6 +175,10 @@ when a PR lands, or when validation truth changes.
   state, event, snapshot, and batch import routes. It is workspace-local,
   server-side-key oriented, documented with curl plus Node examples, and covered
   by `pnpm test:developer-space-client`.
+- As PR-16 begins, the next bounded Developer Spaces slice is visual config
+  editing: owner-facing controls should write the existing
+  `visualisation_type` and `visualisation_config` shape, and public observatory
+  rendering should respect the selected mode with sensible defaults.
 - Core API route modules no longer import local in-memory mock data. Runtime
   persistence goes through the Supabase client boundary; route tests use
   injected fake Supabase clients for deterministic proof.
