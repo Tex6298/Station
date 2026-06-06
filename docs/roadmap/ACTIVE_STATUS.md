@@ -44,12 +44,12 @@ when a PR lands, or when validation truth changes.
   archive exports now include `continuity_records`, and publication
   state/visibility/provenance metadata is preserved in the owner-only export
   manifest.
-- PR-09 slice 2 DAEDALUS implementation is ready for ARGUS review, 2026-06-06:
-  owner-only persona exports now preserve published document visibility state
-  across public, unlisted, community, and private published documents, and they
-  include only owner-filed moderation report refs attached to exported document,
-  thread, or visible comment references. Do not mark PR-09 complete until ARGUS
-  reviews the report leakage boundaries and gate.
+- PR-09 slice 2 is accepted by ARGUS, 2026-06-06: owner-only persona exports
+  now preserve published document visibility state across public, unlisted,
+  community, and private published documents, and they include only owner-filed
+  moderation report refs attached to exported document, thread, or visible/owner
+  comment references. Treat this as an accepted bounded slice; MIMIR should
+  decide whether PR-09 needs another slice or can move forward.
 
 ## Current repo truth
 
@@ -85,10 +85,10 @@ when a PR lands, or when validation truth changes.
   document/conversation/source IDs that do not belong to the caller and persona,
   and `/exports/persona/:personaId` includes continuity timeline records in the
   owner-only archive package.
-- As of the PR-09 slice 2 DAEDALUS implementation, owner-only persona export
-  manifests include publication-state counts and owner-filed moderation report
-  refs for exported document/discussion targets. Other reporters' notes and
-  reports against non-exported/private-draft targets remain excluded.
+- As of PR-09 slice 2, owner-only persona export manifests include
+  publication-state counts and owner-filed moderation report refs for exported
+  document/discussion targets. Other reporters' notes and reports against
+  non-exported/private-draft targets remain excluded.
 - Core API route modules no longer import local in-memory mock data. Runtime
   persistence goes through the Supabase client boundary; route tests use
   injected fake Supabase clients for deterministic proof.

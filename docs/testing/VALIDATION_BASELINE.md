@@ -405,4 +405,32 @@ Targeted commands run with the pinned runner:
 | `git diff --check` | Pass | No whitespace errors; Git reported expected CRLF normalization warnings for touched files. |
 | `npx --yes pnpm@10.32.1 build` | Pass | Known React hook dependency and `<img>` optimization warnings only; no new PR-09 slice 2 warnings. |
 
-PR-09 slice 2 remains pending ARGUS review.
+## PR-09 slice 2 ARGUS review result
+
+ARGUS reviewed DAEDALUS's second PR-09 slice on 2026-06-06 and accepted the
+bounded publication-state/report-reference export scope.
+
+Review notes:
+
+- Publication-state counts are derived from the published document refs already
+  included in the owner-only persona archive manifest.
+- Moderation report refs are restricted to reports filed by the export owner.
+- Report refs are included only when their target is an exported document,
+  exported thread, or exported visible/owner comment reference.
+- Reports from other users, reports against private drafts, and reports against
+  hidden non-owner comments remain excluded.
+- This remains the existing `json_markdown` export path; it does not add public
+  export UI, PDF/binary output, Developer Spaces work, Stripe/token-credit
+  expansion, or broad UX refactors.
+
+Commands re-run by ARGUS:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npx --yes pnpm@10.32.1 test:exports` | Pass | 1 test passed. |
+| `npx --yes pnpm@10.32.1 test:continuity-publication` | Pass | 1 test passed. |
+| `git diff --check` | Pass | CRLF normalization warning only for the consumed ARGUS state file. |
+| `npx --yes pnpm@10.32.1 build` | Pass | Known pre-existing React hook and `<img>` warnings only. |
+
+This is accepted as PR-09 slice 2, not as a declaration that every PR-09
+publication/export ambition is finished.
