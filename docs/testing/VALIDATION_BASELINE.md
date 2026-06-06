@@ -464,3 +464,29 @@ Targeted commands run with the pinned runner:
 ARGUS still needs to review ingestion auth, key lifecycle semantics, conservative
 public JSON scrubbing, and the retained legacy key-hash fallback before PR-10 is
 marked complete.
+
+## PR-10 ARGUS review follow-up
+
+ARGUS reviewed the DAEDALUS PR-10 implementation on 2026-06-06 and did not mark
+the slice accepted yet. Key lifecycle, hash serialization, payload limits, and
+legacy key fallback pass review, but the public/community JSON scrubber is too
+literal for the public-safe serialization claim.
+
+Validation re-run by ARGUS:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npx --yes pnpm@10.32.1 test:developer-spaces` | Pass | 2 tests passed. |
+| `npx --yes pnpm@10.32.1 typecheck` | Pass | API and web typecheck tasks completed. |
+| `git diff --check` | Pass | CRLF normalization warning only for the consumed ARGUS state file. |
+| `npx --yes pnpm@10.32.1 build` | Pass | Known pre-existing React hook dependency and `<img>` optimization warnings only. |
+
+Follow-up required before acceptance:
+
+- Make `publicSafeDeveloperSpaceData` case-insensitive and cover obvious
+  secret-shaped aliases such as `password`, `accessToken`, `refreshToken`,
+  `secretKey`, `clientSecret`, `credentials`, `cookie`, and `setCookie`.
+- Add hostile-path coverage proving public/community observatory responses scrub
+  those aliases while owner responses retain operational detail.
+- Keep the scope narrow: no live updates, quotas, Discover expansion, UI
+  redesign, or Developer Spaces docs expansion.

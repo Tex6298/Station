@@ -54,11 +54,14 @@ when a PR lands, or when validation truth changes.
   report-reference privacy, and the existing JSON/Markdown package path. Deeper
   public export UI, PDF/binary packaging, and richer download workflows are
   future export enhancements, not blockers for PR-10.
-- PR-10 DAEDALUS implementation is ready for ARGUS review, 2026-06-06:
-  Developer Spaces ingestion now prefers active ingestion-key rows with legacy
-  hash fallback, rotation revokes prior active keys, key revocation clears the
-  legacy hash surface, JSON payload guardrails are enforced, and non-owner
-  observatory serialization scrubs sensitive raw fields.
+- PR-10 DAEDALUS implementation needs one ARGUS-requested follow-up,
+  2026-06-06: Developer Spaces ingestion now prefers active ingestion-key rows
+  with legacy hash fallback, rotation revokes prior active keys, key revocation
+  clears the legacy hash surface, JSON payload guardrails are enforced, and
+  `api_key_hash` is not serialized. ARGUS rerouted the slice back to DAEDALUS
+  because non-owner observatory scrubbing still exposes obvious secret-shaped
+  keys such as `password`, `accessToken`, capitalized `Authorization`, and
+  `secretKey`.
 
 ## Current repo truth
 
@@ -103,9 +106,9 @@ when a PR lands, or when validation truth changes.
   required for PR-10 to begin.
 - As of PR-10 DAEDALUS implementation, Developer Spaces API key rotation writes
   `developer_space_ingestion_keys`, revoked keys no longer authorize ingestion,
-  oversized/deep JSON payloads are rejected, `api_key_hash` is never serialized,
-  and public/community observatory responses remove sensitive raw JSON keys while
-  owner responses retain operational detail.
+  oversized/deep JSON payloads are rejected, and `api_key_hash` is never
+  serialized. Public/community observatory responses still need a narrow
+  scrubber fix before ARGUS can accept the public-safe serialization claim.
 - Core API route modules no longer import local in-memory mock data. Runtime
   persistence goes through the Supabase client boundary; route tests use
   injected fake Supabase clients for deterministic proof.
