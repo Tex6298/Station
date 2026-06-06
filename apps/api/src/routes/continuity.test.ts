@@ -45,6 +45,9 @@ class InMemorySupabase {
     persona_files: [],
     import_jobs: [],
     calibration_sessions: [],
+    archived_chat_transcripts: [],
+    continuity_candidates: [],
+    continuity_records: [],
   };
 
   private idCounters: Record<string, number> = {};

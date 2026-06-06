@@ -24,40 +24,19 @@ when a PR lands, or when validation truth changes.
   public-safe forum links and comment parents, filter featured Discover rows by
   visibility, protect document persona ownership, and are covered by
   `pnpm test:community`.
-- Current `main` is under reconciliation before PR-07 starts. Commits
-  `65a8328` through `63d9754` landed broader storage, integrity, token-credit,
-  Stripe-adjacent, and UX work after PR-06. See
-  `docs/roadmap/CURRENT_MAIN_RECONCILIATION.md`.
-- Direction checkpoint, 2026-06-06: do not start PR-07 product work yet. First
-  close the current-main validation repair lane by fixing or explicitly
-  accepting the `test:continuity`, `test:persona-context`, and
-  `test:conversation-archive` regressions. Treat the early storage,
-  integrity, token-credit, Stripe-adjacent, and broad UX stack as present but
-  not roadmap-complete until ARGUS confirms the reconciliation and validation
-  posture.
-- ARGUS confirmation, 2026-06-06: this direction is confirmed. The next active
-  work should be a narrow validation-repair lane, not PR-07 product scope.
-- MIMIR handoff, 2026-06-06: DAEDALUS is assigned the narrow
-  validation-repair lane. Scope is limited to restoring or clearly isolating
-  `test:continuity`, `test:persona-context`, and `test:conversation-archive`.
-  Do not add PR-07 product surface while repairing this base.
-- Validation repair, 2026-06-06: the three targeted regressions now pass with
-  the pinned pnpm runner. The repair kept scope narrow: Supabase test fakes now
-  model storage RPC/no-row behavior, persona runtime context expects the default
-  preference profile, and persona continuity summaries count both new integrity
-  sessions and existing calibration sessions. Full baseline re-run is still
-  pending ARGUS review.
-- Full baseline, 2026-06-06: the complete PR-01 validation gate passed with the
-  pinned `npx --yes pnpm@10.32.1` runner. Known warning-only output remains the
-  existing pnpm config/build-script notice, React hook dependency warnings, and
-  `<img>` optimization warnings. PR-07 is cleared to begin, limited to
-  Continuity Alpha data model scope only.
-- PR-07 ARGUS review, 2026-06-06: accepted as complete for the bounded
-  Continuity Alpha data-model scope. The owner-scoped `/continuity` API skeleton
-  over `continuity_records`, shared continuity DTOs, source-version schema
-  alignment, and focused data-shape test passed hostile-path review. ARGUS
-  re-ran the PR-07 acceptance gate and found no stale triad sleep refs after the
-  watcher cleanup.
+- Post-PR-06 reconciliation and validation repair are complete. The broader
+  storage, integrity, token-credit, Stripe-adjacent, and UX stack is documented
+  in `docs/roadmap/CURRENT_MAIN_RECONCILIATION.md`; the local validation gate is
+  green again with the pinned `npx --yes pnpm@10.32.1` runner.
+- PR-07 is complete: ARGUS accepted the bounded Continuity Alpha data-model
+  scope. The owner-scoped `/continuity` API skeleton over `continuity_records`,
+  shared continuity DTOs, source-version schema alignment, and focused
+  data-shape test passed hostile-path review.
+- PR-08 DAEDALUS implementation is ready for ARGUS review, 2026-06-06:
+  Continuity Studio now has a persona Timeline tab/page, a cross-source
+  continuity record list/create form, document/conversation source linking, and
+  focused UI helper tests. Do not mark PR-08 complete until ARGUS reviews the
+  visibility and owner-scoping edges.
 
 ## Current repo truth
 
@@ -85,6 +64,10 @@ when a PR lands, or when validation truth changes.
   while specialized tables such as `memory_items`, `canon_items`,
   `archived_chat_transcripts`, `continuity_candidates`, and
   `integrity_sessions` remain canonical for their own flows.
+- As of the PR-08 DAEDALUS implementation, the Studio persona workspace links
+  to `/studio/personas/:personaId/continuity`, which lists owner-scoped
+  `continuity_records` and can create new timeline markers linked to documents
+  or conversations. This is pending ARGUS review before PR-08 is complete.
 - Core API route modules no longer import local in-memory mock data. Runtime
   persistence goes through the Supabase client boundary; route tests use
   injected fake Supabase clients for deterministic proof.

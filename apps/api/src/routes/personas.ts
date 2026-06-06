@@ -47,7 +47,16 @@ function serializePersona(row: any, continuity?: any) {
 async function loadContinuitySummary(personaId: string, ownerUserId: string) {
   const sb = getSupabaseAdmin();
 
-  const [memory, canon, files, integritySessions, calibrationSessions] = await Promise.all([
+  const [
+    memory,
+    canon,
+    files,
+    integritySessions,
+    calibrationSessions,
+    archivedChats,
+    continuityCandidates,
+    continuityRecords,
+  ] = await Promise.all([
     sb
       .from("memory_items")
       .select("id, created_at", { count: "exact", head: true })
@@ -73,12 +82,30 @@ async function loadContinuitySummary(personaId: string, ownerUserId: string) {
       .select("id, created_at", { count: "exact", head: true })
       .eq("persona_id", personaId)
       .eq("owner_user_id", ownerUserId),
+    sb
+      .from("archived_chat_transcripts")
+      .select("id, created_at", { count: "exact", head: true })
+      .eq("persona_id", personaId)
+      .eq("owner_user_id", ownerUserId),
+    sb
+      .from("continuity_candidates")
+      .select("id, created_at", { count: "exact", head: true })
+      .eq("persona_id", personaId)
+      .eq("owner_user_id", ownerUserId),
+    sb
+      .from("continuity_records")
+      .select("id, created_at", { count: "exact", head: true })
+      .eq("persona_id", personaId)
+      .eq("owner_user_id", ownerUserId),
   ]);
 
   return {
     memoryCount: memory.count ?? 0,
     canonCount: canon.count ?? 0,
     archiveFileCount: files.count ?? 0,
+    archivedChatCount: archivedChats.count ?? 0,
+    continuityCandidateCount: continuityCandidates.count ?? 0,
+    continuityRecordCount: continuityRecords.count ?? 0,
     integritySessionCount: (integritySessions.count ?? 0) + (calibrationSessions.count ?? 0),
   };
 }

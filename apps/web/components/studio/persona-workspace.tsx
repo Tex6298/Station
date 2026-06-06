@@ -9,6 +9,9 @@ export interface ContinuitySummary {
   canonCount: number;
   archiveFileCount: number;
   integritySessionCount: number;
+  archivedChatCount?: number;
+  continuityCandidateCount?: number;
+  continuityRecordCount?: number;
 }
 
 export interface PersonaWithContinuity extends Persona {
@@ -17,6 +20,7 @@ export interface PersonaWithContinuity extends Persona {
 
 const NAV_TABS = [
   { label: "Home", href: (id: string) => `/studio/personas/${id}` },
+  { label: "Timeline", href: (id: string) => `/studio/personas/${id}/continuity` },
   { label: "Memory", href: (id: string) => `/studio/personas/${id}/memory` },
   { label: "Canon", href: (id: string) => `/studio/personas/${id}/canon` },
   { label: "Archive", href: (id: string) => `/studio/personas/${id}/files` },
@@ -67,10 +71,19 @@ export function ContinuityCards({ persona }: { persona: PersonaWithContinuity })
     canonCount: 0,
     archiveFileCount: 0,
     integritySessionCount: 0,
+    archivedChatCount: 0,
+    continuityCandidateCount: 0,
+    continuityRecordCount: 0,
   };
 
   return (
     <section className="studio-continuity-grid" aria-label="Continuity summary">
+      <ContinuityCard
+        label="Timeline"
+        value={continuity.continuityRecordCount ?? 0}
+        href={`/studio/personas/${persona.id}/continuity`}
+        body="Cross-source markers linking memory, conversations, documents, and archive."
+      />
       <ContinuityCard
         label="Memory"
         value={continuity.memoryCount}
@@ -85,9 +98,9 @@ export function ContinuityCards({ persona }: { persona: PersonaWithContinuity })
       />
       <ContinuityCard
         label="Archive"
-        value={continuity.archiveFileCount}
+        value={(continuity.archiveFileCount ?? 0) + (continuity.archivedChatCount ?? 0)}
         href={`/studio/personas/${persona.id}/files`}
-        body="Imported files, pasted histories, and source material."
+        body="Imported files, pasted histories, source material, and archived chats."
       />
       <ContinuityCard
         label="Integrity"

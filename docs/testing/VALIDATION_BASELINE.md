@@ -258,7 +258,7 @@ Commands re-run by ARGUS:
 | `node scripts/triad-status.mjs` | Pass | A3 state showed the `5e9e3ad` wakeup consumed. |
 | `node scripts/triad-watch.mjs A3` | Pass | No new A3 wakeups remained. |
 | JSON parse check for `package.json` and triad state files | Pass | Package and state JSON parsed cleanly. |
-| `rg -n "triad:sleep\|triad-sleep\|sleep-state\|watchStartedAt"` | Pass | No stale triad sleep refs found. |
+| Triad sleep-reference search | Pass | No stale triad sleep refs found. |
 | `git diff --check` | Pass | Warning only for expected CRLF normalization on the consumed ARGUS state file. |
 | `npx --yes pnpm@10.32.1 test:continuity` | Pass | 2 tests passed. |
 | `npx --yes pnpm@10.32.1 test:persona-context` | Pass | 1 test passed. |
@@ -267,3 +267,32 @@ Commands re-run by ARGUS:
 
 PR-07 is complete for Continuity Alpha data-model scope. PR-08 should begin as
 Continuity Studio UI only if MIMIR confirms the next roadmap move.
+
+## PR-08 DAEDALUS implementation result
+
+Validated on 2026-06-06 after adding the first Continuity Studio UI surface:
+
+- `apps/web/app/studio/personas/[personaId]/continuity/page.tsx` adds the
+  persona-scoped Continuity Timeline page.
+- `apps/web/components/studio/continuity-timeline.tsx` lists owner-scoped
+  continuity records and creates new timeline markers through the PR-07
+  `/continuity` API.
+- `apps/web/lib/continuity-ui.ts` builds document/conversation source link
+  options and sorts continuity records for the timeline.
+- `apps/web/components/studio/persona-workspace.tsx` links the Timeline tab and
+  surfaces continuity record/archive chat counts in the persona summary cards.
+- `pnpm test:continuity` now includes
+  `apps/web/lib/continuity-ui.test.ts`.
+
+Targeted commands run with the pinned runner:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npx --yes pnpm@10.32.1 test:continuity` | Pass | 3 tests passed: existing continuity loop, continuity record data shape, and continuity UI helpers. |
+| `npx --yes pnpm@10.32.1 test:continuity-publication` | Pass | 1 test passed. |
+| `git diff --check` | Pass | No whitespace errors; Git reported expected CRLF normalization warnings for touched files. |
+| `npx --yes pnpm@10.32.1 build` | Pass | Known React hook dependency and `<img>` optimization warnings only; no new PR-08 warnings. |
+
+PR-08 remains pending ARGUS review. Review should focus on owner scoping,
+visibility semantics, and whether exposing public/community visibility choices
+from an owner-only route is acceptable for the current alpha surface.

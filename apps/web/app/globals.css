@@ -1099,7 +1099,7 @@ html, body {
 
 .studio-continuity-grid {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 0.75rem;
   margin: 1rem 0;
 }
@@ -1439,13 +1439,114 @@ html, body {
   text-align: left;
 }
 
+.studio-timeline-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(300px, 0.38fr);
+  gap: 1rem;
+  align-items: start;
+  margin-top: 1rem;
+}
+
+.studio-timeline-main,
+.studio-timeline-form {
+  border: 1px solid #253044;
+  border-radius: 8px;
+  background: rgba(18, 24, 38, 0.94);
+  padding: 1rem;
+}
+
+.studio-timeline-form {
+  display: grid;
+  gap: 0.8rem;
+  position: sticky;
+  top: 68px;
+}
+
+.studio-timeline-list {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.studio-timeline-record {
+  display: grid;
+  grid-template-columns: 18px minmax(0, 1fr);
+  gap: 0.75rem;
+  border: 1px solid #243246;
+  border-radius: 8px;
+  background: #0f172a;
+  padding: 0.85rem;
+}
+
+.studio-timeline-marker {
+  width: 11px;
+  height: 11px;
+  margin-top: 0.25rem;
+  border-radius: 50%;
+  background: #38bdf8;
+  box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.12);
+}
+
+.studio-timeline-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.studio-timeline-row span,
+.studio-timeline-source {
+  color: #7dd3fc;
+  font-size: 0.72rem;
+  font-weight: 760;
+  text-transform: uppercase;
+}
+
+.studio-timeline-row time {
+  color: #64748b;
+  font-size: 0.76rem;
+}
+
+.studio-timeline-record h3 {
+  margin: 0.35rem 0 0.25rem;
+  font-size: 1rem;
+}
+
+.studio-timeline-record p {
+  margin: 0;
+  color: #a8b4c7;
+  line-height: 1.6;
+  white-space: pre-wrap;
+}
+
+.studio-timeline-source {
+  margin-top: 0.65rem;
+  color: #93a4ba;
+  text-transform: none;
+}
+
+.studio-form-field {
+  display: grid;
+  gap: 0.4rem;
+}
+
+.studio-form-field span {
+  color: #cbd5e1;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
 @media (max-width: 920px) {
   .studio-continuity-grid,
   .studio-home-grid,
   .studio-two-column,
+  .studio-timeline-layout,
   .studio-runtime-counts,
   .studio-runtime-sources {
     grid-template-columns: 1fr;
+  }
+
+  .studio-timeline-form {
+    position: static;
   }
 
   .studio-runtime-query {
