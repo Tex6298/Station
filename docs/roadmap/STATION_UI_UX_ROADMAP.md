@@ -45,6 +45,9 @@ estimate, ARGUS to gate, and ARIADNE to review against real user journeys.
   MIMIR explicitly marks a tiny UX slice as support work for a V3 lane.
 - Existing frontend surfaces cover many domains, but they need a deliberate
   information architecture pass before broad polish.
+- The first UX question is wayfinding, not decoration: every major surface
+  should make place, privacy state, and the next action obvious before visual
+  polish begins.
 - Known lint/build warnings around React hook dependencies and raw `<img>` use
   should become explicit ARGUS acceptance concerns when a lane touches those
   screens.
@@ -78,6 +81,10 @@ estimate, ARGUS to gate, and ARIADNE to review against real user journeys.
   should never use dark patterns.
 - Onboarding: path selection without overload. API Bridge, Document Migrator,
   Awakening, and Fresh Start need different copy, affordances, and pacing.
+- Station Assistant: operational guide, not persona. It should help users
+  understand platform tasks across Studio, archive, publishing, Spaces,
+  onboarding, and billing without adopting the immersive tone or continuity
+  model of a user persona.
 
 ## User journeys
 
@@ -99,6 +106,44 @@ estimate, ARGUS to gate, and ARIADNE to review against real user journeys.
 - New user: chooses API Bridge, Document Migrator, Awakening, or Fresh Start
   based on what they already have and how much guidance they need.
 
+## ARIADNE product-experience pitch
+
+Information architecture should make Station's places explicit. A user should
+never have to infer whether they are doing private Studio work, public Space
+presentation, community participation, Discover browsing, Developer Space
+operation, archive management, billing, onboarding, or Assistant-guided
+platform work. Each surface needs a stable place label, a visible primary next
+action, and clear privacy/visibility language when content can move between
+private, community, and public states.
+
+Emotional tone should vary by surface:
+
+- Studio: calm, private, capable, and close to the user's work.
+- Archive: reassuring, precise, and explicit about preservation, portability,
+  and failure states.
+- Continuity and Integrity: grounded, reflective, and non-magical while still
+  respecting why the material matters to the user.
+- Public Spaces: authored and expressive, with the creator's work at the
+  center instead of account-metadata chrome.
+- Discover: editorial and alive, not algorithmic or feed-first.
+- Forums: serious, generous, and moderated without sounding corporate.
+- Developer Spaces: observatory-readable for visitors and operationally exact
+  for owners.
+- Billing: plain, calm, and transparent.
+- Onboarding and Assistant: sympathetic and useful without making ontological
+  claims about persona transfer or awakening.
+
+Mobile priorities should be named in every lane that touches Studio, archive,
+continuity, onboarding, or billing. At 375px width, the user should still know
+where they are, what privacy state applies, whether work is saved or preserved,
+and what to do next. Avoid table-only layouts for operational data; use stacked
+summaries with details available on demand.
+
+Empty, loading, and error states should explain three things: what would appear
+here when the product is working, why it is absent or delayed right now, and
+what the user can safely do next. Archive, continuity, billing, export, and
+visibility errors should also say whether existing user material remains safe.
+
 ## Proposed UI/UX lanes
 
 ### UX-00 - ARIADNE product-experience review
@@ -112,6 +157,10 @@ ARGUS gates: docs-only `git diff --check`.
 
 ARIADNE review: confirm surface list, emotional tone, mobile priorities, and
 journey ordering.
+
+Result expected: ARIADNE should either approve the roadmap as a planning base
+or patch it with product-experience notes, then wake MIMIR. No implementation
+work starts from UX-00.
 
 ### UX-01 - Studio IA and mobile workbench
 
