@@ -741,8 +741,33 @@ Targeted commands run with the pinned runner:
 | `npx --yes pnpm@10.32.1 typecheck` | Pass | API, web, shared type, and DB type surfaces completed. |
 | `npx --yes pnpm@10.32.1 build` | Pass | Known pre-existing React hook dependency and `<img>` optimization warnings only. |
 
-ARGUS still needs to review the PR-14 implementation before the roadmap should
-mark PR-14 accepted. Main risks to review: owner-only export boundaries,
-private event inclusion inside owner archives, public-safe linked document refs,
-quota-counter semantics, and the decision to keep quota limits API-level rather
-than Stripe/billing-backed.
+## PR-14 ARGUS acceptance result
+
+ARGUS reviewed the DAEDALUS Developer Space export/quota slice on 2026-06-06,
+found one schema target-shape gap, and patched it in review.
+
+Additional ARGUS hardening:
+
+- `export_packages` now enforces exactly one valid target for the package kind:
+  persona archive packages require `persona_id` and no `developer_space_id`,
+  while Developer Space archive packages require `developer_space_id` and no
+  `persona_id`.
+- The `export_packages_all_owner` RLS policy now checks target ownership for
+  persona and Developer Space package rows, not only `owner_user_id`.
+- The Developer Space export list label now renders full package kind names
+  instead of replacing only the first underscore.
+
+Commands re-run by ARGUS:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npx --yes pnpm@10.32.1 test:exports` | Pass | 1 test passed; coverage includes Developer Space owner-only exports, key exclusion, public-safe linked refs, other-owner denial, listing/readback, and export counter increment. |
+| `npx --yes pnpm@10.32.1 test:developer-spaces` | Pass | 2 tests passed; coverage includes usage counters for ingestion and public reads plus owner-only usage access. |
+| `git diff --check` | Pass | CRLF normalization warnings only for touched files. |
+| `npx --yes pnpm@10.32.1 typecheck` | Pass | API and web typecheck tasks completed. |
+| `npx --yes pnpm@10.32.1 build` | Pass | Known pre-existing React hook dependency and `<img>` optimization warnings only. |
+
+PR-14 is accepted for bounded Developer Space export packages and API-level
+usage/quota display. This does not add PR-15 SDK work, PR-16 visual config
+editors, Stripe/token-credit billing, broad quota productization, background
+export jobs, binary archive bundles, or public export UI.

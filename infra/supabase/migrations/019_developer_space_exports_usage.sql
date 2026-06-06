@@ -15,9 +15,88 @@ alter table public.export_packages
   add constraint export_packages_kind_check
   check (package_kind in ('persona_archive', 'developer_space_archive'));
 
+alter table public.export_packages
+  drop constraint if exists export_packages_target_check;
+
+alter table public.export_packages
+  add constraint export_packages_target_check
+  check (
+    (
+      package_kind = 'persona_archive'
+      and persona_id is not null
+      and developer_space_id is null
+    )
+    or (
+      package_kind = 'developer_space_archive'
+      and persona_id is null
+      and developer_space_id is not null
+    )
+  );
+
 create index if not exists idx_export_packages_owner_developer_space
   on public.export_packages (owner_user_id, developer_space_id, created_at desc)
   where developer_space_id is not null;
+
+drop policy if exists "export_packages_all_owner"
+  on public.export_packages;
+
+create policy "export_packages_all_owner"
+  on public.export_packages
+  for all
+  using (
+    auth.uid() = owner_user_id
+    and (
+      (
+        package_kind = 'persona_archive'
+        and persona_id is not null
+        and developer_space_id is null
+        and exists (
+          select 1
+          from public.personas p
+          where p.id = persona_id
+          and p.owner_user_id = auth.uid()
+        )
+      )
+      or (
+        package_kind = 'developer_space_archive'
+        and persona_id is null
+        and developer_space_id is not null
+        and exists (
+          select 1
+          from public.developer_spaces s
+          where s.id = developer_space_id
+          and s.owner_user_id = auth.uid()
+        )
+      )
+    )
+  )
+  with check (
+    auth.uid() = owner_user_id
+    and (
+      (
+        package_kind = 'persona_archive'
+        and persona_id is not null
+        and developer_space_id is null
+        and exists (
+          select 1
+          from public.personas p
+          where p.id = persona_id
+          and p.owner_user_id = auth.uid()
+        )
+      )
+      or (
+        package_kind = 'developer_space_archive'
+        and persona_id is null
+        and developer_space_id is not null
+        and exists (
+          select 1
+          from public.developer_spaces s
+          where s.id = developer_space_id
+          and s.owner_user_id = auth.uid()
+        )
+      )
+    )
+  );
 
 create table if not exists public.developer_space_usage (
   developer_space_id uuid primary key references public.developer_spaces(id) on delete cascade,

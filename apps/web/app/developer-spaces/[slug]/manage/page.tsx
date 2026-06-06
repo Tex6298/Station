@@ -414,7 +414,7 @@ export default function DeveloperSpaceManagePage() {
                 {exportsList.slice(0, 5).map((item) => (
                   <div key={item.id} style={{ borderTop: "1px solid #1e293b", paddingTop: "0.55rem", display: "flex", justifyContent: "space-between", gap: "0.75rem", flexWrap: "wrap" }}>
                     <div>
-                      <strong style={{ display: "block" }}>{item.packageKind.replace("_", " ")}</strong>
+                      <strong style={{ display: "block" }}>{item.packageKind.replaceAll("_", " ")}</strong>
                       <span style={{ color: "#64748b", fontSize: "0.78rem" }}>{formatDate(item.completedAt ?? item.requestedAt)}</span>
                     </div>
                     <span className="pill" style={{ textTransform: "capitalize" }}>{item.status}</span>
