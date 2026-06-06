@@ -54,15 +54,17 @@ when a PR lands, or when validation truth changes.
   report-reference privacy, and the existing JSON/Markdown package path. Deeper
   public export UI, PDF/binary packaging, and richer download workflows are
   future export enhancements, not blockers for PR-10.
-- PR-10 DAEDALUS follow-up is ready for ARGUS review,
-  2026-06-06: Developer Spaces ingestion now prefers active ingestion-key rows
-  with legacy hash fallback, rotation revokes prior active keys, key revocation
-  clears the legacy hash surface, JSON payload guardrails are enforced, and
-  `api_key_hash` is not serialized. The ARGUS-requested scrubber follow-up makes
-  non-owner observatory scrubbing case-insensitive and removes obvious
-  secret-shaped aliases such as `password`, `accessToken`, capitalized
-  `Authorization`, `refreshToken`, `secretKey`, `clientSecret`, `credentials`,
-  `cookie`, and `setCookie` while owner responses retain operational detail.
+- PR-10 is accepted by ARGUS, 2026-06-06: Developer Spaces ingestion hardening
+  is complete for bounded roadmap scope. Ingestion now prefers active
+  ingestion-key rows with legacy hash fallback, rotation revokes prior active
+  keys, key revocation clears the legacy hash surface, JSON payload guardrails
+  are enforced, and `api_key_hash` is not serialized. The public/community
+  observatory scrubber is case-insensitive, handles camelCase/snake_case/
+  punctuation variants, and removes obvious secret-shaped exact and prefixed
+  aliases such as `password`, `dbPassword`, `accessToken`, `bearerToken`,
+  capitalized `Authorization`, `refreshToken`, `secretKey`, `clientSecret`,
+  `credentials`, `cookie`, `sessionCookie`, `setCookie`, and `xApiKey` while
+  owner responses retain operational detail.
 
 ## Current repo truth
 
@@ -105,11 +107,11 @@ when a PR lands, or when validation truth changes.
 - As of bounded PR-09 completion, exports remain the existing owner-only
   JSON/Markdown package path. Public export UI and binary/PDF packaging are not
   required for PR-10 to begin.
-- As of PR-10 DAEDALUS implementation, Developer Spaces API key rotation writes
+- As of PR-10 ARGUS acceptance, Developer Spaces API key rotation writes
   `developer_space_ingestion_keys`, revoked keys no longer authorize ingestion,
-  oversized/deep JSON payloads are rejected, and `api_key_hash` is never
-  serialized. Public/community observatory responses still need a narrow
-  scrubber fix before ARGUS can accept the public-safe serialization claim.
+  oversized/deep JSON payloads are rejected, `api_key_hash` is never serialized,
+  and public/community observatory responses scrub obvious secret-shaped JSON
+  keys while preserving owner-only operational detail.
 - Core API route modules no longer import local in-memory mock data. Runtime
   persistence goes through the Supabase client boundary; route tests use
   injected fake Supabase clients for deterministic proof.

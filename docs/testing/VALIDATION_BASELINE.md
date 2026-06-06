@@ -515,4 +515,31 @@ Targeted commands run with the pinned runner:
 | `git diff --check` | Pass | No whitespace errors; Git reported expected CRLF normalization warnings for touched files. |
 | `npx --yes pnpm@10.32.1 build` | Pass | Known pre-existing React hook dependency and `<img>` optimization warnings only; no new PR-10 follow-up warnings. |
 
-ARGUS still needs to review this follow-up before PR-10 is marked complete.
+## PR-10 ARGUS acceptance result
+
+ARGUS reviewed the DAEDALUS scrubber follow-up on 2026-06-06, found one
+remaining prefixed-secret edge, and patched it in review.
+
+Additional ARGUS hardening:
+
+- The scrubber now removes exact sensitive aliases and prefixed secret-shaped
+  keys containing `password`, `token`, `secret`, `credential`, or `cookie`.
+- API-key-shaped aliases such as `xApiKey` are scrubbed without treating every
+  ordinary word containing `key` as sensitive.
+- Hostile Developer Spaces coverage now proves public responses hide
+  `dbPassword`, `bearerToken`, `sessionCookie`, and `xApiKey` while owner
+  responses retain those operational fields.
+
+Commands re-run by ARGUS:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npx --yes tsx -e "<scrubber hostile probe>"` | Pass | Scrubbed `password`, `accessToken`, `Authorization`, `secretKey`, `dbPassword`, `sessionCookie`, `bearerToken`, and `xApiKey` while preserving safe fields. |
+| `npx --yes pnpm@10.32.1 test:developer-spaces` | Pass | 2 tests passed. |
+| `git diff --check` | Pass | CRLF normalization warnings only for touched files. |
+| `npx --yes pnpm@10.32.1 typecheck` | Pass | API and web typecheck tasks completed. |
+| `npx --yes pnpm@10.32.1 build` | Pass | Known pre-existing React hook dependency and `<img>` optimization warnings only. |
+
+PR-10 is accepted for bounded Developer Spaces ingestion hardening scope. This
+does not include PR-11 live updates, PR-12 Discover expansion, PR-13 document
+linking, PR-14 quotas/exports, or partner-ready Developer Spaces polish.

@@ -29,6 +29,7 @@ const SENSITIVE_JSON_KEYS = new Set([
   "setcookie",
   "token",
 ]);
+const SENSITIVE_JSON_KEY_FRAGMENTS = ["password", "token", "secret", "credential", "cookie"];
 
 export function slugifyProjectName(input: string): string {
   const slug = input
@@ -63,13 +64,20 @@ function normaliseSensitiveJsonKey(key: string): string {
   return key.replace(/[^a-z0-9]/gi, "").toLowerCase();
 }
 
+function isSensitiveJsonKey(key: string): boolean {
+  const normalised = normaliseSensitiveJsonKey(key);
+  if (SENSITIVE_JSON_KEYS.has(normalised)) return true;
+  if (normalised.endsWith("apikey")) return true;
+  return SENSITIVE_JSON_KEY_FRAGMENTS.some((fragment) => normalised.includes(fragment));
+}
+
 export function publicSafeDeveloperSpaceData(value: unknown): unknown {
   if (Array.isArray(value)) return value.map(publicSafeDeveloperSpaceData);
   if (!value || typeof value !== "object") return value;
 
   return Object.fromEntries(
     Object.entries(value as Record<string, unknown>)
-      .filter(([key]) => !SENSITIVE_JSON_KEYS.has(normaliseSensitiveJsonKey(key)))
+      .filter(([key]) => !isSensitiveJsonKey(key))
       .map(([key, nested]) => [key, publicSafeDeveloperSpaceData(nested)])
   );
 }
