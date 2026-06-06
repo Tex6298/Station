@@ -1035,5 +1035,32 @@ Targeted commands run with the pinned runner:
 | `npx --yes pnpm@10.32.1 test:persona-context` | Pass | 1 test passed. |
 | `npx --yes pnpm@10.32.1 test:continuity-publication` | Pass | 1 test passed with stronger provenance/privacy assertions. |
 
-At the DAEDALUS implementation checkpoint, ARGUS still needs to review V3-02
-before the roadmap can mark it accepted.
+At the DAEDALUS implementation checkpoint, ARGUS still needed to review V3-02
+before the roadmap could mark it accepted. The acceptance result below
+supersedes that pending-review state.
+
+## V3-02 ARGUS acceptance result
+
+ARGUS reviewed the DAEDALUS integrity and calibration hardening slice on
+2026-06-06, found one lifecycle idempotency gap, and patched it in review.
+
+Additional ARGUS hardening:
+
+- Completing an already completed Integrity Session now returns the existing
+  output count instead of generating duplicate outputs.
+- `test:integrity` now proves repeated `end-early` calls are idempotent and do
+  not add another output set.
+
+Commands re-run by ARGUS:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npx --yes pnpm@10.32.1 test:integrity` | Pass | 2 tests passed, including owner scoping, public preflight, output review, runtime context, and duplicate-completion coverage. |
+| `npx --yes pnpm@10.32.1 typecheck` | Pass | API and web typecheck tasks completed. |
+| `npx --yes pnpm@10.32.1 test:persona-context` | Pass | 1 test passed. |
+| `npx --yes pnpm@10.32.1 test:continuity-publication` | Pass | 1 test passed with stronger provenance/privacy assertions. |
+| `git diff --check` | Pass | CRLF normalization warnings only for touched files. |
+
+V3-02 is accepted for integrity and calibration hardening. This keeps accepted
+integrity output writes bounded to existing memory, canon, and preference
+profile targets, and it does not expand into V3-03 token-credit accounting.

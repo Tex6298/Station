@@ -369,6 +369,21 @@ async function completeSession(sessionId: string, ownerUserId: string, res: any)
     .single();
 
   if (!session) return res.status(404).json({ error: "Integrity session not found." });
+  if (session.status === "completed") {
+    const { count } = await (sb as any)
+      .from("integrity_session_outputs")
+      .select("id", { count: "exact", head: true })
+      .eq("session_id", session.id)
+      .eq("owner_user_id", ownerUserId);
+
+    return res.json({
+      nextType: "end",
+      sessionId: session.id,
+      outputsGenerated: count ?? 0,
+      alreadyCompleted: true,
+    });
+  }
+  if (session.status !== "in_progress") return res.status(404).json({ error: "Active integrity session not found." });
 
   const { data: turns, error: turnsError } = await (sb as any)
     .from("integrity_session_turns")

@@ -119,12 +119,12 @@ when a PR lands, or when validation truth changes.
   quota/accounting coverage, `storage_usage` DB type surface, persona-file
   registration rollback hardening, and an additional chat-import guard that
   stops before archive ingest when the import-job row cannot be created.
-- V3-02 DAEDALUS implementation is ready for ARGUS review, 2026-06-06:
-  integrity and calibration hardening now has the missing `test:integrity`
-  gate, focused lifecycle/question-bank/fallback/review coverage, public
-  preflight and publication privacy assertions, shared DB/API type surfaces,
-  and explicit proof that accepted integrity outputs feed runtime context while
-  completed integrity sessions feed persona continuity summaries.
+- V3-02 is accepted by ARGUS, 2026-06-06: integrity and calibration hardening
+  now has the missing `test:integrity` gate, focused lifecycle/question-bank/
+  fallback/review coverage, public preflight and publication privacy assertions,
+  shared DB/API type surfaces, runtime-context and continuity-summary proof, and
+  idempotent completion so repeated end calls do not duplicate integrity
+  outputs.
 
 ## Current repo truth
 
@@ -241,11 +241,11 @@ when a PR lands, or when validation truth changes.
   should require email confirmation.
 - The web shell stores Station API sessions in browser storage and uses a
   non-secret auth cookie only as middleware redirect state.
-- As of V3-01 DAEDALUS implementation, storage quota behavior has focused test
+- As of V3-01 ARGUS acceptance, storage quota behavior has focused test
   coverage for reserve/release RPC semantics, `/storage/me` owner response
   shape, tier limits, upload preflight, persona-file register/delete/rollback,
   chat import rollback, and archive memory rollback.
-- As of V3-02 DAEDALUS implementation, integrity routes have focused coverage
+- As of V3-02 ARGUS acceptance, integrity routes have focused coverage
   for owner-only start/answer/summary/complete/output-review flows, periodic
   question-bank selection, deterministic non-provider fallback behavior, public
   persona preflight, accepted-output writes into canon/preference context, and

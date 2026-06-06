@@ -495,6 +495,15 @@ test("integrity lifecycle selects the question bank, falls back deterministicall
     assert.equal(completed.body.outputsGenerated, 3);
     assert.equal(db.rows("integrity_sessions")[0].status, "completed");
 
+    const repeatedCompletion = await requestJson(app, "POST", "/integrity/end-early", {
+      token: "owner-token",
+      body: { sessionId: started.body.sessionId },
+    });
+    assert.equal(repeatedCompletion.status, 200);
+    assert.equal(repeatedCompletion.body.alreadyCompleted, true);
+    assert.equal(repeatedCompletion.body.outputsGenerated, 3);
+    assert.equal(db.rows("integrity_session_outputs").length, 3);
+
     const otherOutputs = await requestJson(app, "GET", `/integrity/outputs/${started.body.sessionId}`, {
       token: "other-token",
     });
