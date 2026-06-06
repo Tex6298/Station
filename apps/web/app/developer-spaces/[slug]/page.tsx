@@ -180,7 +180,7 @@ function WorldMapVisualisation({ events, config }: { events: DeveloperSpaceEvent
   const staggerZones = config.staggerZones !== false;
   const zones = new Map<string, DeveloperSpaceEvent[]>();
   for (const event of events) {
-    const zone = String(event.eventData?.[zoneField] ?? event.eventData?.zone ?? event.eventData?.location ?? event.eventData?.room ?? "Project core");
+    const zone = formatValue(event.eventData?.[zoneField] ?? event.eventData?.zone ?? event.eventData?.location ?? event.eventData?.room ?? "Project core");
     const list = zones.get(zone) ?? [];
     list.push(event);
     zones.set(zone, list);

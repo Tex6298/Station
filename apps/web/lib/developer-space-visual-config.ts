@@ -37,6 +37,11 @@ function stringValue(value: unknown, fallback: string) {
   return typeof value === "string" && value.trim() ? value.trim() : fallback;
 }
 
+function configKeyValue(value: unknown, fallback: string) {
+  const key = stringValue(value, fallback);
+  return /^[a-zA-Z0-9_.:-]{1,48}$/.test(key) ? key : fallback;
+}
+
 export function defaultDeveloperSpaceVisualConfig(type: DeveloperSpaceVisualisationType) {
   return { ...DEFAULTS[type] };
 }
@@ -64,7 +69,7 @@ export function normaliseDeveloperSpaceVisualConfig(
 
   if (type === "world_map") {
     return {
-      zoneField: stringValue(config.zoneField, String(defaults.zoneField)),
+      zoneField: configKeyValue(config.zoneField, String(defaults.zoneField)),
       maxZones: clampNumber(config.maxZones, Number(defaults.maxZones), 3, 24),
       staggerZones: boolValue(config.staggerZones, Boolean(defaults.staggerZones)),
     };

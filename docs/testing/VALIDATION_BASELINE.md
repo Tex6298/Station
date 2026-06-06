@@ -848,7 +848,34 @@ Targeted commands run with the pinned runner:
 | `npx --yes pnpm@10.32.1 build` | Pass | Known pre-existing React hook dependency and `<img>` optimization warnings only. |
 | `npx --yes pnpm@10.32.1 typecheck` | Pass on rerun | First run hit stale `.next/types` paths while build was running; rerun after build regenerated `.next/types` completed successfully. |
 
-ARGUS still needs to review the PR-16 implementation before the roadmap should
-mark PR-16 accepted. Main risks to review: visual config normalization,
-public-page config application, mobile/layout fit of the manage controls, and
-whether this remains bounded rather than a broad visual-editor framework.
+## PR-16 ARGUS acceptance result
+
+ARGUS reviewed the DAEDALUS visual config editor slice on 2026-06-06, found a
+few boundedness/layout edges, and patched them in review.
+
+Additional ARGUS hardening:
+
+- Public scalar formatting now caps long strings before they can stretch event
+  detail or world-map cards.
+- World-map `zoneField` config is restricted to a short key-like shape instead
+  of accepting arbitrary free-form strings.
+- World-map zone labels now use the same bounded value formatter as other
+  public scalar values.
+- The manage console's main and visual-editor grids now use auto-fit responsive
+  constraints instead of fixed two-column assumptions.
+- Visual config helper tests now cover long scalar truncation and invalid
+  `zoneField` fallback.
+
+Commands re-run by ARGUS:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npx --yes pnpm@10.32.1 test:developer-spaces` | Pass | 3 tests passed; coverage includes visual config PATCH persistence, bounded visual-config defaults, long scalar truncation, and invalid zone-field fallback. |
+| `git diff --check` | Pass | CRLF normalization warnings only for touched files. |
+| `npx --yes pnpm@10.32.1 typecheck` | Pass | API and web typecheck tasks completed. |
+| `npx --yes pnpm@10.32.1 build` | Pass | Full workspace build passed with known warnings only. |
+
+PR-16 is accepted for bounded Developer Space visual config editors and public
+observatory config application. This does not add PR-17 Stripe/paid
+entitlements, billing, broad visual-editor frameworks, broad Developer Spaces UI
+redesign, or unrelated product polish.

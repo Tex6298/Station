@@ -40,13 +40,18 @@ export function humaniseKey(value: string) {
     .replace(/\b\w/g, (match) => match.toUpperCase());
 }
 
+function truncateText(value: string, maxLength = 120) {
+  const clean = value.replace(/\s+/g, " ").trim();
+  return clean.length > maxLength ? `${clean.slice(0, maxLength - 3).trim()}...` : clean;
+}
+
 export function formatValue(value: unknown): string {
   if (value === null || value === undefined || value === "") return "Not recorded";
   if (typeof value === "number") return Number.isInteger(value) ? value.toLocaleString() : value.toFixed(3).replace(/0+$/, "").replace(/\.$/, "");
   if (typeof value === "boolean") return value ? "Yes" : "No";
   if (Array.isArray(value)) return value.slice(0, 4).map(formatValue).join(", ");
   if (typeof value === "object") return "Structured record";
-  return String(value);
+  return truncateText(String(value));
 }
 
 export function publicEntries(record: Record<string, unknown> | null | undefined, limit = 4) {

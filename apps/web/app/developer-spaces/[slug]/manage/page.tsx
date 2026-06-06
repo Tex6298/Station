@@ -372,7 +372,7 @@ export default function DeveloperSpaceManagePage() {
         </div>
       )}
 
-      <section style={{ display: "grid", gridTemplateColumns: "minmax(300px, 0.7fr) minmax(0, 1.3fr)", gap: "1rem", alignItems: "start" }}>
+      <section style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 300px), 1fr))", gap: "1rem", alignItems: "start" }}>
         <aside className="card" style={{ display: "grid", gap: "1rem" }}>
           <div>
             <h2 style={{ margin: "0 0 0.4rem", fontSize: "1.05rem" }}>Ingestion key</h2>
@@ -459,7 +459,7 @@ export default function DeveloperSpaceManagePage() {
               </p>
             </div>
 
-            <div style={{ display: "grid", gridTemplateColumns: "minmax(180px, 0.5fr) minmax(0, 1fr)", gap: "0.75rem" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 180px), 1fr))", gap: "0.75rem" }}>
               <label style={{ display: "grid", gap: "0.35rem", color: "#cbd5e1", fontSize: "0.82rem" }}>
                 Mode
                 <select className="input" value={visualisationType} onChange={(event) => changeVisualisationType(event.target.value as DeveloperSpaceVisualisationType)}>
@@ -505,7 +505,7 @@ export default function DeveloperSpaceManagePage() {
                   <>
                     <label style={{ display: "grid", gap: "0.35rem", color: "#cbd5e1", fontSize: "0.82rem" }}>
                       Zone field
-                      <input className="input" value={String(boundedVisualConfig.zoneField)} onChange={(event) => updateVisualConfig("zoneField", event.target.value)} />
+                      <input className="input" maxLength={48} value={String(boundedVisualConfig.zoneField)} onChange={(event) => updateVisualConfig("zoneField", event.target.value)} />
                     </label>
                     <label style={{ display: "grid", gap: "0.35rem", color: "#cbd5e1", fontSize: "0.82rem" }}>
                       Max zones

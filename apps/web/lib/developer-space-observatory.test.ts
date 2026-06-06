@@ -19,6 +19,7 @@ test("observatory helpers keep visitor data readable and non-raw", () => {
 
   assert.deepEqual(entries.map(([key]) => key), ["summary", "confidence", "enabled"]);
   assert.equal(formatValue(0.8721), "0.872");
+  assert.equal(formatValue("x".repeat(140)), `${"x".repeat(117)}...`);
   assert.equal(formatValue({ prompt: "owner-only detail" }), "Structured record");
   assert.equal(shouldShowRawDeveloperSpaceData("public"), false);
   assert.equal(shouldShowRawDeveloperSpaceData("member"), false);
@@ -40,5 +41,10 @@ test("visual config helpers provide bounded defaults per mode", () => {
     zoneField: "room",
     maxZones: 3,
     staggerZones: false,
+  });
+  assert.deepEqual(normaliseDeveloperSpaceVisualConfig("world_map", { zoneField: "room name", maxZones: 99 }), {
+    zoneField: "zone",
+    maxZones: 24,
+    staggerZones: true,
   });
 });
