@@ -1085,3 +1085,31 @@ test("persona export source failures leave an owner-visible failed package", asy
     setSupabaseAdminForTests(null);
   }
 });
+
+test("nested export source failures fail packages instead of completing partial manifests", async () => {
+  for (const scenario of [
+    { table: "comments", label: /discussion comments export source/ },
+    { table: "moderation_reports", label: /moderation report export source/ },
+  ]) {
+    const db = new InMemorySupabase();
+    db.failSelectTables.add(scenario.table);
+    setSupabaseAdminForTests(db.client as any);
+    const app = await createExportsApp();
+
+    try {
+      const failed = await requestJson(app, "POST", `/exports/persona/${PERSONA_ID}`, {
+        token: "owner-token",
+      });
+      assert.equal(failed.status, 500);
+      assert.match(failed.body.error, scenario.label);
+
+      const packageRow = db.tables.export_packages[0];
+      assert.equal(packageRow.status, "failed");
+      assert.match(packageRow.error_message, scenario.label);
+      assert.equal(packageRow.manifest_markdown, "");
+      assert.deepEqual(packageRow.content_summary, {});
+    } finally {
+      setSupabaseAdminForTests(null);
+    }
+  }
+});

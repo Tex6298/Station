@@ -1149,5 +1149,32 @@ Targeted commands run with the pinned runner:
 | `npx --yes pnpm@10.32.1 typecheck` | Pass | API and web typecheck tasks completed. |
 | `git diff --check` | Pass | CRLF normalization warnings only. |
 
-At the DAEDALUS implementation checkpoint, ARGUS still needs to review V3-04
-before the roadmap can mark it accepted.
+At the DAEDALUS implementation checkpoint, ARGUS still needed to review V3-04
+before the roadmap could mark it accepted. The acceptance result below
+supersedes that pending-review state.
+
+## V3-04 ARGUS acceptance result
+
+ARGUS reviewed the archive/export job reliability hardening on 2026-06-06 and
+found one partial-manifest risk: nested discussion comment reads and moderation
+report reads could fail silently while the export package still completed.
+
+- Persona exports now fail visibly when discussion thread/comment or moderation
+  report source reads fail, while still allowing genuinely missing optional
+  linked rows to be skipped.
+- `test:exports` now proves nested comment and moderation-report source
+  failures leave the package in `failed` status with an owner-visible
+  `error_message` and no completed manifest payload.
+
+Targeted commands run with the pinned runner:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npx --yes pnpm@10.32.1 test:conversation-archive` | Pass | 2 tests passed, including owner-only completed/failed import job status coverage. |
+| `npx --yes pnpm@10.32.1 test:exports` | Pass | 3 tests passed, including failed main and nested persona export source visibility. |
+| `npx --yes pnpm@10.32.1 typecheck` | Pass | API and web typecheck tasks completed. |
+| `git diff --check` | Pass | CRLF normalization warnings only. |
+
+V3-04 is accepted for protected-alpha archive/export job reliability. Scope
+remains synchronous status and failure visibility only; it does not add queues,
+workers, realtime progress, portable bundles, or storage redundancy.

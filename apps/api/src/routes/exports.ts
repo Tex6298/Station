@@ -92,20 +92,23 @@ function discussionCommentVisible(comment: any, ownerUserId: string) {
 
 async function loadThreadDiscussion(threadId: string, ownerUserId: string) {
   const sb = getSupabaseAdmin();
-  const { data: thread } = await sb
+  const { data: thread, error: threadError } = await sb
     .from("threads")
     .select("id, title, status, visibility, linked_document_id, is_pinned, is_hidden, reported_count, comment_count, created_at, updated_at")
     .eq("id", threadId)
     .single();
 
+  throwIfQueryError({ error: threadError }, "discussion thread export source", { allowMissingSingle: true });
   if (!thread) return null;
 
-  const { data: comments } = await sb
+  const { data: comments, error: commentsError } = await sb
     .from("comments")
     .select("id, author_user_id, parent_type, parent_id, body, status, is_pinned, is_hidden, reported_count, score, created_at, updated_at")
     .eq("parent_type", "thread")
     .eq("parent_id", thread.id)
     .order("created_at", { ascending: true });
+
+  throwIfQueryError({ error: commentsError }, "discussion comments export source");
 
   return {
     id: thread.id,
@@ -149,8 +152,19 @@ function countBy<T extends Record<string, any>>(rows: T[], key: keyof T) {
   }, {});
 }
 
-function throwIfQueryError(result: { error?: { message?: string } | null }, label: string) {
-  if (result.error) throw new Error(`${label}: ${result.error.message ?? "query failed"}`);
+function isMissingSingleRow(error: { code?: string; message?: string } | null | undefined) {
+  const message = error?.message ?? "";
+  return error?.code === "PGRST116" || message.includes("Expected one");
+}
+
+function throwIfQueryError(
+  result: { error?: { code?: string; message?: string } | null },
+  label: string,
+  options: { allowMissingSingle?: boolean } = {}
+) {
+  if (!result.error) return;
+  if (options.allowMissingSingle && isMissingSingleRow(result.error)) return;
+  throw new Error(`${label}: ${result.error.message ?? "query failed"}`);
 }
 
 function exportedTargetIds(publishedDocuments: Array<Record<string, any>>) {
@@ -170,11 +184,13 @@ async function loadOwnerModerationReportRefs(ownerUserId: string, publishedDocum
   const targetIds = exportedTargetIds(publishedDocuments);
   if (targetIds.size === 0) return [];
 
-  const { data } = await sb
+  const { data, error } = await sb
     .from("moderation_reports")
     .select("id, reporter_id, target_type, target_id, reason, notes, status, reviewed_by, reviewed_at, created_at, updated_at")
     .eq("reporter_id", ownerUserId)
     .order("created_at", { ascending: false });
+
+  throwIfQueryError({ error }, "moderation report export source");
 
   return (data ?? [])
     .filter((report: any) => targetIds.has(`${report.target_type}:${report.target_id}`))
@@ -574,12 +590,13 @@ async function loadLinkedPublicDocumentRefs(developerSpaceId: string) {
 
   const refs = [];
   for (const link of links ?? []) {
-    const { data: document } = await sb
+    const { data: document, error: documentError } = await sb
       .from("documents")
       .select("id, author_user_id, title, slug, body, document_type, status, visibility, published_at, created_at, updated_at")
       .eq("id", link.document_id)
       .single();
 
+    throwIfQueryError({ error: documentError }, "linked public document export source", { allowMissingSingle: true });
     if (!document || document.status !== "published" || document.visibility !== "public") continue;
     refs.push(serializeDeveloperSpaceLinkedDocument(link, document));
   }
