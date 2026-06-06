@@ -130,6 +130,10 @@ when a PR lands, or when validation truth changes.
   monthly-reset coverage, typed token persistence and API surfaces, Stripe
   top-up metadata guardrails, server-pack validation for verified grants, and
   validation against the existing PR-17 billing gate.
+- V3-04 is active, 2026-06-06: archive and export job reliability should define
+  a bounded job/status model for archive imports and export package generation,
+  preserve owner-only visibility and provenance, and avoid production queue or
+  worker infrastructure beyond the protected alpha need.
 
 ## Current repo truth
 
