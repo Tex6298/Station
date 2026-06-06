@@ -125,6 +125,10 @@ when a PR lands, or when validation truth changes.
   shared DB/API type surfaces, runtime-context and continuity-summary proof, and
   idempotent completion so repeated end calls do not duplicate integrity
   outputs.
+- V3-03 is active, 2026-06-06: token-credit accounting hardening should add the
+  missing `test:token-credits` gate, cover spend accounting, insufficient-credit
+  behavior, admin/unlimited tier behavior, monthly reset, transaction history,
+  and reconcile token-credit top-ups with PR-17 subscription entitlement rules.
 
 ## Current repo truth
 

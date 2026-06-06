@@ -97,6 +97,8 @@ pnpm test:continuity-publication
 
 ### V3-03 - Token-credit accounting hardening
 
+Status: active as of 2026-06-06.
+
 Purpose: make token accounting measurable before expanding AI workflows.
 
 Tasks:
