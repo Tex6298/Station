@@ -35,9 +35,10 @@ when a PR lands, or when validation truth changes.
   integrity, token-credit, Stripe-adjacent, and broad UX stack as present but
   not roadmap-complete until ARGUS confirms the reconciliation and validation
   posture.
-- Next instruction: ARGUS should confirm or correct this direction. If ARGUS
-  agrees, wake DAEDALUS with a narrow validation-repair task rather than a new
-  feature lane. If ARGUS disagrees, wake MIMIR with the corrected risk call.
+- ARGUS confirmation, 2026-06-06: this direction is confirmed. The next active
+  work should be a narrow validation-repair lane, not PR-07 product scope.
+- Next instruction: MIMIR should wake DAEDALUS with a narrow validation-repair
+  task rather than a new feature lane.
 
 ## Current repo truth
 
