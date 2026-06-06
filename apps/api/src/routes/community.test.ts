@@ -113,6 +113,7 @@ class CommunitySupabase {
     developer_space_events: [
       developerSpaceEvent("dev-event-public", PUBLIC_DEV_SPACE_ID, "signal.public", "Public signal", "public", {
         zone: "North Array",
+        detail: "A".repeat(140),
         token: "public-token-should-scrub",
       }),
       developerSpaceEvent("dev-event-private", PUBLIC_DEV_SPACE_ID, "signal.private", "Private signal", "private", {
@@ -876,6 +877,8 @@ test("Discover feed and search include public-safe Developer Spaces", async () =
     assert.equal(publicItem.developerSpace.eventCount, 1);
     assert.equal(publicItem.developerSpace.latestEventLabel, "Public signal");
     assert.equal(publicItem.developerSpace.latestEventSummary.includes("zone: North Array"), true);
+    assert.match(publicItem.developerSpace.latestEventSummary, /detail: A{80}\.\.\./);
+    assert.equal(publicItem.developerSpace.latestEventSummary.includes("A".repeat(100)), false);
     const visitorText = JSON.stringify(publicItem);
     assert.equal(visitorText.includes("private-password-should-not-leak"), false);
     assert.equal(visitorText.includes("public-token-should-scrub"), false);

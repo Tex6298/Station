@@ -629,5 +629,32 @@ Targeted commands run with the pinned runner:
 | `npx --yes pnpm@10.32.1 build` | Pass | Known pre-existing React hook dependency and `<img>` optimization warnings only. |
 | `npx --yes pnpm@10.32.1 typecheck` | Pass on rerun | First run hit stale `.next/types` paths while build was running concurrently; rerun after build regenerated `.next/types` completed successfully. |
 
-ARGUS still needs to review the public-safety boundaries before PR-12 is marked
-complete.
+## PR-12 ARGUS acceptance result
+
+ARGUS reviewed the DAEDALUS Developer Spaces Discover slice on 2026-06-06,
+found one public-card boundedness gap, and patched it in review.
+
+Additional ARGUS hardening:
+
+- Developer Space latest-event summaries now truncate scalar event-data values
+  before composing the card summary.
+- The composed summary is also capped, so several public scalar fields cannot
+  create an oversized Discover card.
+- Community tests prove long public event-data strings are summarized without
+  leaking the raw oversized value.
+
+Commands re-run by ARGUS:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npx --yes pnpm@10.32.1 test:community` | Pass | 5 tests passed, including Discover Developer Space visibility, leak, and long-summary coverage. |
+| `npx --yes pnpm@10.32.1 test:spaces` | Pass | 1 test passed. |
+| `npx --yes pnpm@10.32.1 test:developer-spaces` | Pass | 2 tests passed. |
+| `git diff --check` | Pass | CRLF normalization warnings only for touched files. |
+| `npx --yes pnpm@10.32.1 typecheck` | Pass | API and web typecheck tasks completed. |
+| `npx --yes pnpm@10.32.1 build` | Pass | Known pre-existing React hook dependency and `<img>` optimization warnings only. |
+
+PR-12 is accepted for bounded Developer Spaces Discover integration scope. This
+does not include PR-13 document linking, PR-14 quotas/exports, SDK package work,
+normal Station Space relation modeling, featured-feed remodel, Stripe/
+token-credit, or broad Discover redesign.

@@ -43,6 +43,10 @@ function excerpt(value?: string | null, max = 220) {
   return normalized.slice(0, max) + (normalized.length > max ? "..." : "");
 }
 
+function scalarSummary(value: unknown, max = 80) {
+  return excerpt(String(value).replace(/\s+/g, " "), max);
+}
+
 function documentFeedQuery(
   sb: ReturnType<typeof getSupabaseAdmin>,
   visibility: DocumentVisibility,
@@ -162,11 +166,11 @@ async function developerSpaceFeedItems(req: Request, tab: string, offset: number
     );
     const latestEvent = safeEvents[0] ?? null;
     const latestEventSummary = latestEvent
-      ? Object.entries(latestEvent.eventData ?? {})
+      ? excerpt(Object.entries(latestEvent.eventData ?? {})
         .filter(([, value]) => value !== null && value !== undefined && typeof value !== "object")
         .slice(0, 3)
-        .map(([key, value]) => `${key}: ${String(value)}`)
-        .join(" / ")
+        .map(([key, value]) => `${key}: ${scalarSummary(value)}`)
+        .join(" / "))
       : null;
 
     return {
