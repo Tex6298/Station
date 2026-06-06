@@ -65,12 +65,12 @@ when a PR lands, or when validation truth changes.
   capitalized `Authorization`, `refreshToken`, `secretKey`, `clientSecret`,
   `credentials`, `cookie`, `sessionCookie`, `setCookie`, and `xApiKey` while
   owner responses retain operational detail.
-- PR-11 DAEDALUS implementation is ready for ARGUS review, 2026-06-06:
-  Developer Spaces now has a bounded SSE stream at
-  `/developer-spaces/:slug/stream` with reconnect IDs, retry metadata, public/
-  community/owner visibility matching the detail route, a visitor freshness
-  indicator, and an owner live ingestion log in the manage console. This does
-  not add WebSockets or move into PR-12 through PR-14 scope.
+- PR-11 is accepted by ARGUS, 2026-06-06: Developer Spaces now has a bounded
+  SSE stream at `/developer-spaces/:slug/stream` with reconnect IDs, retry
+  metadata, public/community/owner visibility matching the detail route, a
+  visitor freshness indicator, and an owner live ingestion log in the manage
+  console. This is database-poll backed SSE, not pub/sub, and does not add
+  WebSockets or move into PR-12 through PR-14 scope.
 
 ## Current repo truth
 
@@ -82,9 +82,9 @@ when a PR lands, or when validation truth changes.
 - Supabase migrations now cover profiles, personas, spaces, documents,
   conversations, archived chats, continuity candidates, continuity records,
   forums, comments, reports, exports, social publishing, and Developer Spaces.
-- Developer Spaces exists as a Station-native observatory slice, with hardening,
-  live updates, Discover integration, linked documents, exports/quotas, SDK, and
-  visual editors moved into PR-10 through PR-16.
+- Developer Spaces exists as a Station-native observatory slice, with ingestion
+  hardening and bounded SSE live updates accepted. Discover integration, linked
+  documents, exports/quotas, SDK, and visual editors remain PR-12 through PR-16.
 - As of PR-06 on 2026-05-31, the full validation baseline passed with the pinned
   pnpm runner.
 - As of the 2026-06-05 current-main reconciliation, the full gate was no longer

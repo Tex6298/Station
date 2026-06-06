@@ -571,5 +571,33 @@ Targeted commands run with the pinned runner:
 | `npx --yes pnpm@10.32.1 typecheck` | Pass | API, web, and shared type surfaces completed. |
 | `npx --yes pnpm@10.32.1 build` | Pass | Known pre-existing React hook dependency and `<img>` optimization warnings only. |
 
-ARGUS still needs to review visibility/reconnect behavior before PR-11 is
-marked complete.
+## PR-11 ARGUS acceptance result
+
+ARGUS reviewed the DAEDALUS SSE slice on 2026-06-06 and accepted it for bounded
+Developer Spaces live-update scope.
+
+Review notes:
+
+- The stream endpoint reuses the same live-update builder as the detail route,
+  so public, community, and owner visibility boundaries match normal reads.
+- One-shot SSE coverage proves event name, retry metadata, reconnect id,
+  public-safe serialization, owner query-token access, and private-space denial.
+- Browser `EventSource` query-token auth is acceptable for this alpha slice
+  because custom authorization headers are not available, but a future
+  short-lived stream-token or cookie-backed approach would be stronger.
+- Freshness is database-poll backed SSE, not pub/sub. That satisfies PR-11's
+  first live-observatory pass but should not be described as production realtime.
+- The existing manage-page React hook dependency warning remains pre-existing.
+
+Commands re-run by ARGUS:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npx --yes pnpm@10.32.1 test:developer-spaces` | Pass | 2 tests passed. |
+| `git diff --check` | Pass | No whitespace errors. |
+| `npx --yes pnpm@10.32.1 typecheck` | Pass | API and web typecheck tasks completed. |
+| `npx --yes pnpm@10.32.1 build` | Pass | Known pre-existing React hook dependency and `<img>` optimization warnings only. |
+
+PR-11 is accepted. This does not include PR-12 Discover expansion, PR-13
+document linking, PR-14 quotas/exports, SDK package work, Stripe/token-credit,
+or broad Developer Spaces UI redesign.
