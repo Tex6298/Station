@@ -233,6 +233,37 @@ Targeted commands run with the pinned runner:
 | `npx --yes pnpm@10.32.1 test:conversation-archive` | Pass | 1 test passed. |
 | `npx --yes pnpm@10.32.1 typecheck` | Pass | API and web typecheck tasks completed. |
 
-Full baseline was not re-run during the DAEDALUS PR-07 implementation pass;
-ARGUS should decide whether the narrow PR-07 gate is enough or whether to rerun
-the complete PR-01 gate before marking PR-07 complete.
+## PR-07 ARGUS review result
+
+ARGUS reviewed the DAEDALUS PR-07 implementation on 2026-06-06 and accepted the
+bounded data-model scope without requiring a full baseline re-run. The prior full
+baseline was green before PR-07 began; this change touched the continuity API,
+shared types, schema metadata, and docs, so the PR-07 acceptance gate was the
+right review gate.
+
+Review notes:
+
+- Owner scoping is enforced before continuity record list/create calls.
+- Record reads are filtered by `owner_user_id`.
+- Spoofed `ownerUserId` input is ignored on create.
+- Visitor and other-user hostile paths are covered by
+  `apps/api/src/routes/continuity-records.test.ts`.
+- Triad wakeup tooling now relies on commit-body `WAKEUP A1/A2/A3` headers only,
+  and no stale sleep-command references remain.
+
+Commands re-run by ARGUS:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `node scripts/triad-status.mjs` | Pass | A3 state showed the `5e9e3ad` wakeup consumed. |
+| `node scripts/triad-watch.mjs A3` | Pass | No new A3 wakeups remained. |
+| JSON parse check for `package.json` and triad state files | Pass | Package and state JSON parsed cleanly. |
+| `rg -n "triad:sleep\|triad-sleep\|sleep-state\|watchStartedAt"` | Pass | No stale triad sleep refs found. |
+| `git diff --check` | Pass | Warning only for expected CRLF normalization on the consumed ARGUS state file. |
+| `npx --yes pnpm@10.32.1 test:continuity` | Pass | 2 tests passed. |
+| `npx --yes pnpm@10.32.1 test:persona-context` | Pass | 1 test passed. |
+| `npx --yes pnpm@10.32.1 test:conversation-archive` | Pass | 1 test passed. |
+| `npx --yes pnpm@10.32.1 typecheck` | Pass | API and web typecheck tasks completed. |
+
+PR-07 is complete for Continuity Alpha data-model scope. PR-08 should begin as
+Continuity Studio UI only if MIMIR confirms the next roadmap move.

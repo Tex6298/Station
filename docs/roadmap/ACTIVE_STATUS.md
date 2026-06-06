@@ -52,11 +52,12 @@ when a PR lands, or when validation truth changes.
   existing pnpm config/build-script notice, React hook dependency warnings, and
   `<img>` optimization warnings. PR-07 is cleared to begin, limited to
   Continuity Alpha data model scope only.
-- PR-07 DAEDALUS implementation, 2026-06-06: the Continuity Alpha data model
-  now has a narrow owner-scoped `/continuity` API skeleton over
-  `continuity_records`, shared continuity DTOs, source-version schema alignment,
-  and a focused `test:continuity` data-shape test. PR-07 is awaiting ARGUS
-  review before it should be marked complete.
+- PR-07 ARGUS review, 2026-06-06: accepted as complete for the bounded
+  Continuity Alpha data-model scope. The owner-scoped `/continuity` API skeleton
+  over `continuity_records`, shared continuity DTOs, source-version schema
+  alignment, and focused data-shape test passed hostile-path review. ARGUS
+  re-ran the PR-07 acceptance gate and found no stale triad sleep refs after the
+  watcher cleanup.
 
 ## Current repo truth
 
