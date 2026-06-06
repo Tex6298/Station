@@ -130,10 +130,17 @@ when a PR lands, or when validation truth changes.
   monthly-reset coverage, typed token persistence and API surfaces, Stripe
   top-up metadata guardrails, server-pack validation for verified grants, and
   validation against the existing PR-17 billing gate.
-- V3-04 is active, 2026-06-06: archive and export job reliability should define
-  a bounded job/status model for archive imports and export package generation,
-  preserve owner-only visibility and provenance, and avoid production queue or
-  worker infrastructure beyond the protected alpha need.
+- V3-04 is ready for ARGUS review, 2026-06-06: archive import jobs now have
+  focused proof for processing-to-completed and processing-to-failed status
+  transitions, owner-only status/list reads, and failed ingest error messages.
+  Persona export packages now mark source-query/build failures as failed with an
+  owner-visible error while preserving the existing completed-package provenance
+  and privacy boundaries. This remains protected-alpha synchronous job behavior;
+  it does not add queue or worker infrastructure.
+- Post-V3 UI/UX successor planning is drafted in
+  `docs/roadmap/STATION_UI_UX_ROADMAP.md` for ARIADNE review. It is not active
+  implementation scope while V3 is open unless MIMIR explicitly marks a tiny UX
+  slice as support work for a V3 lane.
 
 ## Current repo truth
 
@@ -265,6 +272,11 @@ when a PR lands, or when validation truth changes.
   unsupported/zero top-up metadata rejection, server-pack metadata mismatch
   rejection, tier-ineligible top-up rejection, admin-only monthly reset, and
   transaction-history serialization.
+- As of V3-04 DAEDALUS implementation, archive/export reliability has focused
+  coverage for import job completion/failure status, owner-scoped job reads,
+  failed archive ingest error persistence, failed persona export package
+  visibility to the owner, and owner-only exclusion for other users. ARGUS still
+  needs to review before V3-04 can be marked accepted.
 
 ## Near-term rule
 
