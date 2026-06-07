@@ -223,6 +223,9 @@ when a PR lands, or when validation truth changes.
   required. ARIADNE recommends opening the separate global mobile top-nav debt
   slice next if MIMIR continues UI/UX work, because mobile wayfinding should be
   stable before richer Studio, continuity, or public-surface UX lanes continue.
+- UX-DEBT-01 is active, 2026-06-07: fix the separate global mobile top-nav
+  horizontal overflow debt without changing routes, auth/session semantics,
+  backend behavior, product scope, or page content.
 
 ## Current repo truth
 
