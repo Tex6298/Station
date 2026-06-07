@@ -214,6 +214,11 @@ when a PR lands, or when validation truth changes.
   Export workspace implementation, bundles, workers, backend behavior,
   auth/session changes, and the separate global mobile top-nav overflow issue
   remain deferred.
+- UX-02B ARIADNE experience review is active, 2026-06-07: ARIADNE should review
+  the accepted persona export status component for portability/trust language,
+  failed/completed state clarity, manifest-readback comprehension, archive
+  continuity with UX-02A, mobile ergonomics, and whether to pause or open the
+  separate global mobile top-nav debt slice.
 
 ## Current repo truth
 
