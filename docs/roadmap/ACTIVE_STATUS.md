@@ -193,6 +193,10 @@ when a PR lands, or when validation truth changes.
   375px and desktop widths found the per-persona Archive trust layout coherent.
   Global Archive, Export workspace, Station Assistant, backend behavior,
   auth/session, and private search UI remain deferred.
+- UX-02A ARIADNE experience review is active, 2026-06-07: ARIADNE should review
+  the accepted per-persona Archive trust states for trust-building copy,
+  privacy clarity, failure-state usefulness, storage/quota comprehension,
+  mobile ergonomics, and whether the UI/UX lane should pause or continue.
 
 ## Current repo truth
 
