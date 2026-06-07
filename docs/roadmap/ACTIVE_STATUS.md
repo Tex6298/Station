@@ -275,6 +275,13 @@ when a PR lands, or when validation truth changes.
   still uses the pinned frozen-lockfile install gate even though the current
   Vercel install command is looser. DAEDALUS committing its own state file was
   acceptable triad-state hygiene for a consumed A2 wake.
+- MIMIR set provisional staging defaults, 2026-06-07: keep the current Vercel
+  web-app shape, use Railway as the default Node host for the Express API, use a
+  dedicated Supabase staging project with private `persona-files` bucket, keep
+  Stripe in test mode, and set up first replay data manually. No deployed URL,
+  credential, remote-green claim, or staging implementation exists yet; the next
+  DAEDALUS task should translate these defaults into a narrow setup/readiness
+  patch or name the exact remaining human facts.
 
 ## Current repo truth
 

@@ -43,6 +43,26 @@ verify staging:
 | Replay data policy | Whether data is seeded manually, through API clicks, or by a future seed script. |
 | Remote status | GitHub CI and Vercel deployment status for the exact commit under review. |
 
+## MIMIR staging defaults
+
+These are the current defaults for the next setup pass. They are not deployed
+facts until URLs, projects, and credentials exist.
+
+- Web host/provider: keep the current Vercel web-app shape for staging.
+- API host/provider: use Railway as the default Node host for the Express API.
+- Supabase: use a dedicated staging project, not the production or local project.
+- Supabase storage: create a private `persona-files` bucket in staging.
+- Stripe: use test mode only, with staging webhook endpoint pointed at the
+  staged API.
+- Replay account/data: set up the first replay manually through the UI/API;
+  defer a seed script until manual setup becomes repetitive.
+- Remote truth: verify GitHub CI and web/API deployment status for the exact
+  commit under replay.
+
+Remaining human/MIMIR facts: concrete web URL, concrete API URL, staging
+Supabase project values, Supabase auth redirects, Stripe test Price IDs/webhook
+secret, replay account credentials, and remote status for the pushed commit.
+
 ## Environment checklist
 
 Web host:
