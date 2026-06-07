@@ -282,6 +282,13 @@ when a PR lands, or when validation truth changes.
   credential, remote-green claim, or staging implementation exists yet; the next
   DAEDALUS task should translate these defaults into a narrow setup/readiness
   patch or name the exact remaining human facts.
+- Railway API staging prep is ready for MIMIR review, 2026-06-07: DAEDALUS
+  translated the provisional defaults into docs only. `infra/railway/README.md`
+  now names the API build/start commands, `/health` check, Railway API env
+  boundary, paired Vercel web env, Supabase/Stripe pairing, and URL smoke
+  commands. `docs/ops/STAGING_REPLAY_READINESS.md` points at those notes. No
+  Railway project, service config, URL, secret, Supabase project, Stripe
+  resource, replay account, seed script, or staging implementation was created.
 
 ## Current repo truth
 

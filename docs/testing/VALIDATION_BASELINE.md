@@ -1282,6 +1282,27 @@ Targeted commands run with the pinned runner:
 | `npx --yes pnpm@10.32.1 test:integrity` | Pass | 2 tests passed. |
 | `git diff --check` | Pass | CRLF normalization warnings only. |
 
+## Railway API staging prep DAEDALUS result
+
+Validated on 2026-06-07 after translating MIMIR's provisional staging defaults
+into preparation docs only:
+
+- Added `infra/railway/README.md` for Railway API staging prep.
+- Updated `docs/ops/STAGING_REPLAY_READINESS.md`,
+  `docs/roadmap/STATION_REPLAY_STAGING_READINESS.md`, and
+  `docs/roadmap/ACTIVE_STATUS.md` with the Vercel web / Railway API defaults
+  and remaining external blockers.
+- No Railway project config, deployed URL, secret, Supabase project, Stripe
+  resource, replay account, seed script, route behavior, auth behavior, or
+  product feature was implemented.
+
+Targeted commands run with the pinned runner:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npx --yes pnpm@10.32.1 typecheck` | Pass | API and web typecheck replayed from cache. |
+| `git diff --check` | Pass | CRLF normalization warnings only. |
+
 ## UX-02A DAEDALUS implementation result
 
 Validated on 2026-06-06 after adding the narrow per-persona Archive trust-state

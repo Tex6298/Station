@@ -16,9 +16,11 @@ useful product evidence from an online/staged Station deployment.
 - The current Vercel install command uses `pnpm install --no-frozen-lockfile`;
   CI and replay acceptance should still use the pinned frozen-lockfile gate
   unless MIMIR explicitly waives it.
+- MIMIR's provisional default is now Vercel for web and Railway for the Express
+  API. Railway setup notes live in `infra/railway/README.md`.
 - The API has `pnpm --dir apps/api build` and `pnpm --dir apps/api start`
-  equivalents through the package scripts, but the repo does not name an API
-  hosting provider.
+  equivalents through the package scripts. The repo still does not include a
+  Railway project config, service ID, URL, or secrets.
 - Supabase migrations and setup notes live in `infra/supabase/README.md`.
 - Stripe Billing setup notes live in `infra/stripe/webhook.md`.
 - Local validation and remote deployment truth are separate; a green local gate
@@ -134,9 +136,17 @@ Remote:
 
 - GitHub CI is green for the pushed commit, or MIMIR explicitly waives a check.
 - Web staging URL loads the app shell.
-- API staging URL returns `200` from `/health`.
+- Railway API staging URL returns `200` from `/health`.
 - Web can call `/auth/me` through `NEXT_PUBLIC_API_URL`.
 - Stripe test webhook endpoint is verified against `/billing/webhook`.
+
+Once URLs exist, the minimal smoke commands are:
+
+```bash
+curl -f https://<station-api-staging>/health
+curl -I https://<station-web-staging>
+curl -i https://<station-api-staging>/auth/me
+```
 
 ## Replay account and data setup
 

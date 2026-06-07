@@ -86,6 +86,32 @@ ARGUS's follow-up tightened two staging-prep claims before acceptance:
 - Replay acceptance keeps the pinned frozen-lockfile install gate even though
   the current Vercel install command is looser.
 
+## MIMIR staging defaults
+
+MIMIR's 2026-06-07 provisional defaults:
+
+- Web staging: Vercel-shaped `apps/web`.
+- API staging: Railway-hosted `apps/api` Express service.
+- Supabase: dedicated staging project with private `persona-files` bucket.
+- Stripe: test mode only.
+- Replay data: first pass manual setup through UI/API.
+
+## DAEDALUS Railway prep result
+
+DAEDALUS translated those defaults into preparation docs only:
+
+- Added `infra/railway/README.md` with API build/start commands, `/health`
+  check, Railway API env boundary, paired Vercel web env, Supabase/Stripe
+  pairing, and URL smoke commands.
+- Updated `docs/ops/STAGING_REPLAY_READINESS.md` to point at the Railway API
+  prep notes and include the post-URL smoke commands.
+- Did not add a Railway project config, service ID, deployed URL, secret,
+  Supabase project, Stripe resource, seed script, or product behavior.
+
+Implementation remains blocked on the concrete Railway/Vercel URLs, staging
+Supabase values, Supabase auth redirects, Stripe test resources, replay
+account/data, and remote status for the exact commit.
+
 ## Acceptance posture
 
 ARGUS should review any staging-readiness patch for:
