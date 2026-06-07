@@ -240,6 +240,10 @@ when a PR lands, or when validation truth changes.
   labels; and desktop continuity is unchanged. No UX-DEBT-01 follow-up is
   required. ARIADNE recommends pausing the UI/UX lane for MIMIR product
   sequencing rather than opening another slice automatically.
+- The post-V3 UI/UX lane is paused for MIMIR product sequencing. No UI/UX
+  implementation lane is active; if work continues, the likely next candidates
+  are UX-01B persona workspace IA or UX-03 continuity/integrity, with ARGUS
+  gates first.
 
 ## Current repo truth
 
