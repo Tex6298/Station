@@ -223,9 +223,13 @@ when a PR lands, or when validation truth changes.
   required. ARIADNE recommends opening the separate global mobile top-nav debt
   slice next if MIMIR continues UI/UX work, because mobile wayfinding should be
   stable before richer Studio, continuity, or public-surface UX lanes continue.
-- UX-DEBT-01 is active, 2026-06-07: fix the separate global mobile top-nav
-  horizontal overflow debt without changing routes, auth/session semantics,
-  backend behavior, product scope, or page content.
+- UX-DEBT-01 is ready for ARGUS review, 2026-06-07: DAEDALUS moved the global
+  top navigation from inline sizing to scoped responsive classes. Desktop keeps
+  the same single-line header; mobile keeps the bar height stable and bounds
+  primary links inside an internal horizontal rail so the page itself does not
+  overflow. Routes, active-link behavior, auth/session semantics, backend
+  behavior, product scope, Studio frame behavior, and page content remain
+  unchanged.
 
 ## Current repo truth
 

@@ -1380,6 +1380,35 @@ Targeted commands run with the pinned runner:
 | `npx --yes pnpm@10.32.1 test:continuity` | Pass | 4 tests passed. |
 | `git diff --check` | Pass | CRLF normalization warnings only. |
 
+## UX-DEBT-01 DAEDALUS implementation result
+
+Validated on 2026-06-07 after fixing the global mobile top-nav overflow debt:
+
+- `apps/web/components/nav/top-nav.tsx` now uses scoped classes instead of
+  inline layout styles, preserving the existing link lists, active-link
+  behavior, auth restore/redirect behavior, account menu, and signout flow.
+- `apps/web/app/globals.css` keeps the desktop header as a single-line bar and
+  gives mobile a bounded internal horizontal link rail inside the 52px top nav,
+  so primary labels do not overlap and the page itself should not gain
+  horizontal overflow.
+- `apps/web/app/layout.tsx` uses the same top-nav loading class as the hydrated
+  shell.
+- Scope stayed frontend layout-only. It did not change routes, auth/session
+  semantics, backend behavior, product scope, page content, Studio frame
+  behavior, global Archive/Export, or Station Assistant work.
+
+Targeted commands run with the pinned runner:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npx --yes pnpm@10.32.1 typecheck` | Pass | API and web typecheck tasks completed. |
+| `npx --yes pnpm@10.32.1 lint` | Pass with warnings | Same warnings outside touched UX-DEBT-01 surfaces: Developer Space manage hook dependency, Space page raw `<img>`, and Discover avatar raw `<img>`. |
+| `npx --yes pnpm@10.32.1 build` | Pass with same warnings | Full workspace build completed with the same pre-existing warnings. |
+| `npx --yes pnpm@10.32.1 test:auth` | Pass | 10 tests passed. |
+| `npx --yes pnpm@10.32.1 test:studio-ui` | Pass | 7 helper tests passed; no helper behavior changed, but the existing Studio navigation gate remains green. |
+| Local web dev probe | Partial | Fresh `@station/web` dev server responded 200 at `http://127.0.0.1:3002/discover`. Playwright CLI and Chrome headless viewport probes hung in this shell, so ARGUS should perform the final 375px/desktop visual overflow check. |
+| `git diff --check` | Pass | CRLF normalization warnings only. |
+
 ## UX-02B ARGUS acceptance result
 
 ARGUS reviewed the DAEDALUS UX-02B implementation on 2026-06-07 and accepted

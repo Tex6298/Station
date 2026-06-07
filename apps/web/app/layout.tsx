@@ -4,7 +4,7 @@ import dynamic from "next/dynamic";
 
 const TopNav = dynamic(() => import("@/components/nav/top-nav").then((m) => m.TopNav), {
   ssr: false,
-  loading: () => <nav style={{ height: 52 }} />,
+  loading: () => <nav className="top-nav-loading" />,
 });
 
 export const metadata: Metadata = {
