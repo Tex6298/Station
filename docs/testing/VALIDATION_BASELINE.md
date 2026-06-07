@@ -1348,6 +1348,38 @@ Commands re-run by ARGUS:
 | `npx --yes pnpm@10.32.1 test:continuity` | Pass | 4 tests passed. |
 | `git diff --check` | Pass | CRLF normalization warnings only. |
 
+## UX-02B DAEDALUS implementation result
+
+Validated on 2026-06-07 after extracting persona export status/history into a
+reusable trust component:
+
+- `apps/web/components/studio/archive-export-status.tsx` now owns persona export
+  status/history display, package creation, completed manifest readback, failed
+  error-message display, and requested/processing states over the existing
+  `/exports/persona/:personaId` and `/exports/:id` APIs.
+- `apps/web/lib/export-trust.ts` centralizes status tone, labels, manifest
+  summary text, included-section text, and export state grouping.
+- The persona workspace and per-persona Archive tab both reuse the component,
+  so preservation and portability are visible together without activating the
+  global Export workspace.
+- Scope stayed frontend/helper-only. It did not add backend/schema/API behavior,
+  new export package formats, downloadable bundles, workers, retry behavior,
+  private search UI, Station Assistant, or auth/session changes.
+
+Targeted commands run with the pinned runner:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npx --yes pnpm@10.32.1 test:studio-ui` | Pass | 7 helper tests passed, including export trust status/copy/grouping. |
+| `npx --yes pnpm@10.32.1 typecheck` | Pass | API and web typecheck tasks completed. |
+| `npx --yes pnpm@10.32.1 lint` | Pass with warnings | Same warnings outside touched UX-02B surfaces: Developer Space manage hook dependency, Space page raw `<img>`, and Discover avatar raw `<img>`. |
+| `npx --yes pnpm@10.32.1 build` | Pass with same warnings | Full workspace build completed with the same pre-existing warnings. |
+| `npx --yes pnpm@10.32.1 test:storage` | Pass | 6 tests passed. |
+| `npx --yes pnpm@10.32.1 test:conversation-archive` | Pass | 2 tests passed. |
+| `npx --yes pnpm@10.32.1 test:exports` | Pass | 3 tests passed. |
+| `npx --yes pnpm@10.32.1 test:continuity` | Pass | 4 tests passed. |
+| `git diff --check` | Pass | CRLF normalization warnings only. |
+
 ## UX-01A ARGUS acceptance result
 
 ARGUS reviewed the DAEDALUS UX-01A implementation on 2026-06-06 and accepted

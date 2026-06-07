@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
+import type { ArchiveExportPackage } from "@station/types/export";
 import { getSession } from "@/lib/auth";
 import { apiGet, apiPost } from "@/lib/api-client";
 import {
@@ -11,6 +12,7 @@ import {
   archiveJobTrustCopy,
   archiveTrustSummary,
 } from "@/lib/archive-trust";
+import { ArchiveExportStatus } from "@/components/studio/archive-export-status";
 import { PublishContinuityButton } from "@/components/studio/publish-continuity-button";
 import { StorageUsagePanel } from "@/components/settings/storage-usage-panel";
 import {
@@ -50,6 +52,7 @@ export default function PersonaFilesPage() {
   const [persona, setPersona] = useState<PersonaWithContinuity | null>(null);
   const [files, setFiles] = useState<PersonaFile[]>([]);
   const [jobs, setJobs] = useState<ImportJob[]>([]);
+  const [exportPackages, setExportPackages] = useState<ArchiveExportPackage[]>([]);
   const [form, setForm] = useState({ sourceName: "", content: "", relevanceWeight: 1.5 });
   const [loading, setLoading] = useState(true);
   const [importing, setImporting] = useState(false);
@@ -67,15 +70,17 @@ export default function PersonaFilesPage() {
           return;
         }
         setToken(session.access_token);
-        const [personaData, filesData, jobsData] = await Promise.all([
+        const [personaData, filesData, jobsData, exportData] = await Promise.all([
           apiGet<{ persona: PersonaWithContinuity }>(`/personas/${personaId}`, session.access_token),
           apiGet<{ files: PersonaFile[] }>(`/persona-files/persona/${personaId}`, session.access_token),
           apiGet<{ jobs: ImportJob[] }>(`/imports/persona/${personaId}`, session.access_token),
+          apiGet<{ exports: ArchiveExportPackage[] }>(`/exports/persona/${personaId}`, session.access_token).catch(() => ({ exports: [] })),
         ]);
         if (cancelled) return;
         setPersona(personaData.persona);
         setFiles(filesData.files ?? []);
         setJobs(jobsData.jobs ?? []);
+        setExportPackages(exportData.exports ?? []);
       } catch (e) {
         if (!cancelled) setError(e instanceof Error ? e.message : "Could not load archive.");
       } finally {
@@ -195,6 +200,13 @@ export default function PersonaFilesPage() {
           </div>
         </section>
       </section>
+
+      <ArchiveExportStatus
+        personaId={persona.id}
+        token={token}
+        exportPackages={exportPackages}
+        onCreated={(exportPackage) => setExportPackages((current) => [exportPackage, ...current])}
+      />
     </main>
   );
 }

@@ -203,10 +203,13 @@ when a PR lands, or when validation truth changes.
   MIMIR continues the UI/UX lane: extract persona export status into a reusable
   trust component so preservation and portability are visible together. If MIMIR
   chooses to pause after UX-02A, there is no product-experience blocker.
-- UX-02B is active, 2026-06-07: extract persona export status into a reusable
-  component with completed/failed states and manifest readback clarity, while
-  deferring global Export workspace implementation, bundles, workers, backend
-  behavior, and auth/session changes.
+- UX-02B is ready for ARGUS review, 2026-06-07: DAEDALUS extracted persona
+  export status into a reusable Archive export trust component shared by the
+  persona workspace and per-persona Archive tab. Completed, failed, requested,
+  and processing exports now have clear owner-only status, failure-message,
+  summary, section, and manifest-readback states using existing export APIs.
+  Global Export workspace implementation, bundles, workers, backend behavior,
+  and auth/session changes remain deferred.
 
 ## Current repo truth
 
