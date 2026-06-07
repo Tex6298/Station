@@ -257,6 +257,11 @@ when a PR lands, or when validation truth changes.
   Archive/Export shells, dashboard derived/static snippets, no downloadable
   bundles/workers, and no new private search UI beyond the accepted API/search
   foundation.
+- Replay-staging readiness is now the active preparation lane. MIMIR opened
+  `docs/roadmap/STATION_REPLAY_STAGING_READINESS.md` to anchor the handoff:
+  DAEDALUS should inspect deploy/staging surfaces and either make a narrow
+  setup patch or return a no-code readiness plan naming external facts needed
+  before implementation.
 
 ## Current repo truth
 
