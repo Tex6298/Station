@@ -206,6 +206,7 @@ export default function PersonaFilesPage() {
         token={token}
         exportPackages={exportPackages}
         onCreated={(exportPackage) => setExportPackages((current) => [exportPackage, ...current])}
+        onRefreshed={setExportPackages}
       />
     </main>
   );

@@ -108,6 +108,7 @@ export default function PersonaPage() {
         token={token}
         exportPackages={exportPackages}
         onCreated={(exportPackage) => setExportPackages((current) => [exportPackage, ...current])}
+        onRefreshed={setExportPackages}
       />
       <PublishedContinuityHistory documents={documents} />
     </main>

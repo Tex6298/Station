@@ -24,11 +24,13 @@ export function ArchiveExportStatus({
   token,
   exportPackages,
   onCreated,
+  onRefreshed,
 }: {
   personaId: string;
   token: string | null;
   exportPackages: ArchiveExportPackage[];
   onCreated: (exportPackage: ArchiveExportPackage) => void;
+  onRefreshed?: (exportPackages: ArchiveExportPackage[]) => void;
 }) {
   const [creating, setCreating] = useState(false);
   const [manifest, setManifest] = useState<{ packageId: string; text: string } | null>(null);
@@ -51,6 +53,12 @@ export function ArchiveExportStatus({
       });
     } catch (e) {
       setError(e instanceof Error ? e.message : "Could not create export manifest.");
+      try {
+        const response = await apiGet<{ exports: ArchiveExportPackage[] }>(`/exports/persona/${personaId}`, token);
+        onRefreshed?.(response.exports ?? []);
+      } catch {
+        // Keep the direct error visible if refreshing the stored failed package also fails.
+      }
     } finally {
       setCreating(false);
     }
