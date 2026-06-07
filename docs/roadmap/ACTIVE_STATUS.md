@@ -232,6 +232,10 @@ when a PR lands, or when validation truth changes.
   mobile and desktop, with Studio's 52px mobile nav offset unaffected. Routes,
   active-link behavior, auth/session semantics, backend behavior, product
   scope, Studio frame behavior, and page content remain unchanged.
+- UX-DEBT-01 ARIADNE experience review is active, 2026-06-07: ARIADNE should
+  review global mobile wayfinding, primary-link readability, authenticated
+  avatar-only account affordance, desktop continuity, and whether the UI/UX lane
+  should pause or continue.
 
 ## Current repo truth
 
