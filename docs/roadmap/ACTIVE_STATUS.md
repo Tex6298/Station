@@ -193,10 +193,16 @@ when a PR lands, or when validation truth changes.
   375px and desktop widths found the per-persona Archive trust layout coherent.
   Global Archive, Export workspace, Station Assistant, backend behavior,
   auth/session, and private search UI remain deferred.
-- UX-02A ARIADNE experience review is active, 2026-06-07: ARIADNE should review
-  the accepted per-persona Archive trust states for trust-building copy,
-  privacy clarity, failure-state usefulness, storage/quota comprehension,
-  mobile ergonomics, and whether the UI/UX lane should pause or continue.
+- UX-02A ARIADNE experience review is complete, 2026-06-07: ARIADNE accepts
+  the per-persona Archive trust states as Station-fit archive infrastructure.
+  The page names owner-private archive source material clearly, explains that
+  failed imports keep existing archive material safe, exposes stored failure
+  messages, shows server-reported storage/quota context, and avoids turning the
+  static global Archive or Export workspace into live surfaces. No UX-02A
+  follow-up is required before the next lane. ARIADNE recommends UX-02B next if
+  MIMIR continues the UI/UX lane: extract persona export status into a reusable
+  trust component so preservation and portability are visible together. If MIMIR
+  chooses to pause after UX-02A, there is no product-experience blocker.
 
 ## Current repo truth
 
