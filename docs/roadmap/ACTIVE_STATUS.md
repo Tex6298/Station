@@ -306,6 +306,13 @@ when a PR lands, or when validation truth changes.
   URL, secret, staging Supabase project, Stripe resource, replay account, or
   remote-green status exists in repo. ARGUS corrected the staging runbook wording
   so it no longer says the repo lacks Railway config while `railway.json` exists.
+- Railway API service shell exists, 2026-06-07: Railway project
+  `capable-learning` has an offline `api` service shell in the `production`
+  environment. The service has no GitHub source, deployment, domain, or
+  non-system runtime variables. The current `RAILWAY_TOKEN` can read/create
+  service state but cannot connect the GitHub source through CLI, so source
+  connection remains a dashboard/token-permission task. Do not deploy until the
+  `api` service has real Supabase/JWT/Stripe runtime values.
 
 ## Current repo truth
 

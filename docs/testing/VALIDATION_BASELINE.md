@@ -1348,6 +1348,25 @@ Commands re-run by ARGUS:
 | `npx --yes pnpm@10.32.1 --dir apps/api build` | Pass | API package and required workspace packages built successfully. |
 | `git diff --check` | Pass | CRLF normalization warnings only. |
 
+## Railway API service shell MIMIR result
+
+Checked on 2026-06-07 after ARGUS accepted the config:
+
+- Railway project `capable-learning` has an offline `api` service shell in the
+  `production` environment.
+- The service has no GitHub source, deployment, domain, or non-system runtime
+  variables.
+- The current token can read/create service state but cannot connect
+  `Tex6298/Station` as the service source through CLI.
+
+Targeted commands:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `railway service list --json` | Pass | Showed offline `api` service with no source/deployment/domain. |
+| `railway variable list --service api --json` | Pass | Only Railway system variables were present. Values were not recorded. |
+| `railway service source connect --repo Tex6298/Station --branch main --service api --json` | Blocked | Railway returned `Unauthorized` for the current token. |
+
 ## UX-02A DAEDALUS implementation result
 
 Validated on 2026-06-06 after adding the narrow per-persona Archive trust-state

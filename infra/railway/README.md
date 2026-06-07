@@ -135,3 +135,36 @@ This file does not create:
 - a Supabase staging project
 - Stripe test resources
 - replay account data
+
+## Current Railway CLI state
+
+Checked from the repo on 2026-06-07:
+
+- Workspace: `tex6298's Projects`
+- Project: `capable-learning`
+- Project ID: `4c716631-6110-4cec-85f1-ab925239b337`
+- Environment: `production`
+- API service shell: `api`
+- API service ID: `7b0b1d3f-3fe2-45ed-a720-88911cf502a4`
+- Source: not connected
+- Deployment: none
+- Domain: none
+- Service variables: Railway system variables only
+
+The available `RAILWAY_TOKEN` can read the project, create/read the `api`
+service, and list service variables by explicit selector. It cannot connect a
+GitHub source or write a local `.railway` link; those commands return
+`Unauthorized`. Connect `Tex6298/Station` branch `main` to the `api` service in
+the Railway dashboard, or provide a Railway token with permission to manage
+service sources.
+
+Do not deploy the API until these runtime values exist on the `api` service:
+
+- `API_URL`
+- `NEXT_PUBLIC_APP_URL`
+- `SUPABASE_URL`
+- `SUPABASE_ANON_KEY`
+- `SUPABASE_SERVICE_ROLE_KEY`
+- `DATABASE_URL`
+- `JWT_SECRET`
+- Stripe test-mode keys, prices, and webhook secret

@@ -68,6 +68,18 @@ Remaining human/MIMIR facts: concrete web URL, concrete API URL, staging
 Supabase project values, Supabase auth redirects, Stripe test Price IDs/webhook
 secret, replay account credentials, and remote status for the pushed commit.
 
+## Current Railway project state
+
+As of 2026-06-07, Railway project `capable-learning` contains an offline `api`
+service shell in the `production` environment. The service has no GitHub source,
+deployment, domain, or non-system runtime variables yet. The local
+`RAILWAY_TOKEN` can read the project/service but cannot connect the GitHub source
+through the CLI.
+
+Next external action: connect `Tex6298/Station` branch `main` to the Railway
+`api` service in the dashboard, or provide a Railway token that can manage
+service sources. Runtime env values still need to be added before deployment.
+
 ## Environment checklist
 
 Web host:
