@@ -4,7 +4,20 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { getSession } from "@/lib/auth";
 import { apiGet, apiPost } from "@/lib/api-client";
+import {
+  archiveFileTrustCopy,
+  archiveJobStatusLabel,
+  archiveJobTone,
+  archiveJobTrustCopy,
+  archiveTrustSummary,
+} from "@/lib/archive-trust";
 import { PublishContinuityButton } from "@/components/studio/publish-continuity-button";
+import { StorageUsagePanel } from "@/components/settings/storage-usage-panel";
+import {
+  StudioEmptyState,
+  StudioPanel,
+  StudioStatusBadge,
+} from "@/components/studio/studio-frame";
 import {
   PersonaWorkspaceHeader,
   type PersonaWithContinuity,
@@ -105,10 +118,38 @@ export default function PersonaFilesPage() {
   if (error && !persona) return <StudioMessage tone="error">{error}</StudioMessage>;
   if (!persona) return <StudioMessage tone="error">Persona not found.</StudioMessage>;
 
+  const summary = archiveTrustSummary(files, jobs);
+
   return (
     <main className="container studio-workspace">
       <PersonaWorkspaceHeader persona={persona} />
       {error && <div className="space-form-error">{error}</div>}
+
+      <section className="archive-trust-grid" aria-label="Archive trust status">
+        <StudioPanel>
+          <div className="studio-section-heading">
+            <div className="section-label">Archive Trust</div>
+            <h2>Private source material for {persona.name}</h2>
+          </div>
+          <p className="archive-trust-copy">
+            Imports and files on this page are owner-only archive sources. Completed imports can be linked into continuity; failed imports keep their error message here and do not remove existing archive material.
+          </p>
+          <div className="archive-trust-stats">
+            <TrustMetric label="Sources" value={summary.totalSources} />
+            <TrustMetric label="Completed imports" value={summary.completedImports} />
+            <TrustMetric label="Needs review" value={summary.failedImports} tone={summary.failedImports > 0 ? "danger" : "info"} />
+            <TrustMetric label="Processing" value={summary.processingImports} tone={summary.processingImports > 0 ? "warning" : "info"} />
+          </div>
+        </StudioPanel>
+
+        <StudioPanel>
+          <div className="studio-section-heading">
+            <div className="section-label">Storage and Quota</div>
+            <h2>Server-reported usage</h2>
+          </div>
+          <StorageUsagePanel />
+        </StudioPanel>
+      </section>
 
       <section className="studio-two-column">
         <form className="studio-editor-panel" onSubmit={importText}>
@@ -116,6 +157,9 @@ export default function PersonaFilesPage() {
             <div className="section-label">Archive Import</div>
             <h2>Paste source material</h2>
           </div>
+          <p className="archive-trust-copy">
+            This creates a private import job for this persona. If import fails, Station keeps the error visible and leaves existing archive material untouched.
+          </p>
           <input className="input" value={form.sourceName} onChange={(e) => setForm((f) => ({ ...f, sourceName: e.target.value }))} placeholder="Source name" maxLength={200} />
           <textarea className="textarea" value={form.content} onChange={(e) => setForm((f) => ({ ...f, content: e.target.value }))} placeholder="Paste chat logs, notes, letters, or research material." style={{ minHeight: 260 }} required />
           <label className="studio-range-field">
@@ -133,41 +177,97 @@ export default function PersonaFilesPage() {
             <h2>{files.length + jobs.length} sources</h2>
           </div>
           <div className="studio-item-list">
-            {files.length === 0 && jobs.length === 0 && <div className="studio-empty">No archive sources yet.</div>}
+            {files.length === 0 && jobs.length === 0 && (
+              <StudioEmptyState>No archive sources yet. Paste material to create the first private import job.</StudioEmptyState>
+            )}
             {jobs.map((job) => (
-              <article key={job.id} className="studio-item-card">
-                <div>
-                  <span>{job.kind} / {job.status}</span>
-                  <time>{formatDate(job.created_at)}</time>
-                </div>
-                <h3>{job.source_name}</h3>
-                <p>{job.error_message || "Imported text is chunked into private memory items for retrieval."}</p>
-                <PublishContinuityButton
-                  sourceType="archive_import"
-                  sourceId={job.id}
-                  defaultTitle={job.source_name}
-                />
-              </article>
+              <ImportJobCard key={job.id} job={job} />
             ))}
             {files.map((file) => (
-              <article key={file.id} className="studio-item-card">
-                <div>
-                  <span>{file.source_type} / {file.processed ? "processed" : "queued"}</span>
-                  <time>{formatDate(file.created_at)}</time>
-                </div>
-                <h3>{file.file_name}</h3>
-                <p>{file.file_type || file.storage_path}</p>
-                <PublishContinuityButton
-                  sourceType="archive_file"
-                  sourceId={file.id}
-                  defaultTitle={file.file_name}
-                />
-              </article>
+              <ArchiveFileCard key={file.id} file={file} />
             ))}
           </div>
         </section>
       </section>
     </main>
+  );
+}
+
+function ImportJobCard({ job }: { job: ImportJob }) {
+  const copy = archiveJobTrustCopy(job);
+  const canPublish = job.status === "completed";
+
+  return (
+    <article className="studio-item-card archive-trust-source-card">
+      <div>
+        <span>{job.kind}</span>
+        <div className="archive-trust-card-meta">
+          <StudioStatusBadge tone={archiveJobTone(job.status)}>
+            {archiveJobStatusLabel(job.status)}
+          </StudioStatusBadge>
+          <time>{formatDate(job.created_at)}</time>
+        </div>
+      </div>
+      <h3>{job.source_name}</h3>
+      <p>{copy.body}</p>
+      {job.status === "failed" && job.error_message ? (
+        <div className="archive-trust-error">{job.error_message}</div>
+      ) : null}
+      <div className="archive-trust-next-action">{copy.nextAction}</div>
+      {canPublish ? (
+        <PublishContinuityButton
+          sourceType="archive_import"
+          sourceId={job.id}
+          defaultTitle={job.source_name}
+        />
+      ) : null}
+    </article>
+  );
+}
+
+function ArchiveFileCard({ file }: { file: PersonaFile }) {
+  return (
+    <article className="studio-item-card archive-trust-source-card">
+      <div>
+        <span>{file.source_type}</span>
+        <div className="archive-trust-card-meta">
+          <StudioStatusBadge tone={file.processed ? "good" : "warning"}>
+            {file.processed ? "Processed" : "Queued"}
+          </StudioStatusBadge>
+          <time>{formatDate(file.created_at)}</time>
+        </div>
+      </div>
+      <h3>{file.file_name}</h3>
+      <p>{archiveFileTrustCopy(file)}</p>
+      <div className="archive-trust-next-action">
+        {file.file_type || file.storage_path}
+        {typeof file.file_size === "number" ? ` / ${formatBytes(file.file_size)}` : ""}
+      </div>
+      {file.processed ? (
+        <PublishContinuityButton
+          sourceType="archive_file"
+          sourceId={file.id}
+          defaultTitle={file.file_name}
+        />
+      ) : null}
+    </article>
+  );
+}
+
+function TrustMetric({
+  label,
+  value,
+  tone = "info",
+}: {
+  label: string;
+  value: number;
+  tone?: "info" | "warning" | "danger";
+}) {
+  return (
+    <div className="archive-trust-metric" data-tone={tone}>
+      <span>{label}</span>
+      <strong>{value}</strong>
+    </div>
   );
 }
 
@@ -183,4 +283,11 @@ function StudioMessage({ children, tone = "normal" }: { children: React.ReactNod
 
 function formatDate(value: string) {
   return new Date(value).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
+}
+
+function formatBytes(bytes: number) {
+  if (bytes >= 1024 * 1024 * 1024) return `${(bytes / 1024 / 1024 / 1024).toFixed(1)} GB`;
+  if (bytes >= 1024 * 1024) return `${(bytes / 1024 / 1024).toFixed(1)} MB`;
+  if (bytes >= 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  return `${bytes} B`;
 }

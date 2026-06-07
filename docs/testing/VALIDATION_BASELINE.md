@@ -137,9 +137,8 @@ after the storage, integrity, token-credit, and UX stack landed.
 These warnings do not currently fail the baseline:
 
 - `pnpm install` warns that `unrs-resolver@1.12.2` build scripts were ignored.
-- `pnpm lint` and `pnpm build` report React hook dependency warnings in:
+- `pnpm lint` and `pnpm build` report a React hook dependency warning in:
   - `apps/web/app/developer-spaces/[slug]/manage/page.tsx`
-  - `apps/web/app/studio/personas/[personaId]/page.tsx`
 - `pnpm lint` and `pnpm build` report Next image optimization warnings for
   `<img>` usage in:
   - `apps/web/app/space/[slug]/page.tsx`
@@ -1281,6 +1280,37 @@ Targeted commands run with the pinned runner:
 | `npx --yes pnpm@10.32.1 test:persona-context` | Pass | 1 test passed. |
 | `npx --yes pnpm@10.32.1 test:continuity` | Pass | 4 tests passed. |
 | `npx --yes pnpm@10.32.1 test:integrity` | Pass | 2 tests passed. |
+| `git diff --check` | Pass | CRLF normalization warnings only. |
+
+## UX-02A DAEDALUS implementation result
+
+Validated on 2026-06-06 after adding the narrow per-persona Archive trust-state
+slice:
+
+- `/studio/personas/:personaId/files` now shows owner-private archive trust
+  status, import/source counts, completed/failed/processing import groups,
+  source names, owner-visible failure messages, safe next actions, and the
+  existing server-reported storage/quota panel.
+- Import and file cards now show reusable status badges and only expose
+  continuity-link actions for completed imports or processed files.
+- `apps/web/lib/archive-trust.ts` centralizes archive status tone/copy/summary
+  helpers, with focused helper tests added to `pnpm test:studio-ui`.
+- Scope stayed on existing APIs and current per-persona Archive UI. It did not
+  add global Archive, Export workspace, private search UI, Station Assistant,
+  auth/session, backend/schema, queue, or worker behavior.
+
+Targeted commands run with the pinned runner:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npx --yes pnpm@10.32.1 test:studio-ui` | Pass | 4 helper tests passed, including archive trust copy/grouping and Studio navigation helpers. |
+| `npx --yes pnpm@10.32.1 typecheck` | Pass | API and web typecheck tasks completed. |
+| `npx --yes pnpm@10.32.1 lint` | Pass with warnings | Same warnings outside touched UX-02A surfaces: Developer Space manage hook dependency, Space page raw `<img>`, and Discover avatar raw `<img>`. |
+| `npx --yes pnpm@10.32.1 build` | Pass with same warnings | Full workspace build completed with the same pre-existing warnings. |
+| `npx --yes pnpm@10.32.1 test:storage` | Pass | 6 tests passed. |
+| `npx --yes pnpm@10.32.1 test:conversation-archive` | Pass | 2 tests passed. |
+| `npx --yes pnpm@10.32.1 test:exports` | Pass | 3 tests passed. |
+| `npx --yes pnpm@10.32.1 test:continuity` | Pass | 4 tests passed. |
 | `git diff --check` | Pass | CRLF normalization warnings only. |
 | Local web dev probe | Pass | `http://127.0.0.1:3001/studio` returned HTTP 200 after starting `@station/web` dev server. |
 

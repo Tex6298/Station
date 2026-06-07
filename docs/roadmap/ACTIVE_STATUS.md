@@ -183,10 +183,13 @@ when a PR lands, or when validation truth changes.
   the archive-trust surface. ARIADNE recommends opening UX-02A next, bounded to
   per-persona Archive trust states, with global Archive/Export workspace and
   dashboard authority still deferred.
-- UX-02A is active, 2026-06-06: implement per-persona Archive trust states on
-  `/studio/personas/:personaId/files`, using existing APIs and keeping global
+- UX-02A is ready for ARGUS review, 2026-06-06: DAEDALUS added per-persona
+  Archive trust states to `/studio/personas/:personaId/files`, using existing
+  APIs only. The page now surfaces owner-private archive status, import job
+  success/failure/processing states, source names, failure messages, safe next
+  actions, and the existing server-reported storage/quota panel. Global
   Archive, Export workspace, Station Assistant, backend behavior, auth/session,
-  and private search UI deferred.
+  and private search UI remain deferred.
 
 ## Current repo truth
 
