@@ -15,6 +15,15 @@ MIMIR's current staging default is:
 
 The Railway service should run the Express API, not the Next.js web app.
 
+The root `railway.json` pins the API service deployment shape for this shared
+pnpm/Turbo monorepo:
+
+- Railpack builder
+- build command: `pnpm --dir apps/api build`
+- start command: `pnpm --dir apps/api start`
+- health check: `/health`
+- watch patterns covering `apps/api`, shared `packages`, and workspace config
+
 From the repository root:
 
 ```bash

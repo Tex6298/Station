@@ -10,6 +10,9 @@ useful product evidence from an online/staged Station deployment.
 
 - Web is a Next.js app in `apps/web`.
 - API is an Express app in `apps/api` with `GET /health` returning `{ ok: true }`.
+- Root `railway.json` pins the Railway API service to Railpack with
+  `pnpm --dir apps/api build`, `pnpm --dir apps/api start`, `/health`, and
+  API/shared-package watch patterns.
 - Root `vercel.json` targets the web app only. This records the current
   web-host prep shape, not a final decision that Vercel must remain the staging
   host.
