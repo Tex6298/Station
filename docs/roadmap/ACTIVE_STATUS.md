@@ -203,6 +203,10 @@ when a PR lands, or when validation truth changes.
   MIMIR continues the UI/UX lane: extract persona export status into a reusable
   trust component so preservation and portability are visible together. If MIMIR
   chooses to pause after UX-02A, there is no product-experience blocker.
+- UX-02B is active, 2026-06-07: extract persona export status into a reusable
+  component with completed/failed states and manifest readback clarity, while
+  deferring global Export workspace implementation, bundles, workers, backend
+  behavior, and auth/session changes.
 
 ## Current repo truth
 
