@@ -99,7 +99,7 @@ export default function PersonaFilesPage() {
         "/imports/chat",
         {
           personaId: persona.id,
-          sourceName: form.sourceName || "pasted-archive",
+          sourceName: form.sourceName.trim() || "pasted-archive",
           content: form.content,
           relevanceWeight: form.relevanceWeight,
         },
@@ -109,6 +109,12 @@ export default function PersonaFilesPage() {
       setForm({ sourceName: "", content: "", relevanceWeight: 1.5 });
     } catch (e) {
       setError(e instanceof Error ? e.message : "Could not import archive text.");
+      try {
+        const jobsData = await apiGet<{ jobs: ImportJob[] }>(`/imports/persona/${persona.id}`, token);
+        setJobs(jobsData.jobs ?? []);
+      } catch {
+        // Keep the direct error visible if refreshing the stored failed job also fails.
+      }
     } finally {
       setImporting(false);
     }

@@ -183,13 +183,16 @@ when a PR lands, or when validation truth changes.
   the archive-trust surface. ARIADNE recommends opening UX-02A next, bounded to
   per-persona Archive trust states, with global Archive/Export workspace and
   dashboard authority still deferred.
-- UX-02A is ready for ARGUS review, 2026-06-06: DAEDALUS added per-persona
-  Archive trust states to `/studio/personas/:personaId/files`, using existing
-  APIs only. The page now surfaces owner-private archive status, import job
+- UX-02A is accepted by ARGUS, 2026-06-07: per-persona Archive trust states are
+  now visible on `/studio/personas/:personaId/files`, using existing APIs only.
+  The page surfaces owner-private archive status, import job
   success/failure/processing states, source names, failure messages, safe next
-  actions, and the existing server-reported storage/quota panel. Global
-  Archive, Export workspace, Station Assistant, backend behavior, auth/session,
-  and private search UI remain deferred.
+  actions, and the existing server-reported storage/quota panel. ARGUS trimmed
+  blank import source names and refetches failed import jobs so owner-visible
+  failure cards can appear immediately after an import error. Browser review at
+  375px and desktop widths found the per-persona Archive trust layout coherent.
+  Global Archive, Export workspace, Station Assistant, backend behavior,
+  auth/session, and private search UI remain deferred.
 
 ## Current repo truth
 
