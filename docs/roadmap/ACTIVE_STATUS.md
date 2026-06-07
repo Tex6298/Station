@@ -297,6 +297,15 @@ when a PR lands, or when validation truth changes.
   remote-status language to include both web and API deploys, and clarified that
   Railway/provider `PORT` should be injected for staging rather than hard-coded
   to `4000`.
+- Railway API service-shell config is accepted by ARGUS, 2026-06-07: root
+  `railway.json` pins Railpack, `pnpm --dir apps/api build`,
+  `pnpm --dir apps/api start`, `/health`, restart policy, and monorepo watch
+  patterns. ARGUS checked the config against API package scripts, the Express
+  `/health` route, JSON parsing, API build, and current Railway config/
+  healthcheck docs. This is not deployed staging: no Railway project/service ID,
+  URL, secret, staging Supabase project, Stripe resource, replay account, or
+  remote-green status exists in repo. ARGUS corrected the staging runbook wording
+  so it no longer says the repo lacks Railway config while `railway.json` exists.
 
 ## Current repo truth
 

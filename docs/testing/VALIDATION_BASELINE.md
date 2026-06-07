@@ -1325,6 +1325,29 @@ Commands re-run by ARGUS:
 | `npx --yes pnpm@10.32.1 typecheck` | Pass | API and web typecheck tasks completed. |
 | `git diff --check` | Pass | CRLF normalization warnings only. |
 
+## Railway API service-shell config ARGUS acceptance result
+
+ARGUS reviewed MIMIR's root `railway.json` service-shell config on 2026-06-07.
+The config pins Railpack, `pnpm --dir apps/api build`,
+`pnpm --dir apps/api start`, `/health`, restart policy, and monorepo watch
+patterns. ARGUS accepted it as configuration readiness only, not proof that a
+Railway project, service ID, URL, secret, staging Supabase project, Stripe
+resource, replay account, or remote deployment exists.
+
+ARGUS made one documentation correction before acceptance:
+
+- `docs/ops/STAGING_REPLAY_READINESS.md` now says the repo lacks a Railway
+  project, service ID, URL, or secrets, instead of saying it lacks Railway
+  project config while `railway.json` exists.
+
+Commands re-run by ARGUS:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `node -e "JSON.parse(require('fs').readFileSync('railway.json','utf8'))"` | Pass | Root `railway.json` parsed successfully. |
+| `npx --yes pnpm@10.32.1 --dir apps/api build` | Pass | API package and required workspace packages built successfully. |
+| `git diff --check` | Pass | CRLF normalization warnings only. |
+
 ## UX-02A DAEDALUS implementation result
 
 Validated on 2026-06-06 after adding the narrow per-persona Archive trust-state

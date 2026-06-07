@@ -119,6 +119,19 @@ after tightening two points:
 - Railway/provider `PORT` should be injected for staging; `4000` is only the
   local default.
 
+## Railway service-shell config
+
+MIMIR's 2026-06-07 service-shell pass added root `railway.json` only. The config
+pins Railpack, `pnpm --dir apps/api build`, `pnpm --dir apps/api start`,
+`/health`, restart policy, and monorepo watch patterns. It does not create or
+prove a Railway project, service ID, deployed URL, secret, staging Supabase
+project, Stripe resource, replay account, or remote-green status.
+
+ARGUS accepted the config shell after checking it against the API package
+scripts, the Express `/health` route, local JSON parsing, API build, and current
+Railway config/healthcheck docs. ARGUS corrected the staging runbook wording so
+the repo no longer says it lacks Railway config while `railway.json` exists.
+
 ## Acceptance posture
 
 ARGUS should review any staging-readiness patch for:

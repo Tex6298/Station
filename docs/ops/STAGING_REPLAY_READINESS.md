@@ -23,7 +23,7 @@ useful product evidence from an online/staged Station deployment.
   API. Railway setup notes live in `infra/railway/README.md`.
 - The API has `pnpm --dir apps/api build` and `pnpm --dir apps/api start`
   equivalents through the package scripts. The repo still does not include a
-  Railway project config, service ID, URL, or secrets.
+  Railway project, service ID, URL, or secrets.
 - Supabase migrations and setup notes live in `infra/supabase/README.md`.
 - Stripe Billing setup notes live in `infra/stripe/webhook.md`.
 - Local validation and remote deployment truth are separate; a green local gate
