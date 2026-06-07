@@ -214,11 +214,15 @@ when a PR lands, or when validation truth changes.
   Export workspace implementation, bundles, workers, backend behavior,
   auth/session changes, and the separate global mobile top-nav overflow issue
   remain deferred.
-- UX-02B ARIADNE experience review is active, 2026-06-07: ARIADNE should review
-  the accepted persona export status component for portability/trust language,
-  failed/completed state clarity, manifest-readback comprehension, archive
-  continuity with UX-02A, mobile ergonomics, and whether to pause or open the
-  separate global mobile top-nav debt slice.
+- UX-02B ARIADNE experience review is complete, 2026-06-07: ARIADNE accepts
+  the persona export status component as Station-fit portability/trust
+  infrastructure. The component truthfully frames the current JSON/Markdown
+  manifest capability, keeps completed/failed/requested/processing states clear,
+  exposes failed-package error text, and makes manifest readback understandable
+  on both the persona home and per-persona Archive tab. No UX-02B follow-up is
+  required. ARIADNE recommends opening the separate global mobile top-nav debt
+  slice next if MIMIR continues UI/UX work, because mobile wayfinding should be
+  stable before richer Studio, continuity, or public-surface UX lanes continue.
 
 ## Current repo truth
 
