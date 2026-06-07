@@ -297,13 +297,17 @@ a { color: inherit; text-decoration: none; }
   }
 
   .top-nav-user-button {
-    max-width: 118px;
+    max-width: 48px;
     gap: 0.35rem;
-    padding: 0.18rem 0.4rem 0.18rem 0.18rem;
+    padding: 0.18rem;
   }
 
   .top-nav-user-email {
-    max-width: 62px;
+    display: none;
+  }
+
+  .top-nav-caret {
+    display: none;
   }
 
   .top-nav-auth-actions {

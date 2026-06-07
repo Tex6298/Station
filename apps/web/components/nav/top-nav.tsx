@@ -98,6 +98,7 @@ export function TopNav() {
               data-open={menuOpen ? "true" : "false"}
               aria-expanded={menuOpen}
               aria-haspopup="menu"
+              aria-label={`${displayName} account menu`}
             >
               <div className="top-nav-avatar">
                 {initials}

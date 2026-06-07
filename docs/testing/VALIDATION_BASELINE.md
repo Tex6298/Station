@@ -1409,6 +1409,37 @@ Targeted commands run with the pinned runner:
 | Local web dev probe | Partial | Fresh `@station/web` dev server responded 200 at `http://127.0.0.1:3002/discover`. Playwright CLI and Chrome headless viewport probes hung in this shell, so ARGUS should perform the final 375px/desktop visual overflow check. |
 | `git diff --check` | Pass | CRLF normalization warnings only. |
 
+## UX-DEBT-01 ARGUS acceptance result
+
+ARGUS reviewed the DAEDALUS global mobile top-nav overflow fix on 2026-06-07
+and accepted it after one mobile polish/accessibility hardening fix:
+
+- The authenticated mobile account control now collapses to an avatar-only
+  button under 920px, with an explicit `aria-label`, so primary nav labels fit
+  before the internal link rail needs to scroll.
+
+ARGUS verified the document-level overflow fix with local production browser
+captures. Authenticated `/studio` full-page screenshots at 375x900 and
+1365x900 were exactly viewport-width, confirming no page-level horizontal
+overflow. The mobile capture showed `Discover`, `Writing`, `Forums`, and
+`Studio` readable in the top bar with the account avatar at the right edge.
+The desktop capture kept the single-line header. Studio's mobile navigation
+offset remained aligned to the unchanged 52px top-nav height. Routes,
+active-link behavior, auth/session semantics, backend behavior, page content,
+Studio frame behavior, global Archive/Export, and Station Assistant stayed out
+of scope.
+
+Commands re-run by ARGUS:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npx --yes pnpm@10.32.1 typecheck` | Pass | API and web typecheck tasks completed. |
+| `npx --yes pnpm@10.32.1 lint` | Pass with warnings | Same non-UX-DEBT-01 warnings: Developer Space manage hook dependency, Space page raw `<img>`, and Discover avatar raw `<img>`. |
+| `npx --yes pnpm@10.32.1 build` | Pass with same warnings | Full build completed after ARGUS nav polish. |
+| `npx --yes pnpm@10.32.1 test:auth` | Pass | 10 tests passed. |
+| `npx --yes pnpm@10.32.1 test:studio-ui` | Pass | 7 helper tests passed. |
+| `git diff --check` | Pass | CRLF normalization warnings only. |
+
 ## UX-02B ARGUS acceptance result
 
 ARGUS reviewed the DAEDALUS UX-02B implementation on 2026-06-07 and accepted

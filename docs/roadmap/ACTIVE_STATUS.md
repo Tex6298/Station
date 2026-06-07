@@ -223,13 +223,15 @@ when a PR lands, or when validation truth changes.
   required. ARIADNE recommends opening the separate global mobile top-nav debt
   slice next if MIMIR continues UI/UX work, because mobile wayfinding should be
   stable before richer Studio, continuity, or public-surface UX lanes continue.
-- UX-DEBT-01 is ready for ARGUS review, 2026-06-07: DAEDALUS moved the global
-  top navigation from inline sizing to scoped responsive classes. Desktop keeps
-  the same single-line header; mobile keeps the bar height stable and bounds
-  primary links inside an internal horizontal rail so the page itself does not
-  overflow. Routes, active-link behavior, auth/session semantics, backend
-  behavior, product scope, Studio frame behavior, and page content remain
-  unchanged.
+- UX-DEBT-01 is accepted by ARGUS, 2026-06-07: the global top navigation now
+  uses scoped responsive classes instead of inline sizing. Desktop keeps the
+  same single-line header; mobile keeps the bar height stable, uses an internal
+  horizontal rail for primary links, and collapses the account control to an
+  accessible avatar-only button so the page itself does not overflow at 375px.
+  ARGUS browser review confirmed full-page captures stay viewport-width on
+  mobile and desktop, with Studio's 52px mobile nav offset unaffected. Routes,
+  active-link behavior, auth/session semantics, backend behavior, product
+  scope, Studio frame behavior, and page content remain unchanged.
 
 ## Current repo truth
 
