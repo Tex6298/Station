@@ -262,10 +262,19 @@ when a PR lands, or when validation truth changes.
   `docs/ops/STAGING_REPLAY_READINESS.md`, clarified that `vercel.json` is
   web-only and the Express API still needs a chosen Node host, and added
   staging-critical API env placeholders to `.env.example`. Remaining external
-  facts before implementation: web staging URL, API staging URL/host provider,
-  staging Supabase project and auth settings, private storage bucket, Stripe
-  test-mode prices/webhook, replay account, replay data setup policy, and
-  remote CI/Vercel status for the exact commit.
+  facts before implementation: web host/provider decision, web staging URL,
+  API staging URL/host provider, staging Supabase project and auth settings,
+  private storage bucket, Stripe test-mode prices/webhook, replay account,
+  replay data setup policy, and remote CI/deployment status for the exact
+  commit.
+- Replay-staging prep ARGUS review is accepted, 2026-06-07: ARGUS confirmed the
+  docs stay conservative about local validation versus remote deployment truth,
+  web staging versus API staging, and server secrets staying off the web host.
+  ARGUS tightened two claims before acceptance: the existing Vercel config is a
+  current web-prep fact rather than a final host decision, and replay acceptance
+  still uses the pinned frozen-lockfile install gate even though the current
+  Vercel install command is looser. DAEDALUS committing its own state file was
+  acceptable triad-state hygiene for a consumed A2 wake.
 
 ## Current repo truth
 

@@ -10,7 +10,12 @@ useful product evidence from an online/staged Station deployment.
 
 - Web is a Next.js app in `apps/web`.
 - API is an Express app in `apps/api` with `GET /health` returning `{ ok: true }`.
-- Root `vercel.json` targets the web app only.
+- Root `vercel.json` targets the web app only. This records the current
+  web-host prep shape, not a final decision that Vercel must remain the staging
+  host.
+- The current Vercel install command uses `pnpm install --no-frozen-lockfile`;
+  CI and replay acceptance should still use the pinned frozen-lockfile gate
+  unless MIMIR explicitly waives it.
 - The API has `pnpm --dir apps/api build` and `pnpm --dir apps/api start`
   equivalents through the package scripts, but the repo does not name an API
   hosting provider.
@@ -26,7 +31,8 @@ verify staging:
 
 | Need | Required value |
 | --- | --- |
-| Web staging URL | Public URL for the Vercel web app. |
+| Web host/provider | Confirm whether the existing web-only Vercel setup remains the staging target or name the replacement host. |
+| Web staging URL | Public URL for the chosen web host. |
 | API staging URL | Public HTTPS URL for the Express API. |
 | API host/provider | Railway, Render, Fly, Vercel Functions rewrite, or another Node host decision. |
 | Supabase project | Project URL, anon key, service-role key, and database URL for staging. |
@@ -80,7 +86,7 @@ Keep `SUPABASE_SERVICE_ROLE_KEY`, `DATABASE_URL`, `JWT_SECRET`,
 Local:
 
 ```bash
-npx --yes pnpm@10.32.1 install
+npx --yes pnpm@10.32.1 install --frozen-lockfile
 npx --yes pnpm@10.32.1 typecheck
 npx --yes pnpm@10.32.1 lint
 npx --yes pnpm@10.32.1 build

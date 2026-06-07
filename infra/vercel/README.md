@@ -6,9 +6,16 @@ Station's root `vercel.json` is prepared for the web app only:
 - `framework`: `nextjs`
 - build from repo root with `pnpm turbo run build --filter=@station/web`
 - output: `apps/web/.next`
+- install currently runs `pnpm install --no-frozen-lockfile`
 
 This does not deploy the Express API. Staging still needs a separate Node host
 for `apps/api` before the web app can replay real authenticated flows online.
+Treat this as documentation of the current web-host prep shape, not a final
+decision that Vercel must remain the staging host.
+
+The Vercel install command is looser than the repo validation gate. CI and
+replay acceptance should continue to use `pnpm install --frozen-lockfile` unless
+MIMIR explicitly waives that check.
 
 ## Required web environment
 
@@ -27,6 +34,8 @@ client reads `NEXT_PUBLIC_API_URL` when running in the browser.
 
 ## Still external
 
+- Confirm Vercel is still the chosen web host or replace this prep with the
+  chosen host's equivalent.
 - Choose and configure the API host.
 - Configure Supabase auth site URL and redirect URLs for the staged web URL.
 - Configure Stripe test-mode webhook endpoint against the staged API URL.

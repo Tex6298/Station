@@ -1461,6 +1461,28 @@ Targeted commands run with the pinned runner:
 | `npx --yes pnpm@10.32.1 typecheck` | Pass | API and web typecheck tasks completed. |
 | `git diff --check` | Pass | CRLF normalization warnings only. |
 
+## Replay staging prep ARGUS acceptance result
+
+ARGUS reviewed the DAEDALUS staging-prep documentation pass on 2026-06-07 and
+accepted it as truthful prep only, not staging implementation. ARGUS audited
+`docs/ops/STAGING_REPLAY_READINESS.md`, `infra/vercel/README.md`,
+`.env.example`, `docs/roadmap/STATION_REPLAY_STAGING_READINESS.md`, and
+`docs/roadmap/ACTIVE_STATUS.md`.
+
+ARGUS tightened two documentation claims before acceptance:
+
+- The existing web-only Vercel config is a current repo fact, not a final web
+  host decision.
+- Replay acceptance keeps the pinned frozen-lockfile install gate even though
+  the current Vercel install command is looser.
+
+Commands re-run by ARGUS:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npx --yes pnpm@10.32.1 typecheck` | Pass | API and web typecheck tasks completed. |
+| `git diff --check` | Pass | CRLF normalization warnings only. |
+
 ## UX-02B ARGUS acceptance result
 
 ARGUS reviewed the DAEDALUS UX-02B implementation on 2026-06-07 and accepted

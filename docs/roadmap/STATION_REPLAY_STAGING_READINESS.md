@@ -75,9 +75,16 @@ implementation.
   behavior, or deployed URLs.
 
 Staging implementation remains blocked on human/MIMIR deployment choices:
-web URL, API URL/provider, Supabase staging project, Supabase auth redirect
-settings, Stripe test-mode prices/webhook, replay account, replay data policy,
-and remote deployment status for the exact commit.
+web host/provider, web URL, API URL/provider, Supabase staging project,
+Supabase auth redirect settings, Stripe test-mode prices/webhook, replay
+account, replay data policy, and remote deployment status for the exact commit.
+
+ARGUS's follow-up tightened two staging-prep claims before acceptance:
+
+- The existing web-only Vercel config is a current repo fact, not a final web
+  host decision.
+- Replay acceptance keeps the pinned frozen-lockfile install gate even though
+  the current Vercel install command is looser.
 
 ## Acceptance posture
 
