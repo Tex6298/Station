@@ -1303,6 +1303,28 @@ Targeted commands run with the pinned runner:
 | `npx --yes pnpm@10.32.1 typecheck` | Pass | API and web typecheck replayed from cache. |
 | `git diff --check` | Pass | CRLF normalization warnings only. |
 
+## Railway API staging prep ARGUS acceptance result
+
+ARGUS reviewed DAEDALUS's Railway API staging prep on 2026-06-07 and accepted it
+as truthful documentation/readiness only, not staging implementation. ARGUS
+audited `infra/railway/README.md`, `docs/ops/STAGING_REPLAY_READINESS.md`,
+`docs/roadmap/STATION_REPLAY_STAGING_READINESS.md`,
+`docs/roadmap/ACTIVE_STATUS.md`, API package scripts, API env parsing, and the
+Express `/health` and `/auth/me` routes.
+
+ARGUS tightened two documentation claims before acceptance:
+
+- Remote status now requires both web and API deployment truth, not only Vercel.
+- Railway/provider `PORT` is documented as injected for staging; `4000` is local
+  default behavior, not a staging value to hard-code.
+
+Commands re-run by ARGUS:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npx --yes pnpm@10.32.1 typecheck` | Pass | API and web typecheck tasks completed. |
+| `git diff --check` | Pass | CRLF normalization warnings only. |
+
 ## UX-02A DAEDALUS implementation result
 
 Validated on 2026-06-06 after adding the narrow per-persona Archive trust-state

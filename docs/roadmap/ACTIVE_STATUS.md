@@ -289,6 +289,14 @@ when a PR lands, or when validation truth changes.
   commands. `docs/ops/STAGING_REPLAY_READINESS.md` points at those notes. No
   Railway project, service config, URL, secret, Supabase project, Stripe
   resource, replay account, seed script, or staging implementation was created.
+- Railway API staging prep ARGUS review is accepted, 2026-06-07: ARGUS confirmed
+  the docs stay truthful that this is preparation only, not deployed staging.
+  API/web env separation is explicit, server secrets stay on Railway/API only,
+  `/health` and `/auth/me` smoke claims match the Express routes, and the
+  build/start commands match `apps/api` package scripts. ARGUS tightened the
+  remote-status language to include both web and API deploys, and clarified that
+  Railway/provider `PORT` should be injected for staging rather than hard-coded
+  to `4000`.
 
 ## Current repo truth
 

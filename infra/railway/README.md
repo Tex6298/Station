@@ -24,7 +24,8 @@ pnpm --dir apps/api start
 ```
 
 The API listens on `PORT`, defaulting to `4000` locally. Railway should provide
-the runtime port through `PORT`.
+the runtime port through `PORT`; do not hard-code `4000` for staging unless the
+provider explicitly requires a static override.
 
 Health check path:
 
@@ -43,6 +44,7 @@ Expected response:
 Set these on the Railway API service only:
 
 ```bash
+# Railway normally injects PORT at runtime; do not hard-code 4000.
 PORT=<railway-provided-port>
 API_URL=https://<station-api-staging>
 NEXT_PUBLIC_APP_URL=https://<station-web-staging>

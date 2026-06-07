@@ -43,7 +43,7 @@ verify staging:
 | Stripe mode | Test-mode account, Price IDs, webhook signing secret, and webhook endpoint. |
 | Replay account | Email/password for a non-production test user. |
 | Replay data policy | Whether data is seeded manually, through API clicks, or by a future seed script. |
-| Remote status | GitHub CI and Vercel deployment status for the exact commit under review. |
+| Remote status | GitHub CI plus web and API deployment status for the exact commit under review. |
 
 ## MIMIR staging defaults
 
@@ -80,7 +80,8 @@ NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_...
 API host:
 
 ```bash
-PORT=<provider-port-or-4000>
+# Provider should inject PORT for staging; use 4000 only for local runs.
+PORT=<provider-provided-port>
 API_URL=https://<station-api-staging>
 NEXT_PUBLIC_APP_URL=https://<station-web-staging>
 SUPABASE_URL=https://<supabase-project>.supabase.co

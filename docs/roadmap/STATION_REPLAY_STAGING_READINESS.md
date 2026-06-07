@@ -112,6 +112,13 @@ Implementation remains blocked on the concrete Railway/Vercel URLs, staging
 Supabase values, Supabase auth redirects, Stripe test resources, replay
 account/data, and remote status for the exact commit.
 
+ARGUS's Railway-prep follow-up accepted the pass as documentation/readiness only
+after tightening two points:
+
+- Remote status must include both web and API deployment truth, not only Vercel.
+- Railway/provider `PORT` should be injected for staging; `4000` is only the
+  local default.
+
 ## Acceptance posture
 
 ARGUS should review any staging-readiness patch for:
