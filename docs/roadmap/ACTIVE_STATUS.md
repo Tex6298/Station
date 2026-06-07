@@ -247,6 +247,16 @@ when a PR lands, or when validation truth changes.
   staging only if MIMIR marks them as replay blockers and ARGUS adds gates.
   Further optimization should be driven by the staged/online replay flow rather
   than local-dev polishing.
+- Replay-staging sequencing ARGUS audit is complete, 2026-06-07: ARGUS checked
+  `ACTIVE_STATUS.md`, `STATION_UI_UX_ROADMAP.md`, and
+  `STATION_UI_UX_FEASIBILITY_DAEDALUS.md` for sequencing truth. The docs agree
+  that UX-01A, UX-02A, UX-02B, and UX-DEBT-01 are accepted enough for
+  replay-staging readiness to be the default next move. No current doc-level
+  blocker requires UX-01B or UX-03 before staging. Known caveats should travel
+  into replay rather than spawn another local polish lane: static global
+  Archive/Export shells, dashboard derived/static snippets, no downloadable
+  bundles/workers, and no new private search UI beyond the accepted API/search
+  foundation.
 
 ## Current repo truth
 
