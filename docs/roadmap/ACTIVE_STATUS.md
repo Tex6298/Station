@@ -241,9 +241,12 @@ when a PR lands, or when validation truth changes.
   required. ARIADNE recommends pausing the UI/UX lane for MIMIR product
   sequencing rather than opening another slice automatically.
 - The post-V3 UI/UX lane is paused for MIMIR product sequencing. No UI/UX
-  implementation lane is active; if work continues, the likely next candidates
-  are UX-01B persona workspace IA or UX-03 continuity/integrity, with ARGUS
-  gates first.
+  implementation lane is active. The next default move is replay-staging
+  readiness once the current lanes are coherent enough to exercise online;
+  UX-01B persona workspace IA and UX-03 continuity/integrity should open before
+  staging only if MIMIR marks them as replay blockers and ARGUS adds gates.
+  Further optimization should be driven by the staged/online replay flow rather
+  than local-dev polishing.
 
 ## Current repo truth
 

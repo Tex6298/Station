@@ -361,6 +361,10 @@ text, and whether each surface feels like Station rather than generic SaaS.
 3. ARGUS adds acceptance gates, especially for tests and known warnings.
 4. Start with UX-01 Studio IA/mobile and UX-02 Archive trust
    because they support the paid center and the archive promise.
-5. Then move through UX-03 continuity/integrity, UX-04 public Spaces,
-   UX-05 Discover/community, UX-06 Developer Spaces, UX-07 billing,
-   UX-08 onboarding/Assistant, and UX-09 staging review.
+5. After the accepted foundation slices, prefer replay-staging readiness over
+   exhaustive local-dev polish. Open UX-01B or UX-03 before staging only if they
+   block a coherent replay flow.
+6. Use staged/online replay to drive the next optimization sequence across
+   UX-03 continuity/integrity, UX-04 public Spaces, UX-05 Discover/community,
+   UX-06 Developer Spaces, UX-07 billing, UX-08 onboarding/Assistant, and
+   UX-09 staging review.

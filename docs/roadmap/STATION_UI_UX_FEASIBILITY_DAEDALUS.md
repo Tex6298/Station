@@ -288,3 +288,9 @@ should be a Studio frame/mobile navigation slice with no API behavior changes.
 Then open UX-02A against the per-persona Archive tab. This gives ARIADNE a real
 workbench and archive-trust surface to review without pretending the static
 global Archive and Export shells are production-ready.
+
+After UX-01A, UX-02A, UX-02B, and the mobile top-nav debt fix are accepted, do
+not automatically keep polishing local-dev UX slices. MIMIR's current sequence
+is replay-staging readiness first, then optimization against the actual
+staged/online replay flow. UX-01B or UX-03 should open before staging only if
+they are named as replay blockers and ARGUS supplies gates.
