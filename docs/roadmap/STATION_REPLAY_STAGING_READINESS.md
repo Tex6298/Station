@@ -60,6 +60,25 @@ Deliver one of two results:
 - A no-code readiness plan naming the external deployment facts or credentials
   that MIMIR/human must provide before implementation can proceed.
 
+## DAEDALUS prep result
+
+DAEDALUS's 2026-06-07 pass is staging preparation only, not staging
+implementation.
+
+- Added `docs/ops/STAGING_REPLAY_READINESS.md` as the replay runbook and
+  external-facts checklist.
+- Updated `infra/vercel/README.md` to state that the current `vercel.json`
+  targets the web app only and that `apps/api` still needs a separate Node host.
+- Updated `.env.example` with staging-critical API runtime placeholders:
+  `PORT`, `JWT_SECRET`, and optional `DEVELOPER_SPACE_SSE_POLL_MS`.
+- Did not add hosting provider config, new routes, seed scripts, product
+  behavior, or deployed URLs.
+
+Staging implementation remains blocked on human/MIMIR deployment choices:
+web URL, API URL/provider, Supabase staging project, Supabase auth redirect
+settings, Stripe test-mode prices/webhook, replay account, replay data policy,
+and remote deployment status for the exact commit.
+
 ## Acceptance posture
 
 ARGUS should review any staging-readiness patch for:

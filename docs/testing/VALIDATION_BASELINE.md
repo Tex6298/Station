@@ -1440,6 +1440,27 @@ Commands re-run by ARGUS:
 | `npx --yes pnpm@10.32.1 test:studio-ui` | Pass | 7 helper tests passed. |
 | `git diff --check` | Pass | CRLF normalization warnings only. |
 
+## Replay staging prep DAEDALUS result
+
+Validated on 2026-06-07 after the staging-prep documentation pass:
+
+- Added `docs/ops/STAGING_REPLAY_READINESS.md` as a pre-implementation replay
+  runbook and external-facts checklist.
+- Updated `infra/vercel/README.md` to make the current root `vercel.json`
+  truth explicit: it prepares the web app only, while the Express API still
+  needs a chosen Node host before staging can exist.
+- Updated `.env.example` with API runtime placeholders for `PORT`,
+  `JWT_SECRET`, and optional `DEVELOPER_SPACE_SSE_POLL_MS`.
+- No staging environment, hosting provider config, route behavior, auth
+  behavior, product feature, seed script, or deployment URL was implemented.
+
+Targeted commands run with the pinned runner:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npx --yes pnpm@10.32.1 typecheck` | Pass | API and web typecheck tasks completed. |
+| `git diff --check` | Pass | CRLF normalization warnings only. |
+
 ## UX-02B ARGUS acceptance result
 
 ARGUS reviewed the DAEDALUS UX-02B implementation on 2026-06-07 and accepted

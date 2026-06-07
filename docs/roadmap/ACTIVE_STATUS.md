@@ -257,11 +257,15 @@ when a PR lands, or when validation truth changes.
   Archive/Export shells, dashboard derived/static snippets, no downloadable
   bundles/workers, and no new private search UI beyond the accepted API/search
   foundation.
-- Replay-staging readiness is now the active preparation lane. MIMIR opened
-  `docs/roadmap/STATION_REPLAY_STAGING_READINESS.md` to anchor the handoff:
-  DAEDALUS should inspect deploy/staging surfaces and either make a narrow
-  setup patch or return a no-code readiness plan naming external facts needed
-  before implementation.
+- Replay-staging readiness is ready for MIMIR review, 2026-06-07: DAEDALUS
+  prepared staging docs only, not a staging implementation. The pass added
+  `docs/ops/STAGING_REPLAY_READINESS.md`, clarified that `vercel.json` is
+  web-only and the Express API still needs a chosen Node host, and added
+  staging-critical API env placeholders to `.env.example`. Remaining external
+  facts before implementation: web staging URL, API staging URL/host provider,
+  staging Supabase project and auth settings, private storage bucket, Stripe
+  test-mode prices/webhook, replay account, replay data setup policy, and
+  remote CI/Vercel status for the exact commit.
 
 ## Current repo truth
 

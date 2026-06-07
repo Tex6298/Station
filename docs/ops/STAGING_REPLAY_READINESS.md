@@ -1,0 +1,170 @@
+# Station staging replay readiness
+
+Status: staging preparation only. No staged environment has been implemented or
+verified by this document.
+
+This runbook names what must be true before a human replay pass can produce
+useful product evidence from an online/staged Station deployment.
+
+## Current repo facts
+
+- Web is a Next.js app in `apps/web`.
+- API is an Express app in `apps/api` with `GET /health` returning `{ ok: true }`.
+- Root `vercel.json` targets the web app only.
+- The API has `pnpm --dir apps/api build` and `pnpm --dir apps/api start`
+  equivalents through the package scripts, but the repo does not name an API
+  hosting provider.
+- Supabase migrations and setup notes live in `infra/supabase/README.md`.
+- Stripe Billing setup notes live in `infra/stripe/webhook.md`.
+- Local validation and remote deployment truth are separate; a green local gate
+  is not proof that staging is live.
+
+## External facts needed
+
+MIMIR or the human operator must provide these before DAEDALUS can implement or
+verify staging:
+
+| Need | Required value |
+| --- | --- |
+| Web staging URL | Public URL for the Vercel web app. |
+| API staging URL | Public HTTPS URL for the Express API. |
+| API host/provider | Railway, Render, Fly, Vercel Functions rewrite, or another Node host decision. |
+| Supabase project | Project URL, anon key, service-role key, and database URL for staging. |
+| Supabase auth settings | Site URL and redirect URLs for the staged web URL. |
+| Storage bucket | Private `persona-files` bucket created in the staging project. |
+| Stripe mode | Test-mode account, Price IDs, webhook signing secret, and webhook endpoint. |
+| Replay account | Email/password for a non-production test user. |
+| Replay data policy | Whether data is seeded manually, through API clicks, or by a future seed script. |
+| Remote status | GitHub CI and Vercel deployment status for the exact commit under review. |
+
+## Environment checklist
+
+Web host:
+
+```bash
+NEXT_PUBLIC_APP_URL=https://<station-web-staging>
+NEXT_PUBLIC_API_URL=https://<station-api-staging>
+NEXT_PUBLIC_SUPABASE_URL=https://<supabase-project>.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=<supabase-anon-key>
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_...
+```
+
+API host:
+
+```bash
+PORT=<provider-port-or-4000>
+API_URL=https://<station-api-staging>
+NEXT_PUBLIC_APP_URL=https://<station-web-staging>
+SUPABASE_URL=https://<supabase-project>.supabase.co
+SUPABASE_ANON_KEY=<supabase-anon-key>
+SUPABASE_SERVICE_ROLE_KEY=<service-role-key>
+DATABASE_URL=<staging-database-url>
+JWT_SECRET=<strong-staging-secret>
+DEEPSEEK_API_KEY=<optional-for-platform-chat>
+OPENAI_API_KEY=<optional-for-embeddings>
+STRIPE_SECRET_KEY=sk_test_...
+STRIPE_WEBHOOK_SECRET=whsec_...
+STRIPE_PRICE_BASIC_MONTHLY=price_...
+STRIPE_PRICE_BASIC_YEARLY=price_...
+STRIPE_PRICE_CREATOR_MONTHLY=price_...
+STRIPE_PRICE_CREATOR_YEARLY=price_...
+STRIPE_PRICE_CANON_MONTHLY=price_...
+STRIPE_PRICE_CANON_YEARLY=price_...
+```
+
+Keep `SUPABASE_SERVICE_ROLE_KEY`, `DATABASE_URL`, `JWT_SECRET`,
+`STRIPE_SECRET_KEY`, and `STRIPE_WEBHOOK_SECRET` off the web host.
+
+## Minimum validation before replay
+
+Local:
+
+```bash
+npx --yes pnpm@10.32.1 install
+npx --yes pnpm@10.32.1 typecheck
+npx --yes pnpm@10.32.1 lint
+npx --yes pnpm@10.32.1 build
+npx --yes pnpm@10.32.1 test:auth
+npx --yes pnpm@10.32.1 test:billing
+npx --yes pnpm@10.32.1 test:storage
+npx --yes pnpm@10.32.1 test:integrity
+npx --yes pnpm@10.32.1 test:token-credits
+npx --yes pnpm@10.32.1 test:reports
+npx --yes pnpm@10.32.1 test:community
+npx --yes pnpm@10.32.1 test:spaces
+npx --yes pnpm@10.32.1 test:continuity
+npx --yes pnpm@10.32.1 test:persona-context
+npx --yes pnpm@10.32.1 test:conversation-archive
+npx --yes pnpm@10.32.1 test:continuity-publication
+npx --yes pnpm@10.32.1 test:document-discussions
+npx --yes pnpm@10.32.1 test:exports
+npx --yes pnpm@10.32.1 test:developer-spaces
+npx --yes pnpm@10.32.1 test:developer-space-client
+npx --yes pnpm@10.32.1 --filter @station/api build
+git diff --check
+```
+
+Remote:
+
+- GitHub CI is green for the pushed commit, or MIMIR explicitly waives a check.
+- Web staging URL loads the app shell.
+- API staging URL returns `200` from `/health`.
+- Web can call `/auth/me` through `NEXT_PUBLIC_API_URL`.
+- Stripe test webhook endpoint is verified against `/billing/webhook`.
+
+## Replay account and data setup
+
+Before replay, create or confirm one test user. The replay is more useful if the
+account has:
+
+- one persona with a long description or awakening prompt
+- at least one private chat
+- one pasted archive import
+- one continuity record
+- one Space with at least one published public document
+- one document discussion
+- one forum thread/comment
+- one Developer Space with an ingestion key, one node, one event, and one
+  snapshot
+- one owner-only persona export manifest
+- billing page access with Stripe test-mode configuration
+
+Manual setup through the UI/API is acceptable for the first staging pass. A seed
+script should be a later implementation task if manual setup becomes repetitive.
+
+## Short replay path
+
+1. Sign up or sign in as the replay account.
+2. Open Studio and confirm the persona workspace loads.
+3. Chat with the persona and archive a useful exchange.
+4. Paste source material into the persona Archive tab and confirm job/status
+   visibility.
+5. Add or inspect continuity records and publish one continuity artifact as a
+   document.
+6. Visit the Space and public document; confirm Discover can surface public-safe
+   material.
+7. Add a discussion/comment and confirm report safety basics still hold.
+8. Create or inspect a Developer Space, rotate/confirm an ingestion key, ingest a
+   small node/event/snapshot payload, and view the observatory.
+9. Create or inspect a persona export manifest.
+10. Visit Billing and run only Stripe test-mode flows.
+
+## Known non-blockers for first replay
+
+- Static global Archive and Export shells are still not production-ready
+  workspaces.
+- Export remains JSON/Markdown manifest readback, not downloadable binary/PDF
+  bundles.
+- Archive/import/export jobs are protected-alpha synchronous flows, not worker
+  infrastructure.
+- Dashboard snippets may still be derived/static and should not be treated as
+  authoritative archive telemetry.
+- No new private search UI exists beyond the accepted API/search foundation.
+- UX-01B and UX-03 are not pre-staging defaults unless MIMIR names a concrete
+  replay blocker and ARGUS adds gates.
+
+## Recommended handoff
+
+This repo is ready for an ARGUS staging-prep review of documentation truth and
+env hygiene. It is not ready to claim staging implementation until the external
+facts above are supplied and the web/API/Supabase/Stripe URLs are configured.
