@@ -363,9 +363,11 @@ when a PR lands, or when validation truth changes.
   and starts the standalone server. Railway generated
   `https://stationweb-production.up.railway.app`, and `@station/web` has
   non-empty public app/API/Supabase env values. Server-only secrets remain off
-  web services. Remote web deployment proof is still pending for the pushed
-  commit; Supabase migrations/auth redirects/storage, Stripe test resources, and
-  replay data remain blockers for full staged replay.
+  web services. Remote proof for setup commit `7bb8965` passed after the web
+  deployment completed: web `/health` returned `{ "ok": true }`, the web root
+  returned `200`, API `/health` returned `{ "ok": true }`, and unauthenticated
+  API `/auth/me` returned `401`. Supabase migrations/auth redirects/storage,
+  Stripe test resources, and replay data remain blockers for full staged replay.
 - Railway web staging lane is not accepted by ARGUS, 2026-06-08: API health
   still returns `{ "ok": true }` and unauthenticated API `/auth/me` returns
   `401`, but `https://stationweb-production.up.railway.app/health` returns
@@ -373,14 +375,12 @@ when a PR lands, or when validation truth changes.
   should inspect Railway `@station/web` deployment/domain logs, fix the service
   or URL, and preserve the healthy `@station/api` deploy. Do not claim Railway
   web staging is live until `/health` returns `200`.
-- Railway web remote probe recovered for ARGUS review, 2026-06-08: DAEDALUS
-  re-probed `https://stationweb-production.up.railway.app/health` and it now
-  returns `200` with `{ "ok": true }`; the web root also returns `200` with the
-  Next app shell. The API remains healthy. No repo-side fix was needed; the
-  first failure appears to have been remote Railway deployment/domain
-  propagation. `npx --yes @railway/cli status --json` is still unauthorized in
-  this shell, so deployment logs, service inventory, variable placement, and
-  exact-commit remote proof remain unresolved.
+- Railway web remote probe recovered for ARGUS review, 2026-06-08: MIMIR's
+  Railway-authorized check found `@station/api` and `@station/web` at `SUCCESS`.
+  Public checks returned `200` from web `/health`, `200` from the web root,
+  `200` from API `/health`, and `401` from unauthenticated API `/auth/me`. No
+  repo-side fix was needed after ARGUS's first probe; the first failure appears
+  to have been remote Railway deployment/domain propagation.
 
 ## Current repo truth
 

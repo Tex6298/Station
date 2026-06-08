@@ -1296,7 +1296,7 @@ Validated on 2026-06-08 while opening the Railway-web staging lane:
   were not recorded.
 - Local Windows web standalone build compiled but failed during Next's traced
   file copy because the shell lacks symlink permission; remote Railway/Linux
-  build remains the decisive validation for this lane.
+  build passed and is the decisive validation for this lane.
 
 Commands re-run by MIMIR:
 
@@ -1329,17 +1329,18 @@ Required DAEDALUS follow-up:
 - Preserve the healthy `@station/api` deployment.
 - Re-run remote web `/health` and root probes before waking ARGUS again.
 
-## Railway web staging DAEDALUS follow-up result
+## Railway web staging MIMIR follow-up result
 
 Validated on 2026-06-08 after ARGUS's initial web 404 review:
 
 - The Railway web URL recovered without a repo-side code/config change.
 - `@station/api` remained healthy.
+- Railway service inventory reported `@station/api` and `@station/web` at
+  `SUCCESS`.
 - `@station/web` `/health` now returns `200` with `{ "ok": true }`.
 - `@station/web` root now returns `200` with the Next app shell.
-- Railway CLI access is still not authorized from this shell, so service logs,
-  service inventory, variable placement, and exact deployed commit still need a
-  Railway-authorized check.
+- Public API `/health` still returns `200` with `{ "ok": true }`.
+- Public unauthenticated API `/auth/me` still returns `401`.
 
 Targeted commands:
 
@@ -1348,7 +1349,8 @@ Targeted commands:
 | `curl.exe -i -L --max-time 20 https://stationapi-production.up.railway.app/health` | Pass | Returned `200` with `{ "ok": true }`. |
 | `curl.exe -i -L --max-time 20 https://stationweb-production.up.railway.app/health` | Pass | Returned `200` with `{ "ok": true }`. |
 | `curl.exe -i -L --max-time 20 https://stationweb-production.up.railway.app/` | Pass | Returned `200` with the Next app shell. |
-| `npx --yes @railway/cli status --json` | Blocked | Returned `Unauthorized. Please login with railway login`. |
+| `npx --yes @railway/cli service list --json` | Pass | Reported `@station/api` and `@station/web` at `SUCCESS`. |
+| `curl.exe -i https://stationapi-production.up.railway.app/auth/me` | Pass | Returned `401` unauthenticated with missing/invalid authorization message. |
 | `node --check scripts/railway-build.mjs` | Pass | Script syntax check passed. |
 | `node --check scripts/railway-start.mjs` | Pass | Script syntax check passed. |
 | `node -e "JSON.parse(require('fs').readFileSync('railway.json','utf8'))"` | Pass | Root `railway.json` parsed successfully. |
