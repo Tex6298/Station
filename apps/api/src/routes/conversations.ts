@@ -390,6 +390,9 @@ conversationsRouter.post("/persona/:personaId/chat", async (req, res) => {
     platformDeepseekKey: env.DEEPSEEK_API_KEY,
     platformDeepseekBaseUrl: env.DEEPSEEK_BASE_URL,
     platformDeepseekModel: env.DEEPSEEK_MODEL,
+    platformNvidiaKey: env.NVIDIA_AI_API_KEY,
+    platformNvidiaBaseUrl: env.NVIDIA_MODEL_BASE_URL,
+    platformNvidiaModel: env.NVIDIA_MODEL,
   });
 
   // Send to LLM

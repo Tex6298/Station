@@ -5,6 +5,10 @@ import { AnthropicProvider } from "./anthropic";
 
 export type ProviderName = "platform" | "openai" | "anthropic" | "deepseek" | "gemini";
 
+const DEFAULT_NVIDIA_BASE_URL = "https://integrate.api.nvidia.com";
+const DEFAULT_NVIDIA_MODEL = "openai/gpt-oss-120b";
+const CHAT_COMPLETIONS_SUFFIX = "/chat/completions";
+
 export interface ProviderConfig {
   /** Which provider the persona is configured to use */
   provider: ProviderName;
@@ -18,6 +22,23 @@ export interface ProviderConfig {
   platformDeepseekKey?: string;
   platformDeepseekBaseUrl?: string;
   platformDeepseekModel?: string;
+  platformNvidiaKey?: string;
+  platformNvidiaBaseUrl?: string;
+  platformNvidiaModel?: string;
+}
+
+export function normalizeOpenAiCompatibleBaseUrl(baseUrl?: string): string {
+  const trimmed = (baseUrl?.trim() || DEFAULT_NVIDIA_BASE_URL).replace(/\/+$/, "");
+  if (trimmed.endsWith("/v1/chat/completions")) {
+    return trimmed.slice(0, -CHAT_COMPLETIONS_SUFFIX.length);
+  }
+  if (trimmed.endsWith("/chat/completions")) {
+    return trimmed.slice(0, -CHAT_COMPLETIONS_SUFFIX.length);
+  }
+  if (trimmed.endsWith("/v1")) {
+    return trimmed;
+  }
+  return `${trimmed}/v1`;
 }
 
 /**
@@ -25,11 +46,17 @@ export interface ProviderConfig {
  * Falls back to the platform DeepSeek provider if BYOK keys are missing.
  */
 export function resolveProvider(config: ProviderConfig): ChatProvider {
-  const platformProvider = new DeepseekProvider({
-    apiKey: config.platformDeepseekKey,
-    baseUrl: config.platformDeepseekBaseUrl ?? "https://api.deepseek.com",
-    model: config.platformDeepseekModel ?? "deepseek-chat",
-  });
+  const platformProvider = config.platformNvidiaKey
+    ? new OpenAIProvider({
+        apiKey: config.platformNvidiaKey,
+        baseUrl: normalizeOpenAiCompatibleBaseUrl(config.platformNvidiaBaseUrl),
+        model: config.platformNvidiaModel?.trim() || DEFAULT_NVIDIA_MODEL,
+      })
+    : new DeepseekProvider({
+        apiKey: config.platformDeepseekKey,
+        baseUrl: config.platformDeepseekBaseUrl ?? "https://api.deepseek.com",
+        model: config.platformDeepseekModel ?? "deepseek-chat",
+      });
 
   if (config.aiMode !== "byok") {
     return platformProvider;

@@ -1376,6 +1376,35 @@ Commands re-run by ARGUS:
 | `node -e "JSON.parse(require('fs').readFileSync('railway.json','utf8'))"` | Pass | Root `railway.json` parsed successfully. |
 | `git diff --check` | Pass | CRLF normalization warnings only. |
 
+## Staging setup blockers and NVIDIA aliases DAEDALUS result
+
+Validated on 2026-06-08 after the staging setup wake:
+
+- Added platform-chat support for `NVIDIA_AI_API_KEY`,
+  `NVIDIA_MODEL_BASE_URL`, and `NVIDIA_MODEL`.
+- NVIDIA base URLs are normalized to `/v1` before the OpenAI-compatible
+  provider appends `/chat/completions`.
+- DeepSeek platform fallback remains the default when NVIDIA is not configured.
+- OpenAI embeddings remain unchanged on `text-embedding-3-small` and the
+  existing `vector(1536)` schema.
+- Added `docs/ops/STAGING_SETUP_BLOCKERS.md` to separate repo/CLI work from
+  dashboard/credential blockers for Supabase migrations, `persona-files`,
+  Supabase auth redirects, NVIDIA variables, and future Redis cache work.
+- No Supabase migration was applied, no storage bucket was created, no auth
+  redirect was changed, and no Redis cache was implemented.
+
+Targeted commands:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npx --yes tsx --test packages/ai/test/provider-router.test.ts` | Pass | 3 tests passed for NVIDIA URL normalization, NVIDIA platform chat request shape, and DeepSeek fallback. |
+| `npx --yes pnpm@10.32.1 --filter @station/ai build` | Pass | AI package build completed. |
+| `npx --yes pnpm@10.32.1 --dir apps/api build` | Pass | API package and required workspace packages built successfully. |
+| `npx --yes pnpm@10.32.1 typecheck` | Pass | API and web typecheck tasks completed. |
+| `curl.exe -fsS --max-time 20 https://stationapi-production.up.railway.app/health` | Pass | Returned `{ "ok": true }`. |
+| `curl.exe -fsS --max-time 20 https://stationweb-production.up.railway.app/health` | Pass | Returned `{ "ok": true }`. |
+| `git diff --check` | Pass | CRLF normalization warnings only. |
+
 ## Railway API staging prep DAEDALUS result
 
 Validated on 2026-06-07 after translating MIMIR's provisional staging defaults

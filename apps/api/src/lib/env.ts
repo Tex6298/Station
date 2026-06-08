@@ -16,6 +16,9 @@ const envSchema = z.object({
   DEEPSEEK_API_KEY: z.string().optional(),
   DEEPSEEK_BASE_URL: z.string().default("https://api.deepseek.com"),
   DEEPSEEK_MODEL: z.string().default("deepseek-chat"),
+  NVIDIA_AI_API_KEY: z.string().optional(),
+  NVIDIA_MODEL_BASE_URL: z.string().default("https://integrate.api.nvidia.com"),
+  NVIDIA_MODEL: z.string().default("openai/gpt-oss-120b"),
   ANTHROPIC_API_KEY: z.string().optional(),
 
   // AI - embeddings

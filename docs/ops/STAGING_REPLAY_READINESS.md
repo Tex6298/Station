@@ -34,6 +34,8 @@ useful product evidence from an online/staged Station deployment.
   and replay data still remain.
 - Supabase migrations and setup notes live in `infra/supabase/README.md`.
 - Stripe Billing setup notes live in `infra/stripe/webhook.md`.
+- Supabase setup blockers, NVIDIA env aliasing, and Redis cache boundaries are
+  tracked in `docs/ops/STAGING_SETUP_BLOCKERS.md`.
 - Local validation and remote deployment truth are separate; a green local gate
   is not proof that staging is live.
 
@@ -159,6 +161,9 @@ SUPABASE_ANON_KEY=<supabase-anon-key>
 SUPABASE_SERVICE_ROLE_KEY=<service-role-key>
 DATABASE_URL=<staging-database-url>
 JWT_SECRET=<strong-staging-secret>
+NVIDIA_AI_API_KEY=<optional-for-platform-chat>
+NVIDIA_MODEL_BASE_URL=https://integrate.api.nvidia.com
+NVIDIA_MODEL=openai/gpt-oss-120b
 DEEPSEEK_API_KEY=<optional-for-platform-chat>
 OPENAI_API_KEY=<optional-for-embeddings>
 STRIPE_SECRET_KEY=sk_test_...

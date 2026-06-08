@@ -388,6 +388,17 @@ when a PR lands, or when validation truth changes.
   Railway-authorized handoff rather than ARGUS's local shell. Full staged replay
   still waits on Supabase migrations/auth redirects/storage, Stripe test
   resources, and replay account/data.
+- Staging setup blockers and NVIDIA chat aliases are ready for ARGUS review,
+  2026-06-08: DAEDALUS added API-side support for `NVIDIA_AI_API_KEY`,
+  `NVIDIA_MODEL_BASE_URL`, and `NVIDIA_MODEL` as platform-chat aliases, using
+  NVIDIA's OpenAI-compatible `/v1/chat/completions` shape while preserving the
+  DeepSeek fallback when NVIDIA is not configured. Embeddings remain on OpenAI
+  `text-embedding-3-small` and the existing `vector(1536)` schema. The staging
+  setup audit in `docs/ops/STAGING_SETUP_BLOCKERS.md` separates repo/CLI work
+  from dashboard/credential blockers for Supabase migrations, the private
+  `persona-files` bucket, auth redirects, NVIDIA service variables, and a future
+  API-side Redis cache. No Supabase migration was applied, no bucket was
+  created, no auth redirect was changed, and no Redis cache was implemented.
 
 ## Current repo truth
 
