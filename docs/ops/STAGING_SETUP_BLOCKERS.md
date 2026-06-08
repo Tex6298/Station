@@ -84,7 +84,12 @@ Repo-safe work completed:
 - API env parsing accepts `NVIDIA_AI_API_KEY`, `NVIDIA_MODEL_BASE_URL`, and
   `NVIDIA_MODEL`.
 - Platform chat can use NVIDIA's OpenAI-compatible chat endpoint when
-  `NVIDIA_AI_API_KEY` is present.
+  a non-empty `NVIDIA_AI_API_KEY` is present.
+- `NVIDIA_AI_API_KEY` is trimmed before provider selection; blank or whitespace
+  aliases keep the DeepSeek platform fallback.
+- A non-empty NVIDIA key takes precedence over the legacy Anthropic platform
+  shortcut in the conversation route, so staging probes are not silently routed
+  to Anthropic when both variables are configured.
 - `NVIDIA_MODEL_BASE_URL` is normalized to a `/v1` base URL before appending
   `/chat/completions`.
 - DeepSeek platform fallback remains available when NVIDIA is not configured.

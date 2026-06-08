@@ -378,7 +378,8 @@ conversationsRouter.post("/persona/:personaId/chat", async (req, res) => {
 
   // Resolve provider
   const stationModel = selectStationModel(req.user!.tier);
-  const useStationAnthropic = profile?.ai_mode !== "byok" && Boolean(env.ANTHROPIC_API_KEY);
+  const platformNvidiaKey = env.NVIDIA_AI_API_KEY?.trim() || undefined;
+  const useStationAnthropic = profile?.ai_mode !== "byok" && !platformNvidiaKey && Boolean(env.ANTHROPIC_API_KEY);
   const provider = useStationAnthropic
     ? new AnthropicProvider({ apiKey: env.ANTHROPIC_API_KEY, model: stationModel.model })
     : resolveProvider({
@@ -390,7 +391,7 @@ conversationsRouter.post("/persona/:personaId/chat", async (req, res) => {
     platformDeepseekKey: env.DEEPSEEK_API_KEY,
     platformDeepseekBaseUrl: env.DEEPSEEK_BASE_URL,
     platformDeepseekModel: env.DEEPSEEK_MODEL,
-    platformNvidiaKey: env.NVIDIA_AI_API_KEY,
+    platformNvidiaKey,
     platformNvidiaBaseUrl: env.NVIDIA_MODEL_BASE_URL,
     platformNvidiaModel: env.NVIDIA_MODEL,
   });

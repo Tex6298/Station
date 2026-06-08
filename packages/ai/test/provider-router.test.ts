@@ -25,10 +25,12 @@ test("normalizes NVIDIA/OpenAI-compatible base URLs to /v1", () => {
 
 test("uses NVIDIA aliases for platform chat without changing the request shape", async () => {
   let requestedUrl = "";
+  let requestedAuth = "";
   let requestedBody: unknown;
 
   globalThis.fetch = async (input, init) => {
     requestedUrl = String(input);
+    requestedAuth = (init?.headers as Record<string, string> | undefined)?.Authorization ?? "";
     requestedBody = JSON.parse(String(init?.body));
     return new Response(
       JSON.stringify({
@@ -42,7 +44,7 @@ test("uses NVIDIA aliases for platform chat without changing the request shape",
   const provider = resolveProvider({
     provider: "platform",
     aiMode: "platform",
-    platformNvidiaKey: "nvidia-key",
+    platformNvidiaKey: " nvidia-key ",
     platformNvidiaBaseUrl: "https://integrate.api.nvidia.com",
     platformNvidiaModel: "nvidia/test-model",
   });
@@ -52,6 +54,7 @@ test("uses NVIDIA aliases for platform chat without changing the request shape",
   });
 
   assert.equal(requestedUrl, "https://integrate.api.nvidia.com/v1/chat/completions");
+  assert.equal(requestedAuth, "Bearer nvidia-key");
   assert.deepEqual(requestedBody, {
     model: "nvidia/test-model",
     messages: [{ role: "user", content: "Hello" }],
@@ -64,6 +67,21 @@ test("keeps the DeepSeek mock fallback when no NVIDIA key is configured", async 
   const provider = resolveProvider({
     provider: "platform",
     aiMode: "platform",
+  });
+
+  const response = await provider.sendMessage({
+    messages: [{ role: "user", content: "Hello" }],
+  });
+
+  assert.equal(response.content, "Mock DeepSeek reply: Hello");
+  assert.equal(response.model, "deepseek-chat");
+});
+
+test("ignores blank NVIDIA aliases and keeps the DeepSeek fallback", async () => {
+  const provider = resolveProvider({
+    provider: "platform",
+    aiMode: "platform",
+    platformNvidiaKey: "   ",
   });
 
   const response = await provider.sendMessage({

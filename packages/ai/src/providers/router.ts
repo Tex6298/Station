@@ -46,9 +46,10 @@ export function normalizeOpenAiCompatibleBaseUrl(baseUrl?: string): string {
  * Falls back to the platform DeepSeek provider if BYOK keys are missing.
  */
 export function resolveProvider(config: ProviderConfig): ChatProvider {
-  const platformProvider = config.platformNvidiaKey
+  const platformNvidiaKey = config.platformNvidiaKey?.trim();
+  const platformProvider = platformNvidiaKey
     ? new OpenAIProvider({
-        apiKey: config.platformNvidiaKey,
+        apiKey: platformNvidiaKey,
         baseUrl: normalizeOpenAiCompatibleBaseUrl(config.platformNvidiaBaseUrl),
         model: config.platformNvidiaModel?.trim() || DEFAULT_NVIDIA_MODEL,
       })

@@ -399,6 +399,16 @@ when a PR lands, or when validation truth changes.
   `persona-files` bucket, auth redirects, NVIDIA service variables, and a future
   API-side Redis cache. No Supabase migration was applied, no bucket was
   created, no auth redirect was changed, and no Redis cache was implemented.
+- Staging setup blockers and NVIDIA chat alias hardening are ready for ARGUS
+  review, 2026-06-08: the OpenAI-compatible NVIDIA platform-chat lane now
+  hardens key handling and runtime precedence. Non-empty
+  `NVIDIA_AI_API_KEY` is trimmed and wins over the legacy Anthropic platform
+  shortcut in the conversation route; blank NVIDIA aliases fall back safely.
+  DeepSeek fallback remains available when NVIDIA is not configured, and
+  embeddings remain OpenAI `text-embedding-3-small` with the existing
+  `vector(1536)` schema. Full setup blockers remain Supabase migrations, the
+  private `persona-files` bucket, auth redirects, NVIDIA Railway service
+  variable values, Stripe/replay resources, and future Redis evaluation.
 - Future-lane integration is documented in
   `docs/roadmap/STATION_FUTURE_LANES.md`, 2026-06-08: MIMIR folded the
   upstream `origin/main` memory/observability feature work, ARIADNE's retrieval

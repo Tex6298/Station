@@ -1405,6 +1405,33 @@ Targeted commands:
 | `curl.exe -fsS --max-time 20 https://stationweb-production.up.railway.app/health` | Pass | Returned `{ "ok": true }`. |
 | `git diff --check` | Pass | CRLF normalization warnings only. |
 
+## Staging setup blockers and NVIDIA aliases ARGUS acceptance result
+
+ARGUS reviewed the DAEDALUS staging setup blockers and NVIDIA platform-chat
+alias lane on 2026-06-08 and accepted it after one runtime hardening pass.
+
+Additional ARGUS hardening:
+
+- Trim `NVIDIA_AI_API_KEY` before selecting the NVIDIA OpenAI-compatible
+  platform provider, so whitespace-only aliases do not bypass DeepSeek fallback.
+- Make a non-empty NVIDIA key win over the legacy Anthropic platform shortcut
+  in the conversation route, so staging NVIDIA chat probes are not silently
+  bypassed when `ANTHROPIC_API_KEY` is also present.
+- Keep OpenAI embeddings unchanged on `text-embedding-3-small` and the existing
+  `vector(1536)` schema.
+
+Commands re-run by ARGUS:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npx --yes tsx --test packages/ai/test/provider-router.test.ts` | Pass | 4 tests passed for NVIDIA URL normalization, request shape/key trimming, DeepSeek fallback, and blank NVIDIA alias fallback. |
+| `npx --yes pnpm@10.32.1 --filter @station/ai build` | Pass | AI package build completed. |
+| `npx --yes pnpm@10.32.1 --dir apps/api build` | Pass | API package and required workspace packages built successfully. |
+| `npx --yes pnpm@10.32.1 typecheck` | Pass | API and web typecheck tasks completed. |
+| `curl.exe -fsS --max-time 20 https://stationapi-production.up.railway.app/health` | Pass | Returned `{ "ok": true }`. |
+| `curl.exe -fsS --max-time 20 https://stationweb-production.up.railway.app/health` | Pass | Returned `{ "ok": true }`. |
+| `git diff --check` | Pass | CRLF normalization warnings only. |
+
 ## Railway API staging prep DAEDALUS result
 
 Validated on 2026-06-07 after translating MIMIR's provisional staging defaults
