@@ -91,6 +91,27 @@ The plain `api` service is an unused shell. Keep runtime secrets on
 `@station/api`; do not duplicate them onto `@station/web` or the plain `api`
 shell.
 
+## Active remote for this lane
+
+Railway/staging work currently tracks the fork because `Discern-AI/Station`
+could not be connected to Railway.
+
+Before committing or pushing Railway/staging work, verify:
+
+```bash
+git status -sb
+```
+
+Expected branch line:
+
+```text
+## main...fork/main
+```
+
+Push wakeup/work commits to `fork/main` for this lane. Do not use
+`origin/main` unless MIMIR or the human explicitly reopens
+`Discern-AI/Station` as the active Railway/staging remote.
+
 ## Environment checklist
 
 Web host:

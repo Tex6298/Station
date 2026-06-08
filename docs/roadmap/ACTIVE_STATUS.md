@@ -341,6 +341,14 @@ when a PR lands, or when validation truth changes.
   by ARGUS because the Railway CLI is absent in this shell; treat the
   `@station/web` and plain `api` service inventory as handoff truth until a
   Railway-authorized check reruns.
+- Railway/staging remote realignment is ready for ARGUS review, 2026-06-08:
+  DAEDALUS confirmed `git status -sb` reports `## main...fork/main`, `git branch
+  -vv` reports `main [fork/main]`, and remotes still include `fork`
+  (`Tex6298/Station`) plus `origin` (`Discern-AI/Station`). The staging runbook
+  now records that Railway/staging wakeup and work commits should go to
+  `fork/main` unless MIMIR or the human explicitly reopens `origin/main` for this
+  lane. No deploy config, product behavior, route behavior, secret value,
+  Supabase config, or Stripe config changed.
 
 ## Current repo truth
 

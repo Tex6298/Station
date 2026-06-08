@@ -1449,6 +1449,30 @@ Commands re-run by ARGUS:
 | `Get-Command railway` | Not installed | Railway service-list and variable placement were not rechecked in this shell. |
 | `git diff --check` | Pass | CRLF normalization warnings only. |
 
+## Railway/staging remote realignment DAEDALUS result
+
+Validated on 2026-06-08 after MIMIR realigned the local branch to the active
+Railway/staging fork:
+
+- `main` now tracks `fork/main`.
+- `fork` points at `Tex6298/Station`.
+- `origin` still points at `Discern-AI/Station` but is not the active
+  Railway/staging remote for this lane.
+- The staging runbook records the fork/main check before Railway/staging
+  commits and pushes.
+- No deploy config, product behavior, route behavior, secret value, Supabase
+  config, or Stripe config changed.
+
+Targeted commands:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `git status -sb` | Pass | Reported `## main...fork/main`. |
+| `git branch -vv` | Pass | Reported `main [fork/main]`. |
+| `git remote -v` | Pass | Listed `fork` as `https://github.com/Tex6298/Station.git` and `origin` as `https://github.com/Discern-AI/Station.git`. |
+| `Invoke-RestMethod https://stationapi-production.up.railway.app/health` | Pass | Returned `{ "ok": true }`. |
+| `git diff --check` | Pass | CRLF normalization warnings only. |
+
 ## UX-02A DAEDALUS implementation result
 
 Validated on 2026-06-06 after adding the narrow per-persona Archive trust-state
