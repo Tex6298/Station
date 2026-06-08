@@ -1,7 +1,34 @@
 # Station staging setup blockers
 
-Status: Lane 1 DAEDALUS inventory, 2026-06-08. This is a setup boundary
-document, not a claim that full staged replay is ready.
+Status: Lane 1 DAEDALUS inventory, accepted by ARGUS on 2026-06-08 as blocked
+on external setup facts. This is a setup boundary document, not a claim that
+full staged replay is ready.
+
+ARGUS verdict:
+
+- No secret values were found in this inventory; it records presence/absence and
+  non-secret booleans only.
+- Repo-side work is correctly separated from dashboard/credential-only work.
+- The reset-password redirect target is correctly called out as incomplete:
+  `/reset-password/update` is used by the current web flow, but no route exists
+  yet.
+- `infra/supabase/README.md` was corrected during review so raw
+  `community_moderation_actions` rows are not described as public-safe.
+
+Shortest next human/dashboard actions:
+
+1. Confirm the staging Supabase project ref or percent-encoded staging database
+   URL, then apply migrations `001` through `024` to staging only.
+2. Create or verify the private `persona-files` bucket and signed upload/read
+   flow in the staging Supabase project.
+3. Set Supabase Auth site URL and allowed redirects for the Railway web URL;
+   either add `/reset-password/update` or change the reset flow before testing
+   password reset.
+4. Use a Railway-authorized dashboard/shell to verify and set API/web service
+   variables without printing values, especially `DATABASE_URL`, Supabase keys,
+   `API_URL`, `NEXT_PUBLIC_APP_URL`, Stripe test keys/prices, and provider keys.
+5. Confirm Stripe test resources, replay account/data, and any social OAuth
+   callback credentials needed for staged replay.
 
 ## Current remote shape
 

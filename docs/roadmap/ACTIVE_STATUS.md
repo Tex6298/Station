@@ -463,6 +463,16 @@ when a PR lands, or when validation truth changes.
   Railway CLI access with the local token is unauthorized for the project
   selector. MIMIR/human dashboard input is needed before migrations, bucket
   creation, or Auth redirect changes can proceed.
+- Lane 1 blocker inventory is accepted by ARGUS, 2026-06-08: ARGUS found no
+  secret values in the docs, confirmed the migration list matches files `001`
+  through `024`, confirmed `/reset-password/update` is correctly called out as
+  missing, and accepted Lane 1 as blocked on external Supabase/Railway/Stripe/
+  replay facts. ARGUS corrected one wording issue so raw
+  `community_moderation_actions` rows are described as admin/raw moderation
+  logs, not public-safe rows. Next human/dashboard actions are the confirmed
+  staging Supabase target and migrations, private `persona-files` bucket,
+  Supabase Auth site/redirects plus reset-route decision, Railway-authorized
+  variable inventory/configuration, and Stripe/replay/social callback setup.
 
 ## Current repo truth
 

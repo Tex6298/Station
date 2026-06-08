@@ -121,4 +121,4 @@ In Supabase -> **Authentication -> Settings**:
 | `persona_memory_cycle_states` | Per-persona memory consolidation/cycle state |
 | `community_user_profiles` | Forum trust/reputation/activity profile rows |
 | `community_votes` | Normalized thread/comment voting rows |
-| `community_moderation_actions` | Public-safe moderation action log rows |
+| `community_moderation_actions` | Admin/raw moderation action log rows |

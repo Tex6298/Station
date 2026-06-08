@@ -1418,6 +1418,39 @@ Blocker summary:
   Stripe, public web variables, provider keys, and API/app URLs on the actual
   `@station/api` and `@station/web` services without exposing values.
 
+## Lane 1 Supabase/auth/storage inventory ARGUS acceptance result
+
+ARGUS reviewed the Lane 1 blocker inventory on 2026-06-08 and accepted it as
+truthful setup-boundary documentation, blocked on external dashboard/credential
+facts.
+
+ARGUS findings:
+
+- No secret values were found in the reviewed docs; the inventory records
+  presence/absence and non-secret booleans only.
+- Repo-side work is correctly separated from dashboard/credential-only work:
+  no migration was applied, no bucket was created, no Auth redirect changed, no
+  Railway variable changed, no Stripe resource created, and no Redis cache
+  implemented.
+- Migration ordering is current through `024_community_trust_votes_moderation.sql`.
+- `apps/web/app/reset-password/page.tsx` redirects to `/reset-password/update`,
+  and the filesystem has no matching update route, so the blocker is real.
+- `infra/supabase/README.md` was corrected during ARGUS review to describe raw
+  `community_moderation_actions` rows as admin/raw moderation logs, not
+  public-safe rows.
+
+Commands/checks re-run by ARGUS:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| Static docs secret scan | Pass | Found only variable names, presence/absence notes, and no obvious secret values. |
+| `Get-ChildItem apps/web/app/reset-password -Recurse` | Pass | Only `page.tsx` exists; `/reset-password/update` is missing. |
+| `Get-ChildItem infra/supabase/migrations -Filter *.sql` | Pass | Migration files are ordered from `001_initial_schema.sql` through `024_community_trust_votes_moderation.sql`. |
+| `curl.exe -fsS --max-time 20 https://stationapi-production.up.railway.app/health/deployment` | Pass | Returned non-secret deployment booleans only. |
+| `curl.exe -fsS --max-time 20 https://stationapi-production.up.railway.app/health` | Pass | Returned `{ "ok": true }`. |
+| `curl.exe -fsS --max-time 20 https://stationweb-production.up.railway.app/health` | Pass | Returned `{ "ok": true }`. |
+| `git diff --check` | Pass | CRLF normalization warnings only. |
+
 ## Railway web staging MIMIR setup result
 
 Validated on 2026-06-08 while opening the Railway-web staging lane:
