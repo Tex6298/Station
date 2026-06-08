@@ -3,7 +3,8 @@
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { getSession } from "@/lib/auth";
-import { apiGet, apiPost } from "@/lib/api-client";
+import { apiGet, apiPatch, apiPost } from "@/lib/api-client";
+import type { MemoryItemLifecycle, OwnerMemoryBlock, PersonaMemoryBriefing } from "@station/types/persona";
 import {
   PersonaWorkspaceHeader,
   type PersonaWithContinuity,
@@ -17,6 +18,7 @@ interface MemoryItem {
   source_type: string;
   relevance_weight: number;
   created_at: string;
+  lifecycle?: MemoryItemLifecycle | null;
 }
 
 export default function PersonaMemoryPage() {
@@ -24,9 +26,12 @@ export default function PersonaMemoryPage() {
   const [token, setToken] = useState<string | null>(null);
   const [persona, setPersona] = useState<PersonaWithContinuity | null>(null);
   const [items, setItems] = useState<MemoryItem[]>([]);
+  const [briefing, setBriefing] = useState<PersonaMemoryBriefing | null>(null);
   const [form, setForm] = useState({ title: "", summary: "", content: "", relevanceWeight: 1.25 });
+  const [sharedForm, setSharedForm] = useState({ title: "", content: "", scope: "shared_user_profile" });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [savingShared, setSavingShared] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -41,13 +46,15 @@ export default function PersonaMemoryPage() {
           return;
         }
         setToken(session.access_token);
-        const [personaData, memoryData] = await Promise.all([
+        const [personaData, memoryData, briefingData] = await Promise.all([
           apiGet<{ persona: PersonaWithContinuity }>(`/personas/${personaId}`, session.access_token),
           apiGet<{ memory: MemoryItem[] }>(`/memory/persona/${personaId}`, session.access_token),
+          apiGet<{ briefing: PersonaMemoryBriefing }>(`/memory/persona/${personaId}/briefing`, session.access_token),
         ]);
         if (cancelled) return;
         setPersona(personaData.persona);
         setItems(memoryData.memory ?? []);
+        setBriefing(briefingData.briefing);
       } catch (e) {
         if (!cancelled) setError(e instanceof Error ? e.message : "Could not load memory.");
       } finally {
@@ -80,11 +87,64 @@ export default function PersonaMemoryPage() {
       );
       setItems((current) => [response.memoryItem, ...current]);
       setForm({ title: "", summary: "", content: "", relevanceWeight: 1.25 });
+      reloadBriefing(token, persona.id);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Could not save memory.");
     } finally {
       setSaving(false);
     }
+  }
+
+  async function createSharedMemory(e: React.FormEvent) {
+    e.preventDefault();
+    if (!token || !sharedForm.title.trim() || !sharedForm.content.trim()) return;
+    setSavingShared(true);
+    setError(null);
+    try {
+      const response = await apiPost<{ block: OwnerMemoryBlock }>(
+        "/memory/shared",
+        {
+          title: sharedForm.title,
+          content: sharedForm.content,
+          scope: sharedForm.scope,
+          trustLevel: "user_stated",
+          confidence: 1,
+        },
+        token
+      );
+      setBriefing((current) => current ? {
+        ...current,
+        sharedBlocks: [response.block, ...current.sharedBlocks],
+      } : current);
+      setSharedForm({ title: "", content: "", scope: "shared_user_profile" });
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Could not save shared memory.");
+    } finally {
+      setSavingShared(false);
+    }
+  }
+
+  async function updateLifecycle(itemId: string, patch: Record<string, unknown>) {
+    if (!token || !persona) return;
+    setError(null);
+    try {
+      const response = await apiPatch<{ lifecycle: MemoryItemLifecycle }>(
+        `/memory/${itemId}/lifecycle`,
+        patch,
+        token
+      );
+      setItems((current) => current.map((item) => (
+        item.id === itemId ? { ...item, lifecycle: response.lifecycle } : item
+      )));
+      reloadBriefing(token, persona.id);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Could not update memory lifecycle.");
+    }
+  }
+
+  async function reloadBriefing(accessToken: string, id: string) {
+    const data = await apiGet<{ briefing: PersonaMemoryBriefing }>(`/memory/persona/${id}/briefing`, accessToken).catch(() => null);
+    if (data) setBriefing(data.briefing);
   }
 
   if (loading) return <StudioMessage>Loading memory...</StudioMessage>;
@@ -95,6 +155,19 @@ export default function PersonaMemoryPage() {
     <main className="container studio-workspace">
       <PersonaWorkspaceHeader persona={persona} />
       {error && <div className="space-form-error">{error}</div>}
+
+      <section className="studio-list-panel" style={{ marginBottom: "1rem" }}>
+        <div className="studio-section-heading">
+          <div className="section-label">Memory Briefing</div>
+          <h2>Shared profile and lifecycle state</h2>
+        </div>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: "0.75rem" }}>
+          <BriefingMetric label="Shared blocks" value={briefing?.sharedBlocks.length ?? 0} />
+          <BriefingMetric label="Active memories" value={briefing?.lifecycleCounts.active ?? items.length} />
+          <BriefingMetric label="Quarantined" value={briefing?.lifecycleCounts.quarantined ?? 0} />
+          <BriefingMetric label="Next cycle" value={`${briefing?.cycleState.nextThresholdPct ?? 75}%`} />
+        </div>
+      </section>
 
       <section className="studio-two-column">
         <form className="studio-editor-panel" onSubmit={createMemory}>
@@ -124,17 +197,77 @@ export default function PersonaMemoryPage() {
             {items.map((item) => (
               <article key={item.id} className="studio-item-card">
                 <div>
-                  <span>{item.source_type}</span>
+                  <span>{item.lifecycle?.trustLevel ?? item.source_type}</span>
                   <time>{formatDate(item.created_at)}</time>
                 </div>
                 <h3>{item.title || "Untitled memory"}</h3>
                 <p>{item.summary || item.content}</p>
+                <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap", marginTop: "0.75rem" }}>
+                  <span className="section-label">{item.lifecycle?.status ?? "active"}</span>
+                  <span className="section-label">confidence {((item.lifecycle?.confidence ?? 0.7) * 100).toFixed(0)}%</span>
+                  <button className="button secondary" type="button" onClick={() => updateLifecycle(item.id, { reinforce: true })}>
+                    Reinforce
+                  </button>
+                  <button className="button secondary" type="button" onClick={() => updateLifecycle(item.id, { status: "quarantined" })}>
+                    Quarantine
+                  </button>
+                </div>
+              </article>
+            ))}
+          </div>
+        </section>
+      </section>
+
+      <section className="studio-two-column" style={{ marginTop: "1rem" }}>
+        <form className="studio-editor-panel" onSubmit={createSharedMemory}>
+          <div className="studio-section-heading">
+            <div className="section-label">Shared Memory</div>
+            <h2>Add owner-wide context</h2>
+          </div>
+          <input className="input" value={sharedForm.title} onChange={(e) => setSharedForm((f) => ({ ...f, title: e.target.value }))} placeholder="Title" maxLength={160} />
+          <select className="input" value={sharedForm.scope} onChange={(e) => setSharedForm((f) => ({ ...f, scope: e.target.value }))}>
+            <option value="shared_user_profile">Shared user profile</option>
+            <option value="working_style">Working style</option>
+            <option value="preference">Preference</option>
+            <option value="boundary">Boundary</option>
+            <option value="project_context">Project context</option>
+          </select>
+          <textarea className="textarea" value={sharedForm.content} onChange={(e) => setSharedForm((f) => ({ ...f, content: e.target.value }))} placeholder="What should every persona know about the owner?" style={{ minHeight: 140 }} required />
+          <button className="button primary" type="submit" disabled={savingShared}>
+            {savingShared ? "Saving..." : "Save Shared Memory"}
+          </button>
+        </form>
+
+        <section className="studio-list-panel">
+          <div className="studio-section-heading">
+            <div className="section-label">Owner-wide</div>
+            <h2>{briefing?.sharedBlocks.length ?? 0} shared blocks</h2>
+          </div>
+          <div className="studio-item-list">
+            {(briefing?.sharedBlocks.length ?? 0) === 0 && <div className="studio-empty">No shared memory blocks yet.</div>}
+            {briefing?.sharedBlocks.map((block) => (
+              <article key={block.id} className="studio-item-card">
+                <div>
+                  <span>{block.scope}</span>
+                  <time>{formatDate(block.updatedAt)}</time>
+                </div>
+                <h3>{block.title}</h3>
+                <p>{block.content}</p>
               </article>
             ))}
           </div>
         </section>
       </section>
     </main>
+  );
+}
+
+function BriefingMetric({ label, value }: { label: string; value: number | string }) {
+  return (
+    <div className="studio-item-card" style={{ minHeight: 92 }}>
+      <h3 style={{ marginBottom: "0.25rem" }}>{value}</h3>
+      <p style={{ margin: 0 }}>{label}</p>
+    </div>
   );
 }
 

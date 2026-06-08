@@ -151,6 +151,70 @@ export interface MemoryGraph {
   edges: MemoryGraphEdge[];
 }
 
+export type MemoryTrustLevel = "user_stated" | "agreed_upon" | "model_suggested" | "llm_extracted";
+export type MemoryLifecycleStatus = "active" | "superseded" | "rejected" | "expired" | "quarantined";
+export type OwnerMemoryScope = "shared_user_profile" | "working_style" | "preference" | "boundary" | "project_context";
+
+export interface OwnerMemoryBlock {
+  id: string;
+  ownerUserId: string;
+  title: string;
+  content: string;
+  scope: OwnerMemoryScope;
+  trustLevel: MemoryTrustLevel;
+  status: MemoryLifecycleStatus;
+  confidence: number;
+  sourceRefs: unknown[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface MemoryItemLifecycle {
+  memoryItemId: string;
+  ownerUserId: string;
+  personaId: string;
+  trustLevel: MemoryTrustLevel;
+  status: MemoryLifecycleStatus;
+  confidence: number;
+  decayRate: number;
+  reinforcementCount: number;
+  lastReinforcedAt?: string | null;
+  expiresAt?: string | null;
+  supersededByMemoryItemId?: string | null;
+  evidence: unknown[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface PersonaMemoryCycleState {
+  personaId: string;
+  ownerUserId: string;
+  lastConsolidatedAt?: string | null;
+  nextThresholdPct: 50 | 75 | 95;
+  settings: Record<string, unknown>;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface PersonaMemoryBriefing {
+  sharedBlocks: OwnerMemoryBlock[];
+  cycleState: PersonaMemoryCycleState;
+  activeMemories: Array<{
+    id: string;
+    personaId: string;
+    title?: string | null;
+    summary?: string | null;
+    contentPreview: string;
+    sourceType: MemoryItem["sourceType"];
+    relevanceWeight?: number;
+    createdAt: string;
+    lifecycle?: MemoryItemLifecycle | null;
+  }>;
+  lifecycleCounts: Record<string, number>;
+  trustCounts: Record<string, number>;
+  edgeCounts: Record<string, number>;
+}
+
 export interface CanonItem {
   id: string;
   ownerUserId?: string;

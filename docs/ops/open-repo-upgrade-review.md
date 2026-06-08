@@ -19,6 +19,11 @@ This note captures the reusable ideas reviewed from the user-provided open repos
 - `mrjessek/shang-tsung`: second-brain startup/shutdown ritual, proof-of-life logs, soul lineage numbering, and multi-agent identity lineage.
 - `AILIFE1/Cathedral`: identity anchors, wake protocol, drift detection through corpus snapshots, peer verification, and memory category taxonomy.
 - `cindiekinzz-coder/NESTstack`: Cloudflare-native emotional continuity, three-layer memory, daemon heartbeat, and identity portrait concepts.
+- `letta-ai/characterai-memory`: shared user profile memory blocks across otherwise private character agents, plus active/new character state vocabulary.
+- `Sakushi-Dev/PersonaUI`: Cortex memory split, autonomous threshold-based updates, afterthoughts, slash commands, and local privacy model. AGPL license means Station should borrow architecture ideas only.
+- `carsteneu/yesmem`: project continuity model, trust hierarchy, supersession, contradiction handling, decay, briefings, and continuity search. Apache-2.0.
+- `wangjiake/JKRiver`: sleep consolidation pipeline, suspected/confirmed/established progression, fact expiry, evidence chains, and owner-isolated memory. AGPL/commercial license means Station should borrow architecture ideas only.
+- `msalsas/amanuensis`: human-veto publishing workflow, source grounding, deterministic cleanup before LLM judgment, approval queue, and dry-run publishing.
 
 ## Ported into Station
 
@@ -34,6 +39,10 @@ This note captures the reusable ideas reviewed from the user-provided open repos
 - Memory graph edges through `memory_item_edges` with relation types for related/supports/contradicts/supersedes/extends/references.
 - Owner-only API routes for persona architecture, handoff creation, memory graph reads, and memory graph edge writes.
 - Persona Management UI backed by live architecture, lifecycle, handoff, archive summary, and memory graph data instead of placeholder rows.
+- Shared owner memory blocks through `owner_memory_blocks`, adapting Letta's shared human profile concept for Station personas.
+- Per-memory lifecycle metadata through `memory_item_lifecycle`, adding trust levels, active/superseded/rejected/expired/quarantined statuses, confidence, decay, expiry, reinforcement counts, evidence, and supersession links.
+- Persona memory cycle state through `persona_memory_cycle_states`, creating the foundation for PersonaUI/Riverse-style threshold consolidation.
+- Memory briefing API and memory-page UI that expose shared profile blocks, trust/status counts, reinforcement, and quarantine controls.
 
 ## Deferred
 
@@ -49,3 +58,7 @@ This note captures the reusable ideas reviewed from the user-provided open repos
 - Cryptographic corpus drift detection and peer verification from Cathedral.
 - Python/Ollama/NetworkX runtime code from ai-persona-lab.
 - Direct import of Memora's graph UI; Station now has the data contract first, with richer visualization still available as a future UI pass.
+- Full YesMem-style proxy, prompt-cache management, multi-agent scheduler, or code-index daemon.
+- Riverse-style 14-step LLM sleep transaction and automated contradiction arbitration.
+- PersonaUI afterthought/autonomous follow-up loop.
+- Amanuensis Telegram approval queue and social publishing dispatcher.
