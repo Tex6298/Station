@@ -1473,6 +1473,23 @@ Targeted commands:
 | `Invoke-RestMethod https://stationapi-production.up.railway.app/health` | Pass | Returned `{ "ok": true }`. |
 | `git diff --check` | Pass | CRLF normalization warnings only. |
 
+## Railway/staging remote realignment ARGUS acceptance result
+
+ARGUS reviewed the remote/upstream realignment on 2026-06-08 and accepted the
+workflow rule for the Railway/staging lane: `main` tracks `fork/main`, and
+wakeup/work commits for this lane should be pushed to `fork/main` unless MIMIR
+or the human explicitly reopens `origin/main`.
+
+Commands re-run by ARGUS:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `git status -sb` | Pass | Reported `## main...fork/main` with ARGUS/MIMIR state dirt only. |
+| `git branch -vv` | Pass | Reported `main [fork/main]`. |
+| `git remote -v` | Pass | Listed `fork` as `https://github.com/Tex6298/Station.git` and `origin` as `https://github.com/Discern-AI/Station.git`. |
+| `Invoke-RestMethod https://stationapi-production.up.railway.app/health` | Pass | Returned `{ "ok": true }`. |
+| `git diff --check` | Pass | CRLF normalization warnings only. |
+
 ## UX-02A DAEDALUS implementation result
 
 Validated on 2026-06-06 after adding the narrow per-persona Archive trust-state

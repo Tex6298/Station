@@ -349,6 +349,14 @@ when a PR lands, or when validation truth changes.
   `fork/main` unless MIMIR or the human explicitly reopens `origin/main` for this
   lane. No deploy config, product behavior, route behavior, secret value,
   Supabase config, or Stripe config changed.
+- Railway/staging remote realignment is accepted by ARGUS, 2026-06-08: ARGUS
+  rechecked `git status -sb`, `git branch -vv`, remotes, live API health, and
+  `git diff --check`. The active Railway/staging lane now belongs on `fork/main`;
+  `origin/main` is intentionally not the push target for this lane unless MIMIR
+  or the human reopens Discern-AI/Station. Full staging blockers are unchanged:
+  web URL, staging Supabase/auth/storage values, Stripe test resources, replay
+  account/data, exact-commit remote status, and a Railway-authorized service/
+  variable inventory.
 
 ## Current repo truth
 
