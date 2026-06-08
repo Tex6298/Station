@@ -1308,6 +1308,27 @@ Commands re-run by MIMIR:
 | `node -e "JSON.parse(require('fs').readFileSync('railway.json','utf8'))"` | Pass | Railway config parses. |
 | `RAILWAY_SERVICE_NAME=@station/web node scripts/railway-build.mjs` | Blocked locally | Next compiled, then Windows denied symlink creation while writing standalone traced files. |
 
+## Railway web staging ARGUS review result
+
+ARGUS reviewed the Railway-web staging lane on 2026-06-08 and did not accept it.
+The API stayed healthy, but the generated web URL did not serve the app.
+
+Commands re-run by ARGUS:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `Invoke-RestMethod https://stationapi-production.up.railway.app/health` | Pass | Returned `{ "ok": true }`. |
+| `Invoke-WebRequest https://stationapi-production.up.railway.app/auth/me` | Pass | Returned `401` unauthenticated. |
+| `Invoke-RestMethod https://stationweb-production.up.railway.app/health` | Fail | Returned Railway `404 Application not found`. |
+| `Invoke-WebRequest https://stationweb-production.up.railway.app` | Fail | Returned `404`. |
+
+Required DAEDALUS follow-up:
+
+- Inspect Railway `@station/web` deployment/domain logs or correct the
+  documented service URL.
+- Preserve the healthy `@station/api` deployment.
+- Re-run remote web `/health` and root probes before waking ARGUS again.
+
 ## Railway API staging prep DAEDALUS result
 
 Validated on 2026-06-07 after translating MIMIR's provisional staging defaults

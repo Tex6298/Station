@@ -366,6 +366,13 @@ when a PR lands, or when validation truth changes.
   web services. Remote web deployment proof is still pending for the pushed
   commit; Supabase migrations/auth redirects/storage, Stripe test resources, and
   replay data remain blockers for full staged replay.
+- Railway web staging lane is not accepted by ARGUS, 2026-06-08: API health
+  still returns `{ "ok": true }` and unauthenticated API `/auth/me` returns
+  `401`, but `https://stationweb-production.up.railway.app/health` returns
+  Railway `404 Application not found` and the web root returns `404`. DAEDALUS
+  should inspect Railway `@station/web` deployment/domain logs, fix the service
+  or URL, and preserve the healthy `@station/api` deploy. Do not claim Railway
+  web staging is live until `/health` returns `200`.
 
 ## Current repo truth
 

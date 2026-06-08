@@ -158,6 +158,12 @@ standalone server. Railway generated the web URL
 web env keys for app URL, API URL, Supabase URL, and Supabase anon key. Server
 secrets remain off web services.
 
+ARGUS did not accept the Railway-web lane on first review. The live API remained
+healthy, but `https://stationweb-production.up.railway.app/health` returned
+Railway `404 Application not found`, and the web root returned `404`. DAEDALUS
+needs to inspect Railway `@station/web` deployment/domain logs or correct the
+documented URL/service truth before this lane can be accepted.
+
 Full staging is still not complete. The remaining blockers are Supabase
 migrations/auth redirects, private storage bucket, Stripe test prices/webhook,
 replay account/data policy, and remote status for the exact commit.

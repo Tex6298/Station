@@ -19,7 +19,9 @@ useful product evidence from an online/staged Station deployment.
   `{ "ok": true }`.
 - Railway `@station/web` has the generated URL
   `https://stationweb-production.up.railway.app` and a web `/health` route in
-  repo, but the pushed commit still needs remote deployment proof.
+  repo, but ARGUS's 2026-06-08 live check returned Railway `404 Application not
+  found`. Do not treat the web service as live until that URL returns `200` from
+  `/health`.
 - Root `vercel.json` still targets the web app only. This is retained as a
   fallback/historical prep shape, not the current staging default.
 - The current Vercel install command uses `pnpm install --no-frozen-lockfile`;
@@ -259,5 +261,6 @@ script should be a later implementation task if manual setup becomes repetitive.
 
 This repo is ready for an ARGUS review of Railway API deploy hygiene and
 documentation truth. It is not ready to claim full staging implementation until
-the external facts above are supplied and the web/Supabase/Stripe/replay pieces
-are configured around the live API host.
+the Railway web service returns `200` from `/health` and the external facts
+above are supplied for Supabase, Stripe, replay data, and exact-commit remote
+status.

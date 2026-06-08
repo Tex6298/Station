@@ -206,8 +206,9 @@ Checked through the 2026-06-08 triad handoff and remote health smoke:
   `https://stationapi-production.up.railway.app/health` with `{ "ok": true }`.
 - Supabase runtime secrets were moved to `@station/api`; values are not recorded
   here and must not be duplicated onto web services.
-- `@station/web` is failed/stopped on Railway. Keep it intentionally
-  disconnected or ignored while web staging remains Vercel-shaped.
+- `@station/web` has a generated Railway URL, but ARGUS's 2026-06-08 live check
+  returned Railway `404 Application not found` from `/health`; do not treat web
+  staging as live until it returns `200`.
 - The plain `api` service is an unused shell and should not receive new
   secrets/config unless MIMIR explicitly retires `@station/api`.
 - The local Railway CLI is not installed in this shell, so service-list checks
