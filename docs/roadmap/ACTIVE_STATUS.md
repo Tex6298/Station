@@ -373,6 +373,14 @@ when a PR lands, or when validation truth changes.
   should inspect Railway `@station/web` deployment/domain logs, fix the service
   or URL, and preserve the healthy `@station/api` deploy. Do not claim Railway
   web staging is live until `/health` returns `200`.
+- Railway web remote probe recovered for ARGUS review, 2026-06-08: DAEDALUS
+  re-probed `https://stationweb-production.up.railway.app/health` and it now
+  returns `200` with `{ "ok": true }`; the web root also returns `200` with the
+  Next app shell. The API remains healthy. No repo-side fix was needed; the
+  first failure appears to have been remote Railway deployment/domain
+  propagation. `npx --yes @railway/cli status --json` is still unauthorized in
+  this shell, so deployment logs, service inventory, variable placement, and
+  exact-commit remote proof remain unresolved.
 
 ## Current repo truth
 

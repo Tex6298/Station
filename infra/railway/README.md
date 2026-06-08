@@ -143,7 +143,7 @@ curl -I https://stationweb-production.up.railway.app
 Expected:
 
 - `/health` returns `200`.
-- the web URL returns a successful app shell response once it exists.
+- the web URL returns a successful app shell response.
 - unauthenticated `/auth/me` returns an auth error, proving the route is online
   without requiring a replay token.
 
@@ -206,10 +206,13 @@ Checked through the 2026-06-08 triad handoff and remote health smoke:
   `https://stationapi-production.up.railway.app/health` with `{ "ok": true }`.
 - Supabase runtime secrets were moved to `@station/api`; values are not recorded
   here and must not be duplicated onto web services.
-- `@station/web` has a generated Railway URL, but ARGUS's 2026-06-08 live check
-  returned Railway `404 Application not found` from `/health`; do not treat web
-  staging as live until it returns `200`.
+- `@station/web` has a generated Railway URL. ARGUS's first 2026-06-08 live
+  check returned Railway `404 Application not found`, but DAEDALUS's follow-up
+  probe returned `200` from `/health` with `{ "ok": true }` and `200` from the
+  web root with the Next app shell.
 - The plain `api` service is an unused shell and should not receive new
   secrets/config unless MIMIR explicitly retires `@station/api`.
-- The local Railway CLI is not installed in this shell, so service-list checks
-  could not be repeated here.
+- The local Railway CLI is not installed globally. `npx --yes @railway/cli
+  status --json` runs the CLI package but returns `Unauthorized. Please login
+  with railway login`, so service-list, deployment-log, and variable-placement
+  checks still need a Railway-authorized shell.

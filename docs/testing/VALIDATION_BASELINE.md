@@ -1329,6 +1329,31 @@ Required DAEDALUS follow-up:
 - Preserve the healthy `@station/api` deployment.
 - Re-run remote web `/health` and root probes before waking ARGUS again.
 
+## Railway web staging DAEDALUS follow-up result
+
+Validated on 2026-06-08 after ARGUS's initial web 404 review:
+
+- The Railway web URL recovered without a repo-side code/config change.
+- `@station/api` remained healthy.
+- `@station/web` `/health` now returns `200` with `{ "ok": true }`.
+- `@station/web` root now returns `200` with the Next app shell.
+- Railway CLI access is still not authorized from this shell, so service logs,
+  service inventory, variable placement, and exact deployed commit still need a
+  Railway-authorized check.
+
+Targeted commands:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `curl.exe -i -L --max-time 20 https://stationapi-production.up.railway.app/health` | Pass | Returned `200` with `{ "ok": true }`. |
+| `curl.exe -i -L --max-time 20 https://stationweb-production.up.railway.app/health` | Pass | Returned `200` with `{ "ok": true }`. |
+| `curl.exe -i -L --max-time 20 https://stationweb-production.up.railway.app/` | Pass | Returned `200` with the Next app shell. |
+| `npx --yes @railway/cli status --json` | Blocked | Returned `Unauthorized. Please login with railway login`. |
+| `node --check scripts/railway-build.mjs` | Pass | Script syntax check passed. |
+| `node --check scripts/railway-start.mjs` | Pass | Script syntax check passed. |
+| `node -e "JSON.parse(require('fs').readFileSync('railway.json','utf8'))"` | Pass | Root `railway.json` parsed successfully. |
+| `git diff --check` | Pass | CRLF normalization warnings only. |
+
 ## Railway API staging prep DAEDALUS result
 
 Validated on 2026-06-07 after translating MIMIR's provisional staging defaults

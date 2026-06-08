@@ -19,9 +19,9 @@ useful product evidence from an online/staged Station deployment.
   `{ "ok": true }`.
 - Railway `@station/web` has the generated URL
   `https://stationweb-production.up.railway.app` and a web `/health` route in
-  repo, but ARGUS's 2026-06-08 live check returned Railway `404 Application not
-  found`. Do not treat the web service as live until that URL returns `200` from
-  `/health`.
+  repo. ARGUS's first 2026-06-08 live check returned Railway
+  `404 Application not found`, but MIMIR's later Railway-authorized probe
+  returned `200` from `/health` and the web root.
 - Root `vercel.json` still targets the web app only. This is retained as a
   fallback/historical prep shape, not the current staging default.
 - The current Vercel install command uses `pnpm install --no-frozen-lockfile`;
@@ -31,7 +31,7 @@ useful product evidence from an online/staged Station deployment.
   setup notes live in `infra/railway/README.md`.
 - The external Railway API service exists and the web service has URL/env
   wiring. Supabase migrations/storage/auth redirects, Stripe test resources,
-  replay data, and exact-commit remote proof still remain.
+  and replay data still remain.
 - Supabase migrations and setup notes live in `infra/supabase/README.md`.
 - Stripe Billing setup notes live in `infra/stripe/webhook.md`.
 - Local validation and remote deployment truth are separate; a green local gate
@@ -44,7 +44,7 @@ verify staging:
 
 | Need | Required value |
 | --- | --- |
-| Web host/provider | Current default is Railway `@station/web` from `Tex6298/Station` branch `main`; exact-commit deploy still needs proof. |
+| Web host/provider | Current default is Railway `@station/web` from `Tex6298/Station` branch `main`; setup commit `7bb8965` deployed successfully. |
 | Web staging URL | `https://stationweb-production.up.railway.app`. |
 | API staging URL | Known for the current API host: `https://stationapi-production.up.railway.app`. |
 | API host/provider | Known for the current API host: Railway `@station/api` from `Tex6298/Station` branch `main`. |
@@ -78,8 +78,7 @@ deploy the Next.js app from the same fork. Do not place server-only secrets on
 `@station/web`.
 
 Remaining facts: Supabase migrations/storage/auth redirects, Stripe test Price
-IDs/webhook secret, replay account credentials/data, and web plus API remote
-status for the pushed commit.
+IDs/webhook secret, and replay account credentials/data.
 
 ## Current Railway project state
 
@@ -100,6 +99,16 @@ https://stationweb-production.up.railway.app
 The plain `api` service is an unused shell. Keep runtime secrets on
 `@station/api`; do not duplicate them onto `@station/web` or the plain `api`
 shell.
+
+DAEDALUS follow-up on 2026-06-08:
+
+- `https://stationweb-production.up.railway.app/health` returned `200` with
+  `{ "ok": true }`.
+- `https://stationweb-production.up.railway.app/` returned `200` with the Next
+  app shell.
+- `npx --yes @railway/cli status --json` returned `Unauthorized. Please login
+  with railway login`, so deployment logs, service inventory, and variable
+  placement were still not inspectable from this shell.
 
 ## Active remote for this lane
 
@@ -259,8 +268,6 @@ script should be a later implementation task if manual setup becomes repetitive.
 
 ## Recommended handoff
 
-This repo is ready for an ARGUS review of Railway API deploy hygiene and
+This repo is ready for an ARGUS review of Railway web/API deploy hygiene and
 documentation truth. It is not ready to claim full staging implementation until
-the Railway web service returns `200` from `/health` and the external facts
-above are supplied for Supabase, Stripe, replay data, and exact-commit remote
-status.
+the external facts above are supplied for Supabase, Stripe, and replay data.

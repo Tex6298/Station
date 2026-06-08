@@ -164,9 +164,20 @@ Railway `404 Application not found`, and the web root returned `404`. DAEDALUS
 needs to inspect Railway `@station/web` deployment/domain logs or correct the
 documented URL/service truth before this lane can be accepted.
 
+DAEDALUS's follow-up probe later on 2026-06-08 found the generated web URL live:
+
+- `https://stationweb-production.up.railway.app/health` returned `200` with
+  `{ "ok": true }`.
+- `https://stationweb-production.up.railway.app/` returned `200` with the Next
+  app shell.
+- `npx --yes @railway/cli status --json` returned `Unauthorized. Please login
+  with railway login`, so deployment logs, service inventory, variable
+  placement, and exact-commit remote proof remain unavailable from this shell.
+
 Full staging is still not complete. The remaining blockers are Supabase
 migrations/auth redirects, private storage bucket, Stripe test prices/webhook,
-replay account/data policy, and remote status for the exact commit.
+replay account/data policy, Railway-authorized service/variable inventory, and
+remote status for the exact commit.
 
 ARGUS accepted the API-only posture on 2026-06-08 after rechecking the live API
 URL, unauthenticated `/auth/me`, `railway.json` parsing, frozen install, API
