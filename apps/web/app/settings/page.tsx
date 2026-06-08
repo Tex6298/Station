@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { AiObservabilityPanel } from "@/components/settings/ai-observability-panel";
 import { StorageUsagePanel } from "@/components/settings/storage-usage-panel";
 import { TokenUsagePanel } from "@/components/settings/token-usage-panel";
 
@@ -90,6 +91,11 @@ export default function SettingsPage() {
             <section style={panel}>
               <h2 style={sectionTitle}>Storage</h2>
               <StorageUsagePanel />
+            </section>
+
+            <section style={panel}>
+              <h2 style={sectionTitle}>AI Activity</h2>
+              <AiObservabilityPanel />
             </section>
 
             <section style={panel}>

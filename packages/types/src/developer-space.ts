@@ -6,6 +6,23 @@ export type DeveloperSpaceEventProvenance = "api" | "imported" | "user" | "syste
 export type DeveloperSpaceIngestionKeyStatus = "active" | "revoked";
 export type DeveloperSpaceDocumentRole = "methodology" | "finding" | "field_log" | "note";
 export type DeveloperSpaceDocumentLinkVisibility = "owner" | "public";
+export type DeveloperSpaceWidgetType =
+  | "visualisation"
+  | "event_stream"
+  | "reading_guide"
+  | "project_notes"
+  | "current_nodes"
+  | "latest_snapshot";
+export type DeveloperSpaceWidgetZone = "main" | "side";
+
+export interface DeveloperSpaceWidgetConfig {
+  id: string;
+  type: DeveloperSpaceWidgetType;
+  title: string;
+  zone: DeveloperSpaceWidgetZone;
+  position: number;
+  visible: boolean;
+}
 
 export interface DeveloperSpaceRecord {
   id: string;
@@ -15,7 +32,7 @@ export interface DeveloperSpaceRecord {
   description?: string | null;
   visibility: DeveloperSpaceVisibility;
   visualisationType: DeveloperSpaceVisualisationType;
-  visualisationConfig: Record<string, unknown>;
+  visualisationConfig: Record<string, unknown> & { widgets?: DeveloperSpaceWidgetConfig[] };
   apiKeyLastFour?: string | null;
   apiKeyCreatedAt?: string | null;
   createdAt: string;

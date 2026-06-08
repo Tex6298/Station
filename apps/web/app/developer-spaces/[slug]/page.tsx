@@ -11,10 +11,12 @@ import {
   humaniseKey,
   metricEntries,
   nodePosition,
+  normaliseDeveloperSpaceWidgets,
   publicEntries,
   shouldShowRawDeveloperSpaceData,
   similarityPercent,
   visualisationLabel,
+  widgetsForZone,
 } from "@/lib/developer-space-observatory";
 import { normaliseDeveloperSpaceVisualConfig } from "@/lib/developer-space-visual-config";
 import type {
@@ -24,7 +26,14 @@ import type {
   DeveloperSpaceLiveUpdate,
   DeveloperSpaceNode,
   DeveloperSpaceSnapshot,
+  DeveloperSpaceWidgetConfig,
 } from "@station/types/developer-space";
+
+function websocketUrl(path: string) {
+  const url = new URL(apiUrl(path));
+  url.protocol = url.protocol === "https:" ? "wss:" : "ws:";
+  return url.toString();
+}
 
 function linkedDocumentRoleLabel(role: DeveloperSpaceLinkedDocument["role"]) {
   if (role === "field_log") return "Field log";
@@ -312,20 +321,44 @@ export default function DeveloperSpacePublicPage() {
   useEffect(() => {
     let cancelled = false;
     let stream: EventSource | null = null;
+    let socket: WebSocket | null = null;
 
     async function load() {
       if (!slug) return;
       try {
         const session = await getSession();
-        const data = await apiGet<DeveloperSpaceDetail>(`/developer-spaces/${slug}`, session?.access_token);
+        const token = session?.access_token;
+        const data = await apiGet<DeveloperSpaceDetail>(`/developer-spaces/${slug}`, token);
         if (!cancelled) {
           setDetail(data);
           setError(null);
           setLiveStatus("connecting");
         }
 
+        if ("WebSocket" in window) {
+          const socketUrl = new URL(websocketUrl(`/developer-spaces/${slug}/live`));
+          if (token) socketUrl.searchParams.set("access_token", token);
+          socket = new WebSocket(socketUrl.toString());
+          socket.onopen = () => {
+            if (!cancelled) setLiveStatus("live");
+          };
+          socket.onerror = () => {
+            if (!cancelled) setLiveStatus("reconnecting");
+          };
+          socket.onmessage = async (message) => {
+            const payload = JSON.parse(message.data);
+            if (payload.kind !== "developer_space.ingested") return;
+            const next = await apiGet<DeveloperSpaceDetail>(`/developer-spaces/${slug}`, token);
+            if (!cancelled) {
+              setDetail(next);
+              setLastLiveAt(payload.emittedAt);
+              setLiveStatus("live");
+            }
+          };
+        }
+
         const streamUrl = new URL(apiUrl(`/developer-spaces/${slug}/stream`));
-        if (session?.access_token) streamUrl.searchParams.set("access_token", session.access_token);
+        if (token) streamUrl.searchParams.set("access_token", token);
         stream = new EventSource(streamUrl.toString());
         stream.onopen = () => {
           if (!cancelled) setLiveStatus("live");
@@ -355,6 +388,7 @@ export default function DeveloperSpacePublicPage() {
     return () => {
       cancelled = true;
       stream?.close();
+      socket?.close();
     };
   }, [slug]);
 
@@ -380,6 +414,9 @@ export default function DeveloperSpacePublicPage() {
   const mostActiveNode = detail.nodes[0];
   const showRaw = shouldShowRawDeveloperSpaceData(detail.access);
   const visualConfig = normaliseDeveloperSpaceVisualConfig(detail.space.visualisationType, detail.space.visualisationConfig ?? {});
+  const widgets = normaliseDeveloperSpaceWidgets(detail.space.visualisationConfig?.widgets);
+  const mainWidgets = widgetsForZone(widgets, "main");
+  const sideWidgets = widgetsForZone(widgets, "side");
   const showSnapshotPanel = detail.space.visualisationType !== "timeline" || visualConfig.showSnapshots !== false;
   const liveLabel = liveStatus === "live"
     ? lastLiveAt ? `Live ${formatDate(lastLiveAt)}` : "Live"
@@ -423,66 +460,99 @@ export default function DeveloperSpacePublicPage() {
 
       <section className="observatory-grid">
         <div style={{ display: "grid", gap: "1rem" }}>
-          <div>
-            <h2 style={{ margin: "0 0 0.6rem", fontSize: "1.2rem" }}>{visualisationLabel(detail.space.visualisationType)}</h2>
-            <ObservatoryVisualisation detail={detail} />
-          </div>
-          <div>
-            <h2 style={{ margin: "0 0 0.6rem", fontSize: "1.2rem" }}>Event stream</h2>
-            <EventTimeline events={detail.events} showRaw={showRaw} />
-          </div>
+          {mainWidgets.map((widget) => renderMainWidget(widget, detail, showRaw))}
         </div>
 
         <aside style={{ display: "grid", gap: "0.75rem" }}>
-          <div className="card">
-            <h2 style={{ margin: "0 0 0.5rem", fontSize: "1rem" }}>How to read this</h2>
-            <p style={{ margin: 0, color: "#94a3b8", lineHeight: 1.65, fontSize: "0.88rem" }}>
-              This is the public layer of a running project. Nodes are entities or systems being tracked. Events are live signals from the runtime. Snapshots are curated state summaries for the archive.
-            </p>
-          </div>
-
-          <LinkedDocumentsPanel documents={detail.linkedDocuments ?? []} ownerView={detail.access === "owner"} />
-
-          <div className="card">
-            <h2 style={{ margin: "0 0 0.5rem", fontSize: "1rem" }}>Current nodes</h2>
-            <div style={{ display: "grid", gap: "0.7rem" }}>
-              {detail.nodes.length === 0 ? <p style={{ margin: 0, color: "#94a3b8" }}>No nodes yet.</p> : detail.nodes.map((node) => {
-                const similarity = similarityPercent(node);
-                return (
-                  <div key={node.id} style={{ borderTop: "1px solid #1e293b", paddingTop: "0.65rem" }}>
-                    <div style={{ display: "flex", justifyContent: "space-between", gap: "0.75rem" }}>
-                      <strong>{node.nodeName}</strong>
-                      <span style={{ color: "#64748b", fontSize: "0.78rem" }}>{formatDate(node.lastEventAt)}</span>
-                    </div>
-                    <div style={{ display: "flex", gap: "0.35rem", flexWrap: "wrap", marginTop: "0.45rem" }}>
-                      <span className="pill" style={{ fontSize: "0.68rem", textTransform: "capitalize" }}>{node.topologyType}</span>
-                      <span className="pill" style={{ fontSize: "0.68rem" }}>{node.fragmentCount} fragments</span>
-                      {similarity !== null ? <span className="pill" style={{ fontSize: "0.68rem" }}>{similarity}% similarity</span> : null}
-                    </div>
-                    {metricEntries(node).length > 0 ? (
-                      <dl className="fact-grid compact" style={{ marginTop: "0.55rem" }}>
-                        {metricEntries(node).map(([key, value]) => (
-                          <div key={key}>
-                            <dt>{humaniseKey(key)}</dt>
-                            <dd>{formatValue(value)}</dd>
-                          </div>
-                        ))}
-                      </dl>
-                    ) : null}
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-
-          {showSnapshotPanel ? (
-            <div className="card">
-              <h2 style={{ margin: "0 0 0.5rem", fontSize: "1rem" }}>Latest snapshot</h2>
-              <SnapshotCard snapshot={detail.latestSnapshot} showRaw={showRaw} />
-            </div>
-          ) : null}
+          {sideWidgets.map((widget) => renderSideWidget(widget, detail, showRaw, showSnapshotPanel))}
         </aside>
       </section>
     </main>
+  );
+}
+
+function renderMainWidget(widget: DeveloperSpaceWidgetConfig, detail: DeveloperSpaceDetail, showRaw: boolean) {
+  if (widget.type === "event_stream") {
+    return (
+      <div key={widget.id}>
+        <h2 style={{ margin: "0 0 0.6rem", fontSize: "1.2rem" }}>{widget.title}</h2>
+        <EventTimeline events={detail.events} showRaw={showRaw} />
+      </div>
+    );
+  }
+
+  return (
+    <div key={widget.id}>
+      <h2 style={{ margin: "0 0 0.6rem", fontSize: "1.2rem" }}>
+        {widget.title || visualisationLabel(detail.space.visualisationType)}
+      </h2>
+      <ObservatoryVisualisation detail={detail} />
+    </div>
+  );
+}
+
+function renderSideWidget(
+  widget: DeveloperSpaceWidgetConfig,
+  detail: DeveloperSpaceDetail,
+  showRaw: boolean,
+  showSnapshotPanel: boolean
+) {
+  if (widget.type === "reading_guide") {
+    return (
+      <div key={widget.id} className="card">
+        <h2 style={{ margin: "0 0 0.5rem", fontSize: "1rem" }}>{widget.title}</h2>
+        <p style={{ margin: 0, color: "#94a3b8", lineHeight: 1.65, fontSize: "0.88rem" }}>
+          This is the public layer of a running project. Nodes are entities or systems being tracked. Events are live signals from the runtime. Snapshots are curated state summaries for the archive.
+        </p>
+      </div>
+    );
+  }
+
+  if (widget.type === "project_notes") {
+    return <LinkedDocumentsPanel key={widget.id} documents={detail.linkedDocuments ?? []} ownerView={detail.access === "owner"} />;
+  }
+
+  if (widget.type === "latest_snapshot") {
+    if (!showSnapshotPanel) return null;
+    return (
+      <div key={widget.id} className="card">
+        <h2 style={{ margin: "0 0 0.5rem", fontSize: "1rem" }}>{widget.title}</h2>
+        <SnapshotCard snapshot={detail.latestSnapshot} showRaw={showRaw} />
+      </div>
+    );
+  }
+
+  return (
+    <div key={widget.id} className="card">
+      <h2 style={{ margin: "0 0 0.5rem", fontSize: "1rem" }}>{widget.title}</h2>
+      <div style={{ display: "grid", gap: "0.7rem" }}>
+        {detail.nodes.length === 0 ? <p style={{ margin: 0, color: "#94a3b8" }}>No nodes yet.</p> : detail.nodes.map((node) => {
+          const similarity = similarityPercent(node);
+          return (
+            <div key={node.id} style={{ borderTop: "1px solid #1e293b", paddingTop: "0.65rem" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", gap: "0.75rem" }}>
+                <strong>{node.nodeName}</strong>
+                <span style={{ color: "#64748b", fontSize: "0.78rem" }}>{formatDate(node.lastEventAt)}</span>
+              </div>
+              <div style={{ display: "flex", gap: "0.35rem", flexWrap: "wrap", marginTop: "0.45rem" }}>
+                <span className="pill" style={{ fontSize: "0.68rem", textTransform: "capitalize" }}>{node.topologyType}</span>
+                <span className="pill" style={{ fontSize: "0.68rem" }}>{node.fragmentCount} fragments</span>
+                {similarity !== null ? <span className="pill" style={{ fontSize: "0.68rem" }}>{similarity}% similarity</span> : null}
+              </div>
+              {metricEntries(node).length > 0 ? (
+                <dl className="fact-grid compact" style={{ marginTop: "0.55rem" }}>
+                  {metricEntries(node).map(([key, value]) => (
+                    <div key={key}>
+                      <dt>{humaniseKey(key)}</dt>
+                      <dd>{formatValue(value)}</dd>
+                    </div>
+                  ))}
+                </dl>
+              ) : null}
+            </div>
+          );
+        })}
+      </div>
+    </div>
   );
 }

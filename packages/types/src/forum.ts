@@ -21,6 +21,11 @@ export interface ThreadRecord {
   isPinned?: boolean;
   isHidden?: boolean;
   reportedCount?: number;
+  voteCount?: number;
+  hotScore?: number;
+  lastActivityAt?: string;
+  moderationState?: 'normal' | 'needs_review' | 'hidden' | 'removed';
+  viewerVote?: -1 | 0 | 1;
   score: number;
   commentCount: number;
   createdAt: string;
@@ -37,9 +42,36 @@ export interface CommentRecord {
   isPinned?: boolean;
   isHidden?: boolean;
   reportedCount?: number;
+  voteCount?: number;
+  moderationState?: 'normal' | 'needs_review' | 'hidden' | 'removed';
+  viewerVote?: -1 | 0 | 1;
   score: number;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface CommunityUserProfile {
+  userId: string;
+  trustLevel: 0 | 1 | 2 | 3 | 4;
+  reputationScore: number;
+  threadCount: number;
+  commentCount: number;
+  helpfulVoteCount: number;
+  reportCount: number;
+  mutedUntil?: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CommunityModerationActionRecord {
+  id: string;
+  moderatorUserId: string;
+  targetType: 'thread' | 'comment' | 'user';
+  targetId: string;
+  actionType: 'lock' | 'unlock' | 'pin' | 'unpin' | 'hide' | 'unhide' | 'remove' | 'restore' | 'mute' | 'unmute';
+  reason?: string | null;
+  metadata: Record<string, unknown>;
+  createdAt: string;
 }
 
 export interface ModerationReportRecord {

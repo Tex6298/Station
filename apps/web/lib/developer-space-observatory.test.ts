@@ -2,8 +2,12 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import {
   formatValue,
+  moveDeveloperSpaceWidget,
+  normaliseDeveloperSpaceWidgets,
   publicEntries,
   shouldShowRawDeveloperSpaceData,
+  updateWidgetVisibility,
+  widgetsForZone,
   visualisationLabel,
 } from "./developer-space-observatory";
 import { normaliseDeveloperSpaceVisualConfig } from "./developer-space-visual-config";
@@ -25,6 +29,24 @@ test("observatory helpers keep visitor data readable and non-raw", () => {
   assert.equal(shouldShowRawDeveloperSpaceData("member"), false);
   assert.equal(shouldShowRawDeveloperSpaceData("owner"), true);
   assert.equal(visualisationLabel("world_map"), "World map");
+});
+
+test("observatory widget helpers bound custom dashboard layouts", () => {
+  const widgets = normaliseDeveloperSpaceWidgets([
+    { type: "event_stream", title: "Latest signals", zone: "main", position: 0, visible: true },
+    { type: "visualisation", zone: "main", position: 1, visible: true },
+    { type: "latest_snapshot", zone: "side", position: 0, visible: false },
+    { type: "unknown", zone: "main", position: 99, visible: true },
+  ]);
+
+  assert.equal(widgetsForZone(widgets, "main")[0].type, "event_stream");
+  assert.equal(widgets.find((widget) => widget.type === "latest_snapshot")?.visible, false);
+
+  const hidden = updateWidgetVisibility(widgets, "event_stream", false);
+  assert.equal(widgetsForZone(hidden, "main").some((widget) => widget.type === "event_stream"), false);
+
+  const moved = moveDeveloperSpaceWidget(widgets, "visualisation", -1);
+  assert.equal(widgetsForZone(moved, "main")[0].type, "visualisation");
 });
 
 test("visual config helpers provide bounded defaults per mode", () => {

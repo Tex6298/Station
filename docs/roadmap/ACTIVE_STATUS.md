@@ -418,6 +418,21 @@ when a PR lands, or when validation truth changes.
   deployment, followed by Supabase/auth/storage staging closeout. Redis,
   Cloudflare, and NVIDIA retrieval remain future adapter/migration lanes, not
   current source-of-truth replacements.
+- Lane 0 fork/upstream convergence is ready for ARGUS review, 2026-06-08:
+  DAEDALUS merged `origin/main` through `269ad48 feat: add community trust and
+  voting` into the active Railway fork line without staged conflicts. The merge
+  adds the upstream AI observability, live Developer Space widgets, persona
+  lifecycle graph, memory continuity controls, and community trust/voting
+  surfaces while preserving `railway.json`, `scripts/railway-build.mjs`,
+  `scripts/railway-start.mjs`, `apps/web/next.config.mjs` standalone output,
+  `apps/web/app/health/route.ts`, and the accepted NVIDIA platform-chat aliases.
+  Supabase migrations `020` through `024` are committed as repo migrations only;
+  no staging Supabase project migration, bucket, auth redirect, Stripe resource,
+  Redis cache, or deployment-secret change was applied. Local validation is
+  green for the focused API/type/test gates listed in
+  `docs/testing/VALIDATION_BASELINE.md`; local `@station/web` build compiles and
+  generates pages but fails on this Windows shell when Next standalone output
+  tries to create symlinks under `.next/standalone` (`EPERM`).
 
 ## Current repo truth
 
@@ -560,6 +575,11 @@ when a PR lands, or when validation truth changes.
   owner-scoped documents, continuity, runtime memory/canon, and archive sources.
   The coverage now includes symmetric owner checks so each authenticated owner
   sees only their own private matches.
+- As of Lane 0 DAEDALUS convergence, the Railway fork includes upstream AI
+  observability, memory lifecycle, persona lifecycle, Developer Space live
+  widgets, and community trust/voting schema and route surfaces, pending ARGUS
+  review. The migrations are not applied to staging until Lane 1 external
+  Supabase credentials and target are confirmed.
 
 ## Near-term rule
 

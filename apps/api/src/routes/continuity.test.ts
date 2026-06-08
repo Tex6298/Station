@@ -48,6 +48,8 @@ class InMemorySupabase {
     archived_chat_transcripts: [],
     continuity_candidates: [],
     continuity_records: [],
+    memory_item_lifecycle: [],
+    persona_lifecycle_events: [],
   };
 
   private idCounters: Record<string, number> = {};
@@ -111,6 +113,26 @@ class InMemorySupabase {
       row.embedding ??= null;
       row.created_at ??= now;
       row.updated_at ??= now;
+    }
+
+    if (table === "memory_item_lifecycle") {
+      row.trust_level ??= "user_stated";
+      row.status ??= "active";
+      row.confidence ??= 1;
+      row.decay_rate ??= 0;
+      row.reinforcement_count ??= 0;
+      row.last_reinforced_at ??= null;
+      row.expires_at ??= null;
+      row.superseded_by_memory_item_id ??= null;
+      row.evidence ??= [];
+      row.created_at ??= now;
+      row.updated_at ??= now;
+    }
+
+    if (table === "persona_lifecycle_events") {
+      row.event_label ??= null;
+      row.event_data ??= {};
+      row.created_at ??= now;
     }
 
     if (table === "canon_items") {
@@ -190,6 +212,10 @@ class QueryBuilder {
     return this.execute("single");
   }
 
+  maybeSingle() {
+    return this.execute("maybeSingle");
+  }
+
   then(onfulfilled: any, onrejected: any) {
     return this.execute().then(onfulfilled, onrejected);
   }
@@ -214,7 +240,7 @@ class QueryBuilder {
     return rows;
   }
 
-  private async execute(mode?: "single") {
+  private async execute(mode?: "single" | "maybeSingle") {
     let rows: Row[];
 
     if (this.operation === "insert") {
@@ -243,6 +269,16 @@ class QueryBuilder {
         : {
           data: null,
           error: { code: "PGRST116", message: `Expected one ${this.table} row.` },
+          count,
+        };
+    }
+
+    if (mode === "maybeSingle") {
+      return data.length <= 1
+        ? { data: data[0] ?? null, error: null, count }
+        : {
+          data: null,
+          error: { code: "PGRST116", message: `Expected at most one ${this.table} row.` },
           count,
         };
     }

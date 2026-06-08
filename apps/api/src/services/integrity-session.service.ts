@@ -1,9 +1,16 @@
 import { getSupabaseAdmin } from "../lib/supabase";
 import { AnthropicProvider } from "@station/ai/providers/anthropic";
+import type { ChatProviderResponse } from "@station/ai";
 import { env } from "../lib/env";
 import { enqueueLlmCall } from "./llm-queue.service";
 import { selectStationModel } from "./token-credits.service";
 import { addMemoryItem } from "./archive.service";
+import {
+  completeAiTrace,
+  failAiTrace,
+  recordAiTraceEvent,
+  startAiTrace,
+} from "./ai-observability.service";
 
 export type IntegrityCluster = "identity" | "relationship" | "tone" | "continuity" | "boundaries" | "themes";
 export type IntegritySessionType = "initial" | "periodic" | "migration" | "pre_publication" | "manual";
@@ -99,6 +106,13 @@ export async function generateFollowupQuestion(input: {
   const provider = await integrityProvider(input.ownerUserId);
   if (!provider) return fallback;
 
+  const traceStartedAt = Date.now();
+  const trace = await startAiTrace({
+    ownerUserId: input.ownerUserId,
+    source: "integrity_session",
+    metadata: { action: "followup", cluster: input.cluster },
+  });
+
   try {
     const response = await enqueueLlmCall(provider.provider, {
       model: provider.model,
@@ -114,8 +128,10 @@ export async function generateFollowupQuestion(input: {
         content: `Cluster: ${input.cluster}\nAnchor question: ${input.anchorQuestion}\nUser answer: ${input.userAnswer}\n\nGenerate a single follow-up question.`,
       }],
     });
+    await recordIntegrityTrace(trace?.id, input.ownerUserId, "Generate follow-up question", provider.model, response, Date.now() - traceStartedAt);
     return firstQuestion(response.content) ?? fallback;
-  } catch {
+  } catch (error) {
+    await failAiTrace(trace?.id, error, Date.now() - traceStartedAt);
     return fallback;
   }
 }
@@ -128,6 +144,13 @@ export async function generateClusterSummary(input: {
   const fallback = buildClusterSummary(input.cluster, input.turns);
   const provider = await integrityProvider(input.ownerUserId);
   if (!provider) return fallback;
+
+  const traceStartedAt = Date.now();
+  const trace = await startAiTrace({
+    ownerUserId: input.ownerUserId,
+    source: "integrity_session",
+    metadata: { action: "cluster_summary", cluster: input.cluster },
+  });
 
   try {
     const response = await enqueueLlmCall(provider.provider, {
@@ -142,8 +165,10 @@ export async function generateClusterSummary(input: {
         content: `Cluster: ${input.cluster}\n\n${formatTurns(input.turns)}\n\nWrite a brief summary for the user to confirm.`,
       }],
     });
+    await recordIntegrityTrace(trace?.id, input.ownerUserId, "Generate cluster summary", provider.model, response, Date.now() - traceStartedAt);
     return response.content.trim() || fallback;
-  } catch {
+  } catch (error) {
+    await failAiTrace(trace?.id, error, Date.now() - traceStartedAt);
     return fallback;
   }
 }
@@ -203,6 +228,38 @@ export function generateOutputsFromTurns(turns: any[]) {
   return Array.from(outputs.values()).slice(0, 15);
 }
 
+async function recordIntegrityTrace(
+  traceId: string | null | undefined,
+  ownerUserId: string,
+  label: string,
+  model: string,
+  response: ChatProviderResponse,
+  durationMs: number
+) {
+  const inputTokens = response.usage?.inputTokens ?? 0;
+  const outputTokens = response.usage?.outputTokens ?? Math.ceil(response.content.length / 4);
+
+  await recordAiTraceEvent({
+    traceId,
+    ownerUserId,
+    eventType: "llm_call",
+    label,
+    status: "completed",
+    provider: "anthropic",
+    model: response.model ?? model,
+    inputTokens,
+    outputTokens,
+    durationMs,
+  });
+  await completeAiTrace({
+    traceId,
+    inputTokens,
+    outputTokens,
+    model: response.model ?? model,
+    durationMs,
+  });
+}
+
 export async function generateIntegrityOutputs(input: {
   ownerUserId: string;
   turns: any[];
@@ -210,6 +267,13 @@ export async function generateIntegrityOutputs(input: {
   const fallback = generateOutputsFromTurns(input.turns);
   const provider = await integrityProvider(input.ownerUserId);
   if (!provider) return fallback;
+
+  const traceStartedAt = Date.now();
+  const trace = await startAiTrace({
+    ownerUserId: input.ownerUserId,
+    source: "integrity_session",
+    metadata: { action: "structured_outputs", turnCount: input.turns.length },
+  });
 
   try {
     const response = await enqueueLlmCall(provider.provider, {
@@ -226,9 +290,11 @@ export async function generateIntegrityOutputs(input: {
         content: `Here is the full session transcript:\n${formatTurns(input.turns)}`,
       }],
     });
+    await recordIntegrityTrace(trace?.id, input.ownerUserId, "Generate integrity outputs", provider.model, response, Date.now() - traceStartedAt);
     const parsed = parseOutputJson(response.content);
     return parsed.length > 0 ? parsed : fallback;
-  } catch {
+  } catch (error) {
+    await failAiTrace(trace?.id, error, Date.now() - traceStartedAt);
     return fallback;
   }
 }

@@ -6,6 +6,7 @@ import {
 } from "@station/ai/retrieval/embeddings";
 import { env } from "../lib/env";
 import { estimateStorageBytes, releaseStorageBytes, reserveStorageBytes } from "./storage.service";
+import { ensureMemoryLifecycle } from "./memory-continuity.service";
 
 /**
  * Adds a single memory item to a persona's archive and generates its embedding.
@@ -49,6 +50,12 @@ export async function addMemoryItem(input: {
       .single();
 
     if (error) throw new Error(error.message);
+    await ensureMemoryLifecycle({
+      memoryItemId: data.id,
+      ownerUserId: input.ownerUserId,
+      personaId: input.personaId,
+      sourceType: input.sourceType,
+    }).catch(() => undefined);
     return data;
   } catch (error) {
     if (reserved) await releaseStorageBytes(input.ownerUserId, reservedBytes).catch(() => null);
@@ -95,8 +102,18 @@ export async function ingestTextIntoArchive(input: {
       embedding: embeddings[i] ?? null,
     }));
 
-    const { error } = await sb.from("memory_items").insert(rows);
+    const { data: inserted, error } = await sb
+      .from("memory_items")
+      .insert(rows)
+      .select("id, owner_user_id, persona_id, source_type");
     if (error) throw new Error(error.message);
+
+    await Promise.all((inserted ?? []).map((row) => ensureMemoryLifecycle({
+      memoryItemId: row.id,
+      ownerUserId: row.owner_user_id,
+      personaId: row.persona_id,
+      sourceType: row.source_type,
+    }).catch(() => undefined)));
 
     return chunks.length;
   } catch (error) {

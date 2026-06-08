@@ -10,21 +10,29 @@ interface Author { username: string; display_name: string | null; avatar_url: st
 interface Thread {
   id: string; title: string; body: string; status: string;
   visibility?: string; is_pinned?: boolean; linked_document_id?: string | null;
-  score: number; comment_count: number; created_at: string;
+  score: number; vote_count?: number; viewer_vote?: number; comment_count: number; created_at: string;
   author_user_id: string; author: Author | null;
   category: { id: string; slug: string; title: string } | null;
   document?: { id: string; title: string; space: { slug: string } | null } | null;
 }
 interface Comment {
   id: string; body: string; status: string; score: number;
+  vote_count?: number; viewer_vote?: number;
   is_pinned?: boolean; is_hidden?: boolean; reported_count?: number;
   created_at: string; author_user_id: string; author: Author | null;
+}
+interface ModerationAction {
+  id: string;
+  actionType: string;
+  reason?: string | null;
+  createdAt: string;
 }
 
 export default function ThreadPage() {
   const { categorySlug, threadId } = useParams<{ categorySlug: string; threadId: string }>();
   const [thread, setThread]       = useState<Thread | null>(null);
   const [comments, setComments]   = useState<Comment[]>([]);
+  const [moderationActions, setModerationActions] = useState<ModerationAction[]>([]);
   const [loading, setLoading]     = useState(true);
   const [error, setError]         = useState<string | null>(null);
 
@@ -37,12 +45,13 @@ export default function ThreadPage() {
   useEffect(() => {
     if (!threadId) return;
     getSession().then(async (sess) => {
-      const data = await apiGet<{ thread: Thread; comments: Comment[] }>(
+      const data = await apiGet<{ thread: Thread; comments: Comment[]; moderationActions?: ModerationAction[] }>(
         `/threads/${threadId}`,
         sess?.access_token
       );
       setThread(data.thread);
       setComments(data.comments);
+      setModerationActions(data.moderationActions ?? []);
       if (sess) setSession(sess as typeof session);
     }).catch((e) => {
       setError(e instanceof Error ? e.message : "Thread not found.");
@@ -76,6 +85,46 @@ export default function ThreadPage() {
       await apiDelete(`/comments/${commentId}`, session.access_token);
       setComments((prev) => prev.filter((c) => c.id !== commentId));
     } catch { /* silent */ }
+  }
+
+  async function voteThread(value: -1 | 1) {
+    if (!session || !thread) return;
+    try {
+      const response = await apiPost<{ thread: { id: string; score: number; vote_count?: number } }>(
+        `/threads/${thread.id}/vote`,
+        { value },
+        session.access_token
+      );
+      setThread({ ...thread, score: response.thread.score, vote_count: response.thread.vote_count, viewer_vote: value });
+    } catch (e) {
+      setCommentError(e instanceof Error ? e.message : "Could not vote.");
+    }
+  }
+
+  async function voteComment(commentId: string, value: -1 | 1) {
+    if (!session) return;
+    try {
+      const response = await apiPost<{ comment: { id: string; score: number; vote_count?: number } }>(
+        `/comments/${commentId}/vote`,
+        { value },
+        session.access_token
+      );
+      setComments((current) => current.map((comment) => comment.id === commentId
+        ? { ...comment, score: response.comment.score, vote_count: response.comment.vote_count, viewer_vote: value }
+        : comment));
+    } catch (e) {
+      setCommentError(e instanceof Error ? e.message : "Could not vote.");
+    }
+  }
+
+  async function report(targetType: "thread" | "comment", targetId: string) {
+    if (!session) return;
+    try {
+      await apiPost("/reports", { targetType, targetId, reason: "community_review" }, session.access_token);
+      setCommentError("Report sent for moderation review.");
+    } catch (e) {
+      setCommentError(e instanceof Error ? e.message : "Could not report.");
+    }
   }
 
   if (loading) return <main className="container"><div className="card" style={{ textAlign: "center", padding: "3rem", color: "#555" }}>Loading...</div></main>;
@@ -128,6 +177,16 @@ export default function ThreadPage() {
         <div style={{ lineHeight: 1.8, color: "#d1d5db", whiteSpace: "pre-wrap", fontSize: "0.975rem" }}>
           {thread.body}
         </div>
+        <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap", alignItems: "center", marginTop: "1rem", color: "#777", fontSize: "0.78rem" }}>
+          <strong style={{ color: "#d1d5db" }}>{thread.score} votes</strong>
+          {session && (
+            <>
+              <button type="button" onClick={() => voteThread(1)} style={voteButton(thread.viewer_vote === 1)}>Up</button>
+              <button type="button" onClick={() => voteThread(-1)} style={voteButton(thread.viewer_vote === -1)}>Down</button>
+              <button type="button" onClick={() => report("thread", thread.id)} style={utilityButton}>Report</button>
+            </>
+          )}
+        </div>
         {thread.document?.space && (
           <div style={{ marginTop: "1rem" }}>
             <Link
@@ -139,6 +198,22 @@ export default function ThreadPage() {
           </div>
         )}
       </div>
+
+      {moderationActions.length > 0 && (
+        <div className="card" style={{ marginBottom: "1.5rem", borderColor: "#2a2050" }}>
+          <div style={{ fontSize: "0.78rem", color: "#888", marginBottom: "0.75rem", textTransform: "uppercase", letterSpacing: "0.07em" }}>
+            Moderation log
+          </div>
+          <div style={{ display: "grid", gap: "0.45rem" }}>
+            {moderationActions.map((action) => (
+              <div key={action.id} style={{ color: "#999", fontSize: "0.8rem" }}>
+                {action.actionType} - {new Date(action.createdAt).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}
+                {action.reason ? ` - ${action.reason}` : ""}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Comments */}
       <div style={{ marginBottom: "1.5rem" }}>
@@ -168,9 +243,27 @@ export default function ThreadPage() {
                     x
                   </button>
                 )}
+                {session && session.user.id !== c.author_user_id && (
+                  <button
+                    onClick={() => report("comment", c.id)}
+                    style={{ background: "none", border: "none", color: "#555", cursor: "pointer", fontSize: "0.72rem", padding: "0.1rem 0.3rem" }}
+                    title="Report"
+                  >
+                    report
+                  </button>
+                )}
               </div>
               <div style={{ lineHeight: 1.7, color: "#ccc", whiteSpace: "pre-wrap", fontSize: "0.9rem" }}>
                 {c.body}
+              </div>
+              <div style={{ display: "flex", gap: "0.4rem", alignItems: "center", marginTop: "0.65rem", color: "#666", fontSize: "0.75rem" }}>
+                <span>{c.score} votes</span>
+                {session && session.user.id !== c.author_user_id && (
+                  <>
+                    <button type="button" onClick={() => voteComment(c.id, 1)} style={voteButton(c.viewer_vote === 1)}>Up</button>
+                    <button type="button" onClick={() => voteComment(c.id, -1)} style={voteButton(c.viewer_vote === -1)}>Down</button>
+                  </>
+                )}
               </div>
             </div>
           ))}
@@ -225,3 +318,25 @@ export default function ThreadPage() {
     </main>
   );
 }
+
+function voteButton(active: boolean) {
+  return {
+    border: "1px solid #2a2050",
+    borderRadius: 6,
+    background: active ? "#2a2050" : "#101010",
+    color: active ? "#d8d3ff" : "#777",
+    fontSize: "0.72rem",
+    padding: "0.15rem 0.45rem",
+    cursor: "pointer",
+  };
+}
+
+const utilityButton = {
+  border: "1px solid #333",
+  borderRadius: 6,
+  background: "#111",
+  color: "#777",
+  fontSize: "0.72rem",
+  padding: "0.15rem 0.45rem",
+  cursor: "pointer",
+};

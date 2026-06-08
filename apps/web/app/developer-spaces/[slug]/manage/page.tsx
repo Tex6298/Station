@@ -5,7 +5,13 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { apiGet, apiPatch, apiPost, apiUrl } from "@/lib/api-client";
 import { getSession } from "@/lib/auth";
-import { formatDate, humaniseKey } from "@/lib/developer-space-observatory";
+import {
+  formatDate,
+  humaniseKey,
+  moveDeveloperSpaceWidget,
+  normaliseDeveloperSpaceWidgets,
+  updateWidgetVisibility,
+} from "@/lib/developer-space-observatory";
 import {
   defaultDeveloperSpaceVisualConfig,
   normaliseDeveloperSpaceVisualConfig,
@@ -15,6 +21,8 @@ import type {
   DeveloperSpaceDocumentRole,
   DeveloperSpaceLinkedDocument,
   DeveloperSpaceLiveUpdate,
+  DeveloperSpaceWidgetConfig,
+  DeveloperSpaceWidgetType,
   DeveloperSpaceUsage,
   DeveloperSpaceVisualisationType,
 } from "@station/types/developer-space";
@@ -44,6 +52,12 @@ function CodeBlock({ code }: { code: string }) {
 function linkedDocumentRoleLabel(role: DeveloperSpaceLinkedDocument["role"]) {
   if (role === "field_log") return "Field log";
   return role.charAt(0).toUpperCase() + role.slice(1);
+}
+
+function websocketUrl(path: string) {
+  const url = new URL(apiUrl(path));
+  url.protocol = url.protocol === "https:" ? "wss:" : "ws:";
+  return url.toString();
 }
 
 function formatBytes(bytes: number) {
@@ -121,6 +135,25 @@ export default function DeveloperSpaceManagePage() {
 
   useEffect(() => {
     if (!slug || !token) return;
+    let socket: WebSocket | null = null;
+
+    if ("WebSocket" in window) {
+      const socketUrl = new URL(websocketUrl(`/developer-spaces/${slug}/live`));
+      socketUrl.searchParams.set("access_token", token);
+      socket = new WebSocket(socketUrl.toString());
+      socket.onopen = () => setLiveStatus("live");
+      socket.onerror = () => setLiveStatus("reconnecting");
+      socket.onmessage = async (message) => {
+        const payload = JSON.parse(message.data);
+        if (payload.kind !== "developer_space.ingested") return;
+        const data = await apiGet<DeveloperSpaceDetail>(`/developer-spaces/${slug}`, token);
+        setDetail(data);
+        syncVisualState(data);
+        setLastLiveAt(payload.emittedAt);
+        setLiveStatus("live");
+      };
+    }
+
     const streamUrl = new URL(apiUrl(`/developer-spaces/${slug}/stream`));
     streamUrl.searchParams.set("access_token", token);
     const stream = new EventSource(streamUrl.toString());
@@ -134,7 +167,10 @@ export default function DeveloperSpaceManagePage() {
       setLiveStatus("live");
     });
 
-    return () => stream.close();
+    return () => {
+      stream.close();
+      socket?.close();
+    };
   }, [slug, token]);
 
   async function rotateKey() {
@@ -306,9 +342,27 @@ export default function DeveloperSpaceManagePage() {
     }));
   }
 
+  function setWidgets(widgets: DeveloperSpaceWidgetConfig[]) {
+    setVisualisationConfig((current) => ({
+      ...current,
+      widgets,
+    }));
+  }
+
+  function changeWidgetVisibility(type: DeveloperSpaceWidgetType, visible: boolean) {
+    setWidgets(updateWidgetVisibility(widgetLayout, type, visible));
+  }
+
+  function moveWidget(type: DeveloperSpaceWidgetType, direction: -1 | 1) {
+    setWidgets(moveDeveloperSpaceWidget(widgetLayout, type, direction));
+  }
+
   function changeVisualisationType(nextType: DeveloperSpaceVisualisationType) {
     setVisualisationType(nextType);
-    setVisualisationConfig(defaultDeveloperSpaceVisualConfig(nextType));
+    setVisualisationConfig((current) => ({
+      ...defaultDeveloperSpaceVisualConfig(nextType),
+      widgets: normaliseDeveloperSpaceWidgets(current.widgets),
+    }));
   }
 
   async function saveVisualConfig() {
@@ -316,7 +370,10 @@ export default function DeveloperSpaceManagePage() {
     setSavingVisualConfig(true);
     setError(null);
     try {
-      const config = normaliseDeveloperSpaceVisualConfig(visualisationType, visualisationConfig);
+      const config = {
+        ...normaliseDeveloperSpaceVisualConfig(visualisationType, visualisationConfig),
+        widgets: widgetLayout,
+      };
       const data = await apiPatch<{ space: DeveloperSpaceDetail["space"] }>(
         `/developer-spaces/${detail.space.id}`,
         {
@@ -342,6 +399,7 @@ export default function DeveloperSpaceManagePage() {
       : "Reconnecting";
   const ingestionEvents = detail.events.slice(0, 5);
   const boundedVisualConfig = normaliseDeveloperSpaceVisualConfig(visualisationType, visualisationConfig);
+  const widgetLayout = normaliseDeveloperSpaceWidgets(visualisationConfig.widgets);
 
   return (
     <main className="container" style={{ display: "grid", gap: "1.25rem", maxWidth: 1120 }}>
@@ -538,6 +596,37 @@ export default function DeveloperSpaceManagePage() {
             </button>
           </div>
 
+          <div className="card" style={{ display: "grid", gap: "0.9rem" }}>
+            <div>
+              <h2 style={{ margin: "0 0 0.35rem", fontSize: "1.05rem" }}>Observatory widgets</h2>
+              <p style={{ margin: 0, color: "#94a3b8", lineHeight: 1.55 }}>
+                Choose which live panels appear and reorder them inside the main canvas or side rail.
+              </p>
+            </div>
+            <div style={{ display: "grid", gap: "0.55rem" }}>
+              {widgetLayout.map((widget) => (
+                <div key={widget.id} style={widgetRow}>
+                  <label style={{ display: "flex", alignItems: "center", gap: "0.5rem", minWidth: 0 }}>
+                    <input
+                      type="checkbox"
+                      checked={widget.visible}
+                      onChange={(event) => changeWidgetVisibility(widget.type, event.target.checked)}
+                    />
+                    <span style={{ color: "#e5e7eb", fontWeight: 700, fontSize: "0.86rem" }}>{widget.title}</span>
+                    <span className="pill" style={{ fontSize: "0.68rem", textTransform: "capitalize" }}>{widget.zone}</span>
+                  </label>
+                  <div style={{ display: "flex", gap: "0.35rem", marginLeft: "auto" }}>
+                    <button type="button" className="button" onClick={() => moveWidget(widget.type, -1)} style={smallWidgetButton}>Up</button>
+                    <button type="button" className="button" onClick={() => moveWidget(widget.type, 1)} style={smallWidgetButton}>Down</button>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <button className="button primary" onClick={saveVisualConfig} disabled={savingVisualConfig} style={{ width: "fit-content" }}>
+              {savingVisualConfig ? "Saving..." : "Save widgets"}
+            </button>
+          </div>
+
           <div className="card" style={{ display: "grid", gap: "0.8rem" }}>
             <div style={{ display: "flex", justifyContent: "space-between", gap: "0.75rem", alignItems: "flex-start", flexWrap: "wrap" }}>
               <div>
@@ -653,3 +742,20 @@ export default function DeveloperSpaceManagePage() {
     </main>
   );
 }
+
+const widgetRow = {
+  display: "flex",
+  alignItems: "center",
+  gap: "0.75rem",
+  flexWrap: "wrap" as const,
+  border: "1px solid #1e293b",
+  borderRadius: 10,
+  background: "#020617",
+  padding: "0.7rem",
+};
+
+const smallWidgetButton = {
+  minHeight: 30,
+  padding: "0 0.55rem",
+  fontSize: "0.74rem",
+};

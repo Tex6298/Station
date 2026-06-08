@@ -5,6 +5,14 @@ import { requireTier } from "../middleware/require-tier";
 import { getSupabaseAdmin } from "../lib/supabase";
 import { canCreatePersona } from "@station/auth/permissions";
 import type { AuthUser } from "@station/types";
+import {
+  createPersonaHandoff,
+  ensurePersonaLayerProfile,
+  listPersonaHandoffs,
+  listPersonaLifecycleEvents,
+  recordPersonaLifecycleEvent,
+  updatePersonaLayerProfile,
+} from "../services/persona-lifecycle.service";
 
 const createSchema = z.object({
   name: z.string().min(1).max(80),
@@ -19,6 +27,27 @@ const createSchema = z.object({
 const updateSchema = createSchema.extend({
   skipIntegrityPreflight: z.boolean().optional(),
 }).partial();
+
+const jsonObjectSchema = z.record(z.unknown());
+
+const layerPatchSchema = z.object({
+  soul: jsonObjectSchema.optional(),
+  body: jsonObjectSchema.optional(),
+  faculty: jsonObjectSchema.optional(),
+  skill: jsonObjectSchema.optional(),
+  evolution: jsonObjectSchema.optional(),
+}).refine((value) => Object.keys(value).length > 0, {
+  message: "At least one persona layer must be provided.",
+});
+
+const handoffSchema = z.object({
+  fromPersonaId: z.string().uuid().nullable().optional(),
+  conversationId: z.string().uuid().nullable().optional(),
+  summary: z.string().max(4000).optional(),
+  pendingTasks: z.array(z.unknown()).max(20).optional(),
+  emotionalContext: jsonObjectSchema.optional(),
+  continuityRefs: z.array(z.unknown()).max(20).optional(),
+});
 
 export const personasRouter = Router();
 personasRouter.use(requireAuth);
@@ -41,6 +70,50 @@ function serializePersona(row: any, continuity?: any) {
     createdAt: row.created_at,
     updatedAt: row.updated_at,
     continuity,
+  };
+}
+
+function serializeLayerProfile(row: any) {
+  if (!row) return row;
+  return {
+    personaId: row.persona_id,
+    ownerUserId: row.owner_user_id,
+    soul: row.soul ?? {},
+    body: row.body ?? {},
+    faculty: row.faculty ?? {},
+    skill: row.skill ?? {},
+    evolution: row.evolution ?? {},
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+  };
+}
+
+function serializeLifecycleEvent(row: any) {
+  return {
+    id: row.id,
+    personaId: row.persona_id,
+    ownerUserId: row.owner_user_id,
+    eventType: row.event_type,
+    eventLabel: row.event_label,
+    eventData: row.event_data ?? {},
+    createdAt: row.created_at,
+  };
+}
+
+function serializeHandoff(row: any) {
+  return {
+    id: row.id,
+    ownerUserId: row.owner_user_id,
+    fromPersonaId: row.from_persona_id,
+    toPersonaId: row.to_persona_id,
+    conversationId: row.conversation_id,
+    summary: row.summary,
+    pendingTasks: row.pending_tasks ?? [],
+    emotionalContext: row.emotional_context ?? {},
+    continuityRefs: row.continuity_refs ?? [],
+    status: row.status,
+    createdAt: row.created_at,
+    consumedAt: row.consumed_at,
   };
 }
 
@@ -110,6 +183,18 @@ async function loadContinuitySummary(personaId: string, ownerUserId: string) {
   };
 }
 
+async function loadOwnedPersona(personaId: string, ownerUserId: string) {
+  const sb = getSupabaseAdmin();
+  const { data } = await sb
+    .from("personas")
+    .select("*")
+    .eq("id", personaId)
+    .eq("owner_user_id", ownerUserId)
+    .maybeSingle();
+
+  return data;
+}
+
 // -- List user's personas ------------------------------------------------------
 personasRouter.get("/", async (req, res) => {
   const sb = getSupabaseAdmin();
@@ -141,6 +226,75 @@ personasRouter.get("/:id", async (req, res) => {
 
   const continuity = isOwner ? await loadContinuitySummary(data.id, req.user!.id) : null;
   return res.json({ persona: serializePersona(data, continuity) });
+});
+
+// -- Persona layer architecture, lifecycle, and handoffs ----------------------
+personasRouter.get("/:id/architecture", async (req, res) => {
+  const persona = await loadOwnedPersona(req.params.id, req.user!.id);
+  if (!persona) return res.status(404).json({ error: "Persona not found." });
+
+  try {
+    const [profile, lifecycleEvents, handoffs] = await Promise.all([
+      ensurePersonaLayerProfile(persona),
+      listPersonaLifecycleEvents(persona.id, req.user!.id),
+      listPersonaHandoffs(persona.id, req.user!.id),
+    ]);
+
+    return res.json({
+      profile: serializeLayerProfile(profile),
+      lifecycleEvents: lifecycleEvents.map(serializeLifecycleEvent),
+      handoffs: handoffs.map(serializeHandoff),
+    });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Failed to load persona architecture.";
+    return res.status(500).json({ error: message });
+  }
+});
+
+personasRouter.patch("/:id/architecture", async (req, res) => {
+  const parsed = layerPatchSchema.safeParse(req.body);
+  if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
+
+  const persona = await loadOwnedPersona(req.params.id, req.user!.id);
+  if (!persona) return res.status(404).json({ error: "Persona not found." });
+
+  try {
+    const profile = await updatePersonaLayerProfile(persona, parsed.data);
+    return res.json({ profile: serializeLayerProfile(profile) });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Failed to update persona architecture.";
+    return res.status(500).json({ error: message });
+  }
+});
+
+personasRouter.post("/:id/handoffs", async (req, res) => {
+  const parsed = handoffSchema.safeParse(req.body);
+  if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
+
+  const targetPersona = await loadOwnedPersona(req.params.id, req.user!.id);
+  if (!targetPersona) return res.status(404).json({ error: "Persona not found." });
+
+  if (parsed.data.fromPersonaId) {
+    const sourcePersona = await loadOwnedPersona(parsed.data.fromPersonaId, req.user!.id);
+    if (!sourcePersona) return res.status(404).json({ error: "Source persona not found." });
+  }
+
+  try {
+    const handoff = await createPersonaHandoff({
+      ownerUserId: req.user!.id,
+      fromPersonaId: parsed.data.fromPersonaId,
+      toPersonaId: targetPersona.id,
+      conversationId: parsed.data.conversationId,
+      summary: parsed.data.summary,
+      pendingTasks: parsed.data.pendingTasks,
+      emotionalContext: parsed.data.emotionalContext,
+      continuityRefs: parsed.data.continuityRefs,
+    });
+    return res.status(201).json({ handoff: serializeHandoff(handoff) });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Failed to create persona handoff.";
+    return res.status(500).json({ error: message });
+  }
 });
 
 // -- Create a persona (requires private tier minimum) --------------------------
@@ -181,6 +335,13 @@ personasRouter.post("/", requireTier("private"), async (req, res) => {
     .single();
 
   if (error) return res.status(500).json({ error: error.message });
+  await ensurePersonaLayerProfile(data).catch(() => undefined);
+  await recordPersonaLifecycleEvent({
+    personaId: data.id,
+    ownerUserId: userId,
+    eventType: "created",
+    eventLabel: "Persona created",
+  }).catch(() => undefined);
   return res.status(201).json({ persona: serializePersona(data) });
 });
 

@@ -20,6 +20,55 @@ export interface Persona extends PersonaSummary {
   updatedAt?: string;
 }
 
+export type PersonaLayerKey = "soul" | "body" | "faculty" | "skill" | "evolution";
+
+export interface PersonaLayerProfile {
+  personaId: string;
+  ownerUserId: string;
+  soul: Record<string, unknown>;
+  body: Record<string, unknown>;
+  faculty: Record<string, unknown>;
+  skill: Record<string, unknown>;
+  evolution: Record<string, unknown>;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export type PersonaLifecycleEventType =
+  | "created"
+  | "wake"
+  | "handoff_in"
+  | "handoff_out"
+  | "forked"
+  | "integrity_check"
+  | "layer_update"
+  | "memory_graph_update";
+
+export interface PersonaLifecycleEvent {
+  id: string;
+  personaId: string;
+  ownerUserId: string;
+  eventType: PersonaLifecycleEventType;
+  eventLabel?: string | null;
+  eventData: Record<string, unknown>;
+  createdAt: string;
+}
+
+export interface PersonaHandoff {
+  id: string;
+  ownerUserId: string;
+  fromPersonaId?: string | null;
+  toPersonaId: string;
+  conversationId?: string | null;
+  summary: string;
+  pendingTasks: unknown[];
+  emotionalContext: Record<string, unknown>;
+  continuityRefs: unknown[];
+  status: "ready" | "consumed" | "archived";
+  createdAt: string;
+  consumedAt?: string | null;
+}
+
 export interface Conversation {
   id: string;
   personaId: string;
@@ -66,6 +115,104 @@ export interface MemoryItem {
   relevanceWeight?: number;
   createdAt: string;
   updatedAt?: string;
+}
+
+export type MemoryGraphEdgeType =
+  | "related_to"
+  | "supports"
+  | "contradicts"
+  | "supersedes"
+  | "extends"
+  | "references";
+
+export interface MemoryGraphNode {
+  id: string;
+  personaId: string;
+  title?: string | null;
+  summary?: string | null;
+  sourceType: MemoryItem["sourceType"];
+  relevanceWeight?: number;
+  createdAt: string;
+}
+
+export interface MemoryGraphEdge {
+  id: string;
+  personaId: string;
+  fromMemoryItemId: string;
+  toMemoryItemId: string;
+  edgeType: MemoryGraphEdgeType;
+  confidence: number;
+  note?: string | null;
+  createdAt: string;
+}
+
+export interface MemoryGraph {
+  nodes: MemoryGraphNode[];
+  edges: MemoryGraphEdge[];
+}
+
+export type MemoryTrustLevel = "user_stated" | "agreed_upon" | "model_suggested" | "llm_extracted";
+export type MemoryLifecycleStatus = "active" | "superseded" | "rejected" | "expired" | "quarantined";
+export type OwnerMemoryScope = "shared_user_profile" | "working_style" | "preference" | "boundary" | "project_context";
+
+export interface OwnerMemoryBlock {
+  id: string;
+  ownerUserId: string;
+  title: string;
+  content: string;
+  scope: OwnerMemoryScope;
+  trustLevel: MemoryTrustLevel;
+  status: MemoryLifecycleStatus;
+  confidence: number;
+  sourceRefs: unknown[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface MemoryItemLifecycle {
+  memoryItemId: string;
+  ownerUserId: string;
+  personaId: string;
+  trustLevel: MemoryTrustLevel;
+  status: MemoryLifecycleStatus;
+  confidence: number;
+  decayRate: number;
+  reinforcementCount: number;
+  lastReinforcedAt?: string | null;
+  expiresAt?: string | null;
+  supersededByMemoryItemId?: string | null;
+  evidence: unknown[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface PersonaMemoryCycleState {
+  personaId: string;
+  ownerUserId: string;
+  lastConsolidatedAt?: string | null;
+  nextThresholdPct: 50 | 75 | 95;
+  settings: Record<string, unknown>;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface PersonaMemoryBriefing {
+  sharedBlocks: OwnerMemoryBlock[];
+  cycleState: PersonaMemoryCycleState;
+  activeMemories: Array<{
+    id: string;
+    personaId: string;
+    title?: string | null;
+    summary?: string | null;
+    contentPreview: string;
+    sourceType: MemoryItem["sourceType"];
+    relevanceWeight?: number;
+    createdAt: string;
+    lifecycle?: MemoryItemLifecycle | null;
+  }>;
+  lifecycleCounts: Record<string, number>;
+  trustCounts: Record<string, number>;
+  edgeCounts: Record<string, number>;
 }
 
 export interface CanonItem {

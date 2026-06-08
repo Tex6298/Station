@@ -25,6 +25,7 @@ import { storageRouter } from "./routes/storage";
 import { integrityRouter } from "./routes/integrity";
 import { tokenCreditsRouter } from "./routes/token-credits";
 import { continuityRouter } from "./routes/continuity";
+import { observabilityRouter } from "./routes/observability";
 
 export function createApp() {
   const app = express();
@@ -64,6 +65,7 @@ export function createApp() {
   app.use("/integrity", integrityRouter);
   app.use("/token-credits", tokenCreditsRouter);
   app.use("/continuity", continuityRouter);
+  app.use("/observability", observabilityRouter);
 
   app.use(errorHandler);
   return app;

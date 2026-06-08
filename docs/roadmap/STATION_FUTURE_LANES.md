@@ -2,8 +2,9 @@
 
 Date: 2026-06-08
 
-Status: MIMIR planning integration. This is not active implementation scope
-until MIMIR opens a lane with a wakeup commit.
+Status: MIMIR opened Lane 0 with `WAKEUP A2` on 2026-06-08. DAEDALUS has
+prepared the fork/upstream convergence for ARGUS review; later lanes remain
+future scope until MIMIR opens them.
 
 ## Inputs integrated
 
@@ -14,6 +15,7 @@ This note folds the current external/upstream work into future sequencing:
   - `c4a183e feat: add live observatory widgets`
   - `866d13d feat: add persona lifecycle graph`
   - `9bee0b1 feat: add memory continuity controls`
+  - `269ad48 feat: add community trust and voting`
 - `origin/main:docs/ops/open-repo-upgrade-review.md`, which already reviewed
   open memory/persona/observability repos and ported selected concepts into
   Station-native schema/routes/UI.
@@ -43,9 +45,16 @@ This note folds the current external/upstream work into future sequencing:
 Purpose: bring the useful `Discern-AI/Station` memory/observability work into
 the active Railway fork without regressing deployment.
 
+DAEDALUS status, 2026-06-08: ready for ARGUS review. The convergence merge
+brings `origin/main` through `269ad48` into the active `fork/main` line while
+preserving the Railway service-aware deployment files and NVIDIA platform-chat
+aliases. Supabase migrations `020` through `024` remain repo migrations only;
+no staging project migration was applied.
+
 Scope:
 
-- Merge or cherry-pick the four upstream feature commits into `fork/main`.
+- Merge or cherry-pick the upstream feature commits through `269ad48` into
+  `fork/main`.
 - Preserve root `railway.json`, `scripts/railway-build.mjs`,
   `scripts/railway-start.mjs`, `apps/web/next.config.mjs` standalone output,
   and `apps/web/app/health/route.ts`.

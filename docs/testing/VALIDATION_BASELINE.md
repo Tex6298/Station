@@ -1282,6 +1282,53 @@ Targeted commands run with the pinned runner:
 | `npx --yes pnpm@10.32.1 test:integrity` | Pass | 2 tests passed. |
 | `git diff --check` | Pass | CRLF normalization warnings only. |
 
+## Lane 0 fork/upstream convergence DAEDALUS result
+
+Validated on 2026-06-08 after merging `origin/main` through
+`269ad483d508251955b433ba942c944736eb2610` into the active Railway fork line.
+
+Scope verified:
+
+- Upstream AI observability, Developer Space live widgets, persona lifecycle,
+  memory continuity controls, and community trust/voting files are staged in the
+  fork merge.
+- Railway service-aware deployment files stayed unchanged in the staged merge:
+  `railway.json`, `scripts/railway-build.mjs`, `scripts/railway-start.mjs`,
+  `apps/web/next.config.mjs`, and `apps/web/app/health/route.ts`.
+- NVIDIA platform-chat aliases remain present and covered by provider-router
+  tests.
+- Supabase migrations `020` through `024` are repo-side only; they were not
+  applied to a staging project in this pass.
+
+One deterministic test fake was updated after the merge: the continuity route
+test's in-memory Supabase fake now supports `.maybeSingle()` and the memory
+lifecycle/event tables used by the merged memory lifecycle helper. Product
+route behavior was not changed for that repair.
+
+Targeted commands:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npx --yes pnpm@10.32.1 install --frozen-lockfile` | Pass | Lockfile current. Warnings only: ignored `unrs-resolver` build scripts and npm warnings about pnpm-only config keys. |
+| `node --check scripts/railway-build.mjs` | Pass | Railway build script syntax checked. |
+| `node --check scripts/railway-start.mjs` | Pass | Railway start script syntax checked. |
+| `git diff --check` | Pass | CRLF normalization warnings only before the final doc/state commit. |
+| `npx --yes pnpm@10.32.1 typecheck` | Pass | API and web typecheck tasks completed. |
+| `npx --yes pnpm@10.32.1 --dir apps/api build` | Pass | API package and required workspace packages built successfully. |
+| `npx --yes pnpm@10.32.1 --filter @station/web lint` | Pass with warnings | Same known warnings: Developer Space manage hook dependency, Space page raw `<img>`, and Discover avatar raw `<img>`. |
+| `npx --yes pnpm@10.32.1 --filter @station/web build` | Local failure | Next compiled, linted, typechecked, generated static pages, then failed writing standalone traced files because this Windows shell cannot create symlinks under `.next/standalone`: `EPERM: operation not permitted, symlink ... node_modules\\.pnpm\\react@18.3.1\\node_modules\\react -> apps\\web\\.next\\standalone\\apps\\web\\node_modules\\react`. Clearing `apps/web/.next` and rerunning produced the same error. ARGUS should re-run on Railway/Linux or a Windows shell with symlink privilege. |
+| `npx --yes pnpm@10.32.1 test:auth` | Pass | 10 tests passed. |
+| `npx --yes pnpm@10.32.1 test:community` | Pass | 6 tests passed after upstream community trust/voting merge. |
+| `npx --yes pnpm@10.32.1 test:developer-spaces` | Pass | 4 tests passed, including observatory widget helpers. |
+| `npx --yes pnpm@10.32.1 test:continuity` | Pass | 4 tests passed after repairing the continuity test fake for memory lifecycle setup. |
+| `npx --yes pnpm@10.32.1 test:persona-context` | Pass | 1 test passed. |
+| `npx --yes pnpm@10.32.1 test:conversation-archive` | Pass | 2 tests passed. |
+| `npx --yes pnpm@10.32.1 test:reports` | Pass | 1 test passed. |
+| `npx --yes pnpm@10.32.1 test:integrity` | Pass | 2 tests passed. |
+| `npx --yes tsx --test packages/ai/test/provider-router.test.ts` | Pass | 4 tests passed for NVIDIA/OpenAI-compatible aliases and DeepSeek fallback. |
+| `curl.exe -fsS --max-time 20 https://stationapi-production.up.railway.app/health` | Pass | Returned `{"ok":true}` before pushing the convergence merge. |
+| `curl.exe -fsS --max-time 20 https://stationweb-production.up.railway.app/health` | Pass | Returned `{"ok":true}` before pushing the convergence merge. |
+
 ## Railway web staging MIMIR setup result
 
 Validated on 2026-06-08 while opening the Railway-web staging lane:
