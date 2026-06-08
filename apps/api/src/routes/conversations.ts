@@ -16,6 +16,12 @@ import {
   tokenErrorResponse,
 } from "../services/token-credits.service";
 import { enqueueLlmCall } from "../services/llm-queue.service";
+import {
+  completeAiTrace,
+  failAiTrace,
+  recordAiTraceEvent,
+  startAiTrace,
+} from "../services/ai-observability.service";
 
 const chatSchema = z.object({
   content: z.string().min(1).max(8000),
@@ -410,18 +416,68 @@ conversationsRouter.post("/persona/:personaId/chat", async (req, res) => {
     throw error;
   }
 
-  const aiResponse = await enqueueLlmCall(provider, {
-    system: systemPrompt,
-    messages,
-    ...(useStationAnthropic ? { model: stationModel.model } : {}),
+  const traceStartedAt = Date.now();
+  const trace = await startAiTrace({
+    ownerUserId: userId,
+    personaId,
+    conversationId: convId,
+    source: "conversation",
+    metadata: { canonCount, memoryCount, integrityCount, archiveCount },
   });
-  await recordLlmTokenUsage({
-    userId,
-    model: aiResponse.model,
-    chatId: convId,
-    inputTokens: aiResponse.usage?.inputTokens ?? estimateConversationTokens({ systemPrompt, userMessage: content, history: history ?? [] }),
-    outputTokens: aiResponse.usage?.outputTokens ?? estimateTokensFromText(aiResponse.content),
-  });
+
+  let aiResponse;
+  let inputTokens = 0;
+  let outputTokens = 0;
+  try {
+    aiResponse = await enqueueLlmCall(provider, {
+      system: systemPrompt,
+      messages,
+      ...(useStationAnthropic ? { model: stationModel.model } : {}),
+    });
+    inputTokens = aiResponse.usage?.inputTokens ?? estimateConversationTokens({ systemPrompt, userMessage: content, history: history ?? [] });
+    outputTokens = aiResponse.usage?.outputTokens ?? estimateTokensFromText(aiResponse.content);
+    const durationMs = Date.now() - traceStartedAt;
+
+    await recordAiTraceEvent({
+      traceId: trace?.id,
+      ownerUserId: userId,
+      eventType: "llm_call",
+      label: "Persona chat response",
+      status: "completed",
+      provider: useStationAnthropic ? "anthropic" : persona.provider,
+      model: aiResponse.model,
+      inputTokens,
+      outputTokens,
+      durationMs,
+    });
+    await completeAiTrace({
+      traceId: trace?.id,
+      inputTokens,
+      outputTokens,
+      model: aiResponse.model,
+      durationMs,
+    });
+    await recordLlmTokenUsage({
+      userId,
+      model: aiResponse.model,
+      chatId: convId,
+      inputTokens,
+      outputTokens,
+    });
+  } catch (error) {
+    await recordAiTraceEvent({
+      traceId: trace?.id,
+      ownerUserId: userId,
+      eventType: "error",
+      label: "Persona chat response failed",
+      status: "failed",
+      provider: useStationAnthropic ? "anthropic" : persona.provider,
+      durationMs: Date.now() - traceStartedAt,
+      payload: { message: error instanceof Error ? error.message : "Unknown error" },
+    });
+    await failAiTrace(trace?.id, error, Date.now() - traceStartedAt);
+    throw error;
+  }
 
   // Save assistant reply
   const { data: savedReply } = await sb
