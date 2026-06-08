@@ -32,6 +32,7 @@ import {
   getDeveloperSpaceUsage,
   recordDeveloperSpaceUsage,
 } from "../services/developer-space-usage.service";
+import { broadcastDeveloperSpaceIngestion } from "../services/developer-space-live.service";
 
 const visibilitySchema = z.enum(["private", "unlisted", "community", "public"]);
 const visualisationSchema = z.enum(["node_field", "timeline", "world_map", "constellation"]);
@@ -564,6 +565,11 @@ developerSpacesRouter.post("/ingest/nodes/:nodeId/state", async (req, res) => {
     events: 1,
     storageBytes: estimateDeveloperSpaceStorageBytes(req.body),
   });
+  broadcastDeveloperSpaceIngestion({
+    slug: space.slug,
+    source: "node",
+    counts: { nodes: 1, events: 1 },
+  });
 
   return res.status(202).json({ node: serializeDeveloperSpaceNode(node, { includeRawData: true }) });
 });
@@ -609,6 +615,11 @@ developerSpacesRouter.post("/ingest/events", async (req, res) => {
     events: 1,
     storageBytes: estimateDeveloperSpaceStorageBytes(req.body),
   });
+  broadcastDeveloperSpaceIngestion({
+    slug: space.slug,
+    source: "event",
+    counts: { events: 1 },
+  });
 
   return res.status(202).json({ event: serializeDeveloperSpaceEvent(data, { includeRawData: true }) });
 });
@@ -638,6 +649,11 @@ developerSpacesRouter.post("/ingest/snapshots", async (req, res) => {
   await recordUsageSilently(space, {
     snapshots: 1,
     storageBytes: estimateDeveloperSpaceStorageBytes(req.body),
+  });
+  broadcastDeveloperSpaceIngestion({
+    slug: space.slug,
+    source: "snapshot",
+    counts: { snapshots: 1 },
   });
   return res.status(202).json({ snapshot: serializeDeveloperSpaceSnapshot(data, { includeRawData: true }) });
 });
@@ -715,6 +731,15 @@ developerSpacesRouter.post("/ingest/import", async (req, res) => {
     events: eventsPayload.length,
     snapshots: snapshotsPayload.length,
     storageBytes: estimateDeveloperSpaceStorageBytes(req.body),
+  });
+  broadcastDeveloperSpaceIngestion({
+    slug: space.slug,
+    source: "import",
+    counts: {
+      nodes: nodes.length,
+      events: eventsPayload.length,
+      snapshots: snapshotsPayload.length,
+    },
   });
 
   return res.status(202).json({

@@ -2,9 +2,11 @@ import Stripe from "stripe";
 
 export const STRIPE_API_VERSION = "2026-05-27.dahlia";
 
-let _stripe: Stripe | null = null;
+type StripeClient = InstanceType<typeof Stripe>;
 
-export function setStripeForTests(client: Stripe | null) {
+let _stripe: StripeClient | null = null;
+
+export function setStripeForTests(client: StripeClient | null) {
   if (process.env.NODE_ENV !== "test") {
     throw new Error("setStripeForTests can only be used while NODE_ENV is test.");
   }
@@ -15,7 +17,7 @@ export function setStripeForTests(client: Stripe | null) {
  * Returns a singleton Stripe client.
  * Throws if STRIPE_SECRET_KEY is not set.
  */
-export function getStripe(): Stripe {
+export function getStripe(): StripeClient {
   if (_stripe) return _stripe;
   const key = process.env.STRIPE_SECRET_KEY;
   if (!key) throw new Error("STRIPE_SECRET_KEY is not set.");
