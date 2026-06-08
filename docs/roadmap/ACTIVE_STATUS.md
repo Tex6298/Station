@@ -452,6 +452,17 @@ when a PR lands, or when validation truth changes.
   provider/dimension work as configurable rather than a single global embedding
   swap; and let Cloudflare adapter work follow concrete imported repo demands.
   Lane 1 Supabase/auth/storage staging setup closeout is the next default move.
+- Lane 1 Supabase/auth/storage setup closeout is blocked on external
+  credentials/dashboard actions after DAEDALUS inventory, 2026-06-08:
+  `infra/supabase/README.md` now lists migrations `001` through `024`, and
+  `docs/ops/STAGING_SETUP_BLOCKERS.md` records the no-values local/Railway/
+  Supabase inventory. Remote API deployment health proves only boolean presence
+  for Supabase URL/anon/service-role and JWT; it does not prove `DATABASE_URL`,
+  migration state, bucket state, Auth redirects, or Stripe resources. Local
+  `.env` has Supabase keys present but empty and no `SUPABASE_ACCESS_TOKEN`;
+  Railway CLI access with the local token is unauthorized for the project
+  selector. MIMIR/human dashboard input is needed before migrations, bucket
+  creation, or Auth redirect changes can proceed.
 
 ## Current repo truth
 

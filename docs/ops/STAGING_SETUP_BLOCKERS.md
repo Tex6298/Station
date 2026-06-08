@@ -1,7 +1,7 @@
 # Station staging setup blockers
 
-Status: DAEDALUS audit, 2026-06-08. This is a setup boundary document, not a
-claim that full staged replay is ready.
+Status: Lane 1 DAEDALUS inventory, 2026-06-08. This is a setup boundary
+document, not a claim that full staged replay is ready.
 
 ## Current remote shape
 
@@ -9,6 +9,49 @@ claim that full staged replay is ready.
 - Railway API: `https://stationapi-production.up.railway.app`.
 - Railway web: `https://stationweb-production.up.railway.app`.
 - Both public `/health` probes currently return `{ "ok": true }`.
+- Remote API deployment health returns non-secret booleans showing
+  `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, and
+  `JWT_SECRET` are configured on the deployed API.
+- The same deployment-health response still reports default local app/API URLs
+  (`http://localhost:3000` and `http://localhost:4000`) and no Stripe billing or
+  OpenAI embedding provider booleans. It does not prove `DATABASE_URL`,
+  migration state, storage bucket existence, Supabase Auth dashboard settings,
+  or secret values.
+
+## Lane 1 inventory from this shell
+
+Local `.env` presence-only check:
+
+| Key group | Local result |
+| --- | --- |
+| Supabase API/database keys | `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `DATABASE_URL`, `NEXT_PUBLIC_SUPABASE_URL`, and `NEXT_PUBLIC_SUPABASE_ANON_KEY` are present but empty. |
+| Supabase management token | `SUPABASE_ACCESS_TOKEN` is absent. |
+| Railway token | `RAILWAY_TOKEN` is present and non-empty locally, but Railway CLI project access is unauthorized from this shell. |
+| NVIDIA chat aliases | `NVIDIA_AI_API_KEY` and `NVIDIA_MODEL_BASE_URL` are present and non-empty locally; `NVIDIA_MODEL` is absent locally and defaults in code. |
+| Stripe | Stripe secret, webhook, publishable key, and price IDs are present but empty locally. |
+| JWT | `JWT_SECRET` is present and non-empty locally. |
+
+Railway CLI/API access:
+
+- No global Railway CLI is installed.
+- `npx --yes @railway/cli` is available, and its help confirms `variable list
+  --json` includes raw values; do not print that output in shared logs.
+- With the local `RAILWAY_TOKEN` injected into the command environment,
+  `npx --yes @railway/cli service list --project
+  4c716631-6110-4cec-85f1-ab925239b337 --environment production --json`
+  returned `Unauthorized`. Railway service-list, deployment-log, and
+  variable-name inventory still require a Railway-authorized shell/dashboard.
+
+Supabase CLI access:
+
+- `npx --yes supabase --version` works and reports Supabase CLI `2.105.0`.
+- The repo has migration files under `infra/supabase/migrations`, but no local
+  `supabase/config.toml`, `.supabase` link state, project ref, database URL, or
+  access token is available in this shell.
+- `supabase db push` supports either a linked project (`supabase link
+  --project-ref <staging-project-ref>` then `supabase db push --linked`) or an
+  explicit `--db-url <percent-encoded-staging-database-url>`. Neither target is
+  available here, so migrations were not applied or dry-run against remote.
 
 ## Supabase migrations
 
@@ -16,14 +59,16 @@ Repo path:
 
 - Migration SQL lives in `infra/supabase/migrations`.
 - The ordered migration list lives in `infra/supabase/README.md`.
-- `infra/supabase/README.md` names `npx supabase db push` as the CLI path.
+- `infra/supabase/README.md` now lists migrations `001` through `024` and names
+  both linked-project and explicit-`--db-url` CLI paths.
 
 What can be done from code/CLI:
 
 - Review migration ordering.
 - Run syntax/static checks against SQL files if a checker is added later.
-- Run `npx supabase db push` only after the staging project is linked or the
-  required Supabase CLI credentials/project reference are available.
+- Run `npx supabase db push --linked` only after the staging project is linked,
+  or `npx supabase db push --db-url <staging-database-url>` only after the
+  target database URL is confirmed as staging.
 
 Blocked external facts:
 
@@ -31,6 +76,8 @@ Blocked external facts:
 - Project ref or linked Supabase CLI workspace.
 - Database URL or Supabase access token with permission to apply migrations.
 - Confirmation that the target project is staging, not production.
+- Confirmation whether migrations `001` through `024` have already been applied
+  to the staging project.
 
 ## Storage bucket
 
@@ -44,12 +91,16 @@ What can be done from code/CLI:
 
 - Keep app code using the existing `persona-files` bucket name.
 - Add a future idempotent setup script if Supabase credentials are provided.
+- Verify the bucket through Supabase dashboard or a service-role/admin script
+  after the staging `SUPABASE_URL` and service-role key are confirmed.
 
 Blocked external facts:
 
 - Staging Supabase service-role key or dashboard access.
 - Confirmation that `persona-files` exists and is private.
 - Storage policy decision if dashboard defaults are not enough.
+- A no-values confirmation that signed upload/download flows work against the
+  staged bucket.
 
 ## Supabase auth redirects
 
@@ -61,8 +112,9 @@ Current web/API URLs:
 Dashboard settings needed:
 
 - Supabase Auth site URL set to the Railway web URL.
-- Supabase Auth redirect URLs include the Railway web URL and app auth routes
-  used by login/reset flows.
+- Supabase Auth redirect URLs include the Railway web URL and password-reset
+  redirect target currently used by the web app:
+  `https://stationweb-production.up.railway.app/reset-password/update`.
 - Social OAuth apps should use API callback URLs of the form
   `https://stationapi-production.up.railway.app/social/callback/<provider>`.
 
@@ -71,6 +123,10 @@ Blocked external facts:
 - Supabase dashboard access.
 - Social provider app credentials and callback registration.
 - Confirmation of the exact allowed redirect URL list.
+- Product/API decision for the current password reset target:
+  `apps/web/app/reset-password/page.tsx` sends users to `/reset-password/update`,
+  but that web route is not implemented yet. Either add the route in a future
+  auth lane or change the reset flow before relying on staged password reset.
 
 ## NVIDIA platform chat
 

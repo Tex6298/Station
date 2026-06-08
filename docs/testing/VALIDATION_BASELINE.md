@@ -1373,6 +1373,51 @@ Commands re-run by ARGUS:
 | `curl.exe -fsS --max-time 20 https://stationapi-production.up.railway.app/health` | Pass | Returned `{ "ok": true }`. |
 | `curl.exe -fsS --max-time 20 https://stationweb-production.up.railway.app/health` | Pass | Returned `{ "ok": true }`. |
 
+## Lane 1 Supabase/auth/storage inventory DAEDALUS result
+
+Validated on 2026-06-08 while starting Lane 1 setup closeout. No secret values
+were printed, no Railway/Supabase variables were changed, no Supabase migration
+was applied, no storage bucket was created, and no Auth dashboard setting was
+changed.
+
+Repo-side updates:
+
+- `infra/supabase/README.md` now lists migrations `001` through `024` and names
+  both supported remote apply shapes: linked project and explicit `--db-url`.
+- `docs/ops/STAGING_SETUP_BLOCKERS.md` now records the no-values local env,
+  Railway, Supabase CLI, migration, bucket, and Auth redirect inventory.
+- `docs/roadmap/ACTIVE_STATUS.md` records Lane 1 as blocked on external
+  credentials/dashboard actions.
+
+Inventory commands:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| Local `.env` presence-only PowerShell check | Pass | Supabase keys and Stripe keys are present but empty; `SUPABASE_ACCESS_TOKEN` is absent; `JWT_SECRET`, `RAILWAY_TOKEN`, and NVIDIA aliases are non-empty locally. Values were not printed. |
+| `curl.exe -fsS --max-time 20 https://stationapi-production.up.railway.app/health/deployment` | Pass | Returned non-secret booleans: Supabase URL/anon/service-role and JWT are configured on deployed API; Stripe billing and OpenAI embeddings are false; API/app URLs still report local defaults. |
+| `npx --yes @railway/cli --help` | Pass | CLI package is available through `npx`. |
+| `npx --yes @railway/cli variable list --help` | Pass | Help confirms `--json` includes raw values, so variable values were not printed. |
+| `npx --yes @railway/cli service list --project 4c716631-6110-4cec-85f1-ab925239b337 --environment production --json` | Blocked | With local `RAILWAY_TOKEN` injected, CLI returned `Unauthorized`. Railway service-variable name inventory still needs an authorized shell/dashboard. |
+| `npx --yes supabase --version` | Pass | Supabase CLI `2.105.0`. |
+| `npx --yes supabase db push --help` | Pass | Confirmed linked-project and explicit `--db-url` paths. |
+| `npx --yes supabase link --help` | Pass | Confirmed `--project-ref` linking path. |
+| `Get-ChildItem infra/supabase/migrations` | Pass | Migration files exist sequentially from `001_initial_schema.sql` through `024_community_trust_votes_moderation.sql`. |
+| `curl.exe -fsS --max-time 20 https://stationapi-production.up.railway.app/health` | Pass | Returned `{ "ok": true }`. |
+| `curl.exe -fsS --max-time 20 https://stationweb-production.up.railway.app/health` | Pass | Returned `{ "ok": true }`. |
+| `git diff --check` | Pass | CRLF normalization warnings only. |
+
+Blocker summary:
+
+- Need confirmed staging Supabase project ref or explicit database URL before
+  applying migrations `001` through `024`.
+- Need Supabase dashboard/API access to verify or create private
+  `persona-files`.
+- Need Supabase Auth dashboard access and final redirect decision. Current reset
+  flow points at `/reset-password/update`, but that web route is not implemented.
+- Need Railway-authorized service-variable inventory to prove `DATABASE_URL`,
+  Stripe, public web variables, provider keys, and API/app URLs on the actual
+  `@station/api` and `@station/web` services without exposing values.
+
 ## Railway web staging MIMIR setup result
 
 Validated on 2026-06-08 while opening the Railway-web staging lane:

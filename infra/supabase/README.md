@@ -31,10 +31,22 @@ In the Supabase dashboard, go to **SQL Editor** and run the migrations in order:
 17. `migrations/017_continuity_alpha_data_model.sql` - continuity source-version alignment
 18. `migrations/018_developer_space_documents.sql` - Developer Space linked documents
 19. `migrations/019_developer_space_exports_usage.sql` - Developer Space export packages and usage counters
+20. `migrations/020_ai_observability.sql` - AI trace sessions and events
+21. `migrations/021_developer_space_widget_layout.sql` - Developer Space observatory widget layout defaults
+22. `migrations/022_persona_lifecycle_memory_graph.sql` - persona layer profiles, lifecycle events, handoffs, and memory graph edges
+23. `migrations/023_memory_continuity_controls.sql` - owner memory blocks, memory lifecycle metadata, and memory cycle state
+24. `migrations/024_community_trust_votes_moderation.sql` - community trust profiles, voting, moderation actions, and forum scoring fields
 
-Or use the Supabase CLI:
+Or use the Supabase CLI after confirming the staging project target:
 ```bash
-npx supabase db push
+npx supabase link --project-ref <staging-project-ref>
+npx supabase db push --linked
+```
+
+If you do not link the project, provide an explicit database URL instead:
+
+```bash
+npx supabase db push --db-url <percent-encoded-staging-database-url>
 ```
 
 ## 3. Enable pgvector
@@ -98,3 +110,15 @@ In Supabase -> **Authentication -> Settings**:
 | `developer_space_snapshots` | Periodic full-state snapshots for history/playback |
 | `developer_space_documents` | Linked methodology, findings, field logs, and notes |
 | `developer_space_usage` | Developer Space ingestion/storage/public-read/export counters |
+| `ai_trace_sessions` | Owner-scoped AI/LLM operation trace sessions |
+| `ai_trace_events` | Trace events for LLM calls, integrity turns, errors, and output writes |
+| `persona_layer_profiles` | Owner-scoped Soul/Body/Faculty/Skill/Evolution persona architecture state |
+| `persona_lifecycle_events` | Persona lifecycle, handoff, layer, integrity, and memory graph events |
+| `persona_handoffs` | Owner-scoped context handoff records between personas |
+| `memory_item_edges` | Owner-scoped memory graph relationships |
+| `owner_memory_blocks` | Shared owner profile/preferences/boundary memory blocks |
+| `memory_item_lifecycle` | Per-memory trust, status, decay, evidence, and supersession metadata |
+| `persona_memory_cycle_states` | Per-persona memory consolidation/cycle state |
+| `community_user_profiles` | Forum trust/reputation/activity profile rows |
+| `community_votes` | Normalized thread/comment voting rows |
+| `community_moderation_actions` | Public-safe moderation action log rows |
