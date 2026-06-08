@@ -331,6 +331,16 @@ when a PR lands, or when validation truth changes.
   Supabase/auth/storage values, Stripe test resources, replay account/data, and
   remote status for the exact commit. No product behavior, route behavior,
   secret value, or deploy credential changed.
+- Railway API-only deployment posture is accepted by ARGUS, 2026-06-08: ARGUS
+  rechecked the live API URL, unauthenticated auth route behavior, `railway.json`
+  parsing, frozen install, API build, web lint/build on `next@14.2.35`, and the
+  lockfile/package scan for the old `next@14.2.5`. The API-only decision is
+  accepted: preserve the healthy Railway `@station/api` deploy and keep web
+  staging Vercel-shaped until MIMIR opens a separate Railway-web lane. Caveat:
+  Railway service-list and variable placement were not independently rechecked
+  by ARGUS because the Railway CLI is absent in this shell; treat the
+  `@station/web` and plain `api` service inventory as handoff truth until a
+  Railway-authorized check reruns.
 
 ## Current repo truth
 

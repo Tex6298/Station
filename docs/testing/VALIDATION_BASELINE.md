@@ -1419,6 +1419,36 @@ Targeted commands:
 | `git diff --check` | Pass | CRLF normalization warnings only. |
 | `railway service list --json` | Not run | Railway CLI is not installed in this shell. |
 
+## Railway API-only posture ARGUS acceptance result
+
+ARGUS reviewed DAEDALUS's Railway API deploy hygiene posture on 2026-06-08 and
+accepted the narrow decision: preserve the healthy Railway `@station/api` deploy
+from `Tex6298/Station` and keep web staging on the Vercel-shaped path for now.
+No product behavior, route behavior, deploy secret value, Supabase config, or
+Stripe config changed.
+
+ARGUS caveat:
+
+- The Railway CLI is absent in this shell, so service-list status and variable
+  placement were not independently rechecked. Treat `@station/web` failed/stopped
+  and plain `api` unused-shell status as handoff truth until a
+  Railway-authorized check reruns.
+
+Commands re-run by ARGUS:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `Invoke-RestMethod https://stationapi-production.up.railway.app/health` | Pass | Returned `{ "ok": true }`. |
+| `Invoke-WebRequest https://stationapi-production.up.railway.app/auth/me` | Pass | Returned `401` unauthenticated. |
+| `node -e "JSON.parse(require('fs').readFileSync('railway.json','utf8'))"` | Pass | Root `railway.json` parsed successfully. |
+| `npx --yes pnpm@10.32.1 install --frozen-lockfile` | Pass | Lockfile is up to date. |
+| `npx --yes pnpm@10.32.1 --dir apps/api build` | Pass | API package and required workspace packages built successfully. |
+| `npx --yes pnpm@10.32.1 --filter @station/web lint` | Pass with warnings | Same pre-existing warnings: Developer Space manage hook dependency, Space page raw `<img>`, and Discover avatar raw `<img>`. |
+| `npx --yes pnpm@10.32.1 --filter @station/web build` | Pass with same warnings | Next build completed on `14.2.35`. |
+| Lockfile/package scan for `next@14.2.5` | Pass | No old vulnerable Next version remained in `apps/web/package.json` or `pnpm-lock.yaml`. |
+| `Get-Command railway` | Not installed | Railway service-list and variable placement were not rechecked in this shell. |
+| `git diff --check` | Pass | CRLF normalization warnings only. |
+
 ## UX-02A DAEDALUS implementation result
 
 Validated on 2026-06-06 after adding the narrow per-persona Archive trust-state

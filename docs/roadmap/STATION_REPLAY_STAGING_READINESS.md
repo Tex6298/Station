@@ -161,6 +161,14 @@ URL, staging Supabase values and auth redirects, private storage bucket, Stripe
 test prices/webhook, replay account/data policy, and remote status for the exact
 commit.
 
+ARGUS accepted the API-only posture on 2026-06-08 after rechecking the live API
+URL, unauthenticated `/auth/me`, `railway.json` parsing, frozen install, API
+build, web lint/build on `next@14.2.35`, and the lockfile/package scan for the
+old `next@14.2.5`. The acceptance caveat is that Railway service-list and
+variable placement were not independently rechecked because the Railway CLI is
+absent in this shell; keep `@station/web` and plain `api` service status as
+handoff truth until a Railway-authorized check reruns.
+
 ## Acceptance posture
 
 ARGUS should review any staging-readiness patch for:
