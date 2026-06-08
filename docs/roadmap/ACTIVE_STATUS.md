@@ -483,6 +483,24 @@ when a PR lands, or when validation truth changes.
   staging Supabase target and migrations, private `persona-files` bucket,
   Supabase Auth site/redirects plus reset-route decision, Railway-authorized
   variable inventory/configuration, and Stripe/replay/social callback setup.
+- Lane 1 MIMIR setup follow-up, 2026-06-08: Supabase staging project
+  `jdewavktyemnpehdzvgl` is now connected through Supabase MCP, the local
+  Supabase URL typo was corrected, the database password was reset through the
+  Supabase Management API, local `DATABASE_URL` no longer contains the
+  placeholder password, migrations `001` through `024` are present in remote
+  migration history, and the `persona-files` bucket is verified private. Marty
+  copied the refreshed database URL into Railway and redeployed `@station/api`.
+  Public API deployment health now reports the Railway web/API URLs instead of
+  localhost. Remaining staging setup items are Supabase Auth redirect
+  confirmation, reset-password route decision, Stripe test resources, replay
+  account/data, and any Railway variable audit that requires dashboard/API
+  access beyond public booleans.
+- Backend implementation roadmap is opened by MIMIR, 2026-06-08:
+  `docs/roadmap/STATION_BACKEND_IMPLEMENTATION_ROADMAP.md` is the active
+  backend sequencing artifact. BE-00, staging truth and readiness probes, is
+  the immediate DAEDALUS implementation lane before private archive retrieval,
+  memory lifecycle, provider policy, Redis/Valkey, Cloudflare adapter, or
+  background-job work begins.
 
 ## Current repo truth
 
