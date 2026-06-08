@@ -1451,6 +1451,32 @@ Commands/checks re-run by ARGUS:
 | `curl.exe -fsS --max-time 20 https://stationweb-production.up.railway.app/health` | Pass | Returned `{ "ok": true }`. |
 | `git diff --check` | Pass | CRLF normalization warnings only. |
 
+## Redis/provider framing ARGUS acceptance result
+
+ARGUS reviewed MIMIR's Redis/provider correction on 2026-06-08 and accepted the
+updated framing.
+
+Findings:
+
+- Redis is no longer rejected as memory truth. The docs now frame Redis role as
+  an open architecture decision, with cache/queue/working-memory only as the
+  conservative starting recommendation for the current Supabase-led
+  implementation.
+- Provider privacy posture is no longer globally barred from private archive
+  awareness. The docs now require explicit per-Developer-Space provider
+  contract/privacy review and support both public/synthetic-only and private
+  archive-aware modes as future configurable options.
+- Current staging remains blocked on external Supabase/Railway/Stripe/replay
+  facts; this correction changes decision framing only, not product behavior,
+  secrets, migrations, buckets, redirects, or provider configuration.
+
+Commands/checks re-run by ARGUS:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| Static docs review for `not memory truth`, `API-side only`, `blanket`, and `globally` framing | Pass | Remaining wording distinguishes current Supabase-led implementation from future Redis/provider decisions. |
+| `git diff --check` | Pass | CRLF normalization warnings only. |
+
 ## Railway web staging MIMIR setup result
 
 Validated on 2026-06-08 while opening the Railway-web staging lane:
