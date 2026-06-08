@@ -190,13 +190,14 @@ Blocked external facts:
 - Final model choice if `openai/gpt-oss-120b` is not the desired staging model.
 - Provider usage/rate-limit expectations for replay.
 
-## Redis cache evaluation
+## Redis role evaluation
 
-No Redis cache is implemented yet.
+No Redis cache, queue, working-memory layer, or memory-truth store is
+implemented yet.
 
-If opened later, keep Redis API-side only:
+Current conservative starting option, not a final decision:
 
-- Source of truth stays in Supabase and pgvector.
+- API-side Redis/Valkey cache, queue, idempotency, or rate-limit state.
 - Cache keys must include owner and persona scope, for example
   `station:staging:user:<userId>:persona:<personaId>:context:<hash>`.
 - Do not cache auth tokens, service-role keys, or raw provider secrets.
@@ -207,9 +208,23 @@ If opened later, keep Redis API-side only:
 - Invalidate or bypass cache on archive import, canon/memory mutation,
   continuity writes, persona edits, and visibility changes.
 
+Open architecture discussion before accepting Redis as memory truth:
+
+- Which memory tier Redis would own: session scratchpad, working memory,
+  retrieval hot set, long-term persona memory, queue/job state, or all of them.
+- Whether the Redis data is ephemeral, rebuildable, mirrored to Supabase, or
+  canonical.
+- Persistence, backups, eviction, expiry, export, deletion, owner isolation,
+  and audit semantics.
+- Search/index shape if Redis stores memory: Redis vector search, Supabase
+  pgvector, Cloudflare Vectorize, or a hybrid.
+- Runtime/provider fit: Railway Redis/Valkey for API-owned workloads, Upstash
+  for Worker-friendly HTTP access, or another Redis-compatible provider.
+
 Blocked external facts:
 
-- Redis provider decision.
+- Redis role/provider decision.
 - Redis URL/token secret.
 - Cache budget and eviction expectations.
-- Tests for owner/persona key scoping and stale-data invalidation.
+- Tests for owner/persona key scoping, stale-data invalidation, and any
+  canonical-memory semantics if Redis is promoted beyond cache/queue.

@@ -21,8 +21,8 @@ This note folds the current external/upstream work into future sequencing:
   Station-native schema/routes/UI.
 - `docs/roadmap/STATION_RETRIEVAL_PROVIDER_RESEARCH_ARIADNE.md`, which
   recommends NVIDIA chat for dev/staging probes, keeps OpenAI 1536-dimensional
-  embeddings for current retrieval, and treats Cloudflare/Redis as adapter
-  choices rather than memory truth.
+  embeddings for current retrieval, and treats Cloudflare/Redis as open adapter
+  and storage/cache design questions.
 - `docs/ops/STAGING_SETUP_BLOCKERS.md`, which separates repo-side work from
   Supabase dashboard/credential blockers.
 - The active Railway fork constraint: staging work is on `fork/main` and must
@@ -38,7 +38,10 @@ This note folds the current external/upstream work into future sequencing:
   review, but NVIDIA embeddings are not a drop-in swap. Provider/data-policy
   posture may vary by Developer Space requirement; do not assume one global
   production policy before replay evidence exists.
-- Redis/Valkey is cache or queue infrastructure only, not memory truth.
+- Redis/Valkey's role is undecided. The conservative current recommendation is
+  cache, queue, idempotency, rate-limit, and short-lived working-memory support,
+  but Redis as a memory source of truth remains an architecture option for
+  discussion if a Developer Space or imported repo pattern requires it.
 - Cloudflare can be an edge adapter or index mirror, not a replacement for
   Station authorization unless a separate privacy review accepts it. Cloudflare
   work should follow the concrete demands of imported repo ideas rather than
@@ -51,8 +54,9 @@ This note folds the current external/upstream work into future sequencing:
   asking Marty for duplicate links. If specific repo gaps remain after reading
   that file, ask for only those missing links.
 - Provider/data-policy requirements may differ across Developer Spaces. Some
-  spaces may need public/synthetic-only model calls; others may later require
-  private archive-aware calls after an explicit privacy review.
+  spaces may need public/synthetic-only model calls; others may need private
+  archive-aware calls. If we are building configurability for one side of this,
+  we should design the provider/privacy surface broadly enough to support both.
 - Embedding provider and vector dimension should become configurable and
   auditable before any retrieval migration. Do not frame 1024 versus 2048 as a
   one-time global decision if Station needs per-index or per-Space behavior.
@@ -133,7 +137,7 @@ Blocked on:
 ## Lane 2 - Provider policy and NVIDIA chat
 
 Purpose: use the local NVIDIA key safely for dev/staging chat without changing
-memory retrieval.
+memory retrieval by accident.
 
 Scope:
 
@@ -141,10 +145,12 @@ Scope:
 - Default operational prompts to `/no_think` unless a reasoning trace is
   explicitly useful.
 - Keep OpenAI embeddings on the current 1536-dimensional path.
-- Add a per-Developer-Space data-policy decision before sending private archive
-  text to NVIDIA trial endpoints.
-- Allow different Developer Spaces to choose different provider/privacy
-  postures once the provider contract is explicit and ARGUS-reviewed.
+- Design provider/privacy configuration per Developer Space rather than a
+  single global yes/no rule.
+- Support both public/synthetic-only calls and private archive-aware calls as
+  explicit modes once the provider contract is explicit and ARGUS-reviewed.
+- Before production use, document what each mode sends to the provider and how
+  it affects replay, audit, export, and deletion expectations.
 
 ARGUS gates:
 
@@ -182,31 +188,44 @@ Required migration work if switching dimensions:
 - Add mixed-dimension rejection tests.
 - Run owner/visibility hostile review after reindex.
 
-## Lane 4 - Redis cache posture
+## Lane 4 - Redis role decision
 
-Purpose: add cache or queue infrastructure only where it reduces staging pain
-without weakening privacy.
+Purpose: decide what Redis/Valkey should be for Station before implementing it.
+
+MIMIR correction:
+
+- Redis is not rejected as memory truth. MIMIR's conservative recommendation is
+  to start with cache/queue/working-memory roles because the current system's
+  durable memory, visibility, export, and deletion contracts are Supabase-led.
+  That recommendation is not an accepted architecture decision.
+- If a Developer Space or imported repo pattern wants Redis-backed memory truth,
+  discuss it explicitly and define the durability, eviction, backup, ownership,
+  deletion, export, search, and audit contracts before implementing.
 
 Railway-side default:
 
 - Use Railway Redis/Valkey for API-local cache, queue, idempotency, or rate
-  limit state when the API owns the workload.
+- limit state when the API owns the workload, if the cache/queue path is chosen.
 - Use owner/persona-scoped keys and short TTLs.
 
 Cloudflare-side default:
 
 - Use Upstash Redis for Worker-side cache/rate-limit needs because it exposes a
-  Worker-friendly REST/HTTP integration.
+  Worker-friendly REST/HTTP integration, if the Worker adapter path is chosen.
 
-Rules:
+Discussion axes before choosing Redis as memory truth:
 
-- Supabase remains canonical.
-- Do not cache provider secrets, Supabase service-role keys, auth tokens, or raw
-  private archive blobs.
-- Cache keys must include owner and persona scope where private data is
-  involved.
-- Invalidate or bypass cache on archive import, memory/canon edits,
-  continuity writes, persona edits, visibility changes, and deletion.
+- Which memory tier is in scope: session scratchpad, short-term working memory,
+  retrieval hot set, long-term persona memory, or queue/job state?
+- What durability is required: Redis persistence/backups, Supabase mirror,
+  rebuildable cache, or explicit ephemeral behavior?
+- How eviction and expiry interact with continuity, user trust, and export.
+- How owner/persona/Developer Space isolation is represented in keys and tests.
+- How deletion, export, and audit work if Redis holds canonical private data.
+- How semantic search works: Redis vectors, Supabase pgvector, Cloudflare
+  Vectorize, or a hybrid.
+- Whether Railway Redis, Upstash, or another provider matches the chosen runtime
+  and compliance expectations.
 
 ## Lane 5 - Cloudflare retrieval adapter
 

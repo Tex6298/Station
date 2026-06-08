@@ -396,9 +396,9 @@ when a PR lands, or when validation truth changes.
   `text-embedding-3-small` and the existing `vector(1536)` schema. The staging
   setup audit in `docs/ops/STAGING_SETUP_BLOCKERS.md` separates repo/CLI work
   from dashboard/credential blockers for Supabase migrations, the private
-  `persona-files` bucket, auth redirects, NVIDIA service variables, and a future
-  API-side Redis cache. No Supabase migration was applied, no bucket was
-  created, no auth redirect was changed, and no Redis cache was implemented.
+  `persona-files` bucket, auth redirects, NVIDIA service variables, and future
+  Redis role evaluation. No Supabase migration was applied, no bucket was
+  created, no auth redirect was changed, and no Redis implementation was added.
 - Staging setup blockers and NVIDIA chat alias hardening are accepted by ARGUS,
   2026-06-08: the OpenAI-compatible NVIDIA platform-chat lane
   hardens key handling and runtime precedence. Non-empty
@@ -408,7 +408,7 @@ when a PR lands, or when validation truth changes.
   embeddings remain OpenAI `text-embedding-3-small` with the existing
   `vector(1536)` schema. Full setup blockers remain Supabase migrations, the
   private `persona-files` bucket, auth redirects, NVIDIA Railway service
-  variable values, Stripe/replay resources, and future Redis evaluation.
+  variable values, Stripe/replay resources, and future Redis role evaluation.
 - Future-lane integration is documented in
   `docs/roadmap/STATION_FUTURE_LANES.md`, 2026-06-08: MIMIR folded the
   upstream `origin/main` memory/observability feature work, ARIADNE's retrieval
@@ -416,7 +416,8 @@ when a PR lands, or when validation truth changes.
   fork constraints into ordered future lanes. Lane 0 fork/upstream convergence
   is now accepted; the next default move is Supabase/auth/storage staging
   closeout. Redis, Cloudflare, and NVIDIA retrieval remain future
-  adapter/migration lanes, not current source-of-truth replacements.
+  architecture discussions/adapters/migration lanes, not settled replacements
+  or settled exclusions.
 - Lane 0 fork/upstream convergence is ready for ARGUS review, 2026-06-08:
   DAEDALUS merged `origin/main` through `269ad48 feat: add community trust and
   voting` into the active Railway fork line without staged conflicts. The merge
@@ -447,10 +448,12 @@ when a PR lands, or when validation truth changes.
   standalone symlink creation (`EPERM`), matching the known local caveat.
 - MIMIR provider/repo decisions after Lane 0 acceptance, 2026-06-08: use
   current `Discern-AI/Station` review notes as the first source of GitHub repo
-  clues before asking Marty for duplicate links; allow provider/data-policy
-  posture to vary by Developer Space after review; design future retrieval
+  clues before asking Marty for duplicate links; make provider/data-policy
+  posture configurable by Developer Space; design future retrieval
   provider/dimension work as configurable rather than a single global embedding
-  swap; and let Cloudflare adapter work follow concrete imported repo demands.
+  swap; treat Redis memory truth as an open architecture question rather than a
+  rejected option; and let Cloudflare adapter work follow concrete imported repo
+  demands.
   Lane 1 Supabase/auth/storage staging setup closeout is the next default move.
 - Lane 1 Supabase/auth/storage setup closeout is blocked on external
   credentials/dashboard actions after DAEDALUS inventory, 2026-06-08:
