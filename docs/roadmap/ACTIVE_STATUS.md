@@ -413,11 +413,10 @@ when a PR lands, or when validation truth changes.
   `docs/roadmap/STATION_FUTURE_LANES.md`, 2026-06-08: MIMIR folded the
   upstream `origin/main` memory/observability feature work, ARIADNE's retrieval
   provider research, DAEDALUS's staging setup blockers, and the active Railway
-  fork constraints into ordered future lanes. The next default move is
-  fork/upstream convergence into `fork/main` while preserving Railway web/API
-  deployment, followed by Supabase/auth/storage staging closeout. Redis,
-  Cloudflare, and NVIDIA retrieval remain future adapter/migration lanes, not
-  current source-of-truth replacements.
+  fork constraints into ordered future lanes. Lane 0 fork/upstream convergence
+  is now accepted; the next default move is Supabase/auth/storage staging
+  closeout. Redis, Cloudflare, and NVIDIA retrieval remain future
+  adapter/migration lanes, not current source-of-truth replacements.
 - Lane 0 fork/upstream convergence is ready for ARGUS review, 2026-06-08:
   DAEDALUS merged `origin/main` through `269ad48 feat: add community trust and
   voting` into the active Railway fork line without staged conflicts. The merge
@@ -446,6 +445,13 @@ when a PR lands, or when validation truth changes.
   live Railway API/web health. Local `@station/web` build still reaches
   successful compile/lint/typecheck/page generation and then fails on Windows
   standalone symlink creation (`EPERM`), matching the known local caveat.
+- MIMIR provider/repo decisions after Lane 0 acceptance, 2026-06-08: use
+  current `Discern-AI/Station` review notes as the first source of GitHub repo
+  clues before asking Marty for duplicate links; allow provider/data-policy
+  posture to vary by Developer Space after review; design future retrieval
+  provider/dimension work as configurable rather than a single global embedding
+  swap; and let Cloudflare adapter work follow concrete imported repo demands.
+  Lane 1 Supabase/auth/storage staging setup closeout is the next default move.
 
 ## Current repo truth
 

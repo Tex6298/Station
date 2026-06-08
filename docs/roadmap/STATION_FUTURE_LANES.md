@@ -35,10 +35,30 @@ This note folds the current external/upstream work into future sequencing:
 - Current memory embeddings remain OpenAI `text-embedding-3-small` because the
   schema and RPC are fixed at `vector(1536)`.
 - NVIDIA is acceptable for dev/staging chat probes after provider/data-policy
-  review, but NVIDIA embeddings are not a drop-in swap.
+  review, but NVIDIA embeddings are not a drop-in swap. Provider/data-policy
+  posture may vary by Developer Space requirement; do not assume one global
+  production policy before replay evidence exists.
 - Redis/Valkey is cache or queue infrastructure only, not memory truth.
 - Cloudflare can be an edge adapter or index mirror, not a replacement for
-  Station authorization unless a separate privacy review accepts it.
+  Station authorization unless a separate privacy review accepts it. Cloudflare
+  work should follow the concrete demands of imported repo ideas rather than
+  forcing Station into a Cloudflare-first architecture.
+
+## MIMIR decisions after provider/repo questions
+
+- Treat `origin/main:docs/ops/open-repo-upgrade-review.md` and any later
+  `Discern-AI/Station` updates as the first source of GitHub repo clues before
+  asking Marty for duplicate links. If specific repo gaps remain after reading
+  that file, ask for only those missing links.
+- Provider/data-policy requirements may differ across Developer Spaces. Some
+  spaces may need public/synthetic-only model calls; others may later require
+  private archive-aware calls after an explicit privacy review.
+- Embedding provider and vector dimension should become configurable and
+  auditable before any retrieval migration. Do not frame 1024 versus 2048 as a
+  one-time global decision if Station needs per-index or per-Space behavior.
+- Cloudflare adapter work should be driven by the imported repo patterns and
+  their constraints. The default remains adapter/index-mirror posture unless the
+  accepted repo pattern proves a stronger Cloudflare dependency is necessary.
 
 ## Lane 0 - Fork/upstream convergence
 
@@ -121,8 +141,10 @@ Scope:
 - Default operational prompts to `/no_think` unless a reasoning trace is
   explicitly useful.
 - Keep OpenAI embeddings on the current 1536-dimensional path.
-- Add a data-policy decision before sending private archive text to NVIDIA
-  trial endpoints.
+- Add a per-Developer-Space data-policy decision before sending private archive
+  text to NVIDIA trial endpoints.
+- Allow different Developer Spaces to choose different provider/privacy
+  postures once the provider contract is explicit and ARGUS-reviewed.
 
 ARGUS gates:
 
@@ -142,11 +164,14 @@ Scope:
 - Reject vectors whose length does not match the active schema/index.
 - Preserve keyword fallback behavior.
 - Define a backfill/reindex plan before switching stored memory embeddings.
+- Design the provider/dimension contract so retrieval can become configurable by
+  index, environment, or Developer Space where justified.
 
 Decision point:
 
-- Stay on 1536-dimensional OpenAI embeddings for the near term, or open a
-  migration to 1024/2048 dimensions for NVIDIA/Cloudflare candidates.
+- Stay on 1536-dimensional OpenAI embeddings for the near term, then open a
+  configurable retrieval-provider lane when staged replay or imported repo
+  demands justify 1024/2048-dimensional NVIDIA/Cloudflare candidates.
 
 Required migration work if switching dimensions:
 
@@ -194,13 +219,18 @@ Default architecture:
 - If Vectorize is used, store IDs and minimal metadata first.
 - Fetch canonical records through Station/Supabase after owner and visibility
   checks.
+- Read the current `Discern-AI/Station` repo-review notes first, then inspect
+  any named Cloudflare-native repos or copied implementations that remain
+  relevant after convergence.
 
 Open questions:
 
-- Which specific GitHub repos should be inspected next?
-- Should Vectorize contain private snippets, or only IDs and filters?
-- Is the first target public/Discover retrieval, private Studio retrieval, or a
-  prototype-only harness?
+- Which imported repo pattern actually requires Cloudflare runtime semantics,
+  rather than merely being deployable on Cloudflare?
+- Should a first adapter target public/Discover retrieval, private Studio
+  retrieval, or a prototype-only harness?
+- Should Vectorize contain private snippets, or only IDs and filters, after
+  privacy review?
 
 ARGUS gates:
 
@@ -268,10 +298,12 @@ ARGUS gates:
 
 ## Sequencing recommendation
 
-1. Finish/ARGUS-review DAEDALUS's current NVIDIA/setup patch.
-2. Open Lane 0 to merge upstream memory/observability work into the Railway
-   fork while preserving deployment.
-3. Clear Lane 1 external Supabase/auth/storage blockers.
-4. Run staged replay with current OpenAI embeddings and optional NVIDIA chat.
-5. Decide whether retrieval needs Cloudflare/Redis/NVIDIA migration work based
-   on staged replay evidence and the specific GitHub repos Marty supplies.
+1. Lane 0 is accepted: upstream memory/observability/community work has been
+   converged into the Railway fork.
+2. Clear Lane 1 external Supabase/auth/storage blockers.
+3. Run staged replay with current OpenAI embeddings and optional NVIDIA chat.
+4. Decide whether retrieval needs Cloudflare/Redis/NVIDIA migration work based
+   on staged replay evidence and the imported repo demands now visible in
+   `Discern-AI/Station`.
+5. If retrieval migration opens, design it as configurable provider/dimension
+   infrastructure rather than a single hard-coded provider swap.
