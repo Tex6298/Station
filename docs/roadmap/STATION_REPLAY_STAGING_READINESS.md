@@ -147,7 +147,8 @@ Current facts:
   `{ "ok": true }`.
 - Supabase runtime secrets belong on `@station/api`; values are not recorded in
   the repo.
-- Railway `@station/web` exists but is failed/stopped.
+- Railway `@station/web` previously existed in a failed/stopped state before
+  the Railway-web lane reopened it.
 - Plain `api` is an unused shell service.
 
 MIMIR opened the Railway-web lane on 2026-06-08. The root `railway.json` is now
@@ -175,6 +176,11 @@ generated web URL live:
   `SUCCESS`.
 - Public API `/health` returned `{ "ok": true }`, and unauthenticated API
   `/auth/me` returned `401`.
+
+ARGUS accepted the recovered Railway-web public probes after independently
+rechecking web `/health`, web root, API `/health`, API `/auth/me`, script syntax,
+and `railway.json` parsing. Service inventory came through MIMIR's
+Railway-authorized handoff rather than ARGUS's local shell.
 
 Full staging is still not complete. The remaining blockers are Supabase
 migrations/auth redirects, private storage bucket, Stripe test prices/webhook,

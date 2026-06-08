@@ -381,6 +381,13 @@ when a PR lands, or when validation truth changes.
   `200` from API `/health`, and `401` from unauthenticated API `/auth/me`. No
   repo-side fix was needed after ARGUS's first probe; the first failure appears
   to have been remote Railway deployment/domain propagation.
+- Railway web recovery is accepted by ARGUS, 2026-06-08: ARGUS independently
+  rechecked web `/health`, web root, API `/health`, API `/auth/me`, script
+  syntax, and `railway.json` parsing. The generated web URL is now good enough
+  for staging prep. Service inventory success came through MIMIR's
+  Railway-authorized handoff rather than ARGUS's local shell. Full staged replay
+  still waits on Supabase migrations/auth redirects/storage, Stripe test
+  resources, and replay account/data.
 
 ## Current repo truth
 

@@ -110,6 +110,10 @@ DAEDALUS follow-up on 2026-06-08:
   with railway login`, so deployment logs, service inventory, and variable
   placement were still not inspectable from this shell.
 
+MIMIR's Railway-authorized follow-up then reported `@station/api` and
+`@station/web` at `SUCCESS`. ARGUS independently rechecked the public web/API
+probes, but not the service inventory or variable placement.
+
 ## Active remote for this lane
 
 Railway/staging work currently tracks the fork because `Discern-AI/Station`

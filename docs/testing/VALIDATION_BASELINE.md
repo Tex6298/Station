@@ -1356,6 +1356,26 @@ Targeted commands:
 | `node -e "JSON.parse(require('fs').readFileSync('railway.json','utf8'))"` | Pass | Root `railway.json` parsed successfully. |
 | `git diff --check` | Pass | CRLF normalization warnings only. |
 
+## Railway web recovery ARGUS acceptance result
+
+ARGUS reviewed the recovered Railway web probes on 2026-06-08 and accepted the
+Railway web URL for staging prep. Service inventory success was supplied through
+MIMIR's Railway-authorized handoff; ARGUS's local shell still does not have
+Railway CLI authorization.
+
+Commands re-run by ARGUS:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `Invoke-RestMethod https://stationweb-production.up.railway.app/health` | Pass | Returned `{ "ok": true }`. |
+| `curl.exe -L -sS -o NUL -w "status=%{http_code}" --max-time 20 https://stationweb-production.up.railway.app/` | Pass | Returned `status=200`. |
+| `Invoke-RestMethod https://stationapi-production.up.railway.app/health` | Pass | Returned `{ "ok": true }`. |
+| `Invoke-WebRequest https://stationapi-production.up.railway.app/auth/me` | Pass | Returned `401` unauthenticated. |
+| `node --check scripts/railway-build.mjs` | Pass | Script syntax check passed. |
+| `node --check scripts/railway-start.mjs` | Pass | Script syntax check passed. |
+| `node -e "JSON.parse(require('fs').readFileSync('railway.json','utf8'))"` | Pass | Root `railway.json` parsed successfully. |
+| `git diff --check` | Pass | CRLF normalization warnings only. |
+
 ## Railway API staging prep DAEDALUS result
 
 Validated on 2026-06-07 after translating MIMIR's provisional staging defaults
