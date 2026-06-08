@@ -313,6 +313,13 @@ when a PR lands, or when validation truth changes.
   service state but cannot connect the GitHub source through CLI, so source
   connection remains a dashboard/token-permission task. Do not deploy until the
   `api` service has real Supabase/JWT/Stripe runtime values.
+- Railway deployment security gate patched, 2026-06-08: Railway blocked the API
+  deployment before build because the workspace lockfile still contained
+  vulnerable `next@14.2.5`. MIMIR bumped `apps/web` to `next@14.2.35`, aligned
+  `eslint-config-next` and `@typescript-eslint/parser`, and confirmed no
+  `next@14.2.5` security entries remain in `pnpm-lock.yaml`. This is a
+  dependency/security patch only; no app behavior or staging runtime config
+  changed.
 
 ## Current repo truth
 

@@ -9,21 +9,22 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@station/ai":     "workspace:*",
-    "@station/auth":   "workspace:*",
+    "@station/ai": "workspace:*",
+    "@station/auth": "workspace:*",
     "@station/config": "workspace:*",
-    "@station/db":     "workspace:*",
-    "@station/types":  "workspace:*",
+    "@station/db": "workspace:*",
+    "@station/types": "workspace:*",
     "@supabase/supabase-js": "^2.45.0",
-    "next":      "14.2.5",
-    "react":     "18.3.1",
+    "next": "14.2.35",
+    "react": "18.3.1",
     "react-dom": "18.3.1"
   },
   "devDependencies": {
-    "@types/node":      "^20.14.0",
-    "@types/react":     "^18.3.0",
+    "@types/node": "^20.14.0",
+    "@types/react": "^18.3.0",
     "@types/react-dom": "^18.3.0",
-    "eslint":            "^8.57.1",
-    "eslint-config-next": "14.2.5"
+    "@typescript-eslint/parser": "8.60.1",
+    "eslint": "^8.57.1",
+    "eslint-config-next": "14.2.35"
   }
 }

@@ -1367,6 +1367,30 @@ Targeted commands:
 | `railway variable list --service api --json` | Pass | Only Railway system variables were present. Values were not recorded. |
 | `railway service source connect --repo Tex6298/Station --branch main --service api --json` | Blocked | Railway returned `Unauthorized` for the current token. |
 
+## Railway dependency security patch MIMIR result
+
+Validated on 2026-06-08 after Railway blocked API deployment during the
+pre-build security scan because `pnpm-lock.yaml` still contained vulnerable
+`next@14.2.5`:
+
+- Updated `apps/web` from `next@14.2.5` to `next@14.2.35`.
+- Updated `eslint-config-next` to `14.2.35`.
+- Added `@typescript-eslint/parser@8.60.1` so the updated Next ESLint stack has
+  an aligned parser and does not report the prior peer mismatch.
+- No API route, web route, staging runtime variable, Railway config, Supabase
+  config, or Stripe config changed.
+
+Targeted commands:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npx --yes pnpm@10.32.1 install --frozen-lockfile` | Pass | Lockfile is up to date. |
+| `npx --yes pnpm@10.32.1 --dir apps/api build` | Pass | Railway API build command completed. |
+| `npx --yes pnpm@10.32.1 --filter @station/web lint` | Pass with warnings | Same pre-existing warnings: Developer Space manage hook dependency, Space page raw `<img>`, and Discover avatar raw `<img>`. |
+| `npx --yes pnpm@10.32.1 --filter @station/web build` | Pass with same warnings | Next build completed on `14.2.35`. |
+| `rg` lockfile scan for `next@14.2.5` and the Railway-reported CVEs | Pass | No vulnerable `next@14.2.5` entries remained in `apps/web/package.json` or `pnpm-lock.yaml`. |
+| `git diff --check` | Pass | CRLF normalization warnings only. |
+
 ## UX-02A DAEDALUS implementation result
 
 Validated on 2026-06-06 after adding the narrow per-persona Archive trust-state
