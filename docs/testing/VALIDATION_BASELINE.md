@@ -1391,6 +1391,34 @@ Targeted commands:
 | `rg` lockfile scan for `next@14.2.5` and the Railway-reported CVEs | Pass | No vulnerable `next@14.2.5` entries remained in `apps/web/package.json` or `pnpm-lock.yaml`. |
 | `git diff --check` | Pass | CRLF normalization warnings only. |
 
+## Railway API deploy hygiene DAEDALUS result
+
+Validated on 2026-06-08 after the Railway optimisation lane wake:
+
+- Preserved Railway as API-only for this pass.
+- Recorded current external reality: `@station/api` is sourced from
+  `Tex6298/Station` on `main`, uses the root API-shaped `railway.json`, and
+  answers `https://stationapi-production.up.railway.app/health`.
+- Kept web staging on the Vercel-shaped path. Railway `@station/web` is
+  failed/stopped and intentionally ignored unless MIMIR opens a separate
+  Railway-web lane.
+- Recorded that plain `api` is an unused shell service.
+- No route behavior, app code, secret value, Supabase config, Stripe config, or
+  product behavior changed.
+
+Targeted commands:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `Invoke-RestMethod https://stationapi-production.up.railway.app/health` | Pass | Returned `{ "ok": true }`. |
+| `Invoke-WebRequest https://stationapi-production.up.railway.app/auth/me` | Pass | Returned `401` unauthenticated, proving the route is online without a replay token. |
+| `node -e "JSON.parse(require('fs').readFileSync('railway.json','utf8'))"` | Pass | Root `railway.json` parsed successfully. |
+| `npx --yes pnpm@10.32.1 --dir apps/api build` | Pass | API package and required workspace packages built successfully. |
+| `npx --yes pnpm@10.32.1 --filter @station/web lint` | Pass with warnings | Same pre-existing warnings: Developer Space manage hook dependency, Space page raw `<img>`, and Discover avatar raw `<img>`. |
+| `npx --yes pnpm@10.32.1 --filter @station/web build` | Pass with same warnings | Next build completed on `14.2.35`. |
+| `git diff --check` | Pass | CRLF normalization warnings only. |
+| `railway service list --json` | Not run | Railway CLI is not installed in this shell. |
+
 ## UX-02A DAEDALUS implementation result
 
 Validated on 2026-06-06 after adding the narrow per-persona Archive trust-state

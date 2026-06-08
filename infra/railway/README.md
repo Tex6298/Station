@@ -1,7 +1,22 @@
 # Railway API staging prep
 
-Status: preparation only. No Railway project, service, URL, or secret is created
-by this file.
+Status: API deploy hygiene for staging prep. The repo still does not create a
+Railway project, service, URL, or secret, but the external Railway API service
+is now a real current fact.
+
+As of 2026-06-08:
+
+- Source repo for Railway staging work: `Tex6298/Station`, branch `main`.
+- Healthy API service: `@station/api`.
+- API URL: `https://stationapi-production.up.railway.app`.
+- Health check: `https://stationapi-production.up.railway.app/health` returns
+  `200` with `{ "ok": true }`.
+- Railway's environment label may say `production`; Station is treating this as
+  staging-prep infrastructure until the web/Supabase/Stripe/replay pieces are
+  configured together.
+- `@station/web` exists on Railway but is failed/stopped; keep it disconnected
+  or ignored for now.
+- Plain `api` is an unused service shell.
 
 MIMIR's current staging default is:
 
@@ -14,6 +29,13 @@ MIMIR's current staging default is:
 ## Service target
 
 The Railway service should run the Express API, not the Next.js web app.
+
+Current DAEDALUS decision: keep Railway API-only for this lane. The healthy API
+deploy depends on the root `railway.json` being API-shaped. Do not reuse that
+root config for `@station/web`; it will build/start the API, not the web app.
+If Railway web hosting is chosen later, add a separate service configuration or
+service-level build/start settings for `@station/web` and review that as its own
+lane.
 
 The root `railway.json` pins the API service deployment shape for this shared
 pnpm/Turbo monorepo:
@@ -55,7 +77,7 @@ Set these on the Railway API service only:
 ```bash
 # Railway normally injects PORT at runtime; do not hard-code 4000.
 PORT=<railway-provided-port>
-API_URL=https://<station-api-staging>
+API_URL=https://stationapi-production.up.railway.app
 NEXT_PUBLIC_APP_URL=https://<station-web-staging>
 SUPABASE_URL=https://<supabase-staging-project>.supabase.co
 SUPABASE_ANON_KEY=<supabase-anon-key>
@@ -76,7 +98,8 @@ DEVELOPER_SPACE_SSE_POLL_MS=5000
 ```
 
 Do not set `SUPABASE_SERVICE_ROLE_KEY`, `DATABASE_URL`, `JWT_SECRET`,
-`STRIPE_SECRET_KEY`, or `STRIPE_WEBHOOK_SECRET` on the Vercel web project.
+`STRIPE_SECRET_KEY`, or `STRIPE_WEBHOOK_SECRET` on the Vercel web project or any
+Railway web service.
 
 ## Paired web environment
 
@@ -84,7 +107,7 @@ The Vercel web app must point at the Railway API URL:
 
 ```bash
 NEXT_PUBLIC_APP_URL=https://<station-web-staging>
-NEXT_PUBLIC_API_URL=https://<station-api-staging>
+NEXT_PUBLIC_API_URL=https://stationapi-production.up.railway.app
 NEXT_PUBLIC_SUPABASE_URL=https://<supabase-staging-project>.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=<supabase-anon-key>
 NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_...
@@ -99,25 +122,30 @@ NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_...
 - In Stripe test mode, point the webhook endpoint at:
 
 ```text
-https://<station-api-staging>/billing/webhook
+https://stationapi-production.up.railway.app/billing/webhook
 ```
 
 Use the webhook event list in `infra/stripe/webhook.md`.
 
-## Verification once URLs exist
+## Verification
 
-These commands are placeholders until the real URLs exist:
+The API URL is now concrete:
 
 ```bash
-curl -f https://<station-api-staging>/health
+curl -f https://stationapi-production.up.railway.app/health
+curl -i https://stationapi-production.up.railway.app/auth/me
+```
+
+The web URL is still a placeholder until Vercel staging exists:
+
+```bash
 curl -I https://<station-web-staging>
-curl -i https://<station-api-staging>/auth/me
 ```
 
 Expected:
 
 - `/health` returns `200`.
-- the web URL returns a successful app shell response.
+- the web URL returns a successful app shell response once it exists.
 - unauthenticated `/auth/me` returns an auth error, proving the route is online
   without requiring a replay token.
 
@@ -126,17 +154,17 @@ path.
 
 ## Still not implemented
 
-This file does not create:
+This repo file does not create:
 
 - a Railway project
 - a Railway service
-- a deployed API URL
+- a web staging URL
 - secrets
 - a Supabase staging project
 - Stripe test resources
 - replay account data
 
-## Current Railway CLI state
+## Historical Railway CLI state
 
 Checked from the repo on 2026-06-07:
 
@@ -158,7 +186,8 @@ GitHub source or write a local `.railway` link; those commands return
 the Railway dashboard, or provide a Railway token with permission to manage
 service sources.
 
-Do not deploy the API until these runtime values exist on the `api` service:
+For that historical plain `api` shell, do not deploy it unless these runtime
+values exist on the service:
 
 - `API_URL`
 - `NEXT_PUBLIC_APP_URL`
@@ -168,3 +197,20 @@ Do not deploy the API until these runtime values exist on the `api` service:
 - `DATABASE_URL`
 - `JWT_SECRET`
 - Stripe test-mode keys, prices, and webhook secret
+
+## Current Railway service posture
+
+Checked through the 2026-06-08 triad handoff and remote health smoke:
+
+- `@station/api` is sourced from `Tex6298/Station` on `main`.
+- `@station/api` deploys successfully from the root API-shaped `railway.json`.
+- `@station/api` answers
+  `https://stationapi-production.up.railway.app/health` with `{ "ok": true }`.
+- Supabase runtime secrets were moved to `@station/api`; values are not recorded
+  here and must not be duplicated onto web services.
+- `@station/web` is failed/stopped on Railway. Keep it intentionally
+  disconnected or ignored while web staging remains Vercel-shaped.
+- The plain `api` service is an unused shell and should not receive new
+  secrets/config unless MIMIR explicitly retires `@station/api`.
+- The local Railway CLI is not installed in this shell, so service-list checks
+  could not be repeated here.

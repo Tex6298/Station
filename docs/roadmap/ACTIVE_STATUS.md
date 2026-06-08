@@ -320,6 +320,17 @@ when a PR lands, or when validation truth changes.
   `next@14.2.5` security entries remain in `pnpm-lock.yaml`. This is a
   dependency/security patch only; no app behavior or staging runtime config
   changed.
+- Railway optimisation lane is ready for ARGUS review, 2026-06-08: DAEDALUS
+  preserved Railway as API-only for this pass. `@station/api` is sourced from
+  `Tex6298/Station` on `main`, uses the root API-shaped `railway.json`, and
+  `https://stationapi-production.up.railway.app/health` returns `{ "ok": true }`.
+  Web staging remains Vercel-shaped; Railway `@station/web` is failed/stopped
+  and should stay disconnected or ignored unless MIMIR opens a separate
+  Railway-web lane. Plain `api` is an unused shell service. Docs now record this
+  current reality and still block full staging on the concrete web URL, staging
+  Supabase/auth/storage values, Stripe test resources, replay account/data, and
+  remote status for the exact commit. No product behavior, route behavior,
+  secret value, or deploy credential changed.
 
 ## Current repo truth
 

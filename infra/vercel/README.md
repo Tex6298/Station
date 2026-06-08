@@ -8,10 +8,16 @@ Station's root `vercel.json` is prepared for the web app only:
 - output: `apps/web/.next`
 - install currently runs `pnpm install --no-frozen-lockfile`
 
-This does not deploy the Express API. Staging still needs a separate Node host
-for `apps/api` before the web app can replay real authenticated flows online.
-Treat this as documentation of the current web-host prep shape, not a final
-decision that Vercel must remain the staging host.
+This does not deploy the Express API. Railway `@station/api` is the current API
+host, so Vercel web staging must point at that API URL before the web app can
+replay real authenticated flows online. Treat this as documentation of the
+current web-host prep shape.
+
+Current DAEDALUS decision for the Railway optimisation lane: keep this
+Vercel-shaped web path as the staging default while Railway hosts only
+`@station/api`. Railway `@station/web` is failed/stopped and should remain
+disconnected or ignored unless MIMIR opens a separate Railway-web configuration
+lane.
 
 The Vercel install command is looser than the repo validation gate. CI and
 replay acceptance should continue to use `pnpm install --frozen-lockfile` unless
@@ -23,7 +29,7 @@ Set these in the Vercel project once staging URLs exist:
 
 ```bash
 NEXT_PUBLIC_APP_URL=https://<station-web-staging>
-NEXT_PUBLIC_API_URL=https://<station-api-staging>
+NEXT_PUBLIC_API_URL=https://stationapi-production.up.railway.app
 NEXT_PUBLIC_SUPABASE_URL=https://<supabase-project>.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=<supabase-anon-key>
 NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_...
@@ -34,9 +40,7 @@ client reads `NEXT_PUBLIC_API_URL` when running in the browser.
 
 ## Still external
 
-- Confirm Vercel is still the chosen web host or replace this prep with the
-  chosen host's equivalent.
-- Choose and configure the API host.
+- Provide the concrete Vercel web staging URL.
 - Configure Supabase auth site URL and redirect URLs for the staged web URL.
 - Configure Stripe test-mode webhook endpoint against the staged API URL.
 - Confirm the pushed GitHub/Vercel status for the exact commit being replayed.

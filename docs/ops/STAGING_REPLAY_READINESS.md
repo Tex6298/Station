@@ -1,7 +1,7 @@
 # Station staging replay readiness
 
-Status: staging preparation only. No staged environment has been implemented or
-verified by this document.
+Status: staging preparation with a live API host. Full staged replay is still
+not implemented or verified by this document.
 
 This runbook names what must be true before a human replay pass can produce
 useful product evidence from an online/staged Station deployment.
@@ -13,6 +13,9 @@ useful product evidence from an online/staged Station deployment.
 - Root `railway.json` pins the Railway API service to Railpack with
   `pnpm --dir apps/api build`, `pnpm --dir apps/api start`, `/health`, and
   API/shared-package watch patterns.
+- Railway `@station/api` is sourced from `Tex6298/Station` on `main` and
+  answers `https://stationapi-production.up.railway.app/health` with
+  `{ "ok": true }`.
 - Root `vercel.json` targets the web app only. This records the current
   web-host prep shape, not a final decision that Vercel must remain the staging
   host.
@@ -22,8 +25,9 @@ useful product evidence from an online/staged Station deployment.
 - MIMIR's provisional default is now Vercel for web and Railway for the Express
   API. Railway setup notes live in `infra/railway/README.md`.
 - The API has `pnpm --dir apps/api build` and `pnpm --dir apps/api start`
-  equivalents through the package scripts. The repo still does not include a
-  Railway project, service ID, URL, or secrets.
+  equivalents through the package scripts. The external Railway API service now
+  exists, but this repo still does not include secrets and does not make the web
+  app, Supabase project, Stripe test resources, or replay data real.
 - Supabase migrations and setup notes live in `infra/supabase/README.md`.
 - Stripe Billing setup notes live in `infra/stripe/webhook.md`.
 - Local validation and remote deployment truth are separate; a green local gate
@@ -36,10 +40,10 @@ verify staging:
 
 | Need | Required value |
 | --- | --- |
-| Web host/provider | Confirm whether the existing web-only Vercel setup remains the staging target or name the replacement host. |
+| Web host/provider | Current default is the existing Vercel-shaped web setup; still needs concrete project/status truth. |
 | Web staging URL | Public URL for the chosen web host. |
-| API staging URL | Public HTTPS URL for the Express API. |
-| API host/provider | Railway, Render, Fly, Vercel Functions rewrite, or another Node host decision. |
+| API staging URL | Known for the current API host: `https://stationapi-production.up.railway.app`. |
+| API host/provider | Known for the current API host: Railway `@station/api` from `Tex6298/Station` branch `main`. |
 | Supabase project | Project URL, anon key, service-role key, and database URL for staging. |
 | Supabase auth settings | Site URL and redirect URLs for the staged web URL. |
 | Storage bucket | Private `persona-files` bucket created in the staging project. |
@@ -64,21 +68,28 @@ facts until URLs, projects, and credentials exist.
 - Remote truth: verify GitHub CI and web/API deployment status for the exact
   commit under replay.
 
-Remaining human/MIMIR facts: concrete web URL, concrete API URL, staging
-Supabase project values, Supabase auth redirects, Stripe test Price IDs/webhook
-secret, replay account credentials, and remote status for the pushed commit.
+Current DAEDALUS hosting decision: preserve Railway for `@station/api` only.
+Keep web staging on the Vercel-shaped path. Railway `@station/web` is
+failed/stopped and should stay disconnected or ignored unless MIMIR opens a
+separate Railway-web configuration lane.
+
+Remaining human/MIMIR facts: concrete web URL, staging Supabase project values,
+Supabase auth redirects, Stripe test Price IDs/webhook secret, replay account
+credentials, and web plus API remote status for the pushed commit.
 
 ## Current Railway project state
 
-As of 2026-06-07, Railway project `capable-learning` contains an offline `api`
-service shell in the `production` environment. The service has no GitHub source,
-deployment, domain, or non-system runtime variables yet. The local
-`RAILWAY_TOKEN` can read the project/service but cannot connect the GitHub source
-through the CLI.
+As of 2026-06-08, Railway `@station/api` is sourced from `Tex6298/Station` on
+`main`, deploys from the root API-shaped `railway.json`, and returns `200` from:
 
-Next external action: connect `Tex6298/Station` branch `main` to the Railway
-`api` service in the dashboard, or provide a Railway token that can manage
-service sources. Runtime env values still need to be added before deployment.
+```text
+https://stationapi-production.up.railway.app/health
+```
+
+Railway `@station/web` also exists from `Tex6298/Station` but is failed/stopped.
+The plain `api` service is an unused shell. Keep runtime secrets on
+`@station/api`; do not duplicate them onto `@station/web` or the plain `api`
+shell.
 
 ## Environment checklist
 
@@ -86,7 +97,7 @@ Web host:
 
 ```bash
 NEXT_PUBLIC_APP_URL=https://<station-web-staging>
-NEXT_PUBLIC_API_URL=https://<station-api-staging>
+NEXT_PUBLIC_API_URL=https://stationapi-production.up.railway.app
 NEXT_PUBLIC_SUPABASE_URL=https://<supabase-project>.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=<supabase-anon-key>
 NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_...
@@ -97,7 +108,7 @@ API host:
 ```bash
 # Provider should inject PORT for staging; use 4000 only for local runs.
 PORT=<provider-provided-port>
-API_URL=https://<station-api-staging>
+API_URL=https://stationapi-production.up.railway.app
 NEXT_PUBLIC_APP_URL=https://<station-web-staging>
 SUPABASE_URL=https://<supabase-project>.supabase.co
 SUPABASE_ANON_KEY=<supabase-anon-key>
@@ -159,9 +170,9 @@ Remote:
 Once URLs exist, the minimal smoke commands are:
 
 ```bash
-curl -f https://<station-api-staging>/health
+curl -f https://stationapi-production.up.railway.app/health
 curl -I https://<station-web-staging>
-curl -i https://<station-api-staging>/auth/me
+curl -i https://stationapi-production.up.railway.app/auth/me
 ```
 
 ## Replay account and data setup
@@ -217,6 +228,7 @@ script should be a later implementation task if manual setup becomes repetitive.
 
 ## Recommended handoff
 
-This repo is ready for an ARGUS staging-prep review of documentation truth and
-env hygiene. It is not ready to claim staging implementation until the external
-facts above are supplied and the web/API/Supabase/Stripe URLs are configured.
+This repo is ready for an ARGUS review of Railway API deploy hygiene and
+documentation truth. It is not ready to claim full staging implementation until
+the external facts above are supplied and the web/Supabase/Stripe/replay pieces
+are configured around the live API host.

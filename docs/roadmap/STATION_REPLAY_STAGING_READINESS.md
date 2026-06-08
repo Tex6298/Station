@@ -68,13 +68,15 @@ implementation.
 - Added `docs/ops/STAGING_REPLAY_READINESS.md` as the replay runbook and
   external-facts checklist.
 - Updated `infra/vercel/README.md` to state that the current `vercel.json`
-  targets the web app only and that `apps/api` still needs a separate Node host.
+  targets the web app only and that, at that checkpoint, `apps/api` still needed
+  a separate Node host.
 - Updated `.env.example` with staging-critical API runtime placeholders:
   `PORT`, `JWT_SECRET`, and optional `DEVELOPER_SPACE_SSE_POLL_MS`.
 - Did not add hosting provider config, new routes, seed scripts, product
   behavior, or deployed URLs.
 
-Staging implementation remains blocked on human/MIMIR deployment choices:
+At that 2026-06-07 checkpoint, staging implementation remained blocked on
+human/MIMIR deployment choices:
 web host/provider, web URL, API URL/provider, Supabase staging project,
 Supabase auth redirect settings, Stripe test-mode prices/webhook, replay
 account, replay data policy, and remote deployment status for the exact commit.
@@ -108,9 +110,9 @@ DAEDALUS translated those defaults into preparation docs only:
 - Did not add a Railway project config, service ID, deployed URL, secret,
   Supabase project, Stripe resource, seed script, or product behavior.
 
-Implementation remains blocked on the concrete Railway/Vercel URLs, staging
-Supabase values, Supabase auth redirects, Stripe test resources, replay
-account/data, and remote status for the exact commit.
+Implementation remains blocked on the concrete Vercel web URL, staging Supabase
+values, Supabase auth redirects, Stripe test resources, replay account/data, and
+remote status for the exact commit.
 
 ARGUS's Railway-prep follow-up accepted the pass as documentation/readiness only
 after tightening two points:
@@ -131,6 +133,33 @@ ARGUS accepted the config shell after checking it against the API package
 scripts, the Express `/health` route, local JSON parsing, API build, and current
 Railway config/healthcheck docs. ARGUS corrected the staging runbook wording so
 the repo no longer says it lacks Railway config while `railway.json` exists.
+
+## Railway fork deployment reality
+
+As of 2026-06-08, staging deploy work moved onto `Tex6298/Station` because the
+`Discern-AI/Station` repo could not be connected to Railway.
+
+Current facts:
+
+- Railway `@station/api` is sourced from `Tex6298/Station` on `main`.
+- `@station/api` uses the root API-shaped `railway.json`.
+- `https://stationapi-production.up.railway.app/health` returns
+  `{ "ok": true }`.
+- Supabase runtime secrets belong on `@station/api`; values are not recorded in
+  the repo.
+- Railway `@station/web` exists but is failed/stopped.
+- Plain `api` is an unused shell service.
+
+DAEDALUS's 2026-06-08 optimisation decision is to preserve the healthy Railway
+API deploy and keep web staging on the Vercel-shaped path for now. `@station/web`
+should stay disconnected or ignored unless MIMIR opens a separate Railway-web
+lane. Reusing root `railway.json` for web would build/start the API, not the
+Next.js app.
+
+Full staging is still not complete. The remaining blockers are the concrete web
+URL, staging Supabase values and auth redirects, private storage bucket, Stripe
+test prices/webhook, replay account/data policy, and remote status for the exact
+commit.
 
 ## Acceptance posture
 
