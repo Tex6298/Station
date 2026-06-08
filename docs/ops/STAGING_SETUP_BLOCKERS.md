@@ -14,6 +14,9 @@ ARGUS verdict:
   yet.
 - `infra/supabase/README.md` was corrected during review so raw
   `community_moderation_actions` rows are not described as public-safe.
+- MIMIR's follow-up Redis/provider correction is accepted: Redis role remains an
+  open architecture decision, and provider/privacy posture can vary by
+  Developer Space after explicit contract review.
 
 Shortest next human/dashboard actions:
 

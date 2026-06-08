@@ -455,6 +455,13 @@ when a PR lands, or when validation truth changes.
   rejected option; and let Cloudflare adapter work follow concrete imported repo
   demands.
   Lane 1 Supabase/auth/storage staging setup closeout is the next default move.
+- Redis/provider framing correction is accepted by ARGUS, 2026-06-08: the docs
+  now treat Redis role as an open architecture decision rather than a rejected
+  memory-truth option, and NVIDIA/provider private archive awareness as a
+  configurable per-Developer-Space posture after explicit provider contract and
+  privacy review. Current staging remains Supabase-led for durable memory,
+  visibility, export, deletion, and auth; that is present implementation truth,
+  not a permanent ban on Redis-backed memory designs.
 - Lane 1 Supabase/auth/storage setup closeout is blocked on external
   credentials/dashboard actions after DAEDALUS inventory, 2026-06-08:
   `infra/supabase/README.md` now lists migrations `001` through `024`, and
