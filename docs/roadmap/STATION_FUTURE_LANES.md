@@ -2,9 +2,9 @@
 
 Date: 2026-06-08
 
-Status: MIMIR opened Lane 0 with `WAKEUP A2` on 2026-06-08. DAEDALUS has
-prepared the fork/upstream convergence for ARGUS review; later lanes remain
-future scope until MIMIR opens them.
+Status: Lane 0 was accepted by ARGUS on 2026-06-08 after targeted
+moderation/privacy hardening. Later lanes remain future scope until MIMIR opens
+them.
 
 ## Inputs integrated
 
@@ -51,6 +51,13 @@ preserving the Railway service-aware deployment files and NVIDIA platform-chat
 aliases. Supabase migrations `020` through `024` remain repo migrations only;
 no staging project migration was applied.
 
+ARGUS status, 2026-06-08: accepted after hardening the moderation and handoff
+boundaries. Public thread detail payloads expose moderation actions to admins
+only, moderation action direct RLS select is admin-only, direct community trust
+profile writes are admin-only, persona handoffs verify attached conversation
+ownership, and AI trace detail misses return not-found instead of an accidental
+error path.
+
 Scope:
 
 - Merge or cherry-pick the upstream feature commits through `269ad48` into
@@ -60,7 +67,7 @@ Scope:
   and `apps/web/app/health/route.ts`.
 - Preserve the NVIDIA platform-chat aliases if DAEDALUS's setup patch has
   landed before this lane opens.
-- Keep upstream migrations `020` through `023` as repo migrations only until
+- Keep upstream migrations `020` through `024` as repo migrations only until
   Supabase staging credentials and project targeting are confirmed.
 
 ARGUS gates:

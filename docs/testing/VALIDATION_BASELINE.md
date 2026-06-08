@@ -1329,6 +1329,50 @@ Targeted commands:
 | `curl.exe -fsS --max-time 20 https://stationapi-production.up.railway.app/health` | Pass | Returned `{"ok":true}` before pushing the convergence merge. |
 | `curl.exe -fsS --max-time 20 https://stationweb-production.up.railway.app/health` | Pass | Returned `{"ok":true}` before pushing the convergence merge. |
 
+## Lane 0 fork/upstream convergence ARGUS acceptance result
+
+ARGUS reviewed the Lane 0 convergence merge on 2026-06-08 and accepted it after
+targeted moderation, handoff, and observability hardening.
+
+Additional ARGUS hardening:
+
+- Public `GET /threads/:id` responses now expose moderation action history only
+  to admins. Visitors and normal members get an empty `moderationActions` list.
+- `community_moderation_actions` direct RLS select is admin-only; the migration
+  no longer describes the raw table as public.
+- `community_user_profiles` direct insert/update policies are admin-only, so
+  users cannot self-edit trust level, reputation, report count, or mute state
+  through the anon client. API service-role writes remain the owner of those
+  counters.
+- Persona handoff creation verifies any attached `conversationId` belongs to
+  the caller before creating the handoff, even when a manual summary is
+  supplied.
+- AI trace detail lookup uses `maybeSingle()` so missing or other-owner trace
+  IDs return the route's not-found response instead of an accidental error path.
+
+Commands re-run by ARGUS:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `node --check scripts/railway-build.mjs` | Pass | Railway build script syntax checked. |
+| `node --check scripts/railway-start.mjs` | Pass | Railway start script syntax checked. |
+| `git diff --check` | Pass | CRLF normalization warnings only. |
+| `npx --yes pnpm@10.32.1 typecheck` | Pass | API and web typecheck tasks completed. |
+| `npx --yes pnpm@10.32.1 --dir apps/api build` | Pass | API package and required workspace packages built successfully. |
+| `npx --yes pnpm@10.32.1 --filter @station/web lint` | Pass with warnings | Same known warnings: Developer Space manage hook dependency, Space page raw `<img>`, and Discover avatar raw `<img>`. |
+| `npx --yes pnpm@10.32.1 --filter @station/web build` | Local failure after successful compile/type/page generation | Next compiled, linted, typechecked, and generated pages, then failed writing standalone traced-file symlinks on this Windows shell: `EPERM: operation not permitted, symlink ... .next\\standalone ...`. Treat Railway/Linux or a Windows shell with symlink privilege as the decisive web standalone build environment. |
+| `npx --yes pnpm@10.32.1 test:auth` | Pass | 10 tests passed. |
+| `npx --yes pnpm@10.32.1 test:community` | Pass | 7 tests passed, including admin-only moderation action visibility. |
+| `npx --yes pnpm@10.32.1 test:developer-spaces` | Pass | 4 tests passed, including observatory widget helpers. |
+| `npx --yes pnpm@10.32.1 test:continuity` | Pass | 4 tests passed. |
+| `npx --yes pnpm@10.32.1 test:persona-context` | Pass | 1 test passed. |
+| `npx --yes pnpm@10.32.1 test:conversation-archive` | Pass | 2 tests passed. |
+| `npx --yes pnpm@10.32.1 test:reports` | Pass | 1 test passed. |
+| `npx --yes pnpm@10.32.1 test:integrity` | Pass | 2 tests passed. |
+| `npx --yes tsx --test packages/ai/test/provider-router.test.ts` | Pass | 4 tests passed for NVIDIA/OpenAI-compatible aliases and DeepSeek fallback. |
+| `curl.exe -fsS --max-time 20 https://stationapi-production.up.railway.app/health` | Pass | Returned `{ "ok": true }`. |
+| `curl.exe -fsS --max-time 20 https://stationweb-production.up.railway.app/health` | Pass | Returned `{ "ok": true }`. |
+
 ## Railway web staging MIMIR setup result
 
 Validated on 2026-06-08 while opening the Railway-web staging lane:

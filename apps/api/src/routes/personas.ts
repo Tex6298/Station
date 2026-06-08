@@ -279,6 +279,18 @@ personasRouter.post("/:id/handoffs", async (req, res) => {
     if (!sourcePersona) return res.status(404).json({ error: "Source persona not found." });
   }
 
+  if (parsed.data.conversationId) {
+    const sb = getSupabaseAdmin();
+    const { data: conversation } = await sb
+      .from("conversations")
+      .select("id")
+      .eq("id", parsed.data.conversationId)
+      .eq("owner_user_id", req.user!.id)
+      .maybeSingle();
+
+    if (!conversation) return res.status(404).json({ error: "Conversation not found." });
+  }
+
   try {
     const handoff = await createPersonaHandoff({
       ownerUserId: req.user!.id,

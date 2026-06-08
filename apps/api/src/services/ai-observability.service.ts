@@ -186,7 +186,7 @@ export async function getAiTraceDetail(ownerUserId: string, traceId: string) {
     .select("*")
     .eq("id", traceId)
     .eq("owner_user_id", ownerUserId)
-    .single();
+    .maybeSingle();
 
   if (error) throw new Error(error.message);
   if (!trace) return null;

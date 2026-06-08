@@ -82,17 +82,34 @@ create policy "community_profiles_select_authenticated"
   using (auth.uid() is not null);
 
 drop policy if exists "community_profiles_self_insert" on public.community_user_profiles;
-create policy "community_profiles_self_insert"
+drop policy if exists "community_profiles_admin_insert" on public.community_user_profiles;
+create policy "community_profiles_admin_insert"
   on public.community_user_profiles
   for insert
-  with check (auth.uid() = user_id);
+  with check (
+    exists (
+      select 1 from public.profiles p
+      where p.id = auth.uid() and p.is_admin = true
+    )
+  );
 
 drop policy if exists "community_profiles_self_update" on public.community_user_profiles;
-create policy "community_profiles_self_update"
+drop policy if exists "community_profiles_admin_update" on public.community_user_profiles;
+create policy "community_profiles_admin_update"
   on public.community_user_profiles
   for update
-  using (auth.uid() = user_id)
-  with check (auth.uid() = user_id);
+  using (
+    exists (
+      select 1 from public.profiles p
+      where p.id = auth.uid() and p.is_admin = true
+    )
+  )
+  with check (
+    exists (
+      select 1 from public.profiles p
+      where p.id = auth.uid() and p.is_admin = true
+    )
+  );
 
 drop policy if exists "community_votes_select_authenticated" on public.community_votes;
 create policy "community_votes_select_authenticated"
@@ -108,10 +125,16 @@ create policy "community_votes_all_voter"
   with check (auth.uid() = voter_user_id);
 
 drop policy if exists "community_moderation_actions_select_authenticated" on public.community_moderation_actions;
-create policy "community_moderation_actions_select_authenticated"
+drop policy if exists "community_moderation_actions_select_admin" on public.community_moderation_actions;
+create policy "community_moderation_actions_select_admin"
   on public.community_moderation_actions
   for select
-  using (auth.uid() is not null);
+  using (
+    exists (
+      select 1 from public.profiles p
+      where p.id = auth.uid() and p.is_admin = true
+    )
+  );
 
 drop policy if exists "community_moderation_actions_admin_insert" on public.community_moderation_actions;
 create policy "community_moderation_actions_admin_insert"
@@ -205,4 +228,4 @@ comment on table public.community_votes is
   'Lemmy/Flarum-inspired normalized voting table for threads and comments.';
 
 comment on table public.community_moderation_actions is
-  'Discourse/Lemmy-inspired public moderation action log for lock/pin/hide/remove/restore actions.';
+  'Discourse/Lemmy-inspired moderation action log for lock/pin/hide/remove/restore actions; expose through sanitized API views before making public.';

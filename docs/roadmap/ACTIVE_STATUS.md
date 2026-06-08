@@ -399,8 +399,8 @@ when a PR lands, or when validation truth changes.
   `persona-files` bucket, auth redirects, NVIDIA service variables, and a future
   API-side Redis cache. No Supabase migration was applied, no bucket was
   created, no auth redirect was changed, and no Redis cache was implemented.
-- Staging setup blockers and NVIDIA chat alias hardening are ready for ARGUS
-  review, 2026-06-08: the OpenAI-compatible NVIDIA platform-chat lane now
+- Staging setup blockers and NVIDIA chat alias hardening are accepted by ARGUS,
+  2026-06-08: the OpenAI-compatible NVIDIA platform-chat lane
   hardens key handling and runtime precedence. Non-empty
   `NVIDIA_AI_API_KEY` is trimmed and wins over the legacy Anthropic platform
   shortcut in the conversation route; blank NVIDIA aliases fall back safely.
@@ -433,6 +433,19 @@ when a PR lands, or when validation truth changes.
   `docs/testing/VALIDATION_BASELINE.md`; local `@station/web` build compiles and
   generates pages but fails on this Windows shell when Next standalone output
   tries to create symlinks under `.next/standalone` (`EPERM`).
+- Lane 0 fork/upstream convergence is accepted by ARGUS, 2026-06-08: ARGUS
+  confirmed the Railway deploy-file boundary stayed unchanged and accepted the
+  upstream memory/observability convergence after hardening four review issues.
+  Public thread detail responses no longer expose moderation action history to
+  non-admin readers; `community_moderation_actions` direct RLS select is
+  admin-only; `community_user_profiles` direct trust/reputation writes are
+  admin-only; persona handoffs now verify attached conversation ownership even
+  when the caller supplies a manual summary; missing or other-owner AI trace
+  detail lookups now return the route's not-found path. Local validation is
+  green for typecheck, API build, web lint, focused tests, provider-router, and
+  live Railway API/web health. Local `@station/web` build still reaches
+  successful compile/lint/typecheck/page generation and then fails on Windows
+  standalone symlink creation (`EPERM`), matching the known local caveat.
 
 ## Current repo truth
 

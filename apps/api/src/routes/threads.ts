@@ -78,7 +78,9 @@ threadsRouter.get("/:id", optionalAuth, async (req: Request, res: Response) => {
       targetType: "comment",
       targetIds: (comments ?? []).map((comment) => comment.id),
     }).catch(() => ({})),
-    listModerationActions("thread", thread.id).catch(() => []),
+    req.user?.isAdmin
+      ? listModerationActions("thread", thread.id).catch(() => [])
+      : Promise.resolve([]),
   ]);
 
   res.json({

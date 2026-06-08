@@ -20,6 +20,7 @@ type Row = Record<string, any>;
 const OWNER_ID = "11111111-1111-4111-8111-111111111111";
 const MEMBER_ID = "22222222-2222-4222-8222-222222222222";
 const OTHER_ID = "33333333-3333-4333-8333-333333333333";
+const ADMIN_ID = "aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee";
 const CATEGORY_ID = "44444444-4444-4444-8444-444444444444";
 const PUBLIC_SPACE_ID = "55555555-5555-4555-8555-555555555551";
 const PRIVATE_SPACE_ID = "55555555-5555-4555-8555-555555555552";
@@ -48,6 +49,7 @@ class CommunitySupabase {
       profile(OWNER_ID, "owner", "creator"),
       profile(MEMBER_ID, "member", "private"),
       profile(OTHER_ID, "other", "creator"),
+      profile(ADMIN_ID, "admin", "canon", true),
     ],
     spaces: [
       space(PUBLIC_SPACE_ID, "public-space", true),
@@ -164,6 +166,18 @@ class CommunitySupabase {
       thread(HIDDEN_THREAD_ID, "Hidden Thread", "public", { is_hidden: true }),
     ],
     comments: [],
+    community_moderation_actions: [
+      {
+        id: "moderation-action-public-thread",
+        moderator_user_id: ADMIN_ID,
+        target_type: "thread",
+        target_id: PUBLIC_THREAD_ID,
+        action_type: "hide",
+        reason: "Seeded moderation note.",
+        metadata: { internalNote: "visitor-should-not-see-this" },
+        created_at: "2026-05-25T09:21:00.000Z",
+      },
+    ],
     discover_feed: [
       feed("feed-public-doc", "document", PUBLIC_DOC_ID, "Public Document"),
       feed("feed-community-doc", "document", COMMUNITY_DOC_ID, "Community Document"),
@@ -216,6 +230,7 @@ class CommunitySupabase {
     ["owner-token", { id: OWNER_ID, email: "owner@example.test" }],
     ["member-token", { id: MEMBER_ID, email: "member@example.test" }],
     ["other-token", { id: OTHER_ID, email: "other@example.test" }],
+    ["admin-token", { id: ADMIN_ID, email: "admin@example.test" }],
   ]);
 
   client = {
@@ -488,7 +503,7 @@ class QueryBuilder {
   }
 }
 
-function profile(id: string, username: string, tier: string): Row {
+function profile(id: string, username: string, tier: string, isAdmin = false): Row {
   return {
     id,
     email: `${username}@example.test`,
@@ -497,7 +512,7 @@ function profile(id: string, username: string, tier: string): Row {
     avatar_url: null,
     bio: null,
     tier,
-    is_admin: false,
+    is_admin: isAdmin,
   };
 }
 
@@ -805,6 +820,35 @@ test("forum thread creation validates linked entities and preserves visibility",
       },
     });
     assert.equal(privatePersonaLink.status, 400);
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
+
+test("thread detail keeps moderation actions admin-only", async () => {
+  const db = new CommunitySupabase();
+  setSupabaseAdminForTests(db.client as any);
+  const app = createCommunityApp();
+
+  try {
+    const visitor = await requestJson(app, "GET", `/threads/${PUBLIC_THREAD_ID}`);
+    assert.equal(visitor.status, 200);
+    assert.deepEqual(visitor.body.moderationActions, []);
+    assert.equal(JSON.stringify(visitor.body).includes("visitor-should-not-see-this"), false);
+    assert.equal(JSON.stringify(visitor.body).includes("Seeded moderation note."), false);
+
+    const member = await requestJson(app, "GET", `/threads/${PUBLIC_THREAD_ID}`, {
+      token: "member-token",
+    });
+    assert.equal(member.status, 200);
+    assert.deepEqual(member.body.moderationActions, []);
+
+    const admin = await requestJson(app, "GET", `/threads/${PUBLIC_THREAD_ID}`, {
+      token: "admin-token",
+    });
+    assert.equal(admin.status, 200);
+    assert.equal(admin.body.moderationActions.length, 1);
+    assert.equal(admin.body.moderationActions[0].reason, "Seeded moderation note.");
   } finally {
     setSupabaseAdminForTests(null);
   }
