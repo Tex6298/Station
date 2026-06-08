@@ -20,6 +20,55 @@ export interface Persona extends PersonaSummary {
   updatedAt?: string;
 }
 
+export type PersonaLayerKey = "soul" | "body" | "faculty" | "skill" | "evolution";
+
+export interface PersonaLayerProfile {
+  personaId: string;
+  ownerUserId: string;
+  soul: Record<string, unknown>;
+  body: Record<string, unknown>;
+  faculty: Record<string, unknown>;
+  skill: Record<string, unknown>;
+  evolution: Record<string, unknown>;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export type PersonaLifecycleEventType =
+  | "created"
+  | "wake"
+  | "handoff_in"
+  | "handoff_out"
+  | "forked"
+  | "integrity_check"
+  | "layer_update"
+  | "memory_graph_update";
+
+export interface PersonaLifecycleEvent {
+  id: string;
+  personaId: string;
+  ownerUserId: string;
+  eventType: PersonaLifecycleEventType;
+  eventLabel?: string | null;
+  eventData: Record<string, unknown>;
+  createdAt: string;
+}
+
+export interface PersonaHandoff {
+  id: string;
+  ownerUserId: string;
+  fromPersonaId?: string | null;
+  toPersonaId: string;
+  conversationId?: string | null;
+  summary: string;
+  pendingTasks: unknown[];
+  emotionalContext: Record<string, unknown>;
+  continuityRefs: unknown[];
+  status: "ready" | "consumed" | "archived";
+  createdAt: string;
+  consumedAt?: string | null;
+}
+
 export interface Conversation {
   id: string;
   personaId: string;
@@ -66,6 +115,40 @@ export interface MemoryItem {
   relevanceWeight?: number;
   createdAt: string;
   updatedAt?: string;
+}
+
+export type MemoryGraphEdgeType =
+  | "related_to"
+  | "supports"
+  | "contradicts"
+  | "supersedes"
+  | "extends"
+  | "references";
+
+export interface MemoryGraphNode {
+  id: string;
+  personaId: string;
+  title?: string | null;
+  summary?: string | null;
+  sourceType: MemoryItem["sourceType"];
+  relevanceWeight?: number;
+  createdAt: string;
+}
+
+export interface MemoryGraphEdge {
+  id: string;
+  personaId: string;
+  fromMemoryItemId: string;
+  toMemoryItemId: string;
+  edgeType: MemoryGraphEdgeType;
+  confidence: number;
+  note?: string | null;
+  createdAt: string;
+}
+
+export interface MemoryGraph {
+  nodes: MemoryGraphNode[];
+  edges: MemoryGraphEdge[];
 }
 
 export interface CanonItem {
