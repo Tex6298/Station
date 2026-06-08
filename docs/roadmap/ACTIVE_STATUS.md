@@ -399,6 +399,15 @@ when a PR lands, or when validation truth changes.
   `persona-files` bucket, auth redirects, NVIDIA service variables, and a future
   API-side Redis cache. No Supabase migration was applied, no bucket was
   created, no auth redirect was changed, and no Redis cache was implemented.
+- Future-lane integration is documented in
+  `docs/roadmap/STATION_FUTURE_LANES.md`, 2026-06-08: MIMIR folded the
+  upstream `origin/main` memory/observability feature work, ARIADNE's retrieval
+  provider research, DAEDALUS's staging setup blockers, and the active Railway
+  fork constraints into ordered future lanes. The next default move is
+  fork/upstream convergence into `fork/main` while preserving Railway web/API
+  deployment, followed by Supabase/auth/storage staging closeout. Redis,
+  Cloudflare, and NVIDIA retrieval remain future adapter/migration lanes, not
+  current source-of-truth replacements.
 
 ## Current repo truth
 

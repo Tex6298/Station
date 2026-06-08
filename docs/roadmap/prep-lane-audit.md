@@ -43,6 +43,21 @@ The current repo should not be described as any of the following without qualifi
 | Project/institutional ownership | Future / open | Developer Spaces and Spaces are still user-owned. | Projects, collaborators, roles, institutional Spaces, and project-level usage/quotas. |
 | Station Press | Future / open | No print/PDF/physical archive workflow is proven. | PDF assembly, print preview, print-on-demand integration, order handling, physical archive workflow. |
 
+## Future lane integration
+
+`docs/roadmap/STATION_FUTURE_LANES.md` is the planning bridge for the next
+sequence after staging setup:
+
+- Merge the upstream memory/observability work into the active Railway fork
+  without regressing deployment.
+- Clear Supabase migrations, the private `persona-files` bucket, and Supabase
+  Auth redirects before claiming staged replay readiness.
+- Keep OpenAI 1536-dimensional embeddings as the current retrieval path.
+- Treat NVIDIA chat as dev/staging provider work first.
+- Treat Redis as cache/queue infrastructure only.
+- Treat Cloudflare as an adapter or index mirror unless a separate privacy
+  review accepts a deeper role.
+
 ## Corrected summary
 
 Closed/protected alpha loops:
