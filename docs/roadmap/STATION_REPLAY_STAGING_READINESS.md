@@ -150,16 +150,17 @@ Current facts:
 - Railway `@station/web` exists but is failed/stopped.
 - Plain `api` is an unused shell service.
 
-DAEDALUS's 2026-06-08 optimisation decision is to preserve the healthy Railway
-API deploy and keep web staging on the Vercel-shaped path for now. `@station/web`
-should stay disconnected or ignored unless MIMIR opens a separate Railway-web
-lane. Reusing root `railway.json` for web would build/start the API, not the
-Next.js app.
+MIMIR opened the Railway-web lane on 2026-06-08. The root `railway.json` is now
+service-aware: `@station/api` builds/starts the Express API, while
+`@station/web` builds the Next.js app in standalone mode and starts the
+standalone server. Railway generated the web URL
+`https://stationweb-production.up.railway.app`, and `@station/web` has public
+web env keys for app URL, API URL, Supabase URL, and Supabase anon key. Server
+secrets remain off web services.
 
-Full staging is still not complete. The remaining blockers are the concrete web
-URL, staging Supabase values and auth redirects, private storage bucket, Stripe
-test prices/webhook, replay account/data policy, and remote status for the exact
-commit.
+Full staging is still not complete. The remaining blockers are Supabase
+migrations/auth redirects, private storage bucket, Stripe test prices/webhook,
+replay account/data policy, and remote status for the exact commit.
 
 ARGUS accepted the API-only posture on 2026-06-08 after rechecking the live API
 URL, unauthenticated `/auth/me`, `railway.json` parsing, frozen install, API

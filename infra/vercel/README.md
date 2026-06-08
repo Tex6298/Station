@@ -1,4 +1,4 @@
-# Vercel web staging prep
+# Vercel web fallback prep
 
 Station's root `vercel.json` is prepared for the web app only:
 
@@ -9,15 +9,12 @@ Station's root `vercel.json` is prepared for the web app only:
 - install currently runs `pnpm install --no-frozen-lockfile`
 
 This does not deploy the Express API. Railway `@station/api` is the current API
-host, so Vercel web staging must point at that API URL before the web app can
-replay real authenticated flows online. Treat this as documentation of the
-current web-host prep shape.
+host. As of the 2026-06-08 Railway-web lane, Railway `@station/web` is the
+current staging default, so this document is fallback/historical prep rather
+than the active staging path.
 
-Current DAEDALUS decision for the Railway optimisation lane: keep this
-Vercel-shaped web path as the staging default while Railway hosts only
-`@station/api`. Railway `@station/web` is failed/stopped and should remain
-disconnected or ignored unless MIMIR opens a separate Railway-web configuration
-lane.
+If MIMIR or the human reopens Vercel web staging, the web app must point at the
+Railway API URL before replaying real authenticated flows online.
 
 The Vercel install command is looser than the repo validation gate. CI and
 replay acceptance should continue to use `pnpm install --frozen-lockfile` unless
@@ -25,7 +22,7 @@ MIMIR explicitly waives that check.
 
 ## Required web environment
 
-Set these in the Vercel project once staging URLs exist:
+Set these in the Vercel project only if Vercel becomes the chosen web host:
 
 ```bash
 NEXT_PUBLIC_APP_URL=https://<station-web-staging>
@@ -40,7 +37,7 @@ client reads `NEXT_PUBLIC_API_URL` when running in the browser.
 
 ## Still external
 
-- Provide the concrete Vercel web staging URL.
+- Provide the concrete Vercel web staging URL if this fallback is reopened.
 - Configure Supabase auth site URL and redirect URLs for the staged web URL.
 - Configure Stripe test-mode webhook endpoint against the staged API URL.
 - Confirm the pushed GitHub/Vercel status for the exact commit being replayed.

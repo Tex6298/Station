@@ -357,6 +357,15 @@ when a PR lands, or when validation truth changes.
   web URL, staging Supabase/auth/storage values, Stripe test resources, replay
   account/data, exact-commit remote status, and a Railway-authorized service/
   variable inventory.
+- Railway web staging lane opened by MIMIR, 2026-06-08: root `railway.json` now
+  calls service-aware build/start scripts so `@station/api` still builds/starts
+  the Express API while `@station/web` builds the Next.js app in standalone mode
+  and starts the standalone server. Railway generated
+  `https://stationweb-production.up.railway.app`, and `@station/web` has
+  non-empty public app/API/Supabase env values. Server-only secrets remain off
+  web services. Remote web deployment proof is still pending for the pushed
+  commit; Supabase migrations/auth redirects/storage, Stripe test resources, and
+  replay data remain blockers for full staged replay.
 
 ## Current repo truth
 

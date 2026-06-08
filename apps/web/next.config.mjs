@@ -1,7 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  // Workspace packages ship raw TypeScript — Next must transpile them
+  output: "standalone",
+  // Workspace packages ship raw TypeScript; Next must transpile them.
   transpilePackages: [
     "@station/ai",
     "@station/auth",

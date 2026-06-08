@@ -1,7 +1,8 @@
 # Station staging replay readiness
 
-Status: staging preparation with a live API host. Full staged replay is still
-not implemented or verified by this document.
+Status: staging preparation with a live Railway API host and a Railway web lane
+opened. Full staged replay is still not implemented or verified by this
+document.
 
 This runbook names what must be true before a human replay pass can produce
 useful product evidence from an online/staged Station deployment.
@@ -10,24 +11,25 @@ useful product evidence from an online/staged Station deployment.
 
 - Web is a Next.js app in `apps/web`.
 - API is an Express app in `apps/api` with `GET /health` returning `{ ok: true }`.
-- Root `railway.json` pins the Railway API service to Railpack with
-  `pnpm --dir apps/api build`, `pnpm --dir apps/api start`, `/health`, and
-  API/shared-package watch patterns.
+- Root `railway.json` now uses service-aware Railpack build/start scripts so
+  `@station/api` builds/starts `apps/api` and `@station/web` builds/starts
+  `apps/web`.
 - Railway `@station/api` is sourced from `Tex6298/Station` on `main` and
   answers `https://stationapi-production.up.railway.app/health` with
   `{ "ok": true }`.
-- Root `vercel.json` targets the web app only. This records the current
-  web-host prep shape, not a final decision that Vercel must remain the staging
-  host.
+- Railway `@station/web` has the generated URL
+  `https://stationweb-production.up.railway.app` and a web `/health` route in
+  repo, but the pushed commit still needs remote deployment proof.
+- Root `vercel.json` still targets the web app only. This is retained as a
+  fallback/historical prep shape, not the current staging default.
 - The current Vercel install command uses `pnpm install --no-frozen-lockfile`;
   CI and replay acceptance should still use the pinned frozen-lockfile gate
   unless MIMIR explicitly waives it.
-- MIMIR's provisional default is now Vercel for web and Railway for the Express
-  API. Railway setup notes live in `infra/railway/README.md`.
-- The API has `pnpm --dir apps/api build` and `pnpm --dir apps/api start`
-  equivalents through the package scripts. The external Railway API service now
-  exists, but this repo still does not include secrets and does not make the web
-  app, Supabase project, Stripe test resources, or replay data real.
+- MIMIR's current staging default is now Railway for both web and API. Railway
+  setup notes live in `infra/railway/README.md`.
+- The external Railway API service exists and the web service has URL/env
+  wiring. Supabase migrations/storage/auth redirects, Stripe test resources,
+  replay data, and exact-commit remote proof still remain.
 - Supabase migrations and setup notes live in `infra/supabase/README.md`.
 - Stripe Billing setup notes live in `infra/stripe/webhook.md`.
 - Local validation and remote deployment truth are separate; a green local gate
@@ -40,8 +42,8 @@ verify staging:
 
 | Need | Required value |
 | --- | --- |
-| Web host/provider | Current default is the existing Vercel-shaped web setup; still needs concrete project/status truth. |
-| Web staging URL | Public URL for the chosen web host. |
+| Web host/provider | Current default is Railway `@station/web` from `Tex6298/Station` branch `main`; exact-commit deploy still needs proof. |
+| Web staging URL | `https://stationweb-production.up.railway.app`. |
 | API staging URL | Known for the current API host: `https://stationapi-production.up.railway.app`. |
 | API host/provider | Known for the current API host: Railway `@station/api` from `Tex6298/Station` branch `main`. |
 | Supabase project | Project URL, anon key, service-role key, and database URL for staging. |
@@ -57,8 +59,8 @@ verify staging:
 These are the current defaults for the next setup pass. They are not deployed
 facts until URLs, projects, and credentials exist.
 
-- Web host/provider: keep the current Vercel web-app shape for staging.
-- API host/provider: use Railway as the default Node host for the Express API.
+- Web host/provider: use Railway `@station/web` for staging.
+- API host/provider: use Railway `@station/api` for the Express API.
 - Supabase: use a dedicated staging project, not the production or local project.
 - Supabase storage: create a private `persona-files` bucket in staging.
 - Stripe: use test mode only, with staging webhook endpoint pointed at the
@@ -68,25 +70,31 @@ facts until URLs, projects, and credentials exist.
 - Remote truth: verify GitHub CI and web/API deployment status for the exact
   commit under replay.
 
-Current DAEDALUS hosting decision: preserve Railway for `@station/api` only.
-Keep web staging on the Vercel-shaped path. Railway `@station/web` is
-failed/stopped and should stay disconnected or ignored unless MIMIR opens a
-separate Railway-web configuration lane.
+Current MIMIR hosting decision: open the Railway-web configuration lane for
+staging. Preserve the healthy `@station/api` deploy while making `@station/web`
+deploy the Next.js app from the same fork. Do not place server-only secrets on
+`@station/web`.
 
-Remaining human/MIMIR facts: concrete web URL, staging Supabase project values,
-Supabase auth redirects, Stripe test Price IDs/webhook secret, replay account
-credentials, and web plus API remote status for the pushed commit.
+Remaining facts: Supabase migrations/storage/auth redirects, Stripe test Price
+IDs/webhook secret, replay account credentials/data, and web plus API remote
+status for the pushed commit.
 
 ## Current Railway project state
 
 As of 2026-06-08, Railway `@station/api` is sourced from `Tex6298/Station` on
-`main`, deploys from the root API-shaped `railway.json`, and returns `200` from:
+`main`, deploys from the root service-aware `railway.json`, and returns `200`
+from:
 
 ```text
 https://stationapi-production.up.railway.app/health
 ```
 
-Railway `@station/web` also exists from `Tex6298/Station` but is failed/stopped.
+Railway `@station/web` also exists from `Tex6298/Station`; its generated URL is:
+
+```text
+https://stationweb-production.up.railway.app
+```
+
 The plain `api` service is an unused shell. Keep runtime secrets on
 `@station/api`; do not duplicate them onto `@station/web` or the plain `api`
 shell.
@@ -117,7 +125,7 @@ Push wakeup/work commits to `fork/main` for this lane. Do not use
 Web host:
 
 ```bash
-NEXT_PUBLIC_APP_URL=https://<station-web-staging>
+NEXT_PUBLIC_APP_URL=https://stationweb-production.up.railway.app
 NEXT_PUBLIC_API_URL=https://stationapi-production.up.railway.app
 NEXT_PUBLIC_SUPABASE_URL=https://<supabase-project>.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=<supabase-anon-key>

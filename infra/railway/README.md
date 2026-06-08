@@ -1,8 +1,8 @@
-# Railway API staging prep
+# Railway staging prep
 
-Status: API deploy hygiene for staging prep. The repo still does not create a
-Railway project, service, URL, or secret, but the external Railway API service
-is now a real current fact.
+Status: Railway API is live and the Railway web lane is open for staging prep.
+The repo still does not store secrets, but the external Railway services are
+real current facts.
 
 As of 2026-06-08:
 
@@ -11,52 +11,51 @@ As of 2026-06-08:
 - API URL: `https://stationapi-production.up.railway.app`.
 - Health check: `https://stationapi-production.up.railway.app/health` returns
   `200` with `{ "ok": true }`.
+- Web service: `@station/web`.
+- Web URL: `https://stationweb-production.up.railway.app`.
 - Railway's environment label may say `production`; Station is treating this as
   staging-prep infrastructure until the web/Supabase/Stripe/replay pieces are
   configured together.
-- `@station/web` exists on Railway but is failed/stopped; keep it disconnected
-  or ignored for now.
 - Plain `api` is an unused service shell.
 
 MIMIR's current staging default is:
 
-- Web: Vercel-shaped `apps/web` staging.
+- Web: Railway-hosted Next.js service from `apps/web`.
 - API: Railway-hosted Express service from `apps/api`.
 - Database/auth/storage: dedicated Supabase staging project.
 - Billing: Stripe test mode.
 - Replay data: first pass set up manually through the UI/API.
 
-## Service target
+## Service targets
 
-The Railway service should run the Express API, not the Next.js web app.
+The Railway services share the same root `railway.json`. That config calls
+service-aware scripts:
 
-Current DAEDALUS decision: keep Railway API-only for this lane. The healthy API
-deploy depends on the root `railway.json` being API-shaped. Do not reuse that
-root config for `@station/web`; it will build/start the API, not the web app.
-If Railway web hosting is chosen later, add a separate service configuration or
-service-level build/start settings for `@station/web` and review that as its own
-lane.
+- `@station/api` builds `apps/api` and starts `apps/api/dist/server.js`.
+- `@station/web` builds `apps/web` in Next standalone mode and starts the
+  generated standalone server.
 
-The root `railway.json` pins the API service deployment shape for this shared
-pnpm/Turbo monorepo:
+The root `railway.json` pins the deployment shape for this shared pnpm/Turbo
+monorepo:
 
 - Railpack builder
-- build command: `pnpm --dir apps/api build`
-- start command: `pnpm --dir apps/api start`
+- build command: `node scripts/railway-build.mjs`
+- start command: `node scripts/railway-start.mjs`
 - health check: `/health`
-- watch patterns covering `apps/api`, shared `packages`, and workspace config
+- watch patterns covering `apps/api`, `apps/web`, shared `packages`, the
+  Railway scripts, and workspace config
 
 From the repository root:
 
 ```bash
 pnpm install --frozen-lockfile
-pnpm --dir apps/api build
-pnpm --dir apps/api start
+node scripts/railway-build.mjs
+node scripts/railway-start.mjs
 ```
 
-The API listens on `PORT`, defaulting to `4000` locally. Railway should provide
-the runtime port through `PORT`; do not hard-code `4000` for staging unless the
-provider explicitly requires a static override.
+The API and Next standalone server listen on `PORT` when Railway provides it.
+Do not hard-code `4000` or `3000` for staging unless the provider explicitly
+requires a static override.
 
 Health check path:
 
@@ -98,15 +97,15 @@ DEVELOPER_SPACE_SSE_POLL_MS=5000
 ```
 
 Do not set `SUPABASE_SERVICE_ROLE_KEY`, `DATABASE_URL`, `JWT_SECRET`,
-`STRIPE_SECRET_KEY`, or `STRIPE_WEBHOOK_SECRET` on the Vercel web project or any
-Railway web service.
+`STRIPE_SECRET_KEY`, or `STRIPE_WEBHOOK_SECRET` on the Railway web service or
+any other web host.
 
-## Paired web environment
+## Railway web environment
 
-The Vercel web app must point at the Railway API URL:
+The Railway web app must point at the Railway API URL:
 
 ```bash
-NEXT_PUBLIC_APP_URL=https://<station-web-staging>
+NEXT_PUBLIC_APP_URL=https://stationweb-production.up.railway.app
 NEXT_PUBLIC_API_URL=https://stationapi-production.up.railway.app
 NEXT_PUBLIC_SUPABASE_URL=https://<supabase-staging-project>.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=<supabase-anon-key>
@@ -116,7 +115,7 @@ NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_...
 ## Supabase and Stripe pairing
 
 - In Supabase Auth settings, set the site URL and redirect URLs to the staged
-  Vercel web URL.
+  Railway web URL.
 - Create a private `persona-files` storage bucket in the staging Supabase
   project.
 - In Stripe test mode, point the webhook endpoint at:
@@ -136,10 +135,9 @@ curl -f https://stationapi-production.up.railway.app/health
 curl -i https://stationapi-production.up.railway.app/auth/me
 ```
 
-The web URL is still a placeholder until Vercel staging exists:
-
 ```bash
-curl -I https://<station-web-staging>
+curl -f https://stationweb-production.up.railway.app/health
+curl -I https://stationweb-production.up.railway.app
 ```
 
 Expected:

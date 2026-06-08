@@ -1282,6 +1282,32 @@ Targeted commands run with the pinned runner:
 | `npx --yes pnpm@10.32.1 test:integrity` | Pass | 2 tests passed. |
 | `git diff --check` | Pass | CRLF normalization warnings only. |
 
+## Railway web staging MIMIR setup result
+
+Validated on 2026-06-08 while opening the Railway-web staging lane:
+
+- Root `railway.json` now calls service-aware build/start scripts instead of
+  hard-coding API commands.
+- `@station/api` still targets the Express API branch of those scripts.
+- `@station/web` targets the Next.js standalone branch, with a web `/health`
+  route and generated Railway URL
+  `https://stationweb-production.up.railway.app`.
+- `@station/web` has non-empty public app/API/Supabase env values. Secret values
+  were not recorded.
+- Local Windows web standalone build compiled but failed during Next's traced
+  file copy because the shell lacks symlink permission; remote Railway/Linux
+  build remains the decisive validation for this lane.
+
+Commands re-run by MIMIR:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `node scripts/railway-build.mjs` | Pass | Default/API branch built API dependencies and `apps/api`. |
+| `npx --yes pnpm@10.32.1 --dir apps/api build` | Pass | API build still passes after service-aware Railway scripts. |
+| `npx --yes pnpm@10.32.1 --filter @station/web lint` | Pass with known warnings | Same existing warnings: Developer Space manage hook dependency, Space page raw `<img>`, and Discover avatar raw `<img>`. |
+| `node -e "JSON.parse(require('fs').readFileSync('railway.json','utf8'))"` | Pass | Railway config parses. |
+| `RAILWAY_SERVICE_NAME=@station/web node scripts/railway-build.mjs` | Blocked locally | Next compiled, then Windows denied symlink creation while writing standalone traced files. |
+
 ## Railway API staging prep DAEDALUS result
 
 Validated on 2026-06-07 after translating MIMIR's provisional staging defaults
