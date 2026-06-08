@@ -24,6 +24,12 @@ This note captures the reusable ideas reviewed from the user-provided open repos
 - `carsteneu/yesmem`: project continuity model, trust hierarchy, supersession, contradiction handling, decay, briefings, and continuity search. Apache-2.0.
 - `wangjiake/JKRiver`: sleep consolidation pipeline, suspected/confirmed/established progression, fact expiry, evidence chains, and owner-isolated memory. AGPL/commercial license means Station should borrow architecture ideas only.
 - `msalsas/amanuensis`: human-veto publishing workflow, source grounding, deterministic cleanup before LLM judgment, approval queue, and dry-run publishing.
+- `discourse/discourse`: mature community forum model with trust levels, moderation actions, topic controls, chat/plugin ecosystem, and self-hosted posture. GPL license means Station should borrow architecture ideas only.
+- `flarum/framework`: lightweight, responsive, extensible discussion platform with a small frontend footprint and simpler self-hosting model. MIT.
+- `LemmyNet/lemmy`: federated Reddit-style communities, voting, public moderation logs, sticky/lock/remove/restore actions, and mobile-friendly discussion flows. AGPL license means Station should borrow architecture ideas only.
+- `forem/forem`: community publishing/discussion stack, profiles, semantic recommendations, and high contribution/testing standards. AGPL license means Station should borrow architecture ideas only.
+- `elkarte/Elkarte`: traditional forum lineage emphasizing permissions, moderation, and mature category/thread hygiene.
+- `mbeps/next_discussion_platform`: Next.js discussion app with communities, voting, saved posts, admin controls, search, threaded comments, and responsive UI.
 
 ## Ported into Station
 
@@ -43,6 +49,11 @@ This note captures the reusable ideas reviewed from the user-provided open repos
 - Per-memory lifecycle metadata through `memory_item_lifecycle`, adding trust levels, active/superseded/rejected/expired/quarantined statuses, confidence, decay, expiry, reinforcement counts, evidence, and supersession links.
 - Persona memory cycle state through `persona_memory_cycle_states`, creating the foundation for PersonaUI/Riverse-style threshold consolidation.
 - Memory briefing API and memory-page UI that expose shared profile blocks, trust/status counts, reinforcement, and quarantine controls.
+- Community trust profiles through `community_user_profiles`, adding Discourse-style trust levels, reputation, activity counts, helpful votes, report counts, and mute state.
+- Normalized voting through `community_votes`, plus thread/comment vote APIs and score recalculation.
+- Public moderation action log through `community_moderation_actions`, plus admin thread actions for lock/unlock, pin/unpin, hide/unhide, remove/restore.
+- Forum category search and sort controls for active, hot, and newest discussions.
+- Forum UI voting/reporting controls and visible moderation logs on thread pages.
 
 ## Deferred
 
@@ -62,3 +73,7 @@ This note captures the reusable ideas reviewed from the user-provided open repos
 - Riverse-style 14-step LLM sleep transaction and automated contradiction arbitration.
 - PersonaUI afterthought/autonomous follow-up loop.
 - Amanuensis Telegram approval queue and social publishing dispatcher.
+- ActivityPub federation from Lemmy.
+- Full Discourse/Flarum plugin systems, SSO/email ingestion, live chat, and notification engines.
+- Forem-style semantic feed generation and complete publishing profile system.
+- Next discussion platform saved-posts modal, community membership/admin hierarchy, and image upload pipeline.

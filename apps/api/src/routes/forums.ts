@@ -4,6 +4,12 @@ import type { ThreadVisibility } from "@station/db";
 import { getSupabaseAdmin } from "../lib/supabase";
 import { optionalAuth, requireAuth, type AuthenticatedUser } from "../middleware/require-auth";
 import { requireTier } from "../middleware/require-tier";
+import {
+  bumpCommunityActivity,
+  ensureCommunityProfile,
+  listViewerVotes,
+  serializeCommunityProfile,
+} from "../services/community.service";
 
 const createThreadSchema = z.object({
   categoryId: z.string().uuid(),
@@ -118,6 +124,8 @@ forumsRouter.get("/categories", async (_req: Request, res: Response) => {
 // --- Public: get category + its threads -------------------------------------
 forumsRouter.get("/categories/:slug", optionalAuth, async (req: Request, res: Response) => {
   const { slug } = req.params;
+  const sort = String(req.query.sort ?? "active");
+  const search = String(req.query.search ?? "").trim();
   const sb = getSupabaseAdmin();
 
   const { data: category, error: catErr } = await sb
@@ -128,12 +136,15 @@ forumsRouter.get("/categories/:slug", optionalAuth, async (req: Request, res: Re
 
   if (catErr || !category) return res.status(404).json({ error: "Category not found" });
 
+  const orderColumn = sort === "hot" ? "hot_score" : sort === "new" ? "created_at" : "last_activity_at";
+
   const threadResults = await Promise.all(listableThreadVisibilities(req.user).map((visibility) =>
-    sb
+    {
+      let query = (sb as any)
       .from("threads")
       .select(
         `id, title, body, status, visibility, score, comment_count, linked_document_id,
-         is_pinned, is_hidden, reported_count, created_at, updated_at,
+         is_pinned, is_hidden, reported_count, vote_count, hot_score, last_activity_at, moderation_state, created_at, updated_at,
          author_user_id,
          author:profiles!author_user_id(username, display_name, avatar_url)`
       )
@@ -141,7 +152,12 @@ forumsRouter.get("/categories/:slug", optionalAuth, async (req: Request, res: Re
       .eq("status", "active")
       .eq("visibility", visibility)
       .eq("is_hidden", false)
-      .order("created_at", { ascending: false })
+      .order("is_pinned", { ascending: false })
+      .order(orderColumn, { ascending: false });
+
+      if (search) query = query.or(`title.ilike.%${search}%,body.ilike.%${search}%`);
+      return query;
+    }
   ));
 
   const threadErr = threadResults.find((result) => result.error)?.error;
@@ -150,9 +166,28 @@ forumsRouter.get("/categories/:slug", optionalAuth, async (req: Request, res: Re
 
   const threads = threadResults
     .flatMap((result) => result.data ?? [])
-    .sort((a, b) => new Date(b.created_at ?? 0).getTime() - new Date(a.created_at ?? 0).getTime());
+    .map((thread) => thread as any)
+    .sort((a, b) => {
+      if (a.is_pinned !== b.is_pinned) return a.is_pinned ? -1 : 1;
+      if (sort === "hot") return Number(b.hot_score ?? b.score ?? 0) - Number(a.hot_score ?? a.score ?? 0);
+      const column = sort === "new" ? "created_at" : "last_activity_at";
+      return new Date(b[column] ?? b.created_at ?? 0).getTime() - new Date(a[column] ?? a.created_at ?? 0).getTime();
+    });
 
-  res.json({ category, threads });
+  const viewerVotes = await listViewerVotes({
+    voterUserId: req.user?.id,
+    targetType: "thread",
+    targetIds: threads.map((thread) => thread.id),
+  }).catch(() => ({}));
+
+  const authorProfiles = await loadCommunityProfiles([...new Set(threads.map((thread) => thread.author_user_id).filter(Boolean))]);
+  const enrichedThreads = threads.map((thread) => ({
+    ...thread,
+    viewer_vote: (viewerVotes as Record<string, number>)[thread.id] ?? 0,
+    author_community_profile: authorProfiles[thread.author_user_id] ?? null,
+  }));
+
+  res.json({ category, threads: enrichedThreads });
 });
 
 // --- Auth-gated below --------------------------------------------------------
@@ -203,6 +238,22 @@ forumsRouter.post(
       .single();
 
     if (error) return res.status(500).json({ error: error.message });
+    await Promise.all([
+      ensureCommunityProfile(userId).catch(() => undefined),
+      bumpCommunityActivity(userId, "thread").catch(() => undefined),
+    ]);
     res.status(201).json({ thread });
   }
 );
+
+async function loadCommunityProfiles(userIds: string[]) {
+  if (userIds.length === 0) return {};
+  const sb = getSupabaseAdmin();
+  const { data, error } = await (sb as any)
+    .from("community_user_profiles")
+    .select("*")
+    .in("user_id", userIds);
+
+  if (error) return {};
+  return Object.fromEntries((data ?? []).map((row: any) => [row.user_id, serializeCommunityProfile(row)]));
+}

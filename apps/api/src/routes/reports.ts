@@ -5,6 +5,7 @@ import type { Database } from "@station/db";
 import { requireAuth } from "../middleware/require-auth";
 import { getSupabaseAdmin } from "../lib/supabase";
 import type { ModerationReportRecord } from "@station/types";
+import { ensureCommunityProfile } from "../services/community.service";
 
 const createReportSchema = z.object({
   targetType: z.enum(["user", "space", "document", "thread", "comment", "persona"]),
@@ -59,5 +60,58 @@ reportsRouter.post("/", async (req, res) => {
     return res.status(500).json({ error: error?.message ?? "Failed to create report." });
   }
 
+  await updateReportedTarget(parsed.data.targetType, parsed.data.targetId).catch(() => undefined);
+
   return res.status(201).json({ report: serializeReport(data) });
 });
+
+async function updateReportedTarget(targetType: string, targetId: string) {
+  const sb = getSupabaseAdmin();
+
+  if (targetType === "thread") {
+    const { data: thread } = await sb
+      .from("threads")
+      .select("id, reported_count, author_user_id")
+      .eq("id", targetId)
+      .maybeSingle();
+    if (!thread) return;
+    await sb
+      .from("threads")
+      .update({
+        reported_count: (thread.reported_count ?? 0) + 1,
+        moderation_state: "needs_review",
+      } as any)
+      .eq("id", targetId);
+    await bumpReportCount(thread.author_user_id);
+  }
+
+  if (targetType === "comment") {
+    const { data: comment } = await sb
+      .from("comments")
+      .select("id, reported_count, author_user_id")
+      .eq("id", targetId)
+      .maybeSingle();
+    if (!comment) return;
+    await sb
+      .from("comments")
+      .update({
+        reported_count: (comment.reported_count ?? 0) + 1,
+        moderation_state: "needs_review",
+      } as any)
+      .eq("id", targetId);
+    await bumpReportCount(comment.author_user_id);
+  }
+
+  if (targetType === "user") {
+    await bumpReportCount(targetId);
+  }
+}
+
+async function bumpReportCount(userId: string) {
+  const sb = getSupabaseAdmin();
+  const profile = await ensureCommunityProfile(userId);
+  await (sb as any)
+    .from("community_user_profiles")
+    .update({ report_count: (profile.report_count ?? 0) + 1 })
+    .eq("user_id", userId);
+}

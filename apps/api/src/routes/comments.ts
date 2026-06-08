@@ -3,11 +3,15 @@ import { z } from "zod";
 import { getSupabaseAdmin } from "../lib/supabase";
 import { optionalAuth, requireAuth, type AuthenticatedUser } from "../middleware/require-auth";
 import { requireTier } from "../middleware/require-tier";
+import { bumpCommunityActivity, castCommunityVote } from "../services/community.service";
 
 const createCommentSchema = z.object({
   parentType: z.enum(["thread", "document", "space_page"]),
   parentId: z.string().uuid(),
   body: z.string().min(1).max(10000),
+});
+const voteSchema = z.object({
+  value: z.union([z.literal(1), z.literal(-1)]),
 });
 type CommentParentType = z.infer<typeof createCommentSchema>["parentType"];
 
@@ -190,6 +194,7 @@ commentsRouter.post(
       .single();
 
     if (error) return res.status(500).json({ error: error.message });
+    await bumpCommunityActivity(userId, "comment").catch(() => undefined);
 
     // Bump comment_count on thread
     if (parentType === "thread") {
@@ -203,6 +208,45 @@ commentsRouter.post(
     res.status(201).json({ comment });
   }
 );
+
+// --- Vote on a comment -------------------------------------------------------
+commentsRouter.post("/:id/vote", async (req: Request, res: Response) => {
+  const parsed = voteSchema.safeParse(req.body);
+  if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
+
+  const sb = getSupabaseAdmin();
+  const { data: comment } = await sb
+    .from("comments")
+    .select("id, author_user_id, parent_type, parent_id, status, is_hidden")
+    .eq("id", req.params.id)
+    .maybeSingle();
+
+  if (!comment || comment.status !== "active" || comment.is_hidden) {
+    return res.status(404).json({ error: "Comment not found" });
+  }
+
+  const canRead = await validateReadableParent(comment.parent_type as CommentParentType, comment.parent_id, req.user);
+  if (!canRead) return res.status(404).json({ error: "Comment not found" });
+
+  try {
+    const vote = await castCommunityVote({
+      voterUserId: req.user!.id,
+      targetType: "comment",
+      targetId: comment.id,
+      value: parsed.data.value,
+    });
+    const { data: updated } = await sb
+      .from("comments")
+      .select("id, score, vote_count")
+      .eq("id", comment.id)
+      .single();
+
+    return res.status(201).json({ vote, comment: updated });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Could not vote on comment.";
+    return res.status(400).json({ error: message });
+  }
+});
 
 // --- Delete own comment ------------------------------------------------------
 commentsRouter.delete("/:id", async (req: Request, res: Response) => {
@@ -222,7 +266,7 @@ commentsRouter.delete("/:id", async (req: Request, res: Response) => {
 
   const { error } = await sb
     .from("comments")
-    .update({ status: "removed" })
+    .update({ status: "removed", moderation_state: "removed" } as any)
     .eq("id", req.params.id);
 
   if (error) return res.status(500).json({ error: error.message });
