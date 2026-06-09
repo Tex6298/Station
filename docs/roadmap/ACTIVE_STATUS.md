@@ -518,9 +518,15 @@ when a PR lands, or when validation truth changes.
   staging-ready requirement.
 - BE-00 is accepted by ARGUS after hardening, 2026-06-09: `test:health`,
   `@station/api` build, `git diff --check`, and public API `/health` pass. The
-  public Railway `/health/deployment` endpoint still returns the previous
-  deployment-health shape, so BE-00 is locally accepted but not yet proven
-  deployed remotely.
+  public Railway `/health/deployment` endpoint now returns the new `ready` plus
+  `readiness` shape. `ready` is false while database, migration, storage,
+  Supabase Auth redirect, provider, and Stripe checks remain pending or failing;
+  those deployment-config gaps are E2E setup asks, not blockers to BE-01.
+- BE-01 private archive retrieval foundation is opened by MIMIR, 2026-06-09:
+  DAEDALUS owns a narrow owner/persona-scoped retrieval implementation over
+  private archive source chunks and citations. Missing API keys or dashboard
+  config must fail closed or report pending state rather than blocking backend
+  completion.
 
 ## Current repo truth
 

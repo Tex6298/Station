@@ -2,16 +2,21 @@
 
 Date: 2026-06-08
 
-Status: MIMIR-opened backend roadmap. BE-00 has a DAEDALUS implementation and
-is awaiting ARGUS review. Later lanes are ordered implementation scope, not
-permission to build everything at once.
+Status: MIMIR-opened backend roadmap. BE-00 is ARGUS-accepted and deployed far
+enough for the public Railway readiness endpoint to return the new readiness
+shape. BE-01 is the active DAEDALUS implementation lane. Later lanes are ordered
+implementation scope, not permission to build everything at once.
 
 ## Current staging truth
 
 - Railway web is live at `https://stationweb-production.up.railway.app`.
 - Railway API is live at `https://stationapi-production.up.railway.app`.
 - API `/health` and web `/health` return `200` with `{ "ok": true }`.
-- API `/health/deployment` reports the Railway app/API URLs, not localhost.
+- API `/health/deployment` reports the Railway app/API URLs, not localhost, and
+  now includes the BE-00 `ready` plus `readiness` shape.
+- API `/health/deployment.ready` is currently false while database, migration,
+  storage, auth-redirect, provider, and Stripe readiness remain pending or
+  failing in deployment checks.
 - Supabase staging target is `jdewavktyemnpehdzvgl`.
 - Supabase migrations `001` through `024` are present in remote migration
   history.
@@ -27,6 +32,9 @@ Still external or replay-adjacent:
   still need setup or confirmation.
 - Railway variable inventory still needs dashboard/API proof if MIMIR wants
   exact service-variable audit beyond public health booleans.
+- Remote readiness blockers are not BE-01 implementation blockers. Missing
+  external config should fail closed, report sanitized pending status, and be
+  carried as exact E2E asks for Marty.
 
 ## Roadmap rule
 
@@ -36,6 +44,10 @@ the lane changes the user journey.
 
 Do not turn Redis, Cloudflare, NVIDIA retrieval, or provider privacy into a
 single global decision before the backend can prove what it is doing online.
+
+Config/API key blockers should not freeze backend completion. Build the backend
+paths with safe disabled or pending states, keep secrets out of logs and health
+responses, and document the exact E2E value or dashboard action needed.
 
 ## BE-00 - Staging truth and readiness probes
 
@@ -274,6 +286,8 @@ Default order:
 
 Immediate active task:
 
-- ARGUS reviews BE-00 readiness probes for secret masking, failure handling, and
-  useful staging truth.
-- Do not begin BE-01 until ARGUS accepts BE-00 or wakes DAEDALUS with fixes.
+- DAEDALUS implements BE-01 private archive retrieval foundation with owner-
+  and persona-scoped chunks, narrow retrieval/citation behavior, keyword
+  fallback, and hostile owner-leak tests.
+- DAEDALUS should not add Redis, Cloudflare, provider-policy, background jobs,
+  or UI broadening in this lane.
