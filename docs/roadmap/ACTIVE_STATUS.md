@@ -671,6 +671,19 @@ when a PR lands, or when validation truth changes.
   required to complete this lane. Agents that believe a lane is done, blocked,
   or ready to go idle must wake MIMIR with `WAKEUP A1:` and a concrete
   verdict/task.
+- BE-06 DAEDALUS implementation is ready for ARGUS review, 2026-06-09: the API
+  now has a small background-job helper around the existing `import_jobs`
+  surface, sanitized owner-visible job failure messages, and `POST
+  /imports/:id/retry` for failed chat imports. Retry reuses the same owner-owned
+  job row, refuses other-owner jobs, returns completed jobs idempotently without
+  adding duplicate archive rows, and requires the owner to resupply chat content
+  instead of storing private payload text in the job record. Existing import job
+  status/list routes remain owner-scoped. Uploaded-file job failures now store
+  and rethrow sanitized errors for the fire-and-forget path. No worker, queue
+  provider, Redis/Valkey requirement, Upstash requirement, new migration, UI,
+  Cloudflare, NVIDIA retrieval, or staging migration-proof work was added.
+  `test:conversation-archive`, `test:storage`, `@station/api` build, and
+  targeted `git diff --check` pass locally with the pinned runner.
 
 ## Current repo truth
 

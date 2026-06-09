@@ -1,0 +1,127 @@
+import { getSupabaseAdmin } from "../lib/supabase";
+
+export const IMPORT_JOB_SELECT =
+  "id, persona_id, owner_user_id, kind, status, source_name, error_message, created_at, updated_at";
+
+export type ImportJobStatus = "queued" | "processing" | "completed" | "failed";
+
+export type ImportJobRow = {
+  id: string;
+  persona_id: string;
+  owner_user_id: string;
+  kind: "file" | "chat";
+  status: ImportJobStatus;
+  source_name: string;
+  error_message: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
+export function serializeImportJob(row: ImportJobRow) {
+  return {
+    id: row.id,
+    kind: row.kind,
+    status: row.status,
+    source_name: row.source_name,
+    error_message: row.error_message ? sanitizeJobErrorMessage(row.error_message) : null,
+    created_at: row.created_at,
+    updated_at: row.updated_at,
+  };
+}
+
+export function sanitizeJobErrorMessage(error: unknown, privateSnippets: Array<string | null | undefined> = []) {
+  let message = error instanceof Error
+    ? error.message
+    : typeof error === "string"
+      ? error
+      : "Job failed.";
+
+  for (const snippet of privateSnippets) {
+    const value = snippet?.trim();
+    if (!value || value.length < 8) continue;
+    message = replaceAll(message, value, "[redacted private text]");
+    const leadingExcerpt = value.slice(0, 120);
+    if (leadingExcerpt.length >= 16) {
+      message = replaceAll(message, leadingExcerpt, "[redacted private text]");
+    }
+  }
+
+  message = message
+    .replace(/Bearer\s+[A-Za-z0-9._~+/-]+=*/gi, "Bearer [redacted]")
+    .replace(/\bsk-[A-Za-z0-9_-]+\b/g, "[redacted]")
+    .replace(/\b(?:service[_-]?role|api[_-]?key|secret|token)\s*[:=]\s*\S+/gi, "[redacted]");
+
+  const normalized = message.replace(/\s+/g, " ").trim() || "Job failed.";
+  return normalized.length > 240 ? `${normalized.slice(0, 237)}...` : normalized;
+}
+
+export async function loadOwnedImportJob(jobId: string, ownerUserId: string) {
+  const sb = getSupabaseAdmin();
+  const { data, error } = await sb
+    .from("import_jobs")
+    .select(IMPORT_JOB_SELECT)
+    .eq("id", jobId)
+    .eq("owner_user_id", ownerUserId)
+    .single();
+
+  if (error || !data) return null;
+  return data as ImportJobRow;
+}
+
+export async function markImportJobProcessing(jobId: string, ownerUserId: string) {
+  return updateImportJob(jobId, ownerUserId, {
+    status: "processing",
+    error_message: null,
+  });
+}
+
+export async function markImportJobCompleted(jobId: string, ownerUserId: string) {
+  return updateImportJob(jobId, ownerUserId, {
+    status: "completed",
+    error_message: null,
+  });
+}
+
+export async function markImportJobFailed(
+  jobId: string,
+  ownerUserId: string,
+  error: unknown,
+  privateSnippets: Array<string | null | undefined> = []
+) {
+  return updateImportJob(jobId, ownerUserId, {
+    status: "failed",
+    error_message: sanitizeJobErrorMessage(error, privateSnippets),
+  });
+}
+
+export async function countImportArchiveRows(job: Pick<ImportJobRow, "id" | "owner_user_id" | "persona_id">) {
+  const sb = getSupabaseAdmin();
+  const { data, error } = await sb
+    .from("memory_items")
+    .select("id")
+    .eq("owner_user_id", job.owner_user_id)
+    .eq("persona_id", job.persona_id)
+    .eq("archive_source_type", "import_job")
+    .eq("archive_source_id", job.id);
+
+  if (error) throw new Error(error.message);
+  return (data ?? []).length;
+}
+
+async function updateImportJob(jobId: string, ownerUserId: string, patch: Partial<ImportJobRow>) {
+  const sb = getSupabaseAdmin();
+  const { data, error } = await sb
+    .from("import_jobs")
+    .update(patch)
+    .eq("id", jobId)
+    .eq("owner_user_id", ownerUserId)
+    .select(IMPORT_JOB_SELECT)
+    .single();
+
+  if (error || !data) throw new Error(error?.message ?? "Import job update failed.");
+  return data as ImportJobRow;
+}
+
+function replaceAll(input: string, search: string, replacement: string) {
+  return input.split(search).join(replacement);
+}

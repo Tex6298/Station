@@ -12,6 +12,7 @@ import { env } from "../lib/env";
 import { estimateStorageBytes, releaseStorageBytes, reserveStorageBytes } from "./storage.service";
 import { ensureMemoryLifecycle } from "./memory-continuity.service";
 import { invalidateOperationalCacheForChange } from "./operational-cache.service";
+import { sanitizeJobErrorMessage } from "./background-jobs.service";
 
 type ArchiveSourceRef = {
   type: ArchiveSourceType;
@@ -270,7 +271,7 @@ export async function processUploadedFile(input: {
 
     return { chunksCreated };
   } catch (err) {
-    const message = err instanceof Error ? err.message : "Processing failed";
+    const message = sanitizeJobErrorMessage(err, [input.fileName, input.storagePath]);
 
     await sb
       .from("import_jobs")
@@ -278,7 +279,7 @@ export async function processUploadedFile(input: {
       .eq("persona_id", input.personaId)
       .eq("source_name", input.fileName);
 
-    throw err;
+    throw new Error(message);
   }
 }
 

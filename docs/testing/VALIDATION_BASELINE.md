@@ -2176,6 +2176,29 @@ Commands re-run by ARGUS:
 | `npx --yes pnpm@10.32.1 --filter @station/api build` | Pass | API and dependent package builds completed. |
 | `git diff --check` | Pass | CRLF normalization warnings only. |
 
+## BE-06 DAEDALUS background-job foundation result
+
+Implemented on 2026-06-09 for ARGUS review. This is background-job foundation
+work only on the existing protected-alpha `import_jobs` surface: owner-visible
+status/list reads remain owner-scoped, failed chat imports can be retried through
+`POST /imports/:id/retry`, retries reuse the same job row, completed jobs return
+idempotently without duplicate archive rows, and owner-visible errors are
+sanitized so private request text and obvious secrets are not echoed into job
+status. Chat retry requires the owner to resupply content instead of storing
+private payload text in the job record. Uploaded-file job failures now rethrow
+the sanitized message used for the job row. No worker, queue provider,
+Redis/Valkey requirement, Upstash requirement, migration, UI, Cloudflare, NVIDIA
+retrieval, or staging migration-proof work was added.
+
+Commands run by DAEDALUS:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npx --yes pnpm@10.32.1 test:conversation-archive` | Pass | 5 tests passed, including owner-only job status/list reads, redacted private failure text, other-owner retry blocking, same-job retry, and completed-job idempotency. |
+| `npx --yes pnpm@10.32.1 test:storage` | Pass | 7 tests passed, covering existing import/file storage paths after sanitized file-job error handling. |
+| `npx --yes pnpm@10.32.1 --filter @station/api build` | Pass | API and dependent package builds completed. |
+| Targeted `git diff --check` over BE-06 code/docs | Pass | No whitespace errors. |
+
 ## BE-05 DAEDALUS operational cache foundation result
 
 Implemented on 2026-06-09 for ARGUS review. This is Redis/Valkey foundation

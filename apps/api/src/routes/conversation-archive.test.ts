@@ -89,6 +89,7 @@ class InMemorySupabase {
   };
 
   failInsertTables = new Set<string>();
+  failInsertMessages = new Map<string, string>();
 
   private idCounters: Record<string, number> = {};
   private clock = Date.parse("2026-05-26T10:00:00.000Z");
@@ -273,7 +274,9 @@ class QueryBuilder {
       if (this.db.failInsertTables.has(this.table)) {
         return {
           data: mode === "single" ? null : [],
-          error: { message: `Injected ${this.table} insert failure.` },
+          error: {
+            message: this.db.failInsertMessages.get(this.table) ?? `Injected ${this.table} insert failure.`,
+          },
         };
       }
       const payloads = Array.isArray(this.payload) ? this.payload : [this.payload as Row];
@@ -501,6 +504,12 @@ test("chat import jobs expose completed and failed status transitions owner-only
     assert.equal(listed.status, 200);
     assert.deepEqual(listed.body.jobs.map((job: Row) => job.status), ["completed"]);
 
+    const otherList = await requestJson(app, "GET", `/imports/persona/${PERSONA_ID}`, {
+      token: "other-token",
+    });
+    assert.equal(otherList.status, 200);
+    assert.deepEqual(otherList.body.jobs, []);
+
     db.failInsertTables.add("memory_items");
     const failed = await requestJson(app, "POST", "/imports/chat", {
       token: "owner-token",
@@ -523,6 +532,72 @@ test("chat import jobs expose completed and failed status transitions owner-only
     assert.equal(failedStatus.status, 200);
     assert.equal(failedStatus.body.job.status, "failed");
     assert.match(failedStatus.body.job.error_message, /Injected memory_items insert failure/);
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
+
+test("background job retry reuses failed chat import jobs and redacts private failure text", async () => {
+  const db = new InMemorySupabase();
+  const app = await createConversationArchiveApp();
+  const privateContent = "private retry transcript says never leak this archive sentence";
+  setSupabaseAdminForTests(db.client as any);
+
+  try {
+    db.failInsertTables.add("memory_items");
+    db.failInsertMessages.set(
+      "memory_items",
+      `Provider failure included ${privateContent} and sk-test-secret-token.`
+    );
+
+    const failed = await requestJson(app, "POST", "/imports/chat", {
+      token: "owner-token",
+      body: {
+        personaId: PERSONA_ID,
+        sourceName: "retry-import.txt",
+        content: privateContent,
+      },
+    });
+    assert.equal(failed.status, 500);
+    assert.doesNotMatch(failed.body.error, /never leak this archive sentence/);
+    assert.doesNotMatch(failed.body.error, /sk-test-secret-token/);
+
+    const failedJob = db.tables.import_jobs.find((job) => job.source_name === "retry-import.txt");
+    assert.equal(failedJob.status, "failed");
+    assert.doesNotMatch(failedJob.error_message, /never leak this archive sentence/);
+    assert.doesNotMatch(failedJob.error_message, /sk-test-secret-token/);
+
+    const otherRetry = await requestJson(app, "POST", `/imports/${failedJob.id}/retry`, {
+      token: "other-token",
+      body: { content: privateContent },
+    });
+    assert.equal(otherRetry.status, 404);
+
+    db.failInsertTables.delete("memory_items");
+    db.failInsertMessages.delete("memory_items");
+
+    const retried = await requestJson(app, "POST", `/imports/${failedJob.id}/retry`, {
+      token: "owner-token",
+      body: { content: privateContent },
+    });
+    assert.equal(retried.status, 200);
+    assert.equal(retried.body.job.id, failedJob.id);
+    assert.equal(retried.body.job.status, "completed");
+    assert.equal(retried.body.retried, true);
+    assert.equal(retried.body.imported, true);
+
+    const rowsAfterRetry = db.tables.memory_items.filter((row) => row.archive_source_id === failedJob.id);
+    assert.equal(rowsAfterRetry.length, retried.body.chunksCreated);
+    assert.equal(rowsAfterRetry.length > 0, true);
+
+    const repeated = await requestJson(app, "POST", `/imports/${failedJob.id}/retry`, {
+      token: "owner-token",
+      body: { content: "new text must not create duplicate archive rows" },
+    });
+    assert.equal(repeated.status, 200);
+    assert.equal(repeated.body.idempotent, true);
+    assert.equal(repeated.body.retried, false);
+    assert.equal(db.tables.memory_items.filter((row) => row.archive_source_id === failedJob.id).length, rowsAfterRetry.length);
   } finally {
     setSupabaseAdminForTests(null);
   }
