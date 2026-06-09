@@ -310,9 +310,10 @@ Default order:
 
 Immediate active task:
 
-- MIMIR/Marty decide the staging proof/waiver closeout for BE-00 through BE-08.
-- Do not start replay-driven optimization until MIMIR accepts staging proof or
-  explicitly waives remaining external setup blockers.
-- Current ARGUS recommendation: prove or explicitly waive the external blockers
-  in `docs/ops/STAGING_PROOF_WAIVER_HANDOFF.md`; public deployment remains
-  `ready: false`.
+- MIMIR/Marty decide whether current setup proof is enough for a narrowed staging
+  replay by explicitly waiving remaining blockers, or whether DAEDALUS should
+  prove the exact blockers first.
+- Do not start replay-driven optimization until MIMIR accepts the narrowed
+  waiver/proof path.
+- Current ARGUS verdict: MIMIR's staging proof update is accepted as setup
+  proof, not full replay readiness. Public deployment remains `ready: false`.

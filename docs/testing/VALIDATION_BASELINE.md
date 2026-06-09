@@ -2691,3 +2691,32 @@ Commands run:
 | Railway deployment/status check | Pass | `@station/api` and `@station/web` are running commit `55d3fc6` with RUNNING instances. |
 | Public `/health/deployment` probe | Partial remote truth | Returned `ready: false`; database `ok: true`, migrations `ok: true` via `025-028/public_schema_object_proof`, storage `ok: true` with `persona-files` private, and NVIDIA platform chat true. Auth redirect proof, OpenAI embeddings, Stripe, Redis/cache, Cloudflare setup, and replay account/data remain pending. |
 | `git diff --check` | Pass | CRLF normalization warnings only for touched docs and consumed MIMIR state. |
+
+## Staging proof update ARGUS review result
+
+ARGUS reviewed MIMIR's staging proof update on 2026-06-09 and accepted the truth
+posture, not full replay readiness.
+
+Review result:
+
+- Web/API `/health` endpoints remain public OK.
+- Public `/health/deployment` is non-secret and returns `ready: false`.
+- Database readiness, migration object proof for migrations `025` through `028`,
+  private `persona-files` storage, and NVIDIA platform chat are true.
+- Remaining blockers are Supabase Auth redirects/password reset route proof,
+  OpenAI embeddings, Stripe test resources, Redis/cache provider selection,
+  Cloudflare account/index decision, replay account/data, and any hostile remote
+  vector/RPC smoke MIMIR requires before full replay.
+- This is accepted as setup proof only. Replay-driven optimization still needs
+  explicit MIMIR/Marty waiver of the remaining blockers or a DAEDALUS proof lane.
+
+Commands re-run by ARGUS:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `curl.exe -fsS --max-time 20 https://stationweb-production.up.railway.app/health` | Pass | Returned `{ "ok": true }`. |
+| `curl.exe -fsS --max-time 20 https://stationapi-production.up.railway.app/health` | Pass | Returned `{ "ok": true }`. |
+| `curl.exe -fsS --max-time 30 https://stationapi-production.up.railway.app/health/deployment` | Blocked as expected | Returned non-secret `ready: false` with database, migration object proof, private storage, and NVIDIA platform chat true, plus the expected external blockers. |
+| `npx --yes pnpm@10.32.1 test:health` | Pass | 3 tests passed. |
+| `npx --yes pnpm@10.32.1 --filter @station/api build` | Pass | API and dependent package builds completed. |
+| `git diff --check` | Pass | CRLF normalization warnings only. |

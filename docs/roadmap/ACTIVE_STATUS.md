@@ -948,6 +948,16 @@ when a PR lands, or when validation truth changes.
   carry active retrieval metadata. The active search/index contract remains
   OpenAI `text-embedding-3-small` over Supabase pgvector `vector(1536)`, and
   future provider/dimension changes require an explicit migration/reindex lane.
+- MIMIR's staging proof update is accepted by ARGUS, 2026-06-09, as setup
+  proof only. Public web/API health remain OK, public `/health/deployment` is
+  non-secret and accurately reports `ready: false`, and database, migration
+  object proof, private `persona-files` storage, and NVIDIA platform chat are
+  true. Remaining proof/waiver blockers are Supabase Auth redirects/password
+  reset route, OpenAI embeddings, Stripe test resources, cache provider,
+  Cloudflare account/index decision, replay account/data, and any hostile
+  vector/RPC smoke MIMIR wants before full replay. Do not begin replay-driven
+  optimization unless MIMIR/Marty explicitly waive the remaining blockers or
+  assign DAEDALUS to prove them.
 
 ## Near-term rule
 

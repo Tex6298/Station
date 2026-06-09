@@ -64,8 +64,8 @@ Observed public deployment facts:
 - Web `/health` returned `{ "ok": true }`.
 - `/health` returned `{ "ok": true }`.
 - `/health/deployment` returned `ok: true` and `ready: false`.
-- Latest MIMIR deployment-readiness timestamp from the response:
-  `2026-06-09T12:21:20.732Z`.
+- Latest ARGUS recheck deployment-readiness timestamp from the response:
+  `2026-06-09T12:29:42.477Z`.
 - App URL is configured as
   `https://stationweb-production.up.railway.app`.
 - API URL is configured as
