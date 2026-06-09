@@ -86,8 +86,9 @@ export async function buildPersonaContext(
 export async function assemblePersonaRuntimeContext(
   input: PersonaContextInput
 ): Promise<PersonaRuntimeContext> {
-  const [canon, memory, integrity, preferenceProfile, archive] = await Promise.all([
+  const [canon, ownerMemory, memory, integrity, preferenceProfile, archive] = await Promise.all([
     loadCanon(input.supabase, input.persona.id, input.maxCanon ?? 6, input.ownerUserId),
+    loadOwnerMemoryBlocks(input, 4),
     searchMemory({
       supabase: input.supabase,
       personaId: input.persona.id,
@@ -126,6 +127,7 @@ export async function assemblePersonaRuntimeContext(
     ...canonSources,
     ...(preferenceProfile ? [preferenceProfile] : []),
     ...integrity,
+    ...ownerMemory,
     ...memorySources,
     ...archive,
   ];
@@ -142,7 +144,7 @@ export async function assemblePersonaRuntimeContext(
       ...(preferenceProfile ? [formatSourceForPrompt(preferenceProfile)] : []),
       ...integrity.map((source) => formatSourceForPrompt(source)),
     ],
-    memory: memorySources.map((source) => source.content),
+    memory: [...ownerMemory, ...memorySources].map((source) => source.content),
     archive: archive.map((source) => formatSourceForPrompt(source)),
   });
 
@@ -150,16 +152,44 @@ export async function assemblePersonaRuntimeContext(
     systemPrompt,
     counts: {
       canon: canonSources.length,
-      memory: memorySources.length,
+      memory: ownerMemory.length + memorySources.length,
       integrity: integrity.length + (preferenceProfile ? 1 : 0),
       archive: archive.length,
     },
     sources,
     canon: canonSources,
-    memory: memorySources,
+    memory: [...ownerMemory, ...memorySources],
     integrity: preferenceProfile ? [preferenceProfile, ...integrity] : integrity,
     archive,
   };
+}
+
+async function loadOwnerMemoryBlocks(
+  input: PersonaContextInput,
+  limit: number
+): Promise<PersonaContextSource[]> {
+  if (!input.ownerUserId) return [];
+
+  const { data, error } = await input.supabase
+    .from("owner_memory_blocks")
+    .select("id, title, content, scope, trust_level, confidence, updated_at, created_at")
+    .eq("owner_user_id", input.ownerUserId)
+    .eq("status", "active")
+    .order("updated_at", { ascending: false })
+    .limit(limit);
+
+  if (error) return [];
+
+  return (data ?? []).map((row): PersonaContextSource => ({
+    id: row.id,
+    type: "memory",
+    title: row.title,
+    content: row.content,
+    priority: 60 + Number(row.confidence ?? 0),
+    reason: `Included active owner memory block (${row.scope}, ${row.trust_level}).`,
+    sourceType: "owner_memory_block",
+    createdAt: row.updated_at ?? row.created_at,
+  }));
 }
 
 async function loadPreferenceProfile(

@@ -50,6 +50,11 @@ The current scaffold assumes these persistence entities:
   retrieval validates completed `import_jobs`, processed `persona_files`, or
   present `archived_chat_transcripts` before returning excerpts; generic memory
   search excludes archive chunks.
+- BE-02 makes `memory_item_lifecycle` runtime-significant: rejected,
+  quarantined, expired, and superseded memory is filtered before prompt
+  injection, active `owner_memory_blocks` can be injected as owner-scoped runtime
+  memory, and the `match_memory_items` RPC follows the same lifecycle filter as
+  the keyword fallback.
 - Moderation report creation now writes `moderation_reports` with the
   authenticated user id as `reporter_id` and serializes the existing camelCase
   `ModerationReportRecord` API shape.

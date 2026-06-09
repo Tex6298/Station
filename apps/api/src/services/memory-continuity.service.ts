@@ -180,9 +180,9 @@ export async function buildPersonaMemoryBriefing(personaId: string, ownerUserId:
       : row.memory_item_lifecycle ?? null,
   }));
 
-  const activeMemories = memories.filter((row: any) => (row.lifecycle?.status ?? "active") === "active");
+  const activeMemories = memories.filter((row: any) => isMemoryLifecycleInjectable(row.lifecycle));
   const lifecycleCounts = memories.reduce((counts: Record<string, number>, row: any) => {
-    const status = row.lifecycle?.status ?? "active";
+    const status = runtimeLifecycleStatus(row.lifecycle);
     counts[status] = (counts[status] ?? 0) + 1;
     return counts;
   }, {});
@@ -240,6 +240,21 @@ export function serializeMemoryLifecycle(row: any) {
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   };
+}
+
+export function runtimeLifecycleStatus(row: any): MemoryLifecycleStatus {
+  const status = (row?.status ?? "active") as MemoryLifecycleStatus;
+  if (status !== "active") return status;
+  if (row?.superseded_by_memory_item_id) return "superseded";
+  if (!row?.expires_at) return "active";
+
+  const expiresAt = Date.parse(row.expires_at);
+  if (!Number.isNaN(expiresAt) && expiresAt <= Date.now()) return "expired";
+  return "active";
+}
+
+export function isMemoryLifecycleInjectable(row: any) {
+  return runtimeLifecycleStatus(row) === "active";
 }
 
 function serializeCycleState(row: any) {

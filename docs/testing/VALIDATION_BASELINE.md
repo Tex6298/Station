@@ -2167,6 +2167,26 @@ Commands run by DAEDALUS:
 | `npx --yes pnpm@10.32.1 --filter @station/api build` | Pass | API and dependent package builds completed. |
 | `git diff --check` | Pass | CRLF normalization warnings only. |
 
+## BE-02 DAEDALUS memory lifecycle result
+
+Implemented on 2026-06-09 for ARGUS review. This is memory lifecycle engine
+work only: active `owner_memory_blocks` are injected into owner runtime context,
+runtime memory search filters rejected/quarantined/expired/superseded
+`memory_item_lifecycle` rows, the vector memory RPC is aligned with the same
+runtime filter, memory briefing counts past `expires_at` and supersession refs
+as non-active states, and lifecycle updates remain owner-only with
+same-owner/persona supersession validation. No Redis, Cloudflare,
+provider-policy, background-job, UI, or BE-01 staging migration-proof work was
+added.
+
+Commands run by DAEDALUS:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npx --yes pnpm@10.32.1 test:persona-context` | Pass | 3 tests passed, covering owner-only runtime context, active owner-memory injection, lifecycle filtering, owner-only briefing truth, and lifecycle supersession update validation. |
+| `npx --yes pnpm@10.32.1 --filter @station/api build` | Pass | API and dependent package builds completed. |
+| `git diff --check` | Pass | CRLF normalization warnings only. |
+
 ## BE-01 ARGUS private archive retrieval review result
 
 ARGUS reviewed BE-01 on 2026-06-09 and accepted it after one prompt-injection

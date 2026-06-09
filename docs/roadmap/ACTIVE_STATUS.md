@@ -552,6 +552,16 @@ when a PR lands, or when validation truth changes.
   proof remains an E2E setup follow-up, not a blocker to BE-02. Agents that
   believe a lane is done, blocked, or ready to go idle must wake MIMIR with
   `WAKEUP A1:` and a concrete verdict/task.
+- BE-02 DAEDALUS implementation is ready for ARGUS review, 2026-06-09: active
+  `owner_memory_blocks` are injected into owner runtime context with a distinct
+  owner-memory source label; rejected, quarantined, expired, and superseded
+  `memory_item_lifecycle` rows are filtered out of runtime memory search in the
+  keyword fallback and the updated vector RPC; briefing status counts now treat
+  past `expires_at` and supersession refs as non-active runtime states; lifecycle
+  updates remain owner-only and validate supersession targets against the same
+  owner/persona. `pnpm test:persona-context`, `pnpm --filter @station/api
+  build`, and `git diff --check` pass locally with the pinned runner. BE-03
+  waits for ARGUS acceptance or a DAEDALUS fix wakeup.
 
 ## Current repo truth
 

@@ -10,6 +10,7 @@ export interface MemorySearchResult {
   sourceType: string;
   relevanceWeight: number;
   similarity: number;
+  lifecycleStatus?: string | null;
 }
 
 export interface CanonResult {
@@ -124,11 +125,13 @@ async function keywordFallbackSearch(
   const { data } = await memoryQuery;
 
   if (!data) return [];
+  const lifecycleByMemoryId = await loadMemoryLifecycleMap(supabase, personaId, ownerUserId);
 
   const tokens = query.toLowerCase().split(/\s+/).filter(Boolean);
 
   return data
     .filter((row) => row.archive_source_type == null)
+    .filter((row) => isLifecycleInjectable(lifecycleByMemoryId.get(row.id)))
     .map((row) => {
       const haystack = `${row.title ?? ""} ${row.content} ${row.summary ?? ""}`.toLowerCase();
       const score = tokens.filter((t) => haystack.includes(t)).length;
@@ -141,8 +144,39 @@ async function keywordFallbackSearch(
         sourceType: row.source_type,
         relevanceWeight: row.relevance_weight,
         similarity: score / Math.max(tokens.length, 1),
+        lifecycleStatus: lifecycleByMemoryId.get(row.id)?.status ?? "active",
       };
     })
     .sort((a, b) => b.similarity - a.similarity || b.relevanceWeight - a.relevanceWeight)
     .slice(0, limit);
+}
+
+async function loadMemoryLifecycleMap(
+  supabase: SupabaseClient,
+  personaId: string,
+  ownerUserId?: string
+): Promise<Map<string, { status?: string | null; expires_at?: string | null; superseded_by_memory_item_id?: string | null }>> {
+  const lifecycleQuery = supabase
+    .from("memory_item_lifecycle")
+    .select("memory_item_id, status, expires_at, superseded_by_memory_item_id")
+    .eq("persona_id", personaId);
+
+  if (ownerUserId) lifecycleQuery.eq("owner_user_id", ownerUserId);
+
+  const { data, error } = await lifecycleQuery;
+  if (error) return new Map();
+
+  return new Map((data ?? []).map((row) => [row.memory_item_id, row]));
+}
+
+function isLifecycleInjectable(
+  lifecycle?: { status?: string | null; expires_at?: string | null; superseded_by_memory_item_id?: string | null }
+) {
+  if (!lifecycle) return true;
+  if ((lifecycle.status ?? "active") !== "active") return false;
+  if (lifecycle.superseded_by_memory_item_id) return false;
+  if (!lifecycle.expires_at) return true;
+
+  const expiresAt = Date.parse(lifecycle.expires_at);
+  return Number.isNaN(expiresAt) || expiresAt > Date.now();
 }
