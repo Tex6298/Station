@@ -631,6 +631,15 @@ when a PR lands, or when validation truth changes.
   metadata-filtered vector path. Migration `028_retrieval_provider_metadata.sql`
   still needs staging Supabase apply/RPC proof before remote metadata-filtered
   vector retrieval is proven.
+- BE-05 Redis/Valkey foundation is opened by MIMIR, 2026-06-09: DAEDALUS should
+  add operational cache/idempotency/rate-limit/lightweight queue-state
+  scaffolding only. Redis/Valkey is not canonical memory in this lane;
+  Redis-as-memory-truth remains an open architecture question for a later
+  explicit MIMIR decision and ARGUS durability/export/deletion review. BE-01
+  through BE-04 migrations 025 through 028 staging apply/RPC proof remains an
+  E2E setup follow-up, not a blocker to BE-05. Agents that believe a lane is
+  done, blocked, or ready to go idle must wake MIMIR with `WAKEUP A1:` and a
+  concrete verdict/task.
 
 ## Current repo truth
 
