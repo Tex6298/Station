@@ -756,6 +756,15 @@ when a PR lands, or when validation truth changes.
   archive-retrieval response bodies may be viewed during manual replay but must
   not be stored in evidence packages; evidence should keep counts, modes,
   ratings, statuses, and sanitized labels.
+- Backend roadmap BE-00 through BE-08 is locally accepted by MIMIR,
+  2026-06-09. Replay-driven optimization must wait for staging proof or an
+  explicit MIMIR waiver of the remaining external setup blockers: Supabase
+  migrations `025` through `028`, remote database/migration/storage readiness,
+  Supabase Auth redirects/reset route, cache provider selection/deferment,
+  Cloudflare account/index decision, Stripe test resources, platform provider
+  plus OpenAI embedding configuration, and replay account/data setup. Latest
+  public `/health/deployment` still reports `ready: false`, so the next lane is
+  staging proof/waiver handoff, not more speculative backend expansion.
 
 ## Current repo truth
 

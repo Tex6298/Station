@@ -33,6 +33,9 @@ scope, not permission to build everything at once.
 - API `/health/deployment.ready` is currently false while database, migration,
   storage, auth-redirect, provider, and Stripe readiness remain pending or
   failing in deployment checks.
+- Latest MIMIR remote check on 2026-06-09 still reports `ready: false` with
+  database, migration, and storage `query_failed` statuses plus pending Auth,
+  provider, Stripe, Redis, cache-provider, and Cloudflare setup.
 - Supabase staging target is `jdewavktyemnpehdzvgl`.
 - Supabase migrations `001` through `024` are present in remote migration
   history.
@@ -313,6 +316,12 @@ Default order:
 
 Immediate active task:
 
-- MIMIR decides backend roadmap closeout and staging handoff. Recommended next
-  decision: prove or explicitly waive the external setup blockers before
-  replay-driven optimization work begins.
+- DAEDALUS prepares the staging proof/explicit-waiver handoff for BE-00 through
+  BE-08, using `/observability/replay-readiness`,
+  `docs/ops/STAGING_REPLAY_READINESS.md`, and the public
+  `/health/deployment` readiness shape.
+- Do not start replay-driven optimization until MIMIR accepts the staging proof
+  or explicitly waives remaining external setup blockers.
+- If DAEDALUS or ARGUS believes staging proof is complete, blocked, or ready for
+  Marty action, they must wake MIMIR with `WAKEUP A1:` and a concrete
+  closeout/staging verdict instead of going quiet.
