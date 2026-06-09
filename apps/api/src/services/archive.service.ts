@@ -3,6 +3,9 @@ import {
   generateEmbedding,
   generateEmbeddings,
   chunkText,
+  assertActiveEmbeddingVector,
+  isEmbeddingDimensionMismatch,
+  metadataForActiveEmbedding,
 } from "@station/ai/retrieval/embeddings";
 import type { ArchiveSourceType } from "@station/types";
 import { env } from "../lib/env";
@@ -14,6 +17,44 @@ type ArchiveSourceRef = {
   id: string;
   name?: string | null;
 };
+
+function embeddingColumnsFor(vector: number[] | null) {
+  const metadata = metadataForActiveEmbedding(vector);
+  return {
+    embedding_provider: metadata?.embeddingProvider ?? null,
+    embedding_model: metadata?.embeddingModel ?? null,
+    embedding_dimension: metadata?.embeddingDimension ?? null,
+    embedding_index_name: metadata?.embeddingIndexName ?? null,
+    embedding_index_source: metadata?.embeddingIndexSource ?? null,
+    embedding_backfill_version: metadata?.embeddingBackfillVersion ?? null,
+  };
+}
+
+async function generateArchiveEmbedding(text: string) {
+  const apiKey = embeddingApiKey();
+  if (!apiKey) return null;
+  try {
+    return assertActiveEmbeddingVector(await generateEmbedding(text, apiKey));
+  } catch (error) {
+    if (isEmbeddingDimensionMismatch(error)) throw error;
+    return null;
+  }
+}
+
+async function generateArchiveEmbeddings(texts: string[]) {
+  const apiKey = embeddingApiKey();
+  if (!apiKey) return texts.map(() => null);
+  try {
+    return (await generateEmbeddings(texts, apiKey)).map(assertActiveEmbeddingVector);
+  } catch (error) {
+    if (isEmbeddingDimensionMismatch(error)) throw error;
+    return texts.map(() => null);
+  }
+}
+
+function embeddingApiKey() {
+  return env.OPENAI_API_KEY?.trim() || process.env.OPENAI_API_KEY?.trim() || null;
+}
 
 /**
  * Adds a single memory item to a persona's archive and generates its embedding.
@@ -38,9 +79,7 @@ export async function addMemoryItem(input: {
   reserved = true;
 
   try {
-    const embedding = await generateEmbedding(input.content, env.OPENAI_API_KEY).catch(
-      () => null
-    );
+    const embedding = await generateArchiveEmbedding(input.content);
 
     const { data, error } = await sb
       .from("memory_items")
@@ -53,6 +92,7 @@ export async function addMemoryItem(input: {
         source_type: input.sourceType,
         relevance_weight: input.relevanceWeight ?? 1,
         embedding: embedding ?? null,
+        ...embeddingColumnsFor(embedding),
         archive_source_type: input.archiveSource?.type ?? null,
         archive_source_id: input.archiveSource?.id ?? null,
         archive_source_name: input.archiveSource?.name ?? null,
@@ -101,25 +141,27 @@ export async function ingestTextIntoArchive(input: {
   reserved = true;
 
   try {
-    const embeddings = await generateEmbeddings(chunks, env.OPENAI_API_KEY).catch(
-      () => chunks.map(() => null)
-    );
+    const embeddings = await generateArchiveEmbeddings(chunks);
 
-    const rows = chunks.map((chunk, i) => ({
-      persona_id: input.personaId,
-      owner_user_id: input.ownerUserId,
-      title: `${input.sourceName} [chunk ${i + 1}/${chunks.length}]`,
-      content: chunk,
-      summary: chunk.slice(0, 200),
-      source_type: input.sourceType,
-      relevance_weight: input.relevanceWeight ?? 1,
-      embedding: embeddings[i] ?? null,
-      archive_source_type: input.archiveSource?.type ?? null,
-      archive_source_id: input.archiveSource?.id ?? null,
-      archive_source_name: input.archiveSource?.name ?? input.sourceName,
-      chunk_index: input.archiveSource ? i : null,
-      chunk_count: input.archiveSource ? chunks.length : null,
-    }));
+    const rows = chunks.map((chunk, i) => {
+      const embedding = embeddings[i] ?? null;
+      return {
+        persona_id: input.personaId,
+        owner_user_id: input.ownerUserId,
+        title: `${input.sourceName} [chunk ${i + 1}/${chunks.length}]`,
+        content: chunk,
+        summary: chunk.slice(0, 200),
+        source_type: input.sourceType,
+        relevance_weight: input.relevanceWeight ?? 1,
+        embedding,
+        ...embeddingColumnsFor(embedding),
+        archive_source_type: input.archiveSource?.type ?? null,
+        archive_source_id: input.archiveSource?.id ?? null,
+        archive_source_name: input.archiveSource?.name ?? input.sourceName,
+        chunk_index: input.archiveSource ? i : null,
+        chunk_count: input.archiveSource ? chunks.length : null,
+      };
+    });
 
     const { data: inserted, error } = await sb
       .from("memory_items")

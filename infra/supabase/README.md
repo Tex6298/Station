@@ -36,6 +36,10 @@ In the Supabase dashboard, go to **SQL Editor** and run the migrations in order:
 22. `migrations/022_persona_lifecycle_memory_graph.sql` - persona layer profiles, lifecycle events, handoffs, and memory graph edges
 23. `migrations/023_memory_continuity_controls.sql` - owner memory blocks, memory lifecycle metadata, and memory cycle state
 24. `migrations/024_community_trust_votes_moderation.sql` - community trust profiles, voting, moderation actions, and forum scoring fields
+25. `migrations/025_private_archive_retrieval.sql` - private archive chunk provenance and retrieval RPCs
+26. `migrations/026_memory_lifecycle_runtime_filters.sql` - runtime lifecycle filters for vector memory search
+27. `migrations/027_developer_space_provider_policy.sql` - Developer Space provider/data posture
+28. `migrations/028_retrieval_provider_metadata.sql` - retrieval provider metadata and active vector contract guardrails
 
 Or use the Supabase CLI after confirming the staging project target:
 ```bash

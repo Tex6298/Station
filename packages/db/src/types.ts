@@ -15,6 +15,8 @@ export type DocumentSourceType = "manual" | "canon" | "integrity" | "archive_fil
 export type Provider = "platform" | "openai" | "anthropic" | "deepseek" | "gemini";
 export type SourceType = "chat" | "import" | "document" | "calibration" | "integrity_session" | "manual";
 export type ArchiveSourceType = "import_job" | "persona_file" | "archived_chat_transcript";
+export type EmbeddingProvider = "openai";
+export type EmbeddingIndexSource = "supabase_pgvector";
 export type ConversationStatus = "active" | "archived";
 export type ContinuityCandidateType = "memory" | "canon";
 export type ContinuityCandidateStatus = "pending" | "accepted" | "rejected";
@@ -249,6 +251,12 @@ export interface Database {
           source_type: SourceType;
           relevance_weight: number;
           embedding: number[] | null;
+          embedding_provider: EmbeddingProvider | null;
+          embedding_model: string | null;
+          embedding_dimension: number | null;
+          embedding_index_name: string | null;
+          embedding_index_source: EmbeddingIndexSource | null;
+          embedding_backfill_version: number | null;
           archive_source_type: ArchiveSourceType | null;
           archive_source_id: string | null;
           archive_source_name: string | null;
@@ -257,8 +265,14 @@ export interface Database {
           created_at: string;
           updated_at: string;
         };
-        Insert: Omit<Database["public"]["Tables"]["memory_items"]["Row"], "id" | "created_at" | "updated_at" | "archive_source_type" | "archive_source_id" | "archive_source_name" | "chunk_index" | "chunk_count"> & {
+        Insert: Omit<Database["public"]["Tables"]["memory_items"]["Row"], "id" | "created_at" | "updated_at" | "embedding_provider" | "embedding_model" | "embedding_dimension" | "embedding_index_name" | "embedding_index_source" | "embedding_backfill_version" | "archive_source_type" | "archive_source_id" | "archive_source_name" | "chunk_index" | "chunk_count"> & {
           id?: string;
+          embedding_provider?: EmbeddingProvider | null;
+          embedding_model?: string | null;
+          embedding_dimension?: number | null;
+          embedding_index_name?: string | null;
+          embedding_index_source?: EmbeddingIndexSource | null;
+          embedding_backfill_version?: number | null;
           archive_source_type?: ArchiveSourceType | null;
           archive_source_id?: string | null;
           archive_source_name?: string | null;

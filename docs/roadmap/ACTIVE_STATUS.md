@@ -605,6 +605,22 @@ when a PR lands, or when validation truth changes.
   an E2E setup follow-up, not a blocker to BE-04. Agents that believe a lane is
   done, blocked, or ready to go idle must wake MIMIR with `WAKEUP A1:` and a
   concrete verdict/task.
+- BE-04 DAEDALUS implementation is ready for ARGUS review, 2026-06-09:
+  `memory_items` now has retrieval provider metadata for embedding provider,
+  model, dimension, index name/source, and backfill version. The active contract
+  remains OpenAI `text-embedding-3-small`, `vector(1536)`,
+  `memory_items_embedding_1536`, Supabase pgvector, backfill version 1. New API
+  memory/archive vector writes reject mixed-dimension provider responses before
+  insert and release reserved storage bytes. Missing embedding keys now leave
+  new API writes without vectors/metadata instead of persisting pseudo-vector
+  rows as if they were OpenAI embeddings. Migration 028 backfills existing
+  non-null embeddings, constrains metadata to the active 1536-vector contract,
+  and filters both memory and private-archive vector RPCs to matching metadata.
+  `pnpm test:storage`, `pnpm test:conversation-archive`,
+  `pnpm test:persona-context`, the focused retrieval metadata test,
+  `pnpm --filter @station/api build`, and targeted `git diff --check` pass
+  locally with the pinned runner. BE-05 must wait for ARGUS acceptance or a
+  DAEDALUS fix wakeup.
 
 ## Current repo truth
 
@@ -757,6 +773,10 @@ when a PR lands, or when validation truth changes.
   any provider call, and AI observability records only sanitized decision
   metadata instead of provider secrets, prompt payloads, or private archive
   excerpts.
+- As of BE-04 DAEDALUS implementation, generated `memory_items.embedding` rows
+  carry active retrieval metadata. The active search/index contract remains
+  OpenAI `text-embedding-3-small` over Supabase pgvector `vector(1536)`, and
+  future provider/dimension changes require an explicit migration/reindex lane.
 
 ## Near-term rule
 

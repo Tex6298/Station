@@ -2288,3 +2288,27 @@ Commands re-run by ARGUS:
 | `npx --yes pnpm@10.32.1 exec tsx --test packages/ai/test/provider-router.test.ts` | Pass | 4 tests passed. |
 | `npx --yes pnpm@10.32.1 --filter @station/api build` | Pass | API and dependent package builds completed. |
 | `git diff --check` | Pass | CRLF normalization warnings only. |
+
+## BE-04 DAEDALUS retrieval provider metadata result
+
+Implemented on 2026-06-09 for ARGUS review. This is retrieval metadata work
+only: `memory_items` tracks embedding provider, model, dimension, index
+name/source, and backfill version for generated vectors. The active contract
+remains OpenAI `text-embedding-3-small`, Supabase pgvector `vector(1536)`,
+`memory_items_embedding_1536`, and backfill version 1. New API memory/archive
+vector writes reject provider responses whose dimension does not match the
+active index, and missing embedding keys leave new writes without vectors or
+metadata instead of storing pseudo-vector rows as OpenAI embeddings. No provider
+switch, vector-dimension switch, Redis, Cloudflare, NVIDIA retrieval,
+background-job, UI, or staging migration-proof work was added.
+
+Commands run by DAEDALUS:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npx --yes pnpm@10.32.1 exec tsx --test packages/ai/test/retrieval-metadata.test.ts` | Pass | 2 tests passed, covering active metadata constants, mixed-dimension helper rejection, and 1536-vector RPC compatibility for memory and private archive search. |
+| `npx --yes pnpm@10.32.1 test:storage` | Pass | 7 tests passed, including active embedding metadata on vector writes and rejection/rollback for a 2-dimensional provider response. |
+| `npx --yes pnpm@10.32.1 test:conversation-archive` | Pass | 4 tests passed, proving existing archive retrieval and archive-import behavior remain compatible. |
+| `npx --yes pnpm@10.32.1 test:persona-context` | Pass | 3 tests passed, confirming existing runtime memory context behavior remains green. |
+| `npx --yes pnpm@10.32.1 --filter @station/api build` | Pass | API and dependent package builds completed. |
+| Targeted `git diff --check` over BE-04 code/schema/docs | Pass | CRLF normalization warnings only. |

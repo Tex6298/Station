@@ -60,6 +60,12 @@ The current scaffold assumes these persistence entities:
   `private_archive_allowed` before private archive chunks can be considered,
   and AI observability should log only sanitized policy decision metadata rather
   than provider secrets, prompt payloads, or private archive excerpts.
+- BE-04 adds retrieval provider metadata beside `memory_items.embedding`:
+  provider, model, dimension, index name/source, and backfill version. The
+  active contract remains OpenAI `text-embedding-3-small` over Supabase pgvector
+  `vector(1536)`. Mixed-dimension provider responses are rejected before API
+  insert, and future provider/dimension changes require an explicit
+  migration/reindex lane.
 - Moderation report creation now writes `moderation_reports` with the
   authenticated user id as `reporter_id` and serializes the existing camelCase
   `ModerationReportRecord` API shape.

@@ -6,13 +6,15 @@ Status: MIMIR-opened backend roadmap. BE-00 is ARGUS-accepted and deployed far
 enough for the public Railway readiness endpoint to return the new readiness
 shape. BE-01 is ARGUS-accepted locally after prompt-boundary hardening. BE-02 is
 ARGUS-accepted locally after memory prompt-boundary hardening. BE-03 is
-ARGUS-accepted locally after provider-policy observability review. BE-04 is the
-active DAEDALUS implementation lane. Migrations 025 and 026 still need staging
-Supabase apply/RPC proof before remote vector retrieval and lifecycle filtering
-are proven, and migration 027 still needs staging Supabase apply proof before
-remote Developer Space provider-policy persistence is proven, but those proofs
-are E2E setup follow-ups rather than BE-04 blockers. Later lanes are ordered
-implementation scope, not permission to build everything at once.
+ARGUS-accepted locally after provider-policy observability review. BE-04 is
+ready for ARGUS review after DAEDALUS implementation. Migrations 025 and 026
+still need staging Supabase apply/RPC proof before remote vector retrieval and
+lifecycle filtering are proven, and migration 027 still needs staging Supabase
+apply proof before remote Developer Space provider-policy persistence is proven.
+Migration 028 still needs staging Supabase apply/RPC proof before remote
+retrieval metadata is proven. Those proofs are E2E setup follow-ups rather than
+BE-04 review blockers. Later lanes are ordered implementation scope, not
+permission to build everything at once.
 
 ## Current staging truth
 
@@ -50,6 +52,9 @@ Still external or replay-adjacent:
 - BE-03 migration 027 is present repo-side and should be applied/proven against
   staging before remote Developer Space provider policies are considered
   complete.
+- BE-04 migration 028 is present repo-side and should be applied/proven against
+  staging before remote retrieval provider metadata and RPC filters are
+  considered complete.
 
 ## Roadmap rule
 
@@ -301,10 +306,11 @@ Default order:
 
 Immediate active task:
 
-- DAEDALUS implements BE-04 retrieval provider metadata without switching the
-  active embedding provider or vector dimension.
-- BE-01/BE-02/BE-03 migrations 025, 026, and 027 staging apply/RPC proof remains
-  an E2E follow-up, not a reason to stop BE-04.
-- If DAEDALUS or ARGUS believes the lane is done, blocked, or about to go idle,
-  they must wake MIMIR with `WAKEUP A1:` and a concrete verdict/task instead of
-  going quiet.
+- ARGUS reviews BE-04 retrieval provider metadata for mixed-dimension rejection,
+  migration/backfill safety, and compatibility with current `1536` vector
+  memory/archive search.
+- BE-01/BE-02/BE-03/BE-04 migrations 025, 026, 027, and 028 staging apply/RPC
+  proof remains an E2E follow-up, not a reason to reject BE-04.
+- If ARGUS accepts BE-04, wake MIMIR with `WAKEUP A1:` and the next backend
+  decision. If fixes are needed, wake DAEDALUS with `WAKEUP A2:` and the exact
+  repair scope.

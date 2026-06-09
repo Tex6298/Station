@@ -694,3 +694,70 @@ test("archive memory writes reserve bytes and release them on insert rollback", 
     resetStorageFake();
   }
 });
+
+test("archive memory writes active embedding metadata and rejects mixed dimensions", async () => {
+  const { addMemoryItem } = await import("../services/archive.service.js");
+  const restoreFetch = mockEmbeddingFetch(new Array(1536).fill(0.001));
+  process.env.OPENAI_API_KEY = "test-openai-key";
+  const db = new InMemorySupabase();
+  setSupabaseAdminForTests(db.client as any);
+
+  try {
+    const memory = await addMemoryItem({
+      personaId: PERSONA_ID,
+      ownerUserId: OWNER_ID,
+      title: "Embedded archive memory",
+      content: "This vector should match the active retrieval index.",
+      summary: "Vector contract.",
+      sourceType: "chat",
+    });
+
+    assert.equal(memory.embedding.length, 1536);
+    assert.equal(memory.embedding_provider, "openai");
+    assert.equal(memory.embedding_model, "text-embedding-3-small");
+    assert.equal(memory.embedding_dimension, 1536);
+    assert.equal(memory.embedding_index_name, "memory_items_embedding_1536");
+    assert.equal(memory.embedding_index_source, "supabase_pgvector");
+    assert.equal(memory.embedding_backfill_version, 1);
+  } finally {
+    resetStorageFake();
+    restoreFetch();
+    delete process.env.OPENAI_API_KEY;
+  }
+
+  const restoreBadFetch = mockEmbeddingFetch([0.1, 0.2]);
+  process.env.OPENAI_API_KEY = "test-openai-key";
+  const failingDb = new InMemorySupabase();
+  setSupabaseAdminForTests(failingDb.client as any);
+
+  try {
+    await assert.rejects(
+      () => addMemoryItem({
+        personaId: PERSONA_ID,
+        ownerUserId: OWNER_ID,
+        title: "Bad vector memory",
+        content: "This provider response should be rejected before insert.",
+        sourceType: "chat",
+      }),
+      /Embedding dimension mismatch: expected 1536, received 2/
+    );
+    assert.equal(storageRow(failingDb).bytes_used, 0);
+    assert.equal(failingDb.tables.memory_items.length, 0);
+  } finally {
+    resetStorageFake();
+    restoreBadFetch();
+    delete process.env.OPENAI_API_KEY;
+  }
+});
+
+function mockEmbeddingFetch(vector: number[]) {
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = (async () => ({
+    ok: true,
+    json: async () => ({ data: [{ index: 0, embedding: vector }] }),
+    text: async () => "",
+  })) as typeof fetch;
+  return () => {
+    globalThis.fetch = originalFetch;
+  };
+}

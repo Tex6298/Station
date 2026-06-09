@@ -9,8 +9,56 @@
  * when no API key is available (NOT suitable for production search).
  */
 
-const EMBEDDING_MODEL = "text-embedding-3-small";
-const EMBEDDING_DIM = 1536;
+export const ACTIVE_EMBEDDING_PROVIDER = "openai";
+export const ACTIVE_EMBEDDING_MODEL = "text-embedding-3-small";
+export const ACTIVE_EMBEDDING_DIMENSION = 1536;
+export const ACTIVE_EMBEDDING_INDEX_NAME = "memory_items_embedding_1536";
+export const ACTIVE_EMBEDDING_INDEX_SOURCE = "supabase_pgvector";
+export const ACTIVE_EMBEDDING_BACKFILL_VERSION = 1;
+
+export type EmbeddingMetadata = {
+  embeddingProvider: typeof ACTIVE_EMBEDDING_PROVIDER;
+  embeddingModel: typeof ACTIVE_EMBEDDING_MODEL;
+  embeddingDimension: typeof ACTIVE_EMBEDDING_DIMENSION;
+  embeddingIndexName: typeof ACTIVE_EMBEDDING_INDEX_NAME;
+  embeddingIndexSource: typeof ACTIVE_EMBEDDING_INDEX_SOURCE;
+  embeddingBackfillVersion: typeof ACTIVE_EMBEDDING_BACKFILL_VERSION;
+};
+
+export class EmbeddingDimensionMismatchError extends Error {
+  constructor(readonly expectedDimension: number, readonly receivedDimension: number) {
+    super(`Embedding dimension mismatch: expected ${expectedDimension}, received ${receivedDimension}.`);
+    this.name = "EmbeddingDimensionMismatchError";
+  }
+}
+
+export function activeEmbeddingMetadata(): EmbeddingMetadata {
+  return {
+    embeddingProvider: ACTIVE_EMBEDDING_PROVIDER,
+    embeddingModel: ACTIVE_EMBEDDING_MODEL,
+    embeddingDimension: ACTIVE_EMBEDDING_DIMENSION,
+    embeddingIndexName: ACTIVE_EMBEDDING_INDEX_NAME,
+    embeddingIndexSource: ACTIVE_EMBEDDING_INDEX_SOURCE,
+    embeddingBackfillVersion: ACTIVE_EMBEDDING_BACKFILL_VERSION,
+  };
+}
+
+export function assertActiveEmbeddingVector(vector: number[]): number[] {
+  if (vector.length !== ACTIVE_EMBEDDING_DIMENSION) {
+    throw new EmbeddingDimensionMismatchError(ACTIVE_EMBEDDING_DIMENSION, vector.length);
+  }
+  return vector;
+}
+
+export function metadataForActiveEmbedding(vector: number[] | null | undefined): EmbeddingMetadata | null {
+  if (!vector) return null;
+  assertActiveEmbeddingVector(vector);
+  return activeEmbeddingMetadata();
+}
+
+export function isEmbeddingDimensionMismatch(error: unknown): error is EmbeddingDimensionMismatchError {
+  return error instanceof EmbeddingDimensionMismatchError;
+}
 
 export async function generateEmbedding(
   text: string,
@@ -20,7 +68,7 @@ export async function generateEmbedding(
 
   if (!key) {
     // Dev fallback: deterministic pseudo-embedding (no semantic meaning)
-    return deterministicPseudoEmbedding(text, EMBEDDING_DIM);
+    return deterministicPseudoEmbedding(text, ACTIVE_EMBEDDING_DIMENSION);
   }
 
   const response = await fetch("https://api.openai.com/v1/embeddings", {
@@ -30,7 +78,7 @@ export async function generateEmbedding(
       Authorization: `Bearer ${key}`,
     },
     body: JSON.stringify({
-      model: EMBEDDING_MODEL,
+      model: ACTIVE_EMBEDDING_MODEL,
       input: text.slice(0, 8000), // max safe input length
     }),
   });
@@ -61,7 +109,7 @@ export async function generateEmbeddings(
 
   if (!key) {
     return Promise.all(
-      texts.map((t) => deterministicPseudoEmbedding(t, EMBEDDING_DIM))
+      texts.map((t) => deterministicPseudoEmbedding(t, ACTIVE_EMBEDDING_DIMENSION))
     );
   }
 
@@ -72,7 +120,7 @@ export async function generateEmbeddings(
       Authorization: `Bearer ${key}`,
     },
     body: JSON.stringify({
-      model: EMBEDDING_MODEL,
+      model: ACTIVE_EMBEDDING_MODEL,
       input: texts.map((t) => t.slice(0, 8000)),
     }),
   });
