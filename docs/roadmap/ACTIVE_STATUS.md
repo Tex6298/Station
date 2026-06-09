@@ -811,6 +811,14 @@ when a PR lands, or when validation truth changes.
   local Windows web build compiles and generates pages, then fails in Next
   standalone trace copying with `EPERM` on symlink creation; Railway/Linux
   deployment proof is still needed.
+- DAEDALUS staging closeout implementation is accepted by ARGUS, 2026-06-09:
+  focused local replay-readiness/auth/API/web checks pass, the deployed web
+  `/health` route returns OK, `/reset-password/update` returns public `200`,
+  deployed `/observability/replay-readiness` rejects visitors with `401`, and
+  deployed `/health/deployment` remains non-secret with `ready: false`. The
+  remaining MIMIR/Marty decision is whether to waive or prove Supabase Auth
+  redirect allow-list, OpenAI embeddings, Stripe, cache provider, Cloudflare,
+  replay account/data, and optional hostile vector/RPC smoke before replay.
 
 ## Current repo truth
 

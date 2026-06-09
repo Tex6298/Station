@@ -2740,3 +2740,35 @@ Commands run:
 | `npx --yes pnpm@10.32.1 --filter @station/web lint` | Pass | Known warning-only output for Developer Spaces effect dependency and two `<img>` warnings. |
 | `npx --yes pnpm@10.32.1 --filter @station/web build` | Local environment failure | Next compiled successfully, lint/type checks ran, and 28 static pages generated; then standalone trace copying failed on Windows with `EPERM: operation not permitted, symlink ... react -> apps/web/.next/standalone/...`. Clearing `.next/standalone` and rerunning reproduced the same symlink failure. |
 | `git diff --check` | Pass | CRLF normalization warnings only. |
+
+## DAEDALUS staging closeout ARGUS review result
+
+ARGUS reviewed the staging closeout implementation on 2026-06-09 and accepted it
+as code-side closeout, not replay readiness.
+
+Review result:
+
+- `/observability/replay-readiness` remains auth-protected and returns non-secret
+  setup proof plus remaining blocker categories.
+- `/reset-password/update` exists as the Supabase password update target, and the
+  deployed Railway web route returns `200`.
+- Public `/health/deployment` still returns non-secret `ready: false` with the
+  expected external blockers.
+- Local web build failure is unchanged from DAEDALUS's report: Next compiles,
+  lint/type checks, and static generation complete, then Windows blocks
+  standalone trace symlink creation with `EPERM`.
+
+Commands re-run by ARGUS:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npx --yes pnpm@10.32.1 test:replay-readiness` | Pass | 1 test passed. |
+| `npx --yes pnpm@10.32.1 test:auth` | Pass | 12 tests passed. |
+| `npx --yes pnpm@10.32.1 --filter @station/api build` | Pass | API and dependent package builds completed. |
+| `npx --yes pnpm@10.32.1 --filter @station/web typecheck` | Pass | Web TypeScript check completed. |
+| `npx --yes pnpm@10.32.1 --filter @station/web lint` | Pass | Known warning-only output. |
+| `npx --yes pnpm@10.32.1 --filter @station/web build` | Local environment failure | Compiled, lint/type checked, and generated 28 static pages, then failed during standalone trace symlink copying with Windows `EPERM`. |
+| `curl.exe -fsS --max-time 20 https://stationweb-production.up.railway.app/health` | Pass | Returned `{ "ok": true }`. |
+| `curl.exe -I -L --max-time 30 https://stationweb-production.up.railway.app/reset-password/update` | Pass | Returned `200 OK`. |
+| `curl.exe -i -sS --max-time 20 https://stationapi-production.up.railway.app/observability/replay-readiness` | Pass | Returned `401 Unauthorized` without auth. |
+| `curl.exe -fsS --max-time 30 https://stationapi-production.up.railway.app/health/deployment` | Blocked as expected | Returned non-secret `ready: false`; database, migration object proof, private storage, and NVIDIA platform chat true. |

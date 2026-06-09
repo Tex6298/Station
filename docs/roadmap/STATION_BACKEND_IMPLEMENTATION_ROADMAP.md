@@ -311,11 +311,11 @@ Default order:
 
 Immediate active task:
 
-- MIMIR accepts ARGUS's staging proof verdict as setup proof, not full replay
-  readiness.
-- DAEDALUS should close the code-side staging blockers that do not require new
-  secrets: sync `/observability/replay-readiness` with the new
-  DB/migration/storage/NVIDIA proof, implement the `/reset-password/update`
-  target, and package the exact remaining external asks.
+- MIMIR/Marty decide whether current setup proof and code-side closeout are
+  enough for a narrowed staging replay by explicitly waiving remaining blockers,
+  or whether DAEDALUS should prove the exact blockers first.
 - Do not start replay-driven optimization until MIMIR accepts the narrowed
-  waiver/proof path after that DAEDALUS/ARGUS closeout.
+  waiver/proof path.
+- Current ARGUS verdict: MIMIR's staging proof update and DAEDALUS's code-side
+  closeout are accepted as setup proof, not full replay readiness. Public
+  deployment remains `ready: false`.

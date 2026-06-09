@@ -16,8 +16,9 @@ public schema objects introduced by migrations `025` through `028`.
 DAEDALUS closeout update on 2026-06-09: `/observability/replay-readiness` now
 separates setup-proven items from remaining blockers, and
 `/reset-password/update` is implemented as the Supabase password update target.
-The reset path still needs Railway deploy proof and Supabase Auth redirect
-allow-list proof before password-reset replay.
+ARGUS public probing confirmed the deployed Railway route returns `200`; the
+reset path still needs Supabase Auth redirect allow-list proof before
+password-reset replay.
 
 ## Purpose
 
@@ -107,7 +108,7 @@ before replay-driven optimization starts.
 | Remote database readiness | Proven by public `/health/deployment` with database `ok: true`. |
 | Remote migration readiness | Proven by public schema object proof plus Supabase MCP migration history. Internal migration `count` is not exposed by Supabase REST, so the readiness endpoint intentionally records `count: null`. |
 | Remote storage readiness | Proven by public `/health/deployment` with bucket `exists: true`, `private: true`, and `ok: true`. Signed upload/read path smoke remains part of replay or storage-specific proof. |
-| Supabase Auth redirects | Confirm site URL and allowed redirects for `https://stationweb-production.up.railway.app`, including the password-reset target `https://stationweb-production.up.railway.app/reset-password/update`. DAEDALUS has added the repo route; staged deploy proof and dashboard allow-list proof remain. |
+| Supabase Auth redirects | Confirm site URL and allowed redirects for `https://stationweb-production.up.railway.app`, including the password-reset target `https://stationweb-production.up.railway.app/reset-password/update`. DAEDALUS has added the repo route, and ARGUS public probing confirmed it returns `200`; dashboard allow-list proof remains. |
 | Cache provider | Choose Railway Redis/Valkey, Upstash REST, another provider, or explicit deferment. Cache remains operational/non-canonical unless a later durability/export/deletion review promotes it. |
 | Cloudflare retrieval | Choose or defer Worker/Vectorize account and index setup. Remote candidates must remain reauthorized through Station/Supabase before private records return. |
 | Stripe test resources | Configure test Stripe secret, webhook secret, and all required price IDs for the staged API, or waive billing replay. |
@@ -131,7 +132,7 @@ Closed in code:
 Still external or replay-side:
 
 - Supabase Auth dashboard site URL and redirect allow-list confirmation.
-- Railway deployed-route proof for `/reset-password/update`.
+- Supabase Auth dashboard allow-list proof for `/reset-password/update`.
 - OpenAI embedding key for the current `text-embedding-3-small` and
   `vector(1536)` retrieval contract.
 - Stripe test secrets, webhook, and price IDs.
