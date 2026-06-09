@@ -2127,6 +2127,53 @@ Commands run by DAEDALUS:
 | `npx --yes pnpm@10.32.1 --filter @station/api build` | Pass | API and dependent package builds completed. |
 | `git diff --check` | Pass | CRLF normalization warnings only. |
 
+## BE-07 DAEDALUS Cloudflare retrieval adapter result
+
+Implemented on 2026-06-09 for ARGUS review. This is disabled-safe Cloudflare
+retrieval adapter contract work only: status/config helpers, a disabled/pending
+adapter, minimal `memory_items` mirror payload builder, and Station/Supabase
+reauthorization for Cloudflare candidate IDs. Cloudflare remains
+non-authoritative. No live Cloudflare calls, Worker, Vectorize writes, Redis
+canonical memory, NVIDIA retrieval, embedding swap, API route behavior change,
+UI, or staging proof work was added.
+
+Commands run by DAEDALUS:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npx --yes pnpm@10.32.1 exec tsx --test packages/ai/test/cloudflare-adapter.test.ts` | Pass | 3 tests passed, covering disabled behavior, mirror payload minimization, and Station/Supabase candidate reauthorization. |
+| `npx --yes pnpm@10.32.1 --filter @station/api build` | Pass | API and dependent package builds completed. |
+| `git diff --check` | Pass | CRLF normalization warnings only. |
+
+## BE-07 ARGUS Cloudflare retrieval adapter review result
+
+ARGUS reviewed BE-07 on 2026-06-09 and accepted it after one reauthorization
+hardening. Cloudflare candidate IDs must now pass canonical memory lifecycle
+filtering before private rows return, so rejected, quarantined, expired, or
+superseded memory cannot bypass BE-02 through a future remote candidate path.
+
+Review result:
+
+- The adapter remains disabled-safe; even complete config reports
+  `remote_adapter_pending` until a live Worker/query privacy contract exists.
+- Mirror payloads contain IDs and routing/index metadata only, not title,
+  content, summary, archive-source names, prompt text, tokens, provider keys, or
+  private snippets.
+- Candidate metadata from Cloudflare is stripped before authorized Station rows
+  are returned.
+- Canonical Station/Supabase owner/persona and lifecycle filters remain the
+  authority for private memory.
+- Delete/export/reindex requirements are documented before any private snippets
+  may enter a Cloudflare index.
+
+Commands re-run by ARGUS:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npx --yes pnpm@10.32.1 exec tsx --test packages/ai/test/cloudflare-adapter.test.ts` | Pass | 3 tests passed after lifecycle reauthorization coverage. |
+| `npx --yes pnpm@10.32.1 --filter @station/api build` | Pass | API and dependent package builds completed. |
+| `git diff --check` | Pass | CRLF normalization warnings only. |
+
 ## BE-06 DAEDALUS import job retry result
 
 Implemented on 2026-06-09 for ARGUS review. This is background-job foundation

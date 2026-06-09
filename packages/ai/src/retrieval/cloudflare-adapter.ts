@@ -150,7 +150,7 @@ export async function authorizeCloudflareMemoryCandidates(input: CloudflareMemor
   const ids = limitedCandidates.map((candidate) => candidate.id);
   const { data, error } = await input.supabase
     .from("memory_items")
-    .select("id, owner_user_id, persona_id, title, content, summary, source_type, relevance_weight, archive_source_type, archive_source_id, archive_source_name, created_at, updated_at")
+    .select("id, owner_user_id, persona_id, title, content, summary, source_type, relevance_weight, archive_source_type, archive_source_id, archive_source_name, created_at, updated_at, memory_item_lifecycle(*)")
     .in("id", ids)
     .eq("owner_user_id", input.ownerUserId)
     .eq("persona_id", input.personaId);
@@ -164,7 +164,12 @@ export async function authorizeCloudflareMemoryCandidates(input: CloudflareMemor
 
   for (const candidate of limitedCandidates) {
     const row = rowsById.get(candidate.id);
-    if (!row || row.owner_user_id !== input.ownerUserId || row.persona_id !== input.personaId) {
+    if (
+      !row
+      || row.owner_user_id !== input.ownerUserId
+      || row.persona_id !== input.personaId
+      || !isLifecycleInjectable(extractLifecycle(row))
+    ) {
       rejected.push({ id: candidate.id, reason: "not_found_or_not_authorized" as const });
       continue;
     }
@@ -175,7 +180,7 @@ export async function authorizeCloudflareMemoryCandidates(input: CloudflareMemor
         recordType: candidate.recordType,
         score: candidate.score ?? null,
       },
-      record: row,
+      record: stripAuthorizationJoin(row),
     });
   }
 
@@ -206,6 +211,26 @@ function uniqueMemoryCandidates(candidates: CloudflareRetrievalCandidate[]) {
     result.push(candidate);
   }
   return result;
+}
+
+function extractLifecycle(row: Record<string, any>) {
+  const joined = row.memory_item_lifecycle;
+  return Array.isArray(joined) ? joined[0] ?? null : joined ?? null;
+}
+
+function isLifecycleInjectable(lifecycle: any) {
+  if (!lifecycle) return true;
+  if ((lifecycle.status ?? "active") !== "active") return false;
+  if (lifecycle.superseded_by_memory_item_id) return false;
+  if (!lifecycle.expires_at) return true;
+
+  const expiresAt = Date.parse(lifecycle.expires_at);
+  return Number.isNaN(expiresAt) || expiresAt > Date.now();
+}
+
+function stripAuthorizationJoin(row: Record<string, any>) {
+  const { memory_item_lifecycle, ...record } = row;
+  return record;
 }
 
 function clean(value: string | null | undefined) {

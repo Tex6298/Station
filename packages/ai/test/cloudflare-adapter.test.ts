@@ -100,6 +100,22 @@ test("Cloudflare candidate IDs are reauthorized through Station before private r
       created_at: "2026-06-09T09:01:00.000Z",
       updated_at: "2026-06-09T09:01:00.000Z",
     },
+    {
+      id: "memory-rejected",
+      owner_user_id: "owner-a",
+      persona_id: "persona-a",
+      title: "Rejected memory",
+      content: "Rejected private content must not return through Cloudflare.",
+      summary: "Rejected summary",
+      source_type: "manual",
+      relevance_weight: 1,
+      archive_source_type: null,
+      archive_source_id: null,
+      archive_source_name: null,
+      created_at: "2026-06-09T09:02:00.000Z",
+      updated_at: "2026-06-09T09:02:00.000Z",
+      memory_item_lifecycle: [{ status: "rejected" }],
+    },
   ]);
 
   const result = await authorizeCloudflareMemoryCandidates({
@@ -114,21 +130,25 @@ test("Cloudflare candidate IDs are reauthorized through Station before private r
         metadata: { content: "Cloudflare metadata must not be trusted." },
       },
       { id: "memory-other", recordType: "memory_item", score: 0.8 },
+      { id: "memory-rejected", recordType: "memory_item", score: 0.75 },
       { id: "memory-missing", recordType: "memory_item", score: 0.7 },
     ],
   });
 
   assert.deepEqual(supabase.filters, [
-    ["id", ["memory-owner", "memory-other", "memory-missing"]],
+    ["id", ["memory-owner", "memory-other", "memory-rejected", "memory-missing"]],
     ["owner_user_id", "owner-a"],
     ["persona_id", "persona-a"],
   ]);
   assert.equal(result.authorized.length, 1);
   assert.equal(result.authorized[0].record.id, "memory-owner");
   assert.match(result.authorized[0].record.content, /Canonical private content/);
+  assert.equal("memory_item_lifecycle" in result.authorized[0].record, false);
   assert.doesNotMatch(JSON.stringify(result.authorized), /Cloudflare metadata must not be trusted/);
+  assert.doesNotMatch(JSON.stringify(result.authorized), /Rejected private content/);
   assert.deepEqual(result.rejected, [
     { id: "memory-other", reason: "not_found_or_not_authorized" },
+    { id: "memory-rejected", reason: "not_found_or_not_authorized" },
     { id: "memory-missing", reason: "not_found_or_not_authorized" },
   ]);
 });

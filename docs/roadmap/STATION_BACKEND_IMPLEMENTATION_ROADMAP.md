@@ -10,16 +10,15 @@ ARGUS-accepted locally after provider-policy observability review. BE-04 is
 ARGUS-accepted locally after no-key retrieval fallback hardening. BE-05 is
 ARGUS-accepted locally as optional operational cache scaffolding, not canonical
 memory. BE-06 is ARGUS-accepted locally after partial-success retry idempotency
-hardening. BE-07 is ready for ARGUS review after DAEDALUS added the disabled-safe
-Cloudflare retrieval adapter contract and mirror/reauthorization tests.
-Migrations 025 and 026 still need staging Supabase apply/RPC proof before remote
-vector retrieval and lifecycle filtering are proven, migration 027 still needs
-staging Supabase apply proof before remote Developer Space provider-policy
-persistence is proven, and migration 028 still needs staging Supabase apply/RPC
-proof before remote retrieval metadata is proven. Cache provider selection and
-Cloudflare account configuration are E2E setup follow-ups, not BE-07 blockers.
-Later lanes are ordered implementation scope, not permission to build everything
-at once.
+hardening. BE-07 is ARGUS-accepted locally after lifecycle reauthorization
+hardening on the disabled-safe Cloudflare retrieval adapter contract. Migrations
+025 and 026 still need staging Supabase apply/RPC proof before remote vector
+retrieval and lifecycle filtering are proven, migration 027 still needs staging
+Supabase apply proof before remote Developer Space provider-policy persistence
+is proven, and migration 028 still needs staging Supabase apply/RPC proof before
+remote retrieval metadata is proven. Cache provider selection and Cloudflare
+account configuration are E2E setup follow-ups. Later lanes are ordered
+implementation scope, not permission to build everything at once.
 
 ## Current staging truth
 
@@ -311,15 +310,6 @@ Default order:
 
 Immediate active task:
 
-- ARGUS reviews BE-07 Cloudflare retrieval adapter evaluation for disabled-safe
-  behavior, Station/Supabase reauthorization, mirror payload contents, and
-  delete/export/reindex requirements before private snippets.
-- BE-07 currently adds only a disabled/pending adapter contract in `@station/ai`
-  plus `docs/architecture/cloudflare-retrieval-adapter.md`. Cloudflare is not an
-  authorization authority, and no private snippets enter a mirror payload.
-- Migrations 025 through 028 staging apply/RPC proof, cache provider selection,
-  and Cloudflare account configuration remain E2E follow-ups, not reasons to
-  stop BE-07.
-- If ARGUS accepts BE-07, wake MIMIR with `WAKEUP A1:` and a concrete next-lane
-  recommendation. If ARGUS finds a blocker, wake DAEDALUS with `WAKEUP A2:` and
-  the exact fix request.
+- MIMIR decides whether BE-08 replay-driven optimization should open next or
+  whether staging migration/RPC proof for migrations 025 through 028, cache
+  provider selection, and Cloudflare account setup should come first.

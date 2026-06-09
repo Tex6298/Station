@@ -716,6 +716,14 @@ when a PR lands, or when validation truth changes.
   staging proof work was added. Focused Cloudflare adapter tests,
   `@station/api` build, and targeted `git diff --check` pass locally with the
   pinned runner.
+- BE-07 is accepted by ARGUS after lifecycle reauthorization hardening,
+  2026-06-09: disabled-safe behavior, minimal mirror payloads, no-private-snippet
+  mirror rules, Station/Supabase reauthorization, and documented
+  delete/export/reindex gates held under focused tests. ARGUS tightened the
+  reauthorization helper so Cloudflare candidate IDs must also pass canonical
+  memory lifecycle filtering before private rows return, preventing rejected,
+  quarantined, expired, or superseded memory from bypassing BE-02 through a
+  future remote candidate path.
 
 ## Current repo truth
 
