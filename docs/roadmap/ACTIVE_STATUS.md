@@ -730,6 +730,22 @@ when a PR lands, or when validation truth changes.
   should surface exact E2E blockers for migrations 025 through 028, cache
   provider selection, Cloudflare account setup, Stripe/replay resources, and
   provider config, then wake MIMIR with a backend closeout verdict.
+- BE-08 DAEDALUS implementation is ready for ARGUS review, 2026-06-09:
+  `/observability/replay-readiness` now exposes an auth-protected, non-secret
+  replay optimization prep payload with measurement points, capture surfaces,
+  setup blockers, and privacy boundaries. The payload covers chat latency/context
+  quality, archive import confidence, retrieval relevance, provider cost/failure
+  rate, job failure recovery, export trust, and billing/webhook reliability. It
+  names the remaining E2E blockers: staging proof for migrations `025` through
+  `028`, cache provider selection/deferment, Cloudflare account/index decision,
+  Stripe test resources, platform provider plus OpenAI embedding configuration,
+  and replay account/data setup. `docs/ops/STAGING_REPLAY_READINESS.md` now
+  lists the evidence capture points and `test:replay-readiness`; setup blockers
+  now reference migrations through `028` plus cache/Cloudflare/provider decisions.
+  No optimization, product UI, provider swap, broad infrastructure, staging
+  secret/dashboard work, or speculative performance change was added.
+  `test:replay-readiness`, `@station/api` build, and targeted
+  `git diff --check` pass locally with the pinned runner.
 
 ## Current repo truth
 

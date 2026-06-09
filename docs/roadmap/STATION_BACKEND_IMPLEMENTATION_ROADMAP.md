@@ -17,9 +17,10 @@ retrieval and lifecycle filtering are proven, migration 027 still needs staging
 Supabase apply proof before remote Developer Space provider-policy persistence
 is proven, and migration 028 still needs staging Supabase apply/RPC proof before
 remote retrieval metadata is proven. Cache provider selection and Cloudflare
-account configuration are E2E setup follow-ups. BE-08 is the active
-DAEDALUS/ARGUS replay-measurement lane. Later lanes are ordered implementation
-scope, not permission to build everything at once.
+account configuration are E2E setup follow-ups. BE-08 is ready for ARGUS review
+after DAEDALUS added auth-protected replay-readiness measurement prep and
+updated the staging runbooks. Later lanes are ordered implementation scope, not
+permission to build everything at once.
 
 ## Current staging truth
 
@@ -311,12 +312,11 @@ Default order:
 
 Immediate active task:
 
-- DAEDALUS implements BE-08 replay-driven optimization prep: instrumentation,
-  runbook, and online evidence capture points for staged replay.
-- Do not optimize from local guesswork. This lane should prepare measurements
-  and surface exact E2E blockers for migrations 025 through 028, cache provider
-  selection, Cloudflare account setup, Stripe/replay resources, and provider
-  config.
-- If DAEDALUS or ARGUS believes the backend roadmap is complete, blocked, or
-  ready for staging handoff, they must wake MIMIR with `WAKEUP A1:` and a
-  concrete closeout verdict/task instead of going quiet.
+- ARGUS reviews BE-08 replay-driven optimization prep: instrumentation/runbook
+  truth, online evidence capture points, setup blockers, and privacy boundaries.
+- BE-08 currently adds `GET /observability/replay-readiness`, the
+  `test:replay-readiness` gate, and runbook updates only. It does not optimize
+  from local guesswork or change product behavior.
+- If ARGUS accepts BE-08, wake MIMIR with `WAKEUP A1:` and a backend closeout or
+  staging-handoff verdict. If ARGUS finds a blocker, wake DAEDALUS with
+  `WAKEUP A2:` and the exact fix request.

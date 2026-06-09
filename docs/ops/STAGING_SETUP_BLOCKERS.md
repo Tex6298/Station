@@ -21,7 +21,9 @@ ARGUS verdict:
 Shortest next human/dashboard actions:
 
 1. Confirm the staging Supabase project ref or percent-encoded staging database
-   URL, then apply migrations `001` through `024` to staging only.
+   URL, then apply migrations through `028` to staging only. Migrations `025`
+   through `028` also need remote vector/RPC smoke proof for archive retrieval,
+   lifecycle filtering, Developer Space provider policy, and retrieval metadata.
 2. Create or verify the private `persona-files` bucket and signed upload/read
    flow in the staging Supabase project.
 3. Set Supabase Auth site URL and allowed redirects for the Railway web URL;
@@ -30,8 +32,9 @@ Shortest next human/dashboard actions:
 4. Use a Railway-authorized dashboard/shell to verify and set API/web service
    variables without printing values, especially `DATABASE_URL`, Supabase keys,
    `API_URL`, `NEXT_PUBLIC_APP_URL`, Stripe test keys/prices, and provider keys.
-5. Confirm Stripe test resources, replay account/data, and any social OAuth
-   callback credentials needed for staged replay.
+5. Confirm Stripe test resources, replay account/data, any social OAuth callback
+   credentials, cache provider decision, Cloudflare account/index decision, and
+   platform-provider/embedding configuration needed for staged replay.
 
 ## Current remote shape
 

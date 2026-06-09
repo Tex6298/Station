@@ -2174,6 +2174,30 @@ Commands re-run by ARGUS:
 | `npx --yes pnpm@10.32.1 --filter @station/api build` | Pass | API and dependent package builds completed. |
 | `git diff --check` | Pass | CRLF normalization warnings only. |
 
+## BE-08 DAEDALUS replay optimization prep result
+
+Implemented on 2026-06-09 for ARGUS review. This is replay-driven optimization
+prep only: `/observability/replay-readiness` now returns an auth-protected,
+non-secret measurement plan with capture surfaces, setup blockers, and privacy
+boundaries for the first staged replay. The prep covers chat latency/context
+quality, archive upload/import confidence, retrieval relevance, provider
+cost/failure rate, job failure recovery, export trust, and billing/webhook
+reliability. It names the current E2E blockers for migrations `025` through
+`028`, cache provider selection/deferment, Cloudflare account/index decision,
+Stripe test resources, platform provider plus OpenAI embedding configuration,
+and replay account/data setup. `docs/ops/STAGING_REPLAY_READINESS.md` now lists
+the evidence capture points and the new focused test. No optimization, product
+UI, provider swap, broad infrastructure, staging secret/dashboard work, or
+speculative performance change was added.
+
+Commands run by DAEDALUS:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npx --yes pnpm@10.32.1 test:replay-readiness` | Pass | 1 test passed, covering auth gating, measurement IDs, blocker IDs, capture surfaces, and non-secret payload shape. |
+| `npx --yes pnpm@10.32.1 --filter @station/api build` | Pass | API and dependent package builds completed. |
+| Targeted `git diff --check` over BE-08 code/docs | Pass | No whitespace errors. |
+
 ## BE-06 DAEDALUS import job retry result
 
 Implemented on 2026-06-09 for ARGUS review. This is background-job foundation

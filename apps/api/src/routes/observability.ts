@@ -6,6 +6,7 @@ import {
   getAiTraceSummary,
   listAiTraces,
 } from "../services/ai-observability.service";
+import { buildReplayOptimizationPrep } from "../services/replay-readiness.service";
 
 export const observabilityRouter = Router();
 
@@ -22,6 +23,10 @@ observabilityRouter.get("/traces", async (req, res) => {
 
   const traces = await listAiTraces(req.user!.id, parsed.data ?? 12);
   res.json({ traces });
+});
+
+observabilityRouter.get("/replay-readiness", async (_req, res) => {
+  res.json({ replay: buildReplayOptimizationPrep() });
 });
 
 observabilityRouter.get("/traces/:traceId", async (req, res) => {

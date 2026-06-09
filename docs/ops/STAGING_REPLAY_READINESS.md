@@ -188,6 +188,7 @@ npx --yes pnpm@10.32.1 install --frozen-lockfile
 npx --yes pnpm@10.32.1 typecheck
 npx --yes pnpm@10.32.1 lint
 npx --yes pnpm@10.32.1 build
+npx --yes pnpm@10.32.1 test:replay-readiness
 npx --yes pnpm@10.32.1 test:auth
 npx --yes pnpm@10.32.1 test:billing
 npx --yes pnpm@10.32.1 test:storage
@@ -260,6 +261,41 @@ script should be a later implementation task if manual setup becomes repetitive.
    small node/event/snapshot payload, and view the observatory.
 9. Create or inspect a persona export manifest.
 10. Visit Billing and run only Stripe test-mode flows.
+
+## Evidence capture points
+
+BE-08 adds `GET /observability/replay-readiness` as an auth-protected,
+non-secret replay prep endpoint. It does not collect private payloads or optimize
+anything by itself; it tells the replay operator what to measure online.
+
+Capture these categories during the first staged replay:
+
+- Chat latency and context quality: use `/observability/summary`,
+  `/observability/traces`, and context-preview route outputs for timings, token
+  counts, source counts, and manual quality notes.
+- Archive upload/import confidence: use import job status/list/retry outputs for
+  job status, chunk counts, sanitized errors, and retry outcomes.
+- Retrieval relevance: use archive retrieval/context-preview outputs for mode,
+  authorized chunk count, skipped-source count, and human relevance rating.
+- Provider cost and failure rate: use observability summaries/traces for
+  provider/model, estimated cost, failure count, and latency.
+- Job failure recovery: use import/export status surfaces for failed status,
+  retry status, same-job completion, and sanitized error labels.
+- Export trust: use export package readback for included section counts, privacy
+  boundary notes, and failure labels.
+- Billing/webhook reliability: use billing status/checkout/webhook smoke output
+  in Stripe test mode only.
+
+Remaining E2E blockers before replay evidence is meaningful:
+
+- Apply/prove Supabase migrations `025` through `028` on staging and run the
+  matching vector/RPC smoke checks.
+- Decide or explicitly defer Redis/Valkey/Upstash cache provider setup.
+- Decide or explicitly defer Cloudflare Worker/Vectorize account/index setup.
+- Configure Stripe test resources and webhook secret for staged API.
+- Confirm at least one platform chat provider and the OpenAI embedding key.
+- Prepare replay account/data that covers persona, archive import, continuity,
+  Space/document, discussion, Developer Space, export, and billing paths.
 
 ## Known non-blockers for first replay
 
