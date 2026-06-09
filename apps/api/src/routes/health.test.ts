@@ -151,7 +151,7 @@ test("/health stays cheap while /health/deployment returns non-secret readiness"
     const deployment = await requestJson(app, "GET", "/health/deployment");
     assert.equal(deployment.status, 200);
     assert.equal(deployment.body.ok, true);
-    assert.equal(deployment.body.ready, true);
+    assert.equal(deployment.body.ready, false);
     assert.equal(deployment.body.checks.databaseUrl, true);
     assert.equal(deployment.body.checks.nvidiaProvider, true);
     assert.equal(deployment.body.checks.redisConfigured, true);
@@ -166,6 +166,7 @@ test("/health stays cheap while /health/deployment returns non-secret readiness"
     assert.equal(deployment.body.readiness.publicUrls.app.railway, true);
     assert.equal(deployment.body.readiness.publicUrls.api.railway, true);
     assert.equal(deployment.body.readiness.supabaseAuthRedirects.checked, false);
+    assert.equal(deployment.body.readiness.supabaseAuthRedirects.error, "not_supported");
     assert.equal(deployment.body.readiness.stripe.ready, true);
     assertNoSecrets(deployment.body);
   } finally {

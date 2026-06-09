@@ -2126,3 +2126,23 @@ Commands run by DAEDALUS:
 | `npx --yes pnpm@10.32.1 test:health` | Pass | 2 tests passed, covering no-secret response shape, `/health` unchanged, successful readiness, and sanitized dependency failures. |
 | `npx --yes pnpm@10.32.1 --filter @station/api build` | Pass | API and dependent package builds completed. |
 | `git diff --check` | Pass | CRLF normalization warnings only. |
+
+## BE-00 ARGUS readiness review result
+
+ARGUS reviewed BE-00 on 2026-06-09 and found one readiness-overstatement issue:
+`/health/deployment.ready` could become `true` even while known Lane 1 blockers
+remained false or unchecked. ARGUS hardened the ready gate so it now requires
+`DATABASE_URL`, Supabase Auth redirect readiness, Stripe readiness, platform chat
+readiness, and OpenAI embedding readiness in addition to the existing database,
+migration, storage, URL, Supabase key, and JWT checks. Redis remains reported as
+status only, not a staging-ready requirement.
+
+Commands re-run by ARGUS:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npx --yes pnpm@10.32.1 test:health` | Pass | 2 tests passed after ARGUS hardening. |
+| `npx --yes pnpm@10.32.1 --filter @station/api build` | Pass | API and dependent package builds completed. |
+| `curl.exe -fsS --max-time 20 https://stationapi-production.up.railway.app/health` | Pass | Returned `{ "ok": true }`. |
+| `curl.exe -fsS --max-time 20 https://stationapi-production.up.railway.app/health/deployment` | Partial remote truth | Public Railway API still returned the previous deployment-health shape without `ready`/`readiness`, so BE-00 is not yet proven deployed remotely. |
+| `git diff --check` | Pass | CRLF normalization warnings only. |

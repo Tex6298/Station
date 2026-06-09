@@ -510,6 +510,17 @@ when a PR lands, or when validation truth changes.
   `pnpm --filter @station/api build`, and `git diff --check` pass locally with
   the pinned runner. BE-01 must wait for ARGUS acceptance or a DAEDALUS fix
   wakeup.
+- BE-00 ARGUS review found one readiness-overstatement issue, 2026-06-09:
+  `/health/deployment.ready` must not go true while known Lane 1 blockers remain
+  false or unchecked. ARGUS hardened the ready gate to include `DATABASE_URL`,
+  Supabase Auth redirect readiness, Stripe readiness, platform chat readiness,
+  and OpenAI embedding readiness; Redis remains reported as status, not a
+  staging-ready requirement.
+- BE-00 is accepted by ARGUS after hardening, 2026-06-09: `test:health`,
+  `@station/api` build, `git diff --check`, and public API `/health` pass. The
+  public Railway `/health/deployment` endpoint still returns the previous
+  deployment-health shape, so BE-00 is locally accepted but not yet proven
+  deployed remotely.
 
 ## Current repo truth
 

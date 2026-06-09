@@ -112,7 +112,12 @@ export async function buildDeploymentReadiness(now = new Date()): Promise<Deploy
     checks.supabaseUrl,
     checks.supabaseAnonKey,
     checks.supabaseServiceRoleKey,
+    checks.databaseUrl,
     checks.jwtSecretConfigured,
+    supabaseAuthRedirects.ok,
+    stripe.ready,
+    providers.platformChat,
+    providers.openaiEmbeddings,
   ].every(Boolean);
 
   return {
