@@ -125,6 +125,9 @@ running commit `55d3fc6`. Public `/health/deployment` now reports database
 storage `ok: true` with `persona-files` private, and NVIDIA platform chat true.
 Overall `ready` remains false because Supabase Auth redirect management proof,
 OpenAI embeddings, Stripe, and Redis/cache configuration remain false.
+MIMIR's follow-up no-data RPC smoke also proved `match_memory_items` and
+`match_private_archive_chunks` are callable and return zero rows for nonexistent
+owner/persona scope.
 
 ## Active remote for this lane
 
@@ -300,10 +303,9 @@ Capture these categories during the first staged replay:
 
 Remaining E2E blockers before replay evidence is meaningful:
 
-- Supabase migrations `025` through `028` and private storage are proven at
-  setup level. Run the matching archive retrieval, lifecycle filtering,
-  provider-policy, and retrieval-metadata smoke checks before full replay unless
-  MIMIR explicitly accepts setup proof for a narrower replay.
+- Supabase migrations `025` through `028`, private storage, and no-data vector
+  RPC smoke are proven at setup level. Data-backed retrieval relevance still
+  needs replay data and the active embedding provider.
 - Confirm Supabase Auth site URL and redirect allow-list for the Railway web URL,
   including the implemented `/reset-password/update` target, then prove the
   staged password-reset path.

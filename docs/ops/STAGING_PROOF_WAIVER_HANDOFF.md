@@ -13,6 +13,12 @@ verified, Railway API/web are running commit `55d3fc6`, and public
 `/health/deployment` now proves database, storage, NVIDIA platform chat, and the
 public schema objects introduced by migrations `025` through `028`.
 
+MIMIR follow-up RPC smoke on 2026-06-09: staging
+`match_memory_items` and `match_private_archive_chunks` both returned zero rows,
+without error, for nonexistent owner/persona IDs and a zero 1536-dimensional
+vector. This proves the RPCs are callable and fail closed for no-data scope; it
+does not replace data-backed retrieval relevance replay.
+
 DAEDALUS closeout update on 2026-06-09: `/observability/replay-readiness` now
 separates setup-proven items from remaining blockers, and
 `/reset-password/update` is implemented as the Supabase password update target.
@@ -104,7 +110,7 @@ before replay-driven optimization starts.
 
 | Ask | Needed proof or explicit waiver |
 | --- | --- |
-| Supabase migrations `025` through `028` | Applied/proven at setup level: Supabase MCP history includes `025` through `028`, and public readiness proves the new public schema objects. Remaining proof is hostile remote smoke of archive retrieval, memory lifecycle filtering, Developer Space provider policy persistence, and retrieval metadata/RPC filters if MIMIR wants more than setup proof before replay. |
+| Supabase migrations `025` through `028` | Applied/proven at setup level: Supabase MCP history includes `025` through `028`, public readiness proves the new public schema objects, and no-data vector RPC smoke returned zero rows without error. Remaining proof is data-backed retrieval relevance during replay. |
 | Remote database readiness | Proven by public `/health/deployment` with database `ok: true`. |
 | Remote migration readiness | Proven by public schema object proof plus Supabase MCP migration history. Internal migration `count` is not exposed by Supabase REST, so the readiness endpoint intentionally records `count: null`. |
 | Remote storage readiness | Proven by public `/health/deployment` with bucket `exists: true`, `private: true`, and `ok: true`. Signed upload/read path smoke remains part of replay or storage-specific proof. |

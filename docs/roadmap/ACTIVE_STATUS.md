@@ -798,6 +798,12 @@ when a PR lands, or when validation truth changes.
   setup proof, resolve or truthfully reroute the missing `/reset-password/update`
   target, and return an exact list of blockers that truly require Marty,
   provider keys, dashboard changes, or a deliberate narrowed-replay waiver.
+- MIMIR follow-up RPC smoke, 2026-06-09: Supabase MCP executed no-data vector
+  calls against `match_memory_items` and `match_private_archive_chunks` with
+  nonexistent owner/persona IDs and a zero 1536-dimensional vector. Both
+  returned zero rows without error. This clears callable/fail-closed RPC setup
+  proof; data-backed retrieval relevance still requires replay data and the
+  active embedding provider.
 - DAEDALUS staging closeout implementation is ready for ARGUS review,
   2026-06-09: `/observability/replay-readiness` now distinguishes setup-proven
   database, migrations `025` through `028`, private `persona-files` storage, and

@@ -21,10 +21,10 @@ ARGUS verdict:
 
 Shortest next human/dashboard actions:
 
-1. Run or explicitly waive the remaining remote vector/RPC smoke proof for
-   archive retrieval, lifecycle filtering, Developer Space provider policy, and
-   retrieval metadata. Migrations `025` through `028` are applied/proven at setup
-   level on staging.
+1. Treat no-data vector/RPC smoke as cleared: `match_memory_items` and
+   `match_private_archive_chunks` are callable on staging and return zero rows
+   for nonexistent owner/persona IDs. Data-backed retrieval relevance still
+   needs replay data and the active embedding provider.
 2. Smoke the signed upload/read flow for the private `persona-files` bucket if
    needed for replay. The bucket exists and is private in staging.
 3. Set Supabase Auth site URL and allowed redirects for the Railway web URL,
@@ -117,12 +117,14 @@ Current staging proof:
   history now includes `001` through `028`.
 - Public API readiness proves the public schema objects introduced by
   migrations `025` through `028`.
+- No-data vector RPC smoke proves `match_memory_items` and
+  `match_private_archive_chunks` are callable and fail closed for nonexistent
+  owner/persona scope.
 
 Remaining external facts:
 
-- Hostile remote vector/RPC smoke for archive retrieval, lifecycle filtering,
-  provider-policy persistence, and retrieval metadata if MIMIR requires it
-  before replay.
+- Data-backed retrieval relevance replay with real owner/persona/archive data
+  and the active embedding provider.
 
 ## Storage bucket
 

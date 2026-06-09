@@ -36,6 +36,9 @@ implementation scope, not permission to build everything at once.
   `ok: true`, migrations `ok: true` via `025-028/public_schema_object_proof`,
   storage `ok: true`/`private: true`, NVIDIA platform chat true, and Auth,
   OpenAI embeddings, Stripe, and Redis false.
+- MIMIR no-data vector RPC smoke on 2026-06-09 proved `match_memory_items` and
+  `match_private_archive_chunks` are callable and return zero rows for
+  nonexistent owner/persona scope.
 - Supabase staging target is `jdewavktyemnpehdzvgl`.
 - Supabase migrations `001` through `028` are present in remote migration
   history according to Supabase MCP.
@@ -55,11 +58,9 @@ Still external or replay-adjacent:
 - Remote readiness blockers are not BE-01 implementation blockers. Missing
   external config should fail closed, report sanitized pending status, and be
   carried as exact E2E asks for Marty.
-- BE-01 through BE-04 migration setup is applied/proven on staging. Hostile
-  remote smoke of archive retrieval, memory lifecycle filtering, Developer
-  Space provider policy persistence, and retrieval metadata/RPC filters remains
-  useful before full replay unless MIMIR explicitly accepts the setup proof as
-  enough for a narrowed replay.
+- BE-01 through BE-04 migration setup is applied/proven on staging. No-data
+  vector RPC smoke is also proven. Data-backed retrieval relevance still needs
+  replay data and the active embedding provider.
 
 ## Roadmap rule
 
@@ -311,11 +312,11 @@ Default order:
 
 Immediate active task:
 
-- MIMIR/Marty decide whether current setup proof and code-side closeout are
-  enough for a narrowed staging replay by explicitly waiving remaining blockers,
-  or whether DAEDALUS should prove the exact blockers first.
-- Do not start replay-driven optimization until MIMIR accepts the narrowed
-  waiver/proof path.
-- Current ARGUS verdict: MIMIR's staging proof update and DAEDALUS's code-side
-  closeout are accepted as setup proof, not full replay readiness. Public
-  deployment remains `ready: false`.
+- MIMIR accepts ARGUS's code-side staging closeout as setup proof, not full
+  replay readiness.
+- Do not start replay-driven optimization until MIMIR/Marty either provide or
+  explicitly waive the remaining external blockers: Supabase Auth redirect
+  allow-list, OpenAI embeddings for the current retrieval contract, Stripe test
+  resources if billing replay is in scope, Redis/cache provider if cache replay
+  is in scope, Cloudflare account/index if Cloudflare retrieval is in scope, and
+  replay account/data.

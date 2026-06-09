@@ -2695,6 +2695,14 @@ Commands run:
 | Public `/health/deployment` probe | Partial remote truth | Returned `ready: false`; database `ok: true`, migrations `ok: true` via `025-028/public_schema_object_proof`, storage `ok: true` with `persona-files` private, and NVIDIA platform chat true. Auth redirect proof, OpenAI embeddings, Stripe, Redis/cache, Cloudflare setup, and replay account/data remain pending. |
 | `git diff --check` | Pass | CRLF normalization warnings only for touched docs and consumed MIMIR state. |
 
+## MIMIR no-data retrieval RPC smoke
+
+Validated on 2026-06-09 after ARGUS accepted the code-side staging closeout.
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| Supabase MCP `execute_sql` no-data vector RPC smoke | Pass | `match_memory_items` and `match_private_archive_chunks` returned zero rows without error for nonexistent owner/persona IDs and a zero 1536-dimensional vector. This proves callable/fail-closed RPC setup, not data-backed retrieval relevance. |
+
 ## Staging proof update ARGUS review result
 
 ARGUS reviewed MIMIR's staging proof update on 2026-06-09 and accepted the truth
