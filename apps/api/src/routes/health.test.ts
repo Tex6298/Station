@@ -48,6 +48,7 @@ const SECRET_MARKERS = [
 class ReadinessSupabase {
   failProfiles = false;
   failMigrations = false;
+  migrationObjectProof = false;
   bucketPublic = false;
   bucketMissing = false;
 
@@ -134,6 +135,13 @@ class ReadinessQuery {
       return { data: rows, error: null, count };
     }
 
+    if (this.schemaName === "public" && (this.table === "memory_items" || this.table === "developer_spaces")) {
+      if (!this.db.migrationObjectProof) {
+        return { data: null, error: { message: "public proof failure with secret-service-role" }, count: null };
+      }
+      return { data: this.head ? null : [], error: null, count: this.countRequested ? 0 : null };
+    }
+
     return { data: null, error: { message: "unexpected query" }, count: null };
   }
 }
@@ -168,6 +176,30 @@ test("/health stays cheap while /health/deployment returns non-secret readiness"
     assert.equal(deployment.body.readiness.supabaseAuthRedirects.checked, false);
     assert.equal(deployment.body.readiness.supabaseAuthRedirects.error, "not_supported");
     assert.equal(deployment.body.readiness.stripe.ready, true);
+    assertNoSecrets(deployment.body);
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
+
+test("/health/deployment proves backend migrations through public schema objects when history is hidden", async () => {
+  const db = new ReadinessSupabase();
+  db.failMigrations = true;
+  db.migrationObjectProof = true;
+  setSupabaseAdminForTests(db.client as any);
+  const app = await createHealthApp();
+
+  try {
+    const deployment = await requestJson(app, "GET", "/health/deployment");
+    assert.equal(deployment.status, 200);
+    assert.equal(deployment.body.ok, true);
+    assert.equal(deployment.body.ready, false);
+    assert.equal(deployment.body.readiness.migrations.ok, true);
+    assert.equal(deployment.body.readiness.migrations.count, null);
+    assert.deepEqual(deployment.body.readiness.migrations.latest, {
+      version: "025-028",
+      name: "public_schema_object_proof",
+    });
     assertNoSecrets(deployment.body);
   } finally {
     setSupabaseAdminForTests(null);

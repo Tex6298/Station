@@ -3,6 +3,10 @@ import { getSupabaseAdmin } from "../lib/supabase";
 
 const PERSONA_FILES_BUCKET = "persona-files";
 const CHECK_TIMEOUT_MS = 1500;
+const BACKEND_MIGRATION_OBJECT_PROOF_LATEST = {
+  version: "025-028",
+  name: "public_schema_object_proof",
+};
 
 type CheckStatus = {
   ok: boolean;
@@ -80,6 +84,8 @@ type DeploymentReadiness = {
     };
   };
 };
+
+type MigrationReadiness = DeploymentReadiness["readiness"]["migrations"];
 
 export async function buildDeploymentReadiness(now = new Date()): Promise<DeploymentReadiness> {
   const checks = buildStaticChecks();
@@ -177,13 +183,23 @@ async function checkDatabaseConnectivity(): Promise<CheckStatus & { configured: 
   }
 }
 
-async function checkMigrationState(): Promise<DeploymentReadiness["readiness"]["migrations"]> {
+async function checkMigrationState(): Promise<MigrationReadiness> {
   if (!hasValue(env.SUPABASE_URL) || !hasValue(env.SUPABASE_SERVICE_ROLE_KEY)) {
     return { ok: false, checked: false, count: null, latest: null, error: "not_configured" };
   }
 
+  const sb = getSupabaseAdmin() as any;
+  const history = await checkSupabaseMigrationHistory(sb);
+  if (history.ok) return history;
+
+  // Supabase's REST layer can hide supabase_migrations; public objects prove the
+  // backend migrations we need when history is unavailable in staging.
+  const objectProof = await checkBackendMigrationObjects(sb);
+  return objectProof.ok ? objectProof : history;
+}
+
+async function checkSupabaseMigrationHistory(sb: any): Promise<MigrationReadiness> {
   try {
-    const sb = getSupabaseAdmin() as any;
     if (typeof sb.schema !== "function") {
       return { ok: false, checked: false, count: null, latest: null, error: "not_supported" };
     }
@@ -213,6 +229,43 @@ async function checkMigrationState(): Promise<DeploymentReadiness["readiness"]["
           name: latest.name == null ? null : String(latest.name),
         }
         : null,
+    };
+  } catch (error) {
+    return {
+      ok: false,
+      checked: true,
+      count: null,
+      latest: null,
+      error: isTimeout(error) ? "timeout" : "query_failed",
+    };
+  }
+}
+
+async function checkBackendMigrationObjects(sb: any): Promise<MigrationReadiness> {
+  try {
+    const memoryColumns =
+      "archive_source_type,archive_source_id,archive_source_name,chunk_index,chunk_count,embedding_provider,embedding_model,embedding_dimension,embedding_index_name,embedding_index_source,embedding_backfill_version";
+    const memoryResult = await withTimeout<any>(
+      sb.from("memory_items").select(memoryColumns, { head: true }).limit(1),
+      CHECK_TIMEOUT_MS
+    );
+    if (memoryResult.error) {
+      return { ok: false, checked: true, count: null, latest: null, error: "query_failed" };
+    }
+
+    const developerSpaceResult = await withTimeout<any>(
+      sb.from("developer_spaces").select("provider_policy", { head: true }).limit(1),
+      CHECK_TIMEOUT_MS
+    );
+    if (developerSpaceResult.error) {
+      return { ok: false, checked: true, count: null, latest: null, error: "query_failed" };
+    }
+
+    return {
+      ok: true,
+      checked: true,
+      count: null,
+      latest: BACKEND_MIGRATION_OBJECT_PROOF_LATEST,
     };
   } catch (error) {
     return {
