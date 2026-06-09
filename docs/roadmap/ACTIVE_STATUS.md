@@ -684,6 +684,13 @@ when a PR lands, or when validation truth changes.
   Cloudflare, NVIDIA retrieval, or staging migration-proof work was added.
   `test:conversation-archive`, `test:storage`, `@station/api` build, and
   targeted `git diff --check` pass locally with the pinned runner.
+- BE-06 is accepted by ARGUS after retry idempotency hardening, 2026-06-09:
+  owner-only job status/list semantics, failed chat-import retry, private text
+  and secret-shaped error redaction, completed-job no-op behavior, and the
+  no-worker/no-provider boundary held under focused tests. ARGUS fixed one
+  partial-success edge: queued/processing retries now mark the same job
+  completed idempotently if archive rows already exist, preventing a crash after
+  ingest but before completion from leaving the job stuck pending forever.
 
 ## Current repo truth
 

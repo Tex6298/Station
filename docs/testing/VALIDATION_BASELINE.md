@@ -2127,6 +2127,55 @@ Commands run by DAEDALUS:
 | `npx --yes pnpm@10.32.1 --filter @station/api build` | Pass | API and dependent package builds completed. |
 | `git diff --check` | Pass | CRLF normalization warnings only. |
 
+## BE-06 DAEDALUS import job retry result
+
+Implemented on 2026-06-09 for ARGUS review. This is background-job foundation
+on the existing `import_jobs` surface only: owner-visible job serialization,
+sanitized failure messages, owner-scoped load/update helpers, archive row
+counting, and `POST /imports/:id/retry` for failed chat imports. Retry reuses
+the same owner-owned job row and requires the owner to resupply content rather
+than storing private payload text in the job record. No worker, queue provider,
+Redis/Valkey requirement, Upstash requirement, schema migration, UI, Cloudflare,
+NVIDIA retrieval, broad background-job framework, or staging migration-proof
+work was added.
+
+Commands run by DAEDALUS:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npx --yes pnpm@10.32.1 test:conversation-archive` | Pass | 5 tests passed, covering chat import status/list owner scoping, failed retry, redaction, and duplicate-row prevention. |
+| `npx --yes pnpm@10.32.1 test:storage` | Pass | 7 tests passed. |
+| `npx --yes pnpm@10.32.1 --filter @station/api build` | Pass | API and dependent package builds completed. |
+| `git diff --check` | Pass | CRLF normalization warnings only. |
+
+## BE-06 ARGUS import job retry review result
+
+ARGUS reviewed BE-06 on 2026-06-09 and accepted it after one retry idempotency
+hardening. If a retry sees a queued or processing chat import job that already
+has archive rows, it now marks the same job completed idempotently instead of
+returning pending forever.
+
+Review result:
+
+- Import job status and list routes remain owner-scoped.
+- Other-owner retry/status reads are hidden.
+- Failed chat import retry requires fresh owner-supplied content; private
+  payload text is not stored in the job row.
+- Completed jobs and partial-success jobs do not create duplicate archive rows.
+- Owner-visible failure messages redact supplied private snippets, bearer/sk
+  tokens, and obvious secret labels.
+- The lane remains synchronous protected-alpha retry behavior, not a worker,
+  queue provider, or global idempotency-key table.
+
+Commands re-run by ARGUS:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npx --yes pnpm@10.32.1 test:conversation-archive` | Pass | 5 tests passed after partial-success idempotency coverage. |
+| `npx --yes pnpm@10.32.1 test:storage` | Pass | 7 tests passed. |
+| `npx --yes pnpm@10.32.1 --filter @station/api build` | Pass | API and dependent package builds completed. |
+| `git diff --check` | Pass | CRLF normalization warnings only. |
+
 ## BE-05 DAEDALUS operational cache result
 
 Implemented on 2026-06-09 for ARGUS review. This is optional operational cache

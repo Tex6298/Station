@@ -134,6 +134,18 @@ importsRouter.post("/:id/retry", async (req, res) => {
   }
 
   if (job.status === "queued" || job.status === "processing") {
+    const existingRows = await countImportArchiveRows(job);
+    if (existingRows > 0) {
+      const completedJob = await markImportJobCompleted(job.id, userId);
+      return res.json({
+        job: serializeImportJob(completedJob),
+        chunksCreated: existingRows,
+        imported: true,
+        retried: false,
+        idempotent: true,
+      });
+    }
+
     return res.status(202).json({
       job: serializeImportJob(job),
       imported: false,

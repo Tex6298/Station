@@ -590,6 +590,17 @@ test("background job retry reuses failed chat import jobs and redacts private fa
     assert.equal(rowsAfterRetry.length, retried.body.chunksCreated);
     assert.equal(rowsAfterRetry.length > 0, true);
 
+    failedJob.status = "processing";
+    const recoveredProcessing = await requestJson(app, "POST", `/imports/${failedJob.id}/retry`, {
+      token: "owner-token",
+      body: { content: "new text must not create duplicate archive rows" },
+    });
+    assert.equal(recoveredProcessing.status, 200);
+    assert.equal(recoveredProcessing.body.idempotent, true);
+    assert.equal(recoveredProcessing.body.retried, false);
+    assert.equal(recoveredProcessing.body.job.status, "completed");
+    assert.equal(db.tables.memory_items.filter((row) => row.archive_source_id === failedJob.id).length, rowsAfterRetry.length);
+
     const repeated = await requestJson(app, "POST", `/imports/${failedJob.id}/retry`, {
       token: "owner-token",
       body: { content: "new text must not create duplicate archive rows" },
