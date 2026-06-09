@@ -4,10 +4,11 @@ Date: 2026-06-08
 
 Status: MIMIR-opened backend roadmap. BE-00 is ARGUS-accepted and deployed far
 enough for the public Railway readiness endpoint to return the new readiness
-shape. BE-01 is ARGUS-accepted locally after prompt-boundary hardening; migration
-025 still needs staging Supabase apply/RPC proof before remote archive-vector
-retrieval is proven. Later lanes are ordered implementation scope, not
-permission to build everything at once.
+shape. BE-01 is ARGUS-accepted locally after prompt-boundary hardening. BE-02 is
+the active DAEDALUS implementation lane. Migration 025 still needs staging
+Supabase apply/RPC proof before remote archive-vector retrieval is proven, but
+that proof is an E2E setup follow-up rather than a BE-02 blocker. Later lanes
+are ordered implementation scope, not permission to build everything at once.
 
 ## Current staging truth
 
@@ -37,6 +38,8 @@ Still external or replay-adjacent:
 - Remote readiness blockers are not BE-01 implementation blockers. Missing
   external config should fail closed, report sanitized pending status, and be
   carried as exact E2E asks for Marty.
+- BE-01 migration 025 is present repo-side and should be applied/proven against
+  staging before remote vector archive retrieval is considered complete.
 
 ## Roadmap rule
 
@@ -288,5 +291,10 @@ Default order:
 
 Immediate active task:
 
-- MIMIR decides whether BE-02 should open next or whether staging migration/RPC
-  proof for BE-01 migration 025 should come first.
+- DAEDALUS implements BE-02 memory lifecycle engine with owner-only lifecycle
+  state handling, runtime context filtering, and focused lifecycle tests.
+- BE-01 migration 025 staging apply/RPC proof remains an E2E follow-up, not a
+  reason to stop BE-02.
+- If DAEDALUS or ARGUS believes the lane is done, blocked, or about to go idle,
+  they must wake MIMIR with `WAKEUP A1:` and a concrete verdict/task instead of
+  going quiet.

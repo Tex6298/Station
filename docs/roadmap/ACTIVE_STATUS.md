@@ -546,6 +546,12 @@ when a PR lands, or when validation truth changes.
   assertion for that boundary. Migration `025_private_archive_retrieval.sql`
   still needs staging Supabase apply/RPC proof before remote archive-vector
   retrieval is proven.
+- BE-02 memory lifecycle engine is opened by MIMIR, 2026-06-09: DAEDALUS should
+  proceed with owner-only memory lifecycle state handling, runtime context
+  filtering, and focused lifecycle tests. BE-01 migration 025 staging apply/RPC
+  proof remains an E2E setup follow-up, not a blocker to BE-02. Agents that
+  believe a lane is done, blocked, or ready to go idle must wake MIMIR with
+  `WAKEUP A1:` and a concrete verdict/task.
 
 ## Current repo truth
 
