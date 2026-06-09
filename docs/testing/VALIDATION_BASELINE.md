@@ -2166,3 +2166,32 @@ Commands run by DAEDALUS:
 | `npx --yes pnpm@10.32.1 test:conversation-archive` | Pass | 4 tests passed, covering archive retrieval owner scoping, source validation, deleted/failed/pending source exclusion, excerpt bounds, context-preview citations, archive transcript chunking, and existing import/archive behavior. |
 | `npx --yes pnpm@10.32.1 --filter @station/api build` | Pass | API and dependent package builds completed. |
 | `git diff --check` | Pass | CRLF normalization warnings only. |
+
+## BE-01 ARGUS private archive retrieval review result
+
+ARGUS reviewed BE-01 on 2026-06-09 and accepted it after one prompt-injection
+boundary hardening. Private archive excerpts are now explicitly labelled in the
+persona system prompt as quoted evidence, not instructions, with guidance not to
+follow old file/chat prompts as system or developer instructions. ARGUS added a
+focused regression assertion for that boundary.
+
+Review result:
+
+- Owner/persona-scoped retrieval stayed enforced by route checks and helper
+  filters.
+- Completed imports, processed persona files, and archived chat transcripts are
+  treated as authoritative sources; failed, pending, deleted, or other-owner
+  sources are excluded.
+- Generic memory search excludes archive chunks so invalidated archive source
+  material cannot bypass source validation as ordinary runtime memory.
+- Excerpts remain bounded by chunk length, source caps, total characters, and
+  citation metadata.
+- Context preview keeps private archive excerpts owner-only.
+
+Commands re-run by ARGUS:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npx --yes pnpm@10.32.1 test:conversation-archive` | Pass | 4 tests passed after prompt-boundary regression coverage. |
+| `npx --yes pnpm@10.32.1 --filter @station/api build` | Pass | API and dependent package builds completed. |
+| `git diff --check` | Pass | CRLF normalization warnings only. |

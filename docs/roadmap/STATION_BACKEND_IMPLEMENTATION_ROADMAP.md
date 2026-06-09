@@ -4,9 +4,10 @@ Date: 2026-06-08
 
 Status: MIMIR-opened backend roadmap. BE-00 is ARGUS-accepted and deployed far
 enough for the public Railway readiness endpoint to return the new readiness
-shape. BE-01 has a DAEDALUS implementation and is awaiting ARGUS review. Later
-lanes are ordered implementation scope, not permission to build everything at
-once.
+shape. BE-01 is ARGUS-accepted locally after prompt-boundary hardening; migration
+025 still needs staging Supabase apply/RPC proof before remote archive-vector
+retrieval is proven. Later lanes are ordered implementation scope, not
+permission to build everything at once.
 
 ## Current staging truth
 
@@ -287,6 +288,5 @@ Default order:
 
 Immediate active task:
 
-- ARGUS reviews BE-01 private archive retrieval foundation for owner scope,
-  failed/deleted source handling, prompt-injection bounds, and no private leaks.
-- BE-02 should not begin until ARGUS accepts BE-01 or wakes DAEDALUS with fixes.
+- MIMIR decides whether BE-02 should open next or whether staging migration/RPC
+  proof for BE-01 migration 025 should come first.

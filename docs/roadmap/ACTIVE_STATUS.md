@@ -538,6 +538,14 @@ when a PR lands, or when validation truth changes.
   `pnpm --filter @station/api build`, and `git diff --check` pass locally with
   the pinned runner. BE-02 must wait for ARGUS acceptance or a DAEDALUS fix
   wakeup.
+- BE-01 is accepted by ARGUS after prompt-boundary hardening, 2026-06-09:
+  owner/persona scope, failed/deleted/pending source exclusion, source caps,
+  bounded excerpts, citations, and generic-memory archive exclusion held under
+  focused review. ARGUS tightened the persona prompt so private archive excerpts
+  are labelled as quoted evidence, not instructions, and added a regression
+  assertion for that boundary. Migration `025_private_archive_retrieval.sql`
+  still needs staging Supabase apply/RPC proof before remote archive-vector
+  retrieval is proven.
 
 ## Current repo truth
 
