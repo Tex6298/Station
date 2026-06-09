@@ -17,10 +17,11 @@ retrieval and lifecycle filtering are proven, migration 027 still needs staging
 Supabase apply proof before remote Developer Space provider-policy persistence
 is proven, and migration 028 still needs staging Supabase apply/RPC proof before
 remote retrieval metadata is proven. Cache provider selection and Cloudflare
-account configuration are E2E setup follow-ups. BE-08 is ready for ARGUS review
-after DAEDALUS added auth-protected replay-readiness measurement prep and
-updated the staging runbooks. Later lanes are ordered implementation scope, not
-permission to build everything at once.
+account configuration are E2E setup follow-ups. BE-08 is ARGUS-accepted locally
+after replay privacy wording hardening. The backend roadmap sequence is locally
+accepted through BE-08; staging proof still depends on the external setup
+blockers named in the replay runbook. Later lanes are ordered implementation
+scope, not permission to build everything at once.
 
 ## Current staging truth
 
@@ -312,11 +313,6 @@ Default order:
 
 Immediate active task:
 
-- ARGUS reviews BE-08 replay-driven optimization prep: instrumentation/runbook
-  truth, online evidence capture points, setup blockers, and privacy boundaries.
-- BE-08 currently adds `GET /observability/replay-readiness`, the
-  `test:replay-readiness` gate, and runbook updates only. It does not optimize
-  from local guesswork or change product behavior.
-- If ARGUS accepts BE-08, wake MIMIR with `WAKEUP A1:` and a backend closeout or
-  staging-handoff verdict. If ARGUS finds a blocker, wake DAEDALUS with
-  `WAKEUP A2:` and the exact fix request.
+- MIMIR decides backend roadmap closeout and staging handoff. Recommended next
+  decision: prove or explicitly waive the external setup blockers before
+  replay-driven optimization work begins.

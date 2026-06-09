@@ -272,11 +272,13 @@ Capture these categories during the first staged replay:
 
 - Chat latency and context quality: use `/observability/summary`,
   `/observability/traces`, and context-preview route outputs for timings, token
-  counts, source counts, and manual quality notes.
+  counts, source counts, and manual quality notes. Do not store
+  context-preview response bodies or private excerpts in the evidence package.
 - Archive upload/import confidence: use import job status/list/retry outputs for
   job status, chunk counts, sanitized errors, and retry outcomes.
 - Retrieval relevance: use archive retrieval/context-preview outputs for mode,
-  authorized chunk count, skipped-source count, and human relevance rating.
+  authorized chunk count, skipped-source count, and human relevance rating. View
+  bounded excerpts manually only; do not store excerpt text as telemetry.
 - Provider cost and failure rate: use observability summaries/traces for
   provider/model, estimated cost, failure count, and latency.
 - Job failure recovery: use import/export status surfaces for failed status,
@@ -289,7 +291,8 @@ Capture these categories during the first staged replay:
 Remaining E2E blockers before replay evidence is meaningful:
 
 - Apply/prove Supabase migrations `025` through `028` on staging and run the
-  matching vector/RPC smoke checks.
+  matching archive retrieval, lifecycle filtering, provider-policy, and
+  retrieval-metadata smoke checks.
 - Decide or explicitly defer Redis/Valkey/Upstash cache provider setup.
 - Decide or explicitly defer Cloudflare Worker/Vectorize account/index setup.
 - Configure Stripe test resources and webhook secret for staged API.

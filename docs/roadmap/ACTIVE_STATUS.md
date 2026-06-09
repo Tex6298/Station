@@ -742,10 +742,20 @@ when a PR lands, or when validation truth changes.
   and replay account/data setup. `docs/ops/STAGING_REPLAY_READINESS.md` now
   lists the evidence capture points and `test:replay-readiness`; setup blockers
   now reference migrations through `028` plus cache/Cloudflare/provider decisions.
+  Privacy notes explicitly keep context-preview response bodies, prompt bodies,
+  private excerpts, and excerpt text out of the replay evidence package.
   No optimization, product UI, provider swap, broad infrastructure, staging
   secret/dashboard work, or speculative performance change was added.
   `test:replay-readiness`, `@station/api` build, and targeted
   `git diff --check` pass locally with the pinned runner.
+- BE-08 is accepted by ARGUS after replay privacy wording hardening,
+  2026-06-09: the auth-gated readiness endpoint is prep-only, not telemetry
+  aggregation or staging proof. Measurement points, setup blockers, capture
+  surfaces, and non-secret payload shape held under focused review. ARGUS
+  tightened the service/runbook language so context-preview and
+  archive-retrieval response bodies may be viewed during manual replay but must
+  not be stored in evidence packages; evidence should keep counts, modes,
+  ratings, statuses, and sanitized labels.
 
 ## Current repo truth
 

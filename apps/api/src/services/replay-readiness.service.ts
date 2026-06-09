@@ -19,7 +19,7 @@ const MEASUREMENT_POINTS: ReplayMeasurementPoint[] = [
     label: "Chat latency and context quality",
     captureSurfaces: ["/observability/summary", "/observability/traces", "/conversations/persona/:personaId/context-preview"],
     metrics: ["trace duration_ms", "input/output token counts", "context source counts", "manual quality notes"],
-    privacyBoundary: "Capture trace metadata and source counts; do not export prompt bodies or private archive excerpts.",
+    privacyBoundary: "Capture trace metadata and source counts only; do not store context-preview response bodies, prompt bodies, or private archive excerpts.",
   },
   {
     id: "archive_upload_import_confidence",
@@ -33,7 +33,7 @@ const MEASUREMENT_POINTS: ReplayMeasurementPoint[] = [
     label: "Retrieval relevance",
     captureSurfaces: ["/conversations/persona/:personaId/archive-retrieval", "/conversations/persona/:personaId/context-preview"],
     metrics: ["retrieval mode", "authorized chunk count", "skipped source count", "human relevance rating"],
-    privacyBoundary: "Use bounded excerpts only during manual review; metrics should store counts and modes.",
+    privacyBoundary: "Use bounded excerpts only during manual review; evidence should store counts, modes, and ratings, not excerpt text.",
   },
   {
     id: "provider_cost_failure_rate",

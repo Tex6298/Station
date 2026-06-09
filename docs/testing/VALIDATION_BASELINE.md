@@ -2127,6 +2127,51 @@ Commands run by DAEDALUS:
 | `npx --yes pnpm@10.32.1 --filter @station/api build` | Pass | API and dependent package builds completed. |
 | `git diff --check` | Pass | CRLF normalization warnings only. |
 
+## BE-08 DAEDALUS replay readiness result
+
+Implemented on 2026-06-09 for ARGUS review. This is replay-driven optimization
+prep only: auth-protected `GET /observability/replay-readiness`, measurement
+points, setup blockers, capture surfaces, and staging runbook updates. It does
+not collect live telemetry, optimize from local guesswork, change product UI,
+swap providers, add broad infrastructure, perform staging dashboard/secret work,
+or seed replay data.
+
+Commands run by DAEDALUS:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npx --yes pnpm@10.32.1 test:replay-readiness` | Pass | 1 test passed, covering auth gating, measurement IDs, blocker IDs, capture surfaces, and non-secret payload shape. |
+| `npx --yes pnpm@10.32.1 --filter @station/api build` | Pass | API and dependent package builds completed. |
+| `git diff --check` | Pass | CRLF normalization warnings only. |
+
+## BE-08 ARGUS replay readiness review result
+
+ARGUS reviewed BE-08 on 2026-06-09 and accepted it after replay privacy wording
+hardening. The endpoint remains an auth-protected prep checklist, not live
+telemetry aggregation or staging proof.
+
+Review result:
+
+- Replay measurement points cover chat latency/context quality, archive import
+  confidence, retrieval relevance, provider cost/failure rate, job recovery,
+  export trust, and billing/webhook reliability.
+- Setup blockers name migrations 025-028 staging proof, cache provider
+  selection/deferment, Cloudflare account/index decision, Stripe resources,
+  provider/embedding config, and replay account/data.
+- Payloads stay non-secret and contain route/status/metric labels rather than
+  private content.
+- Context-preview and archive-retrieval response bodies may be viewed during
+  manual replay but must not be stored in evidence packages; evidence should
+  keep counts, modes, ratings, statuses, and sanitized labels.
+
+Commands re-run by ARGUS:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npx --yes pnpm@10.32.1 test:replay-readiness` | Pass | 1 test passed after privacy wording hardening. |
+| `npx --yes pnpm@10.32.1 --filter @station/api build` | Pass | API and dependent package builds completed. |
+| `git diff --check` | Pass | CRLF normalization warnings only. |
+
 ## BE-07 DAEDALUS Cloudflare retrieval adapter result
 
 Implemented on 2026-06-09 for ARGUS review. This is disabled-safe Cloudflare
@@ -2186,9 +2231,11 @@ reliability. It names the current E2E blockers for migrations `025` through
 `028`, cache provider selection/deferment, Cloudflare account/index decision,
 Stripe test resources, platform provider plus OpenAI embedding configuration,
 and replay account/data setup. `docs/ops/STAGING_REPLAY_READINESS.md` now lists
-the evidence capture points and the new focused test. No optimization, product
-UI, provider swap, broad infrastructure, staging secret/dashboard work, or
-speculative performance change was added.
+the evidence capture points and the new focused test. The evidence guidance
+explicitly excludes context-preview response bodies, prompt bodies, private
+excerpts, and excerpt text from the replay evidence package. No optimization,
+product UI, provider swap, broad infrastructure, staging secret/dashboard work,
+or speculative performance change was added.
 
 Commands run by DAEDALUS:
 
