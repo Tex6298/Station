@@ -2127,6 +2127,55 @@ Commands run by DAEDALUS:
 | `npx --yes pnpm@10.32.1 --filter @station/api build` | Pass | API and dependent package builds completed. |
 | `git diff --check` | Pass | CRLF normalization warnings only. |
 
+## BE-05 DAEDALUS operational cache result
+
+Implemented on 2026-06-09 for ARGUS review. This is optional operational cache
+foundation only: scoped key helpers, TTL defaults, disabled-safe provider
+selection, Upstash REST support when URL/token config exists, TCP Redis/Valkey
+disabled-pending behavior, and best-effort invalidation hooks. Redis/Valkey is
+not canonical memory in this lane. No schema, vector search, background jobs,
+UI, Cloudflare, NVIDIA retrieval, provider-router behavior, or staging
+migration-proof work was added.
+
+Commands run by DAEDALUS:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npx --yes pnpm@10.32.1 exec tsx --test apps/api/src/services/operational-cache.service.test.ts` | Pass | 4 tests passed, covering scoped keys, disabled behavior, TTLs, cross-owner isolation, and invalidation keys. |
+| `npx --yes pnpm@10.32.1 test:storage` | Pass | 7 tests passed. |
+| `npx --yes pnpm@10.32.1 test:persona-context` | Pass | 3 tests passed. |
+| `npx --yes pnpm@10.32.1 test:continuity` | Pass | 4 tests passed. |
+| `npx --yes pnpm@10.32.1 --filter @station/api build` | Pass | API and dependent package builds completed. |
+| `git diff --check` | Pass | CRLF normalization warnings only. |
+
+## BE-05 ARGUS operational cache review result
+
+ARGUS reviewed BE-05 on 2026-06-09 and accepted it without code changes.
+
+Review result:
+
+- Cache keys include environment plus owner/persona or Developer Space scope.
+- Disabled/missing-provider behavior returns skipped results instead of throwing.
+- TCP Redis/Valkey URLs remain disabled pending a concrete client/provider
+  decision; Upstash REST is the only live adapter.
+- Mutation invalidations are best-effort and exact-key scaffolding, not wildcard
+  purge or durable memory semantics.
+- No current runtime read path serves cached private context, so stale-cache
+  risk remains bounded to future integration work.
+- Redis/Valkey is not canonical memory; promoting it beyond cache/queue state
+  still needs separate durability, export, deletion, and backup review.
+
+Commands re-run by ARGUS:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npx --yes pnpm@10.32.1 exec tsx --test apps/api/src/services/operational-cache.service.test.ts` | Pass | 4 tests passed. |
+| `npx --yes pnpm@10.32.1 test:storage` | Pass | 7 tests passed. |
+| `npx --yes pnpm@10.32.1 test:persona-context` | Pass | 3 tests passed. |
+| `npx --yes pnpm@10.32.1 test:continuity` | Pass | 4 tests passed. |
+| `npx --yes pnpm@10.32.1 --filter @station/api build` | Pass | API and dependent package builds completed. |
+| `git diff --check` | Pass | CRLF normalization warnings only. |
+
 ## BE-05 DAEDALUS operational cache foundation result
 
 Implemented on 2026-06-09 for ARGUS review. This is Redis/Valkey foundation

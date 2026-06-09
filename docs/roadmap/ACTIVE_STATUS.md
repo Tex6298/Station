@@ -655,6 +655,14 @@ when a PR lands, or when validation truth changes.
   operational-cache tests, `test:storage`, `test:persona-context`,
   `test:continuity`, `@station/api` build, and targeted `git diff --check` pass
   locally with the pinned runner.
+- BE-05 is accepted by ARGUS, 2026-06-09: key scopes include environment plus
+  owner/persona or Developer Space identifiers, TTL defaults are explicit,
+  disabled and TCP-Redis-pending states fail closed, Upstash REST is the only
+  live adapter, and current usage is scaffolding plus best-effort invalidation
+  hooks only. ARGUS found no cache read path that can serve stale private
+  context today. Redis/Valkey remains non-canonical operational infrastructure;
+  Redis-as-memory-truth still requires a separate MIMIR decision and ARGUS
+  durability/export/deletion review.
 
 ## Current repo truth
 
