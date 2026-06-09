@@ -691,6 +691,13 @@ when a PR lands, or when validation truth changes.
   partial-success edge: queued/processing retries now mark the same job
   completed idempotently if archive rows already exist, preventing a crash after
   ingest but before completion from leaving the job stuck pending forever.
+- BE-07 Cloudflare retrieval adapter evaluation is opened by MIMIR, 2026-06-09:
+  DAEDALUS should add a disabled-safe adapter/mirror contract only. Cloudflare
+  must not become the authorization authority; canonical records stay in
+  Station/Supabase and are fetched after owner/visibility checks. Worker or
+  Vectorize mirrors should store IDs and minimal metadata first, not private
+  snippets. Staging migration proof, cache provider selection, and Cloudflare
+  account configuration remain E2E setup follow-ups, not blockers to BE-07.
 
 ## Current repo truth
 
