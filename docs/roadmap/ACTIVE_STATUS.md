@@ -640,6 +640,21 @@ when a PR lands, or when validation truth changes.
   E2E setup follow-up, not a blocker to BE-05. Agents that believe a lane is
   done, blocked, or ready to go idle must wake MIMIR with `WAKEUP A1:` and a
   concrete verdict/task.
+- BE-05 DAEDALUS implementation is ready for ARGUS review, 2026-06-09: the API
+  now has an optional operational cache boundary with disabled-safe behavior,
+  Upstash REST support only when URL/token config is present, and a pending
+  disabled state for TCP Redis/Valkey URLs until a concrete client/provider is
+  selected. Cache keys include environment, owner, persona, Developer Space,
+  resource, operation, and caller-supplied parts; TTL defaults are explicit for
+  runtime context, idempotency, rate-limit, and queue-state purposes. Invalidation
+  helpers cover archive import, memory/canon edits, continuity writes, persona
+  edits, visibility changes, and Developer Space changes, with best-effort hooks
+  in archive/memory services plus continuity and persona routes. Redis/Valkey is
+  still not canonical memory; no schema, vector search, background-job, UI,
+  Cloudflare, NVIDIA retrieval, or provider-router behavior was added. Focused
+  operational-cache tests, `test:storage`, `test:persona-context`,
+  `test:continuity`, `@station/api` build, and targeted `git diff --check` pass
+  locally with the pinned runner.
 
 ## Current repo truth
 

@@ -2127,6 +2127,30 @@ Commands run by DAEDALUS:
 | `npx --yes pnpm@10.32.1 --filter @station/api build` | Pass | API and dependent package builds completed. |
 | `git diff --check` | Pass | CRLF normalization warnings only. |
 
+## BE-05 DAEDALUS operational cache foundation result
+
+Implemented on 2026-06-09 for ARGUS review. This is Redis/Valkey foundation
+work only: the API now has an optional operational cache boundary with scoped key
+helpers, explicit TTL defaults, disabled-safe behavior when no provider is
+configured, Upstash REST support when URL/token config is present, and a pending
+disabled state for TCP Redis/Valkey URLs until the repo accepts a concrete
+client/provider. Best-effort invalidation hooks now cover archive import,
+memory/canon edits, continuity writes, persona edits, visibility changes, and
+Developer Space changes from the touched API paths. Redis/Valkey is not
+canonical memory in this lane, and no schema, vector search, background-job, UI,
+Cloudflare, NVIDIA retrieval, or provider-router behavior was added.
+
+Commands run by DAEDALUS:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npx --yes pnpm@10.32.1 exec tsx --test apps/api/src/services/operational-cache.service.test.ts` | Pass | 4 tests passed, covering key scope, disabled behavior, TTL/defaults, no cross-owner reads, and invalidation keys. |
+| `npx --yes pnpm@10.32.1 test:storage` | Pass | 7 tests passed. |
+| `npx --yes pnpm@10.32.1 test:persona-context` | Pass | 3 tests passed. |
+| `npx --yes pnpm@10.32.1 test:continuity` | Pass | 4 tests passed. |
+| `npx --yes pnpm@10.32.1 --filter @station/api build` | Pass | API and dependent package builds completed. |
+| Targeted `git diff --check` over BE-05 code/docs | Pass | No whitespace errors. |
+
 ## BE-00 ARGUS readiness review result
 
 ARGUS reviewed BE-00 on 2026-06-09 and found one readiness-overstatement issue:

@@ -13,6 +13,7 @@ import {
   recordPersonaLifecycleEvent,
   updatePersonaLayerProfile,
 } from "../services/persona-lifecycle.service";
+import { invalidateOperationalCacheForChange } from "../services/operational-cache.service";
 
 const createSchema = z.object({
   name: z.string().min(1).max(80),
@@ -260,6 +261,13 @@ personasRouter.patch("/:id/architecture", async (req, res) => {
 
   try {
     const profile = await updatePersonaLayerProfile(persona, parsed.data);
+    await invalidateOperationalCacheForChange({
+      type: "persona",
+      ownerUserId: req.user!.id,
+      personaId: persona.id,
+      resourceId: persona.id,
+      operation: "architecture",
+    }).catch(() => undefined);
     return res.json({ profile: serializeLayerProfile(profile) });
   } catch (err) {
     const message = err instanceof Error ? err.message : "Failed to update persona architecture.";
@@ -354,6 +362,12 @@ personasRouter.post("/", requireTier("private"), async (req, res) => {
     eventType: "created",
     eventLabel: "Persona created",
   }).catch(() => undefined);
+  await invalidateOperationalCacheForChange({
+    type: "persona",
+    ownerUserId: userId,
+    personaId: data.id,
+    resourceId: data.id,
+  }).catch(() => undefined);
   return res.status(201).json({ persona: serializePersona(data) });
 });
 
@@ -415,6 +429,12 @@ personasRouter.patch("/:id", async (req, res) => {
 
   if (error) return res.status(500).json({ error: error.message });
   if (!data) return res.status(404).json({ error: "Persona not found." });
+  await invalidateOperationalCacheForChange({
+    type: parsed.data.visibility !== undefined ? "visibility" : "persona",
+    ownerUserId: req.user!.id,
+    personaId: data.id,
+    resourceId: data.id,
+  }).catch(() => undefined);
   return res.json({ persona: serializePersona(data) });
 });
 
@@ -429,5 +449,11 @@ personasRouter.delete("/:id", async (req, res) => {
     .eq("owner_user_id", req.user!.id);
 
   if (error) return res.status(500).json({ error: error.message });
+  await invalidateOperationalCacheForChange({
+    type: "persona",
+    ownerUserId: req.user!.id,
+    personaId: req.params.id,
+    resourceId: req.params.id,
+  }).catch(() => undefined);
   return res.status(204).send();
 });

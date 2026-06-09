@@ -1,4 +1,5 @@
 import { getSupabaseAdmin } from "../lib/supabase";
+import { invalidateOperationalCacheForChange } from "./operational-cache.service";
 
 export type MemoryTrustLevel = "user_stated" | "agreed_upon" | "model_suggested" | "llm_extracted";
 export type MemoryLifecycleStatus = "active" | "superseded" | "rejected" | "expired" | "quarantined";
@@ -85,6 +86,12 @@ export async function updateMemoryLifecycle(input: {
     .single();
 
   if (error) throw new Error(error.message);
+  await invalidateOperationalCacheForChange({
+    type: "memory",
+    ownerUserId: input.ownerUserId,
+    personaId: data.persona_id,
+    resourceId: input.memoryItemId,
+  }).catch(() => undefined);
   return data;
 }
 
@@ -127,6 +134,12 @@ export async function createOwnerMemoryBlock(input: {
     .single();
 
   if (error) throw new Error(error.message);
+  await invalidateOperationalCacheForChange({
+    type: "memory",
+    ownerUserId: input.ownerUserId,
+    resourceId: data.id,
+    operation: "owner_memory",
+  }).catch(() => undefined);
   return data;
 }
 

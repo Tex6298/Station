@@ -11,6 +11,7 @@ import type { ArchiveSourceType } from "@station/types";
 import { env } from "../lib/env";
 import { estimateStorageBytes, releaseStorageBytes, reserveStorageBytes } from "./storage.service";
 import { ensureMemoryLifecycle } from "./memory-continuity.service";
+import { invalidateOperationalCacheForChange } from "./operational-cache.service";
 
 type ArchiveSourceRef = {
   type: ArchiveSourceType;
@@ -109,6 +110,12 @@ export async function addMemoryItem(input: {
       personaId: input.personaId,
       sourceType: input.sourceType,
     }).catch(() => undefined);
+    await invalidateOperationalCacheForChange({
+      type: input.archiveSource ? "archive_import" : "memory",
+      ownerUserId: input.ownerUserId,
+      personaId: input.personaId,
+      resourceId: data.id,
+    }).catch(() => undefined);
     return data;
   } catch (error) {
     if (reserved) await releaseStorageBytes(input.ownerUserId, reservedBytes).catch(() => null);
@@ -175,6 +182,13 @@ export async function ingestTextIntoArchive(input: {
       personaId: row.persona_id,
       sourceType: row.source_type,
     }).catch(() => undefined)));
+
+    await invalidateOperationalCacheForChange({
+      type: input.archiveSource ? "archive_import" : "memory",
+      ownerUserId: input.ownerUserId,
+      personaId: input.personaId,
+      resourceId: input.archiveSource?.id ?? null,
+    }).catch(() => undefined);
 
     return chunks.length;
   } catch (error) {

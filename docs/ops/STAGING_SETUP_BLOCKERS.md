@@ -195,8 +195,10 @@ Blocked external facts:
 
 ## Redis role evaluation
 
-No Redis cache, queue, working-memory layer, or memory-truth store is
-implemented yet.
+BE-05 added the repo-side optional operational cache boundary for API-owned
+runtime context, idempotency, rate-limit, and lightweight queue-state scopes.
+No Redis/Valkey provider has been configured or proven in staging yet, and no
+working-memory layer or memory-truth store is implemented.
 
 Current conservative starting option, not a final decision:
 
@@ -204,10 +206,11 @@ Current conservative starting option, not a final decision:
 - Cache keys must include owner and persona scope, for example
   `station:staging:user:<userId>:persona:<personaId>:context:<hash>`.
 - Do not cache auth tokens, service-role keys, or raw provider secrets.
-- Suggested initial TTLs:
-  - Persona runtime context: 60 seconds.
-  - Owner-scoped persona/profile summary: 300 seconds.
-  - Public-safe Discover/search snippets: 120 seconds.
+- Current BE-05 TTL defaults:
+  - Runtime context: 300 seconds.
+  - Idempotency: 86400 seconds.
+  - Rate limit: 60 seconds.
+  - Queue state: 900 seconds.
 - Invalidate or bypass cache on archive import, canon/memory mutation,
   continuity writes, persona edits, and visibility changes.
 
@@ -228,6 +231,7 @@ Blocked external facts:
 
 - Redis role/provider decision.
 - Redis URL/token secret.
+- Staging smoke proof for whichever provider is selected.
 - Cache budget and eviction expectations.
 - Tests for owner/persona key scoping, stale-data invalidation, and any
   canonical-memory semantics if Redis is promoted beyond cache/queue.

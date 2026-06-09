@@ -3,6 +3,7 @@ import { z } from "zod";
 import type { ContinuityRecord } from "@station/types";
 import { getSupabaseAdmin } from "../lib/supabase";
 import { requireAuth } from "../middleware/require-auth";
+import { invalidateOperationalCacheForChange } from "../services/operational-cache.service";
 
 const recordTypeSchema = z.enum([
   "memory",
@@ -247,6 +248,13 @@ continuityRouter.post("/persona/:personaId/records", async (req, res) => {
   if (error || !data) {
     return res.status(500).json({ error: error?.message ?? "Could not create continuity record." });
   }
+
+  await invalidateOperationalCacheForChange({
+    type: "continuity",
+    ownerUserId,
+    personaId: persona.id,
+    resourceId: data.id,
+  }).catch(() => undefined);
 
   return res.status(201).json({ record: serializeContinuityRecord(data) });
 });

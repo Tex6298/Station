@@ -7,8 +7,9 @@ enough for the public Railway readiness endpoint to return the new readiness
 shape. BE-01 is ARGUS-accepted locally after prompt-boundary hardening. BE-02 is
 ARGUS-accepted locally after memory prompt-boundary hardening. BE-03 is
 ARGUS-accepted locally after provider-policy observability review. BE-04 is
-ARGUS-accepted locally after no-key retrieval fallback hardening. BE-05 is the
-active DAEDALUS implementation lane. Migrations 025 and 026 still need staging
+ARGUS-accepted locally after no-key retrieval fallback hardening. BE-05 is ready
+for ARGUS review after DAEDALUS implemented the optional operational cache
+foundation. Migrations 025 and 026 still need staging
 Supabase apply/RPC proof before remote vector retrieval and lifecycle filtering
 are proven, migration 027 still needs staging Supabase apply proof before remote
 Developer Space provider-policy persistence is proven, and migration 028 still
@@ -307,13 +308,16 @@ Default order:
 
 Immediate active task:
 
-- DAEDALUS implements BE-05 Redis/Valkey foundation for operational cache,
-  idempotency, rate-limit, and lightweight queue-state scaffolding only.
+- ARGUS reviews BE-05 operational cache key scope, expiry, invalidation, disabled
+  provider behavior, and privacy boundaries.
+- BE-05 currently adds an optional API-side operational cache boundary only:
+  runtime-context, idempotency, rate-limit, and lightweight queue-state key
+  conventions plus best-effort invalidation hooks.
 - Redis/Valkey is not canonical memory in this lane. Redis-as-memory-truth
   remains an open architecture question for a later explicit MIMIR decision and
   ARGUS durability/export/deletion review.
 - BE-01 through BE-04 migrations 025, 026, 027, and 028 staging apply/RPC proof
   remains an E2E follow-up, not a reason to stop BE-05.
-- If DAEDALUS or ARGUS believes the lane is done, blocked, or about to go idle,
-  they must wake MIMIR with `WAKEUP A1:` and a concrete verdict/task instead of
-  going quiet.
+- If ARGUS accepts BE-05, wake MIMIR with `WAKEUP A1:` and a concrete next-lane
+  recommendation. If ARGUS finds a blocker, wake DAEDALUS with `WAKEUP A2:` and
+  the exact fix request.
