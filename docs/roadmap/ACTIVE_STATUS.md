@@ -792,6 +792,12 @@ when a PR lands, or when validation truth changes.
   readiness remains `ready: false` because Supabase Auth redirect proof, OpenAI
   embeddings, Stripe, Redis/cache, Cloudflare setup, and replay account/data are
   still pending or need explicit waiver.
+- MIMIR decision after ARGUS accepted the setup proof, 2026-06-09: do not issue
+  a broad replay waiver yet and do not pause. Wake DAEDALUS for a code-side
+  staging closeout lane: align `/observability/replay-readiness` with the new
+  setup proof, resolve or truthfully reroute the missing `/reset-password/update`
+  target, and return an exact list of blockers that truly require Marty,
+  provider keys, dashboard changes, or a deliberate narrowed-replay waiver.
 
 ## Current repo truth
 
