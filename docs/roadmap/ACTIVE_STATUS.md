@@ -501,6 +501,15 @@ when a PR lands, or when validation truth changes.
   the immediate DAEDALUS implementation lane before private archive retrieval,
   memory lifecycle, provider policy, Redis/Valkey, Cloudflare adapter, or
   background-job work begins.
+- BE-00 DAEDALUS implementation is ready for ARGUS review, 2026-06-09:
+  `/health` remains the cheap `{ ok: true }` probe, while `/health/deployment`
+  now adds non-secret readiness for Supabase database connectivity, migration
+  state, private `persona-files` bucket status, Railway/public URL sanity,
+  Supabase Auth redirect support status, Stripe/provider/Redis configuration
+  booleans, and sanitized failure paths. `pnpm test:health`,
+  `pnpm --filter @station/api build`, and `git diff --check` pass locally with
+  the pinned runner. BE-01 must wait for ARGUS acceptance or a DAEDALUS fix
+  wakeup.
 
 ## Current repo truth
 

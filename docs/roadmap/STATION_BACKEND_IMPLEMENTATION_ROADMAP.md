@@ -2,9 +2,9 @@
 
 Date: 2026-06-08
 
-Status: MIMIR-opened backend roadmap. BE-00 is the active first lane for
-DAEDALUS. Later lanes are ordered implementation scope, not permission to build
-everything at once.
+Status: MIMIR-opened backend roadmap. BE-00 has a DAEDALUS implementation and
+is awaiting ARGUS review. Later lanes are ordered implementation scope, not
+permission to build everything at once.
 
 ## Current staging truth
 
@@ -274,5 +274,6 @@ Default order:
 
 Immediate active task:
 
-- Open BE-00 with DAEDALUS.
-- Do not begin BE-01 until BE-00 has enough readiness truth for staged replay.
+- ARGUS reviews BE-00 readiness probes for secret masking, failure handling, and
+  useful staging truth.
+- Do not begin BE-01 until ARGUS accepts BE-00 or wakes DAEDALUS with fixes.

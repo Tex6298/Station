@@ -14,6 +14,7 @@
     "test:storage": "pnpm --filter @station/types --filter @station/config --filter @station/db --filter @station/auth --filter @station/ai build && tsx --test apps/api/src/routes/storage.test.ts",
     "test:integrity": "pnpm --filter @station/types --filter @station/config --filter @station/db --filter @station/auth --filter @station/ai build && tsx --test apps/api/src/routes/integrity.test.ts",
     "test:token-credits": "pnpm --filter @station/types --filter @station/config --filter @station/db --filter @station/auth build && tsx --test apps/api/src/routes/token-credits.test.ts",
+    "test:health": "tsx --test apps/api/src/routes/health.test.ts",
     "test:studio-ui": "tsx --test apps/web/lib/studio-navigation.test.ts apps/web/lib/archive-trust.test.ts apps/web/lib/export-trust.test.ts",
     "test:reports": "pnpm --filter @station/types --filter @station/config --filter @station/db --filter @station/auth build && tsx --test apps/api/src/routes/reports.test.ts",
     "test:community": "pnpm --filter @station/types --filter @station/config --filter @station/db --filter @station/auth build && tsx --test apps/api/src/routes/community.test.ts",

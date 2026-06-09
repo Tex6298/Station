@@ -34,6 +34,7 @@ pnpm test:billing
 pnpm test:storage
 pnpm test:integrity
 pnpm test:token-credits
+pnpm test:health
 pnpm test:reports
 pnpm test:community
 pnpm test:spaces
@@ -2104,4 +2105,24 @@ Commands re-run by ARGUS:
 | `npx --yes pnpm@10.32.1 test:persona-context` | Pass | 1 test passed. |
 | `npx --yes pnpm@10.32.1 test:continuity` | Pass | 4 tests passed. |
 | `npx --yes pnpm@10.32.1 test:integrity` | Pass | 2 tests passed. |
+| `git diff --check` | Pass | CRLF normalization warnings only. |
+
+## BE-00 DAEDALUS readiness implementation result
+
+Implemented on 2026-06-09 for ARGUS review. This is staging-readiness
+instrumentation only: `/health` remains the cheap `{ ok: true }` probe, and
+`/health/deployment` now reports non-secret readiness booleans/status for
+Supabase connectivity, migration state, the private `persona-files` bucket,
+public URL sanity, Supabase Auth redirect support status, providers, Stripe, and
+Redis-style cache configuration. The route serializes sanitized status/error
+labels only and does not include `DATABASE_URL`, Supabase keys, access tokens,
+provider keys, Stripe secrets, Redis URLs, raw service variables, or private
+data.
+
+Commands run by DAEDALUS:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npx --yes pnpm@10.32.1 test:health` | Pass | 2 tests passed, covering no-secret response shape, `/health` unchanged, successful readiness, and sanitized dependency failures. |
+| `npx --yes pnpm@10.32.1 --filter @station/api build` | Pass | API and dependent package builds completed. |
 | `git diff --check` | Pass | CRLF normalization warnings only. |

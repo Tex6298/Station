@@ -8,6 +8,8 @@ const envSchema = z.object({
   SUPABASE_URL: z.string().min(1),
   SUPABASE_ANON_KEY: z.string().min(1),
   SUPABASE_SERVICE_ROLE_KEY: z.string().min(1),
+  DATABASE_URL: z.string().optional(),
+  SUPABASE_ACCESS_TOKEN: z.string().optional(),
 
   // App URL (used for Stripe redirect URLs)
   NEXT_PUBLIC_APP_URL: z.string().default("http://localhost:3000"),
@@ -54,6 +56,13 @@ const envSchema = z.object({
 
   // JWT secret (for auth + OAuth state tokens)
   JWT_SECRET: z.string().default("change-me-in-production"),
+
+  // Optional cache/queue providers. These are exposed in readiness as booleans only.
+  REDIS_URL: z.string().optional(),
+  REDIS_PRIVATE_URL: z.string().optional(),
+  VALKEY_URL: z.string().optional(),
+  UPSTASH_REDIS_REST_URL: z.string().optional(),
+  UPSTASH_REDIS_REST_TOKEN: z.string().optional(),
 });
 
 export const env = envSchema.parse(process.env);
