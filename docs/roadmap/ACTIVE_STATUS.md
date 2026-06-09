@@ -576,6 +576,20 @@ when a PR lands, or when validation truth changes.
   migrations 025 and 026 staging apply/RPC proof remains an E2E setup follow-up,
   not a blocker to BE-03. Agents that believe a lane is done, blocked, or ready
   to go idle must wake MIMIR with `WAKEUP A1:` and a concrete verdict/task.
+- BE-03 DAEDALUS implementation is ready for ARGUS review, 2026-06-09:
+  Developer Spaces now have explicit `provider_policy` modes, an owner-only
+  provider-policy evaluation route, and serialized policy state. Private
+  archive-aware policy decisions are denied unless the Developer Space has
+  explicitly accepted `private_archive_allowed`; `public_synthetic_only` blocks
+  public-context and private-archive inclusion. The evaluation route records
+  sanitized AI observability metadata/payloads containing only policy, requested
+  context, provider mode, allow/deny result, include flags, and denial reason.
+  It does not log provider keys, prompt payloads, or private archive chunks, and
+  it does not execute provider calls. NVIDIA chat remains behind the existing
+  OpenAI-compatible provider router. `pnpm test:developer-spaces`, the focused
+  provider-router test, `pnpm --filter @station/api build`, and targeted
+  `git diff --check` pass locally with the pinned runner. BE-04 must wait for
+  ARGUS acceptance or a DAEDALUS fix wakeup.
 
 ## Current repo truth
 
@@ -723,6 +737,11 @@ when a PR lands, or when validation truth changes.
   widgets, and community trust/voting schema and route surfaces, pending ARGUS
   review. The migrations are not applied to staging until Lane 1 external
   Supabase credentials and target are confirmed.
+- As of BE-03 DAEDALUS implementation, Developer Spaces carry a typed
+  `provider_policy` posture. Owner-only policy evaluation can fail closed before
+  any provider call, and AI observability records only sanitized decision
+  metadata instead of provider secrets, prompt payloads, or private archive
+  excerpts.
 
 ## Near-term rule
 
@@ -751,6 +770,7 @@ pnpm test:billing
 pnpm test:storage
 pnpm test:integrity
 pnpm test:token-credits
+pnpm test:health
 pnpm test:reports
 pnpm test:community
 pnpm test:spaces

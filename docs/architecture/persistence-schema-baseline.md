@@ -55,6 +55,11 @@ The current scaffold assumes these persistence entities:
   injection, active `owner_memory_blocks` can be injected as owner-scoped runtime
   memory, and the `match_memory_items` RPC follows the same lifecycle filter as
   the keyword fallback.
+- BE-03 adds `developer_spaces.provider_policy` as the Developer Space
+  provider/data posture. Owner-only policy evaluation must explicitly accept
+  `private_archive_allowed` before private archive chunks can be considered,
+  and AI observability should log only sanitized policy decision metadata rather
+  than provider secrets, prompt payloads, or private archive excerpts.
 - Moderation report creation now writes `moderation_reports` with the
   authenticated user id as `reporter_id` and serializes the existing camelCase
   `ModerationReportRecord` API shape.

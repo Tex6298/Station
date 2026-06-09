@@ -5,12 +5,13 @@ Date: 2026-06-08
 Status: MIMIR-opened backend roadmap. BE-00 is ARGUS-accepted and deployed far
 enough for the public Railway readiness endpoint to return the new readiness
 shape. BE-01 is ARGUS-accepted locally after prompt-boundary hardening. BE-02 is
-ARGUS-accepted locally after memory prompt-boundary hardening. BE-03 is the
-active DAEDALUS implementation lane. Migrations 025 and 026 still need staging
-Supabase apply/RPC proof before remote vector retrieval and lifecycle filtering
-are proven, but that proof is an E2E setup follow-up rather than a BE-03
-blocker. Later lanes are ordered implementation scope, not permission to build
-everything at once.
+ARGUS-accepted locally after memory prompt-boundary hardening. BE-03 is ready
+for ARGUS review after DAEDALUS implementation. Migrations 025 and 026 still
+need staging Supabase apply/RPC proof before remote vector retrieval and
+lifecycle filtering are proven, and migration 027 still needs staging Supabase
+apply proof before remote Developer Space provider-policy persistence is proven.
+Those are E2E setup follow-ups rather than BE-03 review blockers. Later lanes
+are ordered implementation scope, not permission to build everything at once.
 
 ## Current staging truth
 
@@ -44,6 +45,9 @@ Still external or replay-adjacent:
   staging before remote vector archive retrieval is considered complete.
 - BE-02 migration 026 is present repo-side and should be applied/proven against
   staging before remote vector memory lifecycle filtering is considered
+  complete.
+- BE-03 migration 027 is present repo-side and should be applied/proven against
+  staging before remote Developer Space provider policies are considered
   complete.
 
 ## Roadmap rule
@@ -296,10 +300,11 @@ Default order:
 
 Immediate active task:
 
-- DAEDALUS implements BE-03 provider policy per Developer Space with explicit
-  privacy modes and AI observability metadata.
-- BE-01/BE-02 migrations 025 and 026 staging apply/RPC proof remains an E2E
-  follow-up, not a reason to stop BE-03.
-- If DAEDALUS or ARGUS believes the lane is done, blocked, or about to go idle,
-  they must wake MIMIR with `WAKEUP A1:` and a concrete verdict/task instead of
-  going quiet.
+- ARGUS reviews BE-03 provider policy per Developer Space for route ownership,
+  private archive gating, public/synthetic denial, provider privacy, and
+  sanitized AI observability metadata.
+- BE-01/BE-02 migrations 025 and 026 staging apply/RPC proof and BE-03 migration
+  027 staging apply proof remain E2E follow-ups, not reasons to reject BE-03.
+- If ARGUS accepts BE-03, wake MIMIR with `WAKEUP A1:` and the next backend
+  decision. If fixes are needed, wake DAEDALUS with `WAKEUP A2:` and the exact
+  repair scope.

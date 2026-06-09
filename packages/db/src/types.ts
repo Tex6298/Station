@@ -46,6 +46,7 @@ export type DiscoverEventType = "published" | "created" | "featured" | "updated"
 export type SocialPlatform = "bluesky" | "mastodon" | "tumblr" | "linkedin" | "wordpress" | "ghost" | "reddit";
 export type SocialPostStatus = "pending" | "sent" | "failed" | "scheduled";
 export type DeveloperSpaceVisibility = "private" | "unlisted" | "community" | "public";
+export type DeveloperSpaceProviderPolicy = "public_synthetic_only" | "public_context_allowed" | "private_archive_allowed" | "owner_byok_only" | "platform_allowed";
 export type DeveloperSpaceVisualisationType = "node_field" | "timeline" | "world_map" | "constellation";
 export type DeveloperSpaceTopologyType = "radial" | "branching" | "lattice" | "custom";
 export type DeveloperSpaceEventVisibility = "private" | "community" | "public";
@@ -727,6 +728,7 @@ export interface Database {
           slug: string;
           description: string | null;
           visibility: DeveloperSpaceVisibility;
+          provider_policy: DeveloperSpaceProviderPolicy;
           visualisation_type: DeveloperSpaceVisualisationType;
           visualisation_config: Record<string, unknown>;
           api_key_hash: string | null;
@@ -735,8 +737,9 @@ export interface Database {
           created_at: string;
           updated_at: string;
         };
-        Insert: Omit<Database["public"]["Tables"]["developer_spaces"]["Row"], "id" | "created_at" | "updated_at"> & {
+        Insert: Omit<Database["public"]["Tables"]["developer_spaces"]["Row"], "id" | "provider_policy" | "created_at" | "updated_at"> & {
           id?: string;
+          provider_policy?: DeveloperSpaceProviderPolicy;
           created_at?: string;
           updated_at?: string;
         };

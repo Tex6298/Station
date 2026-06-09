@@ -2242,3 +2242,22 @@ Commands re-run by ARGUS:
 | `npx --yes pnpm@10.32.1 test:persona-context` | Pass | 3 tests passed after memory prompt-boundary regression coverage. |
 | `npx --yes pnpm@10.32.1 --filter @station/api build` | Pass | API and dependent package builds completed. |
 | `git diff --check` | Pass | CRLF normalization warnings only. |
+
+## BE-03 DAEDALUS provider policy result
+
+Implemented on 2026-06-09 for ARGUS review. This is Developer Space provider
+policy work only: `developer_spaces.provider_policy` records the selected data
+posture, owner-only policy evaluation fails closed before provider execution,
+private archive-aware decisions require explicit `private_archive_allowed`, and
+AI observability receives only sanitized policy decision metadata. No provider
+router behavior, NVIDIA/OpenAI-compatible request shape, embeddings, Redis,
+Cloudflare, background-job, UI, or staging migration-proof work was added.
+
+Commands run by DAEDALUS:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npx --yes pnpm@10.32.1 test:developer-spaces` | Pass | 5 tests passed, including private-archive denial unless policy is explicitly accepted, public-context denial for `public_synthetic_only`, serialized policy state, and observability payload redaction for provider keys, prompt text, and private archive chunks. |
+| `npx --yes pnpm@10.32.1 exec tsx --test packages/ai/test/provider-router.test.ts` | Pass | 4 tests passed, covering NVIDIA/OpenAI-compatible URL normalization, NVIDIA alias request shape, and DeepSeek fallback behavior. |
+| `npx --yes pnpm@10.32.1 --filter @station/api build` | Pass | API and dependent package builds completed. |
+| Targeted `git diff --check` over BE-03 code/schema files | Pass | CRLF normalization warnings only. |

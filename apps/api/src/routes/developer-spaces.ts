@@ -16,6 +16,7 @@ import type { AuthUser } from "@station/types";
 import {
   accessLevelForDeveloperSpace,
   canReadDeveloperSpace,
+  evaluateDeveloperSpaceProviderPolicy,
   extractDeveloperApiKey,
   generateDeveloperSpaceApiKey,
   hashDeveloperSpaceApiKey,
@@ -28,6 +29,11 @@ import {
   slugifyProjectName,
 } from "../services/developer-space.service";
 import {
+  completeAiTrace,
+  recordAiTraceEvent,
+  startAiTrace,
+} from "../services/ai-observability.service";
+import {
   estimateDeveloperSpaceStorageBytes,
   getDeveloperSpaceUsage,
   recordDeveloperSpaceUsage,
@@ -35,6 +41,13 @@ import {
 import { broadcastDeveloperSpaceIngestion } from "../services/developer-space-live.service";
 
 const visibilitySchema = z.enum(["private", "unlisted", "community", "public"]);
+const providerPolicySchema = z.enum([
+  "public_synthetic_only",
+  "public_context_allowed",
+  "private_archive_allowed",
+  "owner_byok_only",
+  "platform_allowed",
+]);
 const visualisationSchema = z.enum(["node_field", "timeline", "world_map", "constellation"]);
 const topologySchema = z.enum(["radial", "branching", "lattice", "custom"]);
 const eventVisibilitySchema = z.enum(["private", "community", "public"]);
@@ -77,11 +90,18 @@ const createSpaceSchema = z.object({
   slug: z.string().min(3).max(80).regex(/^[a-z0-9]+(-[a-z0-9]+)*$/).optional(),
   description: z.string().max(4000).optional(),
   visibility: visibilitySchema.default("private"),
+  providerPolicy: providerPolicySchema.default("public_synthetic_only"),
   visualisationType: visualisationSchema.default("node_field"),
   visualisationConfig: jsonObjectSchema.default({}),
 });
 
 const updateSpaceSchema = createSpaceSchema.partial();
+
+const providerPolicyEvaluationSchema = z.object({
+  requestedContext: z.enum(["public_synthetic", "public_context", "private_archive"]).default("public_synthetic"),
+  providerMode: z.enum(["platform", "owner_byok"]).default("platform"),
+  privateArchiveRequested: z.boolean().optional(),
+});
 
 const nodeStateSchema = z.object({
   nodeName: z.string().min(1).max(120).optional(),
@@ -812,6 +832,7 @@ developerSpacesRouter.post("/", requireAuth, requireTier("canon"), async (req, r
       slug,
       description: parsed.data.description ?? null,
       visibility: parsed.data.visibility,
+      provider_policy: parsed.data.providerPolicy,
       visualisation_type: parsed.data.visualisationType,
       visualisation_config: parsed.data.visualisationConfig,
     })
@@ -908,6 +929,51 @@ developerSpacesRouter.post("/:id/api-key/revoke", requireAuth, async (req, res) 
 
   if (error || !data) return res.status(500).json({ error: error?.message ?? "Could not revoke API key." });
   return res.json({ space: serializeDeveloperSpace(data) });
+});
+
+developerSpacesRouter.post("/:id/provider-policy/evaluate", requireAuth, async (req, res) => {
+  const parsed = providerPolicyEvaluationSchema.safeParse(req.body);
+  if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
+
+  const ownerLoad = await loadDeveloperSpaceForOwner(req.params.id, req.user!);
+  if (ownerLoad.status !== 200) return res.status(ownerLoad.status).json({ error: ownerLoad.error });
+
+  const requestedContext = parsed.data.privateArchiveRequested
+    ? "private_archive"
+    : parsed.data.requestedContext;
+  const decision = evaluateDeveloperSpaceProviderPolicy({
+    providerPolicy: ownerLoad.space.provider_policy,
+    requestedContext,
+    providerMode: parsed.data.providerMode,
+  });
+
+  const metadata = {
+    domain: "developer_space",
+    developerSpaceId: ownerLoad.space.id,
+    providerPolicy: decision.providerPolicy,
+    requestedContext: decision.requestedContext,
+    providerMode: decision.providerMode,
+    allowed: decision.allowed,
+    denialReason: decision.denialReason,
+  };
+  const trace = await startAiTrace({
+    ownerUserId: req.user!.id,
+    source: "system",
+    metadata,
+  });
+  await recordAiTraceEvent({
+    traceId: trace?.id,
+    ownerUserId: req.user!.id,
+    eventType: "tool_call",
+    label: "Developer Space provider policy evaluation",
+    status: decision.allowed ? "completed" : "skipped",
+    provider: decision.providerMode,
+    payload: decision.observability,
+  });
+  await completeAiTrace({ traceId: trace?.id });
+
+  if (!decision.allowed) return res.status(403).json({ decision });
+  return res.json({ decision });
 });
 
 developerSpacesRouter.post("/:id/documents", requireAuth, async (req, res) => {
@@ -1044,6 +1110,7 @@ developerSpacesRouter.patch("/:id", requireAuth, async (req, res) => {
   if (parsed.data.slug !== undefined) updatePayload.slug = parsed.data.slug;
   if (parsed.data.description !== undefined) updatePayload.description = parsed.data.description;
   if (parsed.data.visibility !== undefined) updatePayload.visibility = parsed.data.visibility;
+  if (parsed.data.providerPolicy !== undefined) updatePayload.provider_policy = parsed.data.providerPolicy;
   if (parsed.data.visualisationType !== undefined) updatePayload.visualisation_type = parsed.data.visualisationType;
   if (parsed.data.visualisationConfig !== undefined) updatePayload.visualisation_config = parsed.data.visualisationConfig;
 

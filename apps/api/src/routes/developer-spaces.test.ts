@@ -25,6 +25,8 @@ class InMemorySupabase {
     developer_space_events: [],
     developer_space_snapshots: [],
     documents: [],
+    ai_trace_sessions: [],
+    ai_trace_events: [],
   };
 
   private idCounters: Record<string, number> = {};
@@ -75,6 +77,7 @@ class InMemorySupabase {
 
     if (table === "developer_spaces") {
       row.description ??= null;
+      row.provider_policy ??= "public_synthetic_only";
       row.visualisation_config ??= {};
       row.api_key_hash ??= null;
       row.api_key_last_four ??= null;
@@ -136,6 +139,31 @@ class InMemorySupabase {
     }
 
     if (table === "developer_space_events" || table === "developer_space_snapshots") {
+      row.created_at ??= now;
+    }
+
+    if (table === "ai_trace_sessions") {
+      row.source ??= "system";
+      row.status ??= "running";
+      row.metadata ??= {};
+      row.started_at ??= now;
+      row.completed_at ??= null;
+      row.duration_ms ??= null;
+      row.total_input_tokens ??= 0;
+      row.total_output_tokens ??= 0;
+      row.total_estimated_cost_pence ??= 0;
+      row.error_message ??= null;
+    }
+
+    if (table === "ai_trace_events") {
+      row.status ??= "completed";
+      row.provider ??= null;
+      row.model ??= null;
+      row.input_tokens ??= 0;
+      row.output_tokens ??= 0;
+      row.estimated_cost_pence ??= 0;
+      row.duration_ms ??= null;
+      row.payload ??= {};
       row.created_at ??= now;
     }
 
@@ -363,6 +391,18 @@ function parseSseUpdate<T = any>(body: string) {
   };
 }
 
+function assertNoPolicySecretLeak(value: unknown) {
+  const serialized = JSON.stringify(value);
+  for (const marker of [
+    "secret-provider-key",
+    "private prompt text",
+    "private archive excerpt",
+    "owner-only chunk",
+  ]) {
+    assert.equal(serialized.includes(marker), false, `${marker} leaked into provider-policy observability`);
+  }
+}
+
 function listen(app: Express) {
   return new Promise<Server>((resolve) => {
     const server = app.listen(0, "127.0.0.1", () => resolve(server as unknown as Server));
@@ -374,6 +414,84 @@ function close(server: Server) {
     server.close((error) => error ? reject(error) : resolve());
   });
 }
+
+test("Developer Space provider policy blocks private archive context unless explicitly allowed", async () => {
+  const db = new InMemorySupabase();
+  setSupabaseAdminForTests(db.client as any);
+  const app = createDeveloperSpacesApp();
+
+  try {
+    const created = await requestJson(app, "POST", "/developer-spaces", {
+      token: "owner-token",
+      body: {
+        projectName: "Policy Observatory",
+      },
+    });
+    assert.equal(created.status, 201);
+    const spaceId = created.body.space.id;
+
+    const blocked = await requestJson(app, "POST", `/developer-spaces/${spaceId}/provider-policy/evaluate`, {
+      token: "owner-token",
+      body: {
+        privateArchiveRequested: true,
+        providerMode: "platform",
+        providerKey: "secret-provider-key",
+        prompt: "private prompt text",
+        privateArchiveChunks: ["private archive excerpt", "owner-only chunk"],
+      },
+    });
+    assert.equal(blocked.status, 403);
+    assert.equal(blocked.body.decision.allowed, false);
+    assert.equal(blocked.body.decision.providerPolicy, "public_synthetic_only");
+    assert.equal(blocked.body.decision.includePrivateArchive, false);
+    assert.equal(blocked.body.decision.denialReason, "private_archive_requires_private_archive_allowed");
+
+    const publicContextBlocked = await requestJson(app, "POST", `/developer-spaces/${spaceId}/provider-policy/evaluate`, {
+      token: "owner-token",
+      body: {
+        requestedContext: "public_context",
+      },
+    });
+    assert.equal(publicContextBlocked.status, 403);
+    assert.equal(publicContextBlocked.body.decision.denialReason, "public_context_not_allowed");
+
+    const updated = await requestJson(app, "PATCH", `/developer-spaces/${spaceId}`, {
+      token: "owner-token",
+      body: {
+        providerPolicy: "private_archive_allowed",
+      },
+    });
+    assert.equal(updated.status, 200);
+    assert.equal(updated.body.space.providerPolicy, "private_archive_allowed");
+
+    const allowed = await requestJson(app, "POST", `/developer-spaces/${spaceId}/provider-policy/evaluate`, {
+      token: "owner-token",
+      body: {
+        requestedContext: "private_archive",
+        providerMode: "platform",
+        providerKey: "secret-provider-key",
+        prompt: "private prompt text",
+        privateArchiveChunks: ["private archive excerpt"],
+      },
+    });
+    assert.equal(allowed.status, 200);
+    assert.equal(allowed.body.decision.allowed, true);
+    assert.equal(allowed.body.decision.includePrivateArchive, true);
+    assert.equal(allowed.body.decision.providerPolicy, "private_archive_allowed");
+
+    const traces = {
+      sessions: db.tables.ai_trace_sessions,
+      events: db.tables.ai_trace_events,
+    };
+    assert.equal(traces.sessions.length, 3);
+    assert.equal(traces.events.length, 3);
+    assert.equal(traces.sessions.some((trace) => trace.metadata.providerPolicy === "private_archive_allowed"), true);
+    assert.equal(traces.events.every((event) => event.payload.providerPolicy), true);
+    assertNoPolicySecretLeak(traces);
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
 
 test("Developer Spaces smoke covers creation, keying, ingestion, and public/owner reads", async () => {
   const db = new InMemorySupabase();
@@ -393,6 +511,7 @@ test("Developer Spaces smoke covers creation, keying, ingestion, and public/owne
 
     assert.equal(created.status, 201);
     assert.equal(created.body.space.slug, "animus-field");
+    assert.equal(created.body.space.providerPolicy, "public_synthetic_only");
     assert.equal(created.body.space.visualisationType, "world_map");
 
     const spaceId = created.body.space.id;

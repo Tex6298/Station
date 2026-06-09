@@ -1,4 +1,10 @@
 export type DeveloperSpaceVisibility = "private" | "unlisted" | "community" | "public";
+export type DeveloperSpaceProviderPolicy =
+  | "public_synthetic_only"
+  | "public_context_allowed"
+  | "private_archive_allowed"
+  | "owner_byok_only"
+  | "platform_allowed";
 export type DeveloperSpaceVisualisationType = "node_field" | "timeline" | "world_map" | "constellation";
 export type DeveloperSpaceTopologyType = "radial" | "branching" | "lattice" | "custom";
 export type DeveloperSpaceEventVisibility = "private" | "community" | "public";
@@ -31,6 +37,7 @@ export interface DeveloperSpaceRecord {
   slug: string;
   description?: string | null;
   visibility: DeveloperSpaceVisibility;
+  providerPolicy: DeveloperSpaceProviderPolicy;
   visualisationType: DeveloperSpaceVisualisationType;
   visualisationConfig: Record<string, unknown> & { widgets?: DeveloperSpaceWidgetConfig[] };
   apiKeyLastFour?: string | null;

@@ -4,6 +4,7 @@ import type {
   DeveloperSpaceLinkedDocument,
   DeveloperSpaceEvent,
   DeveloperSpaceNode,
+  DeveloperSpaceProviderPolicy,
   DeveloperSpaceRecord,
   DeveloperSpaceSnapshot,
   DeveloperSpaceVisibility,
@@ -11,6 +12,14 @@ import type {
 import type { AuthenticatedUser } from "../middleware/require-auth";
 
 const API_KEY_PREFIX = "station_dev_";
+const DEFAULT_PROVIDER_POLICY: DeveloperSpaceProviderPolicy = "public_synthetic_only";
+const PROVIDER_POLICIES = new Set<DeveloperSpaceProviderPolicy>([
+  "public_synthetic_only",
+  "public_context_allowed",
+  "private_archive_allowed",
+  "owner_byok_only",
+  "platform_allowed",
+]);
 
 const PAID_TIERS = new Set(["private", "creator", "canon", "institutional"]);
 const SENSITIVE_JSON_KEYS = new Set([
@@ -32,6 +41,30 @@ const SENSITIVE_JSON_KEYS = new Set([
 ]);
 const SENSITIVE_JSON_KEY_FRAGMENTS = ["password", "token", "secret", "credential", "cookie"];
 
+export type DeveloperSpacePolicyContext = "public_synthetic" | "public_context" | "private_archive";
+export type DeveloperSpaceProviderMode = "platform" | "owner_byok";
+
+export type DeveloperSpaceProviderPolicyDecision = {
+  providerPolicy: DeveloperSpaceProviderPolicy;
+  requestedContext: DeveloperSpacePolicyContext;
+  providerMode: DeveloperSpaceProviderMode;
+  allowed: boolean;
+  includePrivateArchive: boolean;
+  includePublicContext: boolean;
+  usePlatformProvider: boolean;
+  requireOwnerByok: boolean;
+  denialReason: string | null;
+  observability: {
+    providerPolicy: DeveloperSpaceProviderPolicy;
+    requestedContext: DeveloperSpacePolicyContext;
+    providerMode: DeveloperSpaceProviderMode;
+    allowed: boolean;
+    includePrivateArchive: boolean;
+    includePublicContext: boolean;
+    denialReason: string | null;
+  };
+};
+
 export function slugifyProjectName(input: string): string {
   const slug = input
     .toLowerCase()
@@ -51,6 +84,56 @@ export function generateDeveloperSpaceApiKey(): string {
 
 export function hashDeveloperSpaceApiKey(apiKey: string): string {
   return createHash("sha256").update(apiKey).digest("hex");
+}
+
+export function normaliseDeveloperSpaceProviderPolicy(value: unknown): DeveloperSpaceProviderPolicy {
+  return typeof value === "string" && PROVIDER_POLICIES.has(value as DeveloperSpaceProviderPolicy)
+    ? value as DeveloperSpaceProviderPolicy
+    : DEFAULT_PROVIDER_POLICY;
+}
+
+export function evaluateDeveloperSpaceProviderPolicy(input: {
+  providerPolicy: unknown;
+  requestedContext: DeveloperSpacePolicyContext;
+  providerMode: DeveloperSpaceProviderMode;
+}): DeveloperSpaceProviderPolicyDecision {
+  const providerPolicy = normaliseDeveloperSpaceProviderPolicy(input.providerPolicy);
+  const includePrivateArchive = input.requestedContext === "private_archive" && providerPolicy === "private_archive_allowed";
+  const includePublicContext = input.requestedContext === "public_context"
+    && providerPolicy !== "public_synthetic_only";
+  const requireOwnerByok = providerPolicy === "owner_byok_only";
+  const usePlatformProvider = input.providerMode === "platform";
+
+  let denialReason: string | null = null;
+  if (input.requestedContext === "private_archive" && providerPolicy !== "private_archive_allowed") {
+    denialReason = "private_archive_requires_private_archive_allowed";
+  } else if (input.requestedContext === "public_context" && providerPolicy === "public_synthetic_only") {
+    denialReason = "public_context_not_allowed";
+  } else if (requireOwnerByok && input.providerMode !== "owner_byok") {
+    denialReason = "owner_byok_required";
+  }
+
+  const allowed = denialReason === null;
+  return {
+    providerPolicy,
+    requestedContext: input.requestedContext,
+    providerMode: input.providerMode,
+    allowed,
+    includePrivateArchive,
+    includePublicContext,
+    usePlatformProvider,
+    requireOwnerByok,
+    denialReason,
+    observability: {
+      providerPolicy,
+      requestedContext: input.requestedContext,
+      providerMode: input.providerMode,
+      allowed,
+      includePrivateArchive,
+      includePublicContext,
+      denialReason,
+    },
+  };
 }
 
 export function normaliseSourceRefs(refs: unknown): string[] {
@@ -121,6 +204,7 @@ export function serializeDeveloperSpace(row: any, options: { includeOperationalF
     slug: row.slug,
     description: row.description ?? null,
     visibility: row.visibility,
+    providerPolicy: normaliseDeveloperSpaceProviderPolicy(row.provider_policy),
     visualisationType: row.visualisation_type,
     visualisationConfig: row.visualisation_config ?? {},
     apiKeyLastFour: includeOperationalFields ? row.api_key_last_four ?? null : null,
