@@ -57,8 +57,8 @@ Observed public deployment facts:
 - Web `/health` returned `{ "ok": true }`.
 - `/health` returned `{ "ok": true }`.
 - `/health/deployment` returned `ok: true` and `ready: false`.
-- Deployment readiness timestamp from the response:
-  `2026-06-09T11:37:59.884Z`.
+- Latest ARGUS recheck deployment-readiness timestamp from the response:
+  `2026-06-09T11:42:46.472Z`.
 - App URL is configured as
   `https://stationweb-production.up.railway.app`.
 - API URL is configured as

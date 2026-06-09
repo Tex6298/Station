@@ -773,6 +773,15 @@ when a PR lands, or when validation truth changes.
   with database, migration, and storage `query_failed` statuses plus pending
   Supabase Auth redirect, Stripe, provider, OpenAI embedding, cache, Cloudflare,
   and replay-data setup. This is a handoff package, not staging proof.
+- BE-00 through BE-08 staging proof/waiver handoff is accepted by ARGUS,
+  2026-06-09: ARGUS rechecked public web/API `/health` and API
+  `/health/deployment`. The public deployment truth remains non-secret and
+  accurately blocked: web/API health return `{ "ok": true }`, but deployment
+  readiness is `ready: false` because remote database, migration, and storage
+  checks fail with `query_failed`, and Auth redirects, Stripe, provider,
+  embeddings, cache, Cloudflare, and replay data still need proof, setup, or an
+  explicit MIMIR/Marty waiver. Replay-driven optimization should not begin from
+  this handoff alone.
 
 ## Current repo truth
 

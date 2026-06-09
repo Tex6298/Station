@@ -2172,6 +2172,32 @@ Commands re-run by ARGUS:
 | `npx --yes pnpm@10.32.1 --filter @station/api build` | Pass | API and dependent package builds completed. |
 | `git diff --check` | Pass | CRLF normalization warnings only. |
 
+## BE-00 through BE-08 staging proof/waiver ARGUS handoff result
+
+ARGUS reviewed DAEDALUS's staging proof/waiver handoff on 2026-06-09 and
+accepted it as a truthful handoff package, not staging proof.
+
+Review result:
+
+- Public web and API `/health` probes return `{ "ok": true }`.
+- Public API `/health/deployment` remains non-secret and reports `ready: false`.
+- Remote database, migration, and storage checks still fail with
+  `query_failed`.
+- Supabase Auth redirects, Stripe resources, platform provider, OpenAI
+  embeddings, cache provider, Cloudflare setup, and replay account/data remain
+  setup/proof/waiver asks.
+- Replay-driven optimization should wait until MIMIR/Marty prove or explicitly
+  waive the blockers.
+
+Commands re-run by ARGUS:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `curl.exe -fsS --max-time 20 https://stationweb-production.up.railway.app/health` | Pass | Returned `{ "ok": true }`. |
+| `curl.exe -fsS --max-time 20 https://stationapi-production.up.railway.app/health` | Pass | Returned `{ "ok": true }`. |
+| `curl.exe -fsS --max-time 30 https://stationapi-production.up.railway.app/health/deployment` | Blocked as expected | Returned `ready: false` with database/migration/storage `query_failed` and pending Auth, Stripe, provider, embeddings, Redis/cache, and Cloudflare setup. |
+| `git diff --check` | Pass | CRLF normalization warnings only. |
+
 ## BE-07 DAEDALUS Cloudflare retrieval adapter result
 
 Implemented on 2026-06-09 for ARGUS review. This is disabled-safe Cloudflare
