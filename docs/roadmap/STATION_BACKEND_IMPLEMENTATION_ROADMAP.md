@@ -5,10 +5,12 @@ Date: 2026-06-08
 Status: MIMIR-opened backend roadmap. BE-00 is ARGUS-accepted and deployed far
 enough for the public Railway readiness endpoint to return the new readiness
 shape. BE-01 is ARGUS-accepted locally after prompt-boundary hardening. BE-02 is
-ARGUS-accepted locally after memory prompt-boundary hardening. Migrations 025
-and 026 still need staging Supabase apply/RPC proof before remote vector
-retrieval and lifecycle filtering are proven. Later lanes are ordered
-implementation scope, not permission to build everything at once.
+ARGUS-accepted locally after memory prompt-boundary hardening. BE-03 is the
+active DAEDALUS implementation lane. Migrations 025 and 026 still need staging
+Supabase apply/RPC proof before remote vector retrieval and lifecycle filtering
+are proven, but that proof is an E2E setup follow-up rather than a BE-03
+blocker. Later lanes are ordered implementation scope, not permission to build
+everything at once.
 
 ## Current staging truth
 
@@ -40,6 +42,9 @@ Still external or replay-adjacent:
   carried as exact E2E asks for Marty.
 - BE-01 migration 025 is present repo-side and should be applied/proven against
   staging before remote vector archive retrieval is considered complete.
+- BE-02 migration 026 is present repo-side and should be applied/proven against
+  staging before remote vector memory lifecycle filtering is considered
+  complete.
 
 ## Roadmap rule
 
@@ -291,6 +296,10 @@ Default order:
 
 Immediate active task:
 
-- MIMIR decides whether BE-03 provider policy should open next or whether
-  staging migration/RPC proof for BE-01/BE-02 migrations 025 and 026 should come
-  first.
+- DAEDALUS implements BE-03 provider policy per Developer Space with explicit
+  privacy modes and AI observability metadata.
+- BE-01/BE-02 migrations 025 and 026 staging apply/RPC proof remains an E2E
+  follow-up, not a reason to stop BE-03.
+- If DAEDALUS or ARGUS believes the lane is done, blocked, or about to go idle,
+  they must wake MIMIR with `WAKEUP A1:` and a concrete verdict/task instead of
+  going quiet.

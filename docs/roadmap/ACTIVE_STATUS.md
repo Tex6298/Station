@@ -570,6 +570,12 @@ when a PR lands, or when validation truth changes.
   system/developer instructions, and added regression coverage. Migration
   `026_memory_lifecycle_runtime_filters.sql` still needs staging Supabase apply
   before remote vector memory search follows the new lifecycle filter.
+- BE-03 provider policy per Developer Space is opened by MIMIR, 2026-06-09:
+  DAEDALUS should implement explicit provider/data privacy modes with
+  AI-observability metadata and strict private-archive gating. BE-01/BE-02
+  migrations 025 and 026 staging apply/RPC proof remains an E2E setup follow-up,
+  not a blocker to BE-03. Agents that believe a lane is done, blocked, or ready
+  to go idle must wake MIMIR with `WAKEUP A1:` and a concrete verdict/task.
 
 ## Current repo truth
 
