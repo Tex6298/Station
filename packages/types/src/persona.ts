@@ -113,8 +113,49 @@ export interface MemoryItem {
   summary?: string | null;
   sourceType: "chat" | "import" | "document" | "calibration" | "integrity_session" | "manual";
   relevanceWeight?: number;
+  archiveSourceType?: ArchiveSourceType | null;
+  archiveSourceId?: string | null;
+  archiveSourceName?: string | null;
+  chunkIndex?: number | null;
+  chunkCount?: number | null;
   createdAt: string;
   updatedAt?: string;
+}
+
+export type ArchiveSourceType = "import_job" | "persona_file" | "archived_chat_transcript";
+
+export interface ArchiveRetrievalCitation {
+  sourceType: ArchiveSourceType;
+  sourceId: string;
+  title: string | null;
+  reason: string;
+  createdAt?: string | null;
+  chunkIndex?: number | null;
+  chunkCount?: number | null;
+}
+
+export interface ArchiveRetrievalChunk {
+  id: string;
+  personaId: string;
+  excerpt: string;
+  score: number;
+  citation: ArchiveRetrievalCitation;
+  createdAt?: string | null;
+}
+
+export interface ArchiveRetrievalResult {
+  mode: "vector" | "keyword";
+  chunks: ArchiveRetrievalChunk[];
+  counts: {
+    searched: number;
+    returned: number;
+    skippedUnauthoritative: number;
+  };
+  limits: {
+    maxChunks: number;
+    maxCharacters: number;
+    sourceCaps: Record<ArchiveSourceType, number>;
+  };
 }
 
 export type MemoryGraphEdgeType =

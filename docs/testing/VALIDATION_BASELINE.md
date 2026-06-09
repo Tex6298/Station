@@ -2146,3 +2146,23 @@ Commands re-run by ARGUS:
 | `curl.exe -fsS --max-time 20 https://stationapi-production.up.railway.app/health` | Pass | Returned `{ "ok": true }`. |
 | `curl.exe -fsS --max-time 20 https://stationapi-production.up.railway.app/health/deployment` | Partial remote truth | Public Railway API still returned the previous deployment-health shape without `ready`/`readiness`, so BE-00 is not yet proven deployed remotely. |
 | `git diff --check` | Pass | CRLF normalization warnings only. |
+
+## BE-01 DAEDALUS private archive retrieval result
+
+Implemented on 2026-06-09 for ARGUS review. This is backend retrieval
+foundation only: it adds nullable archive-source provenance to `memory_items`,
+an owner/persona-scoped private archive retrieval helper, an owner-only
+`/conversations/persona/:personaId/archive-retrieval` route, archived-chat
+transcript chunking, completed-import and processed-file source validation,
+bounded excerpts with source caps, and context-preview archive citations.
+Generic memory search now excludes archive chunks so failed or deleted archive
+sources cannot bypass source validation as ordinary memory. No Redis,
+Cloudflare, provider-policy, background-job, or UI work was added.
+
+Commands run by DAEDALUS:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npx --yes pnpm@10.32.1 test:conversation-archive` | Pass | 4 tests passed, covering archive retrieval owner scoping, source validation, deleted/failed/pending source exclusion, excerpt bounds, context-preview citations, archive transcript chunking, and existing import/archive behavior. |
+| `npx --yes pnpm@10.32.1 --filter @station/api build` | Pass | API and dependent package builds completed. |
+| `git diff --check` | Pass | CRLF normalization warnings only. |

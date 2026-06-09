@@ -527,6 +527,17 @@ when a PR lands, or when validation truth changes.
   private archive source chunks and citations. Missing API keys or dashboard
   config must fail closed or report pending state rather than blocking backend
   completion.
+- BE-01 DAEDALUS implementation is ready for ARGUS review, 2026-06-09:
+  `memory_items` now carries nullable archive-source provenance for completed
+  import jobs, processed persona files, and archived chat transcripts; private
+  retrieval validates the source before returning excerpts; context preview
+  prefers bounded owner-only archive excerpts with citations and falls back to
+  metadata references when no authoritative chunks match. Generic memory search
+  excludes archive chunks so failed/deleted sources cannot bypass source
+  validation as ordinary memory. `pnpm test:conversation-archive`,
+  `pnpm --filter @station/api build`, and `git diff --check` pass locally with
+  the pinned runner. BE-02 must wait for ARGUS acceptance or a DAEDALUS fix
+  wakeup.
 
 ## Current repo truth
 

@@ -3,10 +3,12 @@ import { z } from "zod";
 import { requireAuth } from "../middleware/require-auth";
 import { getSupabaseAdmin } from "../lib/supabase";
 import { assemblePersonaRuntimeContext, buildPersonaContext } from "@station/ai/retrieval/context-builder";
+import { retrievePrivateArchive } from "@station/ai/retrieval/archive-retrieval";
 import { resolveProvider } from "@station/ai/providers/router";
 import { AnthropicProvider } from "@station/ai/providers/anthropic";
-import { addMemoryItem, saveMessageAsMemory } from "../services/archive.service";
+import { addMemoryItem, ingestTextIntoArchive, saveMessageAsMemory } from "../services/archive.service";
 import { env } from "../lib/env";
+import { storageErrorResponse } from "../services/storage.service";
 import {
   assertTokenBudgetForEstimate,
   estimateConversationTokens,
@@ -30,6 +32,12 @@ const chatSchema = z.object({
 
 const contextPreviewSchema = z.object({
   query: z.string().max(8000).optional(),
+});
+
+const archiveRetrievalSchema = z.object({
+  query: z.string().max(8000).optional(),
+  limit: z.coerce.number().int().min(1).max(8).optional(),
+  maxCharacters: z.coerce.number().int().min(80).max(4000).optional(),
 });
 
 const saveMemorySchema = z.object({
@@ -262,6 +270,48 @@ conversationsRouter.get("/persona/:personaId/context-preview", async (req, res) 
   });
 
   return res.json({ query, context });
+});
+
+// -- Retrieve private archive excerpts for a persona --------------------------
+conversationsRouter.get("/persona/:personaId/archive-retrieval", async (req, res) => {
+  const parsed = archiveRetrievalSchema.safeParse({
+    query: req.query.query,
+    limit: req.query.limit,
+    maxCharacters: req.query.maxCharacters,
+  });
+  if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
+
+  const sb = getSupabaseAdmin();
+  const userId = req.user!.id;
+  const { personaId } = req.params;
+
+  const { data: persona, error: personaErr } = await sb
+    .from("personas")
+    .select("id, owner_user_id")
+    .eq("id", personaId)
+    .single();
+
+  if (personaErr || !persona) return res.status(404).json({ error: "Persona not found." });
+  if (persona.owner_user_id !== userId) return res.status(403).json({ error: "Not your persona." });
+
+  const { data: profile } = await sb
+    .from("profiles")
+    .select("byok_openai_key")
+    .eq("id", userId)
+    .single();
+
+  const query = parsed.data.query?.trim() || "Retrieve relevant private archive material.";
+  const retrieval = await retrievePrivateArchive({
+    supabase: sb,
+    ownerUserId: userId,
+    personaId: persona.id,
+    query,
+    limit: parsed.data.limit,
+    maxCharacters: parsed.data.maxCharacters,
+    embeddingApiKey: profile?.byok_openai_key ?? env.OPENAI_API_KEY,
+  });
+
+  return res.json({ query, retrieval });
 });
 
 // -- Get a single conversation with messages -----------------------------------
@@ -643,6 +693,33 @@ conversationsRouter.post("/:conversationId/archive", async (req, res) => {
     return res.status(500).json({ error: transcriptError?.message ?? "Could not archive conversation." });
   }
 
+  let archiveChunksCreated = 0;
+  try {
+    archiveChunksCreated = await ingestTextIntoArchive({
+      personaId: conv.persona_id,
+      ownerUserId: userId,
+      text: transcriptMarkdown,
+      sourceName: transcript.title,
+      sourceType: "chat",
+      relevanceWeight: 1.4,
+      archiveSource: {
+        type: "archived_chat_transcript",
+        id: transcript.id,
+        name: transcript.title,
+      },
+    });
+  } catch (err) {
+    await sb
+      .from("archived_chat_transcripts")
+      .delete()
+      .eq("id", transcript.id)
+      .eq("owner_user_id", userId);
+
+    const storageError = storageErrorResponse(err);
+    if (storageError) return res.status(storageError.status).json(storageError.body);
+    return res.status(500).json({ error: err instanceof Error ? err.message : "Could not index archived conversation." });
+  }
+
   const candidateSeeds = generateContinuityCandidates(messageRows);
   let candidates: any[] = [];
   if (candidateSeeds.length > 0) {
@@ -687,6 +764,9 @@ conversationsRouter.post("/:conversationId/archive", async (req, res) => {
     archive: {
       transcript: transcriptRow(transcript),
       candidates: (candidates ?? []).map(candidateRow),
+      retrieval: {
+        chunksCreated: archiveChunksCreated,
+      },
     },
   });
 });
@@ -758,6 +838,11 @@ conversationsRouter.patch("/candidates/:candidateId", async (req, res) => {
       summary: content.slice(0, 300),
       sourceType: "chat",
       relevanceWeight: parsed.data.relevanceWeight ?? 1.5,
+      archiveSource: {
+        type: "archived_chat_transcript",
+        id: candidate.archived_chat_transcript_id,
+        name: title,
+      },
     });
   } else {
     const { data: canon, error } = await sb

@@ -114,7 +114,7 @@ async function keywordFallbackSearch(
 ): Promise<MemorySearchResult[]> {
   const memoryQuery = supabase
     .from("memory_items")
-    .select("id, persona_id, title, content, summary, source_type, relevance_weight")
+    .select("id, persona_id, title, content, summary, source_type, relevance_weight, archive_source_type")
     .eq("persona_id", personaId)
     .order("relevance_weight", { ascending: false })
     .limit(limit * 3);
@@ -128,6 +128,7 @@ async function keywordFallbackSearch(
   const tokens = query.toLowerCase().split(/\s+/).filter(Boolean);
 
   return data
+    .filter((row) => row.archive_source_type == null)
     .map((row) => {
       const haystack = `${row.title ?? ""} ${row.content} ${row.summary ?? ""}`.toLowerCase();
       const score = tokens.filter((t) => haystack.includes(t)).length;

@@ -58,6 +58,11 @@ importsRouter.post("/chat", async (req, res) => {
       sourceName: parsed.data.sourceName,
       sourceType: "import",
       relevanceWeight: parsed.data.relevanceWeight ?? 1.5,
+      archiveSource: {
+        type: "import_job",
+        id: job.id,
+        name: parsed.data.sourceName,
+      },
     });
 
     const { data: completedJob } = await sb

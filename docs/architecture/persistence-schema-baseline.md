@@ -44,6 +44,12 @@ The current scaffold assumes these persistence entities:
 - Runtime API route persistence goes through the Supabase client boundary.
   Route tests may use injected in-memory fake Supabase clients, but local mock
   arrays are not a production repository fallback.
+- BE-01 adds nullable archive-source provenance to `memory_items` so archive
+  chunks can reuse existing storage, lifecycle, and embedding infrastructure
+  while remaining distinguishable from ordinary memory. Private archive
+  retrieval validates completed `import_jobs`, processed `persona_files`, or
+  present `archived_chat_transcripts` before returning excerpts; generic memory
+  search excludes archive chunks.
 - Moderation report creation now writes `moderation_reports` with the
   authenticated user id as `reporter_id` and serializes the existing camelCase
   `ModerationReportRecord` API shape.

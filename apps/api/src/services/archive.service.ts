@@ -4,9 +4,16 @@ import {
   generateEmbeddings,
   chunkText,
 } from "@station/ai/retrieval/embeddings";
+import type { ArchiveSourceType } from "@station/types";
 import { env } from "../lib/env";
 import { estimateStorageBytes, releaseStorageBytes, reserveStorageBytes } from "./storage.service";
 import { ensureMemoryLifecycle } from "./memory-continuity.service";
+
+type ArchiveSourceRef = {
+  type: ArchiveSourceType;
+  id: string;
+  name?: string | null;
+};
 
 /**
  * Adds a single memory item to a persona's archive and generates its embedding.
@@ -19,6 +26,7 @@ export async function addMemoryItem(input: {
   summary?: string;
   sourceType: "chat" | "import" | "document" | "calibration" | "integrity_session" | "manual";
   relevanceWeight?: number;
+  archiveSource?: ArchiveSourceRef;
 }) {
   const sb = getSupabaseAdmin();
   const reservedBytes = estimateStorageBytes(
@@ -45,6 +53,11 @@ export async function addMemoryItem(input: {
         source_type: input.sourceType,
         relevance_weight: input.relevanceWeight ?? 1,
         embedding: embedding ?? null,
+        archive_source_type: input.archiveSource?.type ?? null,
+        archive_source_id: input.archiveSource?.id ?? null,
+        archive_source_name: input.archiveSource?.name ?? null,
+        chunk_index: input.archiveSource ? 0 : null,
+        chunk_count: input.archiveSource ? 1 : null,
       })
       .select("*")
       .single();
@@ -73,8 +86,9 @@ export async function ingestTextIntoArchive(input: {
   ownerUserId: string;
   text: string;
   sourceName: string;
-  sourceType: "import" | "document" | "calibration";
+  sourceType: "chat" | "import" | "document" | "calibration";
   relevanceWeight?: number;
+  archiveSource?: ArchiveSourceRef;
 }): Promise<number> {
   const sb = getSupabaseAdmin();
   const chunks = chunkText(input.text, 1200, 200);
@@ -100,6 +114,11 @@ export async function ingestTextIntoArchive(input: {
       source_type: input.sourceType,
       relevance_weight: input.relevanceWeight ?? 1,
       embedding: embeddings[i] ?? null,
+      archive_source_type: input.archiveSource?.type ?? null,
+      archive_source_id: input.archiveSource?.id ?? null,
+      archive_source_name: input.archiveSource?.name ?? input.sourceName,
+      chunk_index: input.archiveSource ? i : null,
+      chunk_count: input.archiveSource ? chunks.length : null,
     }));
 
     const { data: inserted, error } = await sb
@@ -172,6 +191,11 @@ export async function processUploadedFile(input: {
       sourceName: input.fileName,
       sourceType: "import",
       relevanceWeight: 1.5,
+      archiveSource: {
+        type: "persona_file",
+        id: input.fileId,
+        name: input.fileName,
+      },
     });
 
     // Mark file as processed

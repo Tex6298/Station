@@ -1,4 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { retrievePrivateArchive } from "./archive-retrieval";
 import { searchMemory, loadCanon } from "./semantic-search";
 import { buildPersonaChatPrompt } from "../prompts/persona-chat";
 
@@ -277,6 +278,31 @@ async function loadArchiveReferences(
   input: PersonaContextInput,
   limit: number
 ): Promise<PersonaContextSource[]> {
+  if (!input.ownerUserId) return [];
+
+  const retrieval = await retrievePrivateArchive({
+    supabase: input.supabase,
+    ownerUserId: input.ownerUserId,
+    personaId: input.persona.id,
+    query: input.userQuery,
+    limit,
+    maxCharacters: 2400,
+    embeddingApiKey: input.embeddingApiKey,
+  });
+
+  if (retrieval.chunks.length > 0) {
+    return retrieval.chunks.map((chunk): PersonaContextSource => ({
+      id: chunk.id,
+      type: "archive",
+      title: chunk.citation.title,
+      content: chunk.excerpt,
+      priority: 30 + chunk.score,
+      reason: chunk.citation.reason,
+      sourceType: chunk.citation.sourceType,
+      createdAt: chunk.citation.createdAt ?? chunk.createdAt,
+    }));
+  }
+
   const fileLimit = Math.max(1, Math.ceil(limit / 3));
   const importLimit = Math.max(1, Math.ceil(limit / 3));
   const transcriptLimit = Math.max(1, limit - fileLimit - importLimit);

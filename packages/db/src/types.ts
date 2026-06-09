@@ -14,6 +14,7 @@ export type DocumentProvenanceType = "user_authored" | "ai_assisted" | "archive_
 export type DocumentSourceType = "manual" | "canon" | "integrity" | "archive_file" | "archive_import" | "persona";
 export type Provider = "platform" | "openai" | "anthropic" | "deepseek" | "gemini";
 export type SourceType = "chat" | "import" | "document" | "calibration" | "integrity_session" | "manual";
+export type ArchiveSourceType = "import_job" | "persona_file" | "archived_chat_transcript";
 export type ConversationStatus = "active" | "archived";
 export type ContinuityCandidateType = "memory" | "canon";
 export type ContinuityCandidateStatus = "pending" | "accepted" | "rejected";
@@ -247,11 +248,21 @@ export interface Database {
           source_type: SourceType;
           relevance_weight: number;
           embedding: number[] | null;
+          archive_source_type: ArchiveSourceType | null;
+          archive_source_id: string | null;
+          archive_source_name: string | null;
+          chunk_index: number | null;
+          chunk_count: number | null;
           created_at: string;
           updated_at: string;
         };
-        Insert: Omit<Database["public"]["Tables"]["memory_items"]["Row"], "id" | "created_at" | "updated_at"> & {
+        Insert: Omit<Database["public"]["Tables"]["memory_items"]["Row"], "id" | "created_at" | "updated_at" | "archive_source_type" | "archive_source_id" | "archive_source_name" | "chunk_index" | "chunk_count"> & {
           id?: string;
+          archive_source_type?: ArchiveSourceType | null;
+          archive_source_id?: string | null;
+          archive_source_name?: string | null;
+          chunk_index?: number | null;
+          chunk_count?: number | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -965,6 +976,31 @@ export interface Database {
           summary: string | null;
           source_type: SourceType;
           relevance_weight: number;
+          similarity: number;
+        }>;
+      };
+      match_private_archive_chunks: {
+        Args: {
+          p_persona_id: string;
+          p_owner_user_id: string;
+          query_embedding: number[];
+          match_count?: number;
+        };
+        Returns: Array<{
+          id: string;
+          persona_id: string;
+          owner_user_id: string;
+          title: string | null;
+          content: string;
+          summary: string | null;
+          source_type: SourceType;
+          relevance_weight: number;
+          archive_source_type: ArchiveSourceType | null;
+          archive_source_id: string | null;
+          archive_source_name: string | null;
+          chunk_index: number | null;
+          chunk_count: number | null;
+          created_at: string;
           similarity: number;
         }>;
       };

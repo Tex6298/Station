@@ -4,8 +4,9 @@ Date: 2026-06-08
 
 Status: MIMIR-opened backend roadmap. BE-00 is ARGUS-accepted and deployed far
 enough for the public Railway readiness endpoint to return the new readiness
-shape. BE-01 is the active DAEDALUS implementation lane. Later lanes are ordered
-implementation scope, not permission to build everything at once.
+shape. BE-01 has a DAEDALUS implementation and is awaiting ARGUS review. Later
+lanes are ordered implementation scope, not permission to build everything at
+once.
 
 ## Current staging truth
 
@@ -286,8 +287,6 @@ Default order:
 
 Immediate active task:
 
-- DAEDALUS implements BE-01 private archive retrieval foundation with owner-
-  and persona-scoped chunks, narrow retrieval/citation behavior, keyword
-  fallback, and hostile owner-leak tests.
-- DAEDALUS should not add Redis, Cloudflare, provider-policy, background jobs,
-  or UI broadening in this lane.
+- ARGUS reviews BE-01 private archive retrieval foundation for owner scope,
+  failed/deleted source handling, prompt-injection bounds, and no private leaks.
+- BE-02 should not begin until ARGUS accepts BE-01 or wakes DAEDALUS with fixes.

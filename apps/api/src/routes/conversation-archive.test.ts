@@ -165,6 +165,11 @@ class InMemorySupabase {
       row.source_type ??= "manual";
       row.relevance_weight ??= 1;
       row.embedding ??= null;
+      row.archive_source_type ??= null;
+      row.archive_source_id ??= null;
+      row.archive_source_name ??= null;
+      row.chunk_index ??= null;
+      row.chunk_count ??= null;
       row.created_at ??= now;
       row.updated_at ??= now;
     }
@@ -386,6 +391,8 @@ test("owner can archive a chat into private continuity candidates", async () => 
     assert.equal(archived.body.conversation.message_count, 4);
     assert.equal(archived.body.archive.transcript.messageCount, 4);
     assert.match(archived.body.archive.transcript.transcriptMarkdown, /Always preserve continuity before novelty/);
+    assert.equal(archived.body.archive.retrieval.chunksCreated > 0, true);
+    assert.equal(db.tables.memory_items.some((row) => row.archive_source_type === "archived_chat_transcript"), true);
     assert.equal(archived.body.archive.candidates.length, 2);
 
     const blockedChat = await requestJson(app, "POST", `/conversations/persona/${PERSONA_ID}/chat`, {
@@ -419,9 +426,10 @@ test("owner can archive a chat into private continuity candidates", async () => 
     assert.equal(accepted.status, 200);
     assert.equal(accepted.body.candidate.status, "accepted");
     assert.equal(accepted.body.candidate.acceptedTargetType, "memory");
-    assert.equal(db.tables.memory_items.length, 1);
-    assert.equal(db.tables.memory_items[0].title, "Boundary memory");
-    assert.equal(db.tables.memory_items[0].owner_user_id, OWNER_ID);
+    const acceptedMemory = db.tables.memory_items.find((row) => row.title === "Boundary memory");
+    assert.ok(acceptedMemory);
+    assert.equal(acceptedMemory.owner_user_id, OWNER_ID);
+    assert.equal(acceptedMemory.archive_source_type, "archived_chat_transcript");
 
     const rejected = await requestJson(app, "PATCH", `/conversations/candidates/${canonCandidate.id}`, {
       token: "owner-token",
@@ -442,7 +450,7 @@ test("owner can archive a chat into private continuity candidates", async () => 
       token: "owner-token",
     });
     assert.equal(context.status, 200);
-    assert.equal(context.body.context.counts.archive, 1);
+    assert.equal(context.body.context.counts.archive >= 1, true);
     assert.match(context.body.context.systemPrompt, /Harbor asks before turning private grief into public material/);
     assert.match(context.body.context.systemPrompt, /Harbor working chat/);
 

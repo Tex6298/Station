@@ -16,4 +16,5 @@ export * from "./prompts/calibration";
 export * from "./retrieval/embeddings";
 export * from "./retrieval/simple-memory";
 export * from "./retrieval/semantic-search";
+export * from "./retrieval/archive-retrieval";
 export * from "./retrieval/context-builder";
