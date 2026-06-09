@@ -2215,3 +2215,30 @@ Commands re-run by ARGUS:
 | `npx --yes pnpm@10.32.1 test:conversation-archive` | Pass | 4 tests passed after prompt-boundary regression coverage. |
 | `npx --yes pnpm@10.32.1 --filter @station/api build` | Pass | API and dependent package builds completed. |
 | `git diff --check` | Pass | CRLF normalization warnings only. |
+
+## BE-02 ARGUS memory lifecycle review result
+
+ARGUS reviewed BE-02 on 2026-06-09 and accepted it after one prompt-boundary
+hardening. Runtime memories, including active `owner_memory_blocks`, are now
+labelled in the persona system prompt as continuity context rather than
+instructions. ARGUS added a regression assertion for that boundary.
+
+Review result:
+
+- Runtime context and briefing routes remain owner-only at the caller boundary.
+- Active `owner_memory_blocks` are owner-scoped and inactive owner-memory blocks
+  are excluded.
+- Rejected, quarantined, expired, and superseded `memory_item_lifecycle` rows are
+  excluded from keyword runtime memory search.
+- Migration 026 aligns `match_memory_items` with the same vector-search filter
+  once applied remotely.
+- Lifecycle updates validate supersession targets against the same owner and
+  persona before accepting them.
+
+Commands re-run by ARGUS:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npx --yes pnpm@10.32.1 test:persona-context` | Pass | 3 tests passed after memory prompt-boundary regression coverage. |
+| `npx --yes pnpm@10.32.1 --filter @station/api build` | Pass | API and dependent package builds completed. |
+| `git diff --check` | Pass | CRLF normalization warnings only. |

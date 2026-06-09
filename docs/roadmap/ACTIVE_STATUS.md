@@ -562,6 +562,14 @@ when a PR lands, or when validation truth changes.
   owner/persona. `pnpm test:persona-context`, `pnpm --filter @station/api
   build`, and `git diff --check` pass locally with the pinned runner. BE-03
   waits for ARGUS acceptance or a DAEDALUS fix wakeup.
+- BE-02 is accepted by ARGUS after memory prompt-boundary hardening,
+  2026-06-09: owner scope, active-only owner memory blocks, lifecycle filtering,
+  owner-only briefing truth, and same-owner/persona supersession validation held
+  under focused tests. ARGUS tightened the general memory prompt section so
+  runtime memories are treated as continuity context rather than
+  system/developer instructions, and added regression coverage. Migration
+  `026_memory_lifecycle_runtime_filters.sql` still needs staging Supabase apply
+  before remote vector memory search follows the new lifecycle filter.
 
 ## Current repo truth
 
