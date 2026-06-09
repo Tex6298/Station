@@ -5,13 +5,13 @@ Date: 2026-06-08
 Status: MIMIR-opened backend roadmap. BE-00 is ARGUS-accepted and deployed far
 enough for the public Railway readiness endpoint to return the new readiness
 shape. BE-01 is ARGUS-accepted locally after prompt-boundary hardening. BE-02 is
-ARGUS-accepted locally after memory prompt-boundary hardening. BE-03 is ready
-for ARGUS review after DAEDALUS implementation. Migrations 025 and 026 still
-need staging Supabase apply/RPC proof before remote vector retrieval and
-lifecycle filtering are proven, and migration 027 still needs staging Supabase
-apply proof before remote Developer Space provider-policy persistence is proven.
-Those are E2E setup follow-ups rather than BE-03 review blockers. Later lanes
-are ordered implementation scope, not permission to build everything at once.
+ARGUS-accepted locally after memory prompt-boundary hardening. BE-03 is
+ARGUS-accepted locally after provider-policy observability review. Migrations
+025 and 026 still need staging Supabase apply/RPC proof before remote vector
+retrieval and lifecycle filtering are proven, and migration 027 still needs
+staging Supabase apply proof before remote Developer Space provider-policy
+persistence is proven. Later lanes are ordered implementation scope, not
+permission to build everything at once.
 
 ## Current staging truth
 
@@ -300,11 +300,6 @@ Default order:
 
 Immediate active task:
 
-- ARGUS reviews BE-03 provider policy per Developer Space for route ownership,
-  private archive gating, public/synthetic denial, provider privacy, and
-  sanitized AI observability metadata.
-- BE-01/BE-02 migrations 025 and 026 staging apply/RPC proof and BE-03 migration
-  027 staging apply proof remain E2E follow-ups, not reasons to reject BE-03.
-- If ARGUS accepts BE-03, wake MIMIR with `WAKEUP A1:` and the next backend
-  decision. If fixes are needed, wake DAEDALUS with `WAKEUP A2:` and the exact
-  repair scope.
+- MIMIR decides whether BE-04 retrieval provider metadata should open next or
+  whether staging migration/RPC proof for BE-01/BE-02/BE-03 migrations 025, 026,
+  and 027 should come first.

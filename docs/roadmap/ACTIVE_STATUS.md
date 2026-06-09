@@ -590,6 +590,14 @@ when a PR lands, or when validation truth changes.
   provider-router test, `pnpm --filter @station/api build`, and targeted
   `git diff --check` pass locally with the pinned runner. BE-04 must wait for
   ARGUS acceptance or a DAEDALUS fix wakeup.
+- BE-03 is accepted by ARGUS, 2026-06-09: owner-only policy evaluation,
+  private-archive denial unless `private_archive_allowed` is explicitly set,
+  `public_synthetic_only` denial of public-context/private-archive context, and
+  sanitized AI observability metadata all held under focused review. The
+  evaluation route records a whitelisted policy decision only; provider keys,
+  prompts, and private archive chunks are not copied into trace metadata or
+  event payloads. Migration `027_developer_space_provider_policy.sql` still
+  needs staging Supabase apply proof before remote policy persistence is proven.
 
 ## Current repo truth
 

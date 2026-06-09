@@ -2261,3 +2261,30 @@ Commands run by DAEDALUS:
 | `npx --yes pnpm@10.32.1 exec tsx --test packages/ai/test/provider-router.test.ts` | Pass | 4 tests passed, covering NVIDIA/OpenAI-compatible URL normalization, NVIDIA alias request shape, and DeepSeek fallback behavior. |
 | `npx --yes pnpm@10.32.1 --filter @station/api build` | Pass | API and dependent package builds completed. |
 | Targeted `git diff --check` over BE-03 code/schema files | Pass | CRLF normalization warnings only. |
+
+## BE-03 ARGUS provider policy review result
+
+ARGUS reviewed BE-03 on 2026-06-09 and accepted it without code changes.
+
+Review result:
+
+- Provider policy evaluation is behind auth and owner/admin Developer Space
+  loading.
+- `private_archive_allowed` is required before private archive context can be
+  included.
+- `public_synthetic_only` blocks public context and private archive context.
+- The route evaluates policy only and does not call an LLM provider.
+- AI observability metadata and event payloads are whitelisted policy-decision
+  fields; request body keys such as provider keys, prompt text, and private
+  archive chunks are not recorded.
+- Migration 027 still needs staging Supabase apply proof before remote
+  `provider_policy` persistence is proven.
+
+Commands re-run by ARGUS:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npx --yes pnpm@10.32.1 test:developer-spaces` | Pass | 5 tests passed. |
+| `npx --yes pnpm@10.32.1 exec tsx --test packages/ai/test/provider-router.test.ts` | Pass | 4 tests passed. |
+| `npx --yes pnpm@10.32.1 --filter @station/api build` | Pass | API and dependent package builds completed. |
+| `git diff --check` | Pass | CRLF normalization warnings only. |
