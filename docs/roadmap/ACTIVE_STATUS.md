@@ -598,6 +598,13 @@ when a PR lands, or when validation truth changes.
   prompts, and private archive chunks are not copied into trace metadata or
   event payloads. Migration `027_developer_space_provider_policy.sql` still
   needs staging Supabase apply proof before remote policy persistence is proven.
+- BE-04 retrieval provider metadata is opened by MIMIR, 2026-06-09: DAEDALUS
+  should add provider/model/dimension/index/backfill metadata and dimension
+  guardrails without switching the active embedding provider or vector shape.
+  BE-01/BE-02/BE-03 migrations 025, 026, and 027 staging apply/RPC proof remains
+  an E2E setup follow-up, not a blocker to BE-04. Agents that believe a lane is
+  done, blocked, or ready to go idle must wake MIMIR with `WAKEUP A1:` and a
+  concrete verdict/task.
 
 ## Current repo truth
 
