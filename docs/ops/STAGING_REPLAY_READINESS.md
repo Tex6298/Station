@@ -83,7 +83,7 @@ deploy the Next.js app from the same fork. Do not place server-only secrets on
 
 Remaining facts: Supabase Auth redirects, OpenAI embedding key, Stripe test
 Price IDs/webhook secret, Redis/cache-provider decision, Cloudflare decision,
-and replay account credentials/data.
+replay account credentials/data, and deployed password-reset-route proof.
 
 ## Current Railway project state
 
@@ -304,6 +304,9 @@ Remaining E2E blockers before replay evidence is meaningful:
   setup level. Run the matching archive retrieval, lifecycle filtering,
   provider-policy, and retrieval-metadata smoke checks before full replay unless
   MIMIR explicitly accepts setup proof for a narrower replay.
+- Confirm Supabase Auth site URL and redirect allow-list for the Railway web URL,
+  including the implemented `/reset-password/update` target, then prove the
+  staged password-reset path.
 - Decide or explicitly defer Redis/Valkey/Upstash cache provider setup.
 - Decide or explicitly defer Cloudflare Worker/Vectorize account/index setup.
 - Configure Stripe test resources and webhook secret for staged API.

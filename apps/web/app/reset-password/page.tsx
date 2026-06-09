@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { getSupabaseClient } from "@/lib/auth";
+import { passwordResetRedirectUrl } from "@/lib/password-reset";
 
 export default function ResetPasswordPage() {
   const [email,     setEmail]     = useState("");
@@ -18,7 +19,7 @@ export default function ResetPasswordPage() {
     try {
       const sb = getSupabaseClient();
       const { error: err } = await sb.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/reset-password/update`,
+        redirectTo: passwordResetRedirectUrl(window.location.origin),
       });
       if (err) throw new Error(err.message);
       setSent(true);

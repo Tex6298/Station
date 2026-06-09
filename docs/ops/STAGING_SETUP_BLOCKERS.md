@@ -9,9 +9,10 @@ ARGUS verdict:
 - No secret values were found in this inventory; it records presence/absence and
   non-secret booleans only.
 - Repo-side work is correctly separated from dashboard/credential-only work.
-- The reset-password redirect target is correctly called out as incomplete:
-  `/reset-password/update` is used by the current web flow, but no route exists
-  yet.
+- The reset-password redirect target was incomplete during this inventory.
+  DAEDALUS later added `/reset-password/update`; Supabase dashboard redirect
+  allow-list proof and staged web deployment proof are still required before
+  password-reset replay.
 - `infra/supabase/README.md` was corrected during review so raw
   `community_moderation_actions` rows are not described as public-safe.
 - MIMIR's follow-up Redis/provider correction is accepted: Redis role remains an
@@ -26,9 +27,9 @@ Shortest next human/dashboard actions:
    level on staging.
 2. Smoke the signed upload/read flow for the private `persona-files` bucket if
    needed for replay. The bucket exists and is private in staging.
-3. Set Supabase Auth site URL and allowed redirects for the Railway web URL;
-   either add `/reset-password/update` or change the reset flow before testing
-   password reset.
+3. Set Supabase Auth site URL and allowed redirects for the Railway web URL,
+   including `/reset-password/update`; then prove the staged web route and
+   password reset flow.
 4. Use a Railway-authorized dashboard/shell to verify and set API/web service
    variables without printing values, especially `DATABASE_URL`, Supabase keys,
    `API_URL`, `NEXT_PUBLIC_APP_URL`, Stripe test keys/prices, and provider keys.
@@ -166,15 +167,18 @@ Dashboard settings needed:
 - Social OAuth apps should use API callback URLs of the form
   `https://stationapi-production.up.railway.app/social/callback/<provider>`.
 
+Current repo-side status:
+
+- `/reset-password/update` is implemented as the password update target for the
+  existing reset email flow.
+
 Blocked external facts:
 
 - Supabase dashboard access.
 - Social provider app credentials and callback registration.
 - Confirmation of the exact allowed redirect URL list.
-- Product/API decision for the current password reset target:
-  `apps/web/app/reset-password/page.tsx` sends users to `/reset-password/update`,
-  but that web route is not implemented yet. Either add the route in a future
-  auth lane or change the reset flow before relying on staged password reset.
+- Confirmation that the deployed Railway web service is running the
+  `/reset-password/update` route.
 
 ## NVIDIA platform chat
 

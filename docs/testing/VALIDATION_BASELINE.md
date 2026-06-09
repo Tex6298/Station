@@ -1413,8 +1413,9 @@ Blocker summary:
   applying migrations `001` through `024`.
 - Need Supabase dashboard/API access to verify or create private
   `persona-files`.
-- Need Supabase Auth dashboard access and final redirect decision. Current reset
-  flow points at `/reset-password/update`, but that web route is not implemented.
+- Historical at this checkpoint: the reset flow pointed at
+  `/reset-password/update` before the repo had that target. This is superseded
+  by the 2026-06-09 DAEDALUS staging closeout implementation below.
 - Need Railway-authorized service-variable inventory to prove `DATABASE_URL`,
   Stripe, public web variables, provider keys, and API/app URLs on the actual
   `@station/api` and `@station/web` services without exposing values.
@@ -1434,8 +1435,10 @@ ARGUS findings:
   Railway variable changed, no Stripe resource created, and no Redis cache
   implemented.
 - Migration ordering is current through `024_community_trust_votes_moderation.sql`.
-- `apps/web/app/reset-password/page.tsx` redirects to `/reset-password/update`,
-  and the filesystem has no matching update route, so the blocker is real.
+- At this checkpoint, `apps/web/app/reset-password/page.tsx` redirected to
+  `/reset-password/update` and the filesystem had no matching update route. This
+  is superseded by the 2026-06-09 DAEDALUS staging closeout implementation
+  below.
 - `infra/supabase/README.md` was corrected during ARGUS review to describe raw
   `community_moderation_actions` rows as admin/raw moderation logs, not
   public-safe rows.
@@ -1445,7 +1448,7 @@ Commands/checks re-run by ARGUS:
 | Command | Result | Notes |
 | --- | --- | --- |
 | Static docs secret scan | Pass | Found only variable names, presence/absence notes, and no obvious secret values. |
-| `Get-ChildItem apps/web/app/reset-password -Recurse` | Pass | Only `page.tsx` exists; `/reset-password/update` is missing. |
+| `Get-ChildItem apps/web/app/reset-password -Recurse` | Pass | Historical result: only `page.tsx` existed at this checkpoint. Superseded by the 2026-06-09 closeout implementation below. |
 | `Get-ChildItem infra/supabase/migrations -Filter *.sql` | Pass | Migration files are ordered from `001_initial_schema.sql` through `024_community_trust_votes_moderation.sql`. |
 | `curl.exe -fsS --max-time 20 https://stationapi-production.up.railway.app/health/deployment` | Pass | Returned non-secret deployment booleans only. |
 | `curl.exe -fsS --max-time 20 https://stationapi-production.up.railway.app/health` | Pass | Returned `{ "ok": true }`. |
@@ -2719,4 +2722,21 @@ Commands re-run by ARGUS:
 | `curl.exe -fsS --max-time 30 https://stationapi-production.up.railway.app/health/deployment` | Blocked as expected | Returned non-secret `ready: false` with database, migration object proof, private storage, and NVIDIA platform chat true, plus the expected external blockers. |
 | `npx --yes pnpm@10.32.1 test:health` | Pass | 3 tests passed. |
 | `npx --yes pnpm@10.32.1 --filter @station/api build` | Pass | API and dependent package builds completed. |
+| `git diff --check` | Pass | CRLF normalization warnings only. |
+
+## DAEDALUS staging closeout implementation
+
+Validated on 2026-06-09 after aligning replay-readiness with MIMIR's setup
+proof and adding the `/reset-password/update` web target.
+
+Commands run:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npx --yes pnpm@10.32.1 test:replay-readiness` | Pass | 1 test passed. The payload now separates setup-proven database/migration/storage/NVIDIA facts from remaining external blockers. |
+| `npx --yes pnpm@10.32.1 test:auth` | Pass | 12 tests passed, including the reset redirect/helper validation. |
+| `npx --yes pnpm@10.32.1 --filter @station/api build` | Pass | API and dependent package builds completed. |
+| `npx --yes pnpm@10.32.1 --filter @station/web typecheck` | Pass | Web TypeScript check completed. |
+| `npx --yes pnpm@10.32.1 --filter @station/web lint` | Pass | Known warning-only output for Developer Spaces effect dependency and two `<img>` warnings. |
+| `npx --yes pnpm@10.32.1 --filter @station/web build` | Local environment failure | Next compiled successfully, lint/type checks ran, and 28 static pages generated; then standalone trace copying failed on Windows with `EPERM: operation not permitted, symlink ... react -> apps/web/.next/standalone/...`. Clearing `.next/standalone` and rerunning reproduced the same symlink failure. |
 | `git diff --check` | Pass | CRLF normalization warnings only. |

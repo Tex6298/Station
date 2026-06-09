@@ -46,7 +46,8 @@ implementation scope, not permission to build everything at once.
 Still external or replay-adjacent:
 
 - Supabase Auth site URL and redirect allow-list need dashboard confirmation,
-  including the reset-password route decision.
+  including the implemented `/reset-password/update` target and staged route
+  proof.
 - Stripe test resources, webhook secret, price IDs, and replay account/data
   still need setup or confirmation.
 - Railway variable inventory still needs dashboard/API proof if MIMIR wants
@@ -314,8 +315,7 @@ Immediate active task:
   readiness.
 - DAEDALUS should close the code-side staging blockers that do not require new
   secrets: sync `/observability/replay-readiness` with the new
-  DB/migration/storage/NVIDIA proof, resolve or truthfully reroute the missing
-  `/reset-password/update` target, and package the exact remaining external
-  asks.
+  DB/migration/storage/NVIDIA proof, implement the `/reset-password/update`
+  target, and package the exact remaining external asks.
 - Do not start replay-driven optimization until MIMIR accepts the narrowed
   waiver/proof path after that DAEDALUS/ARGUS closeout.

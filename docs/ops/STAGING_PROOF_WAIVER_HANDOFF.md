@@ -13,6 +13,12 @@ verified, Railway API/web are running commit `55d3fc6`, and public
 `/health/deployment` now proves database, storage, NVIDIA platform chat, and the
 public schema objects introduced by migrations `025` through `028`.
 
+DAEDALUS closeout update on 2026-06-09: `/observability/replay-readiness` now
+separates setup-proven items from remaining blockers, and
+`/reset-password/update` is implemented as the Supabase password update target.
+The reset path still needs Railway deploy proof and Supabase Auth redirect
+allow-list proof before password-reset replay.
+
 ## Purpose
 
 Replay-driven optimization must not begin from local guesses. This handoff
@@ -101,13 +107,37 @@ before replay-driven optimization starts.
 | Remote database readiness | Proven by public `/health/deployment` with database `ok: true`. |
 | Remote migration readiness | Proven by public schema object proof plus Supabase MCP migration history. Internal migration `count` is not exposed by Supabase REST, so the readiness endpoint intentionally records `count: null`. |
 | Remote storage readiness | Proven by public `/health/deployment` with bucket `exists: true`, `private: true`, and `ok: true`. Signed upload/read path smoke remains part of replay or storage-specific proof. |
-| Supabase Auth redirects | Confirm site URL and allowed redirects for `https://stationweb-production.up.railway.app`, including the current password-reset target `https://stationweb-production.up.railway.app/reset-password/update`, or choose a reset-flow change before password reset testing. |
+| Supabase Auth redirects | Confirm site URL and allowed redirects for `https://stationweb-production.up.railway.app`, including the password-reset target `https://stationweb-production.up.railway.app/reset-password/update`. DAEDALUS has added the repo route; staged deploy proof and dashboard allow-list proof remain. |
 | Cache provider | Choose Railway Redis/Valkey, Upstash REST, another provider, or explicit deferment. Cache remains operational/non-canonical unless a later durability/export/deletion review promotes it. |
 | Cloudflare retrieval | Choose or defer Worker/Vectorize account and index setup. Remote candidates must remain reauthorized through Station/Supabase before private records return. |
 | Stripe test resources | Configure test Stripe secret, webhook secret, and all required price IDs for the staged API, or waive billing replay. |
 | Platform chat provider | NVIDIA platform chat is configured and publicly proven. Confirm the selected staging model/usage expectations before replay, or waive chat replay. |
 | OpenAI embeddings | Configure `OPENAI_API_KEY` for the current `text-embedding-3-small` and `vector(1536)` retrieval contract, or explicitly waive remote vector retrieval proof. |
 | Replay account/data | Prepare one staging replay account with persona, archive import, continuity, Space/document, discussion, Developer Space, export, and billing-path coverage, or explicitly narrow the replay path. |
+
+## Code-side closeout state
+
+Closed in code:
+
+- Replay-readiness setup proof now lists remote database, migrations `025`
+  through `028`, private `persona-files` storage, and NVIDIA platform chat as
+  setup-proven.
+- Replay-readiness blockers now focus on hostile vector/RPC smoke if required,
+  Supabase Auth redirects, OpenAI embeddings, Stripe resources, cache provider,
+  Cloudflare setup, and replay account/data.
+- `/reset-password/update` exists and updates the Supabase password from a reset
+  recovery session.
+
+Still external or replay-side:
+
+- Supabase Auth dashboard site URL and redirect allow-list confirmation.
+- Railway deployed-route proof for `/reset-password/update`.
+- OpenAI embedding key for the current `text-embedding-3-small` and
+  `vector(1536)` retrieval contract.
+- Stripe test secrets, webhook, and price IDs.
+- Redis/Valkey/Upstash provider choice or explicit deferment.
+- Cloudflare Worker/Vectorize choice or explicit deferment.
+- Replay account/data and any hostile remote vector/RPC smoke MIMIR requires.
 
 ## Recommended next decision
 

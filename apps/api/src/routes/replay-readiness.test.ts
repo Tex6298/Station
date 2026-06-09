@@ -40,15 +40,27 @@ test("replay readiness exposes non-secret measurement prep behind auth", async (
       "billing_webhook_reliability",
     ]);
 
+    const proofIds = owner.body.replay.setupProofs.map((proof: any) => proof.id);
+    assert.deepEqual(proofIds, [
+      "remote_database",
+      "supabase_migrations_025_028",
+      "persona_files_storage",
+      "nvidia_platform_chat",
+    ]);
+    assert.equal(owner.body.replay.setupProofs[1].status, "setup_proven");
+    assert.match(owner.body.replay.setupProofs[1].remainingRisk, /Hostile remote vector\/RPC smoke/);
+
     const blockerIds = owner.body.replay.setupBlockers.map((blocker: any) => blocker.id);
     assert.deepEqual(blockerIds, [
-      "supabase_migrations_025_028",
+      "hostile_vector_rpc_smoke",
+      "supabase_auth_redirects",
+      "openai_embeddings",
+      "stripe_replay_resources",
       "cache_provider_selection",
       "cloudflare_account_setup",
-      "stripe_replay_resources",
-      "provider_config",
       "replay_account_data",
     ]);
+    assert.equal(owner.body.replay.setupBlockers[1].evidenceRequired[1].includes("/reset-password/update"), true);
 
     assert.deepEqual(owner.body.replay.captureSurfaces.slice(0, 4), [
       "/health/deployment",

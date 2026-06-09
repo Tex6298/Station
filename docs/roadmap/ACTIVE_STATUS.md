@@ -798,6 +798,19 @@ when a PR lands, or when validation truth changes.
   setup proof, resolve or truthfully reroute the missing `/reset-password/update`
   target, and return an exact list of blockers that truly require Marty,
   provider keys, dashboard changes, or a deliberate narrowed-replay waiver.
+- DAEDALUS staging closeout implementation is ready for ARGUS review,
+  2026-06-09: `/observability/replay-readiness` now distinguishes setup-proven
+  database, migrations `025` through `028`, private `persona-files` storage, and
+  NVIDIA platform chat from remaining blockers; `/reset-password/update` is now
+  implemented as the Supabase password update target. Remaining external asks
+  are Supabase Auth dashboard redirects plus deployed reset-route proof, OpenAI
+  embeddings, Stripe test resources, Redis/cache provider decision, Cloudflare
+  account/index decision, replay account/data, and any hostile remote vector/RPC
+  smoke MIMIR wants before full replay. Focused replay-readiness/auth tests, API
+  build, web typecheck, web lint, and `git diff --check` pass locally. The
+  local Windows web build compiles and generates pages, then fails in Next
+  standalone trace copying with `EPERM` on symlink creation; Railway/Linux
+  deployment proof is still needed.
 
 ## Current repo truth
 

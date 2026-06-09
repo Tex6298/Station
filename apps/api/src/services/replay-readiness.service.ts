@@ -13,6 +13,13 @@ type ReplaySetupBlocker = {
   evidenceRequired: string[];
 };
 
+type ReplaySetupProof = {
+  id: string;
+  status: "setup_proven";
+  evidence: string[];
+  remainingRisk?: string;
+};
+
 const MEASUREMENT_POINTS: ReplayMeasurementPoint[] = [
   {
     id: "chat_latency_context_quality",
@@ -67,12 +74,39 @@ const MEASUREMENT_POINTS: ReplayMeasurementPoint[] = [
 
 const SETUP_BLOCKERS: ReplaySetupBlocker[] = [
   {
-    id: "supabase_migrations_025_028",
+    id: "hostile_vector_rpc_smoke",
     status: "needs_staging_proof",
+    owner: "staging_replay",
+    evidenceRequired: [
+      "Run remote archive retrieval, memory lifecycle filtering, Developer Space provider-policy, and retrieval-metadata/RPC smoke checks if MIMIR requires more than setup proof before full replay.",
+      "Keep private excerpts out of the evidence package; capture only counts, modes, ratings, statuses, and sanitized labels.",
+    ],
+  },
+  {
+    id: "supabase_auth_redirects",
+    status: "pending_external",
     owner: "human_dashboard",
     evidenceRequired: [
-      "Staging migration history includes migrations 025 through 028.",
-      "Remote vector/RPC smoke proves archive retrieval, lifecycle filtering, provider policy, and retrieval metadata.",
+      "Supabase Auth site URL and allowed redirects include the Railway web URL.",
+      "The password-reset target /reset-password/update is deployed and included in the redirect allow-list.",
+    ],
+  },
+  {
+    id: "openai_embeddings",
+    status: "pending_external",
+    owner: "human_dashboard",
+    evidenceRequired: [
+      "OpenAI embedding key is configured before remote vector retrieval is considered proven.",
+      "Embedding contract remains text-embedding-3-small over vector(1536) until a migration/reindex lane changes it.",
+    ],
+  },
+  {
+    id: "stripe_replay_resources",
+    status: "pending_external",
+    owner: "human_dashboard",
+    evidenceRequired: [
+      "Stripe test prices and webhook secret are configured for staged API.",
+      "Replay account can run checkout/webhook smoke without production billing.",
     ],
   },
   {
@@ -89,26 +123,8 @@ const SETUP_BLOCKERS: ReplaySetupBlocker[] = [
     status: "disabled_pending",
     owner: "provider_decision",
     evidenceRequired: [
-      "Cloudflare Worker/Vectorize account, index, and query privacy contract are selected.",
+      "Cloudflare Worker/Vectorize account, index, and query privacy contract are selected or explicitly deferred.",
       "Remote candidates are reauthorized through Station before any private records return.",
-    ],
-  },
-  {
-    id: "stripe_replay_resources",
-    status: "pending_external",
-    owner: "human_dashboard",
-    evidenceRequired: [
-      "Stripe test prices and webhook secret are configured for staged API.",
-      "Replay account can run checkout/webhook smoke without production billing.",
-    ],
-  },
-  {
-    id: "provider_config",
-    status: "pending_external",
-    owner: "human_dashboard",
-    evidenceRequired: [
-      "At least one platform chat provider is configured for staging.",
-      "OpenAI embedding key is configured before remote vector retrieval is considered proven.",
     ],
   },
   {
@@ -118,6 +134,41 @@ const SETUP_BLOCKERS: ReplaySetupBlocker[] = [
     evidenceRequired: [
       "Replay account exists with persona, archive import, continuity, Space/document, discussion, Developer Space, export, and billing path coverage.",
     ],
+  },
+];
+
+const SETUP_PROOFS: ReplaySetupProof[] = [
+  {
+    id: "remote_database",
+    status: "setup_proven",
+    evidence: [
+      "Public /health/deployment reports database ok true from the deployed API.",
+    ],
+  },
+  {
+    id: "supabase_migrations_025_028",
+    status: "setup_proven",
+    evidence: [
+      "Supabase MCP history includes migrations 025 through 028 on staging.",
+      "Public /health/deployment proves the public schema objects introduced by migrations 025 through 028.",
+    ],
+    remainingRisk: "Hostile remote vector/RPC smoke may still be required before full replay.",
+  },
+  {
+    id: "persona_files_storage",
+    status: "setup_proven",
+    evidence: [
+      "Public /health/deployment reports persona-files bucket exists, private true, and storage ok true.",
+    ],
+    remainingRisk: "Signed upload/read smoke remains useful before replaying archive imports.",
+  },
+  {
+    id: "nvidia_platform_chat",
+    status: "setup_proven",
+    evidence: [
+      "Public /health/deployment reports platform chat true and NVIDIA true.",
+    ],
+    remainingRisk: "Model choice, budget, and usage expectations still need replay-side confirmation.",
   },
 ];
 
@@ -142,9 +193,10 @@ export function buildReplayOptimizationPrep(now = new Date()) {
       "/billing/status",
     ],
     measurementPoints: MEASUREMENT_POINTS,
+    setupProofs: SETUP_PROOFS,
     setupBlockers: SETUP_BLOCKERS,
     handoff: {
-      nextStep: "Run staged replay only after remote setup blockers are resolved or explicitly waived.",
+      nextStep: "Run staged replay only after remaining external blockers are resolved or explicitly waived.",
       reviewFocus: ["measurement coverage", "staging blockers", "privacy boundaries", "no speculative optimization"],
     },
   };
