@@ -2176,6 +2176,31 @@ Commands re-run by ARGUS:
 | `npx --yes pnpm@10.32.1 --filter @station/api build` | Pass | API and dependent package builds completed. |
 | `git diff --check` | Pass | CRLF normalization warnings only. |
 
+## BE-07 DAEDALUS Cloudflare adapter result
+
+Implemented on 2026-06-09 for ARGUS review. This is Cloudflare retrieval adapter
+evaluation only: `@station/ai` now exposes a disabled/pending adapter contract,
+env/status helpers, a minimal `memory_items` mirror-payload builder, and a
+Station/Supabase reauthorization helper for Cloudflare candidate IDs. Missing
+config stays disabled, and complete config still reports `remote_adapter_pending`
+until a live Worker/query privacy contract is reviewed. Mirror payloads store
+IDs and minimal metadata only, not private snippets. Candidate metadata from
+Cloudflare is stripped before authorized records are returned, and canonical
+private rows are fetched only after owner/persona filtering through
+Station/Supabase. `docs/architecture/cloudflare-retrieval-adapter.md` records
+delete/export/reindex requirements before private snippets may enter any
+Cloudflare index. No live Cloudflare call, Worker, Vectorize write, Redis
+canonical memory, NVIDIA retrieval, embedding swap, API route behavior change,
+UI, or staging proof was added.
+
+Commands run by DAEDALUS:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npx --yes pnpm@10.32.1 exec tsx --test packages/ai/test/cloudflare-adapter.test.ts` | Pass | 3 tests passed, covering disabled-safe behavior, minimal mirror payloads without private snippets, and Supabase reauthorization before private records return. |
+| `npx --yes pnpm@10.32.1 --filter @station/api build` | Pass | API and dependent package builds completed after fixing a row-map type error found by the first build attempt. |
+| Targeted `git diff --check` over BE-07 code/docs | Pass | No whitespace errors. |
+
 ## BE-05 DAEDALUS operational cache result
 
 Implemented on 2026-06-09 for ARGUS review. This is optional operational cache

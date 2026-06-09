@@ -698,6 +698,24 @@ when a PR lands, or when validation truth changes.
   Vectorize mirrors should store IDs and minimal metadata first, not private
   snippets. Staging migration proof, cache provider selection, and Cloudflare
   account configuration remain E2E setup follow-ups, not blockers to BE-07.
+- BE-07 DAEDALUS implementation is ready for ARGUS review, 2026-06-09:
+  `@station/ai` now exposes a disabled/pending Cloudflare retrieval adapter
+  contract, env/status helpers, minimal `memory_items` mirror-payload builder,
+  and a Station/Supabase reauthorization helper for Cloudflare candidate IDs.
+  Missing config stays disabled, and even complete Cloudflare config reports
+  `remote_adapter_pending` until a live Worker/query privacy contract is
+  reviewed. Mirror payloads contain IDs, owner/persona scope, source type labels,
+  embedding metadata, and timestamps only; they exclude title, content, summary,
+  archive source names, private snippets, prompt text, tokens, and provider
+  secrets. Reauthorization strips Cloudflare candidate metadata and returns
+  canonical rows only after owner/persona filtering through Supabase. The new
+  `docs/architecture/cloudflare-retrieval-adapter.md` records delete/export/
+  reindex requirements before private snippets may enter any Cloudflare index.
+  No live Cloudflare calls, Worker, Vectorize index writes, Redis canonical
+  memory, NVIDIA retrieval, embedding swap, API route behavior change, UI, or
+  staging proof work was added. Focused Cloudflare adapter tests,
+  `@station/api` build, and targeted `git diff --check` pass locally with the
+  pinned runner.
 
 ## Current repo truth
 

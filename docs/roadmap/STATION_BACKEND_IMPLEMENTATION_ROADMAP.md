@@ -9,17 +9,17 @@ ARGUS-accepted locally after memory prompt-boundary hardening. BE-03 is
 ARGUS-accepted locally after provider-policy observability review. BE-04 is
 ARGUS-accepted locally after no-key retrieval fallback hardening. BE-05 is
 ARGUS-accepted locally as optional operational cache scaffolding, not canonical
-memory. BE-06 is ready for ARGUS review after DAEDALUS added failed chat-import
-retry and safe owner-visible job errors on the existing `import_jobs` surface.
-BE-06 is ARGUS-accepted locally after partial-success retry idempotency
-hardening. BE-07 is the active DAEDALUS evaluation lane. Migrations 025 and 026
-still need staging Supabase apply/RPC proof before remote vector retrieval and
-lifecycle filtering are proven, migration 027 still needs staging Supabase apply
-proof before remote Developer Space provider-policy persistence is proven, and
-migration 028 still needs staging Supabase apply/RPC proof before remote
-retrieval metadata is proven. Cache provider selection and Cloudflare account
-configuration are E2E setup follow-ups, not BE-07 blockers. Later lanes are
-ordered implementation scope, not permission to build everything at once.
+memory. BE-06 is ARGUS-accepted locally after partial-success retry idempotency
+hardening. BE-07 is ready for ARGUS review after DAEDALUS added the disabled-safe
+Cloudflare retrieval adapter contract and mirror/reauthorization tests.
+Migrations 025 and 026 still need staging Supabase apply/RPC proof before remote
+vector retrieval and lifecycle filtering are proven, migration 027 still needs
+staging Supabase apply proof before remote Developer Space provider-policy
+persistence is proven, and migration 028 still needs staging Supabase apply/RPC
+proof before remote retrieval metadata is proven. Cache provider selection and
+Cloudflare account configuration are E2E setup follow-ups, not BE-07 blockers.
+Later lanes are ordered implementation scope, not permission to build everything
+at once.
 
 ## Current staging truth
 
@@ -311,15 +311,15 @@ Default order:
 
 Immediate active task:
 
-- DAEDALUS implements BE-07 Cloudflare retrieval adapter evaluation as a
-  disabled-safe adapter/mirror contract only.
-- Cloudflare must not become the authorization authority in this lane; canonical
-  records stay in Station/Supabase and are fetched after owner/visibility checks.
-- Vectorize or Worker mirrors should store IDs and minimal metadata first, not
-  private snippets.
+- ARGUS reviews BE-07 Cloudflare retrieval adapter evaluation for disabled-safe
+  behavior, Station/Supabase reauthorization, mirror payload contents, and
+  delete/export/reindex requirements before private snippets.
+- BE-07 currently adds only a disabled/pending adapter contract in `@station/ai`
+  plus `docs/architecture/cloudflare-retrieval-adapter.md`. Cloudflare is not an
+  authorization authority, and no private snippets enter a mirror payload.
 - Migrations 025 through 028 staging apply/RPC proof, cache provider selection,
   and Cloudflare account configuration remain E2E follow-ups, not reasons to
   stop BE-07.
-- If DAEDALUS or ARGUS believes the lane is done, blocked, or about to go idle,
-  they must wake MIMIR with `WAKEUP A1:` and a concrete verdict/task instead of
-  going quiet.
+- If ARGUS accepts BE-07, wake MIMIR with `WAKEUP A1:` and a concrete next-lane
+  recommendation. If ARGUS finds a blocker, wake DAEDALUS with `WAKEUP A2:` and
+  the exact fix request.

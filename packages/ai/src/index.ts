@@ -18,3 +18,4 @@ export * from "./retrieval/simple-memory";
 export * from "./retrieval/semantic-search";
 export * from "./retrieval/archive-retrieval";
 export * from "./retrieval/context-builder";
+export * from "./retrieval/cloudflare-adapter";
