@@ -9,12 +9,14 @@ ARGUS-accepted locally after memory prompt-boundary hardening. BE-03 is
 ARGUS-accepted locally after provider-policy observability review. BE-04 is
 ARGUS-accepted locally after no-key retrieval fallback hardening. BE-05 is
 ARGUS-accepted locally as optional operational cache scaffolding, not canonical
-memory. Migrations 025 and 026 still need staging Supabase apply/RPC proof before
-remote vector retrieval and lifecycle filtering are proven, migration 027 still
-needs staging Supabase apply proof before remote Developer Space provider-policy
-persistence is proven, and migration 028 still needs staging Supabase apply/RPC
-proof before remote retrieval metadata is proven. Later lanes are ordered
-implementation scope, not permission to build everything at once.
+memory. BE-06 is the active DAEDALUS implementation lane. Migrations 025 and 026
+still need staging Supabase apply/RPC proof before remote vector retrieval and
+lifecycle filtering are proven, migration 027 still needs staging Supabase apply
+proof before remote Developer Space provider-policy persistence is proven, and
+migration 028 still needs staging Supabase apply/RPC proof before remote
+retrieval metadata is proven. Cache provider selection is also an E2E setup
+follow-up. These are not BE-06 blockers. Later lanes are ordered implementation
+scope, not permission to build everything at once.
 
 ## Current staging truth
 
@@ -306,6 +308,14 @@ Default order:
 
 Immediate active task:
 
-- MIMIR decides whether BE-06 background jobs should open next or whether
-  staging migration/RPC proof for BE-01 through BE-04 migrations 025, 026, 027,
-  and 028 plus cache provider selection should come first.
+- DAEDALUS implements BE-06 background-job foundation with owner-visible job
+  status, idempotent retry semantics, and safe failure surfaces.
+- Do not require Redis/Valkey, Upstash, or staging migration proof to complete
+  this lane; use the existing database/job-status surfaces or the narrowest
+  provider-optional queue boundary that fits the repo.
+- BE-01 through BE-04 migrations 025, 026, 027, and 028 staging apply/RPC proof
+  plus cache provider selection remain E2E follow-ups, not reasons to stop
+  BE-06.
+- If DAEDALUS or ARGUS believes the lane is done, blocked, or about to go idle,
+  they must wake MIMIR with `WAKEUP A1:` and a concrete verdict/task instead of
+  going quiet.

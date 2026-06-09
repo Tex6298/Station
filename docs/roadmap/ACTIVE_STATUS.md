@@ -663,6 +663,14 @@ when a PR lands, or when validation truth changes.
   context today. Redis/Valkey remains non-canonical operational infrastructure;
   Redis-as-memory-truth still requires a separate MIMIR decision and ARGUS
   durability/export/deletion review.
+- BE-06 background-job foundation is opened by MIMIR, 2026-06-09: DAEDALUS
+  should add owner-visible job status, idempotent retry semantics, and safe
+  failure surfaces using the existing database/job-status surfaces or the
+  narrowest provider-optional queue boundary that fits the repo. Redis/Valkey,
+  Upstash, staging migration proof, and cache provider selection are not
+  required to complete this lane. Agents that believe a lane is done, blocked,
+  or ready to go idle must wake MIMIR with `WAKEUP A1:` and a concrete
+  verdict/task.
 
 ## Current repo truth
 
