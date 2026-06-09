@@ -316,6 +316,11 @@ Remaining E2E blockers before replay evidence is meaningful:
 
 ## Recommended handoff
 
-This repo is ready for an ARGUS review of Railway web/API deploy hygiene and
-documentation truth. It is not ready to claim full staging implementation until
-the external facts above are supplied for Supabase, Stripe, and replay data.
+The current BE-00 through BE-08 proof/waiver package lives in
+`docs/ops/STAGING_PROOF_WAIVER_HANDOFF.md`.
+
+This repo is ready for an ARGUS review of Railway web/API deploy hygiene,
+documentation truth, and the remaining proof/waiver asks. It is not ready to
+claim full staging implementation until the external facts above are supplied
+or explicitly waived for Supabase, Stripe, provider configuration, cache,
+Cloudflare, and replay data.

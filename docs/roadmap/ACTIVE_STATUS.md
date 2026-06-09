@@ -765,6 +765,14 @@ when a PR lands, or when validation truth changes.
   plus OpenAI embedding configuration, and replay account/data setup. Latest
   public `/health/deployment` still reports `ready: false`, so the next lane is
   staging proof/waiver handoff, not more speculative backend expansion.
+- BE-00 through BE-08 staging proof/waiver handoff is ready for ARGUS review,
+  2026-06-09:
+  `docs/ops/STAGING_PROOF_WAIVER_HANDOFF.md` records the current public
+  Railway proof and the exact external proof/waiver asks. Public `/health`
+  returns `{ "ok": true }`, while `/health/deployment` reports `ready: false`
+  with database, migration, and storage `query_failed` statuses plus pending
+  Supabase Auth redirect, Stripe, provider, OpenAI embedding, cache, Cloudflare,
+  and replay-data setup. This is a handoff package, not staging proof.
 
 ## Current repo truth
 

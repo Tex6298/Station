@@ -43,13 +43,14 @@ Shortest next human/dashboard actions:
 - Railway web: `https://stationweb-production.up.railway.app`.
 - Both public `/health` probes currently return `{ "ok": true }`.
 - Remote API deployment health returns non-secret booleans showing
-  `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, and
-  `JWT_SECRET` are configured on the deployed API.
-- The same deployment-health response still reports default local app/API URLs
-  (`http://localhost:3000` and `http://localhost:4000`) and no Stripe billing or
-  OpenAI embedding provider booleans. It does not prove `DATABASE_URL`,
-  migration state, storage bucket existence, Supabase Auth dashboard settings,
-  or secret values.
+  `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`,
+  `DATABASE_URL`, and `JWT_SECRET` are configured on the deployed API.
+- The same deployment-health response now reports the Railway web/API URLs, not
+  localhost defaults. It still reports `ready: false` because database,
+  migration, and storage checks return `query_failed`; Supabase Auth redirects
+  are not management-API proven; Stripe, provider, embedding, and cache
+  readiness remain false. It does not prove migration state, private storage
+  bucket readiness, Supabase Auth dashboard settings, or secret values.
 
 ## Lane 1 inventory from this shell
 

@@ -2632,3 +2632,17 @@ Commands re-run by ARGUS:
 | `npx --yes pnpm@10.32.1 test:persona-context` | Pass | 3 tests passed. |
 | `npx --yes pnpm@10.32.1 --filter @station/api build` | Pass | API and dependent package builds completed. |
 | `git diff --check` | Pass | CRLF normalization warnings only. |
+
+## BE-00 through BE-08 staging proof/waiver handoff
+
+Prepared by DAEDALUS on 2026-06-09 as a docs-only handoff package. This did not
+change runtime code and does not claim staging readiness.
+
+Commands run:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `curl.exe -fsS --max-time 20 https://stationweb-production.up.railway.app/health` | Pass | Returned `{ "ok": true }`. |
+| `curl.exe -fsS --max-time 20 https://stationapi-production.up.railway.app/health` | Pass | Returned `{ "ok": true }`. |
+| `curl.exe -fsS --max-time 30 https://stationapi-production.up.railway.app/health/deployment` | Partial remote truth | Returned `ready: false` with Railway web/API URLs configured, Supabase URL/anon/service-role/database URL and JWT booleans true, database/migration/storage `query_failed`, Supabase Auth redirect management proof unavailable, and Stripe/provider/OpenAI embedding/cache readiness false. |
+| `git diff --check` | Pass | CRLF normalization warnings only for touched docs and consumed DAEDALUS state. |
