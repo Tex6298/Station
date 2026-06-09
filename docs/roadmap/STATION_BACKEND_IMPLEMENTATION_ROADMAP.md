@@ -17,8 +17,9 @@ retrieval and lifecycle filtering are proven, migration 027 still needs staging
 Supabase apply proof before remote Developer Space provider-policy persistence
 is proven, and migration 028 still needs staging Supabase apply/RPC proof before
 remote retrieval metadata is proven. Cache provider selection and Cloudflare
-account configuration are E2E setup follow-ups. Later lanes are ordered
-implementation scope, not permission to build everything at once.
+account configuration are E2E setup follow-ups. BE-08 is the active
+DAEDALUS/ARGUS replay-measurement lane. Later lanes are ordered implementation
+scope, not permission to build everything at once.
 
 ## Current staging truth
 
@@ -310,6 +311,12 @@ Default order:
 
 Immediate active task:
 
-- MIMIR decides whether BE-08 replay-driven optimization should open next or
-  whether staging migration/RPC proof for migrations 025 through 028, cache
-  provider selection, and Cloudflare account setup should come first.
+- DAEDALUS implements BE-08 replay-driven optimization prep: instrumentation,
+  runbook, and online evidence capture points for staged replay.
+- Do not optimize from local guesswork. This lane should prepare measurements
+  and surface exact E2E blockers for migrations 025 through 028, cache provider
+  selection, Cloudflare account setup, Stripe/replay resources, and provider
+  config.
+- If DAEDALUS or ARGUS believes the backend roadmap is complete, blocked, or
+  ready for staging handoff, they must wake MIMIR with `WAKEUP A1:` and a
+  concrete closeout verdict/task instead of going quiet.

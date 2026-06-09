@@ -724,6 +724,12 @@ when a PR lands, or when validation truth changes.
   memory lifecycle filtering before private rows return, preventing rejected,
   quarantined, expired, or superseded memory from bypassing BE-02 through a
   future remote candidate path.
+- BE-08 replay-driven optimization prep is opened by MIMIR, 2026-06-09:
+  DAEDALUS should prepare instrumentation, runbook, and online evidence capture
+  points for staged replay rather than optimizing from local guesswork. The lane
+  should surface exact E2E blockers for migrations 025 through 028, cache
+  provider selection, Cloudflare account setup, Stripe/replay resources, and
+  provider config, then wake MIMIR with a backend closeout verdict.
 
 ## Current repo truth
 
