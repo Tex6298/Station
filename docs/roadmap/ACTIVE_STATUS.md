@@ -736,12 +736,13 @@ when a PR lands, or when validation truth changes.
   setup blockers, and privacy boundaries. The payload covers chat latency/context
   quality, archive import confidence, retrieval relevance, provider cost/failure
   rate, job failure recovery, export trust, and billing/webhook reliability. It
-  names the remaining E2E blockers: staging proof for migrations `025` through
-  `028`, cache provider selection/deferment, Cloudflare account/index decision,
-  Stripe test resources, platform provider plus OpenAI embedding configuration,
-  and replay account/data setup. `docs/ops/STAGING_REPLAY_READINESS.md` now
-  lists the evidence capture points and `test:replay-readiness`; setup blockers
-  now reference migrations through `028` plus cache/Cloudflare/provider decisions.
+  names the remaining E2E blockers: hostile remote smoke for migration-backed
+  retrieval/lifecycle/provider-policy/metadata behavior if required before
+  replay, cache provider selection/deferment, Cloudflare account/index
+  decision, Stripe test resources, OpenAI embedding configuration, and replay
+  account/data setup. `docs/ops/STAGING_REPLAY_READINESS.md` now lists the
+  evidence capture points and `test:replay-readiness`; setup blockers now
+  reference migrations through `028` plus cache/Cloudflare/provider decisions.
   Privacy notes explicitly keep context-preview response bodies, prompt bodies,
   private excerpts, and excerpt text out of the replay evidence package.
   No optimization, product UI, provider swap, broad infrastructure, staging
@@ -758,30 +759,39 @@ when a PR lands, or when validation truth changes.
   ratings, statuses, and sanitized labels.
 - Backend roadmap BE-00 through BE-08 is locally accepted by MIMIR,
   2026-06-09. Replay-driven optimization must wait for staging proof or an
-  explicit MIMIR waiver of the remaining external setup blockers: Supabase
-  migrations `025` through `028`, remote database/migration/storage readiness,
-  Supabase Auth redirects/reset route, cache provider selection/deferment,
-  Cloudflare account/index decision, Stripe test resources, platform provider
-  plus OpenAI embedding configuration, and replay account/data setup. Latest
-  public `/health/deployment` still reports `ready: false`, so the next lane is
-  staging proof/waiver handoff, not more speculative backend expansion.
+  explicit MIMIR waiver of the remaining external setup blockers. MIMIR's
+  2026-06-09 proof update clears remote database readiness, migration setup
+  proof, private storage readiness, and NVIDIA platform chat proof; remaining
+  blockers are Supabase Auth redirects/reset route, OpenAI embeddings, cache
+  provider selection/deferment, Cloudflare account/index decision, Stripe test
+  resources, replay account/data setup, and any hostile remote vector/RPC smoke
+  MIMIR wants before full replay. Latest public `/health/deployment` still
+  reports `ready: false`, so the next lane is staging closeout review, not more
+  speculative backend expansion.
 - BE-00 through BE-08 staging proof/waiver handoff is ready for ARGUS review,
   2026-06-09:
   `docs/ops/STAGING_PROOF_WAIVER_HANDOFF.md` records the current public
   Railway proof and the exact external proof/waiver asks. Public `/health`
-  returns `{ "ok": true }`, while `/health/deployment` reports `ready: false`
-  with database, migration, and storage `query_failed` statuses plus pending
-  Supabase Auth redirect, Stripe, provider, OpenAI embedding, cache, Cloudflare,
-  and replay-data setup. This is a handoff package, not staging proof.
+  returns `{ "ok": true }`, while `/health/deployment` reports `ready: false`.
+  After MIMIR's proof update, database, migration object proof, private storage,
+  and NVIDIA platform chat are true; Supabase Auth redirect management proof,
+  OpenAI embeddings, Stripe, Redis/cache, Cloudflare, and replay-data setup
+  remain pending. This is a handoff package, not full staging readiness.
 - BE-00 through BE-08 staging proof/waiver handoff is accepted by ARGUS,
-  2026-06-09: ARGUS rechecked public web/API `/health` and API
-  `/health/deployment`. The public deployment truth remains non-secret and
-  accurately blocked: web/API health return `{ "ok": true }`, but deployment
-  readiness is `ready: false` because remote database, migration, and storage
-  checks fail with `query_failed`, and Auth redirects, Stripe, provider,
-  embeddings, cache, Cloudflare, and replay data still need proof, setup, or an
-  explicit MIMIR/Marty waiver. Replay-driven optimization should not begin from
-  this handoff alone.
+  2026-06-09 before MIMIR's proof update: ARGUS rechecked public web/API
+  `/health` and API `/health/deployment`, accepted the handoff as truthful, and
+  told MIMIR to decide whether to prove or waive external blockers. That verdict
+  is superseded for DB/migration/storage/provider facts by MIMIR's later proof
+  update; replay-driven optimization still should not begin from the handoff
+  alone.
+- MIMIR staging proof update, 2026-06-09: Supabase MCP applied migrations `025`
+  through `028` and reported remote history through `028`; Railway API/web now
+  run commit `55d3fc6`; public `/health/deployment` reports database `ok: true`,
+  migrations `ok: true` via `025-028/public_schema_object_proof`, storage `ok:
+  true` with `persona-files` private, and NVIDIA platform chat true. Overall
+  readiness remains `ready: false` because Supabase Auth redirect proof, OpenAI
+  embeddings, Stripe, Redis/cache, Cloudflare setup, and replay account/data are
+  still pending or need explicit waiver.
 
 ## Current repo truth
 

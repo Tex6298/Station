@@ -11,17 +11,16 @@ ARGUS-accepted locally after no-key retrieval fallback hardening. BE-05 is
 ARGUS-accepted locally as optional operational cache scaffolding, not canonical
 memory. BE-06 is ARGUS-accepted locally after partial-success retry idempotency
 hardening. BE-07 is ARGUS-accepted locally after lifecycle reauthorization
-hardening on the disabled-safe Cloudflare retrieval adapter contract. Migrations
-025 and 026 still need staging Supabase apply/RPC proof before remote vector
-retrieval and lifecycle filtering are proven, migration 027 still needs staging
-Supabase apply proof before remote Developer Space provider-policy persistence
-is proven, and migration 028 still needs staging Supabase apply/RPC proof before
-remote retrieval metadata is proven. Cache provider selection and Cloudflare
-account configuration are E2E setup follow-ups. BE-08 is ARGUS-accepted locally
-after replay privacy wording hardening. The backend roadmap sequence is locally
-accepted through BE-08; staging proof still depends on the external setup
-blockers named in the replay runbook. Later lanes are ordered implementation
-scope, not permission to build everything at once.
+hardening on the disabled-safe Cloudflare retrieval adapter contract. BE-08 is
+ARGUS-accepted locally after replay privacy wording hardening. On 2026-06-09,
+MIMIR applied/proved Supabase migrations `025` through `028` on staging,
+verified the private `persona-files` bucket, redeployed Railway API/web at
+`55d3fc6`, and public `/health/deployment` now proves database, storage, NVIDIA
+platform chat, and the public schema objects introduced by migrations `025`
+through `028`. Cache provider selection, Cloudflare account configuration,
+Supabase Auth redirects, OpenAI embeddings, Stripe test resources, and replay
+account/data remain E2E setup follow-ups. Later lanes are ordered
+implementation scope, not permission to build everything at once.
 
 ## Current staging truth
 
@@ -30,15 +29,16 @@ scope, not permission to build everything at once.
 - API `/health` and web `/health` return `200` with `{ "ok": true }`.
 - API `/health/deployment` reports the Railway app/API URLs, not localhost, and
   now includes the BE-00 `ready` plus `readiness` shape.
-- API `/health/deployment.ready` is currently false while database, migration,
-  storage, auth-redirect, provider, and Stripe readiness remain pending or
-  failing in deployment checks.
-- Latest MIMIR remote check on 2026-06-09 still reports `ready: false` with
-  database, migration, and storage `query_failed` statuses plus pending Auth,
-  provider, Stripe, Redis, cache-provider, and Cloudflare setup.
+- API `/health/deployment.ready` is currently false while Supabase Auth
+  redirects, OpenAI embeddings, Stripe, Redis/cache-provider, Cloudflare setup,
+  and replay account/data remain pending.
+- Latest MIMIR remote check on 2026-06-09 reports `ready: false` with database
+  `ok: true`, migrations `ok: true` via `025-028/public_schema_object_proof`,
+  storage `ok: true`/`private: true`, NVIDIA platform chat true, and Auth,
+  OpenAI embeddings, Stripe, and Redis false.
 - Supabase staging target is `jdewavktyemnpehdzvgl`.
-- Supabase migrations `001` through `024` are present in remote migration
-  history.
+- Supabase migrations `001` through `028` are present in remote migration
+  history according to Supabase MCP.
 - The `persona-files` Supabase Storage bucket exists and is private.
 - Local `.env` has the corrected Supabase project URL and a non-placeholder
   `DATABASE_URL`.
@@ -54,17 +54,11 @@ Still external or replay-adjacent:
 - Remote readiness blockers are not BE-01 implementation blockers. Missing
   external config should fail closed, report sanitized pending status, and be
   carried as exact E2E asks for Marty.
-- BE-01 migration 025 is present repo-side and should be applied/proven against
-  staging before remote vector archive retrieval is considered complete.
-- BE-02 migration 026 is present repo-side and should be applied/proven against
-  staging before remote vector memory lifecycle filtering is considered
-  complete.
-- BE-03 migration 027 is present repo-side and should be applied/proven against
-  staging before remote Developer Space provider policies are considered
-  complete.
-- BE-04 migration 028 is present repo-side and should be applied/proven against
-  staging before remote retrieval provider metadata and RPC filters are
-  considered complete.
+- BE-01 through BE-04 migration setup is applied/proven on staging. Hostile
+  remote smoke of archive retrieval, memory lifecycle filtering, Developer
+  Space provider policy persistence, and retrieval metadata/RPC filters remains
+  useful before full replay unless MIMIR explicitly accepts the setup proof as
+  enough for a narrowed replay.
 
 ## Roadmap rule
 

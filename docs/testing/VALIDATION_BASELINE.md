@@ -2672,3 +2672,22 @@ Commands run:
 | `curl.exe -fsS --max-time 20 https://stationapi-production.up.railway.app/health` | Pass | Returned `{ "ok": true }`. |
 | `curl.exe -fsS --max-time 30 https://stationapi-production.up.railway.app/health/deployment` | Partial remote truth | Returned `ready: false` with Railway web/API URLs configured, Supabase URL/anon/service-role/database URL and JWT booleans true, database/migration/storage `query_failed`, Supabase Auth redirect management proof unavailable, and Stripe/provider/OpenAI embedding/cache readiness false. |
 | `git diff --check` | Pass | CRLF normalization warnings only for touched docs and consumed DAEDALUS state. |
+
+## MIMIR staging proof update
+
+Validated on 2026-06-09 after applying staging Supabase migrations and patching
+the deployment readiness migration proof fallback. This changed runtime health
+readiness behavior and docs only; it did not start replay optimization.
+
+Commands run:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| Supabase MCP migration apply/list checks | Pass | Applied migrations `025_private_archive_retrieval`, `026_memory_lifecycle_runtime_filters`, `027_developer_space_provider_policy`, and `028_retrieval_provider_metadata`; remote history lists migrations `001` through `028`. |
+| Supabase MCP schema/storage smoke | Pass | Confirmed `vector` extension installed, public migration-backed columns present, `match_memory_items` and `match_private_archive_chunks` functions present, and `persona-files` bucket private. |
+| `npx --yes pnpm@10.32.1 test:health` | Pass | 3 tests passed, including the public-schema migration object fallback when `supabase_migrations` history is hidden by Supabase REST. |
+| `npx --yes pnpm@10.32.1 --filter @station/api build` | Pass | API and dependent package builds completed. |
+| `git push fork main` | Pass | Pushed runtime readiness fix at commit `55d3fc6`. |
+| Railway deployment/status check | Pass | `@station/api` and `@station/web` are running commit `55d3fc6` with RUNNING instances. |
+| Public `/health/deployment` probe | Partial remote truth | Returned `ready: false`; database `ok: true`, migrations `ok: true` via `025-028/public_schema_object_proof`, storage `ok: true` with `persona-files` private, and NVIDIA platform chat true. Auth redirect proof, OpenAI embeddings, Stripe, Redis/cache, Cloudflare setup, and replay account/data remain pending. |
+| `git diff --check` | Pass | CRLF normalization warnings only for touched docs and consumed MIMIR state. |

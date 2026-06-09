@@ -20,12 +20,12 @@ ARGUS verdict:
 
 Shortest next human/dashboard actions:
 
-1. Confirm the staging Supabase project ref or percent-encoded staging database
-   URL, then apply migrations through `028` to staging only. Migrations `025`
-   through `028` also need remote vector/RPC smoke proof for archive retrieval,
-   lifecycle filtering, Developer Space provider policy, and retrieval metadata.
-2. Create or verify the private `persona-files` bucket and signed upload/read
-   flow in the staging Supabase project.
+1. Run or explicitly waive the remaining remote vector/RPC smoke proof for
+   archive retrieval, lifecycle filtering, Developer Space provider policy, and
+   retrieval metadata. Migrations `025` through `028` are applied/proven at setup
+   level on staging.
+2. Smoke the signed upload/read flow for the private `persona-files` bucket if
+   needed for replay. The bucket exists and is private in staging.
 3. Set Supabase Auth site URL and allowed redirects for the Railway web URL;
    either add `/reset-password/update` or change the reset flow before testing
    password reset.
@@ -46,13 +46,19 @@ Shortest next human/dashboard actions:
   `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`,
   `DATABASE_URL`, and `JWT_SECRET` are configured on the deployed API.
 - The same deployment-health response now reports the Railway web/API URLs, not
-  localhost defaults. It still reports `ready: false` because database,
-  migration, and storage checks return `query_failed`; Supabase Auth redirects
-  are not management-API proven; Stripe, provider, embedding, and cache
-  readiness remain false. It does not prove migration state, private storage
-  bucket readiness, Supabase Auth dashboard settings, or secret values.
+  localhost defaults. MIMIR's 2026-06-09 proof update reports database `ok:
+  true`, migrations `ok: true` via `025-028/public_schema_object_proof`, storage
+  `ok: true` with `persona-files` private, and NVIDIA platform chat true. It
+  still reports `ready: false` because Supabase Auth redirects are not
+  management-API proven and OpenAI embeddings, Stripe, Redis/cache readiness,
+  Cloudflare setup, and replay data remain pending. It does not expose secret
+  values.
 
 ## Lane 1 inventory from this shell
+
+Historical note: this section records the DAEDALUS/ARGUS Lane 1 inventory from
+2026-06-08. MIMIR's 2026-06-09 proof update supersedes the Supabase/Railway
+readiness parts above without printing secret values.
 
 Local `.env` presence-only check:
 
@@ -104,14 +110,18 @@ What can be done from code/CLI:
   or `npx supabase db push --db-url <staging-database-url>` only after the
   target database URL is confirmed as staging.
 
-Blocked external facts:
+Current staging proof:
 
-- Staging Supabase project URL.
-- Project ref or linked Supabase CLI workspace.
-- Database URL or Supabase access token with permission to apply migrations.
-- Confirmation that the target project is staging, not production.
-- Confirmation whether migrations `001` through `024` have already been applied
-  to the staging project.
+- Supabase MCP applied migrations `025` through `028` and remote migration
+  history now includes `001` through `028`.
+- Public API readiness proves the public schema objects introduced by
+  migrations `025` through `028`.
+
+Remaining external facts:
+
+- Hostile remote vector/RPC smoke for archive retrieval, lifecycle filtering,
+  provider-policy persistence, and retrieval metadata if MIMIR requires it
+  before replay.
 
 ## Storage bucket
 
@@ -128,10 +138,14 @@ What can be done from code/CLI:
 - Verify the bucket through Supabase dashboard or a service-role/admin script
   after the staging `SUPABASE_URL` and service-role key are confirmed.
 
-Blocked external facts:
+Current staging proof:
 
-- Staging Supabase service-role key or dashboard access.
-- Confirmation that `persona-files` exists and is private.
+- `persona-files` exists in the staging Supabase project.
+- The bucket is private.
+- Public API readiness proves storage `ok: true`.
+
+Remaining external facts:
+
 - Storage policy decision if dashboard defaults are not enough.
 - A no-values confirmation that signed upload/download flows work against the
   staged bucket.

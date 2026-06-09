@@ -30,8 +30,10 @@ useful product evidence from an online/staged Station deployment.
 - MIMIR's current staging default is now Railway for both web and API. Railway
   setup notes live in `infra/railway/README.md`.
 - The external Railway API service exists and the web service has URL/env
-  wiring. Supabase migrations/storage/auth redirects, Stripe test resources,
-  and replay data still remain.
+  wiring. Supabase migrations `025` through `028`, database readiness, private
+  storage readiness, and NVIDIA platform chat are now proven at setup level.
+  Supabase Auth redirects, OpenAI embeddings, Stripe test resources,
+  Redis/cache selection, Cloudflare setup, and replay data still remain.
 - Supabase migrations and setup notes live in `infra/supabase/README.md`.
 - Stripe Billing setup notes live in `infra/stripe/webhook.md`.
 - Supabase setup blockers, NVIDIA env aliasing, and Redis cache boundaries are
@@ -79,8 +81,9 @@ staging. Preserve the healthy `@station/api` deploy while making `@station/web`
 deploy the Next.js app from the same fork. Do not place server-only secrets on
 `@station/web`.
 
-Remaining facts: Supabase migrations/storage/auth redirects, Stripe test Price
-IDs/webhook secret, and replay account credentials/data.
+Remaining facts: Supabase Auth redirects, OpenAI embedding key, Stripe test
+Price IDs/webhook secret, Redis/cache-provider decision, Cloudflare decision,
+and replay account credentials/data.
 
 ## Current Railway project state
 
@@ -115,6 +118,13 @@ DAEDALUS follow-up on 2026-06-08:
 MIMIR's Railway-authorized follow-up then reported `@station/api` and
 `@station/web` at `SUCCESS`. ARGUS independently rechecked the public web/API
 probes, but not the service inventory or variable placement.
+
+MIMIR's 2026-06-09 proof update reports `@station/api` and `@station/web`
+running commit `55d3fc6`. Public `/health/deployment` now reports database
+`ok: true`, migrations `ok: true` via `025-028/public_schema_object_proof`,
+storage `ok: true` with `persona-files` private, and NVIDIA platform chat true.
+Overall `ready` remains false because Supabase Auth redirect management proof,
+OpenAI embeddings, Stripe, and Redis/cache configuration remain false.
 
 ## Active remote for this lane
 
@@ -290,9 +300,10 @@ Capture these categories during the first staged replay:
 
 Remaining E2E blockers before replay evidence is meaningful:
 
-- Apply/prove Supabase migrations `025` through `028` on staging and run the
-  matching archive retrieval, lifecycle filtering, provider-policy, and
-  retrieval-metadata smoke checks.
+- Supabase migrations `025` through `028` and private storage are proven at
+  setup level. Run the matching archive retrieval, lifecycle filtering,
+  provider-policy, and retrieval-metadata smoke checks before full replay unless
+  MIMIR explicitly accepts setup proof for a narrower replay.
 - Decide or explicitly defer Redis/Valkey/Upstash cache provider setup.
 - Decide or explicitly defer Cloudflare Worker/Vectorize account/index setup.
 - Configure Stripe test resources and webhook secret for staged API.
@@ -322,5 +333,5 @@ The current BE-00 through BE-08 proof/waiver package lives in
 This repo is ready for an ARGUS review of Railway web/API deploy hygiene,
 documentation truth, and the remaining proof/waiver asks. It is not ready to
 claim full staging implementation until the external facts above are supplied
-or explicitly waived for Supabase, Stripe, provider configuration, cache,
-Cloudflare, and replay data.
+or explicitly waived for Supabase Auth redirects, OpenAI embeddings, Stripe,
+provider usage expectations, cache, Cloudflare, and replay data.
