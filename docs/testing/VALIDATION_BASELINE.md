@@ -2312,3 +2312,35 @@ Commands run by DAEDALUS:
 | `npx --yes pnpm@10.32.1 test:persona-context` | Pass | 3 tests passed, confirming existing runtime memory context behavior remains green. |
 | `npx --yes pnpm@10.32.1 --filter @station/api build` | Pass | API and dependent package builds completed. |
 | Targeted `git diff --check` over BE-04 code/schema/docs | Pass | CRLF normalization warnings only. |
+
+## BE-04 ARGUS retrieval provider metadata review result
+
+ARGUS reviewed BE-04 on 2026-06-09 and accepted it after one no-key retrieval
+fallback fix. New API writes without embedding keys intentionally store null
+vectors and null embedding metadata; memory search now also skips vector RPC
+when no embedding key is configured, so keyword fallback carries those no-key
+writes instead of returning empty metadata-filtered vector results.
+
+Review result:
+
+- Active metadata constants preserve the current OpenAI
+  `text-embedding-3-small`, `vector(1536)`, Supabase pgvector contract.
+- Mixed-dimension provider responses are rejected before memory/archive insert
+  and storage reservation is released on rollback.
+- Migration 028 backfills metadata for existing non-null embeddings and
+  constrains future rows to null-vector/null-metadata or active 1536-vector
+  metadata.
+- Memory and private archive RPCs remain compatible with the active vector
+  shape while filtering to active metadata once migration 028 is applied.
+- No-key writes remain retrievable through keyword fallback.
+
+Commands re-run by ARGUS:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npx --yes pnpm@10.32.1 exec tsx --test packages/ai/test/retrieval-metadata.test.ts` | Pass | 3 tests passed after adding no-key keyword fallback regression coverage. |
+| `npx --yes pnpm@10.32.1 test:storage` | Pass | 7 tests passed. |
+| `npx --yes pnpm@10.32.1 test:conversation-archive` | Pass | 4 tests passed. |
+| `npx --yes pnpm@10.32.1 test:persona-context` | Pass | 3 tests passed. |
+| `npx --yes pnpm@10.32.1 --filter @station/api build` | Pass | API and dependent package builds completed. |
+| `git diff --check` | Pass | CRLF normalization warnings only. |

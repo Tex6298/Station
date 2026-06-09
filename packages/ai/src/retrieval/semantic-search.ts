@@ -35,6 +35,10 @@ export async function searchMemory(options: {
 }): Promise<MemorySearchResult[]> {
   const { supabase, personaId, query, limit = 6, embeddingApiKey, ownerUserId } = options;
 
+  if (!hasValue(embeddingApiKey)) {
+    return keywordFallbackSearch(supabase, personaId, query, limit, ownerUserId);
+  }
+
   try {
     const embedding = await generateEmbedding(query, embeddingApiKey);
 
@@ -179,4 +183,8 @@ function isLifecycleInjectable(
 
   const expiresAt = Date.parse(lifecycle.expires_at);
   return Number.isNaN(expiresAt) || expiresAt > Date.now();
+}
+
+function hasValue(value: string | null | undefined) {
+  return typeof value === "string" && value.trim().length > 0;
 }

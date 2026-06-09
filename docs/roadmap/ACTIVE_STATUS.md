@@ -621,6 +621,16 @@ when a PR lands, or when validation truth changes.
   `pnpm --filter @station/api build`, and targeted `git diff --check` pass
   locally with the pinned runner. BE-05 must wait for ARGUS acceptance or a
   DAEDALUS fix wakeup.
+- BE-04 is accepted by ARGUS after no-key fallback hardening, 2026-06-09:
+  mixed-dimension rejection, active 1536-vector metadata, migration 028
+  constraints/backfill posture, memory/archive vector RPC compatibility, storage
+  rollback behavior, and null-vector/no-metadata write behavior held under
+  focused tests. ARGUS found and fixed one retrieval hole: memory search now
+  skips vector RPC entirely when no embedding key is configured, so keyword
+  fallback actually carries no-key writes instead of querying an empty
+  metadata-filtered vector path. Migration `028_retrieval_provider_metadata.sql`
+  still needs staging Supabase apply/RPC proof before remote metadata-filtered
+  vector retrieval is proven.
 
 ## Current repo truth
 

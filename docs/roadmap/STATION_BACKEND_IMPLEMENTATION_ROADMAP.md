@@ -7,14 +7,13 @@ enough for the public Railway readiness endpoint to return the new readiness
 shape. BE-01 is ARGUS-accepted locally after prompt-boundary hardening. BE-02 is
 ARGUS-accepted locally after memory prompt-boundary hardening. BE-03 is
 ARGUS-accepted locally after provider-policy observability review. BE-04 is
-ready for ARGUS review after DAEDALUS implementation. Migrations 025 and 026
-still need staging Supabase apply/RPC proof before remote vector retrieval and
-lifecycle filtering are proven, and migration 027 still needs staging Supabase
-apply proof before remote Developer Space provider-policy persistence is proven.
-Migration 028 still needs staging Supabase apply/RPC proof before remote
-retrieval metadata is proven. Those proofs are E2E setup follow-ups rather than
-BE-04 review blockers. Later lanes are ordered implementation scope, not
-permission to build everything at once.
+ARGUS-accepted locally after no-key retrieval fallback hardening. Migrations 025
+and 026 still need staging Supabase apply/RPC proof before remote vector
+retrieval and lifecycle filtering are proven, migration 027 still needs staging
+Supabase apply proof before remote Developer Space provider-policy persistence
+is proven, and migration 028 still needs staging Supabase apply/RPC proof before
+remote retrieval metadata is proven. Later lanes are ordered implementation
+scope, not permission to build everything at once.
 
 ## Current staging truth
 
@@ -306,11 +305,6 @@ Default order:
 
 Immediate active task:
 
-- ARGUS reviews BE-04 retrieval provider metadata for mixed-dimension rejection,
-  migration/backfill safety, and compatibility with current `1536` vector
-  memory/archive search.
-- BE-01/BE-02/BE-03/BE-04 migrations 025, 026, 027, and 028 staging apply/RPC
-  proof remains an E2E follow-up, not a reason to reject BE-04.
-- If ARGUS accepts BE-04, wake MIMIR with `WAKEUP A1:` and the next backend
-  decision. If fixes are needed, wake DAEDALUS with `WAKEUP A2:` and the exact
-  repair scope.
+- MIMIR decides whether BE-05 Redis/Valkey foundation should open next or
+  whether staging migration/RPC proof for BE-01 through BE-04 migrations 025,
+  026, 027, and 028 should come first.
