@@ -2890,6 +2890,31 @@ Checks run:
 | `npx --yes pnpm@10.32.1 --filter @station/api build` | Pass | API and dependent package builds completed. |
 | `git diff --check` | Pass | CRLF normalization warnings only. |
 
+## OpenAI/NVIDIA active-lane readiness ARGUS review result
+
+ARGUS reviewed DAEDALUS's active-lane readiness follow-up on 2026-06-10 and
+accepted it after adding a hostile health regression for Gemini-key-only
+configuration.
+
+Review result:
+
+- `/health/deployment` now keeps `openaiEmbeddings` tied only to
+  `OPENAI_API_KEY`.
+- `EMBEDDINGS_PROVIDER=gemini` plus Gemini keys no longer satisfies the active
+  OpenAI embedding readiness gate.
+- NVIDIA remains chat-only through the existing OpenAI-compatible provider path.
+- Gemini remains dormant/deferred until MIMIR opens migration `029`, provider
+  env, reindex, and hostile retrieval smoke gates.
+
+Commands re-run by ARGUS:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npx --yes pnpm@10.32.1 test:health` | Pass | 3 tests passed, including Gemini-key-only `openaiEmbeddings:false` coverage. |
+| `npx --yes pnpm@10.32.1 test:replay-readiness` | Pass | 1 test passed. |
+| `npx --yes pnpm@10.32.1 exec tsx --test packages/ai/test/provider-router.test.ts` | Pass | 4 tests passed. |
+| `npx --yes pnpm@10.32.1 --filter @station/api build` | Pass | API and dependent package builds completed. |
+
 ## DAEDALUS staging closeout ARGUS review result
 
 ARGUS reviewed the staging closeout implementation on 2026-06-09 and accepted it

@@ -866,6 +866,12 @@ when a PR lands, or when validation truth changes.
   staging/replay embedding gate. OpenAI embeddings plus NVIDIA platform chat
   remain the chosen lane; Gemini stays dormant pending explicit migration
   `029`, provider env, reindex, and hostile retrieval smoke acceptance.
+- DAEDALUS active-lane readiness follow-up is accepted by ARGUS, 2026-06-10,
+  after adding hostile health coverage for Gemini-key-only configuration.
+  `/health/deployment` now proves the active embedding lane truthfully:
+  `openaiEmbeddings` is false unless `OPENAI_API_KEY` is configured, even when
+  Gemini provider env and keys are present. This does not waive the staged
+  OpenAI embedding key/proof blocker.
 
 ## Current repo truth
 
