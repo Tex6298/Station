@@ -355,15 +355,13 @@ function providerStatus(): DeploymentReadiness["readiness"]["providers"] {
   const anthropic = hasValue(env.ANTHROPIC_API_KEY);
   const deepseek = hasValue(env.DEEPSEEK_API_KEY);
   const nvidia = hasValue(env.NVIDIA_AI_API_KEY);
-  const usingGemini = env.EMBEDDINGS_PROVIDER === "gemini";
   const openaiConfigured = hasValue(env.OPENAI_API_KEY);
-  const geminiConfigured = hasValue(env.GEMINI_API_KEY) || hasValue(env.GOOGLE_API_KEY);
   return {
     platformChat: anthropic || deepseek || nvidia,
     anthropic,
     deepseek,
     nvidia,
-    openaiEmbeddings: usingGemini ? geminiConfigured : openaiConfigured,
+    openaiEmbeddings: openaiConfigured,
   };
 }
 

@@ -2873,6 +2873,23 @@ Checks run:
 | Current primary provider docs review | Pass | Checked Google Gemini pricing/rate-limit docs, Gemini Embedding GA note, Cloudflare Workers AI/Vectorize pricing, and Hugging Face Inference Providers pricing. |
 | Repo search for active provider posture | Pass | Current repo defaults still keep OpenAI embeddings active and Gemini dormant. |
 
+## OpenAI/NVIDIA active-lane readiness follow-up
+
+Prepared by DAEDALUS on 2026-06-10 after MIMIR clarified that the current lane
+is operational only: OpenAI embeddings and NVIDIA chat remain active, Gemini
+does not open yet.
+
+Checks run:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| Repo search for active provider posture | Pass | Only commented/deferred Gemini enablement references remain; `.env.example` keeps `EMBEDDINGS_PROVIDER=openai`, and readiness no longer lets Gemini keys satisfy `openaiEmbeddings`. |
+| `npx --yes pnpm@10.32.1 test:health` | Pass | 3 tests passed. |
+| `npx --yes pnpm@10.32.1 test:replay-readiness` | Pass | 1 test passed. |
+| `npx --yes pnpm@10.32.1 exec tsx --test packages/ai/test/provider-router.test.ts` | Pass | 4 NVIDIA/OpenAI-compatible provider-router tests passed. |
+| `npx --yes pnpm@10.32.1 --filter @station/api build` | Pass | API and dependent package builds completed. |
+| `git diff --check` | Pass | CRLF normalization warnings only. |
+
 ## DAEDALUS staging closeout ARGUS review result
 
 ARGUS reviewed the staging closeout implementation on 2026-06-09 and accepted it

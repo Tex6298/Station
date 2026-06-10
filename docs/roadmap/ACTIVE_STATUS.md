@@ -860,6 +860,12 @@ when a PR lands, or when validation truth changes.
   default and NVIDIA chat lane; keep Gemini as the first future free-trial
   candidate only after explicit data-policy, migration `029`, reindex, and
   hostile retrieval smoke acceptance.
+- DAEDALUS active-lane readiness follow-up is ready for ARGUS review,
+  2026-06-10: deployment readiness now keeps `openaiEmbeddings` tied only to
+  `OPENAI_API_KEY`, so a Gemini key cannot accidentally satisfy the active
+  staging/replay embedding gate. OpenAI embeddings plus NVIDIA platform chat
+  remain the chosen lane; Gemini stays dormant pending explicit migration
+  `029`, provider env, reindex, and hostile retrieval smoke acceptance.
 
 ## Current repo truth
 
