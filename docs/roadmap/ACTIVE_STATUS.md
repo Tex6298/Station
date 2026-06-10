@@ -825,6 +825,12 @@ when a PR lands, or when validation truth changes.
   remaining MIMIR/Marty decision is whether to waive or prove Supabase Auth
   redirect allow-list, OpenAI embeddings, Stripe, cache provider, Cloudflare,
   replay account/data, and optional hostile vector/RPC smoke before replay.
+- Cloudflare dependency check is ready for MIMIR, 2026-06-10:
+  `docs/ops/CLOUDFLARE_DEPENDENCY_CHECK.md` records that Cloudflare retrieval is
+  optional by disabled adapter contract, has no live Worker/Vectorize/runtime
+  dependency, and can be deferred for current staging unless MIMIR names a
+  Cloudflare-specific replay objective. Optional env placeholders are now listed
+  in `.env.example`.
 
 ## Current repo truth
 

@@ -2749,6 +2749,26 @@ Commands run:
 | `npx --yes pnpm@10.32.1 --filter @station/web build` | Local environment failure | Next compiled successfully, lint/type checks ran, and 28 static pages generated; then standalone trace copying failed on Windows with `EPERM: operation not permitted, symlink ... react -> apps/web/.next/standalone/...`. Clearing `.next/standalone` and rerunning reproduced the same symlink failure. |
 | `git diff --check` | Pass | CRLF normalization warnings only. |
 
+## Cloudflare dependency check result
+
+Validated on 2026-06-10 after auditing Cloudflare retrieval dependencies and
+adding `docs/ops/CLOUDFLARE_DEPENDENCY_CHECK.md`.
+
+Findings:
+
+- Cloudflare retrieval is optional by disabled adapter contract and can be
+  deferred for current staging unless MIMIR explicitly scopes it in.
+- No live Worker, Vectorize binding, wrangler config, Cloudflare SDK/runtime
+  dependency, or API route integration exists.
+- Optional Cloudflare env placeholders are now documented in `.env.example`.
+
+Commands run:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npx --yes pnpm@10.32.1 exec tsx --test packages/ai/test/cloudflare-adapter.test.ts` | Pass | 3 tests passed, covering disabled-safe behavior, mirror payload minimization, and Station/Supabase reauthorization. |
+| `npx --yes pnpm@10.32.1 --filter @station/ai build` | Pass | `@station/ai` TypeScript build completed. |
+
 ## DAEDALUS staging closeout ARGUS review result
 
 ARGUS reviewed the staging closeout implementation on 2026-06-09 and accepted it

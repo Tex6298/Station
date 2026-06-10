@@ -311,6 +311,9 @@ Remaining E2E blockers before replay evidence is meaningful:
   staged password-reset path.
 - Decide or explicitly defer Redis/Valkey/Upstash cache provider setup.
 - Decide or explicitly defer Cloudflare Worker/Vectorize account/index setup.
+  The current dependency check lives in
+  `docs/ops/CLOUDFLARE_DEPENDENCY_CHECK.md`; Cloudflare is optional by adapter
+  contract and can be deferred unless MIMIR makes it part of replay scope.
 - Configure Stripe test resources and webhook secret for staged API.
 - Confirm at least one platform chat provider and the OpenAI embedding key.
 - Prepare replay account/data that covers persona, archive import, continuity,
