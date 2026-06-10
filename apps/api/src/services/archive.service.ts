@@ -55,6 +55,16 @@ async function generateArchiveEmbeddings(texts: string[]) {
 }
 
 function embeddingApiKey() {
+  if (env.EMBEDDINGS_PROVIDER === "gemini") {
+    return (
+      env.GEMINI_API_KEY?.trim()
+      || env.GOOGLE_API_KEY?.trim()
+      || process.env.GEMINI_API_KEY?.trim()
+      || process.env.GOOGLE_API_KEY?.trim()
+      || null
+    );
+  }
+
   return env.OPENAI_API_KEY?.trim() || process.env.OPENAI_API_KEY?.trim() || null;
 }
 

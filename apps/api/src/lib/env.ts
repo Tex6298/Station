@@ -25,6 +25,20 @@ const envSchema = z.object({
 
   // AI - embeddings
   OPENAI_API_KEY: z.string().optional(),
+  EMBEDDINGS_PROVIDER: z
+    .enum(["openai", "gemini"])
+    .default("openai"),
+  GEMINI_API_KEY: z.string().optional(),
+  GOOGLE_API_KEY: z.string().optional(),
+  EMBEDDING_MODEL: z.string().optional(),
+  EMBEDDING_DIM: z
+    .string()
+    .optional()
+    .default("1536")
+    .transform((value) => {
+      const parsed = Number.parseInt(value, 10);
+      return Number.isInteger(parsed) && parsed > 0 ? parsed : 1536;
+    }),
 
   // Stripe
   STRIPE_SECRET_KEY: z.string().optional(),
