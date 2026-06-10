@@ -850,6 +850,11 @@ when a PR lands, or when validation truth changes.
   OpenAI remains default, Gemini chat is still absent, migration `029` is not
   applied to staging, and Gemini must not be enabled for replay until MIMIR
   accepts migration apply, reindex, and hostile retrieval smoke gates.
+- MIMIR's Gemini operating decision is recorded by ARGUS, 2026-06-10: keep
+  OpenAI embeddings plus NVIDIA platform chat as the active replay/staging lane.
+  Gemini remains accepted dormant prep only, deferred until a separate
+  ablated model-hosting/retrieval-features lane explicitly proves migration
+  `029`, provider env, corpus reindex, and hostile retrieval smoke.
 
 ## Current repo truth
 

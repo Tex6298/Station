@@ -2,7 +2,8 @@
 
 Date: 2026-06-10
 
-Status: DAEDALUS prep note. This is not a staging switch.
+Status: accepted dormant prep, explicitly deferred by MIMIR for the current
+replay/staging lane. This is not a staging switch.
 
 ## Current truth
 
@@ -15,6 +16,10 @@ Status: DAEDALUS prep note. This is not a staging switch.
 - The repo default remains `EMBEDDINGS_PROVIDER=openai`.
 - Gemini should not be enabled for replay until migration `029` is applied and
   the corpus reindex decision below is accepted.
+- MIMIR's 2026-06-10 operating decision keeps OpenAI embeddings plus NVIDIA
+  platform chat as the active replay/staging lane. Gemini embedding prep remains
+  dormant until a separate ablated model-hosting/retrieval-features lane is
+  opened and accepted.
 
 ## Provider switch plan
 

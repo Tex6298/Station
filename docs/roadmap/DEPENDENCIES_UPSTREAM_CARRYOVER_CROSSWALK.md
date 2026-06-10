@@ -19,8 +19,9 @@ Station should keep a hybrid architecture:
   replacement.
 - BYOK chat remains OpenAI/Anthropic/DeepSeek in code; Gemini chat is
   vocabulary/UI concept only until a provider class and tests exist. Gemini
-  embeddings now have an optional prep lane, but OpenAI remains the active
-  default until migration/reindex proof exists.
+  embeddings now have an accepted dormant prep lane, but OpenAI remains the
+  active default until MIMIR opens and accepts a separate
+  migration/reindex/hosted-ablation lane.
 
 Recommended roadmap next step: record Cloudflare as explicitly deferred for the
 current staging replay, keep OpenAI embeddings as active primary, and use replay
@@ -51,7 +52,7 @@ Redis, NVIDIA embeddings, or only better Supabase indexing/UX.
 | Developer Space provider policy | `developer_spaces.provider_policy`, `evaluateDeveloperSpaceProviderPolicy`, Developer Space route tests. | Governs whether public/private context can be sent to platform or owner BYOK providers. | Structural fail-closed privacy control; per-Space posture avoids global provider assumptions. | It evaluates policy; it does not by itself prove provider calls are safe. | Active primary guardrail. |
 | Memory lifecycle filters | `memory_item_lifecycle`, runtime context/search filters, Cloudflare candidate reauthorization helper. | Applies before canonical private records return, including future remote candidate IDs. | Prevents rejected/quarantined/expired/superseded memories from re-entering context. | Remote mirrors still need deletion/stale-index handling if enabled. | Active primary guardrail. |
 | Redis/Valkey/Upstash cache | `apps/api/src/services/operational-cache.service.ts`, cache tests, future lane docs. | Cache/idempotency/queue helper, not canonical memory. | Useful for replay performance/rate-limit/idempotency later. | Provider choice not made; TCP Redis client path is disabled pending concrete client. | Deferred lane; hybrid supplement only. |
-| Gemini embeddings | `EMBEDDINGS_PROVIDER`, Gemini embedding key envs, `packages/ai/src/retrieval/embeddings.ts`, migration `029`, and `docs/ops/GEMINI_EMBEDDING_MIGRATION_PLAN.md`. | Complements Supabase pgvector only after provider-aware metadata/RPC prep and corpus reindex; does not replace chat providers. | Keeps the existing 1536 index shape and gives a bounded trial path. | Not applied to staging, not reindexed, and not safe to enable for replay until migration `029` plus data-backed smoke pass. | Deferred lane; opt-in hybrid supplement later. |
+| Gemini embeddings | `EMBEDDINGS_PROVIDER`, Gemini embedding key envs, `packages/ai/src/retrieval/embeddings.ts`, migration `029`, and `docs/ops/GEMINI_EMBEDDING_MIGRATION_PLAN.md`. | Complements Supabase pgvector only after provider-aware metadata/RPC prep and corpus reindex; does not replace chat providers. | Keeps the existing 1536 index shape and gives a bounded trial path. | Not applied to staging, not reindexed, and not safe to enable for replay until MIMIR explicitly accepts migration `029`, provider env, corpus reindex, and hostile retrieval smoke. | Deferred dormant prep; do not enable in current replay/staging lane. |
 | Gemini chat | `PersonaProvider` type includes `gemini`; product docs mention Gemini as later provider. | No `GeminiProvider`, no env-backed chat routing, no awakening-flow option, no tests. | Could widen BYOK/provider choice later. | Current type vocabulary overstates implementation if treated as active. | Deferred; do not advertise as active. |
 
 ## Hybrid retrieval recommendation
@@ -68,8 +69,9 @@ Use local canonical plus optional remote mirror:
 4. If Redis opens later, start with cache/rate-limit/idempotency/queue state.
    Do not promote Redis to memory truth without durability/export/deletion
    review.
-5. If NVIDIA or another embedding provider opens later, make provider/model/
-   dimension metadata and mixed-dimension rejection non-negotiable.
+5. If Gemini, NVIDIA, or another embedding provider opens later, make
+   provider/model/dimension metadata, staged reindex, hostile retrieval smoke,
+   and mixed-dimension rejection non-negotiable.
 
 This avoids dependency drift because every optional provider has a bounded role:
 canonical truth, active index, chat provider, remote mirror, or cache. Nothing

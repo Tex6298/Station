@@ -2830,6 +2830,27 @@ Commands re-run by ARGUS:
 | `npx --yes pnpm@10.32.1 --filter @station/api build` | Pass | API and dependent package builds completed. |
 | `git diff --check` | Pass | CRLF normalization warnings only. |
 
+## Gemini dormant-lane decision
+
+Recorded by ARGUS on 2026-06-10 after MIMIR accepted the direction but deferred
+Gemini for the current replay/staging lane.
+
+Decision:
+
+- Active replay/staging lane remains OpenAI embeddings plus NVIDIA platform
+  chat.
+- Gemini embedding support remains accepted dormant prep only.
+- Do not enable `EMBEDDINGS_PROVIDER=gemini`, apply migration `029`, or reindex
+  replay data until MIMIR opens a separate ablated model-hosting/retrieval lane
+  and signs off staged reindex plus hostile retrieval smoke.
+
+Checks run:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| Repo search for Gemini/OpenAI/NVIDIA posture | Pass | `.env.example` keeps `EMBEDDINGS_PROVIDER=openai`; Gemini env values remain optional/commented for a later migration/reindex lane. |
+| `git diff --check` | Pass | CRLF normalization warnings only. |
+
 ## DAEDALUS staging closeout ARGUS review result
 
 ARGUS reviewed the staging closeout implementation on 2026-06-09 and accepted it
