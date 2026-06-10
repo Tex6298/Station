@@ -2851,6 +2851,28 @@ Checks run:
 | Repo search for Gemini/OpenAI/NVIDIA posture | Pass | `.env.example` keeps `EMBEDDINGS_PROVIDER=openai`; Gemini env values remain optional/commented for a later migration/reindex lane. |
 | `git diff --check` | Pass | CRLF normalization warnings only. |
 
+## Free embeddings decision
+
+Prepared by ARGUS on 2026-06-10 after checking current primary provider docs.
+
+Decision:
+
+- No production-safe free embedding route is ready for replay/staging now.
+- Keep OpenAI `text-embedding-3-small` as the active embedding default and keep
+  NVIDIA as chat-only.
+- Gemini is the closest future free-trial candidate, but remains deferred
+  pending data-policy acceptance, migration `029`, bounded corpus reindex, and
+  hostile retrieval smoke.
+- Cloudflare Workers AI/Vectorize and Hugging Face free credits are not minimum
+  config changes; they would open new provider/platform lanes.
+
+Checks run:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| Current primary provider docs review | Pass | Checked Google Gemini pricing/rate-limit docs, Gemini Embedding GA note, Cloudflare Workers AI/Vectorize pricing, and Hugging Face Inference Providers pricing. |
+| Repo search for active provider posture | Pass | Current repo defaults still keep OpenAI embeddings active and Gemini dormant. |
+
 ## DAEDALUS staging closeout ARGUS review result
 
 ARGUS reviewed the staging closeout implementation on 2026-06-09 and accepted it

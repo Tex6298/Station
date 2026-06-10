@@ -20,6 +20,10 @@ replay/staging lane. This is not a staging switch.
   platform chat as the active replay/staging lane. Gemini embedding prep remains
   dormant until a separate ablated model-hosting/retrieval-features lane is
   opened and accepted.
+- ARGUS's free-embeddings decision records that Gemini is the closest future
+  free-trial candidate, but not production-safe for current replay because
+  free-tier privacy posture, rate limits, migration `029`, reindex, and hostile
+  retrieval smoke are still unresolved.
 
 ## Provider switch plan
 

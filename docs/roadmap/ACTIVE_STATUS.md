@@ -855,6 +855,11 @@ when a PR lands, or when validation truth changes.
   Gemini remains accepted dormant prep only, deferred until a separate
   ablated model-hosting/retrieval-features lane explicitly proves migration
   `029`, provider env, corpus reindex, and hostile retrieval smoke.
+- ARGUS free-embeddings verdict, 2026-06-10: no production-safe free embedding
+  route is ready for replay/staging now. Continue the current OpenAI embedding
+  default and NVIDIA chat lane; keep Gemini as the first future free-trial
+  candidate only after explicit data-policy, migration `029`, reindex, and
+  hostile retrieval smoke acceptance.
 
 ## Current repo truth
 
