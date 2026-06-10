@@ -2769,6 +2769,17 @@ Commands run:
 | `npx --yes pnpm@10.32.1 exec tsx --test packages/ai/test/cloudflare-adapter.test.ts` | Pass | 3 tests passed, covering disabled-safe behavior, mirror payload minimization, and Station/Supabase reauthorization. |
 | `npx --yes pnpm@10.32.1 --filter @station/ai build` | Pass | `@station/ai` TypeScript build completed. |
 
+## Upstream carry-over dependency crosswalk
+
+Prepared on 2026-06-10 as a docs-only decision note for MIMIR.
+
+Validation:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| Docs/code evidence search for upstream/provider/retrieval dependencies | Pass | Crosswalk uses `docs/ops/open-repo-upgrade-review.md`, `docs/roadmap/STATION_RETRIEVAL_PROVIDER_RESEARCH_ARIADNE.md`, `docs/roadmap/STATION_FUTURE_LANES.md`, provider/retrieval code, package manifests, and env examples. |
+| `git diff --check` | Pass | CRLF normalization warnings only. |
+
 ## DAEDALUS staging closeout ARGUS review result
 
 ARGUS reviewed the staging closeout implementation on 2026-06-09 and accepted it

@@ -831,6 +831,12 @@ when a PR lands, or when validation truth changes.
   dependency, and can be deferred for current staging unless MIMIR names a
   Cloudflare-specific replay objective. Optional env placeholders are now listed
   in `.env.example`.
+- Upstream carry-over dependency crosswalk is ready for MIMIR, 2026-06-10:
+  `docs/roadmap/DEPENDENCIES_UPSTREAM_CARRYOVER_CROSSWALK.md` maps reviewed
+  upstream repo ideas to current Station implementation, classifies active
+  primary, hybrid supplement, deferred, and rejected dependencies, and
+  recommends local canonical Supabase retrieval plus optional remote mirrors to
+  prevent provider/dependency drift.
 
 ## Current repo truth
 
