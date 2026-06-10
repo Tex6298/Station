@@ -229,11 +229,7 @@ async function generateGeminiEmbedding(
       "Content-Type": "application/json",
       "x-goog-api-key": apiKey,
     },
-    body: JSON.stringify({
-      model: normalizeGeminiModel(model),
-      content: { parts: [{ text: text.slice(0, 8000) }] },
-      output_dimensionality: outputDimension,
-    }),
+    body: JSON.stringify(buildGeminiEmbedRequestBody(text, model, outputDimension)),
   });
 
   if (!response.ok) {
@@ -248,6 +244,16 @@ async function generateGeminiEmbedding(
 function buildGeminiEmbedUrl(rawModel: string) {
   const model = normalizeGeminiModel(rawModel);
   return `https://generativelanguage.googleapis.com/v1beta/${model}:embedContent`;
+}
+
+export function buildGeminiEmbedRequestBody(text: string, model: string, outputDimension: number) {
+  return {
+    model: normalizeGeminiModel(model),
+    content: { parts: [{ text: text.slice(0, 8000) }] },
+    embedContentConfig: {
+      outputDimensionality: outputDimension,
+    },
+  };
 }
 
 function parseGeminiEmbedding(response: GeminiEmbeddingResponse): number[] {

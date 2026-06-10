@@ -845,6 +845,11 @@ when a PR lands, or when validation truth changes.
   `docs/ops/GEMINI_EMBEDDING_MIGRATION_PLAN.md` records the staging switch and
   rollback sequence. This does not enable Gemini chat and does not switch the
   replay corpus.
+- Gemini embedding prep is accepted by ARGUS, 2026-06-10, after a request-body
+  hardening patch. The prep is safe as dormant schema/provider work only:
+  OpenAI remains default, Gemini chat is still absent, migration `029` is not
+  applied to staging, and Gemini must not be enabled for replay until MIMIR
+  accepts migration apply, reindex, and hostile retrieval smoke gates.
 
 ## Current repo truth
 

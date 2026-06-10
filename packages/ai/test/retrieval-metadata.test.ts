@@ -9,6 +9,7 @@ import {
   ACTIVE_EMBEDDING_PROVIDER,
   EmbeddingDimensionMismatchError,
   assertActiveEmbeddingVector,
+  buildGeminiEmbedRequestBody,
   metadataForActiveEmbedding,
 } from "../src/retrieval/embeddings";
 import { retrievePrivateArchive } from "../src/retrieval/archive-retrieval";
@@ -83,6 +84,16 @@ test("memory search uses keyword fallback without an embedding key", async () =>
   assert.equal(memory.length, 1);
   assert.equal(memory[0].id, "keyword-memory-1");
   assert.equal(db.rpcCalls.length, 0);
+});
+
+test("Gemini embedding request uses REST config casing for the active dimension", () => {
+  const body = buildGeminiEmbedRequestBody("search text", "gemini-embedding-2", 1536);
+
+  assert.equal(body.model, "models/gemini-embedding-2");
+  assert.deepEqual(body.content, { parts: [{ text: "search text" }] });
+  assert.deepEqual(body.embedContentConfig, { outputDimensionality: 1536 });
+  assert.equal(Object.hasOwn(body as Record<string, unknown>, "output_dimensionality"), false);
+  assert.equal(Object.hasOwn(body as Record<string, unknown>, "config"), false);
 });
 
 class VectorSupabase {

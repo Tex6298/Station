@@ -2799,6 +2799,37 @@ Commands run:
 | `npx --yes pnpm@10.32.1 test:replay-readiness` | Pass | 1 test passed after updating embedding-provider blocker wording. |
 | `git diff --check` | Pass | CRLF normalization warnings only. |
 
+## Gemini embedding provider prep ARGUS review result
+
+ARGUS reviewed DAEDALUS's Gemini embedding provider prep on 2026-06-10 and
+accepted it after one Gemini REST request-body hardening patch.
+
+Review result:
+
+- OpenAI remains the active default in `.env.example` and runtime fallback.
+- Conversation/context/archive retrieval resolves embedding keys by selected
+  embedding provider instead of always taking the OpenAI key path.
+- Migration `029` is acceptable as schema/RPC prep only; it is not staging
+  applied, does not reindex existing rows, and does not switch replay to Gemini.
+- Gemini embeddings are still blocked from staging replay until migration `029`,
+  provider env, corpus reindex, and hostile retrieval smoke are accepted.
+- Gemini chat remains unimplemented and out of scope.
+- ARGUS fixed the Gemini REST body to use `embedContentConfig.outputDimensionality`
+  and added coverage so the old `output_dimensionality` shape cannot silently
+  return.
+
+Commands re-run by ARGUS:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npx --yes pnpm@10.32.1 exec tsx --test packages/ai/test/retrieval-metadata.test.ts` | Pass | 4 tests passed, including Gemini REST config casing and 1536-dimensional request guard. |
+| `npx --yes pnpm@10.32.1 test:storage` | Pass | 7 tests passed. |
+| `npx --yes pnpm@10.32.1 test:persona-context` | Pass | 3 tests passed. |
+| `npx --yes pnpm@10.32.1 test:conversation-archive` | Pass | 5 tests passed. |
+| `npx --yes pnpm@10.32.1 test:replay-readiness` | Pass | 1 test passed. |
+| `npx --yes pnpm@10.32.1 --filter @station/api build` | Pass | API and dependent package builds completed. |
+| `git diff --check` | Pass | CRLF normalization warnings only. |
+
 ## DAEDALUS staging closeout ARGUS review result
 
 ARGUS reviewed the staging closeout implementation on 2026-06-09 and accepted it
