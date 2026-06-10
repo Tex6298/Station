@@ -8,11 +8,11 @@ import {
   metadataForActiveEmbedding,
 } from "@station/ai/retrieval/embeddings";
 import type { ArchiveSourceType } from "@station/types";
-import { env } from "../lib/env";
 import { estimateStorageBytes, releaseStorageBytes, reserveStorageBytes } from "./storage.service";
 import { ensureMemoryLifecycle } from "./memory-continuity.service";
 import { invalidateOperationalCacheForChange } from "./operational-cache.service";
 import { sanitizeJobErrorMessage } from "./background-jobs.service";
+import { resolveEmbeddingApiKey } from "./embedding-key.service";
 
 type ArchiveSourceRef = {
   type: ArchiveSourceType;
@@ -55,17 +55,7 @@ async function generateArchiveEmbeddings(texts: string[]) {
 }
 
 function embeddingApiKey() {
-  if (env.EMBEDDINGS_PROVIDER === "gemini") {
-    return (
-      env.GEMINI_API_KEY?.trim()
-      || env.GOOGLE_API_KEY?.trim()
-      || process.env.GEMINI_API_KEY?.trim()
-      || process.env.GOOGLE_API_KEY?.trim()
-      || null
-    );
-  }
-
-  return env.OPENAI_API_KEY?.trim() || process.env.OPENAI_API_KEY?.trim() || null;
+  return resolveEmbeddingApiKey();
 }
 
 /**

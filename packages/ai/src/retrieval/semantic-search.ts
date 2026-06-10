@@ -1,5 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { generateEmbedding } from "./embeddings";
+import { activeEmbeddingRpcArgs, generateEmbedding } from "./embeddings";
 
 export interface MemorySearchResult {
   id: string;
@@ -40,13 +40,14 @@ export async function searchMemory(options: {
   }
 
   try {
-    const embedding = await generateEmbedding(query, embeddingApiKey);
+    const embedding = await generateEmbedding(query, embeddingApiKey, { useCase: "query" });
 
     // pgvector RPC - defined below in 003_rag_functions.sql
     const { data, error } = await supabase.rpc("match_memory_items", {
       p_persona_id: personaId,
       query_embedding: embedding,
       match_count: limit,
+      ...activeEmbeddingRpcArgs(),
     });
 
     if (error) throw error;

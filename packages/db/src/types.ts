@@ -15,7 +15,7 @@ export type DocumentSourceType = "manual" | "canon" | "integrity" | "archive_fil
 export type Provider = "platform" | "openai" | "anthropic" | "deepseek" | "gemini";
 export type SourceType = "chat" | "import" | "document" | "calibration" | "integrity_session" | "manual";
 export type ArchiveSourceType = "import_job" | "persona_file" | "archived_chat_transcript";
-export type EmbeddingProvider = "openai";
+export type EmbeddingProvider = "openai" | "gemini";
 export type EmbeddingIndexSource = "supabase_pgvector";
 export type ConversationStatus = "active" | "archived";
 export type ContinuityCandidateType = "memory" | "canon";
@@ -984,7 +984,14 @@ export interface Database {
         Returns: void;
       };
       match_memory_items: {
-        Args: { p_persona_id: string; query_embedding: number[]; match_count?: number };
+        Args: {
+          p_persona_id: string;
+          query_embedding: number[];
+          match_count?: number;
+          p_embedding_provider?: EmbeddingProvider;
+          p_embedding_model?: string | null;
+          p_embedding_index_name?: string;
+        };
         Returns: Array<{
           id: string;
           persona_id: string;
@@ -1002,6 +1009,9 @@ export interface Database {
           p_owner_user_id: string;
           query_embedding: number[];
           match_count?: number;
+          p_embedding_provider?: EmbeddingProvider;
+          p_embedding_model?: string | null;
+          p_embedding_index_name?: string;
         };
         Returns: Array<{
           id: string;

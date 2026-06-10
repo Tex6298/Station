@@ -3,26 +3,29 @@
  * Supports OpenAI and Gemini providers with the current 1536-dimension contract.
  */
 
-type EmbeddingProvider = "openai" | "gemini";
+export type EmbeddingProvider = "openai" | "gemini";
+export type EmbeddingUseCase = "query" | "document";
 
 const OPENAI_MODEL = "text-embedding-3-small";
 const GEMINI_MODEL = "gemini-embedding-2";
 const DEFAULT_DIMENSION = 1536;
+const OPENAI_BACKFILL_VERSION = 1;
+const GEMINI_BACKFILL_VERSION = 2;
 
 export const ACTIVE_EMBEDDING_PROVIDER = resolveEmbeddingProvider();
 export const ACTIVE_EMBEDDING_MODEL = resolveEmbeddingModel();
 export const ACTIVE_EMBEDDING_DIMENSION = resolveEmbeddingDimension();
 export const ACTIVE_EMBEDDING_INDEX_NAME = "memory_items_embedding_1536";
 export const ACTIVE_EMBEDDING_INDEX_SOURCE = "supabase_pgvector";
-export const ACTIVE_EMBEDDING_BACKFILL_VERSION = 1;
+export const ACTIVE_EMBEDDING_BACKFILL_VERSION = resolveEmbeddingBackfillVersion();
 
 export type EmbeddingMetadata = {
-  embeddingProvider: typeof ACTIVE_EMBEDDING_PROVIDER;
-  embeddingModel: typeof ACTIVE_EMBEDDING_MODEL;
-  embeddingDimension: typeof ACTIVE_EMBEDDING_DIMENSION;
+  embeddingProvider: EmbeddingProvider;
+  embeddingModel: string;
+  embeddingDimension: number;
   embeddingIndexName: typeof ACTIVE_EMBEDDING_INDEX_NAME;
   embeddingIndexSource: typeof ACTIVE_EMBEDDING_INDEX_SOURCE;
-  embeddingBackfillVersion: typeof ACTIVE_EMBEDDING_BACKFILL_VERSION;
+  embeddingBackfillVersion: number;
 };
 
 export class EmbeddingDimensionMismatchError extends Error {
@@ -40,6 +43,23 @@ export function activeEmbeddingMetadata(): EmbeddingMetadata {
     embeddingIndexName: ACTIVE_EMBEDDING_INDEX_NAME,
     embeddingIndexSource: ACTIVE_EMBEDDING_INDEX_SOURCE,
     embeddingBackfillVersion: ACTIVE_EMBEDDING_BACKFILL_VERSION,
+  };
+}
+
+export function activeEmbeddingRpcArgs() {
+  const metadata = activeEmbeddingMetadata();
+  if (
+    metadata.embeddingProvider === "openai"
+    && metadata.embeddingModel === OPENAI_MODEL
+    && metadata.embeddingIndexName === "memory_items_embedding_1536"
+  ) {
+    return {};
+  }
+
+  return {
+    p_embedding_provider: metadata.embeddingProvider,
+    p_embedding_model: metadata.embeddingModel,
+    p_embedding_index_name: metadata.embeddingIndexName,
   };
 }
 
@@ -62,7 +82,8 @@ export function isEmbeddingDimensionMismatch(error: unknown): error is Embedding
 
 export async function generateEmbedding(
   text: string,
-  apiKey?: string
+  apiKey?: string,
+  options: { useCase?: EmbeddingUseCase } = {}
 ): Promise<number[]> {
   const provider = ACTIVE_EMBEDDING_PROVIDER;
   const model = ACTIVE_EMBEDDING_MODEL;
@@ -77,7 +98,12 @@ export async function generateEmbedding(
     return generateOpenAIEmbedding(text, key, model);
   }
 
-  return generateGeminiEmbedding(text, key, model, dimension);
+  return generateGeminiEmbedding(
+    prepareGeminiEmbeddingInput(text, options.useCase ?? "document", model),
+    key,
+    model,
+    dimension
+  );
 }
 
 /**
@@ -86,7 +112,8 @@ export async function generateEmbedding(
  */
 export async function generateEmbeddings(
   texts: string[],
-  apiKey?: string
+  apiKey?: string,
+  options: { useCase?: EmbeddingUseCase } = {}
 ): Promise<number[][]> {
   if (texts.length === 0) return [];
 
@@ -101,7 +128,12 @@ export async function generateEmbeddings(
   }
 
   return Promise.all(
-    texts.map((text) => generateGeminiEmbedding(text, key, ACTIVE_EMBEDDING_MODEL, ACTIVE_EMBEDDING_DIMENSION))
+    texts.map((text) => generateGeminiEmbedding(
+      prepareGeminiEmbeddingInput(text, options.useCase ?? "document", ACTIVE_EMBEDDING_MODEL),
+      key,
+      ACTIVE_EMBEDDING_MODEL,
+      ACTIVE_EMBEDDING_DIMENSION
+    ))
   );
 }
 
@@ -200,9 +232,7 @@ async function generateGeminiEmbedding(
     body: JSON.stringify({
       model: normalizeGeminiModel(model),
       content: { parts: [{ text: text.slice(0, 8000) }] },
-      config: {
-        outputDimensionality: outputDimension,
-      },
+      output_dimensionality: outputDimension,
     }),
   });
 
@@ -217,8 +247,7 @@ async function generateGeminiEmbedding(
 
 function buildGeminiEmbedUrl(rawModel: string) {
   const model = normalizeGeminiModel(rawModel);
-  const key = resolveGeminiApiKey();
-  return `https://generativelanguage.googleapis.com/v1beta/${model}:embedContent?key=${encodeURIComponent(key)}`;
+  return `https://generativelanguage.googleapis.com/v1beta/${model}:embedContent`;
 }
 
 function parseGeminiEmbedding(response: GeminiEmbeddingResponse): number[] {
@@ -246,7 +275,13 @@ function normalizeGeminiModel(model: string) {
   return trimmed.includes("/") ? trimmed : `models/${trimmed}`;
 }
 
-function resolveEmbeddingProvider() {
+function prepareGeminiEmbeddingInput(text: string, useCase: EmbeddingUseCase, model: string) {
+  if (!normalizeGeminiModel(model).includes("gemini-embedding-2")) return text;
+  if (useCase === "query") return `task: search result | query: ${text}`;
+  return `title: none | text: ${text}`;
+}
+
+function resolveEmbeddingProvider(): EmbeddingProvider {
   const raw = process.env.EMBEDDINGS_PROVIDER?.trim().toLowerCase();
   if (raw === "gemini") return "gemini";
   return "openai";
@@ -264,6 +299,10 @@ function resolveEmbeddingDimension() {
   return Number.isInteger(value) && value > 0 ? value : DEFAULT_DIMENSION;
 }
 
+function resolveEmbeddingBackfillVersion() {
+  return ACTIVE_EMBEDDING_PROVIDER === "gemini" ? GEMINI_BACKFILL_VERSION : OPENAI_BACKFILL_VERSION;
+}
+
 function resolveEmbeddingApiKey(apiKey?: string, provider: EmbeddingProvider = ACTIVE_EMBEDDING_PROVIDER) {
   if (provider === "openai") {
     return apiKey?.trim() || process.env.OPENAI_API_KEY?.trim() || null;
@@ -273,10 +312,6 @@ function resolveEmbeddingApiKey(apiKey?: string, provider: EmbeddingProvider = A
     || process.env.GEMINI_API_KEY?.trim()
     || process.env.GOOGLE_API_KEY?.trim()
     || null;
-}
-
-function resolveGeminiApiKey() {
-  return process.env.GEMINI_API_KEY?.trim() || process.env.GOOGLE_API_KEY?.trim() || "";
 }
 
 /**

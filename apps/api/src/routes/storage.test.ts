@@ -756,7 +756,7 @@ function mockEmbeddingFetch(vector: number[]) {
     ok: true,
     json: async () => ({ data: [{ index: 0, embedding: vector }] }),
     text: async () => "",
-  })) as typeof fetch;
+  })) as unknown as typeof fetch;
   return () => {
     globalThis.fetch = originalFetch;
   };

@@ -9,6 +9,7 @@ import { AnthropicProvider } from "@station/ai/providers/anthropic";
 import { addMemoryItem, ingestTextIntoArchive, saveMessageAsMemory } from "../services/archive.service";
 import { env } from "../lib/env";
 import { storageErrorResponse } from "../services/storage.service";
+import { resolveEmbeddingApiKey } from "../services/embedding-key.service";
 import {
   assertTokenBudgetForEstimate,
   estimateConversationTokens,
@@ -266,7 +267,7 @@ conversationsRouter.get("/persona/:personaId/context-preview", async (req, res) 
     },
     ownerUserId: userId,
     userQuery: query,
-    embeddingApiKey: profile?.byok_openai_key ?? env.OPENAI_API_KEY,
+    embeddingApiKey: resolveEmbeddingApiKey(profile),
   });
 
   return res.json({ query, context });
@@ -308,7 +309,7 @@ conversationsRouter.get("/persona/:personaId/archive-retrieval", async (req, res
     query,
     limit: parsed.data.limit,
     maxCharacters: parsed.data.maxCharacters,
-    embeddingApiKey: profile?.byok_openai_key ?? env.OPENAI_API_KEY,
+    embeddingApiKey: resolveEmbeddingApiKey(profile),
   });
 
   return res.json({ query, retrieval });
@@ -429,7 +430,7 @@ conversationsRouter.post("/persona/:personaId/chat", async (req, res) => {
     },
     ownerUserId: userId,
     userQuery: content,
-    embeddingApiKey: profile?.byok_openai_key ?? env.OPENAI_API_KEY,
+    embeddingApiKey: resolveEmbeddingApiKey(profile),
   });
 
   // Resolve provider

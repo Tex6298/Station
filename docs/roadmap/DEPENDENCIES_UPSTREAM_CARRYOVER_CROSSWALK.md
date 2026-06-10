@@ -17,8 +17,10 @@ Station should keep a hybrid architecture:
   owner/visibility, deletion, export, reindex, and privacy gates are explicit.
 - NVIDIA is active as platform chat in staging, not as a retrieval embedding
   replacement.
-- BYOK chat remains OpenAI/Anthropic/DeepSeek in code; Gemini is vocabulary/UI
-  concept only until a provider class and tests exist.
+- BYOK chat remains OpenAI/Anthropic/DeepSeek in code; Gemini chat is
+  vocabulary/UI concept only until a provider class and tests exist. Gemini
+  embeddings now have an optional prep lane, but OpenAI remains the active
+  default until migration/reindex proof exists.
 
 Recommended roadmap next step: record Cloudflare as explicitly deferred for the
 current staging replay, keep OpenAI embeddings as active primary, and use replay
@@ -36,7 +38,7 @@ Redis, NVIDIA embeddings, or only better Supabase indexing/UX.
 | `msalsas/amanuensis` | Human-veto publishing and approval queue. | Continuity publication and owner-only export/provenance patterns align with approval-first publishing. | Social publishing dispatcher and Telegram queue are deferred. | Hybrid supplement for future publishing workflow. |
 | `discourse/discourse`, `flarum/framework`, `LemmyNet/lemmy`, `forem/forem`, `elkarte/Elkarte`, `mbeps/next_discussion_platform` | Forums, trust, voting, moderation actions/logs, category/thread hygiene. | Forum categories/threads/comments, votes, community trust profiles, moderation actions/logs, Discover/forum visibility rules. | Active/protected-alpha. Federation, plugin systems, full semantic feed, saved posts, image upload, and large admin hierarchy are deferred. | Active primary for Community Beta core; defer ecosystem features. |
 | IntelHub integration notes | Developer Spaces observatory, model gateway/provider catalogue ideas; CTI/finance/exposure/recon/dark-provider/browser-worker/PM/model-gateway modules. | Developer Spaces observatory and provider-policy concepts. | Developer Spaces are Station-native. CTI/finance/exposure/recon/dark-provider/browser-worker/PM/model-gateway code remains rejected. | Active primary for Developer Spaces; reject unrelated IntelHub domains. |
-| Product technical spec provider list | Later providers such as Gemini, custom OpenAI-compatible endpoints, local GPU/NVIDIA ideas. | Provider type vocabulary includes `gemini`; router implements platform, OpenAI, Anthropic, DeepSeek; NVIDIA platform chat aliases use OpenAI-compatible path. | Gemini has no provider class or UI option in awakening flow. NVIDIA local GPU is not current runtime; NVIDIA API chat is staging-proven. | Hybrid supplement for chat; defer Gemini/local GPU until provider lane. |
+| Product technical spec provider list | Later providers such as Gemini, custom OpenAI-compatible endpoints, local GPU/NVIDIA ideas. | Provider type vocabulary includes `gemini`; router implements platform, OpenAI, Anthropic, DeepSeek; NVIDIA platform chat aliases use OpenAI-compatible path. Gemini embedding prep now exists separately from chat provider support. | Gemini has no chat provider class or UI option in awakening flow. NVIDIA local GPU is not current runtime; NVIDIA API chat is staging-proven. Gemini embeddings are opt-in prep, not the active corpus. | Hybrid supplement for chat; defer Gemini chat/local GPU until provider lane. |
 
 ## Current implementation matrix
 
@@ -49,7 +51,8 @@ Redis, NVIDIA embeddings, or only better Supabase indexing/UX.
 | Developer Space provider policy | `developer_spaces.provider_policy`, `evaluateDeveloperSpaceProviderPolicy`, Developer Space route tests. | Governs whether public/private context can be sent to platform or owner BYOK providers. | Structural fail-closed privacy control; per-Space posture avoids global provider assumptions. | It evaluates policy; it does not by itself prove provider calls are safe. | Active primary guardrail. |
 | Memory lifecycle filters | `memory_item_lifecycle`, runtime context/search filters, Cloudflare candidate reauthorization helper. | Applies before canonical private records return, including future remote candidate IDs. | Prevents rejected/quarantined/expired/superseded memories from re-entering context. | Remote mirrors still need deletion/stale-index handling if enabled. | Active primary guardrail. |
 | Redis/Valkey/Upstash cache | `apps/api/src/services/operational-cache.service.ts`, cache tests, future lane docs. | Cache/idempotency/queue helper, not canonical memory. | Useful for replay performance/rate-limit/idempotency later. | Provider choice not made; TCP Redis client path is disabled pending concrete client. | Deferred lane; hybrid supplement only. |
-| Gemini | `PersonaProvider` type includes `gemini`; product docs mention Gemini as later provider. | No `GeminiProvider`, no env, no awakening-flow option, no tests. | Could widen BYOK/provider choice later. | Current type vocabulary overstates implementation if treated as active. | Deferred; do not advertise as active. |
+| Gemini embeddings | `EMBEDDINGS_PROVIDER`, Gemini embedding key envs, `packages/ai/src/retrieval/embeddings.ts`, migration `029`, and `docs/ops/GEMINI_EMBEDDING_MIGRATION_PLAN.md`. | Complements Supabase pgvector only after provider-aware metadata/RPC prep and corpus reindex; does not replace chat providers. | Keeps the existing 1536 index shape and gives a bounded trial path. | Not applied to staging, not reindexed, and not safe to enable for replay until migration `029` plus data-backed smoke pass. | Deferred lane; opt-in hybrid supplement later. |
+| Gemini chat | `PersonaProvider` type includes `gemini`; product docs mention Gemini as later provider. | No `GeminiProvider`, no env-backed chat routing, no awakening-flow option, no tests. | Could widen BYOK/provider choice later. | Current type vocabulary overstates implementation if treated as active. | Deferred; do not advertise as active. |
 
 ## Hybrid retrieval recommendation
 

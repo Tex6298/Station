@@ -837,6 +837,14 @@ when a PR lands, or when validation truth changes.
   primary, hybrid supplement, deferred, and rejected dependencies, and
   recommends local canonical Supabase retrieval plus optional remote mirrors to
   prevent provider/dependency drift.
+- Gemini embedding prep is ready for MIMIR/ARGUS review, 2026-06-10: OpenAI
+  remains the active default, conversation/context retrieval now resolves the
+  embedding key by selected provider, Gemini REST embedding calls use
+  documented `embedContent` shape with 1536 output dimensions, migration `029`
+  prepares provider-aware metadata/RPC support, and
+  `docs/ops/GEMINI_EMBEDDING_MIGRATION_PLAN.md` records the staging switch and
+  rollback sequence. This does not enable Gemini chat and does not switch the
+  replay corpus.
 
 ## Current repo truth
 

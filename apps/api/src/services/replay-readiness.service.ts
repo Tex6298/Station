@@ -96,8 +96,8 @@ const SETUP_BLOCKERS: ReplaySetupBlocker[] = [
     status: "pending_external",
     owner: "human_dashboard",
     evidenceRequired: [
-      "OpenAI embedding key is configured before remote vector retrieval is considered proven.",
-      "Embedding contract remains text-embedding-3-small over vector(1536) until a migration/reindex lane changes it.",
+      "OpenAI embedding key is configured for the current default before remote vector retrieval is considered proven, or MIMIR explicitly accepts the Gemini migration/reindex lane.",
+      "Embedding contract remains text-embedding-3-small over vector(1536) until migration 029, provider env, reindex, and hostile retrieval smoke prove a Gemini switch.",
     ],
   },
   {

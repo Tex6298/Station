@@ -2780,6 +2780,25 @@ Validation:
 | Docs/code evidence search for upstream/provider/retrieval dependencies | Pass | Crosswalk uses `docs/ops/open-repo-upgrade-review.md`, `docs/roadmap/STATION_RETRIEVAL_PROVIDER_RESEARCH_ARIADNE.md`, `docs/roadmap/STATION_FUTURE_LANES.md`, provider/retrieval code, package manifests, and env examples. |
 | `git diff --check` | Pass | CRLF normalization warnings only. |
 
+## Gemini embedding provider prep
+
+Prepared on 2026-06-10 after DAEDALUS woke on the Gemini embedding prep commit.
+OpenAI remains the active default; this lane prepares optional Gemini embedding
+support and records the required migration/reindex/rollback plan.
+
+Commands run:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npx --yes pnpm@10.32.1 --filter @station/api typecheck` | Pass | API typecheck completed after fresh package builds. |
+| `npx --yes pnpm@10.32.1 --filter @station/api build` | Pass | API and dependent package builds completed after tightening embedding metadata types. |
+| `npx --yes pnpm@10.32.1 exec tsx --test packages/ai/test/retrieval-metadata.test.ts` | Pass | 3 tests passed, preserving the current OpenAI 1536-vector default and fallback behavior. |
+| `npx --yes pnpm@10.32.1 test:storage` | Pass | 7 tests passed, including active embedding metadata writes and mixed-dimension rollback. |
+| `npx --yes pnpm@10.32.1 test:persona-context` | Pass | 3 tests passed. |
+| `npx --yes pnpm@10.32.1 test:conversation-archive` | Pass | 5 tests passed. |
+| `npx --yes pnpm@10.32.1 test:replay-readiness` | Pass | 1 test passed after updating embedding-provider blocker wording. |
+| `git diff --check` | Pass | CRLF normalization warnings only. |
+
 ## DAEDALUS staging closeout ARGUS review result
 
 ARGUS reviewed the staging closeout implementation on 2026-06-09 and accepted it

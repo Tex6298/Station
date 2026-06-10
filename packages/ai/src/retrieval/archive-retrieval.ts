@@ -4,7 +4,7 @@ import type {
   ArchiveRetrievalResult,
   ArchiveSourceType,
 } from "@station/types";
-import { generateEmbedding } from "./embeddings";
+import { activeEmbeddingRpcArgs, generateEmbedding } from "./embeddings";
 
 const ARCHIVE_SOURCE_TYPES: ArchiveSourceType[] = [
   "import_job",
@@ -136,12 +136,13 @@ async function vectorArchiveSearch(input: {
   embeddingApiKey: string;
 }): Promise<RankedArchiveChunk[]> {
   try {
-    const embedding = await generateEmbedding(input.query, input.embeddingApiKey);
+    const embedding = await generateEmbedding(input.query, input.embeddingApiKey, { useCase: "query" });
     const { data, error } = await input.supabase.rpc("match_private_archive_chunks", {
       p_persona_id: input.personaId,
       p_owner_user_id: input.ownerUserId,
       query_embedding: embedding,
       match_count: input.limit,
+      ...activeEmbeddingRpcArgs(),
     });
 
     if (error) throw error;
