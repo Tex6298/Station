@@ -31,7 +31,8 @@ that profile safe and testable.
    `match_memory_items` and `match_private_archive_chunks`.
 3. Set staging env:
    - `EMBEDDING_PROFILE_CODE=station_free_1536`
-   - `EMBEDDING_MODEL=gemini-embedding-2`
+   - `EMBEDDING_MODEL` blank or unset unless deliberately overriding within
+     the selected profile
    - `EMBEDDING_DIM=1536`
    - `GEMINI_API_KEY` or `GOOGLE_API_KEY`
 4. Reindex owner replay corpus into free-profile vectors with

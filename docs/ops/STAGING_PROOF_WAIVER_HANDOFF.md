@@ -119,7 +119,7 @@ before replay-driven optimization starts.
 | Cloudflare retrieval | Choose or defer Worker/Vectorize account and index setup. Remote candidates must remain reauthorized through Station/Supabase before private records return. |
 | Stripe test resources | Configure test Stripe secret, webhook secret, and all required price IDs for the staged API, or waive billing replay. |
 | Platform chat provider | NVIDIA platform chat is configured and publicly proven. Confirm the selected staging model/usage expectations before replay, or waive chat replay. |
-| Embedding profile | Configure `EMBEDDING_PROFILE_CODE=station_free_1536`, `EMBEDDING_MODEL=gemini-embedding-2`, `EMBEDDING_DIM=1536`, and `GEMINI_API_KEY`; apply migration `029`, reindex replay data, and run hostile retrieval smoke, or explicitly waive remote vector retrieval proof. |
+| Embedding profile | Configure `EMBEDDING_PROFILE_CODE=station_free_1536`, `EMBEDDING_DIM=1536`, and `GEMINI_API_KEY` with no cross-provider `EMBEDDING_MODEL` override; apply migration `029`, reindex replay data, and run hostile retrieval smoke, or explicitly waive remote vector retrieval proof. |
 | Replay account/data | Prepare one staging replay account with persona, archive import, continuity, Space/document, discussion, Developer Space, export, and billing-path coverage, or explicitly narrow the replay path. |
 
 ## Code-side closeout state

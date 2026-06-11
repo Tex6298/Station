@@ -35,7 +35,8 @@ Apply this for the `station_free_1536` embedding lane. The minimum scope is:
 1. Apply migration `029_gemini_embedding_provider_prep.sql` to staging.
 2. Set only the embedding provider envs needed for the test lane:
    - `EMBEDDING_PROFILE_CODE=station_free_1536`
-   - `EMBEDDING_MODEL=gemini-embedding-2`
+   - `EMBEDDING_MODEL` blank or unset unless deliberately overriding within
+     the selected profile
    - `EMBEDDING_DIM=1536`
    - `GEMINI_API_KEY` or `GOOGLE_API_KEY`
 3. Reindex a bounded replay corpus into rows for the selected profile with

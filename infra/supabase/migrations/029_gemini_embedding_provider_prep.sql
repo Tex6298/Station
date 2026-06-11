@@ -2,9 +2,9 @@
 -- GEMINI EMBEDDING PROVIDER PREP
 -- ============================================================
 --
--- This migration prepares the schema for an explicit future embedding-provider
--- switch. It does not backfill existing OpenAI vectors and does not make Gemini
--- the default provider.
+-- This migration prepares the schema for embedding-profile-backed provider
+-- rows. It does not backfill existing vectors and does not by itself select a
+-- runtime profile.
 
 alter table public.memory_items
   drop constraint if exists memory_items_embedding_metadata_check;
@@ -34,7 +34,7 @@ alter table public.memory_items
   );
 
 comment on column public.memory_items.embedding_provider is
-  'Active embedding provider for this vector row. OpenAI remains the default; Gemini requires an explicit reindex/migration lane.';
+  'Embedding provider backing the selected embedding profile for this vector row. The product/runtime contract is the embedding profile code.';
 comment on column public.memory_items.embedding_model is
   'Embedding model used for this vector row. Provider/model changes must not mix inside the same retrieval pass.';
 comment on column public.memory_items.embedding_dimension is
@@ -44,7 +44,7 @@ comment on column public.memory_items.embedding_index_name is
 comment on column public.memory_items.embedding_index_source is
   'Current active index source is Supabase pgvector.';
 comment on column public.memory_items.embedding_backfill_version is
-  'Increment only for an explicit backfill/reindex lane.';
+  'Increment only for an explicit profile backfill/reindex lane.';
 
 drop function if exists public.match_memory_items(uuid, vector, int);
 

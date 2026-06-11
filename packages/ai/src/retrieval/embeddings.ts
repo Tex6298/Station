@@ -21,6 +21,21 @@ type EmbeddingProfileConfig = {
   backfillVersion: number;
 };
 
+type EmbeddingEnvironment = {
+  EMBEDDING_PROFILE_CODE?: string;
+  EMBEDDINGS_PROVIDER?: string;
+  EMBEDDING_MODEL?: string;
+  EMBEDDING_DIM?: string;
+};
+
+export type EmbeddingRuntimeConfig = {
+  code: EmbeddingProfileCode;
+  provider: EmbeddingProvider;
+  model: string;
+  dimension: number;
+  backfillVersion: number;
+};
+
 const EMBEDDING_PROFILES: Record<EmbeddingProfileCode, EmbeddingProfileConfig> = {
   station_free_1536: {
     code: "station_free_1536",
@@ -38,11 +53,22 @@ const EMBEDDING_PROFILES: Record<EmbeddingProfileCode, EmbeddingProfileConfig> =
   },
 };
 
-export const ACTIVE_EMBEDDING_PROFILE = resolveEmbeddingProfile();
+export function resolveEmbeddingRuntimeConfig(environment: EmbeddingEnvironment = process.env): EmbeddingRuntimeConfig {
+  const profile = resolveEmbeddingProfile(environment);
+  return {
+    code: profile.code,
+    provider: profile.provider,
+    model: resolveEmbeddingModel(profile, environment),
+    dimension: resolveEmbeddingDimension(profile, environment),
+    backfillVersion: profile.backfillVersion,
+  };
+}
+
+export const ACTIVE_EMBEDDING_PROFILE = resolveEmbeddingRuntimeConfig();
 export const ACTIVE_EMBEDDING_PROFILE_CODE = ACTIVE_EMBEDDING_PROFILE.code;
 export const ACTIVE_EMBEDDING_PROVIDER = ACTIVE_EMBEDDING_PROFILE.provider;
-export const ACTIVE_EMBEDDING_MODEL = resolveEmbeddingModel(ACTIVE_EMBEDDING_PROFILE);
-export const ACTIVE_EMBEDDING_DIMENSION = resolveEmbeddingDimension(ACTIVE_EMBEDDING_PROFILE);
+export const ACTIVE_EMBEDDING_MODEL = ACTIVE_EMBEDDING_PROFILE.model;
+export const ACTIVE_EMBEDDING_DIMENSION = ACTIVE_EMBEDDING_PROFILE.dimension;
 export const ACTIVE_EMBEDDING_INDEX_NAME = "memory_items_embedding_1536";
 export const ACTIVE_EMBEDDING_INDEX_SOURCE = "supabase_pgvector";
 export const ACTIVE_EMBEDDING_BACKFILL_VERSION = ACTIVE_EMBEDDING_PROFILE.backfillVersion;
@@ -315,23 +341,31 @@ function prepareGeminiEmbeddingInput(text: string, useCase: EmbeddingUseCase, mo
   return `title: none | text: ${text}`;
 }
 
-function resolveEmbeddingProfile(): EmbeddingProfileConfig {
-  const rawProfile = process.env.EMBEDDING_PROFILE_CODE?.trim().toLowerCase();
+function resolveEmbeddingProfile(environment: EmbeddingEnvironment): EmbeddingProfileConfig {
+  const rawProfile = environment.EMBEDDING_PROFILE_CODE?.trim().toLowerCase();
   if (rawProfile === "openai_1536") return EMBEDDING_PROFILES.openai_1536;
   if (rawProfile === "station_free_1536") return EMBEDDING_PROFILES.station_free_1536;
 
-  const legacyProvider = process.env.EMBEDDINGS_PROVIDER?.trim().toLowerCase();
+  const legacyProvider = environment.EMBEDDINGS_PROVIDER?.trim().toLowerCase();
   if (legacyProvider === "openai") return EMBEDDING_PROFILES.openai_1536;
   return EMBEDDING_PROFILES.station_free_1536;
 }
 
-function resolveEmbeddingModel(profile: EmbeddingProfileConfig) {
-  return process.env.EMBEDDING_MODEL?.trim() || profile.model;
+function resolveEmbeddingModel(profile: EmbeddingProfileConfig, environment: EmbeddingEnvironment) {
+  const model = environment.EMBEDDING_MODEL?.trim();
+  if (!model) return profile.model;
+  return isModelCompatibleWithProfile(model, profile) ? model : profile.model;
 }
 
-function resolveEmbeddingDimension(profile: EmbeddingProfileConfig) {
-  const value = Number.parseInt(process.env.EMBEDDING_DIM || `${profile.dimension}`, 10);
-  return Number.isInteger(value) && value > 0 ? value : profile.dimension;
+function isModelCompatibleWithProfile(model: string, profile: EmbeddingProfileConfig) {
+  const normalized = model.toLowerCase();
+  if (profile.provider === "gemini") return normalized.includes("gemini");
+  return normalized.startsWith("text-embedding-");
+}
+
+function resolveEmbeddingDimension(profile: EmbeddingProfileConfig, environment: EmbeddingEnvironment) {
+  const value = Number.parseInt(environment.EMBEDDING_DIM || `${profile.dimension}`, 10);
+  return Number.isInteger(value) && value === profile.dimension ? value : profile.dimension;
 }
 
 function resolveEmbeddingApiKey(apiKey?: string, provider: EmbeddingProvider = ACTIVE_EMBEDDING_PROVIDER) {

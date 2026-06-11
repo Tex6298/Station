@@ -1,6 +1,6 @@
 import { env } from "../lib/env";
 import { getSupabaseAdmin } from "../lib/supabase";
-import { resolveActiveEmbeddingProvider } from "./embedding-key.service";
+import { resolveActiveEmbeddingProfileCode, resolveActiveEmbeddingProvider } from "./embedding-key.service";
 
 const PERSONA_FILES_BUCKET = "persona-files";
 const CHECK_TIMEOUT_MS = 1500;
@@ -372,7 +372,7 @@ function providerStatus(): DeploymentReadiness["readiness"]["providers"] {
   const deepseek = hasValue(env.DEEPSEEK_API_KEY);
   const nvidia = hasValue(env.NVIDIA_AI_API_KEY);
   const embeddingProvider = resolveActiveEmbeddingProvider();
-  const embeddingProfileCode = env.EMBEDDING_PROFILE_CODE;
+  const embeddingProfileCode = resolveActiveEmbeddingProfileCode();
   const openaiConfigured = hasValue(env.OPENAI_API_KEY);
   const geminiConfigured = hasValue(env.GEMINI_API_KEY) || hasValue(env.GOOGLE_API_KEY);
   return {

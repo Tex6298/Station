@@ -12,6 +12,7 @@ import {
   assertActiveEmbeddingVector,
   buildGeminiEmbedRequestBody,
   metadataForActiveEmbedding,
+  resolveEmbeddingRuntimeConfig,
 } from "../src/retrieval/embeddings";
 import { retrievePrivateArchive } from "../src/retrieval/archive-retrieval";
 import { searchMemory } from "../src/retrieval/semantic-search";
@@ -100,6 +101,51 @@ test("Gemini embedding request uses REST config casing for the active dimension"
   assert.deepEqual(body.embedContentConfig, { outputDimensionality: 1536 });
   assert.equal(Object.hasOwn(body as Record<string, unknown>, "output_dimensionality"), false);
   assert.equal(Object.hasOwn(body as Record<string, unknown>, "config"), false);
+});
+
+test("embedding profile resolution rejects stale cross-provider overrides", () => {
+  assert.deepEqual(
+    resolveEmbeddingRuntimeConfig({
+      EMBEDDING_PROFILE_CODE: "openai_1536",
+      EMBEDDING_MODEL: "gemini-embedding-2",
+      EMBEDDING_DIM: "3072",
+    }),
+    {
+      code: "openai_1536",
+      provider: "openai",
+      model: "text-embedding-3-small",
+      dimension: 1536,
+      backfillVersion: 1,
+    }
+  );
+
+  assert.deepEqual(
+    resolveEmbeddingRuntimeConfig({
+      EMBEDDING_PROFILE_CODE: "station_free_1536",
+      EMBEDDING_MODEL: "text-embedding-3-small",
+      EMBEDDING_DIM: "768",
+    }),
+    {
+      code: "station_free_1536",
+      provider: "gemini",
+      model: "gemini-embedding-2",
+      dimension: 1536,
+      backfillVersion: 2,
+    }
+  );
+
+  assert.deepEqual(
+    resolveEmbeddingRuntimeConfig({
+      EMBEDDINGS_PROVIDER: "openai",
+    }),
+    {
+      code: "openai_1536",
+      provider: "openai",
+      model: "text-embedding-3-small",
+      dimension: 1536,
+      backfillVersion: 1,
+    }
+  );
 });
 
 class VectorSupabase {

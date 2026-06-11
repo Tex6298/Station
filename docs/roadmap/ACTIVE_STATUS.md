@@ -856,8 +856,9 @@ when a PR lands, or when validation truth changes.
   profile.
 - Corrected Gemini staging gate, 2026-06-11: configure
   `EMBEDDING_PROFILE_CODE=station_free_1536`,
-  `EMBEDDING_MODEL=gemini-embedding-2`, `EMBEDDING_DIM=1536`, and
-  `GEMINI_API_KEY`; apply migration `029`, reindex a bounded replay corpus, and
+  `EMBEDDING_DIM=1536`, and `GEMINI_API_KEY`, leaving `EMBEDDING_MODEL` blank
+  unless deliberately overriding within the selected profile; apply migration
+  `029`, reindex a bounded replay corpus, and
   run hostile retrieval smoke before data-backed replay is called proven. These
   are implementation/proof tasks for the chosen profile lane, not reasons to
   drift back to OpenAI.
@@ -867,6 +868,11 @@ when a PR lands, or when validation truth changes.
   OpenAI/Gemini booleans. Overall replay readiness follows the active profile,
   so Gemini keys satisfy the embedding gate when
   `EMBEDDING_PROFILE_CODE=station_free_1536`.
+- DAEDALUS embedding-profile cleanup, 2026-06-11: readiness, key selection, and
+  AI retrieval metadata now resolve the same profile code; stale cross-provider
+  `EMBEDDING_MODEL` or dimension overrides fall back to the selected
+  profile-owned model and 1536-dimensional contract. ARGUS review is requested
+  before this profile-boundary language is treated as accepted.
 
 ## Current repo truth
 

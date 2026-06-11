@@ -96,7 +96,7 @@ const SETUP_BLOCKERS: ReplaySetupBlocker[] = [
     status: "pending_external",
     owner: "human_dashboard",
     evidenceRequired: [
-      "Embedding profile config is set for the selected free-tier product-testing path: EMBEDDING_PROFILE_CODE=station_free_1536, EMBEDDING_MODEL=gemini-embedding-2, EMBEDDING_DIM=1536, and GEMINI_API_KEY.",
+      "Embedding profile config is set for the selected free-tier product-testing path: EMBEDDING_PROFILE_CODE=station_free_1536, EMBEDDING_DIM=1536, GEMINI_API_KEY, and no cross-provider EMBEDDING_MODEL override.",
       "Migration 029, replay-corpus reindex, and hostile retrieval smoke prove the selected profile over vector(1536) before data-backed vector retrieval is considered proven.",
     ],
   },

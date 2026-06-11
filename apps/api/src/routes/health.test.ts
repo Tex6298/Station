@@ -223,6 +223,39 @@ test("/health/deployment proves backend migrations through public schema objects
   }
 });
 
+test("/health/deployment reports the resolved embedding profile for legacy provider env", async () => {
+  const previousProfile = process.env.EMBEDDING_PROFILE_CODE;
+  const previousProvider = process.env.EMBEDDINGS_PROVIDER;
+  process.env.EMBEDDING_PROFILE_CODE = "";
+  process.env.EMBEDDINGS_PROVIDER = "openai";
+
+  const db = new ReadinessSupabase();
+  setSupabaseAdminForTests(db.client as any);
+  const app = await createHealthApp();
+
+  try {
+    const deployment = await requestJson(app, "GET", "/health/deployment");
+    assert.equal(deployment.status, 200);
+    assert.equal(deployment.body.checks.embeddingProfileCode, "openai_1536");
+    assert.equal(deployment.body.checks.embeddingProvider, "openai");
+    assert.equal(deployment.body.readiness.providers.embeddingProfileCode, "openai_1536");
+    assert.equal(deployment.body.readiness.providers.embeddingProvider, "openai");
+    assertNoSecrets(deployment.body);
+  } finally {
+    if (previousProfile == null) {
+      delete process.env.EMBEDDING_PROFILE_CODE;
+    } else {
+      process.env.EMBEDDING_PROFILE_CODE = previousProfile;
+    }
+    if (previousProvider == null) {
+      delete process.env.EMBEDDINGS_PROVIDER;
+    } else {
+      process.env.EMBEDDINGS_PROVIDER = previousProvider;
+    }
+    setSupabaseAdminForTests(null);
+  }
+});
+
 test("/health/deployment sanitizes dependency failures", async () => {
   const db = new ReadinessSupabase();
   db.failProfiles = true;

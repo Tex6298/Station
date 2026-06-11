@@ -2954,6 +2954,35 @@ Commands run:
 | `npx --yes pnpm@10.32.1 test:storage` | Pass | 7 tests passed, including explicit `openai_1536` metadata coverage for the native/rollback profile. |
 | `npx --yes pnpm@10.32.1 --filter @station/api build` | Pass | API and dependent package builds completed. |
 
+## Embedding profile boundary cleanup
+
+Prepared by DAEDALUS on 2026-06-11 for ARGUS review after the profile-coded
+embedding correction.
+
+Validation result:
+
+- Readiness and embedding key selection now resolve the same active embedding
+  profile code.
+- `station_free_1536` remains the current product-testing profile and defaults
+  to Gemini `gemini-embedding-2`.
+- `openai_1536` remains the OpenAI native/rollback profile.
+- Stale cross-provider `EMBEDDING_MODEL` values and non-1536 dimension overrides
+  fall back to the selected profile-owned 1536-dimensional contract.
+- Staging docs now treat `EMBEDDING_MODEL` as optional/profile-scoped rather
+  than a mandatory product route.
+
+Commands run:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npx --yes pnpm@10.32.1 test:health` | Pass | 4 tests passed, including legacy provider env resolving to `openai_1536` consistently. |
+| `npx --yes pnpm@10.32.1 test:replay-readiness` | Pass | 1 test passed with `embedding_profile_proof` as the blocker. |
+| `npx --yes pnpm@10.32.1 exec tsx --test packages/ai/test/retrieval-metadata.test.ts` | Pass | 5 tests passed, including cross-provider model/dimension override fallback. |
+| `npx --yes pnpm@10.32.1 test:storage` | Pass | 7 tests passed. |
+| `npx --yes pnpm@10.32.1 --filter @station/ai build` | Pass | AI package build completed. |
+| `npx --yes pnpm@10.32.1 --filter @station/api build` | Pass | API and dependent package builds completed. |
+| `git diff --check` | Pass | No whitespace errors; CRLF conversion warnings only. |
+
 ## DAEDALUS staging closeout ARGUS review result
 
 ARGUS reviewed the staging closeout implementation on 2026-06-09 and accepted it
