@@ -1036,6 +1036,14 @@ when a PR lands, or when validation truth changes.
   insert/update/delete remain unavailable to clients. `test:integrity` and
   whitespace checks pass. This closes the local RLS advisory lane pending remote
   migration apply/proof.
+- Integrity-question RLS staging proof is ready for ARGUS review, 2026-06-11:
+  MIMIR applied migration `030` to staging through the audited pooler path.
+  Remote proof changed `public.integrity_questions` from RLS disabled with
+  anon/authenticated insert/update/delete privileges to RLS enabled,
+  anon/authenticated `SELECT` only, no client write privileges, and exactly two
+  active-row SELECT policies. A follow-up Supabase `db query` no longer
+  surfaced the RLS-disabled advisory, and `test:integrity` passed. ARGUS should
+  review the remote proof before this advisory is considered closed.
 
 ## Current repo truth
 

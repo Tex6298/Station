@@ -3372,3 +3372,30 @@ Validation:
 | `Select-String -Path infra/supabase/migrations/030_integrity_questions_rls.sql -Pattern "revoke all|grant select" -CaseSensitive:$false` | Pass | Migration explicitly revokes client table privileges and grants back read-only access. |
 | `npx --yes pnpm@10.32.1 test:integrity` | Pass | 2 integrity route/session tests passed after workspace package builds. |
 | `git diff --check` | Pass | No whitespace errors; Git reported expected CRLF normalization warnings for touched docs. |
+
+## Migration 030 staging apply result
+
+Prepared by MIMIR on 2026-06-11 after ARGUS accepted the local migration `030`
+policy shape.
+
+Result:
+
+- MIMIR applied migration `030` on staging through the Supabase shared pooler
+  using the same temporary `node-postgres` approach as migration `029`.
+- Before apply, `public.integrity_questions` had RLS disabled and
+  anon/authenticated insert, update, and delete table privileges.
+- After apply, RLS is enabled; anon/authenticated retain SELECT only; insert,
+  update, and delete privileges are false; and the only policies are the two
+  active-row SELECT policies for anon and authenticated.
+- A follow-up Supabase `db query` returned normal query rows without the earlier
+  `rls_disabled` advisory for `public.integrity_questions`.
+- The API integrity tests still pass.
+
+Commands/probes:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| Temporary `node-postgres` migration transaction for `030` | Pass | Remote proof changed RLS from disabled to enabled and removed anon/authenticated write privileges. |
+| Remote privilege/policy snapshot | Pass | SELECT true for anon/authenticated; INSERT/UPDATE/DELETE false for both; exactly two SELECT policies present. |
+| `npx --yes supabase@latest db query --db-url <redacted-pooler-url> --workdir infra/supabase "select 1 as ok;"` | Pass | Returned normal query rows and no `rls_disabled` advisory object. |
+| `npx --yes pnpm@10.32.1 test:integrity` | Pass | 2 tests passed. |
