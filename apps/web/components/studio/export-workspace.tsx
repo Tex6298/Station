@@ -12,9 +12,19 @@ const scopes = [
   "Settings",
 ];
 
-const packages = [
-  { id: "export-1", name: "Full workspace export", created: "Today", status: "Ready", expires: "48 hours" },
-  { id: "export-2", name: "Persona archive bundle", created: "Last week", status: "Expired", expires: "Expired" },
+const exportSurfaces = [
+  {
+    id: "persona-manifest",
+    name: "Persona manifest readback",
+    status: "Live",
+    detail: "Create and inspect owner-only JSON/Markdown manifests from a persona workspace.",
+  },
+  {
+    id: "workspace-bundle",
+    name: "Full workspace bundle",
+    status: "Preview",
+    detail: "This screen tracks planned scope; global workspace bundles are not enabled yet.",
+  },
 ];
 
 export function ExportWorkspace() {
@@ -33,16 +43,16 @@ export function ExportWorkspace() {
         <header style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 16, marginBottom: 20 }}>
           <div>
             <div style={{ color: "#93c5fd", fontSize: 11, textTransform: "uppercase", letterSpacing: "0.12em", fontWeight: 800 }}>
-              Data Portability
+              Export planning
             </div>
             <h1 style={{ margin: "8px 0 6px", color: "#f8fafc", fontSize: "clamp(30px, 5vw, 46px)", lineHeight: 1.05 }}>
-              Export Workspace
+              Export workspace preview
             </h1>
             <p style={{ margin: 0, color: "#a9b0bd", fontSize: 15, lineHeight: 1.6, maxWidth: 720 }}>
-              Generate a downloadable package of personas, chats, documents, archive materials, notes, and published content.
+              Plan a future workspace-wide export without starting a job. Live export creation currently happens from each persona workspace through owner-only manifest readback.
             </p>
           </div>
-          <button type="button" style={primaryButton}>Generate export</button>
+          <a href="/studio" style={primaryButton}>Open personas</a>
         </header>
 
         <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr) 330px", gap: 18, alignItems: "start" }}>
@@ -54,7 +64,7 @@ export function ExportWorkspace() {
                   <input type="checkbox" checked={selectedScopes.includes(scope)} onChange={() => toggleScope(scope)} />
                   <span>
                     <span style={{ display: "block", color: "#f8fafc", fontSize: 14, fontWeight: 800 }}>{scope}</span>
-                    <span style={{ display: "block", color: "#8ea0b8", fontSize: 12, marginTop: 4 }}>Include in package</span>
+                    <span style={{ display: "block", color: "#8ea0b8", fontSize: 12, marginTop: 4 }}>Track for future workspace export</span>
                   </span>
                 </label>
               ))}
@@ -79,15 +89,15 @@ export function ExportWorkspace() {
             </div>
 
             <div style={{ borderTop: "1px solid #202938", marginTop: 18, paddingTop: 18 }}>
-              <SectionTitle title="Background job" />
+              <SectionTitle title="Current live path" />
               <div style={jobBox}>
                 <div>
-                  <div style={{ color: "#f8fafc", fontSize: 14, fontWeight: 800 }}>Ready to generate</div>
+                  <div style={{ color: "#f8fafc", fontSize: 14, fontWeight: 800 }}>Per-persona manifests are live</div>
                   <div style={{ color: "#8ea0b8", fontSize: 12, marginTop: 5 }}>
-                    Export generation will run in the background and notify the user when the download is ready.
+                    Open a persona workspace to create a JSON/Markdown manifest and view its status/readback. This preview does not start a global export job.
                   </div>
                 </div>
-                <span style={statusPill}>Queued</span>
+                <span style={statusPill}>Preview</span>
               </div>
             </div>
           </section>
@@ -99,23 +109,21 @@ export function ExportWorkspace() {
                 <SummaryRow label="Scopes" value={selectedScopes.length.toString()} />
                 <SummaryRow label="JSON" value={formatJson ? "Included" : "Off"} />
                 <SummaryRow label="Markdown" value={formatMarkdown ? "Included" : "Off"} />
-                <SummaryRow label="Private data" value={includePrivate ? "Included" : "Excluded"} />
-                <SummaryRow label="Download expiry" value="48 hours" />
+                <SummaryRow label="Private data" value={includePrivate ? "Owner-only" : "Excluded"} />
+                <SummaryRow label="Global job" value="Not enabled" />
               </div>
             </section>
 
             <section style={panel}>
-              <SectionTitle title="Recent exports" />
+              <SectionTitle title="Export surfaces" />
               <div style={{ display: "grid", gap: 10 }}>
-                {packages.map((item) => (
+                {exportSurfaces.map((item) => (
                   <article key={item.id} style={packageRow}>
                     <div>
                       <div style={{ color: "#f8fafc", fontSize: 13, fontWeight: 800 }}>{item.name}</div>
-                      <div style={{ color: "#8ea0b8", fontSize: 12, marginTop: 4 }}>{item.created} - expires {item.expires}</div>
+                      <div style={{ color: "#8ea0b8", fontSize: 12, marginTop: 4 }}>{item.detail}</div>
                     </div>
-                    <button type="button" style={item.status === "Ready" ? miniButton : disabledButton}>
-                      {item.status === "Ready" ? "Download" : "Expired"}
-                    </button>
+                    <span style={item.status === "Live" ? livePill : disabledButton}>{item.status}</span>
                   </article>
                 ))}
               </div>
@@ -159,6 +167,7 @@ const primaryButton = {
   padding: "0 14px",
   fontSize: 14,
   fontWeight: 800,
+  textDecoration: "none",
   cursor: "pointer",
 };
 
@@ -223,8 +232,16 @@ const miniButton = {
   cursor: "pointer",
 };
 
+const livePill = {
+  ...miniButton,
+  borderColor: "#14532d",
+  background: "#082f1f",
+  color: "#86efac",
+  cursor: "default",
+};
+
 const disabledButton = {
   ...miniButton,
   color: "#687386",
-  cursor: "not-allowed",
+  cursor: "default",
 };
