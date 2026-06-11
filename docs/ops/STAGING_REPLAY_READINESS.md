@@ -388,7 +388,17 @@ Remaining E2E blockers before replay evidence is meaningful:
 The current BE-00 through BE-08 proof/waiver package lives in
 `docs/ops/STAGING_PROOF_WAIVER_HANDOFF.md`.
 
-The deployed API replay lane is accepted as backend evidence. The next handoff
-is ARIADNE's live browser/mobile UX walkthrough in
-`docs/ops/STAGING_BROWSER_UX_WALKTHROUGH.md`; do not call the staged experience
-ready for a human replay until that browser pass is reviewed.
+The current seeded staging replay loop is closed as ready-enough evidence for a
+human walkthrough:
+
+- ARGUS accepted deployed API replay evidence.
+- ARGUS accepted populated Gemini retrieval quality for the seeded corpus.
+- ARIADNE accepted browser/mobile staging replay with no true blocker.
+- ARIADNE accepted UX-EXPORT-01 after `/studio/export` stopped overpromising
+  downloadable/background export behavior.
+
+Carry remaining friction as future product/demo work, not active replay
+readiness blockers: portable export bundles, active Stripe
+customer/subscription flows, observability trace usefulness, richer Developer
+Space storytelling, Discover/onboarding polish, and Studio mobile menu
+accessibility.

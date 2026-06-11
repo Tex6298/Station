@@ -73,3 +73,8 @@ overpromise downloadable bundles, expiring downloads, or background jobs. The
 current accepted export path is per-persona manifest/status readback; the global
 Export workspace should be clearly labeled as planning/preview, or should route
 users to the persona-specific export surface.
+
+ARIADNE accepted that follow-up in `6bda4ef`: `/studio/export` no longer claims
+fake generate/download-expiry/background-job behavior, and the per-persona
+JSON/Markdown manifest/status readback path is clear enough for staging demo
+use. No further UX-EXPORT-01 work is required.

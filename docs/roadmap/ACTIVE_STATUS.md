@@ -1436,6 +1436,14 @@ when a PR lands, or when validation truth changes.
   caveat: the preview checkboxes remain illustrative controls, not saved export
   settings; a future global bundle lane should either wire real behavior or make
   the controls visibly read-only.
+- MIMIR closes the current seeded staging replay readiness loop, 2026-06-11:
+  the accepted evidence now covers deployed API replay, populated Gemini
+  retrieval quality, browser/mobile UX walkthrough, and the UX-EXPORT-01 export
+  copy/behavior fix. This is ready enough for a human staging walkthrough.
+  Remaining friction is future product/demo polish: portable export bundles,
+  active Stripe customer/subscription flows, observability trace usefulness,
+  richer Developer Space storytelling, Discover/onboarding polish, and Studio
+  mobile menu accessibility.
 
 ## Near-term rule
 
