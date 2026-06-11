@@ -3584,6 +3584,35 @@ Commands/probes:
 | `npx --yes pnpm@10.32.1 test:continuity` | Pass | 4 continuity tests passed. |
 | `git diff --check` | Pass | No whitespace errors; Git reported expected CRLF normalization warnings for touched docs. |
 
+## Replay seed/helper implementation
+
+DAEDALUS implemented `scripts/staging-replay-seed.mjs` on 2026-06-11 as a
+setup-only helper for ARGUS review. The helper was not executed against staging
+from this handoff.
+
+Scope:
+
+- Creates or reuses exactly one non-production replay owner.
+- Requires local-only replay owner email/password env values and does not print
+  credentials.
+- Assigns `canon`, the minimum single-owner tier needed for persona,
+  Space/document, and Developer Space setup.
+- Reads raw corpus text from ignored local JSON, not committed docs.
+- Writes Gemini `station_free_1536` vectors with provider/model/dimension/index/
+  backfill metadata.
+- Seeds deterministic owner-scoped replay rows for persona, archived chat,
+  memory, lifecycle-filter negative control, continuity, Space/document,
+  discussion, Developer Space node/event/snapshot, usage, and export manifest.
+
+Validation:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `node --check scripts/staging-replay-seed.mjs` | Pass | Script syntax is valid. |
+| `node scripts/staging-replay-seed.mjs --help` | Pass | Printed usage and required env names only; no secret values. |
+| `npx --yes pnpm@10.32.1 replay:seed:validate` | Pass | Example corpus structure validates and prints sanitized labels/counts only. |
+| `git diff --check` | Pass | No whitespace errors; Git reported expected CRLF normalization warnings for touched files. |
+
 ## Replay seed/helper lane ARGUS review result
 
 ARGUS reviewed DAEDALUS's populated replay route audit on 2026-06-11 and

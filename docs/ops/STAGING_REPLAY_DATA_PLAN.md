@@ -2,10 +2,9 @@
 
 Date: 2026-06-11
 
-Status: ARGUS accepted the narrow replay seed/helper lane; MIMIR is opening it
-as setup-only work before populated measurement. Setup/config blockers are
-closed; this lane is about creating trustworthy replay data, not another
-no-data readiness probe.
+Status: replay seed/helper implemented for ARGUS review; live corpus seeding has
+not been executed from this handoff. Setup/config blockers are closed; this lane
+is about creating trustworthy replay data, not another no-data readiness probe.
 
 ## Current truth
 
@@ -63,6 +62,30 @@ Hard constraints:
 - document the exact data categories created using sanitized labels/counts only;
 - wake ARGUS for hostile review before seeded data is treated as measurement
   evidence.
+
+## DAEDALUS helper implementation result
+
+DAEDALUS implemented `scripts/staging-replay-seed.mjs` as setup-only helper
+code. It has not been executed against staging from this handoff.
+
+- Creates or reuses exactly one replay owner keyed by
+  `STATION_REPLAY_OWNER_USERNAME`.
+- Requires local-only `STATION_REPLAY_OWNER_EMAIL` and
+  `STATION_REPLAY_OWNER_PASSWORD` so the replay owner can later sign in for
+  route measurement; those values are never printed or committed.
+- Assigns `canon`, the minimum single-owner tier that can create persona,
+  Space/document, and Developer Space replay surfaces.
+- Reads corpus text from the ignored local path
+  `docs/ops/staging-replay-corpus.local.json` by default. The committed
+  `docs/ops/STAGING_REPLAY_CORPUS.example.json` is placeholders only.
+- Seeds deterministic owner-scoped persona, conversation/archive transcript,
+  active/excluded memory rows, continuity record, public Space/document,
+  thread/comment, Developer Space node/event/snapshot, usage row, and export
+  manifest.
+- Writes Gemini `station_free_1536` memory vectors with provider/model/
+  dimension/index/backfill metadata and emits sanitized labels/counts only.
+- Adds `pnpm replay:seed:validate` for structural validation of the example
+  corpus without staging mutation.
 
 ## DAEDALUS scope
 

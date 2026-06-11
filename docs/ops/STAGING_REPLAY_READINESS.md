@@ -336,9 +336,10 @@ Remaining E2E blockers before replay evidence is meaningful:
   fresh API signup cannot populate the bounded corpus through existing UI/API
   paths alone: signup creates a `visitor`, while persona creation requires
   `private`, Space/document creation requires `creator`, and Developer Spaces
-  require `canon`. No reusable replay-account env keys or documented credentials
-  are present in the repo/worktree. Open a narrow replay seed/helper lane before
-  treating populated replay measurement as executable.
+  require `canon`. DAEDALUS added `scripts/staging-replay-seed.mjs` as the
+  narrow setup helper, but it has not been executed against staging from this
+  handoff. ARGUS should review it before seeded data is treated as measurement
+  evidence.
 - Prepare replay account/data that covers persona, archive import, continuity,
   Space/document, discussion, Developer Space, export, and billing paths.
 - Rebuild or write replay vectors with the active Gemini `station_free_1536`

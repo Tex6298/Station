@@ -26,6 +26,8 @@
     "test:document-discussions": "pnpm --filter @station/types --filter @station/config --filter @station/db --filter @station/auth --filter @station/ai build && tsx --test apps/api/src/routes/document-discussions.test.ts",
     "test:exports": "pnpm --filter @station/types --filter @station/config --filter @station/db --filter @station/auth --filter @station/ai build && tsx --test apps/api/src/routes/exports.test.ts",
     "test:developer-space-client": "pnpm --filter @station/developer-space-client test",
+    "replay:seed:staging": "node scripts/staging-replay-seed.mjs",
+    "replay:seed:validate": "node scripts/staging-replay-seed.mjs --validate-corpus docs/ops/STAGING_REPLAY_CORPUS.example.json",
     "triad:watch:mimir": "node scripts/triad-watch.mjs A1 --watch",
     "triad:watch:daedalus": "node scripts/triad-watch.mjs A2 --watch",
     "triad:watch:argus": "node scripts/triad-watch.mjs A3 --watch",

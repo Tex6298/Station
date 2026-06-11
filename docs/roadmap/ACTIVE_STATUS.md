@@ -1132,6 +1132,16 @@ when a PR lands, or when validation truth changes.
   needed, writes active Gemini `station_free_1536` metadata, avoids committed
   secrets/private excerpts, records sanitized labels/counts only, and wakes
   ARGUS for hostile review before populated retrieval measurement resumes.
+- DAEDALUS implemented the replay seed/helper for ARGUS review, 2026-06-11:
+  `scripts/staging-replay-seed.mjs` creates/reuses one replay owner, assigns
+  `canon` as the minimum single-owner tier for persona, Space/document, and
+  Developer Space setup, reads local ignored corpus text, writes Gemini
+  `station_free_1536` memory vectors with active metadata, and seeds bounded
+  owner-scoped replay rows for persona/archive/continuity/public/discussion/
+  Developer Space/export surfaces. It has not been executed against staging
+  from this handoff; validation covered script syntax, help output, example
+  corpus structure, and whitespace only. ARGUS should review before live seed
+  execution or measurement resumes.
 
 ## Current repo truth
 

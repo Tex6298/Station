@@ -1,0 +1,99 @@
+{
+  "runLabel": "staging-replay-alpha",
+  "owner": {
+    "displayName": "Station Replay Owner"
+  },
+  "persona": {
+    "name": "Station Replay Persona",
+    "shortDescription": "Non-production persona for bounded staging replay.",
+    "longDescription": "Used only for staging replay setup and Gemini retrieval measurement.",
+    "awakeningPrompt": "Treat replay material as test evidence, not production memory.",
+    "styleNotes": "Concise, clear, and careful with provenance."
+  },
+  "archiveSources": [
+    {
+      "label": "anchor-one",
+      "title": "Replay archive anchor one",
+      "text": "REPLACE_WITH_LOCAL_SYNTHETIC_PRIVATE_ARCHIVE_TEXT_FOR_ANCHOR_ONE_DO_NOT_COMMIT_REAL_TRANSCRIPTS",
+      "summary": "Sanitized anchor-one summary label.",
+      "relevanceWeight": 4
+    },
+    {
+      "label": "anchor-two",
+      "title": "Replay archive anchor two",
+      "text": "REPLACE_WITH_LOCAL_SYNTHETIC_PRIVATE_ARCHIVE_TEXT_FOR_ANCHOR_TWO_DO_NOT_COMMIT_REAL_TRANSCRIPTS",
+      "summary": "Sanitized anchor-two summary label.",
+      "relevanceWeight": 4
+    }
+  ],
+  "chatMemory": {
+    "title": "Replay chat memory",
+    "content": "REPLACE_WITH_LOCAL_SYNTHETIC_CHAT_MEMORY_TEXT_DO_NOT_COMMIT_REAL_TRANSCRIPTS",
+    "assistantReply": "REPLACE_WITH_LOCAL_SYNTHETIC_ASSISTANT_REPLY_TEXT_DO_NOT_COMMIT_REAL_TRANSCRIPTS",
+    "summary": "Sanitized replay chat memory summary.",
+    "relevanceWeight": 4
+  },
+  "excludedMemory": {
+    "title": "Replay excluded memory",
+    "content": "REPLACE_WITH_LOCAL_SYNTHETIC_REJECTED_MEMORY_TEXT_DO_NOT_COMMIT_REAL_TRANSCRIPTS",
+    "summary": "Sanitized excluded-memory summary.",
+    "status": "rejected",
+    "relevanceWeight": 1
+  },
+  "continuity": {
+    "title": "Replay continuity record",
+    "body": "REPLACE_WITH_LOCAL_SYNTHETIC_CONTINUITY_BODY_DO_NOT_COMMIT_REAL_TRANSCRIPTS",
+    "summary": "Sanitized replay continuity summary."
+  },
+  "space": {
+    "slug": "station-replay-alpha",
+    "title": "Station Replay Alpha",
+    "shortDescription": "Public-safe staging replay Space.",
+    "longDescription": "Public-safe material only.",
+    "threadBody": "Public-safe replay discussion thread.",
+    "comment": "Public-safe replay discussion comment.",
+    "document": {
+      "slug": "station-replay-alpha-note",
+      "title": "Station Replay Alpha Note",
+      "body": "REPLACE_WITH_LOCAL_PUBLIC_SAFE_DOCUMENT_BODY",
+      "documentType": "post"
+    }
+  },
+  "developerSpace": {
+    "slug": "station-replay-dev-alpha",
+    "projectName": "Station Replay Dev Alpha",
+    "description": "Public-safe Developer Space for staging replay.",
+    "visualisationConfig": {
+      "widgets": []
+    },
+    "node": {
+      "externalId": "replay-node-alpha",
+      "name": "Replay Node Alpha",
+      "topologyType": "custom",
+      "fragmentCount": 1,
+      "selfSimilarityScore": 0.42,
+      "dimensionality": 1536,
+      "metrics": {
+        "replay": true
+      }
+    },
+    "event": {
+      "type": "replay.seed",
+      "label": "Replay seed event",
+      "data": {
+        "replay": true
+      },
+      "similarityScore": 0.42
+    },
+    "snapshot": {
+      "data": {
+        "nodes": 1,
+        "events": 1,
+        "replay": true
+      }
+    }
+  },
+  "exportPackage": {
+    "label": "Station replay sanitized export manifest"
+  }
+}

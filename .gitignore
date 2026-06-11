@@ -10,3 +10,4 @@ build/
 .vercel/
 *.log
 *.tsbuildinfo
+docs/ops/*replay*corpus*.local.json
