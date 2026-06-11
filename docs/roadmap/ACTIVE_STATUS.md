@@ -1426,6 +1426,16 @@ when a PR lands, or when validation truth changes.
   users toward the currently accepted per-persona export manifest/status
   readback path, stay frontend-only unless a real bug appears, and wake ARIADNE
   for experience review after validation.
+- UX-EXPORT-01 ARIADNE experience review is complete, 2026-06-11: ARIADNE
+  accepts the `/studio/export` copy/behavior patch as staging-demo clear enough.
+  The page now names itself as an export planning preview, removes the old
+  generate/download/expiry/background-job claims, and points users toward the
+  live owner-only per-persona JSON/Markdown manifest/status readback path.
+  Local desktop Chrome and mobile-width HTML layout checks found no
+  document-level horizontal overflow and no old export-package claims. Product
+  caveat: the preview checkboxes remain illustrative controls, not saved export
+  settings; a future global bundle lane should either wire real behavior or make
+  the controls visibly read-only.
 
 ## Near-term rule
 
