@@ -951,6 +951,14 @@ when a PR lands, or when validation truth changes.
   route deletion, readiness/replay test deletion, retrieval/cache deletions,
   migration `025-029` replacement, package-lock drift, and moderation visibility
   regression.
+- ARIADNE product review of the Discern UI import audit is complete,
+  2026-06-11: `docs/roadmap/DISCERN_TO_TEX_UI_IMPORT_REVIEW_ARIADNE.md`
+  accepts the audit as a product-idea source only, rejects wholesale code import,
+  and recommends the first future slice be docs/product-only onboarding and
+  Integrity Session language. Discover/public-home direction may follow as
+  Station-native IA, left-rail/search stays a design reference until route and
+  visibility gates exist, and notes/global archive belongs to a later backend/
+  product lane after migration `029` is resolved or explicitly waived.
 
 ## Current repo truth
 
