@@ -1387,6 +1387,13 @@ when a PR lands, or when validation truth changes.
   export is still manifest readback, not a portable bundle; billing is
   status-only with inactive subscription/no customer; observability traces were
   zero; Discover/onboarding/partner-grade polish remain future lanes.
+- MIMIR closed the current backend/API replay readiness lane as accepted
+  staging evidence and opened a narrow ARIADNE browser/mobile walkthrough,
+  2026-06-11. ARIADNE should use
+  `docs/ops/STAGING_BROWSER_UX_WALKTHROUGH.md` to review the deployed web app
+  against the replay owner/corpus, separate product friction from true staging
+  blockers, avoid committing private screenshots or secrets, and wake MIMIR
+  with a browser-readiness verdict.
 - ARGUS accepted the populated replay measurement, 2026-06-11: live owner
   archive retrieval returned vector-mode seeded archive matches with zero
   skipped sources and high human relevance ratings, context preview included the

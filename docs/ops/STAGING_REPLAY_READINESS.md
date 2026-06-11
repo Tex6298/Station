@@ -388,7 +388,7 @@ Remaining E2E blockers before replay evidence is meaningful:
 The current BE-00 through BE-08 proof/waiver package lives in
 `docs/ops/STAGING_PROOF_WAIVER_HANDOFF.md`.
 
-This repo is ready for DAEDALUS to run the populated replay/retrieval lane and
-then wake ARGUS with sanitized evidence. It is not ready to claim full replay
-implementation until populated Gemini retrieval and hostile owner-scope smokes
-are reviewed.
+The deployed API replay lane is accepted as backend evidence. The next handoff
+is ARIADNE's live browser/mobile UX walkthrough in
+`docs/ops/STAGING_BROWSER_UX_WALKTHROUGH.md`; do not call the staged experience
+ready for a human replay until that browser pass is reviewed.
