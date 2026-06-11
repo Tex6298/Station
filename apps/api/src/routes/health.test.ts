@@ -56,12 +56,14 @@ class ReadinessSupabase {
   failProfiles = false;
   failMigrations = false;
   migrationObjectProof = false;
+  failEmbeddingProfileRpcProof = false;
   bucketPublic = false;
   bucketMissing = false;
+  rpcCalls: Array<{ functionName: string; args: Record<string, unknown> }> = [];
 
   migrations: Row[] = [
     { version: "20240530000001", name: "001_initial_schema" },
-    { version: "20260608000024", name: "024_community_trust_votes_moderation" },
+    { version: "20260611000029", name: "029_gemini_embedding_provider_prep" },
   ];
 
   client = {
@@ -69,6 +71,16 @@ class ReadinessSupabase {
     schema: (schemaName: string) => ({
       from: (table: string) => new ReadinessQuery(this, schemaName, table),
     }),
+    rpc: async (functionName: string, args: Record<string, unknown>) => {
+      this.rpcCalls.push({ functionName, args });
+      if (!["match_memory_items", "match_private_archive_chunks"].includes(functionName)) {
+        return { data: null, error: { message: "unexpected rpc with secret-service-role" } };
+      }
+      if (this.failEmbeddingProfileRpcProof || !this.migrationObjectProof) {
+        return { data: null, error: { message: "rpc proof failure with secret-service-role" } };
+      }
+      return { data: [], error: null };
+    },
     storage: {
       getBucket: async (bucket: string) => {
         if (bucket !== "persona-files" || this.bucketMissing) {
@@ -155,6 +167,7 @@ class ReadinessQuery {
 
 test("/health stays cheap while /health/deployment returns non-secret readiness", async () => {
   const db = new ReadinessSupabase();
+  db.migrationObjectProof = true;
   setSupabaseAdminForTests(db.client as any);
   const app = await createHealthApp();
 
@@ -176,10 +189,10 @@ test("/health stays cheap while /health/deployment returns non-secret readiness"
     assert.equal(deployment.body.checks.geminiEmbeddings, true);
     assert.equal(deployment.body.checks.redisConfigured, true);
     assert.equal(deployment.body.readiness.database.ok, true);
-    assert.equal(deployment.body.readiness.migrations.count, 2);
+    assert.equal(deployment.body.readiness.migrations.count, null);
     assert.deepEqual(deployment.body.readiness.migrations.latest, {
-      version: "20260608000024",
-      name: "024_community_trust_votes_moderation",
+      version: "025-029",
+      name: "public_schema_object_and_rpc_proof",
     });
     assert.equal(deployment.body.readiness.storage.exists, true);
     assert.equal(deployment.body.readiness.storage.private, true);
@@ -193,6 +206,10 @@ test("/health stays cheap while /health/deployment returns non-secret readiness"
     assert.equal(deployment.body.readiness.providers.embeddingsConfigured, true);
     assert.equal(deployment.body.readiness.providers.openaiEmbeddings, false);
     assert.equal(deployment.body.readiness.providers.geminiEmbeddings, true);
+    assert.deepEqual(db.rpcCalls.map((call) => call.functionName), [
+      "match_memory_items",
+      "match_private_archive_chunks",
+    ]);
     assertNoSecrets(deployment.body);
   } finally {
     setSupabaseAdminForTests(null);
@@ -214,9 +231,34 @@ test("/health/deployment proves backend migrations through public schema objects
     assert.equal(deployment.body.readiness.migrations.ok, true);
     assert.equal(deployment.body.readiness.migrations.count, null);
     assert.deepEqual(deployment.body.readiness.migrations.latest, {
-      version: "025-028",
-      name: "public_schema_object_proof",
+      version: "025-029",
+      name: "public_schema_object_and_rpc_proof",
     });
+    assert.deepEqual(db.rpcCalls.map((call) => call.functionName), [
+      "match_memory_items",
+      "match_private_archive_chunks",
+    ]);
+    assertNoSecrets(deployment.body);
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
+
+test("/health/deployment blocks free embedding profile readiness without migration 029 RPC proof", async () => {
+  const db = new ReadinessSupabase();
+  db.migrationObjectProof = true;
+  db.failEmbeddingProfileRpcProof = true;
+  setSupabaseAdminForTests(db.client as any);
+  const app = await createHealthApp();
+
+  try {
+    const deployment = await requestJson(app, "GET", "/health/deployment");
+    assert.equal(deployment.status, 200);
+    assert.equal(deployment.body.ok, true);
+    assert.equal(deployment.body.ready, false);
+    assert.equal(deployment.body.readiness.migrations.ok, false);
+    assert.equal(deployment.body.readiness.migrations.error, "query_failed");
+    assert.deepEqual(db.rpcCalls.map((call) => call.functionName), ["match_memory_items"]);
     assertNoSecrets(deployment.body);
   } finally {
     setSupabaseAdminForTests(null);
@@ -230,6 +272,7 @@ test("/health/deployment reports the resolved embedding profile for legacy provi
   process.env.EMBEDDINGS_PROVIDER = "openai";
 
   const db = new ReadinessSupabase();
+  db.migrationObjectProof = true;
   setSupabaseAdminForTests(db.client as any);
   const app = await createHealthApp();
 

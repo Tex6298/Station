@@ -4,9 +4,10 @@ import { resolveActiveEmbeddingProfileCode, resolveActiveEmbeddingProvider } fro
 
 const PERSONA_FILES_BUCKET = "persona-files";
 const CHECK_TIMEOUT_MS = 1500;
+const ZERO_UUID = "00000000-0000-0000-0000-000000000000";
 const BACKEND_MIGRATION_OBJECT_PROOF_LATEST = {
-  version: "025-028",
-  name: "public_schema_object_proof",
+  version: "025-029",
+  name: "public_schema_object_and_rpc_proof",
 };
 
 type CheckStatus = {
@@ -206,11 +207,15 @@ async function checkMigrationState(): Promise<MigrationReadiness> {
 
   const sb = getSupabaseAdmin() as any;
   const history = await checkSupabaseMigrationHistory(sb);
-  if (history.ok) return history;
+  const embeddingProfileCode = resolveActiveEmbeddingProfileCode();
+  if (history.ok && embeddingProfileCode !== "station_free_1536") return history;
 
   // Supabase's REST layer can hide supabase_migrations; public objects prove the
-  // backend migrations we need when history is unavailable in staging.
+  // backend migrations we need when history is unavailable in staging. The
+  // active free embedding profile additionally requires the provider-aware 029
+  // RPC signatures before deployment readiness can go true.
   const objectProof = await checkBackendMigrationObjects(sb);
+  if (embeddingProfileCode === "station_free_1536") return objectProof;
   return objectProof.ok ? objectProof : history;
 }
 
@@ -277,6 +282,11 @@ async function checkBackendMigrationObjects(sb: any): Promise<MigrationReadiness
       return { ok: false, checked: true, count: null, latest: null, error: "query_failed" };
     }
 
+    if (resolveActiveEmbeddingProfileCode() === "station_free_1536") {
+      const rpcProof = await checkEmbeddingProfileRpcObjects(sb);
+      if (!rpcProof.ok) return rpcProof;
+    }
+
     return {
       ok: true,
       checked: true,
@@ -292,6 +302,46 @@ async function checkBackendMigrationObjects(sb: any): Promise<MigrationReadiness
       error: isTimeout(error) ? "timeout" : "query_failed",
     };
   }
+}
+
+async function checkEmbeddingProfileRpcObjects(sb: any): Promise<MigrationReadiness> {
+  if (typeof sb.rpc !== "function") {
+    return { ok: false, checked: false, count: null, latest: null, error: "not_supported" };
+  }
+
+  const zeroVector = new Array<number>(1536).fill(0);
+  const commonArgs = {
+    query_embedding: zeroVector,
+    match_count: 1,
+    p_embedding_provider: "gemini",
+    p_embedding_model: "gemini-embedding-2",
+    p_embedding_index_name: "memory_items_embedding_1536",
+  };
+
+  const memoryResult = await withTimeout<any>(
+    sb.rpc("match_memory_items", {
+      p_persona_id: ZERO_UUID,
+      ...commonArgs,
+    }),
+    CHECK_TIMEOUT_MS
+  );
+  if (memoryResult.error) {
+    return { ok: false, checked: true, count: null, latest: null, error: "query_failed" };
+  }
+
+  const archiveResult = await withTimeout<any>(
+    sb.rpc("match_private_archive_chunks", {
+      p_persona_id: ZERO_UUID,
+      p_owner_user_id: ZERO_UUID,
+      ...commonArgs,
+    }),
+    CHECK_TIMEOUT_MS
+  );
+  if (archiveResult.error) {
+    return { ok: false, checked: true, count: null, latest: null, error: "query_failed" };
+  }
+
+  return { ok: true, checked: true, count: null, latest: BACKEND_MIGRATION_OBJECT_PROOF_LATEST };
 }
 
 async function checkPersonaFilesBucket(): Promise<DeploymentReadiness["readiness"]["storage"]> {

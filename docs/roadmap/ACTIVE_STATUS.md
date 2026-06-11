@@ -873,6 +873,12 @@ when a PR lands, or when validation truth changes.
   `EMBEDDING_MODEL` or dimension overrides fall back to the selected
   profile-owned model and 1536-dimensional contract. ARGUS review is requested
   before this profile-boundary language is treated as accepted.
+- DAEDALUS embedding-profile cleanup is accepted by ARGUS, 2026-06-11, after
+  hardening deployment readiness to require migration `029` provider-aware RPC
+  proof for `station_free_1536`. `/health/deployment` cannot go ready from a
+  Gemini key alone; it must also prove the selected profile's RPC surface,
+  and data-backed replay still requires bounded reindex plus hostile retrieval
+  smoke.
 
 ## Current repo truth
 

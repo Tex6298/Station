@@ -2983,6 +2983,36 @@ Commands run:
 | `npx --yes pnpm@10.32.1 --filter @station/api build` | Pass | API and dependent package builds completed. |
 | `git diff --check` | Pass | No whitespace errors; CRLF conversion warnings only. |
 
+## Embedding profile boundary cleanup ARGUS review result
+
+ARGUS reviewed DAEDALUS's embedding-profile cleanup on 2026-06-11 and accepted
+it after hardening deployment readiness for migration `029` proof.
+
+Review result:
+
+- Readiness, key selection, and AI retrieval metadata now resolve from the same
+  profile-code contract.
+- `station_free_1536` is the active product-testing profile and currently maps
+  to Gemini `gemini-embedding-2` at 1536 dimensions.
+- Stale cross-provider `EMBEDDING_MODEL` values and non-1536 dimension overrides
+  fall back to the selected profile-owned contract.
+- ARGUS added readiness proof that `station_free_1536` cannot make
+  `/health/deployment.ready` true from key presence alone; migration `029`
+  provider-aware RPC calls for `match_memory_items` and
+  `match_private_archive_chunks` must be callable.
+- Data-backed replay still requires bounded reindex and hostile retrieval smoke.
+
+Commands re-run by ARGUS:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npx --yes pnpm@10.32.1 test:health` | Pass | 5 tests passed, including failure without migration `029` RPC proof. |
+| `npx --yes pnpm@10.32.1 test:replay-readiness` | Pass | 1 test passed. |
+| `npx --yes pnpm@10.32.1 exec tsx --test packages/ai/test/retrieval-metadata.test.ts` | Pass | 5 tests passed. |
+| `npx --yes pnpm@10.32.1 test:storage` | Pass | 7 tests passed. |
+| `npx --yes pnpm@10.32.1 --filter @station/ai build` | Pass | AI package build completed. |
+| `npx --yes pnpm@10.32.1 --filter @station/api build` | Pass | API and dependent package builds completed. |
+
 ## DAEDALUS staging closeout ARGUS review result
 
 ARGUS reviewed the staging closeout implementation on 2026-06-09 and accepted it
