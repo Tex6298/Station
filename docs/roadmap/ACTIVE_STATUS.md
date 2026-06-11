@@ -1052,6 +1052,16 @@ when a PR lands, or when validation truth changes.
   `statement_cache_mode=describe` on the transaction pooler; with that set it
   succeeds and no RLS-disabled advisory is surfaced. This closes the
   `integrity_questions` RLS advisory lane.
+- MIMIR sequencing after the RLS advisory lane, 2026-06-11: open Supabase Auth
+  redirect proof support next, because it is the remaining
+  `/health/deployment.ready` blocker after migrations, storage, Gemini, Stripe,
+  Redis, and public URLs are green. The code currently reports `not_supported`
+  unconditionally. DAEDALUS should add a read-only Management API proof using
+  official endpoint `GET /v1/projects/{ref}/config/auth` with `auth:read`,
+  verify `site_url` and `uri_allow_list` contain the Railway web URL and
+  reset-password target, and keep failures sanitized. App code must not mutate
+  Supabase auth settings; if `SUPABASE_ACCESS_TOKEN` is absent or lacks scope,
+  readiness should remain non-ready with a clear non-secret blocker.
 
 ## Current repo truth
 
