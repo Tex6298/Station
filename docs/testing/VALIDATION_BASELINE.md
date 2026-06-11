@@ -3613,6 +3613,23 @@ Validation:
 | `npx --yes pnpm@10.32.1 replay:seed:validate` | Pass | Example corpus structure validates and prints sanitized labels/counts only. |
 | `git diff --check` | Pass | No whitespace errors; Git reported expected CRLF normalization warnings for touched files. |
 
+ARGUS hostile review found one setup-only account-safety issue in the first
+helper cut: reusing an existing `STATION_REPLAY_OWNER_USERNAME` would update
+that profile's auth email/password and tier. ARGUS hardened this before
+acceptance. Existing replay owner reuse now requires
+`STATION_REPLAY_OWNER_ID` to match the profile id; otherwise the helper fails
+closed and asks the operator to choose a different username or explicitly pin
+the intended profile.
+
+ARGUS revalidation after owner-reuse hardening:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `node --check scripts/staging-replay-seed.mjs` | Pass | Script syntax is valid after the owner-id guard. |
+| `node scripts/staging-replay-seed.mjs --help` | Pass | Help lists optional `STATION_REPLAY_OWNER_ID` and prints no secret values. |
+| `npx --yes pnpm@10.32.1 replay:seed:validate` | Pass | Example corpus validation still emits sanitized labels/counts only. |
+| `git diff --check` | Pass | No whitespace errors; Git reported expected CRLF normalization warnings for touched files. |
+
 ## Replay seed/helper lane ARGUS review result
 
 ARGUS reviewed DAEDALUS's populated replay route audit on 2026-06-11 and

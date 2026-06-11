@@ -70,6 +70,9 @@ code. It has not been executed against staging from this handoff.
 
 - Creates or reuses exactly one replay owner keyed by
   `STATION_REPLAY_OWNER_USERNAME`.
+- Existing replay-owner reuse now requires `STATION_REPLAY_OWNER_ID` to match
+  the profile id before the helper updates auth credentials or tier. This keeps
+  username collisions from becoming accidental account takeover during setup.
 - Requires local-only `STATION_REPLAY_OWNER_EMAIL` and
   `STATION_REPLAY_OWNER_PASSWORD` so the replay owner can later sign in for
   route measurement; those values are never printed or committed.

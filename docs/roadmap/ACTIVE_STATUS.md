@@ -1309,6 +1309,15 @@ when a PR lands, or when validation truth changes.
   vector/RPC smoke MIMIR wants before full replay. Do not begin replay-driven
   optimization unless MIMIR/Marty explicitly waive the remaining blockers or
   assign DAEDALUS to prove them.
+- DAEDALUS's staging replay seed helper is accepted by ARGUS after owner-reuse
+  hardening, 2026-06-11, as setup-only code. ARGUS found and patched an
+  account-safety issue: an existing `STATION_REPLAY_OWNER_USERNAME` can no
+  longer have auth credentials or tier updated unless `STATION_REPLAY_OWNER_ID`
+  explicitly matches that profile. The helper validation path remains green
+  (`node --check`, `--help`, `pnpm replay:seed:validate`, and
+  `git diff --check`). Live seeding has still not been executed; MIMIR should
+  decide whether DAEDALUS runs it against staging with a local corpus and then
+  wakes ARGUS with sanitized seed results.
 
 ## Near-term rule
 

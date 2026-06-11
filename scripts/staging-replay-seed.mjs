@@ -109,6 +109,7 @@ function printHelp() {
     "  STATION_REPLAY_OWNER_PASSWORD",
     "",
     "Optional:",
+    "  STATION_REPLAY_OWNER_ID",
     "  STATION_REPLAY_OWNER_USERNAME",
     "  STATION_REPLAY_CORPUS_PATH",
     "",
@@ -307,9 +308,37 @@ function limit(count) {
 }
 
 async function ensureReplayOwner(api, env, corpus) {
+  const expectedOwnerId = value("STATION_REPLAY_OWNER_ID");
   const username = value("STATION_REPLAY_OWNER_USERNAME") || "station-replay-owner";
   const displayName = corpus.owner?.displayName || "Station Replay Owner";
-  let profile = await first(await api.select("profiles", [eq("username", username), limit(1)]));
+  const usernameProfile = await first(await api.select("profiles", [
+    eq("username", username),
+    limit(1),
+  ]));
+  const idProfile = expectedOwnerId
+    ? await first(await api.select("profiles", [eq("id", expectedOwnerId), limit(1)]))
+    : null;
+  let profile = idProfile ?? usernameProfile;
+
+  if (usernameProfile && expectedOwnerId && usernameProfile.id !== expectedOwnerId) {
+    throw new Error(
+      "Replay owner username is already used by a different profile. Choose another " +
+      "STATION_REPLAY_OWNER_USERNAME or set STATION_REPLAY_OWNER_ID to the matching profile id."
+    );
+  }
+
+  if (usernameProfile && !expectedOwnerId) {
+    throw new Error(
+      "Replay owner username already exists. Set STATION_REPLAY_OWNER_ID to that profile id " +
+      "to confirm reuse, or choose a different STATION_REPLAY_OWNER_USERNAME."
+    );
+  }
+
+  if (expectedOwnerId && !profile) {
+    throw new Error(
+      "STATION_REPLAY_OWNER_ID was set, but no matching profile exists in staging."
+    );
+  }
 
   if (!profile) {
     const user = await api.createUser({
