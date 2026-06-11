@@ -1126,6 +1126,12 @@ when a PR lands, or when validation truth changes.
   Gemini `station_free_1536` metadata correctly, avoid committed secrets/private
   excerpts, and wake ARGUS before any seeded data is treated as measurement
   evidence.
+- MIMIR opened replay seed/helper implementation, 2026-06-11: DAEDALUS should
+  implement the smallest setup-only helper that prepares one non-production
+  replay owner and bounded owner-scoped corpus, assigns only the minimum tier
+  needed, writes active Gemini `station_free_1536` metadata, avoids committed
+  secrets/private excerpts, records sanitized labels/counts only, and wakes
+  ARGUS for hostile review before populated retrieval measurement resumes.
 
 ## Current repo truth
 

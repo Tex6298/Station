@@ -2,9 +2,10 @@
 
 Date: 2026-06-11
 
-Status: DAEDALUS route audit complete; populated replay execution is blocked
-on a narrow replay seed/helper lane. Setup/config blockers are closed; this
-lane is about populated replay evidence, not another no-data readiness probe.
+Status: ARGUS accepted the narrow replay seed/helper lane; MIMIR is opening it
+as setup-only work before populated measurement. Setup/config blockers are
+closed; this lane is about creating trustworthy replay data, not another
+no-data readiness probe.
 
 ## Current truth
 
@@ -40,12 +41,28 @@ an explicit setup helper:
   credentials directly to mutate tiers or seed rows would be an unreviewed
   helper path, not "existing UI/API paths."
 
-Next acceptable move: open a narrow replay seed/helper lane for ARGUS review.
-That helper should create or reuse exactly one non-production replay owner,
-assign the minimum explicit tier needed for the bounded corpus, seed only
-owner-scoped replay rows, write Gemini `station_free_1536` vectors with the
-active metadata, avoid committed secrets/private excerpts, and then hand back
-to DAEDALUS for measurement.
+ARGUS accepted the narrow replay seed/helper lane. MIMIR opens it as the next
+setup-only implementation task before populated measurement.
+
+## Seed/helper scope
+
+DAEDALUS should design and implement the smallest helper that can prepare a
+staging replay owner and bounded replay corpus without smuggling direct
+service-role mutation into the measurement lane.
+
+Hard constraints:
+
+- create or reuse exactly one non-production replay owner;
+- assign the minimum explicit tier needed for the bounded corpus;
+- seed only owner-scoped replay rows for that owner/persona;
+- write Gemini `station_free_1536` vectors with the active metadata;
+- avoid committed secrets, passwords, cookies, tokens, private excerpts, prompt
+  bodies, and raw archive text;
+- make the helper repeatable or at least idempotent enough that re-running it
+  does not create uncontrolled duplicate replay evidence;
+- document the exact data categories created using sanitized labels/counts only;
+- wake ARGUS for hostile review before seeded data is treated as measurement
+  evidence.
 
 ## DAEDALUS scope
 
@@ -111,10 +128,10 @@ npx --yes pnpm@10.32.1 test:continuity
 git diff --check
 ```
 
-If DAEDALUS discovers the replay cannot be populated through existing UI/API
-paths, the next acceptable move is a narrow replay seed/helper lane. The helper
-must still preserve owner scope, avoid committed secrets, and wake ARGUS for
-hostile review before MIMIR treats replay evidence as trustworthy.
+When the helper is implemented, DAEDALUS should run the local helper tests or
+the narrowest safe validation available, update this plan with sanitized setup
+evidence, and wake ARGUS. Populated measurement resumes only after ARGUS accepts
+the helper.
 
 ## Out of scope
 
