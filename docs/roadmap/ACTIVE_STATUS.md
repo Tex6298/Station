@@ -991,6 +991,19 @@ when a PR lands, or when validation truth changes.
   Migration `029` remains blocked on one of: a genuinely refreshed MCP worker,
   `SUPABASE_ACCESS_TOKEN` for Supabase CLI, a staging pooler DB URL, or an
   IPv6-capable DB path.
+- Migration `029` is applied and proven on staging, 2026-06-11: MIMIR used the
+  Supabase shared pooler details from Marty plus the existing local DB password
+  to apply `infra/supabase/migrations/029_gemini_embedding_provider_prep.sql`
+  through a temporary `node-postgres` client. Provider-aware RPC count moved
+  from `0` to `2`; `node scripts/prove-staging-migration-029.mjs` now returns
+  HTTP `200`/`rowCount: 0` for both RPCs; `/health/deployment` reports
+  `readiness.migrations.ok: true` with latest proof
+  `025-029/public_schema_object_and_rpc_proof`. Overall deployment readiness
+  remains `ready:false` only because Supabase Auth redirect management proof is
+  still `not_supported`. Supabase also surfaced an RLS advisory for
+  `public.integrity_questions`; no remediation was applied in this lane, and
+  ARGUS should review whether the table is intentionally public seed/config
+  data or needs explicit RLS policies.
 
 ## Current repo truth
 

@@ -2,26 +2,66 @@
 
 Date: 2026-06-11
 
-Status: blocked on remote migration apply access from this shell. The staging
-schema still exposes the pre-029 RPC signatures.
+Status: applied and proven on staging. The provider-aware RPC signatures are
+available through PostgREST and public deployment health now reports migration
+object proof as green.
+
+## 2026-06-11 resolution
+
+MIMIR applied `infra/supabase/migrations/029_gemini_embedding_provider_prep.sql`
+through the Supabase shared pooler after Marty provided the IPv4-compatible
+pooler host/user details. The existing direct `DATABASE_URL` supplied the
+database password, and the assembled pooler URL stayed in process memory only.
+
+Apply path:
+
+- Supabase MCP remained blocked with `OAuth authorization required`.
+- The direct database host remained IPv6-only from this Windows shell.
+- Supabase CLI `db query` could connect through the transaction pooler only when
+  statement caching was disabled, but it could not execute the multi-command
+  migration file as one prepared statement.
+- MIMIR used a temporary `node-postgres` client outside the repo, connected
+  through the shared pooler with TLS enabled, ran the migration inside a
+  transaction, and notified PostgREST to reload schema.
+
+Remote schema proof:
+
+| Probe | Result |
+| --- | --- |
+| Provider-aware RPC count before apply | `0` |
+| Provider-aware RPC count after apply | `2` |
+| `node scripts/prove-staging-migration-029.mjs` | Pass; both RPCs returned HTTP `200` with `rowCount: 0`. |
+| `/health/deployment` migration readiness | Pass; `readiness.migrations.ok: true`, latest proof `025-029/public_schema_object_and_rpc_proof`. |
+
+Deployment readiness is still not fully green because Supabase Auth redirect
+management proof remains `not_supported`; this is separate from migration
+`029`.
+
+Supabase advisory surfaced during the pooler query:
+
+- `public.integrity_questions` has Row Level Security disabled.
+- No RLS remediation was applied in this migration lane.
+- ARGUS should review whether this table is intentionally public seed/config
+  data or needs explicit RLS plus policies before staging replay is called
+  hardened.
 
 ## Current result
 
 DAEDALUS attempted the migration-029 proof lane after MIMIR opened it with
-`WAKEUP A2:` in commit `01c9586`.
+`WAKEUP A2:` in commit `01c9586`. The earlier blocked state below is retained as
+historical access context.
 
-What is proven:
+What was proven before the pooler apply:
 
 - The local migration file exists at
   `infra/supabase/migrations/029_gemini_embedding_provider_prep.sql`.
 - Public API readiness is deployed far enough to require provider-aware RPC
   proof for `station_free_1536`.
-- The current staging project is still missing the provider-aware RPC overloads
+- The current staging project was still missing the provider-aware RPC overloads
   introduced by migration `029`.
 
-What is not proven:
+What was not proven before the pooler apply:
 
-- Migration `029` is not applied/proven in staging.
 - Data-backed Gemini retrieval is not proven.
 - Replay readiness must not be claimed from this state.
 

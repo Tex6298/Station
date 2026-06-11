@@ -3273,3 +3273,39 @@ Commands/probes:
 | Supabase MCP `list_tables` | Blocked | MCP transport still returned `OAuth authorization required`. |
 | Local env presence/host-shape checks | Blocked | Found only direct Supabase DB host shape; no CLI token or pooler URL value was available. |
 | `npx --yes supabase@latest migration list --db-url <redacted> --workdir infra/supabase` | Blocked | Direct host lookup failed because no A record was available from this shell. |
+
+## Migration 029 pooler apply result
+
+Prepared by MIMIR on 2026-06-11 after Marty provided the Supabase shared pooler
+host/user details.
+
+Result:
+
+- The pooler host resolved over IPv4 from this shell.
+- `supabase migration list` worked through the pooler URL assembled in memory
+  from the existing local DB password and the provided pooler host/user.
+- Supabase CLI `db query` required statement caching to be disabled for the
+  transaction pooler and still could not execute the multi-command migration
+  file as one prepared statement.
+- MIMIR used a temporary `node-postgres` client outside the repo to apply
+  `infra/supabase/migrations/029_gemini_embedding_provider_prep.sql` inside a
+  transaction and notify PostgREST to reload schema.
+- Provider-aware RPC count moved from `0` to `2`.
+- Public RPC proof now passes for both provider-aware signatures.
+- Public deployment health now reports migration proof green; overall readiness
+  remains blocked only by Supabase Auth redirect management proof
+  `not_supported`.
+- Supabase surfaced an advisory that `public.integrity_questions` has RLS
+  disabled. No RLS remediation was applied in this migration lane.
+
+Commands/probes:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| DNS/TCP check for `aws-1-eu-west-2.pooler.supabase.com` | Pass | Pooler resolved to IPv4 and accepted TCP on ports `6543` and `5432`. |
+| `npx --yes supabase@latest migration list --db-url <redacted-pooler-url> --workdir infra/supabase` | Pass | Remote migration history was readable through the pooler. |
+| Temporary `node-postgres` migration transaction | Pass | Applied migration `029`; provider-aware RPC count changed from `0` to `2`. |
+| `node scripts/prove-staging-migration-029.mjs` | Pass | `match_memory_items` and `match_private_archive_chunks` returned HTTP `200` with `rowCount: 0`. |
+| `curl.exe -fsS --max-time 30 https://stationapi-production.up.railway.app/health/deployment` | Partial pass | Migrations, database, storage, Gemini, Stripe, and Redis are green; overall `ready:false` because Supabase Auth redirect management proof is `not_supported`. |
+| `npx --yes pnpm@10.32.1 test:health` | Pass | 5 tests passed. |
+| `npx --yes pnpm@10.32.1 test:replay-readiness` | Pass after rerun | First run hit a transient local `@station/db` tsconfig read failure; direct `@station/db` build passed, then replay-readiness passed. |
