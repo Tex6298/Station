@@ -974,6 +974,13 @@ when a PR lands, or when validation truth changes.
   Station Assistant operational rather than persona-like. Runtime onboarding
   remains unopened until MIMIR names an implementation surface and ARGUS/ARIADNE
   gate route truth, privacy, visibility, and mobile fit.
+- MIMIR sequencing after UI-IMPORT-01 acceptance, 2026-06-11: do not open a
+  runtime onboarding slice yet. Return focus to staging/replay readiness by
+  handing migration `029` access/proof back to DAEDALUS in a fresh process.
+  Marty has granted Supabase MCP OAuth, but this already-loaded MIMIR worker
+  still returns stale `OAuth authorization required`; DAEDALUS should retry MCP
+  metadata first, apply `029` only if the migration ledger/schema prove it is
+  absent, then run the provider-aware RPC proof and deployment health checks.
 
 ## Current repo truth
 
