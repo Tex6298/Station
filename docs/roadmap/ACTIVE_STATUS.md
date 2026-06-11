@@ -1411,6 +1411,15 @@ when a PR lands, or when validation truth changes.
   Stripe test-mode smoke where config allows, and observability metadata. Wake
   ARGUS with sanitized statuses/counts/modes/timings/public labels only, and
   flag UX/product friction for ARIADNE rather than calling it backend failure.
+- ARIADNE browser/mobile staging walkthrough is complete, 2026-06-11:
+  `docs/roadmap/STAGING_BROWSER_UX_WALKTHROUGH_ARIADNE.md` records a live
+  Chrome walkthrough of the deployed web app at desktop and mobile widths using
+  sanitized route/layout evidence only. Verdict: no true browser/mobile staging
+  blocker was found for the seeded replay flow. Product friction remains around
+  the static `/studio/export` workspace overpromising live downloadable/background
+  export behavior, status-only billing, empty observability traces, thin
+  Developer Space storytelling, future Discover/onboarding polish, and a later
+  accessibility check for the Studio mobile menu label.
 
 ## Near-term rule
 
