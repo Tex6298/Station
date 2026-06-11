@@ -130,6 +130,15 @@ MIMIR's follow-up no-data RPC smoke also proved `match_memory_items` and
 `match_private_archive_chunks` are callable and return zero rows for nonexistent
 owner/persona scope.
 
+DAEDALUS's 2026-06-11 migration-029 proof attempt keeps staging blocked for the
+selected `station_free_1536` profile. Public `/health/deployment` now reports
+`embeddingProfileCode=station_free_1536`, `embeddingProvider=gemini`,
+database `ok: true`, storage `ok: true`, but migrations `ok: false` with
+`query_failed`. Direct PostgREST RPC proof returns `PGRST202` for the
+provider-aware `match_memory_items` and `match_private_archive_chunks`
+signatures, with hints pointing to the old pre-029 signatures. See
+`docs/ops/STAGING_MIGRATION_029_PROOF.md`.
+
 ## Active remote for this lane
 
 Railway/staging work currently tracks the fork because `Discern-AI/Station`

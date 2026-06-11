@@ -879,6 +879,15 @@ when a PR lands, or when validation truth changes.
   Gemini key alone; it must also prove the selected profile's RPC surface,
   and data-backed replay still requires bounded reindex plus hostile retrieval
   smoke.
+- DAEDALUS migration-029 proof attempt, 2026-06-11: staging is not yet proven
+  for `station_free_1536`. Supabase MCP apply is blocked by OAuth, Supabase CLI
+  linked apply is blocked by missing login/link state, and explicit
+  `DATABASE_URL` apply is blocked from this shell because the direct database
+  host resolves only to IPv6. Public `/health/deployment` reports
+  `readiness.migrations.ok=false` with `query_failed`, and
+  `node scripts/prove-staging-migration-029.mjs` returns PostgREST `PGRST202`
+  for both provider-aware RPC signatures. Apply/proof checklist:
+  `docs/ops/STAGING_MIGRATION_029_PROOF.md`.
 
 ## Current repo truth
 

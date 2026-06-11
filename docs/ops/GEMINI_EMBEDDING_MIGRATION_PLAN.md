@@ -24,6 +24,27 @@ that profile safe and testable.
 - NVIDIA remains chat/model provider work; it does not replace embeddings in
   this lane.
 
+## Current staging proof attempt
+
+DAEDALUS rechecked staging on 2026-06-11 after MIMIR opened the migration `029`
+proof lane.
+
+- Supabase MCP apply is blocked in this shell by missing OAuth authorization.
+- Supabase CLI linked-project apply is blocked because the CLI is not logged in
+  or linked.
+- Supabase CLI explicit-`DATABASE_URL` apply is blocked from this shell because
+  the direct Supabase database host resolves only to IPv6 and the CLI cannot
+  connect from this machine.
+- Public `/health/deployment` reports
+  `embeddingProfileCode=station_free_1536`, `embeddingProvider=gemini`,
+  `readiness.migrations.ok=false`, and `readiness.migrations.error=query_failed`.
+- Direct PostgREST RPC proof fails with `PGRST202` for the provider-aware
+  `match_memory_items` and `match_private_archive_chunks` signatures. The hints
+  show only the pre-029 signatures are present in the schema cache.
+
+The exact blocker and ready-to-run apply/proof checklist live in
+`docs/ops/STAGING_MIGRATION_029_PROOF.md`.
+
 ## Provider switch plan
 
 1. Confirm staging env selects the free testing profile.

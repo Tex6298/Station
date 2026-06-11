@@ -40,6 +40,7 @@ In the Supabase dashboard, go to **SQL Editor** and run the migrations in order:
 26. `migrations/026_memory_lifecycle_runtime_filters.sql` - runtime lifecycle filters for vector memory search
 27. `migrations/027_developer_space_provider_policy.sql` - Developer Space provider/data posture
 28. `migrations/028_retrieval_provider_metadata.sql` - retrieval provider metadata and active vector contract guardrails
+29. `migrations/029_gemini_embedding_provider_prep.sql` - provider-aware embedding metadata guardrails and RPC overloads for `station_free_1536` proof
 
 Or use the Supabase CLI after confirming the staging project target:
 ```bash

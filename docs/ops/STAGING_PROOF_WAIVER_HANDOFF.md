@@ -26,6 +26,14 @@ ARGUS public probing confirmed the deployed Railway route returns `200`; the
 reset path still needs Supabase Auth redirect allow-list proof before
 password-reset replay.
 
+DAEDALUS migration-029 proof attempt on 2026-06-11: public deployment readiness
+now follows the selected `station_free_1536` embedding profile but reports
+migrations `ok: false` with `query_failed`. Direct PostgREST RPC proof returns
+`PGRST202` for both provider-aware RPC signatures added by migration `029`; the
+hints show only the old pre-029 function signatures are present. Direct
+migration apply from this shell is blocked by Supabase MCP OAuth and IPv6-only
+direct database connectivity. See `docs/ops/STAGING_MIGRATION_029_PROOF.md`.
+
 ## Purpose
 
 Replay-driven optimization must not begin from local guesses. This handoff
@@ -94,7 +102,7 @@ Observed public API readiness facts:
 | --- | --- | --- |
 | Overall readiness | `ready: false` | Staging is not ready for replay optimization. |
 | Database | `configured: true`, `checked: true`, `ok: true` | The deployed API can prove a basic Supabase query. |
-| Migrations | `checked: true`, `ok: true`, `count: null`, `latest: 025-028/public_schema_object_proof` | The deployed API cannot read internal migration history through Supabase REST, but it can prove the public schema objects introduced by migrations `025` through `028`. Supabase MCP separately reported remote history through `028`. |
+| Migrations | `checked: true`, `ok: false`, `error: query_failed` for the selected profile proof | The deployed API can still prove database/storage, but the provider-aware migration `029` RPC overloads are missing from staging. Earlier `025` through `028` setup proof remains historical; current `station_free_1536` readiness needs `029`. |
 | Storage | bucket `persona-files`, `exists: true`, `private: true`, `ok: true` | The deployed API can prove the private storage bucket exists. |
 | Supabase Auth redirects | `ok: false`, `checked: false`, `managementApiConfigured: false`, `projectRefConfigured: true`, `error: not_supported` | Redirect settings need dashboard/API proof outside this shell. |
 | Stripe | billing secrets false; all price IDs false; `ready: false` | Test billing resources are not configured on the deployed API. |
@@ -119,7 +127,7 @@ before replay-driven optimization starts.
 | Cloudflare retrieval | Choose or defer Worker/Vectorize account and index setup. Remote candidates must remain reauthorized through Station/Supabase before private records return. |
 | Stripe test resources | Configure test Stripe secret, webhook secret, and all required price IDs for the staged API, or waive billing replay. |
 | Platform chat provider | NVIDIA platform chat is configured and publicly proven. Confirm the selected staging model/usage expectations before replay, or waive chat replay. |
-| Embedding profile | Configure `EMBEDDING_PROFILE_CODE=station_free_1536`, `EMBEDDING_DIM=1536`, and `GEMINI_API_KEY` with no cross-provider `EMBEDDING_MODEL` override; apply migration `029`, reindex replay data, and run hostile retrieval smoke, or explicitly waive remote vector retrieval proof. |
+| Embedding profile | Configure `EMBEDDING_PROFILE_CODE=station_free_1536`, `EMBEDDING_DIM=1536`, and `GEMINI_API_KEY` with no cross-provider `EMBEDDING_MODEL` override; apply migration `029`, run `node scripts/prove-staging-migration-029.mjs` until both provider-aware RPCs return `200`/zero rows, reindex replay data, and run hostile retrieval smoke, or explicitly waive remote vector retrieval proof. |
 | Replay account/data | Prepare one staging replay account with persona, archive import, continuity, Space/document, discussion, Developer Space, export, and billing-path coverage, or explicitly narrow the replay path. |
 
 ## Code-side closeout state

@@ -21,10 +21,9 @@ ARGUS verdict:
 
 Shortest next human/dashboard actions:
 
-1. Treat no-data vector/RPC smoke as cleared: `match_memory_items` and
-   `match_private_archive_chunks` are callable on staging and return zero rows
-   for nonexistent owner/persona IDs. Data-backed retrieval relevance still
-   needs replay data and the active embedding provider.
+1. Treat the old pre-029 no-data vector/RPC smoke as cleared, but do not treat
+   the selected `station_free_1536` profile proof as cleared yet. The
+   provider-aware migration `029` RPC overloads are still missing from staging.
 2. Smoke the signed upload/read flow for the private `persona-files` bucket if
    needed for replay. The bucket exists and is private in staging.
 3. Set Supabase Auth site URL and allowed redirects for the Railway web URL,
@@ -47,13 +46,14 @@ Shortest next human/dashboard actions:
   `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`,
   `DATABASE_URL`, and `JWT_SECRET` are configured on the deployed API.
 - The same deployment-health response now reports the Railway web/API URLs, not
-  localhost defaults. MIMIR's 2026-06-09 proof update reports database `ok:
+  localhost defaults. MIMIR's 2026-06-09 proof update reported database `ok:
   true`, migrations `ok: true` via `025-028/public_schema_object_proof`, storage
-  `ok: true` with `persona-files` private, and NVIDIA platform chat true. It
-  still reports `ready: false` because Supabase Auth redirects are not
-  management-API proven and embedding profile proof, Stripe, Redis/cache readiness,
-  Cloudflare setup, and replay data remain pending. It does not expose secret
-  values.
+  `ok: true` with `persona-files` private, and NVIDIA platform chat true.
+  DAEDALUS's 2026-06-11 migration-029 check reports database `ok: true`,
+  storage `ok: true`, `embeddingProfileCode=station_free_1536`,
+  `embeddingProvider=gemini`, but migrations `ok: false` with `query_failed`
+  because the provider-aware `029` RPC overloads are not present. It still
+  reports `ready: false`; this does not expose secret values.
 
 ## Lane 1 inventory from this shell
 
@@ -113,16 +113,23 @@ What can be done from code/CLI:
 
 Current staging proof:
 
-- Supabase MCP applied migrations `025` through `028` and remote migration
-  history now includes `001` through `028`.
-- Public API readiness proves the public schema objects introduced by
+- Supabase MCP previously applied migrations `025` through `028`; remote
+  migration history was proven through `028` during the 2026-06-09 setup pass.
+- Public API readiness previously proved the public schema objects introduced by
   migrations `025` through `028`.
-- No-data vector RPC smoke proves `match_memory_items` and
-  `match_private_archive_chunks` are callable and fail closed for nonexistent
+- The old no-data vector RPC smoke proved the pre-029
+  `match_memory_items(match_count, p_persona_id, query_embedding)` and
+  `match_private_archive_chunks(match_count, p_owner_user_id, p_persona_id,
+  query_embedding)` functions are callable and fail closed for nonexistent
   owner/persona scope.
+- DAEDALUS's 2026-06-11 provider-aware RPC proof fails with PostgREST
+  `PGRST202`; staging does not yet expose the migration `029` overloads with
+  `p_embedding_provider`, `p_embedding_model`, and `p_embedding_index_name`.
 
 Remaining external facts:
 
+- Apply/prove migration `029` for the selected `station_free_1536` embedding
+  profile; see `docs/ops/STAGING_MIGRATION_029_PROOF.md`.
 - Data-backed retrieval relevance replay with real owner/persona/archive data
   and the active embedding provider.
 

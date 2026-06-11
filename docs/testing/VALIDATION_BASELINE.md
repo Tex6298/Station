@@ -3013,6 +3013,54 @@ Commands re-run by ARGUS:
 | `npx --yes pnpm@10.32.1 --filter @station/ai build` | Pass | AI package build completed. |
 | `npx --yes pnpm@10.32.1 --filter @station/api build` | Pass | API and dependent package builds completed. |
 
+## Migration 029 staging proof attempt
+
+Prepared by DAEDALUS on 2026-06-11 after MIMIR opened the migration `029`
+proof lane.
+
+Result:
+
+- Migration `029` was not applied from this shell.
+- Supabase MCP table/migration access is blocked by missing OAuth
+  authorization.
+- Supabase CLI linked-project access is blocked by missing login/link state.
+- Supabase CLI explicit `DATABASE_URL` access is blocked from this shell because
+  the direct database host resolves only to IPv6.
+- Public `/health/deployment` reports
+  `embeddingProfileCode=station_free_1536`, `embeddingProvider=gemini`,
+  database `ok: true`, storage `ok: true`, migrations `ok: false`, and
+  migrations `error: query_failed`.
+- Direct PostgREST proof returns `PGRST202` for the provider-aware
+  `match_memory_items` and `match_private_archive_chunks` signatures; hints show
+  only the pre-029 signatures are present.
+
+Commands run:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npx --yes supabase projects list` | Blocked | Supabase CLI reported no access token/login. |
+| `npx --yes supabase migration list --linked` | Blocked | Supabase CLI reported no linked project ref. |
+| `npx --yes supabase migration list --db-url <redacted> --workdir infra/supabase` | Blocked | Direct database host DNS resolves only to IPv6 from this shell; CLI could not connect. |
+| `npx --yes supabase db push --dry-run --db-url <redacted> --workdir infra/supabase` | Blocked | Same direct database host resolution blocker. |
+| `curl.exe`/PowerShell probe of `https://stationapi-production.up.railway.app/health/deployment` | Pass, blocked readiness | Returned non-secret `ready:false`; migration proof failed with `query_failed`. |
+| `node scripts/prove-staging-migration-029.mjs` | Expected failure | Returned sanitized `PGRST202` for both provider-aware RPC calls. |
+| `node --check scripts/prove-staging-migration-029.mjs` | Pass | Proof script syntax is valid. |
+| `npx --yes pnpm@10.32.1 test:health` | Pass | 5 tests passed, including failure without migration `029` RPC proof. |
+| `npx --yes pnpm@10.32.1 test:replay-readiness` | Pass | 1 test passed. |
+| `git diff --check` | Pass | No whitespace errors; CRLF conversion warnings only. |
+
+Follow-up proof checklist:
+
+- Apply `infra/supabase/migrations/029_gemini_embedding_provider_prep.sql` by
+  authorized Supabase MCP, a linked Supabase CLI, an IPv6-capable direct DB
+  connection, or a staging pooler connection string.
+- Re-run `node scripts/prove-staging-migration-029.mjs`; both RPC calls should
+  return HTTP `200` with zero rows for nonexistent owner/persona IDs.
+- Re-probe `/health/deployment`; migration readiness should report
+  `025-029/public_schema_object_and_rpc_proof`.
+- Do not claim data-backed replay until bounded reindex and hostile retrieval
+  smoke pass.
+
 ## DAEDALUS staging closeout ARGUS review result
 
 ARGUS reviewed the staging closeout implementation on 2026-06-09 and accepted it
