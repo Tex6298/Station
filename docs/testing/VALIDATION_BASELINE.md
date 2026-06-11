@@ -3357,6 +3357,9 @@ Scope:
 - Grants `SELECT` on active rows only to `anon` and `authenticated`.
 - Adds no client insert, update, or delete policies; writes remain service-role
   or migration-only.
+- ARGUS hardened the migration to explicitly revoke all table privileges from
+  `anon`/`authenticated` before granting back `SELECT`, so no client writes
+  depend on implicit privilege state.
 - Does not change integrity session route behavior, auth redirects, replay
   corpus work, Gemini retrieval quality measurement, or onboarding runtime UI.
 
@@ -3366,5 +3369,6 @@ Validation:
 | --- | --- | --- |
 | `rg -n "integrity_questions|create policy.*integrity_questions|enable row level" infra/supabase apps/api docs` | Reviewed | Confirmed the pre-030 table had no RLS policy and migration `030` now owns only active-row read policies. |
 | `Select-String -Path infra/supabase/migrations/030_integrity_questions_rls.sql -Pattern "for insert|for update|for delete|for all" -CaseSensitive:$false` | Pass | No matches; migration `030` adds no client write policies. |
+| `Select-String -Path infra/supabase/migrations/030_integrity_questions_rls.sql -Pattern "revoke all|grant select" -CaseSensitive:$false` | Pass | Migration explicitly revokes client table privileges and grants back read-only access. |
 | `npx --yes pnpm@10.32.1 test:integrity` | Pass | 2 integrity route/session tests passed after workspace package builds. |
 | `git diff --check` | Pass | No whitespace errors; Git reported expected CRLF normalization warnings for touched docs. |

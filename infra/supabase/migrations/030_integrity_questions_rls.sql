@@ -7,6 +7,9 @@
 
 alter table public.integrity_questions enable row level security;
 
+revoke all on table public.integrity_questions from anon, authenticated;
+grant select on table public.integrity_questions to anon, authenticated;
+
 drop policy if exists "integrity_questions_select_active_anon" on public.integrity_questions;
 create policy "integrity_questions_select_active_anon"
   on public.integrity_questions

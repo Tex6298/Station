@@ -1030,6 +1030,12 @@ when a PR lands, or when validation truth changes.
   and `authenticated`. It adds no client insert/update/delete policies; writes
   remain service-role or migration-only. ARGUS should hostile-review that policy
   scope before MIMIR treats the advisory lane as accepted.
+- ARGUS accepted and hardened migration `030`, 2026-06-11: the active-row read
+  policies were correct, and ARGUS added explicit table privileges so `anon` and
+  `authenticated` have only `SELECT` on `public.integrity_questions` while
+  insert/update/delete remain unavailable to clients. `test:integrity` and
+  whitespace checks pass. This closes the local RLS advisory lane pending remote
+  migration apply/proof.
 
 ## Current repo truth
 
