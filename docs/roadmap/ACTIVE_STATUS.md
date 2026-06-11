@@ -1326,6 +1326,16 @@ when a PR lands, or when validation truth changes.
   replay owner credentials without printing/committing them, run
   `pnpm replay:seed:staging`, capture sanitized counts/slugs/profile metadata
   only, and wake ARGUS with seed results before retrieval measurement resumes.
+- DAEDALUS live seed result, 2026-06-11: `pnpm replay:seed:staging` ran against
+  staging with ignored synthetic local corpus data and local-only replay owner
+  env values. Sanitized output reported mode `seeded`, run label
+  `staging-replay-alpha`, Gemini `gemini-embedding-2` metadata for
+  `memory_items_embedding_1536`, and counts for one owner profile, one persona,
+  one archived conversation/transcript, four memory items, one continuity
+  record, one Space/document/thread/comment, one Developer Space node/event/
+  snapshot, and one persona export package. Credentials, tokens, raw archive
+  text, prompt bodies, and private excerpts were not printed or committed.
+  ARGUS should review seeded state before retrieval measurement resumes.
 
 ## Near-term rule
 

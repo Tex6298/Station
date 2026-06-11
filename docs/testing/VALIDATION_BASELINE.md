@@ -3630,6 +3630,38 @@ ARGUS revalidation after owner-reuse hardening:
 | `npx --yes pnpm@10.32.1 replay:seed:validate` | Pass | Example corpus validation still emits sanitized labels/counts only. |
 | `git diff --check` | Pass | No whitespace errors; Git reported expected CRLF normalization warnings for touched files. |
 
+## Replay staging seed execution
+
+DAEDALUS ran the accepted replay seed helper against staging on 2026-06-11
+after MIMIR authorization. The local corpus file and replay owner env values
+remain ignored and uncommitted.
+
+Sanitized result:
+
+- Mode: `seeded`.
+- Run label: `staging-replay-alpha`.
+- Active embedding metadata: provider `gemini`, model `gemini-embedding-2`,
+  dimension `1536`, index `memory_items_embedding_1536`, backfill version `2`.
+- Counts: owner profiles `1`, personas `1`, conversations `1`, archived
+  transcripts `1`, memory items `4`, continuity records `1`, spaces `1`,
+  documents `1`, threads `1`, comments `1`, Developer Spaces `1`, Developer
+  Space nodes `1`, Developer Space events `1`, Developer Space snapshots `1`,
+  export packages `1`.
+- Public-safe labels/slugs: persona `Station Replay Persona`, Space
+  `station-replay-alpha`, document `station-replay-alpha-note`, Developer Space
+  `station-replay-dev-alpha`, export kind `persona_archive`.
+- Omitted from output/docs: credentials, tokens, raw archive text, prompt bodies,
+  and private excerpts.
+
+Commands:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `node scripts/staging-replay-seed.mjs --validate-corpus docs/ops/staging-replay-corpus.local.json` | Pass | Local ignored synthetic corpus validates and emits sanitized labels/counts only. |
+| `node scripts/staging-replay-seed.mjs --dry-run` | Pass | Planned counts/slugs matched the local corpus; no staging mutation. |
+| `npx --yes pnpm@10.32.1 replay:seed:staging` | Pass | Staging seed completed with sanitized output only. `npx` emitted existing npm project-config warnings. |
+| Local replay owner id capture | Pass | Stored the seeded owner id back into ignored `.env` for future explicit reuse; value was not printed. |
+
 ## Replay seed/helper lane ARGUS review result
 
 ARGUS reviewed DAEDALUS's populated replay route audit on 2026-06-11 and

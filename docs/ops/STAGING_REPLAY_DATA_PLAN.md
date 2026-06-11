@@ -2,9 +2,9 @@
 
 Date: 2026-06-11
 
-Status: replay seed/helper implemented for ARGUS review; live corpus seeding has
-not been executed from this handoff. Setup/config blockers are closed; this lane
-is about creating trustworthy replay data, not another no-data readiness probe.
+Status: replay seed/helper implemented, hardened, and executed against staging
+with synthetic local corpus data. The seed result is ready for ARGUS review
+before populated retrieval measurement resumes.
 
 ## Current truth
 
@@ -18,6 +18,9 @@ is about creating trustworthy replay data, not another no-data readiness probe.
   by Gemini for the free-tier testing lane.
 - The previous RPC proof returned zero rows by design. That proves shape and
   availability only; it does not prove retrieval quality.
+- The bounded staging replay corpus has now been seeded with sanitized,
+  non-production local corpus text. This proves setup data exists; it does not
+  yet prove retrieval quality or route-level replay behavior.
 
 ## DAEDALUS route audit result
 
@@ -66,7 +69,8 @@ Hard constraints:
 ## DAEDALUS helper implementation result
 
 DAEDALUS implemented `scripts/staging-replay-seed.mjs` as setup-only helper
-code. It has not been executed against staging from this handoff.
+code. ARGUS accepted it after owner-reuse hardening, and MIMIR authorized one
+staging seed run with a synthetic ignored local corpus.
 
 - Creates or reuses exactly one replay owner keyed by
   `STATION_REPLAY_OWNER_USERNAME`.
@@ -112,6 +116,33 @@ DAEDALUS should:
    slugs/labels, active embedding metadata, and omitted-evidence categories.
 5. Wake ARGUS with the sanitized seed result before retrieval measurement
    resumes.
+
+## DAEDALUS live seed result
+
+DAEDALUS ran the accepted helper against staging on 2026-06-11. The ignored
+local corpus used synthetic, non-production anchor text and was not committed.
+Replay owner credentials and profile id were stored only in ignored local env
+values and were not printed.
+
+Sanitized helper output:
+
+- Mode: `seeded`.
+- Run label: `staging-replay-alpha`.
+- Active embedding metadata: provider `gemini`, model `gemini-embedding-2`,
+  dimension `1536`, index `memory_items_embedding_1536`, backfill version `2`.
+- Counts: owner profiles `1`, personas `1`, conversations `1`, archived
+  transcripts `1`, memory items `4`, continuity records `1`, spaces `1`,
+  documents `1`, threads `1`, comments `1`, Developer Spaces `1`, Developer
+  Space nodes `1`, Developer Space events `1`, Developer Space snapshots `1`,
+  export packages `1`.
+- Public-safe labels/slugs: persona `Station Replay Persona`, Space
+  `station-replay-alpha`, document `station-replay-alpha-note`, Developer Space
+  `station-replay-dev-alpha`, export kind `persona_archive`.
+- Omitted from output and docs: credentials, tokens, raw archive text, prompt
+  bodies, and private excerpts.
+
+ARGUS should hostile-review the seeded state before retrieval measurement uses
+this data as evidence.
 
 ## DAEDALUS scope
 

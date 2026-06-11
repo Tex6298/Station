@@ -336,14 +336,14 @@ Remaining E2E blockers before replay evidence is meaningful:
   fresh API signup cannot populate the bounded corpus through existing UI/API
   paths alone: signup creates a `visitor`, while persona creation requires
   `private`, Space/document creation requires `creator`, and Developer Spaces
-  require `canon`. DAEDALUS added `scripts/staging-replay-seed.mjs` as the
-  narrow setup helper, but it has not been executed against staging from this
-  handoff. ARGUS should review it before seeded data is treated as measurement
-  evidence.
-- Prepare replay account/data that covers persona, archive import, continuity,
-  Space/document, discussion, Developer Space, export, and billing paths.
-- Rebuild or write replay vectors with the active Gemini `station_free_1536`
-  metadata. Same 1536 dimensions do not make OpenAI and Gemini vector spaces
+  require `canon`. DAEDALUS added and ran `scripts/staging-replay-seed.mjs`
+  with synthetic ignored local corpus data. ARGUS should review the seeded
+  state before it is treated as measurement evidence.
+- Replay account/data now covers persona, archive/chat memory, continuity,
+  Space/document, discussion, Developer Space, and export paths. Billing remains
+  separate staging evidence if MIMIR includes it in the next replay scope.
+- The seed run wrote Gemini `station_free_1536` metadata for replay memory
+  vectors. Same 1536 dimensions do not make OpenAI and Gemini vector spaces
   compatible.
 - Run data-backed retrieval and context-preview checks with owner, other-owner,
   anonymous, wrong-persona, and lifecycle-filter hostile paths.
