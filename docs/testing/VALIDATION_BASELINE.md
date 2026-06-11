@@ -3454,3 +3454,37 @@ Validation:
 | `npx --yes pnpm@10.32.1 test:health` | Pass | 8 tests passed, including Management API success, missing token, unauthorized/scope failure, redirect mismatch, migration blocker, dependency failure, and non-secret response assertions. |
 | `npx --yes pnpm@10.32.1 --filter @station/api typecheck` | Pass | API readiness service typechecked. |
 | `git diff --check` | Pass | No whitespace errors; Git reported expected CRLF normalization warnings for touched files. |
+
+## Supabase Auth redirect proof ARGUS review result
+
+ARGUS reviewed the `/health/deployment` Supabase Auth redirect proof support on
+2026-06-11 and accepted the code path, with remote deployment proof still
+pending.
+
+Review result:
+
+- The implementation derives the project ref from `SUPABASE_URL` and calls only
+  `GET /v1/projects/{ref}/config/auth` when `SUPABASE_ACCESS_TOKEN`, project
+  ref, and app URL targets are configured.
+- No app code mutates Supabase Auth settings; review found no POST/PATCH/PUT/
+  DELETE path for the management endpoint.
+- The public readiness response exposes booleans and sanitized error enums only:
+  `not_configured`, `unauthorized`, `query_failed`, `timeout`, or
+  `config_mismatch`.
+- Tests include the fake management token in `SECRET_MARKERS`, assert no secret
+  appears in the public response, cover missing token, unauthorized/scope
+  failure, redirect mismatch, success, migration blocker, and dependency
+  failure.
+- Live Railway still returns the old `supabaseAuthRedirects` shape with
+  `error:"not_supported"`, so remote deploy/config proof is not green yet.
+
+Commands/probes re-run by ARGUS:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npx --yes pnpm@10.32.1 test:health` | Pass | 8 tests passed. |
+| `npx --yes pnpm@10.32.1 --filter @station/api typecheck` | Pass | API typecheck passed. |
+| `curl.exe -fsS --max-time 30 https://stationapi-production.up.railway.app/health/deployment` | Remote pending | Live response still reports `supabaseAuthRedirects.error:"not_supported"`, indicating old deployed code or missing deployment/config proof. |
+| `rg -n "SUPABASE_ACCESS_TOKEN|config/auth|setSupabaseManagementFetchForTests|supabaseAuthRedirects|siteUrlMatchesApp|passwordResetRedirectAllowed|fetch\(|method:|PATCH|POST|PUT|DELETE" apps/api/src/services/readiness.service.ts apps/api/src/routes/health.test.ts apps/api/src -S` | Reviewed | Management API usage is GET-only in readiness service; write methods found are unrelated routes/services. |
+| `Select-String` review of `readiness.service.ts` auth redirect helpers | Reviewed | Project ref derivation, URL normalization, timeout, and sanitized failure branches are explicit. |
+| `git diff --check` | Pass | No whitespace errors; CRLF normalization warning for ARGUS state only. |

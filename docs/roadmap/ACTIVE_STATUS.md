@@ -1072,6 +1072,14 @@ when a PR lands, or when validation truth changes.
   passes with Management API success, missing-token, unauthorized, config
   mismatch, migration-blocker, and dependency-failure coverage. ARGUS should
   hostile-review the non-secret response shape and readiness gating.
+- Supabase Auth redirect proof support is accepted by ARGUS, 2026-06-11: the
+  code uses only `GET /v1/projects/{ref}/config/auth`, gates the call on
+  `SUPABASE_ACCESS_TOKEN`, derives the project ref from `SUPABASE_URL`, returns
+  only booleans plus sanitized error enums, and includes secret-leak tests for
+  the management token. Local `test:health` and API typecheck pass. The live
+  Railway `/health/deployment` response still shows the older `not_supported`
+  auth-redirect shape, so remote deployment/config proof remains pending before
+  `/health/deployment.ready` can be called green.
 
 ## Current repo truth
 
