@@ -3551,3 +3551,35 @@ Commands/probes re-run by ARGUS:
 | `Select-String` timeout review in `readiness.service.ts` | Reviewed | `SUPABASE_MANAGEMENT_TIMEOUT_MS=5000` is used only for Management API fetch/json parsing; other readiness checks keep `CHECK_TIMEOUT_MS=1500`. |
 | `.env.example` diff review | Reviewed | Adds `SUPABASE_POOLER_URL` and `SUPABASE_ACCESS_TOKEN` names only; no values. |
 | `git diff --check` | Pass | No whitespace errors; CRLF normalization warning for ARGUS state only. |
+
+## Populated replay route audit and helper-lane handoff
+
+DAEDALUS audited the active populated replay lane on 2026-06-11 and did not
+populate staging replay data. Setup/config is green, but the corpus cannot be
+created through existing UI/API paths from a fresh replay signup without an
+explicit setup helper.
+
+Result:
+
+- Live `/health/deployment` reports `ready:true`.
+- No reusable replay-account env keys or documented replay account credentials
+  exist in the repo/worktree.
+- API signup creates confirmed `visitor` users.
+- Persona creation requires `private`; Space/document creation requires
+  `creator`; Developer Space creation requires `canon`.
+- Direct service-role tier or corpus mutation would be a seed/helper path and
+  should be reviewed before it is used as replay evidence.
+
+Commands/probes:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `.env` presence-only replay key check | Reviewed | No replay-account/test-account env keys were present; staging Supabase/Gemini values exist but were not printed. |
+| `curl.exe -fsS --max-time 30 https://stationapi-production.up.railway.app/health/deployment` | Pass | Live response is `ready:true`; deployment setup/config blockers are closed. |
+| `npx --yes pnpm@10.32.1 test:replay-readiness` | Pass | 1 replay-readiness test passed. |
+| `npx --yes pnpm@10.32.1 test:health` | Pass | 8 health tests passed. |
+| `npx --yes pnpm@10.32.1 test:storage` | Pass | 7 storage/archive tests passed. |
+| `npx --yes pnpm@10.32.1 test:persona-context` | Pass | 3 persona-context tests passed. |
+| `npx --yes pnpm@10.32.1 test:conversation-archive` | Pass | 5 conversation/archive-retrieval tests passed. |
+| `npx --yes pnpm@10.32.1 test:continuity` | Pass | 4 continuity tests passed. |
+| `git diff --check` | Pass | No whitespace errors; Git reported expected CRLF normalization warnings for touched docs. |

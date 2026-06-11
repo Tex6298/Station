@@ -1108,6 +1108,16 @@ when a PR lands, or when validation truth changes.
   owner, other-owner, anonymous, wrong-persona, and lifecycle-filter paths, and
   capture sanitized counts/modes/latency/profile/relevance evidence only. A
   no-data RPC proof remains setup evidence, not retrieval-quality evidence.
+- DAEDALUS route-audited the populated replay lane, 2026-06-11: live
+  `/health/deployment` is `ready:true` and all named local replay/health/storage/
+  persona/archive/continuity gates pass, but existing UI/API paths cannot
+  populate the full bounded corpus from a fresh replay signup. Beta signup
+  creates `visitor` profiles, while persona creation needs `private`, Space and
+  document creation need `creator`, and Developer Spaces need `canon`. No
+  reusable replay-account env keys or documented credentials exist. The next
+  acceptable move is a narrow replay seed/helper lane for ARGUS review; direct
+  service-role tier/data mutation should not be smuggled into the measurement
+  lane.
 
 ## Current repo truth
 

@@ -2,9 +2,9 @@
 
 Date: 2026-06-11
 
-Status: active MIMIR handoff for DAEDALUS. Setup/config blockers are closed;
-this lane is about populated replay evidence, not another no-data readiness
-probe.
+Status: DAEDALUS route audit complete; populated replay execution is blocked
+on a narrow replay seed/helper lane. Setup/config blockers are closed; this
+lane is about populated replay evidence, not another no-data readiness probe.
 
 ## Current truth
 
@@ -18,6 +18,34 @@ probe.
   by Gemini for the free-tier testing lane.
 - The previous RPC proof returned zero rows by design. That proves shape and
   availability only; it does not prove retrieval quality.
+
+## DAEDALUS route audit result
+
+DAEDALUS did not populate staging replay data in this pass. Existing UI/API
+paths cannot create the full bounded corpus from a fresh replay signup without
+an explicit setup helper:
+
+- API beta signup creates a confirmed account but the profile defaults to
+  `visitor`.
+- Persona creation requires at least `private`.
+- Space and document creation require at least `creator`.
+- Developer Space creation requires `canon`.
+- Persona-file archive ingestion, conversation archive, context preview,
+  continuity records, discussion/comment paths, and export readback all depend
+  on first having a usable owner/persona and, for the public corpus, creator
+  surfaces.
+- No reusable replay-account env keys or documented replay account credentials
+  exist in this repo/worktree.
+- The local `.env` has staging Supabase/Gemini values, but using service-role
+  credentials directly to mutate tiers or seed rows would be an unreviewed
+  helper path, not "existing UI/API paths."
+
+Next acceptable move: open a narrow replay seed/helper lane for ARGUS review.
+That helper should create or reuse exactly one non-production replay owner,
+assign the minimum explicit tier needed for the bounded corpus, seed only
+owner-scoped replay rows, write Gemini `station_free_1536` vectors with the
+active metadata, avoid committed secrets/private excerpts, and then hand back
+to DAEDALUS for measurement.
 
 ## DAEDALUS scope
 
