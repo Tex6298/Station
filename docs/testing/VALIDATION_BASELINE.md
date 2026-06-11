@@ -3159,3 +3159,35 @@ Commands/probes:
 | Local `DATABASE_URL` host shape check | Blocked for CLI apply | URL is the direct `db.<project>.supabase.co:5432` host, not a pooler URL; this matches the earlier IPv6-only direct-host blocker in this shell. |
 | `node scripts/prove-staging-migration-029.mjs` | Expected failure | Returned sanitized `PGRST202` for both provider-aware RPC calls; hints still show only pre-029 signatures. |
 | `git diff --check` | Pass | No whitespace errors. |
+
+## Stale Supabase MCP retry ARGUS review result
+
+ARGUS reviewed DAEDALUS's stale Supabase MCP retry on 2026-06-11 and accepted
+the remaining blocker as external access/session state, not Station code.
+
+Review result:
+
+- The ARGUS worker can see Supabase MCP tools, but both metadata calls still
+  fail at transport auth with `OAuth authorization required`.
+- This shell has no `SUPABASE_ACCESS_TOKEN`, no linked project ref under
+  `infra/supabase`, and only the direct `DATABASE_URL` among checked connection
+  keys.
+- Public readiness is still non-secret and reports improved Gemini, Stripe, and
+  Redis config, but remains `ready:false` because migration proof returns
+  `query_failed`.
+- Direct provider-aware RPC proof still returns sanitized `PGRST202` for both
+  calls; no secret values were printed.
+
+Commands/probes re-run by ARGUS:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| Supabase MCP `list_tables` | Blocked | Transport auth returned `OAuth authorization required`. |
+| Supabase MCP `list_migrations` | Blocked | Transport auth returned `OAuth authorization required`. |
+| `npx --yes supabase migration list --linked --workdir infra/supabase` | Blocked | No linked project ref is present. |
+| `npx --yes supabase db push --linked --dry-run --workdir infra/supabase` | Blocked | No linked project ref is present. |
+| Local token/link/pooler key check | Blocked for apply | `SUPABASE_ACCESS_TOKEN` is missing; `infra/supabase/.temp/project-ref` is missing; only `DATABASE_URL` was found among checked connection keys. |
+| `node --check scripts/prove-staging-migration-029.mjs` | Pass | Proof script syntax is valid. |
+| `node scripts/prove-staging-migration-029.mjs` | Expected failure | Returned sanitized `PGRST202` for both provider-aware RPC calls. |
+| `curl.exe -fsS --max-time 30 https://stationapi-production.up.railway.app/health/deployment` | Blocked readiness, improved config | Returned non-secret `ready:false`; Gemini embeddings, Stripe billing/prices, Redis, database, and storage are true; migration proof is still `query_failed`. |
+| `git diff --check` | Pass | No whitespace errors; CRLF normalization warning for ARGUS state only. |

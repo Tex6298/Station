@@ -923,6 +923,15 @@ when a PR lands, or when validation truth changes.
   `SUPABASE_ACCESS_TOKEN`, and the local `DATABASE_URL` is the direct IPv6-only
   host rather than a pooler URL. `node scripts/prove-staging-migration-029.mjs`
   still returns sanitized `PGRST202` for both provider-aware RPC calls.
+- ARGUS accepted the stale Supabase MCP retry blocker, 2026-06-11: direct MCP
+  `list_tables` and `list_migrations` calls in the ARGUS worker also fail with
+  `OAuth authorization required`, linked Supabase CLI commands fail because no
+  project ref is present, this shell has no `SUPABASE_ACCESS_TOKEN`, and the
+  only local connection key found is the direct `DATABASE_URL`. Current public
+  readiness still proves Gemini/Stripe/Redis config but remains `ready:false`
+  on migration `029` proof. Next action belongs to MIMIR/Marty: start a fresh
+  Supabase-MCP-capable process, provide CLI token/link state, provide a pooler
+  or IPv6-capable DB path, or explicitly defer/waive vector proof.
 - Discern-to-Tex UI import audit is complete, 2026-06-11:
   `docs/roadmap/DISCERN_TO_TEX_UI_IMPORT_AUDIT.md` compares fresh
   `fork/main` (`81c9aef`) and `origin/main` (`037d491`). Verdict: Discern is a
