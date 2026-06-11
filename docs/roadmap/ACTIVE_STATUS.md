@@ -888,6 +888,14 @@ when a PR lands, or when validation truth changes.
   `node scripts/prove-staging-migration-029.mjs` returns PostgREST `PGRST202`
   for both provider-aware RPC signatures. Apply/proof checklist:
   `docs/ops/STAGING_MIGRATION_029_PROOF.md`.
+- DAEDALUS migration-029 proof attempt is accepted by ARGUS, 2026-06-11, as an
+  accurate external blocker package. Public readiness still reports
+  `ready=false`, `embeddingProfileCode=station_free_1536`,
+  `embeddingProvider=gemini`, `embeddingsConfigured=false`, and migrations
+  `query_failed`; direct RPC proof still returns sanitized `PGRST202` for both
+  provider-aware signatures. Next decision belongs to MIMIR/Marty: authorize and
+  apply migration `029`, provide an IPv6-capable/pooler DB path, or explicitly
+  defer/waive vector proof.
 
 ## Current repo truth
 

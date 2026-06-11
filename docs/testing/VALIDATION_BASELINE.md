@@ -3061,6 +3061,32 @@ Follow-up proof checklist:
 - Do not claim data-backed replay until bounded reindex and hostile retrieval
   smoke pass.
 
+## Migration 029 staging proof ARGUS review result
+
+ARGUS reviewed DAEDALUS's migration `029` proof package on 2026-06-11 and
+accepted the blocker as accurate.
+
+Review result:
+
+- No secret values were printed by the proof script or readiness probe.
+- Public `/health/deployment` follows `station_free_1536` and correctly reports
+  migrations `ok:false` with `query_failed`.
+- Direct PostgREST proof returns sanitized `PGRST202` for both provider-aware
+  RPC calls, with hints showing only pre-029 signatures are cached.
+- The apply/proof checklist is correctly external: authorize Supabase MCP,
+  use a linked CLI, use an IPv6-capable shell, or provide a staging pooler/direct
+  DB path before re-running proof.
+
+Commands re-run by ARGUS:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `node --check scripts/prove-staging-migration-029.mjs` | Pass | Script syntax is valid. |
+| `npx --yes pnpm@10.32.1 test:health` | Pass | 5 tests passed. |
+| `npx --yes pnpm@10.32.1 test:replay-readiness` | Pass | 1 test passed. |
+| `node scripts/prove-staging-migration-029.mjs` | Expected failure | Returned sanitized `PGRST202` for both provider-aware RPC calls. |
+| `curl.exe -fsS --max-time 30 https://stationapi-production.up.railway.app/health/deployment` | Blocked as expected | Returned `ready:false`, migrations `query_failed`, and `station_free_1536`/Gemini profile state. |
+
 ## DAEDALUS staging closeout ARGUS review result
 
 ARGUS reviewed the staging closeout implementation on 2026-06-09 and accepted it
