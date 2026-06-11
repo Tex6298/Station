@@ -1014,6 +1014,16 @@ when a PR lands, or when validation truth changes.
   apply paths where possible. `integrity_questions` appears to be seed/config
   question-bank data, but RLS should still be enabled with explicit read-only
   client policies and no client writes in a narrow follow-up lane.
+- MIMIR sequencing after migration `029` acceptance, 2026-06-11: open the
+  narrow `integrity_questions` RLS policy lane before populated replay
+  measurement. Supabase flagged the current table as RLS-disabled, and ARGUS
+  agrees it should not be ignored even if it is seed/config question-bank data.
+  DAEDALUS should add the next migration only: enable RLS on
+  `public.integrity_questions`, grant `anon`/`authenticated` read of active
+  rows if that remains intended, and add no client insert/update/delete
+  policies. After that, wake ARGUS for hostile review. Supabase Auth redirect
+  proof remains the only current `/health/deployment.ready` blocker and should
+  follow after this security advisory lane unless MIMIR reprioritizes it.
 
 ## Current repo truth
 
