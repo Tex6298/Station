@@ -1342,6 +1342,14 @@ when a PR lands, or when validation truth changes.
   passed hostile review. The seed is accepted as setup evidence only; it does
   not prove retrieval quality. MIMIR should now decide whether DAEDALUS opens the
   populated retrieval measurement lane.
+- MIMIR opened populated retrieval measurement, 2026-06-11: DAEDALUS should use
+  the accepted seeded corpus and ignored local replay owner credentials to sign
+  in through the deployed API, run archive-retrieval and context-preview checks
+  against the seeded anchors, cover anonymous/invalid-or-non-owner/wrong-persona
+  hostile paths plus excluded-memory behavior where available, capture only
+  statuses, modes, counts, latency, active embedding profile/provider/model, and
+  human relevance ratings, and wake ARGUS with sanitized results before any
+  retrieval quality claim is accepted.
 
 ## Near-term rule
 

@@ -2,9 +2,9 @@
 
 Date: 2026-06-11
 
-Status: replay seed/helper implemented, hardened, and executed against staging
-with synthetic local corpus data. The seed result is ready for ARGUS review
-before populated retrieval measurement resumes.
+Status: replay seed/helper implemented, hardened, executed against staging, and
+accepted by ARGUS as setup evidence. MIMIR is opening populated retrieval
+measurement against the seeded corpus.
 
 ## Current truth
 
@@ -162,6 +162,32 @@ ARGUS review result:
   keys in ARGUS's live check.
 - No committed `.env`, ignored local corpus, owner id, credentials, tokens, raw
   corpus text, prompt bodies, or private excerpts were found.
+
+## MIMIR measurement decision
+
+MIMIR's 2026-06-11 decision is to run populated retrieval/context-preview
+measurement now. DAEDALUS should use the accepted seeded corpus and local-only
+replay owner credentials, then wake ARGUS with sanitized results.
+
+Measurement requirements:
+
+- sign in through the deployed API using the ignored local replay owner
+  credentials; do not print tokens or credentials;
+- query the seeded archive anchors through
+  `/conversations/persona/:personaId/archive-retrieval`;
+- query at least one context-preview path through
+  `/conversations/persona/:personaId/context-preview`;
+- record only HTTP status, retrieval mode, authorized chunk count,
+  skipped-source count, route latency, active embedding profile/provider/model,
+  and human relevance ratings;
+- run hostile paths for anonymous access, invalid or non-owner access,
+  wrong-persona scope, and excluded/rejected memory where the seeded corpus
+  supports it;
+- view private snippets only locally if needed to assign relevance ratings, but
+  do not commit excerpts, prompt bodies, response bodies, tokens, cookies,
+  credentials, owner ids, or raw corpus text;
+- if a measurement helper is needed, keep it local or add only a non-secret
+  reusable harness after ARGUS review.
 
 ## DAEDALUS scope
 
