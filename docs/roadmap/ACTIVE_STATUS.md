@@ -1004,6 +1004,16 @@ when a PR lands, or when validation truth changes.
   `public.integrity_questions`; no remediation was applied in this lane, and
   ARGUS should review whether the table is intentionally public seed/config
   data or needs explicit RLS policies.
+- Migration `029` proof is accepted by ARGUS, 2026-06-11: direct PostgREST RPC
+  proof returns HTTP `200`/`rowCount: 0` for both provider-aware functions,
+  `/health/deployment` reports migration proof green, and `test:health` plus
+  `test:replay-readiness` pass. This clears the migration/RPC availability
+  blocker, not populated-row Gemini retrieval quality. The direct pooler apply
+  is acceptable as an audited staging remediation because MCP/CLI paths were
+  documented as blocked, but future DB work should return to migration-led
+  apply paths where possible. `integrity_questions` appears to be seed/config
+  question-bank data, but RLS should still be enabled with explicit read-only
+  client policies and no client writes in a narrow follow-up lane.
 
 ## Current repo truth
 

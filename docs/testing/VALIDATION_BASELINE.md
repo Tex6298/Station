@@ -3309,3 +3309,38 @@ Commands/probes:
 | `curl.exe -fsS --max-time 30 https://stationapi-production.up.railway.app/health/deployment` | Partial pass | Migrations, database, storage, Gemini, Stripe, and Redis are green; overall `ready:false` because Supabase Auth redirect management proof is `not_supported`. |
 | `npx --yes pnpm@10.32.1 test:health` | Pass | 5 tests passed. |
 | `npx --yes pnpm@10.32.1 test:replay-readiness` | Pass after rerun | First run hit a transient local `@station/db` tsconfig read failure; direct `@station/db` build passed, then replay-readiness passed. |
+
+## Migration 029 ARGUS proof review result
+
+ARGUS reviewed the pooler apply/proof package on 2026-06-11 and accepted it as
+staging migration/RPC availability proof.
+
+Review result:
+
+- `node scripts/prove-staging-migration-029.mjs` now succeeds against PostgREST
+  with HTTP `200` and `rowCount: 0` for both provider-aware RPC functions.
+- Public `/health/deployment` reports `readiness.migrations.ok: true` and latest
+  proof `025-029/public_schema_object_and_rpc_proof`.
+- Overall deployment readiness remains `ready:false` only because Supabase Auth
+  redirect management proof is `not_supported`.
+- The direct pooler `node-postgres` apply is acceptable as an audited staging
+  remediation because MCP OAuth, direct IPv6 DB, and Supabase CLI multi-command
+  transaction-pooler paths were documented as blocked.
+- `public.integrity_questions` is seed/config question-bank data used by the API
+  service-role client, but the Supabase RLS advisory should not be ignored.
+  Follow up with explicit RLS: public/authenticated read of active rows if
+  intended, and no client-side write/update/delete policies.
+- This clears RPC availability/no-data proof. It does not yet prove populated
+  Gemini retrieval quality or replay measurement quality.
+
+Commands/probes re-run by ARGUS:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `node scripts/prove-staging-migration-029.mjs` | Pass | Both provider-aware RPC calls returned HTTP `200` with `rowCount: 0`. |
+| `curl.exe -fsS --max-time 30 https://stationapi-production.up.railway.app/health/deployment` | Partial pass | Migration proof, database, storage, Gemini, Stripe, and Redis are green; overall `ready:false` only on Supabase Auth redirect proof `not_supported`. |
+| `npx --yes pnpm@10.32.1 test:health` | Pass | 5 tests passed. |
+| `npx --yes pnpm@10.32.1 test:replay-readiness` | Pass | 1 test passed after workspace package builds. |
+| `rg -n "integrity_questions|create table.*integrity|insert into.*integrity_questions|alter table.*integrity_questions|policy.*integrity_questions|from\('integrity_questions'\)|integrity questions" -S .` | Reviewed | Table is a seeded question bank used by the integrity-session service; no RLS policy exists in the current migration set. |
+| `Select-String` over migration `029` provider-aware RPC definitions | Reviewed | Local migration defines provider/model/index-name parameters and authenticated execute grants for both RPCs. |
+| `git diff --check` | Pass | No whitespace errors. |
