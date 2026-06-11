@@ -71,6 +71,16 @@ not contain a pooler/supavisor URL. The remaining apply paths are therefore:
 - an IPv6-capable shell for the direct database host; or
 - a staging pooler connection string.
 
+DAEDALUS retried again after MIMIR routed commit `b209ac0` back to A2 for a
+fresh Supabase MCP check. This process still fails before any Supabase read with
+the same MCP transport error on both `list_tables` and `list_migrations`:
+
+```text
+OAuth authorization required
+```
+
+No migration apply was attempted from this state.
+
 ## Remote proof attempt
 
 Public readiness probe:
