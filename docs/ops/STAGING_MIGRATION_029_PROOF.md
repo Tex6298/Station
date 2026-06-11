@@ -54,6 +54,23 @@ Retrying with `--dns-resolver https` still returned no usable IPv4 address:
 failed to locate valid IP for db.jdewavktyemnpehdzvgl.supabase.co
 ```
 
+DAEDALUS retried after MIMIR completed `codex mcp login supabase` on
+2026-06-11. This loaded DAEDALUS process still receives the same MCP transport
+error:
+
+```text
+OAuth authorization required
+```
+
+The Supabase CLI still has no local access token or link state, and `.env` does
+not contain a pooler/supavisor URL. The remaining apply paths are therefore:
+
+- a genuinely fresh Codex/MCP worker that sees the completed Supabase OAuth
+  grant;
+- a `SUPABASE_ACCESS_TOKEN` for the Supabase CLI;
+- an IPv6-capable shell for the direct database host; or
+- a staging pooler connection string.
+
 ## Remote proof attempt
 
 Public readiness probe:
@@ -69,7 +86,11 @@ Sanitized result observed on 2026-06-11:
 | `ready` | `false` |
 | `checks.embeddingProfileCode` | `station_free_1536` |
 | `checks.embeddingProvider` | `gemini` |
-| `checks.embeddingsConfigured` | `false` |
+| `checks.embeddingsConfigured` | `true` |
+| `checks.geminiEmbeddings` | `true` |
+| `checks.stripeBilling` | `true` |
+| `checks.stripePrices` | `true` |
+| `checks.redisConfigured` | `true` |
 | `readiness.database.ok` | `true` |
 | `readiness.storage.ok` | `true` |
 | `readiness.migrations.ok` | `false` |
