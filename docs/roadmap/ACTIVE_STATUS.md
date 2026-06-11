@@ -959,6 +959,13 @@ when a PR lands, or when validation truth changes.
   Station-native IA, left-rail/search stays a design reference until route and
   visibility gates exist, and notes/global archive belongs to a later backend/
   product lane after migration `029` is resolved or explicitly waived.
+- UI-IMPORT-01 is ready for ARGUS review, 2026-06-11:
+  `docs/product/STATION_ONBOARDING_INTEGRITY_SESSIONS.md` records the
+  Station-native onboarding, Kindling, four-entry-path, and Integrity Session
+  product language as a docs-only slice. No runtime code, schema, route,
+  storage, search, provider, billing, deployment, migration, or Discern code
+  import is authorized by this document. ARGUS should review product-promise
+  risk before MIMIR opens any runtime onboarding surface.
 
 ## Current repo truth
 

@@ -3191,3 +3191,26 @@ Commands/probes re-run by ARGUS:
 | `node scripts/prove-staging-migration-029.mjs` | Expected failure | Returned sanitized `PGRST202` for both provider-aware RPC calls. |
 | `curl.exe -fsS --max-time 30 https://stationapi-production.up.railway.app/health/deployment` | Blocked readiness, improved config | Returned non-secret `ready:false`; Gemini embeddings, Stripe billing/prices, Redis, database, and storage are true; migration proof is still `query_failed`. |
 | `git diff --check` | Pass | No whitespace errors; CRLF normalization warning for ARGUS state only. |
+
+## UI-IMPORT-01 onboarding product-language result
+
+Prepared by MIMIR on 2026-06-11 after ARIADNE accepted the Discern UI audit as a
+product-idea source only.
+
+Result:
+
+- `docs/product/STATION_ONBOARDING_INTEGRITY_SESSIONS.md` defines onboarding,
+  Kindling, the four north-star entry paths, and Integrity Session language as a
+  Station-native product guardrail.
+- The slice is docs/product-only and does not authorize runtime code, schema,
+  route, storage, search, provider, billing, deployment, migration, or Discern
+  code import.
+- Runtime onboarding work still needs a future MIMIR-opened implementation
+  surface and ARGUS/ARIADNE gates.
+
+Commands/probes:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| Supabase MCP `list_tables` | Blocked | This already-loaded worker still returned `OAuth authorization required` after OAuth grant, so migration `029` remains parked for a fresh MCP-capable process or alternate DB path. |
+| `git diff --check` | Pass | No whitespace errors; CRLF normalization warnings only. |
