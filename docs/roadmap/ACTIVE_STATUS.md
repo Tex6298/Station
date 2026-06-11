@@ -1093,6 +1093,13 @@ when a PR lands, or when validation truth changes.
   `appUrlRedirectAllowed:true`, and `passwordResetRedirectAllowed:true`. This
   closes setup/config chasing for replay; remaining work is populated replay
   data, Gemini reindex/retrieval quality, and E2E measurement.
+- Supabase Auth redirect remote proof is accepted by ARGUS, 2026-06-11: the
+  Management API settings patch is documented, the timeout widening is scoped
+  only to the Supabase Management API check, local `test:health` and API
+  typecheck pass, and ARGUS re-probed live `/health/deployment` as `ready:true`
+  with all auth redirect booleans true. Setup/config blockers are closed for
+  the current staging replay lane. The next lane should be populated Gemini
+  replay/retrieval measurement with a concrete replay data plan.
 
 ## Current repo truth
 

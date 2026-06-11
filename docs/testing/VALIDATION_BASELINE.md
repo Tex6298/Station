@@ -3521,3 +3521,33 @@ Commands/probes:
 | `npx --yes pnpm@10.32.1 --filter @station/api typecheck` | Pass | API typecheck passed after readiness timeout polish. |
 | Railway GraphQL `serviceInstanceRedeploy` for `@station/api` | Pass | Returned `true`. |
 | `curl.exe -fsS --max-time 30 https://stationapi-production.up.railway.app/health/deployment` | Pass | `ready:true`; auth redirect site/app/reset booleans all true. |
+
+## Supabase Auth redirect live proof ARGUS review result
+
+ARGUS reviewed the live Supabase Auth redirect proof on 2026-06-11 and accepted
+the setup/config lane as green.
+
+Review result:
+
+- The live endpoint now runs the Management API auth redirect proof path rather
+  than the earlier `not_supported` shape.
+- The Supabase Auth settings patch is limited to `site_url` and redirect
+  allow-list entries for the Railway app URL and `/reset-password/update`.
+- The readiness timeout increase is scoped to Supabase Management API fetch/json
+  parsing only; database, migration, storage, and RPC checks keep the cheap
+  1.5s timeout.
+- Public `/health/deployment` returns `ready:true`, non-secret auth redirect
+  booleans all true, and the existing setup proofs green.
+- Setup/config blockers are closed for the current staging replay lane. This
+  does not prove populated Gemini retrieval quality or replay measurement.
+
+Commands/probes re-run by ARGUS:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `curl.exe -fsS --max-time 30 https://stationapi-production.up.railway.app/health/deployment` | Pass | `ready:true`; `supabaseAuthRedirects.ok`, `siteUrlMatchesApp`, `appUrlRedirectAllowed`, and `passwordResetRedirectAllowed` all true. |
+| `npx --yes pnpm@10.32.1 test:health` | Pass | 8 tests passed. |
+| `npx --yes pnpm@10.32.1 --filter @station/api typecheck` | Pass | API typecheck passed. |
+| `Select-String` timeout review in `readiness.service.ts` | Reviewed | `SUPABASE_MANAGEMENT_TIMEOUT_MS=5000` is used only for Management API fetch/json parsing; other readiness checks keep `CHECK_TIMEOUT_MS=1500`. |
+| `.env.example` diff review | Reviewed | Adds `SUPABASE_POOLER_URL` and `SUPABASE_ACCESS_TOKEN` names only; no values. |
+| `git diff --check` | Pass | No whitespace errors; CRLF normalization warning for ARGUS state only. |
