@@ -3662,6 +3662,33 @@ Commands:
 | `npx --yes pnpm@10.32.1 replay:seed:staging` | Pass | Staging seed completed with sanitized output only. `npx` emitted existing npm project-config warnings. |
 | Local replay owner id capture | Pass | Stored the seeded owner id back into ignored `.env` for future explicit reuse; value was not printed. |
 
+ARGUS hostile-reviewed the seeded staging state on 2026-06-11 using the ignored
+local env/corpus without printing ids, credentials, corpus text, prompt bodies,
+or private excerpts.
+
+Review result:
+
+- Replay owner profile exists exactly once, uses the ignored local
+  `STATION_REPLAY_OWNER_ID`, and is `canon`.
+- Owner-scoped live counts match the bounded corpus: one persona, one archived
+  conversation/transcript, four memory items, one continuity record, one
+  Space/document/thread/comment, one Developer Space node/event/snapshot, and
+  one persona export package.
+- Space, document, and Developer Space slugs resolve to the replay owner.
+- Replay memory rows carry provider `gemini`, model `gemini-embedding-2`,
+  dimension `1536`, index `memory_items_embedding_1536`, source
+  `supabase_pgvector`, and backfill version `2`.
+- Public Developer Space event/snapshot payloads contain no secret-shaped keys
+  by ARGUS's recursive key scan.
+- Git did not track `.env`, ignored local corpus files, credentials, owner id,
+  tokens, raw corpus text, prompt bodies, or private excerpts.
+
+| Command/probe | Result | Notes |
+| --- | --- | --- |
+| ARGUS live Supabase REST seed-state probe | Pass | Queried staging with service-role credentials from ignored `.env`; printed sanitized booleans/counts/metadata only. |
+| `git ls-files` ignored-corpus/env scan | Pass | No local `.env` or `staging-replay-corpus.local.json` path is tracked. |
+| `git grep` committed secret-shape scan | Pass | Hits were placeholder docs and explicit test fixtures only, not committed replay credentials or corpus. |
+
 ## Replay seed/helper lane ARGUS review result
 
 ARGUS reviewed DAEDALUS's populated replay route audit on 2026-06-11 and

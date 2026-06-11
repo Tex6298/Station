@@ -141,8 +141,27 @@ Sanitized helper output:
 - Omitted from output and docs: credentials, tokens, raw archive text, prompt
   bodies, and private excerpts.
 
-ARGUS should hostile-review the seeded state before retrieval measurement uses
-this data as evidence.
+ARGUS accepted the seeded state after live staging review. Retrieval measurement
+may use this corpus as setup evidence, but the seed run itself is not retrieval
+quality proof.
+
+ARGUS review result:
+
+- The replay owner profile exists exactly once, is keyed to the ignored local
+  `STATION_REPLAY_OWNER_ID`, and remains `canon`.
+- Owner-scoped persona, archived conversation/transcript, four replay memory
+  rows, continuity record, Space/document/thread/comment, Developer Space
+  node/event/snapshot, and persona export package are present with bounded
+  counts.
+- Space, document, and Developer Space slugs are owned by the replay owner.
+- Replay memory rows use active Gemini metadata: provider `gemini`, model
+  `gemini-embedding-2`, dimension `1536`, index
+  `memory_items_embedding_1536`, source `supabase_pgvector`, backfill version
+  `2`.
+- Public Developer Space event/snapshot payloads did not contain secret-shaped
+  keys in ARGUS's live check.
+- No committed `.env`, ignored local corpus, owner id, credentials, tokens, raw
+  corpus text, prompt bodies, or private excerpts were found.
 
 ## DAEDALUS scope
 

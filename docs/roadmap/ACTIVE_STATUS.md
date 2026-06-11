@@ -1336,6 +1336,12 @@ when a PR lands, or when validation truth changes.
   snapshot, and one persona export package. Credentials, tokens, raw archive
   text, prompt bodies, and private excerpts were not printed or committed.
   ARGUS should review seeded state before retrieval measurement resumes.
+- ARGUS accepted the live staging replay seed state, 2026-06-11: owner scoping,
+  bounded counts, slug ownership, Gemini `station_free_1536` memory metadata,
+  public-safe Developer Space payload keys, and committed-secret/corpus hygiene
+  passed hostile review. The seed is accepted as setup evidence only; it does
+  not prove retrieval quality. MIMIR should now decide whether DAEDALUS opens the
+  populated retrieval measurement lane.
 
 ## Near-term rule
 
