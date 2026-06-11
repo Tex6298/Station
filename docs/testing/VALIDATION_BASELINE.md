@@ -3341,6 +3341,30 @@ Commands/probes re-run by ARGUS:
 | `curl.exe -fsS --max-time 30 https://stationapi-production.up.railway.app/health/deployment` | Partial pass | Migration proof, database, storage, Gemini, Stripe, and Redis are green; overall `ready:false` only on Supabase Auth redirect proof `not_supported`. |
 | `npx --yes pnpm@10.32.1 test:health` | Pass | 5 tests passed. |
 | `npx --yes pnpm@10.32.1 test:replay-readiness` | Pass | 1 test passed after workspace package builds. |
-| `rg -n "integrity_questions|create table.*integrity|insert into.*integrity_questions|alter table.*integrity_questions|policy.*integrity_questions|from\('integrity_questions'\)|integrity questions" -S .` | Reviewed | Table is a seeded question bank used by the integrity-session service; no RLS policy exists in the current migration set. |
+| `rg -n "integrity_questions|create table.*integrity|insert into.*integrity_questions|alter table.*integrity_questions|policy.*integrity_questions|from\('integrity_questions'\)|integrity questions" -S .` | Reviewed | Table is a seeded question bank used by the integrity-session service; no RLS policy existed in the pre-030 migration set. |
 | `Select-String` over migration `029` provider-aware RPC definitions | Reviewed | Local migration defines provider/model/index-name parameters and authenticated execute grants for both RPCs. |
 | `git diff --check` | Pass | No whitespace errors. |
+
+## Migration 030 integrity question-bank RLS
+
+DAEDALUS added `infra/supabase/migrations/030_integrity_questions_rls.sql` on
+2026-06-11 as a narrow response to the Supabase advisory for
+`public.integrity_questions`.
+
+Scope:
+
+- Enables Row Level Security on `public.integrity_questions`.
+- Grants `SELECT` on active rows only to `anon` and `authenticated`.
+- Adds no client insert, update, or delete policies; writes remain service-role
+  or migration-only.
+- Does not change integrity session route behavior, auth redirects, replay
+  corpus work, Gemini retrieval quality measurement, or onboarding runtime UI.
+
+Validation:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `rg -n "integrity_questions|create policy.*integrity_questions|enable row level" infra/supabase apps/api docs` | Reviewed | Confirmed the pre-030 table had no RLS policy and migration `030` now owns only active-row read policies. |
+| `Select-String -Path infra/supabase/migrations/030_integrity_questions_rls.sql -Pattern "for insert|for update|for delete|for all" -CaseSensitive:$false` | Pass | No matches; migration `030` adds no client write policies. |
+| `npx --yes pnpm@10.32.1 test:integrity` | Pass | 2 integrity route/session tests passed after workspace package builds. |
+| `git diff --check` | Pass | No whitespace errors; Git reported expected CRLF normalization warnings for touched docs. |

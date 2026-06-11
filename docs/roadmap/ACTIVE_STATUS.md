@@ -1024,6 +1024,12 @@ when a PR lands, or when validation truth changes.
   policies. After that, wake ARGUS for hostile review. Supabase Auth redirect
   proof remains the only current `/health/deployment.ready` blocker and should
   follow after this security advisory lane unless MIMIR reprioritizes it.
+- DAEDALUS added the narrow `integrity_questions` RLS migration, 2026-06-11:
+  `infra/supabase/migrations/030_integrity_questions_rls.sql` enables RLS on
+  the seeded question-bank table and grants only active-row `SELECT` to `anon`
+  and `authenticated`. It adds no client insert/update/delete policies; writes
+  remain service-role or migration-only. ARGUS should hostile-review that policy
+  scope before MIMIR treats the advisory lane as accepted.
 
 ## Current repo truth
 
