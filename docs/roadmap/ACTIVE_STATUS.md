@@ -1118,6 +1118,14 @@ when a PR lands, or when validation truth changes.
   acceptable move is a narrow replay seed/helper lane for ARGUS review; direct
   service-role tier/data mutation should not be smuggled into the measurement
   lane.
+- Replay seed/helper lane is accepted by ARGUS as the next bounded move,
+  2026-06-11: route gates and env presence checks support DAEDALUS's blocker
+  claim, and all named local gates plus live health are green. The helper must
+  be setup-only, create or reuse exactly one non-production replay owner, assign
+  the minimum explicit tier needed, seed only owner-scoped replay rows, write
+  Gemini `station_free_1536` metadata correctly, avoid committed secrets/private
+  excerpts, and wake ARGUS before any seeded data is treated as measurement
+  evidence.
 
 ## Current repo truth
 

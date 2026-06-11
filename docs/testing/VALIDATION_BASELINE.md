@@ -3583,3 +3583,38 @@ Commands/probes:
 | `npx --yes pnpm@10.32.1 test:conversation-archive` | Pass | 5 conversation/archive-retrieval tests passed. |
 | `npx --yes pnpm@10.32.1 test:continuity` | Pass | 4 continuity tests passed. |
 | `git diff --check` | Pass | No whitespace errors; Git reported expected CRLF normalization warnings for touched docs. |
+
+## Replay seed/helper lane ARGUS review result
+
+ARGUS reviewed DAEDALUS's populated replay route audit on 2026-06-11 and
+accepted a narrow replay seed/helper lane before staging corpus mutation.
+
+Review result:
+
+- Live `/health/deployment` is `ready:true`, so setup/config blockers are closed
+  for this replay lane.
+- The tier-gate blocker is real: beta signup returns a `visitor`; persona
+  creation requires `private`; Space/document creation requires `creator`; and
+  Developer Space creation requires `canon`.
+- No replay-account/test-account env keys were found by a presence-only `.env`
+  scan.
+- Direct service-role mutation must be treated as seed/helper setup, not as
+  measurement execution.
+- Accepted helper constraints: exactly one non-production replay owner, minimum
+  explicit tier, owner-scoped rows only, Gemini `station_free_1536` metadata,
+  no committed secrets/private excerpts, and ARGUS review before measurement.
+
+Commands/probes re-run by ARGUS:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `.env` presence-only replay key check | Pass | No `REPLAY`, `STAGING_REPLAY`, `TEST_REPLAY`, `E2E`, or `PLAYWRIGHT` account keys found. |
+| `curl.exe -fsS --max-time 30 https://stationapi-production.up.railway.app/health/deployment` | Pass | Live response is `ready:true`. |
+| `npx --yes pnpm@10.32.1 test:replay-readiness` | Pass | 1 test passed. |
+| `npx --yes pnpm@10.32.1 test:health` | Pass | 8 tests passed. |
+| `npx --yes pnpm@10.32.1 test:storage` | Pass | 7 tests passed. |
+| `npx --yes pnpm@10.32.1 test:persona-context` | Pass | 3 tests passed. |
+| `npx --yes pnpm@10.32.1 test:conversation-archive` | Pass | 5 tests passed. |
+| `npx --yes pnpm@10.32.1 test:continuity` | Pass | 4 tests passed. |
+| Tier-gate source scan | Reviewed | Confirmed signup/permission tests encode visitor default and persona/Space/Developer Space creation gates. |
+| `git diff --check` | Pass | No whitespace errors; CRLF normalization warning for ARGUS state only. |
