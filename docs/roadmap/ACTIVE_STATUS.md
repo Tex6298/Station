@@ -908,6 +908,32 @@ when a PR lands, or when validation truth changes.
   UI request, so any chat checklist is stale-sensitive: the audit must fetch
   current `fork/main` and `origin/main`, record both SHAs, and let that fresh
   diff supersede earlier candidate ordering.
+- Railway Gemini/Stripe config is now proven on `@station/api`, 2026-06-11:
+  MIMIR used the existing Railway project token with the `Project-Access-Token`
+  GraphQL header, upserted non-public API variables onto live `@station/api`
+  and the public Stripe publishable key onto `@station/web`, then redeployed
+  `@station/api`. Public `/health/deployment` now reports
+  `embeddingsConfigured=true`, `geminiEmbeddings=true`, `stripeBilling=true`,
+  `stripePrices=true`, and `redisConfigured=true`; remaining readiness blockers
+  are migration `029` proof (`query_failed`) and Supabase Auth redirect
+  management proof (`not_supported`). `codex mcp login supabase` completed
+  successfully after OAuth was granted, but the already-loaded MCP worker in
+  this session still reports stale `OAuth authorization required`; a fresh
+  DAEDALUS process should retry Supabase MCP first. Supabase CLI still lacks a
+  `SUPABASE_ACCESS_TOKEN`, and the local `DATABASE_URL` is the direct IPv6-only
+  host rather than a pooler URL. `node scripts/prove-staging-migration-029.mjs`
+  still returns sanitized `PGRST202` for both provider-aware RPC calls.
+- Discern-to-Tex UI import audit is complete, 2026-06-11:
+  `docs/roadmap/DISCERN_TO_TEX_UI_IMPORT_AUDIT.md` compares fresh
+  `fork/main` (`81c9aef`) and `origin/main` (`037d491`). Verdict: Discern is a
+  mixed UI/backend/config branch, not a safe import source. Useful candidates
+  include onboarding/kindling product language, Discover/public-home direction,
+  left-rail/search concepts, and notes/global archive ideas, but DAEDALUS must
+  not port code until ARIADNE reviews product value and MIMIR opens a bounded
+  slice. Protected rejects include Railway config simplification, health/reset
+  route deletion, readiness/replay test deletion, retrieval/cache deletions,
+  migration `025-029` replacement, package-lock drift, and moderation visibility
+  regression.
 
 ## Current repo truth
 

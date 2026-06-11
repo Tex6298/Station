@@ -3118,3 +3118,44 @@ Commands re-run by ARGUS:
 | `curl.exe -I -L --max-time 30 https://stationweb-production.up.railway.app/reset-password/update` | Pass | Returned `200 OK`. |
 | `curl.exe -i -sS --max-time 20 https://stationapi-production.up.railway.app/observability/replay-readiness` | Pass | Returned `401 Unauthorized` without auth. |
 | `curl.exe -fsS --max-time 30 https://stationapi-production.up.railway.app/health/deployment` | Blocked as expected | Returned non-secret `ready: false`; database, migration object proof, private storage, and NVIDIA platform chat true. |
+
+## Railway Gemini/Stripe config and Discern audit MIMIR result
+
+MIMIR refreshed Railway and UI-import setup on 2026-06-11.
+
+Railway config result:
+
+- The existing Railway token is a project token. Railway GraphQL project-token
+  calls require the `Project-Access-Token` header, not `Authorization: Bearer`.
+- Live Railway services were identified without printing secrets:
+  `@station/api` and `@station/web` in the `production` environment.
+- API-only variables were upserted to `@station/api`: selected embedding
+  profile, Gemini key, embedding dimension, Stripe secret, Stripe webhook
+  secret, and all six Stripe subscription price IDs.
+- The public Stripe publishable key was upserted to `@station/web`.
+- `@station/api` was redeployed so the running process could load the new
+  variables.
+
+Discern audit result:
+
+- `git fetch fork main` and `git fetch origin main` completed.
+- `origin/main` moved to `037d491d58f87170b6eb82dfef085215da9ac355`.
+- `docs/roadmap/DISCERN_TO_TEX_UI_IMPORT_AUDIT.md` records the fresh
+  read-only audit and supersedes earlier chat checklists.
+- The audit rejects wholesale import because Discern mixes UI ideas with
+  protected backend/config/retrieval/readiness/migration drift.
+
+Commands/probes:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `git fetch fork main` | Pass | Refreshed `fork/main` from `Tex6298/Station`. |
+| `git fetch origin main` | Pass | Refreshed `origin/main`; Discern moved from `269ad48` to `037d491`. |
+| Railway GraphQL variable presence check | Pass | Confirmed the selected API/web variable names are present on their target services without printing values. |
+| Railway GraphQL `serviceInstanceRedeploy` for `@station/api` | Pass | Returned `true`. |
+| `curl.exe -fsS --max-time 30 https://stationapi-production.up.railway.app/health/deployment` | Blocked readiness, improved config | Returned non-secret `ready:false`; `embeddingsConfigured`, `geminiEmbeddings`, `stripeBilling`, `stripePrices`, Redis, database, and private storage are true. Remaining blockers are migration proof `query_failed` and Supabase Auth redirect management proof `not_supported`. |
+| Supabase MCP `list_migrations` | Blocked in this loaded worker | MCP transport returned OAuth authorization required before and after CLI login, indicating the current worker did not reload the new OAuth token. |
+| `codex mcp login supabase` | Pass | Completed successfully after browser OAuth grant. A fresh agent/process should retry Supabase MCP before using fallback paths. |
+| Local `DATABASE_URL` host shape check | Blocked for CLI apply | URL is the direct `db.<project>.supabase.co:5432` host, not a pooler URL; this matches the earlier IPv6-only direct-host blocker in this shell. |
+| `node scripts/prove-staging-migration-029.mjs` | Expected failure | Returned sanitized `PGRST202` for both provider-aware RPC calls; hints still show only pre-029 signatures. |
+| `git diff --check` | Pass | No whitespace errors. |
