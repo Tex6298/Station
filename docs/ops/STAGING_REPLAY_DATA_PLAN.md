@@ -248,6 +248,37 @@ Measurement requirements covered in this pass:
 - if a measurement helper is needed, keep it local or add only a non-secret
   reusable harness after ARGUS review.
 
+## MIMIR replay E2E decision
+
+ARGUS accepted populated retrieval quality for the seeded corpus. MIMIR's next
+lane is a broader staged replay E2E walkthrough, with the true live second-owner
+probe folded in as the first privacy preflight.
+
+DAEDALUS should first create or use a local-only second-owner credential/token
+without committing it, then prove that owner cannot retrieve the replay owner's
+private archive or context-preview data. If this probe exposes private rows,
+stop and wake ARGUS with the sanitized failure.
+
+If the privacy preflight passes, continue the walkthrough:
+
+- live `/health/deployment` remains `ready:true`;
+- replay owner sign-in works through the deployed API;
+- seeded persona/archive/context-preview retrieval remains usable;
+- public Space/document/discussion surfaces are reachable without private
+  leakage;
+- Developer Space public observatory data is reachable and public-safe;
+- owner-only export manifest readback is reachable without private body capture;
+- billing/status or Stripe test-mode route smoke is captured if deployed config
+  allows it;
+- observability/replay-readiness, summary, and trace metadata stay non-secret.
+
+Evidence must stay sanitized: statuses, route names, counts, modes, timings,
+public-safe slugs/labels, profile/provider/model, and ratings only. Do not
+commit response bodies, excerpts, prompt bodies, credentials, tokens, cookies,
+owner ids, persona ids, or raw corpus text. Wake ARGUS with the walkthrough
+result; if the walkthrough reveals UX/product friction rather than backend
+failure, name it for ARIADNE instead of treating it as backend completion.
+
 ## DAEDALUS scope
 
 Build and execute a bounded populated replay plan against staging.

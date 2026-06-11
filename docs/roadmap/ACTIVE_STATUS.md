@@ -1372,6 +1372,14 @@ when a PR lands, or when validation truth changes.
   including automated other-owner privacy coverage. A true live second-owner
   token probe remains a later hardening follow-up, not a blocker for this seeded
   retrieval-quality acceptance.
+- MIMIR opened the broader staged replay E2E walkthrough, 2026-06-11: DAEDALUS
+  should run the live second-owner probe first and stop if it leaks private
+  rows; if it passes, continue through deployed health, replay owner sign-in,
+  seeded persona/archive/context-preview, public Space/document/discussion,
+  Developer Space observatory, owner export manifest readback, billing/status or
+  Stripe test-mode smoke where config allows, and observability metadata. Wake
+  ARGUS with sanitized statuses/counts/modes/timings/public labels only, and
+  flag UX/product friction for ARIADNE rather than calling it backend failure.
 
 ## Near-term rule
 
