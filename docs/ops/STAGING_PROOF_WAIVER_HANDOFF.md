@@ -104,7 +104,7 @@ Observed public API readiness facts:
 | Database | `configured: true`, `checked: true`, `ok: true` | The deployed API can prove a basic Supabase query. |
 | Migrations | `checked: true`, `ok: false`, `error: query_failed` for the selected profile proof | The deployed API can still prove database/storage, but the provider-aware migration `029` RPC overloads are missing from staging. Earlier `025` through `028` setup proof remains historical; current `station_free_1536` readiness needs `029`. |
 | Storage | bucket `persona-files`, `exists: true`, `private: true`, `ok: true` | The deployed API can prove the private storage bucket exists. |
-| Supabase Auth redirects | `ok: false`, `checked: false`, `managementApiConfigured: false`, `projectRefConfigured: true`, `error: not_supported` | Redirect settings need dashboard/API proof outside this shell. |
+| Supabase Auth redirects | Superseded 2026-06-11: `ok: true`, `checked: true`, `siteUrlMatchesApp: true`, `appUrlRedirectAllowed: true`, `passwordResetRedirectAllowed: true` | Railway `@station/api` now has Management API proof, and Supabase Auth site/redirect settings are staged for the Railway web URL. |
 | Stripe | billing secrets false; all price IDs false; `ready: false` | Test billing resources are not configured on the deployed API. |
 | Providers | platform chat true; NVIDIA true; embedding profile proof pending | Staging can prove NVIDIA platform chat configuration, but still needs the selected embedding profile contract proved. |
 | Cache | Railway Redis false; Upstash REST false; configured false | Cache provider is not selected or configured. |
@@ -122,7 +122,7 @@ before replay-driven optimization starts.
 | Remote database readiness | Proven by public `/health/deployment` with database `ok: true`. |
 | Remote migration readiness | Proven by public schema object proof plus Supabase MCP migration history. Internal migration `count` is not exposed by Supabase REST, so the readiness endpoint intentionally records `count: null`. |
 | Remote storage readiness | Proven by public `/health/deployment` with bucket `exists: true`, `private: true`, and `ok: true`. Signed upload/read path smoke remains part of replay or storage-specific proof. |
-| Supabase Auth redirects | Confirm site URL and allowed redirects for `https://stationweb-production.up.railway.app`, including the password-reset target `https://stationweb-production.up.railway.app/reset-password/update`. DAEDALUS has added the repo route, and ARGUS public probing confirmed it returns `200`; dashboard allow-list proof remains. |
+| Supabase Auth redirects | Proven 2026-06-11 by public `/health/deployment`; site URL and allowed redirects include `https://stationweb-production.up.railway.app` and `https://stationweb-production.up.railway.app/reset-password/update`. |
 | Cache provider | Choose Railway Redis/Valkey, Upstash REST, another provider, or explicit deferment. Cache remains operational/non-canonical unless a later durability/export/deletion review promotes it. |
 | Cloudflare retrieval | Choose or defer Worker/Vectorize account and index setup. Remote candidates must remain reauthorized through Station/Supabase before private records return. |
 | Stripe test resources | Configure test Stripe secret, webhook secret, and all required price IDs for the staged API, or waive billing replay. |
@@ -145,8 +145,6 @@ Closed in code:
 
 Still external or replay-side:
 
-- Supabase Auth dashboard site URL and redirect allow-list confirmation.
-- Supabase Auth dashboard allow-list proof for `/reset-password/update`.
 - Embedding profile key/config plus migration `029`, replay-corpus reindex, and
   hostile retrieval smoke for the `vector(1536)` retrieval contract.
 - Stripe test secrets, webhook, and price IDs.

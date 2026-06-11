@@ -183,10 +183,13 @@ Current repo-side status:
 - `/health/deployment` can now prove the Supabase Auth settings through the
   read-only Management API when `SUPABASE_ACCESS_TOKEN` has `auth:read`; it
   does not mutate dashboard settings and reports only non-secret booleans.
+- Current staging proof, 2026-06-11: the Railway API has
+  `SUPABASE_ACCESS_TOKEN`, Supabase Auth `site_url` is the Railway web URL, the
+  app URL and `/reset-password/update` URL are allow-listed, and public
+  `/health/deployment` reports the auth redirect booleans green.
 
 Blocked external facts:
 
-- Supabase dashboard access or a Management API token with `auth:read`.
 - Social provider app credentials and callback registration.
 - Confirmation of the exact allowed redirect URL list.
 - Confirmation that the deployed Railway web service is running the

@@ -1080,6 +1080,19 @@ when a PR lands, or when validation truth changes.
   Railway `/health/deployment` response still shows the older `not_supported`
   auth-redirect shape, so remote deployment/config proof remains pending before
   `/health/deployment.ready` can be called green.
+- Supabase Auth redirects are remotely proven and `/health/deployment` is
+  setup-green, 2026-06-11: Railway `@station/api` now has
+  `SUPABASE_ACCESS_TOKEN`, the API was redeployed with the read-only
+  Management API proof support, and MIMIR patched Supabase Auth settings through
+  the Management API so `site_url` is the Railway web URL and `uri_allow_list`
+  contains both the app URL and `/reset-password/update`. The first live probe
+  reached the Management API but timed out at the cheap 1.5s dependency timeout,
+  so MIMIR widened only the Supabase Management API readiness timeout and
+  redeployed. Live `/health/deployment` now reports `ready:true`,
+  `supabaseAuthRedirects.ok:true`, `siteUrlMatchesApp:true`,
+  `appUrlRedirectAllowed:true`, and `passwordResetRedirectAllowed:true`. This
+  closes setup/config chasing for replay; remaining work is populated replay
+  data, Gemini reindex/retrieval quality, and E2E measurement.
 
 ## Current repo truth
 

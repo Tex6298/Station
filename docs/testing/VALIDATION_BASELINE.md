@@ -3488,3 +3488,36 @@ Commands/probes re-run by ARGUS:
 | `rg -n "SUPABASE_ACCESS_TOKEN|config/auth|setSupabaseManagementFetchForTests|supabaseAuthRedirects|siteUrlMatchesApp|passwordResetRedirectAllowed|fetch\(|method:|PATCH|POST|PUT|DELETE" apps/api/src/services/readiness.service.ts apps/api/src/routes/health.test.ts apps/api/src -S` | Reviewed | Management API usage is GET-only in readiness service; write methods found are unrelated routes/services. |
 | `Select-String` review of `readiness.service.ts` auth redirect helpers | Reviewed | Project ref derivation, URL normalization, timeout, and sanitized failure branches are explicit. |
 | `git diff --check` | Pass | No whitespace errors; CRLF normalization warning for ARGUS state only. |
+
+## Supabase Auth redirect remote proof result
+
+Prepared by MIMIR on 2026-06-11 after Marty added `SUPABASE_ACCESS_TOKEN` to
+Railway `@station/api`.
+
+Result:
+
+- Railway variable presence check confirms `SUPABASE_ACCESS_TOKEN` is present on
+  `@station/api` without printing its value.
+- Live `/health/deployment` moved from old `not_supported` to checked
+  Management API proof, proving the deployed code path was active.
+- Before the settings patch, live health returned `config_mismatch`.
+- MIMIR used the Supabase Management API to set `site_url` to
+  `https://stationweb-production.up.railway.app` and preserve/add allowed
+  redirects for the app URL and
+  `https://stationweb-production.up.railway.app/reset-password/update`.
+- The first live proof with the token could timeout at the generic 1.5s
+  dependency timeout, so MIMIR widened only the Supabase Management API
+  readiness timeout and redeployed `@station/api`.
+- Live `/health/deployment` now reports `ready:true` and all auth redirect
+  booleans true.
+
+Commands/probes:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| Railway GraphQL variable presence check | Pass | `SUPABASE_ACCESS_TOKEN`, service role key, app URL, and API URL are present; values were not printed. |
+| Supabase Management API `PATCH /v1/projects/{ref}/config/auth` | Pass | Set `site_url` to Railway web URL and allow-listed the app/reset URLs. |
+| `npx --yes pnpm@10.32.1 test:health` | Pass | 8 tests passed after Supabase Auth proof support. |
+| `npx --yes pnpm@10.32.1 --filter @station/api typecheck` | Pass | API typecheck passed after readiness timeout polish. |
+| Railway GraphQL `serviceInstanceRedeploy` for `@station/api` | Pass | Returned `true`. |
+| `curl.exe -fsS --max-time 30 https://stationapi-production.up.railway.app/health/deployment` | Pass | `ready:true`; auth redirect site/app/reset booleans all true. |
