@@ -18,6 +18,10 @@ import { searchMemory } from "../src/retrieval/semantic-search";
 type Row = Record<string, any>;
 
 test("active embedding metadata keeps the current 1536-vector contract explicit", () => {
+  assert.equal(ACTIVE_EMBEDDING_PROVIDER, "gemini");
+  assert.equal(ACTIVE_EMBEDDING_MODEL, "gemini-embedding-2");
+  assert.equal(ACTIVE_EMBEDDING_BACKFILL_VERSION, 2);
+
   const vector = new Array(ACTIVE_EMBEDDING_DIMENSION).fill(0.001);
   assert.deepEqual(metadataForActiveEmbedding(vector), {
     embeddingProvider: ACTIVE_EMBEDDING_PROVIDER,

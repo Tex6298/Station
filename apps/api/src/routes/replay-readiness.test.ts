@@ -54,7 +54,7 @@ test("replay readiness exposes non-secret measurement prep behind auth", async (
     assert.deepEqual(blockerIds, [
       "hostile_vector_rpc_smoke",
       "supabase_auth_redirects",
-      "openai_embeddings",
+      "gemini_embeddings",
       "stripe_replay_resources",
       "cache_provider_selection",
       "cloudflare_account_setup",

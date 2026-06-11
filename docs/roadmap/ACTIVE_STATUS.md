@@ -514,7 +514,7 @@ when a PR lands, or when validation truth changes.
   `/health/deployment.ready` must not go true while known Lane 1 blockers remain
   false or unchecked. ARGUS hardened the ready gate to include `DATABASE_URL`,
   Supabase Auth redirect readiness, Stripe readiness, platform chat readiness,
-  and OpenAI embedding readiness; Redis remains reported as status, not a
+  and embedding-provider readiness; Redis remains reported as status, not a
   staging-ready requirement.
 - BE-00 is accepted by ARGUS after hardening, 2026-06-09: `test:health`,
   `@station/api` build, `git diff --check`, and public API `/health` pass. The
@@ -607,9 +607,10 @@ when a PR lands, or when validation truth changes.
   concrete verdict/task.
 - BE-04 DAEDALUS implementation is ready for ARGUS review, 2026-06-09:
   `memory_items` now has retrieval provider metadata for embedding provider,
-  model, dimension, index name/source, and backfill version. The active contract
-  remains OpenAI `text-embedding-3-small`, `vector(1536)`,
-  `memory_items_embedding_1536`, Supabase pgvector, backfill version 1. New API
+  model, dimension, index name/source, and backfill version. The then-active
+  contract was OpenAI `text-embedding-3-small`, `vector(1536)`,
+  `memory_items_embedding_1536`, Supabase pgvector, backfill version 1; this is
+  superseded by the 2026-06-11 Gemini active-target correction. New API
   memory/archive vector writes reject mixed-dimension provider responses before
   insert and release reserved storage bytes. Missing embedding keys now leave
   new API writes without vectors/metadata instead of persisting pseudo-vector
@@ -739,7 +740,7 @@ when a PR lands, or when validation truth changes.
   names the remaining E2E blockers: hostile remote smoke for migration-backed
   retrieval/lifecycle/provider-policy/metadata behavior if required before
   replay, cache provider selection/deferment, Cloudflare account/index
-  decision, Stripe test resources, OpenAI embedding configuration, and replay
+  decision, Stripe test resources, Gemini embedding configuration, and replay
   account/data setup. `docs/ops/STAGING_REPLAY_READINESS.md` now lists the
   evidence capture points and `test:replay-readiness`; setup blockers now
   reference migrations through `028` plus cache/Cloudflare/provider decisions.
@@ -762,7 +763,7 @@ when a PR lands, or when validation truth changes.
   explicit MIMIR waiver of the remaining external setup blockers. MIMIR's
   2026-06-09 proof update clears remote database readiness, migration setup
   proof, private storage readiness, and NVIDIA platform chat proof; remaining
-  blockers are Supabase Auth redirects/reset route, OpenAI embeddings, cache
+  blockers are Supabase Auth redirects/reset route, Gemini embeddings, cache
   provider selection/deferment, Cloudflare account/index decision, Stripe test
   resources, replay account/data setup, and any hostile remote vector/RPC smoke
   MIMIR wants before full replay. Latest public `/health/deployment` still
@@ -775,7 +776,7 @@ when a PR lands, or when validation truth changes.
   returns `{ "ok": true }`, while `/health/deployment` reports `ready: false`.
   After MIMIR's proof update, database, migration object proof, private storage,
   and NVIDIA platform chat are true; Supabase Auth redirect management proof,
-  OpenAI embeddings, Stripe, Redis/cache, Cloudflare, and replay-data setup
+  Gemini embeddings, Stripe, Redis/cache, Cloudflare, and replay-data setup
   remain pending. This is a handoff package, not full staging readiness.
 - BE-00 through BE-08 staging proof/waiver handoff is accepted by ARGUS,
   2026-06-09 before MIMIR's proof update: ARGUS rechecked public web/API
@@ -789,7 +790,7 @@ when a PR lands, or when validation truth changes.
   run commit `55d3fc6`; public `/health/deployment` reports database `ok: true`,
   migrations `ok: true` via `025-028/public_schema_object_proof`, storage `ok:
   true` with `persona-files` private, and NVIDIA platform chat true. Overall
-  readiness remains `ready: false` because Supabase Auth redirect proof, OpenAI
+  readiness remains `ready: false` because Supabase Auth redirect proof, Gemini
   embeddings, Stripe, Redis/cache, Cloudflare setup, and replay account/data are
   still pending or need explicit waiver.
 - MIMIR decision after ARGUS accepted the setup proof, 2026-06-09: do not issue
@@ -809,7 +810,7 @@ when a PR lands, or when validation truth changes.
   database, migrations `025` through `028`, private `persona-files` storage, and
   NVIDIA platform chat from remaining blockers; `/reset-password/update` is now
   implemented as the Supabase password update target. Remaining external asks
-  are Supabase Auth dashboard redirects plus deployed reset-route proof, OpenAI
+  are Supabase Auth dashboard redirects plus deployed reset-route proof, Gemini
   embeddings, Stripe test resources, Redis/cache provider decision, Cloudflare
   account/index decision, replay account/data, and any hostile remote vector/RPC
   smoke MIMIR wants before full replay. Focused replay-readiness/auth tests, API
@@ -823,7 +824,7 @@ when a PR lands, or when validation truth changes.
   deployed `/observability/replay-readiness` rejects visitors with `401`, and
   deployed `/health/deployment` remains non-secret with `ready: false`. The
   remaining MIMIR/Marty decision is whether to waive or prove Supabase Auth
-  redirect allow-list, OpenAI embeddings, Stripe, cache provider, Cloudflare,
+  redirect allow-list, Gemini embeddings, Stripe, cache provider, Cloudflare,
   replay account/data, and optional hostile vector/RPC smoke before replay.
 - Cloudflare dependency check is ready for MIMIR, 2026-06-10:
   `docs/ops/CLOUDFLARE_DEPENDENCY_CHECK.md` records that Cloudflare retrieval is
@@ -837,41 +838,31 @@ when a PR lands, or when validation truth changes.
   primary, hybrid supplement, deferred, and rejected dependencies, and
   recommends local canonical Supabase retrieval plus optional remote mirrors to
   prevent provider/dependency drift.
-- Gemini embedding prep is ready for MIMIR/ARGUS review, 2026-06-10: OpenAI
-  remains the active default, conversation/context retrieval now resolves the
+- Gemini embedding prep is ready for MIMIR/ARGUS review, 2026-06-10:
+  conversation/context retrieval now resolves the
   embedding key by selected provider, Gemini REST embedding calls use
   documented `embedContent` shape with 1536 output dimensions, migration `029`
   prepares provider-aware metadata/RPC support, and
   `docs/ops/GEMINI_EMBEDDING_MIGRATION_PLAN.md` records the staging switch and
   rollback sequence. This does not enable Gemini chat and does not switch the
   replay corpus.
-- Gemini embedding prep is accepted by ARGUS, 2026-06-10, after a request-body
-  hardening patch. The prep is safe as dormant schema/provider work only:
-  OpenAI remains default, Gemini chat is still absent, migration `029` is not
-  applied to staging, and Gemini must not be enabled for replay until MIMIR
-  accepts migration apply, reindex, and hostile retrieval smoke gates.
-- MIMIR's Gemini operating decision is recorded by ARGUS, 2026-06-10: keep
-  OpenAI embeddings plus NVIDIA platform chat as the active replay/staging lane.
-  Gemini remains accepted dormant prep only, deferred until a separate
-  ablated model-hosting/retrieval-features lane explicitly proves migration
-  `029`, provider env, corpus reindex, and hostile retrieval smoke.
-- ARGUS free-embeddings verdict, 2026-06-10: no production-safe free embedding
-  route is ready for replay/staging now. Continue the current OpenAI embedding
-  default and NVIDIA chat lane; keep Gemini as the first future free-trial
-  candidate only after explicit data-policy, migration `029`, reindex, and
-  hostile retrieval smoke acceptance.
-- DAEDALUS active-lane readiness follow-up is ready for ARGUS review,
-  2026-06-10: deployment readiness now keeps `openaiEmbeddings` tied only to
-  `OPENAI_API_KEY`, so a Gemini key cannot accidentally satisfy the active
-  staging/replay embedding gate. OpenAI embeddings plus NVIDIA platform chat
-  remain the chosen lane; Gemini stays dormant pending explicit migration
-  `029`, provider env, reindex, and hostile retrieval smoke acceptance.
-- DAEDALUS active-lane readiness follow-up is accepted by ARGUS, 2026-06-10,
-  after adding hostile health coverage for Gemini-key-only configuration.
-  `/health/deployment` now proves the active embedding lane truthfully:
-  `openaiEmbeddings` is false unless `OPENAI_API_KEY` is configured, even when
-  Gemini provider env and keys are present. This does not waive the staged
-  OpenAI embedding key/proof blocker.
+- Corrected MIMIR embedding decision, 2026-06-11: the 2026-06-10 OpenAI-first
+  wording above was an inverted interpretation of Marty/MIMIR's instruction.
+  Gemini embeddings are the selected active direction because they have a free
+  tier and can preserve the 1536-dimensional Supabase pgvector shape. OpenAI
+  remains fallback/rollback only. NVIDIA remains platform chat/model work, not
+  the embedding provider.
+- Corrected Gemini staging gate, 2026-06-11: configure
+  `EMBEDDINGS_PROVIDER=gemini`, `EMBEDDING_MODEL=gemini-embedding-2`,
+  `EMBEDDING_DIM=1536`, and `GEMINI_API_KEY`; apply migration `029`, reindex a
+  bounded replay corpus, and run hostile retrieval smoke before data-backed
+  replay is called proven. These are implementation/proof tasks for the chosen
+  Gemini lane, not reasons to drift back to OpenAI.
+- Corrected deployment readiness posture, 2026-06-11:
+  `/health/deployment` now exposes the selected `embeddingProvider`,
+  `embeddingsConfigured`, and separate OpenAI/Gemini booleans. Overall replay
+  readiness follows the active provider, so Gemini keys satisfy the embedding
+  gate when `EMBEDDINGS_PROVIDER=gemini`.
 
 ## Current repo truth
 
@@ -1025,15 +1016,16 @@ when a PR lands, or when validation truth changes.
   metadata instead of provider secrets, prompt payloads, or private archive
   excerpts.
 - As of BE-04 DAEDALUS implementation, generated `memory_items.embedding` rows
-  carry active retrieval metadata. The active search/index contract remains
-  OpenAI `text-embedding-3-small` over Supabase pgvector `vector(1536)`, and
-  future provider/dimension changes require an explicit migration/reindex lane.
+  carry active retrieval metadata. The active search/index contract is moving to
+  Gemini `gemini-embedding-2` over Supabase pgvector `vector(1536)`, with OpenAI
+  retained as fallback/rollback. Provider/dimension changes still require an
+  explicit migration/reindex lane.
 - MIMIR's staging proof update is accepted by ARGUS, 2026-06-09, as setup
   proof only. Public web/API health remain OK, public `/health/deployment` is
   non-secret and accurately reports `ready: false`, and database, migration
   object proof, private `persona-files` storage, and NVIDIA platform chat are
   true. Remaining proof/waiver blockers are Supabase Auth redirects/password
-  reset route, OpenAI embeddings, Stripe test resources, cache provider,
+  reset route, Gemini embeddings, Stripe test resources, cache provider,
   Cloudflare account/index decision, replay account/data, and any hostile
   vector/RPC smoke MIMIR wants before full replay. Do not begin replay-driven
   optimization unless MIMIR/Marty explicitly waive the remaining blockers or

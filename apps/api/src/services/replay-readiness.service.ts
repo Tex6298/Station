@@ -92,12 +92,12 @@ const SETUP_BLOCKERS: ReplaySetupBlocker[] = [
     ],
   },
   {
-    id: "openai_embeddings",
+    id: "gemini_embeddings",
     status: "pending_external",
     owner: "human_dashboard",
     evidenceRequired: [
-      "OpenAI embedding key is configured for the current default before remote vector retrieval is considered proven, or MIMIR explicitly accepts the Gemini migration/reindex lane.",
-      "Embedding contract remains text-embedding-3-small over vector(1536) until migration 029, provider env, reindex, and hostile retrieval smoke prove a Gemini switch.",
+      "Gemini embedding config is set for the selected free-tier path: EMBEDDINGS_PROVIDER=gemini, EMBEDDING_MODEL=gemini-embedding-2, EMBEDDING_DIM=1536, and GEMINI_API_KEY.",
+      "Migration 029, replay-corpus reindex, and hostile retrieval smoke prove Gemini over vector(1536) before data-backed vector retrieval is considered proven.",
     ],
   },
   {

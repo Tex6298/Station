@@ -2830,10 +2830,14 @@ Commands re-run by ARGUS:
 | `npx --yes pnpm@10.32.1 --filter @station/api build` | Pass | API and dependent package builds completed. |
 | `git diff --check` | Pass | CRLF normalization warnings only. |
 
-## Gemini dormant-lane decision
+## Gemini dormant-lane decision (superseded 2026-06-11)
 
 Recorded by ARGUS on 2026-06-10 after MIMIR accepted the direction but deferred
 Gemini for the current replay/staging lane.
+
+Superseded correction: this section inverted MIMIR/Marty's instruction. The
+current operating decision is Gemini embeddings first because of the free tier,
+with OpenAI as fallback/rollback.
 
 Decision:
 
@@ -2851,7 +2855,7 @@ Checks run:
 | Repo search for Gemini/OpenAI/NVIDIA posture | Pass | `.env.example` keeps `EMBEDDINGS_PROVIDER=openai`; Gemini env values remain optional/commented for a later migration/reindex lane. |
 | `git diff --check` | Pass | CRLF normalization warnings only. |
 
-## Free embeddings decision
+## Free embeddings decision (superseded 2026-06-11)
 
 Prepared by ARGUS on 2026-06-10 after checking current primary provider docs.
 
@@ -2873,7 +2877,11 @@ Checks run:
 | Current primary provider docs review | Pass | Checked Google Gemini pricing/rate-limit docs, Gemini Embedding GA note, Cloudflare Workers AI/Vectorize pricing, and Hugging Face Inference Providers pricing. |
 | Repo search for active provider posture | Pass | Current repo defaults still keep OpenAI embeddings active and Gemini dormant. |
 
-## OpenAI/NVIDIA active-lane readiness follow-up
+Superseded correction: Gemini is now the selected active embedding target, not
+a deferred candidate. Migration `029`, reindex, and hostile retrieval smoke are
+the proof work for that selected lane.
+
+## OpenAI/NVIDIA active-lane readiness follow-up (superseded 2026-06-11)
 
 Prepared by DAEDALUS on 2026-06-10 after MIMIR clarified that the current lane
 is operational only: OpenAI embeddings and NVIDIA chat remain active, Gemini
@@ -2890,7 +2898,7 @@ Checks run:
 | `npx --yes pnpm@10.32.1 --filter @station/api build` | Pass | API and dependent package builds completed. |
 | `git diff --check` | Pass | CRLF normalization warnings only. |
 
-## OpenAI/NVIDIA active-lane readiness ARGUS review result
+## OpenAI/NVIDIA active-lane readiness ARGUS review result (superseded 2026-06-11)
 
 ARGUS reviewed DAEDALUS's active-lane readiness follow-up on 2026-06-10 and
 accepted it after adding a hostile health regression for Gemini-key-only
@@ -2913,6 +2921,32 @@ Commands re-run by ARGUS:
 | `npx --yes pnpm@10.32.1 test:health` | Pass | 3 tests passed, including Gemini-key-only `openaiEmbeddings:false` coverage. |
 | `npx --yes pnpm@10.32.1 test:replay-readiness` | Pass | 1 test passed. |
 | `npx --yes pnpm@10.32.1 exec tsx --test packages/ai/test/provider-router.test.ts` | Pass | 4 tests passed. |
+| `npx --yes pnpm@10.32.1 --filter @station/api build` | Pass | API and dependent package builds completed. |
+
+## Gemini active embedding correction
+
+Prepared by MIMIR on 2026-06-11 after correcting the 2026-06-10 OpenAI-first
+interpretation.
+
+Decision:
+
+- Gemini `gemini-embedding-2` is the selected active embedding provider because
+  it has a free tier and supports 1536-dimensional output.
+- OpenAI `text-embedding-3-small` remains fallback/rollback only.
+- `/health/deployment` follows the selected `EMBEDDINGS_PROVIDER` through
+  `embeddingsConfigured` and exposes separate OpenAI/Gemini booleans.
+- `/observability/replay-readiness` now names `gemini_embeddings` as the
+  external proof blocker.
+- Data-backed replay still needs migration `029`, bounded reindex, and hostile
+  retrieval smoke before Gemini retrieval quality is called proven.
+
+Commands run:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npx --yes pnpm@10.32.1 test:health` | Pass | 3 tests passed, including Gemini active-provider readiness coverage. |
+| `npx --yes pnpm@10.32.1 test:replay-readiness` | Pass | 1 test passed with `gemini_embeddings` as the blocker. |
+| `npx --yes pnpm@10.32.1 exec tsx --test packages/ai/test/retrieval-metadata.test.ts` | Pass | 4 tests passed, including Gemini REST config casing and 1536-dimensional request guard. |
 | `npx --yes pnpm@10.32.1 --filter @station/api build` | Pass | API and dependent package builds completed. |
 
 ## DAEDALUS staging closeout ARGUS review result

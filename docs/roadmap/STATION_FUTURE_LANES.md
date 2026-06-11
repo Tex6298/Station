@@ -20,9 +20,8 @@ This note folds the current external/upstream work into future sequencing:
   open memory/persona/observability repos and ported selected concepts into
   Station-native schema/routes/UI.
 - `docs/roadmap/STATION_RETRIEVAL_PROVIDER_RESEARCH_ARIADNE.md`, which
-  recommends NVIDIA chat for dev/staging probes, keeps OpenAI 1536-dimensional
-  embeddings for current retrieval, and treats Cloudflare/Redis as open adapter
-  and storage/cache design questions.
+  researched NVIDIA chat, OpenAI embeddings, Cloudflare/Redis adapter questions,
+  and now feeds the corrected Gemini-first embedding decision.
 - `docs/ops/STAGING_SETUP_BLOCKERS.md`, which separates repo-side work from
   Supabase dashboard/credential blockers.
 - The active Railway fork constraint: staging work is on `fork/main` and must
@@ -32,8 +31,9 @@ This note folds the current external/upstream work into future sequencing:
 
 - Supabase remains the source of truth for private memory, archive, visibility,
   continuity, and owner authorization.
-- Current memory embeddings remain OpenAI `text-embedding-3-small` because the
-  schema and RPC are fixed at `vector(1536)`.
+- Current memory embeddings should move to Gemini `gemini-embedding-2` because
+  it has a free tier and can preserve the `vector(1536)` shape. OpenAI
+  `text-embedding-3-small` remains fallback/rollback.
 - NVIDIA is acceptable for dev/staging chat probes after provider/data-policy
   review, but NVIDIA embeddings are not a drop-in swap. Provider/data-policy
   posture may vary by Developer Space requirement; do not assume one global
@@ -57,9 +57,9 @@ This note folds the current external/upstream work into future sequencing:
   spaces may need public/synthetic-only model calls; others may need private
   archive-aware calls. If we are building configurability for one side of this,
   we should design the provider/privacy surface broadly enough to support both.
-- Embedding provider and vector dimension should become configurable and
-  auditable before any retrieval migration. Do not frame 1024 versus 2048 as a
-  one-time global decision if Station needs per-index or per-Space behavior.
+- Embedding provider and vector dimension should remain configurable and
+  auditable. Gemini is the selected near-term provider, but the metadata/reindex
+  path must keep later per-index or per-Space choices possible.
 - Cloudflare adapter work should be driven by the imported repo patterns and
   their constraints. The default remains adapter/index-mirror posture unless the
   accepted repo pattern proves a stronger Cloudflare dependency is necessary.
@@ -136,15 +136,16 @@ Blocked on:
 
 ## Lane 2 - Provider policy and NVIDIA chat
 
-Purpose: use the local NVIDIA key safely for dev/staging chat without changing
-memory retrieval by accident.
+Purpose: use the local NVIDIA key safely for dev/staging chat while Gemini owns
+the embedding lane.
 
 Scope:
 
 - Keep NVIDIA behind platform-chat configuration.
 - Default operational prompts to `/no_think` unless a reasoning trace is
   explicitly useful.
-- Keep OpenAI embeddings on the current 1536-dimensional path.
+- Keep Gemini embeddings on the current 1536-dimensional path once migration
+  `029` and reindex/smoke proof are complete.
 - Design provider/privacy configuration per Developer Space rather than a
   single global yes/no rule.
 - Support both public/synthetic-only calls and private archive-aware calls as
@@ -161,23 +162,25 @@ ARGUS gates:
 
 ## Lane 3 - Retrieval provider hardening
 
-Purpose: make retrieval provider choices auditable before any embedding swap.
+Purpose: make the Gemini embedding swap auditable and keep future provider
+choices safe.
 
 Scope:
 
-- Add provider/model/dimension metadata to retrieval records or side tables
-  before mixed-provider storage is allowed.
+- Apply the provider/model/dimension metadata from migration `029` before
+  mixed-provider storage is treated as replay-ready.
 - Reject vectors whose length does not match the active schema/index.
 - Preserve keyword fallback behavior.
-- Define a backfill/reindex plan before switching stored memory embeddings.
+- Backfill/reindex the replay corpus before judging Gemini retrieval quality.
 - Design the provider/dimension contract so retrieval can become configurable by
   index, environment, or Developer Space where justified.
 
 Decision point:
 
-- Stay on 1536-dimensional OpenAI embeddings for the near term, then open a
-  configurable retrieval-provider lane when staged replay or imported repo
-  demands justify 1024/2048-dimensional NVIDIA/Cloudflare candidates.
+- Use Gemini 1536-dimensional embeddings for the near-term free-tier path, with
+  OpenAI retained as rollback. Later NVIDIA/Cloudflare candidates should open
+  their own provider/dimension lanes only when replay or imported repo demands
+  justify them.
 
 Required migration work if switching dimensions:
 
@@ -320,7 +323,8 @@ ARGUS gates:
 1. Lane 0 is accepted: upstream memory/observability/community work has been
    converged into the Railway fork.
 2. Clear Lane 1 external Supabase/auth/storage blockers.
-3. Run staged replay with current OpenAI embeddings and optional NVIDIA chat.
+3. Apply/prove the Gemini embedding path, then run staged replay with optional
+   NVIDIA chat.
 4. Decide whether retrieval needs Cloudflare/Redis/NVIDIA migration work based
    on staged replay evidence and the imported repo demands now visible in
    `Discern-AI/Station`.

@@ -51,7 +51,7 @@ Shortest next human/dashboard actions:
   true`, migrations `ok: true` via `025-028/public_schema_object_proof`, storage
   `ok: true` with `persona-files` private, and NVIDIA platform chat true. It
   still reports `ready: false` because Supabase Auth redirects are not
-  management-API proven and OpenAI embeddings, Stripe, Redis/cache readiness,
+  management-API proven and Gemini embeddings, Stripe, Redis/cache readiness,
   Cloudflare setup, and replay data remain pending. It does not expose secret
   values.
 
@@ -206,8 +206,10 @@ Repo-safe work completed:
 
 Important boundary:
 
-- Station embeddings still use OpenAI `text-embedding-3-small`, which matches
-  the existing `vector(1536)` Supabase schema.
+- Station embeddings should use Gemini `gemini-embedding-2` at 1536 dimensions
+  for the free-tier staging path.
+- OpenAI `text-embedding-3-small` remains the fallback/rollback provider for
+  the same `vector(1536)` Supabase schema.
 - Do not switch embeddings to a non-1536 model without a migration and reindex
   plan.
 

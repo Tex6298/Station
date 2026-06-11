@@ -24,6 +24,8 @@ process.env.STRIPE_PRICE_CANON_MONTHLY = "price_canon_monthly";
 process.env.STRIPE_PRICE_CANON_YEARLY = "price_canon_yearly";
 process.env.NVIDIA_AI_API_KEY = "secret-nvidia";
 process.env.EMBEDDINGS_PROVIDER = "gemini";
+process.env.EMBEDDING_MODEL = "gemini-embedding-2";
+process.env.EMBEDDING_DIM = "1536";
 process.env.GEMINI_API_KEY = "secret-gemini";
 process.env.GOOGLE_API_KEY = "secret-google";
 delete process.env.OPENAI_API_KEY;
@@ -166,7 +168,10 @@ test("/health stays cheap while /health/deployment returns non-secret readiness"
     assert.equal(deployment.body.ready, false);
     assert.equal(deployment.body.checks.databaseUrl, true);
     assert.equal(deployment.body.checks.nvidiaProvider, true);
+    assert.equal(deployment.body.checks.embeddingProvider, "gemini");
+    assert.equal(deployment.body.checks.embeddingsConfigured, true);
     assert.equal(deployment.body.checks.openaiEmbeddings, false);
+    assert.equal(deployment.body.checks.geminiEmbeddings, true);
     assert.equal(deployment.body.checks.redisConfigured, true);
     assert.equal(deployment.body.readiness.database.ok, true);
     assert.equal(deployment.body.readiness.migrations.count, 2);
@@ -181,7 +186,10 @@ test("/health stays cheap while /health/deployment returns non-secret readiness"
     assert.equal(deployment.body.readiness.supabaseAuthRedirects.checked, false);
     assert.equal(deployment.body.readiness.supabaseAuthRedirects.error, "not_supported");
     assert.equal(deployment.body.readiness.stripe.ready, true);
+    assert.equal(deployment.body.readiness.providers.embeddingProvider, "gemini");
+    assert.equal(deployment.body.readiness.providers.embeddingsConfigured, true);
     assert.equal(deployment.body.readiness.providers.openaiEmbeddings, false);
+    assert.equal(deployment.body.readiness.providers.geminiEmbeddings, true);
     assertNoSecrets(deployment.body);
   } finally {
     setSupabaseAdminForTests(null);

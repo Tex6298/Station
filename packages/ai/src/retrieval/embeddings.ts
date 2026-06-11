@@ -289,8 +289,8 @@ function prepareGeminiEmbeddingInput(text: string, useCase: EmbeddingUseCase, mo
 
 function resolveEmbeddingProvider(): EmbeddingProvider {
   const raw = process.env.EMBEDDINGS_PROVIDER?.trim().toLowerCase();
-  if (raw === "gemini") return "gemini";
-  return "openai";
+  if (raw === "openai") return "openai";
+  return "gemini";
 }
 
 function resolveEmbeddingModel() {

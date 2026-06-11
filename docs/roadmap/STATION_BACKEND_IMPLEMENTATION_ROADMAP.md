@@ -18,7 +18,7 @@ verified the private `persona-files` bucket, redeployed Railway API/web at
 `55d3fc6`, and public `/health/deployment` now proves database, storage, NVIDIA
 platform chat, and the public schema objects introduced by migrations `025`
 through `028`. Cache provider selection, Cloudflare account configuration,
-Supabase Auth redirects, OpenAI embeddings, Stripe test resources, and replay
+Supabase Auth redirects, Gemini embeddings, Stripe test resources, and replay
 account/data remain E2E setup follow-ups. Later lanes are ordered
 implementation scope, not permission to build everything at once.
 
@@ -30,12 +30,12 @@ implementation scope, not permission to build everything at once.
 - API `/health/deployment` reports the Railway app/API URLs, not localhost, and
   now includes the BE-00 `ready` plus `readiness` shape.
 - API `/health/deployment.ready` is currently false while Supabase Auth
-  redirects, OpenAI embeddings, Stripe, Redis/cache-provider, Cloudflare setup,
+  redirects, Gemini embeddings, Stripe, Redis/cache-provider, Cloudflare setup,
   and replay account/data remain pending.
 - Latest MIMIR remote check on 2026-06-09 reports `ready: false` with database
   `ok: true`, migrations `ok: true` via `025-028/public_schema_object_proof`,
   storage `ok: true`/`private: true`, NVIDIA platform chat true, and Auth,
-  OpenAI embeddings, Stripe, and Redis false.
+  Gemini embeddings, Stripe, and Redis false.
 - MIMIR no-data vector RPC smoke on 2026-06-09 proved `match_memory_items` and
   `match_private_archive_chunks` are callable and return zero rows for
   nonexistent owner/persona scope.
@@ -316,7 +316,7 @@ Immediate active task:
   replay readiness.
 - Do not start replay-driven optimization until MIMIR/Marty either provide or
   explicitly waive the remaining external blockers: Supabase Auth redirect
-  allow-list, OpenAI embeddings for the current retrieval contract, Stripe test
+  allow-list, Gemini embeddings for the current retrieval contract, Stripe test
   resources if billing replay is in scope, Redis/cache provider if cache replay
   is in scope, Cloudflare account/index if Cloudflare retrieval is in scope, and
   replay account/data.

@@ -22,6 +22,8 @@ type UrlStatus = {
   railway: boolean;
 };
 
+type EmbeddingProvider = "openai" | "gemini";
+
 type DeploymentReadiness = {
   ready: boolean;
   generatedAt: string;
@@ -33,7 +35,10 @@ type DeploymentReadiness = {
     anthropicProvider: boolean;
     deepseekProvider: boolean;
     nvidiaProvider: boolean;
+    embeddingProvider: EmbeddingProvider;
+    embeddingsConfigured: boolean;
     openaiEmbeddings: boolean;
+    geminiEmbeddings: boolean;
     stripeBilling: boolean;
     stripePrices: boolean;
     redisConfigured: boolean;
@@ -75,7 +80,10 @@ type DeploymentReadiness = {
       anthropic: boolean;
       deepseek: boolean;
       nvidia: boolean;
+      embeddingProvider: EmbeddingProvider;
+      embeddingsConfigured: boolean;
       openaiEmbeddings: boolean;
+      geminiEmbeddings: boolean;
     };
     redis: {
       railwayRedis: boolean;
@@ -123,7 +131,7 @@ export async function buildDeploymentReadiness(now = new Date()): Promise<Deploy
     supabaseAuthRedirects.ok,
     stripe.ready,
     providers.platformChat,
-    providers.openaiEmbeddings,
+    providers.embeddingsConfigured,
   ].every(Boolean);
 
   return {
@@ -156,7 +164,10 @@ function buildStaticChecks() {
     anthropicProvider: providers.anthropic,
     deepseekProvider: providers.deepseek,
     nvidiaProvider: providers.nvidia,
+    embeddingProvider: providers.embeddingProvider,
+    embeddingsConfigured: providers.embeddingsConfigured,
     openaiEmbeddings: providers.openaiEmbeddings,
+    geminiEmbeddings: providers.geminiEmbeddings,
     stripeBilling: stripe.billingSecrets,
     stripePrices: stripe.ready,
     redisConfigured: redis.configured,
@@ -355,13 +366,18 @@ function providerStatus(): DeploymentReadiness["readiness"]["providers"] {
   const anthropic = hasValue(env.ANTHROPIC_API_KEY);
   const deepseek = hasValue(env.DEEPSEEK_API_KEY);
   const nvidia = hasValue(env.NVIDIA_AI_API_KEY);
+  const embeddingProvider: EmbeddingProvider = env.EMBEDDINGS_PROVIDER === "gemini" ? "gemini" : "openai";
   const openaiConfigured = hasValue(env.OPENAI_API_KEY);
+  const geminiConfigured = hasValue(env.GEMINI_API_KEY) || hasValue(env.GOOGLE_API_KEY);
   return {
     platformChat: anthropic || deepseek || nvidia,
     anthropic,
     deepseek,
     nvidia,
+    embeddingProvider,
+    embeddingsConfigured: embeddingProvider === "gemini" ? geminiConfigured : openaiConfigured,
     openaiEmbeddings: openaiConfigured,
+    geminiEmbeddings: geminiConfigured,
   };
 }
 

@@ -17,8 +17,8 @@ adapter contract only:
 
 No live API route imports the adapter for runtime retrieval. Current private
 archive and memory retrieval still run through Station/Supabase surfaces, with
-OpenAI `text-embedding-3-small` and Supabase pgvector as the active vector
-contract.
+Gemini `gemini-embedding-2` selected for the active 1536-dimensional vector
+contract and OpenAI retained as fallback/rollback.
 
 ## Dependency findings
 

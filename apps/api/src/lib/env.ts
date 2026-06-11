@@ -27,7 +27,7 @@ const envSchema = z.object({
   OPENAI_API_KEY: z.string().optional(),
   EMBEDDINGS_PROVIDER: z
     .enum(["openai", "gemini"])
-    .default("openai"),
+    .default("gemini"),
   GEMINI_API_KEY: z.string().optional(),
   GOOGLE_API_KEY: z.string().optional(),
   EMBEDDING_MODEL: z.string().optional(),
