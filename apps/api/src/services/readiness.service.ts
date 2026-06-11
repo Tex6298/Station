@@ -1,5 +1,6 @@
 import { env } from "../lib/env";
 import { getSupabaseAdmin } from "../lib/supabase";
+import { resolveActiveEmbeddingProvider } from "./embedding-key.service";
 
 const PERSONA_FILES_BUCKET = "persona-files";
 const CHECK_TIMEOUT_MS = 1500;
@@ -23,6 +24,7 @@ type UrlStatus = {
 };
 
 type EmbeddingProvider = "openai" | "gemini";
+type EmbeddingProfileCode = "station_free_1536" | "openai_1536";
 
 type DeploymentReadiness = {
   ready: boolean;
@@ -35,6 +37,7 @@ type DeploymentReadiness = {
     anthropicProvider: boolean;
     deepseekProvider: boolean;
     nvidiaProvider: boolean;
+    embeddingProfileCode: EmbeddingProfileCode;
     embeddingProvider: EmbeddingProvider;
     embeddingsConfigured: boolean;
     openaiEmbeddings: boolean;
@@ -80,6 +83,7 @@ type DeploymentReadiness = {
       anthropic: boolean;
       deepseek: boolean;
       nvidia: boolean;
+      embeddingProfileCode: EmbeddingProfileCode;
       embeddingProvider: EmbeddingProvider;
       embeddingsConfigured: boolean;
       openaiEmbeddings: boolean;
@@ -164,6 +168,7 @@ function buildStaticChecks() {
     anthropicProvider: providers.anthropic,
     deepseekProvider: providers.deepseek,
     nvidiaProvider: providers.nvidia,
+    embeddingProfileCode: providers.embeddingProfileCode,
     embeddingProvider: providers.embeddingProvider,
     embeddingsConfigured: providers.embeddingsConfigured,
     openaiEmbeddings: providers.openaiEmbeddings,
@@ -366,7 +371,8 @@ function providerStatus(): DeploymentReadiness["readiness"]["providers"] {
   const anthropic = hasValue(env.ANTHROPIC_API_KEY);
   const deepseek = hasValue(env.DEEPSEEK_API_KEY);
   const nvidia = hasValue(env.NVIDIA_AI_API_KEY);
-  const embeddingProvider: EmbeddingProvider = env.EMBEDDINGS_PROVIDER === "gemini" ? "gemini" : "openai";
+  const embeddingProvider = resolveActiveEmbeddingProvider();
+  const embeddingProfileCode = env.EMBEDDING_PROFILE_CODE;
   const openaiConfigured = hasValue(env.OPENAI_API_KEY);
   const geminiConfigured = hasValue(env.GEMINI_API_KEY) || hasValue(env.GOOGLE_API_KEY);
   return {
@@ -374,6 +380,7 @@ function providerStatus(): DeploymentReadiness["readiness"]["providers"] {
     anthropic,
     deepseek,
     nvidia,
+    embeddingProfileCode,
     embeddingProvider,
     embeddingsConfigured: embeddingProvider === "gemini" ? geminiConfigured : openaiConfigured,
     openaiEmbeddings: openaiConfigured,

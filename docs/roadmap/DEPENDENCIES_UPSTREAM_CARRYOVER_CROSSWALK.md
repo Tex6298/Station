@@ -10,20 +10,22 @@ only.
 Station should keep a hybrid architecture:
 
 - Canonical private data stays in Station/Supabase.
-- Active retrieval stays on Supabase pgvector `vector(1536)`, with Gemini
-  embeddings as the selected free-tier provider and OpenAI as fallback.
+- Active retrieval stays on Supabase pgvector `vector(1536)`, with
+  `station_free_1536` as the selected free-tier product-testing profile. That
+  profile is currently backed by Gemini; OpenAI remains the `openai_1536`
+  native/rollback profile.
 - Remote systems such as Cloudflare, Redis/Upstash, or future provider-specific
   retrieval indexes can supplement as caches, mirrors, or adapters only after
   owner/visibility, deletion, export, reindex, and privacy gates are explicit.
 - NVIDIA is active as platform chat in staging, not as the embedding provider.
 - BYOK chat remains OpenAI/Anthropic/DeepSeek in code; Gemini chat is
   vocabulary/UI concept only until a provider class and tests exist. Gemini
-  embeddings are the active target for the free-tier replay path, while OpenAI
-  remains rollback/fallback.
+  embeddings back the active free-tier replay profile, while OpenAI remains
+  native/rollback.
 
 Recommended roadmap next step: record Cloudflare as explicitly deferred for the
-current staging replay, configure/prove Gemini embeddings with migration `029`,
-bounded reindex, and hostile retrieval smoke, and use replay evidence to decide
+current staging replay, configure/prove the `station_free_1536` embedding
+profile with migration `029`, bounded reindex, and hostile retrieval smoke, and use replay evidence to decide
 whether a later retrieval-provider lane needs Cloudflare, Redis, NVIDIA
 embeddings, or only better Supabase indexing/UX.
 
@@ -38,20 +40,20 @@ embeddings, or only better Supabase indexing/UX.
 | `msalsas/amanuensis` | Human-veto publishing and approval queue. | Continuity publication and owner-only export/provenance patterns align with approval-first publishing. | Social publishing dispatcher and Telegram queue are deferred. | Hybrid supplement for future publishing workflow. |
 | `discourse/discourse`, `flarum/framework`, `LemmyNet/lemmy`, `forem/forem`, `elkarte/Elkarte`, `mbeps/next_discussion_platform` | Forums, trust, voting, moderation actions/logs, category/thread hygiene. | Forum categories/threads/comments, votes, community trust profiles, moderation actions/logs, Discover/forum visibility rules. | Active/protected-alpha. Federation, plugin systems, full semantic feed, saved posts, image upload, and large admin hierarchy are deferred. | Active primary for Community Beta core; defer ecosystem features. |
 | IntelHub integration notes | Developer Spaces observatory, model gateway/provider catalogue ideas; CTI/finance/exposure/recon/dark-provider/browser-worker/PM/model-gateway modules. | Developer Spaces observatory and provider-policy concepts. | Developer Spaces are Station-native. CTI/finance/exposure/recon/dark-provider/browser-worker/PM/model-gateway code remains rejected. | Active primary for Developer Spaces; reject unrelated IntelHub domains. |
-| Product technical spec provider list | Later providers such as Gemini, custom OpenAI-compatible endpoints, local GPU/NVIDIA ideas. | Provider type vocabulary includes `gemini`; router implements platform, OpenAI, Anthropic, DeepSeek; NVIDIA platform chat aliases use OpenAI-compatible path. Gemini embedding support exists separately from chat provider support. | Gemini has no chat provider class or UI option in awakening flow. NVIDIA local GPU is not current runtime; NVIDIA API chat is staging-proven. Gemini embeddings are the selected free-tier embedding path, not chat. | Active target for embeddings; hybrid supplement for chat; defer Gemini chat/local GPU until provider lane. |
+| Product technical spec provider list | Later providers such as Gemini, custom OpenAI-compatible endpoints, local GPU/NVIDIA ideas. | Provider type vocabulary includes `gemini`; router implements platform, OpenAI, Anthropic, DeepSeek; NVIDIA platform chat aliases use OpenAI-compatible path. Gemini embedding support exists separately from chat provider support. | Gemini has no chat provider class or UI option in awakening flow. NVIDIA local GPU is not current runtime; NVIDIA API chat is staging-proven. Gemini backs the selected free-tier embedding profile, not chat. | Active implementation for `station_free_1536`; hybrid supplement for chat; defer Gemini chat/local GPU until provider lane. |
 
 ## Current implementation matrix
 
 | Stack piece | Evidence in repo | Overlap/conflict | Pros | Cons | Recommendation |
 | --- | --- | --- | --- | --- | --- |
-| Supabase/pgvector + Gemini/OpenAI embeddings | `packages/ai/src/retrieval/embeddings.ts`, migrations `001`, `003`, `028`, `029`, `match_memory_items`, `match_private_archive_chunks`. | Matches active schema shape: Gemini `gemini-embedding-2` at 1536 dimensions or OpenAI `text-embedding-3-small`, `vector(1536)`, `memory_items_embedding_1536`. | Keeps canonical owner/visibility path and current index dimension while moving to a free-tier embedding provider. | Requires migration `029`, Gemini key, bounded reindex, and hostile smoke before data-backed replay proof; pseudo-embedding fallback is dev/test only. | Gemini active target; OpenAI fallback/rollback. |
+| Supabase/pgvector + embedding profiles | `packages/ai/src/retrieval/embeddings.ts`, migrations `001`, `003`, `028`, `029`, `match_memory_items`, `match_private_archive_chunks`. | Matches active schema shape: `station_free_1536` currently uses Gemini `gemini-embedding-2` at 1536 dimensions; `openai_1536` uses OpenAI `text-embedding-3-small`, `vector(1536)`, `memory_items_embedding_1536`. | Keeps canonical owner/visibility path and current index dimension while using a free-tier testing profile. | Requires migration `029`, profile key, bounded reindex, and hostile smoke before data-backed replay proof; pseudo-embedding fallback is dev/test only. | `station_free_1536` active for product testing; `openai_1536` native/rollback. |
 | Cloudflare retrieval adapter | `packages/ai/src/retrieval/cloudflare-adapter.ts`, adapter tests, `docs/architecture/cloudflare-retrieval-adapter.md`, `docs/ops/CLOUDFLARE_DEPENDENCY_CHECK.md`. | Complements retrieval as future remote candidate-ID mirror; must not replace Supabase authorization. | Edge-friendly optional index, can keep canonical private rows in Station. | No live Worker/Vectorize today; privacy/deletion/export/reindex gates still required. | Deferred lane; optional hybrid supplement later. |
 | NVIDIA platform chat | `packages/ai/src/providers/router.ts`, API env `NVIDIA_AI_API_KEY`, health readiness provider checks, provider-router tests. | Uses OpenAI-compatible chat provider path; does not change embeddings. | Staging-proven platform chat option, no schema migration. | Trial/data-policy and model usage expectations still need MIMIR/Marty decision before sensitive replay. | Hybrid supplement for chat. |
 | BYOK OpenAI/Anthropic/DeepSeek | `resolveProvider`, `OpenAIProvider`, `AnthropicProvider`, `DeepseekProvider`, persona provider types/UI. | BYOK applies to chat. OpenAI BYOK can also feed embeddings through existing embedding helpers where profile keys are passed. | Gives owners control without broad gateway scope. | BYOK secret storage/data-policy posture must stay guarded; Gemini chat type has no implementation. | Active primary for supported chat providers; Gemini embeddings are separate from chat. |
 | Developer Space provider policy | `developer_spaces.provider_policy`, `evaluateDeveloperSpaceProviderPolicy`, Developer Space route tests. | Governs whether public/private context can be sent to platform or owner BYOK providers. | Structural fail-closed privacy control; per-Space posture avoids global provider assumptions. | It evaluates policy; it does not by itself prove provider calls are safe. | Active primary guardrail. |
 | Memory lifecycle filters | `memory_item_lifecycle`, runtime context/search filters, Cloudflare candidate reauthorization helper. | Applies before canonical private records return, including future remote candidate IDs. | Prevents rejected/quarantined/expired/superseded memories from re-entering context. | Remote mirrors still need deletion/stale-index handling if enabled. | Active primary guardrail. |
 | Redis/Valkey/Upstash cache | `apps/api/src/services/operational-cache.service.ts`, cache tests, future lane docs. | Cache/idempotency/queue helper, not canonical memory. | Useful for replay performance/rate-limit/idempotency later. | Provider choice not made; TCP Redis client path is disabled pending concrete client. | Deferred lane; hybrid supplement only. |
-| Gemini embeddings | `EMBEDDINGS_PROVIDER`, Gemini embedding key envs, `packages/ai/src/retrieval/embeddings.ts`, migration `029`, and `docs/ops/GEMINI_EMBEDDING_MIGRATION_PLAN.md`. | Complements Supabase pgvector after provider-aware metadata/RPC prep and corpus reindex; does not replace chat providers. | Keeps the existing 1536 index shape and gives the free-tier path Marty selected. | Needs staging migration `029`, replay-corpus reindex, and hostile retrieval smoke before data-backed replay can be called proven. | Active target for embeddings. |
+| `station_free_1536` embeddings | `EMBEDDING_PROFILE_CODE`, Gemini embedding key envs, `packages/ai/src/retrieval/embeddings.ts`, migration `029`, and `docs/ops/GEMINI_EMBEDDING_MIGRATION_PLAN.md`. | Complements Supabase pgvector after provider-aware metadata/RPC prep and corpus reindex; does not replace chat providers. | Keeps the existing 1536 index shape and gives the free-tier path Marty selected without hardcoding provider identity as the product route. | Needs staging migration `029`, replay-corpus reindex, and hostile retrieval smoke before data-backed replay can be called proven. | Active product-testing profile. |
 | Gemini chat | `PersonaProvider` type includes `gemini`; product docs mention Gemini as later provider. | No `GeminiProvider`, no env-backed chat routing, no awakening-flow option, no tests. | Could widen BYOK/provider choice later. | Current type vocabulary overstates implementation if treated as active. | Deferred; do not advertise as active. |
 
 ## Hybrid retrieval recommendation
@@ -60,8 +62,8 @@ Use local canonical plus optional remote mirror:
 
 1. Keep Supabase tables, RLS, owner/persona IDs, visibility, lifecycle status,
    source refs, deletion/export semantics, and audit truth canonical.
-2. Use Gemini 1536-dimensional embeddings as the selected active target and keep
-   OpenAI 1536-dimensional embeddings as fallback/rollback.
+2. Use `station_free_1536` as the selected active product-testing profile and
+   keep `openai_1536` as native/rollback.
 3. If Cloudflare opens later, mirror IDs and minimal metadata first. Query
    Vectorize for candidate IDs only, then fetch canonical records through
    Station/Supabase filters.

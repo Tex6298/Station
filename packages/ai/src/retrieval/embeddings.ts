@@ -4,6 +4,7 @@
  */
 
 export type EmbeddingProvider = "openai" | "gemini";
+export type EmbeddingProfileCode = "station_free_1536" | "openai_1536";
 export type EmbeddingUseCase = "query" | "document";
 
 const OPENAI_MODEL = "text-embedding-3-small";
@@ -12,12 +13,39 @@ const DEFAULT_DIMENSION = 1536;
 const OPENAI_BACKFILL_VERSION = 1;
 const GEMINI_BACKFILL_VERSION = 2;
 
-export const ACTIVE_EMBEDDING_PROVIDER = resolveEmbeddingProvider();
-export const ACTIVE_EMBEDDING_MODEL = resolveEmbeddingModel();
-export const ACTIVE_EMBEDDING_DIMENSION = resolveEmbeddingDimension();
+type EmbeddingProfileConfig = {
+  code: EmbeddingProfileCode;
+  provider: EmbeddingProvider;
+  model: string;
+  dimension: number;
+  backfillVersion: number;
+};
+
+const EMBEDDING_PROFILES: Record<EmbeddingProfileCode, EmbeddingProfileConfig> = {
+  station_free_1536: {
+    code: "station_free_1536",
+    provider: "gemini",
+    model: GEMINI_MODEL,
+    dimension: DEFAULT_DIMENSION,
+    backfillVersion: GEMINI_BACKFILL_VERSION,
+  },
+  openai_1536: {
+    code: "openai_1536",
+    provider: "openai",
+    model: OPENAI_MODEL,
+    dimension: DEFAULT_DIMENSION,
+    backfillVersion: OPENAI_BACKFILL_VERSION,
+  },
+};
+
+export const ACTIVE_EMBEDDING_PROFILE = resolveEmbeddingProfile();
+export const ACTIVE_EMBEDDING_PROFILE_CODE = ACTIVE_EMBEDDING_PROFILE.code;
+export const ACTIVE_EMBEDDING_PROVIDER = ACTIVE_EMBEDDING_PROFILE.provider;
+export const ACTIVE_EMBEDDING_MODEL = resolveEmbeddingModel(ACTIVE_EMBEDDING_PROFILE);
+export const ACTIVE_EMBEDDING_DIMENSION = resolveEmbeddingDimension(ACTIVE_EMBEDDING_PROFILE);
 export const ACTIVE_EMBEDDING_INDEX_NAME = "memory_items_embedding_1536";
 export const ACTIVE_EMBEDDING_INDEX_SOURCE = "supabase_pgvector";
-export const ACTIVE_EMBEDDING_BACKFILL_VERSION = resolveEmbeddingBackfillVersion();
+export const ACTIVE_EMBEDDING_BACKFILL_VERSION = ACTIVE_EMBEDDING_PROFILE.backfillVersion;
 
 export type EmbeddingMetadata = {
   embeddingProvider: EmbeddingProvider;
@@ -287,26 +315,23 @@ function prepareGeminiEmbeddingInput(text: string, useCase: EmbeddingUseCase, mo
   return `title: none | text: ${text}`;
 }
 
-function resolveEmbeddingProvider(): EmbeddingProvider {
-  const raw = process.env.EMBEDDINGS_PROVIDER?.trim().toLowerCase();
-  if (raw === "openai") return "openai";
-  return "gemini";
+function resolveEmbeddingProfile(): EmbeddingProfileConfig {
+  const rawProfile = process.env.EMBEDDING_PROFILE_CODE?.trim().toLowerCase();
+  if (rawProfile === "openai_1536") return EMBEDDING_PROFILES.openai_1536;
+  if (rawProfile === "station_free_1536") return EMBEDDING_PROFILES.station_free_1536;
+
+  const legacyProvider = process.env.EMBEDDINGS_PROVIDER?.trim().toLowerCase();
+  if (legacyProvider === "openai") return EMBEDDING_PROFILES.openai_1536;
+  return EMBEDDING_PROFILES.station_free_1536;
 }
 
-function resolveEmbeddingModel() {
-  if (ACTIVE_EMBEDDING_PROVIDER === "gemini") {
-    return process.env.EMBEDDING_MODEL?.trim() || GEMINI_MODEL;
-  }
-  return process.env.EMBEDDING_MODEL?.trim() || OPENAI_MODEL;
+function resolveEmbeddingModel(profile: EmbeddingProfileConfig) {
+  return process.env.EMBEDDING_MODEL?.trim() || profile.model;
 }
 
-function resolveEmbeddingDimension() {
-  const value = Number.parseInt(process.env.EMBEDDING_DIM || `${DEFAULT_DIMENSION}`, 10);
-  return Number.isInteger(value) && value > 0 ? value : DEFAULT_DIMENSION;
-}
-
-function resolveEmbeddingBackfillVersion() {
-  return ACTIVE_EMBEDDING_PROVIDER === "gemini" ? GEMINI_BACKFILL_VERSION : OPENAI_BACKFILL_VERSION;
+function resolveEmbeddingDimension(profile: EmbeddingProfileConfig) {
+  const value = Number.parseInt(process.env.EMBEDDING_DIM || `${profile.dimension}`, 10);
+  return Number.isInteger(value) && value > 0 ? value : profile.dimension;
 }
 
 function resolveEmbeddingApiKey(apiKey?: string, provider: EmbeddingProvider = ACTIVE_EMBEDDING_PROVIDER) {

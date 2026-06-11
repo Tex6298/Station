@@ -32,7 +32,7 @@ useful product evidence from an online/staged Station deployment.
 - The external Railway API service exists and the web service has URL/env
   wiring. Supabase migrations `025` through `028`, database readiness, private
   storage readiness, and NVIDIA platform chat are now proven at setup level.
-  Supabase Auth redirects, Gemini embeddings, Stripe test resources,
+  Supabase Auth redirects, embedding profile proof, Stripe test resources,
   Redis/cache selection, Cloudflare setup, and replay data still remain.
 - Supabase migrations and setup notes live in `infra/supabase/README.md`.
 - Stripe Billing setup notes live in `infra/stripe/webhook.md`.
@@ -81,10 +81,10 @@ staging. Preserve the healthy `@station/api` deploy while making `@station/web`
 deploy the Next.js app from the same fork. Do not place server-only secrets on
 `@station/web`.
 
-Remaining facts: Supabase Auth redirects, Gemini embedding configuration/proof,
-Stripe test Price IDs/webhook secret, Redis/cache-provider decision, Cloudflare
-decision, replay account credentials/data, and deployed password-reset-route
-proof.
+Remaining facts: Supabase Auth redirects, `station_free_1536` embedding profile
+configuration/proof, Stripe test Price IDs/webhook secret, Redis/cache-provider
+decision, Cloudflare decision, replay account credentials/data, and deployed
+password-reset-route proof.
 
 ## Current Railway project state
 
@@ -125,7 +125,7 @@ running commit `55d3fc6`. Public `/health/deployment` now reports database
 `ok: true`, migrations `ok: true` via `025-028/public_schema_object_proof`,
 storage `ok: true` with `persona-files` private, and NVIDIA platform chat true.
 Overall `ready` remains false because Supabase Auth redirect management proof,
-Gemini embedding proof, Stripe, and Redis/cache configuration remain false.
+embedding profile proof, Stripe, and Redis/cache configuration remain false.
 MIMIR's follow-up no-data RPC smoke also proved `match_memory_items` and
 `match_private_archive_chunks` are callable and return zero rows for nonexistent
 owner/persona scope.
@@ -179,11 +179,11 @@ NVIDIA_AI_API_KEY=<optional-for-platform-chat>
 NVIDIA_MODEL_BASE_URL=https://integrate.api.nvidia.com
 NVIDIA_MODEL=openai/gpt-oss-120b
 DEEPSEEK_API_KEY=<optional-for-platform-chat>
-EMBEDDINGS_PROVIDER=gemini
+EMBEDDING_PROFILE_CODE=station_free_1536
 EMBEDDING_MODEL=gemini-embedding-2
 EMBEDDING_DIM=1536
 GEMINI_API_KEY=<required-for-active-embeddings>
-# OPENAI_API_KEY=<optional-fallback-embeddings>
+# OPENAI_API_KEY=<optional-openai_1536-native-or-rollback-profile>
 STRIPE_SECRET_KEY=sk_test_...
 STRIPE_WEBHOOK_SECRET=whsec_...
 STRIPE_PRICE_BASIC_MONTHLY=price_...
@@ -320,7 +320,8 @@ Remaining E2E blockers before replay evidence is meaningful:
   `docs/ops/CLOUDFLARE_DEPENDENCY_CHECK.md`; Cloudflare is optional by adapter
   contract and can be deferred unless MIMIR makes it part of replay scope.
 - Configure Stripe test resources and webhook secret for staged API.
-- Confirm at least one platform chat provider and the Gemini embedding key.
+- Confirm at least one platform chat provider and the selected embedding
+  profile key.
 - Prepare replay account/data that covers persona, archive import, continuity,
   Space/document, discussion, Developer Space, export, and billing paths.
 
@@ -346,5 +347,5 @@ The current BE-00 through BE-08 proof/waiver package lives in
 This repo is ready for an ARGUS review of Railway web/API deploy hygiene,
 documentation truth, and the remaining proof/waiver asks. It is not ready to
 claim full staging implementation until the external facts above are supplied
-or explicitly waived for Supabase Auth redirects, Gemini embeddings, Stripe,
-provider usage expectations, cache, Cloudflare, and replay data.
+or explicitly waived for Supabase Auth redirects, embedding profile proof,
+Stripe, provider usage expectations, cache, Cloudflare, and replay data.

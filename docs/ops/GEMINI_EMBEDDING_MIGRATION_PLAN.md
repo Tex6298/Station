@@ -2,38 +2,39 @@
 
 Date: 2026-06-10
 
-Status: corrected active embedding direction for replay/staging. Gemini is the
-chosen embedding provider because it has a free tier; this plan records the
-work needed to make that choice safe and testable.
+Status: corrected embedding-profile direction for replay/staging. The chosen
+product-testing profile is `station_free_1536`; today that profile is backed by
+Gemini because Gemini has a free tier. This plan records the work needed to make
+that profile safe and testable.
 
 ## Current truth
 
-- Active production/staging retrieval should move to Gemini embeddings over
-  Supabase pgvector `vector(1536)`.
+- Active production/staging retrieval for product testing should move to the
+  `station_free_1536` embedding profile over Supabase pgvector `vector(1536)`.
 - Existing staging proof only covers migrations through `028`.
 - Migration `029_gemini_embedding_provider_prep.sql` is a forward-compatible
   schema prep: it permits `openai` or `gemini` metadata on 1536-dimensional
   rows and adds provider-aware RPC overloads.
-- The repo default is now `EMBEDDINGS_PROVIDER=gemini`.
-- Gemini should be configured as the target provider now, then proven for
-  data-backed replay after migration `029`, corpus reindex, and hostile
-  retrieval smoke.
-- OpenAI `text-embedding-3-small` remains the rollback/fallback path for the
-  same 1536-dimensional Supabase index shape.
+- The repo default is now `EMBEDDING_PROFILE_CODE=station_free_1536`.
+- That profile currently resolves to Gemini for product testing, then must be
+  proven for data-backed replay after migration `029`, corpus reindex, and
+  hostile retrieval smoke.
+- OpenAI `text-embedding-3-small` remains the `openai_1536` native/rollback
+  profile for the same 1536-dimensional Supabase index shape.
 - NVIDIA remains chat/model provider work; it does not replace embeddings in
   this lane.
 
 ## Provider switch plan
 
-1. Confirm staging env selects Gemini embeddings.
+1. Confirm staging env selects the free testing profile.
 2. Apply migration `029` to staging and run no-data RPC smoke for both
    `match_memory_items` and `match_private_archive_chunks`.
 3. Set staging env:
-   - `EMBEDDINGS_PROVIDER=gemini`
+   - `EMBEDDING_PROFILE_CODE=station_free_1536`
    - `EMBEDDING_MODEL=gemini-embedding-2`
    - `EMBEDDING_DIM=1536`
    - `GEMINI_API_KEY` or `GOOGLE_API_KEY`
-4. Reindex owner replay corpus into Gemini vectors with
+4. Reindex owner replay corpus into free-profile vectors with
    `embedding_provider='gemini'`, `embedding_model='gemini-embedding-2'`,
    `embedding_dimension=1536`, `embedding_index_name='memory_items_embedding_1536'`,
    and `embedding_backfill_version=2`.
@@ -48,8 +49,8 @@ work needed to make that choice safe and testable.
 
 ## OpenAI rollback plan
 
-1. Set `EMBEDDINGS_PROVIDER=openai` and restore the OpenAI embedding key.
-2. Leave Gemini rows in place but stop writing new Gemini vectors.
+1. Set `EMBEDDING_PROFILE_CODE=openai_1536` and restore the OpenAI embedding key.
+2. Leave free-profile rows in place but stop writing new free-profile vectors.
 3. If Gemini rows cause ranking confusion, null only Gemini vector fields for
    the replay owner/persona or restore OpenAI vectors from the last export:
    - `embedding=null`

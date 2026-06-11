@@ -2836,8 +2836,9 @@ Recorded by ARGUS on 2026-06-10 after MIMIR accepted the direction but deferred
 Gemini for the current replay/staging lane.
 
 Superseded correction: this section inverted MIMIR/Marty's instruction. The
-current operating decision is Gemini embeddings first because of the free tier,
-with OpenAI as fallback/rollback.
+current operating decision is an embedding-profile contract:
+`station_free_1536` for free-tier product testing, currently backed by Gemini,
+with `openai_1536` as native/rollback.
 
 Decision:
 
@@ -2877,9 +2878,9 @@ Checks run:
 | Current primary provider docs review | Pass | Checked Google Gemini pricing/rate-limit docs, Gemini Embedding GA note, Cloudflare Workers AI/Vectorize pricing, and Hugging Face Inference Providers pricing. |
 | Repo search for active provider posture | Pass | Current repo defaults still keep OpenAI embeddings active and Gemini dormant. |
 
-Superseded correction: Gemini is now the selected active embedding target, not
-a deferred candidate. Migration `029`, reindex, and hostile retrieval smoke are
-the proof work for that selected lane.
+Superseded correction: `station_free_1536` is now the selected active
+product-testing embedding profile, not a deferred candidate. Migration `029`,
+reindex, and hostile retrieval smoke are the proof work for that selected lane.
 
 ## OpenAI/NVIDIA active-lane readiness follow-up (superseded 2026-06-11)
 
@@ -2923,18 +2924,21 @@ Commands re-run by ARGUS:
 | `npx --yes pnpm@10.32.1 exec tsx --test packages/ai/test/provider-router.test.ts` | Pass | 4 tests passed. |
 | `npx --yes pnpm@10.32.1 --filter @station/api build` | Pass | API and dependent package builds completed. |
 
-## Gemini active embedding correction
+## Embedding profile correction
 
 Prepared by MIMIR on 2026-06-11 after correcting the 2026-06-10 OpenAI-first
-interpretation.
+interpretation and the first provider-hardcoded correction.
 
 Decision:
 
-- Gemini `gemini-embedding-2` is the selected active embedding provider because
-  it has a free tier and supports 1536-dimensional output.
-- OpenAI `text-embedding-3-small` remains fallback/rollback only.
-- `/health/deployment` follows the selected `EMBEDDINGS_PROVIDER` through
-  `embeddingsConfigured` and exposes separate OpenAI/Gemini booleans.
+- `station_free_1536` is the selected active product-testing embedding profile.
+- That profile currently uses Gemini `gemini-embedding-2` because it has a free
+  tier and supports 1536-dimensional output.
+- OpenAI `text-embedding-3-small` remains available through the `openai_1536`
+  native/rollback profile.
+- `/health/deployment` follows the selected `EMBEDDING_PROFILE_CODE` through
+  `embeddingsConfigured` and exposes the effective provider plus separate
+  OpenAI/Gemini booleans.
 - `/observability/replay-readiness` now names `gemini_embeddings` as the
   external proof blocker.
 - Data-backed replay still needs migration `029`, bounded reindex, and hostile
@@ -2944,9 +2948,10 @@ Commands run:
 
 | Command | Result | Notes |
 | --- | --- | --- |
-| `npx --yes pnpm@10.32.1 test:health` | Pass | 3 tests passed, including Gemini active-provider readiness coverage. |
-| `npx --yes pnpm@10.32.1 test:replay-readiness` | Pass | 1 test passed with `gemini_embeddings` as the blocker. |
+| `npx --yes pnpm@10.32.1 test:health` | Pass | 3 tests passed, including `station_free_1536` profile readiness coverage. |
+| `npx --yes pnpm@10.32.1 test:replay-readiness` | Pass | 1 test passed with `embedding_profile_proof` as the blocker. |
 | `npx --yes pnpm@10.32.1 exec tsx --test packages/ai/test/retrieval-metadata.test.ts` | Pass | 4 tests passed, including Gemini REST config casing and 1536-dimensional request guard. |
+| `npx --yes pnpm@10.32.1 test:storage` | Pass | 7 tests passed, including explicit `openai_1536` metadata coverage for the native/rollback profile. |
 | `npx --yes pnpm@10.32.1 --filter @station/api build` | Pass | API and dependent package builds completed. |
 
 ## DAEDALUS staging closeout ARGUS review result

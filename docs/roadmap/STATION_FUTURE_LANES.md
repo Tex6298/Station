@@ -31,9 +31,10 @@ This note folds the current external/upstream work into future sequencing:
 
 - Supabase remains the source of truth for private memory, archive, visibility,
   continuity, and owner authorization.
-- Current memory embeddings should move to Gemini `gemini-embedding-2` because
+- Current product-testing memory embeddings should use the `station_free_1536`
+  profile. That profile is backed by Gemini `gemini-embedding-2` for now because
   it has a free tier and can preserve the `vector(1536)` shape. OpenAI
-  `text-embedding-3-small` remains fallback/rollback.
+  `text-embedding-3-small` remains the `openai_1536` native/rollback profile.
 - NVIDIA is acceptable for dev/staging chat probes after provider/data-policy
   review, but NVIDIA embeddings are not a drop-in swap. Provider/data-policy
   posture may vary by Developer Space requirement; do not assume one global
@@ -57,9 +58,10 @@ This note folds the current external/upstream work into future sequencing:
   spaces may need public/synthetic-only model calls; others may need private
   archive-aware calls. If we are building configurability for one side of this,
   we should design the provider/privacy surface broadly enough to support both.
-- Embedding provider and vector dimension should remain configurable and
-  auditable. Gemini is the selected near-term provider, but the metadata/reindex
-  path must keep later per-index or per-Space choices possible.
+- Embedding profile and vector dimension should remain configurable and
+  auditable. `station_free_1536` is the selected near-term testing profile, but
+  the metadata/reindex path must keep later per-index or per-Space choices
+  possible.
 - Cloudflare adapter work should be driven by the imported repo patterns and
   their constraints. The default remains adapter/index-mirror posture unless the
   accepted repo pattern proves a stronger Cloudflare dependency is necessary.
@@ -136,15 +138,15 @@ Blocked on:
 
 ## Lane 2 - Provider policy and NVIDIA chat
 
-Purpose: use the local NVIDIA key safely for dev/staging chat while Gemini owns
-the embedding lane.
+Purpose: use the local NVIDIA key safely for dev/staging chat while the selected
+embedding profile owns retrieval.
 
 Scope:
 
 - Keep NVIDIA behind platform-chat configuration.
 - Default operational prompts to `/no_think` unless a reasoning trace is
   explicitly useful.
-- Keep Gemini embeddings on the current 1536-dimensional path once migration
+- Keep `station_free_1536` on the current 1536-dimensional path once migration
   `029` and reindex/smoke proof are complete.
 - Design provider/privacy configuration per Developer Space rather than a
   single global yes/no rule.
@@ -162,7 +164,7 @@ ARGUS gates:
 
 ## Lane 3 - Retrieval provider hardening
 
-Purpose: make the Gemini embedding swap auditable and keep future provider
+Purpose: make embedding profile selection auditable and keep future provider
 choices safe.
 
 Scope:
@@ -171,16 +173,17 @@ Scope:
   mixed-provider storage is treated as replay-ready.
 - Reject vectors whose length does not match the active schema/index.
 - Preserve keyword fallback behavior.
-- Backfill/reindex the replay corpus before judging Gemini retrieval quality.
+- Backfill/reindex the replay corpus before judging the selected profile's
+  retrieval quality.
 - Design the provider/dimension contract so retrieval can become configurable by
   index, environment, or Developer Space where justified.
 
 Decision point:
 
-- Use Gemini 1536-dimensional embeddings for the near-term free-tier path, with
-  OpenAI retained as rollback. Later NVIDIA/Cloudflare candidates should open
-  their own provider/dimension lanes only when replay or imported repo demands
-  justify them.
+- Use `station_free_1536` for the near-term free-tier path, with `openai_1536`
+  retained as rollback/native route. Later Qwen, NVIDIA, Cloudflare, local, or
+  custom candidates should open their own profile/dimension lanes only when
+  replay or imported repo demands justify them.
 
 Required migration work if switching dimensions:
 
@@ -323,8 +326,8 @@ ARGUS gates:
 1. Lane 0 is accepted: upstream memory/observability/community work has been
    converged into the Railway fork.
 2. Clear Lane 1 external Supabase/auth/storage blockers.
-3. Apply/prove the Gemini embedding path, then run staged replay with optional
-   NVIDIA chat.
+3. Apply/prove the `station_free_1536` embedding path, then run staged replay
+   with optional NVIDIA chat.
 4. Decide whether retrieval needs Cloudflare/Redis/NVIDIA migration work based
    on staged replay evidence and the imported repo demands now visible in
    `Discern-AI/Station`.

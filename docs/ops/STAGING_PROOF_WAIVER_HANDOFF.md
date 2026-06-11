@@ -98,7 +98,7 @@ Observed public API readiness facts:
 | Storage | bucket `persona-files`, `exists: true`, `private: true`, `ok: true` | The deployed API can prove the private storage bucket exists. |
 | Supabase Auth redirects | `ok: false`, `checked: false`, `managementApiConfigured: false`, `projectRefConfigured: true`, `error: not_supported` | Redirect settings need dashboard/API proof outside this shell. |
 | Stripe | billing secrets false; all price IDs false; `ready: false` | Test billing resources are not configured on the deployed API. |
-| Providers | platform chat true; NVIDIA true; Gemini embedding proof pending | Staging can prove NVIDIA platform chat configuration, but still needs the selected Gemini embedding contract proved. |
+| Providers | platform chat true; NVIDIA true; embedding profile proof pending | Staging can prove NVIDIA platform chat configuration, but still needs the selected embedding profile contract proved. |
 | Cache | Railway Redis false; Upstash REST false; configured false | Cache provider is not selected or configured. |
 
 No secret values were captured or printed.
@@ -119,7 +119,7 @@ before replay-driven optimization starts.
 | Cloudflare retrieval | Choose or defer Worker/Vectorize account and index setup. Remote candidates must remain reauthorized through Station/Supabase before private records return. |
 | Stripe test resources | Configure test Stripe secret, webhook secret, and all required price IDs for the staged API, or waive billing replay. |
 | Platform chat provider | NVIDIA platform chat is configured and publicly proven. Confirm the selected staging model/usage expectations before replay, or waive chat replay. |
-| Gemini embeddings | Configure `EMBEDDINGS_PROVIDER=gemini`, `EMBEDDING_MODEL=gemini-embedding-2`, `EMBEDDING_DIM=1536`, and `GEMINI_API_KEY`; apply migration `029`, reindex replay data, and run hostile retrieval smoke, or explicitly waive remote vector retrieval proof. |
+| Embedding profile | Configure `EMBEDDING_PROFILE_CODE=station_free_1536`, `EMBEDDING_MODEL=gemini-embedding-2`, `EMBEDDING_DIM=1536`, and `GEMINI_API_KEY`; apply migration `029`, reindex replay data, and run hostile retrieval smoke, or explicitly waive remote vector retrieval proof. |
 | Replay account/data | Prepare one staging replay account with persona, archive import, continuity, Space/document, discussion, Developer Space, export, and billing-path coverage, or explicitly narrow the replay path. |
 
 ## Code-side closeout state
@@ -130,7 +130,7 @@ Closed in code:
   through `028`, private `persona-files` storage, and NVIDIA platform chat as
   setup-proven.
 - Replay-readiness blockers now focus on hostile vector/RPC smoke if required,
-  Supabase Auth redirects, Gemini embeddings, Stripe resources, cache provider,
+  Supabase Auth redirects, embedding profile proof, Stripe resources, cache provider,
   Cloudflare setup, and replay account/data.
 - `/reset-password/update` exists and updates the Supabase password from a reset
   recovery session.
@@ -139,7 +139,7 @@ Still external or replay-side:
 
 - Supabase Auth dashboard site URL and redirect allow-list confirmation.
 - Supabase Auth dashboard allow-list proof for `/reset-password/update`.
-- Gemini embedding key/config plus migration `029`, replay-corpus reindex, and
+- Embedding profile key/config plus migration `029`, replay-corpus reindex, and
   hostile retrieval smoke for the `vector(1536)` retrieval contract.
 - Stripe test secrets, webhook, and price IDs.
 - Redis/Valkey/Upstash provider choice or explicit deferment.

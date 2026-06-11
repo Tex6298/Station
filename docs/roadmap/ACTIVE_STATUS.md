@@ -763,7 +763,7 @@ when a PR lands, or when validation truth changes.
   explicit MIMIR waiver of the remaining external setup blockers. MIMIR's
   2026-06-09 proof update clears remote database readiness, migration setup
   proof, private storage readiness, and NVIDIA platform chat proof; remaining
-  blockers are Supabase Auth redirects/reset route, Gemini embeddings, cache
+  blockers are Supabase Auth redirects/reset route, embedding profile proof, cache
   provider selection/deferment, Cloudflare account/index decision, Stripe test
   resources, replay account/data setup, and any hostile remote vector/RPC smoke
   MIMIR wants before full replay. Latest public `/health/deployment` still
@@ -776,7 +776,7 @@ when a PR lands, or when validation truth changes.
   returns `{ "ok": true }`, while `/health/deployment` reports `ready: false`.
   After MIMIR's proof update, database, migration object proof, private storage,
   and NVIDIA platform chat are true; Supabase Auth redirect management proof,
-  Gemini embeddings, Stripe, Redis/cache, Cloudflare, and replay-data setup
+  embedding profile proof, Stripe, Redis/cache, Cloudflare, and replay-data setup
   remain pending. This is a handoff package, not full staging readiness.
 - BE-00 through BE-08 staging proof/waiver handoff is accepted by ARGUS,
   2026-06-09 before MIMIR's proof update: ARGUS rechecked public web/API
@@ -824,7 +824,7 @@ when a PR lands, or when validation truth changes.
   deployed `/observability/replay-readiness` rejects visitors with `401`, and
   deployed `/health/deployment` remains non-secret with `ready: false`. The
   remaining MIMIR/Marty decision is whether to waive or prove Supabase Auth
-  redirect allow-list, Gemini embeddings, Stripe, cache provider, Cloudflare,
+  redirect allow-list, embedding profile proof, Stripe, cache provider, Cloudflare,
   replay account/data, and optional hostile vector/RPC smoke before replay.
 - Cloudflare dependency check is ready for MIMIR, 2026-06-10:
   `docs/ops/CLOUDFLARE_DEPENDENCY_CHECK.md` records that Cloudflare retrieval is
@@ -847,22 +847,26 @@ when a PR lands, or when validation truth changes.
   rollback sequence. This does not enable Gemini chat and does not switch the
   replay corpus.
 - Corrected MIMIR embedding decision, 2026-06-11: the 2026-06-10 OpenAI-first
-  wording above was an inverted interpretation of Marty/MIMIR's instruction.
-  Gemini embeddings are the selected active direction because they have a free
-  tier and can preserve the 1536-dimensional Supabase pgvector shape. OpenAI
-  remains fallback/rollback only. NVIDIA remains platform chat/model work, not
-  the embedding provider.
+  wording above was an inverted interpretation of Marty/MIMIR's instruction,
+  then the first correction overfit to provider identity. The product/runtime
+  contract is an embedding profile. `station_free_1536` is the selected
+  product-testing profile because it can use Gemini's free tier while preserving
+  the 1536-dimensional Supabase pgvector shape. `openai_1536` remains
+  native/rollback. NVIDIA remains platform chat/model work, not the embedding
+  profile.
 - Corrected Gemini staging gate, 2026-06-11: configure
-  `EMBEDDINGS_PROVIDER=gemini`, `EMBEDDING_MODEL=gemini-embedding-2`,
-  `EMBEDDING_DIM=1536`, and `GEMINI_API_KEY`; apply migration `029`, reindex a
-  bounded replay corpus, and run hostile retrieval smoke before data-backed
-  replay is called proven. These are implementation/proof tasks for the chosen
-  Gemini lane, not reasons to drift back to OpenAI.
+  `EMBEDDING_PROFILE_CODE=station_free_1536`,
+  `EMBEDDING_MODEL=gemini-embedding-2`, `EMBEDDING_DIM=1536`, and
+  `GEMINI_API_KEY`; apply migration `029`, reindex a bounded replay corpus, and
+  run hostile retrieval smoke before data-backed replay is called proven. These
+  are implementation/proof tasks for the chosen profile lane, not reasons to
+  drift back to OpenAI.
 - Corrected deployment readiness posture, 2026-06-11:
-  `/health/deployment` now exposes the selected `embeddingProvider`,
-  `embeddingsConfigured`, and separate OpenAI/Gemini booleans. Overall replay
-  readiness follows the active provider, so Gemini keys satisfy the embedding
-  gate when `EMBEDDINGS_PROVIDER=gemini`.
+  `/health/deployment` now exposes the selected `embeddingProfileCode`,
+  effective `embeddingProvider`, `embeddingsConfigured`, and separate
+  OpenAI/Gemini booleans. Overall replay readiness follows the active profile,
+  so Gemini keys satisfy the embedding gate when
+  `EMBEDDING_PROFILE_CODE=station_free_1536`.
 
 ## Current repo truth
 
@@ -1025,7 +1029,7 @@ when a PR lands, or when validation truth changes.
   non-secret and accurately reports `ready: false`, and database, migration
   object proof, private `persona-files` storage, and NVIDIA platform chat are
   true. Remaining proof/waiver blockers are Supabase Auth redirects/password
-  reset route, Gemini embeddings, Stripe test resources, cache provider,
+  reset route, embedding profile proof, Stripe test resources, cache provider,
   Cloudflare account/index decision, replay account/data, and any hostile
   vector/RPC smoke MIMIR wants before full replay. Do not begin replay-driven
   optimization unless MIMIR/Marty explicitly waive the remaining blockers or

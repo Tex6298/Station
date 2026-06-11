@@ -6,6 +6,7 @@ import {
   ACTIVE_EMBEDDING_INDEX_NAME,
   ACTIVE_EMBEDDING_INDEX_SOURCE,
   ACTIVE_EMBEDDING_MODEL,
+  ACTIVE_EMBEDDING_PROFILE_CODE,
   ACTIVE_EMBEDDING_PROVIDER,
   EmbeddingDimensionMismatchError,
   assertActiveEmbeddingVector,
@@ -18,6 +19,7 @@ import { searchMemory } from "../src/retrieval/semantic-search";
 type Row = Record<string, any>;
 
 test("active embedding metadata keeps the current 1536-vector contract explicit", () => {
+  assert.equal(ACTIVE_EMBEDDING_PROFILE_CODE, "station_free_1536");
   assert.equal(ACTIVE_EMBEDDING_PROVIDER, "gemini");
   assert.equal(ACTIVE_EMBEDDING_MODEL, "gemini-embedding-2");
   assert.equal(ACTIVE_EMBEDDING_BACKFILL_VERSION, 2);

@@ -18,6 +18,8 @@ process.env.NODE_ENV = "test";
 process.env.SUPABASE_URL ??= "http://localhost";
 process.env.SUPABASE_ANON_KEY ??= "test-anon-key";
 process.env.SUPABASE_SERVICE_ROLE_KEY ??= "test-service-key";
+process.env.EMBEDDING_PROFILE_CODE = "openai_1536";
+delete process.env.EMBEDDINGS_PROVIDER;
 delete process.env.OPENAI_API_KEY;
 
 type Row = Record<string, any>;
