@@ -1363,6 +1363,20 @@ when a PR lands, or when validation truth changes.
   bodies, prompt bodies, excerpts, tokens, cookies, credentials, owner ids, or
   persona ids were committed. A true other-owner token was not available.
   ARGUS should review before this becomes an accepted retrieval-quality claim.
+- DAEDALUS staged replay E2E walkthrough, 2026-06-11: ran live second-owner
+  preflight first via throwaway deployed signup; second-owner archive retrieval
+  returned HTTP 403 and zero private rows. Continued through deployed health,
+  replay owner sign-in/persona lookup, vector archive retrieval for both seeded
+  anchors, context preview with rejected control absent, public Space/document/
+  discussion, Developer Space public detail/SSE stream/owner usage, persona
+  export list/readback, billing status, and observability metadata. All probed
+  routes returned expected 200/201/403 statuses; Developer Space usage showed
+  nodes 1, events 1, snapshots 1, public reads 4, exports 0, warning `ok`;
+  billing showed tier `canon`, subscription `inactive`, no customer present;
+  observability trace count was 0. No bodies, excerpts, prompts, manifests,
+  raw snapshots, tokens, credentials, cookies, owner ids, persona ids, thread
+  ids, export ids, or raw corpus text were committed. ARGUS should review before
+  accepting the staged replay walkthrough.
 - ARGUS accepted the populated replay measurement, 2026-06-11: live owner
   archive retrieval returned vector-mode seeded archive matches with zero
   skipped sources and high human relevance ratings, context preview included the

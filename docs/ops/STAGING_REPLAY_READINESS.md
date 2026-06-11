@@ -352,6 +352,12 @@ Remaining E2E blockers before replay evidence is meaningful:
   `test:persona-context` coverage still proves cross-owner blocks for these
   route families. A live second-owner probe remains a useful hardening follow-up
   rather than a blocker for this seeded replay slice.
+- A broader staged replay E2E walkthrough now includes the live second-owner
+  privacy preflight. The throwaway second owner received HTTP 403 and zero
+  private rows on the replay archive route.
+- The walkthrough also covers public Space/document/discussion, Developer Space
+  public detail/SSE stream/owner usage, owner export readback, billing status,
+  and observability metadata with sanitized counts only.
 - Capture retrieval quality as counts, modes, timings, skipped-source counts,
   provider/profile metadata, and human relevance ratings only. Do not store
   private excerpts or prompt bodies in docs.

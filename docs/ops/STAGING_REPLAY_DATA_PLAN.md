@@ -4,7 +4,8 @@ Date: 2026-06-11
 
 Status: replay seed/helper implemented, hardened, executed against staging, and
 accepted by ARGUS as setup evidence. Populated retrieval/context-preview
-measurement has now run with sanitized counts for ARGUS review.
+measurement was accepted by ARGUS, and a broader staged replay E2E walkthrough
+has now run with sanitized route evidence for ARGUS review.
 
 ## Current truth
 
@@ -25,6 +26,10 @@ measurement has now run with sanitized counts for ARGUS review.
   seeded corpus with sanitized counts only. Response bodies, prompt bodies,
   private excerpts, credentials, tokens, owner ids, and persona ids were not
   captured in committed docs.
+- A staged replay E2E walkthrough has now covered second-owner privacy,
+  retrieval/context-preview, public Space/document/discussion, Developer Space
+  observatory/usage, owner export readback, billing status, and observability
+  metadata. It is still pending ARGUS review.
 
 ## DAEDALUS route audit result
 
@@ -278,6 +283,70 @@ commit response bodies, excerpts, prompt bodies, credentials, tokens, cookies,
 owner ids, persona ids, or raw corpus text. Wake ARGUS with the walkthrough
 result; if the walkthrough reveals UX/product friction rather than backend
 failure, name it for ARIADNE instead of treating it as backend completion.
+
+## DAEDALUS staged replay E2E walkthrough
+
+DAEDALUS ran the broader staged replay walkthrough against the deployed API on
+2026-06-11. The first gate was a live second-owner privacy preflight using a
+throwaway beta visitor created through deployed signup. The second-owner
+credential/token was not printed or committed.
+
+Second-owner preflight:
+
+| Probe | Route | HTTP | Latency | Result |
+| --- | --- | ---: | ---: | --- |
+| Replay owner sign-in | `/auth/signin` | 200 | 1733ms | Token captured in memory only. |
+| Throwaway second-owner signup | `/auth/signup` | 201 | 961ms | Token captured in memory only; credentials not printed. |
+| Second-owner archive probe | `/conversations/persona/:personaId/archive-retrieval` | 403 | 809ms | Expected block; private rows returned 0. |
+
+Walkthrough setup:
+
+| Probe | Route | HTTP | Latency | Result |
+| --- | --- | ---: | ---: | --- |
+| Deployment health | `/health/deployment` | 200 | 1410ms | `ready:true`; profile `station_free_1536`; provider `gemini`; model `gemini-embedding-2`. |
+| Replay owner sign-in | `/auth/signin` | 200 | 1065ms | Token captured in memory only. |
+| Replay persona lookup | `/personas` | 200 | 770ms | Seeded persona matched by name; id not printed. |
+
+Retrieval and context:
+
+| Probe | Route | HTTP | Mode | Count/Result | Latency |
+| --- | --- | ---: | --- | --- | ---: |
+| Archive anchor one | `/conversations/persona/:personaId/archive-retrieval` | 200 | `vector` | 2 authorized chunks, 0 skipped, expected anchor observed | 1952ms |
+| Archive anchor two | `/conversations/persona/:personaId/archive-retrieval` | 200 | `vector` | 2 authorized chunks, 0 skipped, expected anchor observed | 1970ms |
+| Context preview | `/conversations/persona/:personaId/context-preview` | 200 | `context-preview` | canon 0, memory 1, integrity 1, archive 2; rejected control absent | 2295ms |
+
+Public/community surfaces:
+
+| Probe | Route | HTTP | Result | Latency |
+| --- | --- | ---: | --- | ---: |
+| Public Space | `/spaces/:slug` | 200 | access `public`; document count 1; expected slug observed | 1076ms |
+| Public document | `/documents/public/:id` | 200 | visibility `public`; expected slug observed; body not printed | 430ms |
+| Document discussion link | `/documents/:id/discussion` | 200 | eligible true; discussion present; thread id not printed | 648ms |
+| Thread detail | `/threads/:id` | 200 | status `active`; comment count 1 | 689ms |
+
+Developer Space:
+
+| Probe | Route | HTTP | Result | Latency |
+| --- | --- | ---: | --- | ---: |
+| Public observatory detail | `/developer-spaces/:slug` | 200 | access `public`; nodes 1; events 1; latest snapshot present; raw snapshot not printed | 1386ms |
+| Public observatory stream | `/developer-spaces/:slug/stream?once=1` | 200 | SSE update observed; body not printed | 1287ms |
+| Owner Developer Space list | `/developer-spaces` | 200 | expected slug observed; id not printed | 1093ms |
+| Owner Developer Space usage | `/developer-spaces/:id/usage` | 200 | nodes 1, events 1, snapshots 1, storage bytes 616, public reads 4, exports 0, warning `ok` | 920ms |
+
+Export, billing, and observability:
+
+| Probe | Route | HTTP | Result | Latency |
+| --- | --- | ---: | --- | ---: |
+| Persona export list | `/exports/persona/:personaId` | 200 | export count 1; selected kind `persona_archive`; id not printed | 930ms |
+| Export readback | `/exports/:id` | 200 | package kind `persona_archive`; status `completed`; manifest key count 5; manifest not printed | 748ms |
+| Billing status | `/billing/me` | 200 | tier `canon`; subscription `inactive`; no customer present; limit keys captured | 777ms |
+| Replay readiness metadata | `/observability/replay-readiness` | 200 | top-level replay metadata keys captured only | 664ms |
+| Observability summary | `/observability/summary` | 200 | trace count 0; failed trace count 0 | 799ms |
+| Observability traces | `/observability/traces?limit=5` | 200 | trace count 0; trace ids not printed | 748ms |
+
+Omitted from committed evidence: tokens, credentials, cookies, owner ids,
+persona ids, thread ids, export ids, response bodies, prompt bodies, raw corpus
+text, private excerpts, raw snapshots, and manifest bodies.
 
 ## DAEDALUS scope
 

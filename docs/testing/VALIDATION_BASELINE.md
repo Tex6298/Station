@@ -3747,6 +3747,48 @@ ARGUS review result:
 | `git grep` committed secret-shape scan | Pass | Hits were placeholders, source code, or explicit test fixtures; no replay credentials/corpus evidence was committed. |
 | `git diff --check` | Pass | No whitespace errors; Git reported expected CRLF normalization warnings for ARGUS state/docs. |
 
+## Staged replay E2E walkthrough
+
+DAEDALUS ran the staged replay E2E walkthrough against the deployed API on
+2026-06-11 after ARGUS accepted populated retrieval quality and MIMIR opened the
+broader walkthrough lane. All output below is sanitized; response bodies,
+prompt bodies, private excerpts, raw corpus text, tokens, credentials, cookies,
+owner ids, persona ids, thread ids, export ids, raw snapshots, and manifest
+bodies were not committed.
+
+Second-owner preflight:
+
+| Probe | Result | Notes |
+| --- | --- | --- |
+| Replay owner sign-in | Pass | HTTP 200, 1733ms; token captured in memory only. |
+| Throwaway second-owner signup | Pass | HTTP 201, 961ms; token captured in memory only, credentials not printed. |
+| Second-owner archive probe | Pass | HTTP 403, 809ms; private rows returned 0. |
+
+Walkthrough probes:
+
+| Surface | Route | Result | Notes |
+| --- | --- | --- | --- |
+| Health | `/health/deployment` | Pass | HTTP 200, 1410ms, `ready:true`, profile `station_free_1536`, provider `gemini`, model `gemini-embedding-2`. |
+| Auth | `/auth/signin` | Pass | HTTP 200, 1065ms; token captured in memory only. |
+| Persona | `/personas` | Pass | HTTP 200, 770ms; seeded persona matched by name, id not printed. |
+| Archive anchor one | `/conversations/persona/:personaId/archive-retrieval` | Pass | HTTP 200, 1952ms, mode `vector`, authorized chunks 2, skipped sources 0, expected anchor observed. |
+| Archive anchor two | `/conversations/persona/:personaId/archive-retrieval` | Pass | HTTP 200, 1970ms, mode `vector`, authorized chunks 2, skipped sources 0, expected anchor observed. |
+| Context preview | `/conversations/persona/:personaId/context-preview` | Pass | HTTP 200, 2295ms, counts canon 0 / memory 1 / integrity 1 / archive 2, rejected control absent. |
+| Public Space | `/spaces/:slug` | Pass | HTTP 200, 1076ms, access `public`, document count 1, expected slug observed. |
+| Public document | `/documents/public/:id` | Pass | HTTP 200, 430ms, visibility `public`, expected slug observed, body not printed. |
+| Document discussion | `/documents/:id/discussion` | Pass | HTTP 200, 648ms, eligible true, discussion present, thread id not printed. |
+| Thread detail | `/threads/:id` | Pass | HTTP 200, 689ms, status `active`, comment count 1. |
+| Developer Space public detail | `/developer-spaces/:slug` | Pass | HTTP 200, 1386ms, access `public`, nodes 1, events 1, latest snapshot present, raw snapshot not printed. |
+| Developer Space stream | `/developer-spaces/:slug/stream?once=1` | Pass | HTTP 200, 1287ms, SSE update observed, body not printed. |
+| Developer Space owner list | `/developer-spaces` | Pass | HTTP 200, 1093ms, expected slug observed, id not printed. |
+| Developer Space usage | `/developer-spaces/:id/usage` | Pass | HTTP 200, 920ms, nodes 1, events 1, snapshots 1, storage bytes 616, public reads 4, exports 0, warning `ok`. |
+| Persona export list | `/exports/persona/:personaId` | Pass | HTTP 200, 930ms, export count 1, selected kind `persona_archive`, id not printed. |
+| Export readback | `/exports/:id` | Pass | HTTP 200, 748ms, package kind `persona_archive`, status `completed`, manifest key count 5, manifest not printed. |
+| Billing status | `/billing/me` | Pass | HTTP 200, 777ms, tier `canon`, subscription `inactive`, no customer present, limit keys captured. |
+| Replay readiness metadata | `/observability/replay-readiness` | Pass | HTTP 200, 664ms, top-level replay metadata keys captured only. |
+| Observability summary | `/observability/summary` | Pass | HTTP 200, 799ms, trace count 0, failed trace count 0. |
+| Observability traces | `/observability/traces?limit=5` | Pass | HTTP 200, 748ms, trace count 0, trace ids not printed. |
+
 ## Replay seed/helper lane ARGUS review result
 
 ARGUS reviewed DAEDALUS's populated replay route audit on 2026-06-11 and
