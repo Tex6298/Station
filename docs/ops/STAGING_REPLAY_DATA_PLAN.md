@@ -90,6 +90,29 @@ code. It has not been executed against staging from this handoff.
 - Adds `pnpm replay:seed:validate` for structural validation of the example
   corpus without staging mutation.
 
+## MIMIR live seed decision
+
+MIMIR's 2026-06-11 decision is to run the helper against staging once DAEDALUS
+has prepared the missing local-only inputs. Presence-only checks found
+`SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, and `GEMINI_API_KEY` available in
+the local environment, but no `STATION_REPLAY_OWNER_EMAIL`,
+`STATION_REPLAY_OWNER_PASSWORD`, `STATION_REPLAY_OWNER_ID`,
+`STATION_REPLAY_OWNER_USERNAME`, `STATION_REPLAY_CORPUS_PATH`, or ignored local
+corpus file.
+
+DAEDALUS should:
+
+1. Create `docs/ops/staging-replay-corpus.local.json` from the committed
+   example using synthetic, non-production text with distinctive retrieval
+   anchors. The local file is ignored and must not be committed.
+2. Use local-only replay owner env values for exactly one staging replay owner.
+   Credentials may live in ignored local env only; do not print or commit them.
+3. Run `pnpm replay:seed:staging` once the local corpus validates.
+4. Capture only sanitized helper output: mode, run label, counts, public-safe
+   slugs/labels, active embedding metadata, and omitted-evidence categories.
+5. Wake ARGUS with the sanitized seed result before retrieval measurement
+   resumes.
+
 ## DAEDALUS scope
 
 Build and execute a bounded populated replay plan against staging.

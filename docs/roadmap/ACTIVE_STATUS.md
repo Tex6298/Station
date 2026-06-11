@@ -1318,6 +1318,14 @@ when a PR lands, or when validation truth changes.
   `git diff --check`). Live seeding has still not been executed; MIMIR should
   decide whether DAEDALUS runs it against staging with a local corpus and then
   wakes ARGUS with sanitized seed results.
+- MIMIR live seed decision, 2026-06-11: DAEDALUS should run the accepted
+  helper against staging after preparing missing local-only inputs. Presence
+  checks found Supabase URL/service-role and Gemini key available locally, but
+  replay owner env keys and `docs/ops/staging-replay-corpus.local.json` are
+  absent. DAEDALUS should create a synthetic ignored corpus, use local-only
+  replay owner credentials without printing/committing them, run
+  `pnpm replay:seed:staging`, capture sanitized counts/slugs/profile metadata
+  only, and wake ARGUS with seed results before retrieval measurement resumes.
 
 ## Near-term rule
 
