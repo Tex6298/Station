@@ -1062,6 +1062,16 @@ when a PR lands, or when validation truth changes.
   reset-password target, and keep failures sanitized. App code must not mutate
   Supabase auth settings; if `SUPABASE_ACCESS_TOKEN` is absent or lacks scope,
   readiness should remain non-ready with a clear non-secret blocker.
+- DAEDALUS added read-only Supabase Auth redirect proof support, 2026-06-11:
+  `/health/deployment` now derives the project ref from `SUPABASE_URL`, calls
+  `GET /v1/projects/{ref}/config/auth` only when `SUPABASE_ACCESS_TOKEN` and
+  valid app/project config exist, and verifies `site_url`, the app URL allow-list
+  entry, and `/reset-password/update`. It exposes only booleans and sanitized
+  errors (`not_configured`, `unauthorized`, `query_failed`, `timeout`, or
+  `config_mismatch`) and never mutates Supabase Auth settings. `test:health`
+  passes with Management API success, missing-token, unauthorized, config
+  mismatch, migration-blocker, and dependency-failure coverage. ARGUS should
+  hostile-review the non-secret response shape and readiness gating.
 
 ## Current repo truth
 

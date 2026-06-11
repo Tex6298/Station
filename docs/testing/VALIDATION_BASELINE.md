@@ -3428,3 +3428,29 @@ Commands/probes re-run by ARGUS:
 | `npx --yes pnpm@10.32.1 test:integrity` | Pass | 2 tests passed. |
 | `Select-String -Path infra/supabase/migrations/030_integrity_questions_rls.sql -Pattern "revoke all|grant select|for insert|for update|for delete|for all|enable row level|to anon|to authenticated" -CaseSensitive:$false` | Reviewed | Migration retains explicit read-only grants and no write policies. |
 | `git diff --check` | Pass | No whitespace errors; CRLF normalization warning for ARGUS state only. |
+
+## Supabase Auth redirect deployment proof support
+
+DAEDALUS added read-only Supabase Management API proof support on 2026-06-11.
+This is runtime readiness code only; it does not mutate Supabase Auth settings.
+
+Scope:
+
+- `/health/deployment` derives the project ref from `SUPABASE_URL`.
+- When `SUPABASE_ACCESS_TOKEN`, a Supabase project ref, and a valid
+  `NEXT_PUBLIC_APP_URL` are configured, it calls
+  `GET /v1/projects/{ref}/config/auth` with the token as a bearer credential.
+- It verifies the returned `site_url` matches the app URL and `uri_allow_list`
+  contains both the app URL and the `/reset-password/update` target.
+- It returns only booleans and sanitized errors: `not_configured`,
+  `unauthorized`, `query_failed`, `timeout`, or `config_mismatch`.
+- It keeps readiness non-ready when token/scope/config/proof is absent, and app
+  code does not update Supabase settings.
+
+Validation:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npx --yes pnpm@10.32.1 test:health` | Pass | 8 tests passed, including Management API success, missing token, unauthorized/scope failure, redirect mismatch, migration blocker, dependency failure, and non-secret response assertions. |
+| `npx --yes pnpm@10.32.1 --filter @station/api typecheck` | Pass | API readiness service typechecked. |
+| `git diff --check` | Pass | No whitespace errors; Git reported expected CRLF normalization warnings for touched files. |

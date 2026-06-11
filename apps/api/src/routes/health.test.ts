@@ -168,8 +168,7 @@ class ReadinessQuery {
 test("/health stays cheap while /health/deployment returns non-secret readiness", async () => {
   const db = new ReadinessSupabase();
   db.migrationObjectProof = true;
-  setSupabaseAdminForTests(db.client as any);
-  const app = await createHealthApp();
+  const { app, authFetch } = await setupHealthApp(db);
 
   try {
     const cheap = await requestJson(app, "GET", "/health");
@@ -179,7 +178,7 @@ test("/health stays cheap while /health/deployment returns non-secret readiness"
     const deployment = await requestJson(app, "GET", "/health/deployment");
     assert.equal(deployment.status, 200);
     assert.equal(deployment.body.ok, true);
-    assert.equal(deployment.body.ready, false);
+    assert.equal(deployment.body.ready, true);
     assert.equal(deployment.body.checks.databaseUrl, true);
     assert.equal(deployment.body.checks.nvidiaProvider, true);
     assert.equal(deployment.body.checks.embeddingProfileCode, "station_free_1536");
@@ -198,8 +197,15 @@ test("/health stays cheap while /health/deployment returns non-secret readiness"
     assert.equal(deployment.body.readiness.storage.private, true);
     assert.equal(deployment.body.readiness.publicUrls.app.railway, true);
     assert.equal(deployment.body.readiness.publicUrls.api.railway, true);
-    assert.equal(deployment.body.readiness.supabaseAuthRedirects.checked, false);
-    assert.equal(deployment.body.readiness.supabaseAuthRedirects.error, "not_supported");
+    assert.equal(deployment.body.readiness.supabaseAuthRedirects.ok, true);
+    assert.equal(deployment.body.readiness.supabaseAuthRedirects.checked, true);
+    assert.equal(deployment.body.readiness.supabaseAuthRedirects.managementApiConfigured, true);
+    assert.equal(deployment.body.readiness.supabaseAuthRedirects.projectRefConfigured, true);
+    assert.equal(deployment.body.readiness.supabaseAuthRedirects.appUrlConfigured, true);
+    assert.equal(deployment.body.readiness.supabaseAuthRedirects.siteUrlMatchesApp, true);
+    assert.equal(deployment.body.readiness.supabaseAuthRedirects.appUrlRedirectAllowed, true);
+    assert.equal(deployment.body.readiness.supabaseAuthRedirects.passwordResetRedirectAllowed, true);
+    assert.equal("error" in deployment.body.readiness.supabaseAuthRedirects, false);
     assert.equal(deployment.body.readiness.stripe.ready, true);
     assert.equal(deployment.body.readiness.providers.embeddingProfileCode, "station_free_1536");
     assert.equal(deployment.body.readiness.providers.embeddingProvider, "gemini");
@@ -210,9 +216,13 @@ test("/health stays cheap while /health/deployment returns non-secret readiness"
       "match_memory_items",
       "match_private_archive_chunks",
     ]);
+    assert.equal(authFetch.calls.length, 1);
+    assert.equal(authFetch.calls[0].input, "https://api.supabase.com/v1/projects/jdewavktyemnpehdzvgl/config/auth");
+    assert.equal(authFetch.calls[0].init.method, "GET");
+    assert.equal(authFetch.calls[0].init.headers.authorization, "Bearer secret-supabase-access-token");
     assertNoSecrets(deployment.body);
   } finally {
-    setSupabaseAdminForTests(null);
+    await resetHealthFakes();
   }
 });
 
@@ -220,14 +230,13 @@ test("/health/deployment proves backend migrations through public schema objects
   const db = new ReadinessSupabase();
   db.failMigrations = true;
   db.migrationObjectProof = true;
-  setSupabaseAdminForTests(db.client as any);
-  const app = await createHealthApp();
+  const { app } = await setupHealthApp(db);
 
   try {
     const deployment = await requestJson(app, "GET", "/health/deployment");
     assert.equal(deployment.status, 200);
     assert.equal(deployment.body.ok, true);
-    assert.equal(deployment.body.ready, false);
+    assert.equal(deployment.body.ready, true);
     assert.equal(deployment.body.readiness.migrations.ok, true);
     assert.equal(deployment.body.readiness.migrations.count, null);
     assert.deepEqual(deployment.body.readiness.migrations.latest, {
@@ -240,7 +249,7 @@ test("/health/deployment proves backend migrations through public schema objects
     ]);
     assertNoSecrets(deployment.body);
   } finally {
-    setSupabaseAdminForTests(null);
+    await resetHealthFakes();
   }
 });
 
@@ -248,8 +257,7 @@ test("/health/deployment blocks free embedding profile readiness without migrati
   const db = new ReadinessSupabase();
   db.migrationObjectProof = true;
   db.failEmbeddingProfileRpcProof = true;
-  setSupabaseAdminForTests(db.client as any);
-  const app = await createHealthApp();
+  const { app } = await setupHealthApp(db);
 
   try {
     const deployment = await requestJson(app, "GET", "/health/deployment");
@@ -261,7 +269,7 @@ test("/health/deployment blocks free embedding profile readiness without migrati
     assert.deepEqual(db.rpcCalls.map((call) => call.functionName), ["match_memory_items"]);
     assertNoSecrets(deployment.body);
   } finally {
-    setSupabaseAdminForTests(null);
+    await resetHealthFakes();
   }
 });
 
@@ -273,8 +281,7 @@ test("/health/deployment reports the resolved embedding profile for legacy provi
 
   const db = new ReadinessSupabase();
   db.migrationObjectProof = true;
-  setSupabaseAdminForTests(db.client as any);
-  const app = await createHealthApp();
+  const { app } = await setupHealthApp(db);
 
   try {
     const deployment = await requestJson(app, "GET", "/health/deployment");
@@ -295,7 +302,86 @@ test("/health/deployment reports the resolved embedding profile for legacy provi
     } else {
       process.env.EMBEDDINGS_PROVIDER = previousProvider;
     }
-    setSupabaseAdminForTests(null);
+    await resetHealthFakes();
+  }
+});
+
+test("/health/deployment keeps auth redirect proof non-ready without a management token", async () => {
+  const db = new ReadinessSupabase();
+  db.migrationObjectProof = true;
+
+  await withEnvOverride({ SUPABASE_ACCESS_TOKEN: "" }, async () => {
+    const { app, authFetch } = await setupHealthApp(db);
+
+    try {
+      const deployment = await requestJson(app, "GET", "/health/deployment");
+      assert.equal(deployment.status, 200);
+      assert.equal(deployment.body.ready, false);
+      assert.deepEqual(deployment.body.readiness.supabaseAuthRedirects, {
+        ok: false,
+        checked: false,
+        managementApiConfigured: false,
+        projectRefConfigured: true,
+        appUrlConfigured: true,
+        siteUrlMatchesApp: false,
+        appUrlRedirectAllowed: false,
+        passwordResetRedirectAllowed: false,
+        error: "not_configured",
+      });
+      assert.equal(authFetch.calls.length, 0);
+      assertNoSecrets(deployment.body);
+    } finally {
+      await resetHealthFakes();
+    }
+  });
+});
+
+test("/health/deployment sanitizes Supabase management auth failures", async () => {
+  const db = new ReadinessSupabase();
+  db.migrationObjectProof = true;
+  const { app, authFetch } = await setupHealthApp(db, {
+    authStatus: 403,
+    authConfig: { message: "scope failure with secret-supabase-access-token" },
+  });
+
+  try {
+    const deployment = await requestJson(app, "GET", "/health/deployment");
+    assert.equal(deployment.status, 200);
+    assert.equal(deployment.body.ready, false);
+    assert.equal(deployment.body.readiness.supabaseAuthRedirects.ok, false);
+    assert.equal(deployment.body.readiness.supabaseAuthRedirects.checked, true);
+    assert.equal(deployment.body.readiness.supabaseAuthRedirects.error, "unauthorized");
+    assert.equal(authFetch.calls.length, 1);
+    assertNoSecrets(deployment.body);
+  } finally {
+    await resetHealthFakes();
+  }
+});
+
+test("/health/deployment blocks readiness when Supabase auth redirects are incomplete", async () => {
+  const db = new ReadinessSupabase();
+  db.migrationObjectProof = true;
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL!;
+  const { app } = await setupHealthApp(db, {
+    authConfig: {
+      site_url: `${appUrl}/`,
+      uri_allow_list: [appUrl],
+    },
+  });
+
+  try {
+    const deployment = await requestJson(app, "GET", "/health/deployment");
+    assert.equal(deployment.status, 200);
+    assert.equal(deployment.body.ready, false);
+    assert.equal(deployment.body.readiness.supabaseAuthRedirects.ok, false);
+    assert.equal(deployment.body.readiness.supabaseAuthRedirects.checked, true);
+    assert.equal(deployment.body.readiness.supabaseAuthRedirects.siteUrlMatchesApp, true);
+    assert.equal(deployment.body.readiness.supabaseAuthRedirects.appUrlRedirectAllowed, true);
+    assert.equal(deployment.body.readiness.supabaseAuthRedirects.passwordResetRedirectAllowed, false);
+    assert.equal(deployment.body.readiness.supabaseAuthRedirects.error, "config_mismatch");
+    assertNoSecrets(deployment.body);
+  } finally {
+    await resetHealthFakes();
   }
 });
 
@@ -304,8 +390,7 @@ test("/health/deployment sanitizes dependency failures", async () => {
   db.failProfiles = true;
   db.failMigrations = true;
   db.bucketMissing = true;
-  setSupabaseAdminForTests(db.client as any);
-  const app = await createHealthApp();
+  const { app } = await setupHealthApp(db);
 
   try {
     const deployment = await requestJson(app, "GET", "/health/deployment");
@@ -323,9 +408,90 @@ test("/health/deployment sanitizes dependency failures", async () => {
     assert.equal(deployment.body.readiness.storage.error, "query_failed");
     assertNoSecrets(deployment.body);
   } finally {
-    setSupabaseAdminForTests(null);
+    await resetHealthFakes();
   }
 });
+
+type AuthFetchCall = {
+  input: string;
+  init: { method: string; headers: Record<string, string> };
+};
+
+function createAuthConfigFetch(options: {
+  authConfig?: Row;
+  authStatus?: number;
+} = {}) {
+  const calls: AuthFetchCall[] = [];
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL!;
+  const authConfig = options.authConfig ?? {
+    site_url: appUrl,
+    uri_allow_list: [appUrl, `${appUrl}/reset-password/update`],
+  };
+  const status = options.authStatus ?? 200;
+  return {
+    calls,
+    fetcher: async (input: string, init: AuthFetchCall["init"]) => {
+      calls.push({ input, init });
+      return {
+        ok: status >= 200 && status < 300,
+        status,
+        json: async () => authConfig,
+      };
+    },
+  };
+}
+
+async function setupHealthApp(
+  db: ReadinessSupabase,
+  options: { authConfig?: Row; authStatus?: number } = {}
+) {
+  const authFetch = createAuthConfigFetch(options);
+  setSupabaseAdminForTests(db.client as any);
+  const { setSupabaseManagementFetchForTests } = await import("../services/readiness.service.js");
+  setSupabaseManagementFetchForTests(authFetch.fetcher);
+  return {
+    app: await createHealthApp(),
+    authFetch,
+  };
+}
+
+async function resetHealthFakes() {
+  const { setSupabaseManagementFetchForTests } = await import("../services/readiness.service.js");
+  setSupabaseManagementFetchForTests(null);
+  setSupabaseAdminForTests(null);
+}
+
+async function withEnvOverride(values: Record<string, string | undefined>, callback: () => Promise<void>) {
+  const { env } = await import("../lib/env.js");
+  const previousEnv: Record<string, string | undefined> = {};
+  const previousProcess: Record<string, string | undefined> = {};
+
+  for (const [key, value] of Object.entries(values)) {
+    previousEnv[key] = (env as any)[key];
+    previousProcess[key] = process.env[key];
+    (env as any)[key] = value;
+    if (value == null) {
+      delete process.env[key];
+    } else {
+      process.env[key] = value;
+    }
+  }
+
+  try {
+    await callback();
+  } finally {
+    for (const [key, value] of Object.entries(previousEnv)) {
+      (env as any)[key] = value;
+    }
+    for (const [key, value] of Object.entries(previousProcess)) {
+      if (value == null) {
+        delete process.env[key];
+      } else {
+        process.env[key] = value;
+      }
+    }
+  }
+}
 
 async function createHealthApp() {
   const { healthRouter } = await import("./health.js");

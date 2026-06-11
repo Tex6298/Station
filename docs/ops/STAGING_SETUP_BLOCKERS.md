@@ -180,10 +180,13 @@ Current repo-side status:
 
 - `/reset-password/update` is implemented as the password update target for the
   existing reset email flow.
+- `/health/deployment` can now prove the Supabase Auth settings through the
+  read-only Management API when `SUPABASE_ACCESS_TOKEN` has `auth:read`; it
+  does not mutate dashboard settings and reports only non-secret booleans.
 
 Blocked external facts:
 
-- Supabase dashboard access.
+- Supabase dashboard access or a Management API token with `auth:read`.
 - Social provider app credentials and callback registration.
 - Confirmation of the exact allowed redirect URL list.
 - Confirmation that the deployed Railway web service is running the

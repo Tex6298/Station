@@ -5,6 +5,7 @@ import { resolveActiveEmbeddingProfileCode, resolveActiveEmbeddingProvider } fro
 const PERSONA_FILES_BUCKET = "persona-files";
 const CHECK_TIMEOUT_MS = 1500;
 const ZERO_UUID = "00000000-0000-0000-0000-000000000000";
+const SUPABASE_MANAGEMENT_API_BASE = "https://api.supabase.com";
 const BACKEND_MIGRATION_OBJECT_PROOF_LATEST = {
   version: "025-029",
   name: "public_schema_object_and_rpc_proof",
@@ -13,8 +14,26 @@ const BACKEND_MIGRATION_OBJECT_PROOF_LATEST = {
 type CheckStatus = {
   ok: boolean;
   checked: boolean;
-  error?: "not_configured" | "query_failed" | "timeout" | "not_supported";
+  error?: "not_configured" | "query_failed" | "timeout" | "not_supported" | "unauthorized" | "config_mismatch";
 };
+
+type SupabaseManagementFetch = (
+  input: string,
+  init: { method: "GET"; headers: Record<string, string> }
+) => Promise<{
+  ok: boolean;
+  status: number;
+  json: () => Promise<unknown>;
+}>;
+
+let supabaseManagementFetchForTests: SupabaseManagementFetch | null = null;
+
+export function setSupabaseManagementFetchForTests(fetcher: SupabaseManagementFetch | null) {
+  if (process.env.NODE_ENV !== "test") {
+    throw new Error("setSupabaseManagementFetchForTests can only be used while NODE_ENV is test.");
+  }
+  supabaseManagementFetchForTests = fetcher;
+}
 
 type UrlStatus = {
   configured: boolean;
@@ -66,6 +85,10 @@ type DeploymentReadiness = {
     supabaseAuthRedirects: CheckStatus & {
       managementApiConfigured: boolean;
       projectRefConfigured: boolean;
+      appUrlConfigured: boolean;
+      siteUrlMatchesApp: boolean;
+      appUrlRedirectAllowed: boolean;
+      passwordResetRedirectAllowed: boolean;
     };
     stripe: {
       billingSecrets: boolean;
@@ -102,10 +125,11 @@ type MigrationReadiness = DeploymentReadiness["readiness"]["migrations"];
 
 export async function buildDeploymentReadiness(now = new Date()): Promise<DeploymentReadiness> {
   const checks = buildStaticChecks();
-  const [database, migrations, storage] = await Promise.all([
+  const [database, migrations, storage, supabaseAuthRedirects] = await Promise.all([
     checkDatabaseConnectivity(),
     checkMigrationState(),
     checkPersonaFilesBucket(),
+    checkSupabaseAuthRedirects(),
   ]);
   const publicUrls = {
     app: urlStatus(env.NEXT_PUBLIC_APP_URL),
@@ -114,7 +138,6 @@ export async function buildDeploymentReadiness(now = new Date()): Promise<Deploy
   const stripe = stripeStatus();
   const providers = providerStatus();
   const redis = redisStatus();
-  const supabaseAuthRedirects = supabaseAuthRedirectStatus();
 
   const ready = [
     database.ok,
@@ -390,14 +413,68 @@ async function checkPersonaFilesBucket(): Promise<DeploymentReadiness["readiness
   }
 }
 
-function supabaseAuthRedirectStatus(): DeploymentReadiness["readiness"]["supabaseAuthRedirects"] {
-  return {
-    ok: false,
-    checked: false,
+async function checkSupabaseAuthRedirects(): Promise<DeploymentReadiness["readiness"]["supabaseAuthRedirects"]> {
+  const projectRef = projectRefFromSupabaseUrl(env.SUPABASE_URL);
+  const targets = authRedirectTargets(env.NEXT_PUBLIC_APP_URL);
+  const base = {
     managementApiConfigured: hasValue(env.SUPABASE_ACCESS_TOKEN),
-    projectRefConfigured: hasValue(projectRefFromSupabaseUrl(env.SUPABASE_URL)),
-    error: "not_supported",
+    projectRefConfigured: hasValue(projectRef),
+    appUrlConfigured: targets != null,
+    siteUrlMatchesApp: false,
+    appUrlRedirectAllowed: false,
+    passwordResetRedirectAllowed: false,
   };
+
+  if (!base.managementApiConfigured || !projectRef || !targets) {
+    return { ok: false, checked: false, ...base, error: "not_configured" };
+  }
+
+  try {
+    const response = await withTimeout(
+      supabaseManagementFetch(`${SUPABASE_MANAGEMENT_API_BASE}/v1/projects/${encodeURIComponent(projectRef)}/config/auth`, {
+        method: "GET",
+        headers: {
+          accept: "application/json",
+          authorization: `Bearer ${env.SUPABASE_ACCESS_TOKEN}`,
+        },
+      }),
+      CHECK_TIMEOUT_MS
+    );
+
+    if (response.status === 401 || response.status === 403) {
+      return { ok: false, checked: true, ...base, error: "unauthorized" };
+    }
+    if (!response.ok) {
+      return { ok: false, checked: true, ...base, error: "query_failed" };
+    }
+
+    const body = await withTimeout(response.json(), CHECK_TIMEOUT_MS);
+    const siteUrl = normalizeUrlForCompare((body as any)?.site_url);
+    const allowedRedirects = redirectAllowList((body as any)?.uri_allow_list)
+      .map(normalizeUrlForCompare)
+      .filter((value): value is string => value != null);
+    const siteUrlMatchesApp = siteUrl === targets.appUrl;
+    const appUrlRedirectAllowed = allowedRedirects.includes(targets.appUrl);
+    const passwordResetRedirectAllowed = allowedRedirects.includes(targets.passwordResetUrl);
+    const ok = siteUrlMatchesApp && appUrlRedirectAllowed && passwordResetRedirectAllowed;
+
+    return {
+      ok,
+      checked: true,
+      ...base,
+      siteUrlMatchesApp,
+      appUrlRedirectAllowed,
+      passwordResetRedirectAllowed,
+      error: ok ? undefined : "config_mismatch",
+    };
+  } catch (error) {
+    return {
+      ok: false,
+      checked: true,
+      ...base,
+      error: isTimeout(error) ? "timeout" : "query_failed",
+    };
+  }
 }
 
 function stripeStatus(): DeploymentReadiness["readiness"]["stripe"] {
@@ -472,15 +549,59 @@ function projectRefFromSupabaseUrl(value: string | undefined) {
   if (!hasValue(value)) return null;
   try {
     const parsed = new URL(value);
+    if (!parsed.hostname.endsWith(".supabase.co")) return null;
     const [projectRef] = parsed.hostname.split(".");
-    return projectRef || null;
+    return /^[a-z0-9]{20}$/.test(projectRef) ? projectRef : null;
   } catch {
     return null;
   }
 }
 
+function authRedirectTargets(appUrl: string | undefined) {
+  const normalizedAppUrl = normalizeUrlForCompare(appUrl);
+  if (!normalizedAppUrl) return null;
+
+  try {
+    const passwordResetUrl = normalizeUrlForCompare(new URL("/reset-password/update", `${normalizedAppUrl}/`).toString());
+    return passwordResetUrl
+      ? { appUrl: normalizedAppUrl, passwordResetUrl }
+      : null;
+  } catch {
+    return null;
+  }
+}
+
+function redirectAllowList(value: unknown) {
+  if (Array.isArray(value)) {
+    return value.filter((item): item is string => typeof item === "string");
+  }
+  if (typeof value === "string") {
+    return value.split(/[,\n]+/).map((item) => item.trim()).filter(Boolean);
+  }
+  return [];
+}
+
+function normalizeUrlForCompare(value: unknown) {
+  if (typeof value !== "string" || !hasValue(value)) return null;
+  try {
+    const parsed = new URL(value.trim());
+    parsed.hash = "";
+    if (parsed.pathname !== "/") {
+      parsed.pathname = parsed.pathname.replace(/\/+$/g, "");
+    }
+    return parsed.toString().replace(/\/$/g, "");
+  } catch {
+    return value.trim().replace(/\/+$/g, "");
+  }
+}
+
 function hasValue(value: string | undefined | null) {
   return typeof value === "string" && value.trim().length > 0;
+}
+
+function supabaseManagementFetch(input: string, init: { method: "GET"; headers: Record<string, string> }) {
+  const fetcher = supabaseManagementFetchForTests ?? globalThis.fetch;
+  return fetcher(input, init) as ReturnType<SupabaseManagementFetch>;
 }
 
 async function withTimeout<T>(promise: PromiseLike<T>, timeoutMs: number): Promise<T> {
