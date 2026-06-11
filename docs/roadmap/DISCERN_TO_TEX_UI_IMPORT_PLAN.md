@@ -23,8 +23,18 @@ blocker. Do not let UI import work hide or rewrite that blocker.
 Allowed now:
 
 - Document this workflow.
-- Run a read-only audit comparing `fork/main` against `origin/main`.
+- Run a read-only audit comparing freshly fetched `fork/main` against freshly
+  fetched `origin/main`.
 - Produce `docs/roadmap/DISCERN_TO_TEX_UI_IMPORT_AUDIT.md`.
+
+Stale-check rule:
+
+- Treat any checklist copied from chat, older commits, or prior Discern review
+  as a starting hypothesis only.
+- The audit must fetch both remotes at audit time and record the exact
+  `fork/main` and `origin/main` commit SHAs it inspected.
+- If `origin/main` changed after this plan was written, the audit supersedes
+  this plan's candidate ordering and any earlier UI checklist.
 
 Not allowed yet:
 
@@ -66,6 +76,10 @@ origin -> Discern-AI/Station
 
 Use `fork/main` as Tex and `origin/main` as Discern. Do not use destructive
 commands such as `git reset --hard` for this workflow.
+
+Because Discern is still moving, never assume the candidate checklist is current.
+Every implementation slice starts from the latest accepted audit, not from the
+chat request that created this plan.
 
 ## Protected Tex areas
 
@@ -167,6 +181,8 @@ Suggested commands:
 ```bash
 git fetch fork main
 git fetch origin main
+git rev-parse fork/main
+git rev-parse origin/main
 git diff --name-status fork/main..origin/main -- apps/web
 git diff --name-status fork/main..origin/main -- docs/product docs/roadmap docs/ops/triad
 git diff --name-status fork/main..origin/main -- apps/api packages/ai packages/config packages/db infra/supabase package.json pnpm-lock.yaml .env.example railway.json infra/railway
@@ -178,6 +194,16 @@ Classification table:
 | File / Change | Area | Classification | Reason | Proposed Action |
 | --- | --- | --- | --- | --- |
 | apps/web/... | Studio UI | Safe UI import | No API/config impact | Send to ARIADNE |
+```
+
+Audit header:
+
+```markdown
+Tex base: fork/main @ <sha>
+Discern source: origin/main @ <sha>
+Fetch time: <timestamp>
+Stale-source note: previous chat/checklist items are non-authoritative unless
+confirmed in this diff.
 ```
 
 Classifications:
@@ -327,4 +353,3 @@ Discern UI idea
 -> ARIADNE browser review
 -> next slice
 ```
-

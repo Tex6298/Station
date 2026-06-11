@@ -904,7 +904,10 @@ when a PR lands, or when validation truth changes.
   docs-only MIMIR audit may run in parallel if external migration access is
   blocked, but no UI code import starts until the audit exists, ARIADNE selects
   slices, MIMIR opens a bounded slice, DAEDALUS ports only that slice, and ARGUS
-  accepts the diff boundary and validation.
+  accepts the diff boundary and validation. Discern changed after the initial
+  UI request, so any chat checklist is stale-sensitive: the audit must fetch
+  current `fork/main` and `origin/main`, record both SHAs, and let that fresh
+  diff supersede earlier candidate ordering.
 
 ## Current repo truth
 
