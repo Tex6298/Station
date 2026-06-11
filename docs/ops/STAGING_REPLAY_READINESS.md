@@ -358,6 +358,10 @@ Remaining E2E blockers before replay evidence is meaningful:
 - The walkthrough also covers public Space/document/discussion, Developer Space
   public detail/SSE stream/owner usage, owner export readback, billing status,
   and observability metadata with sanitized counts only.
+- ARGUS accepted the staged replay E2E walkthrough as deployed-API evidence. It
+  does not close browser/mobile UX, portable export bundles, active Stripe
+  customer/subscription flow, observability trace usefulness, Discover polish,
+  onboarding, or partner-grade replay.
 - Capture retrieval quality as counts, modes, timings, skipped-source counts,
   provider/profile metadata, and human relevance ratings only. Do not store
   private excerpts or prompt bodies in docs.

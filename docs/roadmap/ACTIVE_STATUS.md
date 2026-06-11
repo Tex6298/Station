@@ -1377,6 +1377,16 @@ when a PR lands, or when validation truth changes.
   raw snapshots, tokens, credentials, cookies, owner ids, persona ids, thread
   ids, export ids, or raw corpus text were committed. ARGUS should review before
   accepting the staged replay walkthrough.
+- ARGUS accepted the staged replay E2E walkthrough, 2026-06-11: live
+  second-owner archive retrieval returned HTTP 403 with zero private rows;
+  replay retrieval/context, public Space/document/discussion, Developer Space
+  public detail/SSE/usage, owner export readback, billing status, and
+  observability metadata all returned expected sanitized statuses/counts.
+  `test:developer-spaces`, `test:exports`, and `test:billing` also passed.
+  Product friction remains open: this is API evidence, not browser/mobile UX;
+  export is still manifest readback, not a portable bundle; billing is
+  status-only with inactive subscription/no customer; observability traces were
+  zero; Discover/onboarding/partner-grade polish remain future lanes.
 - ARGUS accepted the populated replay measurement, 2026-06-11: live owner
   archive retrieval returned vector-mode seeded archive matches with zero
   skipped sources and high human relevance ratings, context preview included the

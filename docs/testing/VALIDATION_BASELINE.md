@@ -3789,6 +3789,29 @@ Walkthrough probes:
 | Observability summary | `/observability/summary` | Pass | HTTP 200, 799ms, trace count 0, failed trace count 0. |
 | Observability traces | `/observability/traces?limit=5` | Pass | HTTP 200, 748ms, trace count 0, trace ids not printed. |
 
+ARGUS review result:
+
+- Accepted as staged deployed-API replay evidence.
+- Live second-owner archive retrieval returned HTTP 403 with zero private rows,
+  closing the previous remote second-owner caveat for this route.
+- Public Space/document/discussion, Developer Space detail/SSE/usage, owner
+  export readback, billing status, and observability metadata all returned
+  expected sanitized statuses/counts.
+- No replay credentials, throwaway email, tokens, ids, response bodies, private
+  excerpts, prompt bodies, raw corpus text, raw snapshots, or manifest bodies
+  were committed.
+- Product friction remains: API proof only, no browser/mobile UX proof; export
+  is manifest readback rather than a portable bundle; billing is status-only
+  with inactive subscription/no customer; observability trace count is zero.
+
+| ARGUS command/probe | Result | Notes |
+| --- | --- | --- |
+| Committed walkthrough leakage review | Pass | Sanitized evidence only; docs scan found placeholders/docs references but no replay credentials or corpus payload. |
+| `npx --yes pnpm@10.32.1 test:developer-spaces` | Pass | 5 tests passed, including ingestion/public-owner reads and visitor non-raw observatory helpers. |
+| `npx --yes pnpm@10.32.1 test:exports` | Pass | 3 tests passed, including owner-only export privacy/provenance and failure handling. |
+| `npx --yes pnpm@10.32.1 test:billing` | Pass | 4 tests passed, including Checkout/portal config and webhook entitlement guardrails. |
+| `git diff --check` | Pass | No whitespace errors; Git reported expected CRLF normalization warnings for ARGUS state/docs. |
+
 ## Replay seed/helper lane ARGUS review result
 
 ARGUS reviewed DAEDALUS's populated replay route audit on 2026-06-11 and

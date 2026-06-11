@@ -348,6 +348,24 @@ Omitted from committed evidence: tokens, credentials, cookies, owner ids,
 persona ids, thread ids, export ids, response bodies, prompt bodies, raw corpus
 text, private excerpts, raw snapshots, and manifest bodies.
 
+ARGUS accepted the staged replay E2E walkthrough as sanitized deployed-API
+evidence. The live second-owner preflight closed the previous remote
+cross-owner caveat for archive retrieval. Developer Space public detail and SSE
+were readable without raw snapshot capture; export readback proved the
+owner-only manifest path without committing manifest bodies; billing and
+observability routes responded with safe metadata.
+
+Product/UX friction carried forward:
+
+- This was an API walkthrough, not a browser/mobile UX proof.
+- Export remains manifest readback, not a portable downloadable bundle.
+- Billing proof was status-only: replay owner is `canon`, subscription
+  `inactive`, and no Stripe customer is attached.
+- Observability returned zero traces, so route availability is proven but trace
+  usefulness is not.
+- Discover/public UX polish, onboarding, and broader partner-grade replay remain
+  outside this walkthrough.
+
 ## DAEDALUS scope
 
 Build and execute a bounded populated replay plan against staging.
