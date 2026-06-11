@@ -4,6 +4,7 @@ import { resolveActiveEmbeddingProfileCode, resolveActiveEmbeddingProvider } fro
 
 const PERSONA_FILES_BUCKET = "persona-files";
 const CHECK_TIMEOUT_MS = 1500;
+const SUPABASE_MANAGEMENT_TIMEOUT_MS = 5000;
 const ZERO_UUID = "00000000-0000-0000-0000-000000000000";
 const SUPABASE_MANAGEMENT_API_BASE = "https://api.supabase.com";
 const BACKEND_MIGRATION_OBJECT_PROOF_LATEST = {
@@ -438,7 +439,7 @@ async function checkSupabaseAuthRedirects(): Promise<DeploymentReadiness["readin
           authorization: `Bearer ${env.SUPABASE_ACCESS_TOKEN}`,
         },
       }),
-      CHECK_TIMEOUT_MS
+      SUPABASE_MANAGEMENT_TIMEOUT_MS
     );
 
     if (response.status === 401 || response.status === 403) {
@@ -448,7 +449,7 @@ async function checkSupabaseAuthRedirects(): Promise<DeploymentReadiness["readin
       return { ok: false, checked: true, ...base, error: "query_failed" };
     }
 
-    const body = await withTimeout(response.json(), CHECK_TIMEOUT_MS);
+    const body = await withTimeout(response.json(), SUPABASE_MANAGEMENT_TIMEOUT_MS);
     const siteUrl = normalizeUrlForCompare((body as any)?.site_url);
     const allowedRedirects = redirectAllowList((body as any)?.uri_allow_list)
       .map(normalizeUrlForCompare)
