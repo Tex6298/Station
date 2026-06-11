@@ -1350,6 +1350,19 @@ when a PR lands, or when validation truth changes.
   statuses, modes, counts, latency, active embedding profile/provider/model, and
   human relevance ratings, and wake ARGUS with sanitized results before any
   retrieval quality claim is accepted.
+- DAEDALUS populated retrieval measurement, 2026-06-11: signed in through the
+  deployed API using ignored local replay owner credentials, without printing
+  tokens or credentials. Deployment health was `ready:true` with
+  `station_free_1536`, provider `gemini`, model `gemini-embedding-2`, and
+  embeddings configured. Owner archive probes for the two synthetic anchors
+  returned HTTP 200, mode `vector`, two authorized archive chunks, zero skipped
+  sources, and high human relevance ratings. Context preview returned HTTP 200
+  with counts canon 0, memory 1, integrity 1, archive 2; the rejected-memory
+  negative control was absent. Hostile probes blocked anonymous and invalid
+  token access with HTTP 401 and wrong-persona access with HTTP 404. No response
+  bodies, prompt bodies, excerpts, tokens, cookies, credentials, owner ids, or
+  persona ids were committed. A true other-owner token was not available.
+  ARGUS should review before this becomes an accepted retrieval-quality claim.
 
 ## Near-term rule
 

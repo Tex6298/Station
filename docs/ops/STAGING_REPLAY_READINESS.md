@@ -345,8 +345,11 @@ Remaining E2E blockers before replay evidence is meaningful:
 - The seed run wrote Gemini `station_free_1536` metadata for replay memory
   vectors. Same 1536 dimensions do not make OpenAI and Gemini vector spaces
   compatible.
-- Run data-backed retrieval and context-preview checks with owner, other-owner,
-  anonymous, wrong-persona, and lifecycle-filter hostile paths.
+- Initial data-backed retrieval and context-preview checks now pass for the
+  replay owner, anonymous, invalid-token, wrong-persona, and rejected-memory
+  negative-control paths. A true other-owner token was not available locally, so
+  ARGUS should decide whether the invalid-token/wrong-persona coverage is enough
+  for this replay slice or whether to request a second-owner setup.
 - Capture retrieval quality as counts, modes, timings, skipped-source counts,
   provider/profile metadata, and human relevance ratings only. Do not store
   private excerpts or prompt bodies in docs.

@@ -3,8 +3,8 @@
 Date: 2026-06-11
 
 Status: replay seed/helper implemented, hardened, executed against staging, and
-accepted by ARGUS as setup evidence. MIMIR is opening populated retrieval
-measurement against the seeded corpus.
+accepted by ARGUS as setup evidence. Populated retrieval/context-preview
+measurement has now run with sanitized counts for ARGUS review.
 
 ## Current truth
 
@@ -21,6 +21,10 @@ measurement against the seeded corpus.
 - The bounded staging replay corpus has now been seeded with sanitized,
   non-production local corpus text. This proves setup data exists; it does not
   yet prove retrieval quality or route-level replay behavior.
+- Populated archive-retrieval and context-preview probes have run against the
+  seeded corpus with sanitized counts only. Response bodies, prompt bodies,
+  private excerpts, credentials, tokens, owner ids, and persona ids were not
+  captured in committed docs.
 
 ## DAEDALUS route audit result
 
@@ -169,7 +173,48 @@ MIMIR's 2026-06-11 decision is to run populated retrieval/context-preview
 measurement now. DAEDALUS should use the accepted seeded corpus and local-only
 replay owner credentials, then wake ARGUS with sanitized results.
 
-Measurement requirements:
+## DAEDALUS populated retrieval measurement
+
+DAEDALUS ran live populated retrieval/context-preview probes against the
+deployed API on 2026-06-11 using ignored local replay owner credentials. Tokens
+were captured only in process memory and were not printed.
+
+Setup probe:
+
+- API host: `stationapi-production.up.railway.app`.
+- Sign-in: HTTP `200`, latency `1308ms`; token captured but not printed.
+- Deployment health: HTTP `200`, latency `1597ms`, `ready:true`.
+- Active embedding profile: `station_free_1536`; provider `gemini`; model
+  `gemini-embedding-2`; embeddings configured `true`.
+- Replay persona lookup: HTTP `200`, latency `771ms`; matched by name, id not
+  printed.
+
+Owner probes:
+
+| Label | Route | HTTP | Mode | Authorized chunks | Skipped sources | Latency | Human rating | Notes |
+| --- | --- | --- | --- | ---: | ---: | ---: | --- | --- |
+| `archive-anchor-one` | `/conversations/persona/:personaId/archive-retrieval` | 200 | `vector` | 2 | 0 | 1890ms | high | Expected synthetic anchor observed locally; excerpt not stored. |
+| `archive-anchor-two` | `/conversations/persona/:personaId/archive-retrieval` | 200 | `vector` | 2 | 0 | 2254ms | high | Expected synthetic anchor observed locally; excerpt not stored. |
+| `context-anchor-one` | `/conversations/persona/:personaId/context-preview` | 200 | `context-preview` | 2 archive sources | n/a | 2641ms | high | Counts: canon 0, memory 1, integrity 1, archive 2; rejected control absent. |
+| `context-excluded-negative-control` | `/conversations/persona/:personaId/context-preview` | 200 | `context-preview` | 2 archive sources | n/a | 2824ms | medium | Counts: canon 0, memory 1, integrity 1, archive 2; rejected control absent. |
+
+Hostile probes:
+
+| Label | Route | HTTP | Latency | Result |
+| --- | --- | ---: | ---: | --- |
+| `anonymous-archive` | `/conversations/persona/:personaId/archive-retrieval` | 401 | 385ms | Expected block. |
+| `invalid-token-archive` | `/conversations/persona/:personaId/archive-retrieval` | 401 | 569ms | Expected block. |
+| `wrong-persona-archive` | `/conversations/persona/:personaId/archive-retrieval` | 404 | 915ms | Expected block. |
+
+Coverage note: a second-owner credential was not available in local env, so the
+hostile auth lane used anonymous, invalid token, and wrong-persona probes rather
+than a true other-owner token.
+
+Omitted from committed evidence: tokens, cookies, credentials, owner ids,
+persona ids, response bodies, prompt bodies, raw corpus text, and private
+excerpts.
+
+Measurement requirements covered in this pass:
 
 - sign in through the deployed API using the ignored local replay owner
   credentials; do not print tokens or credentials;
@@ -180,9 +225,10 @@ Measurement requirements:
 - record only HTTP status, retrieval mode, authorized chunk count,
   skipped-source count, route latency, active embedding profile/provider/model,
   and human relevance ratings;
-- run hostile paths for anonymous access, invalid or non-owner access,
-  wrong-persona scope, and excluded/rejected memory where the seeded corpus
-  supports it;
+- run hostile paths for anonymous access, invalid-token access, wrong-persona
+  scope, and excluded/rejected memory where the seeded corpus supports it;
+- true second-owner retrieval remains unrun because no second-owner credential
+  was available in local env;
 - view private snippets only locally if needed to assign relevance ratings, but
   do not commit excerpts, prompt bodies, response bodies, tokens, cookies,
   credentials, owner ids, or raw corpus text;

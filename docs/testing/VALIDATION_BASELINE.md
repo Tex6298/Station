@@ -3689,6 +3689,44 @@ Review result:
 | `git ls-files` ignored-corpus/env scan | Pass | No local `.env` or `staging-replay-corpus.local.json` path is tracked. |
 | `git grep` committed secret-shape scan | Pass | Hits were placeholder docs and explicit test fixtures only, not committed replay credentials or corpus. |
 
+## Populated retrieval/context-preview measurement
+
+DAEDALUS ran live populated replay probes against the deployed API on
+2026-06-11 after MIMIR opened the measurement lane. The probe used ignored local
+replay owner credentials and captured tokens only in process memory.
+
+Setup:
+
+| Probe | Result | Notes |
+| --- | --- | --- |
+| Replay owner sign-in | Pass | HTTP 200, 1308ms; token captured but not printed. |
+| `/health/deployment` | Pass | HTTP 200, 1597ms, `ready:true`; profile `station_free_1536`, provider `gemini`, model `gemini-embedding-2`, embeddings configured. |
+| Replay persona lookup | Pass | HTTP 200, 771ms; matched by name, id not printed. |
+
+Owner route probes:
+
+| Label | Route | Result | Notes |
+| --- | --- | --- | --- |
+| `archive-anchor-one` | `/conversations/persona/:personaId/archive-retrieval` | Pass | HTTP 200, 1890ms, mode `vector`, authorized chunks 2, skipped sources 0, human rating high. |
+| `archive-anchor-two` | `/conversations/persona/:personaId/archive-retrieval` | Pass | HTTP 200, 2254ms, mode `vector`, authorized chunks 2, skipped sources 0, human rating high. |
+| `context-anchor-one` | `/conversations/persona/:personaId/context-preview` | Pass | HTTP 200, 2641ms, counts canon 0 / memory 1 / integrity 1 / archive 2, human rating high, rejected control absent. |
+| `context-excluded-negative-control` | `/conversations/persona/:personaId/context-preview` | Pass | HTTP 200, 2824ms, counts canon 0 / memory 1 / integrity 1 / archive 2, human rating medium, rejected control absent. |
+
+Hostile probes:
+
+| Label | Route | Result | Notes |
+| --- | --- | --- | --- |
+| `anonymous-archive` | `/conversations/persona/:personaId/archive-retrieval` | Pass | HTTP 401, 385ms. |
+| `invalid-token-archive` | `/conversations/persona/:personaId/archive-retrieval` | Pass | HTTP 401, 569ms. |
+| `wrong-persona-archive` | `/conversations/persona/:personaId/archive-retrieval` | Pass | HTTP 404, 915ms. |
+
+Coverage note: no true second-owner token was available locally. The hostile
+lane therefore covered anonymous, invalid-token, and wrong-persona behavior.
+
+Omitted from committed evidence: tokens, cookies, credentials, owner ids,
+persona ids, response bodies, prompt bodies, raw corpus text, and private
+excerpts.
+
 ## Replay seed/helper lane ARGUS review result
 
 ARGUS reviewed DAEDALUS's populated replay route audit on 2026-06-11 and
