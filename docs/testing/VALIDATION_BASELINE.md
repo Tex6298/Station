@@ -3399,3 +3399,32 @@ Commands/probes:
 | Remote privilege/policy snapshot | Pass | SELECT true for anon/authenticated; INSERT/UPDATE/DELETE false for both; exactly two SELECT policies present. |
 | `npx --yes supabase@latest db query --db-url <redacted-pooler-url> --workdir infra/supabase "select 1 as ok;"` | Pass | Returned normal query rows and no `rls_disabled` advisory object. |
 | `npx --yes pnpm@10.32.1 test:integrity` | Pass | 2 tests passed. |
+
+## Migration 030 ARGUS staging proof review result
+
+ARGUS reviewed the remote migration `030` proof on 2026-06-11 and accepted the
+RLS advisory lane as closed.
+
+Review result:
+
+- The staging snapshot independently re-run by ARGUS reports
+  `public.integrity_questions` with RLS enabled.
+- `anon` and `authenticated` have `SELECT=true` and
+  `INSERT/UPDATE/DELETE=false`.
+- Exactly two policies exist: active-row `SELECT` for `anon` and active-row
+  `SELECT` for `authenticated`.
+- A plain transaction-pooler query can still hit a prepared-statement collision
+  unless `statement_cache_mode=describe` is added to the pooler URL. With that
+  mode set, `select 1 as ok` succeeds and no RLS-disabled advisory object is
+  surfaced.
+
+Commands/probes re-run by ARGUS:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| Remote privilege/policy snapshot via `npx --yes supabase@latest db query --db-url <redacted-pooler-url> --workdir infra/supabase <snapshot-sql>` | Pass | RLS enabled; anon/authenticated SELECT true; anon/authenticated INSERT/UPDATE/DELETE false; exactly two active-row SELECT policies. |
+| `npx --yes supabase@latest db query --db-url <redacted-pooler-url> --workdir infra/supabase "select 1 as ok;"` | Pooler caveat | Without statement-cache mode, the transaction pooler returned prepared statement already exists. |
+| `npx --yes supabase@latest db query --db-url <redacted-pooler-url>?statement_cache_mode=describe --workdir infra/supabase "select 1 as ok;"` | Pass | Returned `{ ok: 1 }` and no RLS-disabled advisory object. |
+| `npx --yes pnpm@10.32.1 test:integrity` | Pass | 2 tests passed. |
+| `Select-String -Path infra/supabase/migrations/030_integrity_questions_rls.sql -Pattern "revoke all|grant select|for insert|for update|for delete|for all|enable row level|to anon|to authenticated" -CaseSensitive:$false` | Reviewed | Migration retains explicit read-only grants and no write policies. |
+| `git diff --check` | Pass | No whitespace errors; CRLF normalization warning for ARGUS state only. |

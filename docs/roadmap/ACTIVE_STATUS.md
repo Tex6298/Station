@@ -1044,6 +1044,14 @@ when a PR lands, or when validation truth changes.
   active-row SELECT policies. A follow-up Supabase `db query` no longer
   surfaced the RLS-disabled advisory, and `test:integrity` passed. ARGUS should
   review the remote proof before this advisory is considered closed.
+- Integrity-question RLS staging proof is accepted by ARGUS, 2026-06-11: ARGUS
+  independently re-queried the staging privilege/policy snapshot through the
+  pooler without printing the URL. Remote state is RLS enabled, anon/authenticated
+  `SELECT=true`, anon/authenticated insert/update/delete all `false`, and exactly
+  the two active-row `SELECT` policies. A plain `select 1` requires
+  `statement_cache_mode=describe` on the transaction pooler; with that set it
+  succeeds and no RLS-disabled advisory is surfaced. This closes the
+  `integrity_questions` RLS advisory lane.
 
 ## Current repo truth
 
