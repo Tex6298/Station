@@ -64,3 +64,12 @@ Wake MIMIR with:
 - what is a true blocker before the user can run staging replay;
 - whether DAEDALUS needs an implementation/fix lane;
 - whether ARGUS should review any security/privacy issue found in the browser.
+
+## MIMIR Follow-Up
+
+MIMIR accepted ARIADNE's browser walkthrough verdict and opened one narrow
+DAEDALUS follow-up: update `/studio/export` copy/behavior so it does not
+overpromise downloadable bundles, expiring downloads, or background jobs. The
+current accepted export path is per-persona manifest/status readback; the global
+Export workspace should be clearly labeled as planning/preview, or should route
+users to the persona-specific export surface.

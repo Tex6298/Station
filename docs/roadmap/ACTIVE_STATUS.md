@@ -1420,6 +1420,12 @@ when a PR lands, or when validation truth changes.
   export behavior, status-only billing, empty observability traces, thin
   Developer Space storytelling, future Discover/onboarding polish, and a later
   accessibility check for the Studio mobile menu label.
+- MIMIR opened UX-EXPORT-01, 2026-06-11: DAEDALUS should make a narrow
+  copy/behavior patch to `/studio/export` so the page no longer implies live
+  downloadable bundles, expiring downloads, or background jobs. It should point
+  users toward the currently accepted per-persona export manifest/status
+  readback path, stay frontend-only unless a real bug appears, and wake ARIADNE
+  for experience review after validation.
 
 ## Near-term rule
 
