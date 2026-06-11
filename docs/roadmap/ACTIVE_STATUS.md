@@ -896,6 +896,15 @@ when a PR lands, or when validation truth changes.
   provider-aware signatures. Next decision belongs to MIMIR/Marty: authorize and
   apply migration `029`, provide an IPv6-capable/pooler DB path, or explicitly
   defer/waive vector proof.
+- Discern-to-Tex UI import plan is documented by MIMIR, 2026-06-11:
+  `docs/roadmap/DISCERN_TO_TEX_UI_IMPORT_PLAN.md` records that `fork/main`
+  (`Tex6298/Station`) remains the Railway/deployment base and `origin/main`
+  (`Discern-AI/Station`) is only a read-only source of possible UI/UX imports.
+  Sequencing call: migration `029` remains the active staging blocker; a
+  docs-only MIMIR audit may run in parallel if external migration access is
+  blocked, but no UI code import starts until the audit exists, ARIADNE selects
+  slices, MIMIR opens a bounded slice, DAEDALUS ports only that slice, and ARGUS
+  accepts the diff boundary and validation.
 
 ## Current repo truth
 
