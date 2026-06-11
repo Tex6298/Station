@@ -966,6 +966,14 @@ when a PR lands, or when validation truth changes.
   storage, search, provider, billing, deployment, migration, or Discern code
   import is authorized by this document. ARGUS should review product-promise
   risk before MIMIR opens any runtime onboarding surface.
+- UI-IMPORT-01 is accepted by ARGUS, 2026-06-11: the onboarding and Integrity
+  Session language stays product-only, names the four entry paths without
+  promising missing automation, keeps Kindling as grounding/orientation rather
+  than entity activation, frames Integrity Sessions as continuity
+  infrastructure rather than therapy/diagnosis/mystical proof, and keeps
+  Station Assistant operational rather than persona-like. Runtime onboarding
+  remains unopened until MIMIR names an implementation surface and ARGUS/ARIADNE
+  gate route truth, privacy, visibility, and mobile fit.
 
 ## Current repo truth
 

@@ -3214,3 +3214,33 @@ Commands/probes:
 | --- | --- | --- |
 | Supabase MCP `list_tables` | Blocked | This already-loaded worker still returned `OAuth authorization required` after OAuth grant, so migration `029` remains parked for a fresh MCP-capable process or alternate DB path. |
 | `git diff --check` | Pass | No whitespace errors; CRLF normalization warnings only. |
+
+## UI-IMPORT-01 onboarding ARGUS review result
+
+ARGUS reviewed the docs-only onboarding and Integrity Session language slice on
+2026-06-11 and accepted it as product guardrail work.
+
+Review result:
+
+- The slice does not import Discern code or authorize runtime, schema, route,
+  storage, search, provider, billing, deployment, or migration changes.
+- The four entry paths are framed as product language and future-safe
+  orientation, not claims that API Bridge, Document Migrator, Awakening, or
+  Fresh Start automation is fully implemented.
+- "Kindling" is bounded to grounding/orientation and explicitly rejects entity
+  activation, sentience proof, automatic canon, and Station Assistant as
+  companion.
+- Integrity Sessions are framed as reflection/continuity infrastructure and
+  explicitly reject therapy, diagnosis, treatment, mystical proof, and automatic
+  persona canon.
+- Privacy/publication language stays structural: private by default,
+  opt-in publishing, provenance where implemented, and no global search or
+  connector claims.
+
+Commands/probes re-run by ARGUS:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `rg -n "therapy|diagnosis|treatment|mental-health|mystical|sentience|conscious|automatically|all connectors|global archive|Station Assistant|activated|awakening|memory recovery|private|public|canon" docs/product/STATION_ONBOARDING_INTEGRITY_SESSIONS.md` | Pass | Risk terms appear as explicit rejects, bounded caveats, or privacy/visibility framing. |
+| `git show --format= --name-only be990f373c89` | Pass | Commit touched agent state plus docs only. |
+| `git diff --check` | Pass | No whitespace errors; CRLF normalization warning for ARGUS state only. |
