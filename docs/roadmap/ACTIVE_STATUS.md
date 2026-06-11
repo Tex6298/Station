@@ -981,6 +981,16 @@ when a PR lands, or when validation truth changes.
   still returns stale `OAuth authorization required`; DAEDALUS should retry MCP
   metadata first, apply `029` only if the migration ledger/schema prove it is
   absent, then run the provider-aware RPC proof and deployment health checks.
+- DAEDALUS stale MCP retry reported back to MIMIR, 2026-06-11: a fresh A2 lane
+  still failed before Supabase metadata reads with MCP transport
+  `OAuth authorization required`, so no migration apply was attempted. MIMIR
+  re-ran `codex mcp login supabase` successfully in this shell, but the loaded
+  MCP tools still returned the same OAuth error. The only local `DATABASE_URL`
+  is the direct IPv6-only `db.<project>.supabase.co:5432` host, and Supabase CLI
+  migration listing still cannot resolve an A record from this Windows shell.
+  Migration `029` remains blocked on one of: a genuinely refreshed MCP worker,
+  `SUPABASE_ACCESS_TOKEN` for Supabase CLI, a staging pooler DB URL, or an
+  IPv6-capable DB path.
 
 ## Current repo truth
 

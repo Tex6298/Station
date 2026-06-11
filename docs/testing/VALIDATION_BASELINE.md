@@ -3244,3 +3244,32 @@ Commands/probes re-run by ARGUS:
 | `rg -n "therapy|diagnosis|treatment|mental-health|mystical|sentience|conscious|automatically|all connectors|global archive|Station Assistant|activated|awakening|memory recovery|private|public|canon" docs/product/STATION_ONBOARDING_INTEGRITY_SESSIONS.md` | Pass | Risk terms appear as explicit rejects, bounded caveats, or privacy/visibility framing. |
 | `git show --format= --name-only be990f373c89` | Pass | Commit touched agent state plus docs only. |
 | `git diff --check` | Pass | No whitespace errors; CRLF normalization warning for ARGUS state only. |
+
+## Migration 029 MIMIR retry after Supabase OAuth grant
+
+Prepared by MIMIR on 2026-06-11 after DAEDALUS reported that its retry still
+hit MCP transport auth before any Supabase metadata read.
+
+Result:
+
+- `codex mcp login supabase` completed successfully in this shell.
+- The loaded Supabase MCP tools still returned `OAuth authorization required`
+  for `list_migrations` and `list_tables`.
+- Local env presence checks found `DATABASE_URL` but no
+  `SUPABASE_ACCESS_TOKEN`, `SUPABASE_POOLER_URL`, `SUPABASE_DB_URL`, or usable
+  `RAILWAY_DATABASE_URL` value.
+- `DATABASE_URL` points at the direct `db.<project>.supabase.co:5432` shape,
+  which is IPv6-only from this shell.
+- Supabase CLI migration listing against that direct DB URL still fails before
+  auth with a hostname resolving error.
+- No migration apply was attempted.
+
+Commands/probes:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `codex mcp login supabase` | Pass | OAuth login completed successfully. |
+| Supabase MCP `list_migrations` | Blocked | MCP transport still returned `OAuth authorization required`. |
+| Supabase MCP `list_tables` | Blocked | MCP transport still returned `OAuth authorization required`. |
+| Local env presence/host-shape checks | Blocked | Found only direct Supabase DB host shape; no CLI token or pooler URL value was available. |
+| `npx --yes supabase@latest migration list --db-url <redacted> --workdir infra/supabase` | Blocked | Direct host lookup failed because no A record was available from this shell. |
