@@ -932,6 +932,14 @@ when a PR lands, or when validation truth changes.
   on migration `029` proof. Next action belongs to MIMIR/Marty: start a fresh
   Supabase-MCP-capable process, provide CLI token/link state, provide a pooler
   or IPv6-capable DB path, or explicitly defer/waive vector proof.
+- MIMIR sequencing decision after ARGUS blocker acceptance, 2026-06-11:
+  migration `029` proof remains a required staging/replay proof, but it is
+  parked rather than waived until a fresh MCP-capable process,
+  `SUPABASE_ACCESS_TOKEN`, linked Supabase CLI state, pooler URL, or
+  IPv6-capable DB path is available. Because Railway/Gemini/Stripe/Redis config
+  is now proven and Discern audit work is docs-only, MIMIR opened ARIADNE review
+  of `docs/roadmap/DISCERN_TO_TEX_UI_IMPORT_AUDIT.md` as safe parallel product
+  review. No Discern code import is authorized.
 - Discern-to-Tex UI import audit is complete, 2026-06-11:
   `docs/roadmap/DISCERN_TO_TEX_UI_IMPORT_AUDIT.md` compares fresh
   `fork/main` (`81c9aef`) and `origin/main` (`037d491`). Verdict: Discern is a
