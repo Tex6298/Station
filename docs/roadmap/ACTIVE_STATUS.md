@@ -1100,6 +1100,14 @@ when a PR lands, or when validation truth changes.
   with all auth redirect booleans true. Setup/config blockers are closed for
   the current staging replay lane. The next lane should be populated Gemini
   replay/retrieval measurement with a concrete replay data plan.
+- MIMIR opened populated replay/retrieval measurement, 2026-06-11: DAEDALUS
+  should use `docs/ops/STAGING_REPLAY_DATA_PLAN.md` to create or reuse a
+  non-production replay account, populate a bounded corpus through existing
+  UI/API paths where possible, write or rebuild Gemini `station_free_1536`
+  vectors for that corpus, run private retrieval/context-preview smokes against
+  owner, other-owner, anonymous, wrong-persona, and lifecycle-filter paths, and
+  capture sanitized counts/modes/latency/profile/relevance evidence only. A
+  no-data RPC proof remains setup evidence, not retrieval-quality evidence.
 
 ## Current repo truth
 

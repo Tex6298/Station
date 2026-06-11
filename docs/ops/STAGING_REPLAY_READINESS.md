@@ -1,8 +1,7 @@
 # Station staging replay readiness
 
-Status: staging preparation with a live Railway API host and a Railway web lane
-opened. Full staged replay is still not implemented or verified by this
-document.
+Status: setup/config is green for the Railway staging target. Full populated
+staged replay is still not implemented or verified by this document.
 
 This runbook names what must be true before a human replay pass can produce
 useful product evidence from an online/staged Station deployment.
@@ -29,11 +28,11 @@ useful product evidence from an online/staged Station deployment.
   unless MIMIR explicitly waives it.
 - MIMIR's current staging default is now Railway for both web and API. Railway
   setup notes live in `infra/railway/README.md`.
-- The external Railway API service exists and the web service has URL/env
-  wiring. Supabase migrations `025` through `028`, database readiness, private
-  storage readiness, and NVIDIA platform chat are now proven at setup level.
-  Supabase Auth redirects, embedding profile proof, Stripe test resources,
-  Redis/cache selection, Cloudflare setup, and replay data still remain.
+- The external Railway API and web services exist and have URL/env wiring.
+  Database, migrations through `030`, private `persona-files` storage, Gemini
+  embedding config, Stripe test config, Redis/Upstash config, public URLs, and
+  Supabase Auth redirects are proven at setup level by public readiness. Replay
+  data and populated Gemini retrieval quality are still unproven.
 - Supabase migrations and setup notes live in `infra/supabase/README.md`.
 - Stripe Billing setup notes live in `infra/stripe/webhook.md`.
 - Supabase setup blockers, NVIDIA env aliasing, and Redis cache boundaries are
@@ -43,8 +42,8 @@ useful product evidence from an online/staged Station deployment.
 
 ## External facts needed
 
-MIMIR or the human operator must provide these before DAEDALUS can implement or
-verify staging:
+The setup/config facts are now known. These are the remaining facts for a
+populated replay measurement pass:
 
 | Need | Required value |
 | --- | --- |
@@ -52,18 +51,17 @@ verify staging:
 | Web staging URL | `https://stationweb-production.up.railway.app`. |
 | API staging URL | Known for the current API host: `https://stationapi-production.up.railway.app`. |
 | API host/provider | Known for the current API host: Railway `@station/api` from `Tex6298/Station` branch `main`. |
-| Supabase project | Project URL, anon key, service-role key, and database URL for staging. |
-| Supabase auth settings | Site URL and redirect URLs for the staged web URL. |
-| Storage bucket | Private `persona-files` bucket created in the staging project. |
-| Stripe mode | Test-mode account, Price IDs, webhook signing secret, and webhook endpoint. |
-| Replay account | Email/password for a non-production test user. |
-| Replay data policy | Whether data is seeded manually, through API clicks, or by a future seed script. |
-| Remote status | GitHub CI plus web and API deployment status for the exact commit under review. |
+| Supabase project | Configured on Railway `@station/api`; do not print secrets. |
+| Supabase auth settings | Proven for the Railway web URL and `/reset-password/update`. |
+| Storage bucket | Private `persona-files` bucket proven by public readiness. |
+| Stripe mode | Test-mode config is present; replay still needs a test-flow smoke if billing is exercised. |
+| Replay account | Create or confirm one non-production test user without committing credentials. |
+| Replay data policy | First pass should use existing UI/API paths; add a narrow seed/helper only if those paths cannot populate the corpus. |
+| Remote status | Public `/health/deployment` must remain `ready:true` for the commit under review. |
 
 ## MIMIR staging defaults
 
-These are the current defaults for the next setup pass. They are not deployed
-facts until URLs, projects, and credentials exist.
+These are the current defaults for populated replay.
 
 - Web host/provider: use Railway `@station/web` for staging.
 - API host/provider: use Railway `@station/api` for the Express API.
@@ -76,15 +74,13 @@ facts until URLs, projects, and credentials exist.
 - Remote truth: verify GitHub CI and web/API deployment status for the exact
   commit under replay.
 
-Current MIMIR hosting decision: open the Railway-web configuration lane for
-staging. Preserve the healthy `@station/api` deploy while making `@station/web`
-deploy the Next.js app from the same fork. Do not place server-only secrets on
-`@station/web`.
+Current MIMIR hosting decision: use Railway for both staging web and API from
+the `Tex6298/Station` fork. Preserve the healthy `@station/api` and
+`@station/web` deploys. Do not place server-only secrets on `@station/web`.
 
-Remaining facts: Supabase Auth redirects, `station_free_1536` embedding profile
-configuration/proof, Stripe test Price IDs/webhook secret, Redis/cache-provider
-decision, Cloudflare decision, replay account credentials/data, and deployed
-password-reset-route proof.
+Remaining work: populate replay data, rebuild/write Gemini `station_free_1536`
+vectors for that corpus, run owner-scoped retrieval measurement, and capture
+sanitized evidence.
 
 ## Current Railway project state
 
@@ -138,6 +134,20 @@ database `ok: true`, storage `ok: true`, but migrations `ok: false` with
 provider-aware `match_memory_items` and `match_private_archive_chunks`
 signatures, with hints pointing to the old pre-029 signatures. See
 `docs/ops/STAGING_MIGRATION_029_PROOF.md`.
+
+MIMIR/ARGUS follow-up on 2026-06-11 closed the setup/config blockers:
+
+- migration `029` was applied and provider-aware RPCs returned HTTP `200`;
+- migration `030` enabled read-only client RLS for `integrity_questions`;
+- Supabase Auth settings now allow the Railway web URL and
+  `/reset-password/update`;
+- `@station/api` was redeployed after a scoped Supabase Management API timeout
+  polish;
+- live `/health/deployment` returns `ready:true` with auth redirect booleans
+  true.
+
+The active follow-up is the populated replay data and Gemini retrieval
+measurement plan in `docs/ops/STAGING_REPLAY_DATA_PLAN.md`.
 
 ## Active remote for this lane
 
@@ -272,6 +282,11 @@ account has:
 Manual setup through the UI/API is acceptable for the first staging pass. A seed
 script should be a later implementation task if manual setup becomes repetitive.
 
+MIMIR's active 2026-06-11 handoff is stricter than a generic replay account:
+DAEDALUS should populate the bounded corpus and measure Gemini retrieval as
+specified in `docs/ops/STAGING_REPLAY_DATA_PLAN.md`. A no-data RPC call is not
+retrieval-quality evidence.
+
 ## Short replay path
 
 1. Sign up or sign in as the replay account.
@@ -317,22 +332,19 @@ Capture these categories during the first staged replay:
 
 Remaining E2E blockers before replay evidence is meaningful:
 
-- Supabase migrations `025` through `028`, private storage, and no-data vector
-  RPC smoke are proven at setup level. Data-backed retrieval relevance still
-  needs replay data and the active embedding provider.
-- Confirm Supabase Auth site URL and redirect allow-list for the Railway web URL,
-  including the implemented `/reset-password/update` target, then prove the
-  staged password-reset path.
-- Decide or explicitly defer Redis/Valkey/Upstash cache provider setup.
-- Decide or explicitly defer Cloudflare Worker/Vectorize account/index setup.
-  The current dependency check lives in
-  `docs/ops/CLOUDFLARE_DEPENDENCY_CHECK.md`; Cloudflare is optional by adapter
-  contract and can be deferred unless MIMIR makes it part of replay scope.
-- Configure Stripe test resources and webhook secret for staged API.
-- Confirm at least one platform chat provider and the selected embedding
-  profile key.
 - Prepare replay account/data that covers persona, archive import, continuity,
   Space/document, discussion, Developer Space, export, and billing paths.
+- Rebuild or write replay vectors with the active Gemini `station_free_1536`
+  metadata. Same 1536 dimensions do not make OpenAI and Gemini vector spaces
+  compatible.
+- Run data-backed retrieval and context-preview checks with owner, other-owner,
+  anonymous, wrong-persona, and lifecycle-filter hostile paths.
+- Capture retrieval quality as counts, modes, timings, skipped-source counts,
+  provider/profile metadata, and human relevance ratings only. Do not store
+  private excerpts or prompt bodies in docs.
+- Cloudflare remains deferred by adapter contract unless MIMIR names a
+  Cloudflare-specific replay objective. The dependency check lives in
+  `docs/ops/CLOUDFLARE_DEPENDENCY_CHECK.md`.
 
 ## Known non-blockers for first replay
 
@@ -353,8 +365,7 @@ Remaining E2E blockers before replay evidence is meaningful:
 The current BE-00 through BE-08 proof/waiver package lives in
 `docs/ops/STAGING_PROOF_WAIVER_HANDOFF.md`.
 
-This repo is ready for an ARGUS review of Railway web/API deploy hygiene,
-documentation truth, and the remaining proof/waiver asks. It is not ready to
-claim full staging implementation until the external facts above are supplied
-or explicitly waived for Supabase Auth redirects, embedding profile proof,
-Stripe, provider usage expectations, cache, Cloudflare, and replay data.
+This repo is ready for DAEDALUS to run the populated replay/retrieval lane and
+then wake ARGUS with sanitized evidence. It is not ready to claim full replay
+implementation until populated Gemini retrieval and hostile owner-scope smokes
+are reviewed.
