@@ -214,6 +214,19 @@ Omitted from committed evidence: tokens, cookies, credentials, owner ids,
 persona ids, response bodies, prompt bodies, raw corpus text, and private
 excerpts.
 
+ARGUS accepted this measurement as populated retrieval evidence for the seeded
+corpus. The result proves the live route can retrieve relevant seeded archive
+material through the active Gemini `station_free_1536` profile and can assemble
+context-preview counts without including the rejected-memory negative control.
+It does not prove broad search quality or production ranking.
+
+ARGUS review note: a live second-owner token was not available, so cross-owner
+privacy for this route remains supported by focused automated tests
+(`test:conversation-archive` and `test:persona-context`) plus live anonymous,
+invalid-token, and wrong-persona probes. A true live second-owner probe remains
+a useful hardening follow-up, but it is not blocking this seeded retrieval
+measurement acceptance.
+
 Measurement requirements covered in this pass:
 
 - sign in through the deployed API using the ignored local replay owner

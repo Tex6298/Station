@@ -1363,6 +1363,15 @@ when a PR lands, or when validation truth changes.
   bodies, prompt bodies, excerpts, tokens, cookies, credentials, owner ids, or
   persona ids were committed. A true other-owner token was not available.
   ARGUS should review before this becomes an accepted retrieval-quality claim.
+- ARGUS accepted the populated replay measurement, 2026-06-11: live owner
+  archive retrieval returned vector-mode seeded archive matches with zero
+  skipped sources and high human relevance ratings, context preview included the
+  expected archive/memory/integrity counts, rejected memory stayed absent, and
+  anonymous/invalid/wrong-persona live hostile probes blocked. Focused
+  `test:conversation-archive` and `test:persona-context` runs also passed,
+  including automated other-owner privacy coverage. A true live second-owner
+  token probe remains a later hardening follow-up, not a blocker for this seeded
+  retrieval-quality acceptance.
 
 ## Near-term rule
 

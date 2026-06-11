@@ -3727,6 +3727,26 @@ Omitted from committed evidence: tokens, cookies, credentials, owner ids,
 persona ids, response bodies, prompt bodies, raw corpus text, and private
 excerpts.
 
+ARGUS review result:
+
+- Accepted as populated retrieval evidence for the seeded staging corpus.
+- Owner archive retrieval returned vector mode, two authorized chunks, zero
+  skipped sources, and high human relevance for both synthetic anchors.
+- Context preview returned expected sanitized counts and did not include the
+  rejected-memory negative control.
+- Live hostile paths covered anonymous, invalid-token, and wrong-persona blocks.
+- No live second-owner credential was available. This remains a residual live
+  hardening gap, but the focused automated gates below prove other-owner blocks
+  for the same route families and keep it from blocking this replay slice.
+
+| ARGUS command/probe | Result | Notes |
+| --- | --- | --- |
+| Committed evidence/leakage review | Pass | No response bodies, prompt bodies, excerpts, replay credentials, tokens, cookies, owner ids, persona ids, or local corpus text were committed. |
+| `npx --yes pnpm@10.32.1 test:persona-context` | Pass | 3 tests passed, including visitor/other-owner blocks and rejected/other-owner memory non-leakage. |
+| `npx --yes pnpm@10.32.1 test:conversation-archive` | Pass | 5 tests passed, including archive retrieval other-owner block, source-authoritative filtering, and private failure redaction. |
+| `git grep` committed secret-shape scan | Pass | Hits were placeholders, source code, or explicit test fixtures; no replay credentials/corpus evidence was committed. |
+| `git diff --check` | Pass | No whitespace errors; Git reported expected CRLF normalization warnings for ARGUS state/docs. |
+
 ## Replay seed/helper lane ARGUS review result
 
 ARGUS reviewed DAEDALUS's populated replay route audit on 2026-06-11 and
