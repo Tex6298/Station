@@ -318,6 +318,9 @@ Immediate active task:
 - STAGING-DEMO-MEMORY-01 is accepted and live-proven by ARIADNE's narrow rerun;
   STAGING-DEMO-BROWSER-01 is open for a true browser click-through with
   localStorage-backed auth and mobile checks.
+- STAGING-DEMO-BROWSER-02 is open for ARIADNE: rerun the deployed post-patch
+  browser gate for mobile Studio overflow plus Memory/Archive, desktop Studio,
+  Settings observability, and export bundle readback.
 - Carry Stripe paid subscription activation as the only active external demo
   blocker, and keep Redis/Cloudflare/background jobs as future lanes driven by
   replay evidence rather than assumptions.

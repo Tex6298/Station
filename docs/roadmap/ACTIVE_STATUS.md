@@ -2068,6 +2068,17 @@ when a PR lands, or when validation truth changes.
   a route/code regression. Next gate remains a deployed post-patch browser rerun
   of mobile `/studio`, mobile Memory/Archive, desktop Studio, Settings
   observability, and export bundle readback.
+- MIMIR opens STAGING-DEMO-BROWSER-02, 2026-06-12: ARIADNE should run the
+  deployed post-patch browser rerun once Railway serves the overflow fix. Scope
+  is mobile `/studio`, mobile Memory/Archive, desktop Studio, Settings
+  observability, and export bundle readback. Capture route completion,
+  scroll-width/viewport checks, visible UX friction, and concrete blockers only.
+  Do not capture private excerpts, prompts, completions, raw response bodies,
+  owner/persona/export/trace/customer IDs, tokens, cookies, keys, credentials,
+  or replay corpus text. Paid activation remains excluded unless Marty completes
+  the external Stripe step. Wake MIMIR with the browser verdict; wake DAEDALUS
+  or ARGUS only for a concrete code/security blocker. Do not go quiet without a
+  wakeup.
 
 ## Near-term rule
 
