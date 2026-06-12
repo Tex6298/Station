@@ -2215,6 +2215,18 @@ when a PR lands, or when validation truth changes.
   to accept `BILLING-UX-01` for the human staging rehearsal and proceed to
   `STAGING-DEMO-HUMAN-01` with billing included only as bounded Stripe test-mode
   proof.
+- MIMIR accepts BILLING-UX-01 and reopens STAGING-DEMO-HUMAN-01 as ready for
+  Marty, 2026-06-12: billing is now included in the human rehearsal only as the
+  accepted bounded Stripe test-mode proof for the replay owner. The human run
+  should use `docs/roadmap/STAGING_DEMO_NARRATIVE_ARIADNE.md`, show the billing
+  success/current-plan/portal posture only at the sanitized product level, and
+  avoid live-money, production-billing, invoice/tax/Connect/marketplace, usage
+  metering, or broad billing-readiness claims. Lower-tier `Upgrade` copy for a
+  Canon user is future billing IA/copy polish, not a current demo blocker.
+  Capture only user-facing friction, narrative gaps, missed transitions, and
+  concrete blockers; do not capture private excerpts, prompts, completions, raw
+  response bodies, Stripe URLs or paths, webhook payload bodies, IDs, tokens,
+  cookies, credentials, keys, payment details, or corpus text.
 
 ## Near-term rule
 

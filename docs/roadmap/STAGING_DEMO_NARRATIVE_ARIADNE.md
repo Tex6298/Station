@@ -33,9 +33,10 @@ This demo shows one bounded staging path:
 Say:
 
 ```text
-This is a staging demo of Station's non-paid continuity path. The important
-thing to watch is the boundary between private Studio work, public presentation,
-managed community, and live Developer Space observability.
+This is a staging demo of Station's continuity path, with billing shown only as
+bounded Stripe test-mode proof. The important thing to watch is the boundary
+between private Studio work, public presentation, managed community, and live
+Developer Space observability.
 ```
 
 ## Route Order
@@ -210,8 +211,8 @@ Do not claim:
 Use the bounded version instead:
 
 - REPLAY-OPT-04 is code-tied and sanitized, not a performance win.
-- Paid activation is bounded to the replay owner's hosted Stripe test-mode proof,
-  pending ARGUS entitlement review.
+- Paid activation is bounded to the replay owner's ARGUS-accepted hosted Stripe
+  test-mode proof.
 - Export is owner-only JSON/Markdown readback for this slice.
 - Redis, Cloudflare, background jobs, and full workspace export are future lanes
   unless new evidence demands them.
@@ -249,8 +250,8 @@ Purpose:
 - Run this script once with Marty as a human demo rehearsal.
 - Capture only user-facing friction, narrative gaps, missed transitions, and
   concrete blockers.
-- Include paid activation only if ARGUS accepts the `STAGING-DEMO-STRIPE-01`
-  entitlement proof before the run.
+- Include billing only as the ARGUS-accepted bounded Stripe test-mode proof for
+  the replay owner.
 
 Acceptance:
 
