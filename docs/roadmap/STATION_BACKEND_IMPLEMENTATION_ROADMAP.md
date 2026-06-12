@@ -311,8 +311,10 @@ Immediate active task:
 - `REPLAY-OPT-03` is accepted as non-secret deployment identity metadata.
 - `REPLAY-OPT-04` is accepted as code-tied sanitized replay evidence, not a
   performance-win claim.
-- STAGING-DEMO-01 is open for ARIADNE: turn accepted backend/browser evidence
-  into a demo-readiness route sequence and product friction list.
+- STAGING-DEMO-01 is accepted as seeded non-paid demo readiness.
+- STAGING-DEMO-RUN-01 is open for ARIADNE as a non-paid seeded staging demo
+  rehearsal. Paid activation is excluded unless the external Stripe test action
+  is completed first.
 - Carry Stripe paid subscription activation as the only active external demo
   blocker, and keep Redis/Cloudflare/background jobs as future lanes driven by
   replay evidence rather than assumptions.

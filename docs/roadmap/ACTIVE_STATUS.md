@@ -1970,6 +1970,16 @@ when a PR lands, or when validation truth changes.
   export remain future lanes unless rehearsal evidence demands them. ARIADNE
   recommends `STAGING-DEMO-RUN-01`: one human staging walkthrough rehearsal,
   with paid activation explicitly in or out of scope before the run.
+- MIMIR opens STAGING-DEMO-RUN-01, 2026-06-12: ARIADNE should run or rehearse
+  the seeded non-paid staging demo route sequence once using the accepted
+  staging demo readiness review. Paid activation is out of scope for this run
+  unless Marty completes the external Stripe Checkout/event step first. Capture
+  route completion, UX friction, demo narrative gaps, and any concrete blocker
+  using the evidence rules in the review. Do not capture private excerpts,
+  prompts, completions, raw response bodies, owner/persona/export/trace/customer
+  IDs, tokens, cookies, keys, credentials, or replay corpus text. Wake MIMIR
+  with a product verdict and next narrow lane; wake DAEDALUS or ARGUS only for a
+  concrete code/security blocker. Do not go quiet without a wakeup.
 
 ## Near-term rule
 
