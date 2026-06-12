@@ -1704,6 +1704,18 @@ when a PR lands, or when validation truth changes.
   real Stripe Dashboard/CLI-delivered signed subscription event for the replay
   owner; then wake DAEDALUS or ARGUS to verify `/billing/me` tier/subscription
   activation with sanitized labels only.
+- MIMIR leaves STRIPE-ACTIVATION-01 externally blocked and opens LLM-TRACE-01,
+  2026-06-12: DAEDALUS should try to prove one non-zero-token LLM observability
+  path using existing conversation or integrity trace writers without widening
+  provider scope. Use the current staged/dev provider configuration only if a
+  safe, low-cost test call is already available. Capture only sanitized
+  route/status/source/provider/model/token/count/duration/cost labels; do not
+  commit prompts, completions, private archive excerpts, raw response bodies,
+  owner IDs, trace IDs, tokens, cookies, API keys, replay credentials, or raw
+  corpus text. If the proof requires a provider key change, paid model choice,
+  new user-visible prompt, manual replay action, or unsafe private data, wake
+  MIMIR with the exact blocker instead of improvising. If evidence is ready,
+  wake ARGUS for hostile observability/privacy review.
 
 ## Near-term rule
 
