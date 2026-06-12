@@ -1842,6 +1842,30 @@ when a PR lands, or when validation truth changes.
   Stripe activation by assumption. Wake ARGUS with the measured package or
   patch; wake MIMIR if the only credible improvement requires an
   infrastructure/provider/product decision. Do not go quiet without a wakeup.
+- DAEDALUS REPLAY-OPT-02 patch is ready for ARGUS review, 2026-06-12: live
+  non-mutating Railway probes against the current API measured `ready:true`,
+  signin `2579ms`, personas `1163ms`, context-preview `2317ms`,
+  archive-retrieval `1901ms`, observability summary `820ms`, and trace list
+  `810ms`. The relevant context-preview result returned counts `memory:1`,
+  `integrity:1`, `archive:2`, source types `memory/integrity/archive`, and no
+  rejected negative-control text; archive retrieval used `vector` mode,
+  searched `2`, returned `1`, skipped `0`, source type
+  `archived_chat_transcript`, and no rejected negative-control text. Recent
+  observability still shows the accepted two completed conversation traces at
+  `1921` input / `20` output tokens with `0.2001` estimated pence each. The
+  deployed health route does not expose a Git SHA, so DAEDALUS could not prove
+  Railway was serving commit `8e94ae8`; this is a measurement caveat, not hidden
+  evidence. The identified existing-path hotspot was duplicate query embedding
+  work inside runtime context assembly: generic memory search and private
+  archive retrieval embedded the same user query separately. The patch shares
+  one query embedding across both vector paths, preserves keyword fallback on
+  embedding failure, leaves standalone memory/archive retrieval behavior intact,
+  and keeps the `station_free_1536` Gemini profile/RPC contract. Focused tests
+  prove context assembly now uses one embedding call while still calling both
+  vector RPCs. No Redis, Cloudflare, background jobs, provider-policy changes,
+  Stripe activation, prompts, completions, private excerpts, raw corpus text,
+  owner IDs, persona IDs, trace IDs, tokens, cookies, API keys, replay
+  credentials, or raw response bodies were committed.
 
 ## Near-term rule
 

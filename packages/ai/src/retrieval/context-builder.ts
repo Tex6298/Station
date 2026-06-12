@@ -1,5 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { retrievePrivateArchive } from "./archive-retrieval";
+import { generateEmbedding } from "./embeddings";
 import { searchMemory, loadCanon } from "./semantic-search";
 import { buildPersonaChatPrompt } from "../prompts/persona-chat";
 
@@ -86,6 +87,8 @@ export async function buildPersonaContext(
 export async function assemblePersonaRuntimeContext(
   input: PersonaContextInput
 ): Promise<PersonaRuntimeContext> {
+  const queryEmbedding = await sharedQueryEmbedding(input.userQuery, input.embeddingApiKey);
+
   const [canon, ownerMemory, memory, integrity, preferenceProfile, archive] = await Promise.all([
     loadCanon(input.supabase, input.persona.id, input.maxCanon ?? 6, input.ownerUserId),
     loadOwnerMemoryBlocks(input, 4),
@@ -95,11 +98,12 @@ export async function assemblePersonaRuntimeContext(
       query: input.userQuery,
       limit: input.maxMemory ?? 6,
       embeddingApiKey: input.embeddingApiKey,
+      queryEmbedding,
       ownerUserId: input.ownerUserId,
     }),
     loadIntegrityNotes(input, input.maxIntegrity ?? 4),
     loadPreferenceProfile(input),
-    loadArchiveReferences(input, input.maxArchive ?? 8),
+    loadArchiveReferences(input, input.maxArchive ?? 8, queryEmbedding),
   ]);
 
   const canonSources = canon.map<PersonaContextSource>((item) => ({
@@ -162,6 +166,15 @@ export async function assemblePersonaRuntimeContext(
     integrity: preferenceProfile ? [preferenceProfile, ...integrity] : integrity,
     archive,
   };
+}
+
+async function sharedQueryEmbedding(query: string, embeddingApiKey?: string) {
+  if (!hasValue(embeddingApiKey) || !query.trim()) return undefined;
+  try {
+    return await generateEmbedding(query, embeddingApiKey, { useCase: "query" });
+  } catch {
+    return null;
+  }
 }
 
 async function loadOwnerMemoryBlocks(
@@ -306,7 +319,8 @@ async function loadIntegrityNotes(
 
 async function loadArchiveReferences(
   input: PersonaContextInput,
-  limit: number
+  limit: number,
+  queryEmbedding?: number[] | null
 ): Promise<PersonaContextSource[]> {
   if (!input.ownerUserId) return [];
 
@@ -318,6 +332,7 @@ async function loadArchiveReferences(
     limit,
     maxCharacters: 2400,
     embeddingApiKey: input.embeddingApiKey,
+    queryEmbedding,
   });
 
   if (retrieval.chunks.length > 0) {
@@ -414,4 +429,8 @@ function normalizeRule(label: string, value: string | null | undefined) {
 
 function formatSourceForPrompt(source: PersonaContextSource) {
   return source.title ? `${source.title}: ${source.content}` : source.content;
+}
+
+function hasValue(value: string | null | undefined) {
+  return typeof value === "string" && value.trim().length > 0;
 }

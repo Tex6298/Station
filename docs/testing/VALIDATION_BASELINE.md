@@ -4281,6 +4281,50 @@ tests. It does not commit prompts, completions, private excerpts, raw corpus
 text, owner IDs, persona IDs, trace IDs, tokens, cookies, API keys, replay
 credentials, or raw response bodies.
 
+## REPLAY-OPT-02 DAEDALUS validation result
+
+Validated on 2026-06-12 after a measured live replay optimization pass and a
+narrow local context-assembly patch. The Railway health endpoint does not expose
+a Git SHA, so the live measurement is recorded as current Railway API behavior
+rather than proof of a specific deployed commit.
+
+Sanitized live Railway probes:
+
+| Probe | Result | Notes |
+| --- | --- | --- |
+| `/health/deployment` | Pass | `ready:true`, `2296ms`. No deployed Git SHA is exposed by this route. |
+| Replay owner sign-in | Pass | HTTP 200, `2579ms`; token captured in memory only. |
+| `/personas` | Pass | HTTP 200, `1163ms`; used only to locate the replay persona in memory. |
+| `/conversations/persona/:personaId/context-preview` | Pass, slowest relevant route | HTTP 200, `2317ms`; counts were `memory:1`, `integrity:1`, `archive:2`; source types were `memory`, `integrity`, and `archive`; rejected negative-control text was absent. |
+| `/conversations/persona/:personaId/archive-retrieval` | Pass | HTTP 200, `1901ms`; mode `vector`, searched `2`, returned `1`, skipped `0`, source type `archived_chat_transcript`; rejected negative-control text was absent. |
+| `/observability/summary` | Pass | HTTP 200, `820ms`; trace count `3`, total tokens `3882`, estimated cost `0.4002` pence. |
+| `/observability/traces?limit=5` | Pass | HTTP 200, `810ms`; recent traces remained two completed `conversation` traces and one zero-token `system` trace. |
+
+Optimization implemented:
+
+- Runtime context assembly now computes one shared query embedding and passes it
+  to both generic memory vector search and private archive vector retrieval.
+- If the shared embedding attempt fails, both paths keep the existing keyword
+  fallback behavior.
+- Standalone memory search and standalone archive retrieval can still generate
+  their own query embeddings.
+- The `station_free_1536` Gemini embedding/RPC contract is unchanged.
+
+Commands run by DAEDALUS:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npx --yes pnpm@10.32.1 exec tsx --test packages/ai/test/retrieval-metadata.test.ts` | Pass | 6 AI retrieval tests passed, including proof that context assembly uses one embedding call while still calling both vector RPCs. |
+| `npx --yes pnpm@10.32.1 --filter @station/ai build` | Pass | Shared AI package compiled. |
+| `npx --yes pnpm@10.32.1 test:persona-context` | Pass | 3 persona context/lifecycle tests passed. |
+| `npx --yes pnpm@10.32.1 test:conversation-archive` | Pass | 5 archive/context tests passed. |
+| `npx --yes pnpm@10.32.1 test:replay-readiness` | Pass | 1 replay-readiness test passed. |
+| `npx --yes pnpm@10.32.1 test:health` | Pass | 8 health/deployment tests passed. |
+
+Privacy boundary: DAEDALUS did not commit prompts, completions, private excerpts,
+raw corpus text, owner IDs, persona IDs, trace IDs, tokens, cookies, API keys,
+replay credentials, or raw response bodies.
+
 ARGUS review on 2026-06-12 accepts REPLAY-OPT-01 as defensive
 chat/context-quality and privacy hardening. Current persona runtime and
 context-preview callers pass `ownerUserId`; the vector memory path then

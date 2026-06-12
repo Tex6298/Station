@@ -15,6 +15,7 @@ import {
   resolveEmbeddingRuntimeConfig,
 } from "../src/retrieval/embeddings";
 import { retrievePrivateArchive } from "../src/retrieval/archive-retrieval";
+import { assemblePersonaRuntimeContext } from "../src/retrieval/context-builder";
 import { searchMemory } from "../src/retrieval/semantic-search";
 
 type Row = Record<string, any>;
@@ -43,7 +44,7 @@ test("active embedding metadata keeps the current 1536-vector contract explicit"
 
 test("memory and private archive vector search keep the active 1536-vector RPC contract", async () => {
   const db = new VectorSupabase();
-  const restoreFetch = mockEmbeddingFetch(new Array(ACTIVE_EMBEDDING_DIMENSION).fill(0.001));
+  const embeddingFetch = mockEmbeddingFetch(new Array(ACTIVE_EMBEDDING_DIMENSION).fill(0.001));
 
   try {
     const memory = await searchMemory({
@@ -69,13 +70,42 @@ test("memory and private archive vector search keep the active 1536-vector RPC c
     assert.equal(archive.chunks.length, 1);
     assert.equal(archive.chunks[0].citation.sourceType, "import_job");
   } finally {
-    restoreFetch();
+    embeddingFetch.restore();
   }
 
   const memoryCall = db.rpcCalls.find((call) => call.functionName === "match_memory_items");
   const archiveCall = db.rpcCalls.find((call) => call.functionName === "match_private_archive_chunks");
   assert.equal(memoryCall?.args.query_embedding.length, ACTIVE_EMBEDDING_DIMENSION);
   assert.equal(archiveCall?.args.query_embedding.length, ACTIVE_EMBEDDING_DIMENSION);
+});
+
+test("persona runtime context shares one query embedding across memory and archive retrieval", async () => {
+  const db = new VectorSupabase();
+  const embeddingFetch = mockEmbeddingFetch(new Array(ACTIVE_EMBEDDING_DIMENSION).fill(0.001));
+
+  try {
+    const context = await assemblePersonaRuntimeContext({
+      supabase: db.client as any,
+      ownerUserId: "owner-1",
+      persona: {
+        id: "persona-1",
+        name: "Replay Persona",
+        shortDescription: "Synthetic replay persona.",
+        longDescription: "Used for replay measurement.",
+        visibility: "private",
+      },
+      userQuery: "continuity blue notebook",
+      embeddingApiKey: "test-key",
+    });
+
+    assert.equal(embeddingFetch.calls(), 1);
+    assert.equal(db.rpcCalls.filter((call) => call.functionName === "match_memory_items").length, 1);
+    assert.equal(db.rpcCalls.filter((call) => call.functionName === "match_private_archive_chunks").length, 1);
+    assert.equal(context.counts.memory, 1);
+    assert.equal(context.counts.archive, 1);
+  } finally {
+    embeddingFetch.restore();
+  }
 });
 
 test("memory search uses keyword fallback without an embedding key", async () => {
@@ -163,6 +193,26 @@ class VectorSupabase {
       lifecycleRow("memory-rejected", "owner-1", "rejected"),
       lifecycleRow("memory-archive", "owner-1", "active"),
       lifecycleRow("memory-other", "owner-2", "active"),
+    ],
+    canon_items: [],
+    owner_memory_blocks: [],
+    calibration_sessions: [],
+    persona_preferences: [
+      {
+        id: "prefs-1",
+        persona_id: "persona-1",
+        owner_user_id: "owner-1",
+        warmth_level: "moderate",
+        playfulness: "moderate",
+        register_preference: "balanced",
+        depth_preference: "concise",
+        challenge_preference: "balanced",
+        disclaimer_sensitivity: "low",
+        relationship_tone: "working",
+        recurring_topics: [],
+        tone_notes: [],
+        updated_at: "2026-06-09T08:00:00.000Z",
+      },
     ],
     import_jobs: [
       {
@@ -302,7 +352,7 @@ class QueryBuilder {
     return Promise.resolve(
       rows.length === 1
         ? { data: { ...rows[0] }, error: null }
-        : { data: null, error: { message: `Expected one ${this.table} row.` } }
+        : { data: null, error: { code: "PGRST116", message: `Expected one ${this.table} row.` } }
     );
   }
 
@@ -409,12 +459,19 @@ class KeywordFallbackSupabase {
 
 function mockEmbeddingFetch(vector: number[]) {
   const originalFetch = globalThis.fetch;
+  let callCount = 0;
   globalThis.fetch = (async () => ({
     ok: true,
-    json: async () => ({ data: [{ index: 0, embedding: vector }] }),
+    json: async () => {
+      callCount += 1;
+      return { data: [{ index: 0, embedding: vector }] };
+    },
     text: async () => "",
   })) as typeof fetch;
-  return () => {
-    globalThis.fetch = originalFetch;
+  return {
+    restore: () => {
+      globalThis.fetch = originalFetch;
+    },
+    calls: () => callCount,
   };
 }

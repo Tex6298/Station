@@ -31,16 +31,21 @@ export async function searchMemory(options: {
   query: string;
   limit?: number;
   embeddingApiKey?: string;
+  queryEmbedding?: number[] | null;
   ownerUserId?: string;
 }): Promise<MemorySearchResult[]> {
   const { supabase, personaId, query, limit = 6, embeddingApiKey, ownerUserId } = options;
+  const hasPrecomputedEmbedding = Object.hasOwn(options, "queryEmbedding");
 
-  if (!hasValue(embeddingApiKey)) {
+  if (!hasValue(embeddingApiKey) && !hasPrecomputedEmbedding) {
     return keywordFallbackSearch(supabase, personaId, query, limit, ownerUserId);
   }
 
   try {
-    const embedding = await generateEmbedding(query, embeddingApiKey, { useCase: "query" });
+    const embedding = hasPrecomputedEmbedding
+      ? options.queryEmbedding
+      : await generateEmbedding(query, embeddingApiKey, { useCase: "query" });
+    if (!embedding) return keywordFallbackSearch(supabase, personaId, query, limit, ownerUserId);
 
     // pgvector RPC - defined below in 003_rag_functions.sql
     const { data, error } = await supabase.rpc("match_memory_items", {

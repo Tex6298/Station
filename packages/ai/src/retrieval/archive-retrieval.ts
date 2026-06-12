@@ -60,6 +60,7 @@ export async function retrievePrivateArchive(input: {
   maxCharacters?: number;
   sourceCaps?: Partial<Record<ArchiveSourceType, number>>;
   embeddingApiKey?: string | null;
+  queryEmbedding?: number[] | null;
 }): Promise<ArchiveRetrievalResult> {
   const maxChunks = clampInt(input.limit ?? DEFAULT_MAX_CHUNKS, 1, HARD_MAX_CHUNKS);
   const maxCharacters = clampInt(
@@ -72,13 +73,14 @@ export async function retrievePrivateArchive(input: {
 
   let mode: ArchiveRetrievalResult["mode"] = "keyword";
   let candidates: RankedArchiveChunk[] = [];
+  const hasPrecomputedEmbedding = Object.hasOwn(input, "queryEmbedding");
 
-  if (hasValue(input.embeddingApiKey) && query.length > 0) {
+  if ((hasValue(input.embeddingApiKey) || hasPrecomputedEmbedding) && query.length > 0) {
     const vectorCandidates = await vectorArchiveSearch({
       ...input,
       query,
       limit: maxChunks * 3,
-      embeddingApiKey: input.embeddingApiKey!,
+      embeddingApiKey: input.embeddingApiKey,
     });
     if (vectorCandidates.length > 0) {
       mode = "vector";
@@ -133,10 +135,15 @@ async function vectorArchiveSearch(input: {
   personaId: string;
   query: string;
   limit: number;
-  embeddingApiKey: string;
+  embeddingApiKey?: string | null;
+  queryEmbedding?: number[] | null;
 }): Promise<RankedArchiveChunk[]> {
   try {
-    const embedding = await generateEmbedding(input.query, input.embeddingApiKey, { useCase: "query" });
+    const hasPrecomputedEmbedding = Object.hasOwn(input, "queryEmbedding");
+    const embedding = hasPrecomputedEmbedding
+      ? input.queryEmbedding
+      : await generateEmbedding(input.query, input.embeddingApiKey!, { useCase: "query" });
+    if (!embedding) return [];
     const { data, error } = await input.supabase.rpc("match_private_archive_chunks", {
       p_persona_id: input.personaId,
       p_owner_user_id: input.ownerUserId,
