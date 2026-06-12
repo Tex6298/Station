@@ -1603,6 +1603,18 @@ when a PR lands, or when validation truth changes.
   `--filter @station/web typecheck`, `--filter @station/web lint` with known
   warnings only, `test:community`, and the auth-route guard test that marks
   `/space` protected while `/space/:slug` remains public.
+- DISCOVER-ONBOARD-01 ARIADNE experience review is complete, 2026-06-12:
+  ARIADNE accepts the Discover/root first-step polish after DAEDALUS's
+  protected-route follow-up. The public front door now starts with public work,
+  live project observatories, forums, and optional Studio signup without
+  sending anonymous visitors to protected My Space or Studio persona routes.
+  Anonymous search still uses the same API response, but the UI hides persona
+  results until a user is signed in because their current destination is
+  protected Studio. Local desktop and 375px Chrome checks against a mocked
+  public Discover API found no document-level horizontal overflow, preserved the
+  public feed anchor, and found no anonymous `/space` or `/studio/personas/*`
+  links in the visitor-facing actions/search results. No product-experience
+  follow-up is required for this lane.
 
 ## Near-term rule
 
