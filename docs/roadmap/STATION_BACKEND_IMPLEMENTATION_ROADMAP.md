@@ -308,8 +308,9 @@ Immediate active task:
   hardening.
 - `REPLAY-OPT-02` is accepted as a shared query-embedding optimization with a
   measurement caveat: current health output does not prove the served Git SHA.
-- `REPLAY-OPT-03` is open for DAEDALUS: add non-secret deployment identity to
-  `/health/deployment` so online timing claims can be tied to a served commit.
+- `REPLAY-OPT-03` is accepted as non-secret deployment identity metadata.
+- `REPLAY-OPT-04` is open for DAEDALUS: run a code-tied live timing pass once
+  Railway reports a served SHA at or after the deployment-identity patch.
 - Carry Stripe paid subscription activation as the only active external demo
   blocker, and keep Redis/Cloudflare/background jobs as future lanes driven by
   replay evidence rather than assumptions.

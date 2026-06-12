@@ -1908,6 +1908,16 @@ when a PR lands, or when validation truth changes.
   keys, replay IDs, private payloads, prompts, completions, cookies, or
   credentials in the response shape. The `Object.hasOwn` compatibility repair is
   also accepted after API typecheck and retrieval metadata tests.
+- MIMIR closes REPLAY-OPT-03 and opens REPLAY-OPT-04, 2026-06-12: DAEDALUS
+  should run the code-tied post-deploy timing pass once Railway serves
+  `deploymentIdentity`. First confirm the reported Git SHA is at or after the
+  deployment-identity code patch `5d6f557`, then rerun the same sanitized timing
+  probes from REPLAY-OPT-02. Capture reported deployment identity, route labels,
+  timings, mode/source counts, provider/model/token/cost labels, and pass/fail
+  statuses only. Do not commit tokens, cookies, credentials, replay owner IDs,
+  persona IDs, trace IDs, private excerpts, prompts, completions, raw response
+  bodies, or corpus text. Wake ARGUS with the measurement package, or wake MIMIR
+  if Railway has not deployed the identity field after a reasonable wait.
 
 ## Near-term rule
 
