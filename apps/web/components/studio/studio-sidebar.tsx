@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { apiGet } from "@/lib/api-client";
 import { getSession } from "@/lib/auth";
 import {
+  STUDIO_MOBILE_NAV_SUMMARY_LABEL,
   activeStudioHref,
   studioPersonaHref,
   studioPersonaMeta,
@@ -204,7 +205,7 @@ export function StudioSidebar() {
 function StudioMobileNav({ personas }: { personas: PersonaSummary[] }) {
   return (
     <details className="studio-mobile-nav">
-      <summary>
+      <summary aria-label={STUDIO_MOBILE_NAV_SUMMARY_LABEL}>
         <span>
           <strong>Studio</strong>
           <small>Private workbench</small>

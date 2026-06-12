@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import {
+  STUDIO_MOBILE_NAV_SUMMARY_LABEL,
   activeStudioHref,
   studioPersonaHref,
   studioPersonaMeta,
@@ -20,4 +21,8 @@ test("Studio navigation helpers expose private persona links and labels", () => 
   assert.equal(studioPersonaHref(persona), "/studio/personas/persona-1");
   assert.equal(studioPersonaMeta(persona), "private - private Studio");
   assert.equal(studioWorkspaceLinks.some((link) => link.href === "/studio/archive"), true);
+});
+
+test("Studio mobile navigation exposes an explicit disclosure label", () => {
+  assert.equal(STUDIO_MOBILE_NAV_SUMMARY_LABEL, "Toggle Studio mobile navigation");
 });

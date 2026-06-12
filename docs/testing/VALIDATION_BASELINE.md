@@ -4061,3 +4061,21 @@ Commands run by DAEDALUS:
 | `npx --yes pnpm@10.32.1 test:community` | Pass | 7 tests passed, including Discover feed/search public/community/private visibility coverage. |
 | `npx --yes pnpm@10.32.1 exec tsx --test apps/web/lib/auth-routes.test.ts` | Pass | 1 test passed; `/space` remains protected while `/space/:slug` and `/developer-spaces` remain public. |
 | `git diff --check -- .station-agents/state/DAEDALUS.json apps/web/components/discover/discover-front-door.tsx docs/roadmap/ACTIVE_STATUS.md docs/testing/VALIDATION_BASELINE.md` | Pass | CRLF normalization warnings only. |
+
+## STUDIO-A11Y-01 DAEDALUS validation result
+
+Validated on 2026-06-12 after adding an explicit accessible name to the Studio
+mobile navigation disclosure. The change is limited to
+`apps/web/components/studio/studio-sidebar.tsx`,
+`apps/web/lib/studio-navigation.ts`, and the focused Studio navigation helper
+test. No Studio routing, auth/session behavior, persona/archive data, desktop
+layout, or broader navigation IA changed.
+
+Commands run by DAEDALUS:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npx --yes pnpm@10.32.1 exec tsx --test apps/web/lib/studio-navigation.test.ts` | Pass | 3 tests passed, including the explicit mobile disclosure label guard. |
+| `npx --yes pnpm@10.32.1 --filter @station/web typecheck` | Pass | Web TypeScript check completed. |
+| `npx --yes pnpm@10.32.1 --filter @station/web lint` | Pass with warnings | Known warning-only output: Developer Space manage hook dependency plus Space/Discover raw `<img>` warnings. |
+| `git diff --check -- apps/web/components/studio/studio-sidebar.tsx apps/web/lib/studio-navigation.ts apps/web/lib/studio-navigation.test.ts docs/roadmap/ACTIVE_STATUS.md docs/testing/VALIDATION_BASELINE.md` | Pass | CRLF normalization warnings only. |

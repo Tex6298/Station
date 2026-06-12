@@ -1,5 +1,7 @@
 import type { PersonaSummary } from "@station/types/persona";
 
+export const STUDIO_MOBILE_NAV_SUMMARY_LABEL = "Toggle Studio mobile navigation";
+
 export const studioPublicLinks = [
   { label: "Blog Posts", href: "/studio/publishing", mark: "B" },
   { label: "Public Space", href: "/space", mark: "P" },

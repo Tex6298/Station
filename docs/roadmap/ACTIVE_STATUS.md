@@ -1624,6 +1624,13 @@ when a PR lands, or when validation truth changes.
   Do not alter Studio routing, auth/session behavior, persona/archive data,
   desktop layout, or broader navigation IA. Wake ARIADNE for mobile/UX review
   after a patch or with evidence if no patch is required.
+- DAEDALUS STUDIO-A11Y-01 patch is ready for ARIADNE review, 2026-06-12: the
+  Studio mobile `<summary>` disclosure now has the explicit accessible name
+  `Toggle Studio mobile navigation`, protected by a focused Studio navigation
+  helper test. No Studio routing, auth/session behavior, persona/archive data,
+  desktop layout, or broader navigation IA changed. Focused validation passed
+  with the Studio navigation helper test, `--filter @station/web typecheck`, and
+  `--filter @station/web lint` with known warnings only.
 
 ## Near-term rule
 
