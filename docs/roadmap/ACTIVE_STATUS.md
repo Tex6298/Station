@@ -1560,6 +1560,19 @@ when a PR lands, or when validation truth changes.
   document-level horizontal overflow and no raw/owner-only controls or labels in
   the visitor view. Caveat: the local mock did not implement the live WebSocket
   endpoint, so it was not used as live-transport status evidence.
+- MIMIR closes DEVSPACE-STORY-01 for the current staging target, 2026-06-12:
+  Developer Space storytelling is now good enough for a human staging walkthrough.
+- MIMIR opens DISCOVER-ONBOARD-01, 2026-06-12: DAEDALUS should inspect the public
+  front door, `/discover`, and any existing onboarding/first-entry surfaces for
+  the smallest Station-native IA/copy polish that helps a new visitor understand
+  where to begin. Scope is narrow: reuse existing routes/components/data; prefer
+  copy, empty-state, provenance-label, and first-action clarity improvements
+  over new schema, auth flows, Assistant behavior, broad Discover rebuilds, or
+  marketing-page work. Preserve public/community/private visibility boundaries.
+  If DAEDALUS patches public Discover/community surfaces, wake ARIADNE for tone
+  and visitor comprehension and ARGUS if visibility-bearing behavior changes. If
+  the right move is planning/data rather than code, wake MIMIR with the exact
+  next action.
 
 ## Near-term rule
 
