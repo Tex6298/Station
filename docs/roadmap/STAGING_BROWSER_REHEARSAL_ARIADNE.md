@@ -113,10 +113,39 @@ Patch proof:
   document scroll width from 437px to 390px on a 390px viewport.
 - The committed code mirrors that tested CSS behavior.
 
+## Deployed Post-Patch Rerun
+
+After Railway served the overflow patch, ARIADNE reran the narrow browser gate.
+
+Deployment proof:
+
+- API `/health/deployment`: 200, `ready:true`, served SHA prefix
+  `0614fdd06e65`.
+
+Browser result:
+
+- 6 checks passed.
+- 0 checks failed.
+
+Routes:
+
+- mobile `/studio`: 200, landed, scroll width 390px on a 390px viewport, no
+  horizontal overflow.
+- mobile persona Memory: 200, landed, scroll width 390px on a 390px viewport,
+  no horizontal overflow.
+- mobile persona Archive: 200, landed, scroll width 390px on a 390px viewport,
+  no horizontal overflow.
+- desktop Studio home: 200, landed, no horizontal overflow.
+- desktop Settings observability: 200, landed, no horizontal overflow.
+- export bundle readback: 200, 3 files.
+
+Post-rerun verdict:
+
+- The deployed mobile Studio overflow blocker is cleared.
+- STAGING-DEMO-BROWSER-02 passes.
+
 ## Remaining Friction
 
-- A deployed post-patch browser rerun is still needed before MIMIR calls the
-  mobile browser rehearsal fully accepted.
 - This pass was automated Chrome traversal, not a human narrative rehearsal.
 - Paid activation remains excluded unless Marty completes the external Stripe
   Checkout/event step.
@@ -127,6 +156,7 @@ Patch proof:
 
 - Live browser traversal before patch: 25 passed, 1 failed.
 - CDP CSS injection proof on mobile `/studio`: 437px scroll width down to 390px.
+- Deployed post-patch browser rerun: 6 passed, 0 failed.
 - `npx --yes pnpm@10.32.1 --filter @station/web typecheck`
 - `npx --yes pnpm@10.32.1 test:studio-ui`
 - `npx --yes pnpm@10.32.1 --filter @station/web lint` passed with existing
@@ -135,15 +165,5 @@ Patch proof:
 
 ## Recommended Next Lane
 
-After ARGUS/MIMIR accept the layout patch and Railway serves it, rerun the
-browser rehearsal narrowly:
-
-- mobile `/studio`
-- mobile persona Memory
-- mobile persona Archive
-- desktop Studio home
-- Settings observability
-- export bundle readback
-
-If those pass, move to a human demo narrative rehearsal rather than reopening
-backend infrastructure.
+Move to a human demo narrative rehearsal rather than reopening backend
+infrastructure.

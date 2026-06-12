@@ -2079,6 +2079,16 @@ when a PR lands, or when validation truth changes.
   the external Stripe step. Wake MIMIR with the browser verdict; wake DAEDALUS
   or ARGUS only for a concrete code/security blocker. Do not go quiet without a
   wakeup.
+- ARIADNE completes STAGING-DEMO-BROWSER-02, 2026-06-12: Railway serves the
+  overflow patch at SHA prefix `0614fdd06e65`, and the deployed narrow browser
+  rerun passed 6 of 6 checks. Mobile `/studio`, mobile persona Memory, mobile
+  persona Archive, desktop Studio home, and desktop Settings observability all
+  returned 200, landed on the expected route, and had no horizontal overflow.
+  Mobile `/studio`, Memory, and Archive each measured 390px scroll width on a
+  390px viewport. Export bundle readback returned 200 with 3 files. Product
+  verdict: the deployed mobile Studio overflow blocker is cleared and
+  STAGING-DEMO-BROWSER-02 passes. Recommended next lane is a human demo
+  narrative rehearsal, not backend infrastructure expansion.
 
 ## Near-term rule
 
