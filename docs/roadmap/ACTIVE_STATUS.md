@@ -1689,6 +1689,21 @@ when a PR lands, or when validation truth changes.
   exact external action needed. Do not print or commit Stripe secrets, checkout
   URLs, customer IDs, subscription IDs, webhook payload bodies, owner IDs, tokens,
   cookies, or replay credentials.
+- DAEDALUS STRIPE-ACTIVATION-01 is blocked on an external Stripe action,
+  2026-06-12: inspection confirms the existing flow mutates profile tier only
+  after a verified Stripe subscription webhook or verified
+  `checkout.session.completed` retrieval of a real subscription. The deployed
+  Railway API reports `ready:true` with Stripe billing and prices configured;
+  replay owner sign-in and `/billing/me` returned HTTP 200 with tier `canon`,
+  subscription `inactive`, a customer present, and no subscription present. A
+  sanitized Stripe test API lookup for that customer returned zero subscriptions
+  and zero active/trialing Station-price matches. Stripe CLI is not installed in
+  this shell. DAEDALUS did not fabricate a mutating webhook or directly create a
+  subscription outside Checkout. Exact next action for MIMIR/Marty: complete a
+  hosted Stripe test-mode Checkout payment for the replay owner, or provide a
+  real Stripe Dashboard/CLI-delivered signed subscription event for the replay
+  owner; then wake DAEDALUS or ARGUS to verify `/billing/me` tier/subscription
+  activation with sanitized labels only.
 
 ## Near-term rule
 

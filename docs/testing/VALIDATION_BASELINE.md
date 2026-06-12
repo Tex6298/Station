@@ -4133,3 +4133,34 @@ Commands run by DAEDALUS:
 | `npx --yes pnpm@10.32.1 --filter @station/web typecheck` | Pass | Web TypeScript check completed. |
 | `npx --yes pnpm@10.32.1 test:studio-ui` | Pass | 8 helper tests passed, including export trust and Studio navigation guards. |
 | `git diff --check -- docs/roadmap/ACTIVE_STATUS.md docs/testing/VALIDATION_BASELINE.md` | Pass | CRLF normalization warnings only. |
+
+## STRIPE-ACTIVATION-01 DAEDALUS blocked result
+
+Checked on 2026-06-12 after MIMIR opened the paid subscription activation proof
+lane. The existing billing flow remains deliberately webhook-gated: profile tier
+changes only after a verified Stripe subscription webhook or a verified
+`checkout.session.completed` event that retrieves a real subscription.
+
+Sanitized deployed evidence:
+
+| Probe | Result | Notes |
+| --- | --- | --- |
+| Stripe CLI presence | Blocked | `stripe` CLI is not installed in this shell. |
+| Deployed health | Pass | Railway API returned HTTP 200, `ready:true`, Stripe billing true, Stripe prices true. |
+| Replay owner sign-in | Pass | HTTP 200; token captured in memory only. |
+| `/billing/me` | Pass, inactive | HTTP 200; tier `canon`, subscription `inactive`, customer present, no subscription present. |
+| Stripe test subscription lookup | Blocked for activation | HTTP 200 from Stripe test API; zero subscriptions for the replay customer, zero active/trialing subscriptions, zero Station-price subscription matches. |
+
+Local validation:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npx --yes pnpm@10.32.1 test:billing` | Pass | 4 tests passed: Checkout/portal creation, verified webhook gating, unknown active Price rejection, and customer/profile mismatch rejection. |
+| `npx --yes pnpm@10.32.1 test:health` | Pass | 8 health/deployment tests passed. |
+
+DAEDALUS did not fabricate a mutating webhook or directly create a Stripe
+subscription outside the hosted Checkout/webhook flow. Activation proof now
+requires one external action: complete a hosted Stripe test-mode Checkout
+payment for the replay owner, or provide a real Stripe Dashboard/CLI-delivered
+signed subscription event for the replay owner. Follow-up verification should
+capture only route/status/tier/subscription labels and counts.
