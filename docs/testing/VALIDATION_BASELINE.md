@@ -4164,3 +4164,38 @@ requires one external action: complete a hosted Stripe test-mode Checkout
 payment for the replay owner, or provide a real Stripe Dashboard/CLI-delivered
 signed subscription event for the replay owner. Follow-up verification should
 capture only route/status/tier/subscription labels and counts.
+
+## LLM-TRACE-01 DAEDALUS blocked result
+
+Checked on 2026-06-12 after MIMIR opened the non-zero-token LLM observability
+proof lane. DAEDALUS inspected the existing trace writers and confirmed that
+`conversation` traces are written by the persona chat route, while
+`integrity_session` traces are written by generated follow-up, summary, and
+output helpers when an Anthropic integrity provider is available.
+
+Sanitized deployed evidence:
+
+| Probe | Result | Notes |
+| --- | --- | --- |
+| Replay owner sign-in | Pass | HTTP 200; token captured in memory only. |
+| `/observability/summary` | Pass, insufficient proof | HTTP 200; seven-day trace count `1`, failed trace count `0`, total tokens `0`, estimated cost `0`. |
+| `/observability/traces?limit=12` | Pass, insufficient proof | HTTP 200; recent trace sources only included `system`, status `completed`, with `0` input tokens and `0` output tokens. |
+| Existing eligible trace check | Blocked | No existing non-zero-token `conversation` or `integrity_session` trace was present to hand to ARGUS for review. |
+
+Local validation:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npx --yes pnpm@10.32.1 test:replay-readiness` | Pass | 1 replay-readiness test passed. |
+| `npx --yes pnpm@10.32.1 test:health` | Pass | 8 health/deployment tests passed. |
+
+Local provider presence checks found existing staged platform provider keys, but
+DAEDALUS did not create a new saved chat message or integrity-session answer,
+fabricate a trace, call providers outside the existing product writers, or print
+or commit prompts, completions, owner IDs, trace IDs, tokens, cookies, API keys,
+replay credentials, private archive excerpts, raw response bodies, or raw corpus
+text.
+
+The proof now needs a product/replay decision: explicitly approve one tiny
+synthetic replay-owner conversation or integrity turn using the seeded staging
+corpus, or provide an already-created non-zero-token trace for review.

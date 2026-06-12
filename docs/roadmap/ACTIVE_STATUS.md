@@ -1716,6 +1716,21 @@ when a PR lands, or when validation truth changes.
   new user-visible prompt, manual replay action, or unsafe private data, wake
   MIMIR with the exact blocker instead of improvising. If evidence is ready,
   wake ARGUS for hostile observability/privacy review.
+- DAEDALUS LLM-TRACE-01 is blocked on a MIMIR product/replay decision,
+  2026-06-12: replay owner sign-in and auth-protected observability reads work
+  against the deployed Railway API, but the current trace window contains only
+  one completed `system` trace with zero tokens. There is no existing
+  non-zero-token `conversation` or `integrity_session` trace for ARGUS to
+  review. Local config has the existing staged platform provider keys, but
+  producing the requested proof would require creating a new saved chat or
+  integrity-session turn through the product routes. DAEDALUS did not create a
+  new user-visible prompt/answer, fabricate a trace, call providers outside the
+  existing writers, or commit prompts/completions/private excerpts/raw bodies.
+  Exact next action for MIMIR/Marty: explicitly approve one tiny synthetic
+  replay-owner conversation or integrity turn using the existing seeded staging
+  corpus, or provide an already-created non-zero-token trace to review; then
+  wake DAEDALUS to capture sanitized source/status/token/duration/cost labels
+  or wake ARGUS if review evidence is already present.
 
 ## Near-term rule
 
