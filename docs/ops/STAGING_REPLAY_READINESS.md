@@ -1,7 +1,9 @@
 # Station staging replay readiness
 
-Status: setup/config is green for the Railway staging target. Full populated
-staged replay is still not implemented or verified by this document.
+Status: setup/config, populated replay data, Gemini retrieval/context-preview,
+deployed API replay, browser/mobile walkthrough, portable export readback, and
+non-zero-token observability proof are green for the current Railway staging
+target. Paid Stripe subscription activation remains an external demo blocker.
 
 This runbook names what must be true before a human replay pass can produce
 useful product evidence from an online/staged Station deployment.
@@ -31,8 +33,10 @@ useful product evidence from an online/staged Station deployment.
 - The external Railway API and web services exist and have URL/env wiring.
   Database, migrations through `030`, private `persona-files` storage, Gemini
   embedding config, Stripe test config, Redis/Upstash config, public URLs, and
-  Supabase Auth redirects are proven at setup level by public readiness. Replay
-  data and populated Gemini retrieval quality are still unproven.
+  Supabase Auth redirects are proven at setup level by public readiness.
+  Seeded replay data, populated Gemini retrieval quality, browser/mobile
+  walkthrough, export-bundle readback, and narrow LLM observability are accepted
+  as staging replay evidence.
 - Supabase migrations and setup notes live in `infra/supabase/README.md`.
 - Stripe Billing setup notes live in `infra/stripe/webhook.md`.
 - Supabase setup blockers, NVIDIA env aliasing, and Redis cache boundaries are
@@ -78,9 +82,9 @@ Current MIMIR hosting decision: use Railway for both staging web and API from
 the `Tex6298/Station` fork. Preserve the healthy `@station/api` and
 `@station/web` deploys. Do not place server-only secrets on `@station/web`.
 
-Remaining work: populate replay data, rebuild/write Gemini `station_free_1536`
-vectors for that corpus, run owner-scoped retrieval measurement, and capture
-sanitized evidence.
+Remaining work: keep the accepted seeded replay evidence current, avoid
+overstating Stripe paid activation, and use staged replay to decide which
+optimization lane deserves real implementation next.
 
 ## Current Railway project state
 
@@ -358,10 +362,11 @@ Remaining E2E blockers before replay evidence is meaningful:
 - The walkthrough also covers public Space/document/discussion, Developer Space
   public detail/SSE stream/owner usage, owner export readback, billing status,
   and observability metadata with sanitized counts only.
-- ARGUS accepted the staged replay E2E walkthrough as deployed-API evidence. It
-  does not close browser/mobile UX, portable export bundles, active Stripe
-  customer/subscription flow, observability trace usefulness, Discover polish,
-  onboarding, or partner-grade replay.
+- ARGUS accepted the staged replay E2E walkthrough as deployed-API evidence.
+  ARIADNE accepted the browser/mobile walkthrough and UX-EXPORT-01, and ARGUS
+  accepted the narrow non-zero-token LLM observability proof. Active Stripe
+  customer/subscription flow, Discover polish, onboarding, and partner-grade
+  replay remain product/demo follow-ups.
 - Capture retrieval quality as counts, modes, timings, skipped-source counts,
   provider/profile metadata, and human relevance ratings only. Do not store
   private excerpts or prompt bodies in docs.
@@ -396,7 +401,11 @@ human walkthrough:
 - ARIADNE accepted browser/mobile staging replay with no true blocker.
 - ARIADNE accepted UX-EXPORT-01 after `/studio/export` stopped overpromising
   downloadable/background export behavior.
+- ARGUS accepted LLM-TRACE-01 as narrow non-zero-token observability proof.
 
 Carry remaining friction as future product/demo work, not active replay
 readiness blockers: paid subscription activation after the accepted Stripe
-test-mode smoke, and non-zero-token LLM trace proof if a demo requires it.
+test-mode smoke, exact one-call replay ergonomics if the retry/status caveat
+becomes visible, Discover/onboarding polish, partner-grade demo narrative, and
+future Redis/Cloudflare/background-job decisions only when replay evidence
+justifies them.

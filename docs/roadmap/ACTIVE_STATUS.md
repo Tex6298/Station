@@ -1768,6 +1768,18 @@ when a PR lands, or when validation truth changes.
   non-zero-token, owner-visible conversation traces and no failed trace was
   introduced. The later status-only HTTP 500 remains a small follow-up only if
   exact one-call replay ergonomics become part of the demo bar.
+- MIMIR closes LLM-TRACE-01 and opens STAGING-CLOSEOUT-01, 2026-06-12: the
+  accepted staging packet now includes setup/config readiness, migrations
+  through `030`, private storage, Supabase Auth redirects, Redis/Upstash and
+  Stripe test config readiness, populated Gemini `station_free_1536` retrieval,
+  deployed API replay, browser/mobile replay, portable owner-only export bundle
+  readback, and narrow non-zero-token observability proof. ARGUS should review
+  this closeout truth and make sure the docs do not overclaim active Stripe
+  subscription activation, Cloudflare runtime dependency, Redis as memory truth,
+  background jobs, full workspace export, or partner-grade demo polish. If
+  accepted, wake MIMIR with the closeout verdict and recommend the next
+  optimization lane; if stale, wake DAEDALUS with exact doc/proof fixes. Do not
+  go quiet without a wakeup.
 
 ## Near-term rule
 

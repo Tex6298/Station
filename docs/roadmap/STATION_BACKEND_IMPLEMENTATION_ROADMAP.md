@@ -2,25 +2,15 @@
 
 Date: 2026-06-08
 
-Status: MIMIR-opened backend roadmap. BE-00 is ARGUS-accepted and deployed far
-enough for the public Railway readiness endpoint to return the new readiness
-shape. BE-01 is ARGUS-accepted locally after prompt-boundary hardening. BE-02 is
-ARGUS-accepted locally after memory prompt-boundary hardening. BE-03 is
-ARGUS-accepted locally after provider-policy observability review. BE-04 is
-ARGUS-accepted locally after no-key retrieval fallback hardening. BE-05 is
-ARGUS-accepted locally as optional operational cache scaffolding, not canonical
-memory. BE-06 is ARGUS-accepted locally after partial-success retry idempotency
-hardening. BE-07 is ARGUS-accepted locally after lifecycle reauthorization
-hardening on the disabled-safe Cloudflare retrieval adapter contract. BE-08 is
-ARGUS-accepted locally after replay privacy wording hardening. On 2026-06-09,
-MIMIR applied/proved Supabase migrations `025` through `028` on staging,
-verified the private `persona-files` bucket, redeployed Railway API/web at
-`55d3fc6`, and public `/health/deployment` now proves database, storage, NVIDIA
-platform chat, and the public schema objects introduced by migrations `025`
-through `028`. Cache provider selection, Cloudflare account configuration,
-Supabase Auth redirects, embedding profile proof, Stripe test resources, and replay
-account/data remain E2E setup follow-ups. Later lanes are ordered
-implementation scope, not permission to build everything at once.
+Status: MIMIR-opened backend roadmap. BE-00 through BE-08 are accepted as the
+backend foundation. Since the original 2026-06-09 setup note, staging has moved
+past the old blockers: migrations through `030` are applied/proven, the private
+`persona-files` bucket is proven, Supabase Auth redirects are configured for
+the Railway web URL and reset-password route, Redis/Upstash and Stripe test
+config are present at readiness level, and the active `station_free_1536`
+embedding profile is backed by Gemini with populated replay evidence. Later
+lanes remain ordered implementation scope, not permission to build everything
+at once.
 
 ## Current staging truth
 
@@ -29,38 +19,36 @@ implementation scope, not permission to build everything at once.
 - API `/health` and web `/health` return `200` with `{ "ok": true }`.
 - API `/health/deployment` reports the Railway app/API URLs, not localhost, and
   now includes the BE-00 `ready` plus `readiness` shape.
-- API `/health/deployment.ready` is currently false while Supabase Auth
-  redirects, embedding profile proof, Stripe, Redis/cache-provider, Cloudflare setup,
-  and replay account/data remain pending.
-- Latest MIMIR remote check on 2026-06-09 reports `ready: false` with database
-  `ok: true`, migrations `ok: true` via `025-028/public_schema_object_proof`,
-  storage `ok: true`/`private: true`, NVIDIA platform chat true, and Auth,
-  embedding profile proof, Stripe, and Redis false.
-- MIMIR no-data vector RPC smoke on 2026-06-09 proved `match_memory_items` and
-  `match_private_archive_chunks` are callable and return zero rows for
-  nonexistent owner/persona scope.
+- API `/health/deployment.ready` is `true` for the current Railway staging
+  target, with database, migrations, private storage, auth redirects,
+  Gemini-backed embedding config, Stripe test config, Redis/Upstash config, and
+  public URL checks green.
+- Migration `029` provider-aware RPC proof and migration `030` integrity
+  question-bank RLS proof are accepted on staging.
+- Populated Gemini retrieval/context-preview evidence is accepted for the seeded
+  replay corpus, including owner-scoped vector mode, rejected-memory exclusion,
+  and hostile anonymous/invalid/wrong-persona/second-owner blocks.
+- The staged deployed-API replay walkthrough, browser/mobile replay
+  walkthrough, portable export-bundle readback, and narrow non-zero-token LLM
+  observability proof are accepted.
 - Supabase staging target is `jdewavktyemnpehdzvgl`.
-- Supabase migrations `001` through `028` are present in remote migration
-  history according to Supabase MCP.
+- Supabase migrations `001` through `030` are applied/proven for this staging
+  target.
 - The `persona-files` Supabase Storage bucket exists and is private.
 - Local `.env` has the corrected Supabase project URL and a non-placeholder
   `DATABASE_URL`.
 
 Still external or replay-adjacent:
 
-- Supabase Auth site URL and redirect allow-list need dashboard confirmation,
-  including the implemented `/reset-password/update` target and staged route
-  proof.
-- Stripe test resources, webhook secret, price IDs, and replay account/data
-  still need setup or confirmation.
-- Railway variable inventory still needs dashboard/API proof if MIMIR wants
-  exact service-variable audit beyond public health booleans.
-- Remote readiness blockers are not BE-01 implementation blockers. Missing
-  external config should fail closed, report sanitized pending status, and be
-  carried as exact E2E asks for Marty.
-- BE-01 through BE-04 migration setup is applied/proven on staging. No-data
-  vector RPC smoke is also proven. Data-backed retrieval relevance still needs
-  replay data and the active embedding provider.
+- Stripe paid subscription activation remains externally blocked on a real
+  hosted Checkout payment or a real signed Stripe test subscription event for
+  the replay owner. Do not fabricate subscription state.
+- The LLM trace proof is accepted; the two-trace/status-capture retry caveat is
+  hygiene only if exact one-call replay ergonomics become part of the demo bar.
+- Cloudflare remains a future adapter/index-mirror lane unless a concrete
+  Cloudflare-specific replay objective is opened.
+- Redis/Valkey remains cache, queue, rate-limit, idempotency, or short-lived
+  working-memory support unless a separate memory-truth decision is opened.
 
 ## Roadmap rule
 
@@ -312,11 +300,10 @@ Default order:
 
 Immediate active task:
 
-- MIMIR accepts ARGUS's code-side staging closeout as setup proof, not full
-  replay readiness.
-- Do not start replay-driven optimization until MIMIR/Marty either provide or
-  explicitly waive the remaining external blockers: Supabase Auth redirect
-  allow-list, embedding profile proof for the current retrieval contract, Stripe test
-  resources if billing replay is in scope, Redis/cache provider if cache replay
-  is in scope, Cloudflare account/index if Cloudflare retrieval is in scope, and
-  replay account/data.
+- MIMIR should route one closeout review to ARGUS for the current staging truth:
+  setup/config, populated Gemini retrieval, deployed API replay, browser/mobile
+  replay, portable export readback, and non-zero-token observability are
+  accepted enough for staging replay.
+- Carry Stripe paid subscription activation as the only active external demo
+  blocker, and keep Redis/Cloudflare/background jobs as future lanes driven by
+  replay evidence rather than assumptions.
