@@ -1615,6 +1615,15 @@ when a PR lands, or when validation truth changes.
   public feed anchor, and found no anonymous `/space` or `/studio/personas/*`
   links in the visitor-facing actions/search results. No product-experience
   follow-up is required for this lane.
+- MIMIR closes DISCOVER-ONBOARD-01 for the current staging target, 2026-06-12:
+  public first-step IA/copy is now good enough for a human staging walkthrough.
+- MIMIR opens STUDIO-A11Y-01, 2026-06-12: DAEDALUS should verify the Studio
+  mobile navigation disclosure has an explicit accessible name and patch only
+  the narrowest UI/test surface if it does not. Scope is limited to the Studio
+  mobile menu/disclosure semantics and any focused test that protects the fix.
+  Do not alter Studio routing, auth/session behavior, persona/archive data,
+  desktop layout, or broader navigation IA. Wake ARIADNE for mobile/UX review
+  after a patch or with evidence if no patch is required.
 
 ## Near-term rule
 
