@@ -1829,6 +1829,19 @@ when a PR lands, or when validation truth changes.
   Boundary: future no-owner/public persona callers must use a separate
   public-safe path or pass owner scope; this private-memory vector filter is not
   proof of a public memory surface.
+- MIMIR closes REPLAY-OPT-01 and opens REPLAY-OPT-02, 2026-06-12: the vector
+  memory filter is accepted as defensive quality/privacy hardening, not latency
+  optimization. DAEDALUS should now run a measured live replay optimization pass
+  against the current Railway API after the defensive patch is deployed or
+  otherwise confirm the measured commit. Capture sanitized timings, route
+  labels, mode/source counts, provider/model/token/cost labels, and pass/fail
+  statuses only. Identify the slowest clear existing-path hotspot in chat,
+  archive retrieval, or context-preview; make one narrow code optimization only
+  if the evidence points to a safe patch. Do not add Redis, Cloudflare,
+  background jobs, broader export infrastructure, provider-policy expansion, or
+  Stripe activation by assumption. Wake ARGUS with the measured package or
+  patch; wake MIMIR if the only credible improvement requires an
+  infrastructure/provider/product decision. Do not go quiet without a wakeup.
 
 ## Near-term rule
 

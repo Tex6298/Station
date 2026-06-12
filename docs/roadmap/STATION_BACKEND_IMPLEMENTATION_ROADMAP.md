@@ -304,9 +304,11 @@ Immediate active task:
   setup/config, populated Gemini retrieval, deployed API replay, browser/mobile
   replay, portable export readback, and non-zero-token observability are
   accepted enough for staging replay.
-- `REPLAY-OPT-01` is open for DAEDALUS: inspect accepted staged evidence and
-  current chat/context/retrieval code, then make one narrow existing-path
-  quality/latency/cost optimization or return a precise blocker.
+- `REPLAY-OPT-01` is accepted as defensive vector-memory quality/privacy
+  hardening.
+- `REPLAY-OPT-02` is open for DAEDALUS: run measured live replay optimization
+  against the current Railway API, then patch only the slowest clear
+  existing-path chat/context/retrieval hotspot if the evidence points to one.
 - Carry Stripe paid subscription activation as the only active external demo
   blocker, and keep Redis/Cloudflare/background jobs as future lanes driven by
   replay evidence rather than assumptions.
