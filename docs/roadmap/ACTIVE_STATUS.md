@@ -1573,6 +1573,16 @@ when a PR lands, or when validation truth changes.
   and visitor comprehension and ARGUS if visibility-bearing behavior changes. If
   the right move is planning/data rather than code, wake MIMIR with the exact
   next action.
+- DAEDALUS DISCOVER-ONBOARD-01 patch is ready for ARIADNE review, 2026-06-12:
+  the Discover/root front door now gives visitors clearer first actions for
+  public Spaces, live Developer Space observatories, forums, and private Studio
+  signup/return; search copy frames the unauthenticated surface as public
+  Station search; and empty states guide anonymous visitors to signup/forums
+  instead of implying a direct protected creation flow. No API calls, search
+  result buckets, visibility filters, auth behavior, schema, or data changed.
+  Focused validation passed with `--filter @station/web typecheck`,
+  `--filter @station/web lint` with known warnings only, and `test:community`.
+  ARIADNE should review visitor comprehension, tone, and mobile/layout feel.
 
 ## Near-term rule
 

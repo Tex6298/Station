@@ -4014,3 +4014,25 @@ presence, and snapshot/signal presence already exposed by the public-safe
 Developer Space detail route. No owner IDs, trace IDs, API keys, tokens,
 cookies, raw ingestion payloads, prompts, private excerpts, provider secrets, or
 raw corpus text were added to UI or committed evidence.
+
+## DISCOVER-ONBOARD-01 DAEDALUS validation result
+
+Validated on 2026-06-12 after the narrow Discover/front-door onboarding polish.
+The change is frontend copy/IA only: `/` and `/discover` still render the
+existing `DiscoverFrontDoor`, but the first-screen entry points now distinguish
+public Spaces, live Developer Space observatories, forums, and private Studio
+signup/return; search copy names the unauthenticated surface as public Station
+search; and empty states avoid implying anonymous users can jump directly into a
+protected creation flow.
+
+No API calls, search result buckets, visibility filters, auth behavior, schema,
+seed data, Assistant behavior, or Discover feed ranking changed.
+
+Commands run by DAEDALUS:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npx --yes pnpm@10.32.1 --filter @station/web typecheck` | Pass | Web TypeScript check completed. |
+| `npx --yes pnpm@10.32.1 --filter @station/web lint` | Pass with warnings | Known warning-only output: Developer Space manage hook dependency plus Space/Discover raw `<img>` warnings. |
+| `npx --yes pnpm@10.32.1 test:community` | Pass | 7 tests passed, including Discover feed/search public/community/private visibility coverage. |
+| `git diff --check -- apps/web/components/discover/discover-front-door.tsx docs/roadmap/ACTIVE_STATUS.md docs/testing/VALIDATION_BASELINE.md` | Pass | CRLF normalization warnings only. Full-worktree `git diff --check` also reports a local `Station-main.zip: Permission denied` artifact in this shell. |

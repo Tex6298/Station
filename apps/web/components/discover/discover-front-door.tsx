@@ -349,21 +349,29 @@ export default function DiscoverFrontDoor() {
           <div className="kicker" style={{ marginBottom: "0.7rem" }}>Discover</div>
           <h1 style={{ margin: 0, maxWidth: 760 }}>A living archive for AI personas, worlds, research, and the people building them.</h1>
           <p style={{ color: "#b7c1d6", lineHeight: 1.7, maxWidth: 760, margin: "0.8rem 0 0" }}>
-            Read new documents, follow live Developer Spaces, find public personas, and watch the culture of Station take shape without losing the thread of where anything came from.
+            Start with public work, live project observatories, or community discussion. Station keeps authorship, provenance, and visibility labels close to each item so visitors can understand what they are reading before they go deeper.
           </p>
           <div style={{ display: "flex", gap: "0.6rem", flexWrap: "wrap", marginTop: "1.1rem" }}>
-            <Link className="button primary" href="/space">Explore Spaces</Link>
-            <Link className="button" href="/developer-spaces">Live observatories</Link>
-            <Link className="button" href="/forums">Forums</Link>
+            <Link className="button primary" href="/space">Browse public spaces</Link>
+            <Link className="button" href="/developer-spaces">Watch live projects</Link>
+            <Link className="button" href="/forums">Read forums</Link>
           </div>
           <div className="discover-surface-grid">
             <Link href="/space">
-              <strong>Authored Spaces</strong>
-              <span>Personal microsites, public works, personas, and archive previews.</span>
+              <strong>Read public spaces</strong>
+              <span>Published writing, persona context, discussion links, and archive previews from Station members.</span>
             </Link>
             <Link href="/developer-spaces">
-              <strong>Developer Spaces</strong>
-              <span>Live observatories for project state, events, nodes, and snapshots.</span>
+              <strong>Watch live projects</strong>
+              <span>Developer Space observatories show public nodes, signals, snapshots, and project notes.</span>
+            </Link>
+            <Link href="/forums">
+              <strong>Join the conversation</strong>
+              <span>Forum threads carry discussion, questions, and community context around public work.</span>
+            </Link>
+            <Link href={user ? "/studio" : "/signup"}>
+              <strong>{user ? "Continue in Studio" : "Create your Studio"}</strong>
+              <span>{user ? "Return to private personas, archive trust states, and continuity work." : "Sign up when you are ready to build private personas and publish selectively."}</span>
             </Link>
           </div>
         </section>
@@ -375,7 +383,7 @@ export default function DiscoverFrontDoor() {
             className="input"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search Station - personas, posts, threads, spaces"
+            placeholder="Search public Station - personas, posts, threads, spaces"
             style={{ width: "100%", paddingLeft: "2.25rem", fontSize: "0.875rem" }}
           />
           <span style={{ position: "absolute", left: "0.8rem", top: "50%", transform: "translateY(-50%)", color: "#68738a", pointerEvents: "none" }}>
@@ -444,7 +452,9 @@ export default function DiscoverFrontDoor() {
                   );
                 })}
                 {!["personas", "developerSpaces", "spaces", "documents", "threads"].some((k) => (searchResults[k] ?? []).length > 0) && (
-                  <div style={{ color: "#8b96aa", fontSize: "0.85rem" }}>No results for &quot;{search}&quot;.</div>
+                  <div style={{ color: "#8b96aa", fontSize: "0.85rem", lineHeight: 1.55 }}>
+                    No public results for &quot;{search}&quot;. Try a persona name, project, space, document title, or forum topic.
+                  </div>
                 )}
               </div>
             )}
@@ -481,10 +491,10 @@ export default function DiscoverFrontDoor() {
               </div>
             ) : items.length === 0 ? (
               <div className="card" style={{ textAlign: "center", padding: "4rem 2rem", color: "#8b96aa" }}>
-                {tab === "featured" ? "No featured work yet. Station staff will feature standout content here." : "Nothing here yet - be the first to post."}
+                {tab === "featured" ? "No featured work yet. Station staff will feature standout public content here." : "No public or community-safe items are in this view yet."}
                 {tab !== "featured" && (
-                  <div style={{ marginTop: "1rem", display: "flex", gap: "0.5rem", justifyContent: "center" }}>
-                    <Link href="/studio/new" className="button primary">Kindle a persona</Link>
+                  <div style={{ marginTop: "1rem", display: "flex", gap: "0.5rem", justifyContent: "center", flexWrap: "wrap" }}>
+                    <Link href={user ? "/studio/new" : "/signup"} className="button primary">{user ? "Kindle a persona" : "Create an account"}</Link>
                     <Link href="/forums" className="button">Browse forums</Link>
                   </div>
                 )}
