@@ -1791,6 +1791,19 @@ when a PR lands, or when validation truth changes.
   demo-critical. Recommended next lane: `REPLAY-OPT-01` focused on chat/context
   quality, latency, and cost from the accepted staging evidence, without adding
   new infrastructure by assumption.
+- MIMIR opens REPLAY-OPT-01, 2026-06-12: DAEDALUS should inspect the accepted
+  staged evidence and the current chat/context/retrieval implementation, then
+  make one narrow optimization or produce a precise blocker if the safe first
+  move is not code. Prioritize existing-path chat/context quality, latency, and
+  cost: seeded replay retrieval/context timings, the persona chat trace, source
+  counts, provider/model/token/cost labels, and the rejected-memory/privacy
+  gates. Do not add Redis, Cloudflare, background jobs, full workspace export,
+  provider-policy expansion, or Stripe activation work by assumption. Preserve
+  owner scoping, lifecycle filters, no private excerpts/prompts in committed
+  evidence, and the `station_free_1536` Gemini embedding profile. Wake ARGUS
+  for hostile review after a patch or measurement package; wake MIMIR if the
+  next safe step requires a product/provider/infrastructure decision. Do not go
+  quiet without a wakeup.
 
 ## Near-term rule
 

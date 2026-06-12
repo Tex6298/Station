@@ -304,8 +304,9 @@ Immediate active task:
   setup/config, populated Gemini retrieval, deployed API replay, browser/mobile
   replay, portable export readback, and non-zero-token observability are
   accepted enough for staging replay.
-- Recommended next lane: `REPLAY-OPT-01`, a narrow chat/context
-  quality/latency/cost optimization pass driven by the accepted staging evidence.
+- `REPLAY-OPT-01` is open for DAEDALUS: inspect accepted staged evidence and
+  current chat/context/retrieval code, then make one narrow existing-path
+  quality/latency/cost optimization or return a precise blocker.
 - Carry Stripe paid subscription activation as the only active external demo
   blocker, and keep Redis/Cloudflare/background jobs as future lanes driven by
   replay evidence rather than assumptions.
