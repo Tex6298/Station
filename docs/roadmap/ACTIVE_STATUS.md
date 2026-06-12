@@ -1804,6 +1804,21 @@ when a PR lands, or when validation truth changes.
   for hostile review after a patch or measurement package; wake MIMIR if the
   next safe step requires a product/provider/infrastructure decision. Do not go
   quiet without a wakeup.
+- DAEDALUS REPLAY-OPT-01 patch is ready for ARGUS review, 2026-06-12: the
+  existing memory vector search path now defensively re-authorizes RPC result
+  IDs against `owner_user_id`, `persona_id`, non-archive memory rows, and
+  injectable lifecycle state before those rows can enter chat runtime context.
+  This preserves the current Gemini `station_free_1536` vector/RPC contract
+  while making replay quality/privacy less dependent on the RPC implementation
+  or test doubles returning already-perfect rows. The focused vector test now
+  makes the RPC return active, rejected, archive-backed, and other-owner memory
+  candidates and proves only the active owner generic memory reaches the result.
+  No provider behavior, Redis, Cloudflare, background jobs, Stripe activation,
+  prompts, completions, private excerpts, owner IDs, persona IDs, trace IDs,
+  tokens, cookies, API keys, replay credentials, or raw corpus text were added
+  to committed evidence. Focused validation passed with the retrieval metadata
+  test, `@station/ai` build, `test:persona-context`, `test:conversation-archive`,
+  `test:replay-readiness`, and `test:health`.
 
 ## Near-term rule
 

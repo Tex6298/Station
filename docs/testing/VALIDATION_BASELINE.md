@@ -4251,3 +4251,32 @@ ARGUS validation:
 | `npx --yes pnpm@10.32.1 test:replay-readiness` | Pass | 1 replay-readiness test passed. |
 | `npx --yes pnpm@10.32.1 test:health` | Pass | 8 health/deployment tests passed. |
 | `git diff --check -- docs/roadmap/ACTIVE_STATUS.md docs/testing/VALIDATION_BASELINE.md .station-agents/state/ARGUS.json` | Pass | CRLF normalization warning only for ARGUS state. |
+
+## REPLAY-OPT-01 DAEDALUS validation result
+
+Validated on 2026-06-12 after a narrow existing-path chat/context optimization.
+The memory vector search path now defensively re-authorizes RPC result IDs
+against owner, persona, non-archive memory rows, and injectable lifecycle state
+before results can enter persona runtime context. The database RPC is still the
+primary vector retrieval path and the active Gemini `station_free_1536` metadata
+contract is unchanged.
+
+The focused vector retrieval test now makes `match_memory_items` return active,
+rejected, archive-backed, and other-owner memory candidates. Only the active
+owner generic memory is accepted into the search result.
+
+Commands run by DAEDALUS:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npx --yes pnpm@10.32.1 exec tsx --test packages/ai/test/retrieval-metadata.test.ts` | Pass | 5 AI retrieval tests passed, including the new defensive vector-result filter coverage. |
+| `npx --yes pnpm@10.32.1 --filter @station/ai build` | Pass | Shared AI package compiled. |
+| `npx --yes pnpm@10.32.1 test:persona-context` | Pass | 3 persona context/lifecycle tests passed. |
+| `npx --yes pnpm@10.32.1 test:conversation-archive` | Pass | 5 archive/context tests passed. |
+| `npx --yes pnpm@10.32.1 test:replay-readiness` | Pass | 1 replay-readiness test passed. |
+| `npx --yes pnpm@10.32.1 test:health` | Pass | 8 health/deployment tests passed. |
+
+Privacy boundary: this patch changes only retrieval result authorization and
+tests. It does not commit prompts, completions, private excerpts, raw corpus
+text, owner IDs, persona IDs, trace IDs, tokens, cookies, API keys, replay
+credentials, or raw response bodies.

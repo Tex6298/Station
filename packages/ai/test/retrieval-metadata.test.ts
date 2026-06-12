@@ -152,6 +152,18 @@ class VectorSupabase {
   rpcCalls: Array<{ functionName: string; args: Record<string, any> }> = [];
 
   tables: Record<string, Row[]> = {
+    memory_items: [
+      memoryRow("memory-1", "owner-1", { archive_source_type: null }),
+      memoryRow("memory-rejected", "owner-1", { archive_source_type: null }),
+      memoryRow("memory-archive", "owner-1", { archive_source_type: "import_job" }),
+      memoryRow("memory-other", "owner-2", { archive_source_type: null }),
+    ],
+    memory_item_lifecycle: [
+      lifecycleRow("memory-1", "owner-1", "active"),
+      lifecycleRow("memory-rejected", "owner-1", "rejected"),
+      lifecycleRow("memory-archive", "owner-1", "active"),
+      lifecycleRow("memory-other", "owner-2", "active"),
+    ],
     import_jobs: [
       {
         id: "import-1",
@@ -181,6 +193,36 @@ class VectorSupabase {
               source_type: "manual",
               relevance_weight: 2,
               similarity: 0.98,
+            },
+            {
+              id: "memory-rejected",
+              persona_id: "persona-1",
+              title: "Rejected continuity memory",
+              content: "Rejected continuity should not reach runtime context.",
+              summary: "Rejected continuity",
+              source_type: "manual",
+              relevance_weight: 20,
+              similarity: 0.99,
+            },
+            {
+              id: "memory-archive",
+              persona_id: "persona-1",
+              title: "Archive chunk",
+              content: "Archive chunks should stay in archive retrieval, not generic memory.",
+              summary: "Archive chunk",
+              source_type: "import",
+              relevance_weight: 20,
+              similarity: 0.97,
+            },
+            {
+              id: "memory-other",
+              persona_id: "persona-1",
+              title: "Other owner memory",
+              content: "Other owner memory must not reach runtime context.",
+              summary: "Other owner memory",
+              source_type: "manual",
+              relevance_weight: 20,
+              similarity: 0.96,
             },
           ],
           error: null,
@@ -225,6 +267,7 @@ class VectorSupabase {
 
 class QueryBuilder {
   private filters: Array<[string, unknown]> = [];
+  private inFilters: Array<[string, unknown[]]> = [];
   private orderSpec: { field: string; ascending: boolean } | null = null;
   private limitCount: number | null = null;
 
@@ -236,6 +279,11 @@ class QueryBuilder {
 
   eq(field: string, value: unknown) {
     this.filters.push([field, value]);
+    return this;
+  }
+
+  in(field: string, values: unknown[]) {
+    this.inFilters.push([field, values]);
     return this;
   }
 
@@ -266,6 +314,9 @@ class QueryBuilder {
     let rows = this.db.rows(this.table).filter((row) =>
       this.filters.every(([field, value]) => row[field] === value)
     );
+    rows = rows.filter((row) =>
+      this.inFilters.every(([field, values]) => values.includes(row[field]))
+    );
 
     if (this.orderSpec) {
       const { field, ascending } = this.orderSpec;
@@ -280,6 +331,27 @@ class QueryBuilder {
     if (this.limitCount !== null) rows = rows.slice(0, this.limitCount);
     return rows;
   }
+}
+
+function memoryRow(id: string, ownerUserId: string, extras: Row = {}) {
+  return {
+    id,
+    persona_id: "persona-1",
+    owner_user_id: ownerUserId,
+    archive_source_type: null,
+    ...extras,
+  };
+}
+
+function lifecycleRow(memoryItemId: string, ownerUserId: string, status: string) {
+  return {
+    memory_item_id: memoryItemId,
+    persona_id: "persona-1",
+    owner_user_id: ownerUserId,
+    status,
+    expires_at: null,
+    superseded_by_memory_item_id: null,
+  };
 }
 
 class KeywordFallbackSupabase {

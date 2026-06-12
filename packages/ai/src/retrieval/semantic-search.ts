@@ -52,7 +52,7 @@ export async function searchMemory(options: {
 
     if (error) throw error;
 
-    return (data ?? []).map(
+    const rows = (data ?? []).map(
       (row: {
         id: string;
         persona_id: string;
@@ -73,6 +73,13 @@ export async function searchMemory(options: {
         similarity: row.similarity,
       })
     );
+
+    return filterInjectableMemoryResults({
+      supabase,
+      personaId,
+      ownerUserId,
+      rows,
+    });
   } catch {
     // Fallback: keyword search
     return keywordFallbackSearch(supabase, personaId, query, limit, ownerUserId);
@@ -172,6 +179,35 @@ async function loadMemoryLifecycleMap(
   if (error) return new Map();
 
   return new Map((data ?? []).map((row) => [row.memory_item_id, row]));
+}
+
+async function filterInjectableMemoryResults(input: {
+  supabase: SupabaseClient;
+  personaId: string;
+  ownerUserId?: string;
+  rows: MemorySearchResult[];
+}): Promise<MemorySearchResult[]> {
+  if (!input.ownerUserId || input.rows.length === 0) return input.rows;
+
+  const ids = input.rows.map((row) => row.id);
+  const { data, error } = await input.supabase
+    .from("memory_items")
+    .select("id, archive_source_type")
+    .eq("persona_id", input.personaId)
+    .eq("owner_user_id", input.ownerUserId)
+    .in("id", ids);
+
+  if (error || !data) throw error ?? new Error("Could not validate memory search results.");
+
+  const lifecycleByMemoryId = await loadMemoryLifecycleMap(input.supabase, input.personaId, input.ownerUserId);
+  const injectableIds = new Set(
+    data
+      .filter((row) => row.archive_source_type == null)
+      .filter((row) => isLifecycleInjectable(lifecycleByMemoryId.get(row.id)))
+      .map((row) => row.id)
+  );
+
+  return input.rows.filter((row) => injectableIds.has(row.id));
 }
 
 function isLifecycleInjectable(
