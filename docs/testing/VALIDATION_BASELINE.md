@@ -4483,6 +4483,23 @@ Privacy boundary: this patch changes query shape only. It does not commit
 prompts, completions, private excerpts, raw bodies, owner IDs, persona IDs,
 trace IDs, tokens, cookies, API keys, replay credentials, or raw corpus text.
 
+ARGUS review on 2026-06-12 accepts STAGING-DEMO-MEMORY-01. The ambiguous
+Supabase embed is gone from both memory list and memory briefing. Lifecycle rows
+are loaded with explicit `owner_user_id`, `persona_id`, and `memory_item_id`
+filters, then attached in memory before serialization. Active/rejected/
+superseded/expired behavior and response shapes are preserved.
+
+ARGUS validation:
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Owner/lifecycle query review | Pass | Memory rows are owner/persona scoped; lifecycle rows are owner/persona/ID-list scoped. |
+| Active/rejected/superseded behavior review | Pass | Briefing still filters injectable active memory and reports lifecycle counts. |
+| Committed evidence privacy scan | Pass | Hits were fake test tokens or negative privacy-boundary prose; no live secrets or private payloads were found. |
+| `npx --yes pnpm@10.32.1 test:persona-context` | Pass | 3 tests passed, including memory list lifecycle attachment and briefing lifecycle behavior. |
+| `npx --yes pnpm@10.32.1 --filter @station/api typecheck` | Pass | API typecheck passed. |
+| `git diff --check` | Pass | CRLF normalization warning only for ARGUS state. |
+
 ARGUS review on 2026-06-12 accepts REPLAY-OPT-04 as code-tied sanitized replay
 evidence. The package confirms Railway served the deployment identity field and
 the replay-safe context-preview, archive-retrieval, and observability checks

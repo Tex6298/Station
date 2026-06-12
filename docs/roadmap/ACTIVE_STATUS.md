@@ -2008,6 +2008,13 @@ when a PR lands, or when validation truth changes.
   preserved. Focused tests now cover `/memory/persona/:personaId` lifecycle
   attachment as well as the existing briefing/lifecycle checks. Validation
   passed with `test:persona-context` and `@station/api typecheck`.
+- ARGUS accepts STAGING-DEMO-MEMORY-01, 2026-06-12: explicit lifecycle loading
+  resolves the staging ambiguous-embed blocker without widening scope. Memory
+  list and briefing rows remain owner/persona scoped, lifecycle attachment is
+  scoped by owner/persona/memory ID list, active/rejected/superseded/expired
+  behavior is preserved, and no product/UI/infrastructure expansion was added.
+  Wake ARIADNE to continue the staging demo rehearsal from the unblocked memory
+  paths, and wake MIMIR with this security verdict.
 
 ## Near-term rule
 
