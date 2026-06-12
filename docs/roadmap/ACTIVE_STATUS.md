@@ -1631,6 +1631,12 @@ when a PR lands, or when validation truth changes.
   desktop layout, or broader navigation IA changed. Focused validation passed
   with the Studio navigation helper test, `--filter @station/web typecheck`, and
   `--filter @station/web lint` with known warnings only.
+- STUDIO-A11Y-01 ARIADNE experience review is complete, 2026-06-12: ARIADNE
+  accepts the Studio mobile navigation disclosure label. The accessible name
+  describes the action, the visible summary still anchors the user in Studio /
+  private workbench, and the patch does not alter Studio routing, auth/session
+  behavior, persona/archive data, desktop layout, or broader navigation IA. No
+  product-experience follow-up is required.
 
 ## Near-term rule
 
