@@ -4606,3 +4606,20 @@ Commands run by DAEDALUS:
 | `npx --yes pnpm@10.32.1 exec tsx --test apps/web/lib/billing-plan-actions.test.ts` | Pass | 3 helper tests passed for active/trialing current behavior, inactive same-tier activation, different-tier upgrade behavior, and checkout tier narrowing. |
 | `npx --yes pnpm@10.32.1 --filter @station/web typecheck` | Pass | Web TypeScript check passed. |
 | `npx --yes pnpm@10.32.1 --filter @station/web lint` | Pass with warnings | Existing unrelated warnings remain in Developer Spaces manage, public Space image usage, and Discover image usage. |
+
+ARGUS review on 2026-06-12 accepts BILLING-UX-01. The patch changes only the
+Billing page action selection and a small pure helper. Same-tier inactive or
+missing subscription states now open the existing Checkout path; active/trialing
+same-tier states keep current-plan/portal behavior. No entitlement mutation,
+Stripe webhook, price configuration, token-credit, production-money,
+invoice/tax/Connect/marketplace, auth, or backend billing semantics changed.
+
+ARGUS validation:
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Billing UI/no-entitlement review | Pass | UI can create Checkout sessions but does not grant entitlement; backend webhook sync remains the only subscription entitlement mutation path. |
+| `npx --yes pnpm@10.32.1 exec tsx --test apps/web/lib/billing-plan-actions.test.ts` | Pass | 3 helper tests passed. |
+| `npx --yes pnpm@10.32.1 --filter @station/web typecheck` | Pass | Web TypeScript check passed. |
+| `npx --yes pnpm@10.32.1 --filter @station/web lint` | Pass with warnings | Existing unrelated warnings remain outside this patch. |
+| `npx --yes pnpm@10.32.1 test:billing` | Pass | 4 billing backend tests passed, including verified webhook mutation and mismatch/unknown-price rejection. |

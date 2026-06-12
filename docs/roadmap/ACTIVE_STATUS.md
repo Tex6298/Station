@@ -2191,6 +2191,15 @@ when a PR lands, or when validation truth changes.
   invoices/tax/Connect/marketplace scope, or token-credit top-ups. Focused
   helper tests, web typecheck, and web lint passed; lint still reports the
   existing unrelated warning-only inventory.
+- ARGUS accepts BILLING-UX-01, 2026-06-12: the patch is UI/helper-only and uses
+  the existing `/billing/checkout` API for same-tier inactive/null activation.
+  Entitlement mutation remains confined to verified Stripe webhook handling;
+  backend billing tests still pass for invalid signatures, unknown active Price
+  IDs, and customer mismatches. No price config, webhook, production-money,
+  invoice/tax/Connect/marketplace, token-credit, auth, or entitlement backend
+  semantics changed. Wake ARIADNE for browser UX review of the visible
+  activation path, hosted return/success-banner posture, and active/trialing
+  current-plan/portal behavior.
 
 ## Near-term rule
 
