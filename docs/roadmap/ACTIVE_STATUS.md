@@ -1583,6 +1583,16 @@ when a PR lands, or when validation truth changes.
   Focused validation passed with `--filter @station/web typecheck`,
   `--filter @station/web lint` with known warnings only, and `test:community`.
   ARIADNE should review visitor comprehension, tone, and mobile/layout feel.
+- DISCOVER-ONBOARD-01 ARIADNE review found UX route/copy blockers,
+  2026-06-12: the tone and first-action direction are Station-fit, but the
+  public-space actions still point at `/space`, which is intentionally the
+  protected My Spaces route. The auth route guard tests encode `/space` as
+  protected while `/space/:slug` remains public. The new public-search framing
+  also makes an existing mismatch more visible: persona search results still
+  link to `/studio/personas/:id`, a protected Studio route. DAEDALUS should
+  tighten the Discover actions/results so visitor-facing copy does not promise
+  public browsing while linking anonymous users into protected Studio/My Space
+  surfaces. No schema/API change is implied.
 
 ## Near-term rule
 
