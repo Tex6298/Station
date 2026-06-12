@@ -191,3 +191,49 @@ If that passes, MIMIR can decide whether to open a true human browser rehearsal
 or move to demo narrative polish. Do not open Redis, Cloudflare, background
 jobs, full workspace export, or Stripe activation unless new evidence demands
 one of them.
+
+## Post-Unblock Rerun
+
+After ARGUS accepted STAGING-DEMO-MEMORY-01, ARIADNE reran the narrow memory
+and continuity slice against live staging.
+
+Deployment proof:
+
+- API `/health/deployment`: 200, `ready:true`, served SHA prefix
+  `bfdf5e31e6d3`.
+
+Unblocked memory path:
+
+- API `/memory/persona/:personaId`: 200, 4 memory rows, lifecycle statuses
+  `rejected` and `active`.
+- API `/memory/persona/:personaId/briefing`: 200, 3 active memories,
+  lifecycle keys `rejected` and `active`.
+- Web `/studio/personas/:personaId/memory`: 200 shell.
+
+Continuity/archive/export smoke:
+
+- API `/conversations/persona/:personaId/context-preview`: 200, counts
+  `canon:0`, `memory:1`, `integrity:1`, `archive:2`.
+- API `/conversations/persona/:personaId/archive-retrieval`: 200, vector mode,
+  1 returned, 2 searched, 0 skipped.
+- API `/exports/persona/:personaId`: 200, 1 completed export.
+- API `/exports/:id/bundle`: 200, 3 files.
+
+Post-unblock product verdict:
+
+- The memory blocker is cleared on live staging.
+- The seeded non-paid demo can move to a true human browser rehearsal with
+  localStorage-backed auth and mobile checks.
+- Keep paid activation excluded unless Marty completes the external Stripe
+  Checkout/event step first.
+- Keep Redis, Cloudflare, background jobs, and full workspace export out of
+  scope unless new rehearsal evidence demands them.
+
+Recommended next lane:
+
+- `STAGING-DEMO-BROWSER-01`
+- Run a real browser click-through of the non-paid route sequence, including
+  Memory, Continuity, Archive, public Space/document/forum, Developer Space,
+  Billing status, and mobile.
+- Capture only route completion, user-facing friction, narrative gaps, and
+  concrete blockers.

@@ -2015,6 +2015,19 @@ when a PR lands, or when validation truth changes.
   behavior is preserved, and no product/UI/infrastructure expansion was added.
   Wake ARIADNE to continue the staging demo rehearsal from the unblocked memory
   paths, and wake MIMIR with this security verdict.
+- ARIADNE completes the post-unblock STAGING-DEMO-RUN-01 rerun, 2026-06-12:
+  live Railway now serves the memory patch at SHA prefix `bfdf5e31e6d3`.
+  `/memory/persona/:personaId` returns 200 with 4 rows and active/rejected
+  lifecycle statuses; `/memory/persona/:personaId/briefing` returns 200 with 3
+  active memories and active/rejected lifecycle keys. The persona Memory web
+  shell, context-preview, archive-retrieval, persona export list, and export
+  bundle all returned 200 in the narrow rerun. Product verdict: the memory demo
+  blocker is cleared on live staging. ARIADNE recommends
+  `STAGING-DEMO-BROWSER-01`: a true human browser click-through of the non-paid
+  route sequence with localStorage-backed auth and mobile checks. Paid
+  activation remains excluded unless Marty completes the external Stripe step;
+  Redis, Cloudflare, background jobs, and full workspace export remain out of
+  scope unless new rehearsal evidence demands them.
 
 ## Near-term rule
 
