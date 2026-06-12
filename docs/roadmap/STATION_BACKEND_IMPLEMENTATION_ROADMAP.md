@@ -315,6 +315,9 @@ Immediate active task:
 - STAGING-DEMO-RUN-01 is open for ARIADNE as a non-paid seeded staging demo
   rehearsal. Paid activation is excluded unless the external Stripe test action
   is completed first.
+- STAGING-DEMO-MEMORY-01 is accepted and live-proven by ARIADNE's narrow rerun;
+  STAGING-DEMO-BROWSER-01 is open for a true browser click-through with
+  localStorage-backed auth and mobile checks.
 - Carry Stripe paid subscription activation as the only active external demo
   blocker, and keep Redis/Cloudflare/background jobs as future lanes driven by
   replay evidence rather than assumptions.

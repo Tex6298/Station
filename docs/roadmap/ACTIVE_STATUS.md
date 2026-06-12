@@ -2029,6 +2029,20 @@ when a PR lands, or when validation truth changes.
   Redis, Cloudflare, background jobs, and full workspace export remain out of
   scope unless new rehearsal evidence demands them.
 
+- MIMIR accepts ARIADNE's post-unblock STAGING-DEMO-RUN-01 rerun and opens
+  STAGING-DEMO-BROWSER-01, 2026-06-12: the memory demo blocker is cleared on
+  live staging, so ARIADNE should run a true browser click-through of the
+  non-paid route sequence with localStorage-backed auth and mobile checks.
+  Include Memory, Continuity, Archive, public Space/document/forum, Developer
+  Space, Billing status, Observability, and export readback. Paid activation is
+  excluded unless Marty completes the external Stripe Checkout/event step first.
+  Capture only route completion, user-facing friction, narrative gaps, and
+  concrete blockers. Do not capture private excerpts, prompts, completions, raw
+  response bodies, owner/persona/export/trace/customer IDs, tokens, cookies,
+  keys, credentials, or replay corpus text. Wake MIMIR with the browser verdict
+  and next narrow lane; wake DAEDALUS or ARGUS only for a concrete code/security
+  blocker. Do not go quiet without a wakeup.
+
 ## Near-term rule
 
 Do the boring foundation work before the attractive surface work:
