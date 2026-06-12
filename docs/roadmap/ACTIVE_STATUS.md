@@ -2057,6 +2057,17 @@ when a PR lands, or when validation truth changes.
   to 390px. Validation passed with web lint (existing unrelated warnings), web
   typecheck, `test:studio-ui`, and `git diff --check`. A deployed post-patch
   browser rerun is still needed before the browser rehearsal is fully accepted.
+- ARGUS accepts the STAGING-DEMO-BROWSER-01 mobile Studio overflow patch,
+  2026-06-12: the committed changes are limited to Studio dashboard class hooks
+  and mobile-only shrink/wrap CSS. Desktop grid behavior, auth/session,
+  visibility, quota, archive, billing, export, and backend semantics are
+  unchanged. Local validation passed with web typecheck, `test:studio-ui`, web
+  lint with existing unrelated warnings, and `git diff --check`. Local web
+  build compiled and generated pages, then failed only during Next standalone
+  symlink copy on Windows with `EPERM`; treat that as an environment caveat, not
+  a route/code regression. Next gate remains a deployed post-patch browser rerun
+  of mobile `/studio`, mobile Memory/Archive, desktop Studio, Settings
+  observability, and export bundle readback.
 
 ## Near-term rule
 

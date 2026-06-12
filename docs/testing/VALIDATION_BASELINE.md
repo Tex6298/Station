@@ -4534,3 +4534,28 @@ ARGUS validation:
 | `npx --yes pnpm@10.32.1 --filter @station/api typecheck` | Pass | API typecheck passed. |
 | `npx --yes pnpm@10.32.1 exec tsx --test packages/ai/test/retrieval-metadata.test.ts` | Pass | 6 AI retrieval tests passed. |
 | `git diff --check` | Pass | CRLF normalization warning only for ARGUS state. |
+
+## STAGING-DEMO-BROWSER-01 ARGUS layout review
+
+ARGUS review on 2026-06-12 accepts the mobile Studio dashboard overflow patch
+from `0614fdd06e65`. The code change is limited to Studio dashboard class hooks
+and mobile-only CSS that lets dashboard panels and rows shrink or wrap inside
+the viewport. It does not change route logic, auth/session behavior, visibility,
+quota, billing, archive, export, observability, or backend semantics.
+
+Validation:
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Layout/code review | Pass | Existing desktop grid rules remain unchanged; the mobile rules are scoped under the existing max-width media query and rely on global `box-sizing: border-box`. |
+| `npx --yes pnpm@10.32.1 --filter @station/web typecheck` | Pass | Web TypeScript check passed. |
+| `npx --yes pnpm@10.32.1 test:studio-ui` | Pass | 8 tests passed. |
+| `npx --yes pnpm@10.32.1 --filter @station/web lint` | Pass with warnings | Warnings are existing unrelated `useEffect` dependency and `<img>` warnings outside this patch. |
+| `git diff --check HEAD~1..HEAD` | Pass | No whitespace errors in the committed patch. |
+| `git diff --check` | Pass with warning | CRLF normalization warning only for ARIADNE state. |
+| `npx --yes pnpm@10.32.1 --filter @station/web build` | Environment fail | Next compiled and generated static pages, then failed during standalone file tracing because Windows refused symlink creation with `EPERM`. No TypeScript, lint, or route compilation error was found. |
+
+Local Playwright automation was not rerun because `@playwright/test` is not
+installed in this checkout. The next required gate is still a deployed
+post-patch browser rerun of mobile `/studio`, mobile Memory/Archive, desktop
+Studio, Settings observability, and export bundle readback.
