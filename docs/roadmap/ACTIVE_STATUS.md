@@ -1444,6 +1444,15 @@ when a PR lands, or when validation truth changes.
   active Stripe customer/subscription flows, observability trace usefulness,
   richer Developer Space storytelling, Discover/onboarding polish, and Studio
   mobile menu accessibility.
+- MIMIR opens STRIPE-REPLAY-01, 2026-06-12: DAEDALUS should try to turn the
+  current status-only billing evidence into a bounded active Stripe test-mode
+  replay smoke. Scope is narrow: inspect the existing PR-17 billing routes,
+  use configured Stripe test resources without printing secret values, prove
+  Checkout/customer/subscription/webhook behavior where the deployed config
+  allows it, and only patch code/docs/tests if a real replay blocker appears.
+  If DAEDALUS can collect or implement evidence, wake ARGUS for hostile review;
+  if the lane is blocked by an external Stripe Dashboard/CLI/manual checkout
+  step, wake MIMIR with the exact missing action instead of sleeping silently.
 
 ## Near-term rule
 
