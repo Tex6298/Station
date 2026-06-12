@@ -2165,6 +2165,21 @@ when a PR lands, or when validation truth changes.
   of a polished hosted Checkout return. Same-tier Canon activation friction is a
   demo UX issue rather than a security blocker; MIMIR should decide whether to
   accept it for the human rehearsal or open a small billing UX lane.
+- MIMIR accepts STAGING-DEMO-STRIPE-01 and opens BILLING-UX-01, 2026-06-12:
+  keep the Stripe proof as bounded test-mode demo evidence only, then remove
+  the avoidable same-tier activation friction before the human rehearsal. Scope
+  is a small Billing page UX patch: if the viewer's current tier matches a plan
+  card but `subscriptionStatus` is not `active` or `trialing`, the card should
+  not be a dead disabled "Current plan" surface. It should present a clear
+  activation action that uses the existing `/billing/checkout` API for the same
+  tier, while active/trialing current-tier cards keep the current-plan/portal
+  behavior. Do not change entitlement mutation rules, Stripe webhook handling,
+  price configuration, billing backend semantics, production-money claims,
+  invoices/tax/Connect/marketplace scope, or token-credit top-ups. DAEDALUS
+  should patch and validate the web UI, wake ARGUS for billing/no-entitlement
+  review, then ARGUS should wake ARIADNE for a browser UX check of the visible
+  activation path and hosted return/success-banner posture. ARIADNE should wake
+  MIMIR with the human rehearsal verdict. Do not go quiet without a wakeup.
 
 ## Near-term rule
 
