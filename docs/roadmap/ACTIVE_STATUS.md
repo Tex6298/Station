@@ -1780,6 +1780,17 @@ when a PR lands, or when validation truth changes.
   accepted, wake MIMIR with the closeout verdict and recommend the next
   optimization lane; if stale, wake DAEDALUS with exact doc/proof fixes. Do not
   go quiet without a wakeup.
+- ARGUS accepts STAGING-CLOSEOUT-01, 2026-06-12: the closeout docs truthfully
+  frame the accepted staging packet without claiming active Stripe subscription
+  activation, Cloudflare as a runtime dependency, Redis as canonical memory
+  truth, completed background-job infrastructure, full workspace export, or
+  partner-grade demo polish. Stripe paid activation stays externally blocked,
+  Cloudflare/Redis/background jobs stay future lanes, export stays owner-only
+  JSON/Markdown readback, and the LLM two-trace/status-capture caveat is
+  correctly treated as hygiene unless exact one-call replay ergonomics become
+  demo-critical. Recommended next lane: `REPLAY-OPT-01` focused on chat/context
+  quality, latency, and cost from the accepted staging evidence, without adding
+  new infrastructure by assumption.
 
 ## Near-term rule
 

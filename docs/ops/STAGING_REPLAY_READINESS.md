@@ -402,6 +402,9 @@ human walkthrough:
 - ARIADNE accepted UX-EXPORT-01 after `/studio/export` stopped overpromising
   downloadable/background export behavior.
 - ARGUS accepted LLM-TRACE-01 as narrow non-zero-token observability proof.
+- ARGUS accepted STAGING-CLOSEOUT-01 as truthful staging state, with remaining
+  Stripe activation, Redis/Cloudflare/background jobs, full workspace export,
+  and partner-grade polish kept out of the accepted scope.
 
 Carry remaining friction as future product/demo work, not active replay
 readiness blockers: paid subscription activation after the accepted Stripe

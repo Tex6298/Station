@@ -300,10 +300,12 @@ Default order:
 
 Immediate active task:
 
-- MIMIR should route one closeout review to ARGUS for the current staging truth:
+- STAGING-CLOSEOUT-01 is ARGUS-accepted for the current staging truth:
   setup/config, populated Gemini retrieval, deployed API replay, browser/mobile
   replay, portable export readback, and non-zero-token observability are
   accepted enough for staging replay.
+- Recommended next lane: `REPLAY-OPT-01`, a narrow chat/context
+  quality/latency/cost optimization pass driven by the accepted staging evidence.
 - Carry Stripe paid subscription activation as the only active external demo
   blocker, and keep Redis/Cloudflare/background jobs as future lanes driven by
   replay evidence rather than assumptions.
