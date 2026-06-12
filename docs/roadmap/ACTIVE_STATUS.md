@@ -1664,6 +1664,16 @@ when a PR lands, or when validation truth changes.
   `--filter @station/web typecheck`, and scoped `git diff --check`. ARGUS should
   hostile-review owner scoping, failed-package blocking, manifest integrity, and
   API key/key-hash exclusion.
+- ARGUS accepted EXPORT-BUNDLE-01, 2026-06-12: `/exports/:id/bundle` is
+  authenticated, owner-scoped, and limited to completed export packages. Persona
+  and Developer Space bundles return README, `manifest.json`, `manifest.md`,
+  byte counts, SHA-256 hashes, package metadata, and an owner-only privacy note.
+  Focused tests prove other-owner bundle reads return 404, failed packages
+  return 409, private Developer Space linked drafts and API key hashes stay out
+  of exported manifests/bundles, and the Studio copy stays honest about
+  per-persona JSON/Markdown readback versus future global workspace bundles.
+  This is not a PDF/binary archive, background job system, or full workspace
+  export.
 
 ## Near-term rule
 
