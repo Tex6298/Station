@@ -27,6 +27,16 @@ triad:watch:daedalus
 Foreground waiting is the watch command. Wakeups come only from git commit
 bodies containing the header above.
 
+## Response Contract
+
+- DAEDALUS must answer every wakeup with a commit wakeup to the assigned next
+  responder.
+- A DAEDALUS lane is not done until ARGUS, ARIADNE, or MIMIR has been woken
+  with a concrete patch summary, validation, blocker, or verdict request.
+- If validation, config, deployment, or product scope blocks progress, wake
+  MIMIR with `WAKEUP A1:` and the exact blocker instead of going idle.
+- Do not leave the workflow silent after a patch or failed attempt.
+
 ## Handoff Shape
 
 ```text

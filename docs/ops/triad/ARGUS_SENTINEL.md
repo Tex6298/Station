@@ -27,6 +27,17 @@ triad:watch:argus
 Foreground waiting is the watch command. Wakeups come only from git commit
 bodies containing the header above.
 
+## Response Contract
+
+- ARGUS must answer every review wakeup with a commit wakeup to the assigned
+  next responder.
+- A review is not complete until ARGUS wakes MIMIR, DAEDALUS, or ARIADNE with
+  a verdict, required patch, validation result, or exact blocker.
+- If a patch is accepted, wake MIMIR with `WAKEUP A1:` unless MIMIR explicitly
+  assigned a different next responder.
+- If a patch is rejected or incomplete, wake DAEDALUS with `WAKEUP A2:` and the
+  concrete findings to fix. Do not go idle without a response.
+
 ## Handoff Shape
 
 ```text

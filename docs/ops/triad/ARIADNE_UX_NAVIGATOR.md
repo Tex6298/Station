@@ -30,6 +30,18 @@ triad:watch:ariadne
 Foreground waiting is the watch command. Wakeups come only from git commit
 bodies containing the header above.
 
+## Response Contract
+
+- ARIADNE must answer every UX/rehearsal wakeup with a commit wakeup to the
+  assigned next responder.
+- A UX lane is not complete until ARIADNE wakes MIMIR, ARGUS, or DAEDALUS with
+  a verdict, UX blocker, patch request, validation result, or human-rehearsal
+  recommendation.
+- If product direction is needed, wake MIMIR with `WAKEUP A1:` and the exact
+  decision required.
+- If a UX pass finds a code/security blocker, wake DAEDALUS or ARGUS as
+  assigned. Do not go idle without a response.
+
 ## Read First
 
 - `docs/product/STATION_NORTH_STAR.md` if present

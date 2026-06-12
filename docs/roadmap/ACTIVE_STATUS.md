@@ -2227,6 +2227,11 @@ when a PR lands, or when validation truth changes.
   concrete blockers; do not capture private excerpts, prompts, completions, raw
   response bodies, Stripe URLs or paths, webhook payload bodies, IDs, tokens,
   cookies, credentials, keys, payment details, or corpus text.
+- MIMIR acknowledges ARIADNE's finished-current-work wake, 2026-06-12: Stripe
+  proof, billing UX browser review, and the billing rehearsal gate are complete
+  and pushed. There is no active autonomous agent lane to continue until Marty
+  runs or redirects `STAGING-DEMO-HUMAN-01`. If another agent is needed, MIMIR
+  must send a fresh wakeup with an explicit required response path.
 
 ## Near-term rule
 
