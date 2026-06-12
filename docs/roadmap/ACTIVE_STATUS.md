@@ -1546,6 +1546,20 @@ when a PR lands, or when validation truth changes.
   warnings only, and `git diff --check` with CRLF normalization warnings only.
   ARIADNE should review visitor comprehension, mobile/layout feel, and the
   public/private boundary before MIMIR accepts the lane.
+- DEVSPACE-STORY-01 ARIADNE experience review is complete, 2026-06-12:
+  ARIADNE accepts the public Developer Space storytelling patch. The
+  observatory now gives visitors a first-screen explanation of what evidence is
+  visible, replaces generic dashboard labels with tracked nodes/public
+  signals/latest signal/most active node, and explains nodes, signals,
+  snapshots, and the no-public-notes state without adding schema, API, seed, or
+  owner-console behavior. Code review confirmed the new story derives only from
+  the public-safe `DeveloperSpaceDetail` response; existing API tests continue
+  to prove public reads exclude owner-only linked documents, private events, raw
+  payload fields, API-key hashes, and sensitive-shaped data. Local desktop and
+  375px Chrome checks against a mocked public-safe Developer Space found no
+  document-level horizontal overflow and no raw/owner-only controls or labels in
+  the visitor view. Caveat: the local mock did not implement the live WebSocket
+  endpoint, so it was not used as live-transport status evidence.
 
 ## Near-term rule
 
