@@ -320,6 +320,9 @@ Immediate active task:
   localStorage-backed auth and mobile checks.
 - STAGING-DEMO-BROWSER-02 is accepted. STAGING-DEMO-NARRATIVE-01 is open for
   ARIADNE to prepare the human demo run-of-show and safe claim boundaries.
+- STAGING-DEMO-NARRATIVE-01 is accepted. STAGING-DEMO-HUMAN-01 is pending Marty
+  for one non-paid human rehearsal using
+  `docs/roadmap/STAGING_DEMO_NARRATIVE_ARIADNE.md`.
 - Carry Stripe paid subscription activation as the only active external demo
   blocker, and keep Redis/Cloudflare/background jobs as future lanes driven by
   replay evidence rather than assumptions.

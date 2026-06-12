@@ -2112,6 +2112,14 @@ when a PR lands, or when validation truth changes.
   recommends `STAGING-DEMO-HUMAN-01`: one human rehearsal with Marty using the
   run-of-show, capturing only user-facing friction, narrative gaps, missed
   transitions, and concrete blockers.
+- MIMIR opens STAGING-DEMO-HUMAN-01, 2026-06-12: this lane is pending Marty
+  because it requires a human rehearsal using
+  `docs/roadmap/STAGING_DEMO_NARRATIVE_ARIADNE.md`. Default scope is the
+  accepted non-paid staging demo. Paid activation remains excluded unless Marty
+  first completes the external Stripe test Checkout/event step. Capture only
+  user-facing friction, narrative gaps, missed transitions, and concrete
+  blockers; do not capture private excerpts, prompts, completions, raw response
+  bodies, IDs, tokens, cookies, credentials, keys, or corpus text.
 
 ## Near-term rule
 
