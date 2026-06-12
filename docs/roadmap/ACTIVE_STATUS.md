@@ -1674,6 +1674,21 @@ when a PR lands, or when validation truth changes.
   per-persona JSON/Markdown readback versus future global workspace bundles.
   This is not a PDF/binary archive, background job system, or full workspace
   export.
+- MIMIR closes EXPORT-BUNDLE-01 for the current staging target, 2026-06-12:
+  portable owner-only JSON/Markdown bundle readback is accepted. PDF/binary
+  archive, background-job, retry workflow, and full workspace export remain
+  future lanes.
+- MIMIR opens STRIPE-ACTIVATION-01, 2026-06-12: DAEDALUS should try to prove
+  the remaining paid subscription activation gap from STRIPE-REPLAY-01 without
+  widening billing scope. Inspect the existing Checkout/webhook flow, staged
+  Stripe test configuration, and replay owner billing state. If a safe staged
+  proof can be run, capture only sanitized route/status/tier/subscription
+  labels and wake ARGUS for billing/entitlement review. If proof requires a
+  hosted Checkout payment, Stripe Dashboard action, Stripe CLI forwarding, or a
+  manually generated mutating webhook, do not improvise: wake MIMIR with the
+  exact external action needed. Do not print or commit Stripe secrets, checkout
+  URLs, customer IDs, subscription IDs, webhook payload bodies, owner IDs, tokens,
+  cookies, or replay credentials.
 
 ## Near-term rule
 

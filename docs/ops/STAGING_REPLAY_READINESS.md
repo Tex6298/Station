@@ -398,6 +398,5 @@ human walkthrough:
   downloadable/background export behavior.
 
 Carry remaining friction as future product/demo work, not active replay
-readiness blockers: portable export bundles, paid subscription activation after
-the accepted Stripe test-mode smoke, and non-zero-token LLM trace proof if a
-demo requires it.
+readiness blockers: paid subscription activation after the accepted Stripe
+test-mode smoke, and non-zero-token LLM trace proof if a demo requires it.
