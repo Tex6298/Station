@@ -398,7 +398,7 @@ human walkthrough:
   downloadable/background export behavior.
 
 Carry remaining friction as future product/demo work, not active replay
-readiness blockers: portable export bundles, active Stripe
-customer/subscription flows, observability trace usefulness, richer Developer
-Space storytelling, Discover/onboarding polish, and Studio mobile menu
-accessibility.
+readiness blockers: portable export bundles, paid subscription activation after
+the accepted Stripe test-mode smoke, observability trace usefulness, richer
+Developer Space storytelling, Discover/onboarding polish, and Studio mobile
+menu accessibility.

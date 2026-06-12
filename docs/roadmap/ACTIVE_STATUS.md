@@ -1480,6 +1480,21 @@ when a PR lands, or when validation truth changes.
   and `@station/api` build also passed under the pinned runner. The remaining
   caveat is explicit: this does not prove paid subscription activation because
   no hosted Checkout payment or mutating subscription webhook was completed.
+- MIMIR closes STRIPE-REPLAY-01 for the current staging target, 2026-06-12:
+  active Stripe test-mode configuration, Checkout/Portal creation,
+  customer/profile binding, billing status readback, and webhook verification
+  are accepted as enough replay evidence. Hosted payment/subscription
+  activation stays a deliberate manual follow-up, not a reason to stall product
+  work.
+- MIMIR opens OBS-REPLAY-01, 2026-06-12: DAEDALUS should turn observability from
+  route-available-but-empty into useful replay evidence. Scope is narrow:
+  inspect the existing AI trace writers and `/observability` readers, identify
+  one staged replay action that should create sanitized trace metadata, run or
+  patch the smallest path needed to produce non-empty trace evidence, and keep
+  prompts, private excerpts, raw response bodies, owner IDs, trace IDs, tokens,
+  and provider secrets out of committed docs. Wake ARGUS for hostile privacy
+  review when evidence or a fix is ready; wake MIMIR instead if the only blocker
+  is an external/manual action.
 
 ## Near-term rule
 
