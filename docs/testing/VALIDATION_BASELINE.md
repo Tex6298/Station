@@ -4455,6 +4455,34 @@ Privacy boundary: DAEDALUS did not commit prompts, completions, private
 excerpts, raw bodies, owner IDs, persona IDs, trace IDs, tokens, cookies, API
 keys, replay credentials, or raw corpus text.
 
+## STAGING-DEMO-MEMORY-01 DAEDALUS validation result
+
+Validated on 2026-06-12 after patching the staging blocker where
+`/memory/persona/:personaId` and `/memory/persona/:personaId/briefing` failed
+because Supabase could not embed `memory_items` with `memory_item_lifecycle`
+when more than one relationship existed.
+
+Implementation:
+
+- Memory list now selects memory rows without embedded lifecycle rows.
+- Memory briefing now selects memory rows without embedded lifecycle rows.
+- Both paths load lifecycle rows separately from `memory_item_lifecycle` using
+  explicit `owner_user_id`, `persona_id`, and `memory_item_id in (...)` filters.
+- Lifecycle rows are attached in memory before serialization.
+- Owner/persona scoping, lifecycle status semantics, active-memory filtering,
+  and response shapes are preserved.
+
+Commands run by DAEDALUS:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npx --yes pnpm@10.32.1 test:persona-context` | Pass | 3 tests passed; coverage now includes `/memory/persona/:personaId` lifecycle attachment as well as briefing/lifecycle behavior. |
+| `npx --yes pnpm@10.32.1 --filter @station/api typecheck` | Pass | API typecheck passed. |
+
+Privacy boundary: this patch changes query shape only. It does not commit
+prompts, completions, private excerpts, raw bodies, owner IDs, persona IDs,
+trace IDs, tokens, cookies, API keys, replay credentials, or raw corpus text.
+
 ARGUS review on 2026-06-12 accepts REPLAY-OPT-04 as code-tied sanitized replay
 evidence. The package confirms Railway served the deployment identity field and
 the replay-safe context-preview, archive-retrieval, and observability checks

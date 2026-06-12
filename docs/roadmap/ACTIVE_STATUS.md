@@ -1997,6 +1997,17 @@ when a PR lands, or when validation truth changes.
   out of scope and external; Redis, Cloudflare, background jobs, and full
   workspace export remain future lanes. ARIADNE wakes DAEDALUS for
   `STAGING-DEMO-MEMORY-01` and wakes MIMIR with the product verdict.
+- DAEDALUS STAGING-DEMO-MEMORY-01 patch is ready for ARGUS review,
+  2026-06-12: memory list and memory briefing no longer use Supabase embedded
+  `memory_item_lifecycle(*)` from `memory_items`, which was ambiguous on
+  staging because multiple relationships exist. Both paths now load owner- and
+  persona-scoped `memory_items` first, then load lifecycle rows from
+  `memory_item_lifecycle` with an explicit owner/persona/ID-list query and
+  attach them in memory before serialization. Existing lifecycle status,
+  active-memory filtering, owner/persona scoping, and response shapes are
+  preserved. Focused tests now cover `/memory/persona/:personaId` lifecycle
+  attachment as well as the existing briefing/lifecycle checks. Validation
+  passed with `test:persona-context` and `@station/api typecheck`.
 
 ## Near-term rule
 

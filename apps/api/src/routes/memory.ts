@@ -8,6 +8,7 @@ import {
   buildPersonaMemoryBriefing,
   createOwnerMemoryBlock,
   ensureMemoryLifecycle,
+  loadMemoryLifecycleByItemIds,
   listOwnerMemoryBlocks,
   serializeMemoryLifecycle,
   serializeOwnerMemoryBlock,
@@ -252,21 +253,27 @@ memoryRouter.get("/persona/:personaId", async (req, res) => {
 
   const { data, error } = await sb
     .from("memory_items")
-    .select("id, persona_id, title, content, summary, source_type, relevance_weight, created_at, memory_item_lifecycle(*)")
+    .select("id, persona_id, title, content, summary, source_type, relevance_weight, created_at")
     .eq("persona_id", req.params.personaId)
     .eq("owner_user_id", userId)
     .order("created_at", { ascending: false });
 
   if (error) return res.status(500).json({ error: error.message });
+  let lifecycleByMemoryId;
+  try {
+    lifecycleByMemoryId = await loadMemoryLifecycleByItemIds({
+      memoryItemIds: (data ?? []).map((row) => row.id),
+      ownerUserId: userId,
+      personaId: req.params.personaId,
+    });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Failed to load memory lifecycle.";
+    return res.status(500).json({ error: message });
+  }
   return res.json({
     memory: (data ?? []).map((row: any) => ({
       ...row,
-      lifecycle: serializeMemoryLifecycle(
-        Array.isArray(row.memory_item_lifecycle)
-          ? row.memory_item_lifecycle[0] ?? null
-          : row.memory_item_lifecycle ?? null
-      ),
-      memory_item_lifecycle: undefined,
+      lifecycle: serializeMemoryLifecycle(lifecycleByMemoryId.get(row.id) ?? null),
     })),
   });
 });

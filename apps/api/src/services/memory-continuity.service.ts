@@ -171,7 +171,7 @@ export async function buildPersonaMemoryBriefing(personaId: string, ownerUserId:
     ensurePersonaMemoryCycleState(personaId, ownerUserId),
     (sb as any)
       .from("memory_items")
-      .select("id, persona_id, title, summary, content, source_type, relevance_weight, created_at, memory_item_lifecycle(*)")
+      .select("id, persona_id, title, summary, content, source_type, relevance_weight, created_at")
       .eq("persona_id", personaId)
       .eq("owner_user_id", ownerUserId)
       .order("created_at", { ascending: false })
@@ -186,11 +186,14 @@ export async function buildPersonaMemoryBriefing(personaId: string, ownerUserId:
   if (memoryResult.error) throw new Error(memoryResult.error.message);
   if (edgeResult.error) throw new Error(edgeResult.error.message);
 
+  const lifecycleByMemoryId = await loadMemoryLifecycleByItemIds({
+    memoryItemIds: (memoryResult.data ?? []).map((row: any) => row.id),
+    ownerUserId,
+    personaId,
+  });
   const memories = (memoryResult.data ?? []).map((row: any) => ({
     ...row,
-    lifecycle: Array.isArray(row.memory_item_lifecycle)
-      ? row.memory_item_lifecycle[0] ?? null
-      : row.memory_item_lifecycle ?? null,
+    lifecycle: lifecycleByMemoryId.get(row.id) ?? null,
   }));
 
   const activeMemories = memories.filter((row: any) => isMemoryLifecycleInjectable(row.lifecycle));
@@ -217,6 +220,25 @@ export async function buildPersonaMemoryBriefing(personaId: string, ownerUserId:
     trustCounts,
     edgeCounts,
   };
+}
+
+export async function loadMemoryLifecycleByItemIds(input: {
+  memoryItemIds: string[];
+  ownerUserId: string;
+  personaId: string;
+}) {
+  if (input.memoryItemIds.length === 0) return new Map<string, any>();
+
+  const sb = getSupabaseAdmin();
+  const { data, error } = await (sb as any)
+    .from("memory_item_lifecycle")
+    .select("*")
+    .eq("owner_user_id", input.ownerUserId)
+    .eq("persona_id", input.personaId)
+    .in("memory_item_id", input.memoryItemIds);
+
+  if (error) throw new Error(error.message);
+  return new Map((data ?? []).map((row: any) => [row.memory_item_id, row]));
 }
 
 export function serializeOwnerMemoryBlock(row: any) {

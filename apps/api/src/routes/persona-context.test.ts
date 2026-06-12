@@ -328,6 +328,7 @@ class InMemorySupabase {
 
 class QueryBuilder {
   private filters: Array<[string, unknown]> = [];
+  private inFilters: Array<[string, unknown[]]> = [];
   private orderSpec: { field: string; ascending: boolean } | null = null;
   private limitCount: number | null = null;
   private selectedColumns = "*";
@@ -343,6 +344,11 @@ class QueryBuilder {
 
   eq(field: string, value: unknown) {
     this.filters.push([field, value]);
+    return this;
+  }
+
+  in(field: string, values: unknown[]) {
+    this.inFilters.push([field, values]);
     return this;
   }
 
@@ -385,6 +391,9 @@ class QueryBuilder {
 
     for (const [field, value] of this.filters) {
       rows = rows.filter((row) => row[field] === value);
+    }
+    for (const [field, values] of this.inFilters) {
+      rows = rows.filter((row) => values.includes(row[field]));
     }
 
     if (this.orderSpec) {
@@ -561,6 +570,14 @@ test("persona runtime context is owner-only and orders canon ahead of memory", a
     assert.doesNotMatch(context.systemPrompt, /Other owner memory block must not leak/);
     assert.doesNotMatch(context.systemPrompt, /Other user private note must not leak/);
     assert.doesNotMatch(context.systemPrompt, /Other user canon must not leak/);
+
+    const memoryList = await requestJson(app, "GET", `/memory/persona/${PERSONA_ID}`, {
+      token: "owner-token",
+    });
+    assert.equal(memoryList.status, 200);
+    assert.equal(memoryList.body.memory.find((memory: Row) => memory.id === "memory-1").lifecycle.status, "active");
+    assert.equal(memoryList.body.memory.find((memory: Row) => memory.id === "memory-rejected").lifecycle.status, "rejected");
+    assert.doesNotMatch(JSON.stringify(memoryList.body), /Other user private note must not leak/);
   } finally {
     setSupabaseAdminForTests(null);
   }
