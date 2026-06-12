@@ -3955,6 +3955,36 @@ ARGUS review result:
 | `npx --yes pnpm@10.32.1 --filter @station/api build` | Pass | API and dependent package builds completed. |
 | Committed observability/replay leakage scan | Pass | Hits were placeholders, source code, or explicit test fixtures; no live replay secrets or raw evidence were committed. |
 
+## EXPORT-BUNDLE-01 ARGUS review result
+
+ARGUS reviewed DAEDALUS's owner-only export bundle readback on 2026-06-12.
+
+Review result:
+
+- Accepted as a narrow authenticated JSON/Markdown bundle readback.
+- `/exports/:id/bundle` uses the existing authenticated export router and
+  filters by `owner_user_id`.
+- Bundle readback is available only for completed packages; failed/incomplete
+  packages return `409`.
+- Bundle files are explicit readback objects (`README.md`, `manifest.json`,
+  `manifest.md`) with byte counts and SHA-256 hashes, not generated zip/PDF or
+  binary archival packages.
+- Persona and Developer Space bundle tests prove other-owner reads are blocked,
+  other-owner/private draft material does not leak, Developer Space API key
+  hashes stay excluded, and private linked drafts remain out of public document
+  refs.
+- Studio copy names the live per-persona JSON/Markdown bundle readback and keeps
+  full workspace bundle/export jobs framed as preview/future scope.
+
+| ARGUS command/probe | Result | Notes |
+| --- | --- | --- |
+| Export route/test/UI review | Pass | Owner scoping, completed-only gating, bundle content shape, and honest UI wording held under review. |
+| `npx --yes pnpm@10.32.1 test:exports` | Pass | 3 tests passed. |
+| `npx --yes pnpm@10.32.1 --filter @station/api build` | Pass | API and dependent package builds completed. |
+| `npx --yes pnpm@10.32.1 --filter @station/types build` | Pass | Export bundle types compiled. |
+| `npx --yes pnpm@10.32.1 --filter @station/web typecheck` | Pass | Web typecheck completed. |
+| `npx --yes pnpm@10.32.1 test:studio-ui` | Pass | 8 tests passed, including export trust copy. |
+
 ## Replay seed/helper lane ARGUS review result
 
 ARGUS reviewed DAEDALUS's populated replay route audit on 2026-06-11 and
@@ -4079,3 +4109,27 @@ Commands run by DAEDALUS:
 | `npx --yes pnpm@10.32.1 --filter @station/web typecheck` | Pass | Web TypeScript check completed. |
 | `npx --yes pnpm@10.32.1 --filter @station/web lint` | Pass with warnings | Known warning-only output: Developer Space manage hook dependency plus Space/Discover raw `<img>` warnings. |
 | `git diff --check -- apps/web/components/studio/studio-sidebar.tsx apps/web/lib/studio-navigation.ts apps/web/lib/studio-navigation.test.ts docs/roadmap/ACTIVE_STATUS.md docs/testing/VALIDATION_BASELINE.md` | Pass | CRLF normalization warnings only. |
+
+## EXPORT-BUNDLE-01 DAEDALUS validation result
+
+Validated on 2026-06-12 after adding owner-only JSON/Markdown export bundle
+readback. The implementation adds `GET /exports/:id/bundle` for completed
+packages, returning a portable JSON response with `README.md`, `manifest.json`,
+`manifest.md`, byte counts, SHA-256 hashes, existing package metadata, and an
+owner-only privacy note. Persona export status can open bundle readback, and
+`/studio/export` names the live per-persona bundle path while keeping global
+workspace bundles preview-only.
+
+No PDF, binary archive, background worker, retry UI, global workspace export,
+schema migration, or export ranking behavior was added.
+
+Commands run by DAEDALUS:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npx --yes pnpm@10.32.1 test:exports` | Pass | 3 tests passed, including owner-only persona/Developer Space bundle readback, other-owner blocks, failed-package bundle blocking, and API key/key-hash exclusion coverage. |
+| `npx --yes pnpm@10.32.1 --filter @station/api build` | Pass | API and dependent package builds completed. |
+| `npx --yes pnpm@10.32.1 --filter @station/types build` | Pass | Shared export bundle types compile. |
+| `npx --yes pnpm@10.32.1 --filter @station/web typecheck` | Pass | Web TypeScript check completed. |
+| `npx --yes pnpm@10.32.1 test:studio-ui` | Pass | 8 helper tests passed, including export trust and Studio navigation guards. |
+| `git diff --check -- docs/roadmap/ACTIVE_STATUS.md docs/testing/VALIDATION_BASELINE.md` | Pass | CRLF normalization warnings only. |
