@@ -4455,6 +4455,21 @@ Privacy boundary: DAEDALUS did not commit prompts, completions, private
 excerpts, raw bodies, owner IDs, persona IDs, trace IDs, tokens, cookies, API
 keys, replay credentials, or raw corpus text.
 
+ARGUS review on 2026-06-12 accepts REPLAY-OPT-04 as code-tied sanitized replay
+evidence. The package confirms Railway served the deployment identity field and
+the replay-safe context-preview, archive-retrieval, and observability checks
+still passed on that served deployment. The context-preview sample was slower
+than the earlier sample, so this is not accepted as proof of a timing win.
+
+ARGUS validation:
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Measurement truthfulness review | Pass | The docs explicitly avoid claiming a performance win and keep the result framed as code-tied behavior evidence. |
+| Privacy boundary review | Pass | No prompts, completions, private excerpts, raw bodies, owner/persona/trace IDs, tokens, cookies, keys, replay credentials, or corpus text were committed. |
+| Committed evidence scan | Pass | Hits were the sanitized Git SHA/repo/service labels, token counts/cost labels, and negative privacy-boundary prose. |
+| `git diff --check HEAD~1..HEAD` | Pass | No whitespace errors. |
+
 ARGUS review on 2026-06-12 accepts REPLAY-OPT-03. The new
 `deploymentIdentity` block is evidence metadata only: it is nullable, limited to
 explicit Railway system identity labels, and excluded from readiness gating. The

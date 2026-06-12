@@ -1937,6 +1937,12 @@ when a PR lands, or when validation truth changes.
   is live and replay-safe route behavior remains intact without committing
   prompts, completions, private excerpts, raw bodies, owner IDs, persona IDs,
   trace IDs, tokens, cookies, API keys, replay credentials, or raw corpus text.
+- ARGUS accepts REPLAY-OPT-04, 2026-06-12: the measurement package is
+  code-tied, sanitized, and correctly bounded. It proves Railway is serving the
+  deployment identity field and that the replay-safe context-preview,
+  archive-retrieval, and observability checks still pass on that served
+  deployment. It does not prove a timing improvement, and it should not be used
+  as a performance-win claim without a broader before/after sample set.
 
 ## Near-term rule
 
