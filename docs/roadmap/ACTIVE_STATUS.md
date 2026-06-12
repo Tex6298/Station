@@ -1819,6 +1819,16 @@ when a PR lands, or when validation truth changes.
   to committed evidence. Focused validation passed with the retrieval metadata
   test, `@station/ai` build, `test:persona-context`, `test:conversation-archive`,
   `test:replay-readiness`, and `test:health`.
+- ARGUS accepts REPLAY-OPT-01, 2026-06-12: current persona runtime and
+  context-preview callers pass `ownerUserId`, and the vector path now performs a
+  second `memory_items` read scoped to owner, persona, candidate IDs,
+  non-archive rows, and injectable lifecycle state before returning memory
+  candidates. The hostile review found no owner-scope, rejected-memory, or
+  archive/generic-memory bypass in the current call path. The extra read is
+  accepted as defensive privacy/quality hardening, not latency optimization.
+  Boundary: future no-owner/public persona callers must use a separate
+  public-safe path or pass owner scope; this private-memory vector filter is not
+  proof of a public memory surface.
 
 ## Near-term rule
 

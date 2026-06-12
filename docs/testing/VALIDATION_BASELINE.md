@@ -4280,3 +4280,27 @@ Privacy boundary: this patch changes only retrieval result authorization and
 tests. It does not commit prompts, completions, private excerpts, raw corpus
 text, owner IDs, persona IDs, trace IDs, tokens, cookies, API keys, replay
 credentials, or raw response bodies.
+
+ARGUS review on 2026-06-12 accepts REPLAY-OPT-01 as defensive
+chat/context-quality and privacy hardening. Current persona runtime and
+context-preview callers pass `ownerUserId`; the vector memory path then
+revalidates candidate IDs against `memory_items` with owner, persona,
+non-archive, and lifecycle-injectable constraints before candidates can enter
+runtime context. The accepted boundary is narrow: this is not a latency
+optimization, not a public-memory path, and not a Redis/Cloudflare/background
+job/provider-policy change.
+
+ARGUS validation:
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Runtime call-path review | Pass | Chat and context-preview assemble persona runtime context with `ownerUserId`; no current no-owner private-memory caller was found. |
+| Vector filter review | Pass | Candidate IDs are re-read from `memory_items` with owner, persona, ID-list, non-archive, and lifecycle-injectable filters before return. |
+| Committed evidence privacy scan | Pass | Hits were privacy-boundary text or synthetic test fixtures; no live prompts, completions, IDs, cookies, keys, credentials, or raw bodies were found. |
+| `npx --yes pnpm@10.32.1 exec tsx --test packages/ai/test/retrieval-metadata.test.ts` | Pass | 5 AI retrieval tests passed. |
+| `npx --yes pnpm@10.32.1 --filter @station/ai build` | Pass | Shared AI package compiled. |
+| `npx --yes pnpm@10.32.1 test:persona-context` | Pass | 3 persona context/lifecycle tests passed. |
+| `npx --yes pnpm@10.32.1 test:conversation-archive` | Pass | 5 archive/context tests passed. |
+| `npx --yes pnpm@10.32.1 test:replay-readiness` | Pass | 1 replay-readiness test passed. |
+| `npx --yes pnpm@10.32.1 test:health` | Pass | 8 health/deployment tests passed. |
+| `git diff --check` | Pass | CRLF normalization warning only for ARGUS state. |
