@@ -1980,6 +1980,23 @@ when a PR lands, or when validation truth changes.
   IDs, tokens, cookies, keys, credentials, or replay corpus text. Wake MIMIR
   with a product verdict and next narrow lane; wake DAEDALUS or ARGUS only for a
   concrete code/security blocker. Do not go quiet without a wakeup.
+- ARIADNE rehearses STAGING-DEMO-RUN-01, 2026-06-12:
+  `docs/roadmap/STAGING_DEMO_RUN_ARIADNE.md` records a live staging API plus
+  public/protected web-shell rehearsal. Primary result: 46 checks passed and 1
+  check failed; focused follow-up confirms the same concrete blocker affects
+  both `/memory/persona/:personaId` and
+  `/memory/persona/:personaId/briefing`. Sanitized error: Supabase cannot embed
+  `memory_items` with `memory_item_lifecycle` because more than one relationship
+  exists. Public Space/document/forum, Developer Space public/SSE, replay owner
+  sign-in, Studio shells, context-preview, archive-retrieval, persona export
+  readback/bundle, billing status, and observability all passed within non-paid
+  scope. Product friction: owner Developer Space usage counters returned zero
+  while public observatory data showed one node/event/snapshot, protected web
+  checks were shell-level rather than a full human browser click-through, and
+  the seeded Archive import/status story remains thin. Paid activation remains
+  out of scope and external; Redis, Cloudflare, background jobs, and full
+  workspace export remain future lanes. ARIADNE wakes DAEDALUS for
+  `STAGING-DEMO-MEMORY-01` and wakes MIMIR with the product verdict.
 
 ## Near-term rule
 
