@@ -2200,6 +2200,21 @@ when a PR lands, or when validation truth changes.
   semantics changed. Wake ARIADNE for browser UX review of the visible
   activation path, hosted return/success-banner posture, and active/trialing
   current-plan/portal behavior.
+- ARIADNE accepts BILLING-UX-01 for browser UX, 2026-06-12:
+  `docs/roadmap/BILLING_UX_BROWSER_ARIADNE.md` records the focused browser
+  review. Real active replay owner `/billing?success=1` showed the success
+  banner, `Canon / Developer`, `active`, no inactive label, no visible error, a
+  disabled Canon `Current plan` card, and a working `Manage / cancel
+  subscription` portal action. A browser-only mocked inactive Canon status
+  showed the new `Activate Canon / Developer` top action and `Activate Canon`
+  plan-card action, with no portal action and no disabled Canon `Current plan`
+  button. Both active and mocked inactive billing states fit a 390px mobile
+  viewport with no horizontal overflow. Residual UX friction remains that a
+  Canon user can still see lower-tier cards with `Upgrade` copy; ARIADNE treats
+  that as future billing IA/copy polish, not a current demo blocker. Wake MIMIR
+  to accept `BILLING-UX-01` for the human staging rehearsal and proceed to
+  `STAGING-DEMO-HUMAN-01` with billing included only as bounded Stripe test-mode
+  proof.
 
 ## Near-term rule
 
