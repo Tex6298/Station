@@ -2090,6 +2090,17 @@ when a PR lands, or when validation truth changes.
   STAGING-DEMO-BROWSER-02 passes. Recommended next lane is a human demo
   narrative rehearsal, not backend infrastructure expansion.
 
+- MIMIR opens STAGING-DEMO-NARRATIVE-01, 2026-06-12: ARIADNE should turn the
+  accepted non-paid staging route into a human demo run-of-show. Include the
+  opening claim, route order, user-facing story beats, transition language,
+  safe evidence to show, and claims to avoid. Paid activation remains excluded
+  unless Marty completes the external Stripe Checkout/event step. Do not claim
+  a performance win, active paid subscription, full workspace export, Redis or
+  Cloudflare runtime dependency, background-job infrastructure, or production
+  readiness beyond the accepted staging/demo scope. Wake MIMIR with the
+  narrative verdict and next narrow lane; wake DAEDALUS or ARGUS only for a
+  concrete code/security blocker. Do not go quiet without a wakeup.
+
 ## Near-term rule
 
 Do the boring foundation work before the attractive surface work:
