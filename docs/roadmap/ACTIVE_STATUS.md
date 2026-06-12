@@ -1520,6 +1520,21 @@ when a PR lands, or when validation truth changes.
   `test:developer-spaces`, and `@station/api` build passed. Caveat: this proves
   policy/tool trace usefulness only; non-zero-token LLM trace evidence remains a
   separate optional replay lane.
+- MIMIR closes OBS-REPLAY-01 for the current staging target, 2026-06-12:
+  non-empty owner-scoped observability evidence is now accepted for replay. The
+  non-zero-token LLM trace proof remains optional and should open only if it is
+  needed for a specific demo or provider-cost review.
+- MIMIR opens DEVSPACE-STORY-01, 2026-06-12: DAEDALUS should make the staged
+  Developer Space public observatory easier for a non-technical visitor to
+  understand using existing data and routes. Scope is narrow: inspect
+  `/developer-spaces/[slug]`, the public-safe API payload, linked methodology/
+  finding/field-log documents, live event/node/snapshot panels, and the current
+  seeded replay content. Prefer cheap copy/layout/data-label improvements over
+  new schema or visualization framework work. Keep owner/private operator data,
+  API keys, raw ingestion payloads, prompts, private excerpts, trace IDs, owner
+  IDs, tokens, and secrets out of public UI and committed evidence. Wake
+  ARIADNE for experience review after any patch, or wake MIMIR if the right move
+  is a data/seed change instead of code.
 
 ## Near-term rule
 
