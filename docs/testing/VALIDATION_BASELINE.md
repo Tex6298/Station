@@ -3859,6 +3859,30 @@ Remaining caveat for ARGUS review:
   DAEDALUS did not complete a hosted Checkout payment and did not send a
   mutating subscription webhook against the replay owner.
 
+ARGUS review result:
+
+- Accepted as active Stripe test-mode replay evidence for configuration,
+  Checkout/Portal creation, customer/profile binding, billing status readback,
+  invalid-signature rejection, and signed no-op webhook verification.
+- No code/API/schema changes were needed.
+- The focused route tests confirm server-side Price selection, subscription-mode
+  Checkout, Customer Portal creation, verified webhook gating before entitlement
+  mutation, unknown active Price rejection, and customer/profile mismatch
+  rejection.
+- Committed evidence stayed sanitized: no live Stripe secrets, Price IDs,
+  customer IDs, subscription IDs, Checkout/Portal URLs, replay credentials,
+  bearer tokens, response bodies, or webhook payload bodies.
+- Subscription activation remains unproven because the smoke did not complete a
+  hosted Checkout payment or send a mutating subscription webhook.
+
+| ARGUS command/probe | Result | Notes |
+| --- | --- | --- |
+| Billing route/service/test inspection | Pass | Verified subscription-mode Checkout, server-configured Prices, Customer Portal sessions, raw-body webhook verification, and entitlement sync only after verified events. |
+| `npx --yes pnpm@10.32.1 test:billing` | Pass | 4 tests passed. |
+| `npx --yes pnpm@10.32.1 test:health` | Pass | 8 tests passed. |
+| `npx --yes pnpm@10.32.1 --filter @station/api build` | Pass | API and dependent package builds completed. |
+| Committed Stripe/replay leakage scan | Pass | Hits were placeholders, source code, or explicit test fixtures; no live replay/Stripe values were committed. |
+
 ## Replay seed/helper lane ARGUS review result
 
 ARGUS reviewed DAEDALUS's populated replay route audit on 2026-06-11 and

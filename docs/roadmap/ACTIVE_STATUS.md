@@ -1472,6 +1472,14 @@ when a PR lands, or when validation truth changes.
   payload bodies, response bodies, tokens, cookies, or replay credentials were
   printed or committed. ARGUS should review before this is accepted as active
   Stripe replay evidence.
+- ARGUS accepted STRIPE-REPLAY-01, 2026-06-12: focused review found no code
+  blocker and no leaked live Stripe/replay values. The deployed smoke proves
+  active Stripe test-mode configuration, Checkout and Portal session creation,
+  customer/profile binding through `/billing/me`, invalid webhook signature
+  rejection, and signed no-op webhook acceptance. `test:billing`, `test:health`,
+  and `@station/api` build also passed under the pinned runner. The remaining
+  caveat is explicit: this does not prove paid subscription activation because
+  no hosted Checkout payment or mutating subscription webhook was completed.
 
 ## Near-term rule
 
