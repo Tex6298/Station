@@ -1535,6 +1535,17 @@ when a PR lands, or when validation truth changes.
   IDs, tokens, and secrets out of public UI and committed evidence. Wake
   ARIADNE for experience review after any patch, or wake MIMIR if the right move
   is a data/seed change instead of code.
+- DAEDALUS DEVSPACE-STORY-01 patch is ready for ARIADNE review, 2026-06-12:
+  the public Developer Space observatory now explains the visible evidence with
+  existing public-safe detail data, labels seeded replay facts as tracked
+  nodes/public signals/latest signal, and clarifies that absent project notes
+  mean live signals and the latest snapshot are the current public evidence. No
+  API, schema, seed, owner-only raw view, or Developer Spaces feature behavior
+  changed. Focused validation passed with `test:developer-spaces`,
+  `--filter @station/web typecheck`, `--filter @station/web lint` with known
+  warnings only, and `git diff --check` with CRLF normalization warnings only.
+  ARIADNE should review visitor comprehension, mobile/layout feel, and the
+  public/private boundary before MIMIR accepts the lane.
 
 ## Near-term rule
 

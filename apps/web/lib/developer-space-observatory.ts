@@ -7,6 +7,10 @@ import type {
   DeveloperSpaceVisualisationType,
 } from "@station/types/developer-space";
 
+function countLabel(count: number, singular: string, plural = `${singular}s`) {
+  return `${count.toLocaleString()} ${count === 1 ? singular : plural}`;
+}
+
 export function formatDate(value?: string | null) {
   if (!value) return "Never";
   return new Intl.DateTimeFormat("en-GB", {
@@ -75,6 +79,25 @@ export function visualisationLabel(type: DeveloperSpaceVisualisationType) {
 
 export function shouldShowRawDeveloperSpaceData(access: DeveloperSpaceDetail["access"]) {
   return access === "owner";
+}
+
+export function developerSpaceStorySummary(detail: Pick<DeveloperSpaceDetail, "nodes" | "events" | "latestSnapshot" | "linkedDocuments">) {
+  const pieces = [
+    countLabel(detail.nodes.length, "tracked node"),
+    countLabel(detail.events.length, "public signal"),
+  ];
+  if (detail.latestSnapshot) pieces.push("a current snapshot");
+  if (detail.linkedDocuments.length > 0) {
+    pieces.push(countLabel(detail.linkedDocuments.length, "public note"));
+  }
+
+  return `This observatory is currently showing ${pieces.join(", ")}.`;
+}
+
+export function developerSpaceSignalStatus(detail: Pick<DeveloperSpaceDetail, "nodes" | "events" | "latestSnapshot">) {
+  if (detail.events.length > 0) return "Live signals are arriving.";
+  if (detail.nodes.length > 0 || detail.latestSnapshot) return "Project state is visible; event signals have not arrived yet.";
+  return "The public observatory is ready, but no project signals have arrived yet.";
 }
 
 const DEFAULT_WIDGETS: DeveloperSpaceWidgetConfig[] = [

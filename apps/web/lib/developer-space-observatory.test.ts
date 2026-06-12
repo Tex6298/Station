@@ -1,6 +1,8 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import {
+  developerSpaceSignalStatus,
+  developerSpaceStorySummary,
   formatValue,
   moveDeveloperSpaceWidget,
   normaliseDeveloperSpaceWidgets,
@@ -11,6 +13,36 @@ import {
   visualisationLabel,
 } from "./developer-space-observatory";
 import { normaliseDeveloperSpaceVisualConfig } from "./developer-space-visual-config";
+
+test("observatory story helpers explain current public evidence", () => {
+  const detail = {
+    nodes: [{ id: "node-1" }],
+    events: [{ id: "event-1" }],
+    latestSnapshot: { id: "snapshot-1" },
+    linkedDocuments: [{ id: "doc-link-1" }],
+  } as unknown as Parameters<typeof developerSpaceStorySummary>[0];
+
+  assert.equal(
+    developerSpaceStorySummary(detail),
+    "This observatory is currently showing 1 tracked node, 1 public signal, a current snapshot, 1 public note."
+  );
+  assert.equal(developerSpaceSignalStatus(detail), "Live signals are arriving.");
+});
+
+test("observatory story helpers keep empty public spaces understandable", () => {
+  const detail = {
+    nodes: [],
+    events: [],
+    latestSnapshot: null,
+    linkedDocuments: [],
+  } as unknown as Parameters<typeof developerSpaceStorySummary>[0];
+
+  assert.equal(
+    developerSpaceStorySummary(detail),
+    "This observatory is currently showing 0 tracked nodes, 0 public signals."
+  );
+  assert.equal(developerSpaceSignalStatus(detail), "The public observatory is ready, but no project signals have arrived yet.");
+});
 
 test("observatory helpers keep visitor data readable and non-raw", () => {
   const entries = publicEntries({

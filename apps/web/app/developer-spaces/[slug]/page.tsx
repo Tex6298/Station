@@ -6,6 +6,8 @@ import { useParams } from "next/navigation";
 import { apiGet, apiUrl } from "@/lib/api-client";
 import { getSession } from "@/lib/auth";
 import {
+  developerSpaceSignalStatus,
+  developerSpaceStorySummary,
   formatDate,
   formatValue,
   humaniseKey,
@@ -48,6 +50,20 @@ function EmptyVisualisation() {
         <strong style={{ color: "#f8fafc" }}>Waiting for first live signal</strong>
         <p style={{ margin: "0.4rem 0 0" }}>The observatory will light up when the project runtime sends node, event, or snapshot data.</p>
       </div>
+    </div>
+  );
+}
+
+function ObservatoryStory({ detail }: { detail: DeveloperSpaceDetail }) {
+  return (
+    <div className="card" style={{ display: "grid", gap: "0.65rem", background: "rgba(15, 23, 42, 0.72)" }}>
+      <div className="section-label">What is visible</div>
+      <p style={{ margin: 0, color: "#dbeafe", lineHeight: 1.65, fontSize: "0.92rem" }}>
+        {developerSpaceStorySummary(detail)}
+      </p>
+      <p style={{ margin: 0, color: "#94a3b8", lineHeight: 1.6, fontSize: "0.86rem" }}>
+        {developerSpaceSignalStatus(detail)}
+      </p>
     </div>
   );
 }
@@ -442,14 +458,17 @@ export default function DeveloperSpacePublicPage() {
           </div>
           {detail.access === "owner" ? <Link className="button" href={`/developer-spaces/${detail.space.slug}/manage`} style={{ height: "fit-content" }}>Manage</Link> : null}
         </div>
+        <div style={{ marginTop: "1rem", maxWidth: 640 }}>
+          <ObservatoryStory detail={detail} />
+        </div>
       </section>
 
       <section className="metric-grid">
         {[
-          ["Nodes", detail.nodes.length],
-          ["Events", detail.events.length],
-          ["Latest event", latestEvent ? formatDate(latestEvent.occurredAt) : "None"],
-          ["Most active", mostActiveNode ? mostActiveNode.nodeName : "None"],
+          ["Tracked nodes", detail.nodes.length],
+          ["Public signals", detail.events.length],
+          ["Latest signal", latestEvent ? formatDate(latestEvent.occurredAt) : "None"],
+          ["Most active node", mostActiveNode ? mostActiveNode.nodeName : "None"],
         ].map(([label, value]) => (
           <div key={String(label)} className="card metric-card">
             <div className="section-label">{label}</div>
@@ -501,9 +520,19 @@ function renderSideWidget(
     return (
       <div key={widget.id} className="card">
         <h2 style={{ margin: "0 0 0.5rem", fontSize: "1rem" }}>{widget.title}</h2>
-        <p style={{ margin: 0, color: "#94a3b8", lineHeight: 1.65, fontSize: "0.88rem" }}>
-          This is the public layer of a running project. Nodes are entities or systems being tracked. Events are live signals from the runtime. Snapshots are curated state summaries for the archive.
-        </p>
+        <div style={{ display: "grid", gap: "0.65rem", color: "#94a3b8", lineHeight: 1.65, fontSize: "0.88rem" }}>
+          <p style={{ margin: 0 }}>
+            {developerSpaceStorySummary(detail)} {developerSpaceSignalStatus(detail)}
+          </p>
+          <p style={{ margin: 0 }}>
+            Tracked nodes are the people, systems, or places this project is watching. Public signals are timestamped updates from the project runtime. Snapshots are curated state summaries for visitors.
+          </p>
+          <p style={{ margin: 0 }}>
+            {detail.linkedDocuments.length > 0
+              ? "Project notes add public methodology, findings, or field logs when the owner publishes them."
+              : "No public project notes are attached yet, so the live signals and latest snapshot are the current public evidence."}
+          </p>
+        </div>
       </div>
     );
   }

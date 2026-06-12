@@ -3989,3 +3989,28 @@ Commands/probes re-run by ARGUS:
 | `npx --yes pnpm@10.32.1 test:continuity` | Pass | 4 tests passed. |
 | Tier-gate source scan | Reviewed | Confirmed signup/permission tests encode visitor default and persona/Space/Developer Space creation gates. |
 | `git diff --check` | Pass | No whitespace errors; CRLF normalization warning for ARGUS state only. |
+
+## DEVSPACE-STORY-01 DAEDALUS validation result
+
+Validated on 2026-06-12 after the narrow public Developer Space storytelling
+patch. The change is frontend/helper-only: the observatory now derives a short
+visitor-facing evidence summary from public-safe detail data, renames visible
+metrics to tracked nodes/public signals/latest signal/most active node, and
+clarifies the reading guide when no public project notes are attached. No API,
+schema, seed data, owner-only raw view, or Developer Spaces feature behavior was
+changed.
+
+Commands run by DAEDALUS:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npx --yes pnpm@10.32.1 test:developer-spaces` | Pass | 7 tests passed, including new observatory story helper coverage. |
+| `npx --yes pnpm@10.32.1 --filter @station/web typecheck` | Pass | Web TypeScript check completed. |
+| `npx --yes pnpm@10.32.1 --filter @station/web lint` | Pass with warnings | Known warning-only output: Developer Space manage hook dependency plus Space/Discover raw `<img>` warnings. |
+| `git diff --check` | Pass | CRLF normalization warnings only. |
+
+Sanitization note: the patch uses counts, labels, visibility, published-note
+presence, and snapshot/signal presence already exposed by the public-safe
+Developer Space detail route. No owner IDs, trace IDs, API keys, tokens,
+cookies, raw ingestion payloads, prompts, private excerpts, provider secrets, or
+raw corpus text were added to UI or committed evidence.
