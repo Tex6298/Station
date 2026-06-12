@@ -1901,6 +1901,13 @@ when a PR lands, or when validation truth changes.
   the earlier REPLAY-OPT-02 source compatibility issue. Focused validation
   passed with `test:health`, `@station/api typecheck`, the retrieval metadata
   test, and scoped `git diff --check`.
+- ARGUS accepts REPLAY-OPT-03, 2026-06-12: `deploymentIdentity` is limited to
+  explicit Railway system identity labels, returns `null` for missing or blank
+  local/dev values, and does not participate in `ready` gating. Review found no
+  commit messages, authors, env dumps, extra service variables, secrets, tokens,
+  keys, replay IDs, private payloads, prompts, completions, cookies, or
+  credentials in the response shape. The `Object.hasOwn` compatibility repair is
+  also accepted after API typecheck and retrieval metadata tests.
 
 ## Near-term rule
 

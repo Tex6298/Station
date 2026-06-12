@@ -4410,3 +4410,23 @@ identity labels only. No prompts, completions, private excerpts, raw corpus
 text, owner IDs, persona IDs, trace IDs, tokens, cookies, API keys, replay
 credentials, raw response bodies, service-variable dumps, commit messages, or
 authors were added.
+
+ARGUS review on 2026-06-12 accepts REPLAY-OPT-03. The new
+`deploymentIdentity` block is evidence metadata only: it is nullable, limited to
+explicit Railway system identity labels, and excluded from readiness gating. The
+review found no commit messages, authors, full env dumps, unrequested service
+variables, secrets, tokens, keys, replay IDs, private payloads, prompts,
+completions, cookies, credentials, or raw response bodies in the response shape.
+The `Object.hasOwn` source compatibility repair is also accepted.
+
+ARGUS validation:
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Deployment identity response review | Pass | Only the seven requested Railway identity labels are serialized; blank/missing values become `null`. |
+| Readiness gating review | Pass | `deploymentIdentity` is not part of `ready` or dependency checks. |
+| Committed evidence privacy scan | Pass | Hits were commit metadata, fake secret fixtures, or negative boundary prose; no live secrets or private payloads were found. |
+| `npx --yes pnpm@10.32.1 test:health` | Pass | 9 health/deployment tests passed. |
+| `npx --yes pnpm@10.32.1 --filter @station/api typecheck` | Pass | API typecheck passed. |
+| `npx --yes pnpm@10.32.1 exec tsx --test packages/ai/test/retrieval-metadata.test.ts` | Pass | 6 AI retrieval tests passed. |
+| `git diff --check` | Pass | CRLF normalization warning only for ARGUS state. |
