@@ -306,9 +306,10 @@ Immediate active task:
   accepted enough for staging replay.
 - `REPLAY-OPT-01` is accepted as defensive vector-memory quality/privacy
   hardening.
-- `REPLAY-OPT-02` is open for DAEDALUS: run measured live replay optimization
-  against the current Railway API, then patch only the slowest clear
-  existing-path chat/context/retrieval hotspot if the evidence points to one.
+- `REPLAY-OPT-02` is accepted as a shared query-embedding optimization with a
+  measurement caveat: current health output does not prove the served Git SHA.
+- `REPLAY-OPT-03` is open for DAEDALUS: add non-secret deployment identity to
+  `/health/deployment` so online timing claims can be tied to a served commit.
 - Carry Stripe paid subscription activation as the only active external demo
   blocker, and keep Redis/Cloudflare/background jobs as future lanes driven by
   replay evidence rather than assumptions.

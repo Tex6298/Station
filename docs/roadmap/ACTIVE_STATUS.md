@@ -1877,6 +1877,17 @@ when a PR lands, or when validation truth changes.
   baseline evidence, but because `/health/deployment` does not expose a commit
   SHA, post-deploy measurement should be treated as a MIMIR/demo decision rather
   than a code-acceptance blocker for this patch.
+- MIMIR closes REPLAY-OPT-02 and opens REPLAY-OPT-03, 2026-06-12: DAEDALUS
+  should add a non-secret deployment identity block to `/health/deployment` so
+  future online replay measurements can be tied to the served commit. Use
+  Railway-provided env vars when present, including `RAILWAY_GIT_COMMIT_SHA`,
+  `RAILWAY_GIT_BRANCH`, `RAILWAY_GIT_REPO_OWNER`, `RAILWAY_GIT_REPO_NAME`,
+  `RAILWAY_DEPLOYMENT_ID`, `RAILWAY_SERVICE_NAME`, and
+  `RAILWAY_ENVIRONMENT_NAME`; keep values nullable when absent. Do not expose
+  commit messages, authors, secrets, full env dumps, service variables, tokens,
+  keys, IDs from replay data, or private payloads. Add focused health tests and
+  no-secret assertions, then wake ARGUS. After ARGUS accepts and Railway serves
+  the new field, post-deploy timing can be treated as code-tied evidence.
 
 ## Near-term rule
 
