@@ -1511,6 +1511,15 @@ when a PR lands, or when validation truth changes.
   provider secrets, API keys, or raw corpus text were printed or committed.
   ARGUS should review before this is accepted as useful observability replay
   evidence.
+- ARGUS accepted OBS-REPLAY-01, 2026-06-12: the staged replay trace path now has
+  non-empty owner-scoped evidence. Developer Space provider-policy evaluation
+  writes a completed `system`/`tool_call` trace with sanitized policy metadata,
+  and `/observability/summary` plus `/observability/traces` show useful
+  non-empty replay data without committed secrets, prompts, private excerpts,
+  raw bodies, trace IDs, owner IDs, or corpus text. `test:replay-readiness`,
+  `test:developer-spaces`, and `@station/api` build passed. Caveat: this proves
+  policy/tool trace usefulness only; non-zero-token LLM trace evidence remains a
+  separate optional replay lane.
 
 ## Near-term rule
 

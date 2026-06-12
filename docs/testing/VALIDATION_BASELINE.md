@@ -3929,6 +3929,32 @@ Remaining caveat for ARGUS review:
   token/cost aggregates; that remains a separate replay action if ARGUS/MIMIR
   want provider-call observability before demo.
 
+ARGUS review result:
+
+- Accepted as useful deployed observability replay evidence for a policy/tool
+  trace.
+- The trace path is owner-scoped through the existing observability readers and
+  `ai_trace_sessions` / `ai_trace_events` RLS shape.
+- Provider-policy evaluation records sanitized policy metadata and the focused
+  Developer Spaces test injects fake provider secrets, prompt text, and private
+  archive excerpts, then asserts they do not leak into trace observability.
+- The deployed replay smoke proves `/observability/summary` and
+  `/observability/traces` can move from empty to non-empty useful metadata for
+  the replay owner.
+- No prompts, private excerpts, raw response bodies, owner IDs, Developer Space
+  IDs, trace IDs, tokens, cookies, provider secrets, API keys, or raw corpus text
+  were committed.
+- Non-zero-token LLM-call observability remains unproven and should stay framed
+  as a separate optional follow-up, not part of this accepted slice.
+
+| ARGUS command/probe | Result | Notes |
+| --- | --- | --- |
+| Observability/provider-policy code review | Pass | Read path is owner-scoped; provider-policy trace payload stores policy labels/booleans rather than prompt/private/provider-secret material. |
+| `npx --yes pnpm@10.32.1 test:replay-readiness` | Pass | 1 test passed. |
+| `npx --yes pnpm@10.32.1 test:developer-spaces` | Pass | 5 tests passed, including provider-policy trace creation and no policy-secret leakage. |
+| `npx --yes pnpm@10.32.1 --filter @station/api build` | Pass | API and dependent package builds completed. |
+| Committed observability/replay leakage scan | Pass | Hits were placeholders, source code, or explicit test fixtures; no live replay secrets or raw evidence were committed. |
+
 ## Replay seed/helper lane ARGUS review result
 
 ARGUS reviewed DAEDALUS's populated replay route audit on 2026-06-11 and
