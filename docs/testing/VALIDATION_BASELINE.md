@@ -3812,6 +3812,53 @@ ARGUS review result:
 | `npx --yes pnpm@10.32.1 test:billing` | Pass | 4 tests passed, including Checkout/portal config and webhook entitlement guardrails. |
 | `git diff --check` | Pass | No whitespace errors; Git reported expected CRLF normalization warnings for ARGUS state/docs. |
 
+## STRIPE-REPLAY-01 DAEDALUS evidence
+
+DAEDALUS ran a bounded Stripe test-mode replay smoke on 2026-06-12 after MIMIR
+opened STRIPE-REPLAY-01. The implementation inspection found no code blocker:
+the PR-17 billing routes already use subscription-mode Checkout Sessions,
+server-configured Price IDs, Customer Portal sessions, raw-body signed webhook
+verification, and profile entitlement sync only after verified webhook events.
+
+Sanitization rules:
+
+- `.env` was inspected by key/shape only. Values were not printed.
+- Deployed probes printed only route names, HTTP statuses, timings, booleans,
+  hosts, tier/status labels, and limit-key names.
+- Output omitted Stripe secret values, Price IDs, customer IDs, subscription
+  IDs, owner IDs, checkout/portal URLs, webhook payload bodies, response bodies,
+  tokens, cookies, and replay credentials.
+
+Local focused validation:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npx --yes pnpm@10.32.1 test:billing` | Pass | 4 tests passed: Checkout/portal creation, signed webhook gating, unknown active Price rejection, and customer/profile mismatch rejection. |
+| `npx --yes pnpm@10.32.1 test:health` | Pass | 8 deployment-health tests passed. |
+| `npx --yes pnpm@10.32.1 --filter @station/api build` | Pass | API and dependent package builds completed. |
+
+Sanitized deployed replay smoke:
+
+| Probe | Route | Result | Notes |
+| --- | --- | --- | --- |
+| Deployment health | `/health/deployment` | Pass | HTTP 200, 2138ms, `ready:true`, Stripe billing true, Stripe prices true. |
+| Replay owner sign-in | `/auth/signin` | Pass | HTTP 200, 1380ms; token captured in memory only. |
+| Billing status before | `/billing/me` | Pass | HTTP 200, 900ms; tier `canon`, subscription `inactive`, no subscription present, no customer present, limit keys captured. |
+| Checkout session creation | `/billing/checkout` | Pass | HTTP 200, 2409ms; hosted Checkout URL present, host `checkout.stripe.com`; full URL not printed. |
+| Billing status after Checkout create | `/billing/me` | Pass | HTTP 200, 834ms; tier `canon`, subscription `inactive`, no subscription present, customer present. |
+| Customer Portal session creation | `/billing/portal` | Pass | HTTP 200, 1002ms; hosted portal URL present, host `billing.stripe.com`; full URL not printed. |
+| Webhook invalid signature | `/billing/webhook` | Pass | HTTP 400, 277ms; rejected before entitlement mutation. |
+| Webhook signed no-op event | `/billing/webhook` | Pass | HTTP 200, 276ms; signed probe accepted and returned the no-op event type. |
+| Billing status after webhook probes | `/billing/me` | Pass | HTTP 200, 807ms; tier `canon`, subscription `inactive`, no subscription present, customer present. |
+
+Remaining caveat for ARGUS review:
+
+- This proves active test-mode Checkout/Portal creation, customer/profile
+  binding, billing status readback, invalid-signature rejection, and signed
+  webhook verification. It does not prove paid subscription activation because
+  DAEDALUS did not complete a hosted Checkout payment and did not send a
+  mutating subscription webhook against the replay owner.
+
 ## Replay seed/helper lane ARGUS review result
 
 ARGUS reviewed DAEDALUS's populated replay route audit on 2026-06-11 and

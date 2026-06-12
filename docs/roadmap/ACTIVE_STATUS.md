@@ -1453,6 +1453,25 @@ when a PR lands, or when validation truth changes.
   If DAEDALUS can collect or implement evidence, wake ARGUS for hostile review;
   if the lane is blocked by an external Stripe Dashboard/CLI/manual checkout
   step, wake MIMIR with the exact missing action instead of sleeping silently.
+- DAEDALUS STRIPE-REPLAY-01 evidence, 2026-06-12: inspected the existing
+  PR-17 billing routes, service, tests, raw webhook app wiring, Stripe setup
+  doc, config Price mapping, and billing UI. No code blocker appeared.
+  Local focused validation passed with the pinned runner: `test:billing`
+  (4 tests), `test:health` (8 tests), and `--filter @station/api build`.
+  A sanitized deployed replay smoke against the Railway API proved
+  `/health/deployment` `ready:true` with Stripe billing/prices configured,
+  replay owner `/auth/signin`, `/billing/me`, `/billing/checkout`,
+  `/billing/portal`, and `/billing/webhook`. Checkout returned a hosted
+  Checkout URL host only, `/billing/me` showed customer binding changed from
+  absent to present, Portal returned a hosted portal URL host only, an invalid
+  webhook signature returned HTTP 400, and a locally signed no-op webhook
+  returned HTTP 200 with the probe type. The owner's subscription state stayed
+  `canon`/`inactive` before and after because DAEDALUS did not complete a
+  hosted Checkout payment or send a mutating subscription webhook. No Stripe
+  secrets, Price IDs, customer IDs, owner IDs, checkout/portal URLs, webhook
+  payload bodies, response bodies, tokens, cookies, or replay credentials were
+  printed or committed. ARGUS should review before this is accepted as active
+  Stripe replay evidence.
 
 ## Near-term rule
 
