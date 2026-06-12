@@ -48,3 +48,24 @@ export interface DeveloperSpaceExportManifest {
   linkedPublicDocumentRefs: Array<Record<string, unknown>>;
   trust: Record<string, unknown>;
 }
+
+export interface ArchiveExportBundleFile {
+  path: string;
+  mediaType: string;
+  bytes: number;
+  sha256: string;
+  content: string;
+}
+
+export interface ArchiveExportBundle {
+  schema: 'station.export.bundle.v1';
+  generatedAt: string;
+  package: ArchiveExportPackage;
+  privacy: Record<string, unknown>;
+  integrity: {
+    algorithm: 'sha256';
+    fileCount: number;
+    files: Record<string, string>;
+  };
+  files: ArchiveExportBundleFile[];
+}

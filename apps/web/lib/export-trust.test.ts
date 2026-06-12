@@ -20,7 +20,7 @@ test("export trust helpers keep completed manifest readback explicit", () => {
   assert.equal(exportPackageStatusLabel("completed"), "Completed");
   assert.equal(exportPackageFormatLabel("json_markdown"), "JSON / Markdown");
   assert.match(copy.body, /manifest is complete/);
-  assert.match(copy.nextAction, /manifest readback/);
+  assert.match(copy.nextAction, /portable bundle readback/);
 });
 
 test("export trust helpers show failed exports without implying data loss", () => {

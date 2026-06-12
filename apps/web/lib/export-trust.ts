@@ -55,7 +55,7 @@ export function exportPackageTrustCopy(exportPackage: ArchiveExportPackageLike) 
   if (exportPackage.status === "completed") {
     return {
       body: "This owner-only manifest is complete and preserves the persona archive state that Station could include.",
-      nextAction: "Use manifest readback to inspect what was preserved before carrying it elsewhere.",
+      nextAction: "Use manifest or portable bundle readback to inspect what was preserved before carrying it elsewhere.",
     };
   }
 

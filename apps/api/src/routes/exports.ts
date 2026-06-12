@@ -1,4 +1,5 @@
 import { Router } from "express";
+import { createHash } from "node:crypto";
 import { requireAuth } from "../middleware/require-auth";
 import { getSupabaseAdmin } from "../lib/supabase";
 import {
@@ -721,6 +722,63 @@ function buildDeveloperSpaceManifestMarkdown(manifest: any) {
   ].join("\n");
 }
 
+function sha256(value: string) {
+  return createHash("sha256").update(value, "utf8").digest("hex");
+}
+
+function bundleFile(path: string, mediaType: string, content: string) {
+  return {
+    path,
+    mediaType,
+    bytes: Buffer.byteLength(content, "utf8"),
+    sha256: sha256(content),
+    content,
+  };
+}
+
+function buildExportBundle(row: any) {
+  const manifest = row.manifest_json ?? {};
+  const manifestJson = JSON.stringify(manifest, null, 2);
+  const manifestMarkdown = row.manifest_markdown ?? "";
+  const readme = [
+    `# Station Export Bundle`,
+    "",
+    `Package: ${row.id}`,
+    `Kind: ${row.package_kind}`,
+    `Format: ${row.format}`,
+    `Status: ${row.status}`,
+    "",
+    "## Contents",
+    "- `manifest.json` is the canonical structured owner-only export manifest.",
+    "- `manifest.md` is the human-readable Markdown readback for the same package.",
+    "",
+    "## Privacy",
+    "This bundle is returned only to the package owner through the authenticated export route. Preserve it as private material unless you intentionally publish selected excerpts elsewhere.",
+    "",
+  ].join("\n");
+  const files = [
+    bundleFile("README.md", "text/markdown; charset=utf-8", readme),
+    bundleFile("manifest.json", "application/json; charset=utf-8", manifestJson),
+    bundleFile("manifest.md", "text/markdown; charset=utf-8", manifestMarkdown),
+  ];
+
+  return {
+    schema: "station.export.bundle.v1",
+    generatedAt: new Date().toISOString(),
+    package: exportRow(row),
+    privacy: {
+      ownerOnly: true,
+      note: "Portable JSON/Markdown bundle readback for the authenticated package owner.",
+    },
+    integrity: {
+      algorithm: "sha256",
+      fileCount: files.length,
+      files: Object.fromEntries(files.map((file) => [file.path, file.sha256])),
+    },
+    files,
+  };
+}
+
 async function createExportPackage(persona: any, ownerUserId: string) {
   const sb = getSupabaseAdmin();
   const requestedAt = new Date().toISOString();
@@ -924,4 +982,21 @@ exportsRouter.get("/:id", async (req, res) => {
     manifest: data.manifest_json,
     manifestMarkdown: data.manifest_markdown,
   });
+});
+
+exportsRouter.get("/:id/bundle", async (req, res) => {
+  const sb = getSupabaseAdmin();
+  const { data, error } = await sb
+    .from("export_packages")
+    .select("*")
+    .eq("id", req.params.id)
+    .eq("owner_user_id", req.user!.id)
+    .single();
+
+  if (error || !data) return res.status(404).json({ error: "Export package not found." });
+  if (data.status !== "completed") {
+    return res.status(409).json({ error: "Export bundle is available only after the package is completed." });
+  }
+
+  return res.json({ bundle: buildExportBundle(data) });
 });

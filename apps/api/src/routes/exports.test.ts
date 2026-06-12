@@ -986,10 +986,35 @@ test("owner can export persona archive while preserving provenance and privacy b
     assert.match(readBack.body.manifestMarkdown, /Publication States/);
     assert.match(readBack.body.manifestMarkdown, /Moderation Report References/);
 
+    const bundleReadBack = await requestJson(app, "GET", `/exports/${created.body.exportPackage.id}/bundle`, {
+      token: "owner-token",
+    });
+    assert.equal(bundleReadBack.status, 200);
+    assert.equal(bundleReadBack.body.bundle.schema, "station.export.bundle.v1");
+    assert.equal(bundleReadBack.body.bundle.package.id, created.body.exportPackage.id);
+    assert.equal(bundleReadBack.body.bundle.privacy.ownerOnly, true);
+    assert.equal(bundleReadBack.body.bundle.integrity.algorithm, "sha256");
+    assert.equal(bundleReadBack.body.bundle.integrity.fileCount, 3);
+    const personaBundleFiles = new Map<string, Row>(bundleReadBack.body.bundle.files.map((file: Row) => [file.path, file]));
+    assert.equal(personaBundleFiles.has("README.md"), true);
+    assert.equal(personaBundleFiles.has("manifest.json"), true);
+    assert.equal(personaBundleFiles.has("manifest.md"), true);
+    assert.match(personaBundleFiles.get("manifest.json")?.sha256, /^[a-f0-9]{64}$/);
+    assert.match(personaBundleFiles.get("manifest.json")?.content, /"schema": "station.persona.export.v1"/);
+    assert.match(personaBundleFiles.get("manifest.md")?.content, /Station Export: Harbor/);
+    const personaBundleText = JSON.stringify(bundleReadBack.body.bundle);
+    assert.doesNotMatch(personaBundleText, /Other owner memory must not leak/);
+    assert.doesNotMatch(personaBundleText, /Other owner transcript must not leak/);
+
     const blockedRead = await requestJson(app, "GET", `/exports/${created.body.exportPackage.id}`, {
       token: "other-token",
     });
     assert.equal(blockedRead.status, 404);
+
+    const blockedBundleRead = await requestJson(app, "GET", `/exports/${created.body.exportPackage.id}/bundle`, {
+      token: "other-token",
+    });
+    assert.equal(blockedBundleRead.status, 404);
 
     const blockedDeveloperSpaceExport = await requestJson(app, "POST", `/exports/developer-spaces/${DEVELOPER_SPACE_ID}`, {
       token: "other-token",
@@ -1039,6 +1064,20 @@ test("owner can export persona archive while preserving provenance and privacy b
     assert.match(developerSpaceReadBack.body.manifestMarkdown, /Station Developer Space Export: Animus Field/);
     assert.match(developerSpaceReadBack.body.manifestMarkdown, /Linked Public Documents/);
 
+    const developerSpaceBundle = await requestJson(app, "GET", `/exports/${developerSpaceExport.body.exportPackage.id}/bundle`, {
+      token: "owner-token",
+    });
+    assert.equal(developerSpaceBundle.status, 200);
+    assert.equal(developerSpaceBundle.body.bundle.package.packageKind, "developer_space_archive");
+    const developerBundleFiles = new Map<string, Row>(developerSpaceBundle.body.bundle.files.map((file: Row) => [file.path, file]));
+    assert.match(developerBundleFiles.get("manifest.json")?.content, /"schema": "station.developer_space.export.v1"/);
+    assert.match(developerBundleFiles.get("manifest.md")?.content, /Station Developer Space Export: Animus Field/);
+    const developerBundleText = JSON.stringify(developerSpaceBundle.body.bundle);
+    assert.match(developerBundleText, /owner-only diagnostic/);
+    assert.doesNotMatch(developerBundleText, /must-not-export/);
+    assert.doesNotMatch(developerBundleText, /other-secret/);
+    assert.doesNotMatch(developerBundleText, /Other secret/);
+
     const blockedDeveloperSpaceReadBack = await requestJson(app, "GET", `/exports/${developerSpaceExport.body.exportPackage.id}`, {
       token: "other-token",
     });
@@ -1081,6 +1120,11 @@ test("persona export source failures leave an owner-visible failed package", asy
       token: "other-token",
     });
     assert.equal(blocked.status, 404);
+
+    const failedBundle = await requestJson(app, "GET", `/exports/${packageRow.id}/bundle`, {
+      token: "owner-token",
+    });
+    assert.equal(failedBundle.status, 409);
   } finally {
     setSupabaseAdminForTests(null);
   }

@@ -15,9 +15,9 @@ const scopes = [
 const exportSurfaces = [
   {
     id: "persona-manifest",
-    name: "Persona manifest readback",
+    name: "Persona JSON/Markdown bundle",
     status: "Live",
-    detail: "Create and inspect owner-only JSON/Markdown manifests from a persona workspace.",
+    detail: "Create owner-only manifests from a persona workspace, then inspect the portable JSON/Markdown bundle readback.",
   },
   {
     id: "workspace-bundle",
@@ -49,7 +49,7 @@ export function ExportWorkspace() {
               Export workspace preview
             </h1>
             <p style={{ margin: 0, color: "#a9b0bd", fontSize: 15, lineHeight: 1.6, maxWidth: 720 }}>
-              Plan a future workspace-wide export without starting a job. Live export creation currently happens from each persona workspace through owner-only manifest readback.
+              Plan a future workspace-wide export without starting a job. Live export creation currently happens from each persona workspace through owner-only JSON/Markdown manifest and bundle readback.
             </p>
           </div>
           <a href="/studio" style={primaryButton}>Open personas</a>
@@ -92,9 +92,9 @@ export function ExportWorkspace() {
               <SectionTitle title="Current live path" />
               <div style={jobBox}>
                 <div>
-                  <div style={{ color: "#f8fafc", fontSize: 14, fontWeight: 800 }}>Per-persona manifests are live</div>
+                  <div style={{ color: "#f8fafc", fontSize: 14, fontWeight: 800 }}>Per-persona bundles are live</div>
                   <div style={{ color: "#8ea0b8", fontSize: 12, marginTop: 5 }}>
-                    Open a persona workspace to create a JSON/Markdown manifest and view its status/readback. This preview does not start a global export job.
+                    Open a persona workspace to create a JSON/Markdown manifest, inspect its portable bundle readback, and verify file hashes. This preview does not start a global export job.
                   </div>
                 </div>
                 <span style={statusPill}>Preview</span>

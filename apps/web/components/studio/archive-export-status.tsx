@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import type { ArchiveExportPackage } from "@station/types/export";
+import type { ArchiveExportBundle, ArchiveExportPackage } from "@station/types/export";
 import { apiGet, apiPost } from "@/lib/api-client";
 import {
   exportPackageFormatLabel,
@@ -34,6 +34,7 @@ export function ArchiveExportStatus({
 }) {
   const [creating, setCreating] = useState(false);
   const [manifest, setManifest] = useState<{ packageId: string; text: string } | null>(null);
+  const [bundle, setBundle] = useState<ArchiveExportBundle | null>(null);
   const [error, setError] = useState<string | null>(null);
   const summary = exportPackageTrustSummary(exportPackages);
 
@@ -47,6 +48,7 @@ export function ArchiveExportStatus({
         manifestMarkdown?: string | null;
       }>(`/exports/persona/${personaId}`, {}, token);
       onCreated(response.exportPackage);
+      setBundle(null);
       setManifest({
         packageId: response.exportPackage.id,
         text: response.manifestMarkdown || "Manifest readback is not available for this package yet.",
@@ -75,6 +77,17 @@ export function ArchiveExportStatus({
       });
     } catch (e) {
       setError(e instanceof Error ? e.message : "Could not load export manifest.");
+    }
+  }
+
+  async function loadBundle(packageId: string) {
+    if (!token) return;
+    setError(null);
+    try {
+      const response = await apiGet<{ bundle: ArchiveExportBundle }>(`/exports/${packageId}/bundle`, token);
+      setBundle(response.bundle);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Could not load export bundle.");
     }
   }
 
@@ -112,7 +125,9 @@ export function ArchiveExportStatus({
               key={exportPackage.id}
               exportPackage={exportPackage}
               manifestOpen={manifest?.packageId === exportPackage.id}
+              bundleOpen={bundle?.package.id === exportPackage.id}
               onLoadManifest={() => loadManifest(exportPackage.id)}
+              onLoadBundle={() => loadBundle(exportPackage.id)}
             />
           ))}
         </div>
@@ -124,6 +139,8 @@ export function ArchiveExportStatus({
           <pre>{manifest.text}</pre>
         </details>
       ) : null}
+
+      {bundle ? <ExportBundleReadback bundle={bundle} /> : null}
     </StudioPanel>
   );
 }
@@ -131,11 +148,15 @@ export function ArchiveExportStatus({
 function ExportPackageCard({
   exportPackage,
   manifestOpen,
+  bundleOpen,
   onLoadManifest,
+  onLoadBundle,
 }: {
   exportPackage: ArchiveExportPackage;
   manifestOpen: boolean;
+  bundleOpen: boolean;
   onLoadManifest: () => void;
+  onLoadBundle: () => void;
 }) {
   const copy = exportPackageTrustCopy(exportPackage);
   const canReadManifest = exportPackage.status === "completed";
@@ -162,11 +183,37 @@ function ExportPackageCard({
         {exportPackage.completedAt ? <span>Completed {formatDate(exportPackage.completedAt)}</span> : null}
       </div>
       {canReadManifest ? (
-        <button className="button" type="button" onClick={onLoadManifest} disabled={manifestOpen}>
-          {manifestOpen ? "Manifest open" : "View manifest"}
-        </button>
+        <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
+          <button className="button" type="button" onClick={onLoadManifest} disabled={manifestOpen}>
+            {manifestOpen ? "Manifest open" : "View manifest"}
+          </button>
+          <button className="button" type="button" onClick={onLoadBundle} disabled={bundleOpen}>
+            {bundleOpen ? "Bundle open" : "View portable bundle"}
+          </button>
+        </div>
       ) : null}
     </article>
+  );
+}
+
+function ExportBundleReadback({ bundle }: { bundle: ArchiveExportBundle }) {
+  const readme = bundle.files.find((file) => file.path === "README.md")?.content;
+
+  return (
+    <details className="studio-runtime-prompt archive-export-manifest" open>
+      <summary>Portable bundle readback</summary>
+      <div style={{ display: "grid", gap: "0.65rem", marginBottom: "0.8rem" }}>
+        {bundle.files.map((file) => (
+          <div key={file.path} style={{ display: "grid", gap: "0.2rem" }}>
+            <strong>{file.path}</strong>
+            <span style={{ color: "#8ea0b8", fontSize: "0.78rem" }}>
+              {file.mediaType} / {file.bytes.toLocaleString()} bytes / sha256 {file.sha256.slice(0, 12)}...
+            </span>
+          </div>
+        ))}
+      </div>
+      {readme ? <pre>{readme}</pre> : null}
+    </details>
   );
 }
 
