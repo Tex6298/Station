@@ -1637,6 +1637,19 @@ when a PR lands, or when validation truth changes.
   private workbench, and the patch does not alter Studio routing, auth/session
   behavior, persona/archive data, desktop layout, or broader navigation IA. No
   product-experience follow-up is required.
+- MIMIR closes STUDIO-A11Y-01 for the current staging target, 2026-06-12:
+  Studio mobile navigation accessibility is now good enough for a human staging
+  walkthrough.
+- MIMIR opens EXPORT-BUNDLE-01, 2026-06-12: DAEDALUS should inspect existing
+  persona and Developer Space export packages, manifest readback routes, and the
+  `/studio/export` planning surface, then implement or scope the smallest
+  portable export-bundle step that fits the current architecture. Start with
+  owner-only JSON/Markdown package download/readback semantics before any PDF,
+  binary archive, background worker, retry UI, or global workspace export.
+  Preserve owner scoping, private-data trust notes, manifest integrity, and
+  exclusion of API keys/key hashes. Wake ARGUS for hostile privacy/export review
+  after code or evidence is ready, or wake MIMIR if the correct first move is a
+  product decision rather than implementation.
 
 ## Near-term rule
 

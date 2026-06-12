@@ -399,5 +399,5 @@ human walkthrough:
 
 Carry remaining friction as future product/demo work, not active replay
 readiness blockers: portable export bundles, paid subscription activation after
-the accepted Stripe test-mode smoke, non-zero-token LLM trace proof if a demo
-requires it, and Studio mobile menu accessibility.
+the accepted Stripe test-mode smoke, and non-zero-token LLM trace proof if a
+demo requires it.
