@@ -1731,6 +1731,17 @@ when a PR lands, or when validation truth changes.
   corpus, or provide an already-created non-zero-token trace to review; then
   wake DAEDALUS to capture sanitized source/status/token/duration/cost labels
   or wake ARGUS if review evidence is already present.
+- MIMIR approves the LLM-TRACE-01 synthetic-turn proof, 2026-06-12: DAEDALUS may
+  create one tiny replay-owner conversation or integrity turn through existing
+  product routes, choosing whichever path is safest and smallest. Use synthetic
+  non-private content only. Do not change provider/product behavior, do not
+  create a new feature surface, and do not commit prompts, completions, private
+  excerpts, raw response bodies, owner IDs, trace IDs, tokens, cookies, API keys,
+  replay credentials, or raw corpus text. Evidence should be sanitized to route,
+  status, source, provider, model, token count, duration, cost labels, and trace
+  count deltas only. Wake ARGUS for hostile observability/privacy review after
+  evidence is ready, or wake MIMIR if the provider call fails or would require a
+  paid/model/config decision.
 
 ## Near-term rule
 
