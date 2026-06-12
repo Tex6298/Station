@@ -2137,6 +2137,25 @@ when a PR lands, or when validation truth changes.
   entitlement-security judgment, wake ARGUS to verify that entitlement changes
   occur only through the verified Stripe Checkout/webhook path. ARGUS should
   wake MIMIR with the closeout verdict. Do not go quiet without a wakeup.
+- ARIADNE completes STAGING-DEMO-STRIPE-01, 2026-06-12:
+  `docs/roadmap/STAGING_DEMO_STRIPE_ARIADNE.md` records the sanitized hosted
+  Stripe test-mode browser proof. Replay owner sign-in, deployment health,
+  Checkout session creation, hosted Checkout field readiness, API billing
+  readback, auth readback, and Billing page readback all passed without
+  committing Stripe secrets, Checkout URLs or paths, webhook bodies, customer
+  IDs, subscription IDs, owner IDs, persona IDs, tokens, cookies, credentials,
+  payment details, private excerpts, prompts, completions, or raw response
+  bodies. Before activation `/billing/me` showed tier `canon`, subscription
+  `inactive`, customer present, and no subscription present. After hosted
+  test-mode activation `/billing/me` showed tier `canon`, subscription
+  `active`, customer present, and subscription present; `/auth/me` still showed
+  tier `canon`; the Billing page showed `Canon / Developer` plus `active` with
+  no visible error. ARIADNE found two UX friction points for the human rehearsal:
+  same-tier Canon activation is not reachable through the visible Canon card
+  because the seeded replay owner is already tier `canon`, and headless Checkout
+  did not capture a clean success redirect before the active API readback.
+  Wake ARGUS to verify entitlement mutation through the verified Stripe
+  Checkout/webhook path, then have ARGUS wake MIMIR with the closeout verdict.
 
 ## Near-term rule
 

@@ -113,15 +113,18 @@ Export:
 - Safe claim: JSON/Markdown bundle readback with manifests is accepted.
 - Do not claim full workspace export, PDF export, binary archive export,
   background workers, or retry infrastructure.
-- Transition: "Entitlements are visible, but paid activation is not part of this
-  run."
+- Transition: "Entitlements are visible; paid activation is test-mode proof, not
+  a live-money claim."
 
 Billing:
 
-- Show plan/status only.
-- Say that active paid subscription activation is excluded unless the external
-  Stripe Checkout/event step is completed first.
-- Do not imply the inactive subscription is a bug in this demo.
+- Show plan/status only unless the run is explicitly using the accepted
+  `STAGING-DEMO-STRIPE-01` proof.
+- If using the Stripe proof, frame it as hosted Stripe test-mode activation for
+  the replay owner only.
+- Do not show Checkout URLs, Stripe IDs, customer IDs, subscription IDs, webhook
+  bodies, secrets, or payment details.
+- Do not imply live-money billing or production billing readiness.
 
 Observability:
 
@@ -147,8 +150,8 @@ Use these short transitions:
   grounding."
 - "Developer Spaces are observatories: visitors can see live state without
   getting owner controls."
-- "Billing is visible here, but active payment activation is deliberately out of
-  scope for this run."
+- "Billing is visible here; paid activation is bounded to Stripe test mode for
+  this staging run."
 
 Avoid corporate SaaS framing:
 
@@ -169,7 +172,8 @@ Safe:
 - lifecycle labels such as active/rejected;
 - Archive and export status;
 - export bundle file count;
-- billing tier/status;
+- billing tier/status and, if ARGUS accepts `STAGING-DEMO-STRIPE-01`, active
+  test-mode subscription presence;
 - observability trace/token/cost counts;
 - mobile no-overflow checks.
 
@@ -178,6 +182,9 @@ Do not show or capture:
 - private excerpts;
 - prompts or completions;
 - raw response bodies;
+- Checkout URLs or paths;
+- webhook payload bodies;
+- customer or subscription IDs;
 - owner/persona/export/trace/customer IDs;
 - tokens, cookies, keys, credentials;
 - replay corpus text;
@@ -189,7 +196,8 @@ Do not show or capture:
 Do not claim:
 
 - performance win from REPLAY-OPT-04;
-- active paid subscription;
+- live-money billing or production paid activation;
+- active subscription state outside the replay owner's accepted test-mode proof;
 - full workspace export;
 - PDF/binary archive export;
 - Redis runtime dependency;
@@ -202,18 +210,21 @@ Do not claim:
 Use the bounded version instead:
 
 - REPLAY-OPT-04 is code-tied and sanitized, not a performance win.
-- Paid activation requires the external Stripe test step.
+- Paid activation is bounded to the replay owner's hosted Stripe test-mode proof,
+  pending ARGUS entitlement review.
 - Export is owner-only JSON/Markdown readback for this slice.
 - Redis, Cloudflare, background jobs, and full workspace export are future lanes
   unless new evidence demands them.
-- This is a staging demo of the non-paid continuity path.
+- This is a staging demo of the continuity path with optional test-mode billing
+  proof.
 
 ## Contingencies
 
 If billing comes up:
 
-- Say: "Billing configuration and status are present. Active paid activation is
-  deliberately excluded until the external Stripe Checkout/event step is done."
+- Say: "Billing configuration and status are present. The replay owner has a
+  bounded Stripe test-mode activation proof; this is not live-money or
+  production billing readiness."
 
 If export comes up:
 
@@ -238,8 +249,8 @@ Purpose:
 - Run this script once with Marty as a human demo rehearsal.
 - Capture only user-facing friction, narrative gaps, missed transitions, and
   concrete blockers.
-- Keep paid activation out unless Marty completes the external Stripe step
-  before the run.
+- Include paid activation only if ARGUS accepts the `STAGING-DEMO-STRIPE-01`
+  entitlement proof before the run.
 
 Acceptance:
 
