@@ -80,7 +80,7 @@ function ContinueList({ personas }: { personas: PersonaSummary[] }) {
   const rows = personas.slice(0, 3);
 
   return (
-    <section style={panel}>
+    <section className="studio-dashboard-panel" style={panel}>
       <SectionTitle title="Continue Where You Left Off" action="New Chat" href="/studio/new" />
       {rows.length === 0 ? (
         <EmptyLine text="No conversations yet. Create a persona to begin." />
@@ -88,7 +88,7 @@ function ContinueList({ personas }: { personas: PersonaSummary[] }) {
         <div style={{ display: "grid", gap: 10 }}>
           {rows.map((persona, index) => (
             <Link key={persona.id} href={`/studio/personas/${persona.id}`} style={{ textDecoration: "none" }}>
-              <article style={listRow}>
+              <article className="studio-dashboard-row" style={listRow}>
                 <ColorDot index={index} />
                 <div style={{ minWidth: 0 }}>
                   <div style={{ color: "#f8fafc", fontSize: 14, fontWeight: 700 }}>{persona.name}</div>
@@ -119,7 +119,7 @@ function IntegrityList({ personas, integrityDue }: { personas: PersonaSummary[];
     }));
 
   return (
-    <section style={panel}>
+    <section className="studio-dashboard-panel" style={panel}>
       <SectionTitle title="Integrity Sessions Due" action="View All" href="/studio" />
       {rows.length === 0 ? (
         <EmptyLine text="Integrity checks appear after you create a persona." />
@@ -128,7 +128,7 @@ function IntegrityList({ personas, integrityDue }: { personas: PersonaSummary[];
           {rows.slice(0, 5).map((persona) => {
             const status = integrityStatus(persona.sessionStatus);
             return (
-              <article key={persona.id} style={listRow}>
+              <article key={persona.id} className="studio-dashboard-row" style={listRow}>
                 <StudioStatusBadge tone={status.tone}>{status.label}</StudioStatusBadge>
                 <div style={{ minWidth: 0 }}>
                   <div style={{ color: "#f8fafc", fontSize: 14, fontWeight: 700 }}>{persona.name}</div>
@@ -156,7 +156,7 @@ function UsageStats({ personas }: { personas: PersonaSummary[] }) {
   ];
 
   return (
-    <section style={panel}>
+    <section className="studio-dashboard-panel" style={panel}>
       <SectionTitle title="Usage Stats This Month" />
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(132px, 1fr))", gap: 10 }}>
         {stats.map(([label, value]) => (
@@ -172,11 +172,11 @@ function UsageStats({ personas }: { personas: PersonaSummary[] }) {
 
 function ArchiveActivity() {
   return (
-    <section style={panel}>
+    <section className="studio-dashboard-panel" style={panel}>
       <SectionTitle title="Recent Archive Activity" action="Global Archive" href="/studio/archive" />
       <div style={{ display: "grid", gap: 10 }}>
         {archiveEvents.map((event) => (
-          <article key={event.label} style={listRow}>
+          <article key={event.label} className="studio-dashboard-row" style={listRow}>
             <span style={iconBox}>{event.icon}</span>
             <div>
               <div style={{ color: "#f8fafc", fontSize: 13, fontWeight: 700 }}>{event.label}</div>
@@ -191,7 +191,7 @@ function ArchiveActivity() {
 
 function PersonaOverview({ personas }: { personas: PersonaSummary[] }) {
   return (
-    <aside style={panel}>
+    <aside className="studio-dashboard-panel" style={panel}>
       <SectionTitle title="Personas" action="Add" href="/studio/new" />
       {personas.length === 0 ? (
         <EmptyLine text="No personas yet." />
@@ -199,7 +199,7 @@ function PersonaOverview({ personas }: { personas: PersonaSummary[] }) {
         <div style={{ display: "grid", gap: 10 }}>
           {personas.map((persona, index) => (
             <Link key={persona.id} href={`/studio/personas/${persona.id}`} style={{ textDecoration: "none" }}>
-              <article style={{ ...listRow, alignItems: "flex-start" }}>
+              <article className="studio-dashboard-row" style={{ ...listRow, alignItems: "flex-start" }}>
                 <ColorDot index={index} />
                 <div style={{ minWidth: 0 }}>
                   <div style={{ color: "#f8fafc", fontSize: 14, fontWeight: 700 }}>{persona.name}</div>

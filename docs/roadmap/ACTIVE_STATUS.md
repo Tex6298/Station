@@ -2042,6 +2042,21 @@ when a PR lands, or when validation truth changes.
   keys, credentials, or replay corpus text. Wake MIMIR with the browser verdict
   and next narrow lane; wake DAEDALUS or ARGUS only for a concrete code/security
   blocker. Do not go quiet without a wakeup.
+- ARIADNE runs STAGING-DEMO-BROWSER-01, 2026-06-12:
+  `docs/roadmap/STAGING_BROWSER_REHEARSAL_ARIADNE.md` records a true Chrome
+  browser traversal with localStorage-backed auth and mobile checks. Result:
+  25 browser route checks passed and 1 failed. Desktop front door, Discover,
+  public Space/document/forum, Developer Space, Studio, persona workspace,
+  Memory, Continuity, Archive, Export Workspace, Developer Space manage,
+  Billing, and Settings observability passed. Mobile front door, Discover,
+  persona Memory, persona Archive, public document, Developer Space, Billing,
+  and Settings observability passed. Concrete UX blocker: mobile `/studio`
+  produced document-level horizontal overflow at 437px on a 390px viewport.
+  ARIADNE patched the Studio dashboard mobile layout so panels and rows can
+  shrink and wrap. CDP-injected equivalent CSS on staging reduced scroll width
+  to 390px. Validation passed with web lint (existing unrelated warnings), web
+  typecheck, `test:studio-ui`, and `git diff --check`. A deployed post-patch
+  browser rerun is still needed before the browser rehearsal is fully accepted.
 
 ## Near-term rule
 
