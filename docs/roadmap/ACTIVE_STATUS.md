@@ -2120,6 +2120,23 @@ when a PR lands, or when validation truth changes.
   user-facing friction, narrative gaps, missed transitions, and concrete
   blockers; do not capture private excerpts, prompts, completions, raw response
   bodies, IDs, tokens, cookies, credentials, keys, or corpus text.
+- MIMIR consumes the Stripe activation wake and opens STAGING-DEMO-STRIPE-01,
+  2026-06-12: Marty clarified that Stripe configuration is test-only and asked
+  ARIADNE to run the paid-activation proof. This supersedes the prior
+  "paid activation excluded unless external action is completed first" posture
+  for this bounded demo proof only. Scope is a hosted Stripe test-mode browser
+  Checkout/activation rehearsal for the replay owner, with no live-money,
+  production, or broad billing-expansion claim. ARIADNE should run the browser
+  flow using the existing staging demo narrative and configured test resources,
+  then record only sanitized route/status/tier/subscription labels and visible
+  product friction. Do not capture or commit Stripe secrets, Checkout URLs,
+  webhook payload bodies, customer IDs, subscription IDs, owner IDs, persona IDs,
+  tokens, cookies, credentials, keys, private excerpts, prompts, completions, or
+  raw response bodies. If the browser flow exposes an app/code blocker, wake
+  DAEDALUS with the exact failure. If the flow reaches paid activation or needs
+  entitlement-security judgment, wake ARGUS to verify that entitlement changes
+  occur only through the verified Stripe Checkout/webhook path. ARGUS should
+  wake MIMIR with the closeout verdict. Do not go quiet without a wakeup.
 
 ## Near-term rule
 
