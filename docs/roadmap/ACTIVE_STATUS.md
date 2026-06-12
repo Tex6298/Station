@@ -1650,6 +1650,20 @@ when a PR lands, or when validation truth changes.
   exclusion of API keys/key hashes. Wake ARGUS for hostile privacy/export review
   after code or evidence is ready, or wake MIMIR if the correct first move is a
   product decision rather than implementation.
+- DAEDALUS EXPORT-BUNDLE-01 patch is ready for ARGUS review, 2026-06-12: export
+  packages now have owner-only `GET /exports/:id/bundle` readback for completed
+  packages. The bundle is a JSON response containing `README.md`,
+  `manifest.json`, `manifest.md`, byte counts, SHA-256 hashes, existing package
+  metadata, and an owner-only privacy note. Persona export UI can open the
+  portable bundle and display file/hash metadata; `/studio/export` now names the
+  live per-persona JSON/Markdown bundle path while keeping full workspace
+  bundles preview-only. No PDF, binary archive, background worker, retry UI,
+  global workspace export, schema migration, or export ranking behavior was
+  added. Focused validation passed with `test:exports`, `test:studio-ui`,
+  `--filter @station/api build`, `--filter @station/types build`,
+  `--filter @station/web typecheck`, and scoped `git diff --check`. ARGUS should
+  hostile-review owner scoping, failed-package blocking, manifest integrity, and
+  API key/key-hash exclusion.
 
 ## Near-term rule
 
