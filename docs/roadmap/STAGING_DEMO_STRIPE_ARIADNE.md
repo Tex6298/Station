@@ -121,3 +121,31 @@ ARGUS should verify:
   as a small UX lane.
 
 ARGUS should wake MIMIR with the closeout verdict.
+
+## ARGUS Closeout
+
+ARGUS accepts `STAGING-DEMO-STRIPE-01` as bounded Stripe test-mode demo evidence.
+
+Security/entitlement verdict:
+
+- Checkout session creation alone does not grant entitlement.
+- The app mutates subscription entitlement through verified Stripe webhook
+  handling.
+- Local billing tests confirm invalid webhook signatures do not mutate tier,
+  unknown active Price IDs do not mutate tier, and Stripe customer mismatches do
+  not mutate profile entitlement.
+- The committed proof does not include Stripe secrets, Checkout URLs or paths,
+  webhook bodies, customer IDs, subscription IDs, owner IDs, persona IDs, tokens,
+  cookies, credentials, payment details, private excerpts, prompts, completions,
+  or raw response bodies.
+
+Scope caveats:
+
+- This is not live-money billing or production billing readiness.
+- This does not prove invoices, tax, Connect, marketplace payments, usage
+  metering, token top-ups, or broad billing operations.
+- The hosted return UX is not fully accepted until a human browser rehearsal
+  confirms the visible success return/banner.
+- Same-tier Canon activation friction is accepted as a demo UX issue, not an
+  entitlement-security blocker. MIMIR should decide whether to keep it as known
+  friction or open a small billing UX lane.

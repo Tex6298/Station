@@ -4559,3 +4559,26 @@ Local Playwright automation was not rerun because `@playwright/test` is not
 installed in this checkout. The next required gate is still a deployed
 post-patch browser rerun of mobile `/studio`, mobile Memory/Archive, desktop
 Studio, Settings observability, and export bundle readback.
+
+## STAGING-DEMO-STRIPE-01 ARGUS billing review
+
+ARGUS review on 2026-06-12 accepts `STAGING-DEMO-STRIPE-01` as bounded Stripe
+test-mode demo evidence. The live proof showed staged billing state move from
+inactive/no subscription to active/subscription present for the replay owner,
+and the app code review confirmed entitlement mutation is handled through
+verified Stripe webhook processing rather than inferred from a browser redirect.
+
+Validation:
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Billing route/service review | Pass | `/billing/checkout` creates a Stripe Checkout session but does not grant entitlement; subscription sync occurs in verified webhook handling. |
+| Entitlement safety review | Pass | Webhook sync validates signature first, rejects unknown active Price IDs, and rejects Stripe customer/profile mismatches. |
+| Proof sanitization scan | Pass | Hits were negative privacy-boundary language and "token kept in memory only"; no live Stripe secrets, Checkout paths, webhook bodies, IDs, cookies, credentials, payment details, private excerpts, prompts, completions, or raw bodies were found. |
+| `npx --yes pnpm@10.32.1 test:billing` | Pass | 4 billing tests passed, including verified-signature entitlement mutation and mismatch/unknown-price rejection. |
+| `npx --yes pnpm@10.32.1 --filter @station/api typecheck` | Pass | API typecheck passed. |
+| `git diff --check HEAD~1..HEAD` | Pass | No whitespace errors in the committed proof. |
+
+Caveat: this is test-mode demo evidence only. It is not live-money billing,
+production billing readiness, invoices/tax/Connect readiness, usage metering,
+or proof of a polished hosted Checkout return UX.

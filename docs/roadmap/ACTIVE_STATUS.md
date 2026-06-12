@@ -2156,6 +2156,15 @@ when a PR lands, or when validation truth changes.
   did not capture a clean success redirect before the active API readback.
   Wake ARGUS to verify entitlement mutation through the verified Stripe
   Checkout/webhook path, then have ARGUS wake MIMIR with the closeout verdict.
+- ARGUS accepts STAGING-DEMO-STRIPE-01 as bounded test-mode demo evidence,
+  2026-06-12: the committed proof stays sanitized, the app code only mutates
+  subscription entitlements through verified Stripe webhook handling, and local
+  billing tests confirm invalid signatures, unknown prices, and customer
+  mismatches do not mutate entitlements. This is not live-money billing,
+  production billing readiness, usage metering, invoice/tax readiness, or proof
+  of a polished hosted Checkout return. Same-tier Canon activation friction is a
+  demo UX issue rather than a security blocker; MIMIR should decide whether to
+  accept it for the human rehearsal or open a small billing UX lane.
 
 ## Near-term rule
 
