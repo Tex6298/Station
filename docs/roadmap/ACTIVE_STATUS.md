@@ -1958,6 +1958,18 @@ when a PR lands, or when validation truth changes.
   and recommended next product lane; wake DAEDALUS or ARGUS only if the demo
   review finds a concrete code/security blocker. Do not go quiet without a
   wakeup.
+- ARIADNE completes STAGING-DEMO-01, 2026-06-12:
+  `docs/roadmap/STAGING_DEMO_READINESS_ARIADNE.md` records a seeded staging
+  demo verdict and route sequence. Verdict: Station is ready for a seeded
+  human staging demo that stays within the accepted non-paid replay scope; no
+  concrete code or security blocker surfaced. Exact blocker: paid subscription
+  activation still requires a hosted Stripe test-mode Checkout payment by the
+  replay owner or a real signed Stripe test event that mutates subscription
+  state. REPLAY-OPT-04 remains code-tied and sanitized but is not a
+  performance-win claim. Redis, Cloudflare, background jobs, and full workspace
+  export remain future lanes unless rehearsal evidence demands them. ARIADNE
+  recommends `STAGING-DEMO-RUN-01`: one human staging walkthrough rehearsal,
+  with paid activation explicitly in or out of scope before the run.
 
 ## Near-term rule
 
