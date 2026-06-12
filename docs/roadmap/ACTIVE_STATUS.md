@@ -2180,6 +2180,17 @@ when a PR lands, or when validation truth changes.
   review, then ARGUS should wake ARIADNE for a browser UX check of the visible
   activation path and hosted return/success-banner posture. ARIADNE should wake
   MIMIR with the human rehearsal verdict. Do not go quiet without a wakeup.
+- DAEDALUS BILLING-UX-01 patch is ready for ARGUS review, 2026-06-12: the
+  Billing page now keeps active/trialing current-tier cards on the existing
+  current-plan behavior while same-tier inactive/null subscription states show
+  an activation action that calls the existing `/billing/checkout` API for that
+  tier. The top current-plan panel also opens Checkout for inactive paid tiers
+  instead of sending them to the billing portal. This is UI/helper-only: it does
+  not change entitlement mutation rules, Stripe webhook handling, price
+  configuration, billing backend semantics, production-money claims,
+  invoices/tax/Connect/marketplace scope, or token-credit top-ups. Focused
+  helper tests, web typecheck, and web lint passed; lint still reports the
+  existing unrelated warning-only inventory.
 
 ## Near-term rule
 

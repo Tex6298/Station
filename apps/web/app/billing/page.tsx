@@ -8,6 +8,12 @@ import {
   createPortalSession,
   type BillingStatus,
 } from "@/lib/api-client";
+import {
+  billingPlanAction,
+  checkoutTierFor,
+  isActiveSubscriptionStatus,
+  type CheckoutTier,
+} from "@/lib/billing-plan-actions";
 
 const TIER_LABELS: Record<string, string> = {
   visitor:       "Free",
@@ -54,7 +60,7 @@ export default function BillingPage() {
     });
   }, []);
 
-  async function handleUpgrade(tier: "private" | "creator" | "canon", interval: "monthly" | "yearly") {
+  async function handleUpgrade(tier: CheckoutTier, interval: "monthly" | "yearly") {
     if (!token) return;
     setActionLoading(true);
     setError(null);
@@ -81,7 +87,8 @@ export default function BillingPage() {
   }
 
   const currentTier = status?.tier ?? "visitor";
-  const isActive    = ["active", "trialing"].includes(status?.subscriptionStatus ?? "");
+  const isActive    = isActiveSubscriptionStatus(status?.subscriptionStatus);
+  const currentCheckoutTier = checkoutTierFor(currentTier);
 
   if (loading) {
     return (
@@ -142,7 +149,7 @@ export default function BillingPage() {
           )}
         </div>
 
-        {currentTier !== "visitor" && currentTier !== "institutional" && (
+        {currentCheckoutTier && isActive && (
           <button
             onClick={handleManage}
             disabled={actionLoading}
@@ -158,6 +165,25 @@ export default function BillingPage() {
             }}
           >
             {actionLoading ? "Opening..." : "Manage / cancel subscription"}
+          </button>
+        )}
+
+        {currentCheckoutTier && !isActive && (
+          <button
+            onClick={() => handleUpgrade(currentCheckoutTier, "monthly")}
+            disabled={actionLoading}
+            style={{
+              marginTop: "1rem",
+              padding: "0.5rem 1.25rem",
+              background: "#7c6af7",
+              border: "none",
+              borderRadius: 6,
+              color: "#fff",
+              cursor: "pointer",
+              fontSize: "0.9rem",
+            }}
+          >
+            {actionLoading ? "Opening..." : `Activate ${TIER_LABELS[currentTier] ?? currentTier}`}
           </button>
         )}
 
@@ -191,7 +217,7 @@ export default function BillingPage() {
           price="GBP 10"
           interval="month"
           features={["2 personas", "Private archive", "Forum access", "Chat (BYOK or platform)"]}
-          current={currentTier === "private"}
+          action={billingPlanAction({ currentTier, planTier: "private", subscriptionStatus: status?.subscriptionStatus })}
           onUpgrade={() => handleUpgrade("private", "monthly")}
           loading={actionLoading}
         />
@@ -202,7 +228,7 @@ export default function BillingPage() {
           interval="month"
           yearlyPrice="GBP 1,000/year"
           features={["Unlimited personas", "Full archive + RAG", "Public page (Space)", "Publish posts & essays", "Forum access"]}
-          current={currentTier === "creator"}
+          action={billingPlanAction({ currentTier, planTier: "creator", subscriptionStatus: status?.subscriptionStatus })}
           onUpgrade={() => handleUpgrade("creator", "monthly")}
           onUpgradeYearly={() => handleUpgrade("creator", "yearly")}
           loading={actionLoading}
@@ -214,7 +240,7 @@ export default function BillingPage() {
           price="GBP 250"
           interval="month"
           features={["Everything in Creator", "3 Spaces", "50 GB storage", "Priority support", "Early access to new features"]}
-          current={currentTier === "canon"}
+          action={billingPlanAction({ currentTier, planTier: "canon", subscriptionStatus: status?.subscriptionStatus })}
           onUpgrade={() => handleUpgrade("canon", "monthly")}
           loading={actionLoading}
         />
@@ -242,7 +268,7 @@ function PlanCard({
   interval,
   yearlyPrice,
   features,
-  current,
+  action,
   onUpgrade,
   onUpgradeYearly,
   loading,
@@ -254,7 +280,7 @@ function PlanCard({
   interval: string;
   yearlyPrice?: string;
   features: string[];
-  current: boolean;
+  action: "current" | "activate" | "upgrade";
   onUpgrade: () => void;
   onUpgradeYearly?: () => void;
   loading: boolean;
@@ -294,7 +320,7 @@ function PlanCard({
         {features.map((f) => <li key={f}>{f}</li>)}
       </ul>
 
-      {current ? (
+      {action === "current" ? (
         <button disabled style={{ width: "100%", padding: "0.5rem", background: "#1e1e2e", border: "1px solid #555", borderRadius: 6, color: "#888", cursor: "default", fontSize: "0.875rem" }}>
           Current plan
         </button>
@@ -305,9 +331,9 @@ function PlanCard({
             disabled={loading}
             style={{ width: "100%", padding: "0.5rem", background: featured ? "#7c6af7" : "#333", border: "none", borderRadius: 6, color: "#fff", cursor: "pointer", fontSize: "0.875rem" }}
           >
-            {loading ? "Loading..." : `Upgrade - ${price}/mo`}
+            {loading ? "Loading..." : action === "activate" ? `Activate ${name}` : `Upgrade - ${price}/mo`}
           </button>
-          {yearlyPrice && onUpgradeYearly && (
+          {action === "upgrade" && yearlyPrice && onUpgradeYearly && (
             <button
               onClick={onUpgradeYearly}
               disabled={loading}

@@ -4582,3 +4582,27 @@ Validation:
 Caveat: this is test-mode demo evidence only. It is not live-money billing,
 production billing readiness, invoices/tax/Connect readiness, usage metering,
 or proof of a polished hosted Checkout return UX.
+
+## BILLING-UX-01 DAEDALUS validation result
+
+Validated on 2026-06-12 after the narrow Billing page activation UX patch.
+
+Implementation:
+
+- Active or trialing current-tier plan cards keep the existing disabled
+  `Current plan` behavior.
+- Same-tier inactive or missing subscription states now show `Activate ...`
+  actions that call the existing `/billing/checkout` API for that tier.
+- The current-plan panel opens Checkout for inactive paid tiers and keeps the
+  billing portal action for active/trialing paid tiers.
+- No billing backend, Stripe webhook, entitlement mutation, price
+  configuration, production-money, invoice/tax/Connect/marketplace, or
+  token-credit behavior changed.
+
+Commands run by DAEDALUS:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npx --yes pnpm@10.32.1 exec tsx --test apps/web/lib/billing-plan-actions.test.ts` | Pass | 3 helper tests passed for active/trialing current behavior, inactive same-tier activation, different-tier upgrade behavior, and checkout tier narrowing. |
+| `npx --yes pnpm@10.32.1 --filter @station/web typecheck` | Pass | Web TypeScript check passed. |
+| `npx --yes pnpm@10.32.1 --filter @station/web lint` | Pass with warnings | Existing unrelated warnings remain in Developer Spaces manage, public Space image usage, and Discover image usage. |
