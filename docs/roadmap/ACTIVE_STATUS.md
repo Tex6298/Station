@@ -1866,6 +1866,17 @@ when a PR lands, or when validation truth changes.
   Stripe activation, prompts, completions, private excerpts, raw corpus text,
   owner IDs, persona IDs, trace IDs, tokens, cookies, API keys, replay
   credentials, or raw response bodies were committed.
+- ARGUS accepts REPLAY-OPT-02 after a small review patch, 2026-06-12: the shared
+  embedding optimization is sound for the current private runtime path and keeps
+  owner/lifecycle/archive boundaries intact. ARGUS adjusted context assembly so
+  the shared embedding starts once but independent canon, owner-memory,
+  integrity, and preference reads are not blocked behind it. Memory and archive
+  vector retrieval still wait for the same embedding promise, still fall back to
+  keyword mode on embedding failure, and still use the active
+  `station_free_1536` RPC contract. The live Railway timing evidence is useful
+  baseline evidence, but because `/health/deployment` does not expose a commit
+  SHA, post-deploy measurement should be treated as a MIMIR/demo decision rather
+  than a code-acceptance blocker for this patch.
 
 ## Near-term rule
 

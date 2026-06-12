@@ -87,23 +87,27 @@ export async function buildPersonaContext(
 export async function assemblePersonaRuntimeContext(
   input: PersonaContextInput
 ): Promise<PersonaRuntimeContext> {
-  const queryEmbedding = await sharedQueryEmbedding(input.userQuery, input.embeddingApiKey);
+  const queryEmbeddingPromise = sharedQueryEmbedding(input.userQuery, input.embeddingApiKey);
 
   const [canon, ownerMemory, memory, integrity, preferenceProfile, archive] = await Promise.all([
     loadCanon(input.supabase, input.persona.id, input.maxCanon ?? 6, input.ownerUserId),
     loadOwnerMemoryBlocks(input, 4),
-    searchMemory({
-      supabase: input.supabase,
-      personaId: input.persona.id,
-      query: input.userQuery,
-      limit: input.maxMemory ?? 6,
-      embeddingApiKey: input.embeddingApiKey,
-      queryEmbedding,
-      ownerUserId: input.ownerUserId,
-    }),
+    queryEmbeddingPromise.then((queryEmbedding) =>
+      searchMemory({
+        supabase: input.supabase,
+        personaId: input.persona.id,
+        query: input.userQuery,
+        limit: input.maxMemory ?? 6,
+        embeddingApiKey: input.embeddingApiKey,
+        queryEmbedding,
+        ownerUserId: input.ownerUserId,
+      })
+    ),
     loadIntegrityNotes(input, input.maxIntegrity ?? 4),
     loadPreferenceProfile(input),
-    loadArchiveReferences(input, input.maxArchive ?? 8, queryEmbedding),
+    queryEmbeddingPromise.then((queryEmbedding) =>
+      loadArchiveReferences(input, input.maxArchive ?? 8, queryEmbedding)
+    ),
   ]);
 
   const canonSources = canon.map<PersonaContextSource>((item) => ({

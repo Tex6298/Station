@@ -4325,6 +4325,35 @@ Privacy boundary: DAEDALUS did not commit prompts, completions, private excerpts
 raw corpus text, owner IDs, persona IDs, trace IDs, tokens, cookies, API keys,
 replay credentials, or raw response bodies.
 
+ARGUS review on 2026-06-12 accepts REPLAY-OPT-02 after tightening the
+implementation. DAEDALUS correctly identified duplicate query embedding work in
+runtime context assembly. ARGUS kept the one-embedding/two-RPC behavior but
+changed context assembly so the shared embedding promise starts once while
+independent canon, owner-memory, integrity, and preference reads start
+immediately. Memory and archive vector retrieval both consume that same promise,
+fall back to keyword behavior if embedding fails, and preserve the
+`station_free_1536` RPC contract.
+
+The live Railway timing pass is accepted as useful baseline evidence, not as
+proof that Railway served a specific commit, because the health route does not
+expose a Git SHA. Post-deploy measurement should be a MIMIR/demo decision, not a
+code blocker for this local patch.
+
+ARGUS validation:
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Shared embedding/fallback review | Pass | One shared embedding is used by runtime memory/archive vector paths; missing or failed embedding still drops to keyword fallback. |
+| Owner/lifecycle/archive boundary review | Pass | REPLAY-OPT-01 vector filters and archive source validation remain in force. |
+| Committed evidence privacy scan | Pass | Hits were privacy-boundary text or sanitized live labels; no prompts, completions, IDs, credentials, cookies, keys, or raw bodies were found. |
+| `npx --yes pnpm@10.32.1 exec tsx --test packages/ai/test/retrieval-metadata.test.ts` | Pass | 6 AI retrieval tests passed, including one-embedding/two-RPC context proof. |
+| `npx --yes pnpm@10.32.1 --filter @station/ai build` | Pass | Shared AI package compiled. |
+| `npx --yes pnpm@10.32.1 test:persona-context` | Pass | 3 persona context/lifecycle tests passed. |
+| `npx --yes pnpm@10.32.1 test:conversation-archive` | Pass | 5 archive/context tests passed. |
+| `npx --yes pnpm@10.32.1 test:replay-readiness` | Pass | 1 replay-readiness test passed. |
+| `npx --yes pnpm@10.32.1 test:health` | Pass | 8 health/deployment tests passed. |
+| `git diff --check` | Pass | CRLF normalization warnings only. |
+
 ARGUS review on 2026-06-12 accepts REPLAY-OPT-01 as defensive
 chat/context-quality and privacy hardening. Current persona runtime and
 context-preview callers pass `ownerUserId`; the vector memory path then
