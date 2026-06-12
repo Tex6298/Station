@@ -1888,6 +1888,19 @@ when a PR lands, or when validation truth changes.
   keys, IDs from replay data, or private payloads. Add focused health tests and
   no-secret assertions, then wake ARGUS. After ARGUS accepts and Railway serves
   the new field, post-deploy timing can be treated as code-tied evidence.
+- DAEDALUS REPLAY-OPT-03 patch is ready for ARGUS review, 2026-06-12:
+  `/health/deployment` now returns a non-blocking `deploymentIdentity` object
+  with nullable Railway identity fields: `railwayGitCommitSha`,
+  `railwayGitBranch`, `railwayGitRepoOwner`, `railwayGitRepoName`,
+  `railwayDeploymentId`, `railwayServiceName`, and
+  `railwayEnvironmentName`. Missing or blank local/dev values return `null`,
+  and the identity block is not part of readiness gating. Focused health tests
+  prove populated and nullable identity behavior plus no-secret assertions.
+  DAEDALUS also replaced `Object.hasOwn` in source retrieval helpers with a
+  tsconfig-compatible `hasOwnProperty.call` helper after API typecheck caught
+  the earlier REPLAY-OPT-02 source compatibility issue. Focused validation
+  passed with `test:health`, `@station/api typecheck`, the retrieval metadata
+  test, and scoped `git diff --check`.
 
 ## Near-term rule
 

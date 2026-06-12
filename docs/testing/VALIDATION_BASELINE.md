@@ -4377,3 +4377,36 @@ ARGUS validation:
 | `npx --yes pnpm@10.32.1 test:replay-readiness` | Pass | 1 replay-readiness test passed. |
 | `npx --yes pnpm@10.32.1 test:health` | Pass | 8 health/deployment tests passed. |
 | `git diff --check` | Pass | CRLF normalization warning only for ARGUS state. |
+
+## REPLAY-OPT-03 DAEDALUS validation result
+
+Validated on 2026-06-12 after adding non-secret Railway deployment identity
+metadata to `/health/deployment`.
+
+Implementation:
+
+- `/health/deployment` now includes `deploymentIdentity`.
+- The identity block has nullable fields for Railway Git commit SHA, branch,
+  repo owner, repo name, deployment id, service name, and environment name.
+- Missing or blank local/dev values return `null`.
+- Deployment identity does not affect `ready`; it is evidence metadata only.
+- The route still does not expose commit messages, authors, full env dumps,
+  secrets, service variables beyond the requested system names, replay data IDs,
+  private payloads, prompts, completions, cookies, tokens, keys, or credentials.
+- DAEDALUS also replaced source `Object.hasOwn` calls from REPLAY-OPT-02 with a
+  tsconfig-compatible `hasOwnProperty.call` helper after API typecheck caught
+  the issue.
+
+Commands run by DAEDALUS:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npx --yes pnpm@10.32.1 test:health` | Pass | 9 health/deployment tests passed, including populated identity, nullable local identity, and no-secret assertions. |
+| `npx --yes pnpm@10.32.1 --filter @station/api typecheck` | Pass | API typecheck passed after the source `hasOwn` compatibility repair. |
+| `npx --yes pnpm@10.32.1 exec tsx --test packages/ai/test/retrieval-metadata.test.ts` | Pass | 6 AI retrieval tests still passed after the compatibility repair. |
+
+Privacy boundary: committed fields are explicit non-secret Railway deployment
+identity labels only. No prompts, completions, private excerpts, raw corpus
+text, owner IDs, persona IDs, trace IDs, tokens, cookies, API keys, replay
+credentials, raw response bodies, service-variable dumps, commit messages, or
+authors were added.

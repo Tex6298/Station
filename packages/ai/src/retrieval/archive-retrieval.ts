@@ -73,7 +73,7 @@ export async function retrievePrivateArchive(input: {
 
   let mode: ArchiveRetrievalResult["mode"] = "keyword";
   let candidates: RankedArchiveChunk[] = [];
-  const hasPrecomputedEmbedding = Object.hasOwn(input, "queryEmbedding");
+  const hasPrecomputedEmbedding = hasOwn(input, "queryEmbedding");
 
   if ((hasValue(input.embeddingApiKey) || hasPrecomputedEmbedding) && query.length > 0) {
     const vectorCandidates = await vectorArchiveSearch({
@@ -139,7 +139,7 @@ async function vectorArchiveSearch(input: {
   queryEmbedding?: number[] | null;
 }): Promise<RankedArchiveChunk[]> {
   try {
-    const hasPrecomputedEmbedding = Object.hasOwn(input, "queryEmbedding");
+    const hasPrecomputedEmbedding = hasOwn(input, "queryEmbedding");
     const embedding = hasPrecomputedEmbedding
       ? input.queryEmbedding
       : await generateEmbedding(input.query, input.embeddingApiKey!, { useCase: "query" });
@@ -385,6 +385,10 @@ function clampInt(value: number, min: number, max: number) {
 
 function hasValue(value: string | null | undefined) {
   return typeof value === "string" && value.trim().length > 0;
+}
+
+function hasOwn(value: object, property: string) {
+  return Object.prototype.hasOwnProperty.call(value, property);
 }
 
 function compareCreatedAt(a: ArchiveChunkRow, b: ArchiveChunkRow) {

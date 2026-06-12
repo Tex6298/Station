@@ -33,6 +33,13 @@ delete process.env.OPENAI_API_KEY;
 process.env.REDIS_URL = "redis://secret-redis";
 process.env.UPSTASH_REDIS_REST_URL = "https://secret-upstash.example.test";
 process.env.UPSTASH_REDIS_REST_TOKEN = "secret-upstash-token";
+process.env.RAILWAY_GIT_COMMIT_SHA = "abc123def456";
+process.env.RAILWAY_GIT_BRANCH = "main";
+process.env.RAILWAY_GIT_REPO_OWNER = "Discern-AI";
+process.env.RAILWAY_GIT_REPO_NAME = "Station";
+process.env.RAILWAY_DEPLOYMENT_ID = "deployment-123";
+process.env.RAILWAY_SERVICE_NAME = "@station/api";
+process.env.RAILWAY_ENVIRONMENT_NAME = "production";
 
 type Row = Record<string, any>;
 
@@ -179,6 +186,15 @@ test("/health stays cheap while /health/deployment returns non-secret readiness"
     assert.equal(deployment.status, 200);
     assert.equal(deployment.body.ok, true);
     assert.equal(deployment.body.ready, true);
+    assert.deepEqual(deployment.body.deploymentIdentity, {
+      railwayGitCommitSha: "abc123def456",
+      railwayGitBranch: "main",
+      railwayGitRepoOwner: "Discern-AI",
+      railwayGitRepoName: "Station",
+      railwayDeploymentId: "deployment-123",
+      railwayServiceName: "@station/api",
+      railwayEnvironmentName: "production",
+    });
     assert.equal(deployment.body.checks.databaseUrl, true);
     assert.equal(deployment.body.checks.nvidiaProvider, true);
     assert.equal(deployment.body.checks.embeddingProfileCode, "station_free_1536");
@@ -224,6 +240,41 @@ test("/health stays cheap while /health/deployment returns non-secret readiness"
   } finally {
     await resetHealthFakes();
   }
+});
+
+test("/health/deployment keeps deployment identity nullable and non-blocking outside Railway", async () => {
+  const db = new ReadinessSupabase();
+  db.migrationObjectProof = true;
+
+  await withEnvOverride({
+    RAILWAY_GIT_COMMIT_SHA: "",
+    RAILWAY_GIT_BRANCH: "",
+    RAILWAY_GIT_REPO_OWNER: "",
+    RAILWAY_GIT_REPO_NAME: "",
+    RAILWAY_DEPLOYMENT_ID: "",
+    RAILWAY_SERVICE_NAME: "",
+    RAILWAY_ENVIRONMENT_NAME: "",
+  }, async () => {
+    const { app } = await setupHealthApp(db);
+
+    try {
+      const deployment = await requestJson(app, "GET", "/health/deployment");
+      assert.equal(deployment.status, 200);
+      assert.equal(deployment.body.ready, true);
+      assert.deepEqual(deployment.body.deploymentIdentity, {
+        railwayGitCommitSha: null,
+        railwayGitBranch: null,
+        railwayGitRepoOwner: null,
+        railwayGitRepoName: null,
+        railwayDeploymentId: null,
+        railwayServiceName: null,
+        railwayEnvironmentName: null,
+      });
+      assertNoSecrets(deployment.body);
+    } finally {
+      await resetHealthFakes();
+    }
+  });
 });
 
 test("/health/deployment proves backend migrations through public schema objects when history is hidden", async () => {

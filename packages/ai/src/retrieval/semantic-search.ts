@@ -35,7 +35,7 @@ export async function searchMemory(options: {
   ownerUserId?: string;
 }): Promise<MemorySearchResult[]> {
   const { supabase, personaId, query, limit = 6, embeddingApiKey, ownerUserId } = options;
-  const hasPrecomputedEmbedding = Object.hasOwn(options, "queryEmbedding");
+  const hasPrecomputedEmbedding = hasOwn(options, "queryEmbedding");
 
   if (!hasValue(embeddingApiKey) && !hasPrecomputedEmbedding) {
     return keywordFallbackSearch(supabase, personaId, query, limit, ownerUserId);
@@ -229,4 +229,8 @@ function isLifecycleInjectable(
 
 function hasValue(value: string | null | undefined) {
   return typeof value === "string" && value.trim().length > 0;
+}
+
+function hasOwn(value: object, property: string) {
+  return Object.prototype.hasOwnProperty.call(value, property);
 }
