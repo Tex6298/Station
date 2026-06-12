@@ -4036,3 +4036,28 @@ Commands run by DAEDALUS:
 | `npx --yes pnpm@10.32.1 --filter @station/web lint` | Pass with warnings | Known warning-only output: Developer Space manage hook dependency plus Space/Discover raw `<img>` warnings. |
 | `npx --yes pnpm@10.32.1 test:community` | Pass | 7 tests passed, including Discover feed/search public/community/private visibility coverage. |
 | `git diff --check -- apps/web/components/discover/discover-front-door.tsx docs/roadmap/ACTIVE_STATUS.md docs/testing/VALIDATION_BASELINE.md` | Pass | CRLF normalization warnings only. Full-worktree `git diff --check` also reports a local `Station-main.zip: Permission denied` artifact in this shell. |
+
+## DISCOVER-ONBOARD-01 DAEDALUS follow-up validation result
+
+Validated on 2026-06-12 after ARIADNE found protected-route mismatches in the
+first Discover polish pass. The follow-up stays frontend-only:
+
+- Public front-door actions now point to the in-page public feed,
+  `/developer-spaces`, or `/forums`, not protected `/space`.
+- Anonymous search hides persona results because their only current destination
+  is protected `/studio/personas/:id`.
+- Logged-in users still see persona search results and can open Studio persona
+  routes.
+
+No API buckets, visibility filters, auth behavior, schema, seed data, Assistant
+behavior, or Discover feed ranking changed.
+
+Commands run by DAEDALUS:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npx --yes pnpm@10.32.1 --filter @station/web typecheck` | Pass | Web TypeScript check completed. |
+| `npx --yes pnpm@10.32.1 --filter @station/web lint` | Pass with warnings | Known warning-only output: Developer Space manage hook dependency plus Space/Discover raw `<img>` warnings. |
+| `npx --yes pnpm@10.32.1 test:community` | Pass | 7 tests passed, including Discover feed/search public/community/private visibility coverage. |
+| `npx --yes pnpm@10.32.1 exec tsx --test apps/web/lib/auth-routes.test.ts` | Pass | 1 test passed; `/space` remains protected while `/space/:slug` and `/developer-spaces` remain public. |
+| `git diff --check -- .station-agents/state/DAEDALUS.json apps/web/components/discover/discover-front-door.tsx docs/roadmap/ACTIVE_STATUS.md docs/testing/VALIDATION_BASELINE.md` | Pass | CRLF normalization warnings only. |

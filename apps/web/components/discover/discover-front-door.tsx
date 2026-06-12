@@ -340,6 +340,10 @@ export default function DiscoverFrontDoor() {
     return () => clearTimeout(timeout);
   }, [search, token]);
 
+  const searchBuckets = user
+    ? (["personas", "developerSpaces", "spaces", "documents", "threads"] as const)
+    : (["developerSpaces", "spaces", "documents", "threads"] as const);
+
   return (
     <div className="discover-layout">
       <Sidebar sidebar={sidebar} user={user} loading={sideLoading} />
@@ -352,14 +356,14 @@ export default function DiscoverFrontDoor() {
             Start with public work, live project observatories, or community discussion. Station keeps authorship, provenance, and visibility labels close to each item so visitors can understand what they are reading before they go deeper.
           </p>
           <div style={{ display: "flex", gap: "0.6rem", flexWrap: "wrap", marginTop: "1.1rem" }}>
-            <Link className="button primary" href="/space">Browse public spaces</Link>
+            <Link className="button primary" href="#discover-feed">Read the public feed</Link>
             <Link className="button" href="/developer-spaces">Watch live projects</Link>
             <Link className="button" href="/forums">Read forums</Link>
           </div>
           <div className="discover-surface-grid">
-            <Link href="/space">
-              <strong>Read public spaces</strong>
-              <span>Published writing, persona context, discussion links, and archive previews from Station members.</span>
+            <Link href="#discover-feed">
+              <strong>Read public work</strong>
+              <span>The feed below opens public Space pages, published documents, discussions, and project updates.</span>
             </Link>
             <Link href="/developer-spaces">
               <strong>Watch live projects</strong>
@@ -383,7 +387,7 @@ export default function DiscoverFrontDoor() {
             className="input"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search public Station - personas, posts, threads, spaces"
+            placeholder={user ? "Search Station - personas, posts, threads, spaces" : "Search public Station - posts, threads, spaces, live projects"}
             style={{ width: "100%", paddingLeft: "2.25rem", fontSize: "0.875rem" }}
           />
           <span style={{ position: "absolute", left: "0.8rem", top: "50%", transform: "translateY(-50%)", color: "#68738a", pointerEvents: "none" }}>
@@ -401,7 +405,7 @@ export default function DiscoverFrontDoor() {
             {searching && <div style={{ color: "#8b96aa", fontSize: "0.85rem" }}>Searching...</div>}
             {!searching && searchResults && (
               <div style={{ display: "grid", gap: "1rem" }}>
-                {(["personas", "developerSpaces", "spaces", "documents", "threads"] as const).map((key) => {
+                {searchBuckets.map((key) => {
                   const results = searchResults[key] ?? [];
                   if (!results.length) return null;
                   const label = key === "developerSpaces" ? "Developer spaces" : key.charAt(0).toUpperCase() + key.slice(1);
@@ -451,9 +455,9 @@ export default function DiscoverFrontDoor() {
                     </div>
                   );
                 })}
-                {!["personas", "developerSpaces", "spaces", "documents", "threads"].some((k) => (searchResults[k] ?? []).length > 0) && (
+                {!searchBuckets.some((k) => (searchResults[k] ?? []).length > 0) && (
                   <div style={{ color: "#8b96aa", fontSize: "0.85rem", lineHeight: 1.55 }}>
-                    No public results for &quot;{search}&quot;. Try a persona name, project, space, document title, or forum topic.
+                    {user ? "No results" : "No public results"} for &quot;{search}&quot;. Try a project, space, document title, or forum topic.
                   </div>
                 )}
               </div>
@@ -463,7 +467,7 @@ export default function DiscoverFrontDoor() {
 
         {!search.trim() && (
           <>
-            <div style={{ display: "flex", gap: "0.25rem", marginBottom: "1rem", borderBottom: "1px solid #1e2535", paddingBottom: "0.1rem" }}>
+            <div id="discover-feed" style={{ display: "flex", gap: "0.25rem", marginBottom: "1rem", borderBottom: "1px solid #1e2535", paddingBottom: "0.1rem", scrollMarginTop: "4.5rem" }}>
               {TABS.map((t) => (
                 <button
                   key={t}
@@ -481,7 +485,7 @@ export default function DiscoverFrontDoor() {
               ))}
               <div style={{ marginLeft: "auto", display: "flex", gap: "0.7rem", alignItems: "center" }}>
                 <Link href="/forums" style={{ fontSize: "0.75rem", color: "#7f8aa0", textDecoration: "none" }}>Forums</Link>
-                <Link href="/space" style={{ fontSize: "0.75rem", color: "#7f8aa0", textDecoration: "none" }}>Spaces</Link>
+                <Link href="#discover-feed" style={{ fontSize: "0.75rem", color: "#7f8aa0", textDecoration: "none" }}>Public feed</Link>
               </div>
             </div>
 

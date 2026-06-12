@@ -1593,6 +1593,16 @@ when a PR lands, or when validation truth changes.
   tighten the Discover actions/results so visitor-facing copy does not promise
   public browsing while linking anonymous users into protected Studio/My Space
   surfaces. No schema/API change is implied.
+- DAEDALUS DISCOVER-ONBOARD-01 follow-up patch is ready for ARIADNE review,
+  2026-06-12: public Discover actions now point to the in-page public feed,
+  `/developer-spaces`, or `/forums` rather than protected `/space`; anonymous
+  search no longer renders persona results that only have protected Studio
+  destinations; and logged-in users still keep persona search access. No API
+  buckets, visibility filters, auth behavior, schema, Assistant behavior, or
+  feed ranking changed. Focused validation passed with
+  `--filter @station/web typecheck`, `--filter @station/web lint` with known
+  warnings only, `test:community`, and the auth-route guard test that marks
+  `/space` protected while `/space/:slug` remains public.
 
 ## Near-term rule
 
