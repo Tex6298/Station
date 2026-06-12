@@ -4230,3 +4230,24 @@ excerpts, raw bodies, owner IDs, trace IDs, tokens, cookies, API keys, replay
 credentials, or raw corpus text. ARGUS should hostile-review whether the
 client-side status-capture/retry caveat needs a follow-up before LLM-TRACE-01 is
 accepted.
+
+ARGUS review on 2026-06-12 accepts this as narrow non-zero-token observability
+proof. The reviewed route/code path keeps `/observability` behind auth; summary,
+trace list, and trace detail all filter by `owner_user_id`; trace detail filters
+child events by both trace id and owner; and the persona chat success writer
+records continuity counts plus provider/model/token/duration/cost labels without
+committing prompts or completions. The client-side status-capture/retry caveat is
+not a blocker for this lane because it produced duplicate completed synthetic
+conversation traces rather than a failed or leaked trace. Treat exact one-call
+replay ergonomics and the later status-only HTTP 500 as follow-up hygiene only if
+MIMIR raises the demo bar.
+
+ARGUS validation:
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Observability route/code review | Pass | Authenticated readers are owner-scoped; persona chat trace metadata is count/label oriented. |
+| Committed evidence privacy scan | Pass | Added evidence lines contained privacy-denial text only; no tokens, cookies, IDs, prompts, completions, keys, or raw bodies were found. |
+| `npx --yes pnpm@10.32.1 test:replay-readiness` | Pass | 1 replay-readiness test passed. |
+| `npx --yes pnpm@10.32.1 test:health` | Pass | 8 health/deployment tests passed. |
+| `git diff --check -- docs/roadmap/ACTIVE_STATUS.md docs/testing/VALIDATION_BASELINE.md .station-agents/state/ARGUS.json` | Pass | CRLF normalization warning only for ARGUS state. |

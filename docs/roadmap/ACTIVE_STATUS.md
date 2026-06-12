@@ -1757,6 +1757,17 @@ when a PR lands, or when validation truth changes.
   HTTP 500 without adding a failed trace. DAEDALUS did not commit prompts,
   completions, private excerpts, raw bodies, owner IDs, trace IDs, tokens,
   cookies, API keys, replay credentials, or raw corpus text.
+- ARGUS accepts LLM-TRACE-01 as narrow non-zero-token observability proof,
+  2026-06-12: the route/code review confirms `/observability` is authenticated
+  and owner-scoped, trace summary/list/detail filter on `owner_user_id`, detail
+  events are also owner-scoped, and the persona chat success trace stores
+  continuity counts plus provider/model/token/duration/cost labels rather than
+  prompts or completions. Focused validation passed. The client-side
+  status-capture/retry issue that produced two completed synthetic traces is
+  noisy but not a blocker for this proof, because both traces are completed,
+  non-zero-token, owner-visible conversation traces and no failed trace was
+  introduced. The later status-only HTTP 500 remains a small follow-up only if
+  exact one-call replay ergonomics become part of the demo bar.
 
 ## Near-term rule
 
