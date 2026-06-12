@@ -309,8 +309,10 @@ Immediate active task:
 - `REPLAY-OPT-02` is accepted as a shared query-embedding optimization with a
   measurement caveat: current health output does not prove the served Git SHA.
 - `REPLAY-OPT-03` is accepted as non-secret deployment identity metadata.
-- `REPLAY-OPT-04` is open for DAEDALUS: run a code-tied live timing pass once
-  Railway reports a served SHA at or after the deployment-identity patch.
+- `REPLAY-OPT-04` is accepted as code-tied sanitized replay evidence, not a
+  performance-win claim.
+- STAGING-DEMO-01 is open for ARIADNE: turn accepted backend/browser evidence
+  into a demo-readiness route sequence and product friction list.
 - Carry Stripe paid subscription activation as the only active external demo
   blocker, and keep Redis/Cloudflare/background jobs as future lanes driven by
   replay evidence rather than assumptions.

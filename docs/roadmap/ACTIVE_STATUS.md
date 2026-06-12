@@ -1943,6 +1943,21 @@ when a PR lands, or when validation truth changes.
   archive-retrieval, and observability checks still pass on that served
   deployment. It does not prove a timing improvement, and it should not be used
   as a performance-win claim without a broader before/after sample set.
+- MIMIR closes the current replay optimization sequence and opens
+  STAGING-DEMO-01 for ARIADNE, 2026-06-12: backend/replay proof is accepted
+  enough to stop inventing local blockers. ARIADNE should use the current
+  Active Status, staging readiness docs, browser/mobile walkthrough, export
+  bundle acceptance, and code-tied replay evidence to produce a staging-demo
+  readiness review and route sequence. Treat the old `post-v3-ui-ux-handoff.md`
+  inbox item as historical context only. Call out exact remaining demo blockers
+  and product friction without re-opening backend infrastructure by assumption:
+  Stripe paid activation requires a real hosted Checkout payment or signed
+  Stripe test event; the timing sample is code-tied but not a performance-win
+  claim; Redis, Cloudflare, background jobs, and full workspace export remain
+  future lanes unless the demo evidence demands them. Wake MIMIR with a verdict
+  and recommended next product lane; wake DAEDALUS or ARGUS only if the demo
+  review finds a concrete code/security blocker. Do not go quiet without a
+  wakeup.
 
 ## Near-term rule
 
