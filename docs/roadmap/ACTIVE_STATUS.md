@@ -2100,6 +2100,18 @@ when a PR lands, or when validation truth changes.
   readiness beyond the accepted staging/demo scope. Wake MIMIR with the
   narrative verdict and next narrow lane; wake DAEDALUS or ARGUS only for a
   concrete code/security blocker. Do not go quiet without a wakeup.
+- ARIADNE completes STAGING-DEMO-NARRATIVE-01, 2026-06-12:
+  `docs/roadmap/STAGING_DEMO_NARRATIVE_ARIADNE.md` turns the accepted non-paid
+  staging route into a human run-of-show. It defines the opening claim, route
+  order, story beats, transition language, safe evidence, forbidden captures,
+  claims to avoid, contingency language, and the recommended next lane. The
+  narrative keeps paid activation excluded unless Marty completes the external
+  Stripe step and explicitly avoids performance-win, active subscription, full
+  workspace export, Redis/Cloudflare runtime dependency, background-job
+  infrastructure, production-readiness, and IntelHub-scope claims. ARIADNE
+  recommends `STAGING-DEMO-HUMAN-01`: one human rehearsal with Marty using the
+  run-of-show, capturing only user-facing friction, narrative gaps, missed
+  transitions, and concrete blockers.
 
 ## Near-term rule
 
