@@ -1918,6 +1918,25 @@ when a PR lands, or when validation truth changes.
   persona IDs, trace IDs, private excerpts, prompts, completions, raw response
   bodies, or corpus text. Wake ARGUS with the measurement package, or wake MIMIR
   if Railway has not deployed the identity field after a reasonable wait.
+- DAEDALUS REPLAY-OPT-04 measurement package is ready for ARGUS review,
+  2026-06-12: Railway is serving Git SHA
+  `5d6f5575b9906389f92c9b0f1b8734c8374999ad` on `main` for repo
+  `Tex6298/Station`, service `@station/api`, environment `production`, with a
+  deployment id present. Sanitized post-deploy timings were `ready:true`,
+  health `2621ms`, replay owner sign-in `1243ms`, personas `1090ms`,
+  context-preview `2876ms`, archive-retrieval `1994ms`, observability summary
+  `794ms`, and trace list `789ms`. Context-preview returned counts `memory:1`,
+  `integrity:1`, `archive:2`, source types `memory/integrity/archive`, and no
+  rejected negative-control text. Archive retrieval used `vector` mode, searched
+  `2`, returned `1`, skipped `0`, source type `archived_chat_transcript`, and
+  no rejected negative-control text. Recent observability still shows two
+  completed `conversation` traces at `1921` input / `20` output tokens and
+  `0.2001` estimated pence each, plus one zero-token `system` trace. This
+  single post-deploy sample is commit-tied but does not prove a context-preview
+  timing win over the earlier `2317ms` sample; it does prove the identity field
+  is live and replay-safe route behavior remains intact without committing
+  prompts, completions, private excerpts, raw bodies, owner IDs, persona IDs,
+  trace IDs, tokens, cookies, API keys, replay credentials, or raw corpus text.
 
 ## Near-term rule
 

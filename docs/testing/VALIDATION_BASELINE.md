@@ -4411,6 +4411,50 @@ text, owner IDs, persona IDs, trace IDs, tokens, cookies, API keys, replay
 credentials, raw response bodies, service-variable dumps, commit messages, or
 authors were added.
 
+## REPLAY-OPT-04 DAEDALUS measurement result
+
+Measured on 2026-06-12 after Railway served deployment identity metadata.
+
+Deployment identity:
+
+| Field | Sanitized value |
+| --- | --- |
+| Git SHA | `5d6f5575b9906389f92c9b0f1b8734c8374999ad` |
+| Git branch | `main` |
+| Repo | `Tex6298/Station` |
+| Deployment id | Present |
+| Service | `@station/api` |
+| Environment | `production` |
+
+Sanitized live Railway probes:
+
+| Probe | Result | Notes |
+| --- | --- | --- |
+| `/health/deployment` | Pass | `ready:true`, `2621ms`, deployment identity present. |
+| Replay owner sign-in | Pass | HTTP 200, `1243ms`; token captured in memory only. |
+| `/personas` | Pass | HTTP 200, `1090ms`; used only to locate the replay persona in memory. |
+| `/conversations/persona/:personaId/context-preview` | Pass | HTTP 200, `2876ms`; counts were `memory:1`, `integrity:1`, `archive:2`; source types were `memory`, `integrity`, and `archive`; rejected negative-control text was absent. |
+| `/conversations/persona/:personaId/archive-retrieval` | Pass | HTTP 200, `1994ms`; mode `vector`, searched `2`, returned `1`, skipped `0`, source type `archived_chat_transcript`; rejected negative-control text was absent. |
+| `/observability/summary` | Pass | HTTP 200, `794ms`; trace count `3`, total tokens `3882`, estimated cost `0.4002` pence. |
+| `/observability/traces?limit=5` | Pass | HTTP 200, `789ms`; recent traces remained two completed `conversation` traces and one zero-token `system` trace. |
+
+Recent trace labels remained:
+
+- `conversation` / `completed` / `1921` input tokens / `20` output tokens /
+  `1134ms` / `0.2001` estimated pence.
+- `conversation` / `completed` / `1921` input tokens / `20` output tokens /
+  `1016ms` / `0.2001` estimated pence.
+- `system` / `completed` / zero tokens.
+
+Interpretation: this sample is now tied to the served deployment identity. It
+does not prove a context-preview timing win over the earlier `2317ms` sample;
+it proves the identity field is live and replay-safe route behavior still passes
+the same sanitized checks.
+
+Privacy boundary: DAEDALUS did not commit prompts, completions, private
+excerpts, raw bodies, owner IDs, persona IDs, trace IDs, tokens, cookies, API
+keys, replay credentials, or raw corpus text.
+
 ARGUS review on 2026-06-12 accepts REPLAY-OPT-03. The new
 `deploymentIdentity` block is evidence metadata only: it is nullable, limited to
 explicit Railway system identity labels, and excluded from readiness gating. The
