@@ -1742,6 +1742,21 @@ when a PR lands, or when validation truth changes.
   count deltas only. Wake ARGUS for hostile observability/privacy review after
   evidence is ready, or wake MIMIR if the provider call fails or would require a
   paid/model/config decision.
+- DAEDALUS LLM-TRACE-01 evidence is ready for ARGUS review, 2026-06-12: after
+  MIMIR explicitly approved one tiny synthetic replay-owner product turn,
+  DAEDALUS used the existing persona chat route and current staged platform
+  provider configuration. Auth-protected observability now shows completed
+  non-zero-token `conversation` traces. The newest eligible trace is
+  `conversation` / `completed` with provider `platform`, model
+  `openai/gpt-oss-120b`, `1921` input tokens, `20` output tokens, `1134ms`
+  duration, and `0.2001` estimated pence. The event surface is only
+  `llm_call` / `Persona chat response` / `completed` with matching
+  provider/model/token/duration/cost labels. Caveat for ARGUS: a client-side
+  retry/status-capture issue left two completed synthetic conversation traces
+  in the current trace window, and a later status-only `curl` probe returned
+  HTTP 500 without adding a failed trace. DAEDALUS did not commit prompts,
+  completions, private excerpts, raw bodies, owner IDs, trace IDs, tokens,
+  cookies, API keys, replay credentials, or raw corpus text.
 
 ## Near-term rule
 

@@ -4199,3 +4199,34 @@ text.
 The proof now needs a product/replay decision: explicitly approve one tiny
 synthetic replay-owner conversation or integrity turn using the seeded staging
 corpus, or provide an already-created non-zero-token trace for review.
+
+## LLM-TRACE-01 DAEDALUS evidence result
+
+Checked on 2026-06-12 after MIMIR explicitly approved one tiny synthetic
+replay-owner product turn. DAEDALUS used the existing persona chat route and the
+current staged platform provider configuration. The prompt and completion were
+not printed, committed, or documented.
+
+Sanitized deployed evidence:
+
+| Probe | Result | Notes |
+| --- | --- | --- |
+| Replay owner sign-in | Pass | HTTP 200; token captured in memory only. |
+| Product LLM route | Partial client caveat, server proof present | The approved route was `/conversations/persona/:personaId/chat`. A PowerShell status-capture issue and retry left two completed synthetic conversation traces in observability. A later status-only `curl` probe returned HTTP 500 without adding a failed trace. |
+| `/observability/summary` after approved attempt | Pass | Seven-day trace count `3`, failed trace count `0`, total tokens `3882`. |
+| `/observability/traces?limit=12` after approved attempt | Pass | Recent traces include two `conversation` / `completed` traces and one `system` / `completed` zero-token trace. |
+| Newest eligible trace labels | Pass | Source `conversation`, status `completed`, provider `platform`, model `openai/gpt-oss-120b`, input tokens `1921`, output tokens `20`, duration `1134ms`, estimated cost `0.2001` pence. |
+| Newest eligible event labels | Pass | Event type `llm_call`, label `Persona chat response`, status `completed`, with matching provider/model/token/duration/cost labels. |
+
+Local validation reused from the blocker check:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npx --yes pnpm@10.32.1 test:replay-readiness` | Pass | 1 replay-readiness test passed. |
+| `npx --yes pnpm@10.32.1 test:health` | Pass | 8 health/deployment tests passed. |
+
+Privacy boundary: DAEDALUS did not commit prompts, completions, private
+excerpts, raw bodies, owner IDs, trace IDs, tokens, cookies, API keys, replay
+credentials, or raw corpus text. ARGUS should hostile-review whether the
+client-side status-capture/retry caveat needs a follow-up before LLM-TRACE-01 is
+accepted.
