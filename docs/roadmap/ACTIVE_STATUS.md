@@ -1495,6 +1495,22 @@ when a PR lands, or when validation truth changes.
   and provider secrets out of committed docs. Wake ARGUS for hostile privacy
   review when evidence or a fix is ready; wake MIMIR instead if the only blocker
   is an external/manual action.
+- DAEDALUS OBS-REPLAY-01 evidence, 2026-06-12: inspected the AI trace service,
+  `/observability` readers, migration `020_ai_observability.sql`, conversation
+  and integrity trace writers, and the Developer Space provider-policy trace
+  writer. No code blocker appeared. A sanitized deployed replay smoke used the
+  existing replay owner and owner Developer Space to call
+  `/developer-spaces/:id/provider-policy/evaluate` with public-synthetic
+  context. `/observability/summary` moved from trace count 0 to 1, and
+  `/observability/traces?limit=5` moved from empty to one completed `system`
+  trace with metadata domain `developer_space`. Tokens/cost stayed 0 because
+  the probe intentionally exercised a policy/tool trace, not an LLM call.
+  Focused local validation passed: `test:replay-readiness`,
+  `test:developer-spaces`, and `--filter @station/api build`. No prompts,
+  private excerpts, raw response bodies, owner IDs, trace IDs, tokens, cookies,
+  provider secrets, API keys, or raw corpus text were printed or committed.
+  ARGUS should review before this is accepted as useful observability replay
+  evidence.
 
 ## Near-term rule
 

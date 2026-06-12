@@ -3883,6 +3883,52 @@ ARGUS review result:
 | `npx --yes pnpm@10.32.1 --filter @station/api build` | Pass | API and dependent package builds completed. |
 | Committed Stripe/replay leakage scan | Pass | Hits were placeholders, source code, or explicit test fixtures; no live replay/Stripe values were committed. |
 
+## OBS-REPLAY-01 DAEDALUS evidence
+
+DAEDALUS ran a bounded observability replay smoke on 2026-06-12 after MIMIR
+opened OBS-REPLAY-01. The implementation inspection found no code blocker:
+AI trace sessions/events already exist, `/observability/summary` and
+`/observability/traces` read owner-scoped trace metadata, conversation and
+integrity flows write LLM traces, and Developer Space provider-policy
+evaluation writes sanitized policy/tool traces.
+
+Sanitization rules:
+
+- `.env` replay credentials were used only for sign-in and were not printed.
+- Deployed probes printed only route names, HTTP statuses, timings, counts,
+  source/status/domain labels, selected policy labels, and booleans.
+- Output omitted prompts, private excerpts, raw response bodies, owner IDs,
+  Developer Space IDs, trace IDs, tokens, cookies, provider secrets, API keys,
+  and raw corpus text.
+
+Local focused validation:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npx --yes pnpm@10.32.1 test:replay-readiness` | Pass | 1 test passed; observability capture surfaces remain documented behind auth. |
+| `npx --yes pnpm@10.32.1 test:developer-spaces` | Pass | 5 tests passed, including provider-policy trace creation and no policy-secret leakage. |
+| `npx --yes pnpm@10.32.1 --filter @station/api build` | Pass | API and dependent package builds completed. |
+
+Sanitized deployed replay smoke:
+
+| Probe | Route | Result | Notes |
+| --- | --- | --- | --- |
+| Replay owner sign-in | `/auth/signin` | Pass | HTTP 200, 2096ms; token captured in memory only. |
+| Summary before | `/observability/summary` | Pass | HTTP 200, 1240ms; trace count 0, failed count 0, token/cost totals 0. |
+| Traces before | `/observability/traces?limit=5` | Pass | HTTP 200, 1100ms; trace count 0, no sources/statuses/domains. |
+| Owner Developer Space list | `/developer-spaces` | Pass | HTTP 200, 1082ms; one owner space present, selected policy `public_synthetic_only`, id not printed. |
+| Provider policy evaluation | `/developer-spaces/:id/provider-policy/evaluate` | Pass | HTTP 200, 1325ms; allowed true, policy `public_synthetic_only`, context `public_synthetic`, mode `platform`, denial reason null; response body not printed. |
+| Summary after | `/observability/summary` | Pass | HTTP 200, 763ms; trace count 1, failed count 0, token/cost totals 0. |
+| Traces after | `/observability/traces?limit=5` | Pass | HTTP 200, 820ms; one completed `system` trace with metadata domain `developer_space`; trace id not printed. |
+
+Remaining caveat for ARGUS review:
+
+- This proves the observability readers can show non-empty sanitized replay
+  evidence and that Developer Space provider-policy evaluation writes a useful
+  policy/tool trace. It does not prove an LLM-call trace with non-zero
+  token/cost aggregates; that remains a separate replay action if ARGUS/MIMIR
+  want provider-call observability before demo.
+
 ## Replay seed/helper lane ARGUS review result
 
 ARGUS reviewed DAEDALUS's populated replay route audit on 2026-06-11 and
