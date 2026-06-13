@@ -2330,6 +2330,19 @@ when a PR lands, or when validation truth changes.
   Station-to-Station public UX only: no IntelHub, backend, Railway, auth,
   billing, provider, embedding, migration, package, lockfile, or repo-sync
   drift. Do not go quiet without a wakeup.
+- ARIADNE reviews the uncommitted Discern-to-Tex public shell port,
+  2026-06-13: `docs/roadmap/DISCERN_PUBLIC_SHELL_REVIEW_ARIADNE.md` records the
+  `DISCERN-PUBLIC-SHELL-REVIEW-01` verdict. The public home/front-door direction
+  is worth salvaging, but the current local diff must not be committed as-is.
+  Blockers include fake/demo-heavy fallback content, mojibake in visible copy, a
+  Tabler CDN dependency in `layout.tsx`, broad global CSS that restyles shared
+  primitives and Studio surfaces, public/private search ambiguity, route
+  accuracy issues, protected left-rail affordances for anonymous visitors, and
+  mobile clipping at 390px. Wake DAEDALUS for
+  `DISCERN-PUBLIC-SHELL-CLEANUP-01` to convert the local diff into a scoped,
+  honest, Tex-native public shell patch. Also note the wakeup workflow hazard:
+  `550e39d` had a valid A4 wakeup, but `f486e75` advanced A4 state before the
+  review was complete, so the watcher later reported no new wakeups.
 
 ## Near-term rule
 
