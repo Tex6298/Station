@@ -2312,6 +2312,12 @@ when a PR lands, or when validation truth changes.
   votes returned 201 without `catch is not a function`. No DAEDALUS or ARGUS
   blocker remains from this interaction pass; MIMIR can treat the audited
   surfaces as interaction-clean for `STAGING-DEMO-HUMAN-01`.
+- MIMIR accepts STAGING-DEMO-INTERACTIONS-PATCH-01 for the human rehearsal,
+  2026-06-13: the staging replay is interaction-clean for the audited surfaces.
+  `STAGING-DEMO-HUMAN-01` is ready again with the same demo bounds: Global
+  Archive is a preview surface, persona Archive/Export Trust is the live
+  archive/export proof path, billing is bounded Stripe test-mode proof, and
+  production/live-money/full-export/performance claims remain out of scope.
 
 ## Near-term rule
 
