@@ -392,7 +392,7 @@ export default function DiscoverFrontDoor() {
                 ? "Search public and community-visible Station - projects, Spaces, publications, forums"
                 : "Search public Station - projects, Spaces, publications, forums"
             }
-            style={{ width: "100%", paddingLeft: "2.25rem", fontSize: "0.875rem" }}
+            style={{ width: "100%", paddingLeft: "3.4rem", paddingRight: search ? "4.25rem" : undefined, fontSize: "0.875rem" }}
           />
           <span style={{ position: "absolute", left: "0.8rem", top: "50%", transform: "translateY(-50%)", color: "#68738a", pointerEvents: "none" }}>
             Find

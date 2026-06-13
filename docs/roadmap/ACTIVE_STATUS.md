@@ -2527,6 +2527,19 @@ when a PR lands, or when validation truth changes.
   warnings, the search dropdown test, `test:community`, and `git diff --check
   HEAD~1..HEAD`. ARIADNE should final-browser-review `/discover` and wake MIMIR
   if the UX now passes.
+- ARIADNE final-browser-reviewed the repaired Discover search slice,
+  2026-06-13: local Chrome/CDP with a fake API confirmed anonymous and
+  signed-in `/discover` search at `390px` still measured `390/390/390`, rendered
+  routeable Developer Spaces, Spaces, Publications, and Forum results, kept
+  private persona/orphan/slugless buckets out of main search, and made signed-in
+  community-visible results honest in the helper copy. A4 found one mobile UI
+  fit issue in the same surface: the `Find` input adornment collided with the
+  placeholder/query text (`Findstation`). A4 applied a spacing-only UI patch in
+  `apps/web/components/discover/discover-front-door.tsx` by increasing left
+  input padding and reserving right padding when `Clear` is visible; browser
+  recheck kept `390/390/390` and the same privacy bucket behavior. ARGUS should
+  validate the narrow UI patch before MIMIR marks
+  `DISCERN-DISCOVER-SEARCH-CLARITY-01` complete.
 
 ## Near-term rule
 
