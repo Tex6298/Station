@@ -387,7 +387,11 @@ export default function DiscoverFrontDoor() {
             className="input"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search public Station - projects, Spaces, publications, forums"
+            placeholder={
+              user
+                ? "Search public and community-visible Station - projects, Spaces, publications, forums"
+                : "Search public Station - projects, Spaces, publications, forums"
+            }
             style={{ width: "100%", paddingLeft: "2.25rem", fontSize: "0.875rem" }}
           />
           <span style={{ position: "absolute", left: "0.8rem", top: "50%", transform: "translateY(-50%)", color: "#68738a", pointerEvents: "none" }}>
@@ -399,6 +403,11 @@ export default function DiscoverFrontDoor() {
             </button>
           )}
         </div>
+        <p style={{ color: "#8b96aa", fontSize: "0.78rem", lineHeight: 1.5, margin: "-0.45rem 0 1rem" }}>
+          {user
+            ? "Signed-in search may include community-visible results. Private Studio archive, memory, canon, import, and continuity stay out."
+            : "Public search returns routeable projects, Spaces, publications, and forum threads."}
+        </p>
 
         {search.trim() && (
           <div className="card" style={{ marginBottom: "1rem", padding: "1rem" }}>
@@ -451,7 +460,8 @@ export default function DiscoverFrontDoor() {
                 })}
                 {!PUBLIC_SEARCH_GROUPS.some(([key]) => routeablePublicSearchItems(key, searchResults).length > 0) && (
                   <div style={{ color: "#8b96aa", fontSize: "0.85rem", lineHeight: 1.55 }}>
-                    No public results for &quot;{search}&quot;. Try a project, Space, publication, or forum topic.
+                    No {user ? "public or community-visible" : "public"} results for &quot;{search}&quot;.
+                    Try a project, Space, publication, or forum topic.
                   </div>
                 )}
               </div>
