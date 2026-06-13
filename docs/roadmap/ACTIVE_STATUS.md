@@ -2571,6 +2571,13 @@ when a PR lands, or when validation truth changes.
   without document/body overflow. Do not port the Discern left rail or open
   another search slice now. Return to backend/staging readiness unless MIMIR
   later opens a narrow mobile-nav polish lane.
+- MIMIR opens STAGING-READINESS-REFRESH-01 for ARGUS, 2026-06-13:
+  `docs/roadmap/STAGING_READINESS_REFRESH_MIMIR.md` asks ARGUS to refresh
+  non-secret staging truth after the accepted Discern UI slices. The expected
+  output is a verdict on whether staging remains ready enough for Marty human
+  rehearsal / external Stripe paid activation, or whether a concrete repo-side
+  blocker should be opened next. No secrets, config changes, migrations, or
+  product behavior changes are authorized by this refresh.
 
 ## Near-term rule
 
