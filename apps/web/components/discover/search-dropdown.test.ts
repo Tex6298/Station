@@ -22,7 +22,9 @@ test("public search hrefs only target supported public routes", () => {
   );
   assert.equal(searchHref("threads", { id: "thread-1", category: { slug: "general" } }), "/forums/general/thread-1");
   assert.equal(searchHref("documents", { id: "orphan-doc", space: null }), null);
+  assert.equal(searchHref("documents", { space: { slug: "field-notes" } }), null);
   assert.equal(searchHref("developerSpaces", { id: "missing-slug" }), null);
+  assert.equal(searchHref("threads", { category: { slug: "general" } }), "/forums");
 });
 
 test("routeable public search items drop unrouteable public results", () => {
@@ -37,4 +39,10 @@ test("routeable public search items drop unrouteable public results", () => {
     items.map((item) => [item.result.id, item.href]),
     [["doc-1", "/space/station/documents/doc-1"]]
   );
+});
+
+test("routeable public search items ignore private owner buckets", () => {
+  const keys = PUBLIC_SEARCH_GROUPS.map(([key]) => key);
+
+  assert.equal((keys as readonly string[]).includes("personas"), false);
 });

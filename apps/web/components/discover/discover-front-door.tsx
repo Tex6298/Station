@@ -5,6 +5,10 @@ import Link from "next/link";
 import type { AuthUser } from "@station/types";
 import { apiGet } from "@/lib/api-client";
 import { restoreSession } from "@/lib/auth";
+import {
+  PUBLIC_SEARCH_GROUPS,
+  routeablePublicSearchItems,
+} from "@/components/discover/search-dropdown";
 
 interface FeedItem {
   id: string;
@@ -340,10 +344,6 @@ export default function DiscoverFrontDoor() {
     return () => clearTimeout(timeout);
   }, [search, token]);
 
-  const searchBuckets = user
-    ? (["personas", "developerSpaces", "spaces", "documents", "threads"] as const)
-    : (["developerSpaces", "spaces", "documents", "threads"] as const);
-
   return (
     <div className="discover-layout">
       <Sidebar sidebar={sidebar} user={user} loading={sideLoading} />
@@ -387,7 +387,7 @@ export default function DiscoverFrontDoor() {
             className="input"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder={user ? "Search Station - personas, posts, threads, spaces" : "Search public Station - posts, threads, spaces, live projects"}
+            placeholder="Search public Station - projects, Spaces, publications, forums"
             style={{ width: "100%", paddingLeft: "2.25rem", fontSize: "0.875rem" }}
           />
           <span style={{ position: "absolute", left: "0.8rem", top: "50%", transform: "translateY(-50%)", color: "#68738a", pointerEvents: "none" }}>
@@ -405,20 +405,14 @@ export default function DiscoverFrontDoor() {
             {searching && <div style={{ color: "#8b96aa", fontSize: "0.85rem" }}>Searching...</div>}
             {!searching && searchResults && (
               <div style={{ display: "grid", gap: "1rem" }}>
-                {searchBuckets.map((key) => {
-                  const results = searchResults[key] ?? [];
+                {PUBLIC_SEARCH_GROUPS.map(([key, label]) => {
+                  const results = routeablePublicSearchItems(key, searchResults);
                   if (!results.length) return null;
-                  const label = key === "developerSpaces" ? "Developer spaces" : key.charAt(0).toUpperCase() + key.slice(1);
                   return (
                     <div key={key}>
                       <div className="section-label">{label}</div>
                       <div style={{ display: "grid", gap: "0.3rem" }}>
-                        {results.map((r: any) => {
-                          const href = key === "personas" ? `/studio/personas/${r.id}`
-                            : key === "developerSpaces" ? `/developer-spaces/${r.slug}`
-                            : key === "spaces" ? `/space/${r.slug}`
-                            : key === "documents" ? (r.space ? `/space/${r.space.slug}/documents/${r.id}` : `/documents/${r.id}`)
-                            : r.category ? `/forums/${r.category.slug}/${r.id}` : `/forums`;
+                        {results.map(({ result: r, href }) => {
                           const title = r.name ?? r.title ?? r.projectName;
                           return (
                             <Link key={r.id} href={href} onClick={() => setSearch("")} style={{ textDecoration: "none", display: "block", padding: "0.3rem 0.5rem", borderRadius: 6, fontSize: "0.85rem", color: "#cbd5e1" }}>
@@ -455,9 +449,9 @@ export default function DiscoverFrontDoor() {
                     </div>
                   );
                 })}
-                {!searchBuckets.some((k) => (searchResults[k] ?? []).length > 0) && (
+                {!PUBLIC_SEARCH_GROUPS.some(([key]) => routeablePublicSearchItems(key, searchResults).length > 0) && (
                   <div style={{ color: "#8b96aa", fontSize: "0.85rem", lineHeight: 1.55 }}>
-                    {user ? "No results" : "No public results"} for &quot;{search}&quot;. Try a project, space, document title, or forum topic.
+                    No public results for &quot;{search}&quot;. Try a project, Space, publication, or forum topic.
                   </div>
                 )}
               </div>

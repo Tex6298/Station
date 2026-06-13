@@ -18,9 +18,9 @@ export function searchHref(key: PublicSearchGroup, result: any): string | null {
     case "spaces":
       return result.slug ? `/space/${result.slug}` : null;
     case "documents":
-      return result.space?.slug ? `/space/${result.space.slug}/documents/${result.id}` : null;
+      return result.id && result.space?.slug ? `/space/${result.space.slug}/documents/${result.id}` : null;
     case "threads":
-      return result.category?.slug ? `/forums/${result.category.slug}/${result.id}` : "/forums";
+      return result.id && result.category?.slug ? `/forums/${result.category.slug}/${result.id}` : "/forums";
     default:
       return null;
   }
