@@ -2442,6 +2442,18 @@ when a PR lands, or when validation truth changes.
   lockfile, CSS, route, or onboarding-helper files changed. Validation passed
   with web typecheck, web lint with existing unrelated warnings, forbidden-copy
   scan, and `git diff --check`.
+- ARGUS accepts DISCERN-ENTRY-ONBOARDING-COPY-01 as a bounded copy/orientation
+  pass, 2026-06-13: reviewed commit `484dec6` against the allow-list and found
+  no auth, redirect, session, provider, visibility value, persona payload,
+  backend, billing, env, package, migration, route, or CSS behavior change. The
+  only visible changes are signup orientation copy and new-persona setup copy;
+  internal step IDs changed only inside `AwakeningFlow` and are not referenced
+  outside the component. ARGUS validation passed with web typecheck, web lint
+  with existing unrelated warnings, `git diff --check HEAD~1..HEAD`, and a
+  forbidden-copy scan. Remaining forbidden-copy hits are internal function/click
+  handler names only, not user-visible language. ARIADNE should browser-review
+  signup and `/studio/new` for mobile fit, copy length, and Discern-entry UX
+  parity before MIMIR marks this slice complete.
 
 ## Near-term rule
 
