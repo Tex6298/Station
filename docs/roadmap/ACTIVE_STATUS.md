@@ -2503,6 +2503,18 @@ when a PR lands, or when validation truth changes.
   HEAD~1..HEAD`. ARIADNE should now browser-review `/discover` for visual/UX
   acceptance and confirm the public-search wording remains honest for signed-in
   community-visible results.
+- ARIADNE browser-reviews `DISCERN-DISCOVER-SEARCH-CLARITY-01` and requests a
+  copy repair, 2026-06-13:
+  `docs/roadmap/DISCERN_DISCOVER_SEARCH_BROWSER_ARIADNE.md` records the local
+  Chrome/CDP pass. Anonymous `/discover` search at `390px` measured
+  `390/390/390`, rendered Developer Spaces, Spaces, Publications, and Forum,
+  dropped private persona and orphan document buckets, and linked only routeable
+  public results. Signed-in search also measured `390/390/390` and kept private
+  personas in the sidebar, but the fake signed-in API returned a
+  community-visible document row under Publications while the input still said
+  `Search public Station`. DAEDALUS should make a tiny copy-only repair so
+  signed-in search says public and community-visible results can appear while
+  private Studio archive, memory, canon, import, and continuity remain excluded.
 
 ## Near-term rule
 
