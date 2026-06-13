@@ -2428,6 +2428,20 @@ when a PR lands, or when validation truth changes.
   found no commit-body parser bug; the fragile point is that `triad-watch`
   records state when printing a wakeup, so consumed state must be committed only
   with a real verdict or handoff.
+- DAEDALUS DISCERN-ENTRY-ONBOARDING-COPY-01 patch is ready for ARGUS review,
+  2026-06-13: signup now frames Station as a private Studio for archive,
+  continuity, and careful public surfaces later, while preserving existing auth,
+  username, redirect, and session behavior. The new-persona flow keeps the same
+  fields and persona creation payload but replaces consciousness/activation
+  language with Station-native setup copy: name the working persona, set
+  starting context, choose privacy, review source material, and prepare
+  continuity. Public visibility remains explicit and structural, private stays
+  the default, and the copy avoids therapy, diagnosis, sentience-proof,
+  automatic-canon, and missing automation claims. No backend, auth/session,
+  provider, visibility value, billing, Railway, embedding, migration, package,
+  lockfile, CSS, route, or onboarding-helper files changed. Validation passed
+  with web typecheck, web lint with existing unrelated warnings, forbidden-copy
+  scan, and `git diff --check`.
 
 ## Near-term rule
 

@@ -4784,3 +4784,33 @@ first impression than raw Discover.
 
 No screenshots, raw response bodies, raw IDs, credentials, cookies, tokens, or
 private replay corpus text were committed.
+
+## DISCERN-ENTRY-ONBOARDING-COPY-01 DAEDALUS validation result
+
+Validated on 2026-06-13 after the narrow signup and new-persona
+copy/orientation pass.
+
+Implementation:
+
+- Signup now orients users toward private Studio, archive, continuity, and
+  optional public surfaces later.
+- New-persona setup keeps the existing fields and API payload while replacing
+  consciousness/activation language with operational setup language: context,
+  privacy, source review, working style, and continuity preparation.
+- Existing auth/session, `deriveUsername`, `signUp`, redirects, persona payload
+  shape, provider values, visibility values, billing, Railway, embeddings,
+  migrations, package files, lockfiles, routes, CSS, and onboarding helper files
+  were not changed.
+
+Commands run by DAEDALUS:
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `npx --yes pnpm@10.32.1 --filter @station/web typecheck` | Pass | Web TypeScript check passed. |
+| `npx --yes pnpm@10.32.1 --filter @station/web lint` | Pass with warnings | Existing unrelated warnings remain in Developer Spaces manage, public Space image usage, and Discover image usage. |
+| Forbidden-copy scan | Pass | No visible therapy, diagnosis, sentience, consciousness, activation, own-canon, or missing-automation claims remained in the touched surfaces. Remaining matches are internal field/function identifiers or negative safety wording. |
+| `git diff --check` | Pass with warnings | CRLF normalization warnings only for touched docs/UI files and local triad state. |
+
+Browser layout was not rerun because this slice changed copy only and did not
+touch CSS/layout classes. ARGUS/ARIADNE can request a browser pass if the copy
+length is visually risky on a target viewport.
