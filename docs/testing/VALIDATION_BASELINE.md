@@ -4703,3 +4703,36 @@ Commands and checks run by ARIADNE:
 Sanitization: no screenshots were saved. Replay credentials, probe credentials,
 tokens, cookies, raw thread IDs, owner IDs, comment IDs, raw response bodies, and
 private replay corpus text were not committed.
+
+## DISCERN-PUBLIC-SHELL-CLEANUP-01 DAEDALUS validation result
+
+Validated on 2026-06-13 after converting the local Discern-to-Tex public shell
+port into a narrow Station public home/search cleanup.
+
+Implementation:
+
+- `/` now renders a scoped public home/front door backed by the existing public
+  Discover feed.
+- Fake fallback arrays and fabricated activity were removed; empty public
+  surfaces render honest empty/starter states.
+- The Tabler/jsDelivr icon dependency, protected anonymous left rail, broad
+  top-nav rewrite, and broad shared/Studio global restyling were removed.
+- New styles are scoped to `.public-home-*`.
+- `/discover` remains the existing Discover route.
+- Public home search calls Discover search without an auth token and renders
+  only public-safe, routeable Developer Space, Space, document, and thread
+  buckets. Persona/private owner buckets and documents without Space slugs are
+  not linked from the public dropdown.
+- No backend, auth, billing, Railway, provider, embedding, migration, package,
+  or lockfile changes were made.
+
+Commands run by DAEDALUS:
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `npx --yes pnpm@10.32.1 exec tsx --test apps/web/components/discover/search-dropdown.test.ts` | Pass | 3 search mapping tests passed for public bucket boundaries and routeable links. |
+| `npx --yes pnpm@10.32.1 --filter @station/web typecheck` | Pass | Web TypeScript check passed. |
+| `npx --yes pnpm@10.32.1 --filter @station/web lint` | Pass with warnings | Existing unrelated warnings remain in Developer Spaces manage, public Space image usage, and Discover image usage. |
+| `git diff --check` | Pass with warnings | CRLF normalization warning only for `apps/web/app/globals.css`. |
+| Local web `/` on port 3104 | Pass | Fresh Next dev server returned HTTP 200 for `/`. |
+| Local Chrome headless 390px screenshot | Partial | Rendered `/` at 390px and confirmed the fake content/CDN icon path was gone. Screenshot inspection still suggested possible right-edge crop/overflow, so ARGUS/ARIADNE should do the final browser acceptance check before marking the public shell visual surface accepted. |

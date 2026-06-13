@@ -2343,6 +2343,23 @@ when a PR lands, or when validation truth changes.
   honest, Tex-native public shell patch. Also note the wakeup workflow hazard:
   `550e39d` had a valid A4 wakeup, but `f486e75` advanced A4 state before the
   review was complete, so the watcher later reported no new wakeups.
+- DAEDALUS DISCERN-PUBLIC-SHELL-CLEANUP-01 patch is ready for ARGUS review,
+  2026-06-13: the rejected local port was narrowed to a Tex-native public
+  front door. `/` now renders an honest public home over the existing public
+  Discover feed, with empty states instead of fabricated projects, papers,
+  follower counts, live activity, or creator identities. The Tabler/jsDelivr
+  dependency, protected anonymous left rail, broad top-nav rewrite, and broad
+  global `.card`/`.button`/`.input`/Studio restyling were removed. New CSS is
+  scoped to `.public-home-*`, and `/discover` remains the existing Discover
+  route. Public home search now uses anonymous public Discover search only,
+  renders only Developer Space, Space, routeable document, and forum buckets,
+  and drops persona/private-owner buckets plus documents without a valid public
+  Space document route. Focused search mapping tests, web typecheck, web lint,
+  `git diff --check`, local web `/` health on port 3104, and a local Chrome
+  390px render pass were run. The screenshot still suggests ARGUS/ARIADNE
+  should verify mobile crop/overflow before accepting the visual surface; no
+  backend, auth, billing, Railway, provider, embedding, migration, package, or
+  lockfile changes were made.
 
 ## Near-term rule
 

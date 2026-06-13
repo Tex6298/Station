@@ -1,3 +1,3 @@
-import DiscoverFrontDoor from "@/components/discover/discover-front-door";
+import { PublicHome } from "@/components/discover/public-home";
 
-export default DiscoverFrontDoor;
+export default PublicHome;
