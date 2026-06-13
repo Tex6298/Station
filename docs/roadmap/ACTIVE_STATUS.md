@@ -2232,6 +2232,21 @@ when a PR lands, or when validation truth changes.
   and pushed. There is no active autonomous agent lane to continue until Marty
   runs or redirects `STAGING-DEMO-HUMAN-01`. If another agent is needed, MIMIR
   must send a fresh wakeup with an explicit required response path.
+- MIMIR opens STAGING-DEMO-INTERACTIONS-01 for ARIADNE, 2026-06-13: Marty found
+  live staging replay mobile controls where navigation links work but
+  action/control buttons appear unwired. ARIADNE should run an interaction
+  audit first, not a broad implementation pass. Check which visible buttons are
+  meant to be live, which are placeholders, and whether the UI makes preview
+  status clear. Examples to inspect include Archive/Studio card controls
+  `Attach`, `Pin`, `Draft`, `Export`; public discussion `Up`, `Down`, `Report`;
+  the reply form error `sb.rpc(...).catch is not a function`; and filter/tab
+  controls that should visibly change state. If a control is intended to be
+  live, ARIADNE should wake DAEDALUS with exact route/control/repro details and
+  expected behavior. If a control is not intended to work yet, ARIADNE should
+  recommend whether it should be disabled, hidden, or labelled preview-only for
+  staging demo clarity. Navigation itself is not the problem. ARIADNE must wake
+  MIMIR with an audit verdict, and must wake DAEDALUS for concrete wiring bugs.
+  Do not go quiet without a wakeup.
 
 ## Near-term rule
 
