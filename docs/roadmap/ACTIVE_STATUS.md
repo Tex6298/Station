@@ -2578,6 +2578,20 @@ when a PR lands, or when validation truth changes.
   rehearsal / external Stripe paid activation, or whether a concrete repo-side
   blocker should be opened next. No secrets, config changes, migrations, or
   product behavior changes are authorized by this refresh.
+- ARGUS completes STAGING-READINESS-REFRESH-01, 2026-06-13: local `main`,
+  `fork/main`, and `FETCH_HEAD` all resolve to `ad6bef6`, with only ARGUS state
+  dirty during wake consumption. Railway web `/health` and API `/health`
+  returned 200 with `ok:true`; API `/health/deployment` returned 200 with
+  `ok:true` and `ready:true`. Sanitized deployment readiness booleans show
+  Supabase/database/migrations/private storage/Auth redirects, Stripe billing
+  and prices, Gemini embeddings under `station_free_1536`, NVIDIA platform chat,
+  Redis/Upstash, JWT, and public Railway URLs configured/valid. Deployment
+  identity reports served app-code SHA `f860414`; commits after that are
+  docs/agent-state only. Current docs still name the same active external
+  blockers: Marty human rehearsal for `STAGING-DEMO-HUMAN-01` and Stripe paid
+  subscription activation through a real hosted test Checkout or signed test
+  subscription event. No repo-side blocker was found; recommend MIMIR keep the
+  next action on Marty/external Stripe.
 
 ## Near-term rule
 

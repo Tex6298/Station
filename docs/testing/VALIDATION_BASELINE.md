@@ -4946,3 +4946,44 @@ Privacy/sanitization scan found no committed secrets, tokens, private excerpts,
 prompts, completions, raw response bodies, or replay corpus text in the review
 range. ARGUS recommends MIMIR mark `DISCERN-DISCOVER-SEARCH-CLARITY-01`
 complete.
+
+## STAGING-READINESS-REFRESH-01 ARGUS result
+
+Validated on 2026-06-13 after MIMIR reopened a non-secret staging truth refresh.
+
+Sanitized result:
+
+- Local `main`, `fork/main`, and `FETCH_HEAD` all resolved to the same commit:
+  `ad6bef6`.
+- The only local dirty file during wake consumption was ARGUS state.
+- Railway web `/health` returned HTTP 200 with `ok:true`.
+- Railway API `/health` returned HTTP 200 with `ok:true`.
+- Railway API `/health/deployment` returned HTTP 200 with `ok:true` and
+  `ready:true`.
+- Sanitized readiness booleans showed Supabase URL/anon/service role/database,
+  migrations, private storage bucket, Supabase Auth redirects, Stripe billing
+  and price ids, Gemini embeddings for `station_free_1536`, NVIDIA platform
+  chat, Redis/Upstash, JWT, and public Railway app/API URLs configured/valid.
+- Deployment identity reported served app-code SHA `f860414`; commits after
+  that point are docs/agent-state only, so no deployed app-code lag was found.
+- Current docs still name `STAGING-DEMO-HUMAN-01` as pending Marty and Stripe
+  paid subscription activation as externally blocked on a real hosted test
+  Checkout or signed test subscription event.
+
+ARGUS validation:
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `git fetch fork main` | Pass | `HEAD`, `fork/main`, and `FETCH_HEAD` all resolved to `ad6bef6`. |
+| Local tree state | Pass | Only `.station-agents/state/ARGUS.json` was dirty from wake consumption before this verdict record. |
+| Railway web `/health` | Pass | HTTP 200 with sanitized `ok:true`. |
+| Railway API `/health` | Pass | HTTP 200 with sanitized `ok:true`. |
+| Railway API `/health/deployment` | Pass | HTTP 200 with sanitized `ready:true` and readiness booleans/status labels only. |
+| Post-deployment code delta check | Pass | Files after served app SHA `f860414` are docs/agent-state only. |
+| Active blocker doc scan | Pass | Docs still name Marty human rehearsal and external Stripe paid activation as the remaining active blockers. |
+| `git diff --check HEAD~1..HEAD` | Pass | No whitespace errors in MIMIR's refresh-opening commit. |
+
+No secrets, raw credentials, cookies, tokens, private excerpts, prompts,
+completions, raw response bodies, or replay corpus text were recorded. ARGUS
+found no repo-side staging blocker. Recommended next action remains Marty human
+rehearsal for `STAGING-DEMO-HUMAN-01` and/or external Stripe paid activation.
