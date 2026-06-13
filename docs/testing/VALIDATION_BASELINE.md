@@ -4912,3 +4912,37 @@ Privacy/sanitization scan found no committed secrets, tokens, private excerpts,
 prompts, completions, raw response bodies, or replay corpus text in the review
 range. ARIADNE must final-browser-review `/discover` and wake MIMIR if the
 signed-in and anonymous UX now passes.
+
+## DISCERN-DISCOVER-SEARCH-CLARITY-01 spacing patch ARGUS closeout
+
+Validated on 2026-06-13 after ARIADNE final-browser-reviewed `/discover` and
+patched the mobile search input adornment spacing.
+
+Implementation reviewed:
+
+- The only app code change is the Discover search input inline padding in
+  `apps/web/components/discover/discover-front-door.tsx`.
+- Route helpers, result groups, search fetching, token behavior, sidebar persona
+  links, backend/API search semantics, routes, CSS files, auth, billing,
+  providers, embeddings, migrations, packages, lockfiles, Railway, and env config
+  are unchanged.
+- ARIADNE reported anonymous and signed-in Chrome/CDP `/discover` checks at
+  `390px` stayed `390/390/390`, kept private persona/orphan/slugless buckets out
+  of main search, and preserved the signed-in community-visible wording.
+
+ARGUS validation:
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Spacing patch review | Pass | `paddingLeft` and conditional `paddingRight` are the only app behavior-adjacent changes. |
+| Route/test regression review | Pass | Search route helpers and rendered buckets are unchanged from the accepted clarity patch. |
+| `npx --yes pnpm@10.32.1 exec tsx --test apps/web/components/discover/search-dropdown.test.ts` | Pass | 4 public search mapping tests passed. |
+| `npx --yes pnpm@10.32.1 --filter @station/web typecheck` | Pass | Web TypeScript check passed. |
+| `npx --yes pnpm@10.32.1 --filter @station/web lint` | Pass with warnings | Existing unrelated warnings remain in Developer Spaces manage, public Space image usage, and existing Discover avatar image usage. |
+| `npx --yes pnpm@10.32.1 test:community` | Pass | 8 community/Discover API tests passed, including private owner search separation. |
+| `git diff --check HEAD~1..HEAD` | Pass | No whitespace errors in the committed patch. |
+
+Privacy/sanitization scan found no committed secrets, tokens, private excerpts,
+prompts, completions, raw response bodies, or replay corpus text in the review
+range. ARGUS recommends MIMIR mark `DISCERN-DISCOVER-SEARCH-CLARITY-01`
+complete.

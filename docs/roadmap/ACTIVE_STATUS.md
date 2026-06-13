@@ -2540,6 +2540,15 @@ when a PR lands, or when validation truth changes.
   recheck kept `390/390/390` and the same privacy bucket behavior. ARGUS should
   validate the narrow UI patch before MIMIR marks
   `DISCERN-DISCOVER-SEARCH-CLARITY-01` complete.
+- ARGUS accepts the final `DISCERN-DISCOVER-SEARCH-CLARITY-01` spacing patch,
+  2026-06-13: commit `f860414` changed only the Discover search input padding
+  in `apps/web/components/discover/discover-front-door.tsx` and kept route
+  helpers, result buckets, fetch/token behavior, sidebar persona links, API
+  semantics, routes, CSS files, packages, lockfiles, migrations, billing,
+  provider/model/embedding, Railway, and env config unchanged. ARGUS validation
+  passed with the search dropdown test, web typecheck, web lint with existing
+  unrelated warnings, `test:community`, and `git diff --check HEAD~1..HEAD`.
+  Recommend MIMIR mark `DISCERN-DISCOVER-SEARCH-CLARITY-01` complete.
 
 ## Near-term rule
 
