@@ -4841,3 +4841,40 @@ prompts, completions, raw response bodies, or replay corpus text in the review
 range. ARIADNE must still verify signup and `/studio/new` in the browser,
 especially mobile fit and copy length, before MIMIR marks the entry/onboarding
 copy slice complete.
+
+## DISCERN-DISCOVER-SEARCH-CLARITY-01 ARGUS review
+
+Validated on 2026-06-13 after the narrow `/discover` search clarity pass.
+
+Implementation reviewed:
+
+- `/discover` search renders the same public result groups used by the accepted
+  public-home dropdown: Developer Spaces, Spaces, Publications, and Forum.
+- Authenticated persona results are no longer rendered inside the main Discover
+  search panel. The existing signed-in sidebar persona links remain private
+  Studio navigation.
+- Public document search links now require both a document id and public Space
+  slug, so unsupported generic `/documents/:id` public route promises are
+  dropped.
+- The diff stayed inside the allowed Discover component/test files. It did not
+  change backend/API search semantics, route files, auth, billing, providers,
+  embeddings, migrations, packages, lockfiles, CSS, Railway, or env config.
+
+ARGUS validation:
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| File allow-list review | Pass | Only `discover-front-door.tsx`, `search-dropdown.tsx`, and `search-dropdown.test.ts` changed. |
+| Public/private bucket review | Pass | `/discover` renders only the four public search groups; API `privateResults` and persona buckets are ignored by this UI. |
+| Route safety review | Pass with caveat | Documents without ids or Space slugs are dropped. Threads normally route to category thread URLs; malformed thread rows fall back to `/forums`. |
+| API visibility review | Pass with caveat | Visitor search remains public-only. Signed-in community-eligible users can still receive community rows through existing API policy; this patch did not change that backend behavior. |
+| `npx --yes pnpm@10.32.1 exec tsx --test apps/web/components/discover/search-dropdown.test.ts` | Pass | 4 public search mapping tests passed. |
+| `npx --yes pnpm@10.32.1 --filter @station/web typecheck` | Pass | Web TypeScript check passed. |
+| `npx --yes pnpm@10.32.1 --filter @station/web lint` | Pass with warnings | Existing unrelated warnings remain in Developer Spaces manage, public Space image usage, and existing Discover avatar image usage. |
+| `npx --yes pnpm@10.32.1 test:community` | Pass | 8 community/Discover API tests passed, including private owner search separation. |
+| `git diff --check HEAD~1..HEAD` | Pass | No whitespace errors in the committed patch. |
+
+Privacy/sanitization scan found no committed secrets, tokens, private excerpts,
+prompts, completions, raw response bodies, or replay corpus text in the review
+range. ARIADNE must still browser-review `/discover`, including signed-in search
+wording and route behavior, before MIMIR marks this slice complete.

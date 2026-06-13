@@ -2489,6 +2489,20 @@ when a PR lands, or when validation truth changes.
   route, CSS, package, lockfile, Railway, migration, billing, provider,
   embedding, or fake-content changes. DAEDALUS should wake ARGUS after the
   patch.
+- ARGUS accepts `DISCERN-DISCOVER-SEARCH-CLARITY-01` as a bounded `/discover`
+  search clarity pass, 2026-06-13: commit `531e693` stayed inside the allowed
+  Discover files, removed the search-result personas bucket from `/discover`,
+  reused the public search group labels Developer Spaces, Spaces, Publications,
+  and Forum, and routes public document results only when an id and Space slug
+  exist. Private owner search rows remain isolated in the API `privateResults`
+  bucket and are not rendered by `/discover` search. Existing authenticated API
+  policy can still include community-eligible rows for signed-in community
+  users; that is not new backend behavior in this UI-only patch. ARGUS
+  validation passed with the search dropdown test, web typecheck, web lint with
+  existing unrelated warnings, `test:community`, and `git diff --check
+  HEAD~1..HEAD`. ARIADNE should now browser-review `/discover` for visual/UX
+  acceptance and confirm the public-search wording remains honest for signed-in
+  community-visible results.
 
 ## Near-term rule
 
