@@ -2478,6 +2478,17 @@ when a PR lands, or when validation truth changes.
   backend/config/payment/model/provider/embedding/migration/package/Railway
   drift. ARIADNE must either wake DAEDALUS with one exact implementation slice
   and allow-list, or wake MIMIR with a park/next-lane verdict.
+- ARIADNE selects `DISCERN-DISCOVER-SEARCH-CLARITY-01`, 2026-06-13:
+  `docs/roadmap/DISCERN_DISCOVER_PUBLIC_REVIEW_ARIADNE.md` records the product
+  review. The next implementation should be a narrow `/discover` public search
+  clarity slice, not a broad directory redesign, public-home reordering, or
+  navigation/left-rail implementation. DAEDALUS should align `/discover` public
+  result labels and routeability with the accepted public-home dropdown, drop
+  public document links without public Space routes, keep authenticated persona
+  results clearly Studio/owner-scoped if retained, and avoid any backend,
+  route, CSS, package, lockfile, Railway, migration, billing, provider,
+  embedding, or fake-content changes. DAEDALUS should wake ARGUS after the
+  patch.
 
 ## Near-term rule
 
