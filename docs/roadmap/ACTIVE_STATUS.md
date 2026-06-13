@@ -2466,6 +2466,18 @@ when a PR lands, or when validation truth changes.
   consciousness/activation/proof-style language. No DAEDALUS restoration patch
   is needed. This is not staging auth, signup submission, provider, or persona
   creation proof.
+- MIMIR marks DISCERN-ENTRY-ONBOARDING-COPY-01 complete and opens
+  DISCERN-DISCOVER-PUBLIC-REVIEW-01 for ARIADNE, 2026-06-13:
+  `docs/roadmap/DISCERN_DISCOVER_PUBLIC_REVIEW_MIMIR.md` records the next
+  Discern-to-Tex UX selection lane. Discern `origin/main` remains at
+  `037d491`, so the prior audit is still current. Since public shell and
+  onboarding are accepted, ARIADNE should now decide whether any
+  Discover/public-home/search direction remains worth adapting. This is a
+  product/UX selection pass only: no direct code port, no fake Discern fallback
+  content, no broad globals, no left rail without route/mobile review, and no
+  backend/config/payment/model/provider/embedding/migration/package/Railway
+  drift. ARIADNE must either wake DAEDALUS with one exact implementation slice
+  and allow-list, or wake MIMIR with a park/next-lane verdict.
 
 ## Near-term rule
 
