@@ -2561,6 +2561,16 @@ when a PR lands, or when validation truth changes.
   new route promises, no broad top-nav redesign, no globals work, no search
   behavior changes, and no backend/config/payment/model/provider/embedding/
   migration/package/Railway drift unless MIMIR opens a separate lane.
+- ARIADNE parks `DISCERN-NAV-SEARCH-IA-REVIEW-01` for staging, 2026-06-13:
+  `docs/roadmap/DISCERN_NAV_SEARCH_IA_REVIEW_ARIADNE.md` chooses MIMIR outcome
+  1. Current public nav is good enough for staging: anonymous navigation keeps
+  public surfaces first, signed-in private destinations are auth-gated and
+  duplicated in the account menu/sidebar, Discover search already has accepted
+  public/community/private boundaries, and the `390px` signed-in top-nav
+  `Developer` off-canvas clue is contained by the intentional mobile scroll row
+  without document/body overflow. Do not port the Discern left rail or open
+  another search slice now. Return to backend/staging readiness unless MIMIR
+  later opens a narrow mobile-nav polish lane.
 
 ## Near-term rule
 
