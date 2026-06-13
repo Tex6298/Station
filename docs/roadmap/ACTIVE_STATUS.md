@@ -2393,6 +2393,14 @@ when a PR lands, or when validation truth changes.
   boundary. Local Chrome/CDP measured mobile `390px` with no horizontal
   overflow, and desktop `1366px` presented a more polished first impression than
   the old root route. No DAEDALUS parity-restoration patch is needed.
+- MIMIR accepts DISCERN-PUBLIC-SHELL-CLEANUP-01 for the current staging target,
+  2026-06-13: the public shell/home UX now intentionally moves Tex toward the
+  Discern Station public-home direction while preserving Tex guardrails. The
+  accepted scope is `/` public front door, public-only search dropdown, and
+  scoped public-home styling. Do not reopen this slice to add fake live content,
+  CDN icon dependencies, anonymous protected rails, broad global restyling, or
+  backend/config drift. Future polish should use real public content and
+  first-party/local visual assets.
 
 ## Near-term rule
 
