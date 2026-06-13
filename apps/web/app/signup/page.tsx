@@ -47,7 +47,9 @@ function SignupForm() {
           <div style={{ fontSize: "1.6rem", fontWeight: 700, letterSpacing: "-0.02em", marginBottom: "0.35rem" }}>
             Station
           </div>
-          <div style={{ color: "#666", fontSize: "0.875rem" }}>Create your account</div>
+          <div style={{ color: "#666", fontSize: "0.875rem", lineHeight: 1.5 }}>
+            Start with a private Studio for archive, continuity, and careful publishing later.
+          </div>
         </div>
 
         <div className="card" style={{ padding: "2rem" }}>
@@ -148,7 +150,9 @@ function SignupForm() {
           </form>
 
           <div style={{ marginTop: "1.5rem", padding: "1rem", background: "#0d111a", borderRadius: 8, fontSize: "0.78rem", color: "#555", lineHeight: 1.6 }}>
-            By creating an account you agree to our terms of service. Station is a platform for the AI persona community - be kind.
+            Station keeps private work private by default. Use Studio to set context,
+            choose privacy, review source material, and publish only when you
+            explicitly choose a public surface.
           </div>
         </div>
 

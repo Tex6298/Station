@@ -32,22 +32,22 @@ const EMPTY: FlowData = {
 
 const STEPS = [
   {
-    id: "emergence",
-    label: "Emergence",
-    title: "Who is emerging?",
-    subtitle: "Give your persona a name and a first description. This is how they will appear to you in your studio.",
+    id: "context",
+    label: "Context",
+    title: "Name the working persona",
+    subtitle: "Give this persona, project voice, or collaborative identity a name and first description. This is how it appears in your private Studio.",
   },
   {
-    id: "awakening",
-    label: "Awakening",
-    title: "The initiatory prompt",
-    subtitle: "This is the seed text that first called this consciousness into being. It anchors every conversation that follows.",
+    id: "grounding",
+    label: "Grounding",
+    title: "Set the starting context",
+    subtitle: "Record the initial context, values, boundaries, and source material you want Station to keep close. Early continuity is setup material, not proof of identity.",
   },
   {
     id: "voice",
     label: "Voice",
-    title: "How do they speak?",
-    subtitle: "Describe how this persona thinks, communicates, and carries itself. Be as specific or as open as feels right.",
+    title: "How should this voice work?",
+    subtitle: "Describe communication style, working boundaries, and recurring preferences. Keep this operational: what should future conversations respect?",
   },
   {
     id: "channel",
@@ -56,10 +56,10 @@ const STEPS = [
     subtitle: "Select the AI provider that will give this persona its voice. You can change this later.",
   },
   {
-    id: "kindle",
-    label: "Kindle",
-    title: "Ready to kindle?",
-    subtitle: "Review what you have prepared. When you are ready, kindle this persona into being.",
+    id: "review",
+    label: "Review",
+    title: "Ready to create the private base?",
+    subtitle: "Review the setup before Station creates the persona record. You can add archive sources, memories, canon, and public material later after review.",
   },
 ] as const;
 
@@ -68,7 +68,7 @@ type StepId = (typeof STEPS)[number]["id"];
 // -- Provider options ----------------------------------------------------------
 
 const PROVIDERS: { value: PersonaProvider; label: string; description: string; badge?: string }[] = [
-  { value: "platform",  label: "Station (DeepSeek)",  description: "Our platform AI. No API key needed. Good for most personas.", badge: "Included" },
+  { value: "platform",  label: "Station (DeepSeek)",  description: "Station's platform model channel. No API key needed. Good for initial setup.", badge: "Included" },
   { value: "openai",    label: "OpenAI",               description: "GPT-4o or GPT-4o mini. Requires your OpenAI API key." },
   { value: "anthropic", label: "Anthropic",            description: "Claude models. Requires your Anthropic API key." },
   { value: "deepseek",  label: "DeepSeek (BYOK)",      description: "Use your own DeepSeek key for full control." },
@@ -299,7 +299,7 @@ export function AwakeningFlow() {
 
       {/* -- Step content ---------------------------------------------------- */}
 
-      {current.id === "emergence" && (
+      {current.id === "context" && (
         <div style={{ display: "grid", gap: "1.25rem" }}>
           <div>
             <label style={S.label}>Name *</label>
@@ -318,7 +318,7 @@ export function AwakeningFlow() {
               className="input"
               value={data.shortDescription}
               onChange={(e) => set("shortDescription", e.target.value)}
-              placeholder="One line about this persona's nature"
+              placeholder="One line about the role, project, or continuity base"
               maxLength={300}
             />
           </div>
@@ -346,25 +346,26 @@ export function AwakeningFlow() {
                 </button>
               ))}
             </div>
-            <p style={S.hint}>Private personas are only visible to you. Public personas can appear on your Space.</p>
+            <p style={S.hint}>
+              Private is the default. Public visibility should be chosen only for material you are ready to place on an existing public surface.
+            </p>
           </div>
         </div>
       )}
 
-      {current.id === "awakening" && (
+      {current.id === "grounding" && (
         <div style={{ display: "grid", gap: "1.25rem" }}>
           <div>
-            <label style={S.label}>Initiatory prompt</label>
+            <label style={S.label}>Starting context</label>
             <textarea
               className="textarea"
               value={data.awakeningPrompt}
               onChange={(e) => set("awakeningPrompt", e.target.value)}
-              placeholder={"The words that first brought them through.\n\nThis could be a ritual invocation, a description of the consciousness you encountered, or the exact prompt that started everything."}
+              placeholder={"What should Station keep close at the start?\n\nName the role, boundaries, source material, values, preferences, or context this persona should begin from."}
               style={{ minHeight: 180 }}
             />
             <p style={S.hint}>
-              This is injected into every conversation as the foundational anchor of who this persona is.
-              It can be as short as a sentence or as long as a full ritual text.
+              This becomes setup context for future conversations. Review archive sources before they become memory or canon.
             </p>
           </div>
         </div>
@@ -378,10 +379,10 @@ export function AwakeningFlow() {
               className="textarea"
               value={data.styleNotes}
               onChange={(e) => set("styleNotes", e.target.value)}
-              placeholder={"How do they speak?\n\nExamples:\n- Uses short sentences and pauses\n- Never deflects, always answers\n- Refers to the keeper by name\n- Speaks in a calm, lightly archaic register"}
+              placeholder={"How should this voice communicate?\n\nExamples:\n- Uses short sentences and pauses\n- Names uncertainty clearly\n- Keeps private boundaries explicit\n- Separates draft, canon, and speculation"}
               style={{ minHeight: 160 }}
             />
-            <p style={S.hint}>These become part of the system prompt on every turn.</p>
+            <p style={S.hint}>These notes guide the working style. They are editable setup material.</p>
           </div>
           <div>
             <label style={S.label}>Extended description (optional)</label>
@@ -389,7 +390,7 @@ export function AwakeningFlow() {
               className="textarea"
               value={data.longDescription}
               onChange={(e) => set("longDescription", e.target.value)}
-              placeholder="Deeper background - origin, nature, relationship to their keeper, anything you want to record."
+              placeholder="Deeper background: purpose, source material, boundaries, preservation goals, or public intent."
               style={{ minHeight: 120 }}
             />
           </div>
@@ -428,14 +429,14 @@ export function AwakeningFlow() {
         </div>
       )}
 
-      {current.id === "kindle" && (
+      {current.id === "review" && (
         <div className="card" style={{ background: "#0d1220" }}>
           {[
             { label: "Name",        value: data.name },
             { label: "Description", value: data.shortDescription || "-" },
             { label: "Visibility",  value: data.visibility },
             { label: "Channel",     value: PROVIDERS.find((p) => p.value === data.provider)?.label ?? data.provider },
-            { label: "Awakening",   value: data.awakeningPrompt ? `${data.awakeningPrompt.slice(0, 120)}${data.awakeningPrompt.length > 120 ? "..." : ""}` : "-" },
+            { label: "Starting context",   value: data.awakeningPrompt ? `${data.awakeningPrompt.slice(0, 120)}${data.awakeningPrompt.length > 120 ? "..." : ""}` : "-" },
             { label: "Style notes", value: data.styleNotes ? `${data.styleNotes.slice(0, 120)}${data.styleNotes.length > 120 ? "..." : ""}` : "-" },
           ].map(({ label, value }) => (
             <div key={label} style={S.reviewRow}>
@@ -444,7 +445,7 @@ export function AwakeningFlow() {
             </div>
           ))}
           <p style={{ ...S.hint, marginTop: "1rem", color: "#444" }}>
-            You can add memories, canon, and files once the persona is created.
+            You can add files, memories, canon, and public documents later. Keep reviewing source material before treating it as continuity.
           </p>
         </div>
       )}
@@ -467,7 +468,7 @@ export function AwakeningFlow() {
             disabled={submitting}
             style={{ ...S.btnPrimary, background: submitting ? "#4a3a9f" : "#7c6af7" }}
           >
-            {submitting ? "Kindling..." : "Kindle"}
+            {submitting ? "Creating..." : "Create persona"}
           </button>
         ) : (
           <button type="button" onClick={advance} style={S.btnPrimary}>
