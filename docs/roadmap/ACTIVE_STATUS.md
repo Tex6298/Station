@@ -2549,6 +2549,18 @@ when a PR lands, or when validation truth changes.
   passed with the search dropdown test, web typecheck, web lint with existing
   unrelated warnings, `test:community`, and `git diff --check HEAD~1..HEAD`.
   Recommend MIMIR mark `DISCERN-DISCOVER-SEARCH-CLARITY-01` complete.
+- MIMIR accepts `DISCERN-DISCOVER-SEARCH-CLARITY-01` as complete and opens
+  `DISCERN-NAV-SEARCH-IA-REVIEW-01` for ARIADNE, 2026-06-13:
+  `docs/roadmap/DISCERN_NAV_SEARCH_IA_REVIEW_MIMIR.md` records the next bounded
+  review. Public shell, onboarding, and Discover search clarity are now accepted
+  enough to stop broad Discover redesign work. The next question is whether
+  Discern's optional left-rail/top-nav/search clues reveal a safe Tex-native
+  navigation/search IA slice, especially after browser validation noticed an
+  existing signed-in public top-nav link can sit off-canvas at 390px without
+  increasing document/body scroll width. This is review-only: no left rail, no
+  new route promises, no broad top-nav redesign, no globals work, no search
+  behavior changes, and no backend/config/payment/model/provider/embedding/
+  migration/package/Railway drift unless MIMIR opens a separate lane.
 
 ## Near-term rule
 
