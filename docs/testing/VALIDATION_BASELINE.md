@@ -4653,3 +4653,29 @@ Commands run by DAEDALUS:
 | `npx --yes pnpm@10.32.1 --filter @station/web typecheck` | Pass | Web TypeScript check passed. |
 | `npx --yes pnpm@10.32.1 --filter @station/web lint` | Pass with warnings | Existing unrelated warnings remain in Developer Spaces manage, public Space image usage, and Discover image usage. |
 | `git diff --check` | Pass with warnings | CRLF normalization warnings only for touched files. |
+
+ARGUS review on 2026-06-13 accepts STAGING-DEMO-INTERACTIONS-PATCH-01. The
+patch addresses the interaction audit without widening scope: disabled archive
+preview controls replace live-looking no-ops, own-content forum vote controls
+are hidden while backend self-vote rejection remains intact, report feedback is
+not styled as an error on success, and vote score recalculation no longer calls
+`.catch` on Supabase RPC thenables.
+
+ARGUS validation:
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Interaction/code review | Pass | UI cleanup is bounded to archive preview controls, forum own-vote display, feedback styling, and RPC await safety. |
+| Own-vote safety review | Pass | Backend self-vote rejection remains in `castCommunityVote`; UI now hides own-thread/comment Up/Down controls and shows own-post/own-comment labels. |
+| `npx --yes pnpm@10.32.1 test:community` | Pass | 8 community tests passed, including the RPC thenable regression. |
+| `npx --yes pnpm@10.32.1 --filter @station/api typecheck` | Pass | API TypeScript check passed. |
+| `npx --yes pnpm@10.32.1 --filter @station/web typecheck` | Pass | Web TypeScript check passed. |
+| `npx --yes pnpm@10.32.1 --filter @station/web lint` | Pass with warnings | Existing unrelated warnings remain outside this patch. |
+| `npx --yes pnpm@10.32.1 test:studio-ui` | Pass | 8 Studio/archive/export UI helper tests passed. |
+| `git diff --check HEAD~2..HEAD` | Pass | No whitespace errors. |
+
+Privacy/sanitization scan found no committed secrets, tokens, private excerpts,
+prompts, completions, raw response bodies, or replay corpus text in the review
+range. Deployed browser verification was not rerun by ARGUS; ARIADNE should
+verify the served interaction behavior on staging before MIMIR marks the human
+rehearsal interaction-clean.

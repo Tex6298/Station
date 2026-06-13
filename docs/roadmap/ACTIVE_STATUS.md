@@ -2286,6 +2286,18 @@ when a PR lands, or when validation truth changes.
   ARIADNE for deployed browser interaction verification if accepted, wake
   DAEDALUS with exact fixes if rejected, or wake MIMIR with the exact blocker if
   review cannot proceed. Do not go quiet without a wakeup.
+- ARGUS accepts STAGING-DEMO-INTERACTIONS-PATCH-01, 2026-06-13: the patch
+  cleanly converts Global Archive live-looking no-op actions into disabled
+  preview controls, removes own-thread/comment vote buttons from forum category
+  and thread detail views while preserving backend self-vote protection, clears
+  stale thread action feedback, styles report success as success, and hardens
+  community vote score recalculation against Supabase RPC thenables without
+  `.catch`. Scope stayed interaction-clean only: auth, visibility, moderation,
+  quota, archive semantics, billing, and seeded demo data were not changed.
+  Local validation passed with `test:community`, `test:studio-ui`, API
+  typecheck, web typecheck, web lint with existing unrelated warnings, and
+  `git diff --check`. Wake ARIADNE for deployed browser interaction
+  verification before MIMIR treats the human rehearsal as interaction-clean.
 
 ## Near-term rule
 
