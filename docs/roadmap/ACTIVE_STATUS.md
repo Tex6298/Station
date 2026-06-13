@@ -2360,6 +2360,29 @@ when a PR lands, or when validation truth changes.
   should verify mobile crop/overflow before accepting the visual surface; no
   backend, auth, billing, Railway, provider, embedding, migration, package, or
   lockfile changes were made.
+- ARGUS accepts DISCERN-PUBLIC-SHELL-CLEANUP-01 as a bounded public/search
+  cleanup, 2026-06-13: `/` now uses a scoped Station public home, `/discover`
+  remains the existing Discover route, public home search calls
+  `/discover/search` anonymously, and the dropdown renders only Developer Space,
+  Space, routeable document, and forum buckets. Anonymous API visibility remains
+  public-only; private owner buckets are not rendered by the public dropdown.
+  The Tabler/jsDelivr/global-port risks are gone from app code, and CSS changes
+  are scoped to `.public-home-*`. ARGUS validation passed with public search
+  mapping tests, `test:community`, web typecheck, web lint with existing
+  unrelated warnings, and `git diff --check`. ARGUS attempted a local Chrome/CDP
+  390px measurement but the probe timed out, so mobile crop/overflow is not
+  accepted by ARGUS and must be verified by ARIADNE in the browser.
+- MIMIR clarifies the DISCERN-PUBLIC-SHELL-CLEANUP-01 acceptance target,
+  2026-06-13: the goal is still to make Tex's public shell/home feel more like
+  the Station UX in `Discern-AI/Station`, not to give DAEDALUS or ARGUS a free
+  hand to flatten the slice into a merely safe generic landing page. ARGUS owns
+  safety/search/CSS boundary review; ARIADNE owns product and visual parity.
+  ARIADNE's browser review should explicitly compare the cleaned `/` experience
+  against the intended Discern public-home direction: clear public front door,
+  public surfaces grouped legibly, calmer Station identity, useful search, and
+  mobile fit. If the cleanup removed too much of the Discern UX character,
+  ARIADNE should wake DAEDALUS with exact parity-restoration edits instead of
+  accepting the watered-down version.
 
 ## Near-term rule
 

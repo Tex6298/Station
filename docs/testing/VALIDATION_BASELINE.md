@@ -4736,3 +4736,30 @@ Commands run by DAEDALUS:
 | `git diff --check` | Pass with warnings | CRLF normalization warning only for `apps/web/app/globals.css`. |
 | Local web `/` on port 3104 | Pass | Fresh Next dev server returned HTTP 200 for `/`. |
 | Local Chrome headless 390px screenshot | Partial | Rendered `/` at 390px and confirmed the fake content/CDN icon path was gone. Screenshot inspection still suggested possible right-edge crop/overflow, so ARGUS/ARIADNE should do the final browser acceptance check before marking the public shell visual surface accepted. |
+
+ARGUS review on 2026-06-13 accepts DISCERN-PUBLIC-SHELL-CLEANUP-01 as a
+bounded public/search cleanup, with browser visual acceptance still pending.
+The app diff keeps `/discover` on the existing Discover route, replaces `/`
+with a scoped public home, calls Discover search without an auth token, and
+renders only Developer Space, Space, routeable document, and forum search
+buckets. The public dropdown does not render persona/private-owner buckets or
+documents without a public Space document route.
+
+ARGUS validation:
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Public/private search boundary review | Pass | Anonymous `/discover/search` visibility remains public-only; public home search does not pass an auth token and renders only public buckets. |
+| Route accuracy review | Pass with caveat | Normal public thread rows have required category slugs; documents without Space slugs and Developer Spaces without slugs are dropped from public search links. |
+| CSS/global-port review | Pass | No Tabler/jsDelivr dependency or broad anonymous rail/top-nav/shared/Studio restyling remains in app code; new styles are scoped to `.public-home-*`. |
+| `npx --yes pnpm@10.32.1 exec tsx --test apps/web/components/discover/search-dropdown.test.ts` | Pass | 3 search mapping tests passed. |
+| `npx --yes pnpm@10.32.1 test:community` | Pass | 8 community/Discover API tests passed, including public/private search separation. |
+| `npx --yes pnpm@10.32.1 --filter @station/web typecheck` | Pass | Web TypeScript check passed. |
+| `npx --yes pnpm@10.32.1 --filter @station/web lint` | Pass with warnings | Existing unrelated warnings remain outside this patch. |
+| `git diff --check HEAD~1..HEAD` | Pass | No whitespace errors in the committed patch. |
+| Local Chrome/CDP 390px measurement | Inconclusive | ARGUS attempted a short-lived Next dev server plus Chrome/CDP measurement, but the probe timed out before returning a result. |
+
+Privacy/sanitization scan found no committed secrets, tokens, private excerpts,
+prompts, completions, raw response bodies, or replay corpus text in the review
+range. ARIADNE must still verify the served browser/mobile surface, especially
+390px crop/overflow, before MIMIR marks the public shell visually accepted.

@@ -77,6 +77,19 @@ ARIADNE first:
 - Wake DAEDALUS with exact edits if the slice is worth salvaging.
 - Wake MIMIR if the whole slice should be rejected or needs a product decision.
 
+Strict parity note:
+
+- The goal is to make Tex's public shell/home look and feel more like the
+  Station UX direction in `Discern-AI/Station`.
+- Safety cleanup is a guardrail, not permission to redesign away the Discern
+  public-home character.
+- If DAEDALUS removes risky implementation details, ARIADNE must still confirm
+  the result preserves the intended public-front-door UX: calmer Station
+  identity, grouped public surfaces, useful public search, and a more polished
+  first impression than the current raw Discover route.
+- If the cleanup becomes too plain, generic, or off-brief, ARIADNE should wake
+  DAEDALUS with exact parity-restoration changes.
+
 DAEDALUS second, only if ARIADNE keeps the slice:
 
 - Sanitize the port into a Tex-native patch.
