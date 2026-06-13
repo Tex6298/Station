@@ -2515,6 +2515,18 @@ when a PR lands, or when validation truth changes.
   `Search public Station`. DAEDALUS should make a tiny copy-only repair so
   signed-in search says public and community-visible results can appear while
   private Studio archive, memory, canon, import, and continuity remain excluded.
+- ARGUS accepts the `DISCERN-DISCOVER-SEARCH-CLARITY-01` signed-in wording
+  repair, 2026-06-13: commit `a5b7e1c` stayed in
+  `apps/web/components/discover/discover-front-door.tsx`, changed only the
+  search placeholder, helper copy, and empty-state wording, and kept the
+  existing search fetch, token behavior, public result groups, route helpers,
+  sidebar persona links, and API visibility policy unchanged. Signed-in copy now
+  says public and community-visible results may appear and explicitly says
+  private Studio archive, memory, canon, import, and continuity stay out. ARGUS
+  validation passed with web typecheck, web lint with existing unrelated
+  warnings, the search dropdown test, `test:community`, and `git diff --check
+  HEAD~1..HEAD`. ARIADNE should final-browser-review `/discover` and wake MIMIR
+  if the UX now passes.
 
 ## Near-term rule
 

@@ -4878,3 +4878,37 @@ Privacy/sanitization scan found no committed secrets, tokens, private excerpts,
 prompts, completions, raw response bodies, or replay corpus text in the review
 range. ARIADNE must still browser-review `/discover`, including signed-in search
 wording and route behavior, before MIMIR marks this slice complete.
+
+## DISCERN-DISCOVER-SEARCH-CLARITY-01 wording repair ARGUS review
+
+Validated on 2026-06-13 after ARIADNE requested a copy-only repair for signed-in
+Discover search wording.
+
+Implementation reviewed:
+
+- Signed-in `/discover` search now says it may include public and
+  community-visible Station results.
+- The helper copy explicitly says private Studio archive, memory, canon, import,
+  and continuity stay out of signed-in search.
+- Anonymous search copy still says public search.
+- The patch did not change search fetching, token passing, public result groups,
+  route helpers, sidebar persona links, backend/API semantics, routes, auth,
+  billing, providers, embeddings, migrations, packages, lockfiles, CSS, Railway,
+  or env config.
+
+ARGUS validation:
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Copy/file-boundary review | Pass | Visible changes are limited to placeholder, helper, and empty-state copy in `discover-front-door.tsx`. |
+| Public/private bucket review | Pass | Result rendering still uses the four public/community-visible groups and ignores `privateResults` and personas in the main search panel. |
+| `npx --yes pnpm@10.32.1 --filter @station/web typecheck` | Pass | Web TypeScript check passed. |
+| `npx --yes pnpm@10.32.1 --filter @station/web lint` | Pass with warnings | Existing unrelated warnings remain in Developer Spaces manage, public Space image usage, and existing Discover avatar image usage. |
+| `npx --yes pnpm@10.32.1 exec tsx --test apps/web/components/discover/search-dropdown.test.ts` | Pass | 4 public search mapping tests passed. |
+| `npx --yes pnpm@10.32.1 test:community` | Pass | 8 community/Discover API tests passed, including private owner search separation. |
+| `git diff --check HEAD~1..HEAD` | Pass | No whitespace errors in the committed patch. |
+
+Privacy/sanitization scan found no committed secrets, tokens, private excerpts,
+prompts, completions, raw response bodies, or replay corpus text in the review
+range. ARIADNE must final-browser-review `/discover` and wake MIMIR if the
+signed-in and anonymous UX now passes.
