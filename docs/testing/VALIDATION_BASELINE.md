@@ -4679,3 +4679,27 @@ prompts, completions, raw response bodies, or replay corpus text in the review
 range. Deployed browser verification was not rerun by ARGUS; ARIADNE should
 verify the served interaction behavior on staging before MIMIR marks the human
 rehearsal interaction-clean.
+
+## STAGING-DEMO-INTERACTIONS-PATCH-01 deployed ARIADNE verification
+
+Validated on 2026-06-13 after ARGUS accepted the narrow interaction cleanup.
+
+ARIADNE verified the served Railway staging patch in live Chrome/CDP at 390px
+mobile width and with staging API probes. The API deployment identity served
+commit prefix `276daa993321` with `ready:true`.
+
+Commands and checks run by ARIADNE:
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `curl.exe -fsS --max-time 30 https://stationapi-production.up.railway.app/health/deployment` | Pass | Returned `ready:true` and served patch commit prefix `276daa993321`. |
+| `curl.exe -fsS --max-time 20 https://stationweb-production.up.railway.app/health` | Pass | Returned `{ "ok": true }`. |
+| Live Chrome/CDP `/studio/archive` at 390px | Pass | Preview copy is visible; Upload/Attach/Pin/Draft/Export preview controls are disabled and titled `Preview only`; no mobile overflow. |
+| Live Chrome/CDP `/forums/general` at 390px | Pass | Replay-owned thread shows `Own post` and no owner Up/Down controls; no mobile overflow. |
+| Live Chrome/CDP thread detail at 390px | Pass | Replay owner sees `Own post`, no owner Up/Down controls, live `Report`, and green report success feedback. |
+| Live throwaway non-owner thread/comment vote probes | Pass | Thread and comment votes returned 201; readback showed viewer vote state; no `catch is not a function` error appeared. |
+| Live Chrome/CDP non-owner thread detail at 390px | Pass | Non-owner sees Up/Down controls, does not see `Own post`, and sees no self-vote or RPC catch error text. |
+
+Sanitization: no screenshots were saved. Replay credentials, probe credentials,
+tokens, cookies, raw thread IDs, owner IDs, comment IDs, raw response bodies, and
+private replay corpus text were not committed.

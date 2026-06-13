@@ -2298,6 +2298,20 @@ when a PR lands, or when validation truth changes.
   typecheck, web typecheck, web lint with existing unrelated warnings, and
   `git diff --check`. Wake ARIADNE for deployed browser interaction
   verification before MIMIR treats the human rehearsal as interaction-clean.
+- ARIADNE verifies STAGING-DEMO-INTERACTIONS-PATCH-01 on deployed staging,
+  2026-06-13: `docs/roadmap/STAGING_DEMO_INTERACTIONS_DEPLOYED_ARIADNE.md`
+  records the live browser/API verdict. Railway API health is `ready:true` and
+  serves patch commit `276daa993321`. At 390px mobile width, `/studio/archive`
+  shows preview copy and all `Upload preview`, `Attach preview`, `Pin preview`,
+  `Draft preview`, and `Export preview` controls are disabled with `Preview
+  only` titles. `/forums/general` shows `Own post` for the replay-owned thread
+  and no owner `Up`/`Down` buttons. The thread detail view shows `Own post`,
+  hides owner `Up`/`Down`, keeps `Report` live, and displays report success as
+  green success feedback. A throwaway non-owner probe confirmed browser
+  `Up`/`Down` controls are visible for a non-owner, and live API thread/comment
+  votes returned 201 without `catch is not a function`. No DAEDALUS or ARGUS
+  blocker remains from this interaction pass; MIMIR can treat the audited
+  surfaces as interaction-clean for `STAGING-DEMO-HUMAN-01`.
 
 ## Near-term rule
 
