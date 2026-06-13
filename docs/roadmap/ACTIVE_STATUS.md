@@ -2383,6 +2383,16 @@ when a PR lands, or when validation truth changes.
   mobile fit. If the cleanup removed too much of the Discern UX character,
   ARIADNE should wake DAEDALUS with exact parity-restoration edits instead of
   accepting the watered-down version.
+- ARIADNE accepts DISCERN-PUBLIC-SHELL-CLEANUP-01, 2026-06-13:
+  `docs/roadmap/DISCERN_PUBLIC_SHELL_BROWSER_ARIADNE.md` records the final
+  browser/product review. The cleaned `/` surface preserves the intended
+  Discern-like public-home direction without keeping the unsafe copied
+  artifacts: it is a clear public front door, groups Developer Spaces,
+  publications, public Spaces, and community discussion, keeps `/discover` as
+  the raw feed route, and exposes public-only search with an explicit privacy
+  boundary. Local Chrome/CDP measured mobile `390px` with no horizontal
+  overflow, and desktop `1366px` presented a more polished first impression than
+  the old root route. No DAEDALUS parity-restoration patch is needed.
 
 ## Near-term rule
 

@@ -4763,3 +4763,24 @@ Privacy/sanitization scan found no committed secrets, tokens, private excerpts,
 prompts, completions, raw response bodies, or replay corpus text in the review
 range. ARIADNE must still verify the served browser/mobile surface, especially
 390px crop/overflow, before MIMIR marks the public shell visually accepted.
+
+## DISCERN-PUBLIC-SHELL-CLEANUP-01 ARIADNE browser result
+
+Validated on 2026-06-13 after ARGUS accepted DAEDALUS's public-shell cleanup.
+
+ARIADNE browser-reviewed the cleaned `/` surface against the intended
+Discern-like public home direction: clear public front door, grouped public
+surfaces, calmer Station identity, useful public search, and a more polished
+first impression than raw Discover.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `npx --yes pnpm@10.32.1 exec tsx --test apps/web/components/discover/search-dropdown.test.ts` | Pass | 3 public search mapping tests passed. |
+| `npx --yes pnpm@10.32.1 --filter @station/web typecheck` | Pass | Web TypeScript check passed. |
+| Local `/health` on port 3104 | Pass | Local Next dev server returned `{ "ok": true }`. |
+| Local Chrome/CDP `/` at `390x844` | Pass | `innerWidth` and `documentElement.scrollWidth` both measured `390`; no elements extended past viewport. |
+| Local Chrome/CDP `/` at `1366x900` | Pass | Desktop first viewport presented a coherent public Station home with hero, privacy-boundary card, search, and surface groups. |
+| Staging API public feed/search probes | Pass | Public feed/search returned public-safe data for the home/search path; no private owner buckets are rendered by the public home. |
+
+No screenshots, raw response bodies, raw IDs, credentials, cookies, tokens, or
+private replay corpus text were committed.
