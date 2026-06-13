@@ -4814,3 +4814,30 @@ Commands run by DAEDALUS:
 Browser layout was not rerun because this slice changed copy only and did not
 touch CSS/layout classes. ARGUS/ARIADNE can request a browser pass if the copy
 length is visually risky on a target viewport.
+
+ARGUS review on 2026-06-13 accepts DISCERN-ENTRY-ONBOARDING-COPY-01 as a
+bounded signup and new-persona copy/orientation pass, with browser visual
+acceptance still pending. Commit `484dec6` changes visible copy in
+`apps/web/app/signup/page.tsx` and
+`apps/web/components/studio/awakening-flow.tsx`; it does not change the signup
+auth flow, redirect handling, `deriveUsername`, `signUp`, persona creation
+endpoint, persona payload shape, provider values, visibility values, routes,
+CSS, billing, Railway, embeddings, migrations, package files, or lockfiles.
+
+ARGUS validation:
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Allow-list review | Pass | App diff is copy/orientation only; internal step ID renames stay inside `AwakeningFlow`. |
+| Auth/session/redirect review | Pass | Signup still calls `deriveUsername`, `signUp`, and `router.replace(redirectTo)` exactly as before. |
+| Persona payload review | Pass | New-persona creation still posts the same fields to `/personas` with the same provider and visibility values. |
+| Forbidden-copy scan | Pass | Remaining hits are internal `kindle` function/click handler names only, not visible copy. |
+| `npx --yes pnpm@10.32.1 --filter @station/web typecheck` | Pass | Web TypeScript check passed. |
+| `npx --yes pnpm@10.32.1 --filter @station/web lint` | Pass with warnings | Existing unrelated warnings remain in Developer Spaces manage, public Space image usage, and Discover image usage. |
+| `git diff --check HEAD~1..HEAD` | Pass | No whitespace errors in the committed patch. |
+
+Privacy/sanitization scan found no committed secrets, tokens, private excerpts,
+prompts, completions, raw response bodies, or replay corpus text in the review
+range. ARIADNE must still verify signup and `/studio/new` in the browser,
+especially mobile fit and copy length, before MIMIR marks the entry/onboarding
+copy slice complete.
