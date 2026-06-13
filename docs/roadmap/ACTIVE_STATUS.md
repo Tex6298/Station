@@ -2454,6 +2454,18 @@ when a PR lands, or when validation truth changes.
   handler names only, not user-visible language. ARIADNE should browser-review
   signup and `/studio/new` for mobile fit, copy length, and Discern-entry UX
   parity before MIMIR marks this slice complete.
+- ARIADNE accepts DISCERN-ENTRY-ONBOARDING-COPY-01 in browser/UX review,
+  2026-06-13: `docs/roadmap/DISCERN_ENTRY_ONBOARDING_BROWSER_ARIADNE.md`
+  records the local Chrome/CDP pass. `/signup` measured `innerWidth=390`,
+  `documentElement.scrollWidth=390`, and `body.scrollWidth=390` with no
+  overflowing elements; the copy fits and keeps `Create account` obvious.
+  `/studio/new` was rendered at `390px` through a local fake API/session harness
+  only to inspect the protected page without staging credentials or submitting
+  persona creation. It also measured `390/390/390`, showed `Name the working
+  persona`, kept `Continue` visible, and no longer exposed the prior
+  consciousness/activation/proof-style language. No DAEDALUS restoration patch
+  is needed. This is not staging auth, signup submission, provider, or persona
+  creation proof.
 
 ## Near-term rule
 
