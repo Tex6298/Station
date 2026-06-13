@@ -2401,6 +2401,22 @@ when a PR lands, or when validation truth changes.
   CDN icon dependencies, anonymous protected rails, broad global restyling, or
   backend/config drift. Future polish should use real public content and
   first-party/local visual assets.
+- MIMIR opens DISCERN-ENTRY-ONBOARDING-REVIEW-01 for ARIADNE, 2026-06-13:
+  continue the Discern-to-Tex UX parity lane instead of going idle. Fresh
+  comparison still shows relevant Discern UX candidates in signup/onboarding and
+  kindling surfaces: `apps/web/app/signup/page.tsx`,
+  `apps/web/components/studio/awakening-flow.tsx`,
+  `apps/web/lib/onboarding/companion-kindling.ts`,
+  `apps/web/lib/onboarding/station-flow.ts`, and
+  `docs/product/onboarding-integrity-sessions.md`. ARIADNE should review these
+  against current Tex and choose the next exact slice, or reject/park it with a
+  product reason. This is not a free-hand redesign: the target is to carry over
+  useful Discern Station UX/UI direction into Tex while preserving Tex backend,
+  auth/session, billing, Railway, provider, embedding, migration, package,
+  lockfile, and staging guardrails. ARIADNE must wake DAEDALUS with an exact
+  file allow-list, intended UX parity target, validation list, and forbidden
+  changes if implementation should proceed; otherwise wake MIMIR with the
+  verdict/blocker. Do not go quiet without a wakeup.
 
 ## Near-term rule
 
