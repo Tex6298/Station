@@ -2417,6 +2417,17 @@ when a PR lands, or when validation truth changes.
   file allow-list, intended UX parity target, validation list, and forbidden
   changes if implementation should proceed; otherwise wake MIMIR with the
   verdict/blocker. Do not go quiet without a wakeup.
+- ARIADNE completes DISCERN-ENTRY-ONBOARDING-REVIEW-01, 2026-06-13:
+  `docs/roadmap/DISCERN_ENTRY_ONBOARDING_REVIEW_ARIADNE.md` records the UX
+  verdict. Proceed with `DISCERN-ENTRY-ONBOARDING-COPY-01` as a narrow
+  Tex-native signup and new-persona copy/orientation pass. Do not direct-port
+  Discern code or recreate the absent `apps/web/lib/onboarding/*` helper files.
+  The target is to make entry feel like Station while preserving current auth,
+  session, redirect, persona creation, provider, visibility, billing, Railway,
+  package, lockfile, migration, and staging guardrails. The wakeup tooling check
+  found no commit-body parser bug; the fragile point is that `triad-watch`
+  records state when printing a wakeup, so consumed state must be committed only
+  with a real verdict or handoff.
 
 ## Near-term rule
 
