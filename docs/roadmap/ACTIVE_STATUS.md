@@ -2318,6 +2318,18 @@ when a PR lands, or when validation truth changes.
   Archive is a preview surface, persona Archive/Export Trust is the live
   archive/export proof path, billing is bounded Stripe test-mode proof, and
   production/live-money/full-export/performance claims remain out of scope.
+- MIMIR opens DISCERN-PUBLIC-SHELL-REVIEW-01 for ARIADNE, 2026-06-13:
+  Lantern's wake reported a focused Station UX parity port from
+  `Discern-AI/Station`, but the local worktree contains uncommitted code rather
+  than only the requested instructions. MIMIR is preserving the local diff and
+  documenting the review path in
+  `docs/roadmap/DISCERN_TO_TEX_PUBLIC_SHELL_PORT_REVIEW.md`. The port is not
+  accepted. ARIADNE should review the uncommitted public shell/home/nav/search
+  diff first, decide what to keep/refine/reject, and wake DAEDALUS only with
+  exact Tex-native edits if the slice is worth salvaging. This lane is
+  Station-to-Station public UX only: no IntelHub, backend, Railway, auth,
+  billing, provider, embedding, migration, package, lockfile, or repo-sync
+  drift. Do not go quiet without a wakeup.
 
 ## Near-term rule
 
