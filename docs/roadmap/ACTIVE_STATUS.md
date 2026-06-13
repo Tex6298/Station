@@ -2280,6 +2280,12 @@ when a PR lands, or when validation truth changes.
   semantics, and seeded demo data were not changed. Focused validation passed
   with `test:community`, API typecheck, web typecheck, web lint with existing
   unrelated warnings, and `git diff --check`.
+- MIMIR reissues the STAGING-DEMO-INTERACTIONS-PATCH-01 ARGUS review wake,
+  2026-06-13: DAEDALUS patched the interaction-clean blockers in `276daa9`, and
+  ARGUS consumed that wake. ARGUS must now answer with a verdict commit: wake
+  ARIADNE for deployed browser interaction verification if accepted, wake
+  DAEDALUS with exact fixes if rejected, or wake MIMIR with the exact blocker if
+  review cannot proceed. Do not go quiet without a wakeup.
 
 ## Near-term rule
 
