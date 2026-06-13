@@ -2247,6 +2247,24 @@ when a PR lands, or when validation truth changes.
   staging demo clarity. Navigation itself is not the problem. ARIADNE must wake
   MIMIR with an audit verdict, and must wake DAEDALUS for concrete wiring bugs.
   Do not go quiet without a wakeup.
+- ARIADNE completes STAGING-DEMO-INTERACTIONS-01 audit, 2026-06-13:
+  `docs/roadmap/STAGING_DEMO_INTERACTIONS_ARIADNE.md` records the interaction
+  audit. Navigation is not the blocker. `/studio/archive` filter/search controls
+  work, but `Upload`, `Attach`, `Pin`, `Draft`, and `Export` are enabled
+  no-op preview buttons and should be disabled, hidden, or labelled
+  preview-only before the human rehearsal. `/forums/general` sort/search works
+  by API and mobile width is clean, but replay-owned thread `Up`/`Down` controls
+  are visible even though the API correctly returns `You cannot vote on your own
+  post.` The thread detail report-first path is live and shows `Report sent for
+  moderation review.`; reply is live and returned 201 with a sanitized staging
+  probe comment visible on readback. The reported `sb.rpc(...).catch is not a
+  function` reply error did not reproduce on the seeded replay thread, but
+  `apps/api/src/services/community.service.ts` has the same direct
+  `.rpc(...).catch(...)` pattern in vote score recalculation and should be
+  hardened. Discover tabs pass: active underline/color/weight move across
+  `New`, `Rising`, and `Featured`; mobile width stays clean. Wake DAEDALUS for
+  `STAGING-DEMO-INTERACTIONS-PATCH-01`, then MIMIR should wait for the patch
+  verdict before treating the human rehearsal as interaction-clean.
 
 ## Near-term rule
 
