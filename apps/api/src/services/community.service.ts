@@ -86,10 +86,14 @@ export async function castCommunityVote(input: {
 
   if (error) throw new Error(error.message);
 
-  if (input.targetType === "thread") {
-    await (sb as any).rpc("recalculate_thread_vote_score", { thread_id: input.targetId }).catch(() => undefined);
-  } else {
-    await (sb as any).rpc("recalculate_comment_vote_score", { comment_id: input.targetId }).catch(() => undefined);
+  try {
+    if (input.targetType === "thread") {
+      await (sb as any).rpc("recalculate_thread_vote_score", { thread_id: input.targetId });
+    } else {
+      await (sb as any).rpc("recalculate_comment_vote_score", { comment_id: input.targetId });
+    }
+  } catch {
+    // Vote rows are authoritative; denormalised scores can be repaired later.
   }
 
   await bumpHelpfulVote(target.author_user_id, input.value).catch(() => undefined);

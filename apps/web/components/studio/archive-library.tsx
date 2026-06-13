@@ -97,9 +97,10 @@ export function ArchiveLibrary() {
             </h1>
             <p style={{ margin: 0, color: "#a9b0bd", fontSize: 15, lineHeight: 1.6, maxWidth: 720 }}>
               Browse materials across personas, shared uploads, imports, integrity sessions, and external sources.
+              This global view is a staging preview; use persona Archive and Export Trust for live import and export.
             </p>
           </div>
-          <button type="button" style={primaryButton}>Upload</button>
+          <button type="button" disabled title="Preview only" style={primaryButton}>Upload preview</button>
         </header>
 
         <div style={{ display: "grid", gridTemplateColumns: "260px minmax(0, 1fr)", gap: 18, alignItems: "start" }}>
@@ -161,7 +162,7 @@ export function ArchiveLibrary() {
                   </div>
                   <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginTop: "auto" }}>
                     {["Attach", "Pin", "Draft", "Export"].map((action) => (
-                      <button key={action} type="button" style={miniButton}>{action}</button>
+                      <button key={action} type="button" disabled title="Preview only" style={miniButton}>{action} preview</button>
                     ))}
                   </div>
                 </article>
@@ -245,22 +246,22 @@ const primaryButton = {
   alignItems: "center",
   justifyContent: "center",
   minHeight: 40,
-  border: "1px solid #2563eb",
+  border: "1px solid #334155",
   borderRadius: 8,
-  background: "#2563eb",
-  color: "#fff",
+  background: "#111827",
+  color: "#94a3b8",
   padding: "0 14px",
   fontSize: 14,
   fontWeight: 800,
-  cursor: "pointer",
+  cursor: "not-allowed",
 };
 
 const miniButton = {
   border: "1px solid #334155",
   borderRadius: 7,
-  background: "#111827",
-  color: "#dbeafe",
+  background: "#0f172a",
+  color: "#64748b",
   padding: "6px 8px",
   fontSize: 12,
-  cursor: "pointer",
+  cursor: "not-allowed",
 };

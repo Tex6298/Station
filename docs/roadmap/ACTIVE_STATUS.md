@@ -2265,6 +2265,21 @@ when a PR lands, or when validation truth changes.
   `New`, `Rising`, and `Featured`; mobile width stays clean. Wake DAEDALUS for
   `STAGING-DEMO-INTERACTIONS-PATCH-01`, then MIMIR should wait for the patch
   verdict before treating the human rehearsal as interaction-clean.
+- DAEDALUS STAGING-DEMO-INTERACTIONS-PATCH-01 patch is ready for ARGUS review,
+  2026-06-13: `/studio/archive` now frames the Global Archive as a staging
+  preview and disables the Upload/Attach/Pin/Draft/Export preview actions so
+  they no longer look like live no-op controls. Forum category and thread
+  detail views no longer show clickable Up/Down controls on the viewer's own
+  thread or comment; they show an own-post/own-comment label instead. Thread
+  detail vote/report feedback now clears stale action messages before each
+  attempt and displays report success as success feedback rather than as a red
+  error. Community vote score recalculation now uses awaited `try`/`catch`
+  around Supabase RPC calls, so RPC thenables without `.catch` cannot surface a
+  `catch is not a function` error after a valid non-owner vote. Scope stayed to
+  interaction cleanup only; auth, visibility, moderation, quota, archive
+  semantics, and seeded demo data were not changed. Focused validation passed
+  with `test:community`, API typecheck, web typecheck, web lint with existing
+  unrelated warnings, and `git diff --check`.
 
 ## Near-term rule
 

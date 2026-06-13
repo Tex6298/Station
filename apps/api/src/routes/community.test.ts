@@ -44,6 +44,8 @@ const PRIVATE_DEV_SPACE_ID = "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaa3";
 const UNLISTED_DEV_SPACE_ID = "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaa4";
 
 class CommunitySupabase {
+  rpcWithoutCatch = false;
+
   tables: Record<string, Row[]> = {
     profiles: [
       profile(OWNER_ID, "owner", "creator"),
@@ -166,6 +168,7 @@ class CommunitySupabase {
       thread(HIDDEN_THREAD_ID, "Hidden Thread", "public", { is_hidden: true }),
     ],
     comments: [],
+    community_votes: [],
     community_moderation_actions: [
       {
         id: "moderation-action-public-thread",
@@ -243,12 +246,18 @@ class CommunitySupabase {
       },
     },
     from: (table: string) => new QueryBuilder(this, table),
-    rpc: async (name: string, params: Row) => {
+    rpc: (name: string, params: Row) => {
       if (name === "increment_thread_comment_count") {
         const found = this.rows("threads").find((row) => row.id === params.thread_id);
         if (found) found.comment_count = (found.comment_count ?? 0) + 1;
       }
-      return { data: null, error: null };
+      const result = { data: null, error: null };
+      if (!this.rpcWithoutCatch) return Promise.resolve(result);
+      return {
+        then: (onfulfilled: (value: typeof result) => unknown) => {
+          onfulfilled(result);
+        },
+      };
     },
   };
 
@@ -370,6 +379,7 @@ class QueryBuilder {
   private rangeSpec: { from: number; to: number } | null = null;
   private operation: "select" | "insert" | "update" | "delete" = "select";
   private payload: Row | Row[] | null = null;
+  private upsertConflict: string[] = [];
   private columns: string | null = null;
   private countRequested = false;
   private head = false;
@@ -419,6 +429,13 @@ class QueryBuilder {
     return this;
   }
 
+  upsert(payload: Row | Row[], options: { onConflict?: string } = {}) {
+    this.operation = "insert";
+    this.payload = payload;
+    this.upsertConflict = options.onConflict?.split(",").map((field) => field.trim()).filter(Boolean) ?? [];
+    return this;
+  }
+
   update(payload: Row) {
     this.operation = "update";
     this.payload = payload;
@@ -432,6 +449,10 @@ class QueryBuilder {
 
   single() {
     return this.execute("single");
+  }
+
+  maybeSingle() {
+    return this.execute("maybeSingle");
   }
 
   then(onfulfilled: any, onrejected: any) {
@@ -469,12 +490,23 @@ class QueryBuilder {
     return rows;
   }
 
-  private async execute(mode?: "single") {
+  private async execute(mode?: "single" | "maybeSingle") {
     let rows: Row[];
 
     if (this.operation === "insert") {
       const payloads = Array.isArray(this.payload) ? this.payload : [this.payload as Row];
-      rows = payloads.map((payload) => this.db.insertRow(this.table, payload));
+      rows = payloads.map((payload) => {
+        if (this.upsertConflict.length > 0) {
+          const found = this.db.rows(this.table).find((row) =>
+            this.upsertConflict.every((field) => row[field] === payload[field])
+          );
+          if (found) {
+            Object.assign(found, payload);
+            return found;
+          }
+        }
+        return this.db.insertRow(this.table, payload);
+      });
     } else if (this.operation === "update") {
       rows = this.matchingRows();
       for (const row of rows) {
@@ -497,6 +529,12 @@ class QueryBuilder {
       return data.length === 1
         ? { data: data[0], error: null, count }
         : { data: null, error: { message: `Expected one ${this.table} row.` }, count };
+    }
+
+    if (mode === "maybeSingle") {
+      return data.length <= 1
+        ? { data: data[0] ?? null, error: null, count }
+        : { data: null, error: { message: `Expected zero or one ${this.table} row.` }, count };
     }
 
     return { data: this.head ? null : data, error: null, count };
@@ -849,6 +887,39 @@ test("thread detail keeps moderation actions admin-only", async () => {
     assert.equal(admin.status, 200);
     assert.equal(admin.body.moderationActions.length, 1);
     assert.equal(admin.body.moderationActions[0].reason, "Seeded moderation note.");
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
+
+test("community vote recalculation tolerates rpc thenables without catch", async () => {
+  const db = new CommunitySupabase();
+  db.rpcWithoutCatch = true;
+  const ownerComment = db.insertRow("comments", {
+    author_user_id: OWNER_ID,
+    parent_type: "thread",
+    parent_id: PUBLIC_THREAD_ID,
+    body: "Owner-authored comment for a non-owner vote.",
+  });
+  setSupabaseAdminForTests(db.client as any);
+  const app = createCommunityApp();
+
+  try {
+    const threadVote = await requestJson(app, "POST", `/threads/${PUBLIC_THREAD_ID}/vote`, {
+      token: "member-token",
+      body: { value: 1 },
+    });
+    assert.equal(threadVote.status, 201);
+    assert.equal(threadVote.body.vote.target_type, "thread");
+    assert.equal(threadVote.body.vote.voter_user_id, MEMBER_ID);
+
+    const commentVote = await requestJson(app, "POST", `/comments/${ownerComment.id}/vote`, {
+      token: "member-token",
+      body: { value: 1 },
+    });
+    assert.equal(commentVote.status, 201);
+    assert.equal(commentVote.body.vote.target_type, "comment");
+    assert.equal(commentVote.body.vote.target_id, ownerComment.id);
   } finally {
     setSupabaseAdminForTests(null);
   }

@@ -37,6 +37,7 @@ export default function ForumCategoryPage() {
   const [error, setError]         = useState<string | null>(null);
   const [canPost, setCanPost]     = useState(false);
   const [token, setToken]         = useState<string | undefined>();
+  const [viewerUserId, setViewerUserId] = useState<string | null>(null);
   const [sort, setSort]           = useState("active");
   const [search, setSearch]       = useState("");
 
@@ -46,6 +47,7 @@ export default function ForumCategoryPage() {
     getSession().then(async (session) => {
       const accessToken = session?.access_token;
       setToken(accessToken);
+      setViewerUserId(session?.user.id ?? null);
       const params = new URLSearchParams({ sort });
       if (search.trim()) params.set("search", search.trim());
       const data = await apiGet<{ category: Category; threads: Thread[] }>(
@@ -63,6 +65,7 @@ export default function ForumCategoryPage() {
 
   async function vote(threadId: string, value: -1 | 1) {
     if (!token) return;
+    setError(null);
     try {
       const response = await apiPost<{ thread: { id: string; score: number; vote_count?: number; hot_score?: number } }>(
         `/threads/${threadId}/vote`,
@@ -155,11 +158,14 @@ export default function ForumCategoryPage() {
                   <div style={{ marginTop: "0.5rem", fontSize: "0.72rem", color: "#555", display: "flex", gap: "0.5rem", alignItems: "center", flexWrap: "wrap" }}>
                     <span>by {t.author.display_name ?? t.author.username}</span>
                     <span>trust {t.author_community_profile?.trustLevel ?? 0}</span>
-                    {token && (
+                    {token && viewerUserId !== t.author_user_id && (
                       <span style={{ display: "inline-flex", gap: 4 }}>
                         <button type="button" onClick={(event) => { event.preventDefault(); vote(t.id, 1); }} style={voteButton(t.viewer_vote === 1)}>Up</button>
                         <button type="button" onClick={(event) => { event.preventDefault(); vote(t.id, -1); }} style={voteButton(t.viewer_vote === -1)}>Down</button>
                       </span>
+                    )}
+                    {token && viewerUserId === t.author_user_id && (
+                      <span style={{ color: "#777" }}>Own post</span>
                     )}
                   </div>
                 )}

@@ -4623,3 +4623,33 @@ ARGUS validation:
 | `npx --yes pnpm@10.32.1 --filter @station/web typecheck` | Pass | Web TypeScript check passed. |
 | `npx --yes pnpm@10.32.1 --filter @station/web lint` | Pass with warnings | Existing unrelated warnings remain outside this patch. |
 | `npx --yes pnpm@10.32.1 test:billing` | Pass | 4 billing backend tests passed, including verified webhook mutation and mismatch/unknown-price rejection. |
+
+## STAGING-DEMO-INTERACTIONS-PATCH-01 DAEDALUS validation result
+
+Validated on 2026-06-13 after the narrow interaction-clean patch from
+ARIADNE's staging audit.
+
+Implementation:
+
+- Global Archive preview actions now visibly disable Upload, Attach, Pin,
+  Draft, and Export instead of presenting live-looking no-op controls.
+- Forum category and thread detail views hide clickable Up/Down voting controls
+  on the viewer's own thread/comment and show own-post/own-comment labels.
+- Thread detail report/vote flows clear stale feedback before each attempt, and
+  report success uses success styling instead of the prior red error treatment.
+- Community vote score recalculation now awaits Supabase RPC calls inside
+  `try`/`catch`, avoiding the `.rpc(...).catch is not a function` failure mode
+  for RPC thenables that do not expose `.catch`.
+- Auth, visibility, moderation, quota, archive semantics, and seeded demo data
+  were not changed.
+
+Commands run by DAEDALUS:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npx --yes pnpm@10.32.1 exec tsx --test --test-name-pattern "community vote recalculation" apps/api/src/routes/community.test.ts` | Pass | Focused non-owner thread/comment vote test passed against an RPC thenable with no `.catch`. |
+| `npx --yes pnpm@10.32.1 test:community` | Pass | 8 community tests passed, including the new vote recalculation regression. |
+| `npx --yes pnpm@10.32.1 --filter @station/api typecheck` | Pass | API TypeScript check passed. |
+| `npx --yes pnpm@10.32.1 --filter @station/web typecheck` | Pass | Web TypeScript check passed. |
+| `npx --yes pnpm@10.32.1 --filter @station/web lint` | Pass with warnings | Existing unrelated warnings remain in Developer Spaces manage, public Space image usage, and Discover image usage. |
+| `git diff --check` | Pass with warnings | CRLF normalization warnings only for touched files. |

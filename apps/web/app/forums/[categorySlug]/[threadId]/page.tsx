@@ -39,7 +39,7 @@ export default function ThreadPage() {
   const [session, setSession]     = useState<{ access_token: string; user: { id: string } } | null>(null);
   const [newComment, setNewComment] = useState("");
   const [submitting, setSubmitting] = useState(false);
-  const [commentError, setCommentError] = useState<string | null>(null);
+  const [commentFeedback, setCommentFeedback] = useState<{ tone: "error" | "success"; message: string } | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -62,7 +62,7 @@ export default function ThreadPage() {
     e.preventDefault();
     if (!newComment.trim() || !session) return;
     setSubmitting(true);
-    setCommentError(null);
+    setCommentFeedback(null);
     try {
       const data = await apiPost<{ comment: Comment }>(
         "/comments",
@@ -73,7 +73,7 @@ export default function ThreadPage() {
       setNewComment("");
       setTimeout(() => bottomRef.current?.scrollIntoView({ behavior: "smooth" }), 50);
     } catch (e) {
-      setCommentError(e instanceof Error ? e.message : "Could not post comment.");
+      setCommentFeedback({ tone: "error", message: e instanceof Error ? e.message : "Could not post comment." });
     } finally {
       setSubmitting(false);
     }
@@ -89,6 +89,7 @@ export default function ThreadPage() {
 
   async function voteThread(value: -1 | 1) {
     if (!session || !thread) return;
+    setCommentFeedback(null);
     try {
       const response = await apiPost<{ thread: { id: string; score: number; vote_count?: number } }>(
         `/threads/${thread.id}/vote`,
@@ -97,12 +98,13 @@ export default function ThreadPage() {
       );
       setThread({ ...thread, score: response.thread.score, vote_count: response.thread.vote_count, viewer_vote: value });
     } catch (e) {
-      setCommentError(e instanceof Error ? e.message : "Could not vote.");
+      setCommentFeedback({ tone: "error", message: e instanceof Error ? e.message : "Could not vote." });
     }
   }
 
   async function voteComment(commentId: string, value: -1 | 1) {
     if (!session) return;
+    setCommentFeedback(null);
     try {
       const response = await apiPost<{ comment: { id: string; score: number; vote_count?: number } }>(
         `/comments/${commentId}/vote`,
@@ -113,17 +115,18 @@ export default function ThreadPage() {
         ? { ...comment, score: response.comment.score, vote_count: response.comment.vote_count, viewer_vote: value }
         : comment));
     } catch (e) {
-      setCommentError(e instanceof Error ? e.message : "Could not vote.");
+      setCommentFeedback({ tone: "error", message: e instanceof Error ? e.message : "Could not vote." });
     }
   }
 
   async function report(targetType: "thread" | "comment", targetId: string) {
     if (!session) return;
+    setCommentFeedback(null);
     try {
       await apiPost("/reports", { targetType, targetId, reason: "community_review" }, session.access_token);
-      setCommentError("Report sent for moderation review.");
+      setCommentFeedback({ tone: "success", message: "Report sent for moderation review." });
     } catch (e) {
-      setCommentError(e instanceof Error ? e.message : "Could not report.");
+      setCommentFeedback({ tone: "error", message: e instanceof Error ? e.message : "Could not report." });
     }
   }
 
@@ -181,8 +184,14 @@ export default function ThreadPage() {
           <strong style={{ color: "#d1d5db" }}>{thread.score} votes</strong>
           {session && (
             <>
-              <button type="button" onClick={() => voteThread(1)} style={voteButton(thread.viewer_vote === 1)}>Up</button>
-              <button type="button" onClick={() => voteThread(-1)} style={voteButton(thread.viewer_vote === -1)}>Down</button>
+              {session.user.id !== thread.author_user_id ? (
+                <>
+                  <button type="button" onClick={() => voteThread(1)} style={voteButton(thread.viewer_vote === 1)}>Up</button>
+                  <button type="button" onClick={() => voteThread(-1)} style={voteButton(thread.viewer_vote === -1)}>Down</button>
+                </>
+              ) : (
+                <span style={{ color: "#777" }}>Own post</span>
+              )}
               <button type="button" onClick={() => report("thread", thread.id)} style={utilityButton}>Report</button>
             </>
           )}
@@ -264,6 +273,9 @@ export default function ThreadPage() {
                     <button type="button" onClick={() => voteComment(c.id, -1)} style={voteButton(c.viewer_vote === -1)}>Down</button>
                   </>
                 )}
+                {session && session.user.id === c.author_user_id && (
+                  <span style={{ color: "#777" }}>Own comment</span>
+                )}
               </div>
             </div>
           ))}
@@ -277,9 +289,17 @@ export default function ThreadPage() {
           <div style={{ fontSize: "0.78rem", color: "#888", marginBottom: "0.75rem", textTransform: "uppercase", letterSpacing: "0.07em" }}>
             Leave a reply
           </div>
-          {commentError && (
-            <div style={{ background: "#2d1515", border: "1px solid #7d2e2e", color: "#eb5757", borderRadius: 6, padding: "0.5rem 0.75rem", marginBottom: "0.75rem", fontSize: "0.85rem" }}>
-              {commentError}
+          {commentFeedback && (
+            <div style={{
+              background: commentFeedback.tone === "success" ? "#10251a" : "#2d1515",
+              border: `1px solid ${commentFeedback.tone === "success" ? "#22583a" : "#7d2e2e"}`,
+              color: commentFeedback.tone === "success" ? "#86efac" : "#eb5757",
+              borderRadius: 6,
+              padding: "0.5rem 0.75rem",
+              marginBottom: "0.75rem",
+              fontSize: "0.85rem",
+            }}>
+              {commentFeedback.message}
             </div>
           )}
           <form onSubmit={handleComment} style={{ display: "grid", gap: "0.75rem" }}>
