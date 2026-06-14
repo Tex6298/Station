@@ -2602,6 +2602,14 @@ when a PR lands, or when validation truth changes.
   typecheck, web lint with existing unrelated warnings, and `git diff --check
   HEAD~1..HEAD` passed. ARIADNE should UX-review the wording against Marty's
   Memory / Continuity / Archive staging screenshots before MIMIR closes it.
+- ARIADNE accepts the Archive import source wording for UX, 2026-06-14:
+  `docs/roadmap/ARCHIVE_IMPORT_SOURCE_WORDING_ARIADNE.md` records the review.
+  The new wording resolves the staging confusion where the persona Archive page
+  could show `0 import sources` while runtime context or the persona home
+  Archive count still showed archived chat material. `Import sources` now means
+  pasted/file sources on this page, and the copy explicitly says archived chats
+  are counted separately in runtime context and storage usage. No DAEDALUS patch
+  is needed; MIMIR can close the Archive demo clarity issue.
 - ARGUS accepts the moderation report idempotency patch for code-safety and
   migration-order boundaries, 2026-06-14: reviewed current patch commit
   `d924a0b` after the `2d8aea1` resync wake. Reports now return an existing
