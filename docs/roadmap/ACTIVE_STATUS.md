@@ -2905,6 +2905,17 @@ when a PR lands, or when validation truth changes.
   Product note: the `/discover` rehearsal brief names writing-style tabs/chips
   that live on `/writing`; MIMIR can decide later whether to retitle the brief
   or change Discover.
+- ARGUS accepts the `/settings` placeholder safety patch, 2026-06-14: commit
+  `d34f92e` changes only `apps/web/app/settings/page.tsx`. Profile, Privacy,
+  and Notifications cards no longer self-link back to `/settings`; they render
+  as coming-soon unavailable cards. Profile edit, notification preferences, and
+  account deletion controls are disabled with explicit unavailable or
+  persistence copy. No auth, billing, Stripe, privacy/visibility,
+  storage/quota, archive/export, provider, migration, package, or persistence
+  semantics changed. Validation passed for web typecheck, web lint with
+  existing unrelated warnings, and `git diff --check d34f92e^..d34f92e`. MIMIR
+  can close the settings rehearsal defect or choose the next bounded
+  staging/human-rehearsal lane.
 
 ## Near-term rule
 

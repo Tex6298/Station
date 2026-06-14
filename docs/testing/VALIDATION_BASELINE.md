@@ -5361,3 +5361,32 @@ ARGUS validation:
 No secrets, raw credentials, cookies, tokens, private IDs, private excerpts,
 prompts, completions, raw response bodies, screenshots, or replay corpus text
 were recorded.
+
+## Settings Placeholder Safety ARGUS review
+
+Validated on 2026-06-14 after DAEDALUS patched the `/settings` placeholder
+controls in commit `d34f92e`.
+
+Implementation reviewed:
+
+- `apps/web/app/settings/page.tsx` is the only changed product file.
+- Profile, Privacy, and Notifications cards no longer self-link to `/settings`;
+  unavailable sections render as coming-soon cards.
+- Profile edit, notification preference, and account deletion controls are
+  disabled with explicit unavailable or persistence copy.
+- The patch does not change auth, billing, Stripe, privacy/visibility,
+  storage/quota, archive/export, provider, migration, package, or persistence
+  semantics.
+
+ARGUS validation:
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Scope/control review | Pass | The patch only makes placeholder settings controls honest and inert. |
+| `npx --yes pnpm@10.32.1 --filter @station/web typecheck` | Pass | Web TypeScript check passed. |
+| `npx --yes pnpm@10.32.1 --filter @station/web lint` | Pass with warnings | Existing unrelated warnings remain in Developer Spaces manage, public Space image usage, and Discover avatar image usage. |
+| `git diff --check d34f92e^..d34f92e` | Pass | No whitespace errors in the committed patch. |
+
+No secrets, raw credentials, cookies, tokens, private IDs, private excerpts,
+prompts, completions, raw response bodies, screenshots, or replay corpus text
+were recorded. ARGUS accepts the `/settings` placeholder safety patch.
