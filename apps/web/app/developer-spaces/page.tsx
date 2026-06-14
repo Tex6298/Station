@@ -94,7 +94,7 @@ export default function DeveloperSpacesPage() {
   if (loading) {
     return (
       <main className="container">
-        <div className="card" style={{ textAlign: "center", padding: "3rem", color: "#94a3b8" }}>
+        <div className="card" style={{ textAlign: "center", padding: "3rem", color: "#687078" }}>
           Loading Developer Spaces...
         </div>
       </main>
@@ -105,9 +105,9 @@ export default function DeveloperSpacesPage() {
     return (
       <main className="container" style={{ display: "grid", gap: "1.25rem", maxWidth: 1040 }}>
         <section className="card" style={{ padding: "2rem" }}>
-          <p className="pill" style={{ margin: 0, color: "#c4b5fd" }}>Developer Spaces</p>
+          <p className="pill" style={{ margin: 0, color: "#534ab7" }}>Developer Spaces</p>
           <h1 style={{ margin: "0.8rem 0 0.5rem", fontSize: "2rem" }}>Live homes for experiments, worlds, and research systems.</h1>
-          <p style={{ color: "#94a3b8", lineHeight: 1.7, maxWidth: 760 }}>
+          <p style={{ color: "#687078", lineHeight: 1.7, maxWidth: 760 }}>
             Browse public observatories, or sign in to create one, generate a private ingestion key, and stream project nodes, events, and snapshots into Station.
           </p>
           <Link href="/login" className="button primary" style={{ textDecoration: "none", marginTop: "1rem" }}>Sign in to create one</Link>
@@ -119,7 +119,7 @@ export default function DeveloperSpacesPage() {
               {publicSpaces.map((space) => (
                 <Link key={space.id} href={`/developer-spaces/${space.slug}`} className="card" style={{ display: "grid", gap: "0.5rem", textDecoration: "none" }}>
                   <strong>{space.projectName}</strong>
-                  <span style={{ color: "#94a3b8", fontSize: "0.86rem", lineHeight: 1.5 }}>{space.description || "Live Station project observatory."}</span>
+                  <span style={{ color: "#687078", fontSize: "0.86rem", lineHeight: 1.5 }}>{space.description || "Live Station project observatory."}</span>
                   <span className="pill" style={{ width: "fit-content", textTransform: "capitalize" }}>{space.visualisationType.replace("_", " ")}</span>
                 </Link>
               ))}
@@ -133,9 +133,9 @@ export default function DeveloperSpacesPage() {
   return (
     <main className="container" style={{ display: "grid", gap: "1.25rem" }}>
       <section style={{ display: "grid", gap: "0.35rem" }}>
-        <p className="pill" style={{ width: "fit-content", color: "#c4b5fd" }}>Developer Spaces</p>
+        <p className="pill" style={{ width: "fit-content", color: "#534ab7" }}>Developer Spaces</p>
         <h1 style={{ margin: 0, fontSize: "2rem" }}>Project observatories</h1>
-        <p style={{ margin: 0, color: "#94a3b8", maxWidth: 900, lineHeight: 1.6 }}>
+        <p style={{ margin: 0, color: "#687078", maxWidth: 900, lineHeight: 1.6 }}>
           Give running AI projects a public home that visitors can understand: live signals, provenance, research notes, and a clear boundary between the observatory and the private builder console.
         </p>
       </section>
@@ -146,7 +146,7 @@ export default function DeveloperSpacesPage() {
         </div>
       )}
       {createdMessage && (
-        <div className="card" style={{ background: "#102719", borderColor: "#1d6b38", color: "#86efac" }}>
+        <div className="card" style={{ background: "#e9f5ee", borderColor: "rgba(59, 143, 99, 0.35)", color: "#25633f" }}>
           {createdMessage}
         </div>
       )}
@@ -155,29 +155,29 @@ export default function DeveloperSpacesPage() {
         <form className="card" onSubmit={handleCreate} style={{ display: "grid", gap: "0.9rem" }}>
           <div>
             <h2 style={{ margin: 0, fontSize: "1.1rem" }}>Create a Developer Space</h2>
-            <p style={{ margin: "0.3rem 0 0", color: "#64748b", fontSize: "0.9rem", lineHeight: 1.5 }}>
+            <p style={{ margin: "0.3rem 0 0", color: "#687078", fontSize: "0.9rem", lineHeight: 1.5 }}>
               Canon / Developer tier and above. Start private, then make it public when your feed is ready.
             </p>
           </div>
 
-          <label style={{ display: "grid", gap: "0.35rem", fontSize: "0.85rem", color: "#cbd5e1" }}>
+          <label style={{ display: "grid", gap: "0.35rem", fontSize: "0.85rem", color: "#1f2529" }}>
             Project name
             <input className="input" value={projectName} onChange={(e) => setProjectName(e.target.value)} placeholder="Animus V3 observatory" required />
           </label>
 
-          <label style={{ display: "grid", gap: "0.35rem", fontSize: "0.85rem", color: "#cbd5e1" }}>
+          <label style={{ display: "grid", gap: "0.35rem", fontSize: "0.85rem", color: "#1f2529" }}>
             Public description
             <textarea className="textarea" value={description} onChange={(e) => setDescription(e.target.value)} placeholder="What should visitors understand before watching this project?" />
           </label>
 
-          <label style={{ display: "grid", gap: "0.35rem", fontSize: "0.85rem", color: "#cbd5e1" }}>
+          <label style={{ display: "grid", gap: "0.35rem", fontSize: "0.85rem", color: "#1f2529" }}>
             Visualisation
             <select className="select" value={visualisationType} onChange={(e) => setVisualisationType(e.target.value as DeveloperSpaceVisualisationType)}>
               {VISUALISATION_OPTIONS.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
             </select>
           </label>
 
-          <label style={{ display: "grid", gap: "0.35rem", fontSize: "0.85rem", color: "#cbd5e1" }}>
+          <label style={{ display: "grid", gap: "0.35rem", fontSize: "0.85rem", color: "#1f2529" }}>
             Visibility
             <select className="select" value={visibility} onChange={(e) => setVisibility(e.target.value as DeveloperSpaceVisibility)}>
               {VISIBILITY_OPTIONS.map((option) => <option key={option.value} value={option.value}>{option.label} - {option.help}</option>)}
@@ -191,9 +191,9 @@ export default function DeveloperSpacesPage() {
 
         <div style={{ display: "grid", gap: "0.75rem" }}>
           {spaces.length === 0 ? (
-            <div className="card" style={{ textAlign: "center", padding: "3rem 1.5rem", color: "#94a3b8" }}>
+            <div className="card" style={{ textAlign: "center", padding: "3rem 1.5rem", color: "#687078" }}>
               <div className="kicker" style={{ justifyContent: "center", marginBottom: "0.75rem" }}>Ready for a signal</div>
-              <h2 style={{ margin: "0 0 0.4rem", color: "#f8fafc" }}>No observatories yet</h2>
+              <h2 style={{ margin: "0 0 0.4rem", color: "#1f2529" }}>No observatories yet</h2>
               <p style={{ margin: 0 }}>Create one, rotate an ingestion key, then stream nodes and events from your existing runtime.</p>
             </div>
           ) : spaces.map((space) => (
@@ -201,13 +201,13 @@ export default function DeveloperSpacesPage() {
               <div style={{ display: "flex", gap: "0.75rem", justifyContent: "space-between", alignItems: "flex-start" }}>
                 <div>
                   <h2 style={{ margin: "0 0 0.25rem", fontSize: "1.1rem" }}>{space.projectName}</h2>
-                  <p style={{ margin: 0, color: "#94a3b8", fontSize: "0.88rem", lineHeight: 1.5 }}>
+                  <p style={{ margin: 0, color: "#687078", fontSize: "0.88rem", lineHeight: 1.5 }}>
                     {space.description || "No description yet."}
                   </p>
                 </div>
                 <span className="pill" style={{ textTransform: "capitalize" }}>{space.visibility}</span>
               </div>
-              <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap", color: "#64748b", fontSize: "0.8rem" }}>
+              <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap", color: "#687078", fontSize: "0.8rem" }}>
                 <span>{space.visualisationType.replace("_", " ")}</span>
                 <span>/</span>
                 <span>{space.apiKeyLastFour ? `key ****${space.apiKeyLastFour}` : "no ingestion key yet"}</span>
@@ -228,7 +228,7 @@ export default function DeveloperSpacesPage() {
             {publicSpaces.map((space) => (
               <Link key={space.id} href={`/developer-spaces/${space.slug}`} className="card" style={{ display: "grid", gap: "0.5rem", textDecoration: "none" }}>
                 <strong>{space.projectName}</strong>
-                <span style={{ color: "#94a3b8", fontSize: "0.86rem", lineHeight: 1.5 }}>{space.description || "Live Station project observatory."}</span>
+                <span style={{ color: "#687078", fontSize: "0.86rem", lineHeight: 1.5 }}>{space.description || "Live Station project observatory."}</span>
                 <span className="pill" style={{ width: "fit-content", textTransform: "capitalize" }}>{space.visualisationType.replace("_", " ")}</span>
               </Link>
             ))}

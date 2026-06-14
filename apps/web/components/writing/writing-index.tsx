@@ -63,17 +63,17 @@ export function WritingIndex() {
   const emptyMessage = emptyStateFor(activeTab, activeFilter, query);
 
   return (
-    <main style={{ minHeight: "calc(100vh - 52px)", background: "#0b0e14" }}>
+    <main style={{ minHeight: "calc(100vh - 52px)", background: "#f4f3ef", color: "#1f2529" }}>
       <div style={{ maxWidth: 1180, margin: "0 auto", padding: "24px clamp(16px, 4vw, 32px) 48px" }}>
         <header style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 16, marginBottom: 20 }}>
           <div>
-            <div style={{ color: "#93c5fd", fontSize: 11, textTransform: "uppercase", letterSpacing: "0.12em", fontWeight: 800 }}>
+            <div style={{ color: "#534ab7", fontSize: 11, textTransform: "uppercase", letterSpacing: "0.12em", fontWeight: 800 }}>
               Station Library
             </div>
-            <h1 style={{ margin: "8px 0 6px", color: "#f8fafc", fontSize: "clamp(34px, 6vw, 56px)", lineHeight: 1.03 }}>
+            <h1 style={{ margin: "8px 0 6px", color: "#1f2529", fontSize: "clamp(34px, 6vw, 64px)", lineHeight: 1 }}>
               Writing
             </h1>
-            <p style={{ margin: 0, color: "#a9b0bd", fontSize: 15, lineHeight: 1.6, maxWidth: 720 }}>
+            <p style={{ margin: 0, color: "#687078", fontSize: 15, lineHeight: 1.65, maxWidth: 720 }}>
               Essays, codexes, research notes, field logs, and theory from the Station community.
             </p>
           </div>
@@ -96,8 +96,9 @@ export function WritingIndex() {
                 }}
                 style={{
                   ...tabButton,
-                  borderColor: active ? "#2563eb" : "#334155",
-                  background: active ? "#13233d" : "#0d1420",
+                  borderColor: active ? "#1f2529" : "#d8d3c8",
+                  background: active ? "#1f2529" : "#fff",
+                  color: active ? "#fff" : "#1f2529",
                 }}
               >
                 {tab}
@@ -116,8 +117,9 @@ export function WritingIndex() {
                 onClick={() => setActiveFilter(filter)}
                 style={{
                   ...pillButton,
-                  borderColor: active ? "#2563eb" : "#334155",
-                  background: active ? "#12305f" : "#111827",
+                  borderColor: active ? "#534ab7" : "#d8d3c8",
+                  background: active ? "#eeedfe" : "#fff",
+                  color: active ? "#332c82" : "#1f2529",
                 }}
               >
                 {filter}
@@ -134,13 +136,13 @@ export function WritingIndex() {
         </section>
 
         {loading ? (
-          <section style={{ ...panel, marginTop: 20, color: "#a9b0bd" }}>Loading published writing...</section>
+          <section style={{ ...panel, marginTop: 20, color: "#687078" }}>Loading published writing...</section>
         ) : error ? (
           <section style={{ ...panel, marginTop: 20, color: "#fca5a5" }}>{error}</section>
         ) : visibleItems.length === 0 ? (
           <section style={{ ...panel, marginTop: 20 }}>
-            <h2 style={{ margin: "0 0 8px", color: "#f8fafc", fontSize: 18 }}>{emptyMessage.title}</h2>
-            <p style={{ margin: 0, color: "#a9b0bd", fontSize: 14, lineHeight: 1.6 }}>
+            <h2 style={{ margin: "0 0 8px", color: "#1f2529", fontSize: 18 }}>{emptyMessage.title}</h2>
+            <p style={{ margin: 0, color: "#687078", fontSize: 14, lineHeight: 1.6 }}>
               {emptyMessage.body}
             </p>
           </section>
@@ -169,7 +171,7 @@ export function WritingIndex() {
 }
 
 function SectionTitle({ title }: { title: string }) {
-  return <h2 style={{ margin: "0 0 12px", color: "#f8fafc", fontSize: 18 }}>{title}</h2>;
+  return <h2 style={{ margin: "0 0 12px", color: "#1f2529", fontSize: 18 }}>{title}</h2>;
 }
 
 function WritingCard({ item, featured = false }: { item: WritingItem; featured?: boolean }) {
@@ -181,13 +183,13 @@ function WritingCard({ item, featured = false }: { item: WritingItem; featured?:
     <Link href={item.href} style={{ textDecoration: "none" }}>
       <article style={{ ...card, minHeight: featured ? 230 : 210 }}>
         <div style={thumb}>
-          <span style={{ color: "#f8fafc", fontWeight: 900, fontSize: featured ? 24 : 18 }}>{itemType.slice(0, 1).toUpperCase()}</span>
+          <span style={{ color: "#1f2529", fontWeight: 900, fontSize: featured ? 24 : 18 }}>{itemType.slice(0, 1).toUpperCase()}</span>
         </div>
         <div style={{ padding: 14, display: "grid", gap: 8 }}>
-          <span style={{ color: "#fca5a5", fontSize: 10, fontWeight: 800, textTransform: "uppercase" }}>{itemType}</span>
-          <h3 style={{ margin: 0, color: "#f8fafc", fontSize: featured ? 18 : 15, lineHeight: 1.3 }}>{item.title}</h3>
-          <p style={{ margin: 0, color: "#a9b0bd", fontSize: 13, lineHeight: 1.55 }}>{item.excerpt ?? "No excerpt available."}</p>
-          <span style={{ color: "#7d8796", fontSize: 12 }}>{author} - {date}</span>
+          <span style={{ color: "#534ab7", fontSize: 10, fontWeight: 800, textTransform: "uppercase" }}>{itemType}</span>
+          <h3 style={{ margin: 0, color: "#1f2529", fontSize: featured ? 18 : 15, lineHeight: 1.3 }}>{item.title}</h3>
+          <p style={{ margin: 0, color: "#687078", fontSize: 13, lineHeight: 1.55 }}>{item.excerpt ?? "No excerpt available."}</p>
+          <span style={{ color: "#8b8f92", fontSize: 12 }}>{author} - {date}</span>
         </div>
       </article>
     </Link>
@@ -240,22 +242,22 @@ function formatDate(value: string) {
 }
 
 const panel = {
-  border: "1px solid #263244",
-  background: "#101622",
+  border: "1px solid #d8d3c8",
+  background: "#ffffff",
   borderRadius: 8,
   padding: 16,
 };
 
 const card = {
-  border: "1px solid #263244",
-  background: "#101622",
+  border: "1px solid #d8d3c8",
+  background: "#ffffff",
   borderRadius: 8,
   overflow: "hidden",
 };
 
 const thumb = {
   height: 72,
-  background: "linear-gradient(135deg, #7f1d1d, #0f766e)",
+  background: "linear-gradient(135deg, #eeedfe, #eceae4)",
   display: "grid",
   placeItems: "center",
 };
@@ -265,9 +267,9 @@ const primaryLink = {
   alignItems: "center",
   justifyContent: "center",
   minHeight: 40,
-  border: "1px solid #2563eb",
+  border: "1px solid #1f2529",
   borderRadius: 8,
-  background: "#2563eb",
+  background: "#1f2529",
   color: "#fff",
   padding: "0 14px",
   fontSize: 14,
@@ -276,9 +278,9 @@ const primaryLink = {
 };
 
 const tabButton = {
-  border: "1px solid #334155",
+  border: "1px solid #d8d3c8",
   borderRadius: 8,
-  color: "#dbeafe",
+  color: "#1f2529",
   padding: "8px 12px",
   fontSize: 13,
   fontWeight: 800,
@@ -286,9 +288,9 @@ const tabButton = {
 };
 
 const pillButton = {
-  border: "1px solid #334155",
+  border: "1px solid #d8d3c8",
   borderRadius: 999,
-  color: "#cbd5e1",
+  color: "#1f2529",
   padding: "6px 11px",
   fontSize: 12,
   cursor: "pointer",
@@ -297,10 +299,10 @@ const pillButton = {
 
 const input = {
   width: "100%",
-  border: "1px solid #334155",
+  border: "1px solid #d8d3c8",
   borderRadius: 8,
-  background: "#0d1420",
-  color: "#f8fafc",
+  background: "#ffffff",
+  color: "#1f2529",
   padding: "11px 12px",
   fontSize: 13,
 };

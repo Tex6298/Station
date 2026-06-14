@@ -52,17 +52,17 @@ const notificationRows = [
 
 export default function SettingsPage() {
   return (
-    <main style={{ minHeight: "calc(100vh - 52px)", background: "#0b0e14" }}>
+    <main style={{ minHeight: "calc(100vh - 52px)", background: "#f4f3ef", color: "#1f2529" }}>
       <div style={{ maxWidth: 1180, margin: "0 auto", padding: "24px clamp(16px, 4vw, 32px) 48px" }}>
         <header style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 16, marginBottom: 20 }}>
           <div>
-            <div style={{ color: "#93c5fd", fontSize: 11, textTransform: "uppercase", letterSpacing: "0.12em", fontWeight: 800 }}>
+            <div style={{ color: "#534ab7", fontSize: 11, textTransform: "uppercase", letterSpacing: "0.12em", fontWeight: 800 }}>
               Account
             </div>
-            <h1 style={{ margin: "8px 0 6px", color: "#f8fafc", fontSize: "clamp(30px, 5vw, 46px)", lineHeight: 1.05 }}>
+            <h1 style={{ margin: "8px 0 6px", color: "#1f2529", fontSize: "clamp(30px, 5vw, 46px)", lineHeight: 1.05 }}>
               Settings
             </h1>
-            <p style={{ margin: 0, color: "#a9b0bd", fontSize: 15, lineHeight: 1.6, maxWidth: 720 }}>
+            <p style={{ margin: 0, color: "#687078", fontSize: 15, lineHeight: 1.6, maxWidth: 720 }}>
               Manage your identity, subscription, connected accounts, privacy defaults, notifications, and workspace data.
             </p>
           </div>
@@ -75,8 +75,8 @@ export default function SettingsPage() {
               <Link key={section.title} href={section.href} style={{ textDecoration: "none" }}>
                 <article style={card}>
                   <span style={markBox}>{section.mark}</span>
-                  <h2 style={{ margin: "12px 0 7px", color: "#f8fafc", fontSize: 16 }}>{section.title}</h2>
-                  <p style={{ margin: 0, color: "#a9b0bd", fontSize: 13, lineHeight: 1.55 }}>{section.description}</p>
+                  <h2 style={{ margin: "12px 0 7px", color: "#1f2529", fontSize: 16 }}>{section.title}</h2>
+                  <p style={{ margin: 0, color: "#687078", fontSize: 13, lineHeight: 1.55 }}>{section.description}</p>
                 </article>
               </Link>
             ))}
@@ -103,8 +103,8 @@ export default function SettingsPage() {
               <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
                 <span style={{ ...markBox, width: 42, height: 42, borderRadius: "50%" }}>A</span>
                 <div>
-                  <div style={{ color: "#f8fafc", fontSize: 14, fontWeight: 800 }}>Station user</div>
-                  <div style={{ color: "#8ea0b8", fontSize: 12 }}>Creator tier</div>
+                  <div style={{ color: "#1f2529", fontSize: 14, fontWeight: 800 }}>Station user</div>
+                  <div style={{ color: "#687078", fontSize: 12 }}>Creator tier</div>
                 </div>
               </div>
               <button type="button" style={{ ...secondaryButton, width: "100%", marginTop: 14 }}>Edit profile</button>
@@ -137,8 +137,8 @@ export default function SettingsPage() {
 }
 
 const panel = {
-  border: "1px solid #263244",
-  background: "#101622",
+  border: "1px solid #d8d3c8",
+  background: "#ffffff",
   borderRadius: 8,
   padding: 16,
 };
@@ -152,9 +152,9 @@ const markBox = {
   width: 32,
   height: 32,
   borderRadius: 8,
-  border: "1px solid #334155",
-  background: "#0f172a",
-  color: "#bfdbfe",
+  border: "1px solid #d8d3c8",
+  background: "#f8f7f4",
+  color: "#534ab7",
   display: "grid",
   placeItems: "center",
   fontSize: 12,
@@ -163,7 +163,7 @@ const markBox = {
 
 const sectionTitle = {
   margin: "0 0 12px",
-  color: "#f8fafc",
+  color: "#1f2529",
   fontSize: 16,
 };
 
@@ -172,9 +172,9 @@ const primaryLink = {
   alignItems: "center",
   justifyContent: "center",
   minHeight: 40,
-  border: "1px solid #2563eb",
+  border: "1px solid #1f2529",
   borderRadius: 8,
-  background: "#2563eb",
+  background: "#1f2529",
   color: "#fff",
   padding: "0 14px",
   fontSize: 14,
@@ -184,9 +184,9 @@ const primaryLink = {
 
 const secondaryButton = {
   ...primaryLink,
-  background: "#111827",
-  borderColor: "#334155",
-  color: "#d1d5db",
+  background: "#ffffff",
+  borderColor: "#d8d3c8",
+  color: "#1f2529",
   cursor: "pointer",
 };
 
@@ -194,7 +194,7 @@ const toggleRow = {
   display: "flex",
   alignItems: "center",
   gap: 9,
-  color: "#d1d5db",
+  color: "#1f2529",
   fontSize: 13,
 };
 

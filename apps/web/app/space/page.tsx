@@ -40,7 +40,7 @@ export default function MySpacesPage() {
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "1.5rem" }}>
         <div>
           <h1 style={{ margin: 0 }}>My Spaces</h1>
-          <p style={{ margin: "0.25rem 0 0", color: "#666", fontSize: "0.875rem" }}>
+          <p style={{ margin: "0.25rem 0 0", color: "#687078", fontSize: "0.875rem" }}>
             Your public pages - the face you show the world.
           </p>
         </div>
@@ -49,14 +49,14 @@ export default function MySpacesPage() {
         </Link>
       </div>
 
-      {loading && <div className="card" style={{ color: "#555", textAlign: "center", padding: "3rem" }}>Loading...</div>}
+      {loading && <div className="card" style={{ color: "#687078", textAlign: "center", padding: "3rem" }}>Loading...</div>}
       {error   && <div className="card" style={{ background: "#2d1515", borderColor: "#7d2e2e", color: "#eb5757" }}>{error}</div>}
 
       {!loading && !error && spaces.length === 0 && (
         <div className="card" style={{ textAlign: "center", padding: "4rem 2rem" }}>
           <div className="kicker" style={{ justifyContent: "center", marginBottom: "0.75rem" }}>Public home</div>
           <h2 style={{ margin: "0 0 0.5rem" }}>No Spaces yet</h2>
-          <p style={{ color: "#666", margin: "0 0 1.5rem", fontSize: "0.9rem" }}>
+          <p style={{ color: "#687078", margin: "0 0 1.5rem", fontSize: "0.9rem" }}>
             A Space is your public home - part website, part Substack, part MySpace.
             Requires the Creator tier or above.
           </p>
@@ -74,23 +74,23 @@ export default function MySpacesPage() {
                 <h2 style={{ margin: 0, fontSize: "1rem" }}>{s.title}</h2>
                 <span style={{
                   fontSize: "0.68rem", padding: "0.1rem 0.45rem", borderRadius: 999,
-                  background: s.is_public ? "#0f2d1a" : "#1a1a2e",
-                  border: "1px solid " + (s.is_public ? "#2e7d4f" : "#2a2a5a"),
-                  color: s.is_public ? "#6fcf97" : "#7c6af7",
+                  background: s.is_public ? "#e9f5ee" : "#eeedfe",
+                  border: "1px solid " + (s.is_public ? "rgba(59, 143, 99, 0.35)" : "#d8d3c8"),
+                  color: s.is_public ? "#25633f" : "#534ab7",
                 }}>
                   {s.is_public ? "public" : "private"}
                 </span>
               </div>
               {s.short_description && (
-                <p style={{ margin: "0 0 0.75rem", color: "#666", fontSize: "0.85rem" }}>{s.short_description}</p>
+                <p style={{ margin: "0 0 0.75rem", color: "#687078", fontSize: "0.85rem" }}>{s.short_description}</p>
               )}
-              <div style={{ fontSize: "0.72rem", color: "#7f8aa0", marginBottom: "0.75rem", textTransform: "capitalize" }}>
+              <div style={{ fontSize: "0.72rem", color: "#8b8f92", marginBottom: "0.75rem", textTransform: "capitalize" }}>
                 {s.presentation.theme} / {s.presentation.layout}
               </div>
               <div style={{ display: "flex", gap: "0.5rem" }}>
-                <Link href={"/space/" + s.slug} style={{ fontSize: "0.8rem", color: "#7c6af7", textDecoration: "none" }}>View</Link>
-                <Link href={"/space/" + s.slug + "/manage"} style={{ fontSize: "0.8rem", color: "#7c6af7", textDecoration: "none" }}>Edit</Link>
-                <Link href={"/space/" + s.slug + "/documents/new"} style={{ fontSize: "0.8rem", color: "#666", textDecoration: "none" }}>New post</Link>
+                <Link href={"/space/" + s.slug} style={{ fontSize: "0.8rem", color: "#534ab7", textDecoration: "none" }}>View</Link>
+                <Link href={"/space/" + s.slug + "/manage"} style={{ fontSize: "0.8rem", color: "#534ab7", textDecoration: "none" }}>Edit</Link>
+                <Link href={"/space/" + s.slug + "/documents/new"} style={{ fontSize: "0.8rem", color: "#687078", textDecoration: "none" }}>New post</Link>
               </div>
             </div>
           ))}

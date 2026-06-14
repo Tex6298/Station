@@ -80,16 +80,16 @@ export default function ForumCategoryPage() {
     }
   }
 
-  if (loading) return <main className="container"><div className="card" style={{ textAlign: "center", padding: "3rem", color: "#555" }}>Loading...</div></main>;
+  if (loading) return <main className="container"><div className="card" style={{ textAlign: "center", padding: "3rem", color: "#687078" }}>Loading...</div></main>;
   if (error || !category) return <main className="container"><div className="card" style={{ background: "#2d1515", borderColor: "#7d2e2e", color: "#eb5757" }}>{error ?? "Not found."}</div></main>;
 
   return (
     <main className="container">
       {/* Breadcrumb */}
-      <div style={{ fontSize: "0.78rem", color: "#555", marginBottom: "1.5rem" }}>
-        <Link href="/forums" style={{ color: "#666" }}>Forums</Link>
+      <div style={{ fontSize: "0.78rem", color: "#8b8f92", marginBottom: "1.5rem" }}>
+        <Link href="/forums" style={{ color: "#687078" }}>Forums</Link>
         {" / "}
-        <span style={{ color: "#aaa" }}>{category.title}</span>
+        <span style={{ color: "#534ab7" }}>{category.title}</span>
       </div>
 
       {/* Header */}
@@ -97,7 +97,7 @@ export default function ForumCategoryPage() {
         <div>
           <h1 style={{ margin: "0 0 0.25rem", fontSize: "1.6rem" }}>{category.title}</h1>
           {category.description && (
-            <p style={{ margin: 0, color: "#666", fontSize: "0.875rem" }}>{category.description}</p>
+            <p style={{ margin: 0, color: "#687078", fontSize: "0.875rem" }}>{category.description}</p>
           )}
         </div>
         {canPost && (
@@ -124,7 +124,7 @@ export default function ForumCategoryPage() {
 
       {/* Thread list */}
       {threads.length === 0 ? (
-        <div className="card" style={{ color: "#555", fontStyle: "italic", textAlign: "center", padding: "3rem" }}>
+        <div className="card" style={{ color: "#687078", fontStyle: "italic", textAlign: "center", padding: "3rem" }}>
           No threads yet. Be the first to post!
         </div>
       ) : (
@@ -135,27 +135,27 @@ export default function ForumCategoryPage() {
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: "1rem" }}>
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ display: "flex", gap: "0.35rem", alignItems: "center", marginBottom: "0.25rem", flexWrap: "wrap" }}>
-                      {t.is_pinned && <span style={{ fontSize: "0.68rem", color: "#fbbf24" }}>Pinned</span>}
-                      {t.linked_document_id && <span style={{ fontSize: "0.68rem", color: "#86efac" }}>Document discussion</span>}
-                      {t.visibility && t.visibility !== "public" && <span style={{ fontSize: "0.68rem", color: "#9ca3af" }}>{t.visibility}</span>}
+                      {t.is_pinned && <span style={{ fontSize: "0.68rem", color: "#854f0b" }}>Pinned</span>}
+                      {t.linked_document_id && <span style={{ fontSize: "0.68rem", color: "#25633f" }}>Document discussion</span>}
+                      {t.visibility && t.visibility !== "public" && <span style={{ fontSize: "0.68rem", color: "#687078" }}>{t.visibility}</span>}
                     </div>
                     <div style={{ fontWeight: 600, fontSize: "0.975rem", marginBottom: "0.2rem", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                       {t.title}
                     </div>
-                    <div style={{ color: "#666", fontSize: "0.82rem", overflow: "hidden", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" }}>
+                    <div style={{ color: "#687078", fontSize: "0.82rem", overflow: "hidden", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" }}>
                       {t.body}
                     </div>
                   </div>
                   <div style={{ textAlign: "right", flexShrink: 0 }}>
-                    <div style={{ fontSize: "0.85rem", color: "#d1d5db", fontWeight: 700 }}>{t.score} votes</div>
-                    <div style={{ fontSize: "0.75rem", color: "#555" }}>{t.comment_count} replies</div>
-                    <div style={{ fontSize: "0.7rem", color: "#444", marginTop: "0.2rem" }}>
+                    <div style={{ fontSize: "0.85rem", color: "#1f2529", fontWeight: 700 }}>{t.score} votes</div>
+                    <div style={{ fontSize: "0.75rem", color: "#687078" }}>{t.comment_count} replies</div>
+                    <div style={{ fontSize: "0.7rem", color: "#8b8f92", marginTop: "0.2rem" }}>
                       {new Date(t.last_activity_at ?? t.created_at).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}
                     </div>
                   </div>
                 </div>
                 {t.author && (
-                  <div style={{ marginTop: "0.5rem", fontSize: "0.72rem", color: "#555", display: "flex", gap: "0.5rem", alignItems: "center", flexWrap: "wrap" }}>
+                  <div style={{ marginTop: "0.5rem", fontSize: "0.72rem", color: "#687078", display: "flex", gap: "0.5rem", alignItems: "center", flexWrap: "wrap" }}>
                     <span>by {t.author.display_name ?? t.author.username}</span>
                     <span>trust {t.author_community_profile?.trustLevel ?? 0}</span>
                     {token && viewerUserId !== t.author_user_id && (
@@ -165,7 +165,7 @@ export default function ForumCategoryPage() {
                       </span>
                     )}
                     {token && viewerUserId === t.author_user_id && (
-                      <span style={{ color: "#777" }}>Own post</span>
+                      <span style={{ color: "#8b8f92" }}>Own post</span>
                     )}
                   </div>
                 )}
@@ -180,10 +180,10 @@ export default function ForumCategoryPage() {
 
 function voteButton(active: boolean) {
   return {
-    border: "1px solid #2a2050",
+    border: "1px solid #d8d3c8",
     borderRadius: 6,
-    background: active ? "#2a2050" : "#101010",
-    color: active ? "#d8d3ff" : "#777",
+    background: active ? "#1f2529" : "#fff",
+    color: active ? "#fff" : "#687078",
     fontSize: "0.68rem",
     padding: "0.1rem 0.35rem",
     cursor: "pointer",

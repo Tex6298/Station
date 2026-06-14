@@ -24,11 +24,11 @@ const TIER_LABELS: Record<string, string> = {
 };
 
 const TIER_COLOUR: Record<string, string> = {
-  visitor:       "#888",
-  private:       "#7c6af7",
-  creator:       "#e07b39",
-  canon:         "#c0943a",
-  institutional: "#2a7de1",
+  visitor:       "#687078",
+  private:       "#534ab7",
+  creator:       "#9d5b2f",
+  canon:         "#8a6422",
+  institutional: "#2878b9",
 };
 
 function formatLimit(value: number, unit: string) {
@@ -103,35 +103,35 @@ export default function BillingPage() {
       <h1 style={{ marginBottom: "0.25rem" }}>Billing</h1>
 
       {success && (
-        <div className="card" style={{ background: "#1a3d2b", borderColor: "#2e7d4f", marginBottom: "1.5rem" }}>
-          <p style={{ color: "#6fcf97", margin: 0 }}>
+        <div className="card" style={{ background: "#e9f5ee", borderColor: "rgba(59, 143, 99, 0.35)", marginBottom: "1.5rem" }}>
+          <p style={{ color: "#25633f", margin: 0 }}>
             Subscription activated. Welcome to {TIER_LABELS[currentTier]}!
           </p>
         </div>
       )}
 
       {cancelled && (
-        <div className="card" style={{ background: "#3d1a1a", borderColor: "#7d2e2e", marginBottom: "1.5rem" }}>
+        <div className="card" style={{ background: "#f8e6e3", borderColor: "rgba(157, 60, 53, 0.35)", marginBottom: "1.5rem" }}>
           <p style={{ color: "#eb5757", margin: 0 }}>Checkout cancelled - no charge was made.</p>
         </div>
       )}
 
       {error && (
-        <div className="card" style={{ background: "#3d1a1a", borderColor: "#7d2e2e", marginBottom: "1.5rem" }}>
+        <div className="card" style={{ background: "#f8e6e3", borderColor: "rgba(157, 60, 53, 0.35)", marginBottom: "1.5rem" }}>
           <p style={{ color: "#eb5757", margin: 0 }}>{error}</p>
         </div>
       )}
 
       {/* Current plan */}
       <div className="card" style={{ marginBottom: "2rem" }}>
-        <p style={{ color: "#888", marginBottom: "0.5rem", fontSize: "0.85rem", textTransform: "uppercase", letterSpacing: "0.08em" }}>
+        <p style={{ color: "#687078", marginBottom: "0.5rem", fontSize: "0.85rem", textTransform: "uppercase", letterSpacing: "0.08em" }}>
           Current plan
         </p>
         <div style={{ display: "flex", alignItems: "center", gap: "1rem", flexWrap: "wrap" }}>
           <span style={{
             fontSize: "1.5rem",
             fontWeight: 700,
-            color: TIER_COLOUR[currentTier] ?? "#fff",
+            color: TIER_COLOUR[currentTier] ?? "#1f2529",
           }}>
             {TIER_LABELS[currentTier] ?? currentTier}
           </span>
@@ -140,9 +140,9 @@ export default function BillingPage() {
               padding: "0.2rem 0.7rem",
               borderRadius: "999px",
               fontSize: "0.75rem",
-              background: isActive ? "#1a3d2b" : "#3d1a1a",
-              color: isActive ? "#6fcf97" : "#eb5757",
-              border: `1px solid ${isActive ? "#2e7d4f" : "#7d2e2e"}`,
+              background: isActive ? "#e9f5ee" : "#f8e6e3",
+              color: isActive ? "#25633f" : "#9d3c35",
+              border: `1px solid ${isActive ? "rgba(59, 143, 99, 0.35)" : "rgba(157, 60, 53, 0.35)"}`,
             }}>
               {status.subscriptionStatus}
             </span>
@@ -157,9 +157,9 @@ export default function BillingPage() {
               marginTop: "1rem",
               padding: "0.5rem 1.25rem",
               background: "transparent",
-              border: "1px solid #555",
+              border: "1px solid #d8d3c8",
               borderRadius: 6,
-              color: "#ccc",
+              color: "#1f2529",
               cursor: "pointer",
               fontSize: "0.9rem",
             }}
@@ -175,7 +175,7 @@ export default function BillingPage() {
             style={{
               marginTop: "1rem",
               padding: "0.5rem 1.25rem",
-              background: "#7c6af7",
+              background: "#1f2529",
               border: "none",
               borderRadius: 6,
               color: "#fff",
@@ -190,23 +190,23 @@ export default function BillingPage() {
         {status?.limits && (
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(130px, 1fr))", gap: "0.75rem", marginTop: "1rem" }}>
             <div>
-              <p style={{ color: "#888", fontSize: "0.75rem", margin: "0 0 0.25rem" }}>Spaces</p>
-              <p style={{ margin: 0, color: "#ddd", fontSize: "0.95rem" }}>{formatLimit(status.limits.spaces, "Spaces")}</p>
+              <p style={{ color: "#687078", fontSize: "0.75rem", margin: "0 0 0.25rem" }}>Spaces</p>
+              <p style={{ margin: 0, color: "#1f2529", fontSize: "0.95rem" }}>{formatLimit(status.limits.spaces, "Spaces")}</p>
             </div>
             <div>
-              <p style={{ color: "#888", fontSize: "0.75rem", margin: "0 0 0.25rem" }}>Developer Spaces</p>
-              <p style={{ margin: 0, color: "#ddd", fontSize: "0.95rem" }}>{formatLimit(status.limits.developerSpaces, "Developer Spaces")}</p>
+              <p style={{ color: "#687078", fontSize: "0.75rem", margin: "0 0 0.25rem" }}>Developer Spaces</p>
+              <p style={{ margin: 0, color: "#1f2529", fontSize: "0.95rem" }}>{formatLimit(status.limits.developerSpaces, "Developer Spaces")}</p>
             </div>
             <div>
-              <p style={{ color: "#888", fontSize: "0.75rem", margin: "0 0 0.25rem" }}>Storage</p>
-              <p style={{ margin: 0, color: "#ddd", fontSize: "0.95rem" }}>{formatLimit(status.limits.storageGb, "GB")}</p>
+              <p style={{ color: "#687078", fontSize: "0.75rem", margin: "0 0 0.25rem" }}>Storage</p>
+              <p style={{ margin: 0, color: "#1f2529", fontSize: "0.95rem" }}>{formatLimit(status.limits.storageGb, "GB")}</p>
             </div>
           </div>
         )}
       </div>
 
       {/* Plans */}
-      <h2 style={{ marginBottom: "1rem", fontSize: "1.1rem", color: "#aaa", fontWeight: 500 }}>
+      <h2 style={{ marginBottom: "1rem", fontSize: "1.1rem", color: "#687078", fontWeight: 500 }}>
         Available plans
       </h2>
 
@@ -246,14 +246,14 @@ export default function BillingPage() {
         />
       </div>
 
-      <div className="card" style={{ marginTop: "2rem", background: "#0f1a2e" }}>
+      <div className="card" style={{ marginTop: "2rem", background: "#ffffff" }}>
         <h3 style={{ margin: "0 0 0.5rem" }}>Institutional</h3>
-        <p style={{ color: "#888", margin: "0 0 1rem", fontSize: "0.9rem" }}>
+        <p style={{ color: "#687078", margin: "0 0 1rem", fontSize: "0.9rem" }}>
           For universities, research departments, newsrooms, and organisations that
           need structured access to this community. Custom pricing, multi-seat access,
           and research analytics.
         </p>
-        <a href="mailto:hello@station.build" style={{ color: "#7c6af7", fontSize: "0.9rem" }}>
+        <a href="mailto:hello@station.build" style={{ color: "#534ab7", fontSize: "0.9rem" }}>
           Contact us
         </a>
       </div>
@@ -290,7 +290,7 @@ function PlanCard({
     <div
       className="card"
       style={{
-        border: featured ? "1px solid #7c6af7" : undefined,
+        border: featured ? "1px solid #534ab7" : undefined,
         position: "relative",
       }}
     >
@@ -300,7 +300,7 @@ function PlanCard({
           top: -10,
           left: "50%",
           transform: "translateX(-50%)",
-          background: "#7c6af7",
+          background: "#534ab7",
           color: "#fff",
           fontSize: "0.7rem",
           padding: "0.15rem 0.6rem",
@@ -313,15 +313,15 @@ function PlanCard({
 
       <h3 style={{ margin: "0 0 0.25rem" }}>{name}</h3>
       <p style={{ margin: "0 0 1rem", fontSize: "1.4rem", fontWeight: 700 }}>
-        {price}<span style={{ fontSize: "0.85rem", color: "#888", fontWeight: 400 }}>/{interval}</span>
+        {price}<span style={{ fontSize: "0.85rem", color: "#687078", fontWeight: 400 }}>/{interval}</span>
       </p>
 
-      <ul style={{ paddingLeft: "1.2rem", margin: "0 0 1.25rem", color: "#bbb", fontSize: "0.875rem", lineHeight: 1.8 }}>
+      <ul style={{ paddingLeft: "1.2rem", margin: "0 0 1.25rem", color: "#687078", fontSize: "0.875rem", lineHeight: 1.8 }}>
         {features.map((f) => <li key={f}>{f}</li>)}
       </ul>
 
       {action === "current" ? (
-        <button disabled style={{ width: "100%", padding: "0.5rem", background: "#1e1e2e", border: "1px solid #555", borderRadius: 6, color: "#888", cursor: "default", fontSize: "0.875rem" }}>
+        <button disabled style={{ width: "100%", padding: "0.5rem", background: "#f8f7f4", border: "1px solid #d8d3c8", borderRadius: 6, color: "#687078", cursor: "default", fontSize: "0.875rem" }}>
           Current plan
         </button>
       ) : (
@@ -329,7 +329,7 @@ function PlanCard({
           <button
             onClick={onUpgrade}
             disabled={loading}
-            style={{ width: "100%", padding: "0.5rem", background: featured ? "#7c6af7" : "#333", border: "none", borderRadius: 6, color: "#fff", cursor: "pointer", fontSize: "0.875rem" }}
+            style={{ width: "100%", padding: "0.5rem", background: featured ? "#534ab7" : "#1f2529", border: "none", borderRadius: 6, color: "#fff", cursor: "pointer", fontSize: "0.875rem" }}
           >
             {loading ? "Loading..." : action === "activate" ? `Activate ${name}` : `Upgrade - ${price}/mo`}
           </button>
@@ -337,7 +337,7 @@ function PlanCard({
             <button
               onClick={onUpgradeYearly}
               disabled={loading}
-              style={{ width: "100%", padding: "0.5rem", background: "transparent", border: "1px solid #7c6af7", borderRadius: 6, color: "#7c6af7", cursor: "pointer", fontSize: "0.8rem" }}
+              style={{ width: "100%", padding: "0.5rem", background: "transparent", border: "1px solid #534ab7", borderRadius: 6, color: "#534ab7", cursor: "pointer", fontSize: "0.8rem" }}
             >
               {loading ? "Loading..." : `Save 17% - ${yearlyPrice}`}
             </button>

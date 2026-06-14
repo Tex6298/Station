@@ -75,12 +75,12 @@ const TIERS = [
 
 export default function PricingPage() {
   return (
-    <main style={{ maxWidth: 960, margin: "0 auto", padding: "4rem 1.5rem" }}>
+    <main className="container" style={{ maxWidth: 960, margin: "0 auto", padding: "4rem 1.5rem" }}>
       <div style={{ textAlign: "center", marginBottom: "3rem" }}>
         <h1 style={{ fontSize: "2.2rem", marginBottom: "0.75rem" }}>
           Find your place
         </h1>
-        <p style={{ color: "#888", fontSize: "1.1rem", maxWidth: 520, margin: "0 auto" }}>
+        <p style={{ color: "#687078", fontSize: "1.1rem", maxWidth: 520, margin: "0 auto" }}>
           Station is built for people who take their AI companions seriously.
           Start free, upgrade when you are ready.
         </p>
@@ -98,7 +98,7 @@ export default function PricingPage() {
             className="card"
             style={{
               position: "relative",
-              border: t.featured ? "1px solid #7c6af7" : undefined,
+              border: t.featured ? "1px solid #534ab7" : undefined,
               display: "flex",
               flexDirection: "column",
             }}
@@ -109,7 +109,7 @@ export default function PricingPage() {
                 top: -11,
                 left: "50%",
                 transform: "translateX(-50%)",
-                background: "#7c6af7",
+                background: "#534ab7",
                 color: "#fff",
                 fontSize: "0.7rem",
                 padding: "0.15rem 0.65rem",
@@ -126,23 +126,23 @@ export default function PricingPage() {
             <p style={{ margin: "0 0 1rem" }}>
               <span style={{ fontSize: "1.6rem", fontWeight: 700 }}>{t.price}</span>
               {t.interval && (
-                <span style={{ color: "#888", fontSize: "0.85rem" }}>/{t.interval}</span>
+                <span style={{ color: "#687078", fontSize: "0.85rem" }}>/{t.interval}</span>
               )}
               {t.yearlyPrice && (
-                <span style={{ display: "block", color: "#7c6af7", fontSize: "0.78rem", marginTop: "0.2rem" }}>
+                <span style={{ display: "block", color: "#534ab7", fontSize: "0.78rem", marginTop: "0.2rem" }}>
                   or {t.yearlyPrice}/year - save 17%
                 </span>
               )}
             </p>
 
-            <p style={{ color: "#999", fontSize: "0.875rem", marginBottom: "1rem", lineHeight: 1.5 }}>
+            <p style={{ color: "#687078", fontSize: "0.875rem", marginBottom: "1rem", lineHeight: 1.5 }}>
               {t.description}
             </p>
 
             <ul style={{
               paddingLeft: "1.1rem",
               margin: "0 0 1.5rem",
-              color: "#bbb",
+              color: "#687078",
               fontSize: "0.85rem",
               lineHeight: 1.9,
               flexGrow: 1,
@@ -157,7 +157,7 @@ export default function PricingPage() {
                 textAlign: "center",
                 padding: "0.55rem 1rem",
                 borderRadius: 6,
-                background: t.featured ? "#7c6af7" : "#2a2a3a",
+                background: t.featured ? "#534ab7" : "#1f2529",
                 color: "#fff",
                 textDecoration: "none",
                 fontSize: "0.875rem",
@@ -171,11 +171,11 @@ export default function PricingPage() {
       </div>
 
       {/* Institutional */}
-      <div className="card" style={{ background: "#0f1a2e", borderColor: "#2a4a7f" }}>
+      <div className="card" style={{ background: "#ffffff", borderColor: "#d8d3c8" }}>
         <div style={{ display: "flex", flexWrap: "wrap", gap: "1.5rem", alignItems: "center", justifyContent: "space-between" }}>
           <div>
             <h2 style={{ margin: "0 0 0.4rem" }}>Institutional</h2>
-            <p style={{ color: "#888", margin: 0, maxWidth: 480, fontSize: "0.9rem", lineHeight: 1.6 }}>
+            <p style={{ color: "#687078", margin: 0, maxWidth: 480, fontSize: "0.9rem", lineHeight: 1.6 }}>
               For universities, research departments, newsrooms, and government bodies
               that need structured access to this community - its practitioners, beliefs,
               methods, and data. Custom pricing, multi-seat access, research analytics.
@@ -185,7 +185,7 @@ export default function PricingPage() {
             href="mailto:hello@station.build"
             style={{
               padding: "0.6rem 1.4rem",
-              background: "#2a4a7f",
+              background: "#1f2529",
               color: "#fff",
               borderRadius: 6,
               textDecoration: "none",
@@ -220,9 +220,9 @@ export default function PricingPage() {
               a: "Yes. Upgrades are immediate. Downgrades take effect at the end of your billing period. Manage everything from the billing page.",
             },
           ].map(({ q, a }) => (
-            <div key={q} className="card" style={{ background: "#111" }}>
+            <div key={q} className="card">
               <h3 style={{ margin: "0 0 0.5rem", fontSize: "0.95rem" }}>{q}</h3>
-              <p style={{ margin: 0, color: "#888", fontSize: "0.875rem", lineHeight: 1.6 }}>{a}</p>
+              <p style={{ margin: 0, color: "#687078", fontSize: "0.875rem", lineHeight: 1.6 }}>{a}</p>
             </div>
           ))}
         </div>

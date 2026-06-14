@@ -128,37 +128,37 @@ export default function DocumentPage() {
     }
   }
 
-  if (loading) return <main className="container"><div className="card" style={{ textAlign: "center", padding: "3rem", color: "#555" }}>Loading...</div></main>;
+  if (loading) return <main className="container"><div className="card" style={{ textAlign: "center", padding: "3rem", color: "#687078" }}>Loading...</div></main>;
   if (error || !doc) return <main className="container"><div className="card" style={{ background: "#2d1515", borderColor: "#7d2e2e", color: "#eb5757" }}>{error ?? "Not found."}</div></main>;
 
   return (
     <main className="container" style={{ maxWidth: 720 }}>
-      <div style={{ fontSize: "0.78rem", color: "#555", marginBottom: "1.5rem" }}>
-        <Link href="/space" style={{ color: "#666" }}>Spaces</Link>{" / "}
-        <Link href={"/space/" + slug} style={{ color: "#666" }}>{slug}</Link>{" / "}
-        <span style={{ color: "#aaa" }}>{doc.title}</span>
+      <div style={{ fontSize: "0.78rem", color: "#8b8f92", marginBottom: "1.5rem" }}>
+        <Link href="/space" style={{ color: "#687078" }}>Spaces</Link>{" / "}
+        <Link href={"/space/" + slug} style={{ color: "#687078" }}>{slug}</Link>{" / "}
+        <span style={{ color: "#534ab7" }}>{doc.title}</span>
       </div>
 
       <div style={{ marginBottom: "1.75rem" }}>
         <div style={{ display: "flex", gap: "0.5rem", alignItems: "center", marginBottom: "0.65rem", flexWrap: "wrap" }}>
-          <span style={{ fontSize: "0.72rem", color: "#555", background: "#111827", border: "1px solid #1f2937", borderRadius: 999, padding: "0.1rem 0.45rem" }}>
+          <span style={{ fontSize: "0.72rem", color: "#687078", background: "#f8f7f4", border: "1px solid #d8d3c8", borderRadius: 999, padding: "0.1rem 0.45rem" }}>
             {DOC_TYPE_LABELS[doc.document_type] ?? doc.document_type}
           </span>
           <span style={{
             fontSize: "0.72rem", padding: "0.1rem 0.45rem", borderRadius: 999,
-            background: doc.status === "published" ? "#0f2d1a" : "#1a1a2e",
-            border: "1px solid " + (doc.status === "published" ? "#2e7d4f" : "#2a2a5a"),
-            color: doc.status === "published" ? "#6fcf97" : "#7c6af7",
+            background: doc.status === "published" ? "#e9f5ee" : "#eeedfe",
+            border: "1px solid " + (doc.status === "published" ? "rgba(59, 143, 99, 0.35)" : "#d8d3c8"),
+            color: doc.status === "published" ? "#25633f" : "#534ab7",
           }}>
             {doc.status}
           </span>
           {doc.provenance_type && (
-            <span style={{ fontSize: "0.72rem", color: "#7dd3fc", background: "#0c2536", border: "1px solid #1d4f68", borderRadius: 999, padding: "0.1rem 0.45rem" }}>
+            <span style={{ fontSize: "0.72rem", color: "#174b70", background: "#e7f0f6", border: "1px solid rgba(40, 120, 185, 0.35)", borderRadius: 999, padding: "0.1rem 0.45rem" }}>
               {PROVENANCE_LABELS[doc.provenance_type] ?? doc.provenance_type}
             </span>
           )}
           {doc.published_at && (
-            <span style={{ fontSize: "0.72rem", color: "#555" }}>
+            <span style={{ fontSize: "0.72rem", color: "#8b8f92" }}>
               {new Date(doc.published_at).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })}
             </span>
           )}
@@ -170,20 +170,20 @@ export default function DocumentPage() {
           <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
             {doc.status !== "published" && (
               <button onClick={handlePublish} disabled={publishing}
-                style={{ padding: "0.4rem 0.9rem", background: "#7c6af7", border: "none", borderRadius: 7, color: "#fff", cursor: "pointer", fontSize: "0.82rem" }}>
+                style={{ padding: "0.4rem 0.9rem", background: "#1f2529", border: "none", borderRadius: 7, color: "#fff", cursor: "pointer", fontSize: "0.82rem" }}>
                 {publishing ? "Publishing..." : "Publish"}
               </button>
             )}
             <button
               onClick={() => setShowComposer((v) => !v)}
-              style={{ padding: "0.4rem 0.9rem", background: "transparent", border: "1px solid #334155", borderRadius: 7, color: "#aaa", cursor: "pointer", fontSize: "0.82rem", display: "flex", alignItems: "center", gap: "0.35rem" }}
+              style={{ padding: "0.4rem 0.9rem", background: "transparent", border: "1px solid #d8d3c8", borderRadius: 7, color: "#687078", cursor: "pointer", fontSize: "0.82rem", display: "flex", alignItems: "center", gap: "0.35rem" }}
             >
               Signal Share to socials
             </button>
           </div>
         )}
         {doc.source_label && (
-          <div style={{ marginTop: "0.9rem", color: "#7f8aa0", fontSize: "0.82rem" }}>
+          <div style={{ marginTop: "0.9rem", color: "#8b8f92", fontSize: "0.82rem" }}>
             Source: {doc.source_label}
           </div>
         )}
@@ -192,7 +192,7 @@ export default function DocumentPage() {
       {/* Social composer panel */}
       {showComposer && (
         <div className="card" style={{ marginBottom: "1.5rem" }}>
-          <div style={{ fontSize: "0.72rem", color: "#888", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: "0.85rem" }}>
+          <div style={{ fontSize: "0.72rem", color: "#687078", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: "0.85rem" }}>
             Share to social media
           </div>
           <PostComposer
@@ -207,10 +207,10 @@ export default function DocumentPage() {
         <section className="card" style={{ marginBottom: "1.5rem", padding: "1rem 1.1rem" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "0.75rem", flexWrap: "wrap" }}>
             <div>
-              <div style={{ fontSize: "0.72rem", color: "#7f8aa0", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: "0.35rem" }}>
+              <div style={{ fontSize: "0.72rem", color: "#687078", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: "0.35rem" }}>
                 Discussion
               </div>
-              <div style={{ color: "#cbd5e1", fontWeight: 650 }}>
+              <div style={{ color: "#1f2529", fontWeight: 650 }}>
                 {discussion
                   ? "Community thread attached"
                   : discussionEligible && isOwner
@@ -219,7 +219,7 @@ export default function DocumentPage() {
                       ? "Discussion has not been opened yet"
                       : "Discussion unavailable"}
               </div>
-              <div style={{ color: "#7f8aa0", fontSize: "0.82rem", marginTop: "0.25rem" }}>
+              <div style={{ color: "#687078", fontSize: "0.82rem", marginTop: "0.25rem" }}>
                 {discussionLoading
                   ? "Checking discussion state..."
                   : discussion
@@ -242,7 +242,7 @@ export default function DocumentPage() {
               <button
                 onClick={handleStartDiscussion}
                 disabled={startingDiscussion}
-                style={{ padding: "0.45rem 0.9rem", background: "#7c6af7", border: "none", borderRadius: 7, color: "#fff", cursor: "pointer", fontSize: "0.82rem" }}
+                style={{ padding: "0.45rem 0.9rem", background: "#1f2529", border: "none", borderRadius: 7, color: "#fff", cursor: "pointer", fontSize: "0.82rem" }}
               >
                 {startingDiscussion ? "Starting..." : "Start discussion"}
               </button>
@@ -251,8 +251,8 @@ export default function DocumentPage() {
         </section>
       )}
 
-      <div style={{ lineHeight: 1.85, fontSize: "1rem", color: "#d1d5db", whiteSpace: "pre-wrap" }}>
-        {doc.body ?? <span style={{ color: "#555", fontStyle: "italic" }}>No content yet.</span>}
+      <div style={{ lineHeight: 1.85, fontSize: "1rem", color: "#1f2529", whiteSpace: "pre-wrap" }}>
+        {doc.body ?? <span style={{ color: "#687078", fontStyle: "italic" }}>No content yet.</span>}
       </div>
     </main>
   );
