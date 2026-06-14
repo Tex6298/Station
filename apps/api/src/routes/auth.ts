@@ -3,6 +3,7 @@ import { requireAuth } from "../middleware/require-auth";
 import {
   handleSignUp,
   handleSignIn,
+  handleRefreshSession,
   handleSignOut,
   handleMe,
 } from "../controllers/auth.controller";
@@ -14,6 +15,9 @@ authRouter.post("/signup", handleSignUp);
 
 // POST /auth/signin
 authRouter.post("/signin", handleSignIn);
+
+// POST /auth/refresh
+authRouter.post("/refresh", handleRefreshSession);
 
 // POST /auth/signout  (requires valid token)
 authRouter.post("/signout", requireAuth, handleSignOut);

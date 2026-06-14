@@ -13,6 +13,10 @@ export interface SignInInput {
   password: string;
 }
 
+export interface RefreshSessionInput {
+  refreshToken: string;
+}
+
 export interface AuthResult {
   userId: string;
   email: string;
@@ -63,20 +67,24 @@ export async function signIn(input: SignInInput): Promise<AuthResult> {
     throw new Error(error?.message ?? "Invalid credentials.");
   }
 
-  const sb = getSupabaseAdmin();
-  const { data: profile } = await sb
-    .from("profiles")
-    .select("tier")
-    .eq("id", data.user.id)
-    .single();
+  return authResultFromSession(data.user.id, data.user.email!, data.session);
+}
 
-  return {
-    userId: data.user.id,
-    email: data.user.email!,
-    tier: (profile?.tier ?? "visitor") as Tier,
-    accessToken: data.session.access_token,
-    refreshToken: data.session.refresh_token,
-  };
+/**
+ * Refresh a stored browser session without requiring the password again.
+ */
+export async function refreshSession(input: RefreshSessionInput): Promise<AuthResult> {
+  const anonClient = getSupabaseAuthClient();
+
+  const { data, error } = await anonClient.auth.refreshSession({
+    refresh_token: input.refreshToken,
+  });
+
+  if (error || !data.session || !data.user?.id || !data.user.email) {
+    throw new Error(error?.message ?? "Could not refresh session.");
+  }
+
+  return authResultFromSession(data.user.id, data.user.email, data.session);
 }
 
 /**
@@ -114,4 +122,25 @@ export async function signOut(accessToken: string): Promise<void> {
   if (error) {
     throw new Error(error.message ?? "Sign out failed.");
   }
+}
+
+async function authResultFromSession(
+  userId: string,
+  email: string,
+  session: { access_token: string; refresh_token: string }
+): Promise<AuthResult> {
+  const sb = getSupabaseAdmin();
+  const { data: profile } = await sb
+    .from("profiles")
+    .select("tier")
+    .eq("id", userId)
+    .single();
+
+  return {
+    userId,
+    email,
+    tier: (profile?.tier ?? "visitor") as Tier,
+    accessToken: session.access_token,
+    refreshToken: session.refresh_token,
+  };
 }

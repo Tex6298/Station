@@ -31,7 +31,7 @@ export async function isAuthenticated(): Promise<boolean> {
 }
 
 export async function getSession(): Promise<StationSession | null> {
-  return readStoredSession();
+  return restoreSession();
 }
 
 export async function restoreSession(): Promise<StationSession | null> {
@@ -44,8 +44,7 @@ export async function restoreSession(): Promise<StationSession | null> {
     saveSession(restored);
     return restored;
   } catch {
-    clearStoredSession();
-    return null;
+    return refreshStoredSession(session);
   }
 }
 
@@ -113,6 +112,23 @@ async function saveAndVerify(response: AuthApiResponse): Promise<StationSession>
   } catch (error) {
     clearStoredSession();
     throw error;
+  }
+}
+
+async function refreshStoredSession(session: StationSession): Promise<StationSession | null> {
+  try {
+    const refreshed = await apiPost<AuthApiResponse>("/auth/refresh", {
+      refreshToken: session.refreshToken,
+    });
+    const next = sessionFromAuthResponse(refreshed);
+    saveSession(next);
+    const user = await fetchCurrentUser(next.accessToken);
+    const verified = sessionWithUser(next, user);
+    saveSession(verified);
+    return verified;
+  } catch {
+    clearStoredSession();
+    return null;
   }
 }
 

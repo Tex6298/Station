@@ -96,6 +96,24 @@ class AuthTestSupabase {
             error: null,
           };
         },
+        refreshSession: async (input: { refresh_token: string }) => {
+          const userId = input.refresh_token.replace(/-refresh-token$/, "");
+          const profile = this.tables.profiles.find((row) => row.id === userId);
+          if (!profile) {
+            return { data: { user: null, session: null }, error: { message: "Invalid refresh token." } };
+          }
+
+          return {
+            data: {
+              user: { id: profile.id, email: profile.email },
+              session: {
+                access_token: `${profile.id}-access-token-refreshed`,
+                refresh_token: `${profile.id}-refresh-token-refreshed`,
+              },
+            },
+            error: null,
+          };
+        },
         signOut: async () => {
           this.signOutTokens.push(accessToken);
           return { error: null };
@@ -264,6 +282,33 @@ test("/auth/me returns normalized user and /auth/signout requires auth", async (
     assert.equal(signout.status, 204);
     assert.equal(signout.body, null);
     assert.deepEqual(db.signOutTokens, ["owner-token"]);
+  } finally {
+    resetAuthFakes();
+  }
+});
+
+test("/auth/refresh exchanges refresh tokens for a new session", async () => {
+  const db = new AuthTestSupabase();
+  useAuthFakes(db);
+  const app = createAuthProofApp();
+
+  try {
+    const refreshed = await requestJson(app, "POST", "/auth/refresh", {
+      body: { refreshToken: "owner-user-refresh-token" },
+    });
+    assert.equal(refreshed.status, 200);
+    assert.deepEqual(refreshed.body, {
+      userId: "owner-user",
+      email: "owner@example.test",
+      tier: "creator",
+      accessToken: "owner-user-access-token-refreshed",
+      refreshToken: "owner-user-refresh-token-refreshed",
+    });
+
+    const invalid = await requestJson(app, "POST", "/auth/refresh", {
+      body: { refreshToken: "missing-refresh-token" },
+    });
+    assert.equal(invalid.status, 401);
   } finally {
     resetAuthFakes();
   }

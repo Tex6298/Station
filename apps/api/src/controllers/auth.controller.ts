@@ -1,6 +1,6 @@
 import type { Request, Response } from "express";
-import { signUp, signIn, signOut } from "../services/auth.service";
-import { signUpSchema, signInSchema } from "../schemas/auth.schema";
+import { signUp, signIn, signOut, refreshSession } from "../services/auth.service";
+import { signUpSchema, signInSchema, refreshSessionSchema } from "../schemas/auth.schema";
 
 export async function handleSignUp(req: Request, res: Response): Promise<void> {
   const parsed = signUpSchema.safeParse(req.body);
@@ -42,6 +42,28 @@ export async function handleSignIn(req: Request, res: Response): Promise<void> {
     });
   } catch (err) {
     const message = err instanceof Error ? err.message : "Sign in failed.";
+    res.status(401).json({ error: message });
+  }
+}
+
+export async function handleRefreshSession(req: Request, res: Response): Promise<void> {
+  const parsed = refreshSessionSchema.safeParse(req.body);
+  if (!parsed.success) {
+    res.status(400).json({ error: parsed.error.flatten() });
+    return;
+  }
+
+  try {
+    const result = await refreshSession(parsed.data as Parameters<typeof refreshSession>[0]);
+    res.status(200).json({
+      userId: result.userId,
+      email: result.email,
+      tier: result.tier,
+      accessToken: result.accessToken,
+      refreshToken: result.refreshToken,
+    });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Session refresh failed.";
     res.status(401).json({ error: message });
   }
 }
