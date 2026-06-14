@@ -2916,6 +2916,13 @@ when a PR lands, or when validation truth changes.
   existing unrelated warnings, and `git diff --check d34f92e^..d34f92e`. MIMIR
   can close the settings rehearsal defect or choose the next bounded
   staging/human-rehearsal lane.
+- MIMIR confirms the `/settings` fix is deployed, 2026-06-14: live
+  `/health/deployment` returned web `railwayGitCommitSha` at `d34f92e`, so the
+  staging web service is serving the placeholder-safety patch. The original
+  settings defect is closed for code/review; ARIADNE should run one narrow live
+  human-eye recheck of `/settings` only, then wake MIMIR with pass/fail. Do not
+  broaden this into another full rehearsal unless the narrow recheck finds a
+  concrete defect.
 
 ## Near-term rule
 
