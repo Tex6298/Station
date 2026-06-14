@@ -1,4 +1,5 @@
 import Link from "next/link";
+import type { CSSProperties } from "react";
 import { AiObservabilityPanel } from "@/components/settings/ai-observability-panel";
 import { StorageUsagePanel } from "@/components/settings/storage-usage-panel";
 import { TokenUsagePanel } from "@/components/settings/token-usage-panel";
@@ -72,8 +73,8 @@ export default function SettingsPage() {
           <Link href="/studio" style={primaryLink}>Back to Studio</Link>
         </header>
 
-        <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr) 330px", gap: 18, alignItems: "start" }}>
-          <section style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 12 }}>
+        <div style={settingsLayout}>
+          <section style={settingsCards}>
             {settingSections.map((section) => {
               const content = (
                 <article style={section.href ? card : unavailableCard}>
@@ -98,7 +99,7 @@ export default function SettingsPage() {
             })}
           </section>
 
-          <aside style={{ display: "grid", gap: 14 }}>
+          <aside style={settingsAside}>
             <section style={panel}>
               <h2 style={sectionTitle}>Usage and Credits</h2>
               <TokenUsagePanel />
@@ -162,6 +163,28 @@ const panel = {
   background: "#ffffff",
   borderRadius: 8,
   padding: 16,
+};
+
+const settingsLayout: CSSProperties = {
+  display: "flex",
+  flexWrap: "wrap",
+  gap: 18,
+  alignItems: "flex-start",
+};
+
+const settingsCards: CSSProperties = {
+  display: "grid",
+  gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 240px), 1fr))",
+  gap: 12,
+  flex: "1 1 620px",
+  minWidth: 0,
+};
+
+const settingsAside: CSSProperties = {
+  display: "grid",
+  gap: 14,
+  flex: "1 1 330px",
+  minWidth: 0,
 };
 
 const card = {
