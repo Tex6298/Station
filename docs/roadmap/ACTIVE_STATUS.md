@@ -2709,6 +2709,20 @@ when a PR lands, or when validation truth changes.
   broader visual problem is real, ARIADNE should wake MIMIR with a ranked
   route-specific UX implementation plan or wake DAEDALUS with the first exact
   slice. Do not go quiet without a wakeup.
+- ARIADNE completes STAGING-HUMAN-ROUTE-IMPLEMENTATION-01, 2026-06-14:
+  `docs/roadmap/STAGING_HUMAN_ROUTE_REVIEW_ARIADNE.md` records a hosted Chrome
+  pass over the public chain, forum route, UI sign-in/auth persistence,
+  Continuity stop, Archive/Developer Space caveats, and cross-surface design
+  coherence. Immediate same-profile auth persistence did not reproduce Marty's
+  logout issue: localStorage session, `station-auth` cookie, signed-in nav,
+  `/auth/me`, and `/studio` access stayed true after refresh, navigation away/
+  back, and same-profile browser reopen. One DAEDALUS blocker is real:
+  `/forums` category cards put the literal word `Replies` inside a 42px badge,
+  causing visible overflow/collision, especially at 390 x 844. The broader
+  design mismatch is also real and should be sliced: first fix `/forums`, then
+  have MIMIR sequence public front door/signed-in Discover coherence, forum
+  hierarchy, public Space/document/discussion, Developer Space storytelling, and
+  Studio continuity/archive narrative polish.
 
 ## Near-term rule
 
