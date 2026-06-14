@@ -246,6 +246,20 @@ test("reports route persists reports through Supabase and scopes reporter to aut
       updated_at: "2026-05-25T09:00:00.000Z",
     });
 
+    const duplicate = await requestJson(app, "POST", "/reports", {
+      token: "owner-token",
+      body: {
+        targetType: "persona",
+        targetId: "persona-1",
+        reason: "unsafe impersonation",
+      },
+    });
+
+    assert.equal(duplicate.status, 200);
+    assert.equal(duplicate.body.duplicate, true);
+    assert.equal(duplicate.body.report.id, "moderation_reports-1");
+    assert.equal(db.tables.moderation_reports.length, 1);
+
     const withNotes = await requestJson(app, "POST", "/reports", {
       token: "other-token",
       body: {

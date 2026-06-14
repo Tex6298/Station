@@ -18,6 +18,8 @@ export const reportsRouter = Router();
 reportsRouter.use(requireAuth);
 
 type ModerationReportRow = Database["public"]["Tables"]["moderation_reports"]["Row"];
+type ModerationReportTargetType = ModerationReportRow["target_type"];
+const ACTIVE_REPORT_STATUSES = new Set(["open", "reviewing"]);
 
 function serializeReport(row: ModerationReportRow): ModerationReportRecord {
   const report: ModerationReportRecord = {
@@ -43,6 +45,25 @@ reportsRouter.post("/", async (req, res) => {
   if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
 
   const sb = getSupabaseAdmin();
+  const existingReport = await loadActiveExistingReport(
+    sb,
+    req.user!.id,
+    parsed.data.targetType,
+    parsed.data.targetId,
+    parsed.data.reason
+  );
+
+  if (existingReport.error) {
+    return res.status(500).json({ error: existingReport.error });
+  }
+
+  if (existingReport.report) {
+    return res.status(200).json({
+      report: serializeReport(existingReport.report),
+      duplicate: true,
+    });
+  }
+
   const { data, error } = await sb
     .from("moderation_reports")
     .insert({
@@ -57,6 +78,23 @@ reportsRouter.post("/", async (req, res) => {
     .single();
 
   if (error || !data) {
+    if (isUniqueViolation(error)) {
+      const duplicateReport = await loadActiveExistingReport(
+        sb,
+        req.user!.id,
+        parsed.data.targetType,
+        parsed.data.targetId,
+        parsed.data.reason
+      );
+
+      if (duplicateReport.report) {
+        return res.status(200).json({
+          report: serializeReport(duplicateReport.report),
+          duplicate: true,
+        });
+      }
+    }
+
     return res.status(500).json({ error: error?.message ?? "Failed to create report." });
   }
 
@@ -64,6 +102,33 @@ reportsRouter.post("/", async (req, res) => {
 
   return res.status(201).json({ report: serializeReport(data) });
 });
+
+async function loadActiveExistingReport(
+  sb: ReturnType<typeof getSupabaseAdmin>,
+  reporterId: string,
+  targetType: ModerationReportTargetType,
+  targetId: string,
+  reason: string
+): Promise<{ report: ModerationReportRow | null; error?: string }> {
+  const { data, error } = await sb
+    .from("moderation_reports")
+    .select("*")
+    .eq("reporter_id", reporterId)
+    .eq("target_type", targetType)
+    .eq("target_id", targetId)
+    .eq("reason", reason);
+
+  if (error) {
+    return { report: null, error: error.message ?? "Failed to check existing report." };
+  }
+
+  const report = (data ?? []).find((row: ModerationReportRow) => ACTIVE_REPORT_STATUSES.has(row.status));
+  return { report: report ?? null };
+}
+
+function isUniqueViolation(error: { code?: string } | null | undefined) {
+  return error?.code === "23505";
+}
 
 async function updateReportedTarget(targetType: string, targetId: string) {
   const sb = getSupabaseAdmin();

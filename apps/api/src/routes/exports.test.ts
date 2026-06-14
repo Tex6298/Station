@@ -562,6 +562,7 @@ class InMemorySupabase {
     ],
     moderation_reports: [
       reportRow("report-owner-document", OWNER_ID, "document", DOC_ID, "owner document report", "Owner-owned report note.", "open"),
+      reportRow("report-owner-document-duplicate", OWNER_ID, "document", DOC_ID, "owner document report", "Duplicate owner report note must collapse.", "open"),
       reportRow("report-owner-comment", OWNER_ID, "comment", "comment-visible", "owner comment report", "Visible comment report note.", "reviewed"),
       reportRow("report-owner-private-draft", OWNER_ID, "document", PRIVATE_DOC_ID, "draft report must not export", "Draft-only report note.", "open"),
       reportRow("report-other-document", OTHER_ID, "document", DOC_ID, "other reporter must not leak", "Other reporter private note.", "open"),
@@ -919,6 +920,7 @@ test("owner can export persona archive while preserving provenance and privacy b
     assert.doesNotMatch(manifestText, /Draft-only report note/);
     assert.doesNotMatch(manifestText, /Other reporter private note/);
     assert.doesNotMatch(manifestText, /Hidden comment report note/);
+    assert.doesNotMatch(manifestText, /Duplicate owner report note must collapse/);
 
     const continuityRecord = created.body.manifest.continuity.continuityRecords[0];
     assert.equal(continuityRecord.visibility, "public");

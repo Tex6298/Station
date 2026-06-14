@@ -180,6 +180,43 @@ function exportedTargetIds(publishedDocuments: Array<Record<string, any>>) {
   return ids;
 }
 
+const ACTIVE_MODERATION_REPORT_STATUSES = new Set(["open", "reviewing"]);
+
+function moderationReportRefKey(report: Record<string, any>) {
+  return `${report.targetType}:${report.targetId}:${report.reason}`;
+}
+
+function shouldReplaceModerationReportRef(current: Record<string, any>, next: Record<string, any>) {
+  const currentActive = ACTIVE_MODERATION_REPORT_STATUSES.has(current.status);
+  const nextActive = ACTIVE_MODERATION_REPORT_STATUSES.has(next.status);
+  if (currentActive !== nextActive) return nextActive;
+
+  const currentCreated = Date.parse(current.createdAt ?? "");
+  const nextCreated = Date.parse(next.createdAt ?? "");
+  if (Number.isNaN(currentCreated)) return true;
+  if (Number.isNaN(nextCreated)) return false;
+  return nextCreated > currentCreated;
+}
+
+function dedupeModerationReportRefs(reports: Array<Record<string, any>>) {
+  const byTargetReason = new Map<string, Record<string, any>>();
+
+  for (const report of reports) {
+    const key = moderationReportRefKey(report);
+    const current = byTargetReason.get(key);
+    if (!current || shouldReplaceModerationReportRef(current, report)) {
+      byTargetReason.set(key, report);
+    }
+  }
+
+  return [...byTargetReason.values()].sort((a, b) => {
+    const aCreated = Date.parse(a.createdAt ?? "");
+    const bCreated = Date.parse(b.createdAt ?? "");
+    if (Number.isNaN(aCreated) || Number.isNaN(bCreated)) return 0;
+    return bCreated - aCreated;
+  });
+}
+
 async function loadOwnerModerationReportRefs(ownerUserId: string, publishedDocuments: Array<Record<string, any>>) {
   const sb = getSupabaseAdmin();
   const targetIds = exportedTargetIds(publishedDocuments);
@@ -193,7 +230,7 @@ async function loadOwnerModerationReportRefs(ownerUserId: string, publishedDocum
 
   throwIfQueryError({ error }, "moderation report export source");
 
-  return (data ?? [])
+  const reportRefs = (data ?? [])
     .filter((report: any) => targetIds.has(`${report.target_type}:${report.target_id}`))
     .map((report: any) => ({
       id: report.id,
@@ -207,6 +244,8 @@ async function loadOwnerModerationReportRefs(ownerUserId: string, publishedDocum
       createdAt: report.created_at,
       updatedAt: report.updated_at,
     }));
+
+  return dedupeModerationReportRefs(reportRefs);
 }
 
 async function buildPersonaExportManifest(persona: any, packageId: string, ownerUserId: string) {

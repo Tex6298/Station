@@ -42,6 +42,7 @@ In the Supabase dashboard, go to **SQL Editor** and run the migrations in order:
 28. `migrations/028_retrieval_provider_metadata.sql` - retrieval provider metadata and active vector contract guardrails
 29. `migrations/029_gemini_embedding_provider_prep.sql` - provider-aware embedding metadata guardrails and RPC overloads for `station_free_1536` proof
 30. `migrations/030_integrity_questions_rls.sql` - active-row read policies for the seeded Integrity Session question bank
+31. `migrations/031_moderation_report_idempotency.sql` - active moderation report idempotency guard for repeated report taps
 
 Or use the Supabase CLI after confirming the staging project target:
 ```bash
