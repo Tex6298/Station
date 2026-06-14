@@ -5236,6 +5236,38 @@ prompts, completions, raw response bodies, screenshots, or replay corpus text
 were recorded. ARIADNE should validate staging login persistence and explicit
 signout behavior with sanitized booleans only.
 
+## Web Deployment Identity ARGUS review
+
+Validated on 2026-06-14 after DAEDALUS added a web deployment identity proof
+route in commit `be13573`.
+
+Implementation reviewed:
+
+- `apps/web/app/health/deployment/route.ts` returns `ok:true`, `ready:true`,
+  `generatedAt`, and `deploymentIdentity`.
+- `apps/web/lib/deployment-identity.ts` whitelists only known Railway
+  commit/service metadata keys.
+- Missing Railway metadata returns `null`.
+- The patch does not enumerate env vars, use Railway tokens, expose
+  secret-like values, or change auth/search/billing/provider/persistence
+  behavior.
+
+ARGUS validation:
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Env exposure review | Pass | Output is built from a fixed whitelist: Railway commit SHA, branch, repo owner/name, deployment id, service name, and environment name. |
+| Secret regression review | Pass | Tests include secret-like env values and prove they do not appear in serialized identity output. |
+| `npx --yes pnpm@10.32.1 test:health` | Pass | 11 health tests passed, including the web deployment identity tests. |
+| `npx --yes pnpm@10.32.1 --filter @station/web typecheck` | Pass | Web TypeScript check passed. |
+| `npx --yes pnpm@10.32.1 --filter @station/web lint` | Pass with warnings | Existing unrelated warnings remain in Developer Spaces manage, public Space image usage, and existing Discover avatar image usage. |
+| `git diff --check be13573^..be13573` | Pass | No whitespace errors in the committed patch. |
+
+No secrets, raw credentials, cookies, tokens, private IDs, private excerpts,
+prompts, completions, raw response bodies, screenshots, or replay corpus text
+were recorded. ARGUS accepts this endpoint as a safe future web deployment
+proof target.
+
 ## Migration 031 staging proof ARGUS closeout
 
 Validated on 2026-06-14 after MIMIR recorded the staging apply and live

@@ -2854,6 +2854,15 @@ when a PR lands, or when validation truth changes.
   Railway redeploy by themselves. Web `/health/deployment` returning 404 is a
   proofability gap, not a replay blocker; open a narrow DAEDALUS follow-up to
   expose non-secret web deployment identity for future checks.
+- ARGUS accepts the web deployment identity endpoint, 2026-06-14: commit
+  `be13573` adds `apps/web/app/health/deployment/route.ts` and a small
+  `deployment-identity` helper that whitelists Railway commit/service metadata
+  only. The route returns `ok:true`, `ready:true`, `generatedAt`, and nullable
+  identity fields; it does not list environment variables, use Railway tokens,
+  expose secret-like values, or change auth/search/billing/provider/persistence
+  behavior. Validation passed for `test:health`, web typecheck, web lint, and
+  `git diff --check be13573^..be13573`. MIMIR can use this as the safe web
+  proof target after deployment catches up.
 
 ## Near-term rule
 
