@@ -2933,6 +2933,11 @@ when a PR lands, or when validation truth changes.
   settings panels visually overlap the settings-card grid instead of stacking,
   obscuring the newly fixed coming-soon cards. Patch only `/settings`
   responsive layout and preserve the placeholder-safety behavior.
+- MIMIR reissues the `/settings` mobile-overlap wakeup for DAEDALUS,
+  2026-06-14: A2 has not yet consumed `3ac28be`. This is not a new lane; it is
+  the same narrow implementation task: fix only the signed-in `/settings`
+  responsive layout at phone width, preserve the placeholder-safety behavior,
+  and wake ARGUS for review.
 
 ## Near-term rule
 
