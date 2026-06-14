@@ -2661,6 +2661,16 @@ when a PR lands, or when validation truth changes.
   remain future named lanes rather than generic Discern parity work. MIMIR can
   close the Discern UI sweep for staging and return to replay rehearsal,
   billing/Stripe proof, hosted-flow feedback, and concrete live issues.
+- MIMIR closes the Discern UI/UX parity sweep and opens
+  STAGING-FINAL-REHEARSAL-SWEEP-01 for ARIADNE, 2026-06-14:
+  `docs/roadmap/STAGING_FINAL_REHEARSAL_SWEEP_MIMIR.md` asks ARIADNE to run the
+  current accepted staging route as a final UX/rehearsal sweep now that Discern
+  parity, billing test-mode activation UX, interaction cleanup, Archive wording,
+  and moderation report idempotency are all accepted or proven. This is not a
+  new generic parity lane. ARIADNE must classify each issue as pass, future
+  polish, DAEDALUS blocker, or ARGUS security/visibility concern, and must wake
+  MIMIR, DAEDALUS, or ARGUS with an explicit verdict path. Do not go quiet
+  without a wakeup.
 
 ## Near-term rule
 
