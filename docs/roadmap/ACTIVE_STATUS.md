@@ -2923,6 +2923,16 @@ when a PR lands, or when validation truth changes.
   human-eye recheck of `/settings` only, then wake MIMIR with pass/fail. Do not
   broaden this into another full rehearsal unless the narrow recheck finds a
   concrete defect.
+- ARIADNE completes the narrow live `/settings` recheck, 2026-06-14:
+  `docs/roadmap/SETTINGS_PLACEHOLDER_RECHECK_ARIADNE.md` records a hosted
+  Chrome/CDP desktop and mobile pass against Railway web at deployment
+  `d34f92e`. The placeholder-control behavior is fixed: Profile, Privacy, and
+  Notifications are no longer self-links; profile edit, notification
+  preferences, and account deletion are disabled or clearly unavailable. A
+  narrow DAEDALUS defect remains on mobile: at `390 x 844`, the right-side
+  settings panels visually overlap the settings-card grid instead of stacking,
+  obscuring the newly fixed coming-soon cards. Patch only `/settings`
+  responsive layout and preserve the placeholder-safety behavior.
 
 ## Near-term rule
 
