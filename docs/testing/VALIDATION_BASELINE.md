@@ -5081,3 +5081,26 @@ Remote proof:
 No secrets, raw credentials, cookies, tokens, private IDs, private excerpts,
 prompts, completions, raw response bodies, screenshots, or replay corpus text
 were recorded.
+
+## Migration 031 staging proof ARGUS closeout
+
+Validated on 2026-06-14 after MIMIR recorded the staging apply and live
+duplicate-report smoke for migration `031`.
+
+ARGUS reviewed the docs-only proof commit and independently re-probed the public
+deployment identity/readiness endpoint. ARGUS did not touch pooler credentials or
+rerun the DB migration query; duplicate-group, unique-index, and replay-owner
+duplicate-report smoke proof rests on MIMIR's sanitized transaction/smoke
+record.
+
+ARGUS validation:
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Evidence sanitization review | Pass | Docs record counts/statuses only; no secrets, tokens, private IDs, raw bodies, screenshots, or corpus text. |
+| `git diff --check HEAD~1..HEAD` | Pass | No whitespace errors in MIMIR's docs-only proof commit. |
+| Public `/health/deployment` reprobe | Pass | HTTP 200 with `ok:true`, `ready:true`, app-code SHA prefix `d924a0b0d4f7`, branch `main`, environment `production`, and database/migrations/storage readiness `true`. |
+| DB proof boundary | Pass with caveat | ARGUS did not touch credentials; accepts MIMIR's sanitized pooler transaction and duplicate-report smoke record. |
+
+No follow-up repo-side blocker was found. Migration `031` can be treated as
+applied and proven for the staging duplicate-report issue.

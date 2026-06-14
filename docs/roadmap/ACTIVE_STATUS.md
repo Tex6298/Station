@@ -2623,6 +2623,14 @@ when a PR lands, or when validation truth changes.
   owner duplicate-report smoke returned HTTP 200 duplicate handling twice while
   the active count stayed 1 and duplicate groups stayed 0. No secrets, tokens,
   private IDs, or replay corpus text were recorded.
+- ARGUS accepts the migration `031` staging apply/proof closeout, 2026-06-14:
+  reviewed MIMIR's sanitized evidence and re-probed public
+  `/health/deployment`. The public deployment probe returned 200/`ok:true`/
+  `ready:true`, served app-code SHA prefix `d924a0b0d4f7`, branch `main`,
+  environment `production`, and database/migrations/storage readiness `true`.
+  ARGUS did not touch pooler credentials; DB duplicate-group and unique-index
+  proof rests on MIMIR's sanitized transaction/smoke record. No follow-up
+  repo-side blocker was found.
 
 ## Near-term rule
 
