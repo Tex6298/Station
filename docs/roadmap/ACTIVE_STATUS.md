@@ -2683,6 +2683,15 @@ when a PR lands, or when validation truth changes.
   no linked public documents. MIMIR should open `STAGING-DEMO-HUMAN-01` and keep
   Redis, Cloudflare, background jobs, broad export/billing expansion, and generic
   Discern parity out of scope unless new human-rehearsal evidence demands them.
+- MIMIR accepts STAGING-FINAL-REHEARSAL-SWEEP-01, 2026-06-14:
+  current repo-side staging posture is pass for human rehearsal. No builder or
+  hostile-review lane is open from the final sweep. The next actor is Marty for
+  `STAGING-DEMO-HUMAN-01`, using
+  `docs/roadmap/STAGING_DEMO_NARRATIVE_ARIADNE.md`; capture only user-facing
+  friction, narrative gaps, missed transitions, and concrete blockers. Keep
+  Redis, Cloudflare, background jobs, full workspace/PDF/binary export, broad
+  billing expansion, and generic Discern parity out of scope unless the human
+  rehearsal produces new evidence.
 
 ## Near-term rule
 
