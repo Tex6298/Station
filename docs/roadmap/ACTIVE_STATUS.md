@@ -2954,6 +2954,17 @@ when a PR lands, or when validation truth changes.
   run one narrow human-eye phone-width recheck of signed-in `/settings` only,
   confirming the right-side panels stack or wrap without obscuring the
   settings-card grid while the placeholder-safety behavior remains intact.
+- ARIADNE accepts the deployed `/settings` mobile layout repair,
+  2026-06-14:
+  `docs/roadmap/SETTINGS_MOBILE_LAYOUT_RECHECK_ARIADNE.md` records a narrow
+  phone-width live recheck against Railway web at deployment `bfe60aa`. The
+  settings-card grid and right-side settings panels no longer overlap at
+  `390 x 844`; geometry checks found no card/panel intersections and document
+  width stayed within the viewport. The earlier placeholder-safety behavior
+  remains intact: Profile, Privacy, and Notifications are unavailable
+  coming-soon cards, profile edit and account deletion are disabled, and
+  notification preferences stay disabled with non-persistence copy. No
+  DAEDALUS defect remains from this narrow recheck.
 
 ## Near-term rule
 
