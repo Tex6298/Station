@@ -3,20 +3,10 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { apiGet } from "@/lib/api-client";
-
-type WritingItem = {
-  id: string;
-  type: string;
-  title: string;
-  excerpt: string | null;
-  href: string;
-  meta: string | null;
-  author: { display_name?: string | null; username?: string | null } | null;
-  createdAt: string;
-};
+import { type WritingFeedItem, type WritingItem, isWritingItem, normalizeWritingFeedItem } from "@/lib/writing-feed";
 
 type FeedResponse = {
-  items: WritingItem[];
+  items: WritingFeedItem[];
 };
 
 type WritingTab = "Latest" | "Featured" | "Staff picks";
@@ -46,7 +36,7 @@ export function WritingIndex() {
     setError(null);
     apiGet<FeedResponse>(`/discover/feed?tab=${feedTab}&limit=48`)
       .then((data) => {
-        setItems(data.items.filter((item) => item.type === "document"));
+        setItems(data.items.map(normalizeWritingFeedItem).filter(isWritingItem));
       })
       .catch((e) => setError(e instanceof Error ? e.message : "Could not load writing."))
       .finally(() => setLoading(false));
