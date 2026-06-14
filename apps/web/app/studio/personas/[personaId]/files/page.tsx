@@ -143,10 +143,10 @@ export default function PersonaFilesPage() {
             <h2>Private source material for {persona.name}</h2>
           </div>
           <p className="archive-trust-copy">
-            Imports and files on this page are owner-only archive sources. Completed imports can be linked into continuity; failed imports keep their error message here and do not remove existing archive material.
+            This page tracks owner-only pasted and file import sources. Archived chats are counted separately in runtime context and storage usage, so a zero here does not mean the persona has no archive material.
           </p>
           <div className="archive-trust-stats">
-            <TrustMetric label="Sources" value={summary.totalSources} />
+            <TrustMetric label="Import sources" value={summary.totalSources} />
             <TrustMetric label="Completed imports" value={summary.completedImports} />
             <TrustMetric label="Needs review" value={summary.failedImports} tone={summary.failedImports > 0 ? "danger" : "info"} />
             <TrustMetric label="Processing" value={summary.processingImports} tone={summary.processingImports > 0 ? "warning" : "info"} />
@@ -184,12 +184,12 @@ export default function PersonaFilesPage() {
 
         <section className="studio-list-panel">
           <div className="studio-section-heading">
-            <div className="section-label">Archive Library</div>
-            <h2>{files.length + jobs.length} sources</h2>
+            <div className="section-label">Archive Import Library</div>
+            <h2>{formatImportSourceCount(files.length + jobs.length)}</h2>
           </div>
           <div className="studio-item-list">
             {files.length === 0 && jobs.length === 0 && (
-              <StudioEmptyState>No archive sources yet. Paste material to create the first private import job.</StudioEmptyState>
+              <StudioEmptyState>No pasted or file archive sources yet. Archived chats can still appear in runtime context and storage usage.</StudioEmptyState>
             )}
             {jobs.map((job) => (
               <ImportJobCard key={job.id} job={job} />
@@ -302,6 +302,10 @@ function StudioMessage({ children, tone = "normal" }: { children: React.ReactNod
 
 function formatDate(value: string) {
   return new Date(value).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
+}
+
+function formatImportSourceCount(count: number) {
+  return `${count} import ${count === 1 ? "source" : "sources"}`;
 }
 
 function formatBytes(bytes: number) {
