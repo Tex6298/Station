@@ -2652,6 +2652,15 @@ when a PR lands, or when validation truth changes.
   verify whether one exact missing Discern UX slice still blocks staging
   rehearsal; otherwise MIMIR should close the Discern parity sweep and return to
   replay/staging proof work.
+- ARIADNE accepts Discern UI/UX parity closeout for staging, 2026-06-14:
+  `docs/roadmap/DISCERN_UI_PARITY_CLOSEOUT_ARIADNE.md` confirms there is no
+  exact missing Discern UX slice that should block staging rehearsal. Public
+  shell, entry/onboarding, Discover search, and nav/search IA were adapted or
+  deliberately parked; notes/global archive, runtime kindling metadata, persona
+  chat save/pin affordances, mobile nav polish, and richer public presentation
+  remain future named lanes rather than generic Discern parity work. MIMIR can
+  close the Discern UI sweep for staging and return to replay rehearsal,
+  billing/Stripe proof, hosted-flow feedback, and concrete live issues.
 
 ## Near-term rule
 
