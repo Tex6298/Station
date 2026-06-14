@@ -4987,3 +4987,37 @@ No secrets, raw credentials, cookies, tokens, private excerpts, prompts,
 completions, raw response bodies, or replay corpus text were recorded. ARGUS
 found no repo-side staging blocker. Recommended next action remains Marty human
 rehearsal for `STAGING-DEMO-HUMAN-01` and/or external Stripe paid activation.
+
+## Archive Import Source Wording ARGUS review
+
+Validated on 2026-06-14 after Marty completed the Memory / Continuity / Archive
+staging demo pass and the Archive page copy was clarified.
+
+Implementation reviewed:
+
+- `apps/web/app/studio/personas/[personaId]/files/page.tsx` now says the page
+  tracks pasted and file import sources, while archived chats are counted
+  separately in runtime context and storage usage.
+- The visible metric label changed from `Sources` to `Import sources`.
+- The library heading uses `formatImportSourceCount(files.length + jobs.length)`
+  for correct singular/plural wording.
+- The empty state now says no pasted or file archive sources exist yet, without
+  implying there is no archive material anywhere else.
+- Data loading, API calls, import submission, storage categories, runtime
+  context behavior, archived chat behavior, and underlying counts are unchanged.
+
+ARGUS validation:
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Copy/scope review | Pass | Diff is copy and display formatting only in the persona Archive page. |
+| Data-count review | Pass | `archiveTrustSummary(files, jobs)` and `files.length + jobs.length` remain the count sources. |
+| Import/runtime behavior review | Pass | API calls, import submission, storage usage, runtime context, and archived chat paths did not change. |
+| `npx --yes pnpm@10.32.1 --filter @station/web typecheck` | Pass | Web TypeScript check passed. |
+| `npx --yes pnpm@10.32.1 --filter @station/web lint` | Pass with warnings | Existing unrelated warnings remain in Developer Spaces manage, public Space image usage, and existing Discover avatar image usage. |
+| `git diff --check HEAD~1..HEAD` | Pass | No whitespace errors in the committed patch. |
+
+No secrets, raw credentials, cookies, tokens, private excerpts, prompts,
+completions, raw response bodies, screenshots, or replay corpus text were
+recorded. ARIADNE should UX-review this wording against the staging screenshots
+before MIMIR closes the Archive demo clarity issue.

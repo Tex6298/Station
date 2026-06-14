@@ -2592,6 +2592,16 @@ when a PR lands, or when validation truth changes.
   subscription activation through a real hosted test Checkout or signed test
   subscription event. No repo-side blocker was found; recommend MIMIR keep the
   next action on Marty/external Stripe.
+- ARGUS accepts the Archive import source wording patch for code-safety
+  boundaries, 2026-06-14: commit `c32e0a5` changed only
+  `apps/web/app/studio/personas/[personaId]/files/page.tsx` copy and display
+  formatting around pasted/file import sources. The underlying archive summary
+  count still comes from the same `archiveTrustSummary(files, jobs)` data, the
+  library heading still uses `files.length + jobs.length`, and the import,
+  storage, runtime context, archived chat, and API paths are unchanged. Web
+  typecheck, web lint with existing unrelated warnings, and `git diff --check
+  HEAD~1..HEAD` passed. ARIADNE should UX-review the wording against Marty's
+  Memory / Continuity / Archive staging screenshots before MIMIR closes it.
 
 ## Near-term rule
 
