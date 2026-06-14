@@ -2767,6 +2767,19 @@ when a PR lands, or when validation truth changes.
   preserving Discover tabs, search semantics, public/community copy, private
   Studio exclusion, routeable result behavior, and backend/auth/feed policy.
   ARGUS reviews first, then ARIADNE performs browser/product review.
+- ARGUS accepts PUBLIC-DISCOVER-COHERENCE-01 for product/browser review,
+  2026-06-14: commit `037b224` changes only
+  `apps/web/components/discover/discover-front-door.tsx` and
+  `apps/web/app/globals.css`. The route keeps the same `restoreSession` flow,
+  token-aware feed/search/sidebar calls, routeable public search helper,
+  Discover tabs, public/community copy, and private Studio archive/memory/
+  canon/import/continuity exclusion language. Validation passed for the
+  search-dropdown tests, web typecheck, web lint, `test:community`, and
+  `git diff --check 037b224^..037b224`. ARGUS did not independently run a
+  browser pass; DAEDALUS recorded desktop/mobile anonymous and signed-in local
+  browser evidence. ARIADNE should now judge visual/product quality, mobile
+  polish, and the Featured tab with real or representative curated rows before
+  MIMIR closes the slice.
 
 ## Near-term rule
 

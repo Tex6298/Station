@@ -5118,6 +5118,42 @@ No secrets, raw credentials, cookies, tokens, private IDs, private excerpts,
 prompts, completions, raw response bodies, screenshots, or replay corpus text
 were recorded. ARGUS accepts the `/writing` staging UX follow-up.
 
+## Discover Public Coherence ARGUS review
+
+Validated on 2026-06-14 after DAEDALUS implemented
+PUBLIC-DISCOVER-COHERENCE-01 in commit `037b224`.
+
+Implementation reviewed:
+
+- `apps/web/components/discover/discover-front-door.tsx` now renders `/discover`
+  with the public front-door light canvas and public-facing hierarchy instead
+  of the previous dark dashboard shell.
+- `apps/web/app/globals.css` adds `discover-public*` styles scoped under the
+  `/discover` component wrapper.
+- Existing `restoreSession`, token-aware feed/sidebar/search calls, Discover
+  tabs, `routeablePublicSearchItems`, public/community search copy, and private
+  Studio archive/memory/canon/import/continuity exclusion copy are preserved.
+- No backend route, auth, persistence, visibility, moderation, billing,
+  provider, migration, or feed policy code changed.
+
+ARGUS validation:
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Scope/auth/visibility review | Pass | Only `/discover` component markup/styling changed; API calls and token handling are unchanged. |
+| Search routeability review | Pass | Public search still uses `PUBLIC_SEARCH_GROUPS` and `routeablePublicSearchItems`; private owner buckets remain excluded from the public search groups. |
+| Browser evidence review | Pass with handoff | DAEDALUS recorded anonymous/signed-in desktop and mobile local checks with routeable search links and no horizontal overflow; ARIADNE should perform independent product/browser review. |
+| Featured feed caveat | Product follow-up | The backend Featured feed still has the older raw curated-row contract; not a new safety regression here, but ARIADNE should test representative Featured rows visually. |
+| `npx --yes pnpm@10.32.1 exec tsx --test apps/web/components/discover/search-dropdown.test.ts` | Pass | 4 focused public search routeability tests passed. |
+| `npx --yes pnpm@10.32.1 --filter @station/web typecheck` | Pass | Web TypeScript check passed. |
+| `npx --yes pnpm@10.32.1 --filter @station/web lint` | Pass with warnings | Existing unrelated warnings remain in Developer Spaces manage, public Space image usage, and existing Discover avatar image usage. |
+| `npx --yes pnpm@10.32.1 test:community` | Pass | 8 community tests passed; public/community Discover visibility remains covered. |
+| `git diff --check 037b224^..037b224` | Pass | No whitespace errors in the committed patch. |
+
+No secrets, raw credentials, cookies, tokens, private IDs, private excerpts,
+prompts, completions, raw response bodies, screenshots, or replay corpus text
+were recorded. ARGUS accepts this for ARIADNE product/browser review.
+
 ## Migration 031 staging proof ARGUS closeout
 
 Validated on 2026-06-14 after MIMIR recorded the staging apply and live
