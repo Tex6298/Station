@@ -6,36 +6,71 @@ import { apiGet } from "@/lib/api-client";
 
 type WritingItem = {
   id: string;
+  type: string;
   title: string;
   excerpt: string | null;
   href: string;
-  meta: string;
+  meta: string | null;
   author: { display_name?: string | null; username?: string | null } | null;
   createdAt: string;
 };
 
 type FeedResponse = {
-  items: Array<WritingItem & { type: string }>;
+  items: WritingItem[];
 };
 
-const tabs = ["Latest", "Featured", "Staff picks"];
-const filters = ["All", "Essay", "Codex", "Manifesto", "Research", "Field Log", "Theory"];
+type WritingTab = "Latest" | "Featured" | "Staff picks";
+type WritingFilter = "All" | "Essay" | "Codex" | "Manifesto" | "Research" | "Field Log" | "Theory";
+
+const tabs: WritingTab[] = ["Latest", "Featured", "Staff picks"];
+const filters: WritingFilter[] = ["All", "Essay", "Codex", "Manifesto", "Research", "Field Log", "Theory"];
 
 export function WritingIndex() {
   const [items, setItems] = useState<WritingItem[]>([]);
+  const [activeTab, setActiveTab] = useState<WritingTab>("Latest");
+  const [activeFilter, setActiveFilter] = useState<WritingFilter>("All");
+  const [query, setQuery] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    apiGet<FeedResponse>("/discover/feed?tab=new&limit=24")
+    if (activeTab === "Staff picks") {
+      setItems([]);
+      setError(null);
+      setLoading(false);
+      return;
+    }
+
+    const feedTab = activeTab === "Featured" ? "featured" : "new";
+    setLoading(true);
+    setError(null);
+    apiGet<FeedResponse>(`/discover/feed?tab=${feedTab}&limit=48`)
       .then((data) => {
         setItems(data.items.filter((item) => item.type === "document"));
       })
       .catch((e) => setError(e instanceof Error ? e.message : "Could not load writing."))
       .finally(() => setLoading(false));
-  }, []);
+  }, [activeTab]);
 
-  const featured = useMemo(() => items.slice(0, 2), [items]);
+  const visibleItems = useMemo(() => {
+    const normalizedQuery = query.trim().toLowerCase();
+    return items.filter((item) => {
+      const itemType = normalizeDocumentType(item.meta);
+      if (activeFilter !== "All" && itemType !== activeFilter) return false;
+
+      if (!normalizedQuery) return true;
+      const author = item.author?.display_name ?? item.author?.username ?? "";
+      return [
+        item.title,
+        item.excerpt ?? "",
+        item.meta ?? "",
+        author,
+      ].some((part) => part.toLowerCase().includes(normalizedQuery));
+    });
+  }, [activeFilter, items, query]);
+
+  const featured = useMemo(() => visibleItems.slice(0, 2), [visibleItems]);
+  const emptyMessage = emptyStateFor(activeTab, activeFilter, query);
 
   return (
     <main style={{ minHeight: "calc(100vh - 52px)", background: "#0b0e14" }}>
@@ -57,46 +92,83 @@ export function WritingIndex() {
 
         <section style={panel}>
           <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 12 }}>
-            {tabs.map((tab, index) => (
-              <button key={tab} type="button" style={{ ...tabButton, borderColor: index === 0 ? "#2563eb" : "#334155", background: index === 0 ? "#13233d" : "#0d1420" }}>
+            {tabs.map((tab) => {
+              const active = tab === activeTab;
+              return (
+              <button
+                key={tab}
+                type="button"
+                aria-pressed={active}
+                onClick={() => {
+                  setActiveTab(tab);
+                  setActiveFilter("All");
+                  setQuery("");
+                }}
+                style={{
+                  ...tabButton,
+                  borderColor: active ? "#2563eb" : "#334155",
+                  background: active ? "#13233d" : "#0d1420",
+                }}
+              >
                 {tab}
               </button>
-            ))}
+              );
+            })}
           </div>
           <div style={{ display: "flex", gap: 8, overflowX: "auto", paddingBottom: 4, marginBottom: 12 }}>
-            {filters.map((filter, index) => (
-              <button key={filter} type="button" style={{ ...pillButton, borderColor: index === 0 ? "#2563eb" : "#334155", background: index === 0 ? "#12305f" : "#111827" }}>
+            {filters.map((filter) => {
+              const active = filter === activeFilter;
+              return (
+              <button
+                key={filter}
+                type="button"
+                aria-pressed={active}
+                onClick={() => setActiveFilter(filter)}
+                style={{
+                  ...pillButton,
+                  borderColor: active ? "#2563eb" : "#334155",
+                  background: active ? "#12305f" : "#111827",
+                }}
+              >
                 {filter}
               </button>
-            ))}
+              );
+            })}
           </div>
-          <input placeholder="Search essays, codexes, research..." style={input} />
+          <input
+            placeholder="Search essays, codexes, research..."
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            style={input}
+          />
         </section>
 
         {loading ? (
           <section style={{ ...panel, marginTop: 20, color: "#a9b0bd" }}>Loading published writing...</section>
         ) : error ? (
           <section style={{ ...panel, marginTop: 20, color: "#fca5a5" }}>{error}</section>
-        ) : items.length === 0 ? (
+        ) : visibleItems.length === 0 ? (
           <section style={{ ...panel, marginTop: 20 }}>
-            <h2 style={{ margin: "0 0 8px", color: "#f8fafc", fontSize: 18 }}>No public writing yet</h2>
+            <h2 style={{ margin: "0 0 8px", color: "#f8fafc", fontSize: 18 }}>{emptyMessage.title}</h2>
             <p style={{ margin: 0, color: "#a9b0bd", fontSize: 14, lineHeight: 1.6 }}>
-              Published public documents will appear here when they are available.
+              {emptyMessage.body}
             </p>
           </section>
         ) : (
           <>
+            {activeTab === "Latest" && (
             <section style={{ marginTop: 20 }}>
               <SectionTitle title="Featured" />
               <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 12 }}>
                 {featured.map((item) => <WritingCard key={item.id} item={item} featured />)}
               </div>
             </section>
+            )}
 
             <section style={{ marginTop: 24 }}>
-              <SectionTitle title="Latest" />
+              <SectionTitle title={activeTab} />
               <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(230px, 1fr))", gap: 12 }}>
-                {items.map((item) => <WritingCard key={item.id} item={item} />)}
+                {visibleItems.map((item) => <WritingCard key={item.id} item={item} />)}
               </div>
             </section>
           </>
@@ -113,15 +185,16 @@ function SectionTitle({ title }: { title: string }) {
 function WritingCard({ item, featured = false }: { item: WritingItem; featured?: boolean }) {
   const author = item.author?.display_name ?? item.author?.username ?? "Station";
   const date = formatDate(item.createdAt);
+  const itemType = item.meta ?? "Writing";
 
   return (
     <Link href={item.href} style={{ textDecoration: "none" }}>
       <article style={{ ...card, minHeight: featured ? 230 : 210 }}>
         <div style={thumb}>
-          <span style={{ color: "#f8fafc", fontWeight: 900, fontSize: featured ? 24 : 18 }}>{item.meta.slice(0, 1).toUpperCase()}</span>
+          <span style={{ color: "#f8fafc", fontWeight: 900, fontSize: featured ? 24 : 18 }}>{itemType.slice(0, 1).toUpperCase()}</span>
         </div>
         <div style={{ padding: 14, display: "grid", gap: 8 }}>
-          <span style={{ color: "#fca5a5", fontSize: 10, fontWeight: 800, textTransform: "uppercase" }}>{item.meta}</span>
+          <span style={{ color: "#fca5a5", fontSize: 10, fontWeight: 800, textTransform: "uppercase" }}>{itemType}</span>
           <h3 style={{ margin: 0, color: "#f8fafc", fontSize: featured ? 18 : 15, lineHeight: 1.3 }}>{item.title}</h3>
           <p style={{ margin: 0, color: "#a9b0bd", fontSize: 13, lineHeight: 1.55 }}>{item.excerpt ?? "No excerpt available."}</p>
           <span style={{ color: "#7d8796", fontSize: 12 }}>{author} - {date}</span>
@@ -129,6 +202,45 @@ function WritingCard({ item, featured = false }: { item: WritingItem; featured?:
       </article>
     </Link>
   );
+}
+
+function normalizeDocumentType(value: string | null): WritingFilter {
+  const normalized = (value ?? "").toLowerCase().replace(/[_-]+/g, " ");
+  if (normalized.includes("essay")) return "Essay";
+  if (normalized.includes("codex")) return "Codex";
+  if (normalized.includes("manifesto")) return "Manifesto";
+  if (normalized.includes("research")) return "Research";
+  if (normalized.includes("field") || normalized.includes("log")) return "Field Log";
+  if (normalized.includes("theory")) return "Theory";
+  return "All";
+}
+
+function emptyStateFor(activeTab: WritingTab, activeFilter: WritingFilter, query: string) {
+  if (activeTab === "Staff picks") {
+    return {
+      title: "No staff picks yet",
+      body: "Curated public writing will appear here after Station staff review it.",
+    };
+  }
+
+  if (query.trim() || activeFilter !== "All") {
+    return {
+      title: "No matching writing",
+      body: "Try another search term or switch the selected writing type.",
+    };
+  }
+
+  if (activeTab === "Featured") {
+    return {
+      title: "No featured writing yet",
+      body: "Featured public documents will appear here after they are curated.",
+    };
+  }
+
+  return {
+    title: "No public writing yet",
+    body: "Published public documents will appear here when they are available.",
+  };
 }
 
 function formatDate(value: string) {
