@@ -5199,6 +5199,43 @@ prompts, completions, raw response bodies, screenshots, or replay corpus text
 were recorded. ARGUS accepts this for ARIADNE human-route replay, not final
 MIMIR closeout.
 
+## Login Persistence Refresh ARGUS review
+
+Validated on 2026-06-14 after MIMIR added session refresh support in commit
+`b28df71`.
+
+Implementation reviewed:
+
+- `POST /auth/refresh` accepts a refresh token and returns a new normalized
+  Station auth response.
+- `authResultFromSession` centralizes tier lookup and token response shaping for
+  sign-in and refresh.
+- Web `restoreSession()` still verifies `/auth/me` first, but now refreshes
+  once before clearing stored auth state.
+- Web `getSession()` now uses the restore/refresh path rather than returning
+  stale local storage directly.
+- ARGUS added a narrow signout hardening: web `signOut()` now calls
+  `restoreSession()` before `/auth/signout`, so an expired access token can be
+  refreshed before server-side revocation.
+
+ARGUS validation:
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Refresh-token handling review | Pass | Refresh tokens stay in the request body to `/auth/refresh`; responses use the existing auth session shape. |
+| Failure clearing review | Pass | If `/auth/me` and refresh fail, local auth storage and the auth cookie are cleared. |
+| Signout revocation review | Patched then pass | ARGUS changed web signout to restore/refresh before calling `/auth/signout`; explicit signout should no longer skip server revocation solely because the stored access token expired. |
+| `npx --yes pnpm@10.32.1 test:auth` | Pass | 13 auth tests passed, including the new refresh route test. |
+| `npx --yes pnpm@10.32.1 --filter @station/api typecheck` | Pass | API TypeScript check passed. |
+| `npx --yes pnpm@10.32.1 --filter @station/web typecheck` | Pass | Web TypeScript check passed. |
+| `npx --yes pnpm@10.32.1 --filter @station/web lint` | Pass with warnings | Existing unrelated warnings remain in Developer Spaces manage, public Space image usage, and existing Discover avatar image usage. |
+| `git diff --check b28df71^..b28df71` and `git diff --check` | Pass | No whitespace errors in MIMIR's committed patch or ARGUS's working signout hardening. |
+
+No secrets, raw credentials, cookies, tokens, private IDs, private excerpts,
+prompts, completions, raw response bodies, screenshots, or replay corpus text
+were recorded. ARIADNE should validate staging login persistence and explicit
+signout behavior with sanitized booleans only.
+
 ## Migration 031 staging proof ARGUS closeout
 
 Validated on 2026-06-14 after MIMIR recorded the staging apply and live

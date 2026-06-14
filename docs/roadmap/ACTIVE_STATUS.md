@@ -2806,6 +2806,16 @@ when a PR lands, or when validation truth changes.
   with real data, including signed-in Studio, Settings, Developer manage,
   public Space/document, and mobile overflow checks, before MIMIR treats this
   visual reconciliation as closed.
+- ARGUS accepts the login persistence refresh patch for staging replay,
+  2026-06-14: commit `b28df71` adds `POST /auth/refresh` and makes web session
+  restoration refresh a stored refresh token once before clearing local auth
+  state. ARGUS added one narrow client hardening change before closeout:
+  `signOut()` now calls `restoreSession()` before `/auth/signout`, so an
+  expired stored access token can be refreshed and revoked server-side instead
+  of only clearing local state. Validation passed for `test:auth`, API
+  typecheck, web typecheck, web lint, and `git diff --check`. ARIADNE should
+  verify same-browser login persistence after deployment with sanitized
+  booleans only, including refresh-after-expiry and explicit signout behavior.
 
 ## Near-term rule
 

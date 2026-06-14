@@ -74,7 +74,7 @@ export async function signUp(
 }
 
 export async function signOut(): Promise<void> {
-  const session = readStoredSession();
+  const session = await restoreSession();
   try {
     if (session) {
       await apiPost<void>("/auth/signout", {}, session.accessToken);
