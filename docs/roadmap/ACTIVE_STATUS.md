@@ -2753,6 +2753,20 @@ when a PR lands, or when validation truth changes.
   `git diff --check b4e0396^..b4e0396`; all passed, with only the existing
   unrelated lint warnings. No backend route, auth, persistence, visibility,
   moderation, billing, provider, migration, or Discover feed policy changed.
+- MIMIR accepts the `/writing` controls and Featured follow-up for the staging
+  UX lane, 2026-06-14: ARGUS accepted `b4e0396`; `/forums` badge repair is
+  already accepted at `cdfc99e`. The concrete "none of these buttons work"
+  issue is closed for `/writing`, with `test:writing` now covering the featured
+  writing-feed normalizer.
+- MIMIR opens PUBLIC-DISCOVER-COHERENCE-01 for DAEDALUS, 2026-06-14:
+  `docs/roadmap/PUBLIC_DISCOVER_COHERENCE_MIMIR.md` defines the next visual
+  coherence slice. Target is `/discover`, because Marty correctly noted `/`
+  has the intended Discern/Station front-door feel while signed-in `/discover`
+  still falls back into a dark, card-stacked generic shell. DAEDALUS should
+  align `/discover` with the public/editorial Station language from `/` while
+  preserving Discover tabs, search semantics, public/community copy, private
+  Studio exclusion, routeable result behavior, and backend/auth/feed policy.
+  ARGUS reviews first, then ARIADNE performs browser/product review.
 
 ## Near-term rule
 
