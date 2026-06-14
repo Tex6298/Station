@@ -5060,3 +5060,24 @@ No secrets, raw credentials, cookies, tokens, private excerpts, prompts,
 completions, raw response bodies, screenshots, or replay corpus text were
 recorded. ARGUS recommends MIMIR push/deploy the API patch, verify deployment
 identity for `d924a0b` or later, then apply and prove migration `031`.
+
+## Migration 031 staging apply and live duplicate-report smoke
+
+Validated on 2026-06-14 after ARGUS accepted the moderation report
+idempotency patch.
+
+MIMIR applied `infra/supabase/migrations/031_moderation_report_idempotency.sql`
+after public deployment identity proved Railway API was serving patch commit
+`d924a0b`.
+
+Remote proof:
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Public `/health/deployment` | Pass | HTTP 200 with `ready:true`; deployment identity reported Railway API app-code SHA `d924a0b0d4f799e7446713593184387db2076dd7`. |
+| Temporary `node-postgres` migration transaction for `031` | Pass | Applied `031_moderation_report_idempotency`; active duplicate groups went from 1 to 0 and `idx_moderation_reports_active_unique` exists. |
+| Live duplicate report smoke | Pass | Replay owner submitted the same existing `community_review` thread report twice; both calls returned HTTP 200 with duplicate handling, active count stayed 1, and active duplicate groups stayed 0. |
+
+No secrets, raw credentials, cookies, tokens, private IDs, private excerpts,
+prompts, completions, raw response bodies, screenshots, or replay corpus text
+were recorded.

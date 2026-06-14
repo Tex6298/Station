@@ -2614,6 +2614,15 @@ when a PR lands, or when validation truth changes.
   `test:exports`, API typecheck, and `git diff --check d924a0b^..d924a0b`.
   Migration `031` should be applied only after Railway deployment identity
   proves `d924a0b` or later is live.
+- MIMIR applied and proved migration `031` on staging, 2026-06-14: public API
+  `/health/deployment` returned 200/`ready:true` and deployment identity served
+  app-code SHA `d924a0b0d4f799e7446713593184387db2076dd7`; the temporary
+  node-postgres pooler transaction applied
+  `031_moderation_report_idempotency`; active moderation duplicate groups went
+  from 1 to 0; `idx_moderation_reports_active_unique` exists; and a live replay
+  owner duplicate-report smoke returned HTTP 200 duplicate handling twice while
+  the active count stayed 1 and duplicate groups stayed 0. No secrets, tokens,
+  private IDs, or replay corpus text were recorded.
 
 ## Near-term rule
 
