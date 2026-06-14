@@ -106,12 +106,12 @@ function FeedCard({ item }: { item: FeedItem }) {
 
   return (
     <Link href={item.href} style={{ textDecoration: "none" }}>
-      <article className="card" style={{ cursor: "pointer", padding: "1rem 1.1rem" }}>
+      <article className="discover-public-card">
         <div style={{ display: "flex", gap: "0.5rem", alignItems: "center", marginBottom: "0.5rem", flexWrap: "wrap" }}>
           <span style={{ fontSize: "0.68rem", padding: "0.1rem 0.45rem", borderRadius: 999, background: bg, color: col, border: `1px solid ${col}44` }}>
             {typeLabel}
           </span>
-          {item.space && <span style={{ fontSize: "0.68rem", color: "#68738a" }}>in {item.space.title}</span>}
+          {item.space && <span style={{ fontSize: "0.68rem", color: "var(--public-home-muted)" }}>in {item.space.title}</span>}
           {item.provenanceType && (
             <span style={{ fontSize: "0.68rem", color: "#7dd3fc" }}>
               {PROVENANCE_LABELS[item.provenanceType] ?? item.provenanceType}
@@ -132,22 +132,22 @@ function FeedCard({ item }: { item: FeedItem }) {
               Featured
             </span>
           )}
-          <span style={{ fontSize: "0.68rem", color: "#596377", marginLeft: "auto" }}>{timeAgo(item.createdAt)}</span>
+          <span style={{ fontSize: "0.68rem", color: "var(--public-home-faint)", marginLeft: "auto" }}>{timeAgo(item.createdAt)}</span>
         </div>
 
-        <div style={{ fontWeight: 650, fontSize: "0.975rem", marginBottom: "0.35rem", lineHeight: 1.35 }}>
+        <div style={{ fontWeight: 650, fontSize: "0.975rem", marginBottom: "0.35rem", lineHeight: 1.35, color: "var(--public-home-text)" }}>
           {item.title}
         </div>
 
         {item.excerpt && (
-          <div style={{ fontSize: "0.83rem", color: "#8b96aa", lineHeight: 1.6, overflow: "hidden", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" }}>
+          <div style={{ fontSize: "0.83rem", color: "var(--public-home-muted)", lineHeight: 1.6, overflow: "hidden", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" }}>
             {item.excerpt}
           </div>
         )}
 
         {item.developerSpace?.latestEventLabel || item.developerSpace?.latestEventType ? (
-          <div style={{ marginTop: "0.6rem", padding: "0.55rem 0.65rem", borderRadius: 7, background: "#08111f", border: "1px solid #14354a", color: "#9cc7df", fontSize: "0.78rem", lineHeight: 1.45 }}>
-            <strong style={{ color: "#d8f3ff" }}>{item.developerSpace.latestEventLabel ?? item.developerSpace.latestEventType}</strong>
+          <div style={{ marginTop: "0.6rem", padding: "0.55rem 0.65rem", borderRadius: 7, background: "var(--public-home-soft)", border: "1px solid var(--public-home-border)", color: "var(--public-home-muted)", fontSize: "0.78rem", lineHeight: 1.45 }}>
+            <strong style={{ color: "var(--public-home-text)" }}>{item.developerSpace.latestEventLabel ?? item.developerSpace.latestEventType}</strong>
             {item.developerSpace.latestEventSummary ? <span> / {item.developerSpace.latestEventSummary}</span> : null}
           </div>
         ) : null}
@@ -156,18 +156,18 @@ function FeedCard({ item }: { item: FeedItem }) {
           {item.author && (
             <div style={{ display: "flex", alignItems: "center", gap: "0.35rem" }}>
               <Avatar author={item.author} size={20} />
-              <span style={{ fontSize: "0.75rem", color: "#7f8aa0" }}>
+              <span style={{ fontSize: "0.75rem", color: "var(--public-home-muted)" }}>
                 {item.author.display_name ?? item.author.username}
               </span>
             </div>
           )}
           {item.persona && <span style={{ fontSize: "0.72rem", color: "#a89af7" }}>via {item.persona.name}</span>}
-          {item.sourceLabel && <span style={{ fontSize: "0.72rem", color: "#68738a" }}>{item.sourceLabel}</span>}
+          {item.sourceLabel && <span style={{ fontSize: "0.72rem", color: "var(--public-home-muted)" }}>{item.sourceLabel}</span>}
           {item.type === "developer_space" && item.developerSpace ? (
-            <span style={{ fontSize: "0.72rem", color: "#68738a", marginLeft: "auto" }}>
+            <span style={{ fontSize: "0.72rem", color: "var(--public-home-muted)", marginLeft: "auto" }}>
               {item.developerSpace.visualisationType.replace("_", " ")}
             </span>
-          ) : item.replyCount > 0 && <span style={{ fontSize: "0.72rem", color: "#68738a", marginLeft: "auto" }}>Replies {item.replyCount}</span>}
+          ) : item.replyCount > 0 && <span style={{ fontSize: "0.72rem", color: "var(--public-home-muted)", marginLeft: "auto" }}>Replies {item.replyCount}</span>}
         </div>
       </article>
     </Link>
@@ -183,20 +183,20 @@ function Sidebar({ sidebar, user, loading }: {
 }) {
   if (loading) {
     return (
-      <aside style={{ width: 260, flexShrink: 0 }}>
-        <div className="card" style={{ padding: "1.25rem", marginBottom: "0.75rem" }}>
-          <div style={{ width: 48, height: 48, borderRadius: "50%", background: "#1a1f2e", marginBottom: "0.75rem" }} />
-          <div style={{ height: 14, background: "#1a1f2e", borderRadius: 4, marginBottom: "0.4rem" }} />
-          <div style={{ height: 10, background: "#1a1f2e", borderRadius: 4, width: "60%" }} />
+      <aside className="discover-public-sidebar">
+        <div className="discover-public-sidebar-panel">
+          <div style={{ width: 48, height: 48, borderRadius: "50%", background: "var(--public-home-soft)", marginBottom: "0.75rem" }} />
+          <div style={{ height: 14, background: "var(--public-home-soft)", borderRadius: 4, marginBottom: "0.4rem" }} />
+          <div style={{ height: 10, background: "var(--public-home-soft)", borderRadius: 4, width: "60%" }} />
         </div>
       </aside>
     );
   }
 
   return (
-    <aside className="discover-sidebar" style={{ width: 260, flexShrink: 0, display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+    <aside className="discover-public-sidebar">
       {user ? (
-        <div className="card" style={{ padding: "1.25rem" }}>
+        <div className="discover-public-sidebar-panel">
           <div style={{ display: "flex", gap: "0.75rem", alignItems: "center", marginBottom: "0.85rem" }}>
             <div style={{
               width: 44, height: 44, borderRadius: "50%",
@@ -206,48 +206,44 @@ function Sidebar({ sidebar, user, loading }: {
               {user.email.slice(0, 2).toUpperCase()}
             </div>
             <div style={{ minWidth: 0 }}>
-              <div style={{ fontWeight: 650, fontSize: "0.9rem", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+              <div style={{ fontWeight: 650, fontSize: "0.9rem", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", color: "var(--public-home-text)" }}>
                 {user.email}
               </div>
-              <div className="pill" style={{ fontSize: "0.68rem", marginTop: "0.25rem", color: "#c4b5fd", textTransform: "capitalize" }}>
+              <div style={{ fontSize: "0.68rem", marginTop: "0.25rem", color: "var(--public-home-accent)", textTransform: "capitalize" }}>
                 {user.tier}
               </div>
             </div>
           </div>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.4rem" }}>
+          <div className="discover-public-side-link-grid">
             {[["Studio", "/studio"], ["My Space", "/space"], ["Forums", "/forums"], ["Settings", "/settings"]].map(([label, href]) => (
-              <Link key={href} href={href} style={{
-                fontSize: "0.78rem", padding: "0.35rem 0.5rem", borderRadius: 7,
-                background: "#0f1220", border: "1px solid #1e2535",
-                textDecoration: "none", color: "#adb7cc", textAlign: "center",
-              }}>
+              <Link key={href} href={href} className="discover-public-side-link">
                 {label}
               </Link>
             ))}
           </div>
         </div>
       ) : (
-        <div className="card" style={{ padding: "1.25rem", textAlign: "center" }}>
-          <div className="kicker" style={{ justifyContent: "center", marginBottom: "0.5rem" }}>Continuity first</div>
+        <div className="discover-public-sidebar-panel" style={{ textAlign: "center" }}>
+          <div className="public-home-eyebrow" style={{ marginBottom: "0.5rem" }}>Continuity first</div>
           <div style={{ fontWeight: 650, fontSize: "0.9rem", marginBottom: "0.3rem" }}>Join Station</div>
-          <div style={{ fontSize: "0.78rem", color: "#8b96aa", lineHeight: 1.6, marginBottom: "0.85rem" }}>
+          <div style={{ fontSize: "0.78rem", color: "var(--public-home-muted)", lineHeight: 1.6, marginBottom: "0.85rem" }}>
             A home for AI persona practitioners, researchers, and the communities around them.
           </div>
           <div style={{ display: "grid", gap: "0.4rem" }}>
-            <Link href="/signup" className="button primary" style={{ fontSize: "0.82rem" }}>Create account</Link>
-            <Link href="/login" className="button" style={{ fontSize: "0.82rem" }}>Sign in</Link>
+            <Link href="/signup" className="public-home-primary" style={{ fontSize: "0.82rem" }}>Create account</Link>
+            <Link href="/login" className="public-home-secondary" style={{ fontSize: "0.82rem" }}>Sign in</Link>
           </div>
         </div>
       )}
 
       {sidebar?.personas && sidebar.personas.length > 0 && (
-        <div className="card" style={{ padding: "1rem" }}>
+        <div className="discover-public-sidebar-panel">
           <div className="section-label">Your personas</div>
           <div style={{ display: "grid", gap: "0.35rem" }}>
             {sidebar.personas.map((p) => (
               <Link key={p.id} href={`/studio/personas/${p.id}`} style={{ display: "flex", alignItems: "center", gap: "0.5rem", textDecoration: "none", padding: "0.3rem 0.4rem", borderRadius: 6 }}>
                 <div style={{ width: 8, height: 8, borderRadius: "50%", background: p.visibility === "public" ? "#4ade80" : "#7c6af7" }} />
-                <span style={{ fontSize: "0.82rem", color: "#cbd5e1", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{p.name}</span>
+                <span style={{ fontSize: "0.82rem", color: "var(--public-home-text)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{p.name}</span>
               </Link>
             ))}
           </div>
@@ -255,13 +251,13 @@ function Sidebar({ sidebar, user, loading }: {
       )}
 
       {sidebar?.recentPosts && sidebar.recentPosts.length > 0 && (
-        <div className="card" style={{ padding: "1rem" }}>
+        <div className="discover-public-sidebar-panel">
           <div className="section-label">Recent activity</div>
           <div style={{ display: "grid", gap: "0.55rem" }}>
             {sidebar.recentPosts.slice(0, 5).map((post) => (
               <Link key={post.id} href={post.href} style={{ textDecoration: "none" }}>
-                <div style={{ fontSize: "0.82rem", color: "#cbd5e1", lineHeight: 1.35 }}>{post.title}</div>
-                <div style={{ fontSize: "0.68rem", color: "#68738a", marginTop: "0.1rem" }}>{post.type} / {timeAgo(post.date)}</div>
+                <div style={{ fontSize: "0.82rem", color: "var(--public-home-text)", lineHeight: 1.35 }}>{post.title}</div>
+                <div style={{ fontSize: "0.68rem", color: "var(--public-home-muted)", marginTop: "0.1rem" }}>{post.type} / {timeAgo(post.date)}</div>
               </Link>
             ))}
           </div>
@@ -269,7 +265,7 @@ function Sidebar({ sidebar, user, loading }: {
       )}
 
       {sidebar?.stats && (
-        <div className="card" style={{ padding: "1rem" }}>
+        <div className="discover-public-sidebar-panel">
           <div className="section-label">Station</div>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.5rem" }}>
             {[
@@ -278,9 +274,9 @@ function Sidebar({ sidebar, user, loading }: {
               ["Posts", sidebar.stats.posts],
               ["Threads", sidebar.stats.threads],
             ].map(([label, count]) => (
-              <div key={label as string} style={{ background: "#0f1220", borderRadius: 7, padding: "0.5rem 0.6rem", border: "1px solid #1e2535" }}>
-                <div style={{ fontSize: "1rem", fontWeight: 700, color: "#c4b9ff" }}>{(count as number).toLocaleString()}</div>
-                <div style={{ fontSize: "0.68rem", color: "#7f8aa0" }}>{label as string}</div>
+              <div key={label as string} className="discover-public-stat">
+                <div style={{ fontSize: "1rem", fontWeight: 700, color: "var(--public-home-accent)" }}>{(count as number).toLocaleString()}</div>
+                <div style={{ fontSize: "0.68rem", color: "var(--public-home-muted)" }}>{label as string}</div>
               </div>
             ))}
           </div>
@@ -345,22 +341,21 @@ export default function DiscoverFrontDoor() {
   }, [search, token]);
 
   return (
-    <div className="discover-layout">
-      <Sidebar sidebar={sidebar} user={user} loading={sideLoading} />
-
-      <main style={{ flex: 1, minWidth: 0 }}>
-        <section className="hero-card" style={{ marginBottom: "1rem" }}>
-          <div className="kicker" style={{ marginBottom: "0.7rem" }}>Discover</div>
-          <h1 style={{ margin: 0, maxWidth: 760 }}>A living archive for AI personas, worlds, research, and the people building them.</h1>
-          <p style={{ color: "#b7c1d6", lineHeight: 1.7, maxWidth: 760, margin: "0.8rem 0 0" }}>
+    <div className="discover-public">
+      <div className="discover-public-layout">
+      <main className="discover-public-main">
+        <section className="discover-public-hero">
+          <div className="public-home-eyebrow">Discover</div>
+          <h1>A living archive for AI personas, worlds, research, and the people building them.</h1>
+          <p>
             Start with public work, live project observatories, or community discussion. Station keeps authorship, provenance, and visibility labels close to each item so visitors can understand what they are reading before they go deeper.
           </p>
-          <div style={{ display: "flex", gap: "0.6rem", flexWrap: "wrap", marginTop: "1.1rem" }}>
-            <Link className="button primary" href="#discover-feed">Read the public feed</Link>
-            <Link className="button" href="/developer-spaces">Watch live projects</Link>
-            <Link className="button" href="/forums">Read forums</Link>
+          <div className="public-home-actions">
+            <Link className="public-home-primary" href="#discover-feed">Read the public feed</Link>
+            <Link className="public-home-secondary" href="/developer-spaces">Watch live projects</Link>
+            <Link className="public-home-secondary" href="/forums">Read forums</Link>
           </div>
-          <div className="discover-surface-grid">
+          <div className="discover-public-surfaces">
             <Link href="#discover-feed">
               <strong>Read public work</strong>
               <span>The feed below opens public Space pages, published documents, discussions, and project updates.</span>
@@ -380,38 +375,32 @@ export default function DiscoverFrontDoor() {
           </div>
         </section>
 
-        <div style={{ marginBottom: "1rem", position: "relative" }}>
+        <section className="discover-public-search" aria-label="Search Station">
           <label className="visually-hidden" htmlFor="station-search">Search Station</label>
-          <input
-            id="station-search"
-            className="input"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder={
-              user
-                ? "Search public and community-visible Station - projects, Spaces, publications, forums"
-                : "Search public Station - projects, Spaces, publications, forums"
-            }
-            style={{ width: "100%", paddingLeft: "3.4rem", paddingRight: search ? "4.25rem" : undefined, fontSize: "0.875rem" }}
-          />
-          <span style={{ position: "absolute", left: "0.8rem", top: "50%", transform: "translateY(-50%)", color: "#68738a", pointerEvents: "none" }}>
-            Find
-          </span>
-          {search && (
-            <button onClick={() => setSearch("")} style={{ position: "absolute", right: "0.75rem", top: "50%", transform: "translateY(-50%)", background: "none", border: "none", color: "#8b96aa", cursor: "pointer", fontSize: "0.9rem" }}>
-              Clear
-            </button>
-          )}
-        </div>
-        <p style={{ color: "#8b96aa", fontSize: "0.78rem", lineHeight: 1.5, margin: "-0.45rem 0 1rem" }}>
+          <div className="discover-public-search-box">
+            <span aria-hidden="true">Search</span>
+            <input
+              id="station-search"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder={
+                user
+                  ? "Search public and community-visible Station - projects, Spaces, publications, forums"
+                  : "Search public Station - projects, Spaces, publications, forums"
+              }
+            />
+            {search && <button type="button" onClick={() => setSearch("")}>Clear</button>}
+          </div>
+        </section>
+        <p className="discover-public-helper">
           {user
             ? "Signed-in search may include community-visible results. Private Studio archive, memory, canon, import, and continuity stay out."
             : "Public search returns routeable projects, Spaces, publications, and forum threads."}
         </p>
 
         {search.trim() && (
-          <div className="card" style={{ marginBottom: "1rem", padding: "1rem" }}>
-            {searching && <div style={{ color: "#8b96aa", fontSize: "0.85rem" }}>Searching...</div>}
+          <div className="discover-public-search-results">
+            {searching && <div className="public-home-search-status">Searching...</div>}
             {!searching && searchResults && (
               <div style={{ display: "grid", gap: "1rem" }}>
                 {PUBLIC_SEARCH_GROUPS.map(([key, label]) => {
@@ -420,11 +409,11 @@ export default function DiscoverFrontDoor() {
                   return (
                     <div key={key}>
                       <div className="section-label">{label}</div>
-                      <div style={{ display: "grid", gap: "0.3rem" }}>
+                      <div className="public-home-search-group">
                         {results.map(({ result: r, href }) => {
                           const title = r.name ?? r.title ?? r.projectName;
                           return (
-                            <Link key={r.id} href={href} onClick={() => setSearch("")} style={{ textDecoration: "none", display: "block", padding: "0.3rem 0.5rem", borderRadius: 6, fontSize: "0.85rem", color: "#cbd5e1" }}>
+                            <Link key={r.id} href={href} onClick={() => setSearch("")}>
                               {title}
                               {key === "developerSpaces" && (
                                 <span style={{ color: "#67e8f9", fontSize: "0.72rem", marginLeft: "0.45rem", textTransform: "capitalize" }}>
@@ -459,7 +448,7 @@ export default function DiscoverFrontDoor() {
                   );
                 })}
                 {!PUBLIC_SEARCH_GROUPS.some(([key]) => routeablePublicSearchItems(key, searchResults).length > 0) && (
-                  <div style={{ color: "#8b96aa", fontSize: "0.85rem", lineHeight: 1.55 }}>
+                  <div className="public-home-search-status">
                     No {user ? "public or community-visible" : "public"} results for &quot;{search}&quot;.
                     Try a project, Space, publication, or forum topic.
                   </div>
@@ -471,50 +460,52 @@ export default function DiscoverFrontDoor() {
 
         {!search.trim() && (
           <>
-            <div id="discover-feed" style={{ display: "flex", gap: "0.25rem", marginBottom: "1rem", borderBottom: "1px solid #1e2535", paddingBottom: "0.1rem", scrollMarginTop: "4.5rem" }}>
+            <div id="discover-feed" className="discover-public-feed-tabs">
               {TABS.map((t) => (
                 <button
                   key={t}
                   onClick={() => setTab(t)}
                   style={{
-                    padding: "0.4rem 0.9rem", background: "none", border: "none",
-                    borderBottom: tab === t ? "2px solid #7c6af7" : "2px solid transparent",
-                    color: tab === t ? "#c4b9ff" : "#7f8aa0", cursor: "pointer",
+                    padding: "0.4rem 0.9rem", background: tab === t ? "#fff" : "transparent", border: "1px solid",
+                    borderColor: tab === t ? "var(--public-home-text)" : "var(--public-home-border)",
+                    color: tab === t ? "var(--public-home-text)" : "var(--public-home-muted)", cursor: "pointer",
                     fontSize: "0.875rem", fontWeight: tab === t ? 650 : 400,
-                    marginBottom: "-1px",
+                    borderRadius: 8,
                   }}
                 >
                   {TAB_LABELS[t]}
                 </button>
               ))}
-              <div style={{ marginLeft: "auto", display: "flex", gap: "0.7rem", alignItems: "center" }}>
-                <Link href="/forums" style={{ fontSize: "0.75rem", color: "#7f8aa0", textDecoration: "none" }}>Forums</Link>
-                <Link href="#discover-feed" style={{ fontSize: "0.75rem", color: "#7f8aa0", textDecoration: "none" }}>Public feed</Link>
+              <div className="discover-public-feed-links">
+                <Link href="/forums">Forums</Link>
+                <Link href="#discover-feed">Public feed</Link>
               </div>
             </div>
 
             {feedLoading ? (
               <div style={{ display: "grid", gap: "0.75rem" }}>
-                {Array.from({ length: 5 }).map((_, i) => <div key={i} className="card" style={{ height: 110, background: "#0d111a", animation: "pulse 1.5s infinite" }} />)}
+                {Array.from({ length: 5 }).map((_, i) => <div key={i} className="discover-public-card" style={{ height: 110, animation: "pulse 1.5s infinite" }} />)}
               </div>
             ) : items.length === 0 ? (
-              <div className="card" style={{ textAlign: "center", padding: "4rem 2rem", color: "#8b96aa" }}>
+              <div className="public-home-empty">
                 {tab === "featured" ? "No featured work yet. Station staff will feature standout public content here." : "No public or community-safe items are in this view yet."}
                 {tab !== "featured" && (
                   <div style={{ marginTop: "1rem", display: "flex", gap: "0.5rem", justifyContent: "center", flexWrap: "wrap" }}>
-                    <Link href={user ? "/studio/new" : "/signup"} className="button primary">{user ? "Kindle a persona" : "Create an account"}</Link>
-                    <Link href="/forums" className="button">Browse forums</Link>
+                    <Link href={user ? "/studio/new" : "/signup"} className="public-home-primary">{user ? "Kindle a persona" : "Create an account"}</Link>
+                    <Link href="/forums" className="public-home-secondary">Browse forums</Link>
                   </div>
                 )}
               </div>
             ) : (
-              <div style={{ display: "grid", gap: "0.65rem" }}>
+              <div className="discover-public-feed-list">
                 {items.map((item) => <FeedCard key={item.type + item.id} item={item} />)}
               </div>
             )}
           </>
         )}
       </main>
+      <Sidebar sidebar={sidebar} user={user} loading={sideLoading} />
+      </div>
     </div>
   );
 }
