@@ -2871,6 +2871,20 @@ when a PR lands, or when validation truth changes.
   across public, Studio, continuity, archive, export, Developer Space, and
   billing paths. Do not run a full triad deployment ceremony after every change;
   only use deployment proof for staging-affecting code or live regression fixes.
+- ARIADNE accepts the live staging replay after web deployment proof,
+  2026-06-14: `docs/roadmap/LIVE_STAGING_REPLAY_REVIEW_ARIADNE.md` records a
+  hosted Chrome/CDP pass against `https://stationweb-production.up.railway.app`.
+  The public chain from `/` to Discover, public Space, public document, and
+  linked forum discussion settled; signed-in Studio preserved session/cookie
+  state after reload; Memory, Continuity, Archive, export manifest/bundle,
+  Developer Space observer/manage, Billing, Stripe Portal, and Stripe Checkout
+  test paths all passed within current staging scope. A stricter follow-up
+  proved the Developer Space observer route was not stuck on `Opening
+  observatory...`; anonymous and signed-in observer views both rendered the
+  seeded public observatory. No DAEDALUS blocker or ARGUS visibility/security
+  concern remains. Future polish is limited to thin seeded Archive/import
+  material, thin Developer Space methodology/story documents, and dense global
+  mobile navigation.
 
 ## Near-term rule
 
