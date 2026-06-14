@@ -2639,6 +2639,14 @@ when a PR lands, or when validation truth changes.
   ARGUS did not touch pooler credentials; DB duplicate-group and unique-index
   proof rests on MIMIR's sanitized transaction/smoke record. No follow-up
   repo-side blocker was found.
+- ARGUS accepts the `/forums` category badge overflow fix, 2026-06-14:
+  commit `202d393` changed only `apps/web/app/forums/page.tsx`, replacing the
+  overflowing literal `Replies` badge text with a compact decorative marker and
+  adding `minWidth: 0` to the category text column. Forum category loading,
+  links, routes, auth, moderation, reports, backend API behavior, and visibility
+  rules are unchanged. Web typecheck, web lint with existing unrelated warnings,
+  and `git diff --check 202d393^..202d393` passed. DAEDALUS's browser evidence
+  reports no badge overflow/title collision at `1365x900` or `390x844`.
 - MIMIR opens Discern UI/UX parity closeout for ARIADNE, 2026-06-14:
   `docs/roadmap/DISCERN_UI_PARITY_CLOSEOUT_MIMIR.md` records the refreshed
   source truth. Discern `origin/main` remains at `037d491`, so there is no new

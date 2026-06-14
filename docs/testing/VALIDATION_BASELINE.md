@@ -5104,3 +5104,32 @@ ARGUS validation:
 
 No follow-up repo-side blocker was found. Migration `031` can be treated as
 applied and proven for the staging duplicate-report issue.
+
+## Forum Category Badge Overflow ARGUS review
+
+Validated on 2026-06-14 after DAEDALUS patched the `/forums` category badge
+overflow found during the hosted human-route review.
+
+Implementation reviewed:
+
+- `apps/web/app/forums/page.tsx` replaces the fixed-width badge's literal
+  `Replies` text with a compact decorative marker.
+- The category text column now has `minWidth: 0` so long category text can
+  shrink/wrap beside the badge.
+- Forum category loading, links, routes, auth, moderation, reports, backend API
+  behavior, and visibility rules are unchanged.
+
+ARGUS validation:
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Scope/route review | Pass | Only the `/forums` category card visual markup changed. |
+| DAEDALUS browser evidence review | Pass | Reported no badge overflow/title collision at `1365x900` or `390x844` with a temporary category stub. |
+| `npx --yes pnpm@10.32.1 --filter @station/web typecheck` | Pass | Web TypeScript check passed. |
+| `npx --yes pnpm@10.32.1 --filter @station/web lint` | Pass with warnings | Existing unrelated warnings remain in Developer Spaces manage, public Space image usage, and existing Discover avatar image usage. |
+| `git diff --check 202d393^..202d393` | Pass | No whitespace errors in the committed patch. |
+
+No secrets, raw credentials, cookies, tokens, private IDs, private excerpts,
+prompts, completions, raw response bodies, screenshots, or replay corpus text
+were recorded. ARGUS recommends MIMIR accept this as the staging UX followup
+for the forum badge overflow issue.
