@@ -60,10 +60,16 @@ export default function ForumsPage() {
                   background: "#1a1535", border: "1px solid #2a2050",
                   display: "flex", alignItems: "center", justifyContent: "center",
                   fontSize: "1.2rem",
-                }}>
-                  Replies
+                }} aria-hidden="true">
+                  <span style={{
+                    width: 10,
+                    height: 10,
+                    borderRadius: "999px",
+                    background: "#8f7cf7",
+                    boxShadow: "0 0 0 4px rgba(143, 124, 247, 0.16)",
+                  }} />
                 </div>
-                <div>
+                <div style={{ minWidth: 0 }}>
                   <div style={{ fontWeight: 600, fontSize: "1rem", marginBottom: "0.2rem" }}>{cat.title}</div>
                   {cat.description && (
                     <div style={{ color: "#666", fontSize: "0.85rem" }}>{cat.description}</div>
