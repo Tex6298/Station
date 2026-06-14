@@ -2780,6 +2780,18 @@ when a PR lands, or when validation truth changes.
   browser evidence. ARIADNE should now judge visual/product quality, mobile
   polish, and the Featured tab with real or representative curated rows before
   MIMIR closes the slice.
+- ARIADNE accepts PUBLIC-DISCOVER-COHERENCE-01 for MIMIR closeout,
+  2026-06-14: `docs/roadmap/PUBLIC_DISCOVER_COHERENCE_REVIEW_ARIADNE.md`
+  records a local patched browser pass with the staging API across anonymous
+  and signed-in `/discover` on desktop and mobile. The route now reads as a
+  public continuation of `/` rather than the old dark dashboard shell. Search
+  for `replay` produced routeable Developer Space, Space, and document results
+  with no Personas/private bucket; anonymous and signed-in helper copy preserved
+  the public/community/private-Studio boundary; New/Rising/Featured tabs were
+  usable in the seeded state; and mobile showed no document-level overflow.
+  No DAEDALUS blocker or ARGUS concern remains for this Discover coherence
+  slice. Global mobile nav density and future featured-feed curation quality
+  stay as future polish.
 
 ## Near-term rule
 
