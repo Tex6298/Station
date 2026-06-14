@@ -19,14 +19,16 @@ const settingSections = [
   {
     title: "Profile",
     description: "Display name, username, avatar, bio, and public identity details.",
-    href: "/settings",
+    href: null,
     mark: "P",
+    status: "Coming soon",
   },
   {
     title: "Privacy",
     description: "Default visibility for new content, public persona behavior, and export controls.",
-    href: "/settings",
+    href: null,
     mark: "V",
+    status: "Coming soon",
   },
   {
     title: "Export workspace",
@@ -37,8 +39,9 @@ const settingSections = [
   {
     title: "Notifications",
     description: "Forum replies, archive completions, integrity reminders, followers, and events.",
-    href: "/settings",
+    href: null,
     mark: "N",
+    status: "Coming soon",
   },
 ];
 
@@ -71,15 +74,28 @@ export default function SettingsPage() {
 
         <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr) 330px", gap: 18, alignItems: "start" }}>
           <section style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 12 }}>
-            {settingSections.map((section) => (
-              <Link key={section.title} href={section.href} style={{ textDecoration: "none" }}>
-                <article style={card}>
-                  <span style={markBox}>{section.mark}</span>
+            {settingSections.map((section) => {
+              const content = (
+                <article style={section.href ? card : unavailableCard}>
+                  <div style={{ display: "flex", justifyContent: "space-between", gap: 8, alignItems: "center" }}>
+                    <span style={markBox}>{section.mark}</span>
+                    {section.status && <span style={statusPill}>{section.status}</span>}
+                  </div>
                   <h2 style={{ margin: "12px 0 7px", color: "#1f2529", fontSize: 16 }}>{section.title}</h2>
                   <p style={{ margin: 0, color: "#687078", fontSize: 13, lineHeight: 1.55 }}>{section.description}</p>
                 </article>
-              </Link>
-            ))}
+              );
+
+              return section.href ? (
+                <Link key={section.title} href={section.href} style={{ textDecoration: "none" }}>
+                  {content}
+                </Link>
+              ) : (
+                <div key={section.title} aria-disabled="true">
+                  {content}
+                </div>
+              );
+            })}
           </section>
 
           <aside style={{ display: "grid", gap: 14 }}>
@@ -107,15 +123,20 @@ export default function SettingsPage() {
                   <div style={{ color: "#687078", fontSize: 12 }}>Creator tier</div>
                 </div>
               </div>
-              <button type="button" style={{ ...secondaryButton, width: "100%", marginTop: 14 }}>Edit profile</button>
+              <button type="button" disabled style={{ ...disabledButton, width: "100%", marginTop: 14 }}>
+                Profile editor coming soon
+              </button>
             </section>
 
             <section style={panel}>
               <h2 style={sectionTitle}>Notification Preferences</h2>
+              <p style={settingNote}>
+                Notification settings are not persisted yet. Defaults remain enabled until the preference editor ships.
+              </p>
               <div style={{ display: "grid", gap: 9 }}>
                 {notificationRows.map((row) => (
                   <label key={row} style={toggleRow}>
-                    <input type="checkbox" defaultChecked />
+                    <input type="checkbox" defaultChecked disabled />
                     {row}
                   </label>
                 ))}
@@ -125,9 +146,9 @@ export default function SettingsPage() {
             <section style={panel}>
               <h2 style={sectionTitle}>Danger Zone</h2>
               <p style={{ margin: "0 0 12px", color: "#d9a2a2", fontSize: 13, lineHeight: 1.55 }}>
-                Account deletion will use a 30-day grace period before full data deletion.
+                Account deletion is not self-service yet. Contact Station support for deletion or export requests.
               </p>
-              <button type="button" style={dangerButton}>Delete account</button>
+              <button type="button" disabled style={disabledDangerButton}>Delete account unavailable</button>
             </section>
           </aside>
         </div>
@@ -148,6 +169,11 @@ const card = {
   minHeight: 170,
 };
 
+const unavailableCard = {
+  ...card,
+  opacity: 0.72,
+};
+
 const markBox = {
   width: 32,
   height: 32,
@@ -165,6 +191,23 @@ const sectionTitle = {
   margin: "0 0 12px",
   color: "#1f2529",
   fontSize: 16,
+};
+
+const statusPill = {
+  border: "1px solid #d8d3c8",
+  borderRadius: 999,
+  background: "#f8f7f4",
+  color: "#687078",
+  padding: "0.18rem 0.5rem",
+  fontSize: 11,
+  fontWeight: 800,
+};
+
+const settingNote = {
+  margin: "0 0 12px",
+  color: "#687078",
+  fontSize: 13,
+  lineHeight: 1.55,
 };
 
 const primaryLink = {
@@ -190,6 +233,13 @@ const secondaryButton = {
   cursor: "pointer",
 };
 
+const disabledButton = {
+  ...secondaryButton,
+  color: "#687078",
+  cursor: "not-allowed",
+  opacity: 0.72,
+};
+
 const toggleRow = {
   display: "flex",
   alignItems: "center",
@@ -202,4 +252,10 @@ const dangerButton = {
   ...secondaryButton,
   borderColor: "#7d2e2e",
   color: "#fecaca",
+};
+
+const disabledDangerButton = {
+  ...dangerButton,
+  cursor: "not-allowed",
+  opacity: 0.72,
 };
