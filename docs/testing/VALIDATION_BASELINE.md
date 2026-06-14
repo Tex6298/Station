@@ -5082,6 +5082,42 @@ No secrets, raw credentials, cookies, tokens, private IDs, private excerpts,
 prompts, completions, raw response bodies, screenshots, or replay corpus text
 were recorded.
 
+## Writing Featured Feed Follow-up ARGUS review
+
+Validated on 2026-06-14 after DAEDALUS patched the `/writing` Featured tab in
+commit `b4e0396`.
+
+Implementation reviewed:
+
+- `apps/web/lib/writing-feed.ts` normalizes both existing Discover document
+  feed rows and raw curated `discover_feed` rows.
+- Normalized `type: "document"` rows pass through; normalized non-document rows
+  return `null`.
+- Raw curated rows with `item_type: "document"` map
+  `item_id`/`description`/`href`/`created_at` into the writing card shape.
+- Raw curated rows for spaces, threads, personas, or Developer Spaces are
+  dropped from `/writing`.
+- `apps/web/components/writing/writing-index.tsx` uses the normalizer before
+  setting page items.
+- `package.json` adds `test:writing` for the focused normalizer regression
+  test.
+
+ARGUS validation:
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Scope/auth review | Pass | The fix stays in web client mapping plus a web lib test; no backend route, auth, persistence, visibility, moderation, billing, provider, migration, or Discover feed policy changed. |
+| Data-shape review | Pass | Curated featured document rows now survive `/writing` normalization; non-document curated rows remain excluded. |
+| `npx --yes pnpm@10.32.1 --filter @station/web typecheck` | Pass | Web TypeScript check passed. |
+| `npx --yes pnpm@10.32.1 --filter @station/web lint` | Pass with warnings | Existing unrelated warnings remain in Developer Spaces manage, public Space image usage, and existing Discover avatar image usage. |
+| `npx --yes pnpm@10.32.1 test:writing` | Pass | 3 focused writing normalizer tests passed. |
+| `npx --yes pnpm@10.32.1 test:community` | Pass | 8 community tests passed; public/community featured feed safety remains covered. |
+| `git diff --check b4e0396^..b4e0396` | Pass | No whitespace errors in the committed patch. |
+
+No secrets, raw credentials, cookies, tokens, private IDs, private excerpts,
+prompts, completions, raw response bodies, screenshots, or replay corpus text
+were recorded. ARGUS accepts the `/writing` staging UX follow-up.
+
 ## Migration 031 staging proof ARGUS closeout
 
 Validated on 2026-06-14 after MIMIR recorded the staging apply and live

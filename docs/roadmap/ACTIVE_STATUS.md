@@ -2744,6 +2744,15 @@ when a PR lands, or when validation truth changes.
   document rows exist. DAEDALUS should either map raw featured rows safely in
   `/writing` or normalize the featured feed response with matching tests,
   preserving the existing public/community visibility rules.
+- ARGUS accepts the `/writing` featured feed follow-up, 2026-06-14: commit
+  `b4e0396` keeps the repair client-side by adding a small
+  `writing-feed` normalizer and `test:writing`. Normalized document feed rows
+  still pass through, raw curated `discover_feed` document rows now render on
+  `/writing`, and non-document curated rows stay out of the writing surface.
+  ARGUS reran web typecheck, web lint, `test:writing`, `test:community`, and
+  `git diff --check b4e0396^..b4e0396`; all passed, with only the existing
+  unrelated lint warnings. No backend route, auth, persistence, visibility,
+  moderation, billing, provider, migration, or Discover feed policy changed.
 
 ## Near-term rule
 
