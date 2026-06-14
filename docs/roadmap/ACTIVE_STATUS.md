@@ -2671,6 +2671,18 @@ when a PR lands, or when validation truth changes.
   polish, DAEDALUS blocker, or ARGUS security/visibility concern, and must wake
   MIMIR, DAEDALUS, or ARGUS with an explicit verdict path. Do not go quiet
   without a wakeup.
+- ARIADNE accepts the final hosted staging rehearsal sweep, 2026-06-14:
+  `docs/roadmap/STAGING_FINAL_REHEARSAL_SWEEP_ARIADNE.md` records a sanitized
+  API and Chrome/CDP pass across public entry, Discover, public Space/document/
+  forum, public and owner Developer Space surfaces, Studio, Memory, Continuity,
+  Archive, export readback, Billing, Settings/observability, and mobile Studio/
+  Memory/Archive/Continuity. Verdict: pass for human rehearsal. No DAEDALUS
+  blocker or ARGUS security/visibility concern was found. Future polish remains
+  narrow: seeded Archive import/library is visibly thin, and Developer Space
+  methodology/field-log storytelling is thin because the seed has live state but
+  no linked public documents. MIMIR should open `STAGING-DEMO-HUMAN-01` and keep
+  Redis, Cloudflare, background jobs, broad export/billing expansion, and generic
+  Discern parity out of scope unless new human-rehearsal evidence demands them.
 
 ## Near-term rule
 
