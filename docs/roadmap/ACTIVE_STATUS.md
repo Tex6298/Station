@@ -2692,6 +2692,23 @@ when a PR lands, or when validation truth changes.
   Redis, Cloudflare, background jobs, full workspace/PDF/binary export, broad
   billing expansion, and generic Discern parity out of scope unless the human
   rehearsal produces new evidence.
+- MIMIR opens STAGING-HUMAN-ROUTE-IMPLEMENTATION-01 for ARIADNE, 2026-06-14:
+  Marty reported that the app did not remember the user despite no intentional
+  logout, and asked ARIADNE to use the human routes for the remaining public
+  chain, Continuity, Archive caveat, and Developer Space storytelling checks.
+  `docs/roadmap/STAGING_HUMAN_ROUTE_FOLLOWUP_MIMIR.md` records the exact
+  human-route implementation pass. This is not an auth-only fix lane: current
+  code stores a localStorage session and 30-day auth cookie, but does not appear
+  to use the stored refresh token to renew expired access tokens before clearing
+  the session, so ARIADNE should test same-browser persistence with sanitized
+  booleans and wake DAEDALUS if it fails without explicit sign-out. ARIADNE
+  should also inspect the `/forums` category layout from Marty's screenshot
+  where `Replies` appears visually oversized/colliding, and should judge the
+  wider complaint that the landing page has the intended Discern/Station feel
+  while the rest of the product still looks generic or vibe-coded. If that
+  broader visual problem is real, ARIADNE should wake MIMIR with a ranked
+  route-specific UX implementation plan or wake DAEDALUS with the first exact
+  slice. Do not go quiet without a wakeup.
 
 ## Near-term rule
 
