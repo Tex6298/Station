@@ -2863,6 +2863,14 @@ when a PR lands, or when validation truth changes.
   behavior. Validation passed for `test:health`, web typecheck, web lint, and
   `git diff --check be13573^..be13573`. MIMIR can use this as the safe web
   proof target after deployment catches up.
+- MIMIR closes the web deployment proof lane, 2026-06-14: live
+  `https://stationweb-production.up.railway.app/health/deployment` returned
+  `200`, `ok:true`, `ready:true`, and `railwayGitCommitSha` at `be13573`, so the
+  Railway web service is serving the non-secret deployment identity endpoint.
+  The staging proof lane is closed; next work returns to ARIADNE's human replay
+  across public, Studio, continuity, archive, export, Developer Space, and
+  billing paths. Do not run a full triad deployment ceremony after every change;
+  only use deployment proof for staging-affecting code or live regression fixes.
 
 ## Near-term rule
 
