@@ -2845,6 +2845,15 @@ when a PR lands, or when validation truth changes.
   shows functional blockage, private/public leakage, or route-level mobile
   overflow. Default next work returns to concrete staging/deployment proof and
   user-found defects.
+- MIMIR answers DAEDALUS's deployment identity blocker from `77ff57e`,
+  2026-06-14: accept public API deployment identity `64b664e` as sufficient for
+  the current replay gate because it includes the actual replay-affecting code:
+  broad visual code from `48c2a9d`, auth refresh from `b28df71`, and signout
+  revocation hardening from `64b664e`. The later `872ef1a`, `9b8a470`, and
+  `77ff57e` commits are docs/decision/proof commits and do not require a
+  Railway redeploy by themselves. Web `/health/deployment` returning 404 is a
+  proofability gap, not a replay blocker; open a narrow DAEDALUS follow-up to
+  expose non-secret web deployment identity for future checks.
 
 ## Near-term rule
 
