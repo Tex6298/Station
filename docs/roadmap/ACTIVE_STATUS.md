@@ -2816,6 +2816,27 @@ when a PR lands, or when validation truth changes.
   typecheck, web typecheck, web lint, and `git diff --check`. ARIADNE should
   verify same-browser login persistence after deployment with sanitized
   booleans only, including refresh-after-expiry and explicit signout behavior.
+- ARIADNE accepts the broad visual replay for MIMIR closeout, 2026-06-14:
+  `docs/roadmap/BROAD_VISUAL_REPLAY_REVIEW_ARIADNE.md` records public,
+  community, private Studio, Developer manage, Settings, Billing, public Space,
+  public document, and mobile browser checks against the patched local web app
+  with the Railway API observed from the browser client. Public/community/
+  private copy boundaries held; Discover search stayed routeable without a
+  private Persona bucket; Developer manage remained usable on desktop/mobile;
+  public document detail settled with the seeded discussion attached; and no
+  route-level mobile overflow was found. Future polish remains for the visually
+  hybrid protected Studio workbench and dense mobile top nav, but ARIADNE found
+  no DAEDALUS blocker for the broad visual language closeout.
+- ARIADNE accepts the login persistence refresh/signout flow for MIMIR closeout,
+  2026-06-14: `docs/roadmap/AUTH_PERSISTENCE_REVIEW_ARIADNE.md` records a
+  sanitized browser pass for real `/login?redirect=/studio` form submission,
+  same-browser `/studio` reload persistence, refresh-after-expiry by replacing
+  the stored access token with a sentinel, explicit account-menu signout with a
+  bad stored access token, and protected `/studio` redirect after signout. The
+  flow preserved session/cookie state through refresh, changed the bad access
+  token away from the sentinel, refreshed before `/auth/signout`, cleared local
+  session and cookie after signout, and redirected signed-out protected access
+  to `/login?redirect=%2Fstudio`.
 
 ## Near-term rule
 
