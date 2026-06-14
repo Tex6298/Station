@@ -2792,6 +2792,20 @@ when a PR lands, or when validation truth changes.
   No DAEDALUS blocker or ARGUS concern remains for this Discover coherence
   slice. Global mobile nav density and future featured-feed curation quality
   stay as future polish.
+- ARGUS accepts the broad Station visual language pass for ARIADNE replay,
+  2026-06-14: commit `48c2a9d` moves Writing, Forums, Billing/Pricing,
+  Developer Spaces, Settings, public Space list, public document detail, and
+  shared Studio/Space surfaces toward the off-white Station system. ARGUS
+  found no route, auth, persistence, visibility, moderation, billing, provider,
+  migration, or feed-policy changes, and validation passed for web typecheck,
+  web lint, Discover search tests, writing-feed tests, `test:community`, and
+  `git diff --check 48c2a9d^..48c2a9d`. Risk remains product/visual rather
+  than data-policy: `globals.css` now contains broad legacy inline-style
+  catchers and Studio/Space surface restyling that reaches protected Studio and
+  Developer manage surfaces. ARIADNE should replay the human routes on staging
+  with real data, including signed-in Studio, Settings, Developer manage,
+  public Space/document, and mobile overflow checks, before MIMIR treats this
+  visual reconciliation as closed.
 
 ## Near-term rule
 

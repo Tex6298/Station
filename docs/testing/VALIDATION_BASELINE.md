@@ -5154,6 +5154,51 @@ No secrets, raw credentials, cookies, tokens, private IDs, private excerpts,
 prompts, completions, raw response bodies, screenshots, or replay corpus text
 were recorded. ARGUS accepts this for ARIADNE product/browser review.
 
+## Broad Station Visual Language ARGUS review
+
+Validated on 2026-06-14 after MIMIR applied the broad Station visual language
+pass in commit `48c2a9d`.
+
+Implementation reviewed:
+
+- Writing, Forums, Billing/Pricing, Developer Spaces, Settings, public Space
+  list, public document detail, and shared Studio/Space surfaces were moved
+  toward the off-white Station visual system.
+- `apps/web/app/globals.css` now adds global Station page variables, shared
+  `container`/`card`/`button`/`input` restyling, Studio/Space surface
+  restyling, and legacy inline-style catchers for old dark theme colors.
+- No backend route, auth, persistence, visibility, moderation, billing,
+  provider, migration, or feed policy code changed.
+
+ARGUS risk review:
+
+- No data-policy blocker was found.
+- The broad `globals.css` layer does reach protected/private surfaces:
+  Studio archive, notes, export, publish, persona management, persona chat,
+  calibration, settings social, and Developer Space manage surfaces contain
+  inline dark colors that the legacy catchers can restyle.
+- This should be treated as a product/browser replay risk rather than a code
+  acceptance closeout. ARIADNE needs to validate real signed-in Studio,
+  Settings, Developer manage, public Space/document, and mobile flows before
+  MIMIR closes the visual reconciliation lane.
+
+ARGUS validation:
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Scope/auth/visibility review | Pass | The committed patch is UI/CSS only; API calls, token handling, route policy, and visibility tests are unchanged. |
+| Global selector reach review | Pass with product risk | Legacy inline-style catchers intentionally reach many protected Studio/manage surfaces; this requires ARIADNE browser replay. |
+| `npx --yes pnpm@10.32.1 --filter @station/web typecheck` | Pass | Web TypeScript check passed. |
+| `npx --yes pnpm@10.32.1 --filter @station/web lint` | Pass with warnings | Existing unrelated warnings remain in Developer Spaces manage, public Space image usage, and existing Discover avatar image usage. |
+| `npx --yes pnpm@10.32.1 exec tsx --test apps/web/components/discover/search-dropdown.test.ts apps/web/lib/writing-feed.test.ts` | Pass | 7 focused Discover search and writing feed tests passed. |
+| `npx --yes pnpm@10.32.1 test:community` | Pass | 8 community tests passed; public/community visibility remains covered. |
+| `git diff --check 48c2a9d^..48c2a9d` | Pass | No whitespace errors in the committed patch. |
+
+No secrets, raw credentials, cookies, tokens, private IDs, private excerpts,
+prompts, completions, raw response bodies, screenshots, or replay corpus text
+were recorded. ARGUS accepts this for ARIADNE human-route replay, not final
+MIMIR closeout.
+
 ## Migration 031 staging proof ARGUS closeout
 
 Validated on 2026-06-14 after MIMIR recorded the staging apply and live
