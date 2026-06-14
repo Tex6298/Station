@@ -2938,6 +2938,16 @@ when a PR lands, or when validation truth changes.
   the same narrow implementation task: fix only the signed-in `/settings`
   responsive layout at phone width, preserve the placeholder-safety behavior,
   and wake ARGUS for review.
+- ARGUS accepts the `/settings` mobile layout repair, 2026-06-14: commit
+  `bfe60aa` changes only `apps/web/app/settings/page.tsx`. The fixed two-column
+  settings shell is now a wrapping flex layout; the settings-card grid uses
+  `minmax(min(100%, 240px), 1fr)`, and both main and aside columns set
+  `minWidth: 0`, removing the phone-width fixed-minimum overlap risk. The
+  prior coming-soon cards and disabled profile, notification, and deletion
+  controls remain intact. No auth, billing, Stripe, privacy/visibility,
+  storage/quota, archive/export, provider, migration, package, or persistence
+  semantics changed. Validation passed for web typecheck, web lint with
+  existing unrelated warnings, and `git diff --check bfe60aa^..bfe60aa`.
 
 ## Near-term rule
 

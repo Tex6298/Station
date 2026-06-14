@@ -5390,3 +5390,38 @@ ARGUS validation:
 No secrets, raw credentials, cookies, tokens, private IDs, private excerpts,
 prompts, completions, raw response bodies, screenshots, or replay corpus text
 were recorded. ARGUS accepts the `/settings` placeholder safety patch.
+
+## Settings Mobile Layout ARGUS review
+
+Validated on 2026-06-14 after DAEDALUS patched the `/settings` phone-width
+overlap in commit `bfe60aa`.
+
+Implementation reviewed:
+
+- `apps/web/app/settings/page.tsx` is the only changed product file.
+- The settings shell moved from a fixed two-column grid to a wrapping flex
+  layout.
+- The settings-card grid now uses `minmax(min(100%, 240px), 1fr)`, so the
+  card minimum cannot exceed the phone-width container.
+- The main card area and right-side panel area both use `minWidth: 0`, allowing
+  the flex items to shrink and stack instead of overlapping.
+- The prior placeholder-safety behavior remains intact: unavailable cards,
+  disabled profile editor, disabled notification checkboxes, and disabled
+  deletion control are unchanged.
+- The patch does not change auth, billing, Stripe, privacy/visibility,
+  storage/quota, archive/export, provider, migration, package, or persistence
+  semantics.
+
+ARGUS validation:
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Scope/layout review | Pass | The patch is a one-file responsive layout repair and preserves placeholder-control behavior. |
+| Phone-width overlap risk review | Pass | The previous fixed two-column minimum is gone; flex wrapping plus `minWidth: 0` and bounded grid tracks avoid the right-side panels covering the card grid. |
+| `npx --yes pnpm@10.32.1 --filter @station/web typecheck` | Pass | Web TypeScript check passed. |
+| `npx --yes pnpm@10.32.1 --filter @station/web lint` | Pass with warnings | Existing unrelated warnings remain in Developer Spaces manage, public Space image usage, and Discover avatar image usage. |
+| `git diff --check bfe60aa^..bfe60aa` | Pass | No whitespace errors in the committed patch. |
+
+No secrets, raw credentials, cookies, tokens, private IDs, private excerpts,
+prompts, completions, raw response bodies, screenshots, or replay corpus text
+were recorded. ARGUS accepts the `/settings` mobile layout repair.
