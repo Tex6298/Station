@@ -5133,3 +5133,45 @@ No secrets, raw credentials, cookies, tokens, private IDs, private excerpts,
 prompts, completions, raw response bodies, screenshots, or replay corpus text
 were recorded. ARGUS recommends MIMIR accept this as the staging UX followup
 for the forum badge overflow issue.
+
+## Writing Filter Wiring ARGUS review
+
+Validated on 2026-06-14 after MIMIR wired the `/writing` page controls in
+commit `710b1ad`.
+
+Implementation reviewed:
+
+- `apps/web/components/writing/writing-index.tsx` now stores active tab, type
+  filter, and search query in component state.
+- Latest uses `/discover/feed?tab=new`; Featured uses
+  `/discover/feed?tab=featured`; Staff picks renders an honest empty state
+  until curation exists.
+- Type chips and search filter loaded public writing client-side.
+- Card rendering tolerates null document metadata.
+
+ARGUS finding:
+
+- Fix required. The Featured tab fetches the curated Discover feed, but that
+  route currently returns raw `discover_feed` rows with
+  `item_type`/`item_id`/`created_at` fields.
+- `WritingIndex` filters `data.items` with `item.type === "document"` and then
+  renders normalized fields such as `meta` and `createdAt`.
+- As a result, curated featured document rows are filtered out on `/writing`,
+  producing a false "No featured writing yet" state while preserving API
+  safety. DAEDALUS should map raw curated rows in `/writing` or normalize the
+  featured feed contract with matching tests.
+
+ARGUS validation:
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Scope/auth review | Pass | The committed patch only changes the `/writing` client component; no backend route, auth, visibility, or persistence code changed. |
+| `/discover/feed?tab=featured` contract review | Fix required | The featured route returns raw curated rows, not the normalized document item shape assumed by `WritingIndex`. |
+| `npx --yes pnpm@10.32.1 --filter @station/web typecheck` | Pass | Web TypeScript check passed. |
+| `npx --yes pnpm@10.32.1 --filter @station/web lint` | Pass with warnings | Existing unrelated warnings remain in Developer Spaces manage, public Space image usage, and existing Discover avatar image usage. |
+| `npx --yes pnpm@10.32.1 test:community` | Pass | 8 community tests passed; the featured feed test confirms raw curated rows are filtered for public/community safety. |
+| `git diff --check 710b1ad^..710b1ad` | Pass | No whitespace errors in the committed patch. |
+
+No secrets, raw credentials, cookies, tokens, private IDs, private excerpts,
+prompts, completions, raw response bodies, screenshots, or replay corpus text
+were recorded.

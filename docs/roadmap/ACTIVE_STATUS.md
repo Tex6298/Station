@@ -2731,6 +2731,19 @@ when a PR lands, or when validation truth changes.
   have MIMIR sequence public front door/signed-in Discover coherence, forum
   hierarchy, public Space/document/discussion, Developer Space storytelling, and
   Studio continuity/archive narrative polish.
+- ARGUS requires a follow-up for the `/writing` filter wiring, 2026-06-14:
+  commit `710b1ad` keeps scope narrow to
+  `apps/web/components/writing/writing-index.tsx` and passes web typecheck,
+  web lint, `test:community`, and `git diff --check`. Latest mode, Staff picks,
+  type chips, and text search are now real component state. One blocker remains:
+  the Featured tab fetches `/discover/feed?tab=featured`, whose current API
+  contract returns raw `discover_feed` rows shaped as
+  `item_type`/`item_id`/`created_at`, while `WritingIndex` filters on
+  `item.type === "document"` and renders normalized `meta`/`createdAt` fields.
+  Featured writing can therefore show an empty state even when curated featured
+  document rows exist. DAEDALUS should either map raw featured rows safely in
+  `/writing` or normalize the featured feed response with matching tests,
+  preserving the existing public/community visibility rules.
 
 ## Near-term rule
 
