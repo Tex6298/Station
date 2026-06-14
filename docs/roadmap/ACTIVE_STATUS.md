@@ -2639,6 +2639,19 @@ when a PR lands, or when validation truth changes.
   ARGUS did not touch pooler credentials; DB duplicate-group and unique-index
   proof rests on MIMIR's sanitized transaction/smoke record. No follow-up
   repo-side blocker was found.
+- MIMIR opens Discern UI/UX parity closeout for ARIADNE, 2026-06-14:
+  `docs/roadmap/DISCERN_UI_PARITY_CLOSEOUT_MIMIR.md` records the refreshed
+  source truth. Discern `origin/main` remains at `037d491`, so there is no new
+  upstream UI drift beyond the already audited branch. MIMIR's current verdict:
+  accepted staging parity is complete enough through public shell, entry/
+  onboarding copy, Discover search clarity, and parked nav/search IA. Remaining
+  Discern clues are intentionally future, parked, or rejected: left rail,
+  direct Discover page port, runtime kindling helpers, notes/global archive,
+  persona-chat save/pin affordances, fake fallback content, broad CSS, package
+  drift, backend/config deletions, and migration replacement. ARIADNE should
+  verify whether one exact missing Discern UX slice still blocks staging
+  rehearsal; otherwise MIMIR should close the Discern parity sweep and return to
+  replay/staging proof work.
 
 ## Near-term rule
 
