@@ -2602,6 +2602,18 @@ when a PR lands, or when validation truth changes.
   typecheck, web lint with existing unrelated warnings, and `git diff --check
   HEAD~1..HEAD` passed. ARIADNE should UX-review the wording against Marty's
   Memory / Continuity / Archive staging screenshots before MIMIR closes it.
+- ARGUS accepts the moderation report idempotency patch for code-safety and
+  migration-order boundaries, 2026-06-14: reviewed current patch commit
+  `d924a0b` after the `2d8aea1` resync wake. Reports now return an existing
+  active report for the same reporter, target, and reason; unique-violation
+  races also reload the active report instead of returning a duplicate-insert
+  failure. Persona exports dedupe owner moderation report refs by target/reason
+  so repeated taps do not read as separate incidents. Migration `031` dismisses
+  active duplicates and adds a partial unique index for active
+  reporter/target/reason rows. Validation passed with `test:reports`,
+  `test:exports`, API typecheck, and `git diff --check d924a0b^..d924a0b`.
+  Migration `031` should be applied only after Railway deployment identity
+  proves `d924a0b` or later is live.
 
 ## Near-term rule
 

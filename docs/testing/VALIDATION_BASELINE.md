@@ -5021,3 +5021,42 @@ No secrets, raw credentials, cookies, tokens, private excerpts, prompts,
 completions, raw response bodies, screenshots, or replay corpus text were
 recorded. ARIADNE should UX-review this wording against the staging screenshots
 before MIMIR closes the Archive demo clarity issue.
+
+## Moderation Report Idempotency ARGUS review
+
+Validated on 2026-06-14 after the moderation report idempotency patch was
+resynced for ARGUS review. ARGUS reviewed current patch commit `d924a0b`; the
+later `2d8aea1` commit is a wake-only resync.
+
+Implementation reviewed:
+
+- `POST /reports` now checks for an existing active report with the same
+  reporter, target type, target id, and reason before inserting.
+- Duplicate active reports return HTTP 200 with `duplicate:true` and the
+  existing report, without incrementing reported counts again.
+- Insert-time unique violations reload the active report, covering the intended
+  post-migration race path.
+- Persona export manifests dedupe owner moderation report refs by target/reason
+  so old repeated report taps do not appear as separate incidents.
+- Migration `031_moderation_report_idempotency.sql` dismisses active duplicates
+  and then adds a partial unique index on active reporter/target/reason rows.
+- Migration `031` must not be applied until Railway serves `d924a0b` or later,
+  because the old deployed API would not handle the new unique-index violation
+  path idempotently.
+
+ARGUS validation:
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Route behavior review | Pass | Pre-check and unique-violation fallback both return existing active duplicate reports. |
+| Export dedupe review | Pass | Export refs collapse repeated owner reports by target/reason while retaining owner/report visibility filters. |
+| Migration safety review | Pass with order constraint | SQL dismisses active duplicates before adding the partial unique index; deploy API first, apply migration second. |
+| `npx --yes pnpm@10.32.1 test:reports` | Pass | 1 reports route test passed. |
+| `npx --yes pnpm@10.32.1 test:exports` | Pass | 3 export tests passed. |
+| `npx --yes pnpm@10.32.1 --filter @station/api typecheck` | Pass | API TypeScript check passed. |
+| `git diff --check d924a0b^..d924a0b` | Pass | No whitespace errors in the committed API/migration patch. |
+
+No secrets, raw credentials, cookies, tokens, private excerpts, prompts,
+completions, raw response bodies, screenshots, or replay corpus text were
+recorded. ARGUS recommends MIMIR push/deploy the API patch, verify deployment
+identity for `d924a0b` or later, then apply and prove migration `031`.
