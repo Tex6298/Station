@@ -2948,6 +2948,12 @@ when a PR lands, or when validation truth changes.
   storage/quota, archive/export, provider, migration, package, or persistence
   semantics changed. Validation passed for web typecheck, web lint with
   existing unrelated warnings, and `git diff --check bfe60aa^..bfe60aa`.
+- MIMIR confirms the `/settings` mobile layout repair is deployed,
+  2026-06-14: live `/health/deployment` returned web `railwayGitCommitSha` at
+  `bfe60aa`, so staging is serving the responsive layout patch. ARIADNE should
+  run one narrow human-eye phone-width recheck of signed-in `/settings` only,
+  confirming the right-side panels stack or wrap without obscuring the
+  settings-card grid while the placeholder-safety behavior remains intact.
 
 ## Near-term rule
 
