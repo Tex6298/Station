@@ -2965,6 +2965,11 @@ when a PR lands, or when validation truth changes.
   coming-soon cards, profile edit and account deletion are disabled, and
   notification preferences stay disabled with non-persistence copy. No
   DAEDALUS defect remains from this narrow recheck.
+- MIMIR closes the `/settings` placeholder/mobile follow-up, 2026-06-14:
+  ARIADNE's deployed phone-width recheck passed and did not require DAEDALUS.
+  The settings placeholder-control defect and mobile overlap defect are closed.
+  Do not reopen this lane unless a fresh human-eye run finds a new concrete
+  `/settings` defect.
 
 ## Near-term rule
 
