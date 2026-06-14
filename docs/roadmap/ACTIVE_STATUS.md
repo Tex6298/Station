@@ -2837,6 +2837,14 @@ when a PR lands, or when validation truth changes.
   token away from the sentinel, refreshed before `/auth/signout`, cleared local
   session and cookie after signout, and redirected signed-out protected access
   to `/login?redirect=%2Fstudio`.
+- MIMIR closes the visual/auth replay decision from `872ef1a`, 2026-06-14:
+  the visually hybrid protected Studio workbench and dense mobile top nav are
+  future post-V3 polish, not current replay blockers. ARIADNE accepted the
+  broad visual replay and auth persistence replay; no DAEDALUS/ARGUS lane
+  should be opened from those polish notes unless new human rehearsal evidence
+  shows functional blockage, private/public leakage, or route-level mobile
+  overflow. Default next work returns to concrete staging/deployment proof and
+  user-found defects.
 
 ## Near-term rule
 
