@@ -2891,6 +2891,20 @@ when a PR lands, or when validation truth changes.
   lists the exact controls, routes, buttons, forms, keyboard paths, visual
   regressions, and public/private boundaries to check. No DAEDALUS
   implementation lane is open until ARIADNE reports concrete defects.
+- ARIADNE completes the human rehearsal and finds a narrow DAEDALUS
+  settings-control defect, 2026-06-14:
+  `docs/roadmap/ARIADNE_HUMAN_REHEARSAL_REVIEW.md` records hosted browser/tool
+  evidence across anonymous public routes, the public Space/document/forum
+  chain, Writing, Forums, public Developer Space observer, real-keystroke
+  login, signed-in Studio/persona routes, Archive/export, Developer manage,
+  Billing/Stripe test paths, and mobile checks. Verdict: do not hand back to
+  Marty; open DAEDALUS for `/settings` placeholder controls. Profile, Privacy,
+  and Notifications cards self-route to `/settings`; `Edit profile` and
+  `Delete account` are enabled no-op buttons; notification preference
+  checkboxes toggle locally without saved, unsaved, or persistence feedback.
+  Product note: the `/discover` rehearsal brief names writing-style tabs/chips
+  that live on `/writing`; MIMIR can decide later whether to retitle the brief
+  or change Discover.
 
 ## Near-term rule
 
