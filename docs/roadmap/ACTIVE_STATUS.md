@@ -2885,11 +2885,12 @@ when a PR lands, or when validation truth changes.
   concern remains. Future polish is limited to thin seeded Archive/import
   material, thin Developer Space methodology/story documents, and dense global
   mobile navigation.
-- MIMIR closes the automated staging replay lane, 2026-06-14: the accepted
-  ARIADNE replay is sufficient for Marty human rehearsal to proceed from the
-  current staging route. No DAEDALUS implementation lane is open right now.
-  Future work should start only from concrete human-found defects, not from the
-  accepted replay's polish notes.
+- MIMIR corrects the staging replay handoff, 2026-06-14: Marty is not the next
+  worker for broad checking. ARIADNE owns the human rehearsal from a human eye
+  view using browser/tool evidence. `docs/roadmap/ARIADNE_HUMAN_REHEARSAL.md`
+  lists the exact controls, routes, buttons, forms, keyboard paths, visual
+  regressions, and public/private boundaries to check. No DAEDALUS
+  implementation lane is open until ARIADNE reports concrete defects.
 
 ## Near-term rule
 
