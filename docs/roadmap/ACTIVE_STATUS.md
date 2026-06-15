@@ -3105,6 +3105,18 @@ when a PR lands, or when validation truth changes.
   the current staging/code state. Guardrails: no live-money billing, no
   fabricated subscription state, no billing UX redesign, no new pricing/tier
   strategy, and no secret/URL/customer/subscription/replay identifiers in docs.
+- PR 3 DAEDALUS reconciliation is ready for ARGUS review, 2026-06-15:
+  `docs/roadmap/PR3_STRIPE_PAID_PATH_RECONCILIATION.md` reconciles current main
+  against the accepted `STAGING-DEMO-STRIPE-01` proof. Existing source-backed
+  evidence already shows staging Stripe test-mode paid activation moved the
+  replay owner from inactive/no subscription to active/subscription present,
+  and ARGUS previously confirmed entitlement mutation is verified-webhook gated
+  rather than browser-redirect inferred. Current code still uses subscription
+  Checkout, signed webhook processing, profile entitlement sync, and separate
+  token top-up grants. Focused validation passed for billing, token credits, API
+  build, health, replay-readiness, and whitespace. ARGUS should now review for
+  overclaim/sanitization risk and either accept PR 3 or name a precise evidence
+  gap.
 
 ## Near-term rule
 

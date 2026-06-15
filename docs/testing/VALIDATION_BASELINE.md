@@ -4624,6 +4624,40 @@ ARGUS validation:
 | `npx --yes pnpm@10.32.1 --filter @station/web lint` | Pass with warnings | Existing unrelated warnings remain outside this patch. |
 | `npx --yes pnpm@10.32.1 test:billing` | Pass | 4 billing backend tests passed, including verified webhook mutation and mismatch/unknown-price rejection. |
 
+## PR 3 Stripe paid-path reconciliation DAEDALUS validation
+
+Validated on 2026-06-15 after reconciling the current PR 3 lane against
+existing accepted Stripe staging evidence.
+
+Result:
+
+- No billing code changed in this pass.
+- `docs/roadmap/STAGING_DEMO_STRIPE_ARIADNE.md` and the
+  `STAGING-DEMO-STRIPE-01` ARGUS closeout already record a bounded Stripe
+  test-mode paid activation: staging billing state moved from inactive/no
+  subscription to active/subscription present for the replay owner.
+- Current code inspection still matches that proof: subscription-mode Checkout
+  does not grant entitlement alone, webhook handling verifies the Stripe
+  signature before mutation, subscription sync rejects unknown active Price IDs
+  and customer/profile mismatches, and token top-ups remain separate
+  payment-mode metadata grants.
+- No hosted Checkout URL, Portal URL, Stripe object identifier, owner
+  identifier, webhook body, token, cookie, payment detail, secret, raw response
+  body, or replay credential was added to docs.
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npx --yes pnpm@10.32.1 test:billing` | Pass | 4 tests passed: Checkout/portal creation, verified webhook mutation, unknown Price rejection, and customer/profile mismatch rejection. |
+| `npx --yes pnpm@10.32.1 test:token-credits` | Pass | 3 tests passed, including top-up checkout/grant idempotency and metadata/tier guardrails. |
+| `npx --yes pnpm@10.32.1 --filter @station/api build` | Pass | API and dependent package builds completed. |
+| `npx --yes pnpm@10.32.1 test:health` | Pass | 11 health/deployment tests passed. |
+| `npx --yes pnpm@10.32.1 test:replay-readiness` | Pass | 1 replay-readiness test passed. |
+
+PR 3 remains bounded to Stripe test-mode paid activation proof. It does not
+claim live-money billing, production billing readiness, invoices/tax/Connect,
+marketplace payments, usage-based subscription metering, token-credit top-up
+activation proof, or broad billing UX polish.
+
 ## STAGING-DEMO-INTERACTIONS-PATCH-01 DAEDALUS validation result
 
 Validated on 2026-06-13 after the narrow interaction-clean patch from

@@ -10,6 +10,9 @@ Prerequisite: PR 2 archive/import robustness accepted by A3 / ARGUS in
 Owner: A2 / DAEDALUS first, then A3 / ARGUS. A4 / ARIADNE only if the proof
 requires a visible hosted Checkout or billing-page human rehearsal.
 
+Status: DAEDALUS reconciliation is ready for ARGUS review. See
+`docs/roadmap/PR3_STRIPE_PAID_PATH_RECONCILIATION.md`.
+
 ## Goal
 
 Prove commercial activation once in Stripe test mode without turning billing
@@ -118,3 +121,18 @@ The handoff to ARGUS must include:
 - token-credit separation evidence,
 - validation run,
 - remaining caveat if PR 3 should continue.
+
+## DAEDALUS Reconciliation Result
+
+DAEDALUS inspected the current billing route/service/test surfaces and the
+accepted staging evidence. The later `STAGING-DEMO-STRIPE-01` evidence already
+proves the bounded PR 3 goal for current main: a hosted Stripe test-mode
+Checkout activation moved the replay owner from inactive/no subscription to
+active/subscription present, while ARGUS confirmed entitlement mutation remains
+verified-webhook gated rather than inferred from a browser redirect.
+
+This pass did not run a second hosted Checkout payment. The result is
+reconciliation-only and keeps the existing caveat: the claim is bounded to
+Stripe test-mode activation, not live-money billing, production billing
+readiness, invoices/tax/Connect, marketplace payments, usage metering, or broad
+billing UX polish.
