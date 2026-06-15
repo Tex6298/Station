@@ -5425,3 +5425,29 @@ ARGUS validation:
 No secrets, raw credentials, cookies, tokens, private IDs, private excerpts,
 prompts, completions, raw response bodies, screenshots, or replay corpus text
 were recorded. ARGUS accepts the `/settings` mobile layout repair.
+
+## Backend/Product PR 0 DAEDALUS validation
+
+Validated on 2026-06-15 while preparing
+`docs/roadmap/STAGING_ALPHA_CLOSURE_STATUS.md`.
+
+This was a docs/evidence-alignment pass only. It did not change product code,
+auth, billing, Stripe flows, privacy/visibility, storage/quota, archive/export,
+providers, migrations, package config, Redis behavior, workers, or replay
+implementation.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `npx --yes pnpm@10.32.1 test:health` | Pass | 11 health/deployment tests passed. |
+| `npx --yes pnpm@10.32.1 test:replay-readiness` | Pass | 1 replay-readiness test passed after required package builds. |
+| `npx --yes pnpm@10.32.1 --filter @station/api build` | Pass | API and required shared package builds passed. |
+| `npx --yes pnpm@10.32.1 --filter @station/web build` | Local environment failure after successful compile/type/page generation | Next compiled successfully, lint/type checks ran, and 28 static pages generated. The build then failed writing standalone traced files because this Windows shell cannot create Next symlinks: `EPERM: operation not permitted, symlink ... react -> apps\\web\\.next\\standalone...`. This matches the known Windows standalone-build limitation; Railway/Linux remains the decisive standalone artifact environment. |
+| Live API `/health` | Pass | `https://stationapi-production.up.railway.app/health` returned `{"ok":true}`. |
+| Live web `/health` | Pass | `https://stationweb-production.up.railway.app/health` returned `{"ok":true}`. |
+| Live API `/health/deployment` | Pass | Returned `ok:true`, `ready:true`, Railway commit `bfe60aa23d3a9b014e3b18f7520d9b7e719279b6`, branch `main`, service `@station/api`, with sanitized readiness booleans only. |
+| Live web `/health/deployment` | Pass | Returned `ok:true`, `ready:true`, Railway commit `bfe60aa23d3a9b014e3b18f7520d9b7e719279b6`, branch `main`, service `@station/web`, with sanitized identity metadata only. |
+| Live replay-readiness unauthenticated probe | Pass | `https://stationapi-production.up.railway.app/observability/replay-readiness` returned HTTP `401`, matching the auth-protected readiness route boundary. |
+
+No secrets, raw credentials, cookies, tokens, private IDs, private excerpts,
+prompts, completions, raw response bodies, screenshots, or replay corpus text
+were recorded.

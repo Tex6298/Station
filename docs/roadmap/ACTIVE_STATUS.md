@@ -2977,6 +2977,13 @@ when a PR lands, or when validation truth changes.
   closed unless ARIADNE finds a concrete staging-facing defect; Redis working
   memory, Cloudflare retrieval, and workers stay deferred unless replay evidence
   forces a bounded lane.
+- PR 0 DAEDALUS closure/evidence alignment is ready for ARGUS review,
+  2026-06-15: `docs/roadmap/STAGING_ALPHA_CLOSURE_STATUS.md` records the
+  current alpha-proof boundary, source references, sanitized Railway/Supabase/
+  Gemini/NVIDIA/Stripe/Redis readiness claims, live web/API health and
+  deployment identity checks at `bfe60aa`, and PR 0 validation. This is not a
+  product-complete backend claim; PR 1 replay memory/retrieval quality remains
+  unstarted until ARGUS accepts the closure doc or requests fixes.
 
 ## Near-term rule
 
