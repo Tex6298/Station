@@ -4658,6 +4658,53 @@ claim live-money billing, production billing readiness, invoices/tax/Connect,
 marketplace payments, usage-based subscription metering, token-credit top-up
 activation proof, or broad billing UX polish.
 
+## PR 3 Stripe paid-path reconciliation ARGUS review
+
+Validated on 2026-06-15 after DAEDALUS reconciled PR 3 in commit `3c252c8`.
+
+Implementation/evidence reviewed:
+
+- Stripe subscription behavior stays on Stripe Billing plus hosted Checkout
+  Sessions, not manual PaymentIntent renewal loops.
+- `/billing/checkout` creates subscription-mode Checkout sessions with
+  server-configured Prices and does not grant entitlement by itself.
+- `/billing/webhook` requires Stripe signature verification before processing.
+- Verified subscription events sync profile tier, subscription status, customer
+  binding, and subscription presence.
+- Active subscriptions with unknown Price IDs fail closed, and Stripe customer
+  mismatches fail closed.
+- Token-credit top-ups remain separate payment-mode Checkout grants, validated
+  against server-defined packs and idempotent by payment id.
+- Existing staging evidence records a bounded Stripe test-mode hosted Checkout
+  activation from inactive/no subscription to active/subscription present; this
+  pass did not run a second hosted Checkout payment.
+
+ARGUS validation:
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Stripe architecture review | Pass | The code uses Billing/Checkout for subscriptions and Customer Portal for self-service management. |
+| Entitlement gate review | Pass | Checkout creation alone does not mutate profile entitlement; verified webhook processing does. |
+| Fail-closed review | Pass | Invalid signatures, unknown active Price IDs, and customer/profile mismatches do not grant entitlement. |
+| Token-credit separation review | Pass | Top-ups are payment-mode metadata grants and ignore subscription-shaped metadata. |
+| Sanitization review | Pass | PR 3 docs add no hosted Checkout/Portal URLs, Stripe object identifiers, owner identifiers, webhook bodies, tokens, cookies, payment details, secrets, raw response bodies, or replay credentials. |
+| Overclaim review | Pass | The claim is bounded to Stripe test-mode paid activation proof and explicitly excludes live-money billing and production billing readiness. |
+| `npx --yes pnpm@10.32.1 test:billing` | Pass | 4 billing tests passed. |
+| `npx --yes pnpm@10.32.1 test:token-credits` | Pass | 3 token-credit tests passed. |
+| `npx --yes pnpm@10.32.1 --filter @station/api build` | Pass | API and dependent package builds completed. |
+| `npx --yes pnpm@10.32.1 test:health` | Pass | 11 health/deployment tests passed. |
+| `npx --yes pnpm@10.32.1 test:replay-readiness` | Pass | 1 replay-readiness test passed. |
+| `git diff --check` | Pass | No whitespace errors; Git reported expected CRLF normalization warnings. |
+
+No secrets, raw credentials, cookies, tokens, private IDs, private excerpts,
+prompts, completions, raw response bodies, screenshots, payment details,
+hosted Stripe URLs, Stripe object identifiers, webhook payload bodies, or
+replay corpus text were recorded. ARGUS accepts PR 3 as a reconciliation-only
+close for bounded Stripe test-mode paid activation proof. It does not claim
+live-money billing, production billing readiness, invoices/tax/Connect,
+marketplace payments, usage-based subscription metering, token-credit top-up
+activation proof, or broad billing UX polish.
+
 ## STAGING-DEMO-INTERACTIONS-PATCH-01 DAEDALUS validation result
 
 Validated on 2026-06-13 after the narrow interaction-clean patch from

@@ -126,8 +126,8 @@ Exit:
 
 ## PR 3 - Stripe Paid-Path Proof
 
-Status: ready for ARGUS review as reconciliation-only close. See
-`docs/roadmap/PR3_STRIPE_PAID_PATH_RECONCILIATION.md`.
+Status: ARGUS accepted the reconciliation-only proof and recommends MIMIR close
+PR 3. See `docs/roadmap/PR3_STRIPE_PAID_PATH_RECONCILIATION.md`.
 
 Goal: prove commercial activation once without turning billing into a polish
 rabbit hole.

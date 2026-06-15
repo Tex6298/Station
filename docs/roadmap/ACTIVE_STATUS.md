@@ -3117,6 +3117,17 @@ when a PR lands, or when validation truth changes.
   build, health, replay-readiness, and whitespace. ARGUS should now review for
   overclaim/sanitization risk and either accept PR 3 or name a precise evidence
   gap.
+- PR 3 Stripe paid-path reconciliation is accepted by ARGUS, 2026-06-15:
+  current code still matches the accepted `STAGING-DEMO-STRIPE-01` proof:
+  subscription-mode Checkout creates hosted Billing sessions without granting
+  entitlement, signed webhooks gate subscription mutation, active unknown Price
+  IDs and customer/profile mismatches fail closed, and token-credit top-ups
+  remain separate payment-mode grants. No second hosted Checkout payment was
+  run in this pass, and no Stripe identifiers, URLs, secrets, raw webhook
+  bodies, owner identifiers, tokens, cookies, payment details, or replay
+  credentials were added. Validation passed for billing, token credits, API
+  build, health, replay-readiness, and whitespace. Verdict: PR 3 can close for
+  bounded Stripe test-mode paid activation proof only.
 
 ## Near-term rule
 
