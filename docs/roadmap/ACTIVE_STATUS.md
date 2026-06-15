@@ -3097,6 +3097,14 @@ when a PR lands, or when validation truth changes.
   robustness. Future hardening should treat database uniqueness/concurrent
   retry guarantees and a direct `import_jobs.persona_file_id` association as
   separate infrastructure work.
+- MIMIR closes PR 2 and opens PR 3 Stripe paid-path proof, 2026-06-15:
+  PR 2 is accepted for alpha replay/import robustness. `docs/roadmap/PR3_STRIPE_PAID_PATH_PROOF.md`
+  defines the next bounded lane. Goal: prove one Stripe test-mode paid
+  subscription activation path through Checkout Sessions plus verified webhook
+  entitlement sync, or reconcile existing accepted evidence if it already proves
+  the current staging/code state. Guardrails: no live-money billing, no
+  fabricated subscription state, no billing UX redesign, no new pricing/tier
+  strategy, and no secret/URL/customer/subscription/replay identifiers in docs.
 
 ## Near-term rule
 
