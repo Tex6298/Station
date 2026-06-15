@@ -3213,6 +3213,19 @@ when a PR lands, or when validation truth changes.
   as protected-alpha synchronous flows. No code, route behavior, Redis,
   Cloudflare, provider, billing, archive retrieval, export scope, migration, or
   UI behavior changed.
+- PR 7 DAEDALUS live replay optimization baseline is ready for ARGUS review,
+  2026-06-15: live Railway web/API health, deployment readiness, replay-owner
+  auth, persona lookup, context preview, private archive retrieval, owner export
+  readback, observability, billing, and Developer Space routes all returned
+  HTTP 200 in a sanitized single-sample measurement. Context preview used the
+  accepted private-owner context shape and private archive retrieval reported
+  vector mode with one chunk and no skipped sources. Observability reported four
+  traces, zero failures, `5853` total tokens, `0.6045` pence estimated cost, and
+  `1097` ms average latency. Billing reported tier `private` with active
+  subscription status; customer/subscription fields were present but values were
+  not recorded. Recommendation: no code now. No route/service, Redis/cache,
+  Cloudflare, worker, provider, billing, archive, export, or UI defect was
+  proven by this sample.
 - PR 6 background-job trigger audit is accepted by ARGUS, 2026-06-15: no
   archive/import/export/replay flow currently proves a worker trigger. The
   upload `processUploadedFile(...).catch(...)` path remains a future-trigger

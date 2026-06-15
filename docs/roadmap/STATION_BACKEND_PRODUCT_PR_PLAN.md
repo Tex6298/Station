@@ -269,6 +269,16 @@ Broad UI polish:
 
 - Open only for ARIADNE-discovered concrete staging-facing defects.
 
+## PR 7 - Live Replay Optimization Baseline
+
+Status: DAEDALUS evidence-only result ready for ARGUS review. See
+`docs/roadmap/PR7_LIVE_REPLAY_OPTIMIZATION_BASELINE_RESULT.md`.
+
+Exit:
+
+- The next backend/product lane is chosen from live replay evidence rather than
+  guesses about Cloudflare, Redis, workers, providers, billing, or UI.
+
 ## Recommended Order
 
 1. PR 0 - closure/evidence alignment.

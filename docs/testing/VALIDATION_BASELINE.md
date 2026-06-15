@@ -6056,6 +6056,42 @@ Validation commands:
 | `npx --yes pnpm@10.32.1 --filter @station/api build` | Pass | API and required shared package builds passed. |
 | `git diff --check` | Pass | No whitespace errors; Git reported expected CRLF normalization warnings for touched files and consumed DAEDALUS state. |
 
+## Backend/Product PR 7 Live Replay Optimization Baseline DAEDALUS validation
+
+Validated on 2026-06-15 after a sanitized single-sample measurement of the live
+Railway replay routes.
+
+Evidence result:
+
+- Web/API health, deployment readiness, replay-owner sign-in, `/auth/me`,
+  persona list/detail, context preview, private archive retrieval, persona export
+  list/readback/bundle, observability summary/traces, billing status, Developer
+  Space public/owner/detail, and Developer Space usage routes all returned HTTP
+  200.
+- Context preview returned the accepted private-owner context/trace key shape.
+- Private archive retrieval returned vector mode with one chunk and no skipped
+  sources.
+- Observability returned four traces, zero failed traces, `5853` total tokens,
+  `0.6045` pence estimated cost, and `1097` ms average latency.
+- Billing returned tier `private` and subscription status `active`; customer and
+  subscription fields were present but values were not recorded.
+- Ranked recommendation: no code now.
+
+Validation commands:
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Live Railway replay measurement | Pass | Sanitized statuses, durations, counts, modes, readiness labels, token/cost labels, and support notes only. |
+| Privacy review | Pass | No private archive text, prompts, completions, raw bodies, raw manifests, checkout/portal URLs, customer IDs, subscription IDs, owner IDs, persona IDs, trace IDs, cookies, JWTs, credentials, API keys, or `.env` values were committed. |
+| `npx --yes pnpm@10.32.1 test:health` | Pass | 12 health/deployment tests passed. |
+| `npx --yes pnpm@10.32.1 test:replay-readiness` | Pass | 1 replay-readiness test passed. |
+| `npx --yes pnpm@10.32.1 test:persona-context` | Pass | 3 persona-context tests passed. |
+| `npx --yes pnpm@10.32.1 test:conversation-archive` | Pass | 5 archive/retry/retrieval tests passed. |
+| `npx --yes pnpm@10.32.1 test:exports` | Pass | 3 export readback/failure tests passed. |
+| `npx --yes pnpm@10.32.1 test:billing` | Pass | 4 billing tests passed. |
+| `npx --yes pnpm@10.32.1 --filter @station/api build` | Pass | API and required shared package builds passed. |
+| `git diff --check` | Pass | No whitespace errors; Git reported expected CRLF normalization warnings for touched docs and consumed DAEDALUS state. |
+
 ## Backend/Product PR 6 Background Job Trigger Audit ARGUS review
 
 Validated on 2026-06-15 after DAEDALUS committed
