@@ -3135,6 +3135,18 @@ when a PR lands, or when validation truth changes.
   do not silently treat Redis as canonical memory; future Redis-backed memory or
   working-memory design remains a separate durability/export/deletion/audit
   decision, not a blanket rejection.
+- PR 4 DAEDALUS Redis operational boundary result is ready for ARGUS review,
+  2026-06-15: `/health/deployment` now reports non-secret operational-cache
+  provider status under `readiness.redis.operationalCache`; Upstash REST remains
+  the current live adapter path, TCP Redis/Valkey is detected but disabled with
+  `tcp_redis_configured_without_client`, and missing config fails closed.
+  `/observability/replay-readiness` now treats the operational-cache boundary
+  as setup-proven rather than a replay blocker. `.env.example` names optional
+  TCP Redis/Valkey and Upstash REST variables with the current provider caveat.
+  Redis/Valkey/Upstash remains cache/idempotency/rate-limit/short-lived queue
+  infrastructure only; canonical memory stays out of scope pending a separate
+  durability/export/deletion/audit decision. Validation passed for
+  operational-cache, health, replay-readiness, API build, and whitespace.
 
 ## Near-term rule
 

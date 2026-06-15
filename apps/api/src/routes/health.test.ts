@@ -228,6 +228,16 @@ test("/health stays cheap while /health/deployment returns non-secret readiness"
     assert.equal(deployment.body.readiness.providers.embeddingsConfigured, true);
     assert.equal(deployment.body.readiness.providers.openaiEmbeddings, false);
     assert.equal(deployment.body.readiness.providers.geminiEmbeddings, true);
+    assert.deepEqual(deployment.body.readiness.redis, {
+      railwayRedis: true,
+      upstashRest: true,
+      configured: true,
+      operationalCache: {
+        enabled: true,
+        kind: "upstash_rest",
+        environment: "production",
+      },
+    });
     assert.deepEqual(db.rpcCalls.map((call) => call.functionName), [
       "match_memory_items",
       "match_private_archive_chunks",
@@ -240,6 +250,38 @@ test("/health stays cheap while /health/deployment returns non-secret readiness"
   } finally {
     await resetHealthFakes();
   }
+});
+
+test("/health/deployment reports TCP Redis as configured but operational-cache disabled", async () => {
+  const db = new ReadinessSupabase();
+  db.migrationObjectProof = true;
+
+  await withEnvOverride({
+    UPSTASH_REDIS_REST_URL: "",
+    UPSTASH_REDIS_REST_TOKEN: "",
+    REDIS_URL: "redis://secret-redis",
+    REDIS_PRIVATE_URL: "",
+    VALKEY_URL: "",
+  }, async () => {
+    const { app } = await setupHealthApp(db);
+
+    try {
+      const deployment = await requestJson(app, "GET", "/health/deployment");
+      assert.equal(deployment.status, 200);
+      assert.equal(deployment.body.readiness.redis.railwayRedis, true);
+      assert.equal(deployment.body.readiness.redis.upstashRest, false);
+      assert.equal(deployment.body.readiness.redis.configured, true);
+      assert.deepEqual(deployment.body.readiness.redis.operationalCache, {
+        enabled: false,
+        kind: "disabled",
+        disabledReason: "tcp_redis_configured_without_client",
+        environment: "production",
+      });
+      assertNoSecrets(deployment.body);
+    } finally {
+      await resetHealthFakes();
+    }
+  });
 });
 
 test("/health/deployment keeps deployment identity nullable and non-blocking outside Railway", async () => {

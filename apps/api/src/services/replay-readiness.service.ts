@@ -110,15 +110,6 @@ const SETUP_BLOCKERS: ReplaySetupBlocker[] = [
     ],
   },
   {
-    id: "cache_provider_selection",
-    status: "disabled_pending",
-    owner: "provider_decision",
-    evidenceRequired: [
-      "Redis/Valkey or Upstash role/provider is selected for staging, or explicitly deferred.",
-      "Cache remains non-canonical memory until separate durability/export/deletion review.",
-    ],
-  },
-  {
     id: "cloudflare_account_setup",
     status: "disabled_pending",
     owner: "provider_decision",
@@ -169,6 +160,16 @@ const SETUP_PROOFS: ReplaySetupProof[] = [
       "Public /health/deployment reports platform chat true and NVIDIA true.",
     ],
     remainingRisk: "Model choice, budget, and usage expectations still need replay-side confirmation.",
+  },
+  {
+    id: "operational_cache_boundary",
+    status: "setup_proven",
+    evidence: [
+      "The API has an optional operational-cache boundary for runtime-context cache, idempotency, rate-limit, and short-lived queue state.",
+      "/health/deployment reports only non-secret Redis/Upstash booleans plus operational-cache provider kind/enabled/disabled status.",
+      "Redis/Valkey is not canonical memory in current replay scope; any memory-truth promotion needs separate durability/export/deletion/audit review.",
+    ],
+    remainingRisk: "Provider-specific staging smoke is useful only when a replay flow depends on cache behavior rather than Supabase persistence.",
   },
 ];
 

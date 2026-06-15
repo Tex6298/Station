@@ -4705,6 +4705,41 @@ live-money billing, production billing readiness, invoices/tax/Connect,
 marketplace payments, usage-based subscription metering, token-credit top-up
 activation proof, or broad billing UX polish.
 
+## PR 4 Redis operational boundary DAEDALUS validation
+
+Validated on 2026-06-15 after tightening Redis/Valkey/Upstash readiness and
+replay-readiness wording.
+
+Implementation:
+
+- `/health/deployment` now includes only non-secret operational-cache status:
+  provider `enabled`, provider `kind`, disabled reason when disabled, and cache
+  environment.
+- Upstash REST remains the live operational-cache adapter when URL/token config
+  is present.
+- TCP Redis/Valkey config is detected for readiness, but runtime cache access
+  remains disabled with `tcp_redis_configured_without_client` until a concrete
+  TCP client/provider is accepted.
+- `/observability/replay-readiness` now lists the operational-cache boundary as
+  setup-proven instead of keeping `cache_provider_selection` as a replay
+  blocker.
+- `.env.example` names optional TCP Redis/Valkey and Upstash REST variables
+  without adding secret values.
+
+Scope:
+
+This is operational-cache/status hardening only. It does not make Redis
+canonical memory, archive truth, continuity truth, export truth, Cloudflare
+retrieval, worker queue infrastructure, billing behavior, archive/import
+behavior, or UI behavior.
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npx --yes pnpm@10.32.1 exec tsx --test apps/api/src/services/operational-cache.service.test.ts` | Pass | 4 tests passed. |
+| `npx --yes pnpm@10.32.1 test:health` | Pass | 12 health/deployment tests passed, including TCP Redis configured-but-disabled status and secret redaction. |
+| `npx --yes pnpm@10.32.1 test:replay-readiness` | Pass | 1 replay-readiness test passed with cache boundary moved out of blockers. |
+| `npx --yes pnpm@10.32.1 --filter @station/api build` | Pass | API and dependent package builds completed. |
+
 ## STAGING-DEMO-INTERACTIONS-PATCH-01 DAEDALUS validation result
 
 Validated on 2026-06-13 after the narrow interaction-clean patch from

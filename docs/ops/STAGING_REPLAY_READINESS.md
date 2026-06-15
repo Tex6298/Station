@@ -1,9 +1,11 @@
 # Station staging replay readiness
 
 Status: setup/config, populated replay data, Gemini retrieval/context-preview,
-deployed API replay, browser/mobile walkthrough, portable export readback, and
-non-zero-token observability proof are green for the current Railway staging
-target. Paid Stripe subscription activation remains an external demo blocker.
+deployed API replay, browser/mobile walkthrough, portable export readback,
+non-zero-token observability proof, and bounded Stripe test-mode paid
+activation proof are green for the current Railway staging target. Redis/
+Valkey/Upstash is bounded as optional operational cache, not current canonical
+memory.
 
 This runbook names what must be true before a human replay pass can produce
 useful product evidence from an online/staged Station deployment.
@@ -403,12 +405,14 @@ human walkthrough:
   downloadable/background export behavior.
 - ARGUS accepted LLM-TRACE-01 as narrow non-zero-token observability proof.
 - ARGUS accepted STAGING-CLOSEOUT-01 as truthful staging state, with remaining
-  Stripe activation, Redis/Cloudflare/background jobs, full workspace export,
-  and partner-grade polish kept out of the accepted scope.
+  Cloudflare/background jobs, full workspace export, and partner-grade polish
+  kept out of the accepted scope. Stripe paid activation now has bounded
+  test-mode proof, and Redis/Valkey/Upstash is scoped as optional operational
+  cache rather than canonical memory.
 
 Carry remaining friction as future product/demo work, not active replay
-readiness blockers: paid subscription activation after the accepted Stripe
-test-mode smoke, exact one-call replay ergonomics if the retry/status caveat
-becomes visible, Discover/onboarding polish, partner-grade demo narrative, and
-future Redis/Cloudflare/background-job decisions only when replay evidence
-justifies them.
+readiness blockers: exact one-call replay ergonomics if the retry/status caveat
+becomes visible, Discover/onboarding polish, partner-grade demo narrative,
+future Cloudflare/background-job decisions only when replay evidence justifies
+them, and any Redis-backed memory promotion only after a separate durability,
+export, deletion, owner-isolation, and audit decision.

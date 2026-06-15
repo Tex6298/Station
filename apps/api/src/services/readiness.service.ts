@@ -1,6 +1,7 @@
 import { env } from "../lib/env";
 import { getSupabaseAdmin } from "../lib/supabase";
 import { resolveActiveEmbeddingProfileCode, resolveActiveEmbeddingProvider } from "./embedding-key.service";
+import { operationalCacheStatus } from "./operational-cache.service";
 
 const PERSONA_FILES_BUCKET = "persona-files";
 const CHECK_TIMEOUT_MS = 1500;
@@ -118,6 +119,12 @@ type DeploymentReadiness = {
       railwayRedis: boolean;
       upstashRest: boolean;
       configured: boolean;
+      operationalCache: {
+        enabled: boolean;
+        kind: "disabled" | "upstash_rest" | "test";
+        disabledReason?: string;
+        environment: string;
+      };
     };
   };
 };
@@ -519,10 +526,12 @@ function providerStatus(): DeploymentReadiness["readiness"]["providers"] {
 function redisStatus(): DeploymentReadiness["readiness"]["redis"] {
   const railwayRedis = hasValue(env.REDIS_URL) || hasValue(env.REDIS_PRIVATE_URL) || hasValue(env.VALKEY_URL);
   const upstashRest = hasValue(env.UPSTASH_REDIS_REST_URL) && hasValue(env.UPSTASH_REDIS_REST_TOKEN);
+  const operationalCache = operationalCacheStatus();
   return {
     railwayRedis,
     upstashRest,
     configured: railwayRedis || upstashRest,
+    operationalCache,
   };
 }
 

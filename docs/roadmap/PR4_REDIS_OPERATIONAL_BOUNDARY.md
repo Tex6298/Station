@@ -9,6 +9,9 @@ Prerequisite: PR 3 Stripe paid-path proof accepted by A3 / ARGUS in
 
 Owner: A2 / DAEDALUS first, then A3 / ARGUS.
 
+Status: DAEDALUS result is ready for ARGUS review. See
+`docs/roadmap/PR4_REDIS_OPERATIONAL_BOUNDARY_RESULT.md`.
+
 ## Goal
 
 Keep Redis/Valkey/Upstash useful, boring, and correctly bounded for the current

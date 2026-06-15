@@ -74,7 +74,7 @@ const envSchema = z.object({
   // JWT secret (for auth + OAuth state tokens)
   JWT_SECRET: z.string().default("change-me-in-production"),
 
-  // Optional cache/queue providers. These are exposed in readiness as booleans only.
+  // Optional cache/queue providers. Readiness exposes non-secret booleans/status only.
   REDIS_URL: z.string().optional(),
   REDIS_PRIVATE_URL: z.string().optional(),
   VALKEY_URL: z.string().optional(),

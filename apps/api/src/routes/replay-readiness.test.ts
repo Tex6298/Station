@@ -46,9 +46,14 @@ test("replay readiness exposes non-secret measurement prep behind auth", async (
       "supabase_migrations_025_028",
       "persona_files_storage",
       "nvidia_platform_chat",
+      "operational_cache_boundary",
     ]);
     assert.equal(owner.body.replay.setupProofs[1].status, "setup_proven");
     assert.match(owner.body.replay.setupProofs[1].remainingRisk, /Hostile remote vector\/RPC smoke/);
+    assert.equal(
+      owner.body.replay.setupProofs[4].evidence.some((entry: string) => entry.includes("non-secret Redis/Upstash booleans")),
+      true
+    );
 
     const blockerIds = owner.body.replay.setupBlockers.map((blocker: any) => blocker.id);
     assert.deepEqual(blockerIds, [
@@ -56,7 +61,6 @@ test("replay readiness exposes non-secret measurement prep behind auth", async (
       "supabase_auth_redirects",
       "embedding_profile_proof",
       "stripe_replay_resources",
-      "cache_provider_selection",
       "cloudflare_account_setup",
       "replay_account_data",
     ]);
