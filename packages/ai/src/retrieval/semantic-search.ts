@@ -217,7 +217,7 @@ async function keywordFallbackSearch(
   }
   const lifecycleByMemoryId = await loadMemoryLifecycleMap(supabase, personaId, ownerUserId);
 
-  const tokens = query.toLowerCase().split(/\s+/).filter(Boolean);
+  const tokens = tokenize(query);
 
   const skipped = emptySkippedCounts();
   const results = data
@@ -227,8 +227,7 @@ async function keywordFallbackSearch(
       return !reason;
     })
     .map((row) => {
-      const haystack = `${row.title ?? ""} ${row.content} ${row.summary ?? ""}`.toLowerCase();
-      const score = tokens.filter((t) => haystack.includes(t)).length;
+      const score = keywordMemoryScore(row, tokens, query);
       return {
         id: row.id,
         personaId: row.persona_id,
@@ -380,6 +379,41 @@ function buildMemoryTrace(input: {
       indexName: ACTIVE_EMBEDDING_INDEX_NAME,
     },
   };
+}
+
+function keywordMemoryScore(
+  row: { title?: string | null; content: string; summary?: string | null; relevance_weight?: number | null },
+  tokens: string[],
+  query: string
+) {
+  if (tokens.length === 0) return Number(row.relevance_weight ?? 0) / 100;
+
+  const title = normalizeText(row.title ?? "");
+  const summary = normalizeText(row.summary ?? "");
+  const content = normalizeText(row.content);
+  const phrase = normalizeText(query);
+  const haystack = `${title} ${summary} ${content}`.trim();
+  let score = 0;
+
+  for (const token of tokens) {
+    if (title.includes(token)) score += 3;
+    else if (summary.includes(token)) score += 2;
+    else if (content.includes(token)) score += 1;
+  }
+
+  if (phrase && title.includes(phrase)) score += 4;
+  else if (phrase && summary.includes(phrase)) score += 3;
+  else if (phrase && haystack.includes(phrase)) score += 2;
+
+  return score / tokens.length + Number(row.relevance_weight ?? 0) / 1000;
+}
+
+function tokenize(query: string) {
+  return normalizeText(query).split(/\s+/).filter(Boolean);
+}
+
+function normalizeText(value: string) {
+  return value.toLowerCase().replace(/[^\p{L}\p{N}\s]+/gu, " ").replace(/\s+/g, " ").trim();
 }
 
 function hasValue(value: string | null | undefined) {

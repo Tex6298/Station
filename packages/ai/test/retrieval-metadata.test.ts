@@ -16,7 +16,7 @@ import {
 } from "../src/retrieval/embeddings";
 import { retrievePrivateArchive } from "../src/retrieval/archive-retrieval";
 import { assemblePersonaRuntimeContext } from "../src/retrieval/context-builder";
-import { searchMemory } from "../src/retrieval/semantic-search";
+import { searchMemory, searchMemoryWithTrace } from "../src/retrieval/semantic-search";
 
 type Row = Record<string, any>;
 
@@ -125,6 +125,35 @@ test("memory search uses keyword fallback without an embedding key", async () =>
   assert.equal(memory.length, 1);
   assert.equal(memory[0].id, "keyword-memory-1");
   assert.equal(db.rpcCalls.length, 0);
+});
+
+test("keyword memory ranking prefers exact replay anchor over high-weight distractors", async () => {
+  const db = new RankingSupabase();
+
+  const retrieval = await searchMemoryWithTrace({
+    supabase: db.client as any,
+    ownerUserId: "owner-1",
+    personaId: "persona-1",
+    query: "blue notebook morning ritual",
+    limit: 2,
+  });
+
+  assert.equal(retrieval.trace.mode, "keyword");
+  assert.equal(retrieval.trace.fallbackMode, "no_embedding_key");
+  assert.equal(retrieval.results[0].id, "replay-anchor");
+  assert.equal(retrieval.results[1].id, "tempting-distractor");
+  assert.equal(retrieval.trace.selected[0].id, "replay-anchor");
+  assert.match(retrieval.trace.selected[0].reason, /Selected by query match/);
+  assert.deepEqual(retrieval.trace.skipped, {
+    archive_source: 0,
+    rejected: 1,
+    quarantined: 1,
+    expired: 1,
+    superseded: 1,
+    other_owner_or_missing: 0,
+  });
+  assert.equal(retrieval.trace.selected.some((source) => source.id === "rejected-anchor"), false);
+  assert.doesNotMatch(JSON.stringify(retrieval.trace), /rejected source text/);
 });
 
 test("Gemini embedding request uses REST config casing for the active dimension", () => {
@@ -397,7 +426,7 @@ function memoryRow(id: string, ownerUserId: string, extras: Row = {}) {
   };
 }
 
-function lifecycleRow(memoryItemId: string, ownerUserId: string, status: string) {
+function lifecycleRow(memoryItemId: string, ownerUserId: string, status: string, extras: Row = {}) {
   return {
     memory_item_id: memoryItemId,
     persona_id: "persona-1",
@@ -405,6 +434,7 @@ function lifecycleRow(memoryItemId: string, ownerUserId: string, status: string)
     status,
     expires_at: null,
     superseded_by_memory_item_id: null,
+    ...extras,
   };
 }
 
@@ -459,6 +489,87 @@ class KeywordFallbackSupabase {
   rows(table: string) {
     return this.tables[table] ?? [];
   }
+}
+
+class RankingSupabase extends KeywordFallbackSupabase {
+  override tables: Record<string, Row[]> = {
+    memory_items: [
+      {
+        id: "tempting-distractor",
+        persona_id: "persona-1",
+        owner_user_id: "owner-1",
+        title: "General notebook notes",
+        content: "Morning planning mentions a blue cover and a ritual in separate bullets.",
+        summary: "Broad notes with several matching words.",
+        source_type: "manual",
+        relevance_weight: 90,
+        archive_source_type: null,
+      },
+      {
+        id: "replay-anchor",
+        persona_id: "persona-1",
+        owner_user_id: "owner-1",
+        title: "Blue notebook morning ritual",
+        content: "Synthetic replay anchor.",
+        summary: "Exact replay anchor.",
+        source_type: "manual",
+        relevance_weight: 1,
+        archive_source_type: null,
+      },
+      {
+        id: "rejected-anchor",
+        persona_id: "persona-1",
+        owner_user_id: "owner-1",
+        title: "Blue notebook morning ritual rejected",
+        content: "rejected source text",
+        summary: "Rejected exact source.",
+        source_type: "manual",
+        relevance_weight: 100,
+        archive_source_type: null,
+      },
+      {
+        id: "quarantined-anchor",
+        persona_id: "persona-1",
+        owner_user_id: "owner-1",
+        title: "Blue notebook morning ritual quarantined",
+        content: "quarantined source text",
+        summary: "Quarantined exact source.",
+        source_type: "manual",
+        relevance_weight: 100,
+        archive_source_type: null,
+      },
+      {
+        id: "expired-anchor",
+        persona_id: "persona-1",
+        owner_user_id: "owner-1",
+        title: "Blue notebook morning ritual expired",
+        content: "expired source text",
+        summary: "Expired exact source.",
+        source_type: "manual",
+        relevance_weight: 100,
+        archive_source_type: null,
+      },
+      {
+        id: "superseded-anchor",
+        persona_id: "persona-1",
+        owner_user_id: "owner-1",
+        title: "Blue notebook morning ritual superseded",
+        content: "superseded source text",
+        summary: "Superseded exact source.",
+        source_type: "manual",
+        relevance_weight: 100,
+        archive_source_type: null,
+      },
+    ],
+    memory_item_lifecycle: [
+      lifecycleRow("tempting-distractor", "owner-1", "active"),
+      lifecycleRow("replay-anchor", "owner-1", "active"),
+      lifecycleRow("rejected-anchor", "owner-1", "rejected"),
+      lifecycleRow("quarantined-anchor", "owner-1", "quarantined"),
+      lifecycleRow("expired-anchor", "owner-1", "active", { expires_at: "2020-01-01T00:00:00.000Z" }),
+      lifecycleRow("superseded-anchor", "owner-1", "superseded", { superseded_by_memory_item_id: "replay-anchor" }),
+    ],
+  };
 }
 
 function mockEmbeddingFetch(vector: number[]) {

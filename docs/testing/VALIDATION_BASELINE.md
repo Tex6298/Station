@@ -5114,6 +5114,36 @@ were recorded. Remaining quality caveat: this slice improves retrieval
 explainability and skip accounting; it does not retune ranking or add a new
 retrieval backend.
 
+## Backend/Product PR 1 Ranking Follow-Up DAEDALUS validation
+
+Validated on 2026-06-15 after the bounded retrieval ranking follow-up.
+
+Implementation summary:
+
+- `packages/ai/src/retrieval/semantic-search.ts` now scores keyword fallback
+  memory results with a small local boost for exact query phrase matches and
+  title/summary token matches, leaving relevance weight as a small tie-breaker.
+- `packages/ai/test/retrieval-metadata.test.ts` adds a focused fixture with an
+  intended replay anchor, a tempting high-weight distractor, and rejected,
+  quarantined, expired, and superseded candidates.
+- The fixture proves the intended anchor ranks first, the distractor remains
+  second, hidden lifecycle candidates are counted as skipped, and selected
+  trace metadata does not include rejected source content.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `npx --yes pnpm@10.32.1 exec tsx --test packages/ai/test/retrieval-metadata.test.ts` | Pass | 7 retrieval metadata/ranking tests passed. |
+| `npx --yes pnpm@10.32.1 test:persona-context` | Pass | 3 tests passed. |
+| `npx --yes pnpm@10.32.1 test:conversation-archive` | Pass | 5 tests passed. |
+| `npx --yes pnpm@10.32.1 test:continuity` | Pass | 4 tests passed. |
+| `npx --yes pnpm@10.32.1 --filter @station/api build` | Pass | API and required shared package builds passed. |
+
+No secrets, raw credentials, cookies, tokens, private IDs, private excerpts,
+prompts, completions, raw response bodies, screenshots, or replay corpus text
+were recorded. Remaining caveat: this is a local keyword fallback ranking
+improvement; it does not retune Supabase vector RPC scoring or add a new
+retrieval backend.
+
 ## Writing Featured Feed Follow-up ARGUS review
 
 Validated on 2026-06-14 after DAEDALUS patched the `/writing` Featured tab in

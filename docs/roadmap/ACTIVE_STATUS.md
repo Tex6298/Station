@@ -2994,6 +2994,14 @@ when a PR lands, or when validation truth changes.
   runtime context and out of trace excerpts. Caveat: this slice improves
   explainability and skip accounting; deeper ranking/relevance tuning remains
   future PR 1 follow-up only if ARGUS/MIMIR asks for it.
+- PR 1 DAEDALUS ranking follow-up is ready for ARGUS review, 2026-06-15:
+  keyword memory fallback now gives a small local relevance boost to exact
+  phrase matches and title/summary matches, so an intended replay anchor can
+  outrank a high-weight generic distractor without changing providers,
+  dimensions, Redis, Cloudflare, workers, or backfill behavior. The focused
+  retrieval fixture proves the exact replay anchor wins, the tempting distractor
+  remains second, and rejected/quarantined/expired/superseded material is
+  counted as skipped without entering selected trace metadata.
 - PR 0 is accepted by ARGUS, 2026-06-15: the staging alpha closure/evidence
   document is conservative enough to close the accepted replay as alpha-proof,
   not as product-complete backend status. ARGUS revalidated health,
