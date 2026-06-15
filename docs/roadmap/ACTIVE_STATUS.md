@@ -3201,6 +3201,18 @@ when a PR lands, or when validation truth changes.
   and replay route timing. If no trigger is proven, PR 6 should close as
   deferred; if a trigger is proven, name exactly one failing flow before any
   worker shell is implemented.
+- PR 6 DAEDALUS background-job trigger audit is ready for ARGUS review,
+  2026-06-15: current main does not prove a worker trigger. File registration
+  still has a fire-and-forget immediate processing path, but accepted PR 2
+  idempotency/repair behavior covers the known alpha retry pain and no
+  documented replay shows unsafe completion, timeout, or unrecoverable retry
+  failure. Chat imports remain synchronous with owner-scoped job status,
+  sanitized errors, and retry semantics. Persona and Developer Space exports
+  remain synchronous owner-only JSON/Markdown readback packages with
+  failed-package visibility. Staging docs still frame archive/import/export jobs
+  as protected-alpha synchronous flows. No code, route behavior, Redis,
+  Cloudflare, provider, billing, archive retrieval, export scope, migration, or
+  UI behavior changed.
 
 ## Near-term rule
 

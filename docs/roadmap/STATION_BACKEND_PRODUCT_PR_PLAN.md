@@ -227,6 +227,9 @@ Exit:
 
 ## PR 6 - Background Jobs Only If Replay/Import Proves Pain
 
+Status: DAEDALUS no-trigger audit ready for ARGUS review. See
+`docs/roadmap/PR6_BACKGROUND_JOB_TRIGGER_AUDIT_RESULT.md`.
+
 Goal: avoid premature queue architecture.
 
 Trigger: open this only if archive, import, export, or replay shows blocking

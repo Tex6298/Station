@@ -6019,3 +6019,39 @@ were recorded. ARGUS accepts the PR 2 file-register idempotency follow-up after
 hardening and recommends closing PR 2 for alpha replay/import robustness. Future
 work should handle database-level uniqueness/concurrent retry guarantees,
 direct file-job association, and full worker/job orchestration separately.
+
+## Backend/Product PR 6 Background Job Trigger Audit DAEDALUS validation
+
+Validated on 2026-06-15 after auditing the current archive/import/export/replay
+surfaces for a concrete background-worker trigger.
+
+Audit result:
+
+- No current-main route or staging evidence proves blocking latency, flaky
+  completion, user-visible timeout, or retry behavior that requires a worker
+  implementation now.
+- `POST /persona-files/persona/:personaId/register` still uses
+  `processUploadedFile(...).catch(...)` for immediate file processing, but PR 2
+  idempotency/repair coverage reduces the known duplicate/retry pain and no
+  concrete failed replay flow was found.
+- `/imports/chat` remains synchronous with owner-scoped job status, sanitized
+  errors, duplicate reuse for completed source imports, and retry behavior that
+  avoids storing private chat content in job payloads.
+- `/exports/*` remains synchronous owner-only JSON/Markdown readback with
+  failed-package visibility and completed-only bundle readback.
+- Replay readiness docs explicitly describe archive/import/export jobs as
+  protected-alpha synchronous flows, not worker infrastructure.
+
+Validation commands:
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Route/job audit | Pass | Reviewed file registration, chat import jobs, export packages/readback, and replay readiness docs. |
+| No-trigger review | Pass | No accepted worker trigger was found; PR 6 should remain deferred unless ARGUS finds a concrete failing flow. |
+| Secret/private-data review | Pass | The audit recorded no private archive text, prompts, completions, raw replay bodies, credentials, tokens, cookies, owner IDs, private IDs, or screenshots. |
+| `npx --yes pnpm@10.32.1 test:storage` | Pass | 9 storage/import tests passed. |
+| `npx --yes pnpm@10.32.1 test:conversation-archive` | Pass | 5 archive/retry/retrieval tests passed. |
+| `npx --yes pnpm@10.32.1 test:exports` | Pass | 3 export readback/failure tests passed. |
+| `npx --yes pnpm@10.32.1 test:replay-readiness` | Pass | 1 replay-readiness test passed. |
+| `npx --yes pnpm@10.32.1 --filter @station/api build` | Pass | API and required shared package builds passed. |
+| `git diff --check` | Pass | No whitespace errors; Git reported expected CRLF normalization warnings for touched files and consumed DAEDALUS state. |
