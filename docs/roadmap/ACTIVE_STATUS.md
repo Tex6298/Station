@@ -3054,6 +3054,14 @@ when a PR lands, or when validation truth changes.
   queues, broad async orchestration, Redis memory truth, Cloudflare retrieval,
   provider switches, vector-dimension changes, broad UI, and private excerpt
   telemetry remain out of scope.
+- PR 2 DAEDALUS archive/import robustness slice is ready for ARGUS review,
+  2026-06-15: duplicate pasted-chat imports now reuse an existing completed
+  chat import for the same owner, persona, and source name when authoritative
+  archive rows already exist. The duplicate response is explicit
+  (`duplicate:true`, `idempotent:true`) and creates no new import job or memory
+  rows. Existing partial-failure and retry fixtures remain green, including
+  failed import status visibility, sanitized private error redaction, retry
+  reuse, and source-authoritative archive retrieval.
 
 ## Near-term rule
 

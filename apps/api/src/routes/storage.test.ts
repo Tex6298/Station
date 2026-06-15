@@ -600,6 +600,23 @@ test("chat imports reserve text bytes and roll back when archive insert fails", 
     assert.equal(storageRow(db).bytes_used, estimateStorageBytes(content));
     assert.equal(db.tables.memory_items.length, 1);
     assert.equal(db.tables.import_jobs[0].status, "completed");
+
+    const duplicate = await requestJson(app, "POST", "/imports/chat", {
+      token: "owner-token",
+      body: {
+        personaId: PERSONA_ID,
+        content: "duplicate content should not create more archive rows",
+        sourceName: "chat-import",
+      },
+    });
+
+    assert.equal(duplicate.status, 200);
+    assert.equal(duplicate.body.duplicate, true);
+    assert.equal(duplicate.body.idempotent, true);
+    assert.equal(duplicate.body.job.id, imported.body.job.id);
+    assert.equal(duplicate.body.chunksCreated, 1);
+    assert.equal(db.tables.memory_items.length, 1);
+    assert.equal(db.tables.import_jobs.length, 1);
   } finally {
     resetStorageFake();
   }

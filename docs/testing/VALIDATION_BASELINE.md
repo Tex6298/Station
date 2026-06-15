@@ -5144,6 +5144,38 @@ were recorded. Remaining caveat: this is a local keyword fallback ranking
 improvement; it does not retune Supabase vector RPC scoring or add a new
 retrieval backend.
 
+## Backend/Product PR 2 DAEDALUS validation
+
+Validated on 2026-06-15 after the first archive/import robustness slice.
+
+Implementation summary:
+
+- `apps/api/src/routes/imports.ts` now detects a completed chat import for the
+  same owner, persona, and source name before creating a new pasted-chat import
+  job.
+- The duplicate path only returns idempotently when authoritative archive rows
+  already exist for that completed job.
+- The response reports `duplicate:true` and `idempotent:true` and does not
+  create another import job or memory row.
+- `apps/api/src/routes/storage.test.ts` adds the duplicate clean-import
+  fixture. Existing conversation-archive fixtures continue to cover failed
+  import visibility, sanitized private error redaction, retry reuse, and
+  retrieval after completed/failed imports.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `npx --yes pnpm@10.32.1 test:storage` | Pass | 7 storage/archive tests passed, including duplicate pasted-chat import idempotency. |
+| `npx --yes pnpm@10.32.1 test:conversation-archive` | Pass | 5 archive/retry/retrieval tests passed. |
+| `npx --yes pnpm@10.32.1 test:persona-context` | Pass after serial rerun | First parallel run hit a transient `tsconfig.base.json` read failure while other package builds were running; `Test-Path tsconfig.base.json` returned `True`, and the serial rerun passed 3 tests. |
+| `npx --yes pnpm@10.32.1 --filter @station/api build` | Pass | API and required shared package builds passed. |
+| `git diff --check` | Pass | No whitespace errors. |
+
+No secrets, raw credentials, cookies, tokens, private IDs, private excerpts,
+prompts, completions, raw response bodies, screenshots, or replay corpus text
+were recorded. Remaining caveat: duplicate detection is scoped to completed
+chat imports with the same owner/persona/source name and existing archive rows;
+file-import idempotency is still future PR 2 work if needed.
+
 ## Writing Featured Feed Follow-up ARGUS review
 
 Validated on 2026-06-14 after DAEDALUS patched the `/writing` Featured tab in

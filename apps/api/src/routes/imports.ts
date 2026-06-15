@@ -5,6 +5,7 @@ import { getSupabaseAdmin } from "../lib/supabase";
 import { ingestTextIntoArchive } from "../services/archive.service";
 import {
   IMPORT_JOB_SELECT,
+  type ImportJobRow,
   countImportArchiveRows,
   loadOwnedImportJob,
   markImportJobCompleted,
@@ -46,6 +47,24 @@ importsRouter.post("/chat", async (req, res) => {
 
   if (!persona || persona.owner_user_id !== userId) {
     return res.status(404).json({ error: "Persona not found." });
+  }
+
+  const existingCompleted = await loadCompletedChatImportBySource(
+    persona.id,
+    userId,
+    parsed.data.sourceName
+  );
+  if (existingCompleted) {
+    const chunksCreated = await countImportArchiveRows(existingCompleted);
+    if (chunksCreated > 0) {
+      return res.json({
+        job: serializeImportJob(existingCompleted),
+        chunksCreated,
+        imported: true,
+        duplicate: true,
+        idempotent: true,
+      });
+    }
   }
 
   // Create import job
@@ -240,3 +259,24 @@ importsRouter.get("/persona/:personaId", async (req, res) => {
   if (error) return res.status(500).json({ error: error.message });
   return res.json({ jobs: (data ?? []).map(serializeImportJob) });
 });
+
+async function loadCompletedChatImportBySource(
+  personaId: string,
+  ownerUserId: string,
+  sourceName: string
+) {
+  const sb = getSupabaseAdmin();
+  const { data, error } = await sb
+    .from("import_jobs")
+    .select(IMPORT_JOB_SELECT)
+    .eq("persona_id", personaId)
+    .eq("owner_user_id", ownerUserId)
+    .eq("kind", "chat")
+    .eq("status", "completed")
+    .eq("source_name", sourceName)
+    .order("updated_at", { ascending: false })
+    .limit(1);
+
+  if (error) return null;
+  return (data?.[0] ?? null) as ImportJobRow | null;
+}
