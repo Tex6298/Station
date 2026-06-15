@@ -3019,6 +3019,14 @@ when a PR lands, or when validation truth changes.
   retrieval-metadata, API build, and whitespace checks. Verdict: accept this
   explainability/skip-accounting slice, but PR 1 should continue with a
   ranking/relevance follow-up rather than close.
+- MIMIR opens the PR 1 ranking/relevance follow-up, 2026-06-15:
+  `docs/roadmap/PR1_RETRIEVAL_RANKING_FOLLOWUP.md` defines the bounded next
+  slice. Goal: make the intended replay memory, continuity, or archive source
+  rank ahead of distractors while rejected/quarantined/expired/superseded and
+  other-owner material stays out. This remains inside existing Gemini/OpenAI-
+  compatible 1536-dim retrieval; no Redis memory truth, Cloudflare retrieval,
+  workers, provider switch, re-embed/backfill, broad UI, or private excerpt
+  telemetry is in scope.
 
 ## Near-term rule
 
