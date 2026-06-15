@@ -271,7 +271,7 @@ Broad UI polish:
 
 ## PR 7 - Live Replay Optimization Baseline
 
-Status: DAEDALUS evidence-only result ready for ARGUS review. See
+Status: accepted by A3 / ARGUS on 2026-06-15 as evidence-only/no-code. See
 `docs/roadmap/PR7_LIVE_REPLAY_OPTIMIZATION_BASELINE_RESULT.md`.
 
 Exit:

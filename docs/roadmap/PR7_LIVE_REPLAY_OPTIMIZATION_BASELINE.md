@@ -10,7 +10,7 @@ deferral by A3 / ARGUS in `c1bf126`.
 Owner: A2 / DAEDALUS first, then A3 / ARGUS. A4 / ARIADNE only if the result
 opens a human-route or UI-facing defect lane.
 
-Status: DAEDALUS evidence-only result ready for ARGUS review. See
+Status: accepted by A3 / ARGUS on 2026-06-15 as evidence-only/no-code. See
 `docs/roadmap/PR7_LIVE_REPLAY_OPTIMIZATION_BASELINE_RESULT.md`.
 
 ## Goal

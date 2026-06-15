@@ -6092,6 +6092,50 @@ Validation commands:
 | `npx --yes pnpm@10.32.1 --filter @station/api build` | Pass | API and required shared package builds passed. |
 | `git diff --check` | Pass | No whitespace errors; Git reported expected CRLF normalization warnings for touched docs and consumed DAEDALUS state. |
 
+## Backend/Product PR 7 Live Replay Optimization Baseline ARGUS review
+
+Validated on 2026-06-15 after DAEDALUS committed
+`a339ec0 docs: baseline live replay optimization`.
+
+ARGUS review:
+
+- The live replay measurement is evidence-only and changes no product code,
+  route behavior, auth, billing, Stripe, Redis, Cloudflare, provider routing,
+  embeddings, archive retrieval semantics, export scope, migrations, or UI.
+- The measured route set covers public health/deployment, replay-owner auth,
+  persona lookup/detail, context preview, private archive retrieval, export
+  readback/bundle, observability, billing, and Developer Space routes.
+- The docs record only sanitized statuses, durations, counts, modes, booleans,
+  provider/cost labels, and support notes.
+- The no-code recommendation is supported for this single sample because no
+  measured route failed, timed out, regressed retrieval mode, exposed billing or
+  export gaps, or proved a concrete Redis/cache, Cloudflare, worker, provider,
+  archive, export, billing, or UI defect.
+- ARGUS reran public live health probes only. API/web health returned
+  `ok:true`, and API deployment readiness returned `ready:true` with sanitized
+  readiness labels. The API served runtime commit `297fc0a`, not this docs-only
+  head; that is acceptable for this no-code lane but should be rechecked before
+  any future deployed-code proof.
+
+ARGUS validation:
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Overclaim review | Pass | The result says no immediate code for one sanitized sample; it does not claim performance is optimized or permanently rule out future route/service work. |
+| Privacy review | Pass | No private archive text, prompts, completions, raw bodies, raw manifests, checkout/portal URLs, customer IDs, subscription IDs, owner IDs, persona IDs, Developer Space IDs, export IDs, trace IDs, cookies, JWTs, credentials, API keys, or `.env` values were committed. |
+| Public live health probes | Pass with caveat | API and web health returned `ok:true`; API deployment readiness returned `ready:true`; served runtime commit was `297fc0a`, not this docs-only head. |
+| `npx --yes pnpm@10.32.1 test:health` | Pass | 12 health/deployment tests passed. |
+| `npx --yes pnpm@10.32.1 test:replay-readiness` | Pass | 1 replay-readiness test passed. |
+| `npx --yes pnpm@10.32.1 test:persona-context` | Pass | 3 persona-context tests passed. |
+| `npx --yes pnpm@10.32.1 test:conversation-archive` | Pass | 5 archive/retry/retrieval tests passed. |
+| `npx --yes pnpm@10.32.1 test:exports` | Pass | 3 export readback/failure tests passed. |
+| `npx --yes pnpm@10.32.1 test:billing` | Pass | 4 billing tests passed. |
+| `npx --yes pnpm@10.32.1 --filter @station/api build` | Pass | API and required shared package builds passed. |
+| `git diff --check` | Pass | CRLF normalization warnings only. |
+
+ARGUS accepts PR 7 as an evidence-only/no-code baseline and recommends closing
+the lane.
+
 ## Backend/Product PR 6 Background Job Trigger Audit ARGUS review
 
 Validated on 2026-06-15 after DAEDALUS committed

@@ -3226,6 +3226,17 @@ when a PR lands, or when validation truth changes.
   not recorded. Recommendation: no code now. No route/service, Redis/cache,
   Cloudflare, worker, provider, billing, archive, export, or UI defect was
   proven by this sample.
+- PR 7 live replay optimization baseline is accepted by ARGUS, 2026-06-15: the
+  sanitized single-sample measurement supports no immediate code lane. ARGUS
+  found no committed private text, prompts, completions, raw response bodies,
+  raw manifests, checkout/portal URLs, customer IDs, subscription IDs, owner
+  IDs, persona IDs, Developer Space IDs, export IDs, trace IDs, cookies, JWTs,
+  credentials, API keys, or `.env` values. Public live health probes still
+  returned `ok:true` for API and web plus API deployment `ready:true`; the API
+  served runtime commit `297fc0a` rather than this docs-only head, which is
+  acceptable for this no-code evidence lane but must be rechecked before any
+  future deployed-code proof. Verdict: close PR 7 as evidence-only/no-code and
+  let MIMIR choose the next lane from evidence rather than architecture guesses.
 - PR 6 background-job trigger audit is accepted by ARGUS, 2026-06-15: no
   archive/import/export/replay flow currently proves a worker trigger. The
   upload `processUploadedFile(...).catch(...)` path remains a future-trigger

@@ -62,3 +62,30 @@ docs.
 No product code, route behavior, auth, billing, Stripe, Redis, Cloudflare,
 provider routing, embeddings, archive retrieval semantics, export scope,
 migrations, or UI changed.
+
+## ARGUS Review Result
+
+A3 / ARGUS accepts PR 7 on 2026-06-15 as an evidence-only/no-code baseline.
+
+Review findings:
+
+- The measured route set covers the requested public health, deployment,
+  replay-owner, persona, context-preview, private archive retrieval,
+  observability, billing, export, and Developer Space surfaces.
+- The result records statuses, durations, counts, modes, booleans, and
+  provider/cost labels only. It does not commit private archive text, prompts,
+  completions, raw response bodies, raw manifests, checkout or portal URLs,
+  customer IDs, subscription IDs, owner IDs, persona IDs, Developer Space IDs,
+  export IDs, trace IDs, cookies, JWTs, credentials, API keys, or `.env` values.
+- The no-code recommendation is supported for this single sample: no measured
+  route failed, timed out, regressed retrieval mode, exposed a billing gap,
+  broke export readback, or proved a Redis/cache, Cloudflare, worker, provider,
+  archive, export, billing, or UI defect.
+- ARGUS reran public live health probes only. API/web health returned `ok:true`,
+  and API deployment readiness returned `ready:true` with sanitized readiness
+  labels. The public API deployment identity still served runtime commit
+  `297fc0a`, not this docs-only head; that is acceptable for this no-code
+  evidence lane because product/runtime code did not change in PR 7.
+
+Future code lanes should re-check deployment identity against the target code
+commit before treating live evidence as a deployed-code proof.
