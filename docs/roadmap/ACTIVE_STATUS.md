@@ -3193,6 +3193,15 @@ when a PR lands, or when validation truth changes.
   Redis, Cloudflare, workers, Stripe, archive/import, and UI work remain out of
   scope.
 
+- MIMIR closes PR 5 and opens PR 6 background-job trigger audit,
+  2026-06-15: `docs/roadmap/PR6_BACKGROUND_JOB_TRIGGER_AUDIT.md` defines the next
+  bounded lane. Goal: avoid premature queue architecture. DAEDALUS should audit
+  archive/import/export/replay evidence for a concrete worker trigger, especially
+  file processing/fire-and-forget behavior, import retry/status, export readback,
+  and replay route timing. If no trigger is proven, PR 6 should close as
+  deferred; if a trigger is proven, name exactly one failing flow before any
+  worker shell is implemented.
+
 ## Near-term rule
 
 Do the boring foundation work before the attractive surface work:
