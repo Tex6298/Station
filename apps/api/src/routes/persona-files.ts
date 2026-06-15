@@ -104,6 +104,33 @@ personaFilesRouter.post("/persona/:personaId/register", async (req, res) => {
     return res.status(404).json({ error: "Persona not found." });
   }
 
+  const existingFile = await loadRegisteredFileByStoragePath(
+    persona.id,
+    userId,
+    parsed.data.storagePath
+  );
+  if (existingFile) {
+    let jobState: Awaited<ReturnType<typeof loadOrRepairFileImportJob>>;
+    try {
+      jobState = await loadOrRepairFileImportJob({
+        personaId: persona.id,
+        ownerUserId: userId,
+        sourceName: existingFile.file_name,
+      });
+    } catch (error) {
+      return res.status(500).json({ error: error instanceof Error ? error.message : "Import job repair failed." });
+    }
+
+    return res.json({
+      file: existingFile,
+      job: jobState.job,
+      duplicate: true,
+      idempotent: true,
+      repaired: jobState.repaired,
+      importJobAmbiguous: jobState.ambiguous,
+    });
+  }
+
   try {
     await reserveStorageBytes(userId, parsed.data.fileSize);
   } catch (error) {
@@ -214,3 +241,60 @@ personaFilesRouter.delete("/:id", async (req, res) => {
 
   return res.status(204).send();
 });
+
+async function loadRegisteredFileByStoragePath(
+  personaId: string,
+  ownerUserId: string,
+  storagePath: string
+) {
+  const sb = getSupabaseAdmin();
+  const { data, error } = await sb
+    .from("persona_files")
+    .select("id, persona_id, owner_user_id, file_name, file_type, file_size, storage_path, source_type, processed, created_at")
+    .eq("persona_id", personaId)
+    .eq("owner_user_id", ownerUserId)
+    .eq("storage_path", storagePath)
+    .limit(1);
+
+  if (error) return null;
+  return data?.[0] ?? null;
+}
+
+async function loadOrRepairFileImportJob(input: {
+  personaId: string;
+  ownerUserId: string;
+  sourceName: string;
+}) {
+  const sb = getSupabaseAdmin();
+  const { data, error } = await sb
+    .from("import_jobs")
+    .select("id, status")
+    .eq("persona_id", input.personaId)
+    .eq("owner_user_id", input.ownerUserId)
+    .eq("kind", "file")
+    .eq("source_name", input.sourceName)
+    .order("created_at", { ascending: false });
+
+  if (!error && data?.length === 1) {
+    return { job: data[0], repaired: false, ambiguous: false };
+  }
+
+  if (!error && data && data.length > 1) {
+    return { job: null, repaired: false, ambiguous: true };
+  }
+
+  const { data: job, error: jobErr } = await sb
+    .from("import_jobs")
+    .insert({
+      persona_id: input.personaId,
+      owner_user_id: input.ownerUserId,
+      kind: "file",
+      status: "queued",
+      source_name: input.sourceName,
+    })
+    .select("id, status")
+    .single();
+
+  if (jobErr || !job) throw new Error(jobErr?.message ?? "Import job repair failed.");
+  return { job, repaired: true, ambiguous: false };
+}

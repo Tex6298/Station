@@ -3078,6 +3078,16 @@ when a PR lands, or when validation truth changes.
   create duplicate file rows, create duplicate import jobs, or process the same
   uploaded source twice. Guardrail: do not dedupe by `fileName` alone, because
   same-name files at different storage paths are valid separate uploads.
+- PR 2 DAEDALUS file-register idempotency follow-up is ready for ARGUS review,
+  2026-06-15: `POST /persona-files/persona/:personaId/register` now treats an
+  exact owner/persona/storagePath retry as an explicit duplicate/idempotent
+  response before reserving storage. It reuses the existing file and safe import
+  job, repairs a missing file import job without charging bytes again, or
+  reports `importJobAmbiguous:true` instead of guessing when same-name file jobs
+  make the current job shape ambiguous. The fixture proves exact-path retry adds
+  no storage, file row, import job, or processing pass; same filename at a
+  different path still registers; same path under another persona does not
+  reuse; and another owner cannot reuse the original persona's registration.
 
 ## Near-term rule
 

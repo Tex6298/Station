@@ -5176,6 +5176,44 @@ were recorded. Remaining caveat: duplicate detection is scoped to completed
 chat imports with the same owner/persona/source name and existing archive rows;
 file-import idempotency is still future PR 2 work if needed.
 
+## Backend/Product PR 2 File-Register Follow-Up DAEDALUS validation
+
+Validated on 2026-06-15 after the file-register idempotency follow-up.
+
+Implementation summary:
+
+- `apps/api/src/routes/persona-files.ts` now checks for an existing
+  owner/persona/exact-`storagePath` file registration before reserving storage.
+- Exact-path retries return `duplicate:true` and `idempotent:true` with the
+  existing file/import job state when a single safe import job is found.
+- If the file row exists but no file import job is found, the route repairs the
+  missing queued import job without reserving storage again and reports
+  `repaired:true`.
+- If same-name file jobs make the current import-job shape ambiguous, the route
+  returns the existing file with `importJobAmbiguous:true` and `job:null`
+  instead of guessing.
+- The route still allows the same filename at a different storage path and does
+  not reuse registrations across owner or persona boundaries.
+- `apps/api/src/routes/storage.test.ts` covers exact storagePath retry, same
+  filename at a different path, ambiguous same-name job state, same storagePath
+  under another persona, other owner non-reuse, and existing rollback on job
+  failure.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `npx --yes pnpm@10.32.1 test:storage` | Pass | 8 storage/archive tests passed. |
+| `npx --yes pnpm@10.32.1 test:conversation-archive` | Pass | 5 archive/retry/retrieval tests passed. |
+| `npx --yes pnpm@10.32.1 test:persona-context` | Pass | 3 tests passed. |
+| `npx --yes pnpm@10.32.1 --filter @station/api build` | Pass | API and required shared package builds passed. |
+| `git diff --check` | Pass | No whitespace errors. |
+
+No secrets, raw credentials, cookies, tokens, private IDs, private excerpts,
+prompts, completions, raw response bodies, screenshots, or replay corpus text
+were recorded. Remaining caveat: duplicate file registration is keyed to exact
+owner/persona/storagePath. Existing import jobs are still matched by file source
+name because the current import job shape does not store `persona_file_id`, so
+same-name ambiguity is surfaced rather than resolved.
+
 ## Writing Featured Feed Follow-up ARGUS review
 
 Validated on 2026-06-14 after DAEDALUS patched the `/writing` Featured tab in

@@ -27,6 +27,7 @@ type Row = Record<string, any>;
 const OWNER_ID = "11111111-1111-4111-8111-111111111111";
 const OTHER_ID = "22222222-2222-4222-8222-222222222222";
 const PERSONA_ID = "33333333-3333-4333-8333-333333333333";
+const SECOND_PERSONA_ID = "44444444-4444-4444-8444-444444444444";
 
 class InMemorySupabase {
   tables: Record<string, Row[]> = {
@@ -57,6 +58,11 @@ class InMemorySupabase {
         id: PERSONA_ID,
         owner_user_id: OWNER_ID,
         name: "Harbor",
+      },
+      {
+        id: SECOND_PERSONA_ID,
+        owner_user_id: OWNER_ID,
+        name: "Beacon",
       },
     ],
     persona_files: [],
@@ -547,6 +553,120 @@ test("persona file upload preflight and registration keep storage accounting bal
     assert.equal(storageRow(db).bytes_used, 0);
     assert.equal(db.tables.persona_files.length, 0);
     assert.deepEqual(db.removedStoragePaths, ["owner/source.txt"]);
+  } finally {
+    resetStorageFake();
+  }
+});
+
+test("persona file registration is idempotent for exact owner persona storage paths", async () => {
+  const db = new InMemorySupabase();
+  setSupabaseAdminForTests(db.client as any);
+  const app = await createPersonaFilesApp();
+
+  try {
+    const registered = await requestJson(app, "POST", `/persona-files/persona/${PERSONA_ID}/register`, {
+      token: "owner-token",
+      body: {
+        fileName: "source.txt",
+        fileType: "text/plain",
+        fileSize: 10,
+        storagePath: "owner/source.txt",
+        processImmediately: false,
+      },
+    });
+
+    assert.equal(registered.status, 201);
+    assert.equal(storageRow(db).bytes_used, 10);
+    assert.equal(db.tables.persona_files.length, 1);
+    assert.equal(db.tables.import_jobs.length, 1);
+
+    const duplicate = await requestJson(app, "POST", `/persona-files/persona/${PERSONA_ID}/register`, {
+      token: "owner-token",
+      body: {
+        fileName: "source.txt",
+        fileType: "text/plain",
+        fileSize: 10,
+        storagePath: "owner/source.txt",
+        processImmediately: false,
+      },
+    });
+
+    assert.equal(duplicate.status, 200);
+    assert.equal(duplicate.body.duplicate, true);
+    assert.equal(duplicate.body.idempotent, true);
+    assert.equal(duplicate.body.repaired, false);
+    assert.equal(duplicate.body.file.id, registered.body.file.id);
+    assert.equal(duplicate.body.job.id, registered.body.job.id);
+    assert.equal(storageRow(db).bytes_used, 10);
+    assert.equal(db.tables.persona_files.length, 1);
+    assert.equal(db.tables.import_jobs.length, 1);
+
+    const sameNameDifferentPath = await requestJson(app, "POST", `/persona-files/persona/${PERSONA_ID}/register`, {
+      token: "owner-token",
+      body: {
+        fileName: "source.txt",
+        fileType: "text/plain",
+        fileSize: 11,
+        storagePath: "owner/source-copy.txt",
+        processImmediately: false,
+      },
+    });
+
+    assert.equal(sameNameDifferentPath.status, 201);
+    assert.equal(storageRow(db).bytes_used, 21);
+    assert.equal(db.tables.persona_files.length, 2);
+    assert.equal(db.tables.import_jobs.length, 2);
+
+    const ambiguousJobDuplicate = await requestJson(app, "POST", `/persona-files/persona/${PERSONA_ID}/register`, {
+      token: "owner-token",
+      body: {
+        fileName: "source.txt",
+        fileType: "text/plain",
+        fileSize: 10,
+        storagePath: "owner/source.txt",
+        processImmediately: false,
+      },
+    });
+
+    assert.equal(ambiguousJobDuplicate.status, 200);
+    assert.equal(ambiguousJobDuplicate.body.duplicate, true);
+    assert.equal(ambiguousJobDuplicate.body.idempotent, true);
+    assert.equal(ambiguousJobDuplicate.body.importJobAmbiguous, true);
+    assert.equal(ambiguousJobDuplicate.body.job, null);
+    assert.equal(storageRow(db).bytes_used, 21);
+    assert.equal(db.tables.persona_files.length, 2);
+    assert.equal(db.tables.import_jobs.length, 2);
+
+    const samePathDifferentPersona = await requestJson(app, "POST", `/persona-files/persona/${SECOND_PERSONA_ID}/register`, {
+      token: "owner-token",
+      body: {
+        fileName: "source.txt",
+        fileType: "text/plain",
+        fileSize: 12,
+        storagePath: "owner/source.txt",
+        processImmediately: false,
+      },
+    });
+
+    assert.equal(samePathDifferentPersona.status, 201);
+    assert.equal(storageRow(db).bytes_used, 33);
+    assert.equal(db.tables.persona_files.length, 3);
+    assert.equal(db.tables.import_jobs.length, 3);
+
+    const otherOwnerRetry = await requestJson(app, "POST", `/persona-files/persona/${PERSONA_ID}/register`, {
+      token: "other-token",
+      body: {
+        fileName: "source.txt",
+        fileType: "text/plain",
+        fileSize: 10,
+        storagePath: "owner/source.txt",
+        processImmediately: false,
+      },
+    });
+
+    assert.equal(otherOwnerRetry.status, 404);
+    assert.equal(db.tables.persona_files.length, 3);
+    assert.equal(db.tables.import_jobs.length, 3);
   } finally {
     resetStorageFake();
   }
