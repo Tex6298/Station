@@ -5740,3 +5740,47 @@ prompts, completions, raw response bodies, screenshots, or replay corpus text
 were recorded. ARGUS accepts the PR 2 chat-import idempotency slice after
 hardening. PR 2 should continue with file-import/register idempotency follow-up
 rather than close.
+
+## Backend/Product PR 2 File Register Idempotency ARGUS review
+
+Validated on 2026-06-15 after DAEDALUS added file registration idempotency in
+commit `a651c7f` and ARGUS hardened read-failure behavior before acceptance.
+
+Implementation reviewed:
+
+- `POST /persona-files/persona/:personaId/register` checks exact
+  owner/persona/storagePath before reserving storage.
+- Exact duplicate registration returns the existing file state with
+  `duplicate:true` and `idempotent:true`.
+- A single safe matching file import job is reused; a missing job is repaired
+  without charging storage; ambiguous same-name job state returns
+  `importJobAmbiguous:true` with `job:null` instead of guessing.
+- Same file name at a different storage path remains a valid separate upload.
+- Same storage path under a different persona does not reuse the first persona
+  file, and another owner cannot reuse the registration.
+- ARGUS patched duplicate lookup failures to fail closed so read errors cannot
+  create a new file row, storage charge, or repair import job.
+
+ARGUS validation:
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Exact storagePath retry review | Pass | Retry returns the existing file/job state without adding storage, file rows, jobs, or processing passes. |
+| Same-name different-path review | Pass | Same `fileName` at another `storagePath` still registers as a separate upload. |
+| Owner/persona scope review | Pass | Other owners and other persona scopes cannot reuse the original registration. |
+| Ambiguous job review | Pass | Same-name multiple job state is surfaced as ambiguous instead of guessed. |
+| Lookup failure review | Patched then pass | `persona_files` and `import_jobs` read failures now return 500 without extra storage or job/file rows. |
+| Rollback review | Pass | Failed job creation still releases bytes and removes the inserted file/storage object. |
+| Overclaim review | Pass with caveat | This closes PR 2 for alpha replay/import robustness only; database uniqueness/concurrent retry guarantees and direct file-job association remain future infrastructure work. |
+| `npx --yes pnpm@10.32.1 test:storage` | Pass | 9 storage/import tests passed after ARGUS hardening. |
+| `npx --yes pnpm@10.32.1 test:conversation-archive` | Pass | 5 archive/conversation tests passed. |
+| `npx --yes pnpm@10.32.1 test:persona-context` | Pass | 3 persona context tests passed. |
+| `npx --yes pnpm@10.32.1 --filter @station/api build` | Pass | API and required shared package builds passed. |
+| `git diff --check` | Pass | No whitespace errors in DAEDALUS's patch or ARGUS's hardening. |
+
+No secrets, raw credentials, cookies, tokens, private IDs, private excerpts,
+prompts, completions, raw response bodies, screenshots, or replay corpus text
+were recorded. ARGUS accepts the PR 2 file-register idempotency follow-up after
+hardening and recommends closing PR 2 for alpha replay/import robustness. Future
+work should handle database-level uniqueness/concurrent retry guarantees,
+direct file-job association, and full worker/job orchestration separately.

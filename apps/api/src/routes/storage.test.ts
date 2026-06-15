@@ -75,6 +75,7 @@ class InMemorySupabase {
   };
 
   failInsertTables = new Set<string>();
+  failSelectTables = new Set<string>();
   removedStoragePaths: string[] = [];
   signedUploadPaths: string[] = [];
   rpcCalls: Array<{ functionName: string; args: Record<string, unknown> }> = [];
@@ -324,6 +325,9 @@ class QueryBuilder {
       this.db.tables[this.table] = this.db.rows(this.table).filter((row) => !rowsToDelete.has(row));
       rows = [...rowsToDelete];
     } else {
+      if (this.db.failSelectTables.has(this.table)) {
+        return { data: null, error: { message: `Forced select failure for ${this.table}.` } };
+      }
       rows = this.matchingRows();
     }
 
@@ -694,6 +698,69 @@ test("persona file registration rolls back reserved bytes and file rows after jo
     assert.equal(storageRow(db).bytes_used, 0);
     assert.equal(db.tables.persona_files.length, 0);
     assert.deepEqual(db.removedStoragePaths, ["owner/bad-source.txt"]);
+  } finally {
+    resetStorageFake();
+  }
+});
+
+test("persona file duplicate lookup failures fail closed without extra storage or jobs", async () => {
+  const db = new InMemorySupabase();
+  setSupabaseAdminForTests(db.client as any);
+  const app = await createPersonaFilesApp();
+
+  try {
+    const registered = await requestJson(app, "POST", `/persona-files/persona/${PERSONA_ID}/register`, {
+      token: "owner-token",
+      body: {
+        fileName: "source.txt",
+        fileType: "text/plain",
+        fileSize: 10,
+        storagePath: "owner/source.txt",
+        processImmediately: false,
+      },
+    });
+
+    assert.equal(registered.status, 201);
+    assert.equal(storageRow(db).bytes_used, 10);
+    assert.equal(db.tables.persona_files.length, 1);
+    assert.equal(db.tables.import_jobs.length, 1);
+
+    db.failSelectTables.add("persona_files");
+    const fileLookupFailed = await requestJson(app, "POST", `/persona-files/persona/${PERSONA_ID}/register`, {
+      token: "owner-token",
+      body: {
+        fileName: "source.txt",
+        fileType: "text/plain",
+        fileSize: 10,
+        storagePath: "owner/source.txt",
+        processImmediately: false,
+      },
+    });
+
+    assert.equal(fileLookupFailed.status, 500);
+    assert.match(fileLookupFailed.body.error, /persona_files/);
+    assert.equal(storageRow(db).bytes_used, 10);
+    assert.equal(db.tables.persona_files.length, 1);
+    assert.equal(db.tables.import_jobs.length, 1);
+
+    db.failSelectTables.delete("persona_files");
+    db.failSelectTables.add("import_jobs");
+    const jobLookupFailed = await requestJson(app, "POST", `/persona-files/persona/${PERSONA_ID}/register`, {
+      token: "owner-token",
+      body: {
+        fileName: "source.txt",
+        fileType: "text/plain",
+        fileSize: 10,
+        storagePath: "owner/source.txt",
+        processImmediately: false,
+      },
+    });
+
+    assert.equal(jobLookupFailed.status, 500);
+    assert.match(jobLookupFailed.body.error, /import_jobs/);
+    assert.equal(storageRow(db).bytes_used, 10);
+    assert.equal(db.tables.persona_files.length, 1);
+    assert.equal(db.tables.import_jobs.length, 1);
   } finally {
     resetStorageFake();
   }

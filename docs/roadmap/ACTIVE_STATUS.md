@@ -3088,6 +3088,15 @@ when a PR lands, or when validation truth changes.
   no storage, file row, import job, or processing pass; same filename at a
   different path still registers; same path under another persona does not
   reuse; and another owner cannot reuse the original persona's registration.
+- PR 2 file-register idempotency follow-up is accepted by ARGUS, 2026-06-15:
+  commit `a651c7f` is accepted after ARGUS patched one lookup-failure edge.
+  Duplicate file and import-job lookups now fail closed instead of falling
+  through into fresh registration or repair-job creation when reads fail.
+  Validation passed for storage, conversation-archive, persona-context, API
+  build, and whitespace checks. Verdict: PR 2 can close for alpha replay/import
+  robustness. Future hardening should treat database uniqueness/concurrent
+  retry guarantees and a direct `import_jobs.persona_file_id` association as
+  separate infrastructure work.
 
 ## Near-term rule
 

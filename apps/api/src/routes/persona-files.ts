@@ -104,11 +104,16 @@ personaFilesRouter.post("/persona/:personaId/register", async (req, res) => {
     return res.status(404).json({ error: "Persona not found." });
   }
 
-  const existingFile = await loadRegisteredFileByStoragePath(
-    persona.id,
-    userId,
-    parsed.data.storagePath
-  );
+  let existingFile: Awaited<ReturnType<typeof loadRegisteredFileByStoragePath>>;
+  try {
+    existingFile = await loadRegisteredFileByStoragePath(
+      persona.id,
+      userId,
+      parsed.data.storagePath
+    );
+  } catch (error) {
+    return res.status(500).json({ error: error instanceof Error ? error.message : "File lookup failed." });
+  }
   if (existingFile) {
     let jobState: Awaited<ReturnType<typeof loadOrRepairFileImportJob>>;
     try {
@@ -256,7 +261,7 @@ async function loadRegisteredFileByStoragePath(
     .eq("storage_path", storagePath)
     .limit(1);
 
-  if (error) return null;
+  if (error) throw new Error(error.message);
   return data?.[0] ?? null;
 }
 
@@ -275,11 +280,13 @@ async function loadOrRepairFileImportJob(input: {
     .eq("source_name", input.sourceName)
     .order("created_at", { ascending: false });
 
-  if (!error && data?.length === 1) {
+  if (error) throw new Error(error.message);
+
+  if (data?.length === 1) {
     return { job: data[0], repaired: false, ambiguous: false };
   }
 
-  if (!error && data && data.length > 1) {
+  if (data && data.length > 1) {
     return { job: null, repaired: false, ambiguous: true };
   }
 
