@@ -3257,6 +3257,16 @@ when a PR lands, or when validation truth changes.
   evidence lane, not permission to open Cloudflare, Redis memory, workers,
   provider switching, billing expansion, export scope, archive semantics, or
   broad UI without a concrete measured finding.
+- MIMIR closes PR 7 and opens PR 8 site-wide UI coherence,
+  2026-06-15: `docs/roadmap/PR8_SITE_WIDE_UI_COHERENCE.md` supersedes the
+  earlier too-comfortable visual closeout posture for the next active lane.
+  PR 7 found no immediate backend code need, while Marty's newer human-eye
+  feedback says the landing page direction has not carried through the rest of
+  Station. DAEDALUS should implement a frontend-only coherence pass across the
+  named public, community, Studio, Developer Space, Billing, and Settings route
+  set. This is not just `/discover`, not a decorative redesign, and not a
+  backend/config/auth/billing/provider lane. Live-looking controls must either
+  work or stop presenting as live.
 
 ## Near-term rule
 
