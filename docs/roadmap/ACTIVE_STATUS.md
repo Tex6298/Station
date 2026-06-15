@@ -3224,6 +3224,15 @@ when a PR lands, or when validation truth changes.
   and operational-cache `queue_state` support are not a broad background-worker
   implementation. Verdict: close PR 6 as no-trigger deferral; reopen workers
   only around a named failing flow with fresh evidence.
+- MIMIR closes PR 6 and opens PR 7 live replay optimization baseline,
+  2026-06-15: `docs/roadmap/PR7_LIVE_REPLAY_OPTIMIZATION_BASELINE.md` defines
+  the next bounded lane after the backend/product foundation pass. DAEDALUS
+  should measure the live Railway replay routes using ignored local replay-owner
+  credentials, record only sanitized statuses/durations/counts/modes/provider
+  labels, and recommend exactly one next lane or no immediate code. This is an
+  evidence lane, not permission to open Cloudflare, Redis memory, workers,
+  provider switching, billing expansion, export scope, archive semantics, or
+  broad UI without a concrete measured finding.
 
 ## Near-term rule
 
