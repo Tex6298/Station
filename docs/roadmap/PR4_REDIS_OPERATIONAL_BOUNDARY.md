@@ -9,8 +9,8 @@ Prerequisite: PR 3 Stripe paid-path proof accepted by A3 / ARGUS in
 
 Owner: A2 / DAEDALUS first, then A3 / ARGUS.
 
-Status: DAEDALUS result is ready for ARGUS review. See
-`docs/roadmap/PR4_REDIS_OPERATIONAL_BOUNDARY_RESULT.md`.
+Status: ARGUS accepted the result on 2026-06-15 and recommends closing PR 4.
+See `docs/roadmap/PR4_REDIS_OPERATIONAL_BOUNDARY_RESULT.md`.
 
 ## Goal
 

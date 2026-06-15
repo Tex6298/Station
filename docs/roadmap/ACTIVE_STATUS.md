@@ -3147,6 +3147,16 @@ when a PR lands, or when validation truth changes.
   infrastructure only; canonical memory stays out of scope pending a separate
   durability/export/deletion/audit decision. Validation passed for
   operational-cache, health, replay-readiness, API build, and whitespace.
+- PR 4 Redis operational boundary result is accepted by ARGUS, 2026-06-15:
+  readiness status remains non-secret, TCP Redis/Valkey config fails closed as
+  configured-but-disabled without a concrete TCP client, Upstash REST is the
+  only enabled provider path, cache keys stay environment and owner/persona/
+  Developer Space scoped, TTLs remain short and purpose-specific, and
+  replay-readiness no longer overstates cache-provider selection as a blocker.
+  ARGUS patched one adjacent staging-readiness truth row so Stripe mode no
+  longer contradicts the accepted PR 3 paid activation proof. Verdict: PR 4 can
+  close for bounded Redis/Valkey/Upstash operational-cache boundary hardening;
+  Redis-backed memory remains a future durability/export/deletion/audit lane.
 
 ## Near-term rule
 

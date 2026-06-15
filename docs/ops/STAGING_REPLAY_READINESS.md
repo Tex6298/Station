@@ -60,7 +60,7 @@ populated replay measurement pass:
 | Supabase project | Configured on Railway `@station/api`; do not print secrets. |
 | Supabase auth settings | Proven for the Railway web URL and `/reset-password/update`. |
 | Storage bucket | Private `persona-files` bucket proven by public readiness. |
-| Stripe mode | Test-mode config is present; replay still needs a test-flow smoke if billing is exercised. |
+| Stripe mode | Bounded test-mode paid activation proof is accepted; keep billing rehearsal in Stripe test mode only. |
 | Replay account | Create or confirm one non-production test user without committing credentials. |
 | Replay data policy | First pass should use existing UI/API paths; add a narrow seed/helper only if those paths cannot populate the corpus. |
 | Remote status | Public `/health/deployment` must remain `ready:true` for the commit under review. |

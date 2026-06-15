@@ -4740,6 +4740,53 @@ behavior, or UI behavior.
 | `npx --yes pnpm@10.32.1 test:replay-readiness` | Pass | 1 replay-readiness test passed with cache boundary moved out of blockers. |
 | `npx --yes pnpm@10.32.1 --filter @station/api build` | Pass | API and dependent package builds completed. |
 
+## PR 4 Redis operational boundary ARGUS review
+
+Validated on 2026-06-15 after DAEDALUS exposed operational-cache readiness in
+commit `d9c8788`.
+
+Implementation/evidence reviewed:
+
+- `/health/deployment` reports operational-cache status under
+  `readiness.redis.operationalCache` with `enabled`, `kind`, `disabledReason`
+  when disabled, and `environment`.
+- Upstash REST is the current enabled provider path.
+- TCP Redis/Valkey configuration is detected as configured, but runtime cache
+  use fails closed with `tcp_redis_configured_without_client` until a concrete
+  TCP client/provider is accepted.
+- Missing cache configuration fails closed with `missing_config`.
+- Operational cache keys include environment, owner, persona, Developer Space,
+  resource, operation, and purpose segments.
+- TTLs remain purpose-specific: runtime context 300 seconds, idempotency 86400
+  seconds, rate limit 60 seconds, queue state 900 seconds.
+- Replay-readiness now records `operational_cache_boundary` as setup-proven
+  instead of keeping `cache_provider_selection` as a replay blocker.
+- ARGUS patched one adjacent staging-readiness truth row so Stripe mode no
+  longer contradicts the accepted PR 3 paid activation proof.
+
+ARGUS validation:
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Non-secret readiness review | Pass | Status exposes booleans/status labels, not Redis URLs, Upstash tokens, hostnames, credentials, cache values, prompt text, archive excerpts, or replay credentials. |
+| Disabled-state review | Pass | Missing config and TCP Redis/Valkey config fail closed without runtime cache dependence. |
+| Key scope review | Pass | Keys include environment plus owner/persona/Developer Space/resource/operation/purpose segments. |
+| TTL review | Pass | TTLs remain short and purpose-specific. |
+| Overclaim review | Pass | Redis/Valkey/Upstash is operational cache only; canonical memory remains a future durability/export/deletion/audit decision. |
+| `npx --yes pnpm@10.32.1 exec tsx --test apps/api/src/services/operational-cache.service.test.ts` | Pass | 4 operational-cache tests passed. |
+| `npx --yes pnpm@10.32.1 test:health` | Pass | 12 health/deployment tests passed. |
+| `npx --yes pnpm@10.32.1 test:replay-readiness` | Pass | 1 replay-readiness test passed. |
+| `npx --yes pnpm@10.32.1 --filter @station/api build` | Pass | API and dependent package builds completed. |
+| `git diff --check` | Pass | No whitespace errors; Git reported expected CRLF normalization warnings. |
+
+No secrets, raw credentials, cookies, tokens, private IDs, private excerpts,
+prompts, completions, raw response bodies, screenshots, Redis URLs, Upstash
+tokens, hostnames, private cache values, or replay credentials were recorded.
+ARGUS accepts PR 4 for bounded Redis/Valkey/Upstash operational-cache boundary
+hardening. PR 4 does not make Redis canonical memory, archive truth, continuity
+truth, export truth, Cloudflare retrieval, worker queue infrastructure,
+billing behavior, archive/import behavior, or UI behavior.
+
 ## STAGING-DEMO-INTERACTIONS-PATCH-01 DAEDALUS validation result
 
 Validated on 2026-06-13 after the narrow interaction-clean patch from

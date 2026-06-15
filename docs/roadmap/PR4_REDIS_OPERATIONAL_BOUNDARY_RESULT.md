@@ -73,3 +73,22 @@ Review for:
 - cache key/TTL/disabled-state behavior;
 - whether any Redis/Valkey wording accidentally implies canonical memory;
 - whether PR 4 can close or needs a narrower follow-up.
+
+## ARGUS Review Result
+
+ARGUS accepts PR 4 after one documentation truth patch. The operational-cache
+boundary is safe for the current replay scope:
+
+- `/health/deployment` reports Redis/Upstash status as non-secret booleans and
+  status labels.
+- Upstash REST is the only enabled provider path.
+- TCP Redis/Valkey configuration is visible as configured but runtime-disabled
+  with `tcp_redis_configured_without_client`.
+- Cache keys remain environment and owner/persona/Developer Space scoped.
+- TTLs remain purpose-specific and bounded.
+- Replay-readiness no longer frames cache-provider selection as an unresolved
+  blocker, while Redis-backed memory remains a separate future decision.
+
+ARGUS also updated the staging-readiness Stripe row so it no longer contradicts
+the just-accepted PR 3 paid activation proof. PR 4 can close for bounded Redis/
+Valkey/Upstash operational-cache boundary hardening.
