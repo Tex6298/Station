@@ -110,8 +110,9 @@ Run from this Windows repo shell on 2026-06-15:
 
 ## Exit decision
 
-PR 0 can be considered complete when ARGUS accepts this document for overclaim
-and no-secret safety. The next implementation lane should be PR 1 from
+ARGUS accepted this document for overclaim and no-secret safety on 2026-06-15.
+PR 0 is complete as staging alpha closure/evidence alignment. The next
+implementation lane is clear for MIMIR to open as PR 1 from
 `docs/roadmap/STATION_BACKEND_PRODUCT_PR_PLAN.md`: replay memory/retrieval
 quality. Do not reopen broad UI or create Redis/Cloudflare/worker lanes unless
 new replay evidence forces a bounded lane.

@@ -2984,6 +2984,14 @@ when a PR lands, or when validation truth changes.
   deployment identity checks at `bfe60aa`, and PR 0 validation. This is not a
   product-complete backend claim; PR 1 replay memory/retrieval quality remains
   unstarted until ARGUS accepts the closure doc or requests fixes.
+- PR 0 is accepted by ARGUS, 2026-06-15: the staging alpha closure/evidence
+  document is conservative enough to close the accepted replay as alpha-proof,
+  not as product-complete backend status. ARGUS revalidated health,
+  replay-readiness, API build, the documented Windows web-build symlink failure,
+  live web/API health and deployment identity at `bfe60aa`, and the
+  unauthenticated replay-readiness `401` boundary. Secret-pattern review found
+  no new exposed secret values in the PR 0 docs. PR 1 replay memory/retrieval
+  quality is clear for MIMIR to open.
 
 ## Near-term rule
 

@@ -5451,3 +5451,40 @@ implementation.
 No secrets, raw credentials, cookies, tokens, private IDs, private excerpts,
 prompts, completions, raw response bodies, screenshots, or replay corpus text
 were recorded.
+
+## Backend/Product PR 0 ARGUS review
+
+Validated on 2026-06-15 after DAEDALUS prepared
+`docs/roadmap/STAGING_ALPHA_CLOSURE_STATUS.md` in commit `68be3a4`.
+
+Implementation reviewed:
+
+- The PR 0 patch is docs/evidence alignment only.
+- The closure document frames current staging as alpha-proof, not product
+  complete.
+- Dependency readiness is recorded as source/live booleans and metadata, not
+  secret values.
+- Redis, Cloudflare retrieval, workers, queues, and broad UI are explicitly
+  deferred unless new replay evidence opens a bounded lane.
+- PR 1 replay memory/retrieval quality remains the next planned product lane.
+
+ARGUS validation:
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Overclaim review | Pass | The document does not claim production-grade retrieval, product-complete backend status, Redis canonical memory, implemented workers, or required Cloudflare retrieval. |
+| No-secret review | Pass | New PR 0 docs name readiness flags and services but do not include secret values, raw credentials, cookies, tokens, private IDs, private excerpts, prompts, completions, raw response bodies, screenshots, or replay corpus text. |
+| Secret-pattern scan | Pass | Matches in changed scope were readiness labels such as service-role key, not copied credential values; broader historical docs still contain old explanatory references. |
+| Live API `/health` | Pass | Returned `ok:true`. |
+| Live web `/health` | Pass | Returned `ok:true`. |
+| Live API `/health/deployment` | Pass | Returned `ok:true`, `ready:true`, nested Railway identity at `bfe60aa23d3a9b014e3b18f7520d9b7e719279b6`, branch `main`, service `@station/api`, and sanitized readiness booleans only. |
+| Live web `/health/deployment` | Pass | Returned `ok:true`, `ready:true`, Railway identity at `bfe60aa23d3a9b014e3b18f7520d9b7e719279b6`, branch `main`, service `@station/web`. |
+| Live replay-readiness unauthenticated probe | Pass | Returned HTTP `401`, matching the auth-protected readiness boundary. |
+| `npx --yes pnpm@10.32.1 test:health` | Pass | 11 health/deployment tests passed. |
+| `npx --yes pnpm@10.32.1 test:replay-readiness` | Pass | 1 replay-readiness test passed after required package builds. |
+| `npx --yes pnpm@10.32.1 --filter @station/api build` | Pass | API and required shared package builds passed. |
+| `npx --yes pnpm@10.32.1 --filter @station/web build` | Local environment failure after successful compile/type/page generation | Reproduced the documented Windows standalone symlink `EPERM` after successful compile, lint/type checks, and 28 generated static pages. |
+| `git diff --check 68be3a4^..68be3a4` | Pass | No whitespace errors in DAEDALUS's PR 0 docs patch. |
+
+ARGUS accepts PR 0 as staging alpha closure/evidence alignment. PR 1 replay
+memory/retrieval quality is clear for MIMIR to open.
