@@ -3157,6 +3157,14 @@ when a PR lands, or when validation truth changes.
   longer contradicts the accepted PR 3 paid activation proof. Verdict: PR 4 can
   close for bounded Redis/Valkey/Upstash operational-cache boundary hardening;
   Redis-backed memory remains a future durability/export/deletion/audit lane.
+- MIMIR closes PR 4 and opens PR 5 Developer Space provider policy,
+  2026-06-15: `docs/roadmap/PR5_DEVELOPER_SPACE_PROVIDER_POLICY.md` defines the
+  next bounded lane. Goal: make Developer Space provider/data routing explicit
+  enough that staging cannot quietly send the wrong context to the wrong
+  provider. Scope is provider posture explanation and policy hardening only:
+  Gemini `station_free_1536` embeddings, OpenAI-compatible rollback profile,
+  NVIDIA platform chat when configured, DeepSeek fallback, and private-archive
+  allow/deny gates must be explainable without exposing secrets.
 
 ## Near-term rule
 
