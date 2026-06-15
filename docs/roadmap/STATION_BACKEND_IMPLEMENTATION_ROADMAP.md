@@ -300,29 +300,19 @@ Default order:
 
 Immediate active task:
 
-- STAGING-CLOSEOUT-01 is ARGUS-accepted for the current staging truth:
-  setup/config, populated Gemini retrieval, deployed API replay, browser/mobile
-  replay, portable export readback, and non-zero-token observability are
-  accepted enough for staging replay.
-- `REPLAY-OPT-01` is accepted as defensive vector-memory quality/privacy
-  hardening.
-- `REPLAY-OPT-02` is accepted as a shared query-embedding optimization with a
-  measurement caveat: current health output does not prove the served Git SHA.
-- `REPLAY-OPT-03` is accepted as non-secret deployment identity metadata.
-- `REPLAY-OPT-04` is accepted as code-tied sanitized replay evidence, not a
-  performance-win claim.
-- STAGING-DEMO-01 is accepted as seeded non-paid demo readiness.
-- STAGING-DEMO-RUN-01 is open for ARIADNE as a non-paid seeded staging demo
-  rehearsal. Paid activation is excluded unless the external Stripe test action
-  is completed first.
-- STAGING-DEMO-MEMORY-01 is accepted and live-proven by ARIADNE's narrow rerun;
-  STAGING-DEMO-BROWSER-01 is open for a true browser click-through with
-  localStorage-backed auth and mobile checks.
-- STAGING-DEMO-BROWSER-02 is accepted. STAGING-DEMO-NARRATIVE-01 is open for
-  ARIADNE to prepare the human demo run-of-show and safe claim boundaries.
-- STAGING-DEMO-NARRATIVE-01 is accepted. STAGING-DEMO-HUMAN-01 is pending Marty
-  for one non-paid human rehearsal using
-  `docs/roadmap/STAGING_DEMO_NARRATIVE_ARIADNE.md`.
-- Carry Stripe paid subscription activation as the only active external demo
-  blocker, and keep Redis/Cloudflare/background jobs as future lanes driven by
-  replay evidence rather than assumptions.
+- `docs/roadmap/STATION_BACKEND_PRODUCT_PR_PLAN.md` is now the source-of-truth
+  sequence for the next backend/product lanes.
+- PR 0 is the active next lane: staging alpha closure plus source/live evidence
+  alignment. It should consolidate the current Railway/Supabase/Gemini/NVIDIA/
+  Stripe/Redis readiness claims, replay evidence links or commands, and the
+  alpha-proof/product-complete boundary into one concise status.
+- Do not assign broad checking back to Marty. ARIADNE owns human-eye rehearsals
+  when a lane changes the user journey or when a concrete staging-facing defect
+  needs verification.
+- After PR 0, proceed in order unless MIMIR reorders from fresh evidence:
+  replay memory/retrieval quality, archive/import robustness, Stripe paid-path
+  proof, Redis boundary hardening, provider policy, and workers only if replay
+  or import pain forces them.
+- Carry Cloudflare adapter work, Redis working memory, broad UI polish, and
+  background-worker platform work as deferred unless a concrete replay objective
+  forces a bounded lane.

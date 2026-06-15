@@ -2970,6 +2970,13 @@ when a PR lands, or when validation truth changes.
   The settings placeholder-control defect and mobile overlap defect are closed.
   Do not reopen this lane unless a fresh human-eye run finds a new concrete
   `/settings` defect.
+- MIMIR adds the backend/product PR sequence, 2026-06-15:
+  `docs/roadmap/STATION_BACKEND_PRODUCT_PR_PLAN.md` is the source-of-truth plan
+  for PR 0 through PR 6 after the accepted staging replay. PR 0 is active:
+  staging alpha closure plus source/live evidence alignment. Broad UI remains
+  closed unless ARIADNE finds a concrete staging-facing defect; Redis working
+  memory, Cloudflare retrieval, and workers stay deferred unless replay evidence
+  forces a bounded lane.
 
 ## Near-term rule
 
