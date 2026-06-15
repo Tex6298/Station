@@ -5082,6 +5082,38 @@ No secrets, raw credentials, cookies, tokens, private IDs, private excerpts,
 prompts, completions, raw response bodies, screenshots, or replay corpus text
 were recorded.
 
+## Backend/Product PR 1 DAEDALUS validation
+
+Validated on 2026-06-15 after adding replay-safe retrieval trace metadata to
+persona runtime context.
+
+Implementation summary:
+
+- `packages/ai/src/retrieval/semantic-search.ts` now exposes
+  `searchMemoryWithTrace`, including memory retrieval mode, fallback mode,
+  selected memory ids/titles/reasons, lifecycle/owner/archive skip counts, and
+  active embedding profile metadata.
+- `packages/ai/src/retrieval/context-builder.ts` now includes a replay-safe
+  `context.trace` object with selected source metadata and retrieval skip
+  counts. It does not add private excerpts to the trace.
+- `apps/api/src/routes/persona-context.test.ts` proves selected safe metadata,
+  lifecycle skip counts, Gemini `station_free_1536` trace metadata, and that
+  rejected/superseded/private excerpt text is not present in the trace.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `npx --yes pnpm@10.32.1 test:persona-context` | Pass | 3 tests passed. |
+| `npx --yes pnpm@10.32.1 test:conversation-archive` | Pass | 5 tests passed. |
+| `npx --yes pnpm@10.32.1 test:continuity` | Pass | 4 tests passed. |
+| `npx --yes pnpm@10.32.1 exec tsx --test packages/ai/test/retrieval-metadata.test.ts` | Pass | 6 retrieval metadata tests passed. |
+| `npx --yes pnpm@10.32.1 --filter @station/api build` | Pass | API and required shared package builds passed. |
+
+No secrets, raw credentials, cookies, tokens, private IDs, private excerpts,
+prompts, completions, raw response bodies, screenshots, or replay corpus text
+were recorded. Remaining quality caveat: this slice improves retrieval
+explainability and skip accounting; it does not retune ranking or add a new
+retrieval backend.
+
 ## Writing Featured Feed Follow-up ARGUS review
 
 Validated on 2026-06-14 after DAEDALUS patched the `/writing` Featured tab in

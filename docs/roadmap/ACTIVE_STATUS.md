@@ -2984,6 +2984,16 @@ when a PR lands, or when validation truth changes.
   deployment identity checks at `bfe60aa`, and PR 0 validation. This is not a
   product-complete backend claim; PR 1 replay memory/retrieval quality remains
   unstarted until ARGUS accepts the closure doc or requests fixes.
+- PR 1 DAEDALUS retrieval-quality slice is ready for ARGUS review,
+  2026-06-15: persona runtime context now includes replay-safe retrieval trace
+  metadata for selected source ids/titles/reasons, memory lifecycle skip counts,
+  archive unauthoritative skips, retrieval/fallback mode, and the active
+  `station_free_1536` Gemini embedding profile. The focused fixture proves the
+  owner-selected memory/archive/canon context wins while rejected,
+  quarantined, expired, superseded, and other-owner material stays out of
+  runtime context and out of trace excerpts. Caveat: this slice improves
+  explainability and skip accounting; deeper ranking/relevance tuning remains
+  future PR 1 follow-up only if ARGUS/MIMIR asks for it.
 - PR 0 is accepted by ARGUS, 2026-06-15: the staging alpha closure/evidence
   document is conservative enough to close the accepted replay as alpha-proof,
   not as product-complete backend status. ARGUS revalidated health,

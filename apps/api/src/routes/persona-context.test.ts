@@ -10,6 +10,8 @@ process.env.SUPABASE_URL ??= "http://localhost";
 process.env.SUPABASE_ANON_KEY ??= "test-anon-key";
 process.env.SUPABASE_SERVICE_ROLE_KEY ??= "test-service-key";
 delete process.env.OPENAI_API_KEY;
+delete process.env.GEMINI_API_KEY;
+delete process.env.GOOGLE_API_KEY;
 
 type Row = Record<string, any>;
 
@@ -549,6 +551,38 @@ test("persona runtime context is owner-only and orders canon ahead of memory", a
       integrity: 2,
       archive: 2,
     });
+    assert.equal(context.trace.retrievalMode.memory, "keyword");
+    assert.equal(context.trace.retrievalMode.archive, "keyword");
+    assert.match(context.trace.retrievalMode.memoryFallback, /^(no_embedding_key|vector_error)$/);
+    assert.equal(context.trace.embedding.profileCode, "station_free_1536");
+    assert.equal(context.trace.embedding.provider, "gemini");
+    assert.equal(context.trace.embedding.dimension, 1536);
+    assert.deepEqual(context.trace.skipped.memory, {
+      archive_source: 0,
+      rejected: 1,
+      quarantined: 1,
+      expired: 1,
+      superseded: 1,
+      other_owner_or_missing: 0,
+    });
+    assert.deepEqual(
+      context.trace.selectedSources
+        .filter((source: Row) => source.type === "memory")
+        .map((source: Row) => source.id)
+        .sort(),
+      [MEMORY_REPLACEMENT_ID, "memory-1", "owner-block-1"].sort()
+    );
+    assert.equal(
+      context.trace.selectedSources.some((source: Row) => source.id === "memory-rejected"),
+      false
+    );
+    assert.equal(
+      context.trace.selectedSources.some((source: Row) => source.id === "memory-superseded"),
+      false
+    );
+    assert.equal(context.trace.selectedSources.every((source: Row) => source.content === undefined), true);
+    assert.doesNotMatch(JSON.stringify(context.trace), /The morning ritual is private continuity context/);
+    assert.doesNotMatch(JSON.stringify(context.trace), /source-notebook\.md \(text\/markdown\) - processed archive file/);
 
     assert.equal(context.sources[0].id, "canon-high");
     assert.equal(context.sources[1].id, "canon-low");

@@ -1,5 +1,13 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { activeEmbeddingRpcArgs, generateEmbedding } from "./embeddings";
+import {
+  ACTIVE_EMBEDDING_DIMENSION,
+  ACTIVE_EMBEDDING_INDEX_NAME,
+  ACTIVE_EMBEDDING_MODEL,
+  ACTIVE_EMBEDDING_PROFILE_CODE,
+  ACTIVE_EMBEDDING_PROVIDER,
+  activeEmbeddingRpcArgs,
+  generateEmbedding,
+} from "./embeddings";
 
 export interface MemorySearchResult {
   id: string;
@@ -11,6 +19,36 @@ export interface MemorySearchResult {
   relevanceWeight: number;
   similarity: number;
   lifecycleStatus?: string | null;
+}
+
+export type MemoryRetrievalMode = "vector" | "keyword";
+export type MemoryRetrievalFallback = "none" | "no_embedding_key" | "empty_query_embedding" | "vector_error";
+export type MemorySkipReason = "archive_source" | "rejected" | "quarantined" | "expired" | "superseded" | "other_owner_or_missing";
+
+export interface MemoryRetrievalTrace {
+  mode: MemoryRetrievalMode;
+  fallbackMode: MemoryRetrievalFallback;
+  searched: number;
+  selected: Array<{
+    id: string;
+    title: string | null;
+    reason: string;
+    score: number;
+    sourceType: string;
+  }>;
+  skipped: Record<MemorySkipReason, number>;
+  embedding: {
+    profileCode: string;
+    provider: string;
+    model: string;
+    dimension: number;
+    indexName: string;
+  };
+}
+
+export interface MemorySearchWithTrace {
+  results: MemorySearchResult[];
+  trace: MemoryRetrievalTrace;
 }
 
 export interface CanonResult {
@@ -34,18 +72,31 @@ export async function searchMemory(options: {
   queryEmbedding?: number[] | null;
   ownerUserId?: string;
 }): Promise<MemorySearchResult[]> {
+  const { results } = await searchMemoryWithTrace(options);
+  return results;
+}
+
+export async function searchMemoryWithTrace(options: {
+  supabase: SupabaseClient;
+  personaId: string;
+  query: string;
+  limit?: number;
+  embeddingApiKey?: string;
+  queryEmbedding?: number[] | null;
+  ownerUserId?: string;
+}): Promise<MemorySearchWithTrace> {
   const { supabase, personaId, query, limit = 6, embeddingApiKey, ownerUserId } = options;
   const hasPrecomputedEmbedding = hasOwn(options, "queryEmbedding");
 
   if (!hasValue(embeddingApiKey) && !hasPrecomputedEmbedding) {
-    return keywordFallbackSearch(supabase, personaId, query, limit, ownerUserId);
+    return keywordFallbackSearch(supabase, personaId, query, limit, ownerUserId, "no_embedding_key");
   }
 
   try {
     const embedding = hasPrecomputedEmbedding
       ? options.queryEmbedding
       : await generateEmbedding(query, embeddingApiKey, { useCase: "query" });
-    if (!embedding) return keywordFallbackSearch(supabase, personaId, query, limit, ownerUserId);
+    if (!embedding) return keywordFallbackSearch(supabase, personaId, query, limit, ownerUserId, "empty_query_embedding");
 
     // pgvector RPC - defined below in 003_rag_functions.sql
     const { data, error } = await supabase.rpc("match_memory_items", {
@@ -79,15 +130,25 @@ export async function searchMemory(options: {
       })
     );
 
-    return filterInjectableMemoryResults({
+    const filtered = await filterInjectableMemoryResults({
       supabase,
       personaId,
       ownerUserId,
       rows,
     });
+
+    return {
+      results: filtered.results,
+      trace: buildMemoryTrace({
+        mode: "vector",
+        fallbackMode: "none",
+        searched: rows.length,
+        selected: filtered.results,
+        skipped: filtered.skipped,
+      }),
+    };
   } catch {
-    // Fallback: keyword search
-    return keywordFallbackSearch(supabase, personaId, query, limit, ownerUserId);
+    return keywordFallbackSearch(supabase, personaId, query, limit, ownerUserId, "vector_error");
   }
 }
 
@@ -128,8 +189,9 @@ async function keywordFallbackSearch(
   personaId: string,
   query: string,
   limit: number,
-  ownerUserId?: string
-): Promise<MemorySearchResult[]> {
+  ownerUserId?: string,
+  fallbackMode: MemoryRetrievalFallback = "none"
+): Promise<MemorySearchWithTrace> {
   const memoryQuery = supabase
     .from("memory_items")
     .select("id, persona_id, title, content, summary, source_type, relevance_weight, archive_source_type")
@@ -141,14 +203,29 @@ async function keywordFallbackSearch(
 
   const { data } = await memoryQuery;
 
-  if (!data) return [];
+  if (!data) {
+    return {
+      results: [],
+      trace: buildMemoryTrace({
+        mode: "keyword",
+        fallbackMode,
+        searched: 0,
+        selected: [],
+        skipped: emptySkippedCounts(),
+      }),
+    };
+  }
   const lifecycleByMemoryId = await loadMemoryLifecycleMap(supabase, personaId, ownerUserId);
 
   const tokens = query.toLowerCase().split(/\s+/).filter(Boolean);
 
-  return data
-    .filter((row) => row.archive_source_type == null)
-    .filter((row) => isLifecycleInjectable(lifecycleByMemoryId.get(row.id)))
+  const skipped = emptySkippedCounts();
+  const results = data
+    .filter((row) => {
+      const reason = classifyMemorySkip(row, lifecycleByMemoryId.get(row.id));
+      if (reason) skipped[reason] += 1;
+      return !reason;
+    })
     .map((row) => {
       const haystack = `${row.title ?? ""} ${row.content} ${row.summary ?? ""}`.toLowerCase();
       const score = tokens.filter((t) => haystack.includes(t)).length;
@@ -166,6 +243,17 @@ async function keywordFallbackSearch(
     })
     .sort((a, b) => b.similarity - a.similarity || b.relevanceWeight - a.relevanceWeight)
     .slice(0, limit);
+
+  return {
+    results,
+    trace: buildMemoryTrace({
+      mode: "keyword",
+      fallbackMode,
+      searched: data.length,
+      selected: results,
+      skipped,
+    }),
+  };
 }
 
 async function loadMemoryLifecycleMap(
@@ -191,8 +279,10 @@ async function filterInjectableMemoryResults(input: {
   personaId: string;
   ownerUserId?: string;
   rows: MemorySearchResult[];
-}): Promise<MemorySearchResult[]> {
-  if (!input.ownerUserId || input.rows.length === 0) return input.rows;
+}): Promise<{ results: MemorySearchResult[]; skipped: Record<MemorySkipReason, number> }> {
+  if (!input.ownerUserId || input.rows.length === 0) {
+    return { results: input.rows, skipped: emptySkippedCounts() };
+  }
 
   const ids = input.rows.map((row) => row.id);
   const { data, error } = await input.supabase
@@ -205,26 +295,91 @@ async function filterInjectableMemoryResults(input: {
   if (error || !data) throw error ?? new Error("Could not validate memory search results.");
 
   const lifecycleByMemoryId = await loadMemoryLifecycleMap(input.supabase, input.personaId, input.ownerUserId);
-  const injectableIds = new Set(
-    data
-      .filter((row) => row.archive_source_type == null)
-      .filter((row) => isLifecycleInjectable(lifecycleByMemoryId.get(row.id)))
-      .map((row) => row.id)
-  );
+  const validationRowsById = new Map(data.map((row) => [row.id, row]));
+  const skipped = emptySkippedCounts();
+  const injectableIds = new Set<string>();
 
-  return input.rows.filter((row) => injectableIds.has(row.id));
+  for (const row of input.rows) {
+    const validationRow = validationRowsById.get(row.id);
+    if (!validationRow) {
+      skipped.other_owner_or_missing += 1;
+      continue;
+    }
+
+    const reason = classifyMemorySkip(validationRow, lifecycleByMemoryId.get(row.id));
+    if (reason) {
+      skipped[reason] += 1;
+      continue;
+    }
+
+    injectableIds.add(row.id);
+  }
+
+  return {
+    results: input.rows.filter((row) => injectableIds.has(row.id)),
+    skipped,
+  };
 }
 
-function isLifecycleInjectable(
+function classifyMemorySkip(
+  row: { archive_source_type?: string | null },
   lifecycle?: { status?: string | null; expires_at?: string | null; superseded_by_memory_item_id?: string | null }
 ) {
-  if (!lifecycle) return true;
-  if ((lifecycle.status ?? "active") !== "active") return false;
-  if (lifecycle.superseded_by_memory_item_id) return false;
-  if (!lifecycle.expires_at) return true;
+  if (row.archive_source_type != null) return "archive_source";
+  if (!lifecycle) return null;
+  if (lifecycle.superseded_by_memory_item_id || lifecycle.status === "superseded") return "superseded";
+  if (lifecycle.status === "rejected") return "rejected";
+  if (lifecycle.status === "quarantined") return "quarantined";
 
-  const expiresAt = Date.parse(lifecycle.expires_at);
-  return Number.isNaN(expiresAt) || expiresAt > Date.now();
+  if (lifecycle.expires_at) {
+    const expiresAt = Date.parse(lifecycle.expires_at);
+    if (!Number.isNaN(expiresAt) && expiresAt <= Date.now()) return "expired";
+  }
+
+  if ((lifecycle.status ?? "active") !== "active") return "rejected";
+  return null;
+}
+
+function emptySkippedCounts(): Record<MemorySkipReason, number> {
+  return {
+    archive_source: 0,
+    rejected: 0,
+    quarantined: 0,
+    expired: 0,
+    superseded: 0,
+    other_owner_or_missing: 0,
+  };
+}
+
+function buildMemoryTrace(input: {
+  mode: MemoryRetrievalMode;
+  fallbackMode: MemoryRetrievalFallback;
+  searched: number;
+  selected: MemorySearchResult[];
+  skipped: Record<MemorySkipReason, number>;
+}): MemoryRetrievalTrace {
+  return {
+    mode: input.mode,
+    fallbackMode: input.fallbackMode,
+    searched: input.searched,
+    selected: input.selected.map((row) => ({
+      id: row.id,
+      title: row.title,
+      reason: row.similarity > 0
+        ? `Selected by query match (${row.similarity.toFixed(2)}) and relevance weight.`
+        : "Selected by relevance weight fallback.",
+      score: row.similarity,
+      sourceType: row.sourceType,
+    })),
+    skipped: input.skipped,
+    embedding: {
+      profileCode: ACTIVE_EMBEDDING_PROFILE_CODE,
+      provider: ACTIVE_EMBEDDING_PROVIDER,
+      model: ACTIVE_EMBEDDING_MODEL,
+      dimension: ACTIVE_EMBEDDING_DIMENSION,
+      indexName: ACTIVE_EMBEDDING_INDEX_NAME,
+    },
+  };
 }
 
 function hasValue(value: string | null | undefined) {

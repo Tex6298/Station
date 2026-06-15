@@ -1,7 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { retrievePrivateArchive } from "./archive-retrieval";
 import { generateEmbedding } from "./embeddings";
-import { searchMemory, loadCanon } from "./semantic-search";
+import { searchMemoryWithTrace, loadCanon, type MemoryRetrievalTrace } from "./semantic-search";
 import { buildPersonaChatPrompt } from "../prompts/persona-chat";
 
 export interface PersonaContextInput {
@@ -57,10 +57,38 @@ export interface PersonaRuntimeContext {
   systemPrompt: string;
   counts: PersonaContextCounts;
   sources: PersonaContextSource[];
+  trace: PersonaRuntimeContextTrace;
   canon: PersonaContextSource[];
   memory: PersonaContextSource[];
   integrity: PersonaContextSource[];
   archive: PersonaContextSource[];
+}
+
+export interface PersonaRuntimeContextTrace {
+  retrievalMode: {
+    memory: MemoryRetrievalTrace["mode"];
+    archive: "vector" | "keyword";
+    memoryFallback: MemoryRetrievalTrace["fallbackMode"];
+  };
+  embedding: MemoryRetrievalTrace["embedding"];
+  selectedSources: Array<{
+    id: string;
+    type: PersonaContextSourceType;
+    title: string | null;
+    reason: string;
+    sourceType?: string | null;
+    priority: number;
+  }>;
+  skipped: {
+    memory: MemoryRetrievalTrace["skipped"];
+    archive: {
+      unauthoritative: number;
+    };
+  };
+  searched: {
+    memory: number;
+    archive: number;
+  };
 }
 
 /**
@@ -89,11 +117,11 @@ export async function assemblePersonaRuntimeContext(
 ): Promise<PersonaRuntimeContext> {
   const queryEmbeddingPromise = sharedQueryEmbedding(input.userQuery, input.embeddingApiKey);
 
-  const [canon, ownerMemory, memory, integrity, preferenceProfile, archive] = await Promise.all([
+  const [canon, ownerMemory, memoryRetrieval, integrity, preferenceProfile, archiveRetrieval] = await Promise.all([
     loadCanon(input.supabase, input.persona.id, input.maxCanon ?? 6, input.ownerUserId),
     loadOwnerMemoryBlocks(input, 4),
     queryEmbeddingPromise.then((queryEmbedding) =>
-      searchMemory({
+      searchMemoryWithTrace({
         supabase: input.supabase,
         personaId: input.persona.id,
         query: input.userQuery,
@@ -119,7 +147,7 @@ export async function assemblePersonaRuntimeContext(
     reason: "Always included canon, ordered by owner priority.",
   }));
 
-  const memorySources = memory.map<PersonaContextSource>((item) => ({
+  const memorySources = memoryRetrieval.results.map<PersonaContextSource>((item) => ({
     id: item.id,
     type: "memory",
     title: item.title,
@@ -137,7 +165,7 @@ export async function assemblePersonaRuntimeContext(
     ...integrity,
     ...ownerMemory,
     ...memorySources,
-    ...archive,
+    ...archiveRetrieval.sources,
   ];
 
   const systemPrompt = buildPersonaChatPrompt({
@@ -153,7 +181,7 @@ export async function assemblePersonaRuntimeContext(
       ...integrity.map((source) => formatSourceForPrompt(source)),
     ],
     memory: [...ownerMemory, ...memorySources].map((source) => source.content),
-    archive: archive.map((source) => formatSourceForPrompt(source)),
+    archive: archiveRetrieval.sources.map((source) => formatSourceForPrompt(source)),
   });
 
   return {
@@ -162,13 +190,39 @@ export async function assemblePersonaRuntimeContext(
       canon: canonSources.length,
       memory: ownerMemory.length + memorySources.length,
       integrity: integrity.length + (preferenceProfile ? 1 : 0),
-      archive: archive.length,
+      archive: archiveRetrieval.sources.length,
     },
     sources,
+    trace: {
+      retrievalMode: {
+        memory: memoryRetrieval.trace.mode,
+        archive: archiveRetrieval.mode,
+        memoryFallback: memoryRetrieval.trace.fallbackMode,
+      },
+      embedding: memoryRetrieval.trace.embedding,
+      selectedSources: sources.map((source) => ({
+        id: source.id,
+        type: source.type,
+        title: source.title,
+        reason: source.reason,
+        sourceType: source.sourceType,
+        priority: source.priority,
+      })),
+      skipped: {
+        memory: memoryRetrieval.trace.skipped,
+        archive: {
+          unauthoritative: archiveRetrieval.skippedUnauthoritative,
+        },
+      },
+      searched: {
+        memory: memoryRetrieval.trace.searched,
+        archive: archiveRetrieval.searched,
+      },
+    },
     canon: canonSources,
     memory: [...ownerMemory, ...memorySources],
     integrity: preferenceProfile ? [preferenceProfile, ...integrity] : integrity,
-    archive,
+    archive: archiveRetrieval.sources,
   };
 }
 
@@ -325,8 +379,15 @@ async function loadArchiveReferences(
   input: PersonaContextInput,
   limit: number,
   queryEmbedding?: number[] | null
-): Promise<PersonaContextSource[]> {
-  if (!input.ownerUserId) return [];
+): Promise<{
+  sources: PersonaContextSource[];
+  mode: "vector" | "keyword";
+  searched: number;
+  skippedUnauthoritative: number;
+}> {
+  if (!input.ownerUserId) {
+    return { sources: [], mode: "keyword", searched: 0, skippedUnauthoritative: 0 };
+  }
 
   const retrieval = await retrievePrivateArchive({
     supabase: input.supabase,
@@ -340,16 +401,21 @@ async function loadArchiveReferences(
   });
 
   if (retrieval.chunks.length > 0) {
-    return retrieval.chunks.map((chunk): PersonaContextSource => ({
-      id: chunk.id,
-      type: "archive",
-      title: chunk.citation.title,
-      content: chunk.excerpt,
-      priority: 30 + chunk.score,
-      reason: chunk.citation.reason,
-      sourceType: chunk.citation.sourceType,
-      createdAt: chunk.citation.createdAt ?? chunk.createdAt,
-    }));
+    return {
+      sources: retrieval.chunks.map((chunk): PersonaContextSource => ({
+        id: chunk.id,
+        type: "archive",
+        title: chunk.citation.title,
+        content: chunk.excerpt,
+        priority: 30 + chunk.score,
+        reason: chunk.citation.reason,
+        sourceType: chunk.citation.sourceType,
+        createdAt: chunk.citation.createdAt ?? chunk.createdAt,
+      })),
+      mode: retrieval.mode,
+      searched: retrieval.counts.searched,
+      skippedUnauthoritative: retrieval.counts.skippedUnauthoritative,
+    };
   }
 
   const fileLimit = Math.max(1, Math.ceil(limit / 3));
@@ -421,9 +487,14 @@ async function loadArchiveReferences(
     createdAt: row.created_at,
   }));
 
-  return [...files, ...imports, ...transcripts]
-    .sort((a, b) => (b.createdAt ?? "").localeCompare(a.createdAt ?? ""))
-    .slice(0, limit);
+  return {
+    sources: [...files, ...imports, ...transcripts]
+      .sort((a, b) => (b.createdAt ?? "").localeCompare(a.createdAt ?? ""))
+      .slice(0, limit),
+    mode: retrieval.mode,
+    searched: retrieval.counts.searched + files.length + imports.length + transcripts.length,
+    skippedUnauthoritative: retrieval.counts.skippedUnauthoritative,
+  };
 }
 
 function normalizeRule(label: string, value: string | null | undefined) {
