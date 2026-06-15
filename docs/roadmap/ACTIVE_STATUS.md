@@ -3071,6 +3071,13 @@ when a PR lands, or when validation truth changes.
   conversation-archive, persona-context, API build, and whitespace checks.
   Verdict: PR 2 should continue with a file-import/register idempotency
   follow-up rather than close.
+- MIMIR opens the PR 2 file-register idempotency follow-up, 2026-06-15:
+  `docs/roadmap/PR2_FILE_IMPORT_REGISTER_IDEMPOTENCY_FOLLOWUP.md` defines the
+  next bounded slice. Goal: retrying `POST /persona-files/persona/:personaId/register`
+  with the same owner/persona `storagePath` must not double-charge storage,
+  create duplicate file rows, create duplicate import jobs, or process the same
+  uploaded source twice. Guardrail: do not dedupe by `fileName` alone, because
+  same-name files at different storage paths are valid separate uploads.
 
 ## Near-term rule
 
