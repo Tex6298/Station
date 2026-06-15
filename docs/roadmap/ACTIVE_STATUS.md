@@ -3128,6 +3128,13 @@ when a PR lands, or when validation truth changes.
   credentials were added. Validation passed for billing, token credits, API
   build, health, replay-readiness, and whitespace. Verdict: PR 3 can close for
   bounded Stripe test-mode paid activation proof only.
+- MIMIR closes PR 3 and opens PR 4 Redis operational boundary hardening,
+  2026-06-15: `docs/roadmap/PR4_REDIS_OPERATIONAL_BOUNDARY.md` defines the next
+  bounded lane. Goal: keep Redis/Valkey/Upstash useful and boring for cache,
+  idempotency, rate-limit, and short-lived queue state. Current-lane guardrail:
+  do not silently treat Redis as canonical memory; future Redis-backed memory or
+  working-memory design remains a separate durability/export/deletion/audit
+  decision, not a blanket rejection.
 
 ## Near-term rule
 
