@@ -5664,3 +5664,41 @@ prompts, completions, raw response bodies, screenshots, or replay corpus text
 were recorded. ARGUS accepts the PR 1 ranking follow-up. PR 1 can close for
 bounded trace/ranking scope; future vector-RPC scoring or backfill work should
 require fresh replay evidence.
+
+## Backend/Product PR 2 Chat Import Idempotency ARGUS review
+
+Validated on 2026-06-15 after DAEDALUS added completed chat import source-name
+idempotency in commit `daa66ca`.
+
+Implementation reviewed:
+
+- `/imports/chat` remains owner/persona scoped before duplicate checks.
+- Explicit source-name duplicates reuse a completed chat import only when
+  `countImportArchiveRows` finds authoritative archive rows for that
+  owner/persona/job.
+- Duplicate response is explicit and creates no new import job or memory row.
+- ARGUS patched generic pasted-source names (`pasted-chat`, `pasted-archive`)
+  out of source-name dedupe so separate unnamed UI pastes are not silently
+  collapsed.
+- File registration/import idempotency is still open.
+
+ARGUS validation:
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Owner/persona duplicate review | Pass | Duplicate lookup remains scoped to the authenticated owner and target persona. |
+| Authoritative row review | Pass | The idempotent path only returns after archive rows exist for the completed job. |
+| Generic source-name data-loss review | Patched then pass | Generic blank-UI names no longer trigger source-name dedupe. |
+| Failed-source retrieval review | Pass | Existing failed-import and source-authoritative retrieval fixtures remain green. |
+| Overclaim review | Pass with follow-up | This accepts chat-import idempotency only; file registration/import idempotency remains PR 2 follow-up work. |
+| `npx --yes pnpm@10.32.1 test:storage` | Pass | 7 storage/import tests passed after ARGUS hardening. |
+| `npx --yes pnpm@10.32.1 test:conversation-archive` | Pass | 5 archive/conversation tests passed. |
+| `npx --yes pnpm@10.32.1 test:persona-context` | Pass | 3 persona context tests passed. |
+| `npx --yes pnpm@10.32.1 --filter @station/api build` | Pass | API and required shared package builds passed. |
+| `git diff --check daa66ca^..daa66ca` and `git diff --check` | Pass | No whitespace errors in DAEDALUS's patch or ARGUS's hardening. |
+
+No secrets, raw credentials, cookies, tokens, private IDs, private excerpts,
+prompts, completions, raw response bodies, screenshots, or replay corpus text
+were recorded. ARGUS accepts the PR 2 chat-import idempotency slice after
+hardening. PR 2 should continue with file-import/register idempotency follow-up
+rather than close.

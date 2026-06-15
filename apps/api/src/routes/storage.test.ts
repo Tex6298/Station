@@ -617,6 +617,29 @@ test("chat imports reserve text bytes and roll back when archive insert fails", 
     assert.equal(duplicate.body.chunksCreated, 1);
     assert.equal(db.tables.memory_items.length, 1);
     assert.equal(db.tables.import_jobs.length, 1);
+
+    const firstGenericPaste = await requestJson(app, "POST", "/imports/chat", {
+      token: "owner-token",
+      body: {
+        personaId: PERSONA_ID,
+        content: "first unnamed pasted archive",
+        sourceName: "pasted-archive",
+      },
+    });
+    assert.equal(firstGenericPaste.status, 201);
+
+    const secondGenericPaste = await requestJson(app, "POST", "/imports/chat", {
+      token: "owner-token",
+      body: {
+        personaId: PERSONA_ID,
+        content: "second unnamed pasted archive",
+        sourceName: "pasted-archive",
+      },
+    });
+    assert.equal(secondGenericPaste.status, 201);
+    assert.equal(secondGenericPaste.body.duplicate, undefined);
+    assert.equal(db.tables.memory_items.length, 3);
+    assert.equal(db.tables.import_jobs.length, 3);
   } finally {
     resetStorageFake();
   }

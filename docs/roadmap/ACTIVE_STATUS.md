@@ -3062,6 +3062,15 @@ when a PR lands, or when validation truth changes.
   rows. Existing partial-failure and retry fixtures remain green, including
   failed import status visibility, sanitized private error redaction, retry
   reuse, and source-authoritative archive retrieval.
+- PR 2 chat-import idempotency slice is accepted by ARGUS, 2026-06-15: commit
+  `daa66ca` is accepted after ARGUS patched one data-loss edge. Generic
+  blank-UI source names (`pasted-chat`, `pasted-archive`) no longer trigger
+  source-name dedupe, so separate unnamed pasted archives are not silently
+  collapsed. Explicit source-name duplicates still reuse a completed chat import
+  only when authoritative archive rows exist. Validation passed for storage,
+  conversation-archive, persona-context, API build, and whitespace checks.
+  Verdict: PR 2 should continue with a file-import/register idempotency
+  follow-up rather than close.
 
 ## Near-term rule
 

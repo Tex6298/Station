@@ -28,6 +28,8 @@ const chatImportRetrySchema = z.object({
   relevanceWeight: z.number().min(0.1).max(5).optional(),
 });
 
+const GENERIC_CHAT_IMPORT_SOURCE_NAMES = new Set(["pasted-chat", "pasted-archive"]);
+
 export const importsRouter = Router();
 importsRouter.use(requireAuth);
 
@@ -49,21 +51,23 @@ importsRouter.post("/chat", async (req, res) => {
     return res.status(404).json({ error: "Persona not found." });
   }
 
-  const existingCompleted = await loadCompletedChatImportBySource(
-    persona.id,
-    userId,
-    parsed.data.sourceName
-  );
-  if (existingCompleted) {
-    const chunksCreated = await countImportArchiveRows(existingCompleted);
-    if (chunksCreated > 0) {
-      return res.json({
-        job: serializeImportJob(existingCompleted),
-        chunksCreated,
-        imported: true,
-        duplicate: true,
-        idempotent: true,
-      });
+  if (isSpecificChatImportSourceName(parsed.data.sourceName)) {
+    const existingCompleted = await loadCompletedChatImportBySource(
+      persona.id,
+      userId,
+      parsed.data.sourceName
+    );
+    if (existingCompleted) {
+      const chunksCreated = await countImportArchiveRows(existingCompleted);
+      if (chunksCreated > 0) {
+        return res.json({
+          job: serializeImportJob(existingCompleted),
+          chunksCreated,
+          imported: true,
+          duplicate: true,
+          idempotent: true,
+        });
+      }
     }
   }
 
@@ -279,4 +283,9 @@ async function loadCompletedChatImportBySource(
 
   if (error) return null;
   return (data?.[0] ?? null) as ImportJobRow | null;
+}
+
+function isSpecificChatImportSourceName(sourceName: string) {
+  const normalized = sourceName.trim().toLowerCase();
+  return normalized.length > 0 && !GENERIC_CHAT_IMPORT_SOURCE_NAMES.has(normalized);
 }
