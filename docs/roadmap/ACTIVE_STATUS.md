@@ -3045,6 +3045,15 @@ when a PR lands, or when validation truth changes.
   conversation-archive, continuity, API build, and whitespace checks. Verdict:
   PR 1 can close for bounded trace/ranking scope; future vector-RPC scoring or
   backfill work should require fresh replay evidence.
+- MIMIR closes PR 1 and opens PR 2 archive/import robustness, 2026-06-15:
+  PR 1 is accepted for bounded trace/ranking scope; future vector-RPC scoring or
+  backfill work requires fresh replay evidence. `docs/roadmap/PR2_ARCHIVE_IMPORT_ROBUSTNESS.md`
+  defines the next bounded lane. Goal: prevent bad imports from poisoning
+  memory/retrieval. Scope is idempotency, duplicate handling, partial-failure
+  visibility, and retrieval behavior after clean/failed imports. Full worker
+  queues, broad async orchestration, Redis memory truth, Cloudflare retrieval,
+  provider switches, vector-dimension changes, broad UI, and private excerpt
+  telemetry remain out of scope.
 
 ## Near-term rule
 
