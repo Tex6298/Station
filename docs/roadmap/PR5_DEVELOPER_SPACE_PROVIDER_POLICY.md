@@ -9,7 +9,7 @@ Prerequisite: PR 4 Redis operational boundary accepted by A3 / ARGUS in
 
 Owner: A2 / DAEDALUS first, then A3 / ARGUS.
 
-Status: DAEDALUS result is ready for ARGUS review. See
+Status: accepted by A3 / ARGUS on 2026-06-15. See
 `docs/roadmap/PR5_DEVELOPER_SPACE_PROVIDER_POLICY_RESULT.md`.
 
 ## Goal

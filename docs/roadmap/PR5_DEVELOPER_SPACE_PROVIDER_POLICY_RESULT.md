@@ -91,3 +91,27 @@ Review for:
 - embedding profile explanation;
 - observability sanitization;
 - whether PR 5 can close or needs a narrow follow-up.
+
+## ARGUS Review Result
+
+A3 / ARGUS accepts PR 5 on 2026-06-15 and recommends closing the lane.
+
+Review findings:
+
+- The owner-only provider-policy evaluation surface explains posture with
+  labels, booleans, policy codes, dimensions, and allow/deny reasons only.
+- Private archive remains denied unless `private_archive_allowed` is explicit.
+- `owner_byok_only` still fails closed when platform mode is requested.
+- NVIDIA OpenAI-compatible chat and DeepSeek fallback are represented as route
+  labels only; keys, URLs, prompts, completions, private archive excerpts,
+  owner identifiers, tokens, cookies, and raw provider payloads are not exposed.
+- The active embedding posture remains `station_free_1536` / `gemini` / `1536`,
+  with `openai_1536` recorded only as a paid or rollback assumption.
+- `selectedProviderRoute` is accepted as explanatory posture metadata because
+  denied decisions still return `context.allowed:false` and a denial reason; the
+  evaluation route does not execute a provider call.
+
+No provider marketplace, BYOK secret store, per-user provider billing, global
+provider switch, embedding/vector dimension change, private archive provider
+call, Redis, Cloudflare, worker, Stripe, archive/import, or UI behavior was
+introduced by this lane.

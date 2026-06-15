@@ -4820,6 +4820,45 @@ archive/import behavior, or UI behavior.
 | `npx --yes pnpm@10.32.1 test:replay-readiness` | Pass | 1 test passed. |
 | `npx --yes pnpm@10.32.1 --filter @station/api build` | Pass | API and dependent package builds completed. |
 
+## PR 5 Developer Space provider policy ARGUS review
+
+Validated on 2026-06-15 after DAEDALUS committed
+`297fc0a api: explain developer space provider posture`.
+
+Implementation reviewed:
+
+- `POST /developer-spaces/:id/provider-policy/evaluate` remains owner-only and
+  returns provider posture metadata next to the existing allow/deny decision.
+- Private archive is still denied unless the Developer Space policy is
+  explicitly `private_archive_allowed`.
+- `owner_byok_only` still fails closed for platform-mode evaluation.
+- NVIDIA OpenAI-compatible chat and DeepSeek fallback are emitted as non-secret
+  route labels only.
+- The embedding explanation reports the active `station_free_1536` Gemini
+  1536-dimension profile and keeps `openai_1536` as a paid or rollback
+  assumption.
+- Sanitized AI observability includes posture labels/booleans only.
+
+ARGUS validation:
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Overclaim review | Pass | The patch explains posture and policy only; it does not add provider execution, marketplace behavior, BYOK secret storage/display, billing, global provider switching, embedding/vector changes, or UI behavior. |
+| Private archive gate review | Pass | Tests cover denial by default and allow only under explicit `private_archive_allowed`. |
+| Owner-BYOK fail-closed review | Pass | Platform-mode evaluation under `owner_byok_only` returns `allowed:false` with `owner_byok_required`. |
+| Route-label review | Pass | `describePlatformProviderRoute` distinguishes configured NVIDIA OpenAI-compatible chat from DeepSeek fallback without exposing config values. |
+| Observability sanitization review | Pass | Test markers for provider keys, URLs, prompts, completions, private archive chunks, owner IDs, tokens, cookies, and raw payloads are absent from serialized observability traces. |
+| `npx --yes pnpm@10.32.1 test:developer-spaces` | Pass | 7 Developer Spaces tests passed. |
+| `npx --yes pnpm@10.32.1 exec tsx --test packages/ai/test/provider-router.test.ts` | Pass | 5 provider-router tests passed. |
+| `npx --yes pnpm@10.32.1 test:replay-readiness` | Pass | 1 replay-readiness test passed. |
+| `npx --yes pnpm@10.32.1 --filter @station/api build` | Pass | API and required package builds passed. |
+| `git diff --check` | Pass | CRLF normalization warnings only. |
+
+No provider keys, base URLs, prompts, completions, private archive excerpts,
+raw observability bodies, owner identifiers, tokens, cookies, replay
+credentials, or private provider payloads were recorded. ARGUS accepts PR 5 and
+recommends closing the lane.
+
 ## STAGING-DEMO-INTERACTIONS-PATCH-01 DAEDALUS validation result
 
 Validated on 2026-06-13 after the narrow interaction-clean patch from

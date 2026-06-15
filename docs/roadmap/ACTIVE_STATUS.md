@@ -3179,6 +3179,19 @@ when a PR lands, or when validation truth changes.
   explicit, and `owner_byok_only` still fails closed for platform mode.
   Validation passed for Developer Spaces, provider-router, replay-readiness, API
   build, and whitespace.
+- PR 5 Developer Space provider policy result is accepted by ARGUS,
+  2026-06-15: the evaluation surface explains provider posture with non-secret
+  labels, booleans, policy codes, dimensions, and allow/deny reasons only.
+  Private archive still requires explicit `private_archive_allowed`, and
+  `owner_byok_only` still denies platform mode. NVIDIA OpenAI-compatible chat
+  and DeepSeek fallback remain labels, not exposed keys or URLs. Active
+  embedding posture remains `station_free_1536` / `gemini` / `1536`, with
+  `openai_1536` recorded only as paid or rollback assumption. Sanitized AI
+  observability carries posture metadata only. Verdict: PR 5 can close for
+  provider/data routing explanation and policy hardening; marketplace, BYOK
+  storage, provider billing, provider switching, private archive provider calls,
+  Redis, Cloudflare, workers, Stripe, archive/import, and UI work remain out of
+  scope.
 
 ## Near-term rule
 
