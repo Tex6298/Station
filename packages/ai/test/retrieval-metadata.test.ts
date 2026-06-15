@@ -103,6 +103,10 @@ test("persona runtime context shares one query embedding across memory and archi
     assert.equal(db.rpcCalls.filter((call) => call.functionName === "match_private_archive_chunks").length, 1);
     assert.equal(context.counts.memory, 1);
     assert.equal(context.counts.archive, 1);
+    assert.equal(context.trace.retrievalMode.memory, "vector");
+    assert.equal(context.trace.searched.memory, 3);
+    assert.equal(context.trace.skipped.memory.other_owner_or_missing, 0);
+    assert.doesNotMatch(JSON.stringify(context.trace), /Other owner memory/);
   } finally {
     embeddingFetch.restore();
   }

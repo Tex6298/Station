@@ -167,6 +167,7 @@ export async function assemblePersonaRuntimeContext(
     ...memorySources,
     ...archiveRetrieval.sources,
   ];
+  const safeMemorySkipped = redactHiddenMemorySkippedCounts(memoryRetrieval.trace.skipped);
 
   const systemPrompt = buildPersonaChatPrompt({
     name: input.persona.name,
@@ -209,13 +210,13 @@ export async function assemblePersonaRuntimeContext(
         priority: source.priority,
       })),
       skipped: {
-        memory: memoryRetrieval.trace.skipped,
+        memory: safeMemorySkipped,
         archive: {
           unauthoritative: archiveRetrieval.skippedUnauthoritative,
         },
       },
       searched: {
-        memory: memoryRetrieval.trace.searched,
+        memory: visibleMemorySearchedCount(memoryRetrieval.trace),
         archive: archiveRetrieval.searched,
       },
     },
@@ -504,6 +505,17 @@ function normalizeRule(label: string, value: string | null | undefined) {
 
 function formatSourceForPrompt(source: PersonaContextSource) {
   return source.title ? `${source.title}: ${source.content}` : source.content;
+}
+
+function redactHiddenMemorySkippedCounts(skipped: MemoryRetrievalTrace["skipped"]) {
+  return {
+    ...skipped,
+    other_owner_or_missing: 0,
+  };
+}
+
+function visibleMemorySearchedCount(trace: MemoryRetrievalTrace) {
+  return Math.max(0, trace.searched - trace.skipped.other_owner_or_missing);
 }
 
 function hasValue(value: string | null | undefined) {

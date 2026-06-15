@@ -5520,3 +5520,44 @@ ARGUS validation:
 
 ARGUS accepts PR 0 as staging alpha closure/evidence alignment. PR 1 replay
 memory/retrieval quality is clear for MIMIR to open.
+
+## Backend/Product PR 1 ARGUS review
+
+Validated on 2026-06-15 after DAEDALUS added the first replay memory/retrieval
+quality slice in commit `94ee971`.
+
+Implementation reviewed:
+
+- `searchMemoryWithTrace` preserves the existing `searchMemory` return shape
+  while adding retrieval mode, fallback mode, selected memory metadata,
+  lifecycle/archive skip counts, and active embedding profile metadata.
+- `assemblePersonaRuntimeContext` exposes an owner-only `context.trace` object
+  from the context-preview route. The trace contains ids, titles, reasons,
+  source types, priority, modes, counts, and embedding metadata; it does not
+  include private excerpts or prompt bodies.
+- Existing chat still uses `buildPersonaContext`, so runtime chat behavior keeps
+  the previous trace-free return shape.
+- ARGUS patched the context trace before acceptance so cross-owner or missing
+  vector candidates cannot be inferred through `other_owner_or_missing` skip
+  counts or `searched.memory`.
+
+ARGUS validation:
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Owner gate review | Pass | `/conversations/persona/:personaId/context-preview` still rejects visitors and non-owners before assembling context. |
+| Trace excerpt review | Pass | Trace serialization omits `content`; tests assert private memory/archive text is absent from `JSON.stringify(context.trace)`. |
+| Hidden candidate count review | Patched then pass | ARGUS redacted `other_owner_or_missing` from owner-facing context trace and subtracts hidden candidates from `searched.memory`. |
+| Provider/dimension review | Pass | Trace metadata uses the active `station_free_1536` Gemini 1536-dimension profile and the existing RPC metadata helpers. |
+| Overclaim review | Pass with follow-up | This slice improves explainability and skip accounting only; PR 1 should continue with a ranking/relevance follow-up rather than close. |
+| `npx --yes pnpm@10.32.1 test:persona-context` | Pass | 3 persona context tests passed after ARGUS hardening. |
+| `npx --yes pnpm@10.32.1 test:conversation-archive` | Pass | 5 archive/conversation tests passed after ARGUS hardening. |
+| `npx --yes pnpm@10.32.1 test:continuity` | Pass | 4 continuity tests passed after ARGUS hardening. |
+| `npx --yes pnpm@10.32.1 exec tsx --test packages/ai/test/retrieval-metadata.test.ts` | Pass | 6 retrieval metadata tests passed, including the hidden-candidate trace redaction assertion. |
+| `npx --yes pnpm@10.32.1 --filter @station/api build` | Pass | API and required shared package builds passed. |
+| `git diff --check 94ee971^..94ee971` and `git diff --check` | Pass | No whitespace errors in DAEDALUS's patch or ARGUS's hardening. |
+
+No secrets, raw credentials, cookies, tokens, private IDs, private excerpts,
+prompts, completions, raw response bodies, screenshots, or replay corpus text
+were recorded. ARGUS accepts the first PR 1 retrieval-trace slice. PR 1 should
+continue with a bounded ranking/relevance follow-up.

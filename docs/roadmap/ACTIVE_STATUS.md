@@ -3009,6 +3009,16 @@ when a PR lands, or when validation truth changes.
   Gemini/OpenAI-compatible 1536-dim retrieval path; Redis memory truth,
   Cloudflare primary retrieval, workers, vector-dimension changes, broad UI,
   and private excerpt telemetry are explicitly out of scope.
+- PR 1 first retrieval-trace slice is accepted by ARGUS, 2026-06-15: commit
+  `94ee971` adds replay-safe context trace metadata and keeps private excerpts
+  out of the trace. ARGUS patched one hostile-review edge before acceptance:
+  owner-facing context traces now redact `other_owner_or_missing` skip counts
+  and subtract those hidden candidates from `searched.memory`, so vector search
+  cannot reveal cross-owner or stale hidden-candidate counts through metadata.
+  Validation passed for persona-context, conversation-archive, continuity,
+  retrieval-metadata, API build, and whitespace checks. Verdict: accept this
+  explainability/skip-accounting slice, but PR 1 should continue with a
+  ranking/relevance follow-up rather than close.
 
 ## Near-term rule
 
