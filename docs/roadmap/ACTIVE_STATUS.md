@@ -2992,6 +2992,13 @@ when a PR lands, or when validation truth changes.
   unauthenticated replay-readiness `401` boundary. Secret-pattern review found
   no new exposed secret values in the PR 0 docs. PR 1 replay memory/retrieval
   quality is clear for MIMIR to open.
+- MIMIR opens PR 1 replay memory/retrieval quality, 2026-06-15:
+  `docs/roadmap/PR1_REPLAY_MEMORY_RETRIEVAL_QUALITY.md` defines the bounded
+  lane. Goal: make the next replay prove Station remembered the right thing,
+  ignored the wrong thing, and explained why. Scope stays inside the existing
+  Gemini/OpenAI-compatible 1536-dim retrieval path; Redis memory truth,
+  Cloudflare primary retrieval, workers, vector-dimension changes, broad UI,
+  and private excerpt telemetry are explicitly out of scope.
 
 ## Near-term rule
 
