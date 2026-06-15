@@ -5591,3 +5591,44 @@ No secrets, raw credentials, cookies, tokens, private IDs, private excerpts,
 prompts, completions, raw response bodies, screenshots, or replay corpus text
 were recorded. ARGUS accepts the first PR 1 retrieval-trace slice. PR 1 should
 continue with a bounded ranking/relevance follow-up.
+
+## Backend/Product PR 1 Ranking Follow-Up ARGUS review
+
+Validated on 2026-06-15 after DAEDALUS added the bounded keyword ranking
+follow-up in commit `f86e2c9`.
+
+Implementation reviewed:
+
+- Keyword memory fallback now scores exact query phrases and title/summary token
+  matches ahead of generic body-token matches, with relevance weight retained as
+  a small tie-breaker.
+- The change does not touch vector RPC scoring, embedding provider selection,
+  vector dimension, Redis, Cloudflare retrieval, workers, re-embed/backfill,
+  chat/provider routing, billing, or trace shape.
+- The focused retrieval fixture proves the intended replay anchor outranks a
+  high-weight generic distractor while rejected, quarantined, expired, and
+  superseded candidates are skipped and excluded from selected trace metadata.
+- The synthetic rejected/quarantined/expired/superseded strings live only in
+  focused tests and are asserted absent from selected trace output.
+
+ARGUS validation:
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Owner/hidden-candidate review | Pass | Keyword fallback remains owner-filtered when `ownerUserId` is supplied, and the previous hidden-candidate trace redaction remains intact. |
+| Trace excerpt review | Pass | The ranking fixture asserts rejected source text does not appear in serialized retrieval trace. |
+| Ranking regression review | Pass | The exact replay anchor outranks the high-weight distractor in the focused keyword fallback fixture. |
+| Provider/dimension review | Pass | Gemini `station_free_1536`, OpenAI-compatible 1536 rollback assumptions, and vector RPC metadata are untouched. |
+| Overclaim review | Pass | This is documented as a local keyword fallback ranking improvement, not vector scoring retune or new retrieval backend. |
+| `npx --yes pnpm@10.32.1 exec tsx --test packages/ai/test/retrieval-metadata.test.ts` | Pass | 7 retrieval metadata/ranking tests passed. |
+| `npx --yes pnpm@10.32.1 test:persona-context` | Pass | 3 persona context tests passed. |
+| `npx --yes pnpm@10.32.1 test:conversation-archive` | Pass | 5 archive/conversation tests passed. |
+| `npx --yes pnpm@10.32.1 test:continuity` | Pass | 4 continuity tests passed. |
+| `npx --yes pnpm@10.32.1 --filter @station/api build` | Pass | API and required shared package builds passed. |
+| `git diff --check f86e2c9^..f86e2c9` | Pass | No whitespace errors in DAEDALUS's ranking patch. |
+
+No secrets, raw credentials, cookies, tokens, private IDs, private excerpts,
+prompts, completions, raw response bodies, screenshots, or replay corpus text
+were recorded. ARGUS accepts the PR 1 ranking follow-up. PR 1 can close for
+bounded trace/ranking scope; future vector-RPC scoring or backfill work should
+require fresh replay evidence.

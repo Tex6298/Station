@@ -2984,24 +2984,6 @@ when a PR lands, or when validation truth changes.
   deployment identity checks at `bfe60aa`, and PR 0 validation. This is not a
   product-complete backend claim; PR 1 replay memory/retrieval quality remains
   unstarted until ARGUS accepts the closure doc or requests fixes.
-- PR 1 DAEDALUS retrieval-quality slice is ready for ARGUS review,
-  2026-06-15: persona runtime context now includes replay-safe retrieval trace
-  metadata for selected source ids/titles/reasons, memory lifecycle skip counts,
-  archive unauthoritative skips, retrieval/fallback mode, and the active
-  `station_free_1536` Gemini embedding profile. The focused fixture proves the
-  owner-selected memory/archive/canon context wins while rejected,
-  quarantined, expired, superseded, and other-owner material stays out of
-  runtime context and out of trace excerpts. Caveat: this slice improves
-  explainability and skip accounting; deeper ranking/relevance tuning remains
-  future PR 1 follow-up only if ARGUS/MIMIR asks for it.
-- PR 1 DAEDALUS ranking follow-up is ready for ARGUS review, 2026-06-15:
-  keyword memory fallback now gives a small local relevance boost to exact
-  phrase matches and title/summary matches, so an intended replay anchor can
-  outrank a high-weight generic distractor without changing providers,
-  dimensions, Redis, Cloudflare, workers, or backfill behavior. The focused
-  retrieval fixture proves the exact replay anchor wins, the tempting distractor
-  remains second, and rejected/quarantined/expired/superseded material is
-  counted as skipped without entering selected trace metadata.
 - PR 0 is accepted by ARGUS, 2026-06-15: the staging alpha closure/evidence
   document is conservative enough to close the accepted replay as alpha-proof,
   not as product-complete backend status. ARGUS revalidated health,
@@ -3017,6 +2999,16 @@ when a PR lands, or when validation truth changes.
   Gemini/OpenAI-compatible 1536-dim retrieval path; Redis memory truth,
   Cloudflare primary retrieval, workers, vector-dimension changes, broad UI,
   and private excerpt telemetry are explicitly out of scope.
+- PR 1 DAEDALUS retrieval-quality slice is ready for ARGUS review,
+  2026-06-15: persona runtime context now includes replay-safe retrieval trace
+  metadata for selected source ids/titles/reasons, memory lifecycle skip counts,
+  archive unauthoritative skips, retrieval/fallback mode, and the active
+  `station_free_1536` Gemini embedding profile. The focused fixture proves the
+  owner-selected memory/archive/canon context wins while rejected,
+  quarantined, expired, superseded, and other-owner material stays out of
+  runtime context and out of trace excerpts. Caveat: this slice improves
+  explainability and skip accounting; deeper ranking/relevance tuning remains
+  future PR 1 follow-up only if ARGUS/MIMIR asks for it.
 - PR 1 first retrieval-trace slice is accepted by ARGUS, 2026-06-15: commit
   `94ee971` adds replay-safe context trace metadata and keeps private excerpts
   out of the trace. ARGUS patched one hostile-review edge before acceptance:
@@ -3035,6 +3027,24 @@ when a PR lands, or when validation truth changes.
   compatible 1536-dim retrieval; no Redis memory truth, Cloudflare retrieval,
   workers, provider switch, re-embed/backfill, broad UI, or private excerpt
   telemetry is in scope.
+- PR 1 DAEDALUS ranking follow-up is ready for ARGUS review, 2026-06-15:
+  keyword memory fallback now gives a small local relevance boost to exact
+  phrase matches and title/summary matches, so an intended replay anchor can
+  outrank a high-weight generic distractor without changing providers,
+  dimensions, Redis, Cloudflare, workers, or backfill behavior. The focused
+  retrieval fixture proves the exact replay anchor wins, the tempting distractor
+  remains second, and rejected/quarantined/expired/superseded material is
+  counted as skipped without entering selected trace metadata.
+- PR 1 ranking follow-up is accepted by ARGUS, 2026-06-15: commit `f86e2c9`
+  keeps the change inside keyword fallback ranking and tests the intended replay
+  anchor against a high-weight distractor plus rejected/quarantined/expired/
+  superseded candidates. Owner scoping, hidden-candidate redaction, trace shape,
+  vector provider, vector dimension, Supabase RPC contract, Redis, Cloudflare,
+  workers, re-embed/backfill, chat routing, and billing remain unchanged.
+  Validation passed for retrieval-metadata, persona-context,
+  conversation-archive, continuity, API build, and whitespace checks. Verdict:
+  PR 1 can close for bounded trace/ranking scope; future vector-RPC scoring or
+  backfill work should require fresh replay evidence.
 
 ## Near-term rule
 
