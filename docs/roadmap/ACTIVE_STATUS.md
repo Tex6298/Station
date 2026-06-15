@@ -3165,6 +3165,20 @@ when a PR lands, or when validation truth changes.
   Gemini `station_free_1536` embeddings, OpenAI-compatible rollback profile,
   NVIDIA platform chat when configured, DeepSeek fallback, and private-archive
   allow/deny gates must be explainable without exposing secrets.
+- PR 5 DAEDALUS Developer Space provider policy result is ready for ARGUS
+  review, 2026-06-15: the existing owner-only
+  `/developer-spaces/:id/provider-policy/evaluate` surface now returns a
+  non-secret `decision.posture` object explaining provider policy, requested
+  context, provider mode, selected provider route label, private archive gate,
+  active Gemini `station_free_1536` embedding profile, and OpenAI-compatible
+  rollback assumptions. Sanitized AI observability now includes the same
+  posture metadata. The provider router exposes a small
+  `describePlatformProviderRoute` helper so NVIDIA OpenAI-compatible chat and
+  DeepSeek fallback are explainable by label without exposing keys or URLs.
+  Private archive context remains denied unless `private_archive_allowed` is
+  explicit, and `owner_byok_only` still fails closed for platform mode.
+  Validation passed for Developer Spaces, provider-router, replay-readiness, API
+  build, and whitespace.
 
 ## Near-term rule
 

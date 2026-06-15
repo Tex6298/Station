@@ -27,6 +27,19 @@ export interface ProviderConfig {
   platformNvidiaModel?: string;
 }
 
+export type PlatformProviderRouteLabel = "nvidia_openai_compatible" | "deepseek_fallback";
+
+export function describePlatformProviderRoute(config: Pick<ProviderConfig, "platformNvidiaKey">): {
+  label: PlatformProviderRouteLabel;
+  nvidiaConfigured: boolean;
+} {
+  const nvidiaConfigured = Boolean(config.platformNvidiaKey?.trim());
+  return {
+    label: nvidiaConfigured ? "nvidia_openai_compatible" : "deepseek_fallback",
+    nvidiaConfigured,
+  };
+}
+
 export function normalizeOpenAiCompatibleBaseUrl(baseUrl?: string): string {
   const trimmed = (baseUrl?.trim() || DEFAULT_NVIDIA_BASE_URL).replace(/\/+$/, "");
   if (trimmed.endsWith("/v1/chat/completions")) {
@@ -47,9 +60,9 @@ export function normalizeOpenAiCompatibleBaseUrl(baseUrl?: string): string {
  */
 export function resolveProvider(config: ProviderConfig): ChatProvider {
   const platformNvidiaKey = config.platformNvidiaKey?.trim();
-  const platformProvider = platformNvidiaKey
+  const platformProvider = describePlatformProviderRoute({ platformNvidiaKey }).label === "nvidia_openai_compatible"
     ? new OpenAIProvider({
-        apiKey: platformNvidiaKey,
+        apiKey: platformNvidiaKey ?? "",
         baseUrl: normalizeOpenAiCompatibleBaseUrl(config.platformNvidiaBaseUrl),
         model: config.platformNvidiaModel?.trim() || DEFAULT_NVIDIA_MODEL,
       })

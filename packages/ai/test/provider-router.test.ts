@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { afterEach, test } from "node:test";
-import { normalizeOpenAiCompatibleBaseUrl, resolveProvider } from "../src/providers/router";
+import { describePlatformProviderRoute, normalizeOpenAiCompatibleBaseUrl, resolveProvider } from "../src/providers/router";
 
 const originalFetch = globalThis.fetch;
 
@@ -90,4 +90,15 @@ test("ignores blank NVIDIA aliases and keeps the DeepSeek fallback", async () =>
 
   assert.equal(response.content, "Mock DeepSeek reply: Hello");
   assert.equal(response.model, "deepseek-chat");
+});
+
+test("describes platform provider route without exposing config", () => {
+  assert.deepEqual(describePlatformProviderRoute({ platformNvidiaKey: " nvidia-key " }), {
+    label: "nvidia_openai_compatible",
+    nvidiaConfigured: true,
+  });
+  assert.deepEqual(describePlatformProviderRoute({ platformNvidiaKey: "   " }), {
+    label: "deepseek_fallback",
+    nvidiaConfigured: false,
+  });
 });

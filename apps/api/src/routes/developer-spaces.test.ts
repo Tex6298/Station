@@ -419,6 +419,12 @@ test("Developer Space provider policy blocks private archive context unless expl
   const db = new InMemorySupabase();
   setSupabaseAdminForTests(db.client as any);
   const app = createDeveloperSpacesApp();
+  const previousNvidiaKey = process.env.NVIDIA_AI_API_KEY;
+  const previousEmbeddingProfile = process.env.EMBEDDING_PROFILE_CODE;
+  const previousEmbeddingDim = process.env.EMBEDDING_DIM;
+  process.env.NVIDIA_AI_API_KEY = "nvidia-test-key";
+  process.env.EMBEDDING_PROFILE_CODE = "station_free_1536";
+  process.env.EMBEDDING_DIM = "1536";
 
   try {
     const created = await requestJson(app, "POST", "/developer-spaces", {
@@ -445,6 +451,23 @@ test("Developer Space provider policy blocks private archive context unless expl
     assert.equal(blocked.body.decision.providerPolicy, "public_synthetic_only");
     assert.equal(blocked.body.decision.includePrivateArchive, false);
     assert.equal(blocked.body.decision.denialReason, "private_archive_requires_private_archive_allowed");
+    assert.equal(blocked.body.decision.posture.selectedProviderRoute, "nvidia_openai_compatible");
+    assert.equal(blocked.body.decision.posture.platformRoute.nvidiaConfigured, true);
+    assert.equal(blocked.body.decision.posture.privateArchive.requested, true);
+    assert.equal(blocked.body.decision.posture.privateArchive.permitted, false);
+    assert.equal(blocked.body.decision.posture.privateArchive.gate, "denied_without_private_archive_allowed");
+    assert.deepEqual(blocked.body.decision.posture.embeddingProfile, {
+      profileCode: "station_free_1536",
+      provider: "gemini",
+      dimension: 1536,
+      activeUse: "active_product_testing",
+      rollbackProfile: {
+        profileCode: "openai_1536",
+        provider: "openai",
+        dimension: 1536,
+        status: "paid_or_rollback_assumption",
+      },
+    });
 
     const publicContextBlocked = await requestJson(app, "POST", `/developer-spaces/${spaceId}/provider-policy/evaluate`, {
       token: "owner-token",
@@ -478,17 +501,65 @@ test("Developer Space provider policy blocks private archive context unless expl
     assert.equal(allowed.body.decision.allowed, true);
     assert.equal(allowed.body.decision.includePrivateArchive, true);
     assert.equal(allowed.body.decision.providerPolicy, "private_archive_allowed");
+    assert.equal(allowed.body.decision.posture.privateArchive.permitted, true);
+    assert.equal(allowed.body.decision.posture.privateArchive.gate, "explicit_private_archive_allowed");
+
+    const ownerByokPolicy = await requestJson(app, "PATCH", `/developer-spaces/${spaceId}`, {
+      token: "owner-token",
+      body: {
+        providerPolicy: "owner_byok_only",
+      },
+    });
+    assert.equal(ownerByokPolicy.status, 200);
+
+    const ownerByokPlatformBlocked = await requestJson(app, "POST", `/developer-spaces/${spaceId}/provider-policy/evaluate`, {
+      token: "owner-token",
+      body: {
+        requestedContext: "public_synthetic",
+        providerMode: "platform",
+      },
+    });
+    assert.equal(ownerByokPlatformBlocked.status, 403);
+    assert.equal(ownerByokPlatformBlocked.body.decision.denialReason, "owner_byok_required");
+    assert.equal(ownerByokPlatformBlocked.body.decision.posture.selectedProviderRoute, "nvidia_openai_compatible");
+
+    const ownerByokAllowed = await requestJson(app, "POST", `/developer-spaces/${spaceId}/provider-policy/evaluate`, {
+      token: "owner-token",
+      body: {
+        requestedContext: "public_synthetic",
+        providerMode: "owner_byok",
+      },
+    });
+    assert.equal(ownerByokAllowed.status, 200);
+    assert.equal(ownerByokAllowed.body.decision.allowed, true);
+    assert.equal(ownerByokAllowed.body.decision.posture.selectedProviderRoute, "owner_byok");
 
     const traces = {
       sessions: db.tables.ai_trace_sessions,
       events: db.tables.ai_trace_events,
     };
-    assert.equal(traces.sessions.length, 3);
-    assert.equal(traces.events.length, 3);
+    assert.equal(traces.sessions.length, 5);
+    assert.equal(traces.events.length, 5);
     assert.equal(traces.sessions.some((trace) => trace.metadata.providerPolicy === "private_archive_allowed"), true);
     assert.equal(traces.events.every((event) => event.payload.providerPolicy), true);
+    assert.equal(traces.events.every((event) => event.payload.providerPosture), true);
     assertNoPolicySecretLeak(traces);
   } finally {
+    if (previousNvidiaKey == null) {
+      delete process.env.NVIDIA_AI_API_KEY;
+    } else {
+      process.env.NVIDIA_AI_API_KEY = previousNvidiaKey;
+    }
+    if (previousEmbeddingProfile == null) {
+      delete process.env.EMBEDDING_PROFILE_CODE;
+    } else {
+      process.env.EMBEDDING_PROFILE_CODE = previousEmbeddingProfile;
+    }
+    if (previousEmbeddingDim == null) {
+      delete process.env.EMBEDDING_DIM;
+    } else {
+      process.env.EMBEDDING_DIM = previousEmbeddingDim;
+    }
     setSupabaseAdminForTests(null);
   }
 });

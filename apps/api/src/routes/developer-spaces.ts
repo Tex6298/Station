@@ -1,5 +1,6 @@
 import { Router, type Request, type Response } from "express";
 import { z } from "zod";
+import { describePlatformProviderRoute } from "@station/ai";
 import type {
   DeveloperSpaceDocumentLinkVisibility,
   DeveloperSpaceDocumentRole,
@@ -9,10 +10,12 @@ import type {
 } from "@station/types";
 import { requireAuth, optionalAuth, type AuthenticatedUser } from "../middleware/require-auth";
 import { requireTier } from "../middleware/require-tier";
+import { env } from "../lib/env";
 import { getSupabaseAdmin } from "../lib/supabase";
 import { validateToken } from "../services/auth.service";
 import { canCreateDeveloperSpace } from "@station/auth/permissions";
 import type { AuthUser } from "@station/types";
+import { resolveActiveEmbeddingProfileCode, resolveActiveEmbeddingProvider } from "../services/embedding-key.service";
 import {
   accessLevelForDeveloperSpace,
   canReadDeveloperSpace,
@@ -59,6 +62,12 @@ const MAX_JSON_CHARS = 32_000;
 const MAX_JSON_DEPTH = 8;
 const SSE_RETRY_MS = 5_000;
 const SSE_POLL_MS = Number(process.env.DEVELOPER_SPACE_SSE_POLL_MS ?? 5_000);
+const OPENAI_COMPATIBLE_ROLLBACK_PROFILE = {
+  profileCode: "openai_1536",
+  provider: "openai",
+  dimension: 1536,
+  status: "paid_or_rollback_assumption",
+};
 
 function jsonDepth(value: unknown, depth = 0): number {
   if (!value || typeof value !== "object") return depth;
@@ -293,6 +302,50 @@ function documentTypeForRole(role: DeveloperSpaceDocumentRole) {
   if (role === "field_log") return "update";
   if (role === "note") return "post";
   return "essay";
+}
+
+function activeEmbeddingDimension() {
+  const value = Number.parseInt(process.env.EMBEDDING_DIM ?? String(env.EMBEDDING_DIM ?? 1536), 10);
+  return Number.isInteger(value) && value > 0 ? value : 1536;
+}
+
+function buildDeveloperSpaceProviderPosture(decision: ReturnType<typeof evaluateDeveloperSpaceProviderPolicy>) {
+  const platformRoute = describePlatformProviderRoute({
+    platformNvidiaKey: process.env.NVIDIA_AI_API_KEY ?? env.NVIDIA_AI_API_KEY,
+  });
+  const embeddingProfileCode = resolveActiveEmbeddingProfileCode();
+  const embeddingProvider = resolveActiveEmbeddingProvider();
+
+  return {
+    providerPolicy: decision.providerPolicy,
+    requestedContext: decision.requestedContext,
+    providerMode: decision.providerMode,
+    selectedProviderRoute: decision.providerMode === "owner_byok" ? "owner_byok" : platformRoute.label,
+    platformRoute,
+    context: {
+      allowed: decision.allowed,
+      denialReason: decision.denialReason,
+      includePublicContext: decision.includePublicContext,
+    },
+    privateArchive: {
+      requested: decision.requestedContext === "private_archive",
+      permitted: decision.includePrivateArchive,
+      gate: decision.includePrivateArchive
+        ? "explicit_private_archive_allowed"
+        : decision.requestedContext === "private_archive"
+          ? "denied_without_private_archive_allowed"
+          : "not_requested",
+    },
+    embeddingProfile: {
+      profileCode: embeddingProfileCode,
+      provider: embeddingProvider,
+      dimension: activeEmbeddingDimension(),
+      activeUse: embeddingProfileCode === "station_free_1536"
+        ? "active_product_testing"
+        : "openai_compatible_paid_or_rollback",
+      rollbackProfile: OPENAI_COMPATIBLE_ROLLBACK_PROFILE,
+    },
+  };
 }
 
 function isOwnerOrAdmin(space: any, user?: AuthenticatedUser | null) {
@@ -946,6 +999,7 @@ developerSpacesRouter.post("/:id/provider-policy/evaluate", requireAuth, async (
     requestedContext,
     providerMode: parsed.data.providerMode,
   });
+  const posture = buildDeveloperSpaceProviderPosture(decision);
 
   const metadata = {
     domain: "developer_space",
@@ -955,6 +1009,7 @@ developerSpacesRouter.post("/:id/provider-policy/evaluate", requireAuth, async (
     providerMode: decision.providerMode,
     allowed: decision.allowed,
     denialReason: decision.denialReason,
+    providerPosture: posture,
   };
   const trace = await startAiTrace({
     ownerUserId: req.user!.id,
@@ -968,12 +1023,16 @@ developerSpacesRouter.post("/:id/provider-policy/evaluate", requireAuth, async (
     label: "Developer Space provider policy evaluation",
     status: decision.allowed ? "completed" : "skipped",
     provider: decision.providerMode,
-    payload: decision.observability,
+    payload: {
+      ...decision.observability,
+      providerPosture: posture,
+    },
   });
   await completeAiTrace({ traceId: trace?.id });
 
-  if (!decision.allowed) return res.status(403).json({ decision });
-  return res.json({ decision });
+  const responseDecision = { ...decision, posture };
+  if (!decision.allowed) return res.status(403).json({ decision: responseDecision });
+  return res.json({ decision: responseDecision });
 });
 
 developerSpacesRouter.post("/:id/documents", requireAuth, async (req, res) => {
