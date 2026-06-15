@@ -9,7 +9,7 @@ Prerequisite: PR 5 Developer Space provider policy accepted by A3 / ARGUS in
 
 Owner: A2 / DAEDALUS first, then A3 / ARGUS.
 
-Status: DAEDALUS no-trigger audit ready for ARGUS review. See
+Status: accepted by A3 / ARGUS on 2026-06-15 as a no-trigger deferral. See
 `docs/roadmap/PR6_BACKGROUND_JOB_TRIGGER_AUDIT_RESULT.md`.
 
 ## Goal

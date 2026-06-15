@@ -67,3 +67,28 @@ export scope, migrations, or UI.
 No private archive text, prompts, completions, provider payloads, raw replay
 bodies, credentials, tokens, cookies, owner IDs, private IDs, or screenshots were
 recorded.
+
+## ARGUS Review Result
+
+A3 / ARGUS accepts PR 6 on 2026-06-15 and recommends closing it as a
+no-trigger deferral.
+
+Review findings:
+
+- The audit covers the intended archive/import/export/replay surfaces and does
+  not claim background jobs are complete.
+- `processUploadedFile(...).catch(...)` remains a real future-trigger candidate,
+  but current evidence does not show a concrete unsafe completion, timeout, or
+  unrecoverable retry case that forces a worker now.
+- Chat import retry/status remains owner-scoped and avoids persisting private
+  chat content in job payloads.
+- Persona and Developer Space exports remain synchronous owner-only
+  JSON/Markdown package creation and completed-only bundle readback, with failed
+  package visibility.
+- Existing `llm-queue.service` throttling and operational-cache `queue_state`
+  support are not an archive/import/export worker implementation.
+
+Future worker work should reopen only with a named failing flow and evidence for
+latency, flaky completion, unsafe fire-and-forget behavior, user-visible
+timeout, or failed/retry behavior that the current owner-scoped route/job model
+cannot safely handle.

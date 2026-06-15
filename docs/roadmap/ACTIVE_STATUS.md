@@ -3213,6 +3213,17 @@ when a PR lands, or when validation truth changes.
   as protected-alpha synchronous flows. No code, route behavior, Redis,
   Cloudflare, provider, billing, archive retrieval, export scope, migration, or
   UI behavior changed.
+- PR 6 background-job trigger audit is accepted by ARGUS, 2026-06-15: no
+  archive/import/export/replay flow currently proves a worker trigger. The
+  upload `processUploadedFile(...).catch(...)` path remains a future-trigger
+  candidate, not a solved concern, but current evidence does not show concrete
+  unsafe completion, timeout, or unrecoverable retry pain. Chat import
+  retry/status remains owner-scoped without persisted private chat payloads, and
+  persona/Developer Space exports remain synchronous owner-only JSON/Markdown
+  package creation plus completed-only bundle readback. Existing LLM throttling
+  and operational-cache `queue_state` support are not a broad background-worker
+  implementation. Verdict: close PR 6 as no-trigger deferral; reopen workers
+  only around a named failing flow with fresh evidence.
 
 ## Near-term rule
 

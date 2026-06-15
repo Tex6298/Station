@@ -227,7 +227,7 @@ Exit:
 
 ## PR 6 - Background Jobs Only If Replay/Import Proves Pain
 
-Status: DAEDALUS no-trigger audit ready for ARGUS review. See
+Status: accepted by A3 / ARGUS on 2026-06-15 as a no-trigger deferral. See
 `docs/roadmap/PR6_BACKGROUND_JOB_TRIGGER_AUDIT_RESULT.md`.
 
 Goal: avoid premature queue architecture.

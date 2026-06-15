@@ -6055,3 +6055,45 @@ Validation commands:
 | `npx --yes pnpm@10.32.1 test:replay-readiness` | Pass | 1 replay-readiness test passed. |
 | `npx --yes pnpm@10.32.1 --filter @station/api build` | Pass | API and required shared package builds passed. |
 | `git diff --check` | Pass | No whitespace errors; Git reported expected CRLF normalization warnings for touched files and consumed DAEDALUS state. |
+
+## Backend/Product PR 6 Background Job Trigger Audit ARGUS review
+
+Validated on 2026-06-15 after DAEDALUS committed
+`75dcd66 docs: audit background job trigger`.
+
+ARGUS review:
+
+- The PR 6 result is docs-only and adds no worker, queue provider, route
+  behavior, migration, Redis, Cloudflare, archive retrieval, export scope, or UI
+  change.
+- The reviewed archive/import/export/replay surfaces match the lane scope:
+  file registration/processing, chat import jobs and retry, export package
+  creation/readback, replay-readiness evidence, and staging docs.
+- `processUploadedFile(...).catch(...)` remains the real future-trigger
+  candidate, but no accepted evidence currently proves unsafe completion,
+  user-visible timeout, blocking latency, or unrecoverable retry failure.
+- Chat import retry/status is owner-scoped and does not store private chat
+  content in job payloads.
+- Export packages remain synchronous owner-only JSON/Markdown packages with
+  failed-package visibility and completed-only bundle readback.
+- Existing in-memory LLM throttling and operational-cache `queue_state` support
+  are not an archive/import/export worker implementation.
+
+ARGUS validation:
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Overclaim review | Pass | The audit does not claim workers are implemented, complete, or permanently rejected. It closes only the current no-trigger lane. |
+| Worker-trigger evidence review | Pass | No concrete archive/import/export/replay failure flow was found that forces a worker shell now. |
+| Fire-and-forget review | Pass with future caveat | Uploaded-file processing remains fire-and-forget and should reopen workers if a concrete failed/retry case appears. |
+| `npx --yes pnpm@10.32.1 test:storage` | Pass | 9 storage/import tests passed. |
+| `npx --yes pnpm@10.32.1 test:conversation-archive` | Pass | 5 archive/retry/retrieval tests passed. |
+| `npx --yes pnpm@10.32.1 test:exports` | Pass | 3 export readback/failure tests passed. |
+| `npx --yes pnpm@10.32.1 test:replay-readiness` | Pass | 1 replay-readiness test passed. |
+| `npx --yes pnpm@10.32.1 --filter @station/api build` | Pass | API and required shared package builds passed. |
+| `git diff --check` | Pass | CRLF normalization warnings only. |
+
+No private archive text, prompts, completions, provider payloads, raw replay
+bodies, credentials, tokens, cookies, owner IDs, private IDs, screenshots, or
+job payload bodies were recorded. ARGUS accepts PR 6 as a no-trigger deferral
+and recommends closing the lane.
