@@ -4,6 +4,8 @@ Date opened: 2026-06-15
 
 Opened by: A1 / MIMIR
 
+DAEDALUS result: `docs/roadmap/PR8_SITE_WIDE_UI_COHERENCE_RESULT.md`
+
 Prerequisite: PR 7 live replay optimization baseline accepted by A3 / ARGUS in
 `8b2c9c2` as evidence-only/no-code.
 
@@ -200,3 +202,17 @@ If ARGUS accepts, ARGUS should wake ARIADNE for a route-set human rehearsal.
 
 ARIADNE should wake MIMIR with pass/fail and the exact remaining route defects,
 not broad vibes.
+
+## DAEDALUS Implementation Status
+
+Ready for ARGUS review, 2026-06-15. DAEDALUS added explicit Station page,
+panel, card, notice, and action primitives; applied them to Billing, Settings,
+Spaces index, Developer Spaces index, Writing, and Studio publishing; and made
+Studio publishing no-op controls disabled/labelled unavailable. Backend,
+auth/session, Stripe backend, Supabase/database, provider, migration, package,
+and lockfile behavior were not changed.
+
+Most PR 8 validation passed. `test:document-discussions` timed out twice with
+no completed test output, including when isolated from its package-build prefix.
+The timeout is recorded in the result doc for ARGUS review because PR 8 did not
+touch API route or document-discussion test code.

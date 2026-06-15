@@ -3267,6 +3267,17 @@ when a PR lands, or when validation truth changes.
   set. This is not just `/discover`, not a decorative redesign, and not a
   backend/config/auth/billing/provider lane. Live-looking controls must either
   work or stop presenting as live.
+- PR 8 DAEDALUS site-wide UI coherence implementation is ready for ARGUS
+  review, 2026-06-15: explicit Station page/panel/card/notice/action primitives
+  now support Billing, Settings, Spaces index, Developer Spaces index, Writing,
+  and Studio publishing surfaces. Studio publishing no-op actions are disabled
+  and labelled unavailable while existing live forms, links, tabs, Checkout,
+  portal, and Developer Space controls remain live. No backend, auth/session,
+  Stripe backend, Supabase/database, provider, migration, package, or lockfile
+  behavior changed. Validation is mostly green; `test:document-discussions`
+  timed out twice with no completed test output even when isolated, so ARGUS
+  should decide whether that current validation hang blocks PR 8 or is a
+  separate test-harness issue.
 
 ## Near-term rule
 

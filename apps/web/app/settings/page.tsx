@@ -56,28 +56,24 @@ const notificationRows = [
 
 export default function SettingsPage() {
   return (
-    <main style={{ minHeight: "calc(100vh - 52px)", background: "#f4f3ef", color: "#1f2529" }}>
-      <div style={{ maxWidth: 1180, margin: "0 auto", padding: "24px clamp(16px, 4vw, 32px) 48px" }}>
-        <header style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 16, marginBottom: 20 }}>
+    <main className="station-page">
+      <div className="station-page-inner">
+        <header className="station-page-header">
           <div>
-            <div style={{ color: "#534ab7", fontSize: 11, textTransform: "uppercase", letterSpacing: "0.12em", fontWeight: 800 }}>
-              Account
-            </div>
-            <h1 style={{ margin: "8px 0 6px", color: "#1f2529", fontSize: "clamp(30px, 5vw, 46px)", lineHeight: 1.05 }}>
-              Settings
-            </h1>
-            <p style={{ margin: 0, color: "#687078", fontSize: 15, lineHeight: 1.6, maxWidth: 720 }}>
+            <div className="station-eyebrow">Account</div>
+            <h1 className="station-page-title">Settings</h1>
+            <p className="station-page-lede">
               Manage your identity, subscription, connected accounts, privacy defaults, notifications, and workspace data.
             </p>
           </div>
-          <Link href="/studio" style={primaryLink}>Back to Studio</Link>
+          <Link href="/studio" className="station-link-button">Back to Studio</Link>
         </header>
 
         <div style={settingsLayout}>
           <section style={settingsCards}>
             {settingSections.map((section) => {
               const content = (
-                <article style={section.href ? card : unavailableCard}>
+                <article className="station-card" style={section.href ? card : unavailableCard}>
                   <div style={{ display: "flex", justifyContent: "space-between", gap: 8, alignItems: "center" }}>
                     <span style={markBox}>{section.mark}</span>
                     {section.status && <span style={statusPill}>{section.status}</span>}
@@ -124,7 +120,7 @@ export default function SettingsPage() {
                   <div style={{ color: "#687078", fontSize: 12 }}>Creator tier</div>
                 </div>
               </div>
-              <button type="button" disabled style={{ ...disabledButton, width: "100%", marginTop: 14 }}>
+              <button type="button" disabled className="station-disabled-action" style={{ width: "100%", marginTop: 14 }}>
                 Profile editor coming soon
               </button>
             </section>
@@ -149,7 +145,7 @@ export default function SettingsPage() {
               <p style={{ margin: "0 0 12px", color: "#d9a2a2", fontSize: 13, lineHeight: 1.55 }}>
                 Account deletion is not self-service yet. Contact Station support for deletion or export requests.
               </p>
-              <button type="button" disabled style={disabledDangerButton}>Delete account unavailable</button>
+              <button type="button" disabled className="station-disabled-action">Delete account unavailable</button>
             </section>
           </aside>
         </div>
@@ -233,52 +229,10 @@ const settingNote = {
   lineHeight: 1.55,
 };
 
-const primaryLink = {
-  display: "inline-flex",
-  alignItems: "center",
-  justifyContent: "center",
-  minHeight: 40,
-  border: "1px solid #1f2529",
-  borderRadius: 8,
-  background: "#1f2529",
-  color: "#fff",
-  padding: "0 14px",
-  fontSize: 14,
-  fontWeight: 800,
-  textDecoration: "none",
-};
-
-const secondaryButton = {
-  ...primaryLink,
-  background: "#ffffff",
-  borderColor: "#d8d3c8",
-  color: "#1f2529",
-  cursor: "pointer",
-};
-
-const disabledButton = {
-  ...secondaryButton,
-  color: "#687078",
-  cursor: "not-allowed",
-  opacity: 0.72,
-};
-
 const toggleRow = {
   display: "flex",
   alignItems: "center",
   gap: 9,
   color: "#1f2529",
   fontSize: 13,
-};
-
-const dangerButton = {
-  ...secondaryButton,
-  borderColor: "#7d2e2e",
-  color: "#fecaca",
-};
-
-const disabledDangerButton = {
-  ...dangerButton,
-  cursor: "not-allowed",
-  opacity: 0.72,
 };

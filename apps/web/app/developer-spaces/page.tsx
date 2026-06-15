@@ -93,9 +93,11 @@ export default function DeveloperSpacesPage() {
 
   if (loading) {
     return (
-      <main className="container">
-        <div className="card" style={{ textAlign: "center", padding: "3rem", color: "#687078" }}>
+      <main className="station-page">
+        <div className="station-page-inner">
+        <div className="station-panel" style={{ textAlign: "center", padding: "3rem", color: "#687078" }}>
           Loading Developer Spaces...
+        </div>
         </div>
       </main>
     );
@@ -103,21 +105,22 @@ export default function DeveloperSpacesPage() {
 
   if (!token) {
     return (
-      <main className="container" style={{ display: "grid", gap: "1.25rem", maxWidth: 1040 }}>
-        <section className="card" style={{ padding: "2rem" }}>
-          <p className="pill" style={{ margin: 0, color: "#534ab7" }}>Developer Spaces</p>
-          <h1 style={{ margin: "0.8rem 0 0.5rem", fontSize: "2rem" }}>Live homes for experiments, worlds, and research systems.</h1>
-          <p style={{ color: "#687078", lineHeight: 1.7, maxWidth: 760 }}>
+      <main className="station-page">
+        <div className="station-page-inner station-grid" style={{ maxWidth: 1040 }}>
+        <section className="station-panel" style={{ padding: "2rem" }}>
+          <p className="station-status-pill" style={{ margin: 0, color: "#534ab7" }}>Developer Spaces</p>
+          <h1 className="station-page-title">Live homes for experiments, worlds, and research systems.</h1>
+          <p className="station-page-lede">
             Browse public observatories, or sign in to create one, generate a private ingestion key, and stream project nodes, events, and snapshots into Station.
           </p>
-          <Link href="/login" className="button primary" style={{ textDecoration: "none", marginTop: "1rem" }}>Sign in to create one</Link>
+          <Link href="/login" className="station-link-button" style={{ marginTop: "1rem" }}>Sign in to create one</Link>
         </section>
         {publicSpaces.length > 0 ? (
           <section style={{ display: "grid", gap: "0.75rem" }}>
             <h2 style={{ margin: 0, fontSize: "1.2rem" }}>Public observatories</h2>
             <div style={{ display: "grid", gap: "0.75rem", gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))" }}>
               {publicSpaces.map((space) => (
-                <Link key={space.id} href={`/developer-spaces/${space.slug}`} className="card" style={{ display: "grid", gap: "0.5rem", textDecoration: "none" }}>
+                <Link key={space.id} href={`/developer-spaces/${space.slug}`} className="station-card" style={{ display: "grid", gap: "0.5rem", textDecoration: "none" }}>
                   <strong>{space.projectName}</strong>
                   <span style={{ color: "#687078", fontSize: "0.86rem", lineHeight: 1.5 }}>{space.description || "Live Station project observatory."}</span>
                   <span className="pill" style={{ width: "fit-content", textTransform: "capitalize" }}>{space.visualisationType.replace("_", " ")}</span>
@@ -126,33 +129,35 @@ export default function DeveloperSpacesPage() {
             </div>
           </section>
         ) : null}
+        </div>
       </main>
     );
   }
 
   return (
-    <main className="container" style={{ display: "grid", gap: "1.25rem" }}>
+    <main className="station-page">
+      <div className="station-page-inner station-grid">
       <section style={{ display: "grid", gap: "0.35rem" }}>
-        <p className="pill" style={{ width: "fit-content", color: "#534ab7" }}>Developer Spaces</p>
-        <h1 style={{ margin: 0, fontSize: "2rem" }}>Project observatories</h1>
-        <p style={{ margin: 0, color: "#687078", maxWidth: 900, lineHeight: 1.6 }}>
+        <p className="station-status-pill" style={{ color: "#534ab7" }}>Developer Spaces</p>
+        <h1 className="station-page-title">Project observatories</h1>
+        <p className="station-page-lede" style={{ maxWidth: 900 }}>
           Give running AI projects a public home that visitors can understand: live signals, provenance, research notes, and a clear boundary between the observatory and the private builder console.
         </p>
       </section>
 
       {error && (
-        <div className="card" style={{ background: "#2d1515", borderColor: "#7d2e2e", color: "#fca5a5" }}>
+        <div className="station-notice" data-tone="error">
           {error}
         </div>
       )}
       {createdMessage && (
-        <div className="card" style={{ background: "#e9f5ee", borderColor: "rgba(59, 143, 99, 0.35)", color: "#25633f" }}>
+        <div className="station-notice" data-tone="success">
           {createdMessage}
         </div>
       )}
 
       <section className="grid grid-2" style={{ alignItems: "start" }}>
-        <form className="card" onSubmit={handleCreate} style={{ display: "grid", gap: "0.9rem" }}>
+        <form className="station-panel" onSubmit={handleCreate} style={{ display: "grid", gap: "0.9rem" }}>
           <div>
             <h2 style={{ margin: 0, fontSize: "1.1rem" }}>Create a Developer Space</h2>
             <p style={{ margin: "0.3rem 0 0", color: "#687078", fontSize: "0.9rem", lineHeight: 1.5 }}>
@@ -191,13 +196,13 @@ export default function DeveloperSpacesPage() {
 
         <div style={{ display: "grid", gap: "0.75rem" }}>
           {spaces.length === 0 ? (
-            <div className="card" style={{ textAlign: "center", padding: "3rem 1.5rem", color: "#687078" }}>
+            <div className="station-panel" style={{ textAlign: "center", padding: "3rem 1.5rem", color: "#687078" }}>
               <div className="kicker" style={{ justifyContent: "center", marginBottom: "0.75rem" }}>Ready for a signal</div>
               <h2 style={{ margin: "0 0 0.4rem", color: "#1f2529" }}>No observatories yet</h2>
               <p style={{ margin: 0 }}>Create one, rotate an ingestion key, then stream nodes and events from your existing runtime.</p>
             </div>
           ) : spaces.map((space) => (
-            <article key={space.id} className="card" style={{ display: "grid", gap: "0.7rem" }}>
+            <article key={space.id} className="station-card" style={{ display: "grid", gap: "0.7rem" }}>
               <div style={{ display: "flex", gap: "0.75rem", justifyContent: "space-between", alignItems: "flex-start" }}>
                 <div>
                   <h2 style={{ margin: "0 0 0.25rem", fontSize: "1.1rem" }}>{space.projectName}</h2>
@@ -213,8 +218,8 @@ export default function DeveloperSpacesPage() {
                 <span>{space.apiKeyLastFour ? `key ****${space.apiKeyLastFour}` : "no ingestion key yet"}</span>
               </div>
               <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
-                <Link className="button" href={`/developer-spaces/${space.slug}`} style={{ textDecoration: "none" }}>View observatory</Link>
-                <Link className="button" href={`/developer-spaces/${space.slug}/manage`} style={{ textDecoration: "none" }}>Manage</Link>
+                <Link className="station-muted-button" href={`/developer-spaces/${space.slug}`}>View observatory</Link>
+                <Link className="station-muted-button" href={`/developer-spaces/${space.slug}/manage`}>Manage</Link>
               </div>
             </article>
           ))}
@@ -226,7 +231,7 @@ export default function DeveloperSpacesPage() {
           <h2 style={{ margin: 0, fontSize: "1.2rem" }}>Public observatories</h2>
           <div style={{ display: "grid", gap: "0.75rem", gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))" }}>
             {publicSpaces.map((space) => (
-              <Link key={space.id} href={`/developer-spaces/${space.slug}`} className="card" style={{ display: "grid", gap: "0.5rem", textDecoration: "none" }}>
+              <Link key={space.id} href={`/developer-spaces/${space.slug}`} className="station-card" style={{ display: "grid", gap: "0.5rem", textDecoration: "none" }}>
                 <strong>{space.projectName}</strong>
                 <span style={{ color: "#687078", fontSize: "0.86rem", lineHeight: 1.5 }}>{space.description || "Live Station project observatory."}</span>
                 <span className="pill" style={{ width: "fit-content", textTransform: "capitalize" }}>{space.visualisationType.replace("_", " ")}</span>
@@ -235,6 +240,7 @@ export default function DeveloperSpacesPage() {
           </div>
         </section>
       )}
+      </div>
     </main>
   );
 }

@@ -92,38 +92,47 @@ export default function BillingPage() {
 
   if (loading) {
     return (
-      <main className="container">
-        <div className="card"><p>Loading billing info...</p></div>
+      <main className="station-page">
+        <div className="station-page-inner station-page-inner-narrow">
+          <div className="station-panel"><p>Loading billing info...</p></div>
+        </div>
       </main>
     );
   }
 
   return (
-    <main className="container" style={{ maxWidth: 760, margin: "0 auto", padding: "2rem 1rem" }}>
-      <h1 style={{ marginBottom: "0.25rem" }}>Billing</h1>
+    <main className="station-page">
+      <div className="station-page-inner station-page-inner-narrow">
+      <header className="station-page-header">
+        <div>
+          <div className="station-eyebrow">Account</div>
+          <h1 className="station-page-title">Billing</h1>
+          <p className="station-page-lede">Manage your Station plan, Stripe portal access, and usage limits.</p>
+        </div>
+      </header>
 
       {success && (
-        <div className="card" style={{ background: "#e9f5ee", borderColor: "rgba(59, 143, 99, 0.35)", marginBottom: "1.5rem" }}>
-          <p style={{ color: "#25633f", margin: 0 }}>
+        <div className="station-notice" data-tone="success" style={{ marginBottom: "1.5rem" }}>
+          <p style={{ margin: 0 }}>
             Subscription activated. Welcome to {TIER_LABELS[currentTier]}!
           </p>
         </div>
       )}
 
       {cancelled && (
-        <div className="card" style={{ background: "#f8e6e3", borderColor: "rgba(157, 60, 53, 0.35)", marginBottom: "1.5rem" }}>
-          <p style={{ color: "#eb5757", margin: 0 }}>Checkout cancelled - no charge was made.</p>
+        <div className="station-notice" data-tone="error" style={{ marginBottom: "1.5rem" }}>
+          <p style={{ margin: 0 }}>Checkout cancelled - no charge was made.</p>
         </div>
       )}
 
       {error && (
-        <div className="card" style={{ background: "#f8e6e3", borderColor: "rgba(157, 60, 53, 0.35)", marginBottom: "1.5rem" }}>
-          <p style={{ color: "#eb5757", margin: 0 }}>{error}</p>
+        <div className="station-notice" data-tone="error" style={{ marginBottom: "1.5rem" }}>
+          <p style={{ margin: 0 }}>{error}</p>
         </div>
       )}
 
       {/* Current plan */}
-      <div className="card" style={{ marginBottom: "2rem" }}>
+      <div className="station-panel" style={{ marginBottom: "2rem" }}>
         <p style={{ color: "#687078", marginBottom: "0.5rem", fontSize: "0.85rem", textTransform: "uppercase", letterSpacing: "0.08em" }}>
           Current plan
         </p>
@@ -246,7 +255,7 @@ export default function BillingPage() {
         />
       </div>
 
-      <div className="card" style={{ marginTop: "2rem", background: "#ffffff" }}>
+      <div className="station-panel" style={{ marginTop: "2rem" }}>
         <h3 style={{ margin: "0 0 0.5rem" }}>Institutional</h3>
         <p style={{ color: "#687078", margin: "0 0 1rem", fontSize: "0.9rem" }}>
           For universities, research departments, newsrooms, and organisations that
@@ -256,6 +265,7 @@ export default function BillingPage() {
         <a href="mailto:hello@station.build" style={{ color: "#534ab7", fontSize: "0.9rem" }}>
           Contact us
         </a>
+      </div>
       </div>
     </main>
   );
@@ -288,7 +298,7 @@ function PlanCard({
 }) {
   return (
     <div
-      className="card"
+      className="station-card"
       style={{
         border: featured ? "1px solid #534ab7" : undefined,
         position: "relative",

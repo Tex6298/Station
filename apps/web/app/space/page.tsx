@@ -36,31 +36,33 @@ export default function MySpacesPage() {
   }, []);
 
   return (
-    <main className="container">
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "1.5rem" }}>
+    <main className="station-page">
+      <div className="station-page-inner">
+      <header className="station-page-header">
         <div>
-          <h1 style={{ margin: 0 }}>My Spaces</h1>
-          <p style={{ margin: "0.25rem 0 0", color: "#687078", fontSize: "0.875rem" }}>
+          <div className="station-eyebrow">Public presence</div>
+          <h1 className="station-page-title">My Spaces</h1>
+          <p className="station-page-lede">
             Your public pages - the face you show the world.
           </p>
         </div>
-        <Link href="/space/new" className="button primary" style={{ textDecoration: "none" }}>
-          + New Space
+        <Link href="/space/new" className="station-link-button">
+          New Space
         </Link>
-      </div>
+      </header>
 
-      {loading && <div className="card" style={{ color: "#687078", textAlign: "center", padding: "3rem" }}>Loading...</div>}
-      {error   && <div className="card" style={{ background: "#2d1515", borderColor: "#7d2e2e", color: "#eb5757" }}>{error}</div>}
+      {loading && <div className="station-panel" style={{ color: "#687078", textAlign: "center", padding: "3rem" }}>Loading...</div>}
+      {error   && <div className="station-notice" data-tone="error">{error}</div>}
 
       {!loading && !error && spaces.length === 0 && (
-        <div className="card" style={{ textAlign: "center", padding: "4rem 2rem" }}>
+        <div className="station-panel" style={{ textAlign: "center", padding: "4rem 2rem" }}>
           <div className="kicker" style={{ justifyContent: "center", marginBottom: "0.75rem" }}>Public home</div>
           <h2 style={{ margin: "0 0 0.5rem" }}>No Spaces yet</h2>
           <p style={{ color: "#687078", margin: "0 0 1.5rem", fontSize: "0.9rem" }}>
             A Space is your public home - part website, part Substack, part MySpace.
             Requires the Creator tier or above.
           </p>
-          <Link href="/space/new" className="button primary" style={{ textDecoration: "none" }}>
+          <Link href="/space/new" className="station-link-button">
             Create your first Space
           </Link>
         </div>
@@ -69,7 +71,7 @@ export default function MySpacesPage() {
       {!loading && spaces.length > 0 && (
         <div style={{ display: "grid", gap: "0.75rem", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))" }}>
           {spaces.map((s) => (
-            <div key={s.id} className="card">
+            <article key={s.id} className="station-card">
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "0.5rem" }}>
                 <h2 style={{ margin: 0, fontSize: "1rem" }}>{s.title}</h2>
                 <span style={{
@@ -88,14 +90,15 @@ export default function MySpacesPage() {
                 {s.presentation.theme} / {s.presentation.layout}
               </div>
               <div style={{ display: "flex", gap: "0.5rem" }}>
-                <Link href={"/space/" + s.slug} style={{ fontSize: "0.8rem", color: "#534ab7", textDecoration: "none" }}>View</Link>
-                <Link href={"/space/" + s.slug + "/manage"} style={{ fontSize: "0.8rem", color: "#534ab7", textDecoration: "none" }}>Edit</Link>
-                <Link href={"/space/" + s.slug + "/documents/new"} style={{ fontSize: "0.8rem", color: "#687078", textDecoration: "none" }}>New post</Link>
+                <Link href={"/space/" + s.slug} className="station-muted-button">View</Link>
+                <Link href={"/space/" + s.slug + "/manage"} className="station-muted-button">Edit</Link>
+                <Link href={"/space/" + s.slug + "/documents/new"} className="station-muted-button">New post</Link>
               </div>
-            </div>
+            </article>
           ))}
         </div>
       )}
+      </div>
     </main>
   );
 }

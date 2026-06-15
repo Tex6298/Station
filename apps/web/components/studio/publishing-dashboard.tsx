@@ -32,25 +32,23 @@ export function PublishingDashboard() {
   const visible = useMemo(() => items.filter((item) => item.status === statusForTab(tab)), [tab]);
 
   return (
-    <main style={{ minHeight: "calc(100vh - 52px)", background: "#0b0e14" }}>
-      <div style={{ maxWidth: 1180, margin: "0 auto", padding: "24px clamp(16px, 4vw, 32px) 48px" }}>
-        <header style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 16, marginBottom: 20 }}>
+    <main className="station-page">
+      <div className="station-page-inner">
+        <header className="station-page-header">
           <div>
-            <div style={{ color: "#93c5fd", fontSize: 11, textTransform: "uppercase", letterSpacing: "0.12em", fontWeight: 800 }}>
-              Publishing Dashboard
-            </div>
-            <h1 style={{ margin: "8px 0 6px", color: "#f8fafc", fontSize: "clamp(30px, 5vw, 46px)", lineHeight: 1.05 }}>
+            <div className="station-eyebrow">Publishing Dashboard</div>
+            <h1 className="station-page-title">
               Drafts, schedules, and external posts.
             </h1>
-            <p style={{ margin: 0, color: "#a9b0bd", fontSize: 15, lineHeight: 1.6, maxWidth: 720 }}>
+            <p className="station-page-lede">
               Track publishing work across Station blog destinations and external connectors.
             </p>
           </div>
-          <Link href="/studio/publish" style={primaryButton}>New post</Link>
+          <Link href="/studio/publish" className="station-link-button">New post</Link>
         </header>
 
-        <section style={panel}>
-          <div style={{ display: "flex", gap: 6, flexWrap: "wrap", borderBottom: "1px solid #202938", paddingBottom: 12, marginBottom: 14 }}>
+        <section className="station-panel">
+          <div style={{ display: "flex", gap: 6, flexWrap: "wrap", borderBottom: "1px solid #d8d3c8", paddingBottom: 12, marginBottom: 14 }}>
             {tabs.map((item) => {
               const active = item === tab;
               return (
@@ -60,9 +58,9 @@ export function PublishingDashboard() {
                   onClick={() => setTab(item)}
                   style={{
                     ...tabButton,
-                    borderColor: active ? "#2563eb" : "#334155",
-                    background: active ? "#13233d" : "#0d1420",
-                    color: active ? "#dbeafe" : "#cbd5e1",
+                    borderColor: active ? "#1f2529" : "#d8d3c8",
+                    background: active ? "#1f2529" : "#fff",
+                    color: active ? "#fff" : "#1f2529",
                   }}
                 >
                   {item}
@@ -76,28 +74,28 @@ export function PublishingDashboard() {
               <article key={item.id} style={row}>
                 <div style={{ minWidth: 0 }}>
                   <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
-                    <h2 style={{ margin: 0, color: "#f8fafc", fontSize: 15 }}>{item.title}</h2>
+                    <h2 style={{ margin: 0, color: "#1f2529", fontSize: 15 }}>{item.title}</h2>
                     <span style={pill}>{item.type}</span>
                     <span style={statusPill(item.status)}>{item.status}</span>
                   </div>
-                  <div style={{ color: "#8ea0b8", fontSize: 12, marginTop: 7 }}>
+                  <div style={{ color: "#687078", fontSize: 12, marginTop: 7 }}>
                     {item.destinations.join(", ")} - {item.date}
                   </div>
-                  {item.failure ? <div style={{ color: "#fca5a5", fontSize: 12, marginTop: 7 }}>{item.failure}</div> : null}
+                  {item.failure ? <div style={{ color: "#9d3c35", fontSize: 12, marginTop: 7 }}>{item.failure}</div> : null}
                 </div>
                 <div style={{ display: "flex", gap: 8, flexWrap: "wrap", justifyContent: "flex-end" }}>
                   <Link href="/studio/publish" style={miniLink}>Edit</Link>
-                  {item.status === "Draft" || item.status === "Scheduled" ? <button type="button" style={miniButton}>Publish now</button> : null}
-                  {item.status === "Failed" ? <button type="button" style={miniButton}>Retry</button> : null}
-                  {item.status === "Published" ? <button type="button" style={miniButton}>View</button> : null}
-                  <button type="button" style={dangerButton}>Delete</button>
+                  {item.status === "Draft" || item.status === "Scheduled" ? <button type="button" disabled title="Preview only in this publishing dashboard slice." style={disabledMiniButton}>Publish unavailable</button> : null}
+                  {item.status === "Failed" ? <button type="button" disabled title="Retry is unavailable in this publishing dashboard slice." style={disabledMiniButton}>Retry unavailable</button> : null}
+                  {item.status === "Published" ? <button type="button" disabled title="Published-item detail is unavailable in this dashboard slice." style={disabledMiniButton}>View unavailable</button> : null}
+                  <button type="button" disabled title="Deletion is unavailable in this publishing dashboard slice." style={disabledDangerButton}>Delete unavailable</button>
                 </div>
               </article>
             ))}
           </div>
 
           {visible.length === 0 ? (
-            <div style={{ color: "#8ea0b8", fontSize: 13, padding: 16 }}>No items in this tab yet.</div>
+            <div style={{ color: "#687078", fontSize: 13, padding: 16 }}>No items in this tab yet.</div>
           ) : null}
         </section>
       </div>
@@ -105,41 +103,19 @@ export function PublishingDashboard() {
   );
 }
 
-const panel = {
-  border: "1px solid #263244",
-  background: "#101622",
-  borderRadius: 8,
-  padding: 16,
-};
-
 const row = {
   display: "grid",
   gridTemplateColumns: "minmax(0, 1fr) auto",
   gap: 14,
   alignItems: "center",
-  border: "1px solid #202938",
+  border: "1px solid #d8d3c8",
   borderRadius: 8,
-  background: "#0d1420",
+  background: "#ffffff",
   padding: 13,
 };
 
-const primaryButton = {
-  display: "inline-flex",
-  alignItems: "center",
-  justifyContent: "center",
-  minHeight: 40,
-  border: "1px solid #2563eb",
-  borderRadius: 8,
-  background: "#2563eb",
-  color: "#fff",
-  padding: "0 14px",
-  fontSize: 14,
-  fontWeight: 800,
-  textDecoration: "none",
-};
-
 const tabButton = {
-  border: "1px solid #334155",
+  border: "1px solid #d8d3c8",
   borderRadius: 999,
   padding: "7px 11px",
   fontSize: 12,
@@ -148,20 +124,20 @@ const tabButton = {
 };
 
 const pill = {
-  border: "1px solid #334155",
+  border: "1px solid #d8d3c8",
   borderRadius: 999,
-  background: "#111827",
-  color: "#cbd5e1",
+  background: "#f8f7f4",
+  color: "#687078",
   padding: "4px 8px",
   fontSize: 11,
 };
 
 function statusPill(status: PublishItem["status"]) {
   const map = {
-    Draft: { background: "#111827", color: "#cbd5e1", borderColor: "#334155" },
-    Scheduled: { background: "#2d2108", color: "#facc15", borderColor: "#6b4e0c" },
-    Published: { background: "#09261f", color: "#6ee7b7", borderColor: "#145943" },
-    Failed: { background: "#2d1515", color: "#fca5a5", borderColor: "#7d2e2e" },
+    Draft: { background: "#f8f7f4", color: "#687078", borderColor: "#d8d3c8" },
+    Scheduled: { background: "#f8efd9", color: "#854f0b", borderColor: "rgba(133, 79, 11, 0.35)" },
+    Published: { background: "#e9f5ee", color: "#25633f", borderColor: "rgba(59, 143, 99, 0.35)" },
+    Failed: { background: "#f8e6e3", color: "#9d3c35", borderColor: "rgba(157, 60, 53, 0.35)" },
   }[status];
 
   return {
@@ -171,10 +147,10 @@ function statusPill(status: PublishItem["status"]) {
 }
 
 const miniButton = {
-  border: "1px solid #334155",
+  border: "1px solid #d8d3c8",
   borderRadius: 7,
-  background: "#111827",
-  color: "#dbeafe",
+  background: "#ffffff",
+  color: "#1f2529",
   padding: "7px 9px",
   fontSize: 12,
   cursor: "pointer",
@@ -189,6 +165,22 @@ const miniLink = {
 
 const dangerButton = {
   ...miniButton,
-  borderColor: "#5f2424",
-  color: "#fca5a5",
+  borderColor: "rgba(157, 60, 53, 0.35)",
+  color: "#9d3c35",
+};
+
+const disabledMiniButton = {
+  ...miniButton,
+  background: "#f8f7f4",
+  color: "#687078",
+  cursor: "not-allowed",
+  opacity: 0.78,
+};
+
+const disabledDangerButton = {
+  ...dangerButton,
+  background: "#f8f7f4",
+  color: "#9d3c35",
+  cursor: "not-allowed",
+  opacity: 0.78,
 };

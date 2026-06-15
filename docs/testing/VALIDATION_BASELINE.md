@@ -6177,3 +6177,34 @@ No private archive text, prompts, completions, provider payloads, raw replay
 bodies, credentials, tokens, cookies, owner IDs, private IDs, screenshots, or
 job payload bodies were recorded. ARGUS accepts PR 6 as a no-trigger deferral
 and recommends closing the lane.
+
+## PR 8 Site-Wide UI Coherence DAEDALUS validation
+
+Validated on 2026-06-15 after the frontend-only Station UI coherence pass.
+
+Implementation scope:
+
+- Added explicit Station page, panel, card, notice, status, and action
+  primitives.
+- Applied them to Billing, Settings, Spaces index, Developer Spaces index,
+  Writing, and Studio publishing surfaces.
+- Made Studio publishing no-op controls disabled and labelled unavailable.
+- Did not change backend, auth/session, Stripe backend, Supabase/database,
+  provider, migration, package, or lockfile behavior.
+
+Validation commands:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npx --yes pnpm@10.32.1 --filter @station/web typecheck` | Pass | Web TypeScript check passed. |
+| `npx --yes pnpm@10.32.1 --filter @station/web lint` | Pass with warnings | Existing warning inventory only: React hook dependency warning in `apps/web/app/developer-spaces/[slug]/manage/page.tsx`, and `<img>` warnings in `apps/web/app/space/[slug]/page.tsx` and `apps/web/components/discover/discover-front-door.tsx`. |
+| `npx --yes pnpm@10.32.1 test:studio-ui` | Pass | 8 tests passed. |
+| `npx --yes pnpm@10.32.1 test:community` | Pass | 8 tests passed. |
+| `npx --yes pnpm@10.32.1 test:document-discussions` | Timeout | Timed out after 124 seconds, then again after 304 seconds, with no completed test output. The package build prefix passes; isolated `npx --yes tsx --test apps/api/src/routes/document-discussions.test.ts` also timed out after 124 seconds. PR 8 did not touch API route or document-discussion test code. |
+| `npx --yes pnpm@10.32.1 test:developer-spaces` | Pass | 7 tests passed. |
+| `npx --yes pnpm@10.32.1 test:developer-space-client` | Pass | 3 tests passed. |
+| `npx --yes pnpm@10.32.1 test:billing` | Pass | 4 tests passed. |
+| `git diff --check` | Pass | No whitespace errors; Git reported expected CRLF normalization warnings for touched files and consumed DAEDALUS state. |
+
+ARGUS should review whether the `test:document-discussions` hang blocks this
+frontend-only PR 8 slice or should be split into a separate test-harness repair.

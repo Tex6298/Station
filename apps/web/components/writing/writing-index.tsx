@@ -63,21 +63,17 @@ export function WritingIndex() {
   const emptyMessage = emptyStateFor(activeTab, activeFilter, query);
 
   return (
-    <main style={{ minHeight: "calc(100vh - 52px)", background: "#f4f3ef", color: "#1f2529" }}>
-      <div style={{ maxWidth: 1180, margin: "0 auto", padding: "24px clamp(16px, 4vw, 32px) 48px" }}>
-        <header style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 16, marginBottom: 20 }}>
+    <main className="station-page">
+      <div className="station-page-inner">
+        <header className="station-page-header">
           <div>
-            <div style={{ color: "#534ab7", fontSize: 11, textTransform: "uppercase", letterSpacing: "0.12em", fontWeight: 800 }}>
-              Station Library
-            </div>
-            <h1 style={{ margin: "8px 0 6px", color: "#1f2529", fontSize: "clamp(34px, 6vw, 64px)", lineHeight: 1 }}>
-              Writing
-            </h1>
-            <p style={{ margin: 0, color: "#687078", fontSize: 15, lineHeight: 1.65, maxWidth: 720 }}>
+            <div className="station-eyebrow">Station Library</div>
+            <h1 className="station-page-title station-page-title-large">Writing</h1>
+            <p className="station-page-lede">
               Essays, codexes, research notes, field logs, and theory from the Station community.
             </p>
           </div>
-          <Link href="/studio/publish" style={primaryLink}>Write</Link>
+          <Link href="/studio/publish" className="station-link-button">Write</Link>
         </header>
 
         <section style={panel}>
@@ -260,21 +256,6 @@ const thumb = {
   background: "linear-gradient(135deg, #eeedfe, #eceae4)",
   display: "grid",
   placeItems: "center",
-};
-
-const primaryLink = {
-  display: "inline-flex",
-  alignItems: "center",
-  justifyContent: "center",
-  minHeight: 40,
-  border: "1px solid #1f2529",
-  borderRadius: 8,
-  background: "#1f2529",
-  color: "#fff",
-  padding: "0 14px",
-  fontSize: 14,
-  fontWeight: 800,
-  textDecoration: "none",
 };
 
 const tabButton = {
