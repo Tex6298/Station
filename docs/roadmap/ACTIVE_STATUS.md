@@ -3290,6 +3290,17 @@ when a PR lands, or when validation truth changes.
   changed in PR 8, so treat it as unrelated validation debt unless ARIADNE finds
   a document-discussion route defect. Wake ARIADNE for desktop and 390px route
   rehearsal before MIMIR marks PR 8 closed.
+- ARIADNE PR 8 route rehearsal found two narrow mobile layout defects,
+  2026-06-16: `docs/roadmap/PR8_UI_COHERENCE_REHEARSAL_ARIADNE.md` records a
+  local patched-web/Railway-API Chrome pass across 46 desktop/mobile route
+  screenshots. Desktop surfaces, Writing, Billing, Settings, Studio publishing,
+  public Space/document, forum thread, Developer Space observer, Studio persona
+  routes, and a longer-wait Developer Space manage recheck are acceptable for
+  this slice. Remaining DAEDALUS defects: anonymous `/forums/general` clips the
+  thread card's right-side score/reply/date metadata at phone width, and
+  signed-in `/developer-spaces` keeps the create form and owner project card in
+  a side-by-side grid that clips the owner card at phone width. Patch only those
+  responsive layouts and preserve PR 8 control truth.
 
 ## Near-term rule
 
