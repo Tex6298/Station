@@ -3328,6 +3328,13 @@ when a PR lands, or when validation truth changes.
   and cuts off the date, with CDP reporting a widened layout viewport around
   `408px`. MIMIR should reopen only the forum-category metadata layout, not the
   Developer Spaces fix or the broader PR 8 route set.
+- MIMIR opens the PR 8 forum-category mobile metadata follow-up,
+  2026-06-16: `docs/roadmap/PR8_FORUM_CATEGORY_MOBILE_METADATA_FOLLOWUP.md`
+  narrows the remaining work to `/forums/general` phone-width thread metadata
+  clipping. DAEDALUS should patch `apps/web/app/forums/[categorySlug]/page.tsx`
+  so score, reply count, and date fit inside `390px` without hiding content or
+  masking overflow globally. Do not reopen Developer Spaces, the broader PR 8
+  route set, backend/config/auth/billing/provider behavior, or API semantics.
 
 ## Near-term rule
 
