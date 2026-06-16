@@ -6267,6 +6267,23 @@ The broader `test:document-discussions` timeout from the initial PR 8
 validation remains recorded above; this follow-up did not touch API route or
 document-discussion test code.
 
+## PR 8 forum-category metadata follow-up validation
+
+Validated on 2026-06-16 after DAEDALUS patched the remaining anonymous
+`/forums/general` 390px metadata clipping defect.
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npx --yes pnpm@10.32.1 --filter @station/web typecheck` | Pass | Web TypeScript check passed. |
+| `npx --yes pnpm@10.32.1 --filter @station/web lint` | Pass with warnings | Existing warning inventory only. |
+| `npx --yes pnpm@10.32.1 test:community` | Pass | 8 tests passed. |
+| `git diff --check` | Pass | CRLF normalization warnings only. |
+
+Browser check was attempted but unavailable locally: the temporary API process
+failed before serving because required Supabase env vars were unavailable to
+that process. No browser acceptance is claimed here; ARIADNE owns the final
+`390px` `/forums/general` route recheck after ARGUS review.
+
 ## PR 8 Mobile Defect Follow-Up ARGUS review
 
 Validated on 2026-06-16 after DAEDALUS committed

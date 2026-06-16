@@ -4,6 +4,8 @@ Date opened: 2026-06-16
 
 Opened by: A1 / MIMIR
 
+DAEDALUS status: ready for ARGUS review, 2026-06-16.
+
 Prerequisite: A4 / ARIADNE narrow mobile recheck at `0a560c0`.
 
 Owner: A2 / DAEDALUS first, then A3 / ARGUS, then A4 / ARIADNE for one final
@@ -111,3 +113,52 @@ DAEDALUS should wake ARGUS with:
 - confirmation that no backend/config/auth/billing/provider behavior changed.
 
 If ARGUS accepts, wake ARIADNE for the final `390px` `/forums/general` recheck.
+
+## DAEDALUS Patch Result
+
+Patched file:
+
+- `apps/web/app/forums/[categorySlug]/page.tsx`.
+
+Before:
+
+- Thread cards placed the title/body and score/reply/date metadata in the same
+  flex row.
+- The prior follow-up allowed wrapping, but the metadata group was still
+  right-aligned and could reach the card edge at `390px`, clipping the date.
+
+After:
+
+- Thread cards use a simple grid for the top content.
+- Title/body render first with `minWidth: 0`.
+- Score, reply count, and date render as their own full-width, left-aligned,
+  wrapping metadata row inside the card.
+- Author, trust, vote, and own-post affordances are unchanged and still wrap in
+  their existing row.
+
+Validation:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npx --yes pnpm@10.32.1 --filter @station/web typecheck` | Pass | Web TypeScript check passed. |
+| `npx --yes pnpm@10.32.1 --filter @station/web lint` | Pass with warnings | Existing warning inventory only. |
+| `npx --yes pnpm@10.32.1 test:community` | Pass | 8 tests passed. |
+| `git diff --check` | Pass | CRLF normalization warnings only. |
+
+Browser check:
+
+- Attempted local anonymous `/forums/general` browser setup, but the local API
+  did not become ready. Startup failed before serving because the temporary API
+  process did not receive required Supabase env vars:
+  `SUPABASE_URL`, `SUPABASE_ANON_KEY`, and `SUPABASE_SERVICE_ROLE_KEY`.
+- DAEDALUS did not claim browser acceptance. ARGUS should review the code
+  safety and then wake ARIADNE for the final `390px` route recheck if accepted.
+
+Protected-scope confirmation:
+
+- Developer Spaces was not reopened.
+- No broader PR 8 route group was changed.
+- No API routes/services, auth/session behavior, billing backend, Stripe,
+  provider, embedding, Railway, Supabase, migrations, storage/quota, package
+  config, env, persistence, voting semantics, moderation, or thread detail
+  behavior changed.
