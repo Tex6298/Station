@@ -4,7 +4,7 @@ Date: 2026-06-16
 Reviewer: A4 / ARIADNE
 Wakeup reviewed: `37dc8cb docs: open live PR8 Railway recheck`
 
-## Verdict
+## Initial Verdict
 
 Fail with one exact frontend defect for DAEDALUS.
 
@@ -12,6 +12,54 @@ The hosted Railway route set is coherent enough for the PR 9 live PR8 recheck
 except for the signed-in Developer Space manage console contrast issue recorded
 below. The issue is visual/readability only; no auth, visibility, billing,
 storage, ingestion, export, or API behavior change is requested.
+
+## Post-Deploy Manage Contrast Recheck
+
+Date: 2026-06-16
+
+Verdict: Pass for the PR 9 manage-console contrast blocker.
+
+Railway web and API both deployed patched runtime commit `a85a77b`, with health
+`ok:true` and deployment readiness `ready:true`. ARIADNE reran the signed-in
+owner/manage browser check for:
+
+`/developer-spaces/station-replay-dev-alpha/manage`
+
+Browser coverage:
+
+- Desktop `1440 x 1200`
+- Mobile `390 x 844`
+
+Evidence was captured locally during the follow-up at:
+
+`C:\Users\marty\AppData\Local\Temp\station-a4-manage-recheck-Dz5Gcm`
+
+Accepted in the follow-up:
+
+- The route stays on the signed-in manage URL and does not redirect away.
+- Desktop has no document-level overflow: measured `1425px` scroll width inside
+  a `1440px` viewport.
+- Mobile has no document-level overflow: measured `390px` scroll width inside a
+  `390px` viewport.
+- The previous blocker is repaired: owner breadcrumbs, helper copy, ingestion
+  key labels, stats, usage metrics, visual mode labels, widget titles and
+  controls, export row title/status, project-note labels, and ingestion
+  instruction helper copy are readable on light Station cards.
+- The command samples remain intentionally dark code blocks and remain readable.
+
+Future polish, not a PR 9 blocker:
+
+- Two small timestamp metadata spans in the live ingestion and export rows still
+  measured about `3.26:1` against white. The row labels, titles, status, and
+  operational controls are readable, so this does not recreate the original
+  manage-console blocker, but it is worth tightening in a later accessibility
+  polish pass.
+
+Sanitization:
+
+- No private archive text, prompts, raw manifests, tokens, cookies, IDs,
+  credentials, API keys, full checkout/portal URLs, Stripe identifiers, or raw
+  deployment IDs are recorded.
 
 ## Deployment Identity
 

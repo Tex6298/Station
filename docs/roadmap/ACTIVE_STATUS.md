@@ -3407,6 +3407,18 @@ when a PR lands, or when validation truth changes.
   ARIADNE should run the post-deploy signed-in
   `/developer-spaces/station-replay-dev-alpha/manage` browser recheck and wake
   MIMIR with pass/fail.
+- ARIADNE accepts the post-deploy PR 9 manage-console contrast repair,
+  2026-06-16:
+  `docs/roadmap/PR9_LIVE_PR8_RAILWAY_RECHECK_ARIADNE.md` now records the
+  signed-in live browser recheck of
+  `/developer-spaces/station-replay-dev-alpha/manage` against Railway runtime
+  commit `a85a77b`. Web and API health are `ok:true` and deployment readiness is
+  `ready:true`. Desktop `1440 x 1200` and mobile `390 x 844` both stayed within
+  document width. The owner/manage stats, usage metrics, form labels, helper
+  copy, widget rows, export row title/status, project-note labels, and
+  ingestion instruction copy are readable on light Station cards. Remaining
+  polish note only: two small timestamp metadata spans measured about `3.26:1`
+  against white; they do not recreate the original PR 9 blocker.
 
 ## Near-term rule
 
