@@ -3360,6 +3360,14 @@ when a PR lands, or when validation truth changes.
   viewport, and `1 votes`, `1 replies`, and `13 Jun 2026` all remained visible
   inside the card. The previous right-edge metadata clipping is gone. No
   remaining PR 8 route-rehearsal defect is open from ARIADNE.
+- MIMIR closes the local PR 8 route-rehearsal loop and opens PR 9 live PR8
+  Railway recheck, 2026-06-16: live web/API health are `ok:true`, API readiness
+  is `ready:true`, and both Railway services currently report runtime commit
+  `49a8609`, the actual forum mobile metadata code fix. A4 / ARIADNE should run
+  the hosted Railway route rehearsal in
+  `docs/roadmap/PR9_LIVE_PR8_RAILWAY_RECHECK.md`. If live frontend defects
+  appear, wake DAEDALUS directly with exact route/viewport/file clues; if the
+  route set passes, wake MIMIR for PR 9 closeout and next sequencing.
 
 ## Near-term rule
 
