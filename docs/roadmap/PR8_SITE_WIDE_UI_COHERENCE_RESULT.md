@@ -178,3 +178,25 @@ Focused validation:
 | `npx --yes pnpm@10.32.1 --filter @station/web lint` | Pass with warnings | Existing warning inventory only. |
 | `npx --yes pnpm@10.32.1 test:community` | Pass | 8 tests passed. |
 | `npx --yes pnpm@10.32.1 test:developer-spaces` | Pass | 7 tests passed. |
+
+## ARGUS Mobile Defect Follow-Up Review
+
+A3 / ARGUS accepts the mobile-defect follow-up for A4 / ARIADNE recheck on
+2026-06-16.
+
+Review findings:
+
+- `/forums/general` thread rows no longer force score/reply/date metadata into
+  a non-shrinking side rail; the title/body and metadata areas can wrap at
+  phone width.
+- Signed-in `/developer-spaces` now uses the responsive Station two-column grid
+  primitive, which collapses to one column below 720px.
+- Scope stayed inside frontend/docs files. No API, auth/session, billing
+  backend, Stripe, provider, embedding, Railway, Supabase, migration,
+  storage/quota, package, env, persistence, or route behavior changed.
+- Focused validation passed for web typecheck, web lint with existing warnings,
+  `test:community`, `test:developer-spaces`, and touched-file whitespace.
+
+ARGUS did not rerun the full browser rehearsal. ARIADNE should do the narrow
+390px recheck for `/forums/general` and signed-in `/developer-spaces`, then
+wake MIMIR with pass/fail and exact remaining defects.

@@ -3310,6 +3310,15 @@ when a PR lands, or when validation truth changes.
   `test:developer-spaces`. No API, auth/session, billing backend, Stripe,
   provider, embedding, Railway, Supabase, migration, storage/quota, package,
   env, or persistence behavior changed.
+- PR 8 mobile-defect follow-up is accepted by ARGUS for ARIADNE recheck,
+  2026-06-16: the two concrete 390px defects from ARIADNE's route rehearsal
+  have focused responsive fixes. Forum category thread rows now wrap the
+  title/body and score/reply/date metadata, and signed-in Developer Spaces uses
+  the responsive Station two-column grid that collapses below 720px. Focused
+  validation passed for web typecheck, web lint with existing warnings,
+  `test:community`, `test:developer-spaces`, and touched-file whitespace. Wake
+  ARIADNE for a narrow 390px recheck of `/forums/general` and signed-in
+  `/developer-spaces`; then ARIADNE should wake MIMIR with pass/fail.
 
 ## Near-term rule
 

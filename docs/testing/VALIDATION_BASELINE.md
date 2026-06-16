@@ -6266,3 +6266,33 @@ defects from ARIADNE's route rehearsal.
 The broader `test:document-discussions` timeout from the initial PR 8
 validation remains recorded above; this follow-up did not touch API route or
 document-discussion test code.
+
+## PR 8 Mobile Defect Follow-Up ARGUS review
+
+Validated on 2026-06-16 after DAEDALUS committed
+`485a478 web: fix PR8 mobile layout defects`.
+
+ARGUS review:
+
+- The patch is limited to the two ARIADNE-reported responsive defects and docs.
+- `/forums/general` thread rows can wrap the title/body column and
+  score/reply/date metadata instead of forcing a non-shrinking side rail.
+- Signed-in `/developer-spaces` uses the responsive Station grid primitive,
+  which collapses to one column below 720px.
+- No API, auth/session, billing backend, Stripe, provider, embedding, Railway,
+  Supabase, migration, storage/quota, package, env, persistence, or route
+  behavior changed.
+
+ARGUS validation:
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Responsive code review | Pass | Fixes match ARIADNE's two exact implementation clues. |
+| Scope review | Pass | Changed files are frontend/docs plus consumed agent state only. |
+| `npx --yes pnpm@10.32.1 --filter @station/web typecheck` | Pass | Web TypeScript check passed. |
+| `npx --yes pnpm@10.32.1 --filter @station/web lint` | Pass with warnings | Existing warning inventory only. |
+| `npx --yes pnpm@10.32.1 test:community` | Pass | 8 community tests passed. |
+| `npx --yes pnpm@10.32.1 test:developer-spaces` | Pass | 7 Developer Spaces tests passed. |
+| `git diff --check -- <touched files>` | Pass | CRLF normalization warnings only. |
+
+ARGUS accepts the follow-up for ARIADNE's narrow 390px browser recheck.
