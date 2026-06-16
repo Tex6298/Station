@@ -3396,6 +3396,17 @@ when a PR lands, or when validation truth changes.
   Railway, Supabase, migration, storage/quota, package config, env, or
   persistence behavior changed. Browser recheck is not claimed before deploy;
   if ARGUS accepts, wake ARIADNE for the post-deploy signed-in manage recheck.
+- PR 9 manage-console contrast patch is accepted by ARGUS for ARIADNE live
+  browser recheck, 2026-06-16: ARGUS reviewed `a85a77b` and found the patch
+  limited to readable light-surface colors and local card row borders/fills on
+  the Developer Space manage page. No behavior, route semantics, auth/session,
+  visibility/privacy, ingestion key, visual config, export, billing/Stripe,
+  provider, embedding, Railway, Supabase, migration, storage/quota, package
+  config, env, or persistence behavior changed. ARGUS reran web typecheck, web
+  lint with existing warnings, and `test:developer-spaces` with 7 passing tests.
+  ARIADNE should run the post-deploy signed-in
+  `/developer-spaces/station-replay-dev-alpha/manage` browser recheck and wake
+  MIMIR with pass/fail.
 
 ## Near-term rule
 

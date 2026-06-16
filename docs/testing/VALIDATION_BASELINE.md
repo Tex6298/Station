@@ -6300,6 +6300,17 @@ Browser recheck is not claimed before deploy. The signed-in Railway manage route
 needs a post-deploy owner-session recheck by ARIADNE after ARGUS accepts the
 code-safety review.
 
+ARGUS accepted the code-safety review on 2026-06-16 after rerunning:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npx --yes pnpm@10.32.1 --filter @station/web typecheck` | Pass | Web TypeScript check passed. |
+| `npx --yes pnpm@10.32.1 --filter @station/web lint` | Pass with warnings | Existing warning inventory only. |
+| `npx --yes pnpm@10.32.1 test:developer-spaces` | Pass | 7 tests passed. |
+
+ARGUS found no behavior or scope blocker. Browser acceptance remains with
+ARIADNE after the patch deploys.
+
 ## PR 8 Mobile Defect Follow-Up ARGUS review
 
 Validated on 2026-06-16 after DAEDALUS committed
