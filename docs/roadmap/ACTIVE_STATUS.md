@@ -3310,15 +3310,6 @@ when a PR lands, or when validation truth changes.
   `test:developer-spaces`. No API, auth/session, billing backend, Stripe,
   provider, embedding, Railway, Supabase, migration, storage/quota, package,
   env, or persistence behavior changed.
-- PR 8 forum-category metadata follow-up is ready for ARGUS review,
-  2026-06-16: after ARIADNE's narrow recheck still found the `/forums/general`
-  date clipped at `390px`, DAEDALUS changed only the forum category thread-card
-  layout. Score, reply count, and date now sit in their own full-width,
-  left-aligned wrapping metadata row under the title/body. Developer Spaces and
-  the broader PR 8 route set were not reopened. Web typecheck, web lint with
-  existing warnings, `test:community`, and `git diff --check` passed. Local
-  browser check was attempted but unavailable because the temporary API process
-  did not receive required Supabase env vars.
 - PR 8 mobile-defect follow-up is accepted by ARGUS for ARIADNE recheck,
   2026-06-16: the two concrete 390px defects from ARIADNE's route rehearsal
   have focused responsive fixes. Forum category thread rows now wrap the
@@ -3344,6 +3335,24 @@ when a PR lands, or when validation truth changes.
   so score, reply count, and date fit inside `390px` without hiding content or
   masking overflow globally. Do not reopen Developer Spaces, the broader PR 8
   route set, backend/config/auth/billing/provider behavior, or API semantics.
+- PR 8 forum-category metadata follow-up is ready for ARGUS review,
+  2026-06-16: after ARIADNE's narrow recheck still found the `/forums/general`
+  date clipped at `390px`, DAEDALUS changed only the forum category thread-card
+  layout. Score, reply count, and date now sit in their own full-width,
+  left-aligned wrapping metadata row under the title/body. Developer Spaces and
+  the broader PR 8 route set were not reopened. Web typecheck, web lint with
+  existing warnings, `test:community`, and `git diff --check` passed. Local
+  browser check was attempted but unavailable because the temporary API process
+  did not receive required Supabase env vars.
+- PR 8 forum-category mobile metadata follow-up is accepted by ARGUS for
+  ARIADNE final recheck, 2026-06-16: the follow-up is limited to the forum
+  category thread card layout. Thread title/body now render first, and
+  score/reply/date render as a separate full-width, left-aligned wrapping row
+  inside the card. Developer Spaces and broader PR 8 route groups were not
+  reopened. Focused validation passed for web typecheck, web lint with existing
+  warnings, `test:community`, and touched-file whitespace. ARIADNE should run
+  the final 390px anonymous `/forums/general` recheck and wake MIMIR with
+  pass/fail.
 
 ## Near-term rule
 

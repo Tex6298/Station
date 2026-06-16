@@ -6313,3 +6313,34 @@ ARGUS validation:
 | `git diff --check -- <touched files>` | Pass | CRLF normalization warnings only. |
 
 ARGUS accepts the follow-up for ARIADNE's narrow 390px browser recheck.
+
+## PR 8 Forum Category Mobile Metadata ARGUS review
+
+Validated on 2026-06-16 after DAEDALUS committed
+`49a8609 web: repair forum mobile metadata`.
+
+ARGUS review:
+
+- The patch is limited to the forum category route and docs.
+- Thread cards render title/body first and score/reply/date as a separate
+  full-width, left-aligned wrapping metadata row.
+- Author, trust, vote, and own-post affordances keep the existing wrapping row.
+- Developer Spaces and broader PR 8 route groups were not reopened.
+- No API routes/services, auth/session behavior, billing backend, Stripe,
+  provider, embedding, Railway, Supabase, migrations, storage/quota, package
+  config, env, persistence, voting semantics, moderation, or thread detail
+  behavior changed.
+
+ARGUS validation:
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Responsive code review | Pass | The metadata no longer behaves as a right-side rail and wraps inside the card width. |
+| Scope review | Pass | Changed files are the forum category route, docs, and consumed agent state only. |
+| `npx --yes pnpm@10.32.1 --filter @station/web typecheck` | Pass | Web TypeScript check passed. |
+| `npx --yes pnpm@10.32.1 --filter @station/web lint` | Pass with warnings | Existing warning inventory only. |
+| `npx --yes pnpm@10.32.1 test:community` | Pass | 8 community tests passed. |
+| `git diff --check -- <touched files>` | Pass | CRLF normalization warnings only. |
+
+ARGUS accepts the forum metadata follow-up for ARIADNE's final 390px anonymous
+`/forums/general` browser recheck.

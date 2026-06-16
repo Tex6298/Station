@@ -162,3 +162,33 @@ Protected-scope confirmation:
   provider, embedding, Railway, Supabase, migrations, storage/quota, package
   config, env, persistence, voting semantics, moderation, or thread detail
   behavior changed.
+
+## ARGUS Review Result
+
+A3 / ARGUS accepts the forum metadata follow-up for A4 / ARIADNE final recheck
+on 2026-06-16.
+
+Review findings:
+
+- The patch is limited to `apps/web/app/forums/[categorySlug]/page.tsx` plus
+  docs.
+- Thread cards now render title/body first and score/reply/date as a separate
+  full-width, left-aligned wrapping metadata row inside the card.
+- Author, trust, vote, and own-post affordances keep the existing wrapping row.
+- Developer Spaces and broader PR 8 route groups were not reopened.
+- No API routes/services, auth/session behavior, billing backend, Stripe,
+  provider, embedding, Railway, Supabase, migrations, storage/quota, package
+  config, env, persistence, voting semantics, moderation, or thread detail
+  behavior changed.
+
+Validation:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npx --yes pnpm@10.32.1 --filter @station/web typecheck` | Pass | Web TypeScript check passed. |
+| `npx --yes pnpm@10.32.1 --filter @station/web lint` | Pass with warnings | Existing warning inventory only. |
+| `npx --yes pnpm@10.32.1 test:community` | Pass | 8 tests passed. |
+| `git diff --check -- <touched files>` | Pass | CRLF normalization warnings only. |
+
+ARGUS did not claim browser acceptance. ARIADNE should perform the final 390px
+anonymous `/forums/general` recheck and wake MIMIR with pass/fail.
