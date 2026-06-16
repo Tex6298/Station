@@ -251,7 +251,7 @@ export default function DeveloperSpaceManagePage() {
   if (loading) {
     return (
       <main className="container">
-        <div className="card" style={{ textAlign: "center", padding: "3rem", color: "#94a3b8" }}>Loading management console...</div>
+        <div className="card" style={{ textAlign: "center", padding: "3rem", color: "#687078" }}>Loading management console...</div>
       </main>
     );
   }
@@ -261,7 +261,7 @@ export default function DeveloperSpaceManagePage() {
       <main className="container" style={{ maxWidth: 900 }}>
         <div className="card" style={{ padding: "2rem" }}>
           <h1 style={{ marginTop: 0 }}>Sign in required</h1>
-          <p style={{ color: "#94a3b8" }}>You need to sign in to manage a Developer Space.</p>
+          <p style={{ color: "#687078" }}>You need to sign in to manage a Developer Space.</p>
           <Link href="/login" className="button primary" style={{ textDecoration: "none" }}>Sign in</Link>
         </div>
       </main>
@@ -403,10 +403,10 @@ export default function DeveloperSpaceManagePage() {
 
   return (
     <main className="container" style={{ display: "grid", gap: "1.25rem", maxWidth: 1120 }}>
-      <div style={{ fontSize: "0.82rem", color: "#64748b" }}>
-        <Link href="/developer-spaces" style={{ color: "#94a3b8" }}>Developer Spaces</Link>
+      <div style={{ fontSize: "0.82rem", color: "#8b8f92" }}>
+        <Link href="/developer-spaces" style={{ color: "#687078" }}>Developer Spaces</Link>
         <span style={{ margin: "0 0.4rem" }}>/</span>
-        <Link href={`/developer-spaces/${detail.space.slug}`} style={{ color: "#94a3b8" }}>{detail.space.projectName}</Link>
+        <Link href={`/developer-spaces/${detail.space.slug}`} style={{ color: "#687078" }}>{detail.space.projectName}</Link>
         <span style={{ margin: "0 0.4rem" }}>/</span>
         <span>Manage</span>
       </div>
@@ -414,9 +414,9 @@ export default function DeveloperSpaceManagePage() {
       <section className="card" style={{ display: "grid", gap: "0.8rem", padding: "1.4rem" }}>
         <div style={{ display: "flex", justifyContent: "space-between", gap: "1rem", flexWrap: "wrap" }}>
           <div>
-            <p className="pill" style={{ margin: "0 0 0.65rem", color: "#c4b5fd" }}>Researcher interface</p>
+            <p className="pill" style={{ margin: "0 0 0.65rem", color: "#534ab7" }}>Researcher interface</p>
             <h1 style={{ margin: 0, fontSize: "1.9rem" }}>{detail.space.projectName}</h1>
-            <p style={{ color: "#94a3b8", maxWidth: 760, lineHeight: 1.6 }}>
+            <p style={{ color: "#687078", maxWidth: 760, lineHeight: 1.6 }}>
               Keep this page private. It manages API keys and shows raw ingestion instructions; the public observatory remains separate for visitors.
             </p>
           </div>
@@ -434,12 +434,12 @@ export default function DeveloperSpaceManagePage() {
         <aside className="card" style={{ display: "grid", gap: "1rem" }}>
           <div>
             <h2 style={{ margin: "0 0 0.4rem", fontSize: "1.05rem" }}>Ingestion key</h2>
-            <p style={{ margin: 0, color: "#94a3b8", fontSize: "0.88rem", lineHeight: 1.55 }}>
+            <p style={{ margin: 0, color: "#687078", fontSize: "0.88rem", lineHeight: 1.55 }}>
               Keys are shown once, hashed before storage, and can be rotated anytime. Put the key in your runtime environment, not in browser code.
             </p>
           </div>
 
-          <div style={{ display: "grid", gap: "0.35rem", fontSize: "0.82rem", color: "#cbd5e1" }}>
+          <div style={{ display: "grid", gap: "0.35rem", fontSize: "0.82rem", color: "#1f2529" }}>
             <span>Current key</span>
             <span className="pill" style={{ width: "fit-content" }}>
               {detail.space.apiKeyLastFour ? `**** ${detail.space.apiKeyLastFour}` : "No key generated"}
@@ -452,9 +452,9 @@ export default function DeveloperSpaceManagePage() {
 
           {apiKey ? (
             <div style={{ display: "grid", gap: "0.45rem" }}>
-              <strong style={{ color: "#86efac" }}>Copy this now</strong>
+              <strong style={{ color: "#25633f" }}>Copy this now</strong>
               <textarea className="textarea" value={apiKey} readOnly style={{ minHeight: 88, fontFamily: "monospace" }} />
-              <p style={{ margin: 0, color: "#fbbf24", fontSize: "0.82rem", lineHeight: 1.45 }}>
+              <p style={{ margin: 0, color: "#854f0b", fontSize: "0.82rem", lineHeight: 1.45 }}>
                 Station will not show this key again.
               </p>
             </div>
@@ -462,26 +462,26 @@ export default function DeveloperSpaceManagePage() {
 
           <hr />
 
-          <div style={{ display: "grid", gap: "0.45rem", color: "#94a3b8", fontSize: "0.86rem", lineHeight: 1.5 }}>
-            <span><strong style={{ color: "#f8fafc" }}>Nodes:</strong> {detail.nodes.length}</span>
-            <span><strong style={{ color: "#f8fafc" }}>Recent events:</strong> {detail.events.length}</span>
-            <span><strong style={{ color: "#f8fafc" }}>Notes:</strong> {detail.linkedDocuments?.length ?? 0}</span>
-            <span><strong style={{ color: "#f8fafc" }}>Exports:</strong> {usage?.counters.exports ?? exportsList.length}</span>
-            <span><strong style={{ color: "#f8fafc" }}>Visibility:</strong> {detail.space.visibility}</span>
+          <div style={{ display: "grid", gap: "0.45rem", color: "#687078", fontSize: "0.86rem", lineHeight: 1.5 }}>
+            <span><strong style={{ color: "#1f2529" }}>Nodes:</strong> {detail.nodes.length}</span>
+            <span><strong style={{ color: "#1f2529" }}>Recent events:</strong> {detail.events.length}</span>
+            <span><strong style={{ color: "#1f2529" }}>Notes:</strong> {detail.linkedDocuments?.length ?? 0}</span>
+            <span><strong style={{ color: "#1f2529" }}>Exports:</strong> {usage?.counters.exports ?? exportsList.length}</span>
+            <span><strong style={{ color: "#1f2529" }}>Visibility:</strong> {detail.space.visibility}</span>
           </div>
 
           <hr />
 
-          <div style={{ display: "grid", gap: "0.45rem", color: "#94a3b8", fontSize: "0.84rem", lineHeight: 1.5 }}>
+          <div style={{ display: "grid", gap: "0.45rem", color: "#687078", fontSize: "0.84rem", lineHeight: 1.5 }}>
             <h2 style={{ margin: 0, fontSize: "1rem" }}>Usage</h2>
             {!usage ? (
               <span>Loading usage...</span>
             ) : (
               <>
-                <span><strong style={{ color: "#f8fafc" }}>Ingested:</strong> {usage.counters.events} events / {usage.counters.snapshots} snapshots</span>
-                <span><strong style={{ color: "#f8fafc" }}>Storage:</strong> {formatBytes(usage.counters.storageBytes)} of {usage.limits.storageBytes < 0 ? "unlimited" : formatBytes(usage.limits.storageBytes)}</span>
-                <span><strong style={{ color: "#f8fafc" }}>Public reads:</strong> {usage.counters.publicReads}</span>
-                <span className="pill" style={{ color: usage.warningLevel === "ok" ? "#86efac" : "#fbbf24", width: "fit-content", textTransform: "capitalize" }}>{usage.warningLevel}</span>
+                <span><strong style={{ color: "#1f2529" }}>Ingested:</strong> {usage.counters.events} events / {usage.counters.snapshots} snapshots</span>
+                <span><strong style={{ color: "#1f2529" }}>Storage:</strong> {formatBytes(usage.counters.storageBytes)} of {usage.limits.storageBytes < 0 ? "unlimited" : formatBytes(usage.limits.storageBytes)}</span>
+                <span><strong style={{ color: "#1f2529" }}>Public reads:</strong> {usage.counters.publicReads}</span>
+                <span className="pill" style={{ color: usage.warningLevel === "ok" ? "#25633f" : "#854f0b", width: "fit-content", textTransform: "capitalize" }}>{usage.warningLevel}</span>
               </>
             )}
           </div>
@@ -491,16 +491,16 @@ export default function DeveloperSpaceManagePage() {
           <div style={{ display: "grid", gap: "0.6rem" }}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "0.75rem" }}>
               <h2 style={{ margin: 0, fontSize: "1rem" }}>Live ingestion</h2>
-              <span className="pill" style={{ color: liveStatus === "live" ? "#86efac" : "#fbbf24" }}>{liveLabel}</span>
+              <span className="pill" style={{ color: liveStatus === "live" ? "#25633f" : "#854f0b" }}>{liveLabel}</span>
             </div>
             {ingestionEvents.length === 0 ? (
-              <p style={{ margin: 0, color: "#94a3b8", fontSize: "0.84rem" }}>No ingested events yet.</p>
+              <p style={{ margin: 0, color: "#687078", fontSize: "0.84rem" }}>No ingested events yet.</p>
             ) : (
               <div style={{ display: "grid", gap: "0.45rem" }}>
                 {ingestionEvents.map((event) => (
-                  <div key={event.id} style={{ borderTop: "1px solid #1e293b", paddingTop: "0.45rem" }}>
+                  <div key={event.id} style={{ borderTop: "1px solid #d8d3c8", paddingTop: "0.45rem" }}>
                     <strong style={{ display: "block", fontSize: "0.82rem" }}>{event.eventLabel || humaniseKey(event.eventType)}</strong>
-                    <span style={{ color: "#64748b", fontSize: "0.74rem" }}>{formatDate(event.occurredAt)} / {event.visibility}</span>
+                    <span style={{ color: "#8b8f92", fontSize: "0.74rem" }}>{formatDate(event.occurredAt)} / {event.visibility}</span>
                   </div>
                 ))}
               </div>
@@ -512,13 +512,13 @@ export default function DeveloperSpaceManagePage() {
           <div className="card" style={{ display: "grid", gap: "0.9rem" }}>
             <div>
               <h2 style={{ margin: "0 0 0.35rem", fontSize: "1.05rem" }}>Visual mode</h2>
-              <p style={{ margin: 0, color: "#94a3b8", lineHeight: 1.55 }}>
+              <p style={{ margin: 0, color: "#687078", lineHeight: 1.55 }}>
                 Configure how the public observatory frames live project data.
               </p>
             </div>
 
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 180px), 1fr))", gap: "0.75rem" }}>
-              <label style={{ display: "grid", gap: "0.35rem", color: "#cbd5e1", fontSize: "0.82rem" }}>
+              <label style={{ display: "grid", gap: "0.35rem", color: "#1f2529", fontSize: "0.82rem" }}>
                 Mode
                 <select className="input" value={visualisationType} onChange={(event) => changeVisualisationType(event.target.value as DeveloperSpaceVisualisationType)}>
                   <option value="node_field">Node field</option>
@@ -531,11 +531,11 @@ export default function DeveloperSpaceManagePage() {
               <div style={{ display: "grid", gap: "0.65rem" }}>
                 {visualisationType === "node_field" ? (
                   <>
-                    <label style={{ display: "grid", gap: "0.35rem", color: "#cbd5e1", fontSize: "0.82rem" }}>
+                    <label style={{ display: "grid", gap: "0.35rem", color: "#1f2529", fontSize: "0.82rem" }}>
                       Max nodes
                       <input className="input" type="number" min={4} max={32} value={Number(boundedVisualConfig.maxNodes)} onChange={(event) => updateVisualConfig("maxNodes", Number(event.target.value))} />
                     </label>
-                    <label style={{ display: "flex", gap: "0.5rem", alignItems: "center", color: "#cbd5e1", fontSize: "0.86rem" }}>
+                    <label style={{ display: "flex", gap: "0.5rem", alignItems: "center", color: "#1f2529", fontSize: "0.86rem" }}>
                       <input type="checkbox" checked={boundedVisualConfig.showMetrics !== false} onChange={(event) => updateVisualConfig("showMetrics", event.target.checked)} />
                       Show node metrics
                     </label>
@@ -544,15 +544,15 @@ export default function DeveloperSpaceManagePage() {
 
                 {visualisationType === "timeline" ? (
                   <>
-                    <label style={{ display: "grid", gap: "0.35rem", color: "#cbd5e1", fontSize: "0.82rem" }}>
+                    <label style={{ display: "grid", gap: "0.35rem", color: "#1f2529", fontSize: "0.82rem" }}>
                       Event limit
                       <input className="input" type="number" min={3} max={30} value={Number(boundedVisualConfig.eventLimit)} onChange={(event) => updateVisualConfig("eventLimit", Number(event.target.value))} />
                     </label>
-                    <label style={{ display: "grid", gap: "0.35rem", color: "#cbd5e1", fontSize: "0.82rem" }}>
+                    <label style={{ display: "grid", gap: "0.35rem", color: "#1f2529", fontSize: "0.82rem" }}>
                       Node limit
                       <input className="input" type="number" min={3} max={20} value={Number(boundedVisualConfig.nodeLimit)} onChange={(event) => updateVisualConfig("nodeLimit", Number(event.target.value))} />
                     </label>
-                    <label style={{ display: "flex", gap: "0.5rem", alignItems: "center", color: "#cbd5e1", fontSize: "0.86rem" }}>
+                    <label style={{ display: "flex", gap: "0.5rem", alignItems: "center", color: "#1f2529", fontSize: "0.86rem" }}>
                       <input type="checkbox" checked={boundedVisualConfig.showSnapshots !== false} onChange={(event) => updateVisualConfig("showSnapshots", event.target.checked)} />
                       Show snapshots
                     </label>
@@ -561,15 +561,15 @@ export default function DeveloperSpaceManagePage() {
 
                 {visualisationType === "world_map" ? (
                   <>
-                    <label style={{ display: "grid", gap: "0.35rem", color: "#cbd5e1", fontSize: "0.82rem" }}>
+                    <label style={{ display: "grid", gap: "0.35rem", color: "#1f2529", fontSize: "0.82rem" }}>
                       Zone field
                       <input className="input" maxLength={48} value={String(boundedVisualConfig.zoneField)} onChange={(event) => updateVisualConfig("zoneField", event.target.value)} />
                     </label>
-                    <label style={{ display: "grid", gap: "0.35rem", color: "#cbd5e1", fontSize: "0.82rem" }}>
+                    <label style={{ display: "grid", gap: "0.35rem", color: "#1f2529", fontSize: "0.82rem" }}>
                       Max zones
                       <input className="input" type="number" min={3} max={24} value={Number(boundedVisualConfig.maxZones)} onChange={(event) => updateVisualConfig("maxZones", Number(event.target.value))} />
                     </label>
-                    <label style={{ display: "flex", gap: "0.5rem", alignItems: "center", color: "#cbd5e1", fontSize: "0.86rem" }}>
+                    <label style={{ display: "flex", gap: "0.5rem", alignItems: "center", color: "#1f2529", fontSize: "0.86rem" }}>
                       <input type="checkbox" checked={boundedVisualConfig.staggerZones !== false} onChange={(event) => updateVisualConfig("staggerZones", event.target.checked)} />
                       Stagger zone cards
                     </label>
@@ -578,11 +578,11 @@ export default function DeveloperSpaceManagePage() {
 
                 {visualisationType === "constellation" ? (
                   <>
-                    <label style={{ display: "grid", gap: "0.35rem", color: "#cbd5e1", fontSize: "0.82rem" }}>
+                    <label style={{ display: "grid", gap: "0.35rem", color: "#1f2529", fontSize: "0.82rem" }}>
                       Max nodes
                       <input className="input" type="number" min={4} max={32} value={Number(boundedVisualConfig.maxNodes)} onChange={(event) => updateVisualConfig("maxNodes", Number(event.target.value))} />
                     </label>
-                    <label style={{ display: "flex", gap: "0.5rem", alignItems: "center", color: "#cbd5e1", fontSize: "0.86rem" }}>
+                    <label style={{ display: "flex", gap: "0.5rem", alignItems: "center", color: "#1f2529", fontSize: "0.86rem" }}>
                       <input type="checkbox" checked={boundedVisualConfig.showEventCounts !== false} onChange={(event) => updateVisualConfig("showEventCounts", event.target.checked)} />
                       Show event counts
                     </label>
@@ -599,7 +599,7 @@ export default function DeveloperSpaceManagePage() {
           <div className="card" style={{ display: "grid", gap: "0.9rem" }}>
             <div>
               <h2 style={{ margin: "0 0 0.35rem", fontSize: "1.05rem" }}>Observatory widgets</h2>
-              <p style={{ margin: 0, color: "#94a3b8", lineHeight: 1.55 }}>
+              <p style={{ margin: 0, color: "#687078", lineHeight: 1.55 }}>
                 Choose which live panels appear and reorder them inside the main canvas or side rail.
               </p>
             </div>
@@ -612,7 +612,7 @@ export default function DeveloperSpaceManagePage() {
                       checked={widget.visible}
                       onChange={(event) => changeWidgetVisibility(widget.type, event.target.checked)}
                     />
-                    <span style={{ color: "#e5e7eb", fontWeight: 700, fontSize: "0.86rem" }}>{widget.title}</span>
+                    <span style={{ color: "#1f2529", fontWeight: 700, fontSize: "0.86rem" }}>{widget.title}</span>
                     <span className="pill" style={{ fontSize: "0.68rem", textTransform: "capitalize" }}>{widget.zone}</span>
                   </label>
                   <div style={{ display: "flex", gap: "0.35rem", marginLeft: "auto" }}>
@@ -631,7 +631,7 @@ export default function DeveloperSpaceManagePage() {
             <div style={{ display: "flex", justifyContent: "space-between", gap: "0.75rem", alignItems: "flex-start", flexWrap: "wrap" }}>
               <div>
                 <h2 style={{ margin: "0 0 0.35rem", fontSize: "1.05rem" }}>Exports</h2>
-                <p style={{ margin: 0, color: "#94a3b8", lineHeight: 1.55 }}>
+                <p style={{ margin: 0, color: "#687078", lineHeight: 1.55 }}>
                   Owner-only JSON/Markdown packages include nodes, events, snapshots, usage, and public-safe linked document refs.
                 </p>
               </div>
@@ -640,14 +640,14 @@ export default function DeveloperSpaceManagePage() {
               </button>
             </div>
             {exportsList.length === 0 ? (
-              <p style={{ margin: 0, color: "#94a3b8" }}>No export packages yet.</p>
+              <p style={{ margin: 0, color: "#687078" }}>No export packages yet.</p>
             ) : (
               <div style={{ display: "grid", gap: "0.55rem" }}>
                 {exportsList.slice(0, 5).map((item) => (
-                  <div key={item.id} style={{ borderTop: "1px solid #1e293b", paddingTop: "0.55rem", display: "flex", justifyContent: "space-between", gap: "0.75rem", flexWrap: "wrap" }}>
+                  <div key={item.id} style={{ borderTop: "1px solid #d8d3c8", paddingTop: "0.55rem", display: "flex", justifyContent: "space-between", gap: "0.75rem", flexWrap: "wrap" }}>
                     <div>
                       <strong style={{ display: "block" }}>{item.packageKind.replaceAll("_", " ")}</strong>
-                      <span style={{ color: "#64748b", fontSize: "0.78rem" }}>{formatDate(item.completedAt ?? item.requestedAt)}</span>
+                      <span style={{ color: "#8b8f92", fontSize: "0.78rem" }}>{formatDate(item.completedAt ?? item.requestedAt)}</span>
                     </div>
                     <span className="pill" style={{ textTransform: "capitalize" }}>{item.status}</span>
                   </div>
@@ -659,14 +659,14 @@ export default function DeveloperSpaceManagePage() {
           <div className="card" style={{ display: "grid", gap: "0.9rem" }}>
             <div>
               <h2 style={{ margin: "0 0 0.4rem", fontSize: "1.05rem" }}>Project notes</h2>
-              <p style={{ margin: 0, color: "#94a3b8", lineHeight: 1.55 }}>
+              <p style={{ margin: 0, color: "#687078", lineHeight: 1.55 }}>
                 Keep methodology and field logs beside the live observatory. Drafts stay owner-only; public notes are published into the visitor view.
               </p>
             </div>
 
             <form onSubmit={createLinkedDocument} style={{ display: "grid", gap: "0.75rem" }}>
               <div style={{ display: "grid", gridTemplateColumns: "minmax(150px, 0.45fr) minmax(0, 1fr)", gap: "0.75rem" }}>
-                <label style={{ display: "grid", gap: "0.35rem", color: "#cbd5e1", fontSize: "0.82rem" }}>
+                <label style={{ display: "grid", gap: "0.35rem", color: "#1f2529", fontSize: "0.82rem" }}>
                   Type
                   <select className="input" value={documentRole} onChange={(event) => setDocumentRole(event.target.value as DeveloperSpaceDocumentRole)}>
                     <option value="methodology">Methodology</option>
@@ -675,16 +675,16 @@ export default function DeveloperSpaceManagePage() {
                     <option value="note">Note</option>
                   </select>
                 </label>
-                <label style={{ display: "grid", gap: "0.35rem", color: "#cbd5e1", fontSize: "0.82rem" }}>
+                <label style={{ display: "grid", gap: "0.35rem", color: "#1f2529", fontSize: "0.82rem" }}>
                   Title
                   <input className="input" value={documentTitle} onChange={(event) => setDocumentTitle(event.target.value)} placeholder="Use default title" />
                 </label>
               </div>
-              <label style={{ display: "grid", gap: "0.35rem", color: "#cbd5e1", fontSize: "0.82rem" }}>
+              <label style={{ display: "grid", gap: "0.35rem", color: "#1f2529", fontSize: "0.82rem" }}>
                 Body
                 <textarea className="textarea" value={documentBody} onChange={(event) => setDocumentBody(event.target.value)} placeholder="Draft notes, method, finding, or field log" />
               </label>
-              <label style={{ display: "flex", gap: "0.5rem", alignItems: "center", color: "#cbd5e1", fontSize: "0.86rem" }}>
+              <label style={{ display: "flex", gap: "0.5rem", alignItems: "center", color: "#1f2529", fontSize: "0.86rem" }}>
                 <input type="checkbox" checked={publishDocument} onChange={(event) => setPublishDocument(event.target.checked)} />
                 Publish publicly on the observatory
               </label>
@@ -694,11 +694,11 @@ export default function DeveloperSpaceManagePage() {
             </form>
 
             {(detail.linkedDocuments ?? []).length === 0 ? (
-              <p style={{ margin: 0, color: "#94a3b8" }}>No linked notes yet.</p>
+              <p style={{ margin: 0, color: "#687078" }}>No linked notes yet.</p>
             ) : (
               <div style={{ display: "grid", gap: "0.65rem" }}>
                 {(detail.linkedDocuments ?? []).map((link) => (
-                  <article key={link.id} style={{ borderTop: "1px solid #1e293b", paddingTop: "0.65rem" }}>
+                  <article key={link.id} style={{ borderTop: "1px solid #d8d3c8", paddingTop: "0.65rem" }}>
                     <div style={{ display: "flex", gap: "0.35rem", flexWrap: "wrap", marginBottom: "0.35rem" }}>
                       <span className="pill" style={{ fontSize: "0.68rem" }}>{linkedDocumentRoleLabel(link.role)}</span>
                       <span className="pill" style={{ fontSize: "0.68rem", textTransform: "capitalize" }}>{link.document.status}</span>
@@ -706,7 +706,7 @@ export default function DeveloperSpaceManagePage() {
                     </div>
                     <strong style={{ display: "block" }}>{link.document.title}</strong>
                     {link.document.excerpt ? (
-                      <p style={{ margin: "0.35rem 0 0", color: "#94a3b8", lineHeight: 1.55 }}>{link.document.excerpt}</p>
+                      <p style={{ margin: "0.35rem 0 0", color: "#687078", lineHeight: 1.55 }}>{link.document.excerpt}</p>
                     ) : null}
                   </article>
                 ))}
@@ -716,7 +716,7 @@ export default function DeveloperSpaceManagePage() {
 
           <div className="card" style={{ display: "grid", gap: "0.75rem" }}>
             <h2 style={{ margin: 0, fontSize: "1.05rem" }}>1. Send node state updates</h2>
-            <p style={{ margin: 0, color: "#94a3b8", lineHeight: 1.55 }}>
+            <p style={{ margin: 0, color: "#687078", lineHeight: 1.55 }}>
               Use stable external node IDs. Station upserts each node and emits a public state-update event for the observatory timeline.
             </p>
             <CodeBlock code={nodeStateCurl} />
@@ -724,7 +724,7 @@ export default function DeveloperSpaceManagePage() {
 
           <div className="card" style={{ display: "grid", gap: "0.75rem" }}>
             <h2 style={{ margin: 0, fontSize: "1.05rem" }}>2. Stream events</h2>
-            <p style={{ margin: 0, color: "#94a3b8", lineHeight: 1.55 }}>
+            <p style={{ margin: 0, color: "#687078", lineHeight: 1.55 }}>
               Events are the visitor-facing feed. Include provenance and sourceRefs so viewers can distinguish runtime output, imports, and AI-generated material.
             </p>
             <CodeBlock code={eventCurl} />
@@ -732,7 +732,7 @@ export default function DeveloperSpaceManagePage() {
 
           <div className="card" style={{ display: "grid", gap: "0.75rem" }}>
             <h2 style={{ margin: 0, fontSize: "1.05rem" }}>3. Save periodic snapshots</h2>
-            <p style={{ margin: 0, color: "#94a3b8", lineHeight: 1.55 }}>
+            <p style={{ margin: 0, color: "#687078", lineHeight: 1.55 }}>
               Snapshots support historical playback later. Send a compact full-state summary weekly or at the end of important runs.
             </p>
             <CodeBlock code={snapshotCurl} />
@@ -748,9 +748,9 @@ const widgetRow = {
   alignItems: "center",
   gap: "0.75rem",
   flexWrap: "wrap" as const,
-  border: "1px solid #1e293b",
+  border: "1px solid #d8d3c8",
   borderRadius: 10,
-  background: "#020617",
+  background: "#ffffff",
   padding: "0.7rem",
 };
 

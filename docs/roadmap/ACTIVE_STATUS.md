@@ -3383,6 +3383,19 @@ when a PR lands, or when validation truth changes.
   `/developer-spaces/station-replay-dev-alpha/manage` uses old dark-theme text
   colors inside white/off-white cards, making owner stats, usage metrics, and
   form labels nearly unreadable. Patch only the manage-console contrast.
+- PR 9 DAEDALUS manage-console contrast patch is ready for ARGUS review,
+  2026-06-16: only
+  `apps/web/app/developer-spaces/[slug]/manage/page.tsx` changed. Owner
+  breadcrumb/header helper copy, ingestion key labels, stats, usage metrics,
+  live-ingestion metadata, visual config labels, widget titles, export rows,
+  project-note labels, and ingestion instruction helper copy now use readable
+  light-surface colors. The command code blocks remain intentionally dark.
+  Web typecheck, web lint with existing warnings, `test:developer-spaces`, and
+  `git diff --check` passed. No ingestion key, visual config, export, route,
+  auth/session, visibility/privacy, billing/Stripe, provider, embedding,
+  Railway, Supabase, migration, storage/quota, package config, env, or
+  persistence behavior changed. Browser recheck is not claimed before deploy;
+  if ARGUS accepts, wake ARIADNE for the post-deploy signed-in manage recheck.
 
 ## Near-term rule
 

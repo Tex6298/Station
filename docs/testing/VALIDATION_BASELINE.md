@@ -6284,6 +6284,22 @@ failed before serving because required Supabase env vars were unavailable to
 that process. No browser acceptance is claimed here; ARIADNE owns the final
 `390px` `/forums/general` route recheck after ARGUS review.
 
+## PR 9 Developer Space manage contrast patch validation
+
+Validated on 2026-06-16 after DAEDALUS patched the live PR 9 manage-console
+contrast defect.
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npx --yes pnpm@10.32.1 --filter @station/web typecheck` | Pass | Web TypeScript check passed. |
+| `npx --yes pnpm@10.32.1 --filter @station/web lint` | Pass with warnings | Existing warning inventory only. |
+| `npx --yes pnpm@10.32.1 test:developer-spaces` | Pass | 7 tests passed. |
+| `git diff --check` | Pass | CRLF normalization warnings only. |
+
+Browser recheck is not claimed before deploy. The signed-in Railway manage route
+needs a post-deploy owner-session recheck by ARIADNE after ARGUS accepts the
+code-safety review.
+
 ## PR 8 Mobile Defect Follow-Up ARGUS review
 
 Validated on 2026-06-16 after DAEDALUS committed
