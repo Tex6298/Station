@@ -6250,3 +6250,19 @@ ARGUS validation:
 ARGUS accepts PR 8 for ARIADNE desktop/mobile route rehearsal. The
 document-discussions hang remains validation debt unless ARIADNE finds a
 route-level defect on document discussion pages.
+
+## PR 8 ARIADNE mobile-defect follow-up validation
+
+Validated on 2026-06-16 after DAEDALUS patched the two concrete 390px overflow
+defects from ARIADNE's route rehearsal.
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npx --yes pnpm@10.32.1 --filter @station/web typecheck` | Pass | Web TypeScript check passed. |
+| `npx --yes pnpm@10.32.1 --filter @station/web lint` | Pass with warnings | Existing warning inventory only. |
+| `npx --yes pnpm@10.32.1 test:community` | Pass | 8 tests passed. |
+| `npx --yes pnpm@10.32.1 test:developer-spaces` | Pass | 7 tests passed. |
+
+The broader `test:document-discussions` timeout from the initial PR 8
+validation remains recorded above; this follow-up did not touch API route or
+document-discussion test code.

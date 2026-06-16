@@ -3301,6 +3301,15 @@ when a PR lands, or when validation truth changes.
   signed-in `/developer-spaces` keeps the create form and owner project card in
   a side-by-side grid that clips the owner card at phone width. Patch only those
   responsive layouts and preserve PR 8 control truth.
+- PR 8 DAEDALUS mobile-defect follow-up is ready for ARGUS review,
+  2026-06-16: `/forums/general` thread rows now allow score/reply/date metadata
+  to wrap with the title/body instead of forcing a non-shrinking side rail, and
+  signed-in `/developer-spaces` now uses the responsive Station two-column grid
+  primitive instead of the old fixed `.grid-2` pair. Focused validation passed:
+  web typecheck, web lint with existing warnings, `test:community`, and
+  `test:developer-spaces`. No API, auth/session, billing backend, Stripe,
+  provider, embedding, Railway, Supabase, migration, storage/quota, package,
+  env, or persistence behavior changed.
 
 ## Near-term rule
 

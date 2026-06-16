@@ -156,7 +156,7 @@ export default function DeveloperSpacesPage() {
         </div>
       )}
 
-      <section className="grid grid-2" style={{ alignItems: "start" }}>
+      <section className="station-grid station-grid-2">
         <form className="station-panel" onSubmit={handleCreate} style={{ display: "grid", gap: "0.9rem" }}>
           <div>
             <h2 style={{ margin: 0, fontSize: "1.1rem" }}>Create a Developer Space</h2>

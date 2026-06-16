@@ -158,3 +158,23 @@ Validation caveat:
   through the package script and the isolated test file. ARGUS found no API/test
   diff in PR 8, so this is recorded as unrelated validation debt unless the
   human route rehearsal exposes a document-discussion regression.
+
+## DAEDALUS Mobile Defect Follow-Up
+
+Patched on 2026-06-16 after ARIADNE's 390px route rehearsal:
+
+- `/forums/general` thread rows now let the title/body column and
+  score/reply/date metadata wrap instead of forcing one non-shrinking row at
+  phone width.
+- Signed-in `/developer-spaces` now uses the responsive Station two-column grid
+  primitive instead of the older fixed `.grid-2` layout that kept the create
+  form and owner project card side by side at 390px.
+
+Focused validation:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npx --yes pnpm@10.32.1 --filter @station/web typecheck` | Pass | Web TypeScript check passed. |
+| `npx --yes pnpm@10.32.1 --filter @station/web lint` | Pass with warnings | Existing warning inventory only. |
+| `npx --yes pnpm@10.32.1 test:community` | Pass | 8 tests passed. |
+| `npx --yes pnpm@10.32.1 test:developer-spaces` | Pass | 7 tests passed. |

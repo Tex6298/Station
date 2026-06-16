@@ -132,8 +132,8 @@ export default function ForumCategoryPage() {
           {threads.map((t) => (
             <Link key={t.id} href={`/forums/${categorySlug}/${t.id}`} style={{ textDecoration: "none" }}>
               <div className="card" style={{ cursor: "pointer" }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: "1rem" }}>
-                  <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: "0.85rem", flexWrap: "wrap" }}>
+                  <div style={{ flex: "1 1 240px", minWidth: 0 }}>
                     <div style={{ display: "flex", gap: "0.35rem", alignItems: "center", marginBottom: "0.25rem", flexWrap: "wrap" }}>
                       {t.is_pinned && <span style={{ fontSize: "0.68rem", color: "#854f0b" }}>Pinned</span>}
                       {t.linked_document_id && <span style={{ fontSize: "0.68rem", color: "#25633f" }}>Document discussion</span>}
@@ -146,10 +146,10 @@ export default function ForumCategoryPage() {
                       {t.body}
                     </div>
                   </div>
-                  <div style={{ textAlign: "right", flexShrink: 0 }}>
+                  <div style={{ display: "flex", flex: "1 1 120px", justifyContent: "flex-end", gap: "0.55rem", flexWrap: "wrap", textAlign: "right", color: "#687078" }}>
                     <div style={{ fontSize: "0.85rem", color: "#1f2529", fontWeight: 700 }}>{t.score} votes</div>
                     <div style={{ fontSize: "0.75rem", color: "#687078" }}>{t.comment_count} replies</div>
-                    <div style={{ fontSize: "0.7rem", color: "#8b8f92", marginTop: "0.2rem" }}>
+                    <div style={{ fontSize: "0.7rem", color: "#8b8f92" }}>
                       {new Date(t.last_activity_at ?? t.created_at).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}
                     </div>
                   </div>
