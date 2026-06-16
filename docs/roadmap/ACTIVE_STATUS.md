@@ -3368,6 +3368,21 @@ when a PR lands, or when validation truth changes.
   `docs/roadmap/PR9_LIVE_PR8_RAILWAY_RECHECK.md`. If live frontend defects
   appear, wake DAEDALUS directly with exact route/viewport/file clues; if the
   route set passes, wake MIMIR for PR 9 closeout and next sequencing.
+- ARIADNE PR 9 live Railway recheck found one exact frontend contrast defect,
+  2026-06-16:
+  `docs/roadmap/PR9_LIVE_PR8_RAILWAY_RECHECK_ARIADNE.md` records a hosted
+  Railway Chrome/CDP pass over the PR 8 route set. Web and API deployment
+  identity both report `49a8609`, health `ok:true`, and deployment
+  `ready:true`. The measured route set has no document-level overflow;
+  `/forums/general` metadata is visible at `390 x 844`; signed-in
+  `/developer-spaces` stacks correctly at mobile width; Discover, Studio,
+  Billing, Settings, public Space/document/discussion, and Developer Space
+  observer are coherent enough for PR 9. Billing controls were proven at host
+  level only: `billing.stripe.com` and `checkout.stripe.com`. One DAEDALUS
+  defect remains: signed-in
+  `/developer-spaces/station-replay-dev-alpha/manage` uses old dark-theme text
+  colors inside white/off-white cards, making owner stats, usage metrics, and
+  form labels nearly unreadable. Patch only the manage-console contrast.
 
 ## Near-term rule
 
