@@ -203,7 +203,7 @@ If ARGUS accepts, ARGUS should wake ARIADNE for a route-set human rehearsal.
 ARIADNE should wake MIMIR with pass/fail and the exact remaining route defects,
 not broad vibes.
 
-## DAEDALUS Implementation Status
+## Implementation Status
 
 Ready for ARGUS review, 2026-06-15. DAEDALUS added explicit Station page,
 panel, card, notice, and action primitives; applied them to Billing, Settings,
@@ -216,3 +216,10 @@ Most PR 8 validation passed. `test:document-discussions` timed out twice with
 no completed test output, including when isolated from its package-build prefix.
 The timeout is recorded in the result doc for ARGUS review because PR 8 did not
 touch API route or document-discussion test code.
+
+Accepted by ARGUS for ARIADNE rehearsal, 2026-06-15. ARGUS patched the new
+shared Station primitives to remove viewport-scaled title type and nonzero
+eyebrow letter spacing, then re-ran the focused frontend/API smoke gates.
+`test:document-discussions` still timed out in both package-script and isolated
+test-file forms; treat that as unrelated validation debt unless ARIADNE finds a
+document-discussion route defect.

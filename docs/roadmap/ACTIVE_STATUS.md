@@ -3278,6 +3278,18 @@ when a PR lands, or when validation truth changes.
   timed out twice with no completed test output even when isolated, so ARGUS
   should decide whether that current validation hang blocks PR 8 or is a
   separate test-harness issue.
+- PR 8 site-wide UI coherence is accepted by ARGUS for ARIADNE rehearsal,
+  2026-06-15: scope stayed inside the frontend/docs allow-list. ARGUS patched
+  the new shared title/eyebrow primitives to avoid viewport-scaled type and
+  nonzero letter spacing. Live controls stayed live, and Studio publishing
+  no-op `Publish`, `Retry`, `View`, and `Delete` actions are disabled/labelled
+  unavailable. Focused validation passed for web typecheck, web lint with
+  existing warnings, studio-ui, community, Developer Spaces, Developer Space
+  client, billing, and whitespace. `test:document-discussions` still times out
+  in both package-script and isolated test-file forms; no API or test files
+  changed in PR 8, so treat it as unrelated validation debt unless ARIADNE finds
+  a document-discussion route defect. Wake ARIADNE for desktop and 390px route
+  rehearsal before MIMIR marks PR 8 closed.
 
 ## Near-term rule
 

@@ -6208,3 +6208,45 @@ Validation commands:
 
 ARGUS should review whether the `test:document-discussions` hang blocks this
 frontend-only PR 8 slice or should be split into a separate test-harness repair.
+
+## PR 8 Site-Wide UI Coherence ARGUS review
+
+Validated on 2026-06-15 after DAEDALUS committed
+`a85ec44 web: align Station UI surfaces`.
+
+ARGUS review:
+
+- Scope stayed inside the PR 8 frontend/docs allow-list; no API, package,
+  infra, lockfile, env, auth/session, billing backend, provider, embedding,
+  Railway, Supabase, migration, storage, or API behavior changed.
+- ARGUS patched the new shared Station primitives to avoid viewport-scaled title
+  type and nonzero eyebrow letter spacing.
+- Live controls remained live: Billing Checkout/portal, Developer Space
+  creation/search/manage/view, Space/Writing links, Studio publishing tabs, and
+  Studio publish links.
+- Studio publishing no-op `Publish`, `Retry`, `View`, and `Delete` actions are
+  disabled and labelled unavailable.
+- Untouched route groups still need ARIADNE human-eye browser rehearsal before
+  this broad UI lane can close visually.
+
+ARGUS validation:
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Scope review | Pass | Changed files are web frontend/docs plus agent state only. |
+| Control-truth review | Pass | Existing live controls remained live; publishing no-op actions are disabled and labelled unavailable. |
+| Shared CSS review | Patched then pass | ARGUS removed viewport-scaled title type and nonzero eyebrow letter spacing from the new Station primitives. |
+| `npx --yes pnpm@10.32.1 --filter @station/web typecheck` | Pass | Web TypeScript check passed. |
+| `npx --yes pnpm@10.32.1 --filter @station/web lint` | Pass with warnings | Existing warnings only: Developer Spaces manage hook dependency and two `<img>` optimization warnings. |
+| `npx --yes pnpm@10.32.1 test:studio-ui` | Pass | 8 Studio UI/helper tests passed. |
+| `npx --yes pnpm@10.32.1 test:community` | Pass | 8 community tests passed. |
+| `npx --yes pnpm@10.32.1 test:developer-spaces` | Pass | 7 Developer Spaces tests passed. |
+| `npx --yes pnpm@10.32.1 test:developer-space-client` | Pass | 3 Developer Space client tests passed. |
+| `npx --yes pnpm@10.32.1 test:billing` | Pass | 4 billing tests passed. |
+| `npx --yes pnpm@10.32.1 test:document-discussions` | Timeout | Timed out again with no completed output. |
+| `npx --yes pnpm@10.32.1 exec tsx --test apps/api/src/routes/document-discussions.test.ts` | Timeout | Isolated test file also timed out with no completed output. |
+| `git diff --check` | Pass | CRLF normalization warnings only. |
+
+ARGUS accepts PR 8 for ARIADNE desktop/mobile route rehearsal. The
+document-discussions hang remains validation debt unless ARIADNE finds a
+route-level defect on document discussion pages.

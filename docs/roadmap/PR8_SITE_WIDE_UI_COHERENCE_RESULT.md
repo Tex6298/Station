@@ -125,3 +125,36 @@ Commands run:
   follow-up.
 - Treat `test:document-discussions` as a validation hang needing review, not as
   a PR 8 code failure unless ARGUS can connect it to this frontend-only diff.
+
+## ARGUS Review Result
+
+A3 / ARGUS accepts PR 8 for A4 / ARIADNE human-eye route rehearsal on
+2026-06-15.
+
+ARGUS patch:
+
+- Hardened the new shared Station primitives in `apps/web/app/globals.css` so
+  `.station-page-title` and `.station-page-title-large` no longer scale with
+  viewport width, and `.station-eyebrow` uses zero letter spacing.
+
+Review findings:
+
+- The diff stays inside PR 8 frontend/docs scope.
+- No API, auth/session, billing backend, provider, embedding, Railway,
+  Supabase, migration, package, lockfile, or env behavior changed.
+- Live controls stayed live: Billing Checkout/portal actions, Developer Space
+  creation/search/manage/view controls, Space/Writing links, Studio publishing
+  tabs, and Studio publish links.
+- Studio publishing no-op `Publish`, `Retry`, `View`, and `Delete` actions are
+  disabled and labelled unavailable.
+- The touched surfaces now share explicit Station page/panel/card/notice/action
+  primitives instead of adding more broad selector hacks.
+- Untouched broad route groups still need ARIADNE's desktop/mobile human-eye
+  review before MIMIR treats PR 8 as visually closed.
+
+Validation caveat:
+
+- `test:document-discussions` still times out with no completed output, both
+  through the package script and the isolated test file. ARGUS found no API/test
+  diff in PR 8, so this is recorded as unrelated validation debt unless the
+  human route rehearsal exposes a document-discussion regression.

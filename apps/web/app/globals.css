@@ -3380,19 +3380,19 @@ main[style*="rgb(11, 14, 20)"] {
   color: var(--station-page-accent);
   font-size: 0.7rem;
   font-weight: 800;
-  letter-spacing: 0.12em;
+  letter-spacing: 0;
   text-transform: uppercase;
 }
 
 .station-page-title {
   margin: 8px 0 6px;
   color: var(--station-page-text);
-  font-size: clamp(30px, 5vw, 46px);
+  font-size: 2.35rem;
   line-height: 1.05;
 }
 
 .station-page-title-large {
-  font-size: clamp(34px, 6vw, 64px);
+  font-size: 3.35rem;
   line-height: 1;
 }
 
@@ -3517,5 +3517,13 @@ main[style*="rgb(11, 14, 20)"] {
   .station-muted-button,
   .station-disabled-action {
     width: 100%;
+  }
+
+  .station-page-title {
+    font-size: 1.95rem;
+  }
+
+  .station-page-title-large {
+    font-size: 2.35rem;
   }
 }
