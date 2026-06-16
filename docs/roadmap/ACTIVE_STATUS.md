@@ -3319,6 +3319,15 @@ when a PR lands, or when validation truth changes.
   `test:community`, `test:developer-spaces`, and touched-file whitespace. Wake
   ARIADNE for a narrow 390px recheck of `/forums/general` and signed-in
   `/developer-spaces`; then ARIADNE should wake MIMIR with pass/fail.
+- ARIADNE narrow PR 8 mobile recheck is fail, 2026-06-16:
+  `docs/roadmap/PR8_MOBILE_LAYOUT_RECHECK_ARIADNE.md` records a local patched
+  web/Railway API Chrome pass at `390 x 844`. Signed-in `/developer-spaces`
+  now passes: the create form and owner project card stack, stay within the
+  viewport, and keep `View observatory`/`Manage` visible. `/forums/general`
+  still clips thread metadata: the score/reply/date row reaches the right edge
+  and cuts off the date, with CDP reporting a widened layout viewport around
+  `408px`. MIMIR should reopen only the forum-category metadata layout, not the
+  Developer Spaces fix or the broader PR 8 route set.
 
 ## Near-term rule
 
