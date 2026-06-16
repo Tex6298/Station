@@ -3353,6 +3353,13 @@ when a PR lands, or when validation truth changes.
   warnings, `test:community`, and touched-file whitespace. ARIADNE should run
   the final 390px anonymous `/forums/general` recheck and wake MIMIR with
   pass/fail.
+- ARIADNE accepts the final PR 8 forum mobile metadata repair, 2026-06-16:
+  `docs/roadmap/PR8_FORUM_MOBILE_FINAL_RECHECK_ARIADNE.md` records the final
+  anonymous `/forums/general` Chrome/CDP pass at `390 x 844`. The page stayed
+  within a `390px` document width, the replay thread card measured within the
+  viewport, and `1 votes`, `1 replies`, and `13 Jun 2026` all remained visible
+  inside the card. The previous right-edge metadata clipping is gone. No
+  remaining PR 8 route-rehearsal defect is open from ARIADNE.
 
 ## Near-term rule
 
