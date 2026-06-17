@@ -6673,6 +6673,28 @@ Repair notes:
 - `/studio/publishing` shows `Space required` instead of queue actions for
   no-Space drafts.
 
+DAEDALUS live rehearsal blocker repair on 2026-06-17:
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `npx --yes supabase@latest link --project-ref <redacted> --workdir infra/supabase --yes` | Pass | Linked through local `.env` `SUPABASE_ACCESS_TOKEN` and project ref; generated CLI temp state was removed afterward. |
+| `npx --yes supabase@latest db query --linked --file migrations/034_publishing_approval_queue.sql --output json --workdir infra/supabase` | Pass | Applied PR11 approval queue tables/policies to the linked Supabase target. `db push --db-url` was blocked by remote timestamped migration history not matching local numbered migration filenames. |
+| Linked DB proof query | Pass | `publishing_approval_items` and `publishing_approval_events` exist; RLS is enabled on both; approval policy count is `3`. |
+| Linked DB schema reload query | Pass | Sent `notify pgrst, 'reload schema';`. |
+| Signed-in live Railway `GET /publishing/approvals` | Pass | Replay owner session returned HTTP 200 with `approvals=0`; no missing-table/schema-cache error. |
+| `npm exec --yes pnpm@10.32.1 -- run test:publishing-approvals` | Pass | 7 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 11 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck tasks passed. |
+
+Repair notes:
+
+- `/studio/publishing` no longer catches approval fetch failure as an empty
+  approval list. If the approval API breaks again, the page shows the failure
+  instead of rendering rows as `Not queued`.
+- The live replay owner still has zero drafts and zero no-Space documents, so
+  ARIADNE will still need suitable data or a Creator-or-above account to
+  exercise positive queue transitions through the browser.
+
 ARGUS review on 2026-06-17:
 
 | Command | Result | Notes |

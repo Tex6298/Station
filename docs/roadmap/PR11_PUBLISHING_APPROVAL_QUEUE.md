@@ -161,6 +161,32 @@ Repair validation:
 - `npm exec --yes pnpm@10.32.1 -- run test:community` passed 8 tests.
 - `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` passed 11 tests.
 
+## Live Migration / Rehearsal Blocker Repair
+
+Repaired on 2026-06-17 after ARIADNE live rehearsal failed on missing live
+approval tables:
+
+- Applied `infra/supabase/migrations/034_publishing_approval_queue.sql` to the
+  linked Supabase project through the Supabase CLI linked Management API path.
+  The normal `db push --db-url` path was not used because the remote migration
+  history uses timestamped entries that do not match the local numbered
+  filenames.
+- Triggered a PostgREST schema reload with `notify pgrst, 'reload schema';`.
+- Proved through a linked DB query that `publishing_approval_items` and
+  `publishing_approval_events` exist, RLS is enabled on both, and three approval
+  policies are present.
+- Probed live Railway API with the replay owner session:
+  `GET /publishing/approvals` now returns `200` with `approvals=0`.
+- Updated `/studio/publishing` so approval fetch failures surface as a page
+  error instead of silently treating broken queue truth as an empty queue.
+
+Live repair validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:publishing-approvals` passed
+  7 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` passed 11 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+
 ## ARGUS Review - 2026-06-17
 
 Result: blocked before ARIADNE or MIMIR acceptance.

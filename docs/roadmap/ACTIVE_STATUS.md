@@ -3622,6 +3622,15 @@ when a PR lands, or when validation truth changes.
   The repair gate passed `test:publishing-approvals` with 7 tests, typecheck,
   `test:continuity-publication`, `test:document-discussions`,
   `test:community`, and `test:studio-ui`.
+- PR11 live approval-table blocker is repaired for ARGUS review, 2026-06-17:
+  DAEDALUS applied migration `034_publishing_approval_queue.sql` to the linked
+  Supabase target through the CLI Management API path, triggered a PostgREST
+  schema reload, and proved the live tables/RLS/policies exist. A signed-in live
+  Railway probe for the replay owner now returns `GET /publishing/approvals`
+  `200` with `approvals=0`. `/studio/publishing` no longer catches approval
+  fetch failure as empty queue state; failures now surface through the page
+  error path. Local validation passed `test:publishing-approvals`,
+  `test:studio-ui`, and typecheck.
 - PR11 Publishing Approval Queue is blocked for DAEDALUS follow-up,
   2026-06-17: ARGUS reran the PR11 focused gate and it is mechanically green,
   but two policy/security gaps remain. Migration `034` creates new owner-scoped

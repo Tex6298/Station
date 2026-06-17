@@ -49,8 +49,7 @@ export function PublishingDashboard() {
           apiGet<{ documents: PublishingDocument[] }>("/documents", session.access_token),
           apiGet<{ spaces: PublishingSpace[] }>("/spaces", session.access_token).catch(() => ({ spaces: [] })),
         ]);
-        const approvalData = await apiGet<{ approvals: PublishingApproval[] }>("/publishing/approvals", session.access_token)
-          .catch(() => ({ approvals: [] }));
+        const approvalData = await apiGet<{ approvals: PublishingApproval[] }>("/publishing/approvals", session.access_token);
 
         if (!cancelled) {
           setToken(session.access_token);
