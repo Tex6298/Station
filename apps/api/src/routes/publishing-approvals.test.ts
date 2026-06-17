@@ -18,6 +18,7 @@ const OTHER_ID = "22222222-2222-4222-8222-222222222222";
 const DOC_ID = "33333333-3333-4333-8333-333333333333";
 const OTHER_DOC_ID = "44444444-4444-4444-8444-444444444444";
 const PRIVATE_SOURCE_DOC_ID = "55555555-5555-4555-8555-555555555555";
+const NO_SPACE_DOC_ID = "66666666-6666-4666-8666-666666666666";
 
 class PublishingApprovalSupabase {
   tables: Record<string, Row[]> = {
@@ -28,6 +29,9 @@ class PublishingApprovalSupabase {
     documents: [
       documentRow(DOC_ID, OWNER_ID, "Queue Draft", "draft", "private"),
       documentRow(OTHER_DOC_ID, OTHER_ID, "Other Draft", "draft", "private"),
+      documentRow(NO_SPACE_DOC_ID, OWNER_ID, "No Space Draft", "draft", "private", {
+        space_id: null,
+      }),
       documentRow(PRIVATE_SOURCE_DOC_ID, OWNER_ID, "Private Canon Source", "draft", "private", {
         body: "Private canon body should never appear in approval queue responses.",
         provenance_type: "persona_derived",
@@ -377,4 +381,51 @@ test("publishing approvals enforce state transitions and publish through owner d
   } finally {
     setSupabaseAdminForTests(null);
   }
+});
+
+test("publishing approvals reject no-Space drafts at enqueue and publish transition", async () => {
+  const db = new PublishingApprovalSupabase();
+  setSupabaseAdminForTests(db.client as any);
+  const app = createPublishingApprovalsApp();
+
+  try {
+    const noSpace = await requestJson(app, "POST", "/publishing/approvals", {
+      token: "owner-token",
+      body: { documentId: NO_SPACE_DOC_ID, visibility: "public" },
+    });
+    assert.equal(noSpace.status, 400);
+    assert.match(noSpace.body.error, /Space-backed draft/);
+    assert.equal(db.tables.publishing_approval_items.length, 0);
+
+    const item = db.insertRow("publishing_approval_items", {
+      owner_user_id: OWNER_ID,
+      document_id: NO_SPACE_DOC_ID,
+      state: "approved",
+      visibility: "public",
+    });
+
+    const publishNoSpace = await requestJson(app, "POST", `/publishing/approvals/${item.id}/transition`, {
+      token: "owner-token",
+      body: { state: "published", visibility: "public" },
+    });
+    assert.equal(publishNoSpace.status, 400);
+    assert.match(publishNoSpace.body.error, /Space-backed document/);
+    assert.equal(db.tables.documents.find((row) => row.id === NO_SPACE_DOC_ID)?.status, "draft");
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
+
+test("publishing approval migration enables owner RLS policies", async () => {
+  const migration = await import("node:fs/promises")
+    .then((fs) => fs.readFile("infra/supabase/migrations/034_publishing_approval_queue.sql", "utf8"));
+
+  assert.match(migration, /alter table public\.publishing_approval_items enable row level security;/);
+  assert.match(migration, /alter table public\.publishing_approval_events enable row level security;/);
+  assert.match(migration, /create policy "publishing_approval_items_all_owner"/);
+  assert.match(migration, /using \(owner_user_id = auth\.uid\(\)\)/);
+  assert.match(migration, /with check \(owner_user_id = auth\.uid\(\)\)/);
+  assert.match(migration, /create policy "publishing_approval_events_select_owner"/);
+  assert.match(migration, /create policy "publishing_approval_events_insert_owner"/);
+  assert.match(migration, /actor_user_id = auth\.uid\(\)/);
 });

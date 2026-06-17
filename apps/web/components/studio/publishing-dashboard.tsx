@@ -240,6 +240,14 @@ function ApprovalControls({
     return null;
   }
 
+  if (!document.space_id && (!approval || approval.state !== "published")) {
+    return (
+      <button type="button" disabled title="Choose and save a Space before using the publishing approval queue." style={disabledMiniButton}>
+        Space required
+      </button>
+    );
+  }
+
   if (!approval) {
     return (
       <button type="button" disabled={busy} onClick={() => onEnqueue(document)} style={miniButton}>

@@ -211,6 +211,7 @@ export async function enqueuePublishingApproval(
   const document = await loadOwnedDocument(documentId, ownerUserId);
   if (!document) return { status: "not_found" as const };
   if (document.status === "published") return { status: "invalid" as const, error: "Published documents are already outside the approval queue." };
+  if (!document.space_id) return { status: "invalid" as const, error: "Approval queue requires a Space-backed draft." };
 
   const sb = getSupabaseAdmin();
   const existing = await loadOwnedItemByDocument(documentId, ownerUserId);
@@ -277,6 +278,9 @@ export async function transitionPublishingApproval(
 
   const document = await loadOwnedDocument(item.document_id, ownerUserId);
   if (!document) return { status: "not_found" as const };
+  if (!document.space_id && (nextState === "scheduled" || nextState === "published")) {
+    return { status: "invalid" as const, error: "Approval queue publishing requires a Space-backed document." };
+  }
 
   const now = new Date().toISOString();
   const update: Record<string, unknown> = {

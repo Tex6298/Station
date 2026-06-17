@@ -55,3 +55,31 @@ create index if not exists publishing_approval_events_item_created_idx
 
 create index if not exists publishing_approval_events_owner_created_idx
   on public.publishing_approval_events(owner_user_id, created_at desc);
+
+alter table public.publishing_approval_items enable row level security;
+alter table public.publishing_approval_events enable row level security;
+
+drop policy if exists "publishing_approval_items_all_owner"
+  on public.publishing_approval_items;
+create policy "publishing_approval_items_all_owner"
+  on public.publishing_approval_items
+  for all
+  using (owner_user_id = auth.uid())
+  with check (owner_user_id = auth.uid());
+
+drop policy if exists "publishing_approval_events_select_owner"
+  on public.publishing_approval_events;
+create policy "publishing_approval_events_select_owner"
+  on public.publishing_approval_events
+  for select
+  using (owner_user_id = auth.uid());
+
+drop policy if exists "publishing_approval_events_insert_owner"
+  on public.publishing_approval_events;
+create policy "publishing_approval_events_insert_owner"
+  on public.publishing_approval_events
+  for insert
+  with check (
+    owner_user_id = auth.uid()
+    and actor_user_id = auth.uid()
+  );

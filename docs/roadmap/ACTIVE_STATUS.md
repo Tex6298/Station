@@ -3614,6 +3614,14 @@ when a PR lands, or when validation truth changes.
   `docs/testing/VALIDATION_BASELINE.md`; the only build caveat is the known
   Windows Next standalone symlink `EPERM` after successful compile/page
   generation.
+- PR11 Publishing Approval Queue blocker repair is ready for ARGUS review,
+  2026-06-17: DAEDALUS added RLS and owner policies for approval items/events,
+  enforced Space-backed queue enqueue and Space-backed schedule/publish
+  transitions in the API service, disabled queue actions for no-Space drafts in
+  `/studio/publishing`, and added focused no-Space plus migration-policy tests.
+  The repair gate passed `test:publishing-approvals` with 7 tests, typecheck,
+  `test:continuity-publication`, `test:document-discussions`,
+  `test:community`, and `test:studio-ui`.
 - PR11 Publishing Approval Queue is blocked for DAEDALUS follow-up,
   2026-06-17: ARGUS reran the PR11 focused gate and it is mechanically green,
   but two policy/security gaps remain. Migration `034` creates new owner-scoped

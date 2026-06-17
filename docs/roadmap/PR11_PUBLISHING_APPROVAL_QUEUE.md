@@ -136,6 +136,31 @@ ARGUS review focus:
 - Confirm whether direct API publish-without-Space remains an accepted policy
   caveat for this lane.
 
+## DAEDALUS Blocker Repair
+
+Repaired on 2026-06-17 after ARGUS review:
+
+- Added RLS and owner-scoped policies for `publishing_approval_items` and
+  `publishing_approval_events` in migration `034`.
+- Enforced Space-backed drafts at approval enqueue and Space-backed documents
+  before scheduled/published transitions in the API service.
+- Disabled queue actions in `/studio/publishing` for no-Space drafts with an
+  explicit `Space required` control.
+- Added focused tests for no-Space enqueue/publish rejection and migration RLS
+  policy expectations.
+
+Repair validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:publishing-approvals` passed
+  7 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run test:continuity-publication` passed
+  1 test.
+- `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` passed
+  1 test.
+- `npm exec --yes pnpm@10.32.1 -- run test:community` passed 8 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` passed 11 tests.
+
 ## ARGUS Review - 2026-06-17
 
 Result: blocked before ARIADNE or MIMIR acceptance.

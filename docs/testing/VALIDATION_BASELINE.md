@@ -6653,6 +6653,26 @@ Scope notes:
 - Worker execution, social dispatch, actual scheduled execution, large UI
   redesign, and Creator-account staging setup remain out of scope.
 
+DAEDALUS blocker repair validation on 2026-06-17:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:publishing-approvals` | Pass | 7 tests passed; added no-Space enqueue/publish rejection and migration RLS/policy expectations. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck tasks passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:continuity-publication` | Pass | 1 test passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` | Pass | 1 test passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:community` | Pass | 8 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 11 tests passed. |
+
+Repair notes:
+
+- Migration `034` now enables RLS and adds owner policies for
+  `publishing_approval_items` and `publishing_approval_events`.
+- The approval queue now rejects no-Space drafts at enqueue and blocks
+  scheduled/published transitions if the linked document is not Space-backed.
+- `/studio/publishing` shows `Space required` instead of queue actions for
+  no-Space drafts.
+
 ARGUS review on 2026-06-17:
 
 | Command | Result | Notes |
