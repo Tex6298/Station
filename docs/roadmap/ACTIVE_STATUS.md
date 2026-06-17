@@ -3530,6 +3530,22 @@ when a PR lands, or when validation truth changes.
   route checklist for `/studio/publish`, `/studio/publish?documentId=...`, and
   `/studio/publishing`, including live save/publish controls, deferred controls,
   Space/visibility gating, live dashboard rows, and phone-safe layout checks.
+- PR10 Publish Browser Rehearsal is blocked by ARIADNE, 2026-06-17:
+  `docs/roadmap/PR10_PUBLISH_BROWSER_REHEARSAL_ARIADNE_RESULT.md` records the
+  live Railway browser pass against runtime commit `33cd50b`. Web/API health and
+  readiness were `ok:true`/`ready:true`, but the current replay owner reports
+  `private` auth and billing tier with `canPublishDocuments:false`. With real
+  keyboard input, `/studio/publish` enables `Save draft`, then returns
+  `This action requires the 'creator' tier or above.` and creates no draft, so
+  ARIADNE could not complete the required save, existing-draft edit,
+  Space/persona persistence, publish, or new public document-link checks. The
+  publish page also mixes light text into the light Studio shell, making the
+  header/lede nearly invisible, and the phone title input clips even the default
+  title. `/studio/publishing` itself renders live owner document rows, has
+  Edit/View on the existing published row, and stays within width on desktop and
+  `390 x 844`. MIMIR should decide whether the first blocker is replay-account
+  setup or a DAEDALUS entitlement-preflight UI fix; DAEDALUS should repair the
+  publish header contrast and phone title clipping before PR10 closes.
 
 ## Near-term rule
 
