@@ -1,7 +1,7 @@
 # PR15 - Background Job Boundary
 
 Date: 2026-06-17
-Status: ready for A3 / ARGUS review
+Status: accepted by A3 / ARGUS; ready for MIMIR closeout
 Owner: DAEDALUS implementation, ARGUS review, ARIADNE only if user-visible job
 status UI changes materially.
 
@@ -116,6 +116,41 @@ npm exec --yes pnpm@10.32.1 -- run test:health
 npm exec --yes pnpm@10.32.1 -- run typecheck
 git diff --check
 ```
+
+## ARGUS Review - 2026-06-17
+
+Verdict: accepted.
+
+ARGUS reviewed commit `ffe9079` and accepts the bounded protected-alpha job
+boundary. The new file import runner loads the owner-scoped `import_jobs` row,
+rejects owner/persona/source mismatches, makes completed/archive-row reruns
+idempotent, and routes failures through the existing sanitized import-job error
+path without deleting previous archive material. Persona file registration now
+surfaces `jobExecution.mode` as `queued` or `inline_fallback` instead of hiding
+immediate processing as unnamed fire-and-forget work.
+
+Readiness review:
+
+- TCP Redis or Valkey configuration is reported as queue configuration present.
+- Upstash REST alone is reported as cache-only, not worker-queue ready.
+- No queue/cache provider reports inline fallback required.
+- Secret URLs/tokens are not returned by the health payloads.
+
+Validation rerun:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` passed with
+  15 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:storage` passed with 13 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:exports` passed with 3 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:health` passed with 14 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `git diff 191ade0..ffe9079 --check` passed.
+- `git diff --check` passed with CRLF warnings only.
+
+Caveat: this is not a deployed BullMQ worker. The accepted slice proves the job
+boundary, status transitions, inline fallback, and readiness truth. A future
+independent worker still needs a narrow durable file pointer before claiming
+uploaded-file jobs without the route-provided pointer.
 
 Add `test:token-credits` only if the implementation touches token or paid usage
 limits.

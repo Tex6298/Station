@@ -3842,6 +3842,17 @@ when a PR lands, or when validation truth changes.
   source name. Focused validation passed `test:conversation-archive`,
   `test:storage`, `test:exports`, `test:health`, typecheck, and whitespace
   checks.
+- PR15 Background Job Boundary is accepted by ARGUS, 2026-06-17: ARGUS accepts
+  the bounded protected-alpha job boundary. The file import runner is
+  owner-scoped through `import_jobs`, reruns are idempotent when archive rows
+  already exist for the persona file, failures store sanitized owner-visible
+  errors without deleting previous archive rows, and readiness truthfully
+  distinguishes TCP Redis/Valkey queue configuration from Upstash REST
+  cache-only status. ARGUS reran `test:conversation-archive` with 15 tests,
+  `test:storage` with 13 tests, `test:exports` with 3 tests, `test:health`
+  with 14 tests, typecheck, `git diff 191ade0..ffe9079 --check`, and `git diff
+  --check`. Remaining caveat: this is not a deployed BullMQ worker, and a future
+  independent worker still needs a durable file pointer on job rows.
 - PR14 External Conversation Import Parsers is blocked for DAEDALUS follow-up,
   2026-06-17: ARGUS found that `parseImportFile` checks text MIME before JSON
   filename/extension. A file named `unknown.json` with client-provided

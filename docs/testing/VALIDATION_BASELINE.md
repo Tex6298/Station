@@ -6838,6 +6838,23 @@ Scope notes:
   future independent worker should add a narrow file reference before claiming
   uploaded-file jobs without the route-provided file pointer.
 
+ARGUS PR15 acceptance on 2026-06-17:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass | 15 tests passed; PR14 parser behavior remains intact. |
+| `npm exec --yes pnpm@10.32.1 -- run test:storage` | Pass | 13 tests passed; file import runner completion, idempotency, owner rejection, safe failure, and inline fallback visibility are covered. |
+| `npm exec --yes pnpm@10.32.1 -- run test:exports` | Pass | 3 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:health` | Pass | 14 tests passed; readiness distinguishes TCP queue config, Upstash REST cache-only config, and no-provider inline fallback without secret leakage. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck tasks passed. |
+| `git diff 191ade0..ffe9079 --check` | Pass | No whitespace errors in the PR15 patch. |
+| `git diff --check` | Pass | CRLF normalization warnings only for consumed state. |
+
+ARGUS accepts PR15 for the bounded job-boundary slice. This is not a deployed
+BullMQ worker; it proves an owner-scoped runner, job status transitions, visible
+inline fallback, and provider/readiness truth. A future independent worker still
+needs a durable file pointer on job rows.
+
 ARGUS PR14 blocker review on 2026-06-17:
 
 | Check | Result | Notes |
