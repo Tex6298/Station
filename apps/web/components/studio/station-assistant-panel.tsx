@@ -5,11 +5,18 @@ import { useEffect, useMemo, useState } from "react";
 import type { CSSProperties } from "react";
 import { apiGet, apiPost } from "@/lib/api-client";
 import { getSession } from "@/lib/auth";
+import { assistantActionStatusLabel } from "@/lib/station-assistant-ui";
 
 type AssistantAction = {
+  id: string;
+  kind: "studio_setup" | "import_review" | "import_issue" | "import_progress" | "archive_search" | "publishing" | "integrity" | "export" | "quota_config";
   label: string;
+  detail: string;
   href: string;
-  kind: "primary" | "secondary" | "caution";
+  priority: "critical" | "high" | "normal";
+  count?: number;
+  status?: string;
+  deferred?: boolean;
 };
 
 type AssistantSummary = {
@@ -169,8 +176,12 @@ export function StationAssistantPanel() {
               <h2 style={sectionTitle}>Next actions</h2>
               <div style={{ display: "grid", gap: 8 }}>
                 {actions.map((action) => (
-                  <Link key={`${action.href}-${action.label}`} href={action.href} style={actionLink(action.kind)}>
-                    {action.label}
+                  <Link key={action.id} href={action.href} style={actionLink(action.priority)}>
+                    <span style={{ display: "grid", gap: 4, minWidth: 0 }}>
+                      <span style={{ overflowWrap: "anywhere" }}>{action.label}</span>
+                      <span style={actionDetail}>{action.detail}</span>
+                    </span>
+                    <span style={actionMeta}>{assistantActionStatusLabel(action)}</span>
                   </Link>
                 ))}
               </div>
@@ -356,17 +367,37 @@ const errorBox: CSSProperties = {
   padding: 12,
 };
 
-function actionLink(kind: AssistantAction["kind"]): CSSProperties {
+const actionDetail: CSSProperties = {
+  color: "#94a3b8",
+  fontSize: 12,
+  lineHeight: 1.35,
+  fontWeight: 500,
+  overflowWrap: "anywhere",
+};
+
+const actionMeta: CSSProperties = {
+  flex: "0 0 auto",
+  border: "1px solid #334155",
+  borderRadius: 999,
+  padding: "3px 7px",
+  fontSize: 10,
+  color: "#cbd5e1",
+  textTransform: "uppercase",
+  letterSpacing: 0,
+};
+
+function actionLink(priority: AssistantAction["priority"]): CSSProperties {
   return {
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
-    minHeight: 38,
-    border: `1px solid ${kind === "caution" ? "#92400e" : kind === "primary" ? "#2563eb" : "#334155"}`,
+    gap: 10,
+    minHeight: 58,
+    border: `1px solid ${priority === "critical" ? "#92400e" : priority === "high" ? "#2563eb" : "#334155"}`,
     borderRadius: 8,
-    background: kind === "primary" ? "#13233d" : kind === "caution" ? "#21160b" : "#0d1420",
-    color: kind === "caution" ? "#fed7aa" : kind === "primary" ? "#dbeafe" : "#cbd5e1",
-    padding: "0 11px",
+    background: priority === "high" ? "#13233d" : priority === "critical" ? "#21160b" : "#0d1420",
+    color: priority === "critical" ? "#fed7aa" : priority === "high" ? "#dbeafe" : "#cbd5e1",
+    padding: "10px 11px",
     textDecoration: "none",
     fontSize: 13,
     fontWeight: 800,

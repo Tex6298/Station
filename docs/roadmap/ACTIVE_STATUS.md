@@ -4240,6 +4240,17 @@ when a PR lands, or when validation truth changes.
   export, and quota states. It must stay an operational helper, not a persona or
   autonomous agent, and must not add provider, Cloudflare, Redis memory, worker,
   billing, publishing, social, or reskin scope.
+- PR22 Station Assistant Operations is implemented by DAEDALUS and ready for
+  ARGUS, 2026-06-17: `/assistant/summary` and `/assistant/message` now surface
+  typed owner-scoped operational action cards for import review, failed/importing
+  jobs, private archive search, publishing drafts, integrity gaps, export
+  backups, and quota-looking import failures where supported. Cards use exact
+  live Studio/settings hrefs, capped/redacted details, and preserve the
+  `operational_helper_not_persona` guardrail. `/studio/assistant` renders the
+  cards as live action links with detail/status context. No autonomous agent
+  execution, provider requirement, persona Memory/Canon writes, publishing/export
+  mutation, workers, Cloudflare/vector/Redis memory work, billing redesign,
+  social posting, or UI reskin was added.
 
 ## Near-term rule
 

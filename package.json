@@ -16,7 +16,7 @@
     "test:token-credits": "pnpm --filter @station/types --filter @station/config --filter @station/db --filter @station/auth build && tsx --test apps/api/src/routes/token-credits.test.ts",
     "test:health": "tsx --test apps/api/src/routes/health.test.ts apps/web/lib/deployment-identity.test.ts",
     "test:replay-readiness": "pnpm --filter @station/types --filter @station/config --filter @station/db --filter @station/auth build && tsx --test apps/api/src/routes/replay-readiness.test.ts",
-    "test:studio-ui": "tsx --test apps/web/lib/studio-navigation.test.ts apps/web/lib/archive-trust.test.ts apps/web/lib/export-trust.test.ts apps/web/lib/publishing-ui.test.ts apps/web/lib/import-review.test.ts",
+    "test:studio-ui": "tsx --test apps/web/lib/studio-navigation.test.ts apps/web/lib/archive-trust.test.ts apps/web/lib/export-trust.test.ts apps/web/lib/publishing-ui.test.ts apps/web/lib/import-review.test.ts apps/web/lib/station-assistant-ui.test.ts",
     "test:publishing-approvals": "pnpm --filter @station/types --filter @station/config --filter @station/db --filter @station/auth build && tsx --test apps/api/src/routes/publishing-approvals.test.ts apps/web/lib/publishing-ui.test.ts",
     "test:writing": "tsx --test apps/web/lib/writing-feed.test.ts",
     "test:reports": "pnpm --filter @station/types --filter @station/config --filter @station/db --filter @station/auth build && tsx --test apps/api/src/routes/reports.test.ts",

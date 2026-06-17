@@ -7188,3 +7188,33 @@ Scope notes:
 - This is a deploy-ready local repair. Live authenticated Railway proof still
   belongs to the ARIADNE rerun because this shell does not have the replay
   browser session/token.
+
+## PR22 Station Assistant Operations
+
+DAEDALUS implementation validation on 2026-06-17:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:assistant` | Pass | 8 tests passed, including typed action-card routing, owner scoping, and redaction of path/secret-shaped import details. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 17 tests passed, including Station Assistant action-card UI helper coverage. |
+| `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass | 27 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:storage` | Pass | 16 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:exports` | Pass | 4 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck tasks passed. |
+| `git diff --check` | Pass | No whitespace errors; CRLF normalization warnings only for touched text files if Git reports them. |
+
+Scope notes:
+
+- Assistant summaries and replies now return typed operational action cards with
+  `id`, `kind`, `label`, `detail`, `href`, `priority`, and optional
+  `count`/`status`/`deferred`.
+- Action cards are owner-scoped to existing read surfaces and link only to live
+  Studio/settings routes.
+- Source labels and details are capped and redact obvious secret-shaped strings;
+  storage-path-shaped labels are replaced with generic owner-safe labels.
+- `/studio/assistant` renders action cards as live links with detail/status
+  context.
+- Assistant remains `operational_helper_not_persona`; no provider requirement,
+  autonomous execution, persona Memory/Canon writes, automatic publishing/export,
+  workers, Cloudflare/vector/Redis memory work, billing redesign, social posting,
+  or reskin scope was added.

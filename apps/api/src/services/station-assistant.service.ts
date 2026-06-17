@@ -19,6 +19,16 @@ type ImportJobRow = {
   created_at?: string | null;
 };
 
+type ContinuityCandidateRow = {
+  id: string;
+  persona_id?: string | null;
+  candidate_type?: string | null;
+  status?: string | null;
+  source_table?: string | null;
+  source_label?: string | null;
+  created_at?: string | null;
+};
+
 type DocumentRow = {
   id: string;
   title: string;
@@ -56,12 +66,44 @@ type CanonRow = {
   created_at?: string | null;
 };
 
+type ExportPackageRow = {
+  id: string;
+  status?: string | null;
+  target_type?: string | null;
+  target_id?: string | null;
+  updated_at?: string | null;
+  created_at?: string | null;
+};
+
 type AssistantAction = {
   id: string;
   label: string;
   detail: string;
   href: string;
   priority: "critical" | "high" | "normal";
+};
+
+export type AssistantActionKind =
+  | "studio_setup"
+  | "import_review"
+  | "import_issue"
+  | "import_progress"
+  | "archive_search"
+  | "publishing"
+  | "integrity"
+  | "export"
+  | "quota_config";
+
+export type AssistantActionCard = {
+  id: string;
+  kind: AssistantActionKind;
+  label: string;
+  detail: string;
+  href: string;
+  priority: "critical" | "high" | "normal";
+  count?: number;
+  status?: string;
+  deferred?: boolean;
 };
 
 export async function getStationAssistantContext(ownerUserId: string) {
@@ -165,6 +207,24 @@ async function readRows<T>(query: PromiseLike<{ data: T[] | null; error?: { mess
   const { data, error } = await query;
   if (error) return [];
   return data ?? [];
+}
+
+function safeSnippet(value: string | null | undefined, maxLength = 90) {
+  const normalized = (value ?? "")
+    .replace(/\s+/g, " ")
+    .replace(/Bearer\s+[A-Za-z0-9._~+/-]+=*/gi, "Bearer [redacted]")
+    .replace(/\bsk-[A-Za-z0-9_-]+\b/g, "[redacted]")
+    .replace(/\b(?:service[_-]?role|api[_-]?key|secret|token|password)\s*[:=]\s*\S+/gi, "[redacted]")
+    .trim();
+  if (!normalized) return "";
+  return normalized.length > maxLength ? `${normalized.slice(0, maxLength - 3)}...` : normalized;
+}
+
+function safeSourceLabel(value: string | null | undefined, fallback = "Imported source") {
+  const compact = safeSnippet(value, 72);
+  if (!compact) return fallback;
+  if (/[\\/]/.test(compact)) return fallback;
+  return compact;
 }
 
 function buildSummary(
@@ -294,6 +354,7 @@ export async function getStationAssistantSummary(ownerUserId: string): Promise<S
     canonItems,
     candidates,
     documents,
+    integritySessions,
     importJobs,
     spaces,
     developerSpaces,
@@ -314,11 +375,14 @@ export async function getStationAssistantSummary(ownerUserId: string): Promise<S
     readRows<CanonRow>(
       sb.from("canon_items").select("id, persona_id, title, source_type, created_at").eq("owner_user_id", ownerUserId).order("created_at", { ascending: false }).limit(100)
     ),
-    readRows<any>(
-      sb.from("continuity_candidates").select("id, status, created_at").eq("owner_user_id", ownerUserId).order("created_at", { ascending: false }).limit(100)
+    readRows<ContinuityCandidateRow>(
+      sb.from("continuity_candidates").select("id, persona_id, candidate_type, status, source_table, source_label, created_at").eq("owner_user_id", ownerUserId).order("created_at", { ascending: false }).limit(100)
     ),
     readRows<DocumentRow>(
       sb.from("documents").select("id, title, status, visibility, document_type, updated_at, published_at, created_at").eq("author_user_id", ownerUserId).order("updated_at", { ascending: false }).limit(100)
+    ),
+    readRows<IntegritySessionRow>(
+      sb.from("integrity_sessions").select("id, persona_id, status, session_type, completed_at, updated_at, created_at").eq("owner_user_id", ownerUserId).order("updated_at", { ascending: false }).limit(100)
     ),
     readRows<ImportJobRow>(
       sb.from("import_jobs").select("id, persona_id, kind, status, source_name, error_message, updated_at, created_at").eq("owner_user_id", ownerUserId).order("updated_at", { ascending: false }).limit(100)
@@ -329,7 +393,7 @@ export async function getStationAssistantSummary(ownerUserId: string): Promise<S
     readRows<any>(
       sb.from("developer_spaces").select("id, project_name, slug, visibility, updated_at, created_at").eq("owner_user_id", ownerUserId).order("updated_at", { ascending: false }).limit(100)
     ),
-    readRows<any>(
+    readRows<ExportPackageRow>(
       sb.from("export_packages").select("id, status, created_at, updated_at").eq("owner_user_id", ownerUserId).order("updated_at", { ascending: false }).limit(100)
     ),
   ]);
@@ -341,6 +405,12 @@ export async function getStationAssistantSummary(ownerUserId: string): Promise<S
 
   const nextActions = buildAssistantSummaryActions({
     personas,
+    importJobs,
+    documents,
+    integritySessions,
+    memoryItems,
+    canonItems,
+    candidates,
     pendingImports,
     failedImports,
     draftDocuments,
@@ -367,18 +437,18 @@ export async function getStationAssistantSummary(ownerUserId: string): Promise<S
     recent: {
       personas: personas.slice(0, 6).map((persona) => ({
         id: persona.id,
-        name: persona.name,
+        name: safeSnippet(persona.name, 60),
         visibility: persona.visibility ?? "private",
       })),
       imports: importJobs.slice(0, 6).map((job) => ({
         id: job.id,
-        sourceName: job.source_name ?? "Untitled import",
+        sourceName: safeSourceLabel(job.source_name, "Untitled import"),
         status: job.status ?? "queued",
         updatedAt: job.updated_at ?? job.created_at ?? null,
       })),
       documents: documents.slice(0, 6).map((document) => ({
         id: document.id,
-        title: document.title,
+        title: safeSnippet(document.title, 80),
         status: document.status ?? "draft",
         documentType: document.document_type ?? "essay",
       })),
@@ -389,33 +459,143 @@ export async function getStationAssistantSummary(ownerUserId: string): Promise<S
 
 function buildAssistantSummaryActions(input: {
   personas: PersonaRow[];
+  importJobs: ImportJobRow[];
+  documents: DocumentRow[];
+  integritySessions: IntegritySessionRow[];
+  memoryItems: MemoryRow[];
+  canonItems: CanonRow[];
+  candidates: ContinuityCandidateRow[];
   pendingImports: number;
   failedImports: number;
   draftDocuments: number;
   pendingCandidates: number;
-  exportPackages: any[];
+  exportPackages: ExportPackageRow[];
 }) {
-  const actions: Array<{ label: string; href: string; kind: "primary" | "secondary" | "caution" }> = [];
+  const actions: AssistantActionCard[] = [];
+  const firstPersonaId = input.personas[0]?.id;
+  const personaNames = new Map(input.personas.map((persona) => [persona.id, safeSnippet(persona.name, 60)]));
+  const pendingImportCandidates = input.candidates.filter((candidate) =>
+    candidate.status === "pending" && candidate.source_table === "persona_files"
+  );
+
   if (input.personas.length === 0) {
-    actions.push({ label: "Create the first persona", href: "/studio/new", kind: "primary" });
+    actions.push({
+      id: "create-persona",
+      kind: "studio_setup",
+      label: "Create the first persona",
+      detail: "Create a private persona before importing archive material or publishing.",
+      href: "/studio/new",
+      priority: "critical",
+      status: "missing",
+    });
+  }
+  if (pendingImportCandidates.length > 0) {
+    const personaId = pendingImportCandidates[0]?.persona_id ?? firstPersonaId;
+    const personaLabel = personaId ? personaNames.get(personaId) ?? "this persona" : "this persona";
+    actions.push({
+      id: `import-review-${personaId ?? "all"}`,
+      kind: "import_review",
+      label: "Review import Memory/Canon",
+      detail: `${pendingImportCandidates.length} imported candidate${pendingImportCandidates.length === 1 ? "" : "s"} need owner review for ${personaLabel}.`,
+      href: personaId ? `/studio/personas/${personaId}/files` : "/studio/archive",
+      priority: "critical",
+      count: pendingImportCandidates.length,
+      status: "pending",
+    });
   }
   if (input.failedImports > 0) {
-    actions.push({ label: "Fix failed imports", href: "/studio/archive", kind: "caution" });
+    const failed = input.importJobs.find((job) => job.status === "failed");
+    const source = safeSourceLabel(failed?.source_name, "An import");
+    const error = failed?.error_message ? ` Error: ${safeSnippet(failed.error_message, 90)}` : "";
+    actions.push({
+      id: "review-failed-import",
+      kind: "import_issue",
+      label: "Review failed import",
+      detail: `${source} failed before Station could preserve it cleanly.${error}`,
+      href: failed?.persona_id ? `/studio/personas/${failed.persona_id}/files` : "/studio/archive",
+      priority: "critical",
+      count: input.failedImports,
+      status: "failed",
+    });
   }
   if (input.pendingImports > 0) {
-    actions.push({ label: "Check import progress", href: "/studio/archive", kind: "secondary" });
+    const active = input.importJobs.find((job) => job.status === "queued" || job.status === "processing");
+    actions.push({
+      id: "check-import-progress",
+      kind: "import_progress",
+      label: "Check import progress",
+      detail: `${input.pendingImports} import job${input.pendingImports === 1 ? "" : "s"} still need completion before review is reliable.`,
+      href: active?.persona_id ? `/studio/personas/${active.persona_id}/files` : "/studio/archive",
+      priority: "high",
+      count: input.pendingImports,
+      status: "processing",
+    });
   }
-  if (input.pendingCandidates > 0) {
-    actions.push({ label: "Review Memory/Canon candidates", href: "/studio", kind: "primary" });
+  if (firstPersonaId && !input.integritySessions.some((session) => session.status === "completed" || session.completed_at)) {
+    actions.push({
+      id: "run-integrity",
+      kind: "integrity",
+      label: "Run Integrity Session",
+      detail: "Capture boundaries and continuity anchors before relying on imported memory.",
+      href: `/studio/personas/${firstPersonaId}/calibration`,
+      priority: "high",
+      status: "missing",
+    });
   }
   if (input.draftDocuments > 0) {
-    actions.push({ label: "Review publishing drafts", href: "/studio/publish", kind: "primary" });
+    actions.push({
+      id: "review-drafts",
+      kind: "publishing",
+      label: "Review publishing drafts",
+      detail: "Check visibility, provenance, and queue state before anything enters public surfaces.",
+      href: "/studio/publishing",
+      priority: "high",
+      count: input.draftDocuments,
+      status: "draft",
+    });
   }
-  if (input.exportPackages.length === 0) {
-    actions.push({ label: "Create an export backup", href: "/studio/export", kind: "secondary" });
+  if (!input.exportPackages.some((pkg) => pkg.status === "completed")) {
+    actions.push({
+      id: "export-backup",
+      kind: "export",
+      label: "Create export backup",
+      detail: "Create a portable owner archive so preservation is not only inside Station.",
+      href: "/studio/export",
+      priority: "high",
+      status: "missing",
+    });
+  }
+  if (input.memoryItems.length > 0 || input.importJobs.some((job) => job.status === "completed")) {
+    actions.push({
+      id: "search-private-archive",
+      kind: "archive_search",
+      label: "Search private archive",
+      detail: "Search owner-private archive material without exposing raw source bodies or transcripts.",
+      href: "/studio/archive",
+      priority: "normal",
+      count: input.memoryItems.length,
+    });
+  }
+  if (input.importJobs.some((job) => job.status === "failed" && /quota|storage|limit/i.test(`${job.source_name ?? ""} ${job.error_message ?? ""}`))) {
+    actions.push({
+      id: "review-quota-config",
+      kind: "quota_config",
+      label: "Check storage and quota settings",
+      detail: "A failed import looks quota-related; review storage and account settings before retrying.",
+      href: "/settings",
+      priority: "high",
+      status: "attention",
+    });
   }
   if (actions.length === 0) {
-    actions.push({ label: "Open global archive", href: "/studio/archive", kind: "primary" });
+    actions.push({
+      id: "open-archive",
+      kind: "archive_search",
+      label: "Open private archive",
+      detail: "Archive, search, and review private source material before publishing.",
+      href: "/studio/archive",
+      priority: "normal",
+    });
   }
   return actions.slice(0, 5);
 }
@@ -427,7 +607,7 @@ export type StationAssistantSummary = {
     imports?: Array<{ id: string; sourceName: string; status: string; updatedAt?: string | null }>;
     documents?: Array<{ id: string; title: string; status: string; documentType?: string }>;
   };
-  nextActions?: Array<{ label: string; href: string; kind?: string }>;
+  nextActions?: AssistantActionCard[];
 };
 
 export type StationAssistantIntent = "archive" | "publish" | "integrity" | "export" | "general";
@@ -477,14 +657,29 @@ function contentForIntent(intent: StationAssistantIntent, summary: StationAssist
   }
 }
 
-function actionsForIntent(intent: StationAssistantIntent, fallback: Array<{ label: string; href: string; kind?: string }>) {
-  const primary = {
-    archive: { label: "Open archive", href: "/studio/archive", kind: "primary" },
-    publish: { label: "Open publishing", href: "/studio/publish", kind: "primary" },
-    integrity: { label: "Review continuity", href: "/studio", kind: "primary" },
-    export: { label: "Open export", href: "/studio/export", kind: "primary" },
-    general: fallback[0] ?? { label: "Open Studio", href: "/studio", kind: "primary" },
-  }[intent];
+function actionsForIntent(intent: StationAssistantIntent, fallback: AssistantActionCard[]) {
+  const wanted: Record<StationAssistantIntent, AssistantActionKind[]> = {
+    archive: ["import_review", "import_issue", "import_progress", "archive_search"],
+    publish: ["publishing"],
+    integrity: ["integrity", "import_review"],
+    export: ["export"],
+    general: [],
+  };
+  const selected = wanted[intent].length
+    ? fallback.filter((action) => wanted[intent].includes(action.kind))
+    : fallback;
+  const defaultAction: AssistantActionCard = {
+    id: `open-${intent}`,
+    kind: intent === "publish" ? "publishing" : intent === "integrity" ? "integrity" : intent === "export" ? "export" : "archive_search",
+    label: intent === "publish" ? "Open publishing" : intent === "integrity" ? "Review continuity" : intent === "export" ? "Open export" : "Open private archive",
+    detail: "Open the relevant Studio workspace; Assistant will not make changes without an explicit owner action.",
+    href: intent === "publish" ? "/studio/publishing" : intent === "integrity" ? "/studio" : intent === "export" ? "/studio/export" : "/studio/archive",
+    priority: "normal",
+  };
 
-  return [primary, ...fallback.filter((action) => action.href !== primary.href)].slice(0, 3);
+  return [...selected, defaultAction, ...fallback].filter(uniqueAction).slice(0, 3);
+}
+
+function uniqueAction(action: AssistantActionCard, index: number, actions: AssistantActionCard[]) {
+  return actions.findIndex((item) => item.id === action.id || item.href === action.href) === index;
 }

@@ -35,8 +35,25 @@ const summary: StationAssistantSummary = {
     documents: [{ id: "doc-1", title: "Field log", status: "draft", documentType: "field_log" }],
   },
   nextActions: [
-    { label: "Review Memory/Canon candidates", href: "/studio", kind: "primary" },
-    { label: "Fix failed imports", href: "/studio/archive", kind: "caution" },
+    {
+      id: "import-review-33333333-3333-4333-8333-333333333333",
+      kind: "import_review",
+      label: "Review Memory/Canon candidates",
+      detail: "2 imported candidates need owner review.",
+      href: "/studio/personas/33333333-3333-4333-8333-333333333333/files",
+      priority: "critical",
+      count: 2,
+      status: "pending",
+    },
+    {
+      id: "review-failed-import",
+      kind: "import_issue",
+      label: "Fix failed imports",
+      detail: "One failed import needs review.",
+      href: "/studio/archive",
+      priority: "critical",
+      status: "failed",
+    },
   ],
 };
 
@@ -46,7 +63,7 @@ test("Station Assistant routes archive requests to archive/import actions", () =
   assert.equal(reply.role, "assistant");
   assert.equal(reply.intent, "archive");
   assert.match(reply.content, /Archive next step/);
-  assert.equal(reply.actions[0].href, "/studio/archive");
+  assert.equal(reply.actions[0].kind, "import_review");
   assert.match(reply.guardrail, /operational only/);
 });
 
@@ -56,7 +73,7 @@ test("Station Assistant keeps publishing behind human review and provenance", ()
   assert.equal(reply.intent, "publish");
   assert.match(reply.content, /provenance/);
   assert.match(reply.content, /human review/);
-  assert.equal(reply.actions[0].href, "/studio/publish");
+  assert.equal(reply.actions[0].href, "/studio/publishing");
 });
 
 test("Station Assistant does not present itself as a persona", () => {
@@ -80,6 +97,16 @@ test("launch-core private routes require auth and scope assistant summary to the
     assert.equal(owner.body.summary.counts.personas, 1);
     assert.equal(owner.body.summary.counts.memoryItems, 1);
     assert.equal(owner.body.summary.recent.personas[0].id, OWNER_ID_PERSONA);
+    assert.equal(owner.body.summary.nextActions.some((action: any) => action.kind === "import_review"), true);
+    assert.equal(
+      owner.body.summary.nextActions.some((action: any) => action.href === `/studio/personas/${OWNER_ID_PERSONA}/files`),
+      true
+    );
+    assert.equal(owner.body.summary.nextActions.some((action: any) => action.kind === "publishing"), true);
+    assert.equal(owner.body.summary.nextActions.some((action: any) => action.kind === "export"), true);
+    assert.equal(JSON.stringify(owner.body.summary).includes("sk-live-secret"), false);
+    assert.equal(JSON.stringify(owner.body.summary).includes("private/path/owner-chatgpt.json"), false);
+    assert.equal(JSON.stringify(owner.body.summary).includes(OTHER_ID_PERSONA), false);
 
     const other = await requestJson(app, "GET", "/assistant/summary", { token: "other-token" });
     assert.equal(other.status, 200);
@@ -89,6 +116,7 @@ test("launch-core private routes require auth and scope assistant summary to the
       other.body.summary.recent.personas.some((persona: any) => persona.id === OWNER_ID_PERSONA),
       false
     );
+    assert.equal(JSON.stringify(other.body.summary).includes(OWNER_IMPORT_ID), false);
   } finally {
     setSupabaseAdminForTests(null);
   }
@@ -139,7 +167,7 @@ class LaunchCoreRouteDb {
       { id: OTHER_ID_PERSONA, owner_user_id: OTHER_ID, name: "Other Persona", visibility: "private", updated_at: "2026-06-16T10:00:00.000Z", created_at: "2026-06-16T09:00:00.000Z" },
     ],
     import_jobs: [
-      { id: OWNER_IMPORT_ID, owner_user_id: OWNER_ID, persona_id: OWNER_ID_PERSONA, kind: "chat", status: "completed", source_name: "owner archive", error_message: null, updated_at: "2026-06-16T10:04:00.000Z", created_at: "2026-06-16T10:03:00.000Z" },
+      { id: OWNER_IMPORT_ID, owner_user_id: OWNER_ID, persona_id: OWNER_ID_PERSONA, kind: "chat", status: "failed", source_name: "private/path/owner-chatgpt.json", error_message: "storage token=sk-live-secret failed", updated_at: "2026-06-16T10:04:00.000Z", created_at: "2026-06-16T10:03:00.000Z" },
       { id: OTHER_IMPORT_ID, owner_user_id: OTHER_ID, persona_id: OTHER_ID_PERSONA, kind: "chat", status: "completed", source_name: "other archive", error_message: null, updated_at: "2026-06-16T10:04:00.000Z", created_at: "2026-06-16T10:03:00.000Z" },
     ],
     documents: [
@@ -154,7 +182,10 @@ class LaunchCoreRouteDb {
     canon_items: [],
     conversations: [],
     archived_chat_transcripts: [],
-    continuity_candidates: [],
+    continuity_candidates: [
+      { id: "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb", owner_user_id: OWNER_ID, persona_id: OWNER_ID_PERSONA, candidate_type: "memory", status: "pending", source_table: "persona_files", source_label: "private/path/owner-chatgpt.json", created_at: "2026-06-16T10:06:00.000Z" },
+      { id: "cccccccc-cccc-4ccc-8ccc-cccccccccccc", owner_user_id: OTHER_ID, persona_id: OTHER_ID_PERSONA, candidate_type: "memory", status: "pending", source_table: "persona_files", source_label: "other.json", created_at: "2026-06-16T10:06:00.000Z" },
+    ],
     spaces: [],
     developer_spaces: [],
     export_packages: [],

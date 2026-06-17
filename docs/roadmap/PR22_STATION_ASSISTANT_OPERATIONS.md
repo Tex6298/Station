@@ -1,7 +1,7 @@
 # PR22 - Station Assistant Operations
 
 Date: 2026-06-17
-Status: opened for A2 / DAEDALUS
+Status: implemented by A2 / DAEDALUS; ready for A3 / ARGUS review
 Owner: DAEDALUS implementation, ARGUS review, ARIADNE human rehearsal after
 review because `/studio/assistant` is a visible launch-core surface.
 
@@ -143,3 +143,75 @@ unsafe mutation implications, and any accidental Assistant-as-persona drift.
 
 If ARGUS accepts, wake ARIADNE for desktop and 375px `/studio/assistant`
 human-eye rehearsal.
+
+## DAEDALUS Implementation Notes - 2026-06-17
+
+API/service response shape:
+
+- `/assistant/summary` keeps the existing `summary` envelope and now returns
+  typed `nextActions` cards:
+  - `id`
+  - `kind`
+  - `label`
+  - `detail`
+  - `href`
+  - `priority`
+  - optional `count`, `status`, and `deferred`
+- `/assistant/message` reuses the same typed cards in `reply.actions` and keeps
+  the existing `operational_helper_not_persona` guardrail.
+- Supported action kinds are `studio_setup`, `import_review`, `import_issue`,
+  `import_progress`, `archive_search`, `publishing`, `integrity`, `export`, and
+  `quota_config`.
+
+Read surfaces and owner scope:
+
+- Reads remain owner-filtered against `personas`, `conversations`,
+  `archived_chat_transcripts`, `memory_items`, `canon_items`,
+  `continuity_candidates`, `documents`, `import_jobs`, `spaces`,
+  `developer_spaces`, and `export_packages`.
+- Pending import-backed candidates link to
+  `/studio/personas/:personaId/files`.
+- Failed/processing imports link to the persona Archive page when the persona id
+  is known, otherwise `/studio/archive`.
+- Draft publishing links to `/studio/publishing`.
+- Integrity gaps link to `/studio/personas/:personaId/calibration`.
+- Missing export backups link to `/studio/export`.
+- Archive search links to `/studio/archive`.
+- Quota-looking import failures link to `/settings`.
+
+Leak controls:
+
+- Recent source labels and action details are capped.
+- Obvious bearer tokens, `sk-*` keys, service-role/API-key/secret/token/password
+  assignments are redacted.
+- Source labels that look like storage paths are replaced with generic owner-safe
+  labels.
+- Action cards do not return raw archive bodies, transcripts, storage paths,
+  provider keys, or secret-shaped strings.
+
+Web:
+
+- `/studio/assistant` now renders action cards with labels, details, priority
+  styling, exact links, and status/kind chips.
+- Added helper coverage for action status/tone/empty copy.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:assistant`: pass, 8 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:studio-ui`: pass, 17 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive`: pass, 27
+  tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:storage`: pass, 16 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:exports`: pass, 4 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck`: pass.
+- `git diff --check`: pass, CRLF normalization warnings only.
+
+Deferred:
+
+- No autonomous tool execution.
+- No LLM provider requirement.
+- No Assistant writes to persona Memory or Canon.
+- No automatic publishing, exporting, Integrity Session start, or candidate
+  mutation.
+- No Redis memory truth, Cloudflare retrieval, vector reindexing, workers, live
+  Reddit/Discord pulls, billing redesign, social posting, or UI reskin.
