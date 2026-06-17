@@ -3712,6 +3712,13 @@ when a PR lands, or when validation truth changes.
   `test:studio-ui` with 12 tests, typecheck, `git diff 75b5a41..9013f7b
   --check`, and `git diff --check`. Direct `POST /documents/:id/publish`
   remains documented legacy latitude and was not changed in this follow-up.
+- PR11 seeded private-tier ARIADNE rerun is queued, 2026-06-17: MIMIR updated
+  `docs/roadmap/PR11_APPROVAL_QUEUE_REHEARSAL_ARIADNE.md` so ARIADNE waits for
+  runtime commit `9013f7b` or newer and checks the two synthetic drafts:
+  Space-backed should show Creator-required disabled queue action, no-Space
+  should show Space-required guard copy, and approval readback should stay
+  `200` without silent empty-queue fallback. Creator-positive transitions remain
+  separate staging-account proof.
 
 ## Near-term rule
 

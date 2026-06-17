@@ -22,9 +22,30 @@ Use live Railway staging:
 - API: `https://stationapi-production.up.railway.app`
 
 Before testing, confirm both health endpoints are `ok:true` and
-`ready:true`. Confirm the served runtime includes PR11 code commit `2797520` or
-newer. If Railway has not deployed that code yet, wait/retry rather than testing
-old UI.
+`ready:true`. Confirm the served runtime includes entitlement guard commit
+`9013f7b` or newer. If Railway has not deployed that code yet, wait/retry rather
+than testing old UI.
+
+## Seeded Private-Tier Rerun
+
+MIMIR seeded two public-safe drafts for this rerun and reset their approval
+rows:
+
+- `replay-approval-space-draft`: Space-backed draft.
+- `replay-approval-no-space-guard`: no-Space draft.
+
+The replay owner remains private tier with `canPublishDocuments:false`.
+
+For this rerun, do not fail because the Creator-positive transition path is
+still untested. The purpose is to prove the live private-tier dashboard does not
+show live queue mutation actions:
+
+- the Space-backed synthetic draft should show `Creator required` or equivalent
+  disabled queue copy;
+- the no-Space synthetic draft should show `Space required` or equivalent
+  disabled guard copy;
+- `GET /publishing/approvals` should still return `200`;
+- approval fetch failure must not be silently rendered as empty queue truth.
 
 ## Required Human Routes
 
