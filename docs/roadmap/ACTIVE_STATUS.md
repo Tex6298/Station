@@ -3484,6 +3484,13 @@ when a PR lands, or when validation truth changes.
   installed and direct secret-key REST use is blocked by Supabase's key guard;
   accepting that part relies on MIMIR's recorded pooler proof. `test:health` and
   whitespace checks passed. No launch-core deploy blocker remains.
+- PR10 Studio Publish API Wiring is opened for DAEDALUS, 2026-06-17:
+  `docs/roadmap/PR10_STUDIO_PUBLISH_API_WIRING.md` narrows the launch-core
+  "finish next" list to the first product unlock: make `/studio/publish` create,
+  save, and publish real owner-scoped documents through the existing document
+  API, and make `/studio/publishing` read live owner document data. Approval
+  queue, worker execution, social dispatch, scheduling execution, and site-wide
+  UI reskin work are explicitly out of scope for this slice.
 
 ## Near-term rule
 
