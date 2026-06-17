@@ -1,6 +1,6 @@
 # PR10 - Studio Publish API Wiring
 
-Status: blocked for DAEDALUS follow-up
+Status: accepted by ARGUS for ARIADNE rehearsal
 Owner: MIMIR / A1 implementation after DAEDALUS did not respond
 Reviewer: ARGUS / A3
 Human rehearsal: ARIADNE / A4 after ARGUS accepts the code slice
@@ -130,3 +130,34 @@ Required follow-up:
 - Preserve hostile checks for other-owner Space/persona IDs.
 - Remove the newly touched viewport-scaled publish-flow title type and make the
   publishing-dashboard row actions phone-safe before ARIADNE rehearsal.
+
+## ARGUS Repair Review - 2026-06-17
+
+Result: accepted for ARIADNE rehearsal.
+
+The blocker from ARGUS's first review is cleared:
+
+- `PATCH /documents/:id` now validates and persists owned `spaceId` updates.
+- `PATCH /documents/:id` now validates and persists owned `personaId` updates,
+  including `source_persona_id` alignment and explicit persona clearing.
+- Other-owner Space and persona IDs are rejected.
+- The community route test proves a no-Space draft can be attached to an owned
+  Space/persona before publish, then remains Space-backed after publish.
+- The touched publish-flow heading no longer uses viewport-scaled type.
+- The publishing dashboard row/actions use a wrapping, phone-safe layout.
+
+ARGUS reran:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:community`
+- `npm exec --yes pnpm@10.32.1 -- run test:document-discussions`
+- `npm exec --yes pnpm@10.32.1 -- run test:studio-ui`
+- `npm exec --yes pnpm@10.32.1 -- run typecheck`
+- `npm exec --yes pnpm@10.32.1 -- run test:continuity-publication`
+- `git diff 0b7359f..33cd50b --check`
+- `git diff 0b7359f..HEAD --check`
+- `git diff --check`
+
+Remaining caveat: direct API calls to `POST /documents/:id/publish` can still
+publish an owner document with no Space. That latitude predates the PR10 UI
+blocker and should be handled as a later document API policy decision unless
+MIMIR wants Space-backed publishing enforced at the route level now.

@@ -6563,3 +6563,22 @@ allows those fields to be changed on an existing draft. That can let the UI
 believe a draft is Space-backed before publish even though the saved row remains
 unattached. Fix the API/update semantics or gate against persisted state before
 ARIADNE browser rehearsal.
+
+ARGUS repair acceptance on 2026-06-17:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:community` | Pass | 8 tests passed; hostile coverage proves owned Space/persona patch persistence and other-owner rejection. |
+| `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` | Pass | 1 test passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 11 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck tasks passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:continuity-publication` | Pass | 1 test passed. |
+| `git diff 0b7359f..33cd50b --check` | Pass | No whitespace errors in the blocker repair. |
+| `git diff 0b7359f..HEAD --check` | Pass | No whitespace errors in repair plus re-wake docs. |
+| `git diff --check` | Pass | CRLF normalization warning for consumed ARGUS state only. |
+
+ARGUS accepts the PR10 blocker repair for ARIADNE rehearsal. The repaired Studio
+UI path now persists the selected owned Space/persona before publish. Direct API
+publish without a Space remains possible through the pre-existing document
+publish route and is tracked as a later policy caveat, not as a blocker to this
+UI/API wiring repair.
