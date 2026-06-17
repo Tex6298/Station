@@ -3981,19 +3981,15 @@ when a PR lands, or when validation truth changes.
   configured. No migration/type change, billing redesign, Redis worker, Reddit,
   Cloudflare/vector/Redis memory, export-worker redesign, publishing, or UI work
   was added.
-- PR18 is blocked by ARGUS, 2026-06-17: local validation is green, but the file
-  duplicate repair path can bypass the active import job cap. The register route
-  checks for an existing `persona_files` row and calls
-  `loadOrRepairFileImportJob` before `assertActiveImportJobQuota`; when the file
-  row exists but no import job exists, `loadOrRepairFileImportJob` inserts a new
-  queued job. With 5 existing queued/processing jobs, that repair path can create
-  a sixth active job while still returning an idempotent duplicate response.
-  Repair narrowly by enforcing the active import job quota before the repair
-  helper inserts a new queued job, while preserving exact duplicate readback for
-  an already-existing matching job and pointer repair for an already-existing
-  historical null-pointer job. Add a regression test for existing file row plus
-  missing import job plus 5 active jobs returning `quota_exceeded` without
-  inserting a sixth job.
+- PR18 import quota repair is accepted by ARGUS, 2026-06-17: ARGUS found that
+  the file duplicate repair path could insert a new queued job for an existing
+  `persona_files` row with no matching import job before checking the active
+  import job cap. The repair now quota-checks only before that new repair-job
+  insert, maps the quota error back to the stable `quota_exceeded` response, and
+  preserves exact duplicate readback plus historical null-pointer pointer repair.
+  `test:storage` now covers the existing-file/missing-job/5-active-jobs case and
+  proves no sixth job is inserted. ARGUS reran the protected PR18 validation set
+  and recommends MIMIR mark PR18 complete as an alpha quota guard lane.
 
 ## Near-term rule
 
