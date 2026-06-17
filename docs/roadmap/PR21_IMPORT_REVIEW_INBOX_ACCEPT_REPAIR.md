@@ -118,3 +118,10 @@ Deploy note:
 - The last known seed state from ARIADNE: Canon candidate was already rejected;
   Memory candidate accept failed before this repair. Add/reset a fresh seed pair
   if the replay candidate is stale by the time ARIADNE reruns.
+
+ARGUS review:
+
+- ARGUS accepts the shared relevance normalization and Memory accept error
+  handling for ARIADNE rerun. The repair keeps the write path narrow, normalizes
+  archive memory relevance before Supabase insert, and returns controlled JSON
+  if Memory accept still fails.
