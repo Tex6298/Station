@@ -8,6 +8,7 @@ import {
   normalizeDocumentSlug,
   normalizeDocumentTypeForForm,
   publicDocumentHref,
+  publishingQueueActionGuard,
   publishingApprovalStateLabel,
   publishingStatusLabel,
   slugifyDocumentTitle,
@@ -50,4 +51,18 @@ test("publishing helpers only expose public links when a Space slug is known", (
   assert.equal(publicDocumentHref(documents[0], spaces), null);
   assert.equal(documentDestinationLabel(documents[1], spaces), "Station / Station");
   assert.equal(documentDestinationLabel(documents[0], spaces), "Station draft");
+});
+
+test("publishing queue action guard preserves no-Space and entitlement reasons", () => {
+  assert.deepEqual(publishingQueueActionGuard(documents[0], true), {
+    canAct: false,
+    label: "Space required",
+    title: "Choose and save a Space before using the publishing approval queue.",
+  });
+  assert.deepEqual(publishingQueueActionGuard(documents[1], false), {
+    canAct: false,
+    label: "Creator required",
+    title: "Creator tier or above is required to move documents through the publishing approval queue.",
+  });
+  assert.deepEqual(publishingQueueActionGuard(documents[1], true), { canAct: true });
 });

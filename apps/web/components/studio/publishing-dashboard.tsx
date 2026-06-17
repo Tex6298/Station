@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import { canPublishDocuments } from "@station/auth";
 import { apiGet, apiPost } from "@/lib/api-client";
 import { getSession } from "@/lib/auth";
 import {
@@ -12,6 +13,7 @@ import {
   filterDocumentsForPublishingTab,
   publicDocumentHref,
   publishingApprovalStateLabel,
+  publishingQueueActionGuard,
   publishingStatusLabel,
   type PublishingApproval,
   type PublishingApprovalState,
@@ -26,6 +28,8 @@ export function PublishingDashboard() {
   const [spaces, setSpaces] = useState<PublishingSpace[]>([]);
   const [approvals, setApprovals] = useState<PublishingApproval[]>([]);
   const [token, setToken] = useState<string | null>(null);
+  const [publishingAllowed, setPublishingAllowed] = useState(false);
+  const [userTier, setUserTier] = useState("visitor");
   const [busyApprovalId, setBusyApprovalId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -53,6 +57,8 @@ export function PublishingDashboard() {
 
         if (!cancelled) {
           setToken(session.access_token);
+          setPublishingAllowed(canPublishDocuments(session.user));
+          setUserTier(session.user.tier);
           setDocuments(documentData.documents ?? []);
           setSpaces(spaceData.spaces ?? []);
           setApprovals(approvalData.approvals ?? []);
@@ -140,6 +146,11 @@ export function PublishingDashboard() {
 
         {error ? <div className="station-notice" data-tone="error">{error}</div> : null}
         {notice ? <div className="station-notice" data-tone="success">{notice}</div> : null}
+        {!loading && !publishingAllowed ? (
+          <div className="station-notice">
+            Creator tier or above is required to move documents through the publishing approval queue. Current tier: {userTier}.
+          </div>
+        ) : null}
 
         <section className="station-panel">
           <div style={tabRow}>
@@ -194,6 +205,7 @@ export function PublishingDashboard() {
                       <ApprovalControls
                         approval={approval}
                         document={document}
+                        canPublish={publishingAllowed}
                         busy={busyApprovalId === document.id || busyApprovalId === approval?.id}
                         onEnqueue={enqueueApproval}
                         onTransition={transitionApproval}
@@ -225,12 +237,14 @@ function upsertApproval(approvals: PublishingApproval[], approval: PublishingApp
 function ApprovalControls({
   approval,
   document,
+  canPublish,
   busy,
   onEnqueue,
   onTransition,
 }: {
   approval: PublishingApproval | null;
   document: PublishingDocument;
+  canPublish: boolean;
   busy: boolean;
   onEnqueue: (document: PublishingDocument) => void;
   onTransition: (approval: PublishingApproval, state: PublishingApprovalState) => void;
@@ -239,10 +253,19 @@ function ApprovalControls({
     return null;
   }
 
-  if (!document.space_id && (!approval || approval.state !== "published")) {
+  const guard = publishingQueueActionGuard(document, canPublish);
+  if (!guard.canAct && (!approval || approval.state !== "published")) {
     return (
-      <button type="button" disabled title="Choose and save a Space before using the publishing approval queue." style={disabledMiniButton}>
-        Space required
+      <button type="button" disabled title={guard.title} style={disabledMiniButton}>
+        {guard.label}
+      </button>
+    );
+  }
+
+  if (!guard.canAct) {
+    return (
+      <button type="button" disabled title={guard.title} style={disabledMiniButton}>
+        {guard.label}
       </button>
     );
   }

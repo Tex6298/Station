@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { z } from "zod";
 import { requireAuth } from "../middleware/require-auth";
+import { requireTier } from "../middleware/require-tier";
 import {
   PUBLISHING_APPROVAL_STATES,
   enqueuePublishingApproval,
@@ -39,7 +40,7 @@ publishingApprovalsRouter.get("/", async (req, res) => {
   }
 });
 
-publishingApprovalsRouter.post("/", async (req, res) => {
+publishingApprovalsRouter.post("/", requireTier("creator"), async (req, res) => {
   const parsed = enqueueSchema.safeParse(req.body);
   if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
 
@@ -63,7 +64,7 @@ publishingApprovalsRouter.get("/:id/events", async (req, res) => {
   }
 });
 
-publishingApprovalsRouter.post("/:id/transition", async (req, res) => {
+publishingApprovalsRouter.post("/:id/transition", requireTier("creator"), async (req, res) => {
   const parsed = transitionSchema.safeParse(req.body);
   if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
 

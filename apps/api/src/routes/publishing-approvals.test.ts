@@ -19,16 +19,20 @@ const DOC_ID = "33333333-3333-4333-8333-333333333333";
 const OTHER_DOC_ID = "44444444-4444-4444-8444-444444444444";
 const PRIVATE_SOURCE_DOC_ID = "55555555-5555-4555-8555-555555555555";
 const NO_SPACE_DOC_ID = "66666666-6666-4666-8666-666666666666";
+const PRIVATE_OWNER_ID = "77777777-7777-4777-8777-777777777777";
+const PRIVATE_OWNER_DOC_ID = "88888888-8888-4888-8888-888888888888";
 
 class PublishingApprovalSupabase {
   tables: Record<string, Row[]> = {
     profiles: [
       { id: OWNER_ID, email: "owner@example.test", tier: "creator", is_admin: false },
       { id: OTHER_ID, email: "other@example.test", tier: "creator", is_admin: false },
+      { id: PRIVATE_OWNER_ID, email: "private@example.test", tier: "private", is_admin: false },
     ],
     documents: [
       documentRow(DOC_ID, OWNER_ID, "Queue Draft", "draft", "private"),
       documentRow(OTHER_DOC_ID, OTHER_ID, "Other Draft", "draft", "private"),
+      documentRow(PRIVATE_OWNER_DOC_ID, PRIVATE_OWNER_ID, "Private Tier Draft", "draft", "private"),
       documentRow(NO_SPACE_DOC_ID, OWNER_ID, "No Space Draft", "draft", "private", {
         space_id: null,
       }),
@@ -49,6 +53,7 @@ class PublishingApprovalSupabase {
   private usersByToken = new Map([
     ["owner-token", { id: OWNER_ID, email: "owner@example.test" }],
     ["other-token", { id: OTHER_ID, email: "other@example.test" }],
+    ["private-token", { id: PRIVATE_OWNER_ID, email: "private@example.test" }],
   ]);
 
   client = {
@@ -411,6 +416,43 @@ test("publishing approvals reject no-Space drafts at enqueue and publish transit
     assert.equal(publishNoSpace.status, 400);
     assert.match(publishNoSpace.body.error, /Space-backed document/);
     assert.equal(db.tables.documents.find((row) => row.id === NO_SPACE_DOC_ID)?.status, "draft");
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
+
+test("publishing approvals keep readback available but reject private-tier mutations", async () => {
+  const db = new PublishingApprovalSupabase();
+  setSupabaseAdminForTests(db.client as any);
+  const app = createPublishingApprovalsApp();
+
+  try {
+    const readback = await requestJson(app, "GET", "/publishing/approvals", {
+      token: "private-token",
+    });
+    assert.equal(readback.status, 200);
+    assert.deepEqual(readback.body.approvals, []);
+
+    const enqueue = await requestJson(app, "POST", "/publishing/approvals", {
+      token: "private-token",
+      body: { documentId: PRIVATE_OWNER_DOC_ID, visibility: "public" },
+    });
+    assert.equal(enqueue.status, 403);
+    assert.equal(enqueue.body.requiredTier, "creator");
+
+    const item = db.insertRow("publishing_approval_items", {
+      owner_user_id: PRIVATE_OWNER_ID,
+      document_id: PRIVATE_OWNER_DOC_ID,
+      state: "human_review",
+      visibility: "public",
+    });
+
+    const transition = await requestJson(app, "POST", `/publishing/approvals/${item.id}/transition`, {
+      token: "private-token",
+      body: { state: "approved" },
+    });
+    assert.equal(transition.status, 403);
+    assert.equal(transition.body.requiredTier, "creator");
   } finally {
     setSupabaseAdminForTests(null);
   }

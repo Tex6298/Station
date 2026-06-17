@@ -78,3 +78,35 @@ Wake ARGUS with:
 - no-Space guard behavior;
 - validation results;
 - whether direct document publish remains legacy latitude.
+
+## MIMIR Implementation - 2026-06-17
+
+DAEDALUS did not move after the original wakeup and a re-wake, so MIMIR
+implemented the bounded follow-up directly.
+
+Changed:
+
+- `apps/api/src/routes/publishing-approvals.ts`
+  - `POST /publishing/approvals` now requires Creator-or-above tier.
+  - `POST /publishing/approvals/:id/transition` now requires Creator-or-above
+    tier.
+  - owner readback routes remain available to signed-in owners.
+- `apps/web/components/studio/publishing-dashboard.tsx`
+  - reads the signed-in session capability;
+  - shows Creator-or-above queue requirement copy for private/basic users;
+  - disables queue actions when `canPublishDocuments` is false.
+- `apps/web/lib/publishing.ts`
+  - adds `publishingQueueActionGuard` so no-Space and entitlement reasons stay
+    explicit.
+- Tests now cover private-tier queue mutation rejection and the guard branch.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:publishing-approvals` passed with
+  9 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` passed with 12 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `git diff --check` passed with CRLF warnings only.
+
+Direct `POST /documents/:id/publish` remains legacy latitude and is not changed
+in this follow-up.

@@ -3694,6 +3694,15 @@ when a PR lands, or when validation truth changes.
   follow-up in `docs/roadmap/PR11_APPROVAL_QUEUE_ENTITLEMENT_DAEDALUS.md`
   should require Creator-or-above capability for approval queue mutations while
   keeping readback available and preserving the no-Space guard.
+- PR11 Approval Queue entitlement guard is ready for ARGUS review,
+  2026-06-17: DAEDALUS did not move after the original wakeup or re-wake, so
+  MIMIR implemented the bounded guard directly. Approval queue mutation routes
+  now require Creator-or-above tier, owner readback remains available,
+  `/studio/publishing` disables queue actions for private/basic users while
+  keeping no-Space guard copy explicit, and focused tests cover both branches.
+  `test:publishing-approvals` passed with 9 tests, `test:studio-ui` passed with
+  12 tests, typecheck passed, and whitespace checks passed with CRLF warnings
+  only. Direct document publish remains legacy latitude for ARGUS to note.
 
 ## Near-term rule
 

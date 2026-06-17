@@ -152,3 +152,26 @@ export function documentDestinationLabel(
   const space = spaceForDocument(document, spaces);
   return space ? `Station / ${space.title}` : "Station draft";
 }
+
+export function publishingQueueActionGuard(
+  document: Pick<PublishingDocument, "space_id">,
+  canPublish: boolean,
+): { canAct: true } | { canAct: false; label: string; title: string } {
+  if (!document.space_id) {
+    return {
+      canAct: false,
+      label: "Space required",
+      title: "Choose and save a Space before using the publishing approval queue.",
+    };
+  }
+
+  if (!canPublish) {
+    return {
+      canAct: false,
+      label: "Creator required",
+      title: "Creator tier or above is required to move documents through the publishing approval queue.",
+    };
+  }
+
+  return { canAct: true };
+}
