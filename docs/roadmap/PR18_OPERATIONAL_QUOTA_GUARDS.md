@@ -138,7 +138,9 @@ Add `test:billing` only if Stripe checkout/webhook behavior changes.
   quota error body: `error`, `code: "quota_exceeded"`, `resource`, `limit`,
   `used`, and optional `retryAfter`.
 - Active import jobs are capped at 5 queued/processing jobs per owner/persona.
-  Exact duplicate file registration still returns idempotently before the guard.
+  Exact duplicate file registration still returns idempotently before the guard,
+  while missing-job duplicate repair checks quota before inserting a new queued
+  repair job.
 - Export packages are capped at 1 requested/processing package per owner/target
   for persona archives and Developer Space archives.
 - Developer Space ingestion calls check existing usage limits before writing

@@ -6812,6 +6812,27 @@ Scope notes:
 - Embedding quota is intentionally per-request/per-job only; durable embedding
   spend accounting remains a future design if needed.
 
+ARGUS blocker repair by DAEDALUS on 2026-06-17:
+
+- `loadOrRepairFileImportJob` now enforces the active import-job quota before it
+  inserts a missing queued repair job for an existing file row.
+- Existing exact job readback still bypasses quota as idempotent, and historical
+  null-pointer repair still updates an existing job instead of creating a new
+  active job.
+- Storage regression coverage proves an existing file row with no import job and
+  5 active queued/processing jobs returns `quota_exceeded` without inserting a
+  sixth job.
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:storage` | Pass | 14 tests passed, including missing-job duplicate repair quota blocking. |
+| `npm exec --yes pnpm@10.32.1 -- run test:exports` | Pass | 4 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 7 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:token-credits` | Pass | 3 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass | 16 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck tasks passed. |
+| `git diff --check` | Pass | No whitespace errors; CRLF normalization warnings only for touched text files if Git reports them. |
+
 Scope notes:
 
 - Parser logic now lives under `apps/api/src/services/imports/parsers/` and is

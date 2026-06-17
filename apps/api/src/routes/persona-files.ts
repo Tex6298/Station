@@ -128,6 +128,8 @@ personaFilesRouter.post("/persona/:personaId/register", async (req, res) => {
         sourceName: existingFile.file_name,
       });
     } catch (error) {
+      const quotaError = quotaErrorResponse(error);
+      if (quotaError) return res.status(quotaError.status).json(quotaError.body);
       return res.status(500).json({ error: error instanceof Error ? error.message : "Import job repair failed." });
     }
 
@@ -325,6 +327,11 @@ async function loadOrRepairFileImportJob(input: {
   }
 
   if ((data ?? []).length > 0) return { job: null, repaired: false, ambiguous: true };
+
+  await assertActiveImportJobQuota({
+    ownerUserId: input.ownerUserId,
+    personaId: input.personaId,
+  });
 
   const { data: job, error: jobErr } = await sb
     .from("import_jobs")

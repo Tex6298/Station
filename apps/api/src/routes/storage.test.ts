@@ -925,6 +925,29 @@ test("persona file import quota blocks new work while exact duplicates stay idem
     assert.equal(duplicate.status, 200);
     assert.equal(duplicate.body.idempotent, true);
 
+    db.insertRow("persona_files", {
+      persona_id: PERSONA_ID,
+      owner_user_id: OWNER_ID,
+      file_name: "orphaned-file.txt",
+      file_type: "text/plain",
+      file_size: 10,
+      storage_path: "owner/orphaned-file.txt",
+    });
+    const orphanedRepair = await requestJson(app, "POST", `/persona-files/persona/${PERSONA_ID}/register`, {
+      token: "owner-token",
+      body: {
+        fileName: "orphaned-file.txt",
+        fileType: "text/plain",
+        fileSize: 10,
+        storagePath: "owner/orphaned-file.txt",
+        processImmediately: false,
+      },
+    });
+    assert.equal(orphanedRepair.status, 429);
+    assert.equal(orphanedRepair.body.code, "quota_exceeded");
+    assert.equal(orphanedRepair.body.resource, "import_jobs");
+    assert.equal(db.tables.import_jobs.some((row) => row.source_name === "orphaned-file.txt"), false);
+
     const blocked = await requestJson(app, "POST", `/persona-files/persona/${PERSONA_ID}/register`, {
       token: "owner-token",
       body: {
