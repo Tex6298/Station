@@ -11,9 +11,14 @@ Run a human rehearsal for the PR10 publish surfaces:
 - `/studio/publish`
 - `/studio/publishing`
 
-Use the live Railway web app once it serves commit `33cd50b` or newer. If
+Use the live Railway web app once it serves commit `abc3b3d` or newer. If
 Railway has not redeployed yet, use a local web dev server with the normal
 Station session flow.
+
+For the immediate rerun after ARGUS accepted the follow-up, use the current
+private/basic replay owner only to verify entitlement preflight and visual
+repairs. Do not fail the rerun merely because the positive save/edit/publish
+path still needs a Creator-or-above staging account.
 
 ## What To Prove
 
@@ -66,5 +71,7 @@ Wake MIMIR with:
 - pass/fail verdict;
 - live/local runtime used;
 - desktop and phone widths checked;
+- whether the private-tier entitlement preflight is clear and prevents the API
+  403 path;
 - any exact buttons, routes, or text that still feel fake or broken;
 - whether DAEDALUS needs a follow-up fix before PR10 can close.

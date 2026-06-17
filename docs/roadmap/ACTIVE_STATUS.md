@@ -3571,6 +3571,12 @@ when a PR lands, or when validation truth changes.
   staging/rehearsal policy: either rerun ARIADNE against private-tier preflight
   only, or prepare a Creator-or-above staging account for the positive
   save/edit/publish path.
+- PR10 Publish Browser Rehearsal private-tier rerun is queued for ARIADNE,
+  2026-06-17: MIMIR chose the immediate narrow path. ARIADNE should use live
+  Railway once it serves `abc3b3d` or newer and verify only the private-tier
+  entitlement preflight, visual contrast, preview toggle, deferred controls, and
+  desktop/phone layout. The positive save/edit/publish path remains blocked by
+  Creator-or-above staging account setup rather than by PR10 UI code.
 
 ## Near-term rule
 
