@@ -99,17 +99,17 @@ export function ArchiveLibrary() {
   const queuedCount = summarySource.filter((item) => ["queued", "processing", "in_progress"].includes(item.status)).length;
 
   return (
-    <main style={{ minHeight: "calc(100vh - 52px)", background: "#0b0e14" }}>
+    <main style={{ minHeight: "calc(100vh - 52px)", background: "var(--station-page-bg)", color: "var(--station-page-text)" }}>
       <div style={{ maxWidth: 1180, margin: "0 auto", padding: "24px 16px 48px" }}>
         <header style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 16, flexWrap: "wrap", marginBottom: 20 }}>
           <div>
-            <div style={{ color: "#93c5fd", fontSize: 11, textTransform: "uppercase", letterSpacing: 0, fontWeight: 800 }}>
+            <div style={{ color: "var(--station-page-accent)", fontSize: 11, textTransform: "uppercase", letterSpacing: 0, fontWeight: 800 }}>
               Workspace Archive
             </div>
-            <h1 style={{ margin: "8px 0 6px", color: "#f8fafc", fontSize: 34, lineHeight: 1.05 }}>
+            <h1 style={{ margin: "8px 0 6px", color: "var(--station-page-text)", fontSize: 34, lineHeight: 1.05 }}>
               Global Archive
             </h1>
-            <p style={{ margin: 0, color: "#a9b0bd", fontSize: 15, lineHeight: 1.6, maxWidth: 720 }}>
+            <p style={{ margin: 0, color: "var(--station-page-muted)", fontSize: 15, lineHeight: 1.6, maxWidth: 720 }}>
               Live owner-only view across imports, uploaded files, archived chats, Integrity Sessions, documents, memory, and canon-adjacent material.
             </p>
           </div>
@@ -124,9 +124,9 @@ export function ArchiveLibrary() {
 
         {!signedIn && !loading ? <section style={panel}>Sign in to view your private archive.</section> : null}
         {loading ? <section style={panel}>Loading archive...</section> : null}
-        {error ? <section style={{ ...panel, borderColor: "#7f1d1d", color: "#fecaca" }}>{error}</section> : null}
+        {error ? <section style={{ ...panel, borderColor: "rgba(157, 60, 53, 0.35)", background: "#f8e6e3", color: "var(--station-page-red)" }}>{error}</section> : null}
         {warnings.length > 0 && !error ? (
-          <section style={{ ...panel, borderColor: "#713f12", color: "#fde68a", marginBottom: 18 }}>
+          <section style={{ ...panel, borderColor: "rgba(133, 79, 11, 0.35)", background: "#f8efd9", color: "#854f0b", marginBottom: 18 }}>
             Some archive sources could not be searched. Your existing private material remains owner-only.
           </section>
         ) : null}
@@ -145,9 +145,9 @@ export function ArchiveLibrary() {
                       onClick={() => setFilter(item)}
                       style={{
                         ...filterButton,
-                        background: active ? "#13233d" : "transparent",
-                        borderColor: active ? "#2563eb" : "transparent",
-                        color: active ? "#f8fafc" : "#b6c0ce",
+                        background: active ? "#e7f0f6" : "transparent",
+                        borderColor: active ? "rgba(40, 120, 185, 0.35)" : "transparent",
+                        color: active ? "#174b70" : "var(--station-page-muted)",
                       }}
                     >
                       {item}
@@ -180,18 +180,18 @@ export function ArchiveLibrary() {
                     <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12 }}>
                       <span style={iconBox}>{item.type.slice(0, 1).toUpperCase()}</span>
                       <div style={{ minWidth: 0 }}>
-                        <h3 style={{ margin: 0, color: "#f8fafc", fontSize: 14, lineHeight: 1.25 }}>{item.title}</h3>
-                        <div style={{ color: "#8ea0b8", fontSize: 11 }}>{item.source} · {formatDate(item.date)}</div>
+                        <h3 style={{ margin: 0, color: "var(--station-page-text)", fontSize: 14, lineHeight: 1.25 }}>{item.title}</h3>
+                        <div style={{ color: "var(--station-page-muted)", fontSize: 11 }}>{item.source} / {formatDate(item.date)}</div>
                       </div>
                     </div>
-                    <p style={{ margin: "0 0 12px", color: "#a9b0bd", fontSize: 12, lineHeight: 1.55 }}>{item.summary}</p>
+                    <p style={{ margin: "0 0 12px", color: "var(--station-page-muted)", fontSize: 12, lineHeight: 1.55 }}>{item.summary}</p>
                     <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 12 }}>
                       <span style={pill}>{item.type}</span>
                       <span style={pill}>{item.persona}</span>
                       <span style={statusPill(item.status)}>{item.status}</span>
                     </div>
                     {item.match ? (
-                      <div style={{ color: "#93c5fd", fontSize: 11, marginBottom: 12 }}>
+                      <div style={{ color: "var(--station-page-accent)", fontSize: 11, marginBottom: 12 }}>
                         {item.match.reason}
                       </div>
                     ) : null}
@@ -201,7 +201,7 @@ export function ArchiveLibrary() {
               </div>
 
               {visibleItems.length === 0 ? (
-                <div style={{ ...panel, color: "#8ea0b8", fontSize: 13, lineHeight: 1.6 }}>
+                <div style={{ ...panel, color: "var(--station-page-muted)", fontSize: 13, lineHeight: 1.6 }}>
                   No archive items match this view. Your existing material remains private and owner-only; broaden the search or add source material from a persona Archive tab.
                 </div>
               ) : null}
@@ -214,10 +214,16 @@ export function ArchiveLibrary() {
 }
 
 function SummaryCard({ label, value, tone = "neutral" }: { label: string; value: string; tone?: "neutral" | "bad" }) {
+  const bad = tone === "bad";
   return (
-    <div style={{ ...panel, padding: 14, borderColor: tone === "bad" ? "#7f1d1d" : "#263244" }}>
-      <div style={{ color: "#f8fafc", fontSize: 24, fontWeight: 900, lineHeight: 1 }}>{value}</div>
-      <div style={{ color: "#8ea0b8", fontSize: 12, marginTop: 7 }}>{label}</div>
+    <div style={{
+      ...panel,
+      padding: 14,
+      borderColor: bad ? "rgba(157, 60, 53, 0.35)" : "var(--station-page-border)",
+      background: bad ? "#f8e6e3" : "var(--station-page-surface)",
+    }}>
+      <div style={{ color: bad ? "var(--station-page-red)" : "var(--station-page-text)", fontSize: 24, fontWeight: 900, lineHeight: 1 }}>{value}</div>
+      <div style={{ color: bad ? "#7f1d1d" : "var(--station-page-muted)", fontSize: 12, marginTop: 7 }}>{label}</div>
     </div>
   );
 }
@@ -232,17 +238,36 @@ function formatDate(value: string | null) {
 function statusPill(status: string) {
   const failed = status === "failed";
   const good = ["completed", "processed", "indexed", "archived", "published"].includes(status);
+  if (failed) {
+    return {
+      ...pill,
+      borderColor: "rgba(157, 60, 53, 0.35)",
+      color: "var(--station-page-red)",
+      background: "#f8e6e3",
+    };
+  }
+
+  if (good) {
+    return {
+      ...pill,
+      borderColor: "rgba(59, 143, 99, 0.35)",
+      color: "#25633f",
+      background: "#e9f5ee",
+    };
+  }
+
   return {
     ...pill,
-    borderColor: failed ? "#7f1d1d" : good ? "#14532d" : "#334155",
-    color: failed ? "#fecaca" : good ? "#bbf7d0" : "#cbd5e1",
-    background: failed ? "#2a1010" : good ? "#0f2417" : "#0d1420",
+    borderColor: "var(--station-page-border)",
+    color: "var(--station-page-muted)",
+    background: "var(--station-page-soft-2)",
   };
 }
 
 const panel = {
-  border: "1px solid #263244",
-  background: "#101622",
+  border: "1px solid var(--station-page-border)",
+  background: "var(--station-page-surface)",
+  color: "var(--station-page-text)",
   borderRadius: 8,
   padding: 16,
 };
@@ -256,7 +281,7 @@ const card = {
 
 const sectionTitle = {
   margin: "0 0 12px",
-  color: "#f8fafc",
+  color: "var(--station-page-text)",
   fontSize: 15,
 };
 
@@ -271,10 +296,10 @@ const filterButton = {
 
 const input = {
   width: "100%",
-  border: "1px solid #334155",
+  border: "1px solid var(--station-page-border)",
   borderRadius: 8,
-  background: "#0d1420",
-  color: "#f8fafc",
+  background: "var(--station-page-surface)",
+  color: "var(--station-page-text)",
   padding: "10px 11px",
   fontSize: 13,
 };
@@ -283,9 +308,9 @@ const iconBox = {
   width: 32,
   height: 32,
   borderRadius: 8,
-  border: "1px solid #334155",
-  background: "#0f172a",
-  color: "#bfdbfe",
+  border: "1px solid var(--station-page-border)",
+  background: "var(--station-page-soft-2)",
+  color: "var(--station-page-accent)",
   display: "grid",
   placeItems: "center",
   fontSize: 12,
@@ -294,10 +319,10 @@ const iconBox = {
 };
 
 const pill = {
-  border: "1px solid #334155",
+  border: "1px solid var(--station-page-border)",
   borderRadius: 999,
-  background: "#0d1420",
-  color: "#cbd5e1",
+  background: "var(--station-page-soft-2)",
+  color: "var(--station-page-muted)",
   padding: "5px 8px",
   fontSize: 11,
   fontWeight: 800,
@@ -308,9 +333,9 @@ const primaryButton = {
   alignItems: "center",
   justifyContent: "center",
   minHeight: 40,
-  border: "1px solid #2563eb",
+  border: "1px solid var(--station-page-text)",
   borderRadius: 8,
-  background: "#2563eb",
+  background: "var(--station-page-text)",
   color: "#fff",
   padding: "0 14px",
   fontSize: 14,
@@ -323,10 +348,10 @@ const miniLink = {
   alignItems: "center",
   justifyContent: "center",
   minHeight: 32,
-  border: "1px solid #334155",
+  border: "1px solid var(--station-page-border)",
   borderRadius: 8,
-  color: "#dbeafe",
-  background: "#111827",
+  color: "var(--station-page-text)",
+  background: "var(--station-page-surface)",
   padding: "0 10px",
   fontSize: 12,
   fontWeight: 800,

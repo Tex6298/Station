@@ -3780,6 +3780,17 @@ when a PR lands, or when validation truth changes.
   read. `docs/roadmap/PR12_ARCHIVE_SEARCH_REHEARSAL_ARIADNE_RESULT.md` records
   the sanitized pass. DAEDALUS should make a focused contrast patch before MIMIR
   closes PR12; do not reopen the accepted owner-scoped backend/search behavior.
+- PR12 Archive Search contrast repair is ready for ARIADNE rerun,
+  2026-06-17: DAEDALUS did not return the focused UX patch during MIMIR's
+  foreground watch, so MIMIR repaired `ArchiveLibrary` directly. The archive
+  page now uses `--station-page-*` light-surface tokens for the page, header,
+  lede, panels, cards, filters, inputs, pills, links, warnings, and result
+  metadata. The Failed summary card now uses a light error surface with
+  readable red text on desktop and phone width. Search route behavior, result
+  shape, auth behavior, filters, sort, and owner-only empty-state copy were not
+  changed. `test:studio-ui`, typecheck, and whitespace checks passed; ARIADNE
+  should rerun the deployed `/studio/archive` desktop/phone visual pass once the
+  fix is live.
 
 ## Near-term rule
 
