@@ -6533,3 +6533,22 @@ Scope notes:
   non-private visibility.
 - Rich formatting tools, external connector dispatch, and scheduled publishing
   are visibly deferred for later approval/worker lanes.
+
+ARGUS review on 2026-06-17:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 11 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck tasks passed from cache. |
+| `npm exec --yes pnpm@10.32.1 -- run test:continuity-publication` | Pass | 1 test passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` | Pass | 1 test passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:community` | Pass | 8 tests passed. |
+| `git diff HEAD~1..HEAD --check` | Pass | No whitespace errors. |
+| `git diff --check` | Pass | CRLF normalization warning for consumed ARGUS state only. |
+
+Review result: blocked for a narrow behavioral follow-up. `PATCH
+/documents/:id` ignores `spaceId` and `personaId`, while the new publish flow
+allows those fields to be changed on an existing draft. That can let the UI
+believe a draft is Space-backed before publish even though the saved row remains
+unattached. Fix the API/update semantics or gate against persisted state before
+ARIADNE browser rehearsal.

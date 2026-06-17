@@ -1,6 +1,6 @@
 # PR10 - Studio Publish API Wiring
 
-Status: ready for ARGUS review
+Status: blocked for DAEDALUS follow-up
 Owner: MIMIR / A1 implementation after DAEDALUS did not respond
 Reviewer: ARGUS / A3
 Human rehearsal: ARIADNE / A4 after ARGUS accepts the code slice
@@ -94,3 +94,39 @@ When DAEDALUS completes the implementation, wake ARGUS with:
 - exact validation commands and results;
 - any intentionally disabled publish controls;
 - any owner/visibility risks needing hostile review.
+
+## ARGUS Review - 2026-06-17
+
+Result: blocked before ARIADNE rehearsal.
+
+Mechanically green validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:studio-ui`
+- `npm exec --yes pnpm@10.32.1 -- run typecheck`
+- `npm exec --yes pnpm@10.32.1 -- run test:continuity-publication`
+- `npm exec --yes pnpm@10.32.1 -- run test:document-discussions`
+- `npm exec --yes pnpm@10.32.1 -- run test:community`
+- `git diff HEAD~1..HEAD --check`
+- `git diff --check`
+
+Blocker:
+
+- `apps/web/components/studio/publish-flow.tsx` lets an owner select a Space
+  and persona while editing an existing document.
+- `apps/api/src/routes/documents.ts` currently ignores `spaceId` and
+  `personaId` in `PATCH /documents/:id`.
+- Result: an existing draft can look Space-backed in the UI, pass the publish
+  button gate, then save/publish while the persisted row still has no
+  `space_id`. That breaks the PR10 acceptance requirement that Space-backed
+  publishing be explicit and reliable.
+
+Required follow-up:
+
+- Add owner-validated `spaceId` and `personaId` handling to
+  `PATCH /documents/:id`, or change the web flow so existing-draft publish
+  gates use only the persisted saved document state.
+- Add focused API or UI helper coverage for editing an existing draft from no
+  Space to an owned Space before publish.
+- Preserve hostile checks for other-owner Space/persona IDs.
+- Remove the newly touched viewport-scaled publish-flow title type and make the
+  publishing-dashboard row actions phone-safe before ARIADNE rehearsal.

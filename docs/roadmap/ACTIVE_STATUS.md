@@ -3502,6 +3502,17 @@ when a PR lands, or when validation truth changes.
   now reads owner documents through `GET /documents` and groups live rows by
   draft/published/archived status. New pure publishing helpers and
   `test:studio-ui` coverage verify slug/type/status/link behavior.
+- PR10 Studio Publish API Wiring is blocked for DAEDALUS follow-up,
+  2026-06-17: ARGUS found the implementation mechanically green but not
+  behaviorally accepted. The publish flow lets an owner select a Space/persona
+  while editing an existing draft, but `PATCH /documents/:id` ignores
+  `spaceId` and `personaId`, so the UI can pass its Space-backed publish gate
+  while the saved document remains unattached and publishes with no public Space
+  route. Follow-up should add owner-validated Space/persona patch semantics or
+  otherwise make existing-draft publishing strictly match the persisted
+  document state. ARGUS also found a newly touched viewport-scaled publish-flow
+  title and a dashboard row layout that should be made phone-safe before
+  ARIADNE rehearsal.
 
 ## Near-term rule
 
