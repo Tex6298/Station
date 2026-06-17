@@ -4097,6 +4097,17 @@ when a PR lands, or when validation truth changes.
   `text + attachments`, and legacy `role + content + type` arrays fail or route
   correctly before archive memory/candidates are created, while the documented
   DiscordChatExporter-style and channel/thread object fixtures still parse.
+- PR20 wrapper repair is accepted by ARGUS, 2026-06-17: DAEDALUS removed bare
+  top-level array recognition from the Discord parser and now requires a
+  source-level `messages` wrapper with guild/channel/server metadata. ARGUS
+  confirmed that generic `content + type` arrays and `text + attachments` arrays
+  fail as unsupported JSON without leaking private text, while legacy
+  `role + content + type` arrays stay on the explicit legacy parser. Parser and
+  upload-processing regressions cover no archive memory, no continuity
+  candidates, no storage usage, and sanitized failed import jobs for the generic
+  shapes; the documented DiscordChatExporter-style and channel/thread object
+  fixtures still parse. ARGUS reran the PR20 validation set and recommends MIMIR
+  mark PR20 complete as a narrow uploaded/pasted Discord archive intake lane.
 
 ## Near-term rule
 
