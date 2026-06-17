@@ -1008,7 +1008,7 @@ test("uploaded ChatGPT and Claude JSON parse explicitly while unknown JSON fails
         ownerUserId: OWNER_ID,
         fileId: unknownFile.id,
         fileName: "unknown.json",
-        fileType: "application/json",
+        fileType: "text/plain",
         storagePath: "owner/unknown.json",
       }),
       /Unsupported JSON import format/

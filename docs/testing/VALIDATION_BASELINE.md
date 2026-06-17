@@ -6786,7 +6786,7 @@ DAEDALUS implementation validation on 2026-06-17:
 
 | Command | Result | Notes |
 | --- | --- | --- |
-| `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass | 14 tests passed, including ChatGPT parsing, Claude parsing, malformed JSON failure, unknown JSON failure, text/Markdown preservation, and explicit legacy role/content-array parsing. |
+| `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass | 15 tests passed, including ChatGPT parsing, Claude parsing, malformed JSON failure, unknown JSON failure, `.json` extension precedence over misleading text MIME, text/Markdown preservation, and explicit legacy role/content-array parsing. |
 | `npm exec --yes pnpm@10.32.1 -- run test:storage` | Pass | 11 tests passed, including uploaded ChatGPT and Claude JSON processing plus unknown JSON failure before archive memory creation. |
 | `npm exec --yes pnpm@10.32.1 -- run test:persona-context` | Pass | 6 tests passed. |
 | `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck tasks passed. |
@@ -6801,6 +6801,8 @@ Scope notes:
   array shape.
 - Unknown JSON is no longer stringified into archive memory; unsupported and
   malformed JSON fail with sanitized owner-visible import job errors.
+- `.json` file names are routed as JSON even if the client sends a misleading
+  text MIME type.
 - No schema was added. Parser/source format metadata is recorded through the
   existing archive source name for parsed JSON imports.
 - Candidate/review routing remains a later lane: parsed imports still create

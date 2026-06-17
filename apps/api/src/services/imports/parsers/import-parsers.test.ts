@@ -74,6 +74,20 @@ test("unknown JSON fails safely instead of stringifying into archive memory", ()
   );
 });
 
+test("JSON extension is authoritative over misleading text MIME", () => {
+  assert.throws(
+    () => parseImportFile({
+      fileName: "unknown.json",
+      fileType: "text/plain",
+      rawText: JSON.stringify({ arbitrary: { private: "do not route as text" } }),
+    }),
+    (error) =>
+      error instanceof ImportParseError &&
+      /Unsupported JSON import format/.test(error.message) &&
+      !/do not route as text/.test(error.message)
+  );
+});
+
 test("malformed JSON fails with a sanitized import error", () => {
   assert.throws(
     () => parseImportFile({

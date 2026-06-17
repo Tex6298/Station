@@ -11,9 +11,9 @@ PR12 closed the launch-core private archive search lane. The next launch-core
 implementation item from `docs/roadmap/STATION_LAUNCH_CORE_PATCH.md` is the
 import pipeline.
 
-`docs/roadmap/PR13_CLOUDFLARE_NESTSTACK_DECISION.md` already exists as a draft
-Cloudflare decision packet, not the next implementation lane. To avoid two
-different PR13 meanings, this active implementation lane is PR14.
+`docs/roadmap/CLOUDFLARE_NESTSTACK_DECISION_PACKET.md` exists as a draft
+Cloudflare decision packet for MIMIR, not a numbered implementation lane.
+This active implementation lane is PR14.
 
 ## Goal
 
@@ -167,6 +167,9 @@ worker scope creep.
     legacy parser, not as a catch-all unknown-JSON fallback.
 - Unsupported JSON and malformed JSON fail before archive ingest with sanitized
   import-job errors.
+- `.json` file names are authoritative over misleading text MIME types, so an
+  uploaded `unknown.json` with `text/plain` still fails safely instead of
+  archiving raw JSON as text.
 - No schema was added. Parsed JSON source format is recorded in the existing
   archive source name, for example `chatgpt.json (chatgpt import)`.
 - Candidate/review flow is not broadened in this slice; parsed imports continue

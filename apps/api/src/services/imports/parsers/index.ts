@@ -10,6 +10,10 @@ export function parseImportFile(input: ParseImportFileInput): ParsedImport {
   const extension = extensionFor(sourceName);
   const mime = input.fileType?.toLowerCase() ?? "";
 
+  if (isJsonFile(extension, mime)) {
+    return parseJsonImport(input.rawText, sourceName);
+  }
+
   if (isTextFile(extension, mime)) {
     return {
       format: extension === ".md" || extension === ".markdown" ? "markdown" : "text",
@@ -21,13 +25,13 @@ export function parseImportFile(input: ParseImportFileInput): ParsedImport {
     };
   }
 
-  if (!isJsonFile(extension, mime)) {
-    throw new ImportParseError("Unsupported import file type. Upload plain text, Markdown, ChatGPT JSON, or Claude JSON.");
-  }
+  throw new ImportParseError("Unsupported import file type. Upload plain text, Markdown, ChatGPT JSON, or Claude JSON.");
+}
 
+function parseJsonImport(rawText: string, sourceName: string) {
   let parsed: unknown;
   try {
-    parsed = JSON.parse(input.rawText);
+    parsed = JSON.parse(rawText);
   } catch {
     throw new ImportParseError("Malformed JSON import. Upload a valid ChatGPT or Claude export JSON file.");
   }
