@@ -3577,6 +3577,19 @@ when a PR lands, or when validation truth changes.
   entitlement preflight, visual contrast, preview toggle, deferred controls, and
   desktop/phone layout. The positive save/edit/publish path remains blocked by
   Creator-or-above staging account setup rather than by PR10 UI code.
+- PR10 private-tier publish rerun is accepted by ARIADNE, 2026-06-17:
+  `docs/roadmap/PR10_PRIVATE_TIER_PUBLISH_RERUN_ARIADNE.md` records the live
+  Railway browser pass against runtime commit `abc3b3d`. Web/API health and
+  readiness were `ok:true`/`ready:true`. The replay owner still reports
+  `private` auth/billing tier and `canPublishDocuments:false`, so this pass does
+  not claim positive save/edit/publish. Within MIMIR's narrowed scope,
+  `/studio/publish` now shows the Creator-or-above requirement before
+  save/publish, disables `Save draft` and `Publish`, avoids the previous API
+  403 path, repairs header/lede contrast, keeps the default title fitting at
+  `390 x 844`, toggles Preview cleanly, and keeps formatting/connectors/
+  scheduling visibly deferred. `/studio/publishing` still renders live owner
+  rows with Edit/View and stays within width on desktop and phone. No remaining
+  private-tier rerun defect is open from ARIADNE.
 
 ## Near-term rule
 
