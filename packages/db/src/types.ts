@@ -419,12 +419,14 @@ export interface Database {
           kind: ImportJobKind;
           status: ImportJobStatus;
           source_name: string;
+          file_id: string | null;
           error_message: string | null;
           created_at: string;
           updated_at: string;
         };
-        Insert: Omit<Database["public"]["Tables"]["import_jobs"]["Row"], "id" | "created_at" | "updated_at"> & {
+        Insert: Omit<Database["public"]["Tables"]["import_jobs"]["Row"], "id" | "created_at" | "updated_at" | "file_id"> & {
           id?: string;
+          file_id?: string | null;
           created_at?: string;
           updated_at?: string;
         };

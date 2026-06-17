@@ -2,7 +2,7 @@ import { getSupabaseAdmin } from "../lib/supabase";
 import { env } from "../lib/env";
 
 export const IMPORT_JOB_SELECT =
-  "id, persona_id, owner_user_id, kind, status, source_name, error_message, created_at, updated_at";
+  "id, persona_id, owner_user_id, kind, status, source_name, file_id, error_message, created_at, updated_at";
 
 export type ImportJobStatus = "queued" | "processing" | "completed" | "failed";
 
@@ -13,6 +13,7 @@ export type ImportJobRow = {
   kind: "file" | "chat";
   status: ImportJobStatus;
   source_name: string;
+  file_id: string | null;
   error_message: string | null;
   created_at: string;
   updated_at: string;

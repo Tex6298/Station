@@ -1,7 +1,7 @@
 # PR16 - Durable File Import Jobs
 
 Date: 2026-06-17
-Status: opened for A2 / DAEDALUS
+Status: ready for A3 / ARGUS review
 Owner: DAEDALUS implementation, ARGUS review, ARIADNE only if Studio job-status
 UI changes materially.
 
@@ -142,3 +142,40 @@ Wake A3 / ARGUS with:
 ARGUS should review owner scoping, pointer ambiguity, historical-row behavior,
 storage-path leakage, private payload redaction, idempotency, and accidental
 scope creep.
+
+## DAEDALUS Implementation Notes
+
+- Added migration `infra/supabase/migrations/035_import_job_file_pointer.sql`.
+- Durable pointer column: `public.import_jobs.file_id uuid references
+  public.persona_files(id) on delete set null`.
+- Added indexes for owner/persona/file lookup and file-id lookup.
+- Updated `packages/db/src/types.ts` so `import_jobs.Row.file_id` is nullable
+  and `Insert.file_id` is optional.
+- `IMPORT_JOB_SELECT` now includes `file_id`.
+- New file import jobs persist `file_id` when
+  `/persona-files/persona/:personaId/register` creates the job.
+- Duplicate exact storage-path registration now returns the exact file-job
+  pointer when present. A single historical null-pointer job can be safely
+  repaired to point at the known existing file; multiple candidate jobs remain
+  ambiguous and are not guessed.
+- `runFileImportJobById({ jobId, ownerUserId })` now claims by durable job ID
+  and owner ID, loads the associated `persona_files` row itself, and enforces:
+  owner, persona, kind, file id, file owner, and source-name consistency before
+  storage download.
+- Null-pointer historical file jobs fail visibly with sanitized job status
+  instead of guessing by `source_name`.
+- Reruns with existing archive rows remain idempotent and do not create
+  duplicate memory chunks.
+- No BullMQ/Redis worker deployment, Reddit/Discord import, export worker,
+  candidate review, quota, Cloudflare, vector, public publishing, or UI scope
+  was added.
+
+Validation run:
+
+```bash
+npm exec --yes pnpm@10.32.1 -- run test:storage
+npm exec --yes pnpm@10.32.1 -- run test:conversation-archive
+npm exec --yes pnpm@10.32.1 -- run test:health
+npm exec --yes pnpm@10.32.1 -- run typecheck
+git diff --check
+```

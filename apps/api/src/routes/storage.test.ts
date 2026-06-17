@@ -210,6 +210,7 @@ class InMemorySupabase {
 
     if (table === "import_jobs") {
       row.status ??= "queued";
+      row.file_id ??= null;
       row.error_message ??= null;
       row.created_at ??= now;
       row.updated_at ??= now;
@@ -600,6 +601,7 @@ test("persona file registration is idempotent for exact owner persona storage pa
     assert.equal(storageRow(db).bytes_used, 10);
     assert.equal(db.tables.persona_files.length, 1);
     assert.equal(db.tables.import_jobs.length, 1);
+    assert.equal(db.tables.import_jobs[0].file_id, registered.body.file.id);
 
     const duplicate = await requestJson(app, "POST", `/persona-files/persona/${PERSONA_ID}/register`, {
       token: "owner-token",
@@ -618,6 +620,7 @@ test("persona file registration is idempotent for exact owner persona storage pa
     assert.equal(duplicate.body.repaired, false);
     assert.equal(duplicate.body.file.id, registered.body.file.id);
     assert.equal(duplicate.body.job.id, registered.body.job.id);
+    assert.equal(duplicate.body.job.file_id, registered.body.file.id);
     assert.equal(storageRow(db).bytes_used, 10);
     assert.equal(db.tables.persona_files.length, 1);
     assert.equal(db.tables.import_jobs.length, 1);
@@ -638,6 +641,35 @@ test("persona file registration is idempotent for exact owner persona storage pa
     assert.equal(db.tables.persona_files.length, 2);
     assert.equal(db.tables.import_jobs.length, 2);
 
+    const exactDuplicateWithSameNameElsewhere = await requestJson(app, "POST", `/persona-files/persona/${PERSONA_ID}/register`, {
+      token: "owner-token",
+      body: {
+        fileName: "source.txt",
+        fileType: "text/plain",
+        fileSize: 10,
+        storagePath: "owner/source.txt",
+        processImmediately: false,
+      },
+    });
+
+    assert.equal(exactDuplicateWithSameNameElsewhere.status, 200);
+    assert.equal(exactDuplicateWithSameNameElsewhere.body.duplicate, true);
+    assert.equal(exactDuplicateWithSameNameElsewhere.body.idempotent, true);
+    assert.equal(exactDuplicateWithSameNameElsewhere.body.importJobAmbiguous, false);
+    assert.equal(exactDuplicateWithSameNameElsewhere.body.job.id, registered.body.job.id);
+    assert.equal(storageRow(db).bytes_used, 21);
+    assert.equal(db.tables.persona_files.length, 2);
+    assert.equal(db.tables.import_jobs.length, 2);
+
+    db.insertRow("import_jobs", {
+      persona_id: PERSONA_ID,
+      owner_user_id: OWNER_ID,
+      kind: "file",
+      status: "queued",
+      source_name: "source.txt",
+      file_id: registered.body.file.id,
+    });
+
     const ambiguousJobDuplicate = await requestJson(app, "POST", `/persona-files/persona/${PERSONA_ID}/register`, {
       token: "owner-token",
       body: {
@@ -654,9 +686,7 @@ test("persona file registration is idempotent for exact owner persona storage pa
     assert.equal(ambiguousJobDuplicate.body.idempotent, true);
     assert.equal(ambiguousJobDuplicate.body.importJobAmbiguous, true);
     assert.equal(ambiguousJobDuplicate.body.job, null);
-    assert.equal(storageRow(db).bytes_used, 21);
-    assert.equal(db.tables.persona_files.length, 2);
-    assert.equal(db.tables.import_jobs.length, 2);
+    assert.equal(db.tables.import_jobs.length, 3);
 
     const samePathDifferentPersona = await requestJson(app, "POST", `/persona-files/persona/${SECOND_PERSONA_ID}/register`, {
       token: "owner-token",
@@ -672,7 +702,7 @@ test("persona file registration is idempotent for exact owner persona storage pa
     assert.equal(samePathDifferentPersona.status, 201);
     assert.equal(storageRow(db).bytes_used, 33);
     assert.equal(db.tables.persona_files.length, 3);
-    assert.equal(db.tables.import_jobs.length, 3);
+    assert.equal(db.tables.import_jobs.length, 4);
 
     const otherOwnerRetry = await requestJson(app, "POST", `/persona-files/persona/${PERSONA_ID}/register`, {
       token: "other-token",
@@ -687,7 +717,7 @@ test("persona file registration is idempotent for exact owner persona storage pa
 
     assert.equal(otherOwnerRetry.status, 404);
     assert.equal(db.tables.persona_files.length, 3);
-    assert.equal(db.tables.import_jobs.length, 3);
+    assert.equal(db.tables.import_jobs.length, 4);
   } finally {
     resetStorageFake();
   }
@@ -816,8 +846,8 @@ test("persona file duplicate lookup failures fail closed without extra storage o
   }
 });
 
-test("file import job runner claims, completes, gates owners, and fails safely", async () => {
-  const { runFileImportJobInline } = await import("../services/file-import-jobs.service.js");
+test("file import job runner claims durable file pointers, gates owners, and fails safely", async () => {
+  const { runFileImportJobById } = await import("../services/file-import-jobs.service.js");
   const db = new InMemorySupabase();
   setSupabaseAdminForTests(db.client as any);
   storageRow(db).bytes_limit = 1000;
@@ -842,16 +872,12 @@ test("file import job runner claims, completes, gates owners, and fails safely",
       kind: "file",
       status: "queued",
       source_name: "runner.txt",
+      file_id: file.id,
     });
 
-    const completed = await runFileImportJobInline({
+    const completed = await runFileImportJobById({
       jobId: job.id,
-      personaId: PERSONA_ID,
       ownerUserId: OWNER_ID,
-      fileId: file.id,
-      fileName: "runner.txt",
-      fileType: "text/plain",
-      storagePath: "owner/runner.txt",
     });
 
     assert.equal(completed.job.status, "completed");
@@ -863,14 +889,9 @@ test("file import job runner claims, completes, gates owners, and fails safely",
     assert.equal(db.tables.persona_files.find((row) => row.id === file.id).processed, true);
     assert.equal(db.tables.memory_items.some((row) => row.archive_source_id === file.id), true);
 
-    const rerun = await runFileImportJobInline({
+    const rerun = await runFileImportJobById({
       jobId: job.id,
-      personaId: PERSONA_ID,
       ownerUserId: OWNER_ID,
-      fileId: file.id,
-      fileName: "runner.txt",
-      fileType: "text/plain",
-      storagePath: "owner/runner.txt",
     });
     assert.equal(rerun.job.status, "completed");
     assert.equal(rerun.idempotent, true);
@@ -878,17 +899,56 @@ test("file import job runner claims, completes, gates owners, and fails safely",
     assert.equal(db.tables.memory_items.filter((row) => row.archive_source_id === file.id).length, 1);
 
     await assert.rejects(
-      () => runFileImportJobInline({
+      () => runFileImportJobById({
         jobId: job.id,
-        personaId: PERSONA_ID,
         ownerUserId: OTHER_ID,
-        fileId: file.id,
-        fileName: "runner.txt",
-        fileType: "text/plain",
-        storagePath: "owner/runner.txt",
       }),
       /Import job not found/
     );
+
+    const missingPointerJob = db.insertRow("import_jobs", {
+      persona_id: PERSONA_ID,
+      owner_user_id: OWNER_ID,
+      kind: "file",
+      status: "queued",
+      source_name: "historical.txt",
+      file_id: null,
+    });
+
+    await assert.rejects(
+      () => runFileImportJobById({
+        jobId: missingPointerJob.id,
+        ownerUserId: OWNER_ID,
+      }),
+      /File import job is missing a durable file pointer/
+    );
+    assert.equal(db.tables.import_jobs.find((row) => row.id === missingPointerJob.id).status, "failed");
+
+    const mismatchFile = db.insertRow("persona_files", {
+      persona_id: SECOND_PERSONA_ID,
+      owner_user_id: OWNER_ID,
+      file_name: "mismatch.txt",
+      file_type: "text/plain",
+      file_size: 20,
+      storage_path: "owner/mismatch.txt",
+    });
+    const mismatchJob = db.insertRow("import_jobs", {
+      persona_id: PERSONA_ID,
+      owner_user_id: OWNER_ID,
+      kind: "file",
+      status: "queued",
+      source_name: "mismatch.txt",
+      file_id: mismatchFile.id,
+    });
+
+    await assert.rejects(
+      () => runFileImportJobById({
+        jobId: mismatchJob.id,
+        ownerUserId: OWNER_ID,
+      }),
+      /Import job file persona mismatch/
+    );
+    assert.equal(db.tables.import_jobs.find((row) => row.id === mismatchJob.id).status, "failed");
 
     const preserved = db.insertRow("memory_items", {
       persona_id: PERSONA_ID,
@@ -914,18 +974,14 @@ test("file import job runner claims, completes, gates owners, and fails safely",
       kind: "file",
       status: "queued",
       source_name: "broken.json",
+      file_id: brokenFile.id,
     });
     const memoryCountBeforeFailure = db.tables.memory_items.length;
 
     await assert.rejects(
-      () => runFileImportJobInline({
+      () => runFileImportJobById({
         jobId: brokenJob.id,
-        personaId: PERSONA_ID,
         ownerUserId: OWNER_ID,
-        fileId: brokenFile.id,
-        fileName: "broken.json",
-        fileType: "text/plain",
-        storagePath: "owner/broken.json",
       }),
       /Unsupported JSON import format/
     );

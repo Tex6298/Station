@@ -6838,6 +6838,35 @@ Scope notes:
   future independent worker should add a narrow file reference before claiming
   uploaded-file jobs without the route-provided file pointer.
 
+## PR16 Durable File Import Jobs
+
+DAEDALUS implementation validation on 2026-06-17:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:storage` | Pass | 13 tests passed, including persisted file pointers, exact duplicate disambiguation, durable job-ID runner claim, other-owner rejection, null-pointer historical failure, persona mismatch failure, idempotent rerun, and safe failed JSON status. |
+| `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass | 15 tests passed; PR14 parser protections remain intact. |
+| `npm exec --yes pnpm@10.32.1 -- run test:health` | Pass | 14 tests passed; PR15 readiness truth remains intact. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck tasks passed after adding nullable `import_jobs.file_id` DB type surface. |
+| `git diff --check` | Pass | No whitespace errors; CRLF normalization warnings only for touched text files if Git reports them. |
+
+Scope notes:
+
+- Migration `035_import_job_file_pointer.sql` adds nullable
+  `import_jobs.file_id` with `on delete set null` reference to `persona_files`.
+- New file import jobs persist the pointer; chat import jobs keep `file_id`
+  null.
+- `runFileImportJobById` can now claim an uploaded-file import by job ID plus
+  owner ID and load the file row itself.
+- Null/historical file jobs without `file_id` fail visibly instead of guessing
+  from `source_name`.
+- A single historical null-pointer duplicate can be repaired only when the
+  exact existing file is known and there are no competing candidates; multiple
+  candidates remain ambiguous.
+- No true worker deployment, Redis/Valkey queue implementation, Reddit import,
+  export worker redesign, candidate review, quota, Cloudflare, vector, public
+  publishing, or UI scope was added.
+
 ARGUS PR15 acceptance on 2026-06-17:
 
 | Command | Result | Notes |

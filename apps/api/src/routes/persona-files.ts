@@ -2,7 +2,7 @@ import { Router } from "express";
 import { z } from "zod";
 import { requireAuth } from "../middleware/require-auth";
 import { getSupabaseAdmin } from "../lib/supabase";
-import { inlineExecution, runFileImportJobInline } from "../services/file-import-jobs.service";
+import { inlineExecution, runFileImportJobById } from "../services/file-import-jobs.service";
 import { releaseStorageBytes, reserveStorageBytes, storageErrorResponse } from "../services/storage.service";
 
 /**
@@ -120,6 +120,7 @@ personaFilesRouter.post("/persona/:personaId/register", async (req, res) => {
       jobState = await loadOrRepairFileImportJob({
         personaId: persona.id,
         ownerUserId: userId,
+        fileId: existingFile.id,
         sourceName: existingFile.file_name,
       });
     } catch (error) {
@@ -178,6 +179,7 @@ personaFilesRouter.post("/persona/:personaId/register", async (req, res) => {
         kind: "file",
         status: "queued",
         source_name: parsed.data.fileName,
+        file_id: file.id,
       })
       .select("id, status")
       .single();
@@ -194,14 +196,9 @@ personaFilesRouter.post("/persona/:personaId/register", async (req, res) => {
 
     // Protected-alpha inline fallback: explicit and testable until a worker is configured.
     if (parsed.data.processImmediately) {
-      runFileImportJobInline({
+      runFileImportJobById({
         jobId: job.id,
-        personaId: persona.id,
         ownerUserId: userId,
-        fileId: file.id,
-        fileName: parsed.data.fileName,
-        fileType: parsed.data.fileType ?? null,
-        storagePath: parsed.data.storagePath,
       }).catch(console.error); // fire and forget
     }
 
@@ -277,12 +274,13 @@ async function loadRegisteredFileByStoragePath(
 async function loadOrRepairFileImportJob(input: {
   personaId: string;
   ownerUserId: string;
+  fileId: string;
   sourceName: string;
 }) {
   const sb = getSupabaseAdmin();
   const { data, error } = await sb
     .from("import_jobs")
-    .select("id, status")
+    .select("id, status, file_id")
     .eq("persona_id", input.personaId)
     .eq("owner_user_id", input.ownerUserId)
     .eq("kind", "file")
@@ -291,13 +289,30 @@ async function loadOrRepairFileImportJob(input: {
 
   if (error) throw new Error(error.message);
 
-  if (data?.length === 1) {
-    return { job: data[0], repaired: false, ambiguous: false };
+  const exactMatches = (data ?? []).filter((job) => job.file_id === input.fileId);
+  if (exactMatches.length === 1) {
+    return { job: exactMatches[0], repaired: false, ambiguous: false };
   }
 
-  if (data && data.length > 1) {
+  if (exactMatches.length > 1) {
     return { job: null, repaired: false, ambiguous: true };
   }
+
+  const historicalNullPointerJobs = (data ?? []).filter((job) => job.file_id == null);
+  if (historicalNullPointerJobs.length === 1 && (data ?? []).length === 1) {
+    const { data: repaired, error: repairErr } = await sb
+      .from("import_jobs")
+      .update({ file_id: input.fileId })
+      .eq("id", historicalNullPointerJobs[0].id)
+      .eq("owner_user_id", input.ownerUserId)
+      .select("id, status, file_id")
+      .single();
+
+    if (repairErr || !repaired) throw new Error(repairErr?.message ?? "Import job pointer repair failed.");
+    return { job: repaired, repaired: true, ambiguous: false };
+  }
+
+  if ((data ?? []).length > 0) return { job: null, repaired: false, ambiguous: true };
 
   const { data: job, error: jobErr } = await sb
     .from("import_jobs")
@@ -307,8 +322,9 @@ async function loadOrRepairFileImportJob(input: {
       kind: "file",
       status: "queued",
       source_name: input.sourceName,
+      file_id: input.fileId,
     })
-    .select("id, status")
+    .select("id, status, file_id")
     .single();
 
   if (jobErr || !job) throw new Error(jobErr?.message ?? "Import job repair failed.");

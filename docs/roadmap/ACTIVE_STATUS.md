@@ -3842,6 +3842,19 @@ when a PR lands, or when validation truth changes.
   source name. Focused validation passed `test:conversation-archive`,
   `test:storage`, `test:exports`, `test:health`, typecheck, and whitespace
   checks.
+- PR16 Durable File Import Jobs is ready for ARGUS review, 2026-06-17:
+  DAEDALUS added migration `035_import_job_file_pointer.sql` with nullable
+  `import_jobs.file_id` referencing `persona_files`, updated DB types and import
+  job selection, persists `file_id` when persona-file registration creates file
+  jobs, and changed the file import runner to claim by durable job ID plus owner
+  ID. The runner now loads the pointed `persona_files` row, enforces owner,
+  persona, kind, file, and source-name consistency before storage download,
+  treats reruns with existing archive rows as idempotent, and fails null or
+  mismatched historical jobs visibly with sanitized owner-visible status instead
+  of guessing. Duplicate exact storage-path registration uses exact file-job
+  pointers and still returns ambiguity when multiple candidate jobs point at the
+  same file. Focused validation passed `test:storage`,
+  `test:conversation-archive`, `test:health`, typecheck, and whitespace checks.
 - PR15 Background Job Boundary is accepted by ARGUS, 2026-06-17: ARGUS accepts
   the bounded protected-alpha job boundary. The file import runner is
   owner-scoped through `import_jobs`, reruns are idempotent when archive rows
