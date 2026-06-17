@@ -4209,6 +4209,10 @@ when a PR lands, or when validation truth changes.
   now make the fake DB reject fractional memory relevance weights. Local repair
   validation is green; ARIADNE still needs to rerun the live authenticated
   browser PATCH after deploy/seed reset.
+- PR21 Import Review Inbox accept repair is accepted by ARGUS for ARIADNE
+  rerun, 2026-06-17: ARGUS accepted the shared relevance normalization and
+  controlled Memory accept error handling. ARIADNE should rerun the browser
+  review after deploy/seed reset and wake MIMIR with the pass/fail verdict.
 
 ## Near-term rule
 
