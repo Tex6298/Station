@@ -465,3 +465,33 @@ A lane is not finished because the happy path works. A lane is finished when:
 - production response shapes do not expose internal debug data;
 - mobile UI is usable at 375px;
 - the docs name what is complete, what remains alpha, and what is deliberately deferred.
+
+## ARGUS review result - 2026-06-17
+
+ARGUS reviewed `d1d0eaf feat: apply Station launch core patch` and does not
+recommend Railway deploy until DAEDALUS lands a narrow follow-up.
+
+Accepted parts:
+
+- `/assistant` and `/imports/archive` use authenticated, owner-scoped reads.
+- Persona chat runtime `_debug` is code-gated out of production.
+- Document type normalization accepts legacy alpha inputs and stores the new
+  launch taxonomy.
+- Focused validation passed for typecheck, Assistant, conversation archive,
+  continuity publication, document discussions, Developer Spaces, community,
+  Spaces, exports, writing, Studio UI, and whitespace.
+
+Required follow-up:
+
+- Add a forward Supabase migration that merges or renames any existing
+  `documents-and-constitutions` forum category into `documents-and-codexes`, so
+  live document discussion threads do not fork into two categories.
+- Make the new signed-in Studio Assistant and live Global Archive layouts usable
+  at mobile width; remove newly touched viewport-scaled title type and nonzero
+  eyebrow letter-spacing.
+- Correct `docs/ops/station-launch-core-patch-checks.md` so it matches the
+  implementation: production responses never emit `_debug`, even when
+  `STATION_EXPOSE_AI_DEBUG=true`.
+- Add minimal hostile route tests for the new private surfaces: unauthenticated
+  requests fail, the owner sees their own assistant/archive summary, and another
+  user's rows are absent.

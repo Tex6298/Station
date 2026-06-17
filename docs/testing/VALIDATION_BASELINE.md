@@ -6371,3 +6371,41 @@ ARGUS validation:
 
 ARGUS accepts the forum metadata follow-up for ARIADNE's final 390px anonymous
 `/forums/general` browser recheck.
+
+## Station Launch Core Patch ARGUS review
+
+Validated on 2026-06-17 after MIMIR committed
+`d1d0eaf feat: apply Station launch core patch`.
+
+ARGUS review result:
+
+- Not accepted for Railway deploy yet; wake DAEDALUS for a narrow follow-up.
+- `/assistant` and `/imports/archive` include authenticated owner filters, but
+  the new private endpoint surfaces still need minimal hostile route tests.
+- Runtime chat `_debug` is blocked in production by code; the launch-core
+  runbook still incorrectly describes a production admin/operator `_debug` path.
+- Document type normalization and migration compatibility are plausible, but the
+  document discussion category rename needs a forward migration for live DBs.
+- The new Studio Assistant and live Global Archive signed-in layouts need a
+  mobile-safe follow-up before the launch-core surface is deployed.
+
+ARGUS validation:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck tasks passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:assistant` | Pass | 6 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass | 8 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:continuity-publication` | Pass | 1 test passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` | Pass | 1 test passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 7 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:community` | Pass | 8 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:spaces` | Pass | 1 test passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:exports` | Pass | 3 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:writing` | Pass | 3 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 8 tests passed. |
+| `git diff --check` | Pass | CRLF normalization warning for ARGUS state only. |
+
+DAEDALUS follow-up should preserve scope: no new product lane, no provider,
+billing, auth/session, persistence-shape, Developer Space semantics, or public
+visibility changes beyond the forum-category migration/fix.

@@ -3419,6 +3419,20 @@ when a PR lands, or when validation truth changes.
   ingestion instruction copy are readable on light Station cards. Remaining
   polish note only: two small timestamp metadata spans measured about `3.26:1`
   against white; they do not recreate the original PR 9 blocker.
+- Station launch-core patch is blocked for DAEDALUS follow-up before Railway
+  deploy, 2026-06-17: ARGUS reviewed `d1d0eaf` hard. The ownership filters on
+  `/assistant` and `/imports/archive` are present, runtime `_debug` is blocked
+  in production by code, and document-type API normalization/migration paths are
+  plausible. Focused validation passed for typecheck, Assistant,
+  conversation-archive, continuity-publication, document-discussions,
+  Developer Spaces, community, Spaces, exports, writing, Studio UI, and
+  whitespace. Follow-up is still required before deploy: add a forward
+  migration that merges/renames any existing `documents-and-constitutions`
+  forum category into `documents-and-codexes`; make the new Studio Assistant
+  and live Global Archive signed-in layouts mobile-safe and remove newly touched
+  viewport-scaled title/nonzero eyebrow letter-spacing; correct the launch-core
+  debug runbook so production never emits `_debug`; and add minimal hostile
+  route tests for the new private `/assistant` and `/imports/archive` surfaces.
 
 ## Near-term rule
 
