@@ -4194,6 +4194,12 @@ when a PR lands, or when validation truth changes.
   Railway `502`. DAEDALUS should repair the accept path and prove API health
   remains stable before ARIADNE reruns. See
   `docs/roadmap/PR21_IMPORT_REVIEW_INBOX_RERUN_ARIADNE_RESULT.md`.
+- PR21 Import Review Inbox accept repair is opened for DAEDALUS, 2026-06-17:
+  `docs/roadmap/PR21_IMPORT_REVIEW_INBOX_ACCEPT_REPAIR.md` captures the exact
+  ARIADNE blocker. DAEDALUS should repair import-backed Memory
+  accept-with-edits, prove API health and candidate listing stay stable after
+  the browser PATCH path, reset or add seeded replay candidates if needed, and
+  wake ARIADNE for the final human-eye rerun once safe.
 
 ## Near-term rule
 
