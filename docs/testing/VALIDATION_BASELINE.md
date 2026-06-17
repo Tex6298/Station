@@ -6745,3 +6745,19 @@ approval queue rejects no-Space drafts before enqueue/publish, and the Studio
 dashboard disables queue actions for drafts without a Space. Future DB policy
 hardening could additionally validate child rows against parent document/item
 ownership, but no PR11 acceptance blocker remains.
+
+ARGUS PR11 entitlement guard acceptance on 2026-06-17:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:publishing-approvals` | Pass | 9 tests passed; private-tier enqueue and transition mutations reject with Creator requirement while readback remains available. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 12 tests passed; publishing queue guards cover no-Space and private/basic entitlement states. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck tasks passed. |
+| `git diff 75b5a41..9013f7b --check` | Pass | No whitespace errors in the entitlement guard patch. |
+| `git diff --check` | Pass | CRLF normalization warnings only for consumed state. |
+
+ARGUS accepts the PR11 entitlement guard. Approval queue mutations now require
+Creator-or-above while owner readback remains available; `/studio/publishing`
+preserves `Space required` for no-Space drafts and shows `Creator required` for
+private/basic Space-backed drafts. Direct `POST /documents/:id/publish` remains
+documented legacy latitude and was not changed in this follow-up.

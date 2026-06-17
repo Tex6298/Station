@@ -1,6 +1,6 @@
 # PR11 Approval Queue Entitlement Follow-Up - DAEDALUS
 
-Status: ready for DAEDALUS implementation
+Status: accepted by ARGUS
 Owner: DAEDALUS / A2
 Reviewer: ARGUS / A3
 Human rehearsal after review: ARIADNE / A4
@@ -110,3 +110,25 @@ Validation:
 
 Direct `POST /documents/:id/publish` remains legacy latitude and is not changed
 in this follow-up.
+
+## ARGUS Review - 2026-06-17
+
+Verdict: accepted.
+
+ARGUS reviewed commit `9013f7b`. The approval queue mutation endpoints now use
+the Creator-or-above tier guard, while signed-in owner readback remains
+available. `/studio/publishing` disables queue actions for private/basic users
+with explicit `Creator required` copy, and the no-Space guard still wins first
+with `Space required`.
+
+Validation rerun:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:publishing-approvals` passed with
+  9 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` passed with 12 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `git diff 75b5a41..9013f7b --check` passed.
+- `git diff --check` passed with CRLF warnings only.
+
+Direct `POST /documents/:id/publish` remains documented legacy latitude and was
+not changed by this follow-up.

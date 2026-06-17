@@ -3703,6 +3703,15 @@ when a PR lands, or when validation truth changes.
   `test:publishing-approvals` passed with 9 tests, `test:studio-ui` passed with
   12 tests, typecheck passed, and whitespace checks passed with CRLF warnings
   only. Direct document publish remains legacy latitude for ARGUS to note.
+- PR11 Approval Queue entitlement guard is accepted by ARGUS, 2026-06-17:
+  ARGUS reviewed commit `9013f7b` and accepts the bounded guard. Approval queue
+  mutation routes require Creator-or-above while signed-in owner readback stays
+  available, `/studio/publishing` disables queue actions for private/basic users
+  with `Creator required`, and no-Space drafts still show `Space required`
+  before entitlement copy. ARGUS reran `test:publishing-approvals` with 9 tests,
+  `test:studio-ui` with 12 tests, typecheck, `git diff 75b5a41..9013f7b
+  --check`, and `git diff --check`. Direct `POST /documents/:id/publish`
+  remains documented legacy latitude and was not changed in this follow-up.
 
 ## Near-term rule
 
