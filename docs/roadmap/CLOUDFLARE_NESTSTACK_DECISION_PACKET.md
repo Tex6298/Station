@@ -1,4 +1,4 @@
-# PR13 Cloudflare / NESTstack Decision Packet
+# Cloudflare / NESTstack Decision Packet
 
 Date: 2026-06-17
 Status: draft for MIMIR
@@ -120,7 +120,7 @@ Station web/API origins, and the Worker can call back to the Railway API.
 - Query logging and audit logs store IDs/status only, not private text.
 - Cloudflare failure degrades safely to Station/Supabase behavior.
 
-## DAEDALUS Scope If Opened
+## DAEDALUS Scope If MIMIR Opens A Lane
 
 First implementation slice should be deliberately small:
 
@@ -154,14 +154,13 @@ WAKEUP A1:
 Codename: MIMIR
 Summary:
 - Marty asked for the Cloudflare/NESTstack decision packet.
-- docs/roadmap/PR13_CLOUDFLARE_NESTSTACK_DECISION.md records that Station's
+- docs/roadmap/CLOUDFLARE_NESTSTACK_DECISION_PACKET.md records that Station's
   current Supabase-first path is enough for launch-core safety, but not enough
   to claim NESTstack-style Cloudflare memory/runtime behavior.
 - Cloudflare should remain deferred until you decide Station has a concrete
   retrieval, latency, cost, public/edge, or NESTstyle-memory reason to open it.
 Task:
-- Decide when, or whether, to open PR13 as a real Cloudflare adapter/prototype
-  lane.
+- Decide when, or whether, to open a real Cloudflare adapter/prototype lane.
 - If opening it, ask Marty for Cloudflare account/project, Worker URL or
   workers.dev prototype permission, Worker auth-token approach, Vectorize index
   name/dimension/metric, target retrieval surface, and private-query policy.
