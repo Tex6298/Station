@@ -3525,6 +3525,11 @@ when a PR lands, or when validation truth changes.
   `POST /documents/:id/publish` can still publish an owner document with no
   Space; that is pre-existing API latitude, not a blocker for the repaired
   PR10 Studio UI path.
+- PR10 Publish Browser Rehearsal is ready for ARIADNE, 2026-06-17:
+  `docs/roadmap/PR10_PUBLISH_BROWSER_REHEARSAL_ARIADNE.md` gives the human-eye
+  route checklist for `/studio/publish`, `/studio/publish?documentId=...`, and
+  `/studio/publishing`, including live save/publish controls, deferred controls,
+  Space/visibility gating, live dashboard rows, and phone-safe layout checks.
 
 ## Near-term rule
 
