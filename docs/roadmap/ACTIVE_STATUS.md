@@ -4200,6 +4200,15 @@ when a PR lands, or when validation truth changes.
   accept-with-edits, prove API health and candidate listing stay stable after
   the browser PATCH path, reset or add seeded replay candidates if needed, and
   wake ARIADNE for the final human-eye rerun once safe.
+- PR21 Import Review Inbox accept repair is implemented by DAEDALUS and ready
+  for ARGUS, 2026-06-17: the likely Railway accept-with-edits crash was a
+  schema/type mismatch where browser Memory accept used the default
+  `relevanceWeight` `1.5` against integer `memory_items.relevance_weight`.
+  Archive memory inserts now normalize relevance weight to an integer, the
+  Memory accept route catches insert failures as JSON `500`, and focused tests
+  now make the fake DB reject fractional memory relevance weights. Local repair
+  validation is green; ARIADNE still needs to rerun the live authenticated
+  browser PATCH after deploy/seed reset.
 
 ## Near-term rule
 

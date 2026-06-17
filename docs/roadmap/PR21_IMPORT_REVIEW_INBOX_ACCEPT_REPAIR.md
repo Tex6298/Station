@@ -1,6 +1,6 @@
 # PR21 Import Review Inbox - Accept Repair
 
-Status: opened for A2 / DAEDALUS
+Status: repaired by A2 / DAEDALUS; ready for A3 / ARGUS review
 Opened: 2026-06-17
 Owner: DAEDALUS repair, ARGUS review if code changes are non-trivial, ARIADNE rerun after repair.
 
@@ -79,3 +79,42 @@ Otherwise wake ARIADNE directly for the same human-eye rerun:
 - reviewed states;
 - no raw paths, secrets, or private source dumps;
 - mobile usability.
+
+## DAEDALUS Repair Result - 2026-06-17
+
+Likely failure layer:
+
+- The import-backed Memory accept path inserts through `addMemoryItem`.
+- `memory_items.relevance_weight` is an integer column in the Supabase schema.
+- The PR21 accept path used a default `relevanceWeight` of `1.5` when the
+  browser accepted a candidate without an explicit integer override.
+- Local fakes had not enforced the integer column shape, so the issue did not
+  appear before the Railway browser rehearsal.
+
+Repair:
+
+- `addMemoryItem` and `ingestTextIntoArchive` now normalize memory
+  `relevance_weight` to a finite integer before writing to `memory_items`.
+- `PATCH /conversations/candidates/:candidateId` now catches Memory accept
+  insert failures and returns a JSON `500` instead of letting the async route
+  error escape.
+- `conversation-archive.test.ts` now makes the fake `memory_items` insert reject
+  fractional relevance weights and proves import-backed Memory accept-with-edits
+  stores an integer value.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive`: pass, 27
+  tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:storage`: pass, 16 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:studio-ui`: pass, 15 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck`: pass.
+- `git diff --check`: pass, CRLF normalization warnings only.
+
+Deploy note:
+
+- This shell does not have the replay browser session/token, so the live
+  authenticated Railway PATCH still needs ARIADNE rerun after deploy.
+- The last known seed state from ARIADNE: Canon candidate was already rejected;
+  Memory candidate accept failed before this repair. Add/reset a fresh seed pair
+  if the replay candidate is stale by the time ARIADNE reruns.

@@ -7165,3 +7165,26 @@ Scope notes:
   `035_import_job_file_pointer.sql`; the fallback prevents owner-visible Archive
   page blanking on schema-lagging deployments but does not replace the durable
   pointer migration.
+
+## PR21 import-backed Memory accept repair
+
+DAEDALUS repair validation on 2026-06-17:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass | 27 tests passed, including import-backed Memory accept-with-edits with fake DB enforcement that `memory_items.relevance_weight` must be an integer. |
+| `npm exec --yes pnpm@10.32.1 -- run test:storage` | Pass | 16 tests passed; archive memory insert/storage accounting remains green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 15 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck tasks passed. |
+| `git diff --check` | Pass | No whitespace errors; CRLF normalization warnings only for touched text files if Git reports them. |
+
+Scope notes:
+
+- `addMemoryItem` and `ingestTextIntoArchive` now normalize
+  `memory_items.relevance_weight` to an integer before insert.
+- The import-backed candidate accept route now catches Memory insert failures
+  and returns a controlled JSON `500` instead of letting the async route error
+  escape.
+- This is a deploy-ready local repair. Live authenticated Railway proof still
+  belongs to the ARIADNE rerun because this shell does not have the replay
+  browser session/token.

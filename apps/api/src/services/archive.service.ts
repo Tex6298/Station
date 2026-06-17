@@ -62,6 +62,11 @@ function embeddingApiKey() {
   return resolveEmbeddingApiKey();
 }
 
+function memoryRelevanceWeight(value: number | undefined) {
+  if (value === undefined || !Number.isFinite(value)) return 1;
+  return Math.max(0, Math.round(value));
+}
+
 /**
  * Adds a single memory item to a persona's archive and generates its embedding.
  */
@@ -96,7 +101,7 @@ export async function addMemoryItem(input: {
         content: input.content,
         summary: input.summary ?? null,
         source_type: input.sourceType,
-        relevance_weight: input.relevanceWeight ?? 1,
+        relevance_weight: memoryRelevanceWeight(input.relevanceWeight),
         embedding: embedding ?? null,
         ...embeddingColumnsFor(embedding),
         archive_source_type: input.archiveSource?.type ?? null,
@@ -164,7 +169,7 @@ export async function ingestTextIntoArchive(input: {
         content: chunk,
         summary: chunk.slice(0, 200),
         source_type: input.sourceType,
-        relevance_weight: input.relevanceWeight ?? 1,
+        relevance_weight: memoryRelevanceWeight(input.relevanceWeight),
         embedding,
         ...embeddingColumnsFor(embedding),
         archive_source_type: input.archiveSource?.type ?? null,

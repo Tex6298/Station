@@ -302,6 +302,17 @@ class QueryBuilder {
         };
       }
       const payloads = Array.isArray(this.payload) ? this.payload : [this.payload as Row];
+      if (this.table === "memory_items") {
+        const invalid = payloads.find((payload) =>
+          payload.relevance_weight !== undefined && !Number.isInteger(payload.relevance_weight)
+        );
+        if (invalid) {
+          return {
+            data: mode === "single" ? null : [],
+            error: { message: `invalid input syntax for type integer: "${invalid.relevance_weight}"` },
+          };
+        }
+      }
       rows = payloads.map((payload) => this.db.insertRow(this.table, payload));
     } else if (this.operation === "update") {
       rows = this.matchingRows();
@@ -624,6 +635,8 @@ test("owner can review import-backed continuity candidates without exposing them
     assert.equal(acceptedMemory.body.target.source_type, "import");
     assert.equal(acceptedMemory.body.target.archive_source_type, "persona_file");
     assert.equal(acceptedMemory.body.target.archive_source_id, importFile.id);
+    assert.equal(Number.isInteger(acceptedMemory.body.target.relevance_weight), true);
+    assert.equal(acceptedMemory.body.target.relevance_weight, 2);
 
     const activatedLifecycle = db.tables.memory_item_lifecycle.find(
       (row) => row.memory_item_id === acceptedMemory.body.target.id

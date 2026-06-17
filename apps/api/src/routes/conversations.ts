@@ -904,16 +904,22 @@ conversationsRouter.patch("/candidates/:candidateId", async (req, res) => {
 
   let target: any;
   if (candidate.candidate_type === "memory") {
-    target = await addMemoryItem({
-      personaId: candidate.persona_id,
-      ownerUserId: userId,
-      title,
-      content,
-      summary: content.slice(0, 300),
-      sourceType: candidateSource.sourceType,
-      relevanceWeight: parsed.data.relevanceWeight ?? 1.5,
-      archiveSource: candidateSource.archiveSource,
-    });
+    try {
+      target = await addMemoryItem({
+        personaId: candidate.persona_id,
+        ownerUserId: userId,
+        title,
+        content,
+        summary: content.slice(0, 300),
+        sourceType: candidateSource.sourceType,
+        relevanceWeight: parsed.data.relevanceWeight ?? 1.5,
+        archiveSource: candidateSource.archiveSource,
+      });
+    } catch (error) {
+      return res.status(500).json({
+        error: error instanceof Error ? error.message : "Could not accept memory candidate.",
+      });
+    }
     if (candidateSource.sourceType === "import") {
       await updateMemoryLifecycle({
         memoryItemId: target.id,
