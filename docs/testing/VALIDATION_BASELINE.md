@@ -6779,3 +6779,30 @@ ARGUS accepts PR12 for code/security. The new owner-scoped archive search route
 returns capped owner-only cards and keeps raw transcripts/file bodies out of the
 response. Because `/studio/archive` behavior changed materially, ARIADNE should
 complete a browser rehearsal before MIMIR closes the lane.
+
+## PR14 External Conversation Import Parsers
+
+DAEDALUS implementation validation on 2026-06-17:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass | 14 tests passed, including ChatGPT parsing, Claude parsing, malformed JSON failure, unknown JSON failure, text/Markdown preservation, and explicit legacy role/content-array parsing. |
+| `npm exec --yes pnpm@10.32.1 -- run test:storage` | Pass | 11 tests passed, including uploaded ChatGPT and Claude JSON processing plus unknown JSON failure before archive memory creation. |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-context` | Pass | 6 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck tasks passed. |
+| `git diff --check` | Pass | No whitespace errors; CRLF normalization warnings only for touched text files if Git reports them. |
+
+Scope notes:
+
+- Parser logic now lives under `apps/api/src/services/imports/parsers/` and is
+  called by `processUploadedFile` in `apps/api/src/services/archive.service.ts`.
+- Supported JSON shapes are explicit: ChatGPT `mapping` exports, Claude
+  `chat_messages` exports, and the pre-existing simple role/content message
+  array shape.
+- Unknown JSON is no longer stringified into archive memory; unsupported and
+  malformed JSON fail with sanitized owner-visible import job errors.
+- No schema was added. Parser/source format metadata is recorded through the
+  existing archive source name for parsed JSON imports.
+- Candidate/review routing remains a later lane: parsed imports still create
+  private archive memory chunks through the existing protected-alpha import
+  path and do not become Canon directly.

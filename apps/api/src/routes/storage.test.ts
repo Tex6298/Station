@@ -80,6 +80,7 @@ class InMemorySupabase {
   failSelectTables = new Set<string>();
   removedStoragePaths: string[] = [];
   signedUploadPaths: string[] = [];
+  storageDownloads = new Map<string, string>();
   rpcCalls: Array<{ functionName: string; args: Record<string, unknown> }> = [];
 
   private idCounters: Record<string, number> = {};
@@ -124,8 +125,8 @@ class InMemorySupabase {
           this.removedStoragePaths.push(...paths);
           return { data: paths, error: null };
         },
-        download: async (_path: string) => ({
-          data: { text: async () => "downloaded archive text" },
+        download: async (path: string) => ({
+          data: { text: async () => this.storageDownloads.get(path) ?? "downloaded archive text" },
           error: null,
         }),
       }),
@@ -876,6 +877,149 @@ test("chat imports reserve text bytes and roll back when archive insert fails", 
     assert.equal(storageRow(failingDb).bytes_used, 0);
     assert.equal(failingDb.tables.memory_items.length, 0);
     assert.equal(failingDb.tables.import_jobs[0].status, "failed");
+  } finally {
+    resetStorageFake();
+  }
+});
+
+test("uploaded ChatGPT and Claude JSON parse explicitly while unknown JSON fails before archive memory", async () => {
+  const { processUploadedFile } = await import("../services/archive.service.js");
+  const db = new InMemorySupabase();
+  setSupabaseAdminForTests(db.client as any);
+  storageRow(db).bytes_limit = 1000;
+
+  db.storageDownloads.set(
+    "owner/chatgpt.json",
+    JSON.stringify({
+      mapping: {
+        second: {
+          message: {
+            author: { role: "assistant" },
+            content: { parts: ["The answer came second."] },
+            create_time: 2,
+          },
+        },
+        first: {
+          message: {
+            author: { role: "user" },
+            content: { parts: ["The question came first."] },
+            create_time: 1,
+          },
+        },
+      },
+    })
+  );
+  db.storageDownloads.set(
+    "owner/claude.json",
+    JSON.stringify({
+      chat_messages: [
+        { sender: "assistant", text: "Claude second.", created_at: "2026-06-17T10:02:00.000Z" },
+        { sender: "human", text: "Claude first.", created_at: "2026-06-17T10:01:00.000Z" },
+      ],
+    })
+  );
+  db.storageDownloads.set(
+    "owner/unknown.json",
+    JSON.stringify({ arbitrary: { private: "this must not become memory" } })
+  );
+
+  try {
+    const chatGptFile = db.insertRow("persona_files", {
+      persona_id: PERSONA_ID,
+      owner_user_id: OWNER_ID,
+      file_name: "chatgpt.json",
+      file_type: "application/json",
+      file_size: 10,
+      storage_path: "owner/chatgpt.json",
+    });
+    db.insertRow("import_jobs", {
+      persona_id: PERSONA_ID,
+      owner_user_id: OWNER_ID,
+      kind: "file",
+      status: "queued",
+      source_name: "chatgpt.json",
+    });
+
+    const chatGptProcessed = await processUploadedFile({
+      personaId: PERSONA_ID,
+      ownerUserId: OWNER_ID,
+      fileId: chatGptFile.id,
+      fileName: "chatgpt.json",
+      fileType: "application/json",
+      storagePath: "owner/chatgpt.json",
+    });
+
+    assert.equal(chatGptProcessed.chunksCreated, 1);
+    assert.match(db.tables.memory_items[0].content, /\[user\]: The question came first\./);
+    assert.match(db.tables.memory_items[0].content, /\[assistant\]: The answer came second\./);
+    assert.equal(db.tables.memory_items[0].archive_source_name, "chatgpt.json (chatgpt import)");
+
+    const claudeFile = db.insertRow("persona_files", {
+      persona_id: PERSONA_ID,
+      owner_user_id: OWNER_ID,
+      file_name: "claude.json",
+      file_type: "application/json",
+      file_size: 10,
+      storage_path: "owner/claude.json",
+    });
+    db.insertRow("import_jobs", {
+      persona_id: PERSONA_ID,
+      owner_user_id: OWNER_ID,
+      kind: "file",
+      status: "queued",
+      source_name: "claude.json",
+    });
+
+    const claudeProcessed = await processUploadedFile({
+      personaId: PERSONA_ID,
+      ownerUserId: OWNER_ID,
+      fileId: claudeFile.id,
+      fileName: "claude.json",
+      fileType: "application/json",
+      storagePath: "owner/claude.json",
+    });
+
+    assert.equal(claudeProcessed.chunksCreated, 1);
+    assert.match(db.tables.memory_items[1].content, /\[user\]: Claude first\./);
+    assert.match(db.tables.memory_items[1].content, /\[assistant\]: Claude second\./);
+    assert.equal(db.tables.memory_items[1].archive_source_name, "claude.json (claude import)");
+
+    const memoryCountBeforeUnknown = db.tables.memory_items.length;
+    const storageBeforeUnknown = storageRow(db).bytes_used;
+    const unknownFile = db.insertRow("persona_files", {
+      persona_id: PERSONA_ID,
+      owner_user_id: OWNER_ID,
+      file_name: "unknown.json",
+      file_type: "application/json",
+      file_size: 10,
+      storage_path: "owner/unknown.json",
+    });
+    db.insertRow("import_jobs", {
+      persona_id: PERSONA_ID,
+      owner_user_id: OWNER_ID,
+      kind: "file",
+      status: "queued",
+      source_name: "unknown.json",
+    });
+
+    await assert.rejects(
+      () => processUploadedFile({
+        personaId: PERSONA_ID,
+        ownerUserId: OWNER_ID,
+        fileId: unknownFile.id,
+        fileName: "unknown.json",
+        fileType: "application/json",
+        storagePath: "owner/unknown.json",
+      }),
+      /Unsupported JSON import format/
+    );
+
+    assert.equal(db.tables.memory_items.length, memoryCountBeforeUnknown);
+    assert.equal(storageRow(db).bytes_used, storageBeforeUnknown);
+    const failedJob = db.tables.import_jobs.find((job) => job.source_name === "unknown.json");
+    assert.equal(failedJob.status, "failed");
+    assert.match(failedJob.error_message, /Unsupported JSON import format/);
+    assert.doesNotMatch(failedJob.error_message, /this must not become memory/);
   } finally {
     resetStorageFake();
   }

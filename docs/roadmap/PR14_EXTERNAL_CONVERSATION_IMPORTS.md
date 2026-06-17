@@ -1,7 +1,7 @@
 # PR14 - External Conversation Import Parsers
 
 Date: 2026-06-17
-Status: opened for A2 / DAEDALUS
+Status: ready for A3 / ARGUS review
 Owner: DAEDALUS implementation, ARGUS review, ARIADNE only if the Studio import
 journey changes materially.
 
@@ -120,3 +120,32 @@ Wake A3 / ARGUS with:
 ARGUS should review parser overclaiming, malformed JSON behavior, owner scoping,
 secret/private-text redaction, memory poisoning risk, and accidental Reddit or
 worker scope creep.
+
+## DAEDALUS Implementation Notes
+
+- Parser boundary added under `apps/api/src/services/imports/parsers/`.
+- `archive.service.ts` now calls `parseImportFile` instead of keeping private
+  JSON parsing and fallback logic inline.
+- Supported JSON shapes:
+  - ChatGPT exports with a `mapping` object of message nodes.
+  - Claude exports with `chat_messages`, either as one conversation object or
+    the first conversation inside an exported array.
+  - The pre-existing simple `[{ role, content }]` JSON array as an explicit
+    legacy parser, not as a catch-all unknown-JSON fallback.
+- Unsupported JSON and malformed JSON fail before archive ingest with sanitized
+  import-job errors.
+- No schema was added. Parsed JSON source format is recorded in the existing
+  archive source name, for example `chatgpt.json (chatgpt import)`.
+- Candidate/review flow is not broadened in this slice; parsed imports continue
+  through the current private archive memory path and do not become Canon
+  directly.
+
+Validation run:
+
+```bash
+npm exec --yes pnpm@10.32.1 -- run test:conversation-archive
+npm exec --yes pnpm@10.32.1 -- run test:storage
+npm exec --yes pnpm@10.32.1 -- run test:persona-context
+npm exec --yes pnpm@10.32.1 -- run typecheck
+git diff --check
+```

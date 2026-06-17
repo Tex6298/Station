@@ -3818,6 +3818,16 @@ when a PR lands, or when validation truth changes.
   the active implementation lane. Reddit, Discord production import, workers,
   Cloudflare retrieval, Redis memory truth, vector reindexing, public
   publishing, and broad UI reskin are out of scope.
+- PR14 External Conversation Import Parsers is ready for ARGUS review,
+  2026-06-17: DAEDALUS split upload parser logic out of `archive.service.ts`
+  into `apps/api/src/services/imports/parsers/`, added explicit ChatGPT and
+  Claude JSON parsing, preserved known plain text/Markdown and legacy
+  role/content-array imports, and removed the unsafe unknown-JSON stringify
+  fallback. Unknown or malformed JSON now fails with sanitized owner-visible
+  import-job errors before memory chunks are created. Existing owner-scoped
+  import job, storage rollback, and text/Markdown behavior are preserved.
+  Focused validation passed `test:conversation-archive`, `test:storage`,
+  `test:persona-context`, typecheck, and whitespace checks.
 
 ## Near-term rule
 

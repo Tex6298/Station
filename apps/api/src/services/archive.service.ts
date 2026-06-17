@@ -13,6 +13,7 @@ import { ensureMemoryLifecycle } from "./memory-continuity.service";
 import { invalidateOperationalCacheForChange } from "./operational-cache.service";
 import { sanitizeJobErrorMessage } from "./background-jobs.service";
 import { resolveEmbeddingApiKey } from "./embedding-key.service";
+import { parseImportFile } from "./imports/parsers";
 
 type ArchiveSourceRef = {
   type: ArchiveSourceType;
@@ -231,27 +232,27 @@ export async function processUploadedFile(input: {
     }
 
     const rawText = await fileData.text();
-    let extractedText = rawText;
-
-    // JSON chat export - extract message content
-    if (
-      input.fileType === "application/json" ||
-      input.fileName.endsWith(".json")
-    ) {
-      extractedText = extractTextFromJsonExport(rawText);
-    }
+    const parsedImport = parseImportFile({
+      fileName: input.fileName,
+      fileType: input.fileType,
+      rawText,
+    });
+    const sourceName =
+      parsedImport.format === "text" || parsedImport.format === "markdown"
+        ? input.fileName
+        : `${input.fileName} (${parsedImport.metadata.parser} import)`;
 
     const chunksCreated = await ingestTextIntoArchive({
       personaId: input.personaId,
       ownerUserId: input.ownerUserId,
-      text: extractedText,
-      sourceName: input.fileName,
+      text: parsedImport.text,
+      sourceName,
       sourceType: "import",
       relevanceWeight: 1.5,
       archiveSource: {
         type: "persona_file",
         id: input.fileId,
-        name: input.fileName,
+        name: sourceName,
       },
     });
 
@@ -302,45 +303,4 @@ export async function saveMessageAsMemory(input: {
     sourceType: "chat",
     relevanceWeight: input.relevanceWeight ?? 1.25,
   });
-}
-
-/**
- * Extracts readable text from common JSON chat export formats.
- * Handles: ChatGPT exports, simple message arrays.
- */
-function extractTextFromJsonExport(raw: string): string {
-  try {
-    const parsed = JSON.parse(raw);
-    const lines: string[] = [];
-
-    // ChatGPT export format: { mapping: { [id]: { message: { content: { parts } } } } }
-    if (parsed.mapping && typeof parsed.mapping === "object") {
-      for (const node of Object.values(parsed.mapping) as Array<{
-        message?: { author?: { role?: string }; content?: { parts?: string[] } };
-      }>) {
-        const role = node.message?.author?.role ?? "unknown";
-        const parts = node.message?.content?.parts ?? [];
-        const text = parts.filter((p) => typeof p === "string").join(" ").trim();
-        if (text) lines.push(`[${role}]: ${text}`);
-      }
-      return lines.join("\n");
-    }
-
-    // Simple array of { role, content } messages
-    if (Array.isArray(parsed)) {
-      for (const msg of parsed) {
-        if (msg.role && msg.content) {
-          lines.push(`[${msg.role}]: ${msg.content}`);
-        } else if (typeof msg === "string") {
-          lines.push(msg);
-        }
-      }
-      return lines.join("\n");
-    }
-
-    // Fallback: stringify the whole thing
-    return JSON.stringify(parsed, null, 2);
-  } catch {
-    return raw;
-  }
 }
