@@ -7109,3 +7109,34 @@ Scope notes:
   public community bridge, Cloudflare retrieval, vector reindexing, Redis memory
   truth, publishing, billing, social posting, export worker redesign, or UI
   reskin was added.
+
+## PR21 Import Review Inbox
+
+DAEDALUS implementation validation on 2026-06-17:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass | 27 tests passed, including owner/non-owner import candidate listing, import-backed accept/edit/reject behavior, private archive source preservation, archived-chat candidate regression coverage, and import parser regressions. |
+| `npm exec --yes pnpm@10.32.1 -- run test:storage` | Pass | 16 tests passed, including Reddit and Discord upload processing into private archive chunks plus pending import review candidates, generic-shape failures, and PR18 quota/idempotency coverage. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 15 tests passed, including import review summary, source label, status label, and empty-state helpers. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck tasks passed. |
+| `git diff --check` | Pass | No whitespace errors; CRLF normalization warnings only for touched text files if Git reports them. |
+
+Scope notes:
+
+- Added `GET /conversations/persona/:personaId/candidates` for owner-scoped
+  continuity candidate listing with `source=import|all` and
+  `status=pending|reviewed|all` filters.
+- The route verifies persona ownership before listing candidate rows and then
+  filters by both `persona_id` and `owner_user_id`.
+- Added a narrow Import Review Inbox to the existing persona Archive page at
+  `/studio/personas/:personaId/files`.
+- The inbox uses the existing `PATCH /conversations/candidates/:candidateId`
+  review endpoint for accept-with-edits and reject actions.
+- Rejected candidate source material remains preserved as private archive
+  source material.
+- No runtime memory inclusion/exclusion logic changed, so `test:persona-context`
+  was not part of the PR21 implementation gate.
+- No full review workspace, UI reskin, live Reddit/Discord pull, worker,
+  Cloudflare/vector/Redis memory, publishing, billing, social posting, or public
+  community bridge scope was added.

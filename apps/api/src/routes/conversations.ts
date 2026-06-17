@@ -62,6 +62,11 @@ const candidateReviewSchema = z.object({
   relevanceWeight: z.number().min(0.1).max(5).optional(),
 });
 
+const candidateListSchema = z.object({
+  status: z.enum(["pending", "reviewed", "all"]).default("pending"),
+  source: z.enum(["import", "all"]).default("import"),
+});
+
 type ConversationMessageRow = {
   id: string;
   role: "system" | "user" | "assistant";
@@ -115,6 +120,18 @@ function candidateRow(row: any) {
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   };
+}
+
+function filterCandidateRows(
+  rows: any[],
+  filters: z.infer<typeof candidateListSchema>
+) {
+  return rows.filter((row) => {
+    if (filters.source === "import" && row.source_table !== "persona_files") return false;
+    if (filters.status === "pending") return row.status === "pending";
+    if (filters.status === "reviewed") return row.status !== "pending";
+    return true;
+  });
 }
 
 function trimTo(value: string, maxLength: number) {
@@ -232,6 +249,49 @@ conversationsRouter.get("/persona/:personaId", async (req, res) => {
 
   if (error) return res.status(500).json({ error: error.message });
   return res.json({ conversations: data });
+});
+
+// -- List continuity candidates for a persona ---------------------------------
+conversationsRouter.get("/persona/:personaId/candidates", async (req, res) => {
+  const parsed = candidateListSchema.safeParse({
+    status: req.query.status,
+    source: req.query.source,
+  });
+  if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
+
+  const sb = getSupabaseAdmin();
+  const userId = req.user!.id;
+  const { personaId } = req.params;
+
+  const { data: persona, error: personaError } = await sb
+    .from("personas")
+    .select("id, owner_user_id")
+    .eq("id", personaId)
+    .single();
+
+  if (personaError || !persona) return res.status(404).json({ error: "Persona not found." });
+  if (persona.owner_user_id !== userId) return res.status(403).json({ error: "Not your persona." });
+
+  const { data, error } = await sb
+    .from("continuity_candidates")
+    .select("*")
+    .eq("persona_id", personaId)
+    .eq("owner_user_id", userId)
+    .order("created_at", { ascending: false });
+
+  if (error) return res.status(500).json({ error: error.message });
+
+  const allRows = data ?? [];
+  const rows = filterCandidateRows(allRows, parsed.data);
+  return res.json({
+    candidates: rows.map(candidateRow),
+    summary: {
+      total: rows.length,
+      pending: rows.filter((row) => row.status === "pending").length,
+      reviewed: rows.filter((row) => row.status !== "pending").length,
+      importBacked: rows.filter((row) => row.source_table === "persona_files").length,
+    },
+  });
 });
 
 // -- Preview the private continuity context that would be sent at runtime ------

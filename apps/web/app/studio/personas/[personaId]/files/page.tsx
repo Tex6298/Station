@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import type { ArchiveExportPackage } from "@station/types/export";
+import type { ContinuityCandidate } from "@station/types/persona";
 import { getSession } from "@/lib/auth";
 import { apiGet, apiPost } from "@/lib/api-client";
 import {
@@ -13,6 +14,7 @@ import {
   archiveTrustSummary,
 } from "@/lib/archive-trust";
 import { ArchiveExportStatus } from "@/components/studio/archive-export-status";
+import { ImportReviewInbox } from "@/components/studio/import-review-inbox";
 import { PublishContinuityButton } from "@/components/studio/publish-continuity-button";
 import { StorageUsagePanel } from "@/components/settings/storage-usage-panel";
 import {
@@ -52,6 +54,7 @@ export default function PersonaFilesPage() {
   const [persona, setPersona] = useState<PersonaWithContinuity | null>(null);
   const [files, setFiles] = useState<PersonaFile[]>([]);
   const [jobs, setJobs] = useState<ImportJob[]>([]);
+  const [importCandidates, setImportCandidates] = useState<ContinuityCandidate[]>([]);
   const [exportPackages, setExportPackages] = useState<ArchiveExportPackage[]>([]);
   const [form, setForm] = useState({ sourceName: "", content: "", relevanceWeight: 1.5 });
   const [loading, setLoading] = useState(true);
@@ -70,16 +73,18 @@ export default function PersonaFilesPage() {
           return;
         }
         setToken(session.access_token);
-        const [personaData, filesData, jobsData, exportData] = await Promise.all([
+        const [personaData, filesData, jobsData, candidatesData, exportData] = await Promise.all([
           apiGet<{ persona: PersonaWithContinuity }>(`/personas/${personaId}`, session.access_token),
           apiGet<{ files: PersonaFile[] }>(`/persona-files/persona/${personaId}`, session.access_token),
           apiGet<{ jobs: ImportJob[] }>(`/imports/persona/${personaId}`, session.access_token),
+          apiGet<{ candidates: ContinuityCandidate[] }>(`/conversations/persona/${personaId}/candidates?source=import&status=all`, session.access_token),
           apiGet<{ exports: ArchiveExportPackage[] }>(`/exports/persona/${personaId}`, session.access_token).catch(() => ({ exports: [] })),
         ]);
         if (cancelled) return;
         setPersona(personaData.persona);
         setFiles(filesData.files ?? []);
         setJobs(jobsData.jobs ?? []);
+        setImportCandidates(candidatesData.candidates ?? []);
         setExportPackages(exportData.exports ?? []);
       } catch (e) {
         if (!cancelled) setError(e instanceof Error ? e.message : "Could not load archive.");
@@ -161,6 +166,13 @@ export default function PersonaFilesPage() {
           <StorageUsagePanel />
         </StudioPanel>
       </section>
+
+      <ImportReviewInbox
+        candidates={importCandidates}
+        token={token}
+        sourceCount={files.length + jobs.length}
+        onCandidateUpdated={(candidate) => setImportCandidates((current) => current.map((item) => item.id === candidate.id ? candidate : item))}
+      />
 
       <section className="studio-two-column">
         <form className="studio-editor-panel" onSubmit={importText}>

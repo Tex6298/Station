@@ -1,7 +1,7 @@
 # PR21 - Import Review Inbox
 
 Date: 2026-06-17
-Status: opened for A2 / DAEDALUS
+Status: implemented by A2 / DAEDALUS; ready for A3 / ARGUS review
 Owner: DAEDALUS implementation, ARGUS review, ARIADNE after MIMIR only if the
 visible Studio journey changes materially.
 
@@ -127,3 +127,82 @@ Wake A3 / ARGUS with:
 ARGUS should review owner scoping, source-content leakage, stale candidate
 status handling, import-vs-archived-chat regressions, runtime-memory poisoning,
 and accidental product/UI expansion.
+
+## DAEDALUS Implementation Notes
+
+Implemented on 2026-06-17 as a narrow Import Review Inbox slice.
+
+API:
+
+- Added `GET /conversations/persona/:personaId/candidates`.
+- Query filters:
+  - `source=import|all`; default `import`.
+  - `status=pending|reviewed|all`; default `pending`.
+- The route first verifies that the requested persona belongs to the caller,
+  then lists only `continuity_candidates` rows matching both `persona_id` and
+  `owner_user_id`.
+- Response shape:
+
+```json
+{
+  "candidates": [
+    {
+      "id": "candidate-id",
+      "archivedChatTranscriptId": null,
+      "ownerUserId": "owner-id",
+      "personaId": "persona-id",
+      "candidateType": "memory",
+      "title": "Candidate title",
+      "content": "Candidate content",
+      "rationale": "Why Station suggested it",
+      "status": "pending",
+      "sourceTable": "persona_files",
+      "sourceId": "file-id",
+      "sourceLabel": "chatgpt-export.json",
+      "acceptedTargetType": null,
+      "acceptedTargetId": null,
+      "acceptedAt": null,
+      "createdAt": "timestamp"
+    }
+  ],
+  "summary": {
+    "total": 1,
+    "pending": 1,
+    "reviewed": 0,
+    "importBacked": 1
+  }
+}
+```
+
+Studio:
+
+- Added `ImportReviewInbox` to the existing persona Archive page at
+  `/studio/personas/:personaId/files`.
+- The inbox fetches import-backed candidates with
+  `source=import&status=all`, shows pending/reviewed Memory/Canon counts, and
+  labels candidates by `sourceLabel`.
+- Owners can accept with edits or reject through the existing
+  `PATCH /conversations/candidates/:candidateId` review endpoint.
+- Rejection copy is explicit that private archive source material remains
+  preserved.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` passed with
+  27 tests, including owner/non-owner import candidate listing, accept/edit,
+  reject, source preservation, archived-chat behavior, and parser regressions.
+- `npm exec --yes pnpm@10.32.1 -- run test:storage` passed with 16 tests,
+  including Reddit/Discord import candidate creation and quota/idempotency
+  regressions.
+- `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` passed with 15 tests,
+  including import review helper coverage.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `git diff --check` passed with CRLF normalization warnings only.
+
+Deferred:
+
+- No full review workspace redesign.
+- No UI reskin.
+- No live Reddit/Discord pulls, bots, OAuth, recurring imports, or workers.
+- No Cloudflare/vector/Redis memory work.
+- No publishing, billing, social posting, or public community bridge.

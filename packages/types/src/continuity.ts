@@ -33,7 +33,7 @@ export interface ArchivedChatTranscript {
 
 export interface ContinuityCandidate {
   id: string;
-  archivedChatTranscriptId: string;
+  archivedChatTranscriptId?: string | null;
   ownerUserId?: string;
   personaId: string;
   candidateType: "memory" | "canon";
@@ -41,6 +41,9 @@ export interface ContinuityCandidate {
   content: string;
   rationale?: string | null;
   status: "pending" | "accepted" | "rejected";
+  sourceTable?: string | null;
+  sourceId?: string | null;
+  sourceLabel?: string | null;
   sourceMessageIds?: string[];
   acceptedTargetType?: "memory" | "canon" | null;
   acceptedTargetId?: string | null;

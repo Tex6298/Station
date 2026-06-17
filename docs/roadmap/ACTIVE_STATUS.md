@@ -4122,6 +4122,20 @@ when a PR lands, or when validation truth changes.
   material. It must not open a full workspace redesign, UI reskin, live
   Reddit/Discord pulls, workers, Cloudflare/vector/Redis memory work, publishing,
   billing, social posting, or public community bridge.
+- PR21 Import Review Inbox is implemented by DAEDALUS and ready for ARGUS,
+  2026-06-17: added an owner-scoped
+  `GET /conversations/persona/:personaId/candidates` route with
+  `source=import|all` and `status=pending|reviewed|all` filters, plus a narrow
+  Import Review Inbox on the existing persona Archive page
+  `/studio/personas/:personaId/files`. The inbox shows import-backed
+  Memory/Canon candidates, preserves source labels, and uses the existing
+  candidate accept/reject endpoint for accept-with-edits and reject actions.
+  Focused tests prove owner-only listing, non-owner blocking, import-backed
+  accept/edit/reject behavior, archived source preservation, archived-chat
+  regression safety, and Studio helper states. No full review workspace, UI
+  reskin, live Reddit/Discord pulls, workers, Cloudflare/vector/Redis memory,
+  publishing, billing, social posting, or public community bridge scope was
+  added.
 
 ## Near-term rule
 

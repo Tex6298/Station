@@ -547,6 +547,47 @@ test("owner can review import-backed continuity candidates without exposing them
       source_id: importFile.id,
       source_label: "chatgpt-export.json",
     });
+    const rejectedCandidate = db.insertRow("continuity_candidates", {
+      persona_id: PERSONA_ID,
+      owner_user_id: OWNER_ID,
+      candidate_type: "memory",
+      title: "Imported rejected candidate",
+      content: "This imported candidate should be rejected without deleting source material.",
+      rationale: "Generated from parsed ChatGPT import review seed.",
+      archived_chat_transcript_id: null,
+      source_table: "persona_files",
+      source_id: importFile.id,
+      source_label: "chatgpt-export.json",
+    });
+    db.insertRow("continuity_candidates", {
+      persona_id: PERSONA_ID,
+      owner_user_id: OTHER_ID,
+      candidate_type: "memory",
+      title: "Other owner import candidate",
+      content: "Other owner import candidate must not leak.",
+      source_table: "persona_files",
+      source_id: importFile.id,
+      source_label: "other-owner.json",
+    });
+
+    const pendingList = await requestJson(app, "GET", `/conversations/persona/${PERSONA_ID}/candidates?source=import&status=pending`, {
+      token: "owner-token",
+    });
+    assert.equal(pendingList.status, 200);
+    assert.equal(pendingList.body.summary.pending, 3);
+    assert.equal(pendingList.body.summary.importBacked, 3);
+    assert.deepEqual(
+      pendingList.body.candidates.map((candidate: Row) => candidate.sourceLabel),
+      ["chatgpt-export.json", "chatgpt-export.json", "chatgpt-export.json"]
+    );
+    assert.equal(pendingList.body.candidates.every((candidate: Row) => candidate.sourceTable === "persona_files"), true);
+    assert.doesNotMatch(JSON.stringify(pendingList.body), /Other owner import candidate/);
+
+    const otherPendingList = await requestJson(app, "GET", `/conversations/persona/${PERSONA_ID}/candidates?source=import&status=pending`, {
+      token: "other-token",
+    });
+    assert.equal(otherPendingList.status, 403);
+    assert.doesNotMatch(JSON.stringify(otherPendingList.body), /Other owner import candidate/);
 
     const blocked = await requestJson(app, "PATCH", `/conversations/candidates/${memoryCandidate.id}`, {
       token: "other-token",
@@ -584,12 +625,29 @@ test("owner can review import-backed continuity candidates without exposing them
     assert.equal(acceptedCanon.body.candidate.status, "accepted");
     assert.equal(acceptedCanon.body.target.source_type, "import");
 
+    const rejectedImport = await requestJson(app, "PATCH", `/conversations/candidates/${rejectedCandidate.id}`, {
+      token: "owner-token",
+      body: { action: "reject" },
+    });
+    assert.equal(rejectedImport.status, 200);
+    assert.equal(rejectedImport.body.candidate.status, "rejected");
+
     const sourceRow = db.tables.memory_items.find((row) => row.id === archivedSourceMemory.id);
     assert.ok(sourceRow);
     assert.equal(sourceRow.archive_source_id, importFile.id);
     assert.equal(
       db.tables.memory_item_lifecycle.find((row) => row.memory_item_id === archivedSourceMemory.id)?.status,
       "quarantined"
+    );
+
+    const reviewedList = await requestJson(app, "GET", `/conversations/persona/${PERSONA_ID}/candidates?source=import&status=reviewed`, {
+      token: "owner-token",
+    });
+    assert.equal(reviewedList.status, 200);
+    assert.equal(reviewedList.body.summary.reviewed, 3);
+    assert.deepEqual(
+      reviewedList.body.candidates.map((candidate: Row) => candidate.status).sort(),
+      ["accepted", "accepted", "rejected"]
     );
   } finally {
     setSupabaseAdminForTests(null);
