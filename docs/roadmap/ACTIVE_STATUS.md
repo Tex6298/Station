@@ -3734,6 +3734,17 @@ when a PR lands, or when validation truth changes.
   `Save draft` / `Send for review`. Existing published rows still expose
   Edit/View. No scoped private-tier PR11 rehearsal defect remains open from
   ARIADNE; Creator-positive transitions remain separate staging-account proof.
+- PR11 Publishing Approval Queue is closed for the code/private-tier safety
+  slice, 2026-06-17: DAEDALUS implemented durable approval state, ARGUS accepted
+  the RLS/Space-backed/entitlement repairs, and ARIADNE accepted the seeded
+  private-tier live replay. Creator-positive queue transitions remain a
+  separate staging-account proof, not a PR11 code blocker.
+- PR12 Private Archive Search is opened for DAEDALUS, 2026-06-17:
+  `docs/roadmap/PR12_PRIVATE_ARCHIVE_SEARCH.md` narrows the next launch-core
+  backend lane to owner-scoped `/studio/archive` search across private archive
+  sources. Workers remain deferred under the accepted PR6 no-trigger rule.
+  Vector reindexing, Cloudflare retrieval, Redis memory truth, broad UI reskin,
+  and publishing queue staging proof are out of scope for this slice.
 
 ## Near-term rule
 
