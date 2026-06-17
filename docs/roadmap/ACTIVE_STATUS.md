@@ -4269,6 +4269,14 @@ when a PR lands, or when validation truth changes.
   now requests `/assistant/context` with a storage-path-shaped source and
   secret-shaped error text and asserts the response excludes both raw strings
   while preserving the actionable failed-import state.
+- PR22 context leak repair is accepted by ARGUS for ARIADNE rehearsal,
+  2026-06-17: ARGUS re-reviewed the sanitized `/assistant/context`,
+  `/assistant/summary`, `/assistant/message`, and `/studio/assistant` surfaces.
+  Owner scoping remains enforced, the raw path/secret fixture strings are absent
+  from Assistant API output, action cards remain links rather than mutations,
+  and the operational-helper-not-persona guardrail is preserved. ARIADNE should
+  rehearse `/studio/assistant` at desktop and 375px mobile widths before MIMIR
+  closes PR22.
 
 ## Near-term rule
 
