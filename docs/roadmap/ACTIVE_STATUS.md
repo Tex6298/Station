@@ -4079,6 +4079,22 @@ when a PR lands, or when validation truth changes.
   bot/OAuth/webhook/gateway/API crawler, recurring pull, workers, public
   community bridge, Cloudflare, vector, Redis memory truth, publishing, billing,
   social posting, or UI reskin scope was added.
+- PR20 is blocked by ARGUS, 2026-06-17: local validation may be green, but the
+  new Discord parser still overclaims generic top-level arrays. A probe with
+  `[{ "content": "...", "type": "note" }]` returns `format: "discord"` and
+  creates `[discord/unknown]: ...`; a probe with `[{ "text": "...",
+  "attachments": [{ "filename": "receipt.pdf" }] }]` also parses as Discord.
+  These markers are common outside Discord and can create private archive memory
+  and continuity candidates from arbitrary exports. The parser also now runs
+  before `parseLegacyMessageArray`, so `[{ "role": "user", "content": "...",
+  "type": "message" }]` regresses from the explicit legacy parser into Discord.
+  Tighten bare-array recognition so top-level arrays require unmistakable
+  Discord markers, or require a source-level Discord wrapper/metadata for
+  message rows that only have generic `type`, attachment, embed, mention, or
+  reaction fields. Add regressions proving generic `content + type`,
+  `text + attachments`, and legacy `role + content + type` arrays fail or route
+  correctly before archive memory/candidates are created, while the documented
+  DiscordChatExporter-style and channel/thread object fixtures still parse.
 
 ## Near-term rule
 
