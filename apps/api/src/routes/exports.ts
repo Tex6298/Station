@@ -3,10 +3,15 @@ import { createHash } from "node:crypto";
 import { requireAuth } from "../middleware/require-auth";
 import { getSupabaseAdmin } from "../lib/supabase";
 import {
+  assertDeveloperSpaceUsageAvailable,
   getDeveloperSpaceUsage,
   recordDeveloperSpaceUsage,
   zeroDeveloperSpaceUsage,
 } from "../services/developer-space-usage.service";
+import {
+  assertNoInProgressExportPackage,
+  quotaErrorResponse,
+} from "../services/operational-quota.service";
 import {
   serializeDeveloperSpace,
   serializeDeveloperSpaceEvent,
@@ -821,6 +826,11 @@ function buildExportBundle(row: any) {
 async function createExportPackage(persona: any, ownerUserId: string) {
   const sb = getSupabaseAdmin();
   const requestedAt = new Date().toISOString();
+  await assertNoInProgressExportPackage({
+    ownerUserId,
+    packageKind: "persona_archive",
+    personaId: persona.id,
+  });
 
   const { data: initial, error } = await sb
     .from("export_packages")
@@ -873,6 +883,12 @@ async function createExportPackage(persona: any, ownerUserId: string) {
 async function createDeveloperSpaceExportPackage(space: any, ownerUserId: string) {
   const sb = getSupabaseAdmin();
   const requestedAt = new Date().toISOString();
+  await assertNoInProgressExportPackage({
+    ownerUserId,
+    packageKind: "developer_space_archive",
+    developerSpaceId: space.id,
+  });
+  await assertDeveloperSpaceUsageAvailable(space, { exports: 1 });
 
   const { data: initial, error } = await sb
     .from("export_packages")
@@ -968,6 +984,8 @@ exportsRouter.post("/developer-spaces/:spaceId", async (req, res) => {
       manifestMarkdown,
     });
   } catch (error) {
+    const quotaError = quotaErrorResponse(error);
+    if (quotaError) return res.status(quotaError.status).json(quotaError.body);
     return res.status(500).json({
       error: error instanceof Error ? error.message : "Could not create Developer Space export package.",
     });
@@ -1002,6 +1020,8 @@ exportsRouter.post("/persona/:personaId", async (req, res) => {
       manifestMarkdown,
     });
   } catch (error) {
+    const quotaError = quotaErrorResponse(error);
+    if (quotaError) return res.status(quotaError.status).json(quotaError.body);
     return res.status(500).json({ error: error instanceof Error ? error.message : "Could not create export package." });
   }
 });

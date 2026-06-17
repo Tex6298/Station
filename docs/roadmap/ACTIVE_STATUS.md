@@ -3970,6 +3970,16 @@ when a PR lands, or when validation truth changes.
   Avoid billing redesign, new pricing, Redis worker deployment, Reddit,
   Cloudflare, vector reindexing, Redis memory truth, public publishing, full UI,
   and reskin work.
+- PR18 Operational Quota Guards is implemented by DAEDALUS and ready for ARGUS,
+  2026-06-17: added a stable `quota_exceeded` error payload; capped active
+  import jobs at 5 per owner/persona after duplicate file idempotency checks;
+  blocked concurrent requested/processing export packages at 1 per owner/target;
+  enforced Developer Space usage limits before ingestion writes while preserving
+  institutional unlimited semantics; and added a conservative 24-chunk
+  per-request guard for embedding-producing archive writes when embeddings are
+  configured. No migration/type change, billing redesign, Redis worker, Reddit,
+  Cloudflare/vector/Redis memory, export-worker redesign, publishing, or UI work
+  was added.
 
 ## Near-term rule
 

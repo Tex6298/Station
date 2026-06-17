@@ -878,6 +878,77 @@ test("persona file duplicate lookup failures fail closed without extra storage o
   }
 });
 
+test("persona file import quota blocks new work while exact duplicates stay idempotent", async () => {
+  const db = new InMemorySupabase();
+  setSupabaseAdminForTests(db.client as any);
+  const app = await createPersonaFilesApp();
+  storageRow(db).bytes_limit = 1000;
+
+  try {
+    const existingFile = db.insertRow("persona_files", {
+      persona_id: PERSONA_ID,
+      owner_user_id: OWNER_ID,
+      file_name: "existing.txt",
+      file_type: "text/plain",
+      file_size: 10,
+      storage_path: "owner/existing.txt",
+    });
+    db.insertRow("import_jobs", {
+      persona_id: PERSONA_ID,
+      owner_user_id: OWNER_ID,
+      kind: "file",
+      status: "completed",
+      source_name: "existing.txt",
+      file_id: existingFile.id,
+    });
+    for (let index = 0; index < 5; index += 1) {
+      db.insertRow("import_jobs", {
+        persona_id: PERSONA_ID,
+        owner_user_id: OWNER_ID,
+        kind: "file",
+        status: index % 2 === 0 ? "queued" : "processing",
+        source_name: `queued-${index}.txt`,
+        file_id: `queued-file-${index}`,
+      });
+    }
+
+    const duplicate = await requestJson(app, "POST", `/persona-files/persona/${PERSONA_ID}/register`, {
+      token: "owner-token",
+      body: {
+        fileName: "existing.txt",
+        fileType: "text/plain",
+        fileSize: 10,
+        storagePath: "owner/existing.txt",
+        processImmediately: false,
+      },
+    });
+    assert.equal(duplicate.status, 200);
+    assert.equal(duplicate.body.idempotent, true);
+
+    const blocked = await requestJson(app, "POST", `/persona-files/persona/${PERSONA_ID}/register`, {
+      token: "owner-token",
+      body: {
+        fileName: "new-work.txt",
+        fileType: "text/plain",
+        fileSize: 10,
+        storagePath: "owner/new-work.txt",
+        processImmediately: false,
+      },
+    });
+
+    assert.equal(blocked.status, 429);
+    assert.equal(blocked.body.code, "quota_exceeded");
+    assert.equal(blocked.body.resource, "import_jobs");
+    assert.equal(blocked.body.limit, 5);
+    assert.equal(blocked.body.used, 5);
+    assert.equal(storageRow(db).bytes_used, 0);
+    assert.equal(db.tables.persona_files.some((row) => row.storage_path === "owner/new-work.txt"), false);
+    assert.equal(db.tables.import_jobs.some((row) => row.source_name === "new-work.txt"), false);
+  } finally {
+    resetStorageFake();
+  }
+});
+
 test("file import job runner claims durable file pointers, gates owners, and fails safely", async () => {
   const { runFileImportJobById } = await import("../services/file-import-jobs.service.js");
   const db = new InMemorySupabase();
@@ -1510,7 +1581,7 @@ test("archive memory writes reserve bytes and release them on insert rollback", 
 });
 
 test("archive memory writes active embedding metadata and rejects mixed dimensions", async () => {
-  const { addMemoryItem } = await import("../services/archive.service.js");
+  const { addMemoryItem, ingestTextIntoArchive } = await import("../services/archive.service.js");
   const restoreFetch = mockEmbeddingFetch(new Array(1536).fill(0.001));
   process.env.OPENAI_API_KEY = "test-openai-key";
   const db = new InMemorySupabase();
@@ -1560,6 +1631,31 @@ test("archive memory writes active embedding metadata and rejects mixed dimensio
   } finally {
     resetStorageFake();
     restoreBadFetch();
+    delete process.env.OPENAI_API_KEY;
+  }
+
+  const restoreQuotaFetch = mockEmbeddingFetch(new Array(1536).fill(0.001));
+  process.env.OPENAI_API_KEY = "test-openai-key";
+  const quotaDb = new InMemorySupabase();
+  setSupabaseAdminForTests(quotaDb.client as any);
+  storageRow(quotaDb).bytes_limit = 1_000_000;
+
+  try {
+    await assert.rejects(
+      () => ingestTextIntoArchive({
+        personaId: PERSONA_ID,
+        ownerUserId: OWNER_ID,
+        text: "large archive import ".repeat(2500),
+        sourceName: "large-import.txt",
+        sourceType: "import",
+      }),
+      /Archive embedding write is too large/
+    );
+    assert.equal(storageRow(quotaDb).bytes_used, 0);
+    assert.equal(quotaDb.tables.memory_items.length, 0);
+  } finally {
+    resetStorageFake();
+    restoreQuotaFetch();
     delete process.env.OPENAI_API_KEY;
   }
 });

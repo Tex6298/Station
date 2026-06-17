@@ -4,6 +4,10 @@ import { requireAuth } from "../middleware/require-auth";
 import { getSupabaseAdmin } from "../lib/supabase";
 import { inlineExecution, runFileImportJobById } from "../services/file-import-jobs.service";
 import { releaseStorageBytes, reserveStorageBytes, storageErrorResponse } from "../services/storage.service";
+import {
+  assertActiveImportJobQuota,
+  quotaErrorResponse,
+} from "../services/operational-quota.service";
 
 /**
  * File upload flow:
@@ -135,6 +139,14 @@ personaFilesRouter.post("/persona/:personaId/register", async (req, res) => {
       repaired: jobState.repaired,
       importJobAmbiguous: jobState.ambiguous,
     });
+  }
+
+  try {
+    await assertActiveImportJobQuota({ ownerUserId: userId, personaId: persona.id });
+  } catch (error) {
+    const quotaError = quotaErrorResponse(error);
+    if (quotaError) return res.status(quotaError.status).json(quotaError.body);
+    throw error;
   }
 
   try {

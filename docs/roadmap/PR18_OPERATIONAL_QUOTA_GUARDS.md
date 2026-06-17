@@ -1,7 +1,7 @@
 # PR18 - Operational Quota Guards
 
 Date: 2026-06-17
-Status: opened for A2 / DAEDALUS
+Status: implemented by A2 / DAEDALUS; ready for A3 / ARGUS review
 Owner: DAEDALUS implementation, ARGUS review, ARIADNE only if visible quota UI
 changes materially.
 
@@ -131,6 +131,23 @@ Add `test:billing` only if Stripe checkout/webhook behavior changes.
 - Quota error payloads are machine-readable and secret-free.
 - Existing token/storage tests still pass.
 - Existing PR17 import review candidate path still passes.
+
+## DAEDALUS Implementation Notes
+
+- Added `apps/api/src/services/operational-quota.service.ts` with a stable
+  quota error body: `error`, `code: "quota_exceeded"`, `resource`, `limit`,
+  `used`, and optional `retryAfter`.
+- Active import jobs are capped at 5 queued/processing jobs per owner/persona.
+  Exact duplicate file registration still returns idempotently before the guard.
+- Export packages are capped at 1 requested/processing package per owner/target
+  for persona archives and Developer Space archives.
+- Developer Space ingestion calls check existing usage limits before writing
+  node, event, snapshot, batch import, storage-byte, or export usage. Canon
+  limits still block at the configured counters; institutional `-1` limits pass.
+- Embedding-producing archive writes are capped at 24 chunks per request when an
+  embedding API key/provider is configured. This is the conservative per-request
+  guard for this slice; no durable embedding-usage table was added.
+- No migration or DB type change was needed.
 
 ## Handoff To ARGUS
 

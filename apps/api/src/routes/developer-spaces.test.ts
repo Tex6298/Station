@@ -930,6 +930,35 @@ test("Developer Spaces smoke covers creation, keying, ingestion, and public/owne
     assert.equal(usage.body.usage.warningLevel, "ok");
     assert.equal(usage.body.usage.counters.storageBytes > 0, true);
 
+    const eventCountBeforeQuota = db.tables.developer_space_events.length;
+    db.tables.developer_space_usage[0].ingested_events_count = 100000;
+    const quotaBlocked = await requestJson(app, "POST", "/developer-spaces/ingest/events", {
+      developerKey: apiKeyResponse.body.apiKey,
+      body: {
+        eventType: "quota.blocked",
+        eventData: { privateToken: "must-not-leak" },
+      },
+    });
+    assert.equal(quotaBlocked.status, 429);
+    assert.equal(quotaBlocked.body.code, "quota_exceeded");
+    assert.equal(quotaBlocked.body.resource, "developer_space_events");
+    assert.equal(quotaBlocked.body.limit, 100000);
+    assert.equal(quotaBlocked.body.used, 100000);
+    assert.doesNotMatch(JSON.stringify(quotaBlocked.body), /must-not-leak/);
+    assert.equal(db.tables.developer_space_events.length, eventCountBeforeQuota);
+
+    db.tables.profiles.find((row) => row.id === "owner-user")!.tier = "institutional";
+    const institutionalAllowed = await requestJson(app, "POST", "/developer-spaces/ingest/events", {
+      developerKey: apiKeyResponse.body.apiKey,
+      body: {
+        eventType: "quota.allowed.institutional",
+      },
+    });
+    assert.equal(institutionalAllowed.status, 202);
+    assert.equal(db.tables.developer_space_events.length, eventCountBeforeQuota + 1);
+    db.tables.profiles.find((row) => row.id === "owner-user")!.tier = "canon";
+    db.tables.developer_space_usage[0].ingested_events_count = 3;
+
     const rotatedKeyResponse = await requestJson(app, "POST", `/developer-spaces/${spaceId}/api-key`, {
       token: "owner-token",
     });

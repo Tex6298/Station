@@ -6792,6 +6792,26 @@ DAEDALUS implementation validation on 2026-06-17:
 | `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck tasks passed. |
 | `git diff --check` | Pass | No whitespace errors; CRLF normalization warnings only for touched text files if Git reports them. |
 
+## PR18 Operational Quota Guards
+
+DAEDALUS implementation validation on 2026-06-17:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:storage` | Pass | 14 tests passed, including active import job saturation, exact duplicate idempotency under saturation, storage rollback, and embedding write-size guard. |
+| `npm exec --yes pnpm@10.32.1 -- run test:exports` | Pass | 4 tests passed, including duplicate in-progress persona and Developer Space export target guards. |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 7 tests passed, including machine-readable Developer Space event quota blocking and institutional unlimited pass-through. |
+| `npm exec --yes pnpm@10.32.1 -- run test:token-credits` | Pass | 3 tests passed; existing token semantics remain intact. |
+| `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass | 16 tests passed; PR17 import review and quarantine behavior remains intact. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck tasks passed. |
+| `git diff --check` | Pass | No whitespace errors; CRLF normalization warnings only for touched text files if Git reports them. |
+
+Scope notes:
+
+- No migration or DB type change was added.
+- Embedding quota is intentionally per-request/per-job only; durable embedding
+  spend accounting remains a future design if needed.
+
 Scope notes:
 
 - Parser logic now lives under `apps/api/src/services/imports/parsers/` and is

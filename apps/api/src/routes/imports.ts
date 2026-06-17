@@ -15,6 +15,10 @@ import {
   serializeImportJob,
 } from "../services/background-jobs.service";
 import { storageErrorResponse } from "../services/storage.service";
+import {
+  assertActiveImportJobQuota,
+  quotaErrorResponse,
+} from "../services/operational-quota.service";
 
 const chatImportSchema = z.object({
   personaId: z.string().uuid(),
@@ -81,6 +85,14 @@ importsRouter.post("/chat", async (req, res) => {
         });
       }
     }
+  }
+
+  try {
+    await assertActiveImportJobQuota({ ownerUserId: userId, personaId: persona.id });
+  } catch (error) {
+    const quotaError = quotaErrorResponse(error);
+    if (quotaError) return res.status(quotaError.status).json(quotaError.body);
+    throw error;
   }
 
   // Create import job

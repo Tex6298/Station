@@ -4,6 +4,7 @@ import type {
   DeveloperSpaceUsageCounters,
 } from "@station/types";
 import { getSupabaseAdmin } from "../lib/supabase";
+import { assertQuotaAvailable } from "./operational-quota.service";
 
 type UsageDelta = Partial<DeveloperSpaceUsageCounters>;
 
@@ -151,11 +152,67 @@ export async function getDeveloperSpaceUsage(space: { id: string; owner_user_id:
   return serializeUsage(row, tier);
 }
 
+export async function assertDeveloperSpaceUsageAvailable(
+  space: { id: string; owner_user_id: string },
+  delta: UsageDelta
+) {
+  const [current, tier] = await Promise.all([
+    ensureUsageRow(space),
+    loadOwnerTier(space.owner_user_id),
+  ]);
+  const counters = countersFromRow(current);
+  const limits = quotaForTier(tier);
+
+  assertQuotaAvailable({
+    resource: "developer_space_nodes",
+    limit: limits.nodes,
+    used: counters.nodes,
+    delta: delta.nodes ?? 0,
+    message: "Developer Space node quota exceeded.",
+  });
+  assertQuotaAvailable({
+    resource: "developer_space_events",
+    limit: limits.events,
+    used: counters.events,
+    delta: delta.events ?? 0,
+    message: "Developer Space event quota exceeded.",
+  });
+  assertQuotaAvailable({
+    resource: "developer_space_snapshots",
+    limit: limits.snapshots,
+    used: counters.snapshots,
+    delta: delta.snapshots ?? 0,
+    message: "Developer Space snapshot quota exceeded.",
+  });
+  assertQuotaAvailable({
+    resource: "developer_space_storage_bytes",
+    limit: limits.storageBytes,
+    used: counters.storageBytes,
+    delta: delta.storageBytes ?? 0,
+    message: "Developer Space storage quota exceeded.",
+  });
+  assertQuotaAvailable({
+    resource: "developer_space_public_reads",
+    limit: limits.publicReads,
+    used: counters.publicReads,
+    delta: delta.publicReads ?? 0,
+    message: "Developer Space public-read quota exceeded.",
+  });
+  assertQuotaAvailable({
+    resource: "developer_space_exports",
+    limit: limits.exports,
+    used: counters.exports,
+    delta: delta.exports ?? 0,
+    message: "Developer Space export quota exceeded.",
+  });
+}
+
 export async function recordDeveloperSpaceUsage(
   space: { id: string; owner_user_id: string },
   delta: UsageDelta
 ) {
   const sb = getSupabaseAdmin();
+  await assertDeveloperSpaceUsageAvailable(space, delta);
   const current = await ensureUsageRow(space);
   const next = {
     ingested_nodes_count: Number(current.ingested_nodes_count ?? 0) + (delta.nodes ?? 0),

@@ -37,10 +37,12 @@ import {
   startAiTrace,
 } from "../services/ai-observability.service";
 import {
+  assertDeveloperSpaceUsageAvailable,
   estimateDeveloperSpaceStorageBytes,
   getDeveloperSpaceUsage,
   recordDeveloperSpaceUsage,
 } from "../services/developer-space-usage.service";
+import { quotaErrorResponse } from "../services/operational-quota.service";
 import { broadcastDeveloperSpaceIngestion } from "../services/developer-space-live.service";
 
 const visibilitySchema = z.enum(["private", "unlisted", "community", "public"]);
@@ -235,6 +237,24 @@ async function recordUsageSilently(
   delta: Parameters<typeof recordDeveloperSpaceUsage>[1]
 ) {
   await recordDeveloperSpaceUsage(space, delta).catch(() => null);
+}
+
+async function enforceUsageQuota(
+  res: Response,
+  space: { id: string; owner_user_id: string },
+  delta: Parameters<typeof recordDeveloperSpaceUsage>[1]
+) {
+  try {
+    await assertDeveloperSpaceUsageAvailable(space, delta);
+    return true;
+  } catch (error) {
+    const quotaError = quotaErrorResponse(error);
+    if (quotaError) {
+      res.status(quotaError.status).json(quotaError.body);
+      return false;
+    }
+    throw error;
+  }
 }
 
 function eventVisibilitiesForAccess(access: "owner" | "member" | "public"): DeveloperSpaceEventVisibility[] {
@@ -595,6 +615,12 @@ developerSpacesRouter.post("/ingest/nodes/:nodeId/state", async (req, res) => {
   const sb = getSupabaseAdmin();
   const now = new Date().toISOString();
   const externalId = req.params.nodeId;
+  const usageDelta = {
+    nodes: 1,
+    events: 1,
+    storageBytes: estimateDeveloperSpaceStorageBytes(req.body),
+  };
+  if (!(await enforceUsageQuota(res, space, usageDelta))) return;
 
   const { data: node, error: nodeError } = await sb
     .from("developer_space_nodes")
@@ -633,11 +659,7 @@ developerSpacesRouter.post("/ingest/nodes/:nodeId/state", async (req, res) => {
     occurred_at: now,
   });
 
-  await recordUsageSilently(space, {
-    nodes: 1,
-    events: 1,
-    storageBytes: estimateDeveloperSpaceStorageBytes(req.body),
-  });
+  await recordUsageSilently(space, usageDelta);
   broadcastDeveloperSpaceIngestion({
     slug: space.slug,
     source: "node",
@@ -653,6 +675,11 @@ developerSpacesRouter.post("/ingest/events", async (req, res) => {
 
   const parsed = eventSchema.safeParse(req.body);
   if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
+  const usageDelta = {
+    events: 1,
+    storageBytes: estimateDeveloperSpaceStorageBytes(req.body),
+  };
+  if (!(await enforceUsageQuota(res, space, usageDelta))) return;
 
   const sb = getSupabaseAdmin();
   const node = await findNodeByExternalId(space.id, parsed.data.nodeId);
@@ -684,10 +711,7 @@ developerSpacesRouter.post("/ingest/events", async (req, res) => {
       .eq("id", node.id);
   }
 
-  await recordUsageSilently(space, {
-    events: 1,
-    storageBytes: estimateDeveloperSpaceStorageBytes(req.body),
-  });
+  await recordUsageSilently(space, usageDelta);
   broadcastDeveloperSpaceIngestion({
     slug: space.slug,
     source: "event",
@@ -703,6 +727,11 @@ developerSpacesRouter.post("/ingest/snapshots", async (req, res) => {
 
   const parsed = snapshotSchema.safeParse(req.body);
   if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
+  const usageDelta = {
+    snapshots: 1,
+    storageBytes: estimateDeveloperSpaceStorageBytes(req.body),
+  };
+  if (!(await enforceUsageQuota(res, space, usageDelta))) return;
 
   const sb = getSupabaseAdmin();
   const { data, error } = await sb
@@ -719,10 +748,7 @@ developerSpacesRouter.post("/ingest/snapshots", async (req, res) => {
     .single();
 
   if (error || !data) return res.status(500).json({ error: error?.message ?? "Could not ingest snapshot." });
-  await recordUsageSilently(space, {
-    snapshots: 1,
-    storageBytes: estimateDeveloperSpaceStorageBytes(req.body),
-  });
+  await recordUsageSilently(space, usageDelta);
   broadcastDeveloperSpaceIngestion({
     slug: space.slug,
     source: "snapshot",
@@ -737,6 +763,13 @@ developerSpacesRouter.post("/ingest/import", async (req, res) => {
 
   const parsed = batchImportSchema.safeParse(req.body);
   if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
+  const usageDelta = {
+    nodes: parsed.data.nodes.length,
+    events: parsed.data.events.length,
+    snapshots: parsed.data.snapshots.length,
+    storageBytes: estimateDeveloperSpaceStorageBytes(req.body),
+  };
+  if (!(await enforceUsageQuota(res, space, usageDelta))) return;
 
   const sb = getSupabaseAdmin();
   const now = new Date().toISOString();
@@ -799,12 +832,7 @@ developerSpacesRouter.post("/ingest/import", async (req, res) => {
     if (error) return res.status(500).json({ error: error.message });
   }
 
-  await recordUsageSilently(space, {
-    nodes: nodes.length,
-    events: eventsPayload.length,
-    snapshots: snapshotsPayload.length,
-    storageBytes: estimateDeveloperSpaceStorageBytes(req.body),
-  });
+  await recordUsageSilently(space, usageDelta);
   broadcastDeveloperSpaceIngestion({
     slug: space.slug,
     source: "import",

@@ -14,6 +14,7 @@ import { invalidateOperationalCacheForChange } from "./operational-cache.service
 import { sanitizeJobErrorMessage } from "./background-jobs.service";
 import { resolveEmbeddingApiKey } from "./embedding-key.service";
 import { parseImportFile, type ParsedImport } from "./imports/parsers";
+import { assertEmbeddingArchiveWriteQuota } from "./operational-quota.service";
 
 type ArchiveSourceRef = {
   type: ArchiveSourceType;
@@ -36,6 +37,7 @@ function embeddingColumnsFor(vector: number[] | null) {
 async function generateArchiveEmbedding(text: string) {
   const apiKey = embeddingApiKey();
   if (!apiKey) return null;
+  assertEmbeddingArchiveWriteQuota({ chunkCount: 1, embeddingEnabled: true });
   try {
     return assertActiveEmbeddingVector(await generateEmbedding(text, apiKey));
   } catch (error) {
@@ -47,6 +49,7 @@ async function generateArchiveEmbedding(text: string) {
 async function generateArchiveEmbeddings(texts: string[]) {
   const apiKey = embeddingApiKey();
   if (!apiKey) return texts.map(() => null);
+  assertEmbeddingArchiveWriteQuota({ chunkCount: texts.length, embeddingEnabled: true });
   try {
     return (await generateEmbeddings(texts, apiKey)).map(assertActiveEmbeddingVector);
   } catch (error) {

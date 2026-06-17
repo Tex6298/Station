@@ -1089,6 +1089,49 @@ test("owner can export persona archive while preserving provenance and privacy b
   }
 });
 
+test("export package concurrency guard blocks duplicate in-progress targets", async () => {
+  const db = new InMemorySupabase();
+  setSupabaseAdminForTests(db.client as any);
+  const app = await createExportsApp();
+
+  try {
+    db.insertRow("export_packages", {
+      owner_user_id: OWNER_ID,
+      persona_id: PERSONA_ID,
+      package_kind: "persona_archive",
+      status: "processing",
+    });
+
+    const blockedPersona = await requestJson(app, "POST", `/exports/persona/${PERSONA_ID}`, {
+      token: "owner-token",
+    });
+    assert.equal(blockedPersona.status, 429);
+    assert.equal(blockedPersona.body.code, "quota_exceeded");
+    assert.equal(blockedPersona.body.resource, "export_packages");
+    assert.equal(blockedPersona.body.limit, 1);
+    assert.equal(blockedPersona.body.used, 1);
+    assert.equal(db.tables.export_packages.filter((row) => row.persona_id === PERSONA_ID).length, 1);
+
+    db.tables.export_packages = [];
+    db.insertRow("export_packages", {
+      owner_user_id: OWNER_ID,
+      developer_space_id: DEVELOPER_SPACE_ID,
+      package_kind: "developer_space_archive",
+      status: "requested",
+    });
+
+    const blockedDeveloperSpace = await requestJson(app, "POST", `/exports/developer-spaces/${DEVELOPER_SPACE_ID}`, {
+      token: "owner-token",
+    });
+    assert.equal(blockedDeveloperSpace.status, 429);
+    assert.equal(blockedDeveloperSpace.body.code, "quota_exceeded");
+    assert.equal(blockedDeveloperSpace.body.resource, "export_packages");
+    assert.equal(db.tables.export_packages.filter((row) => row.developer_space_id === DEVELOPER_SPACE_ID).length, 1);
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
+
 test("persona export source failures leave an owner-visible failed package", async () => {
   const db = new InMemorySupabase();
   db.failSelectTables.add("memory_items");
