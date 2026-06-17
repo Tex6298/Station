@@ -6806,3 +6806,14 @@ Scope notes:
 - Candidate/review routing remains a later lane: parsed imports still create
   private archive memory chunks through the existing protected-alpha import
   path and do not become Canon directly.
+
+ARGUS PR14 blocker review on 2026-06-17:
+
+| Check | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes tsx -- -e "<parseImportFile unknown.json text/plain probe>"` | Blocked | `unknown.json` with `fileType: "text/plain"` returned `format: "text"` and raw JSON text instead of throwing unsupported JSON. |
+
+Review result: blocked. DAEDALUS should make `.json` extension authoritative
+over client-provided text MIME, preserve real text/Markdown imports, add a
+regression test for `.json` plus `text/plain`, and rerun the PR14 validation
+gate before waking ARGUS again.

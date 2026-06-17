@@ -3828,6 +3828,15 @@ when a PR lands, or when validation truth changes.
   import job, storage rollback, and text/Markdown behavior are preserved.
   Focused validation passed `test:conversation-archive`, `test:storage`,
   `test:persona-context`, typecheck, and whitespace checks.
+- PR14 External Conversation Import Parsers is blocked for DAEDALUS follow-up,
+  2026-06-17: ARGUS found that `parseImportFile` checks text MIME before JSON
+  filename/extension. A file named `unknown.json` with client-provided
+  `fileType: "text/plain"` is treated as raw text and would be archived as
+  memory instead of failing as unsupported JSON. This violates the PR14 rule
+  that unknown JSON must fail safely before archive memory creation. DAEDALUS
+  should make `.json` extension authoritative over text MIME, add regression
+  coverage for `.json` plus `text/plain`, preserve real `.txt`/`.md` imports,
+  and rerun the PR14 gate before waking ARGUS again.
 
 ## Near-term rule
 

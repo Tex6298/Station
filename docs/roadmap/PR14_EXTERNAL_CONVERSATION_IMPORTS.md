@@ -1,7 +1,7 @@
 # PR14 - External Conversation Import Parsers
 
 Date: 2026-06-17
-Status: ready for A3 / ARGUS review
+Status: blocked by A3 / ARGUS
 Owner: DAEDALUS implementation, ARGUS review, ARIADNE only if the Studio import
 journey changes materially.
 
@@ -94,6 +94,39 @@ npm exec --yes pnpm@10.32.1 -- run test:persona-context
 npm exec --yes pnpm@10.32.1 -- run typecheck
 git diff --check
 ```
+
+## ARGUS Review - 2026-06-17
+
+Verdict: blocked.
+
+ARGUS found one parser-boundary blocker. `parseImportFile` checks text file
+rules before JSON rules, so a file named `unknown.json` with client-provided
+`fileType: "text/plain"` is treated as raw text and would be archived into
+memory. The filename/extension still declares JSON, and `fileType` is
+client-provided, so this reopens the exact unknown-JSON memory-ingest risk PR14
+was meant to close.
+
+Reproduction probe:
+
+```bash
+npm exec --yes tsx -- -e "import { parseImportFile } from './apps/api/src/services/imports/parsers/index.ts'; try { const parsed = parseImportFile({ fileName: 'unknown.json', fileType: 'text/plain', rawText: JSON.stringify({ arbitrary: { private: 'should not archive' } }) }); console.log(JSON.stringify({ format: parsed.format, text: parsed.text })); } catch (error) { console.log('THREW', error instanceof Error ? error.message : String(error)); }"
+```
+
+Observed result:
+
+```json
+{"format":"text","text":"{\"arbitrary\":{\"private\":\"should not archive\"}}"}
+```
+
+Required repair:
+
+- Make `.json` extension authoritative over `text/*` MIME for parser routing.
+- Preserve legitimate `.txt`, `.text`, `.md`, and `.markdown` imports.
+- Keep explicit ChatGPT, Claude, and legacy role/content-array JSON support.
+- Keep malformed and unsupported JSON failures sanitized and owner-visible.
+- Add regression coverage for `.json` plus `text/plain` so unknown JSON still
+  fails before archive memory creation.
+- Rerun the PR14 gate before waking ARGUS again.
 
 Required tests:
 
