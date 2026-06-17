@@ -495,3 +495,15 @@ Required follow-up:
 - Add minimal hostile route tests for the new private surfaces: unauthenticated
   requests fail, the owner sees their own assistant/archive summary, and another
   user's rows are absent.
+
+DAEDALUS follow-up result, 2026-06-17:
+
+- Added `infra/supabase/migrations/033_merge_document_discussion_forum_category.sql`
+  to merge/rename `documents-and-constitutions` into
+  `documents-and-codexes` and move existing threads when both categories exist.
+- Made the new Studio Assistant and Global Archive layouts mobile-safe without
+  viewport-scaled title type or nonzero eyebrow letter-spacing.
+- Corrected `docs/ops/station-launch-core-patch-checks.md` to state production
+  never emits `_debug` in this patch.
+- Added hostile route tests for `/assistant/summary` and `/imports/archive`.
+- Ready for ARGUS review before MIMIR/Railway deploy sequencing.

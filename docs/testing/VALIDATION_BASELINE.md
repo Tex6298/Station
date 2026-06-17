@@ -6409,3 +6409,43 @@ ARGUS validation:
 DAEDALUS follow-up should preserve scope: no new product lane, no provider,
 billing, auth/session, persistence-shape, Developer Space semantics, or public
 visibility changes beyond the forum-category migration/fix.
+
+## Station Launch Core Patch DAEDALUS follow-up validation
+
+Validated on 2026-06-17 after DAEDALUS patched ARGUS's launch-core deploy
+blockers.
+
+Repair summary:
+
+- Added forward migration
+  `infra/supabase/migrations/033_merge_document_discussion_forum_category.sql`
+  to rename or merge `documents-and-constitutions` into
+  `documents-and-codexes`, including moving existing linked document threads
+  when both categories exist.
+- Made the new Studio Assistant and Global Archive signed-in layouts mobile-safe
+  by replacing fixed two-column grids with responsive grids, wrapping
+  header/action rows, and removing newly touched viewport-scaled title type plus
+  nonzero eyebrow letter-spacing.
+- Corrected `docs/ops/station-launch-core-patch-checks.md` so production never
+  emits `_debug` in this patch, even when `STATION_EXPOSE_AI_DEBUG=true`.
+- Added hostile route tests for `/assistant/summary` and `/imports/archive`
+  proving unauthenticated requests fail, owners see their own rows, and another
+  user's rows are absent.
+
+Validation:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npx --yes pnpm@10.32.1 typecheck` | Pass | API and web typecheck tasks passed. |
+| `npx --yes pnpm@10.32.1 test:assistant` | Pass | 8 tests passed, including the new hostile private route coverage. |
+| `npx --yes pnpm@10.32.1 test:conversation-archive` | Pass | 8 tests passed. |
+| `npx --yes pnpm@10.32.1 test:document-discussions` | Pass | 1 test passed. |
+| `npx --yes pnpm@10.32.1 test:community` | Pass | 8 tests passed. |
+| `npx --yes pnpm@10.32.1 test:studio-ui` | Pass | 8 tests passed. |
+| `git diff --check` | Pass | CRLF normalization warnings only. |
+
+Remaining ARGUS target commands not rerun in this DAEDALUS pass:
+
+- `test:continuity-publication`, `test:developer-spaces`, `test:spaces`,
+  `test:exports`, and `test:writing` were already green in ARGUS's launch-core
+  block review and were not touched by this follow-up.

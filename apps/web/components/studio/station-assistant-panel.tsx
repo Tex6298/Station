@@ -127,7 +127,7 @@ export function StationAssistantPanel() {
 
         {error ? <div style={errorBox}>{error}</div> : null}
 
-        <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr) 340px", gap: 18, alignItems: "start" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 320px), 1fr))", gap: 18, alignItems: "start" }}>
           <section style={panel}>
             <h2 style={sectionTitle}>Ask what to do</h2>
             <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 12 }}>
@@ -143,7 +143,7 @@ export function StationAssistantPanel() {
               placeholder="Ask about archive, publishing, continuity, export, quota, forums, or Spaces..."
               style={textarea}
             />
-            <div style={{ display: "flex", justifyContent: "space-between", gap: 12, alignItems: "center", marginTop: 12 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", gap: 12, alignItems: "center", flexWrap: "wrap", marginTop: 12 }}>
               <span style={mutedSmall}>Human review remains required before public publishing.</span>
               <button type="button" onClick={() => askAssistant()} disabled={sending || !message.trim()} style={primaryButton}>
                 {sending ? "Checking..." : "Ask Assistant"}
@@ -224,7 +224,7 @@ function CountsGrid({ summary }: { summary: AssistantSummary }) {
 const page: CSSProperties = {
   minHeight: "calc(100vh - 52px)",
   background: "#0b0e14",
-  padding: "24px clamp(16px, 4vw, 32px) 48px",
+  padding: "24px 16px 48px",
 };
 
 const panel: CSSProperties = {
@@ -245,14 +245,14 @@ const eyebrow: CSSProperties = {
   color: "#93c5fd",
   fontSize: 11,
   textTransform: "uppercase",
-  letterSpacing: "0.12em",
+  letterSpacing: 0,
   fontWeight: 800,
 };
 
 const title: CSSProperties = {
   margin: 0,
   color: "#f8fafc",
-  fontSize: "clamp(30px, 5vw, 46px)",
+  fontSize: 34,
   lineHeight: 1.05,
 };
 

@@ -3433,6 +3433,20 @@ when a PR lands, or when validation truth changes.
   viewport-scaled title/nonzero eyebrow letter-spacing; correct the launch-core
   debug runbook so production never emits `_debug`; and add minimal hostile
   route tests for the new private `/assistant` and `/imports/archive` surfaces.
+- Station launch-core DAEDALUS follow-up is ready for ARGUS review,
+  2026-06-17: added forward migration
+  `033_merge_document_discussion_forum_category.sql` to rename or merge
+  `documents-and-constitutions` into `documents-and-codexes` and move existing
+  linked document threads onto the launch category; made the new Studio
+  Assistant and Global Archive layouts phone-safe by replacing the fixed
+  two-column grids with responsive grids, wrapping the header/action rows, and
+  removing newly touched viewport-scaled title type and nonzero eyebrow
+  letter-spacing; corrected the launch-core runbook so production never emits
+  `_debug`; and added hostile private-surface route tests proving
+  unauthenticated `/assistant/summary` and `/imports/archive` fail, owners see
+  their own assistant/archive rows, and another user's rows are absent. Scope
+  stayed out of provider, billing, auth/session, persistence-shape, Developer
+  Space semantics, and broader product lanes.
 
 ## Near-term rule
 

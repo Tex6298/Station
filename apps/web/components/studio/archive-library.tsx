@@ -80,13 +80,13 @@ export function ArchiveLibrary() {
 
   return (
     <main style={{ minHeight: "calc(100vh - 52px)", background: "#0b0e14" }}>
-      <div style={{ maxWidth: 1180, margin: "0 auto", padding: "24px clamp(16px, 4vw, 32px) 48px" }}>
-        <header style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 16, marginBottom: 20 }}>
+      <div style={{ maxWidth: 1180, margin: "0 auto", padding: "24px 16px 48px" }}>
+        <header style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 16, flexWrap: "wrap", marginBottom: 20 }}>
           <div>
-            <div style={{ color: "#93c5fd", fontSize: 11, textTransform: "uppercase", letterSpacing: "0.12em", fontWeight: 800 }}>
+            <div style={{ color: "#93c5fd", fontSize: 11, textTransform: "uppercase", letterSpacing: 0, fontWeight: 800 }}>
               Workspace Archive
             </div>
-            <h1 style={{ margin: "8px 0 6px", color: "#f8fafc", fontSize: "clamp(30px, 5vw, 46px)", lineHeight: 1.05 }}>
+            <h1 style={{ margin: "8px 0 6px", color: "#f8fafc", fontSize: 34, lineHeight: 1.05 }}>
               Global Archive
             </h1>
             <p style={{ margin: 0, color: "#a9b0bd", fontSize: 15, lineHeight: 1.6, maxWidth: 720 }}>
@@ -107,7 +107,7 @@ export function ArchiveLibrary() {
         {error ? <section style={{ ...panel, borderColor: "#7f1d1d", color: "#fecaca" }}>{error}</section> : null}
 
         {signedIn && !loading && !error ? (
-          <div style={{ display: "grid", gridTemplateColumns: "260px minmax(0, 1fr)", gap: 18, alignItems: "start" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 260px), 1fr))", gap: 18, alignItems: "start" }}>
             <aside style={panel}>
               <h2 style={sectionTitle}>Filters</h2>
               <div style={{ display: "grid", gap: 6 }}>
@@ -134,7 +134,7 @@ export function ArchiveLibrary() {
 
             <section style={{ display: "grid", gap: 14, minWidth: 0 }}>
               <div style={panel}>
-                <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr) 160px", gap: 10 }}>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 160px), 1fr))", gap: 10 }}>
                   <input
                     value={query}
                     onChange={(event) => setQuery(event.target.value)}
