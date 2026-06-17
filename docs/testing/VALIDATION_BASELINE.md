@@ -7140,3 +7140,28 @@ Scope notes:
 - No full review workspace, UI reskin, live Reddit/Discord pull, worker,
   Cloudflare/vector/Redis memory, publishing, billing, social posting, or public
   community bridge scope was added.
+
+## PR21 deployed-schema compatibility repair
+
+DAEDALUS repair validation on 2026-06-17:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass | 27 tests passed, including a regression where `import_jobs.file_id` is missing from the Supabase projection and chat import status/list reads still return owner-safe results. |
+| `npm exec --yes pnpm@10.32.1 -- run test:storage` | Pass | 16 tests passed; durable file-pointer behavior remains covered when migration `035_import_job_file_pointer.sql` is present. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 15 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck tasks passed. |
+| `git diff --check` | Pass | No whitespace errors; CRLF normalization warnings only for touched text files if Git reports them. |
+
+Scope notes:
+
+- Import-job reads and status updates fall back to the legacy projection when
+  Supabase reports `import_jobs.file_id` is missing.
+- Chat import creation selects the legacy projection directly because a retrying
+  insert after a projection error could duplicate an already-created row.
+- The repair keeps `file_id` normalized to `null` for legacy rows so serializers
+  and callers still receive the current in-process shape.
+- Durable file import jobs still require migration
+  `035_import_job_file_pointer.sql`; the fallback prevents owner-visible Archive
+  page blanking on schema-lagging deployments but does not replace the durable
+  pointer migration.

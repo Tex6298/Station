@@ -4,6 +4,9 @@ import { env } from "../lib/env";
 export const IMPORT_JOB_SELECT =
   "id, persona_id, owner_user_id, kind, status, source_name, file_id, error_message, created_at, updated_at";
 
+export const LEGACY_IMPORT_JOB_SELECT =
+  "id, persona_id, owner_user_id, kind, status, source_name, error_message, created_at, updated_at";
+
 export type ImportJobStatus = "queued" | "processing" | "completed" | "failed";
 
 export type ImportJobRow = {
@@ -28,6 +31,49 @@ export function serializeImportJob(row: ImportJobRow) {
     error_message: row.error_message ? sanitizeJobErrorMessage(row.error_message) : null,
     created_at: row.created_at,
     updated_at: row.updated_at,
+  };
+}
+
+export function normalizeImportJobRow(row: Omit<ImportJobRow, "file_id"> & { file_id?: string | null }): ImportJobRow {
+  return {
+    ...row,
+    file_id: row.file_id ?? null,
+  };
+}
+
+export async function selectImportJobRowWithFileIdFallback(
+  queryFactory: (select: string) => PromiseLike<{ data: any | null; error?: { message?: string } | null }>
+) {
+  const result = await queryFactory(IMPORT_JOB_SELECT);
+  if (isMissingImportJobFileIdError(result.error)) {
+    const legacy = await queryFactory(LEGACY_IMPORT_JOB_SELECT);
+    return {
+      data: legacy.data ? normalizeImportJobRow(legacy.data) : null,
+      error: legacy.error ?? null,
+    };
+  }
+
+  return {
+    data: result.data ? normalizeImportJobRow(result.data) : null,
+    error: result.error ?? null,
+  };
+}
+
+export async function selectImportJobRowsWithFileIdFallback(
+  queryFactory: (select: string) => PromiseLike<{ data: any[] | null; error?: { message?: string } | null }>
+) {
+  const result = await queryFactory(IMPORT_JOB_SELECT);
+  if (isMissingImportJobFileIdError(result.error)) {
+    const legacy = await queryFactory(LEGACY_IMPORT_JOB_SELECT);
+    return {
+      data: (legacy.data ?? []).map(normalizeImportJobRow),
+      error: legacy.error ?? null,
+    };
+  }
+
+  return {
+    data: (result.data ?? []).map(normalizeImportJobRow),
+    error: result.error ?? null,
   };
 }
 
@@ -59,12 +105,14 @@ export function sanitizeJobErrorMessage(error: unknown, privateSnippets: Array<s
 
 export async function loadOwnedImportJob(jobId: string, ownerUserId: string) {
   const sb = getSupabaseAdmin();
-  const { data, error } = await sb
-    .from("import_jobs")
-    .select(IMPORT_JOB_SELECT)
-    .eq("id", jobId)
-    .eq("owner_user_id", ownerUserId)
-    .single();
+  const { data, error } = await selectImportJobRowWithFileIdFallback((select) =>
+    sb
+      .from("import_jobs")
+      .select(select)
+      .eq("id", jobId)
+      .eq("owner_user_id", ownerUserId)
+      .single()
+  );
 
   if (error || !data) return null;
   return data as ImportJobRow;
@@ -180,16 +228,23 @@ export function queueProviderStatus(): QueueProviderStatus {
 
 async function updateImportJob(jobId: string, ownerUserId: string, patch: Partial<ImportJobRow>) {
   const sb = getSupabaseAdmin();
-  const { data, error } = await sb
-    .from("import_jobs")
-    .update(patch)
-    .eq("id", jobId)
-    .eq("owner_user_id", ownerUserId)
-    .select(IMPORT_JOB_SELECT)
-    .single();
+  const { data, error } = await selectImportJobRowWithFileIdFallback((select) =>
+    sb
+      .from("import_jobs")
+      .update(patch)
+      .eq("id", jobId)
+      .eq("owner_user_id", ownerUserId)
+      .select(select)
+      .single()
+  );
 
   if (error || !data) throw new Error(error?.message ?? "Import job update failed.");
   return data as ImportJobRow;
+}
+
+function isMissingImportJobFileIdError(error: { message?: string } | null | undefined) {
+  const message = error?.message ?? "";
+  return /import_jobs\.file_id|file_id/i.test(message) && /does not exist|schema cache|column/i.test(message);
 }
 
 function hasValue(value: string | undefined | null) {

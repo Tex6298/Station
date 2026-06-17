@@ -25,6 +25,11 @@ Deployed API smoke after the migration/seed:
 - `GET /conversations/persona/:personaId/candidates?source=import&status=pending`: 200
 - pending import candidates: 2
 
+DAEDALUS also added an API compatibility guard so owner-visible import job
+status/list reads fall back to the legacy projection if a deployment is still
+missing `import_jobs.file_id`. Durable file-import worker behavior still
+requires the `035_import_job_file_pointer.sql` migration.
+
 Rerun the human-eye rehearsal against the same Railway web/API staging target.
 
 ## Purpose

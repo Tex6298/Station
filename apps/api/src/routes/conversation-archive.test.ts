@@ -91,6 +91,7 @@ class InMemorySupabase {
 
   failInsertTables = new Set<string>();
   failInsertMessages = new Map<string, string>();
+  missingImportJobFileIdColumn = false;
 
   private idCounters: Record<string, number> = {};
   private clock = Date.parse("2026-05-26T10:00:00.000Z");
@@ -214,10 +215,12 @@ class QueryBuilder {
   private limitCount: number | null = null;
   private operation: "select" | "insert" | "update" | "delete" = "select";
   private payload: Row | Row[] | null = null;
+  private selectedColumns = "*";
 
   constructor(private db: InMemorySupabase, private table: string) {}
 
-  select() {
+  select(columns = "*") {
+    this.selectedColumns = columns;
     return this;
   }
 
@@ -312,6 +315,17 @@ class QueryBuilder {
       rows = [...rowsToDelete];
     } else {
       rows = this.matchingRows();
+    }
+
+    if (
+      this.table === "import_jobs" &&
+      this.db.missingImportJobFileIdColumn &&
+      this.selectedColumns.includes("file_id")
+    ) {
+      return {
+        data: mode === "single" ? null : [],
+        error: { message: "column import_jobs.file_id does not exist" },
+      };
     }
 
     const data = clone(rows);
@@ -656,6 +670,7 @@ test("owner can review import-backed continuity candidates without exposing them
 
 test("chat import jobs expose completed and failed status transitions owner-only", async () => {
   const db = new InMemorySupabase();
+  db.missingImportJobFileIdColumn = true;
   setSupabaseAdminForTests(db.client as any);
   const app = await createConversationArchiveApp();
 

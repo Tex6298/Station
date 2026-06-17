@@ -4,15 +4,17 @@ import { requireAuth } from "../middleware/require-auth";
 import { getSupabaseAdmin } from "../lib/supabase";
 import { ingestTextIntoArchive } from "../services/archive.service";
 import {
-  IMPORT_JOB_SELECT,
+  LEGACY_IMPORT_JOB_SELECT,
   type ImportJobRow,
   countImportArchiveRows,
   loadOwnedImportJob,
   markImportJobCompleted,
   markImportJobFailed,
   markImportJobProcessing,
+  normalizeImportJobRow,
   sanitizeJobErrorMessage,
   serializeImportJob,
+  selectImportJobRowsWithFileIdFallback,
 } from "../services/background-jobs.service";
 import { storageErrorResponse } from "../services/storage.service";
 import {
@@ -105,12 +107,13 @@ importsRouter.post("/chat", async (req, res) => {
       status: "processing",
       source_name: parsed.data.sourceName,
     })
-    .select(IMPORT_JOB_SELECT)
+    .select(LEGACY_IMPORT_JOB_SELECT)
     .single();
 
   if (jobError || !job) {
     return res.status(500).json({ error: jobError?.message ?? "Import job insert failed." });
   }
+  const importJob = normalizeImportJobRow(job);
 
   try {
     const chunksCreated = await ingestTextIntoArchive({
@@ -122,15 +125,15 @@ importsRouter.post("/chat", async (req, res) => {
       relevanceWeight: parsed.data.relevanceWeight ?? 1.5,
       archiveSource: {
         type: "import_job",
-        id: job.id,
+        id: importJob.id,
         name: parsed.data.sourceName,
       },
     });
 
-    const completedJob = await markImportJobCompleted(job.id, userId);
+    const completedJob = await markImportJobCompleted(importJob.id, userId);
 
     return res.status(201).json({
-      job: serializeImportJob(completedJob ?? job),
+      job: serializeImportJob(completedJob ?? importJob),
       chunksCreated,
       imported: true,
       integrityTrigger: {
@@ -146,11 +149,11 @@ importsRouter.post("/chat", async (req, res) => {
       [parsed.data.content, parsed.data.sourceName]
     );
     if (storageError) {
-      await markImportJobFailed(job.id, userId, message).catch(() => undefined);
+      await markImportJobFailed(importJob.id, userId, message).catch(() => undefined);
       return res.status(storageError.status).json({ error: message });
     }
 
-    await markImportJobFailed(job.id, userId, message).catch(() => undefined);
+    await markImportJobFailed(importJob.id, userId, message).catch(() => undefined);
     return res.status(500).json({ error: message });
   }
 });
@@ -707,17 +710,10 @@ importsRouter.get("/archive/search", async (req, res) => {
 
 // -- Poll import job status -----------------------------------------------------
 importsRouter.get("/:id/status", async (req, res) => {
-  const sb = getSupabaseAdmin();
   const userId = req.user!.id;
 
-  const { data: job, error } = await sb
-    .from("import_jobs")
-    .select(IMPORT_JOB_SELECT)
-    .eq("id", req.params.id)
-    .eq("owner_user_id", userId)
-    .single();
-
-  if (error || !job) return res.status(404).json({ error: "Import job not found." });
+  const job = await loadOwnedImportJob(req.params.id, userId);
+  if (!job) return res.status(404).json({ error: "Import job not found." });
   return res.json({ job: serializeImportJob(job) });
 });
 
@@ -726,12 +722,14 @@ importsRouter.get("/persona/:personaId", async (req, res) => {
   const sb = getSupabaseAdmin();
   const userId = req.user!.id;
 
-  const { data, error } = await sb
-    .from("import_jobs")
-    .select(IMPORT_JOB_SELECT)
-    .eq("persona_id", req.params.personaId)
-    .eq("owner_user_id", userId)
-    .order("created_at", { ascending: false });
+  const { data, error } = await selectImportJobRowsWithFileIdFallback((select) =>
+    sb
+      .from("import_jobs")
+      .select(select)
+      .eq("persona_id", req.params.personaId)
+      .eq("owner_user_id", userId)
+      .order("created_at", { ascending: false })
+  );
 
   if (error) return res.status(500).json({ error: error.message });
   return res.json({ jobs: (data ?? []).map(serializeImportJob) });
@@ -743,16 +741,18 @@ async function loadCompletedChatImportBySource(
   sourceName: string
 ) {
   const sb = getSupabaseAdmin();
-  const { data, error } = await sb
-    .from("import_jobs")
-    .select(IMPORT_JOB_SELECT)
-    .eq("persona_id", personaId)
-    .eq("owner_user_id", ownerUserId)
-    .eq("kind", "chat")
-    .eq("status", "completed")
-    .eq("source_name", sourceName)
-    .order("updated_at", { ascending: false })
-    .limit(1);
+  const { data, error } = await selectImportJobRowsWithFileIdFallback((select) =>
+    sb
+      .from("import_jobs")
+      .select(select)
+      .eq("persona_id", personaId)
+      .eq("owner_user_id", ownerUserId)
+      .eq("kind", "chat")
+      .eq("status", "completed")
+      .eq("source_name", sourceName)
+      .order("updated_at", { ascending: false })
+      .limit(1)
+  );
 
   if (error) return null;
   return (data?.[0] ?? null) as ImportJobRow | null;
