@@ -3990,6 +3990,20 @@ when a PR lands, or when validation truth changes.
   `test:storage` now covers the existing-file/missing-job/5-active-jobs case and
   proves no sixth job is inserted. ARGUS reran the protected PR18 validation set
   and recommends MIMIR mark PR18 complete as an alpha quota guard lane.
+- PR18 Operational Quota Guards is closed, 2026-06-17: MIMIR accepted ARGUS's
+  repaired verdict at `0e5cf48`. Station now has narrow machine-readable quota
+  guards for active import work, export generation attempts, Developer Space
+  ingestion usage, and embedding-producing archive writes. Billing redesign,
+  Redis workers, Reddit intake, export worker redesign, Cloudflare/vector/Redis
+  memory work, publishing, import review UI, and UI reskin remain deferred.
+- PR19 Reddit Archive Intake is opened for DAEDALUS, 2026-06-17: with parser,
+  durable import job, candidate review, fail-closed runtime filtering, and quota
+  foundations in place, the next bounded launch-core source is Reddit archive
+  intake by upload/paste/manual source. This lane must add explicit Reddit
+  parser support and review-candidate routing without requiring live Reddit API
+  credentials, using social publishing OAuth, recurring pulls, workers,
+  Cloudflare, vector reindexing, Redis memory truth, publishing, billing, or UI
+  reskin scope.
 
 ## Near-term rule
 

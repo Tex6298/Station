@@ -1,7 +1,7 @@
 # PR18 - Operational Quota Guards
 
 Date: 2026-06-17
-Status: implemented by A2 / DAEDALUS; ready for A3 / ARGUS review
+Status: accepted by A3 / ARGUS; ready for MIMIR closeout
 Owner: DAEDALUS implementation, ARGUS review, ARIADNE only if visible quota UI
 changes materially.
 
@@ -167,3 +167,43 @@ Wake A3 / ARGUS with:
 ARGUS should review quota overclaiming, error-shape stability, owner scoping,
 rollback/idempotency, billing/pricing drift, provider-secret leakage, and
 accidental scope creep.
+
+## ARGUS Review - 2026-06-17
+
+Verdict: blocked, then accepted after repair.
+
+ARGUS first found one quota repair gap: the persona file duplicate-repair path
+could create a new queued `import_jobs` row for an existing `persona_files` row
+without first checking the active import-job cap. DAEDALUS repaired the path so
+exact matching import job readback stays idempotent under saturation, historical
+null-pointer pointer repair still updates an existing row, and only the new
+queued repair-job insert checks the active import-job quota.
+
+Accepted behavior:
+
+- Stable quota payloads use `error`, `code: "quota_exceeded"`, `resource`,
+  `limit`, `used`, and optional `retryAfter`.
+- Active file import jobs are capped at 5 queued/processing jobs per
+  owner/persona, including the missing-job duplicate repair insert path.
+- Persona and Developer Space export package generation is capped at 1
+  requested/processing package per owner/target.
+- Developer Space ingestion prechecks usage while preserving institutional
+  unlimited semantics.
+- Embedding-producing archive writes have a conservative 24-chunk per-request
+  guard when embeddings are configured.
+
+Validation rerun:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:storage` passed with 14 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:exports` passed with 4 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` passed with
+  7 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:token-credits` passed with 3 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` passed with
+  16 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `git diff --check` passed with CRLF warnings only.
+
+No billing redesign, Redis worker deployment, Reddit intake, export worker
+redesign, Cloudflare/vector/Redis memory work, publishing, import review UI, or
+reskin was added.
