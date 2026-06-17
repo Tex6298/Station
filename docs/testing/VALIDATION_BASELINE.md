@@ -1142,6 +1142,25 @@ Notes:
 - The positive live publish rehearsal still requires a Creator-or-above account
   or explicit staging tier setup.
 
+ARGUS acceptance on 2026-06-17:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck tasks passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 11 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:community` | Pass | 8 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` | Pass | 1 test passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:continuity-publication` | Pass | 1 test passed. |
+| `git diff 9f9635e..32cf2ca --check` | Pass | No whitespace errors in MIMIR's follow-up. |
+| `git diff --check` | Pass | CRLF normalization warnings for consumed state and touched publish flow only. |
+
+ARGUS patched one remaining contrast issue before acceptance: the Preview panel
+title still used dark-shell `#f8fafc` text inside the now-white panel. It now
+uses the light-shell title color. The remaining PR10 live rehearsal question is
+account setup, not local code: private-tier replay can prove entitlement
+preflight, but positive save/edit/publish still needs a Creator-or-above account
+or staging tier change.
+
 V3-03 is accepted for token-credit accounting hardening. Scope remains
 accounting and one-off top-up validation only; it does not expand into a
 broader Stripe platform, marketplace, Connect, or usage-based subscription

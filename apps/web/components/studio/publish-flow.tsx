@@ -428,7 +428,7 @@ export function PublishFlow() {
             {previewOpen ? (
               <section style={panel}>
                 <SectionTitle title="Preview" />
-                <h3 style={{ margin: "0 0 8px", color: "#f8fafc", fontSize: 18 }}>{form.title || "Untitled document"}</h3>
+                <h3 style={{ margin: "0 0 8px", color: "#1f2529", fontSize: 18 }}>{form.title || "Untitled document"}</h3>
                 <div style={helperText}>{documentTypeLabel(form.documentType)} / {form.visibility}</div>
                 <div style={previewBody}>{form.body || "Nothing written yet."}</div>
               </section>

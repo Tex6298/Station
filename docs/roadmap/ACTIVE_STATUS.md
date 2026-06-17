@@ -3560,6 +3560,17 @@ when a PR lands, or when validation truth changes.
   `390 x 844`. MIMIR should decide whether the first blocker is replay-account
   setup or a DAEDALUS entitlement-preflight UI fix; DAEDALUS should repair the
   publish header contrast and phone title clipping before PR10 closes.
+- PR10 Publish Browser Rehearsal follow-up is accepted by ARGUS,
+  2026-06-17: `/studio/publish` now preflights `canPublishDocuments`, shows a
+  Creator-or-above requirement to private/basic-tier users, and disables
+  Save/Publish before the known API 403 path. The publish page now uses light
+  Station shell colors, a smaller non-viewport title input, and an ARGUS-patched
+  readable preview title. Focused validation passed for typecheck,
+  `test:studio-ui`, `test:community`, `test:document-discussions`,
+  `test:continuity-publication`, and whitespace. The remaining decision is
+  staging/rehearsal policy: either rerun ARIADNE against private-tier preflight
+  only, or prepare a Creator-or-above staging account for the positive
+  save/edit/publish path.
 
 ## Near-term rule
 
