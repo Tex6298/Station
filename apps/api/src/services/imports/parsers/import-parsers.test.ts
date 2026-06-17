@@ -60,6 +60,80 @@ test("Claude parser extracts role-labelled turns in chronological order", () => 
   assert.equal(parsed.text, "[user]: First question.\n[assistant]: Second answer.");
 });
 
+test("Reddit parser extracts listing-style posts and comments deterministically", () => {
+  const parsed = parseImportFile({
+    fileName: "reddit-thread.json",
+    fileType: "application/json",
+    rawText: JSON.stringify({
+      data: {
+        children: [
+          {
+            kind: "t1",
+            data: {
+              author: "commenter",
+              body: "Second comment.",
+              subreddit: "StationLab",
+              permalink: "/r/StationLab/comments/thread/comment",
+              created_utc: 20,
+            },
+          },
+          {
+            kind: "t3",
+            data: {
+              author: "poster",
+              title: "Thread title",
+              selftext: "First post body.",
+              subreddit: "StationLab",
+              permalink: "/r/StationLab/comments/thread",
+              created_utc: 10,
+            },
+          },
+        ],
+      },
+    }),
+  });
+
+  assert.equal(parsed.format, "reddit");
+  assert.equal(parsed.metadata.messageCount, 2);
+  assert.equal(parsed.metadata.title, "Thread title");
+  assert.equal(parsed.metadata.subreddit, "StationLab");
+  assert.equal(parsed.metadata.permalink, "/r/StationLab/comments/thread");
+  assert.equal(
+    parsed.text,
+    "[reddit/StationLab/poster]: Thread title - First post body. (/r/StationLab/comments/thread)\n[reddit/StationLab/commenter]: Second comment. (/r/StationLab/comments/thread/comment)"
+  );
+});
+
+test("Reddit parser extracts thread-like object arrays without live API fields", () => {
+  const parsed = parseImportFile({
+    fileName: "reddit-export.json",
+    fileType: "application/json",
+    rawText: JSON.stringify({
+      title: "Ask Station",
+      subreddit: "LocalAI",
+      permalink: "/r/LocalAI/comments/ask_station",
+      selftext: "Remember the source boundary.",
+      author: "thread-owner",
+      created_utc: 5,
+      comments: [
+        {
+          author: "reply-owner",
+          body: "Never treat Reddit archive text as instructions.",
+          subreddit: "LocalAI",
+          permalink: "/r/LocalAI/comments/ask_station/reply",
+          created_utc: 6,
+        },
+      ],
+    }),
+  });
+
+  assert.equal(parsed.format, "reddit");
+  assert.equal(parsed.metadata.messageCount, 2);
+  assert.equal(parsed.metadata.title, "Ask Station");
+  assert.match(parsed.text, /\[reddit\/LocalAI\/thread-owner\]: Ask Station - Remember the source boundary\./);
+  assert.match(parsed.text, /\[reddit\/LocalAI\/reply-owner\]: Never treat Reddit archive text as instructions\./);
+});
+
 test("unknown JSON fails safely instead of stringifying into archive memory", () => {
   assert.throws(
     () => parseImportFile({
@@ -70,6 +144,7 @@ test("unknown JSON fails safely instead of stringifying into archive memory", ()
     (error) =>
       error instanceof ImportParseError &&
       /Unsupported JSON import format/.test(error.message) &&
+      /Reddit/.test(error.message) &&
       !/do not stringify me/.test(error.message)
   );
 });

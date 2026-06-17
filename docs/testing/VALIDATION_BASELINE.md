@@ -7004,3 +7004,36 @@ ARGUS blocker repair by DAEDALUS on 2026-06-17:
 | `npm exec --yes pnpm@10.32.1 -- run test:persona-context` | Pass | 6 tests passed. |
 | `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck tasks passed. |
 | `git diff --check` | Pass | No whitespace errors; CRLF normalization warnings only for touched text files if Git reports them. |
+
+## PR19 Reddit Archive Intake
+
+DAEDALUS implementation validation on 2026-06-17:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass | 18 tests passed, including Reddit listing-style parsing, thread-like object parsing, ChatGPT/Claude preservation, unknown JSON failure, malformed JSON sanitization, `.json` extension precedence, text/Markdown preservation, and legacy role/content arrays. |
+| `npm exec --yes pnpm@10.32.1 -- run test:storage` | Pass | 15 tests passed, including Reddit upload processing into private archive chunks plus pending import review candidates, PR18 active import-job quota/idempotency coverage, storage rollback, and archive search safety. |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-context` | Pass | 6 tests passed, including PR17 runtime exclusion of quarantined import archive chunks. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck tasks passed from cache. |
+| `git diff --check` | Pass | No whitespace errors; CRLF normalization warnings only for touched text files if Git reports them. |
+
+Scope notes:
+
+- Added explicit Reddit parser support under
+  `apps/api/src/services/imports/parsers/reddit.ts`.
+- Supported JSON shapes are intentionally narrow: Reddit listing-style objects
+  or arrays with `data.children`, and thread-like objects with post fields plus
+  `comments` or `children` arrays.
+- Recognized fields are limited to stable archive/export fields: `author`,
+  `body`, `selftext`, `text`, `title`, `link_title`, `thread_title`,
+  `subreddit`, `subreddit_name_prefixed`, `permalink`, `url`, `created`, and
+  `created_utc`.
+- Parsed Reddit imports create private archive chunks and pending Memory/Canon
+  candidates through existing `persona_files` provenance; source labels use the
+  existing `reddit.json (reddit import)` pattern.
+- Unknown or malformed JSON still fails before archive memory creation, and
+  `.json` file names remain authoritative over misleading text MIME.
+- No live Reddit API, Reddit OAuth, recurring pull worker, social posting,
+  Discord production parser, Cloudflare retrieval, vector reindexing, Redis
+  memory truth, publishing, billing, export worker redesign, or UI reskin was
+  added.

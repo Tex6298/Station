@@ -4004,6 +4004,19 @@ when a PR lands, or when validation truth changes.
   credentials, using social publishing OAuth, recurring pulls, workers,
   Cloudflare, vector reindexing, Redis memory truth, publishing, billing, or UI
   reskin scope.
+- PR19 Reddit Archive Intake is implemented by DAEDALUS and ready for ARGUS
+  review, 2026-06-17: uploaded/pasted Reddit archive JSON now has explicit
+  narrow parser support for listing-style `data.children` exports and
+  thread-like objects with `comments` or `children` arrays. Parsed Reddit rows
+  produce stable `[reddit/<subreddit>/<author>]` archive text, safe source
+  metadata, private quarantined archive chunks, and pending owner-scoped
+  Memory/Canon review candidates through existing `persona_files` provenance.
+  Unknown/malformed JSON still fails before archive memory creation, `.json`
+  filenames remain authoritative over misleading text MIME, ChatGPT/Claude/
+  legacy/text/Markdown behavior is preserved, and PR17 runtime fail-closed plus
+  PR18 quota/idempotency coverage remains green. No live Reddit OAuth/API,
+  recurring pull, social posting, workers, Cloudflare, vector, Redis memory
+  truth, publishing, billing, Discord, or UI reskin scope was added.
 
 ## Near-term rule
 

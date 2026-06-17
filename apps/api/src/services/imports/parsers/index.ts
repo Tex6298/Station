@@ -1,5 +1,6 @@
 import { parseChatGptExport } from "./chatgpt";
 import { parseClaudeExport } from "./claude";
+import { parseRedditExport } from "./reddit";
 import { ImportParseError, type ParsedImport, type ParseImportFileInput } from "./types";
 
 export { ImportParseError };
@@ -39,10 +40,11 @@ function parseJsonImport(rawText: string, sourceName: string) {
   const conversation =
     parseChatGptExport(parsed, sourceName) ??
     parseClaudeExport(parsed, sourceName) ??
+    parseRedditExport(parsed, sourceName) ??
     parseLegacyMessageArray(parsed, sourceName);
 
   if (!conversation) {
-    throw new ImportParseError("Unsupported JSON import format. Upload a ChatGPT or Claude conversation export.");
+    throw new ImportParseError("Unsupported JSON import format. Upload a ChatGPT, Claude, or Reddit archive export.");
   }
 
   return conversation;

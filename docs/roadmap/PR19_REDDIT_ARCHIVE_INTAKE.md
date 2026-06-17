@@ -1,7 +1,7 @@
 # PR19 - Reddit Archive Intake
 
 Date: 2026-06-17
-Status: opened for A2 / DAEDALUS
+Status: implemented by A2 / DAEDALUS; ready for A3 / ARGUS review
 Owner: DAEDALUS implementation, ARGUS review, ARIADNE only if a visible import
 journey changes materially.
 
@@ -134,6 +134,33 @@ need it.
 - Active import-job quota and duplicate exact file registration still pass.
 - Other owners cannot read, claim, accept, reject, or infer another owner's
   Reddit import/candidates.
+
+## DAEDALUS Implementation Notes
+
+- Added `apps/api/src/services/imports/parsers/reddit.ts`.
+- Supported JSON shapes:
+  - Reddit listing-style objects or arrays with `data.children`, where child
+    entries may wrap post/comment data in `data`;
+  - thread-like objects with post fields plus `comments` or `children` arrays.
+- Recognized fields are intentionally narrow: `author`, `body`, `selftext`,
+  `text`, `title`, `link_title`, `thread_title`, `subreddit`,
+  `subreddit_name_prefixed`, `permalink`, `url`, `created`, and `created_utc`.
+- Parsed Reddit text uses stable `[reddit/<subreddit>/<author>]` labels and
+  deterministic created-time/thread-order sorting.
+- Parsed Reddit imports now create private archive chunks plus pending
+  import-backed Memory/Canon candidates through the existing `persona_files`
+  provenance path.
+- Unknown/malformed JSON still fails before archive memory creation, and `.json`
+  extension remains authoritative over misleading text MIME.
+
+## Future Live Reddit Notes
+
+No live Reddit API or OAuth work was added. Future live pull/recurring intake
+would need an explicit design for Reddit app credentials, owner OAuth consent,
+refresh-token storage/rotation, API rate limits, listing pagination, deleted or
+removed comment handling, and whether subreddit/moderator/private-subreddit
+scopes are in scope. Social publishing OAuth paths must remain separate from
+archive intake credentials.
 
 ## Handoff To ARGUS
 

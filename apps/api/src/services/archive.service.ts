@@ -309,7 +309,7 @@ async function createImportReviewCandidates(input: {
   sourceId: string;
   sourceLabel: string;
 }) {
-  if (input.parsedImport.format !== "chatgpt" && input.parsedImport.format !== "claude") return;
+  if (!["chatgpt", "claude", "reddit"].includes(input.parsedImport.format)) return;
 
   const seeds = importCandidateSeeds(input.parsedImport);
   if (seeds.length === 0) return;

@@ -1399,6 +1399,81 @@ test("uploaded ChatGPT and Claude JSON parse explicitly while unknown JSON fails
   }
 });
 
+test("uploaded Reddit JSON creates private archive chunks and import review candidates", async () => {
+  const { processUploadedFile } = await import("../services/archive.service.js");
+  const db = new InMemorySupabase();
+  setSupabaseAdminForTests(db.client as any);
+  storageRow(db).bytes_limit = 1000;
+  db.storageDownloads.set(
+    "owner/reddit.json",
+    JSON.stringify({
+      title: "Station archive thread",
+      subreddit: "StationLab",
+      permalink: "/r/StationLab/comments/archive_thread",
+      selftext: "Remember this Reddit source should stay private before review.",
+      author: "thread-owner",
+      created_utc: 10,
+      comments: [
+        {
+          author: "reply-owner",
+          body: "Always review Reddit import candidates before runtime use.",
+          subreddit: "StationLab",
+          permalink: "/r/StationLab/comments/archive_thread/reply",
+          created_utc: 20,
+        },
+      ],
+    })
+  );
+
+  try {
+    const redditFile = db.insertRow("persona_files", {
+      persona_id: PERSONA_ID,
+      owner_user_id: OWNER_ID,
+      file_name: "reddit.json",
+      file_type: "application/json",
+      file_size: 10,
+      storage_path: "owner/reddit.json",
+    });
+    db.insertRow("import_jobs", {
+      persona_id: PERSONA_ID,
+      owner_user_id: OWNER_ID,
+      kind: "file",
+      status: "queued",
+      source_name: "reddit.json",
+    });
+
+    const processed = await processUploadedFile({
+      personaId: PERSONA_ID,
+      ownerUserId: OWNER_ID,
+      fileId: redditFile.id,
+      fileName: "reddit.json",
+      fileType: "application/json",
+      storagePath: "owner/reddit.json",
+    });
+
+    assert.equal(processed.chunksCreated, 1);
+    const memory = db.tables.memory_items.find((row) => row.archive_source_id === redditFile.id);
+    assert.ok(memory);
+    assert.equal(memory.source_type, "import");
+    assert.equal(memory.archive_source_name, "reddit.json (reddit import)");
+    assert.match(memory.content, /\[reddit\/StationLab\/thread-owner\]: Station archive thread/);
+    assert.match(memory.content, /\[reddit\/StationLab\/reply-owner\]: Always review Reddit import candidates/);
+    assert.equal(
+      db.tables.memory_item_lifecycle.find((row) => row.memory_item_id === memory.id)?.status,
+      "quarantined"
+    );
+
+    const candidates = db.tables.continuity_candidates.filter((row) => row.source_id === redditFile.id);
+    assert.deepEqual(candidates.map((row) => row.candidate_type).sort(), ["canon", "memory"]);
+    assert.equal(candidates.every((row) => row.source_table === "persona_files"), true);
+    assert.equal(candidates.every((row) => row.source_label === "reddit.json (reddit import)"), true);
+    assert.equal(candidates.every((row) => row.owner_user_id === OWNER_ID), true);
+    assert.equal(candidates.every((row) => row.status === "pending"), true);
+  } finally {
+    resetStorageFake();
+  }
+});
+
 test("/imports/archive/search is owner-scoped, filtered, and sanitized", async () => {
   const db = new InMemorySupabase();
   const now = "2026-06-06T11:00:00.000Z";
