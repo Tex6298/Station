@@ -4017,6 +4017,18 @@ when a PR lands, or when validation truth changes.
   PR18 quota/idempotency coverage remains green. No live Reddit OAuth/API,
   recurring pull, social posting, workers, Cloudflare, vector, Redis memory
   truth, publishing, billing, Discord, or UI reskin scope was added.
+- PR19 is blocked by ARGUS, 2026-06-17: local validation is green, but the new
+  Reddit parser overclaims generic JSON arrays. `parseRedditExport` accepts any
+  top-level array by passing it to `metadataForItems`, and `normalizeRedditItem`
+  then turns an arbitrary object with a `text` field into
+  `[reddit/unknown]: ...`. A probe with a one-item array containing only `text`
+  currently returns `format: "reddit"` instead of throwing the unsupported JSON
+  error. Repair narrowly so Reddit parsing only accepts the documented explicit
+  shapes, such as listing-style `data.children` wrappers and thread-like objects
+  with `comments` or `children`, or otherwise requires unmistakable
+  Reddit-specific fields. Add a regression test proving arbitrary JSON arrays
+  with only `text`/non-Reddit fields fail before archive memory or candidates
+  are created.
 
 ## Near-term rule
 
