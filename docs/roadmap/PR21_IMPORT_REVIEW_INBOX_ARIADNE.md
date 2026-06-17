@@ -30,6 +30,11 @@ status/list reads fall back to the legacy projection if a deployment is still
 missing `import_jobs.file_id`. Durable file-import worker behavior still
 requires the `035_import_job_file_pointer.sql` migration.
 
+ARGUS reviewed the compatibility guard and accepts it for rehearsal rerun:
+legacy projection fallback is limited to import-job reads/status updates,
+chat-import creation does not retry unsafe inserts, and migrated file-import
+worker behavior still depends on the durable `file_id` pointer.
+
 Rerun the human-eye rehearsal against the same Railway web/API staging target.
 
 ## Purpose
