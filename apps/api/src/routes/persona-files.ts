@@ -2,7 +2,7 @@ import { Router } from "express";
 import { z } from "zod";
 import { requireAuth } from "../middleware/require-auth";
 import { getSupabaseAdmin } from "../lib/supabase";
-import { processUploadedFile } from "../services/archive.service";
+import { inlineExecution, runFileImportJobInline } from "../services/file-import-jobs.service";
 import { releaseStorageBytes, reserveStorageBytes, storageErrorResponse } from "../services/storage.service";
 
 /**
@@ -184,9 +184,18 @@ personaFilesRouter.post("/persona/:personaId/register", async (req, res) => {
 
     if (jobErr || !job) throw new Error(jobErr?.message ?? "Import job insert failed.");
 
-    // Process synchronously for now (queue in v2)
+    const jobExecution = parsed.data.processImmediately
+      ? inlineExecution("protected_alpha_no_worker")
+      : {
+        mode: "queued" as const,
+        workerQueue: false,
+        reason: "processing_deferred",
+      };
+
+    // Protected-alpha inline fallback: explicit and testable until a worker is configured.
     if (parsed.data.processImmediately) {
-      processUploadedFile({
+      runFileImportJobInline({
+        jobId: job.id,
         personaId: persona.id,
         ownerUserId: userId,
         fileId: file.id,
@@ -196,7 +205,7 @@ personaFilesRouter.post("/persona/:personaId/register", async (req, res) => {
       }).catch(console.error); // fire and forget
     }
 
-    return res.status(201).json({ file, job });
+    return res.status(201).json({ file, job, jobExecution });
   } catch (error) {
     if (insertedFile?.id) {
       try {

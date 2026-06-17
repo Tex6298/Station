@@ -1,7 +1,7 @@
 # PR15 - Background Job Boundary
 
 Date: 2026-06-17
-Status: opened for A2 / DAEDALUS
+Status: ready for A3 / ARGUS review
 Owner: DAEDALUS implementation, ARGUS review, ARIADNE only if user-visible job
 status UI changes materially.
 
@@ -137,3 +137,41 @@ Wake A3 / ARGUS with:
 ARGUS should review queue overclaiming, config truthfulness, owner scoping,
 private payload redaction, failure recovery, idempotency, and accidental scope
 creep.
+
+## DAEDALUS Implementation Notes
+
+- No migration was added.
+- The first deterministic job path is uploaded persona-file import processing.
+  `apps/api/src/services/file-import-jobs.service.ts` claims an existing
+  owner-scoped `import_jobs` row, runs `processUploadedFile`, serializes the
+  resulting job, and treats reruns with existing archive rows as idempotent.
+- `processUploadedFile` now accepts an optional `jobId` and applies processing,
+  completed, and failed status updates to that exact job when provided.
+- `apps/api/src/routes/persona-files.ts` no longer hides immediate processing
+  as an unnamed fire-and-forget call. Registration responses include
+  `jobExecution.mode`:
+  - `queued` when `processImmediately` is false.
+  - `inline_fallback` when protected-alpha immediate processing is started
+    without a worker queue.
+- Deployment readiness now includes `readiness.redis.queue`:
+  - `redis_tcp` when `REDIS_URL` or `REDIS_PRIVATE_URL` is present.
+  - `valkey_tcp` when `VALKEY_URL` is present without Redis.
+  - `upstash_rest_cache_only` when only Upstash REST URL/token are present.
+  - `not_configured` when no queue/cache provider is configured.
+- Upstash REST is reported as cache-only and never as BullMQ-compatible worker
+  queue readiness.
+- Caveat: `import_jobs` does not durably store `file_id` or `storage_path`.
+  This lane keeps the deterministic runner fed by the registered file pointer
+  available at route/test time. A future true worker should add a narrow durable
+  file pointer before claiming jobs independently from the database.
+
+Validation run:
+
+```bash
+npm exec --yes pnpm@10.32.1 -- run test:conversation-archive
+npm exec --yes pnpm@10.32.1 -- run test:storage
+npm exec --yes pnpm@10.32.1 -- run test:exports
+npm exec --yes pnpm@10.32.1 -- run test:health
+npm exec --yes pnpm@10.32.1 -- run typecheck
+git diff --check
+```

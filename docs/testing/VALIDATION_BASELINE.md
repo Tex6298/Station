@@ -6809,6 +6809,35 @@ Scope notes:
   private archive memory chunks through the existing protected-alpha import
   path and do not become Canon directly.
 
+## PR15 Background Job Boundary
+
+DAEDALUS implementation validation on 2026-06-17:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass | 15 tests passed; PR14 parser behavior remains intact. |
+| `npm exec --yes pnpm@10.32.1 -- run test:storage` | Pass | 13 tests passed, including deterministic file import job runner completion, idempotent rerun, other-owner rejection, safe failure, and visible inline fallback registration response. |
+| `npm exec --yes pnpm@10.32.1 -- run test:exports` | Pass | 3 tests passed; export package status behavior was not redesigned. |
+| `npm exec --yes pnpm@10.32.1 -- run test:health` | Pass | 14 tests passed, including TCP Redis queue readiness, Upstash REST cache-only reporting, and no-provider inline fallback reporting without secret leakage. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck tasks passed. |
+| `git diff --check` | Pass | No whitespace errors; CRLF normalization warnings only for touched text files if Git reports them. |
+
+Scope notes:
+
+- No migration was added. PR15 reuses `import_jobs` for the first deterministic
+  job boundary.
+- Uploaded-file import processing now has a narrow runner in
+  `apps/api/src/services/file-import-jobs.service.ts`.
+- Persona file registration reports `jobExecution.mode` as `queued` or
+  `inline_fallback` instead of hiding immediate processing as unnamed
+  fire-and-forget work.
+- Health readiness distinguishes TCP Redis/Valkey worker queue configuration
+  from Upstash REST cache-only configuration; Upstash REST alone does not claim
+  BullMQ readiness.
+- Deferred worker caveat: `import_jobs` still lacks a durable file pointer, so a
+  future independent worker should add a narrow file reference before claiming
+  uploaded-file jobs without the route-provided file pointer.
+
 ARGUS PR14 blocker review on 2026-06-17:
 
 | Check | Result | Notes |

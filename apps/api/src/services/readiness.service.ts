@@ -1,5 +1,6 @@
 import { env } from "../lib/env";
 import { getSupabaseAdmin } from "../lib/supabase";
+import { queueProviderStatus } from "./background-jobs.service";
 import { resolveActiveEmbeddingProfileCode, resolveActiveEmbeddingProvider } from "./embedding-key.service";
 import { operationalCacheStatus } from "./operational-cache.service";
 
@@ -119,6 +120,7 @@ type DeploymentReadiness = {
       railwayRedis: boolean;
       upstashRest: boolean;
       configured: boolean;
+      queue: ReturnType<typeof queueProviderStatus>;
       operationalCache: {
         enabled: boolean;
         kind: "disabled" | "upstash_rest" | "test";
@@ -531,6 +533,7 @@ function redisStatus(): DeploymentReadiness["readiness"]["redis"] {
     railwayRedis,
     upstashRest,
     configured: railwayRedis || upstashRest,
+    queue: queueProviderStatus(),
     operationalCache,
   };
 }

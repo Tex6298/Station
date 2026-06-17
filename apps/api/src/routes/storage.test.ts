@@ -407,6 +407,15 @@ async function requestJson<TBody = any>(
   }
 }
 
+async function waitFor(predicate: () => boolean, timeoutMs = 1000) {
+  const started = Date.now();
+  while (Date.now() - started < timeoutMs) {
+    if (predicate()) return;
+    await new Promise((resolve) => setTimeout(resolve, 10));
+  }
+  assert.equal(predicate(), true);
+}
+
 function listen(app: Express) {
   return new Promise<Server>((resolve) => {
     const server = app.listen(0, "127.0.0.1", () => resolve(server as unknown as Server));
@@ -548,6 +557,11 @@ test("persona file upload preflight and registration keep storage accounting bal
     });
 
     assert.equal(registered.status, 201);
+    assert.deepEqual(registered.body.jobExecution, {
+      mode: "queued",
+      workerQueue: false,
+      reason: "processing_deferred",
+    });
     assert.equal(storageRow(db).bytes_used, 40);
     assert.equal(db.tables.persona_files.length, 1);
     assert.equal(db.tables.import_jobs.length, 1);
@@ -706,6 +720,39 @@ test("persona file registration rolls back reserved bytes and file rows after jo
   }
 });
 
+test("persona file registration makes protected-alpha inline fallback visible", async () => {
+  const db = new InMemorySupabase();
+  setSupabaseAdminForTests(db.client as any);
+  const app = await createPersonaFilesApp();
+  storageRow(db).bytes_limit = 1000;
+  db.storageDownloads.set("owner/inline.txt", "inline fallback import text");
+
+  try {
+    const registered = await requestJson(app, "POST", `/persona-files/persona/${PERSONA_ID}/register`, {
+      token: "owner-token",
+      body: {
+        fileName: "inline.txt",
+        fileType: "text/plain",
+        fileSize: 10,
+        storagePath: "owner/inline.txt",
+        processImmediately: true,
+      },
+    });
+
+    assert.equal(registered.status, 201);
+    assert.deepEqual(registered.body.jobExecution, {
+      mode: "inline_fallback",
+      workerQueue: false,
+      reason: "protected_alpha_no_worker",
+    });
+
+    await waitFor(() => db.tables.import_jobs[0]?.status === "completed");
+    assert.equal(db.tables.memory_items.length, 1);
+  } finally {
+    resetStorageFake();
+  }
+});
+
 test("persona file duplicate lookup failures fail closed without extra storage or jobs", async () => {
   const db = new InMemorySupabase();
   setSupabaseAdminForTests(db.client as any);
@@ -764,6 +811,131 @@ test("persona file duplicate lookup failures fail closed without extra storage o
     assert.equal(storageRow(db).bytes_used, 10);
     assert.equal(db.tables.persona_files.length, 1);
     assert.equal(db.tables.import_jobs.length, 1);
+  } finally {
+    resetStorageFake();
+  }
+});
+
+test("file import job runner claims, completes, gates owners, and fails safely", async () => {
+  const { runFileImportJobInline } = await import("../services/file-import-jobs.service.js");
+  const db = new InMemorySupabase();
+  setSupabaseAdminForTests(db.client as any);
+  storageRow(db).bytes_limit = 1000;
+  db.storageDownloads.set("owner/runner.txt", "runner import text for deterministic job processing");
+  db.storageDownloads.set(
+    "owner/broken.json",
+    JSON.stringify({ unknown: { private: "runner secret should not appear" } })
+  );
+
+  try {
+    const file = db.insertRow("persona_files", {
+      persona_id: PERSONA_ID,
+      owner_user_id: OWNER_ID,
+      file_name: "runner.txt",
+      file_type: "text/plain",
+      file_size: 20,
+      storage_path: "owner/runner.txt",
+    });
+    const job = db.insertRow("import_jobs", {
+      persona_id: PERSONA_ID,
+      owner_user_id: OWNER_ID,
+      kind: "file",
+      status: "queued",
+      source_name: "runner.txt",
+    });
+
+    const completed = await runFileImportJobInline({
+      jobId: job.id,
+      personaId: PERSONA_ID,
+      ownerUserId: OWNER_ID,
+      fileId: file.id,
+      fileName: "runner.txt",
+      fileType: "text/plain",
+      storagePath: "owner/runner.txt",
+    });
+
+    assert.equal(completed.job.status, "completed");
+    assert.equal(completed.execution.mode, "inline_fallback");
+    assert.equal(completed.execution.workerQueue, false);
+    assert.equal(completed.execution.reason, "processed");
+    assert.equal(completed.chunksCreated, 1);
+    assert.equal(completed.idempotent, false);
+    assert.equal(db.tables.persona_files.find((row) => row.id === file.id).processed, true);
+    assert.equal(db.tables.memory_items.some((row) => row.archive_source_id === file.id), true);
+
+    const rerun = await runFileImportJobInline({
+      jobId: job.id,
+      personaId: PERSONA_ID,
+      ownerUserId: OWNER_ID,
+      fileId: file.id,
+      fileName: "runner.txt",
+      fileType: "text/plain",
+      storagePath: "owner/runner.txt",
+    });
+    assert.equal(rerun.job.status, "completed");
+    assert.equal(rerun.idempotent, true);
+    assert.equal(rerun.chunksCreated, 1);
+    assert.equal(db.tables.memory_items.filter((row) => row.archive_source_id === file.id).length, 1);
+
+    await assert.rejects(
+      () => runFileImportJobInline({
+        jobId: job.id,
+        personaId: PERSONA_ID,
+        ownerUserId: OTHER_ID,
+        fileId: file.id,
+        fileName: "runner.txt",
+        fileType: "text/plain",
+        storagePath: "owner/runner.txt",
+      }),
+      /Import job not found/
+    );
+
+    const preserved = db.insertRow("memory_items", {
+      persona_id: PERSONA_ID,
+      owner_user_id: OWNER_ID,
+      title: "Preserved archive row",
+      content: "This successful archive row must survive later job failure.",
+      source_type: "import",
+      archive_source_type: "persona_file",
+      archive_source_id: "previous-file",
+      archive_source_name: "previous import",
+    });
+    const brokenFile = db.insertRow("persona_files", {
+      persona_id: PERSONA_ID,
+      owner_user_id: OWNER_ID,
+      file_name: "broken.json",
+      file_type: "text/plain",
+      file_size: 20,
+      storage_path: "owner/broken.json",
+    });
+    const brokenJob = db.insertRow("import_jobs", {
+      persona_id: PERSONA_ID,
+      owner_user_id: OWNER_ID,
+      kind: "file",
+      status: "queued",
+      source_name: "broken.json",
+    });
+    const memoryCountBeforeFailure = db.tables.memory_items.length;
+
+    await assert.rejects(
+      () => runFileImportJobInline({
+        jobId: brokenJob.id,
+        personaId: PERSONA_ID,
+        ownerUserId: OWNER_ID,
+        fileId: brokenFile.id,
+        fileName: "broken.json",
+        fileType: "text/plain",
+        storagePath: "owner/broken.json",
+      }),
+      /Unsupported JSON import format/
+    );
+
+    assert.equal(db.tables.memory_items.length, memoryCountBeforeFailure);
+    assert.equal(db.tables.memory_items.some((row) => row.id === preserved.id), true);
+    const failedJob = db.tables.import_jobs.find((row) => row.id === brokenJob.id);
+    assert.equal(failedJob.status, "failed");
+    assert.match(failedJob.error_message, /Unsupported JSON import format/);
+    assert.doesNotMatch(failedJob.error_message, /runner secret should not appear/);
   } finally {
     resetStorageFake();
   }

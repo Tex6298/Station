@@ -1,4 +1,5 @@
 import { getSupabaseAdmin } from "../lib/supabase";
+import { env } from "../lib/env";
 
 export const IMPORT_JOB_SELECT =
   "id, persona_id, owner_user_id, kind, status, source_name, error_message, created_at, updated_at";
@@ -108,6 +109,74 @@ export async function countImportArchiveRows(job: Pick<ImportJobRow, "id" | "own
   return (data ?? []).length;
 }
 
+export async function countPersonaFileArchiveRows(input: {
+  fileId: string;
+  ownerUserId: string;
+  personaId: string;
+}) {
+  const sb = getSupabaseAdmin();
+  const { data, error } = await sb
+    .from("memory_items")
+    .select("id")
+    .eq("owner_user_id", input.ownerUserId)
+    .eq("persona_id", input.personaId)
+    .eq("archive_source_type", "persona_file")
+    .eq("archive_source_id", input.fileId);
+
+  if (error) throw new Error(error.message);
+  return (data ?? []).length;
+}
+
+export type QueueProviderStatus = {
+  provider: "redis_tcp" | "valkey_tcp" | "upstash_rest_cache_only" | "not_configured";
+  queueConfigured: boolean;
+  workerQueueReady: boolean;
+  cacheConfigured: boolean;
+  upstashRestConfigured: boolean;
+  inlineFallback: boolean;
+  detail: string;
+};
+
+export function queueProviderStatus(): QueueProviderStatus {
+  const redisTcp = hasValue(env.REDIS_URL) || hasValue(env.REDIS_PRIVATE_URL);
+  const valkeyTcp = hasValue(env.VALKEY_URL);
+  const upstashRest = hasValue(env.UPSTASH_REDIS_REST_URL) && hasValue(env.UPSTASH_REDIS_REST_TOKEN);
+
+  if (redisTcp || valkeyTcp) {
+    return {
+      provider: valkeyTcp && !redisTcp ? "valkey_tcp" : "redis_tcp",
+      queueConfigured: true,
+      workerQueueReady: true,
+      cacheConfigured: upstashRest,
+      upstashRestConfigured: upstashRest,
+      inlineFallback: true,
+      detail: "TCP Redis/Valkey queue configuration is present; protected-alpha inline fallback remains available.",
+    };
+  }
+
+  if (upstashRest) {
+    return {
+      provider: "upstash_rest_cache_only",
+      queueConfigured: false,
+      workerQueueReady: false,
+      cacheConfigured: true,
+      upstashRestConfigured: true,
+      inlineFallback: true,
+      detail: "Upstash REST cache is configured, but no BullMQ-compatible TCP queue provider is configured.",
+    };
+  }
+
+  return {
+    provider: "not_configured",
+    queueConfigured: false,
+    workerQueueReady: false,
+    cacheConfigured: false,
+    upstashRestConfigured: false,
+    inlineFallback: true,
+    detail: "No queue provider is configured; protected-alpha inline fallback is required.",
+  };
+}
+
 async function updateImportJob(jobId: string, ownerUserId: string, patch: Partial<ImportJobRow>) {
   const sb = getSupabaseAdmin();
   const { data, error } = await sb
@@ -120,6 +189,10 @@ async function updateImportJob(jobId: string, ownerUserId: string, patch: Partia
 
   if (error || !data) throw new Error(error?.message ?? "Import job update failed.");
   return data as ImportJobRow;
+}
+
+function hasValue(value: string | undefined | null) {
+  return typeof value === "string" && value.trim().length > 0;
 }
 
 function replaceAll(input: string, search: string, replacement: string) {

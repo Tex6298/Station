@@ -232,6 +232,15 @@ test("/health stays cheap while /health/deployment returns non-secret readiness"
       railwayRedis: true,
       upstashRest: true,
       configured: true,
+      queue: {
+        provider: "redis_tcp",
+        queueConfigured: true,
+        workerQueueReady: true,
+        cacheConfigured: true,
+        upstashRestConfigured: true,
+        inlineFallback: true,
+        detail: "TCP Redis/Valkey queue configuration is present; protected-alpha inline fallback remains available.",
+      },
       operationalCache: {
         enabled: true,
         kind: "upstash_rest",
@@ -271,11 +280,88 @@ test("/health/deployment reports TCP Redis as configured but operational-cache d
       assert.equal(deployment.body.readiness.redis.railwayRedis, true);
       assert.equal(deployment.body.readiness.redis.upstashRest, false);
       assert.equal(deployment.body.readiness.redis.configured, true);
+      assert.deepEqual(deployment.body.readiness.redis.queue, {
+        provider: "redis_tcp",
+        queueConfigured: true,
+        workerQueueReady: true,
+        cacheConfigured: false,
+        upstashRestConfigured: false,
+        inlineFallback: true,
+        detail: "TCP Redis/Valkey queue configuration is present; protected-alpha inline fallback remains available.",
+      });
       assert.deepEqual(deployment.body.readiness.redis.operationalCache, {
         enabled: false,
         kind: "disabled",
         disabledReason: "tcp_redis_configured_without_client",
         environment: "production",
+      });
+      assertNoSecrets(deployment.body);
+    } finally {
+      await resetHealthFakes();
+    }
+  });
+});
+
+test("/health/deployment reports Upstash REST as cache-only, not worker queue readiness", async () => {
+  const db = new ReadinessSupabase();
+  db.migrationObjectProof = true;
+
+  await withEnvOverride({
+    REDIS_URL: "",
+    REDIS_PRIVATE_URL: "",
+    VALKEY_URL: "",
+    UPSTASH_REDIS_REST_URL: "https://secret-upstash.example.test",
+    UPSTASH_REDIS_REST_TOKEN: "secret-upstash-token",
+  }, async () => {
+    const { app } = await setupHealthApp(db);
+
+    try {
+      const deployment = await requestJson(app, "GET", "/health/deployment");
+      assert.equal(deployment.status, 200);
+      assert.equal(deployment.body.readiness.redis.railwayRedis, false);
+      assert.equal(deployment.body.readiness.redis.upstashRest, true);
+      assert.equal(deployment.body.readiness.redis.configured, true);
+      assert.deepEqual(deployment.body.readiness.redis.queue, {
+        provider: "upstash_rest_cache_only",
+        queueConfigured: false,
+        workerQueueReady: false,
+        cacheConfigured: true,
+        upstashRestConfigured: true,
+        inlineFallback: true,
+        detail: "Upstash REST cache is configured, but no BullMQ-compatible TCP queue provider is configured.",
+      });
+      assertNoSecrets(deployment.body);
+    } finally {
+      await resetHealthFakes();
+    }
+  });
+});
+
+test("/health/deployment reports absent queue provider without blocking inline fallback", async () => {
+  const db = new ReadinessSupabase();
+  db.migrationObjectProof = true;
+
+  await withEnvOverride({
+    REDIS_URL: "",
+    REDIS_PRIVATE_URL: "",
+    VALKEY_URL: "",
+    UPSTASH_REDIS_REST_URL: "",
+    UPSTASH_REDIS_REST_TOKEN: "",
+  }, async () => {
+    const { app } = await setupHealthApp(db);
+
+    try {
+      const deployment = await requestJson(app, "GET", "/health/deployment");
+      assert.equal(deployment.status, 200);
+      assert.equal(deployment.body.readiness.redis.configured, false);
+      assert.deepEqual(deployment.body.readiness.redis.queue, {
+        provider: "not_configured",
+        queueConfigured: false,
+        workerQueueReady: false,
+        cacheConfigured: false,
+        upstashRestConfigured: false,
+        inlineFallback: true,
+        detail: "No queue provider is configured; protected-alpha inline fallback is required.",
       });
       assertNoSecrets(deployment.body);
     } finally {

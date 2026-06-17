@@ -210,16 +210,19 @@ export async function processUploadedFile(input: {
   fileName: string;
   fileType: string | null;
   storagePath: string;
+  jobId?: string;
 }): Promise<{ chunksCreated: number }> {
   const sb = getSupabaseAdmin();
 
   // Mark job as processing
-  await sb
+  const processingQuery = sb
     .from("import_jobs")
     .update({ status: "processing" })
     .eq("persona_id", input.personaId)
     .eq("source_name", input.fileName)
     .eq("status", "queued");
+  if (input.jobId) processingQuery.eq("id", input.jobId);
+  await processingQuery;
 
   try {
     // Download file bytes from Supabase Storage
@@ -263,22 +266,26 @@ export async function processUploadedFile(input: {
       .eq("id", input.fileId);
 
     // Mark import job as completed
-    await sb
+    const completedQuery = sb
       .from("import_jobs")
       .update({ status: "completed" })
       .eq("persona_id", input.personaId)
       .eq("source_name", input.fileName)
       .eq("status", "processing");
+    if (input.jobId) completedQuery.eq("id", input.jobId);
+    await completedQuery;
 
     return { chunksCreated };
   } catch (err) {
     const message = sanitizeJobErrorMessage(err, [input.fileName, input.storagePath]);
 
-    await sb
+    const failedQuery = sb
       .from("import_jobs")
       .update({ status: "failed", error_message: message })
       .eq("persona_id", input.personaId)
       .eq("source_name", input.fileName);
+    if (input.jobId) failedQuery.eq("id", input.jobId);
+    await failedQuery;
 
     throw new Error(message);
   }
