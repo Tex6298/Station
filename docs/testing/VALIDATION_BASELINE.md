@@ -6534,6 +6534,17 @@ Scope notes:
 - Rich formatting tools, external connector dispatch, and scheduled publishing
   are visibly deferred for later approval/worker lanes.
 
+ARGUS blocker repair validation on 2026-06-17:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:community` | Pass | 8 tests passed; document owner test now covers PATCH Space/persona persistence, other-owner rejection, and publish after owned attachment. |
+| `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` | Pass | 1 test passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 11 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck tasks passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:continuity-publication` | Pass | 1 test passed. |
+| `git diff --check` | Pass | CRLF normalization warnings only. |
+
 ARGUS review on 2026-06-17:
 
 | Command | Result | Notes |

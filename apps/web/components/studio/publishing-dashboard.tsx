@@ -189,7 +189,7 @@ function countPill(active: boolean) {
 
 const row = {
   display: "grid",
-  gridTemplateColumns: "minmax(0, 1fr) auto",
+  gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 280px), 1fr))",
   gap: 14,
   alignItems: "center",
   border: "1px solid #d8d3c8",
@@ -227,7 +227,7 @@ const buttonRow = {
   display: "flex",
   gap: 8,
   flexWrap: "wrap" as const,
-  justifyContent: "flex-end",
+  justifyContent: "flex-start",
 };
 
 const pill = {

@@ -279,6 +279,17 @@ async function loadOwnedSpace(spaceId: string, ownerUserId: string) {
   return data?.owner_user_id === ownerUserId ? data : null;
 }
 
+async function loadOwnedPersona(personaId: string, ownerUserId: string) {
+  const sb = getSupabaseAdmin();
+  const { data } = await sb
+    .from("personas")
+    .select("id, owner_user_id")
+    .eq("id", personaId)
+    .single();
+
+  return data?.owner_user_id === ownerUserId ? data : null;
+}
+
 async function loadPersonaName(personaId: string | null) {
   if (!personaId) return null;
   const sb = getSupabaseAdmin();
@@ -579,6 +590,7 @@ documentsRouter.patch("/:id", async (req, res) => {
   if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
 
   const sb = getSupabaseAdmin();
+  const userId = req.user!.id;
   const update: Record<string, unknown> = {};
   if (parsed.data.title !== undefined)          update.title = parsed.data.title;
   if (parsed.data.body !== undefined)           update.body = parsed.data.body;
@@ -586,12 +598,28 @@ documentsRouter.patch("/:id", async (req, res) => {
   if (parsed.data.documentType !== undefined)   update.document_type = parsed.data.documentType;
   if (parsed.data.commentsEnabled !== undefined) update.comments_enabled = parsed.data.commentsEnabled;
   if (parsed.data.status !== undefined)         update.status = parsed.data.status;
+  if (parsed.data.spaceId !== undefined) {
+    const space = await loadOwnedSpace(parsed.data.spaceId, userId);
+    if (!space) return res.status(403).json({ error: "Space not found or not yours." });
+    update.space_id = parsed.data.spaceId;
+  }
+  if (parsed.data.personaId !== undefined) {
+    if (parsed.data.personaId === null) {
+      update.persona_id = null;
+      update.source_persona_id = null;
+    } else {
+      const persona = await loadOwnedPersona(parsed.data.personaId, userId);
+      if (!persona) return res.status(403).json({ error: "Persona not found or not yours." });
+      update.persona_id = parsed.data.personaId;
+      update.source_persona_id = parsed.data.personaId;
+    }
+  }
 
   const { data, error } = await sb
     .from("documents")
     .update(update)
     .eq("id", req.params.id)
-    .eq("author_user_id", req.user!.id)
+    .eq("author_user_id", userId)
     .select("*")
     .single();
 

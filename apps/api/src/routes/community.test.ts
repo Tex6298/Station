@@ -24,6 +24,7 @@ const ADMIN_ID = "aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee";
 const CATEGORY_ID = "44444444-4444-4444-8444-444444444444";
 const PUBLIC_SPACE_ID = "55555555-5555-4555-8555-555555555551";
 const PRIVATE_SPACE_ID = "55555555-5555-4555-8555-555555555552";
+const OTHER_SPACE_ID = "55555555-5555-4555-8555-555555555553";
 const PUBLIC_PAGE_ID = "66666666-6666-4666-8666-666666666661";
 const PRIVATE_PAGE_ID = "66666666-6666-4666-8666-666666666662";
 const PUBLIC_PERSONA_ID = "77777777-7777-4777-8777-777777777771";
@@ -56,6 +57,7 @@ class CommunitySupabase {
     spaces: [
       space(PUBLIC_SPACE_ID, "public-space", true),
       space(PRIVATE_SPACE_ID, "private-space", false),
+      { ...space(OTHER_SPACE_ID, "other-space", false), owner_user_id: OTHER_ID },
     ],
     space_pages: [
       page(PUBLIC_PAGE_ID, PUBLIC_SPACE_ID, true, true),
@@ -1028,6 +1030,48 @@ test("documents protect persona ownership and owner-only updates", async () => {
     });
     assert.equal(ownerUpdate.status, 200);
     assert.equal(ownerUpdate.body.document.title, "Owner updated");
+
+    const noSpaceDraft = await requestJson(app, "POST", "/documents", {
+      token: "owner-token",
+      body: {
+        title: "Studio publish draft",
+        slug: "studio-publish-draft",
+      },
+    });
+    assert.equal(noSpaceDraft.status, 201);
+    assert.equal(noSpaceDraft.body.document.space_id, null);
+
+    const otherSpaceBlocked = await requestJson(app, "PATCH", `/documents/${noSpaceDraft.body.document.id}`, {
+      token: "owner-token",
+      body: { spaceId: OTHER_SPACE_ID },
+    });
+    assert.equal(otherSpaceBlocked.status, 403);
+
+    const otherPersonaBlocked = await requestJson(app, "PATCH", `/documents/${noSpaceDraft.body.document.id}`, {
+      token: "owner-token",
+      body: { personaId: OTHER_PERSONA_ID },
+    });
+    assert.equal(otherPersonaBlocked.status, 403);
+
+    const attachOwnedContext = await requestJson(app, "PATCH", `/documents/${noSpaceDraft.body.document.id}`, {
+      token: "owner-token",
+      body: {
+        spaceId: PUBLIC_SPACE_ID,
+        personaId: PUBLIC_PERSONA_ID,
+      },
+    });
+    assert.equal(attachOwnedContext.status, 200);
+    assert.equal(attachOwnedContext.body.document.space_id, PUBLIC_SPACE_ID);
+    assert.equal(attachOwnedContext.body.document.persona_id, PUBLIC_PERSONA_ID);
+    assert.equal(attachOwnedContext.body.document.source_persona_id, PUBLIC_PERSONA_ID);
+
+    const publishAttached = await requestJson(app, "POST", `/documents/${noSpaceDraft.body.document.id}/publish`, {
+      token: "owner-token",
+      body: { visibility: "public" },
+    });
+    assert.equal(publishAttached.status, 200);
+    assert.equal(publishAttached.body.document.status, "published");
+    assert.equal(publishAttached.body.document.space_id, PUBLIC_SPACE_ID);
   } finally {
     setSupabaseAdminForTests(null);
   }

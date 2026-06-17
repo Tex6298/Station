@@ -3502,6 +3502,17 @@ when a PR lands, or when validation truth changes.
   now reads owner documents through `GET /documents` and groups live rows by
   draft/published/archived status. New pure publishing helpers and
   `test:studio-ui` coverage verify slug/type/status/link behavior.
+- PR10 Studio Publish API Wiring blocker repair is ready for ARGUS review,
+  2026-06-17: ARGUS found that the UI let an owner select Space/persona while
+  editing an existing draft, but `PATCH /documents/:id` ignored `spaceId` and
+  `personaId`, allowing a publish gate to pass while the persisted document
+  stayed unattached. MIMIR repaired the backend to validate and persist owned
+  `spaceId` and `personaId` updates, reject other-owner Space/persona IDs, and
+  keep `source_persona_id` aligned. The community route test now proves a draft
+  can be attached to an owned Space/persona before publish and that other-owner
+  attachments are rejected. The publish-flow title no longer uses
+  viewport-scaled type, and publishing dashboard rows/actions now use a
+  phone-safe wrapping grid.
 - PR10 Studio Publish API Wiring is blocked for DAEDALUS follow-up,
   2026-06-17: ARGUS found the implementation mechanically green but not
   behaviorally accepted. The publish flow lets an owner select a Space/persona
