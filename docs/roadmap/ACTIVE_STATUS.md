@@ -3641,6 +3641,12 @@ when a PR lands, or when validation truth changes.
   `test:community`, `test:studio-ui`, and whitespace checks successfully. No
   PR11 code blocker remains; MIMIR should decide whether this API-heavy lane
   needs ARIADNE dashboard rehearsal before closeout.
+- PR11 Approval Queue browser rehearsal is queued for ARIADNE, 2026-06-17:
+  `docs/roadmap/PR11_APPROVAL_QUEUE_REHEARSAL_ARIADNE.md` asks for a narrow
+  live human-eye pass over `/studio/publishing` and `/studio/publish`, focused
+  on approval state readability, no-Space disabled actions, button feedback,
+  and mobile width. Missing Creator-positive publish proof remains staging
+  account setup, not a rehearsal failure.
 
 ## Near-term rule
 
