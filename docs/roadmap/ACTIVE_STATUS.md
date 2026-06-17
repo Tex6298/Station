@@ -4251,6 +4251,17 @@ when a PR lands, or when validation truth changes.
   execution, provider requirement, persona Memory/Canon writes, publishing/export
   mutation, workers, Cloudflare/vector/Redis memory work, billing redesign,
   social posting, or UI reskin was added.
+- PR22 is blocked by ARGUS, 2026-06-17: the new `/assistant/summary` and
+  `/assistant/message` paths use safe labels, but the existing
+  `/assistant/context` route still returns raw import `sourceName` and
+  `errorMessage` values from `getStationAssistantContext`, and the older
+  context action builder can put raw `source_name` into failed-import details.
+  That means an Assistant API surface can still expose storage-path-shaped labels
+  and secret-shaped error text such as bearer tokens, `sk-*` keys, service-role
+  values, API keys, secrets, tokens, or passwords. Repair by applying the same
+  `safeSourceLabel`/`safeSnippet` policy to `/assistant/context` or by routing
+  it through the same sanitized typed summary shape, and add tests that hit
+  `/assistant/context` with raw path/secret fixture data.
 
 ## Near-term rule
 
