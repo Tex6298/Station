@@ -3769,6 +3769,17 @@ when a PR lands, or when validation truth changes.
   `/studio/archive` on desktop and mobile before MIMIR closes PR12.
   `docs/roadmap/PR12_ARCHIVE_SEARCH_REHEARSAL_ARIADNE.md` defines the browser
   pass.
+- PR12 Archive Search browser rehearsal needs a focused UX repair,
+  2026-06-17: ARIADNE checked production web/API runtime commit `2cf7b98`.
+  Owner-scoped search, filters, sorts, owner-only empty copy, mobile flow, and
+  unauthenticated login redirect all behaved acceptably with no horizontal
+  overflow or private archive cards shown to an unauthenticated browser.
+  However, global visual reconciliation CSS partially overrides
+  `/studio/archive`: the page background is light while archive header/lede text
+  remains dark-theme white/blue, and the mobile failed-count stat is hard to
+  read. `docs/roadmap/PR12_ARCHIVE_SEARCH_REHEARSAL_ARIADNE_RESULT.md` records
+  the sanitized pass. DAEDALUS should make a focused contrast patch before MIMIR
+  closes PR12; do not reopen the accepted owner-scoped backend/search behavior.
 
 ## Near-term rule
 
