@@ -4136,6 +4136,16 @@ when a PR lands, or when validation truth changes.
   reskin, live Reddit/Discord pulls, workers, Cloudflare/vector/Redis memory,
   publishing, billing, social posting, or public community bridge scope was
   added.
+- PR21 Import Review Inbox is accepted by ARGUS, 2026-06-17: ARGUS reviewed the
+  candidate listing route, Studio inbox, helper tests, and shared candidate
+  shape. The route checks persona ownership before returning candidates and also
+  filters rows by `owner_user_id`; non-owners receive 403 without candidate
+  content. Import-backed accept-with-edits, Canon accept, reject, reviewed
+  listing, source preservation, and archived-chat regressions are covered. The
+  Studio page stays in the existing Archive flow and does not add a new review
+  workspace or public surface. ARGUS reran the PR21 validation set and
+  recommends MIMIR mark PR21 complete as a narrow owner-facing import review
+  inbox lane.
 
 ## Near-term rule
 
