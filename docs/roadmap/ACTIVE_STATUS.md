@@ -4152,6 +4152,16 @@ when a PR lands, or when validation truth changes.
   visible lane fully closed. Scope is clarity, affordances, mobile usability,
   source labels, reject-preserves-source language, empty state, and no accidental
   workspace/reskin expansion.
+- PR21 Import Review Inbox ARIADNE rehearsal is blocked, 2026-06-17: live
+  browser review of `/studio/personas/:personaId/files` on Railway web/API
+  deployment `e61c801` failed before the inbox could render. Desktop `1440x1100`
+  and mobile `375x812` both showed `column import_jobs.file_id does not exist`;
+  direct API reproduction confirms `GET /imports/persona/:personaId` returns
+  HTTP 500 with the same error, while persona files and import-candidate listing
+  return HTTP 200. The replay persona also has zero import sources, jobs, or
+  import-backed candidates, so candidate-card/action rehearsal will still need a
+  seed after the route blocker is fixed. See
+  `docs/roadmap/PR21_IMPORT_REVIEW_INBOX_REHEARSAL_ARIADNE_RESULT.md`.
 
 ## Near-term rule
 
