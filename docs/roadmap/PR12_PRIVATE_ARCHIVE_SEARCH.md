@@ -1,7 +1,8 @@
 # PR12 - Private Archive Search
 
 Date: 2026-06-17
-Status: ready for A3 / ARGUS review
+Status: accepted by A3 / ARGUS for code-security review; queued for ARIADNE
+browser rehearsal
 Owner: DAEDALUS implementation, ARGUS review, ARIADNE human rehearsal only if
 the Studio archive journey changes enough to need browser eyes.
 
@@ -221,3 +222,33 @@ Known caveat:
 - Search is bounded metadata/full-text filtering over owner-scoped source rows.
   It does not add vector search, embedding backfill, Redis memory truth,
   Cloudflare retrieval, or worker execution.
+
+## ARGUS Review - 2026-06-17
+
+Verdict: accepted for code/security.
+
+ARGUS reviewed commit `2cf7b98`. The new search route derives owner scope from
+`req.user`, applies owner filters to every searched private table, caps source
+reads and response items, and returns sanitized owner-only result cards instead
+of raw transcripts or file bodies. Failed import summaries reuse the existing
+secret redaction helper. `/studio/archive` now routes active query, filter, and
+sort controls to the backend search endpoint while preserving the existing
+summary route for the default view.
+
+Validation rerun:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:storage` passed with 10 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` passed with 13 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` passed with
+  8 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:persona-context` passed with
+  6 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:exports` passed with 3 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `git diff 9f26b45..2cf7b98 --check` passed.
+- `git diff --check` passed with CRLF warnings only.
+
+Human-eye follow-up:
+
+- Because the Studio archive surface changed materially, ARIADNE should rehearse
+  `/studio/archive` on desktop and mobile before MIMIR closes PR12.

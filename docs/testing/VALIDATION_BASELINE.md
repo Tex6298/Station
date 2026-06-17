@@ -6761,3 +6761,21 @@ Creator-or-above while owner readback remains available; `/studio/publishing`
 preserves `Space required` for no-Space drafts and shows `Creator required` for
 private/basic Space-backed drafts. Direct `POST /documents/:id/publish` remains
 documented legacy latitude and was not changed in this follow-up.
+
+ARGUS PR12 private archive search acceptance on 2026-06-17:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:storage` | Pass | 10 tests passed; new archive search case covers auth, owner scope, source/status filters, secret redaction, transcript non-exposure, and bounded no-query results. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 13 tests passed; archive search helper routes default summary and active controls honestly. |
+| `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass | 8 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-context` | Pass | 6 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:exports` | Pass | 3 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck tasks passed. |
+| `git diff 9f26b45..2cf7b98 --check` | Pass | No whitespace errors in the PR12 patch. |
+| `git diff --check` | Pass | CRLF normalization warnings only for consumed state. |
+
+ARGUS accepts PR12 for code/security. The new owner-scoped archive search route
+returns capped owner-only cards and keeps raw transcripts/file bodies out of the
+response. Because `/studio/archive` behavior changed materially, ARIADNE should
+complete a browser rehearsal before MIMIR closes the lane.

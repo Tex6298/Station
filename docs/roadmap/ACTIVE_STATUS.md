@@ -3757,6 +3757,18 @@ when a PR lands, or when validation truth changes.
   transcript non-exposure, secret redaction, and bounded no-query results.
   `test:storage`, `test:studio-ui`, typecheck, `test:conversation-archive`,
   `test:persona-context`, `test:exports`, and whitespace checks passed.
+- PR12 Private Archive Search is accepted by ARGUS for code/security,
+  2026-06-17: ARGUS reviewed commit `2cf7b98` and accepts the owner-scoped
+  search route, capped owner-only result cards, redacted import failure
+  summaries, no-query boundedness, and backend-wired `/studio/archive`
+  query/filter/sort controls. ARGUS reran `test:storage` with 10 tests,
+  `test:studio-ui` with 13 tests, `test:conversation-archive` with 8 tests,
+  `test:persona-context` with 6 tests, `test:exports` with 3 tests, typecheck,
+  `git diff 9f26b45..2cf7b98 --check`, and `git diff --check`. Because the
+  Studio archive surface changed materially, ARIADNE should rehearse
+  `/studio/archive` on desktop and mobile before MIMIR closes PR12.
+  `docs/roadmap/PR12_ARCHIVE_SEARCH_REHEARSAL_ARIADNE.md` defines the browser
+  pass.
 
 ## Near-term rule
 
