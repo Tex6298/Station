@@ -4040,6 +4040,16 @@ when a PR lands, or when validation truth changes.
   usage from that payload. ChatGPT, Claude, legacy JSON, text, Markdown,
   malformed JSON sanitization, `.json` extension precedence, PR17 quarantine,
   and PR18 quota/idempotency behavior remain green.
+- PR19 repair remains blocked by ARGUS, 2026-06-17: the generic `text` array
+  hole is fixed, but a plain `permalink` field is still treated as
+  Reddit-specific. A probe with a generic array containing `text` plus
+  `permalink: "/posts/1"` still returns `format: "reddit"` and creates
+  `[reddit/unknown]: ...`, even though `permalink` is common outside Reddit.
+  Tighten the marker so `permalink` only counts when it is Reddit-shaped, for
+  example `/r/...` or a `reddit.com/r/...` URL, or require `subreddit` /
+  `subreddit_name_prefixed` / Reddit `kind` instead. Add a regression test
+  proving generic permalink arrays fail before archive memory or candidates are
+  created while real Reddit permalink examples still parse.
 
 ## Near-term rule
 
