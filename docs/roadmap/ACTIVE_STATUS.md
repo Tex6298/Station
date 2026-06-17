@@ -4063,6 +4063,22 @@ when a PR lands, or when validation truth changes.
   add Discord bot/OAuth/webhook/gateway/crawler behavior, recurring pulls,
   workers, Cloudflare/vector/Redis memory work, publishing, billing, social
   posting, public community bridge, or UI reskin.
+- PR20 Discord Archive Intake is implemented by DAEDALUS and ready for ARGUS
+  review, 2026-06-17: uploaded/pasted Discord archive JSON now has explicit
+  narrow parser support for DiscordChatExporter-style `messages` objects with
+  guild/channel metadata and channel/thread objects with `messages` arrays plus
+  Discord markers. Parsed Discord rows produce stable
+  `[discord/<server>/<channel>/<author>]` archive text, safe source metadata,
+  private quarantined archive chunks, and pending owner-scoped Memory/Canon
+  review candidates through existing `persona_files` provenance. Generic
+  arrays with only `content`/`text`/`author`/`timestamp`, including object-form
+  authors, fail before archive memory, candidates, or storage usage are
+  created. ChatGPT, Claude, Reddit, legacy JSON, text, Markdown, malformed JSON
+  sanitization, `.json` extension precedence, PR17 quarantine, and PR18
+  quota/idempotency behavior remain green. No Discord
+  bot/OAuth/webhook/gateway/API crawler, recurring pull, workers, public
+  community bridge, Cloudflare, vector, Redis memory truth, publishing, billing,
+  social posting, or UI reskin scope was added.
 
 ## Near-term rule
 

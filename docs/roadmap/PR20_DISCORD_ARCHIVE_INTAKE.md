@@ -1,7 +1,7 @@
 # PR20 - Discord Archive Intake
 
 Date: 2026-06-17
-Status: opened for A2 / DAEDALUS
+Status: implemented by A2 / DAEDALUS; ready for A3 / ARGUS review
 Owner: DAEDALUS implementation, ARGUS review, ARIADNE only if a visible import
 journey changes materially.
 
@@ -128,6 +128,37 @@ need it.
 - Active import-job quota and duplicate exact file registration still pass.
 - Other owners cannot read, claim, accept, reject, or infer another owner's
   Discord import/candidates.
+
+## DAEDALUS Implementation Notes
+
+- Added `apps/api/src/services/imports/parsers/discord.ts`.
+- Supported JSON shapes:
+  - DiscordChatExporter-style objects with `messages` plus guild/server and
+    channel metadata;
+  - channel/thread objects with `messages` arrays and Discord-specific markers.
+- Discord message recognition is intentionally narrow. A generic top-level array
+  is not accepted just because it has `content`, `text`, `author`, or
+  `timestamp`, including object-form authors. Source-level guild/channel
+  metadata can make author/user objects meaningful, but bare arrays need
+  stronger Discord markers such as attachment/embed arrays, message type fields,
+  Discord IDs, or mention/reaction arrays.
+- Parsed Discord text uses stable `[discord/<server>/<channel>/<author>]`
+  labels and deterministic timestamp/source-order sorting.
+- Parsed Discord imports now create private archive chunks plus pending
+  import-backed Memory/Canon candidates through the existing `persona_files`
+  provenance path.
+- Unknown/malformed JSON still fails before archive memory creation, and `.json`
+  extension remains authoritative over misleading text MIME.
+
+## Future Live Discord Notes
+
+No live Discord API, bot, OAuth, webhook, or gateway work was added. Future live
+pull/recurring intake would need an explicit design for Discord application/bot
+credentials, owner/server authorization and consent, permission scopes, message
+history access, gateway versus REST boundaries, rate limits, pagination,
+deleted/edited message handling, attachment retention, private channel access,
+and token storage/rotation. Public community bridge or social-posting behavior
+must remain separate from private archive intake credentials.
 
 ## Handoff To ARGUS
 

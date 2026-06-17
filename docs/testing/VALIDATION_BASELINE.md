@@ -7075,3 +7075,35 @@ ARGUS permalink blocker repair by DAEDALUS on 2026-06-17:
 | `npm exec --yes pnpm@10.32.1 -- run test:persona-context` | Pass | 6 tests passed, including PR17 runtime exclusion of quarantined import archive chunks. |
 | `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck tasks passed. |
 | `git diff --check` | Pass | No whitespace errors; CRLF normalization warnings only for touched text files if Git reports them. |
+
+## PR20 Discord Archive Intake
+
+DAEDALUS implementation validation on 2026-06-17:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass | 24 tests passed, including DiscordChatExporter-style parsing, Discord channel/thread object parsing, generic Discord-like array rejection with string and object-form authors, ChatGPT/Claude/Reddit preservation, malformed JSON sanitization, `.json` extension precedence, text/Markdown preservation, and legacy role/content arrays. |
+| `npm exec --yes pnpm@10.32.1 -- run test:storage` | Pass | 16 tests passed, including Discord upload processing into private archive chunks plus pending import review candidates, generic content/author/timestamp array failures with no archive memory/candidates/storage usage, Reddit import behavior, and PR18 active import-job quota/idempotency coverage. |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-context` | Pass | 6 tests passed, including PR17 runtime exclusion of quarantined import archive chunks. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck tasks passed. |
+| `git diff --check` | Pass | No whitespace errors; CRLF normalization warnings only for touched text files if Git reports them. |
+
+Scope notes:
+
+- Added explicit Discord parser support under
+  `apps/api/src/services/imports/parsers/discord.ts`.
+- Supported JSON shapes are intentionally narrow: DiscordChatExporter-style
+  objects with `messages` plus guild/channel metadata, and channel/thread
+  objects with `messages` arrays plus Discord markers.
+- Generic top-level arrays with only `content`, `text`, `author`, or
+  `timestamp`, including object-form authors, remain unsupported JSON and fail
+  before archive memory creation.
+- Parsed Discord imports create private archive chunks and pending Memory/Canon
+  candidates through existing `persona_files` provenance; source labels use the
+  existing `discord.json (discord import)` pattern.
+- Unknown or malformed JSON still fails before archive memory creation, and
+  `.json` file names remain authoritative over misleading text MIME.
+- No live Discord API, bot, OAuth, webhook, gateway, recurring pull worker,
+  public community bridge, Cloudflare retrieval, vector reindexing, Redis memory
+  truth, publishing, billing, social posting, export worker redesign, or UI
+  reskin was added.

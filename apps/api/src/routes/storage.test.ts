@@ -1287,6 +1287,22 @@ test("uploaded ChatGPT and Claude JSON parse explicitly while unknown JSON fails
       permalink: "/posts/1",
     }])
   );
+  db.storageDownloads.set(
+    "owner/generic-discord.json",
+    JSON.stringify([{
+      content: "generic Discord-like phrase must not become memory",
+      author: "Someone",
+      timestamp: "2026-06-17T10:01:00.000Z",
+    }])
+  );
+  db.storageDownloads.set(
+    "owner/generic-discord-author-object.json",
+    JSON.stringify([{
+      content: "generic Discord object-author phrase must not become memory",
+      author: { username: "Someone" },
+      timestamp: "2026-06-17T10:01:00.000Z",
+    }])
+  );
 
   try {
     const chatGptFile = db.insertRow("persona_files", {
@@ -1477,6 +1493,78 @@ test("uploaded ChatGPT and Claude JSON parse explicitly while unknown JSON fails
     assert.equal(failedPermalinkJob.status, "failed");
     assert.match(failedPermalinkJob.error_message, /Unsupported JSON import format/);
     assert.doesNotMatch(failedPermalinkJob.error_message, /generic permalink phrase/);
+
+    const genericDiscordFile = db.insertRow("persona_files", {
+      persona_id: PERSONA_ID,
+      owner_user_id: OWNER_ID,
+      file_name: "generic-discord.json",
+      file_type: "application/json",
+      file_size: 10,
+      storage_path: "owner/generic-discord.json",
+    });
+    db.insertRow("import_jobs", {
+      persona_id: PERSONA_ID,
+      owner_user_id: OWNER_ID,
+      kind: "file",
+      status: "queued",
+      source_name: "generic-discord.json",
+    });
+
+    await assert.rejects(
+      () => processUploadedFile({
+        personaId: PERSONA_ID,
+        ownerUserId: OWNER_ID,
+        fileId: genericDiscordFile.id,
+        fileName: "generic-discord.json",
+        fileType: "application/json",
+        storagePath: "owner/generic-discord.json",
+      }),
+      /Unsupported JSON import format/
+    );
+
+    assert.equal(db.tables.memory_items.length, memoryCountBeforeUnknown);
+    assert.equal(db.tables.continuity_candidates.length, candidateCountBeforeUnknown);
+    assert.equal(storageRow(db).bytes_used, storageBeforeUnknown);
+    const failedDiscordJob = db.tables.import_jobs.find((job) => job.source_name === "generic-discord.json");
+    assert.equal(failedDiscordJob.status, "failed");
+    assert.match(failedDiscordJob.error_message, /Unsupported JSON import format/);
+    assert.doesNotMatch(failedDiscordJob.error_message, /generic Discord-like phrase/);
+
+    const genericDiscordAuthorFile = db.insertRow("persona_files", {
+      persona_id: PERSONA_ID,
+      owner_user_id: OWNER_ID,
+      file_name: "generic-discord-author-object.json",
+      file_type: "application/json",
+      file_size: 10,
+      storage_path: "owner/generic-discord-author-object.json",
+    });
+    db.insertRow("import_jobs", {
+      persona_id: PERSONA_ID,
+      owner_user_id: OWNER_ID,
+      kind: "file",
+      status: "queued",
+      source_name: "generic-discord-author-object.json",
+    });
+
+    await assert.rejects(
+      () => processUploadedFile({
+        personaId: PERSONA_ID,
+        ownerUserId: OWNER_ID,
+        fileId: genericDiscordAuthorFile.id,
+        fileName: "generic-discord-author-object.json",
+        fileType: "application/json",
+        storagePath: "owner/generic-discord-author-object.json",
+      }),
+      /Unsupported JSON import format/
+    );
+
+    assert.equal(db.tables.memory_items.length, memoryCountBeforeUnknown);
+    assert.equal(db.tables.continuity_candidates.length, candidateCountBeforeUnknown);
+    assert.equal(storageRow(db).bytes_used, storageBeforeUnknown);
+    const failedDiscordAuthorJob = db.tables.import_jobs.find((job) => job.source_name === "generic-discord-author-object.json");
+    assert.equal(failedDiscordAuthorJob.status, "failed");
+    assert.match(failedDiscordAuthorJob.error_message, /Unsupported JSON import format/);
+    assert.doesNotMatch(failedDiscordAuthorJob.error_message, /generic Discord object-author phrase/);
   } finally {
     resetStorageFake();
   }
@@ -1550,6 +1638,85 @@ test("uploaded Reddit JSON creates private archive chunks and import review cand
     assert.deepEqual(candidates.map((row) => row.candidate_type).sort(), ["canon", "memory"]);
     assert.equal(candidates.every((row) => row.source_table === "persona_files"), true);
     assert.equal(candidates.every((row) => row.source_label === "reddit.json (reddit import)"), true);
+    assert.equal(candidates.every((row) => row.owner_user_id === OWNER_ID), true);
+    assert.equal(candidates.every((row) => row.status === "pending"), true);
+  } finally {
+    resetStorageFake();
+  }
+});
+
+test("uploaded Discord JSON creates private archive chunks and import review candidates", async () => {
+  const { processUploadedFile } = await import("../services/archive.service.js");
+  const db = new InMemorySupabase();
+  setSupabaseAdminForTests(db.client as any);
+  storageRow(db).bytes_limit = 1000;
+  db.storageDownloads.set(
+    "owner/discord.json",
+    JSON.stringify({
+      guild: { id: "guild-1", name: "Station Guild" },
+      channel: { id: "channel-1", name: "archive-lab" },
+      exportedAt: "2026-06-17T12:00:00.000Z",
+      messages: [
+        {
+          id: "message-1",
+          type: "Default",
+          timestamp: "2026-06-17T10:01:00.000Z",
+          author: { id: "user-1", name: "thread-owner" },
+          content: "Station Discord archive thread should stay private before review.",
+        },
+        {
+          id: "message-2",
+          type: "Default",
+          timestamp: "2026-06-17T10:02:00.000Z",
+          author: { id: "user-2", name: "reply-owner" },
+          content: "Always review Discord import candidates before runtime use.",
+        },
+      ],
+    })
+  );
+
+  try {
+    const discordFile = db.insertRow("persona_files", {
+      persona_id: PERSONA_ID,
+      owner_user_id: OWNER_ID,
+      file_name: "discord.json",
+      file_type: "application/json",
+      file_size: 10,
+      storage_path: "owner/discord.json",
+    });
+    db.insertRow("import_jobs", {
+      persona_id: PERSONA_ID,
+      owner_user_id: OWNER_ID,
+      kind: "file",
+      status: "queued",
+      source_name: "discord.json",
+    });
+
+    const processed = await processUploadedFile({
+      personaId: PERSONA_ID,
+      ownerUserId: OWNER_ID,
+      fileId: discordFile.id,
+      fileName: "discord.json",
+      fileType: "application/json",
+      storagePath: "owner/discord.json",
+    });
+
+    assert.equal(processed.chunksCreated, 1);
+    const memory = db.tables.memory_items.find((row) => row.archive_source_id === discordFile.id);
+    assert.ok(memory);
+    assert.equal(memory.source_type, "import");
+    assert.equal(memory.archive_source_name, "discord.json (discord import)");
+    assert.match(memory.content, /\[discord\/Station Guild\/archive-lab\/thread-owner\]: Station Discord archive thread/);
+    assert.match(memory.content, /\[discord\/Station Guild\/archive-lab\/reply-owner\]: Always review Discord import candidates/);
+    assert.equal(
+      db.tables.memory_item_lifecycle.find((row) => row.memory_item_id === memory.id)?.status,
+      "quarantined"
+    );
+
+    const candidates = db.tables.continuity_candidates.filter((row) => row.source_id === discordFile.id);
+    assert.deepEqual(candidates.map((row) => row.candidate_type).sort(), ["canon", "memory"]);
+    assert.equal(candidates.every((row) => row.source_table === "persona_files"), true);
+    assert.equal(candidates.every((row) => row.source_label === "discord.json (discord import)"), true);
     assert.equal(candidates.every((row) => row.owner_user_id === OWNER_ID), true);
     assert.equal(candidates.every((row) => row.status === "pending"), true);
   } finally {

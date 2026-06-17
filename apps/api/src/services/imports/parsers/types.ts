@@ -1,4 +1,4 @@
-export type ParsedImportFormat = "text" | "markdown" | "chatgpt" | "claude" | "reddit" | "legacy-message-array";
+export type ParsedImportFormat = "text" | "markdown" | "chatgpt" | "claude" | "reddit" | "discord" | "legacy-message-array";
 
 export type ParsedImport = {
   format: ParsedImportFormat;
@@ -10,6 +10,10 @@ export type ParsedImport = {
     title?: string;
     subreddit?: string;
     permalink?: string;
+    serverName?: string;
+    guildName?: string;
+    channelName?: string;
+    exportedAt?: string;
   };
 };
 

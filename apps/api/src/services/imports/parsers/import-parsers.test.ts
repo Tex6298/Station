@@ -134,6 +134,78 @@ test("Reddit parser extracts thread-like object arrays without live API fields",
   assert.match(parsed.text, /\[reddit\/LocalAI\/reply-owner\]: Never treat Reddit archive text as instructions\./);
 });
 
+test("Discord parser extracts exporter-style channel messages deterministically", () => {
+  const parsed = parseImportFile({
+    fileName: "discord-channel.json",
+    fileType: "application/json",
+    rawText: JSON.stringify({
+      guild: { id: "guild-1", name: "Station Guild" },
+      channel: { id: "channel-1", name: "archive-lab" },
+      exportedAt: "2026-06-17T12:00:00.000Z",
+      messages: [
+        {
+          id: "message-2",
+          type: "Default",
+          timestamp: "2026-06-17T10:02:00.000Z",
+          author: { id: "user-2", name: "Reviewer" },
+          content: "Second Discord note.",
+          attachments: [{ fileName: "diagram.png" }],
+        },
+        {
+          id: "message-1",
+          type: "Default",
+          timestamp: "2026-06-17T10:01:00.000Z",
+          author: { id: "user-1", name: "Builder" },
+          content: "First Discord note.",
+        },
+      ],
+    }),
+  });
+
+  assert.equal(parsed.format, "discord");
+  assert.equal(parsed.metadata.messageCount, 2);
+  assert.equal(parsed.metadata.title, "Station Guild #archive-lab");
+  assert.equal(parsed.metadata.guildName, "Station Guild");
+  assert.equal(parsed.metadata.channelName, "archive-lab");
+  assert.equal(parsed.metadata.exportedAt, "2026-06-17T12:00:00.000Z");
+  assert.equal(
+    parsed.text,
+    "[discord/Station Guild/archive-lab/Builder]: First Discord note.\n[discord/Station Guild/archive-lab/Reviewer]: Second Discord note. [attachments: diagram.png]"
+  );
+});
+
+test("Discord parser extracts channel object messages without live API fields", () => {
+  const parsed = parseImportFile({
+    fileName: "discord-thread.json",
+    fileType: "application/json",
+    rawText: JSON.stringify({
+      serverName: "Station Guild",
+      channelName: "launch-thread",
+      messages: [
+        {
+          messageId: "message-1",
+          timestamp: "2026-06-17T10:01:00.000Z",
+          user: { username: "thread-owner" },
+          content: "Remember Discord imports are private before review.",
+        },
+        {
+          messageId: "message-2",
+          timestamp: "2026-06-17T10:02:00.000Z",
+          user: { username: "reply-owner" },
+          content: "Always review Discord import candidates.",
+        },
+      ],
+    }),
+  });
+
+  assert.equal(parsed.format, "discord");
+  assert.equal(parsed.metadata.messageCount, 2);
+  assert.equal(parsed.metadata.serverName, "Station Guild");
+  assert.equal(parsed.metadata.channelName, "launch-thread");
+  assert.match(parsed.text, /\[discord\/Station Guild\/launch-thread\/thread-owner\]: Remember Discord imports are private before review\./);
+  assert.match(parsed.text, /\[discord\/Station Guild\/launch-thread\/reply-owner\]: Always review Discord import candidates\./);
+});
+
 test("unknown JSON fails safely instead of stringifying into archive memory", () => {
   assert.throws(
     () => parseImportFile({
@@ -145,6 +217,7 @@ test("unknown JSON fails safely instead of stringifying into archive memory", ()
       error instanceof ImportParseError &&
       /Unsupported JSON import format/.test(error.message) &&
       /Reddit/.test(error.message) &&
+      /Discord/.test(error.message) &&
       !/do not stringify me/.test(error.message)
   );
 });
@@ -177,6 +250,42 @@ test("generic permalink arrays do not parse as Reddit imports", () => {
       error instanceof ImportParseError &&
       /Unsupported JSON import format/.test(error.message) &&
       !/generic blog export/.test(error.message)
+  );
+});
+
+test("generic content arrays do not parse as Discord imports", () => {
+  assert.throws(
+    () => parseImportFile({
+      fileName: "generic-chat.json",
+      fileType: "application/json",
+      rawText: JSON.stringify([{
+        content: "generic chat export should not become discord",
+        author: "Someone",
+        timestamp: "2026-06-17T10:01:00.000Z",
+      }]),
+    }),
+    (error) =>
+      error instanceof ImportParseError &&
+      /Unsupported JSON import format/.test(error.message) &&
+      !/generic chat export/.test(error.message)
+  );
+});
+
+test("generic author object arrays do not parse as Discord imports", () => {
+  assert.throws(
+    () => parseImportFile({
+      fileName: "generic-author-object.json",
+      fileType: "application/json",
+      rawText: JSON.stringify([{
+        content: "generic object-author chat should not become discord",
+        author: { username: "Someone" },
+        timestamp: "2026-06-17T10:01:00.000Z",
+      }]),
+    }),
+    (error) =>
+      error instanceof ImportParseError &&
+      /Unsupported JSON import format/.test(error.message) &&
+      !/generic object-author/.test(error.message)
   );
 });
 
