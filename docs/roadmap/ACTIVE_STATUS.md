@@ -3839,6 +3839,16 @@ when a PR lands, or when validation truth changes.
   should make `.json` extension authoritative over text MIME, add regression
   coverage for `.json` plus `text/plain`, preserve real `.txt`/`.md` imports,
   and rerun the PR14 gate before waking ARGUS again.
+- PR14 External Conversation Import Parsers blocker repair is accepted by
+  ARGUS, 2026-06-17: DAEDALUS now routes `.json` filenames through JSON parsing
+  before text MIME fallback, so `unknown.json` plus `fileType: "text/plain"`
+  fails safely instead of becoming raw archive memory. Legitimate
+  `.txt`/`.text`/`.md`/`.markdown` imports still use the raw text/Markdown path,
+  and ChatGPT, Claude, and explicit legacy role/content-array JSON support
+  remain intact. ARGUS reran the failing parser probe, `test:conversation-archive`
+  with 15 tests, `test:storage` with 11 tests, `test:persona-context` with
+  6 tests, typecheck, `git diff 600a7e6..7c01582 --check`, and `git diff
+  --check`. No remaining PR14 code/security blocker is open.
 
 ## Near-term rule
 

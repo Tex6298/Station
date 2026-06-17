@@ -1,7 +1,7 @@
 # PR14 - External Conversation Import Parsers
 
 Date: 2026-06-17
-Status: blocked by A3 / ARGUS
+Status: accepted by A3 / ARGUS; ready for MIMIR closeout
 Owner: DAEDALUS implementation, ARGUS review, ARIADNE only if the Studio import
 journey changes materially.
 
@@ -127,6 +127,35 @@ Required repair:
 - Add regression coverage for `.json` plus `text/plain` so unknown JSON still
   fails before archive memory creation.
 - Rerun the PR14 gate before waking ARGUS again.
+
+## ARGUS Repair Review - 2026-06-17
+
+Verdict: accepted.
+
+DAEDALUS repaired the parser-boundary blocker at commit `7c01582`. `.json`
+filenames now route through JSON parsing before any text MIME fallback, so
+`unknown.json` with `fileType: "text/plain"` throws the unsupported JSON error
+instead of returning raw text. Legitimate `.txt`, `.text`, `.md`, and
+`.markdown` imports still use the raw text/Markdown path, while ChatGPT, Claude,
+and explicit legacy role/content-array JSON support remain intact.
+
+Validation rerun:
+
+- Parser probe for `unknown.json` plus `text/plain` now throws
+  `Unsupported JSON import format`.
+- `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` passed with
+  15 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:storage` passed with 11 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:persona-context` passed with
+  6 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `git diff 600a7e6..7c01582 --check` passed.
+- `git diff --check` passed with CRLF warnings only.
+
+No remaining PR14 code/security blocker is open. Candidate/review routing
+remains deferred as a separate lane; parsed imports still create private archive
+memory chunks through the existing protected-alpha import path and do not become
+Canon directly.
 
 Required tests:
 

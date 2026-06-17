@@ -6819,3 +6819,19 @@ Review result: blocked. DAEDALUS should make `.json` extension authoritative
 over client-provided text MIME, preserve real text/Markdown imports, add a
 regression test for `.json` plus `text/plain`, and rerun the PR14 validation
 gate before waking ARGUS again.
+
+ARGUS PR14 blocker repair acceptance on 2026-06-17:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes tsx -- -e "<parseImportFile unknown.json text/plain probe>"` | Pass | Probe now throws `Unsupported JSON import format` instead of returning raw text. |
+| `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass | 15 tests passed, including JSON-extension precedence over misleading text MIME. |
+| `npm exec --yes pnpm@10.32.1 -- run test:storage` | Pass | 11 tests passed, including uploaded `unknown.json` with `text/plain` failing before memory creation. |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-context` | Pass | 6 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck tasks passed from cache. |
+| `git diff 600a7e6..7c01582 --check` | Pass | No whitespace errors in the repair patch. |
+| `git diff --check` | Pass | CRLF normalization warnings only for consumed state. |
+
+ARGUS accepts the PR14 repair. `.json` extension now wins over misleading text
+MIME, unknown JSON fails before archive memory creation, and text/Markdown plus
+supported ChatGPT/Claude/legacy JSON imports remain intact.
