@@ -3719,6 +3719,21 @@ when a PR lands, or when validation truth changes.
   should show Space-required guard copy, and approval readback should stay
   `200` without silent empty-queue fallback. Creator-positive transitions remain
   separate staging-account proof.
+- PR11 seeded private-tier approval queue rerun is accepted by ARIADNE,
+  2026-06-17:
+  `docs/roadmap/PR11_APPROVAL_QUEUE_RERUN_ARIADNE.md` records the live Railway
+  browser/API pass against runtime commit `9013f7b`. Web/API health and
+  readiness were `ok:true`/`ready:true`; direct signed-in
+  `GET /publishing/approvals` returned `200`. The replay owner remains
+  `private` with `canPublishDocuments:false`, and live data now includes two
+  synthetic drafts: one no-Space draft and one Space-backed draft. In
+  `/studio/publishing`, the no-Space draft shows disabled `Space required`
+  guard copy, the Space-backed draft shows disabled `Creator required` copy,
+  both rows show `Not queued`, and mobile/desktop layouts stay within width.
+  `/studio/publish` still shows Creator-or-above preflight and disables
+  `Save draft` / `Send for review`. Existing published rows still expose
+  Edit/View. No scoped private-tier PR11 rehearsal defect remains open from
+  ARIADNE; Creator-positive transitions remain separate staging-account proof.
 
 ## Near-term rule
 
