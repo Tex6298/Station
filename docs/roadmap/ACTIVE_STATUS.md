@@ -4146,6 +4146,12 @@ when a PR lands, or when validation truth changes.
   workspace or public surface. ARGUS reran the PR21 validation set and
   recommends MIMIR mark PR21 complete as a narrow owner-facing import review
   inbox lane.
+- PR21 Import Review Inbox is opened for ARIADNE rehearsal, 2026-06-17: because
+  the lane changed the visible persona Archive page, ARIADNE should run a
+  human-eye route review of the Import Review Inbox before MIMIR marks the
+  visible lane fully closed. Scope is clarity, affordances, mobile usability,
+  source labels, reject-preserves-source language, empty state, and no accidental
+  workspace/reskin expansion.
 
 ## Near-term rule
 

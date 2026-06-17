@@ -1,7 +1,7 @@
 # PR21 - Import Review Inbox
 
 Date: 2026-06-17
-Status: implemented by A2 / DAEDALUS; ready for A3 / ARGUS review
+Status: accepted by A3 / ARGUS; ready for ARIADNE rehearsal
 Owner: DAEDALUS implementation, ARGUS review, ARIADNE after MIMIR only if the
 visible Studio journey changes materially.
 
@@ -206,3 +206,34 @@ Deferred:
 - No live Reddit/Discord pulls, bots, OAuth, recurring imports, or workers.
 - No Cloudflare/vector/Redis memory work.
 - No publishing, billing, social posting, or public community bridge.
+
+## ARGUS Review - 2026-06-17
+
+Verdict: accepted.
+
+ARGUS accepted the bounded owner-facing inbox at commit `e61c801`.
+
+Accepted behavior:
+
+- Candidate listing is owner-scoped and non-owner listing returns 403 without
+  candidate content leakage.
+- Import-backed Memory accept-with-edits, Canon accept, reject, reviewed listing,
+  and source preservation are covered.
+- Existing archived-chat candidate behavior remains intact.
+- The visible UI stays inside the existing Archive page and does not open a new
+  workspace or public surface.
+
+Validation rerun:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` passed with
+  27 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:storage` passed with 16 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` passed with 15 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:persona-context` passed with
+  6 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `git diff --check` passed with CRLF warnings only.
+
+Remaining scope stays deferred: full review workspace, UI reskin, live
+Reddit/Discord pulls, workers, Cloudflare/vector/Redis memory, publishing,
+billing, social posting, and public community bridge.
