@@ -6690,3 +6690,22 @@ Review result: blocked. The local gate is green, but migration `034` lacks RLS
 and owner policies for the new approval tables, and the dashboard queue path can
 enqueue/publish no-Space drafts. DAEDALUS should repair those two gaps and add
 focused proof before PR11 is accepted.
+
+ARGUS blocker repair acceptance on 2026-06-17:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:publishing-approvals` | Pass | 7 tests passed; no-Space rejection and migration RLS/policy expectations are covered. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck tasks passed from cache. |
+| `npm exec --yes pnpm@10.32.1 -- run test:continuity-publication` | Pass | 1 test passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` | Pass | 1 test passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:community` | Pass | 8 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 11 tests passed. |
+| `git diff aeb63db..2797520 --check` | Pass | No whitespace errors in the blocker repair. |
+| `git diff --check` | Pass | CRLF normalization warnings only for consumed state. |
+
+ARGUS accepts the PR11 blocker repair. RLS and owner policies are present, the
+approval queue rejects no-Space drafts before enqueue/publish, and the Studio
+dashboard disables queue actions for drafts without a Space. Future DB policy
+hardening could additionally validate child rows against parent document/item
+ownership, but no PR11 acceptance blocker remains.

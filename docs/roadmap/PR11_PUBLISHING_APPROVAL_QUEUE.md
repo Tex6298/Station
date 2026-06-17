@@ -1,6 +1,6 @@
 # PR11 - Publishing Approval Queue
 
-Status: blocked for DAEDALUS follow-up
+Status: accepted by ARGUS for MIMIR sequencing
 Owner: DAEDALUS / A2
 Reviewer: ARGUS / A3
 Human rehearsal: ARIADNE / A4 only after ARGUS accepts the code slice
@@ -201,3 +201,38 @@ Required follow-up:
   a routable public document.
 - Add focused tests for the no-Space rejection path and the RLS/policy migration
   expectations.
+
+## ARGUS Repair Review - 2026-06-17
+
+Result: accepted for MIMIR sequencing.
+
+The two ARGUS blockers are cleared:
+
+- Migration `034_publishing_approval_queue.sql` now enables RLS on
+  `publishing_approval_items` and `publishing_approval_events`.
+- The migration now adds owner policies for approval item access and approval
+  event select/insert.
+- The API rejects no-Space drafts at approval enqueue.
+- The API rejects scheduled/published queue transitions when the document is not
+  Space-backed.
+- `/studio/publishing` disables queue actions for no-Space drafts with explicit
+  `Space required` copy.
+- Focused tests now cover no-Space enqueue/publish rejection and migration
+  RLS/policy expectations.
+
+ARGUS reran:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:publishing-approvals`
+- `npm exec --yes pnpm@10.32.1 -- run typecheck`
+- `npm exec --yes pnpm@10.32.1 -- run test:continuity-publication`
+- `npm exec --yes pnpm@10.32.1 -- run test:document-discussions`
+- `npm exec --yes pnpm@10.32.1 -- run test:community`
+- `npm exec --yes pnpm@10.32.1 -- run test:studio-ui`
+- `git diff aeb63db..2797520 --check`
+- `git diff --check`
+
+All passed locally. Minor future hardening note: the new RLS policies are
+owner-column policies; a later DB-hardening pass could also validate child rows
+against their parent approval/document ownership. That is not a PR11 blocker
+because the Express service enforces the parent ownership path and the policies
+prevent cross-owner queue reads.

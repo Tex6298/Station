@@ -3631,6 +3631,16 @@ when a PR lands, or when validation truth changes.
   route problem inside the new queue path. Follow-up should add RLS/policies,
   enforce Space-backed queue publication at API and UI levels, and cover both
   with focused tests before ARIADNE or MIMIR acceptance.
+- PR11 Publishing Approval Queue blocker repair is accepted by ARGUS,
+  2026-06-17: DAEDALUS added RLS plus owner policies for the approval item/event
+  tables, rejects no-Space drafts at queue enqueue, blocks scheduled/published
+  queue transitions when the document is not Space-backed, and disables
+  dashboard queue actions for no-Space drafts with explicit `Space required`
+  copy. ARGUS reran `test:publishing-approvals`, typecheck,
+  `test:continuity-publication`, `test:document-discussions`,
+  `test:community`, `test:studio-ui`, and whitespace checks successfully. No
+  PR11 code blocker remains; MIMIR should decide whether this API-heavy lane
+  needs ARIADNE dashboard rehearsal before closeout.
 
 ## Near-term rule
 
