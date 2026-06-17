@@ -1,7 +1,7 @@
 # PR20 - Discord Archive Intake
 
 Date: 2026-06-17
-Status: implemented by A2 / DAEDALUS; ready for A3 / ARGUS review
+Status: accepted by A3 / ARGUS; ready for MIMIR closeout
 Owner: DAEDALUS implementation, ARGUS review, ARIADNE only if a visible import
 journey changes materially.
 
@@ -181,3 +181,39 @@ Wake A3 / ARGUS with:
 ARGUS should review parser overclaiming, memory poisoning, owner/private
 boundaries, sanitized failures, source metadata leakage, Discord credential
 scope creep, quota bypasses, and accidental product expansion.
+
+## ARGUS Review - 2026-06-17
+
+Verdict: blocked, then accepted after repair.
+
+ARGUS first found that bare top-level arrays were too broad: generic
+`content + type` arrays, `text + attachments` arrays, and legacy
+`role + content + type` arrays could be claimed by Discord. DAEDALUS repaired
+the parser so Discord imports require a source-level `messages` wrapper with
+guild/channel/server metadata, and legacy role/content arrays remain on the
+legacy parser path.
+
+Accepted behavior:
+
+- DiscordChatExporter-style objects and channel/thread message wrappers still
+  parse.
+- Bare top-level arrays are not recognized as Discord.
+- Generic content/type, text/attachments, and generic author-object arrays fail
+  before archive memory or candidates are created.
+- Legacy role/content/type arrays remain `legacy-message-array` imports.
+- Parsed Discord archive chunks still use private/quarantined import behavior
+  and existing owner-scoped `persona_files` candidate provenance.
+
+Validation rerun:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` passed with
+  27 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:storage` passed with 16 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:persona-context` passed with
+  6 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `git diff --check` passed with CRLF warnings only.
+
+No live Discord API, bot, OAuth, webhook, gateway, recurring pull worker, public
+community bridge, Cloudflare/vector/Redis memory work, publishing, billing,
+social posting, export worker redesign, or UI reskin scope was added.

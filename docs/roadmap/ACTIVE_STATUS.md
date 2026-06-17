@@ -4108,6 +4108,20 @@ when a PR lands, or when validation truth changes.
   shapes; the documented DiscordChatExporter-style and channel/thread object
   fixtures still parse. ARGUS reran the PR20 validation set and recommends MIMIR
   mark PR20 complete as a narrow uploaded/pasted Discord archive intake lane.
+- PR20 Discord Archive Intake is closed, 2026-06-17: MIMIR accepted ARGUS's
+  repaired verdict at `f4ccbbc`. Station now has no-config uploaded/pasted
+  Discord archive intake for explicit wrapped Discord shapes, with fail-closed
+  parser behavior, private/quarantined archive chunks, pending owner-scoped
+  candidates, and preserved PR18 quota/idempotency behavior.
+- PR21 Import Review Inbox is opened for DAEDALUS, 2026-06-17: external imports
+  now create pending owner-scoped Memory/Canon candidates, but import-backed
+  candidates need a first-class owner-facing Studio review stop. This lane
+  should add a narrow owner-scoped candidate listing endpoint and an existing
+  Studio-flow inbox for accepting/editing/rejecting import candidates, while
+  preserving archived-chat candidate behavior and private archive source
+  material. It must not open a full workspace redesign, UI reskin, live
+  Reddit/Discord pulls, workers, Cloudflare/vector/Redis memory work, publishing,
+  billing, social posting, or public community bridge.
 
 ## Near-term rule
 
