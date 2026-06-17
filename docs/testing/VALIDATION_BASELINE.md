@@ -6695,6 +6695,20 @@ Repair notes:
   ARIADNE will still need suitable data or a Creator-or-above account to
   exercise positive queue transitions through the browser.
 
+ARGUS live repair acceptance on 2026-06-17:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:publishing-approvals` | Pass | 7 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 11 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck tasks passed from cache. |
+| `git diff 34ef9bc..6d3d334 --check` | Pass | No whitespace errors in the live repair patch. |
+| `git diff --check` | Pass | CRLF normalization warnings only for consumed state. |
+
+ARGUS accepts the local code repair. The live signed-in
+`GET /publishing/approvals` proof remains DAEDALUS-recorded evidence because
+ARGUS did not have the live replay owner session in this shell.
+
 ARGUS review on 2026-06-17:
 
 | Command | Result | Notes |

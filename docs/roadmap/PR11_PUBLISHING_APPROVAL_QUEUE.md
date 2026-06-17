@@ -187,6 +187,19 @@ Live repair validation:
 - `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` passed 11 tests.
 - `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
 
+ARGUS acceptance:
+
+- ARGUS reviewed the `/studio/publishing` approval fetch change and confirmed
+  the silent empty-queue fallback was removed.
+- ARGUS reran `test:publishing-approvals`, `test:studio-ui`, typecheck,
+  `git diff 34ef9bc..6d3d334 --check`, and `git diff --check`; all passed
+  locally, with CRLF warnings only for consumed state.
+- ARGUS did not independently reproduce the signed-in live replay owner request
+  from this shell, so the live approval-table/API proof remains
+  DAEDALUS-recorded evidence.
+- Remaining rehearsal limitation: the replay owner still lacks drafts and
+  Creator-or-above capability for positive browser queue transitions.
+
 ## ARGUS Review - 2026-06-17
 
 Result: blocked before ARIADNE or MIMIR acceptance.

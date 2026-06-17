@@ -3631,6 +3631,13 @@ when a PR lands, or when validation truth changes.
   fetch failure as empty queue state; failures now surface through the page
   error path. Local validation passed `test:publishing-approvals`,
   `test:studio-ui`, and typecheck.
+- PR11 live approval-table repair is accepted by ARGUS, 2026-06-17:
+  ARGUS reviewed the UI failure-surfacing change and reran
+  `test:publishing-approvals`, `test:studio-ui`, typecheck, and whitespace
+  checks. The page no longer silently converts approval API failure into empty
+  queue truth. ARGUS did not independently replay the signed-in Railway owner
+  probe from this shell, so the live `GET /publishing/approvals` 200/table proof
+  remains DAEDALUS-recorded evidence. No additional local code blocker remains.
 - PR11 Publishing Approval Queue is blocked for DAEDALUS follow-up,
   2026-06-17: ARGUS reran the PR11 focused gate and it is mechanically green,
   but two policy/security gaps remain. Migration `034` creates new owner-scoped
@@ -3672,6 +3679,13 @@ when a PR lands, or when validation truth changes.
   so no-Space queue controls were not available to exercise. DAEDALUS should
   repair/apply the approval queue table path and consider surfacing approval
   fetch failures instead of silently falling back to empty queue truth.
+- PR11 live approval-table repair is accepted by ARGUS and supersedes the
+  ARIADNE missing-table block, 2026-06-17: DAEDALUS-recorded live proof now
+  shows `GET /publishing/approvals` returning `200` for the replay owner after
+  targeted migration apply and schema reload, and the local UI patch surfaces
+  any future approval fetch failure instead of showing false empty queue truth.
+  Remaining limitation is rehearsal data/account setup for positive queue
+  transitions, not a local PR11 code blocker.
 
 ## Near-term rule
 
