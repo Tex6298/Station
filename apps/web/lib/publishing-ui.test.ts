@@ -1,14 +1,17 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import {
+  approvalForDocument,
   documentDestinationLabel,
   documentTypeLabel,
   filterDocumentsForPublishingTab,
   normalizeDocumentSlug,
   normalizeDocumentTypeForForm,
   publicDocumentHref,
+  publishingApprovalStateLabel,
   publishingStatusLabel,
   slugifyDocumentTitle,
+  type PublishingApproval,
   type PublishingDocument,
 } from "./publishing";
 
@@ -19,6 +22,9 @@ const documents: PublishingDocument[] = [
 ];
 
 const spaces = [{ id: "space-1", slug: "station", title: "Station" }];
+const approvals: PublishingApproval[] = [
+  { id: "approval-1", documentId: "draft-1", state: "grounding_check", visibility: "public" },
+];
 
 test("publishing helpers normalize document slugs and legacy types", () => {
   assert.equal(normalizeDocumentSlug(" Field Log: Launch Core! "), "field-log-launch-core");
@@ -33,6 +39,10 @@ test("publishing helpers group live documents for the Studio dashboard", () => {
   assert.deepEqual(filterDocumentsForPublishingTab(documents, "published").map((document) => document.id), ["pub-1"]);
   assert.deepEqual(filterDocumentsForPublishingTab(documents, "archived").map((document) => document.id), ["old-1"]);
   assert.equal(publishingStatusLabel("scheduled"), "Draft");
+  assert.equal(publishingApprovalStateLabel("grounding_check"), "Grounding check");
+  assert.equal(publishingApprovalStateLabel(null), "Not queued");
+  assert.equal(approvalForDocument(approvals, "draft-1")?.id, "approval-1");
+  assert.equal(approvalForDocument(approvals, "pub-1"), null);
 });
 
 test("publishing helpers only expose public links when a Space slug is known", () => {

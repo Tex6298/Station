@@ -27,6 +27,7 @@ import { tokenCreditsRouter } from "./routes/token-credits";
 import { continuityRouter } from "./routes/continuity";
 import { observabilityRouter } from "./routes/observability";
 import { assistantRouter } from "./routes/assistant";
+import { publishingApprovalsRouter } from "./routes/publishing-approvals";
 
 export function createApp() {
   const app = express();
@@ -68,6 +69,7 @@ export function createApp() {
   app.use("/continuity", continuityRouter);
   app.use("/observability", observabilityRouter);
   app.use("/assistant", assistantRouter);
+  app.use("/publishing/approvals", publishingApprovalsRouter);
 
   app.use(errorHandler);
   return app;

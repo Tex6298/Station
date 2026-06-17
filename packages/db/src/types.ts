@@ -43,6 +43,8 @@ export type CommentParentType = "thread" | "document" | "space_page";
 export type CommentStatus = "active" | "removed" | "flagged";
 export type ModerationTargetType = "user" | "space" | "document" | "thread" | "comment" | "persona";
 export type ModerationStatus = "open" | "reviewing" | "resolved" | "dismissed";
+export type PublishingApprovalState = "draft" | "grounding_check" | "human_review" | "approved" | "regenerate" | "cancelled" | "scheduled" | "published" | "archived";
+export type PublishingApprovalVisibility = "public" | "community" | "unlisted";
 export type DiscoverItemType = "document" | "thread" | "space" | "persona";
 export type DiscoverEventType = "published" | "created" | "featured" | "updated";
 export type SocialPlatform = "bluesky" | "mastodon" | "tumblr" | "linkedin" | "wordpress" | "ghost" | "reddit";
@@ -913,6 +915,63 @@ export interface Database {
           updated_at?: string;
         };
         Update: Partial<Database["public"]["Tables"]["moderation_reports"]["Insert"]>;
+      };
+      publishing_approval_items: {
+        Row: {
+          id: string;
+          owner_user_id: string;
+          document_id: string;
+          state: PublishingApprovalState;
+          visibility: PublishingApprovalVisibility;
+          scheduled_for: string | null;
+          grounding_summary: string | null;
+          review_note: string | null;
+          requested_at: string;
+          approved_at: string | null;
+          published_at: string | null;
+          cancelled_at: string | null;
+          archived_at: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: Omit<Database["public"]["Tables"]["publishing_approval_items"]["Row"], "id" | "state" | "visibility" | "scheduled_for" | "grounding_summary" | "review_note" | "requested_at" | "approved_at" | "published_at" | "cancelled_at" | "archived_at" | "created_at" | "updated_at"> & {
+          id?: string;
+          state?: PublishingApprovalState;
+          visibility?: PublishingApprovalVisibility;
+          scheduled_for?: string | null;
+          grounding_summary?: string | null;
+          review_note?: string | null;
+          requested_at?: string;
+          approved_at?: string | null;
+          published_at?: string | null;
+          cancelled_at?: string | null;
+          archived_at?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["publishing_approval_items"]["Insert"]>;
+      };
+      publishing_approval_events: {
+        Row: {
+          id: string;
+          approval_item_id: string;
+          owner_user_id: string;
+          actor_user_id: string;
+          document_id: string;
+          event_type: string;
+          from_state: PublishingApprovalState | null;
+          to_state: PublishingApprovalState;
+          note: string | null;
+          metadata: Record<string, unknown>;
+          created_at: string;
+        };
+        Insert: Omit<Database["public"]["Tables"]["publishing_approval_events"]["Row"], "id" | "note" | "metadata" | "created_at"> & {
+          id?: string;
+          note?: string | null;
+          metadata?: Record<string, unknown>;
+          created_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["publishing_approval_events"]["Insert"]>;
       };
       discover_feed: {
         Row: {

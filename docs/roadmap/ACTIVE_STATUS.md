@@ -3601,6 +3601,19 @@ when a PR lands, or when validation truth changes.
   surfaces. Workers, social dispatch, scheduled execution, large visual redesign,
   and Creator-account staging setup remain out of scope for this implementation
   slice.
+- PR11 Publishing Approval Queue is ready for ARGUS review, 2026-06-17:
+  DAEDALUS added durable `publishing_approval_items` and
+  `publishing_approval_events` tables, mounted owner-scoped
+  `/publishing/approvals` APIs, added a narrow approval state service, and wired
+  Studio publish/publishing surfaces so drafts enter review and owners can move
+  them through grounding, human review, approval, regeneration, cancellation,
+  publication, and queue archive. Scheduling is represented but execution
+  remains visibly deferred to the worker lane. Focused tests cover owner
+  scoping, invalid transitions, private-source response safety, and publish
+  visibility. Validation is current in
+  `docs/testing/VALIDATION_BASELINE.md`; the only build caveat is the known
+  Windows Next standalone symlink `EPERM` after successful compile/page
+  generation.
 
 ## Near-term rule
 
@@ -3632,6 +3645,7 @@ pnpm test:token-credits
 pnpm test:health
 pnpm test:reports
 pnpm test:community
+pnpm test:publishing-approvals
 pnpm test:spaces
 pnpm test:continuity
 pnpm test:persona-context

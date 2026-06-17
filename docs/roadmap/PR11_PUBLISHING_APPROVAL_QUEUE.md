@@ -1,6 +1,6 @@
 # PR11 - Publishing Approval Queue
 
-Status: ready for DAEDALUS implementation
+Status: implemented by DAEDALUS; ready for ARGUS review
 Owner: DAEDALUS / A2
 Reviewer: ARGUS / A3
 Human rehearsal: ARIADNE / A4 only after ARGUS accepts the code slice
@@ -86,3 +86,52 @@ When complete, wake ARGUS with:
 - intentionally deferred states or controls;
 - validation command results;
 - any visibility/provenance risk needing hostile review.
+
+## DAEDALUS Implementation Notes
+
+Implemented on 2026-06-17:
+
+- Added `infra/supabase/migrations/034_publishing_approval_queue.sql` with
+  durable `publishing_approval_items` and `publishing_approval_events` tables.
+- Added `apps/api/src/services/publishing-approval.service.ts` and
+  `apps/api/src/routes/publishing-approvals.ts`, mounted at
+  `/publishing/approvals`.
+- Implemented owner-scoped list/enqueue/event reads and state transitions for
+  `draft -> grounding_check -> human_review -> approved/regenerate/cancelled`
+  plus `approved/scheduled -> published` and archive/cancel paths. Scheduling
+  records `scheduled_for`, but execution remains deferred to the worker lane.
+- Kept direct `POST /documents/:id/publish` compatible. The approval queue
+  publish transition updates the owner document to `published` with public,
+  community, or unlisted visibility.
+- Updated Studio publish flow to save the draft and send it into the approval
+  queue instead of pretending dispatch/workers exist.
+- Updated Studio publishing dashboard to show approval state and expose narrow
+  owner actions for review, approval, publish, regenerate, cancel, and queue
+  archive. Schedule remains visibly deferred.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- install` passed.
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed with the known warning
+  inventory.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run test:publishing-approvals` passed
+  5 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:continuity-publication` passed
+  1 test.
+- `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` passed
+  1 test.
+- `npm exec --yes pnpm@10.32.1 -- run test:community` passed 8 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` passed 11 tests.
+- `npm exec --yes pnpm@10.32.1 -- run build` compiled, lint/type checked,
+  and generated pages, then hit the already documented Windows Next standalone
+  symlink `EPERM` caveat.
+
+ARGUS review focus:
+
+- Hostile-review owner scoping across queue items, events, and document publish
+  transitions.
+- Confirm private-source safety: queue responses intentionally expose provenance
+  labels but not private document bodies or raw source IDs.
+- Confirm whether direct API publish-without-Space remains an accepted policy
+  caveat for this lane.

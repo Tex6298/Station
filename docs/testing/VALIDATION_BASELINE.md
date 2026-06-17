@@ -6623,3 +6623,32 @@ UI path now persists the selected owned Space/persona before publish. Direct API
 publish without a Space remains possible through the pre-existing document
 publish route and is tracked as a later policy caveat, not as a blocker to this
 UI/API wiring repair.
+
+## PR11 Publishing Approval Queue
+
+DAEDALUS implementation validation on 2026-06-17:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- install` | Pass | Lockfile up to date; existing pnpm ignored-build-script warning for `unrs-resolver@1.12.2`. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass | Existing warning inventory only: Developer Spaces manage `useEffect` dependency and two `<img>` warnings. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck tasks passed after adding PR11 DB table types. |
+| `npm exec --yes pnpm@10.32.1 -- run test:publishing-approvals` | Pass | 5 tests passed; covers owner scoping, invalid transitions, private-source response safety, publish visibility, and Studio helper labels. |
+| `npm exec --yes pnpm@10.32.1 -- run test:continuity-publication` | Pass | 1 test passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` | Pass | 1 test passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:community` | Pass | 8 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 11 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run build` | Local environment failure after successful compile/type/page generation | Next compiled successfully, lint/type checks ran with the known warning inventory, and 29 static pages generated. The build then failed writing standalone traced-file symlinks on this Windows shell with `EPERM`, matching the known local shell caveat. |
+
+Scope notes:
+
+- PR11 added `publishing_approval_items` and `publishing_approval_events` plus
+  typed DB surfaces.
+- `/publishing/approvals` is owner-scoped and supports enqueue, list, event
+  readback, and explicit state transitions.
+- The Studio publish flow now saves a draft and submits it to the approval
+  queue. The publishing dashboard shows approval state and exposes the narrow
+  owner actions for review, approval, regeneration, cancellation, publication,
+  and queue archive.
+- Worker execution, social dispatch, actual scheduled execution, large UI
+  redesign, and Creator-account staging setup remain out of scope.

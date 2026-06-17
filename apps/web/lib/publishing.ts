@@ -6,6 +6,16 @@ import {
 } from "@station/types";
 
 export type PublishingTab = "drafts" | "published" | "archived";
+export type PublishingApprovalState =
+  | "draft"
+  | "grounding_check"
+  | "human_review"
+  | "approved"
+  | "regenerate"
+  | "cancelled"
+  | "scheduled"
+  | "published"
+  | "archived";
 
 export interface PublishingDocument {
   id: string;
@@ -28,6 +38,18 @@ export interface PublishingSpace {
   id: string;
   title: string;
   slug: string;
+}
+
+export interface PublishingApproval {
+  id: string;
+  documentId: string;
+  state: PublishingApprovalState;
+  visibility: "public" | "community" | "unlisted";
+  scheduledFor?: string | null;
+  groundingSummary?: string | null;
+  reviewNote?: string | null;
+  updatedAt?: string | null;
+  document?: PublishingDocument | null;
 }
 
 export const PUBLISHING_TABS: Array<{ id: PublishingTab; label: string }> = [
@@ -84,6 +106,28 @@ export function publishingStatusLabel(status: string): string {
   if (status === "published") return "Published";
   if (status === "archived") return "Archived";
   return "Draft";
+}
+
+export function publishingApprovalStateLabel(state?: string | null): string {
+  const labels: Record<string, string> = {
+    draft: "Draft",
+    grounding_check: "Grounding check",
+    human_review: "Human review",
+    approved: "Approved",
+    regenerate: "Regenerate",
+    cancelled: "Cancelled",
+    scheduled: "Scheduled",
+    published: "Published",
+    archived: "Archived",
+  };
+  return state ? labels[state] ?? "Review" : "Not queued";
+}
+
+export function approvalForDocument(
+  approvals: PublishingApproval[],
+  documentId: string,
+): PublishingApproval | null {
+  return approvals.find((approval) => approval.documentId === documentId) ?? null;
 }
 
 export function spaceForDocument(

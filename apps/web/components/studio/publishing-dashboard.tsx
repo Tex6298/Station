@@ -2,15 +2,19 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { apiGet } from "@/lib/api-client";
+import { apiGet, apiPost } from "@/lib/api-client";
 import { getSession } from "@/lib/auth";
 import {
   PUBLISHING_TABS,
+  approvalForDocument,
   documentDestinationLabel,
   documentTypeLabel,
   filterDocumentsForPublishingTab,
   publicDocumentHref,
+  publishingApprovalStateLabel,
   publishingStatusLabel,
+  type PublishingApproval,
+  type PublishingApprovalState,
   type PublishingDocument,
   type PublishingSpace,
   type PublishingTab,
@@ -20,8 +24,12 @@ export function PublishingDashboard() {
   const [tab, setTab] = useState<PublishingTab>("drafts");
   const [documents, setDocuments] = useState<PublishingDocument[]>([]);
   const [spaces, setSpaces] = useState<PublishingSpace[]>([]);
+  const [approvals, setApprovals] = useState<PublishingApproval[]>([]);
+  const [token, setToken] = useState<string | null>(null);
+  const [busyApprovalId, setBusyApprovalId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -41,10 +49,14 @@ export function PublishingDashboard() {
           apiGet<{ documents: PublishingDocument[] }>("/documents", session.access_token),
           apiGet<{ spaces: PublishingSpace[] }>("/spaces", session.access_token).catch(() => ({ spaces: [] })),
         ]);
+        const approvalData = await apiGet<{ approvals: PublishingApproval[] }>("/publishing/approvals", session.access_token)
+          .catch(() => ({ approvals: [] }));
 
         if (!cancelled) {
+          setToken(session.access_token);
           setDocuments(documentData.documents ?? []);
           setSpaces(spaceData.spaces ?? []);
+          setApprovals(approvalData.approvals ?? []);
         }
       } catch (e) {
         if (!cancelled) setError(e instanceof Error ? e.message : "Could not load publishing documents.");
@@ -61,6 +73,58 @@ export function PublishingDashboard() {
 
   const visible = useMemo(() => filterDocumentsForPublishingTab(documents, tab), [documents, tab]);
 
+  async function enqueueApproval(document: PublishingDocument) {
+    if (!token) return;
+    setBusyApprovalId(document.id);
+    setError(null);
+    setNotice(null);
+    try {
+      const response = await apiPost<{ approval: PublishingApproval }>(
+        "/publishing/approvals",
+        {
+          documentId: document.id,
+          visibility: document.visibility === "private" ? "public" : document.visibility,
+        },
+        token,
+      );
+      setApprovals((current) => upsertApproval(current, response.approval));
+      setNotice("Draft sent to grounding check.");
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Could not enqueue publishing review.");
+    } finally {
+      setBusyApprovalId(null);
+    }
+  }
+
+  async function transitionApproval(approval: PublishingApproval, state: PublishingApprovalState) {
+    if (!token) return;
+    setBusyApprovalId(approval.id);
+    setError(null);
+    setNotice(null);
+    try {
+      const response = await apiPost<{ approval: PublishingApproval }>(
+        `/publishing/approvals/${approval.id}/transition`,
+        {
+          state,
+          visibility: approval.visibility,
+          note: state === "approved" ? "Approved from Studio publishing dashboard." : undefined,
+        },
+        token,
+      );
+      setApprovals((current) => upsertApproval(current, response.approval));
+      if (response.approval.document) {
+        setDocuments((current) => current.map((document) =>
+          document.id === response.approval.document?.id ? { ...document, ...response.approval.document } : document
+        ));
+      }
+      setNotice(`Approval moved to ${publishingApprovalStateLabel(response.approval.state).toLowerCase()}.`);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Could not update publishing review.");
+    } finally {
+      setBusyApprovalId(null);
+    }
+  }
+
   return (
     <main className="station-page">
       <div className="station-page-inner">
@@ -76,6 +140,7 @@ export function PublishingDashboard() {
         </header>
 
         {error ? <div className="station-notice" data-tone="error">{error}</div> : null}
+        {notice ? <div className="station-notice" data-tone="success">{notice}</div> : null}
 
         <section className="station-panel">
           <div style={tabRow}>
@@ -109,6 +174,7 @@ export function PublishingDashboard() {
             <div style={{ display: "grid", gap: 10 }}>
               {visible.map((document) => {
                 const href = publicDocumentHref(document, spaces);
+                const approval = approvalForDocument(approvals, document.id);
                 return (
                   <article key={document.id} style={row}>
                     <div style={{ minWidth: 0 }}>
@@ -116,6 +182,7 @@ export function PublishingDashboard() {
                         <h2 style={rowTitle}>{document.title}</h2>
                         <span style={pill}>{documentTypeLabel(document.document_type)}</span>
                         <span style={statusPill(document.status)}>{publishingStatusLabel(document.status)}</span>
+                        <span style={approvalPill(approval?.state)}>{publishingApprovalStateLabel(approval?.state)}</span>
                         <span style={pill}>{document.visibility}</span>
                       </div>
                       <div style={rowMeta}>
@@ -125,6 +192,13 @@ export function PublishingDashboard() {
                     </div>
                     <div style={buttonRow}>
                       <Link href={`/studio/publish?documentId=${document.id}`} style={miniLink}>Edit</Link>
+                      <ApprovalControls
+                        approval={approval}
+                        document={document}
+                        busy={busyApprovalId === document.id || busyApprovalId === approval?.id}
+                        onEnqueue={enqueueApproval}
+                        onTransition={transitionApproval}
+                      />
                       {href && document.status === "published" ? (
                         <Link href={href} style={miniLink}>View</Link>
                       ) : (
@@ -142,6 +216,92 @@ export function PublishingDashboard() {
       </div>
     </main>
   );
+}
+
+function upsertApproval(approvals: PublishingApproval[], approval: PublishingApproval) {
+  const without = approvals.filter((item) => item.id !== approval.id && item.documentId !== approval.documentId);
+  return [approval, ...without];
+}
+
+function ApprovalControls({
+  approval,
+  document,
+  busy,
+  onEnqueue,
+  onTransition,
+}: {
+  approval: PublishingApproval | null;
+  document: PublishingDocument;
+  busy: boolean;
+  onEnqueue: (document: PublishingDocument) => void;
+  onTransition: (approval: PublishingApproval, state: PublishingApprovalState) => void;
+}) {
+  if (document.status === "published" && !approval) {
+    return null;
+  }
+
+  if (!approval) {
+    return (
+      <button type="button" disabled={busy} onClick={() => onEnqueue(document)} style={miniButton}>
+        {busy ? "Queueing..." : "Review"}
+      </button>
+    );
+  }
+
+  if (approval.state === "grounding_check") {
+    return (
+      <button type="button" disabled={busy} onClick={() => onTransition(approval, "human_review")} style={miniButton}>
+        Human review
+      </button>
+    );
+  }
+
+  if (approval.state === "human_review") {
+    return (
+      <>
+        <button type="button" disabled={busy} onClick={() => onTransition(approval, "approved")} style={miniButton}>
+          Approve
+        </button>
+        <button type="button" disabled={busy} onClick={() => onTransition(approval, "regenerate")} style={miniButton}>
+          Regenerate
+        </button>
+        <button type="button" disabled={busy} onClick={() => onTransition(approval, "cancelled")} style={miniButton}>
+          Cancel
+        </button>
+      </>
+    );
+  }
+
+  if (approval.state === "approved") {
+    return (
+      <>
+        <button type="button" disabled={busy} onClick={() => onTransition(approval, "published")} style={miniButton}>
+          Publish
+        </button>
+        <button type="button" disabled title="Scheduled execution is deferred to the worker lane." style={disabledMiniButton}>
+          Schedule deferred
+        </button>
+      </>
+    );
+  }
+
+  if (approval.state === "regenerate" || approval.state === "cancelled") {
+    return (
+      <button type="button" disabled={busy} onClick={() => onTransition(approval, "draft")} style={miniButton}>
+        Return to draft
+      </button>
+    );
+  }
+
+  if (approval.state === "published") {
+    return (
+      <button type="button" disabled={busy} onClick={() => onTransition(approval, "archived")} style={miniButton}>
+        Archive queue
+      </button>
+    );
+  }
+
+  return null;
 }
 
 function formatDate(value?: string | null) {
@@ -249,6 +409,23 @@ function statusPill(status: string) {
   return {
     ...pill,
     ...map,
+  };
+}
+
+function approvalPill(state?: string | null) {
+  const map: Record<string, { background: string; color: string; borderColor: string }> = {
+    grounding_check: { background: "#eef2ff", color: "#3730a3", borderColor: "#c7d2fe" },
+    human_review: { background: "#fef3c7", color: "#92400e", borderColor: "#fde68a" },
+    approved: { background: "#dcfce7", color: "#166534", borderColor: "#bbf7d0" },
+    regenerate: { background: "#fee2e2", color: "#991b1b", borderColor: "#fecaca" },
+    cancelled: { background: "#f3f4f6", color: "#4b5563", borderColor: "#d1d5db" },
+    scheduled: { background: "#e0f2fe", color: "#075985", borderColor: "#bae6fd" },
+    published: { background: "#e9f5ee", color: "#25633f", borderColor: "rgba(59, 143, 99, 0.35)" },
+    archived: { background: "#f8efd9", color: "#854f0b", borderColor: "rgba(133, 79, 11, 0.35)" },
+  };
+  return {
+    ...pill,
+    ...(state ? map[state] : null),
   };
 }
 

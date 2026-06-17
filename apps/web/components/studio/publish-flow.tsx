@@ -11,7 +11,6 @@ import {
   documentTypeLabel,
   normalizeDocumentSlug,
   normalizeDocumentTypeForForm,
-  publicDocumentHref,
   slugifyDocumentTitle,
   type PublishingDocument,
   type PublishingSpace,
@@ -57,7 +56,7 @@ export function PublishFlow() {
   const [personas, setPersonas] = useState<PersonaOption[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [publishing, setPublishing] = useState(false);
+  const [submittingReview, setSubmittingReview] = useState(false);
   const [publishingAllowed, setPublishingAllowed] = useState(false);
   const [userTier, setUserTier] = useState("visitor");
   const [slugEdited, setSlugEdited] = useState(false);
@@ -65,7 +64,6 @@ export function PublishFlow() {
   const [previewOpen, setPreviewOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
-  const [publishedHref, setPublishedHref] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -138,7 +136,7 @@ export function PublishFlow() {
   const readTime = Math.max(1, Math.ceil(wordCount / 220));
   const publishVisibilityReady = form.visibility !== "private";
   const canSave = Boolean(publishingAllowed && token && form.title.trim() && form.slug.trim());
-  const canPublish = Boolean(canSave && stationDestination && form.spaceId && publishVisibilityReady);
+  const canSubmitReview = Boolean(canSave && stationDestination && form.spaceId && publishVisibilityReady);
 
   function setField<K extends keyof DocumentForm>(field: K, value: DocumentForm[K]) {
     setForm((current) => ({ ...current, [field]: value }));
@@ -213,32 +211,34 @@ export function PublishFlow() {
     }
   }
 
-  async function publishDocument() {
-    if (!canPublish) {
-      setError("Choose a Station Space and public, community, or unlisted visibility before publishing. Drafts can still be saved privately.");
+  async function submitForReview() {
+    if (!canSubmitReview) {
+      setError("Choose a Station Space and public, community, or unlisted visibility before review. Drafts can still be saved privately.");
       return;
     }
 
-    setPublishing(true);
+    setSubmittingReview(true);
     setError(null);
     setNotice(null);
     try {
       const saved = await saveDraft();
       if (!saved || !token) return;
 
-      const response = await apiPost<{ document: SavedDocument }>(
-        `/documents/${saved.id}/publish`,
-        { visibility: form.visibility },
+      await apiPost(
+        "/publishing/approvals",
+        {
+          documentId: saved.id,
+          visibility: form.visibility === "private" ? "public" : form.visibility,
+          note: "Submitted from Studio publish flow.",
+        },
         token,
       );
-      const href = publicDocumentHref(response.document, spaces);
-      setDocumentId(response.document.id);
-      setPublishedHref(href);
-      setNotice(href ? "Document published." : "Document published, but no Space route is available for it yet.");
+      setDocumentId(saved.id);
+      setNotice("Draft sent to the publishing approval queue.");
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Could not publish document.");
+      setError(e instanceof Error ? e.message : "Could not submit document for review.");
     } finally {
-      setPublishing(false);
+      setSubmittingReview(false);
     }
   }
 
@@ -268,11 +268,11 @@ export function PublishFlow() {
             <button type="button" onClick={() => setPreviewOpen((value) => !value)} style={secondaryButton}>
               {previewOpen ? "Hide preview" : "Preview"}
             </button>
-            <button type="button" onClick={() => void saveDraft()} disabled={!canSave || saving || publishing} style={secondaryButton}>
+            <button type="button" onClick={() => void saveDraft()} disabled={!canSave || saving || submittingReview} style={secondaryButton}>
               {saving ? "Saving..." : "Save draft"}
             </button>
-            <button type="button" onClick={() => void publishDocument()} disabled={!canPublish || publishing || saving} style={primaryButton}>
-              {publishing ? "Publishing..." : "Publish"}
+            <button type="button" onClick={() => void submitForReview()} disabled={!canSubmitReview || submittingReview || saving} style={primaryButton}>
+              {submittingReview ? "Submitting..." : "Send for review"}
             </button>
           </div>
         </header>
@@ -286,12 +286,8 @@ export function PublishFlow() {
         {notice ? (
           <div style={successNotice}>
             {notice}
-            {publishedHref ? (
-              <>
-                {" "}
-                <Link href={publishedHref} style={inlineLink}>Open document</Link>
-              </>
-            ) : null}
+            {" "}
+            <Link href="/studio/publishing" style={inlineLink}>Open queue</Link>
           </div>
         ) : null}
 
