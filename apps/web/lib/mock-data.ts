@@ -39,7 +39,7 @@ export const mockSpacePages: SpacePageRecord[] = [
   { id: 'page-1', spaceId: 'space-1', slug: 'home', title: 'Home', pageType: 'home', body: 'Welcome to Station House.', sortOrder: 1, isPublished: true, commentsEnabled: false },
   { id: 'page-2', spaceId: 'space-1', slug: 'about', title: 'About', pageType: 'about', body: 'A continuity-focused public Space.', sortOrder: 2, isPublished: true, commentsEnabled: false },
   { id: 'page-3', spaceId: 'space-1', slug: 'personas', title: 'Personas', pageType: 'personas', body: 'Linked public personas live here.', sortOrder: 3, isPublished: true, commentsEnabled: false },
-  { id: 'page-4', spaceId: 'space-1', slug: 'documents', title: 'Documents', pageType: 'documents', body: 'Public writings and constitutions.', sortOrder: 4, isPublished: true, commentsEnabled: false },
+  { id: 'page-4', spaceId: 'space-1', slug: 'documents', title: 'Documents', pageType: 'documents', body: 'Public writings and codexes.', sortOrder: 4, isPublished: true, commentsEnabled: false },
 ];
 
 export const mockDocuments: DocumentRecord[] = [
@@ -95,7 +95,7 @@ export const mockForumCategories: ForumCategory[] = [
   { id: 'cat-2', slug: 'awakenings', title: 'Awakenings', description: 'Experiences of discovering personas.', sortOrder: 2 },
   { id: 'cat-3', slug: 'continuity', title: 'Continuity', description: 'Migration and preservation.', sortOrder: 3 },
   { id: 'cat-4', slug: 'personas', title: 'Personas', description: 'Discussion of public personas.', sortOrder: 4 },
-  { id: 'cat-5', slug: 'documents-and-constitutions', title: 'Documents & Constitutions', description: 'Manifestos, essays, and canon texts.', sortOrder: 5 },
+  { id: 'cat-5', slug: 'documents-and-codexes', title: 'Documents & Codexes', description: 'Essays, codexes, manifestos, and canon texts.', sortOrder: 5 },
   { id: 'cat-6', slug: 'theory-and-consciousness', title: 'Theory & Consciousness', description: 'Philosophical and spiritual discussion.', sortOrder: 6 },
   { id: 'cat-7', slug: 'platform-help', title: 'Platform Help', description: 'Questions about Station.', sortOrder: 7 },
   { id: 'cat-8', slug: 'general', title: 'General', description: 'Everything else.', sortOrder: 8 },
@@ -110,7 +110,7 @@ export const mockThreads: ThreadRecord[] = [
   },
   {
     id: 'thread-2', categoryId: 'cat-5', authorUserId: 'demo-user', linkedSpaceId: 'space-1', linkedPersonaId: null,
-    title: 'Drafting constitutions for public personas',
+    title: 'Drafting codexes for public personas',
     body: 'How should a public persona explain its purpose, rules, and relation to its owner?',
     status: 'active', score: 7, commentCount: 1, createdAt: now, updatedAt: now,
   },

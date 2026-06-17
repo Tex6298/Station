@@ -8,7 +8,7 @@ const TIERS = [
     interval: null,
     description: "See what Station is about. No commitment.",
     features: [
-      "Browse public Spaces and posts",
+      "Browse public Spaces and documents",
       "Read the community forums",
       "Limited discover feed",
     ],
@@ -45,7 +45,7 @@ const TIERS = [
       "Unlimited personas",
       "Full archive + semantic search",
       "Your own public Space (website)",
-      "Publish posts, essays, and updates",
+      "Publish essays, codexes, and field logs",
       "20 GB storage",
       "BYOK or platform AI",
       "Forum + community access",

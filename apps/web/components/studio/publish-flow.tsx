@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 
-const formats = ["Essay", "Codex", "Manifesto", "Update", "Field Log"];
+const formats = ["Essay", "Codex", "Manifesto", "Field Log", "Research Document", "Archive Note"];
 const subreddits = ["r/artificial", "r/ChatGPT", "r/LocalLLaMA"];
 const connectors = ["X / Twitter", "LinkedIn", "Instagram", "YouTube", "TikTok", "Facebook", "Substack"];
 
@@ -27,10 +27,10 @@ export function PublishFlow() {
               Publish Flow
             </div>
             <h1 style={{ margin: "8px 0 6px", color: "#f8fafc", fontSize: "clamp(30px, 5vw, 46px)", lineHeight: 1.05 }}>
-              Prepare a post for Station and beyond.
+              Prepare a Station document.
             </h1>
             <p style={{ margin: 0, color: "#a9b0bd", fontSize: 15, lineHeight: 1.6, maxWidth: 720 }}>
-              Draft long-form writing, choose destinations, preview metadata, and stage external posting from one workspace.
+              Draft long-form writing, preview metadata, and stage publication from one workspace. External social dispatch stays behind connector readiness checks.
             </p>
           </div>
           <div style={{ display: "flex", gap: 10, flexWrap: "wrap", justifyContent: "flex-end" }}>
@@ -77,7 +77,7 @@ export function PublishFlow() {
             <textarea
               value={body}
               onChange={(event) => setBody(event.target.value)}
-              placeholder="Write the post body..."
+              placeholder="Write the document body..."
               style={editor}
             />
 
@@ -92,9 +92,9 @@ export function PublishFlow() {
               <SectionTitle title="Station" />
               <label style={checkRow}>
                 <input type="checkbox" checked={stationBlog} onChange={(event) => setStationBlog(event.target.checked)} />
-                Station blog
+                Station document
               </label>
-              <div style={helperText}>Publishes to your public Space blog by default.</div>
+              <div style={helperText}>Publishes to your public Space document library by default.</div>
               <Link href="/space" style={inlineLink}>Review public Space</Link>
             </section>
 

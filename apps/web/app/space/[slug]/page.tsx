@@ -68,12 +68,18 @@ interface SpaceData {
 }
 
 const DOC_TYPE_LABELS: Record<string, string> = {
-  post: "Post",
   essay: "Essay",
+  codex: "Codex",
   manifesto: "Manifesto",
-  constitution: "Constitution",
-  update: "Update",
-  other: "Other",
+  field_log: "Field Log",
+  research: "Research Document",
+  archive_note: "Archive Note",
+  transcript: "Transcript",
+  // Legacy alpha values may remain until migration 032 has run everywhere.
+  post: "Essay",
+  constitution: "Codex",
+  update: "Field Log",
+  other: "Archive Note",
 };
 
 const PROVENANCE_LABELS: Record<string, string> = {

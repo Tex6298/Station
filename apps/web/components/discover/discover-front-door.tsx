@@ -83,11 +83,13 @@ function Avatar({ author, size = 28 }: { author: FeedItem["author"]; size?: numb
 
 const TYPE_COLOURS: Record<string, string> = {
   document: "#1e3a5f", thread: "#1a2e1a", developer_space: "#082f49",
-  post: "#1e3a5f", essay: "#2a1a3a", manifesto: "#3a1a1a",
+  essay: "#2a1a3a", codex: "#24311a", manifesto: "#3a1a1a", field_log: "#332c10",
+  research: "#0f2f3a", archive_note: "#2e2733", transcript: "#1f2937",
 };
 const TYPE_TEXT: Record<string, string> = {
   document: "#60a5fa", thread: "#4ade80", developer_space: "#67e8f9",
-  post: "#60a5fa", essay: "#c084fc", manifesto: "#f87171",
+  essay: "#c084fc", codex: "#bef264", manifesto: "#f87171", field_log: "#facc15",
+  research: "#22d3ee", archive_note: "#d8b4fe", transcript: "#cbd5e1",
 };
 const PROVENANCE_LABELS: Record<string, string> = {
   user_authored: "User-authored",

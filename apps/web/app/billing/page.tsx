@@ -236,7 +236,7 @@ export default function BillingPage() {
           price="GBP 100"
           interval="month"
           yearlyPrice="GBP 1,000/year"
-          features={["Unlimited personas", "Full archive + RAG", "Public page (Space)", "Publish posts & essays", "Forum access"]}
+          features={["Unlimited personas", "Full archive + RAG", "Public page (Space)", "Publish essays & codexes", "Forum access"]}
           action={billingPlanAction({ currentTier, planTier: "creator", subscriptionStatus: status?.subscriptionStatus })}
           onUpgrade={() => handleUpgrade("creator", "monthly")}
           onUpgradeYearly={() => handleUpgrade("creator", "yearly")}

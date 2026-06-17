@@ -44,7 +44,7 @@ export function PublishingDashboard() {
               Track publishing work across Station blog destinations and external connectors.
             </p>
           </div>
-          <Link href="/studio/publish" className="station-link-button">New post</Link>
+          <Link href="/studio/publish" className="station-link-button">New document</Link>
         </header>
 
         <section className="station-panel">

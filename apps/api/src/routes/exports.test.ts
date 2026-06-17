@@ -338,7 +338,7 @@ class InMemorySupabase {
         title: "Animus public field log",
         slug: "animus-public-field-log",
         body: "Public field log body is safe to reference.",
-        document_type: "update",
+        document_type: "field_log",
         status: "published",
         visibility: "public",
         comments_enabled: true,

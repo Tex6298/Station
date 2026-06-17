@@ -21,8 +21,8 @@
     "test:reports": "pnpm --filter @station/types --filter @station/config --filter @station/db --filter @station/auth build && tsx --test apps/api/src/routes/reports.test.ts",
     "test:community": "pnpm --filter @station/types --filter @station/config --filter @station/db --filter @station/auth build && tsx --test apps/api/src/routes/community.test.ts",
     "test:continuity": "pnpm --filter @station/types --filter @station/config --filter @station/db --filter @station/auth --filter @station/ai build && tsx --test apps/api/src/routes/continuity.test.ts apps/api/src/routes/continuity-records.test.ts apps/web/lib/continuity-ui.test.ts",
-    "test:persona-context": "pnpm --filter @station/types --filter @station/config --filter @station/db --filter @station/auth --filter @station/ai build && tsx --test apps/api/src/routes/persona-context.test.ts",
-    "test:conversation-archive": "pnpm --filter @station/types --filter @station/config --filter @station/db --filter @station/auth --filter @station/ai build && tsx --test apps/api/src/routes/conversation-archive.test.ts apps/api/src/routes/archive-retrieval.test.ts",
+    "test:persona-context": "pnpm --filter @station/types --filter @station/config --filter @station/db --filter @station/auth --filter @station/ai build && tsx --test apps/api/src/routes/persona-context.test.ts apps/api/src/services/conversation-history.service.test.ts",
+    "test:conversation-archive": "pnpm --filter @station/types --filter @station/config --filter @station/db --filter @station/auth --filter @station/ai build && tsx --test apps/api/src/routes/conversation-archive.test.ts apps/api/src/routes/archive-retrieval.test.ts apps/api/src/services/conversation-history.service.test.ts",
     "test:continuity-publication": "pnpm --filter @station/types --filter @station/config --filter @station/db --filter @station/auth --filter @station/ai build && tsx --test apps/api/src/routes/continuity-publication.test.ts",
     "test:document-discussions": "pnpm --filter @station/types --filter @station/config --filter @station/db --filter @station/auth --filter @station/ai build && tsx --test apps/api/src/routes/document-discussions.test.ts",
     "test:exports": "pnpm --filter @station/types --filter @station/config --filter @station/db --filter @station/auth --filter @station/ai build && tsx --test apps/api/src/routes/exports.test.ts",
@@ -33,7 +33,8 @@
     "triad:watch:daedalus": "node scripts/triad-watch.mjs A2 --watch",
     "triad:watch:argus": "node scripts/triad-watch.mjs A3 --watch",
     "triad:watch:ariadne": "node scripts/triad-watch.mjs A4 --watch",
-    "triad:status": "node scripts/triad-status.mjs"
+    "triad:status": "node scripts/triad-status.mjs",
+    "test:assistant": "pnpm --filter @station/types --filter @station/config --filter @station/db --filter @station/auth --filter @station/ai build && tsx --test apps/api/src/services/station-assistant.service.test.ts apps/api/src/services/conversation-history.service.test.ts"
   },
   "devDependencies": {
     "tsx": "^4.21.0",

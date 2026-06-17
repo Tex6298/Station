@@ -92,7 +92,7 @@ export default function MySpacesPage() {
               <div style={{ display: "flex", gap: "0.5rem" }}>
                 <Link href={"/space/" + s.slug} className="station-muted-button">View</Link>
                 <Link href={"/space/" + s.slug + "/manage"} className="station-muted-button">Edit</Link>
-                <Link href={"/space/" + s.slug + "/documents/new"} className="station-muted-button">New post</Link>
+                <Link href={"/space/" + s.slug + "/documents/new"} className="station-muted-button">New document</Link>
               </div>
             </article>
           ))}

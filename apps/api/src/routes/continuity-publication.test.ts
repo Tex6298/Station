@@ -204,7 +204,7 @@ class InMemorySupabase {
       row.body ??= "";
       row.status ??= "draft";
       row.visibility ??= "private";
-      row.document_type ??= "post";
+      row.document_type ??= "essay";
       row.comments_enabled ??= true;
       row.published_at ??= null;
       row.provenance_type ??= "user_authored";

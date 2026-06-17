@@ -77,3 +77,28 @@ This note captures the reusable ideas reviewed from the user-provided open repos
 - Full Discourse/Flarum plugin systems, SSO/email ingestion, live chat, and notification engines.
 - Forem-style semantic feed generation and complete publishing profile system.
 - Next discussion platform saved-posts modal, community membership/admin hierarchy, and image upload pipeline.
+
+## Current Station fit assessment, 2026-06-16
+
+The current Station codebase has already absorbed the useful parts of the upstream review into Station-native structures. The next implementation pass should finish those structures rather than import another memory system, forum engine, observability stack, or deployment product.
+
+### Implement now
+
+| Area | Existing Station base | Upstream reference to keep using | Next implementation move |
+| --- | --- | --- | --- |
+| Persona model | `persona_layer_profiles`, lifecycle events, handoffs | `acnlabs/OpenPersona` | Polish persona architecture UI and export/import vocabulary. |
+| Runtime continuity | `buildPersonaContext`, semantic retrieval, Memory, Canon, Integrity outputs | `agentic-box/memora`, `carsteneu/yesmem`, `wangjiake/JKRiver` | Add candidate review, consolidation, contradiction, decay, and source/evidence UI on current tables. |
+| Archive trust | persona files, import jobs, archived transcripts, export packages | Memora/YesMem concepts | Build global private library, import parsers, private search, and job-backed export/import status. |
+| Station Assistant | not yet a real product loop | None as a direct dependency | Add a non-persona operational assistant that uses existing archive/search/publish/export/integrity tools. |
+| Publishing approval | documents, discussions, provenance-adjacent metadata | `msalsas/amanuensis` | Add approval queue, document-type alignment, versioning, and provenance labels. |
+| Community | native forums, votes, moderation actions, trust profiles | `flarum/framework`, `mbeps/next_discussion_platform` | Add subcommunities, notifications, appeals, persona-post labels, and mobile thread polish. |
+| Developer Spaces | ingestion keys, events, nodes, snapshots, SSE/WebSocket, client package | `builderz-labs/mission-control`, `tobilg/ai-observer`, `simple10/agents-observe` | Harden rate limits, diagnostics, collaborator/project ownership, field visibility, and partner docs. |
+
+### Immediate safety fix carried in this patch
+
+- Persona chat now loads the latest 20 prior turns for prompt assembly instead of the oldest 20.
+- Persona chat `_debug` payloads remain available in dev/test diagnostics and are blocked in production unless an admin request is served with `STATION_EXPOSE_AI_DEBUG=true`.
+
+### Source of implementation instructions
+
+Use `docs/roadmap/STATION_LAUNCH_CORE_PATCH.md` as the concrete patch plan. It contains the file-level lanes, checks, finish rules, and polish passes for turning the current protected alpha into a coherent launch core.

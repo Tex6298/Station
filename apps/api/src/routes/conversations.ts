@@ -19,6 +19,7 @@ import {
   tokenErrorResponse,
 } from "../services/token-credits.service";
 import { enqueueLlmCall } from "../services/llm-queue.service";
+import { includeRuntimeDebug, toChronologicalRuntimeHistory } from "../services/conversation-history.service";
 import {
   completeAiTrace,
   failAiTrace,
@@ -401,13 +402,15 @@ conversationsRouter.post("/persona/:personaId/chat", async (req, res) => {
     }
   }
 
-  // Load existing messages for this conversation (last 20 turns)
-  const { data: history } = await sb
+  // Load the most recent 20 prior turns for runtime context. Supabase applies
+  // limit after ordering, so fetch newest-first and normalise back to chronological order.
+  const { data: historyRows } = await sb
     .from("conversation_messages")
-    .select("role, content")
+    .select("role, content, created_at")
     .eq("conversation_id", convId)
-    .order("created_at", { ascending: true })
+    .order("created_at", { ascending: false })
     .limit(20);
+  const history = toChronologicalRuntimeHistory(historyRows ?? [], 20);
 
   // Save the user message
   await sb.from("conversation_messages").insert({
@@ -455,7 +458,7 @@ conversationsRouter.post("/persona/:personaId/chat", async (req, res) => {
 
   // Send to LLM
   const messages = [
-    ...(history ?? []).map((m) => ({ role: m.role as "user" | "assistant", content: m.content })),
+    ...history,
     { role: "user" as const, content },
   ];
 
@@ -463,7 +466,7 @@ conversationsRouter.post("/persona/:personaId/chat", async (req, res) => {
     await assertTokenBudgetForEstimate(userId, estimateConversationTokens({
       systemPrompt,
       userMessage: content,
-      history: history ?? [],
+      history,
     }));
   } catch (error) {
     const quota = tokenErrorResponse(error);
@@ -489,7 +492,7 @@ conversationsRouter.post("/persona/:personaId/chat", async (req, res) => {
       messages,
       ...(useStationAnthropic ? { model: stationModel.model } : {}),
     });
-    inputTokens = aiResponse.usage?.inputTokens ?? estimateConversationTokens({ systemPrompt, userMessage: content, history: history ?? [] });
+    inputTokens = aiResponse.usage?.inputTokens ?? estimateConversationTokens({ systemPrompt, userMessage: content, history });
     outputTokens = aiResponse.usage?.outputTokens ?? estimateTokensFromText(aiResponse.content);
     const durationMs = Date.now() - traceStartedAt;
 
@@ -552,11 +555,16 @@ conversationsRouter.post("/persona/:personaId/chat", async (req, res) => {
     .update({ updated_at: new Date().toISOString() })
     .eq("id", convId);
 
-  return res.json({
+  const responsePayload: Record<string, unknown> = {
     conversationId: convId,
     reply: savedReply,
-    _debug: { canonCount, memoryCount, integrityCount, archiveCount, provider: aiResponse.model },
-  });
+  };
+
+  if (includeRuntimeDebug(req.query.debug, process.env.NODE_ENV, env.STATION_EXPOSE_AI_DEBUG)) {
+    responsePayload._debug = { canonCount, memoryCount, integrityCount, archiveCount, provider: aiResponse.model };
+  }
+
+  return res.json(responsePayload);
 });
 
 // -- Save last assistant message as memory -------------------------------------

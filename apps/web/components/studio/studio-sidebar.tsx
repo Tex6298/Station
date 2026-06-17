@@ -173,8 +173,8 @@ export function StudioSidebar() {
         <div style={{ marginBottom: 10 }}>
           <StorageUsagePanel compact />
         </div>
-        <button
-          type="button"
+        <Link
+          href="/studio/assistant"
           style={{
             width: "100%",
             display: "flex",
@@ -185,17 +185,17 @@ export function StudioSidebar() {
             background: "#101827",
             color: "#e5e7eb",
             padding: 10,
-            cursor: "pointer",
+            textDecoration: "none",
             textAlign: "left",
           }}
         >
           <span style={markBox}>?</span>
           <span style={{ flex: 1, minWidth: 0 }}>
             <span style={{ display: "block", fontSize: 13, fontWeight: 700 }}>Station Assistant</span>
-            <span style={{ display: "block", color: "#8ea0b8", fontSize: 11 }}>Help, settings, archive</span>
+            <span style={{ display: "block", color: "#8ea0b8", fontSize: 11 }}>Help, archive, publish</span>
           </span>
-          <span style={{ color: "#687386", fontSize: 12 }}>^</span>
-        </button>
+          <span style={{ color: "#687386", fontSize: 12 }}>→</span>
+        </Link>
       </div>
     </aside>
     </>

@@ -1,88 +1,82 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
+import { apiGet } from "@/lib/api-client";
+import { getSession } from "@/lib/auth";
 
 type ArchiveItem = {
   id: string;
   title: string;
   source: string;
-  type: "conversation" | "document" | "image" | "data" | "integrity";
+  type: string;
   persona: string;
-  date: string;
+  date: string | null;
+  status: string;
   summary: string;
+  href: string;
 };
-
-const archiveItems: ArchiveItem[] = [
-  {
-    id: "archive-1",
-    title: "old-chat-export.json",
-    source: "ChatGPT export",
-    type: "conversation",
-    persona: "Station",
-    date: "Today",
-    summary: "Imported conversation history waiting for memory and canon review.",
-  },
-  {
-    id: "archive-2",
-    title: "station-notes.txt",
-    source: "Upload",
-    type: "document",
-    persona: "Station",
-    date: "Yesterday",
-    summary: "Continuity notes uploaded into the global archive.",
-  },
-  {
-    id: "archive-3",
-    title: "Station tone pass",
-    source: "Integrity session",
-    type: "integrity",
-    persona: "Station",
-    date: "3d ago",
-    summary: "Calibration transcript with extracted tone and public/private rules.",
-  },
-  {
-    id: "archive-4",
-    title: "Awakenings thread pull",
-    source: "Reddit",
-    type: "data",
-    persona: "Shared/global",
-    date: "1w ago",
-    summary: "Forum research pull queued for classification and excerpts.",
-  },
-];
 
 const filters = [
   "All",
   "Shared/global",
-  "Station",
-  "Reddit",
-  "ChatGPT export",
-  "Claude export",
-  "Upload",
-  "API ingestion",
+  "Archive",
+  "Memory",
+  "Import",
   "Conversation",
   "Document",
   "Image",
   "Data",
+  "Integrity",
 ];
 
 export function ArchiveLibrary() {
   const [filter, setFilter] = useState("All");
   const [query, setQuery] = useState("");
   const [sort, setSort] = useState("date");
+  const [items, setItems] = useState<ArchiveItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [signedIn, setSignedIn] = useState(false);
 
-  const items = useMemo(() => {
+  useEffect(() => {
+    getSession().then(async (session) => {
+      if (!session) {
+        setSignedIn(false);
+        setLoading(false);
+        return;
+      }
+
+      setSignedIn(true);
+      try {
+        const data = await apiGet<{ items: ArchiveItem[] }>("/imports/archive", session.access_token);
+        setItems(data.items ?? []);
+      } catch (e) {
+        setError(e instanceof Error ? e.message : "Could not load archive.");
+      } finally {
+        setLoading(false);
+      }
+    });
+  }, []);
+
+  const visibleItems = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
-    return archiveItems
+    return [...items]
       .filter((item) => {
         if (filter === "All") return true;
         if (filter === "Shared/global") return item.persona === "Shared/global";
-        if (["Conversation", "Document", "Image", "Data"].includes(filter)) return item.type === filter.toLowerCase();
-        return item.persona === filter || item.source === filter;
+        return item.type.toLowerCase() === filter.toLowerCase() || item.source.toLowerCase().includes(filter.toLowerCase());
       })
-      .filter((item) => !normalizedQuery || `${item.title} ${item.summary} ${item.source} ${item.persona}`.toLowerCase().includes(normalizedQuery))
-      .sort((a, b) => sort === "type" ? a.type.localeCompare(b.type) : a.title.localeCompare(b.title));
-  }, [filter, query, sort]);
+      .filter((item) => !normalizedQuery || `${item.title} ${item.summary} ${item.source} ${item.persona} ${item.status}`.toLowerCase().includes(normalizedQuery))
+      .sort((a, b) => {
+        if (sort === "type") return a.type.localeCompare(b.type) || a.title.localeCompare(b.title);
+        if (sort === "title") return a.title.localeCompare(b.title);
+        return Date.parse(b.date ?? "") - Date.parse(a.date ?? "");
+      });
+  }, [filter, items, query, sort]);
+
+  const failedCount = items.filter((item) => item.status === "failed").length;
+  const queuedCount = items.filter((item) => ["queued", "processing", "in_progress"].includes(item.status)).length;
 
   return (
     <main style={{ minHeight: "calc(100vh - 52px)", background: "#0b0e14" }}>
@@ -96,87 +90,122 @@ export function ArchiveLibrary() {
               Global Archive
             </h1>
             <p style={{ margin: 0, color: "#a9b0bd", fontSize: 15, lineHeight: 1.6, maxWidth: 720 }}>
-              Browse materials across personas, shared uploads, imports, integrity sessions, and external sources.
-              This global view is a staging preview; use persona Archive and Export Trust for live import and export.
+              Live owner-only view across imports, uploaded files, archived chats, Integrity Sessions, documents, memory, and canon-adjacent material.
             </p>
           </div>
-          <button type="button" disabled title="Preview only" style={primaryButton}>Upload preview</button>
+          <Link href="/studio/assistant" style={primaryButton}>Ask Assistant</Link>
         </header>
 
-        <div style={{ display: "grid", gridTemplateColumns: "260px minmax(0, 1fr)", gap: 18, alignItems: "start" }}>
-          <aside style={panel}>
-            <h2 style={sectionTitle}>Filters</h2>
-            <div style={{ display: "grid", gap: 6 }}>
-              {filters.map((item) => {
-                const active = item === filter;
-                return (
-                  <button
-                    key={item}
-                    type="button"
-                    onClick={() => setFilter(item)}
-                    style={{
-                      ...filterButton,
-                      background: active ? "#13233d" : "transparent",
-                      borderColor: active ? "#2563eb" : "transparent",
-                      color: active ? "#f8fafc" : "#b6c0ce",
-                    }}
-                  >
-                    {item}
-                  </button>
-                );
-              })}
-            </div>
-          </aside>
-
-          <section style={{ display: "grid", gap: 14, minWidth: 0 }}>
-            <div style={panel}>
-              <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr) 160px", gap: 10 }}>
-                <input
-                  value={query}
-                  onChange={(event) => setQuery(event.target.value)}
-                  placeholder="Search archive materials..."
-                  style={input}
-                />
-                <select value={sort} onChange={(event) => setSort(event.target.value)} style={input}>
-                  <option value="date">Sort by date</option>
-                  <option value="type">Sort by type</option>
-                  <option value="title">Sort by title</option>
-                </select>
-              </div>
-            </div>
-
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))", gap: 12 }}>
-              {items.map((item) => (
-                <article key={item.id} style={card}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12 }}>
-                    <span style={iconBox}>{item.type.slice(0, 1).toUpperCase()}</span>
-                    <div style={{ minWidth: 0 }}>
-                      <h3 style={{ margin: 0, color: "#f8fafc", fontSize: 14, lineHeight: 1.25 }}>{item.title}</h3>
-                      <div style={{ color: "#8ea0b8", fontSize: 11 }}>{item.source} - {item.date}</div>
-                    </div>
-                  </div>
-                  <p style={{ margin: "0 0 12px", color: "#a9b0bd", fontSize: 12, lineHeight: 1.55 }}>{item.summary}</p>
-                  <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 12 }}>
-                    <span style={pill}>{item.type}</span>
-                    <span style={pill}>{item.persona}</span>
-                  </div>
-                  <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginTop: "auto" }}>
-                    {["Attach", "Pin", "Draft", "Export"].map((action) => (
-                      <button key={action} type="button" disabled title="Preview only" style={miniButton}>{action} preview</button>
-                    ))}
-                  </div>
-                </article>
-              ))}
-            </div>
-
-            {items.length === 0 ? (
-              <div style={{ ...panel, color: "#8ea0b8", fontSize: 13 }}>No archive items match this view.</div>
-            ) : null}
-          </section>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(170px, 1fr))", gap: 10, marginBottom: 18 }}>
+          <SummaryCard label="Archive items" value={items.length.toString()} />
+          <SummaryCard label="Queued/in progress" value={queuedCount.toString()} />
+          <SummaryCard label="Failed" value={failedCount.toString()} tone={failedCount > 0 ? "bad" : "neutral"} />
         </div>
+
+        {!signedIn && !loading ? <section style={panel}>Sign in to view your private archive.</section> : null}
+        {loading ? <section style={panel}>Loading archive...</section> : null}
+        {error ? <section style={{ ...panel, borderColor: "#7f1d1d", color: "#fecaca" }}>{error}</section> : null}
+
+        {signedIn && !loading && !error ? (
+          <div style={{ display: "grid", gridTemplateColumns: "260px minmax(0, 1fr)", gap: 18, alignItems: "start" }}>
+            <aside style={panel}>
+              <h2 style={sectionTitle}>Filters</h2>
+              <div style={{ display: "grid", gap: 6 }}>
+                {filters.map((item) => {
+                  const active = item === filter;
+                  return (
+                    <button
+                      key={item}
+                      type="button"
+                      onClick={() => setFilter(item)}
+                      style={{
+                        ...filterButton,
+                        background: active ? "#13233d" : "transparent",
+                        borderColor: active ? "#2563eb" : "transparent",
+                        color: active ? "#f8fafc" : "#b6c0ce",
+                      }}
+                    >
+                      {item}
+                    </button>
+                  );
+                })}
+              </div>
+            </aside>
+
+            <section style={{ display: "grid", gap: 14, minWidth: 0 }}>
+              <div style={panel}>
+                <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr) 160px", gap: 10 }}>
+                  <input
+                    value={query}
+                    onChange={(event) => setQuery(event.target.value)}
+                    placeholder="Search private archive materials..."
+                    style={input}
+                  />
+                  <select value={sort} onChange={(event) => setSort(event.target.value)} style={input}>
+                    <option value="date">Sort by date</option>
+                    <option value="type">Sort by type</option>
+                    <option value="title">Sort by title</option>
+                  </select>
+                </div>
+              </div>
+
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))", gap: 12 }}>
+                {visibleItems.map((item) => (
+                  <article key={`${item.type}-${item.id}`} style={card}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12 }}>
+                      <span style={iconBox}>{item.type.slice(0, 1).toUpperCase()}</span>
+                      <div style={{ minWidth: 0 }}>
+                        <h3 style={{ margin: 0, color: "#f8fafc", fontSize: 14, lineHeight: 1.25 }}>{item.title}</h3>
+                        <div style={{ color: "#8ea0b8", fontSize: 11 }}>{item.source} · {formatDate(item.date)}</div>
+                      </div>
+                    </div>
+                    <p style={{ margin: "0 0 12px", color: "#a9b0bd", fontSize: 12, lineHeight: 1.55 }}>{item.summary}</p>
+                    <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 12 }}>
+                      <span style={pill}>{item.type}</span>
+                      <span style={pill}>{item.persona}</span>
+                      <span style={statusPill(item.status)}>{item.status}</span>
+                    </div>
+                    <Link href={item.href} style={miniLink}>Open source</Link>
+                  </article>
+                ))}
+              </div>
+
+              {visibleItems.length === 0 ? (
+                <div style={{ ...panel, color: "#8ea0b8", fontSize: 13 }}>No archive items match this view.</div>
+              ) : null}
+            </section>
+          </div>
+        ) : null}
       </div>
     </main>
   );
+}
+
+function SummaryCard({ label, value, tone = "neutral" }: { label: string; value: string; tone?: "neutral" | "bad" }) {
+  return (
+    <div style={{ ...panel, padding: 14, borderColor: tone === "bad" ? "#7f1d1d" : "#263244" }}>
+      <div style={{ color: "#f8fafc", fontSize: 24, fontWeight: 900, lineHeight: 1 }}>{value}</div>
+      <div style={{ color: "#8ea0b8", fontSize: 12, marginTop: 7 }}>{label}</div>
+    </div>
+  );
+}
+
+function formatDate(value: string | null) {
+  if (!value) return "undated";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "undated";
+  return date.toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" });
+}
+
+function statusPill(status: string) {
+  const failed = status === "failed";
+  const good = ["completed", "processed", "indexed", "archived", "published"].includes(status);
+  return {
+    ...pill,
+    borderColor: failed ? "#7f1d1d" : good ? "#14532d" : "#334155",
+    color: failed ? "#fecaca" : good ? "#bbf7d0" : "#cbd5e1",
+    background: failed ? "#2a1010" : good ? "#0f2417" : "#0d1420",
+  };
 }
 
 const panel = {
@@ -239,6 +268,7 @@ const pill = {
   color: "#cbd5e1",
   padding: "5px 8px",
   fontSize: 11,
+  fontWeight: 800,
 };
 
 const primaryButton = {
@@ -246,22 +276,28 @@ const primaryButton = {
   alignItems: "center",
   justifyContent: "center",
   minHeight: 40,
-  border: "1px solid #334155",
+  border: "1px solid #2563eb",
   borderRadius: 8,
-  background: "#111827",
-  color: "#94a3b8",
+  background: "#2563eb",
+  color: "#fff",
   padding: "0 14px",
   fontSize: 14,
   fontWeight: 800,
-  cursor: "not-allowed",
+  textDecoration: "none",
 };
 
-const miniButton = {
+const miniLink = {
+  display: "inline-flex",
+  alignItems: "center",
+  justifyContent: "center",
+  minHeight: 32,
   border: "1px solid #334155",
-  borderRadius: 7,
-  background: "#0f172a",
-  color: "#64748b",
-  padding: "6px 8px",
+  borderRadius: 8,
+  color: "#dbeafe",
+  background: "#111827",
+  padding: "0 10px",
   fontSize: 12,
-  cursor: "not-allowed",
+  fontWeight: 800,
+  textDecoration: "none",
+  marginTop: "auto",
 };

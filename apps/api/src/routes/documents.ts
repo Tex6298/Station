@@ -3,10 +3,14 @@ import { z } from "zod";
 import { optionalAuth, requireAuth, type AuthenticatedUser } from "../middleware/require-auth";
 import { requireTier } from "../middleware/require-tier";
 import { getSupabaseAdmin } from "../lib/supabase";
+import { STATION_DOCUMENT_TYPES, normalizeDocumentType } from "@station/types";
 
 const visibilitySchema = z.enum(["private", "unlisted", "community", "public", "members"]);
 const sourceTypeSchema = z.enum(["canon", "integrity", "archive_file", "archive_import"]);
-
+const documentTypeSchema = z.preprocess(
+  (value) => typeof value === "string" ? normalizeDocumentType(value) : value,
+  z.enum(STATION_DOCUMENT_TYPES),
+);
 const createSchema = z.object({
   spaceId: z.string().uuid().optional(),
   personaId: z.string().uuid().optional().nullable(),
@@ -17,9 +21,7 @@ const createSchema = z.object({
     .max(120)
     .regex(/^[a-z0-9-]+$/, "Slug may only contain lowercase letters, numbers, and hyphens."),
   body: z.string().max(100000).optional(),
-  documentType: z
-    .enum(["post", "essay", "manifesto", "constitution", "update", "other"])
-    .default("post"),
+  documentType: documentTypeSchema.default("essay"),
   visibility: visibilitySchema.default("public"),
   commentsEnabled: z.boolean().default(true),
 });
@@ -43,9 +45,7 @@ const publishFromContinuitySchema = z.object({
     .max(120)
     .regex(/^[a-z0-9-]+$/, "Slug may only contain lowercase letters, numbers, and hyphens.")
     .optional(),
-  documentType: z
-    .enum(["post", "essay", "manifesto", "constitution", "update", "other"])
-    .default("essay"),
+  documentType: documentTypeSchema.default("essay"),
   visibility: visibilitySchema.default("public"),
   publish: z.boolean().default(true),
   commentsEnabled: z.boolean().default(true),
@@ -54,7 +54,7 @@ const publishFromContinuitySchema = z.object({
 export const documentsRouter = Router();
 
 const COMMUNITY_TIERS = new Set(["private", "creator", "canon", "institutional"]);
-const DISCUSSION_CATEGORY_SLUG = "documents-and-constitutions";
+const DISCUSSION_CATEGORY_SLUG = "documents-and-codexes";
 const PROVENANCE_LABELS: Record<string, string> = {
   user_authored: "User-authored",
   ai_assisted: "AI-assisted",
@@ -152,8 +152,8 @@ async function loadDiscussionCategory() {
     .from("forum_categories")
     .insert({
       slug: DISCUSSION_CATEGORY_SLUG,
-      title: "Documents & Constitutions",
-      description: "Discussion around published Station documents, canon texts, and continuity artifacts.",
+      title: "Documents & Codexes",
+      description: "Discussion around published Station documents, codexes, canon texts, and continuity artifacts.",
       sort_order: 5,
     })
     .select("id, slug, title")

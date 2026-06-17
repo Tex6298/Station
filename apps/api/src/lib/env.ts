@@ -74,6 +74,9 @@ const envSchema = z.object({
   // JWT secret (for auth + OAuth state tokens)
   JWT_SECRET: z.string().default("change-me-in-production"),
 
+  // Optional diagnostics for non-production environments. Production chat responses do not expose runtime counts.
+  STATION_EXPOSE_AI_DEBUG: z.enum(["true", "false"]).optional(),
+
   // Optional cache/queue providers. Readiness exposes non-secret booleans/status only.
   REDIS_URL: z.string().optional(),
   REDIS_PRIVATE_URL: z.string().optional(),

@@ -218,8 +218,8 @@ create table public.documents (
   title            text not null,
   slug             text not null,
   body             text,
-  document_type    text not null default 'post'
-                     check (document_type in ('post', 'essay', 'manifesto', 'constitution', 'update', 'other')),
+  document_type    text not null default 'essay'
+                     check (document_type in ('essay', 'codex', 'manifesto', 'field_log', 'research', 'archive_note', 'transcript')),
   status           text not null default 'draft'
                      check (status in ('draft', 'published', 'archived')),
   visibility       text not null default 'private'

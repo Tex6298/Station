@@ -8,6 +8,7 @@ export const studioPublicLinks = [
 ] as const;
 
 export const studioWorkspaceLinks = [
+  { label: "Station Assistant", href: "/studio/assistant", mark: "?", detail: "Archive and publishing help" },
   { label: "Global Archive", href: "/studio/archive", mark: "A", detail: "Recent import queue" },
   { label: "Notes and Scratchpad", href: "/studio/notes", mark: "N" },
   { label: "Export Workspace", href: "/studio/export", mark: "E" },

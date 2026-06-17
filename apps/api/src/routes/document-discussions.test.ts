@@ -173,7 +173,7 @@ class InMemorySupabase {
       row.body ??= "";
       row.status ??= "draft";
       row.visibility ??= "private";
-      row.document_type ??= "post";
+      row.document_type ??= "essay";
       row.comments_enabled ??= true;
       row.published_at ??= null;
       row.provenance_type ??= "user_authored";
@@ -223,6 +223,7 @@ class InMemorySupabase {
 
 class QueryBuilder {
   private filters: Array<[string, unknown]> = [];
+  private inFilters: Array<[string, unknown[]]> = [];
   private ilikeFilters: Array<[string, string]> = [];
   private orderSpec: { field: string; ascending: boolean } | null = null;
   private limitCount: number | null = null;
@@ -244,6 +245,11 @@ class QueryBuilder {
 
   eq(field: string, value: unknown) {
     this.filters.push([field, value]);
+    return this;
+  }
+
+  in(field: string, values: unknown[]) {
+    this.inFilters.push([field, values]);
     return this;
   }
 
@@ -297,6 +303,10 @@ class QueryBuilder {
 
     for (const [field, value] of this.filters) {
       rows = rows.filter((row) => row[field] === value);
+    }
+
+    for (const [field, values] of this.inFilters) {
+      rows = rows.filter((row) => values.includes(row[field]));
     }
 
     for (const [field, pattern] of this.ilikeFilters) {
@@ -519,14 +529,14 @@ test("published document discussions respect public, community, unlisted, and pr
     const visitorUnlistedThread = await requestJson(app, "GET", `/threads/${unlistedDiscussion.body.discussion.id}`);
     assert.equal(visitorUnlistedThread.status, 200);
 
-    const visitorCategory = await requestJson(app, "GET", "/forums/categories/documents-and-constitutions");
+    const visitorCategory = await requestJson(app, "GET", "/forums/categories/documents-and-codexes");
     assert.equal(visitorCategory.status, 200);
     assert.deepEqual(
       visitorCategory.body.threads.map((thread: Row) => thread.linked_document_id),
       [PUBLIC_DOC_ID]
     );
 
-    const memberCategory = await requestJson(app, "GET", "/forums/categories/documents-and-constitutions", {
+    const memberCategory = await requestJson(app, "GET", "/forums/categories/documents-and-codexes", {
       token: "member-token",
     });
     assert.equal(memberCategory.status, 200);

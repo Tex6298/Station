@@ -30,8 +30,18 @@ interface Discussion {
 }
 
 const DOC_TYPE_LABELS: Record<string, string> = {
-  post: "Post", essay: "Essay", manifesto: "Manifesto",
-  constitution: "Constitution", update: "Update", other: "Other",
+  essay: "Essay",
+  codex: "Codex",
+  manifesto: "Manifesto",
+  field_log: "Field Log",
+  research: "Research Document",
+  archive_note: "Archive Note",
+  transcript: "Transcript",
+  // Legacy alpha values may remain until migration 032 has run everywhere.
+  post: "Essay",
+  constitution: "Codex",
+  update: "Field Log",
+  other: "Archive Note",
 };
 
 const PROVENANCE_LABELS: Record<string, string> = {
@@ -233,7 +243,7 @@ export default function DocumentPage() {
             {discussion ? (
               <Link
                 className="button primary"
-                href={`/forums/${discussion.category?.slug ?? "documents-and-constitutions"}/${discussion.id}`}
+                href={`/forums/${discussion.category?.slug ?? "documents-and-codexes"}/${discussion.id}`}
                 style={{ fontSize: "0.82rem", whiteSpace: "nowrap" }}
               >
                 Open discussion

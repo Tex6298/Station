@@ -596,7 +596,7 @@ async function ensurePublicSurface(api, ownerUserId, personaId, continuityId, co
     title: corpus.space.document.title,
     slug: corpus.space.document.slug,
     body: corpus.space.document.body,
-    document_type: corpus.space.document.documentType ?? "post",
+    document_type: corpus.space.document.documentType ?? "essay",
     status: "published",
     visibility: "public",
     comments_enabled: true,

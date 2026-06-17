@@ -22,7 +22,7 @@ export default function NewDocumentPage() {
     title: "",
     slug: "",
     body: "",
-    documentType: "post" as string,
+    documentType: "essay" as string,
     personaId: "" as string,
     visibility: "public" as string,
     commentsEnabled: true,
@@ -91,7 +91,7 @@ export default function NewDocumentPage() {
         {" / "}
         <Link href={`/space/${slug}`} style={{ color: "#666" }}>{space?.title ?? slug}</Link>
         {" / "}
-        <span style={{ color: "#aaa" }}>New post</span>
+        <span style={{ color: "#aaa" }}>New document</span>
       </div>
 
       {error && <div className="card" style={{ background: "#2d1515", borderColor: "#7d2e2e", color: "#eb5757", marginBottom: "1rem" }}>{error}</div>}
@@ -106,15 +106,16 @@ export default function NewDocumentPage() {
           <div style={{ flex: 2, minWidth: 180 }}>
             <input className="input" value={form.slug}
               onChange={(e) => { setSlugEdited(true); set("slug", e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, "")); }}
-              placeholder="post-slug" style={{ fontSize: "0.85rem" }} />
+              placeholder="document-slug" style={{ fontSize: "0.85rem" }} />
           </div>
-          <select className="select" value={form.documentType} onChange={(e) => set("documentType", e.target.value)} style={{ flex: 1, minWidth: 130 }}>
-            <option value="post">Post</option>
+          <select className="select" value={form.documentType} onChange={(e) => set("documentType", e.target.value)} style={{ flex: 1, minWidth: 160 }}>
             <option value="essay">Essay</option>
+            <option value="codex">Codex</option>
             <option value="manifesto">Manifesto</option>
-            <option value="constitution">Constitution</option>
-            <option value="update">Update</option>
-            <option value="other">Other</option>
+            <option value="field_log">Field Log</option>
+            <option value="research">Research Document</option>
+            <option value="archive_note">Archive Note</option>
+            <option value="transcript">Transcript</option>
           </select>
           <select className="select" value={form.personaId} onChange={(e) => set("personaId", e.target.value)} style={{ flex: 1, minWidth: 140 }}>
             <option value="">No linked persona</option>
@@ -124,7 +125,7 @@ export default function NewDocumentPage() {
 
         {/* Body */}
         <textarea className="textarea" value={form.body} onChange={(e) => set("body", e.target.value)}
-          placeholder="Write your post here..." style={{ minHeight: 360, fontSize: "0.95rem", lineHeight: 1.75 }} />
+          placeholder="Write your Station document here..." style={{ minHeight: 360, fontSize: "0.95rem", lineHeight: 1.75 }} />
 
         {/* Options + actions */}
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "0.75rem" }}>

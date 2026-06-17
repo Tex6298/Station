@@ -329,7 +329,7 @@ test("Public Spaces smoke covers authored microsite config and owner/private vis
       author_user_id: "owner-user",
       title: "Private Draft",
       slug: "private-draft",
-      document_type: "post",
+      document_type: "essay",
       body: "This must not render publicly.",
       status: "draft",
       visibility: "private",

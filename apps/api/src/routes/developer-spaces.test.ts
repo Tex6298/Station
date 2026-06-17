@@ -117,7 +117,7 @@ class InMemorySupabase {
       row.space_id ??= null;
       row.persona_id ??= null;
       row.body ??= "";
-      row.document_type ??= "post";
+      row.document_type ??= "essay";
       row.status ??= "draft";
       row.visibility ??= "private";
       row.comments_enabled ??= false;

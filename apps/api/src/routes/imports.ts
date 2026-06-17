@@ -232,6 +232,145 @@ importsRouter.post("/:id/retry", async (req, res) => {
   }
 });
 
+
+// -- Global private archive summary -------------------------------------------
+importsRouter.get("/archive", async (req, res) => {
+  const sb = getSupabaseAdmin();
+  const userId = req.user!.id;
+
+  const [personas, memoryItems, personaFiles, importJobs, archivedChats, integritySessions, documents] = await Promise.all([
+    readRows<any>(
+      sb
+        .from("personas")
+        .select("id, name")
+        .eq("owner_user_id", userId)
+        .limit(100)
+    ),
+    readRows<any>(
+      sb
+        .from("memory_items")
+        .select("id, persona_id, title, summary, content, source_type, archive_source_type, archive_source_name, created_at")
+        .eq("owner_user_id", userId)
+        .order("created_at", { ascending: false })
+        .limit(60)
+    ),
+    readRows<any>(
+      sb
+        .from("persona_files")
+        .select("id, persona_id, file_name, file_type, source_type, processed, created_at")
+        .eq("owner_user_id", userId)
+        .order("created_at", { ascending: false })
+        .limit(60)
+    ),
+    readRows<any>(
+      sb
+        .from("import_jobs")
+        .select("id, persona_id, kind, status, source_name, error_message, created_at, updated_at")
+        .eq("owner_user_id", userId)
+        .order("updated_at", { ascending: false })
+        .limit(60)
+    ),
+    readRows<any>(
+      sb
+        .from("archived_chat_transcripts")
+        .select("id, persona_id, title, source_summary, message_count, created_at, updated_at")
+        .eq("owner_user_id", userId)
+        .order("created_at", { ascending: false })
+        .limit(60)
+    ),
+    readRows<any>(
+      sb
+        .from("integrity_sessions")
+        .select("id, persona_id, session_type, status, started_at, completed_at, created_at, updated_at")
+        .eq("owner_user_id", userId)
+        .order("updated_at", { ascending: false })
+        .limit(60)
+    ),
+    readRows<any>(
+      sb
+        .from("documents")
+        .select("id, persona_id, title, document_type, status, visibility, created_at, updated_at, published_at")
+        .eq("author_user_id", userId)
+        .order("updated_at", { ascending: false })
+        .limit(60)
+    ),
+  ]);
+
+  const personaNames = new Map(personas.map((persona) => [persona.id, persona.name]));
+  const items = [
+    ...memoryItems.map((row) => archiveItem({
+      id: row.id,
+      title: row.title ?? row.archive_source_name ?? "Memory item",
+      source: row.archive_source_name ?? row.archive_source_type ?? row.source_type ?? "Memory",
+      type: row.archive_source_type ? "archive" : "memory",
+      persona: personaLabel(row.persona_id, personaNames),
+      date: row.created_at,
+      status: "indexed",
+      summary: row.summary ?? row.content ?? "Private memory item available for retrieval.",
+      href: row.persona_id ? `/studio/personas/${row.persona_id}/memory` : "/studio/archive",
+    })),
+    ...personaFiles.map((row) => archiveItem({
+      id: row.id,
+      title: row.file_name ?? "Uploaded file",
+      source: row.source_type ?? "Upload",
+      type: classifyArchiveType(row.file_type, row.file_name),
+      persona: personaLabel(row.persona_id, personaNames),
+      date: row.created_at,
+      status: row.processed ? "processed" : "queued",
+      summary: row.processed ? "File is preserved and processed for this persona." : "File is preserved and waiting for processing.",
+      href: row.persona_id ? `/studio/personas/${row.persona_id}/files` : "/studio/archive",
+    })),
+    ...importJobs.map((row) => archiveItem({
+      id: row.id,
+      title: row.source_name ?? "Import job",
+      source: row.kind ?? "import",
+      type: "import",
+      persona: personaLabel(row.persona_id, personaNames),
+      date: row.updated_at ?? row.created_at,
+      status: row.status ?? "queued",
+      summary: row.error_message ?? `Import is ${row.status ?? "queued"}.`,
+      href: row.persona_id ? `/studio/personas/${row.persona_id}/files` : "/studio/archive",
+    })),
+    ...archivedChats.map((row) => archiveItem({
+      id: row.id,
+      title: row.title ?? "Archived chat",
+      source: "Archived chat",
+      type: "conversation",
+      persona: personaLabel(row.persona_id, personaNames),
+      date: row.updated_at ?? row.created_at,
+      status: "archived",
+      summary: row.source_summary ?? `${row.message_count ?? 0} messages archived as a private transcript.`,
+      href: row.persona_id ? `/studio/personas/${row.persona_id}` : "/studio/archive",
+    })),
+    ...integritySessions.map((row) => archiveItem({
+      id: row.id,
+      title: `${row.session_type ?? "Integrity"} session`,
+      source: "Integrity Session",
+      type: "integrity",
+      persona: personaLabel(row.persona_id, personaNames),
+      date: row.completed_at ?? row.updated_at ?? row.started_at ?? row.created_at,
+      status: row.status ?? "in_progress",
+      summary: row.status === "completed" ? "Structured continuity outputs are available for review." : "Integrity Session is still in progress.",
+      href: row.persona_id ? `/studio/personas/${row.persona_id}/calibration` : "/studio/archive",
+    })),
+    ...documents.map((row) => archiveItem({
+      id: row.id,
+      title: row.title ?? "Document",
+      source: row.document_type ?? "document",
+      type: "document",
+      persona: personaLabel(row.persona_id, personaNames),
+      date: row.published_at ?? row.updated_at ?? row.created_at,
+      status: row.status ?? "draft",
+      summary: `${row.document_type ?? "document"} · ${row.visibility ?? "private"}`,
+      href: "/studio/publishing",
+    })),
+  ]
+    .sort((a, b) => Date.parse(b.date ?? "") - Date.parse(a.date ?? ""))
+    .slice(0, 120);
+
+  return res.json({ items });
+});
+
 // -- Poll import job status -----------------------------------------------------
 importsRouter.get("/:id/status", async (req, res) => {
   const sb = getSupabaseAdmin();
@@ -288,4 +427,45 @@ async function loadCompletedChatImportBySource(
 function isSpecificChatImportSourceName(sourceName: string) {
   const normalized = sourceName.trim().toLowerCase();
   return normalized.length > 0 && !GENERIC_CHAT_IMPORT_SOURCE_NAMES.has(normalized);
+}
+
+async function readRows<T>(query: PromiseLike<{ data: T[] | null; error?: { message?: string } | null }>) {
+  const { data, error } = await query;
+  if (error) return [];
+  return data ?? [];
+}
+
+function personaLabel(personaId: string | null | undefined, personaNames: Map<string, string>) {
+  if (!personaId) return "Shared/global";
+  return personaNames.get(personaId) ?? "Unknown persona";
+}
+
+function archiveItem(input: {
+  id: string;
+  title: string;
+  source: string;
+  type: string;
+  persona: string;
+  date?: string | null;
+  status: string;
+  summary: string;
+  href: string;
+}) {
+  return {
+    ...input,
+    summary: trimText(input.summary, 220),
+    date: input.date ?? null,
+  };
+}
+
+function classifyArchiveType(fileType?: string | null, fileName?: string | null) {
+  const value = `${fileType ?? ""} ${fileName ?? ""}`.toLowerCase();
+  if (/png|jpe?g|webp|gif|image/.test(value)) return "image";
+  if (/json|csv|parquet|data/.test(value)) return "data";
+  return "document";
+}
+
+function trimText(value: string, limit: number) {
+  const clean = value.replace(/\s+/g, " ").trim();
+  return clean.length > limit ? `${clean.slice(0, limit - 3).trim()}...` : clean;
 }

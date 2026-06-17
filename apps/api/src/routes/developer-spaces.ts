@@ -299,9 +299,9 @@ function defaultTemplateBody(projectName: string, role: DeveloperSpaceDocumentRo
 }
 
 function documentTypeForRole(role: DeveloperSpaceDocumentRole) {
-  if (role === "field_log") return "update";
-  if (role === "note") return "post";
-  return "essay";
+  if (role === "methodology" || role === "finding") return "research";
+  if (role === "field_log") return "field_log";
+  return "archive_note";
 }
 
 function activeEmbeddingDimension() {
