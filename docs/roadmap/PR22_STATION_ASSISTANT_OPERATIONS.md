@@ -206,6 +206,15 @@ Validation:
 - `npm exec --yes pnpm@10.32.1 -- run typecheck`: pass.
 - `git diff --check`: pass, CRLF normalization warnings only.
 
+ARGUS blocker repair:
+
+- `/assistant/context` now uses the same `safeSourceLabel`/`safeSnippet`
+  policy as `/assistant/summary` for recent rows and the legacy failed-import
+  next action.
+- Route coverage now requests `/assistant/context` with storage-path-shaped
+  source names and secret-shaped import errors and asserts the response excludes
+  both raw values while preserving the failed-import action.
+
 Deferred:
 
 - No autonomous tool execution.

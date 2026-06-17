@@ -108,6 +108,18 @@ test("launch-core private routes require auth and scope assistant summary to the
     assert.equal(JSON.stringify(owner.body.summary).includes("private/path/owner-chatgpt.json"), false);
     assert.equal(JSON.stringify(owner.body.summary).includes(OTHER_ID_PERSONA), false);
 
+    const ownerContext = await requestJson(app, "GET", "/assistant/context", { token: "owner-token" });
+    assert.equal(ownerContext.status, 200);
+    const ownerContextJson = JSON.stringify(ownerContext.body.assistant);
+    assert.equal(ownerContextJson.includes("sk-live-secret"), false);
+    assert.equal(ownerContextJson.includes("private/path/owner-chatgpt.json"), false);
+    assert.equal(ownerContextJson.includes(OTHER_ID_PERSONA), false);
+    assert.equal(ownerContext.body.assistant.recent.imports[0].sourceName, "Untitled import");
+    assert.equal(ownerContext.body.assistant.recent.imports[0].errorMessage, "storage [redacted] failed");
+    assert.equal(ownerContext.body.assistant.nextActions[0].id, "review-failed-import");
+    assert.match(ownerContext.body.assistant.nextActions[0].detail, /One import failed/);
+    assert.match(ownerContext.body.assistant.nextActions[0].detail, /\[redacted\]/);
+
     const other = await requestJson(app, "GET", "/assistant/summary", { token: "other-token" });
     assert.equal(other.status, 200);
     assert.equal(other.body.summary.counts.personas, 1);

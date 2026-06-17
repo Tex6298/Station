@@ -7203,6 +7203,18 @@ DAEDALUS implementation validation on 2026-06-17:
 | `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck tasks passed. |
 | `git diff --check` | Pass | No whitespace errors; CRLF normalization warnings only for touched text files if Git reports them. |
 
+DAEDALUS context leak repair validation on 2026-06-17:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:assistant` | Pass | 8 tests passed, including `/assistant/context` redaction of storage-path-shaped source names and secret-shaped import errors. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 17 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass | 27 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:storage` | Pass | 16 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:exports` | Pass | 4 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck tasks passed. |
+| `git diff --check` | Pass | No whitespace errors; CRLF normalization warnings only for touched text files if Git reports them. |
+
 Scope notes:
 
 - Assistant summaries and replies now return typed operational action cards with

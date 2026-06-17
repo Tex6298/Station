@@ -176,7 +176,7 @@ export async function getStationAssistantContext(ownerUserId: string) {
     recent: {
       personas: personas.slice(0, 6).map((row) => ({
         id: row.id,
-        name: row.name,
+        name: safeSnippet(row.name, 60),
         visibility: row.visibility ?? "private",
         href: `/studio/personas/${row.id}`,
         updatedAt: row.updated_at ?? row.created_at ?? null,
@@ -184,15 +184,15 @@ export async function getStationAssistantContext(ownerUserId: string) {
       imports: importJobs.slice(0, 6).map((row) => ({
         id: row.id,
         status: row.status ?? "queued",
-        sourceName: row.source_name ?? "Untitled import",
+        sourceName: safeSourceLabel(row.source_name, "Untitled import"),
         kind: row.kind ?? "import",
-        errorMessage: row.error_message ?? null,
+        errorMessage: row.error_message ? safeSnippet(row.error_message, 120) : null,
         href: row.persona_id ? `/studio/personas/${row.persona_id}/files` : "/studio/archive",
         updatedAt: row.updated_at ?? row.created_at ?? null,
       })),
       documents: documents.slice(0, 6).map((row) => ({
         id: row.id,
-        title: row.title,
+        title: safeSnippet(row.title, 80),
         status: row.status ?? "draft",
         visibility: row.visibility ?? "private",
         documentType: row.document_type ?? "essay",
@@ -275,10 +275,12 @@ function buildNextActions(
 
   if (importJobs.some((job) => job.status === "failed")) {
     const failed = importJobs.find((job) => job.status === "failed");
+    const source = safeSourceLabel(failed?.source_name, "One import");
+    const error = failed?.error_message ? ` Error: ${safeSnippet(failed.error_message, 90)}` : "";
     actions.push({
       id: "review-failed-import",
       label: "Review failed import",
-      detail: failed?.source_name ? `${failed.source_name} failed before Station could preserve it cleanly.` : "One import failed before archive processing completed.",
+      detail: `${source} failed before Station could preserve it cleanly.${error}`,
       href: failed?.persona_id ? `/studio/personas/${failed.persona_id}/files` : "/studio/archive",
       priority: "critical",
     });

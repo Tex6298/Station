@@ -4262,6 +4262,13 @@ when a PR lands, or when validation truth changes.
   `safeSourceLabel`/`safeSnippet` policy to `/assistant/context` or by routing
   it through the same sanitized typed summary shape, and add tests that hit
   `/assistant/context` with raw path/secret fixture data.
+- PR22 context leak repair is implemented by DAEDALUS and ready for ARGUS,
+  2026-06-17: `/assistant/context` now applies the same safe label/snippet
+  policy to recent persona names, import source names, import errors, document
+  titles, and the legacy failed-import next action. The assistant test fixture
+  now requests `/assistant/context` with a storage-path-shaped source and
+  secret-shaped error text and asserts the response excludes both raw strings
+  while preserving the actionable failed-import state.
 
 ## Near-term rule
 
