@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { canPublishDocuments } from "@station/auth";
 import { apiGet, apiPatch, apiPost } from "@/lib/api-client";
 import { getSession } from "@/lib/auth";
 import {
@@ -57,6 +58,8 @@ export function PublishFlow() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [publishing, setPublishing] = useState(false);
+  const [publishingAllowed, setPublishingAllowed] = useState(false);
+  const [userTier, setUserTier] = useState("visitor");
   const [slugEdited, setSlugEdited] = useState(false);
   const [stationDestination, setStationDestination] = useState(true);
   const [previewOpen, setPreviewOpen] = useState(false);
@@ -92,6 +95,8 @@ export function PublishFlow() {
         if (cancelled) return;
 
         setToken(session.access_token);
+        setPublishingAllowed(canPublishDocuments(session.user));
+        setUserTier(session.user.tier);
         setSpaces(spaceData.spaces ?? []);
         setPersonas(personaData.personas ?? []);
 
@@ -132,7 +137,8 @@ export function PublishFlow() {
   const wordCount = useMemo(() => form.body.trim().split(/\s+/).filter(Boolean).length, [form.body]);
   const readTime = Math.max(1, Math.ceil(wordCount / 220));
   const publishVisibilityReady = form.visibility !== "private";
-  const canPublish = Boolean(stationDestination && form.spaceId && publishVisibilityReady && token && form.title.trim() && form.slug.trim());
+  const canSave = Boolean(publishingAllowed && token && form.title.trim() && form.slug.trim());
+  const canPublish = Boolean(canSave && stationDestination && form.spaceId && publishVisibilityReady);
 
   function setField<K extends keyof DocumentForm>(field: K, value: DocumentForm[K]) {
     setForm((current) => ({ ...current, [field]: value }));
@@ -167,6 +173,10 @@ export function PublishFlow() {
   async function saveDraft(): Promise<SavedDocument | null> {
     if (!token) {
       router.push("/login");
+      return null;
+    }
+    if (!publishingAllowed) {
+      setError(`Your current ${userTier} tier cannot create Station documents. Upgrade to Creator or above before saving drafts.`);
       return null;
     }
     if (!form.title.trim() || !form.slug.trim()) {
@@ -258,7 +268,7 @@ export function PublishFlow() {
             <button type="button" onClick={() => setPreviewOpen((value) => !value)} style={secondaryButton}>
               {previewOpen ? "Hide preview" : "Preview"}
             </button>
-            <button type="button" onClick={() => void saveDraft()} disabled={saving || publishing} style={secondaryButton}>
+            <button type="button" onClick={() => void saveDraft()} disabled={!canSave || saving || publishing} style={secondaryButton}>
               {saving ? "Saving..." : "Save draft"}
             </button>
             <button type="button" onClick={() => void publishDocument()} disabled={!canPublish || publishing || saving} style={primaryButton}>
@@ -268,6 +278,11 @@ export function PublishFlow() {
         </header>
 
         {error ? <div style={errorNotice}>{error}</div> : null}
+        {!publishingAllowed ? (
+          <div style={tierNotice}>
+            Creator tier or above is required to save and publish Station documents. Current tier: {userTier}.
+          </div>
+        ) : null}
         {notice ? (
           <div style={successNotice}>
             {notice}
@@ -432,12 +447,12 @@ function normalizeVisibilityForForm(value: string): DocumentForm["visibility"] {
 }
 
 function SectionTitle({ title }: { title: string }) {
-  return <h2 style={{ margin: "0 0 12px", color: "#f8fafc", fontSize: 16 }}>{title}</h2>;
+  return <h2 style={{ margin: "0 0 12px", color: "#1f2529", fontSize: 16 }}>{title}</h2>;
 }
 
 const pageShell = {
   minHeight: "calc(100vh - 52px)",
-  background: "#0b0e14",
+  background: "#f4f2ec",
 };
 
 const pageInner = {
@@ -456,7 +471,7 @@ const header = {
 };
 
 const eyebrow = {
-  color: "#93c5fd",
+  color: "#534ab7",
   fontSize: 11,
   textTransform: "uppercase" as const,
   fontWeight: 800,
@@ -464,14 +479,14 @@ const eyebrow = {
 
 const title = {
   margin: "8px 0 6px",
-  color: "#f8fafc",
+  color: "#1f2529",
   fontSize: 38,
   lineHeight: 1.05,
 };
 
 const lede = {
   margin: 0,
-  color: "#a9b0bd",
+  color: "#565f67",
   fontSize: 15,
   lineHeight: 1.6,
   maxWidth: 720,
@@ -492,8 +507,8 @@ const layoutGrid = {
 };
 
 const panel = {
-  border: "1px solid #263244",
-  background: "#101622",
+  border: "1px solid #d8d3c8",
+  background: "#ffffff",
   borderRadius: 8,
   padding: 16,
 };
@@ -527,10 +542,10 @@ const secondaryLink = {
 
 function pillButton(active: boolean) {
   return {
-    border: "1px solid " + (active ? "#2563eb" : "#334155"),
+    border: "1px solid " + (active ? "#534ab7" : "#d8d3c8"),
     borderRadius: 999,
-    background: active ? "#13233d" : "#0d1420",
-    color: active ? "#dbeafe" : "#cbd5e1",
+    background: active ? "#eeedfe" : "#ffffff",
+    color: active ? "#1f2529" : "#565f67",
     padding: "7px 11px",
     fontSize: 12,
     fontWeight: 700,
@@ -550,8 +565,8 @@ const titleInput = {
   border: 0,
   outline: "none",
   background: "transparent",
-  color: "#f8fafc",
-  fontSize: 34,
+  color: "#1f2529",
+  fontSize: 26,
   fontWeight: 800,
   lineHeight: 1.15,
 };
@@ -566,17 +581,17 @@ const metaGrid = {
 const fieldLabel = {
   display: "grid",
   gap: 6,
-  color: "#9fb3d0",
+  color: "#565f67",
   fontSize: 12,
   fontWeight: 700,
 };
 
 const input = {
   width: "100%",
-  border: "1px solid #334155",
+  border: "1px solid #d8d3c8",
   borderRadius: 8,
-  background: "#0d1420",
-  color: "#f8fafc",
+  background: "#ffffff",
+  color: "#1f2529",
   padding: "10px 11px",
   fontSize: 13,
 };
@@ -585,17 +600,17 @@ const disabledToolbar = {
   display: "flex",
   gap: 8,
   flexWrap: "wrap" as const,
-  borderBottom: "1px solid #202938",
-  borderTop: "1px solid #202938",
+  borderBottom: "1px solid #e4dfd4",
+  borderTop: "1px solid #e4dfd4",
   padding: "11px 0",
   margin: "14px 0",
 };
 
 const disabledToolButton = {
-  border: "1px solid #334155",
+  border: "1px solid #d8d3c8",
   borderRadius: 7,
-  background: "#111827",
-  color: "#8ea0b8",
+  background: "#f8f7f4",
+  color: "#687078",
   padding: "7px 10px",
   fontSize: 12,
   fontWeight: 700,
@@ -610,7 +625,7 @@ const editor = {
   border: 0,
   outline: "none",
   background: "transparent",
-  color: "#f8fafc",
+  color: "#1f2529",
   fontSize: 16,
   lineHeight: 1.75,
   fontFamily: "inherit",
@@ -621,9 +636,9 @@ const footerMeta = {
   justifyContent: "space-between",
   gap: 12,
   flexWrap: "wrap" as const,
-  borderTop: "1px solid #202938",
+  borderTop: "1px solid #e4dfd4",
   paddingTop: 12,
-  color: "#8ea0b8",
+  color: "#687078",
   fontSize: 12,
 };
 
@@ -631,13 +646,13 @@ const checkRow = {
   display: "flex",
   alignItems: "center",
   gap: 9,
-  color: "#d1d5db",
+  color: "#1f2529",
   fontSize: 13,
   marginBottom: 9,
 };
 
 const helperText = {
-  color: "#8ea0b8",
+  color: "#687078",
   fontSize: 12,
   lineHeight: 1.45,
 };
@@ -645,7 +660,7 @@ const helperText = {
 const inlineLink = {
   display: "inline-flex",
   marginTop: 10,
-  color: "#93c5fd",
+  color: "#534ab7",
   fontSize: 12,
   textDecoration: "none",
 };
@@ -655,19 +670,19 @@ const connectorRow = {
   justifyContent: "space-between",
   alignItems: "center",
   gap: 8,
-  border: "1px solid #202938",
+  border: "1px solid #d8d3c8",
   borderRadius: 8,
-  background: "#0d1420",
+  background: "#f8f7f4",
   padding: 9,
-  color: "#cbd5e1",
+  color: "#1f2529",
   fontSize: 13,
 };
 
 const disabledMiniButton = {
-  border: "1px solid #334155",
+  border: "1px solid #d8d3c8",
   borderRadius: 7,
-  background: "#111827",
-  color: "#8ea0b8",
+  background: "#ffffff",
+  color: "#687078",
   padding: "5px 8px",
   fontSize: 12,
   cursor: "not-allowed",
@@ -677,7 +692,7 @@ const disabledMiniButton = {
 const previewBody = {
   marginTop: 12,
   whiteSpace: "pre-wrap" as const,
-  color: "#d7e4f5",
+  color: "#1f2529",
   fontSize: 14,
   lineHeight: 1.65,
 };
@@ -696,6 +711,15 @@ const successNotice = {
   borderRadius: 8,
   background: "rgba(20, 83, 45, 0.22)",
   color: "#bbf7d0",
+  padding: 12,
+  marginBottom: 14,
+};
+
+const tierNotice = {
+  border: "1px solid rgba(133, 79, 11, 0.35)",
+  borderRadius: 8,
+  background: "#f8efd9",
+  color: "#854f0b",
   padding: 12,
   marginBottom: 14,
 };

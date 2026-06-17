@@ -1120,6 +1120,28 @@ Targeted commands run with the pinned runner:
 | `npx --yes pnpm@10.32.1 test:billing` | Pass | 4 tests passed; PR-17 subscription webhook guardrails remain green. |
 | `git diff --check` | Pass | CRLF normalization warnings only. |
 
+## PR10 Publish Browser Rehearsal Follow-up
+
+MIMIR validation on 2026-06-17 after ARIADNE's live browser block:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck tasks passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 11 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:community` | Pass | 8 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` | Pass | 1 test passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:continuity-publication` | Pass | 1 test passed. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web build` | Local environment failure after successful compile/type/page generation | Next compiled successfully, lint/type checks ran with the known warning inventory, and 29 static pages generated. The build then failed writing standalone traced-file symlinks on this Windows shell with `EPERM`, matching the known local shell caveat. |
+
+Notes:
+
+- `/studio/publish` now preflights the signed-in user's publish entitlement and
+  disables Save/Publish for private-tier users before the API 403.
+- The page now uses light Station surface colors for the header/editor shell and
+  shrinks the title input to avoid default-title clipping on phone width.
+- The positive live publish rehearsal still requires a Creator-or-above account
+  or explicit staging tier setup.
+
 V3-03 is accepted for token-credit accounting hardening. Scope remains
 accounting and one-off top-up validation only; it does not expand into a
 broader Stripe platform, marketplace, Connect, or usage-based subscription

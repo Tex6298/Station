@@ -3530,6 +3530,20 @@ when a PR lands, or when validation truth changes.
   route checklist for `/studio/publish`, `/studio/publish?documentId=...`, and
   `/studio/publishing`, including live save/publish controls, deferred controls,
   Space/visibility gating, live dashboard rows, and phone-safe layout checks.
+- PR10 Publish Browser Rehearsal is blocked by ARIADNE for follow-up,
+  2026-06-17: live Railway at runtime `33cd50b` restored the signed-in replay
+  owner, but the account is private/basic-tier with `canPublishDocuments:false`.
+  Real keyboard save returned the API entitlement error, so ARIADNE could not
+  complete the positive save/edit/publish/document-link path. ARIADNE also found
+  `/studio/publish` header/lede contrast too low in the light Studio shell and
+  the default title input clipped at `390 x 844`.
+- PR10 Publish Browser Rehearsal follow-up is ready for ARGUS review,
+  2026-06-17: MIMIR added a client entitlement preflight so private-tier users
+  see a Creator-or-above requirement and cannot click Save/Publish into a known
+  API 403; switched `/studio/publish` to light Station surface colors; and
+  reduced the document title input size so the default title fits phone width.
+  The remaining rehearsal setup caveat is that the positive save/edit/publish
+  path still requires a Creator-or-above account or a staging tier adjustment.
 - PR10 Publish Browser Rehearsal is blocked by ARIADNE, 2026-06-17:
   `docs/roadmap/PR10_PUBLISH_BROWSER_REHEARSAL_ARIADNE_RESULT.md` records the
   live Railway browser pass against runtime commit `33cd50b`. Web/API health and

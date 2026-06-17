@@ -21,6 +21,9 @@ Station session flow.
 
 - Signed-in session restores and the page loads without asking the user for
   hidden setup.
+- If the signed-in account is below Creator tier, the page should show a clear
+  Creator-or-above requirement and keep Save/Publish disabled instead of letting
+  the user trip the API 403.
 - `Preview` visibly opens/closes a document preview.
 - `Save draft` creates or updates a document and gives visible success/error
   feedback.
@@ -34,6 +37,11 @@ Station session flow.
   deferred/disabled rather than pretend-live.
 - Desktop and phone widths do not overflow, overlap, or use huge viewport-scaled
   title treatment.
+
+Positive save/edit/publish proof requires a Creator-or-above account. If the
+available replay account is still private/basic, record the entitlement preflight
+pass/fail and mark the positive path as blocked by staging account setup rather
+than by the publish UI.
 
 ### `/studio/publish?documentId=...`
 
