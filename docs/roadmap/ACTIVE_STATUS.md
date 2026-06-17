@@ -3803,6 +3803,21 @@ when a PR lands, or when validation truth changes.
   records the sanitized pass. ARIADNE recommends MIMIR close PR12 without
   expanding scope into vector search, workers, Cloudflare retrieval, Redis
   memory truth, export bundles, or new archive source types.
+- PR12 Private Archive Search is closed, 2026-06-17: ARGUS accepted the
+  owner-scoped backend search implementation, ARIADNE accepted the deployed
+  desktop/phone archive rehearsal after the focused contrast repair, and no
+  remaining PR12 blocker is open. Future vector search, workers, Cloudflare
+  retrieval, Redis memory truth, export bundles, and additional archive source
+  types remain separate lanes.
+- PR14 External Conversation Import Parsers is opened for DAEDALUS,
+  2026-06-17: `docs/roadmap/PR14_EXTERNAL_CONVERSATION_IMPORTS.md` scopes the
+  next launch-core implementation lane to ChatGPT and Claude parser extraction,
+  safe unknown-JSON failure, owner-scoped import behavior, and preservation of
+  existing import job/storage rollback guarantees. The existing
+  `PR13_CLOUDFLARE_NESTSTACK_DECISION.md` remains a draft decision packet, not
+  the active implementation lane. Reddit, Discord production import, workers,
+  Cloudflare retrieval, Redis memory truth, vector reindexing, public
+  publishing, and broad UI reskin are out of scope.
 
 ## Near-term rule
 
