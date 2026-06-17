@@ -3614,6 +3614,15 @@ when a PR lands, or when validation truth changes.
   `docs/testing/VALIDATION_BASELINE.md`; the only build caveat is the known
   Windows Next standalone symlink `EPERM` after successful compile/page
   generation.
+- PR11 Publishing Approval Queue is blocked for DAEDALUS follow-up,
+  2026-06-17: ARGUS reran the PR11 focused gate and it is mechanically green,
+  but two policy/security gaps remain. Migration `034` creates new owner-scoped
+  approval tables without enabling RLS or adding owner policies, unlike the
+  repo's other owner/private tables. The dashboard queue controls can also
+  enqueue and publish drafts with no `space_id`, reopening the no-public-Space
+  route problem inside the new queue path. Follow-up should add RLS/policies,
+  enforce Space-backed queue publication at API and UI levels, and cover both
+  with focused tests before ARIADNE or MIMIR acceptance.
 
 ## Near-term rule
 

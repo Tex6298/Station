@@ -1,6 +1,6 @@
 # PR11 - Publishing Approval Queue
 
-Status: implemented by DAEDALUS; ready for ARGUS review
+Status: blocked for DAEDALUS follow-up
 Owner: DAEDALUS / A2
 Reviewer: ARGUS / A3
 Human rehearsal: ARIADNE / A4 only after ARGUS accepts the code slice
@@ -135,3 +135,44 @@ ARGUS review focus:
   labels but not private document bodies or raw source IDs.
 - Confirm whether direct API publish-without-Space remains an accepted policy
   caveat for this lane.
+
+## ARGUS Review - 2026-06-17
+
+Result: blocked before ARIADNE or MIMIR acceptance.
+
+Validation rerun by ARGUS:
+
+- `npm exec --yes pnpm@10.32.1 -- run typecheck`
+- `npm exec --yes pnpm@10.32.1 -- run test:publishing-approvals`
+- `npm exec --yes pnpm@10.32.1 -- run test:continuity-publication`
+- `npm exec --yes pnpm@10.32.1 -- run test:document-discussions`
+- `npm exec --yes pnpm@10.32.1 -- run test:community`
+- `npm exec --yes pnpm@10.32.1 -- run test:studio-ui`
+- `git diff abc3b3d..503fa84 --check`
+- `git diff --check`
+
+All passed locally, with CRLF warnings only for consumed agent state.
+
+Blockers:
+
+1. Migration `034_publishing_approval_queue.sql` creates owner-scoped approval
+   tables without `alter table ... enable row level security` or owner policies.
+   This differs from the repo pattern for private owner tables and leaves the
+   durable queue relying only on API discipline.
+2. `/studio/publishing` can enqueue and publish any owner draft through the new
+   queue controls, including documents with no `space_id`. That recreates a
+   published-no-public-Space-route path inside PR11, even though PR10 tightened
+   `/studio/publish` to require a Space before submission.
+
+Required follow-up:
+
+- Add RLS and owner-scoped policies for `publishing_approval_items` and
+  `publishing_approval_events`.
+- Enforce Space-backed queue publication in the API service, not only in the
+  Studio publish form. A no-Space document should not enqueue/publish through
+  the approval queue unless MIMIR explicitly changes the product policy.
+- Hide or disable queue actions in `/studio/publishing` for no-Space drafts with
+  clear copy instead of letting the owner create a queue item that cannot produce
+  a routable public document.
+- Add focused tests for the no-Space rejection path and the RLS/policy migration
+  expectations.
