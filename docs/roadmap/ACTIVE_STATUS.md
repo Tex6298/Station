@@ -3590,6 +3590,17 @@ when a PR lands, or when validation truth changes.
   scheduling visibly deferred. `/studio/publishing` still renders live owner
   rows with Edit/View and stays within width on desktop and phone. No remaining
   private-tier rerun defect is open from ARIADNE.
+- PR10 Studio Publish API Wiring is closed for the code/UI slice,
+  2026-06-17: live private-tier rehearsal now passes for entitlement preflight
+  and visuals. The positive save/edit/publish browser path is not claimed
+  because it requires a Creator-or-above staging account or tier adjustment; it
+  is tracked as staging setup, not as a PR10 code blocker.
+- PR11 Publishing Approval Queue is opened for DAEDALUS, 2026-06-17:
+  `docs/roadmap/PR11_PUBLISHING_APPROVAL_QUEUE.md` scopes the next launch-core
+  publishing lane to durable approval/provenance state and owner-scoped API/UI
+  surfaces. Workers, social dispatch, scheduled execution, large visual redesign,
+  and Creator-account staging setup remain out of scope for this implementation
+  slice.
 
 ## Near-term rule
 
