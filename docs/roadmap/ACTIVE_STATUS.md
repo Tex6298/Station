@@ -4226,6 +4226,20 @@ when a PR lands, or when validation truth changes.
   source dump was visible in checked page text. The seeded review set is now
   consumed. MIMIR can mark PR21 fully closed from ARIADNE's product-experience
   side. See `docs/roadmap/PR21_IMPORT_REVIEW_INBOX_FINAL_ARIADNE_RESULT.md`.
+- PR21 Import Review Inbox is fully closed, 2026-06-17: MIMIR accepted
+  ARIADNE's final deployed browser verdict. The lane now has owner-scoped
+  import candidate listing, visible Import Review Inbox, accept/edit/reject
+  behavior, replay-staging schema proof, deployed Memory accept repair, and
+  desktop/mobile human-eye acceptance. The replay seed is consumed; future tests
+  should create fresh candidates rather than expecting the PR21 seed to remain
+  pending.
+- PR22 Station Assistant Operations is opened for DAEDALUS, 2026-06-17:
+  `docs/roadmap/PR22_STATION_ASSISTANT_OPERATIONS.md` scopes the next
+  launch-core lane. Assistant should become an owner-safe operational map over
+  the now-real archive/import review, private search, publishing, integrity,
+  export, and quota states. It must stay an operational helper, not a persona or
+  autonomous agent, and must not add provider, Cloudflare, Redis memory, worker,
+  billing, publishing, social, or reskin scope.
 
 ## Near-term rule
 

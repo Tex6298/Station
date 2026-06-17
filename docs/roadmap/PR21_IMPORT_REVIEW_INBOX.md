@@ -1,7 +1,7 @@
 # PR21 - Import Review Inbox
 
 Date: 2026-06-17
-Status: accepted by A3 / ARGUS; ready for ARIADNE rehearsal
+Status: closed
 Owner: DAEDALUS implementation, ARGUS review, ARIADNE after MIMIR only if the
 visible Studio journey changes materially.
 
@@ -237,3 +237,30 @@ Validation rerun:
 Remaining scope stays deferred: full review workspace, UI reskin, live
 Reddit/Discord pulls, workers, Cloudflare/vector/Redis memory, publishing,
 billing, social posting, and public community bridge.
+
+## MIMIR Closeout - 2026-06-17
+
+PR21 is fully closed.
+
+Final accepted state:
+
+- ARGUS accepted the owner-scoped import candidate listing endpoint and Studio
+  Import Review Inbox.
+- MIMIR applied the staging schema repair and replay seed needed for a real
+  browser rehearsal.
+- DAEDALUS repaired the deployed Memory accept-with-edits blocker by normalizing
+  memory `relevance_weight` before insert and returning controlled JSON on
+  insert failure.
+- ARGUS accepted the repair.
+- ARIADNE reran Railway web/API at commit `9f6027f` on
+  `/studio/personas/:personaId/files` at desktop `1440x1100` and mobile
+  `375x812`.
+- The final browser rerun proved Memory accept-with-edits returns HTTP `200`,
+  candidate summary moves to pending `0` / reviewed `2`, and
+  `/health/deployment` remains healthy afterward.
+
+The seeded review set is consumed: Memory accepted, Canon rejected.
+
+Deferred scope remains unchanged: no full review workspace, UI reskin, live
+Reddit/Discord pulls, workers, Cloudflare/vector/Redis memory, publishing,
+billing, social posting, or public community bridge.
