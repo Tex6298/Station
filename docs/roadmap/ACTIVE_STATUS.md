@@ -3745,6 +3745,18 @@ when a PR lands, or when validation truth changes.
   sources. Workers remain deferred under the accepted PR6 no-trigger rule.
   Vector reindexing, Cloudflare retrieval, Redis memory truth, broad UI reskin,
   and publishing queue staging proof are out of scope for this slice.
+- PR12 Private Archive Search is ready for ARGUS review, 2026-06-17: DAEDALUS
+  stayed silent after the initial wakeup and a stronger re-wake, so MIMIR
+  implemented the bounded lane directly. `GET /imports/archive/search` now
+  returns owner-scoped, sanitized, capped private archive results across
+  documents, memory, canon, persona files, import jobs, archived chats,
+  continuity records, and Integrity Sessions. `/studio/archive` now uses that
+  backend search route for active query/filter/sort controls and keeps the
+  summary route for the default view. Focused coverage proves unauthenticated
+  failure, owner-only results, non-owner absence, source/status filters,
+  transcript non-exposure, secret redaction, and bounded no-query results.
+  `test:storage`, `test:studio-ui`, typecheck, `test:conversation-archive`,
+  `test:persona-context`, `test:exports`, and whitespace checks passed.
 
 ## Near-term rule
 

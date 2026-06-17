@@ -70,6 +70,8 @@ class InMemorySupabase {
     memory_items: [],
     canon_items: [],
     calibration_sessions: [],
+    continuity_records: [],
+    integrity_sessions: [],
     documents: [],
     archived_chat_transcripts: [],
   };
@@ -874,6 +876,165 @@ test("chat imports reserve text bytes and roll back when archive insert fails", 
     assert.equal(storageRow(failingDb).bytes_used, 0);
     assert.equal(failingDb.tables.memory_items.length, 0);
     assert.equal(failingDb.tables.import_jobs[0].status, "failed");
+  } finally {
+    resetStorageFake();
+  }
+});
+
+test("/imports/archive/search is owner-scoped, filtered, and sanitized", async () => {
+  const db = new InMemorySupabase();
+  const now = "2026-06-06T11:00:00.000Z";
+
+  db.insertRow("memory_items", {
+    id: "memory-blue-lantern",
+    persona_id: PERSONA_ID,
+    owner_user_id: OWNER_ID,
+    title: "Blue lantern memory",
+    content: "The private blue lantern phrase belongs only to the replay owner.",
+    summary: "Blue lantern continuity clue.",
+    source_type: "manual",
+    created_at: now,
+    updated_at: now,
+  });
+  db.insertRow("memory_items", {
+    id: "other-memory-blue-lantern",
+    persona_id: PERSONA_ID,
+    owner_user_id: OTHER_ID,
+    title: "Blue lantern other owner",
+    content: "Other owner row must not appear in owner search.",
+    summary: "Other owner private memory.",
+    source_type: "manual",
+    created_at: now,
+    updated_at: now,
+  });
+  db.insertRow("canon_items", {
+    id: "canon-silver-compass",
+    persona_id: PERSONA_ID,
+    owner_user_id: OWNER_ID,
+    title: "Silver compass canon",
+    content: "Silver compass stays steady across archive work.",
+    source_type: "manual",
+    priority: 5,
+    created_at: now,
+    updated_at: now,
+  });
+  db.insertRow("continuity_records", {
+    id: "continuity-meridian",
+    owner_user_id: OWNER_ID,
+    persona_id: PERSONA_ID,
+    record_type: "memory",
+    title: "Meridian Loom record",
+    body: "Meridian Loom is synthetic staging continuity.",
+    summary: "Meridian Loom continuity note.",
+    source_label: "Replay continuity",
+    visibility: "private",
+    occurred_at: now,
+    created_at: now,
+    updated_at: now,
+  });
+  db.insertRow("import_jobs", {
+    id: "import-broken-secret",
+    persona_id: PERSONA_ID,
+    owner_user_id: OWNER_ID,
+    kind: "chat",
+    status: "failed",
+    source_name: "Broken ChatGPT export",
+    error_message: "Provider failed with sk-test-secret-token and token=super-private-token",
+    created_at: now,
+    updated_at: now,
+  });
+  db.insertRow("archived_chat_transcripts", {
+    id: "archived-chat-blue",
+    conversation_id: "conversation-blue",
+    persona_id: PERSONA_ID,
+    owner_user_id: OWNER_ID,
+    title: "Blue lantern conversation",
+    transcript_markdown: "This full transcript must not be returned by search.",
+    source_summary: "Archived conversation mentions blue lantern.",
+    message_count: 2,
+    created_at: now,
+    updated_at: now,
+  });
+  db.insertRow("persona_files", {
+    id: "file-compass",
+    persona_id: PERSONA_ID,
+    owner_user_id: OWNER_ID,
+    file_name: "silver-compass-notes.md",
+    file_type: "text/markdown",
+    source_type: "upload",
+    processed: true,
+    created_at: now,
+  });
+  db.insertRow("integrity_sessions", {
+    id: "integrity-replay",
+    persona_id: PERSONA_ID,
+    owner_user_id: OWNER_ID,
+    session_type: "baseline",
+    status: "completed",
+    clusters_covered: ["identity"],
+    clusters_planned: ["identity"],
+    started_at: now,
+    completed_at: now,
+    created_at: now,
+    updated_at: now,
+  });
+  db.insertRow("documents", {
+    id: "document-replay",
+    author_user_id: OWNER_ID,
+    persona_id: PERSONA_ID,
+    title: "Replay field log",
+    body: "Public-safe field log references silver compass.",
+    document_type: "field_log",
+    status: "draft",
+    visibility: "private",
+    created_at: now,
+    updated_at: now,
+  });
+
+  setSupabaseAdminForTests(db.client as any);
+  const app = await createImportsApp();
+
+  try {
+    const anonymous = await requestJson(app, "GET", "/imports/archive/search?q=blue");
+    assert.equal(anonymous.status, 401);
+
+    const owner = await requestJson(app, "GET", "/imports/archive/search?q=blue&limit=10", {
+      token: "owner-token",
+    });
+    assert.equal(owner.status, 200);
+    assert.equal(owner.body.items.some((item: Row) => item.id === "memory-blue-lantern"), true);
+    assert.equal(owner.body.items.some((item: Row) => item.id === "archived-chat-blue"), true);
+    assert.equal(owner.body.items.every((item: Row) => item.privacy === "owner_only"), true);
+    assert.equal(owner.body.items.some((item: Row) => item.id === "other-memory-blue-lantern"), false);
+    assert.doesNotMatch(JSON.stringify(owner.body), /full transcript must not be returned/i);
+
+    const other = await requestJson(app, "GET", "/imports/archive/search?q=Meridian", {
+      token: "other-token",
+    });
+    assert.equal(other.status, 200);
+    assert.deepEqual(other.body.items, []);
+
+    const continuity = await requestJson(app, "GET", "/imports/archive/search?q=Meridian&type=continuity", {
+      token: "owner-token",
+    });
+    assert.equal(continuity.status, 200);
+    assert.deepEqual(continuity.body.items.map((item: Row) => item.kind), ["continuity"]);
+
+    const failedImport = await requestJson(app, "GET", "/imports/archive/search?q=Broken&type=import&status=failed", {
+      token: "owner-token",
+    });
+    assert.equal(failedImport.status, 200);
+    assert.equal(failedImport.body.items.length, 1);
+    assert.equal(failedImport.body.items[0].kind, "import_job");
+    assert.match(failedImport.body.items[0].summary, /\[redacted\]/);
+    assert.doesNotMatch(JSON.stringify(failedImport.body), /sk-test-secret-token/);
+    assert.doesNotMatch(JSON.stringify(failedImport.body), /super-private-token/);
+
+    const bounded = await requestJson(app, "GET", "/imports/archive/search?limit=2", {
+      token: "owner-token",
+    });
+    assert.equal(bounded.status, 200);
+    assert.equal(bounded.body.items.length <= 2, true);
   } finally {
     resetStorageFake();
   }

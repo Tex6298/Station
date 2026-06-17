@@ -1,7 +1,7 @@
 # PR12 - Private Archive Search
 
 Date: 2026-06-17
-Status: opened for A2 / DAEDALUS
+Status: ready for A3 / ARGUS review
 Owner: DAEDALUS implementation, ARGUS review, ARIADNE human rehearsal only if
 the Studio archive journey changes enough to need browser eyes.
 
@@ -174,3 +174,50 @@ response shapes, silent fallback to false empty states, and fake UI controls.
 
 If ARGUS accepts and the UI changed materially, wake ARIADNE for a human
 rehearsal of `/studio/archive` on desktop and mobile.
+
+## Implementation Result
+
+MIMIR implemented this lane directly after DAEDALUS did not respond to the
+initial wakeup or the stronger re-wake.
+
+Changed files:
+
+- `apps/api/src/routes/imports.ts`
+- `apps/api/src/routes/storage.test.ts`
+- `apps/web/components/studio/archive-library.tsx`
+- `apps/web/lib/archive-search.ts`
+- `apps/web/lib/archive-trust.test.ts`
+
+Implemented:
+
+- `GET /imports/archive/search` with authenticated owner-scoped reads.
+- Bounded server-side search across documents, memory items, canon items,
+  persona files, import jobs, archived chat transcripts, continuity records,
+  and Integrity Sessions.
+- Sanitized owner-only result cards with capped summaries, match reasons,
+  source labels, status, persona labels, route hints, and `privacy:
+  "owner_only"`.
+- Import failure summaries reuse existing job-error redaction so secret-shaped
+  tokens are not returned.
+- `/studio/archive` now calls the backend search route when query, filter, or
+  sort controls are active, while keeping `/imports/archive` as the default
+  summary view.
+- Studio archive UI surfaces partial-search warnings and search match reasons.
+
+Validation passed:
+
+```bash
+npm exec --yes pnpm@10.32.1 -- run test:storage
+npm exec --yes pnpm@10.32.1 -- run test:studio-ui
+npm exec --yes pnpm@10.32.1 -- run typecheck
+npm exec --yes pnpm@10.32.1 -- run test:conversation-archive
+npm exec --yes pnpm@10.32.1 -- run test:persona-context
+npm exec --yes pnpm@10.32.1 -- run test:exports
+git diff --check
+```
+
+Known caveat:
+
+- Search is bounded metadata/full-text filtering over owner-scoped source rows.
+  It does not add vector search, embedding backfill, Redis memory truth,
+  Cloudflare retrieval, or worker execution.

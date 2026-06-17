@@ -3,44 +3,54 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { apiGet } from "@/lib/api-client";
+import {
+  ARCHIVE_SEARCH_FILTERS,
+  archiveSearchPath,
+  archiveSearchUsesBackend,
+} from "@/lib/archive-search";
 import { getSession } from "@/lib/auth";
 
 type ArchiveItem = {
   id: string;
+  kind?: string;
   title: string;
   source: string;
+  sourceLabel?: string;
   type: string;
   persona: string;
+  personaId?: string | null;
   date: string | null;
+  occurredAt?: string | null;
   status: string;
+  visibility?: string | null;
   summary: string;
   href: string;
+  privacy?: "owner_only";
+  match?: {
+    field: string;
+    reason: string;
+  };
 };
 
-const filters = [
-  "All",
-  "Shared/global",
-  "Archive",
-  "Memory",
-  "Import",
-  "Conversation",
-  "Document",
-  "Image",
-  "Data",
-  "Integrity",
-];
+type ArchiveResponse = {
+  items: ArchiveItem[];
+  warnings?: string[];
+};
 
 export function ArchiveLibrary() {
   const [filter, setFilter] = useState("All");
   const [query, setQuery] = useState("");
   const [sort, setSort] = useState("date");
   const [items, setItems] = useState<ArchiveItem[]>([]);
+  const [summaryItems, setSummaryItems] = useState<ArchiveItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [warnings, setWarnings] = useState<string[]>([]);
   const [signedIn, setSignedIn] = useState(false);
+  const [accessToken, setAccessToken] = useState<string | null>(null);
 
   useEffect(() => {
-    getSession().then(async (session) => {
+    getSession().then((session) => {
       if (!session) {
         setSignedIn(false);
         setLoading(false);
@@ -48,35 +58,45 @@ export function ArchiveLibrary() {
       }
 
       setSignedIn(true);
+      setAccessToken(session.access_token);
+    });
+  }, []);
+
+  useEffect(() => {
+    if (!accessToken) return;
+
+    const handle = window.setTimeout(async () => {
       try {
-        const data = await apiGet<{ items: ArchiveItem[] }>("/imports/archive", session.access_token);
+        setLoading(true);
+        setError(null);
+        const path = archiveSearchPath({ filter, query, sort });
+        const data = await apiGet<ArchiveResponse>(path, accessToken);
+        if (!archiveSearchUsesBackend({ filter, query, sort })) {
+          setSummaryItems(data.items ?? []);
+        }
         setItems(data.items ?? []);
+        setWarnings(data.warnings ?? []);
       } catch (e) {
         setError(e instanceof Error ? e.message : "Could not load archive.");
       } finally {
         setLoading(false);
       }
-    });
-  }, []);
+    }, 250);
+
+    return () => window.clearTimeout(handle);
+  }, [accessToken, filter, query, sort]);
 
   const visibleItems = useMemo(() => {
-    const normalizedQuery = query.trim().toLowerCase();
-    return [...items]
-      .filter((item) => {
-        if (filter === "All") return true;
-        if (filter === "Shared/global") return item.persona === "Shared/global";
-        return item.type.toLowerCase() === filter.toLowerCase() || item.source.toLowerCase().includes(filter.toLowerCase());
-      })
-      .filter((item) => !normalizedQuery || `${item.title} ${item.summary} ${item.source} ${item.persona} ${item.status}`.toLowerCase().includes(normalizedQuery))
-      .sort((a, b) => {
-        if (sort === "type") return a.type.localeCompare(b.type) || a.title.localeCompare(b.title);
-        if (sort === "title") return a.title.localeCompare(b.title);
-        return Date.parse(b.date ?? "") - Date.parse(a.date ?? "");
-      });
-  }, [filter, items, query, sort]);
+    return [...items].sort((a, b) => {
+      if (sort === "type") return a.type.localeCompare(b.type) || a.title.localeCompare(b.title);
+      if (sort === "title") return a.title.localeCompare(b.title);
+      return Date.parse(b.date ?? "") - Date.parse(a.date ?? "");
+    });
+  }, [items, sort]);
 
-  const failedCount = items.filter((item) => item.status === "failed").length;
-  const queuedCount = items.filter((item) => ["queued", "processing", "in_progress"].includes(item.status)).length;
+  const summarySource = summaryItems.length > 0 ? summaryItems : items;
+  const failedCount = summarySource.filter((item) => item.status === "failed").length;
+  const queuedCount = summarySource.filter((item) => ["queued", "processing", "in_progress"].includes(item.status)).length;
 
   return (
     <main style={{ minHeight: "calc(100vh - 52px)", background: "#0b0e14" }}>
@@ -97,7 +117,7 @@ export function ArchiveLibrary() {
         </header>
 
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(170px, 1fr))", gap: 10, marginBottom: 18 }}>
-          <SummaryCard label="Archive items" value={items.length.toString()} />
+          <SummaryCard label="Archive items" value={summarySource.length.toString()} />
           <SummaryCard label="Queued/in progress" value={queuedCount.toString()} />
           <SummaryCard label="Failed" value={failedCount.toString()} tone={failedCount > 0 ? "bad" : "neutral"} />
         </div>
@@ -105,13 +125,18 @@ export function ArchiveLibrary() {
         {!signedIn && !loading ? <section style={panel}>Sign in to view your private archive.</section> : null}
         {loading ? <section style={panel}>Loading archive...</section> : null}
         {error ? <section style={{ ...panel, borderColor: "#7f1d1d", color: "#fecaca" }}>{error}</section> : null}
+        {warnings.length > 0 && !error ? (
+          <section style={{ ...panel, borderColor: "#713f12", color: "#fde68a", marginBottom: 18 }}>
+            Some archive sources could not be searched. Your existing private material remains owner-only.
+          </section>
+        ) : null}
 
         {signedIn && !loading && !error ? (
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 260px), 1fr))", gap: 18, alignItems: "start" }}>
             <aside style={panel}>
               <h2 style={sectionTitle}>Filters</h2>
               <div style={{ display: "grid", gap: 6 }}>
-                {filters.map((item) => {
+                {ARCHIVE_SEARCH_FILTERS.map((item) => {
                   const active = item === filter;
                   return (
                     <button
@@ -165,13 +190,20 @@ export function ArchiveLibrary() {
                       <span style={pill}>{item.persona}</span>
                       <span style={statusPill(item.status)}>{item.status}</span>
                     </div>
+                    {item.match ? (
+                      <div style={{ color: "#93c5fd", fontSize: 11, marginBottom: 12 }}>
+                        {item.match.reason}
+                      </div>
+                    ) : null}
                     <Link href={item.href} style={miniLink}>Open source</Link>
                   </article>
                 ))}
               </div>
 
               {visibleItems.length === 0 ? (
-                <div style={{ ...panel, color: "#8ea0b8", fontSize: 13 }}>No archive items match this view.</div>
+                <div style={{ ...panel, color: "#8ea0b8", fontSize: 13, lineHeight: 1.6 }}>
+                  No archive items match this view. Your existing material remains private and owner-only; broaden the search or add source material from a persona Archive tab.
+                </div>
               ) : null}
             </section>
           </div>

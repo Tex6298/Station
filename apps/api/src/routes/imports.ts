@@ -29,6 +29,18 @@ const chatImportRetrySchema = z.object({
 });
 
 const GENERIC_CHAT_IMPORT_SOURCE_NAMES = new Set(["pasted-chat", "pasted-archive"]);
+const ARCHIVE_SEARCH_SOURCE_LIMIT = 120;
+const ARCHIVE_SEARCH_MAX_LIMIT = 50;
+
+const archiveSearchQuerySchema = z.object({
+  q: z.string().max(200).optional().default(""),
+  type: z.string().max(60).optional(),
+  source: z.string().max(60).optional(),
+  personaId: z.string().uuid().optional(),
+  status: z.string().max(60).optional(),
+  sort: z.enum(["date", "type", "title"]).optional().default("date"),
+  limit: z.coerce.number().int().min(1).max(ARCHIVE_SEARCH_MAX_LIMIT).optional().default(30),
+});
 
 export const importsRouter = Router();
 importsRouter.use(requireAuth);
@@ -371,6 +383,316 @@ importsRouter.get("/archive", async (req, res) => {
   return res.json({ items });
 });
 
+// -- Global private archive search --------------------------------------------
+importsRouter.get("/archive/search", async (req, res) => {
+  const parsed = archiveSearchQuerySchema.safeParse(req.query);
+  if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
+
+  const sb = getSupabaseAdmin();
+  const userId = req.user!.id;
+  const search = parsed.data;
+
+  const [
+    personas,
+    memoryItems,
+    canonItems,
+    personaFiles,
+    importJobs,
+    archivedChats,
+    continuityRecords,
+    integritySessions,
+    documents,
+  ] = await Promise.all([
+    readRowsForSearch<any>(
+      "personas",
+      sb
+        .from("personas")
+        .select("id, name")
+        .eq("owner_user_id", userId)
+        .limit(100)
+    ),
+    readRowsForSearch<any>(
+      "memory_items",
+      sb
+        .from("memory_items")
+        .select("id, persona_id, title, summary, content, source_type, archive_source_type, archive_source_name, created_at, updated_at")
+        .eq("owner_user_id", userId)
+        .order("updated_at", { ascending: false })
+        .limit(ARCHIVE_SEARCH_SOURCE_LIMIT)
+    ),
+    readRowsForSearch<any>(
+      "canon_items",
+      sb
+        .from("canon_items")
+        .select("id, persona_id, title, content, source_type, priority, created_at, updated_at")
+        .eq("owner_user_id", userId)
+        .order("updated_at", { ascending: false })
+        .limit(ARCHIVE_SEARCH_SOURCE_LIMIT)
+    ),
+    readRowsForSearch<any>(
+      "persona_files",
+      sb
+        .from("persona_files")
+        .select("id, persona_id, file_name, file_type, source_type, processed, created_at")
+        .eq("owner_user_id", userId)
+        .order("created_at", { ascending: false })
+        .limit(ARCHIVE_SEARCH_SOURCE_LIMIT)
+    ),
+    readRowsForSearch<any>(
+      "import_jobs",
+      sb
+        .from("import_jobs")
+        .select("id, persona_id, kind, status, source_name, error_message, created_at, updated_at")
+        .eq("owner_user_id", userId)
+        .order("updated_at", { ascending: false })
+        .limit(ARCHIVE_SEARCH_SOURCE_LIMIT)
+    ),
+    readRowsForSearch<any>(
+      "archived_chat_transcripts",
+      sb
+        .from("archived_chat_transcripts")
+        .select("id, persona_id, title, source_summary, message_count, created_at, updated_at")
+        .eq("owner_user_id", userId)
+        .order("updated_at", { ascending: false })
+        .limit(ARCHIVE_SEARCH_SOURCE_LIMIT)
+    ),
+    readRowsForSearch<any>(
+      "continuity_records",
+      sb
+        .from("continuity_records")
+        .select("id, persona_id, record_type, title, body, summary, source_label, visibility, occurred_at, created_at, updated_at")
+        .eq("owner_user_id", userId)
+        .order("updated_at", { ascending: false })
+        .limit(ARCHIVE_SEARCH_SOURCE_LIMIT)
+    ),
+    readRowsForSearch<any>(
+      "integrity_sessions",
+      sb
+        .from("integrity_sessions")
+        .select("id, persona_id, session_type, status, clusters_covered, clusters_planned, started_at, completed_at, created_at, updated_at")
+        .eq("owner_user_id", userId)
+        .order("updated_at", { ascending: false })
+        .limit(ARCHIVE_SEARCH_SOURCE_LIMIT)
+    ),
+    readRowsForSearch<any>(
+      "documents",
+      sb
+        .from("documents")
+        .select("id, persona_id, title, body, document_type, status, visibility, source_label, created_at, updated_at, published_at")
+        .eq("author_user_id", userId)
+        .order("updated_at", { ascending: false })
+        .limit(ARCHIVE_SEARCH_SOURCE_LIMIT)
+    ),
+  ]);
+
+  const personaNames = new Map(personas.rows.map((persona) => [persona.id, persona.name]));
+  const terms = searchTerms(search.q);
+  const typeFilter = normalizeFilter(search.type ?? search.source ?? "");
+  const statusFilter = normalizeFilter(search.status ?? "");
+
+  const candidates = [
+    ...memoryItems.rows.map((row) => archiveSearchCandidate({
+      id: row.id,
+      kind: "memory",
+      type: row.archive_source_type ? "archive" : "memory",
+      title: row.title ?? row.archive_source_name ?? "Memory item",
+      sourceLabel: row.archive_source_name ?? row.archive_source_type ?? row.source_type ?? "Memory",
+      personaId: row.persona_id,
+      personaName: personaLabel(row.persona_id, personaNames),
+      occurredAt: row.updated_at ?? row.created_at,
+      status: "indexed",
+      summary: row.summary ?? row.content ?? "Private memory item available for retrieval.",
+      href: row.persona_id ? `/studio/personas/${row.persona_id}/memory` : "/studio/archive",
+      fields: [
+        field("title", row.title),
+        field("summary", row.summary),
+        field("content", row.content),
+        field("source", row.archive_source_name ?? row.archive_source_type ?? row.source_type),
+      ],
+    })),
+    ...canonItems.rows.map((row) => archiveSearchCandidate({
+      id: row.id,
+      kind: "canon",
+      type: "canon",
+      title: row.title ?? "Canon item",
+      sourceLabel: row.source_type ?? "Canon",
+      personaId: row.persona_id,
+      personaName: personaLabel(row.persona_id, personaNames),
+      occurredAt: row.updated_at ?? row.created_at,
+      status: `priority ${row.priority ?? 1}`,
+      summary: row.content ?? "Private canon item.",
+      href: row.persona_id ? `/studio/personas/${row.persona_id}/canon` : "/studio/archive",
+      fields: [
+        field("title", row.title),
+        field("content", row.content),
+        field("source", row.source_type),
+      ],
+    })),
+    ...personaFiles.rows.map((row) => archiveSearchCandidate({
+      id: row.id,
+      kind: "persona_file",
+      type: classifyArchiveType(row.file_type, row.file_name),
+      title: row.file_name ?? "Uploaded file",
+      sourceLabel: row.source_type ?? "Upload",
+      personaId: row.persona_id,
+      personaName: personaLabel(row.persona_id, personaNames),
+      occurredAt: row.created_at,
+      status: row.processed ? "processed" : "queued",
+      summary: row.processed ? "File is preserved and processed for this persona." : "File is preserved and waiting for processing.",
+      href: row.persona_id ? `/studio/personas/${row.persona_id}/files` : "/studio/archive",
+      fields: [
+        field("file name", row.file_name),
+        field("file type", row.file_type),
+        field("source", row.source_type),
+      ],
+    })),
+    ...importJobs.rows.map((row) => archiveSearchCandidate({
+      id: row.id,
+      kind: "import_job",
+      type: "import",
+      title: row.source_name ?? "Import job",
+      sourceLabel: row.kind ?? "import",
+      personaId: row.persona_id,
+      personaName: personaLabel(row.persona_id, personaNames),
+      occurredAt: row.updated_at ?? row.created_at,
+      status: row.status ?? "queued",
+      summary: row.error_message ? sanitizeJobErrorMessage(row.error_message) : `Import is ${row.status ?? "queued"}.`,
+      href: row.persona_id ? `/studio/personas/${row.persona_id}/files` : "/studio/archive",
+      fields: [
+        field("source", row.source_name),
+        field("status", row.status),
+        field("error", row.error_message),
+        field("kind", row.kind),
+      ],
+    })),
+    ...archivedChats.rows.map((row) => archiveSearchCandidate({
+      id: row.id,
+      kind: "archived_chat",
+      type: "conversation",
+      title: row.title ?? "Archived chat",
+      sourceLabel: "Archived chat",
+      personaId: row.persona_id,
+      personaName: personaLabel(row.persona_id, personaNames),
+      occurredAt: row.updated_at ?? row.created_at,
+      status: "archived",
+      summary: row.source_summary ?? `${row.message_count ?? 0} messages archived as a private transcript.`,
+      href: row.persona_id ? `/studio/personas/${row.persona_id}` : "/studio/archive",
+      fields: [
+        field("title", row.title),
+        field("summary", row.source_summary),
+        field("source", "Archived chat"),
+      ],
+    })),
+    ...continuityRecords.rows.map((row) => archiveSearchCandidate({
+      id: row.id,
+      kind: "continuity",
+      type: "continuity",
+      title: row.title ?? `${row.record_type ?? "Continuity"} record`,
+      sourceLabel: row.source_label ?? row.record_type ?? "Continuity",
+      personaId: row.persona_id,
+      personaName: personaLabel(row.persona_id, personaNames),
+      occurredAt: row.occurred_at ?? row.updated_at ?? row.created_at,
+      status: row.visibility ?? "private",
+      visibility: row.visibility ?? "private",
+      summary: row.summary ?? row.body ?? "Private continuity record.",
+      href: row.persona_id ? `/studio/personas/${row.persona_id}/timeline` : "/studio/archive",
+      fields: [
+        field("title", row.title),
+        field("summary", row.summary),
+        field("body", row.body),
+        field("source", row.source_label ?? row.record_type),
+      ],
+    })),
+    ...integritySessions.rows.map((row) => archiveSearchCandidate({
+      id: row.id,
+      kind: "integrity",
+      type: "integrity",
+      title: `${row.session_type ?? "Integrity"} session`,
+      sourceLabel: "Integrity Session",
+      personaId: row.persona_id,
+      personaName: personaLabel(row.persona_id, personaNames),
+      occurredAt: row.completed_at ?? row.updated_at ?? row.started_at ?? row.created_at,
+      status: row.status ?? "in_progress",
+      summary: integritySearchSummary(row),
+      href: row.persona_id ? `/studio/personas/${row.persona_id}/calibration` : "/studio/archive",
+      fields: [
+        field("session type", row.session_type),
+        field("status", row.status),
+        field("clusters", [...(row.clusters_covered ?? []), ...(row.clusters_planned ?? [])].join(" ")),
+      ],
+    })),
+    ...documents.rows.map((row) => archiveSearchCandidate({
+      id: row.id,
+      kind: "document",
+      type: "document",
+      title: row.title ?? "Document",
+      sourceLabel: row.document_type ?? "document",
+      personaId: row.persona_id,
+      personaName: personaLabel(row.persona_id, personaNames),
+      occurredAt: row.published_at ?? row.updated_at ?? row.created_at,
+      status: row.status ?? "draft",
+      visibility: row.visibility ?? "private",
+      summary: row.body ?? `${row.document_type ?? "document"} - ${row.visibility ?? "private"}`,
+      href: "/studio/publishing",
+      fields: [
+        field("title", row.title),
+        field("body", row.body),
+        field("type", row.document_type),
+        field("source", row.source_label),
+        field("visibility", row.visibility),
+        field("status", row.status),
+      ],
+    })),
+  ];
+
+  const items = candidates
+    .filter((item) => matchesArchiveSearchFilters(item, typeFilter, statusFilter, search.personaId))
+    .map((item) => {
+      const match = archiveSearchMatch(item.fields, terms);
+      if (!match) return null;
+      const { fields, ...safeItem } = item;
+      return { ...safeItem, match };
+    })
+    .filter((item): item is NonNullable<typeof item> => Boolean(item))
+    .sort((a, b) => compareArchiveSearchItems(a, b, search.sort))
+    .slice(0, search.limit);
+
+  const warnings = [
+    personas.warning,
+    memoryItems.warning,
+    canonItems.warning,
+    personaFiles.warning,
+    importJobs.warning,
+    archivedChats.warning,
+    continuityRecords.warning,
+    integritySessions.warning,
+    documents.warning,
+  ].filter(Boolean);
+
+  return res.json({
+    items,
+    warnings,
+    query: {
+      q: search.q,
+      type: search.type ?? search.source ?? null,
+      personaId: search.personaId ?? null,
+      status: search.status ?? null,
+      sort: search.sort,
+      limit: search.limit,
+    },
+    searchedSources: [
+      "documents",
+      "memory_items",
+      "canon_items",
+      "persona_files",
+      "import_jobs",
+      "archived_chat_transcripts",
+      "continuity_records",
+      "integrity_sessions",
+    ],
+  });
+});
+
 // -- Poll import job status -----------------------------------------------------
 importsRouter.get("/:id/status", async (req, res) => {
   const sb = getSupabaseAdmin();
@@ -435,6 +757,24 @@ async function readRows<T>(query: PromiseLike<{ data: T[] | null; error?: { mess
   return data ?? [];
 }
 
+async function readRowsForSearch<T>(
+  source: string,
+  query: PromiseLike<{ data: T[] | null; error?: { message?: string } | null }>
+) {
+  const { data, error } = await query;
+  if (error) {
+    return {
+      rows: [],
+      warning: `${source} could not be searched in this response.`,
+    };
+  }
+
+  return {
+    rows: data ?? [],
+    warning: null,
+  };
+}
+
 function personaLabel(personaId: string | null | undefined, personaNames: Map<string, string>) {
   if (!personaId) return "Shared/global";
   return personaNames.get(personaId) ?? "Unknown persona";
@@ -463,6 +803,153 @@ function classifyArchiveType(fileType?: string | null, fileName?: string | null)
   if (/png|jpe?g|webp|gif|image/.test(value)) return "image";
   if (/json|csv|parquet|data/.test(value)) return "data";
   return "document";
+}
+
+function archiveSearchCandidate(input: {
+  id: string;
+  kind: string;
+  type: string;
+  title: string;
+  sourceLabel: string;
+  personaId?: string | null;
+  personaName: string;
+  occurredAt?: string | null;
+  status: string;
+  visibility?: string | null;
+  summary: string;
+  href: string;
+  fields: Array<{ field: string; value: string }>;
+}) {
+  return {
+    id: input.id,
+    kind: input.kind,
+    type: input.type,
+    title: sanitizeSearchText(input.title, 120, "Untitled archive item"),
+    source: sanitizeSearchText(input.sourceLabel, 80, "Archive"),
+    sourceLabel: sanitizeSearchText(input.sourceLabel, 80, "Archive"),
+    persona: input.personaName,
+    personaId: input.personaId ?? null,
+    personaName: input.personaName,
+    date: input.occurredAt ?? null,
+    occurredAt: input.occurredAt ?? null,
+    status: sanitizeSearchText(input.status, 80, "unknown"),
+    visibility: input.visibility ?? undefined,
+    summary: sanitizeSearchText(input.summary, 260, "Private archive item."),
+    href: input.href,
+    privacy: "owner_only" as const,
+    fields: input.fields,
+  };
+}
+
+function field(fieldName: string, value: unknown) {
+  return {
+    field: fieldName,
+    value: typeof value === "string" ? value : value == null ? "" : String(value),
+  };
+}
+
+function searchTerms(query: string | undefined) {
+  return normalizeSearchText(query ?? "")
+    .split(" ")
+    .map((term) => term.trim())
+    .filter(Boolean);
+}
+
+function archiveSearchMatch(fields: Array<{ field: string; value: string }>, terms: string[]) {
+  if (terms.length === 0) {
+    return {
+      field: "recent",
+      reason: "Recent owner-only archive item.",
+    };
+  }
+
+  for (const item of fields) {
+    const normalized = normalizeSearchText(item.value);
+    if (terms.every((term) => normalized.includes(term))) {
+      return {
+        field: item.field,
+        reason: `Matched ${item.field}.`,
+      };
+    }
+  }
+
+  const combined = normalizeSearchText(fields.map((item) => item.value).join(" "));
+  if (terms.every((term) => combined.includes(term))) {
+    return {
+      field: "combined",
+      reason: "Matched combined private archive metadata.",
+    };
+  }
+
+  return null;
+}
+
+function matchesArchiveSearchFilters(
+  item: ReturnType<typeof archiveSearchCandidate>,
+  typeFilter: string,
+  statusFilter: string,
+  personaId?: string
+) {
+  if (personaId && item.personaId !== personaId) return false;
+  if (statusFilter && normalizeFilter(item.status) !== statusFilter) return false;
+
+  if (!typeFilter) return true;
+  if (typeFilter === "global" || typeFilter === "shared" || typeFilter === "sharedglobal") {
+    return item.persona === "Shared/global";
+  }
+
+  const values = [
+    item.kind,
+    item.type,
+    item.source,
+    item.sourceLabel,
+  ].map(normalizeFilter);
+
+  return values.includes(typeFilter);
+}
+
+function compareArchiveSearchItems(
+  a: Omit<ReturnType<typeof archiveSearchCandidate>, "fields">,
+  b: Omit<ReturnType<typeof archiveSearchCandidate>, "fields">,
+  sort: "date" | "type" | "title"
+) {
+  if (sort === "title") return a.title.localeCompare(b.title);
+  if (sort === "type") return a.type.localeCompare(b.type) || a.title.localeCompare(b.title);
+
+  const aTime = Date.parse(a.occurredAt ?? "");
+  const bTime = Date.parse(b.occurredAt ?? "");
+  return (Number.isNaN(bTime) ? 0 : bTime) - (Number.isNaN(aTime) ? 0 : aTime);
+}
+
+function integritySearchSummary(row: any) {
+  const covered = Array.isArray(row.clusters_covered) ? row.clusters_covered.length : 0;
+  const planned = Array.isArray(row.clusters_planned) ? row.clusters_planned.length : 0;
+  if (row.status === "completed") {
+    return `Completed Integrity Session with ${covered} covered cluster${covered === 1 ? "" : "s"}.`;
+  }
+
+  return `Integrity Session is ${row.status ?? "in progress"} with ${planned} planned cluster${planned === 1 ? "" : "s"}.`;
+}
+
+function sanitizeSearchText(value: unknown, limit: number, fallback: string) {
+  const raw = typeof value === "string" ? value : value == null ? "" : String(value);
+  const safe = raw.trim() ? sanitizeJobErrorMessage(raw) : fallback;
+  return trimText(safe, limit);
+}
+
+function normalizeSearchText(value: string) {
+  return value
+    .replace(/[_-]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim()
+    .toLowerCase();
+}
+
+function normalizeFilter(value: string) {
+  return value
+    .replace(/[_\s/-]+/g, "")
+    .trim()
+    .toLowerCase();
 }
 
 function trimText(value: string, limit: number) {

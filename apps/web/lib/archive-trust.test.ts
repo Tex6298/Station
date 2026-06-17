@@ -1,6 +1,11 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import {
+  archiveSearchPath,
+  archiveSearchTypeParam,
+  archiveSearchUsesBackend,
+} from "./archive-search";
+import {
   archiveFileTrustCopy,
   archiveJobStatusLabel,
   archiveJobTone,
@@ -40,4 +45,30 @@ test("archive trust summary groups import and file state without inventing quota
   );
 
   assert.match(archiveFileTrustCopy({ processed: false }), /queued for processing/);
+});
+
+test("archive search controls build backend search routes", () => {
+  assert.equal(
+    archiveSearchUsesBackend({ filter: "All", query: "", sort: "date" }),
+    false,
+  );
+  assert.equal(
+    archiveSearchPath({ filter: "All", query: "", sort: "date" }),
+    "/imports/archive",
+  );
+
+  assert.equal(archiveSearchTypeParam("Shared/global"), "global");
+  assert.equal(archiveSearchTypeParam("Continuity"), "continuity");
+
+  const path = archiveSearchPath({
+    filter: "Continuity",
+    query: " blue lantern ",
+    sort: "title",
+    limit: 25,
+  });
+
+  assert.equal(
+    path,
+    "/imports/archive/search?q=blue+lantern&type=continuity&sort=title&limit=25",
+  );
 });
