@@ -4162,6 +4162,23 @@ when a PR lands, or when validation truth changes.
   import-backed candidates, so candidate-card/action rehearsal will still need a
   seed after the route blocker is fixed. See
   `docs/roadmap/PR21_IMPORT_REVIEW_INBOX_REHEARSAL_ARIADNE_RESULT.md`.
+- PR21 ARIADNE rehearsal blocker is repaired for rerun, 2026-06-17: MIMIR
+  applied idempotent staging migrations `035_import_job_file_pointer.sql` and
+  `036_import_review_candidates.sql` through the Supabase pooler, then seeded
+  one synthetic replay import source plus two pending import-backed candidates
+  for the replay persona. Deployed smoke now returns 200 for
+  `GET /imports/persona/:personaId` and 200 with 2 pending candidates for
+  `GET /conversations/persona/:personaId/candidates?source=import&status=pending`.
+  ARIADNE is rerun-ready.
+- PR21 deployed-schema compatibility repair is implemented by DAEDALUS and ready
+  for ARGUS, 2026-06-17: import-job read/update helpers now fall back to the
+  legacy import-job projection when Supabase reports `import_jobs.file_id` is
+  missing, so owner-visible import job status/list reads do not blank the
+  Archive page on a schema-lagging deployment. Chat import creation uses the
+  legacy projection directly to avoid unsafe duplicate insert retries. Durable
+  file-import worker behavior still requires migration
+  `035_import_job_file_pointer.sql`; this repair is a compatibility guard, not a
+  replacement for applying the migration.
 
 ## Near-term rule
 

@@ -4,6 +4,29 @@ Date: 2026-06-17
 Status: opened for A4 / ARIADNE
 Owner: ARIADNE human-eye review, then wake MIMIR.
 
+## MIMIR Rerun Note - 2026-06-17
+
+ARIADNE's first pass found a deployed staging blocker before the inbox rendered:
+`GET /imports/persona/:personaId` returned 500 because the staging database was
+missing `import_jobs.file_id`.
+
+MIMIR applied the idempotent staging migrations:
+
+- `infra/supabase/migrations/035_import_job_file_pointer.sql`
+- `infra/supabase/migrations/036_import_review_candidates.sql`
+
+MIMIR also seeded one synthetic replay import source plus two pending
+import-backed candidates for the replay persona, so ARIADNE can test visible
+candidate cards and actions rather than only the empty state.
+
+Deployed API smoke after the migration/seed:
+
+- `GET /imports/persona/:personaId`: 200
+- `GET /conversations/persona/:personaId/candidates?source=import&status=pending`: 200
+- pending import candidates: 2
+
+Rerun the human-eye rehearsal against the same Railway web/API staging target.
+
 ## Purpose
 
 PR21 added a visible owner-facing Import Review Inbox inside the persona Archive
