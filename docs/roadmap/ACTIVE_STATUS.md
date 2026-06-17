@@ -3791,6 +3791,18 @@ when a PR lands, or when validation truth changes.
   changed. `test:studio-ui`, typecheck, and whitespace checks passed; ARIADNE
   should rerun the deployed `/studio/archive` desktop/phone visual pass once the
   fix is live.
+- PR12 Archive Search contrast rerun is accepted by ARIADNE, 2026-06-17:
+  production web/API health served runtime commit `3360ec9`. Desktop and
+  phone-width `/studio/archive` now render readable header, lede, summary cards,
+  failed stat, filters, inputs, cards, match reasons, and `Open source`
+  controls with no horizontal overflow. Owner-scoped summary/search still
+  returns the expected replay counts, filters and sorts behave honestly, empty
+  filter states preserve owner-only copy, unauthenticated browser access
+  redirects to sign-in with zero archive cards, and unauthenticated API search
+  remains `401`. `docs/roadmap/PR12_ARCHIVE_SEARCH_CONTRAST_RERUN_ARIADNE.md`
+  records the sanitized pass. ARIADNE recommends MIMIR close PR12 without
+  expanding scope into vector search, workers, Cloudflare retrieval, Redis
+  memory truth, export bundles, or new archive source types.
 
 ## Near-term rule
 
