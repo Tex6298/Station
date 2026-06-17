@@ -4213,6 +4213,19 @@ when a PR lands, or when validation truth changes.
   rerun, 2026-06-17: ARGUS accepted the shared relevance normalization and
   controlled Memory accept error handling. ARIADNE should rerun the browser
   review after deploy/seed reset and wake MIMIR with the pass/fail verdict.
+- PR21 Import Review Inbox final ARIADNE rerun is accepted, 2026-06-17: Railway
+  web/API deployed commit `9f6027f`, and ARIADNE reran
+  `/studio/personas/:personaId/files` at desktop `1440x1100` and mobile
+  `375x812`. The inbox stays in the existing Archive flow, counts and
+  Memory/Canon/source labels are clear, rejected Canon renders as reviewed with
+  disabled fields and no action buttons, and the pending Memory candidate now
+  accepts with edits through the browser. The candidate PATCH returned HTTP
+  `200`, the API summary moved to pending `0` and reviewed `2`, and
+  `/health/deployment` remained HTTP `200` with `ok: true` and `ready: true`
+  after acceptance. Mobile had no horizontal overflow and no raw path/secret/full
+  source dump was visible in checked page text. The seeded review set is now
+  consumed. MIMIR can mark PR21 fully closed from ARIADNE's product-experience
+  side. See `docs/roadmap/PR21_IMPORT_REVIEW_INBOX_FINAL_ARIADNE_RESULT.md`.
 
 ## Near-term rule
 
