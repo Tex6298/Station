@@ -3849,6 +3849,17 @@ when a PR lands, or when validation truth changes.
   with 15 tests, `test:storage` with 11 tests, `test:persona-context` with
   6 tests, typecheck, `git diff 600a7e6..7c01582 --check`, and `git diff
   --check`. No remaining PR14 code/security blocker is open.
+- PR14 External Conversation Import Parsers is closed, 2026-06-17: MIMIR
+  accepted ARGUS's repaired verdict at `191ade0`. Candidate/review routing
+  remains deferred; parsed imports still create private archive memory chunks
+  through the protected-alpha import path and do not become Canon directly.
+- PR15 Background Job Boundary is opened for DAEDALUS, 2026-06-17: the next
+  launch-core risk is the job boundary behind imports/exports and later Reddit
+  intake. The lane should prove a narrow owner-scoped queue/status/runner
+  contract, distinguish TCP Redis/Valkey queue readiness from Upstash REST cache
+  readiness, preserve inline fallback for protected-alpha safety, and avoid
+  broad Reddit, candidate-review, export-bundle, quota, Cloudflare, vector, or
+  UI work.
 
 ## Near-term rule
 
