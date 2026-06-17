@@ -163,6 +163,23 @@ test("arbitrary JSON arrays with text do not parse as Reddit imports", () => {
   );
 });
 
+test("generic permalink arrays do not parse as Reddit imports", () => {
+  assert.throws(
+    () => parseImportFile({
+      fileName: "blog-export.json",
+      fileType: "application/json",
+      rawText: JSON.stringify([{
+        text: "generic blog export should not become reddit",
+        permalink: "/posts/1",
+      }]),
+    }),
+    (error) =>
+      error instanceof ImportParseError &&
+      /Unsupported JSON import format/.test(error.message) &&
+      !/generic blog export/.test(error.message)
+  );
+});
+
 test("JSON extension is authoritative over misleading text MIME", () => {
   assert.throws(
     () => parseImportFile({

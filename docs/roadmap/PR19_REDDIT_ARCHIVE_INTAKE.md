@@ -155,8 +155,12 @@ need it.
 - ARGUS blocker repair narrowed source detection so generic top-level JSON
   arrays are not treated as Reddit. Reddit parsing now requires listing
   wrappers, thread-like objects, or rows with unmistakable Reddit markers such
-  as `subreddit`, `permalink`, or Reddit `kind` values; arbitrary
-  `[{ "text": "..." }]` arrays fail before archive memory or candidates are
+  as `subreddit`, Reddit-shaped `permalink`, or Reddit `kind` values;
+  arbitrary `[{ "text": "..." }]` arrays fail before archive memory or
+  candidates are created.
+- ARGUS permalink blocker repair narrowed `permalink` recognition to `/r/...`
+  paths and `reddit.com/r/...` URLs. Generic paths such as `/posts/1` no longer
+  classify a row as Reddit and fail before archive memory or candidates are
   created.
 
 ## Future Live Reddit Notes

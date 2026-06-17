@@ -1280,6 +1280,13 @@ test("uploaded ChatGPT and Claude JSON parse explicitly while unknown JSON fails
     "owner/arbitrary-array.json",
     JSON.stringify([{ text: "array private phrase must not become memory" }])
   );
+  db.storageDownloads.set(
+    "owner/generic-permalink.json",
+    JSON.stringify([{
+      text: "generic permalink phrase must not become memory",
+      permalink: "/posts/1",
+    }])
+  );
 
   try {
     const chatGptFile = db.insertRow("persona_files", {
@@ -1434,6 +1441,42 @@ test("uploaded ChatGPT and Claude JSON parse explicitly while unknown JSON fails
     assert.equal(failedArrayJob.status, "failed");
     assert.match(failedArrayJob.error_message, /Unsupported JSON import format/);
     assert.doesNotMatch(failedArrayJob.error_message, /array private phrase/);
+
+    const genericPermalinkFile = db.insertRow("persona_files", {
+      persona_id: PERSONA_ID,
+      owner_user_id: OWNER_ID,
+      file_name: "generic-permalink.json",
+      file_type: "application/json",
+      file_size: 10,
+      storage_path: "owner/generic-permalink.json",
+    });
+    db.insertRow("import_jobs", {
+      persona_id: PERSONA_ID,
+      owner_user_id: OWNER_ID,
+      kind: "file",
+      status: "queued",
+      source_name: "generic-permalink.json",
+    });
+
+    await assert.rejects(
+      () => processUploadedFile({
+        personaId: PERSONA_ID,
+        ownerUserId: OWNER_ID,
+        fileId: genericPermalinkFile.id,
+        fileName: "generic-permalink.json",
+        fileType: "application/json",
+        storagePath: "owner/generic-permalink.json",
+      }),
+      /Unsupported JSON import format/
+    );
+
+    assert.equal(db.tables.memory_items.length, memoryCountBeforeUnknown);
+    assert.equal(db.tables.continuity_candidates.length, candidateCountBeforeUnknown);
+    assert.equal(storageRow(db).bytes_used, storageBeforeUnknown);
+    const failedPermalinkJob = db.tables.import_jobs.find((job) => job.source_name === "generic-permalink.json");
+    assert.equal(failedPermalinkJob.status, "failed");
+    assert.match(failedPermalinkJob.error_message, /Unsupported JSON import format/);
+    assert.doesNotMatch(failedPermalinkJob.error_message, /generic permalink phrase/);
   } finally {
     resetStorageFake();
   }

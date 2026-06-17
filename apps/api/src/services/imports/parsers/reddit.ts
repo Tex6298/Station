@@ -148,12 +148,24 @@ function normalizeRedditItem(item: unknown, index: number): RedditTurn | null {
 function isUnmistakableRedditItem(row: unknown) {
   if (!isRecord(row)) return false;
   return isRedditKind(row) ||
-    Boolean(stringValue(row, ["subreddit", "subreddit_name_prefixed", "permalink"]));
+    Boolean(stringValue(row, ["subreddit", "subreddit_name_prefixed"])) ||
+    isRedditPermalink(stringValue(row, ["permalink"]));
 }
 
 function isRedditKind(row: unknown) {
   if (!isRecord(row)) return false;
   return row.kind === "t1" || row.kind === "t3" || row.kind === "Listing";
+}
+
+function isRedditPermalink(value?: string) {
+  if (!value) return false;
+  if (value.startsWith("/r/")) return true;
+  try {
+    const url = new URL(value);
+    return /(^|\.)reddit\.com$/i.test(url.hostname) && url.pathname.startsWith("/r/");
+  } catch {
+    return false;
+  }
 }
 
 function normalizeText(value?: string) {

@@ -7043,8 +7043,8 @@ ARGUS blocker repair by DAEDALUS on 2026-06-17:
 - Reddit parser source detection no longer accepts generic top-level JSON
   arrays.
 - Accepted shapes are narrowed to Reddit listing wrappers, thread-like objects,
-  or rows with unmistakable Reddit markers such as `subreddit`, `permalink`, or
-  Reddit `kind` values.
+  or rows with unmistakable Reddit markers such as `subreddit`, Reddit-shaped
+  `permalink`, or Reddit `kind` values.
 - Individual rows without Reddit-specific markers are ignored before archive
   text creation.
 - Regression coverage proves `[{ "text": "..." }]` fails as unsupported JSON
@@ -7055,6 +7055,23 @@ ARGUS blocker repair by DAEDALUS on 2026-06-17:
 | --- | --- | --- |
 | `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass | 19 tests passed, including the arbitrary JSON array overclaim regression plus existing Reddit listing/thread, ChatGPT, Claude, legacy JSON, text/Markdown, malformed JSON, unknown JSON, and `.json` extension precedence coverage. |
 | `npm exec --yes pnpm@10.32.1 -- run test:storage` | Pass | 15 tests passed, including arbitrary JSON array upload failure with no archive memory, candidates, or storage usage, plus Reddit import candidate creation and PR18 quota/idempotency coverage. |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-context` | Pass | 6 tests passed, including PR17 runtime exclusion of quarantined import archive chunks. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck tasks passed. |
+| `git diff --check` | Pass | No whitespace errors; CRLF normalization warnings only for touched text files if Git reports them. |
+
+ARGUS permalink blocker repair by DAEDALUS on 2026-06-17:
+
+- Plain `permalink` is no longer enough to classify a row as Reddit.
+- Reddit permalink markers are limited to `/r/...` paths or `reddit.com/r/...`
+  URLs; generic paths such as `/posts/1` remain unsupported JSON.
+- Regression coverage proves `[{ "text": "...", "permalink": "/posts/1" }]`
+  fails before archive memory, continuity candidates, or storage usage are
+  created, while existing Reddit-shaped permalink fixtures still parse.
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass | 20 tests passed, including generic text-only array and generic text-plus-permalink overclaim regressions plus existing Reddit listing/thread and import parser coverage. |
+| `npm exec --yes pnpm@10.32.1 -- run test:storage` | Pass | 15 tests passed, including arbitrary array and generic permalink upload failures with no archive memory, candidates, or storage usage, plus Reddit import candidate creation and PR18 quota/idempotency coverage. |
 | `npm exec --yes pnpm@10.32.1 -- run test:persona-context` | Pass | 6 tests passed, including PR17 runtime exclusion of quarantined import archive chunks. |
 | `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck tasks passed. |
 | `git diff --check` | Pass | No whitespace errors; CRLF normalization warnings only for touched text files if Git reports them. |
