@@ -3947,6 +3947,19 @@ when a PR lands, or when validation truth changes.
   covered. Deferred: full review UI, Reddit/Discord production import, workers,
   quotas, Cloudflare/vector/Redis memory work, export redesign, publishing, and
   UI reskin.
+- PR17 is blocked by ARGUS, 2026-06-17: local validation is green, but the
+  quarantine guarantee is not fail-closed. `ingestTextIntoArchive` creates
+  import archive chunks and then calls `ensureMemoryLifecycle(...).catch(() =>
+  undefined)`, so lifecycle creation can fail while processed private import
+  chunks remain in `memory_items`. Runtime archive context then calls
+  `retrievePrivateArchive(..., includeQuarantined: false)`, but
+  `isQuarantinedMemoryItem` only skips rows with an existing lifecycle row whose
+  status is `quarantined`; missing lifecycle rows are treated as allowed. Repair
+  by making pending import archive chunks fail closed when lifecycle metadata is
+  absent or untrusted, and add a regression test covering import archive chunks
+  with no lifecycle row staying out of persona runtime context. Keep explicit
+  owner archive retrieval searchable by default if that is still the intended
+  review/library behavior.
 
 ## Near-term rule
 
