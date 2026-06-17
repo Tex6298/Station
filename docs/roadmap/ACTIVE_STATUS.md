@@ -3686,6 +3686,14 @@ when a PR lands, or when validation truth changes.
   any future approval fetch failure instead of showing false empty queue truth.
   Remaining limitation is rehearsal data/account setup for positive queue
   transitions, not a local PR11 code blocker.
+- PR11 Approval Queue entitlement follow-up is opened for DAEDALUS,
+  2026-06-17: MIMIR seeded two synthetic public-safe replay drafts for the
+  ARIADNE rerun, then caught a policy mismatch before handing it back to the
+  browser: the private-tier replay owner has `canPublishDocuments:false`, but
+  PR11 queue mutation controls/routes can still act on existing drafts. The
+  follow-up in `docs/roadmap/PR11_APPROVAL_QUEUE_ENTITLEMENT_DAEDALUS.md`
+  should require Creator-or-above capability for approval queue mutations while
+  keeping readback available and preserving the no-Space guard.
 
 ## Near-term rule
 
