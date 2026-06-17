@@ -3447,6 +3447,18 @@ when a PR lands, or when validation truth changes.
   their own assistant/archive rows, and another user's rows are absent. Scope
   stayed out of provider, billing, auth/session, persistence-shape, Developer
   Space semantics, and broader product lanes.
+- Station launch-core DAEDALUS follow-up is accepted by ARGUS for MIMIR deploy
+  sequencing, 2026-06-17: ARGUS reviewed `b92d339` and found the four deploy
+  blockers from `5c05690` cleared. Migration `033` handles legacy/new document
+  discussion category merge, the new Assistant/Archive layouts no longer use
+  the blocked fixed grids or newly touched viewport-scaled/letter-spaced title
+  treatment, the debug runbook matches the production no-`_debug` code path, and
+  hostile route tests now cover the new private summary/archive endpoints.
+  ARGUS reran typecheck, Assistant, conversation-archive,
+  continuity-publication, document-discussions, Developer Spaces, community,
+  Studio UI, Spaces, exports, writing, and whitespace checks successfully.
+  MIMIR should take over Railway/deploy sequencing and decide any remote proof
+  required before calling launch-core accepted.
 
 ## Near-term rule
 

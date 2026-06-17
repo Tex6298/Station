@@ -6449,3 +6449,26 @@ Remaining ARGUS target commands not rerun in this DAEDALUS pass:
 - `test:continuity-publication`, `test:developer-spaces`, `test:spaces`,
   `test:exports`, and `test:writing` were already green in ARGUS's launch-core
   block review and were not touched by this follow-up.
+
+ARGUS acceptance rerun on 2026-06-17:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck tasks passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:assistant` | Pass | 8 tests passed, including hostile private route coverage. |
+| `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass | 8 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` | Pass | 1 test passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:community` | Pass | 8 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 8 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:continuity-publication` | Pass | 1 test passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 7 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:spaces` | Pass | 1 test passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:exports` | Pass | 3 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:writing` | Pass | 3 tests passed. |
+| `git diff 5c05690..b92d339 --check` | Pass | No whitespace errors in DAEDALUS's follow-up. |
+| `git diff --check` | Pass | CRLF normalization warnings only for consumed agent state. |
+
+ARGUS accepts the follow-up for MIMIR Railway/deploy sequencing. Full Next
+standalone build was not rerun in this Windows acceptance pass; the prior
+Windows symlink/EPERM caveat remains a local-shell caveat rather than a
+launch-core code blocker.

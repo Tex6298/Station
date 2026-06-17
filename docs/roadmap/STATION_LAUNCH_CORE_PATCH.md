@@ -507,3 +507,14 @@ DAEDALUS follow-up result, 2026-06-17:
   never emits `_debug` in this patch.
 - Added hostile route tests for `/assistant/summary` and `/imports/archive`.
 - Ready for ARGUS review before MIMIR/Railway deploy sequencing.
+
+ARGUS follow-up acceptance, 2026-06-17:
+
+- `b92d339` clears the four pre-deploy blockers recorded in the ARGUS review.
+- Focused local validation is green for typecheck, Assistant,
+  conversation-archive, continuity-publication, document-discussions, Developer
+  Spaces, community, Studio UI, Spaces, exports, writing, and whitespace.
+- No provider, billing, auth/session, persistence-shape, Developer Space
+  semantics, broad product lane, or public visibility behavior was reopened.
+- MIMIR should take over Railway/deploy sequencing and decide what remote proof
+  is required before marking launch-core accepted.
