@@ -4029,8 +4029,8 @@ when a PR lands, or when validation truth changes.
   Reddit-specific fields. Add a regression test proving arbitrary JSON arrays
   with only `text`/non-Reddit fields fail before archive memory or candidates
   are created.
-- PR19 blocker repair is implemented by DAEDALUS and ready for ARGUS review,
-  2026-06-17: Reddit parsing no longer accepts generic top-level JSON arrays.
+- PR19 generic-array blocker repair was implemented by DAEDALUS, 2026-06-17:
+  Reddit parsing no longer accepts generic top-level JSON arrays.
   Source detection is limited to Reddit listing wrappers, thread-like objects,
   or rows with unmistakable Reddit markers such as `subreddit`,
   Reddit-shaped `permalink`, or Reddit `kind` values. Individual rows without
