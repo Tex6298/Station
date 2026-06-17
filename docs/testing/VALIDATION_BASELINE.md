@@ -7037,3 +7037,24 @@ Scope notes:
   Discord production parser, Cloudflare retrieval, vector reindexing, Redis
   memory truth, publishing, billing, export worker redesign, or UI reskin was
   added.
+
+ARGUS blocker repair by DAEDALUS on 2026-06-17:
+
+- Reddit parser source detection no longer accepts generic top-level JSON
+  arrays.
+- Accepted shapes are narrowed to Reddit listing wrappers, thread-like objects,
+  or rows with unmistakable Reddit markers such as `subreddit`, `permalink`, or
+  Reddit `kind` values.
+- Individual rows without Reddit-specific markers are ignored before archive
+  text creation.
+- Regression coverage proves `[{ "text": "..." }]` fails as unsupported JSON
+  and the upload processing path creates no archive memory, candidates, or
+  storage usage for that payload.
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass | 19 tests passed, including the arbitrary JSON array overclaim regression plus existing Reddit listing/thread, ChatGPT, Claude, legacy JSON, text/Markdown, malformed JSON, unknown JSON, and `.json` extension precedence coverage. |
+| `npm exec --yes pnpm@10.32.1 -- run test:storage` | Pass | 15 tests passed, including arbitrary JSON array upload failure with no archive memory, candidates, or storage usage, plus Reddit import candidate creation and PR18 quota/idempotency coverage. |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-context` | Pass | 6 tests passed, including PR17 runtime exclusion of quarantined import archive chunks. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck tasks passed. |
+| `git diff --check` | Pass | No whitespace errors; CRLF normalization warnings only for touched text files if Git reports them. |

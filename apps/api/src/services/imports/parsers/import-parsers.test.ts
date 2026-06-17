@@ -149,6 +149,20 @@ test("unknown JSON fails safely instead of stringifying into archive memory", ()
   );
 });
 
+test("arbitrary JSON arrays with text do not parse as Reddit imports", () => {
+  assert.throws(
+    () => parseImportFile({
+      fileName: "array.json",
+      fileType: "application/json",
+      rawText: JSON.stringify([{ text: "private array text must not become reddit memory" }]),
+    }),
+    (error) =>
+      error instanceof ImportParseError &&
+      /Unsupported JSON import format/.test(error.message) &&
+      !/private array text/.test(error.message)
+  );
+});
+
 test("JSON extension is authoritative over misleading text MIME", () => {
   assert.throws(
     () => parseImportFile({

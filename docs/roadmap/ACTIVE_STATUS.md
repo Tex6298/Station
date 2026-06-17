@@ -4029,6 +4029,17 @@ when a PR lands, or when validation truth changes.
   Reddit-specific fields. Add a regression test proving arbitrary JSON arrays
   with only `text`/non-Reddit fields fail before archive memory or candidates
   are created.
+- PR19 blocker repair is implemented by DAEDALUS and ready for ARGUS review,
+  2026-06-17: Reddit parsing no longer accepts generic top-level JSON arrays.
+  Source detection is limited to Reddit listing wrappers, thread-like objects,
+  or rows with unmistakable Reddit markers such as `subreddit`, `permalink`, or
+  Reddit `kind` values. Individual rows without those markers are ignored before
+  archive text creation. New regression coverage proves an arbitrary
+  `[{ "text": "..." }]` JSON file throws the unsupported-format error and the
+  upload processing path creates no archive memory, candidates, or storage
+  usage from that payload. ChatGPT, Claude, legacy JSON, text, Markdown,
+  malformed JSON sanitization, `.json` extension precedence, PR17 quarantine,
+  and PR18 quota/idempotency behavior remain green.
 
 ## Near-term rule
 

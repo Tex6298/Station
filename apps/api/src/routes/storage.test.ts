@@ -1276,6 +1276,10 @@ test("uploaded ChatGPT and Claude JSON parse explicitly while unknown JSON fails
     "owner/unknown.json",
     JSON.stringify({ arbitrary: { private: "this must not become memory" } })
   );
+  db.storageDownloads.set(
+    "owner/arbitrary-array.json",
+    JSON.stringify([{ text: "array private phrase must not become memory" }])
+  );
 
   try {
     const chatGptFile = db.insertRow("persona_files", {
@@ -1394,6 +1398,42 @@ test("uploaded ChatGPT and Claude JSON parse explicitly while unknown JSON fails
     assert.equal(failedJob.status, "failed");
     assert.match(failedJob.error_message, /Unsupported JSON import format/);
     assert.doesNotMatch(failedJob.error_message, /this must not become memory/);
+
+    const arbitraryArrayFile = db.insertRow("persona_files", {
+      persona_id: PERSONA_ID,
+      owner_user_id: OWNER_ID,
+      file_name: "arbitrary-array.json",
+      file_type: "application/json",
+      file_size: 10,
+      storage_path: "owner/arbitrary-array.json",
+    });
+    db.insertRow("import_jobs", {
+      persona_id: PERSONA_ID,
+      owner_user_id: OWNER_ID,
+      kind: "file",
+      status: "queued",
+      source_name: "arbitrary-array.json",
+    });
+
+    await assert.rejects(
+      () => processUploadedFile({
+        personaId: PERSONA_ID,
+        ownerUserId: OWNER_ID,
+        fileId: arbitraryArrayFile.id,
+        fileName: "arbitrary-array.json",
+        fileType: "application/json",
+        storagePath: "owner/arbitrary-array.json",
+      }),
+      /Unsupported JSON import format/
+    );
+
+    assert.equal(db.tables.memory_items.length, memoryCountBeforeUnknown);
+    assert.equal(db.tables.continuity_candidates.length, candidateCountBeforeUnknown);
+    assert.equal(storageRow(db).bytes_used, storageBeforeUnknown);
+    const failedArrayJob = db.tables.import_jobs.find((job) => job.source_name === "arbitrary-array.json");
+    assert.equal(failedArrayJob.status, "failed");
+    assert.match(failedArrayJob.error_message, /Unsupported JSON import format/);
+    assert.doesNotMatch(failedArrayJob.error_message, /array private phrase/);
   } finally {
     resetStorageFake();
   }

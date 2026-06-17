@@ -48,25 +48,32 @@ function normalizeRedditSource(parsed: unknown): {
   permalink?: string;
 } | null {
   if (Array.isArray(parsed)) {
-    const listing = parsed.find((item) => isListing(item));
+    const listing = parsed.find((item) => isRedditListing(item));
     if (listing && isRecord(listing.data) && Array.isArray(listing.data.children)) {
       return metadataForItems(listing.data.children.map(childData), listing.data.children);
     }
-    return metadataForItems(parsed, parsed);
+
+    const threadItems = parsed.filter(isRedditThreadLike);
+    if (threadItems.length > 0 && threadItems.length === parsed.length) {
+      return metadataForItems(threadItems.flatMap(threadItemsWithReplies), threadItems);
+    }
+
+    const redditItems = parsed.map(childData).filter(isUnmistakableRedditItem);
+    if (redditItems.length > 0 && redditItems.length === parsed.length) {
+      return metadataForItems(parsed, parsed);
+    }
+
+    return null;
   }
 
   if (!isRecord(parsed)) return null;
 
-  if (isRecord(parsed.data) && Array.isArray(parsed.data.children)) {
+  if (isRedditListing(parsed) && isRecord(parsed.data) && Array.isArray(parsed.data.children)) {
     return metadataForItems(parsed.data.children.map(childData), parsed.data.children);
   }
 
-  if (Array.isArray(parsed.comments) || Array.isArray(parsed.children)) {
-    const items = [
-      parsed,
-      ...(Array.isArray(parsed.comments) ? parsed.comments : []),
-      ...(Array.isArray(parsed.children) ? parsed.children : []),
-    ];
+  if (isRedditThreadLike(parsed)) {
+    const items = threadItemsWithReplies(parsed);
     return metadataForItems(items, items);
   }
 
@@ -87,13 +94,32 @@ function childData(item: unknown) {
   return isRecord(item.data) ? item.data : item;
 }
 
-function isListing(value: unknown) {
-  return isRecord(value) && isRecord(value.data) && Array.isArray(value.data.children);
+function isRedditListing(value: unknown) {
+  if (!isRecord(value) || !isRecord(value.data) || !Array.isArray(value.data.children)) return false;
+  return value.data.children.some((child) => isUnmistakableRedditItem(childData(child)) || isRedditKind(child));
+}
+
+function isRedditThreadLike(value: unknown) {
+  const row = childData(value);
+  return isRecord(row) &&
+    (Array.isArray(row.comments) || Array.isArray(row.children)) &&
+    isUnmistakableRedditItem(row);
+}
+
+function threadItemsWithReplies(item: unknown) {
+  const row = childData(item);
+  if (!isRecord(row)) return [];
+  return [
+    row,
+    ...(Array.isArray(row.comments) ? row.comments : []),
+    ...(Array.isArray(row.children) ? row.children : []),
+  ];
 }
 
 function normalizeRedditItem(item: unknown, index: number): RedditTurn | null {
   const row = childData(item);
   if (!isRecord(row)) return null;
+  if (!isUnmistakableRedditItem(row)) return null;
 
   const text = normalizeText(
     stringValue(row, ["body", "selftext", "text"])
@@ -117,6 +143,17 @@ function normalizeRedditItem(item: unknown, index: number): RedditTurn | null {
     index,
     permalink,
   };
+}
+
+function isUnmistakableRedditItem(row: unknown) {
+  if (!isRecord(row)) return false;
+  return isRedditKind(row) ||
+    Boolean(stringValue(row, ["subreddit", "subreddit_name_prefixed", "permalink"]));
+}
+
+function isRedditKind(row: unknown) {
+  if (!isRecord(row)) return false;
+  return row.kind === "t1" || row.kind === "t3" || row.kind === "Listing";
 }
 
 function normalizeText(value?: string) {
