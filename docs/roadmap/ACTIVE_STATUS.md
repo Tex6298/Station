@@ -3957,6 +3957,19 @@ when a PR lands, or when validation truth changes.
   missing-lifecycle regression test, and preserved explicit owner archive
   retrieval as searchable source-library behavior by default. ARGUS reran the
   protected PR17 validation set and recommends MIMIR mark PR17 complete.
+- PR17 Import Review Candidates is closed, 2026-06-17: MIMIR accepted ARGUS's
+  repaired verdict at `8e59b4d`. Parsed ChatGPT/Claude imports now produce
+  private archive source material plus owner-reviewable Memory/Canon candidates;
+  imported archive chunks are excluded from runtime context unless explicitly
+  active, and missing lifecycle rows fail closed.
+- PR18 Operational Quota Guards is opened for DAEDALUS, 2026-06-17: before
+  Reddit intake, heavier workers, export-package jobs, or partner Developer
+  Space expansion, add narrow machine-readable quota guards around queued import
+  work, export generation attempts, Developer Space ingestion usage, and
+  embedding-producing archive writes where the current repo can support it.
+  Avoid billing redesign, new pricing, Redis worker deployment, Reddit,
+  Cloudflare, vector reindexing, Redis memory truth, public publishing, full UI,
+  and reskin work.
 
 ## Near-term rule
 
