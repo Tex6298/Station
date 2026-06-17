@@ -3853,6 +3853,17 @@ when a PR lands, or when validation truth changes.
   with 14 tests, typecheck, `git diff 191ade0..ffe9079 --check`, and `git diff
   --check`. Remaining caveat: this is not a deployed BullMQ worker, and a future
   independent worker still needs a durable file pointer on job rows.
+- PR15 Background Job Boundary is closed, 2026-06-17: MIMIR accepted ARGUS's
+  verdict at `c440352`. This closes the bounded job-boundary/status/readiness
+  slice, not a deployed worker queue.
+- PR16 Durable File Import Jobs is opened for DAEDALUS, 2026-06-17: close the
+  PR15 caveat by making uploaded-file import jobs independently claimable from
+  durable database state. The expected slice is a narrow file pointer on
+  `import_jobs`, a runner that can load the owner-scoped `persona_files` row by
+  job ID, idempotent duplicate behavior, safe ambiguous historical-row handling,
+  and tests. BullMQ deployment, Reddit, export workers, candidate review, broad
+  quotas, Cloudflare, vectors, Redis memory truth, public publishing, and UI
+  reskin stay deferred.
 - PR14 External Conversation Import Parsers is blocked for DAEDALUS follow-up,
   2026-06-17: ARGUS found that `parseImportFile` checks text MIME before JSON
   filename/extension. A file named `unknown.json` with client-provided
