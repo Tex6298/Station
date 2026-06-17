@@ -3459,6 +3459,18 @@ when a PR lands, or when validation truth changes.
   Studio UI, Spaces, exports, writing, and whitespace checks successfully.
   MIMIR should take over Railway/deploy sequencing and decide any remote proof
   required before calling launch-core accepted.
+- Station launch-core Railway/Supabase proof is ready for ARGUS review,
+  2026-06-17: MIMIR confirmed both Railway services are serving runtime commit
+  `b92d339` with `/health/deployment` reporting `ok:true` and `ready:true`.
+  Migrations `032_station_document_type_alignment` and
+  `033_merge_document_discussion_forum_category` were applied to the Supabase
+  target through the pooler URL and recorded in
+  `supabase_migrations.schema_migrations` as timestamped remote migrations.
+  Non-secret DB proof after the migration shows zero legacy document types
+  (`post`, `constitution`, `update`, `other`) and one Station document-type row
+  currently mapped to `essay`. No legacy/new document discussion category rows
+  were present in the current data set, so migration `033` is ready for future
+  category creation/merge but had no live category rows to move.
 
 ## Near-term rule
 

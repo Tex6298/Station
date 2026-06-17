@@ -6472,3 +6472,26 @@ ARGUS accepts the follow-up for MIMIR Railway/deploy sequencing. Full Next
 standalone build was not rerun in this Windows acceptance pass; the prior
 Windows symlink/EPERM caveat remains a local-shell caveat rather than a
 launch-core code blocker.
+
+## Station Launch Core Railway/Supabase proof
+
+Validated on 2026-06-17 after ARGUS accepted DAEDALUS's launch-core blocker
+repair at `b92d339`.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Railway web `/health/deployment` | Pass | `ok:true`, `ready:true`, service `@station/web`, runtime commit `b92d339`. |
+| Railway API `/health/deployment` | Pass | `ok:true`, `ready:true`, service `@station/api`, runtime commit `b92d339`; database, storage, auth redirects, Stripe, Gemini embeddings, and Upstash cache readiness were true. |
+| Supabase pooler migration apply | Pass | Applied `032_station_document_type_alignment.sql` and `033_merge_document_discussion_forum_category.sql` through the pooler URL. |
+| Supabase migration history proof | Pass | `supabase_migrations.schema_migrations` now records `032_station_document_type_alignment` and `033_merge_document_discussion_forum_category` as timestamped remote migrations. |
+| Supabase document-type proof | Pass | Legacy document types `post`, `constitution`, `update`, and `other` count is `0`; current Station document-type sample is `essay`. |
+| Supabase document discussion category proof | Pass | Current data has no `documents-and-constitutions` or `documents-and-codexes` category row, so migration `033` had no live category rows to move and remains ready for future route-created category state. |
+
+Notes:
+
+- The readiness endpoint still reports the older `025-029` public-object
+  migration proof because that probe is intentionally tied to existing
+  backend/runtime objects, not to the new document-type/category migrations.
+- Direct `DATABASE_URL` DNS failed from this Windows shell for
+  `db.<project>.supabase.co`; the Supabase shared pooler URL was used for DB
+  migration proof and apply.
