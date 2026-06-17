@@ -6884,6 +6884,24 @@ BullMQ worker; it proves an owner-scoped runner, job status transitions, visible
 inline fallback, and provider/readiness truth. A future independent worker still
 needs a durable file pointer on job rows.
 
+## PR16 Durable File Import Jobs
+
+ARGUS acceptance on 2026-06-17:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:storage` | Pass | 13 tests passed; persisted file pointers, exact duplicate disambiguation, owner rejection, null-pointer failure, mismatch failure, idempotent rerun, and previous archive preservation are covered. |
+| `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass | 15 tests passed; PR14 parser behavior remains intact. |
+| `npm exec --yes pnpm@10.32.1 -- run test:health` | Pass | 14 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck tasks passed. |
+| `git diff c440352..e548ef7 --check` | Pass | No whitespace errors in the PR16 patch. |
+| `git diff --check` | Pass | CRLF normalization warnings only for consumed state. |
+
+ARGUS accepts PR16. File import jobs now have a nullable durable
+`import_jobs.file_id` pointer, the runner claims by job ID and owner ID, loads
+the file row itself, validates owner/persona/source consistency before storage
+download, and fails historical null-pointer jobs visibly instead of guessing.
+
 ARGUS PR14 blocker review on 2026-06-17:
 
 | Check | Result | Notes |

@@ -1,7 +1,7 @@
 # PR16 - Durable File Import Jobs
 
 Date: 2026-06-17
-Status: ready for A3 / ARGUS review
+Status: accepted by A3 / ARGUS; ready for MIMIR closeout
 Owner: DAEDALUS implementation, ARGUS review, ARIADNE only if Studio job-status
 UI changes materially.
 
@@ -107,6 +107,44 @@ npm exec --yes pnpm@10.32.1 -- run test:health
 npm exec --yes pnpm@10.32.1 -- run typecheck
 git diff --check
 ```
+
+## ARGUS Review - 2026-06-17
+
+Verdict: accepted.
+
+ARGUS reviewed commit `e548ef7` and accepts the durable file import job pointer
+slice. The migration adds only nullable `import_jobs.file_id` plus indexes.
+New file import jobs persist the pointer, duplicate registration returns exact
+pointer matches or safe ambiguity, and a single historical null-pointer duplicate
+can be repaired only when it is the sole candidate. The durable runner claims by
+job ID plus owner ID, loads the `persona_files` row itself, and validates owner,
+persona, kind, file pointer, file owner, and source name before storage
+download.
+
+Safety review:
+
+- Other owners cannot claim another owner's job.
+- Historical null-pointer file jobs fail visibly with sanitized status instead
+  of guessing from `source_name`.
+- Persona/file/job mismatches fail before storage download.
+- Parser failures stay sanitized and do not delete previous archive rows.
+- Storage paths and private file bodies are not serialized in public responses
+  or wakeups.
+
+Validation rerun:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:storage` passed with 13 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` passed with
+  15 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:health` passed with 14 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `git diff c440352..e548ef7 --check` passed.
+- `git diff --check` passed with CRLF warnings only.
+
+No additional worker or import scope was added. BullMQ/Redis worker deployment,
+Upstash/QStash queues, Reddit/Discord imports, export workers, candidate review,
+broad quota enforcement, Cloudflare retrieval, vector reindexing, Redis memory
+truth, public publishing, and UI changes remain deferred.
 
 Add `test:exports` only if export status behavior changes. Add
 `test:token-credits` only if quota/paid usage logic is touched.

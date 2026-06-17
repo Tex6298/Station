@@ -3866,6 +3866,19 @@ when a PR lands, or when validation truth changes.
   with 14 tests, typecheck, `git diff 191ade0..ffe9079 --check`, and `git diff
   --check`. Remaining caveat: this is not a deployed BullMQ worker, and a future
   independent worker still needs a durable file pointer on job rows.
+- PR16 Durable File Import Jobs is accepted by ARGUS, 2026-06-17: ARGUS accepts
+  the nullable `import_jobs.file_id` migration, DB type update, route persistence
+  of new file-job pointers, exact duplicate pointer disambiguation, safe
+  historical null-pointer repair/ambiguity behavior, and durable
+  `runFileImportJobById` claim path. The runner loads the `persona_files` row
+  itself and validates owner, persona, kind, file pointer, file owner, and source
+  name before storage download; null historical file jobs fail visibly instead
+  of guessing from `source_name`. ARGUS reran `test:storage` with 13 tests,
+  `test:conversation-archive` with 15 tests, `test:health` with 14 tests,
+  typecheck, `git diff c440352..e548ef7 --check`, and `git diff --check`. No
+  BullMQ/Redis worker, Upstash/QStash queue, Reddit/Discord import, export
+  worker, candidate review, quota, Cloudflare, vector, public publishing, or UI
+  scope was added.
 - PR15 Background Job Boundary is closed, 2026-06-17: MIMIR accepted ARGUS's
   verdict at `c440352`. This closes the bounded job-boundary/status/readiness
   slice, not a deployed worker queue.
