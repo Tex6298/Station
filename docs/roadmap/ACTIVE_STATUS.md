@@ -3491,6 +3491,17 @@ when a PR lands, or when validation truth changes.
   API, and make `/studio/publishing` read live owner document data. Approval
   queue, worker execution, social dispatch, scheduling execution, and site-wide
   UI reskin work are explicitly out of scope for this slice.
+- PR10 Studio Publish API Wiring is ready for ARGUS review, 2026-06-17:
+  after DAEDALUS did not respond to the initial and stronger wakeups, MIMIR
+  implemented the narrow lane directly. `/studio/publish` now restores the
+  signed-in session, loads owner Spaces/personas, creates or patches drafts
+  through `POST /documents` and `PATCH /documents/:id`, blocks publish until a
+  Space and non-private visibility are explicit, publishes through
+  `POST /documents/:id/publish`, and marks rich formatting/social/scheduling
+  controls as deferred instead of pretending they are live. `/studio/publishing`
+  now reads owner documents through `GET /documents` and groups live rows by
+  draft/published/archived status. New pure publishing helpers and
+  `test:studio-ui` coverage verify slug/type/status/link behavior.
 
 ## Near-term rule
 

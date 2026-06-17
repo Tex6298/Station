@@ -6510,3 +6510,26 @@ ARGUS hostile review on 2026-06-17:
 ARGUS accepts the Railway/Supabase proof and finds no remaining launch-core
 deploy blocker. The migration-history portion of the proof remains MIMIR's
 pooler evidence rather than an independently reproduced ARGUS database query.
+
+## PR10 Studio Publish API Wiring
+
+MIMIR implementation validation on 2026-06-17:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 11 tests passed, including publishing helper coverage for slug/type/status/link behavior. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck tasks passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:continuity-publication` | Pass | 1 test passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` | Pass | 1 test passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:community` | Pass | 8 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web build` | Local environment failure after successful compile/type/page generation | Next compiled successfully, lint/type checks ran with the known warning inventory, and 29 static pages generated. The build then failed writing standalone traced-file symlinks on this Windows shell with `EPERM`, matching the known local shell caveat. |
+| `git diff --check` | Pass | CRLF normalization warnings only. |
+
+Scope notes:
+
+- Backend document routes were not changed; PR10 uses the existing document API.
+- `/studio/publish` now creates, saves, and publishes owner documents through
+  API calls, but publishing remains blocked until the owner chooses a Space and
+  non-private visibility.
+- Rich formatting tools, external connector dispatch, and scheduled publishing
+  are visibly deferred for later approval/worker lanes.

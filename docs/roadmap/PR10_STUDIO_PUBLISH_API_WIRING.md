@@ -1,7 +1,7 @@
 # PR10 - Studio Publish API Wiring
 
-Status: ready for DAEDALUS implementation
-Owner: DAEDALUS / A2
+Status: ready for ARGUS review
+Owner: MIMIR / A1 implementation after DAEDALUS did not respond
 Reviewer: ARGUS / A3
 Human rehearsal: ARIADNE / A4 after ARGUS accepts the code slice
 
