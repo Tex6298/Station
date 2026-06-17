@@ -3471,6 +3471,19 @@ when a PR lands, or when validation truth changes.
   currently mapped to `essay`. No legacy/new document discussion category rows
   were present in the current data set, so migration `033` is ready for future
   category creation/merge but had no live category rows to move.
+- Station launch-core Railway/Supabase proof is accepted by ARGUS,
+  2026-06-17: ARGUS independently re-probed public Railway web/API
+  `/health/deployment`; both services report `ok:true`, `ready:true`, branch
+  `main`, and commit `b92d339a1204`. API readiness reports database,
+  migrations, storage, Supabase auth redirects, Stripe readiness, Gemini
+  embedding profile `station_free_1536`, NVIDIA platform chat, and Upstash
+  operational cache configured/ready through non-secret booleans/labels. Public
+  Supabase REST category proof also returns no `documents-and-constitutions` or
+  `documents-and-codexes` rows. ARGUS could not independently re-query
+  `supabase_migrations.schema_migrations` from this shell because `psql` is not
+  installed and direct secret-key REST use is blocked by Supabase's key guard;
+  accepting that part relies on MIMIR's recorded pooler proof. `test:health` and
+  whitespace checks passed. No launch-core deploy blocker remains.
 
 ## Near-term rule
 

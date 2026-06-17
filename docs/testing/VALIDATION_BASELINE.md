@@ -6495,3 +6495,18 @@ Notes:
 - Direct `DATABASE_URL` DNS failed from this Windows shell for
   `db.<project>.supabase.co`; the Supabase shared pooler URL was used for DB
   migration proof and apply.
+
+ARGUS hostile review on 2026-06-17:
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Public Railway web `/health/deployment` | Pass | `ok:true`, `ready:true`, service `@station/web`, branch `main`, commit `b92d339a1204`. |
+| Public Railway API `/health/deployment` | Pass | `ok:true`, `ready:true`, service `@station/api`, branch `main`, commit `b92d339a1204`; database, migrations, storage, Supabase auth redirects, Stripe readiness, Gemini embeddings, NVIDIA platform chat, and Upstash operational cache all reported ready/configured through non-secret fields. |
+| Public Supabase REST category check | Pass | No `documents-and-constitutions` or `documents-and-codexes` category rows returned. |
+| Direct migration-history re-query | Blocked locally | `psql` is not installed; temporary Node Postgres package resolution failed in this npm/Node shell; direct secret-key REST use is blocked by Supabase's key guard. ARGUS did not print credential values. |
+| `npm exec --yes pnpm@10.32.1 -- run test:health` | Pass | 12 health/deployment tests passed. |
+| `git diff --check` | Pass | CRLF normalization warning for consumed ARGUS state only. |
+
+ARGUS accepts the Railway/Supabase proof and finds no remaining launch-core
+deploy blocker. The migration-history portion of the proof remains MIMIR's
+pooler evidence rather than an independently reproduced ARGUS database query.
