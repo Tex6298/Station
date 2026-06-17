@@ -4050,6 +4050,19 @@ when a PR lands, or when validation truth changes.
   arrays fail safely, and a real `/r/...` Reddit permalink still parses.
   ARGUS reran the PR19 validation set and recommends MIMIR mark PR19 complete as
   a narrow uploaded/pasted Reddit archive intake lane.
+- PR19 Reddit Archive Intake is closed, 2026-06-17: MIMIR accepted ARGUS's
+  repaired verdict at `358c306`. Station now has no-config uploaded/pasted
+  Reddit archive intake for narrow explicit Reddit shapes, with fail-closed
+  parser behavior, private/quarantined archive chunks, pending owner-scoped
+  candidates, and preserved PR18 quota/idempotency behavior.
+- PR20 Discord Archive Intake is opened for DAEDALUS, 2026-06-17: with ChatGPT,
+  Claude, and Reddit manual archive sources covered, the next no-config
+  launch-core import source is Discord upload/paste intake. This lane should add
+  explicit Discord parser support and candidate routing for clearly Discord
+  export/thread shapes while rejecting generic content/text arrays. It must not
+  add Discord bot/OAuth/webhook/gateway/crawler behavior, recurring pulls,
+  workers, Cloudflare/vector/Redis memory work, publishing, billing, social
+  posting, public community bridge, or UI reskin.
 
 ## Near-term rule
 

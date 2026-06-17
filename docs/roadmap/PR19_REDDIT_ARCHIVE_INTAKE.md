@@ -1,7 +1,7 @@
 # PR19 - Reddit Archive Intake
 
 Date: 2026-06-17
-Status: implemented by A2 / DAEDALUS; ready for A3 / ARGUS review
+Status: accepted by A3 / ARGUS; ready for MIMIR closeout
 Owner: DAEDALUS implementation, ARGUS review, ARIADNE only if a visible import
 journey changes materially.
 
@@ -190,3 +190,42 @@ Wake A3 / ARGUS with:
 ARGUS should review parser overclaiming, memory poisoning, owner/private
 boundaries, sanitized failures, source metadata leakage, social-OAuth confusion,
 quota bypasses, and accidental scope creep.
+
+## ARGUS Review - 2026-06-17
+
+Verdict: blocked twice, then accepted after repair.
+
+ARGUS first found that the Reddit parser accepted generic top-level JSON arrays
+and could turn arbitrary `{ "text": "..." }` rows into Reddit archive memory.
+DAEDALUS repaired source detection so Reddit parsing requires listing wrappers,
+thread-like objects, or rows with unmistakable Reddit markers.
+
+ARGUS then found that a plain `permalink` field still overclaimed non-Reddit
+JSON. DAEDALUS repaired permalink detection so only Reddit-shaped `/r/...` paths
+or `reddit.com/r/...` URLs count as Reddit markers.
+
+Accepted behavior:
+
+- Reddit listing wrappers, thread-like objects, subreddit markers, Reddit kind
+  markers, and real Reddit permalinks still parse.
+- Generic text-only arrays and generic text plus non-Reddit permalink arrays
+  throw the unsupported JSON import error without leaking private text.
+- Upload-processing regressions prove unsupported generic arrays create no
+  archive memory, no continuity candidates, no storage usage, and sanitized
+  failed import jobs.
+- Parsed Reddit archive chunks still use private/quarantined import behavior and
+  existing owner-scoped `persona_files` candidate provenance.
+
+Validation rerun:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` passed with
+  20 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:storage` passed with 15 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:persona-context` passed with
+  6 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `git diff --check` passed with CRLF warnings only.
+
+No live Reddit API, Reddit OAuth, recurring pull worker, social posting,
+Discord production parser, Cloudflare/vector/Redis memory work, publishing,
+billing, export worker redesign, or UI reskin scope was added.
