@@ -289,6 +289,53 @@ test("generic author object arrays do not parse as Discord imports", () => {
   );
 });
 
+test("generic content and type arrays do not parse as Discord imports", () => {
+  assert.throws(
+    () => parseImportFile({
+      fileName: "generic-type.json",
+      fileType: "application/json",
+      rawText: JSON.stringify([{
+        content: "generic issue export should not become discord",
+        type: "note",
+      }]),
+    }),
+    (error) =>
+      error instanceof ImportParseError &&
+      /Unsupported JSON import format/.test(error.message) &&
+      !/generic issue export/.test(error.message)
+  );
+});
+
+test("generic text and attachments arrays do not parse as Discord imports", () => {
+  assert.throws(
+    () => parseImportFile({
+      fileName: "generic-attachments.json",
+      fileType: "application/json",
+      rawText: JSON.stringify([{
+        text: "generic file export should not become discord",
+        attachments: [{ filename: "receipt.pdf" }],
+      }]),
+    }),
+    (error) =>
+      error instanceof ImportParseError &&
+      /Unsupported JSON import format/.test(error.message) &&
+      !/generic file export/.test(error.message)
+  );
+});
+
+test("legacy role and content arrays with type stay legacy imports", () => {
+  const parsed = parseImportFile({
+    fileName: "legacy-with-type.json",
+    fileType: "application/json",
+    rawText: JSON.stringify([
+      { role: "user", content: "legacy message with type should stay legacy", type: "message" },
+    ]),
+  });
+
+  assert.equal(parsed.format, "legacy-message-array");
+  assert.equal(parsed.text, "[user]: legacy message with type should stay legacy");
+});
+
 test("JSON extension is authoritative over misleading text MIME", () => {
   assert.throws(
     () => parseImportFile({

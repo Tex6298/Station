@@ -48,10 +48,6 @@ function normalizeDiscordSource(parsed: unknown): {
   sourceMarked: boolean;
 } | null {
   if (Array.isArray(parsed)) {
-    const messages = parsed.filter((message) => isDiscordMessageLike(message, false));
-    if (messages.length > 0 && messages.length === parsed.length) {
-      return { messages, sourceMarked: false };
-    }
     return null;
   }
 

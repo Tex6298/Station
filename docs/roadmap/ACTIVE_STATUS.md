@@ -4070,10 +4070,12 @@ when a PR lands, or when validation truth changes.
   Discord markers. Parsed Discord rows produce stable
   `[discord/<server>/<channel>/<author>]` archive text, safe source metadata,
   private quarantined archive chunks, and pending owner-scoped Memory/Canon
-  review candidates through existing `persona_files` provenance. Generic
-  arrays with only `content`/`text`/`author`/`timestamp`, including object-form
-  authors, fail before archive memory, candidates, or storage usage are
-  created. ChatGPT, Claude, Reddit, legacy JSON, text, Markdown, malformed JSON
+  review candidates through existing `persona_files` provenance. Bare top-level
+  arrays are not recognized as Discord; generic arrays with only
+  `content`/`text`/`author`/`timestamp`, `type`, attachments, or object-form
+  authors fail before archive memory, candidates, or storage usage are created,
+  and legacy `role`/`content` arrays with `type` still route to the legacy
+  parser. ChatGPT, Claude, Reddit, legacy JSON, text, Markdown, malformed JSON
   sanitization, `.json` extension precedence, PR17 quarantine, and PR18
   quota/idempotency behavior remain green. No Discord
   bot/OAuth/webhook/gateway/API crawler, recurring pull, workers, public

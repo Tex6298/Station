@@ -1303,6 +1303,20 @@ test("uploaded ChatGPT and Claude JSON parse explicitly while unknown JSON fails
       timestamp: "2026-06-17T10:01:00.000Z",
     }])
   );
+  db.storageDownloads.set(
+    "owner/generic-discord-type.json",
+    JSON.stringify([{
+      content: "generic Discord type phrase must not become memory",
+      type: "note",
+    }])
+  );
+  db.storageDownloads.set(
+    "owner/generic-discord-attachments.json",
+    JSON.stringify([{
+      text: "generic Discord attachment phrase must not become memory",
+      attachments: [{ filename: "receipt.pdf" }],
+    }])
+  );
 
   try {
     const chatGptFile = db.insertRow("persona_files", {
@@ -1565,6 +1579,78 @@ test("uploaded ChatGPT and Claude JSON parse explicitly while unknown JSON fails
     assert.equal(failedDiscordAuthorJob.status, "failed");
     assert.match(failedDiscordAuthorJob.error_message, /Unsupported JSON import format/);
     assert.doesNotMatch(failedDiscordAuthorJob.error_message, /generic Discord object-author phrase/);
+
+    const genericDiscordTypeFile = db.insertRow("persona_files", {
+      persona_id: PERSONA_ID,
+      owner_user_id: OWNER_ID,
+      file_name: "generic-discord-type.json",
+      file_type: "application/json",
+      file_size: 10,
+      storage_path: "owner/generic-discord-type.json",
+    });
+    db.insertRow("import_jobs", {
+      persona_id: PERSONA_ID,
+      owner_user_id: OWNER_ID,
+      kind: "file",
+      status: "queued",
+      source_name: "generic-discord-type.json",
+    });
+
+    await assert.rejects(
+      () => processUploadedFile({
+        personaId: PERSONA_ID,
+        ownerUserId: OWNER_ID,
+        fileId: genericDiscordTypeFile.id,
+        fileName: "generic-discord-type.json",
+        fileType: "application/json",
+        storagePath: "owner/generic-discord-type.json",
+      }),
+      /Unsupported JSON import format/
+    );
+
+    assert.equal(db.tables.memory_items.length, memoryCountBeforeUnknown);
+    assert.equal(db.tables.continuity_candidates.length, candidateCountBeforeUnknown);
+    assert.equal(storageRow(db).bytes_used, storageBeforeUnknown);
+    const failedDiscordTypeJob = db.tables.import_jobs.find((job) => job.source_name === "generic-discord-type.json");
+    assert.equal(failedDiscordTypeJob.status, "failed");
+    assert.match(failedDiscordTypeJob.error_message, /Unsupported JSON import format/);
+    assert.doesNotMatch(failedDiscordTypeJob.error_message, /generic Discord type phrase/);
+
+    const genericDiscordAttachmentsFile = db.insertRow("persona_files", {
+      persona_id: PERSONA_ID,
+      owner_user_id: OWNER_ID,
+      file_name: "generic-discord-attachments.json",
+      file_type: "application/json",
+      file_size: 10,
+      storage_path: "owner/generic-discord-attachments.json",
+    });
+    db.insertRow("import_jobs", {
+      persona_id: PERSONA_ID,
+      owner_user_id: OWNER_ID,
+      kind: "file",
+      status: "queued",
+      source_name: "generic-discord-attachments.json",
+    });
+
+    await assert.rejects(
+      () => processUploadedFile({
+        personaId: PERSONA_ID,
+        ownerUserId: OWNER_ID,
+        fileId: genericDiscordAttachmentsFile.id,
+        fileName: "generic-discord-attachments.json",
+        fileType: "application/json",
+        storagePath: "owner/generic-discord-attachments.json",
+      }),
+      /Unsupported JSON import format/
+    );
+
+    assert.equal(db.tables.memory_items.length, memoryCountBeforeUnknown);
+    assert.equal(db.tables.continuity_candidates.length, candidateCountBeforeUnknown);
+    assert.equal(storageRow(db).bytes_used, storageBeforeUnknown);
+    const failedDiscordAttachmentsJob = db.tables.import_jobs.find((job) => job.source_name === "generic-discord-attachments.json");
+    assert.equal(failedDiscordAttachmentsJob.status, "failed");
+    assert.match(failedDiscordAttachmentsJob.error_message, /Unsupported JSON import format/);
+    assert.doesNotMatch(failedDiscordAttachmentsJob.error_message, /generic Discord attachment phrase/);
   } finally {
     resetStorageFake();
   }

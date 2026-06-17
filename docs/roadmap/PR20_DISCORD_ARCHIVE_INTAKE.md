@@ -136,12 +136,14 @@ need it.
   - DiscordChatExporter-style objects with `messages` plus guild/server and
     channel metadata;
   - channel/thread objects with `messages` arrays and Discord-specific markers.
-- Discord message recognition is intentionally narrow. A generic top-level array
-  is not accepted just because it has `content`, `text`, `author`, or
-  `timestamp`, including object-form authors. Source-level guild/channel
-  metadata can make author/user objects meaningful, but bare arrays need
-  stronger Discord markers such as attachment/embed arrays, message type fields,
-  Discord IDs, or mention/reaction arrays.
+- Discord message recognition is intentionally narrow. Bare top-level arrays
+  are not accepted as Discord. Source-level guild/channel metadata can make
+  author/user objects, attachment/embed arrays, message type fields, Discord
+  IDs, or mention/reaction arrays meaningful inside a `messages` wrapper, but
+  generic arrays with only `content`, `text`, `author`, `timestamp`, `type`, or
+  attachments remain unsupported JSON.
+- Legacy `role`/`content` arrays with extra `type` fields remain
+  `legacy-message-array` imports instead of being claimed by Discord.
 - Parsed Discord text uses stable `[discord/<server>/<channel>/<author>]`
   labels and deterministic timestamp/source-order sorting.
 - Parsed Discord imports now create private archive chunks plus pending
