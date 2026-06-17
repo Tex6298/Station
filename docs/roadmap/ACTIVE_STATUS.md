@@ -3890,6 +3890,21 @@ when a PR lands, or when validation truth changes.
   and tests. BullMQ deployment, Reddit, export workers, candidate review, broad
   quotas, Cloudflare, vectors, Redis memory truth, public publishing, and UI
   reskin stay deferred.
+- PR16 Durable File Import Jobs is closed, 2026-06-17: ARGUS accepted the file
+  pointer slice at `8a85cbb`. New file import jobs persist nullable
+  `import_jobs.file_id`, durable job claiming loads and validates the
+  owner-scoped `persona_files` row before storage download, duplicate
+  registration uses exact pointer matches or safe ambiguity, and historical
+  null-pointer jobs fail visibly instead of guessing.
+- PR17 Import Review Candidates is opened for DAEDALUS, 2026-06-17: parsed
+  external conversation imports should become private archive source material
+  plus owner-reviewable Memory/Canon candidates, not silently active runtime
+  memory. The lane should extend/reuse continuity candidate machinery, keep
+  imported archive chunks private and out of runtime context before review,
+  preserve archived-chat candidate behavior, and prove accept/reject owner
+  scoping. Full UI, Reddit, Discord, workers, quotas, Cloudflare, vector work,
+  export redesign, Redis memory truth, public publishing, and reskin stay
+  deferred.
 - PR14 External Conversation Import Parsers is blocked for DAEDALUS follow-up,
   2026-06-17: ARGUS found that `parseImportFile` checks text MIME before JSON
   filename/extension. A file named `unknown.json` with client-provided
