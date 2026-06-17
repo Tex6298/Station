@@ -43,6 +43,7 @@ class InMemorySupabase {
       archiveChunk("chunk-transcript", OWNER_ID, "archived_chat_transcript", "transcript-1", "Old Harbor chat", "The blue notebook appears in the archived chat as continuity material.", 5, 0, 1),
       archiveChunk("chunk-file", OWNER_ID, "persona_file", "file-1", "source-notebook.md", "The processed file mentions private grief and the notebook together.", 4, 0, 1),
       archiveChunk("chunk-quarantined-file", OWNER_ID, "persona_file", "file-1", "source-notebook.md", "Quarantined imported file private grief must not enter runtime context.", 12, 0, 1),
+      archiveChunk("chunk-missing-lifecycle-file", OWNER_ID, "persona_file", "file-1", "source-notebook.md", "Missing lifecycle imported blue notebook chunk must not enter runtime context.", 13, 0, 1),
       archiveChunk("chunk-failed", OWNER_ID, "import_job", "import-failed", "Failed import", "Failed import private grief should not become authoritative.", 10, 0, 1),
       archiveChunk("chunk-missing", OWNER_ID, "import_job", "import-missing", "Deleted import", "Deleted source private grief should not be retrievable.", 9, 0, 1),
       archiveChunk("chunk-pending-file", OWNER_ID, "persona_file", "file-pending", "pending.txt", "Pending file private grief should not be retrievable.", 8, 0, 1),
@@ -256,6 +257,7 @@ test("context preview uses private archive excerpts with citations for the owner
     assert.doesNotMatch(owner.body.context.systemPrompt, /Other owner private grief/);
     assert.doesNotMatch(owner.body.context.systemPrompt, /Failed import private grief/);
     assert.doesNotMatch(owner.body.context.systemPrompt, /Quarantined imported file private grief/);
+    assert.doesNotMatch(owner.body.context.systemPrompt, /Missing lifecycle imported blue notebook chunk/);
 
     const other = await requestJson(app, "GET", `/conversations/persona/${PERSONA_ID}/context-preview?query=blue%20notebook`, {
       token: "other-token",

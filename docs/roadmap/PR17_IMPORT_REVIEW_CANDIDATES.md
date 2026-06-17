@@ -140,7 +140,8 @@ Add `test:integrity` only if Integrity Session output review is touched. Add
 - Imported archive chunks still write to private `memory_items`, but
   `ensureMemoryLifecycle` now defaults `source_type: "import"` rows to
   `quarantined`. Runtime persona context calls private archive retrieval with
-  quarantined archive chunks excluded.
+  quarantined archive chunks excluded, and imported archive chunks with missing
+  or non-active lifecycle metadata fail closed out of runtime context.
 - Accepting an import-backed Memory candidate creates a new owner-scoped memory
   with `source_type: "import"` and `archive_source_type: "persona_file"`, then
   activates its lifecycle as owner-reviewed. Accepting an import-backed Canon

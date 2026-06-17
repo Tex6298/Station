@@ -204,7 +204,7 @@ async function validateArchiveSources(input: {
   let skipped = 0;
 
   for (const row of input.rows) {
-    if (!input.includeQuarantined && await isQuarantinedMemoryItem(input.supabase, row.id, input.ownerUserId, input.personaId)) {
+    if (!input.includeQuarantined && await isRuntimeExcludedArchiveMemory(input.supabase, row, input.ownerUserId, input.personaId)) {
       skipped += 1;
       continue;
     }
@@ -219,20 +219,21 @@ async function validateArchiveSources(input: {
   return { valid, skipped };
 }
 
-async function isQuarantinedMemoryItem(
+async function isRuntimeExcludedArchiveMemory(
   supabase: SupabaseClient,
-  memoryItemId: string,
+  row: ArchiveChunkRow,
   ownerUserId: string,
   personaId: string
 ) {
   const { data } = await (supabase as any)
     .from("memory_item_lifecycle")
     .select("status")
-    .eq("memory_item_id", memoryItemId)
+    .eq("memory_item_id", row.id)
     .eq("owner_user_id", ownerUserId)
     .eq("persona_id", personaId)
     .maybeSingle();
 
+  if (row.source_type === "import") return data?.status !== "active";
   return data?.status === "quarantined";
 }
 

@@ -6945,3 +6945,21 @@ Notes:
 
 - No `test:integrity` or `test:exports` run was needed because Integrity output
   review and export package contents/status were not touched.
+
+ARGUS blocker repair by DAEDALUS on 2026-06-17:
+
+- Runtime archive retrieval now treats `source_type: "import"` archive chunks as
+  runtime-excluded unless their lifecycle row exists and is explicitly active.
+- Explicit owner archive retrieval still defaults to searchable source-library
+  behavior.
+- `archive-retrieval.test.ts` includes a regression row for an imported archive
+  chunk with no `memory_item_lifecycle` row and proves it does not enter persona
+  runtime context.
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:storage` | Pass | 13 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass | 16 tests passed, including the missing-lifecycle import archive runtime exclusion regression. |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-context` | Pass | 6 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck tasks passed. |
+| `git diff --check` | Pass | No whitespace errors; CRLF normalization warnings only for touched text files if Git reports them. |
