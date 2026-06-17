@@ -13,7 +13,7 @@ import { ensureMemoryLifecycle } from "./memory-continuity.service";
 import { invalidateOperationalCacheForChange } from "./operational-cache.service";
 import { sanitizeJobErrorMessage } from "./background-jobs.service";
 import { resolveEmbeddingApiKey } from "./embedding-key.service";
-import { parseImportFile } from "./imports/parsers";
+import { parseImportFile, type ParsedImport } from "./imports/parsers";
 
 type ArchiveSourceRef = {
   type: ArchiveSourceType;
@@ -259,6 +259,14 @@ export async function processUploadedFile(input: {
       },
     });
 
+    await createImportReviewCandidates({
+      parsedImport,
+      personaId: input.personaId,
+      ownerUserId: input.ownerUserId,
+      sourceId: input.fileId,
+      sourceLabel: sourceName,
+    });
+
     // Mark file as processed
     await sb
       .from("persona_files")
@@ -289,6 +297,79 @@ export async function processUploadedFile(input: {
 
     throw new Error(message);
   }
+}
+
+async function createImportReviewCandidates(input: {
+  parsedImport: ParsedImport;
+  personaId: string;
+  ownerUserId: string;
+  sourceId: string;
+  sourceLabel: string;
+}) {
+  if (input.parsedImport.format !== "chatgpt" && input.parsedImport.format !== "claude") return;
+
+  const seeds = importCandidateSeeds(input.parsedImport);
+  if (seeds.length === 0) return;
+
+  const sb = getSupabaseAdmin();
+  const { error } = await sb
+    .from("continuity_candidates")
+    .insert(seeds.map((seed) => ({
+      archived_chat_transcript_id: null,
+      source_table: "persona_files",
+      source_id: input.sourceId,
+      source_label: input.sourceLabel,
+      persona_id: input.personaId,
+      owner_user_id: input.ownerUserId,
+      candidate_type: seed.candidate_type,
+      title: seed.title,
+      content: seed.content,
+      rationale: seed.rationale,
+      source_message_ids: [],
+    })));
+
+  if (error) throw new Error(error.message);
+}
+
+function importCandidateSeeds(parsedImport: ParsedImport) {
+  const lines = parsedImport.text
+    .split("\n")
+    .map((line) => sanitizeImportCandidateText(line))
+    .filter(Boolean);
+  if (lines.length === 0) return [];
+
+  const sourceName = sanitizeImportCandidateText(parsedImport.metadata.sourceName || "Imported conversation");
+  const messageCount = parsedImport.metadata.messageCount ?? lines.length;
+  const excerpt = lines.slice(0, 4).map((line) => `- ${trimImportCandidateText(line, 180)}`).join("\n");
+  const canonLine = lines.find((line) => /\b(always|never|must|should|prefer|remember|boundary|canon|principle|rule)\b/i.test(line))
+    ?? lines.at(-1)
+    ?? lines[0];
+
+  return [
+    {
+      candidate_type: "memory" as const,
+      title: `Memory candidate from ${sourceName}`,
+      content: trimImportCandidateText(`Imported ${parsedImport.format} conversation with ${messageCount} turns. Review before activating:\n${excerpt}`, 1200),
+      rationale: "Generated from a parsed external conversation import. Review before adding to active Memory.",
+    },
+    {
+      candidate_type: "canon" as const,
+      title: `Canon candidate from ${sourceName}`,
+      content: trimImportCandidateText(canonLine, 900),
+      rationale: "Generated from a parsed external conversation import line that may contain durable guidance. Review before adding to Canon.",
+    },
+  ];
+}
+
+function sanitizeImportCandidateText(value: string) {
+  return sanitizeJobErrorMessage(value)
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function trimImportCandidateText(value: string, maxLength: number) {
+  const clean = value.replace(/\s+/g, " ").trim();
+  return clean.length <= maxLength ? clean : `${clean.slice(0, maxLength - 3).trim()}...`;
 }
 
 /**

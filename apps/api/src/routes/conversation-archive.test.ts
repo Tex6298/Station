@@ -82,6 +82,7 @@ class InMemorySupabase {
     archived_chat_transcripts: [],
     continuity_candidates: [],
     memory_items: [],
+    memory_item_lifecycle: [],
     canon_items: [],
     persona_files: [],
     import_jobs: [],
@@ -151,6 +152,10 @@ class InMemorySupabase {
     }
 
     if (table === "continuity_candidates") {
+      row.archived_chat_transcript_id ??= null;
+      row.source_table ??= null;
+      row.source_id ??= null;
+      row.source_label ??= null;
       row.status ??= "pending";
       row.source_message_ids ??= [];
       row.accepted_target_type ??= null;
@@ -171,6 +176,16 @@ class InMemorySupabase {
       row.archive_source_name ??= null;
       row.chunk_index ??= null;
       row.chunk_count ??= null;
+      row.created_at ??= now;
+      row.updated_at ??= now;
+    }
+
+    if (table === "memory_item_lifecycle") {
+      row.status ??= "active";
+      row.trust_level ??= "inferred";
+      row.confidence ??= 0.6;
+      row.evidence ??= [];
+      row.reinforcement_count ??= 0;
       row.created_at ??= now;
       row.updated_at ??= now;
     }
@@ -242,6 +257,10 @@ class QueryBuilder {
     return this.execute("single");
   }
 
+  maybeSingle() {
+    return this.execute("maybeSingle");
+  }
+
   then(onfulfilled: any, onrejected: any) {
     return this.execute().then(onfulfilled, onrejected);
   }
@@ -267,7 +286,7 @@ class QueryBuilder {
     return rows;
   }
 
-  private async execute(mode?: "single") {
+  private async execute(mode?: "single" | "maybeSingle") {
     let rows: Row[];
 
     if (this.operation === "insert") {
@@ -301,6 +320,12 @@ class QueryBuilder {
       return data.length === 1
         ? { data: data[0], error: null }
         : { data: null, error: { code: "PGRST116", message: `Expected one ${this.table} row.` } };
+    }
+
+    if (mode === "maybeSingle") {
+      return data.length > 0
+        ? { data: data[0], error: null }
+        : { data: null, error: null };
     }
 
     return { data, error: null };
@@ -461,6 +486,111 @@ test("owner can archive a chat into private continuity candidates", async () => 
       token: "other-token",
     });
     assert.equal(otherContext.status, 403);
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
+
+test("owner can review import-backed continuity candidates without exposing them cross-owner", async () => {
+  const db = new InMemorySupabase();
+  setSupabaseAdminForTests(db.client as any);
+  const app = await createConversationArchiveApp();
+
+  try {
+    const importFile = db.insertRow("persona_files", {
+      id: "import-file-chatgpt",
+      persona_id: PERSONA_ID,
+      owner_user_id: OWNER_ID,
+      file_name: "chatgpt-export.json",
+      file_type: "application/json",
+      source_type: "upload",
+      processed: true,
+    });
+    const archivedSourceMemory = db.insertRow("memory_items", {
+      id: "import-source-memory",
+      persona_id: PERSONA_ID,
+      owner_user_id: OWNER_ID,
+      title: "Imported archive source",
+      content: "Original imported archive material remains available after review.",
+      source_type: "import",
+      archive_source_type: "persona_file",
+      archive_source_id: importFile.id,
+      archive_source_name: "chatgpt-export.json",
+    });
+    db.insertRow("memory_item_lifecycle", {
+      memory_item_id: archivedSourceMemory.id,
+      owner_user_id: OWNER_ID,
+      persona_id: PERSONA_ID,
+      status: "quarantined",
+    });
+    const memoryCandidate = db.insertRow("continuity_candidates", {
+      persona_id: PERSONA_ID,
+      owner_user_id: OWNER_ID,
+      candidate_type: "memory",
+      title: "Imported memory candidate",
+      content: "Harbor remembers that import review must precede runtime use.",
+      rationale: "Generated from parsed ChatGPT import review seed.",
+      archived_chat_transcript_id: null,
+      source_table: "persona_files",
+      source_id: importFile.id,
+      source_label: "chatgpt-export.json",
+    });
+    const canonCandidate = db.insertRow("continuity_candidates", {
+      persona_id: PERSONA_ID,
+      owner_user_id: OWNER_ID,
+      candidate_type: "canon",
+      title: "Imported canon candidate",
+      content: "Imported material needs owner review before becoming canon.",
+      rationale: "Generated from parsed ChatGPT import review seed.",
+      archived_chat_transcript_id: null,
+      source_table: "persona_files",
+      source_id: importFile.id,
+      source_label: "chatgpt-export.json",
+    });
+
+    const blocked = await requestJson(app, "PATCH", `/conversations/candidates/${memoryCandidate.id}`, {
+      token: "other-token",
+      body: { action: "accept" },
+    });
+    assert.equal(blocked.status, 404);
+
+    const acceptedMemory = await requestJson(app, "PATCH", `/conversations/candidates/${memoryCandidate.id}`, {
+      token: "owner-token",
+      body: {
+        action: "accept",
+        title: "Reviewed import memory",
+        content: "Owner accepted this imported memory after review.",
+      },
+    });
+    assert.equal(acceptedMemory.status, 200);
+    assert.equal(acceptedMemory.body.candidate.status, "accepted");
+    assert.equal(acceptedMemory.body.candidate.sourceTable, "persona_files");
+    assert.equal(acceptedMemory.body.candidate.sourceId, importFile.id);
+    assert.equal(acceptedMemory.body.target.source_type, "import");
+    assert.equal(acceptedMemory.body.target.archive_source_type, "persona_file");
+    assert.equal(acceptedMemory.body.target.archive_source_id, importFile.id);
+
+    const activatedLifecycle = db.tables.memory_item_lifecycle.find(
+      (row) => row.memory_item_id === acceptedMemory.body.target.id
+    );
+    assert.equal(activatedLifecycle?.status, "active");
+    assert.equal(activatedLifecycle?.trust_level, "user_stated");
+
+    const acceptedCanon = await requestJson(app, "PATCH", `/conversations/candidates/${canonCandidate.id}`, {
+      token: "owner-token",
+      body: { action: "accept" },
+    });
+    assert.equal(acceptedCanon.status, 200);
+    assert.equal(acceptedCanon.body.candidate.status, "accepted");
+    assert.equal(acceptedCanon.body.target.source_type, "import");
+
+    const sourceRow = db.tables.memory_items.find((row) => row.id === archivedSourceMemory.id);
+    assert.ok(sourceRow);
+    assert.equal(sourceRow.archive_source_id, importFile.id);
+    assert.equal(
+      db.tables.memory_item_lifecycle.find((row) => row.memory_item_id === archivedSourceMemory.id)?.status,
+      "quarantined"
+    );
   } finally {
     setSupabaseAdminForTests(null);
   }

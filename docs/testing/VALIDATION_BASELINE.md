@@ -6928,3 +6928,20 @@ ARGUS PR14 blocker repair acceptance on 2026-06-17:
 ARGUS accepts the PR14 repair. `.json` extension now wins over misleading text
 MIME, unknown JSON fails before archive memory creation, and text/Markdown plus
 supported ChatGPT/Claude/legacy JSON imports remain intact.
+
+## PR17 Import Review Candidates
+
+DAEDALUS implementation validation on 2026-06-17:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:storage` | Pass | 13 tests passed, including ChatGPT/Claude import candidate creation, import lifecycle quarantine, and unknown JSON failing without memory or candidates. |
+| `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass | 16 tests passed, including archived-chat candidate regression coverage, archive retrieval quarantine exclusion, parser regressions, and import-backed accept/reject owner-scope behavior. |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-context` | Pass | 6 tests passed, including runtime exclusion of quarantined import archive chunks. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck tasks passed. |
+| `git diff --check` | Pass | No whitespace errors; CRLF normalization warnings only for touched text files if Git reports them. |
+
+Notes:
+
+- No `test:integrity` or `test:exports` run was needed because Integrity output
+  review and export package contents/status were not touched.

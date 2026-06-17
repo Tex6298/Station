@@ -327,13 +327,16 @@ export interface Database {
       continuity_candidates: {
         Row: {
           id: string;
-          archived_chat_transcript_id: string;
+          archived_chat_transcript_id: string | null;
           persona_id: string;
           owner_user_id: string;
           candidate_type: ContinuityCandidateType;
           title: string | null;
           content: string;
           rationale: string | null;
+          source_table: string | null;
+          source_id: string | null;
+          source_label: string | null;
           status: ContinuityCandidateStatus;
           source_message_ids: string[];
           accepted_target_type: ContinuityCandidateType | null;
@@ -342,8 +345,12 @@ export interface Database {
           created_at: string;
           updated_at: string;
         };
-        Insert: Omit<Database["public"]["Tables"]["continuity_candidates"]["Row"], "id" | "status" | "accepted_target_type" | "accepted_target_id" | "accepted_at" | "created_at" | "updated_at"> & {
+        Insert: Omit<Database["public"]["Tables"]["continuity_candidates"]["Row"], "id" | "archived_chat_transcript_id" | "source_table" | "source_id" | "source_label" | "status" | "accepted_target_type" | "accepted_target_id" | "accepted_at" | "created_at" | "updated_at"> & {
           id?: string;
+          archived_chat_transcript_id?: string | null;
+          source_table?: string | null;
+          source_id?: string | null;
+          source_label?: string | null;
           status?: ContinuityCandidateStatus;
           accepted_target_type?: ContinuityCandidateType | null;
           accepted_target_id?: string | null;

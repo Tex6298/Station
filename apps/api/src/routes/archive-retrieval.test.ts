@@ -42,6 +42,7 @@ class InMemorySupabase {
       archiveChunk("chunk-import-3", OWNER_ID, "import_job", "import-1", "Migration chat", "A third private grief chunk should be held back by source caps.", 3, 2, 3),
       archiveChunk("chunk-transcript", OWNER_ID, "archived_chat_transcript", "transcript-1", "Old Harbor chat", "The blue notebook appears in the archived chat as continuity material.", 5, 0, 1),
       archiveChunk("chunk-file", OWNER_ID, "persona_file", "file-1", "source-notebook.md", "The processed file mentions private grief and the notebook together.", 4, 0, 1),
+      archiveChunk("chunk-quarantined-file", OWNER_ID, "persona_file", "file-1", "source-notebook.md", "Quarantined imported file private grief must not enter runtime context.", 12, 0, 1),
       archiveChunk("chunk-failed", OWNER_ID, "import_job", "import-failed", "Failed import", "Failed import private grief should not become authoritative.", 10, 0, 1),
       archiveChunk("chunk-missing", OWNER_ID, "import_job", "import-missing", "Deleted import", "Deleted source private grief should not be retrievable.", 9, 0, 1),
       archiveChunk("chunk-pending-file", OWNER_ID, "persona_file", "file-pending", "pending.txt", "Pending file private grief should not be retrievable.", 8, 0, 1),
@@ -62,6 +63,14 @@ class InMemorySupabase {
         chunk_count: null,
         created_at: "2026-06-01T10:09:00.000Z",
         updated_at: "2026-06-01T10:09:00.000Z",
+      },
+    ],
+    memory_item_lifecycle: [
+      {
+        memory_item_id: "chunk-quarantined-file",
+        owner_user_id: OWNER_ID,
+        persona_id: PERSONA_ID,
+        status: "quarantined",
       },
     ],
     import_jobs: [
@@ -134,6 +143,10 @@ class QueryBuilder {
     return this.execute("single");
   }
 
+  maybeSingle() {
+    return this.execute("maybeSingle");
+  }
+
   then(onfulfilled: any, onrejected: any) {
     return this.execute().then(onfulfilled, onrejected);
   }
@@ -159,8 +172,13 @@ class QueryBuilder {
     return rows;
   }
 
-  private async execute(mode?: "single") {
+  private async execute(mode?: "single" | "maybeSingle") {
     const data = clone(this.matchingRows());
+    if (mode === "maybeSingle") {
+      return data.length > 0
+        ? { data: data[0], error: null }
+        : { data: null, error: null };
+    }
     if (mode === "single") {
       return data.length === 1
         ? { data: data[0], error: null }
@@ -237,6 +255,7 @@ test("context preview uses private archive excerpts with citations for the owner
     );
     assert.doesNotMatch(owner.body.context.systemPrompt, /Other owner private grief/);
     assert.doesNotMatch(owner.body.context.systemPrompt, /Failed import private grief/);
+    assert.doesNotMatch(owner.body.context.systemPrompt, /Quarantined imported file private grief/);
 
     const other = await requestJson(app, "GET", `/conversations/persona/${PERSONA_ID}/context-preview?query=blue%20notebook`, {
       token: "other-token",

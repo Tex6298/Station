@@ -3935,6 +3935,18 @@ when a PR lands, or when validation truth changes.
   readiness, preserve inline fallback for protected-alpha safety, and avoid
   broad Reddit, candidate-review, export-bundle, quota, Cloudflare, vector, or
   UI work.
+- PR17 Import Review Candidates is implemented by DAEDALUS and ready for ARGUS,
+  2026-06-17: ChatGPT and Claude uploaded-file imports now create pending
+  owner-scoped Memory/Canon review candidates backed by `persona_files` source
+  references while preserving private archive chunks. Imported archive chunks
+  default to quarantined lifecycle state and are excluded from persona runtime
+  archive context before owner review. Accepting import-backed Memory creates
+  owner-scoped imported memory with persona-file provenance and activates it;
+  accepting import-backed Canon records imported canon; rejecting leaves archive
+  source material intact. Existing archived-chat candidate behavior remains
+  covered. Deferred: full review UI, Reddit/Discord production import, workers,
+  quotas, Cloudflare/vector/Redis memory work, export redesign, publishing, and
+  UI reskin.
 
 ## Near-term rule
 

@@ -147,6 +147,23 @@ class InMemorySupabase {
         created_at: "2026-05-25T09:12:00.000Z",
         updated_at: "2026-05-25T09:12:00.000Z",
       },
+      {
+        id: "memory-import-quarantined",
+        persona_id: PERSONA_ID,
+        owner_user_id: OWNER_ID,
+        title: "Quarantined import archive chunk",
+        content: "Harbor ritual imported archive chunk must not enter runtime context before review.",
+        summary: "Harbor ritual imported archive chunk must not leak.",
+        source_type: "import",
+        relevance_weight: 12,
+        archive_source_type: "persona_file",
+        archive_source_id: "file-1",
+        archive_source_name: "source-notebook.md",
+        chunk_index: 0,
+        chunk_count: 1,
+        created_at: "2026-05-25T09:17:00.000Z",
+        updated_at: "2026-05-25T09:17:00.000Z",
+      },
     ],
     memory_item_lifecycle: [
       lifecycleRow("memory-1", "active"),
@@ -156,6 +173,7 @@ class InMemorySupabase {
       lifecycleRow("memory-superseded", "superseded", { superseded_by_memory_item_id: MEMORY_REPLACEMENT_ID }),
       lifecycleRow(MEMORY_REPLACEMENT_ID, "active"),
       lifecycleRow(OTHER_MEMORY_ID, "active", { owner_user_id: OTHER_ID }),
+      lifecycleRow("memory-import-quarantined", "quarantined"),
     ],
     owner_memory_blocks: [
       {
@@ -558,7 +576,7 @@ test("persona runtime context is owner-only and orders canon ahead of memory", a
     assert.equal(context.trace.embedding.provider, "gemini");
     assert.equal(context.trace.embedding.dimension, 1536);
     assert.deepEqual(context.trace.skipped.memory, {
-      archive_source: 0,
+      archive_source: 1,
       rejected: 1,
       quarantined: 1,
       expired: 1,
@@ -597,6 +615,7 @@ test("persona runtime context is owner-only and orders canon ahead of memory", a
     assert.match(context.systemPrompt, /Stay steady under ambiguity/);
     assert.match(context.systemPrompt, /source-notebook\.md/);
     assert.doesNotMatch(context.systemPrompt, /Quarantined memory must not leak/);
+    assert.doesNotMatch(context.systemPrompt, /imported archive chunk must not enter runtime context/);
     assert.doesNotMatch(context.systemPrompt, /Rejected memory must not leak/);
     assert.doesNotMatch(context.systemPrompt, /Expired memory must not leak/);
     assert.doesNotMatch(context.systemPrompt, /Old nickname must not leak/);
@@ -638,7 +657,7 @@ test("persona memory briefing is owner-only and reports lifecycle filtering", as
     assert.deepEqual(owner.body.briefing.activeMemories.map((memory: Row) => memory.id).sort(), [MEMORY_REPLACEMENT_ID, "memory-1"].sort());
     assert.deepEqual(owner.body.briefing.lifecycleCounts, {
       active: 2,
-      quarantined: 1,
+      quarantined: 2,
       rejected: 1,
       expired: 1,
       superseded: 1,

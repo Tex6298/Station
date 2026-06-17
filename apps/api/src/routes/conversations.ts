@@ -9,6 +9,7 @@ import { AnthropicProvider } from "@station/ai/providers/anthropic";
 import { addMemoryItem, ingestTextIntoArchive, saveMessageAsMemory } from "../services/archive.service";
 import { env } from "../lib/env";
 import { storageErrorResponse } from "../services/storage.service";
+import { updateMemoryLifecycle } from "../services/memory-continuity.service";
 import { resolveEmbeddingApiKey } from "../services/embedding-key.service";
 import {
   assertTokenBudgetForEstimate,
@@ -103,6 +104,9 @@ function candidateRow(row: any) {
     title: row.title,
     content: row.content,
     rationale: row.rationale,
+    sourceTable: row.source_table ?? null,
+    sourceId: row.source_id ?? null,
+    sourceLabel: row.source_label ?? null,
     status: row.status,
     sourceMessageIds: row.source_message_ids ?? [],
     acceptedTargetType: row.accepted_target_type,
@@ -836,6 +840,7 @@ conversationsRouter.patch("/candidates/:candidateId", async (req, res) => {
   const title = parsed.data.title?.trim() || candidate.title || "Accepted from archived chat";
   const content = parsed.data.content?.trim() || candidate.content;
   const acceptedAt = new Date().toISOString();
+  const candidateSource = candidateSourceRef(candidate);
 
   let target: any;
   if (candidate.candidate_type === "memory") {
@@ -845,14 +850,25 @@ conversationsRouter.patch("/candidates/:candidateId", async (req, res) => {
       title,
       content,
       summary: content.slice(0, 300),
-      sourceType: "chat",
+      sourceType: candidateSource.sourceType,
       relevanceWeight: parsed.data.relevanceWeight ?? 1.5,
-      archiveSource: {
-        type: "archived_chat_transcript",
-        id: candidate.archived_chat_transcript_id,
-        name: title,
-      },
+      archiveSource: candidateSource.archiveSource,
     });
+    if (candidateSource.sourceType === "import") {
+      await updateMemoryLifecycle({
+        memoryItemId: target.id,
+        ownerUserId: userId,
+        status: "active",
+        trustLevel: "user_stated",
+        confidence: 1,
+        evidence: [{
+          sourceTable: candidate.source_table,
+          sourceId: candidate.source_id,
+          sourceLabel: candidate.source_label,
+          candidateId: candidate.id,
+        }],
+      }).catch(() => undefined);
+    }
   } else {
     const { data: canon, error } = await sb
       .from("canon_items")
@@ -861,7 +877,7 @@ conversationsRouter.patch("/candidates/:candidateId", async (req, res) => {
         owner_user_id: userId,
         title,
         content,
-        source_type: "chat",
+        source_type: candidateSource.sourceType,
         priority: parsed.data.priority ?? 3,
       })
       .select("*")
@@ -892,6 +908,28 @@ conversationsRouter.patch("/candidates/:candidateId", async (req, res) => {
     target,
   });
 });
+
+function candidateSourceRef(candidate: any) {
+  if (candidate.source_table === "persona_files" && candidate.source_id) {
+    return {
+      sourceType: "import" as const,
+      archiveSource: {
+        type: "persona_file" as const,
+        id: candidate.source_id,
+        name: candidate.source_label ?? candidate.title ?? "Imported conversation",
+      },
+    };
+  }
+
+  return {
+    sourceType: "chat" as const,
+    archiveSource: {
+      type: "archived_chat_transcript" as const,
+      id: candidate.archived_chat_transcript_id,
+      name: candidate.title,
+    },
+  };
+}
 
 // -- Delete a conversation -----------------------------------------------------
 conversationsRouter.delete("/:conversationId", async (req, res) => {

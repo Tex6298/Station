@@ -68,7 +68,9 @@ class InMemorySupabase {
     persona_files: [],
     import_jobs: [],
     memory_items: [],
+    memory_item_lifecycle: [],
     canon_items: [],
+    continuity_candidates: [],
     calibration_sessions: [],
     continuity_records: [],
     integrity_sessions: [],
@@ -231,6 +233,26 @@ class InMemorySupabase {
       row.updated_at ??= now;
     }
 
+    if (table === "continuity_candidates") {
+      row.archived_chat_transcript_id ??= null;
+      row.source_table ??= null;
+      row.source_id ??= null;
+      row.source_label ??= null;
+      row.status ??= "pending";
+      row.source_message_ids ??= [];
+      row.accepted_target_type ??= null;
+      row.accepted_target_id ??= null;
+      row.accepted_at ??= null;
+      row.created_at ??= now;
+      row.updated_at ??= now;
+    }
+
+    if (table === "memory_item_lifecycle") {
+      row.status ??= "active";
+      row.created_at ??= now;
+      row.updated_at ??= now;
+    }
+
     return row;
   }
 }
@@ -284,6 +306,10 @@ class QueryBuilder {
     return this.execute("single");
   }
 
+  maybeSingle() {
+    return this.execute("maybeSingle");
+  }
+
   then(onfulfilled: any, onrejected: any) {
     return this.execute().then(onfulfilled, onrejected);
   }
@@ -309,7 +335,7 @@ class QueryBuilder {
     return rows;
   }
 
-  private async execute(mode?: "single") {
+  private async execute(mode?: "single" | "maybeSingle") {
     let rows: Row[];
 
     if (this.operation === "insert") {
@@ -341,6 +367,12 @@ class QueryBuilder {
       return data.length === 1
         ? { data: data[0], error: null }
         : { data: null, error: { code: "PGRST116", message: `Expected one ${this.table} row.` } };
+    }
+
+    if (mode === "maybeSingle") {
+      return data.length > 0
+        ? { data: data[0], error: null }
+        : { data: null, error: null };
     }
 
     return { data, error: null };
@@ -1181,6 +1213,16 @@ test("uploaded ChatGPT and Claude JSON parse explicitly while unknown JSON fails
     assert.match(db.tables.memory_items[0].content, /\[user\]: The question came first\./);
     assert.match(db.tables.memory_items[0].content, /\[assistant\]: The answer came second\./);
     assert.equal(db.tables.memory_items[0].archive_source_name, "chatgpt.json (chatgpt import)");
+    assert.equal(
+      db.tables.memory_item_lifecycle.find((row) => row.memory_item_id === db.tables.memory_items[0].id)?.status,
+      "quarantined"
+    );
+    const chatGptCandidates = db.tables.continuity_candidates.filter((row) => row.source_id === chatGptFile.id);
+    assert.deepEqual(chatGptCandidates.map((row) => row.candidate_type).sort(), ["canon", "memory"]);
+    assert.equal(chatGptCandidates.every((row) => row.source_table === "persona_files"), true);
+    assert.equal(chatGptCandidates.every((row) => row.archived_chat_transcript_id === null), true);
+    assert.equal(chatGptCandidates.every((row) => row.owner_user_id === OWNER_ID), true);
+    assert.equal(chatGptCandidates.every((row) => row.status === "pending"), true);
 
     const claudeFile = db.insertRow("persona_files", {
       persona_id: PERSONA_ID,
@@ -1211,8 +1253,17 @@ test("uploaded ChatGPT and Claude JSON parse explicitly while unknown JSON fails
     assert.match(db.tables.memory_items[1].content, /\[user\]: Claude first\./);
     assert.match(db.tables.memory_items[1].content, /\[assistant\]: Claude second\./);
     assert.equal(db.tables.memory_items[1].archive_source_name, "claude.json (claude import)");
+    assert.equal(
+      db.tables.memory_item_lifecycle.find((row) => row.memory_item_id === db.tables.memory_items[1].id)?.status,
+      "quarantined"
+    );
+    const claudeCandidates = db.tables.continuity_candidates.filter((row) => row.source_id === claudeFile.id);
+    assert.deepEqual(claudeCandidates.map((row) => row.candidate_type).sort(), ["canon", "memory"]);
+    assert.equal(claudeCandidates.every((row) => row.source_table === "persona_files"), true);
+    assert.equal(claudeCandidates.every((row) => row.source_label === "claude.json (claude import)"), true);
 
     const memoryCountBeforeUnknown = db.tables.memory_items.length;
+    const candidateCountBeforeUnknown = db.tables.continuity_candidates.length;
     const storageBeforeUnknown = storageRow(db).bytes_used;
     const unknownFile = db.insertRow("persona_files", {
       persona_id: PERSONA_ID,
@@ -1243,6 +1294,7 @@ test("uploaded ChatGPT and Claude JSON parse explicitly while unknown JSON fails
     );
 
     assert.equal(db.tables.memory_items.length, memoryCountBeforeUnknown);
+    assert.equal(db.tables.continuity_candidates.length, candidateCountBeforeUnknown);
     assert.equal(storageRow(db).bytes_used, storageBeforeUnknown);
     const failedJob = db.tables.import_jobs.find((job) => job.source_name === "unknown.json");
     assert.equal(failedJob.status, "failed");

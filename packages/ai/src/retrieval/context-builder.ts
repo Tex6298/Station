@@ -399,6 +399,7 @@ async function loadArchiveReferences(
     maxCharacters: 2400,
     embeddingApiKey: input.embeddingApiKey,
     queryEmbedding,
+    includeQuarantined: false,
   });
 
   if (retrieval.chunks.length > 0) {

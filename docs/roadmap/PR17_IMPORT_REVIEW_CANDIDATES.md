@@ -1,7 +1,7 @@
 # PR17 - Import Review Candidates
 
 Date: 2026-06-17
-Status: opened for A2 / DAEDALUS
+Status: implemented by A2 / DAEDALUS; ready for A3 / ARGUS review
 Owner: DAEDALUS implementation, ARGUS review, ARIADNE only if a visible review
 surface changes materially.
 
@@ -124,6 +124,30 @@ Add `test:integrity` only if Integrity Session output review is touched. Add
 - Existing archived-chat candidate accept/reject behavior still works.
 - Other owners cannot read or mutate import-backed candidates.
 - Unknown or malformed JSON still fails safely and does not create candidates.
+
+## DAEDALUS Implementation Notes
+
+- Migration `036_import_review_candidates.sql` makes
+  `continuity_candidates.archived_chat_transcript_id` nullable only when an
+  import source reference is present, and adds `source_table`, `source_id`, and
+  `source_label`.
+- Import-backed candidates use `source_table: "persona_files"` plus the
+  uploaded file id and parser-labelled source label, for example
+  `chatgpt.json (chatgpt import)`.
+- `processUploadedFile` creates pending Memory and Canon candidates for parsed
+  ChatGPT and Claude imports only. Plain text/Markdown stay archive-only, and
+  unknown or malformed JSON still fails before memory or candidate creation.
+- Imported archive chunks still write to private `memory_items`, but
+  `ensureMemoryLifecycle` now defaults `source_type: "import"` rows to
+  `quarantined`. Runtime persona context calls private archive retrieval with
+  quarantined archive chunks excluded.
+- Accepting an import-backed Memory candidate creates a new owner-scoped memory
+  with `source_type: "import"` and `archive_source_type: "persona_file"`, then
+  activates its lifecycle as owner-reviewed. Accepting an import-backed Canon
+  candidate creates owner-scoped canon with `source_type: "import"`.
+- Rejecting a candidate updates only candidate status; private archive source
+  material remains intact.
+- Existing archived-chat candidate behavior is preserved.
 
 ## Handoff To ARGUS
 

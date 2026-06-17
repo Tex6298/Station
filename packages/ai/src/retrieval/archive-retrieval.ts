@@ -61,6 +61,7 @@ export async function retrievePrivateArchive(input: {
   sourceCaps?: Partial<Record<ArchiveSourceType, number>>;
   embeddingApiKey?: string | null;
   queryEmbedding?: number[] | null;
+  includeQuarantined?: boolean;
 }): Promise<ArchiveRetrievalResult> {
   const maxChunks = clampInt(input.limit ?? DEFAULT_MAX_CHUNKS, 1, HARD_MAX_CHUNKS);
   const maxCharacters = clampInt(
@@ -104,6 +105,7 @@ export async function retrievePrivateArchive(input: {
     ownerUserId: input.ownerUserId,
     personaId: input.personaId,
     rows: candidates,
+    includeQuarantined: input.includeQuarantined ?? true,
   });
 
   const chunks = applyRetrievalLimits({
@@ -196,11 +198,16 @@ async function validateArchiveSources(input: {
   ownerUserId: string;
   personaId: string;
   rows: RankedArchiveChunk[];
+  includeQuarantined: boolean;
 }): Promise<{ valid: ValidatedArchiveChunk[]; skipped: number }> {
   const valid: ValidatedArchiveChunk[] = [];
   let skipped = 0;
 
   for (const row of input.rows) {
+    if (!input.includeQuarantined && await isQuarantinedMemoryItem(input.supabase, row.id, input.ownerUserId, input.personaId)) {
+      skipped += 1;
+      continue;
+    }
     const citation = await loadCitationForRow(input.supabase, row, input.ownerUserId, input.personaId);
     if (!citation) {
       skipped += 1;
@@ -210,6 +217,23 @@ async function validateArchiveSources(input: {
   }
 
   return { valid, skipped };
+}
+
+async function isQuarantinedMemoryItem(
+  supabase: SupabaseClient,
+  memoryItemId: string,
+  ownerUserId: string,
+  personaId: string
+) {
+  const { data } = await (supabase as any)
+    .from("memory_item_lifecycle")
+    .select("status")
+    .eq("memory_item_id", memoryItemId)
+    .eq("owner_user_id", ownerUserId)
+    .eq("persona_id", personaId)
+    .maybeSingle();
+
+  return data?.status === "quarantined";
 }
 
 async function loadCitationForRow(

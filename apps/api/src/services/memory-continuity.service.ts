@@ -31,6 +31,7 @@ export async function ensureMemoryLifecycle(input: {
       persona_id: input.personaId,
       trust_level: defaults.trustLevel,
       confidence: defaults.confidence,
+      status: defaults.status,
     })
     .select("*")
     .single();
@@ -318,11 +319,12 @@ function serializeBriefingMemory(row: any) {
   };
 }
 
-function defaultsForSource(sourceType?: string | null): { trustLevel: MemoryTrustLevel; confidence: number } {
+function defaultsForSource(sourceType?: string | null): { trustLevel: MemoryTrustLevel; confidence: number; status?: MemoryLifecycleStatus } {
   if (sourceType === "manual") return { trustLevel: "user_stated", confidence: 1 };
   if (sourceType === "calibration" || sourceType === "integrity_session") {
     return { trustLevel: "agreed_upon", confidence: 0.9 };
   }
   if (sourceType === "chat") return { trustLevel: "model_suggested", confidence: 0.75 };
+  if (sourceType === "import") return { trustLevel: "llm_extracted", confidence: 0.7, status: "quarantined" };
   return { trustLevel: "llm_extracted", confidence: 0.7 };
 }
