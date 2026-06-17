@@ -4179,6 +4179,21 @@ when a PR lands, or when validation truth changes.
   file-import worker behavior still requires migration
   `035_import_job_file_pointer.sql`; this repair is a compatibility guard, not a
   replacement for applying the migration.
+- PR21 Import Review Inbox ARIADNE seeded rerun is blocked, 2026-06-17: after
+  MIMIR applied the staging schema repair and seeded one ChatGPT import source
+  with one Memory and one Canon candidate, ARIADNE reran the Railway browser
+  pass on `/studio/personas/:personaId/files` at desktop `1440x1100` and mobile
+  `375x812`. The inbox is visible in the existing Archive flow, counts and
+  Memory/Canon/source labels are legible, reject-preserves-source copy is
+  present, mobile has no horizontal overflow, and rejecting the Canon candidate
+  works through the browser. Accept-with-edits on the Memory candidate is still
+  a blocker: the browser preflight returns HTTP `204`, but the actual
+  `PATCH /conversations/candidates/:candidateId` returns Railway fallback HTTP
+  `502`; Chrome reports `MissingAllowOriginHeader`, the UI shows `Failed to
+  fetch`, and afterward `/health/deployment` and candidate listing returned
+  Railway `502`. DAEDALUS should repair the accept path and prove API health
+  remains stable before ARIADNE reruns. See
+  `docs/roadmap/PR21_IMPORT_REVIEW_INBOX_RERUN_ARIADNE_RESULT.md`.
 
 ## Near-term rule
 
