@@ -3647,6 +3647,22 @@ when a PR lands, or when validation truth changes.
   on approval state readability, no-Space disabled actions, button feedback,
   and mobile width. Missing Creator-positive publish proof remains staging
   account setup, not a rehearsal failure.
+- PR11 Approval Queue browser rehearsal is blocked by ARIADNE, 2026-06-17:
+  `docs/roadmap/PR11_APPROVAL_QUEUE_REHEARSAL_ARIADNE_RESULT.md` records the
+  live Railway browser/API pass against runtime commit `2797520`. Web/API health
+  and readiness were `ok:true`/`ready:true`, but live
+  `GET /publishing/approvals` returns
+  `Could not find the table 'public.publishing_approval_items' in the schema
+  cache`. `/studio/publishing` catches that approval fetch failure and renders
+  the existing published row as `Not queued`, making approval state
+  untrustworthy. The private-tier publish form itself passes the visible
+  preflight checks: Creator-or-above copy appears, `Save draft` and
+  `Send for review` are disabled, deferred controls remain deferred, and desktop
+  plus `390 x 844` widths stay inside the viewport. The current replay owner has
+  one published Space-backed document, zero drafts, and zero no-Space documents,
+  so no-Space queue controls were not available to exercise. DAEDALUS should
+  repair/apply the approval queue table path and consider surfacing approval
+  fetch failures instead of silently falling back to empty queue truth.
 
 ## Near-term rule
 
