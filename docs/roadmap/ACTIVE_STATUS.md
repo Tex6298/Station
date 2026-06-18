@@ -4824,6 +4824,22 @@ when a PR lands, or when validation truth changes.
   all compete for context. Explicit non-scope: retrieval ranking rewrites,
   embedding/provider changes, Redis/Cloudflare storage, provider token
   streaming, UI redesign, or private context leakage.
+- PR34 Runtime Context Topology Budget is implemented by DAEDALUS and ready for
+  ARGUS review, 2026-06-18: persona runtime context now applies a deterministic
+  prompt topology after retrieval with priority `canon`, `integrity`,
+  `continuity`, `memory`, `archive`. Each bucket has a bounded item count and
+  per-item character cap; lower-priority memory/archive volume cannot displace
+  canon, owner preference/integrity, or continuity records. The runtime budget
+  report now includes content-free topology truncation metadata with requested,
+  retained, dropped, truncated, max item, and max character counts per bucket.
+  Tests prove oversized continuity text is clipped before prompt assembly, the
+  private tail is absent from the prompt, selected-source trace metadata remains
+  content-free, and memory/drop plus continuity/truncation metadata does not
+  expose private text. Validation passed `test:persona-context`,
+  `test:conversation-archive`, `test:continuity`, `@station/api` build, and
+  `git diff --check`. No retrieval ranking rewrite, embedding/provider change,
+  Redis/Cloudflare storage, provider token streaming, UI redesign, or visible
+  Studio behavior changed.
 
 ## Near-term rule
 

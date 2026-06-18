@@ -7564,3 +7564,33 @@ Scope notes:
 - No Redis/Valkey/Cloudflare storage, Continuity UI redesign, Memory/Canon
   semantic change, public exposure, provider routing, streaming, Stripe, or
   Developer Spaces behavior changed.
+
+## PR34 Runtime Context Topology Budget
+
+DAEDALUS implementation validation on 2026-06-18:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-context` | Pass | 7 tests passed, including deterministic topology priority, oversized continuity clipping before prompt assembly, content-free selected-source metadata, and private-tail non-leakage. |
+| `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass | 34 tests passed; chat, streaming envelope, archive retrieval, and runtime budget reporting stayed green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:continuity` | Pass | 4 tests passed; continuity CRUD/source ownership behavior stayed green. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/api build` | Pass | API package build and dependent package builds passed. |
+| `git diff --check` | Pass | No whitespace errors; CRLF normalization warnings only for touched text files and local triad state. |
+
+Scope notes:
+
+- Runtime context applies deterministic prompt topology after retrieval:
+  `canon`, `integrity`, `continuity`, `memory`, `archive`.
+- Buckets have bounded item counts and per-item character caps. This protects
+  canon and owner-guided integrity/preference context from lower-priority memory
+  or archive volume without changing retrieval ranking algorithms.
+- PR31 runtime budget truncation metadata now includes content-free topology
+  stats for requested, retained, dropped, truncated, max item, and max character
+  counts per bucket.
+- Prompt-injection warnings for memory, continuity, and archive/source material
+  remain in place after clipping.
+- Selected-source trace metadata remains content-free; production responses and
+  stream events still do not expose raw private context.
+- No retrieval rewrite, embedding/provider change, Redis/Valkey/Cloudflare
+  storage, provider token streaming, UI redesign, Memory/Canon semantic change,
+  or private context exposure was added.

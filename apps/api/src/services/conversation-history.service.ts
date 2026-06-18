@@ -45,6 +45,7 @@ export type ChatRuntimeBudgetReport = {
     continuity: RuntimeContextBudgetBucket;
   };
   truncation: {
+    topology: PersonaRuntimeContext["topology"];
     history: {
       requested: number;
       retained: number;
@@ -132,6 +133,7 @@ export function buildChatRuntimeBudgetReport(input: BuildChatRuntimeBudgetReport
     },
     buckets,
     truncation: {
+      topology: input.runtimeContext.topology,
       history: {
         requested: input.rawHistoryCount,
         retained: input.history.length,

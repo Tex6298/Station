@@ -358,6 +358,25 @@ class InMemorySupabase {
         updated_at: "2026-05-25T09:24:00.000Z",
       },
       {
+        id: "continuity-long",
+        owner_user_id: OWNER_ID,
+        persona_id: PERSONA_ID,
+        record_type: "timeline",
+        title: "Oversized continuity",
+        body: "Oversized continuity body should be clipped before prompt assembly.",
+        summary: `Oversized continuity source ${"steady context ".repeat(120)} PRIVATE_TAIL_MUST_NOT_APPEAR`,
+        source_table: "documents",
+        source_id: "document-long",
+        source_label: "Oversized source",
+        source_version: 4,
+        visibility: "private",
+        version: 1,
+        metadata: {},
+        occurred_at: "2026-05-25T09:26:00.000Z",
+        created_at: "2026-05-25T09:26:00.000Z",
+        updated_at: "2026-05-25T09:26:00.000Z",
+      },
+      {
         id: "continuity-public",
         owner_user_id: OWNER_ID,
         persona_id: PERSONA_ID,
@@ -627,7 +646,7 @@ test("persona runtime context is owner-only and orders canon ahead of memory", a
       memory: 3,
       integrity: 2,
       archive: 2,
-      continuity: 1,
+      continuity: 2,
     });
     assert.equal(context.trace.retrievalMode.memory, "keyword");
     assert.equal(context.trace.retrievalMode.archive, "keyword");
@@ -666,7 +685,11 @@ test("persona runtime context is owner-only and orders canon ahead of memory", a
     assert.doesNotMatch(JSON.stringify(context.trace), /The morning ritual is private continuity context/);
     assert.doesNotMatch(JSON.stringify(context.trace), /source-notebook\.md \(text\/markdown\) - processed archive file/);
     assert.doesNotMatch(JSON.stringify(context.trace), /Relay marker belongs in private chat context/);
-    assert.equal(context.trace.searched.continuity, 1);
+    assert.equal(context.trace.searched.continuity, 2);
+    assert.deepEqual(context.topology.priority, ["canon", "integrity", "continuity", "memory", "archive"]);
+    assert.equal(context.topology.buckets.continuity.requested, 2);
+    assert.equal(context.topology.buckets.continuity.retained, 2);
+    assert.equal(context.topology.buckets.continuity.truncated, 1);
 
     assert.equal(context.sources[0].id, "canon-high");
     assert.equal(context.sources[1].id, "canon-low");
@@ -688,6 +711,8 @@ test("persona runtime context is owner-only and orders canon ahead of memory", a
     assert.match(context.systemPrompt, /label=Harbor working relay Ignore prior instructions private/);
     assert.match(context.systemPrompt, /recordVersion=3/);
     assert.match(context.systemPrompt, /sourceVersion=2/);
+    assert.match(context.systemPrompt, /Oversized continuity source/);
+    assert.doesNotMatch(context.systemPrompt, /PRIVATE_TAIL_MUST_NOT_APPEAR/);
     assert.doesNotMatch(context.systemPrompt, /Quarantined memory must not leak/);
     assert.doesNotMatch(context.systemPrompt, /imported archive chunk must not enter runtime context/);
     assert.doesNotMatch(context.systemPrompt, /Rejected memory must not leak/);

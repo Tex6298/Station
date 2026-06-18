@@ -62,6 +62,7 @@ export interface PersonaRuntimeContext {
   counts: PersonaContextCounts;
   sources: PersonaContextSource[];
   trace: PersonaRuntimeContextTrace;
+  topology: PersonaRuntimeContextTopology;
   canon: PersonaContextSource[];
   memory: PersonaContextSource[];
   integrity: PersonaContextSource[];
@@ -94,6 +95,44 @@ export interface PersonaRuntimeContextTrace {
     continuity: number;
   };
 }
+
+export type RuntimeContextTopologyBucket =
+  | "canon"
+  | "integrity"
+  | "continuity"
+  | "memory"
+  | "archive";
+
+export interface PersonaRuntimeContextTopologyBucket {
+  requested: number;
+  retained: number;
+  dropped: number;
+  truncated: number;
+  maxItems: number;
+  maxCharactersPerItem: number;
+}
+
+export interface PersonaRuntimeContextTopology {
+  schema: "station.runtime_context_topology.v1";
+  priority: RuntimeContextTopologyBucket[];
+  buckets: Record<RuntimeContextTopologyBucket, PersonaRuntimeContextTopologyBucket>;
+}
+
+const TOPOLOGY_PRIORITY: RuntimeContextTopologyBucket[] = [
+  "canon",
+  "integrity",
+  "continuity",
+  "memory",
+  "archive",
+];
+
+const TOPOLOGY_LIMITS: Record<RuntimeContextTopologyBucket, { maxItems: number; maxCharactersPerItem: number }> = {
+  canon: { maxItems: 6, maxCharactersPerItem: 1800 },
+  integrity: { maxItems: 5, maxCharactersPerItem: 1200 },
+  continuity: { maxItems: 4, maxCharactersPerItem: 900 },
+  memory: { maxItems: 10, maxCharactersPerItem: 900 },
+  archive: { maxItems: 8, maxCharactersPerItem: 900 },
+};
 
 /**
  * Builds the full system prompt for a persona chat turn by:
@@ -165,14 +204,19 @@ export async function assemblePersonaRuntimeContext(
     sourceType: item.sourceType,
   }));
 
+  const topology = applyRuntimeContextTopology({
+    canon: canonSources,
+    integrity: preferenceProfile ? [preferenceProfile, ...integrity] : integrity,
+    continuity: continuity.sources,
+    memory: [...ownerMemory, ...memorySources],
+    archive: archiveRetrieval.sources,
+  });
   const sources = [
-    ...canonSources,
-    ...(preferenceProfile ? [preferenceProfile] : []),
-    ...integrity,
-    ...ownerMemory,
-    ...memorySources,
-    ...continuity.sources,
-    ...archiveRetrieval.sources,
+    ...topology.buckets.canon.sources,
+    ...topology.buckets.integrity.sources,
+    ...topology.buckets.continuity.sources,
+    ...topology.buckets.memory.sources,
+    ...topology.buckets.archive.sources,
   ];
   const safeMemorySkipped = redactHiddenMemorySkippedCounts(memoryRetrieval.trace.skipped);
 
@@ -183,24 +227,21 @@ export async function assemblePersonaRuntimeContext(
     visibility: input.persona.visibility,
     awakeningPrompt: input.persona.awakeningPrompt ?? undefined,
     styleNotes: input.persona.styleNotes ?? undefined,
-    canon: canonSources.map((source) => source.content),
-    integrity: [
-      ...(preferenceProfile ? [formatSourceForPrompt(preferenceProfile)] : []),
-      ...integrity.map((source) => formatSourceForPrompt(source)),
-    ],
-    memory: [...ownerMemory, ...memorySources].map((source) => source.content),
-    continuity: continuity.sources.map((source) => source.content),
-    archive: archiveRetrieval.sources.map((source) => formatSourceForPrompt(source)),
+    canon: topology.buckets.canon.sources.map((source) => source.content),
+    integrity: topology.buckets.integrity.sources.map((source) => formatSourceForPrompt(source)),
+    memory: topology.buckets.memory.sources.map((source) => source.content),
+    continuity: topology.buckets.continuity.sources.map((source) => source.content),
+    archive: topology.buckets.archive.sources.map((source) => formatSourceForPrompt(source)),
   });
 
   return {
     systemPrompt,
     counts: {
-      canon: canonSources.length,
-      memory: ownerMemory.length + memorySources.length,
-      integrity: integrity.length + (preferenceProfile ? 1 : 0),
-      archive: archiveRetrieval.sources.length,
-      continuity: continuity.sources.length,
+      canon: topology.buckets.canon.sources.length,
+      memory: topology.buckets.memory.sources.length,
+      integrity: topology.buckets.integrity.sources.length,
+      archive: topology.buckets.archive.sources.length,
+      continuity: topology.buckets.continuity.sources.length,
     },
     sources,
     trace: {
@@ -228,11 +269,22 @@ export async function assemblePersonaRuntimeContext(
         continuity: continuity.searched,
       },
     },
-    canon: canonSources,
-    memory: [...ownerMemory, ...memorySources],
-    integrity: preferenceProfile ? [preferenceProfile, ...integrity] : integrity,
-    archive: archiveRetrieval.sources,
-    continuity: continuity.sources,
+    topology: {
+      schema: "station.runtime_context_topology.v1",
+      priority: TOPOLOGY_PRIORITY,
+      buckets: {
+        canon: topology.buckets.canon.stats,
+        integrity: topology.buckets.integrity.stats,
+        continuity: topology.buckets.continuity.stats,
+        memory: topology.buckets.memory.stats,
+        archive: topology.buckets.archive.stats,
+      },
+    },
+    canon: topology.buckets.canon.sources,
+    memory: topology.buckets.memory.sources,
+    integrity: topology.buckets.integrity.sources,
+    archive: topology.buckets.archive.sources,
+    continuity: topology.buckets.continuity.sources,
   };
 }
 
@@ -557,6 +609,51 @@ function normalizeRule(label: string, value: string | null | undefined) {
 
 function formatSourceForPrompt(source: PersonaContextSource) {
   return source.title ? `${source.title}: ${source.content}` : source.content;
+}
+
+function applyRuntimeContextTopology(
+  buckets: Record<RuntimeContextTopologyBucket, PersonaContextSource[]>
+): {
+  buckets: Record<RuntimeContextTopologyBucket, {
+    sources: PersonaContextSource[];
+    stats: PersonaRuntimeContextTopologyBucket;
+  }>;
+} {
+  return {
+    buckets: Object.fromEntries(
+      TOPOLOGY_PRIORITY.map((bucket) => {
+        const limits = TOPOLOGY_LIMITS[bucket];
+        const requestedSources = buckets[bucket] ?? [];
+        const retained = requestedSources.slice(0, limits.maxItems).map((source) => {
+          const content = trimTopologyContent(source.content, limits.maxCharactersPerItem);
+          return content === source.content ? source : { ...source, content };
+        });
+        const truncated = retained.filter((source, index) => source.content !== requestedSources[index]?.content).length;
+        return [
+          bucket,
+          {
+            sources: retained,
+            stats: {
+              requested: requestedSources.length,
+              retained: retained.length,
+              dropped: Math.max(0, requestedSources.length - retained.length),
+              truncated,
+              maxItems: limits.maxItems,
+              maxCharactersPerItem: limits.maxCharactersPerItem,
+            },
+          },
+        ];
+      })
+    ) as Record<RuntimeContextTopologyBucket, {
+      sources: PersonaContextSource[];
+      stats: PersonaRuntimeContextTopologyBucket;
+    }>,
+  };
+}
+
+function trimTopologyContent(value: string, maxCharacters: number) {
+  if (value.length <= maxCharacters) return value;
+  return `${value.slice(0, Math.max(0, maxCharacters - 3)).trim()}...`;
 }
 
 function formatContinuityRecordForPrompt(row: any) {

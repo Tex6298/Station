@@ -57,6 +57,17 @@ test("chat runtime budget reports counts and drops content", () => {
       systemPrompt: "Private system prompt with canon text.",
       counts: { canon: 1, memory: 1, integrity: 1, archive: 1, continuity: 1 },
       sources: [],
+      topology: {
+        schema: "station.runtime_context_topology.v1",
+        priority: ["canon", "integrity", "continuity", "memory", "archive"],
+        buckets: {
+          canon: { requested: 1, retained: 1, dropped: 0, truncated: 0, maxItems: 6, maxCharactersPerItem: 1800 },
+          integrity: { requested: 1, retained: 1, dropped: 0, truncated: 0, maxItems: 5, maxCharactersPerItem: 1200 },
+          continuity: { requested: 1, retained: 1, dropped: 0, truncated: 1, maxItems: 4, maxCharactersPerItem: 900 },
+          memory: { requested: 3, retained: 1, dropped: 2, truncated: 0, maxItems: 10, maxCharactersPerItem: 900 },
+          archive: { requested: 1, retained: 1, dropped: 0, truncated: 0, maxItems: 8, maxCharactersPerItem: 900 },
+        },
+      },
       canon: [{ id: "canon-1", type: "canon", title: "Canon", content: "Secret canon", priority: 1, reason: "test" }],
       memory: [{ id: "memory-1", type: "memory", title: "Memory", content: "Secret memory", priority: 1, reason: "test" }],
       integrity: [{ id: "integrity-1", type: "integrity", title: "Integrity", content: "Secret integrity", priority: 1, reason: "test" }],
@@ -118,5 +129,8 @@ test("chat runtime budget reports counts and drops content", () => {
   assert.equal(report.truncation.history.requested, 7);
   assert.equal(report.truncation.history.retained, 2);
   assert.equal(report.truncation.history.dropped, 5);
+  assert.deepEqual(report.truncation.topology.priority, ["canon", "integrity", "continuity", "memory", "archive"]);
+  assert.equal(report.truncation.topology.buckets.continuity.truncated, 1);
+  assert.equal(report.truncation.topology.buckets.memory.dropped, 2);
   assert.doesNotMatch(JSON.stringify(report), /Secret|Private/);
 });

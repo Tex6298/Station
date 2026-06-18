@@ -1,7 +1,7 @@
 # PR34 - Runtime Context Topology Budget
 
 Date: 2026-06-18
-Status: opened for DAEDALUS
+Status: implemented by DAEDALUS, ready for ARGUS review
 Owner: DAEDALUS implements, ARGUS reviews. ARIADNE rehearses only if visible
 Studio context/continuity UI changes.
 
