@@ -1,7 +1,7 @@
 # PR45 - Developer Pages Second Example
 
 Date: 2026-06-18
-Status: accepted by ARGUS and closed by MIMIR for ARIADNE staging recheck
+Status: accepted by ARGUS and closed by MIMIR after PR46 staging recheck
 Owner: DAEDALUS implements, ARGUS reviews, ARIADNE rechecks only after deploy
 and seed if ARGUS accepts.
 
@@ -232,3 +232,6 @@ All passed. ARIADNE should recheck deployed
 MIMIR confirmed deployed anonymous API readback for both public routes and web
 shell responses for both pages. PR46 now sends the two deployed routes to
 ARIADNE for human-eye recheck.
+
+PR46 passed on desktop and 390px mobile. MIMIR marks PR45 complete for deployed
+staging.

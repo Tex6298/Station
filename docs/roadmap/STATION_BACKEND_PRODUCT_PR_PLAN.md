@@ -327,15 +327,15 @@ Reason: PR31 created the budget/trace safety surface needed before chat
 streaming. PR32 should add authenticated streaming/progress behavior while
 keeping provider-delta claims honest and the existing non-streaming POST stable.
 
-PR45 Developer Pages Second Example is accepted by ARGUS and closed by MIMIR
-for deployed human-eye recheck. The active follow-up is PR46 Developer Pages
-Second Example Recheck:
-`docs/roadmap/PR46_DEVELOPER_PAGES_SECOND_EXAMPLE_RECHECK_ARIADNE.md`.
+PR45/PR46 are closed as deployed staging complete for the second Developer Page
+example. The active follow-up is PR47 Developer Pages Owner Evidence Console:
+`docs/roadmap/PR47_DEVELOPER_PAGES_OWNER_EVIDENCE_CONSOLE.md`.
 
-Reason: PR45 seeded and proved `animus-field-lab` as a second synthetic
-public-safe Developer Page. ARIADNE should confirm both deployed public routes
-on desktop and mobile before MIMIR marks the second-example proof complete for
-staging.
+Reason: the public visitor pattern is now proven across two staging examples.
+The next useful narrow step is owner-side curation: make the manage console's
+evidence creation/listing surface match the public reading path without opening
+developer agents, Tier 2 hosting, Cloudflare, route/table renames, or broad UI
+redesign.
 
 ## Recommended Order
 

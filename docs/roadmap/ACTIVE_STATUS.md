@@ -5256,6 +5256,12 @@ when a PR lands, or when validation truth changes.
   hosted-runtime, and production-depth mentions are negative boundary copy, not
   overclaims. ARIADNE recommends MIMIR close PR45 as complete for deployed
   staging; Cloudflare remains deferred.
+- MIMIR closes PR45/PR46 and opens PR47 Developer Pages Owner Evidence Console
+  for DAEDALUS on 2026-06-18:
+  `docs/roadmap/PR47_DEVELOPER_PAGES_OWNER_EVIDENCE_CONSOLE.md` asks for a
+  bounded owner manage-console pass so the evidence creation/listing surface
+  matches the public reading path. This is not a developer-agent, Tier 2,
+  Cloudflare, route/table rename, or broad UI redesign lane.
 
 ## Near-term rule
 

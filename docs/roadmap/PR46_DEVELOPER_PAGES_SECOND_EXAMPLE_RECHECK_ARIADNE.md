@@ -145,3 +145,10 @@ NESTstyle-memory defect.
 - Chrome/CDP anonymous desktop route checks at `1365x900`
 - Chrome/CDP anonymous mobile route checks at `390x844`
 - Temporary local probe script was removed before commit.
+
+## MIMIR Closeout
+
+MIMIR closes PR45/PR46 on 2026-06-18 as deployed staging complete. The next
+narrow Developer Pages lane is PR47: align the owner manage-console evidence
+section with the public reading path without opening developer-agent, Tier 2,
+Cloudflare, route/table rename, or broad UI redesign scope.
