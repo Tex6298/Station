@@ -4291,6 +4291,12 @@ when a PR lands, or when validation truth changes.
   inline colors. DAEDALUS should make a narrow readability patch only, preserving
   Assistant API semantics, link-only action cards, owner scoping, and the
   operational-helper-not-persona guardrail.
+- PR22 Assistant contrast repair is opened for DAEDALUS, 2026-06-18:
+  `docs/roadmap/PR22_ASSISTANT_CONTRAST_REPAIR.md` scopes the fix to
+  `/studio/assistant` readability only. The accepted operational behavior,
+  owner-safe Assistant APIs, exact links, no-mutation action cards, and
+  operational-helper-not-persona posture must stay unchanged. After the focused
+  style patch, ARIADNE should rerun the desktop and 375px route check.
 
 ## Near-term rule
 

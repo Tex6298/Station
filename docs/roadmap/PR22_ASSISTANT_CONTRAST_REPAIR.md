@@ -1,0 +1,82 @@
+# PR22 Station Assistant - Contrast Repair
+
+Status: opened for A2 / DAEDALUS
+Owner: DAEDALUS focused UI patch, ARGUS optional if implementation touches more
+than styling/helpers, ARIADNE rerun after patch.
+
+## Blocker
+
+ARIADNE accepted the PR22 operational behavior but blocked closeout on live
+readability at `/studio/assistant`.
+
+Railway runtime checked: `da60378b3c041df2a9a9e4b16416610a9cd3ef20`
+
+Observed:
+
+- global visual reconciliation changes the Assistant page background from the
+  inline dark value to the Station light surface;
+- the page title and lede keep dark-theme light text colors;
+- desktop and `375px` mobile first-screen title/lede are too low contrast.
+
+The action cards, links, chips, no-mutation posture, no-persona posture, and
+visible leak checks passed.
+
+## Task
+
+Patch `/studio/assistant` contrast/readability only.
+
+Acceptable approaches:
+
+- align `StationAssistantPanel` to Station light surface tokens; or
+- isolate this route so the intended dark surface remains coherent.
+
+Whichever approach is smaller, ensure these remain readable on desktop and
+`375px` mobile:
+
+- page title;
+- lede/helper copy;
+- operational helper eyebrow;
+- starter prompts;
+- reply block;
+- action cards;
+- status/kind/priority chips;
+- recent-import rows.
+
+## Preserve
+
+- owner-scoped Assistant API behavior;
+- sanitized action data;
+- exact action-card links;
+- link-only action semantics;
+- `operational_helper_not_persona` guardrail;
+- no fake mutation controls.
+
+## Do Not Add
+
+- autonomous Assistant execution;
+- Memory/Canon writes;
+- publishing/export/candidate/integrity mutation from Assistant;
+- provider calls;
+- backend semantics;
+- auth changes;
+- broad reskin scope.
+
+## Validation
+
+Minimum:
+
+```bash
+npm exec --yes pnpm@10.32.1 -- run test:studio-ui
+npm exec --yes pnpm@10.32.1 -- run test:assistant
+npm exec --yes pnpm@10.32.1 -- run typecheck
+git diff --check
+```
+
+If only CSS/style constants change, broader backend gates are not required.
+
+## Handoff
+
+After patching, wake ARIADNE for a narrow rerun of `/studio/assistant` on:
+
+- desktop around `1440x1100`;
+- mobile around `375x812`.
