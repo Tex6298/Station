@@ -4346,6 +4346,17 @@ when a PR lands, or when validation truth changes.
   the documentation does not overclaim Stripe-paid Creator activation. ARGUS
   does not require an additional ARIADNE browser rehearsal for this proof-only
   closeout; MIMIR can decide whether to mark PR23 complete.
+- PR23 Creator Publish Public Discussion Proof is fully closed, 2026-06-18:
+  MIMIR accepted ARGUS's proof-only verdict. The positive
+  Creator-capable publish -> public Space document -> linked forum discussion
+  loop is evidenced for protected-alpha staging, with the staging profile tier
+  seed caveat preserved and private/basic plus no-Space guards still recorded.
+- PR24 Launch-Core Sufficiency Closeout is opened for ARGUS, 2026-06-18:
+  `docs/roadmap/PR24_LAUNCH_CORE_SUFFICIENCY_CLOSEOUT.md` asks ARGUS to map
+  the launch-core definition of sufficient to accepted evidence, police caveats
+  and stale claims, and decide whether the current Railway/Supabase staging line
+  can be marked launch-core sufficient for protected-alpha replay or whether one
+  exact blocker remains.
 
 ## Near-term rule
 

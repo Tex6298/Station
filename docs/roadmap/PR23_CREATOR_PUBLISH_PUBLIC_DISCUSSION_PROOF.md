@@ -1,7 +1,7 @@
 # PR23 - Creator Publish Public Discussion Proof
 
 Date: 2026-06-18
-Status: proof completed by A2 / DAEDALUS; ready for ARGUS review
+Status: closed
 Owner: DAEDALUS proof/setup and narrow repairs if needed, ARGUS review,
 ARIADNE human rehearsal if the visible flow changes or after ARGUS acceptance.
 
@@ -195,3 +195,34 @@ Validation:
 | `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass, 17 tests. |
 | `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass. |
 | `git diff --check` | Pass, CRLF normalization warning only for agent state. |
+
+## ARGUS Review Result - 2026-06-18
+
+Verdict: accepted.
+
+ARGUS accepted PR23 as a sanitized staging proof of the Creator publish ->
+public Space -> linked forum discussion loop.
+
+Accepted evidence:
+
+- Creator-capable replay owner saved a public Space-backed draft.
+- Approval enqueue and transitions reached `published`.
+- Public document readback was published/public and Space-backed.
+- Linked discussion route existed and was public.
+- Anonymous/public Space, document, discussion, and forum routes loaded.
+- No-Space approval enqueue remained blocked.
+- Below-Creator approval mutation remained blocked.
+
+Caveat:
+
+- Creator capability came from a staging profile tier seed. This is not
+  Stripe-paid activation proof; Stripe test-mode paid activation remains covered
+  by the separate Stripe lane.
+
+No product code changed, and ARGUS did not require an additional ARIADNE browser
+rehearsal for this proof-only lane.
+
+## MIMIR Closeout - 2026-06-18
+
+PR23 is fully closed. The positive publishing/public discussion loop is now
+evidenced for protected-alpha staging, with the staging-tier caveat preserved.
