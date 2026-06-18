@@ -119,19 +119,19 @@ export default function StudioOnboardingPage() {
 
 const heading = {
   margin: "0 0 8px",
-  color: "#f8fafc",
+  color: "var(--station-page-text, #f8fafc)",
 };
 
 const copy = {
   margin: 0,
-  color: "#a9b0bd",
+  color: "var(--station-page-muted, #a9b0bd)",
   fontSize: 14,
   lineHeight: 1.55,
 };
 
 const truthCopy = {
   ...copy,
-  color: "#8ea0b8",
+  color: "var(--station-page-muted, #8ea0b8)",
   fontSize: 13,
 };
 
@@ -150,7 +150,7 @@ const pathHeader = {
 };
 
 const pathIndex = {
-  color: "#687386",
+  color: "var(--station-page-muted, #687386)",
   fontSize: 11,
   fontWeight: 800,
   letterSpacing: "0.08em",
@@ -159,7 +159,7 @@ const pathIndex = {
 
 const pathTitle = {
   margin: "8px 0 0",
-  color: "#f8fafc",
+  color: "var(--station-page-text, #f8fafc)",
   fontSize: 19,
   lineHeight: 1.2,
 };
@@ -171,10 +171,10 @@ const routeList = {
 };
 
 const routeToken = {
-  border: "1px solid #263244",
+  border: "1px solid var(--station-page-border, #263244)",
   borderRadius: 7,
-  background: "#0d1420",
-  color: "#bfdbfe",
+  background: "var(--station-page-soft-2, #0d1420)",
+  color: "var(--station-page-accent, #bfdbfe)",
   padding: "6px 8px",
   fontSize: 11,
   overflowWrap: "anywhere" as const,

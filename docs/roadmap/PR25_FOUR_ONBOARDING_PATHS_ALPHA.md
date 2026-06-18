@@ -191,3 +191,53 @@ Validation:
 | `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass, 7 tests. |
 
 Remaining pre-handoff check: `git diff --check`.
+
+## ARGUS Review - 2026-06-18
+
+Verdict: accepted for ARIADNE rehearsal after one narrow ARGUS UI safety patch.
+
+ARGUS reviewed the PR25 route map, onboarding chooser, Studio dashboard entry
+points, auth route behavior, private archive/import owner scoping, and
+Developer Space API Bridge claim.
+
+Accepted behavior:
+
+- Fresh Start and Awakening route to the existing persona creation flow and land
+  on real persona workspace routes after creation.
+- Document Migrator either opens the real owner-scoped persona Archive/import
+  page for an existing persona or creates the prerequisite persona first and
+  then lands on that page.
+- API Bridge is honestly framed as the existing Developer Spaces ingestion
+  lane with keys and node/event/snapshot sample paths, not a new external API
+  bridge, provider marketplace, worker, Redis, or Cloudflare implementation.
+- `/studio/onboarding` does not expose private archive/persona route cards to
+  anonymous visitors; it shows sign-in/join actions instead.
+- The dashboard archive activity rows now link to live surfaces instead of
+  fake-looking activity.
+
+ARGUS patch:
+
+- The new onboarding page hardcoded dark-theme heading/copy/card colors while
+  the current Station Studio shell light-themes `.studio-panel`. ARGUS changed
+  the onboarding text and route-token colors to Station page CSS variables and
+  added the onboarding panel classes to the existing light-theme surface
+  override group. This keeps the signed-out panel and mobile route cards
+  readable without changing route behavior.
+
+Validation rerun by ARGUS:
+
+| Command | Result |
+| --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass, 21 tests. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass. |
+| `npm exec --yes pnpm@10.32.1 -- run test:auth` | Pass, 13 tests. |
+| `npm exec --yes pnpm@10.32.1 -- run test:storage` | Pass, 16 tests. |
+| `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass, 27 tests. |
+| `npm exec --yes pnpm@10.32.1 -- run test:integrity` | Pass, 2 tests. |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass, 7 tests. |
+| `git diff --check` | Pass, CRLF warnings only. |
+
+No DAEDALUS code/security blocker remains. Because PR25 adds a new visible
+Studio route and changes visible dashboard/sidebar/mobile navigation entry
+points, ARIADNE should run a focused desktop and 375px browser rehearsal before
+MIMIR marks PR25 fully closed.

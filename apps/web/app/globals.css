@@ -3185,7 +3185,9 @@ body {
 .studio-runtime-source,
 .studio-runtime-prompt,
 .studio-publish-panel,
-.studio-published-row {
+.studio-published-row,
+.onboarding-path-panel,
+.onboarding-boundary-item {
   border-color: var(--station-page-border);
   background: var(--station-page-surface);
   color: var(--station-page-text);

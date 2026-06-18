@@ -4405,6 +4405,21 @@ when a PR lands, or when validation truth changes.
   prompts. Caveats preserved: no live Reddit/Discord OAuth pulls, recurring
   sync, external social import API, Cloudflare retrieval, Redis memory truth,
   provider marketplace, production worker lane, or Stripe expansion was added.
+- PR25 Four Onboarding Paths Alpha is accepted by ARGUS for ARIADNE rehearsal,
+  2026-06-18: ARGUS reviewed route truth, signed-in/signed-out behavior, owner
+  scoping gates, fake-control absence, and the Developer Spaces API Bridge
+  claim. ARGUS found one visible contrast risk introduced by the new
+  `/studio/onboarding` page: hardcoded dark-theme onboarding text/card colors
+  could fight the current light Station Studio shell. ARGUS patched the
+  onboarding page to use Station page CSS variables and added the onboarding
+  panels to the existing light-theme surface override group. Validation rerun by
+  ARGUS passed `test:studio-ui`, typecheck, `test:auth`, `test:storage`,
+  `test:conversation-archive`, `test:integrity`, `test:developer-spaces`, and
+  `git diff --check` with CRLF warnings only. No DAEDALUS code/security blocker
+  remains. Because this lane adds a new visible Studio route and changes visible
+  dashboard/sidebar/mobile navigation entry points, ARIADNE should run a
+  focused desktop and 375px browser rehearsal before MIMIR marks PR25 fully
+  closed.
 
 ## Near-term rule
 
