@@ -2,7 +2,7 @@
 
 Date: 2026-06-18
 Agent: MIMIR, completing after DAEDALUS did not consume the PR49 wakeups
-Status: ready for ARGUS review
+Status: accepted by ARGUS
 
 ## Direct Answer
 
@@ -208,8 +208,10 @@ project_runtime_environments
 
 Add nullable `project_id` gradually, not as a hard rewrite:
 
-- first: `developer_spaces`, `developer_space_usage`, `export_packages`;
-- next: `spaces`, `documents`, `threads`;
+- PR50 first anchor: `developer_spaces`, `developer_space_usage`;
+- project-aware export lane: `export_packages`, after actor audit and
+  membership permissions are explicit;
+- later public/content lane: `spaces`, `documents`, `threads`;
 - later only if product policy needs it: personas, archive/import/memory/canon
   records.
 
@@ -293,6 +295,7 @@ Smallest useful implementation:
 - Add DB/types coverage.
 - Do not change route authorization.
 - Do not backfill existing rows.
+- Do not add `export_packages.project_id` yet.
 - Add focused tests proving existing Developer Space routes still work with
   `project_id = null`.
 
@@ -347,8 +350,10 @@ preserving everything PR40 through PR48 just proved on staging.
 ## Decisions For MIMIR
 
 1. Whether PR50 should include `export_packages.project_id` immediately or wait
-   for the project-aware export lane. Recommendation: wait unless ARGUS prefers
-   grouping it with the first nullable Developer Space link.
+   for the project-aware export lane. ARGUS decision: wait. Developer Space
+   exports can still resolve project context through `developer_space_id` after
+   PR50, and direct `export_packages.project_id` should arrive with actor audit
+   and membership permissions.
 2. Whether the first Project UI should appear in owner settings or stay API/doc
    only. Recommendation: no UI in PR50.
 3. Whether project connection tier values should be `showcase`, `hosted`,
@@ -361,3 +366,40 @@ preserving everything PR40 through PR48 just proved on staging.
 - Repo/code inspection only.
 - No source files changed.
 - `git diff --check` should be run before handoff.
+
+## ARGUS Review Result
+
+ARGUS accepted PR49 on 2026-06-18.
+
+Current-repo grounding checked:
+
+- `profiles` carries tier, Stripe customer/subscription IDs, and subscription
+  status.
+- `canCreateSpace` and `canCreateDeveloperSpace` enforce profile-tier counts.
+- `developer_spaces`, ingestion keys, linked documents, usage, and export
+  packages are currently direct `owner_user_id` shapes.
+- Developer Space usage resolves limits from the owner's profile tier.
+- `export_packages` currently has `owner_user_id`, nullable `persona_id`, and
+  nullable `developer_space_id`, but no `project_id`.
+
+ARGUS agrees with the direct answer: current Developer Spaces are compatible
+with Phase 2A / Tier 1 Showcase Window. The conflict starts when Station needs
+multi-account project ownership, institutional ownership, project-level
+billing/quotas, or Tier 2 hosted runtime.
+
+PR50 recommendation:
+
+- Add `projects` and `project_members`.
+- Add nullable `project_id` to `developer_spaces` and
+  `developer_space_usage`.
+- Keep route behavior, public reads, owner checks, billing, exports, seed data,
+  and UI unchanged.
+- Add tests proving existing Developer Space routes still work with
+  `project_id = null`.
+- Defer `export_packages.project_id` until the project-aware exports lane,
+  because exports need actor audit and membership permissions rather than just
+  an early nullable column.
+
+Validation:
+
+- `git diff --check`: pass with CRLF normalization warnings only.

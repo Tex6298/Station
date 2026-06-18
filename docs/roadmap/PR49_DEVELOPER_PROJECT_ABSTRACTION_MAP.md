@@ -1,10 +1,9 @@
 # PR49 - Developer Project Abstraction Map
 
 Date: 2026-06-18
-Status: implemented by MIMIR after DAEDALUS did not consume two wakeups; ARGUS
-review next
-Owner: MIMIR completed the map, ARGUS reviews, MIMIR decides whether to open
-an implementation slice.
+Status: accepted by ARGUS after MIMIR completion
+Owner: MIMIR completed the map, ARGUS reviewed, MIMIR decides whether to open
+PR50.
 
 ## Purpose
 
@@ -130,3 +129,9 @@ current Developer Space implementation while it remains Phase 2A / Tier 1
 Showcase Window. The conflict begins in Phase 2B when Station needs
 multi-account project ownership, project-level billing/quotas, institutional
 ownership, or Tier 2 hosted runtime.
+
+ARGUS accepted the map with one planning clarification: PR50 should add
+`projects`, `project_members`, and nullable `project_id` on Developer Spaces
+and Developer Space usage only. `export_packages.project_id` should wait for
+the project-aware export lane, where actor audit and membership permissions can
+be designed with the column.

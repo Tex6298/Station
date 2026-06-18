@@ -5321,6 +5321,15 @@ when a PR lands, or when validation truth changes.
   as a boring Project Alpha Schema Skeleton with `projects`,
   `project_members`, and nullable project links for Developer Spaces/usage only,
   with no behavior or UI change until ARGUS accepts the map.
+- ARGUS accepts PR49 on 2026-06-18 after checking repo grounding against
+  profile tiers/billing, Developer Space ownership, usage, export packages,
+  public linked-document predicates, and owner-only archive boundaries. PR50
+  should include `projects`, `project_members`, and nullable `project_id` on
+  `developer_spaces` and `developer_space_usage` only. ARGUS says
+  `export_packages.project_id` should wait for the project-aware export lane so
+  actor audit and membership permissions can be designed with it. No schema,
+  route, auth, billing, UI, seed-data, Cloudflare, Tier 2 hosting, developer
+  agent, or DexOS-widget work was implemented in PR49.
 
 ## Near-term rule
 

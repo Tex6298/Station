@@ -7960,3 +7960,24 @@ ARGUS scope notes:
   enforce the claimed owner/public boundary.
 - Browser confirmation remains an ARIADNE staging task because local Playwright
   remains unavailable in this workspace.
+
+## PR49 Developer Project Abstraction Map
+
+ARGUS review validation on 2026-06-18:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `git diff --check` | Pass | Docs-only lane; no whitespace errors, CRLF normalization warnings only for touched docs and triad state. |
+
+ARGUS scope notes:
+
+- Reviewed the map against current profile tier/billing, Developer Space,
+  usage, export package, public linked-document, and owner-only archive
+  assumptions.
+- Accepted the direct answer that current Developer Spaces remain compatible
+  with Phase 2A / Tier 1 Showcase Window.
+- PR50 should add the project schema anchor only:
+  `projects`, `project_members`, nullable `developer_spaces.project_id`, and
+  nullable `developer_space_usage.project_id`.
+- `export_packages.project_id` should wait for the project-aware export lane
+  with actor audit and membership permissions.
