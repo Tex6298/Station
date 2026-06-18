@@ -694,6 +694,60 @@ test("chat runtime budget does not block configured BYOK providers when platform
   }
 });
 
+test("chat provider failure traces do not store raw provider payloads", async () => {
+  const db = new InMemorySupabase();
+  db.tables.profiles[0].ai_mode = "byok";
+  db.tables.profiles[0].byok_openai_key = "secret-openai-key";
+  db.tables.personas[0].provider = "openai";
+  setSupabaseAdminForTests(db.client as any);
+  const app = await createConversationArchiveApp();
+  const originalFetch = globalThis.fetch;
+  const privateProviderBody = "provider echoed PRIVATE_PROVIDER_BODY and sk-test-secret-token";
+  globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
+    const url = typeof input === "string"
+      ? input
+      : input instanceof URL
+        ? input.toString()
+        : input.url;
+    if (url.startsWith("https://api.openai.com/")) {
+      return new Response(privateProviderBody, {
+        status: 500,
+        headers: { "Content-Type": "text/plain" },
+      });
+    }
+    return originalFetch(input, init);
+  }) as typeof fetch;
+
+  try {
+    const response = await requestJson(app, "POST", `/conversations/persona/${PERSONA_ID}/chat`, {
+      token: "owner-token",
+      body: {
+        conversationId: CONVERSATION_ID,
+        content: "Trigger a provider failure safely.",
+      },
+    });
+
+    assert.equal(response.status, 502);
+    assert.equal(response.body.code, "provider_failure");
+    assert.equal(response.body.classification, "provider_failure");
+    assert.equal(response.body.error, "Persona chat provider failed.");
+
+    const errorEvent = db.tables.ai_trace_events.find((event) => event.label === "Persona chat response failed");
+    assert.ok(errorEvent);
+    assert.equal(errorEvent.provider, "byok_openai");
+    assert.deepEqual(errorEvent.payload, {
+      code: "provider_failure",
+      classification: "provider_failure",
+    });
+    assert.doesNotMatch(JSON.stringify(response.body), /PRIVATE_PROVIDER_BODY|sk-test-secret-token|Trigger a provider failure safely/);
+    assert.doesNotMatch(JSON.stringify(db.tables.ai_trace_events), /PRIVATE_PROVIDER_BODY|sk-test-secret-token/);
+    assert.doesNotMatch(JSON.stringify(db.tables.ai_trace_sessions), /PRIVATE_PROVIDER_BODY|sk-test-secret-token/);
+  } finally {
+    globalThis.fetch = originalFetch;
+    setSupabaseAdminForTests(null);
+  }
+});
+
 test("chat stream completes configured BYOK chats without fake deltas or debug leakage", async () => {
   const db = new InMemorySupabase();
   db.tables.profiles[0].ai_mode = "byok";

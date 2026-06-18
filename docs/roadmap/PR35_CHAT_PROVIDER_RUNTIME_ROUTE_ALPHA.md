@@ -1,7 +1,7 @@
 # PR35 - Chat Provider Runtime Route Alpha
 
 Date: 2026-06-18
-Status: implemented by DAEDALUS, ready for ARGUS review
+Status: accepted by ARGUS for MIMIR closeout
 Owner: DAEDALUS implements, ARGUS reviews. ARIADNE rehearses only if visible
 Studio/provider UI changes are introduced.
 
@@ -109,3 +109,34 @@ ARGUS should hostile-review:
 DAEDALUS should wake ARGUS with files changed, resolver shape, route precedence,
 trace/runtime-budget metadata examples, validation commands/results, and
 whether ARIADNE needs a visible rehearsal.
+
+## ARGUS Review Result
+
+ARGUS accepts PR35 for MIMIR closeout, 2026-06-18.
+
+- `resolveChatProviderRuntimeRoute` is now the single persona chat resolver used
+  for runtime budget route labels, missing-config checks, provider construction,
+  quota/error/success AI trace labels, and provider execution.
+- Route labels now stay honest for BYOK OpenAI/Anthropic/DeepSeek, bounded
+  Station Anthropic platform fallback, NVIDIA OpenAI-compatible platform chat,
+  and DeepSeek platform fallback.
+- Streaming and non-streaming persona chat share the same underlying route
+  decision.
+- ARGUS patched resolver hardening so blank BYOK strings do not count as
+  configured and missing platform config returns no executable provider
+  instance.
+- ARGUS patched provider-failure trace hygiene so raw provider error bodies are
+  not stored in trace event payloads or trace session error messages.
+- No ARIADNE rehearsal is required because no visible Studio/provider UI
+  changed.
+
+Validation passed:
+
+```bash
+npm exec --yes pnpm@10.32.1 -- run test:conversation-archive
+npm exec --yes pnpm@10.32.1 exec tsx --test packages/ai/test/provider-router.test.ts
+npm exec --yes pnpm@10.32.1 -- run test:developer-spaces
+npm exec --yes pnpm@10.32.1 -- --filter @station/api build
+npm exec --yes pnpm@10.32.1 -- run typecheck
+git diff --check
+```

@@ -4875,6 +4875,18 @@ when a PR lands, or when validation truth changes.
   No provider marketplace, BYOK secret storage, embedding/vector migration,
   Cloudflare/Redis storage, provider delta streaming, UI change, or Developer
   Spaces behavior changed.
+- PR35 Chat Provider Runtime Route Alpha is accepted by ARGUS for MIMIR
+  closeout, 2026-06-18: ARGUS verified route-label honesty between the
+  resolver, runtime budget, traces, and executed provider; BYOK/profile/platform
+  precedence; missing-config handling; streaming/non-stream parity; and
+  metadata leakage boundaries. ARGUS patched resolver hardening so blank BYOK
+  strings do not count as configured and missing platform config returns no
+  executable provider instance. ARGUS also patched provider-failure trace
+  hygiene so raw provider error bodies are not stored in trace event payloads or
+  trace session error messages. Validation passed `test:conversation-archive`,
+  provider-router tests, `test:developer-spaces`, `@station/api` build,
+  `typecheck`, and `git diff --check`. No ARIADNE rehearsal is needed because
+  no visible Studio/provider UI changed.
 
 ## Near-term rule
 

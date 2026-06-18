@@ -7608,10 +7608,11 @@ DAEDALUS implementation validation on 2026-06-18:
 
 | Command | Result | Notes |
 | --- | --- | --- |
-| `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass | 34 tests passed; chat runtime budget and AI trace labels now prove configured BYOK OpenAI uses the same `byok_openai` route label. |
-| `npm exec --yes pnpm@10.32.1 exec tsx --test packages/ai/test/provider-router.test.ts` | Pass | 9 tests passed, including BYOK precedence, bounded Station Anthropic platform fallback, NVIDIA platform preference, and safe missing platform config metadata. npm emitted existing argument/config warnings. |
+| `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass | 35 tests passed; chat runtime budget and AI trace labels now prove configured BYOK OpenAI uses the same `byok_openai` route label, and provider failure traces do not store raw provider payloads. |
+| `npm exec --yes pnpm@10.32.1 exec tsx --test packages/ai/test/provider-router.test.ts` | Pass | 10 tests passed, including BYOK precedence, blank BYOK fallback, bounded Station Anthropic platform fallback, NVIDIA platform preference, and safe missing platform config metadata. npm emitted existing argument/config warnings. |
 | `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 7 tests passed; provider policy and observatory helper behavior stayed green. |
 | `npm exec --yes pnpm@10.32.1 -- --filter @station/api build` | Pass | API package build and dependent package builds passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed after ARGUS resolver and trace-hygiene hardening. |
 | `git diff --check` | Pass | No whitespace errors; CRLF normalization warnings only for touched text files and local triad state. |
 
 Scope notes:
@@ -7623,8 +7624,13 @@ Scope notes:
   provider, bounded Station Anthropic platform fallback when platform mode has
   no NVIDIA key, NVIDIA OpenAI-compatible platform chat, then DeepSeek platform
   fallback.
+- ARGUS patched resolver hardening so blank BYOK strings do not count as
+  configured and missing platform config returns no executable provider
+  instance.
 - Missing platform config still reports `provider_config_missing` through safe
   content-free metadata before any provider call.
+- Provider failure trace events and trace session error messages now keep raw
+  provider error bodies out of trace storage.
 - Gemini/OpenAI embedding profile resolution remains separate from chat
   provider execution.
 - No provider marketplace, model menu, BYOK secret storage, embedding/vector

@@ -112,7 +112,7 @@ test("runtime route resolver preserves BYOK precedence over platform routes", ()
   const route = resolveChatProviderRuntimeRoute({
     provider: "openai",
     aiMode: "byok",
-    byokOpenaiKey: "owner-openai-key",
+    byokOpenaiKey: " owner-openai-key ",
     platformNvidiaKey: "nvidia-key",
     platformDeepseekKey: "deepseek-key",
   });
@@ -121,6 +121,23 @@ test("runtime route resolver preserves BYOK precedence over platform routes", ()
   assert.equal(route.providerFamily, "openai");
   assert.equal(route.providerMode, "byok");
   assert.equal(route.modelLabel, "gpt-4o-mini");
+  assert.equal(route.configured, true);
+  assert.ok(route.provider);
+});
+
+test("runtime route resolver ignores blank BYOK keys before platform fallback", () => {
+  const route = resolveChatProviderRuntimeRoute({
+    provider: "openai",
+    aiMode: "byok",
+    byokOpenaiKey: "   ",
+    platformNvidiaKey: "nvidia-key",
+    platformNvidiaModel: "nvidia/test-model",
+  });
+
+  assert.equal(route.routeLabel, "nvidia_openai_compatible");
+  assert.equal(route.providerFamily, "openai");
+  assert.equal(route.providerMode, "platform");
+  assert.equal(route.modelLabel, "nvidia/test-model");
   assert.equal(route.configured, true);
   assert.ok(route.provider);
 });
@@ -174,4 +191,5 @@ test("runtime route resolver reports missing platform config safely", () => {
     classification: "provider_config",
     error: "No Station chat provider is configured for this request.",
   });
+  assert.equal(route.provider, null);
 });

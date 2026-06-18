@@ -707,6 +707,12 @@ async function runPersonaChatTurn(input: ChatTurnInput): Promise<ChatTurnResult>
       outputTokens,
     });
   } catch (error) {
+    const providerFailure = chatError(
+      502,
+      "provider_failure",
+      "provider_failure",
+      "Persona chat provider failed."
+    );
     await recordAiTraceEvent({
       traceId: trace?.id,
       ownerUserId: userId,
@@ -715,15 +721,9 @@ async function runPersonaChatTurn(input: ChatTurnInput): Promise<ChatTurnResult>
       status: "failed",
       provider: chatRoute.routeLabel,
       durationMs: Date.now() - traceStartedAt,
-      payload: { message: error instanceof Error ? error.message : "Unknown error" },
+      payload: { code: providerFailure.body.code, classification: providerFailure.body.classification },
     });
-    await failAiTrace(trace?.id, error, Date.now() - traceStartedAt);
-    const providerFailure = chatError(
-      502,
-      "provider_failure",
-      "provider_failure",
-      "Persona chat provider failed."
-    );
+    await failAiTrace(trace?.id, new Error(providerFailure.body.error), Date.now() - traceStartedAt);
     return { ok: false, ...providerFailure };
   }
 

@@ -101,22 +101,23 @@ export function resolveChatProviderRuntimeRoute(config: ProviderConfig): ChatPro
 
   const deepseekKey = config.platformDeepseekKey?.trim();
   const deepseekModel = config.platformDeepseekModel?.trim() || "deepseek-chat";
+  const configured = Boolean(deepseekKey);
   return {
     routeLabel: "deepseek_fallback",
     providerFamily: "deepseek",
     providerMode: "platform",
     modelLabel: deepseekModel,
-    configured: Boolean(deepseekKey),
-    missingConfig: deepseekKey ? undefined : {
+    configured,
+    missingConfig: configured ? undefined : {
       code: "provider_config_missing",
       classification: "provider_config",
       error: "No Station chat provider is configured for this request.",
     },
-    provider: new DeepseekProvider({
-      apiKey: config.platformDeepseekKey,
+    provider: configured ? new DeepseekProvider({
+      apiKey: deepseekKey,
       baseUrl: config.platformDeepseekBaseUrl ?? "https://api.deepseek.com",
       model: deepseekModel,
-    }),
+    }) : null,
   };
 }
 
@@ -137,33 +138,37 @@ export function normalizeOpenAiCompatibleBaseUrl(baseUrl?: string): string {
 function resolveConfiguredByokRoute(config: ProviderConfig): ChatProviderRuntimeRoute | null {
   switch (config.provider) {
     case "openai":
-      if (config.byokOpenaiKey) {
+      {
+        const apiKey = config.byokOpenaiKey?.trim();
+        if (!apiKey) break;
         return {
           routeLabel: "byok_openai",
           providerFamily: "openai",
           providerMode: "byok",
           modelLabel: "gpt-4o-mini",
           configured: true,
-          provider: new OpenAIProvider({ apiKey: config.byokOpenaiKey }),
+          provider: new OpenAIProvider({ apiKey }),
         };
       }
-      break;
 
     case "anthropic":
-      if (config.byokAnthropicKey) {
+      {
+        const apiKey = config.byokAnthropicKey?.trim();
+        if (!apiKey) break;
         return {
           routeLabel: "byok_anthropic",
           providerFamily: "anthropic",
           providerMode: "byok",
           modelLabel: "claude-haiku-4-5",
           configured: true,
-          provider: new AnthropicProvider({ apiKey: config.byokAnthropicKey }),
+          provider: new AnthropicProvider({ apiKey }),
         };
       }
-      break;
 
     case "deepseek":
-      if (config.byokDeepseekKey) {
+      {
+        const apiKey = config.byokDeepseekKey?.trim();
+        if (!apiKey) break;
         return {
           routeLabel: "byok_deepseek",
           providerFamily: "deepseek",
@@ -171,13 +176,12 @@ function resolveConfiguredByokRoute(config: ProviderConfig): ChatProviderRuntime
           modelLabel: "deepseek-chat",
           configured: true,
           provider: new DeepseekProvider({
-            apiKey: config.byokDeepseekKey,
+            apiKey,
             baseUrl: "https://api.deepseek.com",
             model: "deepseek-chat",
           }),
         };
       }
-      break;
 
     default:
       break;
