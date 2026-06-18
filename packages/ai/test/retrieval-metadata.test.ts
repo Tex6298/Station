@@ -389,6 +389,15 @@ class QueryBuilder {
     );
   }
 
+  maybeSingle() {
+    const rows = this.matchingRows();
+    return Promise.resolve(
+      rows.length > 0
+        ? { data: { ...rows[0] }, error: null }
+        : { data: null, error: null }
+    );
+  }
+
   then(onfulfilled: any, onrejected: any) {
     return Promise.resolve({ data: this.matchingRows().map((row) => ({ ...row })), error: null }).then(onfulfilled, onrejected);
   }

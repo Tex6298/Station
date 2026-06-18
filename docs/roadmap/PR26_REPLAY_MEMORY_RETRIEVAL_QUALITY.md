@@ -157,3 +157,56 @@ Validation:
 | `npm exec --yes pnpm@10.32.1 -- --filter @station/api build` | Pass. |
 
 Remaining pre-handoff check: `git diff --check`.
+
+## ARGUS Review - 2026-06-18
+
+Verdict: accepted for MIMIR closeout after one narrow test-harness patch.
+
+ARGUS reviewed owner/persona scoping, lifecycle filtering, trace privacy,
+mixed-provider/vector assumptions, and the replay fixture claim.
+
+Accepted behavior:
+
+- The public API route remains owner-only: both `/context-preview` and
+  `/archive-retrieval` verify persona ownership before returning context,
+  excerpts, or trace metadata.
+- Runtime context calls archive retrieval with `includeQuarantined: false`, so
+  rejected, quarantined, expired, superseded, and missing-lifecycle archive
+  chunks are excluded from injected persona context.
+- Archive trace metadata stays excerpt-free. It exposes selected IDs, titles,
+  source types, reasons, scores, and skipped counts, but not chunk content.
+- The active Gemini `1536` embedding/RPC contract remains explicit and
+  OpenAI-compatible rollback profile behavior was not changed.
+- The replay fixture proves better lexical ordering inside the widened keyword
+  candidate pool: the low-weight exact `lavender switchback` chunk beats the
+  noisy high-weight partial match.
+
+ARGUS patch:
+
+- `packages/ai/test/retrieval-metadata.test.ts` already exercised the direct
+  retrieval metadata path, but its fake Supabase query builder did not implement
+  `.maybeSingle()`. PR26's lifecycle validator now legitimately calls
+  `.maybeSingle()`, so ARGUS added that fake method instead of weakening runtime
+  filtering.
+
+Caveat:
+
+- Recall is still bounded by the pre-score SQL candidate pool. PR26 improves
+  replay recall for low-weight exact evidence inside that widened pool; it does
+  not yet prove corpus-wide lexical recall when an exact chunk is buried behind
+  more than the fetched candidate count.
+
+Validation rerun by ARGUS:
+
+| Command | Result |
+| --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-context` | Pass, 6 tests. |
+| `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass, 28 tests. |
+| `npm exec --yes pnpm@10.32.1 -- run test:continuity` | Pass, 4 tests. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/api build` | Pass. |
+| `npx tsx --test packages/ai/test/retrieval-metadata.test.ts` | Pass, 7 tests after the fake `.maybeSingle()` patch. |
+| `git diff --check` | Pass, CRLF warnings only. |
+
+No DAEDALUS blocker remains. ARIADNE rehearsal is not required because this PR
+changes backend retrieval behavior and owner/operator trace metadata, not a new
+visible UI surface.

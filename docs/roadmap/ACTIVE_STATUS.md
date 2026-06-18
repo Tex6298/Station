@@ -4464,6 +4464,20 @@ when a PR lands, or when validation truth changes.
   proves the `lavender switchback` exact archive evidence outranks a noisy
   high-weight partial match. No Cloudflare config, Redis memory truth, provider
   routing, vector dimension change, Stripe work, or worker lane was added.
+- PR26 Replay Memory/Retrieval Quality Pass is accepted by ARGUS for MIMIR
+  closeout, 2026-06-18: ARGUS reviewed owner/persona scoping, lifecycle skip
+  classification, trace privacy, Gemini `1536` vector/RPC assumptions, and the
+  replay fixture. Owner-only context/archive routes still enforce persona
+  ownership; runtime context excludes rejected, quarantined, expired,
+  superseded, and missing-lifecycle archive chunks; archive trace metadata stays
+  excerpt-free. ARGUS added `.maybeSingle()` to the package-level fake Supabase
+  builder so `packages/ai/test/retrieval-metadata.test.ts` covers the new
+  lifecycle call. Validation passed `test:persona-context`,
+  `test:conversation-archive`, `test:continuity`, `@station/api` build,
+  package retrieval metadata tests, and `git diff --check` with CRLF warnings
+  only. Caveat: recall is still bounded by the widened pre-score SQL candidate
+  pool; this proves better ordering inside that pool, not corpus-wide lexical
+  recall when exact evidence is buried beyond the fetched candidate count.
 
 ## Near-term rule
 
