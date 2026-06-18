@@ -327,15 +327,17 @@ Reason: PR31 created the budget/trace safety surface needed before chat
 streaming. PR32 should add authenticated streaming/progress behavior while
 keeping provider-delta claims honest and the existing non-streaming POST stable.
 
-PR43 Developer Pages Evidence Reading Path is accepted by ARGUS and closed by
-MIMIR for deployed human-eye recheck. The active follow-up is PR44 Developer
-Pages Evidence Recheck:
-`docs/roadmap/PR44_DEVELOPER_PAGES_EVIDENCE_RECHECK_ARIADNE.md`.
+PR43/PR44 are closed as deployed staging complete for the first Developer Pages
+evidence reading path. The active follow-up is PR45 Developer Pages Second
+Example:
+`docs/roadmap/PR45_DEVELOPER_PAGES_SECOND_EXAMPLE.md`.
 
-Reason: PR43 changed visible frontend presentation, and Railway web/API health
-now reports the PR43 implementation commit `734c118`. ARIADNE should confirm the
-anonymous public page on desktop and mobile before MIMIR marks the PR43 visitor
-reading path complete for staging.
+Reason: the first public Developer Page proof now passes on desktop and mobile.
+The next useful narrow step is to seed and prove a second public-safe Developer
+Page example so the Phase 2A pattern is not overfit to
+`station-replay-dev-alpha`, while Cloudflare, Tier 2 hosting, developer agents,
+DexOS-specific widgets, public interaction modes, and route/table renames stay
+deferred.
 
 ## Recommended Order
 

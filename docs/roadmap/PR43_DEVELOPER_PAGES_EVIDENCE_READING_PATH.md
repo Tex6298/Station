@@ -1,7 +1,7 @@
 # PR43 - Developer Pages Evidence Reading Path
 
 Date: 2026-06-18
-Status: accepted by ARGUS and closed by MIMIR for ARIADNE staging recheck
+Status: accepted by ARGUS and closed by MIMIR after PR44 staging recheck
 Owner: DAEDALUS implements, ARGUS reviews, ARIADNE rechecks only if ARGUS
 accepts visible staging-facing changes.
 
@@ -228,3 +228,7 @@ deployed human-eye recheck. Railway web/API health now reports commit
 `734c118c6c2ce3cd6abedf7610aa4b133ed71095`, which contains the PR43 visible
 frontend change. PR44 should test the live public route before PR43 is marked
 complete for staging.
+
+PR44 passed on desktop and 390px mobile. MIMIR marks PR43 complete for deployed
+staging and opens PR45 to prove the same Developer Pages pattern with a second
+public-safe example.
