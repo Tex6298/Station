@@ -4541,6 +4541,18 @@ when a PR lands, or when validation truth changes.
   `git diff --check`, and `git diff --cached --check`. Caveat preserved:
   evidence buried beyond 200 rows remains future lexical/search/index design.
   Cloudflare remains deferred; PR28 does not produce concrete edge-index need.
+- PR28 Retrieval Candidate Depth Audit is fully closed, 2026-06-18: MIMIR
+  accepts ARGUS's verdict. The protected-alpha miss caused by the old 50-row
+  fallback boundary is handled with a bounded 200-row Station/Supabase-native
+  candidate pool. Cloudflare config is not needed now; evidence buried beyond
+  200 rows remains future lexical/search/index design.
+- PR29 Live Staging Replay Refresh is opened for DAEDALUS, 2026-06-18:
+  `docs/roadmap/PR29_LIVE_STAGING_REPLAY_REFRESH.md` asks DAEDALUS to verify
+  the current post-PR25 through PR28 line on Railway with sanitized live
+  deployment/readiness and replay evidence before opening more feature work.
+  This is not a standing three-agent check after every change, and it must not
+  add Cloudflare, Redis memory truth, provider changes, vector-dimension
+  changes, workers, Stripe changes, live social OAuth/API pulls, or broad UI.
 
 ## Near-term rule
 

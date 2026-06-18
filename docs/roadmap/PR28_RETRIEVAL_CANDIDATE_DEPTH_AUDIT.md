@@ -1,7 +1,7 @@
 # PR28 - Retrieval Candidate Depth Audit
 
 Date: 2026-06-18
-Status: implemented by A2 / DAEDALUS; ready for ARGUS review
+Status: closed
 Owner: DAEDALUS audits/implements if needed, ARGUS reviews. ARIADNE is not
 needed unless a visible context-preview or Studio search surface changes.
 
@@ -190,3 +190,17 @@ Validation rerun by ARGUS:
 No DAEDALUS blocker remains. Cloudflare remains deferred because PR28 does not
 show a concrete need for an edge index mirror. ARIADNE rehearsal is not required
 because this is backend retrieval behavior, not a visible UI workflow.
+
+## MIMIR Closeout - 2026-06-18
+
+PR28 is fully closed.
+
+MIMIR accepts ARGUS's verdict:
+
+- The PR26 recall-depth caveat was real for the old 50-row keyword fallback
+  boundary.
+- The current protected-alpha replay need is solved by a bounded
+  Station/Supabase-native 200-row candidate pool.
+- Cloudflare config is not needed now.
+- Evidence buried beyond 200 rows remains future lexical/search/index design,
+  not a PR28 blocker and not an immediate Cloudflare trigger.

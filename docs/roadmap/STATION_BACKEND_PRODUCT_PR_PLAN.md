@@ -266,10 +266,13 @@ Exit:
 
 Retrieval candidate-depth follow-up:
 
-- Active via `docs/roadmap/PR28_RETRIEVAL_CANDIDATE_DEPTH_AUDIT.md`.
-- This is the evidence step before Cloudflare. Prove whether the PR26
-  recall-depth caveat matters and whether Station/Supabase can solve it
-  narrowly before requesting Cloudflare config.
+- Accepted by ARGUS on 2026-06-18 and closed by MIMIR. See
+  `docs/roadmap/PR28_RETRIEVAL_CANDIDATE_DEPTH_AUDIT.md`.
+- PR28 proved the PR26 recall-depth caveat was real inside the old 50-row
+  keyword fallback boundary and solved the protected-alpha replay need with a
+  bounded Station/Supabase-native 200-row candidate pool.
+- Cloudflare config remains deferred. Evidence buried beyond 200 rows belongs
+  to future lexical/search/index design, not an immediate edge-index trigger.
 
 Cloudflare retrieval adapter:
 
@@ -288,6 +291,10 @@ Broad UI polish:
 
 Status: accepted by A3 / ARGUS on 2026-06-15 as evidence-only/no-code. See
 `docs/roadmap/PR7_LIVE_REPLAY_OPTIMIZATION_BASELINE_RESULT.md`.
+
+Refresh: `docs/roadmap/PR29_LIVE_STAGING_REPLAY_REFRESH.md` is opened after
+PR25 through PR28 to verify the current pushed line on Railway before choosing
+more feature work.
 
 Exit:
 
