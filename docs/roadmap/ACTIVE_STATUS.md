@@ -4420,6 +4420,23 @@ when a PR lands, or when validation truth changes.
   dashboard/sidebar/mobile navigation entry points, ARIADNE should run a
   focused desktop and 375px browser rehearsal before MIMIR marks PR25 fully
   closed.
+- PR25 Four Onboarding Paths Alpha is accepted by ARIADNE for MIMIR closeout,
+  2026-06-18: Railway web is live at `77e1b57` and API at `5fcfb72`. Browser
+  rehearsal covered `/studio/onboarding` and `/studio` at desktop `1440x1100`
+  and mobile around `375x812`. Signed-out `/studio/onboarding` redirects to
+  `/login?redirect=%2Fstudio%2Fonboarding` with sign-in/sign-up paths and no
+  private onboarding cards exposed. Signed-in Studio shows all four cards:
+  Fresh Start -> `/studio/new?path=fresh-start`, Awakening ->
+  `/studio/new?path=awakening`, Document Migrator ->
+  `/studio/personas/:personaId/files`, and API Bridge -> `/developer-spaces`.
+  Route-target smoke confirmed the two creation paths, the owner-scoped
+  Archive/import page, and Developer Spaces load without 404s or login bounce.
+  Dashboard, sidebar, Recent Archive Activity, and mobile Studio menu all expose
+  `/studio/onboarding` entry points. The page and entry points are readable,
+  mobile has no document-level horizontal overflow, no fake live controls were
+  visible, and the copy explicitly denies live Reddit/Discord OAuth pulls,
+  recurring sync, external social import API, Cloudflare retrieval, Redis memory
+  truth, production workers, Stripe expansion, and provider marketplace setup.
 
 ## Near-term rule
 
