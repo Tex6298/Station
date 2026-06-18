@@ -89,6 +89,21 @@ class InMemorySupabase {
       row.updated_at ??= now;
     }
 
+    if (table === "projects") {
+      row.description ??= null;
+      row.visibility ??= "private";
+      row.connection_tier ??= "tier_1_showcase";
+      row.created_at ??= now;
+      row.updated_at ??= now;
+    }
+
+    if (table === "project_members") {
+      row.role ??= "owner";
+      row.status ??= "active";
+      row.created_at ??= now;
+      row.updated_at ??= now;
+    }
+
     if (table === "developer_space_ingestion_keys") {
       row.label ??= null;
       row.status ??= "active";
@@ -1051,6 +1066,78 @@ test("Developer Spaces smoke covers creation, keying, ingestion, and public/owne
     const ownerPrivateStream = await requestText(app, "GET", "/developer-spaces/animus-field/stream?once=1&access_token=owner-token");
     assert.equal(ownerPrivateStream.status, 200);
     assert.equal(parseSseUpdate(ownerPrivateStream.body).data.detail.access, "owner");
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
+
+test("Developer Space project attachment is owner-only and syncs usage project id", async () => {
+  const db = new InMemorySupabase();
+  const ownerProject = db.insertRow("projects", {
+    id: "10000000-0000-4000-8000-000000000001",
+    owner_user_id: "owner-user",
+    name: "Owner Project",
+    slug: "owner-project",
+  });
+  const otherProject = db.insertRow("projects", {
+    id: "10000000-0000-4000-8000-000000000002",
+    owner_user_id: "other-user",
+    name: "Other Project",
+    slug: "other-project",
+  });
+  const space = db.insertRow("developer_spaces", {
+    owner_user_id: "owner-user",
+    project_name: "Animus Field",
+    slug: "animus-field",
+    visibility: "private",
+    visualisation_type: "node_field",
+  });
+  db.insertRow("developer_space_usage", {
+    developer_space_id: space.id,
+    owner_user_id: "owner-user",
+  });
+  setSupabaseAdminForTests(db.client as any);
+  const app = createDeveloperSpacesApp();
+
+  try {
+    const invalid = await requestJson(app, "PATCH", `/developer-spaces/${space.id}/project`, {
+      token: "owner-token",
+      body: {},
+    });
+    assert.equal(invalid.status, 400);
+
+    const foreignProject = await requestJson(app, "PATCH", `/developer-spaces/${space.id}/project`, {
+      token: "owner-token",
+      body: { projectId: otherProject.id },
+    });
+    assert.equal(foreignProject.status, 404);
+    assert.equal(db.tables.developer_spaces[0].project_id, null);
+    assert.equal(db.tables.developer_space_usage[0].project_id, null);
+
+    const nonOwner = await requestJson(app, "PATCH", `/developer-spaces/${space.id}/project`, {
+      token: "other-token",
+      body: { projectId: otherProject.id },
+    });
+    assert.equal(nonOwner.status, 403);
+
+    const attached = await requestJson(app, "PATCH", `/developer-spaces/${space.id}/project`, {
+      token: "owner-token",
+      body: { projectId: ownerProject.id },
+    });
+    assert.equal(attached.status, 200);
+    assert.equal(attached.body.projectId, ownerProject.id);
+    assert.equal(attached.body.space.id, space.id);
+    assert.equal(db.tables.developer_spaces[0].project_id, ownerProject.id);
+    assert.equal(db.tables.developer_space_usage[0].project_id, ownerProject.id);
+
+    const detached = await requestJson(app, "PATCH", `/developer-spaces/${space.id}/project`, {
+      token: "owner-token",
+      body: { projectId: null },
+    });
+    assert.equal(detached.status, 200);
+    assert.equal(detached.body.projectId, null);
+    assert.equal(db.tables.developer_spaces[0].project_id, null);
+    assert.equal(db.tables.developer_space_usage[0].project_id, null);
   } finally {
     setSupabaseAdminForTests(null);
   }

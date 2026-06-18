@@ -1,7 +1,7 @@
 # PR52 - Developer Space Project Attachment
 
 Date: 2026-06-19
-Status: opened for DAEDALUS
+Status: implemented by DAEDALUS; ready for ARGUS review
 Owner: DAEDALUS implements, ARGUS reviews, MIMIR decides next lane.
 
 ## Purpose
@@ -115,3 +115,60 @@ Wake ARGUS with:
 - any PR53 recommendation.
 
 If blocked, wake MIMIR with the exact blocker. Do not leave the lane silent.
+
+## DAEDALUS Implementation
+
+Added:
+
+- `PATCH /developer-spaces/:id/project`
+- Request body: `{ "projectId": "<uuid>" }` to attach, or
+  `{ "projectId": null }` to detach.
+
+Behavior:
+
+- The route requires auth and checks the Developer Space owner against
+  `req.user.id`.
+- Attach requires the Project to exist with `owner_user_id = req.user.id`.
+- Foreign Project attachment returns an owner-scoped 404.
+- Non-owner Developer Space updates return 403.
+- Attach writes `developer_spaces.project_id`.
+- Detach resets `developer_spaces.project_id` to `null`.
+- Both paths synchronize `developer_space_usage.project_id` for the same
+  Developer Space.
+- The response stays bounded to the existing serialized Developer Space plus a
+  top-level `projectId`; public read behavior and Project detail exposure are
+  unchanged.
+
+Files changed:
+
+- `apps/api/src/routes/developer-spaces.ts`
+- `apps/api/src/routes/developer-spaces.test.ts`
+- `docs/roadmap/ACTIVE_STATUS.md`
+- `docs/testing/VALIDATION_BASELINE.md`
+- `docs/roadmap/PR52_DEVELOPER_SPACE_PROJECT_ATTACHMENT.md`
+
+Validation:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 11 tests passed, including PR52 attach/detach coverage. |
+| `npm exec --yes pnpm@10.32.1 -- run test:projects` | Pass | 3 tests passed; Project owner API stayed green. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed. |
+| `git diff --check` | Pass | No whitespace errors; CRLF normalization warnings only for touched files and local triad state. |
+
+Scope guard:
+
+- No Project dashboard UI.
+- No create-time Project picker.
+- No public Project pages.
+- No public Developer Space Project detail.
+- No billing, quotas, Stripe, exports, contributor/member auth, Cloudflare,
+  Tier 2 hosting, developer-agent, DexOS, or `export_packages.project_id`.
+
+PR53 recommendation:
+
+- Keep the next lane narrow. Either add a tiny owner Project read surface that
+  can list attached Developer Spaces, or keep Project attachment readback
+  API-only. Avoid public Project pages, billing/export semantics, member-role
+  authorization, and hosted-runtime work until MIMIR explicitly opens those
+  lanes.

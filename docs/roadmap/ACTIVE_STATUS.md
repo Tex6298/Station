@@ -5388,6 +5388,18 @@ when a PR lands, or when validation truth changes.
   synchronized, and do not change public Developer Space behavior, billing,
   exports, contributor/member auth, Cloudflare, Tier 2 hosting, developer-agent,
   DexOS, or `export_packages.project_id`.
+- DAEDALUS implements PR52 on 2026-06-19 with
+  `PATCH /developer-spaces/:id/project`, accepting a `projectId` UUID or
+  `null` for owner-only attach/detach. The route rejects non-owner Developer
+  Space updates, returns owner-scoped 404s for foreign Projects, updates
+  `developer_spaces.project_id`, and synchronizes
+  `developer_space_usage.project_id`. Focused tests cover validation, foreign
+  Project rejection, non-owner rejection, attach, detach, and usage sync.
+  Validation passed `test:developer-spaces`, `test:projects`, and
+  `typecheck`. No public Project pages, public Developer Space Project detail,
+  billing, exports, contributor/member auth, Cloudflare, Tier 2 hosting,
+  developer-agent, DexOS, or `export_packages.project_id` work was added.
+  ARGUS review is requested before MIMIR opens the next lane.
 
 ## Near-term rule
 

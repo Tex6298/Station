@@ -8070,3 +8070,27 @@ ARGUS scope notes:
 - No Developer Space attachment flow or `developer_spaces.project_id` write was
   added.
 - No `export_packages.project_id` was added.
+
+## PR52 Developer Space Project Attachment
+
+DAEDALUS implementation validation on 2026-06-19:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 11 tests passed; attach/detach, foreign Project rejection, non-owner rejection, and usage project-id sync are covered. |
+| `npm exec --yes pnpm@10.32.1 -- run test:projects` | Pass | 3 tests passed; Projects API owner-only skeleton stayed green. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed after the attachment route update. |
+| `git diff --check` | Pass | No whitespace errors; CRLF normalization warnings only for touched files and local triad state. |
+
+Scope notes:
+
+- Added `PATCH /developer-spaces/:id/project`.
+- Only the Developer Space owner can attach or detach a Project.
+- Project attachment is owner-scoped; another user's Project is not attachable.
+- `developer_space_usage.project_id` synchronizes with
+  `developer_spaces.project_id` on attach and detach.
+- Public Developer Space reads are unchanged and do not expose Project detail or
+  member data.
+- `export_packages.project_id` remains absent.
+- No billing, export behavior, contributor/member authorization, UI,
+  Cloudflare, Tier 2 hosting, developer-agent, or DexOS work was added.

@@ -158,6 +158,10 @@ const attachDocumentSchema = z.object({
   sortOrder: z.number().int().min(0).max(100_000).default(0),
 });
 
+const attachProjectSchema = z.object({
+  projectId: z.string().uuid().nullable(),
+});
+
 const templateDocumentSchema = z.object({
   role: documentRoleSchema.default("note"),
   title: z.string().min(1).max(200).optional(),
@@ -1173,6 +1177,52 @@ developerSpacesRouter.post("/:id/documents/template", requireAuth, async (req, r
     document,
     linkedDocuments: linkedDocuments.linkedDocuments,
   });
+});
+
+developerSpacesRouter.patch("/:id/project", requireAuth, async (req, res) => {
+  const parsed = attachProjectSchema.safeParse(req.body);
+  if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
+
+  const sb = getSupabaseAdmin();
+  const { data: space, error: spaceError } = await sb
+    .from("developer_spaces")
+    .select("*")
+    .eq("id", req.params.id)
+    .single();
+
+  if (spaceError || !space) return res.status(404).json({ error: "Developer Space not found." });
+  if (space.owner_user_id !== req.user!.id) return res.status(403).json({ error: "Not authorised." });
+
+  if (parsed.data.projectId !== null) {
+    const { data: project, error: projectError } = await sb
+      .from("projects")
+      .select("id")
+      .eq("id", parsed.data.projectId)
+      .eq("owner_user_id", req.user!.id)
+      .maybeSingle();
+
+    if (projectError) return res.status(500).json({ error: projectError.message });
+    if (!project) return res.status(404).json({ error: "Project not found." });
+  }
+
+  const { data, error } = await sb
+    .from("developer_spaces")
+    .update({ project_id: parsed.data.projectId })
+    .eq("id", space.id)
+    .eq("owner_user_id", req.user!.id)
+    .select("*")
+    .single();
+
+  if (error || !data) return res.status(500).json({ error: error?.message ?? "Could not update Developer Space project." });
+
+  const { error: usageError } = await sb
+    .from("developer_space_usage")
+    .update({ project_id: parsed.data.projectId })
+    .eq("developer_space_id", space.id);
+
+  if (usageError) return res.status(500).json({ error: usageError.message });
+
+  return res.json({ space: serializeDeveloperSpace(data), projectId: data.project_id ?? null });
 });
 
 developerSpacesRouter.get("/:id/usage", requireAuth, async (req, res) => {
