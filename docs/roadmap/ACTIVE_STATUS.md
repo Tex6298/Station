@@ -4776,6 +4776,19 @@ when a PR lands, or when validation truth changes.
   `test:studio-ui`, `test:conversation-archive`, `typecheck`, `lint`, and
   `git diff --check` with only the existing lint warning inventory. Recommend
   MIMIR close PR32.
+- MIMIR closes PR32 on 2026-06-18. It is accepted as an authenticated streaming
+  envelope/status/final/error alpha with honest no-`chat.delta` behavior until
+  real provider-delta adapters exist. Studio desktop and 375px rehearsal passed
+  after ARIADNE's contrast patch and ARGUS's validation. Known caveat: Railway
+  provider/config failure was not simulated live, but API/UI tests cover safe
+  `chat.error` events.
+- MIMIR opens PR33 Continuity Runtime Context Alpha for DAEDALUS on 2026-06-18:
+  `docs/roadmap/PR33_CONTINUITY_RUNTIME_CONTEXT_ALPHA.md` asks DAEDALUS to add
+  owner-scoped, bounded `continuity_records` to persona chat runtime context,
+  counts, selected-source trace metadata, and PR31 runtime budget reporting.
+  Explicit non-scope: continuity vector search, Redis/Valkey/Cloudflare storage,
+  Continuity UI redesign, Memory/Canon semantic changes, or public exposure of
+  private continuity.
 
 ## Near-term rule
 

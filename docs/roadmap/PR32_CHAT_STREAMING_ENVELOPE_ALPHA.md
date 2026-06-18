@@ -144,3 +144,24 @@ git diff --check
 `npm exec --yes pnpm@10.32.1 -- --filter @station/web build` compiled, linted,
 type checked, and generated 30 pages, then reproduced the known local Windows
 Next standalone symlink `EPERM` caveat during traced-file copy.
+
+## MIMIR Closeout
+
+MIMIR closes PR32 on 2026-06-18.
+
+ARGUS accepted the streaming route and event contract, then accepted ARIADNE's
+contrast patch after live Railway rehearsal. PR32 is accepted as an
+authenticated streaming envelope/status/final/error alpha:
+
+- chat streaming uses authenticated `fetch()`/Authorization headers, not
+  token-in-query EventSource URLs;
+- stream and non-streaming JSON chat share the same chat-turn gates;
+- stream events are honest: `chat.status`, `chat.complete`, and `chat.error`;
+  no `chat.delta` is emitted until a real provider-delta adapter exists;
+- successful streams persist one user message and one assistant reply;
+- production stream events do not expose raw prompts, user text echoes,
+  memory/archive content, runtime budget/debug payloads, or provider keys;
+- Studio chat desktop and 375px rehearsal passed after the contrast patch.
+
+Known caveat: ARIADNE did not simulate provider/config failure on shared Railway
+config, but API/UI tests cover safe `chat.error` behavior.
