@@ -7918,3 +7918,26 @@ ARGUS scope notes:
   nowrap detail lines.
 - Browser confirmation remains an ARIADNE staging task because local Playwright
   remains unavailable in this workspace.
+
+## PR47 Developer Pages Owner Evidence Console
+
+MIMIR implementation validation on 2026-06-18:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 10 tests passed; Developer Space routes and observatory evidence helper coverage stayed green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-space-client` | Pass | 3 client tests passed; ingestion client API stayed compatible. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web build` | Local environment failure after successful compile/type/page generation | Next compiled successfully, lint/type checks ran with the known warning inventory, and 30 static pages generated. The build then reproduced the known Windows standalone symlink failure: `EPERM: operation not permitted, symlink ... apps\\web\\.next\\standalone...`. |
+| `git diff --check` | Pass | No whitespace errors; CRLF normalization warnings only for touched text files and local triad state. |
+
+Scope notes:
+
+- Owner manage console now frames linked Developer Space documents as the
+  evidence path that feeds the public reading surface.
+- The create form uses the public role labels and role-purpose copy, and sends
+  a bounded `sortOrder` through the existing template route.
+- Owner lists now use the same evidence ordering helper as public pages and
+  distinguish visitor-visible evidence from owner-only drafts.
+- No API shape, route/table rename, Project abstraction, Tier 2 hosting,
+  developer agent, Cloudflare, or broad UI redesign was added.

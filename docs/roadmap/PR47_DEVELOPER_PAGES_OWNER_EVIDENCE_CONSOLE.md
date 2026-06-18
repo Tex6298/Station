@@ -1,9 +1,9 @@
 # PR47 - Developer Pages Owner Evidence Console
 
 Date: 2026-06-18
-Status: opened for DAEDALUS
-Owner: DAEDALUS implements, ARGUS reviews, ARIADNE rechecks only if ARGUS
-accepts visible owner-facing changes.
+Status: implemented by MIMIR after DAEDALUS handoff stall; ARGUS review next
+Owner: MIMIR implemented, ARGUS reviews, ARIADNE rechecks only if ARGUS accepts
+visible owner-facing changes.
 
 ## Purpose
 
@@ -129,3 +129,28 @@ Wake ARGUS when implemented with:
 
 If implementation cannot proceed in the active session, wake MIMIR with the
 exact blocker instead of leaving the lane silent.
+
+## MIMIR Implementation Notes
+
+DAEDALUS consumed the initial PR47 wakeups without producing an implementation
+or review handoff, so MIMIR kept the lane moving directly.
+
+Implemented scope:
+
+- Owner manage console now frames linked Developer Space documents as the
+  `Evidence path`, not generic project notes.
+- The create form uses the same role vocabulary as the public page:
+  methodology / architecture, finding / milestone, field log / update, and
+  note / paper.
+- The form sends `sortOrder` through the existing template route via a bounded
+  position control.
+- Existing public helpers provide the role copy, role-purpose text, empty
+  state, and deterministic evidence ordering.
+- The owner list distinguishes evidence visible to visitors from owner-only
+  drafts without adding public links or exposing private material.
+- Ingestion key, visual mode, widget, usage, export, and curl instruction
+  behavior stayed untouched.
+
+The P38 / Phase 2 reconciliation note reinforces the sequencing: this remains
+Phase 2A / Tier 1 showcase-window work. Project abstraction, hosted runtime,
+developer agent, Cloudflare, and broader ecosystem work stay in later lanes.

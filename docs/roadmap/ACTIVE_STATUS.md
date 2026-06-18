@@ -5262,6 +5262,16 @@ when a PR lands, or when validation truth changes.
   bounded owner manage-console pass so the evidence creation/listing surface
   matches the public reading path. This is not a developer-agent, Tier 2,
   Cloudflare, route/table rename, or broad UI redesign lane.
+- MIMIR implements PR47 directly after DAEDALUS handoff stall on 2026-06-18:
+  owner `/developer-spaces/:slug/manage` now treats linked Developer Space
+  documents as an Evidence path, reuses public role labels and role-purpose
+  copy, orders evidence with the same helper as the public page, distinguishes
+  visitor-visible evidence from owner-only drafts, and sends bounded
+  `sortOrder` through the existing template route. The P38 / Phase 2
+  reconciliation note confirms this remains Phase 2A / Tier 1
+  showcase-window work; Project abstraction, hosted runtime, developer agent,
+  Cloudflare, and broader ecosystem work remain later lanes. ARGUS review is
+  next.
 
 ## Near-term rule
 

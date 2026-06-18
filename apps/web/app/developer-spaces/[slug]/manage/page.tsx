@@ -6,10 +6,14 @@ import { useParams } from "next/navigation";
 import { apiGet, apiPatch, apiPost, apiUrl } from "@/lib/api-client";
 import { getSession } from "@/lib/auth";
 import {
+  developerSpaceEvidenceEmptyCopy,
+  developerSpaceEvidenceRoleCopy,
+  developerSpaceEvidenceRoleDescription,
   formatDate,
   humaniseKey,
   moveDeveloperSpaceWidget,
   normaliseDeveloperSpaceWidgets,
+  orderedDeveloperSpaceEvidence,
   updateWidgetVisibility,
 } from "@/lib/developer-space-observatory";
 import {
@@ -29,6 +33,12 @@ import type {
 import type { ArchiveExportPackage } from "@station/types/export";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
+const DEVELOPER_SPACE_EVIDENCE_ROLES: DeveloperSpaceDocumentRole[] = [
+  "methodology",
+  "finding",
+  "field_log",
+  "note",
+];
 
 function CodeBlock({ code }: { code: string }) {
   return (
@@ -47,11 +57,6 @@ function CodeBlock({ code }: { code: string }) {
       {code}
     </pre>
   );
-}
-
-function linkedDocumentRoleLabel(role: DeveloperSpaceLinkedDocument["role"]) {
-  if (role === "field_log") return "Field log";
-  return role.charAt(0).toUpperCase() + role.slice(1);
 }
 
 function websocketUrl(path: string) {
@@ -85,6 +90,7 @@ export default function DeveloperSpaceManagePage() {
   const [documentRole, setDocumentRole] = useState<DeveloperSpaceDocumentRole>("methodology");
   const [documentTitle, setDocumentTitle] = useState("");
   const [documentBody, setDocumentBody] = useState("");
+  const [documentSortOrder, setDocumentSortOrder] = useState("0");
   const [publishDocument, setPublishDocument] = useState(false);
   const [savingDocument, setSavingDocument] = useState(false);
   const [usage, setUsage] = useState<DeveloperSpaceUsage | null>(null);
@@ -294,6 +300,10 @@ export default function DeveloperSpaceManagePage() {
     setSavingDocument(true);
     setError(null);
     try {
+      const parsedSortOrder = Number.parseInt(documentSortOrder, 10);
+      const sortOrder = Number.isFinite(parsedSortOrder)
+        ? Math.min(Math.max(parsedSortOrder, 0), 100_000)
+        : 0;
       const data = await apiPost<{
         linkedDocuments: DeveloperSpaceLinkedDocument[];
       }>(
@@ -303,12 +313,14 @@ export default function DeveloperSpaceManagePage() {
           title: documentTitle.trim() || undefined,
           body: documentBody.trim() || undefined,
           linkVisibility: publishDocument ? "public" : "owner",
+          sortOrder,
         },
         token
       );
       setDetail({ ...detail, linkedDocuments: data.linkedDocuments });
       setDocumentTitle("");
       setDocumentBody("");
+      setDocumentSortOrder("0");
       setPublishDocument(false);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Could not create linked document.");
@@ -400,6 +412,7 @@ export default function DeveloperSpaceManagePage() {
   const ingestionEvents = detail.events.slice(0, 5);
   const boundedVisualConfig = normaliseDeveloperSpaceVisualConfig(visualisationType, visualisationConfig);
   const widgetLayout = normaliseDeveloperSpaceWidgets(visualisationConfig.widgets);
+  const orderedEvidence = orderedDeveloperSpaceEvidence(detail.linkedDocuments ?? []);
 
   return (
     <main className="container" style={{ display: "grid", gap: "1.25rem", maxWidth: 1120 }}>
@@ -465,7 +478,7 @@ export default function DeveloperSpaceManagePage() {
           <div style={{ display: "grid", gap: "0.45rem", color: "#687078", fontSize: "0.86rem", lineHeight: 1.5 }}>
             <span><strong style={{ color: "#1f2529" }}>Nodes:</strong> {detail.nodes.length}</span>
             <span><strong style={{ color: "#1f2529" }}>Recent events:</strong> {detail.events.length}</span>
-            <span><strong style={{ color: "#1f2529" }}>Notes:</strong> {detail.linkedDocuments?.length ?? 0}</span>
+            <span><strong style={{ color: "#1f2529" }}>Evidence:</strong> {orderedEvidence.length}</span>
             <span><strong style={{ color: "#1f2529" }}>Exports:</strong> {usage?.counters.exports ?? exportsList.length}</span>
             <span><strong style={{ color: "#1f2529" }}>Visibility:</strong> {detail.space.visibility}</span>
           </div>
@@ -658,58 +671,80 @@ export default function DeveloperSpaceManagePage() {
 
           <div className="card" style={{ display: "grid", gap: "0.9rem" }}>
             <div>
-              <h2 style={{ margin: "0 0 0.4rem", fontSize: "1.05rem" }}>Project notes</h2>
+              <h2 style={{ margin: "0 0 0.4rem", fontSize: "1.05rem" }}>Evidence path</h2>
               <p style={{ margin: 0, color: "#687078", lineHeight: 1.55 }}>
-                Keep methodology and field logs beside the live observatory. Drafts stay owner-only; public notes are published into the visitor view.
+                Curate the methodology, findings, field logs, and notes that make the public Developer Page readable. Drafts stay owner-only; public evidence enters the visitor path.
               </p>
             </div>
 
             <form onSubmit={createLinkedDocument} style={{ display: "grid", gap: "0.75rem" }}>
-              <div style={{ display: "grid", gridTemplateColumns: "minmax(150px, 0.45fr) minmax(0, 1fr)", gap: "0.75rem" }}>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 160px), 1fr))", gap: "0.75rem" }}>
                 <label style={{ display: "grid", gap: "0.35rem", color: "#1f2529", fontSize: "0.82rem" }}>
-                  Type
+                  Evidence role
                   <select className="input" value={documentRole} onChange={(event) => setDocumentRole(event.target.value as DeveloperSpaceDocumentRole)}>
-                    <option value="methodology">Methodology</option>
-                    <option value="finding">Finding</option>
-                    <option value="field_log">Field log</option>
-                    <option value="note">Note</option>
+                    {DEVELOPER_SPACE_EVIDENCE_ROLES.map((role) => (
+                      <option key={role} value={role}>{developerSpaceEvidenceRoleCopy(role)}</option>
+                    ))}
                   </select>
                 </label>
                 <label style={{ display: "grid", gap: "0.35rem", color: "#1f2529", fontSize: "0.82rem" }}>
+                  Position
+                  <input
+                    className="input"
+                    type="number"
+                    min={0}
+                    max={100000}
+                    value={documentSortOrder}
+                    onChange={(event) => setDocumentSortOrder(event.target.value)}
+                  />
+                </label>
+                <label style={{ display: "grid", gap: "0.35rem", color: "#1f2529", fontSize: "0.82rem" }}>
                   Title
-                  <input className="input" value={documentTitle} onChange={(event) => setDocumentTitle(event.target.value)} placeholder="Use default title" />
+                  <input className="input" value={documentTitle} onChange={(event) => setDocumentTitle(event.target.value)} placeholder="Use role default title" />
                 </label>
               </div>
+              <p style={{ margin: "-0.25rem 0 0", color: "#687078", fontSize: "0.84rem", lineHeight: 1.45 }}>
+                {developerSpaceEvidenceRoleDescription(documentRole)}
+              </p>
               <label style={{ display: "grid", gap: "0.35rem", color: "#1f2529", fontSize: "0.82rem" }}>
                 Body
-                <textarea className="textarea" value={documentBody} onChange={(event) => setDocumentBody(event.target.value)} placeholder="Draft notes, method, finding, or field log" />
+                <textarea className="textarea" value={documentBody} onChange={(event) => setDocumentBody(event.target.value)} placeholder="Write the evidence visitors should read with this role" />
               </label>
               <label style={{ display: "flex", gap: "0.5rem", alignItems: "center", color: "#1f2529", fontSize: "0.86rem" }}>
                 <input type="checkbox" checked={publishDocument} onChange={(event) => setPublishDocument(event.target.checked)} />
-                Publish publicly on the observatory
+                Publish to visitor evidence path
               </label>
               <button className="button primary" type="submit" disabled={savingDocument}>
-                {savingDocument ? "Saving..." : "Save note"}
+                {savingDocument ? "Saving..." : "Save evidence"}
               </button>
             </form>
 
-            {(detail.linkedDocuments ?? []).length === 0 ? (
-              <p style={{ margin: 0, color: "#687078" }}>No linked notes yet.</p>
+            {orderedEvidence.length === 0 ? (
+              <p style={{ margin: 0, color: "#687078" }}>{developerSpaceEvidenceEmptyCopy(true)}</p>
             ) : (
               <div style={{ display: "grid", gap: "0.65rem" }}>
-                {(detail.linkedDocuments ?? []).map((link) => (
+                {orderedEvidence.map((link) => {
+                  const visitorVisible = link.linkVisibility === "public"
+                    && link.document.status === "published"
+                    && link.document.visibility === "public";
+
+                  return (
                   <article key={link.id} style={{ borderTop: "1px solid #d8d3c8", paddingTop: "0.65rem" }}>
                     <div style={{ display: "flex", gap: "0.35rem", flexWrap: "wrap", marginBottom: "0.35rem" }}>
-                      <span className="pill" style={{ fontSize: "0.68rem" }}>{linkedDocumentRoleLabel(link.role)}</span>
+                      <span className="pill" style={{ fontSize: "0.68rem" }}>{developerSpaceEvidenceRoleCopy(link.role)}</span>
                       <span className="pill" style={{ fontSize: "0.68rem", textTransform: "capitalize" }}>{link.document.status}</span>
-                      <span className="pill" style={{ fontSize: "0.68rem", textTransform: "capitalize" }}>{link.linkVisibility}</span>
+                      <span className="pill" style={{ fontSize: "0.68rem" }}>{visitorVisible ? "Visible to visitors" : "Owner-only draft"}</span>
                     </div>
                     <strong style={{ display: "block" }}>{link.document.title}</strong>
+                    <p style={{ margin: "0.25rem 0 0", color: "#8b8f92", fontSize: "0.82rem", lineHeight: 1.45 }}>
+                      {developerSpaceEvidenceRoleDescription(link.role)}
+                    </p>
                     {link.document.excerpt ? (
                       <p style={{ margin: "0.35rem 0 0", color: "#687078", lineHeight: 1.55 }}>{link.document.excerpt}</p>
                     ) : null}
                   </article>
-                ))}
+                  );
+                })}
               </div>
             )}
           </div>
