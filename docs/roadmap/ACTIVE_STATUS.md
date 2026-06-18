@@ -4305,6 +4305,17 @@ when a PR lands, or when validation truth changes.
   reconciliation. No Assistant API semantics, owner scoping, sanitized action
   data, exact links, link-only action behavior, or operational-helper-not-persona
   guardrail changed.
+- PR22 Assistant contrast repair is accepted by ARIADNE for MIMIR closeout,
+  2026-06-18: Railway web is live at `c495e509` and API remains at the already
+  accepted sanitized Assistant runtime `da60378`. Desktop `1440x1100`, mobile
+  `375x812`, and mobile scrolled action-card checks show readable title, lede,
+  helper label, prompts, reply block, action cards, chips, workspace signals,
+  and recent-import rows. Computed title text is now `rgb(31, 37, 41)` on the
+  light Station page surface, resolving the prior white-on-light blocker. Action
+  cards remain exact Studio links, visible buttons remain starter prompts plus
+  `Ask Assistant`, no fake mutations or persona drift were observed, no
+  horizontal overflow was detected, and signed Assistant API sanity checks still
+  showed no secret-shaped or storage-path-shaped strings.
 
 ## Near-term rule
 
