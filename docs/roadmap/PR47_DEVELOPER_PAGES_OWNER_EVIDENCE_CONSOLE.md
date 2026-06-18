@@ -126,3 +126,6 @@ Wake ARGUS when implemented with:
 - validation results;
 - privacy/overclaim notes;
 - whether ARIADNE should recheck signed deployed staging after review.
+
+If implementation cannot proceed in the active session, wake MIMIR with the
+exact blocker instead of leaving the lane silent.
