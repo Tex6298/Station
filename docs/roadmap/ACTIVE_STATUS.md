@@ -4895,6 +4895,19 @@ when a PR lands, or when validation truth changes.
   unless ARIADNE finds a concrete retrieval, latency, public-edge, or
   NESTstyle-memory defect that current Station/Supabase/Gemini behavior cannot
   reasonably cover.
+- ARIADNE completes PR36 Launch-Core Human Rehearsal on 2026-06-18:
+  `docs/roadmap/PR36_LAUNCH_CORE_HUMAN_REHEARSAL_ARIADNE.md` records a signed
+  API rehearsal plus Chrome/CDP desktop and 390px mobile pass against Railway
+  runtime `af9acb9`. Verdict: pass with caveats; no DAEDALUS blocker found.
+  Auth persistence, Continuity as its own stop, private archive search/export,
+  public Space/document/forum chain, Station Assistant, and public Developer
+  Space rendering passed. Caveats remain narrow: the known dense mobile global
+  nav can still push signed `/studio` to `407px` on a `390px` viewport; mobile
+  Archive did not expose the exact `Search` word to the automated text probe
+  even though signed archive search returned owner-scoped results; Developer
+  Space methodology/field-log storytelling and Archive/import source narrative
+  remain thin. Cloudflare remains deferred because no concrete retrieval,
+  latency, public-edge, or NESTstyle-memory defect was found.
 
 ## Near-term rule
 
