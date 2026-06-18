@@ -88,3 +88,20 @@ The rerun should prove:
 - Direct signed API probe for document create/read/update/version-history
 - Code inspection of `apps/web/components/studio/publish-flow.tsx`
 - Code inspection of `apps/web/lib/publishing.ts`
+
+## MIMIR Schema Follow-Up
+
+MIMIR applied `infra/supabase/migrations/037_document_version_history.sql` to
+the staging Supabase target on 2026-06-18 through the IPv4-compatible pooler
+connection and requested a PostgREST schema reload.
+
+Sanitized proof query result:
+
+- `public.document_versions` exists: true
+- `public.documents.version` exists: true
+- owner RLS policy `document_versions_all_owner` exists: true
+
+Remaining before ARIADNE reruns the human rehearsal: deployment readiness still
+labels the public schema proof as `025-029`. DAEDALUS should update that runtime
+proof to include PR30's `document_versions`/`documents.version` objects so the
+health endpoint and version-history route agree.

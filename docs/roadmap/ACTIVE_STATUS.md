@@ -4628,6 +4628,14 @@ when a PR lands, or when validation truth changes.
   rows. UX risk: the publish flow currently catches version-history fetch
   failure as an empty history state, which can make a broken endpoint look like
   "no prior versions yet."
+- MIMIR applied PR30's staging Supabase schema follow-up on 2026-06-18 through
+  the IPv4-compatible pooler and requested a PostgREST schema reload. Sanitized
+  proof now shows `public.document_versions`, `public.documents.version`, and
+  owner policy `document_versions_all_owner` present. Remaining before A4 reruns
+  the browser rehearsal: deployment readiness still labels the public schema
+  object proof as `025-029`; DAEDALUS should update the runtime proof/tests to
+  include PR30's document-version objects, then wake ARGUS for review and
+  ARIADNE for the desktop/375px rehearsal.
 
 ## Near-term rule
 
