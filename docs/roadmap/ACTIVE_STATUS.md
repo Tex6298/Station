@@ -4328,6 +4328,17 @@ when a PR lands, or when validation truth changes.
   the linked forum discussion, while preserving private/basic-tier and no-Space
   guards. This is proof/setup and narrow repairs only, not billing redesign,
   workers, social dispatch, provider, Cloudflare/Redis, or UI reskin scope.
+- PR23 Creator Publish Public Discussion Proof is complete by DAEDALUS and
+  ready for ARGUS review, 2026-06-18: live Railway staging proved a
+  Creator-capable replay owner can save a public Space-backed draft, enqueue it
+  into publishing approval, transition through `grounding_check` ->
+  `human_review` -> `approved` -> `published`, read back the published public
+  document, start the linked public discussion, and load the anonymous public
+  Space/document/forum chain. Sanitized evidence is recorded in
+  `docs/roadmap/PR23_CREATOR_PUBLISH_PUBLIC_DISCUSSION_PROOF.md`. Caveat: the
+  replay owner capability is a staging profile tier seed, not Stripe-paid
+  activation proof. Regression checks kept no-Space approval enqueue at `400`
+  and a synthetic below-Creator user approval mutation at `403`.
 
 ## Near-term rule
 

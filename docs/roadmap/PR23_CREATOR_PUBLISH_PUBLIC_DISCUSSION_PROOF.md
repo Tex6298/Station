@@ -1,7 +1,7 @@
 # PR23 - Creator Publish Public Discussion Proof
 
 Date: 2026-06-18
-Status: opened for A2 / DAEDALUS
+Status: proof completed by A2 / DAEDALUS; ready for ARGUS review
 Owner: DAEDALUS proof/setup and narrow repairs if needed, ARGUS review,
 ARIADNE human rehearsal if the visible flow changes or after ARGUS acceptance.
 
@@ -128,3 +128,70 @@ Wake A3 / ARGUS with:
 ARGUS should review overclaim risk, entitlement bypass risk, public/private
 visibility, discussion-route visibility, and whether any code changes need
 ARIADNE browser review.
+
+## DAEDALUS Proof Package
+
+Run date: 2026-06-18
+
+Result: pass package, no code patch. The proof used the live Railway staging
+web/API and a public-safe synthetic document.
+
+Sanitized capability/setup:
+
+- Replay owner capability label: `creator`, Creator-or-above: yes.
+- Caveat: the replay owner capability is a staging profile tier seed, not
+  Stripe-paid activation proof.
+- Public Space: reused `station-replay-alpha`.
+- Synthetic document body: public-safe proof text only; no private archive body,
+  credentials, cookies, owner IDs, Stripe IDs, Checkout URLs, JWTs, or private
+  source material were recorded.
+- A prior proof harness run completed live synthetic mutations but rejected its
+  own output because the caveat wording included a forbidden secret-adjacent
+  phrase. The later run below is the recorded sanitized evidence; both live rows
+  are synthetic proof data.
+
+Positive path evidence:
+
+| Step | Result | Sanitized detail |
+| --- | --- | --- |
+| Sign in as replay owner | Pass | Capability label `creator`. |
+| Draft save | `201` | Draft created as `public`, Space-backed. |
+| Approval enqueue | `201` | Queue item entered `grounding_check`. |
+| Transition to human review | `200` | Approval state `human_review`, document still draft. |
+| Transition to approved | `200` | Approval state `approved`, document still draft. |
+| Transition to published | `200` | Approval state `published`, document status `published`, visibility `public`. |
+| Owner document readback | `200` | Published, public, Space-backed. |
+| Start linked discussion | `201` | Thread active, public. |
+
+Anonymous/public route evidence:
+
+| Route | Result | Sanitized detail |
+| --- | --- | --- |
+| `GET /spaces/station-replay-alpha` | `200` | Public Space includes the proof document. |
+| `GET /documents/public/<document-id>` | `200` | Published/public document; body matches synthetic proof text. |
+| `GET /documents/<document-id>/discussion` | `200` | Eligible, discussion present, visibility `public`. |
+| `GET /forums/categories/documents-and-codexes` | `200` | Category includes the proof discussion thread. |
+| Web `/space/station-replay-alpha` | `200` | App shell loads. |
+| Web `/space/station-replay-alpha/documents/<document-id>` | `200` | App shell loads. |
+| Web `/forums/documents-and-codexes/<thread-id>` | `200` | App shell loads. |
+
+Regression evidence:
+
+- No-Space draft approval enqueue returned `400` and the message included
+  `Space`.
+- Synthetic below-Creator signup had capability label `visitor`; approval
+  mutation returned `403`.
+- Local regression tests also keep private/basic-tier Creator-required UI/API
+  guards and no-Space queue guards covered.
+
+Validation:
+
+| Command | Result |
+| --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:publishing-approvals` | Pass, 9 tests. |
+| `npm exec --yes pnpm@10.32.1 -- run test:community` | Pass, 8 tests. |
+| `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` | Pass, 1 test. |
+| `npm exec --yes pnpm@10.32.1 -- run test:continuity-publication` | Pass, 1 test. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass, 17 tests. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass. |
+| `git diff --check` | Pass, CRLF normalization warning only for agent state. |

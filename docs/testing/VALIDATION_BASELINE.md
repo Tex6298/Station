@@ -7239,3 +7239,21 @@ Scope notes:
   autonomous execution, persona Memory/Canon writes, automatic publishing/export,
   workers, Cloudflare/vector/Redis memory work, billing redesign, social posting,
   or reskin scope was added.
+
+## PR23 Creator Publish Public Discussion Proof
+
+DAEDALUS live staging proof and local validation on 2026-06-18:
+
+| Command / proof | Result | Notes |
+| --- | --- | --- |
+| Live Railway PR23 proof harness | Pass | Replay owner capability label `creator` by staging profile tier seed; public Space `station-replay-alpha`; draft save `201`; approval enqueue `201`; transitions to `human_review`, `approved`, and `published` all `200`; public Space/document/discussion/forum API and web routes returned `200`; no-Space guard `400`; below-Creator guard `403`. Sanitized evidence only; no IDs/secrets/tokens committed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:publishing-approvals` | Pass | 9 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:community` | Pass | 8 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` | Pass | 1 test passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:continuity-publication` | Pass | 1 test passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 17 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck tasks passed. |
+| `git diff --check` | Pass | No whitespace errors; CRLF normalization warning only for agent state. |
+
+Caveat: the Creator-capable replay owner was proven by staging profile tier
+seed, not Stripe-paid activation. The live rows are synthetic proof data.
