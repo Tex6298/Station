@@ -4995,6 +4995,12 @@ when a PR lands, or when validation truth changes.
   methodology/field-log/live-signal story, visitor/private boundaries, and no
   obvious visible leakage. ARIADNE recommends MIMIR close PR37; Cloudflare
   remains deferred.
+- MIMIR closes PR37 and opens PR38 Final Human Demo Rehearsal for ARIADNE on
+  2026-06-18: `docs/roadmap/PR37_LAUNCH_CORE_POLISH_CAVEATS.md` now records
+  the deployed 390px pass and closeout, and
+  `docs/roadmap/PR38_FINAL_HUMAN_DEMO_REHEARSAL.md` asks ARIADNE to run the
+  final protected-alpha demo path as a human-eye rehearsal. PR38 is the next
+  proof step after visible polish, not a Cloudflare/backend architecture lane.
 
 ## Near-term rule
 

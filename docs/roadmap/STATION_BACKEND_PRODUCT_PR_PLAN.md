@@ -327,15 +327,14 @@ Reason: PR31 created the budget/trace safety surface needed before chat
 streaming. PR32 should add authenticated streaming/progress behavior while
 keeping provider-delta claims honest and the existing non-streaming POST stable.
 
-PR36 is closed as launch-core alpha pass with caveats. The active follow-up is
-PR37 Launch-Core Polish Caveats:
-`docs/roadmap/PR37_LAUNCH_CORE_POLISH_CAVEATS.md`.
+PR37 is closed as visually rechecked on deployed staging. The active follow-up
+is PR38 Final Human Demo Rehearsal:
+`docs/roadmap/PR38_FINAL_HUMAN_DEMO_REHEARSAL.md`.
 
-Reason: ARIADNE's live rehearsal found no backend blocker and no Cloudflare
-trigger. The remaining pre-demo work is narrow visible polish: signed mobile
-global navigation overflow, Archive search affordance/copy, Developer Space
-methodology/field-log storytelling, and Archive/import source narrative
-thinness.
+Reason: PR37 cleared the remaining narrow visible polish caveats from the
+launch-core rehearsal. The next useful move is final protected-alpha demo
+readiness proof and next-phase recommendation, not Cloudflare or another
+backend architecture lane.
 
 ## Recommended Order
 

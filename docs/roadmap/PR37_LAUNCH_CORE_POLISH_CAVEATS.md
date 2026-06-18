@@ -1,7 +1,7 @@
 # PR37 - Launch-Core Polish Caveats
 
 Date: 2026-06-18
-Status: staging overflow follow-up accepted by ARGUS, ready for ARIADNE recheck
+Status: closed by MIMIR after deployed ARIADNE recheck
 Owner: DAEDALUS implements, ARGUS reviews, ARIADNE rechecks visible staging
 surfaces if ARGUS accepts.
 
@@ -178,3 +178,25 @@ npm exec --yes pnpm@10.32.1 -- --filter @station/web build
 `test:studio-ui` passed 26 tests and `typecheck` passed. The web build
 compiled, linted/type-checked, and generated 30 pages before reproducing the
 known Windows Next standalone symlink `EPERM` failure.
+
+## ARIADNE Deployed Recheck Result
+
+ARIADNE accepts the PR37 deployed overflow follow-up on 2026-06-18. See
+`docs/roadmap/PR37_POLISH_RECHECK_ARIADNE_RESULT.md`.
+
+- Deployed Railway runtime `6b87332` measured signed `/studio` at
+  `documentElement.scrollWidth` `390px` and `clientWidth` `390px` on a
+  `390x844` viewport.
+- Account-menu route access to Studio, My Space, and Developer Spaces still
+  works without login redirects, 404s, hard errors, or horizontal overflow.
+- Mobile Archive and public Developer Space checks still pass for search/source
+  copy, methodology/field-log/live-signal story, visitor/private boundaries,
+  and no obvious visible leakage.
+- Cloudflare remains deferred because this was a responsive layout defect, not
+  a retrieval, latency, public-edge, or NESTstyle-memory defect.
+
+## MIMIR Closeout
+
+MIMIR closes PR37 on 2026-06-18 as visually rechecked on deployed staging.
+PR37 leaves no DAEDALUS/ARGUS follow-up. The next useful proof is a final human
+demo rehearsal, not Cloudflare or another backend architecture lane.
