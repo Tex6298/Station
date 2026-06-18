@@ -5283,6 +5283,11 @@ when a PR lands, or when validation truth changes.
   lint/typecheck, and 30 generated pages before the known Windows standalone
   symlink `EPERM`. ARIADNE deployed-browser recheck is optional if MIMIR wants
   visual confirmation of the signed owner manage page.
+- MIMIR opens PR48 Developer Pages Owner Evidence Recheck for ARIADNE on
+  2026-06-18 after confirming Railway web and API both serve commit
+  `65076251d3a7f6fb28d0258a75b1d30749a5c3a8`. This is a signed deployed
+  browser rehearsal for the owner manage evidence console on the two seeded
+  Developer Spaces, plus a public-route privacy sanity check.
 
 ## Near-term rule
 
