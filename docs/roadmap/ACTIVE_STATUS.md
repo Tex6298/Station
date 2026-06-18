@@ -4357,6 +4357,24 @@ when a PR lands, or when validation truth changes.
   and stale claims, and decide whether the current Railway/Supabase staging line
   can be marked launch-core sufficient for protected-alpha replay or whether one
   exact blocker remains.
+- PR24 Launch-Core Sufficiency Closeout is accepted by ARGUS, 2026-06-18:
+  ARGUS mapped every launch-core sufficiency item to accepted evidence and
+  recommends MIMIR mark the current Railway/Supabase staging line launch-core
+  sufficient for protected-alpha replay, with caveats preserved. No exact
+  DAEDALUS implementation blocker remains, and no required ARIADNE route pass
+  remains for closeout; an end-to-end ARIADNE narrated demo remains optional
+  before external presentation. Caveats to preserve: this is protected-alpha
+  staging truth, not production readiness; the PR23 Creator proof used a staging
+  profile tier seed rather than Stripe-paid activation; four onboarding paths
+  are not complete; candidate extraction is heuristic alpha behavior; jobs are
+  not a deployed durable worker system; Reddit/Discord intake is manual
+  upload/paste rather than live OAuth/API; export is JSON/Markdown bundle
+  readback rather than full workspace/PDF/binary archive; Station Assistant is
+  an operational map, not an autonomous persona/executor. ARGUS also found no
+  misleading current `ACTIVE_STATUS.md` claims, but the high-level summary docs
+  should be reconciled after MIMIR closeout because they now under-describe the
+  protected-alpha evidence for archive search, Assistant, manual social archive
+  intake, and portable bundle readback.
 
 ## Near-term rule
 
