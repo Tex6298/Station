@@ -7257,3 +7257,31 @@ DAEDALUS live staging proof and local validation on 2026-06-18:
 
 Caveat: the Creator-capable replay owner was proven by staging profile tier
 seed, not Stripe-paid activation. The live rows are synthetic proof data.
+
+## PR25 Four Onboarding Paths Alpha
+
+DAEDALUS implementation validation on 2026-06-18:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck tasks passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:auth` | Pass | 13 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 21 tests passed, including four onboarding path route/status helper coverage. |
+| `npm exec --yes pnpm@10.32.1 -- run test:storage` | Pass | 16 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass | 27 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:integrity` | Pass | 2 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 7 tests passed. |
+
+Scope notes:
+
+- `/studio/onboarding` is the alpha route map for Fresh Start, Awakening,
+  Document Migrator, and API Bridge.
+- Fresh Start and Awakening use existing persona creation and land on the real
+  persona workspace.
+- Document Migrator routes to the real owner-scoped persona archive/import page
+  when a persona exists, or creates the prerequisite persona first.
+- API Bridge is the existing Developer Space ingestion lane with ingestion keys
+  and sample event paths, not production worker infrastructure.
+- No live Reddit/Discord OAuth pulls, recurring sync, external social import
+  API, Cloudflare retrieval, Redis memory truth, provider marketplace, Stripe
+  expansion, or broad redesign was added.

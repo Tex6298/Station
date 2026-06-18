@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { getSession } from "@/lib/auth";
 import { apiPost } from "@/lib/api-client";
@@ -64,6 +64,22 @@ const STEPS = [
 ] as const;
 
 type StepId = (typeof STEPS)[number]["id"];
+type EntryPath = "fresh-start" | "awakening" | "document-migrator";
+
+const ENTRY_PATH_COPY: Record<EntryPath, { label: string; note: string }> = {
+  "fresh-start": {
+    label: "Fresh Start",
+    note: "Create a blank private base now. You can leave setup fields light and add archive, memory, canon, and public material later.",
+  },
+  awakening: {
+    label: "Awakening",
+    note: "Use the guided setup fields to record context, boundaries, voice, and provider before Station creates the persona.",
+  },
+  "document-migrator": {
+    label: "Document Migrator Setup",
+    note: "Create the owner-scoped persona first; Station will send you to the real workspace, then you can open private archive import.",
+  },
+};
 
 // -- Provider options ----------------------------------------------------------
 
@@ -216,6 +232,7 @@ const S = {
 
 export function AwakeningFlow() {
   const router = useRouter();
+  const [entryPath, setEntryPath] = useState<EntryPath>("awakening");
   const [step, setStep] = useState(0);
   const [data, setData] = useState<FlowData>(EMPTY);
   const [error, setError] = useState<string | null>(null);
@@ -223,6 +240,14 @@ export function AwakeningFlow() {
 
   const current = STEPS[step];
   const isLast  = step === STEPS.length - 1;
+  const entryCopy = ENTRY_PATH_COPY[entryPath];
+
+  useEffect(() => {
+    const path = new URLSearchParams(window.location.search).get("path");
+    if (path === "fresh-start" || path === "awakening" || path === "document-migrator") {
+      setEntryPath(path);
+    }
+  }, []);
 
   function set(field: keyof FlowData, value: string) {
     setData((d) => ({ ...d, [field]: value }));
@@ -266,7 +291,9 @@ export function AwakeningFlow() {
         session.access_token
       );
 
-      router.push(`/studio/personas/${persona.id}`);
+      router.push(entryPath === "document-migrator"
+        ? `/studio/personas/${persona.id}/files`
+        : `/studio/personas/${persona.id}`);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Something went wrong. Try again.");
       setSubmitting(false);
@@ -290,10 +317,11 @@ export function AwakeningFlow() {
 
       {/* Step header */}
       <p style={{ color: "#7c6af7", fontSize: "0.78rem", textTransform: "uppercase", letterSpacing: "0.1em", margin: "0 0 0.4rem" }}>
-        {current.label}
+        {entryCopy.label} / {current.label}
       </p>
       <h1 style={S.heading}>{current.title}</h1>
       <p style={S.subtitle}>{current.subtitle}</p>
+      {step === 0 ? <p style={{ ...S.hint, marginBottom: "1.25rem", color: "#8ea0b8" }}>{entryCopy.note}</p> : null}
 
       {error && <div style={S.error}>{error}</div>}
 

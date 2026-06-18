@@ -1,7 +1,7 @@
 # PR25 - Four Onboarding Paths Alpha
 
 Date: 2026-06-18
-Status: opened for A2 / DAEDALUS
+Status: implemented by A2 / DAEDALUS; ready for ARGUS review
 Owner: DAEDALUS implements, ARGUS reviews, ARIADNE rehearses if visible route
 truth changes.
 
@@ -134,3 +134,60 @@ When done, wake ARGUS with:
 
 If blocked, wake MIMIR with the smallest exact blocker and the recommended next
 move.
+
+## DAEDALUS Implementation Package
+
+Run date: 2026-06-18
+
+Result: implemented as a narrow alpha route map and honest entry surface. No
+new ingestion system, billing change, provider routing, Redis/Cloudflare work,
+or production worker lane was added.
+
+Routes changed:
+
+- `GET /studio/onboarding`: new signed-in Studio route exposing the four entry
+  paths with status labels, real route targets, supporting route notes, and
+  current alpha boundaries.
+- `GET /studio/new?path=fresh-start`: routes to the existing persona creation
+  flow with Fresh Start copy; after creation, lands on
+  `/studio/personas/<persona-id>`.
+- `GET /studio/new?path=awakening`: routes to the existing guided creation
+  flow; after creation, lands on `/studio/personas/<persona-id>`.
+- `GET /studio/new?path=document-migrator`: creates the prerequisite
+  owner-scoped persona, then lands on
+  `/studio/personas/<persona-id>/files`.
+- `GET /developer-spaces`: remains the API Bridge entry point; owner manage
+  routes already expose ingestion-key generation and concrete node/event/snapshot
+  sample calls.
+- Studio dashboard/sidebar/mobile nav now link to `/studio/onboarding`.
+
+Path status:
+
+| Path | Status | Route target | Notes |
+| --- | --- | --- | --- |
+| Fresh Start | Live | `/studio/new?path=fresh-start` | Uses the existing private persona creation API path and lands on the real workspace. |
+| Awakening | Live | `/studio/new?path=awakening` | Uses the existing guided setup fields; integrity and memory remain real follow-on routes after creation. |
+| Document Migrator | Alpha live | Existing persona: `/studio/personas/<persona-id>/files`; no persona: `/studio/new?path=document-migrator` | Supports owner-scoped pasted/uploaded archive material, import status, failures, and candidate review. It does not claim live Reddit/Discord OAuth, recurring sync, or external social API pulls. |
+| API Bridge | Alpha live | `/developer-spaces` and `/developer-spaces/<slug>/manage` | Current Developer Space ingestion honestly serves as the alpha bridge with ingestion keys and sample event paths. It does not add Cloudflare retrieval, Redis memory truth, provider marketplace work, or production workers. |
+
+Implementation notes:
+
+- Added `apps/web/lib/onboarding-paths.ts` and tests to keep the four path
+  statuses, routes, and caveats stable.
+- Replaced the dashboard's fake-looking recent archive activity rows with real
+  route prompts to onboarding, archive, and export surfaces.
+- Added `apps/web/lib/onboarding-paths.test.ts` to `pnpm test:studio-ui`.
+
+Validation:
+
+| Command | Result |
+| --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass. |
+| `npm exec --yes pnpm@10.32.1 -- run test:auth` | Pass, 13 tests. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass, 21 tests. |
+| `npm exec --yes pnpm@10.32.1 -- run test:storage` | Pass, 16 tests. |
+| `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass, 27 tests. |
+| `npm exec --yes pnpm@10.32.1 -- run test:integrity` | Pass, 2 tests. |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass, 7 tests. |
+
+Remaining pre-handoff check: `git diff --check`.

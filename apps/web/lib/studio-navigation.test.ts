@@ -20,6 +20,7 @@ test("Studio navigation helpers expose private persona links and labels", () => 
 
   assert.equal(studioPersonaHref(persona), "/studio/personas/persona-1");
   assert.equal(studioPersonaMeta(persona), "private - private Studio");
+  assert.equal(studioWorkspaceLinks.some((link) => link.href === "/studio/onboarding"), true);
   assert.equal(studioWorkspaceLinks.some((link) => link.href === "/studio/archive"), true);
 });
 

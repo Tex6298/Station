@@ -33,10 +33,9 @@ const PROVIDER_LABELS: Record<string, string> = {
 };
 
 const archiveEvents = [
-  { icon: "R", label: "Reddit pull queued", detail: "Awakenings thread import ready for review" },
-  { icon: "U", label: "Upload processed", detail: "station-notes.txt added to Station archive" },
-  { icon: "C", label: "Chat archive", detail: "One transcript prepared for memory review" },
-  { icon: "D", label: "Document update", detail: "What Station Is For saved as published writing" },
+  { icon: "O", label: "Choose an onboarding path", detail: "Fresh Start, Awakening, Migrator, or API Bridge", href: "/studio/onboarding" },
+  { icon: "A", label: "Open global archive", detail: "Search owner-scoped archived material and import status", href: "/studio/archive" },
+  { icon: "E", label: "Export workspace", detail: "Review portable JSON and Markdown export bundles", href: "/studio/export" },
 ];
 
 function integrityStatus(status: IntegrityDuePersona["sessionStatus"]) {
@@ -69,6 +68,7 @@ function Header({ personaCount }: { personaCount: number }) {
         </p>
       </div>
       <StudioActionRow>
+        <Link href="/studio/onboarding" style={secondaryButton}>Start Path</Link>
         <Link href="/studio/new" style={primaryButton}>New Persona</Link>
         <Link href="/space" style={secondaryButton}>Public Space</Link>
       </StudioActionRow>
@@ -173,16 +173,18 @@ function UsageStats({ personas }: { personas: PersonaSummary[] }) {
 function ArchiveActivity() {
   return (
     <section className="studio-dashboard-panel" style={panel}>
-      <SectionTitle title="Recent Archive Activity" action="Global Archive" href="/studio/archive" />
+      <SectionTitle title="Recent Archive Activity" action="Document Migrator" href="/studio/onboarding" />
       <div style={{ display: "grid", gap: 10 }}>
         {archiveEvents.map((event) => (
-          <article key={event.label} className="studio-dashboard-row" style={listRow}>
+          <Link key={event.label} href={event.href} style={{ textDecoration: "none" }}>
+          <article className="studio-dashboard-row" style={listRow}>
             <span style={iconBox}>{event.icon}</span>
             <div>
               <div style={{ color: "#f8fafc", fontSize: 13, fontWeight: 700 }}>{event.label}</div>
               <div style={mutedLine}>{event.detail}</div>
             </div>
           </article>
+          </Link>
         ))}
       </div>
     </section>
@@ -211,6 +213,7 @@ function PersonaOverview({ personas }: { personas: PersonaSummary[] }) {
         </div>
       )}
       <div style={{ borderTop: "1px solid #202938", marginTop: 14, paddingTop: 14, display: "grid", gap: 8 }}>
+        <Link href="/studio/onboarding" style={railLink}>Onboarding Paths</Link>
         <Link href="/space" style={railLink}>Blog Posts</Link>
         <Link href="/space" style={railLink}>Public Space</Link>
         <Link href="/settings" style={railLink}>Settings</Link>

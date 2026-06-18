@@ -4391,6 +4391,20 @@ when a PR lands, or when validation truth changes.
   expansion, production workers, and broad redesign out of scope. DAEDALUS must
   wake ARGUS with path-by-path route/status proof, or wake MIMIR with a precise
   blocker.
+- PR25 Four Onboarding Paths Alpha is implemented by DAEDALUS and ready for
+  ARGUS review, 2026-06-18: `/studio/onboarding` now exposes the four entry
+  paths with exact status labels and real route targets. Fresh Start and
+  Awakening route through existing persona creation and land on the real persona
+  workspace. Document Migrator routes existing-persona users to
+  `/studio/personas/<persona-id>/files` and no-persona users through creation
+  first, then to that archive/import surface. API Bridge routes to
+  `/developer-spaces`, where existing Developer Space manage pages provide
+  ingestion-key guidance and concrete node/event/snapshot sample calls. The
+  dashboard/sidebar/mobile nav now link to the onboarding route, and the prior
+  fake-looking dashboard archive activity rows were replaced with real route
+  prompts. Caveats preserved: no live Reddit/Discord OAuth pulls, recurring
+  sync, external social import API, Cloudflare retrieval, Redis memory truth,
+  provider marketplace, production worker lane, or Stripe expansion was added.
 
 ## Near-term rule
 
