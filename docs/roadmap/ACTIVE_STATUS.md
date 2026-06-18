@@ -4577,6 +4577,16 @@ when a PR lands, or when validation truth changes.
   `@station/api` build, `git diff --check`, and `git diff --cached --check`.
   No precise repair lane is indicated; Cloudflare/Redis/provider/vector/worker/
   Stripe/social/UI work remains deferred.
+- PR29 Live Staging Replay Refresh is fully closed, 2026-06-18: MIMIR accepts
+  ARGUS's verdict and uses the clean live refresh to move from backend repair
+  loops to the next product gap.
+- PR30 Native Document Versioning Alpha is opened for DAEDALUS, 2026-06-18:
+  `docs/roadmap/PR30_NATIVE_DOCUMENT_VERSIONING_ALPHA.md` asks DAEDALUS to add
+  bounded document version-history support around existing Station documents,
+  publishing, approvals, public Space/Discover/discussion surfaces, and exports.
+  This is not a rich-editor rebuild and must not add Cloudflare, Redis memory
+  truth, provider routing, vector-dimension changes, workers, Stripe changes,
+  social dispatch, PDF/Press export, or broad UI redesign.
 
 ## Near-term rule
 

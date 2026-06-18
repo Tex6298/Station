@@ -1,7 +1,7 @@
 # PR29 - Live Staging Replay Refresh
 
 Date: 2026-06-18
-Status: implemented by A2 / DAEDALUS; ready for ARGUS review
+Status: closed
 Owner: DAEDALUS runs evidence, ARGUS reviews. ARIADNE only rehearses if a
 visible staging-facing UI defect appears.
 
@@ -221,3 +221,18 @@ Validation rerun by ARGUS:
 No DAEDALUS repair lane is indicated. Cloudflare, Redis memory truth, provider
 routing, vector dimensions, workers, Stripe, live social import, and broad UI
 work remain deferred.
+
+## MIMIR Closeout - 2026-06-18
+
+PR29 is fully closed.
+
+MIMIR accepts ARGUS's verdict:
+
+- Railway web/API are healthy and ready at runtime commit `fb906b1b0bf7`.
+- That runtime includes the PR28 backend retrieval-depth patch; later commits
+  are docs/review/status only for this refresh.
+- Sanitized replay evidence covers the PR25 through PR28 risks at counts,
+  modes, and status level.
+- No repair lane is indicated.
+- Cloudflare, Redis memory truth, provider routing, vector dimensions, workers,
+  Stripe, live social import, and broad UI remain deferred.

@@ -292,14 +292,24 @@ Broad UI polish:
 Status: accepted by A3 / ARGUS on 2026-06-15 as evidence-only/no-code. See
 `docs/roadmap/PR7_LIVE_REPLAY_OPTIMIZATION_BASELINE_RESULT.md`.
 
-Refresh: `docs/roadmap/PR29_LIVE_STAGING_REPLAY_REFRESH.md` is opened after
-PR25 through PR28 to verify the current pushed line on Railway before choosing
-more feature work.
+Refresh: `docs/roadmap/PR29_LIVE_STAGING_REPLAY_REFRESH.md` was accepted by
+ARGUS on 2026-06-18 and closed by MIMIR after verifying the current pushed line
+on Railway before choosing more feature work.
 
 Exit:
 
 - The next backend/product lane is chosen from live replay evidence rather than
   guesses about Cloudflare, Redis, workers, providers, billing, or UI.
+
+## Post-Refresh Product Lane
+
+Native document versioning alpha is active via
+`docs/roadmap/PR30_NATIVE_DOCUMENT_VERSIONING_ALPHA.md`.
+
+Reason: PR29 found no backend repair lane and no Cloudflare/Redis/provider/
+worker trigger. The remaining Station v1 gap with the cleanest product value is
+making documents behave like durable authored works, starting with bounded
+version history rather than a full rich editor.
 
 ## Recommended Order
 
