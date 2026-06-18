@@ -109,9 +109,9 @@ export function buildChatRuntimeBudgetReport(input: BuildChatRuntimeBudgetReport
       retrievalMode: input.runtimeContext.trace.retrievalMode.archive,
     },
     continuity: {
-      itemCount: 0,
-      estimatedTokens: 0,
-      notes: ["continuity_records_not_in_chat_context_yet"],
+      ...sourceBucket(input.runtimeContext.continuity),
+      searched: input.runtimeContext.trace.searched.continuity,
+      retrievalMode: "latest_private",
     },
   };
   const bucketTokens = Object.values(buckets).reduce((sum, bucket) => sum + bucket.estimatedTokens, 0);

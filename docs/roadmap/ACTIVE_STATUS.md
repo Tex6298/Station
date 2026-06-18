@@ -4789,6 +4789,22 @@ when a PR lands, or when validation truth changes.
   Explicit non-scope: continuity vector search, Redis/Valkey/Cloudflare storage,
   Continuity UI redesign, Memory/Canon semantic changes, or public exposure of
   private continuity.
+- PR33 Continuity Runtime Context Alpha is implemented by DAEDALUS and ready for
+  ARGUS review, 2026-06-18: `assemblePersonaRuntimeContext` now loads up to four
+  latest owner/private `continuity_records` for the current persona, formats
+  them as source context with record type, source table/id/label, source version,
+  record version, visibility, and timestamps, and includes them in counts,
+  selected-source trace metadata, and the PR31 runtime budget `continuity`
+  bucket. Prompt wording explicitly treats continuity records as source context,
+  not instructions. Tests prove owner-private records enter context, other-owner
+  and public records stay out of the private runtime bucket, selected-source
+  trace metadata remains content-free, and runtime budget continuity counts no
+  longer use the old placeholder. Validation passed `test:persona-context`,
+  `test:continuity`, `test:conversation-archive`, `@station/api` build, and
+  `git diff --check`. No continuity vector search, Redis/Cloudflare storage,
+  Continuity UI redesign, Memory/Canon semantic changes, public exposure, or
+  Studio-visible behavior changed; ARIADNE rehearsal is not recommended unless
+  ARGUS finds a visible surface concern.
 
 ## Near-term rule
 

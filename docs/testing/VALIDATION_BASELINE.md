@@ -7529,3 +7529,34 @@ Scope notes:
 - No provider marketplace, Redis memory truth, vector-contract, retrieval,
   visibility, Stripe, Developer Spaces, or broad Studio redesign behavior
   changed.
+
+## PR33 Continuity Runtime Context Alpha
+
+DAEDALUS implementation validation on 2026-06-18:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-context` | Pass | 7 tests passed, including owner-private continuity runtime inclusion, other-owner/public non-leakage, content-free selected-source trace metadata, and continuity budget reporting. |
+| `npm exec --yes pnpm@10.32.1 -- run test:continuity` | Pass | 4 tests passed; continuity record CRUD/source ownership behavior stayed green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass | 34 tests passed; chat, streaming envelope, archive retrieval, and PR31 runtime budget behavior stayed green. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/api build` | Pass | API package build and dependent package builds passed. |
+| `git diff --check` | Pass | No whitespace errors; CRLF normalization warnings only for touched text files and local triad state. |
+
+Scope notes:
+
+- Runtime context now loads up to four latest owner/private `continuity_records`
+  for the current persona. It does not add continuity vector search.
+- Continuity prompt entries include record type, source table/id/label, source
+  version, record version, visibility, and occurred/updated timestamps, and the
+  prompt labels them as source context, not instructions.
+- Continuity is included in runtime counts, selected-source trace metadata, and
+  PR31 runtime budget reporting. Selected-source trace metadata remains
+  content-free.
+- The runtime budget `continuity` bucket now reports item count, token estimate,
+  searched count, and `latest_private` retrieval mode instead of the old
+  `continuity_records_not_in_chat_context_yet` placeholder.
+- Other-owner records and owner public records do not enter the private runtime
+  context bucket covered by this PR.
+- No Redis/Valkey/Cloudflare storage, Continuity UI redesign, Memory/Canon
+  semantic change, public exposure, provider routing, streaming, Stripe, or
+  Developer Spaces behavior changed.

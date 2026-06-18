@@ -566,6 +566,7 @@ async function runPersonaChatTurn(input: ChatTurnInput): Promise<ChatTurnResult>
     memory: memoryCount,
     integrity: integrityCount,
     archive: archiveCount,
+    continuity: continuityCount,
   } = runtimeContext.counts;
 
   // Resolve provider
@@ -599,7 +600,7 @@ async function runPersonaChatTurn(input: ChatTurnInput): Promise<ChatTurnResult>
     conversationId: convId,
     source: "conversation",
     metadata: {
-      contextCounts: { canonCount, memoryCount, integrityCount, archiveCount },
+      contextCounts: { canonCount, memoryCount, integrityCount, archiveCount, continuityCount },
       runtimeBudget,
     },
   });
@@ -780,6 +781,7 @@ async function runPersonaChatTurn(input: ChatTurnInput): Promise<ChatTurnResult>
       memoryCount,
       integrityCount,
       archiveCount,
+      continuityCount,
       provider: aiResponse.model,
       runtimeBudget,
     };

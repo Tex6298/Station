@@ -23,6 +23,7 @@ export interface PersonaContextInput {
   maxMemory?: number;
   maxIntegrity?: number;
   maxArchive?: number;
+  maxContinuity?: number;
 }
 
 export interface PersonaContext {
@@ -31,10 +32,11 @@ export interface PersonaContext {
   memoryCount: number;
   integrityCount: number;
   archiveCount: number;
+  continuityCount: number;
   sources: PersonaContextSource[];
 }
 
-export type PersonaContextSourceType = "canon" | "integrity" | "memory" | "archive";
+export type PersonaContextSourceType = "canon" | "integrity" | "memory" | "archive" | "continuity";
 
 export interface PersonaContextSource {
   id: string;
@@ -52,6 +54,7 @@ export interface PersonaContextCounts {
   memory: number;
   integrity: number;
   archive: number;
+  continuity: number;
 }
 
 export interface PersonaRuntimeContext {
@@ -63,6 +66,7 @@ export interface PersonaRuntimeContext {
   memory: PersonaContextSource[];
   integrity: PersonaContextSource[];
   archive: PersonaContextSource[];
+  continuity: PersonaContextSource[];
 }
 
 export interface PersonaRuntimeContextTrace {
@@ -87,6 +91,7 @@ export interface PersonaRuntimeContextTrace {
   searched: {
     memory: number;
     archive: number;
+    continuity: number;
   };
 }
 
@@ -107,6 +112,7 @@ export async function buildPersonaContext(
     memoryCount: context.counts.memory,
     integrityCount: context.counts.integrity,
     archiveCount: context.counts.archive,
+    continuityCount: context.counts.continuity,
     sources: context.sources,
   };
 }
@@ -116,7 +122,7 @@ export async function assemblePersonaRuntimeContext(
 ): Promise<PersonaRuntimeContext> {
   const queryEmbeddingPromise = sharedQueryEmbedding(input.userQuery, input.embeddingApiKey);
 
-  const [canon, ownerMemory, memoryRetrieval, integrity, preferenceProfile, archiveRetrieval] = await Promise.all([
+  const [canon, ownerMemory, memoryRetrieval, integrity, preferenceProfile, archiveRetrieval, continuity] = await Promise.all([
     loadCanon(input.supabase, input.persona.id, input.maxCanon ?? 6, input.ownerUserId),
     loadOwnerMemoryBlocks(input, 4),
     queryEmbeddingPromise.then((queryEmbedding) =>
@@ -135,6 +141,7 @@ export async function assemblePersonaRuntimeContext(
     queryEmbeddingPromise.then((queryEmbedding) =>
       loadArchiveReferences(input, input.maxArchive ?? 8, queryEmbedding)
     ),
+    loadContinuityRecords(input, input.maxContinuity ?? 4),
   ]);
 
   const canonSources = canon.map<PersonaContextSource>((item) => ({
@@ -164,6 +171,7 @@ export async function assemblePersonaRuntimeContext(
     ...integrity,
     ...ownerMemory,
     ...memorySources,
+    ...continuity.sources,
     ...archiveRetrieval.sources,
   ];
   const safeMemorySkipped = redactHiddenMemorySkippedCounts(memoryRetrieval.trace.skipped);
@@ -181,6 +189,7 @@ export async function assemblePersonaRuntimeContext(
       ...integrity.map((source) => formatSourceForPrompt(source)),
     ],
     memory: [...ownerMemory, ...memorySources].map((source) => source.content),
+    continuity: continuity.sources.map((source) => source.content),
     archive: archiveRetrieval.sources.map((source) => formatSourceForPrompt(source)),
   });
 
@@ -191,6 +200,7 @@ export async function assemblePersonaRuntimeContext(
       memory: ownerMemory.length + memorySources.length,
       integrity: integrity.length + (preferenceProfile ? 1 : 0),
       archive: archiveRetrieval.sources.length,
+      continuity: continuity.sources.length,
     },
     sources,
     trace: {
@@ -215,12 +225,14 @@ export async function assemblePersonaRuntimeContext(
       searched: {
         memory: visibleMemorySearchedCount(memoryRetrieval.trace),
         archive: archiveRetrieval.searched,
+        continuity: continuity.searched,
       },
     },
     canon: canonSources,
     memory: [...ownerMemory, ...memorySources],
     integrity: preferenceProfile ? [preferenceProfile, ...integrity] : integrity,
     archive: archiveRetrieval.sources,
+    continuity: continuity.sources,
   };
 }
 
@@ -259,6 +271,39 @@ async function loadOwnerMemoryBlocks(
     sourceType: "owner_memory_block",
     createdAt: row.updated_at ?? row.created_at,
   }));
+}
+
+async function loadContinuityRecords(
+  input: PersonaContextInput,
+  limit: number
+): Promise<{ sources: PersonaContextSource[]; searched: number }> {
+  if (!input.ownerUserId) return { sources: [], searched: 0 };
+
+  const { data, error } = await input.supabase
+    .from("continuity_records")
+    .select("id, record_type, title, body, summary, source_table, source_id, source_label, source_version, visibility, version, occurred_at, created_at, updated_at")
+    .eq("persona_id", input.persona.id)
+    .eq("owner_user_id", input.ownerUserId)
+    .eq("visibility", "private")
+    .order("updated_at", { ascending: false })
+    .limit(limit);
+
+  if (error) return { sources: [], searched: 0 };
+
+  const rows = data ?? [];
+  return {
+    searched: rows.length,
+    sources: rows.map((row, index): PersonaContextSource => ({
+      id: row.id,
+      type: "continuity",
+      title: row.title,
+      content: formatContinuityRecordForPrompt(row),
+      priority: 55 - index,
+      reason: `Included private owner continuity record (${row.record_type ?? "timeline"}).`,
+      sourceType: row.record_type ?? "timeline",
+      createdAt: row.occurred_at ?? row.updated_at ?? row.created_at,
+    })),
+  };
 }
 
 async function loadPreferenceProfile(
@@ -512,6 +557,28 @@ function normalizeRule(label: string, value: string | null | undefined) {
 
 function formatSourceForPrompt(source: PersonaContextSource) {
   return source.title ? `${source.title}: ${source.content}` : source.content;
+}
+
+function formatContinuityRecordForPrompt(row: any) {
+  const excerpt = trimContinuityText(row.summary ?? row.body ?? "");
+  const labels = [
+    `type=${row.record_type ?? "timeline"}`,
+    `visibility=${row.visibility ?? "private"}`,
+    `recordVersion=${Number(row.version ?? 1)}`,
+    `sourceVersion=${Number(row.source_version ?? 1)}`,
+    row.source_table ? `source=${row.source_table}${row.source_id ? `/${row.source_id}` : ""}` : null,
+    row.source_label ? `label=${row.source_label}` : null,
+    row.occurred_at ? `occurred=${row.occurred_at}` : null,
+    row.updated_at ? `updated=${row.updated_at}` : null,
+  ].filter(Boolean);
+  const title = row.title?.trim() ? `${row.title.trim()}: ` : "";
+  return `${title}${excerpt || "Continuity marker without body text."} [${labels.join("; ")}]`;
+}
+
+function trimContinuityText(value: string, maxLength = 700) {
+  const compact = value.replace(/\s+/g, " ").trim();
+  if (compact.length <= maxLength) return compact;
+  return `${compact.slice(0, Math.max(0, maxLength - 3)).trim()}...`;
 }
 
 function redactHiddenMemorySkippedCounts(skipped: MemoryRetrievalTrace["skipped"]) {

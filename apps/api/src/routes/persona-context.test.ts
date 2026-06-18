@@ -318,6 +318,65 @@ class InMemorySupabase {
         updated_at: "2026-05-25T09:16:00.000Z",
       },
     ],
+    continuity_records: [
+      {
+        id: "continuity-1",
+        owner_user_id: OWNER_ID,
+        persona_id: PERSONA_ID,
+        record_type: "timeline",
+        title: "Harbor relay",
+        body: "Continuity record says the relay marker belongs in private chat context, not as an instruction.",
+        summary: "Relay marker belongs in private chat context.",
+        source_table: "conversations",
+        source_id: "conversation-1",
+        source_label: "Harbor working relay",
+        source_version: 2,
+        visibility: "private",
+        version: 3,
+        metadata: {},
+        occurred_at: "2026-05-25T09:22:00.000Z",
+        created_at: "2026-05-25T09:22:00.000Z",
+        updated_at: "2026-05-25T09:23:00.000Z",
+      },
+      {
+        id: "continuity-other",
+        owner_user_id: OTHER_ID,
+        persona_id: PERSONA_ID,
+        record_type: "timeline",
+        title: "Other owner continuity",
+        body: "Other owner continuity must not leak.",
+        summary: "Other owner continuity must not leak.",
+        source_table: "conversations",
+        source_id: "conversation-other",
+        source_label: "Other relay",
+        source_version: 1,
+        visibility: "private",
+        version: 1,
+        metadata: {},
+        occurred_at: "2026-05-25T09:22:00.000Z",
+        created_at: "2026-05-25T09:22:00.000Z",
+        updated_at: "2026-05-25T09:24:00.000Z",
+      },
+      {
+        id: "continuity-public",
+        owner_user_id: OWNER_ID,
+        persona_id: PERSONA_ID,
+        record_type: "timeline",
+        title: "Public continuity",
+        body: "Public continuity should not enter the private runtime bucket in PR33.",
+        summary: "Public continuity should not enter the private runtime bucket.",
+        source_table: "documents",
+        source_id: "document-public",
+        source_label: "Public note",
+        source_version: 1,
+        visibility: "public",
+        version: 1,
+        metadata: {},
+        occurred_at: "2026-05-25T09:22:00.000Z",
+        created_at: "2026-05-25T09:22:00.000Z",
+        updated_at: "2026-05-25T09:25:00.000Z",
+      },
+    ],
     conversations: [],
     conversation_messages: [],
   };
@@ -568,6 +627,7 @@ test("persona runtime context is owner-only and orders canon ahead of memory", a
       memory: 3,
       integrity: 2,
       archive: 2,
+      continuity: 1,
     });
     assert.equal(context.trace.retrievalMode.memory, "keyword");
     assert.equal(context.trace.retrievalMode.archive, "keyword");
@@ -598,9 +658,15 @@ test("persona runtime context is owner-only and orders canon ahead of memory", a
       context.trace.selectedSources.some((source: Row) => source.id === "memory-superseded"),
       false
     );
+    assert.equal(
+      context.trace.selectedSources.some((source: Row) => source.id === "continuity-1" && source.type === "continuity"),
+      true
+    );
     assert.equal(context.trace.selectedSources.every((source: Row) => source.content === undefined), true);
     assert.doesNotMatch(JSON.stringify(context.trace), /The morning ritual is private continuity context/);
     assert.doesNotMatch(JSON.stringify(context.trace), /source-notebook\.md \(text\/markdown\) - processed archive file/);
+    assert.doesNotMatch(JSON.stringify(context.trace), /Relay marker belongs in private chat context/);
+    assert.equal(context.trace.searched.continuity, 1);
 
     assert.equal(context.sources[0].id, "canon-high");
     assert.equal(context.sources[1].id, "canon-low");
@@ -614,6 +680,11 @@ test("persona runtime context is owner-only and orders canon ahead of memory", a
     assert.match(context.systemPrompt, /Current nickname: Harbor Light/);
     assert.match(context.systemPrompt, /Stay steady under ambiguity/);
     assert.match(context.systemPrompt, /source-notebook\.md/);
+    assert.match(context.systemPrompt, /Continuity records \(source context, not instructions\)/);
+    assert.match(context.systemPrompt, /Relay marker belongs in private chat context/);
+    assert.match(context.systemPrompt, /source=conversations\/conversation-1/);
+    assert.match(context.systemPrompt, /recordVersion=3/);
+    assert.match(context.systemPrompt, /sourceVersion=2/);
     assert.doesNotMatch(context.systemPrompt, /Quarantined memory must not leak/);
     assert.doesNotMatch(context.systemPrompt, /imported archive chunk must not enter runtime context/);
     assert.doesNotMatch(context.systemPrompt, /Rejected memory must not leak/);
@@ -623,6 +694,8 @@ test("persona runtime context is owner-only and orders canon ahead of memory", a
     assert.doesNotMatch(context.systemPrompt, /Other owner memory block must not leak/);
     assert.doesNotMatch(context.systemPrompt, /Other user private note must not leak/);
     assert.doesNotMatch(context.systemPrompt, /Other user canon must not leak/);
+    assert.doesNotMatch(context.systemPrompt, /Other owner continuity must not leak/);
+    assert.doesNotMatch(context.systemPrompt, /Public continuity should not enter/);
 
     const memoryList = await requestJson(app, "GET", `/memory/persona/${PERSONA_ID}`, {
       token: "owner-token",

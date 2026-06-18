@@ -55,12 +55,13 @@ test("chat runtime budget reports counts and drops content", () => {
     historyLimit: 2,
     runtimeContext: {
       systemPrompt: "Private system prompt with canon text.",
-      counts: { canon: 1, memory: 1, integrity: 1, archive: 1 },
+      counts: { canon: 1, memory: 1, integrity: 1, archive: 1, continuity: 1 },
       sources: [],
       canon: [{ id: "canon-1", type: "canon", title: "Canon", content: "Secret canon", priority: 1, reason: "test" }],
       memory: [{ id: "memory-1", type: "memory", title: "Memory", content: "Secret memory", priority: 1, reason: "test" }],
       integrity: [{ id: "integrity-1", type: "integrity", title: "Integrity", content: "Secret integrity", priority: 1, reason: "test" }],
       archive: [{ id: "archive-1", type: "archive", title: "Archive", content: "Secret archive", priority: 1, reason: "test" }],
+      continuity: [{ id: "continuity-1", type: "continuity", title: "Continuity", content: "Secret continuity", priority: 1, reason: "test" }],
       trace: {
         retrievalMode: { memory: "keyword", archive: "keyword", memoryFallback: "no_embedding_key" },
         embedding: {
@@ -90,7 +91,7 @@ test("chat runtime budget reports counts and drops content", () => {
             superseded: 0,
           },
         },
-        searched: { memory: 12, archive: 4 },
+        searched: { memory: 12, archive: 4, continuity: 1 },
       },
     },
     providerRoute: "deepseek_fallback",
@@ -111,9 +112,11 @@ test("chat runtime budget reports counts and drops content", () => {
     other_owner_or_missing: 0,
   });
   assert.equal(report.buckets.archive.retrievalMode, "keyword");
+  assert.equal(report.buckets.continuity.itemCount, 1);
+  assert.equal(report.buckets.continuity.searched, 1);
+  assert.equal(report.buckets.continuity.retrievalMode, "latest_private");
   assert.equal(report.truncation.history.requested, 7);
   assert.equal(report.truncation.history.retained, 2);
   assert.equal(report.truncation.history.dropped, 5);
-  assert.equal(report.buckets.continuity.itemCount, 0);
   assert.doesNotMatch(JSON.stringify(report), /Secret|Private/);
 });
