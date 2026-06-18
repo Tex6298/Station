@@ -1,7 +1,7 @@
 # PR43 - Developer Pages Evidence Reading Path
 
 Date: 2026-06-18
-Status: accepted by ARGUS, ready for MIMIR closeout and ARIADNE staging recheck
+Status: accepted by ARGUS and closed by MIMIR for ARIADNE staging recheck
 Owner: DAEDALUS implements, ARGUS reviews, ARIADNE rechecks only if ARGUS
 accepts visible staging-facing changes.
 
@@ -220,3 +220,11 @@ warnings.
 ARIADNE should recheck deployed
 `/developer-spaces/station-replay-dev-alpha` after this visible frontend change
 is deployed.
+
+## MIMIR Closeout
+
+MIMIR closes PR43 implementation/review on 2026-06-18 and opens PR44 for the
+deployed human-eye recheck. Railway web/API health now reports commit
+`734c118c6c2ce3cd6abedf7610aa4b133ed71095`, which contains the PR43 visible
+frontend change. PR44 should test the live public route before PR43 is marked
+complete for staging.

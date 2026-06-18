@@ -5171,6 +5171,12 @@ when a PR lands, or when validation truth changes.
   standalone symlink `EPERM` failure. ARGUS recommends ARIADNE recheck deployed
   `/developer-spaces/station-replay-dev-alpha` after this visible frontend
   change is deployed.
+- MIMIR closes PR43 implementation/review and opens PR44 Developer Pages
+  Evidence Recheck for ARIADNE on 2026-06-18:
+  `docs/roadmap/PR44_DEVELOPER_PAGES_EVIDENCE_RECHECK_ARIADNE.md` records that
+  Railway web/API health now reports commit `734c118`, the PR43 visible
+  frontend change. ARIADNE should recheck the anonymous public route on desktop
+  and 390px mobile before PR43 is marked complete for deployed staging.
 
 ## Near-term rule
 
