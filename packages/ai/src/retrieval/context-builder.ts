@@ -561,17 +561,23 @@ function formatSourceForPrompt(source: PersonaContextSource) {
 
 function formatContinuityRecordForPrompt(row: any) {
   const excerpt = trimContinuityText(row.summary ?? row.body ?? "");
+  const recordType = compactContinuityLabel(row.record_type, "timeline", 64);
+  const visibility = compactContinuityLabel(row.visibility, "private", 64);
+  const sourceTable = compactContinuityLabel(row.source_table, "", 64);
+  const sourceId = compactContinuityLabel(row.source_id, "", 96);
+  const sourceLabel = compactContinuityLabel(row.source_label, "", 160);
+  const titleText = compactContinuityLabel(row.title, "", 160);
   const labels = [
-    `type=${row.record_type ?? "timeline"}`,
-    `visibility=${row.visibility ?? "private"}`,
+    `type=${recordType}`,
+    `visibility=${visibility}`,
     `recordVersion=${Number(row.version ?? 1)}`,
     `sourceVersion=${Number(row.source_version ?? 1)}`,
-    row.source_table ? `source=${row.source_table}${row.source_id ? `/${row.source_id}` : ""}` : null,
-    row.source_label ? `label=${row.source_label}` : null,
+    sourceTable ? `source=${sourceTable}${sourceId ? `/${sourceId}` : ""}` : null,
+    sourceLabel ? `label=${sourceLabel}` : null,
     row.occurred_at ? `occurred=${row.occurred_at}` : null,
     row.updated_at ? `updated=${row.updated_at}` : null,
   ].filter(Boolean);
-  const title = row.title?.trim() ? `${row.title.trim()}: ` : "";
+  const title = titleText ? `${titleText}: ` : "";
   return `${title}${excerpt || "Continuity marker without body text."} [${labels.join("; ")}]`;
 }
 
@@ -579,6 +585,15 @@ function trimContinuityText(value: string, maxLength = 700) {
   const compact = value.replace(/\s+/g, " ").trim();
   if (compact.length <= maxLength) return compact;
   return `${compact.slice(0, Math.max(0, maxLength - 3)).trim()}...`;
+}
+
+function compactContinuityLabel(value: unknown, fallback = "", maxLength = 160) {
+  const compact = typeof value === "string" || typeof value === "number"
+    ? String(value).replace(/[\r\n\t]+/g, " ").replace(/\s+/g, " ").replace(/[\[\]]/g, "").trim()
+    : "";
+  const selected = compact || fallback;
+  if (selected.length <= maxLength) return selected;
+  return `${selected.slice(0, Math.max(0, maxLength - 3)).trim()}...`;
 }
 
 function redactHiddenMemorySkippedCounts(skipped: MemoryRetrievalTrace["skipped"]) {

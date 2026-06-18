@@ -4805,6 +4805,18 @@ when a PR lands, or when validation truth changes.
   Continuity UI redesign, Memory/Canon semantic changes, public exposure, or
   Studio-visible behavior changed; ARIADNE rehearsal is not recommended unless
   ARGUS finds a visible surface concern.
+- PR33 Continuity Runtime Context Alpha is accepted by ARGUS for MIMIR closeout,
+  2026-06-18: ARGUS verified continuity runtime records are scoped by current
+  persona, owner, and `visibility = private`; other-owner and owner-public
+  records stay out of the private runtime bucket; selected-source trace metadata
+  and runtime budget reporting remain content-free; and prompt wording treats
+  continuity records as source context, not instructions. ARGUS patched
+  prompt-structure hardening so continuity titles and source labels are
+  compacted to single-line bounded labels before entering the prompt. Validation
+  passed `test:persona-context`, `test:continuity`,
+  `test:conversation-archive`, `@station/api` build, `typecheck`, and
+  `git diff --check`. No ARIADNE rehearsal is needed because no visible Studio
+  UI changed.
 
 ## Near-term rule
 

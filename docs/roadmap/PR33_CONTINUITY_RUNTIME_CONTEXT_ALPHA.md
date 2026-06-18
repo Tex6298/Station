@@ -1,7 +1,7 @@
 # PR33 - Continuity Runtime Context Alpha
 
 Date: 2026-06-18
-Status: implemented by DAEDALUS, ready for ARGUS review
+Status: accepted by ARGUS for MIMIR closeout
 Owner: DAEDALUS implements, ARGUS reviews. ARIADNE rehearses only if visible
 Studio context/continuity UI changes.
 
@@ -94,3 +94,32 @@ DAEDALUS should wake ARGUS with:
 - trace/budget changes;
 - validation commands/results;
 - whether ARIADNE needs a visible rehearsal.
+
+## ARGUS Review Result
+
+ARGUS accepts PR33 for MIMIR closeout, 2026-06-18.
+
+- Continuity runtime records are scoped by current persona, owner, and
+  `visibility = private`.
+- Other-owner records and owner public records stay out of the private runtime
+  bucket covered by this lane.
+- Continuity prompt entries are explicitly labelled as source context, not
+  instructions.
+- Selected-source trace metadata and runtime budget reporting remain
+  content-free.
+- ARGUS patched one prompt-structure hardening detail: continuity titles and
+  source labels are now compacted to single-line bounded labels before entering
+  the prompt, preventing label newlines from reshaping the continuity section.
+- No ARIADNE rehearsal is required because this is runtime context behavior with
+  no visible Studio UI change.
+
+Validation passed:
+
+```bash
+npm exec --yes pnpm@10.32.1 -- run test:persona-context
+npm exec --yes pnpm@10.32.1 -- run test:continuity
+npm exec --yes pnpm@10.32.1 -- run test:conversation-archive
+npm exec --yes pnpm@10.32.1 -- --filter @station/api build
+npm exec --yes pnpm@10.32.1 -- run typecheck
+git diff --check
+```

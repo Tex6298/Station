@@ -7540,6 +7540,7 @@ DAEDALUS implementation validation on 2026-06-18:
 | `npm exec --yes pnpm@10.32.1 -- run test:continuity` | Pass | 4 tests passed; continuity record CRUD/source ownership behavior stayed green. |
 | `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass | 34 tests passed; chat, streaming envelope, archive retrieval, and PR31 runtime budget behavior stayed green. |
 | `npm exec --yes pnpm@10.32.1 -- --filter @station/api build` | Pass | API package build and dependent package builds passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed after ARGUS prompt-label hardening. |
 | `git diff --check` | Pass | No whitespace errors; CRLF normalization warnings only for touched text files and local triad state. |
 
 Scope notes:
@@ -7557,6 +7558,9 @@ Scope notes:
   `continuity_records_not_in_chat_context_yet` placeholder.
 - Other-owner records and owner public records do not enter the private runtime
   context bucket covered by this PR.
+- ARGUS compacted continuity titles and source labels to single-line bounded
+  labels before prompt insertion so label newlines cannot reshape the continuity
+  section.
 - No Redis/Valkey/Cloudflare storage, Continuity UI redesign, Memory/Canon
   semantic change, public exposure, provider routing, streaming, Stripe, or
   Developer Spaces behavior changed.
