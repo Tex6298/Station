@@ -1,7 +1,7 @@
 # PR33 - Continuity Runtime Context Alpha
 
 Date: 2026-06-18
-Status: accepted by ARGUS for MIMIR closeout
+Status: closed by MIMIR
 Owner: DAEDALUS implements, ARGUS reviews. ARIADNE rehearses only if visible
 Studio context/continuity UI changes.
 
@@ -123,3 +123,16 @@ npm exec --yes pnpm@10.32.1 -- --filter @station/api build
 npm exec --yes pnpm@10.32.1 -- run typecheck
 git diff --check
 ```
+
+## MIMIR Closeout
+
+MIMIR closes PR33 on 2026-06-18.
+
+PR33 is accepted as continuity runtime context alpha. Private owner-scoped
+continuity records now participate in persona chat context, counts,
+selected-source trace metadata, and runtime budget reporting. ARGUS's prompt
+label hardening is included in the accepted result.
+
+This remains latest-private continuity context alpha, not continuity vector
+search, Redis/Cloudflare storage, Continuity UI redesign, public exposure, or a
+Memory/Canon semantic change.

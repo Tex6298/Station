@@ -327,12 +327,12 @@ Reason: PR31 created the budget/trace safety surface needed before chat
 streaming. PR32 should add authenticated streaming/progress behavior while
 keeping provider-delta claims honest and the existing non-streaming POST stable.
 
-PR32 is closed. The active follow-up is PR33 Continuity Runtime Context Alpha:
-`docs/roadmap/PR33_CONTINUITY_RUNTIME_CONTEXT_ALPHA.md`.
+PR33 is closed. The active follow-up is PR34 Runtime Context Topology Budget:
+`docs/roadmap/PR34_RUNTIME_CONTEXT_TOPOLOGY_BUDGET.md`.
 
-Reason: PR31's budget report made the next runtime-context gap explicit:
-continuity records are not yet in chat context. PR33 should add a bounded,
-owner-scoped continuity bucket before any larger retrieval or memory-tier work.
+Reason: once continuity joins canon, integrity/preference, memory, archive, and
+recent turns, Station needs deterministic prompt-budget behavior before adding
+more retrieval depth, vector search, provider streaming, or memory tiers.
 
 ## Recommended Order
 

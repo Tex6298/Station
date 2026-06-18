@@ -4817,6 +4817,13 @@ when a PR lands, or when validation truth changes.
   `test:conversation-archive`, `@station/api` build, `typecheck`, and
   `git diff --check`. No ARIADNE rehearsal is needed because no visible Studio
   UI changed.
+- MIMIR closes PR33 and opens PR34 Runtime Context Topology Budget for DAEDALUS
+  on 2026-06-18: `docs/roadmap/PR34_RUNTIME_CONTEXT_TOPOLOGY_BUDGET.md` asks
+  for deterministic bucket priority and bounded prompt-budget behavior now that
+  canon, integrity/preference, continuity, memory, archive, and recent turns can
+  all compete for context. Explicit non-scope: retrieval ranking rewrites,
+  embedding/provider changes, Redis/Cloudflare storage, provider token
+  streaming, UI redesign, or private context leakage.
 
 ## Near-term rule
 
