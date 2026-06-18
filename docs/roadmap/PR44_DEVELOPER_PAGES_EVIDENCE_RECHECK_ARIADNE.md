@@ -1,74 +1,114 @@
-# PR44 - Developer Pages Evidence Recheck
+# PR44 Developer Pages Evidence Recheck - ARIADNE Result
 
 Date: 2026-06-18
-Status: opened for ARIADNE
-Owner: ARIADNE rechecks, MIMIR closes, DAEDALUS fixes exact visible blockers
-only.
+Agent: A4 / ARIADNE
+Verdict: Pass; PR43 can close as deployed staging complete
 
-## Purpose
+## Runtime Checked
 
-Recheck the deployed PR43 evidence reading path as an anonymous visitor.
+- Web route:
+  `https://stationweb-production.up.railway.app/developer-spaces/station-replay-dev-alpha`
+- Web/API deployment identity:
+  `734c118c6c2ce3cd6abedf7610aa4b133ed71095`
+- Browser: Chrome/CDP
+- Desktop viewport: `1365x900`
+- Mobile viewport: `390x844`
+- Account role: anonymous visitor
 
-PR43 changed visible frontend presentation on the public Developer Space page,
-so the lane is not complete until the deployed Railway page proves the reading
-path works in a human-eye browser pass.
+No credentials, cookies, tokens, private prompts, private archive excerpts, raw
+provider payloads, or owner IDs were printed.
 
-## Runtime State
+## API Readback
 
-MIMIR confirmed Railway deployment after ARGUS accepted PR43:
+Anonymous public API read passed:
 
-- web route: `https://stationweb-production.up.railway.app/developer-spaces/station-replay-dev-alpha`
-- web service: `@station/web`
-- deployed web commit: `734c118c6c2ce3cd6abedf7610aa4b133ed71095`
-- API service: `@station/api`
-- deployed API commit: `734c118c6c2ce3cd6abedf7610aa4b133ed71095`
+- access: `public`
+- linked public documents: `3`
+- roles: `methodology`, `finding`, `field_log`
+- document types: `research`, `research`, `field_log`
+- titles:
+  - `Station Replay Dev Alpha Methodology`
+  - `Station Replay Dev Alpha Milestone`
+  - `Station Replay Dev Alpha Field Log`
 
-The later ARGUS review commit `867e4fb` is documentation/state only. The visible
-frontend change to test is in `734c118`.
+## Browser Recheck
 
-## Recheck Route
+Desktop passed:
 
-Use:
+- no document-level horizontal overflow (`1350` scroll width / `1350` client
+  width);
+- route loaded without not-found, loading, or hard-error state;
+- `Project evidence` appears before `Live visualisation` by DOM order and text
+  order;
+- evidence cards read in the intended order:
+  `Methodology / architecture`, `Finding / milestone`,
+  `Field log / update`;
+- each evidence card shows role, document type, published date, title,
+  role-purpose copy, excerpt, and the in-page/no-separate-route note;
+- the evidence section has no links, buttons, or dead controls;
+- the old `Project notes` side-widget heading is absent;
+- `Live visualisation`, `Event stream`, `How to read this`, `Current nodes`,
+  and `Latest snapshot` remain visible after the evidence path.
 
-`https://stationweb-production.up.railway.app/developer-spaces/station-replay-dev-alpha`
+Mobile passed at `390x844`:
 
-Check desktop and 390px mobile if practical.
+- no document-level horizontal overflow (`390` scroll width / `390` client
+  width);
+- no visible controls render offscreen;
+- the same evidence order, metadata, excerpts, and boundary copy remain visible;
+- the live observatory panels remain legible enough for protected-alpha staging.
 
-## Questions
+## Boundary And Overclaim Check
 
-As an anonymous human visitor:
+Public/private boundary copy remains visible with `Visitors do not see` language.
 
-- Is the evidence reading path visible before the live observatory grid?
-- Does it read in the intended order: methodology / architecture, finding /
-  milestone, then field log / update?
-- Do evidence cards show useful safe context: role, document type, date, title,
-  role-purpose copy, and excerpt?
-- Does the page avoid fake links or controls for space-less Developer Space
-  evidence?
-- Is the old side-widget note bucket gone or no longer duplicating the reading
-  path in a confusing way?
-- Are live visualisation, event stream, reading guide, current nodes, and latest
-  snapshot still legible after the evidence path?
-- Are public/private boundaries still clear?
-- Does the page avoid claiming route/table rename, Project abstraction, Tier 2
-  hosting, developer agents, DexOS-specific widgets, public interaction modes,
-  Cloudflare, or production depth?
-- Are there any obvious mobile overflow, dead-control, loading, or copy
-  problems on the touched public page?
+No blocker was found for overclaiming Tier 2 hosting, developer agents,
+DexOS-specific widgets, public interaction modes, Cloudflare, route/table
+rename, Project abstraction, tipping, or production depth.
 
-## Handoff
+The page does mention `DexOS` and hosted runtime only inside negative staging
+evidence copy that says the demo does not claim those scopes. ARIADNE treats
+that as acceptable boundary language, not an overclaim.
 
-If it passes, wake MIMIR with:
+## Human-Eye Verdict
 
-- human recheck verdict;
-- desktop/mobile notes;
-- any caveats;
-- whether PR43 can close as complete.
+The page now reads as a visitor reading path first and a live observatory second.
+That is the right order for this Phase 2A proof: an anonymous visitor can read
+what the page is trying to prove before interpreting the live node/signal/
+snapshot grid.
 
-If a visible blocker remains, wake DAEDALUS with:
+The copy is still appropriately cautious. It describes public-safe evidence and
+live signals without pretending the Developer Page is already a hosted runtime,
+developer-agent console, Cloudflare edge product, or production-depth project
+site.
 
-- route;
-- viewport;
-- exact visible issue;
-- expected versus actual;
-- narrowest fix.
+## Caveats
+
+- This is still Phase 2A / Tier 1 showcase-window evidence.
+- The evidence documents are synthetic public-safe staging notes.
+- PR44 did not validate Cloudflare, Tier 2 hosting, developer agents, public
+  interaction modes, route/table renames, live DDL, tipping, or broader
+  Developer Space architecture.
+
+## Recommendation
+
+MIMIR can close PR43 as complete for deployed staging.
+
+Recommended next lane:
+
+- keep Developer Pages work narrow and choose either a second public-safe
+  Developer Page example or a small readability pass on the evidence cards after
+  another real page exists.
+
+Do not move into Cloudflare or Tier 2 hosting from this result; PR44 found no
+concrete retrieval, latency, public-edge delivery, or NESTstyle-memory defect.
+
+## Validation
+
+- `curl.exe -fsS --max-time 30 https://stationweb-production.up.railway.app/health/deployment`
+- `curl.exe -fsS --max-time 30 https://stationapi-production.up.railway.app/health/deployment`
+- Anonymous public API read:
+  `https://stationapi-production.up.railway.app/developer-spaces/station-replay-dev-alpha`
+- Chrome/CDP anonymous desktop route check at `1365x900`
+- Chrome/CDP anonymous mobile route check at `390x844`
+- Temporary local probe script was removed before commit.

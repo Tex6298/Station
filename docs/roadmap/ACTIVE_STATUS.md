@@ -5177,6 +5177,17 @@ when a PR lands, or when validation truth changes.
   Railway web/API health now reports commit `734c118`, the PR43 visible
   frontend change. ARIADNE should recheck the anonymous public route on desktop
   and 390px mobile before PR43 is marked complete for deployed staging.
+- ARIADNE completes PR44 Developer Pages Evidence Recheck on 2026-06-18:
+  `docs/roadmap/PR44_DEVELOPER_PAGES_EVIDENCE_RECHECK_ARIADNE.md` records a
+  pass against Railway runtime `734c118`. Anonymous API read shows three public
+  evidence documents in the required `methodology`, `finding`, `field_log`
+  order. Desktop and 390px mobile browser checks show the in-page `Project
+  evidence` reading path before `Live visualisation`, with safe role/type/date
+  metadata, titles, role-purpose copy, excerpts, no evidence links/buttons, no
+  dead controls, no horizontal overflow, and no old `Project notes` side-widget
+  duplication. The visible `DexOS` and hosted-runtime references are negative
+  boundary copy, not overclaims. ARIADNE recommends MIMIR close PR43 as complete
+  for deployed staging; Cloudflare remains deferred.
 
 ## Near-term rule
 
