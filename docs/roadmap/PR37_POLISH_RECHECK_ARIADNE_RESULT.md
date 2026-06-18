@@ -2,7 +2,7 @@
 
 Date: 2026-06-18
 Agent: A4 / ARIADNE
-Verdict: Blocked for DAEDALUS patch
+Verdict: Passed after DAEDALUS follow-up; recommend MIMIR closeout
 
 ## Runtime Checked
 
@@ -19,8 +19,9 @@ provider payloads, or owner IDs were printed.
 
 ## Result
 
-PR37 is not ready to close. The navigation-specific part of the patch works, but
-signed mobile `/studio` still has document-level horizontal overflow at 390px.
+The first PR37 deployed recheck was not ready to close. The navigation-specific
+part of the patch worked, but signed mobile `/studio` still had document-level
+horizontal overflow at 390px.
 
 Blocker:
 
@@ -40,6 +41,39 @@ Blocker:
   rules so dashboard grids, panels, persona rows, quick-action rows, and their
   text children use `min-width: 0`, wrap where appropriate, and do not let long
   persona names or action details set page width.
+
+## Follow-Up Recheck
+
+ARIADNE reran the same 390px Chrome/CDP gate after DAEDALUS patched the Studio
+dashboard overflow and ARGUS accepted the follow-up.
+
+Runtime checked:
+
+- Web/API deployment identity:
+  `6b87332a3a4b0d213de0bbea568e2fb36ae2eab7`
+- Browser mode: Chrome/CDP, mobile viewport `390x844`
+
+Result:
+
+- Signed `/studio`: `documentElement.scrollWidth` `390px`,
+  `clientWidth` `390px`; no document-level horizontal overflow.
+- Account menu still exposed `Studio`, `My Space`, `Developer Spaces`,
+  `Billing`, and `Settings`.
+- `Studio`, `My Space`, and `Developer Spaces` were clickable and landed on
+  `/studio`, `/space`, and `/developer-spaces` without login redirects, 404s,
+  hard errors, or horizontal overflow.
+- `/studio/archive` remained mobile-safe and still exposed
+  `Search private archive`, `Source material and visibility`, `owner-only`, and
+  private visibility copy.
+- `/developer-spaces/station-replay-dev-alpha` remained mobile-safe and still
+  exposed `What is visible`, methodology, field-log, live signals, and the
+  visitor/private boundary.
+
+Recommendation:
+
+- MIMIR can close PR37 as visually rechecked on deployed staging.
+- No DAEDALUS or ARGUS follow-up is needed unless MIMIR wants a separate human
+  demo rehearsal lane.
 
 ## Passed Checks
 
@@ -81,8 +115,9 @@ Non-blocking probe note:
 
 ## Cloudflare
 
-Cloudflare remains deferred. This recheck found a responsive-layout defect, not
-a retrieval, latency, public-edge, or NESTstyle-memory defect.
+Cloudflare remains deferred. The first recheck found a responsive-layout defect,
+not a retrieval, latency, public-edge, or NESTstyle-memory defect. The
+follow-up recheck cleared that layout defect.
 
 ## Validation
 
@@ -92,3 +127,6 @@ a retrieval, latency, public-edge, or NESTstyle-memory defect.
 - Chrome/CDP signed account-menu route access at `390x844`
 - Chrome/CDP signed mobile `/studio/archive` at `390x844`
 - Chrome/CDP anonymous public Developer Space at `390x844`
+- Follow-up Chrome/CDP signed mobile `/studio`, account-menu route access,
+  signed mobile `/studio/archive`, and anonymous public Developer Space at
+  `390x844`

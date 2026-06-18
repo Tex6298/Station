@@ -4986,6 +4986,15 @@ when a PR lands, or when validation truth changes.
   Windows standalone symlink `EPERM` failure. Local browser overflow measurement
   remains unavailable, so ARIADNE should recheck deployed signed `/studio` at
   390x844 and confirm `documentElement.scrollWidth <= clientWidth`.
+- ARIADNE accepts the PR37 Studio overflow follow-up on 2026-06-18:
+  the deployed Chrome/CDP recheck against Railway runtime `6b87332` measured
+  signed `/studio` at `390px` scroll width against a `390px` viewport. Account
+  menu route access to Studio, My Space, and Developer Spaces still works
+  without login redirects, 404s, hard errors, or horizontal overflow. Mobile
+  Archive and public Developer Space checks still pass for search/source copy,
+  methodology/field-log/live-signal story, visitor/private boundaries, and no
+  obvious visible leakage. ARIADNE recommends MIMIR close PR37; Cloudflare
+  remains deferred.
 
 ## Near-term rule
 
