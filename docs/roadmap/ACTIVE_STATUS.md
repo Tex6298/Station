@@ -5055,6 +5055,20 @@ when a PR lands, or when validation truth changes.
   alignment only: no route/table rename, Project abstraction, Tier 2 hosting,
   DexOS widgets, developer agent, tipping, interaction modes, Tier 3, or
   Cloudflare lane.
+- PR40 Developer Pages Phase 2A Alignment is accepted by ARGUS for MIMIR
+  closeout, 2026-06-18: ARGUS verified public reads still require
+  `link_visibility = public` plus published/public documents, owner reads can
+  still include owner-only drafts, and DAEDALUS's tests cover anonymous detail
+  and SSE visibility. ARGUS patched the replay seed source refs from object
+  payloads to stable public strings (`document:<role>:<slug>`) so event/snapshot
+  refs stay compatible with the existing `sourceRefs: string[]` contract, and
+  tightened Developer Space copy so owner-only linked drafts are not counted as
+  public evidence in owner view. Validation passed `test:developer-spaces` with
+  9 tests, `test:developer-space-client` with 3 tests, `replay:seed:validate`,
+  `typecheck`, and `git diff --check`; local `@station/web` build compiled,
+  linted/type-checked, and generated 30 pages before the known Windows
+  standalone symlink `EPERM` failure. ARGUS recommends ARIADNE recheck
+  `/developer-spaces/station-replay-dev-alpha` after deploy/seed.
 
 ## Near-term rule
 

@@ -22,7 +22,7 @@ test("observatory story helpers explain current public evidence", () => {
     nodes: [{ id: "node-1" }],
     events: [{ id: "event-1" }],
     latestSnapshot: { id: "snapshot-1" },
-    linkedDocuments: [{ id: "doc-link-1" }],
+    linkedDocuments: [{ id: "doc-link-1", linkVisibility: "public" }],
   } as unknown as Parameters<typeof developerSpaceStorySummary>[0];
 
   assert.equal(
@@ -30,6 +30,18 @@ test("observatory story helpers explain current public evidence", () => {
     "This observatory is currently showing 1 tracked node, 1 public signal, a current snapshot, 1 public note."
   );
   assert.equal(developerSpaceSignalStatus(detail), "Live signals are arriving.");
+
+  const ownerDetail = {
+    ...detail,
+    linkedDocuments: [
+      { id: "doc-link-1", linkVisibility: "public" },
+      { id: "doc-link-2", linkVisibility: "owner" },
+    ],
+  } as unknown as Parameters<typeof developerSpaceStorySummary>[0];
+  assert.equal(
+    developerSpaceStorySummary(ownerDetail),
+    "This observatory is currently showing 1 tracked node, 1 public signal, a current snapshot, 1 public note, 1 owner-only link."
+  );
 });
 
 test("observatory story helpers keep empty public spaces understandable", () => {
@@ -70,9 +82,9 @@ test("observatory methodology copy stays honest about public evidence", () => {
   const withNotes = developerSpaceMethodologyCopy({
     access: "public",
     linkedDocuments: [
-      { role: "methodology" },
-      { role: "finding" },
-      { role: "field_log" },
+      { role: "methodology", linkVisibility: "public" },
+      { role: "finding", linkVisibility: "public" },
+      { role: "field_log", linkVisibility: "public" },
     ],
   } as unknown as Parameters<typeof developerSpaceMethodologyCopy>[0]);
 
@@ -90,6 +102,18 @@ test("observatory methodology copy stays honest about public evidence", () => {
   assert.match(empty.methodology, /No public methodology/);
   assert.match(empty.privateBoundary, /Owner view may show raw event/);
   assert.doesNotMatch(`${withNotes.methodology} ${empty.methodology}`, /private archive text/);
+
+  const ownerMixed = developerSpaceMethodologyCopy({
+    access: "owner",
+    linkedDocuments: [
+      { role: "methodology", linkVisibility: "owner" },
+      { role: "field_log", linkVisibility: "public" },
+    ],
+  } as unknown as Parameters<typeof developerSpaceMethodologyCopy>[0]);
+
+  assert.match(ownerMixed.methodology, /0 methodology notes/);
+  assert.match(ownerMixed.methodology, /1 field log/);
+  assert.match(ownerMixed.methodology, /1 owner-only link/);
 });
 
 test("observatory evidence labels use role-aware Developer Page language", () => {

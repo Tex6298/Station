@@ -7724,7 +7724,33 @@ Scope notes:
   execution, DexOS-specific widgets, tipping, public interaction layer, Tier 3,
   Cloudflare, or Developer Spaces route/table rename was added.
 
-ARGUS follow-up validation on 2026-06-18:
+ARGUS review validation on 2026-06-18:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 9 tests passed, including public/owner Developer Space linked-document visibility and ARGUS copy hardening for owner-only links. |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-space-client` | Pass | 3 client tests passed; ingestion client API stayed compatible. |
+| `npm exec --yes pnpm@10.32.1 -- run replay:seed:validate` | Pass | Example corpus validates with 3 planned Developer Space evidence documents and roles `methodology`, `finding`, and `field_log`. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed after ARGUS source-ref/copy hardening. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web build` | Local environment failure after successful compile/type/page generation | Next compiled successfully, lint/type checks ran with the known warning inventory, and 30 static pages generated. The build then reproduced the known Windows standalone symlink failure: `EPERM: operation not permitted, symlink ... apps\\web\\.next\\standalone...`. |
+| `git diff --check` | Pass | No whitespace errors; CRLF normalization warnings only for touched text files and local triad state. |
+| `git diff --cached --check` | Pass | No whitespace errors after staging; CRLF normalization warnings only. |
+
+ARGUS scope notes:
+
+- ARGUS patched replay seed event/snapshot source refs from object payloads to
+  stable public strings (`document:<role>:<slug>`) so the seeded data remains
+  compatible with the existing `sourceRefs: string[]` API contract.
+- ARGUS tightened Developer Space public/owner copy so owner-only linked drafts
+  are not counted as public evidence in owner view.
+- Public reads remain bounded to public links whose documents are published and
+  public; owner-only draft document bodies remain hidden from anonymous detail
+  and SSE reads.
+- Seeded evidence remains synthetic, public-safe, and explicitly
+  non-production.
+- No Phase 2B/2C/2D/2E scope was added.
+
+PR37 ARGUS follow-up validation on 2026-06-18:
 
 | Command | Result | Notes |
 | --- | --- | --- |

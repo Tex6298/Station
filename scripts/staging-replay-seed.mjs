@@ -715,10 +715,7 @@ async function ensureDeveloperSpaceCorpus(api, ownerUserId, documentId, corpus) 
   await api.delete("developer_space_snapshots", [eq("developer_space_id", space.id)]);
 
   const linkedDocuments = await ensureDeveloperSpaceEvidenceDocuments(api, ownerUserId, space, corpus);
-  const sourceRefs = linkedDocuments.map((document) => ({
-    document_id: document.id,
-    label: document.developer_space_role,
-  }));
+  const sourceRefs = linkedDocuments.map(developerSpaceEvidenceSourceRef);
 
   await api.insert("developer_space_events", {
     developer_space_id: space.id,
@@ -728,7 +725,7 @@ async function ensureDeveloperSpaceCorpus(api, ownerUserId, documentId, corpus) 
     event_label: corpus.developerSpace.event.label,
     event_data: corpus.developerSpace.event.data ?? {},
     similarity_score: corpus.developerSpace.event.similarityScore ?? null,
-    source_refs: sourceRefs.length > 0 ? sourceRefs : [{ document_id: documentId, label: "replay_document" }],
+    source_refs: sourceRefs.length > 0 ? sourceRefs : [`document:replay:${documentId}`],
     provenance: "api",
     visibility: "public",
     occurred_at: new Date().toISOString(),
@@ -737,7 +734,7 @@ async function ensureDeveloperSpaceCorpus(api, ownerUserId, documentId, corpus) 
   await api.insert("developer_space_snapshots", {
     developer_space_id: space.id,
     snapshot_data: corpus.developerSpace.snapshot.data,
-    source_refs: sourceRefs.length > 0 ? sourceRefs : [{ document_id: documentId, label: "replay_document" }],
+    source_refs: sourceRefs.length > 0 ? sourceRefs : [`document:replay:${documentId}`],
     provenance: "api",
     visibility: "public",
     occurred_at: new Date().toISOString(),
@@ -795,6 +792,10 @@ function developerSpaceDocumentType(role) {
   if (role === "methodology" || role === "finding") return "research";
   if (role === "field_log") return "field_log";
   return "archive_note";
+}
+
+function developerSpaceEvidenceSourceRef(document) {
+  return `document:${document.developer_space_role}:${document.slug}`;
 }
 
 async function ensureExportPackage(api, ownerUserId, personaId, documentId, developerSpaceId, corpus) {

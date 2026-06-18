@@ -310,7 +310,9 @@ function LinkedDocumentsPanel({ documents, ownerView }: { documents: DeveloperSp
     <div className="card">
       <h2 style={{ margin: "0 0 0.5rem", fontSize: "1rem" }}>{developerSpaceEvidenceTitle(documents)}</h2>
       <p style={{ margin: "0 0 0.75rem", color: "#94a3b8", lineHeight: 1.55, fontSize: "0.84rem" }}>
-        Public methodology, findings, field logs, and notes give visitors evidence beside the live observatory.
+        {ownerView
+          ? "Published evidence and owner-only drafts are shown with status labels so the public boundary stays visible."
+          : "Public methodology, findings, field logs, and notes give visitors evidence beside the live observatory."}
       </p>
       <div style={{ display: "grid", gap: "0.75rem" }}>
         {documents.map((link) => (
