@@ -53,6 +53,7 @@ main({ dryRun }).catch((error) => {
 async function main({ dryRun }) {
   const corpus = loadCorpus(value("STATION_REPLAY_CORPUS_PATH") || DEFAULT_CORPUS_PATH);
   validateCorpus(corpus);
+  const developerSpaceInputs = developerSpacesFromCorpus(corpus);
 
   if (dryRun) {
     printSummary({ mode: "dry-run", corpus });
@@ -75,8 +76,12 @@ async function main({ dryRun }) {
   const memories = await ensureMemoryCorpus(api, geminiKey, owner.id, persona.id, archivedChat.transcript.id, corpus);
   const continuity = await ensureContinuityRecord(api, owner.id, persona.id, memories.active.id, corpus);
   const publicSurface = await ensurePublicSurface(api, owner.id, persona.id, continuity.id, corpus);
-  const developerSpace = await ensureDeveloperSpaceCorpus(api, owner.id, publicSurface.document.id, corpus);
-  const exportPackage = await ensureExportPackage(api, owner.id, persona.id, publicSurface.document.id, developerSpace.id, corpus);
+  const developerSpaces = [];
+  for (const developerSpaceInput of developerSpaceInputs) {
+    developerSpaces.push(await ensureDeveloperSpaceCorpus(api, owner.id, publicSurface.document.id, developerSpaceInput));
+  }
+  const primaryDeveloperSpace = developerSpaces[0];
+  const exportPackage = await ensureExportPackage(api, owner.id, persona.id, publicSurface.document.id, primaryDeveloperSpace.id, corpus);
 
   printSummary({
     mode: "seeded",
@@ -92,11 +97,11 @@ async function main({ dryRun }) {
       documents: 1,
       threads: 1,
       comments: 1,
-      developerSpaces: 1,
-      developerSpaceNodes: 1,
-      developerSpaceEvents: 1,
-      developerSpaceSnapshots: 1,
-      developerSpaceDocuments: developerSpace.linkedDocuments.length,
+      developerSpaces: developerSpaces.length,
+      developerSpaceNodes: developerSpaces.length,
+      developerSpaceEvents: developerSpaces.length,
+      developerSpaceSnapshots: developerSpaces.length,
+      developerSpaceDocuments: developerSpaces.reduce((total, space) => total + space.linkedDocuments.length, 0),
       exportPackages: 1,
     },
     labels: {
@@ -104,8 +109,14 @@ async function main({ dryRun }) {
       personaName: persona.name,
       spaceSlug: publicSurface.space.slug,
       documentSlug: publicSurface.document.slug,
-      developerSpaceSlug: developerSpace.slug,
-      developerSpaceEvidenceRoles: developerSpace.linkedDocuments.map((document) => document.developer_space_role),
+      developerSpaceSlug: primaryDeveloperSpace.slug,
+      developerSpaceSlugs: developerSpaces.map((space) => space.slug),
+      developerSpaceEvidenceRoles: Object.fromEntries(
+        developerSpaces.map((space) => [
+          space.slug,
+          space.linkedDocuments.map((document) => document.developer_space_role),
+        ])
+      ),
       exportKind: exportPackage.package_kind,
     },
   });
@@ -197,42 +208,63 @@ function validateCorpus(corpus) {
   requireLaunchDocumentType(corpus.space.document.documentType, "essay", "space.document.documentType");
   requireString(corpus.space.comment, "space.comment");
   requireObject(corpus.developerSpace, "developerSpace");
-  requireString(corpus.developerSpace.slug, "developerSpace.slug");
-  requireString(corpus.developerSpace.projectName, "developerSpace.projectName");
-  requireObject(corpus.developerSpace.node, "developerSpace.node");
-  requireString(corpus.developerSpace.node.externalId, "developerSpace.node.externalId");
-  requireString(corpus.developerSpace.node.name, "developerSpace.node.name");
-  requireObject(corpus.developerSpace.event, "developerSpace.event");
-  requireString(corpus.developerSpace.event.type, "developerSpace.event.type");
-  requireString(corpus.developerSpace.event.label, "developerSpace.event.label");
-  requireObject(corpus.developerSpace.snapshot, "developerSpace.snapshot");
-  if (!Array.isArray(corpus.developerSpace.documents) || corpus.developerSpace.documents.length < 3) {
-    throw new Error("developerSpace.documents must contain at least three public evidence documents.");
+  if (corpus.additionalDeveloperSpaces !== undefined && !Array.isArray(corpus.additionalDeveloperSpaces)) {
+    throw new Error("additionalDeveloperSpaces must be an array when provided.");
+  }
+  const developerSpaces = developerSpacesFromCorpus(corpus);
+  const slugs = new Set();
+  developerSpaces.forEach((developerSpace, index) => {
+    const label = index === 0 ? "developerSpace" : `additionalDeveloperSpaces[${index - 1}]`;
+    validateDeveloperSpace(developerSpace, label);
+    if (slugs.has(developerSpace.slug)) {
+      throw new Error(`${label}.slug must be unique across Developer Space examples.`);
+    }
+    slugs.add(developerSpace.slug);
+  });
+  requireObject(corpus.exportPackage, "exportPackage");
+  requireString(corpus.exportPackage.label, "exportPackage.label");
+}
+
+function developerSpacesFromCorpus(corpus) {
+  return [corpus.developerSpace, ...(Array.isArray(corpus.additionalDeveloperSpaces) ? corpus.additionalDeveloperSpaces : [])];
+}
+
+function validateDeveloperSpace(developerSpace, label) {
+  requireObject(developerSpace, label);
+  requireString(developerSpace.slug, `${label}.slug`);
+  requireString(developerSpace.projectName, `${label}.projectName`);
+  requireObject(developerSpace.node, `${label}.node`);
+  requireString(developerSpace.node.externalId, `${label}.node.externalId`);
+  requireString(developerSpace.node.name, `${label}.node.name`);
+  requireObject(developerSpace.event, `${label}.event`);
+  requireString(developerSpace.event.type, `${label}.event.type`);
+  requireString(developerSpace.event.label, `${label}.event.label`);
+  requireObject(developerSpace.snapshot, `${label}.snapshot`);
+  if (!Array.isArray(developerSpace.documents) || developerSpace.documents.length < 3) {
+    throw new Error(`${label}.documents must contain at least three public evidence documents.`);
   }
   const roles = new Set(["methodology", "finding", "field_log", "note"]);
   const documentRoles = new Set();
-  corpus.developerSpace.documents.forEach((document, index) => {
-    requireString(document.role, `developerSpace.documents[${index}].role`);
+  developerSpace.documents.forEach((document, index) => {
+    requireString(document.role, `${label}.documents[${index}].role`);
     if (!roles.has(document.role)) {
-      throw new Error(`developerSpace.documents[${index}].role must be methodology, finding, field_log, or note.`);
+      throw new Error(`${label}.documents[${index}].role must be methodology, finding, field_log, or note.`);
     }
     documentRoles.add(document.role);
-    requireString(document.slug, `developerSpace.documents[${index}].slug`);
-    requireString(document.title, `developerSpace.documents[${index}].title`);
-    requireString(document.body, `developerSpace.documents[${index}].body`);
+    requireString(document.slug, `${label}.documents[${index}].slug`);
+    requireString(document.title, `${label}.documents[${index}].title`);
+    requireString(document.body, `${label}.documents[${index}].body`);
     requireLaunchDocumentType(
       document.documentType,
       developerSpaceDocumentType(document.role),
-      `developerSpace.documents[${index}].documentType`
+      `${label}.documents[${index}].documentType`
     );
   });
   for (const role of ["methodology", "finding", "field_log"]) {
     if (!documentRoles.has(role)) {
-      throw new Error(`developerSpace.documents must include a public ${role} document.`);
+      throw new Error(`${label}.documents must include a public ${role} document.`);
     }
   }
-  requireObject(corpus.exportPackage, "exportPackage");
-  requireString(corpus.exportPackage.label, "exportPackage.label");
 }
 
 function requireObject(value, label) {
@@ -701,20 +733,20 @@ async function replaceSingleComment(api, ownerUserId, threadId, body) {
     : api.insert("comments", payload);
 }
 
-async function ensureDeveloperSpaceCorpus(api, ownerUserId, documentId, corpus) {
-  const existingSpace = await first(await api.select("developer_spaces", [eq("slug", corpus.developerSpace.slug), limit(1)]));
+async function ensureDeveloperSpaceCorpus(api, ownerUserId, documentId, developerSpaceInput) {
+  const existingSpace = await first(await api.select("developer_spaces", [eq("slug", developerSpaceInput.slug), limit(1)]));
   if (existingSpace && existingSpace.owner_user_id !== ownerUserId) {
-    throw new Error(`Replay Developer Space slug is already owned by another profile: ${corpus.developerSpace.slug}`);
+    throw new Error(`Replay Developer Space slug is already owned by another profile: ${developerSpaceInput.slug}`);
   }
   const spacePayload = {
     owner_user_id: ownerUserId,
-    project_name: corpus.developerSpace.projectName,
-    slug: corpus.developerSpace.slug,
-    description: corpus.developerSpace.description ?? "Staging replay Developer Space.",
+    project_name: developerSpaceInput.projectName,
+    slug: developerSpaceInput.slug,
+    description: developerSpaceInput.description ?? "Staging replay Developer Space.",
     visibility: "public",
-    provider_policy: "public_synthetic_only",
-    visualisation_type: "node_field",
-    visualisation_config: corpus.developerSpace.visualisationConfig ?? {},
+    provider_policy: developerSpaceInput.providerPolicy ?? "public_synthetic_only",
+    visualisation_type: developerSpaceInput.visualisationType ?? "node_field",
+    visualisation_config: developerSpaceInput.visualisationConfig ?? {},
   };
   const space = existingSpace
     ? await api.patch("developer_spaces", [eq("id", existingSpace.id), eq("owner_user_id", ownerUserId)], spacePayload)
@@ -722,30 +754,30 @@ async function ensureDeveloperSpaceCorpus(api, ownerUserId, documentId, corpus) 
 
   const node = await api.upsert("developer_space_nodes", {
     developer_space_id: space.id,
-    external_id: corpus.developerSpace.node.externalId,
-    node_name: corpus.developerSpace.node.name,
-    topology_type: corpus.developerSpace.node.topologyType ?? "custom",
-    fragment_count: corpus.developerSpace.node.fragmentCount ?? 1,
-    self_similarity_score: corpus.developerSpace.node.selfSimilarityScore ?? null,
-    dimensionality: corpus.developerSpace.node.dimensionality ?? ACTIVE_EMBEDDING_DIMENSION,
-    metrics: corpus.developerSpace.node.metrics ?? {},
+    external_id: developerSpaceInput.node.externalId,
+    node_name: developerSpaceInput.node.name,
+    topology_type: developerSpaceInput.node.topologyType ?? "custom",
+    fragment_count: developerSpaceInput.node.fragmentCount ?? 1,
+    self_similarity_score: developerSpaceInput.node.selfSimilarityScore ?? null,
+    dimensionality: developerSpaceInput.node.dimensionality ?? ACTIVE_EMBEDDING_DIMENSION,
+    metrics: developerSpaceInput.node.metrics ?? {},
     last_event_at: new Date().toISOString(),
   }, "developer_space_id,external_id");
 
   await api.delete("developer_space_events", [eq("developer_space_id", space.id)]);
   await api.delete("developer_space_snapshots", [eq("developer_space_id", space.id)]);
 
-  const linkedDocuments = await ensureDeveloperSpaceEvidenceDocuments(api, ownerUserId, space, corpus);
+  const linkedDocuments = await ensureDeveloperSpaceEvidenceDocuments(api, ownerUserId, space, developerSpaceInput.documents);
   const sourceRefs = linkedDocuments.map(developerSpaceEvidenceSourceRef);
 
   await api.insert("developer_space_events", {
     developer_space_id: space.id,
     node_id: node.id,
-    external_node_id: corpus.developerSpace.node.externalId,
-    event_type: corpus.developerSpace.event.type,
-    event_label: corpus.developerSpace.event.label,
-    event_data: corpus.developerSpace.event.data ?? {},
-    similarity_score: corpus.developerSpace.event.similarityScore ?? null,
+    external_node_id: developerSpaceInput.node.externalId,
+    event_type: developerSpaceInput.event.type,
+    event_label: developerSpaceInput.event.label,
+    event_data: developerSpaceInput.event.data ?? {},
+    similarity_score: developerSpaceInput.event.similarityScore ?? null,
     source_refs: sourceRefs.length > 0 ? sourceRefs : [`document:replay:${documentId}`],
     provenance: "api",
     visibility: "public",
@@ -754,7 +786,7 @@ async function ensureDeveloperSpaceCorpus(api, ownerUserId, documentId, corpus) 
 
   await api.insert("developer_space_snapshots", {
     developer_space_id: space.id,
-    snapshot_data: corpus.developerSpace.snapshot.data,
+    snapshot_data: developerSpaceInput.snapshot.data,
     source_refs: sourceRefs.length > 0 ? sourceRefs : [`document:replay:${documentId}`],
     provenance: "api",
     visibility: "public",
@@ -767,15 +799,15 @@ async function ensureDeveloperSpaceCorpus(api, ownerUserId, documentId, corpus) 
     ingested_nodes_count: 1,
     ingested_events_count: 1,
     ingested_snapshots_count: 1,
-    storage_bytes: JSON.stringify(corpus.developerSpace).length,
+    storage_bytes: JSON.stringify(developerSpaceInput).length,
   }, "developer_space_id");
 
   return { ...space, linkedDocuments };
 }
 
-async function ensureDeveloperSpaceEvidenceDocuments(api, ownerUserId, developerSpace, corpus) {
+async function ensureDeveloperSpaceEvidenceDocuments(api, ownerUserId, developerSpace, documents) {
   const rows = [];
-  for (const [index, document] of corpus.developerSpace.documents.entries()) {
+  for (const [index, document] of documents.entries()) {
     const row = await api.upsert("documents", {
       author_user_id: ownerUserId,
       space_id: null,
@@ -916,6 +948,11 @@ function first(rows) {
 }
 
 function printSummary({ mode, corpus, counts, labels }) {
+  const developerSpaces = developerSpacesFromCorpus(corpus);
+  const developerSpaceDocumentCount = developerSpaces.reduce(
+    (total, developerSpace) => total + developerSpace.documents.length,
+    0
+  );
   console.log(JSON.stringify({
     ok: true,
     mode,
@@ -937,11 +974,11 @@ function printSummary({ mode, corpus, counts, labels }) {
       spaces: 1,
       documents: 1,
       discussionComments: 1,
-      developerSpaces: 1,
-      developerSpaceNodes: 1,
-      developerSpaceEvents: 1,
-      developerSpaceSnapshots: 1,
-      developerSpaceDocuments: corpus.developerSpace.documents.length,
+      developerSpaces: developerSpaces.length,
+      developerSpaceNodes: developerSpaces.length,
+      developerSpaceEvents: developerSpaces.length,
+      developerSpaceSnapshots: developerSpaces.length,
+      developerSpaceDocuments: developerSpaceDocumentCount,
       exportPackages: 1,
     },
     counts,
@@ -951,7 +988,13 @@ function printSummary({ mode, corpus, counts, labels }) {
       spaceSlug: corpus.space.slug,
       documentSlug: corpus.space.document.slug,
       developerSpaceSlug: corpus.developerSpace.slug,
-      developerSpaceEvidenceRoles: corpus.developerSpace.documents.map((document) => document.role),
+      developerSpaceSlugs: developerSpaces.map((developerSpace) => developerSpace.slug),
+      developerSpaceEvidenceRoles: Object.fromEntries(
+        developerSpaces.map((developerSpace) => [
+          developerSpace.slug,
+          developerSpace.documents.map((document) => document.role),
+        ])
+      ),
       exportLabel: corpus.exportPackage.label,
     },
     omitted: [

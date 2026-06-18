@@ -119,6 +119,77 @@
       }
     ]
   },
+  "additionalDeveloperSpaces": [
+    {
+      "slug": "animus-field-lab",
+      "projectName": "Animus Field Lab",
+      "description": "Synthetic public-safe Developer Page example for a second staging observatory. This is demo evidence only, not a hosted runtime or production project.",
+      "visualisationType": "timeline",
+      "visualisationConfig": {
+        "eventLimit": 6,
+        "nodeLimit": 4,
+        "showSnapshots": true,
+        "widgets": []
+      },
+      "node": {
+        "externalId": "animus-field-core",
+        "name": "Animus Field Core",
+        "topologyType": "branching",
+        "fragmentCount": 7,
+        "selfSimilarityScore": 0.57,
+        "dimensionality": 1536,
+        "metrics": {
+          "public_safe": true,
+          "signals": 1,
+          "scenario": "synthetic"
+        }
+      },
+      "event": {
+        "type": "animus.synthetic.signal",
+        "label": "Synthetic field signal",
+        "data": {
+          "signal": "bounded_replay",
+          "public_safe": true,
+          "phase": "second_example"
+        },
+        "similarityScore": 0.57
+      },
+      "snapshot": {
+        "data": {
+          "nodes": 1,
+          "events": 1,
+          "status": "synthetic",
+          "boundary": "public_safe_only"
+        }
+      },
+      "documents": [
+        {
+          "role": "methodology",
+          "slug": "animus-field-lab-methodology",
+          "title": "Animus Field Lab Methodology",
+          "body": "Synthetic public-safe methodology for a second Developer Page example. It frames the Animus Field Lab as a replay-only observatory with one public node, one public signal, one snapshot, and linked evidence documents. It does not expose private archive text, prompts, credentials, or production runtime data.",
+          "documentType": "research",
+          "sortOrder": 0
+        },
+        {
+          "role": "finding",
+          "slug": "animus-field-lab-finding",
+          "title": "Animus Field Lab Finding",
+          "body": "Synthetic public-safe finding for the second Developer Page example. The milestone is that a different public observatory can carry the same methodology, finding, and field-log reading path without depending on the Station Replay Dev Alpha slug.",
+          "documentType": "research",
+          "sortOrder": 1
+        },
+        {
+          "role": "field_log",
+          "slug": "animus-field-lab-field-log",
+          "title": "Animus Field Lab Field Log",
+          "body": "Synthetic public-safe field log for the second Developer Page example. The staging seed refreshes a timeline-oriented observatory with public evidence only. It does not claim DexOS onboarding, hosted containers, developer-agent execution, public interaction modes, or Cloudflare delivery.",
+          "documentType": "field_log",
+          "sortOrder": 2
+        }
+      ]
+    }
+  ],
   "exportPackage": {
     "label": "Station replay sanitized export manifest"
   }

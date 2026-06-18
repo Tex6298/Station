@@ -1,7 +1,7 @@
 # PR45 - Developer Pages Second Example
 
 Date: 2026-06-18
-Status: opened for DAEDALUS
+Status: implemented by DAEDALUS, ready for ARGUS review
 Owner: DAEDALUS implements, ARGUS reviews, ARIADNE rechecks only after deploy
 and seed if ARGUS accepts.
 
@@ -121,3 +121,67 @@ Wake ARGUS when implemented with:
 - validation results;
 - privacy/overclaim notes;
 - whether ARIADNE should recheck deployed staging routes after review.
+
+## DAEDALUS Implementation
+
+DAEDALUS extended the staging replay corpus shape with
+`additionalDeveloperSpaces`, preserving the existing primary
+`developerSpace` block for `station-replay-dev-alpha`.
+
+Second example:
+
+- Slug: `animus-field-lab`
+- Public route after deploy: `/developer-spaces/animus-field-lab`
+- Project name: `Animus Field Lab`
+- Visual mode: `timeline`
+- Evidence roles: `methodology`, `finding`, `field_log`
+- Evidence document types: `research`, `research`, `field_log`
+
+Seed behavior:
+
+- `scripts/staging-replay-seed.mjs` now validates and seeds the primary
+  `developerSpace` plus any `additionalDeveloperSpaces`.
+- Each Developer Space gets one node, one public event, one public snapshot,
+  public linked evidence documents, and usage counters.
+- Summary output now reports total Developer Space counts plus per-slug
+  evidence roles.
+- Existing `station-replay-dev-alpha` behavior is preserved.
+
+Local staging note:
+
+- `replay:seed:staging` still reads the ignored local corpus from
+  `STATION_REPLAY_CORPUS_PATH`.
+- DAEDALUS copied the checked-in public-safe `additionalDeveloperSpaces` block
+  into the ignored local corpus before running the staging seed.
+- The ignored local corpus remains uncommitted.
+
+Public readback proof:
+
+- Direct Supabase public-predicate readback returned both public Developer
+  Spaces in the public index: `station-replay-dev-alpha` and `animus-field-lab`.
+- `station-replay-dev-alpha` returned 3 public linked evidence rows with roles
+  `methodology`, `finding`, `field_log`, document types `research`, `research`,
+  `field_log`, and no private/draft rows under the public predicate.
+- `animus-field-lab` returned 3 public linked evidence rows with roles
+  `methodology`, `finding`, `field_log`, document types `research`, `research`,
+  `field_log`, and no private/draft rows under the public predicate.
+
+Validation:
+
+```bash
+npm exec --yes pnpm@10.32.1 -- run replay:seed:validate
+npm exec --yes pnpm@10.32.1 -- run replay:seed:staging
+npm exec --yes pnpm@10.32.1 -- run test:developer-spaces
+npm exec --yes pnpm@10.32.1 -- run test:developer-space-client
+npm exec --yes pnpm@10.32.1 -- run typecheck
+```
+
+All passed. `node --check scripts/staging-replay-seed.mjs` also passed.
+`git diff --check` passed with only CRLF normalization warnings.
+
+Scope guard:
+
+- No Discover/public feed code changed.
+- No API response shape, type package shape, route/table rename, Project
+  abstraction, Tier 2 hosting, developer agent, DexOS-specific widget, public
+  interaction mode, Cloudflare, or broad UI polish was added.

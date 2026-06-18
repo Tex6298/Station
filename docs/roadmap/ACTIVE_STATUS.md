@@ -5195,6 +5195,27 @@ when a PR lands, or when validation truth changes.
   not overfit to `station-replay-dev-alpha`. Cloudflare, Tier 2 hosting,
   developer agents, DexOS-specific widgets, public interaction modes, and
   route/table renames remain deferred.
+- DAEDALUS implements PR45 Developer Pages Second Example on 2026-06-18:
+  `scripts/staging-replay-seed.mjs` now validates and seeds the primary
+  `developerSpace` plus any `additionalDeveloperSpaces`. The checked-in replay
+  corpus fixture adds a second synthetic public-safe example,
+  `animus-field-lab`, with timeline visualisation, one public node/event/
+  snapshot, and three public evidence documents: methodology, finding, and
+  field-log. `replay:seed:validate` now reports 2 Developer Spaces and 6 linked
+  evidence documents. Because `replay:seed:staging` still reads the ignored
+  local corpus, DAEDALUS copied the checked-in public-safe
+  `additionalDeveloperSpaces` block into that ignored local file before
+  seeding; the ignored file remains uncommitted. `replay:seed:staging` passed
+  and reported both slugs: `station-replay-dev-alpha` and `animus-field-lab`.
+  Direct Supabase public-predicate readback proved both slugs are public and
+  each exposes exactly the required public evidence roles
+  `methodology`, `finding`, and `field_log`, with document types `research`,
+  `research`, and `field_log`, and no private/draft rows under the public
+  predicate. Validation also passed `test:developer-spaces` with 10 tests,
+  `test:developer-space-client` with 3 tests, and `typecheck`. No Discover
+  code, API response shape, type package shape, route/table rename, Project
+  abstraction, Tier 2 hosting, developer agent, DexOS-specific widget, public
+  interaction mode, Cloudflare, or broad UI polish was added.
 
 ## Near-term rule
 

@@ -7844,6 +7844,33 @@ ARGUS scope notes:
   installed, so ARIADNE should recheck the deployed public page after this
   visible frontend change is deployed.
 
+## PR45 Developer Pages Second Example
+
+DAEDALUS implementation validation on 2026-06-18:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run replay:seed:validate` | Pass | Checked-in example corpus validates 2 Developer Spaces, 2 nodes, 2 events, 2 snapshots, and 6 linked evidence documents. Slugs: `station-replay-dev-alpha`, `animus-field-lab`. |
+| `npm exec --yes pnpm@10.32.1 -- run replay:seed:staging` | Pass | Staging seed completed after the checked-in public-safe `additionalDeveloperSpaces` block was copied into the ignored local corpus. Seed summary reported both Developer Space slugs and methodology/finding/field_log evidence for each. |
+| Direct Supabase public-predicate readback | Pass | Public index includes `station-replay-dev-alpha` and `animus-field-lab`. Each detail predicate returned 3 public evidence rows with roles `methodology`, `finding`, `field_log`, document types `research`, `research`, `field_log`, and no private/draft rows exposed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 10 tests passed; Developer Space route and evidence-path helper coverage stayed green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-space-client` | Pass | 3 client tests passed; ingestion client API stayed compatible. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed after the seed/corpus shape change. |
+| `node --check scripts/staging-replay-seed.mjs` | Pass | Seed script parses after the multi-Developer-Space refactor. |
+| `git diff --check` | Pass | No whitespace errors; CRLF normalization warnings only for touched text files and local triad state. |
+
+Scope notes:
+
+- The seed corpus shape now supports a primary `developerSpace` plus
+  `additionalDeveloperSpaces`.
+- The second example is synthetic and public-safe: `animus-field-lab`.
+- The ignored local corpus was updated locally for staging seed proof but is
+  not committed.
+- No Discover/public feed code changed, so `test:community` was not required.
+- No API response shape, type package shape, route/table rename, Project
+  abstraction, Tier 2 hosting, developer agent, DexOS-specific widget, public
+  interaction mode, Cloudflare, or broad UI polish was added.
+
 PR37 ARGUS follow-up validation on 2026-06-18:
 
 | Command | Result | Notes |
