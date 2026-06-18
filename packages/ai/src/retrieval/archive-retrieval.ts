@@ -1,5 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type {
+  ArchiveRetrievalSkipReason,
   ArchiveRetrievalCitation,
   ArchiveRetrievalResult,
   ArchiveSourceType,
@@ -24,6 +25,7 @@ const DEFAULT_MAX_CHARACTERS = 2400;
 const HARD_MAX_CHARACTERS = 4000;
 const MAX_CHUNK_CHARACTERS = 700;
 const MIN_FINAL_EXCERPT_CHARACTERS = 80;
+const MIN_KEYWORD_CANDIDATE_POOL = 50;
 
 type ArchiveChunkRow = {
   id: string;
@@ -49,6 +51,12 @@ type RankedArchiveChunk = ArchiveChunkRow & {
 
 type ValidatedArchiveChunk = RankedArchiveChunk & {
   citation: ArchiveRetrievalCitation;
+};
+
+type ArchiveLifecycleRow = {
+  status?: string | null;
+  expires_at?: string | null;
+  superseded_by_memory_item_id?: string | null;
 };
 
 export async function retrievePrivateArchive(input: {
@@ -128,6 +136,16 @@ export async function retrievePrivateArchive(input: {
       maxCharacters,
       sourceCaps,
     },
+    trace: {
+      selected: chunks.map((chunk) => ({
+        id: chunk.id,
+        title: chunk.citation.title,
+        sourceType: chunk.citation.sourceType,
+        reason: chunk.citation.reason,
+        score: chunk.score,
+      })),
+      skipped: validated.skippedReasons,
+    },
   };
 }
 
@@ -179,7 +197,7 @@ async function keywordArchiveSearch(input: {
     .eq("persona_id", input.personaId)
     .eq("owner_user_id", input.ownerUserId)
     .order("relevance_weight", { ascending: false })
-    .limit(input.limit);
+    .limit(Math.max(input.limit, MIN_KEYWORD_CANDIDATE_POOL));
 
   const tokens = tokenize(input.query);
   return ((data ?? []) as ArchiveChunkRow[])
@@ -189,7 +207,13 @@ async function keywordArchiveSearch(input: {
       score: keywordScore(row, tokens),
     }))
     .filter((row) => tokens.length === 0 || row.score > 0)
-    .sort((a, b) => b.score - a.score || b.relevance_weight - a.relevance_weight || compareCreatedAt(b, a))
+    .sort((a, b) =>
+      b.score - a.score
+      || boundedRelevanceWeight(b) - boundedRelevanceWeight(a)
+      || compareCreatedAt(b, a)
+      || compareChunkIndex(a, b)
+      || a.id.localeCompare(b.id)
+    )
     .slice(0, input.limit);
 }
 
@@ -199,42 +223,58 @@ async function validateArchiveSources(input: {
   personaId: string;
   rows: RankedArchiveChunk[];
   includeQuarantined: boolean;
-}): Promise<{ valid: ValidatedArchiveChunk[]; skipped: number }> {
+}): Promise<{
+  valid: ValidatedArchiveChunk[];
+  skipped: number;
+  skippedReasons: Record<ArchiveRetrievalSkipReason, number>;
+}> {
   const valid: ValidatedArchiveChunk[] = [];
-  let skipped = 0;
+  const skippedReasons = emptyArchiveSkippedCounts();
 
   for (const row of input.rows) {
-    if (!input.includeQuarantined && await isRuntimeExcludedArchiveMemory(input.supabase, row, input.ownerUserId, input.personaId)) {
-      skipped += 1;
+    if (!hasAuthoritativeArchiveSource(row)) {
+      skippedReasons.unauthoritative += 1;
       continue;
     }
+
+    const lifecycleReason = !input.includeQuarantined
+      ? await runtimeArchiveExclusionReason(input.supabase, row, input.ownerUserId, input.personaId)
+      : null;
+    if (lifecycleReason) {
+      skippedReasons[lifecycleReason] += 1;
+      continue;
+    }
+
     const citation = await loadCitationForRow(input.supabase, row, input.ownerUserId, input.personaId);
     if (!citation) {
-      skipped += 1;
+      skippedReasons.source_not_ready += 1;
       continue;
     }
     valid.push({ ...row, citation });
   }
 
-  return { valid, skipped };
+  const skipped = Object.values(skippedReasons).reduce((total, count) => total + count, 0);
+  return { valid, skipped, skippedReasons };
 }
 
-async function isRuntimeExcludedArchiveMemory(
+async function runtimeArchiveExclusionReason(
   supabase: SupabaseClient,
   row: ArchiveChunkRow,
   ownerUserId: string,
   personaId: string
-) {
+): Promise<ArchiveRetrievalSkipReason | null> {
   const { data } = await (supabase as any)
     .from("memory_item_lifecycle")
-    .select("status")
+    .select("status, expires_at, superseded_by_memory_item_id")
     .eq("memory_item_id", row.id)
     .eq("owner_user_id", ownerUserId)
     .eq("persona_id", personaId)
     .maybeSingle();
 
-  if (row.source_type === "import") return data?.status !== "active";
-  return data?.status === "quarantined";
+  const reason = classifyArchiveLifecycleSkip(data as ArchiveLifecycleRow | null);
+  if (reason) return reason;
+  if (row.source_type === "import" && data?.status !== "active") return "missing_lifecycle";
+  return null;
 }
 
 async function loadCitationForRow(
@@ -377,14 +417,37 @@ function hasAuthoritativeArchiveSource(row: ArchiveChunkRow): row is ArchiveChun
 }
 
 function keywordScore(row: ArchiveChunkRow, tokens: string[]) {
-  if (tokens.length === 0) return row.relevance_weight;
-  const haystack = `${row.archive_source_name ?? ""} ${row.title ?? ""} ${row.summary ?? ""} ${row.content}`.toLowerCase();
-  const matches = tokens.filter((token) => haystack.includes(token)).length;
-  return matches / tokens.length + row.relevance_weight / 100;
+  if (tokens.length === 0) return boundedRelevanceWeight(row);
+
+  const sourceName = normalizeText(row.archive_source_name ?? "");
+  const title = normalizeText(row.title ?? "");
+  const summary = normalizeText(row.summary ?? "");
+  const content = normalizeText(row.content);
+  const phrase = tokens.join(" ");
+  let lexicalScore = 0;
+
+  for (const token of tokens) {
+    if (title.includes(token) || sourceName.includes(token)) lexicalScore += 4;
+    else if (summary.includes(token)) lexicalScore += 2;
+    else if (content.includes(token)) lexicalScore += 1;
+  }
+
+  const combinedSource = `${sourceName} ${title}`.trim();
+  const combinedEvidence = `${summary} ${content}`.trim();
+  if (phrase && combinedSource.includes(phrase)) lexicalScore += 6;
+  else if (phrase && combinedEvidence.includes(phrase)) lexicalScore += 3;
+
+  if (lexicalScore === 0) return 0;
+  return lexicalScore / tokens.length + boundedRelevanceWeight(row) / 100;
 }
 
 function tokenize(query: string) {
-  return query.toLowerCase().split(/\s+/).map((token) => token.trim()).filter(Boolean);
+  return [...new Set(
+    normalizeText(query)
+      .split(/\s+/)
+      .map((token) => token.trim())
+      .filter((token) => token.length > 1 && !STOPWORDS.has(token))
+  )];
 }
 
 function trimExcerpt(value: string, maxCharacters: number) {
@@ -419,3 +482,64 @@ function hasOwn(value: object, property: string) {
 function compareCreatedAt(a: ArchiveChunkRow, b: ArchiveChunkRow) {
   return (a.created_at ?? "").localeCompare(b.created_at ?? "");
 }
+
+function compareChunkIndex(a: ArchiveChunkRow, b: ArchiveChunkRow) {
+  return (a.chunk_index ?? Number.MAX_SAFE_INTEGER) - (b.chunk_index ?? Number.MAX_SAFE_INTEGER);
+}
+
+function boundedRelevanceWeight(row: Pick<ArchiveChunkRow, "relevance_weight">) {
+  const value = Number(row.relevance_weight ?? 0);
+  if (!Number.isFinite(value)) return 0;
+  return Math.min(10, Math.max(0, value));
+}
+
+function classifyArchiveLifecycleSkip(lifecycle: ArchiveLifecycleRow | null | undefined): ArchiveRetrievalSkipReason | null {
+  if (!lifecycle) return null;
+  if (lifecycle.superseded_by_memory_item_id || lifecycle.status === "superseded") return "superseded";
+  if (lifecycle.status === "rejected") return "rejected";
+  if (lifecycle.status === "quarantined") return "quarantined";
+
+  if (lifecycle.expires_at) {
+    const expiresAt = Date.parse(lifecycle.expires_at);
+    if (!Number.isNaN(expiresAt) && expiresAt <= Date.now()) return "expired";
+  }
+
+  return null;
+}
+
+function emptyArchiveSkippedCounts(): Record<ArchiveRetrievalSkipReason, number> {
+  return {
+    unauthoritative: 0,
+    source_not_ready: 0,
+    missing_lifecycle: 0,
+    rejected: 0,
+    quarantined: 0,
+    expired: 0,
+    superseded: 0,
+  };
+}
+
+function normalizeText(value: string) {
+  return value.toLowerCase().replace(/[^\p{L}\p{N}\s]+/gu, " ").replace(/\s+/g, " ").trim();
+}
+
+const STOPWORDS = new Set([
+  "a",
+  "an",
+  "and",
+  "are",
+  "as",
+  "at",
+  "for",
+  "from",
+  "in",
+  "into",
+  "is",
+  "it",
+  "of",
+  "on",
+  "or",
+  "the",
+  "to",
+  "with",
+]);

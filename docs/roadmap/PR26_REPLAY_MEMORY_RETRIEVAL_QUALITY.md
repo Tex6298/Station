@@ -1,7 +1,7 @@
 # PR26 - Replay Memory/Retrieval Quality Pass
 
 Date: 2026-06-18
-Status: opened for A2 / DAEDALUS
+Status: implemented by A2 / DAEDALUS; ready for ARGUS review
 Owner: DAEDALUS implements, ARGUS reviews. ARIADNE only rehearses if visible
 Studio/context-preview behavior changes.
 
@@ -109,3 +109,51 @@ DAEDALUS should wake ARGUS when done with:
 
 If DAEDALUS finds Cloudflare is genuinely required earlier than expected, wake
 MIMIR with the exact evidence instead of adding config or live calls.
+
+## DAEDALUS Implementation Package
+
+Run date: 2026-06-18
+
+Result: implemented as a focused retrieval quality patch. No Cloudflare config,
+Redis memory truth, provider routing, vector dimension change, billing work, or
+production worker lane was added.
+
+Behavior changed:
+
+- Keyword archive retrieval now scores a wider candidate pool before truncating,
+  so low-weight exact replay evidence is not excluded by the initial
+  `relevance_weight` order.
+- Keyword memory fallback now uses the same wider pre-score pool to avoid
+  dropping exact low-weight memory before lexical ranking.
+- Archive keyword ranking now normalizes tokens, drops common stopwords, makes
+  lexical/phrase match dominant, keeps relevance weight as a bounded tie-breaker,
+  and adds deterministic tie-breaks.
+- Archive retrieval now returns safe trace metadata:
+  selected chunk IDs/titles/source types/reasons/scores, plus skip counts for
+  `unauthoritative`, `source_not_ready`, `missing_lifecycle`, `rejected`,
+  `quarantined`, `expired`, and `superseded`.
+- Context-preview trace now carries the same archive skip-reason counts without
+  copying private archive excerpts into trace metadata.
+- The continuity test fake Supabase builder now supports `.limit()` and clears
+  local external AI/cache env before import so validation cannot hang on local
+  Gemini/Upstash configuration.
+
+Replay fixture:
+
+- `archive keyword ranking prefers exact replay evidence over noisy high
+  weight` in `apps/api/src/routes/archive-retrieval.test.ts`.
+- It proves a low-relevance exact private archive chunk for `lavender
+  switchback` ranks ahead of a high-relevance noisy partial-match chunk.
+- It also proves archive trace metadata identifies the selected chunk without
+  copying the private excerpt/content into the trace body.
+
+Validation:
+
+| Command | Result |
+| --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-context` | Pass, 6 tests. |
+| `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass, 28 tests. |
+| `npm exec --yes pnpm@10.32.1 -- run test:continuity` | Pass, 4 tests. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/api build` | Pass. |
+
+Remaining pre-handoff check: `git diff --check`.

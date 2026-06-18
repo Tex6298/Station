@@ -1,5 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { retrievePrivateArchive } from "./archive-retrieval";
+import type { ArchiveRetrievalTrace } from "@station/types";
 import { generateEmbedding } from "./embeddings";
 import { searchMemoryWithTrace, loadCanon, type MemoryRetrievalTrace } from "./semantic-search";
 import { buildPersonaChatPrompt } from "../prompts/persona-chat";
@@ -81,9 +82,7 @@ export interface PersonaRuntimeContextTrace {
   }>;
   skipped: {
     memory: MemoryRetrievalTrace["skipped"];
-    archive: {
-      unauthoritative: number;
-    };
+    archive: ArchiveRetrievalTrace["skipped"];
   };
   searched: {
     memory: number;
@@ -211,9 +210,7 @@ export async function assemblePersonaRuntimeContext(
       })),
       skipped: {
         memory: safeMemorySkipped,
-        archive: {
-          unauthoritative: archiveRetrieval.skippedUnauthoritative,
-        },
+        archive: archiveRetrieval.skipped,
       },
       searched: {
         memory: visibleMemorySearchedCount(memoryRetrieval.trace),
@@ -385,9 +382,16 @@ async function loadArchiveReferences(
   mode: "vector" | "keyword";
   searched: number;
   skippedUnauthoritative: number;
+  skipped: ArchiveRetrievalTrace["skipped"];
 }> {
   if (!input.ownerUserId) {
-    return { sources: [], mode: "keyword", searched: 0, skippedUnauthoritative: 0 };
+    return {
+      sources: [],
+      mode: "keyword",
+      searched: 0,
+      skippedUnauthoritative: 0,
+      skipped: emptyArchiveSkippedCounts(),
+    };
   }
 
   const retrieval = await retrievePrivateArchive({
@@ -417,6 +421,7 @@ async function loadArchiveReferences(
       mode: retrieval.mode,
       searched: retrieval.counts.searched,
       skippedUnauthoritative: retrieval.counts.skippedUnauthoritative,
+      skipped: retrieval.trace?.skipped ?? emptyArchiveSkippedCounts(),
     };
   }
 
@@ -496,6 +501,7 @@ async function loadArchiveReferences(
     mode: retrieval.mode,
     searched: retrieval.counts.searched + files.length + imports.length + transcripts.length,
     skippedUnauthoritative: retrieval.counts.skippedUnauthoritative,
+    skipped: retrieval.trace?.skipped ?? emptyArchiveSkippedCounts(),
   };
 }
 
@@ -517,6 +523,18 @@ function redactHiddenMemorySkippedCounts(skipped: MemoryRetrievalTrace["skipped"
 
 function visibleMemorySearchedCount(trace: MemoryRetrievalTrace) {
   return Math.max(0, trace.searched - trace.skipped.other_owner_or_missing);
+}
+
+function emptyArchiveSkippedCounts(): ArchiveRetrievalTrace["skipped"] {
+  return {
+    unauthoritative: 0,
+    source_not_ready: 0,
+    missing_lifecycle: 0,
+    rejected: 0,
+    quarantined: 0,
+    expired: 0,
+    superseded: 0,
+  };
 }
 
 function hasValue(value: string | null | undefined) {

@@ -4450,6 +4450,20 @@ when a PR lands, or when validation truth changes.
   Station/Supabase plus Gemini `1536` staging profile. Cloudflare config is not
   needed for this lane; Cloudflare remains deferred until a borrowed repo
   pattern or live replay limitation proves a specific adapter/index-mirror need.
+- PR26 Replay Memory/Retrieval Quality Pass is implemented by DAEDALUS and
+  ready for ARGUS review, 2026-06-18: keyword archive retrieval and memory
+  fallback now score a wider candidate pool before truncation so low-weight exact
+  replay evidence is not dropped by initial `relevance_weight` ordering. Archive
+  keyword ranking now uses normalized tokens, stopword removal, lexical/phrase
+  dominant scoring, bounded relevance tie-breaks, and deterministic tie-breaks.
+  Archive/context-preview traces now report selected chunk IDs/titles/source
+  types/reasons/scores and skipped counts for unauthoritative, source-not-ready,
+  missing-lifecycle, rejected, quarantined, expired, and superseded rows without
+  copying private excerpts into trace metadata. The replay fixture
+  `archive keyword ranking prefers exact replay evidence over noisy high weight`
+  proves the `lavender switchback` exact archive evidence outranks a noisy
+  high-weight partial match. No Cloudflare config, Redis memory truth, provider
+  routing, vector dimension change, Stripe work, or worker lane was added.
 
 ## Near-term rule
 

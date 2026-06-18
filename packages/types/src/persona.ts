@@ -143,6 +143,26 @@ export interface ArchiveRetrievalChunk {
   createdAt?: string | null;
 }
 
+export type ArchiveRetrievalSkipReason =
+  | "unauthoritative"
+  | "source_not_ready"
+  | "missing_lifecycle"
+  | "rejected"
+  | "quarantined"
+  | "expired"
+  | "superseded";
+
+export interface ArchiveRetrievalTrace {
+  selected: Array<{
+    id: string;
+    title: string | null;
+    sourceType: ArchiveSourceType;
+    reason: string;
+    score: number;
+  }>;
+  skipped: Record<ArchiveRetrievalSkipReason, number>;
+}
+
 export interface ArchiveRetrievalResult {
   mode: "vector" | "keyword";
   chunks: ArchiveRetrievalChunk[];
@@ -156,6 +176,7 @@ export interface ArchiveRetrievalResult {
     maxCharacters: number;
     sourceCaps: Record<ArchiveSourceType, number>;
   };
+  trace?: ArchiveRetrievalTrace;
 }
 
 export type MemoryGraphEdgeType =

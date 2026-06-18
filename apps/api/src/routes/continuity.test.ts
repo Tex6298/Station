@@ -9,7 +9,17 @@ process.env.NODE_ENV = "test";
 process.env.SUPABASE_URL ??= "http://localhost";
 process.env.SUPABASE_ANON_KEY ??= "test-anon-key";
 process.env.SUPABASE_SERVICE_ROLE_KEY ??= "test-service-key";
-delete process.env.OPENAI_API_KEY;
+process.env.OPENAI_API_KEY = "";
+process.env.GEMINI_API_KEY = "";
+process.env.GOOGLE_API_KEY = "";
+process.env.ANTHROPIC_API_KEY = "";
+process.env.DEEPSEEK_API_KEY = "";
+process.env.NVIDIA_AI_API_KEY = "";
+process.env.UPSTASH_REDIS_REST_URL = "";
+process.env.UPSTASH_REDIS_REST_TOKEN = "";
+process.env.REDIS_URL = "";
+process.env.REDIS_PRIVATE_URL = "";
+process.env.VALKEY_URL = "";
 
 type Row = Record<string, any>;
 
@@ -168,6 +178,7 @@ class InMemorySupabase {
 class QueryBuilder {
   private filters: Array<[string, unknown]> = [];
   private orderSpec: { field: string; ascending: boolean } | null = null;
+  private limitCount: number | null = null;
   private operation: "select" | "insert" | "update" | "delete" = "select";
   private payload: Row | Row[] | null = null;
   private countRequested = false;
@@ -188,6 +199,11 @@ class QueryBuilder {
 
   order(field: string, options: { ascending?: boolean } = {}) {
     this.orderSpec = { field, ascending: options.ascending ?? true };
+    return this;
+  }
+
+  limit(count: number) {
+    this.limitCount = count;
     return this;
   }
 
@@ -237,6 +253,7 @@ class QueryBuilder {
       });
     }
 
+    if (this.limitCount !== null) rows = rows.slice(0, this.limitCount);
     return rows;
   }
 
@@ -333,6 +350,7 @@ async function requestJson<TBody = any>(
       method,
       headers,
       body: options.body === undefined ? undefined : JSON.stringify(options.body),
+      signal: AbortSignal.timeout(5000),
     });
     const text = await response.text();
     return {

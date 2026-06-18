@@ -7285,3 +7285,26 @@ Scope notes:
 - No live Reddit/Discord OAuth pulls, recurring sync, external social import
   API, Cloudflare retrieval, Redis memory truth, provider marketplace, Stripe
   expansion, or broad redesign was added.
+
+## PR26 Replay Memory/Retrieval Quality Pass
+
+DAEDALUS implementation validation on 2026-06-18:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-context` | Pass | 6 tests passed; context trace still owner-scoped and private-excerpt-free. |
+| `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass | 28 tests passed, including `archive keyword ranking prefers exact replay evidence over noisy high weight`. |
+| `npm exec --yes pnpm@10.32.1 -- run test:continuity` | Pass | 4 tests passed after the fake Supabase builder gained `.limit()` and the test neutralized local external AI/cache env. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/api build` | Pass | API package build and dependent package builds passed. |
+
+Scope notes:
+
+- Archive and memory keyword fallback now score a wider candidate pool before
+  truncating, preventing low-weight exact recall from being excluded by
+  relevance-weight ordering alone.
+- Archive keyword ranking now makes lexical/phrase match dominant and keeps
+  relevance as a bounded tie-breaker.
+- Archive/context traces expose selected IDs/titles/reasons/scores and skipped
+  reason counts only; private excerpts remain out of trace metadata.
+- Cloudflare, Redis memory truth, provider routing, vector dimensions, Stripe,
+  and production worker infrastructure were not changed.

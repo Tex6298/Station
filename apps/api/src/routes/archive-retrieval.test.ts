@@ -40,6 +40,8 @@ class InMemorySupabase {
       archiveChunk("chunk-import-1", OWNER_ID, "import_job", "import-1", "Migration chat", "Private grief anchor stays private until the owner explicitly asks for it.", 5, 0, 3),
       archiveChunk("chunk-import-2", OWNER_ID, "import_job", "import-1", "Migration chat", "A second private grief note says continuity beats novelty.", 4, 1, 3),
       archiveChunk("chunk-import-3", OWNER_ID, "import_job", "import-1", "Migration chat", "A third private grief chunk should be held back by source caps.", 3, 2, 3),
+      archiveChunk("chunk-replay-target", OWNER_ID, "import_job", "import-replay", "Replay bridge", "Lavender switchback is the correct protected-alpha replay marker.", 1, 0, 1),
+      archiveChunk("chunk-replay-noisy", OWNER_ID, "import_job", "import-noisy", "Noisy switchback", "Switchback index material mentions the route but not the color marker.", 99, 0, 1),
       archiveChunk("chunk-transcript", OWNER_ID, "archived_chat_transcript", "transcript-1", "Old Harbor chat", "The blue notebook appears in the archived chat as continuity material.", 5, 0, 1),
       archiveChunk("chunk-file", OWNER_ID, "persona_file", "file-1", "source-notebook.md", "The processed file mentions private grief and the notebook together.", 4, 0, 1),
       archiveChunk("chunk-quarantined-file", OWNER_ID, "persona_file", "file-1", "source-notebook.md", "Quarantined imported file private grief must not enter runtime context.", 12, 0, 1),
@@ -76,6 +78,8 @@ class InMemorySupabase {
     ],
     import_jobs: [
       sourceRow("import-1", OWNER_ID, { status: "completed", source_name: "Migration chat" }),
+      sourceRow("import-replay", OWNER_ID, { status: "completed", source_name: "Replay bridge" }),
+      sourceRow("import-noisy", OWNER_ID, { status: "completed", source_name: "Noisy switchback" }),
       sourceRow("import-failed", OWNER_ID, { status: "failed", source_name: "Failed import" }),
       sourceRow("import-other", OTHER_ID, { status: "completed", source_name: "Other import" }),
     ],
@@ -236,6 +240,29 @@ test("private archive retrieval is owner-scoped and source-authoritative", async
   }
 });
 
+test("archive keyword ranking prefers exact replay evidence over noisy high weight", async () => {
+  const db = new InMemorySupabase();
+  setSupabaseAdminForTests(db.client as any);
+  const app = await createArchiveRetrievalApp();
+
+  try {
+    const response = await requestJson(app, "GET", `/conversations/persona/${PERSONA_ID}/archive-retrieval?query=lavender%20switchback&limit=2`, {
+      token: "owner-token",
+    });
+
+    assert.equal(response.status, 200);
+    assert.equal(response.body.retrieval.mode, "keyword");
+    assert.equal(response.body.retrieval.chunks[0].id, "chunk-replay-target");
+    assert.match(response.body.retrieval.chunks[0].excerpt, /Lavender switchback/);
+    assert.equal(response.body.retrieval.trace.selected[0].id, "chunk-replay-target");
+    assert.equal(response.body.retrieval.trace.selected.every((item: Row) => item.excerpt === undefined && item.content === undefined), true);
+    assert.doesNotMatch(JSON.stringify(response.body.retrieval.trace), /correct protected-alpha replay marker/);
+    assert.equal(response.body.retrieval.trace.skipped.source_not_ready >= 0, true);
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
+
 test("context preview uses private archive excerpts with citations for the owner only", async () => {
   const db = new InMemorySupabase();
   setSupabaseAdminForTests(db.client as any);
@@ -254,6 +281,9 @@ test("context preview uses private archive excerpts with citations for the owner
       owner.body.context.archive.some((source: Row) => source.sourceType === "archived_chat_transcript" && /archived private conversation/.test(source.reason)),
       true
     );
+    assert.equal(owner.body.context.trace.skipped.archive.quarantined >= 1, true);
+    assert.equal(owner.body.context.trace.skipped.archive.missing_lifecycle >= 1, true);
+    assert.doesNotMatch(JSON.stringify(owner.body.context.trace), /blue notebook appears in the archived chat/);
     assert.doesNotMatch(owner.body.context.systemPrompt, /Other owner private grief/);
     assert.doesNotMatch(owner.body.context.systemPrompt, /Failed import private grief/);
     assert.doesNotMatch(owner.body.context.systemPrompt, /Quarantined imported file private grief/);
