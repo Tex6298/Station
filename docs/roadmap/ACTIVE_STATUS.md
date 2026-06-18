@@ -4565,6 +4565,18 @@ when a PR lands, or when validation truth changes.
   returned HTTP 200 with sanitized counts/modes/statuses only. No code changed,
   and no Cloudflare/Redis/provider/vector/worker/Stripe/social/UI repair lane is
   indicated by this refresh.
+- PR29 Live Staging Replay Refresh is accepted by ARGUS for MIMIR closeout,
+  2026-06-18: ARGUS independently rechecked public Railway web/API `/health`
+  and `/health/deployment`; both services returned `ok:true`, `ready:true`, repo
+  `Tex6298/Station`, branch `main`, and commit `fb906b1b0bf7`. ARGUS verified
+  `fb906b1` is the PR28 backend retrieval-depth patch and that later commits are
+  docs/review/status work for this refresh. Added-line leak review found only
+  key names, route placeholders, counts, modes, booleans, and explicit "not
+  recorded" language. Validation passed `test:replay-readiness`, `test:health`,
+  `test:persona-context`, `test:conversation-archive`, `test:storage`,
+  `@station/api` build, `git diff --check`, and `git diff --cached --check`.
+  No precise repair lane is indicated; Cloudflare/Redis/provider/vector/worker/
+  Stripe/social/UI work remains deferred.
 
 ## Near-term rule
 

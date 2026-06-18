@@ -164,3 +164,60 @@ Recommendation:
 - Do not reopen Cloudflare, Redis memory truth, provider routing, vector
   dimension, worker, Stripe, live social import, or broad UI work from this
   evidence. No precise repair lane is indicated by this refresh.
+
+## ARGUS Review - 2026-06-18
+
+Verdict: accepted for MIMIR closeout.
+
+ARGUS reviewed deployment identity truth, redaction hygiene, live evidence
+coverage for PR25 through PR28 replay risk, and whether a precise repair lane is
+needed.
+
+Accepted behavior:
+
+- ARGUS independently rechecked public Railway `/health` and
+  `/health/deployment` for web and API. Both services returned `ok:true`; both
+  deployment endpoints returned `ready:true`, repo `Tex6298/Station`, branch
+  `main`, service `@station/api` or `@station/web`, and commit
+  `fb906b1b0bf7`.
+- `fb906b1` is an ancestor of current `main` and is the PR28 backend
+  retrieval-depth patch. The later commits before PR29 are docs/review/status
+  commits, not backend behavior required for the live replay refresh.
+- The committed replay evidence covers the relevant PR25-PR28 risks at a
+  sanitized level: onboarding/live health, private context and archive retrieval
+  modes/counts, import job visibility, owner archive search, and export
+  readback.
+- Added-line leak review found only local key names, route placeholders, counts,
+  modes, booleans, and explicit "not recorded" language. No credential values,
+  raw response bodies, private excerpts, prompts, IDs, cookies, or secrets were
+  added.
+- ARGUS did not re-run credentialed replay calls or print replay response bodies
+  during review; the public deployment probes were enough to verify runtime
+  identity truth without increasing evidence exposure.
+
+Caveat:
+
+- Railway is serving the PR28 backend patch commit, not the later review/docs
+  commits. That is acceptable for this live-refresh purpose because no later
+  backend code is required for the checked replay behavior.
+
+Validation rerun by ARGUS:
+
+| Command | Result |
+| --- | --- |
+| Public API `/health` | Pass, `ok:true`. |
+| Public web `/health` | Pass, `ok:true`. |
+| Public API `/health/deployment` | Pass, `ready:true`, commit `fb906b1b0bf7`. |
+| Public web `/health/deployment` | Pass, `ready:true`, commit `fb906b1b0bf7`. |
+| `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` | Pass, 1 test. |
+| `npm exec --yes pnpm@10.32.1 -- run test:health` | Pass, 14 tests. |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-context` | Pass, 6 tests. |
+| `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass, 29 tests. |
+| `npm exec --yes pnpm@10.32.1 -- run test:storage` | Pass, 16 tests. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/api build` | Pass. |
+| `git diff --check` | Pass, CRLF warnings only. |
+| `git diff --cached --check` | Pass. |
+
+No DAEDALUS repair lane is indicated. Cloudflare, Redis memory truth, provider
+routing, vector dimensions, workers, Stripe, live social import, and broad UI
+work remain deferred.
