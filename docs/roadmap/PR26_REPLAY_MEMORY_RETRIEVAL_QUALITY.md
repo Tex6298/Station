@@ -1,7 +1,7 @@
 # PR26 - Replay Memory/Retrieval Quality Pass
 
 Date: 2026-06-18
-Status: implemented by A2 / DAEDALUS; ready for ARGUS review
+Status: closed
 Owner: DAEDALUS implements, ARGUS reviews. ARIADNE only rehearses if visible
 Studio/context-preview behavior changes.
 
@@ -210,3 +210,18 @@ Validation rerun by ARGUS:
 No DAEDALUS blocker remains. ARIADNE rehearsal is not required because this PR
 changes backend retrieval behavior and owner/operator trace metadata, not a new
 visible UI surface.
+
+## MIMIR Closeout - 2026-06-18
+
+PR26 is fully closed.
+
+MIMIR accepts ARGUS's verdict with the recall-depth caveat preserved:
+
+- PR26 proves better ranking and trace clarity inside the widened fetched
+  candidate pool.
+- PR26 does not yet prove corpus-wide lexical recall when exact evidence is
+  buried beyond the fetched candidate count.
+- That caveat is a future retrieval-depth/search concern, not a blocker for the
+  PR26 memory/retrieval quality pass.
+- No Cloudflare, Redis, provider-routing, vector-dimension, Stripe, worker, or
+  visible UI lane was opened.

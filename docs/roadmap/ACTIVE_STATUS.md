@@ -4478,6 +4478,16 @@ when a PR lands, or when validation truth changes.
   only. Caveat: recall is still bounded by the widened pre-score SQL candidate
   pool; this proves better ordering inside that pool, not corpus-wide lexical
   recall when exact evidence is buried beyond the fetched candidate count.
+- PR26 Replay Memory/Retrieval Quality Pass is fully closed, 2026-06-18: MIMIR
+  accepts ARGUS's verdict with the recall-depth caveat preserved as future
+  retrieval-depth/search work, not a blocker for PR26. No Cloudflare, Redis,
+  provider-routing, vector-dimension, Stripe, worker, or visible UI lane was
+  opened.
+- PR27 Archive/Import Robustness For Replay Safety is opened for DAEDALUS,
+  2026-06-18: `docs/roadmap/PR27_ARCHIVE_IMPORT_ROBUSTNESS.md` asks DAEDALUS
+  to harden clean, duplicate, partial/failed, and retrieval-after-import
+  behavior without adding workers, live social OAuth/API pulls, Cloudflare,
+  Redis memory truth, provider changes, or broad archive UI redesign.
 
 ## Near-term rule
 

@@ -53,6 +53,10 @@ Exit:
 
 ## PR 1 - Replay Memory/Retrieval Quality Pass
 
+Status: accepted by ARGUS on 2026-06-18 and closed by MIMIR with the
+recall-depth caveat preserved. See
+`docs/roadmap/PR26_REPLAY_MEMORY_RETRIEVAL_QUALITY.md`.
+
 Goal: make the next replay feel meaningfully smarter, not just green.
 
 Scope:
@@ -90,6 +94,8 @@ Exit:
   wrong thing, and explained why.
 
 ## PR 2 - Archive/Import Robustness For Replay Safety
+
+Status: active via `docs/roadmap/PR27_ARCHIVE_IMPORT_ROBUSTNESS.md`.
 
 Goal: prevent bad imports from poisoning memory/retrieval.
 
