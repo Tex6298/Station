@@ -3,6 +3,7 @@ import type {
   DeveloperSpaceWidgetConfig,
   DeveloperSpaceWidgetType,
   DeveloperSpaceWidgetZone,
+  DeveloperSpaceLinkedDocument,
   DeveloperSpaceNode,
   DeveloperSpaceVisualisationType,
 } from "@station/types/developer-space";
@@ -115,6 +116,23 @@ export function developerSpaceMethodologyCopy(detail: Pick<DeveloperSpaceDetail,
       ? "Owner view may show raw event or snapshot data, but ingestion keys, credentials, private archive text, prompts, and unpublished notes stay out of the public observatory."
       : "Visitors do not see ingestion keys, credentials, private archive text, prompts, raw owner console data, or unpublished notes.",
   };
+}
+
+export function developerSpaceEvidenceTitle(documents: Pick<DeveloperSpaceLinkedDocument, "role">[]) {
+  if (documents.some((document) => document.role === "methodology" || document.role === "finding" || document.role === "field_log")) {
+    return "Project evidence";
+  }
+  return "Project notes";
+}
+
+export function developerSpaceEvidenceRoleCopy(role: DeveloperSpaceLinkedDocument["role"]) {
+  const copy: Record<DeveloperSpaceLinkedDocument["role"], string> = {
+    methodology: "Methodology / architecture",
+    finding: "Finding / milestone",
+    field_log: "Field log / update",
+    note: "Note / paper",
+  };
+  return copy[role] ?? "Project evidence";
 }
 
 const DEFAULT_WIDGETS: DeveloperSpaceWidgetConfig[] = [

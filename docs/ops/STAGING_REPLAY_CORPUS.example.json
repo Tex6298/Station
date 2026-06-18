@@ -91,7 +91,33 @@
         "events": 1,
         "replay": true
       }
-    }
+    },
+    "documents": [
+      {
+        "role": "methodology",
+        "slug": "station-replay-dev-alpha-methodology",
+        "title": "Station Replay Dev Alpha Methodology",
+        "body": "Synthetic public-safe staging methodology. This note explains that the replay observatory uses one seeded node, one public signal, and one snapshot to prove Developer Space document linking without exposing private archives, prompts, credentials, or production project data.",
+        "documentType": "research",
+        "sortOrder": 0
+      },
+      {
+        "role": "finding",
+        "slug": "station-replay-dev-alpha-milestone",
+        "title": "Station Replay Dev Alpha Milestone",
+        "body": "Synthetic public-safe staging finding. The current milestone is that the public page can show live observatory state beside linked project evidence while keeping owner-only drafts and operational secrets out of anonymous reads.",
+        "documentType": "research",
+        "sortOrder": 1
+      },
+      {
+        "role": "field_log",
+        "slug": "station-replay-dev-alpha-field-log",
+        "title": "Station Replay Dev Alpha Field Log",
+        "body": "Synthetic public-safe staging field log. The replay seed refreshed a public node, signal, snapshot, and linked evidence documents for a demo-only Developer Space. This does not claim hosted runtime, DexOS onboarding, or production infrastructure.",
+        "documentType": "field_log",
+        "sortOrder": 2
+      }
+    ]
   },
   "exportPackage": {
     "label": "Station replay sanitized export manifest"

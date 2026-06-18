@@ -777,6 +777,40 @@ test("Developer Spaces smoke covers creation, keying, ingestion, and public/owne
     assert.equal(publicFieldLog.body.document.status, "published");
     assert.equal(publicFieldLog.body.document.visibility, "public");
 
+    const publicMethodology = await requestJson(app, "POST", `/developer-spaces/${spaceId}/documents/template`, {
+      token: "owner-token",
+      body: {
+        role: "methodology",
+        title: "Animus public methodology",
+        body: "Published methodology for visitors.",
+        linkVisibility: "public",
+        sortOrder: 0,
+      },
+    });
+
+    assert.equal(publicMethodology.status, 201);
+    assert.equal(publicMethodology.body.link.role, "methodology");
+    assert.equal(publicMethodology.body.link.linkVisibility, "public");
+    assert.equal(publicMethodology.body.document.status, "published");
+    assert.equal(publicMethodology.body.document.visibility, "public");
+
+    const publicFinding = await requestJson(app, "POST", `/developer-spaces/${spaceId}/documents/template`, {
+      token: "owner-token",
+      body: {
+        role: "finding",
+        title: "Animus public milestone",
+        body: "Published milestone finding for visitors.",
+        linkVisibility: "public",
+        sortOrder: 1,
+      },
+    });
+
+    assert.equal(publicFinding.status, 201);
+    assert.equal(publicFinding.body.link.role, "finding");
+    assert.equal(publicFinding.body.link.linkVisibility, "public");
+    assert.equal(publicFinding.body.document.status, "published");
+    assert.equal(publicFinding.body.document.visibility, "public");
+
     const privateAttachBlocked = await requestJson(app, "POST", `/developer-spaces/${spaceId}/documents`, {
       token: "owner-token",
       body: {
@@ -794,7 +828,12 @@ test("Developer Spaces smoke covers creation, keying, ingestion, and public/owne
 
     const hiddenPublicLinkDetail = await requestJson(app, "GET", "/developer-spaces/animus-field");
     assert.equal(hiddenPublicLinkDetail.status, 200);
-    assert.equal(hiddenPublicLinkDetail.body.linkedDocuments.length, 0);
+    assert.equal(hiddenPublicLinkDetail.body.linkedDocuments.length, 2);
+    assert.deepEqual(
+      hiddenPublicLinkDetail.body.linkedDocuments.map((link: Row) => link.role).sort(),
+      ["finding", "methodology"],
+    );
+    assert.equal(JSON.stringify(hiddenPublicLinkDetail.body).includes("Published field log"), false);
 
     publicFieldLogRow.status = "published";
     publicFieldLogRow.visibility = "public";
@@ -812,13 +851,18 @@ test("Developer Spaces smoke covers creation, keying, ingestion, and public/owne
     assert.equal(publicDetail.body.latestSnapshot.snapshotData.raw, undefined);
     assert.equal(publicDetail.body.events.some((event: Row) => event.visibility === "private"), false);
     assert.equal(publicDetail.body.events.some((event: Row) => event.eventType === "signal.detected"), true);
-    assert.equal(publicDetail.body.linkedDocuments.length, 1);
-    assert.equal(publicDetail.body.linkedDocuments[0].role, "field_log");
-    assert.equal(publicDetail.body.linkedDocuments[0].document.title, "Animus field log one");
+    assert.equal(publicDetail.body.linkedDocuments.length, 3);
+    assert.deepEqual(
+      publicDetail.body.linkedDocuments.map((link: Row) => link.role).sort(),
+      ["field_log", "finding", "methodology"],
+    );
+    assert.equal(publicDetail.body.linkedDocuments.some((link: Row) => link.document.title === "Animus field log one"), true);
     const publicText = JSON.stringify(publicDetail.body);
     assert.equal(publicText.includes("api_key_hash"), false);
     assert.equal(publicText.includes("Draft-only calibration method"), false);
     assert.equal(publicText.includes("Published field log"), true);
+    assert.equal(publicText.includes("Published methodology"), true);
+    assert.equal(publicText.includes("Published milestone"), true);
     for (const hidden of [
       "secret-token",
       "owner-only",
@@ -857,9 +901,10 @@ test("Developer Spaces smoke covers creation, keying, ingestion, and public/owne
     assert.equal(ownerDetail.body.events.some((event: Row) => event.visibility === "private"), true);
     assert.equal(ownerDetail.body.nodes[0].metrics.raw.hidden, true);
     assert.equal(ownerDetail.body.latestSnapshot.snapshotData.raw.prompt, "owner-only");
-    assert.equal(ownerDetail.body.linkedDocuments.length, 2);
+    assert.equal(ownerDetail.body.linkedDocuments.length, 4);
     assert.equal(ownerDetail.body.linkedDocuments.some((link: Row) => link.role === "methodology" && link.linkVisibility === "owner"), true);
     assert.equal(ownerDetail.body.linkedDocuments.some((link: Row) => link.role === "field_log" && link.linkVisibility === "public"), true);
+    assert.equal(ownerDetail.body.linkedDocuments.some((link: Row) => link.role === "finding" && link.linkVisibility === "public"), true);
     const ownerText = JSON.stringify(ownerDetail.body);
     assert.equal(ownerText.includes("api_key_hash"), false);
     assert.equal(ownerText.includes("Draft-only calibration method"), true);
@@ -897,7 +942,10 @@ test("Developer Spaces smoke covers creation, keying, ingestion, and public/owne
     assert.equal(publicSse.data.kind, "detail");
     assert.equal(publicSse.data.detail.access, "public");
     assert.equal(publicSse.data.detail.events.some((event: Row) => event.visibility === "private"), false);
-    assert.equal(publicSse.data.detail.linkedDocuments.length, 1);
+    assert.equal(publicSse.data.detail.linkedDocuments.length, 3);
+    assert.equal(publicSse.data.detail.linkedDocuments.some((link: Row) => link.role === "methodology"), true);
+    assert.equal(publicSse.data.detail.linkedDocuments.some((link: Row) => link.role === "finding"), true);
+    assert.equal(publicSse.data.detail.linkedDocuments.some((link: Row) => link.role === "field_log"), true);
     assert.equal(JSON.stringify(publicSse.data).includes("Draft-only calibration method"), false);
     assert.equal(JSON.stringify(publicSse.data).includes("public-db-password"), false);
     assert.equal(typeof publicSse.data.freshness.streamId, "string");
@@ -907,7 +955,7 @@ test("Developer Spaces smoke covers creation, keying, ingestion, and public/owne
     const ownerSse = parseSseUpdate(ownerStream.body);
     assert.equal(ownerSse.data.detail.access, "owner");
     assert.equal(ownerSse.data.detail.events.some((event: Row) => event.visibility === "private"), true);
-    assert.equal(ownerSse.data.detail.linkedDocuments.length, 2);
+    assert.equal(ownerSse.data.detail.linkedDocuments.length, 4);
     assert.equal(JSON.stringify(ownerSse.data).includes("public-db-password"), true);
     assert.equal(JSON.stringify(ownerSse.data).includes("Draft-only calibration method"), true);
     assert.equal(JSON.stringify(ownerSse.data).includes("api_key_hash"), false);

@@ -7695,6 +7695,35 @@ Scope notes:
 - Browser confirmation remains a staging task for ARGUS/ARIADNE because local
   Playwright remains unavailable in this workspace.
 
+## PR40 Developer Pages Phase 2A Alignment
+
+DAEDALUS implementation validation on 2026-06-18:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 9 tests passed, including public methodology/finding/field-log evidence visibility and owner-only draft hiding. |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-space-client` | Pass | 3 client tests passed; ingestion client API stayed compatible. |
+| `npm exec --yes pnpm@10.32.1 -- run replay:seed:validate` | Pass | Example corpus validates with 3 planned Developer Space evidence documents and roles `methodology`, `finding`, and `field_log`. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web build` | Local environment failure after successful compile/type/page generation | Next compiled successfully, lint/type checks ran with the known warning inventory, and 30 static pages generated. The build then reproduced the known Windows standalone symlink failure: `EPERM: operation not permitted, symlink ... apps\\web\\.next\\standalone...`. |
+| `git diff --check` | Pass | No whitespace errors; CRLF normalization warnings only for touched text files and local triad state. |
+
+Scope notes:
+
+- Replay seeding now creates or updates public linked Developer Space evidence
+  documents for `station-replay-dev-alpha`: methodology/architecture,
+  finding/milestone, and field-log/update.
+- Public evidence uses existing `documents` and `developer_space_documents`
+  tables and keeps current API/route names.
+- Public reads expose only public links whose documents are published and
+  public. Owner reads can still include owner-only draft links.
+- The public Developer Space page now labels role-backed documents as project
+  evidence with Developer Pages language.
+- Seeded example text is synthetic, public-safe, and explicitly non-production.
+- No Project abstraction, Tier 2 hosted runtime, Coolify/container/database
+  provisioning, Redis/queue pipeline, developer agent, chat-native tool
+  execution, DexOS-specific widgets, tipping, public interaction layer, Tier 3,
+  Cloudflare, or Developer Spaces route/table rename was added.
+
 ARGUS follow-up validation on 2026-06-18:
 
 | Command | Result | Notes |

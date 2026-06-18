@@ -5037,6 +5037,24 @@ when a PR lands, or when validation truth changes.
   presentation; and keep Project abstraction, Tier 2 hosting, developer agent,
   tipping, public interaction modes, DexOS-specific widgets, Tier 3, and
   Cloudflare out of scope.
+- DAEDALUS implements PR40 Developer Pages Phase 2A Alignment on 2026-06-18:
+  the staging replay corpus and seed script now require and upsert three
+  public-safe Developer Space evidence documents for
+  `station-replay-dev-alpha`: methodology/architecture, finding/milestone, and
+  field-log/update. Seeded documents are published public Station documents
+  linked through existing `developer_space_documents` rows; event and snapshot
+  source refs now point at the linked public evidence where available. Public
+  Developer Space rendering now labels role-backed links as `Project evidence`
+  with methodology/finding/field-log language instead of a generic notes bucket.
+  Tests prove anonymous reads expose only public/published/public-link evidence
+  while owner reads still include owner-only drafts. Validation passed
+  `test:developer-spaces` with 9 tests, `test:developer-space-client` with 3
+  tests, `replay:seed:validate`, and `git diff --check`; local `@station/web`
+  build compiled, linted/type-checked, and generated 30 pages before the known
+  Windows standalone symlink `EPERM` failure. This is Tier 1 showcase-window
+  alignment only: no route/table rename, Project abstraction, Tier 2 hosting,
+  DexOS widgets, developer agent, tipping, interaction modes, Tier 3, or
+  Cloudflare lane.
 
 ## Near-term rule
 

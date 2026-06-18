@@ -81,6 +81,7 @@ async function main({ dryRun }) {
       developerSpaceNodes: 1,
       developerSpaceEvents: 1,
       developerSpaceSnapshots: 1,
+      developerSpaceDocuments: developerSpace.linkedDocuments.length,
       exportPackages: 1,
     },
     labels: {
@@ -89,6 +90,7 @@ async function main({ dryRun }) {
       spaceSlug: publicSurface.space.slug,
       documentSlug: publicSurface.document.slug,
       developerSpaceSlug: developerSpace.slug,
+      developerSpaceEvidenceRoles: developerSpace.linkedDocuments.map((document) => document.developer_space_role),
       exportKind: exportPackage.package_kind,
     },
   });
@@ -188,6 +190,26 @@ function validateCorpus(corpus) {
   requireString(corpus.developerSpace.event.type, "developerSpace.event.type");
   requireString(corpus.developerSpace.event.label, "developerSpace.event.label");
   requireObject(corpus.developerSpace.snapshot, "developerSpace.snapshot");
+  if (!Array.isArray(corpus.developerSpace.documents) || corpus.developerSpace.documents.length < 3) {
+    throw new Error("developerSpace.documents must contain at least three public evidence documents.");
+  }
+  const roles = new Set(["methodology", "finding", "field_log", "note"]);
+  const documentRoles = new Set();
+  corpus.developerSpace.documents.forEach((document, index) => {
+    requireString(document.role, `developerSpace.documents[${index}].role`);
+    if (!roles.has(document.role)) {
+      throw new Error(`developerSpace.documents[${index}].role must be methodology, finding, field_log, or note.`);
+    }
+    documentRoles.add(document.role);
+    requireString(document.slug, `developerSpace.documents[${index}].slug`);
+    requireString(document.title, `developerSpace.documents[${index}].title`);
+    requireString(document.body, `developerSpace.documents[${index}].body`);
+  });
+  for (const role of ["methodology", "finding", "field_log"]) {
+    if (!documentRoles.has(role)) {
+      throw new Error(`developerSpace.documents must include a public ${role} document.`);
+    }
+  }
   requireObject(corpus.exportPackage, "exportPackage");
   requireString(corpus.exportPackage.label, "exportPackage.label");
 }
@@ -692,6 +714,12 @@ async function ensureDeveloperSpaceCorpus(api, ownerUserId, documentId, corpus) 
   await api.delete("developer_space_events", [eq("developer_space_id", space.id)]);
   await api.delete("developer_space_snapshots", [eq("developer_space_id", space.id)]);
 
+  const linkedDocuments = await ensureDeveloperSpaceEvidenceDocuments(api, ownerUserId, space, corpus);
+  const sourceRefs = linkedDocuments.map((document) => ({
+    document_id: document.id,
+    label: document.developer_space_role,
+  }));
+
   await api.insert("developer_space_events", {
     developer_space_id: space.id,
     node_id: node.id,
@@ -700,7 +728,7 @@ async function ensureDeveloperSpaceCorpus(api, ownerUserId, documentId, corpus) 
     event_label: corpus.developerSpace.event.label,
     event_data: corpus.developerSpace.event.data ?? {},
     similarity_score: corpus.developerSpace.event.similarityScore ?? null,
-    source_refs: [{ document_id: documentId, label: "replay_document" }],
+    source_refs: sourceRefs.length > 0 ? sourceRefs : [{ document_id: documentId, label: "replay_document" }],
     provenance: "api",
     visibility: "public",
     occurred_at: new Date().toISOString(),
@@ -709,7 +737,7 @@ async function ensureDeveloperSpaceCorpus(api, ownerUserId, documentId, corpus) 
   await api.insert("developer_space_snapshots", {
     developer_space_id: space.id,
     snapshot_data: corpus.developerSpace.snapshot.data,
-    source_refs: [{ document_id: documentId, label: "replay_document" }],
+    source_refs: sourceRefs.length > 0 ? sourceRefs : [{ document_id: documentId, label: "replay_document" }],
     provenance: "api",
     visibility: "public",
     occurred_at: new Date().toISOString(),
@@ -724,7 +752,49 @@ async function ensureDeveloperSpaceCorpus(api, ownerUserId, documentId, corpus) 
     storage_bytes: JSON.stringify(corpus.developerSpace).length,
   }, "developer_space_id");
 
-  return space;
+  return { ...space, linkedDocuments };
+}
+
+async function ensureDeveloperSpaceEvidenceDocuments(api, ownerUserId, developerSpace, corpus) {
+  const rows = [];
+  for (const [index, document] of corpus.developerSpace.documents.entries()) {
+    const row = await api.upsert("documents", {
+      author_user_id: ownerUserId,
+      space_id: null,
+      persona_id: null,
+      title: document.title,
+      slug: document.slug,
+      body: document.body,
+      document_type: document.documentType ?? developerSpaceDocumentType(document.role),
+      status: "published",
+      visibility: "public",
+      comments_enabled: false,
+      published_at: new Date().toISOString(),
+      provenance_type: "user_authored",
+      source_type: "manual",
+      source_id: developerSpace.id,
+      source_label: `Developer Space: ${developerSpace.project_name}`,
+      source_persona_id: null,
+    }, "author_user_id,slug");
+
+    await api.upsert("developer_space_documents", {
+      developer_space_id: developerSpace.id,
+      document_id: row.id,
+      owner_user_id: ownerUserId,
+      document_role: document.role,
+      link_visibility: "public",
+      sort_order: document.sortOrder ?? index,
+    }, "developer_space_id,document_id");
+
+    rows.push({ ...row, developer_space_role: document.role });
+  }
+  return rows;
+}
+
+function developerSpaceDocumentType(role) {
+  if (role === "methodology" || role === "finding") return "research";
+  if (role === "field_log") return "field_log";
+  return "archive_note";
 }
 
 async function ensureExportPackage(api, ownerUserId, personaId, documentId, developerSpaceId, corpus) {
@@ -829,6 +899,7 @@ function printSummary({ mode, corpus, counts, labels }) {
       developerSpaceNodes: 1,
       developerSpaceEvents: 1,
       developerSpaceSnapshots: 1,
+      developerSpaceDocuments: corpus.developerSpace.documents.length,
       exportPackages: 1,
     },
     counts,
@@ -838,6 +909,7 @@ function printSummary({ mode, corpus, counts, labels }) {
       spaceSlug: corpus.space.slug,
       documentSlug: corpus.space.document.slug,
       developerSpaceSlug: corpus.developerSpace.slug,
+      developerSpaceEvidenceRoles: corpus.developerSpace.documents.map((document) => document.role),
       exportLabel: corpus.exportPackage.label,
     },
     omitted: [

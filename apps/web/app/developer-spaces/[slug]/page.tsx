@@ -6,6 +6,8 @@ import { useParams } from "next/navigation";
 import { apiGet, apiUrl } from "@/lib/api-client";
 import { getSession } from "@/lib/auth";
 import {
+  developerSpaceEvidenceRoleCopy,
+  developerSpaceEvidenceTitle,
   developerSpaceSignalStatus,
   developerSpaceStorySummary,
   developerSpaceMethodologyCopy,
@@ -36,11 +38,6 @@ function websocketUrl(path: string) {
   const url = new URL(apiUrl(path));
   url.protocol = url.protocol === "https:" ? "wss:" : "ws:";
   return url.toString();
-}
-
-function linkedDocumentRoleLabel(role: DeveloperSpaceLinkedDocument["role"]) {
-  if (role === "field_log") return "Field log";
-  return role.charAt(0).toUpperCase() + role.slice(1);
 }
 
 function EmptyVisualisation() {
@@ -311,12 +308,15 @@ function LinkedDocumentsPanel({ documents, ownerView }: { documents: DeveloperSp
 
   return (
     <div className="card">
-      <h2 style={{ margin: "0 0 0.5rem", fontSize: "1rem" }}>Project notes</h2>
+      <h2 style={{ margin: "0 0 0.5rem", fontSize: "1rem" }}>{developerSpaceEvidenceTitle(documents)}</h2>
+      <p style={{ margin: "0 0 0.75rem", color: "#94a3b8", lineHeight: 1.55, fontSize: "0.84rem" }}>
+        Public methodology, findings, field logs, and notes give visitors evidence beside the live observatory.
+      </p>
       <div style={{ display: "grid", gap: "0.75rem" }}>
         {documents.map((link) => (
           <article key={link.id} style={{ borderTop: "1px solid #1e293b", paddingTop: "0.7rem" }}>
             <div style={{ display: "flex", alignItems: "center", gap: "0.35rem", flexWrap: "wrap", marginBottom: "0.35rem" }}>
-              <span className="pill" style={{ fontSize: "0.68rem" }}>{linkedDocumentRoleLabel(link.role)}</span>
+              <span className="pill" style={{ fontSize: "0.68rem" }}>{developerSpaceEvidenceRoleCopy(link.role)}</span>
               {ownerView ? (
                 <>
                   <span className="pill" style={{ fontSize: "0.68rem", textTransform: "capitalize" }}>{link.document.status}</span>

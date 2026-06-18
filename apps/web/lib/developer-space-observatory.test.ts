@@ -4,6 +4,8 @@ import {
   developerSpaceSignalStatus,
   developerSpaceStorySummary,
   developerSpaceMethodologyCopy,
+  developerSpaceEvidenceRoleCopy,
+  developerSpaceEvidenceTitle,
   formatValue,
   moveDeveloperSpaceWidget,
   normaliseDeveloperSpaceWidgets,
@@ -88,6 +90,18 @@ test("observatory methodology copy stays honest about public evidence", () => {
   assert.match(empty.methodology, /No public methodology/);
   assert.match(empty.privateBoundary, /Owner view may show raw event/);
   assert.doesNotMatch(`${withNotes.methodology} ${empty.methodology}`, /private archive text/);
+});
+
+test("observatory evidence labels use role-aware Developer Page language", () => {
+  assert.equal(
+    developerSpaceEvidenceTitle([{ role: "methodology" }, { role: "field_log" }] as any),
+    "Project evidence",
+  );
+  assert.equal(developerSpaceEvidenceTitle([{ role: "note" }] as any), "Project notes");
+  assert.equal(developerSpaceEvidenceRoleCopy("methodology"), "Methodology / architecture");
+  assert.equal(developerSpaceEvidenceRoleCopy("finding"), "Finding / milestone");
+  assert.equal(developerSpaceEvidenceRoleCopy("field_log"), "Field log / update");
+  assert.equal(developerSpaceEvidenceRoleCopy("note"), "Note / paper");
 });
 
 test("observatory widget helpers bound custom dashboard layouts", () => {
