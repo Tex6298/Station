@@ -7775,6 +7775,30 @@ Scope notes:
   hosting, developer agent, DexOS widgets, tipping, interaction modes, Tier 3,
   or Cloudflare scope was added.
 
+ARGUS review validation on 2026-06-18:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run replay:seed:validate` | Pass | Example corpus validates with 3 Developer Space evidence documents. ARGUS also patched validation so unsupported replay document types fail before staging writes. |
+| `npm exec --yes pnpm@10.32.1 -- run replay:seed:staging` | Pass | Staging seed completed idempotently and reported 3 Developer Space evidence documents with roles `methodology`, `finding`, and `field_log`. |
+| Direct Supabase public-predicate readback | Pass | ARGUS read back public Developer Space links and published/public documents without printing secrets or bodies: 3 rows, roles `methodology`, `finding`, `field_log`, document types `research`, `research`, `field_log`, and zero hidden rows under the public predicate. |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 9 tests passed; public/owner Developer Space linked-document visibility stayed green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-space-client` | Pass | 3 client tests passed; ingestion client API stayed compatible. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed. |
+| `git diff --check` | Pass | No whitespace errors; CRLF normalization warnings only for touched text files and local triad state. |
+| `git diff --cached --check` | Pass | No whitespace errors after staging; CRLF normalization warnings only. |
+
+ARGUS scope notes:
+
+- No live DDL was applied; the active target already had migration 032 and the
+  launch document taxonomy.
+- Legacy replay document-type compatibility is limited to migration-032 alpha
+  mappings: `post`, `constitution`, `update`, and `other`.
+- Unsupported replay document types now fail during corpus validation, before
+  staging writes.
+- ARIADNE can recheck the deployed public page after this commit is deployed and
+  the seeded staging data is visible to the deployed API.
+
 PR37 ARGUS follow-up validation on 2026-06-18:
 
 | Command | Result | Notes |

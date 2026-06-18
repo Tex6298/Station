@@ -5098,6 +5098,21 @@ when a PR lands, or when validation truth changes.
   document types `research`, `research`, and `field_log`, and no private/draft
   rows exposed by the public predicate. ARGUS review is requested before
   ARIADNE's deployed page recheck.
+- PR41 Developer Pages Staging Seed Proof is accepted by ARGUS for MIMIR
+  closeout, 2026-06-18: ARGUS agrees the database proof is conservative because
+  the live target already had the launch document taxonomy and migration 032
+  recorded, so no live DDL was applied. ARGUS patched `validateCorpus` so the
+  same launch document-type compatibility check runs during
+  `replay:seed:validate`, making unsupported corpus types fail before staging
+  writes. ARGUS reran `replay:seed:staging` successfully and independently read
+  back the public predicate without printing secrets or document bodies: 3
+  public rows for `station-replay-dev-alpha`, roles `methodology`, `finding`,
+  and `field_log`, document types `research`, `research`, and `field_log`, and
+  zero hidden rows under the public predicate. Validation also passed
+  `test:developer-spaces` with 9 tests, `test:developer-space-client` with 3
+  tests, `typecheck`, and `git diff --check`. ARIADNE can recheck the deployed
+  public Developer Space page once deployment includes this commit and the
+  seeded staging data is visible to the deployed API.
 
 ## Near-term rule
 

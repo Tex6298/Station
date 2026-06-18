@@ -194,6 +194,7 @@ function validateCorpus(corpus) {
   requireString(corpus.space.document.slug, "space.document.slug");
   requireString(corpus.space.document.title, "space.document.title");
   requireString(corpus.space.document.body, "space.document.body");
+  requireLaunchDocumentType(corpus.space.document.documentType, "essay", "space.document.documentType");
   requireString(corpus.space.comment, "space.comment");
   requireObject(corpus.developerSpace, "developerSpace");
   requireString(corpus.developerSpace.slug, "developerSpace.slug");
@@ -219,6 +220,11 @@ function validateCorpus(corpus) {
     requireString(document.slug, `developerSpace.documents[${index}].slug`);
     requireString(document.title, `developerSpace.documents[${index}].title`);
     requireString(document.body, `developerSpace.documents[${index}].body`);
+    requireLaunchDocumentType(
+      document.documentType,
+      developerSpaceDocumentType(document.role),
+      `developerSpace.documents[${index}].documentType`
+    );
   });
   for (const role of ["methodology", "finding", "field_log"]) {
     if (!documentRoles.has(role)) {
@@ -818,6 +824,15 @@ function launchDocumentType(documentType, fallback) {
     throw new Error(`Unsupported replay document type: ${current}`);
   }
   return normalized;
+}
+
+function requireLaunchDocumentType(documentType, fallback, label) {
+  try {
+    return launchDocumentType(documentType, fallback);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Unsupported replay document type.";
+    throw new Error(`${label}: ${message}`);
+  }
 }
 
 function developerSpaceEvidenceSourceRef(document) {
