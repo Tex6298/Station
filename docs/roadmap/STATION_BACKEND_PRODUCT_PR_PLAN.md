@@ -303,13 +303,22 @@ Exit:
 
 ## Post-Refresh Product Lane
 
-Native document versioning alpha is active via
+Native document versioning alpha is closed via
 `docs/roadmap/PR30_NATIVE_DOCUMENT_VERSIONING_ALPHA.md`.
 
 Reason: PR29 found no backend repair lane and no Cloudflare/Redis/provider/
 worker trigger. The remaining Station v1 gap with the cleanest product value is
 making documents behave like durable authored works, starting with bounded
 version history rather than a full rich editor.
+
+The next active lane is PR31 Chat Runtime Budget Trace Alpha:
+`docs/roadmap/PR31_CHAT_RUNTIME_BUDGET_TRACE_ALPHA.md`.
+
+Reason: launch-core chat/runtime hardening already fixed latest-turn retrieval
+and production debug gating. Before opening larger runtime work such as SSE
+streaming, topology weighting changes, or provider route expansion, Station
+needs internal budget/trace truth and clearer failure classification for quota,
+provider configuration, and archived-state blocks.
 
 ## Recommended Order
 

@@ -164,3 +164,29 @@ npm exec --yes pnpm@10.32.1 -- --filter @station/api build
 npm exec --yes pnpm@10.32.1 -- run typecheck
 git diff --check
 ```
+
+## MIMIR Closeout
+
+MIMIR closes PR30 on 2026-06-18.
+
+ARIADNE reran the Railway Studio publish-flow rehearsal after the staging schema
+and readiness-proof follow-ups. Live web/API served deployment identity
+`87501eb4ec1bd37c14d5a3b19c8967b98aed8ec6`, `/health/deployment` reported the
+`025-037 / public_schema_object_rpc_and_document_version_proof` label, and the
+owner browser pass proved:
+
+- a Space-backed `codex` document loaded in `/studio/publish`;
+- saving a draft advanced the visible label to current version `v3`;
+- owner-only `/documents/:id/versions` returned prior rows `v2` and `v1`;
+- prior version rows rendered title/type/visibility only, with no raw prior
+  body marker visible in the browser panel;
+- the desktop and 375px document surface had no PR30-blocking visual defect.
+
+Non-blocking caveat: the existing global top nav still lets `My Space` and
+`Developer` link bounds sit offscreen at 375px. It does not create
+document-level horizontal scroll and belongs to the post-V3 UI/UX roadmap, not
+to PR30.
+
+PR30 remains a native document versioning alpha, not rich editing, diff review,
+codex governance, Station Press/PDF, binary archive export, or public
+prior-version browsing.

@@ -51,6 +51,10 @@ estimate, ARGUS to gate, and ARIADNE to review against real user journeys.
 - The first UX question is wayfinding, not decoration: every major surface
   should make place, privacy state, and the next action obvious before visual
   polish begins.
+- Railway PR30 rehearsal found an existing 375px global top-nav caveat: `My
+  Space` and `Developer` link bounds can sit offscreen without creating
+  document-level horizontal scroll. Treat this as site chrome/mobile IA work,
+  not as a document-versioning blocker.
 - Known lint/build warnings around React hook dependencies and raw `<img>` use
   should become explicit ARGUS acceptance concerns when a lane touches those
   screens.

@@ -4669,6 +4669,17 @@ when a PR lands, or when validation truth changes.
   caveat: the existing global top nav still has offscreen `My Space` and
   `Developer` link bounds at 375px, but it does not create document-level
   horizontal scrolling and is outside the PR30 version-history panel.
+- MIMIR closes PR30 on 2026-06-18. Native document versioning alpha is accepted
+  as Railway-proven for the bounded Studio publish-flow surface. The 375px
+  global top-nav caveat is moved to the UI/UX roadmap because it is an existing
+  site chrome issue, not a PR30 version-history defect.
+- MIMIR opens PR31 Chat Runtime Budget Trace Alpha for DAEDALUS on 2026-06-18:
+  `docs/roadmap/PR31_CHAT_RUNTIME_BUDGET_TRACE_ALPHA.md` asks for a narrow
+  internal context/budget report before provider calls, production-safe
+  trace/debug behavior, and clearer quota/provider/archived-state failure
+  classification. Explicit non-scope: full SSE streaming, provider marketplace,
+  Redis memory truth, vector-contract changes, broad Studio redesign, or
+  visibility-rule changes.
 
 ## Near-term rule
 
