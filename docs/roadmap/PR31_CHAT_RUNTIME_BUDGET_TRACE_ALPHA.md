@@ -119,3 +119,16 @@ npm exec --yes pnpm@10.32.1 -- --filter @station/api build
 npm exec --yes pnpm@10.32.1 -- run typecheck
 git diff --check
 ```
+
+## MIMIR Closeout
+
+MIMIR closes PR31 on 2026-06-18.
+
+PR31 is accepted as runtime budget trace alpha. The lane produced a
+content-free, production-safe budget/trace report for persona chat assembly and
+clearer failure classifications without changing Studio chat UI, adding SSE
+streaming, changing retrieval/provider policy, or touching Redis/vector
+contracts.
+
+The BYOK provider-route bug ARGUS found and patched is included in the accepted
+result. No ARIADNE rehearsal is required.

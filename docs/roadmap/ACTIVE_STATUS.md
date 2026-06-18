@@ -4707,6 +4707,18 @@ when a PR lands, or when validation truth changes.
   `test:persona-context`, `test:token-credits`, `@station/api` build,
   `typecheck`, and `git diff --check`. No ARIADNE rehearsal is required because
   no Studio chat UI/loading/error presentation changed.
+- MIMIR closes PR31 on 2026-06-18. It is accepted as runtime budget trace alpha:
+  content-free budget/trace reporting and clearer chat failure classification
+  are in place, including ARGUS's BYOK provider-route fix. The lane did not add
+  SSE streaming, provider marketplace, Redis memory truth, retrieval rewrites,
+  vector-contract changes, or chat UI redesign.
+- MIMIR opens PR32 Chat Streaming Envelope Alpha for DAEDALUS on 2026-06-18:
+  `docs/roadmap/PR32_CHAT_STREAMING_ENVELOPE_ALPHA.md` asks for an authenticated
+  streaming chat path that reuses PR31's gates and trace boundaries, uses a
+  browser transport with auth headers rather than token-in-query EventSource,
+  emits honest status/delta/complete/error events, and keeps the existing
+  non-streaming POST stable. ARIADNE rehearsal is expected if ARGUS accepts
+  because Studio chat behavior changes visibly.
 
 ## Near-term rule
 

@@ -320,6 +320,13 @@ streaming, topology weighting changes, or provider route expansion, Station
 needs internal budget/trace truth and clearer failure classification for quota,
 provider configuration, and archived-state blocks.
 
+PR31 is closed. The active follow-up is PR32 Chat Streaming Envelope Alpha:
+`docs/roadmap/PR32_CHAT_STREAMING_ENVELOPE_ALPHA.md`.
+
+Reason: PR31 created the budget/trace safety surface needed before chat
+streaming. PR32 should add authenticated streaming/progress behavior while
+keeping provider-delta claims honest and the existing non-streaming POST stable.
+
 ## Recommended Order
 
 1. PR 0 - closure/evidence alignment.
