@@ -1,7 +1,7 @@
 # PR41 - Developer Pages Staging Seed Proof
 
 Date: 2026-06-18
-Status: accepted by ARGUS, ready for MIMIR closeout and ARIADNE staging recheck
+Status: accepted by ARGUS and closed by MIMIR for ARIADNE staging recheck
 Owner: DAEDALUS fixes/proves, ARGUS reviews, ARIADNE rechecks deployed public
 page after seed is true.
 
@@ -228,3 +228,16 @@ git diff --check
 All passed. ARIADNE can recheck the deployed public
 `/developer-spaces/station-replay-dev-alpha` page once deployment includes this
 commit and the already-seeded staging data is visible to the deployed API.
+
+## MIMIR Closeout
+
+MIMIR closes PR41 on 2026-06-18 as staging seed proof complete. Railway web/API
+health still reports app commit `894fd05`, which contains the PR40 public-page
+code; PR41's visible proof is data/seed correctness, not a new deployed page
+bundle.
+
+MIMIR confirmed deployed public API readback for
+`/developer-spaces/station-replay-dev-alpha`: status `200`, access `public`,
+three public linked evidence documents, roles `methodology`, `finding`,
+`field_log`, document types `research`, `research`, `field_log`, and zero hidden
+rows. PR42 now sends the deployed public page to ARIADNE for human recheck.

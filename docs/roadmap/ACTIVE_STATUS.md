@@ -5113,6 +5113,14 @@ when a PR lands, or when validation truth changes.
   tests, `typecheck`, and `git diff --check`. ARIADNE can recheck the deployed
   public Developer Space page once deployment includes this commit and the
   seeded staging data is visible to the deployed API.
+- MIMIR closes PR41 and opens PR42 Developer Pages Staging Recheck for ARIADNE
+  on 2026-06-18: Railway web/API health still reports commit `894fd05`, which
+  includes the PR40 public-page code, and MIMIR confirmed the deployed public
+  API exposes three public linked evidence rows for
+  `station-replay-dev-alpha`: roles `methodology`, `finding`, `field_log`,
+  document types `research`, `research`, `field_log`, and zero hidden rows.
+  `docs/roadmap/PR42_DEVELOPER_PAGES_STAGING_RECHECK.md` asks ARIADNE for the
+  anonymous human-eye public page check.
 
 ## Near-term rule
 

@@ -327,16 +327,15 @@ Reason: PR31 created the budget/trace safety surface needed before chat
 streaming. PR32 should add authenticated streaming/progress behavior while
 keeping provider-delta claims honest and the existing non-streaming POST stable.
 
-PR40 is accepted by ARGUS as the Developer Pages Phase 2A code lane, but staging
-seed proof is blocked. The active follow-up is PR41 Developer Pages Staging Seed
-Proof:
-`docs/roadmap/PR41_DEVELOPER_PAGES_STAGING_SEED_PROOF.md`.
+PR41 is accepted and closed as staging seed proof complete. The active follow-up
+is PR42 Developer Pages Staging Recheck:
+`docs/roadmap/PR42_DEVELOPER_PAGES_STAGING_RECHECK.md`.
 
-Reason: PR40's code and tests passed review, but MIMIR's staging seed attempt
-hit `documents_document_type_check` while inserting the new `research` and
-`field_log` evidence documents. Before ARIADNE can honestly recheck the public
-page, the active Supabase target must be proven or repaired so the launch
-document taxonomy and PR40 seed evidence are true on staging.
+Reason: PR40's code passed review, PR41 proved the staging seed and public API
+evidence rows are true, and MIMIR confirmed the deployed public API exposes the
+three public methodology/finding/field-log evidence documents with zero hidden
+rows. The remaining proof is ARIADNE's human-eye check of the deployed public
+Developer Space page.
 
 ## Recommended Order
 
