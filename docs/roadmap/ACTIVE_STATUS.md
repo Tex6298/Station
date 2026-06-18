@@ -4950,6 +4950,16 @@ when a PR lands, or when validation truth changes.
   browser confidence: signed `/studio` at 390px, mobile Archive search
   affordance/copy, public Developer Space storytelling, Archive/import source
   narrative, no new dead controls, and no private/debug/provider leakage.
+- ARIADNE blocks PR37 closeout on 2026-06-18:
+  `docs/roadmap/PR37_POLISH_RECHECK_ARIADNE_RESULT.md` records the deployed
+  Chrome/CDP recheck against Railway runtime `56401e4`. The account-menu
+  protected route access works at 390px, Archive search/source/visibility copy
+  passes, and the public Developer Space story passes without visible private
+  or debug leakage. However signed `/studio` still has document-level overflow:
+  `documentElement.scrollWidth` measured `407px` against a `390px` viewport.
+  The overflow now traces to Studio dashboard grid/panel/persona/action row
+  intrinsic widths rather than the global nav. ARIADNE wakes DAEDALUS for the
+  narrow mobile dashboard shrink/wrap patch. Cloudflare remains deferred.
 
 ## Near-term rule
 
