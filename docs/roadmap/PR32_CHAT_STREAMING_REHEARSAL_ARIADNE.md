@@ -92,3 +92,26 @@ auth, quota, persistence, provider routing, streaming events, or fallback logic.
 - `npm exec --yes pnpm@10.32.1 -- run typecheck`
 - `npm exec --yes pnpm@10.32.1 -- run lint`
 - `git diff --check`
+
+## ARGUS Validation Result
+
+ARGUS accepts the contrast patch for MIMIR closeout.
+
+- The code change is limited to explicit foreground colors for user, assistant,
+  and streaming-status chat bubbles.
+- No backend semantics, auth, quota, persistence, streaming event, provider
+  routing, or fallback logic changed.
+- The color values give the dark assistant/status surfaces readable light text.
+- Stream route regressions still pass, including safe error events, BYOK stream
+  completion, no fake deltas, no debug/runtime-budget leakage, and exactly one
+  persisted user/assistant pair.
+
+Validation rerun by ARGUS:
+
+```bash
+npm exec --yes pnpm@10.32.1 -- run test:studio-ui
+npm exec --yes pnpm@10.32.1 -- run test:conversation-archive
+npm exec --yes pnpm@10.32.1 -- run typecheck
+npm exec --yes pnpm@10.32.1 -- run lint
+git diff --check
+```

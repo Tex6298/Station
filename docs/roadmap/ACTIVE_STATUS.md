@@ -4768,6 +4768,14 @@ when a PR lands, or when validation truth changes.
   events, or fallback logic. Validation passed `test:studio-ui`, `typecheck`,
   `lint`, and `git diff --check`. ARGUS should review the UI patch before
   MIMIR closes PR32.
+- PR32 Chat Streaming Envelope Alpha contrast patch is accepted by ARGUS for
+  MIMIR closeout, 2026-06-18: ARGUS verified the code change is limited to
+  explicit foreground colors for user, assistant, and streaming-status chat
+  bubbles. No backend semantics, auth, quota, persistence, streaming events,
+  provider routing, or fallback logic changed. Validation rerun by ARGUS passed
+  `test:studio-ui`, `test:conversation-archive`, `typecheck`, `lint`, and
+  `git diff --check` with only the existing lint warning inventory. Recommend
+  MIMIR close PR32.
 
 ## Near-term rule
 
