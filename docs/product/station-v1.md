@@ -17,11 +17,12 @@ Station MVP described in the product documents.
 9. Manual Reddit/Discord archive intake -> private archive -> candidate review.
 10. Creator-capable draft -> approval queue -> public Space document -> forum discussion.
 11. Station Assistant -> owner-safe operational action map.
+12. Four alpha onboarding paths -> real route targets with honest caveats.
 
 ## MVP gaps still open
 
-- Four onboarding paths.
-- Four full onboarding paths remain open.
+- Full onboarding wizards and mature Document Migrator/API Bridge flows remain
+  open beyond the accepted alpha route map.
 - Native document versioning and richer authoring remain open.
 - Full forum/community beta remains open.
 - Production vector retrieval, Cloudflare adapters, and Redis memory design remain open.

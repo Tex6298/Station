@@ -1,7 +1,7 @@
 # PR25 - Four Onboarding Paths Alpha
 
 Date: 2026-06-18
-Status: implemented by A2 / DAEDALUS; ready for ARGUS review
+Status: closed
 Owner: DAEDALUS implements, ARGUS reviews, ARIADNE rehearses if visible route
 truth changes.
 
@@ -241,3 +241,48 @@ No DAEDALUS code/security blocker remains. Because PR25 adds a new visible
 Studio route and changes visible dashboard/sidebar/mobile navigation entry
 points, ARIADNE should run a focused desktop and 375px browser rehearsal before
 MIMIR marks PR25 fully closed.
+
+## ARIADNE Rehearsal - 2026-06-18
+
+Verdict: accepted for MIMIR closeout.
+
+Railway runtime during review:
+
+- Web: `77e1b57`
+- API: `5fcfb72`
+
+Browser rehearsal covered `/studio/onboarding` and `/studio` at desktop
+`1440x1100` and mobile around `375x812`.
+
+Accepted behavior:
+
+- Signed-out `/studio/onboarding` redirects to
+  `/login?redirect=%2Fstudio%2Fonboarding`.
+- Signed-out users see sign-in/sign-up paths, not private onboarding cards.
+- Signed-in users see all four path cards with readable copy and exact route
+  targets.
+- Fresh Start routes to `/studio/new?path=fresh-start`.
+- Awakening routes to `/studio/new?path=awakening`.
+- Document Migrator routes to `/studio/personas/:personaId/files` when a
+  persona exists.
+- API Bridge routes to `/developer-spaces`.
+- Dashboard, sidebar, Recent Archive Activity, and mobile Studio menu expose
+  `/studio/onboarding` entry points.
+- No fake live controls were visible.
+- No document-level horizontal overflow appeared on mobile.
+- The copy does not overclaim live Reddit/Discord OAuth pulls, recurring sync,
+  external social import API, Cloudflare retrieval, Redis memory truth,
+  production workers, Stripe expansion, or provider marketplace setup.
+
+## MIMIR Closeout - 2026-06-18
+
+PR25 is fully closed.
+
+The current truth is:
+
+- Fresh Start, Awakening, Document Migrator, and API Bridge are alpha routeable.
+- The path surfaces are honest route maps over existing Station capabilities,
+  not full mature onboarding wizards or new import/API infrastructure.
+- No Cloudflare, Redis, provider routing, Stripe, worker, or broad redesign
+  work was added.
+- The next backend/product lane should come from live replay evidence.

@@ -4437,6 +4437,19 @@ when a PR lands, or when validation truth changes.
   visible, and the copy explicitly denies live Reddit/Discord OAuth pulls,
   recurring sync, external social import API, Cloudflare retrieval, Redis memory
   truth, production workers, Stripe expansion, and provider marketplace setup.
+- PR25 Four Onboarding Paths Alpha is fully closed, 2026-06-18: MIMIR accepted
+  ARIADNE's Railway rehearsal. Fresh Start, Awakening, Document Migrator, and
+  API Bridge are now alpha routeable through real Station routes with honest
+  caveats. Full mature onboarding wizards/import/API Bridge product depth
+  remains future work, but the old blanket "four paths are missing" statement is
+  no longer accurate.
+- PR26 Replay Memory/Retrieval Quality Pass is opened for DAEDALUS,
+  2026-06-18: `docs/roadmap/PR26_REPLAY_MEMORY_RETRIEVAL_QUALITY.md` asks
+  DAEDALUS to improve retrieval ranking, lifecycle filtering, replay trace
+  clarity, and a focused synthetic replay fixture while keeping the current
+  Station/Supabase plus Gemini `1536` staging profile. Cloudflare config is not
+  needed for this lane; Cloudflare remains deferred until a borrowed repo
+  pattern or live replay limitation proves a specific adapter/index-mirror need.
 
 ## Near-term rule
 

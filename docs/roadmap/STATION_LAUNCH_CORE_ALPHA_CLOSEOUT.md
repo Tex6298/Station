@@ -30,7 +30,7 @@ This is not a production readiness claim and not a complete Station MVP claim.
 
 | Loop | Evidence |
 | --- | --- |
-| Persona entry/create | Existing Studio persona path plus accepted public entry/onboarding copy work. |
+| Persona entry/create | PR25 accepted four alpha onboarding paths with real route targets: Fresh Start, Awakening, Document Migrator, and API Bridge. |
 | Chat/runtime context | Launch-core chat-history fix, production debug gating, persona-context tests, and accepted runtime context coverage. |
 | Archive chat | Conversation archive route, archived transcripts, archive chunks, read-only archived chats, and continuity candidates. |
 | Review candidates | PR17 import-backed candidates and PR21 Import Review Inbox closeout. |
@@ -68,7 +68,8 @@ Use public-safe synthetic content only.
 - Railway/Supabase staging truth, not every future deployment target.
 - PR23 Creator proof used a staging profile tier seed, not Stripe-paid
   activation. Stripe test-mode activation is covered separately.
-- The four documented onboarding paths are not complete.
+- The four documented onboarding paths are alpha-routeable after PR25, not full
+  mature wizards/import/API Bridge products.
 - Candidate extraction and memory scoring remain heuristic alpha behavior.
 - Background jobs are a protected-alpha boundary, not a deployed durable worker
   system.
@@ -86,7 +87,7 @@ Use public-safe synthetic content only.
 ## Recommended Next Moves
 
 1. Prepare a narrated replay/demo script if an external demo is next.
-2. Open the four onboarding paths lane if moving from protected-alpha replay
-   toward the documented Station onboarding promise.
+2. PR25 accepted the alpha route map for the four onboarding paths; future work
+   should deepen those paths only from replay evidence.
 3. Otherwise choose the next feature from live replay evidence, not from generic
    architecture anxiety.

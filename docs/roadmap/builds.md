@@ -39,7 +39,7 @@ Remote deployment status is tracked separately from local validation. Do not cal
 | Milestone | Status | Notes |
 | --- | --- | --- |
 | Foundation Alpha | Protected | Monorepo typecheck/build/API build and CI gates are in place. Remote deployment truth still needs separate verification. |
-| Studio Alpha | Protected alpha | Persona workspace, Memory, Canon, Archive, Integrity, context preview, archive-chat, export surfaces, Import Review Inbox, private archive search, and Station Assistant operations are protected for replay. Broad polish remains open. |
+| Studio Alpha | Protected alpha | Persona workspace, Memory, Canon, Archive, Integrity, context preview, archive-chat, export surfaces, Import Review Inbox, private archive search, four alpha onboarding route paths, and Station Assistant operations are protected for replay. Broad polish remains open. |
 | Continuity Alpha | Protected alpha | Continuity data is stored, used in runtime context, publishable as separate public copies, discussable, archivable, and exportable. Candidate extraction and retrieval still need hardening. |
 | Calibration / Integrity Beta | Partial / reopened | Integrity sessions are persisted and used in context/publication/export. The fuller guided reflective workflow still needs product polish and Station Assistant support. |
 | Public Space Beta | Beta candidate | Public Spaces now behave more like authored microsites and are covered by smoke tests. Rich media/page composition and public persona interaction remain open. |
@@ -61,11 +61,12 @@ Remote deployment status is tracked separately from local validation. Do not cal
 9. External manual Reddit/Discord archive -> private archive -> review queue.
 10. Creator-capable draft -> approval queue -> public Space document -> forum discussion.
 11. Station Assistant -> owner-safe operational action map.
+12. Four alpha onboarding paths -> real route targets with honest caveats.
 
 ## Reopened loops
 
 1. Remote deployment truth.
-2. Four onboarding paths.
+2. Mature onboarding wizards, Document Migrator, and API Bridge product depth.
 3. Native authoring and versioning.
 4. Full forum/community beta.
 5. Production vector retrieval, Cloudflare adapters, and Redis memory design.
