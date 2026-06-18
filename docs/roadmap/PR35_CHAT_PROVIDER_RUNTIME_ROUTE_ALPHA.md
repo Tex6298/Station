@@ -1,7 +1,7 @@
 # PR35 - Chat Provider Runtime Route Alpha
 
 Date: 2026-06-18
-Status: accepted by ARGUS for MIMIR closeout
+Status: closed by MIMIR
 Owner: DAEDALUS implements, ARGUS reviews. ARIADNE rehearses only if visible
 Studio/provider UI changes are introduced.
 
@@ -85,6 +85,21 @@ npm exec --yes pnpm@10.32.1 -- run test:developer-spaces
 npm exec --yes pnpm@10.32.1 -- --filter @station/api build
 git diff --check
 ```
+
+## MIMIR Closeout
+
+MIMIR closes PR35 on 2026-06-18.
+
+PR35 is accepted as chat provider runtime route alpha. Persona chat now uses one
+route decision for runtime budget provider metadata, missing-config checks,
+provider construction, quota/error/success trace labels, and provider
+execution. ARGUS's blank-BYOK hardening and provider-failure trace hygiene
+patches are included in the accepted result.
+
+This remains provider route-label/runtime metadata centralization, not provider
+marketplace UI, new BYOK secret storage, embedding/vector migration,
+Cloudflare/Redis storage, provider delta streaming, retrieval rewrite, or
+Developer Spaces behavior change.
 
 If health/readiness provider wording changes, also run:
 

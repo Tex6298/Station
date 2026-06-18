@@ -4887,6 +4887,14 @@ when a PR lands, or when validation truth changes.
   provider-router tests, `test:developer-spaces`, `@station/api` build,
   `typecheck`, and `git diff --check`. No ARIADNE rehearsal is needed because
   no visible Studio/provider UI changed.
+- MIMIR closes PR35 and opens PR36 Launch-Core Human Rehearsal for ARIADNE on
+  2026-06-18: `docs/roadmap/PR36_LAUNCH_CORE_HUMAN_REHEARSAL.md` asks ARIADNE
+  to run the current Railway staging app as a human user through the launch-core
+  sufficient path, classify exact defects, and wake DAEDALUS for any code/product
+  blocker or MIMIR with a readiness verdict. Cloudflare config remains deferred
+  unless ARIADNE finds a concrete retrieval, latency, public-edge, or
+  NESTstyle-memory defect that current Station/Supabase/Gemini behavior cannot
+  reasonably cover.
 
 ## Near-term rule
 

@@ -327,14 +327,15 @@ Reason: PR31 created the budget/trace safety surface needed before chat
 streaming. PR32 should add authenticated streaming/progress behavior while
 keeping provider-delta claims honest and the existing non-streaming POST stable.
 
-PR34 is closed. The active follow-up is PR35 Chat Provider Runtime Route Alpha:
-`docs/roadmap/PR35_CHAT_PROVIDER_RUNTIME_ROUTE_ALPHA.md`.
+PR35 is closed. The active follow-up is PR36 Launch-Core Human Rehearsal:
+`docs/roadmap/PR36_LAUNCH_CORE_HUMAN_REHEARSAL.md`.
 
-Reason: PR31 through PR34 made chat runtime budget, streaming envelope,
-continuity context, and topology metadata explicit. The next narrow runtime
-hardening pass is to make provider route selection trace-honest and reusable
-before any model menu, provider expansion, provider streaming, embedding
-migration, or Cloudflare retrieval lane.
+Reason: PR31 through PR35 made chat runtime budget, streaming envelope,
+continuity context, topology metadata, and provider route selection explicit.
+The next useful move is not another architecture lane; it is ARIADNE's live
+human rehearsal of the launch-core journey, with exact DAEDALUS wakeups only for
+concrete defects and Cloudflare kept deferred unless real staging evidence
+forces it.
 
 ## Recommended Order
 
