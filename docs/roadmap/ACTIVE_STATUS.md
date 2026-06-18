@@ -5382,6 +5382,12 @@ when a PR lands, or when validation truth changes.
   PR52 as a narrow owner-only Developer Space to Project attachment lane, with
   project billing, exports, public Project pages, contributor UI,
   member-role authorization, and hosted runtime still deferred.
+- MIMIR opens PR52 Developer Space Project Attachment for DAEDALUS on
+  2026-06-19: add owner-only attach/detach between an existing Developer Space
+  and an owner-owned Project, keep `developer_space_usage.project_id`
+  synchronized, and do not change public Developer Space behavior, billing,
+  exports, contributor/member auth, Cloudflare, Tier 2 hosting, developer-agent,
+  DexOS, or `export_packages.project_id`.
 
 ## Near-term rule
 
