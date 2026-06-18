@@ -7491,3 +7491,38 @@ Scope notes:
 - No Studio UI, SSE streaming, provider marketplace, Redis memory truth,
   vector-contract, visibility-rule, worker, Stripe, or Developer Spaces behavior
   changed.
+
+## PR32 Chat Streaming Envelope Alpha
+
+DAEDALUS implementation validation on 2026-06-18:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-context` | Pass | 7 tests passed; runtime context and PR31 budget report behavior stayed green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass | 34 tests passed, including safe `chat.error` stream events for missing provider config, BYOK streaming completion, no fake `chat.delta` events, no debug/runtime-budget leakage, and exactly one persisted user/assistant message pair. |
+| `npm exec --yes pnpm@10.32.1 -- run test:token-credits` | Pass | 3 tests passed; quota accounting behavior stayed green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 24 tests passed, including stream client parsing, bearer-header auth, no token query params, completion handling, and safe error handling. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/api build` | Pass | API package build and dependent package builds passed after the shared chat-turn refactor. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web build` | Local environment failure after successful compile/type/page generation | Next compiled successfully, lint/type checks ran with the known warning inventory, and 30 static pages generated. The build then reproduced the known Windows Next standalone symlink failure: `EPERM: operation not permitted, symlink ... apps\\web\\.next\\standalone...`. Clearing `apps/web/.next` and rerunning produced the same symlink error. Treat Railway/Linux or a Windows shell with symlink privilege as decisive for standalone artifact generation. |
+| `git diff --check` | Pass | No whitespace errors; CRLF normalization warnings only for touched text files and local triad state. |
+
+Scope notes:
+
+- `POST /conversations/persona/:personaId/chat` remains the stable
+  non-streaming JSON path and now shares its implementation with the streaming
+  route through one internal chat-turn runner.
+- `POST /conversations/persona/:personaId/chat/stream` is authenticated through
+  normal `Authorization: Bearer` headers and emits `chat.status`,
+  `chat.complete`, and `chat.error`.
+- No `chat.delta` events are emitted yet because current provider adapters only
+  expose final-message calls; the UI shows honest progress/status and final
+  completion.
+- Studio uses a `fetch()` readable-stream transport, never puts bearer tokens in
+  query params, and falls back to the existing non-streaming POST only before a
+  stream response is consumed.
+- Runtime budget/debug details remain behind PR31 trace/debug boundaries; stream
+  events do not expose raw prompts, memory/archive text, keys, or
+  `runtimeBudget`.
+- No provider marketplace, Redis memory truth, vector-contract, retrieval,
+  visibility, Stripe, Developer Spaces, or broad Studio redesign behavior
+  changed.

@@ -390,6 +390,18 @@ function clone<T>(value: T): T {
   return JSON.parse(JSON.stringify(value));
 }
 
+function parseSse(text: string): Array<{ event: string; data: Row }> {
+  return text
+    .trim()
+    .split(/\r?\n\r?\n/)
+    .map((chunk) => {
+      const event = chunk.split(/\r?\n/).find((line) => line.startsWith("event:"))?.slice("event:".length).trim();
+      const data = chunk.split(/\r?\n/).find((line) => line.startsWith("data:"))?.slice("data:".length).trim();
+      return event && data ? { event, data: JSON.parse(data) as Row } : null;
+    })
+    .filter((event): event is { event: string; data: Row } => Boolean(event));
+}
+
 async function createConversationArchiveApp() {
   const [{ conversationsRouter }, { importsRouter }] = await Promise.all([
     import("./conversations.js"),
@@ -424,6 +436,34 @@ async function requestJson<TBody = any>(
     return {
       status: response.status,
       body: text ? JSON.parse(text) as TBody : null,
+    };
+  } finally {
+    await close(server);
+  }
+}
+
+async function requestText(
+  app: Express,
+  method: string,
+  path: string,
+  options: { token?: string; body?: unknown } = {}
+) {
+  const server = await listen(app);
+  try {
+    const address = server.address() as AddressInfo;
+    const headers: Record<string, string> = {};
+    if (options.body !== undefined) headers["Content-Type"] = "application/json";
+    if (options.token) headers.Authorization = `Bearer ${options.token}`;
+
+    const response = await fetch(`http://127.0.0.1:${address.port}${path}`, {
+      method,
+      headers,
+      body: options.body === undefined ? undefined : JSON.stringify(options.body),
+    });
+    return {
+      status: response.status,
+      contentType: response.headers.get("content-type") ?? "",
+      text: await response.text(),
     };
   } finally {
     await close(server);
@@ -569,6 +609,36 @@ test("chat reports missing platform provider config before provider calls", asyn
   }
 });
 
+test("chat stream reports missing provider config as a safe event", async () => {
+  const db = new InMemorySupabase();
+  setSupabaseAdminForTests(db.client as any);
+  const app = await createConversationArchiveApp();
+
+  try {
+    const response = await requestText(app, "POST", `/conversations/persona/${PERSONA_ID}/chat/stream`, {
+      token: "owner-token",
+      body: {
+        conversationId: CONVERSATION_ID,
+        content: "Can you continue the live chat?",
+      },
+    });
+    const events = parseSse(response.text);
+
+    assert.equal(response.status, 200);
+    assert.match(response.contentType, /text\/event-stream/);
+    assert.deepEqual(events.map((event) => event.event), [
+      "chat.status",
+      "chat.status",
+      "chat.error",
+    ]);
+    assert.equal(events[2].data.code, "provider_config_missing");
+    assert.equal(events[2].data.classification, "provider_config");
+    assert.doesNotMatch(response.text, /runtimeBudget|Can you continue the live chat|Always preserve continuity/);
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
+
 test("chat runtime budget does not block configured BYOK providers when platform fallback is absent", async () => {
   const db = new InMemorySupabase();
   db.tables.profiles[0].ai_mode = "byok";
@@ -616,6 +686,57 @@ test("chat runtime budget does not block configured BYOK providers when platform
     assert.equal(trace.metadata.runtimeBudget.provider.route, "byok_openai");
     assert.equal(trace.metadata.runtimeBudget.provider.model, "gpt-4o-mini");
     assert.doesNotMatch(JSON.stringify(response.body), /runtimeBudget|Use my own model/);
+  } finally {
+    globalThis.fetch = originalFetch;
+    setSupabaseAdminForTests(null);
+  }
+});
+
+test("chat stream completes configured BYOK chats without fake deltas or debug leakage", async () => {
+  const db = new InMemorySupabase();
+  db.tables.profiles[0].ai_mode = "byok";
+  db.tables.profiles[0].byok_openai_key = "secret-openai-key";
+  db.tables.personas[0].provider = "openai";
+  setSupabaseAdminForTests(db.client as any);
+  const app = await createConversationArchiveApp();
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
+    const url = typeof input === "string"
+      ? input
+      : input instanceof URL
+        ? input.toString()
+        : input.url;
+    if (url.startsWith("https://api.openai.com/")) {
+      return new Response(JSON.stringify({
+        choices: [{ message: { content: "BYOK streamed envelope reply." } }],
+        model: "gpt-4o-mini",
+      }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+    return originalFetch(input, init);
+  }) as typeof fetch;
+
+  try {
+    const response = await requestText(app, "POST", `/conversations/persona/${PERSONA_ID}/chat/stream`, {
+      token: "owner-token",
+      body: {
+        conversationId: CONVERSATION_ID,
+        content: "Use my own model for a streamed reply.",
+      },
+    });
+    const events = parseSse(response.text);
+
+    assert.equal(response.status, 200);
+    assert.match(response.contentType, /text\/event-stream/);
+    assert.equal(events.some((event) => event.event === "chat.delta"), false);
+    assert.equal(events.at(-1)?.event, "chat.complete");
+    assert.equal(events.at(-1)?.data.reply.content, "BYOK streamed envelope reply.");
+    assert.equal(events.at(-1)?.data.conversationId, CONVERSATION_ID);
+    assert.doesNotMatch(response.text, /runtimeBudget|Use my own model|secret-openai-key|_debug/);
+    assert.equal(db.tables.conversation_messages.filter((row) => row.content === "Use my own model for a streamed reply.").length, 1);
+    assert.equal(db.tables.conversation_messages.filter((row) => row.content === "BYOK streamed envelope reply.").length, 1);
   } finally {
     globalThis.fetch = originalFetch;
     setSupabaseAdminForTests(null);

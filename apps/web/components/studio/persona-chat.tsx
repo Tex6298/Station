@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { getSession } from "@/lib/auth";
 import { apiGet, apiPatch, apiPost } from "@/lib/api-client";
+import { sendPersonaChatWithStream } from "@/lib/chat-stream";
 import type { ArchivedChatTranscript, ContinuityCandidate, ConversationMessage } from "@station/types/persona";
 
 interface Props {
@@ -22,6 +23,7 @@ interface ChatState {
   sending: boolean;
   archiving: boolean;
   error: string | null;
+  streamStatus: string | null;
 }
 
 export function PersonaChat({ personaId, personaName }: Props) {
@@ -40,6 +42,7 @@ export function PersonaChat({ personaId, personaName }: Props) {
     sending: false,
     archiving: false,
     error: null,
+    streamStatus: null,
   });
 
   // Load session + most recent conversation on mount
@@ -95,24 +98,27 @@ export function PersonaChat({ personaId, personaName }: Props) {
       ...s,
       sending: true,
       error: null,
+      streamStatus: "Starting chat stream...",
       messages: [...s.messages, { id: tempId, role: "user", content, createdAt: new Date().toISOString() }],
     }));
 
     try {
-      const { conversationId, reply } = await apiPost<{
-        conversationId: string;
-        reply: ConversationMessage;
-      }>(
-        `/conversations/persona/${personaId}/chat`,
-        { content, conversationId: state.conversationId ?? undefined },
-        token
-      );
+      const { conversationId, reply } = await sendPersonaChatWithStream({
+        personaId,
+        content,
+        conversationId: state.conversationId,
+        token,
+        onStatus: (status) => {
+          setState((s) => ({ ...s, streamStatus: status.message }));
+        },
+      });
 
       setState((s) => ({
         ...s,
         conversationId,
         conversationStatus: "active",
         sending: false,
+        streamStatus: null,
         archive: null,
         messages: [
           ...s.messages.filter((m) => m.id !== tempId),
@@ -124,6 +130,7 @@ export function PersonaChat({ personaId, personaName }: Props) {
       setState((s) => ({
         ...s,
         sending: false,
+        streamStatus: null,
         error: e instanceof Error ? e.message : "Message failed.",
         messages: s.messages.filter((m) => m.id !== tempId),
       }));
@@ -195,6 +202,7 @@ export function PersonaChat({ personaId, personaName }: Props) {
       messages: [],
       archive: null,
       sending: false,
+      streamStatus: null,
       error: null,
     }));
   }
@@ -393,7 +401,7 @@ export function PersonaChat({ personaId, personaName }: Props) {
             color: "#444",
             fontSize: "0.85rem",
           }}>
-            <span className="typing-dots">{personaName} is responding...</span>
+            <span className="typing-dots">{state.streamStatus ?? `${personaName} is responding...`}</span>
           </div>
         )}
 

@@ -96,6 +96,35 @@ function chatError(status: number, code: string, classification: ChatErrorClassi
   return { status, body: { error, code, classification } };
 }
 
+type ChatTurnStatusStage =
+  | "assembling_context"
+  | "checking_quota"
+  | "waiting_for_provider"
+  | "saving_reply";
+
+type ChatTurnStatus = {
+  stage: ChatTurnStatusStage;
+  message: string;
+};
+
+type ChatTurnInput = {
+  userId: string;
+  userTier: string | null | undefined;
+  personaId: string;
+  content: string;
+  conversationId?: string;
+  includeDebug: boolean;
+  onStatus?: (status: ChatTurnStatus) => void | Promise<void>;
+};
+
+type ChatTurnResult =
+  | { ok: true; body: Record<string, unknown> }
+  | { ok: false; status: number; body: { error: string; code?: string; classification?: string } };
+
+function chatTurnFailed(result: ChatTurnResult): result is Extract<ChatTurnResult, { ok: false }> {
+  return result.ok === false;
+}
+
 function configuredByokRoute(profile: any, provider: string | null | undefined) {
   if (profile?.ai_mode !== "byok") return null;
   if (provider === "openai" && profile.byok_openai_key) {
@@ -431,15 +460,13 @@ conversationsRouter.get("/:conversationId", async (req, res) => {
   return res.json({ conversation: conv, messages: messages ?? [], archive });
 });
 
-// -- Send a message (main chat endpoint) --------------------------------------
-conversationsRouter.post("/persona/:personaId/chat", async (req, res) => {
-  const parsed = chatSchema.safeParse(req.body);
-  if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
-
+async function runPersonaChatTurn(input: ChatTurnInput): Promise<ChatTurnResult> {
   const sb = getSupabaseAdmin();
-  const userId = req.user!.id;
-  const { personaId } = req.params;
-  const { content, conversationId } = parsed.data;
+  const { userId, personaId, content, conversationId } = input;
+
+  const status = async (stage: ChatTurnStatusStage, message: string) => {
+    await input.onStatus?.({ stage, message });
+  };
 
   // Load persona (verify ownership)
   const { data: persona, error: personaErr } = await sb
@@ -448,8 +475,8 @@ conversationsRouter.post("/persona/:personaId/chat", async (req, res) => {
     .eq("id", personaId)
     .single();
 
-  if (personaErr || !persona) return res.status(404).json({ error: "Persona not found." });
-  if (persona.owner_user_id !== userId) return res.status(403).json({ error: "Not your persona." });
+  if (personaErr || !persona) return { ok: false, status: 404, body: { error: "Persona not found." } };
+  if (persona.owner_user_id !== userId) return { ok: false, status: 403, body: { error: "Not your persona." } };
 
   // Load user profile for BYOK keys + ai_mode
   const { data: profile } = await sb
@@ -472,7 +499,7 @@ conversationsRouter.post("/persona/:personaId/chat", async (req, res) => {
       .select("id")
       .single();
 
-    if (convErr || !newConv) return res.status(500).json({ error: "Could not create conversation." });
+    if (convErr || !newConv) return { ok: false, status: 500, body: { error: "Could not create conversation." } };
     convId = newConv.id;
   } else {
     const { data: existingConv } = await sb
@@ -482,7 +509,7 @@ conversationsRouter.post("/persona/:personaId/chat", async (req, res) => {
       .single();
 
     if (!existingConv || existingConv.owner_user_id !== userId || existingConv.persona_id !== personaId) {
-      return res.status(403).json({ error: "Not authorised for this conversation." });
+      return { ok: false, status: 403, body: { error: "Not authorised for this conversation." } };
     }
 
     if (existingConv.status === "archived") {
@@ -492,7 +519,7 @@ conversationsRouter.post("/persona/:personaId/chat", async (req, res) => {
         "archived_state",
         "Archived conversations are read-only. Start a new chat to continue."
       );
-      return res.status(archived.status).json(archived.body);
+      return { ok: false, ...archived };
     }
   }
 
@@ -514,6 +541,8 @@ conversationsRouter.post("/persona/:personaId/chat", async (req, res) => {
     role: "user",
     content,
   });
+
+  await status("assembling_context", "Assembling chat context.");
 
   // Build RAG system prompt and a content-free runtime budget report.
   const runtimeContext = await assemblePersonaRuntimeContext({
@@ -540,7 +569,7 @@ conversationsRouter.post("/persona/:personaId/chat", async (req, res) => {
   } = runtimeContext.counts;
 
   // Resolve provider
-  const stationModel = selectStationModel(req.user!.tier);
+  const stationModel = selectStationModel(input.userTier);
   const platformNvidiaKey = env.NVIDIA_AI_API_KEY?.trim() || undefined;
   const useStationAnthropic = profile?.ai_mode !== "byok" && !platformNvidiaKey && Boolean(env.ANTHROPIC_API_KEY);
   const platformRoute = describePlatformProviderRoute({ platformNvidiaKey });
@@ -605,24 +634,24 @@ conversationsRouter.post("/persona/:personaId/chat", async (req, res) => {
       payload: { code: missingConfig.body.code, classification: missingConfig.body.classification },
     });
     await failAiTrace(trace?.id, new Error(missingConfig.body.error), Date.now() - traceStartedAt);
-    return res.status(missingConfig.status).json(missingConfig.body);
+    return { ok: false, ...missingConfig };
   }
 
   const provider = useStationAnthropic
     ? new AnthropicProvider({ apiKey: env.ANTHROPIC_API_KEY, model: stationModel.model })
     : resolveProvider({
-    provider: persona.provider as "platform" | "openai" | "anthropic" | "deepseek" | "gemini",
-    aiMode: (profile?.ai_mode ?? "platform") as "platform" | "byok",
-    byokOpenaiKey: profile?.byok_openai_key,
-    byokAnthropicKey: profile?.byok_anthropic_key,
-    byokDeepseekKey: profile?.byok_deepseek_key,
-    platformDeepseekKey: env.DEEPSEEK_API_KEY,
-    platformDeepseekBaseUrl: env.DEEPSEEK_BASE_URL,
-    platformDeepseekModel: env.DEEPSEEK_MODEL,
-    platformNvidiaKey,
-    platformNvidiaBaseUrl: env.NVIDIA_MODEL_BASE_URL,
-    platformNvidiaModel: env.NVIDIA_MODEL,
-  });
+      provider: persona.provider as "platform" | "openai" | "anthropic" | "deepseek" | "gemini",
+      aiMode: (profile?.ai_mode ?? "platform") as "platform" | "byok",
+      byokOpenaiKey: profile?.byok_openai_key,
+      byokAnthropicKey: profile?.byok_anthropic_key,
+      byokDeepseekKey: profile?.byok_deepseek_key,
+      platformDeepseekKey: env.DEEPSEEK_API_KEY,
+      platformDeepseekBaseUrl: env.DEEPSEEK_BASE_URL,
+      platformDeepseekModel: env.DEEPSEEK_MODEL,
+      platformNvidiaKey,
+      platformNvidiaBaseUrl: env.NVIDIA_MODEL_BASE_URL,
+      platformNvidiaModel: env.NVIDIA_MODEL,
+    });
 
   // Send to LLM
   const messages = [
@@ -630,6 +659,7 @@ conversationsRouter.post("/persona/:personaId/chat", async (req, res) => {
     { role: "user" as const, content },
   ];
 
+  await status("checking_quota", "Checking token budget.");
   try {
     await assertTokenBudgetForEstimate(userId, estimateConversationTokens({
       systemPrompt,
@@ -652,7 +682,7 @@ conversationsRouter.post("/persona/:personaId/chat", async (req, res) => {
         payload: { code: quota.body.code, classification: quota.body.classification },
       });
       await failAiTrace(trace?.id, error, Date.now() - traceStartedAt);
-      return res.status(quota.status).json(quota.body);
+      return { ok: false, status: quota.status, body: quota.body };
     }
     throw error;
   }
@@ -661,6 +691,7 @@ conversationsRouter.post("/persona/:personaId/chat", async (req, res) => {
   let inputTokens = 0;
   let outputTokens = 0;
   try {
+    await status("waiting_for_provider", "Waiting for model response.");
     aiResponse = await enqueueLlmCall(provider, {
       system: systemPrompt,
       messages,
@@ -715,8 +746,10 @@ conversationsRouter.post("/persona/:personaId/chat", async (req, res) => {
       "provider_failure",
       "Persona chat provider failed."
     );
-    return res.status(providerFailure.status).json(providerFailure.body);
+    return { ok: false, ...providerFailure };
   }
+
+  await status("saving_reply", "Saving assistant reply.");
 
   // Save assistant reply
   const { data: savedReply } = await sb
@@ -741,7 +774,7 @@ conversationsRouter.post("/persona/:personaId/chat", async (req, res) => {
     reply: savedReply,
   };
 
-  if (includeRuntimeDebug(req.query.debug, process.env.NODE_ENV, env.STATION_EXPOSE_AI_DEBUG)) {
+  if (input.includeDebug) {
     responsePayload._debug = {
       canonCount,
       memoryCount,
@@ -752,7 +785,75 @@ conversationsRouter.post("/persona/:personaId/chat", async (req, res) => {
     };
   }
 
-  return res.json(responsePayload);
+  return { ok: true, body: responsePayload };
+}
+
+// -- Send a message (main chat endpoint) --------------------------------------
+conversationsRouter.post("/persona/:personaId/chat", async (req, res) => {
+  const parsed = chatSchema.safeParse(req.body);
+  if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
+
+  const result = await runPersonaChatTurn({
+    userId: req.user!.id,
+    userTier: req.user!.tier,
+    personaId: req.params.personaId,
+    content: parsed.data.content,
+    conversationId: parsed.data.conversationId,
+    includeDebug: includeRuntimeDebug(req.query.debug, process.env.NODE_ENV, env.STATION_EXPOSE_AI_DEBUG),
+  });
+
+  if (chatTurnFailed(result)) return res.status(result.status).json(result.body);
+  return res.json(result.body);
+});
+
+conversationsRouter.post("/persona/:personaId/chat/stream", async (req, res) => {
+  const parsed = chatSchema.safeParse(req.body);
+  if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
+
+  res.status(200);
+  res.setHeader("Content-Type", "text/event-stream; charset=utf-8");
+  res.setHeader("Cache-Control", "no-cache, no-transform");
+  res.setHeader("Connection", "keep-alive");
+  res.flushHeaders?.();
+
+  const write = (event: string, data: Record<string, unknown>) => {
+    res.write(`event: ${event}\n`);
+    res.write(`data: ${JSON.stringify(data)}\n\n`);
+  };
+
+  try {
+    write("chat.status", { stage: "accepted", message: "Chat request accepted." });
+    const result = await runPersonaChatTurn({
+      userId: req.user!.id,
+      userTier: req.user!.tier,
+      personaId: req.params.personaId,
+      content: parsed.data.content,
+      conversationId: parsed.data.conversationId,
+      includeDebug: false,
+      onStatus: (status) => write("chat.status", status),
+    });
+
+    if (chatTurnFailed(result)) {
+      write("chat.error", {
+        status: result.status,
+        error: result.body.error,
+        code: result.body.code ?? "chat_failed",
+        classification: result.body.classification ?? "unknown",
+      });
+      return res.end();
+    }
+
+    write("chat.complete", result.body);
+    return res.end();
+  } catch {
+    write("chat.error", {
+      status: 500,
+      error: "Chat stream failed.",
+      code: "chat_stream_failed",
+      classification: "unknown",
+    });
+    return res.end();
+  }
 });
 
 // -- Save last assistant message as memory -------------------------------------

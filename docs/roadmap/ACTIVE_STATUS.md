@@ -4719,6 +4719,24 @@ when a PR lands, or when validation truth changes.
   emits honest status/delta/complete/error events, and keeps the existing
   non-streaming POST stable. ARIADNE rehearsal is expected if ARGUS accepts
   because Studio chat behavior changes visibly.
+- PR32 Chat Streaming Envelope Alpha is implemented by DAEDALUS and ready for
+  ARGUS review, 2026-06-18: persona chat now shares one internal turn runner
+  between the existing JSON POST and a new authenticated
+  `POST /conversations/persona/:personaId/chat/stream` SSE envelope. The stream
+  uses normal `Authorization: Bearer` headers through `fetch()` rather than
+  token-in-query EventSource URLs, emits `chat.status`, `chat.complete`, and
+  `chat.error`, and deliberately emits no `chat.delta` because current provider
+  adapters expose final-message calls only. Studio chat uses the fetch readable
+  stream client, shows the server status message while waiting, falls back to
+  the existing non-streaming POST only before a stream is consumed, and keeps
+  archived/error/non-streaming behavior stable. Focused validation passed
+  `test:conversation-archive` with 34 tests, `test:persona-context`,
+  `test:token-credits`, `test:studio-ui` with 24 tests, and `@station/api`
+  build. `@station/web` build compiled, lint/type checked, and generated pages,
+  then reproduced the known Windows Next standalone symlink `EPERM` caveat.
+  `git diff --check` is pending final commit prep. ARIADNE browser rehearsal is
+  recommended after ARGUS review because Studio chat behavior now visibly shows
+  streaming/progress state.
 
 ## Near-term rule
 

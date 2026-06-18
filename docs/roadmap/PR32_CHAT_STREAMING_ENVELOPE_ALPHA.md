@@ -1,7 +1,7 @@
 # PR32 - Chat Streaming Envelope Alpha
 
 Date: 2026-06-18
-Status: opened for DAEDALUS
+Status: implemented by DAEDALUS, ready for ARGUS review
 Owner: DAEDALUS implements, ARGUS reviews, ARIADNE rehearses because Studio
 chat behavior changes visibly.
 
