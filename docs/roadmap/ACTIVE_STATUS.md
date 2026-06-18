@@ -4275,8 +4275,9 @@ when a PR lands, or when validation truth changes.
   Owner scoping remains enforced, the raw path/secret fixture strings are absent
   from Assistant API output, action cards remain links rather than mutations,
   and the operational-helper-not-persona guardrail is preserved. ARIADNE should
-  rehearse `/studio/assistant` at desktop and 375px mobile widths before MIMIR
-  closes PR22.
+  use `docs/roadmap/PR22_ASSISTANT_OPERATIONS_ARIADNE.md` to rehearse
+  `/studio/assistant` at desktop and 375px mobile widths before MIMIR closes
+  PR22.
 
 ## Near-term rule
 
