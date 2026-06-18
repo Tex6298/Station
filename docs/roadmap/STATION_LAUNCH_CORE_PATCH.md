@@ -1,7 +1,8 @@
 # Station launch-core patch
 
 Date: 2026-06-16
-Status: patch plan plus launch-core starter implementation
+Status: launch-core sufficient for protected-alpha replay as of 2026-06-18;
+see `STATION_LAUNCH_CORE_ALPHA_CLOSEOUT.md`
 Owner lane: MIMIR to sequence, DAEDALUS to implement, ARGUS to validate, ARIADNE to polish UX
 
 ## Purpose

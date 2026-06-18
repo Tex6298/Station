@@ -4375,6 +4375,14 @@ when a PR lands, or when validation truth changes.
   should be reconciled after MIMIR closeout because they now under-describe the
   protected-alpha evidence for archive search, Assistant, manual social archive
   intake, and portable bundle readback.
+- PR24 Launch-Core Sufficiency Closeout is fully closed, 2026-06-18: MIMIR
+  accepted ARGUS's verdict and added
+  `docs/roadmap/STATION_LAUNCH_CORE_ALPHA_CLOSEOUT.md` as the concise evidence
+  map, replay script, and caveat record. `docs/roadmap/builds.md`,
+  `docs/product/station-v1.md`, and `docs/roadmap/STATION_LAUNCH_CORE_PATCH.md`
+  now say the current Railway/Supabase staging line is launch-core sufficient
+  for protected-alpha replay, not a finished Station MVP or production-ready
+  system.
 
 ## Near-term rule
 

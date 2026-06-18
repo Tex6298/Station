@@ -5,7 +5,11 @@
 
 This roadmap is the conservative prep-lane truth for the current Station tree. It is intentionally stricter than a progress report: a lane is only marked **protected** when code plus a test/CI guard exists, and a lane is only marked **done** when it satisfies the prepared Station product documents end-to-end.
 
-Current state: **alpha spine with several protected loops, not a finished Station MVP**.
+Current state: **launch-core sufficient for protected-alpha replay, not a
+finished Station MVP**.
+
+See [`STATION_LAUNCH_CORE_ALPHA_CLOSEOUT.md`](./STATION_LAUNCH_CORE_ALPHA_CLOSEOUT.md)
+for the current evidence map, replay script, and required caveats.
 
 ## Current validation gate
 
@@ -35,14 +39,14 @@ Remote deployment status is tracked separately from local validation. Do not cal
 | Milestone | Status | Notes |
 | --- | --- | --- |
 | Foundation Alpha | Protected | Monorepo typecheck/build/API build and CI gates are in place. Remote deployment truth still needs separate verification. |
-| Studio Alpha | Protected alpha | Persona workspace, Memory, Canon, Archive, Integrity, context preview, archive-chat, and export surfaces exist. Mobile polish and Station Assistant remain open. |
+| Studio Alpha | Protected alpha | Persona workspace, Memory, Canon, Archive, Integrity, context preview, archive-chat, export surfaces, Import Review Inbox, private archive search, and Station Assistant operations are protected for replay. Broad polish remains open. |
 | Continuity Alpha | Protected alpha | Continuity data is stored, used in runtime context, publishable as separate public copies, discussable, archivable, and exportable. Candidate extraction and retrieval still need hardening. |
 | Calibration / Integrity Beta | Partial / reopened | Integrity sessions are persisted and used in context/publication/export. The fuller guided reflective workflow still needs product polish and Station Assistant support. |
 | Public Space Beta | Beta candidate | Public Spaces now behave more like authored microsites and are covered by smoke tests. Rich media/page composition and public persona interaction remain open. |
 | Community Beta | Partial / reopened | Document discussions and forum primitives exist. Full categories, tier participation, subcommunities, moderation workflow, notifications, and recognition/witness mechanics remain open. |
 | Developer Spaces | Protected alpha | Ingestion, observatory, owner/private split, and smoke tests exist. Partner-ready realtime, quotas, scheduled jobs, project ownership, and data export remain open. |
-| Archive Trust | Protected alpha | Owner-only export manifests exist. Portable bundles, original file packaging, background jobs, redundancy, and Station Press remain open. |
-| Launch Candidate | Open | Requires the reopened loops in the PR plan to be completed or explicitly deferred. |
+| Archive Trust | Protected alpha | Owner-only JSON/Markdown manifests and portable bundle readback exist. Original file packaging, PDF/binary/full workspace exports, background jobs, redundancy, and Station Press remain open. |
+| Launch Candidate | Protected-alpha replay sufficient | The PR24 closeout accepts the current Railway/Supabase staging line as launch-core sufficient for protected-alpha replay with caveats. Production readiness and full MVP remain open. |
 
 ## Protected alpha loops
 
@@ -53,7 +57,10 @@ Remote deployment status is tracked separately from local validation. Do not cal
 5. Active chat -> archived transcript -> continuity candidates.
 6. Continuity artifact -> separate published document with provenance.
 7. Published document -> discussion thread.
-8. Persona archive -> owner-only export manifest.
+8. Persona archive -> owner-only export manifest/bundle readback.
+9. External manual Reddit/Discord archive -> private archive -> review queue.
+10. Creator-capable draft -> approval queue -> public Space document -> forum discussion.
+11. Station Assistant -> owner-safe operational action map.
 
 ## Reopened loops
 
@@ -61,12 +68,12 @@ Remote deployment status is tracked separately from local validation. Do not cal
 2. Four onboarding paths.
 3. Native authoring and versioning.
 4. Full forum/community beta.
-5. Search and archive retrieval.
-6. Station Assistant workflows.
-7. External archive intake.
-8. Jobs, realtime, usage tracking, limits, and backup posture.
+5. Production vector retrieval, Cloudflare adapters, and Redis memory design.
+6. Autonomous Assistant workflows, if ever desired.
+7. Live Reddit/Discord OAuth/API intake and recurring pulls.
+8. Durable deployed workers, realtime, usage tracking, limits, and backup posture.
 9. Partner-ready Developer Spaces.
-10. Portable export bundles and archive redundancy.
+10. Full workspace/PDF/binary export and archive redundancy.
 
 ## Planning documents
 

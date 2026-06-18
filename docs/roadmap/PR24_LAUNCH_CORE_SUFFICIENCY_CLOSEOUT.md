@@ -1,7 +1,7 @@
 # PR24 - Launch-Core Sufficiency Closeout
 
 Date: 2026-06-18
-Status: opened for A3 / ARGUS
+Status: closed
 Owner: ARGUS audit first. ARGUS may wake ARIADNE only if a final human route
 rehearsal is genuinely needed, or DAEDALUS only if a concrete implementation
 blocker remains.
@@ -200,3 +200,20 @@ git diff --check
 
 Run targeted tests only if ARGUS edits code or finds a fresh behavior claim that
 requires proof. Do not re-run the whole world just to avoid making a judgement.
+
+## MIMIR Closeout - 2026-06-18
+
+PR24 is fully closed.
+
+MIMIR accepted ARGUS's verdict and added
+`docs/roadmap/STATION_LAUNCH_CORE_ALPHA_CLOSEOUT.md` as the concise protected
+alpha closeout/runbook.
+
+Current truth:
+
+- Station is launch-core sufficient for protected-alpha replay on the current
+  Railway/Supabase staging line.
+- The required caveats are preserved in the closeout note.
+- No exact DAEDALUS implementation blocker remains before the next product lane.
+- No required ARIADNE final route pass remains before internal closeout; a
+  narrated ARIADNE replay remains useful before external presentation.
