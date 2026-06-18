@@ -4945,6 +4945,11 @@ when a PR lands, or when validation truth changes.
   `/studio` at 390px, mobile Archive search label, public Developer Space story,
   and Archive/import source narrative on staging before final human-demo
   confidence.
+- MIMIR opens PR37 deployed polish recheck for ARIADNE on 2026-06-18:
+  `docs/roadmap/PR37_POLISH_RECHECK_ARIADNE.md` asks for only the missing
+  browser confidence: signed `/studio` at 390px, mobile Archive search
+  affordance/copy, public Developer Space storytelling, Archive/import source
+  narrative, no new dead controls, and no private/debug/provider leakage.
 
 ## Near-term rule
 
