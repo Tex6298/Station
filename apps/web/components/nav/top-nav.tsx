@@ -6,6 +6,7 @@ import { useRouter, usePathname } from "next/navigation";
 import type { AuthUser } from "@station/types";
 import { restoreSession, signOut } from "@/lib/auth";
 import { LOGIN_REDIRECT_PARAM, isProtectedRoute } from "@/lib/auth-routes";
+import { SIGNED_MOBILE_TOP_NAV_MENU_ROUTES } from "@/lib/studio-navigation";
 
 type NavUser = AuthUser & { email: string; isAdmin: boolean };
 
@@ -15,11 +16,13 @@ const NAV_LINKS = [
   ["/forums",   "Forums"],
 ];
 
-const AUTH_NAV_LINKS = [
-  ["/studio", "Studio"],
-  ["/space",  "My Space"],
-  ["/developer-spaces", "Developer"],
-];
+const AUTH_NAV_LINK_LABELS: Record<(typeof SIGNED_MOBILE_TOP_NAV_MENU_ROUTES)[number], string> = {
+  "/studio": "Studio",
+  "/space": "My Space",
+  "/developer-spaces": "Developer",
+};
+
+const AUTH_NAV_LINKS = SIGNED_MOBILE_TOP_NAV_MENU_ROUTES.map((href) => [href, AUTH_NAV_LINK_LABELS[href]] as const);
 
 export function TopNav() {
   const router   = useRouter();
@@ -79,11 +82,11 @@ export function TopNav() {
 
         <div className="top-nav-link-group" aria-label="Primary sections">
           {NAV_LINKS.map(([href, label]) => (
-            <TopNavLink key={href} href={href} label={label} active={pathname.startsWith(href)} />
+            <TopNavLink key={href} href={href} label={label} active={pathname.startsWith(href)} scope="public" />
           ))}
 
           {user && AUTH_NAV_LINKS.map(([href, label]) => (
-            <TopNavLink key={href} href={href} label={label} active={pathname.startsWith(href)} />
+            <TopNavLink key={href} href={href} label={label} active={pathname.startsWith(href)} scope="auth" />
           ))}
         </div>
 
@@ -152,13 +155,15 @@ function TopNavLink({
   href,
   label,
   active,
+  scope,
 }: {
   href: string;
   label: string;
   active: boolean;
+  scope: "public" | "auth";
 }) {
   return (
-    <Link href={href} className="top-nav-link" data-active={active ? "true" : "false"}>
+    <Link href={href} className="top-nav-link" data-active={active ? "true" : "false"} data-nav-scope={scope}>
       {label}
     </Link>
   );

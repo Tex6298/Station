@@ -8,6 +8,7 @@ import { getSession } from "@/lib/auth";
 import {
   developerSpaceSignalStatus,
   developerSpaceStorySummary,
+  developerSpaceMethodologyCopy,
   formatDate,
   formatValue,
   humaniseKey,
@@ -55,6 +56,8 @@ function EmptyVisualisation() {
 }
 
 function ObservatoryStory({ detail }: { detail: DeveloperSpaceDetail }) {
+  const methodologyCopy = developerSpaceMethodologyCopy(detail);
+
   return (
     <div className="card" style={{ display: "grid", gap: "0.65rem", background: "rgba(15, 23, 42, 0.72)" }}>
       <div className="section-label">What is visible</div>
@@ -63,6 +66,12 @@ function ObservatoryStory({ detail }: { detail: DeveloperSpaceDetail }) {
       </p>
       <p style={{ margin: 0, color: "#94a3b8", lineHeight: 1.6, fontSize: "0.86rem" }}>
         {developerSpaceSignalStatus(detail)}
+      </p>
+      <p style={{ margin: 0, color: "#94a3b8", lineHeight: 1.6, fontSize: "0.86rem" }}>
+        {methodologyCopy.methodology}
+      </p>
+      <p style={{ margin: 0, color: "#94a3b8", lineHeight: 1.6, fontSize: "0.86rem" }}>
+        {methodologyCopy.privateBoundary}
       </p>
     </div>
   );
@@ -517,6 +526,8 @@ function renderSideWidget(
   showSnapshotPanel: boolean
 ) {
   if (widget.type === "reading_guide") {
+    const methodologyCopy = developerSpaceMethodologyCopy(detail);
+
     return (
       <div key={widget.id} className="card">
         <h2 style={{ margin: "0 0 0.5rem", fontSize: "1rem" }}>{widget.title}</h2>
@@ -525,12 +536,13 @@ function renderSideWidget(
             {developerSpaceStorySummary(detail)} {developerSpaceSignalStatus(detail)}
           </p>
           <p style={{ margin: 0 }}>
-            Tracked nodes are the people, systems, or places this project is watching. Public signals are timestamped updates from the project runtime. Snapshots are curated state summaries for visitors.
+            {methodologyCopy.liveSignal} Tracked nodes are the people, systems, or places this project is watching. Snapshots are curated state summaries for visitors.
           </p>
           <p style={{ margin: 0 }}>
-            {detail.linkedDocuments.length > 0
-              ? "Project notes add public methodology, findings, or field logs when the owner publishes them."
-              : "No public project notes are attached yet, so the live signals and latest snapshot are the current public evidence."}
+            {methodologyCopy.methodology}
+          </p>
+          <p style={{ margin: 0 }}>
+            {methodologyCopy.privateBoundary}
           </p>
         </div>
       </div>

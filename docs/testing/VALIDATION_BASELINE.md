@@ -7636,3 +7636,33 @@ Scope notes:
 - No provider marketplace, model menu, BYOK secret storage, embedding/vector
   migration, Cloudflare/Redis storage, provider delta streaming, UI change, or
   Developer Spaces behavior changed.
+
+## PR37 Launch-Core Polish Caveats
+
+DAEDALUS implementation validation on 2026-06-18:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 26 tests passed, including Archive source narrative copy and signed mobile top-nav protected route access through the account menu. |
+| `npm exec --yes pnpm@10.32.1 -- run test:storage` | Pass | 16 tests passed; Archive backend search and storage/accounting behavior stayed green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 8 tests passed, including public methodology/live-signal/privacy-boundary copy helpers. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web build` | Local environment failure after successful compile/type/page generation | Next compiled successfully, lint/type checks ran with the known warning inventory, and 30 static pages generated. The build then reproduced the known Windows standalone symlink failure: `EPERM: operation not permitted, symlink ... apps\\web\\.next\\standalone...`. |
+| `git diff --check` | Pass | No whitespace errors; CRLF normalization warnings only for touched text files and local triad state. |
+
+Scope notes:
+
+- Signed mobile global navigation now hides protected top-level links below
+  640px and keeps `/studio`, `/space`, and `/developer-spaces` reachable through
+  the existing account menu. Public top-level links remain visible, with tighter
+  spacing below 420px.
+- Archive search semantics are unchanged; the page now has an explicit visible
+  `Search private archive` label and a source-material/processing/visibility
+  narrative.
+- Developer Space public observatories now explain methodology/finding/field-log
+  evidence counts, live signal meaning, and visitor privacy boundaries.
+- Local browser overflow measurement was not completed because Playwright is not
+  installed as an executable/module in this workspace. ARIADNE should recheck
+  signed `/studio` at 390px on staging after ARGUS accepts.
+- No Cloudflare, Redis/Valkey memory, provider streaming, embedding migration,
+  model marketplace UI, BYOK secret storage, retrieval rewrite, backend Archive
+  search semantic change, or broad redesign was added.

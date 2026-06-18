@@ -100,6 +100,23 @@ export function developerSpaceSignalStatus(detail: Pick<DeveloperSpaceDetail, "n
   return "The public observatory is ready, but no project signals have arrived yet.";
 }
 
+export function developerSpaceMethodologyCopy(detail: Pick<DeveloperSpaceDetail, "linkedDocuments" | "access">) {
+  const methodologyCount = detail.linkedDocuments.filter((link) => link.role === "methodology").length;
+  const findingCount = detail.linkedDocuments.filter((link) => link.role === "finding").length;
+  const fieldLogCount = detail.linkedDocuments.filter((link) => link.role === "field_log").length;
+  const hasNotes = methodologyCount + findingCount + fieldLogCount > 0;
+
+  return {
+    methodology: hasNotes
+      ? `Public notes include ${countLabel(methodologyCount, "methodology note")}, ${countLabel(findingCount, "finding")}, and ${countLabel(fieldLogCount, "field log")}.`
+      : "No public methodology, finding, or field-log notes are attached yet; live signals and snapshots are the current public evidence.",
+    liveSignal: "Live signals are public node, event, or snapshot records sent by the project runtime and summarised for visitors.",
+    privateBoundary: detail.access === "owner"
+      ? "Owner view may show raw event or snapshot data, but ingestion keys, credentials, private archive text, prompts, and unpublished notes stay out of the public observatory."
+      : "Visitors do not see ingestion keys, credentials, private archive text, prompts, raw owner console data, or unpublished notes.",
+  };
+}
+
 const DEFAULT_WIDGETS: DeveloperSpaceWidgetConfig[] = [
   { id: "visualisation", type: "visualisation", title: "Live visualisation", zone: "main", position: 0, visible: true },
   { id: "event_stream", type: "event_stream", title: "Event stream", zone: "main", position: 1, visible: true },

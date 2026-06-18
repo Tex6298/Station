@@ -10,6 +10,7 @@ import {
   archiveJobStatusLabel,
   archiveJobTone,
   archiveJobTrustCopy,
+  archiveSourceNarrative,
   archiveTrustSummary,
 } from "./archive-trust";
 
@@ -71,4 +72,15 @@ test("archive search controls build backend search routes", () => {
     path,
     "/imports/archive/search?q=blue+lantern&type=continuity&sort=title&limit=25",
   );
+});
+
+test("archive source narrative explains import safety and visibility", () => {
+  const copy = archiveSourceNarrative();
+
+  assert.match(copy.sourceMaterial, /pasted text/);
+  assert.match(copy.sourceMaterial, /archived chats/);
+  assert.match(copy.processing, /Failed imports/);
+  assert.match(copy.processing, /untouched/);
+  assert.match(copy.visibility, /owner-only/);
+  assert.doesNotMatch(`${copy.sourceMaterial} ${copy.processing} ${copy.visibility}`, /quota|public by default/i);
 });

@@ -4915,6 +4915,22 @@ when a PR lands, or when validation truth changes.
   navigation overflow, Archive search affordance/copy, Developer Space
   methodology/field-log storytelling, and Archive/import source narrative
   thinness. Cloudflare remains deferred.
+- DAEDALUS implements PR37 Launch-Core Polish Caveats on 2026-06-18:
+  signed mobile top navigation now hides the dense protected-route link group
+  below 640px and keeps Studio, My Space, and Developer Spaces reachable through
+  the existing account menu; 375-390px spacing is tightened for the remaining
+  public links and avatar. Archive now exposes a visible `Search private
+  archive` label and adds restrained source-material, completion/failure, and
+  owner-only visibility copy without changing backend search semantics.
+  Developer Space observatories now explain public methodology/finding/field-log
+  evidence, live signal meaning, and public/private boundaries without exposing
+  raw owner data to visitors. Validation passed `test:studio-ui` with 26 tests,
+  `test:storage` with 16 tests, `test:developer-spaces` with 8 tests, and
+  `git diff --check`. Local `@station/web` build compiled, linted/type-checked,
+  and generated 30 pages before reproducing the known Windows Next standalone
+  symlink `EPERM` failure. A local browser overflow measurement was not
+  completed because Playwright is not installed as an executable/module in this
+  workspace; ARGUS/ARIADNE should recheck 390px signed `/studio` on staging.
 
 ## Near-term rule
 

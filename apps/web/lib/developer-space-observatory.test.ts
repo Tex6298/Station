@@ -3,6 +3,7 @@ import test from "node:test";
 import {
   developerSpaceSignalStatus,
   developerSpaceStorySummary,
+  developerSpaceMethodologyCopy,
   formatValue,
   moveDeveloperSpaceWidget,
   normaliseDeveloperSpaceWidgets,
@@ -61,6 +62,32 @@ test("observatory helpers keep visitor data readable and non-raw", () => {
   assert.equal(shouldShowRawDeveloperSpaceData("member"), false);
   assert.equal(shouldShowRawDeveloperSpaceData("owner"), true);
   assert.equal(visualisationLabel("world_map"), "World map");
+});
+
+test("observatory methodology copy stays honest about public evidence", () => {
+  const withNotes = developerSpaceMethodologyCopy({
+    access: "public",
+    linkedDocuments: [
+      { role: "methodology" },
+      { role: "finding" },
+      { role: "field_log" },
+    ],
+  } as unknown as Parameters<typeof developerSpaceMethodologyCopy>[0]);
+
+  assert.match(withNotes.methodology, /1 methodology note/);
+  assert.match(withNotes.methodology, /1 finding/);
+  assert.match(withNotes.methodology, /1 field log/);
+  assert.match(withNotes.liveSignal, /public node, event, or snapshot records/);
+  assert.match(withNotes.privateBoundary, /Visitors do not see ingestion keys/);
+
+  const empty = developerSpaceMethodologyCopy({
+    access: "owner",
+    linkedDocuments: [],
+  } as unknown as Parameters<typeof developerSpaceMethodologyCopy>[0]);
+
+  assert.match(empty.methodology, /No public methodology/);
+  assert.match(empty.privateBoundary, /Owner view may show raw event/);
+  assert.doesNotMatch(`${withNotes.methodology} ${empty.methodology}`, /private archive text/);
 });
 
 test("observatory widget helpers bound custom dashboard layouts", () => {

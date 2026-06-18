@@ -8,6 +8,7 @@ import {
   archiveSearchPath,
   archiveSearchUsesBackend,
 } from "@/lib/archive-search";
+import { archiveSourceNarrative } from "@/lib/archive-trust";
 import { getSession } from "@/lib/auth";
 
 type ArchiveItem = {
@@ -97,6 +98,7 @@ export function ArchiveLibrary() {
   const summarySource = summaryItems.length > 0 ? summaryItems : items;
   const failedCount = summarySource.filter((item) => item.status === "failed").length;
   const queuedCount = summarySource.filter((item) => ["queued", "processing", "in_progress"].includes(item.status)).length;
+  const sourceNarrative = archiveSourceNarrative();
 
   return (
     <main style={{ minHeight: "calc(100vh - 52px)", background: "var(--station-page-bg)", color: "var(--station-page-text)" }}>
@@ -121,6 +123,15 @@ export function ArchiveLibrary() {
           <SummaryCard label="Queued/in progress" value={queuedCount.toString()} />
           <SummaryCard label="Failed" value={failedCount.toString()} tone={failedCount > 0 ? "bad" : "neutral"} />
         </div>
+
+        <section style={{ ...panel, marginBottom: 18 }} aria-label="Archive source safety">
+          <h2 style={sectionTitle}>Source material and visibility</h2>
+          <div style={{ display: "grid", gap: 8, color: "var(--station-page-muted)", fontSize: 13, lineHeight: 1.6 }}>
+            <p style={{ margin: 0 }}>{sourceNarrative.sourceMaterial}</p>
+            <p style={{ margin: 0 }}>{sourceNarrative.processing}</p>
+            <p style={{ margin: 0 }}>{sourceNarrative.visibility}</p>
+          </div>
+        </section>
 
         {!signedIn && !loading ? <section style={panel}>Sign in to view your private archive.</section> : null}
         {loading ? <section style={panel}>Loading archive...</section> : null}
@@ -159,11 +170,16 @@ export function ArchiveLibrary() {
 
             <section style={{ display: "grid", gap: 14, minWidth: 0 }}>
               <div style={panel}>
+                <label htmlFor="archive-search-input" style={{ display: "block", color: "var(--station-page-text)", fontSize: 13, fontWeight: 800, marginBottom: 8 }}>
+                  Search private archive
+                </label>
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 160px), 1fr))", gap: 10 }}>
                   <input
+                    id="archive-search-input"
                     value={query}
                     onChange={(event) => setQuery(event.target.value)}
                     placeholder="Search private archive materials..."
+                    aria-label="Search private archive materials"
                     style={input}
                   />
                   <select value={sort} onChange={(event) => setSort(event.target.value)} style={input}>

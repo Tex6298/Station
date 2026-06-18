@@ -62,3 +62,11 @@ export function archiveTrustSummary(files: ArchiveFileLike[], jobs: ArchiveImpor
     processedFiles: files.filter((file) => file.processed).length,
   };
 }
+
+export function archiveSourceNarrative() {
+  return {
+    sourceMaterial: "Archive sources can include pasted text, uploaded files, archived chats, continuity records, documents, memory, canon-adjacent notes, and Integrity Sessions.",
+    processing: "Completed imports become private archive material for retrieval. Failed imports keep the error visible and leave existing archive material untouched.",
+    visibility: "Private source material stays owner-only in Studio unless you deliberately publish a separate document or public Space item.",
+  };
+}

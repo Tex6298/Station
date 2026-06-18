@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import {
+  SIGNED_MOBILE_TOP_NAV_MENU_ROUTES,
   STUDIO_MOBILE_NAV_SUMMARY_LABEL,
   activeStudioHref,
   studioPersonaHref,
@@ -26,4 +27,8 @@ test("Studio navigation helpers expose private persona links and labels", () => 
 
 test("Studio mobile navigation exposes an explicit disclosure label", () => {
   assert.equal(STUDIO_MOBILE_NAV_SUMMARY_LABEL, "Toggle Studio mobile navigation");
+});
+
+test("signed mobile top nav keeps protected routes reachable through the account menu", () => {
+  assert.deepEqual([...SIGNED_MOBILE_TOP_NAV_MENU_ROUTES], ["/studio", "/space", "/developer-spaces"]);
 });
