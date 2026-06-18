@@ -4614,6 +4614,20 @@ when a PR lands, or when validation truth changes.
   375px browser rehearsal before MIMIR closes PR30. Caveat preserved: this is
   document versioning alpha, not rich editing, diff review, codex governance,
   Station Press/PDF, binary archive export, or public prior-version browsing.
+- PR30 Native Document Versioning Alpha is blocked by ARIADNE on live Railway
+  schema state, 2026-06-18:
+  `docs/roadmap/PR30_VERSIONING_REHEARSAL_ARIADNE.md` records that web/API are
+  serving handoff commit `fb3393c`, but API deployment readiness still reports
+  migration latest `025-029` while PR30 requires
+  `037_document_version_history.sql`. A signed replay-owner probe created and
+  read a private `codex` document, but the document `version` field was `null`,
+  owner-only `/documents/:id/versions` returned `404 Document not found`, and
+  editing the document returned `500` because `public.document_versions` is not
+  in the schema cache. ARIADNE cannot accept the desktop or 375px publish-flow
+  version-history panel until the live schema can create and read prior-version
+  rows. UX risk: the publish flow currently catches version-history fetch
+  failure as an empty history state, which can make a broken endpoint look like
+  "no prior versions yet."
 
 ## Near-term rule
 
