@@ -7404,3 +7404,38 @@ Evidence hygiene:
   committed.
 - This refresh does not indicate a Cloudflare, Redis memory truth, provider,
   vector-dimension, worker, Stripe, live social import, or broad UI repair lane.
+
+## PR30 Native Document Versioning Alpha
+
+DAEDALUS implementation validation on 2026-06-18:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:continuity-publication` | Pass | 1 test passed; continuity-derived document publication remains green with current-row reads. |
+| `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` | Pass | 1 test passed; discussion visibility remains tied to current published document state. |
+| `npm exec --yes pnpm@10.32.1 -- run test:community` | Pass | 8 tests passed, including owner-only document version history readback, prior-row snapshot creation, public current-version read safety, and non-owner 404 history access. |
+| `npm exec --yes pnpm@10.32.1 -- run test:exports` | Pass | 4 tests passed, including owner-only export manifest document-version summaries and other-owner version non-leakage. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 22 tests passed, including the publish-flow version summary helper. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/api build` | Pass | API package build and dependent package builds passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck tasks passed. |
+| `git diff --check` | Pass | No whitespace errors; CRLF normalization warnings only for touched text files if Git reports them. |
+
+Scope notes:
+
+- Added `infra/supabase/migrations/037_document_version_history.sql` with
+  idempotent `documents.version`, owner-only `document_versions`, indexes, RLS,
+  and schema comments.
+- `PATCH /documents/:id` and `POST /documents/:id/publish` snapshot the owned
+  current document before versioned fields change and increment
+  `documents.version`.
+- `GET /documents/:id/versions` returns prior versions only to the document
+  owner or admin; public document reads expose only the current version number,
+  not prior rows.
+- Persona archive exports include version-history summaries for exported
+  published document refs and count `documentVersions` without widening public
+  export behavior.
+- Studio publish flow shows a compact prior-version readback panel for existing
+  documents; this is not a rich-text editor or broad authoring redesign.
+- No Station Press/PDF/binary exports, scheduled/social dispatch, Cloudflare,
+  Redis memory truth, provider routing, vector-dimension changes, workers,
+  Stripe changes, or broad UI redesign was added.

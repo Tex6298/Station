@@ -63,6 +63,25 @@ const PROVENANCE_LABELS: Record<string, string> = {
   persona_derived: "Persona-derived",
 };
 
+const VERSIONED_DOCUMENT_FIELDS = [
+  "title",
+  "slug",
+  "body",
+  "document_type",
+  "status",
+  "visibility",
+  "comments_enabled",
+  "space_id",
+  "persona_id",
+  "published_at",
+  "provenance_type",
+  "source_type",
+  "source_id",
+  "source_label",
+  "source_persona_id",
+  "discussion_thread_id",
+] as const;
+
 function normalizeVisibility(visibility: z.infer<typeof visibilitySchema>) {
   return visibility === "members" ? "community" : visibility;
 }
@@ -105,6 +124,89 @@ function canHaveDiscussion(document: any) {
     document.comments_enabled !== false &&
     ["public", "community", "members", "unlisted"].includes(document.visibility)
   );
+}
+
+function currentDocumentVersion(document: any) {
+  return Number.isInteger(document?.version) && document.version > 0 ? document.version : 1;
+}
+
+function documentVersionChanged(document: any, update: Record<string, unknown>) {
+  return VERSIONED_DOCUMENT_FIELDS.some((field) =>
+    Object.prototype.hasOwnProperty.call(update, field) && update[field] !== document[field]
+  );
+}
+
+function serializeDocumentVersion(row: any) {
+  return {
+    id: row.id,
+    documentId: row.document_id,
+    ownerUserId: row.owner_user_id,
+    versionNumber: row.version_number,
+    title: row.title,
+    slug: row.slug,
+    body: row.body ?? null,
+    summary: row.summary ?? null,
+    documentType: row.document_type,
+    status: row.status,
+    visibility: row.visibility,
+    commentsEnabled: row.comments_enabled,
+    spaceId: row.space_id ?? null,
+    personaId: row.persona_id ?? null,
+    publishedAt: row.published_at ?? null,
+    provenanceType: row.provenance_type,
+    sourceType: row.source_type ?? null,
+    sourceId: row.source_id ?? null,
+    sourceLabel: row.source_label ?? null,
+    sourcePersonaId: row.source_persona_id ?? null,
+    discussionThreadId: row.discussion_thread_id ?? null,
+    documentCreatedAt: row.document_created_at ?? null,
+    documentUpdatedAt: row.document_updated_at ?? null,
+    capturedAt: row.captured_at,
+    createdAt: row.created_at,
+  };
+}
+
+async function snapshotDocumentVersion(document: any) {
+  const sb = getSupabaseAdmin();
+  return sb
+    .from("document_versions")
+    .insert({
+      document_id: document.id,
+      owner_user_id: document.author_user_id,
+      version_number: currentDocumentVersion(document),
+      title: document.title,
+      slug: document.slug,
+      body: document.body ?? null,
+      summary: document.summary ?? null,
+      document_type: document.document_type,
+      status: document.status,
+      visibility: document.visibility,
+      comments_enabled: document.comments_enabled !== false,
+      space_id: document.space_id ?? null,
+      persona_id: document.persona_id ?? null,
+      published_at: document.published_at ?? null,
+      provenance_type: document.provenance_type ?? "user_authored",
+      source_type: document.source_type ?? null,
+      source_id: document.source_id ?? null,
+      source_label: document.source_label ?? null,
+      source_persona_id: document.source_persona_id ?? null,
+      discussion_thread_id: document.discussion_thread_id ?? null,
+      document_created_at: document.created_at ?? null,
+      document_updated_at: document.updated_at ?? null,
+    });
+}
+
+async function loadOwnedDocumentForUpdate(documentId: string, ownerUserId: string) {
+  const sb = getSupabaseAdmin();
+  const { data, error } = await sb
+    .from("documents")
+    .select("*")
+    .eq("id", documentId)
+    .eq("author_user_id", ownerUserId)
+    .single();
+
+  if (error && !isMissingSingleError(error)) throw error;
+  return data ?? null;
 }
 
 function slugify(value: string) {
@@ -412,7 +514,7 @@ documentsRouter.get("/public/:id", optionalAuth, async (req, res) => {
   const sb = getSupabaseAdmin();
   const { data, error } = await sb
     .from("documents")
-    .select("id, title, slug, body, document_type, status, visibility, comments_enabled, published_at, created_at, author_user_id, persona_id, space_id, provenance_type, source_type, source_id, source_label, source_persona_id, discussion_thread_id")
+    .select("id, title, slug, body, document_type, status, visibility, comments_enabled, version, published_at, created_at, author_user_id, persona_id, space_id, provenance_type, source_type, source_id, source_label, source_persona_id, discussion_thread_id")
     .eq("id", req.params.id)
     .single();
 
@@ -495,7 +597,7 @@ documentsRouter.get("/", async (req, res) => {
 
   let query = sb
     .from("documents")
-    .select("id, title, slug, document_type, status, visibility, published_at, created_at, updated_at, space_id, persona_id, provenance_type, source_type, source_id, source_label, source_persona_id, discussion_thread_id")
+    .select("id, title, slug, document_type, status, visibility, version, published_at, created_at, updated_at, space_id, persona_id, provenance_type, source_type, source_id, source_label, source_persona_id, discussion_thread_id")
     .eq("author_user_id", req.user!.id)
     .order("updated_at", { ascending: false });
 
@@ -505,6 +607,36 @@ documentsRouter.get("/", async (req, res) => {
   const { data, error } = await query;
   if (error) return res.status(500).json({ error: error.message });
   return res.json({ documents: data ?? [] });
+});
+
+// GET /documents/:id/versions - owner-only prior version history
+documentsRouter.get("/:id/versions", async (req, res) => {
+  const sb = getSupabaseAdmin();
+  const userId = req.user!.id;
+
+  const { data: document, error: documentError } = await sb
+    .from("documents")
+    .select("id, author_user_id, version")
+    .eq("id", req.params.id)
+    .single();
+
+  if (documentError || !document) return res.status(404).json({ error: "Document not found." });
+  if (document.author_user_id !== userId && !req.user!.isAdmin) {
+    return res.status(404).json({ error: "Document not found." });
+  }
+
+  const { data, error } = await sb
+    .from("document_versions")
+    .select("*")
+    .eq("document_id", req.params.id)
+    .eq("owner_user_id", document.author_user_id)
+    .order("version_number", { ascending: false });
+
+  if (error) return res.status(500).json({ error: error.message });
+  return res.json({
+    currentVersion: currentDocumentVersion(document),
+    versions: (data ?? []).map(serializeDocumentVersion),
+  });
 });
 
 // GET /documents/:id - get a single document (owner or public)
@@ -593,6 +725,7 @@ documentsRouter.patch("/:id", async (req, res) => {
   const userId = req.user!.id;
   const update: Record<string, unknown> = {};
   if (parsed.data.title !== undefined)          update.title = parsed.data.title;
+  if (parsed.data.slug !== undefined)           update.slug = parsed.data.slug;
   if (parsed.data.body !== undefined)           update.body = parsed.data.body;
   if (parsed.data.visibility !== undefined)     update.visibility = normalizeVisibility(parsed.data.visibility);
   if (parsed.data.documentType !== undefined)   update.document_type = parsed.data.documentType;
@@ -613,6 +746,18 @@ documentsRouter.patch("/:id", async (req, res) => {
       update.persona_id = parsed.data.personaId;
       update.source_persona_id = parsed.data.personaId;
     }
+  }
+
+  const current = await loadOwnedDocumentForUpdate(req.params.id, userId).catch((error) => {
+    res.status(500).json({ error: error.message ?? "Could not load document." });
+    return undefined;
+  });
+  if (current === undefined) return;
+  if (!current) return res.status(404).json({ error: "Document not found." });
+  if (documentVersionChanged(current, update)) {
+    const snapshot = await snapshotDocumentVersion(current);
+    if (snapshot.error) return res.status(500).json({ error: snapshot.error.message });
+    update.version = currentDocumentVersion(current) + 1;
   }
 
   const { data, error } = await sb
@@ -690,12 +835,24 @@ documentsRouter.post("/:id/publish", async (req, res) => {
   if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
 
   const sb = getSupabaseAdmin();
+  const current = await loadOwnedDocumentForUpdate(req.params.id, req.user!.id).catch((error) => {
+    res.status(500).json({ error: error.message ?? "Could not load document." });
+    return undefined;
+  });
+  if (current === undefined) return;
+  if (!current) return res.status(404).json({ error: "Document not found." });
+
   const update: Record<string, unknown> = {
     status: "published",
     published_at: new Date().toISOString(),
     visibility: "public",
   };
   if (parsed.data.visibility) update.visibility = normalizeVisibility(parsed.data.visibility);
+  if (documentVersionChanged(current, update)) {
+    const snapshot = await snapshotDocumentVersion(current);
+    if (snapshot.error) return res.status(500).json({ error: snapshot.error.message });
+    update.version = currentDocumentVersion(current) + 1;
+  }
 
   const { data, error } = await sb
     .from("documents")

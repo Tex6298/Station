@@ -8,11 +8,13 @@ import { apiGet, apiPatch, apiPost } from "@/lib/api-client";
 import { getSession } from "@/lib/auth";
 import {
   DOCUMENT_TYPE_OPTIONS,
+  documentVersionSummaryLabel,
   documentTypeLabel,
   normalizeDocumentSlug,
   normalizeDocumentTypeForForm,
   slugifyDocumentTitle,
   type PublishingDocument,
+  type PublishingDocumentVersion,
   type PublishingSpace,
 } from "@/lib/publishing";
 
@@ -62,6 +64,8 @@ export function PublishFlow() {
   const [slugEdited, setSlugEdited] = useState(false);
   const [stationDestination, setStationDestination] = useState(true);
   const [previewOpen, setPreviewOpen] = useState(false);
+  const [versions, setVersions] = useState<PublishingDocumentVersion[]>([]);
+  const [currentVersion, setCurrentVersion] = useState(1);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
 
@@ -101,6 +105,7 @@ export function PublishFlow() {
         const loadedDocument = documentData?.document;
         if (loadedDocument) {
           setDocumentId(loadedDocument.id);
+          setCurrentVersion(loadedDocument.version ?? 1);
           setForm({
             title: loadedDocument.title,
             slug: loadedDocument.slug || slugifyDocumentTitle(loadedDocument.title),
@@ -113,6 +118,15 @@ export function PublishFlow() {
           });
           setStationDestination(Boolean(loadedDocument.space_id));
           setSlugEdited(true);
+
+          const versionData = await apiGet<{ currentVersion: number; versions: PublishingDocumentVersion[] }>(
+            `/documents/${loadedDocument.id}/versions`,
+            session.access_token,
+          ).catch(() => ({ currentVersion: loadedDocument.version ?? 1, versions: [] }));
+          if (!cancelled) {
+            setCurrentVersion(versionData.currentVersion ?? loadedDocument.version ?? 1);
+            setVersions(versionData.versions ?? []);
+          }
         }
       } catch (e) {
         if (!cancelled) setError(e instanceof Error ? e.message : "Could not load publishing workspace.");
@@ -191,6 +205,7 @@ export function PublishFlow() {
         : await apiPost<{ document: SavedDocument }>("/documents", buildPayload(), token);
 
       setDocumentId(response.document.id);
+      setCurrentVersion(response.document.version ?? currentVersion);
       setForm((current) => ({
         ...current,
         title: response.document.title,
@@ -201,6 +216,12 @@ export function PublishFlow() {
         personaId: response.document.persona_id ?? current.personaId,
         commentsEnabled: response.document.comments_enabled !== false,
       }));
+      const versionData = await apiGet<{ currentVersion: number; versions: PublishingDocumentVersion[] }>(
+        `/documents/${response.document.id}/versions`,
+        token,
+      ).catch(() => ({ currentVersion: response.document.version ?? currentVersion, versions }));
+      setCurrentVersion(versionData.currentVersion ?? response.document.version ?? currentVersion);
+      setVersions(versionData.versions ?? []);
       setNotice("Draft saved.");
       return response.document;
     } catch (e) {
@@ -360,6 +381,24 @@ export function PublishFlow() {
           </section>
 
           <aside style={{ display: "grid", gap: 14 }}>
+            {documentId ? (
+              <section style={panel}>
+                <SectionTitle title="Version History" />
+                <div style={helperText}>{documentVersionSummaryLabel(currentVersion, versions)}</div>
+                {versions.length > 0 ? (
+                  <div style={{ display: "grid", gap: 8, marginTop: 12 }}>
+                    {versions.slice(0, 4).map((version) => (
+                      <div key={version.id} style={versionRow}>
+                        <span>v{version.versionNumber}</span>
+                        <strong>{version.title}</strong>
+                        <small>{documentTypeLabel(version.documentType)} / {version.visibility}</small>
+                      </div>
+                    ))}
+                  </div>
+                ) : null}
+              </section>
+            ) : null}
+
             <section style={panel}>
               <SectionTitle title="Station Destination" />
               <label style={checkRow}>
@@ -666,6 +705,18 @@ const connectorRow = {
   justifyContent: "space-between",
   alignItems: "center",
   gap: 8,
+  border: "1px solid #d8d3c8",
+  borderRadius: 8,
+  background: "#f8f7f4",
+  padding: 9,
+  color: "#1f2529",
+  fontSize: 13,
+};
+
+const versionRow = {
+  display: "grid",
+  gridTemplateColumns: "auto 1fr",
+  gap: "2px 8px",
   border: "1px solid #d8d3c8",
   borderRadius: 8,
   background: "#f8f7f4",

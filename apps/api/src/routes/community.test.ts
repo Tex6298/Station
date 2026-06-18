@@ -79,6 +79,7 @@ class CommunitySupabase {
         source_persona_id: OTHER_PERSONA_ID,
       }),
     ],
+    document_versions: [],
     continuity_records: [
       privateSearchRow("continuity-owner", "Aurora continuity record", OWNER_ID, PUBLIC_PERSONA_ID, {
         record_type: "timeline",
@@ -339,8 +340,15 @@ class CommunitySupabase {
       row.source_label ??= null;
       row.source_persona_id ??= null;
       row.discussion_thread_id ??= null;
+      row.version ??= 1;
       row.created_at ??= now;
       row.updated_at ??= now;
+    }
+
+    if (table === "document_versions") {
+      row.summary ??= null;
+      row.captured_at ??= now;
+      row.created_at ??= now;
     }
 
     if (table === "threads") {
@@ -1030,6 +1038,28 @@ test("documents protect persona ownership and owner-only updates", async () => {
     });
     assert.equal(ownerUpdate.status, 200);
     assert.equal(ownerUpdate.body.document.title, "Owner updated");
+    assert.equal(ownerUpdate.body.document.version, 2);
+
+    const ownerVersions = await requestJson(app, "GET", `/documents/${PUBLIC_DOC_ID}/versions`, {
+      token: "owner-token",
+    });
+    assert.equal(ownerVersions.status, 200);
+    assert.equal(ownerVersions.body.currentVersion, 2);
+    assert.equal(ownerVersions.body.versions.length, 1);
+    assert.equal(ownerVersions.body.versions[0].versionNumber, 1);
+    assert.equal(ownerVersions.body.versions[0].title, "Public Document");
+    assert.equal(ownerVersions.body.versions[0].documentType, "essay");
+    assert.equal(ownerVersions.body.versions[0].visibility, "public");
+
+    const memberVersions = await requestJson(app, "GET", `/documents/${PUBLIC_DOC_ID}/versions`, {
+      token: "member-token",
+    });
+    assert.equal(memberVersions.status, 404);
+
+    const publicRead = await requestJson(app, "GET", `/documents/public/${PUBLIC_DOC_ID}`);
+    assert.equal(publicRead.status, 200);
+    assert.equal(publicRead.body.document.version, 2);
+    assert.equal(JSON.stringify(publicRead.body).includes("versions"), false);
 
     const noSpaceDraft = await requestJson(app, "POST", "/documents", {
       token: "owner-token",

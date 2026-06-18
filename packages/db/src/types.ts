@@ -11,7 +11,7 @@ export type DocumentVisibility = "private" | "unlisted" | "community" | "public"
 export type DocumentStatus = "draft" | "published" | "archived";
 export type DocumentType = "essay" | "codex" | "manifesto" | "field_log" | "research" | "archive_note" | "transcript";
 export type DocumentProvenanceType = "user_authored" | "ai_assisted" | "archive_import" | "integrity_session" | "persona_derived";
-export type DocumentSourceType = "manual" | "canon" | "integrity" | "archive_file" | "archive_import" | "persona";
+export type DocumentSourceType = "manual" | "canon" | "integrity" | "archive_file" | "archive_import" | "persona" | "publication";
 export type Provider = "platform" | "openai" | "anthropic" | "deepseek" | "gemini";
 export type SourceType = "chat" | "import" | "document" | "calibration" | "integrity_session" | "manual";
 export type ArchiveSourceType = "import_job" | "persona_file" | "archived_chat_transcript";
@@ -693,15 +693,52 @@ export interface Database {
           source_label: string | null;
           source_persona_id: string | null;
           discussion_thread_id: string | null;
+          version: number;
           created_at: string;
           updated_at: string;
         };
-        Insert: Omit<Database["public"]["Tables"]["documents"]["Row"], "id" | "created_at" | "updated_at"> & {
+        Insert: Omit<Database["public"]["Tables"]["documents"]["Row"], "id" | "version" | "created_at" | "updated_at"> & {
           id?: string;
+          version?: number;
           created_at?: string;
           updated_at?: string;
         };
         Update: Partial<Database["public"]["Tables"]["documents"]["Insert"]>;
+      };
+      document_versions: {
+        Row: {
+          id: string;
+          document_id: string;
+          owner_user_id: string;
+          version_number: number;
+          title: string;
+          slug: string;
+          body: string | null;
+          summary: string | null;
+          document_type: DocumentType;
+          status: DocumentStatus;
+          visibility: DocumentVisibility;
+          comments_enabled: boolean;
+          space_id: string | null;
+          persona_id: string | null;
+          published_at: string | null;
+          provenance_type: DocumentProvenanceType;
+          source_type: DocumentSourceType | null;
+          source_id: string | null;
+          source_label: string | null;
+          source_persona_id: string | null;
+          discussion_thread_id: string | null;
+          document_created_at: string | null;
+          document_updated_at: string | null;
+          captured_at: string;
+          created_at: string;
+        };
+        Insert: Omit<Database["public"]["Tables"]["document_versions"]["Row"], "id" | "captured_at" | "created_at"> & {
+          id?: string;
+          captured_at?: string;
+          created_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["document_versions"]["Insert"]>;
       };
       threads: {
         Row: {

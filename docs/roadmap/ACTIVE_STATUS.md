@@ -4587,6 +4587,18 @@ when a PR lands, or when validation truth changes.
   This is not a rich-editor rebuild and must not add Cloudflare, Redis memory
   truth, provider routing, vector-dimension changes, workers, Stripe changes,
   social dispatch, PDF/Press export, or broad UI redesign.
+- PR30 Native Document Versioning Alpha is implemented by DAEDALUS and ready for
+  ARGUS review, 2026-06-18: added idempotent
+  `document_versions` schema/RLS plus `documents.version`, owner-only
+  `/documents/:id/versions` readback, prior-version snapshots before document
+  edits and publish transitions, current-version-only public document reads,
+  owner-only export manifest version-history summaries, and a compact Studio
+  publish-flow version history panel. Focused tests prove owner-only history
+  access, public read safety, export preservation, other-owner non-leakage, and
+  the Studio version summary helper. This did not add a rich text editor,
+  Station Press/PDF/binary exports, scheduled/social dispatch, Cloudflare,
+  Redis memory truth, provider routing, vector-dimension changes, workers,
+  Stripe changes, or broad UI redesign.
 
 ## Near-term rule
 

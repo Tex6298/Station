@@ -375,6 +375,62 @@ class InMemorySupabase {
         updated_at: "2026-05-26T09:11:30.000Z",
       },
     ],
+    document_versions: [
+      {
+        id: "doc-version-1",
+        document_id: DOC_ID,
+        owner_user_id: OWNER_ID,
+        version_number: 1,
+        title: "Published Continuity Note Draft",
+        slug: "published-continuity-note-draft",
+        body: "Prior private draft body remains owner-only.",
+        summary: "Draft summary for owner export.",
+        document_type: "codex",
+        status: "draft",
+        visibility: "private",
+        comments_enabled: true,
+        space_id: SPACE_ID,
+        persona_id: PERSONA_ID,
+        published_at: null,
+        provenance_type: "persona_derived",
+        source_type: "canon",
+        source_id: "canon-1",
+        source_label: "Canon / priority 8",
+        source_persona_id: PERSONA_ID,
+        discussion_thread_id: null,
+        document_created_at: "2026-05-26T09:05:30.000Z",
+        document_updated_at: "2026-05-26T09:05:30.000Z",
+        captured_at: "2026-05-26T09:05:45.000Z",
+        created_at: "2026-05-26T09:05:45.000Z",
+      },
+      {
+        id: "doc-version-other",
+        document_id: DOC_ID,
+        owner_user_id: OTHER_ID,
+        version_number: 1,
+        title: "Other owner forged version",
+        slug: "other-owner-forged-version",
+        body: "Other owner version must not leak.",
+        summary: null,
+        document_type: "essay",
+        status: "draft",
+        visibility: "private",
+        comments_enabled: true,
+        space_id: null,
+        persona_id: OTHER_PERSONA_ID,
+        published_at: null,
+        provenance_type: "user_authored",
+        source_type: "manual",
+        source_id: null,
+        source_label: "Other owner",
+        source_persona_id: OTHER_PERSONA_ID,
+        discussion_thread_id: null,
+        document_created_at: "2026-05-26T09:05:30.000Z",
+        document_updated_at: "2026-05-26T09:05:30.000Z",
+        captured_at: "2026-05-26T09:05:45.000Z",
+        created_at: "2026-05-26T09:05:45.000Z",
+      },
+    ],
     developer_spaces: [
       {
         id: DEVELOPER_SPACE_ID,
@@ -642,6 +698,7 @@ class InMemorySupabase {
 
 class QueryBuilder {
   private filters: Array<[string, unknown]> = [];
+  private inFilters: Array<[string, unknown[]]> = [];
   private orderSpec: { field: string; ascending: boolean } | null = null;
   private operation: "select" | "insert" | "update" | "delete" = "select";
   private payload: Row | Row[] | null = null;
@@ -658,6 +715,11 @@ class QueryBuilder {
 
   eq(field: string, value: unknown) {
     this.filters.push([field, value]);
+    return this;
+  }
+
+  in(field: string, values: unknown[]) {
+    this.inFilters.push([field, values]);
     return this;
   }
 
@@ -696,6 +758,10 @@ class QueryBuilder {
 
     for (const [field, value] of this.filters) {
       rows = rows.filter((row) => row[field] === value);
+    }
+
+    for (const [field, values] of this.inFilters) {
+      rows = rows.filter((row) => values.includes(row[field]));
     }
 
     if (this.orderSpec) {
@@ -896,9 +962,11 @@ test("owner can export persona archive while preserving provenance and privacy b
     assert.equal(created.body.manifest.counts.continuityRecords, 1);
     assert.equal(created.body.manifest.counts.integritySessions, 1);
     assert.equal(created.body.manifest.counts.publishedDocuments, 4);
+    assert.equal(created.body.manifest.counts.documentVersions, 1);
     assert.equal(created.body.manifest.counts.moderationReports, 2);
     assert.equal(created.body.manifest.trust.provenancePreserved, true);
     assert.equal(created.body.manifest.trust.publicationStatesPreserved, true);
+    assert.equal(created.body.manifest.trust.documentVersionHistoryPreserved, true);
     assert.equal(created.body.manifest.trust.continuityRecordVisibilityPreserved, true);
     assert.equal(created.body.manifest.trust.ownerReportsOnly, true);
     assert.equal(created.body.manifest.trust.sourceRowsRemainPrivate, true);
@@ -916,6 +984,7 @@ test("owner can export persona archive while preserving provenance and privacy b
     assert.doesNotMatch(manifestText, /Other owner transcript must not leak/);
     assert.doesNotMatch(manifestText, /Other owner candidate must not leak/);
     assert.doesNotMatch(manifestText, /Other owner continuity record must not leak/);
+    assert.doesNotMatch(manifestText, /Other owner version must not leak/);
     assert.doesNotMatch(manifestText, /Private Draft/);
     assert.doesNotMatch(manifestText, /Draft-only report note/);
     assert.doesNotMatch(manifestText, /Other reporter private note/);
@@ -940,6 +1009,12 @@ test("owner can export persona archive while preserving provenance and privacy b
     assert.equal(documentRef.sourceType, "canon");
     assert.equal(documentRef.sourceLabel, "Canon / priority 8");
     assert.equal(documentRef.visibility, "public");
+    assert.equal(documentRef.version, 1);
+    assert.equal(documentRef.versions.length, 1);
+    assert.equal(documentRef.versions[0].versionNumber, 1);
+    assert.equal(documentRef.versions[0].title, "Published Continuity Note Draft");
+    assert.equal(documentRef.versions[0].documentType, "codex");
+    assert.equal(documentRef.versions[0].sourceLabel, "Canon / priority 8");
     assert.deepEqual(
       created.body.manifest.publishedDocumentRefs.map((doc: Row) => doc.visibility).sort(),
       ["community", "private", "public", "unlisted"],
@@ -976,6 +1051,7 @@ test("owner can export persona archive while preserving provenance and privacy b
     assert.equal(listed.status, 200);
     assert.equal(listed.body.exports.length, 1);
     assert.equal(listed.body.exports[0].contentSummary.discussionComments, 2);
+    assert.equal(listed.body.exports[0].contentSummary.documentVersions, 1);
     assert.equal(listed.body.exports[0].contentSummary.moderationReports, 2);
 
     const readBack = await requestJson(app, "GET", `/exports/${created.body.exportPackage.id}`, {
@@ -986,6 +1062,8 @@ test("owner can export persona archive while preserving provenance and privacy b
     assert.match(readBack.body.manifestMarkdown, /Provenance preserved: yes/);
     assert.match(readBack.body.manifestMarkdown, /Continuity Timeline Records/);
     assert.match(readBack.body.manifestMarkdown, /Publication States/);
+    assert.match(readBack.body.manifestMarkdown, /Document Version History/);
+    assert.match(readBack.body.manifestMarkdown, /Published Continuity Note: current v1, prior versions 1/);
     assert.match(readBack.body.manifestMarkdown, /Moderation Report References/);
 
     const bundleReadBack = await requestJson(app, "GET", `/exports/${created.body.exportPackage.id}/bundle`, {

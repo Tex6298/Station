@@ -32,6 +32,19 @@ export interface PublishingDocument {
   provenance_type?: string | null;
   source_label?: string | null;
   discussion_thread_id?: string | null;
+  version?: number | null;
+}
+
+export interface PublishingDocumentVersion {
+  id: string;
+  versionNumber: number;
+  title: string;
+  slug: string;
+  documentType: string;
+  status: string;
+  visibility: string;
+  sourceLabel?: string | null;
+  capturedAt?: string | null;
 }
 
 export interface PublishingSpace {
@@ -174,4 +187,15 @@ export function publishingQueueActionGuard(
   }
 
   return { canAct: true };
+}
+
+export function documentVersionSummaryLabel(
+  currentVersion: number | null | undefined,
+  versions: Pick<PublishingDocumentVersion, "versionNumber">[],
+): string {
+  const current = currentVersion && currentVersion > 0 ? currentVersion : 1;
+  if (versions.length === 0) return `Current version v${current}; no prior versions yet.`;
+  const oldest = Math.min(...versions.map((version) => version.versionNumber));
+  const newestPrior = Math.max(...versions.map((version) => version.versionNumber));
+  return `Current version v${current}; ${versions.length} prior version${versions.length === 1 ? "" : "s"} saved from v${oldest} to v${newestPrior}.`;
 }

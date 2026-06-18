@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import {
   approvalForDocument,
+  documentVersionSummaryLabel,
   documentDestinationLabel,
   documentTypeLabel,
   filterDocumentsForPublishingTab,
@@ -65,4 +66,19 @@ test("publishing queue action guard preserves no-Space and entitlement reasons",
     title: "Creator tier or above is required to move documents through the publishing approval queue.",
   });
   assert.deepEqual(publishingQueueActionGuard(documents[1], true), { canAct: true });
+});
+
+test("publishing helpers summarize document version history", () => {
+  assert.equal(
+    documentVersionSummaryLabel(1, []),
+    "Current version v1; no prior versions yet.",
+  );
+  assert.equal(
+    documentVersionSummaryLabel(4, [{ versionNumber: 3 }, { versionNumber: 1 }, { versionNumber: 2 }]),
+    "Current version v4; 3 prior versions saved from v1 to v3.",
+  );
+  assert.equal(
+    documentVersionSummaryLabel(null, [{ versionNumber: 1 }]),
+    "Current version v1; 1 prior version saved from v1 to v1.",
+  );
 });

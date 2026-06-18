@@ -222,6 +222,43 @@ function dedupeModerationReportRefs(reports: Array<Record<string, any>>) {
   });
 }
 
+async function loadOwnerDocumentVersionRefs(ownerUserId: string, documentIds: string[]) {
+  if (documentIds.length === 0) return new Map<string, Array<Record<string, any>>>();
+  const sb = getSupabaseAdmin();
+  const { data, error } = await sb
+    .from("document_versions")
+    .select("id, document_id, version_number, title, slug, summary, document_type, status, visibility, provenance_type, source_type, source_id, source_label, source_persona_id, captured_at, created_at")
+    .eq("owner_user_id", ownerUserId)
+    .in("document_id", documentIds)
+    .order("version_number", { ascending: false });
+
+  throwIfQueryError({ error }, "document version export source");
+
+  const byDocument = new Map<string, Array<Record<string, any>>>();
+  for (const row of data ?? []) {
+    const versions = byDocument.get(row.document_id) ?? [];
+    versions.push({
+      id: row.id,
+      versionNumber: row.version_number,
+      title: row.title,
+      slug: row.slug,
+      summary: row.summary,
+      documentType: row.document_type,
+      status: row.status,
+      visibility: row.visibility,
+      provenanceType: row.provenance_type,
+      sourceType: row.source_type,
+      sourceId: row.source_id,
+      sourceLabel: row.source_label,
+      sourcePersonaId: row.source_persona_id,
+      capturedAt: row.captured_at,
+      createdAt: row.created_at,
+    });
+    byDocument.set(row.document_id, versions);
+  }
+  return byDocument;
+}
+
 async function loadOwnerModerationReportRefs(ownerUserId: string, publishedDocuments: Array<Record<string, any>>) {
   const sb = getSupabaseAdmin();
   const targetIds = exportedTargetIds(publishedDocuments);
@@ -318,14 +355,14 @@ async function buildPersonaExportManifest(persona: any, packageId: string, owner
       .order("created_at", { ascending: false }),
     sb
       .from("documents")
-      .select("id, title, slug, document_type, status, visibility, published_at, provenance_type, source_type, source_id, source_label, source_persona_id, discussion_thread_id, created_at, updated_at")
+      .select("id, title, slug, document_type, status, visibility, version, published_at, provenance_type, source_type, source_id, source_label, source_persona_id, discussion_thread_id, created_at, updated_at")
       .eq("author_user_id", ownerUserId)
       .eq("persona_id", persona.id)
       .eq("status", "published")
       .order("published_at", { ascending: false }),
     sb
       .from("documents")
-      .select("id, title, slug, document_type, status, visibility, published_at, provenance_type, source_type, source_id, source_label, source_persona_id, discussion_thread_id, created_at, updated_at")
+      .select("id, title, slug, document_type, status, visibility, version, published_at, provenance_type, source_type, source_id, source_label, source_persona_id, discussion_thread_id, created_at, updated_at")
       .eq("author_user_id", ownerUserId)
       .eq("source_persona_id", persona.id)
       .eq("status", "published")
@@ -347,6 +384,7 @@ async function buildPersonaExportManifest(persona: any, packageId: string, owner
   for (const document of [...(personaDocsRes.data ?? []), ...(sourceDocsRes.data ?? [])]) {
     documentsById.set(document.id, document);
   }
+  const documentVersionRefs = await loadOwnerDocumentVersionRefs(ownerUserId, [...documentsById.keys()]);
 
   const publishedDocuments = await Promise.all([...documentsById.values()].map(async (document) => {
     const discussion = document.discussion_thread_id
@@ -360,12 +398,14 @@ async function buildPersonaExportManifest(persona: any, packageId: string, owner
       documentType: document.document_type,
       status: document.status,
       visibility: document.visibility,
+      version: document.version ?? 1,
       publishedAt: document.published_at,
       provenanceType: document.provenance_type,
       sourceType: document.source_type,
       sourceId: document.source_id,
       sourceLabel: document.source_label,
       sourcePersonaId: document.source_persona_id,
+      versions: documentVersionRefs.get(document.id) ?? [],
       discussion,
       createdAt: document.created_at,
       updatedAt: document.updated_at,
@@ -486,6 +526,7 @@ async function buildPersonaExportManifest(persona: any, packageId: string, owner
     continuityRecords: continuityRecords.length,
     integritySessions: integritySessions.length,
     publishedDocuments: publishedDocuments.length,
+    documentVersions: publishedDocuments.reduce((sum, document: any) => sum + (document.versions?.length ?? 0), 0),
     discussionComments: publishedDocuments.reduce((sum, document: any) => sum + (document.discussion?.comments?.length ?? 0), 0),
     moderationReports: moderationReportRefs.length,
   };
@@ -537,6 +578,7 @@ async function buildPersonaExportManifest(persona: any, packageId: string, owner
     trust: {
       provenancePreserved: true,
       publicationStatesPreserved: true,
+      documentVersionHistoryPreserved: true,
       continuityRecordVisibilityPreserved: true,
       ownerReportsOnly: true,
       publicCopiesAreSeparateDocuments: true,
@@ -608,6 +650,14 @@ function buildManifestMarkdown(manifest: any) {
       : manifest.publishedDocumentRefs.map((document: any) =>
         `- ${document.title} (${document.visibility}, ${document.provenanceType})`
       ).join("\n"),
+    "",
+    "## Document Version History",
+    manifest.publishedDocumentRefs.length === 0
+      ? "- None"
+      : manifest.publishedDocumentRefs.map((document: any) => {
+        const versions = document.versions ?? [];
+        return `- ${document.title}: current v${document.version ?? 1}, prior versions ${versions.length}`;
+      }).join("\n"),
     "",
     "## Publication States",
     ...Object.entries(manifest.publicationState?.documentVisibility ?? {}).map(([key, value]) => `- ${key}: ${value}`),

@@ -57,7 +57,36 @@ export interface DocumentRecord {
   sourceLabel?: string | null;
   sourcePersonaId?: string | null;
   discussionThreadId?: string | null;
+  version?: number;
   publishedAt?: string;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface DocumentVersionRecord {
+  id: string;
+  documentId: string;
+  ownerUserId: string;
+  versionNumber: number;
+  title: string;
+  slug: string;
+  body?: string | null;
+  summary?: string | null;
+  documentType: StationDocumentType;
+  status: 'draft' | 'published' | 'archived';
+  visibility: 'private' | 'unlisted' | 'community' | 'public' | 'members';
+  commentsEnabled: boolean;
+  spaceId?: string | null;
+  personaId?: string | null;
+  provenanceType?: 'user_authored' | 'ai_assisted' | 'archive_import' | 'integrity_session' | 'persona_derived';
+  sourceType?: 'manual' | 'canon' | 'integrity' | 'archive_file' | 'archive_import' | 'persona' | 'publication' | null;
+  sourceId?: string | null;
+  sourceLabel?: string | null;
+  sourcePersonaId?: string | null;
+  discussionThreadId?: string | null;
+  publishedAt?: string | null;
+  documentCreatedAt?: string | null;
+  documentUpdatedAt?: string | null;
+  capturedAt: string;
+  createdAt: string;
 }
