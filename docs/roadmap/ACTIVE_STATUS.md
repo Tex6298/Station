@@ -5343,6 +5343,14 @@ when a PR lands, or when validation truth changes.
   UI, seed-data, Cloudflare, Tier 2 hosting, developer-agent, DexOS-widget, or
   export behavior changed, and `export_packages.project_id` remains absent.
   ARGUS review is next.
+- ARGUS accepts PR50 on 2026-06-18: the migration is additive, existing
+  Developer Space behavior remains null-project and owner/profile scoped,
+  project connection tier is separate from subscription tier, project RLS is
+  conservative/owner-only, and `export_packages.project_id` remains deferred.
+  `test:developer-spaces`, `test:exports`, `typecheck`, and diff hygiene pass.
+  ARGUS recommends PR51 as a tiny owner-only Projects repository/API skeleton
+  with no Developer Space attachment, project billing, project exports, public
+  project serialization, contributor UI, or member-role authorization yet.
 
 ## Near-term rule
 

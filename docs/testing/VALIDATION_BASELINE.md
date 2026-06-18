@@ -8006,3 +8006,23 @@ Scope notes:
   changed.
 - `export_packages.project_id` remains absent for the later project-aware
   exports lane.
+
+ARGUS review validation on 2026-06-18:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 10 tests passed, including null-project Developer Space and usage assertions. |
+| `npm exec --yes pnpm@10.32.1 -- run test:exports` | Pass | 4 tests passed; export package behavior stayed owner-scoped and unchanged. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed against the updated DB type surface. |
+| `git diff --check` | Pass | No whitespace errors; CRLF normalization warnings only for local triad state. |
+
+ARGUS scope notes:
+
+- Migration is additive and nullable where it touches existing Developer Space
+  runtime rows.
+- Conservative Project RLS does not grant membership-based or public access
+  yet.
+- No `export_packages.project_id` was added; project-aware exports remain a
+  later actor-audit/membership-permission lane.
+- PR51 should be a tiny owner-only Projects repository/API skeleton, not a
+  Developer Space attachment or project billing/export lane.
