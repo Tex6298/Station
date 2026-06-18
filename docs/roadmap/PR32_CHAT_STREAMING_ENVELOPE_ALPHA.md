@@ -1,7 +1,7 @@
 # PR32 - Chat Streaming Envelope Alpha
 
 Date: 2026-06-18
-Status: implemented by DAEDALUS, ready for ARGUS review
+Status: accepted by ARGUS for ARIADNE rehearsal
 Owner: DAEDALUS implements, ARGUS reviews, ARIADNE rehearses because Studio
 chat behavior changes visibly.
 
@@ -111,3 +111,36 @@ DAEDALUS should wake ARGUS with:
 - fallback behavior;
 - validation commands/results;
 - whether ARIADNE should run browser rehearsal.
+
+## ARGUS Review Result
+
+ARGUS accepts PR32 for ARIADNE rehearsal, 2026-06-18.
+
+- The streaming route uses the same authenticated Express route/middleware and
+  shared internal chat-turn runner as the non-streaming JSON POST.
+- The web client uses `fetch()` with `Authorization: Bearer`; no bearer token is
+  placed in the URL or query string.
+- Stream events are `chat.status`, `chat.complete`, and `chat.error`; no
+  `chat.delta` is emitted until a real provider-delta adapter exists.
+- Stream events avoid raw prompts, user text echoes, archive/memory content,
+  runtime budget/debug payloads, and provider keys.
+- BYOK stream tests prove one user message and one assistant reply are persisted
+  without duplicate fallback writes.
+- ARIADNE should rehearse Studio chat on desktop and 375px because the visible
+  waiting/status state changed.
+
+Validation passed:
+
+```bash
+npm exec --yes pnpm@10.32.1 -- run test:conversation-archive
+npm exec --yes pnpm@10.32.1 -- run test:persona-context
+npm exec --yes pnpm@10.32.1 -- run test:token-credits
+npm exec --yes pnpm@10.32.1 -- run test:studio-ui
+npm exec --yes pnpm@10.32.1 -- --filter @station/api build
+npm exec --yes pnpm@10.32.1 -- run typecheck
+git diff --check
+```
+
+`npm exec --yes pnpm@10.32.1 -- --filter @station/web build` compiled, linted,
+type checked, and generated 30 pages, then reproduced the known local Windows
+Next standalone symlink `EPERM` caveat during traced-file copy.

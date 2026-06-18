@@ -7504,6 +7504,7 @@ DAEDALUS implementation validation on 2026-06-18:
 | `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 24 tests passed, including stream client parsing, bearer-header auth, no token query params, completion handling, and safe error handling. |
 | `npm exec --yes pnpm@10.32.1 -- --filter @station/api build` | Pass | API package build and dependent package builds passed after the shared chat-turn refactor. |
 | `npm exec --yes pnpm@10.32.1 -- --filter @station/web build` | Local environment failure after successful compile/type/page generation | Next compiled successfully, lint/type checks ran with the known warning inventory, and 30 static pages generated. The build then reproduced the known Windows Next standalone symlink failure: `EPERM: operation not permitted, symlink ... apps\\web\\.next\\standalone...`. Clearing `apps/web/.next` and rerunning produced the same symlink error. Treat Railway/Linux or a Windows shell with symlink privilege as decisive for standalone artifact generation. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck tasks passed in ARGUS review after the streaming route/client changes. |
 | `git diff --check` | Pass | No whitespace errors; CRLF normalization warnings only for touched text files and local triad state. |
 
 Scope notes:
@@ -7523,6 +7524,8 @@ Scope notes:
 - Runtime budget/debug details remain behind PR31 trace/debug boundaries; stream
   events do not expose raw prompts, memory/archive text, keys, or
   `runtimeBudget`.
+- ARGUS accepted the lane for ARIADNE rehearsal; the visible Studio waiting
+  status changed and needs desktop plus 375px browser review.
 - No provider marketplace, Redis memory truth, vector-contract, retrieval,
   visibility, Stripe, Developer Spaces, or broad Studio redesign behavior
   changed.

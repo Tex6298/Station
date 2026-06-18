@@ -4737,6 +4737,21 @@ when a PR lands, or when validation truth changes.
   `git diff --check` is pending final commit prep. ARIADNE browser rehearsal is
   recommended after ARGUS review because Studio chat behavior now visibly shows
   streaming/progress state.
+- PR32 Chat Streaming Envelope Alpha is accepted by ARGUS for ARIADNE
+  rehearsal, 2026-06-18: ARGUS verified the stream uses the normal authenticated
+  route/middleware and `Authorization: Bearer` fetch transport, keeps tokens out
+  of URLs, shares the non-streaming chat-turn gates, emits only `chat.status`,
+  `chat.complete`, and `chat.error`, and honestly omits `chat.delta` until a
+  real provider-delta adapter exists. Stream events do not expose raw prompts,
+  user text echoes, memory/archive content, runtime budget/debug payloads, or
+  provider keys. BYOK streaming coverage proves exactly one persisted user
+  message and one assistant reply without duplicate fallback writes. ARGUS
+  validation passed `test:conversation-archive`, `test:persona-context`,
+  `test:token-credits`, `test:studio-ui`, `@station/api` build, `typecheck`,
+  and `git diff --check`. `@station/web` build compiled, linted, type checked,
+  and generated pages, then reproduced the known local Windows Next standalone
+  symlink `EPERM` caveat. ARIADNE should rehearse desktop and 375px Studio chat
+  because the visible streaming/status state changed.
 
 ## Near-term rule
 
