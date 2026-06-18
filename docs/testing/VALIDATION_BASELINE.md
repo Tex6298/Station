@@ -7360,3 +7360,47 @@ Scope notes:
 - Cloudflare, Redis vector search, Redis memory truth, provider routing, vector
   dimensions, workers, and UI behavior were not changed. Evidence buried beyond
   the bounded `200` pool remains future search/index work.
+
+## PR29 Live Staging Replay Refresh
+
+DAEDALUS evidence and validation on 2026-06-18:
+
+Live Railway evidence:
+
+| Probe | Result | Notes |
+| --- | --- | --- |
+| API `/health` | Pass | HTTP 200, `ok:true`. |
+| Web `/health` | Pass | HTTP 200, `ok:true`. |
+| API `/health/deployment` | Pass | HTTP 200, `ready:true`, service `@station/api`, repo `Tex6298/Station`, branch `main`, commit `fb906b1b0bf7`. |
+| Web `/health/deployment` | Pass | HTTP 200, `ready:true`, service `@station/web`, repo `Tex6298/Station`, branch `main`, commit `fb906b1b0bf7`. |
+| Replay owner signin and `/auth/me` | Pass | HTTP 200; token captured in memory only; tier `creator`; email value not recorded. |
+| Persona lookup | Pass | HTTP 200; one persona selected; id not recorded. |
+| Context preview | Pass | HTTP 200; counts canon 0, memory 1, integrity 1, archive 3; memory/archive vector retrieval; skipped archive counts all 0. |
+| Private archive retrieval | Pass | HTTP 200; mode `vector`; returned 3; searched 3; skipped unauthoritative 0. |
+| Import job list | Pass | HTTP 200; 2 jobs: completed 1, failed 1. |
+| Archive search | Pass | HTTP 200; 5 items; memory 1, import_job 2, persona_file 1, document 1; warnings 0. |
+| Export list/readback/bundle | Pass | HTTP 200; 3 completed exports; selected `persona_archive`; 11 included sections; 11 manifest keys; Markdown present; bundle top-level keys 6. |
+
+Runtime note: `fb906b1` includes the PR28 backend retrieval-depth fix and lags
+only later docs/review commits, not backend behavior required for this refresh.
+
+Local validation:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` | Pass | 1 test passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:health` | Pass | 14 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-context` | Pass | 6 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass | 29 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:storage` | Pass | 16 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/api build` | Pass | API package build and dependent package builds passed. |
+| `git diff --check` | Pass | No whitespace errors; CRLF normalization warning only for local triad state. |
+
+Evidence hygiene:
+
+- No code changed.
+- No tokens, cookies, emails, owner IDs, persona IDs, export IDs, private
+  excerpts, prompts, raw response bodies, raw manifest contents, or secrets were
+  committed.
+- This refresh does not indicate a Cloudflare, Redis memory truth, provider,
+  vector-dimension, worker, Stripe, live social import, or broad UI repair lane.

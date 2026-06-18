@@ -4553,6 +4553,18 @@ when a PR lands, or when validation truth changes.
   This is not a standing three-agent check after every change, and it must not
   add Cloudflare, Redis memory truth, provider changes, vector-dimension
   changes, workers, Stripe changes, live social OAuth/API pulls, or broad UI.
+- PR29 Live Staging Replay Refresh is implemented by DAEDALUS and ready for
+  ARGUS review, 2026-06-18: Railway web/API `/health` and
+  `/health/deployment` are live at commit `fb906b1`, which includes the PR28
+  backend retrieval-depth patch and lags only later docs/review commits. The
+  deployed API reports `ready:true` with database, migrations, private storage,
+  Supabase Auth redirects, Gemini `station_free_1536` embeddings, Stripe test
+  readiness, and Redis/cache configured. Replay owner signin, `/auth/me`,
+  persona lookup, context-preview, private archive retrieval, import job list,
+  archive search, export list, export readback, and export bundle readback all
+  returned HTTP 200 with sanitized counts/modes/statuses only. No code changed,
+  and no Cloudflare/Redis/provider/vector/worker/Stripe/social/UI repair lane is
+  indicated by this refresh.
 
 ## Near-term rule
 
