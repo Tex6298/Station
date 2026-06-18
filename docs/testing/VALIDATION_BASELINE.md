@@ -7981,3 +7981,28 @@ ARGUS scope notes:
   nullable `developer_space_usage.project_id`.
 - `export_packages.project_id` should wait for the project-aware export lane
   with actor audit and membership permissions.
+
+## PR50 Project Alpha Schema Skeleton
+
+MIMIR implementation validation on 2026-06-18:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 10 tests passed, including explicit null-project assertions for current Developer Space and usage behavior. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed after the Project type surface update. |
+| `git diff --check` | Pass | No whitespace errors; CRLF normalization warnings only for touched TypeScript files. |
+
+Scope notes:
+
+- Added additive `projects` and `project_members` schema with conservative
+  owner-only RLS.
+- Added nullable `project_id` to `developer_spaces` and
+  `developer_space_usage`.
+- Updated the hand-authored DB types and Developer Space route-test fake.
+- Existing Developer Space behavior remains owner/profile scoped with null
+  project links.
+- No route behavior, auth/membership behavior, billing, UI, seed-data,
+  Cloudflare, Tier 2 hosting, developer-agent, DexOS-widget, or export behavior
+  changed.
+- `export_packages.project_id` remains absent for the later project-aware
+  exports lane.

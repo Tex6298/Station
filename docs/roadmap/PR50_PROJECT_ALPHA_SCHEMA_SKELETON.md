@@ -1,8 +1,9 @@
 # PR50 - Project Alpha Schema Skeleton
 
 Date: 2026-06-18
-Status: opened for DAEDALUS
-Owner: DAEDALUS implements, ARGUS reviews, MIMIR decides next lane.
+Status: implemented by MIMIR; ARGUS review requested
+Owner: DAEDALUS was asked to implement; MIMIR carried the lane after the
+DAEDALUS wakeup was not consumed. ARGUS reviews, MIMIR decides next lane.
 
 ## Purpose
 
@@ -130,3 +131,53 @@ Wake ARGUS with:
 - any first PR51 recommendation.
 
 If blocked, wake MIMIR with the exact blocker. Do not leave the lane silent.
+
+## Implementation Result
+
+MIMIR implemented PR50 directly on 2026-06-18 after DAEDALUS did not consume
+the PR50 wakeup.
+
+Files changed:
+
+- `infra/supabase/migrations/038_project_alpha_schema_skeleton.sql`
+- `packages/db/src/types.ts`
+- `apps/api/src/routes/developer-spaces.test.ts`
+
+What changed:
+
+- Added additive `projects` and `project_members` schema with conservative
+  owner-only RLS.
+- Added nullable `project_id` to `developer_spaces`.
+- Added nullable `project_id` to `developer_space_usage`.
+- Updated the hand-authored DB type surface with Project enums/table shapes and
+  nullable project links.
+- Updated the Developer Spaces in-memory test fake and smoke assertions to
+  prove current Developer Space behavior still runs with `project_id = null`.
+
+What did not change:
+
+- No route behavior.
+- No auth or membership authorization behavior.
+- No billing, Stripe, UI, seed-data, Cloudflare, Tier 2 hosting, developer
+  agent, DexOS-widget, or export behavior.
+- No `export_packages.project_id`.
+
+Validation:
+
+```text
+npm exec --yes pnpm@10.32.1 -- run test:developer-spaces
+  Pass: 10 tests passed.
+
+npm exec --yes pnpm@10.32.1 -- run typecheck
+  Pass: API and web typecheck passed.
+
+git diff --check
+  Pass: no whitespace errors; CRLF normalization warnings only.
+```
+
+First PR51 recommendation:
+
+- Open a project-aware route/design lane only after ARGUS accepts this schema
+  skeleton. The next safe implementation step is likely a tiny Project
+  repository/API skeleton with owner-only create/list/read and no Developer
+  Space attachment flow yet.

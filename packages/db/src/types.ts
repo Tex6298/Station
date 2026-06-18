@@ -61,6 +61,10 @@ export type DeveloperSpaceDocumentLinkVisibility = "owner" | "public";
 export type ExportPackageKind = "persona_archive" | "developer_space_archive";
 export type ExportPackageStatus = "requested" | "processing" | "completed" | "failed";
 export type ExportPackageFormat = "json_markdown";
+export type ProjectVisibility = "private" | "unlisted" | "community" | "public";
+export type ProjectConnectionTier = "tier_1_showcase" | "tier_2_hosted" | "tier_3_lab";
+export type ProjectMemberRole = "owner" | "admin" | "editor" | "viewer" | "billing";
+export type ProjectMemberStatus = "invited" | "active" | "removed";
 
 type SupabaseTable<Row, Insert = Row, Update = Partial<Insert>> = {
   Row: Row;
@@ -104,6 +108,47 @@ export interface Database {
           updated_at?: string;
         };
         Update: Partial<Database["public"]["Tables"]["profiles"]["Insert"]>;
+      };
+      projects: {
+        Row: {
+          id: string;
+          owner_user_id: string;
+          name: string;
+          slug: string;
+          description: string | null;
+          visibility: ProjectVisibility;
+          connection_tier: ProjectConnectionTier;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: Omit<Database["public"]["Tables"]["projects"]["Row"], "id" | "description" | "visibility" | "connection_tier" | "created_at" | "updated_at"> & {
+          id?: string;
+          description?: string | null;
+          visibility?: ProjectVisibility;
+          connection_tier?: ProjectConnectionTier;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["projects"]["Insert"]>;
+      };
+      project_members: {
+        Row: {
+          id: string;
+          project_id: string;
+          user_id: string;
+          role: ProjectMemberRole;
+          status: ProjectMemberStatus;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: Omit<Database["public"]["Tables"]["project_members"]["Row"], "id" | "role" | "status" | "created_at" | "updated_at"> & {
+          id?: string;
+          role?: ProjectMemberRole;
+          status?: ProjectMemberStatus;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["project_members"]["Insert"]>;
       };
       storage_usage: {
         Row: {
@@ -611,6 +656,7 @@ export interface Database {
         Row: {
           developer_space_id: string;
           owner_user_id: string;
+          project_id: string | null;
           ingested_nodes_count: number;
           ingested_events_count: number;
           ingested_snapshots_count: number;
@@ -619,7 +665,8 @@ export interface Database {
           export_count: number;
           updated_at: string;
         };
-        Insert: Omit<Database["public"]["Tables"]["developer_space_usage"]["Row"], "ingested_nodes_count" | "ingested_events_count" | "ingested_snapshots_count" | "storage_bytes" | "public_detail_reads_count" | "export_count" | "updated_at"> & {
+        Insert: Omit<Database["public"]["Tables"]["developer_space_usage"]["Row"], "project_id" | "ingested_nodes_count" | "ingested_events_count" | "ingested_snapshots_count" | "storage_bytes" | "public_detail_reads_count" | "export_count" | "updated_at"> & {
+          project_id?: string | null;
           ingested_nodes_count?: number;
           ingested_events_count?: number;
           ingested_snapshots_count?: number;
@@ -786,6 +833,7 @@ export interface Database {
         Row: {
           id: string;
           owner_user_id: string;
+          project_id: string | null;
           project_name: string;
           slug: string;
           description: string | null;
@@ -799,8 +847,9 @@ export interface Database {
           created_at: string;
           updated_at: string;
         };
-        Insert: Omit<Database["public"]["Tables"]["developer_spaces"]["Row"], "id" | "provider_policy" | "created_at" | "updated_at"> & {
+        Insert: Omit<Database["public"]["Tables"]["developer_spaces"]["Row"], "id" | "project_id" | "provider_policy" | "created_at" | "updated_at"> & {
           id?: string;
+          project_id?: string | null;
           provider_policy?: DeveloperSpaceProviderPolicy;
           created_at?: string;
           updated_at?: string;

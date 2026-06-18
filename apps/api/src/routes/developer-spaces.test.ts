@@ -17,6 +17,8 @@ class InMemorySupabase {
       { id: "owner-user", tier: "canon", is_admin: false },
       { id: "other-user", tier: "canon", is_admin: false },
     ],
+    projects: [],
+    project_members: [],
     developer_spaces: [],
     developer_space_ingestion_keys: [],
     developer_space_documents: [],
@@ -76,6 +78,7 @@ class InMemorySupabase {
     row.id ??= this.nextId(table);
 
     if (table === "developer_spaces") {
+      row.project_id ??= null;
       row.description ??= null;
       row.provider_policy ??= "public_synthetic_only";
       row.visualisation_config ??= {};
@@ -104,6 +107,7 @@ class InMemorySupabase {
     }
 
     if (table === "developer_space_usage") {
+      row.project_id ??= null;
       row.ingested_nodes_count ??= 0;
       row.ingested_events_count ??= 0;
       row.ingested_snapshots_count ??= 0;
@@ -584,6 +588,7 @@ test("Developer Spaces smoke covers creation, keying, ingestion, and public/owne
     assert.equal(created.body.space.slug, "animus-field");
     assert.equal(created.body.space.providerPolicy, "public_synthetic_only");
     assert.equal(created.body.space.visualisationType, "world_map");
+    assert.equal(db.tables.developer_spaces[0].project_id, null);
 
     const spaceId = created.body.space.id;
     const secondSpaceBlocked = await requestJson(app, "POST", "/developer-spaces", {
@@ -977,6 +982,7 @@ test("Developer Spaces smoke covers creation, keying, ingestion, and public/owne
     assert.equal(usage.body.usage.limits.events, 100000);
     assert.equal(usage.body.usage.warningLevel, "ok");
     assert.equal(usage.body.usage.counters.storageBytes > 0, true);
+    assert.equal(db.tables.developer_space_usage[0].project_id, null);
 
     const eventCountBeforeQuota = db.tables.developer_space_events.length;
     db.tables.developer_space_usage[0].ingested_events_count = 100000;

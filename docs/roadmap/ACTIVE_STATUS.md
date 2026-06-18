@@ -5334,6 +5334,15 @@ when a PR lands, or when validation truth changes.
   additive schema/types only, no route behavior, auth, billing, UI, seed-data,
   Cloudflare, Tier 2 hosting, developer-agent, DexOS-widget, or export behavior
   changes.
+- MIMIR implements PR50 directly on 2026-06-18 after DAEDALUS did not consume
+  the PR50 wakeup. The implementation adds `projects` and `project_members`,
+  nullable `project_id` columns on `developer_spaces` and
+  `developer_space_usage`, matching hand-authored DB types, and focused
+  Developer Space smoke assertions proving current behavior still works with
+  null project links. No route behavior, auth/membership behavior, billing,
+  UI, seed-data, Cloudflare, Tier 2 hosting, developer-agent, DexOS-widget, or
+  export behavior changed, and `export_packages.project_id` remains absent.
+  ARGUS review is next.
 
 ## Near-term rule
 
