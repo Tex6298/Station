@@ -2,9 +2,9 @@ import { Router } from "express";
 import { z } from "zod";
 import { requireAuth } from "../middleware/require-auth";
 import { getSupabaseAdmin } from "../lib/supabase";
-import { assemblePersonaRuntimeContext, buildPersonaContext } from "@station/ai/retrieval/context-builder";
+import { assemblePersonaRuntimeContext } from "@station/ai/retrieval/context-builder";
 import { retrievePrivateArchive } from "@station/ai/retrieval/archive-retrieval";
-import { resolveProvider } from "@station/ai/providers/router";
+import { describePlatformProviderRoute, resolveProvider } from "@station/ai/providers/router";
 import { AnthropicProvider } from "@station/ai/providers/anthropic";
 import { addMemoryItem, ingestTextIntoArchive, saveMessageAsMemory } from "../services/archive.service";
 import { env } from "../lib/env";
@@ -20,7 +20,11 @@ import {
   tokenErrorResponse,
 } from "../services/token-credits.service";
 import { enqueueLlmCall } from "../services/llm-queue.service";
-import { includeRuntimeDebug, toChronologicalRuntimeHistory } from "../services/conversation-history.service";
+import {
+  buildChatRuntimeBudgetReport,
+  includeRuntimeDebug,
+  toChronologicalRuntimeHistory,
+} from "../services/conversation-history.service";
 import {
   completeAiTrace,
   failAiTrace,
@@ -85,6 +89,12 @@ type CandidateSeed = {
 
 export const conversationsRouter = Router();
 conversationsRouter.use(requireAuth);
+
+type ChatErrorClassification = "archived_state" | "provider_config" | "provider_failure" | "quota";
+
+function chatError(status: number, code: string, classification: ChatErrorClassification, error: string) {
+  return { status, body: { error, code, classification } };
+}
 
 function transcriptRow(row: any) {
   return {
@@ -462,7 +472,13 @@ conversationsRouter.post("/persona/:personaId/chat", async (req, res) => {
     }
 
     if (existingConv.status === "archived") {
-      return res.status(409).json({ error: "Archived conversations are read-only. Start a new chat to continue." });
+      const archived = chatError(
+        409,
+        "conversation_archived",
+        "archived_state",
+        "Archived conversations are read-only. Start a new chat to continue."
+      );
+      return res.status(archived.status).json(archived.body);
     }
   }
 
@@ -474,7 +490,9 @@ conversationsRouter.post("/persona/:personaId/chat", async (req, res) => {
     .eq("conversation_id", convId)
     .order("created_at", { ascending: false })
     .limit(20);
-  const history = toChronologicalRuntimeHistory(historyRows ?? [], 20);
+  const rawHistoryRows = historyRows ?? [];
+  const historyLimit = 20;
+  const history = toChronologicalRuntimeHistory(rawHistoryRows, historyLimit);
 
   // Save the user message
   await sb.from("conversation_messages").insert({
@@ -483,8 +501,8 @@ conversationsRouter.post("/persona/:personaId/chat", async (req, res) => {
     content,
   });
 
-  // Build RAG system prompt
-  const { systemPrompt, canonCount, memoryCount, integrityCount, archiveCount } = await buildPersonaContext({
+  // Build RAG system prompt and a content-free runtime budget report.
+  const runtimeContext = await assemblePersonaRuntimeContext({
     supabase: sb,
     persona: {
       id: persona.id,
@@ -499,11 +517,82 @@ conversationsRouter.post("/persona/:personaId/chat", async (req, res) => {
     userQuery: content,
     embeddingApiKey: resolveEmbeddingApiKey(profile),
   });
+  const { systemPrompt } = runtimeContext;
+  const {
+    canon: canonCount,
+    memory: memoryCount,
+    integrity: integrityCount,
+    archive: archiveCount,
+  } = runtimeContext.counts;
 
   // Resolve provider
   const stationModel = selectStationModel(req.user!.tier);
   const platformNvidiaKey = env.NVIDIA_AI_API_KEY?.trim() || undefined;
   const useStationAnthropic = profile?.ai_mode !== "byok" && !platformNvidiaKey && Boolean(env.ANTHROPIC_API_KEY);
+  const platformRoute = describePlatformProviderRoute({ platformNvidiaKey });
+  const providerRoute = useStationAnthropic ? "anthropic_platform" : platformRoute.label;
+  const providerModel = useStationAnthropic
+    ? stationModel.model
+    : platformRoute.label === "nvidia_openai_compatible"
+      ? env.NVIDIA_MODEL
+      : env.DEEPSEEK_MODEL;
+  const runtimeBudget = buildChatRuntimeBudgetReport({
+    systemPrompt,
+    userMessage: content,
+    history,
+    rawHistoryCount: rawHistoryRows.length,
+    historyLimit,
+    runtimeContext,
+    providerRoute,
+    modelTier: stationModel.modelTier,
+    model: providerModel,
+  });
+
+  const traceStartedAt = Date.now();
+  const trace = await startAiTrace({
+    ownerUserId: userId,
+    personaId,
+    conversationId: convId,
+    source: "conversation",
+    metadata: {
+      contextCounts: { canonCount, memoryCount, integrityCount, archiveCount },
+      runtimeBudget,
+    },
+  });
+  await recordAiTraceEvent({
+    traceId: trace?.id,
+    ownerUserId: userId,
+    eventType: "tool_call",
+    label: "Chat runtime budget assembled",
+    status: "completed",
+    provider: providerRoute,
+    model: providerModel,
+    inputTokens: runtimeBudget.totals.estimatedInputTokens,
+    payload: { runtimeBudget },
+  });
+
+  if (!useStationAnthropic && platformRoute.label === "deepseek_fallback" && !env.DEEPSEEK_API_KEY?.trim()) {
+    const missingConfig = chatError(
+      503,
+      "provider_config_missing",
+      "provider_config",
+      "No Station chat provider is configured for this request."
+    );
+    await recordAiTraceEvent({
+      traceId: trace?.id,
+      ownerUserId: userId,
+      eventType: "error",
+      label: "Persona chat provider configuration missing",
+      status: "failed",
+      provider: providerRoute,
+      model: providerModel,
+      durationMs: Date.now() - traceStartedAt,
+      payload: { code: missingConfig.body.code, classification: missingConfig.body.classification },
+    });
+    await failAiTrace(trace?.id, new Error(missingConfig.body.error), Date.now() - traceStartedAt);
+    return res.status(missingConfig.status).json(missingConfig.body);
+  }
+
   const provider = useStationAnthropic
     ? new AnthropicProvider({ apiKey: env.ANTHROPIC_API_KEY, model: stationModel.model })
     : resolveProvider({
@@ -534,18 +623,24 @@ conversationsRouter.post("/persona/:personaId/chat", async (req, res) => {
     }));
   } catch (error) {
     const quota = tokenErrorResponse(error);
-    if (quota) return res.status(quota.status).json(quota.body);
+    if (quota) {
+      await recordAiTraceEvent({
+        traceId: trace?.id,
+        ownerUserId: userId,
+        eventType: "quota_check",
+        label: "Persona chat token budget blocked",
+        status: "failed",
+        provider: providerRoute,
+        model: providerModel,
+        inputTokens: runtimeBudget.totals.estimatedInputTokens,
+        durationMs: Date.now() - traceStartedAt,
+        payload: { code: quota.body.code, classification: quota.body.classification },
+      });
+      await failAiTrace(trace?.id, error, Date.now() - traceStartedAt);
+      return res.status(quota.status).json(quota.body);
+    }
     throw error;
   }
-
-  const traceStartedAt = Date.now();
-  const trace = await startAiTrace({
-    ownerUserId: userId,
-    personaId,
-    conversationId: convId,
-    source: "conversation",
-    metadata: { canonCount, memoryCount, integrityCount, archiveCount },
-  });
 
   let aiResponse;
   let inputTokens = 0;
@@ -571,6 +666,7 @@ conversationsRouter.post("/persona/:personaId/chat", async (req, res) => {
       inputTokens,
       outputTokens,
       durationMs,
+      payload: { runtimeBudget },
     });
     await completeAiTrace({
       traceId: trace?.id,
@@ -598,7 +694,13 @@ conversationsRouter.post("/persona/:personaId/chat", async (req, res) => {
       payload: { message: error instanceof Error ? error.message : "Unknown error" },
     });
     await failAiTrace(trace?.id, error, Date.now() - traceStartedAt);
-    throw error;
+    const providerFailure = chatError(
+      502,
+      "provider_failure",
+      "provider_failure",
+      "Persona chat provider failed."
+    );
+    return res.status(providerFailure.status).json(providerFailure.body);
   }
 
   // Save assistant reply
@@ -625,7 +727,14 @@ conversationsRouter.post("/persona/:personaId/chat", async (req, res) => {
   };
 
   if (includeRuntimeDebug(req.query.debug, process.env.NODE_ENV, env.STATION_EXPOSE_AI_DEBUG)) {
-    responsePayload._debug = { canonCount, memoryCount, integrityCount, archiveCount, provider: aiResponse.model };
+    responsePayload._debug = {
+      canonCount,
+      memoryCount,
+      integrityCount,
+      archiveCount,
+      provider: aiResponse.model,
+      runtimeBudget,
+    };
   }
 
   return res.json(responsePayload);

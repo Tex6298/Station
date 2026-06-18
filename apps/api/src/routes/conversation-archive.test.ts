@@ -9,7 +9,10 @@ process.env.NODE_ENV = "test";
 process.env.SUPABASE_URL ??= "http://localhost";
 process.env.SUPABASE_ANON_KEY ??= "test-anon-key";
 process.env.SUPABASE_SERVICE_ROLE_KEY ??= "test-service-key";
-delete process.env.OPENAI_API_KEY;
+process.env.OPENAI_API_KEY = "";
+process.env.DEEPSEEK_API_KEY = "";
+process.env.NVIDIA_AI_API_KEY = "";
+process.env.ANTHROPIC_API_KEY = "";
 
 type Row = Record<string, any>;
 
@@ -456,6 +459,8 @@ test("owner can archive a chat into private continuity candidates", async () => 
       },
     });
     assert.equal(blockedChat.status, 409);
+    assert.equal(blockedChat.body.code, "conversation_archived");
+    assert.equal(blockedChat.body.classification, "archived_state");
 
     const memoryCandidate = archived.body.archive.candidates.find((candidate: Row) => candidate.candidateType === "memory");
     const canonCandidate = archived.body.archive.candidates.find((candidate: Row) => candidate.candidateType === "canon");
@@ -511,6 +516,40 @@ test("owner can archive a chat into private continuity candidates", async () => 
       token: "other-token",
     });
     assert.equal(otherContext.status, 403);
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
+
+test("chat reports missing platform provider config before provider calls", async () => {
+  const db = new InMemorySupabase();
+  setSupabaseAdminForTests(db.client as any);
+  const app = await createConversationArchiveApp();
+
+  try {
+    const response = await requestJson(app, "POST", `/conversations/persona/${PERSONA_ID}/chat`, {
+      token: "owner-token",
+      body: {
+        conversationId: CONVERSATION_ID,
+        content: "Can you continue the live chat?",
+      },
+    });
+
+    assert.equal(response.status, 503);
+    assert.equal(response.body.code, "provider_config_missing");
+    assert.equal(response.body.classification, "provider_config");
+    assert.doesNotMatch(JSON.stringify(response.body), /Can you continue the live chat/);
+
+    const trace = db.tables.ai_trace_sessions[0];
+    assert.equal(trace.metadata.runtimeBudget.schema, "station.chat_runtime_budget.v1");
+    assert.equal(trace.metadata.runtimeBudget.productionSafe, true);
+    assert.equal(trace.metadata.runtimeBudget.buckets.recentTurns.itemCount, 5);
+    assert.equal(trace.metadata.runtimeBudget.truncation.history.retained, 4);
+    assert.doesNotMatch(JSON.stringify(trace.metadata.runtimeBudget), /Always preserve continuity before novelty/);
+
+    const budgetEvent = db.tables.ai_trace_events.find((event) => event.label === "Chat runtime budget assembled");
+    assert.ok(budgetEvent);
+    assert.equal(budgetEvent.payload.runtimeBudget.schema, "station.chat_runtime_budget.v1");
   } finally {
     setSupabaseAdminForTests(null);
   }

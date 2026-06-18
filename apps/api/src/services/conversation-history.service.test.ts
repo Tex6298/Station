@@ -1,6 +1,10 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { includeRuntimeDebug, toChronologicalRuntimeHistory } from "./conversation-history.service";
+import {
+  buildChatRuntimeBudgetReport,
+  includeRuntimeDebug,
+  toChronologicalRuntimeHistory,
+} from "./conversation-history.service";
 
 test("runtime history keeps the latest window but returns it chronological", () => {
   const rows = Array.from({ length: 25 }, (_, index) => ({
@@ -37,4 +41,79 @@ test("runtime debug is explicit outside production and blocked in production", (
   assert.equal(includeRuntimeDebug(["false", "true"], "test", undefined), true);
   assert.equal(includeRuntimeDebug(undefined, "staging", "true"), true);
   assert.equal(includeRuntimeDebug("true", "production", "true"), false);
+});
+
+test("chat runtime budget reports counts and drops content", () => {
+  const report = buildChatRuntimeBudgetReport({
+    systemPrompt: "Private system prompt with canon text.",
+    userMessage: "Private user text.",
+    history: [
+      { role: "user", content: "Earlier private user turn." },
+      { role: "assistant", content: "Earlier private assistant turn." },
+    ],
+    rawHistoryCount: 7,
+    historyLimit: 2,
+    runtimeContext: {
+      systemPrompt: "Private system prompt with canon text.",
+      counts: { canon: 1, memory: 1, integrity: 1, archive: 1 },
+      sources: [],
+      canon: [{ id: "canon-1", type: "canon", title: "Canon", content: "Secret canon", priority: 1, reason: "test" }],
+      memory: [{ id: "memory-1", type: "memory", title: "Memory", content: "Secret memory", priority: 1, reason: "test" }],
+      integrity: [{ id: "integrity-1", type: "integrity", title: "Integrity", content: "Secret integrity", priority: 1, reason: "test" }],
+      archive: [{ id: "archive-1", type: "archive", title: "Archive", content: "Secret archive", priority: 1, reason: "test" }],
+      trace: {
+        retrievalMode: { memory: "keyword", archive: "keyword", memoryFallback: "no_embedding_key" },
+        embedding: {
+          provider: "gemini",
+          profileCode: "station_free_1536",
+          model: "text-embedding-004",
+          dimension: 1536,
+          indexName: "memory_items_embedding_1536_idx",
+        },
+        selectedSources: [],
+        skipped: {
+          memory: {
+            archive_source: 0,
+            rejected: 1,
+            quarantined: 2,
+            expired: 0,
+            superseded: 0,
+            other_owner_or_missing: 0,
+          },
+          archive: {
+            unauthoritative: 0,
+            source_not_ready: 3,
+            missing_lifecycle: 0,
+            rejected: 0,
+            quarantined: 0,
+            expired: 0,
+            superseded: 0,
+          },
+        },
+        searched: { memory: 12, archive: 4 },
+      },
+    },
+    providerRoute: "deepseek_fallback",
+    modelTier: "haiku",
+    model: "deepseek-chat",
+  });
+
+  assert.equal(report.schema, "station.chat_runtime_budget.v1");
+  assert.equal(report.productionSafe, true);
+  assert.equal(report.buckets.recentTurns.itemCount, 3);
+  assert.equal(report.buckets.memory.searched, 12);
+  assert.deepEqual(report.buckets.memory.skipped, {
+    archive_source: 0,
+    quarantined: 2,
+    rejected: 1,
+    expired: 0,
+    superseded: 0,
+    other_owner_or_missing: 0,
+  });
+  assert.equal(report.buckets.archive.retrievalMode, "keyword");
+  assert.equal(report.truncation.history.requested, 7);
+  assert.equal(report.truncation.history.retained, 2);
+  assert.equal(report.truncation.history.dropped, 5);
+  assert.equal(report.buckets.continuity.itemCount, 0);
+  assert.doesNotMatch(JSON.stringify(report), /Secret|Private/);
 });

@@ -4680,6 +4680,20 @@ when a PR lands, or when validation truth changes.
   classification. Explicit non-scope: full SSE streaming, provider marketplace,
   Redis memory truth, vector-contract changes, broad Studio redesign, or
   visibility-rule changes.
+- PR31 Chat Runtime Budget Trace Alpha is implemented by DAEDALUS and ready for
+  ARGUS review, 2026-06-18: persona chat now assembles a content-free runtime
+  budget report before quota/provider checks, attaches it to AI trace metadata
+  and a trace event, and exposes it only through existing non-production
+  explicit debug gates. The report covers recent turns, canon, memory,
+  integrity, archive, continuity placeholder, history truncation, provider
+  route, model tier, token estimates, searched counts, and skip counts without
+  raw prompts, memory, archive, or user message text. Archived conversations,
+  missing platform provider config, provider failures, and token-quota failures
+  now return stable `code`/`classification` fields while preserving generic
+  production-safe error text. Focused validation passed `test:persona-context`,
+  `test:conversation-archive`, `test:token-credits`, `@station/api` build, and
+  `git diff --check`. No Studio UI, SSE streaming, provider marketplace, Redis
+  memory truth, vector contract, visibility, or broader chat behavior changed.
 
 ## Near-term rule
 

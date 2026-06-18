@@ -263,7 +263,14 @@ export async function runMonthlyTokenReset() {
 
 export function tokenErrorResponse(error: unknown) {
   if (error instanceof TokenQuotaError) {
-    return { status: error.statusCode, body: { error: error.message } };
+    return {
+      status: error.statusCode,
+      body: {
+        error: error.message,
+        code: "token_quota_exceeded",
+        classification: "quota",
+      },
+    };
   }
   return null;
 }

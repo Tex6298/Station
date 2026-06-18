@@ -7457,3 +7457,33 @@ Scope notes:
   migration history alone, is the readiness answer.
 - This is a readiness/test label and object-proof patch only; it does not
   redesign document versioning, Studio UI, exports, or public document reads.
+
+## PR31 Chat Runtime Budget Trace Alpha
+
+DAEDALUS implementation validation on 2026-06-18:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-context` | Pass | 7 tests passed, including runtime budget report shape/content-redaction and existing production debug gating. |
+| `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass | 31 tests passed, including archived-state classification, missing provider-config classification, trace-attached runtime budget metadata, and content-redaction checks. |
+| `npm exec --yes pnpm@10.32.1 -- run test:token-credits` | Pass | 3 tests passed; quota errors still preserve the existing user-facing error text and now include stable `code`/`classification` fields. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/api build` | Pass | API package build and dependent package builds passed. |
+| `git diff --check` | Pass | No whitespace errors; CRLF normalization warnings only for touched text files and local triad state. |
+
+Scope notes:
+
+- Persona chat builds a content-free `station.chat_runtime_budget.v1` report
+  before provider calls and attaches it to AI trace metadata plus a trace event.
+- The report includes recent-turn, canon, memory, integrity, archive, continuity
+  placeholder, history truncation, provider route, model tier, searched counts,
+  skip counts, and token-estimate buckets without raw prompt/user/memory/archive
+  text.
+- Production chat success responses stay at the existing `{ conversationId,
+  reply }` shape; runtime budget details remain behind the existing
+  non-production explicit debug gate.
+- Archived conversation, missing platform provider config, provider failure, and
+  token-quota responses now carry stable `code` and `classification` fields with
+  generic production-safe error text.
+- No Studio UI, SSE streaming, provider marketplace, Redis memory truth,
+  vector-contract, visibility-rule, worker, Stripe, or Developer Spaces behavior
+  changed.
