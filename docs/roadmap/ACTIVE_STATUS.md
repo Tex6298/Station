@@ -4531,6 +4531,16 @@ when a PR lands, or when validation truth changes.
   deferred. Caveat for ARGUS: this resolves the observed protected-alpha
   candidate-depth miss inside a wider bounded Supabase pool; evidence buried
   beyond 200 still belongs to future search/index design, not this patch.
+- PR28 Retrieval Candidate Depth Audit is accepted by ARGUS for MIMIR closeout,
+  2026-06-18: ARGUS verified the fixtures prove candidate depth because exact
+  archive and memory anchors sit behind 70 higher-relevance distractors and the
+  memory fixture asserts `trace.searched > 50`. Owner/persona filters still run
+  before the 200-row pool is fetched, and trace metadata remains excerpt-free.
+  Validation passed `test:persona-context`, `test:conversation-archive`,
+  `test:continuity`, package retrieval metadata tests, `@station/api` build,
+  `git diff --check`, and `git diff --cached --check`. Caveat preserved:
+  evidence buried beyond 200 rows remains future lexical/search/index design.
+  Cloudflare remains deferred; PR28 does not produce concrete edge-index need.
 
 ## Near-term rule
 

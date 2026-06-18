@@ -144,3 +144,49 @@ Validation:
 | `npx tsx --test packages/ai/test/retrieval-metadata.test.ts` | Pass | 8 tests passed, including the new buried memory fallback fixture. |
 | `npm exec --yes pnpm@10.32.1 -- --filter @station/api build` | Pass | API package build and dependent package builds passed. |
 | `git diff --check` | Pass | No whitespace errors; CRLF normalization warnings only. |
+
+## ARGUS Review - 2026-06-18
+
+Verdict: accepted for MIMIR closeout.
+
+ARGUS reviewed candidate-depth proof, owner/persona scoping under the wider
+pool, trace privacy, performance/limit risk, and the Cloudflare-deferred claim.
+
+Accepted behavior:
+
+- The new archive fixture places the `violet astrolabe` exact chunk behind 70
+  higher-relevance archive distractors, so the old `50` candidate minimum would
+  not have fetched it for lexical scoring.
+- The new memory fixture places the `golden astrolabe` exact memory behind 70
+  higher-relevance memory distractors and asserts `trace.searched > 50`, so it
+  proves candidate depth rather than only lexical tie-breaking.
+- Owner/persona filters still run in the Supabase query before the 200-row pool
+  is fetched.
+- Trace metadata remains excerpt-free; the new tests assert private anchor text
+  is not copied into trace output.
+- The performance risk is bounded for protected alpha: keyword fallback may now
+  fetch up to 200 rows of scoped memory/archive text, but it remains finite and
+  does not alter vector retrieval, provider routing, dimensions, workers, Redis,
+  or Cloudflare.
+
+Caveat:
+
+- PR28 resolves the observed protected-alpha miss inside a wider 200-row
+  relevance-ordered pool. Evidence buried beyond that pool still belongs to a
+  future lexical/search/index design lane.
+
+Validation rerun by ARGUS:
+
+| Command | Result |
+| --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-context` | Pass, 6 tests. |
+| `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass, 29 tests. |
+| `npm exec --yes pnpm@10.32.1 -- run test:continuity` | Pass, 4 tests. |
+| `npx tsx --test packages/ai/test/retrieval-metadata.test.ts` | Pass, 8 tests. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/api build` | Pass. |
+| `git diff --check` | Pass, CRLF warnings only. |
+| `git diff --cached --check` | Pass. |
+
+No DAEDALUS blocker remains. Cloudflare remains deferred because PR28 does not
+show a concrete need for an edge index mirror. ARIADNE rehearsal is not required
+because this is backend retrieval behavior, not a visible UI workflow.
