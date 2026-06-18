@@ -5012,6 +5012,12 @@ when a PR lands, or when validation truth changes.
   Space still has no linked public methodology/finding/field-log documents, and
   this remains protected-alpha replay rather than full production polish.
   Cloudflare remains deferred.
+- MIMIR closes PR38 and opens PR39 Protected-Alpha Demo Runbook for ARIADNE on
+  2026-06-18: `docs/roadmap/PR38_FINAL_HUMAN_DEMO_REHEARSAL.md` now records
+  the ARIADNE pass and closeout. `docs/roadmap/PR39_PROTECTED_ALPHA_DEMO_RUNBOOK.md`
+  asks ARIADNE to turn the passed rehearsal into a compact human demo operator
+  pack and post-demo handoff. This is a handoff/proof lane, not a new
+  architecture lane.
 
 ## Near-term rule
 

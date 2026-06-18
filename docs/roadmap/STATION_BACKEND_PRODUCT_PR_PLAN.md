@@ -327,14 +327,14 @@ Reason: PR31 created the budget/trace safety surface needed before chat
 streaming. PR32 should add authenticated streaming/progress behavior while
 keeping provider-delta claims honest and the existing non-streaming POST stable.
 
-PR37 is closed as visually rechecked on deployed staging. The active follow-up
-is PR38 Final Human Demo Rehearsal:
-`docs/roadmap/PR38_FINAL_HUMAN_DEMO_REHEARSAL.md`.
+PR38 is closed as ready for human demo/protected-alpha replay. The active
+follow-up is PR39 Protected-Alpha Demo Runbook:
+`docs/roadmap/PR39_PROTECTED_ALPHA_DEMO_RUNBOOK.md`.
 
-Reason: PR37 cleared the remaining narrow visible polish caveats from the
-launch-core rehearsal. The next useful move is final protected-alpha demo
-readiness proof and next-phase recommendation, not Cloudflare or another
-backend architecture lane.
+Reason: PR38 proved the connected route on deployed staging. The next useful
+move is making that proof runnable by a human without guessing: route order,
+framing, caveats to narrate, public proof URLs, and an evidence-based next-lane
+recommendation.
 
 ## Recommended Order
 
