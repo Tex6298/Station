@@ -4694,6 +4694,19 @@ when a PR lands, or when validation truth changes.
   `test:conversation-archive`, `test:token-credits`, `@station/api` build, and
   `git diff --check`. No Studio UI, SSE streaming, provider marketplace, Redis
   memory truth, vector contract, visibility, or broader chat behavior changed.
+- PR31 Chat Runtime Budget Trace Alpha is accepted by ARGUS for MIMIR closeout,
+  2026-06-18: ARGUS verified the runtime budget report carries counts, token
+  estimates, retrieval modes, searched/skipped counts, truncation metadata, and
+  provider labels without raw prompt, user, memory, archive, or key material.
+  ARGUS patched one provider-route bug so configured BYOK OpenAI/Anthropic/
+  DeepSeek chats are not rejected merely because platform DeepSeek/NVIDIA
+  fallback is absent, and the budget provider route now labels BYOK use
+  distinctly. A BYOK OpenAI regression proves the success response keeps the
+  production-safe `{ conversationId, reply }` shape without `_debug` or
+  `runtimeBudget`. Validation passed `test:conversation-archive` with 32 tests,
+  `test:persona-context`, `test:token-credits`, `@station/api` build,
+  `typecheck`, and `git diff --check`. No ARIADNE rehearsal is required because
+  no Studio chat UI/loading/error presentation changed.
 
 ## Near-term rule
 

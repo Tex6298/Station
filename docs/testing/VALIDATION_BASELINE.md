@@ -7465,9 +7465,10 @@ DAEDALUS implementation validation on 2026-06-18:
 | Command | Result | Notes |
 | --- | --- | --- |
 | `npm exec --yes pnpm@10.32.1 -- run test:persona-context` | Pass | 7 tests passed, including runtime budget report shape/content-redaction and existing production debug gating. |
-| `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass | 31 tests passed, including archived-state classification, missing provider-config classification, trace-attached runtime budget metadata, and content-redaction checks. |
+| `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass | 32 tests passed, including archived-state classification, missing provider-config classification, trace-attached runtime budget metadata, BYOK provider-route fallback protection, production response-shape protection, and content-redaction checks. |
 | `npm exec --yes pnpm@10.32.1 -- run test:token-credits` | Pass | 3 tests passed; quota errors still preserve the existing user-facing error text and now include stable `code`/`classification` fields. |
 | `npm exec --yes pnpm@10.32.1 -- --filter @station/api build` | Pass | API package build and dependent package builds passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck tasks passed after ARGUS patched BYOK route labeling and provider-config gating. |
 | `git diff --check` | Pass | No whitespace errors; CRLF normalization warnings only for touched text files and local triad state. |
 
 Scope notes:
@@ -7484,6 +7485,9 @@ Scope notes:
 - Archived conversation, missing platform provider config, provider failure, and
   token-quota responses now carry stable `code` and `classification` fields with
   generic production-safe error text.
+- ARGUS patched provider-config gating so configured BYOK providers are not
+  blocked by absent platform fallback, and runtime budget provider labels now
+  distinguish BYOK routes.
 - No Studio UI, SSE streaming, provider marketplace, Redis memory truth,
   vector-contract, visibility-rule, worker, Stripe, or Developer Spaces behavior
   changed.

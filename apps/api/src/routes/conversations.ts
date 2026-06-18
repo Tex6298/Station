@@ -96,6 +96,20 @@ function chatError(status: number, code: string, classification: ChatErrorClassi
   return { status, body: { error, code, classification } };
 }
 
+function configuredByokRoute(profile: any, provider: string | null | undefined) {
+  if (profile?.ai_mode !== "byok") return null;
+  if (provider === "openai" && profile.byok_openai_key) {
+    return { route: "byok_openai", model: "gpt-4o-mini" };
+  }
+  if (provider === "anthropic" && profile.byok_anthropic_key) {
+    return { route: "byok_anthropic", model: "claude-haiku-4-5" };
+  }
+  if (provider === "deepseek" && profile.byok_deepseek_key) {
+    return { route: "byok_deepseek", model: "deepseek-chat" };
+  }
+  return null;
+}
+
 function transcriptRow(row: any) {
   return {
     id: row.id,
@@ -530,12 +544,13 @@ conversationsRouter.post("/persona/:personaId/chat", async (req, res) => {
   const platformNvidiaKey = env.NVIDIA_AI_API_KEY?.trim() || undefined;
   const useStationAnthropic = profile?.ai_mode !== "byok" && !platformNvidiaKey && Boolean(env.ANTHROPIC_API_KEY);
   const platformRoute = describePlatformProviderRoute({ platformNvidiaKey });
-  const providerRoute = useStationAnthropic ? "anthropic_platform" : platformRoute.label;
+  const byokRoute = configuredByokRoute(profile, persona.provider);
+  const providerRoute = useStationAnthropic ? "anthropic_platform" : byokRoute?.route ?? platformRoute.label;
   const providerModel = useStationAnthropic
     ? stationModel.model
-    : platformRoute.label === "nvidia_openai_compatible"
+    : byokRoute?.model ?? (platformRoute.label === "nvidia_openai_compatible"
       ? env.NVIDIA_MODEL
-      : env.DEEPSEEK_MODEL;
+      : env.DEEPSEEK_MODEL);
   const runtimeBudget = buildChatRuntimeBudgetReport({
     systemPrompt,
     userMessage: content,
@@ -571,7 +586,7 @@ conversationsRouter.post("/persona/:personaId/chat", async (req, res) => {
     payload: { runtimeBudget },
   });
 
-  if (!useStationAnthropic && platformRoute.label === "deepseek_fallback" && !env.DEEPSEEK_API_KEY?.trim()) {
+  if (!useStationAnthropic && !byokRoute && platformRoute.label === "deepseek_fallback" && !env.DEEPSEEK_API_KEY?.trim()) {
     const missingConfig = chatError(
       503,
       "provider_config_missing",

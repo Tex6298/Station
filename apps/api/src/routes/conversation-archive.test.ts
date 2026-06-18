@@ -116,6 +116,20 @@ class InMemorySupabase {
       if (functionName === "reserve_storage_bytes" || functionName === "release_storage_bytes") {
         return { data: null, error: null };
       }
+      if (functionName === "ensure_current_token_usage") {
+        return {
+          data: {
+            tokens_limit: 750000,
+            topup_tokens: 0,
+            tokens_used: 0,
+            period_start: "2026-05-01T00:00:00.000Z",
+          },
+          error: null,
+        };
+      }
+      if (functionName === "record_token_usage") {
+        return { data: { ok: true }, error: null };
+      }
 
       return { data: null, error: { message: `No ${functionName} RPC in tests.` } };
     },
@@ -551,6 +565,59 @@ test("chat reports missing platform provider config before provider calls", asyn
     assert.ok(budgetEvent);
     assert.equal(budgetEvent.payload.runtimeBudget.schema, "station.chat_runtime_budget.v1");
   } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
+
+test("chat runtime budget does not block configured BYOK providers when platform fallback is absent", async () => {
+  const db = new InMemorySupabase();
+  db.tables.profiles[0].ai_mode = "byok";
+  db.tables.profiles[0].byok_openai_key = "secret-openai-key";
+  db.tables.personas[0].provider = "openai";
+  setSupabaseAdminForTests(db.client as any);
+  const app = await createConversationArchiveApp();
+  const originalFetch = globalThis.fetch;
+  const providerCalls: Array<{ url: string; body: string }> = [];
+  globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
+    const url = typeof input === "string"
+      ? input
+      : input instanceof URL
+        ? input.toString()
+        : input.url;
+    if (url.startsWith("https://api.openai.com/")) {
+      providerCalls.push({ url, body: String(init?.body ?? "") });
+      return new Response(JSON.stringify({
+        choices: [{ message: { content: "BYOK continuity reply." } }],
+        model: "gpt-4o-mini",
+      }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+    return originalFetch(input, init);
+  }) as typeof fetch;
+
+  try {
+    const response = await requestJson(app, "POST", `/conversations/persona/${PERSONA_ID}/chat`, {
+      token: "owner-token",
+      body: {
+        conversationId: CONVERSATION_ID,
+        content: "Use my own model for this reply.",
+      },
+    });
+
+    assert.equal(response.status, 200);
+    assert.equal(response.body.reply.content, "BYOK continuity reply.");
+    assert.equal("_debug" in response.body, false);
+    assert.equal(providerCalls.length, 1);
+    assert.equal(providerCalls[0].url, "https://api.openai.com/v1/chat/completions");
+
+    const trace = db.tables.ai_trace_sessions[0];
+    assert.equal(trace.metadata.runtimeBudget.provider.route, "byok_openai");
+    assert.equal(trace.metadata.runtimeBudget.provider.model, "gpt-4o-mini");
+    assert.doesNotMatch(JSON.stringify(response.body), /runtimeBudget|Use my own model/);
+  } finally {
+    globalThis.fetch = originalFetch;
     setSupabaseAdminForTests(null);
   }
 });

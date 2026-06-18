@@ -1,7 +1,7 @@
 # PR31 - Chat Runtime Budget Trace Alpha
 
 Date: 2026-06-18
-Status: implemented by DAEDALUS, ready for ARGUS review
+Status: accepted by ARGUS for MIMIR closeout
 Owner: DAEDALUS implements, ARGUS reviews. ARIADNE rehearses only if Studio
 chat/loading/error states change visibly.
 
@@ -88,3 +88,34 @@ DAEDALUS should wake ARGUS with:
 - production response-shape proof;
 - validation commands/results;
 - whether ARIADNE needs a visible Studio chat rehearsal.
+
+## ARGUS Review Result
+
+ARGUS accepts PR31 for MIMIR closeout, 2026-06-18.
+
+- The runtime budget report remains content-free: counts, token estimates,
+  provider route/model labels, retrieval modes, searched counts, skipped counts,
+  and truncation metadata only.
+- Production chat success responses keep the existing `{ conversationId, reply }`
+  shape; runtime budget details remain behind the existing non-production
+  explicit debug gate and owner-scoped AI trace surfaces.
+- ARGUS patched one provider-route bug: the missing-platform-provider check now
+  respects configured BYOK providers before deciding DeepSeek/NVIDIA platform
+  fallback is absent, and runtime budget provider labels now distinguish
+  `byok_openai`, `byok_anthropic`, and `byok_deepseek`.
+- Added a BYOK OpenAI regression proving configured BYOK chat is not blocked
+  when platform fallback is absent and that production success responses do not
+  expose runtime budget details.
+- No ARIADNE rehearsal is required because PR31 changed API/runtime semantics
+  only, not Studio chat UI/loading/error presentation.
+
+Validation passed:
+
+```bash
+npm exec --yes pnpm@10.32.1 -- run test:conversation-archive
+npm exec --yes pnpm@10.32.1 -- run test:persona-context
+npm exec --yes pnpm@10.32.1 -- run test:token-credits
+npm exec --yes pnpm@10.32.1 -- --filter @station/api build
+npm exec --yes pnpm@10.32.1 -- run typecheck
+git diff --check
+```
