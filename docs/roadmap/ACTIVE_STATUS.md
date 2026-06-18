@@ -5154,6 +5154,23 @@ when a PR lands, or when validation truth changes.
   generated 30 pages before the known Windows standalone symlink `EPERM`.
   ARGUS review is requested, and ARIADNE should recheck deployed staging only
   after ARGUS accepts the visible page change.
+- PR43 Developer Pages Evidence Reading Path is accepted by ARGUS for MIMIR
+  closeout, 2026-06-18: ARGUS verified the reading path is visible, in-page,
+  and deliberately non-clickable because space-less Developer Space evidence
+  does not yet have a route-safe public document page. Evidence ordering is
+  deterministic by role, `sortOrder`, and title fallback; owner view keeps
+  status/link labels visible; and the copy stays inside Phase 2A without
+  implying Tier 2 hosting, developer agents, DexOS widgets, public interaction
+  modes, Cloudflare, or production infrastructure. Mobile CSS uses bounded
+  grids and collapses the evidence header/list to one column below 760px, but
+  local browser measurement remains unavailable because Playwright is not
+  installed. Validation passed `test:developer-spaces` with 10 tests,
+  `test:developer-space-client` with 3 tests, `typecheck`, and
+  `git diff --check`; local `@station/web` build compiled,
+  linted/type-checked, and generated 30 pages before the known Windows
+  standalone symlink `EPERM` failure. ARGUS recommends ARIADNE recheck deployed
+  `/developer-spaces/station-replay-dev-alpha` after this visible frontend
+  change is deployed.
 
 ## Near-term rule
 

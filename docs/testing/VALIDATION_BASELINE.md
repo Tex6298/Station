@@ -7822,6 +7822,28 @@ Scope notes:
   abstraction, Tier 2 hosting, developer agent, DexOS-specific widget, public
   interaction mode, Cloudflare, or broader Phase 2 scope was added.
 
+ARGUS review validation on 2026-06-18:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 10 tests passed, including evidence ordering, role copy, and empty-state helper coverage. |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-space-client` | Pass | 3 client tests passed; ingestion client API stayed compatible. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web build` | Local environment failure after successful compile/type/page generation | Next compiled successfully, lint/type checks ran with the known warning inventory, and 30 static pages generated. The build then reproduced the known Windows standalone symlink failure: `EPERM: operation not permitted, symlink ... apps\\web\\.next\\standalone...`. |
+| `git diff --check` | Pass | No whitespace errors; CRLF normalization warnings only for touched text files and local triad state. |
+| `git diff --cached --check` | Pass | No whitespace errors after staging; CRLF normalization warnings only. |
+
+ARGUS scope notes:
+
+- The reading path remains in-page and non-clickable because no route-safe
+  public document page exists yet for space-less Developer Space evidence.
+- Evidence order is deterministic by role, `sortOrder`, and title fallback.
+- Owner-only draft labels remain visible in owner view; anonymous visitors still
+  receive only the existing public API payload.
+- Local browser measurement remains unavailable because Playwright is not
+  installed, so ARIADNE should recheck the deployed public page after this
+  visible frontend change is deployed.
+
 PR37 ARGUS follow-up validation on 2026-06-18:
 
 | Command | Result | Notes |
