@@ -1,7 +1,7 @@
 # PR45 - Developer Pages Second Example
 
 Date: 2026-06-18
-Status: accepted by ARGUS, ready for MIMIR closeout and ARIADNE staging recheck
+Status: accepted by ARGUS and closed by MIMIR for ARIADNE staging recheck
 Owner: DAEDALUS implements, ARGUS reviews, ARIADNE rechecks only after deploy
 and seed if ARGUS accepts.
 
@@ -226,3 +226,9 @@ git diff --check
 All passed. ARIADNE should recheck deployed
 `/developer-spaces/station-replay-dev-alpha` and
 `/developer-spaces/animus-field-lab` after deploy/seed.
+
+## MIMIR Closeout
+
+MIMIR confirmed deployed anonymous API readback for both public routes and web
+shell responses for both pages. PR46 now sends the two deployed routes to
+ARIADNE for human-eye recheck.
