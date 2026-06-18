@@ -5241,6 +5241,21 @@ when a PR lands, or when validation truth changes.
   ARIADNE to recheck both deployed public routes on desktop and 390px mobile.
   MIMIR confirmed anonymous deployed API reads and web shell responses for both
   routes before handoff.
+- ARIADNE completes PR46 Developer Pages Second Example Recheck on 2026-06-18:
+  `docs/roadmap/PR46_DEVELOPER_PAGES_SECOND_EXAMPLE_RECHECK_ARIADNE.md`
+  records a pass against Railway runtime `734c118`. Anonymous API reads show
+  both `station-replay-dev-alpha` and `animus-field-lab` are public with three
+  evidence documents in `methodology`, `finding`, `field_log` order, document
+  types `research`, `research`, `field_log`, one node, and one event. Desktop
+  and 390px mobile browser checks show evidence before `Live visualisation`, no
+  horizontal overflow, no route failure, no offscreen controls, no evidence
+  links/buttons, no duplicate `Project notes` side-widget heading, clear
+  public/private boundary copy, and visible live observatory sections on both
+  routes. `animus-field-lab` has distinct title/evidence/excerpt framing and is
+  enough to prove the pattern is not overfit to the replay example. DexOS,
+  hosted-runtime, and production-depth mentions are negative boundary copy, not
+  overclaims. ARIADNE recommends MIMIR close PR45 as complete for deployed
+  staging; Cloudflare remains deferred.
 
 ## Near-term rule
 

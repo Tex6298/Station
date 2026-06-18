@@ -1,84 +1,147 @@
-# PR46 - Developer Pages Second Example Recheck
+# PR46 Developer Pages Second Example Recheck - ARIADNE Result
 
 Date: 2026-06-18
-Status: opened for ARIADNE
-Owner: ARIADNE rechecks, MIMIR closes, DAEDALUS fixes exact visible blockers
-only.
+Agent: A4 / ARIADNE
+Verdict: Pass; PR45 can close as deployed staging complete
 
-## Purpose
+## Runtime Checked
 
-Recheck the deployed Developer Pages pattern across two public-safe examples.
+- Web/API deployment identity:
+  `734c118c6c2ce3cd6abedf7610aa4b133ed71095`
+- Public routes:
+  - `https://stationweb-production.up.railway.app/developer-spaces/station-replay-dev-alpha`
+  - `https://stationweb-production.up.railway.app/developer-spaces/animus-field-lab`
+- Browser: Chrome/CDP
+- Desktop viewport: `1365x900`
+- Mobile viewport: `390x844`
+- Account role: anonymous visitor
 
-PR45 added `animus-field-lab` as a second synthetic public Developer Page
-example. Because PR45 did not change the public page code/API shape, Railway can
-still serve commit `734c118` while the new staging seed data is visible through
-the deployed API.
+No credentials, cookies, tokens, private prompts, private archive excerpts, raw
+provider payloads, or owner IDs were printed.
 
-## Runtime State
+## API Readback
 
-MIMIR confirmed before this handoff:
+Anonymous public API read passed for both routes:
 
-- web service commit: `734c118c6c2ce3cd6abedf7610aa4b133ed71095`
-- API service commit: `734c118c6c2ce3cd6abedf7610aa4b133ed71095`
-- PR45 implementation commit: `a52a85d`
-- PR45 review commit: `41daca7`
+| Slug | Access | Evidence | Roles | Document types | Nodes | Events |
+| --- | --- | ---: | --- | --- | ---: | ---: |
+| `station-replay-dev-alpha` | `public` | 3 | `methodology`, `finding`, `field_log` | `research`, `research`, `field_log` | 1 | 1 |
+| `animus-field-lab` | `public` | 3 | `methodology`, `finding`, `field_log` | `research`, `research`, `field_log` | 1 | 1 |
 
-Anonymous API readback passed:
+## Browser Recheck
 
-- `station-replay-dev-alpha`: access `public`, 3 evidence documents, roles
-  `methodology`, `finding`, `field_log`, document types `research`, `research`,
-  `field_log`, 1 node, 1 event.
-- `animus-field-lab`: access `public`, 3 evidence documents, roles
-  `methodology`, `finding`, `field_log`, document types `research`, `research`,
-  `field_log`, 1 node, 1 event.
+`station-replay-dev-alpha` passed:
 
-Both web shells return successfully:
+- desktop has no document-level horizontal overflow (`1350` scroll width /
+  `1350` client width);
+- mobile has no document-level horizontal overflow (`390` scroll width / `390`
+  client width);
+- no visible controls render offscreen;
+- route loaded without not-found, loading, or hard-error state;
+- `Project evidence` appears before `Live visualisation` by DOM order and text
+  order;
+- evidence cards read in the intended order:
+  `Methodology / architecture`, `Finding / milestone`,
+  `Field log / update`;
+- cards show role, document type, published date, title, role-purpose copy,
+  excerpt, and the in-page/no-separate-route note;
+- the evidence section has no links, buttons, or dead controls;
+- no duplicate `Project notes` side-widget heading is visible;
+- `Live visualisation`, `Event stream`, `How to read this`, `Current nodes`,
+  and `Latest snapshot` remain visible after the evidence path.
 
-- `https://stationweb-production.up.railway.app/developer-spaces/station-replay-dev-alpha`
-- `https://stationweb-production.up.railway.app/developer-spaces/animus-field-lab`
+`animus-field-lab` passed:
 
-## Recheck Routes
+- desktop has no document-level horizontal overflow (`1350` scroll width /
+  `1350` client width);
+- mobile has no document-level horizontal overflow (`390` scroll width / `390`
+  client width);
+- no visible controls render offscreen;
+- route loaded without not-found, loading, or hard-error state;
+- `Project evidence` appears before `Live visualisation` by DOM order and text
+  order;
+- evidence cards read in the intended order:
+  `Methodology / architecture`, `Finding / milestone`,
+  `Field log / update`;
+- cards show role, document type, published date, title, role-purpose copy,
+  excerpt, and the in-page/no-separate-route note;
+- the evidence section has no links, buttons, or dead controls;
+- no duplicate `Project notes` side-widget heading is visible;
+- `Live visualisation`, `Event stream`, `How to read this`, `Current nodes`,
+  and `Latest snapshot` remain visible after the evidence path.
 
-Check both as anonymous visitor routes:
+## Second Example Distinctness
 
-- `https://stationweb-production.up.railway.app/developer-spaces/station-replay-dev-alpha`
-- `https://stationweb-production.up.railway.app/developer-spaces/animus-field-lab`
+`animus-field-lab` is distinct enough to prove the pattern is not overfit to
+`station-replay-dev-alpha`.
 
-Check desktop and 390px mobile if practical.
+The second page has its own page title, evidence titles, and excerpts:
 
-## Questions
+- `Animus Field Lab Methodology`
+- `Animus Field Lab Finding`
+- `Animus Field Lab Field Log`
 
-Across both routes:
+Its evidence copy frames a second Developer Page example and a
+timeline-oriented observatory instead of repeating the replay-page labels. The
+page still uses the same public-safe reading path and live observatory pattern,
+which is the right proof for PR45.
 
-- Does each page show the evidence reading path before the live observatory?
-- Does each page show methodology, finding, and field-log evidence in the right
-  order?
-- Does the second example feel distinct enough to prove the pattern is not
-  overfit to `station-replay-dev-alpha`?
-- Do both pages keep evidence in-page without fake public document links or dead
-  controls?
-- Do both pages keep live visualisation, event stream, reading guide, current
-  nodes, and latest snapshot legible?
-- Are public/private boundaries still clear?
-- Does either page overclaim real DexOS onboarding, hosted runtime, developer
-  agents, public interaction modes, Cloudflare, route/table rename, Project
-  abstraction, or production depth?
-- Are there any obvious mobile overflow, loading, duplicate-section, or copy
-  problems?
+## Boundary And Overclaim Check
 
-## Handoff
+Public/private boundary copy remains visible on both pages with `Visitors do
+not see` language.
 
-If both pass, wake MIMIR with:
+No blocker was found for overclaiming real DexOS onboarding, hosted runtime,
+developer agents, public interaction modes, Cloudflare, route/table rename,
+Project abstraction, tipping, or production depth.
 
-- human recheck verdict;
-- desktop/mobile notes for both routes;
-- any caveats;
-- whether PR45 can close as complete.
+Both pages mention out-of-scope concepts only as negative boundary language:
 
-If a visible blocker remains, wake DAEDALUS with:
+- `station-replay-dev-alpha` says the demo does not claim hosted runtime or
+  DexOS onboarding.
+- `animus-field-lab` says the page is demo evidence only, not a hosted runtime
+  or production project; its field-log excerpt also negates DexOS onboarding.
 
-- route;
-- viewport;
-- exact visible issue;
-- expected versus actual;
-- narrowest fix.
+ARIADNE treats those as acceptable boundary statements, not overclaims.
+
+## Human-Eye Verdict
+
+The two pages now prove the Developer Page pattern better together than the
+single replay page did alone. A visitor can read methodology, finding, and
+field-log evidence first, then compare that evidence against the live
+visualisation, event stream, current node, and latest snapshot.
+
+This is still a protected-alpha proof, but it feels like a deliberate public
+observatory pattern rather than a one-off dashboard.
+
+## Caveats
+
+- This is still Phase 2A / Tier 1 showcase-window evidence.
+- Both examples use synthetic public-safe staging notes.
+- PR46 did not validate Cloudflare, Tier 2 hosting, developer agents, public
+  interaction modes, route/table renames, live DDL, tipping, or broader
+  Developer Space architecture.
+
+## Recommendation
+
+MIMIR can close PR45 as complete for deployed staging.
+
+Recommended next lane:
+
+- keep Developer Pages work narrow and choose either a small evidence-card
+  readability pass or a bounded owner-facing management-console slice. Do not
+  start Cloudflare or Tier 2 hosting from this result.
+
+PR46 found no concrete retrieval, latency, public-edge delivery, or
+NESTstyle-memory defect.
+
+## Validation
+
+- `curl.exe -fsS --max-time 30 https://stationweb-production.up.railway.app/health/deployment`
+- `curl.exe -fsS --max-time 30 https://stationapi-production.up.railway.app/health/deployment`
+- Anonymous public API reads:
+  - `https://stationapi-production.up.railway.app/developer-spaces/station-replay-dev-alpha`
+  - `https://stationapi-production.up.railway.app/developer-spaces/animus-field-lab`
+- Chrome/CDP anonymous desktop route checks at `1365x900`
+- Chrome/CDP anonymous mobile route checks at `390x844`
+- Temporary local probe script was removed before commit.
