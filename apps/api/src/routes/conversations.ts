@@ -4,8 +4,7 @@ import { requireAuth } from "../middleware/require-auth";
 import { getSupabaseAdmin } from "../lib/supabase";
 import { assemblePersonaRuntimeContext } from "@station/ai/retrieval/context-builder";
 import { retrievePrivateArchive } from "@station/ai/retrieval/archive-retrieval";
-import { describePlatformProviderRoute, resolveProvider } from "@station/ai/providers/router";
-import { AnthropicProvider } from "@station/ai/providers/anthropic";
+import { resolveChatProviderRuntimeRoute } from "@station/ai/providers/router";
 import { addMemoryItem, ingestTextIntoArchive, saveMessageAsMemory } from "../services/archive.service";
 import { env } from "../lib/env";
 import { storageErrorResponse } from "../services/storage.service";
@@ -123,20 +122,6 @@ type ChatTurnResult =
 
 function chatTurnFailed(result: ChatTurnResult): result is Extract<ChatTurnResult, { ok: false }> {
   return result.ok === false;
-}
-
-function configuredByokRoute(profile: any, provider: string | null | undefined) {
-  if (profile?.ai_mode !== "byok") return null;
-  if (provider === "openai" && profile.byok_openai_key) {
-    return { route: "byok_openai", model: "gpt-4o-mini" };
-  }
-  if (provider === "anthropic" && profile.byok_anthropic_key) {
-    return { route: "byok_anthropic", model: "claude-haiku-4-5" };
-  }
-  if (provider === "deepseek" && profile.byok_deepseek_key) {
-    return { route: "byok_deepseek", model: "deepseek-chat" };
-  }
-  return null;
 }
 
 function transcriptRow(row: any) {
@@ -572,15 +557,21 @@ async function runPersonaChatTurn(input: ChatTurnInput): Promise<ChatTurnResult>
   // Resolve provider
   const stationModel = selectStationModel(input.userTier);
   const platformNvidiaKey = env.NVIDIA_AI_API_KEY?.trim() || undefined;
-  const useStationAnthropic = profile?.ai_mode !== "byok" && !platformNvidiaKey && Boolean(env.ANTHROPIC_API_KEY);
-  const platformRoute = describePlatformProviderRoute({ platformNvidiaKey });
-  const byokRoute = configuredByokRoute(profile, persona.provider);
-  const providerRoute = useStationAnthropic ? "anthropic_platform" : byokRoute?.route ?? platformRoute.label;
-  const providerModel = useStationAnthropic
-    ? stationModel.model
-    : byokRoute?.model ?? (platformRoute.label === "nvidia_openai_compatible"
-      ? env.NVIDIA_MODEL
-      : env.DEEPSEEK_MODEL);
+  const chatRoute = resolveChatProviderRuntimeRoute({
+    provider: persona.provider as "platform" | "openai" | "anthropic" | "deepseek" | "gemini",
+    aiMode: (profile?.ai_mode ?? "platform") as "platform" | "byok",
+    byokOpenaiKey: profile?.byok_openai_key,
+    byokAnthropicKey: profile?.byok_anthropic_key,
+    byokDeepseekKey: profile?.byok_deepseek_key,
+    platformDeepseekKey: env.DEEPSEEK_API_KEY,
+    platformDeepseekBaseUrl: env.DEEPSEEK_BASE_URL,
+    platformDeepseekModel: env.DEEPSEEK_MODEL,
+    platformNvidiaKey,
+    platformNvidiaBaseUrl: env.NVIDIA_MODEL_BASE_URL,
+    platformNvidiaModel: env.NVIDIA_MODEL,
+    stationAnthropicKey: env.ANTHROPIC_API_KEY,
+    stationAnthropicModel: stationModel.model,
+  });
   const runtimeBudget = buildChatRuntimeBudgetReport({
     systemPrompt,
     userMessage: content,
@@ -588,9 +579,9 @@ async function runPersonaChatTurn(input: ChatTurnInput): Promise<ChatTurnResult>
     rawHistoryCount: rawHistoryRows.length,
     historyLimit,
     runtimeContext,
-    providerRoute,
+    providerRoute: chatRoute.routeLabel,
     modelTier: stationModel.modelTier,
-    model: providerModel,
+    model: chatRoute.modelLabel,
   });
 
   const traceStartedAt = Date.now();
@@ -610,18 +601,18 @@ async function runPersonaChatTurn(input: ChatTurnInput): Promise<ChatTurnResult>
     eventType: "tool_call",
     label: "Chat runtime budget assembled",
     status: "completed",
-    provider: providerRoute,
-    model: providerModel,
+    provider: chatRoute.routeLabel,
+    model: chatRoute.modelLabel,
     inputTokens: runtimeBudget.totals.estimatedInputTokens,
     payload: { runtimeBudget },
   });
 
-  if (!useStationAnthropic && !byokRoute && platformRoute.label === "deepseek_fallback" && !env.DEEPSEEK_API_KEY?.trim()) {
+  if (!chatRoute.configured) {
     const missingConfig = chatError(
       503,
-      "provider_config_missing",
-      "provider_config",
-      "No Station chat provider is configured for this request."
+      chatRoute.missingConfig?.code ?? "provider_config_missing",
+      chatRoute.missingConfig?.classification ?? "provider_config",
+      chatRoute.missingConfig?.error ?? "No Station chat provider is configured for this request."
     );
     await recordAiTraceEvent({
       traceId: trace?.id,
@@ -629,8 +620,8 @@ async function runPersonaChatTurn(input: ChatTurnInput): Promise<ChatTurnResult>
       eventType: "error",
       label: "Persona chat provider configuration missing",
       status: "failed",
-      provider: providerRoute,
-      model: providerModel,
+      provider: chatRoute.routeLabel,
+      model: chatRoute.modelLabel,
       durationMs: Date.now() - traceStartedAt,
       payload: { code: missingConfig.body.code, classification: missingConfig.body.classification },
     });
@@ -638,21 +629,7 @@ async function runPersonaChatTurn(input: ChatTurnInput): Promise<ChatTurnResult>
     return { ok: false, ...missingConfig };
   }
 
-  const provider = useStationAnthropic
-    ? new AnthropicProvider({ apiKey: env.ANTHROPIC_API_KEY, model: stationModel.model })
-    : resolveProvider({
-      provider: persona.provider as "platform" | "openai" | "anthropic" | "deepseek" | "gemini",
-      aiMode: (profile?.ai_mode ?? "platform") as "platform" | "byok",
-      byokOpenaiKey: profile?.byok_openai_key,
-      byokAnthropicKey: profile?.byok_anthropic_key,
-      byokDeepseekKey: profile?.byok_deepseek_key,
-      platformDeepseekKey: env.DEEPSEEK_API_KEY,
-      platformDeepseekBaseUrl: env.DEEPSEEK_BASE_URL,
-      platformDeepseekModel: env.DEEPSEEK_MODEL,
-      platformNvidiaKey,
-      platformNvidiaBaseUrl: env.NVIDIA_MODEL_BASE_URL,
-      platformNvidiaModel: env.NVIDIA_MODEL,
-    });
+  const provider = chatRoute.provider!;
 
   // Send to LLM
   const messages = [
@@ -676,8 +653,8 @@ async function runPersonaChatTurn(input: ChatTurnInput): Promise<ChatTurnResult>
         eventType: "quota_check",
         label: "Persona chat token budget blocked",
         status: "failed",
-        provider: providerRoute,
-        model: providerModel,
+        provider: chatRoute.routeLabel,
+        model: chatRoute.modelLabel,
         inputTokens: runtimeBudget.totals.estimatedInputTokens,
         durationMs: Date.now() - traceStartedAt,
         payload: { code: quota.body.code, classification: quota.body.classification },
@@ -696,7 +673,7 @@ async function runPersonaChatTurn(input: ChatTurnInput): Promise<ChatTurnResult>
     aiResponse = await enqueueLlmCall(provider, {
       system: systemPrompt,
       messages,
-      ...(useStationAnthropic ? { model: stationModel.model } : {}),
+      ...(chatRoute.routeLabel === "anthropic_platform" ? { model: chatRoute.modelLabel } : {}),
     });
     inputTokens = aiResponse.usage?.inputTokens ?? estimateConversationTokens({ systemPrompt, userMessage: content, history });
     outputTokens = aiResponse.usage?.outputTokens ?? estimateTokensFromText(aiResponse.content);
@@ -708,7 +685,7 @@ async function runPersonaChatTurn(input: ChatTurnInput): Promise<ChatTurnResult>
       eventType: "llm_call",
       label: "Persona chat response",
       status: "completed",
-      provider: useStationAnthropic ? "anthropic" : persona.provider,
+      provider: chatRoute.routeLabel,
       model: aiResponse.model,
       inputTokens,
       outputTokens,
@@ -736,7 +713,7 @@ async function runPersonaChatTurn(input: ChatTurnInput): Promise<ChatTurnResult>
       eventType: "error",
       label: "Persona chat response failed",
       status: "failed",
-      provider: useStationAnthropic ? "anthropic" : persona.provider,
+      provider: chatRoute.routeLabel,
       durationMs: Date.now() - traceStartedAt,
       payload: { message: error instanceof Error ? error.message : "Unknown error" },
     });

@@ -685,6 +685,8 @@ test("chat runtime budget does not block configured BYOK providers when platform
     const trace = db.tables.ai_trace_sessions[0];
     assert.equal(trace.metadata.runtimeBudget.provider.route, "byok_openai");
     assert.equal(trace.metadata.runtimeBudget.provider.model, "gpt-4o-mini");
+    const llmEvent = db.tables.ai_trace_events.find((event) => event.label === "Persona chat response");
+    assert.equal(llmEvent.provider, "byok_openai");
     assert.doesNotMatch(JSON.stringify(response.body), /runtimeBudget|Use my own model/);
   } finally {
     globalThis.fetch = originalFetch;

@@ -7601,3 +7601,32 @@ Scope notes:
 - No retrieval rewrite, embedding/provider change, Redis/Valkey/Cloudflare
   storage, provider token streaming, UI redesign, Memory/Canon semantic change,
   or private context exposure was added.
+
+## PR35 Chat Provider Runtime Route Alpha
+
+DAEDALUS implementation validation on 2026-06-18:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass | 34 tests passed; chat runtime budget and AI trace labels now prove configured BYOK OpenAI uses the same `byok_openai` route label. |
+| `npm exec --yes pnpm@10.32.1 exec tsx --test packages/ai/test/provider-router.test.ts` | Pass | 9 tests passed, including BYOK precedence, bounded Station Anthropic platform fallback, NVIDIA platform preference, and safe missing platform config metadata. npm emitted existing argument/config warnings. |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 7 tests passed; provider policy and observatory helper behavior stayed green. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/api build` | Pass | API package build and dependent package builds passed. |
+| `git diff --check` | Pass | No whitespace errors; CRLF normalization warnings only for touched text files and local triad state. |
+
+Scope notes:
+
+- `resolveChatProviderRuntimeRoute` is the single persona chat route resolver
+  for runtime budget metadata, missing-config checks, provider construction,
+  and AI trace provider labels.
+- Preserved route precedence is configured BYOK for the matching requested
+  provider, bounded Station Anthropic platform fallback when platform mode has
+  no NVIDIA key, NVIDIA OpenAI-compatible platform chat, then DeepSeek platform
+  fallback.
+- Missing platform config still reports `provider_config_missing` through safe
+  content-free metadata before any provider call.
+- Gemini/OpenAI embedding profile resolution remains separate from chat
+  provider execution.
+- No provider marketplace, model menu, BYOK secret storage, embedding/vector
+  migration, Cloudflare/Redis storage, provider delta streaming, UI change, or
+  Developer Spaces behavior changed.

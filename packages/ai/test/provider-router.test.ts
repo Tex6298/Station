@@ -1,6 +1,11 @@
 import assert from "node:assert/strict";
 import { afterEach, test } from "node:test";
-import { describePlatformProviderRoute, normalizeOpenAiCompatibleBaseUrl, resolveProvider } from "../src/providers/router";
+import {
+  describePlatformProviderRoute,
+  normalizeOpenAiCompatibleBaseUrl,
+  resolveChatProviderRuntimeRoute,
+  resolveProvider,
+} from "../src/providers/router";
 
 const originalFetch = globalThis.fetch;
 
@@ -100,5 +105,73 @@ test("describes platform provider route without exposing config", () => {
   assert.deepEqual(describePlatformProviderRoute({ platformNvidiaKey: "   " }), {
     label: "deepseek_fallback",
     nvidiaConfigured: false,
+  });
+});
+
+test("runtime route resolver preserves BYOK precedence over platform routes", () => {
+  const route = resolveChatProviderRuntimeRoute({
+    provider: "openai",
+    aiMode: "byok",
+    byokOpenaiKey: "owner-openai-key",
+    platformNvidiaKey: "nvidia-key",
+    platformDeepseekKey: "deepseek-key",
+  });
+
+  assert.equal(route.routeLabel, "byok_openai");
+  assert.equal(route.providerFamily, "openai");
+  assert.equal(route.providerMode, "byok");
+  assert.equal(route.modelLabel, "gpt-4o-mini");
+  assert.equal(route.configured, true);
+  assert.ok(route.provider);
+});
+
+test("runtime route resolver keeps Station Anthropic as bounded platform fallback", () => {
+  const route = resolveChatProviderRuntimeRoute({
+    provider: "platform",
+    aiMode: "platform",
+    stationAnthropicKey: "anthropic-key",
+    stationAnthropicModel: "claude-haiku-test",
+    platformDeepseekKey: "deepseek-key",
+  });
+
+  assert.equal(route.routeLabel, "anthropic_platform");
+  assert.equal(route.providerFamily, "anthropic");
+  assert.equal(route.providerMode, "platform");
+  assert.equal(route.modelLabel, "claude-haiku-test");
+  assert.equal(route.configured, true);
+});
+
+test("runtime route resolver prefers NVIDIA platform chat over DeepSeek", () => {
+  const route = resolveChatProviderRuntimeRoute({
+    provider: "platform",
+    aiMode: "platform",
+    platformNvidiaKey: "nvidia-key",
+    platformNvidiaModel: "nvidia/test-model",
+    stationAnthropicKey: "anthropic-key",
+    platformDeepseekKey: "deepseek-key",
+  });
+
+  assert.equal(route.routeLabel, "nvidia_openai_compatible");
+  assert.equal(route.providerFamily, "openai");
+  assert.equal(route.providerMode, "platform");
+  assert.equal(route.modelLabel, "nvidia/test-model");
+  assert.equal(route.configured, true);
+});
+
+test("runtime route resolver reports missing platform config safely", () => {
+  const route = resolveChatProviderRuntimeRoute({
+    provider: "platform",
+    aiMode: "platform",
+  });
+
+  assert.equal(route.routeLabel, "deepseek_fallback");
+  assert.equal(route.providerFamily, "deepseek");
+  assert.equal(route.providerMode, "platform");
+  assert.equal(route.modelLabel, "deepseek-chat");
+  assert.equal(route.configured, false);
+  assert.deepEqual(route.missingConfig, {
+    code: "provider_config_missing",
+    classification: "provider_config",
+    error: "No Station chat provider is configured for this request.",
   });
 });

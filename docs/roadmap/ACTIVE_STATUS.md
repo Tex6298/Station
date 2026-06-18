@@ -4860,6 +4860,21 @@ when a PR lands, or when validation truth changes.
   storage, embedding/vector changes, Cloudflare, Redis/Valkey memory, worker
   queues, provider delta streaming, retrieval ranking changes, or private
   context leakage.
+- DAEDALUS implements PR35 Chat Provider Runtime Route Alpha on 2026-06-18:
+  `resolveChatProviderRuntimeRoute` now centralizes persona chat route
+  selection, provider construction, missing-config metadata, model labels, and
+  content-free runtime route labels. The persona chat route uses the resolver
+  for runtime budget provider metadata, AI trace provider/model fields,
+  provider-config failures, quota failures, success events, and provider
+  execution. Preserved route precedence is BYOK for the matching configured
+  profile provider, bounded Station Anthropic platform fallback when platform
+  mode has no NVIDIA key, NVIDIA OpenAI-compatible platform chat, then DeepSeek
+  platform fallback with safe `provider_config_missing` metadata. Validation
+  passed `test:conversation-archive`, provider-router tests,
+  `test:developer-spaces`, `@station/api` build, and `git diff --check`.
+  No provider marketplace, BYOK secret storage, embedding/vector migration,
+  Cloudflare/Redis storage, provider delta streaming, UI change, or Developer
+  Spaces behavior changed.
 
 ## Near-term rule
 
