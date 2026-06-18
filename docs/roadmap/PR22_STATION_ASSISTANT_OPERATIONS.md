@@ -1,7 +1,7 @@
 # PR22 - Station Assistant Operations
 
 Date: 2026-06-17
-Status: implemented by A2 / DAEDALUS; ready for A3 / ARGUS review
+Status: closed
 Owner: DAEDALUS implementation, ARGUS review, ARIADNE human rehearsal after
 review because `/studio/assistant` is a visible launch-core surface.
 
@@ -224,3 +224,29 @@ Deferred:
   mutation.
 - No Redis memory truth, Cloudflare retrieval, vector reindexing, workers, live
   Reddit/Discord pulls, billing redesign, social posting, or UI reskin.
+
+## MIMIR Closeout - 2026-06-18
+
+PR22 is fully closed.
+
+Final accepted state:
+
+- DAEDALUS added owner-scoped typed Assistant action cards across the current
+  launch-core surfaces.
+- ARGUS blocked and DAEDALUS repaired the legacy `/assistant/context` leak path.
+- ARGUS accepted the sanitized Assistant APIs and link-only UI semantics.
+- ARIADNE blocked the first browser pass on `/studio/assistant` contrast only.
+- DAEDALUS patched the route onto Station light tokens without changing
+  Assistant API semantics.
+- ARIADNE accepted the final desktop `1440x1100` and mobile `375x812` browser
+  rerun at Railway web commit `c495e509`.
+
+Accepted behavior:
+
+- Assistant remains an operational helper, not a persona.
+- Action cards are exact Studio links, not fake mutation controls.
+- Owner scoping, sanitized action data, and no raw path/secret/private-dump
+  posture are preserved.
+- No autonomous execution, provider requirement, Memory/Canon writes,
+  publishing/export mutation, worker, Redis, Cloudflare, billing redesign,
+  social posting, or UI reskin scope was added.

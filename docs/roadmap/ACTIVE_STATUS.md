@@ -4316,6 +4316,18 @@ when a PR lands, or when validation truth changes.
   `Ask Assistant`, no fake mutations or persona drift were observed, no
   horizontal overflow was detected, and signed Assistant API sanity checks still
   showed no secret-shaped or storage-path-shaped strings.
+- PR22 Station Assistant Operations is fully closed, 2026-06-18: MIMIR accepted
+  ARIADNE's final browser verdict. Station Assistant now functions as an
+  owner-safe operational map over current launch-core surfaces, with sanitized
+  typed action cards and readable desktop/mobile UI, while remaining explicitly
+  not a persona or autonomous executor.
+- PR23 Creator Publish Public Discussion Proof is opened for DAEDALUS,
+  2026-06-18: `docs/roadmap/PR23_CREATOR_PUBLISH_PUBLIC_DISCUSSION_PROOF.md`
+  scopes the next concrete launch-core gap. Prove a Creator-or-above staging
+  user can create/save/review/publish a public Space-backed document and reach
+  the linked forum discussion, while preserving private/basic-tier and no-Space
+  guards. This is proof/setup and narrow repairs only, not billing redesign,
+  workers, social dispatch, provider, Cloudflare/Redis, or UI reskin scope.
 
 ## Near-term rule
 
