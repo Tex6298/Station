@@ -5,10 +5,13 @@ import {
   developerSpaceStorySummary,
   developerSpaceMethodologyCopy,
   developerSpaceEvidenceRoleCopy,
+  developerSpaceEvidenceRoleDescription,
+  developerSpaceEvidenceEmptyCopy,
   developerSpaceEvidenceTitle,
   formatValue,
   moveDeveloperSpaceWidget,
   normaliseDeveloperSpaceWidgets,
+  orderedDeveloperSpaceEvidence,
   publicEntries,
   shouldShowRawDeveloperSpaceData,
   updateWidgetVisibility,
@@ -126,6 +129,33 @@ test("observatory evidence labels use role-aware Developer Page language", () =>
   assert.equal(developerSpaceEvidenceRoleCopy("finding"), "Finding / milestone");
   assert.equal(developerSpaceEvidenceRoleCopy("field_log"), "Field log / update");
   assert.equal(developerSpaceEvidenceRoleCopy("note"), "Note / paper");
+  assert.match(developerSpaceEvidenceRoleDescription("methodology"), /Start here/);
+  assert.match(developerSpaceEvidenceRoleDescription("finding"), /Read next/);
+  assert.match(developerSpaceEvidenceRoleDescription("field_log"), /live-operation trail/);
+  assert.match(developerSpaceEvidenceRoleDescription("note"), /Supplementary/);
+});
+
+test("observatory evidence reading path orders roles and stays honest when empty", () => {
+  const ordered = orderedDeveloperSpaceEvidence([
+    { role: "note", sortOrder: 0, document: { title: "Paper" } },
+    { role: "field_log", sortOrder: 2, document: { title: "Field log B" } },
+    { role: "methodology", sortOrder: 9, document: { title: "Method" } },
+    { role: "finding", sortOrder: 1, document: { title: "Finding" } },
+    { role: "field_log", sortOrder: 1, document: { title: "Field log A" } },
+  ] as any);
+
+  assert.deepEqual(
+    ordered.map((document) => `${document.role}:${document.document.title}`),
+    [
+      "methodology:Method",
+      "finding:Finding",
+      "field_log:Field log A",
+      "field_log:Field log B",
+      "note:Paper",
+    ],
+  );
+  assert.match(developerSpaceEvidenceEmptyCopy(false), /No public evidence documents/);
+  assert.match(developerSpaceEvidenceEmptyCopy(true), /Public visitors will only see/);
 });
 
 test("observatory widget helpers bound custom dashboard layouts", () => {

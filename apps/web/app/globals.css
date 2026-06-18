@@ -564,6 +564,110 @@ html, body {
   align-items: start;
 }
 
+.evidence-reading-path {
+  display: grid;
+  gap: 0.9rem;
+  padding: 1.1rem;
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-radius: 18px;
+  background: rgba(8, 13, 24, 0.76);
+  overflow: hidden;
+}
+
+.evidence-reading-path-header {
+  display: grid;
+  grid-template-columns: minmax(0, 0.75fr) minmax(280px, 0.55fr);
+  gap: 1rem;
+  align-items: end;
+}
+
+.evidence-reading-path-header h2 {
+  margin: 0.2rem 0 0;
+  color: #f8fafc;
+  font-size: 1.35rem;
+}
+
+.evidence-reading-path-header p {
+  margin: 0;
+  color: #94a3b8;
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+.evidence-reading-list {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.evidence-reading-card {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 0.8rem;
+  padding: 0.9rem;
+  border: 1px solid #263347;
+  border-radius: 14px;
+  background: rgba(15, 23, 42, 0.82);
+}
+
+.evidence-step {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(196, 181, 253, 0.38);
+  color: #ddd6fe;
+  background: rgba(49, 46, 129, 0.42);
+  font-weight: 750;
+  font-size: 0.82rem;
+}
+
+.evidence-reading-card-body {
+  min-width: 0;
+  display: grid;
+  gap: 0.45rem;
+}
+
+.evidence-card-meta {
+  display: flex;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+}
+
+.evidence-card-meta .pill {
+  font-size: 0.68rem;
+}
+
+.evidence-reading-card h3 {
+  margin: 0;
+  color: #f8fafc;
+  font-size: 0.98rem;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.evidence-role-copy,
+.evidence-excerpt {
+  margin: 0;
+  color: #94a3b8;
+  line-height: 1.55;
+  font-size: 0.84rem;
+  overflow-wrap: anywhere;
+}
+
+.evidence-role-copy {
+  color: #bfdbfe;
+}
+
+.evidence-reading-card small,
+.evidence-reading-empty {
+  color: #64748b;
+  line-height: 1.5;
+  font-size: 0.78rem;
+}
+
 .observatory-empty {
   min-height: 320px;
   display: grid;
@@ -751,6 +855,11 @@ html, body {
 @media (max-width: 920px) {
   .discover-layout,
   .observatory-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .evidence-reading-path-header,
+  .evidence-reading-list {
     grid-template-columns: 1fr;
   }
 

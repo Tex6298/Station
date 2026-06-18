@@ -6,7 +6,9 @@ import { useParams } from "next/navigation";
 import { apiGet, apiUrl } from "@/lib/api-client";
 import { getSession } from "@/lib/auth";
 import {
+  developerSpaceEvidenceEmptyCopy,
   developerSpaceEvidenceRoleCopy,
+  developerSpaceEvidenceRoleDescription,
   developerSpaceEvidenceTitle,
   developerSpaceSignalStatus,
   developerSpaceStorySummary,
@@ -17,6 +19,7 @@ import {
   metricEntries,
   nodePosition,
   normaliseDeveloperSpaceWidgets,
+  orderedDeveloperSpaceEvidence,
   publicEntries,
   shouldShowRawDeveloperSpaceData,
   similarityPercent,
@@ -303,37 +306,52 @@ function SnapshotCard({ snapshot, showRaw }: { snapshot?: DeveloperSpaceSnapshot
   );
 }
 
-function LinkedDocumentsPanel({ documents, ownerView }: { documents: DeveloperSpaceLinkedDocument[]; ownerView: boolean }) {
-  if (documents.length === 0) return null;
+function EvidenceReadingPath({ documents, ownerView }: { documents: DeveloperSpaceLinkedDocument[]; ownerView: boolean }) {
+  const orderedDocuments = orderedDeveloperSpaceEvidence(documents);
 
   return (
-    <div className="card">
-      <h2 style={{ margin: "0 0 0.5rem", fontSize: "1rem" }}>{developerSpaceEvidenceTitle(documents)}</h2>
-      <p style={{ margin: "0 0 0.75rem", color: "#94a3b8", lineHeight: 1.55, fontSize: "0.84rem" }}>
-        {ownerView
-          ? "Published evidence and owner-only drafts are shown with status labels so the public boundary stays visible."
-          : "Public methodology, findings, field logs, and notes give visitors evidence beside the live observatory."}
-      </p>
-      <div style={{ display: "grid", gap: "0.75rem" }}>
-        {documents.map((link) => (
-          <article key={link.id} style={{ borderTop: "1px solid #1e293b", paddingTop: "0.7rem" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: "0.35rem", flexWrap: "wrap", marginBottom: "0.35rem" }}>
-              <span className="pill" style={{ fontSize: "0.68rem" }}>{developerSpaceEvidenceRoleCopy(link.role)}</span>
-              {ownerView ? (
-                <>
-                  <span className="pill" style={{ fontSize: "0.68rem", textTransform: "capitalize" }}>{link.document.status}</span>
-                  <span className="pill" style={{ fontSize: "0.68rem", textTransform: "capitalize" }}>{link.linkVisibility}</span>
-                </>
-              ) : null}
-            </div>
-            <strong style={{ display: "block", color: "#f8fafc", fontSize: "0.92rem" }}>{link.document.title}</strong>
-            {link.document.excerpt ? (
-              <p style={{ margin: "0.35rem 0 0", color: "#94a3b8", lineHeight: 1.55, fontSize: "0.84rem" }}>{link.document.excerpt}</p>
-            ) : null}
-          </article>
-        ))}
+    <section className="evidence-reading-path" aria-labelledby="developer-space-evidence-title">
+      <div className="evidence-reading-path-header">
+        <div>
+          <div className="section-label">Visitor reading path</div>
+          <h2 id="developer-space-evidence-title">{developerSpaceEvidenceTitle(documents)}</h2>
+        </div>
+        <p>
+          {ownerView
+            ? "Published evidence and owner-only drafts are ordered with status labels so the visitor boundary stays visible."
+            : "Read the public evidence in order, then use the live observatory to compare the notes with current signals."}
+        </p>
       </div>
-    </div>
+
+      {orderedDocuments.length === 0 ? (
+        <div className="card evidence-reading-empty">{developerSpaceEvidenceEmptyCopy(ownerView)}</div>
+      ) : (
+        <div className="evidence-reading-list">
+          {orderedDocuments.map((link, index) => (
+            <article key={link.id} className="evidence-reading-card">
+              <div className="evidence-step">{index + 1}</div>
+              <div className="evidence-reading-card-body">
+                <div className="evidence-card-meta">
+                  <span className="pill">{developerSpaceEvidenceRoleCopy(link.role)}</span>
+                  <span className="pill">{humaniseKey(link.document.documentType)}</span>
+                  <span className="pill">{link.document.publishedAt ? `Published ${formatDate(link.document.publishedAt)}` : `Updated ${formatDate(link.document.updatedAt)}`}</span>
+                  {ownerView ? (
+                    <>
+                      <span className="pill" style={{ textTransform: "capitalize" }}>{link.document.status}</span>
+                      <span className="pill" style={{ textTransform: "capitalize" }}>{link.linkVisibility}</span>
+                    </>
+                  ) : null}
+                </div>
+                <h3>{link.document.title}</h3>
+                <p className="evidence-role-copy">{developerSpaceEvidenceRoleDescription(link.role)}</p>
+                {link.document.excerpt ? <p className="evidence-excerpt">{link.document.excerpt}</p> : null}
+                <small>Evidence text is shown in-page here; no separate public document route is assumed for this linked record.</small>
+              </div>
+            </article>
+          ))}
+        </div>
+      )}
+    </section>
   );
 }
 
@@ -488,6 +506,8 @@ export default function DeveloperSpacePublicPage() {
         ))}
       </section>
 
+      <EvidenceReadingPath documents={detail.linkedDocuments ?? []} ownerView={detail.access === "owner"} />
+
       <section className="observatory-grid">
         <div style={{ display: "grid", gap: "1rem" }}>
           {mainWidgets.map((widget) => renderMainWidget(widget, detail, showRaw))}
@@ -552,7 +572,7 @@ function renderSideWidget(
   }
 
   if (widget.type === "project_notes") {
-    return <LinkedDocumentsPanel key={widget.id} documents={detail.linkedDocuments ?? []} ownerView={detail.access === "owner"} />;
+    return null;
   }
 
   if (widget.type === "latest_snapshot") {

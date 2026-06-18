@@ -5137,6 +5137,23 @@ when a PR lands, or when validation truth changes.
   evidence on `/developer-spaces/:slug` without opening route/table renames,
   Project abstraction, Tier 2 hosting, developer agents, DexOS-specific widgets,
   public interaction modes, Cloudflare, or broader Phase 2 scope.
+- DAEDALUS implements PR43 Developer Pages Evidence Reading Path on
+  2026-06-18: public linked evidence on `/developer-spaces/:slug` is now a
+  full-width visitor reading path before the live observatory grid instead of
+  only a compact side-card note bucket. Evidence is ordered methodology,
+  finding, field-log, then notes, with explicit `sortOrder` and title fallback;
+  each card shows role-purpose copy, safe metadata, excerpt, and owner-only
+  status/link labels in owner view. The old `project_notes` side widget no
+  longer duplicates the evidence. Space-less Developer Space evidence remains
+  in-page and does not pretend to have route-safe public document links. No API
+  shape, type package, route, table, seed, staging data, Project abstraction,
+  Tier 2 hosting, developer agent, DexOS-specific widget, public interaction
+  mode, Cloudflare, or broader Phase 2 scope was added. Validation passed
+  `test:developer-spaces` with 10 tests, `test:developer-space-client` with 3
+  tests, and `typecheck`; the web build compiled, linted/typechecked, and
+  generated 30 pages before the known Windows standalone symlink `EPERM`.
+  ARGUS review is requested, and ARIADNE should recheck deployed staging only
+  after ARGUS accepts the visible page change.
 
 ## Near-term rule
 

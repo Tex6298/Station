@@ -1,7 +1,7 @@
 # PR43 - Developer Pages Evidence Reading Path
 
 Date: 2026-06-18
-Status: opened for DAEDALUS
+Status: implemented by DAEDALUS, ready for ARGUS review
 Owner: DAEDALUS implements, ARGUS reviews, ARIADNE rechecks only if ARGUS
 accepts visible staging-facing changes.
 
@@ -128,3 +128,54 @@ Wake ARGUS when implemented with:
 - validation results;
 - explicit overclaim/privacy notes;
 - whether ARIADNE should recheck deployed staging after review.
+
+## DAEDALUS Implementation
+
+DAEDALUS promoted linked Developer Space evidence into a full-width visitor
+reading path on `/developer-spaces/:slug`, positioned after the summary metrics
+and before the live observatory grid.
+
+Behavior:
+
+- Evidence is ordered by role first, then explicit `sortOrder`, then title:
+  methodology, finding, field log, notes.
+- Each evidence card shows role copy, document type, published or updated date,
+  title, role-purpose copy, excerpt, and owner-only status/link labels when the
+  owner is viewing the page.
+- Empty states remain honest for public visitors and owners.
+- The old `project_notes` side widget no longer duplicates the evidence; the
+  main reading path is the first-class presentation.
+- The page does not invent public document links for space-less Developer Space
+  evidence. Cards explicitly remain in-page until a future route-safe document
+  lane exists.
+
+Files changed:
+
+- `apps/web/app/developer-spaces/[slug]/page.tsx`
+- `apps/web/app/globals.css`
+- `apps/web/lib/developer-space-observatory.ts`
+- `apps/web/lib/developer-space-observatory.test.ts`
+- `docs/roadmap/PR43_DEVELOPER_PAGES_EVIDENCE_READING_PATH.md`
+- `docs/roadmap/ACTIVE_STATUS.md`
+- `docs/testing/VALIDATION_BASELINE.md`
+
+Validation:
+
+```bash
+npm exec --yes pnpm@10.32.1 -- run test:developer-spaces
+npm exec --yes pnpm@10.32.1 -- run test:developer-space-client
+npm exec --yes pnpm@10.32.1 -- run typecheck
+npm exec --yes pnpm@10.32.1 -- --filter @station/web build
+git diff --check
+```
+
+`test:developer-spaces`, `test:developer-space-client`, and `typecheck` passed.
+The web build compiled, linted/typechecked, and generated 30 pages before
+reproducing the known Windows standalone symlink `EPERM`. `git diff --check`
+passed with only CRLF normalization warnings.
+
+Scope guard:
+
+- No API shape, type package, route, table, seed, or staging data change.
+- No Project abstraction, Tier 2 hosting, developer agent, DexOS-specific
+  widget, public interaction mode, Cloudflare, or broader Phase 2 scope.

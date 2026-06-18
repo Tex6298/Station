@@ -7799,6 +7799,29 @@ ARGUS scope notes:
 - ARIADNE can recheck the deployed public page after this commit is deployed and
   the seeded staging data is visible to the deployed API.
 
+## PR43 Developer Pages Evidence Reading Path
+
+DAEDALUS implementation validation on 2026-06-18:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 10 tests passed, including evidence ordering, role-purpose copy, and empty-state helper coverage. |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-space-client` | Pass | 3 client tests passed; ingestion client API stayed compatible. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed after the page/helper/CSS change. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web build` | Local environment failure after successful compile/type/page generation | Next compiled successfully, lint/type checks ran with the known warning inventory, and 30 static pages generated. The build then reproduced the known Windows standalone symlink failure: `EPERM: operation not permitted, symlink ... apps\\web\\.next\\standalone...`. |
+
+Scope notes:
+
+- The public Developer Space page now renders linked evidence as a full-width
+  visitor reading path before the live observatory grid.
+- Evidence ordering is methodology, finding, field-log, then notes, with
+  `sortOrder` and title fallback.
+- The path keeps space-less evidence in-page and does not invent public document
+  links.
+- No API shape, type package, route, table, seed, staging data, Project
+  abstraction, Tier 2 hosting, developer agent, DexOS-specific widget, public
+  interaction mode, Cloudflare, or broader Phase 2 scope was added.
+
 PR37 ARGUS follow-up validation on 2026-06-18:
 
 | Command | Result | Notes |

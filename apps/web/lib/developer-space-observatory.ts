@@ -145,6 +145,39 @@ export function developerSpaceEvidenceRoleCopy(role: DeveloperSpaceLinkedDocumen
   return copy[role] ?? "Project evidence";
 }
 
+export function developerSpaceEvidenceRoleDescription(role: DeveloperSpaceLinkedDocument["role"]) {
+  const copy: Record<DeveloperSpaceLinkedDocument["role"], string> = {
+    methodology: "Start here for the project frame, architecture, and evidence rules.",
+    finding: "Read next for the milestone, result, or decision this page is trying to prove.",
+    field_log: "Use this as the live-operation trail behind the current state.",
+    note: "Supplementary context that belongs after the core proof path.",
+  };
+  return copy[role] ?? "Evidence attached to this Developer Page.";
+}
+
+const EVIDENCE_ROLE_ORDER: Record<DeveloperSpaceLinkedDocument["role"], number> = {
+  methodology: 0,
+  finding: 1,
+  field_log: 2,
+  note: 3,
+};
+
+export function orderedDeveloperSpaceEvidence(documents: DeveloperSpaceLinkedDocument[]) {
+  return [...documents].sort((a, b) => {
+    const roleOrder = (EVIDENCE_ROLE_ORDER[a.role] ?? 99) - (EVIDENCE_ROLE_ORDER[b.role] ?? 99);
+    if (roleOrder !== 0) return roleOrder;
+    const sortOrder = (a.sortOrder ?? 0) - (b.sortOrder ?? 0);
+    if (sortOrder !== 0) return sortOrder;
+    return a.document.title.localeCompare(b.document.title);
+  });
+}
+
+export function developerSpaceEvidenceEmptyCopy(ownerView: boolean) {
+  return ownerView
+    ? "No methodology, finding, field-log, or note documents are attached yet. Public visitors will only see live signals and snapshots until published evidence is linked."
+    : "No public evidence documents are attached yet. The live observatory is still visible, but the reading path will appear after public methodology, findings, field logs, or notes are linked.";
+}
+
 const DEFAULT_WIDGETS: DeveloperSpaceWidgetConfig[] = [
   { id: "visualisation", type: "visualisation", title: "Live visualisation", zone: "main", position: 0, visible: true },
   { id: "event_stream", type: "event_stream", title: "Event stream", zone: "main", position: 1, visible: true },
