@@ -4339,6 +4339,13 @@ when a PR lands, or when validation truth changes.
   replay owner capability is a staging profile tier seed, not Stripe-paid
   activation proof. Regression checks kept no-Space approval enqueue at `400`
   and a synthetic below-Creator user approval mutation at `403`.
+- PR23 Creator Publish Public Discussion Proof is accepted by ARGUS,
+  2026-06-18: ARGUS reviewed the sanitized proof package, public route chain,
+  no-Space guard, below-Creator guard, discussion visibility, and entitlement
+  caveat. The lane is proof/setup only with no product code or UI change, and
+  the documentation does not overclaim Stripe-paid Creator activation. ARGUS
+  does not require an additional ARIADNE browser rehearsal for this proof-only
+  closeout; MIMIR can decide whether to mark PR23 complete.
 
 ## Near-term rule
 
