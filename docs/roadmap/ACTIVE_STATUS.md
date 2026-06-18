@@ -5121,6 +5121,15 @@ when a PR lands, or when validation truth changes.
   document types `research`, `research`, `field_log`, and zero hidden rows.
   `docs/roadmap/PR42_DEVELOPER_PAGES_STAGING_RECHECK.md` asks ARIADNE for the
   anonymous human-eye public page check.
+- ARIADNE completes PR42 Developer Pages Staging Recheck on 2026-06-18:
+  `docs/roadmap/PR42_DEVELOPER_PAGES_STAGING_RECHECK_ARIADNE.md` records a pass
+  against Railway runtime `894fd05`. Anonymous API read shows three public
+  evidence documents with roles `methodology`, `finding`, and `field_log`.
+  Desktop and 390px mobile browser checks show `Project evidence`,
+  methodology/finding/field-log text, live signals, and visitor/private boundary
+  copy without overflow or route failure. The visible `DexOS` mention is a
+  negative boundary, not an overclaim. ARIADNE recommends MIMIR close PR40/PR41
+  as the first Developer Pages Phase 2A proof; Cloudflare remains deferred.
 
 ## Near-term rule
 
