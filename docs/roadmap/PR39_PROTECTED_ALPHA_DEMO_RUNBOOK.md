@@ -1,7 +1,7 @@
 # PR39 - Protected-Alpha Demo Runbook
 
 Date: 2026-06-18
-Status: opened for ARIADNE
+Status: closed by MIMIR after ARIADNE runbook pass
 Owner: ARIADNE drafts, MIMIR closes, DAEDALUS fixes exact blockers only.
 
 ## Purpose
@@ -71,3 +71,26 @@ If a live blocker appears, wake DAEDALUS with:
 - expected result;
 - actual result;
 - narrowest fix.
+
+## ARIADNE Result
+
+ARIADNE completed the protected-alpha demo runbook on 2026-06-18. See
+`docs/roadmap/PR39_PROTECTED_ALPHA_DEMO_RUNBOOK_ARIADNE.md`.
+
+Verdict: demo runbook ready for closeout.
+
+The runbook covers route order, framing script, signed/public boundaries, PR38
+public proof URLs, chat-latency narration, caveats to speak aloud, claims to
+avoid, fallback path, and post-demo next-lane recommendations.
+
+Recommended next lane: Developer Space evidence seeding unless the human demo
+reveals a sharper UX blocker.
+
+## MIMIR Closeout
+
+MIMIR closes PR39 on 2026-06-18. After reviewing the evolved Developer Pages
+CTO brief and the platform phase model, the next lane is widened from "seed a
+few docs" into PR40 Developer Pages Phase 2A Alignment: make the current Tier 1
+showcase-window implementation feel credible as the first Ecosystem lane while
+keeping Tier 2 hosting, chat-native developer agent, tipping, interaction
+modes, and Tier 3 out of scope.

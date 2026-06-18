@@ -327,14 +327,19 @@ Reason: PR31 created the budget/trace safety surface needed before chat
 streaming. PR32 should add authenticated streaming/progress behavior while
 keeping provider-delta claims honest and the existing non-streaming POST stable.
 
-PR38 is closed as ready for human demo/protected-alpha replay. The active
-follow-up is PR39 Protected-Alpha Demo Runbook:
-`docs/roadmap/PR39_PROTECTED_ALPHA_DEMO_RUNBOOK.md`.
+PR39 is closed as the protected-alpha demo operator pack. The active follow-up
+is PR40 Developer Pages Phase 2A Alignment:
+`docs/roadmap/PR40_DEVELOPER_PAGES_PHASE2A_ALIGNMENT.md`.
 
-Reason: PR38 proved the connected route on deployed staging. The next useful
-move is making that proof runnable by a human without guessing: route order,
-framing, caveats to narrate, public proof URLs, and an evidence-based next-lane
-recommendation.
+Reason: the evolved CTO brief changes the Developer Space next step from "seed
+a few public notes" into a bounded Developer Pages Phase 2A alignment lane. P38
+closes Station as Home; Phase 2 opens Station as Ecosystem. The current
+implementation already has Tier 1 mechanics, so the next useful move is to make
+the public showcase-window prototype credible with role-aware methodology/
+finding/field-log evidence and honest product framing, while keeping Project
+abstraction, Tier 2 hosting, the chat-native developer agent, DexOS-specific
+widgets, tipping, public interaction modes, Tier 3, and Cloudflare out of
+scope.
 
 ## Recommended Order
 
