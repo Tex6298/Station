@@ -1,7 +1,7 @@
 # PR45 - Developer Pages Second Example
 
 Date: 2026-06-18
-Status: implemented by DAEDALUS, ready for ARGUS review
+Status: accepted by ARGUS, ready for MIMIR closeout and ARIADNE staging recheck
 Owner: DAEDALUS implements, ARGUS reviews, ARIADNE rechecks only after deploy
 and seed if ARGUS accepts.
 
@@ -185,3 +185,44 @@ Scope guard:
 - No API response shape, type package shape, route/table rename, Project
   abstraction, Tier 2 hosting, developer agent, DexOS-specific widget, public
   interaction mode, Cloudflare, or broad UI polish was added.
+
+## ARGUS Review Result
+
+ARGUS accepts PR45 for MIMIR closeout, 2026-06-18.
+
+- The corpus shape is backward-compatible: the original `developerSpace` remains
+  the primary example and `additionalDeveloperSpaces` adds optional extra public
+  examples.
+- The second example, `animus-field-lab`, is synthetic, public-safe, and does
+  not claim hosted runtime, DexOS onboarding, developer-agent execution, public
+  interaction modes, Cloudflare delivery, or production infrastructure.
+- ARGUS patched corpus validation so evidence document slugs must be unique
+  across all Developer Space examples. This prevents the existing
+  `author_user_id,slug` document upsert from accidentally reusing one document
+  across spaces.
+- ARGUS also added validation for optional Developer Space visualisation types
+  and provider policies before staging writes.
+- Both public slugs read back through the public predicate:
+  `station-replay-dev-alpha` and `animus-field-lab` each have methodology,
+  finding, and field-log evidence, document types `research`, `research`, and
+  `field_log`, and zero hidden rows under the public predicate.
+- No API response shape, type package shape, Discover/public feed code, route/
+  table rename, Project abstraction, Tier 2 hosting, developer agent,
+  DexOS-specific widget, public interaction mode, Cloudflare, or broad UI polish
+  changed.
+
+Validation:
+
+```bash
+node --check scripts/staging-replay-seed.mjs
+npm exec --yes pnpm@10.32.1 -- run replay:seed:validate
+npm exec --yes pnpm@10.32.1 -- run replay:seed:staging
+npm exec --yes pnpm@10.32.1 -- run test:developer-spaces
+npm exec --yes pnpm@10.32.1 -- run test:developer-space-client
+npm exec --yes pnpm@10.32.1 -- run typecheck
+git diff --check
+```
+
+All passed. ARIADNE should recheck deployed
+`/developer-spaces/station-replay-dev-alpha` and
+`/developer-spaces/animus-field-lab` after deploy/seed.

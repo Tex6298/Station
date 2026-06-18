@@ -5217,6 +5217,25 @@ when a PR lands, or when validation truth changes.
   abstraction, Tier 2 hosting, developer agent, DexOS-specific widget, public
   interaction mode, Cloudflare, or broad UI polish was added.
 
+- PR45 Developer Pages Second Example is accepted by ARGUS for MIMIR closeout,
+  2026-06-18: ARGUS verified the corpus shape is backward-compatible because
+  `developerSpace` remains the primary example and `additionalDeveloperSpaces`
+  only adds optional extra public examples. ARGUS patched validation so evidence
+  document slugs must be unique across all Developer Space examples, preventing
+  the existing `author_user_id,slug` upsert from accidentally reusing one
+  document across spaces; ARGUS also added validation for optional Developer
+  Space visualisation types and provider policies before staging writes. ARGUS
+  reran `replay:seed:staging` and independently read back both public slugs:
+  `station-replay-dev-alpha` and `animus-field-lab` each returned methodology,
+  finding, and field-log evidence with document types `research`, `research`,
+  and `field_log`, and zero hidden rows under the public predicate. Validation
+  passed `node --check scripts/staging-replay-seed.mjs`,
+  `replay:seed:validate`, `replay:seed:staging`, `test:developer-spaces` with
+  10 tests, `test:developer-space-client` with 3 tests, `typecheck`, and
+  `git diff --check`. ARGUS recommends ARIADNE recheck deployed
+  `/developer-spaces/station-replay-dev-alpha` and
+  `/developer-spaces/animus-field-lab` after deploy/seed.
+
 ## Near-term rule
 
 Do the boring foundation work before the attractive surface work:

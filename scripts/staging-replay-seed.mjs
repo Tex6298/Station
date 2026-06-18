@@ -26,6 +26,19 @@ const LAUNCH_DOCUMENT_TYPES = new Set([
   "archive_note",
   "transcript",
 ]);
+const DEVELOPER_SPACE_VISUALISATION_TYPES = new Set([
+  "node_field",
+  "timeline",
+  "world_map",
+  "constellation",
+]);
+const DEVELOPER_SPACE_PROVIDER_POLICIES = new Set([
+  "public_synthetic_only",
+  "public_context_allowed",
+  "private_archive_allowed",
+  "owner_byok_only",
+  "platform_allowed",
+]);
 
 const args = process.argv.slice(2);
 
@@ -213,6 +226,7 @@ function validateCorpus(corpus) {
   }
   const developerSpaces = developerSpacesFromCorpus(corpus);
   const slugs = new Set();
+  const documentSlugs = new Set();
   developerSpaces.forEach((developerSpace, index) => {
     const label = index === 0 ? "developerSpace" : `additionalDeveloperSpaces[${index - 1}]`;
     validateDeveloperSpace(developerSpace, label);
@@ -220,6 +234,12 @@ function validateCorpus(corpus) {
       throw new Error(`${label}.slug must be unique across Developer Space examples.`);
     }
     slugs.add(developerSpace.slug);
+    developerSpace.documents.forEach((document, documentIndex) => {
+      if (documentSlugs.has(document.slug)) {
+        throw new Error(`${label}.documents[${documentIndex}].slug must be unique across Developer Space examples.`);
+      }
+      documentSlugs.add(document.slug);
+    });
   });
   requireObject(corpus.exportPackage, "exportPackage");
   requireString(corpus.exportPackage.label, "exportPackage.label");
@@ -233,6 +253,12 @@ function validateDeveloperSpace(developerSpace, label) {
   requireObject(developerSpace, label);
   requireString(developerSpace.slug, `${label}.slug`);
   requireString(developerSpace.projectName, `${label}.projectName`);
+  if (developerSpace.visualisationType !== undefined) {
+    requireSetValue(developerSpace.visualisationType, DEVELOPER_SPACE_VISUALISATION_TYPES, `${label}.visualisationType`);
+  }
+  if (developerSpace.providerPolicy !== undefined) {
+    requireSetValue(developerSpace.providerPolicy, DEVELOPER_SPACE_PROVIDER_POLICIES, `${label}.providerPolicy`);
+  }
   requireObject(developerSpace.node, `${label}.node`);
   requireString(developerSpace.node.externalId, `${label}.node.externalId`);
   requireString(developerSpace.node.name, `${label}.node.name`);
@@ -276,6 +302,12 @@ function requireObject(value, label) {
 function requireString(value, label) {
   if (typeof value !== "string" || value.trim().length === 0) {
     throw new Error(`${label} must be a non-empty string.`);
+  }
+}
+
+function requireSetValue(value, allowed, label) {
+  if (typeof value !== "string" || !allowed.has(value)) {
+    throw new Error(`${label} must be one of: ${Array.from(allowed).join(", ")}.`);
   }
 }
 

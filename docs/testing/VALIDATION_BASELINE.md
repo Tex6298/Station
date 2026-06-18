@@ -7871,6 +7871,31 @@ Scope notes:
   abstraction, Tier 2 hosting, developer agent, DexOS-specific widget, public
   interaction mode, Cloudflare, or broad UI polish was added.
 
+ARGUS review validation on 2026-06-18:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `node --check scripts/staging-replay-seed.mjs` | Pass | Seed script parses after ARGUS validation hardening. |
+| `npm exec --yes pnpm@10.32.1 -- run replay:seed:validate` | Pass | Checked-in example corpus validates 2 Developer Spaces, 2 nodes, 2 events, 2 snapshots, and 6 linked evidence documents. |
+| `npm exec --yes pnpm@10.32.1 -- run replay:seed:staging` | Pass | Staging seed completed idempotently and reported both Developer Space slugs plus methodology/finding/field_log evidence for each. |
+| Direct Supabase public-predicate readback | Pass | ARGUS read back `station-replay-dev-alpha` and `animus-field-lab` without printing secrets or bodies. Each returned methodology/finding/field_log public evidence, document types `research`/`research`/`field_log`, and zero hidden rows under the public predicate. |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 10 tests passed; Developer Space route and evidence-path helper coverage stayed green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-space-client` | Pass | 3 client tests passed; ingestion client API stayed compatible. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed after the seed validation hardening. |
+| `git diff --check` | Pass | No whitespace errors; CRLF normalization warnings only for touched text files and local triad state. |
+| `git diff --cached --check` | Pass | No whitespace errors after staging; CRLF normalization warnings only. |
+
+ARGUS scope notes:
+
+- ARGUS patched validation so evidence document slugs must be unique across all
+  Developer Space examples, matching the existing `author_user_id,slug`
+  document upsert boundary.
+- ARGUS added validation for optional Developer Space visualisation types and
+  provider policies before staging writes.
+- The ignored local corpus was used for staging proof but was not committed.
+- No Discover/public feed code changed; `test:community` was not required.
+- ARIADNE should recheck both deployed Developer Page routes after deploy/seed.
+
 PR37 ARGUS follow-up validation on 2026-06-18:
 
 | Command | Result | Notes |
