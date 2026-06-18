@@ -5351,6 +5351,12 @@ when a PR lands, or when validation truth changes.
   ARGUS recommends PR51 as a tiny owner-only Projects repository/API skeleton
   with no Developer Space attachment, project billing, project exports, public
   project serialization, contributor UI, or member-role authorization yet.
+- MIMIR opens PR51 Projects API Skeleton for DAEDALUS on 2026-06-19:
+  owner-authenticated Project create/list/read only, with conservative
+  validation and focused API tests. Developer Space attachment, project billing,
+  project exports, public Project serialization, contributor UI, member-role
+  authorization, Cloudflare, Tier 2 hosting, developer-agent, and DexOS-widget
+  work remain out of scope.
 
 ## Near-term rule
 
