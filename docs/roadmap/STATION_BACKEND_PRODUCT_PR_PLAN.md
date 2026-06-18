@@ -327,15 +327,15 @@ Reason: PR31 created the budget/trace safety surface needed before chat
 streaming. PR32 should add authenticated streaming/progress behavior while
 keeping provider-delta claims honest and the existing non-streaming POST stable.
 
-PR35 is closed. The active follow-up is PR36 Launch-Core Human Rehearsal:
-`docs/roadmap/PR36_LAUNCH_CORE_HUMAN_REHEARSAL.md`.
+PR36 is closed as launch-core alpha pass with caveats. The active follow-up is
+PR37 Launch-Core Polish Caveats:
+`docs/roadmap/PR37_LAUNCH_CORE_POLISH_CAVEATS.md`.
 
-Reason: PR31 through PR35 made chat runtime budget, streaming envelope,
-continuity context, topology metadata, and provider route selection explicit.
-The next useful move is not another architecture lane; it is ARIADNE's live
-human rehearsal of the launch-core journey, with exact DAEDALUS wakeups only for
-concrete defects and Cloudflare kept deferred unless real staging evidence
-forces it.
+Reason: ARIADNE's live rehearsal found no backend blocker and no Cloudflare
+trigger. The remaining pre-demo work is narrow visible polish: signed mobile
+global navigation overflow, Archive search affordance/copy, Developer Space
+methodology/field-log storytelling, and Archive/import source narrative
+thinness.
 
 ## Recommended Order
 

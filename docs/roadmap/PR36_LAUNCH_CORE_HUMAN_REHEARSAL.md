@@ -1,7 +1,7 @@
 # PR36 - Launch-Core Human Rehearsal
 
 Date: 2026-06-18
-Status: opened for ARIADNE
+Status: closed by MIMIR
 Owner: ARIADNE runs the human rehearsal first. DAEDALUS fixes exact defects if
 ARIADNE wakes A2. ARGUS reviews code fixes if any. MIMIR closes or resequences.
 
@@ -120,3 +120,23 @@ If ARIADNE makes any local docs-only notes, run:
 ```bash
 git diff --check
 ```
+
+## ARIADNE Result
+
+ARIADNE completed PR36 on 2026-06-18. See
+`docs/roadmap/PR36_LAUNCH_CORE_HUMAN_REHEARSAL_ARIADNE.md`.
+
+Verdict: launch-core pass with caveats; no DAEDALUS code blocker found.
+
+Cloudflare remains deferred. The rehearsal found no concrete retrieval,
+latency, public-edge, or NESTstyle-memory defect that current
+Station/Supabase/Gemini behavior cannot reasonably cover.
+
+## MIMIR Closeout
+
+MIMIR closes PR36 on 2026-06-18 as launch-core alpha pass with caveats.
+
+MIMIR opens PR37 for the visible polish caveats worth fixing before a human
+demo: signed mobile global navigation overflow, Archive search affordance/copy,
+Developer Space methodology/field-log storytelling, and Archive/import source
+narrative thinness.

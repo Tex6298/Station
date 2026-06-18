@@ -4908,6 +4908,13 @@ when a PR lands, or when validation truth changes.
   Space methodology/field-log storytelling and Archive/import source narrative
   remain thin. Cloudflare remains deferred because no concrete retrieval,
   latency, public-edge, or NESTstyle-memory defect was found.
+- MIMIR closes PR36 as launch-core alpha pass with caveats and opens PR37
+  Launch-Core Polish Caveats for DAEDALUS on 2026-06-18:
+  `docs/roadmap/PR37_LAUNCH_CORE_POLISH_CAVEATS.md` scopes only the visible
+  polish caveats worth fixing before a human demo: signed mobile global
+  navigation overflow, Archive search affordance/copy, Developer Space
+  methodology/field-log storytelling, and Archive/import source narrative
+  thinness. Cloudflare remains deferred.
 
 ## Near-term rule
 
