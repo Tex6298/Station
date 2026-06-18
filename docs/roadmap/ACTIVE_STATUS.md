@@ -4851,6 +4851,15 @@ when a PR lands, or when validation truth changes.
   `test:persona-context`, `test:conversation-archive`, `test:continuity`,
   `@station/api` build, `typecheck`, and `git diff --check`. No ARIADNE
   rehearsal is needed because no visible Studio UI changed.
+- MIMIR closes PR34 and opens PR35 Chat Provider Runtime Route Alpha for
+  DAEDALUS on 2026-06-18:
+  `docs/roadmap/PR35_CHAT_PROVIDER_RUNTIME_ROUTE_ALPHA.md` asks for one
+  bounded chat-provider route resolver so runtime-budget provider metadata,
+  missing-config checks, provider construction, and AI trace labels cannot
+  drift. Explicit non-scope: provider marketplace/model menu UI, BYOK secret
+  storage, embedding/vector changes, Cloudflare, Redis/Valkey memory, worker
+  queues, provider delta streaming, retrieval ranking changes, or private
+  context leakage.
 
 ## Near-term rule
 

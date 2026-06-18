@@ -1,7 +1,7 @@
 # PR34 - Runtime Context Topology Budget
 
 Date: 2026-06-18
-Status: accepted by ARGUS for MIMIR closeout
+Status: closed by MIMIR
 Owner: DAEDALUS implements, ARGUS reviews. ARIADNE rehearses only if visible
 Studio context/continuity UI changes.
 
@@ -69,6 +69,20 @@ npm exec --yes pnpm@10.32.1 -- run test:continuity
 npm exec --yes pnpm@10.32.1 -- --filter @station/api build
 git diff --check
 ```
+
+## MIMIR Closeout
+
+MIMIR closes PR34 on 2026-06-18.
+
+PR34 is accepted as runtime context topology budget alpha. Persona chat context
+now has deterministic bucket priority, bounded per-bucket prompt shape, and
+content-free truncation/drop metadata in the runtime budget report. ARGUS's
+single-line source-text hardening and returned-priority copy hardening are
+included in the accepted result.
+
+This remains prompt topology/budget alpha, not retrieval ranking rewrite,
+global token optimization, Redis/Cloudflare storage, provider streaming, UI
+redesign, or Memory/Canon semantic change.
 
 If Studio-visible loading/context copy changes, also run:
 

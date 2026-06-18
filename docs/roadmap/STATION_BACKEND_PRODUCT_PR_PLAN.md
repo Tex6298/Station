@@ -327,12 +327,14 @@ Reason: PR31 created the budget/trace safety surface needed before chat
 streaming. PR32 should add authenticated streaming/progress behavior while
 keeping provider-delta claims honest and the existing non-streaming POST stable.
 
-PR33 is closed. The active follow-up is PR34 Runtime Context Topology Budget:
-`docs/roadmap/PR34_RUNTIME_CONTEXT_TOPOLOGY_BUDGET.md`.
+PR34 is closed. The active follow-up is PR35 Chat Provider Runtime Route Alpha:
+`docs/roadmap/PR35_CHAT_PROVIDER_RUNTIME_ROUTE_ALPHA.md`.
 
-Reason: once continuity joins canon, integrity/preference, memory, archive, and
-recent turns, Station needs deterministic prompt-budget behavior before adding
-more retrieval depth, vector search, provider streaming, or memory tiers.
+Reason: PR31 through PR34 made chat runtime budget, streaming envelope,
+continuity context, and topology metadata explicit. The next narrow runtime
+hardening pass is to make provider route selection trace-honest and reusable
+before any model menu, provider expansion, provider streaming, embedding
+migration, or Cloudflare retrieval lane.
 
 ## Recommended Order
 
