@@ -4644,6 +4644,17 @@ when a PR lands, or when validation truth changes.
   now blocks readiness when the document-version table is absent from the
   schema cache. This is readiness proof only; no document-version API/UI
   semantics changed.
+- PR30 staging schema readiness follow-up is accepted by ARGUS for ARIADNE
+  rehearsal, 2026-06-18: ARGUS found and patched one overclaim edge. Migration
+  readiness now uses the public object/RPC proof as the readiness answer even
+  when the Supabase migration history table is readable, so
+  `public.documents.version` and `public.document_versions` are required before
+  readiness can go green across embedding profiles. A second health regression
+  proves an OpenAI-profile deployment with readable migration history still
+  blocks readiness when `public.document_versions` is absent. Validation passed
+  `test:health` with 16 tests, `@station/api` build, `typecheck`, and
+  `git diff --check`. ARIADNE should rerun the PR30 desktop/375px Studio
+  publish-flow version-history rehearsal.
 
 ## Near-term rule
 

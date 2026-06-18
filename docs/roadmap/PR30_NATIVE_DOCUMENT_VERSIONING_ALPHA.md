@@ -151,3 +151,16 @@ public_schema_object_rpc_and_document_version_proof`, and `test:health` includes
 a regression where the PR30 document-version table is absent from the schema
 cache. This follow-up changes readiness proof only; it does not change
 document-version API, export, or Studio behavior.
+
+ARGUS accepted the follow-up after tightening one truthfulness edge: migration
+readiness now uses the public object/RPC proof as the readiness answer even when
+the Supabase migration history table is readable. A second health regression
+proves an OpenAI-profile deployment with readable migration history still blocks
+readiness when `public.document_versions` is absent. Validation passed:
+
+```bash
+npm exec --yes pnpm@10.32.1 -- run test:health
+npm exec --yes pnpm@10.32.1 -- --filter @station/api build
+npm exec --yes pnpm@10.32.1 -- run typecheck
+git diff --check
+```

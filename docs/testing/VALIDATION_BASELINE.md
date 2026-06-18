@@ -7444,11 +7444,16 @@ PR30 staging schema readiness follow-up on 2026-06-18:
 
 | Command | Result | Notes |
 | --- | --- | --- |
-| `npm exec --yes pnpm@10.32.1 -- run test:health` | Pass | 15 tests passed; `/health/deployment` now proves `public.documents.version` and `public.document_versions`, and blocks readiness when the PR30 document-version table is missing from the schema cache. |
+| `npm exec --yes pnpm@10.32.1 -- run test:health` | Pass | 16 tests passed; `/health/deployment` now proves `public.documents.version` and `public.document_versions`, blocks readiness when the PR30 document-version table is missing from the schema cache, and still requires object proof when migration history is readable. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/api build` | Pass | API build passed after ARGUS tightened migration readiness to use public object/RPC proof as the readiness answer. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck tasks passed after the readiness follow-up. |
+| `git diff --check` | Pass | No whitespace errors; CRLF normalization warnings only for touched text files if Git reports them. |
 
 Scope notes:
 
 - Updated deployment readiness proof from `025-029` to `025-037 /
   public_schema_object_rpc_and_document_version_proof`.
+- ARGUS patched the readiness path so public object/RPC proof, not readable
+  migration history alone, is the readiness answer.
 - This is a readiness/test label and object-proof patch only; it does not
   redesign document versioning, Studio UI, exports, or public document reads.

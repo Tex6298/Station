@@ -238,61 +238,9 @@ async function checkMigrationState(): Promise<MigrationReadiness> {
     return { ok: false, checked: false, count: null, latest: null, error: "not_configured" };
   }
 
-  const sb = getSupabaseAdmin() as any;
-  const history = await checkSupabaseMigrationHistory(sb);
-  const embeddingProfileCode = resolveActiveEmbeddingProfileCode();
-  if (history.ok && embeddingProfileCode !== "station_free_1536") return history;
-
-  // Supabase's REST layer can hide supabase_migrations; public objects prove the
-  // backend migrations we need when history is unavailable in staging. The
-  // active free embedding profile additionally requires the provider-aware 029
-  // RPC signatures before deployment readiness can go true.
-  const objectProof = await checkBackendMigrationObjects(sb);
-  if (embeddingProfileCode === "station_free_1536") return objectProof;
-  return objectProof.ok ? objectProof : history;
-}
-
-async function checkSupabaseMigrationHistory(sb: any): Promise<MigrationReadiness> {
-  try {
-    if (typeof sb.schema !== "function") {
-      return { ok: false, checked: false, count: null, latest: null, error: "not_supported" };
-    }
-
-    const result: any = await withTimeout(
-      sb
-        .schema("supabase_migrations")
-        .from("schema_migrations")
-        .select("version,name", { count: "exact" })
-        .order("version", { ascending: false })
-        .limit(1),
-      CHECK_TIMEOUT_MS
-    );
-
-    if (result.error) {
-      return { ok: false, checked: true, count: null, latest: null, error: "query_failed" };
-    }
-
-    const latest = Array.isArray(result.data) ? result.data[0] : null;
-    return {
-      ok: true,
-      checked: true,
-      count: typeof result.count === "number" ? result.count : null,
-      latest: latest
-        ? {
-          version: String(latest.version ?? ""),
-          name: latest.name == null ? null : String(latest.name),
-        }
-        : null,
-    };
-  } catch (error) {
-    return {
-      ok: false,
-      checked: true,
-      count: null,
-      latest: null,
-      error: isTimeout(error) ? "timeout" : "query_failed",
-    };
-  }
+  // Readiness depends on the public objects and RPCs the app actually queries,
+  // not on whether the Supabase migration ledger is visible to PostgREST.
+  return checkBackendMigrationObjects(getSupabaseAdmin() as any);
 }
 
 async function checkBackendMigrationObjects(sb: any): Promise<MigrationReadiness> {

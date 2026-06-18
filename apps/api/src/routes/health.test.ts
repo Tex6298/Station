@@ -55,13 +55,13 @@ const SECRET_MARKERS = [
   "secret-nvidia",
   "secret-gemini",
   "secret-google",
+  "secret-openai",
   "secret-redis",
   "secret-upstash",
 ];
 
 class ReadinessSupabase {
   failProfiles = false;
-  failMigrations = false;
   migrationObjectProof = false;
   documentVersionObjectProof = true;
   failEmbeddingProfileRpcProof = false;
@@ -70,16 +70,8 @@ class ReadinessSupabase {
   objectProofQueries: Array<{ schemaName: string; table: string; columns: string }> = [];
   rpcCalls: Array<{ functionName: string; args: Record<string, unknown> }> = [];
 
-  migrations: Row[] = [
-    { version: "20240530000001", name: "001_initial_schema" },
-    { version: "20260611000029", name: "029_gemini_embedding_provider_prep" },
-  ];
-
   client = {
     from: (table: string) => new ReadinessQuery(this, "public", table),
-    schema: (schemaName: string) => ({
-      from: (table: string) => new ReadinessQuery(this, schemaName, table),
-    }),
     rpc: async (functionName: string, args: Record<string, unknown>) => {
       this.rpcCalls.push({ functionName, args });
       if (!["match_memory_items", "match_private_archive_chunks"].includes(functionName)) {
@@ -108,8 +100,6 @@ class ReadinessQuery {
   private countRequested = false;
   private head = false;
   private limitCount: number | null = null;
-  private orderField: string | null = null;
-  private ascending = true;
   private columns: string | null = null;
 
   constructor(
@@ -122,12 +112,6 @@ class ReadinessQuery {
     this.columns = _columns;
     this.countRequested = Boolean(options.count);
     this.head = Boolean(options.head);
-    return this;
-  }
-
-  order(field: string, options: { ascending?: boolean } = {}) {
-    this.orderField = field;
-    this.ascending = options.ascending ?? true;
     return this;
   }
 
@@ -146,23 +130,6 @@ class ReadinessQuery {
         return { data: null, error: { message: "database failure with secret-service-role" }, count: null };
       }
       return { data: this.head ? null : [], error: null, count: this.countRequested ? 0 : null };
-    }
-
-    if (this.schemaName === "supabase_migrations" && this.table === "schema_migrations") {
-      if (this.db.failMigrations) {
-        return { data: null, error: { message: "migration failure with secret-password" }, count: null };
-      }
-
-      let rows = [...this.db.migrations];
-      if (this.orderField) {
-        rows.sort((a, b) => {
-          if (a[this.orderField!] === b[this.orderField!]) return 0;
-          return (a[this.orderField!] > b[this.orderField!] ? 1 : -1) * (this.ascending ? 1 : -1);
-        });
-      }
-      const count = this.countRequested ? rows.length : null;
-      if (this.limitCount != null) rows = rows.slice(0, this.limitCount);
-      return { data: rows, error: null, count };
     }
 
     if (
@@ -425,9 +392,8 @@ test("/health/deployment keeps deployment identity nullable and non-blocking out
   });
 });
 
-test("/health/deployment proves backend migrations through public schema objects when history is hidden", async () => {
+test("/health/deployment proves backend migrations through public schema objects", async () => {
   const db = new ReadinessSupabase();
-  db.failMigrations = true;
   db.migrationObjectProof = true;
   const { app } = await setupHealthApp(db);
 
@@ -477,6 +443,36 @@ test("/health/deployment blocks readiness when PR30 document version objects are
   } finally {
     await resetHealthFakes();
   }
+});
+
+test("/health/deployment requires PR30 object proof even when migration history is readable", async () => {
+  const db = new ReadinessSupabase();
+  db.migrationObjectProof = true;
+  db.documentVersionObjectProof = false;
+
+  await withEnvOverride({
+    EMBEDDING_PROFILE_CODE: "openai_1536",
+    EMBEDDINGS_PROVIDER: "",
+    OPENAI_API_KEY: "secret-openai",
+    GEMINI_API_KEY: "",
+    GOOGLE_API_KEY: "",
+  }, async () => {
+    const { app } = await setupHealthApp(db);
+
+    try {
+      const deployment = await requestJson(app, "GET", "/health/deployment");
+      assert.equal(deployment.status, 200);
+      assert.equal(deployment.body.ok, true);
+      assert.equal(deployment.body.ready, false);
+      assert.equal(deployment.body.readiness.migrations.ok, false);
+      assert.equal(deployment.body.readiness.migrations.error, "query_failed");
+      assert.equal(deployment.body.readiness.providers.embeddingProfileCode, "openai_1536");
+      assert.deepEqual(db.rpcCalls, []);
+      assertNoSecrets(deployment.body);
+    } finally {
+      await resetHealthFakes();
+    }
+  });
 });
 
 test("/health/deployment blocks free embedding profile readiness without migration 029 RPC proof", async () => {
@@ -614,7 +610,6 @@ test("/health/deployment blocks readiness when Supabase auth redirects are incom
 test("/health/deployment sanitizes dependency failures", async () => {
   const db = new ReadinessSupabase();
   db.failProfiles = true;
-  db.failMigrations = true;
   db.bucketMissing = true;
   const { app } = await setupHealthApp(db);
 
