@@ -5001,6 +5001,17 @@ when a PR lands, or when validation truth changes.
   `docs/roadmap/PR38_FINAL_HUMAN_DEMO_REHEARSAL.md` asks ARIADNE to run the
   final protected-alpha demo path as a human-eye rehearsal. PR38 is the next
   proof step after visible polish, not a Cloudflare/backend architecture lane.
+- ARIADNE completes PR38 Final Human Demo Rehearsal on 2026-06-18:
+  `docs/roadmap/PR38_FINAL_HUMAN_DEMO_REHEARSAL_ARIADNE.md` records a signed
+  API and Chrome/CDP desktop/mobile rehearsal against Railway runtime
+  `6b87332`. Verdict: ready for human demo as protected-alpha replay. Health,
+  auth persistence, Studio dashboard, persona chat/status stream, chat archive,
+  Continuity, private archive search, export manifest/bundle readback,
+  public document/forum chain, Station Assistant, and public Developer Space
+  story passed. Caveats: chat/provider latency can vary, the seeded Developer
+  Space still has no linked public methodology/finding/field-log documents, and
+  this remains protected-alpha replay rather than full production polish.
+  Cloudflare remains deferred.
 
 ## Near-term rule
 
