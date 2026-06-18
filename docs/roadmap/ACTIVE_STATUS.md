@@ -4655,6 +4655,20 @@ when a PR lands, or when validation truth changes.
   `test:health` with 16 tests, `@station/api` build, `typecheck`, and
   `git diff --check`. ARIADNE should rerun the PR30 desktop/375px Studio
   publish-flow version-history rehearsal.
+- PR30 Native Document Versioning Alpha passes ARIADNE's Railway Studio
+  version-history rerun, 2026-06-18:
+  `docs/roadmap/PR30_VERSIONING_REHEARSAL_RERUN_ARIADNE.md` records live web/API
+  deployment identity `87501eb` with readiness label `025-037`. The replay owner
+  loaded a Space-backed `codex` document in `/studio/publish`, saved a browser
+  edit that advanced the visible label to `Current version v3; 2 prior versions
+  saved from v1 to v2.`, and sent the document for review. Owner-only
+  `/documents/:id/versions` returned prior rows `v2` and `v1`; the browser
+  version panel rendered only title, type, and visibility and did not expose raw
+  prior body markers. Desktop `1440x1100` had no overflow. Mobile `375x812`
+  kept the document width at 375px and the version rows readable. Non-blocking
+  caveat: the existing global top nav still has offscreen `My Space` and
+  `Developer` link bounds at 375px, but it does not create document-level
+  horizontal scrolling and is outside the PR30 version-history panel.
 
 ## Near-term rule
 
