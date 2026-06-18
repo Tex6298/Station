@@ -5018,6 +5018,13 @@ when a PR lands, or when validation truth changes.
   asks ARIADNE to turn the passed rehearsal into a compact human demo operator
   pack and post-demo handoff. This is a handoff/proof lane, not a new
   architecture lane.
+- ARIADNE completes PR39 Protected-Alpha Demo Runbook on 2026-06-18:
+  `docs/roadmap/PR39_PROTECTED_ALPHA_DEMO_RUNBOOK_ARIADNE.md` provides the
+  demo framing script, route order, signed/public boundary notes, PR38 public
+  proof URLs, chat-latency narration, caveats to say aloud, claims to avoid,
+  and post-demo next-lane recommendations. Verdict: demo runbook ready for
+  MIMIR closeout. Recommended next implementation lane is Developer Space
+  evidence seeding unless the human demo reveals a sharper UX blocker.
 
 ## Near-term rule
 
