@@ -1,7 +1,7 @@
 # PR41 - Developer Pages Staging Seed Proof
 
 Date: 2026-06-18
-Status: opened for DAEDALUS
+Status: implemented by DAEDALUS, ready for ARGUS review
 Owner: DAEDALUS fixes/proves, ARGUS reviews, ARIADNE rechecks deployed public
 page after seed is true.
 
@@ -124,3 +124,69 @@ If fixed/proven, wake ARGUS with:
 
 If blocked, wake MIMIR with the exact missing tool/config or unsafe migration
 condition.
+
+## DAEDALUS Proof
+
+DAEDALUS confirmed the active `.env` Supabase project ref without printing
+secrets. The direct `DATABASE_URL` host did not resolve from this Windows
+workspace, but the configured `SUPABASE_POOLER_URL` reached the same project
+ref and database.
+
+Live database proof on that target:
+
+- `documents_document_type_check` already accepts the launch taxonomy:
+  `essay`, `codex`, `manifesto`, `field_log`, `research`, `archive_note`, and
+  `transcript`.
+- `supabase_migrations.schema_migrations` records version `20260617053200`
+  with name `032_station_document_type_alignment`.
+- No DDL was applied during PR41 because the live constraint and migration
+  ledger were already correct.
+
+The remaining seed failure came from the ignored local replay corpus, not from
+the PR40 Developer Space evidence documents. The local public Space document
+still carried the legacy alpha document type `post`, while the new Developer
+Space evidence documents were already `research`, `research`, and `field_log`.
+
+DAEDALUS updated `scripts/staging-replay-seed.mjs` to normalize only the legacy
+alpha document types covered by migration 032 before writing replay documents:
+
+- `post` -> `essay`
+- `constitution` -> `codex`
+- `update` -> `field_log`
+- `other` -> `archive_note`
+
+Unsupported replay document types now fail fast. Developer Space link roles
+remain the public semantic source of truth: `methodology`, `finding`, and
+`field_log`.
+
+Staging seed proof:
+
+- `npm exec --yes pnpm@10.32.1 -- run replay:seed:staging` passed.
+- Seed summary reported 3 Developer Space evidence documents for
+  `station-replay-dev-alpha` with roles `methodology`, `finding`, and
+  `field_log`.
+
+Public readback proof:
+
+- The local API URL in `.env` points to `localhost`, so no deployed anonymous
+  API endpoint was configured in this shell.
+- DAEDALUS read the same public predicate used by the route directly from
+  Supabase: public Developer Space, public document links, and linked documents
+  that are both `published` and `public`.
+- Readback returned 3 rows with roles `methodology`, `finding`, and
+  `field_log`; document types `research`, `research`, and `field_log`; and no
+  private or draft rows exposed by that public predicate.
+
+Validation:
+
+```bash
+npm exec --yes pnpm@10.32.1 -- run replay:seed:validate
+npm exec --yes pnpm@10.32.1 -- run replay:seed:staging
+npm exec --yes pnpm@10.32.1 -- run test:developer-spaces
+npm exec --yes pnpm@10.32.1 -- run test:developer-space-client
+npm exec --yes pnpm@10.32.1 -- run typecheck
+git diff --check
+```
+
+All passed. `git diff --check` reported only the known CRLF normalization
+warnings.

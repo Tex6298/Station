@@ -7750,6 +7750,31 @@ ARGUS scope notes:
   non-production.
 - No Phase 2B/2C/2D/2E scope was added.
 
+## PR41 Developer Pages Staging Seed Proof
+
+DAEDALUS implementation validation on 2026-06-18:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| Supabase constraint/migration probe via `SUPABASE_POOLER_URL` | Pass | Active `.env` project ref was confirmed without printing secrets. The live `documents_document_type_check` accepts `essay`, `codex`, `manifesto`, `field_log`, `research`, `archive_note`, and `transcript`; migration ledger records `20260617053200 / 032_station_document_type_alignment`. No DDL was applied. |
+| `npm exec --yes pnpm@10.32.1 -- run replay:seed:validate` | Pass | Example corpus validates with 3 planned Developer Space evidence documents and roles `methodology`, `finding`, and `field_log`. |
+| `npm exec --yes pnpm@10.32.1 -- run replay:seed:staging` | Pass | Staging seed completed after replay seed compatibility normalized the ignored local corpus's legacy public Space document type `post` to launch type `essay`. Seed summary reported 3 Developer Space evidence documents with roles `methodology`, `finding`, and `field_log`. |
+| Direct Supabase public-predicate readback | Pass | `.env` API URL points to localhost, so DAEDALUS read the route-equivalent public predicate directly: 3 public linked evidence rows for `station-replay-dev-alpha`, roles `methodology`, `finding`, `field_log`, document types `research`, `research`, `field_log`, and no private/draft rows exposed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 9 tests passed; public/owner Developer Space linked-document visibility stayed green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-space-client` | Pass | 3 client tests passed; ingestion client API stayed compatible. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed after replay seed compatibility change. |
+
+Scope notes:
+
+- The database was already correct; PR41 did not apply or repair live DDL.
+- The script change is limited to replay seed compatibility for legacy alpha
+  document types covered by migration 032: `post`, `constitution`, `update`,
+  and `other`.
+- Developer Space public semantics remain role-based through
+  `developer_space_documents.document_role`; no Project abstraction, Tier 2
+  hosting, developer agent, DexOS widgets, tipping, interaction modes, Tier 3,
+  or Cloudflare scope was added.
+
 PR37 ARGUS follow-up validation on 2026-06-18:
 
 | Command | Result | Notes |

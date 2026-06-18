@@ -11,6 +11,21 @@ const ACTIVE_EMBEDDING_INDEX_SOURCE = "supabase_pgvector";
 const ACTIVE_EMBEDDING_BACKFILL_VERSION = 2;
 const MINIMUM_REPLAY_TIER = "canon";
 const DEFAULT_CORPUS_PATH = "docs/ops/staging-replay-corpus.local.json";
+const LEGACY_DOCUMENT_TYPE_MAP = {
+  post: "essay",
+  constitution: "codex",
+  update: "field_log",
+  other: "archive_note",
+};
+const LAUNCH_DOCUMENT_TYPES = new Set([
+  "essay",
+  "codex",
+  "manifesto",
+  "field_log",
+  "research",
+  "archive_note",
+  "transcript",
+]);
 
 const args = process.argv.slice(2);
 
@@ -618,7 +633,7 @@ async function ensurePublicSurface(api, ownerUserId, personaId, continuityId, co
     title: corpus.space.document.title,
     slug: corpus.space.document.slug,
     body: corpus.space.document.body,
-    document_type: corpus.space.document.documentType ?? "essay",
+    document_type: launchDocumentType(corpus.space.document.documentType, "essay"),
     status: "published",
     visibility: "public",
     comments_enabled: true,
@@ -762,7 +777,7 @@ async function ensureDeveloperSpaceEvidenceDocuments(api, ownerUserId, developer
       title: document.title,
       slug: document.slug,
       body: document.body,
-      document_type: document.documentType ?? developerSpaceDocumentType(document.role),
+      document_type: launchDocumentType(document.documentType, developerSpaceDocumentType(document.role)),
       status: "published",
       visibility: "public",
       comments_enabled: false,
@@ -792,6 +807,17 @@ function developerSpaceDocumentType(role) {
   if (role === "methodology" || role === "finding") return "research";
   if (role === "field_log") return "field_log";
   return "archive_note";
+}
+
+function launchDocumentType(documentType, fallback) {
+  const current = typeof documentType === "string" && documentType.trim().length > 0
+    ? documentType.trim()
+    : fallback;
+  const normalized = LEGACY_DOCUMENT_TYPE_MAP[current] ?? current;
+  if (!LAUNCH_DOCUMENT_TYPES.has(normalized)) {
+    throw new Error(`Unsupported replay document type: ${current}`);
+  }
+  return normalized;
 }
 
 function developerSpaceEvidenceSourceRef(document) {

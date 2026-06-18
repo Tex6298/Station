@@ -5079,6 +5079,25 @@ when a PR lands, or when validation truth changes.
   asks DAEDALUS to prove the active Supabase target/migration state, repair the
   document-type taxonomy or safe seed compatibility path, rerun the staging
   seed, and wake ARGUS before ARIADNE rechecks the public page.
+- DAEDALUS implements PR41 Developer Pages Staging Seed Proof on 2026-06-18:
+  the active `.env` Supabase target was identified by project ref without
+  printing secrets. Direct `DATABASE_URL` DNS failed from this Windows
+  workspace, but `SUPABASE_POOLER_URL` reached the same project ref. The live
+  `documents_document_type_check` already accepts the launch taxonomy
+  `essay`, `codex`, `manifesto`, `field_log`, `research`, `archive_note`, and
+  `transcript`; `supabase_migrations.schema_migrations` records
+  `20260617053200 / 032_station_document_type_alignment`; no DDL was applied.
+  The remaining seed failure was the ignored local replay corpus's legacy
+  public Space document type `post`, not the PR40 evidence documents. The seed
+  script now normalizes only migration-032 legacy alpha document types
+  (`post`, `constitution`, `update`, `other`) to the launch taxonomy and fails
+  fast on unsupported replay types. `replay:seed:staging` now passes and reports
+  three evidence links for `station-replay-dev-alpha`: `methodology`,
+  `finding`, and `field_log`. Because `.env` points the API URL at localhost,
+  DAEDALUS performed direct Supabase public-predicate readback: 3 public rows,
+  document types `research`, `research`, and `field_log`, and no private/draft
+  rows exposed by the public predicate. ARGUS review is requested before
+  ARIADNE's deployed page recheck.
 
 ## Near-term rule
 
