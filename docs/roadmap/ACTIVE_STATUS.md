@@ -5266,12 +5266,23 @@ when a PR lands, or when validation truth changes.
   owner `/developer-spaces/:slug/manage` now treats linked Developer Space
   documents as an Evidence path, reuses public role labels and role-purpose
   copy, orders evidence with the same helper as the public page, distinguishes
-  visitor-visible evidence from owner-only drafts, and sends bounded
+  visitor-visible evidence from hidden items, and sends bounded
   `sortOrder` through the existing template route. The P38 / Phase 2
   reconciliation note confirms this remains Phase 2A / Tier 1
   showcase-window work; Project abstraction, hosted runtime, developer agent,
   Cloudflare, and broader ecosystem work remain later lanes. ARGUS review is
   next.
+- ARGUS accepts PR47 on 2026-06-18 after patching one owner-console badge from
+  `Owner-only draft` to `Hidden from visitors` so owner-only published links are
+  not mislabeled. Review found no API drift: public linked documents still
+  require public link visibility and published/public document state, owner-only
+  evidence remains owner-only, and ingestion, visual mode, widget, usage,
+  export, route/table shape, Project abstraction, Tier 2, developer-agent,
+  Cloudflare, and interaction-mode scopes stayed untouched. Focused tests,
+  typecheck, and diff hygiene passed; web build reached successful compile,
+  lint/typecheck, and 30 generated pages before the known Windows standalone
+  symlink `EPERM`. ARIADNE deployed-browser recheck is optional if MIMIR wants
+  visual confirmation of the signed owner manage page.
 
 ## Near-term rule
 

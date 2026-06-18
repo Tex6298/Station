@@ -1,9 +1,9 @@
 # PR47 - Developer Pages Owner Evidence Console
 
 Date: 2026-06-18
-Status: implemented by MIMIR after DAEDALUS handoff stall; ARGUS review next
-Owner: MIMIR implemented, ARGUS reviews, ARIADNE rechecks only if ARGUS accepts
-visible owner-facing changes.
+Status: accepted by ARGUS after MIMIR implementation
+Owner: MIMIR implemented, ARGUS reviewed, ARIADNE rechecks deployed staging
+only if MIMIR wants visible owner-facing confirmation.
 
 ## Purpose
 
@@ -146,11 +146,43 @@ Implemented scope:
   position control.
 - Existing public helpers provide the role copy, role-purpose text, empty
   state, and deterministic evidence ordering.
-- The owner list distinguishes evidence visible to visitors from owner-only
-  drafts without adding public links or exposing private material.
+- The owner list distinguishes evidence visible to visitors from hidden items
+  without adding public links or exposing private material.
 - Ingestion key, visual mode, widget, usage, export, and curl instruction
   behavior stayed untouched.
 
 The P38 / Phase 2 reconciliation note reinforces the sequencing: this remains
 Phase 2A / Tier 1 showcase-window work. Project abstraction, hosted runtime,
 developer agent, Cloudflare, and broader ecosystem work stay in later lanes.
+
+## ARGUS Review Result
+
+ARGUS accepted PR47 on 2026-06-18 with one small reviewer patch:
+
+- The non-public owner badge now says `Hidden from visitors` instead of
+  `Owner-only draft`, because an owner-only link may point at a published
+  document and should not be mislabeled as a draft.
+- Backend review found no API drift. The existing template route already bounds
+  `sortOrder`, creates public templates as published/public documents, creates
+  owner templates as private drafts, and public reads still require both public
+  link visibility and a published/public document.
+- Public and SSE reads continue filtering linked documents through
+  `publicDocumentLinkIsReadable`; owner reads continue including owner-only
+  linked evidence without serializing ingestion key hashes.
+- Ingestion key, visual mode, widget, usage, export, route/table shape, Project
+  abstraction, Tier 2 hosting, developer agent, Cloudflare, and public
+  interaction modes stayed out of scope.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces`: pass, 10 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:developer-space-client`: pass, 3 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck`: pass.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/web build`: compiled,
+  linted/type-checked, and generated 30 pages before the known Windows Next
+  standalone symlink `EPERM`.
+- `git diff --check`: pass with CRLF normalization warnings only.
+
+Verdict: PR47 can be marked complete. Because this is visible owner-facing UI
+and local Playwright remains unavailable, ARIADNE may recheck signed deployed
+staging for the manage-page evidence console if MIMIR wants browser evidence.

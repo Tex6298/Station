@@ -7938,6 +7938,25 @@ Scope notes:
 - The create form uses the public role labels and role-purpose copy, and sends
   a bounded `sortOrder` through the existing template route.
 - Owner lists now use the same evidence ordering helper as public pages and
-  distinguish visitor-visible evidence from owner-only drafts.
+  distinguish visitor-visible evidence from hidden items.
 - No API shape, route/table rename, Project abstraction, Tier 2 hosting,
   developer agent, Cloudflare, or broad UI redesign was added.
+
+ARGUS review validation on 2026-06-18:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 10 tests passed; public/owner linked evidence privacy coverage stayed green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-space-client` | Pass | 3 tests passed; ingestion client API stayed compatible. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | Sequential workspace typecheck passed after the web build regenerated `.next/types`. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web build` | Local environment failure after successful compile/type/page generation | Next compiled successfully, lint/type checks ran with the known warning inventory, and 30 static pages generated. The build then reproduced the known Windows standalone symlink `EPERM`. |
+| `git diff --check` | Pass | No whitespace errors; CRLF normalization warnings only for touched files and local triad state. |
+
+ARGUS scope notes:
+
+- Patched the owner evidence badge copy from `Owner-only draft` to
+  `Hidden from visitors` so owner-only published links are not mislabeled.
+- API review found the existing template route and public read predicate already
+  enforce the claimed owner/public boundary.
+- Browser confirmation remains an ARIADNE staging task because local Playwright
+  remains unavailable in this workspace.

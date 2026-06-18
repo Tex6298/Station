@@ -733,7 +733,7 @@ export default function DeveloperSpaceManagePage() {
                     <div style={{ display: "flex", gap: "0.35rem", flexWrap: "wrap", marginBottom: "0.35rem" }}>
                       <span className="pill" style={{ fontSize: "0.68rem" }}>{developerSpaceEvidenceRoleCopy(link.role)}</span>
                       <span className="pill" style={{ fontSize: "0.68rem", textTransform: "capitalize" }}>{link.document.status}</span>
-                      <span className="pill" style={{ fontSize: "0.68rem" }}>{visitorVisible ? "Visible to visitors" : "Owner-only draft"}</span>
+                      <span className="pill" style={{ fontSize: "0.68rem" }}>{visitorVisible ? "Visible to visitors" : "Hidden from visitors"}</span>
                     </div>
                     <strong style={{ display: "block" }}>{link.document.title}</strong>
                     <p style={{ margin: "0.25rem 0 0", color: "#8b8f92", fontSize: "0.82rem", lineHeight: 1.45 }}>
