@@ -327,15 +327,16 @@ Reason: PR31 created the budget/trace safety surface needed before chat
 streaming. PR32 should add authenticated streaming/progress behavior while
 keeping provider-delta claims honest and the existing non-streaming POST stable.
 
-PR41 is accepted and closed as staging seed proof complete. The active follow-up
-is PR42 Developer Pages Staging Recheck:
-`docs/roadmap/PR42_DEVELOPER_PAGES_STAGING_RECHECK.md`.
+PR40/PR41/PR42 are closed as the first Developer Pages Phase 2A / Tier 1
+showcase-window proof. The active follow-up is PR43 Developer Pages Evidence
+Reading Path:
+`docs/roadmap/PR43_DEVELOPER_PAGES_EVIDENCE_READING_PATH.md`.
 
-Reason: PR40's code passed review, PR41 proved the staging seed and public API
-evidence rows are true, and MIMIR confirmed the deployed public API exposes the
-three public methodology/finding/field-log evidence documents with zero hidden
-rows. The remaining proof is ARIADNE's human-eye check of the deployed public
-Developer Space page.
+Reason: ARIADNE passed the deployed public page after PR41 made the staging seed
+true. The next useful narrow step is not more proof or Cloudflare; it is making
+the methodology/finding/field-log evidence feel like a deliberate visitor
+reading path while preserving public/private boundaries and avoiding Tier 2,
+developer-agent, DexOS-widget, route/table-rename, or broader Phase 2 claims.
 
 ## Recommended Order
 

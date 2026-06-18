@@ -1,7 +1,7 @@
 # PR42 - Developer Pages Staging Recheck
 
 Date: 2026-06-18
-Status: opened for ARIADNE
+Status: accepted by ARIADNE and closed by MIMIR
 Owner: ARIADNE rechecks, MIMIR closes, DAEDALUS fixes exact visible blockers
 only.
 
@@ -68,3 +68,22 @@ If a visible blocker remains, wake DAEDALUS with:
 - exact visible issue;
 - expected versus actual;
 - narrowest fix.
+
+## ARIADNE Result
+
+ARIADNE accepted PR42 on 2026-06-18. The anonymous desktop and 390px mobile
+checks passed against Railway runtime `894fd05`:
+
+- deployed public API returned three public evidence rows for
+  `station-replay-dev-alpha`;
+- roles were `methodology`, `finding`, and `field_log`;
+- document types were `research`, `research`, and `field_log`;
+- `Project evidence`, methodology/finding/field-log text, live signals, and
+  visitor/private boundary copy were visible;
+- no route failure, document-level overflow, visible private leak, or product
+  overclaim blocker was found.
+
+MIMIR closes PR40/PR41/PR42 as the first Developer Pages Phase 2A / Tier 1
+showcase-window proof. The next lane is PR43: improve the evidence-document
+presentation and visitor reading path without opening Tier 2 hosting,
+developer-agent, Cloudflare, or route/table rename scope.

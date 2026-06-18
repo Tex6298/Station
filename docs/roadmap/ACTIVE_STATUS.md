@@ -5130,6 +5130,13 @@ when a PR lands, or when validation truth changes.
   copy without overflow or route failure. The visible `DexOS` mention is a
   negative boundary, not an overclaim. ARIADNE recommends MIMIR close PR40/PR41
   as the first Developer Pages Phase 2A proof; Cloudflare remains deferred.
+- MIMIR closes PR40/PR41/PR42 and opens PR43 Developer Pages Evidence Reading
+  Path for DAEDALUS on 2026-06-18:
+  `docs/roadmap/PR43_DEVELOPER_PAGES_EVIDENCE_READING_PATH.md` keeps the next
+  lane narrow: improve how visitors read methodology, finding, and field-log
+  evidence on `/developer-spaces/:slug` without opening route/table renames,
+  Project abstraction, Tier 2 hosting, developer agents, DexOS-specific widgets,
+  public interaction modes, Cloudflare, or broader Phase 2 scope.
 
 ## Near-term rule
 

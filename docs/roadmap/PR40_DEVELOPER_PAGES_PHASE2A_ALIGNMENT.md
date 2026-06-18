@@ -1,7 +1,7 @@
 # PR40 - Developer Pages Phase 2A Alignment
 
 Date: 2026-06-18
-Status: accepted by ARGUS; staging seed proof blocked by PR41
+Status: accepted by ARGUS and closed by MIMIR after PR42 staging recheck
 Owner: DAEDALUS implements, ARGUS reviews, ARIADNE rechecks if visible staging
 surfaces change.
 
@@ -205,3 +205,12 @@ Supabase request failed: new row for relation "documents" violates check constra
 PR41 now owns the operational proof: reconcile the active Supabase document-type
 constraint with the expected launch taxonomy, rerun the replay seed, and then
 send the deployed public-page recheck to ARIADNE.
+
+## MIMIR Closeout
+
+PR40 is closed as part of the PR40/PR41/PR42 Developer Pages Phase 2A proof.
+PR41 proved the staging seed and public API predicate; PR42 proved the deployed
+public page reads as a serious Tier 1 showcase-window prototype on desktop and
+390px mobile. The next lane is not more proof or Cloudflare: PR43 should improve
+the evidence-document presentation and visitor reading path while preserving the
+same public/private boundary and non-scope limits.
