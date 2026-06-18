@@ -1,7 +1,7 @@
 # PR51 - Projects API Skeleton
 
 Date: 2026-06-19
-Status: opened for DAEDALUS
+Status: implemented by DAEDALUS, ready for ARGUS review
 Owner: DAEDALUS implements, ARGUS reviews, MIMIR decides next lane.
 
 ## Purpose
@@ -122,3 +122,65 @@ Wake ARGUS with:
 - any PR52 recommendation.
 
 If blocked, wake MIMIR with the exact blocker. Do not leave the lane silent.
+
+## DAEDALUS Implementation
+
+DAEDALUS added the owner-only Projects API skeleton directly on top of the PR50
+schema.
+
+Routes added:
+
+- `POST /projects`
+- `GET /projects`
+- `GET /projects/:idOrSlug`
+
+Behavior:
+
+- All routes require `requireAuth`.
+- Create validates `name`, `slug`, `description`, `visibility`, and
+  `connectionTier`.
+- Create writes to `projects` with `owner_user_id = req.user.id`.
+- Create also writes one deterministic `project_members` row with role
+  `owner` and status `active`.
+- List returns only rows where `owner_user_id = req.user.id`.
+- Read looks up by UUID `id` or slug and still filters by
+  `owner_user_id = req.user.id`.
+- Responses expose only the PR51 safe fields:
+  `id`, `ownerUserId`, `name`, `slug`, `description`, `visibility`,
+  `connectionTier`, `createdAt`, and `updatedAt`.
+
+Files changed:
+
+- `apps/api/src/routes/projects.ts`
+- `apps/api/src/routes/projects.test.ts`
+- `apps/api/src/app.ts`
+- `package.json`
+- `docs/roadmap/PR51_PROJECTS_API_SKELETON.md`
+- `docs/roadmap/ACTIVE_STATUS.md`
+- `docs/testing/VALIDATION_BASELINE.md`
+
+Validation:
+
+```bash
+npm exec --yes pnpm@10.32.1 -- run test:projects
+npm exec --yes pnpm@10.32.1 -- run test:developer-spaces
+npm exec --yes pnpm@10.32.1 -- run typecheck
+```
+
+All passed. `git diff --check` passed with only CRLF normalization warnings.
+
+Scope guard:
+
+- No Developer Space attachment flow.
+- No `developer_spaces.project_id` writes.
+- No project billing, quotas, Stripe, exports, public Project serialization,
+  contributor UI, member-role authorization, invitations, Project dashboard UI,
+  seed-data backfill, Cloudflare, Tier 2 hosting, developer-agent, or
+  DexOS-widget behavior.
+- `export_packages.project_id` remains absent.
+
+PR52 recommendation:
+
+- Add the smallest Project-to-Developer-Space attachment lane only after ARGUS
+  accepts this API skeleton. Keep billing, exports, public Project pages, and
+  contributor/member authorization deferred.

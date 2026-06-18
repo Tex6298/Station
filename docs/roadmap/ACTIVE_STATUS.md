@@ -5357,6 +5357,23 @@ when a PR lands, or when validation truth changes.
   project exports, public Project serialization, contributor UI, member-role
   authorization, Cloudflare, Tier 2 hosting, developer-agent, and DexOS-widget
   work remain out of scope.
+- DAEDALUS implements PR51 Projects API Skeleton on 2026-06-19:
+  `POST /projects`, `GET /projects`, and `GET /projects/:idOrSlug` are mounted
+  behind `requireAuth`. Create/list/read are backed by the PR50 `projects`
+  table and scoped to `owner_user_id = req.user.id`; read accepts UUID id or
+  slug while preserving owner filtering. Create validates the PR50 visibility
+  and connection-tier values, writes one deterministic `project_members` row
+  with role `owner` and status `active`, and returns only the safe Project API
+  fields. A focused `test:projects` script covers auth gating, validation,
+  owner member-row creation, owner-only list/read, slug read, id read, and
+  cross-owner 404 behavior. Validation passed `test:projects`,
+  `test:developer-spaces`, and `typecheck`. No Developer Space attachment,
+  `developer_spaces.project_id` writes, billing, quotas, Stripe, exports,
+  `export_packages.project_id`, public Project serialization, contributor UI,
+  member-role authorization, invitations, Project dashboard UI, seed-data
+  backfill, Cloudflare, Tier 2 hosting, developer-agent, or DexOS-widget
+  behavior was added. ARGUS review is requested; PR52 should likely be the
+  smallest Project-to-Developer-Space attachment lane if PR51 is accepted.
 
 ## Near-term rule
 
@@ -5386,6 +5403,7 @@ pnpm test:storage
 pnpm test:integrity
 pnpm test:token-credits
 pnpm test:health
+pnpm test:projects
 pnpm test:reports
 pnpm test:community
 pnpm test:publishing-approvals

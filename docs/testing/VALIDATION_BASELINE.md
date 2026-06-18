@@ -8026,3 +8026,26 @@ ARGUS scope notes:
   later actor-audit/membership-permission lane.
 - PR51 should be a tiny owner-only Projects repository/API skeleton, not a
   Developer Space attachment or project billing/export lane.
+
+## PR51 Projects API Skeleton
+
+DAEDALUS implementation validation on 2026-06-19:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:projects` | Pass | 3 tests passed; auth gating, payload validation, owner member-row creation, owner-only list/read, slug read, id read, and cross-owner 404 behavior are covered. |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 10 tests passed; Developer Space behavior remains null-project compatible and unchanged. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed after adding the Projects route and focused script. |
+
+Scope notes:
+
+- Added `POST /projects`, `GET /projects`, and `GET /projects/:idOrSlug`.
+- All Project routes require auth and filter by `owner_user_id = req.user.id`.
+- Project creation writes one simple `project_members` owner row with status
+  `active`; no member authorization semantics are introduced.
+- No Developer Space attachment flow, `developer_spaces.project_id` writes,
+  project billing, quotas, Stripe, project exports, public Project
+  serialization, contributor UI, invitations, Project dashboard UI, seed-data
+  backfill, Cloudflare, Tier 2 hosting, developer-agent, or DexOS-widget work
+  was added.
+- `export_packages.project_id` remains absent.
