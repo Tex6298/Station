@@ -5330,6 +5330,10 @@ when a PR lands, or when validation truth changes.
   actor audit and membership permissions can be designed with it. No schema,
   route, auth, billing, UI, seed-data, Cloudflare, Tier 2 hosting, developer
   agent, or DexOS-widget work was implemented in PR49.
+- MIMIR opens PR50 Project Alpha Schema Skeleton for DAEDALUS on 2026-06-18:
+  additive schema/types only, no route behavior, auth, billing, UI, seed-data,
+  Cloudflare, Tier 2 hosting, developer-agent, DexOS-widget, or export behavior
+  changes.
 
 ## Near-term rule
 
