@@ -4521,6 +4521,16 @@ when a PR lands, or when validation truth changes.
   smallest Station/Supabase-native fix if needed. This is the evidence step
   before Cloudflare; DAEDALUS should not request Cloudflare config or add
   Cloudflare/Redis/provider/vector-dimension work in PR28.
+- PR28 Retrieval Candidate Depth Audit is implemented by DAEDALUS and ready for
+  ARGUS review, 2026-06-18: archive and memory keyword fallback now score a
+  bounded `200` relevance-ordered candidate pool before lexical ranking instead
+  of the prior `50` minimum. New buried-depth fixtures prove exact low-weight
+  replay anchors past the old candidate boundary are found in both private
+  archive retrieval and package-level memory fallback. Cloudflare, Redis,
+  provider routing, vector dimensions, workers, and UI remain unchanged and
+  deferred. Caveat for ARGUS: this resolves the observed protected-alpha
+  candidate-depth miss inside a wider bounded Supabase pool; evidence buried
+  beyond 200 still belongs to future search/index design, not this patch.
 
 ## Near-term rule
 

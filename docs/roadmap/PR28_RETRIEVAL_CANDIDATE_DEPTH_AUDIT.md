@@ -1,7 +1,7 @@
 # PR28 - Retrieval Candidate Depth Audit
 
 Date: 2026-06-18
-Status: opened for A2 / DAEDALUS
+Status: implemented by A2 / DAEDALUS; ready for ARGUS review
 Owner: DAEDALUS audits/implements if needed, ARGUS reviews. ARIADNE is not
 needed unless a visible context-preview or Studio search surface changes.
 
@@ -90,3 +90,57 @@ DAEDALUS should wake ARGUS with:
 - behavior changed, if any;
 - validation commands/results;
 - whether Cloudflare remains deferred or MIMIR needs a concrete decision.
+
+## DAEDALUS Audit Result
+
+Implemented on 2026-06-18.
+
+Finding:
+
+- The PR26 caveat was real for keyword fallback: archive retrieval and memory
+  fallback fetched only a minimum `50` relevance-ordered rows before lexical
+  scoring. Exact low-weight replay evidence past that boundary could be missed
+  even though lexical ranking would have selected it if fetched.
+- Station/Supabase can narrow this protected-alpha replay problem without
+  Cloudflare, Redis, provider changes, vector-dimension changes, or new workers.
+
+Behavior change:
+
+- `packages/ai/src/retrieval/archive-retrieval.ts` now fetches a bounded `200`
+  keyword archive candidate pool before scoring and truncation.
+- `packages/ai/src/retrieval/semantic-search.ts` now fetches a bounded `200`
+  keyword memory candidate pool before scoring and truncation.
+- Vector retrieval, Gemini `1536` profile behavior, trace shape, owner/persona
+  filters, lifecycle filters, source authority checks, and excerpt-free trace
+  metadata are unchanged.
+
+Fixture proof:
+
+- `archive keyword search finds exact replay evidence buried beyond the old
+  candidate pool` creates 70 high-relevance archive distractors and a low-weight
+  exact `violet astrolabe` import chunk. The archive route returns the buried
+  exact chunk and keeps trace metadata excerpt-free.
+- `keyword memory fallback finds exact replay anchor buried beyond the old
+  candidate pool` creates 70 high-relevance memory distractors and a low-weight
+  exact `golden astrolabe` memory. Package-level keyword fallback searches more
+  than 50 rows and returns the buried exact anchor without exposing private
+  content in trace metadata.
+
+Cloudflare decision:
+
+- Cloudflare remains deferred. PR28 did not produce evidence that an
+  index-mirror/edge adapter is required for the protected-alpha replay need.
+- Remaining caveat: this is a bounded Supabase-native candidate-depth expansion,
+  not corpus-wide lexical search. Evidence buried beyond the `200` candidate
+  pool remains future search/index design work.
+
+Validation:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-context` | Pass | 6 tests passed; runtime context stayed owner-scoped. |
+| `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass | 29 tests passed, including the new buried archive exact-evidence fixture. |
+| `npm exec --yes pnpm@10.32.1 -- run test:continuity` | Pass | 4 tests passed. |
+| `npx tsx --test packages/ai/test/retrieval-metadata.test.ts` | Pass | 8 tests passed, including the new buried memory fallback fixture. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/api build` | Pass | API package build and dependent package builds passed. |
+| `git diff --check` | Pass | No whitespace errors; CRLF normalization warnings only. |

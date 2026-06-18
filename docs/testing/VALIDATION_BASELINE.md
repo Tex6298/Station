@@ -7334,3 +7334,29 @@ Scope notes:
   rows.
 - No worker queue, live social import, Cloudflare, Redis memory truth, provider,
   vector dimension, integrity output, or archive UI behavior changed.
+
+## PR28 Retrieval Candidate Depth Audit
+
+DAEDALUS implementation validation on 2026-06-18:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-context` | Pass | 6 tests passed; runtime context stayed owner-scoped. |
+| `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass | 29 tests passed, including `archive keyword search finds exact replay evidence buried beyond the old candidate pool`. |
+| `npm exec --yes pnpm@10.32.1 -- run test:continuity` | Pass | 4 tests passed. |
+| `npx tsx --test packages/ai/test/retrieval-metadata.test.ts` | Pass | 8 tests passed, including `keyword memory fallback finds exact replay anchor buried beyond the old candidate pool`. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/api build` | Pass | API package build and dependent package builds passed. |
+| `git diff --check` | Pass | No whitespace errors; CRLF normalization warnings only for touched files. |
+
+Scope notes:
+
+- Archive keyword retrieval and memory keyword fallback now score a bounded
+  `200` candidate pool before truncation, instead of the previous `50` minimum.
+- New fixtures prove low-weight exact replay anchors buried behind 70
+  high-relevance distractors are found in archive retrieval and package-level
+  memory fallback.
+- Trace metadata remains excerpt-free, and owner/persona/source-authority
+  filtering remains unchanged.
+- Cloudflare, Redis vector search, Redis memory truth, provider routing, vector
+  dimensions, workers, and UI behavior were not changed. Evidence buried beyond
+  the bounded `200` pool remains future search/index work.

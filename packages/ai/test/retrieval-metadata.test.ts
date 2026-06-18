@@ -156,6 +156,26 @@ test("keyword memory ranking prefers exact replay anchor over high-weight distra
   assert.doesNotMatch(JSON.stringify(retrieval.trace), /rejected source text/);
 });
 
+test("keyword memory fallback finds exact replay anchor buried beyond the old candidate pool", async () => {
+  const db = new BuriedMemorySupabase();
+
+  const retrieval = await searchMemoryWithTrace({
+    supabase: db.client as any,
+    ownerUserId: "owner-1",
+    personaId: "persona-1",
+    query: "golden astrolabe",
+    limit: 1,
+  });
+
+  assert.equal(retrieval.trace.mode, "keyword");
+  assert.equal(retrieval.trace.fallbackMode, "no_embedding_key");
+  assert.equal(retrieval.trace.searched > 50, true);
+  assert.equal(retrieval.results.length, 1);
+  assert.equal(retrieval.results[0].id, "buried-memory-anchor");
+  assert.equal(retrieval.trace.selected[0].id, "buried-memory-anchor");
+  assert.doesNotMatch(JSON.stringify(retrieval.trace), /buried memory private text/);
+});
+
 test("Gemini embedding request uses REST config casing for the active dimension", () => {
   const body = buildGeminiEmbedRequestBody("search text", "gemini-embedding-2", 1536);
 
@@ -579,6 +599,42 @@ class RankingSupabase extends KeywordFallbackSupabase {
       lifecycleRow("superseded-anchor", "owner-1", "superseded", { superseded_by_memory_item_id: "replay-anchor" }),
     ],
   };
+}
+
+class BuriedMemorySupabase extends KeywordFallbackSupabase {
+  override tables: Record<string, Row[]> = {
+    memory_items: [
+      ...buriedMemoryNoise(70),
+      {
+        id: "buried-memory-anchor",
+        persona_id: "persona-1",
+        owner_user_id: "owner-1",
+        title: "Golden astrolabe",
+        content: "buried memory private text for the exact replay anchor",
+        summary: "Exact replay anchor.",
+        source_type: "manual",
+        relevance_weight: 1,
+        archive_source_type: null,
+      },
+    ],
+    memory_item_lifecycle: [
+      lifecycleRow("buried-memory-anchor", "owner-1", "active"),
+    ],
+  };
+}
+
+function buriedMemoryNoise(count: number) {
+  return Array.from({ length: count }, (_, index) => ({
+    id: `buried-memory-noise-${index}`,
+    persona_id: "persona-1",
+    owner_user_id: "owner-1",
+    title: `High weight memory ${index}`,
+    content: `Generic high-weight memory ${index} without the replay phrase.`,
+    summary: "Generic memory.",
+    source_type: "manual",
+    relevance_weight: 100 - (index % 10),
+    archive_source_type: null,
+  }));
 }
 
 function mockEmbeddingFetch(vector: number[]) {

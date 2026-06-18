@@ -59,7 +59,7 @@ export interface CanonResult {
   priority: number;
 }
 
-const MIN_KEYWORD_MEMORY_CANDIDATE_POOL = 50;
+const KEYWORD_MEMORY_CANDIDATE_POOL = 200;
 
 /**
  * Semantic search over a persona's memory_items using pgvector cosine similarity.
@@ -199,7 +199,7 @@ async function keywordFallbackSearch(
     .select("id, persona_id, title, content, summary, source_type, relevance_weight, archive_source_type")
     .eq("persona_id", personaId)
     .order("relevance_weight", { ascending: false })
-    .limit(Math.max(limit * 3, MIN_KEYWORD_MEMORY_CANDIDATE_POOL));
+    .limit(Math.max(limit * 3, KEYWORD_MEMORY_CANDIDATE_POOL));
 
   if (ownerUserId) memoryQuery.eq("owner_user_id", ownerUserId);
 

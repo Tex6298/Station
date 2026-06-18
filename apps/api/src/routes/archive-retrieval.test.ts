@@ -42,6 +42,8 @@ class InMemorySupabase {
       archiveChunk("chunk-import-3", OWNER_ID, "import_job", "import-1", "Migration chat", "A third private grief chunk should be held back by source caps.", 3, 2, 3),
       archiveChunk("chunk-replay-target", OWNER_ID, "import_job", "import-replay", "Replay bridge", "Lavender switchback is the correct protected-alpha replay marker.", 1, 0, 1),
       archiveChunk("chunk-replay-noisy", OWNER_ID, "import_job", "import-noisy", "Noisy switchback", "Switchback index material mentions the route but not the color marker.", 99, 0, 1),
+      ...buriedArchiveNoise(70),
+      archiveChunk("chunk-depth-target", OWNER_ID, "import_job", "import-depth", "Depth replay", "Violet astrolabe is the buried exact replay marker.", 1, 0, 1),
       archiveChunk("chunk-transcript", OWNER_ID, "archived_chat_transcript", "transcript-1", "Old Harbor chat", "The blue notebook appears in the archived chat as continuity material.", 5, 0, 1),
       archiveChunk("chunk-file", OWNER_ID, "persona_file", "file-1", "source-notebook.md", "The processed file mentions private grief and the notebook together.", 4, 0, 1),
       archiveChunk("chunk-quarantined-file", OWNER_ID, "persona_file", "file-1", "source-notebook.md", "Quarantined imported file private grief must not enter runtime context.", 12, 0, 1),
@@ -80,6 +82,7 @@ class InMemorySupabase {
       sourceRow("import-1", OWNER_ID, { status: "completed", source_name: "Migration chat" }),
       sourceRow("import-replay", OWNER_ID, { status: "completed", source_name: "Replay bridge" }),
       sourceRow("import-noisy", OWNER_ID, { status: "completed", source_name: "Noisy switchback" }),
+      sourceRow("import-depth", OWNER_ID, { status: "completed", source_name: "Depth replay" }),
       sourceRow("import-failed", OWNER_ID, { status: "failed", source_name: "Failed import" }),
       sourceRow("import-other", OTHER_ID, { status: "completed", source_name: "Other import" }),
     ],
@@ -263,6 +266,27 @@ test("archive keyword ranking prefers exact replay evidence over noisy high weig
   }
 });
 
+test("archive keyword search finds exact replay evidence buried beyond the old candidate pool", async () => {
+  const db = new InMemorySupabase();
+  setSupabaseAdminForTests(db.client as any);
+  const app = await createArchiveRetrievalApp();
+
+  try {
+    const response = await requestJson(app, "GET", `/conversations/persona/${PERSONA_ID}/archive-retrieval?query=violet%20astrolabe&limit=1`, {
+      token: "owner-token",
+    });
+
+    assert.equal(response.status, 200);
+    assert.equal(response.body.retrieval.mode, "keyword");
+    assert.equal(response.body.retrieval.chunks[0].id, "chunk-depth-target");
+    assert.match(response.body.retrieval.chunks[0].excerpt, /Violet astrolabe/);
+    assert.equal(response.body.retrieval.trace.selected[0].id, "chunk-depth-target");
+    assert.doesNotMatch(JSON.stringify(response.body.retrieval.trace), /buried exact replay marker/);
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
+
 test("context preview uses private archive excerpts with citations for the owner only", async () => {
   const db = new InMemorySupabase();
   setSupabaseAdminForTests(db.client as any);
@@ -337,6 +361,22 @@ function sourceRow(id: string, ownerUserId: string, extras: Row) {
     updated_at: "2026-06-01T09:00:00.000Z",
     ...extras,
   };
+}
+
+function buriedArchiveNoise(count: number) {
+  return Array.from({ length: count }, (_, index) =>
+    archiveChunk(
+      `chunk-depth-noise-${index}`,
+      OWNER_ID,
+      "import_job",
+      `import-depth-noise-${index}`,
+      `Depth distractor ${index}`,
+      `High-weight depth distractor ${index} mentions routine archive indexing without the replay marker.`,
+      100 - (index % 10),
+      0,
+      1
+    )
+  );
 }
 
 function totalExcerptLength(chunks: Row[]) {

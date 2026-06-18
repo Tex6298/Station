@@ -25,7 +25,7 @@ const DEFAULT_MAX_CHARACTERS = 2400;
 const HARD_MAX_CHARACTERS = 4000;
 const MAX_CHUNK_CHARACTERS = 700;
 const MIN_FINAL_EXCERPT_CHARACTERS = 80;
-const MIN_KEYWORD_CANDIDATE_POOL = 50;
+const KEYWORD_CANDIDATE_POOL = 200;
 
 type ArchiveChunkRow = {
   id: string;
@@ -197,7 +197,7 @@ async function keywordArchiveSearch(input: {
     .eq("persona_id", input.personaId)
     .eq("owner_user_id", input.ownerUserId)
     .order("relevance_weight", { ascending: false })
-    .limit(Math.max(input.limit, MIN_KEYWORD_CANDIDATE_POOL));
+    .limit(Math.max(input.limit, KEYWORD_CANDIDATE_POOL));
 
   const tokens = tokenize(input.query);
   return ((data ?? []) as ArchiveChunkRow[])
