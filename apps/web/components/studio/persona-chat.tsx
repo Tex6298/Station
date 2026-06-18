@@ -340,6 +340,7 @@ export function PersonaChat({ personaId, personaName }: Props) {
                   padding: "0.75rem 1rem",
                   background: msg.role === "user" ? "#1d3a7a" : "#1a1f2e",
                   border: `1px solid ${msg.role === "user" ? "#2e4f9f" : "#252d3e"}`,
+                  color: msg.role === "user" ? "#f4f7ff" : "#e7edf8",
                   alignSelf: msg.role === "user" ? "flex-end" : "flex-start",
                   maxWidth: "85%",
                   marginLeft: msg.role === "user" ? "auto" : 0,
@@ -398,7 +399,7 @@ export function PersonaChat({ personaId, personaName }: Props) {
             background: "#1a1f2e",
             border: "1px solid #252d3e",
             maxWidth: "85%",
-            color: "#444",
+            color: "#cbd5e1",
             fontSize: "0.85rem",
           }}>
             <span className="typing-dots">{state.streamStatus ?? `${personaName} is responding...`}</span>

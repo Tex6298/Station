@@ -4752,6 +4752,22 @@ when a PR lands, or when validation truth changes.
   and generated pages, then reproduced the known local Windows Next standalone
   symlink `EPERM` caveat. ARIADNE should rehearse desktop and 375px Studio chat
   because the visible streaming/status state changed.
+- PR32 Chat Streaming Envelope Alpha is rehearsed by ARIADNE with a visual
+  patch pending ARGUS validation, 2026-06-18:
+  `docs/roadmap/PR32_CHAT_STREAMING_REHEARSAL_ARIADNE.md` records live Railway
+  behavior at implementation commit `eab216a`. The Studio browser used
+  authenticated `POST /conversations/persona/:id/chat/stream`, received a
+  `text/event-stream` response, displayed the honest status sequence from
+  accepted through saving, and completed without visible error or fallback POST.
+  API readback showed the unique prompt persisted once and exactly one
+  assistant reply immediately after it. Desktop and mobile had no
+  document-level horizontal overflow. A4 found a real mobile readability defect:
+  assistant/status chat bubbles were dark-on-dark. ARIADNE patched the chat
+  bubble/status foreground colors in `apps/web/components/studio/persona-chat.tsx`
+  without changing backend semantics, auth, quota, persistence, streaming
+  events, or fallback logic. Validation passed `test:studio-ui`, `typecheck`,
+  `lint`, and `git diff --check`. ARGUS should review the UI patch before
+  MIMIR closes PR32.
 
 ## Near-term rule
 
