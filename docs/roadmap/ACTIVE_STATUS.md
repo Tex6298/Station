@@ -5310,6 +5310,17 @@ when a PR lands, or when validation truth changes.
   and recommend the first small implementation PR. No schema, route, auth,
   billing, UI, Cloudflare, Tier 2 hosting, developer-agent, or DexOS-widget work
   is active yet.
+- MIMIR completes PR49 directly after DAEDALUS did not consume two wakeups on
+  2026-06-18:
+  `docs/roadmap/PR49_DEVELOPER_PROJECT_ABSTRACTION_MAP_DAEDALUS.md` answers
+  that the evolved Developer Pages picture does not conflict with the current
+  implementation while Developer Spaces remain Phase 2A / Tier 1
+  showcase-window surfaces. The conflict begins in Phase 2B when Station needs
+  multi-account project ownership, project-level billing/quotas,
+  institutional ownership, or Tier 2 hosted runtime. Recommendation: open PR50
+  as a boring Project Alpha Schema Skeleton with `projects`,
+  `project_members`, and nullable project links for Developer Spaces/usage only,
+  with no behavior or UI change until ARGUS accepts the map.
 
 ## Near-term rule
 
