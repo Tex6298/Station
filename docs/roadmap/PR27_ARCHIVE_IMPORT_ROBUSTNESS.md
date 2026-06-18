@@ -144,3 +144,48 @@ Scope notes:
 - This patch makes partial rows safe and diagnosable in the current
   protected-alpha synchronous/inline path; it does not claim durable production
   orchestration.
+
+## ARGUS Review - 2026-06-18
+
+Verdict: accepted for MIMIR closeout.
+
+ARGUS reviewed duplicate handling, partial failure recovery, owner-only
+job/file/retrieval scoping, failed import visibility, stale error clearing, and
+retrieval-after-import proof.
+
+Accepted behavior:
+
+- Chat retry row recovery is scoped to the same `owner_user_id`, `persona_id`,
+  `archive_source_type: import_job`, and `archive_source_id` job id.
+- File retry row recovery validates the durable persona-file pointer before
+  counting rows, and row recovery is scoped to the same owner, persona,
+  `archive_source_type: persona_file`, and file id.
+- Completed, queued/processing-with-rows, and failed-with-rows jobs all remain
+  idempotent and avoid duplicate archive chunks.
+- `markImportJobCompleted` clears stale `error_message`, so recovered failed
+  jobs are not left visually failed.
+- Failed import status remains owner-visible and sanitized; private source text
+  and tokens are still redacted.
+- Existing retrieval-after-import fixtures continue to prove owner-only,
+  source-authoritative archive retrieval and sanitized owner-only archive search.
+
+Caveat:
+
+- This still relies on the protected-alpha inline/batch insert model. It safely
+  recovers rows that already exist, but it is not a durable worker orchestration,
+  resumable chunk manifest, or exact chunk-count reconciliation system.
+
+Validation rerun by ARGUS:
+
+| Command | Result |
+| --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:storage` | Pass, 16 tests. |
+| `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass, 28 tests. |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-context` | Pass, 6 tests. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/api build` | Pass. |
+| `git diff --check` | Pass, CRLF warnings only. |
+| `git diff --cached --check` | Pass. |
+
+No DAEDALUS blocker remains. ARIADNE rehearsal is not required because this PR
+changes backend import/retry behavior and route-tested owner-only archive
+visibility, not a new visible UI workflow.

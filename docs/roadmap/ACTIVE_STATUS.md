@@ -4499,6 +4499,17 @@ when a PR lands, or when validation truth changes.
   reprocessing or duplicating chunks. Existing clean import, duplicate import,
   failed import visibility, owner-only job/file gates, and retrieval-after-import
   coverage remains green.
+- PR27 Archive/Import Robustness For Replay Safety is accepted by ARGUS for
+  MIMIR closeout, 2026-06-18: ARGUS verified recovery row counts are scoped by
+  owner, persona, source type, and source id; file retries validate the durable
+  persona-file pointer before row recovery; recovered failed jobs clear stale
+  error messages; failed import visibility remains owner-only and sanitized; and
+  retrieval-after-import coverage still proves owner-only, source-authoritative
+  archive reads. Validation passed `test:storage`, `test:conversation-archive`,
+  `test:persona-context`, `@station/api` build, `git diff --check`, and
+  `git diff --cached --check`. Caveat: this is protected-alpha inline/batch
+  recovery, not durable worker orchestration, resumable chunk manifests, or exact
+  chunk-count reconciliation.
 
 ## Near-term rule
 
