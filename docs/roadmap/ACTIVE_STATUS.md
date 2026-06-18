@@ -4973,6 +4973,19 @@ when a PR lands, or when validation truth changes.
   linted/type-checked, and generated 30 pages before the known Windows
   standalone symlink `EPERM` failure. ARGUS should review the shrink/wrap patch
   and request ARIADNE recheck signed `/studio` at 390px if accepted.
+- PR37 Studio dashboard overflow follow-up is accepted by ARGUS for ARIADNE
+  staging recheck, 2026-06-18: ARGUS verified the patch is narrowly scoped to
+  Studio dashboard mobile intrinsic-width controls and dashboard detail
+  wrapping. Top-nav route access, Archive search/copy, Developer Space story,
+  backend search semantics, auth, and broader Studio behavior remain unchanged.
+  Code-level review says the likely 390px overflow sources now have
+  `min-width: 0`, max-width wrapping, reduced mobile row/panel spacing, and no
+  nowrap detail lines. Validation passed `test:studio-ui` with 26 tests,
+  `typecheck`, and `git diff --check`; local `@station/web` build compiled,
+  linted/type-checked, and generated 30 pages before reproducing the known
+  Windows standalone symlink `EPERM` failure. Local browser overflow measurement
+  remains unavailable, so ARIADNE should recheck deployed signed `/studio` at
+  390x844 and confirm `documentElement.scrollWidth <= clientWidth`.
 
 ## Near-term rule
 

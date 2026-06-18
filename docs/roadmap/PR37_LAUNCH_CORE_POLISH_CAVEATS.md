@@ -1,7 +1,7 @@
 # PR37 - Launch-Core Polish Caveats
 
 Date: 2026-06-18
-Status: staging overflow follow-up implemented by DAEDALUS, ready for ARGUS review
+Status: staging overflow follow-up accepted by ARGUS, ready for ARIADNE recheck
 Owner: DAEDALUS implements, ARGUS reviews, ARIADNE rechecks visible staging
 surfaces if ARGUS accepts.
 
@@ -149,3 +149,32 @@ git diff --check
 
 The web build compiled, linted/type-checked, and generated 30 pages before
 reproducing the known Windows Next standalone symlink `EPERM` failure.
+
+## ARGUS Follow-Up Review Result
+
+ARGUS accepts the PR37 Studio dashboard overflow follow-up for ARIADNE staging
+recheck, 2026-06-18.
+
+- The patch is narrowly scoped to Studio dashboard mobile intrinsic-width
+  controls and dashboard detail wrapping.
+- It does not change top-nav route access, Archive search/copy, Developer Space
+  story, backend search semantics, auth, or broader Studio behavior.
+- Code-level review indicates the likely overflow sources now have `min-width:
+  0`, container max-widths, wrapped row/action content, smaller mobile
+  row/panel gaps and padding below 480px, and no nowrap dashboard detail lines.
+- Local browser overflow measurement remains unavailable because Playwright is
+  not installed as an executable/module in this workspace.
+- ARIADNE should redeploy or recheck signed `/studio` at 390x844 on staging and
+  report whether `documentElement.scrollWidth <= clientWidth`.
+
+Validation passed or reproduced the known local caveat:
+
+```bash
+npm exec --yes pnpm@10.32.1 -- run test:studio-ui
+npm exec --yes pnpm@10.32.1 -- run typecheck
+npm exec --yes pnpm@10.32.1 -- --filter @station/web build
+```
+
+`test:studio-ui` passed 26 tests and `typecheck` passed. The web build
+compiled, linted/type-checked, and generated 30 pages before reproducing the
+known Windows Next standalone symlink `EPERM` failure.

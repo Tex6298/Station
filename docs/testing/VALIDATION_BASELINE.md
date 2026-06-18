@@ -7694,3 +7694,26 @@ Scope notes:
   retrieval behavior, and broad Studio layout are unchanged.
 - Browser confirmation remains a staging task for ARGUS/ARIADNE because local
   Playwright remains unavailable in this workspace.
+
+ARGUS follow-up validation on 2026-06-18:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 26 tests passed; Studio/navigation/archive helper coverage stayed green after review. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web build` | Local environment failure after successful compile/type/page generation | Next compiled successfully, lint/type checks ran with the known warning inventory, and 30 static pages generated. The build then reproduced the known Windows standalone symlink failure: `EPERM: operation not permitted, symlink ... apps\\web\\.next\\standalone...`. |
+| `git diff --check` | Pass | No whitespace errors; CRLF normalization warnings only for touched text files and local triad state. |
+| `git diff --cached --check` | Pass | No whitespace errors after staging; CRLF normalization warnings only. |
+
+ARGUS scope notes:
+
+- The dashboard shrink/wrap follow-up is narrowly scoped to Studio dashboard
+  mobile intrinsic-width controls and dashboard detail wrapping.
+- Top-nav route access, Archive search/copy, Developer Space storytelling,
+  backend Archive search semantics, auth, and broader Studio behavior remain
+  unchanged.
+- Code-level review indicates the likely 390px overflow sources now have
+  `min-width: 0`, max-width wrapping, reduced mobile row/panel spacing, and no
+  nowrap detail lines.
+- Browser confirmation remains an ARIADNE staging task because local Playwright
+  remains unavailable in this workspace.
