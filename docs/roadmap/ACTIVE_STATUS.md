@@ -4278,6 +4278,19 @@ when a PR lands, or when validation truth changes.
   use `docs/roadmap/PR22_ASSISTANT_OPERATIONS_ARIADNE.md` to rehearse
   `/studio/assistant` at desktop and 375px mobile widths before MIMIR closes
   PR22.
+- PR22 ARIADNE rehearsal is blocked for a focused UI contrast repair,
+  2026-06-18: Railway web/API are deployed at `da60378`, and the operational
+  Assistant checks passed. `/assistant/summary`, `/assistant/context`, and
+  `/assistant/message` returned sanitized owner-scoped action data; browser
+  rehearsal at `1440x1100` and `375x812` found exact live action-card links,
+  visible status/kind chips, no fake mutation buttons, no persona drift, no
+  horizontal overflow, and no visible storage-path/token/private-dump leakage.
+  PR22 should not close yet because `/studio/assistant` has a live contrast
+  regression: global visual reconciliation forces the Assistant page background
+  to the light Station surface while the page title and lede keep dark-theme
+  inline colors. DAEDALUS should make a narrow readability patch only, preserving
+  Assistant API semantics, link-only action cards, owner scoping, and the
+  operational-helper-not-persona guardrail.
 
 ## Near-term rule
 
