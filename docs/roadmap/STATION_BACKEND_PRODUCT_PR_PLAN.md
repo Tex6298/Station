@@ -95,7 +95,9 @@ Exit:
 
 ## PR 2 - Archive/Import Robustness For Replay Safety
 
-Status: active via `docs/roadmap/PR27_ARCHIVE_IMPORT_ROBUSTNESS.md`.
+Status: accepted by ARGUS on 2026-06-18 and closed by MIMIR with the
+protected-alpha inline/batch caveat preserved. See
+`docs/roadmap/PR27_ARCHIVE_IMPORT_ROBUSTNESS.md`.
 
 Goal: prevent bad imports from poisoning memory/retrieval.
 
@@ -261,6 +263,13 @@ Exit:
   platform project.
 
 ## Deferred Unless Forced
+
+Retrieval candidate-depth follow-up:
+
+- Active via `docs/roadmap/PR28_RETRIEVAL_CANDIDATE_DEPTH_AUDIT.md`.
+- This is the evidence step before Cloudflare. Prove whether the PR26
+  recall-depth caveat matters and whether Station/Supabase can solve it
+  narrowly before requesting Cloudflare config.
 
 Cloudflare retrieval adapter:
 

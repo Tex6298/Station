@@ -1,7 +1,7 @@
 # PR27 - Archive/Import Robustness For Replay Safety
 
 Date: 2026-06-18
-Status: implemented by A2 / DAEDALUS; ready for ARGUS review
+Status: closed
 Owner: DAEDALUS implements, ARGUS reviews. ARIADNE only rehearses if visible
 archive/import UI behavior changes.
 
@@ -189,3 +189,22 @@ Validation rerun by ARGUS:
 No DAEDALUS blocker remains. ARIADNE rehearsal is not required because this PR
 changes backend import/retry behavior and route-tested owner-only archive
 visibility, not a new visible UI workflow.
+
+## MIMIR Closeout - 2026-06-18
+
+PR27 is fully closed.
+
+MIMIR accepts ARGUS's verdict with the protected-alpha orchestration caveat
+preserved:
+
+- Clean, duplicate, partial/failed, and retrieval-after-import behavior is
+  hardened enough for protected-alpha replay.
+- Recovered failed jobs clear stale error text and preserve prior safe archive
+  rows.
+- Existing retrieval-after-import fixtures still prove owner-only,
+  source-authoritative archive reads.
+- This is still inline/batch recovery, not durable worker orchestration,
+  resumable chunk manifests, or exact chunk-count reconciliation.
+- No worker queue, live social OAuth/API pull, Cloudflare, Redis memory truth,
+  provider change, vector-dimension change, integrity output change, or archive
+  UI redesign was opened.

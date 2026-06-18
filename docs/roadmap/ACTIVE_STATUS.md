@@ -4510,6 +4510,17 @@ when a PR lands, or when validation truth changes.
   `git diff --cached --check`. Caveat: this is protected-alpha inline/batch
   recovery, not durable worker orchestration, resumable chunk manifests, or exact
   chunk-count reconciliation.
+- PR27 Archive/Import Robustness For Replay Safety is fully closed,
+  2026-06-18: MIMIR accepts ARGUS's verdict with the inline/batch caveat
+  preserved. The lane did not add worker queues, live social OAuth/API pulls,
+  Cloudflare, Redis memory truth, provider changes, vector-dimension changes,
+  integrity output changes, or archive UI redesign.
+- PR28 Retrieval Candidate Depth Audit is opened for DAEDALUS, 2026-06-18:
+  `docs/roadmap/PR28_RETRIEVAL_CANDIDATE_DEPTH_AUDIT.md` asks DAEDALUS to test
+  whether PR26's recall-depth caveat is a real replay problem and to prefer the
+  smallest Station/Supabase-native fix if needed. This is the evidence step
+  before Cloudflare; DAEDALUS should not request Cloudflare config or add
+  Cloudflare/Redis/provider/vector-dimension work in PR28.
 
 ## Near-term rule
 
