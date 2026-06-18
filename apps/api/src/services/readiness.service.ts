@@ -10,8 +10,8 @@ const SUPABASE_MANAGEMENT_TIMEOUT_MS = 5000;
 const ZERO_UUID = "00000000-0000-0000-0000-000000000000";
 const SUPABASE_MANAGEMENT_API_BASE = "https://api.supabase.com";
 const BACKEND_MIGRATION_OBJECT_PROOF_LATEST = {
-  version: "025-029",
-  name: "public_schema_object_and_rpc_proof",
+  version: "025-037",
+  name: "public_schema_object_rpc_and_document_version_proof",
 };
 
 type CheckStatus = {
@@ -312,6 +312,25 @@ async function checkBackendMigrationObjects(sb: any): Promise<MigrationReadiness
       CHECK_TIMEOUT_MS
     );
     if (developerSpaceResult.error) {
+      return { ok: false, checked: true, count: null, latest: null, error: "query_failed" };
+    }
+
+    const documentsResult = await withTimeout<any>(
+      sb.from("documents").select("version", { head: true }).limit(1),
+      CHECK_TIMEOUT_MS
+    );
+    if (documentsResult.error) {
+      return { ok: false, checked: true, count: null, latest: null, error: "query_failed" };
+    }
+
+    const documentVersionsResult = await withTimeout<any>(
+      sb
+        .from("document_versions")
+        .select("id,document_id,owner_user_id,version_number", { head: true })
+        .limit(1),
+      CHECK_TIMEOUT_MS
+    );
+    if (documentVersionsResult.error) {
       return { ok: false, checked: true, count: null, latest: null, error: "query_failed" };
     }
 

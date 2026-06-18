@@ -4636,6 +4636,14 @@ when a PR lands, or when validation truth changes.
   object proof as `025-029`; DAEDALUS should update the runtime proof/tests to
   include PR30's document-version objects, then wake ARGUS for review and
   ARIADNE for the desktop/375px rehearsal.
+- DAEDALUS updated the PR30 deployment-readiness proof on 2026-06-18:
+  `/health/deployment` now requires `public.documents.version` and
+  `public.document_versions` object proof before migration readiness can go
+  green, and labels the public schema proof as `025-037 /
+  public_schema_object_rpc_and_document_version_proof`. Focused health coverage
+  now blocks readiness when the document-version table is absent from the
+  schema cache. This is readiness proof only; no document-version API/UI
+  semantics changed.
 
 ## Near-term rule
 

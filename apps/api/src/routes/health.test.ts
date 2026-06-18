@@ -63,9 +63,11 @@ class ReadinessSupabase {
   failProfiles = false;
   failMigrations = false;
   migrationObjectProof = false;
+  documentVersionObjectProof = true;
   failEmbeddingProfileRpcProof = false;
   bucketPublic = false;
   bucketMissing = false;
+  objectProofQueries: Array<{ schemaName: string; table: string; columns: string }> = [];
   rpcCalls: Array<{ functionName: string; args: Record<string, unknown> }> = [];
 
   migrations: Row[] = [
@@ -108,6 +110,7 @@ class ReadinessQuery {
   private limitCount: number | null = null;
   private orderField: string | null = null;
   private ascending = true;
+  private columns: string | null = null;
 
   constructor(
     private db: ReadinessSupabase,
@@ -116,6 +119,7 @@ class ReadinessQuery {
   ) {}
 
   select(_columns = "*", options: { count?: string; head?: boolean } = {}) {
+    this.columns = _columns;
     this.countRequested = Boolean(options.count);
     this.head = Boolean(options.head);
     return this;
@@ -161,9 +165,19 @@ class ReadinessQuery {
       return { data: rows, error: null, count };
     }
 
-    if (this.schemaName === "public" && (this.table === "memory_items" || this.table === "developer_spaces")) {
+    if (
+      this.schemaName === "public" &&
+      (this.table === "memory_items" || this.table === "developer_spaces" || this.table === "documents" || this.table === "document_versions")
+    ) {
+      this.db.objectProofQueries.push({ schemaName: this.schemaName, table: this.table, columns: this.columns ?? "*" });
       if (!this.db.migrationObjectProof) {
         return { data: null, error: { message: "public proof failure with secret-service-role" }, count: null };
+      }
+      if (
+        !this.db.documentVersionObjectProof &&
+        this.table === "document_versions"
+      ) {
+        return { data: null, error: { message: "document version proof failure with secret-service-role" }, count: null };
       }
       return { data: this.head ? null : [], error: null, count: this.countRequested ? 0 : null };
     }
@@ -206,9 +220,15 @@ test("/health stays cheap while /health/deployment returns non-secret readiness"
     assert.equal(deployment.body.readiness.database.ok, true);
     assert.equal(deployment.body.readiness.migrations.count, null);
     assert.deepEqual(deployment.body.readiness.migrations.latest, {
-      version: "025-029",
-      name: "public_schema_object_and_rpc_proof",
+      version: "025-037",
+      name: "public_schema_object_rpc_and_document_version_proof",
     });
+    assert.deepEqual(db.objectProofQueries.map((query) => [query.table, query.columns]), [
+      ["memory_items", "archive_source_type,archive_source_id,archive_source_name,chunk_index,chunk_count,embedding_provider,embedding_model,embedding_dimension,embedding_index_name,embedding_index_source,embedding_backfill_version"],
+      ["developer_spaces", "provider_policy"],
+      ["documents", "version"],
+      ["document_versions", "id,document_id,owner_user_id,version_number"],
+    ]);
     assert.equal(deployment.body.readiness.storage.exists, true);
     assert.equal(deployment.body.readiness.storage.private, true);
     assert.equal(deployment.body.readiness.publicUrls.app.railway, true);
@@ -419,13 +439,40 @@ test("/health/deployment proves backend migrations through public schema objects
     assert.equal(deployment.body.readiness.migrations.ok, true);
     assert.equal(deployment.body.readiness.migrations.count, null);
     assert.deepEqual(deployment.body.readiness.migrations.latest, {
-      version: "025-029",
-      name: "public_schema_object_and_rpc_proof",
+      version: "025-037",
+      name: "public_schema_object_rpc_and_document_version_proof",
     });
     assert.deepEqual(db.rpcCalls.map((call) => call.functionName), [
       "match_memory_items",
       "match_private_archive_chunks",
     ]);
+    assertNoSecrets(deployment.body);
+  } finally {
+    await resetHealthFakes();
+  }
+});
+
+test("/health/deployment blocks readiness when PR30 document version objects are missing", async () => {
+  const db = new ReadinessSupabase();
+  db.migrationObjectProof = true;
+  db.documentVersionObjectProof = false;
+  const { app } = await setupHealthApp(db);
+
+  try {
+    const deployment = await requestJson(app, "GET", "/health/deployment");
+    assert.equal(deployment.status, 200);
+    assert.equal(deployment.body.ok, true);
+    assert.equal(deployment.body.ready, false);
+    assert.equal(deployment.body.readiness.migrations.ok, false);
+    assert.equal(deployment.body.readiness.migrations.error, "query_failed");
+    assert.equal(
+      db.objectProofQueries.some((query) => query.table === "documents" && query.columns === "version"),
+      true
+    );
+    assert.equal(
+      db.objectProofQueries.some((query) => query.table === "document_versions" && query.columns.includes("version_number")),
+      true
+    );
     assertNoSecrets(deployment.body);
   } finally {
     await resetHealthFakes();

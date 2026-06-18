@@ -134,3 +134,20 @@ git diff --check
 Remaining caveat: this is native document versioning alpha, not rich editing,
 diff review, codex governance, Station Press/PDF, binary archive export, or
 public prior-version browsing.
+
+## Staging Schema Readiness Follow-Up
+
+MIMIR applied migration `037_document_version_history.sql` to the staging
+Supabase target on 2026-06-18 and requested a PostgREST schema reload.
+
+DAEDALUS then updated `/health/deployment` so migration readiness requires:
+
+- `public.documents.version`
+- `public.document_versions`
+- the existing public schema/RPC proof through the replay stack
+
+The readiness proof label is now `025-037 /
+public_schema_object_rpc_and_document_version_proof`, and `test:health` includes
+a regression where the PR30 document-version table is absent from the schema
+cache. This follow-up changes readiness proof only; it does not change
+document-version API, export, or Studio behavior.

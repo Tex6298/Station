@@ -7439,3 +7439,16 @@ Scope notes:
 - No Station Press/PDF/binary exports, scheduled/social dispatch, Cloudflare,
   Redis memory truth, provider routing, vector-dimension changes, workers,
   Stripe changes, or broad UI redesign was added.
+
+PR30 staging schema readiness follow-up on 2026-06-18:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:health` | Pass | 15 tests passed; `/health/deployment` now proves `public.documents.version` and `public.document_versions`, and blocks readiness when the PR30 document-version table is missing from the schema cache. |
+
+Scope notes:
+
+- Updated deployment readiness proof from `025-029` to `025-037 /
+  public_schema_object_rpc_and_document_version_proof`.
+- This is a readiness/test label and object-proof patch only; it does not
+  redesign document versioning, Studio UI, exports, or public document reads.
