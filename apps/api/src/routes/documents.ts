@@ -193,7 +193,19 @@ async function snapshotDocumentVersion(document: any) {
       discussion_thread_id: document.discussion_thread_id ?? null,
       document_created_at: document.created_at ?? null,
       document_updated_at: document.updated_at ?? null,
-    });
+    })
+    .select("id")
+    .single();
+}
+
+async function deleteDocumentVersionSnapshot(snapshotId: string | null, ownerUserId: string) {
+  if (!snapshotId) return;
+  const sb = getSupabaseAdmin();
+  await sb
+    .from("document_versions")
+    .delete()
+    .eq("id", snapshotId)
+    .eq("owner_user_id", ownerUserId);
 }
 
 async function loadOwnedDocumentForUpdate(documentId: string, ownerUserId: string) {
@@ -754,9 +766,11 @@ documentsRouter.patch("/:id", async (req, res) => {
   });
   if (current === undefined) return;
   if (!current) return res.status(404).json({ error: "Document not found." });
+  let snapshotId: string | null = null;
   if (documentVersionChanged(current, update)) {
     const snapshot = await snapshotDocumentVersion(current);
     if (snapshot.error) return res.status(500).json({ error: snapshot.error.message });
+    snapshotId = snapshot.data?.id ?? null;
     update.version = currentDocumentVersion(current) + 1;
   }
 
@@ -768,8 +782,14 @@ documentsRouter.patch("/:id", async (req, res) => {
     .select("*")
     .single();
 
-  if (error && !isMissingSingleError(error)) return res.status(500).json({ error: error.message });
-  if (!data) return res.status(404).json({ error: "Document not found." });
+  if (error && !isMissingSingleError(error)) {
+    await deleteDocumentVersionSnapshot(snapshotId, userId).catch(() => undefined);
+    return res.status(500).json({ error: error.message });
+  }
+  if (!data) {
+    await deleteDocumentVersionSnapshot(snapshotId, userId).catch(() => undefined);
+    return res.status(404).json({ error: "Document not found." });
+  }
   const discussion = canHaveDiscussion(data)
     ? await ensureDocumentDiscussion(data)
     : await syncExistingDiscussion(data);
@@ -848,9 +868,11 @@ documentsRouter.post("/:id/publish", async (req, res) => {
     visibility: "public",
   };
   if (parsed.data.visibility) update.visibility = normalizeVisibility(parsed.data.visibility);
+  let snapshotId: string | null = null;
   if (documentVersionChanged(current, update)) {
     const snapshot = await snapshotDocumentVersion(current);
     if (snapshot.error) return res.status(500).json({ error: snapshot.error.message });
+    snapshotId = snapshot.data?.id ?? null;
     update.version = currentDocumentVersion(current) + 1;
   }
 
@@ -862,8 +884,14 @@ documentsRouter.post("/:id/publish", async (req, res) => {
     .select("*")
     .single();
 
-  if (error && !isMissingSingleError(error)) return res.status(500).json({ error: error.message });
-  if (!data) return res.status(404).json({ error: "Document not found." });
+  if (error && !isMissingSingleError(error)) {
+    await deleteDocumentVersionSnapshot(snapshotId, req.user!.id).catch(() => undefined);
+    return res.status(500).json({ error: error.message });
+  }
+  if (!data) {
+    await deleteDocumentVersionSnapshot(snapshotId, req.user!.id).catch(() => undefined);
+    return res.status(404).json({ error: "Document not found." });
+  }
   const discussion = await ensureDocumentDiscussion(data);
   return res.json({
     document: discussion && !data.discussion_thread_id ? { ...data, discussion_thread_id: discussion.id } : data,

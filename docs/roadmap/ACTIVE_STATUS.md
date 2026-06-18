@@ -4599,6 +4599,21 @@ when a PR lands, or when validation truth changes.
   Station Press/PDF/binary exports, scheduled/social dispatch, Cloudflare,
   Redis memory truth, provider routing, vector-dimension changes, workers,
   Stripe changes, or broad UI redesign.
+- PR30 Native Document Versioning Alpha is accepted by ARGUS for ARIADNE
+  rehearsal, 2026-06-18: ARGUS verified owner/admin-only version-history reads,
+  current-version-only public document reads, and owner-only export summaries
+  that do not copy prior body text into version refs. ARGUS patched a snapshot
+  failure mode so edit/publish updates delete a just-created prior-version row
+  if the follow-up document mutation fails or returns no owned row, preventing a
+  stale snapshot from blocking later edits. A focused regression fixture now
+  forces the failed update path and proves retry versioning still works.
+  Validation passed `test:community`, `test:exports`, `test:studio-ui`,
+  `test:continuity-publication`, `test:document-discussions`, `@station/api`
+  build, `typecheck`, and `git diff --check`. Because this lane adds a visible
+  Studio publish-flow version-history panel, ARIADNE should run desktop and
+  375px browser rehearsal before MIMIR closes PR30. Caveat preserved: this is
+  document versioning alpha, not rich editing, diff review, codex governance,
+  Station Press/PDF, binary archive export, or public prior-version browsing.
 
 ## Near-term rule
 

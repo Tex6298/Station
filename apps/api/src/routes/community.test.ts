@@ -232,6 +232,7 @@ class CommunitySupabase {
 
   private idCounters: Record<string, number> = {};
   private clock = Date.parse("2026-05-25T10:00:00.000Z");
+  private forcedFailures: Array<{ table: string; operation: string; message: string }> = [];
   private usersByToken = new Map([
     ["owner-token", { id: OWNER_ID, email: "owner@example.test" }],
     ["member-token", { id: MEMBER_ID, email: "member@example.test" }],
@@ -279,6 +280,19 @@ class CommunitySupabase {
     const value = new Date(this.clock).toISOString();
     this.clock += 1000;
     return value;
+  }
+
+  failNext(table: string, operation: string, message = "Forced operation failure.") {
+    this.forcedFailures.push({ table, operation, message });
+  }
+
+  consumeFailure(table: string, operation: string) {
+    const index = this.forcedFailures.findIndex(
+      (failure) => failure.table === table && failure.operation === operation
+    );
+    if (index === -1) return null;
+    const [failure] = this.forcedFailures.splice(index, 1);
+    return failure;
   }
 
   relatedRow(table: string, row: Row, columns: string | null) {
@@ -502,6 +516,8 @@ class QueryBuilder {
 
   private async execute(mode?: "single" | "maybeSingle") {
     let rows: Row[];
+    const forcedFailure = this.db.consumeFailure(this.table, this.operation);
+    if (forcedFailure) return { data: null, error: { message: forcedFailure.message }, count: null };
 
     if (this.operation === "insert") {
       const payloads = Array.isArray(this.payload) ? this.payload : [this.payload as Row];
@@ -1060,6 +1076,34 @@ test("documents protect persona ownership and owner-only updates", async () => {
     assert.equal(publicRead.status, 200);
     assert.equal(publicRead.body.document.version, 2);
     assert.equal(JSON.stringify(publicRead.body).includes("versions"), false);
+
+    const retryDraft = await requestJson(app, "POST", "/documents", {
+      token: "owner-token",
+      body: {
+        title: "Retry draft",
+        slug: "retry-draft",
+        body: "Initial body",
+      },
+    });
+    assert.equal(retryDraft.status, 201);
+
+    db.failNext("documents", "update", "Forced document update failure.");
+    const failedVersionedUpdate = await requestJson(app, "PATCH", `/documents/${retryDraft.body.document.id}`, {
+      token: "owner-token",
+      body: { title: "Should not persist" },
+    });
+    assert.equal(failedVersionedUpdate.status, 500);
+    assert.equal(
+      db.rows("document_versions").filter((row) => row.document_id === retryDraft.body.document.id).length,
+      0
+    );
+
+    const retryVersionedUpdate = await requestJson(app, "PATCH", `/documents/${retryDraft.body.document.id}`, {
+      token: "owner-token",
+      body: { title: "Retry draft updated" },
+    });
+    assert.equal(retryVersionedUpdate.status, 200);
+    assert.equal(retryVersionedUpdate.body.document.version, 2);
 
     const noSpaceDraft = await requestJson(app, "POST", "/documents", {
       token: "owner-token",

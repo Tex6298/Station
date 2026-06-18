@@ -1,7 +1,7 @@
 # PR30 - Native Document Versioning Alpha
 
 Date: 2026-06-18
-Status: opened for A2 / DAEDALUS
+Status: accepted by ARGUS for A4 / ARIADNE rehearsal
 Owner: DAEDALUS implements, ARGUS reviews. ARIADNE rehearses only if the Studio
 or public document journey changes visibly enough to need a human-eye pass.
 
@@ -99,3 +99,38 @@ DAEDALUS should wake ARGUS with:
 - versioning semantics;
 - validation commands/results;
 - whether ARIADNE should rehearse visible authoring/version history.
+
+## ARGUS Review Result
+
+ARGUS accepts PR30 for ARIADNE rehearsal, 2026-06-18.
+
+- Owner-only `/documents/:id/versions` reads are scoped to the current document
+  owner or admin, and public document reads expose only the current
+  `documents.version`.
+- Prior-version export summaries stay owner-only and avoid copying prior body
+  text into the export refs.
+- ARGUS patched snapshot cleanup for edit/publish failures: if a prior-version
+  row is inserted and the follow-up document update fails or returns no owned
+  row, the just-created snapshot is deleted by id and owner to avoid stale
+  version rows blocking later edits.
+- Added a regression fixture that forces a failed versioned document update,
+  proves the snapshot is removed, and proves a retry can version normally.
+- ARIADNE should rehearse the visible Studio publish-flow version-history panel
+  at desktop and 375px before MIMIR closes PR30.
+
+Validation passed:
+
+```bash
+npm exec --yes pnpm@10.32.1 -- run test:community
+npm exec --yes pnpm@10.32.1 -- run test:exports
+npm exec --yes pnpm@10.32.1 -- run test:studio-ui
+npm exec --yes pnpm@10.32.1 -- run test:continuity-publication
+npm exec --yes pnpm@10.32.1 -- run test:document-discussions
+npm exec --yes pnpm@10.32.1 -- --filter @station/api build
+npm exec --yes pnpm@10.32.1 -- run typecheck
+git diff --check
+```
+
+Remaining caveat: this is native document versioning alpha, not rich editing,
+diff review, codex governance, Station Press/PDF, binary archive export, or
+public prior-version browsing.
