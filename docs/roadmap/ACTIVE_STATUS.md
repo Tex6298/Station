@@ -4383,6 +4383,14 @@ when a PR lands, or when validation truth changes.
   now say the current Railway/Supabase staging line is launch-core sufficient
   for protected-alpha replay, not a finished Station MVP or production-ready
   system.
+- PR25 Four Onboarding Paths Alpha is opened for DAEDALUS, 2026-06-18:
+  `docs/roadmap/PR25_FOUR_ONBOARDING_PATHS_ALPHA.md` asks DAEDALUS to make the
+  four documented entry paths visible, honest, and routeable for alpha testing:
+  Fresh Start, Awakening, Document Migrator, and API Bridge. The lane forbids
+  fake live controls and keeps Cloudflare, Redis, provider routing, Stripe
+  expansion, production workers, and broad redesign out of scope. DAEDALUS must
+  wake ARGUS with path-by-path route/status proof, or wake MIMIR with a precise
+  blocker.
 
 ## Near-term rule
 
