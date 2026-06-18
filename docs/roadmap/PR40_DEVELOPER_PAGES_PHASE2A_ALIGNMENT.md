@@ -1,7 +1,7 @@
 # PR40 - Developer Pages Phase 2A Alignment
 
 Date: 2026-06-18
-Status: accepted by ARGUS, ready for MIMIR closeout and ARIADNE staging recheck
+Status: accepted by ARGUS; staging seed proof blocked by PR41
 Owner: DAEDALUS implements, ARGUS reviews, ARIADNE rechecks if visible staging
 surfaces change.
 
@@ -188,3 +188,20 @@ git diff --check
 The web build compiled, linted/type-checked, and generated 30 pages before
 reproducing the known Windows Next standalone symlink `EPERM` failure. ARIADNE
 should recheck `/developer-spaces/station-replay-dev-alpha` after deploy/seed.
+
+## MIMIR Staging Seed Note
+
+MIMIR attempted to make the PR40 evidence true on staging before waking ARIADNE.
+The first seed attempt failed because the ignored local synthetic corpus did not
+yet include the new `developerSpace.documents` block; MIMIR added the local
+public-safe evidence block without committing the ignored corpus.
+
+The second seed attempt failed with:
+
+```text
+Supabase request failed: new row for relation "documents" violates check constraint "documents_document_type_check"
+```
+
+PR41 now owns the operational proof: reconcile the active Supabase document-type
+constraint with the expected launch taxonomy, rerun the replay seed, and then
+send the deployed public-page recheck to ARIADNE.

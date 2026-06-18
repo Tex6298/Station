@@ -327,19 +327,16 @@ Reason: PR31 created the budget/trace safety surface needed before chat
 streaming. PR32 should add authenticated streaming/progress behavior while
 keeping provider-delta claims honest and the existing non-streaming POST stable.
 
-PR39 is closed as the protected-alpha demo operator pack. The active follow-up
-is PR40 Developer Pages Phase 2A Alignment:
-`docs/roadmap/PR40_DEVELOPER_PAGES_PHASE2A_ALIGNMENT.md`.
+PR40 is accepted by ARGUS as the Developer Pages Phase 2A code lane, but staging
+seed proof is blocked. The active follow-up is PR41 Developer Pages Staging Seed
+Proof:
+`docs/roadmap/PR41_DEVELOPER_PAGES_STAGING_SEED_PROOF.md`.
 
-Reason: the evolved CTO brief changes the Developer Space next step from "seed
-a few public notes" into a bounded Developer Pages Phase 2A alignment lane. P38
-closes Station as Home; Phase 2 opens Station as Ecosystem. The current
-implementation already has Tier 1 mechanics, so the next useful move is to make
-the public showcase-window prototype credible with role-aware methodology/
-finding/field-log evidence and honest product framing, while keeping Project
-abstraction, Tier 2 hosting, the chat-native developer agent, DexOS-specific
-widgets, tipping, public interaction modes, Tier 3, and Cloudflare out of
-scope.
+Reason: PR40's code and tests passed review, but MIMIR's staging seed attempt
+hit `documents_document_type_check` while inserting the new `research` and
+`field_log` evidence documents. Before ARIADNE can honestly recheck the public
+page, the active Supabase target must be proven or repaired so the launch
+document taxonomy and PR40 seed evidence are true on staging.
 
 ## Recommended Order
 

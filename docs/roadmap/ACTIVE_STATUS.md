@@ -5069,6 +5069,16 @@ when a PR lands, or when validation truth changes.
   linted/type-checked, and generated 30 pages before the known Windows
   standalone symlink `EPERM` failure. ARGUS recommends ARIADNE recheck
   `/developer-spaces/station-replay-dev-alpha` after deploy/seed.
+- MIMIR opens PR41 Developer Pages Staging Seed Proof for DAEDALUS on
+  2026-06-18 after a live seed attempt exposed a staging Supabase constraint
+  blocker: `replay:seed:staging` first failed because the ignored local replay
+  corpus lacked the new `developerSpace.documents` block; after MIMIR updated
+  the ignored local synthetic corpus, the seed failed on
+  `documents_document_type_check` while inserting PR40 evidence document types
+  `research` and `field_log`. `docs/roadmap/PR41_DEVELOPER_PAGES_STAGING_SEED_PROOF.md`
+  asks DAEDALUS to prove the active Supabase target/migration state, repair the
+  document-type taxonomy or safe seed compatibility path, rerun the staging
+  seed, and wake ARGUS before ARIADNE rechecks the public page.
 
 ## Near-term rule
 
