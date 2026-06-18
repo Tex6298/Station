@@ -7308,3 +7308,29 @@ Scope notes:
   reason counts only; private excerpts remain out of trace metadata.
 - Cloudflare, Redis memory truth, provider routing, vector dimensions, Stripe,
   and production worker infrastructure were not changed.
+
+## PR27 Archive/Import Robustness For Replay Safety
+
+DAEDALUS implementation validation on 2026-06-18:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:storage` | Pass | 16 tests passed, including file import partial-failure idempotent recovery, duplicate file registration, clean import, failed import, storage rollback, and archive search safety. |
+| `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass | 28 tests passed, including failed chat import retry recovery without retry content, duplicate completed chat import behavior, and retrieval source-authority coverage. |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-context` | Pass | 6 tests passed. Runtime context behavior was not changed. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/api build` | Pass | API package build and dependent package builds passed. |
+| `git diff --check` | Pass | No whitespace errors; CRLF normalization warnings only for touched files. |
+
+Scope notes:
+
+- Failed chat import retries now check existing owner/persona archive rows before
+  requiring retry source content. Partial failed jobs complete idempotently with
+  `recoveredFrom: "partial_archive_rows"`.
+- File import job reruns now validate the durable file pointer and count
+  existing archive rows before changing job status to `processing`; partial
+  failed file jobs complete idempotently with `partial_archive_rows` execution
+  metadata.
+- Duplicate completed imports still return the existing job without new archive
+  rows.
+- No worker queue, live social import, Cloudflare, Redis memory truth, provider,
+  vector dimension, integrity output, or archive UI behavior changed.

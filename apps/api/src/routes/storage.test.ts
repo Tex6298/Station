@@ -1024,6 +1024,18 @@ test("file import job runner claims durable file pointers, gates owners, and fai
     assert.equal(rerun.chunksCreated, 1);
     assert.equal(db.tables.memory_items.filter((row) => row.archive_source_id === file.id).length, 1);
 
+    job.status = "failed";
+    job.error_message = "Partial file import failure after archive rows were inserted.";
+    const partialFailureRerun = await runFileImportJobById({
+      jobId: job.id,
+      ownerUserId: OWNER_ID,
+    });
+    assert.equal(partialFailureRerun.job.status, "completed");
+    assert.equal(partialFailureRerun.idempotent, true);
+    assert.equal(partialFailureRerun.chunksCreated, 1);
+    assert.equal(partialFailureRerun.execution.reason, "partial_archive_rows");
+    assert.equal(db.tables.memory_items.filter((row) => row.archive_source_id === file.id).length, 1);
+
     await assert.rejects(
       () => runFileImportJobById({
         jobId: job.id,

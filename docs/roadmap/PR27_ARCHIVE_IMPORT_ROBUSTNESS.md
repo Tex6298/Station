@@ -1,7 +1,7 @@
 # PR27 - Archive/Import Robustness For Replay Safety
 
 Date: 2026-06-18
-Status: opened for A2 / DAEDALUS
+Status: implemented by A2 / DAEDALUS; ready for ARGUS review
 Owner: DAEDALUS implements, ARGUS reviews. ARIADNE only rehearses if visible
 archive/import UI behavior changes.
 
@@ -84,3 +84,63 @@ DAEDALUS should wake ARGUS when done with:
 
 If this lane exposes a true need for workers, Redis, or Cloudflare, wake MIMIR
 with concrete replay evidence instead of adding that infrastructure.
+
+## DAEDALUS Implementation Package
+
+Implemented on 2026-06-18 as a narrow import robustness patch.
+
+Behavior changes:
+
+- Failed chat import retries now count existing owner/persona archive rows before
+  requiring retry `content`. If archive rows already exist, the route marks the
+  same job completed, returns `idempotent: true`, and reports
+  `recoveredFrom: "partial_archive_rows"` without asking the owner to paste
+  private source text again.
+- Queued/processing chat retries with existing archive rows still complete
+  idempotently and now report `recoveredFrom: "archive_rows_already_exist"`.
+- Completed chat retries remain duplicate-safe and return the same completed job
+  with no new archive rows.
+- File import job reruns now validate the durable file pointer and count
+  existing archive rows before changing job status to `processing`. A failed file
+  job with existing archive rows is completed idempotently and reports
+  `execution.reason: "partial_archive_rows"`.
+
+Fixture coverage:
+
+- Clean import: existing `chat imports reserve text bytes and roll back when
+  archive insert fails` still proves a clean chat import creates a completed job
+  and archive rows.
+- Duplicate import: the same test proves a duplicate named chat import returns
+  the original completed job without extra archive rows; `persona file
+  registration is idempotent for exact owner persona storage paths` proves exact
+  file registration duplicates do not reserve more storage or create new jobs.
+- Partial/failed import: `background job retry reuses failed chat import jobs
+  and redacts private failure text` now proves failed chat jobs with existing
+  archive rows complete without retry content; `file import job runner claims
+  durable file pointers, gates owners, and fails safely` now proves failed file
+  jobs with existing archive rows complete idempotently without duplicating
+  chunks.
+- Retrieval after import: existing `private archive retrieval is owner-scoped and
+  source-authoritative` and `/imports/archive/search is owner-scoped, filtered,
+  and sanitized` continue to prove imported archive material is retrievable only
+  for the owner and failed/non-authoritative rows are excluded or owner-visible
+  as status metadata.
+
+Validation:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:storage` | Pass | 16 tests passed, including file partial-failure idempotent recovery and duplicate file registration coverage. |
+| `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass | 28 tests passed, including failed chat import retry recovery without retry content. |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-context` | Pass | 6 tests passed; runtime context behavior stayed unchanged. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/api build` | Pass | API package build and dependent package builds passed. |
+| `git diff --check` | Pass | No whitespace errors; CRLF normalization warnings only. |
+
+Scope notes:
+
+- No worker queue, live Reddit/Discord OAuth/API pull, recurring sync,
+  Cloudflare retrieval, Redis memory truth, provider change, vector dimension
+  change, integrity output change, or archive UI redesign was added.
+- This patch makes partial rows safe and diagnosable in the current
+  protected-alpha synchronous/inline path; it does not claim durable production
+  orchestration.

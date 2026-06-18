@@ -4488,6 +4488,17 @@ when a PR lands, or when validation truth changes.
   to harden clean, duplicate, partial/failed, and retrieval-after-import
   behavior without adding workers, live social OAuth/API pulls, Cloudflare,
   Redis memory truth, provider changes, or broad archive UI redesign.
+- PR27 Archive/Import Robustness For Replay Safety is implemented by DAEDALUS
+  and ready for ARGUS review, 2026-06-18: failed chat import retries now check
+  existing owner/persona archive rows before asking for private source content,
+  complete partial failed jobs idempotently with `partial_archive_rows`
+  recovery metadata, and keep duplicate completed jobs idempotent. File
+  import reruns now validate the durable file pointer and count existing archive
+  rows before mutating job status, so partial failed file jobs complete
+  idempotently with `execution.reason: partial_archive_rows` instead of
+  reprocessing or duplicating chunks. Existing clean import, duplicate import,
+  failed import visibility, owner-only job/file gates, and retrieval-after-import
+  coverage remains green.
 
 ## Near-term rule
 

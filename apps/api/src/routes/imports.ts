@@ -180,32 +180,8 @@ importsRouter.post("/:id/retry", async (req, res) => {
       imported: true,
       retried: false,
       idempotent: true,
+      recoveredFrom: null,
     });
-  }
-
-  if (job.status === "queued" || job.status === "processing") {
-    const existingRows = await countImportArchiveRows(job);
-    if (existingRows > 0) {
-      const completedJob = await markImportJobCompleted(job.id, userId);
-      return res.json({
-        job: serializeImportJob(completedJob),
-        chunksCreated: existingRows,
-        imported: true,
-        retried: false,
-        idempotent: true,
-      });
-    }
-
-    return res.status(202).json({
-      job: serializeImportJob(job),
-      imported: false,
-      retried: false,
-      pending: true,
-    });
-  }
-
-  if (!parsed.data.content) {
-    return res.status(400).json({ error: "content is required to retry a failed chat import." });
   }
 
   const existingRows = await countImportArchiveRows(job);
@@ -217,7 +193,21 @@ importsRouter.post("/:id/retry", async (req, res) => {
       imported: true,
       retried: false,
       idempotent: true,
+      recoveredFrom: job.status === "failed" ? "partial_archive_rows" : "archive_rows_already_exist",
     });
+  }
+
+  if (job.status === "queued" || job.status === "processing") {
+    return res.status(202).json({
+      job: serializeImportJob(job),
+      imported: false,
+      retried: false,
+      pending: true,
+    });
+  }
+
+  if (!parsed.data.content) {
+    return res.status(400).json({ error: "content is required to retry a failed chat import." });
   }
 
   await markImportJobProcessing(job.id, userId);

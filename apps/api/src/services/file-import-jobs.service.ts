@@ -25,8 +25,6 @@ export async function runFileImportJobById(input: { jobId: string; ownerUserId: 
   if (!job) throw new Error("Import job not found.");
   if (job.kind !== "file") throw new Error("Only file import jobs can use the file import runner.");
 
-  await markImportJobProcessing(job.id, input.ownerUserId);
-
   try {
     const file = await loadAndValidatePersonaFileForJob(job);
     const existingRows = await countPersonaFileArchiveRows({
@@ -41,9 +39,17 @@ export async function runFileImportJobById(input: { jobId: string; ownerUserId: 
         job: serializeImportJob(completed),
         chunksCreated: existingRows,
         idempotent: true,
-        execution: inlineExecution(job.status === "completed" ? "already_completed" : "archive_rows_already_exist"),
+        execution: inlineExecution(
+          job.status === "completed"
+            ? "already_completed"
+            : job.status === "failed"
+              ? "partial_archive_rows"
+              : "archive_rows_already_exist"
+        ),
       };
     }
+
+    await markImportJobProcessing(job.id, input.ownerUserId);
 
     const result = await processUploadedFile({
       personaId: job.persona_id,

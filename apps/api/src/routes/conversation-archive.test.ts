@@ -814,7 +814,22 @@ test("background job retry reuses failed chat import jobs and redacts private fa
     assert.equal(recoveredProcessing.status, 200);
     assert.equal(recoveredProcessing.body.idempotent, true);
     assert.equal(recoveredProcessing.body.retried, false);
+    assert.equal(recoveredProcessing.body.recoveredFrom, "archive_rows_already_exist");
     assert.equal(recoveredProcessing.body.job.status, "completed");
+    assert.equal(db.tables.memory_items.filter((row) => row.archive_source_id === failedJob.id).length, rowsAfterRetry.length);
+
+    failedJob.status = "failed";
+    failedJob.error_message = "Partial failure after archive rows were already inserted.";
+    const recoveredFailedPartial = await requestJson(app, "POST", `/imports/${failedJob.id}/retry`, {
+      token: "owner-token",
+      body: {},
+    });
+    assert.equal(recoveredFailedPartial.status, 200);
+    assert.equal(recoveredFailedPartial.body.idempotent, true);
+    assert.equal(recoveredFailedPartial.body.retried, false);
+    assert.equal(recoveredFailedPartial.body.recoveredFrom, "partial_archive_rows");
+    assert.equal(recoveredFailedPartial.body.job.status, "completed");
+    assert.equal(recoveredFailedPartial.body.job.error_message, null);
     assert.equal(db.tables.memory_items.filter((row) => row.archive_source_id === failedJob.id).length, rowsAfterRetry.length);
 
     const repeated = await requestJson(app, "POST", `/imports/${failedJob.id}/retry`, {
@@ -824,6 +839,7 @@ test("background job retry reuses failed chat import jobs and redacts private fa
     assert.equal(repeated.status, 200);
     assert.equal(repeated.body.idempotent, true);
     assert.equal(repeated.body.retried, false);
+    assert.equal(repeated.body.recoveredFrom, null);
     assert.equal(db.tables.memory_items.filter((row) => row.archive_source_id === failedJob.id).length, rowsAfterRetry.length);
   } finally {
     setSupabaseAdminForTests(null);
