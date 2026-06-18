@@ -160,7 +160,7 @@ export function StationAssistantPanel() {
             {reply ? (
               <article style={{ ...panelInset, marginTop: 16 }}>
                 <div style={eyebrow}>Intent: {reply.intent.replace(/_/g, " ")}</div>
-                <p style={{ color: "#dbeafe", whiteSpace: "pre-wrap", lineHeight: 1.65, margin: "8px 0 0" }}>{reply.content}</p>
+                <p style={{ color: "var(--station-page-text)", whiteSpace: "pre-wrap", lineHeight: 1.65, margin: "8px 0 0" }}>{reply.content}</p>
                 <p style={guardrail}>{reply.guardrail}</p>
               </article>
             ) : null}
@@ -234,26 +234,29 @@ function CountsGrid({ summary }: { summary: AssistantSummary }) {
 
 const page: CSSProperties = {
   minHeight: "calc(100vh - 52px)",
-  background: "#0b0e14",
+  background: "var(--station-page-bg)",
+  color: "var(--station-page-text)",
   padding: "24px 16px 48px",
 };
 
 const panel: CSSProperties = {
-  border: "1px solid #263244",
-  background: "#101622",
-  borderRadius: 10,
+  border: "1px solid var(--station-page-border)",
+  background: "var(--station-page-surface)",
+  color: "var(--station-page-text)",
+  borderRadius: 8,
   padding: 16,
 };
 
 const panelInset: CSSProperties = {
-  border: "1px solid #2c3b53",
-  background: "#0d1420",
-  borderRadius: 10,
+  border: "1px solid var(--station-page-border)",
+  background: "var(--station-page-soft-2)",
+  color: "var(--station-page-text)",
+  borderRadius: 8,
   padding: 14,
 };
 
 const eyebrow: CSSProperties = {
-  color: "#93c5fd",
+  color: "var(--station-page-accent)",
   fontSize: 11,
   textTransform: "uppercase",
   letterSpacing: 0,
@@ -262,26 +265,26 @@ const eyebrow: CSSProperties = {
 
 const title: CSSProperties = {
   margin: 0,
-  color: "#f8fafc",
+  color: "var(--station-page-text)",
   fontSize: 34,
   lineHeight: 1.05,
 };
 
 const sectionTitle: CSSProperties = {
   margin: "0 0 12px",
-  color: "#f8fafc",
+  color: "var(--station-page-text)",
   fontSize: 16,
 };
 
 const muted: CSSProperties = {
   margin: 0,
-  color: "#a9b0bd",
+  color: "var(--station-page-muted)",
   fontSize: 14,
   lineHeight: 1.6,
 };
 
 const mutedSmall: CSSProperties = {
-  color: "#8ea0b8",
+  color: "var(--station-page-muted)",
   fontSize: 12,
 };
 
@@ -289,10 +292,10 @@ const textarea: CSSProperties = {
   width: "100%",
   minHeight: 180,
   resize: "vertical",
-  border: "1px solid #334155",
-  borderRadius: 10,
-  background: "#0d1420",
-  color: "#f8fafc",
+  border: "1px solid var(--station-page-border)",
+  borderRadius: 8,
+  background: "var(--station-page-surface)",
+  color: "var(--station-page-text)",
   padding: 12,
   fontSize: 14,
   lineHeight: 1.55,
@@ -300,9 +303,9 @@ const textarea: CSSProperties = {
 };
 
 const primaryButton: CSSProperties = {
-  border: "1px solid #2563eb",
+  border: "1px solid var(--station-page-text)",
   borderRadius: 8,
-  background: "#2563eb",
+  background: "var(--station-page-text)",
   color: "#fff",
   padding: "10px 14px",
   fontSize: 13,
@@ -318,10 +321,10 @@ const primaryLink: CSSProperties = {
 };
 
 const promptButton: CSSProperties = {
-  border: "1px solid #334155",
+  border: "1px solid var(--station-page-border)",
   borderRadius: 999,
-  background: "#0d1420",
-  color: "#cbd5e1",
+  background: "var(--station-page-soft-2)",
+  color: "var(--station-page-text)",
   padding: "8px 11px",
   fontSize: 12,
   fontWeight: 700,
@@ -330,21 +333,21 @@ const promptButton: CSSProperties = {
 
 const guardrail: CSSProperties = {
   margin: "12px 0 0",
-  borderTop: "1px solid #263244",
+  borderTop: "1px solid var(--station-page-border)",
   paddingTop: 10,
-  color: "#8ea0b8",
+  color: "var(--station-page-muted)",
   fontSize: 12,
   lineHeight: 1.5,
 };
 
 const statBox: CSSProperties = {
-  border: "1px solid #263244",
+  border: "1px solid var(--station-page-border)",
   borderRadius: 8,
   padding: 10,
-  background: "#0d1420",
+  background: "var(--station-page-soft-2)",
   display: "grid",
   gap: 4,
-  color: "#94a3b8",
+  color: "var(--station-page-muted)",
   fontSize: 12,
 };
 
@@ -352,23 +355,23 @@ const miniRow: CSSProperties = {
   display: "flex",
   justifyContent: "space-between",
   gap: 10,
-  border: "1px solid #263244",
+  border: "1px solid var(--station-page-border)",
   borderRadius: 8,
   padding: 10,
-  color: "#cbd5e1",
+  color: "var(--station-page-text)",
   fontSize: 12,
 };
 
 const errorBox: CSSProperties = {
-  border: "1px solid #7f1d1d",
-  background: "#2a1115",
-  color: "#fecaca",
+  border: "1px solid rgba(157, 60, 53, 0.35)",
+  background: "#f8e6e3",
+  color: "var(--station-page-red)",
   borderRadius: 8,
   padding: 12,
 };
 
 const actionDetail: CSSProperties = {
-  color: "#94a3b8",
+  color: "var(--station-page-muted)",
   fontSize: 12,
   lineHeight: 1.35,
   fontWeight: 500,
@@ -377,11 +380,11 @@ const actionDetail: CSSProperties = {
 
 const actionMeta: CSSProperties = {
   flex: "0 0 auto",
-  border: "1px solid #334155",
+  border: "1px solid var(--station-page-border)",
   borderRadius: 999,
   padding: "3px 7px",
   fontSize: 10,
-  color: "#cbd5e1",
+  color: "var(--station-page-muted)",
   textTransform: "uppercase",
   letterSpacing: 0,
 };
@@ -393,10 +396,10 @@ function actionLink(priority: AssistantAction["priority"]): CSSProperties {
     justifyContent: "space-between",
     gap: 10,
     minHeight: 58,
-    border: `1px solid ${priority === "critical" ? "#92400e" : priority === "high" ? "#2563eb" : "#334155"}`,
+    border: `1px solid ${priority === "critical" ? "rgba(133, 79, 11, 0.35)" : priority === "high" ? "#c7d2fe" : "var(--station-page-border)"}`,
     borderRadius: 8,
-    background: priority === "high" ? "#13233d" : priority === "critical" ? "#21160b" : "#0d1420",
-    color: priority === "critical" ? "#fed7aa" : priority === "high" ? "#dbeafe" : "#cbd5e1",
+    background: priority === "high" ? "#eef2ff" : priority === "critical" ? "#f8efd9" : "var(--station-page-surface)",
+    color: priority === "critical" ? "#854f0b" : priority === "high" ? "#3730a3" : "var(--station-page-text)",
     padding: "10px 11px",
     textDecoration: "none",
     fontSize: 13,

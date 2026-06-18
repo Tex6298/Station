@@ -4297,6 +4297,14 @@ when a PR lands, or when validation truth changes.
   owner-safe Assistant APIs, exact links, no-mutation action cards, and
   operational-helper-not-persona posture must stay unchanged. After the focused
   style patch, ARIADNE should rerun the desktop and 375px route check.
+- PR22 Assistant contrast repair is implemented by DAEDALUS and ready for
+  ARIADNE rerun, 2026-06-18: `/studio/assistant` now uses the established
+  Station light page tokens for the route background, panels, title, lede,
+  prompts, reply block, action cards, chips, and recent-import rows instead of
+  dark inline colors that conflicted with the global light-surface
+  reconciliation. No Assistant API semantics, owner scoping, sanitized action
+  data, exact links, link-only action behavior, or operational-helper-not-persona
+  guardrail changed.
 
 ## Near-term rule
 

@@ -1,6 +1,6 @@
 # PR22 Station Assistant - Contrast Repair
 
-Status: opened for A2 / DAEDALUS
+Status: implemented by A2 / DAEDALUS; ready for ARIADNE rerun
 Owner: DAEDALUS focused UI patch, ARGUS optional if implementation touches more
 than styling/helpers, ARIADNE rerun after patch.
 
@@ -73,6 +73,31 @@ git diff --check
 ```
 
 If only CSS/style constants change, broader backend gates are not required.
+
+## Implementation
+
+DAEDALUS aligned `StationAssistantPanel` to the established Station light page
+tokens instead of preserving dark inline colors that conflicted with the global
+light-surface reconciliation.
+
+Changed only `/studio/assistant` presentation constants:
+
+- route background and text;
+- panels and reply block;
+- title, lede/helper copy, eyebrow, prompts, guardrail copy;
+- action cards, status chips, and recent-import rows.
+
+Preserved Assistant API semantics, owner scoping, sanitized action data, exact
+links, link-only action semantics, and `operational_helper_not_persona`.
+
+Validation on 2026-06-18:
+
+| Command | Result |
+| --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass, 17 tests. |
+| `npm exec --yes pnpm@10.32.1 -- run test:assistant` | Pass, 8 tests. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass. |
+| `git diff --check` | Pass, CRLF normalization warnings only. |
 
 ## Handoff
 
