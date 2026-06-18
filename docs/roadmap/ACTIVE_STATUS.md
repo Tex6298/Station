@@ -4931,6 +4931,20 @@ when a PR lands, or when validation truth changes.
   symlink `EPERM` failure. A local browser overflow measurement was not
   completed because Playwright is not installed as an executable/module in this
   workspace; ARGUS/ARIADNE should recheck 390px signed `/studio` on staging.
+- PR37 Launch-Core Polish Caveats is accepted by ARGUS for MIMIR closeout,
+  2026-06-18: ARGUS verified protected route access is preserved through the
+  account menu, Archive search semantics remain unchanged with a visible and
+  accessible `Search private archive` affordance, Developer Space/Archive copy
+  stays data-honest, and no private/debug/provider/owner data leak or broad
+  backend/UI drift was found. Validation passed `test:studio-ui` with 26 tests,
+  `test:storage` with 16 tests, `test:developer-spaces` with 8 tests,
+  `typecheck`, and `git diff --check`. Local `@station/web` build again
+  compiled, linted/type-checked, and generated 30 pages before the known Windows
+  standalone symlink `EPERM` failure. Playwright/browser overflow measurement
+  remains unavailable locally, so ARGUS recommends ARIADNE recheck signed
+  `/studio` at 390px, mobile Archive search label, public Developer Space story,
+  and Archive/import source narrative on staging before final human-demo
+  confidence.
 
 ## Near-term rule
 

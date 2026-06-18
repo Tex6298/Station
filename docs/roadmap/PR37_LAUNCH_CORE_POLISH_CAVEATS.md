@@ -1,7 +1,7 @@
 # PR37 - Launch-Core Polish Caveats
 
 Date: 2026-06-18
-Status: implemented by DAEDALUS, ready for ARGUS review
+Status: accepted by ARGUS for MIMIR closeout
 Owner: DAEDALUS implements, ARGUS reviews, ARIADNE rechecks visible staging
 surfaces if ARGUS accepts.
 
@@ -114,3 +114,38 @@ If ARGUS accepts, ARIADNE should recheck:
 DAEDALUS should wake ARGUS with files changed, screenshots or measured overflow
 evidence where practical, copy changes, validation results, and ARIADNE recheck
 recommendation.
+
+## ARGUS Review Result
+
+ARGUS accepts PR37 for MIMIR closeout, 2026-06-18.
+
+- Signed mobile top navigation preserves protected route access by hiding the
+  dense protected top-level links below 640px while keeping `/studio`, `/space`,
+  and `/developer-spaces` reachable through the existing account menu.
+- Archive search semantics are unchanged; the visible `Search private archive`
+  label, input `aria-label`, and source-material/processing/visibility copy are
+  present and owner-scoped.
+- Developer Space observatory copy stays data-honest: it counts attached public
+  methodology/finding/field-log notes, explains live signals as public runtime
+  records, and keeps visitor/private boundaries explicit.
+- No private archive text, private prompts, debug payloads, provider metadata,
+  owner IDs, tokens, cookies, credentials, broad redesign, or backend
+  architecture change was found.
+- Local browser overflow measurement still is not available because Playwright
+  is not installed as an executable/module in this workspace. ARIADNE should
+  recheck signed `/studio` at 390px, the mobile Archive search label, public
+  Developer Space story, and Archive/import source narrative on staging.
+
+Validation passed or reproduced the known local caveat:
+
+```bash
+npm exec --yes pnpm@10.32.1 -- run test:studio-ui
+npm exec --yes pnpm@10.32.1 -- run test:storage
+npm exec --yes pnpm@10.32.1 -- run test:developer-spaces
+npm exec --yes pnpm@10.32.1 -- run typecheck
+npm exec --yes pnpm@10.32.1 -- --filter @station/web build
+git diff --check
+```
+
+The web build compiled, linted/type-checked, and generated 30 pages before
+reproducing the known Windows Next standalone symlink `EPERM` failure.

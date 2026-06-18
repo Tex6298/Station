@@ -7647,6 +7647,7 @@ DAEDALUS implementation validation on 2026-06-18:
 | `npm exec --yes pnpm@10.32.1 -- run test:storage` | Pass | 16 tests passed; Archive backend search and storage/accounting behavior stayed green. |
 | `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 8 tests passed, including public methodology/live-signal/privacy-boundary copy helpers. |
 | `npm exec --yes pnpm@10.32.1 -- --filter @station/web build` | Local environment failure after successful compile/type/page generation | Next compiled successfully, lint/type checks ran with the known warning inventory, and 30 static pages generated. The build then reproduced the known Windows standalone symlink failure: `EPERM: operation not permitted, symlink ... apps\\web\\.next\\standalone...`. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed in ARGUS review after the visible polish changes. |
 | `git diff --check` | Pass | No whitespace errors; CRLF normalization warnings only for touched text files and local triad state. |
 
 Scope notes:
@@ -7661,8 +7662,10 @@ Scope notes:
 - Developer Space public observatories now explain methodology/finding/field-log
   evidence counts, live signal meaning, and visitor privacy boundaries.
 - Local browser overflow measurement was not completed because Playwright is not
-  installed as an executable/module in this workspace. ARIADNE should recheck
-  signed `/studio` at 390px on staging after ARGUS accepts.
+  installed as an executable/module in this workspace. ARGUS accepted code-level
+  route access and responsive-CSS shape, but ARIADNE should still recheck signed
+  `/studio` at 390px, the mobile Archive search label, public Developer Space
+  story, and Archive/import source narrative on staging.
 - No Cloudflare, Redis/Valkey memory, provider streaming, embedding migration,
   model marketplace UI, BYOK secret storage, retrieval rewrite, backend Archive
   search semantic change, or broad redesign was added.
