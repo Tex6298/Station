@@ -2336,7 +2336,22 @@ html, body {
 
   .studio-dashboard-row > div {
     min-width: 0;
-    flex: 1 1 180px;
+    flex: 1 1 140px;
+    max-width: 100%;
+  }
+
+  .studio-dashboard-row > *,
+  .studio-dashboard-panel *,
+  .studio-dashboard-main *,
+  .studio-dashboard-grid * {
+    min-width: 0;
+  }
+
+  .studio-dashboard-row a,
+  .studio-dashboard-row span,
+  .studio-action-row a {
+    max-width: 100%;
+    overflow-wrap: anywhere;
   }
 
   .studio-persona-header h1 {
@@ -2345,6 +2360,10 @@ html, body {
 
   .studio-action-row {
     justify-content: flex-start;
+  }
+
+  .studio-action-row > * {
+    min-width: 0;
   }
 
   .studio-continuity-grid,
@@ -2372,6 +2391,35 @@ html, body {
   .studio-publish-row,
   .studio-publish-actions {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .studio-frame-inner {
+    padding-inline: 12px;
+  }
+
+  .studio-dashboard-panel {
+    overflow: hidden;
+    padding: 14px !important;
+  }
+
+  .studio-dashboard-row {
+    gap: 8px !important;
+    padding: 10px !important;
+  }
+
+  .studio-dashboard-row > div {
+    flex-basis: 120px;
+  }
+
+  .studio-dashboard-row > a,
+  .studio-dashboard-row > span:last-child {
+    margin-left: 0 !important;
+  }
+
+  .studio-action-row {
+    width: 100%;
   }
 }
 

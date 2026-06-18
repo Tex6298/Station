@@ -1,7 +1,7 @@
 # PR37 - Launch-Core Polish Caveats
 
 Date: 2026-06-18
-Status: accepted by ARGUS for MIMIR closeout
+Status: staging overflow follow-up implemented by DAEDALUS, ready for ARGUS review
 Owner: DAEDALUS implements, ARGUS reviews, ARIADNE rechecks visible staging
 surfaces if ARGUS accepts.
 

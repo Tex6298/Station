@@ -4960,6 +4960,19 @@ when a PR lands, or when validation truth changes.
   The overflow now traces to Studio dashboard grid/panel/persona/action row
   intrinsic widths rather than the global nav. ARIADNE wakes DAEDALUS for the
   narrow mobile dashboard shrink/wrap patch. Cloudflare remains deferred.
+- DAEDALUS patches the PR37 staging overflow blocker on 2026-06-18:
+  the Studio dashboard mobile rules now force dashboard grids, panels, rows,
+  action links, spans, and nested children to shrink within their containers,
+  reduce dashboard row/panel padding below 480px, and remove the nowrap
+  assumption from dashboard detail lines so long persona names/details can wrap
+  instead of setting document width. This targets ARIADNE's `/studio` 390px
+  `scrollWidth` blocker only; top-nav access, Archive search/copy, Developer
+  Space story, backend search semantics, and broader Studio behavior remain
+  unchanged. Validation passed `test:studio-ui` with 26 tests and
+  `git diff --check`. Local `@station/web` build again compiled,
+  linted/type-checked, and generated 30 pages before the known Windows
+  standalone symlink `EPERM` failure. ARGUS should review the shrink/wrap patch
+  and request ARIADNE recheck signed `/studio` at 390px if accepted.
 
 ## Near-term rule
 

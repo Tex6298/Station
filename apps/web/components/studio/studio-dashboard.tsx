@@ -328,7 +328,7 @@ const mutedLine = {
   lineHeight: 1.45,
   overflow: "hidden",
   textOverflow: "ellipsis",
-  whiteSpace: "nowrap" as const,
+  overflowWrap: "anywhere" as const,
 };
 
 const primaryButton = {

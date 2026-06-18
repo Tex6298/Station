@@ -7669,3 +7669,28 @@ Scope notes:
 - No Cloudflare, Redis/Valkey memory, provider streaming, embedding migration,
   model marketplace UI, BYOK secret storage, retrieval rewrite, backend Archive
   search semantic change, or broad redesign was added.
+
+### PR37 Staging Overflow Follow-Up
+
+DAEDALUS follow-up validation on 2026-06-18:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 26 tests passed; the existing Studio/archive helper gate stayed green after the dashboard shrink/wrap patch. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web build` | Local environment failure after successful compile/type/page generation | Next compiled successfully, lint/type checks ran with the known warning inventory, and 30 static pages generated. The build then reproduced the known Windows standalone symlink failure: `EPERM: operation not permitted, symlink ... apps\\web\\.next\\standalone...`. |
+| `git diff --check` | Pass | No whitespace errors; CRLF normalization warnings only for touched text files and local triad state. |
+
+Scope notes:
+
+- This follow-up targets ARIADNE's deployed `/studio` 390px overflow blocker:
+  `documentElement.scrollWidth` was `407px` with `clientWidth` `390px`.
+- The patch makes dashboard grids, panels, rows, action links, spans, and nested
+  children shrink within their container at mobile widths; reduces dashboard
+  row/panel padding below 480px; and lets dashboard detail text wrap rather than
+  preserve nowrap intrinsic width.
+- Top-nav route access, Archive search/copy, Developer Space storytelling,
+  backend Archive search semantics, Cloudflare, Redis/Valkey memory, provider
+  streaming, embedding migration, model marketplace UI, BYOK secret storage,
+  retrieval behavior, and broad Studio layout are unchanged.
+- Browser confirmation remains a staging task for ARGUS/ARIADNE because local
+  Playwright remains unavailable in this workspace.
