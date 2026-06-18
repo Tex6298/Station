@@ -271,7 +271,7 @@ export async function assemblePersonaRuntimeContext(
     },
     topology: {
       schema: "station.runtime_context_topology.v1",
-      priority: TOPOLOGY_PRIORITY,
+      priority: [...TOPOLOGY_PRIORITY],
       buckets: {
         canon: topology.buckets.canon.stats,
         integrity: topology.buckets.integrity.stats,
@@ -624,11 +624,12 @@ function applyRuntimeContextTopology(
       TOPOLOGY_PRIORITY.map((bucket) => {
         const limits = TOPOLOGY_LIMITS[bucket];
         const requestedSources = buckets[bucket] ?? [];
+        let truncated = 0;
         const retained = requestedSources.slice(0, limits.maxItems).map((source) => {
-          const content = trimTopologyContent(source.content, limits.maxCharactersPerItem);
-          return content === source.content ? source : { ...source, content };
+          const trimmed = trimTopologyContent(source.content, limits.maxCharactersPerItem);
+          if (trimmed.truncated) truncated += 1;
+          return trimmed.content === source.content ? source : { ...source, content: trimmed.content };
         });
-        const truncated = retained.filter((source, index) => source.content !== requestedSources[index]?.content).length;
         return [
           bucket,
           {
@@ -652,8 +653,12 @@ function applyRuntimeContextTopology(
 }
 
 function trimTopologyContent(value: string, maxCharacters: number) {
-  if (value.length <= maxCharacters) return value;
-  return `${value.slice(0, Math.max(0, maxCharacters - 3)).trim()}...`;
+  const compact = value.replace(/[\r\n\t]+/g, " ").replace(/\s+/g, " ").trim();
+  if (compact.length <= maxCharacters) return { content: compact, truncated: false };
+  return {
+    content: `${compact.slice(0, Math.max(0, maxCharacters - 3)).trim()}...`,
+    truncated: true,
+  };
 }
 
 function formatContinuityRecordForPrompt(row: any) {

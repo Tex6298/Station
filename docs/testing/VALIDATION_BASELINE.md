@@ -7575,6 +7575,7 @@ DAEDALUS implementation validation on 2026-06-18:
 | `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass | 34 tests passed; chat, streaming envelope, archive retrieval, and runtime budget reporting stayed green. |
 | `npm exec --yes pnpm@10.32.1 -- run test:continuity` | Pass | 4 tests passed; continuity CRUD/source ownership behavior stayed green. |
 | `npm exec --yes pnpm@10.32.1 -- --filter @station/api build` | Pass | API package build and dependent package builds passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed after ARGUS prompt-structure hardening. |
 | `git diff --check` | Pass | No whitespace errors; CRLF normalization warnings only for touched text files and local triad state. |
 
 Scope notes:
@@ -7589,6 +7590,12 @@ Scope notes:
   counts per bucket.
 - Prompt-injection warnings for memory, continuity, and archive/source material
   remain in place after clipping.
+- ARGUS compacted topology-managed source text to single-line prompt items
+  before clipping so source newlines cannot reshape prompt bullets; topology
+  `truncated` counts still mean length clipping, not ordinary whitespace
+  normalization.
+- ARGUS copied the returned topology priority array so caller mutation cannot
+  alter the module-level topology priority list by reference.
 - Selected-source trace metadata remains content-free; production responses and
   stream events still do not expose raw private context.
 - No retrieval rewrite, embedding/provider change, Redis/Valkey/Cloudflare

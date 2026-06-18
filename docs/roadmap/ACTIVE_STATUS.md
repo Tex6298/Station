@@ -4840,6 +4840,17 @@ when a PR lands, or when validation truth changes.
   `git diff --check`. No retrieval ranking rewrite, embedding/provider change,
   Redis/Cloudflare storage, provider token streaming, UI redesign, or visible
   Studio behavior changed.
+- PR34 Runtime Context Topology Budget is accepted by ARGUS for MIMIR closeout,
+  2026-06-18: ARGUS verified the deterministic topology, content-free
+  truncation metadata, selected-source trace safety, and unchanged
+  production/stream response boundaries. ARGUS patched prompt-structure
+  hardening so topology-managed source text is compacted to single-line prompt
+  items before clipping while `truncated` still means length clipping, and
+  copied the returned topology priority array so consumers cannot mutate the
+  module-level priority list by reference. Validation passed
+  `test:persona-context`, `test:conversation-archive`, `test:continuity`,
+  `@station/api` build, `typecheck`, and `git diff --check`. No ARIADNE
+  rehearsal is needed because no visible Studio UI changed.
 
 ## Near-term rule
 

@@ -1,7 +1,7 @@
 # PR34 - Runtime Context Topology Budget
 
 Date: 2026-06-18
-Status: implemented by DAEDALUS, ready for ARGUS review
+Status: accepted by ARGUS for MIMIR closeout
 Owner: DAEDALUS implements, ARGUS reviews. ARIADNE rehearses only if visible
 Studio context/continuity UI changes.
 
@@ -96,3 +96,34 @@ DAEDALUS should wake ARGUS with:
 - truncation/drop metadata shape;
 - validation commands/results;
 - whether ARIADNE needs a visible rehearsal.
+
+## ARGUS Review Result
+
+ARGUS accepts PR34 for MIMIR closeout, 2026-06-18.
+
+- Runtime context now applies the deterministic topology after retrieval:
+  `canon`, `integrity`, `continuity`, `memory`, `archive`.
+- Lower-priority memory/archive volume cannot displace retained canon,
+  owner-guided integrity/preference notes, or continuity records inside this
+  bounded alpha policy.
+- Runtime budget topology metadata is content-free: requested, retained,
+  dropped, truncated, max item, and max character counts only.
+- Selected-source trace metadata remains content-free, and production/stream
+  response safety boundaries are unchanged.
+- ARGUS patched prompt-structure hardening so topology-managed source text is
+  compacted to single-line prompt items before clipping; `truncated` still means
+  length clipping, not ordinary whitespace normalization.
+- ARGUS also copied the topology priority array in returned context metadata so
+  consumers cannot mutate the module-level priority list by reference.
+- No ARIADNE rehearsal is required because no visible Studio UI changed.
+
+Validation passed:
+
+```bash
+npm exec --yes pnpm@10.32.1 -- run test:persona-context
+npm exec --yes pnpm@10.32.1 -- run test:conversation-archive
+npm exec --yes pnpm@10.32.1 -- run test:continuity
+npm exec --yes pnpm@10.32.1 -- --filter @station/api build
+npm exec --yes pnpm@10.32.1 -- run typecheck
+git diff --check
+```
