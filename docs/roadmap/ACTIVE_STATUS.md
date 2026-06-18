@@ -5288,6 +5288,20 @@ when a PR lands, or when validation truth changes.
   `65076251d3a7f6fb28d0258a75b1d30749a5c3a8`. This is a signed deployed
   browser rehearsal for the owner manage evidence console on the two seeded
   Developer Spaces, plus a public-route privacy sanity check.
+- ARIADNE completes PR48 Developer Pages Owner Evidence Recheck on 2026-06-18:
+  `docs/roadmap/PR48_DEVELOPER_PAGES_OWNER_EVIDENCE_RECHECK_ARIADNE.md`
+  records a pass against Railway runtime `6507625`. Signed replay-owner
+  desktop and 390px mobile checks for both manage routes load without sign-in
+  loop, route error, overflow, or offscreen controls. The owner console metrics
+  say `Evidence`, the section is `Evidence path`, role options and role-purpose
+  copy match the public evidence model, form fields fit, existing evidence is
+  ordered methodology/finding/field-log, public rows say `Visible to visitors`,
+  and ingestion key, visual mode, widgets, usage, exports, and curl instruction
+  sections remain present. ARIADNE created one owner-only smoke note on
+  `station-replay-dev-alpha`; it appears in the owner list as `Hidden from
+  visitors` and is absent from anonymous public browser/API reads, which still
+  show three public linked documents per route. ARIADNE recommends MIMIR close
+  PR47 as complete for deployed staging; no DAEDALUS defect is needed.
 
 ## Near-term rule
 
