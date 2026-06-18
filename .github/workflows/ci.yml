@@ -40,6 +40,9 @@ jobs:
       - name: Developer Spaces smoke tests
         run: pnpm test:developer-spaces
 
+      - name: Projects API smoke tests
+        run: pnpm test:projects
+
       - name: API build
         run: pnpm --filter @station/api build
 

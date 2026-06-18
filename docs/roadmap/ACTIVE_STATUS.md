@@ -5374,6 +5374,14 @@ when a PR lands, or when validation truth changes.
   backfill, Cloudflare, Tier 2 hosting, developer-agent, or DexOS-widget
   behavior was added. ARGUS review is requested; PR52 should likely be the
   smallest Project-to-Developer-Space attachment lane if PR51 is accepted.
+- ARGUS accepts PR51 on 2026-06-19 after adding `pnpm test:projects` to CI.
+  Owner scoping, route shape, payload validation, safe response serialization,
+  simple owner `project_members` creation, Developer Space non-regression, and
+  export-package absence all passed review. Validation passed `test:projects`,
+  `test:developer-spaces`, `typecheck`, and diff hygiene. ARGUS recommends
+  PR52 as a narrow owner-only Developer Space to Project attachment lane, with
+  project billing, exports, public Project pages, contributor UI,
+  member-role authorization, and hosted runtime still deferred.
 
 ## Near-term rule
 

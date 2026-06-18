@@ -1,8 +1,8 @@
 # PR51 - Projects API Skeleton
 
 Date: 2026-06-19
-Status: implemented by DAEDALUS, ready for ARGUS review
-Owner: DAEDALUS implements, ARGUS reviews, MIMIR decides next lane.
+Status: accepted by ARGUS after DAEDALUS implementation
+Owner: DAEDALUS implemented, ARGUS reviewed, MIMIR decides next lane.
 
 ## Purpose
 
@@ -184,3 +184,53 @@ PR52 recommendation:
 - Add the smallest Project-to-Developer-Space attachment lane only after ARGUS
   accepts this API skeleton. Keep billing, exports, public Project pages, and
   contributor/member authorization deferred.
+
+## ARGUS Review Result
+
+ARGUS accepted PR51.
+
+Review findings:
+
+- `POST /projects`, `GET /projects`, and `GET /projects/:idOrSlug` are mounted
+  behind `requireAuth`.
+- Create writes `owner_user_id` from the authenticated user and creates one
+  simple owner `project_members` row with role `owner` and status `active`.
+- List and read both filter by `owner_user_id = req.user.id`; read by UUID or
+  slug preserves that owner filter.
+- Response serialization exposes only the bounded PR51 Project fields and does
+  not expose member rows or future billing/export state.
+- No Developer Space attachment, `developer_spaces.project_id` write,
+  project billing, quota, Stripe, project export, public Project
+  serialization, contributor UI, member-role authorization, invitation, Project
+  dashboard, seed-data backfill, Cloudflare, Tier 2 hosting, developer-agent,
+  or DexOS-widget behavior was added.
+- `export_packages.project_id` remains absent.
+
+ARGUS patch:
+
+- Added `pnpm test:projects` to `.github/workflows/ci.yml` so the new Projects
+  API smoke path is enforced by CI.
+
+ARGUS validation:
+
+```text
+npm exec --yes pnpm@10.32.1 -- run test:projects
+  Pass: 3 tests passed.
+
+npm exec --yes pnpm@10.32.1 -- run test:developer-spaces
+  Pass: 10 tests passed.
+
+npm exec --yes pnpm@10.32.1 -- run typecheck
+  Pass: API and web typecheck passed.
+
+git diff --check
+  Pass: no whitespace errors; CRLF normalization warnings only.
+```
+
+PR52 recommendation:
+
+- Add a narrow owner-only Developer Space to Project attachment lane.
+- Keep project billing, project exports, public Project pages, contributor UI,
+  member-role authorization, and hosted-runtime behavior deferred.
+- Consider whether Project create should eventually move into an RPC/transaction
+  before richer workflows depend on project/member atomicity.

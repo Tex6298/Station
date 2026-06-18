@@ -8049,3 +8049,24 @@ Scope notes:
   backfill, Cloudflare, Tier 2 hosting, developer-agent, or DexOS-widget work
   was added.
 - `export_packages.project_id` remains absent.
+
+ARGUS review validation on 2026-06-19:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:projects` | Pass | 3 tests passed; auth gating, validation, owner member-row creation, owner-only list/read, slug/id read, and cross-owner 404 stayed green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 10 tests passed; Developer Space behavior remains null-project compatible and unchanged. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed after the Projects route and CI guardrail update. |
+| `git diff --check` | Pass | No whitespace errors; CRLF normalization warnings only for touched files and triad state. |
+
+ARGUS scope notes:
+
+- Added `pnpm test:projects` to GitHub CI so the new Projects API smoke path is
+  protected.
+- Owner filters are present on list and read; read by UUID or slug cannot cross
+  owner boundaries.
+- Responses stay bounded to Project summary fields; member rows and future
+  billing/export state are not serialized.
+- No Developer Space attachment flow or `developer_spaces.project_id` write was
+  added.
+- No `export_packages.project_id` was added.
