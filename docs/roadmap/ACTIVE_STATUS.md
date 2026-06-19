@@ -6886,6 +6886,19 @@ when a PR lands, or when validation truth changes.
   subcommunity, appeal, notification, reputation, recognition, billing/provider/
   Redis/Cloudflare/Developer Space, auth/session refactor, or visibility
   widening is opened.
+- ARIADNE completes PR83 Community Forum UX Rehearsal on 2026-06-19 and wakes
+  DAEDALUS for narrow UI/UX fixes. Anonymous and eligible-member desktop/mobile
+  route passes covered `/forums`, category detail, new-thread access, thread
+  detail, and a public document discussion entry point on the deployed Railway
+  runtime. Concrete defects remain: the public document route did not render
+  `Open discussion` for an API-confirmed attached discussion; below-tier signed
+  users can see `+ New thread` before API tier rejection; new-thread linked
+  persona/Space selects lack boundary/helper copy; and owners see `Report` on
+  their own thread. Below-tier/admin browser passes were not run because only
+  the replay owner credential was available locally; the below-tier finding is
+  from code readback after PR81. No broad forum redesign, subcommunity, appeal,
+  notification, reputation, recognition, billing/provider/cache, Developer
+  Space, auth/session refactor, or visibility widening is opened.
 
 ## Near-term rule
 

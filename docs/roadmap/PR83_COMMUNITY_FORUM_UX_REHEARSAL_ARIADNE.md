@@ -4,7 +4,7 @@ Date opened: 2026-06-19
 Opened by: A1 / MIMIR
 Owner: ARIADNE first. DAEDALUS implements only if ARIADNE finds concrete
 defects. ARGUS reviews any code changes.
-Status: open
+Status: ARIADNE rehearsal complete; DAEDALUS patch needed
 
 ## Why This Lane
 
@@ -104,3 +104,22 @@ git diff --check
 ```
 
 Add relevant web checks if UI code changes.
+
+## ARIADNE Result - 2026-06-19
+
+ARIADNE completed the browser/code-readback rehearsal and found concrete
+implementation defects. See
+`docs/roadmap/PR83_COMMUNITY_FORUM_UX_REHEARSAL_RESULT_ARIADNE.md`.
+
+DAEDALUS should patch the narrow fix list:
+
+- public document discussion CTA missing for an anonymous public document with
+  an existing attached thread;
+- below-tier signed users can see a live `+ New thread` affordance before API
+  tier rejection;
+- new-thread linked persona/Space selects lack boundary/helper copy;
+- owners can still see `Report` on their own thread.
+
+No broad forum redesign, subcommunity, appeal, notification, reputation,
+recognition, billing/provider/cache, Developer Space, auth/session refactor, or
+visibility widening is opened.
