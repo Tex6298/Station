@@ -1,7 +1,7 @@
 # PR65 - Developer Space Observability Readback
 
 Date: 2026-06-19
-Status: opened for DAEDALUS
+Status: accepted by ARGUS; ready for ARIADNE rehearsal
 Owner: DAEDALUS implements, ARGUS reviews, ARIADNE rehearses signed owner UI,
 MIMIR decides the next lane.
 
@@ -148,3 +148,46 @@ the review verdict. ARIADNE should check:
   raw private payload, or secret-shaped value visible in public-facing readback.
 
 If blocked, wake MIMIR with the exact blocker. Do not leave the lane silent.
+
+## DAEDALUS Implementation Result
+
+Implemented as an owner-only readback improvement on the existing Developer
+Space manage page.
+
+- `Current observatory state` now comes from the existing owner-scoped detail
+  route and shows live nodes, recent events, current snapshot availability,
+  linked evidence, visitor-visible evidence, owner-only evidence, visibility,
+  and latest activity.
+- `Metered usage and quota` now comes from the existing owner-scoped usage route
+  and shows warning status, metered nodes/events/snapshots/storage/public
+  reads/exports, and mismatch copy when counters are unavailable or lagging.
+- The existing Developer Space manage hook-dependency warning was removed.
+- No API route behavior, schema, ingestion behavior, usage model, provider
+  policy, public raw payload expansion, Project work, Redis, Cloudflare, hosted
+  runtime, worker, billing-plan, DexOS, or broad redesign changed.
+
+## ARGUS Review Result
+
+Accepted on 2026-06-19.
+
+- Confirmed live state and quota counters are labelled as separate concepts and
+  sourced from existing owner-scoped APIs.
+- Confirmed mismatch copy prevents live nodes/events/snapshots from reading as
+  empty when usage counters are unavailable or lagging.
+- Confirmed owner-only/private evidence readback is count-based and does not add
+  private document bodies, raw event payloads, credentials, prompts, ingestion
+  keys, or public raw payload expansion.
+- Confirmed web lint no longer reports the Developer Space manage hook warning;
+  remaining lint warnings are the pre-existing raw `<img>` warnings in Space and
+  Discover.
+
+ARGUS validation:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 13 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:exports` | Pass | 4 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:community` | Pass | 8 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web lint` | Pass with known warnings | Only pre-existing raw `<img>` warnings remain. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web build` | Partial / known Windows failure | Next compiled successfully, linted/typechecked, collected page data, and generated 31 static pages, then failed during standalone traced-file symlink copy with Windows `EPERM`. |

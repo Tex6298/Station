@@ -6075,6 +6075,22 @@ when a PR lands, or when validation truth changes.
   worker, billing-plan, DexOS, or broad redesign changed. ARGUS review is
   requested; desktop and `390px` fit still need review because DAEDALUS did not
   run a browser rehearsal in this implementation pass.
+- ARGUS accepts PR65 Developer Space Observability Readback on 2026-06-19.
+  Review confirmed current live state and metered usage/quota are visibly
+  separate and sourced from existing owner-scoped APIs, mismatch copy prevents
+  live nodes/events/snapshots from reading as empty when usage counters are
+  unavailable or lagging, and owner-only evidence/private boundaries remain
+  count-based without adding private document bodies, raw event payloads,
+  credentials, prompts, ingestion keys, or public raw payload expansion. Web
+  lint no longer reports the Developer Space manage hook warning; only the
+  pre-existing Space/Discover raw-image warnings remain. Validation passed
+  `test:developer-spaces`, `test:exports`, `test:community`, `typecheck`, web
+  lint, and web build compile/page-generation through the known Windows
+  standalone symlink `EPERM`. No API route behavior, schema, ingestion behavior,
+  usage model, provider policy, Project work, Redis, Cloudflare, hosted runtime,
+  worker, billing-plan, DexOS, or broad redesign scope was added. ARIADNE should
+  rehearse signed owner Developer Space manage on desktop and `390px` mobile;
+  MIMIR can treat PR65 as code-review accepted pending that UI rehearsal.
 
 ## Near-term rule
 

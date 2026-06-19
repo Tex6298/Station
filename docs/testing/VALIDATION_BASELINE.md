@@ -8734,6 +8734,33 @@ Scope notes:
   Redis, Cloudflare, Project work, hosted runtime, worker, billing/quota, or
   DexOS work changed.
 
+ARGUS review validation on 2026-06-19:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:storage` | Pass | 16 tests passed; import-backed candidate creation and archive/storage behavior stayed green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass | 35 tests passed, including owner-scoped import-backed accept/reject coverage. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 41 tests passed after ARGUS fixes. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web build` | Partial / known Windows failure | Next compiled successfully, linted/typechecked, collected page data, and generated 31 static pages, then failed during standalone traced-file symlink copy with Windows `EPERM`. |
+
+ARGUS scope notes:
+
+- ARGUS confirmed the readback matches `PATCH /conversations/candidates/:id`:
+  accepted Memory candidates write Memory, accepted Canon candidates write
+  Canon, and rejected candidates do not promote runtime material.
+- ARGUS patched reviewed cards to resync local title/content state from the
+  server-returned candidate after accept/reject, preventing stale edited text
+  after a reject.
+- ARGUS patched the Import Review readback grid to collapse at the existing
+  Studio mobile breakpoint.
+- ARGUS removed the new PR64 hook-dependency warning from the Archive state
+  refresh refactor. Remaining web-build warnings are pre-existing.
+- No API route behavior, schema, parser/OAuth, queue/background job, export
+  behavior, global Archive, public Archive route, raw trace/API payload display,
+  Redis, Cloudflare, Project work, hosted runtime, worker, billing/quota, or
+  DexOS work changed.
+
 ## PR65 Developer Space Observability Readback
 
 DAEDALUS implementation validation on 2026-06-19:
@@ -8771,25 +8798,22 @@ ARGUS review validation on 2026-06-19:
 
 | Command | Result | Notes |
 | --- | --- | --- |
-| `npm exec --yes pnpm@10.32.1 -- run test:storage` | Pass | 16 tests passed; import-backed candidate creation and archive/storage behavior stayed green. |
-| `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass | 35 tests passed, including owner-scoped import-backed accept/reject coverage. |
-| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 41 tests passed after ARGUS fixes. |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 13 tests passed, including owner current-state versus metered-usage helper coverage. |
+| `npm exec --yes pnpm@10.32.1 -- run test:exports` | Pass | 4 tests passed; Developer Space export behavior stayed green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:community` | Pass | 8 tests passed; public/community Developer Space discover/search visibility stayed green. |
 | `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web lint` | Pass with known warnings | Developer Space manage hook warnings are gone; only pre-existing raw `<img>` warnings remain in Space and Discover. |
 | `npm exec --yes pnpm@10.32.1 -- --filter @station/web build` | Partial / known Windows failure | Next compiled successfully, linted/typechecked, collected page data, and generated 31 static pages, then failed during standalone traced-file symlink copy with Windows `EPERM`. |
 
 ARGUS scope notes:
 
-- ARGUS confirmed the readback matches `PATCH /conversations/candidates/:id`:
-  accepted Memory candidates write Memory, accepted Canon candidates write
-  Canon, and rejected candidates do not promote runtime material.
-- ARGUS patched reviewed cards to resync local title/content state from the
-  server-returned candidate after accept/reject, preventing stale edited text
-  after a reject.
-- ARGUS patched the Import Review readback grid to collapse at the existing
-  Studio mobile breakpoint.
-- ARGUS removed the new PR64 hook-dependency warning from the Archive state
-  refresh refactor. Remaining web-build warnings are pre-existing.
-- No API route behavior, schema, parser/OAuth, queue/background job, export
-  behavior, global Archive, public Archive route, raw trace/API payload display,
-  Redis, Cloudflare, Project work, hosted runtime, worker, billing/quota, or
-  DexOS work changed.
+- ARGUS confirmed current-state readback is sourced from the existing owner
+  detail data while usage/quota readback is sourced from the existing usage
+  route.
+- Mismatch copy keeps live nodes/events/snapshots from being misread as empty
+  when usage counters are unavailable or lagging.
+- Owner-only evidence counts are bounded to counts and do not expose linked
+  private document bodies, raw event payloads, credentials, prompts, or keys.
+- No API route behavior, schema, ingestion behavior, usage model, provider
+  policy, public raw payload expansion, Project work, Redis, Cloudflare, hosted
+  runtime, worker, billing-plan, DexOS, or broad redesign changed.
