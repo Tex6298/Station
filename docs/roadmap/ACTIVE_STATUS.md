@@ -6833,6 +6833,15 @@ when a PR lands, or when validation truth changes.
   reputation, recognition, billing/provider/cache, Developer Space,
   auth/session refactor, public visibility widening, or ARIADNE rehearsal is
   required.
+- MIMIR closes PR81 and opens PR82 Community Smoke Coverage And Status for
+  DAEDALUS on 2026-06-19. Before opening subcommunities, appeals,
+  notifications, recognition, or UX polish, DAEDALUS should consolidate the
+  Community Beta smoke coverage and update `docs/roadmap/community-beta.md` so
+  PR78 through PR81 are reflected accurately. This is primarily a test/docs
+  lane: add only non-duplicative focused tests or narrow local bug fixes. No
+  broad forum redesign, subcommunity, appeal, notification, reputation,
+  recognition, billing/provider/Redis/Cloudflare/Developer Space, auth/session
+  refactor, visibility widening, or unproven product claim is opened.
 
 ## Near-term rule
 
