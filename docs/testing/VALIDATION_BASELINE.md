@@ -8524,6 +8524,30 @@ Scope notes:
   hosted runtime, worker, billing/quota, schema, API route, or DexOS work was
   added.
 
+## PR61 Persona Lifecycle And Handoff Readback
+
+DAEDALUS implementation validation on 2026-06-19:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 35 tests passed, including persona lifecycle/handoff helper coverage. |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-context` | Pass | 7 tests passed; owner-only memory/persona context behavior stayed green. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed. |
+| `git diff --check` | Pass | No whitespace errors; CRLF normalization warnings only for touched files and local triad state. |
+
+Scope notes:
+
+- Persona management/edit now renders owner-friendly lifecycle event labels,
+  handoff status labels, safe handoff previews, and bounded memory graph
+  readback.
+- Handoff save still uses the existing owner-only handoff route, then refreshes
+  the existing architecture route so handoff and lifecycle readback update
+  together.
+- Raw lifecycle event payload JSON, raw IDs, cross-owner handoff behavior,
+  public lifecycle pages, schema, API route behavior, Redis, Cloudflare,
+  provider migration, Project work, hosted runtime, workers, billing/quota, and
+  DexOS work were not changed.
+
 ARGUS review validation on 2026-06-19:
 
 | Command | Result | Notes |

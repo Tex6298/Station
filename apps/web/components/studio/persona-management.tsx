@@ -12,6 +12,13 @@ import type {
 } from "@station/types/persona";
 import { apiGet, apiPost } from "@/lib/api-client";
 import { getSession } from "@/lib/auth";
+import {
+  handoffFreshnessCopy,
+  handoffStatusLabel,
+  handoffSummaryPreview,
+  lifecycleEventReadback,
+  memoryGraphReadback,
+} from "@/lib/persona-lifecycle-ui";
 
 interface IntegrityHistorySession {
   id: string;
@@ -59,7 +66,7 @@ export function PersonaManagement({ persona, personaId }: { persona: Persona; pe
 
       const [historyData, architectureData, graphData] = await Promise.all([
         apiGet<{ sessions: IntegrityHistorySession[] }>(`/integrity/history/${personaId}`, accessToken).catch(() => ({ sessions: [] })),
-        apiGet<ArchitectureResponse>(`/personas/${personaId}/architecture`, accessToken).catch(() => null),
+        loadArchitecture(personaId, accessToken),
         apiGet<{ graph: MemoryGraph }>(`/memory/persona/${personaId}/graph`, accessToken).catch(() => ({ graph: { nodes: [], edges: [] } })),
       ]);
 
@@ -91,12 +98,13 @@ export function PersonaManagement({ persona, personaId }: { persona: Persona; pe
         { summary: handoffSummary.trim() || undefined },
         token,
       );
-      setArchitecture((current) => current ? {
+      const refreshed = await loadArchitecture(personaId, token);
+      setArchitecture((current) => refreshed ?? (current ? {
         ...current,
         handoffs: [response.handoff, ...current.handoffs],
-      } : current);
+      } : current));
       setHandoffSummary("");
-      setNotice("Handoff saved.");
+      setNotice(refreshed ? "Handoff saved. Lifecycle readback refreshed." : "Handoff saved. Lifecycle refresh will appear after reload.");
     } catch (err) {
       setNotice(err instanceof Error ? err.message : "Could not save handoff.");
     } finally {
@@ -177,6 +185,9 @@ export function PersonaManagement({ persona, personaId }: { persona: Persona; pe
                 <Metric label="Graph edges" value={memoryGraph.edges.length} />
                 <Metric label="Canon items" value={continuity?.canonCount ?? 0} />
               </div>
+              <p style={{ ...muted, margin: "10px 0 0" }}>
+                {memoryGraphReadback(memoryGraph.nodes.length, memoryGraph.edges.length)}
+              </p>
               <div style={{ display: "grid", gap: 10, marginTop: 12 }}>
                 {memoryGraph.nodes.length === 0 ? (
                   <EmptyState text="No memory nodes yet. Add memory items to start building the graph." />
@@ -220,6 +231,9 @@ export function PersonaManagement({ persona, personaId }: { persona: Persona; pe
           <aside style={{ display: "grid", gap: 18 }}>
             <section style={panel}>
               <SectionTitle title="Context Handoffs" />
+              <p style={{ ...muted, margin: "0 0 10px" }}>
+                {handoffFreshnessCopy(architecture?.handoffs.length ?? 0)}
+              </p>
               <textarea
                 value={handoffSummary}
                 onChange={(event) => setHandoffSummary(event.target.value)}
@@ -236,9 +250,10 @@ export function PersonaManagement({ persona, personaId }: { persona: Persona; pe
                 ) : architecture!.handoffs.slice(0, 4).map((handoff) => (
                   <article key={handoff.id} style={listRow}>
                     <span style={pinBox}>H</span>
-                    <div>
-                      <div style={{ color: "#f8fafc", fontSize: 13, fontWeight: 800 }}>{handoff.status}</div>
-                      <div style={muted}>{handoff.summary.slice(0, 120)}</div>
+                    <div style={{ minWidth: 0 }}>
+                      <div style={{ color: "#f8fafc", fontSize: 13, fontWeight: 800 }}>{handoffStatusLabel(handoff.status)}</div>
+                      <div style={muted}>{handoffSummaryPreview(handoff, 140)}</div>
+                      <div style={{ ...muted, marginTop: 4 }}>{formatDate(handoff.createdAt)}</div>
                     </div>
                   </article>
                 ))}
@@ -250,15 +265,20 @@ export function PersonaManagement({ persona, personaId }: { persona: Persona; pe
               <div style={{ display: "grid", gap: 10 }}>
                 {(architecture?.lifecycleEvents ?? []).length === 0 ? (
                   <EmptyState text="Lifecycle events will appear as the persona changes." />
-                ) : architecture!.lifecycleEvents.slice(0, 6).map((event) => (
-                  <article key={event.id} style={listRow}>
-                    <span style={pinBox}>L</span>
-                    <div>
-                      <div style={{ color: "#f8fafc", fontSize: 14, fontWeight: 800 }}>{event.eventLabel ?? event.eventType}</div>
-                      <div style={muted}>{event.eventType} - {formatDate(event.createdAt)}</div>
-                    </div>
-                  </article>
-                ))}
+                ) : architecture!.lifecycleEvents.slice(0, 6).map((event) => {
+                  const readback = lifecycleEventReadback(event);
+
+                  return (
+                    <article key={event.id} style={listRow}>
+                      <span style={pinBox}>L</span>
+                      <div style={{ minWidth: 0 }}>
+                        <div style={{ color: "#f8fafc", fontSize: 14, fontWeight: 800 }}>{readback.label}</div>
+                        <div style={muted}>{readback.detail}</div>
+                        <div style={{ ...muted, marginTop: 4 }}>{formatDate(event.createdAt)}</div>
+                      </div>
+                    </article>
+                  );
+                })}
               </div>
             </section>
 
@@ -297,6 +317,10 @@ export function PersonaManagement({ persona, personaId }: { persona: Persona; pe
       </div>
     </main>
   );
+}
+
+function loadArchitecture(personaId: string, accessToken: string) {
+  return apiGet<ArchitectureResponse>(`/personas/${personaId}/architecture`, accessToken).catch(() => null);
 }
 
 function SectionTitle({ title, action, href }: { title: string; action?: string; href?: string }) {

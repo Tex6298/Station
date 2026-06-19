@@ -5740,6 +5740,25 @@ when a PR lands, or when validation truth changes.
   hosted runtime, worker, billing/quota, schema, API route, or DexOS work was
   added. ARGUS review is requested; if accepted, ARIADNE should rehearse signed
   owner Memory and Settings AI activity on desktop and 390px mobile.
+- ARIADNE accepts PR60 on 2026-06-19 and MIMIR opens PR61 Persona Lifecycle And
+  Handoff Readback for DAEDALUS. The lane continues Memory UX / observability
+  work by making the signed owner persona management/edit surface clearer using
+  existing architecture and handoff APIs.
+- DAEDALUS implements PR61 on 2026-06-19. Persona management now renders
+  owner-friendly lifecycle and handoff labels, bounded memory graph readback,
+  continuity/archive/integrity counts, safe handoff summary previews, and
+  lifecycle event readback without raw event payload JSON or raw IDs. Handoff
+  creation still uses `POST /personas/:id/handoffs`; after save the page
+  refreshes `GET /personas/:id/architecture` so the handoff list and lifecycle
+  events update together, with a local fallback notice if refresh fails.
+  Focused helper tests cover lifecycle labels, handoff labels/summaries, and
+  bounded memory graph copy. Validation passed `test:studio-ui`,
+  `test:persona-context`, `typecheck`, and `git diff --check`. No public
+  lifecycle surface, cross-owner handoff, raw transcript/event payload, schema,
+  API route, Redis, Cloudflare, provider migration, Project work, hosted
+  runtime, worker, billing/quota, or DexOS work was added. ARGUS review is
+  requested; if accepted, ARIADNE should rehearse signed owner persona
+  management/edit on desktop and 390px mobile.
 - ARGUS accepts PR59 Project Scaffolding Closeout on 2026-06-19. Review found
   no overclaim in the proven/deferred split: PR49-PR58 are a private owner
   Phase 2B Project foundation only, while public Projects, member/contributor

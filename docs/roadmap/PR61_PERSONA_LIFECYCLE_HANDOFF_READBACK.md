@@ -1,7 +1,7 @@
 # PR61 - Persona Lifecycle And Handoff Readback
 
 Date: 2026-06-19
-Status: opened for DAEDALUS
+Status: implemented by DAEDALUS; ready for ARGUS review
 Owner: DAEDALUS implements, ARGUS reviews, ARIADNE rehearses signed owner UI,
 MIMIR decides next lane.
 
@@ -126,3 +126,57 @@ the review verdict. ARIADNE should check:
 - `390px` layout with no horizontal overflow or offscreen controls.
 
 If blocked, wake MIMIR with the exact blocker. Do not leave the lane silent.
+
+## DAEDALUS Implementation Result
+
+Implemented as an owner-only web/readback slice on the existing persona
+management/edit route. No API route, schema, provider, Project, hosted runtime,
+worker, billing, Redis, Cloudflare, or DexOS behavior changed.
+
+### Persona Management Readback
+
+- `apps/web/components/studio/persona-management.tsx` now uses owner-friendly
+  lifecycle and handoff readback labels instead of raw event-type/status text.
+- `apps/web/lib/persona-lifecycle-ui.ts` centralizes lifecycle event labels,
+  handoff status labels, safe handoff summary previews, handoff freshness copy,
+  and bounded memory graph readback.
+- Recent lifecycle events now render labels such as `Handoff received`,
+  `Handoff sent`, `Layer update`, and `Memory update`, plus the existing
+  event label when present.
+- The UI does not render raw lifecycle `eventData`, handoff IDs, owner IDs, or
+  raw UUIDs in handoff/event preview text.
+- Memory graph readback stays bounded to counts and short memory summaries; no
+  graph visualization or raw payload display was added.
+- Continuity/archive/integrity counts remain visible from the existing persona
+  continuity summary.
+
+### Handoff Refresh Behavior
+
+- Handoff creation still uses `POST /personas/:id/handoffs`.
+- After a handoff save, the page performs a cheap refresh of
+  `GET /personas/:id/architecture` so the visible handoff list and lifecycle
+  events can update together.
+- If the refresh fails, the created handoff is still prepended locally and the
+  notice explains that lifecycle refresh will appear after reload.
+
+### Focused Tests
+
+- Added `apps/web/lib/persona-lifecycle-ui.test.ts`.
+- Added the new helper test to `test:studio-ui`.
+
+## Validation Result
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 35 tests passed, including persona lifecycle/handoff helper coverage. |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-context` | Pass | 7 tests passed; owner-only memory/persona context behavior stayed green. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed. |
+| `git diff --check` | Pass | No whitespace errors; CRLF normalization warnings only for touched files and local triad state. |
+
+## Scope Confirmation
+
+- No public lifecycle surface.
+- No cross-owner handoff or collaborator feature.
+- No raw private transcript, raw lifecycle event payload, raw IDs, raw memory
+  graph payload, schema, API route, Redis, Cloudflare, provider migration,
+  Project work, hosted runtime, worker, billing/quota, or DexOS work.
