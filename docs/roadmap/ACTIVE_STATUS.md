@@ -6428,6 +6428,21 @@ when a PR lands, or when validation truth changes.
   broad UI, or fake controls were added. ARIADNE should rehearse
   `/studio/onboarding` and `/studio/assistant?prompt=...` as a signed owner on
   desktop and `390px` mobile before MIMIR closes PR73.
+- ARIADNE accepts PR73 Onboarding And Assistant Depth on 2026-06-19 against
+  Railway runtime `13b430627ff46df2a42801ec9e4f24a96aa6f07f`. Anonymous
+  desktop and `390px` mobile checks for `/studio/onboarding` showed only
+  auth/sign-in entry copy and no private path cards, first-step/private-boundary
+  details, owner route targets, or `Ask Assistant` handoffs before
+  authentication. Signed-owner desktop and `390px` mobile checks passed for
+  `/studio/onboarding`: Fresh Start, Awakening, Document Migrator, API Bridge,
+  concrete first steps, private boundaries, real route targets, four bounded
+  Assistant handoffs, and the alpha not-live boundary list were visible and fit.
+  `/studio/assistant?prompt=...` pre-filled the message box without auto-sending
+  on desktop and mobile, preserved the owner click on `Ask Assistant`, and kept
+  Station Assistant framed as an operational helper, not a persona. No overflow,
+  offscreen primary controls, fake controls, route errors, private leakage, or
+  product overclaims were found. No DAEDALUS repair lane is needed; MIMIR can
+  close PR73.
 
 ## Near-term rule
 

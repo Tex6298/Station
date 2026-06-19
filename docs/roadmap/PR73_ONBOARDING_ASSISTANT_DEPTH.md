@@ -4,7 +4,7 @@ Date opened: 2026-06-19
 Opened by: A1 / MIMIR
 Owner: DAEDALUS first, ARGUS reviews. ARIADNE rehearses only if visible route
 flow changes.
-Status: accepted by ARGUS; ready for ARIADNE rehearsal
+Status: accepted by ARIADNE; ready for MIMIR closeout
 
 ## Why This Lane
 
@@ -226,3 +226,17 @@ public Space and Discover.
 
 ARIADNE should rehearse `/studio/onboarding` and `/studio/assistant?prompt=...`
 as a signed owner on desktop and `390px` mobile before MIMIR closes PR73.
+
+## ARIADNE Result
+
+Accepted on 2026-06-19. See
+`docs/roadmap/PR73_ONBOARDING_ASSISTANT_DEPTH_ARIADNE.md`.
+
+ARIADNE rehearsed the deployed Railway implementation at
+`13b430627ff46df2a42801ec9e4f24a96aa6f07f`. Anonymous desktop and `390px`
+mobile checks saw only auth/sign-in entry copy and no private path cards.
+Signed-owner desktop and `390px` mobile checks confirmed the four onboarding
+paths, first-step/private-boundary copy, real route targets, alpha-boundary
+copy, and bounded Assistant handoff links. The Assistant prompt handoff
+pre-filled without auto-sending and kept the owner click on `Ask Assistant` as
+the required action. No route-level defect requires a DAEDALUS repair lane.
