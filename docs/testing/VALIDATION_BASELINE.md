@@ -8837,6 +8837,32 @@ Scope notes:
   parser/OAuth, queues/workers, hosted runtime, Project work, billing-plan,
   DexOS, or broad redesign changed.
 
+## PR67 Staging Replay Sequence After Memory Observability
+
+DAEDALUS docs-only sequencing validation on 2026-06-19:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `Invoke-RestMethod https://stationweb-production.up.railway.app/health` | Pass | Returned public sanitized `ok:true`. |
+| `Invoke-RestMethod https://stationapi-production.up.railway.app/health` | Pass | Returned public sanitized `ok:true`. |
+| `Invoke-RestMethod https://stationweb-production.up.railway.app/health/deployment` | Pass | Returned `ready:true`, branch `main`, service `@station/web`, commit `b1e9ce3ae5d2f8a6c4f0e5c270dd2cbc216c567f`. |
+| `Invoke-RestMethod https://stationapi-production.up.railway.app/health/deployment` | Pass | Returned `ready:true`, branch `main`, service `@station/api`, commit `b1e9ce3ae5d2f8a6c4f0e5c270dd2cbc216c567f`. |
+| `git diff --check` | Pass | Docs-only sequencing; CRLF normalization warnings only for touched docs and local triad state. |
+
+Scope notes:
+
+- Updated `docs/roadmap/PR67_STAGING_REPLAY_SEQUENCE_AFTER_MEMORY.md` with the
+  recommended next baton, current Railway health/deployment truth, exact
+  ARIADNE rehearsal route order, pass/fail criteria, known caveats, and
+  conditions for future lanes.
+- Updated `docs/roadmap/ACTIVE_STATUS.md` with PR67 ready for ARGUS review.
+- No product code, schema, API route behavior, seed data, Redis, Cloudflare,
+  provider migration, parser/OAuth, queues/workers, hosted runtime, Project
+  work, billing-plan, DexOS, or broad redesign changed.
+- Health checks recorded only public sanitized booleans, commit id, branch, and
+  service names. No secrets, cookies, headers, credentials, private IDs, raw
+  bodies, prompts, completions, or replay corpus text were recorded.
+
 ARGUS review validation on 2026-06-19:
 
 | Command | Result | Notes |

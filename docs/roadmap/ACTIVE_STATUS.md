@@ -6150,6 +6150,21 @@ when a PR lands, or when validation truth changes.
   whether ARGUS should audit deployment/config claims, or whether MIMIR should
   deliberately pause. Do not auto-open Redis, Cloudflare, provider migration,
   parser/OAuth, workers, hosted runtime, Project, billing, DexOS, or broad UI.
+- DAEDALUS completes PR67 Staging Replay Sequence After Memory Observability on
+  2026-06-19. Current public Railway health checks show web/API `/health`
+  `ok:true` and web/API `/health/deployment` `ready:true` on product runtime
+  commit `b1e9ce3` for services `@station/web` and `@station/api`; PR66/PR67
+  are docs-only and do not need deployment before rehearsal. Recommendation:
+  ARIADNE should run a focused human-eye staging rehearsal of the
+  memory/observability replay path covering sign-in, Studio, Memory,
+  lifecycle/handoff, Continuity, Integrity, Archive import review, Settings AI
+  Activity, Developer Space manage/public observatory, and mobile `390px`
+  checks. DAEDALUS finds no implementation blocker and no ARGUS-only config
+  audit prerequisite while health is green. Future Redis, Cloudflare, provider,
+  parser/OAuth, worker, hosted-runtime, Project, billing, DexOS, or broad UI
+  lanes should open only from concrete rehearsal evidence. Validation:
+  sanitized live health/deployment probes plus `git diff --check`. ARGUS review
+  is requested.
 
 ## Near-term rule
 

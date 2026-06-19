@@ -1,7 +1,7 @@
 # PR67 - Staging Replay Sequence After Memory Observability
 
 Date: 2026-06-19
-Status: opened by MIMIR; ready for DAEDALUS sequencing inventory
+Status: DAEDALUS sequencing inventory ready for ARGUS review
 Owner: DAEDALUS inventories, ARGUS reviews, MIMIR chooses the next active lane.
 
 ## Purpose
@@ -126,3 +126,179 @@ ARGUS should wake MIMIR with accept/block and the next baton. If ARGUS accepts
 and the next action is ARIADNE rehearsal, MIMIR should wake ARIADNE with the
 route order. If the next action is a narrow fix, MIMIR should wake DAEDALUS with
 the exact defect. Do not leave the team asleep.
+
+## DAEDALUS Sequencing Result
+
+Recommended next action: ARIADNE should run a focused human-eye staging
+rehearsal of the memory/observability replay path.
+
+This is not a new feature lane. It is a current-staging proof pass over the
+accepted owner-readback stack after PR60 through PR65. DAEDALUS does not see a
+concrete live blocker that justifies implementation before rehearsal, and PR67
+does not require ARGUS-only config audit first because public health/deployment
+checks are currently green.
+
+## Current Railway Truth
+
+Checked on 2026-06-19 with public non-secret health endpoints only:
+
+| Target | Result | Sanitized identity |
+| --- | --- | --- |
+| Web `/health` | Pass, `ok:true` | Railway web reachable. |
+| API `/health` | Pass, `ok:true` | Railway API reachable. |
+| Web `/health/deployment` | Pass, `ready:true` | Commit `b1e9ce3ae5d2f8a6c4f0e5c270dd2cbc216c567f`, branch `main`, service `@station/web`. |
+| API `/health/deployment` | Pass, `ready:true` | Commit `b1e9ce3ae5d2f8a6c4f0e5c270dd2cbc216c567f`, branch `main`, service `@station/api`. |
+
+Notes:
+
+- `b1e9ce3` is the accepted PR65 product-code runtime. PR66 and PR67 are
+  docs-only commits, so Railway does not need to serve them before ARIADNE can
+  rehearse the product path.
+- The API deployment readiness reports database, migrations, private
+  `persona-files` storage, public Railway URLs, Supabase Auth redirects, Stripe
+  billing config, platform chat, Gemini embeddings, and operational cache as
+  ready/configured.
+- The same readiness report says no BullMQ-compatible worker queue is ready and
+  the queue path is still inline/fallback. That remains a demo caveat, not a
+  blocker for the memory/observability route unless rehearsal finds a concrete
+  queue-dependent failure.
+- No secrets, cookies, headers, credentials, private IDs, raw bodies, prompts,
+  completions, or replay corpus text were recorded in this check.
+
+## Rehearsal Route Order
+
+ARIADNE should rehearse against:
+
+```text
+https://stationweb-production.up.railway.app
+https://stationapi-production.up.railway.app
+```
+
+Suggested route order:
+
+1. Preflight:
+   - Web `/health`
+   - API `/health`
+   - Web `/health/deployment`
+   - API `/health/deployment`
+   - Pass if both services are `ok:true`, deployment readiness is `ready:true`,
+     and both product services still report commit `b1e9ce3` or a later accepted
+     product commit.
+2. Sign in/session:
+   - Web `/login`
+   - API `/auth/me`
+   - Web `/studio`
+   - Pass if the replay owner session restores without exposing tokens,
+     cookies, owner IDs, or auth headers.
+3. Studio orientation:
+   - Web `/studio`
+   - Confirm private Studio readback is understandable and distinct from public
+     Spaces/Developer Spaces.
+4. Persona Memory:
+   - Web `/studio/personas/:personaId/memory`
+   - Pass if lifecycle counters, runtime eligibility/holdout copy, and actions
+     are readable without raw private IDs or source bodies.
+5. Persona lifecycle/handoff:
+   - Web persona management/edit route for the replay persona.
+   - Pass if lifecycle event labels, handoff labels/previews, memory graph
+     readback, and continuity/archive/integrity counts remain coherent.
+6. Continuity:
+   - Web `/studio/personas/:personaId/continuity`
+   - Pass if Continuity is visibly separate from Memory/Archive/Integrity in
+     runtime readback and timeline provenance labels are understandable.
+7. Integrity:
+   - Web `/studio/personas/:personaId/calibration`
+   - Pass if review cards still explain accept/edit/dismiss destination and
+     preservation behavior before action.
+8. Archive import review:
+   - Web `/studio/personas/:personaId/files`
+   - Pass if imported-source-to-Memory/Canon review state, destination,
+     accepted-target, and preservation copy are readable. It is acceptable to
+     use existing pending/reviewed candidates or create one replay-safe pasted
+     import if ARIADNE needs live action proof.
+9. Settings AI Activity:
+   - Web Settings AI Activity surface.
+   - API `/observability/summary`
+   - API `/observability/traces`
+   - Pass if only source/status/duration/token/cost/metadata labels and counts
+     are captured. Do not capture prompts, completions, raw trace bodies, trace
+     IDs, owner IDs, persona IDs, cookies, tokens, or credentials.
+10. Developer Space observability:
+    - Public `/developer-spaces/station-replay-dev-alpha`
+    - Owner `/developer-spaces/station-replay-dev-alpha/manage`
+    - Pass if public observatory remains public-safe and owner manage clearly
+      separates current observatory state from metered usage/quota without
+      exposing ingestion keys or raw payloads.
+11. Optional continuity-of-story chain:
+    - Public Space/document/forum routes only if ARIADNE needs to prove the
+      memory/observability story still connects to public presentation.
+
+Mobile spot check:
+
+- Repeat the core private route cluster at `390px`: Studio, Memory,
+  Continuity, Archive import review, and Developer Space manage.
+- Pass if there is no document-level horizontal overflow, offscreen controls,
+  or visible application/auth error state.
+
+## Pass / Fail Criteria
+
+Pass:
+
+- The memory/observability replay route completes on current Railway.
+- The owner can understand what Station remembers, what is held out, how
+  runtime context is assembled, how Integrity outputs write, how Archive imports
+  become candidates, how AI activity is summarized, and how Developer Space live
+  state differs from usage counters.
+- Public/private boundaries remain obvious.
+- No private source text, prompts, completions, raw payloads, credentials,
+  tokens, cookies, API keys, owner IDs, persona IDs, trace IDs, or replay corpus
+  text are captured or exposed.
+
+Fail:
+
+- Any route needed for the rehearsal returns a persistent application/auth
+  error.
+- Memory/Continuity/Integrity/Archive/Developer Space readback contradicts the
+  accepted PR60-PR65 server behavior.
+- Public surfaces expose owner-only manage, trace, archive, prompt, payload, or
+  credential material.
+- Mobile core routes have document-level overflow or unreachable controls that
+  block the rehearsal.
+
+## Known Caveats That Are Not Blockers
+
+- PR66 and PR67 are docs-only and are not required to be served by Railway.
+- The local Windows standalone web build still hits the known symlink `EPERM`
+  after successful compile/type/page-generation; Railway/Linux remains the
+  decisive standalone environment.
+- Worker queue readiness is not proven; current staging uses inline/fallback
+  behavior for queue-dependent paths. This is not a blocker unless rehearsal
+  finds a specific queue-dependent failure.
+- Redis/Upstash operational cache is configured, but this is not Redis working
+  memory or a durable queue acceptance.
+- Paid activation is only required if MIMIR includes paid-tier activation in
+  the rehearsal. Otherwise billing stays a status/readback demo note.
+- Export remains owner-only JSON/Markdown readback, not PDF/binary/full
+  workspace export.
+- Archive import is pasted/file/manual intake and candidate review, not OAuth,
+  recurring pulls, or parser expansion.
+
+## Conditions For Future Lanes
+
+Open a DAEDALUS narrow fix only if rehearsal produces a concrete failing route,
+bad state refresh, wrong destination/readback copy, auth/session defect,
+privacy leak, or blocking mobile layout issue.
+
+Open an ARGUS deployment/config audit only if health/deployment readiness
+turns false, Railway serves mismatched product commits, staging config claims
+conflict with live sanitized readiness, or a remote-only behavior contradicts
+local validation.
+
+Open Redis/worker work only if a rehearsed flow fails because inline/fallback
+job behavior cannot support the demo or protected-alpha use case.
+
+Open Cloudflare/retrieval/provider/parser/OAuth/billing/Project/hosted-runtime/
+DexOS/broad UI work only if ARIADNE or ARGUS captures exact route-level evidence
+that the staging replay cannot proceed without that specific lane.
+
+Otherwise, do not open those lanes from architectural anxiety.
