@@ -4,7 +4,7 @@ Date opened: 2026-06-19
 Opened by: A1 / MIMIR
 Owner: ARIADNE first. DAEDALUS implements only if ARIADNE finds concrete
 defects. ARGUS reviews any code changes.
-Status: ARIADNE rehearsal complete; DAEDALUS patch needed
+Status: ARIADNE follow-up accepted; ready for MIMIR closeout
 
 ## Why This Lane
 
@@ -123,3 +123,19 @@ DAEDALUS should patch the narrow fix list:
 No broad forum redesign, subcommunity, appeal, notification, reputation,
 recognition, billing/provider/cache, Developer Space, auth/session refactor, or
 visibility widening is opened.
+
+## ARIADNE Follow-Up Result - 2026-06-19
+
+After DAEDALUS patched the four defects and ARGUS technically accepted the
+patch, ARIADNE reran the focused route rehearsal on the deployed Railway
+runtime.
+
+The follow-up pass accepted:
+
+- public document `Open discussion` CTA on desktop and 390px mobile;
+- below-tier category affordance, checked with a controlled visitor-tier
+  `/auth/me` response in an isolated browser profile;
+- eligible-member linked persona/Space helper copy on the new-thread route;
+- owner thread detail with `Own post` and no thread-level `Report` action.
+
+No additional PR83 UI defect remains from ARIADNE's follow-up pass.

@@ -6924,6 +6924,20 @@ when a PR lands, or when validation truth changes.
   symlink `EPERM`. No broad forum redesign, subcommunity, appeal,
   notification, reputation, recognition, billing/provider/cache, Developer
   Space, auth/session refactor, or visibility-widening work was added.
+- ARIADNE accepts the PR83 follow-up visual rehearsal on 2026-06-19 and wakes
+  MIMIR for closeout. Railway web and API health checks were ready on the PR83
+  patch commit. Desktop and 390px mobile browser passes confirmed: anonymous
+  public documents with attached discussions render `Open discussion`;
+  below-tier category state hides `+ New thread` and shows eligibility copy
+  when `/auth/me` returns a visitor-tier user in an isolated browser profile;
+  eligible-member new-thread linked persona/Space helper copy is visible where
+  the selects render; and eligible owner thread detail shows `Own post` without
+  a thread-level `Report` action. The below-tier pass verified visual
+  affordance only; ARGUS already accepted backend tier enforcement. No
+  additional PR83 UI defect remains, and no broad forum redesign,
+  subcommunity, appeal, notification, reputation, recognition,
+  billing/provider/cache, Developer Space, auth/session refactor, or visibility
+  widening is opened.
 
 ## Near-term rule
 

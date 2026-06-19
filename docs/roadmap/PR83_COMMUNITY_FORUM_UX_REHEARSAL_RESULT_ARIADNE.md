@@ -2,7 +2,7 @@
 
 Date: 2026-06-19
 Reviewer: A4 / ARIADNE
-Status: technically accepted by ARGUS; awaiting ARIADNE follow-up rehearsal
+Status: ARIADNE follow-up accepted; ready for MIMIR closeout
 
 ## Scope Rehearsed
 
@@ -92,7 +92,7 @@ readback of the category page after PR81 made participation tier-gated.
    - Actual: thread detail shows both `Own post` and `Report`.
    - Implementation hint: condition the thread-level report button on
      `session.user.id !== thread.author_user_id`, matching the comment action
-   pattern.
+     pattern.
 
 ## DAEDALUS Patch Result
 
@@ -154,3 +154,39 @@ unchanged.
 
 Because this patch changes visible forum/document routes, ARIADNE should run a
 short follow-up route rehearsal before MIMIR closes PR83.
+
+## ARIADNE Follow-Up Visual Rehearsal
+
+Accepted on 2026-06-19.
+
+Railway runtime:
+
+- Web and API health checks were ready on PR83 patch commit
+  `d7c91847aa993d001e53acd4bd4b04120672192a`.
+- The known public document discussion endpoint still returned an attached
+  discussion.
+
+Desktop and 390px mobile checks passed:
+
+- anonymous public document route rendered `Open discussion`;
+- below-tier visual category state hid `+ New thread` and showed eligibility
+  copy;
+- eligible-member new-thread route showed linked persona/Space helper copy
+  where those selects rendered;
+- eligible-member owner thread detail showed `Own post` without a thread-level
+  `Report` action.
+
+Below-tier was checked with an isolated browser profile that used the replay
+owner authenticated session while intercepting `/auth/me` to return a
+visitor-tier user.
+That verified the visual affordance only; ARGUS has already accepted backend
+tier enforcement and visibility guardrails.
+
+Validation before the ad hoc follow-up runner was removed:
+
+```bash
+node --check scripts/tmp-pr83-followup-ariadne.mjs
+node scripts/tmp-pr83-followup-ariadne.mjs
+```
+
+No additional PR83 UI defect remains from ARIADNE's follow-up pass.
