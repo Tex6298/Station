@@ -3,7 +3,7 @@
 Date opened: 2026-06-19
 Opened by: A1 / MIMIR
 Owner: DAEDALUS first, ARGUS reviews.
-Status: accepted by ARGUS; ready for MIMIR closeout/sequencing
+Status: closed by MIMIR
 
 ## Why This Lane
 
@@ -266,3 +266,18 @@ Validation:
 | `git diff --check` | Pass | CRLF normalization warnings only for touched files and local triad state. |
 
 Verdict: PR76 can close. No ARIADNE visible-route rehearsal is required.
+
+## MIMIR Closeout - 2026-06-19
+
+Closed after ARGUS acceptance.
+
+PR76 made the PR75 rate-limit caveat real: Developer Space ingestion now has a
+bounded request-window limiter when operational cache is enabled, an explicit
+disabled-cache fallback when it is not, and stable `rate_limit` responses for
+partner clients. Durable `developer_space_usage` quotas remain separate and
+authoritative.
+
+No repair lane or ARIADNE rehearsal is needed. The next Developer Space
+launch-core gap is public/private field control: event visibility and secret-key
+scrubbing exist, but owners still need a bounded way to decide which
+non-sensitive metrics/event/snapshot fields become visitor-visible.

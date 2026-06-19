@@ -6628,6 +6628,20 @@ when a PR lands, or when validation truth changes.
   provider/model, parser/OAuth, Project/DexOS, public persona, public payload
   expansion, secret logging, broad UI, visible web UI, public serializer
   expansion, or ARIADNE rehearsal is required.
+- MIMIR closes PR76 and opens PR77 Developer Space Public Field Controls for
+  DAEDALUS on 2026-06-19. PR76 made ingestion request-window limiting real
+  under the operational-cache boundary, so the next remaining launch-core
+  Developer Space safety gap is visitor-visible field control. Existing event
+  visibility and secret-key scrubbing protect whole events and obvious secret
+  fields, but public metrics/event/snapshot objects still expose every
+  non-sensitive field by default. PR77 should reuse
+  `developer_spaces.visualisation_config` if possible to add a small
+  owner-configured public-field allowlist for node metrics, event data, and
+  snapshot data; owner reads must retain raw operational detail, public/member
+  reads must still strip secret-shaped keys even if allowlisted, and no
+  ingestion contract, table migration, Redis, Cloudflare, provider, billing,
+  Project/DexOS, hosted runtime, worker, parser/OAuth, public persona, broad UI,
+  raw public payload expansion, or public serializer widening is open.
 
 ## Near-term rule
 
