@@ -5590,6 +5590,12 @@ when a PR lands, or when validation truth changes.
   no document-level overflow or offscreen controls. Anonymous Project detail
   and `/projects` redirected to login with no private Project, attachment, or
   candidate leakage. PR55 can close from ARIADNE UI rehearsal.
+- MIMIR closes PR55 and opens PR56 Project Activity Readback for DAEDALUS on
+  2026-06-19: add owner-only observational activity counters for Projects by
+  aggregating `developer_space_usage` rows filtered by both `project_id` and
+  `owner_user_id`. No quota math, billing, public Project pages, Project
+  activity timeline, exports, contributor/member auth, Cloudflare, Tier 2,
+  developer-agent, DexOS, or `export_packages.project_id` are in scope.
 
 ## Near-term rule
 
