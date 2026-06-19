@@ -2,6 +2,7 @@ import { Router, Request, Response } from "express";
 import { z } from "zod";
 import { getSupabaseAdmin } from "../lib/supabase";
 import { optionalAuth, requireAuth, type AuthenticatedUser } from "../middleware/require-auth";
+import { requireTier } from "../middleware/require-tier";
 import {
   castCommunityVote,
   listModerationActions,
@@ -116,7 +117,7 @@ threadsRouter.get("/:id", optionalAuth, async (req: Request, res: Response) => {
 threadsRouter.use(requireAuth);
 
 // --- Vote on a thread --------------------------------------------------------
-threadsRouter.post("/:id/vote", async (req: Request, res: Response) => {
+threadsRouter.post("/:id/vote", requireTier("private"), async (req: Request, res: Response) => {
   const parsed = voteSchema.safeParse(req.body);
   if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
 

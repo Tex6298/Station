@@ -220,7 +220,7 @@ commentsRouter.post(
 );
 
 // --- Vote on a comment -------------------------------------------------------
-commentsRouter.post("/:id/vote", async (req: Request, res: Response) => {
+commentsRouter.post("/:id/vote", requireTier("private"), async (req: Request, res: Response) => {
   const parsed = voteSchema.safeParse(req.body);
   if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
 

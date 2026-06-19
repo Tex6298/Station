@@ -31,6 +31,12 @@ class ReportsSupabase {
         tier: "canon",
         is_admin: true,
       },
+      {
+        id: "visitor-user",
+        email: "visitor@example.test",
+        tier: "visitor",
+        is_admin: false,
+      },
     ],
     moderation_reports: [],
   };
@@ -41,6 +47,7 @@ class ReportsSupabase {
     ["owner-token", { id: "owner-user", email: "owner@example.test" }],
     ["other-token", { id: "other-user", email: "other@example.test" }],
     ["admin-token", { id: "admin-user", email: "admin@example.test" }],
+    ["visitor-token", { id: "visitor-user", email: "visitor@example.test" }],
   ]);
 
   client = {
@@ -261,6 +268,17 @@ test("reports route persists reports through Supabase and scopes reporter to aut
       },
     });
     assert.equal(blocked.status, 401);
+    assert.equal(db.tables.moderation_reports.length, 0);
+
+    const visitorBlocked = await requestJson(app, "POST", "/reports", {
+      token: "visitor-token",
+      body: {
+        targetType: "document",
+        targetId: "doc-1",
+        reason: "spam",
+      },
+    });
+    assert.equal(visitorBlocked.status, 403);
     assert.equal(db.tables.moderation_reports.length, 0);
 
     const created = await requestJson(app, "POST", "/reports", {

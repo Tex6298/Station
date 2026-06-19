@@ -9236,6 +9236,31 @@ Scope notes:
   expansion, raw ingestion key storage, secret logging, broad UI, public
   serializer expansion, or visible web UI changed.
 
+## PR81 Community Tier Participation
+
+DAEDALUS implementation validation on 2026-06-19:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:community` | Pass | 11 tests passed, including visitor-tier public reads, community-read blocking, create blocking, vote blocking, and private-tier participation. |
+| `npm exec --yes pnpm@10.32.1 -- run test:reports` | Pass | 2 tests passed, including visitor-tier report creation blocking and admin-only queue/status behavior. |
+| `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` | Pass | 1 test passed; document discussion visibility and provenance labels remain intact. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API typecheck ran; web typecheck replayed from cache. |
+| `git diff --check` | Pass | CRLF normalization warnings only for touched files and local triad state. |
+
+Scope notes:
+
+- Thread voting, comment voting, and report creation now require `private` tier
+  or higher through existing `requireTier` middleware.
+- Public category/thread reads remain open to anonymous and visitor-tier users.
+- Community category/thread reads remain hidden from anonymous and visitor-tier
+  users, and remain available to eligible private-tier users.
+- Thread/comment creation remains `private` tier or higher.
+- Report queue/status and thread/comment moderation actions remain admin-only.
+- No UI, schema, broad forum redesign, subcommunity, appeal, notification,
+  reputation, recognition, billing/provider/cache, Developer Space,
+  auth/session refactor, or visibility-widening work changed.
+
 ## PR80 Community Provenance Labels
 
 DAEDALUS implementation validation on 2026-06-19:

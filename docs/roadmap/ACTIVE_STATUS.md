@@ -6803,6 +6803,21 @@ when a PR lands, or when validation truth changes.
   clear. No broad forum redesign, subcommunity, appeal, notification,
   reputation, recognition, billing/provider/Redis/Cloudflare/Developer Space,
   auth/session refactor, or visibility-widening work is opened.
+- DAEDALUS implements PR81 Community Tier Participation on 2026-06-19 by
+  tightening the auth-only participation gaps with existing `requireTier`
+  middleware: thread voting, comment voting, and report creation now require
+  `private` tier or higher. Tests prove visitor-tier users can still read
+  public forum surfaces, cannot read community-only threads, cannot create
+  threads/comments, cannot vote, and cannot create reports; private-tier users
+  can still participate according to existing visibility rules; admin
+  moderation/report queue paths remain admin-only. Existing public/community/
+  unlisted/private visibility semantics, report queue semantics, and
+  thread/comment moderation action semantics were preserved. No UI, schema,
+  broad forum redesign, subcommunity, appeal, notification, reputation,
+  recognition, billing/provider/cache, Developer Space, auth/session refactor,
+  or visibility-widening work was added. ARGUS should review the route matrix,
+  visitor/private/admin behavior, and PR78-PR80 regression coverage before
+  waking MIMIR or DAEDALUS.
 
 ## Near-term rule
 

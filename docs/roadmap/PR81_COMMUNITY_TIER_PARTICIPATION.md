@@ -4,7 +4,7 @@ Date opened: 2026-06-19
 Opened by: A1 / MIMIR
 Owner: DAEDALUS first, ARGUS reviews. ARIADNE rehearses only if visible forum
 UI changes.
-Status: open
+Status: implemented by DAEDALUS; awaiting ARGUS review
 
 ## Why This Lane
 
@@ -32,6 +32,41 @@ The lane should answer:
 - eligible Basic/private and higher users can participate in public/community
   surfaces according to existing visibility rules;
 - admins keep moderation powers without widening public/member access.
+
+## DAEDALUS Implementation
+
+Implemented the clear policy gaps with existing tier middleware:
+
+- thread voting now requires `private` tier or higher;
+- comment voting now requires `private` tier or higher;
+- report creation now requires `private` tier or higher.
+
+Existing gates retained:
+
+- anonymous users can read public forum/category/thread surfaces;
+- community thread/category reads require an eligible community tier through the
+  existing visibility helpers;
+- thread creation already requires `private` tier or higher;
+- comment creation already requires `private` tier or higher;
+- report queue/readback and report status updates remain admin-only;
+- thread/comment moderation actions remain admin-only.
+
+Route-by-route matrix:
+
+| Surface | Anonymous | Visitor tier | Private+ | Admin |
+| --- | --- | --- | --- | --- |
+| Public category/thread reads | Allowed | Allowed | Allowed | Allowed |
+| Community category/thread reads | Hidden/404 | Hidden/404 | Allowed | Allowed |
+| Thread creation | 401 | 403 | Allowed | Allowed |
+| Comment creation | 401 | 403 | Allowed | Allowed |
+| Thread/comment voting | 401 | 403 | Allowed | Allowed |
+| Report creation | 401 | 403 | Allowed | Allowed |
+| Report queue/status update | 401 | 403 | 403 | Allowed |
+| Thread/comment moderation actions | 401 | 403 | 403 | Allowed |
+
+No visibility policy, moderation action semantics, auth/session behavior, UI,
+schema, billing/provider/cache, Developer Space, subcommunity, appeal,
+notification, reputation, or recognition work was added.
 
 ## Inspect Before Editing
 

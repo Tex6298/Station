@@ -3,6 +3,7 @@ import { Router } from "express";
 import { z } from "zod";
 import type { Database } from "@station/db";
 import { requireAuth } from "../middleware/require-auth";
+import { requireTier } from "../middleware/require-tier";
 import { getSupabaseAdmin } from "../lib/supabase";
 import type { ModerationReportRecord } from "@station/types";
 import { ensureCommunityProfile } from "../services/community.service";
@@ -106,7 +107,7 @@ reportsRouter.patch("/:id", async (req, res) => {
   return res.json({ report: serializeReport(data) });
 });
 
-reportsRouter.post("/", async (req, res) => {
+reportsRouter.post("/", requireTier("private"), async (req, res) => {
   const parsed = createReportSchema.safeParse(req.body);
   if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
 

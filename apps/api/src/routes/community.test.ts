@@ -21,6 +21,7 @@ const OWNER_ID = "11111111-1111-4111-8111-111111111111";
 const MEMBER_ID = "22222222-2222-4222-8222-222222222222";
 const OTHER_ID = "33333333-3333-4333-8333-333333333333";
 const ADMIN_ID = "aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee";
+const VISITOR_ID = "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb";
 const CATEGORY_ID = "44444444-4444-4444-8444-444444444444";
 const PUBLIC_SPACE_ID = "55555555-5555-4555-8555-555555555551";
 const PRIVATE_SPACE_ID = "55555555-5555-4555-8555-555555555552";
@@ -58,6 +59,7 @@ class CommunitySupabase {
       profile(MEMBER_ID, "member", "private"),
       profile(OTHER_ID, "other", "creator"),
       profile(ADMIN_ID, "admin", "canon", true),
+      profile(VISITOR_ID, "visitor", "visitor"),
     ],
     spaces: [
       space(PUBLIC_SPACE_ID, "public-space", true),
@@ -258,6 +260,7 @@ class CommunitySupabase {
     ["member-token", { id: MEMBER_ID, email: "member@example.test" }],
     ["other-token", { id: OTHER_ID, email: "other@example.test" }],
     ["admin-token", { id: ADMIN_ID, email: "admin@example.test" }],
+    ["visitor-token", { id: VISITOR_ID, email: "visitor@example.test" }],
   ]);
 
   client = {
@@ -917,6 +920,79 @@ test("forum thread creation validates linked entities and preserves visibility",
       },
     });
     assert.equal(privatePersonaLink.status, 400);
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
+
+test("community participation requires private tier for create, vote, and community reads", async () => {
+  const db = new CommunitySupabase();
+  const ownerComment = db.insertRow("comments", {
+    author_user_id: OWNER_ID,
+    parent_type: "thread",
+    parent_id: PUBLIC_THREAD_ID,
+    body: "Owner-authored comment for tier participation checks.",
+  });
+  setSupabaseAdminForTests(db.client as any);
+  const app = createCommunityApp();
+
+  try {
+    const visitorCategory = await requestJson(app, "GET", "/forums/categories/community", {
+      token: "visitor-token",
+    });
+    assert.equal(visitorCategory.status, 200);
+    assert.equal(
+      visitorCategory.body.threads.some((thread: Row) => thread.id === COMMUNITY_THREAD_ID),
+      false
+    );
+
+    const visitorCommunityThread = await requestJson(app, "GET", `/threads/${COMMUNITY_THREAD_ID}`, {
+      token: "visitor-token",
+    });
+    assert.equal(visitorCommunityThread.status, 404);
+
+    const visitorThreadCreate = await requestJson(app, "POST", "/forums/threads", {
+      token: "visitor-token",
+      body: {
+        categoryId: CATEGORY_ID,
+        title: "Visitor thread",
+        body: "Visitor tier should not create threads.",
+      },
+    });
+    assert.equal(visitorThreadCreate.status, 403);
+
+    const visitorCommentCreate = await requestJson(app, "POST", "/comments", {
+      token: "visitor-token",
+      body: {
+        parentType: "thread",
+        parentId: PUBLIC_THREAD_ID,
+        body: "Visitor tier should not comment.",
+      },
+    });
+    assert.equal(visitorCommentCreate.status, 403);
+
+    const visitorThreadVote = await requestJson(app, "POST", `/threads/${PUBLIC_THREAD_ID}/vote`, {
+      token: "visitor-token",
+      body: { value: 1 },
+    });
+    assert.equal(visitorThreadVote.status, 403);
+
+    const visitorCommentVote = await requestJson(app, "POST", `/comments/${ownerComment.id}/vote`, {
+      token: "visitor-token",
+      body: { value: 1 },
+    });
+    assert.equal(visitorCommentVote.status, 403);
+
+    const memberThreadVote = await requestJson(app, "POST", `/threads/${PUBLIC_THREAD_ID}/vote`, {
+      token: "member-token",
+      body: { value: 1 },
+    });
+    assert.equal(memberThreadVote.status, 201);
+
+    const memberCommunityThread = await requestJson(app, "GET", `/threads/${COMMUNITY_THREAD_ID}`, {
+      token: "member-token",
+    });
+    assert.equal(memberCommunityThread.status, 200);
   } finally {
     setSupabaseAdminForTests(null);
   }
