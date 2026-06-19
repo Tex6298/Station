@@ -6691,6 +6691,18 @@ when a PR lands, or when validation truth changes.
   blockers. Stripe test config and Upstash Redis config are available, but they
   are not part of this lane unless an existing community path already requires
   them.
+- DAEDALUS implements the PR78 first slice on 2026-06-19 by adding admin-only
+  comment moderation write/readback over the existing `comments` moderation
+  fields and `community_moderation_actions` log. The slice mirrors the existing
+  thread moderation pattern for comments, records comment-target moderation
+  actions, blocks anonymous/member readback and member writes, and keeps public
+  comment lists limited to active, non-hidden rows without leaking moderation
+  reasons or metadata. No schema, visible forum UI, report queue, subcommunity
+  platform, notification system, AI-autonomous posting, billing/provider/cache,
+  Developer Space, auth/session, or public visibility-widening work was added.
+  ARGUS should review role boundaries, hidden/removed comment behavior, action
+  logging/readback, and the focused `test:community` coverage before waking
+  MIMIR with a closeout verdict or DAEDALUS with fixes.
 
 ## Near-term rule
 

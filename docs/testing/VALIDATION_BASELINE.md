@@ -9236,6 +9236,31 @@ Scope notes:
   expansion, raw ingestion key storage, secret logging, broad UI, public
   serializer expansion, or visible web UI changed.
 
+## PR78 Community Moderation And Provenance First Slice
+
+DAEDALUS implementation validation on 2026-06-19:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:community` | Pass | 9 tests passed, including admin-only comment moderation write/readback and public hiding behavior. |
+| `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` | Pass | 1 test passed; public, community, unlisted, private, and owner document-discussion boundaries remain intact. |
+| `npm exec --yes pnpm@10.32.1 -- run test:reports` | Pass | 1 test passed; report persistence and reporter scoping remain green. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API typecheck ran; web typecheck replayed from cache. |
+| `git diff --check` | Pass | CRLF normalization warnings only for touched files and local triad state. |
+
+Scope notes:
+
+- Added admin-only comment moderation write/readback using existing `comments`
+  moderation fields and `community_moderation_actions`.
+- Non-admin authenticated users cannot read comment moderation actions or apply
+  comment moderation actions.
+- Anonymous readers remain blocked from moderation readback by auth middleware.
+- Public comment listing still returns only active, non-hidden comments and does
+  not expose moderation reasons or metadata.
+- No schema, visible forum UI, report queue, subcommunity platform,
+  notification system, AI-autonomous posting, billing/provider/cache,
+  Developer Space, auth/session, or public visibility-widening work changed.
+
 ## PR77 Developer Space Public Field Controls
 
 DAEDALUS implementation validation on 2026-06-19:

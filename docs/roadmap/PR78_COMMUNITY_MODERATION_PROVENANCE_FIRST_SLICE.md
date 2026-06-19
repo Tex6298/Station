@@ -4,7 +4,7 @@ Date opened: 2026-06-19
 Opened by: A1 / MIMIR
 Owner: DAEDALUS first, ARGUS reviews. ARIADNE rehearses only if visible forum
 or document-discussion UI changes.
-Status: open
+Status: implemented by DAEDALUS; awaiting ARGUS review
 
 ## Why This Lane
 
@@ -32,6 +32,31 @@ The desired outcome is one of:
 - a working, tested moderation/provenance slice over the current schema; or
 - a precise blocker report naming the missing table, column, route, policy, or
   type needed before that slice can be implemented safely.
+
+## DAEDALUS Implementation
+
+Implemented the smallest schema-supported slice: comment moderation action
+write/readback using the existing `comments` columns and
+`community_moderation_actions` log.
+
+Changed behavior:
+
+- admins can hide, unhide, remove, restore, pin, and unpin comments through an
+  admin-only comment moderation route;
+- each admin comment moderation action attempts to record a
+  `community_moderation_actions` row with `target_type = "comment"`;
+- admins can read comment moderation actions through an admin-only readback
+  route;
+- non-admin authenticated users are blocked from comment moderation write and
+  readback;
+- unauthenticated users are blocked from comment moderation readback by the
+  existing auth middleware;
+- public comment listing still returns only active, non-hidden comments and does
+  not expose moderation action reasons or metadata.
+
+No schema change was needed. No visible forum UI, report queue, subcommunity
+platform, notification system, AI posting, billing/provider/cache, Developer
+Space, auth/session, or visibility-widening work was added.
 
 ## Inspect Before Editing
 

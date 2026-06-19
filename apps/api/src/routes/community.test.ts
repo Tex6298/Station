@@ -918,6 +918,74 @@ test("thread detail keeps moderation actions admin-only", async () => {
   }
 });
 
+test("comment moderation actions are admin-only and hide public comments", async () => {
+  const db = new CommunitySupabase();
+  const comment = db.insertRow("comments", {
+    author_user_id: MEMBER_ID,
+    parent_type: "thread",
+    parent_id: PUBLIC_THREAD_ID,
+    body: "Comment that needs moderation.",
+    moderation_state: "normal",
+  });
+  setSupabaseAdminForTests(db.client as any);
+  const app = createCommunityApp();
+
+  try {
+    const anonymousActions = await requestJson(app, "GET", `/comments/${comment.id}/moderation-actions`);
+    assert.equal(anonymousActions.status, 401);
+
+    const memberActions = await requestJson(app, "GET", `/comments/${comment.id}/moderation-actions`, {
+      token: "member-token",
+    });
+    assert.equal(memberActions.status, 403);
+
+    const memberHide = await requestJson(app, "PATCH", `/comments/${comment.id}/moderation`, {
+      token: "member-token",
+      body: { action: "hide", reason: "Member should not moderate." },
+    });
+    assert.equal(memberHide.status, 403);
+
+    const adminHide = await requestJson(app, "PATCH", `/comments/${comment.id}/moderation`, {
+      token: "admin-token",
+      body: { action: "hide", reason: "Public-safe admin reason." },
+    });
+    assert.equal(adminHide.status, 200);
+    assert.equal(adminHide.body.comment.is_hidden, true);
+    assert.equal(adminHide.body.comment.moderation_state, "hidden");
+    assert.equal(adminHide.body.moderationAction.targetType, "comment");
+    assert.equal(adminHide.body.moderationAction.actionType, "hide");
+    assert.equal(adminHide.body.moderationAction.reason, "Public-safe admin reason.");
+
+    const publicList = await requestJson(app, "GET", `/comments?parentType=thread&parentId=${PUBLIC_THREAD_ID}`);
+    assert.equal(publicList.status, 200);
+    assert.equal(publicList.body.comments.some((row: Row) => row.id === comment.id), false);
+    assert.equal(JSON.stringify(publicList.body).includes("Public-safe admin reason."), false);
+
+    const adminActions = await requestJson(app, "GET", `/comments/${comment.id}/moderation-actions`, {
+      token: "admin-token",
+    });
+    assert.equal(adminActions.status, 200);
+    assert.equal(adminActions.body.moderationActions.length, 1);
+    assert.equal(adminActions.body.moderationActions[0].targetType, "comment");
+    assert.equal(adminActions.body.moderationActions[0].reason, "Public-safe admin reason.");
+
+    const adminRestore = await requestJson(app, "PATCH", `/comments/${comment.id}/moderation`, {
+      token: "admin-token",
+      body: { action: "restore", reason: "Return after review." },
+    });
+    assert.equal(adminRestore.status, 200);
+    assert.equal(adminRestore.body.comment.status, "active");
+    assert.equal(adminRestore.body.comment.is_hidden, false);
+    assert.equal(adminRestore.body.comment.moderation_state, "normal");
+
+    const restoredList = await requestJson(app, "GET", `/comments?parentType=thread&parentId=${PUBLIC_THREAD_ID}`);
+    assert.equal(restoredList.status, 200);
+    assert.equal(restoredList.body.comments.some((row: Row) => row.id === comment.id), true);
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
+
 test("community vote recalculation tolerates rpc thenables without catch", async () => {
   const db = new CommunitySupabase();
   db.rpcWithoutCatch = true;

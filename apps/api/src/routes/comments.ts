@@ -3,7 +3,13 @@ import { z } from "zod";
 import { getSupabaseAdmin } from "../lib/supabase";
 import { optionalAuth, requireAuth, type AuthenticatedUser } from "../middleware/require-auth";
 import { requireTier } from "../middleware/require-tier";
-import { bumpCommunityActivity, castCommunityVote } from "../services/community.service";
+import {
+  bumpCommunityActivity,
+  castCommunityVote,
+  listModerationActions,
+  recordModerationAction,
+  serializeModerationAction,
+} from "../services/community.service";
 
 const createCommentSchema = z.object({
   parentType: z.enum(["thread", "document", "space_page"]),
@@ -12,6 +18,10 @@ const createCommentSchema = z.object({
 });
 const voteSchema = z.object({
   value: z.union([z.literal(1), z.literal(-1)]),
+});
+const moderationSchema = z.object({
+  action: z.enum(["pin", "unpin", "hide", "unhide", "remove", "restore"]),
+  reason: z.string().max(500).optional(),
 });
 type CommentParentType = z.infer<typeof createCommentSchema>["parentType"];
 
@@ -246,6 +256,83 @@ commentsRouter.post("/:id/vote", async (req: Request, res: Response) => {
     const message = err instanceof Error ? err.message : "Could not vote on comment.";
     return res.status(400).json({ error: message });
   }
+});
+
+// --- Admin moderation action readback ---------------------------------------
+commentsRouter.get("/:id/moderation-actions", async (req: Request, res: Response) => {
+  if (!req.user!.isAdmin) return res.status(403).json({ error: "Admin access required." });
+
+  const sb = getSupabaseAdmin();
+  const { data: comment } = await sb
+    .from("comments")
+    .select("id")
+    .eq("id", req.params.id)
+    .maybeSingle();
+
+  if (!comment) return res.status(404).json({ error: "Comment not found" });
+
+  const actions = await listModerationActions("comment", comment.id).catch(() => []);
+  return res.json({ moderationActions: actions.map(serializeModerationAction) });
+});
+
+// --- Admin comment moderation ------------------------------------------------
+commentsRouter.patch("/:id/moderation", async (req: Request, res: Response) => {
+  if (!req.user!.isAdmin) return res.status(403).json({ error: "Admin access required." });
+
+  const parsed = moderationSchema.safeParse(req.body);
+  if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
+
+  const sb = getSupabaseAdmin();
+  const { data: comment } = await sb
+    .from("comments")
+    .select("id")
+    .eq("id", req.params.id)
+    .maybeSingle();
+
+  if (!comment) return res.status(404).json({ error: "Comment not found" });
+
+  const update: Record<string, unknown> = {};
+  if (parsed.data.action === "pin") update.is_pinned = true;
+  if (parsed.data.action === "unpin") update.is_pinned = false;
+  if (parsed.data.action === "hide") {
+    update.is_hidden = true;
+    update.moderation_state = "hidden";
+  }
+  if (parsed.data.action === "unhide") {
+    update.is_hidden = false;
+    update.moderation_state = "normal";
+  }
+  if (parsed.data.action === "remove") {
+    update.status = "removed";
+    update.moderation_state = "removed";
+  }
+  if (parsed.data.action === "restore") {
+    update.status = "active";
+    update.is_hidden = false;
+    update.moderation_state = "normal";
+  }
+
+  const { data: updated, error } = await sb
+    .from("comments")
+    .update(update)
+    .eq("id", comment.id)
+    .select("*")
+    .single();
+
+  if (error) return res.status(500).json({ error: error.message });
+
+  const action = await recordModerationAction({
+    moderatorUserId: req.user!.id,
+    targetType: "comment",
+    targetId: comment.id,
+    actionType: parsed.data.action,
+    reason: parsed.data.reason,
+  }).catch(() => null);
+
+  return res.json({
+    comment: updated,
+    moderationAction: action ? serializeModerationAction(action) : null,
+  });
 });
 
 // --- Delete own comment ------------------------------------------------------
