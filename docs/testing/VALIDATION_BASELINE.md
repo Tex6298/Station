@@ -9236,6 +9236,44 @@ Scope notes:
   expansion, raw ingestion key storage, secret logging, broad UI, public
   serializer expansion, or visible web UI changed.
 
+## PR86 Community Moderation Target Context And Actions
+
+DAEDALUS implementation validation on 2026-06-19:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:reports` | Pass | 4 tests passed, including admin target context for thread/comment reports and no target context in reporter readback. |
+| `npm exec --yes pnpm@10.32.1 -- run test:community` | Pass | 11 tests passed; existing admin-only thread/comment moderation actions remain green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` | Pass | 1 test passed; document discussion visibility/readback remains green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 50 tests passed, including bounded moderation target action/context helper coverage. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API typecheck ran after stale DB-type casts for moderation_state selects; web typecheck replayed from cache. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web build` | Partial / known Windows failure | Next compiled, linted/typechecked, collected page data, and generated 33 static pages, then hit the known local Windows standalone symlink `EPERM`. Only pre-existing raw `<img>` warnings appeared. |
+| `git diff --check` | Pass | CRLF normalization warnings only for touched files and local triad state. |
+
+Scope notes:
+
+- Admin `GET /reports` now resolves safe `targetContext` for thread and comment
+  reports only.
+- Thread context includes title, status, visibility, moderation state, hidden
+  state, safe forum route hints where category/thread state can prove one, and
+  bounded supported target actions.
+- Comment context includes parent type/id, parent thread title when resolvable,
+  status, moderation state, hidden state, safe route hints only for
+  thread-parent comments, and bounded supported target actions.
+- `/forums/moderation` shows target context and target actions separately from
+  report status transitions.
+- Target actions call only existing admin-only thread/comment moderation routes
+  and are limited to `hide`, `unhide`, `remove`, and `restore`.
+- Reporter-owned `/reports/mine` and `/forums/reports` remain scoped and do
+  not receive admin target context.
+- Document/space/persona/user route hints and actions remain deferred until
+  dedicated safe route/action semantics exist.
+- No reporter readback expansion, public visibility widening, appeal workflow,
+  public moderation log, subcommunity platform, delegated moderator model,
+  notifications, reputation/witness mechanics, AI posting, schema change,
+  billing/provider/cache, Developer Space, auth/session refactor, or broad UI
+  redesign changed.
+
 ## PR85 Community Report Resolution Readback
 
 DAEDALUS implementation validation on 2026-06-19:

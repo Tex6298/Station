@@ -7087,6 +7087,28 @@ when a PR lands, or when validation truth changes.
   delegated moderator model, notifications, reputation/witness mechanics,
   billing/provider/cache, Redis/Upstash, Cloudflare, Developer Space,
   auth/session refactor, or public visibility widening is opened.
+- DAEDALUS implements PR86 Community Moderation Target Context And Actions on
+  2026-06-19. Admin `GET /reports` now includes safe `targetContext` only for
+  thread and comment reports; reporter-owned `/reports/mine` remains unchanged
+  and does not receive target context. Thread context includes title, status,
+  visibility, moderation state, hidden state, route hints only when a category
+  slug and non-removed thread state can prove a safe forum route, and bounded
+  supported target actions. Comment context includes parent type/id, parent
+  thread title when resolvable, status, moderation state, hidden state, route
+  hints only for thread-parent comments with a safe parent thread route, and
+  bounded supported target actions. `/forums/moderation` now shows target
+  context separately from report status, degrades unsupported targets to an
+  unavailable state, and calls only existing admin-only
+  `/threads/:id/moderation` or `/comments/:id/moderation` routes for
+  `hide`/`unhide`/`remove`/`restore`. Document/space/persona/user route hints
+  and target actions remain deferred until dedicated safe route/action semantics
+  exist. No reporter readback expansion, public visibility widening, appeal
+  workflow, public moderation log, subcommunity platform, delegated moderator
+  model, notifications, reputation/witness mechanics, AI posting, schema
+  change, billing/provider/cache, Developer Space, auth/session refactor, or
+  broad UI redesign was added. ARGUS should review admin-only context
+  serialization, reporter serializer separation, target action calls, visible
+  route behavior, and then wake ARIADNE if accepted.
 
 ## Near-term rule
 

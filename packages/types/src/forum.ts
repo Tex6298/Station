@@ -93,6 +93,23 @@ export interface CommunityModerationActionRecord {
   createdAt: string;
 }
 
+export interface ModerationReportTargetContext {
+  targetType: 'thread' | 'comment';
+  targetId: string;
+  title?: string | null;
+  parentType?: 'thread' | 'document' | 'space_page' | null;
+  parentId?: string | null;
+  status?: string | null;
+  visibility?: string | null;
+  moderationState?: string | null;
+  isHidden?: boolean | null;
+  routeHref?: string | null;
+  routeLabel?: string | null;
+  canOpenRoute: boolean;
+  unavailableReason?: string | null;
+  supportedActions: Array<'hide' | 'unhide' | 'remove' | 'restore'>;
+}
+
 export interface ModerationReportRecord {
   id: string;
   reporterUserId: string;
@@ -103,6 +120,7 @@ export interface ModerationReportRecord {
   status: 'open' | 'reviewing' | 'resolved' | 'dismissed';
   reviewedBy?: string | null;
   reviewedAt?: string | null;
+  targetContext?: ModerationReportTargetContext | null;
   createdAt: string;
   updatedAt: string;
 }

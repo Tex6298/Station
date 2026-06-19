@@ -4,7 +4,7 @@ Date opened: 2026-06-19
 Opened by: A1 / MIMIR
 Owner: DAEDALUS implements or documents exact blockers, ARGUS reviews. ARIADNE
 rehearses the visible admin route if the moderator console changes.
-Status: open for DAEDALUS
+Status: implemented by DAEDALUS; awaiting ARGUS review
 
 ## Why This Lane
 
@@ -40,6 +40,55 @@ Desired protected-beta outcome:
 - unsupported target types or missing route context degrade to a clear
   admin-only "route unavailable" state, not a broken link or fake button;
 - reporter-owned `/reports/mine` and `/forums/reports` are unchanged.
+
+## DAEDALUS Implementation
+
+Implemented safe admin-only target context for `thread` and `comment` reports
+on the existing admin `GET /reports` queue. Reporter-owned `/reports/mine`
+still uses its separate safe serializer and does not include `targetContext`.
+
+Supported target context:
+
+- thread reports return target type/id, title, status, visibility,
+  moderationState, hidden state, a forum route hint when the category slug and
+  non-removed thread state can prove one, and supported target actions;
+- comment reports return target type/id, parent type/id, parent thread title
+  when available, comment status, moderationState, hidden state, a forum route
+  hint only for thread-parent comments with a resolvable category slug and
+  non-removed parent thread, and supported target actions;
+- document/space/persona/user reports remain unsupported for route hints and
+  target actions in this lane.
+
+Safe fields are admin-only and do not include target bodies, reporter-only
+payloads, private document/Space/persona material, moderator notes beyond the
+existing admin report notes, moderation action reasons, or hidden content.
+
+Implemented `/forums/moderation` changes:
+
+- target context is shown in a separate section from report status;
+- safe route links are shown only when the API returns `routeHref`;
+- unsupported targets show a clear unavailable state;
+- target actions are separated from report-status transitions and call only the
+  existing admin-only routes:
+  - `PATCH /threads/:id/moderation`
+  - `PATCH /comments/:id/moderation`
+- wired target actions are limited to `hide`, `unhide`, `remove`, and
+  `restore`, based on the API's `supportedActions` for the target state.
+
+Deferred blockers:
+
+- document discussion comment route hints need a safe document/Space route
+  mapping and visibility policy specific to moderator console context;
+- space/page comment route hints need page/space slug resolution and owner/public
+  rules;
+- user/space/document/persona target actions need dedicated moderation route
+  semantics before buttons should exist.
+
+No reporter readback expansion, public visibility widening, appeal workflow,
+public moderation log, subcommunity platform, delegated moderator model,
+notifications, reputation/witness mechanics, AI posting, schema change,
+billing/provider/cache, Developer Space, auth/session refactor, or broad UI
+redesign was added.
 
 ## Inspect Before Editing
 

@@ -12,10 +12,14 @@ import {
   type ReportTargetType,
   type ReportTransitionStatus,
   canUseModeratorConsole,
+  canActOnReportTarget,
   nextReportStatuses,
+  nextTargetModerationActions,
   reportMatchesQueueFilter,
   reportQueuePath,
+  reportTargetContextLabel,
   reportTargetLabel,
+  targetActionPath,
 } from "@/lib/moderation-console";
 
 type QueueStatusFilter = ReportQueueStatus | "active";
@@ -35,6 +39,7 @@ export default function ForumModerationPage() {
   const [status, setStatus] = useState<QueueStatusFilter>("active");
   const [targetType, setTargetType] = useState<TargetTypeFilter>("all");
   const [updatingId, setUpdatingId] = useState<string | null>(null);
+  const [updatingTargetId, setUpdatingTargetId] = useState<string | null>(null);
 
   const loadReports = useCallback(async (accessToken: string, nextStatus: QueueStatusFilter, nextTargetType: TargetTypeFilter) => {
     setLoading(true);
@@ -96,6 +101,21 @@ export default function ForumModerationPage() {
       setError(e instanceof Error ? e.message : "Could not update report.");
     } finally {
       setUpdatingId(null);
+    }
+  }
+
+  async function updateTarget(report: ModerationReportRecord, action: "hide" | "unhide" | "remove" | "restore") {
+    const path = targetActionPath(report);
+    if (!token || !path) return;
+    setUpdatingTargetId(report.id);
+    setError(null);
+    try {
+      await apiPatch(path, { action }, token);
+      await loadReports(token, status, targetType);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Could not update reported target.");
+    } finally {
+      setUpdatingTargetId(null);
     }
   }
 
@@ -190,18 +210,75 @@ export default function ForumModerationPage() {
                 </div>
               )}
 
-              <div style={{ display: "flex", gap: "0.45rem", flexWrap: "wrap" }}>
-                {nextReportStatuses(report.status).map((nextStatus) => (
-                  <button
-                    key={nextStatus}
-                    type="button"
-                    disabled={updatingId === report.id}
-                    onClick={() => updateReport(report, nextStatus)}
-                    style={{ padding: "0.35rem 0.65rem", border: "1px solid #d8d3c8", borderRadius: 7, background: nextStatus === "resolved" ? "#1f2529" : "#fff", color: nextStatus === "resolved" ? "#fff" : "#1f2529", cursor: "pointer", fontSize: "0.75rem" }}
-                  >
-                    Mark {nextStatus}
-                  </button>
-                ))}
+              <div style={{ borderTop: "1px solid #ece7dc", paddingTop: "0.75rem", display: "grid", gap: "0.5rem" }}>
+                <div style={{ fontSize: "0.72rem", color: "#8b8f92", textTransform: "uppercase", letterSpacing: 0 }}>
+                  Target context
+                </div>
+                {report.targetContext ? (
+                  <div style={{ display: "grid", gap: "0.35rem", color: "#687078", fontSize: "0.8rem" }}>
+                    <div style={{ color: "#1f2529", fontWeight: 600 }}>{reportTargetContextLabel(report)}</div>
+                    <div>
+                      State: {report.targetContext.status ?? "unknown"}
+                      {report.targetContext.moderationState ? ` / ${report.targetContext.moderationState}` : ""}
+                      {report.targetContext.isHidden ? " / hidden" : ""}
+                    </div>
+                    {report.targetContext.routeHref ? (
+                      <Link href={report.targetContext.routeHref} style={{ color: "#534ab7", width: "fit-content" }}>
+                        Open target route
+                      </Link>
+                    ) : (
+                      <div>{report.targetContext.unavailableReason ?? "Route unavailable for this target."}</div>
+                    )}
+                  </div>
+                ) : (
+                  <div style={{ color: "#687078", fontSize: "0.8rem" }}>
+                    Target context is not available for {report.targetType} reports yet.
+                  </div>
+                )}
+              </div>
+
+              <div style={{ borderTop: "1px solid #ece7dc", paddingTop: "0.75rem", display: "grid", gap: "0.5rem" }}>
+                <div style={{ fontSize: "0.72rem", color: "#8b8f92", textTransform: "uppercase", letterSpacing: 0 }}>
+                  Report status
+                </div>
+                <div style={{ display: "flex", gap: "0.45rem", flexWrap: "wrap" }}>
+                  {nextReportStatuses(report.status).map((nextStatus) => (
+                    <button
+                      key={nextStatus}
+                      type="button"
+                      disabled={updatingId === report.id}
+                      onClick={() => updateReport(report, nextStatus)}
+                      style={{ padding: "0.35rem 0.65rem", border: "1px solid #d8d3c8", borderRadius: 7, background: nextStatus === "resolved" ? "#1f2529" : "#fff", color: nextStatus === "resolved" ? "#fff" : "#1f2529", cursor: "pointer", fontSize: "0.75rem" }}
+                    >
+                      Mark {nextStatus}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div style={{ borderTop: "1px solid #ece7dc", paddingTop: "0.75rem", display: "grid", gap: "0.5rem" }}>
+                <div style={{ fontSize: "0.72rem", color: "#8b8f92", textTransform: "uppercase", letterSpacing: 0 }}>
+                  Target actions
+                </div>
+                {canActOnReportTarget(report) ? (
+                  <div style={{ display: "flex", gap: "0.45rem", flexWrap: "wrap" }}>
+                    {nextTargetModerationActions(report).map((action) => (
+                      <button
+                        key={action}
+                        type="button"
+                        disabled={updatingTargetId === report.id}
+                        onClick={() => updateTarget(report, action)}
+                        style={{ padding: "0.35rem 0.65rem", border: "1px solid #d8d3c8", borderRadius: 7, background: action === "remove" ? "#2d1515" : "#fff", color: action === "remove" ? "#fff" : "#1f2529", cursor: "pointer", fontSize: "0.75rem" }}
+                      >
+                        {action}
+                      </button>
+                    ))}
+                  </div>
+                ) : (
+                  <div style={{ color: "#687078", fontSize: "0.8rem" }}>
+                    No target action is available for this report target.
+                  </div>
+                )}
               </div>
             </article>
           ))}

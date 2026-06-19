@@ -2,10 +2,14 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import {
   canUseModeratorConsole,
+  canActOnReportTarget,
   nextReportStatuses,
+  nextTargetModerationActions,
   reportQueuePath,
   reportMatchesQueueFilter,
+  reportTargetContextLabel,
   reportTargetLabel,
+  targetActionPath,
 } from "./moderation-console";
 
 test("moderation console access is admin-only", () => {
@@ -30,6 +34,27 @@ test("moderation report transitions use existing API statuses", () => {
   assert.deepEqual(nextReportStatuses("reviewing"), ["resolved", "dismissed"]);
   assert.deepEqual(nextReportStatuses("resolved"), ["reviewing", "dismissed"]);
   assert.deepEqual(nextReportStatuses("dismissed"), ["reviewing", "resolved"]);
+});
+
+test("moderation target helpers keep actions and labels bounded to safe context", () => {
+  assert.equal(targetActionPath({ targetType: "thread", targetId: "thread-1" }), "/threads/thread-1/moderation");
+  assert.equal(targetActionPath({ targetType: "comment", targetId: "comment-1" }), "/comments/comment-1/moderation");
+  assert.equal(targetActionPath({ targetType: "document", targetId: "doc-1" }), null);
+  assert.equal(
+    reportTargetContextLabel({
+      targetType: "thread",
+      targetId: "thread-1",
+      targetContext: { targetType: "thread", targetId: "thread-1", routeLabel: "General / Thread", canOpenRoute: true, supportedActions: [] },
+    }),
+    "General / Thread"
+  );
+  assert.equal(canActOnReportTarget({ targetType: "document", targetContext: undefined }), false);
+  assert.deepEqual(
+    nextTargetModerationActions({
+      targetContext: { targetType: "comment", targetId: "comment-1", canOpenRoute: false, supportedActions: ["unhide", "remove"] },
+    }),
+    ["unhide", "remove"]
+  );
 });
 
 test("moderation report filter matching keeps updated rows in the current queue only", () => {

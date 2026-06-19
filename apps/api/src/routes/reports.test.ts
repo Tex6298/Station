@@ -39,6 +39,9 @@ class ReportsSupabase {
       },
     ],
     moderation_reports: [],
+    forum_categories: [],
+    threads: [],
+    comments: [],
   };
 
   private idCounters: Record<string, number> = {};
@@ -152,6 +155,10 @@ class QueryBuilder {
     return this.execute("single");
   }
 
+  maybeSingle() {
+    return this.execute("maybeSingle");
+  }
+
   then(onfulfilled: any, onrejected: any) {
     return this.execute().then(onfulfilled, onrejected);
   }
@@ -177,7 +184,7 @@ class QueryBuilder {
     return rows;
   }
 
-  private async execute(mode?: "single") {
+  private async execute(mode?: "single" | "maybeSingle") {
     let rows: Row[];
     if (this.operation === "insert") {
       rows = (Array.isArray(this.payload) ? this.payload : [this.payload as Row])
@@ -197,6 +204,11 @@ class QueryBuilder {
       return data.length === 1
         ? { data: data[0], error: null }
         : { data: null, error: { message: `Expected one ${this.table} row.` } };
+    }
+    if (mode === "maybeSingle") {
+      return data.length >= 1
+        ? { data: data[0], error: null }
+        : { data: null, error: null };
     }
 
     return { data, error: null };
@@ -540,6 +552,7 @@ test("reporters can read only their own safe report status records", async () =>
     assert.equal(ownerResolvedReadback.reviewedBy, undefined);
     assert.equal(ownerResolvedReadback.reporterUserId, undefined);
     assert.equal(ownerReadback.body.reports.some((report: Row) => report.targetId === "persona-1"), false);
+    assert.equal(ownerReadback.body.reports.some((report: Row) => report.targetContext), false);
     const ownerReadbackJson = JSON.stringify(ownerReadback.body);
     assert.equal(ownerReadbackJson.includes("Reporter detail that should stay out of reporter readback."), false);
     assert.equal(ownerReadbackJson.includes("Moderator-only handling note."), false);
@@ -572,6 +585,132 @@ test("reporters can read only their own safe report status records", async () =>
       otherReadback.body.reports.map((report: Row) => report.targetId),
       ["persona-1"]
     );
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
+
+test("admin report queue includes safe target context for thread and comment reports", async () => {
+  const db = new ReportsSupabase();
+  db.insertRow("forum_categories", {
+    id: "cat-1",
+    slug: "general",
+    title: "General",
+  });
+  db.insertRow("threads", {
+    id: "thread-1",
+    category_id: "cat-1",
+    title: "Thread needing review",
+    status: "active",
+    visibility: "public",
+    is_hidden: false,
+    moderation_state: "needs_review",
+  });
+  db.insertRow("threads", {
+    id: "thread-parent",
+    category_id: "cat-1",
+    title: "Comment parent",
+    status: "active",
+    visibility: "community",
+    is_hidden: false,
+    moderation_state: "normal",
+  });
+  db.insertRow("comments", {
+    id: "comment-1",
+    parent_type: "thread",
+    parent_id: "thread-parent",
+    status: "active",
+    is_hidden: true,
+    moderation_state: "hidden",
+  });
+  db.insertRow("comments", {
+    id: "comment-doc-1",
+    parent_type: "document",
+    parent_id: "doc-1",
+    status: "active",
+    is_hidden: false,
+    moderation_state: "needs_review",
+  });
+  const threadReport = db.insertRow("moderation_reports", {
+    reporter_id: "owner-user",
+    target_type: "thread",
+    target_id: "thread-1",
+    reason: "spam",
+    status: "open",
+  });
+  const commentReport = db.insertRow("moderation_reports", {
+    reporter_id: "owner-user",
+    target_type: "comment",
+    target_id: "comment-1",
+    reason: "harassment",
+    status: "open",
+  });
+  const unsupportedCommentReport = db.insertRow("moderation_reports", {
+    reporter_id: "owner-user",
+    target_type: "comment",
+    target_id: "comment-doc-1",
+    reason: "off-topic",
+    status: "open",
+  });
+  const personaReport = db.insertRow("moderation_reports", {
+    reporter_id: "owner-user",
+    target_type: "persona",
+    target_id: "persona-1",
+    reason: "impersonation",
+    status: "open",
+  });
+  setSupabaseAdminForTests(db.client as any);
+  const app = createReportsApp();
+
+  try {
+    const adminQueue = await requestJson(app, "GET", "/reports?limit=10", {
+      token: "admin-token",
+    });
+    assert.equal(adminQueue.status, 200);
+
+    const byId = new Map<string, Row>(adminQueue.body.reports.map((report: Row) => [report.id, report]));
+    assert.deepEqual(byId.get(threadReport.id)?.targetContext, {
+      targetType: "thread",
+      targetId: "thread-1",
+      title: "Thread needing review",
+      status: "active",
+      visibility: "public",
+      moderationState: "needs_review",
+      isHidden: false,
+      routeHref: "/forums/general/thread-1",
+      routeLabel: "General / Thread needing review",
+      canOpenRoute: true,
+      unavailableReason: null,
+      supportedActions: ["hide", "remove"],
+    });
+    assert.deepEqual(byId.get(commentReport.id)?.targetContext, {
+      targetType: "comment",
+      targetId: "comment-1",
+      title: "Comment parent",
+      parentType: "thread",
+      parentId: "thread-parent",
+      status: "active",
+      moderationState: "hidden",
+      isHidden: true,
+      routeHref: "/forums/general/thread-parent#comment-comment-1",
+      routeLabel: "General / Comment parent",
+      canOpenRoute: true,
+      unavailableReason: null,
+      supportedActions: ["unhide", "remove"],
+    });
+    assert.equal(byId.get(unsupportedCommentReport.id)?.targetContext.canOpenRoute, false);
+    assert.equal(
+      byId.get(unsupportedCommentReport.id)?.targetContext.unavailableReason,
+      "Comment parent type document has no safe forum route hint yet."
+    );
+    assert.equal(byId.get(personaReport.id)?.targetContext, undefined);
+
+    const reporterReadback = await requestJson(app, "GET", "/reports/mine?targetType=thread", {
+      token: "owner-token",
+    });
+    assert.equal(reporterReadback.status, 200);
+    assert.equal(reporterReadback.body.reports[0].id, threadReport.id);
+    assert.equal(reporterReadback.body.reports[0].targetContext, undefined);
   } finally {
     setSupabaseAdminForTests(null);
   }

@@ -5,7 +5,11 @@ import type { Database } from "@station/db";
 import { requireAuth } from "../middleware/require-auth";
 import { requireTier } from "../middleware/require-tier";
 import { getSupabaseAdmin } from "../lib/supabase";
-import type { ModerationReportRecord, ReporterModerationReportRecord } from "@station/types";
+import type {
+  ModerationReportRecord,
+  ModerationReportTargetContext,
+  ReporterModerationReportRecord,
+} from "@station/types";
 import { ensureCommunityProfile } from "../services/community.service";
 
 const createReportSchema = z.object({
@@ -31,7 +35,10 @@ type ModerationReportRow = Database["public"]["Tables"]["moderation_reports"]["R
 type ModerationReportTargetType = ModerationReportRow["target_type"];
 const ACTIVE_REPORT_STATUSES = new Set(["open", "reviewing"]);
 
-function serializeReport(row: ModerationReportRow): ModerationReportRecord {
+function serializeReport(
+  row: ModerationReportRow,
+  targetContext?: ModerationReportTargetContext | null
+): ModerationReportRecord {
   const report: ModerationReportRecord = {
     id: row.id,
     reporterUserId: row.reporter_id,
@@ -46,6 +53,7 @@ function serializeReport(row: ModerationReportRow): ModerationReportRecord {
   if (row.notes !== null) report.notes = row.notes;
   if (row.reviewed_by !== null) report.reviewedBy = row.reviewed_by;
   if (row.reviewed_at !== null) report.reviewedAt = row.reviewed_at;
+  if (targetContext) report.targetContext = targetContext;
 
   return report;
 }
@@ -98,7 +106,9 @@ reportsRouter.get("/", async (req, res) => {
   const { data, error } = await query;
   if (error) return res.status(500).json({ error: error.message });
 
-  return res.json({ reports: (data ?? []).map(serializeReport) });
+  const rows = data ?? [];
+  const contexts = await loadReportTargetContexts(sb, rows).catch(() => new Map<string, ModerationReportTargetContext>());
+  return res.json({ reports: rows.map((row) => serializeReport(row, contexts.get(row.id) ?? null)) });
 });
 
 reportsRouter.get("/mine", async (req, res) => {
@@ -146,7 +156,8 @@ reportsRouter.patch("/:id", async (req, res) => {
     .single();
 
   if (error || !data) return res.status(404).json({ error: "Report not found." });
-  return res.json({ report: serializeReport(data) });
+  const contexts = await loadReportTargetContexts(sb, [data]).catch(() => new Map<string, ModerationReportTargetContext>());
+  return res.json({ report: serializeReport(data, contexts.get(data.id) ?? null) });
 });
 
 reportsRouter.post("/", requireTier("private"), async (req, res) => {
@@ -233,6 +244,144 @@ async function loadActiveExistingReport(
 
   const report = (data ?? []).find((row: ModerationReportRow) => ACTIVE_REPORT_STATUSES.has(row.status));
   return { report: report ?? null };
+}
+
+async function loadReportTargetContexts(
+  sb: ReturnType<typeof getSupabaseAdmin>,
+  reports: ModerationReportRow[]
+): Promise<Map<string, ModerationReportTargetContext>> {
+  const contexts = new Map<string, ModerationReportTargetContext>();
+
+  for (const report of reports) {
+    if (report.target_type === "thread") {
+      contexts.set(report.id, await loadThreadTargetContext(sb, report.target_id));
+    } else if (report.target_type === "comment") {
+      contexts.set(report.id, await loadCommentTargetContext(sb, report.target_id));
+    }
+  }
+
+  return contexts;
+}
+
+async function loadThreadTargetContext(
+  sb: ReturnType<typeof getSupabaseAdmin>,
+  threadId: string
+): Promise<ModerationReportTargetContext> {
+  const { data: thread } = await (sb as any)
+    .from("threads")
+    .select("id, title, status, visibility, is_hidden, moderation_state, category_id")
+    .eq("id", threadId)
+    .maybeSingle();
+
+  if (!thread) {
+    return unavailableTargetContext("thread", threadId, "Thread target not found.");
+  }
+
+  const category = await loadForumCategory(sb, (thread as any).category_id);
+  const routeHref = category?.slug && thread.status !== "removed"
+    ? `/forums/${category.slug}/${thread.id}`
+    : null;
+
+  return {
+    targetType: "thread",
+    targetId: thread.id,
+    title: thread.title ?? null,
+    status: thread.status ?? null,
+    visibility: thread.visibility ?? null,
+    moderationState: thread.moderation_state ?? null,
+    isHidden: thread.is_hidden ?? false,
+    routeHref,
+    routeLabel: routeHref ? `${category?.title ?? "Forum"} / ${thread.title ?? thread.id}` : null,
+    canOpenRoute: Boolean(routeHref),
+    unavailableReason: routeHref ? null : "Thread route unavailable for this target state.",
+    supportedActions: moderationActionsForTarget(thread),
+  };
+}
+
+async function loadCommentTargetContext(
+  sb: ReturnType<typeof getSupabaseAdmin>,
+  commentId: string
+): Promise<ModerationReportTargetContext> {
+  const { data: comment } = await (sb as any)
+    .from("comments")
+    .select("id, parent_type, parent_id, status, is_hidden, moderation_state")
+    .eq("id", commentId)
+    .maybeSingle();
+
+  if (!comment) {
+    return unavailableTargetContext("comment", commentId, "Comment target not found.");
+  }
+
+  let routeHref: string | null = null;
+  let routeLabel: string | null = null;
+  let unavailableReason: string | null = "Comment parent route unavailable for this target.";
+  let title: string | null = null;
+
+  if (comment.parent_type === "thread") {
+    const { data: thread } = await (sb as any)
+      .from("threads")
+      .select("id, title, status, category_id")
+      .eq("id", comment.parent_id)
+      .maybeSingle();
+    const category = await loadForumCategory(sb, (thread as any)?.category_id);
+
+    if (thread?.id && thread.status !== "removed" && category?.slug) {
+      routeHref = `/forums/${category.slug}/${thread.id}#comment-${comment.id}`;
+      routeLabel = `${category.title ?? "Forum"} / ${thread.title ?? thread.id}`;
+      unavailableReason = null;
+    }
+    title = thread?.title ?? null;
+  } else {
+    unavailableReason = `Comment parent type ${comment.parent_type} has no safe forum route hint yet.`;
+  }
+
+  return {
+    targetType: "comment",
+    targetId: comment.id,
+    title,
+    parentType: comment.parent_type,
+    parentId: comment.parent_id,
+    status: comment.status ?? null,
+    moderationState: comment.moderation_state ?? null,
+    isHidden: comment.is_hidden ?? false,
+    routeHref,
+    routeLabel,
+    canOpenRoute: Boolean(routeHref),
+    unavailableReason,
+    supportedActions: moderationActionsForTarget(comment),
+  };
+}
+
+async function loadForumCategory(sb: ReturnType<typeof getSupabaseAdmin>, categoryId: string | null | undefined) {
+  if (!categoryId) return null;
+  const { data } = await (sb as any)
+    .from("forum_categories")
+    .select("id, slug, title")
+    .eq("id", categoryId)
+    .maybeSingle();
+  return data ?? null;
+}
+
+function unavailableTargetContext(
+  targetType: "thread" | "comment",
+  targetId: string,
+  unavailableReason: string
+): ModerationReportTargetContext {
+  return {
+    targetType,
+    targetId,
+    canOpenRoute: false,
+    unavailableReason,
+    supportedActions: [],
+  };
+}
+
+function moderationActionsForTarget(
+  target: { status?: string | null; is_hidden?: boolean | null }
+): ModerationReportTargetContext["supportedActions"] {
+  if (target.status === "removed") return ["restore"];
+  if (target.is_hidden) return ["unhide", "remove"];
+  return ["hide", "remove"];
 }
 
 function isUniqueViolation(error: { code?: string } | null | undefined) {
