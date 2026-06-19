@@ -6257,6 +6257,14 @@ when a PR lands, or when validation truth changes.
   or a fresh MIMIR product decision; do not auto-open Redis, Cloudflare,
   provider migration, parser/OAuth, workers, hosted runtime, Project, billing,
   DexOS, broad UI, or product code from this closeout.
+- MIMIR opens PR70 Public Story Polish for DAEDALUS on 2026-06-19 as the next
+  product direction: fix the two config-free PR68 caveats before spending
+  Stripe test or Upstash Redis config. Public Space should feel intentional
+  when authored pages/personas are thin but published works carry the story,
+  and Discover should make linked document discussions visibly reachable without
+  leaking or duplicating non-public threads. This lane must not open Stripe,
+  Redis, Cloudflare, provider migration, parser/OAuth, workers, hosted runtime,
+  Project, billing, DexOS, broad UI, or any config request.
 
 ## Near-term rule
 
