@@ -111,3 +111,56 @@ Wake MIMIR with:
 If a real implementation blocker appears during an optional spot-check, wake
 DAEDALUS with exact route, viewport, role, expected result, actual result, and
 narrowest fix. Otherwise, do not wake DAEDALUS.
+
+## ARIADNE Result
+
+Accepted for MIMIR closeout on 2026-06-19.
+
+Files changed:
+
+- `docs/roadmap/PR39_PROTECTED_ALPHA_DEMO_RUNBOOK_ARIADNE.md`
+- `docs/roadmap/PR69_PROTECTED_ALPHA_RUNBOOK_REFRESH.md`
+- `docs/roadmap/ACTIVE_STATUS.md`
+
+Refreshed runbook sections:
+
+- opening frame now centers Station's current protected-alpha promise: what
+  Station remembers, what it holds out, how Continuity, Integrity, and Archive
+  import review feed trust, and how private work becomes public story
+  deliberately;
+- preflight now names PR67/PR68 Railway runtime evidence at `b1e9ce3` and
+  treats PR66 through PR68 as docs/review commits that do not need Railway
+  deployment before use;
+- route order now includes Memory lifecycle and holdout, persona
+  lifecycle/handoff, Continuity, Integrity review, Archive import review,
+  Settings AI Activity, Developer Space live state versus metered usage, PR68
+  public Space/document/forum continuity, Station Assistant, export/readback,
+  and an optional live chat moment;
+- public story instructions now include the `/` to `/discover` to public
+  Space/document/forum chain, `Open discussion`, `Read source document`, and
+  anonymous write-control boundaries;
+- caveats and do-not-claim guidance now stay conservative around Redis,
+  Cloudflare, provider migration, parser/OAuth, worker, hosted runtime,
+  Project, billing, DexOS, and broad UI work.
+
+Stale caveats removed or replaced:
+
+- replaced the stale PR38 runtime note with PR67/PR68 `b1e9ce3` evidence;
+- replaced the stale Developer Space no-linked-evidence caveat with current
+  PR65/PR67 evidence: live node/event state, current snapshot, linked evidence,
+  visitor-visible evidence, owner-only evidence, export readback, and matching
+  usage counters;
+- replaced the generic archive/import caveat with Archive import review as
+  protected-alpha-ready trust infrastructure while keeping parser/OAuth and
+  recurring import work deferred;
+- added the PR68 caveats that public Space authored pages/personas are thin and
+  that the linked thread may be found through Discover search or the document
+  route rather than the latest Discover feed.
+
+No implementation blocker appeared. No live spot-check was needed because PR67
+and PR68 already supplied current Railway evidence for the refreshed operator
+script.
+
+Validation:
+
+- `git diff --check`

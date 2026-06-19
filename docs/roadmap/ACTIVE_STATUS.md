@@ -6234,6 +6234,22 @@ when a PR lands, or when validation truth changes.
   and the public Space/document/forum chain. This is docs-only; no Redis,
   Cloudflare, provider migration, parser/OAuth, worker, hosted runtime,
   Project, billing, DexOS, broad UI, or new public feature work is opened.
+- ARIADNE completes PR69 Protected Alpha Runbook Refresh on 2026-06-19.
+  `docs/roadmap/PR39_PROTECTED_ALPHA_DEMO_RUNBOOK_ARIADNE.md` now speaks the
+  current protected-alpha promise: what Station remembers, what is held out,
+  how Continuity, Integrity, Archive import review, and sanitized AI Activity
+  feed owner trust, and how private Studio work becomes public Space, document,
+  and forum story deliberately. The runbook now references PR67/PR68 Railway
+  runtime evidence at `b1e9ce3`, adds Memory lifecycle/holdout, persona
+  lifecycle/handoff, Continuity, Integrity, Archive import review, Settings AI
+  Activity, Developer Space live-state-versus-metered-usage, PR68 public
+  route controls, Station Assistant, export/readback, mobile, fallback, caveat,
+  and do-not-claim guidance. Stale caveats were replaced: Developer Space now
+  reflects current linked/visitor/owner evidence instead of no-linked-evidence
+  wording; archive import review is protected-alpha-ready trust infrastructure
+  while parser/OAuth stays deferred; PR68 public Space thin pages/personas and
+  Discover feed/search caveats are explicit. No implementation blocker
+  appeared and no live spot-check was needed. Validation: `git diff --check`.
 
 ## Near-term rule
 
