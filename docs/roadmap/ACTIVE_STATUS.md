@@ -5634,6 +5634,15 @@ when a PR lands, or when validation truth changes.
   exports, member auth, Cloudflare, Tier 2 hosting, developer-agent, DexOS, or
   `export_packages.project_id` work was added. ARGUS review is requested; if
   accepted, ARIADNE should rehearse the owner UI.
+- ARGUS accepts PR57 on 2026-06-19 after replacing nested activity counter
+  cards with the existing `fact-grid` pattern. Review confirmed missing
+  activity values normalize to zero, labels stay observational, no quota/
+  billing/limit language was introduced, and attach/detach still refreshes
+  Project detail plus activity through `refreshProjectState`. Validation passed
+  `test:projects`, `test:developer-spaces`, `typecheck`, and diff hygiene; web
+  build compiled/linted/typechecked/generated 31 static pages before the known
+  Windows standalone symlink `EPERM`. ARIADNE should rehearse the signed owner
+  UI.
 
 ## Near-term rule
 

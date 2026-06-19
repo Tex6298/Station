@@ -285,16 +285,14 @@ export default function ProjectDetailPage() {
               Read-only counters from attached Developer Spaces.
             </p>
           </div>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(128px, 1fr))", gap: "0.65rem" }}>
+          <dl className="fact-grid" style={{ margin: 0, gridTemplateColumns: "repeat(auto-fit, minmax(128px, 1fr))" }}>
             {activityItems.map(([label, value]) => (
-              <div key={label} className="station-card" style={{ padding: "0.85rem" }}>
-                <div style={{ color: "#687078", fontSize: "0.74rem", lineHeight: 1.3 }}>{label}</div>
-                <strong style={{ display: "block", marginTop: "0.3rem", fontSize: "1.15rem", color: "#1f2529" }}>
-                  {formatCounter(value)}
-                </strong>
+              <div key={label}>
+                <dt>{label}</dt>
+                <dd>{formatCounter(value)}</dd>
               </div>
             ))}
-          </div>
+          </dl>
         </section>
 
         <section style={{ display: "grid", gap: "0.75rem" }}>

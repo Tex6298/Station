@@ -8389,3 +8389,23 @@ Scope notes:
 - No API/schema change, public Project page, quota math, billing, exports,
   member authorization, Cloudflare, Tier 2 hosting, developer-agent, DexOS, or
   `export_packages.project_id` work was added.
+
+ARGUS review validation on 2026-06-19:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:projects` | Pass | 5 tests passed; Project activity API coverage stayed green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 11 tests passed; Developer Space behavior stayed green. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed after ARGUS layout patch. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web build` | Partial / known Windows failure | Next compiled successfully, linted/typechecked, collected page data, and generated 31 static pages, then failed during standalone traced-file symlink copy with Windows `EPERM`. |
+| `git diff --check` | Pass | No whitespace errors; CRLF warnings only. |
+
+ARGUS scope notes:
+
+- Replaced nested `station-card` activity counters with `fact-grid`.
+- Activity labels remain observational and avoid quota/billing/limit language.
+- Missing activity values render as zero.
+- Attach/detach continues to refresh through `refreshProjectState`.
+- No API/schema change, public Project page, quota math, billing, exports,
+  member authorization, Cloudflare, Tier 2 hosting, developer-agent, DexOS, or
+  `export_packages.project_id` work was added.

@@ -1,7 +1,7 @@
 # PR57 - Private Project Activity UI
 
 Date: 2026-06-19
-Status: implemented by DAEDALUS; ready for ARGUS review
+Status: accepted by ARGUS; wake ARIADNE for owner UI rehearsal and MIMIR for next-lane decision
 Owner: DAEDALUS implements, ARGUS reviews, ARIADNE rehearses signed owner UI,
 MIMIR decides next lane.
 
@@ -165,3 +165,36 @@ ARIADNE rehearsal request if ARGUS accepts:
 - Attach/detach still refreshes Project detail and the activity panel.
 - `390px` layout has no horizontal overflow or offscreen controls.
 - Anonymous Project detail still redirects/signs in without private leakage.
+
+## ARGUS Review
+
+Verdict: accepted on 2026-06-19 after one layout hardening patch.
+
+ARGUS patch:
+
+- Replaced nested `station-card` activity counter tiles inside the
+  `station-panel` with the existing `fact-grid` pattern.
+
+Findings:
+
+- The page reads the optional PR56 `activity` object without changing backend
+  behavior.
+- Missing activity values normalize to zero.
+- Labels are observational: Attached spaces, Nodes, Events, Snapshots, Storage
+  bytes, Public reads, and Exports.
+- Copy stays read-only and avoids quota/billing/limit language.
+- Attach/detach still refreshes through `refreshProjectState`, so Project
+  detail, attached spaces, candidates, and activity refresh together.
+- No API/schema change, public Project page, quota math, billing, exports,
+  member authorization, Cloudflare, Tier 2 hosting, developer-agent, DexOS, or
+  `export_packages.project_id` work was added.
+
+ARGUS validation:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:projects` | Pass | 5 tests passed; Project activity API coverage stayed green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 11 tests passed; Developer Space behavior stayed green. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed after ARGUS layout patch. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web build` | Partial / known Windows failure | Next compiled, linted/typechecked, collected page data, and generated 31 static pages; standalone traced-file symlink copy failed with Windows `EPERM`. |
+| `git diff --check` | Pass | No whitespace errors; CRLF warnings only. |
