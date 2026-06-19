@@ -5487,6 +5487,15 @@ when a PR lands, or when validation truth changes.
   as missing deployed Project schema/schema-cache state. PR54 cannot close from
   UI rehearsal until staging applies/verifies the Project alpha schema and
   ARIADNE reruns create/list/detail/attached-space checks.
+- MIMIR clears the PR54 staging schema blocker on 2026-06-19:
+  `docs/roadmap/PR54_PROJECT_SCHEMA_STAGING_APPLY_MIMIR.md` records the pooler
+  apply/proof for `infra/supabase/migrations/038_project_alpha_schema_skeleton.sql`.
+  Postgres now has `public.projects`, `public.project_members`,
+  `developer_spaces.project_id`, and `developer_space_usage.project_id`; the
+  migration ledger records `20260619021900 /
+  038_project_alpha_schema_skeleton`; Supabase REST `GET
+  /rest/v1/projects?select=id&limit=1` returns `200`. ARIADNE should rerun the
+  PR54 private owner UI rehearsal.
 
 ## Near-term rule
 

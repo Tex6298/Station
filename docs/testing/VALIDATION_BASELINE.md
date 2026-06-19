@@ -8209,3 +8209,21 @@ ARGUS scope notes:
 - No public Project page, Project branding, attach/detach UI, billing, exports,
   contributor/member authorization, Cloudflare, Tier 2 hosting, developer-agent,
   DexOS, or `export_packages.project_id` work was added.
+
+MIMIR staging schema apply on 2026-06-19:
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Temporary `node-postgres` migration transaction through `SUPABASE_POOLER_URL` | Pass | Applied `038_project_alpha_schema_skeleton.sql`, recorded migration history row `20260619021900 / 038_project_alpha_schema_skeleton`, and requested PostgREST schema reload. |
+| Postgres object proof through pooler | Pass | `public.projects` and `public.project_members` exist; `developer_spaces.project_id` and `developer_space_usage.project_id` exist. |
+| Supabase REST schema-cache proof | Pass | Service-role `GET /rest/v1/projects?select=id&limit=1` returned HTTP `200` with `rowCount: 0`, clearing the schema-cache error ARIADNE hit. |
+| Public Railway API `/health/deployment` | Pass | API health remains `ready:true`; migration label still reports the existing object/RPC readiness proof `025-037`, which has not been expanded to include Project objects. |
+
+Scope notes:
+
+- No repo code changed for this fix.
+- No public Project page, attach/detach UI, billing, exports,
+  contributor/member authorization, Cloudflare, Tier 2 hosting, developer-agent,
+  DexOS, or `export_packages.project_id` work was added.
+- ARIADNE should rerun the PR54 private owner UI rehearsal against the now
+  visible Project schema.
