@@ -1,7 +1,7 @@
 # PR54 - Private Project UI Shell
 
 Date: 2026-06-19
-Status: opened for DAEDALUS
+Status: implemented by DAEDALUS; ready for ARGUS review
 Owner: DAEDALUS implements, ARGUS reviews, ARIADNE rechecks if accepted,
 MIMIR decides next lane.
 
@@ -110,3 +110,81 @@ Wake ARGUS with:
 - any PR55 recommendation.
 
 If blocked, wake MIMIR with the exact blocker. Do not leave the lane silent.
+
+## DAEDALUS Implementation
+
+Added private owner pages:
+
+- `/projects`
+  - restores the current session;
+  - lists owner Projects from `GET /projects`;
+  - creates Projects through `POST /projects`;
+  - links each Project to `/projects/[idOrSlug]`;
+  - shows truthful loading, signed-out, empty, success, and error states.
+- `/projects/[idOrSlug]`
+  - restores the current session;
+  - reads `GET /projects/:idOrSlug`;
+  - shows the Project summary;
+  - lists attached Developer Spaces from the PR53 `developerSpaces` response;
+  - links attached Developer Spaces to existing `/developer-spaces/[slug]` and
+    `/developer-spaces/[slug]/manage` routes;
+  - shows truthful loading, signed-out, not-found/error, and no-attachments
+    states.
+
+Changed private navigation/route guard:
+
+- `/projects` and `/projects/:idOrSlug` are protected by the existing
+  auth-route guard.
+- Projects appears in signed-in top navigation and the account menu.
+
+Files changed:
+
+- `apps/web/app/projects/page.tsx`
+- `apps/web/app/projects/[idOrSlug]/page.tsx`
+- `apps/web/components/nav/top-nav.tsx`
+- `apps/web/lib/auth-routes.ts`
+- `apps/web/lib/auth-routes.test.ts`
+- `apps/web/lib/studio-navigation.ts`
+- `docs/roadmap/ACTIVE_STATUS.md`
+- `docs/testing/VALIDATION_BASELINE.md`
+- `docs/roadmap/PR54_PRIVATE_PROJECT_UI_SHELL.md`
+
+Backend/API files changed:
+
+- None.
+
+Validation:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:projects` | Pass | 4 tests passed; existing Project API behavior stayed green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 11 tests passed; Developer Space behavior stayed green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:auth` | Pass | 13 tests passed; `/projects` protection is covered. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web build` | Partial / known Windows failure | Next compiled successfully, linted/typechecked, collected page data, and generated 31 static pages. It then failed during standalone traced-file symlink copying with `EPERM`, matching the known Windows standalone symlink failure class. |
+| `git diff --check` | Pass | No whitespace errors; CRLF normalization warnings only for touched files and local triad state. |
+
+Scope guard:
+
+- No public Project pages.
+- No Project branding/marketing surface.
+- No Developer Space attach/detach UI.
+- No Developer Space create-time Project picker.
+- No backend route changes.
+- No billing, quotas, Stripe, exports, contributor/member auth, Cloudflare,
+  Tier 2 hosting, developer-agent, DexOS, or `export_packages.project_id`.
+
+ARIADNE rehearsal request if ARGUS accepts:
+
+- Check signed-in `/projects` create/list.
+- Check signed-in Project detail with attached Developer Spaces.
+- Check no-Project and no-attached-space empty states.
+- Check narrow viewport fit and click-throughs to existing Developer Space
+  view/manage routes.
+
+PR55 recommendation:
+
+- Keep the next lane observational and owner-only, such as Project activity
+  readback or Project document/report linkage. Do not jump to public Project
+  pages, attach/detach UI, billing/export semantics, member-role authorization,
+  or hosted-runtime work without a new MIMIR instruction.

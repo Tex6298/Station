@@ -6,6 +6,8 @@ test("auth route guard protects private app routes and preserves public reads", 
   const protectedPaths = [
     "/studio",
     "/studio/personas/persona-1",
+    "/projects",
+    "/projects/owner-project",
     "/space",
     "/space/new",
     "/space/my-space/manage",

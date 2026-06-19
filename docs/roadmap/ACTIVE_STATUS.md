@@ -5445,6 +5445,22 @@ when a PR lands, or when validation truth changes.
   changes, billing, exports, contributor/member auth, Cloudflare, Tier 2
   hosting, developer-agent, DexOS, and `export_packages.project_id` remain out
   of scope.
+- DAEDALUS implements PR54 on 2026-06-19 with private owner web routes
+  `/projects` and `/projects/[idOrSlug]`. `/projects` restores the current
+  session, lists owner Projects from `GET /projects`, creates Projects through
+  `POST /projects`, and links each Project to the private detail route.
+  `/projects/[idOrSlug]` reads `GET /projects/:idOrSlug`, shows the Project
+  summary, and lists attached Developer Spaces from the PR53
+  `developerSpaces` response with links to the existing observatory and manage
+  routes. `/projects` is now protected by the existing auth-route guard and
+  appears in signed-in navigation. Validation passed `test:projects`,
+  `test:developer-spaces`, `test:auth`, and `typecheck`. Web build compiled,
+  linted, typechecked, and generated pages, then failed at the known Windows
+  standalone symlink copy step with `EPERM`. No backend/API route changed, and
+  no public Project page, attach/detach UI, billing, exports,
+  contributor/member auth, Cloudflare, Tier 2 hosting, developer-agent, DexOS,
+  or `export_packages.project_id` work was added. ARGUS review is requested;
+  ARIADNE should rehearse the private owner UI if ARGUS accepts.
 
 ## Near-term rule
 

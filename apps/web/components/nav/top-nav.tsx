@@ -18,6 +18,7 @@ const NAV_LINKS = [
 
 const AUTH_NAV_LINK_LABELS: Record<(typeof SIGNED_MOBILE_TOP_NAV_MENU_ROUTES)[number], string> = {
   "/studio": "Studio",
+  "/projects": "Projects",
   "/space": "My Space",
   "/developer-spaces": "Developer",
 };
@@ -121,7 +122,7 @@ export function TopNav() {
                   </div>
                 </div>
 
-                {[["/studio", "Studio"], ["/space", "My Space"], ["/developer-spaces", "Developer Spaces"], ["/billing", "Billing"], ["/settings", "Settings"]].map(([href, label]) => (
+                {[["/studio", "Studio"], ["/projects", "Projects"], ["/space", "My Space"], ["/developer-spaces", "Developer Spaces"], ["/billing", "Billing"], ["/settings", "Settings"]].map(([href, label]) => (
                   <Link key={href} href={href} onClick={() => setMenuOpen(false)} className="top-nav-menu-link" role="menuitem">
                     {label}
                   </Link>

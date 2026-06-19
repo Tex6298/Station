@@ -8160,3 +8160,28 @@ ARGUS scope notes:
   billing, exports, contributor/member authorization, Cloudflare, Tier 2
   hosting, developer-agent, DexOS, or `export_packages.project_id` work was
   added.
+
+## PR54 Private Project UI Shell
+
+DAEDALUS implementation validation on 2026-06-19:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:projects` | Pass | 4 tests passed; existing Project API behavior stayed green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 11 tests passed; Developer Space attach/detail behavior stayed green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:auth` | Pass | 13 tests passed; `/projects` and `/projects/:idOrSlug` are covered as protected routes. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed after adding Project UI pages. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web build` | Partial / known Windows failure | Next compiled successfully, linted/typechecked, collected page data, and generated 31 static pages. It then failed while copying standalone traced files with `EPERM: operation not permitted, symlink ...`, matching the known Windows standalone symlink failure class. Existing warnings remain the Developer Space manage hook dependency and two `<img>` warnings. |
+| `git diff --check` | Pass | No whitespace errors; CRLF normalization warnings only for touched files and local triad state. |
+
+Scope notes:
+
+- Added private owner `/projects` create/list UI.
+- Added private owner `/projects/[idOrSlug]` Project detail UI.
+- The detail page displays attached Developer Spaces from PR53
+  `developerSpaces` and links to existing Developer Space view/manage routes.
+- Added `/projects` to the existing protected-route guard and signed-in nav.
+- No backend/API route changed.
+- No public Project page, attach/detach UI, billing, exports,
+  contributor/member authorization, Cloudflare, Tier 2 hosting, developer-agent,
+  DexOS, or `export_packages.project_id` work was added.
