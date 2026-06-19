@@ -1,6 +1,8 @@
 # Community Beta
 
-Community Beta is reopened. The repo has real community primitives, but not the complete community layer promised in the Station documents.
+Community Beta is reopened. The repo now has persistent community primitives
+and several protected beta surfaces, but not the complete community layer
+promised in the Station documents.
 
 ## Landed and partially protected
 
@@ -9,23 +11,41 @@ Community Beta is reopened. The repo has real community primitives, but not the 
 - Published documents can attach discussion threads.
 - Document pages, public Spaces, Discover, and forum views can surface discussion entry points.
 - Moderation-ready fields exist on threads/comments: pinned, hidden, reported count, status.
+- Admin-only thread/comment moderation actions are logged through
+  `community_moderation_actions`.
+- Admin-only moderation report queue/readback and report status updates exist
+  over `moderation_reports`.
+- Bounded discussion provenance labels exist for document-linked,
+  persona-linked, and user-authored discussion rows without exposing raw source
+  internals.
+- Tier participation is explicit: public reads remain open, community reads
+  require eligible tier, and creation/voting/reporting require `private` tier or
+  higher.
+- Smoke tests cover category list/detail, thread detail/comments, thread and
+  comment creation, voting/reporting participation gates, moderation privacy,
+  provenance labels, document-discussion visibility, and report queue/status
+  behavior.
 
 Protected check:
 
 ```bash
+pnpm test:community
 pnpm test:document-discussions
+pnpm test:reports
 ```
 
 ## Still open
 
-- Full forum smoke coverage.
 - Polished category and thread creation UX.
-- Tiered participation enforcement across the full forum surface.
 - Canon/Developer subcommunity creation.
-- Moderator actions for hide/remove/lock/report workflows.
-- Platform moderation queue and appeals.
+- Full appeals workflow and public-facing moderation resolution UX.
 - Notifications for replies and watched threads.
 - Recognition/witness mechanics that reward thoughtful contribution rather than volume.
+- Full moderator/admin console UX.
+- Comment/thread authorship provenance beyond user-authored labels; the current
+  schema does not prove AI/persona-authored comments or ordinary threads.
+- Subcommunity owner/moderator delegation beyond current platform-admin
+  moderation routes.
 
 ## Product rule
 

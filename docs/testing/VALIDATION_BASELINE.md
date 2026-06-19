@@ -9236,6 +9236,37 @@ Scope notes:
   expansion, raw ingestion key storage, secret logging, broad UI, public
   serializer expansion, or visible web UI changed.
 
+## PR82 Community Smoke Coverage And Status
+
+DAEDALUS implementation validation on 2026-06-19:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:community` | Pass | 11 tests passed, now including `GET /forums/categories` category-list smoke coverage. |
+| `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` | Pass | 1 test passed; document-discussion visibility/provenance smoke remains green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:reports` | Pass | 2 tests passed; report creation, queue, filters, and status smoke remains green. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API typecheck ran; web typecheck replayed from cache. |
+| `git diff --check` | Pass | CRLF normalization warnings only for touched files and local triad state. |
+
+Scope notes:
+
+- Added only one missing non-duplicative smoke assertion: forum category list
+  readback.
+- Confirmed existing smoke coverage for category detail, thread
+  detail/comments, thread/comment creation, voting/reporting participation
+  gates, moderation privacy, provenance labels, document-discussion visibility,
+  Discover visibility, owner/persona protection, and report queue/status.
+- Updated `docs/roadmap/community-beta.md` so PR78 through PR81 are listed as
+  landed or partially protected.
+- Remaining open Community Beta gaps are polished forum UX, Canon/Developer
+  subcommunities, appeals/public moderation resolution UX, notifications,
+  recognition/witness mechanics, full admin console UX, deeper authorship
+  provenance, and delegated subcommunity moderation.
+- No behavior changed beyond the smoke assertion; no UI, schema, broad forum
+  redesign, subcommunity, appeal, notification, reputation, recognition,
+  billing/provider/cache, Developer Space, auth/session refactor, visibility
+  widening, or unproven product claim changed.
+
 ## PR81 Community Tier Participation
 
 DAEDALUS implementation validation on 2026-06-19:

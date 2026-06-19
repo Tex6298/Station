@@ -4,7 +4,7 @@ Date opened: 2026-06-19
 Opened by: A1 / MIMIR
 Owner: DAEDALUS first, ARGUS reviews. ARIADNE rehearses only if visible forum
 UI changes.
-Status: open
+Status: implemented by DAEDALUS; awaiting ARGUS review
 
 ## Why This Lane
 
@@ -31,6 +31,43 @@ This is primarily a test/docs lane:
 - avoid broad behavior changes unless a test exposes a narrow bug;
 - update `docs/roadmap/community-beta.md` so the landed/open lists reflect
   PR78 through PR81.
+
+## DAEDALUS Implementation
+
+Coverage audit result:
+
+- `test:community` covers category detail, thread creation, comment creation,
+  public/community visibility, voting participation gates, comment moderation
+  action privacy, provenance labels, Discover visibility, and owner/persona
+  protection.
+- `test:document-discussions` covers public/community/unlisted/private document
+  discussion visibility, discussion thread readback, comment attachment, and
+  discussion provenance labels.
+- `test:reports` covers report creation, reporter scoping, duplicate handling,
+  visitor-tier report blocking, admin-only queue readback, filters, status
+  transitions, and server-owned review fields.
+
+Small missing smoke coverage added:
+
+- `GET /forums/categories` now has a category-list assertion in the community
+  smoke test.
+
+`docs/roadmap/community-beta.md` now reflects PR78 through PR81 as landed or
+partially protected and keeps these gaps open:
+
+- polished category/thread creation UX;
+- Canon/Developer subcommunity creation;
+- appeals workflow and public-facing moderation resolution UX;
+- notifications for replies and watched threads;
+- recognition/witness mechanics;
+- full moderator/admin console UX;
+- comment/thread authorship provenance beyond what the current schema proves;
+- subcommunity owner/moderator delegation beyond platform-admin moderation.
+
+No behavior changed beyond the category-list smoke assertion. No broad forum
+redesign, subcommunity, appeal, notification, reputation, recognition,
+billing/provider/cache, Developer Space, auth/session refactor, visibility
+widening, or new product claim was added.
 
 ## Inspect Before Editing
 

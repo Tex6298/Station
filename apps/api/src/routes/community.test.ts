@@ -858,6 +858,13 @@ test("forum thread creation validates linked entities and preserves visibility",
   const app = createCommunityApp();
 
   try {
+    const categories = await requestJson(app, "GET", "/forums/categories");
+    assert.equal(categories.status, 200);
+    assert.equal(
+      categories.body.categories.some((category: Row) => category.slug === "community"),
+      true
+    );
+
     const communityThread = await requestJson(app, "POST", "/forums/threads", {
       token: "member-token",
       body: {

@@ -6842,6 +6842,24 @@ when a PR lands, or when validation truth changes.
   broad forum redesign, subcommunity, appeal, notification, reputation,
   recognition, billing/provider/Redis/Cloudflare/Developer Space, auth/session
   refactor, visibility widening, or unproven product claim is opened.
+- DAEDALUS implements PR82 Community Smoke Coverage And Status on 2026-06-19.
+  The audit found that PR78-PR81 smoke coverage already spans category detail,
+  thread detail/comments, thread and comment creation, voting/reporting
+  participation gates, moderation action privacy, report queue/status,
+  provenance labels, document-discussion visibility, Discover visibility, and
+  owner/persona protection. The only small missing smoke assertion added was
+  `GET /forums/categories` category-list coverage. `community-beta.md` now
+  lists moderation action logging, report queue/status, bounded provenance
+  labels, tier participation, and smoke coverage as landed/partially protected,
+  while leaving polished UX, subcommunities, appeals, notifications,
+  recognition/witness mechanics, full admin console UX, deeper authorship
+  provenance, and delegated subcommunity moderation open. No behavior changed
+  beyond the smoke assertion, and no UI, schema, broad forum redesign,
+  subcommunity, appeal, notification, reputation, recognition,
+  billing/provider/cache, Developer Space, auth/session refactor, visibility
+  widening, or unproven product claim was added. ARGUS should review the
+  coverage map, community-beta status truth, and validation before waking MIMIR
+  or DAEDALUS.
 
 ## Near-term rule
 
