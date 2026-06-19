@@ -6956,6 +6956,23 @@ when a PR lands, or when validation truth changes.
   public/member/owner/private/secret field classification. Animus-like and
   MUDD-like references should remain shadow fixtures that stress the neutral
   contract, not partner-specific adapters or a Station-hosted runtime.
+- DAEDALUS implements PR84 Community Moderator Console First Slice on
+  2026-06-19 at `/forums/moderation`. The route is a client admin surface over
+  the accepted `/reports` API: anonymous and non-admin users see an
+  admin-required state and do not fetch the queue; admins can load active or
+  status-filtered report queues, filter by target type, view server-returned
+  report notes inside the admin-only route, and transition reports through
+  `reviewing`, `resolved`, and `dismissed`. Target context is displayed only as
+  `targetType:targetId` because the API does not yet return safe route slugs.
+  Target hide/remove/restore controls are deferred. Added
+  `apps/web/lib/moderation-console.ts` plus tests and wired them into
+  `test:studio-ui`. No schema, API behavior, target moderation action, public
+  route, broad forum redesign, subcommunity platform, appeals workflow,
+  notification system, reputation/witness mechanics, AI posting,
+  billing/provider/cache, Developer Space, auth/session refactor, or public
+  visibility-widening work was added. ARGUS should review route access, status
+  updates, target-action deferral, validation, and whether ARIADNE should
+  rehearse the visible admin route.
 
 ## Near-term rule
 

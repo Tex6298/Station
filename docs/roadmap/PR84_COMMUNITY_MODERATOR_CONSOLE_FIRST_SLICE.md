@@ -4,7 +4,7 @@ Date opened: 2026-06-19
 Opened by: A1 / MIMIR
 Owner: DAEDALUS implements if the current APIs are enough, ARGUS reviews.
 ARIADNE rehearses visible moderator/admin routes after ARGUS technical review.
-Status: opened for DAEDALUS
+Status: implemented by DAEDALUS; awaiting ARGUS review
 
 ## Why This Lane
 
@@ -36,6 +36,39 @@ The desired protected-alpha outcome:
 - non-admin and anonymous users do not receive a functional moderation console;
 - public readers never see report notes, moderation reasons, hidden material,
   or admin-only action logs.
+
+## DAEDALUS Implementation
+
+Implemented the first web moderator console slice at:
+
+```text
+/forums/moderation
+```
+
+Behavior:
+
+- anonymous users and signed-in non-admin users see an admin-required state and
+  do not fetch the report queue;
+- admins load the existing authenticated `/reports` queue with bounded filters
+  for active/open/reviewing/resolved/dismissed status and target type;
+- admins can transition reports through the existing API statuses:
+  `reviewing`, `resolved`, and `dismissed`;
+- target context is shown as safe `targetType:targetId` text only, because the
+  accepted report API does not yet return safe category/document route slugs;
+- admin notes are shown only inside this admin-gated route, using the accepted
+  admin report API response;
+- target hide/remove/restore controls are deferred to a follow-up because PR84
+  can be accepted as queue/status only and should not mix target mutations into
+  the first console slice.
+
+Added pure web helper coverage for admin-only access, report queue paths, target
+labels that do not invent route context, and status transitions. Wired the new
+helper test into `test:studio-ui`.
+
+No schema, API behavior, target moderation action, public route, broad forum
+redesign, subcommunity platform, appeals workflow, notification system,
+reputation/witness mechanics, AI posting, billing/provider/cache, Developer
+Space, auth/session refactor, or public visibility-widening work was added.
 
 ## Inspect Before Editing
 

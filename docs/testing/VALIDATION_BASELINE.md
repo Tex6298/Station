@@ -9236,6 +9236,40 @@ Scope notes:
   expansion, raw ingestion key storage, secret logging, broad UI, public
   serializer expansion, or visible web UI changed.
 
+## PR84 Community Moderator Console First Slice
+
+DAEDALUS implementation validation on 2026-06-19:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | Web typecheck ran; API typecheck replayed from cache. |
+| `npm exec --yes pnpm@10.32.1 -- run test:reports` | Pass | 2 tests passed; accepted report queue/status API remains green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:community` | Pass | 11 tests passed; community permissions/moderation/provenance smoke remains green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` | Pass | 1 test passed; document-discussion visibility remains green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 46 tests passed, including new moderation-console helper coverage. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web build` | Partial / known Windows failure | Next compiled, linted/typechecked, collected page data, and generated 32 static pages, then hit the known local Windows standalone symlink `EPERM`. Only pre-existing raw `<img>` warnings appeared. |
+| `git diff --check` | Pass | CRLF normalization warnings only for touched files and local triad state. |
+
+Scope notes:
+
+- Added `/forums/moderation` as the first admin-only web surface over the
+  existing `/reports` API.
+- Anonymous and non-admin users see an admin-required state and do not fetch the
+  report queue.
+- Admins can filter active/status-specific report queues, filter by target
+  type, view server-returned report notes inside the admin-only route, and move
+  reports through `reviewing`, `resolved`, and `dismissed`.
+- Target context is shown only as safe `targetType:targetId`; route links are
+  deferred until the API returns safe route slugs.
+- Target hide/remove/restore controls are deferred to avoid mixing target
+  mutation into the first console slice.
+- Added `apps/web/lib/moderation-console.ts` and helper tests for admin access,
+  queue paths, target labels, and status transitions.
+- No schema, API behavior, target moderation action, public route, broad forum
+  redesign, subcommunity platform, appeals workflow, notification system,
+  reputation/witness mechanics, AI posting, billing/provider/cache, Developer
+  Space, auth/session refactor, or public visibility-widening work changed.
+
 ## PR83 Community Forum UX Rehearsal Patch
 
 DAEDALUS patch validation on 2026-06-19:
