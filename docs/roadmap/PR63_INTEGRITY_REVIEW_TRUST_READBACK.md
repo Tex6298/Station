@@ -1,7 +1,7 @@
 # PR63 - Integrity Review Trust Readback
 
 Date: 2026-06-19
-Status: opened for DAEDALUS
+Status: implemented by DAEDALUS; ready for ARGUS review
 Owner: DAEDALUS implements, ARGUS reviews, ARIADNE rehearses signed owner UI,
 MIMIR decides the next lane.
 
@@ -164,3 +164,74 @@ the review verdict. ARIADNE should check:
   readback surfaces.
 
 If blocked, wake MIMIR with the exact blocker. Do not leave the lane silent.
+
+## DAEDALUS Implementation Result
+
+Implemented as an owner-only UI/readback slice on the existing calibration
+page. No API route behavior, schema, Integrity engine, question bank, prompt,
+model/provider, extraction, publication workflow, Redis, Cloudflare, Project,
+hosted runtime, worker, billing, or DexOS behavior changed.
+
+### Labels And Overview
+
+- Added `apps/web/lib/integrity-ui.ts` for owner-friendly labels:
+  - session types;
+  - clusters;
+  - output types;
+  - output statuses;
+  - write destinations.
+- `/studio/personas/:personaId/calibration` now shows an Integrity Overview
+  with:
+  - total sessions;
+  - latest session status;
+  - pending/accepted/dismissed output counts;
+  - current memory/canon/continuity counts from the existing persona summary.
+- Session history now uses friendly session/status/cluster labels and reviewed
+  output counts.
+
+### Review Card Write Behavior
+
+- Each output card now explains before writing:
+  - accepting writes to the destination;
+  - editing then accepting writes the edited text to the destination;
+  - dismissing keeps the session record but does not write the output.
+- Destination copy maps:
+  - `memory_candidate` and `boundary` to Memory;
+  - `canon_candidate` to Canon;
+  - `preference` and `theme` to Preference profile.
+- After write, `written_to` is shown with a friendly destination label.
+
+### Refresh Behavior
+
+- Accept/edit/reject still uses the existing
+  `PATCH /integrity/outputs/:outputId` route.
+- After review, the page updates the output locally and refreshes both:
+  - `GET /integrity/history/:personaId`;
+  - `GET /personas/:id`.
+- The overview can therefore reflect updated history and cheap persona summary
+  counts after review.
+
+### Focused Tests
+
+- Added `apps/web/lib/integrity-ui.test.ts`.
+- Added the helper test to `test:studio-ui`.
+
+## Validation Result
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:integrity` | Pass | 2 tests passed; existing Integrity lifecycle/output review behavior stayed green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-context` | Pass | 7 tests passed; runtime context behavior stayed green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 39 tests passed, including Integrity label/review-copy/history helper coverage. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed. |
+| `git diff --check` | Pass | No whitespace errors; CRLF normalization warnings only for touched files and local triad state. |
+
+## Scope Confirmation
+
+- No Integrity engine rewrite.
+- No question-bank, prompt, model/provider, AI extraction tuning, public
+  Integrity page, publication workflow, schema, API route behavior, raw trace
+  display, raw API payload display, Redis, Cloudflare, Project work, hosted
+  runtime, worker, billing/quota, or DexOS work.
+- The active answer/summary UI remains the only place where the owner sees and
+  edits their own session text.

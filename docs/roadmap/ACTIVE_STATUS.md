@@ -5782,6 +5782,28 @@ when a PR lands, or when validation truth changes.
   provider migration, Project work, hosted runtime, worker, billing/quota, or
   DexOS work was added. ARGUS review is requested; if accepted, ARIADNE should
   rehearse signed owner Continuity on desktop and 390px mobile.
+- ARIADNE accepts PR62 on 2026-06-19 and MIMIR opens PR63 Integrity Review
+  Trust Readback for DAEDALUS. The lane continues Memory UX / observability by
+  making Integrity Session output review clearer before accepted outputs write
+  to memory, canon, boundaries, themes, or preferences.
+- DAEDALUS implements PR63 on 2026-06-19. Calibration now has owner-friendly
+  session/cluster/output/status/destination labels, an Integrity Overview from
+  existing history and persona summary data, and review cards that explain what
+  accept, edit-then-accept, and dismiss will write or preserve before the owner
+  acts. Destination copy maps memory candidates and boundaries to Memory, canon
+  candidates to Canon, and preferences/themes to the Preference profile. Review
+  actions still use the existing `PATCH /integrity/outputs/:outputId` route;
+  after accept/edit/reject, the page updates the output locally and refreshes
+  both Integrity history and the persona summary so visible overview state can
+  update. Focused helper tests cover labels, review-copy destinations, and
+  history summaries. Validation passed `test:integrity`, `test:persona-context`,
+  `test:studio-ui`, `typecheck`, and `git diff --check`. No Integrity engine,
+  question-bank, prompt/model/provider, extraction tuning, public Integrity
+  page, publication workflow, schema, API route behavior, raw trace/API payload
+  display, Redis, Cloudflare, Project work, hosted runtime, worker,
+  billing/quota, or DexOS work was added. ARGUS review is requested; if
+  accepted, ARIADNE should rehearse signed owner Integrity review on desktop
+  and 390px mobile.
 - ARGUS accepts PR59 Project Scaffolding Closeout on 2026-06-19. Review found
   no overclaim in the proven/deferred split: PR49-PR58 are a private owner
   Phase 2B Project foundation only, while public Projects, member/contributor

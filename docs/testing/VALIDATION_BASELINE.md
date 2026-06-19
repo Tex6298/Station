@@ -8628,6 +8628,32 @@ Scope notes:
   payload display, Redis, Cloudflare, provider migration, Project work, hosted
   runtime, workers, billing/quota, or DexOS work was changed.
 
+## PR63 Integrity Review Trust Readback
+
+DAEDALUS implementation validation on 2026-06-19:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:integrity` | Pass | 2 tests passed; existing Integrity lifecycle/output review behavior stayed green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-context` | Pass | 7 tests passed; runtime context behavior stayed green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 39 tests passed, including Integrity label/review-copy/history helper coverage. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed. |
+| `git diff --check` | Pass | No whitespace errors; CRLF normalization warnings only for touched files and local triad state. |
+
+Scope notes:
+
+- Calibration now renders owner-friendly session, cluster, output, status, and
+  destination labels.
+- The Integrity Overview uses existing history and persona summary data.
+- Output review cards explain accept/edit/dismiss write behavior before the
+  owner acts.
+- Accept/edit/reject still use the existing output-review route, then refresh
+  history and persona summary readback.
+- No Integrity engine, question-bank behavior, prompt/model/provider behavior,
+  AI extraction tuning, public Integrity page, publication workflow, schema,
+  API route behavior, raw trace/API payload display, Redis, Cloudflare, Project
+  work, hosted runtime, workers, billing/quota, or DexOS work was changed.
+
 ARGUS review validation on 2026-06-19:
 
 | Command | Result | Notes |

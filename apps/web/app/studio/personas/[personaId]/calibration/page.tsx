@@ -5,6 +5,17 @@ import { useParams } from "next/navigation";
 import { getSession } from "@/lib/auth";
 import { apiGet, apiPatch, apiPost } from "@/lib/api-client";
 import {
+  integrityClusterLabel,
+  integrityClusterListLabel,
+  integrityDestinationForOutput,
+  integrityHistorySummary,
+  integrityOutputTypeLabel,
+  integrityReviewCopy,
+  integritySessionTypeLabel,
+  integrityStatusLabel,
+  integrityWrittenDestinationLabel,
+} from "@/lib/integrity-ui";
+import {
   PersonaWorkspaceHeader,
   type PersonaWithContinuity,
 } from "@/components/studio/persona-workspace";
@@ -102,6 +113,12 @@ export default function PersonaCalibrationPage() {
     if (!accessToken || !personaId) return;
     const data = await apiGet<{ sessions: HistorySession[] }>(`/integrity/history/${personaId}`, accessToken);
     setHistory(data.sessions ?? []);
+  }
+
+  async function reloadPersona(accessToken = token) {
+    if (!accessToken || !personaId) return;
+    const data = await apiGet<{ persona: PersonaWithContinuity }>(`/personas/${personaId}`, accessToken);
+    setPersona(data.persona);
   }
 
   async function startSession() {
@@ -206,7 +223,7 @@ export default function PersonaCalibrationPage() {
         editedContent: action === "edit" ? editing[output.id] : undefined,
       }, token);
       setOutputs((current) => current.map((item) => item.id === output.id ? response.output : item));
-      await reloadHistory();
+      await Promise.all([reloadHistory(), reloadPersona()]);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Could not review output.");
     } finally {
@@ -219,11 +236,35 @@ export default function PersonaCalibrationPage() {
   if (!persona) return <StudioMessage tone="error">Persona not found.</StudioMessage>;
 
   const pendingCount = outputs.filter((output) => output.status === "pending").length;
+  const overview = integrityHistorySummary(history);
+  const continuity = persona.continuity ?? {
+    memoryCount: 0,
+    canonCount: 0,
+    continuityRecordCount: 0,
+    integritySessionCount: 0,
+  };
 
   return (
     <main className="container studio-workspace">
       <PersonaWorkspaceHeader persona={persona} />
       {error && <div className="space-form-error">{error}</div>}
+
+      <section className="studio-list-panel" style={{ marginBottom: "1rem" }}>
+        <div className="studio-section-heading">
+          <div className="section-label">Integrity Overview</div>
+          <h2>Review outputs before they become memory, canon, or preferences</h2>
+        </div>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(145px, 1fr))", gap: "0.75rem" }}>
+          <IntegrityMetric label="Sessions" value={overview.totalSessions} />
+          <IntegrityMetric label="Latest" value={overview.latestStatus} />
+          <IntegrityMetric label="Pending" value={overview.pending} />
+          <IntegrityMetric label="Accepted" value={overview.accepted + overview.edited} />
+          <IntegrityMetric label="Dismissed" value={overview.rejected} />
+          <IntegrityMetric label="Memory" value={continuity.memoryCount ?? 0} />
+          <IntegrityMetric label="Canon" value={continuity.canonCount ?? 0} />
+          <IntegrityMetric label="Continuity" value={continuity.continuityRecordCount ?? 0} />
+        </div>
+      </section>
 
       <section className="studio-two-column">
         <section className="studio-editor-panel">
@@ -237,11 +278,11 @@ export default function PersonaCalibrationPage() {
               <label style={fieldLabel}>
                 Session type
                 <select value={sessionType} onChange={(e) => setSessionType(e.target.value as SessionType)} style={inputStyle}>
-                  <option value="initial">Initial</option>
-                  <option value="periodic">Periodic</option>
-                  <option value="migration">Migration</option>
-                  <option value="pre_publication">Pre-publication</option>
-                  <option value="manual">Manual</option>
+                  <option value="initial">{integritySessionTypeLabel("initial")}</option>
+                  <option value="periodic">{integritySessionTypeLabel("periodic")}</option>
+                  <option value="migration">{integritySessionTypeLabel("migration")}</option>
+                  <option value="pre_publication">{integritySessionTypeLabel("pre_publication")}</option>
+                  <option value="manual">{integritySessionTypeLabel("manual")}</option>
                 </select>
               </label>
               {sessionType === "manual" ? (
@@ -292,7 +333,7 @@ export default function PersonaCalibrationPage() {
             <form onSubmit={submitAnswer} style={{ display: "grid", gap: 12 }}>
               <div className="studio-prompt-box">
                 <strong>{activePrompt.question}</strong>
-                {activePrompt.cluster ? <p>{activePrompt.cluster}</p> : null}
+                {activePrompt.cluster ? <p>{integrityClusterLabel(activePrompt.cluster)}</p> : null}
               </div>
               <textarea className="textarea" value={answer} onChange={(e) => setAnswer(e.target.value)} placeholder="Answer in your private voice." style={{ minHeight: 180 }} required />
               <div className="studio-session-actions">
@@ -313,12 +354,12 @@ export default function PersonaCalibrationPage() {
             {history.map((session) => (
               <article key={session.id} className="studio-item-card">
                 <div>
-                  <span>{session.session_type}</span>
+                  <span>{integritySessionTypeLabel(session.session_type)}</span>
                   <time>{formatDate(session.completed_at ?? session.started_at)}</time>
                 </div>
-                <h3>{session.status}</h3>
-                <p>{(session.clusters_covered ?? []).join(", ") || "Session in progress"}</p>
-                <small>{acceptedCount(session)} accepted outputs</small>
+                <h3>{integrityStatusLabel(session.status)}</h3>
+                <p>{integrityClusterListLabel(session.clusters_covered)}</p>
+                <small>{acceptedCount(session)} accepted outputs / {reviewedCount(session)} reviewed</small>
               </article>
             ))}
           </div>
@@ -353,14 +394,19 @@ function ReviewOutputs({
       </p>
       {outputs.map((output) => (
         <article key={output.id} className="studio-item-card" style={{ opacity: output.status === "pending" ? 1 : 0.72 }}>
-          <div><span>{labelForOutput(output.output_type)}</span><span>{output.status}</span></div>
+          <div><span>{integrityOutputTypeLabel(output.output_type)}</span><span>{integrityStatusLabel(output.status)}</span></div>
+          <p style={{ margin: "0 0 0.5rem", color: "#8ea0b8" }}>
+            {integrityReviewCopy(output).accept} {integrityReviewCopy(output).edit} {integrityReviewCopy(output).reject}
+          </p>
           <textarea
             className="textarea"
             value={editing[output.id] ?? output.edited_content ?? output.content}
             onChange={(e) => setEditing({ ...editing, [output.id]: e.target.value })}
             style={{ minHeight: 96 }}
           />
-          {output.written_to ? <small>Saved to: {output.written_to}</small> : null}
+          {output.written_to ? <small>Saved to: {integrityWrittenDestinationLabel(output.written_to)}</small> : (
+            <small>Destination: {integrityDestinationForOutput(output.output_type)}</small>
+          )}
           <div className="studio-session-actions">
             <button className="button primary" type="button" disabled={saving || output.status !== "pending"} onClick={() => reviewOutput(output, "accept")}>Accept</button>
             <button className="button" type="button" disabled={saving || output.status !== "pending"} onClick={() => reviewOutput(output, "edit")}>Edit then accept</button>
@@ -386,22 +432,24 @@ function StudioMessage({ children, tone = "normal" }: { children: React.ReactNod
 function labelForPrompt(prompt: ActivePrompt) {
   if (prompt.nextType === "summary") return "Confirm the summary";
   if (prompt.nextType === "end") return "Review generated continuity";
-  return prompt.cluster ? `${prompt.cluster} cluster` : "Integrity Session";
-}
-
-function labelForOutput(type: IntegrityOutput["output_type"]) {
-  const labels = {
-    memory_candidate: "Memory",
-    canon_candidate: "Canon",
-    preference: "Tone",
-    boundary: "Boundary",
-    theme: "Theme",
-  };
-  return labels[type];
+  return prompt.cluster ? `${integrityClusterLabel(prompt.cluster)} cluster` : "Integrity Session";
 }
 
 function acceptedCount(session: HistorySession) {
   return (session.integrity_session_outputs ?? []).filter((output) => output.status === "accepted" || output.status === "edited").length;
+}
+
+function reviewedCount(session: HistorySession) {
+  return (session.integrity_session_outputs ?? []).filter((output) => output.status !== "pending").length;
+}
+
+function IntegrityMetric({ label, value }: { label: string; value: number | string }) {
+  return (
+    <article className="studio-item-card" style={{ minHeight: 86 }}>
+      <h3 style={{ marginBottom: "0.25rem" }}>{value}</h3>
+      <p style={{ margin: 0 }}>{label}</p>
+    </article>
+  );
 }
 
 function formatDate(value: string) {
