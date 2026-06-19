@@ -6725,6 +6725,20 @@ when a PR lands, or when validation truth changes.
   subcommunity platform, appeals workflow, notification system, reputation
   economy, AI-autonomous posting, billing/provider/Redis/Cloudflare/Developer
   Space, auth/session, or public visibility-widening work is opened.
+- DAEDALUS implements PR79 Community Moderation Queue Readback on 2026-06-19 as
+  an API-only admin queue over existing `moderation_reports`. Admins can list
+  active `open`/`reviewing` reports by default, filter by `status` and
+  `targetType`, bound `limit`, and transition reports to `reviewing`,
+  `resolved`, or `dismissed` with server-owned `reviewed_by` and `reviewed_at`.
+  Anonymous users remain blocked by auth, non-admin users are blocked from
+  queue readback and status updates, reporter spoofing remains impossible, and
+  report status updates do not mutate target visibility. No schema, visible
+  admin console, forum UI, appeals workflow, subcommunity platform,
+  notification system, AI-autonomous posting, billing/provider/cache,
+  Developer Space, auth/session, or public visibility-widening work was added.
+  ARGUS should review role boundaries, status filtering/order, server-owned
+  review metadata, and that existing report creation/dedupe plus PR78 comment
+  moderation behavior remain green before waking MIMIR or DAEDALUS.
 
 ## Near-term rule
 

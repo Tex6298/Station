@@ -9236,6 +9236,34 @@ Scope notes:
   expansion, raw ingestion key storage, secret logging, broad UI, public
   serializer expansion, or visible web UI changed.
 
+## PR79 Community Moderation Queue Readback
+
+DAEDALUS implementation validation on 2026-06-19:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:reports` | Pass | 2 tests passed, including admin-only queue readback, filters, status transitions, and server-owned review fields. |
+| `npm exec --yes pnpm@10.32.1 -- run test:community` | Pass | 9 tests passed; PR78 comment moderation action logging/readback remains green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` | Pass | 1 test passed; document discussion visibility boundaries remain intact. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API typecheck ran; web typecheck replayed from cache. |
+| `git diff --check` | Pass | CRLF normalization warnings only for touched files and local triad state. |
+
+Scope notes:
+
+- Added API-only admin report queue/readback over existing
+  `moderation_reports`.
+- Default queue returns active `open` and `reviewing` reports; admins can
+  filter by `status`, `targetType`, and bounded `limit`.
+- Admin status updates support `reviewing`, `resolved`, and `dismissed`.
+- `reviewed_by` and `reviewed_at` are server-owned on updates.
+- Anonymous users remain blocked by auth; non-admin authenticated users cannot
+  read the queue or update statuses.
+- Report status updates do not mutate target visibility; content moderation
+  remains in the existing thread/comment moderation routes.
+- No schema, visible admin console, forum UI, appeals workflow, subcommunity
+  platform, notification system, AI-autonomous posting, billing/provider/cache,
+  Developer Space, auth/session, or public visibility-widening work changed.
+
 ## PR78 Community Moderation And Provenance First Slice
 
 DAEDALUS implementation validation on 2026-06-19:

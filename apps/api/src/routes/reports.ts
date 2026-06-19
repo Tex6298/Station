@@ -13,6 +13,15 @@ const createReportSchema = z.object({
   reason: z.string().min(1),
   notes: z.string().optional(),
 });
+const reportStatusSchema = z.enum(["open", "reviewing", "resolved", "dismissed"]);
+const reportQueueQuerySchema = z.object({
+  status: reportStatusSchema.optional(),
+  targetType: createReportSchema.shape.targetType.optional(),
+  limit: z.coerce.number().int().min(1).max(100).default(50),
+});
+const updateReportStatusSchema = z.object({
+  status: z.enum(["reviewing", "resolved", "dismissed"]),
+});
 
 export const reportsRouter = Router();
 reportsRouter.use(requireAuth);
@@ -39,6 +48,63 @@ function serializeReport(row: ModerationReportRow): ModerationReportRecord {
 
   return report;
 }
+
+function requireAdmin(req: { user?: { isAdmin: boolean } }, res: { status: (status: number) => { json: (body: unknown) => unknown } }) {
+  if (req.user?.isAdmin) return true;
+  res.status(403).json({ error: "Admin access required." });
+  return false;
+}
+
+reportsRouter.get("/", async (req, res) => {
+  if (!requireAdmin(req, res)) return;
+
+  const parsed = reportQueueQuerySchema.safeParse(req.query);
+  if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
+
+  const sb = getSupabaseAdmin();
+  let query = sb
+    .from("moderation_reports")
+    .select("*")
+    .order("created_at", { ascending: false })
+    .limit(parsed.data.limit);
+
+  if (parsed.data.status) {
+    query = query.eq("status", parsed.data.status);
+  } else {
+    query = query.in("status", ["open", "reviewing"]);
+  }
+
+  if (parsed.data.targetType) {
+    query = query.eq("target_type", parsed.data.targetType);
+  }
+
+  const { data, error } = await query;
+  if (error) return res.status(500).json({ error: error.message });
+
+  return res.json({ reports: (data ?? []).map(serializeReport) });
+});
+
+reportsRouter.patch("/:id", async (req, res) => {
+  if (!requireAdmin(req, res)) return;
+
+  const parsed = updateReportStatusSchema.safeParse(req.body);
+  if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
+
+  const sb = getSupabaseAdmin();
+  const { data, error } = await sb
+    .from("moderation_reports")
+    .update({
+      status: parsed.data.status,
+      reviewed_by: req.user!.id,
+      reviewed_at: new Date().toISOString(),
+    })
+    .eq("id", req.params.id)
+    .select("*")
+    .single();
+
+  if (error || !data) return res.status(404).json({ error: "Report not found." });
+  return res.json({ report: serializeReport(data) });
+});
 
 reportsRouter.post("/", async (req, res) => {
   const parsed = createReportSchema.safeParse(req.body);

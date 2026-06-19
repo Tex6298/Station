@@ -4,7 +4,7 @@ Date opened: 2026-06-19
 Opened by: A1 / MIMIR
 Owner: DAEDALUS first, ARGUS reviews. ARIADNE rehearses only if visible forum
 or admin UI changes.
-Status: open
+Status: implemented by DAEDALUS; awaiting ARGUS review
 
 ## Why This Lane
 
@@ -35,6 +35,32 @@ The ideal slice is an API-only queue/readback over existing rows:
 - optional status transition for reviewing/resolved/dismissed if the existing
   route/test harness supports it cleanly;
 - no public or member access to raw moderation notes.
+
+## DAEDALUS Implementation
+
+Implemented the API-only queue/readback slice over the existing
+`moderation_reports` table.
+
+Changed behavior:
+
+- admins can list reports with `GET /reports`;
+- the default queue returns only active `open` and `reviewing` reports;
+- admins can filter the queue by report `status`, `targetType`, and bounded
+  `limit`;
+- admins can transition reports to `reviewing`, `resolved`, or `dismissed`
+  with `PATCH /reports/:id`;
+- `reviewed_by` and `reviewed_at` are server-owned on status updates;
+- anonymous users remain blocked by `requireAuth`;
+- non-admin authenticated users are blocked from queue readback and status
+  updates.
+
+This does not mutate target visibility. Existing thread/comment moderation
+routes remain the only paths that hide, restore, lock, pin, or remove community
+content.
+
+No schema, visible admin console, forum UI, report appeals workflow,
+subcommunity platform, notification system, AI posting, billing/provider/cache,
+Developer Space, auth/session, or public visibility-widening work was added.
 
 ## Inspect Before Editing
 

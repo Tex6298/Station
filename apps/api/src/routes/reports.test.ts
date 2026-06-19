@@ -25,6 +25,12 @@ class ReportsSupabase {
         tier: "private",
         is_admin: false,
       },
+      {
+        id: "admin-user",
+        email: "admin@example.test",
+        tier: "canon",
+        is_admin: true,
+      },
     ],
     moderation_reports: [],
   };
@@ -34,6 +40,7 @@ class ReportsSupabase {
   private usersByToken = new Map([
     ["owner-token", { id: "owner-user", email: "owner@example.test" }],
     ["other-token", { id: "other-user", email: "other@example.test" }],
+    ["admin-token", { id: "admin-user", email: "admin@example.test" }],
   ]);
 
   client = {
@@ -90,7 +97,10 @@ class ReportsSupabase {
 
 class QueryBuilder {
   private filters: Array<[string, unknown]> = [];
-  private operation: "select" | "insert" = "select";
+  private inFilters: Array<[string, unknown[]]> = [];
+  private orderSpec: { field: string; ascending: boolean } | null = null;
+  private limitCount: number | null = null;
+  private operation: "select" | "insert" | "update" = "select";
   private payload: Row | Row[] | null = null;
 
   constructor(private db: ReportsSupabase, private table: string) {}
@@ -104,8 +114,29 @@ class QueryBuilder {
     return this;
   }
 
+  in(field: string, values: unknown[]) {
+    this.inFilters.push([field, values]);
+    return this;
+  }
+
+  order(field: string, options: { ascending?: boolean } = {}) {
+    this.orderSpec = { field, ascending: options.ascending ?? true };
+    return this;
+  }
+
+  limit(count: number) {
+    this.limitCount = count;
+    return this;
+  }
+
   insert(payload: Row | Row[]) {
     this.operation = "insert";
+    this.payload = payload;
+    return this;
+  }
+
+  update(payload: Row) {
+    this.operation = "update";
     this.payload = payload;
     return this;
   }
@@ -123,14 +154,36 @@ class QueryBuilder {
     for (const [field, value] of this.filters) {
       rows = rows.filter((row) => row[field] === value);
     }
+    for (const [field, values] of this.inFilters) {
+      rows = rows.filter((row) => values.includes(row[field]));
+    }
+    if (this.orderSpec) {
+      const { field, ascending } = this.orderSpec;
+      rows.sort((a, b) => {
+        if (a[field] === b[field]) return 0;
+        if (a[field] == null) return 1;
+        if (b[field] == null) return -1;
+        return (a[field] > b[field] ? 1 : -1) * (ascending ? 1 : -1);
+      });
+    }
+    if (this.limitCount !== null) rows = rows.slice(0, this.limitCount);
     return rows;
   }
 
   private async execute(mode?: "single") {
-    const rows = this.operation === "insert"
-      ? (Array.isArray(this.payload) ? this.payload : [this.payload as Row])
-          .map((payload) => this.db.insertRow(this.table, payload))
-      : this.matchingRows();
+    let rows: Row[];
+    if (this.operation === "insert") {
+      rows = (Array.isArray(this.payload) ? this.payload : [this.payload as Row])
+        .map((payload) => this.db.insertRow(this.table, payload));
+    } else if (this.operation === "update") {
+      rows = this.matchingRows();
+      for (const row of rows) {
+        Object.assign(row, this.payload);
+        if ("updated_at" in row) row.updated_at = this.db.timestamp();
+      }
+    } else {
+      rows = this.matchingRows();
+    }
 
     const data = clone(rows);
     if (mode === "single") {
@@ -274,6 +327,114 @@ test("reports route persists reports through Supabase and scopes reporter to aut
     assert.equal(withNotes.body.report.reporterUserId, "other-user");
     assert.equal(withNotes.body.report.notes, "Contains direct abuse.");
     assert.equal(db.tables.moderation_reports.length, 2);
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
+
+test("reports queue and status updates are admin-only and server-owned", async () => {
+  const db = new ReportsSupabase();
+  const openReport = db.insertRow("moderation_reports", {
+    reporter_id: "owner-user",
+    target_type: "thread",
+    target_id: "thread-1",
+    reason: "spam",
+    notes: "Visible only to admins.",
+    status: "open",
+  });
+  const reviewingReport = db.insertRow("moderation_reports", {
+    reporter_id: "other-user",
+    target_type: "comment",
+    target_id: "comment-1",
+    reason: "harassment",
+    status: "reviewing",
+  });
+  const resolvedReport = db.insertRow("moderation_reports", {
+    reporter_id: "owner-user",
+    target_type: "persona",
+    target_id: "persona-1",
+    reason: "impersonation",
+    status: "resolved",
+    reviewed_by: "admin-user",
+    reviewed_at: "2026-05-25T08:00:00.000Z",
+  });
+  db.insertRow("moderation_reports", {
+    reporter_id: "owner-user",
+    target_type: "document",
+    target_id: "doc-1",
+    reason: "off-topic",
+    status: "dismissed",
+  });
+  setSupabaseAdminForTests(db.client as any);
+  const app = createReportsApp();
+
+  try {
+    const anonymousQueue = await requestJson(app, "GET", "/reports");
+    assert.equal(anonymousQueue.status, 401);
+
+    const memberQueue = await requestJson(app, "GET", "/reports", {
+      token: "owner-token",
+    });
+    assert.equal(memberQueue.status, 403);
+
+    const adminQueue = await requestJson(app, "GET", "/reports", {
+      token: "admin-token",
+    });
+    assert.equal(adminQueue.status, 200);
+    assert.deepEqual(
+      adminQueue.body.reports.map((report: Row) => report.id),
+      [reviewingReport.id, openReport.id]
+    );
+    assert.equal(adminQueue.body.reports[1].notes, "Visible only to admins.");
+
+    const commentQueue = await requestJson(app, "GET", "/reports?targetType=comment", {
+      token: "admin-token",
+    });
+    assert.equal(commentQueue.status, 200);
+    assert.deepEqual(commentQueue.body.reports.map((report: Row) => report.id), [reviewingReport.id]);
+
+    const resolvedQueue = await requestJson(app, "GET", "/reports?status=resolved", {
+      token: "admin-token",
+    });
+    assert.equal(resolvedQueue.status, 200);
+    assert.deepEqual(resolvedQueue.body.reports.map((report: Row) => report.id), [resolvedReport.id]);
+
+    const invalidQueue = await requestJson(app, "GET", "/reports?status=deleted", {
+      token: "admin-token",
+    });
+    assert.equal(invalidQueue.status, 400);
+
+    const memberUpdate = await requestJson(app, "PATCH", `/reports/${openReport.id}`, {
+      token: "owner-token",
+      body: { status: "resolved" },
+    });
+    assert.equal(memberUpdate.status, 403);
+
+    const invalidUpdate = await requestJson(app, "PATCH", `/reports/${openReport.id}`, {
+      token: "admin-token",
+      body: { status: "open" },
+    });
+    assert.equal(invalidUpdate.status, 400);
+
+    const adminUpdate = await requestJson(app, "PATCH", `/reports/${openReport.id}`, {
+      token: "admin-token",
+      body: {
+        status: "resolved",
+        reviewedBy: "spoofed-user",
+        reviewedAt: "2000-01-01T00:00:00.000Z",
+      },
+    });
+    assert.equal(adminUpdate.status, 200);
+    assert.equal(adminUpdate.body.report.id, openReport.id);
+    assert.equal(adminUpdate.body.report.status, "resolved");
+    assert.equal(adminUpdate.body.report.reviewedBy, "admin-user");
+    assert.notEqual(adminUpdate.body.report.reviewedAt, "2000-01-01T00:00:00.000Z");
+    assert.equal(typeof adminUpdate.body.report.reviewedAt, "string");
+
+    const stored = db.tables.moderation_reports.find((report) => report.id === openReport.id);
+    assert.equal(stored?.status, "resolved");
+    assert.equal(stored?.reviewed_by, "admin-user");
+    assert.notEqual(stored?.reviewed_at, "2000-01-01T00:00:00.000Z");
   } finally {
     setSupabaseAdminForTests(null);
   }
