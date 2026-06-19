@@ -5473,6 +5473,20 @@ when a PR lands, or when validation truth changes.
   hygiene. Web build compiled/typechecked/generated 31 static pages, then hit
   the known Windows standalone symlink `EPERM`. ARGUS recommends ARIADNE
   rehearse the private owner UI before MIMIR marks PR54 fully done.
+- ARIADNE starts PR54 Private Project UI Shell rehearsal on 2026-06-19 and
+  records a staging blocker in
+  `docs/roadmap/PR54_PRIVATE_PROJECT_UI_REHEARSAL_ARIADNE.md`: Railway web/API
+  are both serving `3ca7aa6`, and signed replay-owner `/projects` loads the
+  private Project shell on desktop and 390px mobile without sign-in loop,
+  horizontal overflow, or offscreen controls. However signed owner
+  `GET /projects` returns `500` with `Could not find the table
+  'public.projects' in the schema cache`, while signed `/developer-spaces`
+  still returns the two seeded Developer Spaces. The repo has
+  `infra/supabase/migrations/038_project_alpha_schema_skeleton.sql`, but
+  deployed health still reports migration proof `025-037`; ARIADNE treats this
+  as missing deployed Project schema/schema-cache state. PR54 cannot close from
+  UI rehearsal until staging applies/verifies the Project alpha schema and
+  ARIADNE reruns create/list/detail/attached-space checks.
 
 ## Near-term rule
 
