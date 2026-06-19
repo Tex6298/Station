@@ -6396,6 +6396,21 @@ when a PR lands, or when validation truth changes.
   feasibility result. No config, provider, Stripe, Redis, Cloudflare, worker,
   parser/OAuth, Project/DexOS, hosted runtime, broad UI, or fake-control scope
   is opened.
+- DAEDALUS implements PR73 Onboarding And Assistant Depth on 2026-06-19 as the
+  small implementation path using existing routes and state. `/studio/onboarding`
+  now shows each path's first concrete step and private boundary, and each card
+  links to Station Assistant with a bounded operational prompt. Fresh Start,
+  Awakening, Document Migrator, and API Bridge remain honest alpha route paths:
+  persona creation, guided setup, private archive import after persona setup,
+  and Developer Spaces ingestion respectively. `/studio/assistant` can read a
+  `prompt` query param and pre-fill the message box without auto-sending; the
+  owner still has to press `Ask Assistant`. Validation passed `test:studio-ui`,
+  `test:assistant`, `test:auth`, `typecheck`, and `git diff --check`. No new
+  routes/backend state, auth semantics, provider/model routing, Gemini chat,
+  BYOK store, hosted model runtime, Stripe expansion, Redis/Upstash memory
+  truth, worker queue claim, Cloudflare retrieval, parser/OAuth, Project/DexOS,
+  hosted runtime, broad UI, fake controls, or persona/consciousness/therapy/
+  automatic-canonization claims were added.
 
 ## Near-term rule
 

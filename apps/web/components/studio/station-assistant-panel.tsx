@@ -5,7 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import type { CSSProperties } from "react";
 import { apiGet, apiPost } from "@/lib/api-client";
 import { getSession } from "@/lib/auth";
-import { assistantActionStatusLabel } from "@/lib/station-assistant-ui";
+import { assistantActionStatusLabel, assistantPromptFromSearch } from "@/lib/station-assistant-ui";
 
 type AssistantAction = {
   id: string;
@@ -69,6 +69,9 @@ export function StationAssistantPanel() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    const prompt = assistantPromptFromSearch(window.location.search);
+    if (prompt) setMessage(prompt);
+
     getSession().then(async (session) => {
       if (!session) {
         setLoading(false);

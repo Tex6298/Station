@@ -19,3 +19,9 @@ export function assistantActionEmptyCopy(actionCount: number) {
     ? "Station Assistant has live next actions ready."
     : "No urgent action is waiting. Archive, review, publish, and export remain owner-controlled.";
 }
+
+export function assistantPromptFromSearch(search: string) {
+  const prompt = new URLSearchParams(search).get("prompt")?.trim() ?? "";
+  if (!prompt) return null;
+  return prompt.length > 220 ? `${prompt.slice(0, 217).trim()}...` : prompt;
+}

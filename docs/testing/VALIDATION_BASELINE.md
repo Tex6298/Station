@@ -9012,3 +9012,29 @@ ARGUS scope notes:
   semantics, provider routing, Redis memory, Cloudflare, parser/OAuth, worker,
   hosted runtime, Project, DexOS, broad UI, secrets, private replay data,
   deployment IDs, or `.env` values changed or were recorded.
+
+## PR73 Onboarding And Assistant Depth
+
+DAEDALUS implementation validation on 2026-06-19:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 42 tests passed, including onboarding path and Assistant prompt helper coverage. |
+| `npm exec --yes pnpm@10.32.1 -- run test:assistant` | Pass | 9 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:auth` | Pass | 14 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API replayed from cache; web typecheck completed. |
+| `git diff --check` | Pass | CRLF normalization warnings only for touched files and local triad state. |
+
+Scope notes:
+
+- Chose the small implementation path, not feasibility-only.
+- Onboarding path cards now expose first concrete step, private-boundary copy,
+  and an `Ask Assistant` handoff for all four alpha paths.
+- Station Assistant pre-fills from a bounded `prompt` query param but does not
+  auto-send.
+- No new backend route, persisted onboarding state, auth/session semantic,
+  provider/model routing, Gemini chat, BYOK store, hosted model runtime, Stripe
+  expansion, Redis/Upstash memory truth, worker queue claim, Cloudflare
+  retrieval, parser/OAuth, Project/DexOS, hosted runtime, broad UI, fake
+  controls, persona/consciousness/therapy claims, or automatic-canonization
+  wording was added.

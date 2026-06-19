@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import {
   assistantActionEmptyCopy,
+  assistantPromptFromSearch,
   assistantActionStatusLabel,
   assistantActionTone,
 } from "./station-assistant-ui";
@@ -17,4 +18,10 @@ test("Station Assistant action helpers keep priority and status labels stable", 
 test("Station Assistant empty copy stays honest about owner-controlled actions", () => {
   assert.match(assistantActionEmptyCopy(0), /owner-controlled/);
   assert.match(assistantActionEmptyCopy(2), /live next actions/);
+});
+
+test("Station Assistant prompt helper reads bounded onboarding prompts", () => {
+  assert.equal(assistantPromptFromSearch("?prompt=Help%20me%20start"), "Help me start");
+  assert.equal(assistantPromptFromSearch("?other=value"), null);
+  assert.equal(assistantPromptFromSearch(`?prompt=${"a".repeat(240)}`)?.length, 220);
 });

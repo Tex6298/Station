@@ -84,13 +84,26 @@ export default function StudioOnboardingPage() {
                 </div>
                 <h2 style={pathTitle}>{card.title}</h2>
                 <p style={copy}>{card.summary}</p>
+                <div style={stepBox}>
+                  <strong>First step</strong>
+                  <span>{card.firstStep}</span>
+                </div>
+                <div style={stepBox}>
+                  <strong>Private boundary</strong>
+                  <span>{card.privacy}</span>
+                </div>
                 <p style={truthCopy}>{card.truth}</p>
                 <div style={routeList} aria-label={`${card.title} routes`}>
                   {card.supportingRoutes.map((route) => (
                     <code key={route} style={routeToken}>{route}</code>
                   ))}
                 </div>
-                <Link href={card.route} style={primaryButton}>{card.actionLabel}</Link>
+                <div style={actionRow}>
+                  <Link href={card.route} style={primaryButton}>{card.actionLabel}</Link>
+                  <Link href={`/studio/assistant?prompt=${encodeURIComponent(card.assistantPrompt)}`} style={secondaryButton}>
+                    Ask Assistant
+                  </Link>
+                </div>
               </article>
             ))}
           </section>
@@ -169,6 +182,18 @@ const routeList = {
   gap: 8,
   flexWrap: "wrap" as const,
 };
+
+const stepBox = {
+  display: "grid",
+  gap: 4,
+  border: "1px solid var(--station-page-border, #263244)",
+  borderRadius: 8,
+  background: "var(--station-page-soft-2, #0d1420)",
+  padding: "10px 12px",
+  color: "var(--station-page-muted, #a9b0bd)",
+  fontSize: 13,
+  lineHeight: 1.5,
+} as const;
 
 const routeToken = {
   border: "1px solid var(--station-page-border, #263244)",

@@ -4,7 +4,7 @@ Date opened: 2026-06-19
 Opened by: A1 / MIMIR
 Owner: DAEDALUS first, ARGUS reviews. ARIADNE rehearses only if visible route
 flow changes.
-Status: open for DAEDALUS
+Status: implemented by DAEDALUS; ready for ARGUS review
 
 ## Why This Lane
 
@@ -138,3 +138,53 @@ Wake ARGUS with:
 
 If blocked, wake MIMIR with the smallest exact blocker and the recommended next
 lane. Do not go silent.
+
+## DAEDALUS Implementation
+
+Implemented on 2026-06-19 as the small implementation path. No new routes,
+backend state, API behavior, auth semantics, provider routing, billing,
+Redis/Upstash memory, Cloudflare, worker, parser/OAuth, Project/DexOS, hosted
+runtime, or broad UI work was added.
+
+Changed surfaces:
+
+- `/studio/onboarding`;
+- `/studio/assistant`;
+- `apps/web/lib/onboarding-paths.ts`;
+- Station Assistant UI helper tests.
+
+First-entry behavior by path:
+
+- Fresh Start now says the first step is naming a private persona, with setup
+  fields allowed to stay light. Its boundary copy says private Studio material
+  stays private by default and publishing is a later owner action.
+- Awakening now says the first step is filling context, boundaries, voice, and
+  provider before review/create. Its copy keeps setup notes owner-scoped and
+  avoids identity/proof claims.
+- Document Migrator now distinguishes the no-persona setup state from the
+  persona-ready state. Without a persona, the first step is creating the private
+  persona. With a persona, the first step is opening the persona Archive tab,
+  adding source material, and reviewing import status.
+- API Bridge now points to the existing Developer Spaces route, with the first
+  step framed as creating or choosing a Developer Space and then using the owner
+  manage page for ingestion keys. It keeps raw owner evidence and keys
+  owner-only.
+
+Assistant behavior:
+
+- Each onboarding path now has an `Ask Assistant` link to
+  `/studio/assistant?prompt=...`.
+- Station Assistant reads the bounded `prompt` query param and pre-fills the
+  message box without auto-sending. The owner must still press `Ask Assistant`.
+- The Assistant remains an operational helper, not a persona or autonomous
+  executor.
+
+Validation:
+
+```bash
+npm exec --yes pnpm@10.32.1 -- run test:studio-ui
+npm exec --yes pnpm@10.32.1 -- run test:assistant
+npm exec --yes pnpm@10.32.1 -- run test:auth
+npm exec --yes pnpm@10.32.1 -- run typecheck
+git diff --check
+```
