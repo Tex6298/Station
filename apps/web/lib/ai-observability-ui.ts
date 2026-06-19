@@ -51,8 +51,9 @@ export function sanitizedFailureMessage(message?: string | null) {
   if (!message) return null;
   const normalized = message
     .replace(/https?:\/\/\S+/gi, "[redacted-url]")
-    .replace(/\b(?:sk|pk|rk|whsec|ghp|pat)-[A-Za-z0-9._-]+/g, "[redacted-secret]")
-    .replace(/\b(?:token|cookie|authorization|api[_-]?key|secret|password)\b\s*[:=]\s*\S+/gi, "$1=[redacted]");
+    .replace(SECRET_SHAPED_VALUE_PATTERN, "[redacted-secret]")
+    .replace(/\b(?:bearer)\s+\S+/gi, "bearer [redacted]")
+    .replace(/\b(?:token|cookie|authorization|api[_-]?key|x-api-key|secret|password)\b\s*[:=]\s*\S+/gi, "$1=[redacted]");
 
   return normalized.length > 140 ? `${normalized.slice(0, 137).trim()}...` : normalized;
 }
@@ -105,6 +106,11 @@ function safeMetadataValue(value: unknown) {
   const text = String(value).trim();
   if (!text) return null;
   if (/https?:\/\//i.test(text)) return null;
+  if (SECRET_SHAPED_VALUE_PATTERN.test(text)) {
+    SECRET_SHAPED_VALUE_PATTERN.lastIndex = 0;
+    return null;
+  }
+  SECRET_SHAPED_VALUE_PATTERN.lastIndex = 0;
   if (/(token|cookie|authorization|api[_-]?key|secret|password|owner[_-]?user|persona[_-]?id|trace[_-]?id)/i.test(text)) return null;
   return text.length > 64 ? `${text.slice(0, 61).trim()}...` : text;
 }
@@ -114,3 +120,5 @@ function asRecord(value: unknown): Record<string, unknown> | null {
     ? value as Record<string, unknown>
     : null;
 }
+
+const SECRET_SHAPED_VALUE_PATTERN = /\b(?:sk|pk|rk|whsec|ghp|pat)[_-][A-Za-z0-9._-]+/gi;

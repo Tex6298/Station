@@ -8478,6 +8478,22 @@ Scope notes:
   pages, member auth, billing/quota, exports, hosted runtime, developer-agent,
   DexOS, or broad UI work changed.
 
+ARGUS review validation on 2026-06-19:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `git diff --check HEAD~1..HEAD` | Pass | DAEDALUS PR59 closeout commit has no whitespace errors. |
+| `git diff --check` | Pass | ARGUS review update has no whitespace errors; CRLF normalization warnings only for touched docs and local triad state. |
+
+ARGUS scope notes:
+
+- PR59 is accepted as a docs/sequencing closeout only.
+- The closeout does not overclaim public Projects, hosted runtime, member auth,
+  Project billing/quota, exports, developer-agent, DexOS, or personal
+  archive/continuity ownership changes.
+- The pause recommendation is accepted: MIMIR should choose the next lane before
+  any further Project implementation begins.
+
 ## PR60 Memory UX And Observability First Slice
 
 DAEDALUS implementation validation on 2026-06-19:
@@ -8512,14 +8528,21 @@ ARGUS review validation on 2026-06-19:
 
 | Command | Result | Notes |
 | --- | --- | --- |
-| `git diff --check HEAD~1..HEAD` | Pass | DAEDALUS PR59 closeout commit has no whitespace errors. |
-| `git diff --check` | Pass | ARGUS review update has no whitespace errors; CRLF normalization warnings only for touched docs and local triad state. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 32 tests passed, including strengthened observability redaction coverage. |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-context` | Pass | 7 tests passed; memory briefing, lifecycle filtering, and owner scoping stayed green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` | Pass | 1 test passed; replay observability readiness stayed auth-protected and non-secret. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web build` | Partial / known Windows failure | Next compiled successfully, linted/typechecked, collected page data, and generated 31 static pages, then failed during standalone traced-file symlink copy with Windows `EPERM`. |
+| `git diff --check` | Pass | No whitespace errors; CRLF normalization warnings only for touched files and local triad state. |
 
 ARGUS scope notes:
 
-- PR59 is accepted as a docs/sequencing closeout only.
-- The closeout does not overclaim public Projects, hosted runtime, member auth,
-  Project billing/quota, exports, developer-agent, DexOS, or personal
-  archive/continuity ownership changes.
-- The pause recommendation is accepted: MIMIR should choose the next lane before
-  any further Project implementation begins.
+- ARGUS patched observability client redaction for underscore-style secret
+  values such as `sk_live_*`, bearer values, and secret-shaped strings inside
+  whitelisted metadata fields.
+- Studio Memory stays owner-only through existing APIs and does not add public
+  memory or lifecycle route behavior.
+- Settings AI activity remains list-only and sanitized; trace detail expansion
+  was not added.
+- No API route, schema, runtime store, provider migration, Project work, hosted
+  runtime, worker, billing/quota, Redis, Cloudflare, or DexOS work changed.

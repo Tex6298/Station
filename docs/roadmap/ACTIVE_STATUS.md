@@ -5759,6 +5759,28 @@ when a PR lands, or when validation truth changes.
   memory, raw prompts/completions, private archive excerpts, Redis, Cloudflare,
   provider migration, Project work, hosted runtime, workers, billing, DexOS, or
   broad redesign.
+- DAEDALUS implements PR60 Memory UX And Observability First Slice on
+  2026-06-19: Persona Memory now shows active/quarantined/rejected/expired/
+  superseded/missing-lifecycle counters, per-memory runtime eligibility or
+  holdout copy, and reinforce/restore/quarantine/reject actions using existing
+  owner lifecycle APIs. Settings AI activity now renders source/status/
+  duration/token/cost facts plus whitelisted operational metadata from existing
+  owner-only observability summary/list routes. Validation passed
+  `test:studio-ui`, `test:persona-context`, `test:replay-readiness`,
+  `typecheck`, and `git diff --check`; no API, schema, public memory, raw trace,
+  Project, provider migration, hosted runtime, worker, billing/quota, Redis,
+  Cloudflare, or DexOS work changed.
+- ARGUS accepts PR60 on 2026-06-19 after patching observability client
+  redaction for underscore-style secret values such as `sk_live_*`, bearer
+  values, and secret-shaped strings inside whitelisted metadata fields. Review
+  confirmed Studio Memory stays owner-only through existing APIs, lifecycle
+  counters/actions are clear, Settings AI activity remains list-only and
+  sanitized, and PR60 does not reopen Project implementation. Validation passed
+  `test:studio-ui`, `test:persona-context`, `test:replay-readiness`,
+  `typecheck`, and `git diff --check`; web build compiled/linted/typechecked/
+  generated 31 static pages before the known Windows standalone symlink
+  `EPERM`. ARIADNE should rehearse signed owner Memory and Settings AI activity
+  at desktop and `390px`, then wake MIMIR with the UI verdict.
 
 ## Near-term rule
 

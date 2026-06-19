@@ -39,15 +39,20 @@ test("AI observability metadata whitelist drops raw secrets, urls, and private i
     traceId: "trace-secret",
     callbackUrl: "https://example.invalid/raw",
     apiKey: "sk-secret",
+    model: "sk_live_should_not_render",
   });
 
   assert.deepEqual(facts, ["Policy private_archive_allowed", "Posture owner_byok"]);
 });
 
 test("AI observability failure copy redacts obvious secret material", () => {
-  const message = sanitizedFailureMessage("provider failed token=abc123 at https://example.invalid with sk-secret");
+  const message = sanitizedFailureMessage(
+    "provider failed token=abc123 with Bearer abc.def at https://example.invalid using sk_live_secret",
+  );
 
   assert.match(message ?? "", /\[redacted-url\]/);
   assert.match(message ?? "", /\[redacted-secret\]/);
   assert.doesNotMatch(message ?? "", /abc123/);
+  assert.doesNotMatch(message ?? "", /abc\.def/);
+  assert.doesNotMatch(message ?? "", /sk_live_secret/);
 });
