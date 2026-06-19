@@ -6460,6 +6460,26 @@ when a PR lands, or when validation truth changes.
   with the exact missing API/state field. When done, DAEDALUS must wake ARGUS;
   if visible route behavior changes, ARGUS should wake ARIADNE for human-eye
   rehearsal.
+- DAEDALUS implements PR74 Billing And Entitlement Clarity on 2026-06-19 as the
+  small implementation path. Existing `/billing/me` status was enough; no API
+  field was missing. `/billing` now explains active/trialing subscription
+  status, inactive activation, cancelled checkout, server-authored tier limits,
+  and the difference between subscription entitlements and token credits. Plan
+  cards now distinguish active current plan, inactive same-tier activation,
+  higher-tier upgrade, active lower-tier `Included in current plan`, and
+  inactive lower-tier `Lower-tier option` states, so higher-tier users no longer
+  see lower-tier cards with upgrade-style copy. Checkout and portal actions
+  still use the existing authenticated server routes. Root `test:billing` now
+  includes the billing plan helper tests. Validation passed `test:billing`,
+  `test:token-credits`, `test:spaces`, `test:developer-spaces`,
+  `test:studio-ui`, `typecheck`, and `git diff --check`; the web build
+  compiled and generated 31 static pages before the known local Windows
+  standalone symlink `EPERM`. No Stripe architecture, live-money claim, pricing
+  strategy, new tiers, coupons, trials, tax, invoices, Connect, marketplace,
+  usage-billing architecture, client-only entitlement grants, Redis/Upstash
+  billing truth, provider, Cloudflare, worker, parser/OAuth, Project/DexOS,
+  hosted runtime, broad UI, dark-pattern copy, raw Stripe identifiers, or
+  secrets were added.
 
 ## Near-term rule
 

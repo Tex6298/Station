@@ -9,10 +9,13 @@ import {
   type BillingStatus,
 } from "@/lib/api-client";
 import {
+  billingPlanActionDetail,
+  billingPlanActionLabel,
   billingPlanAction,
   checkoutTierFor,
   isActiveSubscriptionStatus,
   type CheckoutTier,
+  type BillingPlanAction,
 } from "@/lib/billing-plan-actions";
 
 const TIER_LABELS: Record<string, string> = {
@@ -34,6 +37,16 @@ const TIER_COLOUR: Record<string, string> = {
 function formatLimit(value: number, unit: string) {
   if (value < 0) return `Unlimited ${unit}`;
   return `${value} ${unit}`;
+}
+
+function subscriptionSummary(status: string | null | undefined) {
+  if (isActiveSubscriptionStatus(status)) {
+    return "Stripe subscription is active or trialing. Use the portal for cancellation or subscription changes.";
+  }
+  if (status) {
+    return "Stripe subscription is not active. Checkout activation can restart the recorded plan in test mode.";
+  }
+  return "No active Stripe subscription is recorded. Checkout opens a Stripe-hosted test-mode session.";
 }
 
 export default function BillingPage() {
@@ -107,7 +120,7 @@ export default function BillingPage() {
         <div>
           <div className="station-eyebrow">Account</div>
           <h1 className="station-page-title">Billing</h1>
-          <p className="station-page-lede">Manage your Station plan, Stripe portal access, and usage limits.</p>
+          <p className="station-page-lede">Manage your Station plan, Stripe test-mode handoff, and server-authoritative limits.</p>
         </div>
       </header>
 
@@ -120,8 +133,8 @@ export default function BillingPage() {
       )}
 
       {cancelled && (
-        <div className="station-notice" data-tone="error" style={{ marginBottom: "1.5rem" }}>
-          <p style={{ margin: 0 }}>Checkout cancelled - no charge was made.</p>
+        <div className="station-notice" data-tone="info" style={{ marginBottom: "1.5rem" }}>
+          <p style={{ margin: 0 }}>Checkout was cancelled. Your Station plan was not changed.</p>
         </div>
       )}
 
@@ -157,6 +170,9 @@ export default function BillingPage() {
             </span>
           )}
         </div>
+        <p style={{ color: "#687078", margin: "0.75rem 0 0", fontSize: "0.9rem", lineHeight: 1.55 }}>
+          {subscriptionSummary(status?.subscriptionStatus)}
+        </p>
 
         {currentCheckoutTier && isActive && (
           <button
@@ -212,6 +228,13 @@ export default function BillingPage() {
             </div>
           </div>
         )}
+
+        <div style={{ marginTop: "1rem", padding: "0.85rem 1rem", background: "#f8f7f4", border: "1px solid #d8d3c8", borderRadius: 8 }}>
+          <p style={{ margin: "0 0 0.35rem", color: "#1f2529", fontWeight: 650 }}>Entitlements and token credits are separate.</p>
+          <p style={{ margin: 0, color: "#687078", fontSize: "0.86rem", lineHeight: 1.55 }}>
+            This plan controls tier limits such as Spaces, Developer Spaces, publishing, and storage. Token top-ups, where visible, add model-usage credit without changing your subscription tier.
+          </p>
+        </div>
       </div>
 
       {/* Plans */}
@@ -290,7 +313,7 @@ function PlanCard({
   interval: string;
   yearlyPrice?: string;
   features: string[];
-  action: "current" | "activate" | "upgrade";
+  action: BillingPlanAction;
   onUpgrade: () => void;
   onUpgradeYearly?: () => void;
   loading: boolean;
@@ -330,9 +353,9 @@ function PlanCard({
         {features.map((f) => <li key={f}>{f}</li>)}
       </ul>
 
-      {action === "current" ? (
+      {action === "current" || action === "included" || action === "lower-tier" ? (
         <button disabled style={{ width: "100%", padding: "0.5rem", background: "#f8f7f4", border: "1px solid #d8d3c8", borderRadius: 6, color: "#687078", cursor: "default", fontSize: "0.875rem" }}>
-          Current plan
+          {billingPlanActionLabel(action, name, price)}
         </button>
       ) : (
         <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
@@ -341,7 +364,7 @@ function PlanCard({
             disabled={loading}
             style={{ width: "100%", padding: "0.5rem", background: featured ? "#534ab7" : "#1f2529", border: "none", borderRadius: 6, color: "#fff", cursor: "pointer", fontSize: "0.875rem" }}
           >
-            {loading ? "Loading..." : action === "activate" ? `Activate ${name}` : `Upgrade - ${price}/mo`}
+            {loading ? "Loading..." : billingPlanActionLabel(action, name, price)}
           </button>
           {action === "upgrade" && yearlyPrice && onUpgradeYearly && (
             <button
@@ -354,6 +377,9 @@ function PlanCard({
           )}
         </div>
       )}
+      <p style={{ margin: "0.65rem 0 0", color: "#687078", fontSize: "0.78rem", lineHeight: 1.45 }}>
+        {billingPlanActionDetail(action)}
+      </p>
     </div>
   );
 }

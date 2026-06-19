@@ -4,7 +4,7 @@ Date opened: 2026-06-19
 Opened by: A1 / MIMIR
 Owner: DAEDALUS first, ARGUS reviews. ARIADNE rehearses any visible route
 changes.
-Status: open
+Status: implemented by DAEDALUS; ready for ARGUS review
 
 ## Why This Lane
 
@@ -145,3 +145,59 @@ DAEDALUS should wake ARGUS with:
 
 If blocked, wake MIMIR with the smallest exact blocker and the recommended next
 lane. Do not go silent or go to sleep without waking ARGUS or MIMIR.
+
+## DAEDALUS Implementation
+
+Implemented on 2026-06-19 as the small implementation path. Existing
+`/billing/me` status was enough: tier, subscription status, customer binding,
+and server-authored limits already give the Billing page enough state to clarify
+plan cards without a new API field.
+
+Changed surfaces:
+
+- `/billing`;
+- `apps/web/lib/billing-plan-actions.ts`;
+- `apps/web/lib/billing-plan-actions.test.ts`;
+- root `test:billing` script, so the billing helper coverage runs with the
+  API billing route tests.
+
+Behavior by state:
+
+- Active current-plan state: same-tier cards stay disabled as `Current plan`;
+  the current-plan panel explains that active/trialing subscriptions should use
+  the Stripe portal for cancellation or subscription changes.
+- Inactive current-plan state: same-tier cards and the current-plan panel show
+  activation copy and still use the existing authenticated Checkout route.
+- Lower-tier cards for higher-tier users no longer say `Upgrade`. Active
+  higher-tier users see disabled `Included in current plan` copy. Inactive
+  higher-tier users see disabled `Lower-tier option` copy that explains the
+  lower tier is below the recorded tier.
+- Higher-tier cards still use `Upgrade - price/mo` and the existing
+  authenticated Checkout route.
+
+Other clarity changes:
+
+- Cancelled Checkout now says the plan was not changed rather than implying an
+  error.
+- The current-plan panel now explicitly says plan entitlements and token
+  credits are separate: subscription tier controls Spaces, Developer Spaces,
+  publishing, and storage; token top-ups add model-usage credit without changing
+  tier.
+- Checkout and portal copy remains calm and explicit. No raw Stripe URLs, object
+  IDs, webhook payloads, cookies, tokens, or secrets were recorded.
+
+Validation:
+
+```bash
+npm exec --yes pnpm@10.32.1 -- run test:billing
+npm exec --yes pnpm@10.32.1 -- run test:token-credits
+npm exec --yes pnpm@10.32.1 -- run test:spaces
+npm exec --yes pnpm@10.32.1 -- run test:developer-spaces
+npm exec --yes pnpm@10.32.1 -- run test:studio-ui
+npm exec --yes pnpm@10.32.1 -- run typecheck
+git diff --check
+```
+
+`npm exec --yes pnpm@10.32.1 -- --filter @station/web build` compiled,
+linted/typechecked, collected page data, and generated 31 static pages, then
+failed only during the known local Windows standalone symlink `EPERM`.

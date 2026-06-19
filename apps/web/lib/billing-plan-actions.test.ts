@@ -1,6 +1,8 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import {
+  billingPlanActionDetail,
+  billingPlanActionLabel,
   billingPlanAction,
   checkoutTierFor,
   isActiveSubscriptionStatus,
@@ -25,4 +27,22 @@ test("billing plan actions keep different tiers on upgrade behavior", () => {
   assert.equal(checkoutTierFor("private"), "private");
   assert.equal(checkoutTierFor("visitor"), null);
   assert.equal(checkoutTierFor("institutional"), null);
+});
+
+test("billing plan actions avoid upgrade copy for lower-tier cards", () => {
+  assert.equal(billingPlanAction({ currentTier: "canon", planTier: "private", subscriptionStatus: "active" }), "included");
+  assert.equal(billingPlanAction({ currentTier: "canon", planTier: "creator", subscriptionStatus: "active" }), "included");
+  assert.equal(billingPlanAction({ currentTier: "canon", planTier: "private", subscriptionStatus: "inactive" }), "lower-tier");
+  assert.equal(billingPlanAction({ currentTier: "institutional", planTier: "canon", subscriptionStatus: "active" }), "included");
+});
+
+test("billing plan action labels explain checkout, portal, and read-only states", () => {
+  assert.equal(billingPlanActionLabel("current", "Creator", "GBP 100"), "Current plan");
+  assert.equal(billingPlanActionLabel("activate", "Canon", "GBP 250"), "Activate Canon");
+  assert.equal(billingPlanActionLabel("included", "Basic", "GBP 10"), "Included in current plan");
+  assert.equal(billingPlanActionLabel("lower-tier", "Basic", "GBP 10"), "Lower-tier option");
+  assert.equal(billingPlanActionLabel("upgrade", "Creator", "GBP 100"), "Upgrade - GBP 100/mo");
+  assert.match(billingPlanActionDetail("included"), /already includes/);
+  assert.match(billingPlanActionDetail("lower-tier"), /Stripe portal/);
+  assert.match(billingPlanActionDetail("upgrade"), /Checkout/);
 });
