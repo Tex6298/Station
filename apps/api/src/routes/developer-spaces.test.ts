@@ -676,6 +676,21 @@ test("Developer Spaces smoke covers creation, keying, ingestion, and public/owne
       },
     });
     assert.equal(rejectedLargePayload.status, 400);
+    assert.equal(rejectedLargePayload.body.code, "developer_space_validation_failed");
+    assert.equal(rejectedLargePayload.body.category, "validation");
+    assert.equal(typeof rejectedLargePayload.body.details.fieldErrors.eventData[0], "string");
+
+    const missingKey = await requestJson(app, "POST", "/developer-spaces/ingest/events", {
+      body: {
+        eventType: "missing.key",
+      },
+    });
+    assert.equal(missingKey.status, 401);
+    assert.deepEqual(missingKey.body, {
+      error: "Missing Developer Space API key.",
+      code: "developer_space_key_missing",
+      category: "auth",
+    });
 
     const privateEvent = await requestJson(app, "POST", "/developer-spaces/ingest/events", {
       developerKey: apiKeyResponse.body.apiKey,
@@ -1010,6 +1025,7 @@ test("Developer Spaces smoke covers creation, keying, ingestion, and public/owne
     });
     assert.equal(quotaBlocked.status, 429);
     assert.equal(quotaBlocked.body.code, "quota_exceeded");
+    assert.equal(quotaBlocked.body.category, "quota");
     assert.equal(quotaBlocked.body.resource, "developer_space_events");
     assert.equal(quotaBlocked.body.limit, 100000);
     assert.equal(quotaBlocked.body.used, 100000);
@@ -1043,6 +1059,8 @@ test("Developer Spaces smoke covers creation, keying, ingestion, and public/owne
       },
     });
     assert.equal(oldKeyBlocked.status, 401);
+    assert.equal(oldKeyBlocked.body.code, "developer_space_key_invalid");
+    assert.equal(oldKeyBlocked.body.category, "auth");
 
     const revoked = await requestJson(app, "POST", `/developer-spaces/${spaceId}/api-key/revoke`, {
       token: "owner-token",
@@ -1059,6 +1077,8 @@ test("Developer Spaces smoke covers creation, keying, ingestion, and public/owne
       },
     });
     assert.equal(revokedKeyBlocked.status, 401);
+    assert.equal(revokedKeyBlocked.body.code, "developer_space_key_invalid");
+    assert.equal(revokedKeyBlocked.body.category, "auth");
 
     db.tables.developer_spaces[0].visibility = "private";
     const blockedPrivateStream = await requestText(app, "GET", "/developer-spaces/animus-field/stream?once=1");

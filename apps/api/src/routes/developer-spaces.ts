@@ -71,6 +71,43 @@ const OPENAI_COMPATIBLE_ROLLBACK_PROFILE = {
   status: "paid_or_rollback_assumption",
 };
 
+type IngestionErrorCategory = "auth" | "validation" | "quota" | "server";
+
+function ingestionErrorBody(input: {
+  error: string;
+  code: string;
+  category: IngestionErrorCategory;
+  details?: unknown;
+}) {
+  return {
+    error: input.error,
+    code: input.code,
+    category: input.category,
+    ...(input.details !== undefined ? { details: input.details } : {}),
+  };
+}
+
+function ingestionAuthError(code: "developer_space_key_missing" | "developer_space_key_invalid", error: string) {
+  return ingestionErrorBody({ error, code, category: "auth" });
+}
+
+function ingestionValidationError(error: z.ZodError) {
+  return ingestionErrorBody({
+    error: "Developer Space ingestion payload failed validation.",
+    code: "developer_space_validation_failed",
+    category: "validation",
+    details: error.flatten(),
+  });
+}
+
+function ingestionServerError(error: string) {
+  return ingestionErrorBody({
+    error,
+    code: "developer_space_server_error",
+    category: "server",
+  });
+}
+
 function jsonDepth(value: unknown, depth = 0): number {
   if (!value || typeof value !== "object") return depth;
   if (depth > MAX_JSON_DEPTH) return depth;
@@ -176,7 +213,10 @@ export const developerSpacesRouter = Router();
 async function loadSpaceForIngestion(req: any, res: any) {
   const rawKey = extractDeveloperApiKey(req.headers["x-station-developer-key"] ?? req.headers.authorization);
   if (!rawKey) {
-    res.status(401).json({ error: "Missing Developer Space API key." });
+    res.status(401).json(ingestionAuthError(
+      "developer_space_key_missing",
+      "Missing Developer Space API key.",
+    ));
     return null;
   }
 
@@ -203,7 +243,10 @@ async function loadSpaceForIngestion(req: any, res: any) {
       .single();
 
     if (keyedSpaceError || !keyedSpace) {
-      res.status(401).json({ error: "Invalid Developer Space API key." });
+      res.status(401).json(ingestionAuthError(
+        "developer_space_key_invalid",
+        "Invalid Developer Space API key.",
+      ));
       return null;
     }
 
@@ -217,7 +260,10 @@ async function loadSpaceForIngestion(req: any, res: any) {
     .single();
 
   if (error || !data) {
-    res.status(401).json({ error: "Invalid Developer Space API key." });
+    res.status(401).json(ingestionAuthError(
+      "developer_space_key_invalid",
+      "Invalid Developer Space API key.",
+    ));
     return null;
   }
 
@@ -254,7 +300,10 @@ async function enforceUsageQuota(
   } catch (error) {
     const quotaError = quotaErrorResponse(error);
     if (quotaError) {
-      res.status(quotaError.status).json(quotaError.body);
+      res.status(quotaError.status).json({
+        ...quotaError.body,
+        category: "quota",
+      });
       return false;
     }
     throw error;
@@ -614,7 +663,7 @@ developerSpacesRouter.post("/ingest/nodes/:nodeId/state", async (req, res) => {
   if (!space) return;
 
   const parsed = nodeStateSchema.safeParse(req.body);
-  if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
+  if (!parsed.success) return res.status(400).json(ingestionValidationError(parsed.error));
 
   const sb = getSupabaseAdmin();
   const now = new Date().toISOString();
@@ -642,7 +691,7 @@ developerSpacesRouter.post("/ingest/nodes/:nodeId/state", async (req, res) => {
     .select("*")
     .single();
 
-  if (nodeError || !node) return res.status(500).json({ error: nodeError?.message ?? "Could not upsert node." });
+  if (nodeError || !node) return res.status(500).json(ingestionServerError("Could not upsert node."));
 
   await sb.from("developer_space_events").insert({
     developer_space_id: space.id,
@@ -678,7 +727,7 @@ developerSpacesRouter.post("/ingest/events", async (req, res) => {
   if (!space) return;
 
   const parsed = eventSchema.safeParse(req.body);
-  if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
+  if (!parsed.success) return res.status(400).json(ingestionValidationError(parsed.error));
   const usageDelta = {
     events: 1,
     storageBytes: estimateDeveloperSpaceStorageBytes(req.body),
@@ -706,7 +755,7 @@ developerSpacesRouter.post("/ingest/events", async (req, res) => {
     .select("*")
     .single();
 
-  if (error || !data) return res.status(500).json({ error: error?.message ?? "Could not ingest event." });
+  if (error || !data) return res.status(500).json(ingestionServerError("Could not ingest event."));
 
   if (node) {
     await sb
@@ -730,7 +779,7 @@ developerSpacesRouter.post("/ingest/snapshots", async (req, res) => {
   if (!space) return;
 
   const parsed = snapshotSchema.safeParse(req.body);
-  if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
+  if (!parsed.success) return res.status(400).json(ingestionValidationError(parsed.error));
   const usageDelta = {
     snapshots: 1,
     storageBytes: estimateDeveloperSpaceStorageBytes(req.body),
@@ -751,7 +800,7 @@ developerSpacesRouter.post("/ingest/snapshots", async (req, res) => {
     .select("*")
     .single();
 
-  if (error || !data) return res.status(500).json({ error: error?.message ?? "Could not ingest snapshot." });
+  if (error || !data) return res.status(500).json(ingestionServerError("Could not ingest snapshot."));
   await recordUsageSilently(space, usageDelta);
   broadcastDeveloperSpaceIngestion({
     slug: space.slug,
@@ -766,7 +815,7 @@ developerSpacesRouter.post("/ingest/import", async (req, res) => {
   if (!space) return;
 
   const parsed = batchImportSchema.safeParse(req.body);
-  if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
+  if (!parsed.success) return res.status(400).json(ingestionValidationError(parsed.error));
   const usageDelta = {
     nodes: parsed.data.nodes.length,
     events: parsed.data.events.length,
@@ -795,7 +844,7 @@ developerSpacesRouter.post("/ingest/import", async (req, res) => {
       }, { onConflict: "developer_space_id,external_id" })
       .select("*")
       .single();
-    if (error) return res.status(500).json({ error: error.message });
+    if (error) return res.status(500).json(ingestionServerError("Could not import Developer Space node."));
     nodes.push(node);
   }
 
@@ -828,12 +877,12 @@ developerSpacesRouter.post("/ingest/import", async (req, res) => {
 
   if (eventsPayload.length > 0) {
     const { error } = await sb.from("developer_space_events").insert(eventsPayload);
-    if (error) return res.status(500).json({ error: error.message });
+    if (error) return res.status(500).json(ingestionServerError("Could not import Developer Space events."));
   }
 
   if (snapshotsPayload.length > 0) {
     const { error } = await sb.from("developer_space_snapshots").insert(snapshotsPayload);
-    if (error) return res.status(500).json({ error: error.message });
+    if (error) return res.status(500).json(ingestionServerError("Could not import Developer Space snapshots."));
   }
 
   await recordUsageSilently(space, usageDelta);

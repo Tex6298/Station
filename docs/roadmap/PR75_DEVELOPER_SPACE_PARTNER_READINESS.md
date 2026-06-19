@@ -4,7 +4,7 @@ Date opened: 2026-06-19
 Opened by: A1 / MIMIR
 Owner: DAEDALUS first, ARGUS reviews. ARIADNE rehearses only if visible
 Developer Space route behavior changes.
-Status: open
+Status: implemented by DAEDALUS; ready for ARGUS review
 
 ## Why This Lane
 
@@ -134,3 +134,64 @@ DAEDALUS must wake ARGUS with:
 
 If DAEDALUS cannot choose a narrow implementation safely, wake MIMIR with the
 blocker before sleeping. Do not stop silently.
+
+## DAEDALUS implementation - 2026-06-19
+
+Implemented the smallest partner-readiness slice from the current evidence:
+machine-readable ingestion failures plus client/docs readback.
+
+Changed behavior:
+
+- ingestion auth failures now keep the existing human `error` string and add
+  `code` plus `category: "auth"`;
+- ingestion validation failures now return
+  `code: "developer_space_validation_failed"`,
+  `category: "validation"`, and Zod-flattened `details`;
+- Developer Space quota failures keep the existing `code: "quota_exceeded"`,
+  `resource`, `limit`, `used`, and optional `retryAfter`, and now add
+  `category: "quota"`;
+- unexpected ingestion write failures now return a generic
+  `category: "server"` response without echoing raw payloads or database error
+  text;
+- `@station/developer-space-client` exposes `DeveloperSpaceClientError.code`,
+  `category`, `resource`, and `retryAfter` so partner code can branch without
+  parsing `body`;
+- the client README and integration note document node state, events,
+  snapshots, batch import, error categories, quota semantics, and the current
+  absence of a distinct short-window ingestion-key request rate limit.
+
+No rate limiter was added. The existing operational cache supports general
+rate-limit storage, but this slice did not add a new request-window policy or
+claim one exists. Quota/limit behavior remains the durable
+`developer_space_usage` path.
+
+Files changed:
+
+- `apps/api/src/routes/developer-spaces.ts`
+- `apps/api/src/routes/developer-spaces.test.ts`
+- `packages/developer-space-client/src/index.ts`
+- `packages/developer-space-client/src/index.test.ts`
+- `packages/developer-space-client/README.md`
+- `docs/integration/intelhub-to-station-developer-spaces.md`
+- `docs/roadmap/PR75_DEVELOPER_SPACE_PARTNER_READINESS.md`
+- `docs/roadmap/ACTIVE_STATUS.md`
+- `docs/testing/VALIDATION_BASELINE.md`
+
+Validation:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 13 tests passed; ingestion auth, validation, quota, public-safe serialization, owner raw detail, SSE, usage, key rotation, and revocation stayed covered. |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-space-client` | Pass | 4 tests passed; client structured error fields cover auth, quota, and fallback server categories. |
+| `npm exec --yes pnpm@10.32.1 -- run test:health` | Pass | 16 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API typecheck ran; web typecheck replayed from cache. |
+| `git diff --check` | Pass | CRLF normalization warnings only for touched files and local triad state. |
+
+Non-scope:
+
+- No hosted runtime, container execution, scheduler, worker, Cloudflare,
+  Vectorize, NESTstack, retrieval route, Redis memory truth, new persistent
+  rate-limit table, Project/DexOS expansion, institutional collaboration,
+  billing, provider/model work, parser/OAuth, public persona expansion, raw
+  public payload expansion, secret logging, broad UI, or visible Developer
+  Space route behavior changed.

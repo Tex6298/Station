@@ -72,6 +72,50 @@ The customer experience should feel like:
 
 That is the shortest path from “I built something strange and alive elsewhere” to “it has a permanent, beautiful Station home.”
 
+## Current ingestion contract
+
+The current protected-alpha integration seam is the Express API under
+`/developer-spaces/ingest/*`. Partners can send:
+
+- node state updates:
+  `POST /developer-spaces/ingest/nodes/:nodeId/state`
+- event stream entries:
+  `POST /developer-spaces/ingest/events`
+- periodic snapshots:
+  `POST /developer-spaces/ingest/snapshots`
+- batch imports:
+  `POST /developer-spaces/ingest/import`
+
+All ingestion requests require `X-Station-Developer-Key` or an equivalent
+Bearer key. Keep the key server-side.
+
+Failed ingestion responses keep a human `error` message and include
+machine-readable fields:
+
+```json
+{
+  "error": "Developer Space ingestion payload failed validation.",
+  "code": "developer_space_validation_failed",
+  "category": "validation",
+  "details": {}
+}
+```
+
+Current categories are:
+
+| Category | Typical status | Meaning |
+| --- | --- | --- |
+| `auth` | `401` | Missing, invalid, or revoked ingestion key. |
+| `validation` | `400` | Payload shape, JSON size, or JSON depth failed validation. |
+| `quota` | `429` | Durable Developer Space usage quota exceeded. |
+| `server` | `500` | Unexpected Station API failure. |
+
+Quota failures include `resource`, `limit`, `used`, and `retryAfter` when the
+server can provide them. Station does not currently implement a distinct
+short-window ingestion-key request rate limit; docs and client code should not
+claim rate limiting until a future route returns a specific `rate_limit`
+category.
+
 ## Follow-up patches
 
 This list is no longer a separate queue. Its accepted work is folded into

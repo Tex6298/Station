@@ -46,15 +46,45 @@ export interface DeveloperSpaceBatchImportPayload {
   snapshots?: DeveloperSpaceSnapshotPayload[];
 }
 
+export type DeveloperSpaceClientErrorCategory =
+  | "auth"
+  | "validation"
+  | "quota"
+  | "rate_limit"
+  | "server"
+  | "unknown";
+
+export interface DeveloperSpaceErrorBody {
+  error?: string;
+  code?: string;
+  category?: DeveloperSpaceClientErrorCategory;
+  resource?: string;
+  limit?: number;
+  used?: number;
+  retryAfter?: number;
+  details?: unknown;
+}
+
 export class DeveloperSpaceClientError extends Error {
   readonly status: number;
   readonly body: unknown;
+  readonly code: string;
+  readonly category: DeveloperSpaceClientErrorCategory;
+  readonly resource?: string;
+  readonly retryAfter?: number;
 
   constructor(message: string, status: number, body: unknown) {
     super(message);
     this.name = "DeveloperSpaceClientError";
     this.status = status;
     this.body = body;
+    const structured = isStructuredErrorBody(body) ? body : {};
+    this.category = normaliseErrorCategory(status, structured);
+    this.code = typeof structured.code === "string" && structured.code.length > 0
+      ? structured.code
+      : this.category;
+    this.resource = typeof structured.resource === "string" ? structured.resource : undefined;
+    this.retryAfter = typeof structured.retryAfter === "number" ? structured.retryAfter : undefined;
   }
 }
 
@@ -109,8 +139,9 @@ export class DeveloperSpaceClient {
     const text = await response.text();
     const body = text ? safeJson(text) : null;
     if (!response.ok) {
-      const message = typeof body === "object" && body && "error" in body
-        ? String((body as { error?: unknown }).error)
+      const structured = isStructuredErrorBody(body) ? body : null;
+      const message = typeof structured?.error === "string"
+        ? structured.error
         : `Developer Space request failed with ${response.status}.`;
       throw new DeveloperSpaceClientError(message, response.status, body);
     }
@@ -129,4 +160,20 @@ function safeJson(text: string): unknown {
   } catch {
     return text;
   }
+}
+
+function isStructuredErrorBody(body: unknown): body is DeveloperSpaceErrorBody {
+  return typeof body === "object" && body !== null;
+}
+
+function normaliseErrorCategory(
+  status: number,
+  body: DeveloperSpaceErrorBody,
+): DeveloperSpaceClientErrorCategory {
+  if (body.category) return body.category;
+  if (status === 401 || status === 403) return "auth";
+  if (status === 400) return "validation";
+  if (status === 429) return "quota";
+  if (status >= 500) return "server";
+  return "unknown";
 }

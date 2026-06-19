@@ -9130,3 +9130,38 @@ ARGUS scope notes:
   billing truth, provider routing, Cloudflare, worker, parser/OAuth,
   Project/DexOS, hosted runtime, broad UI, dark-pattern copy, raw Stripe
   identifiers, or secrets were added.
+
+## PR75 Developer Space Partner Readiness
+
+DAEDALUS implementation validation on 2026-06-19:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 13 tests passed; ingestion auth, validation, quota, public-safe serialization, owner raw detail, SSE, usage, key rotation, and revocation stayed covered. |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-space-client` | Pass | 4 tests passed; client structured error fields cover auth, quota, and fallback server categories. |
+| `npm exec --yes pnpm@10.32.1 -- run test:health` | Pass | 16 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API typecheck ran; web typecheck replayed from cache. |
+| `git diff --check` | Pass | CRLF normalization warnings only for touched files and local triad state. |
+
+Scope notes:
+
+- Chose the small implementation path, not a rate-limit or infrastructure
+  slice.
+- Developer Space ingestion failures now expose stable client-branching fields:
+  `category: "auth"`, `category: "validation"`, `category: "quota"`, and
+  `category: "server"` with specific codes where useful.
+- Quota failures preserve the existing `quota_exceeded` response fields and add
+  the category only; durable usage/quota truth remains `developer_space_usage`.
+- Unexpected ingestion write failures no longer echo database error text or raw
+  payload values.
+- `@station/developer-space-client` exposes `DeveloperSpaceClientError.code`,
+  `category`, `resource`, and `retryAfter`.
+- Partner docs now describe node state, events, snapshots, batch import, error
+  categories, quota behavior, and the fact that Station does not yet expose a
+  distinct short-window ingestion-key request rate limit.
+- No hosted runtime, container execution, scheduler, worker, Cloudflare,
+  Vectorize, NESTstack, retrieval route, Redis memory truth, new persistent
+  rate-limit table, Project/DexOS expansion, institutional collaboration,
+  billing, provider/model work, parser/OAuth, public persona expansion, raw
+  public payload expansion, secret logging, broad UI, or visible Developer
+  Space route behavior changed.

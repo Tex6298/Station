@@ -6537,6 +6537,25 @@ when a PR lands, or when validation truth changes.
   guesswork. No hosted runtime, Cloudflare/Vectorize/NESTstack, Redis memory
   truth, broad Project/DexOS/institutional collaboration, billing, provider,
   parser/OAuth, public persona, raw public payload, or broad UI scope is open.
+- DAEDALUS implements PR75 Developer Space Partner Readiness Follow-Up on
+  2026-06-19 as the narrow machine-readable ingestion error and partner-docs
+  slice. Ingestion auth failures now add `code` and `category: "auth"`;
+  validation failures return `code: "developer_space_validation_failed"`,
+  `category: "validation"`, and flattened details; quota failures keep
+  `code: "quota_exceeded"`, `resource`, `limit`, `used`, and optional
+  `retryAfter` while adding `category: "quota"`; unexpected ingestion write
+  failures use a generic `category: "server"` response without echoing raw
+  payloads or database error text. The Developer Space client now exposes
+  `DeveloperSpaceClientError.code`, `category`, `resource`, and `retryAfter`,
+  and the client/integration docs name node state, events, snapshots, batch
+  import, error categories, quota semantics, and the current absence of a
+  separate short-window ingestion-key request rate limit. Validation passed
+  `test:developer-spaces`, `test:developer-space-client`, `test:health`,
+  `typecheck`, and `git diff --check`. No hosted runtime, Cloudflare/Vectorize,
+  Redis memory truth, new persistent rate-limit table, Project/DexOS,
+  institutional collaboration, billing, provider, parser/OAuth, public persona,
+  raw public payload, secret logging, broad UI, or visible Developer Space route
+  behavior changed. Ready for ARGUS review.
 
 ## Near-term rule
 

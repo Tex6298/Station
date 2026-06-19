@@ -15,7 +15,10 @@ pnpm --filter @station/developer-space-client build
 ## Node example
 
 ```ts
-import { createDeveloperSpaceClient } from "@station/developer-space-client";
+import {
+  createDeveloperSpaceClient,
+  DeveloperSpaceClientError,
+} from "@station/developer-space-client";
 
 const station = createDeveloperSpaceClient({
   baseUrl: process.env.STATION_API_URL ?? "http://localhost:4000",
@@ -47,6 +50,45 @@ await station.recordSnapshot({
 ```
 
 See `examples/node-ingest.ts` for a complete local example.
+
+## Error handling
+
+Failed ingestion calls throw `DeveloperSpaceClientError`. Branch on `category`
+and `code` rather than parsing the human message:
+
+```ts
+try {
+  await station.recordEvent({ eventType: "fragment_absorbed" });
+} catch (error) {
+  if (error instanceof DeveloperSpaceClientError) {
+    if (error.category === "auth") {
+      // Missing, invalid, or revoked Developer Space key.
+    }
+    if (error.category === "validation") {
+      // Inspect error.body.details for field-level validation messages.
+    }
+    if (error.category === "quota") {
+      // error.resource, error.retryAfter, and error.body limit/used are available when present.
+    }
+    if (error.category === "server") {
+      // Unexpected Station API failure. Retry cautiously and keep raw payloads out of logs.
+    }
+  }
+}
+```
+
+Current ingestion responses use these categories:
+
+| Category | Typical status | Notes |
+| --- | --- | --- |
+| `auth` | `401` | Missing, invalid, or revoked ingestion key. |
+| `validation` | `400` | Payload shape, JSON size, or JSON depth failed validation. |
+| `quota` | `429` | Developer Space node/event/snapshot/storage quota was exceeded. |
+| `server` | `500` | Unexpected API or database failure. |
+
+Station does not currently expose a separate ingestion-key request rate limit.
+Quota errors are durable usage limits; do not treat them as short-window request
+throttles unless a future response explicitly uses `category: "rate_limit"`.
 
 ## Curl equivalents
 

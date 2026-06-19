@@ -41,7 +41,11 @@ test("client throws structured errors for failed ingestion responses", async () 
     baseUrl: "https://station.example",
     apiKey: "station_dev_test",
     fetch: (async () =>
-      new Response(JSON.stringify({ error: "Invalid Developer Space API key." }), { status: 401 })) as typeof fetch,
+      new Response(JSON.stringify({
+        error: "Invalid Developer Space API key.",
+        code: "developer_space_key_invalid",
+        category: "auth",
+      }), { status: 401 })) as typeof fetch,
   });
 
   await assert.rejects(
@@ -51,8 +55,61 @@ test("client throws structured errors for failed ingestion responses", async () 
       assert.equal((error as DeveloperSpaceClientError).status, 401);
       assert.deepEqual((error as DeveloperSpaceClientError).body, {
         error: "Invalid Developer Space API key.",
+        code: "developer_space_key_invalid",
+        category: "auth",
       });
+      assert.equal((error as DeveloperSpaceClientError).code, "developer_space_key_invalid");
+      assert.equal((error as DeveloperSpaceClientError).category, "auth");
       assert.equal(error.message, "Invalid Developer Space API key.");
+      return true;
+    },
+  );
+});
+
+test("client exposes quota and fallback error categories", async () => {
+  const quotaClient = createDeveloperSpaceClient({
+    baseUrl: "https://station.example",
+    apiKey: "station_dev_test",
+    fetch: (async () =>
+      new Response(JSON.stringify({
+        error: "Developer Space event quota exceeded.",
+        code: "quota_exceeded",
+        category: "quota",
+        resource: "developer_space_events",
+        limit: 100000,
+        used: 100000,
+        retryAfter: 60,
+      }), { status: 429 })) as typeof fetch,
+  });
+
+  await assert.rejects(
+    () => quotaClient.recordEvent({ eventType: "signal.detected" }),
+    (error) => {
+      const clientError = error as DeveloperSpaceClientError;
+      assert.equal(clientError.status, 429);
+      assert.equal(clientError.code, "quota_exceeded");
+      assert.equal(clientError.category, "quota");
+      assert.equal(clientError.resource, "developer_space_events");
+      assert.equal(clientError.retryAfter, 60);
+      return true;
+    },
+  );
+
+  const fallbackClient = createDeveloperSpaceClient({
+    baseUrl: "https://station.example",
+    apiKey: "station_dev_test",
+    fetch: (async () =>
+      new Response("upstream unavailable", { status: 503 })) as typeof fetch,
+  });
+
+  await assert.rejects(
+    () => fallbackClient.recordSnapshot({ snapshotData: { summary: "test" } }),
+    (error) => {
+      const clientError = error as DeveloperSpaceClientError;
+      assert.equal(clientError.status, 503);
+      assert.equal(clientError.code, "server");
+      assert.equal(clientError.category, "server");
+      assert.equal(clientError.message, "Developer Space request failed with 503.");
       return true;
     },
   );
