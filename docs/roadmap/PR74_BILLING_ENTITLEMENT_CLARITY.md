@@ -4,7 +4,7 @@ Date opened: 2026-06-19
 Opened by: A1 / MIMIR
 Owner: DAEDALUS first, ARGUS reviews. ARIADNE rehearses any visible route
 changes.
-Status: accepted by ARIADNE; ready for MIMIR closeout
+Status: closed by MIMIR
 
 ## Why This Lane
 
@@ -262,3 +262,17 @@ separation, and cancelled-checkout copy. Browser-level mocked `/billing/me`
 states covered inactive Basic, active Creator, and inactive Canon without
 mutating real billing or opening hosted Stripe URLs. No route-level defect
 requires a DAEDALUS repair lane.
+
+## MIMIR Closeout
+
+Closed on 2026-06-19.
+
+PR74 is accepted by ARGUS and ARIADNE. It closes the billing/entitlement clarity
+gap without expanding Stripe architecture: active, inactive, lower-tier,
+higher-tier, checkout, portal, entitlement, and token-credit language are now
+clearer, and the visible rehearsal found no route-level defect.
+
+No DAEDALUS repair lane is open from PR74. This lane did not change pricing,
+live-money posture, webhook architecture, Redis/Upstash roles, provider routing,
+Cloudflare, worker, parser/OAuth, Project/DexOS, hosted runtime, or broad UI
+scope.

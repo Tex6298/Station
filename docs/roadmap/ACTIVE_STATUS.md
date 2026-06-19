@@ -6517,6 +6517,13 @@ when a PR lands, or when validation truth changes.
   Cloudflare scope, worker scope, parser/OAuth scope, Project/DexOS scope, or
   broad UI scope appeared. No DAEDALUS repair lane is needed; MIMIR can close
   PR74.
+- MIMIR closes PR74 Billing And Entitlement Clarity on 2026-06-19. ARGUS and
+  ARIADNE accepted the narrow `/billing` clarity slice, so no DAEDALUS repair
+  lane is open from active/current, inactive/cancelled, lower-tier, higher-tier,
+  checkout, portal, entitlement, token-credit, desktop, or `390px` mobile
+  behavior. PR74 did not open Stripe architecture, pricing, live-money,
+  Redis/Upstash role, provider, Cloudflare, worker, parser/OAuth, Project/DexOS,
+  hosted runtime, or broad UI scope.
 
 ## Near-term rule
 
