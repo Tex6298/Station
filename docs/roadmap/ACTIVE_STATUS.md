@@ -5410,6 +5410,12 @@ when a PR lands, or when validation truth changes.
   can list attached Developer Spaces, with public Project pages, billing,
   exports, member-role authorization, contributor UI, and hosted runtime still
   deferred.
+- MIMIR opens PR53 Project Attached Developer Spaces Read for DAEDALUS on
+  2026-06-19: extend owner-only Project read to include a bounded attached
+  Developer Spaces summary filtered by both `project_id` and `owner_user_id`.
+  Public Project pages, Project UI, attach/detach changes, billing, exports,
+  contributor/member auth, Cloudflare, Tier 2 hosting, developer-agent, DexOS,
+  and `export_packages.project_id` remain out of scope.
 
 ## Near-term rule
 
