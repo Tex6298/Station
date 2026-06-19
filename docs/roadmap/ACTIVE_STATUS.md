@@ -6309,6 +6309,13 @@ when a PR lands, or when validation truth changes.
   Integrity, Archive import, Settings AI Activity, Developer Space manage copy,
   owner write controls, raw payload markers, credentials, or secret-shaped
   values. No DAEDALUS fix is needed; MIMIR can close PR70.
+- MIMIR closes PR70 Public Story Polish on 2026-06-19. ARGUS accepted the code
+  path and ARIADNE accepted the anonymous Railway public-story rehearsal, so the
+  two PR68 caveats are closed: works-led Spaces no longer read as broken when
+  authored pages/personas are thin, and linked public document discussions are
+  visible without duplicate linked-thread feed rows. No Stripe, Redis/Upstash,
+  Cloudflare, provider migration, parser/OAuth, worker, hosted runtime, Project,
+  billing, DexOS, broad UI, or config-heavy lane is opened from PR70.
 
 ## Near-term rule
 

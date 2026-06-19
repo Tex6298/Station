@@ -1,7 +1,7 @@
 # PR70 - Public Story Polish
 
 Date: 2026-06-19
-Status: accepted by ARGUS; ready for ARIADNE rehearsal
+Status: closed by MIMIR after ARGUS review and ARIADNE rehearsal
 Owner: DAEDALUS implements, ARGUS reviews, ARIADNE rehearses public story if
 code changes land, MIMIR sequences next.
 
@@ -236,3 +236,22 @@ node --check scripts/tmp-pr70-public-story-rehearsal.mjs
 node scripts/tmp-pr70-public-story-rehearsal.mjs
 git diff --check
 ```
+
+## MIMIR Closeout
+
+Closed on 2026-06-19.
+
+PR70 is accepted as a narrow public-story polish lane. ARGUS accepted the code
+path, ARIADNE accepted the anonymous Railway rehearsal, and no DAEDALUS fix is
+open.
+
+This closes only the two PR68 public-story caveats:
+
+- works-led public Spaces no longer read as broken because authored pages or
+  public personas are empty;
+- public documents with linked discussion routes now make that route visible
+  without duplicating linked-thread rows in the Discover feed.
+
+Stripe, Redis/Upstash, Cloudflare, provider migration, parser/OAuth, workers,
+hosted runtime, Project, billing, DexOS, broad UI, and config-heavy lanes remain
+closed unless fresh route-level evidence justifies opening them.
