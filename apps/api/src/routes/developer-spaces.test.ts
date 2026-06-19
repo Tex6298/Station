@@ -5,6 +5,12 @@ import test from "node:test";
 import express, { type Express } from "express";
 import { setSupabaseAdminForTests } from "../lib/supabase";
 import { hashDeveloperSpaceApiKey } from "../services/developer-space.service";
+import {
+  DisabledOperationalCacheProvider,
+  resetOperationalCacheProviderForTests,
+  setOperationalCacheProviderForTests,
+  type OperationalCacheProvider,
+} from "../services/operational-cache.service";
 import { developerSpacesRouter } from "./developer-spaces";
 
 process.env.NODE_ENV = "test";
@@ -434,6 +440,38 @@ function close(server: Server) {
   });
 }
 
+class TestRateLimitProvider implements OperationalCacheProvider {
+  readonly enabled = true;
+  readonly kind = "test" as const;
+  readonly values = new Map<string, unknown>();
+  readonly ttls = new Map<string, number>();
+
+  get keys() {
+    return [...this.values.keys()];
+  }
+
+  async getJson<T>(key: string): Promise<T | null> {
+    return this.values.has(key) ? this.values.get(key) as T : null;
+  }
+
+  async setJson(key: string, value: unknown, ttlSeconds: number) {
+    this.values.set(key, value);
+    this.ttls.set(key, ttlSeconds);
+  }
+
+  async increment(key: string, ttlSeconds: number) {
+    const next = Number(this.values.get(key) ?? 0) + 1;
+    this.values.set(key, next);
+    if (!this.ttls.has(key)) this.ttls.set(key, ttlSeconds);
+    return next;
+  }
+
+  async deleteKeys(keys: string[]) {
+    for (const key of keys) this.values.delete(key);
+    return keys.length;
+  }
+}
+
 test("Developer Space provider policy blocks private archive context unless explicitly allowed", async () => {
   const db = new InMemorySupabase();
   setSupabaseAdminForTests(db.client as any);
@@ -586,6 +624,7 @@ test("Developer Space provider policy blocks private archive context unless expl
 test("Developer Spaces smoke covers creation, keying, ingestion, and public/owner reads", async () => {
   const db = new InMemorySupabase();
   setSupabaseAdminForTests(db.client as any);
+  setOperationalCacheProviderForTests(new DisabledOperationalCacheProvider("test_disabled"));
   const app = createDeveloperSpacesApp();
 
   try {
@@ -1157,6 +1196,81 @@ test("Developer Space project attachment is owner-only and syncs usage project i
     assert.equal(db.tables.developer_space_usage[0].project_id, null);
   } finally {
     setSupabaseAdminForTests(null);
+    resetOperationalCacheProviderForTests();
+  }
+});
+
+test("Developer Space ingestion rate limit is cache-backed and machine-readable", async () => {
+  const db = new InMemorySupabase();
+  const rateLimitProvider = new TestRateLimitProvider();
+  setSupabaseAdminForTests(db.client as any);
+  setOperationalCacheProviderForTests(rateLimitProvider);
+  const previousLimit = process.env.DEVELOPER_SPACE_INGEST_RATE_LIMIT_PER_MINUTE;
+  const previousWindow = process.env.DEVELOPER_SPACE_INGEST_RATE_LIMIT_WINDOW_SECONDS;
+  process.env.DEVELOPER_SPACE_INGEST_RATE_LIMIT_PER_MINUTE = "2";
+  process.env.DEVELOPER_SPACE_INGEST_RATE_LIMIT_WINDOW_SECONDS = "60";
+  const app = createDeveloperSpacesApp();
+
+  try {
+    const created = await requestJson(app, "POST", "/developer-spaces", {
+      token: "owner-token",
+      body: {
+        projectName: "Rate Limited Observatory",
+      },
+    });
+    assert.equal(created.status, 201);
+    const apiKeyResponse = await requestJson(app, "POST", `/developer-spaces/${created.body.space.id}/api-key`, {
+      token: "owner-token",
+    });
+    assert.equal(apiKeyResponse.status, 201);
+
+    const first = await requestJson(app, "POST", "/developer-spaces/ingest/events", {
+      developerKey: apiKeyResponse.body.apiKey,
+      body: { eventType: "rate.first" },
+    });
+    const second = await requestJson(app, "POST", "/developer-spaces/ingest/events", {
+      developerKey: apiKeyResponse.body.apiKey,
+      body: { eventType: "rate.second" },
+    });
+    const blocked = await requestJson(app, "POST", "/developer-spaces/ingest/events", {
+      developerKey: apiKeyResponse.body.apiKey,
+      body: {
+        eventType: "rate.third",
+        eventData: { privateToken: "do-not-leak-rate-payload" },
+      },
+    });
+
+    assert.equal(first.status, 202);
+    assert.equal(second.status, 202);
+    assert.equal(blocked.status, 429);
+    assert.deepEqual(blocked.body, {
+      error: "Developer Space ingestion rate limit exceeded.",
+      code: "developer_space_rate_limited",
+      category: "rate_limit",
+      resource: "developer_space_ingest_requests",
+      limit: 2,
+      used: 3,
+      retryAfter: 60,
+    });
+    assert.doesNotMatch(JSON.stringify(blocked.body), /do-not-leak-rate-payload/);
+    assert.equal(db.tables.developer_space_events.length, 2);
+    assert.equal(rateLimitProvider.keys.length, 1);
+    assert.equal(rateLimitProvider.keys[0].includes(apiKeyResponse.body.apiKey), false);
+    assert.equal(rateLimitProvider.keys[0].includes("developer-space:"), true);
+    assert.equal(rateLimitProvider.ttls.get(rateLimitProvider.keys[0]), 60);
+  } finally {
+    if (previousLimit == null) {
+      delete process.env.DEVELOPER_SPACE_INGEST_RATE_LIMIT_PER_MINUTE;
+    } else {
+      process.env.DEVELOPER_SPACE_INGEST_RATE_LIMIT_PER_MINUTE = previousLimit;
+    }
+    if (previousWindow == null) {
+      delete process.env.DEVELOPER_SPACE_INGEST_RATE_LIMIT_WINDOW_SECONDS;
+    } else {
+      process.env.DEVELOPER_SPACE_INGEST_RATE_LIMIT_WINDOW_SECONDS = previousWindow;
+    }
+    setSupabaseAdminForTests(null);
+    resetOperationalCacheProviderForTests();
   }
 });
 

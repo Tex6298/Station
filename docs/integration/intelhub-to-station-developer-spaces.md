@@ -108,13 +108,26 @@ Current categories are:
 | `auth` | `401` | Missing, invalid, or revoked ingestion key. |
 | `validation` | `400` | Payload shape, JSON size, or JSON depth failed validation. |
 | `quota` | `429` | Durable Developer Space usage quota exceeded. |
+| `rate_limit` | `429` | Short-window ingestion request limit exceeded. |
 | `server` | `500` | Unexpected Station API failure. |
 
 Quota failures include `resource`, `limit`, `used`, and `retryAfter` when the
-server can provide them. Station does not currently implement a distinct
-short-window ingestion-key request rate limit; docs and client code should not
-claim rate limiting until a future route returns a specific `rate_limit`
-category.
+server can provide them. Rate-limit failures use
+`code: "developer_space_rate_limited"`, resource
+`developer_space_ingest_requests`, `limit`, `used`, and `retryAfter`.
+
+Station uses two separate limit families:
+
+- `quota` is durable usage accounting for nodes, events, snapshots, storage,
+  public reads, and exports.
+- `rate_limit` is a short request window for authenticated ingestion-key
+  routes. Defaults are 120 requests per 60 seconds, with env overrides
+  `DEVELOPER_SPACE_INGEST_RATE_LIMIT_PER_MINUTE` and
+  `DEVELOPER_SPACE_INGEST_RATE_LIMIT_WINDOW_SECONDS`.
+
+The request-window limiter is active only when the operational-cache provider is
+enabled. Disabled local cache fallback stays explicit and does not pretend
+rate limiting is active.
 
 ## Follow-up patches
 

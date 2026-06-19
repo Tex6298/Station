@@ -9196,3 +9196,42 @@ ARGUS scope notes:
   truth, persistent rate-limit table, Project/DexOS, billing, provider,
   parser/OAuth, public persona, broad UI, or visible Developer Space route
   behavior changed.
+
+## PR76 Developer Space Ingestion Rate Limit
+
+DAEDALUS implementation validation on 2026-06-19:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 14 tests passed, including enabled cache-backed rate-limit response shape and no raw payload/key leakage. |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-space-client` | Pass | 4 tests passed, including `rate_limit` client error readback. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/services/operational-cache.service.test.ts` | Pass | 5 tests passed, including disabled fallback and scoped counter behavior. |
+| `npm exec --yes pnpm@10.32.1 -- run test:health` | Pass | 16 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API typecheck ran; web typecheck replayed from cache. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/developer-space-client build` | Pass | TypeScript package build completed. |
+| `git diff --check` | Pass | CRLF normalization warnings only for touched files and local triad state. |
+
+Scope notes:
+
+- Added `incrementOperationalRateLimit` to the operational-cache boundary.
+- Upstash REST counters use `INCR` and set expiry with `EXPIRE` when the
+  counter is first created.
+- Disabled-cache fallback is explicit and allows requests without claiming the
+  request-window limiter is active.
+- Developer Space ingestion applies rate limiting after key authentication and
+  before parsing/write work.
+- Counter keys use owner, Developer Space, active ingestion-key row id or
+  `legacy-key`, operation `ingest_requests`, and an explicit
+  `developer-space-ingestion` part. Raw ingestion keys are not used in cache
+  keys or responses.
+- Rate-limit responses use `code: "developer_space_rate_limited"`,
+  `category: "rate_limit"`, resource `developer_space_ingest_requests`,
+  `limit`, `used`, and `retryAfter`.
+- Durable `developer_space_usage` quotas remain separate and authoritative for
+  nodes, events, snapshots, storage, public reads, and exports.
+- No Redis memory truth, retrieval cache, queue, worker, BullMQ, QStash,
+  hosted runtime, container execution, Cloudflare/Vectorize/NESTstack, edge
+  route, persistent rate-limit table, billing/pricing/tier redesign,
+  Project/DexOS expansion, institutional collaboration, public payload
+  expansion, raw ingestion key storage, secret logging, broad UI, public
+  serializer expansion, or visible web UI changed.

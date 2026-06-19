@@ -3,7 +3,7 @@
 Date opened: 2026-06-19
 Opened by: A1 / MIMIR
 Owner: DAEDALUS first, ARGUS reviews.
-Status: open
+Status: implemented by DAEDALUS; ready for ARGUS review
 
 ## Why This Lane
 
@@ -147,3 +147,80 @@ DAEDALUS must wake ARGUS with:
 
 If blocked, wake MIMIR instead with the missing primitive or schema change. Do
 not go idle without a wakeup handoff.
+
+## DAEDALUS implementation - 2026-06-19
+
+Implemented the cache-backed request-window limiter without adding persistence
+or promoting Redis/Upstash beyond operational cache.
+
+Limiter behavior:
+
+- `incrementOperationalRateLimit` adds an operational-cache counter primitive
+  scoped through the existing environment/owner/persona/Developer Space key
+  builder.
+- The Upstash REST adapter uses `INCR` and sets expiry with `EXPIRE` when the
+  counter is first created.
+- Disabled/no-provider cache fallback returns `enabled: false` and
+  `allowed: true`, so local disabled-cache behavior is explicit and does not
+  pretend request-window limiting is active.
+- Developer Space ingestion applies the limiter after API-key authentication
+  and before payload parsing or writes.
+- Counters are scoped to owner, Developer Space, operation `ingest_requests`,
+  and active ingestion-key row id. Legacy-key fallback uses `legacy-key` rather
+  than the raw ingestion key.
+- Defaults are 120 authenticated ingestion requests per 60 seconds:
+  `DEVELOPER_SPACE_INGEST_RATE_LIMIT_PER_MINUTE=120`
+  and `DEVELOPER_SPACE_INGEST_RATE_LIMIT_WINDOW_SECONDS=60`.
+
+Response shape:
+
+```json
+{
+  "error": "Developer Space ingestion rate limit exceeded.",
+  "code": "developer_space_rate_limited",
+  "category": "rate_limit",
+  "resource": "developer_space_ingest_requests",
+  "limit": 120,
+  "used": 121,
+  "retryAfter": 60
+}
+```
+
+Durable usage quotas remain separate and authoritative for
+`developer_space_usage` counters: nodes, events, snapshots, storage, public
+reads, and exports. PR75 auth/validation/quota/server categories are preserved.
+
+Files changed:
+
+- `.env.example`
+- `apps/api/src/routes/developer-spaces.ts`
+- `apps/api/src/routes/developer-spaces.test.ts`
+- `apps/api/src/services/operational-cache.service.ts`
+- `apps/api/src/services/operational-cache.service.test.ts`
+- `packages/developer-space-client/src/index.test.ts`
+- `packages/developer-space-client/README.md`
+- `docs/integration/intelhub-to-station-developer-spaces.md`
+- `docs/roadmap/PR76_DEVELOPER_SPACE_INGEST_RATE_LIMIT.md`
+- `docs/roadmap/ACTIVE_STATUS.md`
+- `docs/testing/VALIDATION_BASELINE.md`
+
+Validation:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 14 tests passed, including enabled cache-backed rate-limit response shape and no raw payload/key leakage. |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-space-client` | Pass | 4 tests passed, including `rate_limit` client error readback. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/services/operational-cache.service.test.ts` | Pass | 5 tests passed, including disabled fallback and scoped counter behavior. |
+| `npm exec --yes pnpm@10.32.1 -- run test:health` | Pass | 16 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API typecheck ran; web typecheck replayed from cache. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/developer-space-client build` | Pass | TypeScript package build completed. |
+| `git diff --check` | Pass | CRLF normalization warnings only for touched files and local triad state. |
+
+Non-scope:
+
+- No Redis memory truth, retrieval cache, queue, worker, BullMQ, QStash,
+  hosted runtime, container execution, Cloudflare/Vectorize/NESTstack, edge
+  route, persistent rate-limit table, billing/pricing/tier redesign,
+  Project/DexOS expansion, institutional collaboration, public payload
+  expansion, raw ingestion key storage, secret logging, broad UI, or public
+  serializer expansion.

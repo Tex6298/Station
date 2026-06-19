@@ -70,6 +70,9 @@ try {
     if (error.category === "quota") {
       // error.resource, error.retryAfter, and error.body limit/used are available when present.
     }
+    if (error.category === "rate_limit") {
+      // Wait error.retryAfter seconds before retrying the ingestion request.
+    }
     if (error.category === "server") {
       // Unexpected Station API failure. Retry cautiously and keep raw payloads out of logs.
     }
@@ -84,11 +87,17 @@ Current ingestion responses use these categories:
 | `auth` | `401` | Missing, invalid, or revoked ingestion key. |
 | `validation` | `400` | Payload shape, JSON size, or JSON depth failed validation. |
 | `quota` | `429` | Developer Space node/event/snapshot/storage quota was exceeded. |
+| `rate_limit` | `429` | Short-window ingestion request limit was exceeded. |
 | `server` | `500` | Unexpected API or database failure. |
 
-Station does not currently expose a separate ingestion-key request rate limit.
-Quota errors are durable usage limits; do not treat them as short-window request
-throttles unless a future response explicitly uses `category: "rate_limit"`.
+Station uses two separate limit families:
+
+- `quota` is durable usage accounting for nodes, events, snapshots, storage,
+  public reads, and exports.
+- `rate_limit` is a short request window for ingestion-key routes. By default
+  it is `120` authenticated ingestion requests per `60` seconds when the
+  operational cache provider is enabled. If the cache provider is disabled,
+  Station does not pretend the request-window limiter is active.
 
 ## Curl equivalents
 

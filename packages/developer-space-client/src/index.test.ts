@@ -66,7 +66,7 @@ test("client throws structured errors for failed ingestion responses", async () 
   );
 });
 
-test("client exposes quota and fallback error categories", async () => {
+test("client exposes quota, rate-limit, and fallback error categories", async () => {
   const quotaClient = createDeveloperSpaceClient({
     baseUrl: "https://station.example",
     apiKey: "station_dev_test",
@@ -90,6 +90,34 @@ test("client exposes quota and fallback error categories", async () => {
       assert.equal(clientError.code, "quota_exceeded");
       assert.equal(clientError.category, "quota");
       assert.equal(clientError.resource, "developer_space_events");
+      assert.equal(clientError.retryAfter, 60);
+      return true;
+    },
+  );
+
+  const rateLimitClient = createDeveloperSpaceClient({
+    baseUrl: "https://station.example",
+    apiKey: "station_dev_test",
+    fetch: (async () =>
+      new Response(JSON.stringify({
+        error: "Developer Space ingestion rate limit exceeded.",
+        code: "developer_space_rate_limited",
+        category: "rate_limit",
+        resource: "developer_space_ingest_requests",
+        limit: 120,
+        used: 121,
+        retryAfter: 60,
+      }), { status: 429 })) as typeof fetch,
+  });
+
+  await assert.rejects(
+    () => rateLimitClient.recordEvent({ eventType: "signal.detected" }),
+    (error) => {
+      const clientError = error as DeveloperSpaceClientError;
+      assert.equal(clientError.status, 429);
+      assert.equal(clientError.code, "developer_space_rate_limited");
+      assert.equal(clientError.category, "rate_limit");
+      assert.equal(clientError.resource, "developer_space_ingest_requests");
       assert.equal(clientError.retryAfter, 60);
       return true;
     },

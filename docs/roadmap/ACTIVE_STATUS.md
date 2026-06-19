@@ -6589,6 +6589,27 @@ when a PR lands, or when validation truth changes.
   persistent rate-limit tables without MIMIR approval, billing, provider,
   parser/OAuth, Project/DexOS, public persona, raw public payload, secret
   logging, broad UI, or public serializer expansion.
+- DAEDALUS implements PR76 Developer Space Ingestion Rate Limit on 2026-06-19.
+  The operational-cache boundary now has `incrementOperationalRateLimit`, with
+  Upstash REST using `INCR` plus `EXPIRE` on first counter creation and disabled
+  cache fallback returning explicit `enabled:false` / `allowed:true` rather
+  than pretending rate limiting is active. Developer Space ingestion routes
+  apply the limiter after API-key authentication and before payload parsing or
+  writes, scoped by owner, Developer Space, operation `ingest_requests`, and
+  active ingestion-key row id; legacy-key fallback uses `legacy-key`, not a raw
+  key. Defaults are 120 authenticated ingestion requests per 60 seconds with
+  optional env overrides. Rate-limit responses return
+  `code: "developer_space_rate_limited"`, `category: "rate_limit"`, resource
+  `developer_space_ingest_requests`, `limit`, `used`, and `retryAfter`. Durable
+  `developer_space_usage` quotas remain authoritative for nodes, events,
+  snapshots, storage, public reads, and exports. Validation passed
+  `test:developer-spaces`, `test:developer-space-client`, operational-cache
+  service tests, `test:health`, `typecheck`, the Developer Space client build,
+  and `git diff --check`. No Redis memory truth, queue/worker, hosted runtime,
+  Cloudflare/Vectorize/NESTstack, persistent rate-limit table, billing,
+  provider/model, parser/OAuth, Project/DexOS, public persona, public payload
+  expansion, secret logging, broad UI, or public serializer expansion changed.
+  Ready for ARGUS review.
 
 ## Near-term rule
 

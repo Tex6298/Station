@@ -44,6 +44,7 @@ import {
 } from "../services/developer-space-usage.service";
 import { quotaErrorResponse } from "../services/operational-quota.service";
 import { broadcastDeveloperSpaceIngestion } from "../services/developer-space-live.service";
+import { incrementOperationalRateLimit } from "../services/operational-cache.service";
 
 const visibilitySchema = z.enum(["private", "unlisted", "community", "public"]);
 const providerPolicySchema = z.enum([
@@ -70,6 +71,9 @@ const OPENAI_COMPATIBLE_ROLLBACK_PROFILE = {
   dimension: 1536,
   status: "paid_or_rollback_assumption",
 };
+const INGEST_RATE_LIMIT_RESOURCE = "developer_space_ingest_requests";
+const DEFAULT_INGEST_RATE_LIMIT_PER_MINUTE = 120;
+const DEFAULT_INGEST_RATE_LIMIT_WINDOW_SECONDS = 60;
 
 type IngestionErrorCategory = "auth" | "validation" | "quota" | "server";
 
@@ -106,6 +110,18 @@ function ingestionServerError(error: string) {
     code: "developer_space_server_error",
     category: "server",
   });
+}
+
+function ingestionRateLimitError(input: { limit: number; used: number; retryAfter: number }) {
+  return {
+    error: "Developer Space ingestion rate limit exceeded.",
+    code: "developer_space_rate_limited",
+    category: "rate_limit",
+    resource: INGEST_RATE_LIMIT_RESOURCE,
+    limit: input.limit,
+    used: input.used,
+    retryAfter: input.retryAfter,
+  };
 }
 
 function jsonDepth(value: unknown, depth = 0): number {
@@ -250,7 +266,7 @@ async function loadSpaceForIngestion(req: any, res: any) {
       return null;
     }
 
-    return keyedSpace;
+    return { space: keyedSpace, ingestionKeyId: ingestionKey.id as string };
   }
 
   const { data, error } = await sb
@@ -267,7 +283,40 @@ async function loadSpaceForIngestion(req: any, res: any) {
     return null;
   }
 
-  return data;
+  return { space: data, ingestionKeyId: null };
+}
+
+async function enforceIngestionRateLimit(
+  res: Response,
+  input: { space: { id: string; owner_user_id: string }; ingestionKeyId: string | null }
+) {
+  const limit = positiveIntFromEnv(
+    "DEVELOPER_SPACE_INGEST_RATE_LIMIT_PER_MINUTE",
+    DEFAULT_INGEST_RATE_LIMIT_PER_MINUTE,
+  );
+  const windowSeconds = positiveIntFromEnv(
+    "DEVELOPER_SPACE_INGEST_RATE_LIMIT_WINDOW_SECONDS",
+    DEFAULT_INGEST_RATE_LIMIT_WINDOW_SECONDS,
+  );
+  const result = await incrementOperationalRateLimit({
+    scope: {
+      ownerUserId: input.space.owner_user_id,
+      developerSpaceId: input.space.id,
+      resourceId: input.ingestionKeyId ?? "legacy-key",
+      operation: "ingest_requests",
+    },
+    limit,
+    windowSeconds,
+    parts: ["developer-space-ingestion"],
+  });
+
+  if (result.allowed) return true;
+  res.status(429).json(ingestionRateLimitError({
+    limit: result.limit,
+    used: result.used,
+    retryAfter: result.retryAfter ?? result.windowSeconds,
+  }));
+  return false;
 }
 
 async function findNodeByExternalId(developerSpaceId: string, externalId?: string | null) {
@@ -380,6 +429,11 @@ function documentTypeForRole(role: DeveloperSpaceDocumentRole) {
 function activeEmbeddingDimension() {
   const value = Number.parseInt(process.env.EMBEDDING_DIM ?? String(env.EMBEDDING_DIM ?? 1536), 10);
   return Number.isInteger(value) && value > 0 ? value : 1536;
+}
+
+function positiveIntFromEnv(name: string, fallback: number) {
+  const value = Number.parseInt(process.env[name] ?? "", 10);
+  return Number.isInteger(value) && value > 0 ? value : fallback;
 }
 
 function buildDeveloperSpaceProviderPosture(decision: ReturnType<typeof evaluateDeveloperSpaceProviderPolicy>) {
@@ -659,8 +713,10 @@ function writeSseHeartbeat(res: Response) {
 
 // -- Ingestion API: key-authenticated, no Station user session required -------
 developerSpacesRouter.post("/ingest/nodes/:nodeId/state", async (req, res) => {
-  const space = await loadSpaceForIngestion(req, res);
-  if (!space) return;
+  const ingestion = await loadSpaceForIngestion(req, res);
+  if (!ingestion) return;
+  const { space } = ingestion;
+  if (!(await enforceIngestionRateLimit(res, ingestion))) return;
 
   const parsed = nodeStateSchema.safeParse(req.body);
   if (!parsed.success) return res.status(400).json(ingestionValidationError(parsed.error));
@@ -723,8 +779,10 @@ developerSpacesRouter.post("/ingest/nodes/:nodeId/state", async (req, res) => {
 });
 
 developerSpacesRouter.post("/ingest/events", async (req, res) => {
-  const space = await loadSpaceForIngestion(req, res);
-  if (!space) return;
+  const ingestion = await loadSpaceForIngestion(req, res);
+  if (!ingestion) return;
+  const { space } = ingestion;
+  if (!(await enforceIngestionRateLimit(res, ingestion))) return;
 
   const parsed = eventSchema.safeParse(req.body);
   if (!parsed.success) return res.status(400).json(ingestionValidationError(parsed.error));
@@ -775,8 +833,10 @@ developerSpacesRouter.post("/ingest/events", async (req, res) => {
 });
 
 developerSpacesRouter.post("/ingest/snapshots", async (req, res) => {
-  const space = await loadSpaceForIngestion(req, res);
-  if (!space) return;
+  const ingestion = await loadSpaceForIngestion(req, res);
+  if (!ingestion) return;
+  const { space } = ingestion;
+  if (!(await enforceIngestionRateLimit(res, ingestion))) return;
 
   const parsed = snapshotSchema.safeParse(req.body);
   if (!parsed.success) return res.status(400).json(ingestionValidationError(parsed.error));
@@ -811,8 +871,10 @@ developerSpacesRouter.post("/ingest/snapshots", async (req, res) => {
 });
 
 developerSpacesRouter.post("/ingest/import", async (req, res) => {
-  const space = await loadSpaceForIngestion(req, res);
-  if (!space) return;
+  const ingestion = await loadSpaceForIngestion(req, res);
+  if (!ingestion) return;
+  const { space } = ingestion;
+  if (!(await enforceIngestionRateLimit(res, ingestion))) return;
 
   const parsed = batchImportSchema.safeParse(req.body);
   if (!parsed.success) return res.status(400).json(ingestionValidationError(parsed.error));

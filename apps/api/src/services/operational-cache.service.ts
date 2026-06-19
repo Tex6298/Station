@@ -45,6 +45,7 @@ export type OperationalCacheProvider = {
   readonly disabledReason?: string;
   getJson<T>(key: string): Promise<T | null>;
   setJson(key: string, value: unknown, ttlSeconds: number): Promise<void>;
+  increment(key: string, ttlSeconds: number): Promise<number>;
   deleteKeys(keys: string[]): Promise<number>;
 };
 
@@ -132,6 +133,48 @@ export async function setOperationalCacheJson(input: OperationalCacheSetOptions)
   }
   await provider.setJson(key, input.value, ttlSeconds);
   return { enabled: true, key, ttlSeconds };
+}
+
+export async function incrementOperationalRateLimit(input: {
+  scope: OperationalCacheScope;
+  limit: number;
+  windowSeconds?: number;
+  parts?: string[];
+}) {
+  const provider = getOperationalCacheProvider();
+  const key = operationalCacheKey({
+    purpose: "rate_limit",
+    scope: input.scope,
+    parts: input.parts,
+  });
+  const limit = clampPositiveInteger(input.limit, 1, 100_000, 120);
+  const windowSeconds = clampTtl(input.windowSeconds ?? OPERATIONAL_CACHE_TTLS.rate_limit);
+
+  if (!provider.enabled) {
+    return {
+      enabled: false,
+      allowed: true,
+      key,
+      limit,
+      used: 0,
+      remaining: null,
+      retryAfter: null,
+      windowSeconds,
+      skippedReason: provider.disabledReason ?? "disabled",
+    };
+  }
+
+  const used = await provider.increment(key, windowSeconds);
+  return {
+    enabled: true,
+    allowed: used <= limit,
+    key,
+    limit,
+    used,
+    remaining: Math.max(0, limit - used),
+    retryAfter: used > limit ? windowSeconds : null,
+    windowSeconds,
+  };
 }
 
 export async function invalidateOperationalCacheForChange(change: OperationalCacheChange) {
@@ -239,6 +282,10 @@ export class DisabledOperationalCacheProvider implements OperationalCacheProvide
     return undefined;
   }
 
+  async increment() {
+    return 0;
+  }
+
   async deleteKeys() {
     return 0;
   }
@@ -262,6 +309,12 @@ class UpstashRestOperationalCacheProvider implements OperationalCacheProvider {
 
   async setJson(key: string, value: unknown, ttlSeconds: number) {
     await this.command(["SET", key, JSON.stringify(value), "EX", ttlSeconds]);
+  }
+
+  async increment(key: string, ttlSeconds: number) {
+    const value = Number(await this.command<number>(["INCR", key]) ?? 0);
+    if (value === 1) await this.command(["EXPIRE", key, ttlSeconds]);
+    return value;
   }
 
   async deleteKeys(keys: string[]) {
@@ -298,4 +351,9 @@ function component(input: unknown) {
 function clampTtl(ttlSeconds: number) {
   if (!Number.isFinite(ttlSeconds)) return OPERATIONAL_CACHE_TTLS.runtime_context;
   return Math.max(1, Math.min(7 * 24 * 60 * 60, Math.floor(ttlSeconds)));
+}
+
+function clampPositiveInteger(value: number, min: number, max: number, fallback: number) {
+  if (!Number.isFinite(value)) return fallback;
+  return Math.max(min, Math.min(max, Math.floor(value)));
 }

@@ -5,6 +5,7 @@ import {
   OPERATIONAL_CACHE_TTLS,
   cacheInvalidationKeysForChange,
   getOperationalCacheJson,
+  incrementOperationalRateLimit,
   invalidateOperationalCacheForChange,
   operationalCacheKey,
   resetOperationalCacheProviderForTests,
@@ -70,6 +71,17 @@ test("operational cache stays disabled safely when no provider is configured", a
     });
     assert.equal(read.enabled, false);
     assert.equal(read.value, null);
+
+    const rateLimit = await incrementOperationalRateLimit({
+      scope: { ownerUserId: "owner-a", developerSpaceId: "space-a" },
+      limit: 1,
+      windowSeconds: 60,
+      parts: ["ingest"],
+    });
+    assert.equal(rateLimit.enabled, false);
+    assert.equal(rateLimit.allowed, true);
+    assert.equal(rateLimit.used, 0);
+    assert.equal(rateLimit.skippedReason, "missing_config");
   } finally {
     resetOperationalCacheProviderForTests();
   }
@@ -107,6 +119,62 @@ test("operational cache TTLs and keys prevent cross-owner reads", async () => {
       operationalCacheKey({ purpose: "runtime_context", scope: ownerA }),
       operationalCacheKey({ purpose: "runtime_context", scope: ownerB })
     );
+  } finally {
+    resetOperationalCacheProviderForTests();
+  }
+});
+
+test("operational cache rate-limit counters are scoped and bounded", async () => {
+  const provider = new RecordingOperationalCacheProvider();
+  setOperationalCacheProviderForTests(provider);
+
+  try {
+    const scope = {
+      ownerUserId: "owner-a",
+      developerSpaceId: "developer-space-a",
+      resourceId: "ingestion-key-a",
+      operation: "ingest_requests",
+    };
+    const first = await incrementOperationalRateLimit({
+      scope,
+      limit: 2,
+      windowSeconds: 60,
+      parts: ["developer-space-ingestion"],
+    });
+    const second = await incrementOperationalRateLimit({
+      scope,
+      limit: 2,
+      windowSeconds: 60,
+      parts: ["developer-space-ingestion"],
+    });
+    const third = await incrementOperationalRateLimit({
+      scope,
+      limit: 2,
+      windowSeconds: 60,
+      parts: ["developer-space-ingestion"],
+    });
+    const otherKey = await incrementOperationalRateLimit({
+      scope: { ...scope, resourceId: "ingestion-key-b" },
+      limit: 2,
+      windowSeconds: 60,
+      parts: ["developer-space-ingestion"],
+    });
+
+    assert.equal(first.enabled, true);
+    assert.equal(first.used, 1);
+    assert.equal(first.allowed, true);
+    assert.equal(first.retryAfter, null);
+    assert.equal(second.used, 2);
+    assert.equal(second.allowed, true);
+    assert.equal(third.used, 3);
+    assert.equal(third.allowed, false);
+    assert.equal(third.retryAfter, 60);
+    assert.equal(otherKey.used, 1);
+    assert.equal(otherKey.allowed, true);
+    assert.equal(provider.ttls.get(first.key), 60);
+    assert.equal(first.key.includes("ingestion-key-a"), true);
+    assert.equal(first.key.includes("developer-space:developer-space-a"), true);
+    assert.notEqual(first.key, otherKey.key);
   } finally {
     resetOperationalCacheProviderForTests();
   }
@@ -176,6 +244,13 @@ class RecordingOperationalCacheProvider implements OperationalCacheProvider {
   async setJson(key: string, value: unknown, ttlSeconds: number) {
     this.values.set(key, value);
     this.ttls.set(key, ttlSeconds);
+  }
+
+  async increment(key: string, ttlSeconds: number) {
+    const next = Number(this.values.get(key) ?? 0) + 1;
+    this.values.set(key, next);
+    if (!this.ttls.has(key)) this.ttls.set(key, ttlSeconds);
+    return next;
   }
 
   async deleteKeys(keys: string[]) {
