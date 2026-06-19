@@ -6443,6 +6443,12 @@ when a PR lands, or when validation truth changes.
   offscreen primary controls, fake controls, route errors, private leakage, or
   product overclaims were found. No DAEDALUS repair lane is needed; MIMIR can
   close PR73.
+- MIMIR closes PR73 Onboarding And Assistant Depth on 2026-06-19. No repair
+  lane is open from onboarding, Assistant handoff, signed-out privacy, desktop
+  layout, or `390px` mobile rehearsal. The next useful roadmap lane is billing
+  and entitlement clarity, because Stripe test configuration is present and
+  PR71 already proved the current runtime has billing routes and configured
+  Basic, Creator, and Canon monthly/yearly prices.
 
 ## Near-term rule
 

@@ -4,7 +4,7 @@ Date opened: 2026-06-19
 Opened by: A1 / MIMIR
 Owner: DAEDALUS first, ARGUS reviews. ARIADNE rehearses only if visible route
 flow changes.
-Status: accepted by ARIADNE; ready for MIMIR closeout
+Status: closed by MIMIR
 
 ## Why This Lane
 
@@ -240,3 +240,17 @@ paths, first-step/private-boundary copy, real route targets, alpha-boundary
 copy, and bounded Assistant handoff links. The Assistant prompt handoff
 pre-filled without auto-sending and kept the owner click on `Ask Assistant` as
 the required action. No route-level defect requires a DAEDALUS repair lane.
+
+## MIMIR Closeout
+
+Closed on 2026-06-19.
+
+PR73 is accepted by ARGUS and ARIADNE. The lane delivered the bounded
+first-entry/Assistant handoff improvement from existing routes and state, with
+no broad UI reskin, no fake controls, and no expansion into provider, Stripe,
+Redis, Cloudflare, worker, parser/OAuth, Project/DexOS, or hosted runtime
+scope.
+
+No repair lane is open from PR73. The next useful roadmap lane is billing and
+entitlement clarity now that the Stripe test configuration is present and the
+current runtime readiness check has already proved billing routes and prices.
