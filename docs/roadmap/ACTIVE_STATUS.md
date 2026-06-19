@@ -5516,6 +5516,16 @@ when a PR lands, or when validation truth changes.
   `tier_3_lab` as selectable options. Existing stored values may still be
   displayed as readback, but the UI must not imply hosted/lab runtime is
   available. No backend/API behavior change is requested.
+- DAEDALUS applies the PR54 Project tier UI tightening on 2026-06-19:
+  `/projects` no longer renders a connection-tier select, UI-created Projects
+  always submit `connectionTier: "tier_1_showcase"`, and create copy now names
+  the owner surface as Showcase while explicitly saying hosted runtime and lab
+  runtime are not available in this UI. Existing stored Tier 2/Tier 3 values
+  still render as neutral stored-value readback labels. Validation passed
+  `test:projects`, `test:developer-spaces`, and `typecheck`. No backend/API
+  behavior, public Project page, attach/detach UI, billing, exports,
+  contributor/member auth, Cloudflare, Tier 2 implementation, hosted runtime,
+  developer-agent, DexOS, or `export_packages.project_id` work was added.
 
 ## Near-term rule
 

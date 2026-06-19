@@ -27,11 +27,11 @@ const VISIBILITY_OPTIONS: Array<{ value: ProjectVisibility; label: string }> = [
   { value: "public", label: "Public" },
 ];
 
-const CONNECTION_OPTIONS: Array<{ value: ProjectConnectionTier; label: string }> = [
-  { value: "tier_1_showcase", label: "Tier 1 showcase" },
-  { value: "tier_2_hosted", label: "Tier 2 hosted" },
-  { value: "tier_3_lab", label: "Tier 3 lab" },
-];
+const CONNECTION_LABELS: Record<ProjectConnectionTier, string> = {
+  tier_1_showcase: "Showcase",
+  tier_2_hosted: "Tier 2 stored value",
+  tier_3_lab: "Tier 3 stored value",
+};
 
 function suggestSlug(value: string) {
   return value
@@ -43,7 +43,7 @@ function suggestSlug(value: string) {
 }
 
 function connectionLabel(value: ProjectConnectionTier) {
-  return CONNECTION_OPTIONS.find((option) => option.value === value)?.label ?? value;
+  return CONNECTION_LABELS[value] ?? "Stored connection value";
 }
 
 export default function ProjectsPage() {
@@ -58,7 +58,6 @@ export default function ProjectsPage() {
   const [slug, setSlug] = useState("");
   const [description, setDescription] = useState("");
   const [visibility, setVisibility] = useState<ProjectVisibility>("private");
-  const [connectionTier, setConnectionTier] = useState<ProjectConnectionTier>("tier_1_showcase");
 
   useEffect(() => {
     getSession().then(async (session) => {
@@ -100,7 +99,7 @@ export default function ProjectsPage() {
           slug,
           description: description.trim() ? description : null,
           visibility,
-          connectionTier,
+          connectionTier: "tier_1_showcase",
         },
         token
       );
@@ -111,7 +110,6 @@ export default function ProjectsPage() {
       setSlugEdited(false);
       setDescription("");
       setVisibility("private");
-      setConnectionTier("tier_1_showcase");
       setCreatedMessage(`Created ${data.project.name}.`);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Could not create Project.");
@@ -172,7 +170,7 @@ export default function ProjectsPage() {
             <div>
               <h2 style={{ margin: 0, fontSize: "1.1rem" }}>Create Project</h2>
               <p style={{ margin: "0.3rem 0 0", color: "#687078", fontSize: "0.9rem", lineHeight: 1.5 }}>
-                This creates the private Project record only. Attachment and member workflows stay separate.
+                This creates a private Showcase Project record only. Attachment and member workflows stay separate.
               </p>
             </div>
 
@@ -209,12 +207,9 @@ export default function ProjectsPage() {
               </select>
             </label>
 
-            <label style={{ display: "grid", gap: "0.35rem", fontSize: "0.85rem" }}>
-              Connection tier
-              <select className="select" value={connectionTier} onChange={(e) => setConnectionTier(e.target.value as ProjectConnectionTier)}>
-                {CONNECTION_OPTIONS.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
-              </select>
-            </label>
+            <div className="station-notice" style={{ color: "#687078", fontSize: "0.88rem", lineHeight: 1.5 }}>
+              New Projects use Showcase. Hosted runtime and lab runtime are not available in this UI.
+            </div>
 
             <button className="button primary" type="submit" disabled={creating || !name.trim() || !slug.trim()}>
               {creating ? "Creating..." : "Create Project"}

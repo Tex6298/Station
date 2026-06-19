@@ -213,6 +213,46 @@ PR55 recommendation:
   pages, attach/detach UI, billing/export semantics, member-role authorization,
   or hosted-runtime work without a new MIMIR instruction.
 
+## DAEDALUS Tier UI Tightening
+
+MIMIR reopened a tiny PR54 follow-up after ARIADNE confirmed the owner UI route
+mechanics but flagged that the create form exposed future connection tiers.
+
+Changed:
+
+- Removed the connection-tier select from `/projects`.
+- UI-created Projects now always submit `connectionTier: "tier_1_showcase"`.
+- Create copy calls the current owner-created Project shape "Showcase" and
+  states that hosted runtime and lab runtime are not available in this UI.
+- Existing stored Tier 2/Tier 3 values still render in list/detail readback as
+  neutral stored-value labels.
+
+Files changed:
+
+- `apps/web/app/projects/page.tsx`
+- `apps/web/app/projects/[idOrSlug]/page.tsx`
+- `docs/roadmap/ACTIVE_STATUS.md`
+- `docs/testing/VALIDATION_BASELINE.md`
+- `docs/roadmap/PR54_PRIVATE_PROJECT_UI_SHELL.md`
+
+Validation:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:projects` | Pass | 4 tests passed; Project API behavior stayed green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 11 tests passed; Developer Space behavior stayed green. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed. |
+| `git diff --check` | Pass | No whitespace errors; CRLF normalization warnings only for touched files and local triad state. |
+
+Scope guard:
+
+- No backend/API behavior change.
+- No public Project page.
+- No attach/detach UI.
+- No billing, exports, contributor/member auth, Cloudflare, Tier 2
+  implementation, hosted runtime, developer-agent, DexOS, or
+  `export_packages.project_id`.
+
 ## ARGUS Review
 
 Verdict: accepted on 2026-06-19 after one route-protection hardening patch.

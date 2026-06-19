@@ -38,9 +38,9 @@ interface ProjectDetailResponse {
 }
 
 const CONNECTION_LABELS: Record<ProjectConnectionTier, string> = {
-  tier_1_showcase: "Tier 1 showcase",
-  tier_2_hosted: "Tier 2 hosted",
-  tier_3_lab: "Tier 3 lab",
+  tier_1_showcase: "Showcase",
+  tier_2_hosted: "Tier 2 stored value",
+  tier_3_lab: "Tier 3 stored value",
 };
 
 function formatDate(value: string) {

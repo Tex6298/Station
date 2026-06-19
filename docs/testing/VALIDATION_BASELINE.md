@@ -8227,3 +8227,23 @@ Scope notes:
   DexOS, or `export_packages.project_id` work was added.
 - ARIADNE should rerun the PR54 private owner UI rehearsal against the now
   visible Project schema.
+
+DAEDALUS tier UI tightening validation on 2026-06-19:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:projects` | Pass | 4 tests passed; Project API behavior stayed green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 11 tests passed; Developer Space behavior stayed green. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed after removing future-tier Project create options. |
+| `git diff --check` | Pass | No whitespace errors; CRLF normalization warnings only for touched files and local triad state. |
+
+Scope notes:
+
+- `/projects` no longer exposes Tier 2 or Tier 3 as selectable create options.
+- UI-created Projects submit `connectionTier: "tier_1_showcase"`.
+- Existing stored future-tier values render only as neutral stored-value
+  readback labels.
+- No backend/API behavior, public Project page, attach/detach UI, billing,
+  exports, contributor/member authorization, Cloudflare, Tier 2 implementation,
+  hosted runtime, developer-agent, DexOS, or `export_packages.project_id` work
+  was added.
