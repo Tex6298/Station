@@ -1,8 +1,8 @@
 # PR52 - Developer Space Project Attachment
 
 Date: 2026-06-19
-Status: implemented by DAEDALUS; ready for ARGUS review
-Owner: DAEDALUS implements, ARGUS reviews, MIMIR decides next lane.
+Status: accepted by ARGUS after DAEDALUS implementation
+Owner: DAEDALUS implemented, ARGUS reviewed, MIMIR decides next lane.
 
 ## Purpose
 
@@ -172,3 +172,49 @@ PR53 recommendation:
   API-only. Avoid public Project pages, billing/export semantics, member-role
   authorization, and hosted-runtime work until MIMIR explicitly opens those
   lanes.
+
+## ARGUS Review Result
+
+ARGUS accepted PR52 with one reviewer patch.
+
+Review findings:
+
+- `PATCH /developer-spaces/:id/project` is authenticated and owner-only.
+- Foreign Projects return an owner-scoped 404 and do not mutate the Developer
+  Space or usage row.
+- Non-owner Developer Space updates return 403.
+- Attach and detach mutate `developer_spaces.project_id`.
+- Public Developer Space reads remain unchanged and do not expose Project
+  details or member data.
+- `export_packages.project_id` remains absent.
+
+ARGUS patch:
+
+- Changed usage synchronization from update-only to an upsert on
+  `developer_space_usage` keyed by `developer_space_id`. This preserves sync
+  even when an owner attaches a freshly created Developer Space before a usage
+  row has ever been initialized.
+- Tightened the focused test so attach proves the usage row is created and then
+  detach resets it to `null`.
+
+ARGUS validation:
+
+```text
+npm exec --yes pnpm@10.32.1 -- run test:developer-spaces
+  Pass: 11 tests passed.
+
+npm exec --yes pnpm@10.32.1 -- run test:projects
+  Pass: 3 tests passed.
+
+npm exec --yes pnpm@10.32.1 -- run typecheck
+  Pass: API and web typecheck passed.
+
+git diff --check
+  Pass: no whitespace errors; CRLF normalization warnings only.
+```
+
+PR53 recommendation:
+
+- Add a tiny owner Project read surface that can list attached Developer Spaces.
+- Keep public Project pages, billing/export semantics, member-role
+  authorization, contributor UI, and hosted-runtime work deferred.

@@ -1217,8 +1217,13 @@ developerSpacesRouter.patch("/:id/project", requireAuth, async (req, res) => {
 
   const { error: usageError } = await sb
     .from("developer_space_usage")
-    .update({ project_id: parsed.data.projectId })
-    .eq("developer_space_id", space.id);
+    .upsert({
+      developer_space_id: space.id,
+      owner_user_id: space.owner_user_id,
+      project_id: parsed.data.projectId,
+    }, { onConflict: "developer_space_id" })
+    .select("developer_space_id")
+    .single();
 
   if (usageError) return res.status(500).json({ error: usageError.message });
 

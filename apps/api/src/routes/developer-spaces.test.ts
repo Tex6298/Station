@@ -1092,10 +1092,6 @@ test("Developer Space project attachment is owner-only and syncs usage project i
     visibility: "private",
     visualisation_type: "node_field",
   });
-  db.insertRow("developer_space_usage", {
-    developer_space_id: space.id,
-    owner_user_id: "owner-user",
-  });
   setSupabaseAdminForTests(db.client as any);
   const app = createDeveloperSpacesApp();
 
@@ -1112,7 +1108,7 @@ test("Developer Space project attachment is owner-only and syncs usage project i
     });
     assert.equal(foreignProject.status, 404);
     assert.equal(db.tables.developer_spaces[0].project_id, null);
-    assert.equal(db.tables.developer_space_usage[0].project_id, null);
+    assert.equal(db.tables.developer_space_usage.length, 0);
 
     const nonOwner = await requestJson(app, "PATCH", `/developer-spaces/${space.id}/project`, {
       token: "other-token",
@@ -1128,6 +1124,7 @@ test("Developer Space project attachment is owner-only and syncs usage project i
     assert.equal(attached.body.projectId, ownerProject.id);
     assert.equal(attached.body.space.id, space.id);
     assert.equal(db.tables.developer_spaces[0].project_id, ownerProject.id);
+    assert.equal(db.tables.developer_space_usage.length, 1);
     assert.equal(db.tables.developer_space_usage[0].project_id, ownerProject.id);
 
     const detached = await requestJson(app, "PATCH", `/developer-spaces/${space.id}/project`, {

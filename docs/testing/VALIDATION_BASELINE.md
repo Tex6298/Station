@@ -8094,3 +8094,22 @@ Scope notes:
 - `export_packages.project_id` remains absent.
 - No billing, export behavior, contributor/member authorization, UI,
   Cloudflare, Tier 2 hosting, developer-agent, or DexOS work was added.
+
+ARGUS review validation on 2026-06-19:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 11 tests passed; attach now proves usage row creation/sync when no usage row exists yet. |
+| `npm exec --yes pnpm@10.32.1 -- run test:projects` | Pass | 3 tests passed; Projects API owner-only skeleton stayed green. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed after ARGUS upsert hardening. |
+| `git diff --check` | Pass | No whitespace errors; CRLF normalization warnings only for touched files and triad state. |
+
+ARGUS scope notes:
+
+- Patched usage synchronization from update-only to upsert, preserving
+  `developer_space_usage.project_id` even for freshly attached spaces that had
+  no usage row yet.
+- Owner and foreign-project boundaries stayed unchanged.
+- Public Developer Space responses still do not serialize Project details or
+  member data.
+- `export_packages.project_id` remains absent.

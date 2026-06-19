@@ -5400,6 +5400,16 @@ when a PR lands, or when validation truth changes.
   billing, exports, contributor/member auth, Cloudflare, Tier 2 hosting,
   developer-agent, DexOS, or `export_packages.project_id` work was added.
   ARGUS review is requested before MIMIR opens the next lane.
+- ARGUS accepts PR52 on 2026-06-19 after patching usage sync from update-only
+  to an upsert keyed by `developer_space_id`, so attaching a freshly created
+  Developer Space also creates/synchronizes its usage row. Review confirmed
+  owner-only attach/detach, foreign Project 404s without mutation, non-owner
+  rejection, public-surface silence, and `export_packages.project_id` absence.
+  Validation passed `test:developer-spaces`, `test:projects`, `typecheck`, and
+  diff hygiene. ARGUS recommends PR53 as a tiny owner Project read surface that
+  can list attached Developer Spaces, with public Project pages, billing,
+  exports, member-role authorization, contributor UI, and hosted runtime still
+  deferred.
 
 ## Near-term rule
 
