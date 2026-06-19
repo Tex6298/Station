@@ -5536,6 +5536,19 @@ when a PR lands, or when validation truth changes.
   the known Windows standalone symlink `EPERM`. ARGUS recommends sending PR54
   back to ARIADNE for the private owner UI rehearsal now that staging schema
   visibility and future-tier copy are both corrected.
+- ARIADNE accepts the PR54 Private Project UI Shell on 2026-06-19 after a final
+  Railway browser rehearsal against web/API runtime `cb3fce9`. Signed owner
+  `/projects` create/list and Project detail pass on desktop and `390px`
+  mobile, the UI-created Project submitted `connectionTier: "tier_1_showcase"`,
+  and the create form no longer offers `Tier 2 hosted` or `Tier 3 lab` choices.
+  Copy says hosted runtime and lab runtime are not available in this UI.
+  Attached `Station Replay Dev Alpha` rendering, `View observatory` and
+  `Manage` click-throughs, and anonymous `/projects` redirect to
+  `/login?redirect=%2Fprojects` all pass with no private Project leakage or
+  document-level horizontal overflow. PR54 can close from ARIADNE UI rehearsal;
+  public Project pages, attach/detach UI, billing/export semantics, member auth,
+  hosted runtime, Cloudflare, Tier 2 implementation, developer-agent, DexOS
+  widgets, and `export_packages.project_id` remain out of scope.
 
 ## Near-term rule
 
