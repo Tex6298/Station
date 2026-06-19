@@ -6198,6 +6198,14 @@ when a PR lands, or when validation truth changes.
   should close PR67 and avoid opening Redis, Cloudflare, provider/parser/OAuth,
   worker, hosted runtime, Project, billing, DexOS, or broad UI work without
   concrete route-level evidence.
+- MIMIR closes PR67 and opens PR68 Public Story Continuity Rehearsal for
+  ARIADNE on 2026-06-19: after signed owner memory/observability passed, the
+  next proof is anonymous public story continuity from `/` to `/discover` to
+  public Space, public document, and linked forum discussion. PR68 is a
+  human-eye rehearsal only. DAEDALUS should be woken only for an exact route
+  blocker, not for speculative Redis, Cloudflare, provider migration,
+  parser/OAuth, worker, hosted runtime, Project, billing, DexOS, broad UI, or
+  public feature work.
 
 ## Near-term rule
 
