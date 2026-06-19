@@ -8981,3 +8981,34 @@ Scope notes:
   semantics, provider routing, Redis memory, Cloudflare, parser/OAuth, worker,
   hosted runtime, Project, DexOS, broad UI, secrets, private replay data, or
   `.env` values changed or were recorded.
+
+ARGUS review validation on 2026-06-19:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `Invoke-RestMethod https://stationweb-production.up.railway.app/health` | Pass | ARGUS rechecked sanitized `ok:true`. |
+| `Invoke-RestMethod https://stationapi-production.up.railway.app/health` | Pass | ARGUS rechecked sanitized `ok:true`. |
+| `Invoke-RestMethod https://stationweb-production.up.railway.app/health/deployment` | Pass | ARGUS rechecked `ok:true`, `ready:true`, branch `main`, environment `production`, service `@station/web`, commit `f830041df118c4e3e63cb1d9b5985e2ffb2121b7`. Deployment IDs were not recorded in docs. |
+| `Invoke-RestMethod https://stationapi-production.up.railway.app/health/deployment` | Pass | ARGUS rechecked `ok:true`, `ready:true`, branch `main`, environment `production`, service `@station/api`, commit `f830041df118c4e3e63cb1d9b5985e2ffb2121b7`. Deployment IDs were not recorded in docs. |
+| `npm exec --yes pnpm@10.32.1 -- run test:health` | Pass | 16 tests passed, including non-secret deployment identity and Upstash cache-only readiness. |
+| `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` | Pass | 1 test passed; replay prep stays non-secret and auth-protected. |
+| `npm exec --yes pnpm@10.32.1 -- run test:billing` | Pass | 4 tests passed; server-controlled billing and webhook guardrails remain green. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/services/operational-cache.service.test.ts packages/ai/test/provider-router.test.ts packages/ai/test/retrieval-metadata.test.ts` | Pass | 22 tests passed for operational cache, NVIDIA/platform provider routing, Gemini embedding metadata, and retrieval fallback behavior. |
+| `git diff --check` | Pass | CRLF normalization warnings only for local triad state. |
+
+ARGUS scope notes:
+
+- ARGUS accepted PR71 as a sanitized docs/evidence lane.
+- API readiness supports the documented Supabase/database/storage/auth
+  redirects, Gemini embedding, NVIDIA chat, Stripe test billing, and Upstash
+  operational-cache status without committing secret values or private replay
+  data.
+- Upstash REST is correctly framed as cache-only with inline fallback, not a
+  BullMQ worker queue and not memory truth.
+- ARGUS corrected one verdict wording point from `current staging` to `current
+  Railway runtime` because the readiness endpoint reports environment
+  `production`.
+- No product code, route behavior, auth/session, schema, storage, billing
+  semantics, provider routing, Redis memory, Cloudflare, parser/OAuth, worker,
+  hosted runtime, Project, DexOS, broad UI, secrets, private replay data,
+  deployment IDs, or `.env` values changed or were recorded.

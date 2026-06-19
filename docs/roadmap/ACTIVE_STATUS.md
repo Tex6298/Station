@@ -6339,6 +6339,24 @@ when a PR lands, or when validation truth changes.
   provider-router tests, and retrieval-metadata tests. No product code changed.
   Recommended next step: run one replay/user-facing rehearsal against the
   current runtime, not a code repair lane.
+- ARGUS accepts PR71 Live Config Readiness Refresh on 2026-06-19 as a
+  docs/evidence lane. ARGUS rechecked public web/API health and deployment
+  readiness: both services report `ok:true`, deployment readiness reports
+  `ready:true`, branch `main`, services `@station/web` and `@station/api`, and
+  runtime commit `f830041df118c4e3e63cb1d9b5985e2ffb2121b7`. API readiness
+  still supports the sanitized status for database, migration proof, private
+  `persona-files` storage, Supabase Auth redirects, public URLs, Gemini
+  `station_free_1536` embeddings, NVIDIA platform chat, Stripe test
+  billing/prices, and Upstash operational cache. Upstash remains correctly
+  framed as REST cache with inline fallback, not a BullMQ worker queue or
+  memory truth. ARGUS corrected one wording point from `current staging` to
+  `current Railway runtime` because deployment readiness names the environment
+  `production`. Focused validation passed `test:health`,
+  `test:replay-readiness`, `test:billing`, operational-cache service tests,
+  provider-router tests, retrieval-metadata tests, and `git diff --check`.
+  No product code changed, and no secrets, deployment IDs, private replay data,
+  or `.env` values were committed. MIMIR should open one replay/user-facing
+  rehearsal against the current Railway runtime, not a code repair lane.
 
 ## Near-term rule
 

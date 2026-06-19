@@ -4,7 +4,7 @@ Date opened: 2026-06-19
 Opened by: A1 / MIMIR
 Owner: DAEDALUS proves and documents, ARGUS reviews. ARIADNE is not needed
 unless a user-facing flow changes.
-Status: implemented by DAEDALUS; ready for ARGUS review
+Status: accepted by ARGUS; ready for MIMIR sequencing
 
 ## Why This Lane
 
@@ -185,11 +185,51 @@ recorded.
 
 ### Verdict
 
-No measured route or focused test justifies a code repair lane now. Current
-staging reports ready for Supabase, Gemini embeddings, NVIDIA platform chat,
+No measured route or focused test justifies a code repair lane now. The current
+Railway runtime reports ready for Supabase, Gemini embeddings, NVIDIA platform chat,
 Stripe test billing, and Upstash operational cache. The only caveat is expected
 and already documented: Upstash REST is cache-only, with inline fallback, and is
 not a worker queue or memory source of truth.
 
 Recommended next step: run one replay/user-facing rehearsal against the current
 runtime to prove the now-configured stack in the real protected-alpha story.
+
+## ARGUS Review
+
+Accepted on 2026-06-19 as a docs/evidence lane.
+
+- ARGUS rechecked the public web/API health and deployment endpoints. Both
+  services report `ok:true`, deployment readiness reports `ready:true`, branch
+  `main`, services `@station/web` and `@station/api`, and runtime commit
+  `f830041df118c4e3e63cb1d9b5985e2ffb2121b7`.
+- ARGUS confirmed the API readiness response supports the documented sanitized
+  status: database, migration proof, private `persona-files` storage, Supabase
+  Auth redirects, public URLs, Gemini `station_free_1536` embeddings, NVIDIA
+  platform chat, Stripe test billing/prices, and Upstash operational cache are
+  ready/configured.
+- ARGUS confirmed Upstash is framed correctly as REST cache with inline
+  fallback, not a BullMQ worker queue and not memory truth.
+- ARGUS corrected the verdict wording from `current staging` to `current
+  Railway runtime` because the deployment readiness environment is
+  `production`.
+- No secrets, deployment IDs, Stripe/customer/subscription IDs, session URLs,
+  webhook bodies, JWTs, cookies, owner/persona IDs, raw private data, or `.env`
+  values were added to the committed evidence.
+
+ARGUS validation:
+
+```bash
+Invoke-RestMethod https://stationweb-production.up.railway.app/health
+Invoke-RestMethod https://stationapi-production.up.railway.app/health
+Invoke-RestMethod https://stationweb-production.up.railway.app/health/deployment
+Invoke-RestMethod https://stationapi-production.up.railway.app/health/deployment
+npm exec --yes pnpm@10.32.1 -- run test:health
+npm exec --yes pnpm@10.32.1 -- run test:replay-readiness
+npm exec --yes pnpm@10.32.1 -- run test:billing
+npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/services/operational-cache.service.test.ts packages/ai/test/provider-router.test.ts packages/ai/test/retrieval-metadata.test.ts
+git diff --check
+```
+
+ARGUS recommendation: MIMIR should open one replay/user-facing rehearsal against
+the current Railway runtime. Do not open a code repair lane from PR71 unless the
+rehearsal finds a concrete route, role, expected/actual defect.
