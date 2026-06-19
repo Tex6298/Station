@@ -24,7 +24,7 @@ export function lifecycleEventTypeLabel(type: PersonaLifecycleEventType) {
 export function lifecycleEventReadback(event: PersonaLifecycleEvent) {
   return {
     label: lifecycleEventTypeLabel(event.eventType),
-    detail: safeEventLabel(event.eventLabel) ?? "Owner lifecycle event recorded.",
+    detail: safePreviewText(event.eventLabel, "Owner lifecycle event recorded."),
   };
 }
 
@@ -33,7 +33,7 @@ export function handoffStatusLabel(status: PersonaHandoff["status"]) {
 }
 
 export function handoffSummaryPreview(handoff: Pick<PersonaHandoff, "summary">, maxLength = 140) {
-  const sanitized = redactIds(handoff.summary || "No handoff summary was saved.");
+  const sanitized = safePreviewText(handoff.summary, "No handoff summary was saved.");
   return sanitized.length > maxLength ? `${sanitized.slice(0, maxLength - 3).trim()}...` : sanitized;
 }
 
@@ -49,15 +49,36 @@ export function memoryGraphReadback(nodes: number, edges: number) {
   return `${nodes} memory node${nodes === 1 ? "" : "s"} connected by ${edges} edge${edges === 1 ? "" : "s"}.`;
 }
 
-function safeEventLabel(label?: string | null) {
-  if (!label) return null;
-  return redactIds(label).slice(0, 140);
-}
+function safePreviewText(value: string | null | undefined, fallback: string) {
+  if (!value?.trim()) return fallback;
+  const lines = value.split(/\r?\n/);
+  let removedTranscriptLines = 0;
+  const withoutTranscriptLines = lines.filter((line) => {
+    const isTranscriptLine = /^\s*(?:user|assistant|system|developer|tool)\s*:/i.test(line);
+    if (isTranscriptLine) removedTranscriptLines += 1;
+    return !isTranscriptLine;
+  });
+  const sanitized = withoutTranscriptLines
+    .join(" ")
+    .replace(/\b[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}\b/gi, "[id]")
+    .replace(/https?:\/\/\S+/gi, "[redacted-url]")
+    .replace(SECRET_SHAPED_VALUE_PATTERN, "[redacted-secret]")
+    .replace(/\b(?:bearer)\s+\S+/gi, "bearer [redacted]")
+    .replace(/\b(?:token|cookie|authorization|api[_-]?key|x-api-key|secret|password)\b\s*[:=]\s*\S+/gi, "$1=[redacted]")
+    .replace(/\s+/g, " ")
+    .trim();
 
-function redactIds(value: string) {
-  return value.replace(/\b[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}\b/gi, "[id]");
+  if (sanitized) {
+    return removedTranscriptLines > 0 ? `${sanitized} [conversation turns hidden]` : sanitized;
+  }
+
+  return removedTranscriptLines > 0
+    ? "Conversation handoff saved; transcript turns hidden."
+    : fallback;
 }
 
 function labelize(value: string) {
   return value.replace(/_/g, " ").replace(/^./, (letter) => letter.toUpperCase());
 }
+
+const SECRET_SHAPED_VALUE_PATTERN = /\b(?:sk|pk|rk|whsec|ghp|pat)[_-][A-Za-z0-9._-]+/gi;

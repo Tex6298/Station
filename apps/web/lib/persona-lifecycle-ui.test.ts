@@ -40,6 +40,24 @@ test("persona handoff helpers keep status and summaries readable", () => {
   assert.equal(handoffFreshnessCopy(2), "2 recent handoffs are ready for continuity review.");
 });
 
+test("persona handoff previews suppress transcript lines and secret-shaped text", () => {
+  const handoff = {
+    status: "ready",
+    summary: [
+      "Conversation: Launch notes",
+      "user: my private transcript line with token=abc123",
+      "assistant: private response with sk_live_secret",
+      "Next step uses https://example.invalid/raw",
+    ].join("\n"),
+  } as PersonaHandoff;
+
+  const preview = handoffSummaryPreview(handoff, 220);
+  assert.match(preview, /Conversation: Launch notes/);
+  assert.match(preview, /\[conversation turns hidden\]/);
+  assert.match(preview, /\[redacted-url\]/);
+  assert.doesNotMatch(preview, /private transcript|private response|abc123|sk_live_secret|example\.invalid/);
+});
+
 test("memory graph readback stays bounded to counts", () => {
   assert.equal(memoryGraphReadback(0, 0), "No memory graph nodes yet.");
   assert.equal(memoryGraphReadback(3, 0), "3 memory nodes with no graph edges yet.");

@@ -1,7 +1,7 @@
 # PR61 - Persona Lifecycle And Handoff Readback
 
 Date: 2026-06-19
-Status: implemented by DAEDALUS; ready for ARGUS review
+Status: accepted by ARGUS; ready for ARIADNE signed owner UI rehearsal
 Owner: DAEDALUS implements, ARGUS reviews, ARIADNE rehearses signed owner UI,
 MIMIR decides next lane.
 
@@ -180,3 +180,41 @@ worker, billing, Redis, Cloudflare, or DexOS behavior changed.
 - No raw private transcript, raw lifecycle event payload, raw IDs, raw memory
   graph payload, schema, API route, Redis, Cloudflare, provider migration,
   Project work, hosted runtime, worker, billing/quota, or DexOS work.
+
+## ARGUS Review
+
+ARGUS accepts PR61 after one focused privacy hardening patch.
+
+Review notes:
+
+- Persona management remains on the existing signed owner edit/management route
+  and uses the existing owner-only architecture, handoff, integrity, and memory
+  graph APIs.
+- Lifecycle event readback uses owner-friendly labels and does not render raw
+  `eventData`.
+- Handoff save still posts to `POST /personas/:id/handoffs` and refreshes the
+  existing architecture route so the handoff list and lifecycle events update
+  together when the refresh succeeds.
+- ARGUS patched handoff/event previews to suppress role-prefixed conversation
+  transcript lines, UUID-shaped ids, URLs, bearer values, token/API-key/cookie/
+  password/secret assignments, and secret-shaped values before display.
+- Memory graph readback remains bounded to counts and short existing summaries;
+  no graph visualization or raw graph payload display was added.
+- No API route behavior, schema, public lifecycle surface, cross-owner handoff,
+  provider migration, Redis, Cloudflare, Project work, hosted runtime, worker,
+  billing/quota, broad redesign, or DexOS work changed.
+
+ARGUS validation:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 36 tests passed, including transcript/secret suppression coverage for handoff previews. |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-context` | Pass | 7 tests passed; owner-only memory/persona context behavior stayed green. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web build` | Partial / known Windows failure | Next compiled, linted/typechecked, collected page data, and generated 31 static pages, then hit the known standalone symlink `EPERM`. |
+| `git diff --check` | Pass | No whitespace errors; CRLF normalization warnings only for touched files and local triad state. |
+
+Verdict: PR61 is accepted for signed owner UI rehearsal. Wake ARIADNE to check
+the persona management/edit page, lifecycle labels, handoff creation/refresh,
+memory/continuity readback clarity, privacy boundaries, and `390px` fit; wake
+MIMIR with the review verdict.

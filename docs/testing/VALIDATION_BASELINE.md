@@ -8524,6 +8524,29 @@ Scope notes:
   hosted runtime, worker, billing/quota, schema, API route, or DexOS work was
   added.
 
+ARGUS review validation on 2026-06-19:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 32 tests passed, including strengthened observability redaction coverage. |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-context` | Pass | 7 tests passed; memory briefing, lifecycle filtering, and owner scoping stayed green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` | Pass | 1 test passed; replay observability readiness stayed auth-protected and non-secret. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web build` | Partial / known Windows failure | Next compiled successfully, linted/typechecked, collected page data, and generated 31 static pages, then failed during standalone traced-file symlink copy with Windows `EPERM`. |
+| `git diff --check` | Pass | No whitespace errors; CRLF normalization warnings only for touched files and local triad state. |
+
+ARGUS scope notes:
+
+- ARGUS patched observability client redaction for underscore-style secret
+  values such as `sk_live_*`, bearer values, and secret-shaped strings inside
+  whitelisted metadata fields.
+- Studio Memory stays owner-only through existing APIs and does not add public
+  memory or lifecycle route behavior.
+- Settings AI activity remains list-only and sanitized; trace detail expansion
+  was not added.
+- No API route, schema, runtime store, provider migration, Project work, hosted
+  runtime, worker, billing/quota, Redis, Cloudflare, or DexOS work changed.
+
 ## PR61 Persona Lifecycle And Handoff Readback
 
 DAEDALUS implementation validation on 2026-06-19:
@@ -8552,21 +8575,20 @@ ARGUS review validation on 2026-06-19:
 
 | Command | Result | Notes |
 | --- | --- | --- |
-| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 32 tests passed, including strengthened observability redaction coverage. |
-| `npm exec --yes pnpm@10.32.1 -- run test:persona-context` | Pass | 7 tests passed; memory briefing, lifecycle filtering, and owner scoping stayed green. |
-| `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` | Pass | 1 test passed; replay observability readiness stayed auth-protected and non-secret. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 36 tests passed, including transcript/secret suppression coverage for handoff previews. |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-context` | Pass | 7 tests passed; owner-only memory/persona context behavior stayed green. |
 | `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed. |
 | `npm exec --yes pnpm@10.32.1 -- --filter @station/web build` | Partial / known Windows failure | Next compiled successfully, linted/typechecked, collected page data, and generated 31 static pages, then failed during standalone traced-file symlink copy with Windows `EPERM`. |
 | `git diff --check` | Pass | No whitespace errors; CRLF normalization warnings only for touched files and local triad state. |
 
 ARGUS scope notes:
 
-- ARGUS patched observability client redaction for underscore-style secret
-  values such as `sk_live_*`, bearer values, and secret-shaped strings inside
-  whitelisted metadata fields.
-- Studio Memory stays owner-only through existing APIs and does not add public
-  memory or lifecycle route behavior.
-- Settings AI activity remains list-only and sanitized; trace detail expansion
-  was not added.
-- No API route, schema, runtime store, provider migration, Project work, hosted
-  runtime, worker, billing/quota, Redis, Cloudflare, or DexOS work changed.
+- ARGUS patched handoff/event preview sanitization so role-prefixed transcript
+  lines, UUID-shaped ids, URLs, bearer values, token/API-key/cookie/password/
+  secret assignments, and secret-shaped values are suppressed before display.
+- Persona management remains on existing owner-only APIs; handoff save still
+  uses `POST /personas/:id/handoffs` and refreshes existing architecture
+  readback when available.
+- No API route behavior, schema, public lifecycle surface, cross-owner handoff,
+  raw event payload display, provider migration, Redis, Cloudflare, Project
+  work, hosted runtime, worker, billing/quota, or DexOS work changed.

@@ -5821,6 +5821,30 @@ when a PR lands, or when validation truth changes.
   surfaces, cross-owner handoffs, raw private transcript/event payload display,
   Redis, Cloudflare, provider migration, Project work, hosted runtime, workers,
   billing, DexOS, or broad redesign.
+- DAEDALUS implements PR61 Persona Lifecycle And Handoff Readback on
+  2026-06-19: persona management/edit now renders owner-friendly lifecycle
+  event labels, handoff status labels, safe handoff previews, bounded memory
+  graph readback, and existing continuity/archive/integrity counts. Handoff
+  creation still uses `POST /personas/:id/handoffs` and refreshes
+  `/personas/:id/architecture` after save so handoff and lifecycle readback can
+  update together. Validation passed `test:studio-ui`, `test:persona-context`,
+  `typecheck`, and `git diff --check`; no public lifecycle surface,
+  cross-owner handoff, raw transcript/event payload display, schema, API route
+  behavior, Redis, Cloudflare, provider migration, Project work, hosted
+  runtime, worker, billing/quota, or DexOS work changed.
+- ARGUS accepts PR61 on 2026-06-19 after patching handoff/event preview
+  sanitization. Review confirmed persona management stays on existing
+  owner-only routes, lifecycle events use readable labels without raw
+  `eventData`, handoff save refreshes architecture readback when available, and
+  memory graph readback remains bounded to counts/summaries. ARGUS hardened
+  previews so role-prefixed transcript lines, UUID-shaped ids, URLs, bearer
+  values, token/API-key/cookie/password/secret assignments, and secret-shaped
+  values are suppressed before display. Validation passed `test:studio-ui` with
+  36 tests, `test:persona-context`, `typecheck`, and `git diff --check`; web
+  build compiled/linted/typechecked/generated 31 static pages before the known
+  Windows standalone symlink `EPERM`. ARIADNE should rehearse signed owner
+  persona management/edit at desktop and `390px`, then wake MIMIR with the UI
+  verdict.
 
 ## Near-term rule
 
