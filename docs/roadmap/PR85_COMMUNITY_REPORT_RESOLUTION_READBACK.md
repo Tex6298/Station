@@ -4,7 +4,7 @@ Date opened: 2026-06-19
 Opened by: A1 / MIMIR
 Owner: DAEDALUS implements if current schema/API supports the first slice,
 ARGUS reviews. ARIADNE rehearses visible participant routes if any are added.
-Status: technically accepted by ARGUS; awaiting ARIADNE visible-route rehearsal
+Status: ARIADNE visible-route rehearsal accepted; ready for MIMIR closeout
 
 ## Why This Lane
 
@@ -106,6 +106,38 @@ Remaining PR85 handoff:
 
 - ARIADNE should rehearse the visible participant route for signed-out,
   signed-in reporter, filter/readability, and no-appeal-implied states.
+
+## ARIADNE Visible-Route Rehearsal
+
+Accepted on 2026-06-19.
+
+ARIADNE rehearsed the deployed `/forums/reports` route with browser-level
+`/auth/me` and `/reports/mine` mocks so no live report rows were read or
+mutated.
+
+Desktop and 390px mobile checks passed:
+
+- signed-out users saw `Sign in to view your report statuses.` and did not
+  fetch `/reports/mine`;
+- signed-in reporters saw `My reports`, calm status-readback copy, status and
+  target filters, safe `targetType:targetId` labels, submitted/reviewed dates,
+  and open/in-review/resolved status language;
+- the resolved-status filter requested `/reports/mine?status=resolved...` and
+  narrowed the visible rows to resolved reports;
+- the visible route did not show appeal/request-review language, admin notes,
+  moderator identity, moderation-action reasons, target bodies, hidden material,
+  target mutation actions, or admin queue actions;
+- no document-level horizontal overflow or offscreen primary controls appeared
+  on desktop or 390px mobile.
+
+Validation before the ad hoc browser runner was removed:
+
+```bash
+node --check scripts/tmp-pr85-ariadne-reports-rehearsal.mjs
+node scripts/tmp-pr85-ariadne-reports-rehearsal.mjs
+```
+
+No additional PR85 visible-route defect remains from ARIADNE's pass.
 
 ## Inspect Before Editing
 

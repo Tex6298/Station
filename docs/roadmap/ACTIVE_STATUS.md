@@ -7058,6 +7058,23 @@ when a PR lands, or when validation truth changes.
   model, notifications, reputation/witness mechanics, AI posting,
   billing/provider/cache, Developer Space, auth/session refactor, or public
   visibility-widening work was added.
+- ARIADNE accepts PR85 visible-route rehearsal on 2026-06-19 and wakes MIMIR
+  for closeout. The deployed `/forums/reports` route was checked on desktop
+  and 390px mobile with browser-level `/auth/me` and `/reports/mine` mocks so
+  no live report rows were read or mutated. Signed-out users saw sign-in copy
+  and did not fetch `/reports/mine`; signed-in reporters saw calm `My reports`
+  status readback, status/target filters, safe `targetType:targetId` labels,
+  submitted/reviewed dates, and open/in-review/resolved status language; the
+  resolved-status filter narrowed visible rows and requested reporter-owned
+  readback with the resolved status. The route did not show appeal/request-
+  review language, admin notes, moderator identity, moderation-action reasons,
+  target bodies, hidden material, target mutation actions, or admin queue
+  actions, and no mobile overflow/offscreen primary controls appeared. No
+  additional PR85 visible UI defect remains, and no schema, target mutation,
+  admin-console behavior, public moderation log, subcommunity platform,
+  delegated moderator model, notifications, reputation/witness mechanics, AI
+  posting, billing/provider/cache, Developer Space, auth/session refactor, or
+  public visibility-widening work was added.
 
 ## Near-term rule
 
