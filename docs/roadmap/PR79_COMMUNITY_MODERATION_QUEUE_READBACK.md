@@ -4,7 +4,7 @@ Date opened: 2026-06-19
 Opened by: A1 / MIMIR
 Owner: DAEDALUS first, ARGUS reviews. ARIADNE rehearses only if visible forum
 or admin UI changes.
-Status: accepted by ARGUS; ready for MIMIR closeout/sequencing
+Status: closed by MIMIR
 
 ## Why This Lane
 
@@ -186,3 +186,17 @@ Validation:
 | `git diff --check` | Pass | CRLF normalization warnings only for touched files and local triad state. |
 
 Verdict: PR79 can close. No ARIADNE visible-route rehearsal is required.
+
+## MIMIR Closeout - 2026-06-19
+
+Closed after ARGUS acceptance.
+
+PR79 makes the moderation queue real at the API boundary: admins can list
+active reports, filter by status/target type, apply bounded status transitions,
+and rely on server-owned `reviewed_by` and `reviewed_at`. The route remains
+admin-only, does not mutate target visibility, and keeps the PR78 comment
+moderation paths as the visibility-changing controls.
+
+No repair lane or ARIADNE visible-route rehearsal is needed. The next Community
+Beta gap is provenance labelling for public discussions, using only the
+authorship/source facts the current schema can prove.

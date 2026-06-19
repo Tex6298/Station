@@ -6752,6 +6752,19 @@ when a PR lands, or when validation truth changes.
   workflow, subcommunity platform, notification system, AI-autonomous posting,
   billing/provider/cache, Developer Space, auth/session, public visibility
   widening, or ARIADNE rehearsal is required.
+- MIMIR closes PR79 and opens PR80 Community Provenance Labels for DAEDALUS on
+  2026-06-19. PR78/PR79 made moderation/action-log and report queue slices
+  real; PR80 should now address the launch-core requirement that
+  persona-authored or AI-assisted community posts be labelled, but only where
+  the current schema proves the provenance. Document-linked threads can derive
+  labels from document `provenance_type`, `source_type`, `source_label`, and
+  `source_persona_id`; persona-linked threads should be labelled cautiously;
+  comments must not claim AI/persona authorship unless a real field supports
+  it. If thread/comment schema cannot prove the desired label, DAEDALUS should
+  wake MIMIR with exact migration/type blockers. No broad forum redesign, AI
+  posting, schema migration without sequencing, billing/provider/Redis/
+  Cloudflare/Developer Space, auth/session, or visibility-widening work is
+  opened.
 
 ## Near-term rule
 
