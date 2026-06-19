@@ -30,6 +30,12 @@ export interface DeveloperSpaceWidgetConfig {
   visible: boolean;
 }
 
+export interface DeveloperSpacePublicFieldControls {
+  nodeMetricKeys?: string[];
+  eventDataKeys?: string[];
+  snapshotDataKeys?: string[];
+}
+
 export interface DeveloperSpaceRecord {
   id: string;
   ownerUserId: string;
@@ -42,7 +48,10 @@ export interface DeveloperSpaceRecord {
   visibility: DeveloperSpaceVisibility;
   providerPolicy: DeveloperSpaceProviderPolicy;
   visualisationType: DeveloperSpaceVisualisationType;
-  visualisationConfig: Record<string, unknown> & { widgets?: DeveloperSpaceWidgetConfig[] };
+  visualisationConfig: Record<string, unknown> & {
+    widgets?: DeveloperSpaceWidgetConfig[];
+    publicFieldControls?: DeveloperSpacePublicFieldControls;
+  };
   apiKeyLastFour?: string | null;
   apiKeyCreatedAt?: string | null;
   createdAt: string;

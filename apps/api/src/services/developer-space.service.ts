@@ -5,6 +5,7 @@ import type {
   DeveloperSpaceEvent,
   DeveloperSpaceNode,
   DeveloperSpaceProviderPolicy,
+  DeveloperSpacePublicFieldControls,
   DeveloperSpaceRecord,
   DeveloperSpaceSnapshot,
   DeveloperSpaceVisibility,
@@ -40,6 +41,11 @@ const SENSITIVE_JSON_KEYS = new Set([
   "token",
 ]);
 const SENSITIVE_JSON_KEY_FRAGMENTS = ["password", "token", "secret", "credential", "cookie"];
+const PUBLIC_FIELD_CONTROL_KEYS = {
+  nodeMetricKeys: "nodeMetricKeys",
+  eventDataKeys: "eventDataKeys",
+  snapshotDataKeys: "snapshotDataKeys",
+} as const;
 
 export type DeveloperSpacePolicyContext = "public_synthetic" | "public_context" | "private_archive";
 export type DeveloperSpaceProviderMode = "platform" | "owner_byok";
@@ -144,6 +150,34 @@ export function normaliseSourceRefs(refs: unknown): string[] {
     .slice(0, 24);
 }
 
+function normalisePublicFieldKey(value: unknown): string | null {
+  if (typeof value !== "string") return null;
+  const trimmed = value.trim();
+  if (!/^[a-zA-Z0-9_.:-]{1,80}$/.test(trimmed)) return null;
+  return trimmed;
+}
+
+function normalisePublicFieldKeyList(value: unknown): string[] | undefined {
+  if (!Array.isArray(value)) return undefined;
+  const keys = value
+    .map(normalisePublicFieldKey)
+    .filter((key): key is string => Boolean(key));
+  return [...new Set(keys)].slice(0, 32);
+}
+
+export function normaliseDeveloperSpacePublicFieldControls(config: unknown): DeveloperSpacePublicFieldControls | null {
+  if (!config || typeof config !== "object") return null;
+  const controls = (config as Record<string, unknown>).publicFieldControls;
+  if (!controls || typeof controls !== "object" || Array.isArray(controls)) return null;
+  const input = controls as Record<string, unknown>;
+  const normalised: DeveloperSpacePublicFieldControls = {};
+  for (const key of Object.values(PUBLIC_FIELD_CONTROL_KEYS)) {
+    const keys = normalisePublicFieldKeyList(input[key]);
+    if (keys !== undefined) normalised[key] = keys;
+  }
+  return Object.keys(normalised).length > 0 ? normalised : null;
+}
+
 function normaliseSensitiveJsonKey(key: string): string {
   return key.replace(/[^a-z0-9]/gi, "").toLowerCase();
 }
@@ -155,13 +189,15 @@ function isSensitiveJsonKey(key: string): boolean {
   return SENSITIVE_JSON_KEY_FRAGMENTS.some((fragment) => normalised.includes(fragment));
 }
 
-export function publicSafeDeveloperSpaceData(value: unknown): unknown {
-  if (Array.isArray(value)) return value.map(publicSafeDeveloperSpaceData);
+export function publicSafeDeveloperSpaceData(value: unknown, allowedKeys?: string[] | null): unknown {
+  if (Array.isArray(value)) return value.map((item) => publicSafeDeveloperSpaceData(item));
   if (!value || typeof value !== "object") return value;
+  const allowed = allowedKeys ? new Set(allowedKeys) : null;
 
   return Object.fromEntries(
     Object.entries(value as Record<string, unknown>)
       .filter(([key]) => !isSensitiveJsonKey(key))
+      .filter(([key]) => !allowed || allowed.has(key))
       .map(([key, nested]) => [key, publicSafeDeveloperSpaceData(nested)])
   );
 }
@@ -216,7 +252,7 @@ export function serializeDeveloperSpace(row: any, options: { includeOperationalF
 
 export function serializeDeveloperSpaceNode(
   row: any,
-  options: { includeRawData?: boolean } = {}
+  options: { includeRawData?: boolean; publicFieldKeys?: string[] | null } = {}
 ): DeveloperSpaceNode {
   const includeRawData = options.includeRawData ?? false;
   return {
@@ -232,7 +268,9 @@ export function serializeDeveloperSpaceNode(
     dimensionality: row.dimensionality === null || row.dimensionality === undefined
       ? null
       : Number(row.dimensionality),
-    metrics: includeRawData ? row.metrics ?? {} : publicSafeDeveloperSpaceData(row.metrics ?? {}) as Record<string, unknown>,
+    metrics: includeRawData
+      ? row.metrics ?? {}
+      : publicSafeDeveloperSpaceData(row.metrics ?? {}, options.publicFieldKeys) as Record<string, unknown>,
     lastEventAt: row.last_event_at ?? null,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
@@ -241,7 +279,7 @@ export function serializeDeveloperSpaceNode(
 
 export function serializeDeveloperSpaceEvent(
   row: any,
-  options: { includeRawData?: boolean } = {}
+  options: { includeRawData?: boolean; publicFieldKeys?: string[] | null } = {}
 ): DeveloperSpaceEvent {
   const includeRawData = options.includeRawData ?? false;
   return {
@@ -251,7 +289,9 @@ export function serializeDeveloperSpaceEvent(
     externalNodeId: row.external_node_id ?? null,
     eventType: row.event_type,
     eventLabel: row.event_label ?? null,
-    eventData: includeRawData ? row.event_data ?? {} : publicSafeDeveloperSpaceData(row.event_data ?? {}) as Record<string, unknown>,
+    eventData: includeRawData
+      ? row.event_data ?? {}
+      : publicSafeDeveloperSpaceData(row.event_data ?? {}, options.publicFieldKeys) as Record<string, unknown>,
     similarityScore: row.similarity_score === null || row.similarity_score === undefined
       ? null
       : Number(row.similarity_score),
@@ -265,13 +305,15 @@ export function serializeDeveloperSpaceEvent(
 
 export function serializeDeveloperSpaceSnapshot(
   row: any,
-  options: { includeRawData?: boolean } = {}
+  options: { includeRawData?: boolean; publicFieldKeys?: string[] | null } = {}
 ): DeveloperSpaceSnapshot {
   const includeRawData = options.includeRawData ?? false;
   return {
     id: row.id,
     developerSpaceId: row.developer_space_id,
-    snapshotData: includeRawData ? row.snapshot_data ?? {} : publicSafeDeveloperSpaceData(row.snapshot_data ?? {}) as Record<string, unknown>,
+    snapshotData: includeRawData
+      ? row.snapshot_data ?? {}
+      : publicSafeDeveloperSpaceData(row.snapshot_data ?? {}, options.publicFieldKeys) as Record<string, unknown>,
     sourceRefs: normaliseSourceRefs(row.source_refs),
     provenance: row.provenance ?? "api",
     visibility: row.visibility ?? "public",

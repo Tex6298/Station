@@ -129,6 +129,36 @@ The request-window limiter is active only when the operational-cache provider is
 enabled. Disabled local cache fallback stays explicit and does not pretend
 rate limiting is active.
 
+## Public field controls
+
+Owners can keep raw operational data in owner views while narrowing what
+visitors see in public/member observatory responses. The current bounded shape
+lives in `developer_spaces.visualisation_config`:
+
+```json
+{
+  "publicFieldControls": {
+    "nodeMetricKeys": ["uptime", "confidence"],
+    "eventDataKeys": ["status", "summary", "phase"],
+    "snapshotDataKeys": ["summary", "nodeCount"]
+  }
+}
+```
+
+These controls apply only to non-owner Developer Space detail responses,
+including public detail reads and SSE updates. Owner reads and ingestion
+responses keep the existing raw owner data path.
+
+When no allowlist is configured for a field family, Station keeps the existing
+public-safe behavior: non-owner responses include non-secret-shaped top-level
+and nested values after scrubbing. When an allowlist is configured, non-owner
+responses include only those top-level keys, then still run the secret-key
+scrubber. Allowlisting `token`, `password`, `secretKey`, `authorization`,
+`cookie`, `raw`, or similar secret-shaped names will not publish them.
+
+Field controls are a visitor readability and safety layer. They are not
+canonical storage, billing, provider, Redis, retrieval, or memory behavior.
+
 ## Follow-up patches
 
 This list is no longer a separate queue. Its accepted work is folded into

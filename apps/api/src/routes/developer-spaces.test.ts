@@ -669,6 +669,11 @@ test("Developer Spaces smoke covers creation, keying, ingestion, and public/owne
           zoneField: "room",
           maxZones: 6,
           staggerZones: false,
+          publicFieldControls: {
+            nodeMetricKeys: ["uptime", "accessToken", "raw"],
+            eventDataKeys: ["zone", "confidence", "nested", "token", "password", "dbPassword"],
+            snapshotDataKeys: ["summary", "nested", "secretKey"],
+          },
         },
       },
     });
@@ -676,6 +681,11 @@ test("Developer Spaces smoke covers creation, keying, ingestion, and public/owne
     assert.equal(visualConfigUpdate.body.space.visualisationType, "world_map");
     assert.equal(visualConfigUpdate.body.space.visualisationConfig.zoneField, "room");
     assert.equal(visualConfigUpdate.body.space.visualisationConfig.maxZones, 6);
+    assert.deepEqual(visualConfigUpdate.body.space.visualisationConfig.publicFieldControls.nodeMetricKeys, [
+      "uptime",
+      "accessToken",
+      "raw",
+    ]);
 
     const apiKeyResponse = await requestJson(app, "POST", `/developer-spaces/${spaceId}/api-key`, {
       token: "owner-token",
@@ -926,11 +936,22 @@ test("Developer Spaces smoke covers creation, keying, ingestion, and public/owne
     assert.equal(publicDetail.body.space.visualisationConfig.zoneField, "room");
     assert.equal(publicDetail.body.space.visualisationConfig.maxZones, 6);
     assert.equal(publicDetail.body.nodes.length, 1);
+    assert.deepEqual(publicDetail.body.nodes[0].metrics, { uptime: 99.8 });
     assert.equal(publicDetail.body.nodes[0].metrics.raw, undefined);
+    assert.equal(publicDetail.body.nodes[0].metrics.accessToken, undefined);
     assert.equal(publicDetail.body.latestSnapshot.snapshotData.summary, "Stable");
+    assert.deepEqual(publicDetail.body.latestSnapshot.snapshotData.nested, { safe: "snapshot-safe-value" });
+    assert.equal(publicDetail.body.latestSnapshot.snapshotData.load, undefined);
     assert.equal(publicDetail.body.latestSnapshot.snapshotData.raw, undefined);
+    assert.equal(publicDetail.body.latestSnapshot.snapshotData.secretKey, undefined);
     assert.equal(publicDetail.body.events.some((event: Row) => event.visibility === "private"), false);
     assert.equal(publicDetail.body.events.some((event: Row) => event.eventType === "signal.detected"), true);
+    const publicSignal = publicDetail.body.events.find((event: Row) => event.eventType === "signal.detected");
+    assert.deepEqual(publicSignal.eventData, {
+      zone: "North Array",
+      confidence: 0.92,
+      nested: { safe: "public-safe-value" },
+    });
     assert.equal(publicDetail.body.linkedDocuments.length, 3);
     assert.deepEqual(
       publicDetail.body.linkedDocuments.map((link: Row) => link.role).sort(),
@@ -971,6 +992,18 @@ test("Developer Spaces smoke covers creation, keying, ingestion, and public/owne
     assert.equal(publicText.includes("public-safe-value"), true);
     assert.equal(publicText.includes("snapshot-safe-value"), true);
 
+    const memberDetail = await requestJson(app, "GET", "/developer-spaces/animus-field", {
+      token: "other-token",
+    });
+    assert.equal(memberDetail.status, 200);
+    assert.equal(memberDetail.body.access, "member");
+    assert.deepEqual(memberDetail.body.nodes[0].metrics, publicDetail.body.nodes[0].metrics);
+    assert.deepEqual(
+      memberDetail.body.events.find((event: Row) => event.eventType === "signal.detected").eventData,
+      publicSignal.eventData,
+    );
+    assert.deepEqual(memberDetail.body.latestSnapshot.snapshotData, publicDetail.body.latestSnapshot.snapshotData);
+
     const ownerDetail = await requestJson(app, "GET", "/developer-spaces/animus-field", {
       token: "owner-token",
     });
@@ -980,7 +1013,9 @@ test("Developer Spaces smoke covers creation, keying, ingestion, and public/owne
     assert.equal(ownerDetail.body.space.apiKeyLastFour, apiKeyResponse.body.apiKey.slice(-4));
     assert.equal(ownerDetail.body.events.some((event: Row) => event.visibility === "private"), true);
     assert.equal(ownerDetail.body.nodes[0].metrics.raw.hidden, true);
+    assert.equal(ownerDetail.body.nodes[0].metrics.accessToken, "node-access-token");
     assert.equal(ownerDetail.body.latestSnapshot.snapshotData.raw.prompt, "owner-only");
+    assert.equal(ownerDetail.body.latestSnapshot.snapshotData.load, 0.44);
     assert.equal(ownerDetail.body.linkedDocuments.length, 4);
     assert.equal(ownerDetail.body.linkedDocuments.some((link: Row) => link.role === "methodology" && link.linkVisibility === "owner"), true);
     assert.equal(ownerDetail.body.linkedDocuments.some((link: Row) => link.role === "field_log" && link.linkVisibility === "public"), true);
@@ -1021,6 +1056,12 @@ test("Developer Spaces smoke covers creation, keying, ingestion, and public/owne
     assert.equal(typeof publicSse.id, "string");
     assert.equal(publicSse.data.kind, "detail");
     assert.equal(publicSse.data.detail.access, "public");
+    assert.deepEqual(publicSse.data.detail.nodes[0].metrics, publicDetail.body.nodes[0].metrics);
+    assert.deepEqual(
+      publicSse.data.detail.events.find((event: Row) => event.eventType === "signal.detected").eventData,
+      publicSignal.eventData,
+    );
+    assert.deepEqual(publicSse.data.detail.latestSnapshot.snapshotData, publicDetail.body.latestSnapshot.snapshotData);
     assert.equal(publicSse.data.detail.events.some((event: Row) => event.visibility === "private"), false);
     assert.equal(publicSse.data.detail.linkedDocuments.length, 3);
     assert.equal(publicSse.data.detail.linkedDocuments.some((link: Row) => link.role === "methodology"), true);
@@ -1052,7 +1093,7 @@ test("Developer Spaces smoke covers creation, keying, ingestion, and public/owne
     assert.equal(usage.body.usage.counters.nodes, 1);
     assert.equal(usage.body.usage.counters.events, 3);
     assert.equal(usage.body.usage.counters.snapshots, 1);
-    assert.equal(usage.body.usage.counters.publicReads, 3);
+    assert.equal(usage.body.usage.counters.publicReads, 4);
     assert.equal(usage.body.usage.counters.exports, 0);
     assert.equal(usage.body.usage.limits.events, 100000);
     assert.equal(usage.body.usage.warningLevel, "ok");
@@ -1276,6 +1317,53 @@ test("Developer Space ingestion rate limit is cache-backed and machine-readable"
     } else {
       process.env.DEVELOPER_SPACE_INGEST_RATE_LIMIT_WINDOW_SECONDS = previousWindow;
     }
+    setSupabaseAdminForTests(null);
+    resetOperationalCacheProviderForTests();
+  }
+});
+
+test("Developer Space public field controls keep default scrubber compatibility when unset", async () => {
+  const db = new InMemorySupabase();
+  setSupabaseAdminForTests(db.client as any);
+  setOperationalCacheProviderForTests(new DisabledOperationalCacheProvider("test_disabled"));
+  const app = createDeveloperSpacesApp();
+
+  try {
+    const created = await requestJson(app, "POST", "/developer-spaces", {
+      token: "owner-token",
+      body: {
+        projectName: "Default Public Fields",
+        visibility: "public",
+      },
+    });
+    assert.equal(created.status, 201);
+    const apiKeyResponse = await requestJson(app, "POST", `/developer-spaces/${created.body.space.id}/api-key`, {
+      token: "owner-token",
+    });
+    assert.equal(apiKeyResponse.status, 201);
+
+    const event = await requestJson(app, "POST", "/developer-spaces/ingest/events", {
+      developerKey: apiKeyResponse.body.apiKey,
+      body: {
+        eventType: "default.public",
+        eventData: {
+          status: "visible",
+          phase: "alpha",
+          token: "hidden-token",
+        },
+      },
+    });
+    assert.equal(event.status, 202);
+
+    const publicDetail = await requestJson(app, "GET", "/developer-spaces/default-public-fields");
+    assert.equal(publicDetail.status, 200);
+    const publicEvent = publicDetail.body.events.find((row: Row) => row.eventType === "default.public");
+    assert.deepEqual(publicEvent.eventData, {
+      status: "visible",
+      phase: "alpha",
+    });
+    assert.equal(JSON.stringify(publicDetail.body).includes("hidden-token"), false);
+  } finally {
     setSupabaseAdminForTests(null);
     resetOperationalCacheProviderForTests();
   }

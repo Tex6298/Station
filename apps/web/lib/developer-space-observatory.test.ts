@@ -272,4 +272,19 @@ test("visual config helpers provide bounded defaults per mode", () => {
     maxZones: 24,
     staggerZones: true,
   });
+  assert.deepEqual(
+    normaliseDeveloperSpaceVisualConfig("world_map", {
+      zoneField: "room",
+      publicFieldControls: {
+        nodeMetricKeys: ["uptime", " uptime ", "bad key"],
+        eventDataKeys: ["status", "token"],
+        snapshotDataKeys: Array.from({ length: 40 }, (_, index) => `field_${index}`),
+      },
+    }).publicFieldControls,
+    {
+      nodeMetricKeys: ["uptime"],
+      eventDataKeys: ["status", "token"],
+      snapshotDataKeys: Array.from({ length: 32 }, (_, index) => `field_${index}`),
+    },
+  );
 });

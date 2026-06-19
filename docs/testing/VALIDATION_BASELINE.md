@@ -9236,6 +9236,44 @@ Scope notes:
   expansion, raw ingestion key storage, secret logging, broad UI, public
   serializer expansion, or visible web UI changed.
 
+## PR77 Developer Space Public Field Controls
+
+DAEDALUS implementation validation on 2026-06-19:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 16 tests passed, including owner raw data, public/member allowlisting, default compatibility, secret scrub despite allowlist, and public detail/SSE parity. |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-space-client` | Pass | 4 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck completed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 42 tests passed because a web helper changed. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/types build` | Pass | Shared type build completed. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/developer-space-client build` | Pass | TypeScript package build completed. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web build` | Partial / known Windows failure | Next compiled, linted/typechecked, collected page data, generated 31 static pages, then hit the known local Windows standalone symlink `EPERM`. Only the pre-existing raw `<img>` warnings appeared. |
+| `git diff --check` | Pass | CRLF normalization warnings only for touched files and local triad state. |
+
+Scope notes:
+
+- Reused `developer_spaces.visualisation_config.publicFieldControls`; no
+  migration or new table was added.
+- The public field-control shape supports `nodeMetricKeys`, `eventDataKeys`,
+  and `snapshotDataKeys` as bounded top-level allowlists.
+- Owner reads and ingestion responses keep raw operational metrics, event data,
+  and snapshot data.
+- Public/member detail reads and SSE updates apply allowlists only when
+  configured for that data family.
+- Secret-shaped keys are stripped from public/member responses even when listed
+  in an allowlist.
+- Default no-allowlist behavior remains compatible with the existing
+  public-safe scrubber.
+- The web visual-config helper preserves the controls during owner config
+  saves, but no visual editor or visible UI was added.
+- No table/migration, ingestion payload contract, raw public payload expansion,
+  public exposure of private/community events, owner-only linked documents,
+  unpublished documents, ingestion keys, credentials, prompts, archive text,
+  secret-shaped values, Redis, Cloudflare, provider/model, billing,
+  Project/DexOS, hosted runtime, worker, parser/OAuth, public persona, broad
+  UI, or heavy visual editor changed.
+
 ARGUS review validation on 2026-06-19:
 
 | Command | Result | Notes |

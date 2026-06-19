@@ -4,7 +4,7 @@ Date opened: 2026-06-19
 Opened by: A1 / MIMIR
 Owner: DAEDALUS first, ARGUS reviews. ARIADNE rehearses only if visible
 Developer Space UI changes.
-Status: open
+Status: implemented by DAEDALUS; ready for ARGUS review
 
 ## Why This Lane
 
@@ -151,3 +151,68 @@ DAEDALUS must wake ARGUS with:
 
 If blocked, wake MIMIR instead with the blocker. Do not go idle without a
 wakeup handoff.
+
+## DAEDALUS implementation - 2026-06-19
+
+Implemented the small `visualisation_config.publicFieldControls` path without a
+schema migration or ingestion-contract change.
+
+Field-control shape:
+
+```json
+{
+  "publicFieldControls": {
+    "nodeMetricKeys": ["uptime", "confidence"],
+    "eventDataKeys": ["status", "summary", "phase"],
+    "snapshotDataKeys": ["summary", "nodeCount"]
+  }
+}
+```
+
+Behavior:
+
+- owner reads and ingestion responses keep the existing raw owner data path;
+- public/member detail reads and SSE updates apply the configured top-level
+  allowlists for node metrics, event data, and snapshot data;
+- if no allowlist is configured for a family, the existing public-safe secret
+  scrubber behavior remains compatible;
+- secret-shaped keys are stripped from public/member responses even when they
+  appear in an allowlist;
+- web visual config normalization preserves the bounded public-field controls
+  when an owner saves other visual config, but no visual editor or visible UI
+  was added.
+
+Files changed:
+
+- `apps/api/src/services/developer-space.service.ts`
+- `apps/api/src/routes/developer-spaces.ts`
+- `apps/api/src/routes/developer-spaces.test.ts`
+- `apps/web/lib/developer-space-visual-config.ts`
+- `apps/web/lib/developer-space-observatory.test.ts`
+- `packages/types/src/developer-space.ts`
+- `docs/integration/intelhub-to-station-developer-spaces.md`
+- `docs/roadmap/PR77_DEVELOPER_SPACE_PUBLIC_FIELD_CONTROLS.md`
+- `docs/roadmap/ACTIVE_STATUS.md`
+- `docs/testing/VALIDATION_BASELINE.md`
+
+Validation:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 16 tests passed, including owner raw data, public/member allowlisting, default compatibility, secret scrub despite allowlist, and public detail/SSE parity. |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-space-client` | Pass | 4 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck completed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 42 tests passed because a web helper changed. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/types build` | Pass | Shared type build completed. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/developer-space-client build` | Pass | Client package build completed. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web build` | Partial / known Windows failure | Next compiled, linted/typechecked, collected page data, generated 31 static pages, then hit the known local Windows standalone symlink `EPERM`. Only the pre-existing raw `<img>` warnings appeared. |
+| `git diff --check` | Pass | CRLF normalization warnings only for touched files and local triad state. |
+
+Non-scope:
+
+- No new table, migration, ingestion payload contract, raw public payload
+  expansion, public exposure of private/community events, owner-only linked
+  documents, unpublished documents, ingestion keys, credentials, prompts,
+  archive text, secret-shaped values, Redis, Cloudflare, provider/model,
+  billing, Project/DexOS, hosted runtime, worker, parser/OAuth, public persona,
+  broad UI, or heavy visual editor.

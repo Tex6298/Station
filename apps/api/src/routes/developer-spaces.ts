@@ -23,6 +23,7 @@ import {
   extractDeveloperApiKey,
   generateDeveloperSpaceApiKey,
   hashDeveloperSpaceApiKey,
+  normaliseDeveloperSpacePublicFieldControls,
   normaliseSourceRefs,
   serializeDeveloperSpace,
   serializeDeveloperSpaceEvent,
@@ -649,12 +650,24 @@ async function buildDeveloperSpaceLiveUpdate(
     return { status: 500, error: e instanceof Error ? e.message : "Could not load linked documents." };
   }
   const includeRawData = access === "owner";
+  const publicFieldControls = includeRawData
+    ? null
+    : normaliseDeveloperSpacePublicFieldControls(space.visualisation_config);
   const emittedAt = new Date().toISOString();
   const detail = {
     space: serializeDeveloperSpace(space, { includeOperationalFields: access === "owner" }),
-    nodes: nodes.map((node) => serializeDeveloperSpaceNode(node, { includeRawData })),
-    events: events.map((event) => serializeDeveloperSpaceEvent(event, { includeRawData })),
-    latestSnapshot: latestSnapshot ? serializeDeveloperSpaceSnapshot(latestSnapshot, { includeRawData }) : null,
+    nodes: nodes.map((node) => serializeDeveloperSpaceNode(node, {
+      includeRawData,
+      publicFieldKeys: publicFieldControls?.nodeMetricKeys,
+    })),
+    events: events.map((event) => serializeDeveloperSpaceEvent(event, {
+      includeRawData,
+      publicFieldKeys: publicFieldControls?.eventDataKeys,
+    })),
+    latestSnapshot: latestSnapshot ? serializeDeveloperSpaceSnapshot(latestSnapshot, {
+      includeRawData,
+      publicFieldKeys: publicFieldControls?.snapshotDataKeys,
+    }) : null,
     linkedDocuments: linkedDocumentsResult.linkedDocuments,
     access,
   };

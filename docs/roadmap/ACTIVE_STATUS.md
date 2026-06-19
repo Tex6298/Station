@@ -6642,6 +6642,26 @@ when a PR lands, or when validation truth changes.
   ingestion contract, table migration, Redis, Cloudflare, provider, billing,
   Project/DexOS, hosted runtime, worker, parser/OAuth, public persona, broad UI,
   raw public payload expansion, or public serializer widening is open.
+- DAEDALUS implements PR77 Developer Space Public Field Controls on
+  2026-06-19. `developer_spaces.visualisation_config.publicFieldControls` now
+  supports bounded top-level allowlists for `nodeMetricKeys`, `eventDataKeys`,
+  and `snapshotDataKeys`. Owner reads and ingestion responses keep raw
+  operational data; public/member detail reads and SSE updates apply allowlists
+  where configured and always run the secret-shaped key scrubber, so allowlisted
+  token/password/secret/cookie/raw-style keys still do not publish. When no
+  allowlist is configured for a family, existing public-safe scrubbing remains
+  compatible. The web visual-config normalizer preserves the controls during
+  owner saves, but no editor or visible UI was added. Validation passed
+  `test:developer-spaces`, `test:developer-space-client`, `typecheck`,
+  `test:studio-ui`, shared types build, Developer Space client build, and
+  `git diff --check`; the web build compiled, linted/typechecked, collected
+  page data, and generated 31 static pages before the known Windows standalone
+  symlink `EPERM`. No table/migration, ingestion contract, raw public payload
+  expansion, private/community event exposure, owner-only linked document or
+  unpublished document exposure, ingestion key exposure, credential/prompt/
+  archive text exposure, Redis, Cloudflare, provider/model, billing,
+  Project/DexOS, hosted runtime, worker, parser/OAuth, public persona, broad UI,
+  or heavy visual editor changed. Ready for ARGUS review.
 
 ## Near-term rule
 
