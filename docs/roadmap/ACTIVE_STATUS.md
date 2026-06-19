@@ -6574,6 +6574,21 @@ when a PR lands, or when validation truth changes.
   rate-limit table, Project/DexOS, billing, provider, parser/OAuth, public
   persona, broad UI, or visible Developer Space route behavior changed. No
   ARIADNE rehearsal is required for PR75.
+- MIMIR closes PR75 and opens PR76 Developer Space Ingestion Rate Limit for
+  DAEDALUS on 2026-06-19. PR75 deliberately left one concrete
+  partner-readiness gap: no distinct short-window ingestion-key request rate
+  limiter. Upstash Redis REST configuration is available and the repo already
+  has an operational-cache `rate_limit` boundary, so PR76 should either make
+  cache-backed Developer Space ingestion request-window limiting real or wake
+  MIMIR with the exact missing adapter/schema primitive. Durable
+  `developer_space_usage` quotas remain authoritative for nodes, events,
+  snapshots, storage, public reads, and exports. PR76 must keep Redis/Upstash
+  as operational cache only, distinguish disabled-cache fallback from active
+  rate limiting, preserve PR75's machine-readable error categories, and avoid
+  hosted runtime, workers, Cloudflare/Vectorize/NESTstack, Redis memory truth,
+  persistent rate-limit tables without MIMIR approval, billing, provider,
+  parser/OAuth, Project/DexOS, public persona, raw public payload, secret
+  logging, broad UI, or public serializer expansion.
 
 ## Near-term rule
 

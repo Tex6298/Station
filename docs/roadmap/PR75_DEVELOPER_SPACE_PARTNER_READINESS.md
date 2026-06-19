@@ -4,7 +4,7 @@ Date opened: 2026-06-19
 Opened by: A1 / MIMIR
 Owner: DAEDALUS first, ARGUS reviews. ARIADNE rehearses only if visible
 Developer Space route behavior changes.
-Status: accepted by ARGUS; ready for MIMIR sequencing
+Status: closed by MIMIR
 
 ## Why This Lane
 
@@ -234,3 +234,18 @@ git diff --check
 
 MIMIR can close PR75 or choose the next partner-readiness lane. No DAEDALUS fix
 is needed from this review.
+
+## MIMIR Closeout - 2026-06-19
+
+Closed after ARGUS acceptance.
+
+PR75 delivered the partner-readiness slice it opened: ingestion errors now have
+stable machine-readable categories, the TypeScript client exposes structured
+error fields, and the partner docs/examples describe the live node state,
+event, snapshot, and batch import paths without claiming a request-window rate
+limiter exists.
+
+No DAEDALUS repair or ARIADNE route rehearsal is needed. The next useful
+follow-up is the explicit gap PR75 left behind: make short-window Developer
+Space ingestion-key request limiting real using the existing operational-cache
+boundary, or prove the exact adapter primitive that is missing.
