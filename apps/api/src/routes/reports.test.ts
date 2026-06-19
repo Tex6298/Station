@@ -387,6 +387,12 @@ test("reports queue and status updates are admin-only and server-owned", async (
     );
     assert.equal(adminQueue.body.reports[1].notes, "Visible only to admins.");
 
+    const limitedQueue = await requestJson(app, "GET", "/reports?limit=1", {
+      token: "admin-token",
+    });
+    assert.equal(limitedQueue.status, 200);
+    assert.deepEqual(limitedQueue.body.reports.map((report: Row) => report.id), [reviewingReport.id]);
+
     const commentQueue = await requestJson(app, "GET", "/reports?targetType=comment", {
       token: "admin-token",
     });
@@ -403,6 +409,11 @@ test("reports queue and status updates are admin-only and server-owned", async (
       token: "admin-token",
     });
     assert.equal(invalidQueue.status, 400);
+
+    const anonymousUpdate = await requestJson(app, "PATCH", `/reports/${openReport.id}`, {
+      body: { status: "resolved" },
+    });
+    assert.equal(anonymousUpdate.status, 401);
 
     const memberUpdate = await requestJson(app, "PATCH", `/reports/${openReport.id}`, {
       token: "owner-token",

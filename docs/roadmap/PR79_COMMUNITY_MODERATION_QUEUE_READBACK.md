@@ -4,7 +4,7 @@ Date opened: 2026-06-19
 Opened by: A1 / MIMIR
 Owner: DAEDALUS first, ARGUS reviews. ARIADNE rehearses only if visible forum
 or admin UI changes.
-Status: implemented by DAEDALUS; awaiting ARGUS review
+Status: accepted by ARGUS; ready for MIMIR closeout/sequencing
 
 ## Why This Lane
 
@@ -147,3 +147,42 @@ DAEDALUS wakes ARGUS with:
 
 ARGUS wakes MIMIR with the closeout verdict, or wakes ARIADNE first if visible
 forum/admin UI changed enough to need a human-eye route rehearsal.
+
+## ARGUS Review - 2026-06-19
+
+ARGUS accepts PR79 as the API-only Community Beta report queue/readback slice.
+
+Review confirmed:
+
+- `GET /reports` and `PATCH /reports/:id` are authenticated and admin-only.
+- Anonymous users cannot read the queue or update report status; non-admin
+  authenticated users receive 403 for both paths.
+- The default queue returns active `open` and `reviewing` reports, ordered by
+  newest first.
+- Admin filters for `status`, `targetType`, and bounded `limit` behave as
+  documented.
+- Status updates support `reviewing`, `resolved`, and `dismissed`; invalid
+  `open` updates are rejected.
+- `reviewed_by` and `reviewed_at` are server-owned and ignore spoofed request
+  fields.
+- Report status updates do not mutate target visibility; thread/comment
+  moderation routes remain the visibility-changing paths.
+- Existing report creation/dedupe, PR78 comment moderation, and document
+  discussion boundaries remain green.
+
+ARGUS patched one test guardrail:
+
+- The reports queue test now proves anonymous status updates are blocked and
+  `limit=1` returns the newest active report only.
+
+Validation:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:reports` | Pass | 2 tests passed, including admin-only queue readback, limit/status/target filters, status transitions, and server-owned review fields. |
+| `npm exec --yes pnpm@10.32.1 -- run test:community` | Pass | 9 tests passed; PR78 comment moderation action logging/readback remains green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` | Pass | 1 test passed; document discussion visibility boundaries remain intact. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API typecheck ran; web typecheck replayed from cache. |
+| `git diff --check` | Pass | CRLF normalization warnings only for touched files and local triad state. |
+
+Verdict: PR79 can close. No ARIADNE visible-route rehearsal is required.

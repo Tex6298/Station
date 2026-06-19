@@ -9242,7 +9242,7 @@ DAEDALUS implementation validation on 2026-06-19:
 
 | Command | Result | Notes |
 | --- | --- | --- |
-| `npm exec --yes pnpm@10.32.1 -- run test:reports` | Pass | 2 tests passed, including admin-only queue readback, filters, status transitions, and server-owned review fields. |
+| `npm exec --yes pnpm@10.32.1 -- run test:reports` | Pass | 2 tests passed, including admin-only queue readback, limit/status/target filters, status transitions, and server-owned review fields. |
 | `npm exec --yes pnpm@10.32.1 -- run test:community` | Pass | 9 tests passed; PR78 comment moderation action logging/readback remains green. |
 | `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` | Pass | 1 test passed; document discussion visibility boundaries remain intact. |
 | `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API typecheck ran; web typecheck replayed from cache. |
@@ -9256,6 +9256,8 @@ Scope notes:
   filter by `status`, `targetType`, and bounded `limit`.
 - Admin status updates support `reviewing`, `resolved`, and `dismissed`.
 - `reviewed_by` and `reviewed_at` are server-owned on updates.
+- ARGUS review added explicit proof that anonymous status updates are blocked
+  and `limit=1` returns only the newest active report.
 - Anonymous users remain blocked by auth; non-admin authenticated users cannot
   read the queue or update statuses.
 - Report status updates do not mutate target visibility; content moderation

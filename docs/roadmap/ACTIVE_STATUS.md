@@ -6739,6 +6739,19 @@ when a PR lands, or when validation truth changes.
   ARGUS should review role boundaries, status filtering/order, server-owned
   review metadata, and that existing report creation/dedupe plus PR78 comment
   moderation behavior remain green before waking MIMIR or DAEDALUS.
+- ARGUS accepts PR79 Community Moderation Queue Readback on 2026-06-19 as an
+  API-only Community Beta moderation queue slice. Review confirmed admin-only
+  `GET /reports` and `PATCH /reports/:id`, anonymous/member blocking, default
+  active `open`/`reviewing` queue behavior, status/target/limit filters,
+  newest-first ordering, server-owned `reviewed_by` and `reviewed_at`, and no
+  target visibility mutation on report status updates. ARGUS added test proof
+  that anonymous PATCH requests are blocked and `limit=1` returns only the
+  newest active report. Validation passed `test:reports` with 2 tests,
+  `test:community`, `test:document-discussions`, `typecheck`, and
+  `git diff --check`. No schema, visible admin console, forum UI, appeals
+  workflow, subcommunity platform, notification system, AI-autonomous posting,
+  billing/provider/cache, Developer Space, auth/session, public visibility
+  widening, or ARIADNE rehearsal is required.
 
 ## Near-term rule
 
