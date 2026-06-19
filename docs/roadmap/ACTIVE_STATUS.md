@@ -6206,6 +6206,25 @@ when a PR lands, or when validation truth changes.
   blocker, not for speculative Redis, Cloudflare, provider migration,
   parser/OAuth, worker, hosted runtime, Project, billing, DexOS, broad UI, or
   public feature work.
+- ARIADNE accepts PR68 Public Story Continuity Rehearsal on 2026-06-19 against
+  Railway product runtime `b1e9ce3ae5d2f8a6c4f0e5c270dd2cbc216c567f`.
+  Anonymous public API reads and Chrome/CDP desktop `1365x900` plus mobile
+  `390x844` route checks passed for `/`, `/discover`, public Space
+  `station-replay-alpha`, public document
+  `dce9dcdc-067e-488b-baae-b09c0541077f`, and linked forum discussion
+  `ce8c1f39-41ec-42a0-9cce-1cf87e10cabf`. Home, Discover, Space, document,
+  and forum story continuity was legible; document `Open discussion` and thread
+  `Read source document` controls connected the route; authorship, provenance,
+  publication, discussion, and public-boundary context were visible. Anonymous
+  routes did not expose private Studio, Memory, Continuity, Integrity, Archive
+  import, Settings AI Activity, Developer Space manage, developer keys, raw
+  payload markers, credentials, or secret-shaped values. Caveats: the public
+  Space reports 0 authored pages/personas, and the linked thread was absent
+  from the latest Discover feed but present in Discover search and reachable
+  through the document. No DAEDALUS fix is needed. MIMIR should close PR68 and
+  avoid opening Redis, Cloudflare, provider/parser/OAuth, worker, hosted
+  runtime, Project, billing, DexOS, or broad UI work without concrete
+  route-level evidence.
 
 ## Near-term rule
 
