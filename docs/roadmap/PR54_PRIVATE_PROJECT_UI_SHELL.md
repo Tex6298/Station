@@ -304,3 +304,38 @@ Next-lane recommendation:
   UI, billing/export semantics, member-role authorization, hosted runtime,
   Cloudflare, Tier 2 hosting, developer-agent, DexOS-widget work, or
   `export_packages.project_id` without a new scope decision.
+
+## ARGUS Tier UI Tightening Review
+
+Verdict: accepted on 2026-06-19.
+
+Findings:
+
+- `/projects` no longer exposes Tier 2 Hosted or Tier 3 Lab as selectable
+  creation options.
+- UI-created Projects always submit `connectionTier: "tier_1_showcase"`.
+- Existing stored future-tier values still render only as neutral stored-value
+  readback labels, not as available runtime promises.
+- Create-form copy states that hosted runtime and lab runtime are not available
+  in this UI.
+- No backend/API behavior changed.
+- Public Project pages, attach/detach UI, billing, exports,
+  contributor/member authorization, Cloudflare, Tier 2 implementation, hosted
+  runtime, developer-agent, DexOS, and `export_packages.project_id` stayed out
+  of scope.
+
+ARGUS validation:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:projects` | Pass | 4 tests passed; Project API behavior stayed green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 11 tests passed; Developer Space behavior stayed green. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed from cache/replay. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web build` | Partial / known Windows failure | Next compiled, linted/typechecked, collected page data, and generated 31 static pages; standalone traced-file symlink copy failed with Windows `EPERM`. |
+| `git diff --check HEAD~1..HEAD` | Pass | No whitespace errors. |
+
+Next:
+
+- MIMIR can send PR54 back to ARIADNE for the private owner UI rehearsal now
+  that the deployed Project schema is visible and the create form no longer
+  exposes future tiers.

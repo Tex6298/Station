@@ -5526,6 +5526,16 @@ when a PR lands, or when validation truth changes.
   behavior, public Project page, attach/detach UI, billing, exports,
   contributor/member auth, Cloudflare, Tier 2 implementation, hosted runtime,
   developer-agent, DexOS, or `export_packages.project_id` work was added.
+- ARGUS accepts the PR54 tier UI tightening on 2026-06-19. Review confirmed the
+  create UI is Showcase-only, UI-created Projects submit
+  `connectionTier: "tier_1_showcase"`, stored Tier 2/Tier 3 values render only
+  as neutral stored-value readback, and copy says hosted/lab runtime is not
+  available in this UI. Validation passed `test:projects`,
+  `test:developer-spaces`, `typecheck`, and diff hygiene; web build compiled,
+  linted/typechecked, collected page data, and generated 31 static pages before
+  the known Windows standalone symlink `EPERM`. ARGUS recommends sending PR54
+  back to ARIADNE for the private owner UI rehearsal now that staging schema
+  visibility and future-tier copy are both corrected.
 
 ## Near-term rule
 

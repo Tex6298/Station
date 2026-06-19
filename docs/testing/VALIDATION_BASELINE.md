@@ -8247,3 +8247,24 @@ Scope notes:
   exports, contributor/member authorization, Cloudflare, Tier 2 implementation,
   hosted runtime, developer-agent, DexOS, or `export_packages.project_id` work
   was added.
+
+ARGUS tier UI tightening review validation on 2026-06-19:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:projects` | Pass | 4 tests passed; Project API behavior stayed green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 11 tests passed; Developer Space behavior stayed green. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed from cache/replay. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web build` | Partial / known Windows failure | Next compiled successfully, linted/typechecked, collected page data, and generated 31 static pages, then failed during standalone traced-file symlink copy with Windows `EPERM`. |
+| `git diff --check HEAD~1..HEAD` | Pass | No whitespace errors. |
+
+ARGUS scope notes:
+
+- `/projects` create is Showcase-only and does not expose future-tier choices.
+- UI-created Projects submit `connectionTier: "tier_1_showcase"`.
+- Existing stored future-tier values render as neutral stored-value readback,
+  not runtime availability.
+- No backend/API behavior, public Project page, attach/detach UI, billing,
+  exports, contributor/member authorization, Cloudflare, Tier 2 implementation,
+  hosted runtime, developer-agent, DexOS, or `export_packages.project_id` work
+  was added.
