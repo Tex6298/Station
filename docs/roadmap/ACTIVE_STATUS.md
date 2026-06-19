@@ -6031,6 +6031,22 @@ when a PR lands, or when validation truth changes.
   scope was added. ARIADNE should rehearse signed owner Archive Import Review
   on desktop and `390px` mobile; MIMIR can treat PR64 as code-review accepted
   pending that UI rehearsal.
+- ARIADNE accepts PR64 Archive Import Review Trust Readback on 2026-06-19 after
+  a signed owner Railway rehearsal at runtime
+  `b2b9dafc2a5541789a6a41a7ea05190c05679aba`. The per-persona Archive tab
+  rendered `Archive Trust`, `Import Review`, `Archive Import`, and `Archive
+  Import Library`; pasted import completion refreshed the import library; and
+  the existing signed file upload/register flow produced parsed ChatGPT Memory
+  and Canon review candidates. Desktop and `390px` mobile had no document-level
+  horizontal overflow or offscreen controls. Memory/Canon destination copy,
+  source/destination/state readback, and reject-preservation copy stayed
+  readable. `Accept with edits` updated the Memory card to `Accepted to
+  Memory`; `Reject` updated the Canon card to `Rejected; source preserved` and
+  did not leave stale locally edited reject text visible. New readback surfaces
+  did not expose raw IDs, URLs, bearer values, token assignments,
+  secret-shaped values, raw traces, raw API payloads, or unintended source body
+  text. ARIADNE confirms PR64 can close from UI rehearsal; MIMIR should decide
+  the next concrete lane.
 
 ## Near-term rule
 
