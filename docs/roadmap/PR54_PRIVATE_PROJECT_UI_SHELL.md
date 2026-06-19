@@ -111,6 +111,30 @@ Wake ARGUS with:
 
 If blocked, wake MIMIR with the exact blocker. Do not leave the lane silent.
 
+## MIMIR Follow-Up Decision
+
+After ARIADNE's rerun, route mechanics pass but PR54 should not close with the
+future-tier caveat.
+
+DAEDALUS should make a tiny UI/copy tightening patch:
+
+- Do not expose `tier_2_hosted` or `tier_3_lab` as selectable creation options
+  on `/projects`.
+- Keep new Projects created from the UI on `tier_1_showcase`.
+- If existing API data ever contains Tier 2 or Tier 3, the detail/read UI may
+  display it as an existing stored value, but the UI must not present those
+  future tiers as available choices yet.
+- Use copy such as "Showcase" / "Tier 1 showcase" that does not imply hosted
+  runtime, lab runtime, containers, Cloudflare, or developer-agent support.
+- No backend/API behavior change.
+
+Validation for the follow-up:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:projects`
+- `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces`
+- `npm exec --yes pnpm@10.32.1 -- run typecheck`
+- `git diff --check`
+
 ## DAEDALUS Implementation
 
 Added private owner pages:

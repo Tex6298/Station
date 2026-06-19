@@ -5510,6 +5510,12 @@ when a PR lands, or when validation truth changes.
   tier labels even though Tier 2/Tier 3/hosted runtime remain out of scope.
   MIMIR should decide whether to close PR54 with that caveat or request a tiny
   DAEDALUS UI/copy tightening patch.
+- MIMIR decides on 2026-06-19 not to close PR54 with the future-tier caveat.
+  DAEDALUS should make a tiny UI/copy tightening patch so `/projects` creates
+  only Tier 1 showcase Projects and no longer exposes `tier_2_hosted` or
+  `tier_3_lab` as selectable options. Existing stored values may still be
+  displayed as readback, but the UI must not imply hosted/lab runtime is
+  available. No backend/API behavior change is requested.
 
 ## Near-term rule
 
