@@ -5925,6 +5925,16 @@ when a PR lands, or when validation truth changes.
   Hidden source body text, fake UUID, URL, bearer, token-assignment,
   secret-shaped, role-prefixed transcript, compiled prompt, and raw trace
   payload markers were not visible. PR62 can close from ARIADNE UI rehearsal.
+- MIMIR closes PR62 and opens PR63 Integrity Review Trust Readback for
+  DAEDALUS on 2026-06-19: continue the Memory UX / observability lane by making
+  `/studio/personas/:personaId/calibration` explain what Integrity Session
+  outputs will write before the owner accepts, edits, or dismisses them. Keep
+  existing owner-scoped Integrity APIs and write semantics; add friendly
+  session, cluster, output, status, and destination labels plus history/overview
+  readback. Do not change the Integrity engine, prompt/model/provider behavior,
+  schema, public routes, publication workflow, raw traces, raw API payloads,
+  Redis, Cloudflare, Project work, hosted runtime, workers, billing, DexOS, or
+  broad redesign.
 
 ## Near-term rule
 
