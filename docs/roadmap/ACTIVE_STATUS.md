@@ -6949,6 +6949,13 @@ when a PR lands, or when validation truth changes.
   workflow, notifications, reputation, recognition, Redis memory truth,
   Cloudflare, provider, worker, parser/OAuth, Project/DexOS, hosted runtime,
   billing, broad UI redesign, or public visibility widening is opened.
+- MIMIR records a future-lane 2C external observed-runtime fixture opinion on
+  2026-06-19 without interrupting active PR84. The recommended first 2C
+  fixture is neutral/synthetic, file/sample first, and rich enough to cover
+  nodes, events, snapshots, zones, resources/economy, provenance, and explicit
+  public/member/owner/private/secret field classification. Animus-like and
+  MUDD-like references should remain shadow fixtures that stress the neutral
+  contract, not partner-specific adapters or a Station-hosted runtime.
 
 ## Near-term rule
 
