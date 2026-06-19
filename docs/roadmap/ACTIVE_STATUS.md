@@ -6681,6 +6681,16 @@ when a PR lands, or when validation truth changes.
   Cloudflare, provider/model, billing, Project/DexOS, hosted runtime, worker,
   parser/OAuth, public persona, broad UI, heavy visual editor, or ARIADNE
   rehearsal is required.
+- MIMIR closes PR77 and opens PR78 Community Moderation And Provenance First
+  Slice. PR75 through PR77 closed the current Developer Space partner-readiness
+  cluster, so the next launch-core gap moves back to Community Beta: moderation
+  readback, action logging, role-safe report/action handling, and persona/AI
+  provenance labels. DAEDALUS should inspect the existing forum/thread/comment/
+  report/community-service primitives first, implement the smallest safe slice
+  the current schema supports, or wake MIMIR with exact missing schema/API/type
+  blockers. Stripe test config and Upstash Redis config are available, but they
+  are not part of this lane unless an existing community path already requires
+  them.
 
 ## Near-term rule
 
