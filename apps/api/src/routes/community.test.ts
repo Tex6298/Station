@@ -981,6 +981,17 @@ test("comment moderation actions are admin-only and hide public comments", async
     const restoredList = await requestJson(app, "GET", `/comments?parentType=thread&parentId=${PUBLIC_THREAD_ID}`);
     assert.equal(restoredList.status, 200);
     assert.equal(restoredList.body.comments.some((row: Row) => row.id === comment.id), true);
+    assert.equal(JSON.stringify(restoredList.body).includes("Return after review."), false);
+
+    const restoredActions = await requestJson(app, "GET", `/comments/${comment.id}/moderation-actions`, {
+      token: "admin-token",
+    });
+    assert.equal(restoredActions.status, 200);
+    assert.deepEqual(
+      restoredActions.body.moderationActions.map((action: Row) => action.actionType).sort(),
+      ["hide", "restore"],
+    );
+    assert.equal(restoredActions.body.moderationActions.some((action: Row) => action.reason === "Return after review."), true);
   } finally {
     setSupabaseAdminForTests(null);
   }

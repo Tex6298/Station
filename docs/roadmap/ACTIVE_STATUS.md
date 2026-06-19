@@ -6703,6 +6703,18 @@ when a PR lands, or when validation truth changes.
   ARGUS should review role boundaries, hidden/removed comment behavior, action
   logging/readback, and the focused `test:community` coverage before waking
   MIMIR with a closeout verdict or DAEDALUS with fixes.
+- ARGUS accepts PR78 Community Moderation And Provenance First Slice on
+  2026-06-19. Review confirmed admin-only comment moderation write/readback,
+  anonymous and non-admin blocking, hide/restore visibility transitions,
+  comment-target `community_moderation_actions` logging, public comment lists
+  limited to active non-hidden rows, and no public leak of moderation reasons or
+  metadata. ARGUS added a test guardrail proving restore actions are logged and
+  the restore reason remains absent from public comment list responses.
+  Validation passed `test:community` with 9 tests, `test:document-discussions`,
+  `test:reports`, `typecheck`, and `git diff --check`. No schema, visible forum
+  UI, report queue, subcommunity platform, notification system, AI-autonomous
+  posting, billing/provider/cache, Developer Space, auth/session, public
+  visibility widening, or ARIADNE rehearsal is required.
 
 ## Near-term rule
 

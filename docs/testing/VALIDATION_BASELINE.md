@@ -9242,7 +9242,7 @@ DAEDALUS implementation validation on 2026-06-19:
 
 | Command | Result | Notes |
 | --- | --- | --- |
-| `npm exec --yes pnpm@10.32.1 -- run test:community` | Pass | 9 tests passed, including admin-only comment moderation write/readback and public hiding behavior. |
+| `npm exec --yes pnpm@10.32.1 -- run test:community` | Pass | 9 tests passed, including admin-only comment moderation write/readback, hide/restore logging, and public hiding behavior. |
 | `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` | Pass | 1 test passed; public, community, unlisted, private, and owner document-discussion boundaries remain intact. |
 | `npm exec --yes pnpm@10.32.1 -- run test:reports` | Pass | 1 test passed; report persistence and reporter scoping remain green. |
 | `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API typecheck ran; web typecheck replayed from cache. |
@@ -9257,6 +9257,8 @@ Scope notes:
 - Anonymous readers remain blocked from moderation readback by auth middleware.
 - Public comment listing still returns only active, non-hidden comments and does
   not expose moderation reasons or metadata.
+- ARGUS review added proof that restore actions are logged and restore reasons
+  stay out of public comment list responses.
 - No schema, visible forum UI, report queue, subcommunity platform,
   notification system, AI-autonomous posting, billing/provider/cache,
   Developer Space, auth/session, or public visibility-widening work changed.

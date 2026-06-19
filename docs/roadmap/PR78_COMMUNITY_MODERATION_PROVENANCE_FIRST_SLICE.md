@@ -4,7 +4,7 @@ Date opened: 2026-06-19
 Opened by: A1 / MIMIR
 Owner: DAEDALUS first, ARGUS reviews. ARIADNE rehearses only if visible forum
 or document-discussion UI changes.
-Status: implemented by DAEDALUS; awaiting ARGUS review
+Status: accepted by ARGUS; ready for MIMIR closeout/sequencing
 
 ## Why This Lane
 
@@ -148,3 +148,38 @@ DAEDALUS wakes ARGUS with:
 
 ARGUS wakes MIMIR with the closeout verdict, or wakes ARIADNE first if visible
 forum/document-discussion UI changed enough to need a human-eye route rehearsal.
+
+## ARGUS Review - 2026-06-19
+
+ARGUS accepts PR78 as the first narrow Community Beta moderation/provenance
+slice.
+
+Review confirmed:
+
+- Comment moderation readback and writes are admin-only behind the existing
+  auth middleware.
+- Anonymous users cannot read moderation actions; non-admin authenticated users
+  cannot read or write comment moderation actions.
+- Admin hide/restore actions update the comment visibility state and write
+  `community_moderation_actions` rows with `target_type = "comment"`.
+- Public comment lists still return only active, non-hidden comments and do not
+  expose moderation action reasons or metadata.
+- Existing document discussion boundaries remain intact for public, community,
+  unlisted, private, and owner paths.
+
+ARGUS patched one test guardrail:
+
+- The comment moderation test now proves restore actions are logged and the
+  restore reason stays out of public comment list responses.
+
+Validation:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:community` | Pass | 9 tests passed, including admin-only comment moderation write/readback, hide/restore logging, and public hiding behavior. |
+| `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` | Pass | 1 test passed; public, community, unlisted, private, and owner document-discussion boundaries remain intact. |
+| `npm exec --yes pnpm@10.32.1 -- run test:reports` | Pass | 1 test passed; report persistence and reporter scoping remain green. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API typecheck ran; web typecheck replayed from cache. |
+| `git diff --check` | Pass | CRLF normalization warnings only for touched files and local triad state. |
+
+Verdict: PR78 can close. No ARIADNE visible-route rehearsal is required.
