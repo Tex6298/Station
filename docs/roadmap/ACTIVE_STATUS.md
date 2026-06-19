@@ -5579,6 +5579,17 @@ when a PR lands, or when validation truth changes.
   diff hygiene; web build compiled/linted/typechecked/generated 31 static pages
   before the known Windows standalone symlink `EPERM`. ARIADNE should rehearse
   signed owner attach/detach next.
+- ARIADNE accepts PR55 on 2026-06-19 after signed Railway browser rehearsal
+  against web/API runtime `f588bb4`. Project detail loaded with
+  `Station Replay Dev Alpha` attached and `Animus Field Lab` under `Other Owner
+  Developer Spaces`; copy preserved the one-Project-at-a-time move semantics
+  without stale `Available Developer Spaces` or `unattached Developer Spaces`
+  labels. `Attach to this Project` moved `Animus Field Lab` into the attached
+  list, and `Detach` at `390px` returned it to the other-owner list while
+  leaving `Station Replay Dev Alpha` attached. Desktop and `390px` checks had
+  no document-level overflow or offscreen controls. Anonymous Project detail
+  and `/projects` redirected to login with no private Project, attachment, or
+  candidate leakage. PR55 can close from ARIADNE UI rehearsal.
 
 ## Near-term rule
 
