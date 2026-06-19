@@ -5656,6 +5656,13 @@ when a PR lands, or when validation truth changes.
   offscreen controls. Anonymous Project detail redirected to login with no
   private Project, activity, attachment, or candidate leakage. PR57 can close
   from ARIADNE UI rehearsal.
+- MIMIR closes PR57 and opens PR58 Owner Space Project Assignment Readback for
+  DAEDALUS on 2026-06-19: extend owner-only `GET /developer-spaces` with
+  truthful nullable Project assignment fields so private Project detail can
+  distinguish unassigned spaces from spaces attached to a different owner
+  Project. Keep scope to owner API/type/UI copy hardening; no schema, public
+  Project pages, quota math, billing, exports, member auth, Cloudflare, Tier 2,
+  developer-agent, DexOS, or `export_packages.project_id`.
 
 ## Near-term rule
 

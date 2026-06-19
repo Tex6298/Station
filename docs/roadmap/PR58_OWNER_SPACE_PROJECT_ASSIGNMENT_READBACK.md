@@ -1,0 +1,110 @@
+# PR58 - Owner Space Project Assignment Readback
+
+Date: 2026-06-19
+Status: opened for DAEDALUS
+Owner: DAEDALUS implements, ARGUS reviews, ARIADNE rehearses only if UI copy
+or behavior changes, MIMIR decides next lane.
+
+## Purpose
+
+Close the PR55/PR57 ambiguity around "Other Owner Developer Spaces".
+
+The private Project detail UI can currently tell that a Developer Space is not
+attached to the current Project, but `GET /developer-spaces` does not expose
+whether that space is unattached or attached to a different owner Project. PR58
+should give the owner UI truthful assignment readback without opening member
+roles, public Project pages, billing/quota semantics, exports, or hosted
+runtime.
+
+## Scope
+
+Implement only:
+
+- Extend owner-only `GET /developer-spaces` so each returned owner Developer
+  Space includes its current Project assignment:
+  - `projectId: string | null`;
+  - `projectName: string | null`;
+  - `projectSlug: string | null`.
+- Populate assignment fields only from owner-scoped Project rows. Do not expose
+  another owner's Project data.
+- Update `packages/types/src/developer-space.ts` so `DeveloperSpaceRecord`
+  carries the optional assignment fields.
+- Update `serializeDeveloperSpace` or the owner-list route with the smallest
+  local-pattern-compatible change.
+- Update private `apps/web/app/projects/[idOrSlug]/page.tsx` so candidate copy
+  can distinguish:
+  - spaces not attached to any Project;
+  - spaces attached to a different owner Project, where attaching will move
+    them here.
+- Preserve existing attach/detach behavior and refresh through
+  `refreshProjectState`.
+- Add focused `test:developer-spaces` coverage for owner assignment readback,
+  null assignment, and cross-owner exclusion.
+
+## Non-Scope
+
+- No schema or migration work.
+- No public Project pages or public Developer Space assignment leakage.
+- No contributor/member authorization, invitations, teams, or role management.
+- No quota math, billing, Stripe, usage enforcement, or entitlement changes.
+- No Project activity timeline, exports, `export_packages.project_id`, or
+  Project export semantics.
+- No Cloudflare, Tier 2 hosting, containers, queues, Redis, deployment
+  pipeline, developer-agent, chat-native tools, DexOS widgets, or
+  Interconnected Lab work.
+
+## Acceptance
+
+ARGUS can accept PR58 if:
+
+- `GET /developer-spaces` remains authenticated and owner-scoped.
+- Owner spaces attached to owner Projects include `projectId`, `projectName`,
+  and `projectSlug`.
+- Owner spaces with no Project return null assignment fields.
+- Cross-owner Project assignment data is excluded even if test data is hostile.
+- Private Project detail copy no longer has to pretend every candidate is
+  simply "other"; it truthfully says whether attaching will move a space from
+  another owner Project.
+- Attach/detach still refreshes Project detail and owner-space state.
+- No public Project route/page, billing/quota behavior, exports, member auth,
+  Cloudflare, hosted runtime, developer-agent, DexOS, or
+  `export_packages.project_id` work is added.
+
+## Validation
+
+Run at minimum:
+
+```bash
+npm exec --yes pnpm@10.32.1 -- run test:developer-spaces
+npm exec --yes pnpm@10.32.1 -- run test:projects
+npm exec --yes pnpm@10.32.1 -- run typecheck
+git diff --check
+```
+
+If web build is run, record the known Windows standalone symlink `EPERM`
+separately from compile/type/page-generation success.
+
+## Handoff
+
+Wake ARGUS with:
+
+- API/service/type/UI files changed;
+- exact owner-list response-shape change;
+- assignment query/filter strategy;
+- null assignment and cross-owner proof;
+- UI copy changes;
+- attach/detach refresh confirmation;
+- validation results;
+- scope confirmation that no public/billing/quota/export/member/Cloudflare/
+  Tier 2/developer-agent/DexOS/`export_packages.project_id` work was added.
+
+If UI copy or behavior changes and ARGUS accepts, ARGUS should wake ARIADNE for
+a short human rehearsal and wake MIMIR with the verdict. ARIADNE should verify:
+
+- private Project detail distinguishes unassigned spaces from spaces attached
+  to another owner Project;
+- attach still moves a space into the current Project;
+- detach returns it with truthful assignment copy;
+- `390px` layout has no horizontal overflow or offscreen controls.
+
+If blocked, wake MIMIR with the exact blocker. Do not leave the lane silent.
