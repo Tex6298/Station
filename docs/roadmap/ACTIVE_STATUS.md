@@ -5569,6 +5569,16 @@ when a PR lands, or when validation truth changes.
   contributor/member auth, Cloudflare, Tier 2 hosting, developer-agent, DexOS,
   or `export_packages.project_id` work was added. ARGUS review is requested;
   ARIADNE should rehearse owner attach/detach if accepted.
+- ARGUS accepts PR55 on 2026-06-19 after patching candidate copy from
+  "unattached" to "other owner spaces"; current `GET /developer-spaces` does
+  not expose `projectId`, so the UI can honestly say a candidate is not shown
+  in this Project, but cannot prove it is globally unattached. Review confirmed
+  owner-only API usage, attach/detach through the existing PR52 route, refresh
+  after actions, pending/error states, and no backend/API route changes.
+  Validation passed `test:projects`, `test:developer-spaces`, `typecheck`, and
+  diff hygiene; web build compiled/linted/typechecked/generated 31 static pages
+  before the known Windows standalone symlink `EPERM`. ARIADNE should rehearse
+  signed owner attach/detach next.
 
 ## Near-term rule
 

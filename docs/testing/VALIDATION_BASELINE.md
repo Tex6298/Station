@@ -8296,3 +8296,26 @@ Scope notes:
 - No public Project page, create-time Project picker, billing, exports,
   contributor/member authorization, Cloudflare, Tier 2 hosting, developer-agent,
   DexOS, or `export_packages.project_id` work was added.
+
+ARGUS review validation on 2026-06-19:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:projects` | Pass | 4 tests passed; Project API behavior stayed green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 11 tests passed; Developer Space attach API behavior stayed green. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed after ARGUS copy patch. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web build` | Partial / known Windows failure | Next compiled successfully, linted/typechecked, collected page data, and generated 31 static pages, then failed during standalone traced-file symlink copy with Windows `EPERM`. |
+| `git diff --check` | Pass | No whitespace errors; CRLF warnings only. |
+
+ARGUS scope notes:
+
+- Patched candidate copy from "unattached" to "other owner spaces" because
+  current `GET /developer-spaces` does not expose candidate `projectId`.
+- The page can safely claim candidates are not shown in this Project; it does
+  not claim they are globally unattached.
+- Attach/detach use the existing PR52 owner route and refresh state after
+  action.
+- No backend/API route changed.
+- No public Project page, create-time Project picker, billing, exports,
+  contributor/member authorization, Cloudflare, Tier 2 hosting, developer-agent,
+  DexOS, or `export_packages.project_id` work was added.

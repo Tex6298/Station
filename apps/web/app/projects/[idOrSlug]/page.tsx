@@ -231,7 +231,7 @@ export default function ProjectDetailPage() {
           <div className="station-panel" style={{ display: "grid", gap: "0.65rem" }}>
             <h2 style={{ margin: 0, fontSize: "1.1rem" }}>Attached Developer Spaces</h2>
             <p style={{ margin: 0, color: "#687078", fontSize: "0.9rem", lineHeight: 1.5 }}>
-              Attach existing owner Developer Spaces to this private Project, or detach them when they no longer belong here.
+              Attach existing owner Developer Spaces to this private Project, or detach them when they no longer belong here. A Developer Space can belong to one Project at a time.
             </p>
             <Link href="/developer-spaces" className="station-muted-button" style={{ width: "fit-content" }}>
               Open Developer Spaces
@@ -247,7 +247,7 @@ export default function ProjectDetailPage() {
               <div className="kicker" style={{ justifyContent: "center", marginBottom: "0.75rem" }}>No attachments</div>
               <h2 style={{ margin: "0 0 0.4rem" }}>No Developer Spaces attached</h2>
               <p style={{ margin: 0, color: "#687078" }}>
-                Attach an owner Developer Space below to show it in this Project.
+                Choose an owner Developer Space below to show it in this Project.
               </p>
             </div>
           ) : developerSpaces.map((space) => (
@@ -284,15 +284,15 @@ export default function ProjectDetailPage() {
 
         <section style={{ display: "grid", gap: "0.75rem" }}>
           <div>
-            <h2 style={{ margin: "0 0 0.3rem", fontSize: "1.2rem" }}>Available Developer Spaces</h2>
+            <h2 style={{ margin: "0 0 0.3rem", fontSize: "1.2rem" }}>Other Owner Developer Spaces</h2>
             <p style={{ margin: 0, color: "#687078", fontSize: "0.9rem", lineHeight: 1.5 }}>
-              Owner spaces not currently shown as attached to this Project.
+              Owner spaces not currently shown in this Project. Attaching one moves it to this Project.
             </p>
           </div>
 
           {attachCandidates.length === 0 ? (
             <div className="station-panel" style={{ textAlign: "center", padding: "2rem 1.5rem", color: "#687078" }}>
-              No unattached Developer Spaces.
+              No other owner Developer Spaces.
             </div>
           ) : attachCandidates.map((space) => (
             <article key={space.id} className="station-card" style={{ display: "grid", gap: "0.75rem" }}>

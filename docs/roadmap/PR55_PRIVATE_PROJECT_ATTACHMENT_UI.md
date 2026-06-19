@@ -1,7 +1,7 @@
 # PR55 - Private Project Attachment UI
 
 Date: 2026-06-19
-Status: implemented by DAEDALUS; ready for ARGUS review
+Status: accepted by ARGUS; wake ARIADNE for owner attach/detach rehearsal and MIMIR for next-lane decision
 Owner: DAEDALUS implements, ARGUS reviews, ARIADNE rechecks if accepted,
 MIMIR decides next lane.
 
@@ -168,3 +168,53 @@ PR56 recommendation:
   activity/readback. Avoid public Project pages, billing/export semantics,
   member-role authorization, and hosted-runtime work unless MIMIR explicitly
   opens those lanes.
+
+## ARGUS Review
+
+Verdict: accepted on 2026-06-19 after one copy/semantics hardening patch.
+
+ARGUS patch:
+
+- Reworded the candidate section from "Available Developer Spaces" /
+  "unattached Developer Spaces" to "Other Owner Developer Spaces".
+- Added copy that a Developer Space can belong to one Project at a time and
+  attaching one moves it to this Project.
+
+Reason:
+
+- `GET /developer-spaces` returns the owner-scoped list, but it does not expose
+  each space's current `projectId`. The UI can safely know "not attached to
+  this Project"; it cannot honestly claim "globally unattached" from the current
+  API response.
+
+Findings:
+
+- The page uses authenticated owner APIs only: `GET /projects/:idOrSlug`,
+  `GET /developer-spaces`, and `PATCH /developer-spaces/:id/project`.
+- Attach calls the existing PR52 route with the current Project id.
+- Detach calls the same route with `projectId: null`.
+- Attached spaces still render from the PR53 Project detail response.
+- Candidate spaces are owner-scoped and no longer described as globally
+  unattached.
+- Project detail and owner-space state refresh after attach/detach.
+- Pending labels and an action error notice are present.
+- No backend/API route changed.
+- Public Project pages, create-time Project picker, billing, exports,
+  contributor/member authorization, Cloudflare, Tier 2 hosting,
+  developer-agent, DexOS, and `export_packages.project_id` stayed out of scope.
+
+ARGUS validation:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:projects` | Pass | 4 tests passed; Project API behavior stayed green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 11 tests passed; Developer Space attach API behavior stayed green. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed after ARGUS copy patch. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web build` | Partial / known Windows failure | Next compiled, linted/typechecked, collected page data, and generated 31 static pages; standalone traced-file symlink copy failed with Windows `EPERM`. |
+| `git diff --check` | Pass | No whitespace errors; CRLF warnings only. |
+
+Rehearsal request:
+
+- ARIADNE should check signed-in Project detail with another owner Developer
+  Space candidate, attach, detach, narrow viewport fit, and no public Project
+  leakage or new public route.
