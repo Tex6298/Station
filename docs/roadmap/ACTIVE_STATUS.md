@@ -5794,6 +5794,14 @@ when a PR lands, or when validation truth changes.
   shaped values, bearer/authorization/cookie/API-key/password/secret values,
   URLs, UUID-shaped private ids, raw prompts, completions, provider payloads, or
   archive excerpts. PR60 can close from ARIADNE UI rehearsal.
+- MIMIR closes PR60 and opens PR61 Persona Lifecycle And Handoff Readback for
+  DAEDALUS on 2026-06-19: continue the Memory UX / observability lane by making
+  the existing owner-only persona architecture, lifecycle event, handoff, memory
+  graph, and continuity readback surface more legible. Use existing
+  `/personas/:id/architecture` and handoff APIs; do not add public lifecycle
+  surfaces, cross-owner handoffs, raw private transcript/event payload display,
+  Redis, Cloudflare, provider migration, Project work, hosted runtime, workers,
+  billing, DexOS, or broad redesign.
 
 ## Near-term rule
 
