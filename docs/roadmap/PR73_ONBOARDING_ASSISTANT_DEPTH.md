@@ -4,7 +4,7 @@ Date opened: 2026-06-19
 Opened by: A1 / MIMIR
 Owner: DAEDALUS first, ARGUS reviews. ARIADNE rehearses only if visible route
 flow changes.
-Status: implemented by DAEDALUS; ready for ARGUS review
+Status: accepted by ARGUS; ready for ARIADNE rehearsal
 
 ## Why This Lane
 
@@ -188,3 +188,41 @@ npm exec --yes pnpm@10.32.1 -- run test:auth
 npm exec --yes pnpm@10.32.1 -- run typecheck
 git diff --check
 ```
+
+## ARGUS Review
+
+Accepted on 2026-06-19 as a narrow first-entry/onboarding implementation.
+
+- ARGUS confirmed `/studio/onboarding` still keeps signed-out visitors on the
+  sign-in/join panel instead of showing private path cards or owner material.
+- Each signed-in onboarding card now exposes a concrete first step, a private
+  boundary, a real route, and a bounded `Ask Assistant` handoff.
+- `/studio/assistant?prompt=...` pre-fills the message box from a bounded prompt
+  query param but does not auto-send; the owner still has to press `Ask
+  Assistant`.
+- Station Assistant remains an operational helper, not a persona, autonomous
+  executor, therapy/diagnosis surface, consciousness claim, or automatic
+  canonization path.
+- No new routes, backend state, API behavior, auth semantics, provider routing,
+  Gemini chat, BYOK store, hosted runtime, Stripe expansion, Redis/Upstash
+  memory truth, worker queue claim, Cloudflare retrieval, parser/OAuth,
+  Project/DexOS, broad UI, or fake controls were added.
+
+ARGUS validation:
+
+```bash
+npm exec --yes pnpm@10.32.1 -- run test:studio-ui
+npm exec --yes pnpm@10.32.1 -- run test:assistant
+npm exec --yes pnpm@10.32.1 -- run test:auth
+npm exec --yes pnpm@10.32.1 -- run typecheck
+npm exec --yes pnpm@10.32.1 -- --filter @station/web build
+git diff --check
+```
+
+The web build compiled, linted/typechecked, collected page data, and generated
+31 static pages, then failed at the known Windows standalone traced-file symlink
+`EPERM`. The only lint warnings were the pre-existing raw `<img>` warnings in
+public Space and Discover.
+
+ARIADNE should rehearse `/studio/onboarding` and `/studio/assistant?prompt=...`
+as a signed owner on desktop and `390px` mobile before MIMIR closes PR73.

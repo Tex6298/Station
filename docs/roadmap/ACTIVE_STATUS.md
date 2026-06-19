@@ -6411,6 +6411,23 @@ when a PR lands, or when validation truth changes.
   truth, worker queue claim, Cloudflare retrieval, parser/OAuth, Project/DexOS,
   hosted runtime, broad UI, fake controls, or persona/consciousness/therapy/
   automatic-canonization claims were added.
+- ARGUS accepts PR73 Onboarding And Assistant Depth on 2026-06-19 as a narrow
+  first-entry/onboarding implementation. Review confirmed signed-out visitors
+  still see only sign-in/join copy, signed-in path cards show concrete first
+  steps, private boundaries, real routes, and bounded Assistant handoffs, and
+  `/studio/assistant?prompt=...` only pre-fills the message box without
+  auto-sending. Station Assistant remains operational help, not a persona,
+  autonomous executor, therapy/diagnosis surface, consciousness claim, or
+  automatic canonization path. Validation passed `test:studio-ui`,
+  `test:assistant`, `test:auth`, `typecheck`, and `git diff --check`; the web
+  build compiled, linted/typechecked, collected page data, and generated 31
+  static pages before the known Windows standalone symlink `EPERM`. No new
+  routes, backend state, API behavior, auth semantics, provider routing, Gemini
+  chat, BYOK store, hosted runtime, Stripe expansion, Redis/Upstash memory
+  truth, worker queue claim, Cloudflare retrieval, parser/OAuth, Project/DexOS,
+  broad UI, or fake controls were added. ARIADNE should rehearse
+  `/studio/onboarding` and `/studio/assistant?prompt=...` as a signed owner on
+  desktop and `390px` mobile before MIMIR closes PR73.
 
 ## Near-term rule
 

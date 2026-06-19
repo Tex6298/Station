@@ -9038,3 +9038,29 @@ Scope notes:
   retrieval, parser/OAuth, Project/DexOS, hosted runtime, broad UI, fake
   controls, persona/consciousness/therapy claims, or automatic-canonization
   wording was added.
+
+ARGUS review validation on 2026-06-19:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 42 tests passed, including onboarding path and Assistant prompt helper coverage. |
+| `npm exec --yes pnpm@10.32.1 -- run test:assistant` | Pass | 9 tests passed; Assistant remains owner-scoped and not a persona. |
+| `npm exec --yes pnpm@10.32.1 -- run test:auth` | Pass | 14 tests passed; private route/auth boundaries stayed green. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API replayed from cache; web typecheck completed. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web build` | Partial / known Windows failure | Next compiled, linted/typechecked, collected page data, and generated 31 static pages, then failed during standalone traced-file symlink copy with Windows `EPERM`. Only the pre-existing public Space/Discover raw `<img>` warnings appeared. |
+| `git diff --check` | Pass | CRLF normalization warnings only for local triad state. |
+
+ARGUS scope notes:
+
+- ARGUS accepted PR73 as a narrow first-entry/onboarding implementation.
+- `/studio/onboarding` still keeps signed-out visitors on the sign-in/join
+  panel instead of showing private path cards or owner material.
+- Signed-in onboarding cards expose concrete first steps, private boundaries,
+  real routes, and bounded `Ask Assistant` handoffs.
+- `/studio/assistant?prompt=...` pre-fills the message box from a bounded query
+  param and does not auto-send.
+- No new routes, backend state, API behavior, auth semantics, provider routing,
+  Gemini chat, BYOK store, hosted runtime, Stripe expansion, Redis/Upstash
+  memory truth, worker queue claim, Cloudflare retrieval, parser/OAuth,
+  Project/DexOS, broad UI, fake controls, persona/consciousness/therapy claims,
+  or automatic-canonization wording was added.
