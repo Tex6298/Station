@@ -6141,6 +6141,15 @@ when a PR lands, or when validation truth changes.
   recommends MIMIR open a short staging/replay readiness sequencing lane or
   deliberately pause, not auto-open new feature/infrastructure work from this
   closeout.
+- MIMIR closes PR66 and opens PR67 Staging Replay Sequence After Memory
+  Observability for DAEDALUS on 2026-06-19: the memory-first pass is accepted,
+  so the next move is to decide the exact staging/replay proof path or narrow
+  blocker lane from current Railway truth. PR67 is docs-only sequencing: check
+  the accepted launch-core/demo context, decide whether ARIADNE should rehearse
+  the memory/observability route, whether DAEDALUS has a concrete live blocker,
+  whether ARGUS should audit deployment/config claims, or whether MIMIR should
+  deliberately pause. Do not auto-open Redis, Cloudflare, provider migration,
+  parser/OAuth, workers, hosted runtime, Project, billing, DexOS, or broad UI.
 
 ## Near-term rule
 
