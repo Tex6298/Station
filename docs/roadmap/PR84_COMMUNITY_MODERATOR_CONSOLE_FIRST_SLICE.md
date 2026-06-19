@@ -1,0 +1,156 @@
+# PR84 - Community Moderator Console First Slice
+
+Date opened: 2026-06-19
+Opened by: A1 / MIMIR
+Owner: DAEDALUS implements if the current APIs are enough, ARGUS reviews.
+ARIADNE rehearses visible moderator/admin routes after ARGUS technical review.
+Status: opened for DAEDALUS
+
+## Why This Lane
+
+PR78 through PR83 protected Community Beta's API/report primitives, provenance
+labels, participation gates, smoke coverage, and visible forum route defects.
+The remaining gap with the clearest next product value is the full
+moderator/admin console UX: admins can now read and update report queues by API,
+and thread/comment moderation action routes exist, but there is not yet a
+usable web surface for reviewing reports without dropping into raw API calls.
+
+Stripe test config and Upstash operational cache are available in the current
+Railway runtime, but they are not inputs to this lane. PR84 should use the
+existing community/report/moderation primitives, not reopen billing, Redis,
+provider, Cloudflare, or queue scope.
+
+## Goal
+
+Create the first narrow moderator/admin web surface for Community Beta.
+
+The desired protected-alpha outcome:
+
+- admins can see a bounded report queue;
+- admins can filter or distinguish report status and target type where the API
+  already supports it;
+- admins can move a report through the existing safe statuses, such as
+  `reviewing`, `resolved`, and `dismissed`;
+- the UI links or points to the reported thread/comment/document context when
+  the current response safely supports it;
+- non-admin and anonymous users do not receive a functional moderation console;
+- public readers never see report notes, moderation reasons, hidden material,
+  or admin-only action logs.
+
+## Inspect Before Editing
+
+- `apps/api/src/routes/reports.ts`
+- `apps/api/src/routes/reports.test.ts`
+- `apps/api/src/routes/threads.ts`
+- `apps/api/src/routes/comments.ts`
+- `apps/api/src/routes/community.test.ts`
+- `apps/web/app/forums/*`
+- `apps/web/app/settings/*`
+- `apps/web/lib/api-client.ts`
+- `packages/types/src/forum.ts`
+- `docs/roadmap/community-beta.md`
+- `docs/roadmap/PR78_COMMUNITY_MODERATION_PROVENANCE_FIRST_SLICE.md`
+- `docs/roadmap/PR79_COMMUNITY_MODERATION_QUEUE_READBACK.md`
+- `docs/roadmap/PR83_COMMUNITY_FORUM_UX_REHEARSAL_ARIADNE.md`
+
+## Preferred Implementation Path
+
+1. Reuse the accepted `/reports` API before adding schema or new API behavior.
+2. Add the smallest admin-only web route that fits the current navigation. A
+   route under forums or settings is acceptable if the route and copy make clear
+   this is a moderator/admin tool, not a public community page.
+3. Show a bounded queue with:
+   - report status;
+   - target type;
+   - reason/category;
+   - created/reviewed state;
+   - admin-only notes only if already returned by the admin API;
+   - safe target context or a route link when the API response contains enough
+     information.
+4. Wire status updates through the existing authenticated server route.
+5. If target hide/remove/restore controls are cheap and already proven by the
+   existing thread/comment moderation routes, DAEDALUS may add them as clearly
+   separated actions. If not, keep PR84 to queue/status only and leave target
+   moderation controls for a follow-up.
+6. Add focused tests for route visibility, report status updates, and helper
+   behavior. Do not rely on manual clicking only.
+7. Wake ARGUS with the exact route, access rules, changed files, validation,
+   and whether ARIADNE must rehearse the visible admin route.
+
+If the current API response is missing a required field, do not fake it with
+client guesses. Wake MIMIR with the exact missing field and recommended next
+API slice.
+
+## Guardrails
+
+- No subcommunity platform.
+- No appeals workflow beyond status/readback language that current APIs prove.
+- No notifications, reputation, witness mechanics, or AI-autonomous posting.
+- No broad forum redesign or visual reskin.
+- No public visibility widening.
+- No client-only admin permission grants.
+- No Stripe, Redis/Upstash, provider/model, Cloudflare, worker, parser/OAuth,
+  Project/DexOS, hosted runtime, or billing work.
+- No secrets, raw auth headers, cookies, Stripe objects, webhook bodies, owner
+  IDs, private archive text, prompts, completions, or provider payloads in docs
+  or UI.
+- No public display of report notes, moderation reasons, hidden comments,
+  hidden threads, or admin-only action logs.
+
+## Acceptance
+
+ARGUS can accept PR84 if:
+
+- anonymous and non-admin users cannot use the moderator console;
+- admin reads and status updates are server-authoritative and use the existing
+  authenticated API;
+- report queue state is understandable without exposing private/admin-only
+  material publicly;
+- any target links or actions preserve existing forum/document visibility;
+- status updates do not mutate target visibility unless DAEDALUS explicitly
+  wires an already accepted moderation action route with tests;
+- the implementation does not smuggle in Redis, Stripe, provider, Cloudflare,
+  worker, subcommunity, appeals, notifications, or broad UI scope.
+
+ARIADNE should rehearse after ARGUS technical acceptance because PR84 changes a
+visible admin/moderator route.
+
+## Validation
+
+Run the narrow gate:
+
+```bash
+npm exec --yes pnpm@10.32.1 -- run test:reports
+npm exec --yes pnpm@10.32.1 -- run test:community
+npm exec --yes pnpm@10.32.1 -- run test:document-discussions
+npm exec --yes pnpm@10.32.1 -- run typecheck
+git diff --check
+```
+
+If frontend helpers or route rendering change, also run:
+
+```bash
+npm exec --yes pnpm@10.32.1 -- run test:studio-ui
+npm exec --yes pnpm@10.32.1 -- --filter @station/web build
+```
+
+The known local Windows standalone symlink `EPERM` remains acceptable only
+after the web build compiles, lints/typechecks, collects page data, and
+generates pages.
+
+## Handoff
+
+DAEDALUS must wake ARGUS with:
+
+- implementation or blocker summary;
+- route chosen;
+- admin/non-admin/anonymous behavior;
+- report/status behavior;
+- whether target moderation actions were included or deferred;
+- validation results;
+- explicit non-scope confirmation.
+
+ARGUS should wake ARIADNE for visible-route rehearsal if the implementation is
+technically acceptable, or wake DAEDALUS with exact defects. ARIADNE should
+wake MIMIR only after the moderator/admin route passes or a remaining defect is
+assigned.

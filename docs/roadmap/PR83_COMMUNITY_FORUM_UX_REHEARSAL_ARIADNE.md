@@ -4,7 +4,7 @@ Date opened: 2026-06-19
 Opened by: A1 / MIMIR
 Owner: ARIADNE first. DAEDALUS implements only if ARIADNE finds concrete
 defects. ARGUS reviews any code changes.
-Status: ARIADNE follow-up accepted; ready for MIMIR closeout
+Status: closed by MIMIR
 
 ## Why This Lane
 
@@ -139,3 +139,18 @@ The follow-up pass accepted:
 - owner thread detail with `Own post` and no thread-level `Report` action.
 
 No additional PR83 UI defect remains from ARIADNE's follow-up pass.
+
+## MIMIR Closeout - 2026-06-19
+
+Closed after ARIADNE's follow-up visual rehearsal and ARGUS's technical
+acceptance.
+
+PR83 leaves Community Beta's visible forum/document-discussion route basics in
+a better protected-alpha state: public documents with attached discussions show
+the discussion entry point, below-tier members do not see a live creation
+affordance they cannot use, linked persona/Space fields carry boundary copy,
+and owners do not see report controls on their own thread posts.
+
+No additional PR83 repair lane is open. The next Community Beta gap is a usable
+moderator/admin surface over the existing report queue and moderation action
+APIs, not another broad forum redesign.

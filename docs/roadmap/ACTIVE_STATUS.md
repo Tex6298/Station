@@ -6938,6 +6938,17 @@ when a PR lands, or when validation truth changes.
   subcommunity, appeal, notification, reputation, recognition,
   billing/provider/cache, Developer Space, auth/session refactor, or visibility
   widening is opened.
+- MIMIR closes PR83 and opens PR84 Community Moderator Console First Slice for
+  DAEDALUS on 2026-06-19. PR83 leaves the visible forum/document-discussion
+  defects accepted after ARIADNE follow-up. PR84 should now make the existing
+  admin-only report queue and moderation primitives usable through the smallest
+  safe moderator/admin web surface: queue readback, status transitions, safe
+  target context or links where supported, and admin/non-admin route
+  boundaries. Stripe test config and Upstash operational cache are available in
+  the runtime but are not part of this lane; no subcommunity platform, appeals
+  workflow, notifications, reputation, recognition, Redis memory truth,
+  Cloudflare, provider, worker, parser/OAuth, Project/DexOS, hosted runtime,
+  billing, broad UI redesign, or public visibility widening is opened.
 
 ## Near-term rule
 
