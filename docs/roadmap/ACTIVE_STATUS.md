@@ -6973,6 +6973,23 @@ when a PR lands, or when validation truth changes.
   visibility-widening work was added. ARGUS should review route access, status
   updates, target-action deferral, validation, and whether ARIADNE should
   rehearse the visible admin route.
+- ARGUS technically accepts PR84 Community Moderator Console First Slice on
+  2026-06-19 and wakes ARIADNE for visible admin-route rehearsal. Review
+  confirmed anonymous and non-admin users return before report queue fetches,
+  admin reads/status updates use the existing `/reports` API, report notes stay
+  inside the admin-gated route, target context remains safe
+  `targetType:targetId` text, and target hide/remove/restore controls are
+  deferred. ARGUS added one small queue-state hardening: after a status update,
+  rows that no longer match the selected status/target filters are removed from
+  the current queue. Validation passed `test:studio-ui` with 47 tests,
+  `test:reports` with 2 tests, `test:community` with 11 tests,
+  `test:document-discussions`, `typecheck`, and `git diff --check`; the web
+  build compiled, linted/typechecked, collected page data, and generated 32
+  pages before the known local Windows standalone symlink `EPERM`. No schema,
+  API behavior, target moderation action, public route, broad forum redesign,
+  subcommunity platform, appeals workflow, notification system,
+  reputation/witness mechanics, AI posting, billing/provider/cache, Developer
+  Space, auth/session refactor, or public visibility-widening work was added.
 
 ## Near-term rule
 

@@ -33,3 +33,16 @@ export function reportTargetLabel(report: Pick<ModerationReportRecord, "targetTy
 export function nextReportStatuses(current: ModerationReportRecord["status"]) {
   return REPORT_TRANSITION_STATUSES.filter((status) => status !== current);
 }
+
+export function reportMatchesQueueFilter(
+  report: Pick<ModerationReportRecord, "status" | "targetType">,
+  input: { status?: ReportQueueStatus | "active"; targetType?: ReportTargetType | "all" } = {}
+) {
+  if (input.targetType && input.targetType !== "all" && report.targetType !== input.targetType) {
+    return false;
+  }
+  if (!input.status || input.status === "active") {
+    return report.status === "open" || report.status === "reviewing";
+  }
+  return report.status === input.status;
+}

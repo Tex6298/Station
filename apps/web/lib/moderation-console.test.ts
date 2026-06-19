@@ -4,6 +4,7 @@ import {
   canUseModeratorConsole,
   nextReportStatuses,
   reportQueuePath,
+  reportMatchesQueueFilter,
   reportTargetLabel,
 } from "./moderation-console";
 
@@ -29,4 +30,11 @@ test("moderation report transitions use existing API statuses", () => {
   assert.deepEqual(nextReportStatuses("reviewing"), ["resolved", "dismissed"]);
   assert.deepEqual(nextReportStatuses("resolved"), ["reviewing", "dismissed"]);
   assert.deepEqual(nextReportStatuses("dismissed"), ["reviewing", "resolved"]);
+});
+
+test("moderation report filter matching keeps updated rows in the current queue only", () => {
+  assert.equal(reportMatchesQueueFilter({ status: "open", targetType: "thread" }, { status: "active", targetType: "all" }), true);
+  assert.equal(reportMatchesQueueFilter({ status: "resolved", targetType: "thread" }, { status: "active", targetType: "all" }), false);
+  assert.equal(reportMatchesQueueFilter({ status: "resolved", targetType: "thread" }, { status: "resolved", targetType: "thread" }), true);
+  assert.equal(reportMatchesQueueFilter({ status: "resolved", targetType: "document" }, { status: "resolved", targetType: "thread" }), false);
 });

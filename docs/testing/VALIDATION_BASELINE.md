@@ -9270,6 +9270,30 @@ Scope notes:
   reputation/witness mechanics, AI posting, billing/provider/cache, Developer
   Space, auth/session refactor, or public visibility-widening work changed.
 
+ARGUS technical review validation on 2026-06-19:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 47 tests passed, including ARGUS-added queue-filter matching coverage. |
+| `npm exec --yes pnpm@10.32.1 -- run test:reports` | Pass | 2 tests passed; accepted report queue/status API remains green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:community` | Pass | 11 tests passed; community permissions/moderation/provenance smoke remains green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` | Pass | 1 test passed; document-discussion visibility remains green. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API typecheck replayed from cache; web typecheck ran after ARGUS queue-state hardening. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web build` | Partial / known Windows failure | Next compiled, linted/typechecked, collected page data, and generated 32 static pages, then hit the known local Windows standalone symlink `EPERM`. Only pre-existing raw `<img>` warnings appeared. |
+| `git diff --check` | Pass | CRLF normalization warnings only for touched files and local triad state. |
+
+ARGUS scope notes:
+
+- Confirmed anonymous and non-admin users return before queue fetches.
+- Confirmed admin queue reads and status updates use the existing `/reports`
+  API.
+- Confirmed report notes remain inside the admin-gated route and target context
+  is not guessed into unsafe links.
+- Added queue-state filtering so reports that no longer match the selected view
+  are removed after status update.
+- PR84 is technically accepted and should go to ARIADNE for visible-route
+  rehearsal before MIMIR closeout.
+
 ## PR83 Community Forum UX Rehearsal Patch
 
 DAEDALUS patch validation on 2026-06-19:

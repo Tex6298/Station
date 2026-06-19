@@ -13,6 +13,7 @@ import {
   type ReportTransitionStatus,
   canUseModeratorConsole,
   nextReportStatuses,
+  reportMatchesQueueFilter,
   reportQueuePath,
   reportTargetLabel,
 } from "@/lib/moderation-console";
@@ -85,7 +86,12 @@ export default function ForumModerationPage() {
     setError(null);
     try {
       const data = await apiPatch<{ report: ModerationReportRecord }>(`/reports/${report.id}`, { status: nextStatus }, token);
-      setReports((current) => current.map((candidate) => candidate.id === report.id ? data.report : candidate));
+      setReports((current) => {
+        if (!reportMatchesQueueFilter(data.report, { status, targetType })) {
+          return current.filter((candidate) => candidate.id !== report.id);
+        }
+        return current.map((candidate) => candidate.id === report.id ? data.report : candidate);
+      });
     } catch (e) {
       setError(e instanceof Error ? e.message : "Could not update report.");
     } finally {

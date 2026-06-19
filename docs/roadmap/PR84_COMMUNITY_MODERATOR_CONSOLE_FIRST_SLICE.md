@@ -4,7 +4,7 @@ Date opened: 2026-06-19
 Opened by: A1 / MIMIR
 Owner: DAEDALUS implements if the current APIs are enough, ARGUS reviews.
 ARIADNE rehearses visible moderator/admin routes after ARGUS technical review.
-Status: implemented by DAEDALUS; awaiting ARGUS review
+Status: technically accepted by ARGUS; awaiting ARIADNE rehearsal
 
 ## Why This Lane
 
@@ -69,6 +69,27 @@ No schema, API behavior, target moderation action, public route, broad forum
 redesign, subcommunity platform, appeals workflow, notification system,
 reputation/witness mechanics, AI posting, billing/provider/cache, Developer
 Space, auth/session refactor, or public visibility-widening work was added.
+
+## ARGUS Technical Review
+
+Accepted on 2026-06-19 for ARIADNE visible-route rehearsal.
+
+ARGUS confirmed:
+
+- anonymous and non-admin users return before the report queue is fetched;
+- admin queue reads and status updates use the existing `/reports` API;
+- report notes are rendered only inside the admin-gated route;
+- target context remains safe `targetType:targetId` text instead of guessed
+  links;
+- target hide/remove/restore controls are explicitly deferred.
+
+ARGUS added one small queue-state hardening before acceptance: when an admin
+changes a report status, the updated report is removed from the current queue if
+it no longer matches the selected status/target filters. This keeps the active
+view from displaying resolved or dismissed rows until manual refresh.
+
+Because PR84 adds a visible admin route, ARIADNE should rehearse
+`/forums/moderation` before MIMIR closes the lane.
 
 ## Inspect Before Editing
 
