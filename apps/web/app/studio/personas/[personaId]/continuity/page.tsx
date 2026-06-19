@@ -96,7 +96,7 @@ function ContinuityTrustOverview({ persona }: { persona: PersonaWithContinuity }
     <section className="studio-list-panel" style={{ marginBottom: "1rem" }}>
       <div className="studio-section-heading">
         <div className="section-label">Continuity Trust</div>
-        <h2>What feeds this persona's continuity</h2>
+        <h2>What feeds persona continuity</h2>
       </div>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))", gap: "0.75rem" }}>
         {rows.map((row) => (

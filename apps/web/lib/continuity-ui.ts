@@ -128,6 +128,10 @@ export function runtimeContextSourcesByType(preview: RuntimeContextPreviewLike, 
   return preview.sources.filter((source) => source.type === type);
 }
 
+export function runtimeContextPreviewLabel(value: string | null | undefined, fallback: string) {
+  return sanitizeContinuityLabel(value) ?? fallback;
+}
+
 export function sortContinuityRecords(records: ContinuityRecord[]) {
   return [...records].sort((a, b) => {
     const left = Date.parse(continuityRecordTimestamp(a) ?? "") || 0;
@@ -174,8 +178,9 @@ function sanitizeContinuityLabel(value?: string | null) {
   const sanitized = value
     .replace(/\b[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}\b/gi, "[id]")
     .replace(/https?:\/\/\S+/gi, "[redacted-url]")
-    .replace(/\b(?:sk|pk|rk|whsec|ghp|pat)-[A-Za-z0-9._-]+/g, "[redacted-secret]")
-    .replace(/\b(?:token|cookie|authorization|api[_-]?key|secret|password)\b\s*[:=]\s*\S+/gi, "$1=[redacted]");
+    .replace(SECRET_SHAPED_VALUE_PATTERN, "[redacted-secret]")
+    .replace(/\b(?:bearer)\s+\S+/gi, "bearer [redacted]")
+    .replace(/\b(token|cookie|authorization|api[_-]?key|x-api-key|secret|password)\b\s*[:=]\s*\S+/gi, "$1=[redacted]");
 
   return sanitized.length > 120 ? `${sanitized.slice(0, 117).trim()}...` : sanitized;
 }
@@ -191,3 +196,5 @@ function formatCompactDate(value: string) {
 function labelize(value: string) {
   return value.replace(/_/g, " ").replace(/^./, (letter) => letter.toUpperCase());
 }
+
+const SECRET_SHAPED_VALUE_PATTERN = /\b(?:sk|pk|rk|whsec|ghp|pat)[_-][A-Za-z0-9._-]+/gi;

@@ -5890,6 +5890,28 @@ when a PR lands, or when validation truth changes.
   secrets, public continuity, schema, Redis, Cloudflare, provider migration,
   Project work, hosted runtime, workers, billing, DexOS, and broad redesign out
   of scope.
+- DAEDALUS implements PR62 Continuity Trust And Runtime Readback on
+  2026-06-19: runtime context preview is shared between persona home and
+  Continuity, persona home preserves existing compiled-prompt/source-content
+  behavior while adding Continuity as its own bucket, and Continuity uses the
+  shared preview without compiled prompt or source body display. The Continuity
+  page now shows trust overview counts from existing persona summary data,
+  timeline provenance/visibility labels, and local record creation plus persona
+  summary refresh. Validation passed `test:continuity`, `test:persona-context`,
+  `test:studio-ui`, `typecheck`, and `git diff --check`; no public continuity,
+  publication workflow, Integrity engine, memory/canon candidate workflow, API
+  route behavior, schema, Redis, Cloudflare, provider migration, Project work,
+  hosted runtime, worker, billing/quota, or DexOS work changed.
+- ARGUS accepts PR62 on 2026-06-19 after patching Continuity-page runtime
+  source title/reason sanitization, strengthening continuity provenance
+  redaction for underscore-style secrets, bearer values, and `x-api-key`, fixing
+  the shared literal `$1=[redacted]` replacement bug across redaction helpers,
+  and repairing a new web-build lint error in the Continuity Trust heading.
+  Validation passed `test:continuity`, `test:persona-context`, `test:studio-ui`,
+  `typecheck`, and `git diff --check`; web build compiled/linted/typechecked/
+  generated 31 static pages before the known Windows standalone symlink
+  `EPERM`. ARIADNE should rehearse signed owner Continuity at desktop and
+  `390px`, then wake MIMIR with the UI verdict.
 
 ## Near-term rule
 

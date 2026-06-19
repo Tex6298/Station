@@ -5,6 +5,7 @@ import {
   continuityRecordProvenanceLabels,
   continuityRecordText,
   runtimeContextCountRows,
+  runtimeContextPreviewLabel,
   runtimeContextSourcesByType,
   sortContinuityRecords,
 } from "./continuity-ui";
@@ -62,7 +63,7 @@ test("continuity helpers expose provenance and runtime continuity separately", (
     source: {
       table: "documents",
       id: "11111111-1111-4111-8111-111111111111",
-      label: "Method note token=secret https://example.invalid",
+      label: "Method note token=secret Bearer abc.def sk_live_secret https://example.invalid",
       version: 3,
     },
     visibility: "community",
@@ -72,7 +73,8 @@ test("continuity helpers expose provenance and runtime continuity separately", (
   assert.equal(labels.some((label) => label === "Community"), true);
   assert.equal(labels.some((label) => label.startsWith("Document: Method note") && label.includes("[redacted-url]")), true);
   assert.equal(labels.some((label) => label === "Source v3"), true);
-  assert.doesNotMatch(JSON.stringify(labels), /secret|example\.invalid|11111111/);
+  assert.match(JSON.stringify(labels), /token=\[redacted\]/);
+  assert.doesNotMatch(JSON.stringify(labels), /abc\.def|sk_live_secret|token=secret|example\.invalid|11111111/);
 
   const preview = {
     counts: { canon: 1, continuity: 2, memory: 3 },
@@ -84,6 +86,10 @@ test("continuity helpers expose provenance and runtime continuity separately", (
 
   assert.equal(runtimeContextCountRows(preview).find((row) => row.type === "continuity")?.value, 2);
   assert.deepEqual(runtimeContextSourcesByType(preview, "continuity").map((source) => source.id), ["continuity-1"]);
+  assert.equal(
+    runtimeContextPreviewLabel("Runtime source sk_live_secret https://example.invalid", "Runtime source"),
+    "Runtime source [redacted-secret] [redacted-url]",
+  );
 });
 
 function record(id: string, occurredAt: string, summary: string | null, body: string | null = null): ContinuityRecord {

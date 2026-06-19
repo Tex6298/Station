@@ -64,7 +64,7 @@ function safePreviewText(value: string | null | undefined, fallback: string) {
     .replace(/https?:\/\/\S+/gi, "[redacted-url]")
     .replace(SECRET_SHAPED_VALUE_PATTERN, "[redacted-secret]")
     .replace(/\b(?:bearer)\s+\S+/gi, "bearer [redacted]")
-    .replace(/\b(?:token|cookie|authorization|api[_-]?key|x-api-key|secret|password)\b\s*[:=]\s*\S+/gi, "$1=[redacted]")
+    .replace(/\b(token|cookie|authorization|api[_-]?key|x-api-key|secret|password)\b\s*[:=]\s*\S+/gi, "$1=[redacted]")
     .replace(/\s+/g, " ")
     .trim();
 

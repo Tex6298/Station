@@ -1,7 +1,7 @@
 # PR62 - Continuity Trust And Runtime Readback
 
 Date: 2026-06-19
-Status: implemented by DAEDALUS; ready for ARGUS review
+Status: accepted by ARGUS; ready for ARIADNE signed owner UI rehearsal
 Owner: DAEDALUS implements, ARGUS reviews, ARIADNE rehearses signed owner UI,
 MIMIR decides the next lane.
 
@@ -230,3 +230,45 @@ worker, billing, or DexOS behavior changed.
   transcript display, raw trace/event payload display, Redis, Cloudflare,
   provider migration, Project work, hosted runtime, worker, billing/quota, or
   DexOS work.
+
+## ARGUS Review
+
+ARGUS accepts PR62 after three focused patches.
+
+Review notes:
+
+- Runtime context preview is now shared, and persona home preserves the existing
+  owner compiled-prompt/source-content behavior.
+- The Continuity page uses the shared preview with compiled prompt and source
+  content hidden.
+- ARGUS patched the Continuity-page no-source-content path so runtime source
+  titles/reasons are sanitized before display.
+- ARGUS patched continuity provenance label redaction for underscore-style
+  secret values such as `sk_live_*`, bearer values, `x-api-key`, and the same
+  token/API-key/cookie/password/secret assignment format used in PR60/PR61.
+- ARGUS fixed the shared redaction replacement bug that rendered literal
+  `$1=[redacted]` in AI observability, persona lifecycle, and continuity helper
+  output.
+- ARGUS fixed a new web-build lint error in the Continuity Trust heading.
+- No API route behavior, schema, public continuity page, publication workflow,
+  Integrity engine, memory/canon candidate workflow, provider migration, Redis,
+  Cloudflare, Project work, hosted runtime, worker, billing/quota, broad
+  redesign, or DexOS work changed.
+
+ARGUS validation:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:continuity` | Pass | 5 tests passed, including strengthened continuity provenance/runtime helper coverage. |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-context` | Pass | 7 tests passed; runtime context owner behavior stayed green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 36 tests passed, covering the PR60/PR61 redaction helpers after the shared replacement fix. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web build` | Partial / known Windows failure | Next compiled, linted/typechecked, collected page data, and generated 31 static pages, then hit the known standalone symlink `EPERM`. |
+| `git diff --check` | Pass | No whitespace errors; CRLF normalization warnings only for touched files and local triad state. |
+
+Verdict: PR62 is accepted for signed owner UI rehearsal. Wake ARIADNE to check
+Continuity page trust overview, runtime continuity bucket readability, timeline
+provenance labels/redaction, record creation/refresh, desktop and `390px` fit,
+and absence of raw prompts, source bodies, transcripts, trace payloads, raw IDs,
+URLs, bearer values, token assignments, or secret-shaped values in the new
+Continuity readback. Wake MIMIR with the review verdict.

@@ -8571,6 +8571,28 @@ Scope notes:
   provider migration, Project work, hosted runtime, workers, billing/quota, and
   DexOS work were not changed.
 
+ARGUS review validation on 2026-06-19:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 36 tests passed, including transcript/secret suppression coverage for handoff previews. |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-context` | Pass | 7 tests passed; owner-only memory/persona context behavior stayed green. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web build` | Partial / known Windows failure | Next compiled successfully, linted/typechecked, collected page data, and generated 31 static pages, then failed during standalone traced-file symlink copy with Windows `EPERM`. |
+| `git diff --check` | Pass | No whitespace errors; CRLF normalization warnings only for touched files and local triad state. |
+
+ARGUS scope notes:
+
+- ARGUS patched handoff/event preview sanitization so role-prefixed transcript
+  lines, UUID-shaped ids, URLs, bearer values, token/API-key/cookie/password/
+  secret assignments, and secret-shaped values are suppressed before display.
+- Persona management remains on existing owner-only APIs; handoff save still
+  uses `POST /personas/:id/handoffs` and refreshes existing architecture
+  readback when available.
+- No API route behavior, schema, public lifecycle surface, cross-owner handoff,
+  raw event payload display, provider migration, Redis, Cloudflare, Project
+  work, hosted runtime, worker, billing/quota, or DexOS work changed.
+
 ## PR62 Continuity Trust And Runtime Readback
 
 DAEDALUS implementation validation on 2026-06-19:
@@ -8610,20 +8632,23 @@ ARGUS review validation on 2026-06-19:
 
 | Command | Result | Notes |
 | --- | --- | --- |
-| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 36 tests passed, including transcript/secret suppression coverage for handoff previews. |
-| `npm exec --yes pnpm@10.32.1 -- run test:persona-context` | Pass | 7 tests passed; owner-only memory/persona context behavior stayed green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:continuity` | Pass | 5 tests passed, including strengthened continuity provenance/runtime helper coverage. |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-context` | Pass | 7 tests passed; runtime context owner behavior stayed green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 36 tests passed, covering the PR60/PR61 redaction helpers after the shared replacement fix. |
 | `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed. |
 | `npm exec --yes pnpm@10.32.1 -- --filter @station/web build` | Partial / known Windows failure | Next compiled successfully, linted/typechecked, collected page data, and generated 31 static pages, then failed during standalone traced-file symlink copy with Windows `EPERM`. |
 | `git diff --check` | Pass | No whitespace errors; CRLF normalization warnings only for touched files and local triad state. |
 
 ARGUS scope notes:
 
-- ARGUS patched handoff/event preview sanitization so role-prefixed transcript
-  lines, UUID-shaped ids, URLs, bearer values, token/API-key/cookie/password/
-  secret assignments, and secret-shaped values are suppressed before display.
-- Persona management remains on existing owner-only APIs; handoff save still
-  uses `POST /personas/:id/handoffs` and refreshes existing architecture
-  readback when available.
-- No API route behavior, schema, public lifecycle surface, cross-owner handoff,
-  raw event payload display, provider migration, Redis, Cloudflare, Project
-  work, hosted runtime, worker, billing/quota, or DexOS work changed.
+- ARGUS patched Continuity-page runtime source title/reason sanitization when
+  source body display is disabled.
+- ARGUS strengthened continuity provenance redaction for underscore-style secret
+  values such as `sk_live_*`, bearer values, and `x-api-key`.
+- ARGUS fixed the shared literal `$1=[redacted]` replacement bug across AI
+  observability, persona lifecycle, and continuity helper redactors.
+- ARGUS fixed a new web-build lint error in the Continuity Trust heading.
+- No API route behavior, schema, public continuity page, publication workflow,
+  Integrity engine, memory/canon candidate workflow, provider migration, Redis,
+  Cloudflare, Project work, hosted runtime, worker, billing/quota, or DexOS work
+  changed.

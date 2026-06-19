@@ -6,6 +6,7 @@ import { getSession } from "@/lib/auth";
 import {
   RUNTIME_CONTEXT_SECTIONS,
   runtimeContextCountRows,
+  runtimeContextPreviewLabel,
   runtimeContextSourcesByType,
   type RuntimeContextPreviewLike,
 } from "@/lib/continuity-ui";
@@ -110,15 +111,24 @@ export function RuntimeContextPreview({
                   {sources.length === 0 ? (
                     <p>{section.empty}</p>
                   ) : (
-                    sources.map((source) => (
-                      <article key={`${source.type}-${source.id}`} className="studio-runtime-source">
-                        <div>
-                          <strong>{source.title || section.label}</strong>
-                          <span>{source.reason}</span>
-                        </div>
-                        {showSourceContent && source.content ? <p>{source.content}</p> : null}
-                      </article>
-                    ))
+                    sources.map((source) => {
+                      const sourceTitle = showSourceContent
+                        ? source.title || section.label
+                        : runtimeContextPreviewLabel(source.title, section.label);
+                      const sourceReason = showSourceContent
+                        ? source.reason
+                        : runtimeContextPreviewLabel(source.reason, "Selected for runtime context.");
+
+                      return (
+                        <article key={`${source.type}-${source.id}`} className="studio-runtime-source">
+                          <div>
+                            <strong>{sourceTitle}</strong>
+                            <span>{sourceReason}</span>
+                          </div>
+                          {showSourceContent && source.content ? <p>{source.content}</p> : null}
+                        </article>
+                      );
+                    })
                   )}
                 </div>
               );

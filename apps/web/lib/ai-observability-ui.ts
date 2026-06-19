@@ -53,7 +53,7 @@ export function sanitizedFailureMessage(message?: string | null) {
     .replace(/https?:\/\/\S+/gi, "[redacted-url]")
     .replace(SECRET_SHAPED_VALUE_PATTERN, "[redacted-secret]")
     .replace(/\b(?:bearer)\s+\S+/gi, "bearer [redacted]")
-    .replace(/\b(?:token|cookie|authorization|api[_-]?key|x-api-key|secret|password)\b\s*[:=]\s*\S+/gi, "$1=[redacted]");
+    .replace(/\b(token|cookie|authorization|api[_-]?key|x-api-key|secret|password)\b\s*[:=]\s*\S+/gi, "$1=[redacted]");
 
   return normalized.length > 140 ? `${normalized.slice(0, 137).trim()}...` : normalized;
 }
