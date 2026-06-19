@@ -6056,6 +6056,25 @@ when a PR lands, or when validation truth changes.
   realtime protocol changes, ingestion API behavior, usage/schema changes,
   provider-policy changes, public raw payload expansion, Project work, Redis,
   Cloudflare, workers, billing-plan changes, DexOS, or broad redesign.
+- DAEDALUS implements PR65 Developer Space Observability Readback on
+  2026-06-19: the owner manage console now renders `Current observatory state`
+  from the existing detail route separately from `Metered usage and quota` from
+  the existing usage route. Current state shows live nodes, recent events,
+  snapshot availability, linked evidence, visitor-visible evidence, owner-only
+  evidence, visibility, latest activity, and a note that this readback is
+  separate from quota counters. Usage shows warning status, metered nodes/
+  events/snapshots/storage/public reads/exports, and mismatch copy when usage
+  is unavailable or differs from current live state, so a live observatory does
+  not look empty when counters are zero or loading. The existing Developer
+  Space manage hook dependency warning is fixed; web lint now reports only the
+  pre-existing Space/Discover raw-image warnings. Validation passed
+  `test:developer-spaces`, `test:exports`, `test:community`, `typecheck`, web
+  lint with those known warnings, and `git diff --check`. No API route
+  behavior, schema, ingestion behavior, usage model, provider policy, public
+  raw payload expansion, Project work, Redis, Cloudflare, hosted runtime,
+  worker, billing-plan, DexOS, or broad redesign changed. ARGUS review is
+  requested; desktop and `390px` fit still need review because DAEDALUS did not
+  run a browser rehearsal in this implementation pass.
 
 ## Near-term rule
 

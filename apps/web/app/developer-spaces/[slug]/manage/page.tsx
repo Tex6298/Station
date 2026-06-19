@@ -1,6 +1,6 @@
 "use client";
 
-import { type FormEvent, useEffect, useMemo, useState } from "react";
+import { type FormEvent, useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { apiGet, apiPatch, apiPost, apiUrl } from "@/lib/api-client";
@@ -9,6 +9,8 @@ import {
   developerSpaceEvidenceEmptyCopy,
   developerSpaceEvidenceRoleCopy,
   developerSpaceEvidenceRoleDescription,
+  developerSpaceOwnerCurrentState,
+  developerSpaceUsageReadback,
   formatDate,
   humaniseKey,
   moveDeveloperSpaceWidget,
@@ -65,18 +67,6 @@ function websocketUrl(path: string) {
   return url.toString();
 }
 
-function formatBytes(bytes: number) {
-  if (bytes < 1024) return `${bytes} B`;
-  const units = ["KB", "MB", "GB"];
-  let value = bytes / 1024;
-  let index = 0;
-  while (value >= 1024 && index < units.length - 1) {
-    value /= 1024;
-    index += 1;
-  }
-  return `${value.toFixed(value >= 10 ? 0 : 1)} ${units[index]}`;
-}
-
 export default function DeveloperSpaceManagePage() {
   const { slug } = useParams<{ slug: string }>();
   const [token, setToken] = useState<string | null>(null);
@@ -102,15 +92,15 @@ export default function DeveloperSpaceManagePage() {
   );
   const [savingVisualConfig, setSavingVisualConfig] = useState(false);
 
-  function syncVisualState(data: DeveloperSpaceDetail) {
+  const syncVisualState = useCallback((data: DeveloperSpaceDetail) => {
     setVisualisationType(data.space.visualisationType);
     setVisualisationConfig(normaliseDeveloperSpaceVisualConfig(
       data.space.visualisationType,
       data.space.visualisationConfig ?? {}
     ));
-  }
+  }, []);
 
-  async function load(sessionToken: string) {
+  const load = useCallback(async (sessionToken: string) => {
     const data = await apiGet<DeveloperSpaceDetail>(`/developer-spaces/${slug}`, sessionToken);
     setDetail(data);
     syncVisualState(data);
@@ -120,7 +110,7 @@ export default function DeveloperSpaceManagePage() {
     ]);
     setUsage(usageData.usage);
     setExportsList(exportsData.exports);
-  }
+  }, [slug, syncVisualState]);
 
   useEffect(() => {
     getSession().then(async (session) => {
@@ -137,7 +127,7 @@ export default function DeveloperSpaceManagePage() {
         setLoading(false);
       }
     });
-  }, [slug]);
+  }, [load]);
 
   useEffect(() => {
     if (!slug || !token) return;
@@ -177,7 +167,7 @@ export default function DeveloperSpaceManagePage() {
       stream.close();
       socket?.close();
     };
-  }, [slug, token]);
+  }, [slug, syncVisualState, token]);
 
   async function rotateKey() {
     if (!token || !detail) return;
@@ -413,6 +403,8 @@ export default function DeveloperSpaceManagePage() {
   const boundedVisualConfig = normaliseDeveloperSpaceVisualConfig(visualisationType, visualisationConfig);
   const widgetLayout = normaliseDeveloperSpaceWidgets(visualisationConfig.widgets);
   const orderedEvidence = orderedDeveloperSpaceEvidence(detail.linkedDocuments ?? []);
+  const currentState = developerSpaceOwnerCurrentState(detail);
+  const usageReadback = developerSpaceUsageReadback(usage, detail, exportsList.length);
 
   return (
     <main className="container" style={{ display: "grid", gap: "1.25rem", maxWidth: 1120 }}>
@@ -475,28 +467,36 @@ export default function DeveloperSpaceManagePage() {
 
           <hr />
 
-          <div style={{ display: "grid", gap: "0.45rem", color: "#687078", fontSize: "0.86rem", lineHeight: 1.5 }}>
-            <span><strong style={{ color: "#1f2529" }}>Nodes:</strong> {detail.nodes.length}</span>
-            <span><strong style={{ color: "#1f2529" }}>Recent events:</strong> {detail.events.length}</span>
-            <span><strong style={{ color: "#1f2529" }}>Evidence:</strong> {orderedEvidence.length}</span>
-            <span><strong style={{ color: "#1f2529" }}>Exports:</strong> {usage?.counters.exports ?? exportsList.length}</span>
-            <span><strong style={{ color: "#1f2529" }}>Visibility:</strong> {detail.space.visibility}</span>
+          <div style={{ display: "grid", gap: "0.65rem", color: "#687078", fontSize: "0.84rem", lineHeight: 1.5 }}>
+            <div>
+              <h2 style={{ margin: "0 0 0.3rem", fontSize: "1rem" }}>{currentState.heading}</h2>
+              <p style={{ margin: 0 }}>{currentState.status}</p>
+              <p style={{ margin: "0.2rem 0 0", color: "#8b8f92" }}>Latest activity: {currentState.latestActivity}</p>
+            </div>
+            <div style={{ display: "grid", gap: "0.35rem" }}>
+              {currentState.rows.map((row) => (
+                <span key={row.label}><strong style={{ color: "#1f2529" }}>{row.label}:</strong> {row.value}</span>
+              ))}
+              <span><strong style={{ color: "#1f2529" }}>Visibility:</strong> {detail.space.visibility}</span>
+            </div>
+            <p style={{ margin: 0, color: "#854f0b", fontSize: "0.82rem" }}>
+              Owner readback comes from the current detail route; it is separate from quota counters below.
+            </p>
           </div>
 
           <hr />
 
           <div style={{ display: "grid", gap: "0.45rem", color: "#687078", fontSize: "0.84rem", lineHeight: 1.5 }}>
-            <h2 style={{ margin: 0, fontSize: "1rem" }}>Usage</h2>
-            {!usage ? (
-              <span>Loading usage...</span>
-            ) : (
-              <>
-                <span><strong style={{ color: "#1f2529" }}>Ingested:</strong> {usage.counters.events} events / {usage.counters.snapshots} snapshots</span>
-                <span><strong style={{ color: "#1f2529" }}>Storage:</strong> {formatBytes(usage.counters.storageBytes)} of {usage.limits.storageBytes < 0 ? "unlimited" : formatBytes(usage.limits.storageBytes)}</span>
-                <span><strong style={{ color: "#1f2529" }}>Public reads:</strong> {usage.counters.publicReads}</span>
-                <span className="pill" style={{ color: usage.warningLevel === "ok" ? "#25633f" : "#854f0b", width: "fit-content", textTransform: "capitalize" }}>{usage.warningLevel}</span>
-              </>
-            )}
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "0.75rem", flexWrap: "wrap" }}>
+              <h2 style={{ margin: 0, fontSize: "1rem" }}>{usageReadback.heading}</h2>
+              <span className="pill" style={{ color: usage?.warningLevel === "ok" ? "#25633f" : "#854f0b", width: "fit-content" }}>{usageReadback.warningLabel}</span>
+            </div>
+            {usageReadback.rows.map((row) => (
+              <span key={row.label}><strong style={{ color: "#1f2529" }}>{row.label}:</strong> {row.value}</span>
+            ))}
+            <p style={{ margin: "0.15rem 0 0", color: "#854f0b", fontSize: "0.82rem" }}>
+              {usageReadback.mismatchCopy}
+            </p>
           </div>
 
           <hr />

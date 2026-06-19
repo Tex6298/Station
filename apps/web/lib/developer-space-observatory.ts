@@ -5,6 +5,7 @@ import type {
   DeveloperSpaceWidgetZone,
   DeveloperSpaceLinkedDocument,
   DeveloperSpaceNode,
+  DeveloperSpaceUsage,
   DeveloperSpaceVisualisationType,
 } from "@station/types/developer-space";
 
@@ -51,6 +52,18 @@ export function humaniseKey(value: string) {
 function truncateText(value: string, maxLength = 120) {
   const clean = value.replace(/\s+/g, " ").trim();
   return clean.length > maxLength ? `${clean.slice(0, maxLength - 3).trim()}...` : clean;
+}
+
+function formatCompactBytes(bytes: number) {
+  if (bytes < 1024) return `${bytes} B`;
+  const units = ["KB", "MB", "GB"];
+  let value = bytes / 1024;
+  let index = 0;
+  while (value >= 1024 && index < units.length - 1) {
+    value /= 1024;
+    index += 1;
+  }
+  return `${value.toFixed(value >= 10 ? 0 : 1).replace(/\.0$/, "")} ${units[index]}`;
 }
 
 export function formatValue(value: unknown): string {
@@ -104,6 +117,76 @@ export function developerSpaceSignalStatus(detail: Pick<DeveloperSpaceDetail, "n
   if (detail.events.length > 0) return "Live signals are arriving.";
   if (detail.nodes.length > 0 || detail.latestSnapshot) return "Project state is visible; event signals have not arrived yet.";
   return "The public observatory is ready, but no project signals have arrived yet.";
+}
+
+export function developerSpaceOwnerCurrentState(detail: Pick<DeveloperSpaceDetail, "nodes" | "events" | "latestSnapshot" | "linkedDocuments">) {
+  const latestTimes = [
+    ...detail.nodes.map((node) => node.lastEventAt ?? node.updatedAt),
+    ...detail.events.map((event) => event.occurredAt ?? event.createdAt),
+    detail.latestSnapshot?.occurredAt ?? detail.latestSnapshot?.createdAt,
+  ].filter((value): value is string => Boolean(value));
+  const latestActivity = latestTimes.sort((a, b) => Date.parse(b) - Date.parse(a))[0] ?? null;
+  const publicEvidence = detail.linkedDocuments.filter((link) =>
+    link.linkVisibility === "public"
+    && link.document.status === "published"
+    && link.document.visibility === "public"
+  ).length;
+  const ownerOnlyEvidence = detail.linkedDocuments.length - publicEvidence;
+
+  return {
+    heading: "Current observatory state",
+    status: developerSpaceSignalStatus(detail),
+    latestActivity: latestActivity ? formatDate(latestActivity) : "No live activity yet",
+    rows: [
+      { label: "Tracked nodes", value: detail.nodes.length.toLocaleString() },
+      { label: "Recent events", value: detail.events.length.toLocaleString() },
+      { label: "Current snapshot", value: detail.latestSnapshot ? "Available" : "None yet" },
+      { label: "Linked evidence", value: detail.linkedDocuments.length.toLocaleString() },
+      { label: "Visitor evidence", value: publicEvidence.toLocaleString() },
+      { label: "Owner-only evidence", value: ownerOnlyEvidence.toLocaleString() },
+    ],
+  };
+}
+
+export function developerSpaceUsageReadback(
+  usage: DeveloperSpaceUsage | null,
+  detail: Pick<DeveloperSpaceDetail, "nodes" | "events" | "latestSnapshot" | "linkedDocuments">,
+  exportCount: number
+) {
+  if (!usage) {
+    return {
+      heading: "Metered usage and quota",
+      warningLabel: "Usage unavailable",
+      rows: [
+        { label: "Quota counters", value: "Loading or unavailable" },
+        { label: "Live state source", value: "Current observatory state above" },
+      ],
+      mismatchCopy: "Usage counters are metering data. The current observatory state above can still be live while quota data is loading.",
+    };
+  }
+
+  const mismatchParts = [];
+  if (usage.counters.nodes !== detail.nodes.length) mismatchParts.push("node count");
+  if (usage.counters.events !== detail.events.length) mismatchParts.push("event count");
+  const snapshotVisible = detail.latestSnapshot ? 1 : 0;
+  if (usage.counters.snapshots === 0 && snapshotVisible > 0) mismatchParts.push("snapshot availability");
+  if (usage.counters.exports !== exportCount) mismatchParts.push("export count");
+
+  return {
+    heading: "Metered usage and quota",
+    warningLabel: humaniseKey(usage.warningLevel),
+    rows: [
+      { label: "Metered nodes", value: usage.counters.nodes.toLocaleString() },
+      { label: "Metered events", value: usage.counters.events.toLocaleString() },
+      { label: "Metered snapshots", value: usage.counters.snapshots.toLocaleString() },
+      { label: "Storage", value: `${formatCompactBytes(usage.counters.storageBytes)} of ${usage.limits.storageBytes < 0 ? "unlimited" : formatCompactBytes(usage.limits.storageBytes)}` },
+      { label: "Public reads", value: usage.counters.publicReads.toLocaleString() },
+      { label: "Exports", value: usage.counters.exports.toLocaleString() },
+    ],
+    mismatchCopy: mismatchParts.length > 0
+      ? `Usage counters differ from current observatory state for ${mismatchParts.join(", ")}. Treat the live state above as the current readback and this panel as metering/quota.`
+      : "Usage counters match the current observatory summary.",
+  };
 }
 
 export function developerSpaceMethodologyCopy(detail: Pick<DeveloperSpaceDetail, "linkedDocuments" | "access">) {

@@ -1,6 +1,8 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import {
+  developerSpaceOwnerCurrentState,
+  developerSpaceUsageReadback,
   developerSpaceSignalStatus,
   developerSpaceStorySummary,
   developerSpaceMethodologyCopy,
@@ -60,6 +62,80 @@ test("observatory story helpers keep empty public spaces understandable", () => 
     "This observatory is currently showing 0 tracked nodes, 0 public signals."
   );
   assert.equal(developerSpaceSignalStatus(detail), "The public observatory is ready, but no project signals have arrived yet.");
+});
+
+test("owner observability helpers separate live state from metered usage", () => {
+  const detail = {
+    nodes: [{ id: "node-1", updatedAt: "2026-06-19T07:20:00Z", lastEventAt: null }],
+    events: [{ id: "event-1", occurredAt: "2026-06-19T07:25:00Z", createdAt: "2026-06-19T07:24:00Z" }],
+    latestSnapshot: { id: "snapshot-1", occurredAt: "2026-06-19T07:15:00Z", createdAt: "2026-06-19T07:14:00Z" },
+    linkedDocuments: [
+      {
+        id: "link-public",
+        linkVisibility: "public",
+        document: { status: "published", visibility: "public" },
+      },
+      {
+        id: "link-owner",
+        linkVisibility: "owner",
+        document: { status: "draft", visibility: "private" },
+      },
+    ],
+  } as unknown as Parameters<typeof developerSpaceOwnerCurrentState>[0];
+
+  const current = developerSpaceOwnerCurrentState(detail);
+  assert.equal(current.heading, "Current observatory state");
+  assert.equal(current.status, "Live signals are arriving.");
+  assert.deepEqual(
+    current.rows.map((row) => `${row.label}:${row.value}`),
+    [
+      "Tracked nodes:1",
+      "Recent events:1",
+      "Current snapshot:Available",
+      "Linked evidence:2",
+      "Visitor evidence:1",
+      "Owner-only evidence:1",
+    ]
+  );
+
+  const unavailableUsage = developerSpaceUsageReadback(null, detail, 0);
+  assert.equal(unavailableUsage.warningLabel, "Usage unavailable");
+  assert.match(unavailableUsage.mismatchCopy, /current observatory state above can still be live/);
+
+  const laggingUsage = developerSpaceUsageReadback({
+    developerSpaceId: "space-1",
+    ownerUserId: "owner-1",
+    tier: "canon",
+    counters: {
+      nodes: 0,
+      events: 0,
+      snapshots: 0,
+      storageBytes: 2048,
+      publicReads: 3,
+      exports: 0,
+    },
+    limits: {
+      nodes: 100,
+      events: 1000,
+      snapshots: 50,
+      storageBytes: -1,
+      publicReads: 10000,
+      exports: 5,
+    },
+    percentUsed: {
+      nodes: 0,
+      events: 0,
+      snapshots: 0,
+      storageBytes: 0,
+      publicReads: 0,
+      exports: 0,
+    },
+    warningLevel: "notice",
+  }, detail, 2);
+
+  assert.equal(laggingUsage.warningLabel, "Notice");
+  assert.match(laggingUsage.mismatchCopy, /node count, event count, snapshot availability, export count/);
+  assert.match(laggingUsage.rows.find((row) => row.label === "Storage")?.value ?? "", /2 KB of unlimited/);
 });
 
 test("observatory helpers keep visitor data readable and non-raw", () => {

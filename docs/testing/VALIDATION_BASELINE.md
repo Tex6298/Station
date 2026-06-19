@@ -8734,6 +8734,39 @@ Scope notes:
   Redis, Cloudflare, Project work, hosted runtime, worker, billing/quota, or
   DexOS work changed.
 
+## PR65 Developer Space Observability Readback
+
+DAEDALUS implementation validation on 2026-06-19:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 13 tests passed, including owner current-state versus metered-usage helper coverage plus existing Developer Space route/helper coverage. |
+| `npm exec --yes pnpm@10.32.1 -- run test:exports` | Pass | 4 tests passed; Developer Space export/readback behavior stayed green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:community` | Pass | 8 tests passed; public/community Developer Space discover/search visibility stayed green after shared helper changes. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web lint` | Pass with known warnings | The Developer Space manage hook dependency warning is gone. Remaining warnings are pre-existing raw `<img>` warnings in `app/space/[slug]/page.tsx` and `components/discover/discover-front-door.tsx`. |
+| `git diff --check` | Pass | No whitespace errors; CRLF normalization warnings only for touched files and local triad state. |
+
+Scope notes:
+
+- The Developer Space owner manage console now separates `Current observatory
+  state` from `Metered usage and quota`.
+- Current state comes from the existing owner-scoped detail route and shows
+  live nodes, recent events, current snapshot availability, linked evidence,
+  visitor-visible evidence, owner-only evidence, visibility, and latest
+  activity.
+- Usage/quota comes from the existing owner-scoped usage route and shows warning
+  status, metered nodes/events/snapshots/storage/public reads/exports, and
+  explicit mismatch copy when usage counters are unavailable or lag current
+  live state.
+- This prevents current live observatory data from looking empty merely because
+  usage counters are zero or loading.
+- DAEDALUS did not run a browser rehearsal; desktop and `390px` fit should be
+  checked by ARGUS/ARIADNE before closing PR65.
+- No API route behavior, schema, ingestion behavior, usage model, provider
+  policy, public raw payload expansion, Project work, Redis, Cloudflare, hosted
+  runtime, worker, billing-plan, DexOS, or broad redesign changed.
+
 ARGUS review validation on 2026-06-19:
 
 | Command | Result | Notes |
