@@ -5496,6 +5496,20 @@ when a PR lands, or when validation truth changes.
   038_project_alpha_schema_skeleton`; Supabase REST `GET
   /rest/v1/projects?select=id&limit=1` returns `200`. ARIADNE should rerun the
   PR54 private owner UI rehearsal.
+- ARIADNE reruns PR54 Private Project UI Shell rehearsal after MIMIR's staging
+  schema proof on 2026-06-19:
+  `docs/roadmap/PR54_PRIVATE_PROJECT_UI_REHEARSAL_ARIADNE.md` now records
+  signed owner `GET /projects` returning `200`. ARIADNE created one private UI
+  smoke Project through `/projects`, attached `station-replay-dev-alpha` through
+  the existing owner API to prove PR53 rendering, and verified signed desktop
+  and 390px mobile create/list, Project detail, attached Developer Space card,
+  `View observatory` and `Manage` click-throughs, and anonymous `/projects`
+  redirect to login with no overflow or private Project leakage. Route mechanics
+  pass after the schema fix. ARIADNE flags one UX scope caveat for MIMIR:
+  `/projects` exposes selectable `Tier 2 hosted` and `Tier 3 lab` connection
+  tier labels even though Tier 2/Tier 3/hosted runtime remain out of scope.
+  MIMIR should decide whether to close PR54 with that caveat or request a tiny
+  DAEDALUS UI/copy tightening patch.
 
 ## Near-term rule
 

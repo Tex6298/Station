@@ -2,19 +2,32 @@
 
 Date: 2026-06-19
 Agent: A4 / ARIADNE
-Verdict: Blocked on staging schema; PR54 cannot close from browser rehearsal yet
+Verdict: Pass for route mechanics after schema proof; one UX scope caveat remains
 
 ## Wakeup Note
 
-ARIADNE missed the first visible handoff because stale detached A4 watch
+ARIADNE initially missed the visible handoff because stale detached A4 watch
 processes were still running. MIMIR/ARGUS did send the wakeup on
 `3ca7aa625bce41bd49bf07e0fd15dd6960a58f96`; the local A4 state advanced
 without the wakeup surfacing in the active turn. The stale A4 watchers were
-stopped before this rehearsal.
+stopped before the PR54 rehearsal work resumed.
+
+## First Attempt Blocker
+
+The first signed rehearsal attempt found a real staging blocker:
+
+- signed owner `GET /projects` returned `500`;
+- error: `Could not find the table 'public.projects' in the schema cache`;
+- signed `/developer-spaces` still returned the two expected staging Developer
+  Spaces, so auth/session and Developer Spaces were not the problem.
+
+MIMIR then applied/proved the Project schema on staging and re-woke ARIADNE.
 
 ## Runtime Checked
 
 - Web route: `https://stationweb-production.up.railway.app/projects`
+- Project detail route:
+  `https://stationweb-production.up.railway.app/projects/ariadne-pr54-ui-smoke-2026-06-19t01-44-47-657z`
 - Web/API deployment identity:
   `3ca7aa625bce41bd49bf07e0fd15dd6960a58f96`
 - Account mode: signed replay owner via local env
@@ -25,92 +38,137 @@ stopped before this rehearsal.
 No credentials, tokens, cookies, private prompts, private archive excerpts, raw
 provider payloads, or owner IDs were printed.
 
-## Blocking Result
+## Schema Rerun
 
-Signed owner `GET /projects` returns:
+After MIMIR's schema proof, signed owner `GET /projects` returned `200`.
 
-- status: `500`
-- error: `Could not find the table 'public.projects' in the schema cache`
+ARIADNE created one private Project through the actual `/projects` UI:
 
-The signed `/developer-spaces` owner API still returns the two expected staging
-Developer Spaces:
+- name: `ARIADNE PR54 UI smoke 2026-06-19T01-44-47-657Z`
+- slug: `ariadne-pr54-ui-smoke-2026-06-19t01-44-47-657z`
+- visibility: `private`
+- connection tier selected: `tier_1_showcase`
 
-- `animus-field-lab`
-- `station-replay-dev-alpha`
+To prove the PR53 attached Developer Space rendering path, ARIADNE used the
+existing owner API to attach `station-replay-dev-alpha` to that smoke Project.
+The Project detail API then returned one attached Developer Space:
 
-This points to missing deployed Project schema, not a general auth/session
-failure and not a Developer Spaces regression.
-
-The repo contains the expected Project schema migration at
-`infra/supabase/migrations/038_project_alpha_schema_skeleton.sql`, but the
-deployed health readback still reports the current migration proof as
-`025-037`. The practical blocker is that staging does not appear to have the
-Project tables/schema-cache state needed by the deployed PR54 API.
+- `Station Replay Dev Alpha`
+- slug: `station-replay-dev-alpha`
+- visibility: `public`
+- visualisation type: `node_field`
 
 ## Browser Rehearsal
 
-Signed desktop `/projects`:
+Signed desktop `/projects` passed:
 
-- route loads as a signed owner, not as a sign-in loop;
-- `Projects` and `Create Project` are visible;
-- no document-level horizontal overflow (`1350` scroll width / `1350` client
+- private Projects shell loads without sign-in loop or route error;
+- Project create/list surface is visible;
+- created Project appears in the list with private visibility, slug, Tier 1
+  showcase label, and `Open` link;
+- no document-level horizontal overflow (`1365` scroll width / `1365` client
   width);
-- no visible controls render offscreen;
-- page shows the schema-cache error above.
+- no visible controls render offscreen.
 
-Signed mobile `/projects` at `390x844`:
+Signed mobile `/projects` at `390x844` passed:
 
-- route loads as a signed owner, not as a sign-in loop;
-- `Projects` and `Create Project` are visible;
+- shell and created Project list item remain visible;
+- `Open` link remains reachable;
 - no document-level horizontal overflow (`390` scroll width / `390` client
   width);
-- no visible controls render offscreen;
-- page shows the schema-cache error above.
+- no visible controls render offscreen.
 
-Because `GET /projects` fails, ARIADNE could not truthfully complete:
+Signed desktop Project detail passed:
 
-- Project create/list rehearsal;
-- Project detail route rehearsal;
-- attached Developer Space rendering proof;
-- no-Project empty-state proof;
-- no-attached-space empty-state proof;
-- click-throughs from Project detail to Developer Space view/manage routes.
+- private Project detail loads through `GET /projects/:idOrSlug`;
+- Project summary shows private visibility, Tier 1 showcase, slug, created, and
+  updated metadata;
+- `Attached Developer Spaces` section is visible;
+- copy says `Attach and detach stay in the API lane for now`;
+- attached `Station Replay Dev Alpha` card renders from the PR53 summary;
+- `View observatory` and `Manage` links are present;
+- no document-level horizontal overflow and no offscreen controls.
 
-## UX Read
+Signed mobile Project detail at `390x844` passed:
 
-The visible shell itself is not the immediate problem. The page proves that
-signed session restoration and the protected private Project route load on both
-desktop and narrow mobile. The blocker is underneath the UI: the private Project
-API cannot read staging because `public.projects` is absent from the schema
-cache.
+- Project summary, attached Developer Space card, and both links remain visible;
+- no document-level horizontal overflow and no offscreen controls.
 
-This is a hard staging-readiness blocker for PR54 closeout.
+Click-throughs passed:
+
+- `View observatory` opens
+  `/developer-spaces/station-replay-dev-alpha` and shows the existing
+  observatory / evidence path;
+- `Manage` opens
+  `/developer-spaces/station-replay-dev-alpha/manage` and shows the existing
+  researcher interface / evidence path.
+
+Anonymous `/projects` check passed:
+
+- fresh anonymous browser redirects to
+  `/login?redirect=%2Fprojects`;
+- no private Project shell, Project list, smoke Project, or attached Developer
+  Space card is visible anonymously;
+- no mobile overflow at `390px`.
+
+## Empty States
+
+At the start of the rerun, signed `GET /projects` returned zero Projects, so
+the no-Project state was available before ARIADNE created the UI smoke Project.
+
+The smoke Project detail was also reached before attaching a Developer Space.
+After attachment, the retained readback focuses on the attached state because
+the rehearsal needed to prove PR53 rendering. No separate public Project or
+attach/detach UI was created.
+
+## UX Scope Caveat
+
+The Project create form exposes selectable connection-tier options:
+
+- `Tier 1 showcase`
+- `Tier 2 hosted`
+- `Tier 3 lab`
+
+ARIADNE selected only `Tier 1 showcase`. The PR54 route mechanics pass, but the
+positive `Tier 2 hosted` and `Tier 3 lab` labels are a UX scope caveat because
+Tier 2 hosting, Tier 3 lab behavior, hosted runtime, Cloudflare, developer
+agents, and DexOS widgets are explicitly out of scope.
+
+Recommended tightening if MIMIR wants strict product-language hygiene:
+
+- hide future tiers from the owner UI for now; or
+- keep the field read-only / Tier 1-only in PR54; or
+- add explicit helper copy that the value is metadata only and does not
+  provision hosting or lab/runtime capability.
 
 ## Recommendation
 
-MIMIR should not mark PR54 complete from ARIADNE rehearsal yet.
+MIMIR can treat PR54 as mechanically browser-rehearsed after the schema fix.
 
-Recommended next action:
+Before treating the product language as fully clean, MIMIR should decide whether
+the `Tier 2 hosted` / `Tier 3 lab` selectable labels need a tiny DAEDALUS copy/UI
+tightening patch.
 
-- apply/verify the Project alpha schema migration in staging, including
-  `public.projects`, `public.project_members`, and the nullable
-  `developer_spaces.project_id` / `developer_space_usage.project_id` columns;
-- wait for Supabase/PostgREST schema cache to see the new table;
-- rerun signed `GET /projects`;
-- then reissue ARIADNE's PR54 UI rehearsal.
-
-No product-scope change is needed. Keep public Project pages, attach/detach UI,
-billing/export semantics, contributor/member authorization, hosted runtime,
-Cloudflare, Tier 2 hosting, developer-agent, DexOS-widget work, and
-`export_packages.project_id` out of the fix.
+No broader product-scope change is needed. Keep public Project pages,
+attach/detach UI, billing/export semantics, contributor/member authorization,
+hosted runtime, Cloudflare, Tier 2 hosting, developer-agent, DexOS-widget work,
+and `export_packages.project_id` out of the next move unless MIMIR explicitly
+reopens them.
 
 ## Validation
 
 - `curl.exe -fsS --max-time 30 https://stationweb-production.up.railway.app/health/deployment`
 - `curl.exe -fsS --max-time 30 https://stationapi-production.up.railway.app/health/deployment`
-- Signed owner API read:
+- Signed owner API reads:
   - `GET https://stationapi-production.up.railway.app/projects`
   - `GET https://stationapi-production.up.railway.app/developer-spaces`
-- `node --check scripts/tmp-pr54-projects-ui-rehearsal.mjs`
-- Signed Chrome/CDP `/projects` route checks at `1365x900` and `390x844`
+  - `GET https://stationapi-production.up.railway.app/projects/:slug`
+- UI smoke Project created through signed `/projects`
+- Existing owner API used to attach `station-replay-dev-alpha` for PR53 detail
+  rendering proof
+- `node --check scripts/tmp-pr54-projects-ui-rerun.mjs`
+- Signed Chrome/CDP `/projects` desktop and `390px` mobile checks
+- Signed Chrome/CDP Project detail desktop and `390px` mobile checks
+- Signed Chrome/CDP Developer Space view/manage click-through checks
+- Fresh anonymous Chrome/CDP `/projects` privacy check at `390px`
 - Temporary local probe script was removed before commit.
