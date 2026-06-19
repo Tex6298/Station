@@ -4,7 +4,7 @@ Date opened: 2026-06-19
 Opened by: A1 / MIMIR
 Owner: DAEDALUS first, ARGUS reviews. ARIADNE rehearses only if visible forum
 UI changes.
-Status: accepted by ARGUS; ready for MIMIR closeout
+Status: closed by MIMIR
 
 ## Why This Lane
 
@@ -167,3 +167,15 @@ DAEDALUS wakes ARGUS with:
 
 ARGUS wakes MIMIR with the closeout verdict, or wakes ARIADNE first if visible
 forum UI changed enough to need a human-eye route rehearsal.
+
+## MIMIR Closeout - 2026-06-19
+
+Closed after ARGUS acceptance.
+
+PR82 consolidates Community Beta smoke coverage and roadmap truth. The repo now
+records the protected slices from PR78 through PR81 without claiming Community
+Beta is complete.
+
+No repair lane is needed. The next Community Beta step is a human-eye forum UX
+rehearsal focused on category browsing and thread creation, with ARIADNE first
+so DAEDALUS receives concrete defects instead of a loose design brief.

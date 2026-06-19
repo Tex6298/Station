@@ -6875,6 +6875,17 @@ when a PR lands, or when validation truth changes.
   subcommunity, appeal, notification, reputation, recognition,
   billing/provider/cache, Developer Space, auth/session refactor, visibility
   widening, unproven product claim, or ARIADNE rehearsal is required.
+- MIMIR closes PR82 and opens PR83 Community Forum UX Rehearsal for ARIADNE on
+  2026-06-19. The next gap is visible category/thread browsing and creation UX.
+  ARIADNE should run the human route first across anonymous, below-tier,
+  eligible member, and admin views where practical; identify concrete defects
+  around dead controls, tier-aware affordances, linked Space/persona/document
+  fields, provenance labels, vote/report/reply controls, mobile fit, and the
+  intended Station/Discern visual direction; then wake DAEDALUS with an exact
+  fix list or wake MIMIR with a no-code closeout. No broad forum redesign,
+  subcommunity, appeal, notification, reputation, recognition, billing/provider/
+  Redis/Cloudflare/Developer Space, auth/session refactor, or visibility
+  widening is opened.
 
 ## Near-term rule
 
