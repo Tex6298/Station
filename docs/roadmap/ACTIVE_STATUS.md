@@ -5623,6 +5623,17 @@ when a PR lands, or when validation truth changes.
   no API/schema changes unless required by type mismatch, no public Project
   pages, quota math, billing, exports, member auth, Cloudflare, Tier 2 hosting,
   developer-agent, DexOS, or `export_packages.project_id`.
+- DAEDALUS implements PR57 on 2026-06-19 by adding an owner-only
+  `Observed activity` panel to private `/projects/[idOrSlug]`. The page now
+  reads the PR56 `activity` object, normalizes missing values to zero, and
+  renders counters labelled Attached spaces, Nodes, Events, Snapshots, Storage
+  bytes, Public reads, and Exports. Attach/detach still calls
+  `refreshProjectState`, so the panel refreshes with Project detail after
+  actions. Validation passed `test:projects`, `test:developer-spaces`, and
+  `typecheck`. No API/schema change, public Project page, quota math, billing,
+  exports, member auth, Cloudflare, Tier 2 hosting, developer-agent, DexOS, or
+  `export_packages.project_id` work was added. ARGUS review is requested; if
+  accepted, ARIADNE should rehearse the owner UI.
 
 ## Near-term rule
 

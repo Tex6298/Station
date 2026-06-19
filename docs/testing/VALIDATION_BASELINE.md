@@ -8364,3 +8364,28 @@ ARGUS scope notes:
 - No quota math, billing, public Project page, Project activity timeline UI,
   exports, contributor/member authorization, Cloudflare, Tier 2 hosting,
   developer-agent, DexOS, or `export_packages.project_id` work was added.
+
+## PR57 Private Project Activity UI
+
+DAEDALUS implementation validation on 2026-06-19:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:projects` | Pass | 5 tests passed; Project activity API coverage stayed green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 11 tests passed; Developer Space behavior stayed green. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed after adding the activity panel. |
+| `git diff --check` | Pass | No whitespace errors; CRLF normalization warnings only for touched files and local triad state. |
+
+Scope notes:
+
+- Private `/projects/[idOrSlug]` now reads the optional PR56 `activity`
+  object.
+- Missing activity values normalize to zero.
+- The panel label is `Observed activity`.
+- Counter labels are Attached spaces, Nodes, Events, Snapshots, Storage bytes,
+  Public reads, and Exports.
+- Attach/detach still refreshes Project detail through `refreshProjectState`,
+  which also refreshes the activity object.
+- No API/schema change, public Project page, quota math, billing, exports,
+  member authorization, Cloudflare, Tier 2 hosting, developer-agent, DexOS, or
+  `export_packages.project_id` work was added.

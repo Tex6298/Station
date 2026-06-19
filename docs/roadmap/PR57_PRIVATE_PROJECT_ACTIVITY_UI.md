@@ -1,7 +1,7 @@
 # PR57 - Private Project Activity UI
 
 Date: 2026-06-19
-Status: opened for DAEDALUS
+Status: implemented by DAEDALUS; ready for ARGUS review
 Owner: DAEDALUS implements, ARGUS reviews, ARIADNE rehearses signed owner UI,
 MIMIR decides next lane.
 
@@ -110,3 +110,58 @@ MIMIR with the review verdict. ARIADNE should verify:
 - anonymous Project detail still redirects/signs in without private leakage.
 
 If blocked, wake MIMIR with the exact blocker. Do not leave the lane silent.
+
+## DAEDALUS Implementation
+
+Changed:
+
+- Extended private owner `/projects/[idOrSlug]`.
+- Reads the optional PR56 `activity` object from `GET /projects/:idOrSlug`.
+- Normalizes missing activity fields to zero.
+- Adds an `Observed activity` panel.
+- Displays these counters:
+  - Attached spaces;
+  - Nodes;
+  - Events;
+  - Snapshots;
+  - Storage bytes;
+  - Public reads;
+  - Exports.
+- Preserves attach/detach refresh through `refreshProjectState`, so activity
+  refreshes with Project detail after actions.
+
+Files changed:
+
+- `apps/web/app/projects/[idOrSlug]/page.tsx`
+- `docs/roadmap/ACTIVE_STATUS.md`
+- `docs/testing/VALIDATION_BASELINE.md`
+- `docs/roadmap/PR57_PRIVATE_PROJECT_ACTIVITY_UI.md`
+
+API/schema files changed:
+
+- None.
+
+Validation:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:projects` | Pass | 5 tests passed; Project activity API coverage stayed green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 11 tests passed; Developer Space behavior stayed green. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed. |
+| `git diff --check` | Pass | No whitespace errors; CRLF normalization warnings only for touched files and local triad state. |
+
+Scope guard:
+
+- No API route change.
+- No schema or migration work.
+- No public Project page.
+- No quota math, billing, exports, member auth, Cloudflare, Tier 2 hosting,
+  developer-agent, DexOS, or `export_packages.project_id`.
+
+ARIADNE rehearsal request if ARGUS accepts:
+
+- Signed owner Project detail shows the `Observed activity` panel.
+- Zero or seeded activity is legible.
+- Attach/detach still refreshes Project detail and the activity panel.
+- `390px` layout has no horizontal overflow or offscreen controls.
+- Anonymous Project detail still redirects/signs in without private leakage.

@@ -35,12 +35,23 @@ interface AttachedDeveloperSpaceSummary {
 interface ProjectDetailResponse {
   project: ProjectSummary;
   developerSpaces: AttachedDeveloperSpaceSummary[];
+  activity?: Partial<ProjectActivity>;
 }
 
 type OwnerDeveloperSpace = AttachedDeveloperSpaceSummary & {
   apiKeyLastFour?: string | null;
   apiKeyCreatedAt?: string | null;
 };
+
+interface ProjectActivity {
+  developerSpaces: number;
+  nodes: number;
+  events: number;
+  snapshots: number;
+  storageBytes: number;
+  publicReads: number;
+  exports: number;
+}
 
 const CONNECTION_LABELS: Record<ProjectConnectionTier, string> = {
   tier_1_showcase: "Showcase",
@@ -58,6 +69,22 @@ function formatDate(value: string) {
 
 function visualisationLabel(value: AttachedDeveloperSpaceSummary["visualisationType"]) {
   return value.replace("_", " ");
+}
+
+function normaliseActivity(activity?: Partial<ProjectActivity>): ProjectActivity {
+  return {
+    developerSpaces: Number(activity?.developerSpaces ?? 0),
+    nodes: Number(activity?.nodes ?? 0),
+    events: Number(activity?.events ?? 0),
+    snapshots: Number(activity?.snapshots ?? 0),
+    storageBytes: Number(activity?.storageBytes ?? 0),
+    publicReads: Number(activity?.publicReads ?? 0),
+    exports: Number(activity?.exports ?? 0),
+  };
+}
+
+function formatCounter(value: number) {
+  return new Intl.NumberFormat("en-GB").format(value);
 }
 
 export default function ProjectDetailPage() {
@@ -187,8 +214,18 @@ export default function ProjectDetailPage() {
   }
 
   const { project, developerSpaces } = detail;
+  const activity = normaliseActivity(detail.activity);
   const attachedIds = new Set(developerSpaces.map((space) => space.id));
   const attachCandidates = ownerSpaces.filter((space) => !attachedIds.has(space.id));
+  const activityItems = [
+    ["Attached spaces", activity.developerSpaces],
+    ["Nodes", activity.nodes],
+    ["Events", activity.events],
+    ["Snapshots", activity.snapshots],
+    ["Storage bytes", activity.storageBytes],
+    ["Public reads", activity.publicReads],
+    ["Exports", activity.exports],
+  ] as const;
 
   return (
     <main className="station-page">
@@ -240,6 +277,25 @@ export default function ProjectDetailPage() {
         </section>
 
         {actionError && <div className="station-notice" data-tone="error">{actionError}</div>}
+
+        <section className="station-panel" style={{ display: "grid", gap: "0.85rem" }} aria-label="Observed Project activity">
+          <div>
+            <h2 style={{ margin: 0, fontSize: "1.1rem" }}>Observed activity</h2>
+            <p style={{ margin: "0.3rem 0 0", color: "#687078", fontSize: "0.9rem", lineHeight: 1.5 }}>
+              Read-only counters from attached Developer Spaces.
+            </p>
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(128px, 1fr))", gap: "0.65rem" }}>
+            {activityItems.map(([label, value]) => (
+              <div key={label} className="station-card" style={{ padding: "0.85rem" }}>
+                <div style={{ color: "#687078", fontSize: "0.74rem", lineHeight: 1.3 }}>{label}</div>
+                <strong style={{ display: "block", marginTop: "0.3rem", fontSize: "1.15rem", color: "#1f2529" }}>
+                  {formatCounter(value)}
+                </strong>
+              </div>
+            ))}
+          </div>
+        </section>
 
         <section style={{ display: "grid", gap: "0.75rem" }}>
           {developerSpaces.length === 0 ? (
