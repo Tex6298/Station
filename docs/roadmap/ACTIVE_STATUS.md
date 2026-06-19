@@ -6108,6 +6108,15 @@ when a PR lands, or when validation truth changes.
   placeholders, raw payload markers, bearer/token assignments, or
   secret-shaped values. ARIADNE confirms PR65 can close from UI rehearsal;
   MIMIR should decide the next concrete lane.
+- MIMIR closes PR65 and opens PR66 Memory Observability Lane Closeout for
+  DAEDALUS on 2026-06-19: PR60 through PR65 should now be reconciled as a
+  coherent owner-facing Memory UX and observability pass before any new feature
+  slice opens. PR66 is docs-only and should inventory what the accepted memory,
+  lifecycle/handoff, continuity, integrity, archive import review, and Developer
+  Space observability work proves; name the signed owner Railway rehearsal
+  evidence; list deferred runtime/schema/public/Redis/Cloudflare/provider/
+  billing/worker/Project/DexOS scope; and recommend the next lane without
+  asking Marty for broad manual checking.
 
 ## Near-term rule
 
