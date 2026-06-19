@@ -4,6 +4,13 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { getSession } from "@/lib/auth";
 import { apiGet, apiPatch, apiPost } from "@/lib/api-client";
+import {
+  memoryLifecycleActions,
+  memoryLifecycleCounters,
+  memoryLifecycleDisplayStatus,
+  memoryLifecycleStatusLabel,
+  memoryRuntimeCopy,
+} from "@/lib/memory-lifecycle-ui";
 import type { MemoryItemLifecycle, OwnerMemoryBlock, PersonaMemoryBriefing } from "@station/types/persona";
 import {
   PersonaWorkspaceHeader,
@@ -151,6 +158,8 @@ export default function PersonaMemoryPage() {
   if (error && !persona) return <StudioMessage tone="error">{error}</StudioMessage>;
   if (!persona) return <StudioMessage tone="error">Persona not found.</StudioMessage>;
 
+  const lifecycleMetrics = memoryLifecycleCounters(items, briefing);
+
   return (
     <main className="container studio-workspace">
       <PersonaWorkspaceHeader persona={persona} />
@@ -161,10 +170,11 @@ export default function PersonaMemoryPage() {
           <div className="section-label">Memory Briefing</div>
           <h2>Shared profile and lifecycle state</h2>
         </div>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: "0.75rem" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(132px, 1fr))", gap: "0.75rem" }}>
           <BriefingMetric label="Shared blocks" value={briefing?.sharedBlocks.length ?? 0} />
-          <BriefingMetric label="Active memories" value={briefing?.lifecycleCounts.active ?? items.length} />
-          <BriefingMetric label="Quarantined" value={briefing?.lifecycleCounts.quarantined ?? 0} />
+          {lifecycleMetrics.map((metric) => (
+            <BriefingMetric key={metric.status} label={metric.label} value={metric.value} />
+          ))}
           <BriefingMetric label="Next cycle" value={`${briefing?.cycleState.nextThresholdPct ?? 75}%`} />
         </div>
       </section>
@@ -194,26 +204,50 @@ export default function PersonaMemoryPage() {
           </div>
           <div className="studio-item-list">
             {items.length === 0 && <div className="studio-empty">No memory items yet.</div>}
-            {items.map((item) => (
-              <article key={item.id} className="studio-item-card">
-                <div>
-                  <span>{item.lifecycle?.trustLevel ?? item.source_type}</span>
-                  <time>{formatDate(item.created_at)}</time>
-                </div>
-                <h3>{item.title || "Untitled memory"}</h3>
-                <p>{item.summary || item.content}</p>
-                <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap", marginTop: "0.75rem" }}>
-                  <span className="section-label">{item.lifecycle?.status ?? "active"}</span>
-                  <span className="section-label">confidence {((item.lifecycle?.confidence ?? 0.7) * 100).toFixed(0)}%</span>
-                  <button className="button secondary" type="button" onClick={() => updateLifecycle(item.id, { reinforce: true })}>
-                    Reinforce
-                  </button>
-                  <button className="button secondary" type="button" onClick={() => updateLifecycle(item.id, { status: "quarantined" })}>
-                    Quarantine
-                  </button>
-                </div>
-              </article>
-            ))}
+            {items.map((item) => {
+              const status = memoryLifecycleDisplayStatus(item.lifecycle);
+              const actions = memoryLifecycleActions(item.lifecycle);
+
+              return (
+                <article key={item.id} className="studio-item-card">
+                  <div>
+                    <span>{item.lifecycle?.trustLevel ?? item.source_type}</span>
+                    <time>{formatDate(item.created_at)}</time>
+                  </div>
+                  <h3>{item.title || "Untitled memory"}</h3>
+                  <p>{item.summary || item.content}</p>
+                  <div style={{ display: "grid", gap: "0.5rem", marginTop: "0.75rem" }}>
+                    <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
+                      <span className="section-label">{memoryLifecycleStatusLabel(status)}</span>
+                      <span className="section-label">confidence {((item.lifecycle?.confidence ?? 0.7) * 100).toFixed(0)}%</span>
+                    </div>
+                    <p style={{ margin: 0, color: "#8ea0b8", fontSize: "0.9rem", lineHeight: 1.45 }}>
+                      {memoryRuntimeCopy(status)}
+                    </p>
+                    <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
+                      <button className="button secondary" type="button" onClick={() => updateLifecycle(item.id, { reinforce: true })}>
+                        Reinforce
+                      </button>
+                      {actions.showRestore && (
+                        <button className="button secondary" type="button" onClick={() => updateLifecycle(item.id, { status: "active", expiresAt: null, supersededByMemoryItemId: null })}>
+                          Restore
+                        </button>
+                      )}
+                      {actions.showQuarantine && (
+                        <button className="button secondary" type="button" onClick={() => updateLifecycle(item.id, { status: "quarantined" })}>
+                          Quarantine
+                        </button>
+                      )}
+                      {actions.showReject && (
+                        <button className="button secondary" type="button" onClick={() => updateLifecycle(item.id, { status: "rejected" })}>
+                          Reject
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                </article>
+              );
+            })}
           </div>
         </section>
       </section>

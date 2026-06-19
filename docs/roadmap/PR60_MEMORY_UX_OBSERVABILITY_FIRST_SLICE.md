@@ -1,7 +1,7 @@
 # PR60 - Memory UX And Observability First Slice
 
 Date: 2026-06-19
-Status: opened for DAEDALUS
+Status: implemented by DAEDALUS; ready for ARGUS review
 Owner: DAEDALUS implements, ARGUS reviews, ARIADNE rehearses signed owner UI,
 MIMIR decides next lane.
 
@@ -157,3 +157,70 @@ the review verdict. ARIADNE should check:
 - `390px` layout has no horizontal overflow or offscreen controls.
 
 If blocked, wake MIMIR with the exact blocker. Do not leave the lane silent.
+
+## DAEDALUS Implementation Result
+
+Implemented as an owner-only web/readback slice using existing API contracts.
+No API route, schema, runtime store, provider, Project, billing, worker, Redis,
+Cloudflare, hosted-runtime, or DexOS behavior changed.
+
+### Studio Memory
+
+- `apps/web/app/studio/personas/[personaId]/memory/page.tsx` now shows the full
+  lifecycle counter set:
+  - active;
+  - quarantined;
+  - rejected;
+  - expired;
+  - superseded;
+  - missing lifecycle.
+- `apps/web/lib/memory-lifecycle-ui.ts` centralizes lifecycle labels, runtime
+  inclusion/holdout copy, counter derivation, and action visibility.
+- Per-memory copy now distinguishes active memories as eligible for runtime
+  context and held-out memories as excluded while quarantined/rejected/expired/
+  superseded or missing lifecycle state.
+- The per-memory action set now includes reinforce, restore, quarantine, and
+  reject where relevant.
+- Existing briefing refresh behavior is preserved after lifecycle changes.
+
+### Settings AI Observability
+
+- `apps/web/components/settings/ai-observability-panel.tsx` now renders recent
+  trace facts for source, status, duration, token total, estimated cost, and
+  whitelisted operational metadata.
+- `apps/web/lib/ai-observability-ui.ts` centralizes formatting and client-side
+  whitelisting for provider route/profile/provider/model/model-tier/policy/
+  posture/domain labels.
+- Failure message rendering applies defensive redaction for obvious URLs,
+  secret-shaped values, tokens, cookies, authorization, API keys, passwords, and
+  secrets.
+- Trace detail expansion was not added in this slice. The panel uses the
+  existing owner-only summary/list routes and renders only whitelisted list
+  metadata.
+
+### Focused Tests
+
+- Added `apps/web/lib/memory-lifecycle-ui.test.ts`.
+- Added `apps/web/lib/ai-observability-ui.test.ts`.
+- Added both files to the existing `test:studio-ui` script.
+- Updated `apps/web/lib/studio-navigation.test.ts` to match the current signed
+  mobile top-nav route source of truth, which already includes `/projects`.
+
+## Validation Result
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 32 tests passed after adding memory/observability helper coverage and correcting the stale signed mobile nav expectation for `/projects`. |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-context` | Pass | 7 tests passed; lifecycle filtering and owner-only memory briefing stayed green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` | Pass | 1 test passed; observability replay-readiness stayed auth-protected and non-secret. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed. |
+| `git diff --check` | Pass | No whitespace errors; CRLF normalization warnings only for touched files and local triad state. |
+
+## Scope Confirmation
+
+- No public memory surface.
+- No raw prompt, completion, provider payload, private archive excerpt, provider
+  key, base URL, token, cookie, owner id, persona id, trace id, or replay
+  credential display.
+- No Redis, Cloudflare, provider migration, Project implementation, hosted
+  runtime, worker, billing/quota, schema, API route, or DexOS work.

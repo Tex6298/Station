@@ -30,5 +30,5 @@ test("Studio mobile navigation exposes an explicit disclosure label", () => {
 });
 
 test("signed mobile top nav keeps protected routes reachable through the account menu", () => {
-  assert.deepEqual([...SIGNED_MOBILE_TOP_NAV_MENU_ROUTES], ["/studio", "/space", "/developer-spaces"]);
+  assert.deepEqual([...SIGNED_MOBILE_TOP_NAV_MENU_ROUTES], ["/studio", "/projects", "/space", "/developer-spaces"]);
 });

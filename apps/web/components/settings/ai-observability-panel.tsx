@@ -2,6 +2,17 @@
 
 import { useEffect, useState } from "react";
 import { apiGet } from "@/lib/api-client";
+import {
+  formatDate,
+  formatDuration,
+  formatPence,
+  formatTokens,
+  sanitizedFailureMessage,
+  sourceLabel,
+  statusTone,
+  traceOperationalFacts,
+  traceTokenTotal,
+} from "@/lib/ai-observability-ui";
 import { getSession } from "@/lib/auth";
 
 type ObservabilitySummary = {
@@ -16,7 +27,7 @@ type ObservabilitySummary = {
 type AiTrace = {
   id: string;
   source: string;
-  status: "running" | "completed" | "failed";
+  status: "running" | "completed" | "failed" | "skipped";
   started_at: string;
   duration_ms: number | null;
   total_input_tokens: number;
@@ -75,11 +86,16 @@ export function AiObservabilityPanel() {
                   <div style={{ color: "#7d8796", fontSize: 11, marginTop: 4 }}>
                     {formatDate(trace.started_at)}
                     {trace.duration_ms ? ` / ${formatDuration(trace.duration_ms)}` : ""}
-                    {trace.error_message ? ` / ${trace.error_message}` : ""}
+                    {sanitizedFailureMessage(trace.error_message) ? ` / ${sanitizedFailureMessage(trace.error_message)}` : ""}
+                  </div>
+                  <div style={factList}>
+                    {traceOperationalFacts(trace).map((fact) => (
+                      <span key={fact} style={factPill}>{fact}</span>
+                    ))}
                   </div>
                 </div>
                 <div style={{ color: "#a9b0bd", fontSize: 12, fontWeight: 800, whiteSpace: "nowrap" }}>
-                  {formatTokens((trace.total_input_tokens ?? 0) + (trace.total_output_tokens ?? 0))}
+                  {formatTokens(traceTokenTotal(trace))}
                 </div>
               </div>
             ))}
@@ -105,13 +121,29 @@ function Metric({ label, value, tone = "#e5e7eb" }: { label: string; value: stri
 
 const traceRow = {
   display: "flex",
-  alignItems: "center",
+  alignItems: "flex-start",
   justifyContent: "space-between",
   gap: 10,
   border: "1px solid #253044",
   borderRadius: 8,
   padding: 9,
   background: "#0c1320",
+};
+
+const factList = {
+  display: "flex",
+  flexWrap: "wrap" as const,
+  gap: 6,
+  marginTop: 8,
+};
+
+const factPill = {
+  border: "1px solid #253044",
+  borderRadius: 6,
+  color: "#a9b0bd",
+  fontSize: 10,
+  fontWeight: 700,
+  padding: "3px 6px",
 };
 
 const statusPill = {
@@ -122,33 +154,3 @@ const statusPill = {
   fontWeight: 800,
   textTransform: "uppercase" as const,
 };
-
-function sourceLabel(source: string) {
-  return source.replace(/_/g, " ");
-}
-
-function statusTone(status: AiTrace["status"]) {
-  if (status === "failed") return "#fca5a5";
-  if (status === "running") return "#facc15";
-  return "#86efac";
-}
-
-function formatTokens(tokens: number) {
-  if (tokens >= 1_000_000) return `${(tokens / 1_000_000).toFixed(tokens >= 10_000_000 ? 0 : 1)}M`;
-  if (tokens >= 1_000) return `${Math.round(tokens / 1_000)}K`;
-  return tokens.toLocaleString();
-}
-
-function formatPence(pence: number) {
-  if (pence < 1) return `${pence.toFixed(2)}p`;
-  return `GBP ${(pence / 100).toFixed(2)}`;
-}
-
-function formatDuration(ms: number) {
-  if (ms >= 1000) return `${(ms / 1000).toFixed(1)}s`;
-  return `${ms}ms`;
-}
-
-function formatDate(value: string) {
-  return new Date(value).toLocaleDateString("en-GB", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
-}

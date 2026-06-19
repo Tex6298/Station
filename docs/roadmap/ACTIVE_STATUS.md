@@ -5719,6 +5719,27 @@ when a PR lands, or when validation truth changes.
   sequencing lane or a live staging/replay defect creates a concrete blocker.
   Validation for this docs-only lane passed `git diff --check`; no code,
   schema, product behavior, or runtime configuration changed.
+- ARGUS accepts PR59 on 2026-06-19 and MIMIR opens PR60 Memory UX And
+  Observability First Slice for DAEDALUS. Project implementation is paused; the
+  next lane is owner-only memory trust/readback and sanitized AI activity
+  usefulness using existing lifecycle and observability APIs.
+- DAEDALUS implements PR60 on 2026-06-19. Persona Memory now shows active,
+  quarantined, rejected, expired, superseded, and missing-lifecycle counters;
+  each memory item names runtime eligibility or holdout state; and the small
+  action set covers reinforce, restore, quarantine, and reject while preserving
+  briefing refresh after lifecycle changes. Settings AI activity now shows
+  source, status, duration, token total, estimated cost, and whitelisted
+  operational metadata such as provider route/profile/provider/model/model
+  tier/policy/posture/domain, with defensive failure-message redaction. Trace
+  detail expansion was deliberately not added; the panel uses existing
+  owner-only summary/list routes. Focused web helper tests cover lifecycle
+  copy/counters/actions and observability sanitization. Validation passed
+  `test:studio-ui`, `test:persona-context`, `test:replay-readiness`,
+  `typecheck`, and `git diff --check`. No public memory, raw trace content,
+  private archive excerpt, Redis, Cloudflare, provider migration, Project work,
+  hosted runtime, worker, billing/quota, schema, API route, or DexOS work was
+  added. ARGUS review is requested; if accepted, ARIADNE should rehearse signed
+  owner Memory and Settings AI activity on desktop and 390px mobile.
 - ARGUS accepts PR59 Project Scaffolding Closeout on 2026-06-19. Review found
   no overclaim in the proven/deferred split: PR49-PR58 are a private owner
   Phase 2B Project foundation only, while public Projects, member/contributor

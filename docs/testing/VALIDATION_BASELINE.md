@@ -8478,6 +8478,36 @@ Scope notes:
   pages, member auth, billing/quota, exports, hosted runtime, developer-agent,
   DexOS, or broad UI work changed.
 
+## PR60 Memory UX And Observability First Slice
+
+DAEDALUS implementation validation on 2026-06-19:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 32 tests passed after adding memory lifecycle and AI observability helper tests. First run exposed a stale signed mobile top-nav expectation that omitted `/projects`; DAEDALUS corrected the test to match the current route source of truth. |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-context` | Pass | 7 tests passed; memory briefing, lifecycle filtering, and owner scoping stayed green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` | Pass | 1 test passed; replay observability readiness stayed auth-protected and non-secret. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed. |
+| `git diff --check` | Pass | No whitespace errors; CRLF normalization warnings only for touched files and local triad state. |
+
+Scope notes:
+
+- Persona Memory now renders lifecycle counters for active, quarantined,
+  rejected, expired, superseded, and missing-lifecycle states.
+- Memory item copy distinguishes runtime-eligible active memory from held-out
+  lifecycle states.
+- Memory item actions now expose reinforce, restore, quarantine, and reject
+  where relevant while preserving briefing refresh after lifecycle changes.
+- Settings AI activity now renders source, status, duration, tokens, estimated
+  cost, and whitelisted operational metadata only.
+- Trace detail expansion was not added; the panel stays on existing owner-only
+  summary/list routes.
+- No public memory, raw prompts/completions/provider payloads, private archive
+  excerpts, provider keys, base URLs, tokens, cookies, owner/private ids,
+  replay credentials, Redis, Cloudflare, provider migration, Project work,
+  hosted runtime, worker, billing/quota, schema, API route, or DexOS work was
+  added.
+
 ARGUS review validation on 2026-06-19:
 
 | Command | Result | Notes |
