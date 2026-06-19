@@ -3,7 +3,7 @@
 Date opened: 2026-06-19
 Opened by: A1 / MIMIR
 Owner: ARIADNE rehearses from a human-eye view. MIMIR sequences any follow-up.
-Status: open for ARIADNE
+Status: accepted by ARIADNE; ready for MIMIR closeout
 
 ## Why This Lane
 
@@ -117,3 +117,15 @@ If something fails, provide:
 MIMIR will decide whether to wake DAEDALUS for a repair. Do not open broad UI,
 Stripe, Redis, Cloudflare, provider, worker, parser/OAuth, Project/DexOS, or
 runtime architecture from a vague impression.
+
+## ARIADNE Result
+
+Accepted on 2026-06-19. See
+`docs/roadmap/PR72_CURRENT_RUNTIME_HUMAN_REHEARSAL_ARIADNE.md`.
+
+ARIADNE rehearsed the current Railway runtime at
+`f830041df118c4e3e63cb1d9b5985e2ffb2121b7` as anonymous visitor and signed
+replay owner. Public story, signed session persistence, Studio persona, Memory,
+Continuity, Archive, Integrity, Global Archive, Station Assistant, Developer
+Space public/manage, Billing, one bounded chat prompt, and `390px` mobile spot
+checks passed. No route-level defect requires a DAEDALUS repair lane.

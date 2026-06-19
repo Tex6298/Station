@@ -6366,6 +6366,25 @@ when a PR lands, or when validation truth changes.
   and `390px` mobile spot checks. ARIADNE should wake MIMIR with pass/fail and
   exact route/role/expected/actual defects; no code repair lane opens unless the
   rehearsal finds concrete evidence.
+- ARIADNE accepts PR72 Current Runtime Human Rehearsal on 2026-06-19 against
+  Railway product runtime `f830041df118c4e3e63cb1d9b5985e2ffb2121b7`. Public
+  web/API health and deployment readiness were green for `@station/web` and
+  `@station/api`; anonymous public API reads passed for the replay Space,
+  public document, document discussion lookup, linked forum thread, Discover
+  feed, and public Developer Space. Chrome/CDP desktop and `390px` mobile
+  checks passed for `/`, `/discover`, the public Space, public document, linked
+  thread, public Developer Space, Studio persona, Memory, Continuity, Archive,
+  Station Assistant, Developer Space manage, and Billing. The replay owner
+  signed in through the product UI, `/auth/me` equivalent state was verified,
+  and the session persisted across reload plus away/back navigation. A bounded
+  replay-safe chat prompt was accepted, and role/count-only readback confirmed
+  assistant-after-user completion without recording prompt/reply text. Billing
+  showed current-plan state without recording hosted Stripe URLs or object IDs.
+  Public routes exposed no private Studio, Memory, Continuity, Integrity,
+  Archive import, owner Developer Space manage/key controls, billing controls,
+  provider trace markers, or secret-shaped visible text. No DAEDALUS repair lane
+  is needed; MIMIR can close PR72 or deliberately pause for protected-alpha demo
+  sequencing.
 
 ## Near-term rule
 
