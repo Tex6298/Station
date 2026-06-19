@@ -5643,6 +5643,19 @@ when a PR lands, or when validation truth changes.
   build compiled/linted/typechecked/generated 31 static pages before the known
   Windows standalone symlink `EPERM`. ARIADNE should rehearse the signed owner
   UI.
+- ARIADNE accepts PR57 on 2026-06-19 after signed Railway browser rehearsal
+  against web/API runtime `2ebcf54`. The seeded PR54 smoke Project showed
+  `Observed activity` counters matching owner API readback:
+  `1 / 1 / 1 / 1 / 1,862 / 70 / 1`; the no-attachment PR54 tier-tight Project
+  rendered all seven counters as `0`. Copy stayed read-only and observational
+  with no quota, billing, limit, or usage-entitlement language. Attaching
+  `Animus Field Lab` raised attached-space/activity counters to
+  `2 / 2 / 2 / 2 / 3,995 / 82 / 1`, and detaching it at `390px` returned the
+  Project to the seeded counters while leaving `Station Replay Dev Alpha`
+  attached. Desktop and `390px` checks had no document-level overflow or
+  offscreen controls. Anonymous Project detail redirected to login with no
+  private Project, activity, attachment, or candidate leakage. PR57 can close
+  from ARIADNE UI rehearsal.
 
 ## Near-term rule
 
