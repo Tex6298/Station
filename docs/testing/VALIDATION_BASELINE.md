@@ -8319,3 +8319,28 @@ ARGUS scope notes:
 - No public Project page, create-time Project picker, billing, exports,
   contributor/member authorization, Cloudflare, Tier 2 hosting, developer-agent,
   DexOS, or `export_packages.project_id` work was added.
+
+## PR56 Project Activity Readback
+
+DAEDALUS implementation validation on 2026-06-19:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:projects` | Pass | 5 tests passed; zero-state activity and cross-owner/other-Project usage exclusion are covered. |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 11 tests passed; Developer Space behavior stayed green. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed after adding the Project activity response. |
+| `git diff --check` | Pass | No whitespace errors; CRLF normalization warnings only for touched files and local triad state. |
+
+Scope notes:
+
+- Owner-only `GET /projects/:idOrSlug` now returns
+  `{ project, developerSpaces, activity }`.
+- `activity` contains developerSpaces, nodes, events, snapshots, storageBytes,
+  publicReads, and exports.
+- Developer Space count comes from the existing owner/project-filtered
+  attachment query.
+- Usage counters aggregate only `developer_space_usage` rows filtered by both
+  `project_id` and `owner_user_id`.
+- No quota math, billing, public Project page, Project activity timeline,
+  exports, contributor/member authorization, Cloudflare, Tier 2 hosting,
+  developer-agent, DexOS, or `export_packages.project_id` work was added.

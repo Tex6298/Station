@@ -19,6 +19,7 @@ class InMemorySupabase {
     projects: [],
     project_members: [],
     developer_spaces: [],
+    developer_space_usage: [],
   };
 
   private idCounters: Record<string, number> = {};
@@ -93,6 +94,17 @@ class InMemorySupabase {
       row.api_key_last_four ??= null;
       row.api_key_created_at ??= null;
       row.created_at ??= now;
+      row.updated_at ??= now;
+    }
+
+    if (table === "developer_space_usage") {
+      row.project_id ??= null;
+      row.ingested_nodes_count ??= 0;
+      row.ingested_events_count ??= 0;
+      row.ingested_snapshots_count ??= 0;
+      row.storage_bytes ??= 0;
+      row.public_detail_reads_count ??= 0;
+      row.export_count ??= 0;
       row.updated_at ??= now;
     }
 
@@ -387,6 +399,111 @@ test("project read includes only owner attached Developer Space summaries", asyn
 
     const blocked = await requestJson(app, "GET", "/projects/owner-project", { token: "other-token" });
     assert.equal(blocked.status, 404);
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
+
+test("project read returns zero-state and owner-scoped activity aggregation", async () => {
+  const db = new InMemorySupabase();
+  const ownerProject = db.insertRow("projects", {
+    id: "10000000-0000-4000-8000-000000000010",
+    owner_user_id: "owner-user",
+    name: "Owner Activity Project",
+    slug: "owner-activity-project",
+  });
+  const otherProject = db.insertRow("projects", {
+    id: "10000000-0000-4000-8000-000000000011",
+    owner_user_id: "owner-user",
+    name: "Other Owner Project",
+    slug: "other-owner-project",
+  });
+  setSupabaseAdminForTests(db.client as any);
+  const app = createProjectsApp();
+
+  try {
+    const zero = await requestJson<{ activity: Row }>(app, "GET", "/projects/owner-activity-project", {
+      token: "owner-token",
+    });
+    assert.equal(zero.status, 200);
+    assert.deepEqual(zero.body.activity, {
+      developerSpaces: 0,
+      nodes: 0,
+      events: 0,
+      snapshots: 0,
+      storageBytes: 0,
+      publicReads: 0,
+      exports: 0,
+    });
+
+    db.insertRow("developer_spaces", {
+      id: "20000000-0000-4000-8000-000000000010",
+      owner_user_id: "owner-user",
+      project_id: ownerProject.id,
+      project_name: "Attached Activity One",
+      slug: "attached-activity-one",
+    });
+    db.insertRow("developer_spaces", {
+      id: "20000000-0000-4000-8000-000000000011",
+      owner_user_id: "owner-user",
+      project_id: ownerProject.id,
+      project_name: "Attached Activity Two",
+      slug: "attached-activity-two",
+    });
+    db.insertRow("developer_space_usage", {
+      developer_space_id: "20000000-0000-4000-8000-000000000010",
+      owner_user_id: "owner-user",
+      project_id: ownerProject.id,
+      ingested_nodes_count: 4,
+      ingested_events_count: 28,
+      ingested_snapshots_count: 3,
+      storage_bytes: 12000,
+      public_detail_reads_count: 8,
+      export_count: 1,
+    });
+    db.insertRow("developer_space_usage", {
+      developer_space_id: "20000000-0000-4000-8000-000000000012",
+      owner_user_id: "other-user",
+      project_id: ownerProject.id,
+      ingested_nodes_count: 999,
+      ingested_events_count: 999,
+      ingested_snapshots_count: 999,
+      storage_bytes: 999,
+      public_detail_reads_count: 999,
+      export_count: 999,
+    });
+    db.insertRow("developer_space_usage", {
+      developer_space_id: "20000000-0000-4000-8000-000000000013",
+      owner_user_id: "owner-user",
+      project_id: otherProject.id,
+      ingested_nodes_count: 50,
+      ingested_events_count: 50,
+      ingested_snapshots_count: 50,
+      storage_bytes: 50,
+      public_detail_reads_count: 50,
+      export_count: 50,
+    });
+
+    const aggregated = await requestJson<{ activity: Row; developerSpaces: Row[] }>(
+      app,
+      "GET",
+      `/projects/${ownerProject.id}`,
+      { token: "owner-token" }
+    );
+    assert.equal(aggregated.status, 200);
+    assert.deepEqual(aggregated.body.developerSpaces.map((space) => space.slug), [
+      "attached-activity-two",
+      "attached-activity-one",
+    ]);
+    assert.deepEqual(aggregated.body.activity, {
+      developerSpaces: 2,
+      nodes: 4,
+      events: 28,
+      snapshots: 3,
+      storageBytes: 12000,
+      publicReads: 8,
+      exports: 1,
+    });
   } finally {
     setSupabaseAdminForTests(null);
   }

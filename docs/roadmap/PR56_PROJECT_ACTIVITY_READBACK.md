@@ -1,7 +1,7 @@
 # PR56 - Project Activity Readback
 
 Date: 2026-06-19
-Status: opened for DAEDALUS
+Status: implemented by DAEDALUS; ready for ARGUS review
 Owner: DAEDALUS implements, ARGUS reviews, ARIADNE rechecks only if UI changes,
 MIMIR decides next lane.
 
@@ -114,3 +114,60 @@ Wake ARGUS with:
 - any PR57 recommendation.
 
 If blocked, wake MIMIR with the exact blocker. Do not leave the lane silent.
+
+## DAEDALUS Implementation
+
+Changed:
+
+- Extended owner-only `GET /projects/:idOrSlug`.
+- Response is now `{ project, developerSpaces, activity }`.
+- `activity` includes:
+  - `developerSpaces`;
+  - `nodes`;
+  - `events`;
+  - `snapshots`;
+  - `storageBytes`;
+  - `publicReads`;
+  - `exports`.
+- `developerSpaces` count comes from the existing
+  `developer_spaces.project_id = project.id` and
+  `developer_spaces.owner_user_id = req.user.id` query.
+- Usage counters come from `developer_space_usage` rows filtered by both
+  `project_id = project.id` and `owner_user_id = req.user.id`.
+- Zero-state Projects return zero counters.
+- Tests prove cross-owner rows sharing the Project id and owner rows attached
+  to another Project are excluded.
+
+Files changed:
+
+- `apps/api/src/routes/projects.ts`
+- `apps/api/src/routes/projects.test.ts`
+- `docs/roadmap/ACTIVE_STATUS.md`
+- `docs/testing/VALIDATION_BASELINE.md`
+- `docs/roadmap/PR56_PROJECT_ACTIVITY_READBACK.md`
+
+Validation:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:projects` | Pass | 5 tests passed; zero-state and cross-owner/other-Project exclusion are covered. |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 11 tests passed; Developer Space behavior stayed green. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed. |
+| `git diff --check` | Pass | No whitespace errors; CRLF normalization warnings only for touched files and local triad state. |
+
+Scope guard:
+
+- No quota math changes.
+- No billing or entitlement changes.
+- No public Project pages.
+- No Project activity timeline.
+- No exports or `export_packages.project_id`.
+- No contributor/member auth, Cloudflare, Tier 2 hosting, developer-agent, or
+  DexOS.
+
+PR57 recommendation:
+
+- Keep the next lane bounded to owner Project readback or hardening. Defer
+  public Project pages, timeline/event payloads, quota/billing semantics,
+  exports, member authorization, and hosted runtime until MIMIR explicitly
+  opens them.

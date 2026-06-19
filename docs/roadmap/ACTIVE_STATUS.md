@@ -5596,6 +5596,18 @@ when a PR lands, or when validation truth changes.
   `owner_user_id`. No quota math, billing, public Project pages, Project
   activity timeline, exports, contributor/member auth, Cloudflare, Tier 2,
   developer-agent, DexOS, or `export_packages.project_id` are in scope.
+- DAEDALUS implements PR56 on 2026-06-19 by extending owner-only
+  `GET /projects/:idOrSlug` with an `activity` object:
+  `developerSpaces`, `nodes`, `events`, `snapshots`, `storageBytes`,
+  `publicReads`, and `exports`. The attached Developer Space count comes from
+  the existing owner/project-filtered attachment query, while usage counters
+  aggregate `developer_space_usage` rows filtered by both `project_id` and
+  `owner_user_id`. `test:projects` now covers zero-state Projects and excludes
+  cross-owner and other-Project usage rows. Validation passed `test:projects`,
+  `test:developer-spaces`, and `typecheck`. No quota math, billing, public
+  Project page, Project activity timeline, exports, contributor/member auth,
+  Cloudflare, Tier 2 hosting, developer-agent, DexOS, or
+  `export_packages.project_id` work was added. ARGUS review is requested.
 
 ## Near-term rule
 

@@ -18,6 +18,7 @@ const createProjectSchema = z.object({
 
 type ProjectRow = Database["public"]["Tables"]["projects"]["Row"];
 type DeveloperSpaceRow = Database["public"]["Tables"]["developer_spaces"]["Row"];
+type DeveloperSpaceUsageRow = Database["public"]["Tables"]["developer_space_usage"]["Row"];
 
 export const projectsRouter = Router();
 projectsRouter.use(requireAuth);
@@ -50,6 +51,32 @@ function serializeAttachedDeveloperSpace(row: Pick<
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   };
+}
+
+function serializeProjectActivity(
+  usageRows: Array<Pick<
+    DeveloperSpaceUsageRow,
+    "ingested_nodes_count" | "ingested_events_count" | "ingested_snapshots_count" | "storage_bytes" | "public_detail_reads_count" | "export_count"
+  >>,
+  developerSpaceCount: number
+) {
+  return usageRows.reduce((activity, row) => ({
+    developerSpaces: activity.developerSpaces,
+    nodes: activity.nodes + Number(row.ingested_nodes_count ?? 0),
+    events: activity.events + Number(row.ingested_events_count ?? 0),
+    snapshots: activity.snapshots + Number(row.ingested_snapshots_count ?? 0),
+    storageBytes: activity.storageBytes + Number(row.storage_bytes ?? 0),
+    publicReads: activity.publicReads + Number(row.public_detail_reads_count ?? 0),
+    exports: activity.exports + Number(row.export_count ?? 0),
+  }), {
+    developerSpaces: developerSpaceCount,
+    nodes: 0,
+    events: 0,
+    snapshots: 0,
+    storageBytes: 0,
+    publicReads: 0,
+    exports: 0,
+  });
 }
 
 function isUuid(value: string) {
@@ -136,8 +163,17 @@ projectsRouter.get("/:idOrSlug", async (req, res) => {
 
   if (developerSpacesError) return res.status(500).json({ error: developerSpacesError.message });
 
+  const { data: usageRows, error: usageError } = await sb
+    .from("developer_space_usage")
+    .select("ingested_nodes_count, ingested_events_count, ingested_snapshots_count, storage_bytes, public_detail_reads_count, export_count")
+    .eq("project_id", data.id)
+    .eq("owner_user_id", req.user!.id);
+
+  if (usageError) return res.status(500).json({ error: usageError.message });
+
   return res.json({
     project: serializeProject(data),
     developerSpaces: (developerSpaces ?? []).map(serializeAttachedDeveloperSpace),
+    activity: serializeProjectActivity(usageRows ?? [], developerSpaces?.length ?? 0),
   });
 });
