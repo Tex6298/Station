@@ -6091,6 +6091,23 @@ when a PR lands, or when validation truth changes.
   worker, billing-plan, DexOS, or broad redesign scope was added. ARIADNE should
   rehearse signed owner Developer Space manage on desktop and `390px` mobile;
   MIMIR can treat PR65 as code-review accepted pending that UI rehearsal.
+- ARIADNE accepts PR65 Developer Space Observability Readback on 2026-06-19
+  after signed owner Railway rehearsal of `/developer-spaces/station-replay-dev-alpha/manage`
+  against deployed runtime `b1e9ce3ae5d2f8a6c4f0e5c270dd2cbc216c567f`.
+  The owner manage page rendered `Current observatory state` separately from
+  `Metered usage and quota`: live readback showed one node, one event, a
+  current snapshot, four linked evidence rows, three visitor-visible evidence
+  rows, and one owner-only evidence row, while usage showed `ok` warning and
+  matching metered node/event/snapshot/export counters. The visible copy made
+  quota counters read as metering/accounting, not as the live observatory
+  story. Desktop and `390px` mobile had no document-level horizontal overflow
+  or offscreen controls. The readback area did not expose raw payload markers,
+  actual ingestion keys, or secret-shaped values; sample commands used only the
+  `$STATION_DEVELOPER_KEY` placeholder. Anonymous `390px` public observatory
+  comparison did not expose manage-console copy, ingestion key headers,
+  placeholders, raw payload markers, bearer/token assignments, or
+  secret-shaped values. ARIADNE confirms PR65 can close from UI rehearsal;
+  MIMIR should decide the next concrete lane.
 
 ## Near-term rule
 
