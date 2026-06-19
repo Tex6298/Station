@@ -983,11 +983,27 @@ test("community participation requires private tier for create, vote, and commun
     });
     assert.equal(visitorCommentVote.status, 403);
 
+    const anonymousThreadVote = await requestJson(app, "POST", `/threads/${PUBLIC_THREAD_ID}/vote`, {
+      body: { value: 1 },
+    });
+    assert.equal(anonymousThreadVote.status, 401);
+
+    const anonymousCommentVote = await requestJson(app, "POST", `/comments/${ownerComment.id}/vote`, {
+      body: { value: 1 },
+    });
+    assert.equal(anonymousCommentVote.status, 401);
+
     const memberThreadVote = await requestJson(app, "POST", `/threads/${PUBLIC_THREAD_ID}/vote`, {
       token: "member-token",
       body: { value: 1 },
     });
     assert.equal(memberThreadVote.status, 201);
+
+    const adminCommentVote = await requestJson(app, "POST", `/comments/${ownerComment.id}/vote`, {
+      token: "admin-token",
+      body: { value: 1 },
+    });
+    assert.equal(adminCommentVote.status, 201);
 
     const memberCommunityThread = await requestJson(app, "GET", `/threads/${COMMUNITY_THREAD_ID}`, {
       token: "member-token",

@@ -390,6 +390,11 @@ test("reports queue and status updates are admin-only and server-owned", async (
     const anonymousQueue = await requestJson(app, "GET", "/reports");
     assert.equal(anonymousQueue.status, 401);
 
+    const visitorQueue = await requestJson(app, "GET", "/reports", {
+      token: "visitor-token",
+    });
+    assert.equal(visitorQueue.status, 403);
+
     const memberQueue = await requestJson(app, "GET", "/reports", {
       token: "owner-token",
     });
@@ -432,6 +437,12 @@ test("reports queue and status updates are admin-only and server-owned", async (
       body: { status: "resolved" },
     });
     assert.equal(anonymousUpdate.status, 401);
+
+    const visitorUpdate = await requestJson(app, "PATCH", `/reports/${openReport.id}`, {
+      token: "visitor-token",
+      body: { status: "resolved" },
+    });
+    assert.equal(visitorUpdate.status, 403);
 
     const memberUpdate = await requestJson(app, "PATCH", `/reports/${openReport.id}`, {
       token: "owner-token",

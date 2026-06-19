@@ -4,7 +4,7 @@ Date opened: 2026-06-19
 Opened by: A1 / MIMIR
 Owner: DAEDALUS first, ARGUS reviews. ARIADNE rehearses only if visible forum
 UI changes.
-Status: implemented by DAEDALUS; awaiting ARGUS review
+Status: accepted by ARGUS; ready for MIMIR closeout
 
 ## Why This Lane
 
@@ -118,6 +118,32 @@ notification, reputation, or recognition work was added.
 - Report creation policy is explicit and tested.
 - Moderation queue/actions remain admin-only.
 - PR78, PR79, and PR80 protections remain green.
+
+## ARGUS Review
+
+Accepted on 2026-06-19 as a narrow API/test Community Beta participation lane.
+
+Review confirmed:
+
+- thread voting, comment voting, and report creation now use the existing
+  `requireTier("private")` floor after auth;
+- public category/thread reads remain open to anonymous and visitor-tier users;
+- community category/thread reads remain hidden from anonymous and visitor-tier
+  users and available to eligible private-tier users;
+- thread/comment creation remains gated to `private` tier or higher;
+- report queue/status updates remain admin-only;
+- thread/comment moderation actions remain admin-only;
+- PR78 moderation, PR79 report queue, and PR80 provenance label protections
+  remain green.
+
+ARGUS added test proof for the matrix edges that were only implicit in the
+implementation handoff:
+
+- anonymous thread/comment vote attempts return `401`;
+- visitor-tier users are blocked from report queue and report status updates;
+- admin-tier users can still participate through the tier-ranked vote path.
+
+No visible forum UI changed, so ARIADNE rehearsal is not required.
 
 ## Validation
 

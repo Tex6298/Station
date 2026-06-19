@@ -6818,6 +6818,21 @@ when a PR lands, or when validation truth changes.
   or visibility-widening work was added. ARGUS should review the route matrix,
   visitor/private/admin behavior, and PR78-PR80 regression coverage before
   waking MIMIR or DAEDALUS.
+- ARGUS accepts PR81 Community Tier Participation on 2026-06-19 as a narrow
+  API/test Community Beta participation lane. Review confirmed thread voting,
+  comment voting, and report creation now use the existing `private` tier floor
+  after auth; public reads stay open; community reads stay hidden from
+  anonymous/visitor-tier users; thread/comment creation remains tier-gated;
+  report queue/status updates and thread/comment moderation actions remain
+  admin-only; and PR78-PR80 protections remain green. ARGUS added explicit
+  proof for anonymous thread/comment vote `401`, visitor-tier report
+  queue/status `403`, and admin-tier vote participation. Validation passed
+  `test:community` with 11 tests, `test:reports` with 2 tests,
+  `test:document-discussions`, `typecheck`, and `git diff --check`. No visible
+  forum UI, schema, broad redesign, subcommunity, appeal, notification,
+  reputation, recognition, billing/provider/cache, Developer Space,
+  auth/session refactor, public visibility widening, or ARIADNE rehearsal is
+  required.
 
 ## Near-term rule
 

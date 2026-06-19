@@ -9261,6 +9261,28 @@ Scope notes:
   reputation, recognition, billing/provider/cache, Developer Space,
   auth/session refactor, or visibility-widening work changed.
 
+ARGUS review validation on 2026-06-19:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:community` | Pass | 11 tests passed, including visitor-tier blocking, anonymous vote `401`, private-tier participation, admin vote participation, and community-read hiding. |
+| `npm exec --yes pnpm@10.32.1 -- run test:reports` | Pass | 2 tests passed, including visitor-tier report creation blocking, visitor-tier queue/status blocking, and admin-only queue/status behavior. |
+| `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` | Pass | 1 test passed; document discussion visibility and provenance labels remain intact. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API typecheck ran; web typecheck replayed from cache. |
+| `git diff --check` | Pass | CRLF normalization warnings only for touched files and local triad state. |
+
+ARGUS scope notes:
+
+- Reviewed the route matrix against existing `requireAuth`, `requireTier`, and
+  admin-only guards.
+- Added explicit regression proof for anonymous thread/comment vote `401`.
+- Added explicit regression proof that visitor-tier users cannot read the report
+  queue or update report status.
+- Added explicit proof that admin-tier users still pass the ranked
+  participation floor.
+- PR81 is accepted for MIMIR closeout/sequencing. No ARIADNE visible-route
+  rehearsal is required.
+
 ## PR80 Community Provenance Labels
 
 DAEDALUS implementation validation on 2026-06-19:
