@@ -472,6 +472,12 @@ class TestRateLimitProvider implements OperationalCacheProvider {
   }
 }
 
+class ThrowingRateLimitProvider extends TestRateLimitProvider {
+  override async increment(_key: string, _ttlSeconds: number): Promise<number> {
+    throw new Error("upstash secret do-not-leak");
+  }
+}
+
 test("Developer Space provider policy blocks private archive context unless explicitly allowed", async () => {
   const db = new InMemorySupabase();
   setSupabaseAdminForTests(db.client as any);
@@ -1127,6 +1133,7 @@ test("Developer Spaces smoke covers creation, keying, ingestion, and public/owne
     assert.equal(parseSseUpdate(ownerPrivateStream.body).data.detail.access, "owner");
   } finally {
     setSupabaseAdminForTests(null);
+    resetOperationalCacheProviderForTests();
   }
 });
 
@@ -1269,6 +1276,48 @@ test("Developer Space ingestion rate limit is cache-backed and machine-readable"
     } else {
       process.env.DEVELOPER_SPACE_INGEST_RATE_LIMIT_WINDOW_SECONDS = previousWindow;
     }
+    setSupabaseAdminForTests(null);
+    resetOperationalCacheProviderForTests();
+  }
+});
+
+test("Developer Space ingestion rate-limit provider failures are structured and non-leaky", async () => {
+  const db = new InMemorySupabase();
+  setSupabaseAdminForTests(db.client as any);
+  setOperationalCacheProviderForTests(new ThrowingRateLimitProvider());
+  const app = createDeveloperSpacesApp();
+
+  try {
+    const created = await requestJson(app, "POST", "/developer-spaces", {
+      token: "owner-token",
+      body: {
+        projectName: "Rate Failure Observatory",
+      },
+    });
+    assert.equal(created.status, 201);
+    const apiKeyResponse = await requestJson(app, "POST", `/developer-spaces/${created.body.space.id}/api-key`, {
+      token: "owner-token",
+    });
+    assert.equal(apiKeyResponse.status, 201);
+
+    const blocked = await requestJson(app, "POST", "/developer-spaces/ingest/events", {
+      developerKey: apiKeyResponse.body.apiKey,
+      body: {
+        eventType: "rate.failure",
+        eventData: { privateToken: "do-not-leak-rate-provider-payload" },
+      },
+    });
+
+    assert.equal(blocked.status, 500);
+    assert.deepEqual(blocked.body, {
+      error: "Could not check Developer Space ingestion rate limit.",
+      code: "developer_space_server_error",
+      category: "server",
+    });
+    assert.doesNotMatch(JSON.stringify(blocked.body), /upstash secret do-not-leak/);
+    assert.doesNotMatch(JSON.stringify(blocked.body), /do-not-leak-rate-provider-payload/);
+    assert.equal(db.tables.developer_space_events.length, 0);
+  } finally {
     setSupabaseAdminForTests(null);
     resetOperationalCacheProviderForTests();
   }

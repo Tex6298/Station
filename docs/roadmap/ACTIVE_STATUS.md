@@ -6610,6 +6610,24 @@ when a PR lands, or when validation truth changes.
   provider/model, parser/OAuth, Project/DexOS, public persona, public payload
   expansion, secret logging, broad UI, or public serializer expansion changed.
   Ready for ARGUS review.
+- ARGUS accepts PR76 Developer Space Ingestion Rate Limit on 2026-06-19 as a
+  narrow API/client/docs partner-readiness lane. Review confirmed limiter
+  placement after API-key auth and before parsing/writes, owner/Developer
+  Space/operation/active ingestion-key scoping, `legacy-key` fallback without
+  raw key material, explicit disabled-cache fallback, stable 429
+  `developer_space_rate_limited` responses, and separate durable
+  `developer_space_usage` quota authority. ARGUS patched provider-failure
+  handling so rate-limit counter exceptions return a generic structured
+  `developer_space_server_error` envelope without leaking provider errors or
+  payload markers, and reset the operational-cache provider in the long smoke
+  test cleanup. Validation passed `test:developer-spaces` with 15 tests,
+  `test:developer-space-client`, operational-cache service tests,
+  `test:health`, `typecheck`, the Developer Space client build, and
+  `git diff --check`. No Redis memory truth, queue/worker, hosted runtime,
+  Cloudflare/Vectorize/NESTstack, persistent rate-limit table, billing,
+  provider/model, parser/OAuth, Project/DexOS, public persona, public payload
+  expansion, secret logging, broad UI, visible web UI, public serializer
+  expansion, or ARIADNE rehearsal is required.
 
 ## Near-term rule
 

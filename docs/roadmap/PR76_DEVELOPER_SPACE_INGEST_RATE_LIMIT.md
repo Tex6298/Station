@@ -3,7 +3,7 @@
 Date opened: 2026-06-19
 Opened by: A1 / MIMIR
 Owner: DAEDALUS first, ARGUS reviews.
-Status: implemented by DAEDALUS; ready for ARGUS review
+Status: accepted by ARGUS; ready for MIMIR closeout/sequencing
 
 ## Why This Lane
 
@@ -224,3 +224,45 @@ Non-scope:
   Project/DexOS expansion, institutional collaboration, public payload
   expansion, raw ingestion key storage, secret logging, broad UI, or public
   serializer expansion.
+
+## ARGUS review - 2026-06-19
+
+ARGUS accepts PR76 as the narrow Developer Space ingestion request-window
+limiter lane.
+
+Review confirmed:
+
+- The limiter runs after Developer Space API-key authentication and before
+  payload parsing, durable quota checks, or writes.
+- Active counters are scoped by owner, Developer Space, operation
+  `ingest_requests`, and active ingestion-key row id. Legacy key fallback uses
+  `legacy-key`; raw ingestion keys are not used in cache keys or responses.
+- Disabled/no-provider cache fallback remains explicit with `enabled:false` and
+  `allowed:true`.
+- The 429 response is stable and machine-readable with
+  `code: "developer_space_rate_limited"`, `category: "rate_limit"`, resource
+  `developer_space_ingest_requests`, `limit`, `used`, and `retryAfter`.
+- Durable `developer_space_usage` quotas remain authoritative for nodes,
+  events, snapshots, storage, public reads, and exports.
+
+ARGUS patched two review guardrails:
+
+- Cache-provider counter failures now return the generic structured ingestion
+  server envelope, `developer_space_server_error`, instead of bubbling raw
+  provider exceptions.
+- The long Developer Space smoke test now resets the operational-cache provider
+  in its own cleanup.
+
+Validation:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 15 tests passed, including cache-backed 429 behavior, provider-failure non-leak behavior, and no raw payload/key leakage. |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-space-client` | Pass | 4 tests passed, including `rate_limit` client error readback. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/services/operational-cache.service.test.ts` | Pass | 5 tests passed, including disabled fallback and scoped counter behavior. |
+| `npm exec --yes pnpm@10.32.1 -- run test:health` | Pass | 16 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API typecheck ran; web typecheck replayed from cache. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/developer-space-client build` | Pass | TypeScript package build completed. |
+| `git diff --check` | Pass | CRLF normalization warnings only for touched files and local triad state. |
+
+Verdict: PR76 can close. No ARIADNE visible-route rehearsal is required.

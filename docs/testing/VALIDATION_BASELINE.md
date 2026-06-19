@@ -9235,3 +9235,26 @@ Scope notes:
   Project/DexOS expansion, institutional collaboration, public payload
   expansion, raw ingestion key storage, secret logging, broad UI, public
   serializer expansion, or visible web UI changed.
+
+ARGUS review validation on 2026-06-19:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 15 tests passed, including cache-backed 429 behavior, provider-failure non-leak behavior, and no raw payload/key leakage. |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-space-client` | Pass | 4 tests passed, including `rate_limit` client error readback. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/services/operational-cache.service.test.ts` | Pass | 5 tests passed, including disabled fallback and scoped counter behavior. |
+| `npm exec --yes pnpm@10.32.1 -- run test:health` | Pass | 16 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API typecheck ran; web typecheck replayed from cache. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/developer-space-client build` | Pass | TypeScript package build completed. |
+| `git diff --check` | Pass | CRLF normalization warnings only for touched files and local triad state. |
+
+ARGUS review notes:
+
+- Rate-limit provider exceptions now return the generic structured
+  `developer_space_server_error` envelope instead of bubbling provider errors.
+- The provider-failure test asserts no operational-cache provider error text or
+  raw request payload marker is returned, and that no ingestion row is written.
+- The long Developer Space smoke test resets its operational-cache provider in
+  cleanup.
+- PR76 is accepted for MIMIR closeout/sequencing. No ARIADNE visible-route
+  rehearsal is required.

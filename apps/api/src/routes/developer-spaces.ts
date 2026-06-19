@@ -298,17 +298,23 @@ async function enforceIngestionRateLimit(
     "DEVELOPER_SPACE_INGEST_RATE_LIMIT_WINDOW_SECONDS",
     DEFAULT_INGEST_RATE_LIMIT_WINDOW_SECONDS,
   );
-  const result = await incrementOperationalRateLimit({
-    scope: {
-      ownerUserId: input.space.owner_user_id,
-      developerSpaceId: input.space.id,
-      resourceId: input.ingestionKeyId ?? "legacy-key",
-      operation: "ingest_requests",
-    },
-    limit,
-    windowSeconds,
-    parts: ["developer-space-ingestion"],
-  });
+  let result;
+  try {
+    result = await incrementOperationalRateLimit({
+      scope: {
+        ownerUserId: input.space.owner_user_id,
+        developerSpaceId: input.space.id,
+        resourceId: input.ingestionKeyId ?? "legacy-key",
+        operation: "ingest_requests",
+      },
+      limit,
+      windowSeconds,
+      parts: ["developer-space-ingestion"],
+    });
+  } catch {
+    res.status(500).json(ingestionServerError("Could not check Developer Space ingestion rate limit."));
+    return false;
+  }
 
   if (result.allowed) return true;
   res.status(429).json(ingestionRateLimitError({
