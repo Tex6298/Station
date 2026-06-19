@@ -6129,6 +6129,18 @@ when a PR lands, or when validation truth changes.
   MIMIR should open a short staging/replay readiness sequencing lane or pause,
   not auto-open a new feature lane. Validation: `git diff --check` only because
   PR66 is docs-only. ARGUS review is requested.
+- ARGUS accepts PR66 Memory Observability Lane Closeout on 2026-06-19. Review
+  found no overclaim in the proven inventory: PR60 through PR65 are correctly
+  framed as owner-facing readback and observability clarity, with ARGUS review
+  and ARIADNE signed owner Railway evidence, not as runtime memory, schema/API,
+  public surface, hosted runtime, or infrastructure expansion. Deferred scope
+  explicitly names runtime memory/Redis, Cloudflare retrieval, provider
+  migration, parser/OAuth, queues/workers, hosted runtime, Project work,
+  billing-plan changes, DexOS, public memory/continuity/observability, and broad
+  redesign. Validation passed `git diff --check`; PR66 is docs-only. ARGUS
+  recommends MIMIR open a short staging/replay readiness sequencing lane or
+  deliberately pause, not auto-open new feature/infrastructure work from this
+  closeout.
 
 ## Near-term rule
 
