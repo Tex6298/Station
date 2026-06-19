@@ -479,3 +479,94 @@ test("reports queue and status updates are admin-only and server-owned", async (
     setSupabaseAdminForTests(null);
   }
 });
+
+test("reporters can read only their own safe report status records", async () => {
+  const db = new ReportsSupabase();
+  const ownerOpen = db.insertRow("moderation_reports", {
+    reporter_id: "owner-user",
+    target_type: "thread",
+    target_id: "thread-1",
+    reason: "spam",
+    notes: "Reporter detail that should stay out of reporter readback.",
+    status: "open",
+  });
+  const ownerResolved = db.insertRow("moderation_reports", {
+    reporter_id: "owner-user",
+    target_type: "comment",
+    target_id: "comment-1",
+    reason: "harassment",
+    notes: "Moderator-only handling note.",
+    status: "resolved",
+    reviewed_by: "admin-user",
+    reviewed_at: "2026-05-25T10:00:00.000Z",
+  });
+  db.insertRow("moderation_reports", {
+    reporter_id: "other-user",
+    target_type: "persona",
+    target_id: "persona-1",
+    reason: "impersonation",
+    notes: "Other reporter note.",
+    status: "reviewing",
+    reviewed_by: "admin-user",
+    reviewed_at: "2026-05-25T11:00:00.000Z",
+  });
+  setSupabaseAdminForTests(db.client as any);
+  const app = createReportsApp();
+
+  try {
+    const anonymousReadback = await requestJson(app, "GET", "/reports/mine");
+    assert.equal(anonymousReadback.status, 401);
+
+    const ownerReadback = await requestJson(app, "GET", "/reports/mine", {
+      token: "owner-token",
+    });
+    assert.equal(ownerReadback.status, 200);
+    assert.deepEqual(
+      ownerReadback.body.reports.map((report: Row) => report.id),
+      [ownerResolved.id, ownerOpen.id]
+    );
+    assert.deepEqual(ownerReadback.body.reports[0], {
+      id: ownerResolved.id,
+      targetType: "comment",
+      targetId: "comment-1",
+      reason: "harassment",
+      status: "resolved",
+      reviewedAt: "2026-05-25T10:00:00.000Z",
+      createdAt: "2026-05-25T09:00:01.000Z",
+      updatedAt: "2026-05-25T09:00:01.000Z",
+    });
+    const ownerResolvedReadback = ownerReadback.body.reports[0] as Row;
+    assert.equal(ownerResolvedReadback.notes, undefined);
+    assert.equal(ownerResolvedReadback.reviewedBy, undefined);
+    assert.equal(ownerResolvedReadback.reporterUserId, undefined);
+    assert.equal(ownerReadback.body.reports.some((report: Row) => report.targetId === "persona-1"), false);
+
+    const statusFiltered = await requestJson(app, "GET", "/reports/mine?status=open", {
+      token: "owner-token",
+    });
+    assert.equal(statusFiltered.status, 200);
+    assert.deepEqual(statusFiltered.body.reports.map((report: Row) => report.id), [ownerOpen.id]);
+
+    const targetFiltered = await requestJson(app, "GET", "/reports/mine?targetType=comment", {
+      token: "owner-token",
+    });
+    assert.equal(targetFiltered.status, 200);
+    assert.deepEqual(targetFiltered.body.reports.map((report: Row) => report.id), [ownerResolved.id]);
+
+    const invalidFilter = await requestJson(app, "GET", "/reports/mine?status=deleted", {
+      token: "owner-token",
+    });
+    assert.equal(invalidFilter.status, 400);
+
+    const otherReadback = await requestJson(app, "GET", "/reports/mine", {
+      token: "other-token",
+    });
+    assert.equal(otherReadback.status, 200);
+    assert.deepEqual(
+      otherReadback.body.reports.map((report: Row) => report.targetId),
+      ["persona-1"]
+    );
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+});

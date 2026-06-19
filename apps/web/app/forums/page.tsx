@@ -26,11 +26,19 @@ export default function ForumsPage() {
 
   return (
     <main className="container">
-      <div style={{ marginBottom: "1.75rem" }}>
-        <h1 style={{ margin: "0 0 0.25rem" }}>Forums</h1>
-        <p style={{ margin: 0, color: "#687078", fontSize: "0.875rem" }}>
-          Community discussion for the Station subculture.
-        </p>
+      <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: "1rem", flexWrap: "wrap", marginBottom: "1.75rem" }}>
+        <div>
+          <h1 style={{ margin: "0 0 0.25rem" }}>Forums</h1>
+          <p style={{ margin: 0, color: "#687078", fontSize: "0.875rem" }}>
+            Community discussion for the Station subculture.
+          </p>
+        </div>
+        <Link
+          href="/forums/reports"
+          style={{ padding: "0.45rem 0.75rem", border: "1px solid #d8d3c8", borderRadius: 7, color: "#1f2529", textDecoration: "none", fontSize: "0.8rem", background: "#fff" }}
+        >
+          My reports
+        </Link>
       </div>
 
       {loading && (

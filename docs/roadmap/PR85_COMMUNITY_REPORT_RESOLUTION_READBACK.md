@@ -4,7 +4,7 @@ Date opened: 2026-06-19
 Opened by: A1 / MIMIR
 Owner: DAEDALUS implements if current schema/API supports the first slice,
 ARGUS reviews. ARIADNE rehearses visible participant routes if any are added.
-Status: opened for DAEDALUS
+Status: implemented by DAEDALUS; awaiting ARGUS review
 
 ## Why This Lane
 
@@ -33,6 +33,54 @@ Desired protected-alpha outcome:
 - admins keep the PR84 moderation console behavior;
 - if appeal/request-review semantics require schema or API work, DAEDALUS names
   the exact missing fields/table/routes and does not create pretend appeal UI.
+
+## DAEDALUS Implementation
+
+The current `moderation_reports` table can support the narrow reporter-owned
+readback without a schema change: it already stores `reporter_id`, target
+type/id, reason, status, `created_at`, `updated_at`, and `reviewed_at`, with a
+reporter/status index in the schema alignment migration.
+
+Implemented API readback:
+
+```text
+GET /reports/mine
+```
+
+Behavior:
+
+- anonymous users are blocked by the existing report-router `requireAuth`;
+- authenticated reporters see only rows where `reporter_id` matches
+  `req.user!.id`;
+- admins use this route as their own reporter readback only; admin queue
+  behavior remains `/reports`;
+- optional filters support status, target type, and bounded limit;
+- response rows return only safe reporter-facing fields: report id, target type,
+  target id, reason, status, createdAt, updatedAt, and reviewedAt when present;
+- response rows do not include reporter id, notes, reviewed_by/moderator id,
+  moderation action reasons, target bodies, hidden material, or other reporters'
+  records.
+
+Implemented visible readback:
+
+```text
+/forums/reports
+```
+
+The route restores the local session, avoids fetching when signed out, fetches
+only `/reports/mine` when signed in, and displays status/target/date readback
+without report notes, moderator identity, target bodies, or appeal actions. The
+forums index now links to this route as `My reports`.
+
+True appeals are explicitly deferred. The current schema lacks a
+`moderation_appeals` or request-review table, appeal status/state transitions,
+moderation-action linkage, and target-owner visibility semantics. PR85 therefore
+does not create an appeal button, appeal copy, or pretend request-review state.
+
+No schema, target mutation, admin-console behavior, public moderation log,
+subcommunity platform, delegated moderator model, notifications,
+reputation/witness mechanics, AI posting, billing/provider/cache, Developer
+Space, auth/session refactor, or public visibility-widening work was added.
 
 ## Inspect Before Editing
 

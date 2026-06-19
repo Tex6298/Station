@@ -9236,6 +9236,39 @@ Scope notes:
   expansion, raw ingestion key storage, secret logging, broad UI, public
   serializer expansion, or visible web UI changed.
 
+## PR85 Community Report Resolution Readback
+
+DAEDALUS implementation validation on 2026-06-19:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:reports` | Pass | 3 tests passed, including reporter-owned `/reports/mine` scoping, safe-field stripping, filters, and anonymous blocking. |
+| `npm exec --yes pnpm@10.32.1 -- run test:community` | Pass | 11 tests passed; existing community permission and moderation boundaries remain green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` | Pass | 1 test passed; discussion visibility/readback remains green. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API typecheck ran after the reports test fix; web typecheck replayed from cache. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 49 tests passed, including new reporter report-resolution helper coverage. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web build` | Partial / known Windows failure | Next compiled, linted/typechecked, collected page data, and generated 33 static pages, then hit the known local Windows standalone symlink `EPERM`. Only pre-existing raw `<img>` warnings appeared. |
+| `git diff --check` | Pass | CRLF normalization warnings only for touched files and local triad state. |
+
+Scope notes:
+
+- Added reporter-owned `GET /reports/mine` with optional status, target-type,
+  and limit filters.
+- Reporter readback returns only report id, target type, target id, reason,
+  status, createdAt, updatedAt, and reviewedAt when present.
+- Reporter readback does not return reporter id, notes, reviewed_by/moderator
+  identity, moderation action reasons, target bodies, hidden material, or other
+  reporters' rows.
+- Added `/forums/reports` as a signed-in participant readback route and linked
+  it from the forums index as `My reports`.
+- True appeals are deferred because the schema lacks an appeal/request-review
+  table, appeal states, moderation-action linkage, and target-owner visibility
+  semantics.
+- No schema, target mutation, admin-console behavior, public moderation log,
+  subcommunity platform, delegated moderator model, notifications,
+  reputation/witness mechanics, AI posting, billing/provider/cache, Developer
+  Space, auth/session refactor, or public visibility-widening work changed.
+
 ## PR84 Community Moderator Console First Slice
 
 DAEDALUS implementation validation on 2026-06-19:

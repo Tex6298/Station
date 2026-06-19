@@ -5,7 +5,7 @@ import type { Database } from "@station/db";
 import { requireAuth } from "../middleware/require-auth";
 import { requireTier } from "../middleware/require-tier";
 import { getSupabaseAdmin } from "../lib/supabase";
-import type { ModerationReportRecord } from "@station/types";
+import type { ModerationReportRecord, ReporterModerationReportRecord } from "@station/types";
 import { ensureCommunityProfile } from "../services/community.service";
 
 const createReportSchema = z.object({
@@ -50,6 +50,22 @@ function serializeReport(row: ModerationReportRow): ModerationReportRecord {
   return report;
 }
 
+function serializeReporterReport(row: ModerationReportRow): ReporterModerationReportRecord {
+  const report: ReporterModerationReportRecord = {
+    id: row.id,
+    targetType: row.target_type,
+    targetId: row.target_id,
+    reason: row.reason,
+    status: row.status,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+  };
+
+  if (row.reviewed_at !== null) report.reviewedAt = row.reviewed_at;
+
+  return report;
+}
+
 function requireAdmin(req: { user?: { isAdmin: boolean } }, res: { status: (status: number) => { json: (body: unknown) => unknown } }) {
   if (req.user?.isAdmin) return true;
   res.status(403).json({ error: "Admin access required." });
@@ -83,6 +99,32 @@ reportsRouter.get("/", async (req, res) => {
   if (error) return res.status(500).json({ error: error.message });
 
   return res.json({ reports: (data ?? []).map(serializeReport) });
+});
+
+reportsRouter.get("/mine", async (req, res) => {
+  const parsed = reportQueueQuerySchema.safeParse(req.query);
+  if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
+
+  const sb = getSupabaseAdmin();
+  let query = sb
+    .from("moderation_reports")
+    .select("*")
+    .eq("reporter_id", req.user!.id)
+    .order("created_at", { ascending: false })
+    .limit(parsed.data.limit);
+
+  if (parsed.data.status) {
+    query = query.eq("status", parsed.data.status);
+  }
+
+  if (parsed.data.targetType) {
+    query = query.eq("target_type", parsed.data.targetType);
+  }
+
+  const { data, error } = await query;
+  if (error) return res.status(500).json({ error: error.message });
+
+  return res.json({ reports: (data ?? []).map(serializeReporterReport) });
 });
 
 reportsRouter.patch("/:id", async (req, res) => {

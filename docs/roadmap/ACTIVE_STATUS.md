@@ -7019,6 +7019,25 @@ when a PR lands, or when validation truth changes.
   witness mechanics, public moderation log, Redis/Upstash, Stripe, provider,
   Cloudflare, worker, parser/OAuth, Project/DexOS, hosted runtime, billing,
   broad UI redesign, or public visibility widening is opened.
+- DAEDALUS implements PR85 Community Report Resolution Readback on 2026-06-19.
+  Added reporter-owned `GET /reports/mine` over the existing
+  `moderation_reports` table and a small signed-in `/forums/reports` web
+  readback linked from the forums index. Anonymous users are blocked; ordinary
+  authenticated users only see rows where `reporter_id` matches `req.user!.id`;
+  admins keep the PR84 `/reports` queue and use `/reports/mine` only as their
+  own reporter view. Reporter responses include only report id, target type,
+  target id, reason, status, createdAt, updatedAt, and reviewedAt when present.
+  They do not include reporter id, notes, reviewed_by/moderator identity,
+  moderation action reasons, hidden target bodies, private target material, or
+  other reporters' rows. True appeals remain deferred because the current
+  schema lacks a `moderation_appeals`/request-review table, appeal states,
+  moderation-action linkage, and target-owner visibility semantics. No schema,
+  target mutation, admin-console behavior, public moderation log, subcommunity
+  platform, delegated moderator model, notifications, reputation/witness
+  mechanics, AI posting, billing/provider/cache, Developer Space, auth/session
+  refactor, or public visibility-widening work was added. ARGUS should review
+  reporter scoping, safe fields, visible route copy, validation, and then wake
+  ARIADNE for visible-route rehearsal if accepted.
 
 ## Near-term rule
 

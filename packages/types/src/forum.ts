@@ -107,6 +107,17 @@ export interface ModerationReportRecord {
   updatedAt: string;
 }
 
+export interface ReporterModerationReportRecord {
+  id: string;
+  targetType: 'user' | 'space' | 'document' | 'thread' | 'comment' | 'persona';
+  targetId: string;
+  reason: string;
+  status: 'open' | 'reviewing' | 'resolved' | 'dismissed';
+  reviewedAt?: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface DiscoverFeedItem {
   id: string;
   itemType: 'space' | 'persona' | 'document' | 'thread';
