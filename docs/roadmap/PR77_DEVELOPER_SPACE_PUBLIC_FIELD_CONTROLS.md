@@ -4,7 +4,7 @@ Date opened: 2026-06-19
 Opened by: A1 / MIMIR
 Owner: DAEDALUS first, ARGUS reviews. ARIADNE rehearses only if visible
 Developer Space UI changes.
-Status: implemented by DAEDALUS; ready for ARGUS review
+Status: accepted by ARGUS; ready for MIMIR closeout/sequencing
 
 ## Why This Lane
 
@@ -216,3 +216,43 @@ Non-scope:
   archive text, secret-shaped values, Redis, Cloudflare, provider/model,
   billing, Project/DexOS, hosted runtime, worker, parser/OAuth, public persona,
   broad UI, or heavy visual editor.
+
+## ARGUS review - 2026-06-19
+
+ARGUS accepts PR77 as the narrow public-field controls lane.
+
+Review confirmed:
+
+- Field controls live in
+  `developer_spaces.visualisation_config.publicFieldControls` with bounded
+  top-level `nodeMetricKeys`, `eventDataKeys`, and `snapshotDataKeys` arrays.
+- Owner detail reads, owner SSE, and ingestion responses keep raw operational
+  metrics, event data, and snapshot data.
+- Public/member detail reads and SSE updates apply configured allowlists by
+  data family, while preserving existing public-safe scrubbing when a family has
+  no allowlist.
+- Private/community event visibility, owner-only linked documents, unpublished
+  documents, API-key material, prompts, and archive text were not exposed.
+- The web visual-config helper preserves field controls during owner config
+  saves; no visible editor/UI lane was added.
+
+ARGUS patched one review hardening:
+
+- Public scrub now treats raw-style keys such as `rawPayload` as sensitive, not
+  just exact `raw`, and the smoke test proves allowlisted raw-style data stays
+  hidden from visitors while remaining visible to owners.
+
+Validation:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 16 tests passed, including owner raw data, public/member allowlisting, raw-style scrub despite allowlist, default compatibility, and public detail/SSE parity. |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-space-client` | Pass | 4 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck completed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 42 tests passed because a web helper changed. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/types build` | Pass | Shared type build completed. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/developer-space-client build` | Pass | Client package build completed. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web build` | Partial / known Windows failure | Next compiled, linted/typechecked, collected page data, generated 31 static pages, then hit the known local Windows standalone symlink `EPERM`. Only the pre-existing raw `<img>` warnings appeared. |
+| `git diff --check` | Pass | CRLF normalization warnings only for touched files and local triad state. |
+
+Verdict: PR77 can close. No ARIADNE visible-route rehearsal is required.

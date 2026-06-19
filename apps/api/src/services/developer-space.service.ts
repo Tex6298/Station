@@ -186,6 +186,7 @@ function isSensitiveJsonKey(key: string): boolean {
   const normalised = normaliseSensitiveJsonKey(key);
   if (SENSITIVE_JSON_KEYS.has(normalised)) return true;
   if (normalised.endsWith("apikey")) return true;
+  if (normalised.startsWith("raw")) return true;
   return SENSITIVE_JSON_KEY_FRAGMENTS.some((fragment) => normalised.includes(fragment));
 }
 

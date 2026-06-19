@@ -9278,6 +9278,33 @@ ARGUS review validation on 2026-06-19:
 
 | Command | Result | Notes |
 | --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 16 tests passed, including owner raw data, public/member allowlisting, raw-style scrub despite allowlist, default compatibility, and public detail/SSE parity. |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-space-client` | Pass | 4 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck completed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 42 tests passed because a web helper changed. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/types build` | Pass | Shared type build completed. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/developer-space-client build` | Pass | TypeScript package build completed. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web build` | Partial / known Windows failure | Next compiled, linted/typechecked, collected page data, generated 31 static pages, then hit the known local Windows standalone symlink `EPERM`. Only the pre-existing raw `<img>` warnings appeared. |
+| `git diff --check` | Pass | CRLF normalization warnings only for touched files and local triad state. |
+
+ARGUS review notes:
+
+- Field controls are accepted as a bounded public/member readability layer, not
+  canonical storage or permission infrastructure.
+- Owner reads and ingestion responses keep raw operational fields.
+- Public/member detail and SSE payloads apply allowlists where configured and
+  preserve default scrubber compatibility where not configured.
+- Raw-style keys such as `rawPayload` are now scrubbed as sensitive in public
+  data even when allowlisted.
+- PR77 is accepted for MIMIR closeout/sequencing. No ARIADNE visible-route
+  rehearsal is required.
+
+## PR76 ARGUS review validation
+
+ARGUS review validation on 2026-06-19:
+
+| Command | Result | Notes |
+| --- | --- | --- |
 | `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 15 tests passed, including cache-backed 429 behavior, provider-failure non-leak behavior, and no raw payload/key leakage. |
 | `npm exec --yes pnpm@10.32.1 -- run test:developer-space-client` | Pass | 4 tests passed, including `rate_limit` client error readback. |
 | `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/services/operational-cache.service.test.ts` | Pass | 5 tests passed, including disabled fallback and scoped counter behavior. |

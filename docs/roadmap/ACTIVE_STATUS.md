@@ -6662,6 +6662,25 @@ when a PR lands, or when validation truth changes.
   archive text exposure, Redis, Cloudflare, provider/model, billing,
   Project/DexOS, hosted runtime, worker, parser/OAuth, public persona, broad UI,
   or heavy visual editor changed. Ready for ARGUS review.
+- ARGUS accepts PR77 Developer Space Public Field Controls on 2026-06-19 as a
+  narrow Developer Space public-safety/readability lane. Review confirmed the
+  `visualisation_config.publicFieldControls` shape, owner raw-data retention,
+  public/member/detail/SSE allowlisting, default no-allowlist compatibility,
+  web normalizer preservation, and no visible UI change requiring ARIADNE.
+  ARGUS patched the public scrubber to treat raw-style keys such as
+  `rawPayload` as sensitive, and extended the smoke test so allowlisted
+  raw-style payload values stay hidden from visitors while remaining visible to
+  owners. Validation passed `test:developer-spaces` with 16 tests,
+  `test:developer-space-client`, `typecheck`, `test:studio-ui`, shared types
+  build, Developer Space client build, and `git diff --check`; the web build
+  compiled, linted/typechecked, collected page data, and generated 31 static
+  pages before the known Windows standalone symlink `EPERM`. No table/migration,
+  ingestion contract, raw public payload expansion, private/community event
+  exposure, owner-only linked document or unpublished document exposure,
+  ingestion key exposure, credential/prompt/archive text exposure, Redis,
+  Cloudflare, provider/model, billing, Project/DexOS, hosted runtime, worker,
+  parser/OAuth, public persona, broad UI, heavy visual editor, or ARIADNE
+  rehearsal is required.
 
 ## Near-term rule
 
