@@ -4,7 +4,7 @@ Date opened: 2026-06-19
 Opened by: A1 / MIMIR
 Owner: DAEDALUS implements if the current APIs are enough, ARGUS reviews.
 ARIADNE rehearses visible moderator/admin routes after ARGUS technical review.
-Status: technically accepted by ARGUS; awaiting ARIADNE rehearsal
+Status: ARIADNE visible-route rehearsal accepted; ready for MIMIR closeout
 
 ## Why This Lane
 
@@ -90,6 +90,38 @@ view from displaying resolved or dismissed rows until manual refresh.
 
 Because PR84 adds a visible admin route, ARIADNE should rehearse
 `/forums/moderation` before MIMIR closes the lane.
+
+## ARIADNE Visible-Route Rehearsal
+
+Accepted on 2026-06-19.
+
+ARIADNE rehearsed `/forums/moderation` on local HEAD because Railway health was
+still on DAEDALUS's implementation commit while ARGUS's queue-state hardening
+was present only at repo HEAD. The local web server used the live API URL, but
+browser-level mocks supplied `/auth/me` and `/reports` responses so no live
+moderation records were read or mutated.
+
+Desktop and 390px mobile checks passed:
+
+- anonymous users saw the admin-required state, did not see queue material, and
+  did not fetch reports;
+- signed-in non-admin users saw the admin-required state, did not see queue
+  material, and did not fetch reports;
+- mocked admins saw the moderation queue, status/target filters, safe
+  `targetType:targetId` context, admin-only notes, and report status actions;
+- marking an active report `resolved` removed it from the active queue view;
+- no target hide/remove/restore action appeared in this first slice;
+- no document-level horizontal overflow or offscreen primary controls appeared
+  on desktop or 390px mobile.
+
+Validation before the ad hoc browser runner was removed:
+
+```bash
+node --check scripts/tmp-pr84-ariadne-moderation-rehearsal.mjs
+node scripts/tmp-pr84-ariadne-moderation-rehearsal.mjs
+```
+
+No additional PR84 visible-route defect remains from ARIADNE's pass.
 
 ## Inspect Before Editing
 

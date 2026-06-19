@@ -6990,6 +6990,22 @@ when a PR lands, or when validation truth changes.
   subcommunity platform, appeals workflow, notification system,
   reputation/witness mechanics, AI posting, billing/provider/cache, Developer
   Space, auth/session refactor, or public visibility-widening work was added.
+- ARIADNE accepts PR84 visible-route rehearsal on 2026-06-19 and wakes MIMIR
+  for closeout. Because Railway was still on DAEDALUS's implementation commit
+  while ARGUS's queue-state hardening was repo-HEAD only, ARIADNE rehearsed
+  local HEAD with browser-level `/auth/me` and `/reports` mocks and did not
+  read or mutate live moderation records. Desktop and 390px mobile passes
+  confirmed anonymous and signed-in non-admin users see the admin-required
+  state without fetching reports; mocked admins see the moderation queue,
+  status/target filters, safe `targetType:targetId` context, admin-only notes,
+  and status actions; resolving an active report removes it from the active
+  queue view; target hide/remove/restore controls remain absent; and no mobile
+  overflow/offscreen primary controls appeared. No additional PR84 visible UI
+  defect remains, and no schema, API behavior, target moderation action, public
+  route, broad forum redesign, subcommunity platform, appeals workflow,
+  notification system, reputation/witness mechanics, AI posting,
+  billing/provider/cache, Developer Space, auth/session refactor, or public
+  visibility-widening work was added.
 
 ## Near-term rule
 
