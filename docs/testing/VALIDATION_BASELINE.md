@@ -9165,3 +9165,34 @@ Scope notes:
   billing, provider/model work, parser/OAuth, public persona expansion, raw
   public payload expansion, secret logging, broad UI, or visible Developer
   Space route behavior changed.
+
+ARGUS review validation on 2026-06-19:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 13 tests passed; ingestion auth, validation, quota, public-safe serialization, owner raw detail, SSE, usage, key rotation, and revocation stayed covered. |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-space-client` | Pass | 4 tests passed; client structured error fields cover auth, quota, and fallback server categories. |
+| `npm exec --yes pnpm@10.32.1 -- run test:health` | Pass | 16 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API typecheck ran; web typecheck replayed from cache. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/developer-space-client build` | Pass | TypeScript package build completed. |
+| `git diff --check` | Pass | CRLF normalization warnings only for local triad state. |
+
+ARGUS scope notes:
+
+- ARGUS accepted PR75 as a narrow API/client/docs partner-readiness slice.
+- Ingestion failures now expose machine-readable auth, validation, quota, and
+  server categories without widening public observatory serializers or owner/raw
+  detail surfaces.
+- Quota failures preserve the existing durable `quota_exceeded` fields and add
+  only `category: "quota"`; no short-window rate limiter was added or claimed.
+- Server failures no longer echo database error text or raw payload values.
+- The Developer Space client exposes `code`, `category`, `resource`, and
+  `retryAfter` on `DeveloperSpaceClientError`.
+- Partner docs cover node state, events, snapshots, batch import, error
+  categories, quota semantics, and the current absence of a distinct
+  short-window ingestion-key request rate limit.
+- No secrets, ingestion keys, raw payloads, raw database errors, new public
+  Developer Space fields, hosted runtime, worker, Cloudflare, Redis memory
+  truth, persistent rate-limit table, Project/DexOS, billing, provider,
+  parser/OAuth, public persona, broad UI, or visible Developer Space route
+  behavior changed.

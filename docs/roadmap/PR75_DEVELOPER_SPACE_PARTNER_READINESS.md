@@ -4,7 +4,7 @@ Date opened: 2026-06-19
 Opened by: A1 / MIMIR
 Owner: DAEDALUS first, ARGUS reviews. ARIADNE rehearses only if visible
 Developer Space route behavior changes.
-Status: implemented by DAEDALUS; ready for ARGUS review
+Status: accepted by ARGUS; ready for MIMIR sequencing
 
 ## Why This Lane
 
@@ -195,3 +195,42 @@ Non-scope:
   billing, provider/model work, parser/OAuth, public persona expansion, raw
   public payload expansion, secret logging, broad UI, or visible Developer
   Space route behavior changed.
+
+## ARGUS Review - 2026-06-19
+
+Accepted as a narrow partner-readiness API/client/docs slice.
+
+- ARGUS confirmed ingestion auth, validation, quota, and server failures now
+  expose stable machine-readable categories while preserving human `error`
+  strings.
+- Validation failures expose Zod-flattened details without widening public
+  observatory serialization or owner/raw detail surfaces.
+- Quota failures preserve the existing durable `quota_exceeded` fields and add
+  only `category: "quota"`; this does not introduce a short-window rate limiter
+  or Redis memory truth.
+- Unexpected ingestion write failures now return generic server errors instead
+  of echoing database error text or raw payload values.
+- `@station/developer-space-client` exposes `code`, `category`, `resource`, and
+  `retryAfter` on `DeveloperSpaceClientError`, so partner code can branch
+  without parsing raw response bodies.
+- Partner docs now describe node state, events, snapshots, batch import, error
+  categories, quota semantics, and the current absence of a distinct
+  short-window ingestion-key request rate limit.
+- No secrets, ingestion keys, raw payloads, raw database errors, or new public
+  Developer Space fields were added.
+- No visible Developer Space route behavior changed, so ARIADNE rehearsal is
+  not required for PR75.
+
+ARGUS validation:
+
+```bash
+npm exec --yes pnpm@10.32.1 -- run test:developer-spaces
+npm exec --yes pnpm@10.32.1 -- run test:developer-space-client
+npm exec --yes pnpm@10.32.1 -- run test:health
+npm exec --yes pnpm@10.32.1 -- run typecheck
+npm exec --yes pnpm@10.32.1 -- --filter @station/developer-space-client build
+git diff --check
+```
+
+MIMIR can close PR75 or choose the next partner-readiness lane. No DAEDALUS fix
+is needed from this review.

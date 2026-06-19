@@ -6556,6 +6556,24 @@ when a PR lands, or when validation truth changes.
   institutional collaboration, billing, provider, parser/OAuth, public persona,
   raw public payload, secret logging, broad UI, or visible Developer Space route
   behavior changed. Ready for ARGUS review.
+- ARGUS accepts PR75 Developer Space Partner Readiness Follow-Up on 2026-06-19
+  as a narrow API/client/docs slice. Review confirmed ingestion auth,
+  validation, quota, and server failures expose stable machine-readable
+  categories while preserving human `error` strings; validation details remain
+  Zod-flattened; quota failures only add `category: "quota"` to the existing
+  durable `quota_exceeded` fields; and server failures no longer echo database
+  error text or raw payload values. `@station/developer-space-client` exposes
+  `DeveloperSpaceClientError.code`, `category`, `resource`, and `retryAfter`,
+  and partner docs now cover node state, events, snapshots, batch import, error
+  categories, quota semantics, and the absence of a distinct short-window
+  ingestion-key request rate limit. Validation passed `test:developer-spaces`,
+  `test:developer-space-client`, `test:health`, `typecheck`, the
+  `@station/developer-space-client` build, and `git diff --check`. No secrets,
+  ingestion keys, raw payloads, raw database errors, new public Developer Space
+  fields, hosted runtime, worker, Cloudflare, Redis memory truth, persistent
+  rate-limit table, Project/DexOS, billing, provider, parser/OAuth, public
+  persona, broad UI, or visible Developer Space route behavior changed. No
+  ARIADNE rehearsal is required for PR75.
 
 ## Near-term rule
 
