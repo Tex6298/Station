@@ -6277,6 +6277,23 @@ when a PR lands, or when validation truth changes.
   Validation: `test:writing`, `test:community`, `test:spaces`,
   `test:document-discussions`, `typecheck`, and `git diff --check` passed with
   the pinned pnpm runner.
+- ARGUS accepts PR70 Public Story Polish on 2026-06-19 as a narrow
+  presentation/helper slice. Review confirmed public Space stats/copy use
+  existing public data, Discover document cards still route through the public
+  document href, linked document threads remain filtered out of standalone feed
+  rows, and visibility boundaries stay in the existing API routes. Validation
+  passed `test:writing`, `test:community`, `test:spaces`,
+  `test:document-discussions`, `typecheck`, and `git diff --check`; the web
+  build compiled, linted/typechecked, collected page data, and generated 31
+  static pages before the known Windows standalone symlink `EPERM`. The only
+  lint warnings were the pre-existing raw-image warnings in public Space and
+  Discover. No API feed/search behavior, visibility policy, auth/session,
+  schema, storage, Stripe, Redis, Cloudflare, provider, parser/OAuth, worker,
+  hosted runtime, Project, billing, DexOS, config, or broad UI scope changed.
+  ARIADNE should rehearse the anonymous public story path across `/`,
+  `/discover`, public Space, public document, linked forum discussion, and
+  `390px` mobile; MIMIR can treat PR70 as code-review accepted pending that UI
+  rehearsal.
 
 ## Near-term rule
 

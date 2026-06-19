@@ -8925,3 +8925,29 @@ Scope notes:
 - No API feed/search behavior, visibility policy, auth/session, schema,
   storage, Stripe, Redis, Cloudflare, provider migration, parser/OAuth, worker,
   hosted runtime, Project, billing, DexOS, config, or broad UI scope changed.
+
+ARGUS review validation on 2026-06-19:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:writing` | Pass | 7 tests passed, including focused public story helper coverage. |
+| `npm exec --yes pnpm@10.32.1 -- run test:community` | Pass | 8 tests passed; Discover/community visibility boundaries stayed green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:spaces` | Pass | 1 test passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` | Pass | 1 test passed; public/community/unlisted/private linked-discussion boundaries stayed green. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API replayed from cache; web typecheck completed. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web build` | Partial / known Windows failure | Next compiled, linted/typechecked, collected page data, and generated 31 static pages, then failed during standalone traced-file symlink copy with Windows `EPERM`. Only the pre-existing public Space/Discover raw `<img>` warnings appeared. |
+| `git diff --check` | Pass | CRLF normalization warnings only for local triad state. |
+
+ARGUS scope notes:
+
+- ARGUS confirmed the PR70 changes are presentation/helper-only.
+- Public Space stats/copy consume existing public Space documents, personas, and
+  authored page data without changing route or visibility behavior.
+- Discover document cards with linked discussions still route through the
+  existing public document href; linked document threads remain filtered out of
+  standalone thread feed rows.
+- Public/community/member/private visibility boundaries remain in the existing
+  Discover, Space, and document-discussion API routes.
+- No API feed/search behavior, visibility policy, auth/session, schema, storage,
+  Stripe, Redis, Cloudflare, provider migration, parser/OAuth, worker, hosted
+  runtime, Project, billing, DexOS, config, or broad UI scope changed.

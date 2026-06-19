@@ -1,7 +1,7 @@
 # PR70 - Public Story Polish
 
 Date: 2026-06-19
-Status: implemented by DAEDALUS; ready for ARGUS review
+Status: accepted by ARGUS; ready for ARIADNE rehearsal
 Owner: DAEDALUS implements, ARGUS reviews, ARIADNE rehearses public story if
 code changes land, MIMIR sequences next.
 
@@ -165,3 +165,41 @@ npm exec --yes pnpm@10.32.1 -- run test:document-discussions
 npm exec --yes pnpm@10.32.1 -- run typecheck
 git diff --check
 ```
+
+## ARGUS Review
+
+Accepted on 2026-06-19 as a narrow public presentation slice.
+
+- ARGUS confirmed the changed Space stats/copy are presentation-only and use the
+  existing public Space document/persona/page data.
+- ARGUS confirmed Discover document cards still route through the existing
+  public document href; linked document threads remain filtered out of the
+  standalone thread feed rows.
+- Public/community/member/private visibility boundaries remain owned by the
+  existing Discover, Space, and document-discussion API routes.
+- The new helper tests cover works-led Space counters/copy and the document-only
+  discussion cue.
+- No API feed/search behavior, visibility policy, auth/session, schema, storage,
+  Stripe, Redis, Cloudflare, provider, parser/OAuth, worker, hosted runtime,
+  Project, billing, DexOS, config, or broad UI scope changed.
+
+ARGUS validation:
+
+```bash
+npm exec --yes pnpm@10.32.1 -- run test:writing
+npm exec --yes pnpm@10.32.1 -- run test:community
+npm exec --yes pnpm@10.32.1 -- run test:spaces
+npm exec --yes pnpm@10.32.1 -- run test:document-discussions
+npm exec --yes pnpm@10.32.1 -- run typecheck
+npm exec --yes pnpm@10.32.1 -- --filter @station/web build
+git diff --check
+```
+
+The web build compiled, linted/typechecked, collected page data, and generated
+31 static pages, then failed at the known Windows standalone traced-file symlink
+`EPERM`. The only lint warnings were the pre-existing raw `<img>` warnings in
+the public Space and Discover files.
+
+ARIADNE should rehearse the anonymous public story path across `/`, `/discover`,
+the public Space, public document, linked forum discussion, and `390px` mobile
+before MIMIR closes PR70.
