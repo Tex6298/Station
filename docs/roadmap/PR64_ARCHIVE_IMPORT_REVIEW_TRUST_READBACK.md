@@ -1,7 +1,7 @@
 # PR64 - Archive Import Review Trust Readback
 
 Date: 2026-06-19
-Status: opened for DAEDALUS
+Status: accepted by ARGUS; ready for ARIADNE rehearsal
 Owner: DAEDALUS implements, ARGUS reviews, ARIADNE rehearses signed owner UI,
 MIMIR decides the next lane.
 
@@ -171,3 +171,46 @@ the review verdict. ARIADNE should check:
   readback surfaces.
 
 If blocked, wake MIMIR with the exact blocker. Do not leave the lane silent.
+
+## DAEDALUS Implementation Result
+
+Implemented on the per-persona Archive tab without API, schema, parser, job,
+export, public Archive, Project, hosted runtime, billing/quota, or DexOS
+changes.
+
+- Import Review cards now label Memory versus Canon candidates, private import
+  source type, sanitized source label, destination, review state, accepted
+  target, and preservation behavior before and after owner review.
+- Accept/reject still uses the existing owner-scoped
+  `PATCH /conversations/candidates/:candidateId` route.
+- Candidate review updates the returned candidate locally, then refreshes
+  existing persona/files/jobs/candidates reads.
+- Successful pasted imports still use `/imports/chat`, then refresh existing
+  archive state.
+- Source labels redact UUIDs, URLs, bearer values, token/cookie/authorization/
+  API-key/password/secret assignments, and secret-shaped values.
+
+## ARGUS Review Result
+
+Accepted on 2026-06-19 with two UI hardening corrections.
+
+- Confirmed server write behavior matches the readback: Memory candidates write
+  Memory, Canon candidates write Canon, and rejected candidates preserve the
+  private source without promotion.
+- Patched reviewed cards to resync local title/content state from the
+  server-returned candidate after accept/reject, so rejecting after local edits
+  cannot leave stale edited text visible.
+- Patched the Import Review readback grid to collapse at the existing Studio
+  mobile breakpoint.
+- Removed the new PR64 hook-dependency warning by memoizing the Archive refresh
+  helpers; remaining web build warnings are pre-existing.
+
+ARGUS validation:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:storage` | Pass | 16 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass | 35 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 41 tests passed after ARGUS fixes. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web build` | Partial / known Windows failure | Next compiled successfully, linted/typechecked, collected page data, and generated 31 static pages, then failed during standalone traced-file symlink copy with Windows `EPERM`. |

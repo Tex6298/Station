@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import type { ArchiveExportPackage } from "@station/types/export";
 import type { ContinuityCandidate } from "@station/types/persona";
@@ -69,7 +69,7 @@ export default function PersonaFilesPage() {
   const [importing, setImporting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  async function fetchArchiveState(sessionToken: string, options: { includeExports?: boolean } = {}): Promise<ArchiveState> {
+  const fetchArchiveState = useCallback(async (sessionToken: string, options: { includeExports?: boolean } = {}): Promise<ArchiveState> => {
     const includeExports = options.includeExports !== false;
     const [personaData, filesData, jobsData, candidatesData, exportData] = await Promise.all([
       apiGet<{ persona: PersonaWithContinuity }>(`/personas/${personaId}`, sessionToken),
@@ -88,19 +88,19 @@ export default function PersonaFilesPage() {
       candidates: candidatesData.candidates ?? [],
       exports: exportData?.exports,
     };
-  }
+  }, [personaId]);
 
-  function applyArchiveState(state: ArchiveState) {
+  const applyArchiveState = useCallback((state: ArchiveState) => {
     setPersona(state.persona);
     setFiles(state.files);
     setJobs(state.jobs);
     setImportCandidates(state.candidates);
     if (state.exports) setExportPackages(state.exports);
-  }
+  }, []);
 
-  async function refreshArchiveState(sessionToken: string, options: { includeExports?: boolean } = {}) {
+  const refreshArchiveState = useCallback(async (sessionToken: string, options: { includeExports?: boolean } = {}) => {
     applyArchiveState(await fetchArchiveState(sessionToken, options));
-  }
+  }, [applyArchiveState, fetchArchiveState]);
 
   useEffect(() => {
     if (!personaId) return;
@@ -128,7 +128,7 @@ export default function PersonaFilesPage() {
     return () => {
       cancelled = true;
     };
-  }, [personaId]);
+  }, [applyArchiveState, fetchArchiveState, personaId]);
 
   async function importText(e: React.FormEvent) {
     e.preventDefault();

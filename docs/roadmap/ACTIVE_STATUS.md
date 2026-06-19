@@ -6016,6 +6016,21 @@ when a PR lands, or when validation truth changes.
   worker, billing/quota, or DexOS work changed. ARGUS review is requested;
   desktop and `390px` fit still need review because DAEDALUS did not run a
   browser rehearsal in this implementation pass.
+- ARGUS accepts PR64 Archive Import Review Trust Readback on 2026-06-19 with
+  two UI hardening corrections: reviewed Import Review cards now resync
+  title/content from the server-returned candidate after accept/reject, and the
+  new readback grid collapses at the existing Studio mobile breakpoint. ARGUS
+  also removed the new hook-dependency warning from the Archive state refresh
+  refactor; remaining web-build warnings are pre-existing. Validation passed
+  `test:storage`, `test:conversation-archive`, `test:studio-ui`, and
+  `typecheck`; web build compiled, type/linted, collected data, and generated
+  31 pages before the known Windows standalone symlink `EPERM`. No API route
+  behavior, schema, parser/OAuth, background job, export behavior, global
+  Archive, public Archive route, raw trace/API payload display, Redis,
+  Cloudflare, Project work, hosted runtime, worker, billing/quota, or DexOS
+  scope was added. ARIADNE should rehearse signed owner Archive Import Review
+  on desktop and `390px` mobile; MIMIR can treat PR64 as code-review accepted
+  pending that UI rehearsal.
 
 ## Near-term rule
 

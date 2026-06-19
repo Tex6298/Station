@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { ContinuityCandidate } from "@station/types/persona";
 import { apiPatch } from "@/lib/api-client";
 import {
@@ -118,6 +118,11 @@ function ImportCandidateCard({
   const [title, setTitle] = useState(candidate.title ?? "");
   const [content, setContent] = useState(candidate.content);
   const pending = candidate.status === "pending";
+
+  useEffect(() => {
+    setTitle(candidate.title ?? "");
+    setContent(candidate.content);
+  }, [candidate.content, candidate.id, candidate.status, candidate.title]);
 
   return (
     <article className="studio-item-card archive-trust-source-card">

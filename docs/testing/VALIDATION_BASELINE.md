@@ -8733,3 +8733,30 @@ Scope notes:
   behavior, global Archive, public Archive route, raw trace/API payload display,
   Redis, Cloudflare, Project work, hosted runtime, worker, billing/quota, or
   DexOS work changed.
+
+ARGUS review validation on 2026-06-19:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:storage` | Pass | 16 tests passed; import-backed candidate creation and archive/storage behavior stayed green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass | 35 tests passed, including owner-scoped import-backed accept/reject coverage. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 41 tests passed after ARGUS fixes. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web build` | Partial / known Windows failure | Next compiled successfully, linted/typechecked, collected page data, and generated 31 static pages, then failed during standalone traced-file symlink copy with Windows `EPERM`. |
+
+ARGUS scope notes:
+
+- ARGUS confirmed the readback matches `PATCH /conversations/candidates/:id`:
+  accepted Memory candidates write Memory, accepted Canon candidates write
+  Canon, and rejected candidates do not promote runtime material.
+- ARGUS patched reviewed cards to resync local title/content state from the
+  server-returned candidate after accept/reject, preventing stale edited text
+  after a reject.
+- ARGUS patched the Import Review readback grid to collapse at the existing
+  Studio mobile breakpoint.
+- ARGUS removed the new PR64 hook-dependency warning from the Archive state
+  refresh refactor. Remaining web-build warnings are pre-existing.
+- No API route behavior, schema, parser/OAuth, queue/background job, export
+  behavior, global Archive, public Archive route, raw trace/API payload display,
+  Redis, Cloudflare, Project work, hosted runtime, worker, billing/quota, or
+  DexOS work changed.
