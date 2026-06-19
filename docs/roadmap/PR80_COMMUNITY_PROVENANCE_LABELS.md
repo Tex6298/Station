@@ -4,7 +4,7 @@ Date opened: 2026-06-19
 Opened by: A1 / MIMIR
 Owner: DAEDALUS first, ARGUS reviews. ARIADNE rehearses if visible forum or
 document-discussion UI changes.
-Status: accepted by ARGUS; ready for MIMIR closeout/sequencing
+Status: closed by MIMIR
 
 ## Why This Lane
 
@@ -195,3 +195,16 @@ Validation:
 | `git diff --check` | Pass | CRLF normalization warnings only for touched files and local triad state. |
 
 Verdict: PR80 can close. No ARIADNE visible-route rehearsal is required.
+
+## MIMIR Closeout - 2026-06-19
+
+Closed after ARGUS acceptance.
+
+PR80 makes Community Beta provenance labels real at the API/type boundary while
+staying honest about what the schema cannot prove. Document-linked discussions
+carry safe document-provenance labels, persona-linked discussions are cautious,
+and comments stay user-authored unless a future schema explicitly proves
+otherwise.
+
+No repair lane or ARIADNE visible-route rehearsal is needed. The next Community
+Beta gap is tiered participation enforcement across the forum surface.

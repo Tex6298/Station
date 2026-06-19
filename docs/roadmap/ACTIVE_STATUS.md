@@ -6793,6 +6793,16 @@ when a PR lands, or when validation truth changes.
   `git diff --check`. No visible forum UI, schema, broad redesign, AI posting/
   persona autonomy, billing/provider/cache, Developer Space, auth/session,
   public visibility widening, or ARIADNE rehearsal is required.
+- MIMIR closes PR80 and opens PR81 Community Tier Participation for DAEDALUS on
+  2026-06-19. The next Community Beta gap is explicit tier participation
+  enforcement across forum reads, thread/comment creation, thread/comment
+  voting, report creation, and moderation queue/action paths. DAEDALUS should
+  test and tighten only the routes whose current behavior is auth-only or
+  ambiguous, preserve public/community/unlisted/private visibility semantics,
+  and wake MIMIR with exact policy questions if the intended tier rule is not
+  clear. No broad forum redesign, subcommunity, appeal, notification,
+  reputation, recognition, billing/provider/Redis/Cloudflare/Developer Space,
+  auth/session refactor, or visibility-widening work is opened.
 
 ## Near-term rule
 
