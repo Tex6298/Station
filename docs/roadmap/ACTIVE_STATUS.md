@@ -7038,6 +7038,26 @@ when a PR lands, or when validation truth changes.
   refactor, or public visibility-widening work was added. ARGUS should review
   reporter scoping, safe fields, visible route copy, validation, and then wake
   ARIADNE for visible-route rehearsal if accepted.
+- ARGUS technically accepts PR85 Community Report Resolution Readback on
+  2026-06-19 and wakes ARIADNE for visible-route rehearsal before MIMIR
+  closeout. Review confirmed `GET /reports/mine` is auth-required and
+  reporter-scoped, uses a reporter-safe serializer instead of the admin queue
+  serializer, and does not return reporter ids, notes, `reviewed_by`,
+  moderator identity, moderation action reasons, target bodies, hidden target
+  material, private target material, or other reporters' rows. ARGUS added an
+  explicit no-leak assertion for note text, snake_case admin fields, and
+  moderator identity in reporter readback. `/forums/reports` remains status
+  readback only and does not imply appeals, target mutation, moderator
+  identity, action reasons, or target-body access. Validation passed
+  `test:reports` with 3 tests, `test:community` with 11 tests,
+  `test:document-discussions`, `test:studio-ui` with 49 tests, and
+  sequential `typecheck`; the web build compiled, linted/typechecked,
+  collected page data, and generated 33 pages before the known local Windows
+  standalone symlink `EPERM`. No schema, target mutation, admin-console
+  behavior, public moderation log, subcommunity platform, delegated moderator
+  model, notifications, reputation/witness mechanics, AI posting,
+  billing/provider/cache, Developer Space, auth/session refactor, or public
+  visibility-widening work was added.
 
 ## Near-term rule
 

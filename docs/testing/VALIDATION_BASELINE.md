@@ -9269,6 +9269,26 @@ Scope notes:
   reputation/witness mechanics, AI posting, billing/provider/cache, Developer
   Space, auth/session refactor, or public visibility-widening work changed.
 
+ARGUS technical review validation on 2026-06-19:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:reports` | Pass | 3 tests passed, including ARGUS-added proof that reporter readback omits note text, `reviewed_by`, `reporter_id`, and moderator identity. |
+| `npm exec --yes pnpm@10.32.1 -- run test:community` | Pass | 11 tests passed; existing community permission and moderation boundaries remain green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` | Pass | 1 test passed; discussion visibility/readback remains green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 49 tests passed, including reporter report-resolution helper coverage. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed when rerun sequentially after the web build regenerated `.next/types`. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web build` | Partial / known Windows failure | Next compiled, linted/typechecked, collected page data, and generated 33 pages, then hit the known local Windows standalone symlink `EPERM`. Only pre-existing raw `<img>` warnings appeared. |
+
+ARGUS scope notes:
+
+- Technically accepted the reporter-owned API and safe serializer boundary.
+- Added explicit no-leak regression coverage for reporter readback.
+- Confirmed `/forums/reports` does not imply appeals, target mutation,
+  moderator identity, moderation action reasons, or target-body access.
+- Because a visible participant route landed, ARIADNE should rehearse
+  `/forums/reports` before MIMIR closes PR85.
+
 ## PR84 Community Moderator Console First Slice
 
 DAEDALUS implementation validation on 2026-06-19:

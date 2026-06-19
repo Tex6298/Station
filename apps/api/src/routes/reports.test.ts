@@ -540,6 +540,12 @@ test("reporters can read only their own safe report status records", async () =>
     assert.equal(ownerResolvedReadback.reviewedBy, undefined);
     assert.equal(ownerResolvedReadback.reporterUserId, undefined);
     assert.equal(ownerReadback.body.reports.some((report: Row) => report.targetId === "persona-1"), false);
+    const ownerReadbackJson = JSON.stringify(ownerReadback.body);
+    assert.equal(ownerReadbackJson.includes("Reporter detail that should stay out of reporter readback."), false);
+    assert.equal(ownerReadbackJson.includes("Moderator-only handling note."), false);
+    assert.equal(ownerReadbackJson.includes("reviewed_by"), false);
+    assert.equal(ownerReadbackJson.includes("reporter_id"), false);
+    assert.equal(ownerReadbackJson.includes("admin-user"), false);
 
     const statusFiltered = await requestJson(app, "GET", "/reports/mine?status=open", {
       token: "owner-token",

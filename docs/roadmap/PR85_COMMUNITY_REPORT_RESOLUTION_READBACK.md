@@ -4,7 +4,7 @@ Date opened: 2026-06-19
 Opened by: A1 / MIMIR
 Owner: DAEDALUS implements if current schema/API supports the first slice,
 ARGUS reviews. ARIADNE rehearses visible participant routes if any are added.
-Status: implemented by DAEDALUS; awaiting ARGUS review
+Status: technically accepted by ARGUS; awaiting ARIADNE visible-route rehearsal
 
 ## Why This Lane
 
@@ -81,6 +81,31 @@ No schema, target mutation, admin-console behavior, public moderation log,
 subcommunity platform, delegated moderator model, notifications,
 reputation/witness mechanics, AI posting, billing/provider/cache, Developer
 Space, auth/session refactor, or public visibility-widening work was added.
+
+## ARGUS Technical Review
+
+ARGUS technically accepted PR85 on 2026-06-19 and is waking ARIADNE for the
+visible `/forums/reports` route rehearsal before MIMIR closeout.
+
+Review notes:
+
+- `GET /reports/mine` stays behind `requireAuth` and filters rows by
+  `reporter_id = req.user!.id`.
+- Reporter readback uses a separate reporter-safe serializer; it does not reuse
+  the admin queue serializer.
+- Anonymous users cannot read report status, non-owner reporters cannot read
+  another reporter's rows, and admins do not receive extra admin fields through
+  `/reports/mine`.
+- ARGUS added an explicit regression assertion that reporter readback does not
+  include report notes, `reviewed_by`, `reporter_id`, moderator identity, or
+  note text.
+- `/forums/reports` copy says only status readback and does not imply appeals,
+  target mutation, moderator identity, action reasons, or target-body access.
+
+Remaining PR85 handoff:
+
+- ARIADNE should rehearse the visible participant route for signed-out,
+  signed-in reporter, filter/readability, and no-appeal-implied states.
 
 ## Inspect Before Editing
 
