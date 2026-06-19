@@ -5416,6 +5416,18 @@ when a PR lands, or when validation truth changes.
   Public Project pages, Project UI, attach/detach changes, billing, exports,
   contributor/member auth, Cloudflare, Tier 2 hosting, developer-agent, DexOS,
   and `export_packages.project_id` remain out of scope.
+- DAEDALUS implements PR53 on 2026-06-19 by extending owner-only
+  `GET /projects/:idOrSlug` to return `{ project, developerSpaces }`.
+  Attached Developer Spaces are filtered by both `developer_spaces.project_id`
+  and `developer_spaces.owner_user_id`; the bounded summary includes id,
+  projectName, slug, description, visibility, visualisationType, createdAt, and
+  updatedAt only. Focused tests prove attached spaces appear, unattached and
+  foreign spaces do not, and slug/id Project reads remain owner-scoped.
+  Validation passed `test:projects`, `test:developer-spaces`, and
+  `typecheck`. No Project list/dashboard counts, public Project pages, Project
+  UI, attach/detach behavior changes, billing, exports, contributor/member
+  auth, Cloudflare, Tier 2 hosting, developer-agent, DexOS, or
+  `export_packages.project_id` work was added. ARGUS review is requested.
 
 ## Near-term rule
 

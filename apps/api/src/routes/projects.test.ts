@@ -18,6 +18,7 @@ class InMemorySupabase {
     ],
     projects: [],
     project_members: [],
+    developer_spaces: [],
   };
 
   private idCounters: Record<string, number> = {};
@@ -77,6 +78,20 @@ class InMemorySupabase {
     if (table === "project_members") {
       row.role ??= "owner";
       row.status ??= "active";
+      row.created_at ??= now;
+      row.updated_at ??= now;
+    }
+
+    if (table === "developer_spaces") {
+      row.project_id ??= null;
+      row.description ??= null;
+      row.visibility ??= "private";
+      row.provider_policy ??= "public_synthetic_only";
+      row.visualisation_type ??= "node_field";
+      row.visualisation_config ??= {};
+      row.api_key_hash ??= null;
+      row.api_key_last_four ??= null;
+      row.api_key_created_at ??= null;
       row.created_at ??= now;
       row.updated_at ??= now;
     }
@@ -296,4 +311,83 @@ test("project list and read are scoped to the authenticated owner", async () => 
   assert.equal(blocked.status, 404);
 
   setSupabaseAdminForTests(null);
+});
+
+test("project read includes only owner attached Developer Space summaries", async () => {
+  const db = new InMemorySupabase();
+  const ownerProject = db.insertRow("projects", {
+    id: "10000000-0000-4000-8000-000000000001",
+    owner_user_id: "owner-user",
+    name: "Owner Project",
+    slug: "owner-project",
+    visibility: "private",
+    connection_tier: "tier_1_showcase",
+  });
+  db.insertRow("developer_spaces", {
+    id: "20000000-0000-4000-8000-000000000001",
+    owner_user_id: "owner-user",
+    project_id: ownerProject.id,
+    project_name: "Attached Space",
+    slug: "attached-space",
+    description: "Owner attached Developer Space.",
+    visibility: "public",
+    visualisation_type: "node_field",
+  });
+  db.insertRow("developer_spaces", {
+    id: "20000000-0000-4000-8000-000000000002",
+    owner_user_id: "owner-user",
+    project_id: null,
+    project_name: "Unattached Space",
+    slug: "unattached-space",
+    visibility: "public",
+    visualisation_type: "timeline",
+  });
+  db.insertRow("developer_spaces", {
+    id: "20000000-0000-4000-8000-000000000003",
+    owner_user_id: "other-user",
+    project_id: ownerProject.id,
+    project_name: "Foreign Space",
+    slug: "foreign-space",
+    visibility: "public",
+    visualisation_type: "world_map",
+  });
+  setSupabaseAdminForTests(db.client as any);
+  const app = createProjectsApp();
+
+  try {
+    const bySlug = await requestJson<{ project: Row; developerSpaces: Row[] }>(app, "GET", "/projects/owner-project", {
+      token: "owner-token",
+    });
+    assert.equal(bySlug.status, 200);
+    assert.equal(bySlug.body.project.id, ownerProject.id);
+    assert.deepEqual(bySlug.body.developerSpaces.map((space) => space.slug), ["attached-space"]);
+    assert.deepEqual(Object.keys(bySlug.body.developerSpaces[0]).sort(), [
+      "createdAt",
+      "description",
+      "id",
+      "projectName",
+      "slug",
+      "updatedAt",
+      "visibility",
+      "visualisationType",
+    ]);
+    assert.equal(bySlug.body.developerSpaces[0].projectName, "Attached Space");
+    assert.equal(bySlug.body.developerSpaces[0].description, "Owner attached Developer Space.");
+    assert.equal(bySlug.body.developerSpaces[0].visibility, "public");
+    assert.equal(bySlug.body.developerSpaces[0].visualisationType, "node_field");
+
+    const byId = await requestJson<{ project: Row; developerSpaces: Row[] }>(
+      app,
+      "GET",
+      `/projects/${ownerProject.id}`,
+      { token: "owner-token" }
+    );
+    assert.equal(byId.status, 200);
+    assert.deepEqual(byId.body.developerSpaces.map((space) => space.slug), ["attached-space"]);
+
+    const blocked = await requestJson(app, "GET", "/projects/owner-project", { token: "other-token" });
+    assert.equal(blocked.status, 404);
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
 });

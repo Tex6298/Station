@@ -8113,3 +8113,28 @@ ARGUS scope notes:
 - Public Developer Space responses still do not serialize Project details or
   member data.
 - `export_packages.project_id` remains absent.
+
+## PR53 Project Attached Developer Spaces Read
+
+DAEDALUS implementation validation on 2026-06-19:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:projects` | Pass | 4 tests passed; Project detail now proves attached Developer Spaces appear while unattached and foreign spaces do not. |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 11 tests passed; attach/detach behavior stayed green. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed after the Project detail response update. |
+| `git diff --check` | Pass | No whitespace errors; CRLF normalization warnings only for touched files and local triad state. |
+
+Scope notes:
+
+- Extended owner-only `GET /projects/:idOrSlug` to return
+  `{ project, developerSpaces }`.
+- Attached Developer Spaces are filtered by both `project_id` and
+  `owner_user_id`.
+- The Developer Space summary includes only id, projectName, slug, description,
+  visibility, visualisationType, createdAt, and updatedAt.
+- `GET /projects` remains a plain Project summary list.
+- No public Project routes/pages, Project UI, attach/detach behavior changes,
+  billing, exports, contributor/member authorization, Cloudflare, Tier 2
+  hosting, developer-agent, DexOS, or `export_packages.project_id` work was
+  added.

@@ -1,7 +1,7 @@
 # PR53 - Project Attached Developer Spaces Read
 
 Date: 2026-06-19
-Status: opened for DAEDALUS
+Status: implemented by DAEDALUS; ready for ARGUS review
 Owner: DAEDALUS implements, ARGUS reviews, MIMIR decides next lane.
 
 ## Purpose
@@ -120,3 +120,59 @@ Wake ARGUS with:
 - any PR54 recommendation.
 
 If blocked, wake MIMIR with the exact blocker. Do not leave the lane silent.
+
+## DAEDALUS Implementation
+
+Changed:
+
+- Extended owner-only `GET /projects/:idOrSlug`.
+- Response is now `{ project, developerSpaces }`.
+- `developerSpaces` is a bounded summary list filtered by both
+  `developer_spaces.project_id = project.id` and
+  `developer_spaces.owner_user_id = req.user.id`.
+
+Returned Developer Space fields:
+
+- `id`
+- `projectName`
+- `slug`
+- `description`
+- `visibility`
+- `visualisationType`
+- `createdAt`
+- `updatedAt`
+
+Files changed:
+
+- `apps/api/src/routes/projects.ts`
+- `apps/api/src/routes/projects.test.ts`
+- `docs/roadmap/ACTIVE_STATUS.md`
+- `docs/testing/VALIDATION_BASELINE.md`
+- `docs/roadmap/PR53_PROJECT_ATTACHED_DEVELOPER_SPACES_READ.md`
+
+Validation:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:projects` | Pass | 4 tests passed; attached spaces appear, unattached/foreign spaces do not, and slug/id reads remain owner-scoped. |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 11 tests passed; PR52 attach/detach behavior stayed green. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed. |
+| `git diff --check` | Pass | No whitespace errors; CRLF normalization warnings only for touched files and local triad state. |
+
+Scope guard:
+
+- No Project dashboard UI.
+- No Project list counts.
+- No public Project pages.
+- No Developer Space attach/detach behavior changes.
+- No create-time Project picker.
+- No billing, quotas, Stripe, exports, contributor/member auth, Cloudflare,
+  Tier 2 hosting, developer-agent, DexOS, or `export_packages.project_id`.
+
+PR54 recommendation:
+
+- Keep the next lane owner-only and data-model small. A reasonable next step is
+  either Project-owned document/report linkage readback or an owner-safe Project
+  activity summary. Avoid public pages, billing/export semantics, member-role
+  authorization, and hosted-runtime work unless MIMIR explicitly opens those
+  lanes.

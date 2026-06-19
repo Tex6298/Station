@@ -17,6 +17,7 @@ const createProjectSchema = z.object({
 });
 
 type ProjectRow = Database["public"]["Tables"]["projects"]["Row"];
+type DeveloperSpaceRow = Database["public"]["Tables"]["developer_spaces"]["Row"];
 
 export const projectsRouter = Router();
 projectsRouter.use(requireAuth);
@@ -30,6 +31,22 @@ function serializeProject(row: ProjectRow) {
     description: row.description,
     visibility: row.visibility,
     connectionTier: row.connection_tier,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+  };
+}
+
+function serializeAttachedDeveloperSpace(row: Pick<
+  DeveloperSpaceRow,
+  "id" | "project_name" | "slug" | "description" | "visibility" | "visualisation_type" | "created_at" | "updated_at"
+>) {
+  return {
+    id: row.id,
+    projectName: row.project_name,
+    slug: row.slug,
+    description: row.description,
+    visibility: row.visibility,
+    visualisationType: row.visualisation_type,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   };
@@ -109,5 +126,18 @@ projectsRouter.get("/:idOrSlug", async (req, res) => {
   const { data, error } = await query.maybeSingle();
   if (error) return res.status(500).json({ error: error.message });
   if (!data) return res.status(404).json({ error: "Project not found." });
-  return res.json({ project: serializeProject(data) });
+
+  const { data: developerSpaces, error: developerSpacesError } = await sb
+    .from("developer_spaces")
+    .select("id, project_name, slug, description, visibility, visualisation_type, created_at, updated_at")
+    .eq("project_id", data.id)
+    .eq("owner_user_id", req.user!.id)
+    .order("created_at", { ascending: false });
+
+  if (developerSpacesError) return res.status(500).json({ error: developerSpacesError.message });
+
+  return res.json({
+    project: serializeProject(data),
+    developerSpaces: (developerSpaces ?? []).map(serializeAttachedDeveloperSpace),
+  });
 });
