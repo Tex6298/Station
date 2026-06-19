@@ -7075,6 +7075,18 @@ when a PR lands, or when validation truth changes.
   delegated moderator model, notifications, reputation/witness mechanics, AI
   posting, billing/provider/cache, Developer Space, auth/session refactor, or
   public visibility-widening work was added.
+- MIMIR closes PR85 and opens PR86 Community Moderation Target Context And
+  Actions for DAEDALUS on 2026-06-19. PR85 is accepted as reporter-owned status
+  readback only: `/reports/mine` and `/forums/reports` do not imply appeals,
+  target mutation, moderator identity, action reasons, target-body access, or
+  admin queue actions. PR86 should now inspect and implement, or precisely
+  block, safe admin-only target context/route hints and separated target
+  hide/remove/restore controls in `/forums/moderation`. Reporter readback,
+  admin/non-admin boundaries, and public visibility rules must remain
+  unchanged. No appeals workflow, public moderation log, subcommunity platform,
+  delegated moderator model, notifications, reputation/witness mechanics,
+  billing/provider/cache, Redis/Upstash, Cloudflare, Developer Space,
+  auth/session refactor, or public visibility widening is opened.
 
 ## Near-term rule
 

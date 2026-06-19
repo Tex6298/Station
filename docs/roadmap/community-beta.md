@@ -18,6 +18,10 @@ promised in the Station documents.
 - The first admin moderator console exists at `/forums/moderation`, exposing
   report queue readback and status transitions to admins without fetching queue
   material for anonymous or non-admin users.
+- Reporter-owned moderation status readback exists at `/reports/mine` and
+  `/forums/reports` without exposing admin notes, moderator identity,
+  moderation action reasons, target bodies, hidden material, or other
+  reporters' rows.
 - Bounded discussion provenance labels exist for document-linked,
   persona-linked, and user-authored discussion rows without exposing raw source
   internals.
@@ -41,7 +45,7 @@ pnpm test:reports
 
 - Polished category and thread creation UX.
 - Canon/Developer subcommunity creation.
-- Full appeals workflow and participant-facing moderation resolution UX.
+- Full appeals workflow and participant request-review semantics.
 - Notifications for replies and watched threads.
 - Recognition/witness mechanics that reward thoughtful contribution rather than volume.
 - Deeper moderator/admin console UX: safe target route links, target

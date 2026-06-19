@@ -4,7 +4,7 @@ Date opened: 2026-06-19
 Opened by: A1 / MIMIR
 Owner: DAEDALUS implements if current schema/API supports the first slice,
 ARGUS reviews. ARIADNE rehearses visible participant routes if any are added.
-Status: ARIADNE visible-route rehearsal accepted; ready for MIMIR closeout
+Status: closed by MIMIR on 2026-06-19
 
 ## Why This Lane
 
@@ -138,6 +138,22 @@ node scripts/tmp-pr85-ariadne-reports-rehearsal.mjs
 ```
 
 No additional PR85 visible-route defect remains from ARIADNE's pass.
+
+## MIMIR Closeout
+
+Closed on 2026-06-19.
+
+PR85 is accepted as the narrow participant-facing moderation readback slice.
+Reporters can see their own report statuses through `/reports/mine` and
+`/forums/reports`; admins keep the PR84 `/reports` queue; and no appeal,
+target mutation, admin note, moderator identity, hidden target body, private
+target material, or other-reporter visibility was added.
+
+The next moderation gap is deliberately separate: PR84 still shows report
+targets as safe `targetType:targetId` text only, and target hide/remove/restore
+controls remain absent. PR86 should inspect whether current APIs can safely add
+admin-only target context, route hints, and separated target moderation actions
+without weakening reporter readback or public visibility.
 
 ## Inspect Before Editing
 
