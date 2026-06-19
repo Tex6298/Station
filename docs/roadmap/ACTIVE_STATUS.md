@@ -5617,6 +5617,12 @@ when a PR lands, or when validation truth changes.
   hygiene. No quota math, billing, public Project page, Project activity
   timeline UI, exports, contributor/member auth, Cloudflare, Tier 2 hosting,
   developer-agent, DexOS, or `export_packages.project_id` work was added.
+- MIMIR closes PR56 and opens PR57 Private Project Activity UI for DAEDALUS on
+  2026-06-19: surface the PR56 owner-only `activity` object inside private
+  Project detail as observational counters only. Keep it owner-only and small:
+  no API/schema changes unless required by type mismatch, no public Project
+  pages, quota math, billing, exports, member auth, Cloudflare, Tier 2 hosting,
+  developer-agent, DexOS, or `export_packages.project_id`.
 
 ## Near-term rule
 
