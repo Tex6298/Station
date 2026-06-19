@@ -4,6 +4,7 @@ import { optionalAuth, requireAuth, type AuthenticatedUser } from "../middleware
 import { requireTier } from "../middleware/require-tier";
 import { getSupabaseAdmin } from "../lib/supabase";
 import { STATION_DOCUMENT_TYPES, normalizeDocumentType } from "@station/types";
+import { serializeThreadDiscussionProvenance } from "../services/community-provenance.service";
 
 const visibilitySchema = z.enum(["private", "unlisted", "community", "public", "members"]);
 const sourceTypeSchema = z.enum(["canon", "integrity", "archive_file", "archive_import"]);
@@ -124,6 +125,21 @@ function canHaveDiscussion(document: any) {
     document.comments_enabled !== false &&
     ["public", "community", "members", "unlisted"].includes(document.visibility)
   );
+}
+
+function serializeDocumentDiscussionThread(thread: any, document: any) {
+  if (!thread) return thread;
+  return {
+    ...thread,
+    discussion_provenance: serializeThreadDiscussionProvenance({
+      ...thread,
+      document: {
+        provenance_type: document.provenance_type ?? "user_authored",
+        source_type: document.source_type ?? null,
+        source_persona_id: document.source_persona_id ?? null,
+      },
+    }),
+  };
 }
 
 function currentDocumentVersion(document: any) {
@@ -284,7 +300,7 @@ async function ensureDocumentDiscussion(document: any) {
   if (document.discussion_thread_id) {
     const { data: existing } = await sb
       .from("threads")
-      .select("id, title, status, visibility, comment_count, category_id, linked_document_id, is_pinned, is_hidden, reported_count")
+      .select("id, title, status, visibility, comment_count, category_id, linked_document_id, linked_persona_id, is_pinned, is_hidden, reported_count")
       .eq("id", document.discussion_thread_id)
       .single();
     if (existing) {
@@ -297,11 +313,11 @@ async function ensureDocumentDiscussion(document: any) {
             is_hidden: false,
           })
           .eq("id", existing.id)
-          .select("id, title, status, visibility, comment_count, category_id, linked_document_id, is_pinned, is_hidden, reported_count")
+          .select("id, title, status, visibility, comment_count, category_id, linked_document_id, linked_persona_id, is_pinned, is_hidden, reported_count")
           .single();
-        return updated ?? existing;
+        return serializeDocumentDiscussionThread(updated ?? existing, document);
       }
-      return existing;
+      return serializeDocumentDiscussionThread(existing, document);
     }
   }
 
@@ -329,7 +345,7 @@ async function ensureDocumentDiscussion(document: any) {
       score: 0,
       comment_count: 0,
     })
-    .select("id, title, status, visibility, comment_count, category_id, linked_document_id, is_pinned, is_hidden, reported_count")
+    .select("id, title, status, visibility, comment_count, category_id, linked_document_id, linked_persona_id, is_pinned, is_hidden, reported_count")
     .single();
 
   if (!thread) return null;
@@ -339,7 +355,7 @@ async function ensureDocumentDiscussion(document: any) {
     .update({ discussion_thread_id: thread.id })
     .eq("id", document.id);
 
-  return thread;
+  return serializeDocumentDiscussionThread(thread, document);
 }
 
 async function syncExistingDiscussion(document: any) {
@@ -541,7 +557,7 @@ documentsRouter.get("/:id/discussion", optionalAuth, async (req, res) => {
   const sb = getSupabaseAdmin();
   const { data: document, error } = await sb
     .from("documents")
-    .select("id, title, status, visibility, comments_enabled, author_user_id, discussion_thread_id")
+    .select("id, title, status, visibility, comments_enabled, author_user_id, provenance_type, source_type, source_persona_id, discussion_thread_id")
     .eq("id", req.params.id)
     .single();
 
@@ -570,7 +586,7 @@ documentsRouter.get("/:id/discussion", optionalAuth, async (req, res) => {
     return res.json({ eligible: true, discussion: null });
   }
 
-  return res.json({ eligible: true, discussion: thread });
+  return res.json({ eligible: true, discussion: serializeDocumentDiscussionThread(thread, document) });
 });
 
 // -- Authenticated: start/get a discussion for an eligible document ------------

@@ -1,4 +1,21 @@
 
+export type DiscussionProvenanceKind =
+  | 'user_authored'
+  | 'ai_assisted'
+  | 'archive_import'
+  | 'integrity_session'
+  | 'persona_derived'
+  | 'persona_linked';
+
+export interface DiscussionProvenanceLabel {
+  kind: DiscussionProvenanceKind;
+  label: string;
+  documentProvenanceType?: Exclude<DiscussionProvenanceKind, 'persona_linked'>;
+  documentSourceType?: 'manual' | 'canon' | 'integrity' | 'archive_file' | 'archive_import' | 'persona' | 'publication' | null;
+  sourcePersonaId?: string | null;
+  linkedPersonaId?: string | null;
+}
+
 export interface ForumCategory {
   id: string;
   slug: string;
@@ -26,6 +43,7 @@ export interface ThreadRecord {
   lastActivityAt?: string;
   moderationState?: 'normal' | 'needs_review' | 'hidden' | 'removed';
   viewerVote?: -1 | 0 | 1;
+  discussionProvenance?: DiscussionProvenanceLabel;
   score: number;
   commentCount: number;
   createdAt: string;
@@ -45,6 +63,7 @@ export interface CommentRecord {
   voteCount?: number;
   moderationState?: 'normal' | 'needs_review' | 'hidden' | 'removed';
   viewerVote?: -1 | 0 | 1;
+  discussionProvenance?: DiscussionProvenanceLabel;
   score: number;
   createdAt: string;
   updatedAt: string;

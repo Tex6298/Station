@@ -10,6 +10,7 @@ import {
   listViewerVotes,
   serializeCommunityProfile,
 } from "../services/community.service";
+import { serializeThreadDiscussionProvenance } from "../services/community-provenance.service";
 
 const createThreadSchema = z.object({
   categoryId: z.string().uuid(),
@@ -143,10 +144,11 @@ forumsRouter.get("/categories/:slug", optionalAuth, async (req: Request, res: Re
       let query = (sb as any)
       .from("threads")
       .select(
-        `id, title, body, status, visibility, score, comment_count, linked_document_id,
+        `id, title, body, status, visibility, score, comment_count, linked_document_id, linked_persona_id,
          is_pinned, is_hidden, reported_count, vote_count, hot_score, last_activity_at, moderation_state, created_at, updated_at,
          author_user_id,
-         author:profiles!author_user_id(username, display_name, avatar_url)`
+         author:profiles!author_user_id(username, display_name, avatar_url),
+         document:documents!linked_document_id(id, provenance_type, source_type, source_persona_id)`
       )
       .eq("category_id", category.id)
       .eq("status", "active")
@@ -185,6 +187,7 @@ forumsRouter.get("/categories/:slug", optionalAuth, async (req: Request, res: Re
     ...thread,
     viewer_vote: (viewerVotes as Record<string, number>)[thread.id] ?? 0,
     author_community_profile: authorProfiles[thread.author_user_id] ?? null,
+    discussion_provenance: serializeThreadDiscussionProvenance(thread),
   }));
 
   res.json({ category, threads: enrichedThreads });

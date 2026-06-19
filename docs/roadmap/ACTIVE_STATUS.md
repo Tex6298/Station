@@ -6765,6 +6765,21 @@ when a PR lands, or when validation truth changes.
   posting, schema migration without sequencing, billing/provider/Redis/
   Cloudflare/Developer Space, auth/session, or visibility-widening work is
   opened.
+- DAEDALUS implements PR80 Community Provenance Labels on 2026-06-19 as an
+  API/type-only slice. Category thread lists, thread detail, comments in thread
+  detail, and document discussion create/readback now include bounded
+  `discussion_provenance` labels. Document-linked threads use only
+  `provenance_type`, `source_type`, and `source_persona_id`; persona-linked
+  threads are labelled only as `persona_linked`; comments remain
+  `user_authored` and do not inherit document/thread provenance. Raw
+  `source_id`, `source_label`, archive filenames, prompts, source bodies, and
+  owner-only provenance internals are not serialized in the discussion
+  provenance payloads. Shared forum types now define the label shape. No visible
+  forum UI, schema, broad redesign, AI posting/persona autonomy,
+  billing/provider/cache, Developer Space, auth/session, or public visibility
+  widening work was added. ARGUS should review exact provenance facts used and
+  not inferred, public/community visibility, and PR78/PR79 regression tests
+  before waking MIMIR or DAEDALUS.
 
 ## Near-term rule
 

@@ -138,7 +138,14 @@ class InMemorySupabase {
         ? this.rows("spaces").find((candidate) => candidate.id === document.space_id)
         : null;
       copy.document = document
-        ? { id: document.id, title: document.title, space: space ? { slug: space.slug } : null }
+        ? {
+            id: document.id,
+            title: document.title,
+            provenance_type: document.provenance_type,
+            source_type: document.source_type,
+            source_persona_id: document.source_persona_id,
+            space: space ? { slug: space.slug } : null,
+          }
         : null;
     }
 
@@ -472,10 +479,18 @@ test("published document discussions respect public, community, unlisted, and pr
     assert.equal(publicDiscussion.status, 201);
     assert.equal(publicDiscussion.body.discussion.visibility, "public");
     assert.equal(publicDiscussion.body.discussion.linked_document_id, PUBLIC_DOC_ID);
+    assert.deepEqual(publicDiscussion.body.discussion.discussion_provenance, {
+      kind: "user_authored",
+      label: "User-authored",
+      document_provenance_type: "user_authored",
+      document_source_type: "manual",
+      source_persona_id: null,
+    });
 
     const publicLink = await requestJson(app, "GET", `/documents/${PUBLIC_DOC_ID}/discussion`);
     assert.equal(publicLink.status, 200);
     assert.equal(publicLink.body.discussion.id, publicDiscussion.body.discussion.id);
+    assert.deepEqual(publicLink.body.discussion.discussion_provenance, publicDiscussion.body.discussion.discussion_provenance);
 
     const comment = await requestJson(app, "POST", "/comments", {
       token: "member-token",
@@ -490,6 +505,11 @@ test("published document discussions respect public, community, unlisted, and pr
     const publicThread = await requestJson(app, "GET", `/threads/${publicDiscussion.body.discussion.id}`);
     assert.equal(publicThread.status, 200);
     assert.equal(publicThread.body.comments.length, 1);
+    assert.deepEqual(publicThread.body.thread.discussion_provenance, publicDiscussion.body.discussion.discussion_provenance);
+    assert.deepEqual(publicThread.body.comments[0].discussion_provenance, {
+      kind: "user_authored",
+      label: "User-authored",
+    });
 
     const privateDiscussion = await requestJson(app, "POST", `/documents/${PRIVATE_DOC_ID}/discussion`, {
       token: "owner-token",

@@ -9236,6 +9236,35 @@ Scope notes:
   expansion, raw ingestion key storage, secret logging, broad UI, public
   serializer expansion, or visible web UI changed.
 
+## PR80 Community Provenance Labels
+
+DAEDALUS implementation validation on 2026-06-19:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:community` | Pass | 10 tests passed, including safe AI-assisted, archive-import, persona-linked, and user-authored provenance labels plus no raw source-label leakage. |
+| `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` | Pass | 1 test passed; document discussion create/readback and thread detail expose provenance labels while visibility boundaries remain intact. |
+| `npm exec --yes pnpm@10.32.1 -- run test:reports` | Pass | 2 tests passed; PR79 report queue/readback remains green. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck completed. |
+| `git diff --check` | Pass | CRLF normalization warnings only for touched files and local triad state. |
+
+Scope notes:
+
+- Added API/type discussion provenance labels for category thread lists, thread
+  detail, thread-detail comments, and document discussion create/readback.
+- Document-linked thread labels use only linked document `provenance_type`,
+  `source_type`, and `source_persona_id`.
+- Persona-linked threads are labelled `persona_linked` without claiming persona
+  authorship.
+- Comments are labelled `user_authored` and do not inherit document/thread
+  provenance.
+- Raw `source_id`, `source_label`, archive filenames, prompts, source bodies,
+  and owner-only provenance internals are not serialized in discussion
+  provenance payloads.
+- No visible forum UI, schema, broad redesign, AI posting/persona autonomy,
+  billing/provider/cache, Developer Space, auth/session, or public visibility
+  widening work changed.
+
 ## PR79 Community Moderation Queue Readback
 
 DAEDALUS implementation validation on 2026-06-19:

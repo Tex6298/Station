@@ -9,6 +9,10 @@ import {
   recordModerationAction,
   serializeModerationAction,
 } from "../services/community.service";
+import {
+  serializeCommentDiscussionProvenance,
+  serializeThreadDiscussionProvenance,
+} from "../services/community-provenance.service";
 
 export const threadsRouter = Router();
 const COMMUNITY_TIERS = new Set(["private", "creator", "canon", "institutional"]);
@@ -45,7 +49,7 @@ threadsRouter.get("/:id", optionalAuth, async (req: Request, res: Response) => {
     .select(
       `*, author:profiles!author_user_id(username, display_name, avatar_url),
        category:forum_categories!category_id(id, slug, title),
-       document:documents!linked_document_id(id, title, space:spaces!space_id(slug))`
+       document:documents!linked_document_id(id, title, provenance_type, source_type, source_persona_id, space:spaces!space_id(slug))`
     )
     .eq("id", id)
     .single();
@@ -87,10 +91,12 @@ threadsRouter.get("/:id", optionalAuth, async (req: Request, res: Response) => {
     thread: {
       ...thread,
       viewer_vote: (viewerThreadVotes as Record<string, number>)[thread.id] ?? 0,
+      discussion_provenance: serializeThreadDiscussionProvenance(thread),
     },
     comments: (comments ?? []).map((comment) => ({
       ...comment,
       viewer_vote: (viewerCommentVotes as Record<string, number>)[comment.id] ?? 0,
+      discussion_provenance: serializeCommentDiscussionProvenance(),
     })),
     moderationActions: moderationActions.map(serializeModerationAction),
   });

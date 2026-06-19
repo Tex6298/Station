@@ -35,10 +35,15 @@ const COMMUNITY_DOC_ID = "88888888-8888-4888-8888-888888888882";
 const UNLISTED_DOC_ID = "88888888-8888-4888-8888-888888888883";
 const PRIVATE_DOC_ID = "88888888-8888-4888-8888-888888888884";
 const OTHER_PRIVATE_DOC_ID = "88888888-8888-4888-8888-888888888885";
+const AI_DOC_ID = "88888888-8888-4888-8888-888888888886";
+const ARCHIVE_DOC_ID = "88888888-8888-4888-8888-888888888887";
 const LOCKED_THREAD_ID = "99999999-9999-4999-8999-999999999991";
 const HIDDEN_THREAD_ID = "99999999-9999-4999-8999-999999999992";
 const PUBLIC_THREAD_ID = "99999999-9999-4999-8999-999999999993";
 const COMMUNITY_THREAD_ID = "99999999-9999-4999-8999-999999999994";
+const AI_THREAD_ID = "99999999-9999-4999-8999-999999999995";
+const ARCHIVE_THREAD_ID = "99999999-9999-4999-8999-999999999996";
+const PERSONA_THREAD_ID = "99999999-9999-4999-8999-999999999997";
 const PUBLIC_DEV_SPACE_ID = "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaa1";
 const COMMUNITY_DEV_SPACE_ID = "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaa2";
 const PRIVATE_DEV_SPACE_ID = "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaa3";
@@ -77,6 +82,18 @@ class CommunitySupabase {
         author_user_id: OTHER_ID,
         persona_id: OTHER_PERSONA_ID,
         source_persona_id: OTHER_PERSONA_ID,
+      }),
+      document(AI_DOC_ID, "AI Assisted Document", "ai-assisted-document", "public", {
+        provenance_type: "ai_assisted",
+        source_type: "integrity",
+        source_label: "owner-only-ai-session-label",
+        source_persona_id: PUBLIC_PERSONA_ID,
+      }),
+      document(ARCHIVE_DOC_ID, "Archive Import Document", "archive-import-document", "public", {
+        provenance_type: "archive_import",
+        source_type: "archive_file",
+        source_label: "private-archive-file-name.txt",
+        source_persona_id: null,
       }),
     ],
     document_versions: [],
@@ -169,6 +186,9 @@ class CommunitySupabase {
       thread(COMMUNITY_THREAD_ID, "Community Thread", "community"),
       thread(LOCKED_THREAD_ID, "Locked Thread", "public", { status: "locked" }),
       thread(HIDDEN_THREAD_ID, "Hidden Thread", "public", { is_hidden: true }),
+      thread(AI_THREAD_ID, "AI Provenance Thread", "public", { linked_document_id: AI_DOC_ID }),
+      thread(ARCHIVE_THREAD_ID, "Archive Provenance Thread", "public", { linked_document_id: ARCHIVE_DOC_ID }),
+      thread(PERSONA_THREAD_ID, "Persona Linked Thread", "public", { linked_persona_id: PUBLIC_PERSONA_ID }),
     ],
     comments: [],
     community_votes: [],
@@ -309,6 +329,19 @@ class CommunitySupabase {
     if (table === "threads" && columns.includes("category:forum_categories")) {
       const category = this.rows("forum_categories").find((candidate) => candidate.id === row.category_id);
       copy.category = category ? { id: category.id, slug: category.slug, title: category.title } : null;
+    }
+
+    if (table === "threads" && columns.includes("document:documents")) {
+      const document = this.rows("documents").find((candidate) => candidate.id === row.linked_document_id);
+      copy.document = document
+        ? {
+            id: document.id,
+            title: document.title,
+            provenance_type: document.provenance_type,
+            source_type: document.source_type,
+            source_persona_id: document.source_persona_id,
+          }
+        : null;
     }
 
     if (table === "documents" && columns.includes("space:spaces")) {
@@ -913,6 +946,72 @@ test("thread detail keeps moderation actions admin-only", async () => {
     assert.equal(admin.status, 200);
     assert.equal(admin.body.moderationActions.length, 1);
     assert.equal(admin.body.moderationActions[0].reason, "Seeded moderation note.");
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
+
+test("forum thread payloads expose only proven safe provenance labels", async () => {
+  const db = new CommunitySupabase();
+  setSupabaseAdminForTests(db.client as any);
+  const app = createCommunityApp();
+
+  try {
+    const category = await requestJson(app, "GET", "/forums/categories/community");
+    assert.equal(category.status, 200);
+
+    const aiThread = category.body.threads.find((thread: Row) => thread.id === AI_THREAD_ID);
+    assert.deepEqual(aiThread.discussion_provenance, {
+      kind: "ai_assisted",
+      label: "AI-assisted",
+      document_provenance_type: "ai_assisted",
+      document_source_type: "integrity",
+      source_persona_id: PUBLIC_PERSONA_ID,
+    });
+
+    const archiveThread = category.body.threads.find((thread: Row) => thread.id === ARCHIVE_THREAD_ID);
+    assert.deepEqual(archiveThread.discussion_provenance, {
+      kind: "archive_import",
+      label: "Archive import",
+      document_provenance_type: "archive_import",
+      document_source_type: "archive_file",
+      source_persona_id: null,
+    });
+
+    const personaThread = category.body.threads.find((thread: Row) => thread.id === PERSONA_THREAD_ID);
+    assert.deepEqual(personaThread.discussion_provenance, {
+      kind: "persona_linked",
+      label: "Persona-linked",
+      linked_persona_id: PUBLIC_PERSONA_ID,
+    });
+
+    const ordinaryThread = category.body.threads.find((thread: Row) => thread.id === PUBLIC_THREAD_ID);
+    assert.deepEqual(ordinaryThread.discussion_provenance, {
+      kind: "user_authored",
+      label: "User-authored",
+    });
+
+    assert.equal(JSON.stringify(category.body).includes("owner-only-ai-session-label"), false);
+    assert.equal(JSON.stringify(category.body).includes("private-archive-file-name.txt"), false);
+
+    const createdComment = await requestJson(app, "POST", "/comments", {
+      token: "member-token",
+      body: {
+        parentType: "thread",
+        parentId: AI_THREAD_ID,
+        body: "Comment should not inherit document AI provenance.",
+      },
+    });
+    assert.equal(createdComment.status, 201);
+
+    const detail = await requestJson(app, "GET", `/threads/${AI_THREAD_ID}`);
+    assert.equal(detail.status, 200);
+    assert.equal(detail.body.thread.discussion_provenance.kind, "ai_assisted");
+    assert.deepEqual(detail.body.comments[0].discussion_provenance, {
+      kind: "user_authored",
+      label: "User-authored",
+    });
+    assert.equal(JSON.stringify(detail.body).includes("owner-only-ai-session-label"), false);
   } finally {
     setSupabaseAdminForTests(null);
   }

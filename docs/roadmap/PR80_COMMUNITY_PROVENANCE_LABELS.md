@@ -4,7 +4,7 @@ Date opened: 2026-06-19
 Opened by: A1 / MIMIR
 Owner: DAEDALUS first, ARGUS reviews. ARIADNE rehearses if visible forum or
 document-discussion UI changes.
-Status: open
+Status: implemented by DAEDALUS; awaiting ARGUS review
 
 ## Why This Lane
 
@@ -39,6 +39,44 @@ The ideal slice:
 
 If the schema cannot prove persona-authored or AI-assisted post labels for
 threads/comments, return a blocker naming the exact fields or migration needed.
+
+## DAEDALUS Implementation
+
+Implemented API/type provenance labels for forum and document-discussion
+serialization.
+
+Facts used:
+
+- document-linked threads use the linked document's `provenance_type`,
+  `source_type`, and `source_persona_id`;
+- persona-linked threads use only `linked_persona_id` and are labelled
+  "Persona-linked";
+- comments are labelled "User-authored" because comments have no schema field
+  proving AI assistance, persona authorship, or source-persona derivation.
+
+Facts deliberately not inferred:
+
+- a thread linked to a persona is not labelled persona-authored;
+- a comment on an AI-assisted or persona-derived document thread does not
+  inherit that document provenance;
+- raw `source_id`, `source_label`, archive filenames, prompts, bodies, and
+  owner-only source internals are not included in forum discussion provenance
+  payloads.
+
+Changed surfaces:
+
+- category thread list payloads include `discussion_provenance`;
+- thread detail payloads include `thread.discussion_provenance`;
+- thread detail comment payloads include user-authored
+  `comment.discussion_provenance`;
+- document discussion create/readback payloads include
+  `discussion.discussion_provenance`;
+- shared forum types define the provenance label shape.
+
+No visible forum UI was changed, so no ARIADNE route rehearsal is required from
+the implementation side. No schema, broad redesign, AI posting/persona autonomy,
+billing/provider/cache, Developer Space, auth/session, or public visibility
+widening work was added.
 
 ## Inspect Before Editing
 
