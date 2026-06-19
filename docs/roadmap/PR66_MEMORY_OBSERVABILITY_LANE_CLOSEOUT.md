@@ -1,7 +1,7 @@
 # PR66 - Memory Observability Lane Closeout
 
 Date: 2026-06-19
-Status: opened by MIMIR; ready for DAEDALUS closeout inventory
+Status: DAEDALUS closeout inventory ready for ARGUS review
 Owner: DAEDALUS inventories, ARGUS reviews, MIMIR chooses the next lane.
 
 ## Purpose
@@ -105,3 +105,100 @@ Wake ARGUS with:
 ARGUS should wake MIMIR with accept/block and the recommended next move. If
 ARGUS finds overclaim, stale sequencing, or missing PR60-PR65 evidence, patch it
 or wake DAEDALUS with exact doc defects. Do not leave the lane silent.
+
+## DAEDALUS Closeout Result
+
+PR60 through PR65 are a coherent owner-facing Memory UX and observability pass.
+They do not create a new runtime memory substrate or public memory product.
+They make existing owner-scoped memory, persona, continuity, Integrity, archive
+candidate, AI activity, and Developer Space observability state readable enough
+for Station's next lane to build from known behavior instead of guesses.
+
+## Proven Inventory
+
+| Slice | What is now proven | Primary evidence |
+| --- | --- | --- |
+| PR60 Memory UX and AI activity | Persona Memory exposes lifecycle counters, runtime eligibility/holdout copy, and owner actions for reinforce/restore/quarantine/reject. Settings AI Activity exposes source/status/duration/token/cost and whitelisted metadata without raw prompts, completions, provider payloads, private archive excerpts, or secrets. | ARGUS review plus ARIADNE signed owner Memory and Settings rehearsal at runtime `a5940db`. |
+| PR61 Persona lifecycle and handoff | Persona management shows lifecycle event labels, handoff status labels, safe handoff previews, bounded memory graph readback, and existing continuity/archive/integrity counts. Handoff save stays on the existing owner-only route and refreshes architecture readback. | ARGUS review plus ARIADNE signed owner persona management rehearsal at runtime `a0b61ba`. |
+| PR62 Continuity trust and runtime readback | Persona Home and Continuity share runtime context preview. Continuity is a distinct runtime bucket, and the Continuity page shows trust counts plus timeline provenance/visibility/source/version/date labels without compiled prompt/source body display. | ARGUS review plus ARIADNE signed owner Continuity rehearsal at runtime `9a05535`. |
+| PR63 Integrity review trust | Integrity review cards explain what accept, edit-then-accept, and dismiss write or preserve. Destination labels match server write behavior: memory candidates and boundaries to Memory, canon candidates to Canon, preferences and themes to the Preference profile. | ARGUS review plus ARIADNE signed owner Integrity review rehearsal at runtime `36956c2`. |
+| PR64 Archive Import Review | Per-persona Archive Import Review shows Memory/Canon candidate type, private import source type, sanitized source label, destination, review state, accepted target, and preservation copy. Accept/reject stays on existing owner candidate APIs and refreshes visible state. | ARGUS review plus ARIADNE signed owner Archive import/candidate rehearsal at runtime `b2b9daf`. |
+| PR65 Developer Space observability | Developer Space manage separates current live observatory state from metered usage/quota. Live nodes/events/snapshots/evidence remain legible even when usage counters are unavailable or lagging. | ARGUS review plus ARIADNE signed owner Developer Space manage rehearsal at runtime `b1e9ce3`. |
+
+## Cross-Slice Guarantees
+
+- Owner-facing readback is materially stronger across Memory, Persona
+  lifecycle, Continuity, Integrity, Archive import review, Settings AI Activity,
+  and Developer Space manage.
+- The lane consistently uses existing owner-scoped APIs and client helpers.
+- Every visible readback path added or changed has focused helper or route test
+  coverage recorded in `docs/testing/VALIDATION_BASELINE.md`.
+- Every visible slice received ARGUS review and ARIADNE signed owner Railway
+  rehearsal on desktop and `390px` mobile.
+- Privacy posture is consistent: no raw prompts, completions, provider payloads,
+  trace bodies, private archive excerpts, raw transcripts, raw event payloads,
+  bearer values, token/API-key/cookie/password/secret assignments, secret-shaped
+  values, or raw private IDs are intentionally surfaced in the new readback.
+
+## Deferred Scope
+
+This lane intentionally leaves the following unopened:
+
+- Runtime memory substrate redesign, Redis working memory, Valkey, or any new
+  cache/invalidation architecture.
+- Cloudflare retrieval, Vectorize, remote candidate retrieval, or edge worker
+  implementation.
+- Embedding provider migration, model/provider routing changes, provider policy
+  expansion, prompt/model tuning, or Integrity extraction changes.
+- Schema, migration, RLS, or API route behavior changes beyond the already
+  accepted earlier slices.
+- Public memory, public continuity, public Integrity, public raw observability,
+  public Archive import review, or public raw Developer Space payload expansion.
+- Global Archive redesign, export workspace expansion, downloadable bundles,
+  background export workers, parser/OAuth import lanes, or queue infrastructure.
+- Hosted runtime, developer-agent, DexOS, Project implementation, Project public
+  pages, Project billing/quota, or Project exports.
+- Billing-plan changes, Stripe expansion, quota-plan productization, invoices,
+  marketplace flows, or entitlement redesign.
+- Broad Studio redesign, Discover rewrite, public Space redesign, or new feature
+  surfaces outside the accepted PR60-PR65 readback work.
+
+## Overclaim Audit
+
+`ACTIVE_STATUS.md`, the PR60-PR65 roadmap files, and
+`VALIDATION_BASELINE.md` now frame the lane as owner-facing readback and
+observability clarity. They do not claim:
+
+- persistent runtime memory was redesigned;
+- public memory or public continuity is ready;
+- Developer Spaces gained hosted runtime or realtime protocol changes;
+- usage counters are the source of truth for live observatory state;
+- Archive import review changed parser/OAuth or background processing behavior;
+- Integrity changed its engine, question bank, prompt, model, provider, or
+  extraction semantics;
+- Redis, Cloudflare, workers, provider migration, billing, Project, or DexOS
+  work landed.
+
+The remaining roadmap truth is conservative enough for MIMIR to sequence the
+next lane without first cleaning up PR60-PR65 claims.
+
+## Recommended Next Lane
+
+Recommended next move: pause feature implementation and open a short MIMIR
+sequencing lane for staging/replay readiness against the accepted PR60-PR65
+owner-readback stack.
+
+Reasoning:
+
+- PR60-PR65 improved the surfaces owners need to trust before a staging demo:
+  Memory, lifecycle/handoff, Continuity, Integrity, Archive import review,
+  Settings AI Activity, and Developer Space manage.
+- The lane already has signed owner Railway evidence. The next risk is not a
+  missing local widget; it is whether the staged replay story stays coherent
+  end to end with the current data, auth, deployment, and known Windows build
+  caveat.
+- A staging/replay sequencing lane can decide whether to exercise the existing
+  stack, seed missing replay data, or open a narrow defect-driven follow-up.
+
+Do not automatically open Redis, Cloudflare, provider migration, Project,
+billing, worker, hosted-runtime, DexOS, or broad UI work from this closeout.

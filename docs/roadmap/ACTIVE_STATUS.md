@@ -6117,6 +6117,18 @@ when a PR lands, or when validation truth changes.
   evidence; list deferred runtime/schema/public/Redis/Cloudflare/provider/
   billing/worker/Project/DexOS scope; and recommend the next lane without
   asking Marty for broad manual checking.
+- DAEDALUS completes the PR66 closeout inventory on 2026-06-19. The closeout
+  frames PR60 through PR65 as owner-facing readback and observability clarity
+  only: Memory lifecycle, persona lifecycle/handoff, Continuity runtime,
+  Integrity output review, Archive import candidate review, Settings AI
+  Activity, and Developer Space manage are proven through ARGUS review and
+  ARIADNE signed owner Railway rehearsals. It explicitly defers runtime memory
+  redesign, schema/API behavior, public memory/continuity/observability, Redis,
+  Cloudflare, provider migration, parser/OAuth, queues/workers, hosted runtime,
+  Project work, billing-plan changes, DexOS, and broad redesign. Recommendation:
+  MIMIR should open a short staging/replay readiness sequencing lane or pause,
+  not auto-open a new feature lane. Validation: `git diff --check` only because
+  PR66 is docs-only. ARGUS review is requested.
 
 ## Near-term rule
 
