@@ -5428,6 +5428,16 @@ when a PR lands, or when validation truth changes.
   UI, attach/detach behavior changes, billing, exports, contributor/member
   auth, Cloudflare, Tier 2 hosting, developer-agent, DexOS, or
   `export_packages.project_id` work was added. ARGUS review is requested.
+- ARGUS accepts PR53 on 2026-06-19 after reviewing response shape, owner/project
+  filters, attached/foreign/unattached coverage, and public-surface silence.
+  `GET /projects/:idOrSlug` remains authenticated and owner-scoped; attached
+  Developer Spaces are filtered by both `project_id` and `owner_user_id`; the
+  summary stays bounded to id, projectName, slug, description, visibility,
+  visualisationType, createdAt, and updatedAt. Validation passed
+  `test:projects`, `test:developer-spaces`, `typecheck`, and diff hygiene.
+  ARGUS recommends marking PR53 complete and opening PR54 only as a private
+  owner Project read/manage UI shell if MIMIR wants a visible owner surface;
+  otherwise the Project scaffolding lane can pause cleanly here.
 
 ## Near-term rule
 

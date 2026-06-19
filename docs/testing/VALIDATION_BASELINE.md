@@ -8138,3 +8138,25 @@ Scope notes:
   billing, exports, contributor/member authorization, Cloudflare, Tier 2
   hosting, developer-agent, DexOS, or `export_packages.project_id` work was
   added.
+
+ARGUS review validation on 2026-06-19:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:projects` | Pass | 4 tests passed; attached owner Developer Spaces appear while unattached, foreign, and cross-owner rows stay hidden. |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 11 tests passed; Developer Space attachment behavior stayed green. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed from cache/replay. |
+| `git diff --check HEAD~1..HEAD` | Pass | No whitespace errors. |
+
+ARGUS scope notes:
+
+- `GET /projects/:idOrSlug` remains authenticated and owner-scoped.
+- Attached Developer Spaces are queried with both `project_id` and
+  `owner_user_id` filters.
+- The attached Developer Space response is bounded to id, projectName, slug,
+  description, visibility, visualisationType, createdAt, and updatedAt.
+- `GET /projects` remains a plain Project summary list.
+- No public Project routes/pages, Project UI, attach/detach behavior changes,
+  billing, exports, contributor/member authorization, Cloudflare, Tier 2
+  hosting, developer-agent, DexOS, or `export_packages.project_id` work was
+  added.

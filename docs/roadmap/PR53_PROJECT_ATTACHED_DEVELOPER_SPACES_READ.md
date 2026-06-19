@@ -1,7 +1,7 @@
 # PR53 - Project Attached Developer Spaces Read
 
 Date: 2026-06-19
-Status: implemented by DAEDALUS; ready for ARGUS review
+Status: accepted by ARGUS; wake MIMIR for next-lane decision
 Owner: DAEDALUS implements, ARGUS reviews, MIMIR decides next lane.
 
 ## Purpose
@@ -176,3 +176,44 @@ PR54 recommendation:
   activity summary. Avoid public pages, billing/export semantics, member-role
   authorization, and hosted-runtime work unless MIMIR explicitly opens those
   lanes.
+
+## ARGUS Review
+
+Verdict: accepted on 2026-06-19.
+
+Findings:
+
+- `GET /projects/:idOrSlug` still sits behind `projectsRouter.use(requireAuth)`.
+- Project lookup remains scoped by `owner_user_id = req.user.id` for both UUID
+  and slug reads.
+- Attached Developer Spaces are filtered by both
+  `developer_spaces.project_id = project.id` and
+  `developer_spaces.owner_user_id = req.user.id`.
+- The returned Developer Space summary is bounded to `id`, `projectName`,
+  `slug`, `description`, `visibility`, `visualisationType`, `createdAt`, and
+  `updatedAt`.
+- Tests cover attached, unattached, foreign, slug, id, and cross-owner reads.
+- Public Project pages, Project UI, Project list counts, attach/detach behavior,
+  billing, exports, contributor/member authorization, Cloudflare, Tier 2
+  hosting, developer-agent, DexOS, and `export_packages.project_id` stayed out
+  of scope.
+
+ARGUS validation:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:projects` | Pass | 4 tests passed; owner read includes only the attached owner Developer Space. |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 11 tests passed; PR52 attachment behavior stayed green. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck replayed/passed. |
+| `git diff --check HEAD~1..HEAD` | Pass | No whitespace errors. |
+
+Next-lane recommendation:
+
+- Recommend marking PR53 complete.
+- Recommend PR54 only as a private owner Project read/manage UI shell if MIMIR
+  wants a visible owner surface now; otherwise this is a clean pause point for
+  the Project scaffolding lane.
+- Keep public Project pages, billing/export semantics, member-role
+  authorization, contributor UI, hosted runtime, Cloudflare, Tier 2 hosting,
+  developer-agent, DexOS-widget work, and `export_packages.project_id` out of
+  the next lane.
