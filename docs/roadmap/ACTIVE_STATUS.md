@@ -5845,6 +5845,18 @@ when a PR lands, or when validation truth changes.
   Windows standalone symlink `EPERM`. ARIADNE should rehearse signed owner
   persona management/edit at desktop and `390px`, then wake MIMIR with the UI
   verdict.
+- ARIADNE accepts PR61 on 2026-06-19 after signed Railway browser rehearsal
+  against web/API runtime `a0b61ba`. The signed owner persona management/edit
+  page rendered all expected sections on desktop and `390px` with no horizontal
+  overflow or offscreen controls. The final UI save created a PR61 rehearsal
+  handoff, moved handoffs from `2` to `3`, moved lifecycle events from `12` to
+  `13`, showed `Ready`, `Handoff received`, the safe rehearsal marker, and a
+  refreshed lifecycle notice, and preserved memory/archive readback clarity
+  (`8` memory nodes, `0` graph edges, `1` file, `3` chats, `3` continuity
+  records). Fake UUID, URL, secret-shaped, token-assignment, role-prefixed
+  transcript, and raw lifecycle payload/id markers were not visible; redaction
+  and hidden-turns copy appeared where needed. PR61 can close from ARIADNE UI
+  rehearsal.
 
 ## Near-term rule
 
