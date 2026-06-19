@@ -4,7 +4,7 @@ Date opened: 2026-06-19
 Opened by: A1 / MIMIR
 Owner: DAEDALUS first, ARGUS reviews. ARIADNE rehearses only if visible forum
 UI changes.
-Status: implemented by DAEDALUS; awaiting ARGUS review
+Status: accepted by ARGUS; ready for MIMIR closeout
 
 ## Why This Lane
 
@@ -121,6 +121,24 @@ widening, or new product claim was added.
 - Any narrow bug fix is covered by focused tests.
 - Remaining open Community Beta gaps are still named plainly.
 - No visible UI change unless separately justified.
+
+## ARGUS Review
+
+Accepted on 2026-06-19 as a narrow smoke coverage and status-truth lane.
+
+Review confirmed:
+
+- the added `GET /forums/categories` assertion is small and non-duplicative;
+- the smoke coverage map matches the current `test:community`,
+  `test:document-discussions`, and `test:reports` surfaces;
+- `docs/roadmap/community-beta.md` says the forum layer has protected beta
+  surfaces, not a completed Community Beta;
+- remaining gaps stay open: polished forum UX, Canon/Developer subcommunities,
+  appeals and public moderation resolution UX, notifications,
+  recognition/witness mechanics, full admin console UX, deeper authorship
+  provenance, and delegated subcommunity moderation.
+
+No visible forum UI changed, so ARIADNE rehearsal is not required.
 
 ## Validation
 

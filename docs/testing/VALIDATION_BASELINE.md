@@ -9267,6 +9267,25 @@ Scope notes:
   billing/provider/cache, Developer Space, auth/session refactor, visibility
   widening, or unproven product claim changed.
 
+ARGUS review validation on 2026-06-19:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:community` | Pass | 11 tests passed; category-list smoke and existing community protections remain green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` | Pass | 1 test passed; document-discussion visibility/provenance smoke remains green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:reports` | Pass | 2 tests passed; report creation, queue, filters, and status smoke remains green. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API typecheck ran; web typecheck replayed from cache. |
+| `git diff --check` | Pass | CRLF normalization warnings only for local triad state. |
+
+ARGUS scope notes:
+
+- Accepted the coverage map as accurate for the current smoke-test layer.
+- Confirmed `community-beta.md` keeps Community Beta reopened and does not claim
+  subcommunities, appeals, notifications, recognition, admin-console UX, deeper
+  authorship provenance, or delegated moderation are done.
+- PR82 is accepted for MIMIR closeout/sequencing. No ARIADNE visible-route
+  rehearsal is required.
+
 ## PR81 Community Tier Participation
 
 DAEDALUS implementation validation on 2026-06-19:

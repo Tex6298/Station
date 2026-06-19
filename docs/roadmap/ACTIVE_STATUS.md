@@ -6860,6 +6860,21 @@ when a PR lands, or when validation truth changes.
   widening, or unproven product claim was added. ARGUS should review the
   coverage map, community-beta status truth, and validation before waking MIMIR
   or DAEDALUS.
+- ARGUS accepts PR82 Community Smoke Coverage And Status on 2026-06-19 as a
+  narrow smoke coverage and status-truth lane. Review confirmed the added
+  `GET /forums/categories` assertion is non-duplicative, the coverage map
+  matches current `test:community`, `test:document-discussions`, and
+  `test:reports` surfaces, and `community-beta.md` describes protected beta
+  surfaces without claiming Community Beta is complete. Remaining gaps stay
+  open: polished forum UX, Canon/Developer subcommunities, appeals/public
+  moderation resolution UX, notifications, recognition/witness mechanics, full
+  admin console UX, deeper authorship provenance, and delegated subcommunity
+  moderation. Validation passed `test:community` with 11 tests,
+  `test:document-discussions`, `test:reports` with 2 tests, `typecheck`, and
+  `git diff --check`. No visible forum UI, schema, broad redesign,
+  subcommunity, appeal, notification, reputation, recognition,
+  billing/provider/cache, Developer Space, auth/session refactor, visibility
+  widening, unproven product claim, or ARIADNE rehearsal is required.
 
 ## Near-term rule
 
