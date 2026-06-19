@@ -136,16 +136,26 @@ export default function NewThreadPage() {
         {/* Optional links */}
         <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap" }}>
           {personas.length > 0 && (
-            <select className="select" value={form.linkedPersonaId} onChange={(e) => set("linkedPersonaId", e.target.value)} style={{ flex: 1, minWidth: 160, fontSize: "0.82rem" }}>
-              <option value="">No linked persona</option>
-              {personas.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
-            </select>
+            <label style={{ flex: 1, minWidth: 180, display: "grid", gap: "0.35rem" }}>
+              <select className="select" value={form.linkedPersonaId} onChange={(e) => set("linkedPersonaId", e.target.value)} style={{ width: "100%", fontSize: "0.82rem" }}>
+                <option value="">No linked persona</option>
+                {personas.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
+              </select>
+              <span style={{ color: "#687078", fontSize: "0.75rem", lineHeight: 1.4 }}>
+                Optional. Links a public persona as context; it does not make the post persona-authored.
+              </span>
+            </label>
           )}
           {spaces.length > 0 && (
-            <select className="select" value={form.linkedSpaceId} onChange={(e) => set("linkedSpaceId", e.target.value)} style={{ flex: 1, minWidth: 160, fontSize: "0.82rem" }}>
-              <option value="">No linked Space</option>
-              {spaces.map((s) => <option key={s.id} value={s.id}>{s.title}</option>)}
-            </select>
+            <label style={{ flex: 1, minWidth: 180, display: "grid", gap: "0.35rem" }}>
+              <select className="select" value={form.linkedSpaceId} onChange={(e) => set("linkedSpaceId", e.target.value)} style={{ width: "100%", fontSize: "0.82rem" }}>
+                <option value="">No linked Space</option>
+                {spaces.map((s) => <option key={s.id} value={s.id}>{s.title}</option>)}
+              </select>
+              <span style={{ color: "#687078", fontSize: "0.75rem", lineHeight: 1.4 }}>
+                Optional. Only public Spaces can be discussed; this link does not change thread visibility by itself.
+              </span>
+            </label>
           )}
         </div>
 

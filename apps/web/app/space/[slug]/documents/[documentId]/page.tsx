@@ -52,6 +52,25 @@ const PROVENANCE_LABELS: Record<string, string> = {
   persona_derived: "Persona-derived",
 };
 
+function discussionVisibilityForDocument(doc: Document) {
+  if (doc.visibility === "community" || doc.visibility === "members") return "community";
+  if (doc.visibility === "unlisted") return "unlisted";
+  return "public";
+}
+
+function discussionFallbackFromDocument(doc: Document): Discussion | null {
+  if (!doc.discussion_thread_id) return null;
+  return {
+    id: doc.discussion_thread_id,
+    title: `Discuss: ${doc.title}`,
+    status: "active",
+    visibility: discussionVisibilityForDocument(doc),
+    comment_count: 0,
+    linked_document_id: doc.id,
+    category: { id: "documents-and-codexes", slug: "documents-and-codexes", title: "Documents & Codexes" },
+  };
+}
+
 export default function DocumentPage() {
   const { slug, documentId } = useParams<{ slug: string; documentId: string }>();
   const [doc, setDoc]               = useState<Document | null>(null);
@@ -78,12 +97,16 @@ export default function DocumentPage() {
         );
         setDoc(data.document);
         setIsOwner(data.access === "owner");
-        void loadDiscussionForDocument(data.document.id, session?.access_token);
+        const fallbackDiscussion = discussionFallbackFromDocument(data.document);
+        if (fallbackDiscussion) setDiscussion(fallbackDiscussion);
+        void loadDiscussionForDocument(data.document.id, session?.access_token, fallbackDiscussion);
       } catch {
         try {
           const data = await apiGet<{ document: Document }>(`/documents/public/${documentId}`);
           setDoc(data.document);
-          void loadDiscussionForDocument(data.document.id, session?.access_token);
+          const fallbackDiscussion = discussionFallbackFromDocument(data.document);
+          if (fallbackDiscussion) setDiscussion(fallbackDiscussion);
+          void loadDiscussionForDocument(data.document.id, session?.access_token, fallbackDiscussion);
         } catch (e) {
           setError(e instanceof Error ? e.message : "Document not found.");
         }
@@ -92,7 +115,7 @@ export default function DocumentPage() {
     });
   }, [documentId]);
 
-  async function loadDiscussionForDocument(id: string, accessToken?: string) {
+  async function loadDiscussionForDocument(id: string, accessToken?: string, fallbackDiscussion?: Discussion | null) {
     setDiscussionLoading(true);
     setDiscussionError(null);
     try {
@@ -103,9 +126,15 @@ export default function DocumentPage() {
       setDiscussionEligible(data.eligible);
       setDiscussion(data.discussion);
     } catch (e) {
-      setDiscussionEligible(false);
-      setDiscussion(null);
-      setDiscussionError(e instanceof Error ? e.message : "Discussion is unavailable.");
+      if (fallbackDiscussion) {
+        setDiscussionEligible(true);
+        setDiscussion(fallbackDiscussion);
+        setDiscussionError(null);
+      } else {
+        setDiscussionEligible(false);
+        setDiscussion(null);
+        setDiscussionError(e instanceof Error ? e.message : "Discussion is unavailable.");
+      }
     } finally {
       setDiscussionLoading(false);
     }

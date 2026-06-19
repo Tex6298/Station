@@ -28,6 +28,7 @@ interface Thread {
   author: Author | null;
 }
 interface Category { id: string; slug: string; title: string; description: string | null; }
+const PARTICIPATION_TIERS = new Set(["private", "creator", "canon", "institutional"]);
 
 export default function ForumCategoryPage() {
   const { categorySlug } = useParams<{ categorySlug: string }>();
@@ -36,6 +37,7 @@ export default function ForumCategoryPage() {
   const [loading, setLoading]     = useState(true);
   const [error, setError]         = useState<string | null>(null);
   const [canPost, setCanPost]     = useState(false);
+  const [isSignedIn, setIsSignedIn] = useState(false);
   const [token, setToken]         = useState<string | undefined>();
   const [viewerUserId, setViewerUserId] = useState<string | null>(null);
   const [sort, setSort]           = useState("active");
@@ -47,6 +49,7 @@ export default function ForumCategoryPage() {
     getSession().then(async (session) => {
       const accessToken = session?.access_token;
       setToken(accessToken);
+      setIsSignedIn(Boolean(session));
       setViewerUserId(session?.user.id ?? null);
       const params = new URLSearchParams({ sort });
       if (search.trim()) params.set("search", search.trim());
@@ -56,8 +59,7 @@ export default function ForumCategoryPage() {
       );
       setCategory(data.category);
       setThreads(data.threads);
-      // Any authenticated user can see the post button; tier check happens on API
-      if (session) setCanPost(true);
+      setCanPost(Boolean(session && PARTICIPATION_TIERS.has(session.user.tier)));
     }).catch((e) => {
       setError(e instanceof Error ? e.message : "Category not found.");
     }).finally(() => setLoading(false));
@@ -104,6 +106,11 @@ export default function ForumCategoryPage() {
           <Link href={`/forums/${categorySlug}/new`} className="button primary" style={{ textDecoration: "none", fontSize: "0.8rem" }}>
             + New thread
           </Link>
+        )}
+        {isSignedIn && !canPost && (
+          <div style={{ color: "#687078", fontSize: "0.78rem", maxWidth: 260 }}>
+            Basic tier or higher is required to start threads. Public reading stays open.
+          </div>
         )}
       </div>
 

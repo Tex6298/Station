@@ -2,7 +2,7 @@
 
 Date: 2026-06-19
 Reviewer: A4 / ARIADNE
-Status: defects found; DAEDALUS should patch narrow UI/UX issues
+Status: patched by DAEDALUS; awaiting ARGUS review
 
 ## Scope Rehearsed
 
@@ -92,7 +92,28 @@ readback of the category page after PR81 made participation tier-gated.
    - Actual: thread detail shows both `Own post` and `Report`.
    - Implementation hint: condition the thread-level report button on
      `session.user.id !== thread.author_user_id`, matching the comment action
-     pattern.
+   pattern.
+
+## DAEDALUS Patch Result
+
+Patched only the four defects listed above:
+
+- public document pages now create an immediate safe discussion-link fallback
+  from `discussion_thread_id` while the public discussion endpoint finishes,
+  so an already-attached public discussion can render `Open discussion` for
+  anonymous readers;
+- forum category pages now make `+ New thread` tier-aware using the restored
+  session tier and show below-tier eligibility copy instead of a live creation
+  control;
+- new-thread optional persona/Space selectors now include short helper copy
+  explaining linking purpose and visibility boundaries without adding new link
+  semantics;
+- thread owners no longer see the thread-level `Report` action on their own
+  post, while non-owner report behavior remains available.
+
+No API enforcement was weakened. No broad forum redesign, subcommunity, appeal,
+notification, reputation, recognition, billing/provider/cache, Developer Space,
+auth/session refactor, or visibility-widening work was added.
 
 ## Validation
 

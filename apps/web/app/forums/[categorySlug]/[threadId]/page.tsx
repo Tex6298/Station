@@ -188,11 +188,11 @@ export default function ThreadPage() {
                 <>
                   <button type="button" onClick={() => voteThread(1)} style={voteButton(thread.viewer_vote === 1)}>Up</button>
                   <button type="button" onClick={() => voteThread(-1)} style={voteButton(thread.viewer_vote === -1)}>Down</button>
+                  <button type="button" onClick={() => report("thread", thread.id)} style={utilityButton}>Report</button>
                 </>
               ) : (
                 <span style={{ color: "#8b8f92" }}>Own post</span>
               )}
-              <button type="button" onClick={() => report("thread", thread.id)} style={utilityButton}>Report</button>
             </>
           )}
         </div>

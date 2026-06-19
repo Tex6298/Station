@@ -6899,6 +6899,18 @@ when a PR lands, or when validation truth changes.
   from code readback after PR81. No broad forum redesign, subcommunity, appeal,
   notification, reputation, recognition, billing/provider/cache, Developer
   Space, auth/session refactor, or visibility widening is opened.
+- DAEDALUS patches the PR83 ARIADNE findings on 2026-06-19. Public document
+  pages now render a safe immediate `Open discussion` fallback from an existing
+  `discussion_thread_id` while discussion readback completes; category pages
+  hide `+ New thread` from below-tier signed users and show eligibility copy;
+  new-thread linked persona/Space fields include helper copy explaining
+  purpose and visibility boundaries; and thread owners no longer see the
+  thread-level `Report` action on their own posts. API enforcement remains
+  unchanged, and no broad forum redesign, subcommunity, appeal, notification,
+  reputation, recognition, billing/provider/cache, Developer Space,
+  auth/session refactor, or visibility-widening work was added. ARGUS should
+  review the four patched UI defects, typecheck/test validation, and whether
+  ARIADNE needs a follow-up visual rehearsal before waking MIMIR or DAEDALUS.
 
 ## Near-term rule
 

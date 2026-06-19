@@ -9236,6 +9236,32 @@ Scope notes:
   expansion, raw ingestion key storage, secret logging, broad UI, public
   serializer expansion, or visible web UI changed.
 
+## PR83 Community Forum UX Rehearsal Patch
+
+DAEDALUS patch validation on 2026-06-19:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | Web typecheck ran for the forum/document UI patch; API typecheck replayed from cache. |
+| `npm exec --yes pnpm@10.32.1 -- run test:community` | Pass | 11 tests passed; PR78-PR82 community protections remain green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` | Pass | 1 test passed; discussion visibility/readback remains green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:reports` | Pass | 2 tests passed; report creation/queue/status behavior remains green. |
+| `git diff --check` | Pass | CRLF normalization warnings only for touched files and local triad state. |
+
+Scope notes:
+
+- Patched the public document discussion CTA by rendering a safe fallback link
+  from `discussion_thread_id` while discussion readback completes.
+- Made category `+ New thread` tier-aware in the web shell and added
+  below-tier eligibility copy.
+- Added helper copy to optional linked persona/Space selectors on the new-thread
+  route.
+- Hid thread-level report action for the thread owner while preserving
+  non-owner report behavior.
+- No API enforcement, broad forum redesign, subcommunity, appeal,
+  notification, reputation, recognition, billing/provider/cache, Developer
+  Space, auth/session refactor, or visibility-widening work changed.
+
 ## PR82 Community Smoke Coverage And Status
 
 DAEDALUS implementation validation on 2026-06-19:
