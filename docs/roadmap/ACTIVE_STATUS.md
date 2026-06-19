@@ -5912,6 +5912,19 @@ when a PR lands, or when validation truth changes.
   generated 31 static pages before the known Windows standalone symlink
   `EPERM`. ARIADNE should rehearse signed owner Continuity at desktop and
   `390px`, then wake MIMIR with the UI verdict.
+- ARIADNE accepts PR62 on 2026-06-19 after signed Railway browser rehearsal
+  against web/API runtime `9a05535`. The signed owner Continuity page rendered
+  Continuity Trust, Runtime Continuity, Continuity Timeline, and Timeline Marker
+  on desktop and `390px` with no horizontal overflow or offscreen controls. The
+  final UI save created a PR62 continuity marker, moved continuity records from
+  `4` to `5`, refreshed the persona summary count from `4` to `5`, and showed
+  timeline provenance labels for `Private`, `No linked source`, `Source v1`,
+  `Record v1`, `Created`, and `Occurred`. Runtime readback kept Continuity as a
+  separate bucket with Canon, Integrity, Memory, and Archive; the mobile
+  marker-query preview showed the new marker in the Continuity source group.
+  Hidden source body text, fake UUID, URL, bearer, token-assignment,
+  secret-shaped, role-prefixed transcript, compiled prompt, and raw trace
+  payload markers were not visible. PR62 can close from ARIADNE UI rehearsal.
 
 ## Near-term rule
 
