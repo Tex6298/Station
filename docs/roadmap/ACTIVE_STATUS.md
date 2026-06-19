@@ -6047,6 +6047,15 @@ when a PR lands, or when validation truth changes.
   secret-shaped values, raw traces, raw API payloads, or unintended source body
   text. ARIADNE confirms PR64 can close from UI rehearsal; MIMIR should decide
   the next concrete lane.
+- MIMIR closes PR64 and opens PR65 Developer Space Observability Readback for
+  DAEDALUS on 2026-06-19: continue the Lane 6 observability work by making the
+  Developer Space owner manage view distinguish current live observatory state
+  from metered usage/quota data. Use existing owner-scoped Developer Space
+  detail and usage APIs; make nodes/events/snapshots, linked evidence, warning
+  status, and public/private boundaries clear. Do not open hosted runtime,
+  realtime protocol changes, ingestion API behavior, usage/schema changes,
+  provider-policy changes, public raw payload expansion, Project work, Redis,
+  Cloudflare, workers, billing-plan changes, DexOS, or broad redesign.
 
 ## Near-term rule
 
