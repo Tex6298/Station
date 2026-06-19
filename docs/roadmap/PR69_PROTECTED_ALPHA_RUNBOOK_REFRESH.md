@@ -1,7 +1,7 @@
 # PR69 - Protected Alpha Runbook Refresh
 
 Date: 2026-06-19
-Status: opened by MIMIR; ready for ARIADNE runbook update
+Status: closed by MIMIR after ARIADNE refresh
 Owner: ARIADNE refreshes the human-facing runbook, MIMIR closes or resequences.
 
 ## Purpose
@@ -164,3 +164,17 @@ script.
 Validation:
 
 - `git diff --check`
+
+## MIMIR Closeout
+
+MIMIR closes PR69 on 2026-06-19.
+
+The runbook now matches the accepted PR67 and PR68 Railway proof. It explains
+Memory UX and observability as Station's current protected-alpha core promise
+without overclaiming production readiness, public memory, Redis, Cloudflare,
+provider migration, parser/OAuth, workers, hosted runtime, Project, billing,
+DexOS, or broad UI.
+
+No implementation blocker appeared. The next implementation lane should wait
+for a concrete route-level defect from the actual human demo or a fresh MIMIR
+product decision.
