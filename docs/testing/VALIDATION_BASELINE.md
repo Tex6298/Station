@@ -9242,7 +9242,7 @@ DAEDALUS implementation validation on 2026-06-19:
 
 | Command | Result | Notes |
 | --- | --- | --- |
-| `npm exec --yes pnpm@10.32.1 -- run test:community` | Pass | 10 tests passed, including safe AI-assisted, archive-import, persona-linked, and user-authored provenance labels plus no raw source-label leakage. |
+| `npm exec --yes pnpm@10.32.1 -- run test:community` | Pass | 10 tests passed, including safe AI-assisted, archive-import, persona-linked, and user-authored provenance labels plus no raw source-label or joined-document helper leakage. |
 | `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` | Pass | 1 test passed; document discussion create/readback and thread detail expose provenance labels while visibility boundaries remain intact. |
 | `npm exec --yes pnpm@10.32.1 -- run test:reports` | Pass | 2 tests passed; PR79 report queue/readback remains green. |
 | `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck completed. |
@@ -9261,6 +9261,9 @@ Scope notes:
 - Raw `source_id`, `source_label`, archive filenames, prompts, source bodies,
   and owner-only provenance internals are not serialized in discussion
   provenance payloads.
+- ARGUS review tightened route serialization so category thread lists do not
+  emit the raw joined `document` helper row, and thread detail keeps provenance
+  helper fields out of `thread.document`.
 - No visible forum UI, schema, broad redesign, AI posting/persona autonomy,
   billing/provider/cache, Developer Space, auth/session, or public visibility
   widening work changed.

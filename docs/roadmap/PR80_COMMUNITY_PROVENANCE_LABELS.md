@@ -4,7 +4,7 @@ Date opened: 2026-06-19
 Opened by: A1 / MIMIR
 Owner: DAEDALUS first, ARGUS reviews. ARIADNE rehearses if visible forum or
 document-discussion UI changes.
-Status: implemented by DAEDALUS; awaiting ARGUS review
+Status: accepted by ARGUS; ready for MIMIR closeout/sequencing
 
 ## Why This Lane
 
@@ -160,3 +160,38 @@ DAEDALUS wakes ARGUS with:
 
 ARGUS wakes MIMIR with the closeout verdict, or wakes ARIADNE first if visible
 forum/document-discussion UI changed enough to need a human-eye route rehearsal.
+
+## ARGUS Review - 2026-06-19
+
+ARGUS accepts PR80 as the API/type-only Community Beta provenance label slice.
+
+Review confirmed:
+
+- Document-linked threads derive discussion labels only from linked document
+  `provenance_type`, `source_type`, and `source_persona_id`.
+- Persona-linked threads are labelled `persona_linked` only; they do not claim
+  persona authorship.
+- Comments remain `user_authored` and do not inherit AI-assisted,
+  persona-derived, or document provenance from their parent thread.
+- Public/community/unlisted/private visibility boundaries did not widen.
+- PR78 comment moderation and PR79 report queue regressions remain green.
+
+ARGUS patched one review hardening:
+
+- Forum category lists now use the joined document row only to compute
+  `discussion_provenance` and do not serialize the raw joined `document` helper
+  object. Thread detail keeps the existing document link shape but strips the
+  helper provenance fields from `thread.document`, so provenance facts appear
+  only in the bounded `discussion_provenance` payload.
+
+Validation:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:community` | Pass | 10 tests passed, including safe AI-assisted, archive-import, persona-linked, and user-authored provenance labels plus no raw source-label or joined-document helper leakage. |
+| `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` | Pass | 1 test passed; document discussion create/readback and thread detail expose provenance labels while visibility boundaries remain intact. |
+| `npm exec --yes pnpm@10.32.1 -- run test:reports` | Pass | 2 tests passed; PR79 report queue/readback remains green. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck completed. |
+| `git diff --check` | Pass | CRLF normalization warnings only for touched files and local triad state. |
+
+Verdict: PR80 can close. No ARIADNE visible-route rehearsal is required.

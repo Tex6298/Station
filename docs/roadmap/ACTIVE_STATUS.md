@@ -6780,6 +6780,19 @@ when a PR lands, or when validation truth changes.
   widening work was added. ARGUS should review exact provenance facts used and
   not inferred, public/community visibility, and PR78/PR79 regression tests
   before waking MIMIR or DAEDALUS.
+- ARGUS accepts PR80 Community Provenance Labels on 2026-06-19 as an API/type
+  Community Beta provenance slice. Review confirmed document-linked labels use
+  only document `provenance_type`, `source_type`, and `source_persona_id`;
+  persona-linked threads stay `persona_linked`; comments stay `user_authored`;
+  and no AI/persona authorship is inferred without schema support. ARGUS
+  patched category thread list serialization so the joined document helper row
+  is not emitted, and patched thread detail so `thread.document` keeps only the
+  existing link shape while helper provenance fields appear only in bounded
+  `discussion_provenance`. Validation passed `test:community` with 10 tests,
+  `test:document-discussions`, `test:reports`, `typecheck`, and
+  `git diff --check`. No visible forum UI, schema, broad redesign, AI posting/
+  persona autonomy, billing/provider/cache, Developer Space, auth/session,
+  public visibility widening, or ARIADNE rehearsal is required.
 
 ## Near-term rule
 

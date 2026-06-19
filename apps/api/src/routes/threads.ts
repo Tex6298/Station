@@ -39,6 +39,15 @@ function canReadThread(thread: any, user?: AuthenticatedUser | null) {
   return visibility === "community" && canSeeCommunity(user);
 }
 
+function serializeThreadDocumentLink(document: any) {
+  if (!document) return document;
+  return {
+    id: document.id,
+    title: document.title,
+    space: document.space ?? null,
+  };
+}
+
 // --- Public: get thread + its comments --------------------------------------
 threadsRouter.get("/:id", optionalAuth, async (req: Request, res: Response) => {
   const { id } = req.params;
@@ -90,6 +99,7 @@ threadsRouter.get("/:id", optionalAuth, async (req: Request, res: Response) => {
   res.json({
     thread: {
       ...thread,
+      document: serializeThreadDocumentLink(thread.document),
       viewer_vote: (viewerThreadVotes as Record<string, number>)[thread.id] ?? 0,
       discussion_provenance: serializeThreadDiscussionProvenance(thread),
     },

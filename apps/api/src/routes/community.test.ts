@@ -961,6 +961,7 @@ test("forum thread payloads expose only proven safe provenance labels", async ()
     assert.equal(category.status, 200);
 
     const aiThread = category.body.threads.find((thread: Row) => thread.id === AI_THREAD_ID);
+    assert.equal(aiThread.document, undefined);
     assert.deepEqual(aiThread.discussion_provenance, {
       kind: "ai_assisted",
       label: "AI-assisted",
@@ -1006,6 +1007,14 @@ test("forum thread payloads expose only proven safe provenance labels", async ()
 
     const detail = await requestJson(app, "GET", `/threads/${AI_THREAD_ID}`);
     assert.equal(detail.status, 200);
+    assert.deepEqual(detail.body.thread.document, {
+      id: AI_DOC_ID,
+      title: "AI Assisted Document",
+      space: null,
+    });
+    assert.equal(detail.body.thread.document.provenance_type, undefined);
+    assert.equal(detail.body.thread.document.source_type, undefined);
+    assert.equal(detail.body.thread.document.source_persona_id, undefined);
     assert.equal(detail.body.thread.discussion_provenance.kind, "ai_assisted");
     assert.deepEqual(detail.body.comments[0].discussion_provenance, {
       kind: "user_authored",

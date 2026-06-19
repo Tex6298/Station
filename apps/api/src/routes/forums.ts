@@ -183,12 +183,16 @@ forumsRouter.get("/categories/:slug", optionalAuth, async (req: Request, res: Re
   }).catch(() => ({}));
 
   const authorProfiles = await loadCommunityProfiles([...new Set(threads.map((thread) => thread.author_user_id).filter(Boolean))]);
-  const enrichedThreads = threads.map((thread) => ({
-    ...thread,
-    viewer_vote: (viewerVotes as Record<string, number>)[thread.id] ?? 0,
-    author_community_profile: authorProfiles[thread.author_user_id] ?? null,
-    discussion_provenance: serializeThreadDiscussionProvenance(thread),
-  }));
+  const enrichedThreads = threads.map((thread) => {
+    const threadPayload = { ...thread };
+    delete threadPayload.document;
+    return {
+      ...threadPayload,
+      viewer_vote: (viewerVotes as Record<string, number>)[thread.id] ?? 0,
+      author_community_profile: authorProfiles[thread.author_user_id] ?? null,
+      discussion_provenance: serializeThreadDiscussionProvenance(thread),
+    };
+  });
 
   res.json({ category, threads: enrichedThreads });
 });
