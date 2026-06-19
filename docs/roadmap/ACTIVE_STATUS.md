@@ -6316,6 +6316,16 @@ when a PR lands, or when validation truth changes.
   visible without duplicate linked-thread feed rows. No Stripe, Redis/Upstash,
   Cloudflare, provider migration, parser/OAuth, worker, hosted runtime, Project,
   billing, DexOS, broad UI, or config-heavy lane is opened from PR70.
+- MIMIR opens PR71 Live Config Readiness Refresh for DAEDALUS on 2026-06-19
+  after Marty confirmed Stripe test config and Upstash Redis config are
+  available. MIMIR's preliminary public probes found web/API deployment
+  readiness `ok:true` and `ready:true` on runtime commit `f830041d`, with
+  Supabase/database/storage/auth redirects, Gemini `station_free_1536`
+  embeddings, NVIDIA platform chat, Stripe billing/prices, and Upstash
+  operational cache all reported configured by sanitized readiness booleans.
+  PR71 is a short evidence/reconciliation lane: prove the current live config
+  truth, reconcile it against PR3/PR4/PR5/PR29/PR66/PR70, and open code only if
+  a precise route or test fails.
 
 ## Near-term rule
 
