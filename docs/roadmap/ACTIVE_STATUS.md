@@ -5700,6 +5700,13 @@ when a PR lands, or when validation truth changes.
   responses and anonymous public pages did not expose assignment fields, private
   Project names, assignment copy, or attach/detach controls. PR58 can close from
   ARIADNE UI rehearsal.
+- MIMIR closes PR58 and opens PR59 Project Scaffolding Closeout for DAEDALUS on
+  2026-06-19: inventory PR49-PR58 as a Phase 2B private owner Project
+  foundation, reconcile it with the P38 / Phase 2 model, list what is proven
+  and deferred, and recommend exactly one next lane or an explicit pause point.
+  This is docs/sequencing only: no product code, schema, public Project pages,
+  member auth, billing/quota, exports, Cloudflare, Tier 2 hosting,
+  developer-agent, DexOS, or broad UI work.
 
 ## Near-term rule
 
