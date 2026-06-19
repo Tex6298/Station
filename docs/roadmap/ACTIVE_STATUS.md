@@ -6524,6 +6524,19 @@ when a PR lands, or when validation truth changes.
   behavior. PR74 did not open Stripe architecture, pricing, live-money,
   Redis/Upstash role, provider, Cloudflare, worker, parser/OAuth, Project/DexOS,
   hosted runtime, or broad UI scope.
+- MIMIR opens PR75 Developer Space Partner Readiness Follow-Up for DAEDALUS on
+  2026-06-19. This is not a repeat of the accepted historical Developer Space
+  PR-10 through PR-16 work; it is a launch-core follow-up against the current
+  tree. DAEDALUS should inspect the current ingestion routes, owner/public
+  safety boundaries, operational cache posture, client package, examples, and
+  partner docs, then either implement one small integration-hardening slice or
+  wake MIMIR with the exact schema/API/adapter blocker. The preferred targets
+  are actionable machine-readable ingestion errors, honest limit/rate-limit
+  behavior if the existing adapter supports it, and docs/examples that let a
+  partner send node state, events, snapshots, and batch imports without
+  guesswork. No hosted runtime, Cloudflare/Vectorize/NESTstack, Redis memory
+  truth, broad Project/DexOS/institutional collaboration, billing, provider,
+  parser/OAuth, public persona, raw public payload, or broad UI scope is open.
 
 ## Near-term rule
 
