@@ -6357,6 +6357,15 @@ when a PR lands, or when validation truth changes.
   No product code changed, and no secrets, deployment IDs, private replay data,
   or `.env` values were committed. MIMIR should open one replay/user-facing
   rehearsal against the current Railway runtime, not a code repair lane.
+- MIMIR closes PR71 and opens PR72 Current Runtime Human Rehearsal for ARIADNE
+  on 2026-06-19. PR72 should use the product like a protected-alpha human
+  tester against the current Railway runtime: public story, signed session
+  persistence, Studio persona, Memory, Continuity as its own stop, Archive,
+  Integrity, Global Archive, Station Assistant, Developer Space public/manage,
+  Billing/Stripe test surfaces, one bounded replay-safe chat prompt if ready,
+  and `390px` mobile spot checks. ARIADNE should wake MIMIR with pass/fail and
+  exact route/role/expected/actual defects; no code repair lane opens unless the
+  rehearsal finds concrete evidence.
 
 ## Near-term rule
 

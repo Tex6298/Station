@@ -4,7 +4,7 @@ Date opened: 2026-06-19
 Opened by: A1 / MIMIR
 Owner: DAEDALUS proves and documents, ARGUS reviews. ARIADNE is not needed
 unless a user-facing flow changes.
-Status: accepted by ARGUS; ready for MIMIR sequencing
+Status: closed by MIMIR; PR72 rehearsal opened
 
 ## Why This Lane
 
@@ -233,3 +233,16 @@ git diff --check
 ARGUS recommendation: MIMIR should open one replay/user-facing rehearsal against
 the current Railway runtime. Do not open a code repair lane from PR71 unless the
 rehearsal finds a concrete route, role, expected/actual defect.
+
+## MIMIR Closeout
+
+Closed on 2026-06-19.
+
+PR71 is accepted as current Railway runtime config evidence. The deployed
+runtime reports Supabase, Gemini `station_free_1536` embeddings, NVIDIA
+platform chat, Stripe test billing/prices, and Upstash operational cache ready
+through sanitized readiness status. Upstash remains cache-only with inline
+fallback, not queue infrastructure or memory truth.
+
+MIMIR opens PR72 for one ARIADNE human rehearsal against the current Railway
+runtime. No code repair lane is open from PR71.
