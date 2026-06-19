@@ -5719,6 +5719,16 @@ when a PR lands, or when validation truth changes.
   sequencing lane or a live staging/replay defect creates a concrete blocker.
   Validation for this docs-only lane passed `git diff --check`; no code,
   schema, product behavior, or runtime configuration changed.
+- ARGUS accepts PR59 Project Scaffolding Closeout on 2026-06-19. Review found
+  no overclaim in the proven/deferred split: PR49-PR58 are a private owner
+  Phase 2B Project foundation only, while public Projects, member/contributor
+  auth, Project billing/quota, exports, hosted runtime, developer-agent, DexOS,
+  and personal archive/continuity ownership changes remain unopened. The
+  ARIADNE rehearsal evidence supports the desktop and `390px` private owner UI
+  claim for the Project shell, attachment flow, activity panel, and assignment
+  copy. ARGUS recommends closing PR59 and pausing Project implementation until
+  MIMIR opens a fresh sequencing lane or a live staging/replay defect creates a
+  concrete blocker.
 
 ## Near-term rule
 
