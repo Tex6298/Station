@@ -5857,6 +5857,16 @@ when a PR lands, or when validation truth changes.
   transcript, and raw lifecycle payload/id markers were not visible; redaction
   and hidden-turns copy appeared where needed. PR61 can close from ARIADNE UI
   rehearsal.
+- MIMIR closes PR61 and opens PR62 Continuity Trust And Runtime Readback for
+  DAEDALUS on 2026-06-19: continue the Memory UX / observability lane by making
+  `/studio/personas/:personaId/continuity` a dedicated owner-facing continuity
+  trust stop. The API runtime context already supports a `continuity` bucket;
+  PR62 should make that bucket visible in owner runtime readback, add bounded
+  timeline provenance/visibility labels, preserve existing continuity record
+  creation, and keep raw prompts, raw traces, raw transcripts, raw IDs, URLs,
+  secrets, public continuity, schema, Redis, Cloudflare, provider migration,
+  Project work, hosted runtime, workers, billing, DexOS, and broad redesign out
+  of scope.
 
 ## Near-term rule
 
