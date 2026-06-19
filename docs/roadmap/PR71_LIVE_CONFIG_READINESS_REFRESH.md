@@ -4,7 +4,7 @@ Date opened: 2026-06-19
 Opened by: A1 / MIMIR
 Owner: DAEDALUS proves and documents, ARGUS reviews. ARIADNE is not needed
 unless a user-facing flow changes.
-Status: open for DAEDALUS
+Status: implemented by DAEDALUS; ready for ARGUS review
 
 ## Why This Lane
 
@@ -113,3 +113,83 @@ Wake ARGUS with:
 If a concrete implementation repair is needed before review, keep it narrow and
 name the failing route/test in the handoff. If there is no repair, this is a
 docs/evidence lane.
+
+## DAEDALUS Evidence Refresh
+
+Completed on 2026-06-19 as a docs/evidence lane. No product code changed.
+
+### Live Public Probes
+
+Sanitized Railway readiness evidence from public routes:
+
+| Route | Result | Sanitized evidence |
+| --- | --- | --- |
+| Web `/health` | Pass | `ok:true`. |
+| API `/health` | Pass | `ok:true`. |
+| Web `/health/deployment` | Pass | `ok:true`, `ready:true`, service `@station/web`, branch `main`, environment `production`, commit `f830041df118c4e3e63cb1d9b5985e2ffb2121b7`. |
+| API `/health/deployment` | Pass | `ok:true`, `ready:true`, service `@station/api`, branch `main`, environment `production`, commit `f830041df118c4e3e63cb1d9b5985e2ffb2121b7`. |
+
+Sanitized API readiness booleans/status:
+
+| Surface | Current reported truth |
+| --- | --- |
+| Database | Configured and ready. |
+| Migrations | Ready; latest proof `025-037 public_schema_object_rpc_and_document_version_proof`. |
+| Storage | `persona-files` bucket exists and is private. |
+| Supabase Auth redirects | Management API/project/app URL configured; site URL, app redirect, and password reset redirect all ready. |
+| Public URLs | App and API public URL checks ready. |
+| Embeddings | `station_free_1536`, provider `gemini`, configured; Gemini embeddings true, OpenAI embeddings false. |
+| Platform chat | Platform chat true; NVIDIA true; Anthropic and DeepSeek false. |
+| Stripe | Billing secrets true; Basic/Creator/Canon monthly and yearly price IDs true; Stripe readiness true. |
+| Redis/cache | Railway Redis false; Upstash REST true; Redis configured true; operational cache enabled as `upstash_rest`. |
+| Queue/worker | Upstash REST reports `upstash_rest_cache_only`; worker queue is not ready, queue configured false, inline fallback true. |
+
+No secrets, Stripe/customer/subscription IDs, session URLs, webhook bodies, JWTs,
+cookies, owner/persona IDs, raw private data, or `.env` values were printed or
+recorded.
+
+### Local Validation
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:health` | Pass | 16 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` | Pass | 1 test passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:billing` | Pass | 4 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/services/operational-cache.service.test.ts packages/ai/test/provider-router.test.ts packages/ai/test/retrieval-metadata.test.ts` | Pass | 22 tests passed. |
+
+### Reconciliation
+
+- PR3 Stripe paid-path proof remains bounded to Stripe test-mode readiness and
+  server-controlled billing routes. PR71 confirms the deployed API now reports
+  billing secrets and every Basic/Creator/Canon monthly/yearly price configured,
+  but it does not claim live-money or production billing readiness.
+- PR4 Redis operational boundary remains correct: Upstash REST is configured
+  and operational cache is enabled, but it is not memory truth and not a
+  BullMQ-compatible worker queue.
+- PR5 provider policy remains split: Gemini is the active
+  `station_free_1536` embedding provider, while NVIDIA is the platform chat
+  provider. PR71 does not add a provider marketplace, BYOK store, Gemini chat
+  route, or hosted model runtime.
+- PR29 live replay refresh is strengthened on configuration truth: the current
+  deployed runtime reports Supabase/database/storage/auth redirects, Gemini
+  embeddings, NVIDIA platform chat, Stripe test billing, and Upstash cache as
+  ready. PR71 still does not print credentialed replay data or prove every
+  private replay workflow.
+- PR66 memory observability closeout remains intact: this refresh records
+  readiness/config truth and does not redesign memory, expose private
+  observability, add Redis memory truth, or open Cloudflare/provider/worker
+  work.
+- PR70 public story closeout remains intact: runtime `f830041d` is deployed,
+  and this refresh does not change public Space, Discover, forum, or route
+  behavior.
+
+### Verdict
+
+No measured route or focused test justifies a code repair lane now. Current
+staging reports ready for Supabase, Gemini embeddings, NVIDIA platform chat,
+Stripe test billing, and Upstash operational cache. The only caveat is expected
+and already documented: Upstash REST is cache-only, with inline fallback, and is
+not a worker queue or memory source of truth.
+
+Recommended next step: run one replay/user-facing rehearsal against the current
+runtime to prove the now-configured stack in the real protected-alpha story.

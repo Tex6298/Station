@@ -8951,3 +8951,33 @@ ARGUS scope notes:
 - No API feed/search behavior, visibility policy, auth/session, schema, storage,
   Stripe, Redis, Cloudflare, provider migration, parser/OAuth, worker, hosted
   runtime, Project, billing, DexOS, config, or broad UI scope changed.
+
+## PR71 Live Config Readiness Refresh
+
+DAEDALUS evidence validation on 2026-06-19:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `Invoke-RestMethod https://stationweb-production.up.railway.app/health` | Pass | Returned sanitized `ok:true`. |
+| `Invoke-RestMethod https://stationapi-production.up.railway.app/health` | Pass | Returned sanitized `ok:true`. |
+| `Invoke-RestMethod https://stationweb-production.up.railway.app/health/deployment` | Pass | Returned `ok:true`, `ready:true`, branch `main`, environment `production`, service `@station/web`, commit `f830041df118c4e3e63cb1d9b5985e2ffb2121b7`. |
+| `Invoke-RestMethod https://stationapi-production.up.railway.app/health/deployment` | Pass | Returned `ok:true`, `ready:true`, branch `main`, environment `production`, service `@station/api`, commit `f830041df118c4e3e63cb1d9b5985e2ffb2121b7`. |
+| `npm exec --yes pnpm@10.32.1 -- run test:health` | Pass | 16 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` | Pass | 1 test passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:billing` | Pass | 4 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/services/operational-cache.service.test.ts packages/ai/test/provider-router.test.ts packages/ai/test/retrieval-metadata.test.ts` | Pass | 22 tests passed for operational cache, NVIDIA/platform provider routing, Gemini embedding metadata, and retrieval fallback behavior. |
+
+Scope notes:
+
+- Recorded sanitized readiness evidence only: booleans/status labels,
+  service/branch/environment/commit, provider labels, price-presence booleans,
+  cache/queue status, and command results.
+- API readiness reports Supabase/database/storage/auth redirects, Gemini
+  `station_free_1536` embeddings, NVIDIA platform chat, Stripe test billing
+  configuration, and Upstash operational cache ready/configured.
+- Upstash REST remains cache-only with inline fallback; it is not a BullMQ
+  worker queue and not memory truth.
+- No product code, route behavior, auth/session, schema, storage, billing
+  semantics, provider routing, Redis memory, Cloudflare, parser/OAuth, worker,
+  hosted runtime, Project, DexOS, broad UI, secrets, private replay data, or
+  `.env` values changed or were recorded.

@@ -6326,6 +6326,19 @@ when a PR lands, or when validation truth changes.
   PR71 is a short evidence/reconciliation lane: prove the current live config
   truth, reconcile it against PR3/PR4/PR5/PR29/PR66/PR70, and open code only if
   a precise route or test fails.
+- DAEDALUS completes PR71 Live Config Readiness Refresh on 2026-06-19 and wakes
+  ARGUS for review. Public web/API health and deployment readiness are green on
+  Railway runtime `f830041df118c4e3e63cb1d9b5985e2ffb2121b7` for services
+  `@station/web` and `@station/api`. The API readiness route reports database,
+  migrations, private `persona-files` storage, Supabase Auth redirects, public
+  URLs, Gemini `station_free_1536` embeddings, NVIDIA platform chat, Stripe
+  test billing/prices, and Upstash operational cache ready/configured. The only
+  caveat is expected: Upstash REST is cache-only with inline fallback and not a
+  worker queue or memory truth. Focused local gates passed: `test:health`,
+  `test:replay-readiness`, `test:billing`, operational-cache service tests,
+  provider-router tests, and retrieval-metadata tests. No product code changed.
+  Recommended next step: run one replay/user-facing rehearsal against the
+  current runtime, not a code repair lane.
 
 ## Near-term rule
 
