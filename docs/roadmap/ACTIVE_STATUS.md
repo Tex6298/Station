@@ -5781,6 +5781,19 @@ when a PR lands, or when validation truth changes.
   generated 31 static pages before the known Windows standalone symlink
   `EPERM`. ARIADNE should rehearse signed owner Memory and Settings AI activity
   at desktop and `390px`, then wake MIMIR with the UI verdict.
+- ARIADNE accepts PR60 on 2026-06-19 after signed Railway browser rehearsal
+  against web/API runtime `a5940db`. `Station Replay Persona` Memory rendered
+  the full lifecycle counters (`7` active, `1` rejected, zero quarantined/
+  expired/superseded/missing lifecycle), active runtime eligibility copy, and
+  held-out rejected runtime copy. `Quarantine`, `Restore`, `Reject`, and
+  `Restore` actions updated card copy plus counters and returned staging to the
+  original `7 active / 1 rejected` state. Desktop and `390px` Memory checks had
+  no document-level overflow or offscreen controls. Settings AI Activity showed
+  useful list-only trace summaries with source, status, duration, token, cost,
+  and whitelisted operational metadata; the AI Activity panel showed no secret
+  shaped values, bearer/authorization/cookie/API-key/password/secret values,
+  URLs, UUID-shaped private ids, raw prompts, completions, provider payloads, or
+  archive excerpts. PR60 can close from ARIADNE UI rehearsal.
 
 ## Near-term rule
 
