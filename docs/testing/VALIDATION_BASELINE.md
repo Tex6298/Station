@@ -8571,6 +8571,41 @@ Scope notes:
   provider migration, Project work, hosted runtime, workers, billing/quota, and
   DexOS work were not changed.
 
+## PR62 Continuity Trust And Runtime Readback
+
+DAEDALUS implementation validation on 2026-06-19:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:continuity` | Pass | 5 tests passed, including continuity provenance/runtime helper coverage. |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-context` | Pass | 7 tests passed; runtime context continuity bucket behavior stayed green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 36 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed. |
+| `git diff --check` | Pass | No whitespace errors; CRLF normalization warnings only for touched files and local triad state. |
+
+Scope notes:
+
+- Runtime context preview is now shared between persona home and Continuity.
+- Persona home keeps compiled-prompt/source-content behavior and now includes
+  the Continuity bucket.
+- Continuity page uses the shared preview without compiled prompt or source
+  body display.
+- Continuity page now shows trust overview counts from existing persona summary
+  data.
+- Timeline records now show bounded provenance labels for type, visibility,
+  source, source version, record version, and dates.
+- Timeline source labels are defensively redacted for UUID-shaped IDs, URLs,
+  secret-shaped values, and token/cookie/authorization/API-key/password/secret
+  assignments.
+- Continuity record creation still uses the existing owner-only route, updates
+  the visible timeline, and refreshes the existing persona summary for overview
+  counts.
+- No public continuity page, publication workflow, Integrity engine,
+  memory/canon candidate workflow, API route behavior, schema, raw prompt
+  display on the Continuity page, raw transcript display, raw trace/event
+  payload display, Redis, Cloudflare, provider migration, Project work, hosted
+  runtime, workers, billing/quota, or DexOS work was changed.
+
 ARGUS review validation on 2026-06-19:
 
 | Command | Result | Notes |

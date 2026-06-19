@@ -1,7 +1,7 @@
 # PR62 - Continuity Trust And Runtime Readback
 
 Date: 2026-06-19
-Status: opened for DAEDALUS
+Status: implemented by DAEDALUS; ready for ARGUS review
 Owner: DAEDALUS implements, ARGUS reviews, ARIADNE rehearses signed owner UI,
 MIMIR decides the next lane.
 
@@ -154,3 +154,79 @@ the review verdict. ARIADNE should check:
   secret-shaped values visible in the new readback.
 
 If blocked, wake MIMIR with the exact blocker. Do not leave the lane silent.
+
+## DAEDALUS Implementation Result
+
+Implemented as an owner-only web/readback slice using existing APIs. No API
+route behavior, schema, publication workflow, Integrity engine, memory/canon
+candidate workflow, provider, Redis, Cloudflare, Project, hosted runtime,
+worker, billing, or DexOS behavior changed.
+
+### Runtime Preview Sharing
+
+- Added `apps/web/components/studio/runtime-context-preview.tsx` as the shared
+  owner runtime context preview component.
+- The persona home now uses the shared component and preserves the existing
+  compiled-prompt/source-content behavior.
+- The Continuity page uses the same component with `showCompiledPrompt={false}`
+  and `showSourceContent={false}`, so it shows bucket/count/source selection
+  without raw system prompt expansion or source body display.
+- The shared runtime preview now includes Continuity as its own bucket beside
+  Canon, Integrity, Memory, and Archive when returned by the API.
+- Copy explains that continuity records are source context for recall and
+  ordering, not system instructions.
+
+### Continuity Page
+
+- `/studio/personas/:personaId/continuity` now has a compact Continuity Trust
+  overview using the existing persona continuity summary:
+  - continuity records;
+  - candidates;
+  - integrity sessions;
+  - memory;
+  - canon;
+  - archive sources.
+- Timeline record creation still uses the existing owner-only
+  `POST /continuity/persona/:personaId/records` route.
+- After creation, the timeline is updated locally and the page refreshes the
+  existing `GET /personas/:id` summary so overview counts can update.
+- Empty copy now tells the owner to add a private marker or link a source when
+  there is something worth preserving.
+
+### Timeline Provenance Labels
+
+- `apps/web/lib/continuity-ui.ts` now provides bounded labels for:
+  - record type;
+  - visibility;
+  - source table and source label;
+  - source version;
+  - record version;
+  - created date;
+  - occurred date when present.
+- Source labels are defensively redacted for UUID-shaped IDs, URLs,
+  secret-shaped values, and token/cookie/authorization/API-key/password/secret
+  assignments.
+
+### Focused Tests
+
+- `apps/web/lib/continuity-ui.test.ts` now covers provenance labels,
+  sanitization, runtime continuity counts, and continuity source grouping.
+
+## Validation Result
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:continuity` | Pass | 5 tests passed, including new continuity provenance/runtime helper coverage. |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-context` | Pass | 7 tests passed; runtime context continuity bucket behavior stayed green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 36 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed. |
+| `git diff --check` | Pass | No whitespace errors; CRLF normalization warnings only for touched files and local triad state. |
+
+## Scope Confirmation
+
+- No public continuity page.
+- No publication workflow, Integrity engine, memory/canon candidate workflow,
+  API route behavior, schema, raw prompt display on the Continuity page, raw
+  transcript display, raw trace/event payload display, Redis, Cloudflare,
+  provider migration, Project work, hosted runtime, worker, billing/quota, or
+  DexOS work.

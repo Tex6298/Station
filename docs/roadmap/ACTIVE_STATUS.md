@@ -5759,6 +5759,29 @@ when a PR lands, or when validation truth changes.
   runtime, worker, billing/quota, or DexOS work was added. ARGUS review is
   requested; if accepted, ARIADNE should rehearse signed owner persona
   management/edit on desktop and 390px mobile.
+- ARIADNE accepts PR61 on 2026-06-19 and MIMIR opens PR62 Continuity Trust And
+  Runtime Readback for DAEDALUS. The lane makes the owner-only Continuity page
+  a dedicated trust stop and separates continuity from memory/archive/integrity
+  in runtime readback.
+- DAEDALUS implements PR62 on 2026-06-19. Runtime context preview was refactored
+  into a shared Studio component; persona home keeps the existing compiled
+  prompt/source-content behavior while gaining the Continuity bucket, and the
+  Continuity page uses the same preview without compiled prompt or source body
+  display. `/studio/personas/:personaId/continuity` now shows a Continuity
+  Trust overview from existing persona summary counts, timeline provenance
+  labels for type/visibility/source/source-version/record-version/dates, and
+  defensive source-label redaction for UUIDs, URLs, secret-shaped values, and
+  token/cookie/authorization/API-key/password/secret assignments. Creating a
+  continuity record still uses the existing owner-only route, updates the
+  visible timeline locally, and refreshes the existing persona summary for
+  overview counts. Validation passed `test:continuity`, `test:persona-context`,
+  `test:studio-ui`, `typecheck`, and `git diff --check`. No public continuity
+  page, publication workflow, Integrity engine, memory/canon candidate workflow,
+  API route behavior, schema, raw prompt display on the Continuity page, raw
+  transcript display, raw trace/event payload display, Redis, Cloudflare,
+  provider migration, Project work, hosted runtime, worker, billing/quota, or
+  DexOS work was added. ARGUS review is requested; if accepted, ARIADNE should
+  rehearse signed owner Continuity on desktop and 390px mobile.
 - ARGUS accepts PR59 Project Scaffolding Closeout on 2026-06-19. Review found
   no overclaim in the proven/deferred split: PR49-PR58 are a private owner
   Phase 2B Project foundation only, while public Projects, member/contributor

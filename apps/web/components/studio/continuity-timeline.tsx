@@ -5,6 +5,7 @@ import { apiGet, apiPost } from "@/lib/api-client";
 import { getSession } from "@/lib/auth";
 import {
   buildContinuitySourceOptions,
+  continuityRecordProvenanceLabels,
   continuityRecordText,
   continuityRecordTimestamp,
   continuityRecordTypeLabel,
@@ -22,6 +23,7 @@ import type {
 interface ContinuityTimelineProps {
   personaId: string;
   personaName: string;
+  onRecordCreated?: () => Promise<void> | void;
 }
 
 interface TimelineFormState {
@@ -52,7 +54,7 @@ const RECORD_TYPES: ContinuityRecordType[] = [
   "publication",
 ];
 
-export function ContinuityTimeline({ personaId, personaName }: ContinuityTimelineProps) {
+export function ContinuityTimeline({ personaId, personaName, onRecordCreated }: ContinuityTimelineProps) {
   const [token, setToken] = useState<string | null>(null);
   const [records, setRecords] = useState<ContinuityRecord[]>([]);
   const [documents, setDocuments] = useState<ContinuityDocumentLink[]>([]);
@@ -153,6 +155,7 @@ export function ContinuityTimeline({ personaId, personaName }: ContinuityTimelin
       );
       setRecords((current) => [response.record, ...current]);
       setForm(DEFAULT_FORM);
+      await onRecordCreated?.();
     } catch (e) {
       setError(e instanceof Error ? e.message : "Could not save continuity record.");
     } finally {
@@ -175,7 +178,7 @@ export function ContinuityTimeline({ personaId, personaName }: ContinuityTimelin
         {error && <div className="space-form-error">{error}</div>}
 
         {sortedRecords.length === 0 ? (
-          <div className="studio-empty">No timeline records yet.</div>
+          <div className="studio-empty">No continuity records yet. Add a private marker or link a document/conversation source when there is something worth preserving.</div>
         ) : (
           <div className="studio-timeline-list">
             {sortedRecords.map((record) => (
@@ -188,11 +191,11 @@ export function ContinuityTimeline({ personaId, personaName }: ContinuityTimelin
                   </div>
                   <h3>{record.title || continuityRecordTypeLabel(record.recordType)}</h3>
                   <p>{continuityRecordText(record)}</p>
-                  {record.source ? (
-                    <div className="studio-timeline-source">
-                      {record.source.label || record.source.table} / v{record.source.version}
-                    </div>
-                  ) : null}
+                  <div className="studio-timeline-source" style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                    {continuityRecordProvenanceLabels(record).map((label) => (
+                      <span key={label}>{label}</span>
+                    ))}
+                  </div>
                 </div>
               </article>
             ))}
