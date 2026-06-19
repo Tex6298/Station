@@ -18,6 +18,9 @@ promised in the Station documents.
 - The first admin moderator console exists at `/forums/moderation`, exposing
   report queue readback and status transitions to admins without fetching queue
   material for anonymous or non-admin users.
+- Moderator console rows now include admin-only safe target context and route
+  hints for supported thread/comment reports, plus separated thread/comment
+  target actions where existing admin moderation routes support them.
 - Reporter-owned moderation status readback exists at `/reports/mine` and
   `/forums/reports` without exposing admin notes, moderator identity,
   moderation action reasons, target bodies, hidden material, or other
@@ -48,8 +51,8 @@ pnpm test:reports
 - Full appeals workflow and participant request-review semantics.
 - Notifications for replies and watched threads.
 - Recognition/witness mechanics that reward thoughtful contribution rather than volume.
-- Deeper moderator/admin console UX: safe target route links, target
-  hide/remove/restore controls, and any future delegated moderator surfaces.
+- Deeper moderator/admin console UX for unsupported document/space/persona/user
+  targets and any future delegated moderator surfaces.
 - Comment/thread authorship provenance beyond user-authored labels; the current
   schema does not prove AI/persona-authored comments or ordinary threads.
 - Subcommunity owner/moderator delegation beyond current platform-admin

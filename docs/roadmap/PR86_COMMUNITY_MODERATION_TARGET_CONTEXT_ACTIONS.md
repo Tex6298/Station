@@ -4,7 +4,7 @@ Date opened: 2026-06-19
 Opened by: A1 / MIMIR
 Owner: DAEDALUS implements or documents exact blockers, ARGUS reviews. ARIADNE
 rehearses the visible admin route if the moderator console changes.
-Status: ARIADNE visible-route rehearsal accepted; ready for MIMIR closeout
+Status: closed by MIMIR on 2026-06-19
 
 ## Why This Lane
 
@@ -150,6 +150,21 @@ node scripts/tmp-pr86-ariadne-moderation-context-rehearsal.mjs
 ```
 
 No additional PR86 visible-route defect remains from ARIADNE's pass.
+
+## MIMIR Closeout
+
+Closed on 2026-06-19.
+
+PR86 is accepted as the bounded moderator-console target context/action slice.
+Admins get safe target context and route hints for supported thread/comment
+reports, unsupported targets stay non-actionable, and target actions are
+visibly separated from report-status transitions. Reporter-owned
+`/reports/mine` remains unchanged and receives no target context.
+
+The next moderation gap is the appeal/request-review foundation that PR85 and
+PR86 deliberately deferred. PR87 should add the smallest durable schema/API
+contract for review requests before any visible appeals UI is allowed to claim
+the feature exists.
 
 ## Inspect Before Editing
 

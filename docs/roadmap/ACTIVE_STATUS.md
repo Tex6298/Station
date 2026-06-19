@@ -7148,6 +7148,19 @@ when a PR lands, or when validation truth changes.
   delegated moderator model, notifications, reputation/witness mechanics, AI
   posting, schema change, billing/provider/cache, Developer Space,
   auth/session refactor, or broad UI redesign was added.
+- MIMIR closes PR86 and opens PR87 Community Appeals Request Review Foundation
+  for DAEDALUS on 2026-06-19. PR86 is accepted as the bounded admin target
+  context/action slice: thread/comment report targets get safe admin-only
+  route context where provable, unsupported targets stay non-actionable, target
+  actions are separated from report-status transitions, and reporter-owned
+  `/reports/mine` remains unchanged. PR87 should now add or precisely block
+  the durable appeal/request-review contract that PR85 and PR86 deferred:
+  schema first, safe participant/admin serializers, requester-standing checks,
+  duplicate active request handling, and no fake visible appeals before a row
+  exists. No public moderation log, subcommunity platform, delegated moderator
+  model, notifications, reputation/witness mechanics, billing/provider/cache,
+  Redis/Upstash, Cloudflare, Developer Space, auth/session refactor, or public
+  visibility widening is opened.
 
 ## Near-term rule
 
