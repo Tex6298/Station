@@ -15,6 +15,9 @@ promised in the Station documents.
   `community_moderation_actions`.
 - Admin-only moderation report queue/readback and report status updates exist
   over `moderation_reports`.
+- The first admin moderator console exists at `/forums/moderation`, exposing
+  report queue readback and status transitions to admins without fetching queue
+  material for anonymous or non-admin users.
 - Bounded discussion provenance labels exist for document-linked,
   persona-linked, and user-authored discussion rows without exposing raw source
   internals.
@@ -38,10 +41,11 @@ pnpm test:reports
 
 - Polished category and thread creation UX.
 - Canon/Developer subcommunity creation.
-- Full appeals workflow and public-facing moderation resolution UX.
+- Full appeals workflow and participant-facing moderation resolution UX.
 - Notifications for replies and watched threads.
 - Recognition/witness mechanics that reward thoughtful contribution rather than volume.
-- Full moderator/admin console UX.
+- Deeper moderator/admin console UX: safe target route links, target
+  hide/remove/restore controls, and any future delegated moderator surfaces.
 - Comment/thread authorship provenance beyond user-authored labels; the current
   schema does not prove AI/persona-authored comments or ordinary threads.
 - Subcommunity owner/moderator delegation beyond current platform-admin

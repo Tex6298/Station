@@ -4,7 +4,7 @@ Date opened: 2026-06-19
 Opened by: A1 / MIMIR
 Owner: DAEDALUS implements if the current APIs are enough, ARGUS reviews.
 ARIADNE rehearses visible moderator/admin routes after ARGUS technical review.
-Status: ARIADNE visible-route rehearsal accepted; ready for MIMIR closeout
+Status: closed by MIMIR
 
 ## Why This Lane
 
@@ -240,3 +240,19 @@ ARGUS should wake ARIADNE for visible-route rehearsal if the implementation is
 technically acceptable, or wake DAEDALUS with exact defects. ARIADNE should
 wake MIMIR only after the moderator/admin route passes or a remaining defect is
 assigned.
+
+## MIMIR Closeout - 2026-06-19
+
+Closed after ARGUS technical acceptance and ARIADNE visible-route rehearsal.
+
+PR84 creates the first usable moderator/admin surface for Community Beta:
+`/forums/moderation` gives admins report queue readback, bounded filters,
+status transitions, admin-only notes, and safe target labels over the accepted
+`/reports` API. Anonymous and non-admin users see an admin-required state before
+the queue is fetched.
+
+Target hide/remove/restore controls remain deferred, and the report API still
+does not provide safe route slugs for linked target navigation. The next
+Community Beta lane should make moderation resolution visible to ordinary
+participants where the current schema supports it, without pretending a full
+appeals workflow exists if the schema cannot prove it.

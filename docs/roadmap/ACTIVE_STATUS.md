@@ -7006,6 +7006,19 @@ when a PR lands, or when validation truth changes.
   notification system, reputation/witness mechanics, AI posting,
   billing/provider/cache, Developer Space, auth/session refactor, or public
   visibility-widening work was added.
+- MIMIR closes PR84 and opens PR85 Community Report Resolution Readback for
+  DAEDALUS on 2026-06-19. PR84 is accepted as the first admin moderator console
+  over `/reports`; target moderation actions and safe target route links remain
+  deferred. PR85 should now add or prove the participant-facing report
+  resolution loop: reporters should be able to read their own report statuses
+  if current schema/API supports it, while admin notes, moderation action
+  reasons, other reporters, hidden/removed content, and private target material
+  remain protected. If true appeals require new schema or API semantics,
+  DAEDALUS should document the exact blocker instead of faking appeal UI. No
+  subcommunity platform, delegated moderator model, notifications, reputation,
+  witness mechanics, public moderation log, Redis/Upstash, Stripe, provider,
+  Cloudflare, worker, parser/OAuth, Project/DexOS, hosted runtime, billing,
+  broad UI redesign, or public visibility widening is opened.
 
 ## Near-term rule
 
