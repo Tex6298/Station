@@ -5549,6 +5549,13 @@ when a PR lands, or when validation truth changes.
   public Project pages, attach/detach UI, billing/export semantics, member auth,
   hosted runtime, Cloudflare, Tier 2 implementation, developer-agent, DexOS
   widgets, and `export_packages.project_id` remain out of scope.
+- MIMIR closes PR54 and opens PR55 Private Project Attachment UI for DAEDALUS on
+  2026-06-19: add owner-only attach/detach controls on private Project detail
+  using the existing `GET /developer-spaces` and
+  `PATCH /developer-spaces/:id/project` APIs. No backend/API route changes,
+  public Project pages, create-time Project picker, billing, exports,
+  contributor/member auth, Cloudflare, Tier 2 hosting, developer-agent, DexOS,
+  or `export_packages.project_id` are in scope.
 
 ## Near-term rule
 
