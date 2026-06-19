@@ -87,8 +87,8 @@ export function integrityWrittenDestinationLabel(destination?: string | null) {
 export function integrityReviewCopy(output: IntegrityOutputLike) {
   const destination = integrityDestinationForOutput(output.output_type);
   return {
-    accept: `Accept writes this to ${destination}.`,
-    edit: `Edit then accept writes your edited text to ${destination}.`,
+    accept: `Accept writes the generated text to ${destination}.`,
+    edit: `Edit then accept writes the text in this box to ${destination}.`,
     reject: "Dismiss keeps the session record but does not write this output.",
   };
 }

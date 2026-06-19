@@ -1,7 +1,7 @@
 # PR63 - Integrity Review Trust Readback
 
 Date: 2026-06-19
-Status: implemented by DAEDALUS; ready for ARGUS review
+Status: accepted by ARGUS; ready for ARIADNE rehearsal
 Owner: DAEDALUS implements, ARGUS reviews, ARIADNE rehearses signed owner UI,
 MIMIR decides the next lane.
 
@@ -70,8 +70,8 @@ Implement a bounded owner-only Integrity review UX/readback slice:
   - current persona continuity summary counts if already available from
     `GET /personas/:id`.
 - Make the output review cards explicit:
-  - "Accept writes this to Memory";
-  - "Edit then accept writes your edited text to Canon";
+  - "Accept writes the generated text to Memory";
+  - "Edit then accept writes the text in this box to Canon";
   - "Dismiss keeps the session record but does not write this output";
   - show the destination after write using `written_to`.
 - Refresh or locally update visible history/overview after accept/edit/reject.
@@ -192,8 +192,8 @@ hosted runtime, worker, billing, or DexOS behavior changed.
 ### Review Card Write Behavior
 
 - Each output card now explains before writing:
-  - accepting writes to the destination;
-  - editing then accepting writes the edited text to the destination;
+  - accepting writes the generated text to the destination;
+  - editing then accepting writes the text in the edit box to the destination;
   - dismissing keeps the session record but does not write the output.
 - Destination copy maps:
   - `memory_candidate` and `boundary` to Memory;
@@ -235,3 +235,30 @@ hosted runtime, worker, billing, or DexOS behavior changed.
   runtime, worker, billing/quota, or DexOS work.
 - The active answer/summary UI remains the only place where the owner sees and
   edits their own session text.
+
+## ARGUS Review Result
+
+Accepted on 2026-06-19 with one copy correction.
+
+- Confirmed the destination labels match the existing server write path:
+  - `memory_candidate` and `boundary` write to Memory;
+  - `canon_candidate` writes to Canon;
+  - `preference` and `theme` write to the Preference profile.
+- Tightened review-card copy so Accept says it writes the generated text, while
+  Edit then accept says it writes the text in the edit box.
+- Confirmed accept/edit/reject still use the existing owner-scoped
+  `PATCH /integrity/outputs/:outputId` route, then refresh history and persona
+  summary readback.
+- Confirmed no new raw trace, raw API payload, URL, bearer value, token/API-key/
+  cookie/password/secret assignment, secret-shaped value, or public/private
+  route behavior was added.
+
+ARGUS validation:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:integrity` | Pass | 2 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-context` | Pass | 7 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 39 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web build` | Partial / known Windows failure | Next compiled successfully, linted/typechecked, collected page data, and generated 31 static pages, then failed during standalone traced-file symlink copy with Windows `EPERM`. |

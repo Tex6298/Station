@@ -8628,6 +8628,31 @@ Scope notes:
   payload display, Redis, Cloudflare, provider migration, Project work, hosted
   runtime, workers, billing/quota, or DexOS work was changed.
 
+ARGUS review validation on 2026-06-19:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:continuity` | Pass | 5 tests passed, including strengthened continuity provenance/runtime helper coverage. |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-context` | Pass | 7 tests passed; runtime context owner behavior stayed green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 36 tests passed, covering the PR60/PR61 redaction helpers after the shared replacement fix. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web build` | Partial / known Windows failure | Next compiled successfully, linted/typechecked, collected page data, and generated 31 static pages, then failed during standalone traced-file symlink copy with Windows `EPERM`. |
+| `git diff --check` | Pass | No whitespace errors; CRLF normalization warnings only for touched files and local triad state. |
+
+ARGUS scope notes:
+
+- ARGUS patched Continuity-page runtime source title/reason sanitization when
+  source body display is disabled.
+- ARGUS strengthened continuity provenance redaction for underscore-style secret
+  values such as `sk_live_*`, bearer values, and `x-api-key`.
+- ARGUS fixed the shared literal `$1=[redacted]` replacement bug across AI
+  observability, persona lifecycle, and continuity helper redactors.
+- ARGUS fixed a new web-build lint error in the Continuity Trust heading.
+- No API route behavior, schema, public continuity page, publication workflow,
+  Integrity engine, memory/canon candidate workflow, provider migration, Redis,
+  Cloudflare, Project work, hosted runtime, worker, billing/quota, or DexOS work
+  changed.
+
 ## PR63 Integrity Review Trust Readback
 
 DAEDALUS implementation validation on 2026-06-19:
@@ -8658,23 +8683,20 @@ ARGUS review validation on 2026-06-19:
 
 | Command | Result | Notes |
 | --- | --- | --- |
-| `npm exec --yes pnpm@10.32.1 -- run test:continuity` | Pass | 5 tests passed, including strengthened continuity provenance/runtime helper coverage. |
+| `npm exec --yes pnpm@10.32.1 -- run test:integrity` | Pass | 2 tests passed; server review/write destinations stayed owner-scoped and aligned with UI copy. |
 | `npm exec --yes pnpm@10.32.1 -- run test:persona-context` | Pass | 7 tests passed; runtime context owner behavior stayed green. |
-| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 36 tests passed, covering the PR60/PR61 redaction helpers after the shared replacement fix. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 39 tests passed, including the tightened Integrity review-copy helper. |
 | `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed. |
 | `npm exec --yes pnpm@10.32.1 -- --filter @station/web build` | Partial / known Windows failure | Next compiled successfully, linted/typechecked, collected page data, and generated 31 static pages, then failed during standalone traced-file symlink copy with Windows `EPERM`. |
-| `git diff --check` | Pass | No whitespace errors; CRLF normalization warnings only for touched files and local triad state. |
 
 ARGUS scope notes:
 
-- ARGUS patched Continuity-page runtime source title/reason sanitization when
-  source body display is disabled.
-- ARGUS strengthened continuity provenance redaction for underscore-style secret
-  values such as `sk_live_*`, bearer values, and `x-api-key`.
-- ARGUS fixed the shared literal `$1=[redacted]` replacement bug across AI
-  observability, persona lifecycle, and continuity helper redactors.
-- ARGUS fixed a new web-build lint error in the Continuity Trust heading.
-- No API route behavior, schema, public continuity page, publication workflow,
-  Integrity engine, memory/canon candidate workflow, provider migration, Redis,
-  Cloudflare, Project work, hosted runtime, worker, billing/quota, or DexOS work
-  changed.
+- ARGUS confirmed the destination readback matches `writeAcceptedOutput`:
+  memory candidates and boundaries write Memory, canon candidates write Canon,
+  and preferences/themes write the Preference profile.
+- ARGUS tightened review-card copy so Accept clearly writes generated text,
+  while Edit then accept writes the text in the edit box.
+- No API route behavior, schema, Integrity engine, question bank,
+  prompt/model/provider behavior, extraction tuning, public Integrity page,
+  publication workflow, Redis, Cloudflare, Project work, hosted runtime, worker,
+  billing/quota, or DexOS work changed.

@@ -22,8 +22,8 @@ test("integrity UI helpers label sessions, clusters, statuses, and destinations"
 test("integrity review copy says what each action writes or preserves", () => {
   const copy = integrityReviewCopy({ output_type: "boundary", status: "pending" });
 
-  assert.equal(copy.accept, "Accept writes this to Memory.");
-  assert.equal(copy.edit, "Edit then accept writes your edited text to Memory.");
+  assert.equal(copy.accept, "Accept writes the generated text to Memory.");
+  assert.equal(copy.edit, "Edit then accept writes the text in this box to Memory.");
   assert.match(copy.reject, /does not write/);
 });
 

@@ -5804,6 +5804,21 @@ when a PR lands, or when validation truth changes.
   billing/quota, or DexOS work was added. ARGUS review is requested; if
   accepted, ARIADNE should rehearse signed owner Integrity review on desktop
   and 390px mobile.
+- ARGUS accepts PR63 Integrity Review Trust Readback on 2026-06-19 with one
+  copy correction: Accept now says it writes generated text, while Edit then
+  accept says it writes the text in the edit box. ARGUS confirmed the UI
+  destination labels match the existing server write path, the owner-scoped
+  `PATCH /integrity/outputs/:outputId` route remains unchanged, history/persona
+  refresh behavior is real, and no raw trace/API payload, URL, bearer value,
+  token/API-key/cookie/password/secret assignment, secret-shaped value, public
+  Integrity route, schema, engine, prompt/model/provider, extraction, Redis,
+  Cloudflare, Project, hosted runtime, worker, billing/quota, or DexOS scope was
+  added. Validation passed `test:integrity`, `test:persona-context`,
+  `test:studio-ui`, and `typecheck`; web build compiled, type/linted, collected
+  data, and generated 31 pages before the known Windows standalone symlink
+  `EPERM`. ARIADNE should rehearse signed owner Integrity review on desktop and
+  `390px` mobile; MIMIR can treat PR63 as code-review accepted pending that UI
+  rehearsal.
 - ARGUS accepts PR59 Project Scaffolding Closeout on 2026-06-19. Review found
   no overclaim in the proven/deferred split: PR49-PR58 are a private owner
   Phase 2B Project foundation only, while public Projects, member/contributor
