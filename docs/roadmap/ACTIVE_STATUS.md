@@ -6480,6 +6480,26 @@ when a PR lands, or when validation truth changes.
   billing truth, provider, Cloudflare, worker, parser/OAuth, Project/DexOS,
   hosted runtime, broad UI, dark-pattern copy, raw Stripe identifiers, or
   secrets were added.
+- ARGUS accepts PR74 Billing And Entitlement Clarity on 2026-06-19 as a narrow
+  billing/entitlement clarity implementation. Review confirmed helper logic
+  only changes client-side copy/control choice from existing `/billing/me`
+  fields, lower-tier cards for higher-tier users no longer use upgrade-style
+  copy, inactive same-tier and higher-tier actions still use existing
+  authenticated Checkout routes, and active subscription management still uses
+  the existing portal route. Customer/profile/subscription binding and
+  server-authoritative limits were not weakened, and subscription entitlements
+  are now distinguished from token credits without claiming live-money or
+  production billing readiness. Validation passed `test:billing`,
+  `test:token-credits`, `test:spaces`, `test:developer-spaces`,
+  `test:studio-ui`, `typecheck`, and `git diff --check`; the web build
+  compiled, linted/typechecked, collected page data, and generated 31 static
+  pages before the known Windows standalone symlink `EPERM`. No Stripe
+  architecture, pricing strategy, new tiers, coupons, trials, tax, invoices,
+  Connect, marketplace, usage billing, client-only entitlement grant,
+  Redis/Upstash billing truth, provider routing, Cloudflare, worker,
+  parser/OAuth, Project/DexOS, hosted runtime, broad UI, dark-pattern copy, raw
+  Stripe identifiers, or secrets were added. ARIADNE should rehearse `/billing`
+  as a signed owner on desktop and `390px` mobile before MIMIR closes PR74.
 
 ## Near-term rule
 

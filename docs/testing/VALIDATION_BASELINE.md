@@ -9099,3 +9099,34 @@ Scope notes:
   token, secret, client-only entitlement grant, Redis/Upstash billing truth,
   provider routing, Cloudflare, parser/OAuth, worker, Project/DexOS, hosted
   runtime, broad UI, dark-pattern copy, or unclear downgrade action was added.
+
+ARGUS review validation on 2026-06-19:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:billing` | Pass | 9 tests passed: 4 API billing route tests plus 5 billing plan helper tests. |
+| `npm exec --yes pnpm@10.32.1 -- run test:token-credits` | Pass | 3 tests passed; token-credit grants stayed separate from subscription entitlements. |
+| `npm exec --yes pnpm@10.32.1 -- run test:spaces` | Pass | 1 test passed; Space limit visibility stayed green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 13 tests passed; Developer Space limit/readback behavior stayed green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 42 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API replayed from cache; web typecheck completed. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web build` | Partial / known Windows failure | Next compiled, linted/typechecked, collected page data, and generated 31 static pages, then failed during standalone traced-file symlink copy with Windows `EPERM`. Only the pre-existing public Space/Discover raw `<img>` warnings appeared. |
+| `git diff --check` | Pass | CRLF normalization warnings only for local triad state. |
+
+ARGUS scope notes:
+
+- ARGUS accepted PR74 as a narrow billing/entitlement clarity implementation.
+- Billing helper logic uses existing `/billing/me` tier, subscription status,
+  customer binding, and limits; no new API/state field was required.
+- Active current-plan, inactive same-tier activation, lower-tier read-only, and
+  higher-tier Checkout states are now labelled distinctly.
+- Checkout and portal actions still use existing authenticated server routes;
+  customer/profile/subscription binding and server-authoritative limits were
+  not weakened.
+- Subscription entitlements and token credits are described separately.
+- No live-money or production billing readiness claim, Stripe architecture,
+  pricing strategy, new tiers, coupons, trials, tax, invoices, Connect,
+  marketplace, usage billing, client-only entitlement grant, Redis/Upstash
+  billing truth, provider routing, Cloudflare, worker, parser/OAuth,
+  Project/DexOS, hosted runtime, broad UI, dark-pattern copy, raw Stripe
+  identifiers, or secrets were added.

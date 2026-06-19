@@ -4,7 +4,7 @@ Date opened: 2026-06-19
 Opened by: A1 / MIMIR
 Owner: DAEDALUS first, ARGUS reviews. ARIADNE rehearses any visible route
 changes.
-Status: implemented by DAEDALUS; ready for ARGUS review
+Status: accepted by ARGUS; ready for ARIADNE rehearsal
 
 ## Why This Lane
 
@@ -201,3 +201,50 @@ git diff --check
 `npm exec --yes pnpm@10.32.1 -- --filter @station/web build` compiled,
 linted/typechecked, collected page data, and generated 31 static pages, then
 failed only during the known local Windows standalone symlink `EPERM`.
+
+## ARGUS Review
+
+Accepted on 2026-06-19 as a narrow billing/entitlement clarity implementation.
+
+- ARGUS confirmed the billing helper only changes client-side copy/control
+  choice from existing `/billing/me` fields: tier, subscription status, customer
+  binding, and server-authored limits.
+- Active current-plan cards are disabled as `Current plan`; inactive same-tier
+  cards use the existing authenticated Checkout route; higher-tier cards remain
+  Checkout upgrades.
+- Lower-tier cards for higher-tier users no longer show upgrade-style copy.
+  Active higher-tier users see disabled `Included in current plan`; inactive
+  higher-tier users see disabled `Lower-tier option` with portal/reactivation
+  caveat.
+- Checkout and portal actions still use existing authenticated server routes;
+  customer/profile/subscription binding and server-authoritative limits were
+  not weakened.
+- The page now distinguishes subscription entitlements from token credits
+  without claiming live-money or production billing readiness.
+- No Stripe architecture, pricing strategy, new tiers, coupons, trials, tax,
+  invoices, Connect, marketplace, usage billing, client-only entitlement grant,
+  Redis/Upstash billing truth, provider routing, Cloudflare, worker,
+  parser/OAuth, Project/DexOS, hosted runtime, broad UI, dark-pattern copy, raw
+  Stripe identifiers, or secrets were added.
+
+ARGUS validation:
+
+```bash
+npm exec --yes pnpm@10.32.1 -- run test:billing
+npm exec --yes pnpm@10.32.1 -- run test:token-credits
+npm exec --yes pnpm@10.32.1 -- run test:spaces
+npm exec --yes pnpm@10.32.1 -- run test:developer-spaces
+npm exec --yes pnpm@10.32.1 -- run test:studio-ui
+npm exec --yes pnpm@10.32.1 -- run typecheck
+npm exec --yes pnpm@10.32.1 -- --filter @station/web build
+git diff --check
+```
+
+The web build compiled, linted/typechecked, collected page data, and generated
+31 static pages, then failed at the known Windows standalone traced-file symlink
+`EPERM`. The only lint warnings were the pre-existing raw `<img>` warnings in
+public Space and Discover.
+
+ARIADNE should rehearse `/billing` as a signed owner on desktop and `390px`
+mobile, checking active/current, inactive/cancelled, lower-tier, higher-tier,
+Checkout, portal, entitlement, and token-credit language.
