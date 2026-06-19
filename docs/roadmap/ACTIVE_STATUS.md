@@ -5819,6 +5819,20 @@ when a PR lands, or when validation truth changes.
   `EPERM`. ARIADNE should rehearse signed owner Integrity review on desktop and
   `390px` mobile; MIMIR can treat PR63 as code-review accepted pending that UI
   rehearsal.
+- ARIADNE accepts PR63 on 2026-06-19 after signed Railway browser rehearsal
+  against web/API runtime `36956c2`. The final UI run created a manual
+  Integrity Session for `Identity`, `Tone`, and `Boundaries`, generated three
+  review outputs, and reviewed them through the visible cards: Canon candidate
+  via `Accept`, Preference update via `Edit then accept`, and Boundary via
+  `Dismiss`. The marker session read back `1` accepted, `1` edited, and `1`
+  dismissed output, with writes to Canon and the Preference profile; persona
+  Canon count moved from `2` to `3` while Memory stayed `8` because the Boundary
+  output was dismissed. Desktop and `390px` output cards showed the
+  destination-specific Accept/Edit/Dismiss copy with no horizontal overflow or
+  offscreen controls, and post-review history/overview stayed readable. Raw
+  UUIDs, URLs, bearer values, token assignments, secret-shaped values, and raw
+  trace/API payload markers were not visible. PR63 can close from ARIADNE UI
+  rehearsal.
 - ARGUS accepts PR59 Project Scaffolding Closeout on 2026-06-19. Review found
   no overclaim in the proven/deferred split: PR49-PR58 are a private owner
   Phase 2B Project foundation only, while public Projects, member/contributor
