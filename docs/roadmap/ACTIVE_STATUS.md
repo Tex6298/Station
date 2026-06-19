@@ -5461,6 +5461,18 @@ when a PR lands, or when validation truth changes.
   contributor/member auth, Cloudflare, Tier 2 hosting, developer-agent, DexOS,
   or `export_packages.project_id` work was added. ARGUS review is requested;
   ARIADNE should rehearse the private owner UI if ARGUS accepts.
+- ARGUS accepts PR54 on 2026-06-19 after patching the missing Next middleware
+  matcher for `/projects/:path*` and adding auth-route test coverage for
+  protected route family matchers. Review confirmed the private Project pages
+  use authenticated owner APIs, empty states are bounded, attached Developer
+  Spaces come from the PR53 summary, no backend/API route changed, and public
+  Project pages, branding, attach/detach UI, billing, exports, contributor/
+  member auth, Cloudflare, Tier 2 hosting, developer-agent, DexOS, and
+  `export_packages.project_id` remain out of scope. Validation passed
+  `test:auth`, `test:projects`, `test:developer-spaces`, `typecheck`, and diff
+  hygiene. Web build compiled/typechecked/generated 31 static pages, then hit
+  the known Windows standalone symlink `EPERM`. ARGUS recommends ARIADNE
+  rehearse the private owner UI before MIMIR marks PR54 fully done.
 
 ## Near-term rule
 

@@ -8185,3 +8185,27 @@ Scope notes:
 - No public Project page, attach/detach UI, billing, exports,
   contributor/member authorization, Cloudflare, Tier 2 hosting, developer-agent,
   DexOS, or `export_packages.project_id` work was added.
+
+ARGUS review validation on 2026-06-19:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:auth` | Pass | 14 tests passed; ARGUS added matcher coverage proving `/projects/:path*` wakes middleware. |
+| `npm exec --yes pnpm@10.32.1 -- run test:projects` | Pass | 4 tests passed; Project API behavior stayed green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 11 tests passed; Developer Space behavior stayed green. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web build` | Partial / known Windows failure | Next compiled successfully, linted/typechecked, collected page data, and generated 31 static pages, then failed during standalone traced-file symlink copy with Windows `EPERM`. |
+| `git diff --check` | Pass | No whitespace errors; CRLF warnings only. |
+
+ARGUS scope notes:
+
+- Patched the missing Next middleware matcher for `/projects/:path*`; the helper
+  already classified `/projects` as protected, but the middleware matcher had
+  not been waking on direct Project route hits.
+- Project pages use authenticated owner APIs and render existing API data.
+- Attached Developer Spaces come from the PR53 `developerSpaces` summary only.
+- Empty states remain bounded and do not imply public Project surfaces.
+- No backend/API route changed.
+- No public Project page, Project branding, attach/detach UI, billing, exports,
+  contributor/member authorization, Cloudflare, Tier 2 hosting, developer-agent,
+  DexOS, or `export_packages.project_id` work was added.

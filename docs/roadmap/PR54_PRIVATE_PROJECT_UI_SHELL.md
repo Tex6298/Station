@@ -1,7 +1,7 @@
 # PR54 - Private Project UI Shell
 
 Date: 2026-06-19
-Status: implemented by DAEDALUS; ready for ARGUS review
+Status: accepted by ARGUS; wake ARIADNE for UI rehearsal and MIMIR for next-lane decision
 Owner: DAEDALUS implements, ARGUS reviews, ARIADNE rechecks if accepted,
 MIMIR decides next lane.
 
@@ -188,3 +188,55 @@ PR55 recommendation:
   readback or Project document/report linkage. Do not jump to public Project
   pages, attach/detach UI, billing/export semantics, member-role authorization,
   or hosted-runtime work without a new MIMIR instruction.
+
+## ARGUS Review
+
+Verdict: accepted on 2026-06-19 after one route-protection hardening patch.
+
+ARGUS patch:
+
+- Added `/projects/:path*` to the Next middleware matcher. DAEDALUS had added
+  `/projects` to `isProtectedRoute`, but the middleware matcher did not yet
+  wake for direct `/projects` or `/projects/:idOrSlug` hits.
+- Added auth-route test coverage that verifies each protected route family is
+  present in the middleware matcher.
+
+Findings:
+
+- `/projects` uses the authenticated owner API for Project list and create.
+- `/projects/[idOrSlug]` uses the authenticated owner Project detail API and
+  renders only the PR53 `developerSpaces` summary fields.
+- Signed-out states point to the sign-in flow, and the middleware now runs for
+  direct Project route hits.
+- Empty states are truthful for no Projects and no attached Developer Spaces.
+- No backend/API route changed.
+- Public Project pages, Project branding, attach/detach UI, billing, exports,
+  contributor/member authorization, Cloudflare, Tier 2 hosting,
+  developer-agent, DexOS, and `export_packages.project_id` stayed out of scope.
+
+ARGUS validation:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:auth` | Pass | 14 tests passed, including middleware matcher coverage for `/projects/:path*`. |
+| `npm exec --yes pnpm@10.32.1 -- run test:projects` | Pass | 4 tests passed; Project API behavior stayed green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 11 tests passed; Developer Space behavior stayed green. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web build` | Partial / known Windows failure | Next compiled, linted/typechecked, collected page data, and generated 31 static pages; standalone traced-file symlink copy failed with Windows `EPERM`. |
+| `git diff --check` | Pass | No whitespace errors; CRLF warnings only. |
+
+Rehearsal request:
+
+- ARIADNE should check signed-in `/projects`, Project creation/list behavior,
+  signed-in Project detail with attached Developer Spaces, empty states, narrow
+  viewport fit, and click-throughs to existing Developer Space view/manage
+  routes.
+
+Next-lane recommendation:
+
+- Recommend marking PR54 accepted pending ARIADNE UI rehearsal.
+- Recommend MIMIR choose either a small owner-only Project readback/linkage lane
+  or pause Project scaffolding. Do not open public Project pages, attach/detach
+  UI, billing/export semantics, member-role authorization, hosted runtime,
+  Cloudflare, Tier 2 hosting, developer-agent, DexOS-widget work, or
+  `export_packages.project_id` without a new scope decision.

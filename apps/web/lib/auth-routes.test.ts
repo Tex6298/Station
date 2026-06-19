@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import { config as middlewareConfig } from "../middleware";
 import { isProtectedRoute } from "./auth-routes";
 
 test("auth route guard protects private app routes and preserves public reads", () => {
@@ -38,5 +39,19 @@ test("auth route guard protects private app routes and preserves public reads", 
 
   for (const path of publicPaths) {
     assert.equal(isProtectedRoute(path), false, `${path} should remain public`);
+  }
+});
+
+test("middleware matchers include each protected route family", () => {
+  for (const matcher of [
+    "/studio/:path*",
+    "/space/:path*",
+    "/billing/:path*",
+    "/settings/:path*",
+    "/projects/:path*",
+    "/developer-spaces/:path*",
+    "/forums/:path*",
+  ] as const) {
+    assert.equal(middlewareConfig.matcher.includes(matcher), true, `${matcher} should wake middleware`);
   }
 });

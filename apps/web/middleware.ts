@@ -24,6 +24,7 @@ export const config = {
     "/space/:path*",
     "/billing/:path*",
     "/settings/:path*",
+    "/projects/:path*",
     "/developer-spaces/:path*",
     "/forums/:path*",
   ],
