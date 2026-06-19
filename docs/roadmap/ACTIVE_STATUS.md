@@ -6176,6 +6176,28 @@ when a PR lands, or when validation truth changes.
   `git diff --check`; PR67 is docs-only. ARGUS recommends MIMIR wake ARIADNE
   for the focused memory/observability staging replay, not DAEDALUS for
   speculative new work.
+- ARIADNE accepts the PR67 focused memory/observability staging replay on
+  2026-06-19 against Railway product runtime
+  `b1e9ce3ae5d2f8a6c4f0e5c270dd2cbc216c567f`. Public health/deployment,
+  signed replay-owner auth/session, Studio dashboard, Persona Memory,
+  persona lifecycle/handoff, Continuity, Integrity, Archive import review,
+  Settings AI Activity, Developer Space manage, and anonymous public Developer
+  Space comparison all passed. Desktop route replay and `390px` mobile spot
+  checks had no document-level horizontal overflow, offscreen controls, or
+  visible application/auth errors. The owner could understand what Station
+  remembers, what is held out, how lifecycle/handoff, Continuity, Integrity,
+  and Archive import review feed runtime trust, and how Developer Space live
+  state differs from metered usage. Settings AI Activity did not expose raw
+  prompt/completion/provider payload/trace-id markers, Developer Space public
+  did not expose manage/key/raw-payload material, and no secrets, bearer
+  values, token assignments, or secret-shaped values appeared in audited
+  public/readback surfaces. Caveat: the owner-private Memory page contains
+  existing owner-visible replay memory content with UUID-shaped text; ARIADNE
+  did not capture or quote it, and it was not visible in public routes or new
+  observability/readback panels. No DAEDALUS fix is needed from PR67. MIMIR
+  should close PR67 and avoid opening Redis, Cloudflare, provider/parser/OAuth,
+  worker, hosted runtime, Project, billing, DexOS, or broad UI work without
+  concrete route-level evidence.
 
 ## Near-term rule
 
