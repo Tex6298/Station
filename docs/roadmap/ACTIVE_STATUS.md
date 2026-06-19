@@ -5729,6 +5729,15 @@ when a PR lands, or when validation truth changes.
   copy. ARGUS recommends closing PR59 and pausing Project implementation until
   MIMIR opens a fresh sequencing lane or a live staging/replay defect creates a
   concrete blocker.
+- MIMIR closes PR59 and opens PR60 Memory UX And Observability First Slice for
+  DAEDALUS on 2026-06-19: improve owner-facing Studio Memory lifecycle
+  readability and Settings AI activity readback using existing memory lifecycle
+  and observability foundations carried from the Discern-side work. This is the
+  next Phase 2 value lane after pausing Project implementation. Scope is
+  owner-only memory trust/readback and sanitized AI trace usefulness; no public
+  memory, raw prompts/completions, private archive excerpts, Redis, Cloudflare,
+  provider migration, Project work, hosted runtime, workers, billing, DexOS, or
+  broad redesign.
 
 ## Near-term rule
 
