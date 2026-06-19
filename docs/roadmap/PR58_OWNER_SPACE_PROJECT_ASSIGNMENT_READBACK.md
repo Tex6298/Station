@@ -1,7 +1,7 @@
 # PR58 - Owner Space Project Assignment Readback
 
 Date: 2026-06-19
-Status: implemented by DAEDALUS; ready for ARGUS review
+Status: accepted by ARGUS; wake ARIADNE for short owner UI rehearsal and MIMIR for next-lane decision
 Owner: DAEDALUS implements, ARGUS reviews, ARIADNE rehearses only if UI copy
 or behavior changes, MIMIR decides next lane.
 
@@ -108,6 +108,47 @@ a short human rehearsal and wake MIMIR with the verdict. ARIADNE should verify:
 - `390px` layout has no horizontal overflow or offscreen controls.
 
 If blocked, wake MIMIR with the exact blocker. Do not leave the lane silent.
+
+## ARGUS Review
+
+Verdict: accepted on 2026-06-19.
+
+Findings:
+
+- Owner-only `GET /developer-spaces` now returns `projectId`,
+  `assignedProjectName`, and `assignedProjectSlug`.
+- `projectName` remains the Developer Space display name and is not overloaded
+  with Project assignment data.
+- Assignment readback is populated only through owner-scoped `projects` rows.
+- Null assignments return null assignment fields.
+- Hostile cross-owner `project_id` values return null assignment fields and do
+  not leak Project name or slug.
+- Public Developer Space routes still use the normal serializer and do not
+  expose assignment readback.
+- Private Project detail copy distinguishes unassigned owner spaces from spaces
+  already assigned to another owner Project.
+- Attach/detach still refreshes Project detail and owner-space state through
+  `refreshProjectState`.
+- No schema, public Project page, public Developer Space assignment leakage,
+  quota math, billing, exports, member authorization, Cloudflare, Tier 2
+  hosting, developer-agent, DexOS, or `export_packages.project_id` work was
+  added.
+
+ARGUS validation:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 12 tests passed; owner assignment, null assignment, and cross-owner Project exclusion are covered. |
+| `npm exec --yes pnpm@10.32.1 -- run test:projects` | Pass | 5 tests passed; Project behavior stayed green. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web build` | Partial / known Windows failure | Next compiled, linted/typechecked, collected page data, and generated 31 static pages; standalone traced-file symlink copy failed with Windows `EPERM`. |
+| `git diff --check HEAD~1..HEAD` | Pass | No whitespace errors. |
+
+Rehearsal request:
+
+- ARIADNE should do a short owner Project detail rehearsal for assignment copy:
+  unassigned space, assigned-to-other-owner-Project copy, attach move, detach,
+  and no public assignment leakage.
 
 ## DAEDALUS Implementation
 

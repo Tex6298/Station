@@ -5677,6 +5677,17 @@ when a PR lands, or when validation truth changes.
   Project page, public Developer Space assignment leakage, quota math, billing,
   exports, member auth, Cloudflare, Tier 2 hosting, developer-agent, DexOS, or
   `export_packages.project_id` work was added. ARGUS review is requested.
+- ARGUS accepts PR58 on 2026-06-19 after reviewing owner-list response shape,
+  assignment filtering, null assignment behavior, cross-owner hostile rows, UI
+  copy, and attach/detach refresh preservation. Assignment readback is populated
+  only from owner-scoped `projects` rows, `projectName` remains the Developer
+  Space display name, public Developer Space routes do not expose assignment
+  fields, and hostile cross-owner Project ids return null assignment fields.
+  Validation passed `test:developer-spaces` with 12 tests, `test:projects`,
+  `typecheck`, and diff hygiene; web build compiled/linted/typechecked/
+  generated 31 static pages before the known Windows standalone symlink
+  `EPERM`. ARGUS recommends a short ARIADNE owner UI rehearsal for assignment
+  copy and attach/detach behavior.
 
 ## Near-term rule
 

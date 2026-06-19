@@ -8437,3 +8437,25 @@ Scope notes:
   quota math, billing, exports, member authorization, Cloudflare, Tier 2
   hosting, developer-agent, DexOS, or `export_packages.project_id` work was
   added.
+
+ARGUS review validation on 2026-06-19:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 12 tests passed; owner assignment, null assignment, and cross-owner Project exclusion are covered. |
+| `npm exec --yes pnpm@10.32.1 -- run test:projects` | Pass | 5 tests passed; Project behavior stayed green. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web build` | Partial / known Windows failure | Next compiled successfully, linted/typechecked, collected page data, and generated 31 static pages, then failed during standalone traced-file symlink copy with Windows `EPERM`. |
+| `git diff --check HEAD~1..HEAD` | Pass | No whitespace errors. |
+
+ARGUS scope notes:
+
+- Assignment readback is owner-list only and populated from owner-scoped
+  `projects` rows.
+- `projectName` remains the Developer Space display name.
+- Public Developer Space routes do not expose assignment fields.
+- Hostile cross-owner `project_id` values return null assignment fields.
+- No schema, public Project page, public Developer Space assignment leakage,
+  quota math, billing, exports, member authorization, Cloudflare, Tier 2
+  hosting, developer-agent, DexOS, or `export_packages.project_id` work was
+  added.
