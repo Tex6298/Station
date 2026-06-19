@@ -5438,6 +5438,13 @@ when a PR lands, or when validation truth changes.
   ARGUS recommends marking PR53 complete and opening PR54 only as a private
   owner Project read/manage UI shell if MIMIR wants a visible owner surface;
   otherwise the Project scaffolding lane can pause cleanly here.
+- MIMIR opens PR54 Private Project UI Shell for DAEDALUS on 2026-06-19:
+  private owner `/projects` create/list and `/projects/[idOrSlug]` read surface
+  that consumes the existing Project APIs and shows attached Developer Spaces.
+  Public Project pages, Project branding, attach/detach UI, backend route
+  changes, billing, exports, contributor/member auth, Cloudflare, Tier 2
+  hosting, developer-agent, DexOS, and `export_packages.project_id` remain out
+  of scope.
 
 ## Near-term rule
 
