@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { apiGet } from "@/lib/api-client";
+import { apiGet, apiPatch } from "@/lib/api-client";
 import { getSession } from "@/lib/auth";
 
 type ProjectVisibility = "private" | "unlisted" | "community" | "public";
@@ -37,6 +37,11 @@ interface ProjectDetailResponse {
   developerSpaces: AttachedDeveloperSpaceSummary[];
 }
 
+type OwnerDeveloperSpace = AttachedDeveloperSpaceSummary & {
+  apiKeyLastFour?: string | null;
+  apiKeyCreatedAt?: string | null;
+};
+
 const CONNECTION_LABELS: Record<ProjectConnectionTier, string> = {
   tier_1_showcase: "Showcase",
   tier_2_hosted: "Tier 2 stored value",
@@ -62,6 +67,9 @@ export default function ProjectDetailPage() {
   const [loading, setLoading] = useState(true);
   const [token, setToken] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [ownerSpaces, setOwnerSpaces] = useState<OwnerDeveloperSpace[]>([]);
+  const [actionError, setActionError] = useState<string | null>(null);
+  const [pendingAction, setPendingAction] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -75,8 +83,14 @@ export default function ProjectDetailPage() {
       if (!cancelled) setToken(session.access_token);
 
       try {
-        const data = await apiGet<ProjectDetailResponse>(`/projects/${encodeURIComponent(idOrSlug)}`, session.access_token);
-        if (!cancelled) setDetail(data);
+        const [projectData, spacesData] = await Promise.all([
+          apiGet<ProjectDetailResponse>(`/projects/${encodeURIComponent(idOrSlug)}`, session.access_token),
+          apiGet<{ spaces: OwnerDeveloperSpace[] }>("/developer-spaces", session.access_token),
+        ]);
+        if (!cancelled) {
+          setDetail(projectData);
+          setOwnerSpaces(spacesData.spaces ?? []);
+        }
       } catch (e) {
         if (!cancelled) setError(e instanceof Error ? e.message : "Could not load Project.");
       } finally {
@@ -88,6 +102,43 @@ export default function ProjectDetailPage() {
       cancelled = true;
     };
   }, [idOrSlug]);
+
+  async function refreshProjectState(sessionToken: string) {
+    const [projectData, spacesData] = await Promise.all([
+      apiGet<ProjectDetailResponse>(`/projects/${encodeURIComponent(idOrSlug)}`, sessionToken),
+      apiGet<{ spaces: OwnerDeveloperSpace[] }>("/developer-spaces", sessionToken),
+    ]);
+    setDetail(projectData);
+    setOwnerSpaces(spacesData.spaces ?? []);
+  }
+
+  async function handleAttach(spaceId: string) {
+    if (!token || !detail) return;
+    setPendingAction(`attach:${spaceId}`);
+    setActionError(null);
+    try {
+      await apiPatch(`/developer-spaces/${spaceId}/project`, { projectId: detail.project.id }, token);
+      await refreshProjectState(token);
+    } catch (e) {
+      setActionError(e instanceof Error ? e.message : "Could not attach Developer Space.");
+    } finally {
+      setPendingAction(null);
+    }
+  }
+
+  async function handleDetach(spaceId: string) {
+    if (!token) return;
+    setPendingAction(`detach:${spaceId}`);
+    setActionError(null);
+    try {
+      await apiPatch(`/developer-spaces/${spaceId}/project`, { projectId: null }, token);
+      await refreshProjectState(token);
+    } catch (e) {
+      setActionError(e instanceof Error ? e.message : "Could not detach Developer Space.");
+    } finally {
+      setPendingAction(null);
+    }
+  }
 
   if (loading) {
     return (
@@ -136,6 +187,8 @@ export default function ProjectDetailPage() {
   }
 
   const { project, developerSpaces } = detail;
+  const attachedIds = new Set(developerSpaces.map((space) => space.id));
+  const attachCandidates = ownerSpaces.filter((space) => !attachedIds.has(space.id));
 
   return (
     <main className="station-page">
@@ -178,7 +231,7 @@ export default function ProjectDetailPage() {
           <div className="station-panel" style={{ display: "grid", gap: "0.65rem" }}>
             <h2 style={{ margin: 0, fontSize: "1.1rem" }}>Attached Developer Spaces</h2>
             <p style={{ margin: 0, color: "#687078", fontSize: "0.9rem", lineHeight: 1.5 }}>
-              Read from the Project detail API. Attach and detach stay in the API lane for now.
+              Attach existing owner Developer Spaces to this private Project, or detach them when they no longer belong here.
             </p>
             <Link href="/developer-spaces" className="station-muted-button" style={{ width: "fit-content" }}>
               Open Developer Spaces
@@ -186,13 +239,15 @@ export default function ProjectDetailPage() {
           </div>
         </section>
 
+        {actionError && <div className="station-notice" data-tone="error">{actionError}</div>}
+
         <section style={{ display: "grid", gap: "0.75rem" }}>
           {developerSpaces.length === 0 ? (
             <div className="station-panel" style={{ textAlign: "center", padding: "3rem 1.5rem" }}>
               <div className="kicker" style={{ justifyContent: "center", marginBottom: "0.75rem" }}>No attachments</div>
               <h2 style={{ margin: "0 0 0.4rem" }}>No Developer Spaces attached</h2>
               <p style={{ margin: 0, color: "#687078" }}>
-                This page will show owner-attached Developer Spaces once the API links exist.
+                Attach an owner Developer Space below to show it in this Project.
               </p>
             </div>
           ) : developerSpaces.map((space) => (
@@ -213,6 +268,57 @@ export default function ProjectDetailPage() {
               </div>
               <div className="station-action-row">
                 <Link className="station-muted-button" href={`/developer-spaces/${space.slug}`}>View observatory</Link>
+                <Link className="station-muted-button" href={`/developer-spaces/${space.slug}/manage`}>Manage</Link>
+                <button
+                  className="station-muted-button"
+                  type="button"
+                  disabled={Boolean(pendingAction)}
+                  onClick={() => handleDetach(space.id)}
+                >
+                  {pendingAction === `detach:${space.id}` ? "Detaching..." : "Detach"}
+                </button>
+              </div>
+            </article>
+          ))}
+        </section>
+
+        <section style={{ display: "grid", gap: "0.75rem" }}>
+          <div>
+            <h2 style={{ margin: "0 0 0.3rem", fontSize: "1.2rem" }}>Available Developer Spaces</h2>
+            <p style={{ margin: 0, color: "#687078", fontSize: "0.9rem", lineHeight: 1.5 }}>
+              Owner spaces not currently shown as attached to this Project.
+            </p>
+          </div>
+
+          {attachCandidates.length === 0 ? (
+            <div className="station-panel" style={{ textAlign: "center", padding: "2rem 1.5rem", color: "#687078" }}>
+              No unattached Developer Spaces.
+            </div>
+          ) : attachCandidates.map((space) => (
+            <article key={space.id} className="station-card" style={{ display: "grid", gap: "0.75rem" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", gap: "0.75rem", alignItems: "flex-start" }}>
+                <div style={{ minWidth: 0 }}>
+                  <h3 style={{ margin: "0 0 0.25rem", fontSize: "1rem", overflowWrap: "anywhere" }}>{space.projectName}</h3>
+                  <p style={{ margin: 0, color: "#687078", fontSize: "0.86rem", lineHeight: 1.5 }}>
+                    {space.description || "No description yet."}
+                  </p>
+                </div>
+                <span className="pill" style={{ textTransform: "capitalize" }}>{space.visibility}</span>
+              </div>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem", color: "#687078", fontSize: "0.8rem" }}>
+                <span>{visualisationLabel(space.visualisationType)}</span>
+                <span>/</span>
+                <span>updated {formatDate(space.updatedAt)}</span>
+              </div>
+              <div className="station-action-row">
+                <button
+                  className="station-link-button"
+                  type="button"
+                  disabled={Boolean(pendingAction)}
+                  onClick={() => handleAttach(space.id)}
+                >
+                  {pendingAction === `attach:${space.id}` ? "Attaching..." : "Attach to this Project"}
+                </button>
                 <Link className="station-muted-button" href={`/developer-spaces/${space.slug}/manage`}>Manage</Link>
               </div>
             </article>

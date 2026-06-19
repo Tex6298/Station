@@ -1,7 +1,7 @@
 # PR55 - Private Project Attachment UI
 
 Date: 2026-06-19
-Status: opened for DAEDALUS
+Status: implemented by DAEDALUS; ready for ARGUS review
 Owner: DAEDALUS implements, ARGUS reviews, ARIADNE rechecks if accepted,
 MIMIR decides next lane.
 
@@ -109,3 +109,62 @@ Wake ARGUS with:
 - any PR56 recommendation.
 
 If blocked, wake MIMIR with the exact blocker. Do not leave the lane silent.
+
+## DAEDALUS Implementation
+
+Changed:
+
+- Extended private owner `/projects/[idOrSlug]`.
+- Loads Project detail from `GET /projects/:idOrSlug`.
+- Loads owner Developer Spaces from `GET /developer-spaces`.
+- Keeps attached Developer Spaces rendered from PR53 `developerSpaces`.
+- Shows owner Developer Spaces not currently attached to this Project as attach
+  candidates.
+- Adds `Attach to this Project` controls using existing
+  `PATCH /developer-spaces/:id/project` with the current Project id.
+- Adds `Detach` controls using the same route with `projectId: null`.
+- Refreshes Project detail and owner-space state after attach/detach.
+- Shows pending button labels and an action error notice.
+
+Files changed:
+
+- `apps/web/app/projects/[idOrSlug]/page.tsx`
+- `docs/roadmap/ACTIVE_STATUS.md`
+- `docs/testing/VALIDATION_BASELINE.md`
+- `docs/roadmap/PR55_PRIVATE_PROJECT_ATTACHMENT_UI.md`
+
+Backend/API files changed:
+
+- None.
+
+Validation:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:projects` | Pass | 4 tests passed; Project API behavior stayed green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 11 tests passed; Developer Space attach API behavior stayed green. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed. |
+| `git diff --check` | Pass | No whitespace errors; CRLF normalization warnings only for touched files and local triad state. |
+
+Scope guard:
+
+- No backend/API route changes.
+- No public Project pages.
+- No Developer Space create-time Project picker.
+- No billing, exports, contributor/member auth, Cloudflare, Tier 2 hosting,
+  developer-agent, DexOS, or `export_packages.project_id`.
+
+ARIADNE rehearsal request if ARGUS accepts:
+
+- Signed-in Project detail with an available owner Developer Space candidate.
+- Attach flow.
+- Detach flow.
+- Narrow viewport fit.
+- No public Project leakage or new public route.
+
+PR56 recommendation:
+
+- Keep the next lane owner-only and observational, such as better Project
+  activity/readback. Avoid public Project pages, billing/export semantics,
+  member-role authorization, and hosted-runtime work unless MIMIR explicitly
+  opens those lanes.

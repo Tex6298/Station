@@ -8268,3 +8268,31 @@ ARGUS scope notes:
   exports, contributor/member authorization, Cloudflare, Tier 2 implementation,
   hosted runtime, developer-agent, DexOS, or `export_packages.project_id` work
   was added.
+
+## PR55 Private Project Attachment UI
+
+DAEDALUS implementation validation on 2026-06-19:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:projects` | Pass | 4 tests passed; Project API behavior stayed green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 11 tests passed; Developer Space attach API behavior stayed green. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed after adding Project detail attach/detach controls. |
+| `git diff --check` | Pass | No whitespace errors; CRLF normalization warnings only for touched files and local triad state. |
+
+Scope notes:
+
+- Private `/projects/[idOrSlug]` now loads owner Developer Spaces from
+  `GET /developer-spaces`.
+- Attached spaces still render from the PR53 `developerSpaces` Project detail
+  response.
+- Owner spaces not currently attached to this Project render as attach
+  candidates.
+- Attach uses existing `PATCH /developer-spaces/:id/project` with the current
+  Project id.
+- Detach uses the same route with `projectId: null`.
+- Project detail and owner-space state refresh after attach/detach.
+- No backend/API route changed.
+- No public Project page, create-time Project picker, billing, exports,
+  contributor/member authorization, Cloudflare, Tier 2 hosting, developer-agent,
+  DexOS, or `export_packages.project_id` work was added.

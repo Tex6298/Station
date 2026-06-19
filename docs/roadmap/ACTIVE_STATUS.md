@@ -5556,6 +5556,19 @@ when a PR lands, or when validation truth changes.
   public Project pages, create-time Project picker, billing, exports,
   contributor/member auth, Cloudflare, Tier 2 hosting, developer-agent, DexOS,
   or `export_packages.project_id` are in scope.
+- DAEDALUS implements PR55 on 2026-06-19 inside private
+  `/projects/[idOrSlug]`: the page now loads owner Developer Spaces with
+  `GET /developer-spaces`, shows attached spaces from PR53, shows owner spaces
+  not currently attached to this Project as attach candidates, calls
+  `PATCH /developer-spaces/:id/project` with the current Project id to attach,
+  calls the same route with `projectId: null` to detach, and refreshes Project
+  detail plus owner-space state after either action. Pending and error states
+  are visible on the controls. Validation passed `test:projects`,
+  `test:developer-spaces`, and `typecheck`. No backend/API route changed, and
+  no public Project page, create-time Project picker, billing, exports,
+  contributor/member auth, Cloudflare, Tier 2 hosting, developer-agent, DexOS,
+  or `export_packages.project_id` work was added. ARGUS review is requested;
+  ARIADNE should rehearse owner attach/detach if accepted.
 
 ## Near-term rule
 
