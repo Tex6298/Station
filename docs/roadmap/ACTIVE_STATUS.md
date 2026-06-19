@@ -5688,6 +5688,18 @@ when a PR lands, or when validation truth changes.
   generated 31 static pages before the known Windows standalone symlink
   `EPERM`. ARGUS recommends a short ARIADNE owner UI rehearsal for assignment
   copy and attach/detach behavior.
+- ARIADNE accepts PR58 on 2026-06-19 after signed Railway browser rehearsal
+  against web/API runtime `18132f6`. On the no-attachment PR54 tier-tight smoke
+  Project, `Animus Field Lab` rendered as `Not attached to a Project` while
+  `Station Replay Dev Alpha` rendered as assigned to the original PR54 smoke
+  Project with `Attaching moves it here.` `Attach to this Project` moved
+  `Station Replay Dev Alpha` into the target Project, and `Detach` at `390px`
+  returned it to truthful unassigned copy before ARIADNE restored it to the
+  original Project through the owner API. Desktop and `390px` checks had no
+  document-level overflow or offscreen controls. Public Developer Space API
+  responses and anonymous public pages did not expose assignment fields, private
+  Project names, assignment copy, or attach/detach controls. PR58 can close from
+  ARIADNE UI rehearsal.
 
 ## Near-term rule
 
