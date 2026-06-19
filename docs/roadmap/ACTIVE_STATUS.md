@@ -6449,6 +6449,17 @@ when a PR lands, or when validation truth changes.
   and entitlement clarity, because Stripe test configuration is present and
   PR71 already proved the current runtime has billing routes and configured
   Basic, Creator, and Canon monthly/yearly prices.
+- MIMIR opens PR74 Billing And Entitlement Clarity for DAEDALUS on 2026-06-19.
+  Stripe test configuration is present and Redis/Upstash is available as the
+  already-proved operational cache layer, so this lane should improve billing
+  and entitlement clarity without opening Stripe architecture, Redis billing
+  truth, provider, Cloudflare, worker, parser/OAuth, Project/DexOS, hosted
+  runtime, or broad UI scope. DAEDALUS should inspect the current billing,
+  settings, sidebar usage, token-credit, tier config, and billing action helper
+  surfaces, then either implement the smallest clear improvement or wake MIMIR
+  with the exact missing API/state field. When done, DAEDALUS must wake ARGUS;
+  if visible route behavior changes, ARGUS should wake ARIADNE for human-eye
+  rehearsal.
 
 ## Near-term rule
 
