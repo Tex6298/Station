@@ -5608,6 +5608,15 @@ when a PR lands, or when validation truth changes.
   Project page, Project activity timeline, exports, contributor/member auth,
   Cloudflare, Tier 2 hosting, developer-agent, DexOS, or
   `export_packages.project_id` work was added. ARGUS review is requested.
+- ARGUS accepts PR56 on 2026-06-19 after reviewing response shape, aggregation
+  filters, zero-state behavior, and hostile usage rows. `activity` is returned
+  only from the owner-only Project detail route; Developer Space count comes
+  from the existing owner/project-filtered attachment query; usage counters are
+  filtered by both `project_id` and `owner_user_id`. Validation passed
+  `test:projects` with 5 tests, `test:developer-spaces`, `typecheck`, and diff
+  hygiene. No quota math, billing, public Project page, Project activity
+  timeline UI, exports, contributor/member auth, Cloudflare, Tier 2 hosting,
+  developer-agent, DexOS, or `export_packages.project_id` work was added.
 
 ## Near-term rule
 

@@ -1,7 +1,7 @@
 # PR56 - Project Activity Readback
 
 Date: 2026-06-19
-Status: implemented by DAEDALUS; ready for ARGUS review
+Status: accepted by ARGUS; wake MIMIR for next-lane decision
 Owner: DAEDALUS implements, ARGUS reviews, ARIADNE rechecks only if UI changes,
 MIMIR decides next lane.
 
@@ -114,6 +114,42 @@ Wake ARGUS with:
 - any PR57 recommendation.
 
 If blocked, wake MIMIR with the exact blocker. Do not leave the lane silent.
+
+## ARGUS Review
+
+Verdict: accepted on 2026-06-19.
+
+Findings:
+
+- `GET /projects/:idOrSlug` remains authenticated and owner-scoped.
+- The response shape is now `{ project, developerSpaces, activity }`.
+- `activity.developerSpaces` comes from the existing attached Developer Space
+  query filtered by `project_id` and `owner_user_id`.
+- Usage counters aggregate only `developer_space_usage` rows filtered by both
+  `project_id` and `owner_user_id`.
+- Tests cover zero-state activity, cross-owner usage rows sharing the Project
+  id, and owner usage rows attached to another Project.
+- The change does not add quota math, billing, public Project pages, Project
+  activity timeline UI, exports, contributor/member authorization, Cloudflare,
+  Tier 2 hosting, developer-agent, DexOS, or `export_packages.project_id`.
+
+ARGUS validation:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:projects` | Pass | 5 tests passed; zero-state, cross-owner, and other-Project usage exclusions are covered. |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 11 tests passed; Developer Space attachment behavior stayed green. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed from cache/replay. |
+| `git diff --check HEAD~1..HEAD` | Pass | No whitespace errors. |
+
+Next-lane recommendation:
+
+- Recommend marking PR56 complete.
+- Keep PR57 owner-only and small if Project scaffolding continues. Do not open
+  public Project pages, quota/billing math, project exports, member-role
+  authorization, hosted runtime, Cloudflare, Tier 2 hosting, developer-agent,
+  DexOS-widget work, or `export_packages.project_id` without a new MIMIR scope
+  decision.
 
 ## DAEDALUS Implementation
 

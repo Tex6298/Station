@@ -8344,3 +8344,23 @@ Scope notes:
 - No quota math, billing, public Project page, Project activity timeline,
   exports, contributor/member authorization, Cloudflare, Tier 2 hosting,
   developer-agent, DexOS, or `export_packages.project_id` work was added.
+
+ARGUS review validation on 2026-06-19:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:projects` | Pass | 5 tests passed; zero-state, cross-owner, and other-Project usage exclusions are covered. |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 11 tests passed; Developer Space attachment behavior stayed green. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed from cache/replay. |
+| `git diff --check HEAD~1..HEAD` | Pass | No whitespace errors. |
+
+ARGUS scope notes:
+
+- `GET /projects/:idOrSlug` remains authenticated and owner-scoped.
+- Attached Developer Space count comes from the owner/project-filtered
+  Developer Space query.
+- Usage counters aggregate only rows filtered by both `project_id` and
+  `owner_user_id`.
+- No quota math, billing, public Project page, Project activity timeline UI,
+  exports, contributor/member authorization, Cloudflare, Tier 2 hosting,
+  developer-agent, DexOS, or `export_packages.project_id` work was added.
