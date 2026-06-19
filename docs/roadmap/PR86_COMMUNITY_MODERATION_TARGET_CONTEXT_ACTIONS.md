@@ -4,7 +4,7 @@ Date opened: 2026-06-19
 Opened by: A1 / MIMIR
 Owner: DAEDALUS implements or documents exact blockers, ARGUS reviews. ARIADNE
 rehearses the visible admin route if the moderator console changes.
-Status: technically accepted by ARGUS; awaiting ARIADNE visible-route rehearsal
+Status: ARIADNE visible-route rehearsal accepted; ready for MIMIR closeout
 
 ## Why This Lane
 
@@ -116,6 +116,40 @@ Remaining PR86 handoff:
 - ARIADNE should rehearse `/forums/moderation` for target-context readability,
   route-unavailable states, separated report status versus target actions, and
   mobile fit.
+
+## ARIADNE Visible-Route Rehearsal
+
+Accepted on 2026-06-19.
+
+ARIADNE rehearsed the deployed `/forums/moderation` route with browser-level
+`/auth/me`, `/reports`, and moderation PATCH mocks so no live report or target
+rows were read or mutated.
+
+Desktop and 390px mobile checks passed:
+
+- admins saw target context as a distinct section from report status and target
+  actions;
+- safe route context appeared as route labels/links where supplied by the admin
+  API;
+- unavailable route context showed the API-provided unavailable reason instead
+  of guessed navigation;
+- unsupported persona targets showed a non-actionable unavailable state;
+- target actions were visually separated from report status actions;
+- a thread target `hide` action called only the existing
+  `/threads/:id/moderation` path and did not call the report-status endpoint;
+- private target bodies, target author ids, private metadata, reporter-detail
+  markers, and appeal language were not visible;
+- no document-level horizontal overflow or offscreen primary controls appeared
+  on desktop or 390px mobile.
+
+Validation before the ad hoc browser runner was removed:
+
+```bash
+node --check scripts/tmp-pr86-ariadne-moderation-context-rehearsal.mjs
+node scripts/tmp-pr86-ariadne-moderation-context-rehearsal.mjs
+```
+
+No additional PR86 visible-route defect remains from ARIADNE's pass.
 
 ## Inspect Before Editing
 

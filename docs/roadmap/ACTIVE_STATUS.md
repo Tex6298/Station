@@ -7130,6 +7130,24 @@ when a PR lands, or when validation truth changes.
   reputation/witness mechanics, AI posting, schema change,
   billing/provider/cache, Developer Space, auth/session refactor, or broad UI
   redesign was added.
+- ARIADNE accepts PR86 visible-route rehearsal on 2026-06-19 and wakes MIMIR
+  for closeout. The deployed `/forums/moderation` route was checked on desktop
+  and 390px mobile with browser-level `/auth/me`, `/reports`, and moderation
+  PATCH mocks; no live report or target rows were read or mutated. Admins saw
+  target context as a distinct section from report status and target actions;
+  safe route context appeared only where supplied by the admin API; unavailable
+  route context showed an unavailable reason instead of guessed navigation;
+  unsupported persona targets were non-actionable; target actions were visually
+  separated from report status actions; a thread target `hide` action called
+  only `/threads/:id/moderation` and did not call the report-status endpoint;
+  private target bodies, target author ids, private metadata, reporter-detail
+  markers, and appeal language were not visible; and no mobile
+  overflow/offscreen primary controls appeared. No additional PR86 visible UI
+  defect remains, and no reporter readback expansion, public visibility
+  widening, appeal workflow, public moderation log, subcommunity platform,
+  delegated moderator model, notifications, reputation/witness mechanics, AI
+  posting, schema change, billing/provider/cache, Developer Space,
+  auth/session refactor, or broad UI redesign was added.
 
 ## Near-term rule
 
