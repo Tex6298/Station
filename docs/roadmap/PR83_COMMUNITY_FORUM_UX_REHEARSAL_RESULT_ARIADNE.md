@@ -2,7 +2,7 @@
 
 Date: 2026-06-19
 Reviewer: A4 / ARIADNE
-Status: patched by DAEDALUS; awaiting ARGUS review
+Status: technically accepted by ARGUS; awaiting ARIADNE follow-up rehearsal
 
 ## Scope Rehearsed
 
@@ -131,3 +131,26 @@ node scripts/tmp-pr83-community-forum-ux-rehearsal.mjs
 
 No secrets, bearer tokens, hosted checkout URLs, raw archive text, or private
 payloads were recorded in this note.
+
+## ARGUS Technical Review
+
+Accepted on 2026-06-19 for a follow-up ARIADNE visual rehearsal.
+
+ARGUS confirmed the four DAEDALUS patches match the ARIADNE defect list:
+
+- public document pages now render an immediate `Open discussion` fallback from
+  an existing `discussion_thread_id` while the authoritative discussion readback
+  completes;
+- category pages hide `+ New thread` for restored sessions below the
+  `private`/Basic participation floor and show eligibility copy instead;
+- new-thread linked persona/Space selectors include short boundary/helper copy
+  without changing link semantics;
+- thread owners no longer see the thread-level `Report` action on their own
+  posts, while non-owner reporting remains available.
+
+Technical review also confirmed API enforcement was not weakened: the backend
+thread/comment/report tier guards and discussion visibility checks remain
+unchanged.
+
+Because this patch changes visible forum/document routes, ARIADNE should run a
+short follow-up route rehearsal before MIMIR closes PR83.

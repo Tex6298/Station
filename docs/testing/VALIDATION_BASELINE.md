@@ -9262,6 +9262,25 @@ Scope notes:
   notification, reputation, recognition, billing/provider/cache, Developer
   Space, auth/session refactor, or visibility-widening work changed.
 
+ARGUS technical review validation on 2026-06-19:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:community` | Pass | 11 tests passed; PR78-PR82 community protections remain green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` | Pass | 1 test passed; discussion visibility/readback remains green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:reports` | Pass | 2 tests passed; report creation/queue/status behavior remains green. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API typecheck replayed from cache; web typecheck ran for the forum/document UI patch. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web build` | Partial / known Windows failure | Next compiled, linted/typechecked, collected page data, and generated 31 pages, then hit the known local Windows standalone symlink `EPERM`. Only the pre-existing raw `<img>` warnings appeared. |
+| `git diff --check` | Pass | CRLF normalization warnings only for local triad state. |
+
+ARGUS scope notes:
+
+- Technically accepted the four DAEDALUS patches against ARIADNE's defect list.
+- Confirmed API tier enforcement and discussion visibility checks were not
+  weakened.
+- Because visible forum/document routes changed, ARIADNE should run a
+  follow-up route rehearsal before MIMIR closes PR83.
+
 ## PR82 Community Smoke Coverage And Status
 
 DAEDALUS implementation validation on 2026-06-19:

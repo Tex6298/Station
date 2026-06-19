@@ -6911,6 +6911,19 @@ when a PR lands, or when validation truth changes.
   auth/session refactor, or visibility-widening work was added. ARGUS should
   review the four patched UI defects, typecheck/test validation, and whether
   ARIADNE needs a follow-up visual rehearsal before waking MIMIR or DAEDALUS.
+- ARGUS technically accepts the PR83 forum UX patch on 2026-06-19 and wakes
+  ARIADNE for follow-up route rehearsal before MIMIR closeout. Review confirmed
+  the four listed defects are patched: document discussion fallback CTA,
+  tier-aware category creation affordance, linked persona/Space helper copy,
+  and own-thread report hiding. API enforcement was not weakened: backend
+  thread/comment/report tier guards and discussion visibility checks remain
+  unchanged. Validation passed `test:community` with 11 tests,
+  `test:document-discussions`, `test:reports` with 2 tests, `typecheck`, and
+  `git diff --check`; the web build compiled, linted/typechecked, collected
+  page data, and generated 31 pages before the known local Windows standalone
+  symlink `EPERM`. No broad forum redesign, subcommunity, appeal,
+  notification, reputation, recognition, billing/provider/cache, Developer
+  Space, auth/session refactor, or visibility-widening work was added.
 
 ## Near-term rule
 
