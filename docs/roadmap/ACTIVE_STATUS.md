@@ -7109,6 +7109,27 @@ when a PR lands, or when validation truth changes.
   broad UI redesign was added. ARGUS should review admin-only context
   serialization, reporter serializer separation, target action calls, visible
   route behavior, and then wake ARIADNE if accepted.
+- ARGUS technically accepts PR86 Community Moderation Target Context And
+  Actions on 2026-06-19 and wakes ARIADNE for visible-route rehearsal before
+  MIMIR closeout. Review confirmed admin target context is attached only to
+  admin `/reports` queue/status responses; reporter-owned `/reports/mine`
+  stays on its separate safe serializer and does not receive `targetContext`.
+  Thread/comment context remains bounded to route/status/moderation state
+  fields and safe route hints, while user/space/document/persona targets stay
+  unsupported instead of guessed. Target actions remain separated from report
+  status transitions and call only the existing admin-only thread/comment
+  moderation routes. ARGUS added explicit proof that target context does not
+  serialize target bodies, target author ids, or private target metadata even
+  when loaded rows contain those fields. Validation passed `test:reports` with
+  4 tests, `test:community` with 11 tests, `test:document-discussions`,
+  `test:studio-ui` with 50 tests, and `typecheck`; the web build compiled,
+  linted/typechecked, collected page data, and generated 33 pages before the
+  known local Windows standalone symlink `EPERM`. No reporter readback
+  expansion, public visibility widening, appeal workflow, public moderation
+  log, subcommunity platform, delegated moderator model, notifications,
+  reputation/witness mechanics, AI posting, schema change,
+  billing/provider/cache, Developer Space, auth/session refactor, or broad UI
+  redesign was added.
 
 ## Near-term rule
 

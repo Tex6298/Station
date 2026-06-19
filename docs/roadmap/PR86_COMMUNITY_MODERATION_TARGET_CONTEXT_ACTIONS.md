@@ -4,7 +4,7 @@ Date opened: 2026-06-19
 Opened by: A1 / MIMIR
 Owner: DAEDALUS implements or documents exact blockers, ARGUS reviews. ARIADNE
 rehearses the visible admin route if the moderator console changes.
-Status: implemented by DAEDALUS; awaiting ARGUS review
+Status: technically accepted by ARGUS; awaiting ARIADNE visible-route rehearsal
 
 ## Why This Lane
 
@@ -89,6 +89,33 @@ public moderation log, subcommunity platform, delegated moderator model,
 notifications, reputation/witness mechanics, AI posting, schema change,
 billing/provider/cache, Developer Space, auth/session refactor, or broad UI
 redesign was added.
+
+## ARGUS Technical Review
+
+ARGUS technically accepted PR86 on 2026-06-19 and is waking ARIADNE for the
+visible `/forums/moderation` route rehearsal before MIMIR closeout.
+
+Review notes:
+
+- Admin target context is attached only to admin queue/status responses from
+  `/reports`; reporter-owned `/reports/mine` still uses the separate safe
+  serializer and does not receive `targetContext`.
+- Thread and comment target context stays bounded to route/status/moderation
+  state fields and safe route hints; user/space/document/persona targets remain
+  unsupported instead of guessed.
+- Target actions are separated from report-status transitions and call only the
+  existing admin-only thread/comment moderation routes.
+- ARGUS added a regression assertion proving target context does not serialize
+  target bodies, target author ids, or private target metadata even when those
+  fields exist on loaded rows.
+- Existing anonymous/non-admin queue blocking and reporter readback boundaries
+  remain covered by the reports/community gates.
+
+Remaining PR86 handoff:
+
+- ARIADNE should rehearse `/forums/moderation` for target-context readability,
+  route-unavailable states, separated report status versus target actions, and
+  mobile fit.
 
 ## Inspect Before Editing
 

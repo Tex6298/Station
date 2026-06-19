@@ -600,16 +600,21 @@ test("admin report queue includes safe target context for thread and comment rep
   db.insertRow("threads", {
     id: "thread-1",
     category_id: "cat-1",
+    author_user_id: "thread-author-private-id",
     title: "Thread needing review",
+    body: "Thread body that must stay out of admin report context.",
     status: "active",
     visibility: "public",
     is_hidden: false,
     moderation_state: "needs_review",
+    private_metadata: { secret: "thread-private-marker" },
   });
   db.insertRow("threads", {
     id: "thread-parent",
     category_id: "cat-1",
+    author_user_id: "thread-parent-author-private-id",
     title: "Comment parent",
+    body: "Parent body that must stay out of admin report context.",
     status: "active",
     visibility: "community",
     is_hidden: false,
@@ -617,16 +622,20 @@ test("admin report queue includes safe target context for thread and comment rep
   });
   db.insertRow("comments", {
     id: "comment-1",
+    author_user_id: "comment-author-private-id",
     parent_type: "thread",
     parent_id: "thread-parent",
+    body: "Comment body that must stay out of admin report context.",
     status: "active",
     is_hidden: true,
     moderation_state: "hidden",
   });
   db.insertRow("comments", {
     id: "comment-doc-1",
+    author_user_id: "document-comment-author-private-id",
     parent_type: "document",
     parent_id: "doc-1",
+    body: "Document comment body that must stay out of admin report context.",
     status: "active",
     is_hidden: false,
     moderation_state: "needs_review",
@@ -704,6 +713,16 @@ test("admin report queue includes safe target context for thread and comment rep
       "Comment parent type document has no safe forum route hint yet."
     );
     assert.equal(byId.get(personaReport.id)?.targetContext, undefined);
+    const queueJson = JSON.stringify(adminQueue.body);
+    assert.equal(queueJson.includes("Thread body that must stay out of admin report context."), false);
+    assert.equal(queueJson.includes("Parent body that must stay out of admin report context."), false);
+    assert.equal(queueJson.includes("Comment body that must stay out of admin report context."), false);
+    assert.equal(queueJson.includes("Document comment body that must stay out of admin report context."), false);
+    assert.equal(queueJson.includes("thread-author-private-id"), false);
+    assert.equal(queueJson.includes("thread-parent-author-private-id"), false);
+    assert.equal(queueJson.includes("comment-author-private-id"), false);
+    assert.equal(queueJson.includes("document-comment-author-private-id"), false);
+    assert.equal(queueJson.includes("thread-private-marker"), false);
 
     const reporterReadback = await requestJson(app, "GET", "/reports/mine?targetType=thread", {
       token: "owner-token",

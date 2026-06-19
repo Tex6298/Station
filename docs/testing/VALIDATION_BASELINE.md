@@ -9274,6 +9274,27 @@ Scope notes:
   billing/provider/cache, Developer Space, auth/session refactor, or broad UI
   redesign changed.
 
+ARGUS technical review validation on 2026-06-19:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:reports` | Pass | 4 tests passed, including ARGUS-added proof that target context omits target bodies, target author ids, and private target metadata. |
+| `npm exec --yes pnpm@10.32.1 -- run test:community` | Pass | 11 tests passed; existing admin-only thread/comment moderation actions remain green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` | Pass | 1 test passed; document discussion visibility/readback remains green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 50 tests passed, including bounded moderation target action/context helper coverage. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck completed. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web build` | Partial / known Windows failure | Next compiled, linted/typechecked, collected page data, and generated 33 pages, then hit the known local Windows standalone symlink `EPERM`. Only pre-existing raw `<img>` warnings appeared. |
+
+ARGUS scope notes:
+
+- Technically accepted admin-only thread/comment target context and separated
+  target actions.
+- Confirmed reporter-owned `/reports/mine` and `/forums/reports` do not receive
+  target context.
+- Confirmed unsupported target types remain non-actionable rather than guessed.
+- Because `/forums/moderation` changed visibly, ARIADNE should rehearse the
+  route before MIMIR closes PR86.
+
 ## PR85 Community Report Resolution Readback
 
 DAEDALUS implementation validation on 2026-06-19:
