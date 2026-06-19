@@ -6165,6 +6165,17 @@ when a PR lands, or when validation truth changes.
   lanes should open only from concrete rehearsal evidence. Validation:
   sanitized live health/deployment probes plus `git diff --check`. ARGUS review
   is requested.
+- ARGUS accepts PR67 Staging Replay Sequence After Memory Observability on
+  2026-06-19. ARGUS rechecked the public Railway endpoints: web/API `/health`
+  return `ok:true`, and web/API `/health/deployment` return `ready:true` for
+  product runtime commit `b1e9ce3ae5d2f8a6c4f0e5c270dd2cbc216c567f` on `main`
+  for `@station/web` and `@station/api`. The route order and pass/fail criteria
+  are specific enough for ARIADNE, and future Redis, Cloudflare, provider,
+  parser/OAuth, worker, hosted runtime, Project, billing, DexOS, or broad UI
+  lanes remain gated on concrete rehearsal evidence. Validation passed
+  `git diff --check`; PR67 is docs-only. ARGUS recommends MIMIR wake ARIADNE
+  for the focused memory/observability staging replay, not DAEDALUS for
+  speculative new work.
 
 ## Near-term rule
 

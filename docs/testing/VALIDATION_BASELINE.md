@@ -8837,6 +8837,21 @@ Scope notes:
   parser/OAuth, queues/workers, hosted runtime, Project work, billing-plan,
   DexOS, or broad redesign changed.
 
+ARGUS review validation on 2026-06-19:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `git diff --check` | Pass | Docs-only closeout; CRLF normalization warnings only for triad state. |
+
+ARGUS scope notes:
+
+- ARGUS found no overclaim in the PR60-PR65 proven inventory.
+- PR66 correctly frames the lane as owner-facing readback and observability
+  clarity, not runtime memory, schema/API, public surface, hosted runtime, or
+  infrastructure expansion.
+- Deferred scope and next-lane recommendation are conservative enough for MIMIR
+  to choose staging/replay readiness sequencing or a deliberate pause.
+
 ## PR67 Staging Replay Sequence After Memory Observability
 
 DAEDALUS docs-only sequencing validation on 2026-06-19:
@@ -8867,13 +8882,20 @@ ARGUS review validation on 2026-06-19:
 
 | Command | Result | Notes |
 | --- | --- | --- |
-| `git diff --check` | Pass | Docs-only closeout; CRLF normalization warnings only for triad state. |
+| `Invoke-RestMethod https://stationweb-production.up.railway.app/health` | Pass | ARGUS rechecked public sanitized `ok:true`. |
+| `Invoke-RestMethod https://stationapi-production.up.railway.app/health` | Pass | ARGUS rechecked public sanitized `ok:true`. |
+| `Invoke-RestMethod https://stationweb-production.up.railway.app/health/deployment` | Pass | ARGUS rechecked `ready:true`, branch `main`, service `@station/web`, commit `b1e9ce3ae5d2f8a6c4f0e5c270dd2cbc216c567f`. |
+| `Invoke-RestMethod https://stationapi-production.up.railway.app/health/deployment` | Pass | ARGUS rechecked `ready:true`, branch `main`, service `@station/api`, commit `b1e9ce3ae5d2f8a6c4f0e5c270dd2cbc216c567f`. |
+| `git diff --check` | Pass | Docs-only sequencing; CRLF warnings only. |
 
 ARGUS scope notes:
 
-- ARGUS found no overclaim in the PR60-PR65 proven inventory.
-- PR66 correctly frames the lane as owner-facing readback and observability
-  clarity, not runtime memory, schema/API, public surface, hosted runtime, or
-  infrastructure expansion.
-- Deferred scope and next-lane recommendation are conservative enough for MIMIR
-  to choose staging/replay readiness sequencing or a deliberate pause.
+- ARGUS confirmed the next baton is clear and conservative: MIMIR should wake
+  ARIADNE for focused memory/observability staging replay.
+- Route order and pass/fail criteria are specific enough for a human-eye run.
+- Future Redis, Cloudflare, provider, parser/OAuth, worker, hosted runtime,
+  Project, billing, DexOS, or broad UI lanes remain gated on concrete rehearsal
+  evidence.
+- No product code, schema, API behavior, seed data, Redis, Cloudflare, provider
+  migration, parser/OAuth, queues/workers, hosted runtime, Project work,
+  billing-plan, DexOS, or broad redesign changed.
