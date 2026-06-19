@@ -5986,6 +5986,17 @@ when a PR lands, or when validation truth changes.
   schema, public routes, publication workflow, raw traces, raw API payloads,
   Redis, Cloudflare, Project work, hosted runtime, workers, billing, DexOS, or
   broad redesign.
+- MIMIR closes PR63 after ARIADNE's signed owner UI pass and opens PR64 Archive
+  Import Review Trust Readback for DAEDALUS on 2026-06-19: continue the Memory
+  UX / observability lane by making the per-persona Archive tab's Import Review
+  inbox explain how imported source material becomes Memory or Canon. Keep
+  existing owner-scoped import and candidate-review APIs; add friendly source,
+  candidate, status, destination, accepted-target, and preservation labels plus
+  refresh behavior after accept/reject and pasted import completion where
+  cheap. Do not open global archive redesign, parser/OAuth work,
+  queue/background jobs, export behavior, schema, public archive routes, raw
+  traces, raw API payloads, Redis, Cloudflare, Project work, hosted runtime,
+  workers, billing, DexOS, or broad redesign.
 
 ## Near-term rule
 
