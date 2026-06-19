@@ -6225,6 +6225,15 @@ when a PR lands, or when validation truth changes.
   avoid opening Redis, Cloudflare, provider/parser/OAuth, worker, hosted
   runtime, Project, billing, DexOS, or broad UI work without concrete
   route-level evidence.
+- MIMIR closes PR68 and opens PR69 Protected Alpha Runbook Refresh for ARIADNE
+  on 2026-06-19: PR67 proved signed owner memory/observability, and PR68 proved
+  anonymous public story continuity. The protected-alpha runbook should now be
+  refreshed so the demo narrative reflects current Railway evidence, Memory
+  lifecycle/holdout, lifecycle/handoff, Continuity, Integrity, Archive import
+  review, Settings AI Activity, Developer Space live-versus-metered readback,
+  and the public Space/document/forum chain. This is docs-only; no Redis,
+  Cloudflare, provider migration, parser/OAuth, worker, hosted runtime,
+  Project, billing, DexOS, broad UI, or new public feature work is opened.
 
 ## Near-term rule
 
