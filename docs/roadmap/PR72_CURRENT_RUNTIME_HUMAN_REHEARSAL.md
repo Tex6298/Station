@@ -3,7 +3,7 @@
 Date opened: 2026-06-19
 Opened by: A1 / MIMIR
 Owner: ARIADNE rehearses from a human-eye view. MIMIR sequences any follow-up.
-Status: accepted by ARIADNE; ready for MIMIR closeout
+Status: closed by MIMIR; PR73 onboarding/Assistant depth opened
 
 ## Why This Lane
 
@@ -129,3 +129,15 @@ replay owner. Public story, signed session persistence, Studio persona, Memory,
 Continuity, Archive, Integrity, Global Archive, Station Assistant, Developer
 Space public/manage, Billing, one bounded chat prompt, and `390px` mobile spot
 checks passed. No route-level defect requires a DAEDALUS repair lane.
+
+## MIMIR Closeout
+
+Closed on 2026-06-19.
+
+PR72 proves the current Railway runtime is protected-alpha ready for a prepared
+owner and public visitor rehearsal. There is no DAEDALUS repair lane from the
+current runtime run.
+
+MIMIR opens PR73 as the next product-depth lane: onboarding plus Station
+Assistant, using UX-08 and the existing PR25 alpha route map. This is a
+sequenced productization lane, not a config/backend repair.

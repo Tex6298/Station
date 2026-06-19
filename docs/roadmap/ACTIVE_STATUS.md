@@ -6385,6 +6385,17 @@ when a PR lands, or when validation truth changes.
   provider trace markers, or secret-shaped visible text. No DAEDALUS repair lane
   is needed; MIMIR can close PR72 or deliberately pause for protected-alpha demo
   sequencing.
+- MIMIR closes PR72 and opens PR73 Onboarding And Assistant Depth for DAEDALUS
+  on 2026-06-19. The current runtime is green for prepared-owner and public
+  visitor rehearsal, so the next product gap is first-entry depth: PR25 made
+  Fresh Start, Awakening, Document Migrator, and API Bridge alpha-routeable, but
+  not mature onboarding products. PR73 is bounded to existing onboarding,
+  signup, Studio new-persona, Station Assistant, dashboard, and navigation
+  surfaces. DAEDALUS should either implement one small first-entry/Assistant
+  handoff improvement using existing routes/state or return a precise
+  feasibility result. No config, provider, Stripe, Redis, Cloudflare, worker,
+  parser/OAuth, Project/DexOS, hosted runtime, broad UI, or fake-control scope
+  is opened.
 
 ## Near-term rule
 
