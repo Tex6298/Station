@@ -5997,6 +5997,25 @@ when a PR lands, or when validation truth changes.
   queue/background jobs, export behavior, schema, public archive routes, raw
   traces, raw API payloads, Redis, Cloudflare, Project work, hosted runtime,
   workers, billing, DexOS, or broad redesign.
+- DAEDALUS implements PR64 Archive Import Review Trust Readback on 2026-06-19:
+  the per-persona Archive tab Import Review inbox now labels Memory versus
+  Canon candidates, private import source type, sanitized source label,
+  destination, review state, accepted target, and preservation behavior before
+  and after owner review. Accept/reject still uses the existing owner-scoped
+  `PATCH /conversations/candidates/:candidateId` route, then locally updates
+  the candidate and performs a cheap refresh of persona/files/jobs/candidates
+  so visible review state and persona summary can catch up. Successful pasted
+  imports still use the existing `/imports/chat` route and now refresh the same
+  archive state after completion. Source labels are defensively redacted for
+  UUIDs, URLs, bearer values, token/cookie/authorization/API-key/password/
+  secret assignments, and secret-shaped values. Validation passed
+  `test:storage`, `test:conversation-archive`, `test:studio-ui`, `typecheck`,
+  and `git diff --check`. No API route behavior, schema, parser/OAuth,
+  background job, export behavior, global Archive, public Archive route, raw
+  trace/API payload display, Redis, Cloudflare, Project work, hosted runtime,
+  worker, billing/quota, or DexOS work changed. ARGUS review is requested;
+  desktop and `390px` fit still need review because DAEDALUS did not run a
+  browser rehearsal in this implementation pass.
 
 ## Near-term rule
 

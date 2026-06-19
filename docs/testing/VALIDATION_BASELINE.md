@@ -8700,3 +8700,36 @@ ARGUS scope notes:
   prompt/model/provider behavior, extraction tuning, public Integrity page,
   publication workflow, Redis, Cloudflare, Project work, hosted runtime, worker,
   billing/quota, or DexOS work changed.
+
+## PR64 Archive Import Review Trust Readback
+
+DAEDALUS implementation validation on 2026-06-19:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:storage` | Pass | 16 tests passed, including import-backed candidate creation and archive/storage accounting behavior. |
+| `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass | 35 tests passed, including owner-scoped import-backed accept/reject candidate coverage. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 41 tests passed, including Import Review source, destination, outcome, preservation, and source-label redaction helper coverage. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed. |
+| `git diff --check` | Pass | No whitespace errors; CRLF normalization warnings only for touched files and local triad state. |
+
+Scope notes:
+
+- The per-persona Archive tab Import Review inbox now renders friendly labels
+  for Memory/Canon candidate type, private import source type, sanitized source
+  label, destination, review state, accepted target, and source preservation.
+- Accept/reject still uses the existing owner-scoped candidate review API. The
+  UI updates the returned candidate immediately and performs a cheap refresh of
+  existing persona/files/jobs/candidates reads so visible review state can catch
+  up.
+- Pasted import completion still uses the existing `/imports/chat` route and
+  refreshes the same archive state afterward.
+- Source labels are defensively redacted for UUIDs, URLs, bearer values,
+  token/cookie/authorization/API-key/password/secret assignments, and
+  secret-shaped values.
+- DAEDALUS did not run a browser rehearsal; desktop and `390px` fit should be
+  checked by ARGUS/ARIADNE before closing PR64.
+- No API route behavior, schema, parser/OAuth, queue/background job, export
+  behavior, global Archive, public Archive route, raw trace/API payload display,
+  Redis, Cloudflare, Project work, hosted runtime, worker, billing/quota, or
+  DexOS work changed.

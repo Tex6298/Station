@@ -4,8 +4,13 @@ import { useMemo, useState } from "react";
 import type { ContinuityCandidate } from "@station/types/persona";
 import { apiPatch } from "@/lib/api-client";
 import {
+  importReviewCandidateLabel,
   importReviewEmptyCopy,
+  importReviewDestinationLabel,
+  importReviewOutcomeLabel,
+  importReviewPreservationCopy,
   importReviewSourceLabel,
+  importReviewSourceTypeLabel,
   importReviewStatusLabel,
   importReviewSummary,
 } from "@/lib/import-review";
@@ -25,7 +30,7 @@ export function ImportReviewInbox({
   candidates: ContinuityCandidate[];
   token: string | null;
   sourceCount: number;
-  onCandidateUpdated: (candidate: ContinuityCandidate) => void;
+  onCandidateUpdated: (candidate: ContinuityCandidate) => void | Promise<void>;
 }) {
   const [reviewing, setReviewing] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -52,7 +57,7 @@ export function ImportReviewInbox({
         { action, ...edits },
         token
       );
-      onCandidateUpdated(response.candidate);
+      await onCandidateUpdated(response.candidate);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Could not review import candidate.");
     } finally {
@@ -117,14 +122,29 @@ function ImportCandidateCard({
   return (
     <article className="studio-item-card archive-trust-source-card">
       <div>
-        <span>{candidate.candidateType}</span>
+        <span>{importReviewCandidateLabel(candidate.candidateType)}</span>
         <div className="archive-trust-card-meta">
           <StudioStatusBadge tone={candidate.status === "pending" ? "warning" : candidate.status === "accepted" ? "good" : "info"}>
             {importReviewStatusLabel(candidate.status)}
           </StudioStatusBadge>
-          <span>{importReviewSourceLabel(candidate)}</span>
+          <span>{importReviewSourceTypeLabel(candidate)}</span>
         </div>
       </div>
+      <h3>{title.trim() || importReviewCandidateLabel(candidate.candidateType)}</h3>
+      <dl className="import-review-readback">
+        <div>
+          <dt>Source</dt>
+          <dd>{importReviewSourceLabel(candidate)}</dd>
+        </div>
+        <div>
+          <dt>Destination</dt>
+          <dd>{importReviewDestinationLabel(candidate.candidateType)}</dd>
+        </div>
+        <div>
+          <dt>State</dt>
+          <dd>{importReviewOutcomeLabel(candidate)}</dd>
+        </div>
+      </dl>
       <input
         className="input"
         value={title}
@@ -141,7 +161,8 @@ function ImportCandidateCard({
       />
       {candidate.rationale ? <p>{candidate.rationale}</p> : null}
       <div className="archive-trust-next-action">
-        {pending ? "Review before activating. Rejecting keeps the private archive source." : `Reviewed ${candidate.acceptedAt ? formatDate(candidate.acceptedAt) : ""}`.trim()}
+        {importReviewPreservationCopy(candidate)}
+        {!pending && candidate.acceptedAt ? ` Reviewed ${formatDate(candidate.acceptedAt)}.` : ""}
       </div>
       {pending ? (
         <div style={{ display: "flex", gap: "0.5rem", justifyContent: "flex-end", flexWrap: "wrap" }}>

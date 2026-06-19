@@ -1712,6 +1712,37 @@ html, body {
   color: #fecaca;
 }
 
+.import-review-readback {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.55rem;
+  margin: 0;
+}
+
+.import-review-readback div {
+  min-width: 0;
+  border: 1px solid #243246;
+  border-radius: 8px;
+  background: #0b1120;
+  padding: 0.6rem;
+}
+
+.import-review-readback dt {
+  color: #7dd3fc;
+  font-size: 0.68rem;
+  font-weight: 760;
+  line-height: 1.3;
+  text-transform: uppercase;
+}
+
+.import-review-readback dd {
+  margin: 0.2rem 0 0;
+  color: #dbeafe;
+  font-size: 0.82rem;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
 .archive-export-status {
   display: grid;
   gap: 0.9rem;
