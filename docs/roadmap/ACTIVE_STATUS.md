@@ -6265,6 +6265,18 @@ when a PR lands, or when validation truth changes.
   leaking or duplicating non-public threads. This lane must not open Stripe,
   Redis, Cloudflare, provider migration, parser/OAuth, workers, hosted runtime,
   Project, billing, DexOS, broad UI, or any config request.
+- DAEDALUS implements PR70 Public Story Polish on 2026-06-19 and wakes ARGUS
+  for review. Public Space now treats empty authored pages/personas as optional
+  story modules when published works exist, avoids `0 pages` / `0 personas`
+  counters on works-led public Spaces, and keeps works/provenance/discussion
+  status foregrounded. Discover document cards with linked discussions now show
+  an explicit document-and-discussion cue without adding duplicate linked-thread
+  feed rows. No API feed/search behavior, visibility policy, auth/session,
+  schema, storage, Stripe, Redis, Cloudflare, provider, parser/OAuth, worker,
+  hosted runtime, Project, billing, DexOS, config, or broad UI scope changed.
+  Validation: `test:writing`, `test:community`, `test:spaces`,
+  `test:document-discussions`, `typecheck`, and `git diff --check` passed with
+  the pinned pnpm runner.
 
 ## Near-term rule
 

@@ -9,6 +9,7 @@ import {
   PUBLIC_SEARCH_GROUPS,
   routeablePublicSearchItems,
 } from "@/components/discover/search-dropdown";
+import { discoverDiscussionCue } from "@/lib/public-story-polish";
 
 interface FeedItem {
   id: string;
@@ -105,6 +106,7 @@ function FeedCard({ item }: { item: FeedItem }) {
     : item.type === "thread" ? "Forum" : (item.meta ?? "Post");
   const bg = TYPE_COLOURS[item.meta ?? item.type] ?? TYPE_COLOURS.document;
   const col = TYPE_TEXT[item.meta ?? item.type] ?? TYPE_TEXT.document;
+  const discussionCue = discoverDiscussionCue({ type: item.type, discussionThreadId: item.discussionThreadId });
 
   return (
     <Link href={item.href} style={{ textDecoration: "none" }}>
@@ -165,11 +167,16 @@ function FeedCard({ item }: { item: FeedItem }) {
           )}
           {item.persona && <span style={{ fontSize: "0.72rem", color: "#a89af7" }}>via {item.persona.name}</span>}
           {item.sourceLabel && <span style={{ fontSize: "0.72rem", color: "var(--public-home-muted)" }}>{item.sourceLabel}</span>}
+          {discussionCue && (
+            <span style={{ fontSize: "0.72rem", color: "#86efac", marginLeft: item.author || item.persona || item.sourceLabel ? "auto" : 0 }}>
+              {discussionCue}
+            </span>
+          )}
           {item.type === "developer_space" && item.developerSpace ? (
             <span style={{ fontSize: "0.72rem", color: "var(--public-home-muted)", marginLeft: "auto" }}>
               {item.developerSpace.visualisationType.replace("_", " ")}
             </span>
-          ) : item.replyCount > 0 && <span style={{ fontSize: "0.72rem", color: "var(--public-home-muted)", marginLeft: "auto" }}>Replies {item.replyCount}</span>}
+          ) : !discussionCue && item.replyCount > 0 && <span style={{ fontSize: "0.72rem", color: "var(--public-home-muted)", marginLeft: "auto" }}>Replies {item.replyCount}</span>}
         </div>
       </article>
     </Link>

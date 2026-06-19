@@ -8899,3 +8899,29 @@ ARGUS scope notes:
 - No product code, schema, API behavior, seed data, Redis, Cloudflare, provider
   migration, parser/OAuth, queues/workers, hosted runtime, Project work,
   billing-plan, DexOS, or broad redesign changed.
+
+## PR70 Public Story Polish
+
+DAEDALUS implementation validation on 2026-06-19:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:writing` | Pass | 7 tests passed, including focused public story helper coverage. |
+| `npm exec --yes pnpm@10.32.1 -- run test:community` | Pass | 8 tests passed; Discover visibility and public-safe community boundaries remain covered. |
+| `npm exec --yes pnpm@10.32.1 -- run test:spaces` | Pass | 1 test passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` | Pass | 1 test passed; linked document discussion visibility remains covered. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API replayed from cache; web typecheck completed. |
+| `git diff --check` | Pass | CRLF normalization warnings only for touched files and local triad state. |
+
+Scope notes:
+
+- Added focused public story helper tests to `test:writing`.
+- Public Space presentation now avoids zero authored-page/persona counters when
+  published works carry the route, and frames empty authored pages/personas as
+  optional story modules.
+- Discover document cards with linked discussions now display an explicit
+  document-and-discussion cue while continuing to use the existing public
+  document route.
+- No API feed/search behavior, visibility policy, auth/session, schema,
+  storage, Stripe, Redis, Cloudflare, provider migration, parser/OAuth, worker,
+  hosted runtime, Project, billing, DexOS, config, or broad UI scope changed.

@@ -7,6 +7,7 @@ import type { SpacePresentationConfig } from "@station/config/space-presentation
 import { SPACE_LAYOUT_OPTIONS, SPACE_THEME_OPTIONS } from "@station/config/space-presentation";
 import { getSession } from "@/lib/auth";
 import { apiGet } from "@/lib/api-client";
+import { publicPersonaEmptyCopy, publicSpaceHomeCopy, spaceStoryStats } from "@/lib/public-story-polish";
 
 interface SpacePage {
   id: string;
@@ -151,6 +152,13 @@ export default function PublicSpacePage() {
   const ownerLabel = owner?.display_name ?? owner?.username ?? "Station member";
   const featuredDocuments = documents.slice(0, presentation.layout === "archive" ? 6 : 3);
   const statPages = authoredPages.length;
+  const openDiscussionCount = documents.filter((document) => document.discussion_thread_id).length;
+  const stats = spaceStoryStats({
+    authoredPageCount: statPages,
+    documentCount: documents.length,
+    personaCount: personas.length,
+    discussionCount: openDiscussionCount,
+  });
 
   return (
     <main className={`space-site space-theme-${presentation.theme} space-layout-${presentation.layout}`}>
@@ -177,9 +185,9 @@ export default function PublicSpacePage() {
         <aside className="space-hero-panel">
           <div className="space-panel-label">Public surface</div>
           <div className="space-stat-grid">
-            <SpaceStat label="Pages" value={statPages} />
-            <SpaceStat label="Works" value={documents.length} />
-            <SpaceStat label="Personas" value={personas.length} />
+            {stats.map((stat) => (
+              <SpaceStat key={stat.label} label={stat.label} value={stat.value} />
+            ))}
           </div>
           {owner?.bio && <p>{owner.bio}</p>}
         </aside>
@@ -202,7 +210,7 @@ export default function PublicSpacePage() {
             <section className="space-authored-section">
               <div className="space-section-label">Home</div>
               <h2>{space.title}</h2>
-              <p>{space.long_description || space.short_description || "This Space is still being shaped."}</p>
+              <p>{publicSpaceHomeCopy({ longDescription: space.long_description, shortDescription: space.short_description, hasDocuments: documents.length > 0 })}</p>
             </section>
           )}
         </section>
@@ -220,7 +228,7 @@ export default function PublicSpacePage() {
             <div className="space-section-label">Personas</div>
             <h2>Public characters and collaborators</h2>
           </div>
-          <PersonaGrid personas={personas} />
+          <PersonaGrid personas={personas} hasDocuments={documents.length > 0} />
         </section>
 
         <section id="library" className="space-library-section">
@@ -270,9 +278,9 @@ function FeaturedDocuments({ documents, spaceSlug }: { documents: Document[]; sp
   );
 }
 
-function PersonaGrid({ personas }: { personas: Persona[] }) {
+function PersonaGrid({ personas, hasDocuments }: { personas: Persona[]; hasDocuments: boolean }) {
   if (personas.length === 0) {
-    return <div className="space-empty-state">No public personas are attached to this Space yet.</div>;
+    return <div className="space-empty-state">{publicPersonaEmptyCopy(hasDocuments)}</div>;
   }
 
   return (
@@ -310,7 +318,7 @@ function LibraryList({ documents, spaceSlug }: { documents: Document[]; spaceSlu
   );
 }
 
-function SpaceStat({ label, value }: { label: string; value: number }) {
+function SpaceStat({ label, value }: { label: string; value: string | number }) {
   return (
     <div>
       <strong>{value}</strong>

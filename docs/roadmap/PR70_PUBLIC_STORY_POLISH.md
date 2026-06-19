@@ -1,7 +1,7 @@
 # PR70 - Public Story Polish
 
 Date: 2026-06-19
-Status: opened by MIMIR; ready for DAEDALUS implementation
+Status: implemented by DAEDALUS; ready for ARGUS review
 Owner: DAEDALUS implements, ARGUS reviews, ARIADNE rehearses public story if
 code changes land, MIMIR sequences next.
 
@@ -137,3 +137,31 @@ If ARGUS accepts code changes, wake ARIADNE for an anonymous public story
 rehearsal across `/`, `/discover`, public Space, public document, linked forum
 discussion, and `390px` mobile. If blocked, wake MIMIR with the exact blocker.
 Do not leave the lane silent.
+
+## DAEDALUS Implementation
+
+Implemented on 2026-06-19 as a narrow presentation/helper slice:
+
+- Public Space stats now avoid `0 pages` / `0 personas` counters when published
+  works carry the public story. Works-led Spaces show intentional public-surface
+  chips such as `Story / Works-led` and `Collaborators / Optional`.
+- Empty Home/persona copy now frames authored pages and public personas as
+  optional story modules when documents exist.
+- Discover document cards with linked discussions now include an explicit
+  `Open document and linked discussion` cue while continuing to route through
+  the public document card. No duplicate linked-discussion thread rows were
+  added.
+- No API feed/search behavior, visibility policy, auth/session, schema,
+  storage, Stripe, Redis, Cloudflare, provider, parser/OAuth, worker, hosted
+  runtime, Project, billing, DexOS, config, or broad UI scope changed.
+
+Validation:
+
+```bash
+npm exec --yes pnpm@10.32.1 -- run test:writing
+npm exec --yes pnpm@10.32.1 -- run test:community
+npm exec --yes pnpm@10.32.1 -- run test:spaces
+npm exec --yes pnpm@10.32.1 -- run test:document-discussions
+npm exec --yes pnpm@10.32.1 -- run typecheck
+git diff --check
+```
