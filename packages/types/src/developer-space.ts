@@ -36,6 +36,9 @@ export interface DeveloperSpaceRecord {
   projectName: string;
   slug: string;
   description?: string | null;
+  projectId?: string | null;
+  assignedProjectName?: string | null;
+  assignedProjectSlug?: string | null;
   visibility: DeveloperSpaceVisibility;
   providerPolicy: DeveloperSpaceProviderPolicy;
   visualisationType: DeveloperSpaceVisualisationType;

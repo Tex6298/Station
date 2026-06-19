@@ -1139,3 +1139,75 @@ test("Developer Space project attachment is owner-only and syncs usage project i
     setSupabaseAdminForTests(null);
   }
 });
+
+test("Developer Space owner list includes owner-scoped Project assignment readback", async () => {
+  const db = new InMemorySupabase();
+  const ownerProject = db.insertRow("projects", {
+    id: "10000000-0000-4000-8000-000000000101",
+    owner_user_id: "owner-user",
+    name: "Owner Project",
+    slug: "owner-project",
+  });
+  const otherProject = db.insertRow("projects", {
+    id: "10000000-0000-4000-8000-000000000102",
+    owner_user_id: "other-user",
+    name: "Other Project",
+    slug: "other-project",
+  });
+  db.insertRow("developer_spaces", {
+    id: "20000000-0000-4000-8000-000000000101",
+    owner_user_id: "owner-user",
+    project_id: ownerProject.id,
+    project_name: "Assigned Developer Space",
+    slug: "assigned-developer-space",
+    visibility: "private",
+    visualisation_type: "node_field",
+  });
+  db.insertRow("developer_spaces", {
+    id: "20000000-0000-4000-8000-000000000102",
+    owner_user_id: "owner-user",
+    project_id: null,
+    project_name: "Unassigned Developer Space",
+    slug: "unassigned-developer-space",
+    visibility: "private",
+    visualisation_type: "timeline",
+  });
+  db.insertRow("developer_spaces", {
+    id: "20000000-0000-4000-8000-000000000103",
+    owner_user_id: "owner-user",
+    project_id: otherProject.id,
+    project_name: "Hostile Assignment Space",
+    slug: "hostile-assignment-space",
+    visibility: "private",
+    visualisation_type: "world_map",
+  });
+  setSupabaseAdminForTests(db.client as any);
+  const app = createDeveloperSpacesApp();
+
+  try {
+    const listed = await requestJson<{ spaces: Array<Record<string, any>> }>(app, "GET", "/developer-spaces", {
+      token: "owner-token",
+    });
+    assert.equal(listed.status, 200);
+
+    const bySlug = new Map(listed.body.spaces.map((space) => [space.slug, space]));
+    const assigned = bySlug.get("assigned-developer-space")!;
+    assert.equal(assigned.projectName, "Assigned Developer Space");
+    assert.equal(assigned.projectId, ownerProject.id);
+    assert.equal(assigned.assignedProjectName, "Owner Project");
+    assert.equal(assigned.assignedProjectSlug, "owner-project");
+
+    const unassigned = bySlug.get("unassigned-developer-space")!;
+    assert.equal(unassigned.projectId, null);
+    assert.equal(unassigned.assignedProjectName, null);
+    assert.equal(unassigned.assignedProjectSlug, null);
+
+    const hostile = bySlug.get("hostile-assignment-space")!;
+    assert.equal(hostile.projectId, null);
+    assert.equal(hostile.assignedProjectName, null);
+    assert.equal(hostile.assignedProjectSlug, null);
+    assert.equal(JSON.stringify(hostile).includes("Other Project"), false);
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+});

@@ -8409,3 +8409,31 @@ ARGUS scope notes:
 - No API/schema change, public Project page, quota math, billing, exports,
   member authorization, Cloudflare, Tier 2 hosting, developer-agent, DexOS, or
   `export_packages.project_id` work was added.
+
+## PR58 Owner Space Project Assignment Readback
+
+DAEDALUS implementation validation on 2026-06-19:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 12 tests passed; owner assignment, null assignment, and cross-owner Project exclusion are covered. |
+| `npm exec --yes pnpm@10.32.1 -- run test:projects` | Pass | 5 tests passed; Project behavior stayed green. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed after adding assignment fields. |
+| `git diff --check` | Pass | No whitespace errors; CRLF normalization warnings only for touched files and local triad state. |
+
+Scope notes:
+
+- Owner-only `GET /developer-spaces` now returns assignment fields:
+  `projectId`, `assignedProjectName`, and `assignedProjectSlug`.
+- `projectName` remains the existing Developer Space display-name field.
+- Assignment fields are populated only from owner-scoped `projects` rows.
+- Unassigned spaces return null assignment fields.
+- Hostile cross-owner Project ids do not expose Project name or slug.
+- Private Project detail distinguishes `Not attached to a Project` from
+  `Assigned to <Project>. Attaching moves it here`.
+- Attach/detach still refreshes Project detail and owner-space state through
+  `refreshProjectState`.
+- No schema, public Project page, public Developer Space assignment leakage,
+  quota math, billing, exports, member authorization, Cloudflare, Tier 2
+  hosting, developer-agent, DexOS, or `export_packages.project_id` work was
+  added.

@@ -5663,6 +5663,20 @@ when a PR lands, or when validation truth changes.
   Project. Keep scope to owner API/type/UI copy hardening; no schema, public
   Project pages, quota math, billing, exports, member auth, Cloudflare, Tier 2,
   developer-agent, DexOS, or `export_packages.project_id`.
+- DAEDALUS implements PR58 on 2026-06-19 with a non-breaking owner-list
+  assignment shape: `projectId`, `assignedProjectName`, and
+  `assignedProjectSlug`. `DeveloperSpaceRecord.projectName` remains the
+  Developer Space display name, so Project assignment name is not overloaded
+  onto that existing field. Owner-only `GET /developer-spaces` now augments
+  owner spaces from owner-scoped `projects` rows only; null assignments return
+  null fields, and hostile cross-owner Project ids do not leak Project name or
+  slug. Private Project detail now says `Not attached to a Project` for
+  unassigned spaces and `Assigned to <Project>. Attaching moves it here` for
+  spaces attached to another owner Project. Validation passed
+  `test:developer-spaces`, `test:projects`, and `typecheck`. No schema, public
+  Project page, public Developer Space assignment leakage, quota math, billing,
+  exports, member auth, Cloudflare, Tier 2 hosting, developer-agent, DexOS, or
+  `export_packages.project_id` work was added. ARGUS review is requested.
 
 ## Near-term rule
 

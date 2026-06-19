@@ -1,7 +1,7 @@
 # PR58 - Owner Space Project Assignment Readback
 
 Date: 2026-06-19
-Status: opened for DAEDALUS
+Status: implemented by DAEDALUS; ready for ARGUS review
 Owner: DAEDALUS implements, ARGUS reviews, ARIADNE rehearses only if UI copy
 or behavior changes, MIMIR decides next lane.
 
@@ -108,3 +108,60 @@ a short human rehearsal and wake MIMIR with the verdict. ARIADNE should verify:
 - `390px` layout has no horizontal overflow or offscreen controls.
 
 If blocked, wake MIMIR with the exact blocker. Do not leave the lane silent.
+
+## DAEDALUS Implementation
+
+Changed:
+
+- Extended owner-only `GET /developer-spaces`.
+- Added assignment fields to `DeveloperSpaceRecord`:
+  - `projectId: string | null`;
+  - `assignedProjectName: string | null`;
+  - `assignedProjectSlug: string | null`.
+- Kept existing `DeveloperSpaceRecord.projectName` as the Developer Space
+  display-name field. This avoids overloading or breaking existing Developer
+  Space UI that already uses `projectName`.
+- Owner-list assignment fields are populated only from Project rows where
+  `projects.owner_user_id = req.user.id`.
+- Owner spaces with no Project return null assignment fields.
+- Owner spaces with hostile cross-owner `project_id` test data return null
+  assignment fields and do not leak Project name/slug.
+- Private Project detail copy now distinguishes:
+  - `Not attached to a Project`;
+  - `Assigned to <Project>. Attaching moves it here`.
+- Attach/detach still refreshes Project detail and owner-space state through
+  `refreshProjectState`.
+
+Files changed:
+
+- `apps/api/src/routes/developer-spaces.ts`
+- `apps/api/src/routes/developer-spaces.test.ts`
+- `packages/types/src/developer-space.ts`
+- `apps/web/app/projects/[idOrSlug]/page.tsx`
+- `docs/roadmap/ACTIVE_STATUS.md`
+- `docs/testing/VALIDATION_BASELINE.md`
+- `docs/roadmap/PR58_OWNER_SPACE_PROJECT_ASSIGNMENT_READBACK.md`
+
+Validation:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 12 tests passed; owner assignment, null assignment, and cross-owner exclusion are covered. |
+| `npm exec --yes pnpm@10.32.1 -- run test:projects` | Pass | 5 tests passed; Project behavior stayed green. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed. |
+| `git diff --check` | Pass | No whitespace errors; CRLF normalization warnings only for touched files and local triad state. |
+
+Scope guard:
+
+- No schema or migration work.
+- No public Project pages or public Developer Space assignment leakage.
+- No quota math, billing, exports, member auth, Cloudflare, Tier 2 hosting,
+  developer-agent, DexOS, or `export_packages.project_id`.
+
+ARIADNE rehearsal request if ARGUS accepts:
+
+- Private Project detail distinguishes unassigned spaces from spaces assigned to
+  another owner Project.
+- Attach still moves a space into the current Project.
+- Detach returns it with truthful assignment copy.
+- `390px` layout has no horizontal overflow or offscreen controls.

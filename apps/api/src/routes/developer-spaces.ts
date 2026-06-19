@@ -881,7 +881,32 @@ developerSpacesRouter.get("/", requireAuth, async (req, res) => {
     .order("updated_at", { ascending: false });
 
   if (error) return res.status(500).json({ error: error.message });
-  return res.json({ spaces: (data ?? []).map((space) => serializeDeveloperSpace(space)) });
+
+  const assignedProjectIds = Array.from(new Set((data ?? [])
+    .map((space) => space.project_id)
+    .filter((projectId): projectId is string => typeof projectId === "string" && projectId.length > 0)));
+
+  const { data: projects, error: projectsError } = assignedProjectIds.length > 0
+    ? await sb
+      .from("projects")
+      .select("id, name, slug")
+      .eq("owner_user_id", req.user!.id)
+    : { data: [], error: null };
+
+  if (projectsError) return res.status(500).json({ error: projectsError.message });
+
+  const ownerProjectsById = new Map((projects ?? []).map((project) => [project.id, project]));
+  return res.json({
+    spaces: (data ?? []).map((space) => {
+      const assignment = space.project_id ? ownerProjectsById.get(space.project_id) ?? null : null;
+      return {
+        ...serializeDeveloperSpace(space),
+        projectId: assignment?.id ?? null,
+        assignedProjectName: assignment?.name ?? null,
+        assignedProjectSlug: assignment?.slug ?? null,
+      };
+    }),
+  });
 });
 
 developerSpacesRouter.post("/", requireAuth, requireTier("canon"), async (req, res) => {

@@ -41,6 +41,9 @@ interface ProjectDetailResponse {
 type OwnerDeveloperSpace = AttachedDeveloperSpaceSummary & {
   apiKeyLastFour?: string | null;
   apiKeyCreatedAt?: string | null;
+  projectId?: string | null;
+  assignedProjectName?: string | null;
+  assignedProjectSlug?: string | null;
 };
 
 interface ProjectActivity {
@@ -338,15 +341,15 @@ export default function ProjectDetailPage() {
 
         <section style={{ display: "grid", gap: "0.75rem" }}>
           <div>
-            <h2 style={{ margin: "0 0 0.3rem", fontSize: "1.2rem" }}>Other Owner Developer Spaces</h2>
+            <h2 style={{ margin: "0 0 0.3rem", fontSize: "1.2rem" }}>Available Developer Spaces</h2>
             <p style={{ margin: 0, color: "#687078", fontSize: "0.9rem", lineHeight: 1.5 }}>
-              Owner spaces not currently shown in this Project. Attaching one moves it to this Project.
+              Owner spaces not currently shown in this Project. Some may already belong to another Project.
             </p>
           </div>
 
           {attachCandidates.length === 0 ? (
             <div className="station-panel" style={{ textAlign: "center", padding: "2rem 1.5rem", color: "#687078" }}>
-              No other owner Developer Spaces.
+              No available owner Developer Spaces.
             </div>
           ) : attachCandidates.map((space) => (
             <article key={space.id} className="station-card" style={{ display: "grid", gap: "0.75rem" }}>
@@ -363,6 +366,11 @@ export default function ProjectDetailPage() {
                 <span>{visualisationLabel(space.visualisationType)}</span>
                 <span>/</span>
                 <span>updated {formatDate(space.updatedAt)}</span>
+              </div>
+              <div className="station-notice" style={{ color: "#687078", fontSize: "0.84rem", lineHeight: 1.5 }}>
+                {space.projectId
+                  ? `Assigned to ${space.assignedProjectName ?? "another owner Project"}. Attaching moves it here.`
+                  : "Not attached to a Project."}
               </div>
               <div className="station-action-row">
                 <button
