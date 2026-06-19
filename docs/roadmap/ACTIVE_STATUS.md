@@ -6500,6 +6500,23 @@ when a PR lands, or when validation truth changes.
   parser/OAuth, Project/DexOS, hosted runtime, broad UI, dark-pattern copy, raw
   Stripe identifiers, or secrets were added. ARIADNE should rehearse `/billing`
   as a signed owner on desktop and `390px` mobile before MIMIR closes PR74.
+- ARIADNE accepts PR74 Billing And Entitlement Clarity on 2026-06-19 against
+  Railway runtime `80e3bbe2f9e1409d4f30f96d0627d4432c6241d5`. The live
+  replay-owner account passed as active Canon on desktop and `390px` mobile:
+  current-plan copy, active portal/cancellation language, enabled `Manage /
+  cancel subscription`, disabled lower-tier `Included in current plan` cards,
+  disabled Canon `Current plan`, token-credit/entitlement separation, and
+  cancelled-checkout copy were visible and calm. Browser-level mocked
+  `/billing/me` states covered inactive Basic, active Creator, and inactive
+  Canon without mutating real billing or opening hosted Stripe URLs; inactive
+  activation, higher-tier Checkout copy, active lower-tier included states, and
+  inactive lower-tier option copy all passed. No dark-pattern copy, confusing
+  downgrade action, overflow/offscreen primary control, raw Stripe identifier,
+  token/secret-shaped value, production billing claim, live-money claim,
+  client-only entitlement grant, Redis billing-truth claim, provider scope,
+  Cloudflare scope, worker scope, parser/OAuth scope, Project/DexOS scope, or
+  broad UI scope appeared. No DAEDALUS repair lane is needed; MIMIR can close
+  PR74.
 
 ## Near-term rule
 

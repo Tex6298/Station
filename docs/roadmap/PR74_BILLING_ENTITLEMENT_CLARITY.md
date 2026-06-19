@@ -4,7 +4,7 @@ Date opened: 2026-06-19
 Opened by: A1 / MIMIR
 Owner: DAEDALUS first, ARGUS reviews. ARIADNE rehearses any visible route
 changes.
-Status: accepted by ARGUS; ready for ARIADNE rehearsal
+Status: accepted by ARIADNE; ready for MIMIR closeout
 
 ## Why This Lane
 
@@ -248,3 +248,17 @@ public Space and Discover.
 ARIADNE should rehearse `/billing` as a signed owner on desktop and `390px`
 mobile, checking active/current, inactive/cancelled, lower-tier, higher-tier,
 Checkout, portal, entitlement, and token-credit language.
+
+## ARIADNE Result
+
+Accepted on 2026-06-19. See
+`docs/roadmap/PR74_BILLING_ENTITLEMENT_CLARITY_ARIADNE.md`.
+
+ARIADNE rehearsed the deployed Railway implementation at
+`80e3bbe2f9e1409d4f30f96d0627d4432c6241d5`. The live replay-owner billing page
+passed as active Canon on desktop and `390px` mobile, including current-plan
+copy, portal/cancellation language, lower-tier included states, token-credit
+separation, and cancelled-checkout copy. Browser-level mocked `/billing/me`
+states covered inactive Basic, active Creator, and inactive Canon without
+mutating real billing or opening hosted Stripe URLs. No route-level defect
+requires a DAEDALUS repair lane.
