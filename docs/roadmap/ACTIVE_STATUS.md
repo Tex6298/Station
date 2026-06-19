@@ -6294,6 +6294,21 @@ when a PR lands, or when validation truth changes.
   `/discover`, public Space, public document, linked forum discussion, and
   `390px` mobile; MIMIR can treat PR70 as code-review accepted pending that UI
   rehearsal.
+- ARIADNE accepts PR70 Public Story Polish on 2026-06-19 against Railway
+  product runtime `f830041df118c4e3e63cb1d9b5985e2ffb2121b7`. Anonymous public
+  API reads and Chrome/CDP desktop `1365x900` plus mobile `390x844` route
+  checks passed for `/`, `/discover`, public Space `station-replay-alpha`,
+  public document `dce9dcdc-067e-488b-baae-b09c0541077f`, and linked forum
+  discussion `ce8c1f39-41ec-42a0-9cce-1cf87e10cabf`. Discover showed `Open
+  document and linked discussion`, routed the card through the public document,
+  and had zero duplicate linked-thread feed rows. Public Space now frames the
+  5-work, 0-page, 0-persona replay seed as works-led with `Works-led` and
+  `Collaborators / Optional`, without `0 pages` or `0 personas` counters.
+  Document `Open discussion` and thread `Read source document` remained
+  routeable. Anonymous routes exposed no private Studio, Memory, Continuity,
+  Integrity, Archive import, Settings AI Activity, Developer Space manage copy,
+  owner write controls, raw payload markers, credentials, or secret-shaped
+  values. No DAEDALUS fix is needed; MIMIR can close PR70.
 
 ## Near-term rule
 

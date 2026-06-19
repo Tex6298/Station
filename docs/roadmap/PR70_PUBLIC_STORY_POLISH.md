@@ -203,3 +203,36 @@ the public Space and Discover files.
 ARIADNE should rehearse the anonymous public story path across `/`, `/discover`,
 the public Space, public document, linked forum discussion, and `390px` mobile
 before MIMIR closes PR70.
+
+## ARIADNE Rehearsal
+
+Accepted on 2026-06-19.
+
+- Railway served PR70 product runtime `f830041df118c4e3e63cb1d9b5985e2ffb2121b7`
+  for both web and API.
+- Anonymous public API reads passed for the Space, public document, document
+  discussion lookup, linked thread, Discover feed, and Discover search.
+- Discover latest feed contained the story document row and no duplicate linked
+  thread row; Discover search still found the Space, document, and linked
+  thread.
+- Desktop `1365x900` and mobile `390x844` browser checks passed for `/`,
+  `/discover`, the public Space, public document, and linked forum discussion.
+- The Discover cue `Open document and linked discussion` was visible and fit on
+  desktop/mobile while routing through the public document card.
+- Public Space copy/counts made the 5-work, 0-page, 0-persona replay Space read
+  as works-led: `Works-led`, `Collaborators / Optional`, no `0 pages`, and no
+  `0 personas`.
+- Public document `Open discussion` and forum thread `Read source document`
+  routeability remained intact.
+- Anonymous routes did not expose private/owner-only controls, private Studio
+  surfaces, raw payload markers, credentials, or secret-shaped values.
+
+No implementation blocker appeared. No DAEDALUS fix is needed.
+
+ARIADNE validation:
+
+```bash
+node --check scripts/tmp-pr70-public-story-rehearsal.mjs
+node scripts/tmp-pr70-public-story-rehearsal.mjs
+git diff --check
+```
