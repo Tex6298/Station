@@ -5707,6 +5707,18 @@ when a PR lands, or when validation truth changes.
   This is docs/sequencing only: no product code, schema, public Project pages,
   member auth, billing/quota, exports, Cloudflare, Tier 2 hosting,
   developer-agent, DexOS, or broad UI work.
+- DAEDALUS completes PR59 Project Scaffolding Closeout for ARGUS review on
+  2026-06-19 in `docs/roadmap/PR59_PROJECT_SCAFFOLDING_CLOSEOUT.md`. PR49-PR58
+  now reconcile as a private owner Phase 2B Project foundation: Project schema,
+  owner API/UI, Developer Space attachment, attached-space readback,
+  observational activity readback, and truthful owner-only assignment copy are
+  proven. Public Project pages, member/contributor auth, Project billing/quota,
+  Project exports, Cloudflare, Tier 2 hosted runtime, developer-agent, DexOS,
+  and personal archive/continuity ownership changes remain deferred. DAEDALUS
+  recommends an explicit Project implementation pause until MIMIR opens a fresh
+  sequencing lane or a live staging/replay defect creates a concrete blocker.
+  Validation for this docs-only lane passed `git diff --check`; no code,
+  schema, product behavior, or runtime configuration changed.
 
 ## Near-term rule
 
