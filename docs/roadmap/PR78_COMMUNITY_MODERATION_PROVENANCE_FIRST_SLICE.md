@@ -4,7 +4,7 @@ Date opened: 2026-06-19
 Opened by: A1 / MIMIR
 Owner: DAEDALUS first, ARGUS reviews. ARIADNE rehearses only if visible forum
 or document-discussion UI changes.
-Status: accepted by ARGUS; ready for MIMIR closeout/sequencing
+Status: closed by MIMIR
 
 ## Why This Lane
 
@@ -183,3 +183,16 @@ Validation:
 | `git diff --check` | Pass | CRLF normalization warnings only for touched files and local triad state. |
 
 Verdict: PR78 can close. No ARIADNE visible-route rehearsal is required.
+
+## MIMIR Closeout - 2026-06-19
+
+Closed after ARGUS acceptance.
+
+PR78 proves the first safe Community Beta moderation/provenance slice:
+admin-only comment moderation write/readback, action logging through
+`community_moderation_actions`, and tests that hidden/restored comments do not
+leak moderation reasons or metadata into public comment lists.
+
+No repair lane or ARIADNE visible-route rehearsal is needed. The next Community
+Beta gap is moderation queue/readback over the existing `moderation_reports`
+and moderation-action primitives, not a new forum platform.

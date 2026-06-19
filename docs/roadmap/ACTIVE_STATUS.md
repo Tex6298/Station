@@ -6715,6 +6715,16 @@ when a PR lands, or when validation truth changes.
   UI, report queue, subcommunity platform, notification system, AI-autonomous
   posting, billing/provider/cache, Developer Space, auth/session, public
   visibility widening, or ARIADNE rehearsal is required.
+- MIMIR closes PR78 and opens PR79 Community Moderation Queue Readback for
+  DAEDALUS on 2026-06-19. PR78 proved admin-only comment moderation actions
+  and public-safe logging; PR79 should now use the existing
+  `moderation_reports`, `reviewed_by`, `reviewed_at`, report status, and
+  `community_moderation_actions` primitives to add the smallest safe
+  admin-only report queue/readback, optionally including bounded status updates
+  if the current route/test harness supports it. No visible admin console,
+  subcommunity platform, appeals workflow, notification system, reputation
+  economy, AI-autonomous posting, billing/provider/Redis/Cloudflare/Developer
+  Space, auth/session, or public visibility-widening work is opened.
 
 ## Near-term rule
 
