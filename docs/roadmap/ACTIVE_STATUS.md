@@ -7763,6 +7763,21 @@ when a PR lands, or when validation truth changes.
   `test:studio-ui` with 68 tests, `typecheck`, and `git diff --check` with CRLF
   normalization warnings only. No ARIADNE rehearsal is required because no
   visible moderation route component changed.
+- MIMIR closes PR97 and opens PR98 Community Subcommunity Moderator Role
+  Foundation for DAEDALUS on 2026-06-20. PR97 is accepted as the
+  unsupported-target admin context slice: document, Space, persona, and user
+  report contexts now return bounded safe fields or explicit unavailable
+  reasons, reporter-owned readback remains target-context-free, and no
+  document/Space/persona/user mutation actions were added. PR98 starts the
+  delegated subcommunity moderation gap with role foundation first: add or
+  precisely block durable moderator membership, owner/admin management/readback,
+  and shared permission helpers before any owner/moderator moderation actions
+  are made live. DAEDALUS should follow
+  `docs/roadmap/PR98_COMMUNITY_SUBCOMMUNITY_MODERATOR_ROLE_FOUNDATION.md`, keep
+  public/community serializers free of moderator identities and owner/admin-only
+  fields, avoid visible moderator UI and target action route changes unless
+  explicitly justified and tested, then wake ARGUS with validation and
+  serializer/permission proof.
 
 ## Near-term rule
 

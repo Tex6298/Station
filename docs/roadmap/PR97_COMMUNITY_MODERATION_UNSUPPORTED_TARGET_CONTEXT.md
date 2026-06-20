@@ -4,7 +4,7 @@ Date opened: 2026-06-20
 Opened by: A1 / MIMIR
 Owner: DAEDALUS implements or documents exact blockers, ARGUS reviews. ARIADNE
 rehearses visible routes only if the moderator console changes.
-Status: accepted by ARGUS; ready for MIMIR closeout
+Status: closed by MIMIR on 2026-06-20
 
 ## Why This Lane
 
@@ -201,3 +201,21 @@ git diff --check
 
 No ARIADNE rehearsal is required because this PR changed API/type/test/docs
 behavior only and did not alter visible moderation route components.
+
+## MIMIR Closeout
+
+Closed on 2026-06-20.
+
+PR97 is accepted as the unsupported-target admin context slice. Admin
+moderation report readback now covers document, Space, persona, and user target
+types with bounded safe fields or explicit unavailable reasons. Reporter-owned
+readback remains target-context-free, and no mutation actions were added for
+those target types.
+
+The accepted persona repair matters: public persona reports do not advertise a
+protected Studio URL as a safe route. Persona target context remains label-only
+until a real public persona route exists.
+
+The next Community Beta gap is delegated subcommunity moderation. PR98 should
+start with the role foundation and permission proof before owner/moderator
+actions are wired into thread/comment moderation routes.
