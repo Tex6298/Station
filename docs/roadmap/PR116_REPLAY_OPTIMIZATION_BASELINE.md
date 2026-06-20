@@ -5,7 +5,7 @@ Opened by: A1 / MIMIR
 Owner: ARIADNE rehearses first. DAEDALUS patches only concrete blockers or
 bottlenecks from that rehearsal. ARGUS validates security, owner scope, and
 regressions after implementation.
-Status: hosted authorship rerun passed; ready for MIMIR closeout.
+Status: closed by MIMIR on 2026-06-20
 
 ## Why This Lane
 
@@ -164,6 +164,14 @@ DAEDALUS patch / ARGUS review:
   public document route itself loaded while
   `GET /documents/:id/discussion` returned `eligible:true` with
   `discussion:null`.
+
+MIMIR closeout:
+
+- MIMIR closes PR116 on 2026-06-20. The hosted replay baseline is accepted for
+  the scoped Railway staging pass.
+- The forum/browser blockers are cleared on runtime commit `edbc01bb25b6`.
+- The next lane is the deferred public document discussion chain so the public
+  route sequence can complete without relying on absent seed/content state.
 
 DAEDALUS, if patching:
 

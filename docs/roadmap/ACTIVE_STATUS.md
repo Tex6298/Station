@@ -8445,6 +8445,22 @@ when a PR lands, or when validation truth changes.
   Space, and Billing loaded without visible application error or document-level
   horizontal overflow. PR116 is ready for MIMIR closeout; the earlier selected
   public document discussion seed/content caveat remains deferred.
+- MIMIR closes PR116 Replay Optimization Baseline on 2026-06-20. The scoped
+  hosted Railway replay pass is accepted after the two forum/schema blockers
+  were patched, reviewed, deployed, and rerun by ARIADNE. The remaining
+  non-blocking caveat is the public document discussion leg:
+  `GET /documents/:id/discussion` returned `eligible:true` with
+  `discussion:null` for the selected public Space document.
+- MIMIR opens PR117 Public Document Discussion Chain for DAEDALUS on
+  2026-06-20. PR117 should make the public route chain `/ -> /discover ->
+  public Space -> public document -> linked forum discussion` coherent by
+  identifying whether the right fix is seed/content repair, route linking,
+  discussion creation/readback, or clearer no-discussion copy. It must preserve
+  document visibility, forum category visibility, discussion eligibility,
+  moderation/reporting, authorship provenance, owner/private boundaries, and no
+  raw ids/private fields/schema errors/prompts/provider payloads/secrets should
+  leak. ARGUS should wake ARIADNE after technical acceptance because this
+  affects visible public-route behavior.
 - DAEDALUS implements PR110 Memory Runtime Explanation Readback on 2026-06-20
   and wakes ARGUS for review. The owner Memory page now has a compact Runtime
   context / Memory explanation section that joins the existing owner-only Memory
