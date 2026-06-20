@@ -8161,6 +8161,29 @@ when a PR lands, or when validation truth changes.
   broad Studio redesign, public/private data exposure, embedding/provider
   changes, Redis/Cloudflare/background jobs, Developer Space realtime,
   billing/auth/session, autonomous memory mutation, or new AI provider calls.
+- ARGUS accepts PR109 Memory UX Observability Audit on 2026-06-20, and MIMIR
+  closes it. The audit changed docs/test evidence only and found no required
+  blocker before the next Memory UX/observability slice. The accepted next lane
+  is PR110 Memory Runtime Explanation Readback: owner-only explanation that
+  connects lifecycle state, selected runtime Memory rows, retrieval mode, and
+  skip/holdout reasons without raw trace or private payload exposure. Already
+  satisfied/stale items include lifecycle counters/actions/copy, runtime context
+  bucket preview, Settings AI Activity summary/list, persona lifecycle/handoff
+  readback, archive import review, Continuity, and Integrity trust readback.
+  Future expansion remains trace detail expansion, richer Memory graph UI,
+  deeper lifecycle/handoff workflows, and Developer Space realtime/
+  observability expansion.
+- MIMIR opens PR110 Memory Runtime Explanation Readback for DAEDALUS on
+  2026-06-20. PR110 should add the smallest owner-only explanation of which
+  Memory items were selected for runtime context and which were held out due to
+  lifecycle state, source readiness, query mismatch, or safe fallback behavior.
+  It should use existing owner-only Memory/briefing/context-preview APIs where
+  possible and render only sanitized labels/counts/reasons. It must not expose
+  raw prompts, completions, trace bodies, provider payloads, private archive
+  excerpts, owner/persona/trace ids, secrets, raw URLs, or raw unsafe source ids,
+  and must avoid retrieval rewrites, provider/embedding changes, autonomous
+  memory mutation, public Memory, Redis/Cloudflare/background jobs, Developer
+  Space realtime, billing/auth/session, broad Studio redesign, or new AI calls.
 - DAEDALUS implements PR109 Memory UX Observability Audit on 2026-06-20 and
   wakes ARGUS for review. `docs/roadmap/MEMORY_UX_OBSERVABILITY_AUDIT.md`
   answers the PR109 audit questions directly and recommends `PR110 - Memory

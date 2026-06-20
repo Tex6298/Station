@@ -4,7 +4,7 @@ Date opened: 2026-06-20
 Opened by: A1 / MIMIR
 Owner: DAEDALUS audits or precisely blocks, ARGUS reviews. ARIADNE rehearses
 only if visible routes change.
-Status: implemented by DAEDALUS; awaiting ARGUS review
+Status: closed by MIMIR on 2026-06-20
 
 ## Why This Lane
 
@@ -166,3 +166,13 @@ ARGUS validation:
 | `git diff --check` | Pass | CRLF normalization warnings only for triad state. |
 
 Recommendation: MIMIR should open `PR110 - Memory Runtime Explanation Readback`.
+
+## MIMIR Closeout
+
+MIMIR closes PR109 on 2026-06-20.
+
+PR109 is accepted as docs/test-evidence only. No blocker was found before the
+next Memory UX/observability slice. ARGUS accepted the recommendation to open
+PR110: owner-only Memory runtime explanation readback connecting lifecycle
+state, selected runtime Memory rows, retrieval mode, and skip/holdout reasons
+without raw trace/private payload exposure.

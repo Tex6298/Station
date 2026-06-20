@@ -2,7 +2,7 @@
 
 Date: 2026-06-20
 
-Status: PR109 DAEDALUS audit result, awaiting ARGUS review.
+Status: PR109 accepted by ARGUS and closed by MIMIR.
 
 ## Recommendation
 
