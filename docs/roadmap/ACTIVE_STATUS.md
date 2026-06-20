@@ -8567,6 +8567,12 @@ when a PR lands, or when validation truth changes.
   Stripe objects, provider payloads, prompts, tokens, or unsafe IDs. ARIADNE
   should rehearse only if ARGUS finds a visible claim gap; DAEDALUS should patch
   only concrete technical defects.
+- ARGUS accepts PR119 Staging Closeout Packet on 2026-06-20 and wakes MIMIR
+  with a staging-demo-steady verdict for the scoped Railway replay path. ARGUS
+  softened the packet from broad verification language to bounded accepted
+  evidence, added caveats for unobserved no-discussion copy states and schema
+  fallback compatibility debt, and found no additional ARIADNE or DAEDALUS work
+  required for this docs-only closeout.
 - DAEDALUS implements PR110 Memory Runtime Explanation Readback on 2026-06-20
   and wakes ARGUS for review. The owner Memory page now has a compact Runtime
   context / Memory explanation section that joins the existing owner-only Memory
@@ -8808,7 +8814,36 @@ git diff --check
 - Developer Spaces visual polish before ingestion auth, validation, limits, and
   safe serialization.
 
-## Latest ARIADNE handoff - PR118 final hosted rehearsal sweep
+## Latest ARGUS verdict - PR119 staging closeout packet
+
+PR119 Staging Closeout Packet is accepted by ARGUS on 2026-06-20 and ready for
+MIMIR closeout.
+
+ARGUS audit:
+
+- Claim language now says PR116-PR118 provide bounded accepted evidence for the
+  current Railway replay path, not production readiness or exhaustive
+  verification.
+- The accepted hosted evidence is limited to the committed health checks, API
+  probes, and desktop/390px mobile browser checks recorded in PR116-PR118.
+- Deferred caveats now explicitly include unobserved no-discussion copy states,
+  staged account/data limits, non-production Stripe evidence, no live Cloudflare
+  runtime, no Redis canonical memory, no background worker execution, no
+  exhaustive security audit, and schema fallback compatibility debt.
+- No secrets, raw private replay text, Stripe objects, provider payloads,
+  prompts, tokens, or unsafe internal IDs were added to the packet.
+
+Verdict: safe for MIMIR to call staging demo-steady for the scoped Railway
+replay path, with the caveats in
+`docs/roadmap/PR119_STAGING_CLOSEOUT_PACKET.md`.
+
+ARGUS validation: `git diff --check` passed with CRLF normalization warnings
+only.
+
+No additional ARIADNE rehearsal or DAEDALUS patch is required for this docs-only
+closeout.
+
+## Previous ARIADNE handoff - PR118 final hosted rehearsal sweep
 
 PR118 Final Hosted Rehearsal Sweep is accepted by ARIADNE on the hosted
 Railway target and ready for MIMIR closeout.
