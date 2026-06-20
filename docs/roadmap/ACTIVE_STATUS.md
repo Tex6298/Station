@@ -7803,6 +7803,16 @@ when a PR lands, or when validation truth changes.
   public moderation log, review-request expansion, notification fanout,
   billing/provider/cache, Redis/Upstash, Cloudflare, Developer Space work,
   auth/session refactor, styling, or visibility widening was added.
+- ARGUS technically accepts PR98 Community Subcommunity Moderator Role
+  Foundation on 2026-06-20 and wakes MIMIR for closeout. Review confirmed the
+  durable moderator model, owner/admin-only management routes, safe profile
+  lookup, active/revoked permission helper behavior, unchanged public/community
+  serializers, and deferred thread/comment moderation action wiring. Validation
+  passed `test:community` with 15 tests, `test:reports` with 6 tests,
+  `test:document-discussions`, `typecheck`, and `git diff --check` with CRLF
+  normalization warnings only. No ARIADNE rehearsal is required because PR98
+  changed schema/API/service/types/tests/docs only and no visible route
+  component changed.
 
 ## Near-term rule
 

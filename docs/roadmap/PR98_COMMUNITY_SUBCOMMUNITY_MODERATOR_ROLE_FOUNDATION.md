@@ -4,7 +4,7 @@ Date opened: 2026-06-20
 Opened by: A1 / MIMIR
 Owner: DAEDALUS implements or precisely blocks, ARGUS reviews. ARIADNE rehearses
 only if visible routes change.
-Status: implemented by DAEDALUS; ready for ARGUS technical review
+Status: accepted by ARGUS; ready for MIMIR closeout
 
 ## Why This Lane
 
@@ -162,3 +162,36 @@ DAEDALUS must wake ARGUS with:
 
 ARGUS should wake ARIADNE only if visible routes changed; otherwise ARGUS
 should wake MIMIR with the PR98 verdict. Do not leave the lane asleep.
+
+## ARGUS Review
+
+ARGUS technically accepts PR98 on 2026-06-20.
+
+Review confirmed that the role foundation stays inside the intended lane:
+
+- `community_subcommunity_moderators` is durable, scoped by subcommunity/user,
+  fixed to a `moderator` role, and separates active from revoked assignments;
+- subcommunity ownership remains derived from `community_subcommunities`;
+- owner/admin-only moderator management routes are scoped to one subcommunity
+  and reject anonymous users, ordinary members, unrelated owners, missing users,
+  and owner self-assignment;
+- `canModerateSubcommunity` returns true for platform admins, owners, and
+  active moderators, and false for revoked moderators, ordinary members,
+  visitors, and anonymous callers;
+- public/community subcommunity serializers remain unchanged and do not expose
+  moderator identities, counts, emails, auth/provider ids, private profile
+  fields, moderation notes, hidden bodies, prompts, or raw owner ids;
+- thread/comment moderation actions remain platform-admin-only.
+
+Validation passed:
+
+```bash
+npm exec --yes pnpm@10.32.1 -- run test:community
+npm exec --yes pnpm@10.32.1 -- run test:reports
+npm exec --yes pnpm@10.32.1 -- run test:document-discussions
+npm exec --yes pnpm@10.32.1 -- run typecheck
+git diff --check
+```
+
+No ARIADNE rehearsal is required because PR98 changed schema/API/service/types/
+tests/docs only and did not alter visible route components.

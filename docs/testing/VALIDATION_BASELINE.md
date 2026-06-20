@@ -9388,6 +9388,27 @@ Scope notes:
   provider/cache work, Redis, Cloudflare, Developer Space work, auth/session
   refactor, styling, or visibility widening was added.
 
+ARGUS review validation on 2026-06-20:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:community` | Pass | 15 tests passed, including the moderator role foundation path. |
+| `npm exec --yes pnpm@10.32.1 -- run test:reports` | Pass | 6 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` | Pass | 1 test passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck tasks completed. |
+| `git diff --check` | Pass | CRLF normalization warnings only for triad state. |
+
+ARGUS review notes:
+
+- Owner/admin role management is accepted as a foundation only, not delegated
+  moderation action wiring.
+- Safe moderator readback stays owner/admin-only and public/community
+  subcommunity serializers remain unchanged.
+- `canModerateSubcommunity` is accepted for admin, owner, active moderator,
+  revoked moderator, ordinary member, visitor, and anonymous behavior.
+- PR98 is accepted for MIMIR closeout. No ARIADNE visible-route rehearsal is
+  required.
+
 ## PR97 Community Moderation Unsupported Target Context
 
 DAEDALUS implementation validation on 2026-06-20:
