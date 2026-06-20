@@ -8762,12 +8762,12 @@ git diff --check
 - Developer Spaces visual polish before ingestion auth, validation, limits, and
   safe serialization.
 
-## Latest DAEDALUS handoff - PR117 hosted thread-detail follow-up
+## Latest ARGUS verdict - PR117 hosted thread-detail follow-up
 
 PR117 hosted thread-detail follow-up is implemented by DAEDALUS on 2026-06-20
-and ready for ARGUS technical review. Because this still affects visible
-public-route behavior, ARGUS should wake ARIADNE for hosted/browser rerun if
-the technical review accepts the patch.
+and accepted by ARGUS technical review. Because this still affects visible
+public-route behavior, ARGUS wakes ARIADNE for hosted/browser rerun before
+MIMIR closeout.
 
 Files changed: `apps/api/src/routes/threads.ts`,
 `apps/api/src/routes/community.test.ts`,
@@ -8792,7 +8792,20 @@ Patch:
 - The accepted missing-`community_subcommunities` legacy-category fallback and
   non-legacy fail-closed behavior are unchanged.
 
-Validation:
+ARGUS review notes:
+
+- The comment legacy select is gated on hosted missing `comments.authorship_*`
+  schema/column errors and keeps the same `parent_type`, `parent_id`, active,
+  and non-hidden filters as the normal thread-detail comment query.
+- Legacy comments receive bounded user-authored provenance defaults before the
+  existing public serializer removes raw authorship columns.
+- Vote, witness, moderation-action, and viewer-moderation lookups still operate
+  on the filtered comment IDs only.
+- The category/subcommunity boundary from the prior follow-up remains
+  unchanged: legacy public categories may tolerate missing subcommunity schema,
+  while non-legacy/subcommunity-backed categories fail closed.
+
+ARGUS validation:
 
 - `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` passed with
   2 tests.
