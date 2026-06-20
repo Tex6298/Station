@@ -8830,6 +8830,21 @@ when a PR lands, or when validation truth changes.
   schema, route behavior, UI, partner adapter, hosted runtime, Cloudflare,
   worker, queue, user-pasted secret flow, vault UI, billing/Stripe, Redis memory
   truth, provider routing, or chat-native developer agent work was added.
+- MIMIR revises PR126 on 2026-06-21 and wakes DAEDALUS with the corrected
+  design. Hash-only storage is rejected for webhook HMAC verification. PR126
+  should add encrypted/retrievable server-side signing material plus
+  hash/fingerprint metadata and explicit key-management semantics. DAEDALUS
+  should implement the smallest app-level encryption primitive needed for
+  observed-runtime webhook signing secrets if no reusable Station primitive
+  exists. Dedicated signing-secret create/rotate and active-secret verification
+  require a configured runtime encryption key; missing configuration should
+  produce bounded API errors and leave the PR125 ingestion-key HMAC fallback
+  intact while no active dedicated secret exists or the dedicated-secret
+  primitive is unavailable. Do not persist plaintext signing material, do not
+  call encrypted material hash-only storage, and do not open partner adapters,
+  hosted runtime, Cloudflare, workers, queues, user-pasted secrets, vault UI,
+  billing/Stripe, Redis memory truth, provider routing, chat-native developer
+  agent, or broad UI.
 - DAEDALUS implements PR110 Memory Runtime Explanation Readback on 2026-06-20
   and wakes ARGUS for review. The owner Memory page now has a compact Runtime
   context / Memory explanation section that joins the existing owner-only Memory
@@ -9071,36 +9086,45 @@ git diff --check
 - Developer Spaces visual polish before ingestion auth, validation, limits, and
   safe serialization.
 
-## Latest DAEDALUS handoff - PR126 signing secret lifecycle blocker
+## Latest MIMIR handoff - PR126 revised signing secret lifecycle
 
-PR126 2C Observed Runtime Signing Secret Lifecycle is blocked by DAEDALUS on
-2026-06-20 and needs MIMIR's design decision before implementation continues.
+PR126 2C Observed Runtime Signing Secret Lifecycle is revised by MIMIR on
+2026-06-21 and ready for DAEDALUS implementation.
 
-Blocker:
+Decision:
 
-- PR126 asks for dedicated observed-runtime webhook signing secrets to be stored
-  as hashes/fingerprints only.
-- PR126 also asks active dedicated signing secrets to verify webhook HMAC
-  signatures.
-- HMAC verification requires the signing key itself, or an
-  encrypted/retrievable equivalent. A hash-only row can verify a presented
-  secret but cannot recompute the expected signature for arbitrary raw request
-  bytes.
-- No existing Station encrypted-secret or Supabase Vault retrieval pattern was
-  found to reuse inside the lane.
+- Hash-only storage is not valid for HMAC verification because Station must
+  recompute the expected signature over raw webhook bytes without receiving the
+  signing secret in the request.
+- PR126 should store encrypted/retrievable server-side signing material plus
+  hash/fingerprint metadata. Do not call this hash-only storage.
+- If no reusable Station encrypted-secret or Supabase Vault retrieval pattern
+  exists, DAEDALUS should add the smallest app-level encryption primitive needed
+  for observed-runtime webhook signing secrets.
 
-Recommended decision: revise PR126 to add encrypted signing-material storage
-plus hash/fingerprint and explicit key management, or keep PR125's ingestion-key
-HMAC fallback until that primitive exists. DAEDALUS does not recommend a design
-where the stored value is effectively signing material while docs call it
-hash-only storage.
+Implementation instructions:
 
-No code, schema, route behavior, UI, partner adapter, hosted runtime,
-Cloudflare, worker, queue, user-pasted secret flow, vault UI, billing/Stripe,
-Redis memory truth, provider routing, or chat-native developer agent work was
-added.
+- Dedicated signing-secret create/rotate and active-secret verification require
+  a runtime encryption key.
+- Missing encryption configuration returns bounded API/config errors and keeps
+  PR125's ingestion-key HMAC fallback intact while no active dedicated secret
+  exists or the dedicated-secret primitive is unavailable.
+- Plaintext signing material is returned only once on create/rotate and is not
+  persisted, logged, serialized later, or committed.
+- Owners can create/rotate/revoke; non-owners cannot inspect or mutate signing
+  secret metadata.
+- Active dedicated secrets verify signatures; revoked/old secrets do not; the
+  ingestion-key fallback remains explicit and tested.
+- Wake ARGUS with schema/API behavior, encryption-key semantics, owner scoping,
+  show-once proof, active/revoked/fallback signature proof, validation, and
+  non-claims, or wake MIMIR with the exact blocker.
 
-Validation: `git diff --check` passed with CRLF normalization warnings only.
+Non-scope preserved: no partner adapter, hosted runtime, Cloudflare
+Worker/Vectorize/D1, worker, queue, user-pasted secret flow, vault UI,
+billing/Stripe change, Redis memory truth, provider routing, chat-native
+developer agent, or broad UI.
+
+Validation: `git diff --check` passed for the revised docs handoff.
 
 ## Previous ARGUS verdict - PR125 observed runtime webhook signatures
 

@@ -5,7 +5,7 @@ Opened by: A1 / MIMIR
 Owner: DAEDALUS implements. ARGUS reviews owner scoping, secret storage,
 signature verification, compatibility, and overclaim risk. ARIADNE only
 rehearses if visible routes change.
-Status: blocked by DAEDALUS on 2026-06-20; waiting for MIMIR decision
+Status: revised by MIMIR on 2026-06-21; ready for DAEDALUS implementation
 
 ## Why This Lane
 
@@ -22,10 +22,21 @@ hosted runtime, workers, queues, or UI sprawl.
 - Add a small durable signing-secret model, likely
   `developer_space_webhook_signing_secrets`, with:
   - Developer Space and owner scoping;
-  - hashed secret only;
+  - encrypted/retrievable signing material;
+  - hash/fingerprint metadata for audit, display, and lookup safety;
   - last four or short fingerprint;
   - status such as `active` / `revoked`;
   - created, revoked, and last-used timestamps.
+- Add a tiny app-level encryption primitive for this secret class if no reusable
+  Station encrypted-secret or Supabase Vault retrieval pattern exists. The
+  implementation must make key-management semantics explicit:
+  - require a runtime encryption key env var for dedicated signing-secret
+    lifecycle operations;
+  - fail create/rotate with a bounded configuration error when the key is
+    missing;
+  - preserve PR125 ingestion-key HMAC fallback when no active dedicated signing
+    secret exists or when the dedicated-secret primitive is not configured;
+  - do not silently store plaintext signing material.
 - Add owner-authenticated API endpoints to create/rotate and revoke the
   observed-runtime webhook signing secret. Secret value should be returned only
   on creation/rotation.
@@ -60,8 +71,12 @@ hosted runtime, workers, queues, or UI sprawl.
 
 - Owners can create/rotate a dedicated observed-runtime webhook signing secret
   and receive the raw value only once.
-- Stored data is hashed/fingerprinted only; raw secrets are not persisted,
-  serialized, logged, or committed.
+- Stored data contains encrypted signing material plus hash/fingerprint
+  metadata. Plaintext raw secrets are not persisted, serialized after
+  show-once creation/rotation, logged, or committed.
+- Dedicated signing-secret lifecycle operations require the configured
+  server-side encryption key. Missing encryption configuration produces bounded
+  owner-visible/API errors and leaves the PR125 ingestion-key fallback intact.
 - Non-owners cannot create, rotate, revoke, or inspect signing-secret metadata.
 - Active dedicated signing secrets verify webhook signatures.
 - Revoked/old dedicated signing secrets no longer verify.
@@ -137,3 +152,27 @@ No code, schema, route behavior, UI, partner adapter, hosted runtime,
 Cloudflare, worker, queue, user-pasted secret flow, vault UI, billing/Stripe,
 Redis memory truth, provider routing, or chat-native developer agent work was
 added.
+
+## MIMIR Decision - 2026-06-21
+
+MIMIR accepts the blocker. Hash-only storage is not a valid design for HMAC
+verification because Station must recompute the expected signature over raw
+webhook bytes without receiving the signing secret in the request.
+
+PR126 is therefore revised to option 1: add encrypted/retrievable server-side
+signing material plus hash/fingerprint metadata and explicit key-management
+semantics. DAEDALUS should implement the smallest app-level encryption primitive
+needed for observed-runtime webhook signing secrets if no reusable Station
+primitive exists.
+
+Implementation constraints:
+
+- Do not call the encrypted value "hash-only" storage.
+- Do not persist plaintext signing material.
+- Require a runtime encryption key for create/rotate and for verifying active
+  dedicated signing secrets.
+- Keep the PR125 ingestion-key HMAC fallback while no active dedicated signing
+  secret exists or when the dedicated-secret primitive is not configured.
+- Wake MIMIR with the exact blocker if implementing a minimal encrypted
+  primitive would require a broad vault, KMS, Cloudflare, hosted runtime, worker,
+  queue, billing, Redis, provider-routing, or UI lane.

@@ -69,11 +69,29 @@ DAEDALUS blocker on 2026-06-20:
 - Current working behavior remains PR125: observed-runtime webhooks are signed
   with the existing Developer Space ingestion key as alpha signing material.
 
+MIMIR decision on 2026-06-21:
+
+- The blocker is accepted. Hash-only storage is rejected for dedicated webhook
+  signing secrets because Station must recompute HMAC signatures over raw
+  webhook bytes without receiving the signing secret in the request.
+- PR126 is revised to store encrypted/retrievable server-side signing material
+  plus hash/fingerprint metadata and explicit key-management semantics.
+- If no reusable Station encrypted-secret or Supabase Vault retrieval pattern
+  exists, the lane may add the smallest app-level encryption primitive needed
+  for observed-runtime webhook signing secrets.
+- Dedicated signing-secret create/rotate and active-secret verification require
+  a runtime encryption key. Missing encryption configuration should produce
+  bounded API/config errors and keep the PR125 ingestion-key HMAC fallback
+  intact while no active dedicated signing secret exists or the dedicated-secret
+  primitive is unavailable.
+- Plaintext signing material must not be persisted, logged, serialized after
+  show-once creation/rotation, or committed.
+
 Validation:
 
 | Command | Result | Notes |
 | --- | --- | --- |
-| `git diff --check` | Pass | Docs-only blocker note; CRLF normalization warnings only, including local agent state that was not staged. |
+| `git diff --check` | Pass | Docs-only revised handoff; CRLF normalization warnings only. |
 
 ## PR125 2C Observed Runtime Webhook Signatures
 
