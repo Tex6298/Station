@@ -47,6 +47,10 @@ promised in the Station documents.
   `/forums`, `/forums/subcommunities`, and subcommunity-backed category routes,
   with signed-out/below-tier gates and no private/unlisted/owner-only field
   exposure.
+- Category and new-thread routes now have protected-beta creation UX gates:
+  signed-out, below-tier, and eligible states are explicit; category preflight
+  restores session before using protected context; and thread creation posts a
+  bounded user-authored payload.
 - Bounded discussion provenance labels exist for document-linked,
   persona-linked, and user-authored discussion rows without exposing raw source
   internals.
@@ -68,7 +72,7 @@ pnpm test:reports
 
 ## Still open
 
-- Polished category and thread creation UX.
+- Further category and thread creation polish after protected-beta rehearsal.
 - Recognition/witness mechanics that reward thoughtful contribution rather than volume.
 - Deeper moderator/admin console UX for unsupported document/space/persona/user
   targets and any future delegated moderator surfaces.

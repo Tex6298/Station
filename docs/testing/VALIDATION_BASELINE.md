@@ -9323,6 +9323,45 @@ Route notes:
 - Desktop and 390px mobile checks did not show horizontal overflow or offscreen
   primary controls.
 
+## PR93 Community Forum Creation UX Hardening
+
+DAEDALUS implementation validation on 2026-06-20:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 63 tests passed, including forum create route helpers, shared eligibility, and narrow payload construction. |
+| `npm exec --yes pnpm@10.32.1 -- run test:community` | Pass | 13 tests passed; category/thread API visibility and participation gates remain green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:reports` | Pass | 6 tests passed; moderation report scoping remains green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` | Pass | 1 test passed; document discussion visibility remains green. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API typecheck replayed from cache; web typecheck ran cleanly for the PR93 patch. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web build` | Partial / known Windows failure | Next compiled, linted/typechecked, collected page data, and generated 35 static pages, then hit the known local Windows standalone symlink `EPERM`. Only pre-existing raw `<img>` warnings appeared in `app/space/[slug]/page.tsx` and `components/discover/discover-front-door.tsx`. |
+| `git diff --check` | Pass | CRLF normalization warnings only for touched files. |
+
+Scope notes:
+
+- Added tested forum-create helpers for accepted route paths, shared
+  `canCreateThread` eligibility, and bounded `POST /forums/threads` payload
+  construction.
+- `/forums/[categorySlug]` now shows signed-out, below-tier, and eligible
+  thread-create states while preserving live local search/sort controls.
+- Signed-out protected category preflight failures render as a sign-in state
+  instead of a misleading hard route failure.
+- `/forums/[categorySlug]/new` restores session before category preflight and
+  passes the bearer token when present, covering community/subcommunity-backed
+  category reads.
+- Owner-readable persona and Space selector APIs are called only for eligible
+  signed-in users; signed-out and below-tier users do not call selector APIs or
+  mutating thread routes.
+- The thread create payload includes only `categoryId`, trimmed `title`,
+  trimmed `body`, and optional `linkedPersonaId`/`linkedSpaceId` selected from
+  offered safe rows. No linked document shortcut was added.
+- Successful thread creation routes to the created thread detail.
+- No broad forum redesign, private/unlisted subcommunity creation, delegated
+  moderator UI, witness/reputation, notification expansion,
+  billing/provider/cache, Redis, Cloudflare, Developer Space expansion,
+  auth/session refactor, persona-authored posting, or visibility widening was
+  added.
+
 ## PR91 Community Subcommunity Foundation
 
 DAEDALUS implementation validation on 2026-06-20:

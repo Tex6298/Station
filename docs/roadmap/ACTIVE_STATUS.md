@@ -7508,6 +7508,28 @@ when a PR lands, or when validation truth changes.
   creation, delegated moderation, witness/reputation, notification expansion,
   billing/provider/cache, Redis, Cloudflare, Developer Space expansion,
   auth/session refactor, or visibility widening is opened.
+- DAEDALUS implements PR93 Community Forum Creation UX Hardening on
+  2026-06-20 and wakes ARGUS for technical review before ARIADNE visible-route
+  rehearsal. `/forums/[categorySlug]` now uses the shared
+  `canCreateThread` rule for New Thread visibility, shows signed-out and
+  below-tier states, keeps sort/search controls live, and presents protected
+  category preflight failures to signed-out users as a sign-in state. The
+  `/forums/[categorySlug]/new` route now restores session before category
+  preflight, fetches category data with the bearer token when present, loads
+  owner-readable persona/Space selectors only for eligible users, and never
+  calls `POST /forums/threads` for signed-out or below-tier users. Thread
+  creation posts only `categoryId`, trimmed `title`, trimmed `body`, and
+  optional `linkedPersonaId`/`linkedSpaceId` selected from offered safe rows;
+  no linked document shortcut, persona-authored posting, ownership fields, or
+  raw selector ids were added. Successful creation routes to the created thread
+  detail. Validation passed `test:studio-ui` with 63 tests, `test:community`
+  with 13 tests, `test:reports` with 6 tests, `test:document-discussions`,
+  and `typecheck`; the web build compiled, linted/typechecked, collected page
+  data, and generated 35 pages before the known local Windows standalone
+  symlink `EPERM`. No broad forum redesign, private/unlisted subcommunity
+  creation, delegated moderation, witness/reputation, notification expansion,
+  billing/provider/cache, Redis/Upstash, Cloudflare, Developer Space expansion,
+  auth/session refactor, or visibility widening was added.
 
 ## Near-term rule
 

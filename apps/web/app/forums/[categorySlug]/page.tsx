@@ -6,6 +6,7 @@ import { useParams } from "next/navigation";
 import type { CommunitySubcommunityRecord } from "@station/types";
 import { apiGet, apiPost } from "@/lib/api-client";
 import { getSession } from "@/lib/auth";
+import { canCreateCommunityThread, newThreadPath } from "@/lib/community-forum-create";
 import { subcommunityBadgeLabel } from "@/lib/community-subcommunities";
 
 interface Author { username: string; display_name: string | null; }
@@ -30,7 +31,6 @@ interface Thread {
   author: Author | null;
 }
 interface Category { id: string; slug: string; title: string; description: string | null; subcommunity?: CommunitySubcommunityRecord | null; }
-const PARTICIPATION_TIERS = new Set(["private", "creator", "canon", "institutional"]);
 
 export default function ForumCategoryPage() {
   const { categorySlug } = useParams<{ categorySlug: string }>();
@@ -38,6 +38,7 @@ export default function ForumCategoryPage() {
   const [threads, setThreads]     = useState<Thread[]>([]);
   const [loading, setLoading]     = useState(true);
   const [error, setError]         = useState<string | null>(null);
+  const [notice, setNotice]       = useState<string | null>(null);
   const [canPost, setCanPost]     = useState(false);
   const [isSignedIn, setIsSignedIn] = useState(false);
   const [token, setToken]         = useState<string | undefined>();
@@ -47,9 +48,14 @@ export default function ForumCategoryPage() {
 
   useEffect(() => {
     if (!categorySlug) return;
+    let hadSession = false;
 
+    setLoading(true);
+    setError(null);
+    setNotice(null);
     getSession().then(async (session) => {
       const accessToken = session?.access_token;
+      hadSession = Boolean(session);
       setToken(accessToken);
       setIsSignedIn(Boolean(session));
       setViewerUserId(session?.user.id ?? null);
@@ -61,9 +67,13 @@ export default function ForumCategoryPage() {
       );
       setCategory(data.category);
       setThreads(data.threads);
-      setCanPost(Boolean(session && PARTICIPATION_TIERS.has(session.user.tier)));
+      setCanPost(canCreateCommunityThread(session?.user));
     }).catch((e) => {
-      setError(e instanceof Error ? e.message : "Category not found.");
+      if (hadSession) {
+        setError(e instanceof Error ? e.message : "Category not found.");
+      } else {
+        setNotice("Sign in to open this category or start a thread.");
+      }
     }).finally(() => setLoading(false));
   }, [categorySlug, sort, search]);
 
@@ -85,6 +95,7 @@ export default function ForumCategoryPage() {
   }
 
   if (loading) return <main className="container"><div className="card" style={{ textAlign: "center", padding: "3rem", color: "#687078" }}>Loading...</div></main>;
+  if (notice) return <main className="container"><div className="card" style={{ color: "#687078", lineHeight: 1.6 }}><Link href="/login" style={{ color: "#534ab7", fontWeight: 800 }}>Sign in</Link> to open this category or start a thread.</div></main>;
   if (error || !category) return <main className="container"><div className="card" style={{ background: "#2d1515", borderColor: "#7d2e2e", color: "#eb5757" }}>{error ?? "Not found."}</div></main>;
 
   return (
@@ -120,9 +131,14 @@ export default function ForumCategoryPage() {
           )}
         </div>
         {canPost && (
-          <Link href={`/forums/${categorySlug}/new`} className="button primary" style={{ textDecoration: "none", fontSize: "0.8rem" }}>
+          <Link href={newThreadPath(categorySlug)} className="button primary" style={{ textDecoration: "none", fontSize: "0.8rem" }}>
             + New thread
           </Link>
+        )}
+        {!isSignedIn && (
+          <div style={{ color: "#687078", fontSize: "0.78rem", maxWidth: 260 }}>
+            <Link href="/login" style={{ color: "#534ab7", fontWeight: 800 }}>Sign in</Link> to start a thread. Public reading stays open.
+          </div>
         )}
         {isSignedIn && !canPost && (
           <div style={{ color: "#687078", fontSize: "0.78rem", maxWidth: 260 }}>
@@ -149,7 +165,7 @@ export default function ForumCategoryPage() {
       {/* Thread list */}
       {threads.length === 0 ? (
         <div className="card" style={{ color: "#687078", fontStyle: "italic", textAlign: "center", padding: "3rem" }}>
-          No threads yet. Be the first to post!
+          {canPost ? "No threads yet. Be the first to post!" : "No threads yet."}
         </div>
       ) : (
         <div style={{ display: "grid", gap: "0.65rem" }}>
