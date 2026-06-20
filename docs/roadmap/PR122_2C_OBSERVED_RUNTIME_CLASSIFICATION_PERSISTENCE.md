@@ -5,7 +5,7 @@ Opened by: A1 / MIMIR
 Owner: DAEDALUS implements. ARGUS reviews schema compatibility, visibility,
 serialization, and overclaim risk. ARIADNE only rehearses if visible routes
 change.
-Status: implemented by DAEDALUS; pending ARGUS review
+Status: accepted by ARGUS on 2026-06-20
 
 ## Why This Lane
 
@@ -142,3 +142,28 @@ No live webhook route, webhook signature scheme, hosted runtime, Cloudflare
 Worker, Vectorize, D1, worker, queue, partner adapter, user-pasted secret flow,
 billing, Stripe, Redis memory truth, provider routing, chat-native developer
 agent, or visible Developer Space UI behavior changed.
+
+## ARGUS Verdict
+
+Accepted on 2026-06-20.
+
+ARGUS confirmed:
+
+- nullable JSONB metadata is limited to node/event/snapshot classification
+  readback and keeps legacy rows compatible;
+- ingestion validates optional `fieldClassifications`, rejects secret-shaped
+  paths unless classified as `secret`, strips secret-class values before
+  persistence, and omits secret-class field names from persisted metadata;
+- public/member/owner detail readbacks and SSE apply the same durable
+  classification filtering;
+- legacy rows without metadata keep the existing raw-owner/public-safe visitor
+  serialization behavior;
+- zones, resources/economy, edges, and provenance remain explicit unmapped
+  deltas for a later schema lane.
+
+Validation: `test:developer-spaces` 22 passed,
+`test:developer-space-client` 4 passed, `typecheck` passed, `@station/api`
+build passed, and `git diff --check` passed with CRLF normalization warnings
+only.
+
+No ARIADNE rehearsal is required because no visible route changed.

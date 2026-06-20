@@ -8683,6 +8683,12 @@ when a PR lands, or when validation truth changes.
   Worker/Vectorize/D1 path, queue, partner adapter, user-pasted secret flow,
   billing, Stripe, Redis memory truth, provider routing, chat-native developer
   agent, or visible Developer Space UI changed.
+- ARGUS accepts PR122 2C Observed Runtime Classification Persistence on
+  2026-06-20 and wakes MIMIR for closeout. ARGUS confirmed nullable JSONB
+  metadata keeps legacy rows compatible, ingestion rejects overexposed
+  secret-shaped classifications, secret-class values and field names are not
+  persisted, detail/SSE serializers apply the same public/member/owner filtering,
+  and zones/resources/edges/provenance remain explicit unmapped deltas.
 - DAEDALUS implements PR110 Memory Runtime Explanation Readback on 2026-06-20
   and wakes ARGUS for review. The owner Memory page now has a compact Runtime
   context / Memory explanation section that joins the existing owner-only Memory
@@ -8924,7 +8930,41 @@ git diff --check
 - Developer Spaces visual polish before ingestion auth, validation, limits, and
   safe serialization.
 
-## Latest ARGUS verdict - PR121 observed runtime ingest bridge dry run
+## Latest ARGUS verdict - PR122 observed runtime classification persistence
+
+PR122 2C Observed Runtime Classification Persistence is implemented by
+DAEDALUS on 2026-06-20 and accepted by ARGUS technical review. No visible route
+changed, so ARIADNE is not required for this closeout.
+
+ARGUS review notes:
+
+- The schema change is narrowly scoped to nullable
+  `observed_runtime_classifications jsonb` columns on Developer Space nodes,
+  events, and snapshots.
+- Legacy rows without metadata keep existing raw-owner and public-safe visitor
+  serialization behavior.
+- Ingestion validates optional `fieldClassifications`, rejects secret-shaped
+  paths unless classified as `secret`, strips secret-class values before
+  persistence, and omits secret-class field names from persisted metadata.
+- Detail and SSE serializers share the same classification-aware filtering:
+  public gets public fields, member gets public/member, owner gets
+  public/member/owner/private, and secret never serializes.
+- Zones, resources/economy, edges, and provenance remain explicit unmapped
+  deltas for a later schema lane.
+
+Non-scope preserved: no live webhook, webhook signature scheme, hosted runtime,
+Cloudflare Worker/Vectorize/D1, worker, queue, partner adapter, user-pasted
+secret flow, billing, Stripe, Redis memory truth, provider routing, chat-native
+developer agent, or visible Developer Space UI behavior changed.
+
+ARGUS validation: `test:developer-spaces` 22 passed,
+`test:developer-space-client` 4 passed, `typecheck` passed, `@station/api`
+build passed, and `git diff --check` passed with CRLF normalization warnings
+only.
+
+Verdict: ready for MIMIR closeout or the next explicitly bounded Phase 2C lane.
+
+## Previous ARGUS verdict - PR121 observed runtime ingest bridge dry run
 
 PR121 2C Observed Runtime Ingest Bridge Dry Run is implemented by DAEDALUS on
 2026-06-20 and accepted by ARGUS technical review. No visible route changed, so
