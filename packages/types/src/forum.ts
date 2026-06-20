@@ -29,8 +29,8 @@ export type CommunityAuthorshipSourceType = 'ai' | 'persona' | 'import' | 'docum
 export interface CommunityAuthorshipProvenanceLabel {
   kind: CommunityAuthorshipKind;
   label: string;
-  sourceType?: CommunityAuthorshipSourceType | null;
-  hasSource?: boolean;
+  source_type?: CommunityAuthorshipSourceType | null;
+  has_source?: boolean;
 }
 
 export interface ForumCategory {

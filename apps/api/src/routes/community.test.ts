@@ -1439,6 +1439,12 @@ test("forum thread payloads expose only proven safe provenance labels", async ()
   const app = createCommunityApp();
 
   try {
+    const importedThread = db.tables.threads.find((thread: Row) => thread.id === PUBLIC_THREAD_ID)!;
+    importedThread.authorship_kind = "imported";
+    importedThread.authorship_source_type = "import";
+    importedThread.authorship_source_id = PUBLIC_DOC_ID;
+    importedThread.authorship_persona_id = PUBLIC_PERSONA_ID;
+
     const category = await requestJson(app, "GET", "/forums/categories/community");
     assert.equal(category.status, 200);
 
@@ -1477,6 +1483,12 @@ test("forum thread payloads expose only proven safe provenance labels", async ()
     });
 
     const ordinaryThread = category.body.threads.find((thread: Row) => thread.id === PUBLIC_THREAD_ID);
+    assert.deepEqual(ordinaryThread.authorship_provenance, {
+      kind: "imported",
+      label: "Imported",
+      source_type: "import",
+      has_source: true,
+    });
     assert.deepEqual(ordinaryThread.discussion_provenance, {
       kind: "user_authored",
       label: "User-authored",

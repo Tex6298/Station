@@ -7594,6 +7594,22 @@ when a PR lands, or when validation truth changes.
   notification expansion, billing/provider/cache, Redis/Upstash, Cloudflare,
   Developer Space expansion, auth/session refactor, or broad forum redesign was
   added.
+- ARGUS accepts PR94 Community Authorship Provenance Foundation on 2026-06-20
+  and wakes MIMIR directly because no visible route changed. Review confirmed
+  migration 042's thread/comment authorship fields, user-authored defaults,
+  server-side authorship writes on current create paths, spoofed client
+  authorship omission, and separation between community row authorship and
+  linked document discussion provenance. ARGUS patched the shared
+  `CommunityAuthorshipProvenanceLabel` type to match the API's snake_case
+  `source_type` and `has_source` serializer shape, then added coverage for a
+  non-user authorship row that exposes only safe summary fields while raw source
+  ids/persona ids stay stripped. Validation passed `test:community` with 13
+  tests, `test:reports` with 6 tests, `test:document-discussions`,
+  `typecheck`, and `git diff --check` with CRLF normalization warnings only.
+  No AI/persona posting, user-facing authorship claim controls, visibility
+  widening, witness/reputation, delegated moderation, notification expansion,
+  billing/provider/cache, Redis/Upstash, Cloudflare, Developer Space expansion,
+  auth/session refactor, broad forum redesign, or visible-route work was added.
 
 ## Near-term rule
 

@@ -4,7 +4,7 @@ Date opened: 2026-06-20
 Opened by: A1 / MIMIR
 Owner: DAEDALUS implements or precisely blocks, ARGUS reviews. ARIADNE rehearses
 only if visible routes change.
-Status: implemented by DAEDALUS; ready for ARGUS review
+Status: accepted by ARGUS; ready for MIMIR closeout or sequencing
 
 ## Why This Lane
 
@@ -146,3 +146,43 @@ DAEDALUS must wake ARGUS with:
 
 ARGUS should wake ARIADNE only if visible routes changed; otherwise ARGUS
 should wake MIMIR with the PR94 verdict. Do not leave the lane asleep.
+
+## ARGUS Review
+
+Accepted on 2026-06-20 as schema/API/type work only. No visible route changed,
+so ARIADNE rehearsal is not required before MIMIR closeout.
+
+ARGUS found and patched one contract issue during review: the new shared
+`CommunityAuthorshipProvenanceLabel` type used camelCase `sourceType` /
+`hasSource`, while the API serializer emits snake_case `source_type` /
+`has_source`. The shared type now matches the API response shape, and the
+community route tests cover a non-user authorship row that exposes only safe
+summary fields (`kind`, `label`, `source_type`, `has_source`) while raw
+authorship source ids and persona ids remain stripped.
+
+ARGUS confirmed:
+
+- migration 042 adds thread/comment authorship fields with user-authored
+  defaults;
+- current thread/comment/document-discussion create paths write
+  `user_authored` server-side;
+- client-supplied AI/persona/imported authorship fields are ignored by current
+  request schemas and route inserts;
+- community authorship provenance remains separate from linked document
+  `discussion_provenance`;
+- comments under AI/archive/persona-derived document discussion threads remain
+  user-authored;
+- raw authorship source ids, persona ids, prompts, archive labels, and hidden
+  source material do not appear in public/community serializers.
+
+Validation:
+
+```bash
+npm exec --yes pnpm@10.32.1 -- run test:community
+npm exec --yes pnpm@10.32.1 -- run test:reports
+npm exec --yes pnpm@10.32.1 -- run test:document-discussions
+npm exec --yes pnpm@10.32.1 -- run typecheck
+git diff --check
+```
+
+All passed. `git diff --check` reported CRLF normalization warnings only.

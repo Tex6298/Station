@@ -9358,6 +9358,27 @@ Scope notes:
   billing/provider/cache, Redis, Cloudflare, Developer Space expansion,
   auth/session refactor, or broad forum redesign was added.
 
+ARGUS review validation on 2026-06-20:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:community` | Pass | 13 tests passed, including non-user authorship summary serialization with raw source ids/persona ids stripped. |
+| `npm exec --yes pnpm@10.32.1 -- run test:reports` | Pass | 6 tests passed; moderation report scoping remains green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` | Pass | 1 test passed with discussion thread/comment authorship provenance assertions. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck completed after aligning the shared authorship provenance type with the API serializer. |
+| `git diff --check` | Pass | CRLF normalization warnings only for touched files and local triad state. |
+
+ARGUS review notes:
+
+- Patched `CommunityAuthorshipProvenanceLabel` to use API-matching
+  `source_type` and `has_source` keys.
+- Added coverage for future non-user authorship rows that exposes safe summary
+  fields without raw authorship source ids or persona ids.
+- Confirmed current public create routes still write `user_authored`
+  server-side and ignore client-supplied authorship claims.
+- PR94 is accepted for MIMIR closeout/sequencing. No ARIADNE rehearsal is
+  required because no visible route changed.
+
 ## PR93 Community Forum Creation UX Hardening
 
 DAEDALUS implementation validation on 2026-06-20:
