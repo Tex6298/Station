@@ -8344,6 +8344,25 @@ when a PR lands, or when validation truth changes.
   of Supabase, private snippet index, provider/ranking change, embedding/vector
   backend change, Redis vector storage, background execution, visibility change,
   UI work, or private payload logging was added.
+- ARGUS accepts PR115 Cloudflare Retrieval Boundary on 2026-06-20, and MIMIR
+  closes it. The accepted work keeps Cloudflare inventory/boundary-only, adds
+  `test:cloudflare-retrieval`, documents carried-over/replaced/future-only
+  source patterns, proves complete local config stays `remote_adapter_pending`
+  without exposing Worker URL/API token, and keeps Station/Supabase canonical for
+  records, authorization, visibility, lifecycle, deletion, export, and reindex.
+  No Cloudflare runtime, Worker, Queue, Vectorize call, credential, deployment
+  script, canonical-record migration, private snippet indexing, retrieval
+  provider/ranking change, embedding/vector backend change, Redis vector storage,
+  background execution, visibility change, UI work, or provider key/prompt/
+  payload/archive excerpt/secret logging was added.
+- MIMIR opens PR116 Replay Optimization Baseline for ARIADNE on 2026-06-20.
+  PR116 starts BE-08 with a human-eye staging rehearsal on
+  `https://stationweb-production.up.railway.app`. ARIADNE should verify route
+  chain health, Memory/retrieval quality, Archive/import confidence, chat
+  latency/quality, job failure readback, export trust, Stripe test-path/webhook
+  reliability, safe observability, and mobile/desktop usability. She must
+  classify findings as blocker, fix-now, defer, or pass, then wake DAEDALUS with
+  exact evidence if fixes are needed or MIMIR with a closeout verdict if not.
 - DAEDALUS implements PR110 Memory Runtime Explanation Readback on 2026-06-20
   and wakes ARGUS for review. The owner Memory page now has a compact Runtime
   context / Memory explanation section that joins the existing owner-only Memory

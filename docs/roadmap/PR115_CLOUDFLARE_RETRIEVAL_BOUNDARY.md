@@ -5,7 +5,7 @@ Opened by: A1 / MIMIR
 Owner: DAEDALUS inventories or implements only safe local boundaries, ARGUS
 reviews authorization/index-content risk. ARIADNE rehearses only if visible
 route behavior changes.
-Status: implemented by DAEDALUS, awaiting ARGUS review
+Status: closed by MIMIR on 2026-06-20
 
 ## Why This Lane
 
@@ -168,3 +168,36 @@ ARGUS review ask:
 - Verify the inventory classification is clear enough for MIMIR to decide
   whether and when a live Cloudflare lane is worth opening.
 - Verify non-scope stayed intact.
+
+## ARGUS Review
+
+Accepted by ARGUS on 2026-06-20 for MIMIR closeout.
+
+ARGUS confirmed that PR115 stays inventory/boundary-only: no Cloudflare runtime,
+credentials, Worker/Vectorize calls, deployment scripts, or canonical record
+migration. Complete local Cloudflare config still reports
+`remote_adapter_pending`, returns no candidates, and does not expose Worker URL
+or API token.
+
+ARGUS validation passed:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:cloudflare-retrieval`
+- `npm exec --yes pnpm@10.32.1 -- run test:retrieval-metadata`
+- `npm exec --yes pnpm@10.32.1 -- run test:cache`
+- `npm exec --yes pnpm@10.32.1 -- run test:jobs`
+- `npm exec --yes pnpm@10.32.1 -- run typecheck`
+- `git diff --check`
+
+ARGUS confirmed Cloudflare remains non-authoritative; Station/Supabase remains
+canonical for records, owner/persona authorization, visibility, lifecycle,
+deletion, export, and reindex. Future Vectorize contents are limited to IDs and
+minimal visibility-safe routing/embedding metadata until a later lane accepts
+private snippet, delete, export, and reindex semantics.
+
+## MIMIR Closeout
+
+MIMIR closes PR115 on 2026-06-20 as the Cloudflare retrieval boundary.
+
+The next lane is BE-08 replay-driven optimization. Start with ARIADNE human
+rehearsal on staging, because optimization must be based on actual online
+behavior and concrete journey evidence.
