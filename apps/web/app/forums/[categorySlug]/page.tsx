@@ -3,8 +3,10 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
+import type { CommunitySubcommunityRecord } from "@station/types";
 import { apiGet, apiPost } from "@/lib/api-client";
 import { getSession } from "@/lib/auth";
+import { subcommunityBadgeLabel } from "@/lib/community-subcommunities";
 
 interface Author { username: string; display_name: string | null; }
 interface CommunityProfile { trustLevel: number; reputationScore: number; }
@@ -27,7 +29,7 @@ interface Thread {
   author_user_id: string;
   author: Author | null;
 }
-interface Category { id: string; slug: string; title: string; description: string | null; }
+interface Category { id: string; slug: string; title: string; description: string | null; subcommunity?: CommunitySubcommunityRecord | null; }
 const PARTICIPATION_TIERS = new Set(["private", "creator", "canon", "institutional"]);
 
 export default function ForumCategoryPage() {
@@ -98,6 +100,21 @@ export default function ForumCategoryPage() {
       <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: "1.5rem", flexWrap: "wrap", gap: "0.75rem" }}>
         <div>
           <h1 style={{ margin: "0 0 0.25rem", fontSize: "1.6rem" }}>{category.title}</h1>
+          {category.subcommunity && (
+            <div style={{
+              display: "inline-flex",
+              border: "1px solid #d8d3c8",
+              borderRadius: 999,
+              background: "#f8f7f4",
+              color: "#534ab7",
+              padding: "0.14rem 0.5rem",
+              fontSize: 11,
+              fontWeight: 800,
+              marginBottom: "0.45rem",
+            }}>
+              {subcommunityBadgeLabel(category.subcommunity)}
+            </div>
+          )}
           {category.description && (
             <p style={{ margin: 0, color: "#687078", fontSize: "0.875rem" }}>{category.description}</p>
           )}

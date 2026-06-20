@@ -9236,6 +9236,41 @@ Scope notes:
   expansion, raw ingestion key storage, secret logging, broad UI, public
   serializer expansion, or visible web UI changed.
 
+## PR92 Community Subcommunity UI First Slice
+
+DAEDALUS implementation validation on 2026-06-20:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:community` | Pass | 13 tests passed; PR91 API visibility, creation, and category/thread guards remain green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:reports` | Pass | 6 tests passed; moderation report scoping remains green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` | Pass | 1 test passed; document discussion visibility remains green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 59 tests passed, including subcommunity path, label, and creation eligibility helpers. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck completed. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web build` | Partial / known Windows failure | Next compiled, linted/typechecked, collected page data, generated 35 static pages, then hit the known local Windows standalone symlink `EPERM`. Only pre-existing raw `<img>` warnings appeared in `app/space/[slug]/page.tsx` and `components/discover/discover-front-door.tsx`. |
+| `git diff --check` | Pass | CRLF normalization warnings only for touched files. |
+
+Scope notes:
+
+- Added `/forums/subcommunities` as a visible directory/create page over the
+  accepted PR91 routes.
+- Directory reads use public/community-safe list serializers and do not expose
+  private/unlisted rows, owner ids, linked Space ids, linked Developer Space ids,
+  or hidden rows.
+- Creation controls appear only after session restore for
+  canon/institutional/admin users, then post type, public/community visibility,
+  slug, title, and description to `POST /forums/subcommunities`.
+- Signed-out and below-tier users do not call owner-only
+  `/forums/subcommunities/mine` or mutating routes.
+- Successful creation routes to the created forum category path.
+- Forum index labels subcommunity-backed categories, and category detail shows
+  type/visibility/status context from the category payload.
+- Linked object selectors are intentionally omitted in this first slice; no raw
+  UUID field was exposed.
+- No private/unlisted creation, delegated moderator UI, witness/reputation,
+  notification expansion, billing/provider/cache, Redis, Cloudflare, Developer
+  Space expansion, auth/session refactor, or broad forum redesign was added.
+
 ## PR91 Community Subcommunity Foundation
 
 DAEDALUS implementation validation on 2026-06-20:

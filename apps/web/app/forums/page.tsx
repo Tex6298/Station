@@ -2,7 +2,9 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import type { CommunitySubcommunityRecord } from "@station/types";
 import { apiGet } from "@/lib/api-client";
+import { subcommunityBadgeLabel } from "@/lib/community-subcommunities";
 
 interface Category {
   id: string;
@@ -10,6 +12,7 @@ interface Category {
   title: string;
   description: string | null;
   sort_order: number;
+  subcommunity?: CommunitySubcommunityRecord | null;
 }
 
 export default function ForumsPage() {
@@ -33,12 +36,20 @@ export default function ForumsPage() {
             Community discussion for the Station subculture.
           </p>
         </div>
-        <Link
-          href="/forums/reports"
-          style={{ padding: "0.45rem 0.75rem", border: "1px solid #d8d3c8", borderRadius: 7, color: "#1f2529", textDecoration: "none", fontSize: "0.8rem", background: "#fff" }}
-        >
-          My reports
-        </Link>
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+          <Link
+            href="/forums/subcommunities"
+            style={{ padding: "0.45rem 0.75rem", border: "1px solid #d8d3c8", borderRadius: 7, color: "#1f2529", textDecoration: "none", fontSize: "0.8rem", background: "#fff" }}
+          >
+            Subcommunities
+          </Link>
+          <Link
+            href="/forums/reports"
+            style={{ padding: "0.45rem 0.75rem", border: "1px solid #d8d3c8", borderRadius: 7, color: "#1f2529", textDecoration: "none", fontSize: "0.8rem", background: "#fff" }}
+          >
+            My reports
+          </Link>
+        </div>
       </div>
 
       {loading && (
@@ -79,6 +90,11 @@ export default function ForumsPage() {
                 </div>
                 <div style={{ minWidth: 0 }}>
                   <div style={{ fontWeight: 600, fontSize: "1rem", marginBottom: "0.2rem" }}>{cat.title}</div>
+                  {cat.subcommunity && (
+                    <div style={{ color: "#534ab7", fontSize: "0.72rem", fontWeight: 800, marginBottom: "0.25rem" }}>
+                      {subcommunityBadgeLabel(cat.subcommunity)}
+                    </div>
+                  )}
                   {cat.description && (
                     <div style={{ color: "#687078", fontSize: "0.85rem" }}>{cat.description}</div>
                   )}

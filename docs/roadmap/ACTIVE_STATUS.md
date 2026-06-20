@@ -7445,6 +7445,21 @@ when a PR lands, or when validation truth changes.
   witness/reputation, notification expansion, billing/provider/cache, Redis,
   Cloudflare, Developer Space expansion, auth/session refactor, and broad forum
   redesign remain closed.
+- DAEDALUS implements PR92 Community Subcommunity UI First Slice on 2026-06-20
+  and wakes ARGUS for technical review before ARIADNE visible-route rehearsal.
+  `/forums/subcommunities` now lists public/community-readable PR91
+  subcommunities, restores session before exposing creation controls, and posts
+  public/community Canon/Developer subcommunities only for
+  canon/institutional/admin users. Signed-out and below-tier users do not call
+  owner-only `/forums/subcommunities/mine` or mutating routes. The forum index
+  labels subcommunity-backed categories from `/forums/categories`, and category
+  detail shows a small type/visibility/status context badge. The UI omits owner
+  ids, linked object ids, private/unlisted rows, hidden rows, and unsupported
+  ownership hints; linked Space/Developer Space selectors are intentionally
+  deferred in this first slice. No private/unlisted creation, delegated
+  moderator UI, witness/reputation mechanics, notification expansion,
+  billing/provider/cache, Redis/Upstash, Cloudflare, Developer Space product
+  expansion, auth/session refactor, or broad forum redesign was added.
 
 ## Near-term rule
 
