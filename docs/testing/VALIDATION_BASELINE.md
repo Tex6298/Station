@@ -106,6 +106,32 @@ ARGUS review notes:
 - No new target APIs, lock/pin actions, unsupported target mutation, or global
   report calls were added.
 
+ARIADNE visible-route rehearsal on 2026-06-20:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| Local Playwright route rehearsal with temporary `codex-pr105-route-rehearsal.spec.js` | Pass | Ran against `http://127.0.0.1:3135` with mocked API responses. Covered signed-out, ordinary member, revoked moderator, unrelated owner, subcommunity owner, active moderator, platform admin, eligible thread row, eligible comment row, no-action row, unsupported target row, successful thread hide/unhide/remove/restore, successful comment hide, failed comment target action, report-status separation, desktop, and 390px mobile states. |
+
+ARIADNE notes:
+
+- Signed-out, ordinary, revoked, and unrelated-owner states did not fetch live
+  queue rows, render report/target controls, or call moderation PATCH routes.
+- Owner, active-moderator, and admin states discovered the queue from the
+  category page and rendered target controls only after scoped queue preflight
+  passed.
+- `Report status` and `Target safety` stayed separate; report status controls
+  continued to call only the PR103 scoped report route.
+- Thread rows called only `PATCH /threads/:id/moderation`; comment rows called
+  only `PATCH /comments/:id/moderation`.
+- Supported target actions stayed bounded to `Hide`, `Unhide`, `Remove`, and
+  `Restore`; mocked `Pin` and `Lock` actions did not render.
+- No-action and unsupported target rows showed no target controls.
+- Failed target action copy kept the row visible and recoverable.
+- Private/admin fields, unsupported target rows, and unsupported action labels
+  did not render.
+- Desktop and 390px mobile states showed no horizontal overflow or offscreen
+  controls.
+
 ## PR104 Community Delegated Report Status UI
 
 DAEDALUS implementation validation on 2026-06-20:

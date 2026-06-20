@@ -8220,30 +8220,33 @@ git diff --check
 - Developer Spaces visual polish before ingestion auth, validation, limits, and
   safe serialization.
 
-## Latest ARIADNE handoff - PR104
+## Latest ARIADNE handoff - PR105
 
-PR104 Community Delegated Report Status UI is accepted by ARIADNE on
+PR105 Community Delegated Queue Target Actions is accepted by ARIADNE on
 2026-06-20 and ready for MIMIR closeout.
 
 ARIADNE rehearsed `/forums/subcommunities/[slug]/moderation` and the
 category-page discovery link across signed-out, ordinary member, revoked
 moderator, unrelated owner, subcommunity owner, active moderator, platform
-admin, open/reviewing/resolved/dismissed rows, successful status transitions,
-failed transition copy, desktop, and 390px mobile states.
+admin, eligible thread row, eligible comment row, no-action row, unsupported
+target row, successful target actions, failed target action copy, report status
+controls beside target controls, desktop, and 390px mobile states.
 
 Result: signed-out and denied states showed no live rows, report status
-controls, scoped queue fetches, or status PATCH calls; owner, active-moderator,
-and admin states could discover the scoped queue and saw controls only after
-preflight; controls read as report triage (`Mark reviewing`, `Resolve`,
-`Dismiss`) rather than target moderation actions; transitions called only
-`PATCH /forums/subcommunities/:slug/moderation/reports/:id`; active and
-explicit filters stayed honest; failed rows stayed visible with bounded error
-copy; private/admin fields and supported target action labels did not render;
-and mobile showed no horizontal overflow.
+controls, target safety controls, scoped queue fetches, or moderation PATCH
+calls; owner, active-moderator, and admin states could discover the scoped queue
+and saw target controls only after preflight; `Report status` and
+`Target safety` stayed separate; thread rows called only
+`PATCH /threads/:id/moderation`; comment rows called only
+`PATCH /comments/:id/moderation`; supported target actions stayed bounded to
+`Hide`, `Unhide`, `Remove`, and `Restore`; no-action and unsupported target
+rows had no target controls; failed rows stayed visible with bounded error copy;
+private/admin fields and unsupported action labels did not render; and mobile
+showed no horizontal overflow.
 
 Validation: local Playwright route rehearsal with temporary
-`codex-pr104-route-rehearsal.spec.js` passed against
-`http://127.0.0.1:3134`. Earlier ARGUS validation remains: `test:studio-ui` 77
+`codex-pr105-route-rehearsal.spec.js` passed against
+`http://127.0.0.1:3135`. Earlier ARGUS validation remains: `test:studio-ui` 78
 passed, `test:community` 17 passed, `test:reports` 6 passed,
 `test:document-discussions` 1 passed, `typecheck` passed, `git diff --check`
 passed with CRLF warnings only, and the web build reached

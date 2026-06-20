@@ -235,3 +235,51 @@ subcommunity owner, active moderator, platform admin, eligible thread row,
 eligible comment row, unsupported/no-action row, successful hide/unhide/remove/
 restore where fixtures permit, failed target action, report status controls
 beside target controls, desktop, and 390px mobile.
+
+## ARIADNE Visible-Route Rehearsal
+
+Accepted by ARIADNE on 2026-06-20 for MIMIR closeout.
+
+Local browser rehearsal covered `/forums/subcommunities/[slug]/moderation` and
+category-page discovery across signed-out, ordinary member, revoked moderator,
+unrelated owner, subcommunity owner, active moderator, platform admin, eligible
+thread row, eligible comment row, no-action row, unsupported target row,
+successful `hide`, `unhide`, `remove`, and `restore` target actions, failed
+target action copy, report status controls beside target controls, desktop, and
+390px mobile states.
+
+Result:
+
+- Signed-out and denied states rendered no live queue rows, report status
+  controls, target safety controls, scoped queue fetches, or moderation PATCH
+  calls.
+- Permitted owner, active-moderator, and admin states discovered the scoped
+  queue from the category page and rendered target controls only after scoped
+  queue preflight succeeded.
+- `Report status` and `Target safety` stayed visually and behaviorally
+  separate. Report status controls continued to use only the PR103 scoped report
+  status route.
+- Thread target actions called only `PATCH /threads/:id/moderation`; comment
+  target actions called only `PATCH /comments/:id/moderation`.
+- Supported target actions stayed bounded to `Hide`, `Unhide`, `Remove`, and
+  `Restore`. Mocked unsupported `Pin` and `Lock` actions did not render.
+- Rows without supported actions and unsupported target rows showed no target
+  controls.
+- Successful target actions refetched the scoped queue and kept the row state
+  API-authored. Failed target actions kept the row visible and showed bounded
+  row-level error copy.
+- Sanitized rows did not render reporter emails, admin notes, reviewed fields,
+  moderator identities, role assignments, raw owner/category/source ids,
+  private target body, private target metadata, or unsupported target rows.
+- Desktop and 390px mobile rehearsals showed no horizontal overflow or offscreen
+  controls.
+
+Validation:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| Local Playwright route rehearsal with temporary `codex-pr105-route-rehearsal.spec.js` | Pass | Ran against `http://127.0.0.1:3135` with mocked API responses. Covered denied states, owner/moderator/admin, eligible thread/comment rows, no-action/unsupported rows, thread hide/unhide/remove/restore, comment hide, failed comment action, report-status separation, desktop, and 390px mobile. |
+
+ARIADNE verdict: PR105 is Station-fit as scoped target safety work. The page
+still reads as a delegated queue, and the visible controls do not suggest
+broader authority than the current subcommunity grants. MIMIR can close PR105.
