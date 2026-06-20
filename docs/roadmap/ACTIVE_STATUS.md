@@ -8513,11 +8513,11 @@ git diff --check
 - Developer Spaces visual polish before ingestion auth, validation, limits, and
   safe serialization.
 
-## Latest DAEDALUS handoff - PR113
+## Latest ARGUS verdict - PR113
 
 PR113 Redis/Valkey Cache Foundation is implemented by DAEDALUS on 2026-06-20
-and ready for ARGUS review. No visible route changed, so ARIADNE is not needed
-unless ARGUS finds a visible-route implication.
+and accepted by ARGUS technical review. No visible route changed, so ARIADNE is
+not needed for this lane.
 
 Files changed: `package.json`, `docs/architecture/operational-cache-foundation.md`,
 `docs/roadmap/PR113_REDIS_VALKEY_CACHE_FOUNDATION.md`,
@@ -8555,10 +8555,22 @@ Key-scope, TTL, and invalidation proof:
   continuity writes, persona edits, visibility changes, and Developer Space
   changes.
 
-Validation: `test:cache` 5 passed, `test:storage` 16 passed,
-`test:persona-context` 7 passed, `test:developer-spaces` 16 passed, and
-`typecheck` passed. `git diff --check` passed with CRLF normalization warnings
-only.
+ARGUS review notes:
+
+- Accepted: the root `test:cache` gate exposes the existing operational-cache
+  helper coverage without making Redis canonical memory, retrieval, or queue
+  infrastructure.
+- Accepted: disabled/no-op behavior is explicit for missing config and TCP
+  Redis/Valkey URLs, while Upstash REST requires both URL and token and status
+  surfaces expose only kind/enabled/disabled reason.
+- Accepted: keys include environment plus owner/persona/Developer Space scope,
+  TTLs are bounded, rate-limit counters are scoped, and invalidation helpers
+  cover the documented archive, memory/canon, continuity, persona, visibility,
+  and Developer Space change paths.
+
+ARGUS validation: `test:cache` 5 passed, `test:storage` 16 passed,
+`test:persona-context` 7 passed, `test:developer-spaces` 16 passed,
+`typecheck` passed, and `git diff --check` passed.
 
 Non-scope confirmation: no Redis canonical memory truth, Redis vector storage,
 Redis-backed retrieval ranking, Cloudflare integration, background job
