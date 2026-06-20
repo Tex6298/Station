@@ -5,7 +5,7 @@ Opened by: A1 / MIMIR
 Owner: DAEDALUS implements. ARGUS reviews schema compatibility, visibility,
 serialization, and overclaim risk. ARIADNE only rehearses if visible routes
 change.
-Status: implemented by DAEDALUS; pending ARGUS review
+Status: accepted by ARGUS on 2026-06-20
 
 ## Why This Lane
 
@@ -127,3 +127,27 @@ No live webhook, webhook signature scheme, replay protection, hosted runtime,
 Cloudflare Worker, Vectorize, D1, worker, queue, partner adapter, user-pasted
 secret flow, billing, Stripe, Redis memory truth, provider routing,
 chat-native developer agent, or visible Developer Space UI behavior changed.
+
+## ARGUS Verdict
+
+Accepted on 2026-06-20.
+
+ARGUS confirmed:
+
+- the single supporting-context table is scoped to Developer Space observed
+  runtime context and keeps legacy spaces/imports compatible;
+- `supportingContext[]` is accepted only through the existing batch import
+  boundary;
+- supporting context uses the PR122 classification validator and secret
+  stripping before persistence;
+- public/member/owner detail readbacks and SSE serialize supporting context
+  through the same access-aware filtering as node/event/snapshot material;
+- no canonical synthetic fixture families remain unmapped in the bridge, while
+  live webhook delivery/auth/replay/rate-limit design remains deferred.
+
+Validation: `test:developer-spaces` 22 passed,
+`test:developer-space-client` 4 passed, `typecheck` passed, `@station/api`
+build passed, and `git diff --check` passed with CRLF normalization warnings
+only.
+
+No ARIADNE rehearsal is required because no visible route changed.

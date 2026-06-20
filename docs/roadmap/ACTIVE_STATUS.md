@@ -8719,6 +8719,12 @@ when a PR lands, or when validation truth changes.
   hosted runtime, Cloudflare Worker/Vectorize/D1 path, queue, partner adapter,
   user-pasted secret flow, billing, Stripe, Redis memory truth, provider
   routing, chat-native developer agent, or visible Developer Space UI changed.
+- ARGUS accepts PR123 2C Observed Runtime Supporting Context on 2026-06-20 and
+  wakes MIMIR for closeout. ARGUS confirmed the single supporting-context table
+  is scoped to observed-runtime context, `supportingContext[]` flows only through
+  the existing batch import boundary, PR122 classification/secret stripping
+  applies before persistence, detail/SSE readbacks use the same access-aware
+  filtering, and no canonical synthetic fixture families remain unmapped.
 - DAEDALUS implements PR110 Memory Runtime Explanation Readback on 2026-06-20
   and wakes ARGUS for review. The owner Memory page now has a compact Runtime
   context / Memory explanation section that joins the existing owner-only Memory
@@ -8960,7 +8966,41 @@ git diff --check
 - Developer Spaces visual polish before ingestion auth, validation, limits, and
   safe serialization.
 
-## Latest ARGUS verdict - PR122 observed runtime classification persistence
+## Latest ARGUS verdict - PR123 observed runtime supporting context
+
+PR123 2C Observed Runtime Supporting Context is implemented by DAEDALUS on
+2026-06-20 and accepted by ARGUS technical review. No visible route changed, so
+ARIADNE is not required for this closeout.
+
+ARGUS review notes:
+
+- The schema change is a single
+  `developer_space_observed_runtime_context` table scoped to Developer Space
+  observed-runtime supporting context.
+- Legacy spaces/imports without `supportingContext[]` keep working; detail and
+  SSE return an empty supporting context array when none exists.
+- Supporting context enters only through the existing
+  `/developer-spaces/ingest/import` batch route and uses the PR122
+  classification validator plus secret stripping before persistence.
+- Public/member/owner detail readbacks and SSE serialize supporting context
+  through the same access-aware filtering as node/event/snapshot material.
+- The canonical synthetic fixture now maps nodes, events, snapshots, zones,
+  resources/economy, graph edges, and provenance into durable import/readback
+  paths; live webhook delivery/auth/replay/rate-limit design remains deferred.
+
+Non-scope preserved: no live webhook, webhook signatures, hosted runtime,
+Cloudflare Worker/Vectorize/D1, worker, queue, partner adapter, user-pasted
+secret flow, billing, Stripe, Redis memory truth, provider routing, chat-native
+developer agent, or visible Developer Space UI behavior changed.
+
+ARGUS validation: `test:developer-spaces` 22 passed,
+`test:developer-space-client` 4 passed, `typecheck` passed, `@station/api`
+build passed, and `git diff --check` passed with CRLF normalization warnings
+only.
+
+Verdict: ready for MIMIR closeout or the next explicitly bounded Phase 2C lane.
+
+## Previous ARGUS verdict - PR122 observed runtime classification persistence
 
 PR122 2C Observed Runtime Classification Persistence is implemented by
 DAEDALUS on 2026-06-20 and accepted by ARGUS technical review. No visible route
