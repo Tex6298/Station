@@ -8233,6 +8233,20 @@ when a PR lands, or when validation truth changes.
   Cloudflare Vectorize or Redis vectors, run backfills, rewrite ranking, change
   visibility/private archive retrieval, log provider keys/prompts/payloads, or
   add broad UI work.
+- DAEDALUS implements PR112 Retrieval Provider Metadata Foundation on
+  2026-06-20 and wakes ARGUS for review. Current main already had the narrow
+  metadata/runtime foundation: migrations `028`/`029`, DB type surfaces, active
+  embedding metadata helpers, archive write metadata stamping, mixed-dimension
+  rejection, and package retrieval metadata tests. This pass adds the missing
+  root `test:retrieval-metadata` gate and
+  `docs/architecture/retrieval-provider-metadata.md`, documenting the active
+  `station_free_1536` / `gemini` / `gemini-embedding-2` metadata, `1536`
+  vector contract, `memory_items_embedding_1536`, `supabase_pgvector`, backfill
+  version `2`, and future reindex/backfill contract. Validation passed
+  `test:retrieval-metadata` with 8 tests, `test:persona-context` with 7 tests,
+  `test:conversation-archive` with 35 tests, `test:continuity` with 5 tests,
+  and `typecheck`; `git diff --check` passed with CRLF normalization warnings
+  only.
 - DAEDALUS implements PR110 Memory Runtime Explanation Readback on 2026-06-20
   and wakes ARGUS for review. The owner Memory page now has a compact Runtime
   context / Memory explanation section that joins the existing owner-only Memory
@@ -8473,7 +8487,60 @@ git diff --check
 - Developer Spaces visual polish before ingestion auth, validation, limits, and
   safe serialization.
 
-## Latest ARGUS verdict - PR111
+## Latest DAEDALUS handoff - PR112
+
+PR112 Retrieval Provider Metadata Foundation is implemented by DAEDALUS on
+2026-06-20 and ready for ARGUS review. No visible route changed, so ARIADNE is
+not needed unless ARGUS finds a visible-route implication.
+
+Files changed: `package.json`,
+`docs/architecture/retrieval-provider-metadata.md`,
+`docs/roadmap/PR112_RETRIEVAL_PROVIDER_METADATA_FOUNDATION.md`,
+`docs/roadmap/ACTIVE_STATUS.md`, and
+`docs/testing/VALIDATION_BASELINE.md`.
+
+Implementation:
+
+- Current main already contained migrations `028`/`029`, DB type surfaces,
+  active embedding metadata helpers, archive write metadata stamping,
+  mixed-dimension rejection, and `packages/ai/test/retrieval-metadata.test.ts`.
+- Added root `test:retrieval-metadata` so the retrieval metadata suite is a
+  canonical validation gate.
+- Added `docs/architecture/retrieval-provider-metadata.md` documenting the
+  active defaults, stored metadata, mixed-dimension guard, and future
+  backfill/reindex contract.
+
+Metadata/default behavior:
+
+- Active profile metadata: `station_free_1536`.
+- Provider/model metadata: `gemini` / `gemini-embedding-2`.
+- Dimension/index/source/backfill: `1536`, `memory_items_embedding_1536`,
+  `supabase_pgvector`, version `2`.
+- Existing `openai_1536` rows remain a supported metadata/rollback profile with
+  the same `1536` vector shape.
+
+Mixed-dimension and compatibility proof:
+
+- `assertActiveEmbeddingVector` rejects non-1536 vectors with
+  `EmbeddingDimensionMismatchError`.
+- Archive write paths rethrow dimension mismatches rather than writing null or
+  mixed-dimension vectors.
+- `test:retrieval-metadata` proves memory and private archive retrieval still
+  call the existing `vector(1536)` RPC contract, and runtime context still reuses
+  one query embedding across memory and archive retrieval.
+
+Validation: `test:retrieval-metadata` 8 passed, `test:persona-context` 7
+passed, `test:conversation-archive` 35 passed, `test:continuity` 5 passed, and
+`typecheck` passed. `git diff --check` passed with CRLF normalization warnings
+only.
+
+Non-scope confirmation: no Gemini/OpenAI/NVIDIA provider execution switch,
+Cloudflare Vectorize, Redis/Upstash vector storage, vector backfill, background
+job, retrieval ranking rewrite, visibility change, private archive retrieval
+change, provider key logging, raw prompt/payload logging, broad UI work, or
+visible route change was added.
+
+## Previous ARGUS verdict - PR111
 
 PR111 Developer Space Provider Policy Foundation is implemented by DAEDALUS on
 2026-06-20 and accepted by ARGUS technical review. No visible web route changed,

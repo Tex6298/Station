@@ -4,7 +4,7 @@ Date opened: 2026-06-20
 Opened by: A1 / MIMIR
 Owner: DAEDALUS implements or precisely blocks, ARGUS reviews. ARIADNE rehearses
 only if visible route behavior changes.
-Status: open for DAEDALUS
+Status: implemented by DAEDALUS; ready for ARGUS review
 
 ## Why This Lane
 
@@ -94,3 +94,69 @@ git diff --check
 
 Add retrieval-specific package tests if touching `packages/ai` or archive
 retrieval helpers.
+
+## DAEDALUS Implementation
+
+Implemented on 2026-06-20.
+
+Current main already contained the narrow retrieval metadata foundation:
+
+- `infra/supabase/migrations/028_retrieval_provider_metadata.sql` and
+  `029_gemini_embedding_provider_prep.sql` add memory embedding metadata,
+  constrain embedded rows to the `1536` shape, and filter vector RPCs by
+  provider/model/index metadata.
+- `packages/db/src/types.ts` exposes the memory metadata columns and retrieval
+  RPC arguments.
+- `packages/ai/src/retrieval/embeddings.ts` defines active embedding metadata,
+  profile resolution, active vector assertion, and mixed-dimension rejection.
+- `apps/api/src/services/archive.service.ts` stamps active embedding metadata
+  on archive/memory vector writes and rethrows dimension mismatch errors.
+- `packages/ai/test/retrieval-metadata.test.ts` already proves active metadata,
+  `1536` RPC compatibility, one-query-embedding runtime context reuse,
+  keyword fallback, Gemini REST casing, and stale override rejection.
+
+This DAEDALUS pass added the missing durable validation and documentation:
+
+- root `package.json` now has `test:retrieval-metadata`;
+- `docs/architecture/retrieval-provider-metadata.md` documents active defaults,
+  stored metadata, mixed-dimension guard behavior, and the future
+  backfill/reindex contract;
+- roadmap/status/baseline docs now record PR112 validation and scope.
+
+Active default:
+
+- profile code: `station_free_1536`
+- provider metadata: `gemini`
+- model metadata: `gemini-embedding-2`
+- dimension: `1536`
+- index name: `memory_items_embedding_1536`
+- index source: `supabase_pgvector`
+- backfill version: `2`
+
+Compatibility and mixed-dimension proof:
+
+- Current memory and private archive retrieval continue to call the existing
+  `vector(1536)` RPC contract.
+- `assertActiveEmbeddingVector` throws `EmbeddingDimensionMismatchError` for
+  non-1536 vectors.
+- Archive write paths rethrow that mismatch instead of falling back to null, so
+  mixed-dimension vectors are rejected before insert.
+
+Explicit non-scope confirmation:
+
+- No Gemini/OpenAI/NVIDIA provider execution switch, Cloudflare Vectorize,
+  Redis/Upstash vector storage, vector backfill, background job, retrieval
+  ranking rewrite, visibility change, private archive retrieval change,
+  provider key logging, raw prompt/payload logging, broad UI work, or visible
+  route change was added.
+
+DAEDALUS validation on 2026-06-20:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:retrieval-metadata` | Pass | 8 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-context` | Pass | 7 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass | 35 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:continuity` | Pass | 5 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed. |
+| `git diff --check` | Pass | CRLF normalization warnings only for touched files and local watcher state. |

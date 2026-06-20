@@ -41,12 +41,46 @@ pnpm test:spaces
 pnpm test:continuity
 pnpm test:persona-context
 pnpm test:conversation-archive
+pnpm test:retrieval-metadata
 pnpm test:continuity-publication
 pnpm test:document-discussions
 pnpm test:exports
 pnpm test:developer-spaces
 pnpm test:developer-space-client
 ```
+
+## PR112 Retrieval Provider Metadata Foundation
+
+DAEDALUS implementation validation on 2026-06-20:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:retrieval-metadata` | Pass | 8 tests passed, covering active metadata defaults, mixed-dimension rejection, 1536-vector RPC compatibility, runtime context embedding reuse, keyword fallback, Gemini request casing, and stale override rejection. |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-context` | Pass | 7 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass | 35 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:continuity` | Pass | 5 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed. |
+| `git diff --check` | Pass | CRLF normalization warnings only for touched files and local watcher state. |
+
+Implementation result:
+
+- Added root `test:retrieval-metadata` for the existing package retrieval
+  metadata suite.
+- Added `docs/architecture/retrieval-provider-metadata.md` documenting active
+  defaults, stored metadata, mixed-dimension guard behavior, and the future
+  backfill/reindex contract.
+- Current main already contained the narrow schema/type/runtime foundation:
+  memory embedding metadata migrations, DB type surfaces, active embedding
+  metadata helpers, archive write metadata stamping, mixed-dimension rejection,
+  and retrieval metadata tests.
+- Active default remains the existing `1536` vector contract with
+  `station_free_1536` / `gemini` / `gemini-embedding-2` metadata,
+  `memory_items_embedding_1536`, `supabase_pgvector`, and backfill version `2`.
+- Explicit non-goals preserved: no provider execution switch,
+  Cloudflare Vectorize, Redis/Upstash vector storage, vector backfill,
+  background job, retrieval ranking rewrite, visibility change, private archive
+  retrieval change, provider key logging, raw prompt/payload logging, broad UI
+  work, or visible route change.
 
 ## PR111 Developer Space Provider Policy Foundation
 
