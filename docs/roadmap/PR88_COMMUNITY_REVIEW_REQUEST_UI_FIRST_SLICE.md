@@ -4,7 +4,7 @@ Date opened: 2026-06-20
 Opened by: A1 / MIMIR
 Owner: DAEDALUS implements, ARGUS reviews. ARIADNE rehearses visible participant
 and admin routes after ARGUS technical acceptance.
-Status: open for DAEDALUS
+Status: implemented by DAEDALUS; awaiting ARGUS review
 
 ## Why This Lane
 
@@ -36,6 +36,57 @@ Desired protected-beta outcome:
   participant-safe;
 - unsupported target types, missing standing, and moderation-action-linked
   appeals are visibly unavailable rather than fake-live.
+
+## DAEDALUS Implementation
+
+Implemented the first visible review-request workflow backed only by PR87 API
+routes.
+
+Participant route:
+
+- `/forums/reports` now fetches both `/reports/mine` and
+  `/reports/review-requests/mine` only after a local signed-in session exists;
+- eligible thread/comment report rows show `Request review`;
+- unsupported user/space/document/persona report rows show an unavailable state
+  instead of a fake-live button;
+- successful or duplicate request creation merges the returned participant-safe
+  review request into the local list;
+- existing review requests show status and participant-safe resolution summary
+  only;
+- no admin notes, moderator identity, target bodies, private material, or other
+  users' requests are shown.
+
+Admin route:
+
+- `/forums/moderation` now includes a separate admin-only Review requests
+  section after admin authorization is known;
+- the section fetches admin `GET /reports/review-requests`, supports active or
+  explicit status filters, and updates requests through
+  `PATCH /reports/review-requests/:id`;
+- review-request status controls are visually and logically separate from report
+  status controls and target moderation actions;
+- admin notes and participant-safe resolution summaries are displayed separately.
+
+Supported affordances:
+
+- reporter review requests for eligible thread/comment reports;
+- participant readback for the signed-in user's own review requests;
+- admin queue/readback and status updates for `reviewing`, `upheld`, `denied`,
+  and `dismissed`.
+
+Deferred/unavailable:
+
+- target-author affordances outside `/forums/reports` are deferred to avoid
+  confusing report controls with public target controls;
+- moderation-action-linked appeals remain unavailable until the PR87 action-link
+  blocker is solved;
+- unsupported target types remain unavailable in the UI.
+
+No public moderation log, public visibility widening, participant admin-note or
+moderator-identity exposure, target mutation as part of review status updates,
+subcommunity platform, delegated moderator model, notifications,
+reputation/witness mechanics, AI posting, billing/provider/cache, Developer
+Space, auth/session refactor, or broad forum redesign was added.
 
 ## Inspect Before Editing
 

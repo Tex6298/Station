@@ -4,11 +4,14 @@ import {
   canUseModeratorConsole,
   canActOnReportTarget,
   nextReportStatuses,
+  nextReviewRequestStatuses,
   nextTargetModerationActions,
   reportQueuePath,
   reportMatchesQueueFilter,
   reportTargetContextLabel,
   reportTargetLabel,
+  reviewRequestQueuePath,
+  reviewRequestTargetLabel,
   targetActionPath,
 } from "./moderation-console";
 
@@ -54,6 +57,21 @@ test("moderation target helpers keep actions and labels bounded to safe context"
       targetContext: { targetType: "comment", targetId: "comment-1", canOpenRoute: false, supportedActions: ["unhide", "remove"] },
     }),
     ["unhide", "remove"]
+  );
+});
+
+test("moderation review request helpers keep admin paths and transitions separate", () => {
+  assert.equal(reviewRequestQueuePath(), "/reports/review-requests");
+  assert.equal(reviewRequestQueuePath({ status: "active", targetType: "all", limit: 50 }), "/reports/review-requests?limit=50");
+  assert.equal(
+    reviewRequestQueuePath({ status: "denied", targetType: "comment", limit: 10 }),
+    "/reports/review-requests?status=denied&targetType=comment&limit=10"
+  );
+  assert.deepEqual(nextReviewRequestStatuses("open"), ["reviewing", "upheld", "denied", "dismissed"]);
+  assert.deepEqual(nextReviewRequestStatuses("upheld"), ["reviewing", "denied", "dismissed"]);
+  assert.equal(
+    reviewRequestTargetLabel({ targetType: "thread", targetId: "thread-1", reportId: "report-1" }),
+    "thread:thread-1 / report:report-1"
   );
 });
 

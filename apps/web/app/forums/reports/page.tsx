@@ -2,17 +2,21 @@
 
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
-import type { ReporterModerationReportRecord } from "@station/types";
-import { apiGet } from "@/lib/api-client";
+import type { ParticipantModerationReviewRequestRecord, ReporterModerationReportRecord } from "@station/types";
+import { apiGet, apiPost } from "@/lib/api-client";
 import { getSession } from "@/lib/auth";
 import {
   REPORT_RESOLUTION_STATUSES,
   REPORT_RESOLUTION_TARGET_TYPES,
   type ReportResolutionStatus,
   type ReportResolutionTargetType,
+  canRequestReportReview,
+  existingReviewRequestForReport,
   reportResolutionPath,
   reportResolutionStatusLabel,
   reportResolutionTargetLabel,
+  reviewRequestPath,
+  reviewRequestStatusLabel,
 } from "@/lib/report-resolution";
 
 type StatusFilter = ReportResolutionStatus | "all";
@@ -29,8 +33,11 @@ export default function ForumReportsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [reports, setReports] = useState<ReporterModerationReportRecord[]>([]);
+  const [reviewRequests, setReviewRequests] = useState<ParticipantModerationReviewRequestRecord[]>([]);
   const [status, setStatus] = useState<StatusFilter>("all");
   const [targetType, setTargetType] = useState<TargetTypeFilter>("all");
+  const [requestingReportId, setRequestingReportId] = useState<string | null>(null);
+  const [feedback, setFeedback] = useState<string | null>(null);
 
   const loadReports = useCallback(async (
     accessToken: string,
@@ -40,11 +47,18 @@ export default function ForumReportsPage() {
     setLoading(true);
     setError(null);
     try {
-      const data = await apiGet<{ reports: ReporterModerationReportRecord[] }>(
-        reportResolutionPath({ status: nextStatus, targetType: nextTargetType, limit: 50 }),
-        accessToken
-      );
-      setReports(data.reports ?? []);
+      const [reportData, requestData] = await Promise.all([
+        apiGet<{ reports: ReporterModerationReportRecord[] }>(
+          reportResolutionPath({ status: nextStatus, targetType: nextTargetType, limit: 50 }),
+          accessToken
+        ),
+        apiGet<{ reviewRequests: ParticipantModerationReviewRequestRecord[] }>(
+          reviewRequestPath({ limit: 50 }),
+          accessToken
+        ),
+      ]);
+      setReports(reportData.reports ?? []);
+      setReviewRequests(requestData.reviewRequests ?? []);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Could not load your report statuses.");
     } finally {
@@ -74,6 +88,31 @@ export default function ForumReportsPage() {
   async function changeTargetType(nextTargetType: TargetTypeFilter) {
     setTargetType(nextTargetType);
     if (token) await loadReports(token, status, nextTargetType);
+  }
+
+  async function requestReview(report: ReporterModerationReportRecord) {
+    if (!token || !canRequestReportReview(report)) return;
+    setRequestingReportId(report.id);
+    setFeedback(null);
+    setError(null);
+    try {
+      const data = await apiPost<{
+        reviewRequest: ParticipantModerationReviewRequestRecord;
+        duplicate?: boolean;
+      }>("/reports/review-requests", {
+        reportId: report.id,
+        reason: `Review requested for ${report.targetType}:${report.targetId}`,
+      }, token);
+      setReviewRequests((current) => {
+        const withoutExisting = current.filter((request) => request.id !== data.reviewRequest.id);
+        return [data.reviewRequest, ...withoutExisting];
+      });
+      setFeedback(data.duplicate ? "Review request already open." : "Review request created.");
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Could not request review for this report.");
+    } finally {
+      setRequestingReportId(null);
+    }
   }
 
   if (loading && !signedIn) {
@@ -135,6 +174,11 @@ export default function ForumReportsPage() {
           {error}
         </div>
       )}
+      {feedback && (
+        <div className="card" style={{ background: "#e9f5ee", borderColor: "rgba(59, 143, 99, 0.35)", color: "#25633f", marginBottom: "1rem" }}>
+          {feedback}
+        </div>
+      )}
 
       {loading ? (
         <div className="card" style={{ color: "#687078", textAlign: "center", padding: "2rem" }}>Loading reports...</div>
@@ -143,7 +187,7 @@ export default function ForumReportsPage() {
       ) : (
         <div style={{ display: "grid", gap: "0.75rem" }}>
           {reports.map((report) => (
-            <article key={report.id} className="card" style={{ display: "grid", gap: "0.75rem" }}>
+            <article key={report.id} className="card" style={{ display: "grid", gap: "0.85rem" }}>
               <div style={{ display: "flex", justifyContent: "space-between", gap: "0.75rem", flexWrap: "wrap" }}>
                 <div>
                   <div style={{ display: "flex", gap: "0.4rem", flexWrap: "wrap", marginBottom: "0.35rem" }}>
@@ -164,9 +208,74 @@ export default function ForumReportsPage() {
                   <div>Reviewed {formatDate(report.reviewedAt)}</div>
                 </div>
               </div>
+
+              <div style={{ borderTop: "1px solid #ece7dc", paddingTop: "0.75rem", display: "grid", gap: "0.45rem" }}>
+                <div style={{ fontSize: "0.72rem", color: "#8b8f92", textTransform: "uppercase", letterSpacing: 0 }}>
+                  Review request
+                </div>
+                {(() => {
+                  const existingRequest = existingReviewRequestForReport(report, reviewRequests);
+                  if (existingRequest) {
+                    return (
+                      <div style={{ color: "#687078", fontSize: "0.8rem", display: "grid", gap: "0.25rem" }}>
+                        <div>Status: {reviewRequestStatusLabel(existingRequest.status)}</div>
+                        {existingRequest.resolutionSummary && <div>Resolution: {existingRequest.resolutionSummary}</div>}
+                      </div>
+                    );
+                  }
+                  if (!canRequestReportReview(report)) {
+                    return (
+                      <div style={{ color: "#687078", fontSize: "0.8rem" }}>
+                        Review requests are not available for {report.targetType} reports yet.
+                      </div>
+                    );
+                  }
+                  return (
+                    <button
+                      type="button"
+                      disabled={requestingReportId === report.id}
+                      onClick={() => requestReview(report)}
+                      style={{ width: "fit-content", padding: "0.35rem 0.65rem", border: "1px solid #d8d3c8", borderRadius: 7, background: "#fff", color: "#1f2529", cursor: "pointer", fontSize: "0.75rem" }}
+                    >
+                      Request review
+                    </button>
+                  );
+                })()}
+              </div>
             </article>
           ))}
         </div>
+      )}
+
+      {!loading && reviewRequests.length > 0 && (
+        <section style={{ marginTop: "1.5rem", display: "grid", gap: "0.75rem" }}>
+          <h2 style={{ margin: 0, fontSize: "1.05rem", color: "#1f2529" }}>Review requests</h2>
+          {reviewRequests.map((request) => (
+            <article key={request.id} className="card" style={{ display: "grid", gap: "0.45rem" }}>
+              <div style={{ display: "flex", gap: "0.4rem", flexWrap: "wrap" }}>
+                <span style={{ fontSize: "0.72rem", color: "#534ab7", background: "#eeedfe", border: "1px solid #d8d3c8", borderRadius: 999, padding: "0.1rem 0.45rem" }}>
+                  {reviewRequestStatusLabel(request.status)}
+                </span>
+                <span style={{ fontSize: "0.72rem", color: "#25633f", background: "#e9f5ee", border: "1px solid rgba(59, 143, 99, 0.35)", borderRadius: 999, padding: "0.1rem 0.45rem" }}>
+                  {request.requesterRole}
+                </span>
+              </div>
+              <div style={{ color: "#1f2529", fontWeight: 600 }}>{request.reason}</div>
+              <div style={{ color: "#687078", fontSize: "0.8rem" }}>
+                {request.targetType}:{request.targetId}
+                {request.reportId ? ` / report:${request.reportId}` : ""}
+              </div>
+              {request.resolutionSummary && (
+                <div style={{ color: "#687078", fontSize: "0.8rem" }}>
+                  Resolution: {request.resolutionSummary}
+                </div>
+              )}
+              <div style={{ color: "#687078", fontSize: "0.76rem" }}>
+                Updated {formatDate(request.updatedAt)}
+              </div>
+            </article>
+          ))}
+        </section>
       )}
     </main>
   );

@@ -9236,6 +9236,43 @@ Scope notes:
   expansion, raw ingestion key storage, secret logging, broad UI, public
   serializer expansion, or visible web UI changed.
 
+## PR88 Community Review Request UI First Slice
+
+DAEDALUS implementation validation on 2026-06-20:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:reports` | Pass | 6 tests passed; PR87 API standing, serializer, duplicate, and admin gates remain green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:community` | Pass | 11 tests passed; community permission and moderation boundaries remain green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` | Pass | 1 test passed; document discussion visibility/readback remains green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 53 tests passed, including participant/admin review-request helper coverage. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck completed after widening the existing-review helper type. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web build` | Partial / known Windows failure | Next compiled, linted/typechecked, collected page data, and generated 33 static pages, then hit the known local Windows standalone symlink `EPERM`. Only pre-existing raw `<img>` warnings appeared. |
+| `git diff --check` | Pass | CRLF normalization warnings only for touched files and local triad state. |
+
+Scope notes:
+
+- `/forums/reports` now fetches signed-in report statuses plus participant
+  review requests and offers `Request review` only for eligible thread/comment
+  reports.
+- Unsupported report target types show review requests as unavailable rather
+  than fake-live.
+- Participant readback shows review status and participant-safe resolution
+  summary only.
+- `/forums/moderation` now includes a separate admin review-request queue with
+  active/status filters and server-backed status updates.
+- Review-request status controls remain separate from report status and target
+  moderation actions.
+- Admin notes remain on the admin route only and are visually separate from
+  participant-safe resolution summaries.
+- Target-author affordances outside `/forums/reports` and
+  moderation-action-linked appeals remain deferred/unavailable.
+- No public moderation log, public visibility widening, participant admin-note
+  or moderator-identity exposure, target mutation as part of review status
+  updates, subcommunity platform, delegated moderator model, notifications,
+  reputation/witness mechanics, AI posting, billing/provider/cache, Developer
+  Space, auth/session refactor, or broad forum redesign changed.
+
 ## PR87 Community Appeals Request Review Foundation
 
 DAEDALUS implementation validation on 2026-06-20:

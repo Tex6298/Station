@@ -7212,6 +7212,29 @@ when a PR lands, or when validation truth changes.
   solved, no public moderation log, no participant access to admin notes or
   moderator identity, no target mutation, no subcommunity/notification/
   reputation work, and no broad forum redesign.
+- DAEDALUS implements PR88 Community Review Request UI First Slice on
+  2026-06-20. `/forums/reports` now fetches the signed-in participant's report
+  statuses and review requests, shows review-request status/resolution readback,
+  and offers `Request review` only for eligible thread/comment report rows;
+  unsupported user/space/document/persona reports show an unavailable state
+  instead of fake-live controls. Request creation uses
+  `POST /reports/review-requests` with only report id and reason, then merges
+  the returned participant-safe request or duplicate into local readback.
+  `/forums/moderation` now includes a separate admin-only Review requests
+  section that fetches after admin authorization, supports active/explicit
+  status filters, and updates requests through
+  `PATCH /reports/review-requests/:id`. Review-request status controls remain
+  separate from report status and target moderation controls; admin notes and
+  participant-safe resolution summaries are displayed separately. Target-author
+  affordances outside `/forums/reports` and moderation-action-linked appeals
+  remain deferred/unavailable. No public moderation log, public visibility
+  widening, participant admin-note or moderator-identity exposure, target
+  mutation as part of review status updates, subcommunity platform, delegated
+  moderator model, notifications, reputation/witness mechanics, AI posting,
+  billing/provider/cache, Developer Space, auth/session refactor, or broad
+  forum redesign was added. ARGUS should review participant/admin fetch gating,
+  serializer field visibility, request-create payloads, queue/update behavior,
+  and the unsupported/deferred affordances.
 
 ## Near-term rule
 

@@ -2,28 +2,35 @@
 
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
-import type { ModerationReportRecord } from "@station/types";
+import type { AdminModerationReviewRequestRecord, ModerationReportRecord } from "@station/types";
 import { apiGet, apiPatch } from "@/lib/api-client";
 import { getSession } from "@/lib/auth";
 import {
   REPORT_QUEUE_STATUSES,
   REPORT_TARGET_TYPES,
+  REVIEW_QUEUE_STATUSES,
   type ReportQueueStatus,
   type ReportTargetType,
   type ReportTransitionStatus,
+  type ReviewQueueStatus,
+  type ReviewTransitionStatus,
   canUseModeratorConsole,
   canActOnReportTarget,
   nextReportStatuses,
+  nextReviewRequestStatuses,
   nextTargetModerationActions,
   reportMatchesQueueFilter,
   reportQueuePath,
   reportTargetContextLabel,
   reportTargetLabel,
+  reviewRequestQueuePath,
+  reviewRequestTargetLabel,
   targetActionPath,
 } from "@/lib/moderation-console";
 
 type QueueStatusFilter = ReportQueueStatus | "active";
 type TargetTypeFilter = ReportTargetType | "all";
+type ReviewStatusFilter = ReviewQueueStatus | "active";
 
 function formatDate(value?: string | null) {
   if (!value) return "Not reviewed";
@@ -36,10 +43,13 @@ export default function ForumModerationPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [reports, setReports] = useState<ModerationReportRecord[]>([]);
+  const [reviewRequests, setReviewRequests] = useState<AdminModerationReviewRequestRecord[]>([]);
   const [status, setStatus] = useState<QueueStatusFilter>("active");
   const [targetType, setTargetType] = useState<TargetTypeFilter>("all");
+  const [reviewStatus, setReviewStatus] = useState<ReviewStatusFilter>("active");
   const [updatingId, setUpdatingId] = useState<string | null>(null);
   const [updatingTargetId, setUpdatingTargetId] = useState<string | null>(null);
+  const [updatingReviewId, setUpdatingReviewId] = useState<string | null>(null);
 
   const loadReports = useCallback(async (accessToken: string, nextStatus: QueueStatusFilter, nextTargetType: TargetTypeFilter) => {
     setLoading(true);
@@ -54,6 +64,19 @@ export default function ForumModerationPage() {
       setError(e instanceof Error ? e.message : "Could not load moderation reports.");
     } finally {
       setLoading(false);
+    }
+  }, []);
+
+  const loadReviewRequests = useCallback(async (accessToken: string, nextStatus: ReviewStatusFilter) => {
+    setError(null);
+    try {
+      const data = await apiGet<{ reviewRequests: AdminModerationReviewRequestRecord[] }>(
+        reviewRequestQueuePath({ status: nextStatus, targetType: "all", limit: 50 }),
+        accessToken
+      );
+      setReviewRequests(data.reviewRequests ?? []);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Could not load review requests.");
     }
   }, []);
 
@@ -72,8 +95,9 @@ export default function ForumModerationPage() {
       }
       setAuthorized(true);
       void loadReports(session.access_token, "active", "all");
+      void loadReviewRequests(session.access_token, "active");
     });
-  }, [loadReports]);
+  }, [loadReports, loadReviewRequests]);
 
   async function changeStatus(nextStatus: QueueStatusFilter) {
     setStatus(nextStatus);
@@ -83,6 +107,11 @@ export default function ForumModerationPage() {
   async function changeTargetType(nextTargetType: TargetTypeFilter) {
     setTargetType(nextTargetType);
     if (token) await loadReports(token, status, nextTargetType);
+  }
+
+  async function changeReviewStatus(nextStatus: ReviewStatusFilter) {
+    setReviewStatus(nextStatus);
+    if (token) await loadReviewRequests(token, nextStatus);
   }
 
   async function updateReport(report: ModerationReportRecord, nextStatus: ReportTransitionStatus) {
@@ -116,6 +145,36 @@ export default function ForumModerationPage() {
       setError(e instanceof Error ? e.message : "Could not update reported target.");
     } finally {
       setUpdatingTargetId(null);
+    }
+  }
+
+  async function updateReviewRequest(request: AdminModerationReviewRequestRecord, nextStatus: ReviewTransitionStatus) {
+    if (!token) return;
+    setUpdatingReviewId(request.id);
+    setError(null);
+    try {
+      const body: { status: ReviewTransitionStatus; resolutionSummary?: string; adminNotes?: string } = { status: nextStatus };
+      if (nextStatus === "upheld") body.resolutionSummary = "Review upheld.";
+      if (nextStatus === "denied") body.resolutionSummary = "Original decision stands.";
+      if (nextStatus === "dismissed") body.resolutionSummary = "Review request dismissed.";
+      const data = await apiPatch<{ reviewRequest: AdminModerationReviewRequestRecord }>(
+        `/reports/review-requests/${request.id}`,
+        body,
+        token
+      );
+      setReviewRequests((current) => {
+        if (reviewStatus === "active" && data.reviewRequest.status !== "open" && data.reviewRequest.status !== "reviewing") {
+          return current.filter((candidate) => candidate.id !== request.id);
+        }
+        if (reviewStatus !== "active" && data.reviewRequest.status !== reviewStatus) {
+          return current.filter((candidate) => candidate.id !== request.id);
+        }
+        return current.map((candidate) => candidate.id === request.id ? data.reviewRequest : candidate);
+      });
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Could not update review request.");
+    } finally {
+      setUpdatingReviewId(null);
     }
   }
 
@@ -155,7 +214,11 @@ export default function ForumModerationPage() {
         </div>
         <button
           type="button"
-          onClick={() => token ? loadReports(token, status, targetType) : undefined}
+          onClick={() => {
+            if (!token) return;
+            void loadReports(token, status, targetType);
+            void loadReviewRequests(token, reviewStatus);
+          }}
           style={{ padding: "0.45rem 0.8rem", border: "1px solid #d8d3c8", borderRadius: 7, background: "#fff", color: "#1f2529", cursor: "pointer", fontSize: "0.8rem" }}
         >
           Refresh
@@ -178,6 +241,76 @@ export default function ForumModerationPage() {
           {error}
         </div>
       )}
+
+      <section style={{ display: "grid", gap: "0.75rem", marginBottom: "1.5rem" }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "1rem", flexWrap: "wrap" }}>
+          <div>
+            <h2 style={{ margin: 0, fontSize: "1.05rem", color: "#1f2529" }}>Review requests</h2>
+            <p style={{ margin: "0.2rem 0 0", color: "#687078", fontSize: "0.8rem" }}>
+              Participant requests for a moderation decision review.
+            </p>
+          </div>
+          <select className="input" value={reviewStatus} onChange={(event) => changeReviewStatus(event.target.value as ReviewStatusFilter)} style={{ width: 180 }}>
+            <option value="active">Open + reviewing</option>
+            {REVIEW_QUEUE_STATUSES.map((value) => <option key={value} value={value}>{value}</option>)}
+          </select>
+        </div>
+
+        {reviewRequests.length === 0 ? (
+          <div className="card" style={{ color: "#687078", fontStyle: "italic", textAlign: "center", padding: "1.5rem" }}>No review requests in this view.</div>
+        ) : (
+          reviewRequests.map((request) => (
+            <article key={request.id} className="card" style={{ display: "grid", gap: "0.75rem" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", gap: "0.75rem", flexWrap: "wrap" }}>
+                <div>
+                  <div style={{ display: "flex", gap: "0.4rem", flexWrap: "wrap", marginBottom: "0.35rem" }}>
+                    <span style={{ fontSize: "0.72rem", color: "#534ab7", background: "#eeedfe", border: "1px solid #d8d3c8", borderRadius: 999, padding: "0.1rem 0.45rem" }}>{request.status}</span>
+                    <span style={{ fontSize: "0.72rem", color: "#25633f", background: "#e9f5ee", border: "1px solid rgba(59, 143, 99, 0.35)", borderRadius: 999, padding: "0.1rem 0.45rem" }}>{request.requesterRole}</span>
+                  </div>
+                  <h3 style={{ margin: 0, fontSize: "0.95rem", color: "#1f2529" }}>{request.reason}</h3>
+                  <div style={{ marginTop: "0.25rem", color: "#687078", fontSize: "0.78rem" }}>
+                    {reviewRequestTargetLabel(request)}
+                  </div>
+                </div>
+                <div style={{ textAlign: "right", color: "#687078", fontSize: "0.76rem" }}>
+                  <div>Created {formatDate(request.createdAt)}</div>
+                  <div>Reviewed {formatDate(request.reviewedAt)}</div>
+                </div>
+              </div>
+
+              {request.resolutionSummary && (
+                <div style={{ color: "#687078", fontSize: "0.82rem", lineHeight: 1.5 }}>
+                  Resolution summary: {request.resolutionSummary}
+                </div>
+              )}
+              {request.adminNotes && (
+                <div style={{ color: "#687078", fontSize: "0.82rem", lineHeight: 1.5 }}>
+                  Admin notes: {request.adminNotes}
+                </div>
+              )}
+
+              <div style={{ borderTop: "1px solid #ece7dc", paddingTop: "0.75rem", display: "grid", gap: "0.5rem" }}>
+                <div style={{ fontSize: "0.72rem", color: "#8b8f92", textTransform: "uppercase", letterSpacing: 0 }}>
+                  Review status
+                </div>
+                <div style={{ display: "flex", gap: "0.45rem", flexWrap: "wrap" }}>
+                  {nextReviewRequestStatuses(request.status).map((nextStatus) => (
+                    <button
+                      key={nextStatus}
+                      type="button"
+                      disabled={updatingReviewId === request.id}
+                      onClick={() => updateReviewRequest(request, nextStatus)}
+                      style={{ padding: "0.35rem 0.65rem", border: "1px solid #d8d3c8", borderRadius: 7, background: nextStatus === "upheld" ? "#1f2529" : "#fff", color: nextStatus === "upheld" ? "#fff" : "#1f2529", cursor: "pointer", fontSize: "0.75rem" }}
+                    >
+                      Mark {nextStatus}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </article>
+          ))
+        )}
+      </section>
 
       {loading ? (
         <div className="card" style={{ color: "#687078", textAlign: "center", padding: "2rem" }}>Loading reports...</div>

@@ -1,15 +1,22 @@
-import type { ModerationReportRecord } from "@station/types";
+import type {
+  AdminModerationReviewRequestRecord,
+  ModerationReportRecord,
+} from "@station/types";
 import type { AuthUser } from "@station/types";
 
 export const REPORT_QUEUE_STATUSES = ["open", "reviewing", "resolved", "dismissed"] as const;
 export const REPORT_TARGET_TYPES = ["user", "space", "document", "thread", "comment", "persona"] as const;
 export const REPORT_TRANSITION_STATUSES = ["reviewing", "resolved", "dismissed"] as const;
 export const REPORT_TARGET_ACTIONS = ["hide", "unhide", "remove", "restore"] as const;
+export const REVIEW_QUEUE_STATUSES = ["open", "reviewing", "upheld", "denied", "dismissed"] as const;
+export const REVIEW_TRANSITION_STATUSES = ["reviewing", "upheld", "denied", "dismissed"] as const;
 
 export type ReportQueueStatus = typeof REPORT_QUEUE_STATUSES[number];
 export type ReportTargetType = typeof REPORT_TARGET_TYPES[number];
 export type ReportTransitionStatus = typeof REPORT_TRANSITION_STATUSES[number];
 export type ReportTargetAction = typeof REPORT_TARGET_ACTIONS[number];
+export type ReviewQueueStatus = typeof REVIEW_QUEUE_STATUSES[number];
+export type ReviewTransitionStatus = typeof REVIEW_TRANSITION_STATUSES[number];
 
 export function canUseModeratorConsole(user?: (AuthUser & { isAdmin?: boolean }) | null) {
   return Boolean(user?.isAdmin);
@@ -72,4 +79,28 @@ export function nextTargetModerationActions(report: Pick<ModerationReportRecord,
   return (report.targetContext?.supportedActions ?? []).filter((action): action is ReportTargetAction =>
     REPORT_TARGET_ACTIONS.includes(action as ReportTargetAction)
   );
+}
+
+export function reviewRequestQueuePath(input: {
+  status?: ReviewQueueStatus | "active";
+  targetType?: "thread" | "comment" | "all";
+  limit?: number;
+} = {}) {
+  const params = new URLSearchParams();
+  if (input.status && input.status !== "active") params.set("status", input.status);
+  if (input.targetType && input.targetType !== "all") params.set("targetType", input.targetType);
+  if (input.limit) params.set("limit", String(input.limit));
+  const query = params.toString();
+  return query ? `/reports/review-requests?${query}` : "/reports/review-requests";
+}
+
+export function nextReviewRequestStatuses(current: AdminModerationReviewRequestRecord["status"]) {
+  return REVIEW_TRANSITION_STATUSES.filter((status) => status !== current);
+}
+
+export function reviewRequestTargetLabel(
+  request: Pick<AdminModerationReviewRequestRecord, "targetType" | "targetId" | "reportId">
+) {
+  const reportPart = request.reportId ? ` / report:${request.reportId}` : "";
+  return `${request.targetType}:${request.targetId}${reportPart}`;
 }
