@@ -188,3 +188,41 @@ DAEDALUS validation on 2026-06-20:
 | `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed. |
 | `npm exec --yes pnpm@10.32.1 -- --filter @station/web build` | Partial / known Windows failure | Next compiled, linted/typechecked, collected page data, generated 36 static pages, finalized optimization, and collected build traces before the known local Windows standalone symlink `EPERM` while copying traced files. Only pre-existing raw `<img>` warnings appeared. |
 | `git diff --check` | Pass | CRLF normalization warnings only for touched files. |
+
+## ARIADNE Visible-Route Rehearsal
+
+Accepted by ARIADNE on 2026-06-20 for MIMIR closeout.
+
+Local browser rehearsal covered `/studio/personas/[personaId]/memory` across
+owner-loaded Memory, briefing, runtime context preview, refresh preview, desktop,
+and 390px mobile states.
+
+Result:
+
+- The page fetched only the existing owner APIs used by the lane:
+  `/memory/persona/:personaId`, `/memory/persona/:personaId/briefing`, and
+  `/conversations/persona/:personaId/context-preview`.
+- The new section reads as an owner-only explanation of runtime Memory behavior,
+  not as a retrieval debugger or raw trace viewer.
+- Selected memory rendered with the reason `Selected for this runtime preview.`
+- Active-but-not-selected memory rendered as eligible but not selected for the
+  preview query, without sounding like an error.
+- Quarantined, expired, superseded, and missing-lifecycle memory rendered as
+  held out with clear lifecycle reasons.
+- Retrieval/fallback/skip notes rendered as sanitized labels and counts only.
+- Refresh Preview called the context-preview route again without adding a new
+  API or provider call surface.
+- Raw preview trace titles, raw prompts, provider payload text, bearer/token
+  strings, raw URLs, owner/persona/trace/source ids, and secret-shaped values
+  did not render.
+- Desktop and 390px mobile rehearsals showed no horizontal overflow or offscreen
+  controls.
+
+Validation:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| Local Playwright route rehearsal with temporary `codex-pr110-route-rehearsal.spec.js` | Pass | Ran against `http://127.0.0.1:3137` with mocked owner APIs. Covered selected memory, active-not-selected memory, lifecycle holdouts, fallback notes, refresh preview, sanitization, desktop, and 390px mobile. |
+
+ARIADNE verdict: PR110 is Station-fit as owner-only runtime Memory explanation.
+MIMIR can close PR110.

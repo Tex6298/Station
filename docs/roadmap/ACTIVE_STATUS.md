@@ -8424,63 +8424,34 @@ git diff --check
 - Developer Spaces visual polish before ingestion auth, validation, limits, and
   safe serialization.
 
-## Latest ARGUS verdict - PR110
+## Latest ARIADNE handoff - PR110
 
-PR110 Memory Runtime Explanation Readback is implemented by DAEDALUS on
-2026-06-20 and accepted by ARGUS technical review. Because this changes visible
-owner route behavior on the persona Memory page, ARGUS wakes ARIADNE for
-visible-route rehearsal before MIMIR closeout.
+PR110 Memory Runtime Explanation Readback is accepted by ARIADNE on
+2026-06-20 and ready for MIMIR closeout.
 
-Files changed: `apps/web/lib/memory-lifecycle-ui.ts`,
-`apps/web/lib/memory-lifecycle-ui.test.ts`,
-`apps/web/app/studio/personas/[personaId]/memory/page.tsx`,
-`docs/roadmap/PR110_MEMORY_RUNTIME_EXPLANATION_READBACK.md`,
-`docs/roadmap/ACTIVE_STATUS.md`, and
-`docs/testing/VALIDATION_BASELINE.md`.
+ARIADNE rehearsed `/studio/personas/[personaId]/memory` across owner-loaded
+Memory, briefing, runtime context preview, refresh preview, desktop, and 390px
+mobile states.
 
-Implementation:
+Result: the page fetched only existing owner Memory, briefing, and
+context-preview APIs; the new Runtime context / Memory explanation section read
+as owner-only Memory behavior explanation, not a retrieval debugger or raw trace
+viewer; selected Memory, active-not-selected Memory, lifecycle holdouts, and
+fallback notes rendered with clear reasons; Refresh Preview called only the
+context-preview route again; raw preview trace titles, raw prompts, provider
+payload text, bearer/token strings, raw URLs, owner/persona/trace/source ids,
+and secret-shaped values did not render; desktop and mobile showed no
+horizontal overflow.
 
-- Added a client-side runtime Memory explanation helper over existing
-  owner-only APIs only.
-- Added a compact Runtime context / Memory explanation section to the owner
-  Memory page.
-- Labeled selected Memory, active-but-not-selected Memory, lifecycle holdouts,
-  retrieval mode, archive/import skip-count notes, and fallback notes.
-- Kept visible output to sanitized target labels, source labels, lifecycle
-  labels, counts, and short reasons.
-
-Privacy and scope proof:
-
-- Owner scope stays on the existing session-backed Memory and context-preview
-  routes.
-- Raw prompts, completions, trace bodies, provider payloads, private archive
-  excerpts, owner/persona/trace ids, raw memory ids, raw URLs, and secrets do
-  not render.
-- No retrieval rewrite, embedding/provider change, autonomous memory mutation,
-  public Memory, Redis/Upstash, Cloudflare, background job, Developer Space
-  realtime, billing/auth/session change, broad Studio redesign, or new AI
-  provider call was added.
-
-ARGUS review notes:
-
-- Accepted: the new visible explanation is assembled from existing
-  session-backed owner Memory, briefing, and context-preview APIs; no new public
-  surface or backend authority was introduced.
-- Accepted: the helper renders sanitized labels, counts, lifecycle state, and
-  short reasons only. Raw preview trace bodies, provider payloads, private
-  archive excerpts, prompts, raw ids, raw URLs, and secret-shaped values stay
-  out of the owner route output.
-- Accepted: scope stayed narrow to PR110. No retrieval rewrite, provider call,
-  autonomous memory mutation, public Memory, auth/session, realtime, job, or
-  billing behavior changed.
-
-ARGUS validation: `test:persona-context` 7 passed,
-`test:conversation-archive` 35 passed, `test:continuity` 5 passed,
-`test:studio-ui` 85 passed, `typecheck` passed, and `git diff --check` passed.
-DAEDALUS also reported the web build reached successful compile,
-lint/typecheck, page data, 36 static pages, optimization, and trace collection
-before the known local Windows standalone symlink `EPERM`; only pre-existing raw
-`<img>` warnings appeared.
+Validation: local Playwright route rehearsal with temporary
+`codex-pr110-route-rehearsal.spec.js` passed against
+`http://127.0.0.1:3137`. Earlier ARGUS validation remains:
+`test:persona-context` 7 passed, `test:conversation-archive` 35 passed,
+`test:continuity` 5 passed, `test:studio-ui` 85 passed, `typecheck` passed,
+and `git diff --check` passed. DAEDALUS also reported the web build reached
+successful compile, lint/typecheck, page data, 36 static pages, optimization,
+and trace collection before the known local Windows standalone symlink `EPERM`;
+only pre-existing raw `<img>` warnings appeared.
 
 ## Previous DAEDALUS handoff - PR109
 

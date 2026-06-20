@@ -82,6 +82,30 @@ Implementation result:
 - Because visible owner route behavior changed, ARGUS should wake ARIADNE for
   rehearsal if the technical review accepts PR110.
 
+ARIADNE visible-route rehearsal on 2026-06-20:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| Local Playwright route rehearsal with temporary `codex-pr110-route-rehearsal.spec.js` | Pass | Ran against `http://127.0.0.1:3137` with mocked owner APIs. Covered selected memory, active-not-selected memory, lifecycle holdouts, fallback notes, refresh preview, sanitization, desktop, and 390px mobile states. |
+
+ARIADNE notes:
+
+- The owner Memory page fetched only the existing Memory, briefing, and
+  context-preview APIs used by PR110.
+- The new section read as an owner-only explanation of runtime Memory behavior,
+  not as a retrieval debugger or raw trace viewer.
+- Selected, active-not-selected, quarantined, expired, superseded, and
+  missing-lifecycle states rendered with clear reasons.
+- Retrieval, fallback, memory skip, and archive/import skip notes rendered as
+  sanitized labels and counts only.
+- Refresh Preview called the context-preview route again without adding a new
+  API or provider-call surface.
+- Raw preview trace titles, raw prompts, provider payload text, bearer/token
+  strings, raw URLs, owner/persona/trace/source ids, and secret-shaped values
+  did not render.
+- Desktop and 390px mobile states showed no horizontal overflow or offscreen
+  controls.
+
 ## PR109 Memory UX Observability Audit
 
 DAEDALUS audit validation on 2026-06-20:
