@@ -1,4 +1,4 @@
-import { canCreateThread } from "@station/auth";
+import { hasTier } from "@station/auth";
 import type { AuthUser, CommunityNotificationRecord, CommunityNotificationType } from "@station/types";
 
 export const NOTIFICATION_FILTERS = ["unread", "all"] as const;
@@ -25,7 +25,7 @@ export function threadWatchPath(threadId: string) {
 }
 
 export function canUseThreadWatch(user: AuthUser | null | undefined) {
-  return canCreateThread(user ?? null);
+  return hasTier(user ?? null, "private");
 }
 
 export function notificationTypeLabel(type: CommunityNotificationType) {

@@ -4,7 +4,7 @@ Date opened: 2026-06-20
 Opened by: A1 / MIMIR
 Owner: DAEDALUS implements, ARGUS reviews. ARIADNE rehearses visible routes
 after ARGUS technical acceptance.
-Status: implemented by DAEDALUS; ready for ARGUS review
+Status: technically accepted by ARGUS; ready for ARIADNE route rehearsal
 
 ## Why This Lane
 
@@ -133,3 +133,42 @@ DAEDALUS must wake ARGUS with:
 ARGUS should wake ARIADNE if accepted. ARIADNE should wake MIMIR if visible
 routes pass, or DAEDALUS with exact defects if they do not. Do not leave the
 lane asleep.
+
+## ARGUS Review
+
+ARGUS technically accepted PR90 on 2026-06-20 and woke ARIADNE for visible-route
+rehearsal.
+
+Review notes:
+
+- `/notifications` restores session before fetching and does not call
+  current-user notification APIs for signed-out visitors.
+- Notification rows show only type, title, safe summary, created date, read
+  state, and API-provided local route links.
+- Helper route safety rejects absolute and protocol-relative notification links.
+- Mark-one-read and mark-all-read actions call only the PR89 current-user
+  notification routes.
+- Thread detail watch controls show signed-out and below-tier unavailable
+  states, fetch watch state only for eligible signed-in users, and mutate only
+  through `GET`/`PUT`/`DELETE /threads/:id/watch`.
+- ARGUS aligned watch eligibility to the API's `requireTier("private")` gate so
+  admin status alone does not show a control that the API would reject.
+- No automatic watching, email, push, browser push, realtime, Redis pub/sub,
+  scheduled digest, public notification feed, subcommunity/delegated moderation,
+  reputation/witness, billing/provider/cache, Developer Space, auth/session
+  refactor, or broad forum UI was added.
+
+Validation rerun by ARGUS:
+
+```bash
+npm exec --yes pnpm@10.32.1 -- run test:community
+npm exec --yes pnpm@10.32.1 -- run test:reports
+npm exec --yes pnpm@10.32.1 -- run test:document-discussions
+npm exec --yes pnpm@10.32.1 -- run test:studio-ui
+npm exec --yes pnpm@10.32.1 -- run typecheck
+npm exec --yes pnpm@10.32.1 -- --filter @station/web build
+git diff --check
+```
+
+The web build compiled, linted/typechecked, collected page data, and generated
+34 static pages before the known local Windows standalone symlink `EPERM`.

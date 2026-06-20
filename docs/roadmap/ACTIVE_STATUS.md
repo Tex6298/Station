@@ -7346,6 +7346,24 @@ when a PR lands, or when validation truth changes.
   pub/sub, scheduled digest, public notification feed, subcommunity/delegated
   moderation, reputation/witness, billing/provider/cache, Developer Space,
   auth/session refactor, or broad forum UI was added.
+- ARGUS technically accepts PR90 Community Notifications UI First Slice on
+  2026-06-20 and wakes ARIADNE for visible-route rehearsal. Review confirmed
+  signed-out visitors do not fetch current-user notification data; signed-in
+  notification readback uses only PR89 current-user list/read routes; safe route
+  links are API-provided local paths only; thread watch controls are gated by
+  signed-in/private-tier state and call only PR89 watch routes; and the UI does
+  not render actor ids, recipient ids, moderator identities, admin notes, target
+  bodies, private material, or other-user rows. ARGUS tightened watch
+  eligibility to match the API's `requireTier("private")` gate so admin status
+  alone does not show a control that the API would reject. Validation passed
+  `test:community` with 12 tests, `test:reports` with 6 tests,
+  `test:document-discussions`, `test:studio-ui` with 56 tests, `typecheck`, and
+  `git diff --check`; the web build compiled, linted/typechecked, collected
+  page data, and generated 34 pages before the known local Windows standalone
+  symlink `EPERM`. No automatic watching, email, push, browser push, realtime,
+  Redis pub/sub, scheduled digest, public notification feed,
+  subcommunity/delegated moderation, reputation/witness, billing/provider/cache,
+  Developer Space, auth/session refactor, or broad forum UI was added.
 
 ## Near-term rule
 

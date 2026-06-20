@@ -9269,6 +9269,30 @@ Scope notes:
   moderation, reputation/witness mechanics, billing/provider/cache, Developer
   Space, auth/session refactor, or broad forum UI changed.
 
+ARGUS review validation on 2026-06-20:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:community` | Pass | 12 tests passed; PR89 watch/notification API gates remain green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:reports` | Pass | 6 tests passed; report/review-request notification safety remains green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` | Pass | 1 test passed; document discussion visibility/readback remains green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 56 tests passed, including private-tier parity for thread watch eligibility. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck completed. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web build` | Partial / known Windows failure | Next compiled, linted/typechecked, collected page data, and generated 34 static pages, then hit the known local Windows standalone symlink `EPERM`. Only pre-existing raw `<img>` warnings appeared. |
+| `git diff --check` | Pass | CRLF normalization warnings only for touched files and local triad state. |
+
+ARGUS review notes:
+
+- Accepted PR90 technically and woke ARIADNE for visible-route rehearsal.
+- Aligned watch eligibility to the API's `requireTier("private")` gate so admin
+  status alone does not show a control that the API would reject.
+- Confirmed signed-out visitors do not fetch current-user notification data.
+- Confirmed notification links are bounded to API-provided local paths.
+- Confirmed thread watch controls call only PR89 watch routes and do not
+  auto-subscribe anyone.
+- Confirmed notification UI omits actor ids, recipient ids, moderator
+  identities, admin notes, target bodies, private material, and other-user rows.
+
 ## PR89 Community Notifications Foundation
 
 DAEDALUS implementation validation on 2026-06-20:

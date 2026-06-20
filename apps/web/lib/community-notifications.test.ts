@@ -38,5 +38,6 @@ test("thread watch eligibility follows existing private-tier participation gate"
   assert.equal(canUseThreadWatch(null), false);
   assert.equal(canUseThreadWatch({ id: "visitor", tier: "visitor", isAdmin: false }), false);
   assert.equal(canUseThreadWatch({ id: "member", tier: "private", isAdmin: false }), true);
-  assert.equal(canUseThreadWatch({ id: "admin", tier: "visitor", isAdmin: true }), true);
+  assert.equal(canUseThreadWatch({ id: "admin", tier: "visitor", isAdmin: true }), false);
+  assert.equal(canUseThreadWatch({ id: "admin", tier: "canon", isAdmin: true }), true);
 });
