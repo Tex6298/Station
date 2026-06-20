@@ -4,17 +4,24 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import type { AuthUser, CommunitySubcommunityRecord, DelegatedModerationReportRecord } from "@station/types";
-import { apiGet } from "@/lib/api-client";
+import { apiGet, apiPatch } from "@/lib/api-client";
 import { getSession } from "@/lib/auth";
 import {
+  canRenderDelegatedStatusControls,
   canUseDelegatedModerationQueue,
   DELEGATED_QUEUE_STATUSES,
   delegatedModerationQueuePath,
+  delegatedReportStatusActionLabel,
+  delegatedReportStatusLabel,
+  delegatedReportStatusPath,
   delegatedReportContextLabel,
   delegatedReportRouteHref,
   delegatedReportTargetLabel,
+  nextDelegatedReportStatuses,
   sanitizeDelegatedQueueReports,
+  updateDelegatedReportInQueue,
   type DelegatedQueueStatus,
+  type DelegatedReportTransitionStatus,
 } from "@/lib/delegated-moderation-queue";
 
 type QueueStatus = DelegatedQueueStatus | "active";
@@ -30,6 +37,8 @@ export default function SubcommunityModerationPage() {
   const [accessState, setAccessState] = useState<AccessState>("checking");
   const [loadingReports, setLoadingReports] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [updatingStatus, setUpdatingStatus] = useState<{ reportId: string; status: DelegatedReportTransitionStatus } | null>(null);
+  const [rowErrors, setRowErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
     let cancelled = false;
@@ -39,6 +48,7 @@ export default function SubcommunityModerationPage() {
       setLoadingReports(false);
       setError(null);
       setReports([]);
+      setRowErrors({});
 
       const session = await getSession();
       if (cancelled) return;
@@ -92,6 +102,36 @@ export default function SubcommunityModerationPage() {
   }, [slug, status]);
 
   const canReadQueue = canUseDelegatedModerationQueue(user, subcommunity);
+  const canUpdateReports = canRenderDelegatedStatusControls(user, subcommunity);
+
+  async function updateReportStatus(report: DelegatedModerationReportRecord, nextStatus: DelegatedReportTransitionStatus) {
+    if (!token || !canUpdateReports || report.status === nextStatus) return;
+
+    setUpdatingStatus({ reportId: report.id, status: nextStatus });
+    setRowErrors((current) => {
+      const next = { ...current };
+      delete next[report.id];
+      return next;
+    });
+
+    try {
+      const response = await apiPatch<{ report: DelegatedModerationReportRecord }>(
+        delegatedReportStatusPath(slug, report.id),
+        { status: nextStatus },
+        token
+      );
+      const [updated] = sanitizeDelegatedQueueReports([response.report]);
+      if (!updated) throw new Error("Status update returned an unsupported report.");
+      setReports((current) => updateDelegatedReportInQueue(current, updated, { status }));
+    } catch (e) {
+      setRowErrors((current) => ({
+        ...current,
+        [report.id]: e instanceof Error ? e.message : "Could not update report status.",
+      }));
+    } finally {
+      setUpdatingStatus(null);
+    }
+  }
 
   return (
     <main className="container">
@@ -163,7 +203,14 @@ export default function SubcommunityModerationPage() {
           ) : (
             <div style={{ display: "grid", gap: "0.75rem" }}>
               {reports.map((report) => (
-                <DelegatedReportRow key={report.id} report={report} />
+                <DelegatedReportRow
+                  key={report.id}
+                  report={report}
+                  canUpdate={canUpdateReports}
+                  updatingStatus={updatingStatus?.reportId === report.id ? updatingStatus.status : null}
+                  error={rowErrors[report.id] ?? null}
+                  onUpdateStatus={updateReportStatus}
+                />
               ))}
             </div>
           )}
@@ -173,15 +220,28 @@ export default function SubcommunityModerationPage() {
   );
 }
 
-function DelegatedReportRow({ report }: { report: DelegatedModerationReportRecord }) {
+function DelegatedReportRow({
+  report,
+  canUpdate,
+  updatingStatus,
+  error,
+  onUpdateStatus,
+}: {
+  report: DelegatedModerationReportRecord;
+  canUpdate: boolean;
+  updatingStatus: DelegatedReportTransitionStatus | null;
+  error: string | null;
+  onUpdateStatus: (report: DelegatedModerationReportRecord, status: DelegatedReportTransitionStatus) => void;
+}) {
   const href = delegatedReportRouteHref(report);
+  const nextStatuses = nextDelegatedReportStatuses(report.status);
 
   return (
     <article className="card" style={{ display: "grid", gap: "0.75rem" }}>
       <div style={{ display: "flex", justifyContent: "space-between", gap: "0.75rem", flexWrap: "wrap" }}>
         <div style={{ minWidth: 0 }}>
           <div style={{ display: "flex", gap: "0.4rem", alignItems: "center", flexWrap: "wrap", marginBottom: "0.35rem" }}>
-            <span style={pill}>{report.status}</span>
+            <span style={pill}>{delegatedReportStatusLabel(report.status)}</span>
             <span style={pill}>{report.targetType}</span>
           </div>
           <h2 style={{ margin: 0, fontSize: "1rem", color: "#1f2529" }}>{report.reason}</h2>
@@ -219,6 +279,27 @@ function DelegatedReportRow({ report }: { report: DelegatedModerationReportRecor
           <div>Target context is not available for this report.</div>
         )}
       </div>
+
+      {canUpdate && (
+        <div style={statusPanel}>
+          <span style={{ color: "#1f2529", fontWeight: 700 }}>Report status</span>
+          {nextStatuses.map((nextStatus) => {
+            const updating = updatingStatus === nextStatus;
+            return (
+              <button
+                key={nextStatus}
+                type="button"
+                disabled={updatingStatus !== null}
+                onClick={() => onUpdateStatus(report, nextStatus)}
+                style={statusButton(nextStatus === "dismissed", updating)}
+              >
+                {updating ? "Saving..." : delegatedReportStatusActionLabel(nextStatus)}
+              </button>
+            );
+          })}
+          {error && <span style={{ color: "#7d2e2e" }}>{error}</span>}
+        </div>
+      )}
     </article>
   );
 }
@@ -282,3 +363,27 @@ const contextPanel = {
   color: "#687078",
   fontSize: "0.8rem",
 };
+
+const statusPanel = {
+  borderTop: "1px solid #ece8dd",
+  paddingTop: "0.75rem",
+  display: "flex",
+  gap: "0.45rem",
+  flexWrap: "wrap" as const,
+  alignItems: "center",
+  color: "#687078",
+  fontSize: "0.75rem",
+};
+
+function statusButton(strong: boolean, loading: boolean) {
+  return {
+    border: "1px solid #d8d3c8",
+    borderRadius: 6,
+    background: strong ? "#2d1515" : "#fff",
+    color: strong ? "#fff" : "#687078",
+    fontSize: "0.72rem",
+    padding: "0.16rem 0.48rem",
+    cursor: loading ? "wait" : "pointer",
+    opacity: loading ? 0.7 : 1,
+  };
+}

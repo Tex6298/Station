@@ -4,7 +4,7 @@ Date opened: 2026-06-20
 Opened by: A1 / MIMIR
 Owner: DAEDALUS implements or precisely blocks, ARGUS reviews, ARIADNE rehearses
 visible behavior before MIMIR closeout.
-Status: open for DAEDALUS
+Status: implemented by DAEDALUS; ready for ARGUS review
 
 ## Why This Lane
 
@@ -112,3 +112,56 @@ git diff --check
 If the web build reaches compile/lint/page generation and then hits the known
 Windows output cleanup `EPERM`, report that precisely rather than treating it as
 an app failure.
+
+## DAEDALUS Implementation
+
+Implemented on 2026-06-20.
+
+Visible route:
+
+- Updated `/forums/subcommunities/[slug]/moderation`.
+- Status controls render only after the same access preflight that permits
+  scoped queue readback.
+- Signed-out, denied, ordinary, revoked, unrelated-owner, and other blocked
+  states do not render live queue rows or controls.
+
+Scoped status behavior:
+
+- Row controls call only
+  `PATCH /forums/subcommunities/:slug/moderation/reports/:id`.
+- Allowed visible actions are `reviewing`, `resolved`, and `dismissed`.
+- Same-status actions are not offered.
+- Successful responses are sanitized through the delegated queue sanitizer
+  before rendering.
+- Active filters keep `open` and `reviewing` rows; if a row transitions to
+  `resolved` or `dismissed`, it leaves the active view. Explicit status filters
+  keep or drop updated rows according to the selected filter.
+- Failed updates keep the row visible and show a bounded row-level error.
+
+Privacy and non-scope:
+
+- The UI still renders only delegated report fields: report id-derived target
+  labels, target type/id, reason, status, timestamps, and bounded target
+  context.
+- No reporter identities, admin notes, reviewed-by/reviewed-at fields,
+  moderator identities, role assignments, moderation reasons, hidden/private
+  target bodies, private metadata, raw owner ids, source ids, raw category ids,
+  or unsafe route hints are rendered.
+- No target hide/unhide/remove/restore controls, target mutation from the report
+  route, global `/reports` widening, global admin patch behavior change, public
+  moderation logs, public moderator directory, review-request expansion,
+  notification UI changes, broad styling pass, billing/provider/cache work,
+  Redis/Upstash, Cloudflare, Developer Space work, or auth/session refactor was
+  added.
+
+Validation:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 77 tests passed, including delegated status path construction, transition labels, permission-gated controls, same-status omission, and active/explicit filter row behavior. |
+| `npm exec --yes pnpm@10.32.1 -- run test:community` | Pass | 17 tests passed; PR103 scoped status API and hostile route coverage stayed green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:reports` | Pass | 6 tests passed; global admin `/reports` behavior stayed green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` | Pass | 1 test passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API typecheck replayed from cache and web typecheck ran. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web build` | Partial / known Windows failure | Next compiled, linted/typechecked, collected page data, generated 35 static pages, finalized optimization, and collected build traces before the known local Windows standalone symlink `EPERM` during traced-file copy. Only the pre-existing raw `<img>` warnings appeared. |
+| `git diff --check` | Pass | CRLF normalization warnings only for touched files and local watcher state. |

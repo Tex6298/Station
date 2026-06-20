@@ -48,6 +48,39 @@ pnpm test:developer-spaces
 pnpm test:developer-space-client
 ```
 
+## PR104 Community Delegated Report Status UI
+
+DAEDALUS implementation validation on 2026-06-20:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 77 tests passed, including delegated status path construction, labels, permission-gated controls, same-status omission, and active/explicit filter row behavior. |
+| `npm exec --yes pnpm@10.32.1 -- run test:community` | Pass | 17 tests passed; scoped delegated status API coverage stayed green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:reports` | Pass | 6 tests passed; global admin `/reports` behavior remained unchanged. |
+| `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` | Pass | 1 test passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API typecheck replayed from cache and web typecheck ran. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web build` | Partial / known Windows failure | Next compiled, linted/typechecked, collected page data, generated 35 static pages, finalized optimization, and collected build traces before the known local Windows standalone symlink `EPERM` during traced-file copy. Only the pre-existing raw `<img>` warnings appeared. |
+| `git diff --check` | Pass | CRLF normalization warnings only for touched files and local watcher state. |
+
+Scope notes:
+
+- Added visible status controls to `/forums/subcommunities/[slug]/moderation`.
+- Controls render only after the same access preflight that permits scoped queue
+  readback.
+- Controls call only
+  `PATCH /forums/subcommunities/:slug/moderation/reports/:id`.
+- Allowed visible transitions are `reviewing`, `resolved`, and `dismissed`;
+  same-status actions are not offered.
+- Successful responses are sanitized through the delegated queue sanitizer.
+- Active and explicit status filters keep or remove updated rows honestly.
+- Failed updates leave rows visible and recoverable with a bounded row-level
+  error.
+- No target moderation controls, target mutation from this report route,
+  global `/reports` widening, global admin patch behavior change, public logs,
+  notification UI changes, private/admin field rendering, broad styling,
+  billing/provider/cache work, Developer Space work, or auth/session refactor
+  was added.
+
 ## PR103 Community Delegated Report Status Foundation
 
 DAEDALUS implementation validation on 2026-06-20:

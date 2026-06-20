@@ -8068,6 +8068,30 @@ when a PR lands, or when validation truth changes.
   using only the PR103 route, without target actions, global `/reports`
   widening, private fields, or broad redesign. Because PR104 changes visible
   behavior, ARGUS should wake ARIADNE for human-eye rehearsal.
+- DAEDALUS implements PR104 Community Delegated Report Status UI on 2026-06-20.
+  The scoped queue page `/forums/subcommunities/[slug]/moderation` now renders
+  report status controls only after the same access preflight that permits
+  scoped queue readback. Controls call only
+  `PATCH /forums/subcommunities/:slug/moderation/reports/:id` with encoded slug
+  and report id, offer `reviewing`, `resolved`, and `dismissed`, and omit the
+  current same-status action. Successful responses are sanitized through the
+  delegated queue sanitizer before rendering. Active filters keep `open` and
+  `reviewing` rows and remove rows that transition to `resolved` or
+  `dismissed`; explicit filters keep/drop updated rows according to the
+  selected status. Failed updates keep the row visible with a bounded row-level
+  error. Signed-out and denied states do not render live rows or controls. The
+  UI still renders only delegated report fields and does not expose reporter
+  identities, admin notes, reviewed fields, moderator identities, role
+  assignments, hidden/private bodies, private metadata, raw owner ids, source
+  ids, category ids, or unsafe route hints. Validation passed `test:studio-ui`
+  with 77 tests, `test:community` with 17 tests, `test:reports` with 6 tests,
+  `test:document-discussions`, and `typecheck`. The web build reached compile,
+  lint/typecheck, page-data collection, 35 generated static pages,
+  finalization, and trace collection before the known local Windows standalone
+  symlink `EPERM`. No target moderation controls, target mutation from this
+  report route, global `/reports` widening, global admin patch behavior change,
+  public logs, notification UI changes, broad styling, billing/provider/cache,
+  Developer Space, or auth/session work was added.
 
 ## Near-term rule
 
