@@ -9357,6 +9357,27 @@ Scope notes:
   Cloudflare, Developer Space expansion, auth/session refactor, broad forum UI,
   or visibility widening was added.
 
+ARGUS review validation on 2026-06-20:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:community` | Pass | 14 tests passed, including new hostile coverage for admin attempts to witness hidden thread material. |
+| `npm exec --yes pnpm@10.32.1 -- run test:reports` | Pass | 6 tests passed; report scoping remains green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` | Pass | 1 test passed; document discussion visibility remains green. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck completed. |
+| `git diff --check` | Pass | CRLF normalization warnings only for touched files and local triad state. |
+
+ARGUS review notes:
+
+- Raw `community_witnesses` RLS was tightened from authenticated-wide select to
+  actor-only row select so witnesser identities cannot be read directly.
+- Witness target loading now rejects hidden thread material even for users, such
+  as admins, who can otherwise read hidden rows for moderation.
+- API serializers remain aggregate-only for public/community readers and
+  current-viewer-only for `viewer_witnesses`.
+- PR95 is accepted for MIMIR closeout/sequencing. No ARIADNE visible-route
+  rehearsal is required.
+
 ## PR94 Community Authorship Provenance Foundation
 
 DAEDALUS implementation validation on 2026-06-20:

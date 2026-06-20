@@ -30,10 +30,11 @@ create trigger trg_community_witnesses_updated_at
 alter table public.community_witnesses enable row level security;
 
 drop policy if exists "community_witnesses_select_authenticated" on public.community_witnesses;
-create policy "community_witnesses_select_authenticated"
+drop policy if exists "community_witnesses_select_actor" on public.community_witnesses;
+create policy "community_witnesses_select_actor"
   on public.community_witnesses
   for select
-  using (auth.uid() is not null);
+  using (auth.uid() = witness_user_id);
 
 drop policy if exists "community_witnesses_all_actor" on public.community_witnesses;
 create policy "community_witnesses_all_actor"

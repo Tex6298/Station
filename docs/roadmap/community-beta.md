@@ -60,8 +60,8 @@ promised in the Station documents.
   serializers.
 - Recognition/witness storage and API foundations exist for readable
   thread/comment targets, with self-witness prevention, idempotency, fail-closed
-  target visibility, aggregate-only public readback, and viewer-scoped witness
-  state.
+  target visibility, actor-only raw-row access, aggregate-only public readback,
+  and viewer-scoped witness state.
 - Tier participation is explicit: public reads remain open, community reads
   require eligible tier, and creation/voting/reporting require `private` tier or
   higher.

@@ -7624,7 +7624,8 @@ when a PR lands, or when validation truth changes.
   2026-06-20 and wakes ARGUS for technical review. Migration 043 adds
   `community_witnesses` with current-user scoped `helpful`/`grounded`/`careful`
   witness rows, idempotency over user/target/kind, soft revoke via
-  `revoked_at`, and RLS scoped to authenticated reads plus acting-user writes.
+  `revoked_at`, and, after ARGUS review, actor-only raw-row RLS read/write
+  access.
   API routes add `PUT`/`DELETE /threads/:id/witness/:kind` and
   `PUT`/`DELETE /comments/:id/witness/:kind`, all `private` tier gated,
   self-witness blocked, and using the same thread/comment readability plus
@@ -7639,6 +7640,21 @@ when a PR lands, or when validation truth changes.
   moderation, billing/provider/cache, Redis/Upstash, Cloudflare, Developer
   Space expansion, auth/session refactor, broad forum UI, or visibility
   widening was added.
+- ARGUS accepts PR95 Community Recognition/Witness Foundation on 2026-06-20
+  and wakes MIMIR directly because no visible route changed. Review confirmed
+  the witness table/type surface, current-user scoped thread/comment witness
+  routes, self-witness prevention, idempotent create/revoke semantics,
+  aggregate-only serializer readback, viewer-scoped `viewer_witnesses`, and
+  preservation of the PR94 authorship provenance contract. ARGUS tightened
+  migration RLS so raw `community_witnesses` rows are actor-select only instead
+  of authenticated-wide, and patched witness target loading so hidden thread
+  material fails closed even through admin-readable moderation paths. Validation
+  passed `test:community` with 14 tests, `test:reports` with 6 tests,
+  `test:document-discussions`, `typecheck`, and `git diff --check` with CRLF
+  normalization warnings only. No visible route, leaderboard, ranking, badge,
+  notification, AI/persona posting, delegated moderation, billing/provider/
+  cache, Redis/Upstash, Cloudflare, Developer Space expansion, auth/session
+  refactor, broad forum UI, or visibility widening was added.
 
 ## Near-term rule
 

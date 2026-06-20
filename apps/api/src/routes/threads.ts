@@ -431,7 +431,7 @@ async function loadReadableThreadForWitness(
     .eq("id", threadId)
     .maybeSingle();
 
-  if (!thread || !canReadThread(thread, user)) {
+  if (!thread || thread.status === "removed" || thread.is_hidden || !canReadThread(thread, user)) {
     res.status(404).json({ error: "Thread not found" });
     return null;
   }

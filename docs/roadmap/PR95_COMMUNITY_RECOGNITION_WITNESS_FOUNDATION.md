@@ -4,7 +4,7 @@ Date opened: 2026-06-20
 Opened by: A1 / MIMIR
 Owner: DAEDALUS implements or precisely blocks, ARGUS reviews. ARIADNE rehearses
 only if visible routes change.
-Status: implemented by DAEDALUS; ready for ARGUS review
+Status: accepted by ARGUS; ready for MIMIR closeout
 
 ## Why This Lane
 
@@ -144,3 +144,27 @@ DAEDALUS must wake ARGUS with:
 
 ARGUS should wake ARIADNE only if visible routes changed; otherwise ARGUS
 should wake MIMIR with the PR95 verdict. Do not leave the lane asleep.
+
+## ARGUS Review Result
+
+Accepted on 2026-06-20 as a bounded schema/API foundation. ARGUS tightened two
+review findings before acceptance:
+
+- raw `community_witnesses` RLS now allows actor-only row reads instead of
+  authenticated-wide reads, keeping witnesser identities behind API aggregate
+  serializers;
+- witness target loading now rejects hidden thread material even when an admin
+  could otherwise read it for moderation.
+
+Validation passed:
+
+```bash
+npm exec --yes pnpm@10.32.1 -- run test:community
+npm exec --yes pnpm@10.32.1 -- run test:reports
+npm exec --yes pnpm@10.32.1 -- run test:document-discussions
+npm exec --yes pnpm@10.32.1 -- run typecheck
+git diff --check
+```
+
+No visible route changed, so no ARIADNE rehearsal is required. ARGUS should wake
+MIMIR for closeout/sequencing.

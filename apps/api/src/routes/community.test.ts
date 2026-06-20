@@ -1291,6 +1291,12 @@ test("community witnesses are current-user scoped, idempotent, and aggregate-onl
     body: "Hidden comment should fail closed.",
     is_hidden: true,
   });
+  const hiddenParentComment = db.insertRow("comments", {
+    author_user_id: MEMBER_ID,
+    parent_type: "thread",
+    parent_id: HIDDEN_THREAD_ID,
+    body: "Comment under a hidden thread should fail closed.",
+  });
   setSupabaseAdminForTests(db.client as any);
   const app = createCommunityApp();
 
@@ -1317,6 +1323,16 @@ test("community witnesses are current-user scoped, idempotent, and aggregate-onl
       token: "member-token",
     });
     assert.equal(hiddenTarget.status, 404);
+
+    const adminHiddenTarget = await requestJson(app, "PUT", `/threads/${HIDDEN_THREAD_ID}/witness/helpful`, {
+      token: "admin-token",
+    });
+    assert.equal(adminHiddenTarget.status, 404);
+
+    const adminHiddenParentComment = await requestJson(app, "PUT", `/comments/${hiddenParentComment.id}/witness/careful`, {
+      token: "admin-token",
+    });
+    assert.equal(adminHiddenParentComment.status, 404);
 
     const firstWitness = await requestJson(app, "PUT", `/threads/${PUBLIC_THREAD_ID}/witness/helpful`, {
       token: "member-token",

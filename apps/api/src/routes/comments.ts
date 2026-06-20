@@ -478,6 +478,28 @@ async function loadReadableCommentForWitness(
     return null;
   }
 
+  if (comment.parent_type === "thread") {
+    const { data: thread } = await sb
+      .from("threads")
+      .select("id, category_id, status, visibility, is_hidden, author_user_id")
+      .eq("id", comment.parent_id)
+      .maybeSingle();
+    if (!thread || thread.status === "removed" || thread.is_hidden || !canReadThread(thread, user)) {
+      res.status(404).json({ error: "Comment not found" });
+      return null;
+    }
+
+    const subcommunityLookup = await loadSubcommunityForCategoryOrRespond(thread.category_id, res);
+    if (!subcommunityLookup.ok) return null;
+    const subcommunity = subcommunityLookup.subcommunity;
+    if (subcommunity && !canReadSubcommunity(subcommunity, user)) {
+      res.status(404).json({ error: "Comment not found" });
+      return null;
+    }
+
+    return comment;
+  }
+
   const canRead = await validateReadableParent(comment.parent_type as CommentParentType, comment.parent_id, user);
   if (!canRead) {
     res.status(404).json({ error: "Comment not found" });
