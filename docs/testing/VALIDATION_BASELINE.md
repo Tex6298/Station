@@ -48,6 +48,41 @@ pnpm test:developer-spaces
 pnpm test:developer-space-client
 ```
 
+## PR99 Community Subcommunity Moderation Actions
+
+DAEDALUS implementation validation on 2026-06-20:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:community` | Pass | 16 tests passed, including delegated subcommunity owner/moderator action gating, revoked/unrelated/ordinary/visitor/anonymous denial, ordinary category denial, document/Space-page comment denial, admin-only pin/lock behavior, lookup failure fail-closed behavior, self-moderation denial for active moderators, and public readback non-leakage. |
+| `npm exec --yes pnpm@10.32.1 -- run test:reports` | Pass | 6 tests passed; report queue/readback and target context stayed green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` | Pass | 1 test passed; document discussion visibility stayed green. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API typecheck completed and web typecheck replayed from cache. |
+| `git diff --check` | Pass | CRLF normalization warnings only for touched files. |
+
+Scope notes:
+
+- Existing thread/comment moderation endpoints now allow non-admin
+  subcommunity owners and active moderators to use only `hide`, `unhide`,
+  `remove`, and `restore` on their own subcommunity-backed thread targets and
+  thread-parent comment targets.
+- Platform admins keep all existing thread/comment powers.
+- Ordinary categories, document comments, and Space-page comments remain
+  platform-admin-only.
+- Thread lock/unlock/pin/unpin and comment pin/unpin remain platform-admin-only.
+- Missing or errored subcommunity lookup fails closed before mutation.
+- Platform admins and subcommunity owners may moderate their own rows; active
+  moderators who are not owners/admins cannot moderate their own thread/comment
+  through delegated moderation routes.
+- Delegated actions still write private `community_moderation_actions` rows.
+  Public/member thread/comment readback remains unchanged and does not expose
+  moderation reasons, moderator identities, role assignments, or private action
+  metadata.
+- No visible moderator UI, delegated action buttons, public moderator
+  directory, public moderation log, review-request expansion, notification
+  fanout, billing/provider/cache, Redis/Upstash, Cloudflare, Developer Space
+  work, auth/session refactor, styling, or visibility widening was added.
+
 ## PR97 ARGUS review result
 
 Validated on 2026-06-20 after the Community Moderation Unsupported Target

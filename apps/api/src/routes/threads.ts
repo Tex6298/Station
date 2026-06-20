@@ -14,6 +14,7 @@ import {
   serializeModerationAction,
   setCommunityWitness,
 } from "../services/community.service";
+import { authorizeSubcommunityModeration } from "../services/community-moderation-permissions.service";
 import { serializeCommunityThreadWatch } from "../services/community-notifications.service";
 import {
   serializeCommentDiscussionProvenance,
@@ -313,21 +314,29 @@ threadsRouter.post("/:id/vote", requireTier("private"), async (req: Request, res
   }
 });
 
-// --- Admin moderation actions ------------------------------------------------
+// --- Moderation actions ------------------------------------------------------
 threadsRouter.patch("/:id/moderation", async (req: Request, res: Response) => {
-  if (!req.user!.isAdmin) return res.status(403).json({ error: "Admin access required." });
-
   const parsed = moderationSchema.safeParse(req.body);
   if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
 
   const sb = getSupabaseAdmin();
   const { data: thread } = await sb
     .from("threads")
-    .select("id")
+    .select("id, category_id, author_user_id")
     .eq("id", req.params.id)
     .maybeSingle();
 
   if (!thread) return res.status(404).json({ error: "Thread not found" });
+
+  const authorization = await authorizeSubcommunityModeration({
+    user: req.user!,
+    action: parsed.data.action,
+    categoryId: thread.category_id,
+    targetAuthorUserId: thread.author_user_id,
+  });
+  if (authorization.ok === false) {
+    return res.status(authorization.status).json({ error: authorization.error });
+  }
 
   const update: Record<string, unknown> = {};
   if (parsed.data.action === "lock") update.status = "locked";

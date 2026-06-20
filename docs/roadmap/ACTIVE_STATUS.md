@@ -7828,6 +7828,25 @@ when a PR lands, or when validation truth changes.
   `docs/roadmap/PR99_COMMUNITY_SUBCOMMUNITY_MODERATION_ACTIONS.md`, preserve
   fail-closed subcommunity checks, add hostile permission tests, avoid visible
   moderator UI, and wake ARGUS with validation and an action allow/deny matrix.
+- DAEDALUS implements PR99 Community Subcommunity Moderation Actions on
+  2026-06-20. Existing `PATCH /threads/:id/moderation` and
+  `PATCH /comments/:id/moderation` now keep platform admins fully powered while
+  allowing non-admin subcommunity owners and active moderators to use only
+  `hide`, `unhide`, `remove`, and `restore` on their own subcommunity-backed
+  thread targets and thread-parent comment targets. Ordinary categories,
+  document comments, and Space-page comments remain platform-admin-only;
+  thread lock/unlock/pin/unpin and comment pin/unpin remain platform-admin-only.
+  Missing or errored subcommunity lookup fails closed. Platform admins and
+  subcommunity owners may moderate their own rows; active moderators who are
+  not owners/admins cannot moderate their own rows through delegated moderation
+  routes. Delegated actions still write private `community_moderation_actions`,
+  and public/member thread/comment readback does not expose moderation reasons,
+  moderator identities, role assignments, or private action metadata.
+  Validation passed `test:community` with 16 tests. No visible moderator UI,
+  delegated action button, public moderator directory, public moderation log,
+  review-request expansion, notification fanout, billing/provider/cache,
+  Redis/Upstash, Cloudflare, Developer Space work, auth/session refactor,
+  styling, or visibility widening was added.
 
 ## Near-term rule
 

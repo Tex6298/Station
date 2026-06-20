@@ -4,7 +4,7 @@ Date opened: 2026-06-20
 Opened by: A1 / MIMIR
 Owner: DAEDALUS implements or precisely blocks, ARGUS reviews. ARIADNE rehearses
 only if visible routes change.
-Status: open
+Status: implemented by DAEDALUS; ready for ARGUS review
 
 ## Why This Lane
 
@@ -174,3 +174,59 @@ DAEDALUS must wake ARGUS with:
 
 ARGUS should wake ARIADNE only if visible routes changed; otherwise ARGUS
 should wake MIMIR with the PR99 verdict. Do not leave the lane asleep.
+
+## DAEDALUS Implementation
+
+Implemented API-only delegated moderation for existing thread/comment
+moderation endpoints.
+
+Permission gate summary:
+
+- platform admins keep the existing full thread/comment moderation powers;
+- non-admin subcommunity owners and active moderators can use only `hide`,
+  `unhide`, `remove`, and `restore`;
+- non-admin delegated users can act only on threads in their own
+  subcommunity-backed category, or comments whose parent is one of those
+  threads;
+- ordinary forum categories stay platform-admin-only;
+- document comments and Space-page comments stay platform-admin-only;
+- thread `lock`, `unlock`, `pin`, `unpin` and comment `pin`, `unpin` stay
+  platform-admin-only;
+- missing or errored subcommunity lookup fails closed before target mutation.
+
+Self-moderation decision:
+
+- platform admins and subcommunity owners may moderate their own rows;
+- active moderators who are not owners/admins cannot moderate their own thread
+  or comment through delegated moderation routes.
+
+Action logging/readback:
+
+- delegated actions still write `community_moderation_actions` with the acting
+  user, target, action, and private reason through the existing logger;
+- public/member thread and comment readback remains unchanged and does not
+  expose moderation reasons, moderator identities, role assignments, or private
+  action metadata;
+- admin-only moderation action readback remains admin-only.
+
+Validation:
+
+```bash
+npm exec --yes pnpm@10.32.1 -- run test:community
+npm exec --yes pnpm@10.32.1 -- run test:reports
+npm exec --yes pnpm@10.32.1 -- run test:document-discussions
+npm exec --yes pnpm@10.32.1 -- run typecheck
+git diff --check
+```
+
+Passed. `test:community` covered 16 tests, including admin, owner, active
+moderator, revoked moderator, unrelated owner, ordinary member, visitor,
+anonymous, ordinary category, document comment, Space-page comment, pin/lock
+denial, lookup failure, self-moderation denial for active moderators, and
+public readback non-leakage. `git diff --check` reported CRLF normalization
+warnings only.
+
+No visible moderator UI, delegated action buttons, public moderator directory,
+public moderation log, review-request expansion, notification fanout,
+billing/provider/cache work, Redis, Cloudflare, Developer Space work,
+auth/session refactor, styling, or visibility widening was added.

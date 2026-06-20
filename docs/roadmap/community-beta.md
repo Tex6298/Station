@@ -11,8 +11,11 @@ promised in the Station documents.
 - Published documents can attach discussion threads.
 - Document pages, public Spaces, Discover, and forum views can surface discussion entry points.
 - Moderation-ready fields exist on threads/comments: pinned, hidden, reported count, status.
-- Admin-only thread/comment moderation actions are logged through
-  `community_moderation_actions`.
+- Thread/comment moderation actions are logged through
+  `community_moderation_actions`: platform admins keep all powers, while
+  subcommunity owners and active moderators can use bounded safety actions only
+  on their own subcommunity-backed thread targets and thread-parent comment
+  targets.
 - Admin-only moderation report queue/readback and report status updates exist
   over `moderation_reports`.
 - The first admin moderator console exists at `/forums/moderation`, exposing
@@ -53,6 +56,11 @@ promised in the Station documents.
   managed moderator assignments, safe owner/admin moderator readback, active/
   revoked moderator permission helpers, and unchanged public/community
   serializers that do not expose moderator identities.
+- Bounded subcommunity moderation actions exist through the existing API
+  moderation routes. Non-admin delegated users are limited to `hide`, `unhide`,
+  `remove`, and `restore`; ordinary categories, document comments, Space-page
+  comments, thread lock/pin actions, and comment pin actions remain
+  platform-admin-only.
 - Visible subcommunity directory, creation, and category context exist on
   `/forums`, `/forums/subcommunities`, and subcommunity-backed category routes,
   with signed-out/below-tier gates and no private/unlisted/owner-only field
@@ -96,11 +104,9 @@ pnpm test:reports
 - Broader recognition UX beyond the accepted thread/comment witness first
   slice; no leaderboards, badges, rankings, or public user scores are open.
 - Deeper moderator/admin console UX beyond safe target context, and any future
-  delegated moderator surfaces.
+  visible delegated moderator surfaces.
 - Future trusted AI/persona/imported authorship routes, if ever opened; current
   public creation routes remain user-authored only.
-- Wiring accepted subcommunity owner/moderator roles into bounded moderation
-  actions beyond current platform-admin moderation routes.
 
 ## Product rule
 

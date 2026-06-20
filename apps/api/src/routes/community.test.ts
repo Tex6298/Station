@@ -1348,6 +1348,255 @@ test("subcommunity moderator role foundation is owner-admin managed and serializ
   }
 });
 
+test("subcommunity owner and moderator actions are bounded to safety actions and local targets", async () => {
+  const db = new CommunitySupabase();
+  const category = db.insertRow("forum_categories", {
+    id: "22345678-1234-4123-8123-123456789abc",
+    slug: "action-lab",
+    title: "Action Lab",
+  });
+  const subcommunity = db.insertRow("community_subcommunities", {
+    id: "22345678-1234-4123-8123-123456789abd",
+    category_id: category.id,
+    owner_user_id: OWNER_ID,
+    slug: "action-lab",
+    title: "Action Lab",
+    subcommunity_type: "canon",
+    visibility: "community",
+    status: "active",
+  });
+  const otherCategory = db.insertRow("forum_categories", {
+    id: "22345678-1234-4123-8123-123456789abe",
+    slug: "other-action-lab",
+    title: "Other Action Lab",
+  });
+  db.insertRow("community_subcommunities", {
+    id: "22345678-1234-4123-8123-123456789abf",
+    category_id: otherCategory.id,
+    owner_user_id: OTHER_ID,
+    slug: "other-action-lab",
+    title: "Other Action Lab",
+    subcommunity_type: "canon",
+    visibility: "community",
+    status: "active",
+  });
+  const subcommunityThread = db.insertRow("threads", thread("22345678-1234-4123-8123-123456789ac0", "Subcommunity target", "community", {
+    category_id: category.id,
+    author_user_id: OTHER_ID,
+    moderation_state: "normal",
+  }));
+  const ownerAuthoredThread = db.insertRow("threads", thread("22345678-1234-4123-8123-123456789ac1", "Owner-authored target", "community", {
+    category_id: category.id,
+    author_user_id: OWNER_ID,
+    moderation_state: "normal",
+  }));
+  const memberAuthoredThread = db.insertRow("threads", thread("22345678-1234-4123-8123-123456789ac2", "Moderator-authored target", "community", {
+    category_id: category.id,
+    author_user_id: MEMBER_ID,
+    moderation_state: "normal",
+  }));
+  const otherSubcommunityThread = db.insertRow("threads", thread("22345678-1234-4123-8123-123456789ac3", "Other subcommunity target", "community", {
+    category_id: otherCategory.id,
+    author_user_id: OWNER_ID,
+    moderation_state: "normal",
+  }));
+  const subcommunityComment = db.insertRow("comments", {
+    author_user_id: OTHER_ID,
+    parent_type: "thread",
+    parent_id: subcommunityThread.id,
+    body: "Subcommunity comment that needs a bounded action.",
+    moderation_state: "normal",
+  });
+  const memberAuthoredComment = db.insertRow("comments", {
+    author_user_id: MEMBER_ID,
+    parent_type: "thread",
+    parent_id: subcommunityThread.id,
+    body: "Moderator-authored comment should not be self-moderated.",
+    moderation_state: "normal",
+  });
+  const documentComment = db.insertRow("comments", {
+    author_user_id: OTHER_ID,
+    parent_type: "document",
+    parent_id: PUBLIC_DOC_ID,
+    body: "Document comment stays admin-only.",
+    moderation_state: "normal",
+  });
+  const spacePageComment = db.insertRow("comments", {
+    author_user_id: OTHER_ID,
+    parent_type: "space_page",
+    parent_id: PUBLIC_PAGE_ID,
+    body: "Space page comment stays admin-only.",
+    moderation_state: "normal",
+  });
+  db.insertRow("community_subcommunity_moderators", {
+    subcommunity_id: subcommunity.id,
+    user_id: VISITOR_ID,
+    status: "revoked",
+    created_by: OWNER_ID,
+  });
+
+  setSupabaseAdminForTests(db.client as any);
+  const app = createCommunityApp();
+
+  try {
+    const anonymousHide = await requestJson(app, "PATCH", `/threads/${subcommunityThread.id}/moderation`, {
+      body: { action: "hide", reason: "anonymous should not apply" },
+    });
+    assert.equal(anonymousHide.status, 401);
+
+    const adminOrdinaryLock = await requestJson(app, "PATCH", `/threads/${PUBLIC_THREAD_ID}/moderation`, {
+      token: "admin-token",
+      body: { action: "lock", reason: "admin ordinary category lock" },
+    });
+    assert.equal(adminOrdinaryLock.status, 200);
+    assert.equal(adminOrdinaryLock.body.thread.status, "locked");
+
+    const memberOrdinaryHide = await requestJson(app, "PATCH", `/threads/${PUBLIC_THREAD_ID}/moderation`, {
+      token: "member-token",
+      body: { action: "hide", reason: "ordinary member should not moderate ordinary category" },
+    });
+    assert.equal(memberOrdinaryHide.status, 403);
+
+    const memberBeforeAssignment = await requestJson(app, "PATCH", `/threads/${subcommunityThread.id}/moderation`, {
+      token: "member-token",
+      body: { action: "hide", reason: "ordinary member should not moderate subcommunity" },
+    });
+    assert.equal(memberBeforeAssignment.status, 403);
+
+    db.insertRow("community_subcommunity_moderators", {
+      subcommunity_id: subcommunity.id,
+      user_id: MEMBER_ID,
+      status: "active",
+      created_by: OWNER_ID,
+    });
+
+    db.failNext("community_subcommunities", "select", "Could not prove subcommunity authority.");
+    const blockedByLookupFailure = await requestJson(app, "PATCH", `/threads/${subcommunityThread.id}/moderation`, {
+      token: "member-token",
+      body: { action: "hide", reason: "lookup failure should not mutate target" },
+    });
+    assert.equal(blockedByLookupFailure.status, 500);
+
+    const ownerHide = await requestJson(app, "PATCH", `/threads/${subcommunityThread.id}/moderation`, {
+      token: "owner-token",
+      body: { action: "hide", reason: "owner bounded thread hide" },
+    });
+    assert.equal(ownerHide.status, 200);
+    assert.equal(ownerHide.body.thread.is_hidden, true);
+    assert.equal(ownerHide.body.moderationAction.actionType, "hide");
+
+    const ownerSelfRemove = await requestJson(app, "PATCH", `/threads/${ownerAuthoredThread.id}/moderation`, {
+      token: "owner-token",
+      body: { action: "remove", reason: "owner self remove is allowed" },
+    });
+    assert.equal(ownerSelfRemove.status, 200);
+    assert.equal(ownerSelfRemove.body.thread.status, "removed");
+
+    const memberUnhide = await requestJson(app, "PATCH", `/threads/${subcommunityThread.id}/moderation`, {
+      token: "member-token",
+      body: { action: "unhide", reason: "active moderator bounded thread unhide" },
+    });
+    assert.equal(memberUnhide.status, 200);
+    assert.equal(memberUnhide.body.thread.is_hidden, false);
+
+    const memberLock = await requestJson(app, "PATCH", `/threads/${subcommunityThread.id}/moderation`, {
+      token: "member-token",
+      body: { action: "lock", reason: "active moderator should not lock" },
+    });
+    assert.equal(memberLock.status, 403);
+
+    const memberOtherSubcommunity = await requestJson(app, "PATCH", `/threads/${otherSubcommunityThread.id}/moderation`, {
+      token: "member-token",
+      body: { action: "hide", reason: "active moderator should not cross subcommunities" },
+    });
+    assert.equal(memberOtherSubcommunity.status, 403);
+
+    const unrelatedOwner = await requestJson(app, "PATCH", `/threads/${subcommunityThread.id}/moderation`, {
+      token: "other-token",
+      body: { action: "hide", reason: "unrelated owner should not moderate" },
+    });
+    assert.equal(unrelatedOwner.status, 403);
+
+    const revokedModerator = await requestJson(app, "PATCH", `/threads/${subcommunityThread.id}/moderation`, {
+      token: "visitor-token",
+      body: { action: "hide", reason: "revoked moderator should not moderate" },
+    });
+    assert.equal(revokedModerator.status, 403);
+
+    const memberSelfThread = await requestJson(app, "PATCH", `/threads/${memberAuthoredThread.id}/moderation`, {
+      token: "member-token",
+      body: { action: "hide", reason: "moderator self-thread should not moderate" },
+    });
+    assert.equal(memberSelfThread.status, 403);
+
+    const memberCommentHide = await requestJson(app, "PATCH", `/comments/${subcommunityComment.id}/moderation`, {
+      token: "member-token",
+      body: { action: "hide", reason: "active moderator bounded comment hide" },
+    });
+    assert.equal(memberCommentHide.status, 200);
+    assert.equal(memberCommentHide.body.comment.is_hidden, true);
+
+    const memberCommentPin = await requestJson(app, "PATCH", `/comments/${subcommunityComment.id}/moderation`, {
+      token: "member-token",
+      body: { action: "pin", reason: "active moderator should not pin" },
+    });
+    assert.equal(memberCommentPin.status, 403);
+
+    const memberSelfComment = await requestJson(app, "PATCH", `/comments/${memberAuthoredComment.id}/moderation`, {
+      token: "member-token",
+      body: { action: "hide", reason: "moderator self-comment should not moderate" },
+    });
+    assert.equal(memberSelfComment.status, 403);
+
+    const ownerDocumentComment = await requestJson(app, "PATCH", `/comments/${documentComment.id}/moderation`, {
+      token: "owner-token",
+      body: { action: "hide", reason: "document comments remain admin-only" },
+    });
+    assert.equal(ownerDocumentComment.status, 403);
+
+    const ownerSpaceComment = await requestJson(app, "PATCH", `/comments/${spacePageComment.id}/moderation`, {
+      token: "owner-token",
+      body: { action: "hide", reason: "space page comments remain admin-only" },
+    });
+    assert.equal(ownerSpaceComment.status, 403);
+
+    const adminDocumentComment = await requestJson(app, "PATCH", `/comments/${documentComment.id}/moderation`, {
+      token: "admin-token",
+      body: { action: "hide", reason: "admin document comment hide" },
+    });
+    assert.equal(adminDocumentComment.status, 200);
+    assert.equal(adminDocumentComment.body.comment.is_hidden, true);
+
+    const adminSpaceComment = await requestJson(app, "PATCH", `/comments/${spacePageComment.id}/moderation`, {
+      token: "admin-token",
+      body: { action: "hide", reason: "admin space comment hide" },
+    });
+    assert.equal(adminSpaceComment.status, 200);
+    assert.equal(adminSpaceComment.body.comment.is_hidden, true);
+
+    const publicThread = await requestJson(app, "GET", `/threads/${subcommunityThread.id}`, {
+      token: "member-token",
+    });
+    assert.equal(publicThread.status, 200);
+    assert.deepEqual(publicThread.body.moderationActions, []);
+    const publicThreadJson = JSON.stringify(publicThread.body);
+    assert.equal(publicThreadJson.includes("owner bounded thread hide"), false);
+    assert.equal(publicThreadJson.includes("active moderator bounded thread unhide"), false);
+    assert.equal(publicThreadJson.includes("active moderator bounded comment hide"), false);
+    assert.equal(publicThreadJson.includes("moderator_user_id"), false);
+
+    const actionRows = db.tables.community_moderation_actions.filter(
+      (row) => row.target_id === subcommunityThread.id || row.target_id === subcommunityComment.id
+    );
+    assert.equal(actionRows.some((row) => row.moderator_user_id === OWNER_ID && row.action_type === "hide"), true);
+    assert.equal(actionRows.some((row) => row.moderator_user_id === MEMBER_ID && row.action_type === "unhide"), true);
+    assert.equal(actionRows.some((row) => row.moderator_user_id === MEMBER_ID && row.target_id === subcommunityComment.id), true);
+    assert.equal(actionRows.some((row) => row.reason === "lookup failure should not mutate target"), false);
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
+
 test("community participation requires private tier for create, vote, and community reads", async () => {
   const db = new CommunitySupabase();
   const ownerComment = db.insertRow("comments", {

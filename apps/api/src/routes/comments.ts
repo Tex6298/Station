@@ -14,6 +14,7 @@ import {
   serializeModerationAction,
   setCommunityWitness,
 } from "../services/community.service";
+import { authorizeSubcommunityModeration } from "../services/community-moderation-permissions.service";
 import { notifyThreadComment } from "../services/community-notifications.service";
 import {
   serializeCommentDiscussionProvenance,
@@ -363,21 +364,43 @@ commentsRouter.get("/:id/moderation-actions", async (req: Request, res: Response
   return res.json({ moderationActions: actions.map(serializeModerationAction) });
 });
 
-// --- Admin comment moderation ------------------------------------------------
+// --- Comment moderation ------------------------------------------------------
 commentsRouter.patch("/:id/moderation", async (req: Request, res: Response) => {
-  if (!req.user!.isAdmin) return res.status(403).json({ error: "Admin access required." });
-
   const parsed = moderationSchema.safeParse(req.body);
   if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
 
   const sb = getSupabaseAdmin();
   const { data: comment } = await sb
     .from("comments")
-    .select("id")
+    .select("id, author_user_id, parent_type, parent_id")
     .eq("id", req.params.id)
     .maybeSingle();
 
   if (!comment) return res.status(404).json({ error: "Comment not found" });
+
+  if (!req.user!.isAdmin) {
+    if (comment.parent_type !== "thread") {
+      return res.status(403).json({ error: "Admin access required." });
+    }
+
+    const { data: thread } = await sb
+      .from("threads")
+      .select("id, category_id")
+      .eq("id", comment.parent_id)
+      .maybeSingle();
+
+    if (!thread) return res.status(404).json({ error: "Comment not found" });
+
+    const authorization = await authorizeSubcommunityModeration({
+      user: req.user!,
+      action: parsed.data.action,
+      categoryId: thread.category_id,
+      targetAuthorUserId: comment.author_user_id,
+    });
+    if (authorization.ok === false) {
+      return res.status(authorization.status).json({ error: authorization.error });
+    }
+  }
 
   const update: Record<string, unknown> = {};
   if (parsed.data.action === "pin") update.is_pinned = true;
