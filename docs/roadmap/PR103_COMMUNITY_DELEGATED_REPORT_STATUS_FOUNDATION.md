@@ -4,7 +4,7 @@ Date opened: 2026-06-20
 Opened by: A1 / MIMIR
 Owner: DAEDALUS implements or precisely blocks, ARGUS reviews. ARIADNE rehearses
 only if visible routes change.
-Status: open for DAEDALUS
+Status: implemented by DAEDALUS; ready for ARGUS review
 
 ## Why This Lane
 
@@ -104,3 +104,62 @@ git diff --check
 ```
 
 No ARIADNE rehearsal is required if this remains API/type/test/docs only.
+
+## DAEDALUS Implementation
+
+Implemented on 2026-06-20.
+
+Route:
+
+- Added `PATCH /forums/subcommunities/:slug/moderation/reports/:id`.
+- Allowed delegated statuses are `reviewing`, `resolved`, and `dismissed`.
+- The route is scoped to one subcommunity slug and does not widen global
+  `/reports`.
+
+Permission and target proof:
+
+- Permission parity matches PR101 queue readback: platform admins,
+  subcommunity owners, and active moderators for that subcommunity may update.
+- Anonymous users, ordinary members, unrelated owners, revoked moderators,
+  missing subcommunities, and missing reports are denied or not found.
+- Target eligibility matches PR101: only thread reports in the requested
+  subcommunity-backed category and thread-parent comment reports under those
+  threads are eligible.
+- Ordinary-category, cross-subcommunity, document, Space, persona, user,
+  document-comment, Space-page-comment, missing, and unsupported targets remain
+  excluded.
+
+Serializer and notification behavior:
+
+- Responses use the delegated serializer only: report id, target type/id,
+  reason, status, bounded target context, and timestamps.
+- Responses do not expose reporter identities, admin notes,
+  reviewed-by/reviewed-at, moderator identities, role assignments, moderation
+  action reasons, hidden/private bodies, private metadata, raw owner ids, source
+  ids, raw category ids, or unsafe route hints.
+- Real status transitions store `reviewed_by` and `reviewed_at` server-side but
+  keep those fields out of delegated responses.
+- Same-status transitions are idempotent: they return the delegated row without
+  rewriting or sending a duplicate notification.
+- Existing reporter status notification behavior is reused safely. The
+  notification stores `actor_user_id: null`, contains only report id/status in
+  metadata, and does not expose moderator identity.
+
+Validation:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:community` | Pass | 17 tests passed, including delegated status transitions, invalid status, missing report/subcommunity, hostile target exclusion, idempotent same-status behavior, safe notification, serializer privacy, and no target visibility mutation. |
+| `npm exec --yes pnpm@10.32.1 -- run test:reports` | Pass | 6 tests passed; global admin `/reports` behavior stayed green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` | Pass | 1 test passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API typecheck ran and web typecheck replayed from cache. |
+| `git diff --check` | Pass | CRLF normalization warnings only for touched files. |
+
+Non-scope confirmation:
+
+- No visible queue buttons, target hide/unhide/remove/restore mutation from this
+  report route, global `/reports` visibility widening, global admin
+  `PATCH /reports/:id` behavior change, public moderation log, public
+  moderator directory, review-request expansion, broad styling pass,
+  billing/provider/cache work, Redis/Upstash, Cloudflare, Developer Space work,
+  or auth/session refactor was added.

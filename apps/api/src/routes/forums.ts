@@ -20,6 +20,7 @@ import {
   serializeThreadDiscussionProvenance,
   withCommunityAuthorshipProvenance,
 } from "../services/community-provenance.service";
+import { notifyReportStatus } from "../services/community-notifications.service";
 import {
   canCreateSubcommunity,
   canListSubcommunity,
@@ -56,6 +57,9 @@ const moderatorAssignmentSchema = z.object({
 const delegatedReportQueueQuerySchema = z.object({
   status: z.enum(["open", "reviewing", "resolved", "dismissed"]).optional(),
   limit: z.coerce.number().int().min(1).max(100).default(50),
+});
+const delegatedReportStatusUpdateSchema = z.object({
+  status: z.enum(["reviewing", "resolved", "dismissed"]),
 });
 const DELEGATED_REPORT_PREFETCH_LIMIT = 500;
 
@@ -349,6 +353,43 @@ forumsRouter.get("/subcommunities/:slug/moderation/reports", async (req: Request
   return res.json({ reports });
 });
 
+forumsRouter.patch("/subcommunities/:slug/moderation/reports/:id", async (req: Request, res: Response) => {
+  const parsed = delegatedReportStatusUpdateSchema.safeParse(req.body);
+  if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
+
+  const subcommunity = await loadSubcommunityBySlug(req.params.slug);
+  if (!subcommunity) return res.status(404).json({ error: "Subcommunity not found." });
+
+  const allowed = await canReadDelegatedModerationQueue(subcommunity, req.user);
+  if (!allowed) return res.status(403).json({ error: "Subcommunity moderator access required." });
+
+  const report = await loadModerationReportById(req.params.id);
+  if (!report) return res.status(404).json({ error: "Report not found." });
+
+  const targetContext = await resolveDelegatedReportTarget(report, subcommunity);
+  if (!targetContext) return res.status(404).json({ error: "Report not found." });
+
+  if (report.status === parsed.data.status) {
+    return res.json({ report: serializeDelegatedReport(report, targetContext) });
+  }
+
+  const sb = getSupabaseAdmin();
+  const { data, error } = await (sb as any)
+    .from("moderation_reports")
+    .update({
+      status: parsed.data.status,
+      reviewed_by: req.user!.id,
+      reviewed_at: new Date().toISOString(),
+    })
+    .eq("id", report.id)
+    .select("*")
+    .single();
+
+  if (error || !data) return res.status(404).json({ error: "Report not found." });
+  await notifyReportStatus(data, req.user!.id).catch(() => undefined);
+  return res.json({ report: serializeDelegatedReport(data, targetContext) });
+});
+
 forumsRouter.get("/subcommunities/:slug/moderators", async (req: Request, res: Response) => {
   const subcommunity = await loadSubcommunityBySlug(req.params.slug);
   if (!subcommunity) return res.status(404).json({ error: "Subcommunity not found." });
@@ -570,19 +611,26 @@ async function delegatedReportsForSubcommunity(
   for (const row of rows) {
     const resolved = await resolveDelegatedReportTarget(row, subcommunity);
     if (!resolved) continue;
-    reports.push({
-      id: row.id,
-      targetType: row.target_type,
-      targetId: row.target_id,
-      reason: row.reason,
-      status: row.status,
-      targetContext: resolved,
-      createdAt: row.created_at,
-      updatedAt: row.updated_at,
-    });
+    reports.push(serializeDelegatedReport(row, resolved));
   }
 
   return reports;
+}
+
+function serializeDelegatedReport(
+  row: any,
+  targetContext: ModerationReportTargetContext
+): DelegatedModerationReportRecord {
+  return {
+    id: row.id,
+    targetType: row.target_type,
+    targetId: row.target_id,
+    reason: row.reason,
+    status: row.status,
+    targetContext,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+  };
 }
 
 async function resolveDelegatedReportTarget(
@@ -604,6 +652,16 @@ async function resolveDelegatedReportTarget(
   }
 
   return null;
+}
+
+async function loadModerationReportById(reportId: string) {
+  const sb = getSupabaseAdmin();
+  const { data } = await (sb as any)
+    .from("moderation_reports")
+    .select("*")
+    .eq("id", reportId)
+    .maybeSingle();
+  return data ?? null;
 }
 
 async function loadThreadForDelegatedReport(threadId: string) {

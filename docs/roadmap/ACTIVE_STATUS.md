@@ -8020,6 +8020,30 @@ when a PR lands, or when validation truth changes.
   their own subcommunity as `reviewing`, `resolved`, or `dismissed`, while
   keeping target mutation, global `/reports` behavior, public logs, private
   serializer fields, and visible UI controls out of scope.
+- DAEDALUS implements PR103 Community Delegated Report Status Foundation on
+  2026-06-20. Added API-only
+  `PATCH /forums/subcommunities/:slug/moderation/reports/:id` for scoped
+  delegated report status transitions to `reviewing`, `resolved`, or
+  `dismissed`. Permission parity matches PR101 queue readback: platform admins,
+  the subcommunity owner, and active moderators may update only reports scoped
+  to that subcommunity. Target parity also matches PR101: eligible reports are
+  limited to threads in the requested subcommunity-backed category and
+  thread-parent comments under those threads. Ordinary-category,
+  cross-subcommunity, document, Space, persona, user, document-comment,
+  Space-page-comment, missing, and unsupported targets remain excluded. Real
+  transitions store `reviewed_by`/`reviewed_at` server-side, but delegated
+  responses use the narrow delegated serializer and do not expose reporter ids,
+  admin notes, reviewed fields, moderator identities, role assignments, hidden
+  bodies, private metadata, raw owner ids, source ids, category ids, or unsafe
+  route hints. Same-status transitions are idempotent and do not duplicate
+  notifications. Existing reporter status notifications are reused with
+  `actor_user_id: null` and report id/status metadata only. Validation passed
+  `test:community` with 17 tests, `test:reports` with 6 tests,
+  `test:document-discussions`, `typecheck`, and `git diff --check` with CRLF
+  warnings only. No visible buttons, target moderation mutation from this
+  route, global `/reports` widening, global admin patch behavior change, public
+  logs, public moderator directory, review-request expansion, broad styling,
+  billing/provider/cache, Developer Space, or auth/session work was added.
 
 ## Near-term rule
 

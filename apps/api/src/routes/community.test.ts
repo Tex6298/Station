@@ -1824,10 +1824,27 @@ test("delegated subcommunity moderation queue is scoped and privacy-safe", async
     const anonymous = await requestJson(app, "GET", "/forums/subcommunities/queue-lab/moderation/reports");
     assert.equal(anonymous.status, 401);
 
+    const anonymousPatch = await requestJson(app, "PATCH", `/forums/subcommunities/queue-lab/moderation/reports/${includedThreadReport.id}`, {
+      body: { status: "reviewing" },
+    });
+    assert.equal(anonymousPatch.status, 401);
+
+    const invalidStatus = await requestJson(app, "PATCH", `/forums/subcommunities/queue-lab/moderation/reports/${includedThreadReport.id}`, {
+      token: "owner-token",
+      body: { status: "open" },
+    });
+    assert.equal(invalidStatus.status, 400);
+
     const memberBeforeAssignment = await requestJson(app, "GET", "/forums/subcommunities/queue-lab/moderation/reports", {
       token: "member-token",
     });
     assert.equal(memberBeforeAssignment.status, 403);
+
+    const memberPatchBeforeAssignment = await requestJson(app, "PATCH", `/forums/subcommunities/queue-lab/moderation/reports/${includedThreadReport.id}`, {
+      token: "member-token",
+      body: { status: "reviewing" },
+    });
+    assert.equal(memberPatchBeforeAssignment.status, 403);
 
     db.insertRow("community_subcommunity_moderators", {
       subcommunity_id: subcommunity.id,
@@ -1908,6 +1925,89 @@ test("delegated subcommunity moderation queue is scoped and privacy-safe", async
     assert.equal(ownerRead.body.reports[0].targetContext.supportedActions.every((action: string) =>
       ["hide", "unhide", "remove", "restore"].includes(action)
     ), true);
+
+    const ownerTransition = await requestJson(app, "PATCH", `/forums/subcommunities/queue-lab/moderation/reports/${includedThreadReport.id}`, {
+      token: "owner-token",
+      body: { status: "reviewing" },
+    });
+    assert.equal(ownerTransition.status, 200);
+    assert.equal(ownerTransition.body.report.id, includedThreadReport.id);
+    assert.equal(ownerTransition.body.report.status, "reviewing");
+    const ownerTransitionJson = JSON.stringify(ownerTransition.body);
+    assert.equal(ownerTransitionJson.includes(VISITOR_ID), false);
+    assert.equal(ownerTransitionJson.includes(OWNER_ID), false);
+    assert.equal(ownerTransitionJson.includes("reviewed"), false);
+    assert.equal(ownerTransitionJson.includes("Reporter private note"), false);
+    assert.equal(db.tables.moderation_reports.find((row: Row) => row.id === includedThreadReport.id).reviewed_by, OWNER_ID);
+    assert.equal(db.tables.community_notifications.length, 1);
+    assert.equal(db.tables.community_notifications[0].recipient_user_id, VISITOR_ID);
+    assert.equal(db.tables.community_notifications[0].actor_user_id, null);
+    assert.equal(db.tables.community_notifications[0].notification_type, "report_status");
+    assert.equal(db.tables.community_notifications[0].metadata.status, "reviewing");
+
+    const idempotentTransition = await requestJson(app, "PATCH", `/forums/subcommunities/queue-lab/moderation/reports/${includedThreadReport.id}`, {
+      token: "owner-token",
+      body: { status: "reviewing" },
+    });
+    assert.equal(idempotentTransition.status, 200);
+    assert.equal(idempotentTransition.body.report.status, "reviewing");
+    assert.equal(db.tables.community_notifications.length, 1);
+
+    const activeModeratorTransition = await requestJson(app, "PATCH", `/forums/subcommunities/queue-lab/moderation/reports/${includedCommentReport.id}`, {
+      token: "member-token",
+      body: { status: "resolved" },
+    });
+    assert.equal(activeModeratorTransition.status, 200);
+    assert.equal(activeModeratorTransition.body.report.id, includedCommentReport.id);
+    assert.equal(activeModeratorTransition.body.report.status, "resolved");
+    assert.equal(JSON.stringify(activeModeratorTransition.body).includes(MEMBER_ID), false);
+    assert.equal(db.tables.moderation_reports.find((row: Row) => row.id === includedCommentReport.id).reviewed_by, MEMBER_ID);
+
+    const missingReportPatch = await requestJson(app, "PATCH", "/forums/subcommunities/queue-lab/moderation/reports/report-missing", {
+      token: "owner-token",
+      body: { status: "dismissed" },
+    });
+    assert.equal(missingReportPatch.status, 404);
+
+    const missingSubcommunityPatch = await requestJson(app, "PATCH", `/forums/subcommunities/missing-queue/moderation/reports/${includedThreadReport.id}`, {
+      token: "admin-token",
+      body: { status: "dismissed" },
+    });
+    assert.equal(missingSubcommunityPatch.status, 404);
+
+    const unrelatedOwnerPatch = await requestJson(app, "PATCH", `/forums/subcommunities/queue-lab/moderation/reports/${includedThreadReport.id}`, {
+      token: "other-token",
+      body: { status: "dismissed" },
+    });
+    assert.equal(unrelatedOwnerPatch.status, 403);
+
+    const revokedModeratorPatch = await requestJson(app, "PATCH", `/forums/subcommunities/queue-lab/moderation/reports/${includedThreadReport.id}`, {
+      token: "visitor-token",
+      body: { status: "dismissed" },
+    });
+    assert.equal(revokedModeratorPatch.status, 403);
+
+    for (const blockedReportId of [
+      "report-cross-subcommunity",
+      "report-ordinary-category",
+      "report-document",
+      "report-space",
+      "report-persona",
+      "report-user",
+      "report-document-comment",
+      "report-space-comment",
+    ]) {
+      const blocked = await requestJson(app, "PATCH", `/forums/subcommunities/queue-lab/moderation/reports/${blockedReportId}`, {
+        token: "owner-token",
+        body: { status: "dismissed" },
+      });
+      assert.equal(blocked.status, 404, blockedReportId);
+    }
+
+    assert.equal(threadTarget.status, "active");
+    assert.equal(threadTarget.is_hidden, false);
+    assert.equal(commentTarget.status, "active");
+    assert.equal(commentTarget.is_hidden, false);
   } finally {
     setSupabaseAdminForTests(null);
   }

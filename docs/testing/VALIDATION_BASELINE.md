@@ -48,6 +48,41 @@ pnpm test:developer-spaces
 pnpm test:developer-space-client
 ```
 
+## PR103 Community Delegated Report Status Foundation
+
+DAEDALUS implementation validation on 2026-06-20:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:community` | Pass | 17 tests passed, including delegated report status transitions, invalid status, missing report/subcommunity, hostile target exclusion, same-status idempotency, safe reporter notification, serializer privacy, and no target visibility mutation. |
+| `npm exec --yes pnpm@10.32.1 -- run test:reports` | Pass | 6 tests passed; global admin `/reports` behavior remained unchanged. |
+| `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` | Pass | 1 test passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API typecheck ran and web typecheck replayed from cache. |
+| `git diff --check` | Pass | CRLF normalization warnings only for touched files. |
+
+Scope notes:
+
+- Added `PATCH /forums/subcommunities/:slug/moderation/reports/:id`.
+- Allowed delegated statuses are `reviewing`, `resolved`, and `dismissed`.
+- Permission and target eligibility match PR101 scoped queue readback.
+- Ordinary-category, cross-subcommunity, document, Space, persona, user,
+  document-comment, Space-page-comment, missing, and unsupported targets remain
+  excluded.
+- Responses use the delegated serializer only and do not expose reporter ids,
+  admin notes, reviewed fields, moderator identities, role assignments,
+  moderation reasons, hidden/private bodies, private metadata, raw owner ids,
+  source ids, raw category ids, or unsafe route hints.
+- Same-status transitions are idempotent and do not send duplicate
+  notifications.
+- Existing reporter status notifications remain safe: `actor_user_id` is null,
+  metadata contains only report id/status, and moderator identity is not
+  exposed.
+- No visible queue buttons, target moderation mutation from this report route,
+  global `/reports` widening, global admin patch behavior change, public
+  moderation logs, public moderator directory, review-request expansion, broad
+  styling, billing/provider/cache work, Developer Space work, or auth/session
+  refactor was added.
+
 ## PR102 Community Delegated Moderation Queue UI First Slice
 
 DAEDALUS implementation validation on 2026-06-20:
