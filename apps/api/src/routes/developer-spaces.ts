@@ -20,10 +20,16 @@ import { resolveActiveEmbeddingProfileCode, resolveActiveEmbeddingProvider } fro
 import {
   accessLevelForDeveloperSpace,
   canReadDeveloperSpace,
+  decryptDeveloperSpaceWebhookSigningSecret,
+  developerSpaceWebhookSigningSecretEncryptionConfigured,
+  encryptDeveloperSpaceWebhookSigningSecret,
   evaluateDeveloperSpaceProviderPolicy,
   extractDeveloperApiKey,
+  fingerprintDeveloperSpaceWebhookSigningSecret,
   generateDeveloperSpaceApiKey,
+  generateDeveloperSpaceWebhookSigningSecret,
   hashDeveloperSpaceApiKey,
+  hashDeveloperSpaceWebhookSigningSecret,
   normaliseDeveloperSpacePublicFieldControls,
   normaliseSourceRefs,
   prepareObservedRuntimeClassifiedData,
@@ -105,6 +111,14 @@ function ingestionAuthError(code: "developer_space_key_missing" | "developer_spa
 
 function ingestionSignatureError(code: string, error: string) {
   return ingestionErrorBody({ error, code, category: "auth" });
+}
+
+function signingSecretConfigError() {
+  return ingestionErrorBody({
+    error: "Developer Space webhook signing secret encryption is not configured.",
+    code: "developer_space_webhook_signing_secret_encryption_unconfigured",
+    category: "server",
+  });
 }
 
 function ingestionValidationError(error: z.ZodError) {
@@ -1186,6 +1200,21 @@ function payloadHash(value: unknown) {
   return createHash("sha256").update(JSON.stringify(value)).digest("hex");
 }
 
+function serializeWebhookSigningSecret(row: any) {
+  return {
+    id: row.id,
+    developerSpaceId: row.developer_space_id,
+    ownerUserId: row.owner_user_id,
+    fingerprint: row.secret_fingerprint,
+    lastFour: row.secret_last_four,
+    status: row.status,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+    lastUsedAt: row.last_used_at ?? null,
+    revokedAt: row.revoked_at ?? null,
+  };
+}
+
 function observedRuntimeWebhookSignatureToleranceSeconds() {
   return positiveIntFromEnv(
     "DEVELOPER_SPACE_OBSERVED_RUNTIME_WEBHOOK_SIGNATURE_TOLERANCE_SECONDS",
@@ -1248,6 +1277,39 @@ function verifyObservedRuntimeWebhookSignature(input: {
   return { ok: true as const };
 }
 
+async function loadActiveObservedRuntimeSigningSecret(developerSpaceId: string) {
+  const sb = getSupabaseAdmin();
+  const { data, error } = await (sb as any)
+    .from("developer_space_webhook_signing_secrets")
+    .select("*")
+    .eq("developer_space_id", developerSpaceId)
+    .eq("status", "active")
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  if (error) throw new Error(error.message ?? "Could not load Developer Space webhook signing secret.");
+  return data ?? null;
+}
+
+async function resolveObservedRuntimeWebhookSigningSecret(input: {
+  ingestionRawKey: string;
+  spaceId: string;
+}) {
+  const active = await loadActiveObservedRuntimeSigningSecret(input.spaceId);
+  if (!active) {
+    return { signingSecret: input.ingestionRawKey, dedicatedSecret: null, source: "ingestion_key" as const };
+  }
+  if (!developerSpaceWebhookSigningSecretEncryptionConfigured()) {
+    return { signingSecret: input.ingestionRawKey, dedicatedSecret: null, source: "ingestion_key_fallback_unconfigured" as const };
+  }
+
+  return {
+    signingSecret: decryptDeveloperSpaceWebhookSigningSecret(active.encrypted_secret),
+    dedicatedSecret: active,
+    source: "dedicated_secret" as const,
+  };
+}
+
 developerSpacesRouter.post("/ingest/observed-runtime", async (req, res) => {
   const ingestion = await loadSpaceForIngestion(req, res);
   if (!ingestion) return;
@@ -1260,13 +1322,30 @@ developerSpacesRouter.post("/ingest/observed-runtime", async (req, res) => {
     ));
   }
 
+  let signingMaterial;
+  try {
+    signingMaterial = await resolveObservedRuntimeWebhookSigningSecret({
+      ingestionRawKey: ingestion.rawKey,
+      spaceId: space.id,
+    });
+  } catch {
+    return res.status(500).json(ingestionServerError("Could not load Developer Space webhook signing secret."));
+  }
+
   const signature = verifyObservedRuntimeWebhookSignature({
     rawBody: req.body,
     signatureHeader: req.headers["x-station-signature"],
-    signingSecret: ingestion.rawKey,
+    signingSecret: signingMaterial.signingSecret,
   });
   if (!signature.ok) {
     return res.status(401).json(ingestionSignatureError(signature.code, signature.error));
+  }
+
+  if (signingMaterial.dedicatedSecret) {
+    await (getSupabaseAdmin() as any)
+      .from("developer_space_webhook_signing_secrets")
+      .update({ last_used_at: new Date().toISOString() })
+      .eq("id", signingMaterial.dedicatedSecret.id);
   }
 
   let body: unknown;
@@ -1530,6 +1609,79 @@ developerSpacesRouter.post("/:id/api-key/revoke", requireAuth, async (req, res) 
 
   if (error || !data) return res.status(500).json({ error: error?.message ?? "Could not revoke API key." });
   return res.json({ space: serializeDeveloperSpace(data) });
+});
+
+developerSpacesRouter.post("/:id/observed-runtime-signing-secret", requireAuth, async (req, res) => {
+  const sb = getSupabaseAdmin();
+  const { data: space, error: loadError } = await sb
+    .from("developer_spaces")
+    .select("*")
+    .eq("id", req.params.id)
+    .single();
+
+  if (loadError || !space) return res.status(404).json({ error: "Developer Space not found." });
+  if (space.owner_user_id !== req.user!.id && !req.user!.isAdmin) {
+    return res.status(403).json({ error: "Not authorised." });
+  }
+  if (!developerSpaceWebhookSigningSecretEncryptionConfigured()) {
+    return res.status(503).json(signingSecretConfigError());
+  }
+
+  const now = new Date().toISOString();
+  await (sb as any)
+    .from("developer_space_webhook_signing_secrets")
+    .update({ status: "revoked", revoked_at: now })
+    .eq("developer_space_id", space.id)
+    .eq("status", "active");
+
+  const signingSecret = generateDeveloperSpaceWebhookSigningSecret();
+  const { data: secret, error } = await (sb as any)
+    .from("developer_space_webhook_signing_secrets")
+    .insert({
+      developer_space_id: space.id,
+      owner_user_id: space.owner_user_id,
+      encrypted_secret: encryptDeveloperSpaceWebhookSigningSecret(signingSecret),
+      secret_hash: hashDeveloperSpaceWebhookSigningSecret(signingSecret),
+      secret_fingerprint: fingerprintDeveloperSpaceWebhookSigningSecret(signingSecret),
+      secret_last_four: signingSecret.slice(-4),
+      status: "active",
+    })
+    .select("*")
+    .single();
+
+  if (error || !secret) {
+    return res.status(500).json({ error: error?.message ?? "Could not create Developer Space webhook signing secret." });
+  }
+
+  return res.status(201).json({
+    signingSecret,
+    secret: serializeWebhookSigningSecret(secret),
+  });
+});
+
+developerSpacesRouter.post("/:id/observed-runtime-signing-secret/revoke", requireAuth, async (req, res) => {
+  const sb = getSupabaseAdmin();
+  const { data: space, error: loadError } = await sb
+    .from("developer_spaces")
+    .select("*")
+    .eq("id", req.params.id)
+    .single();
+
+  if (loadError || !space) return res.status(404).json({ error: "Developer Space not found." });
+  if (space.owner_user_id !== req.user!.id && !req.user!.isAdmin) {
+    return res.status(403).json({ error: "Not authorised." });
+  }
+
+  const now = new Date().toISOString();
+  const { data, error } = await (sb as any)
+    .from("developer_space_webhook_signing_secrets")
+    .update({ status: "revoked", revoked_at: now })
+    .eq("developer_space_id", space.id)
+    .eq("status", "active");
+
+  if (error) return res.status(500).json({ error: error.message });
+  const revoked = Array.isArray(data) ? data.map(serializeWebhookSigningSecret) : [];
+  return res.json({ revoked });
 });
 
 developerSpacesRouter.post("/:id/provider-policy/evaluate", requireAuth, async (req, res) => {

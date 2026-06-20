@@ -39,6 +39,7 @@ class InMemorySupabase {
     developer_space_snapshots: [],
     developer_space_observed_runtime_context: [],
     developer_space_observed_runtime_webhook_receipts: [],
+    developer_space_webhook_signing_secrets: [],
     documents: [],
     ai_trace_sessions: [],
     ai_trace_events: [],
@@ -188,6 +189,14 @@ class InMemorySupabase {
     if (table === "developer_space_observed_runtime_webhook_receipts") {
       row.response_body ??= {};
       row.created_at ??= now;
+    }
+
+    if (table === "developer_space_webhook_signing_secrets") {
+      row.status ??= "active";
+      row.last_used_at ??= null;
+      row.revoked_at ??= null;
+      row.created_at ??= now;
+      row.updated_at ??= now;
     }
 
     if (table === "ai_trace_sessions") {
@@ -482,6 +491,7 @@ async function requestObservedRuntimeWebhook<TBody = any>(
   envelope: unknown,
   options: {
     developerKey?: string;
+    signingSecret?: string;
     webhookId?: string;
     signature?: string | null;
     timestamp?: number;
@@ -499,7 +509,7 @@ async function requestObservedRuntimeWebhook<TBody = any>(
       if (options.signature !== null) {
         headers["X-Station-Signature"] = options.signature ?? stationSignature({
           rawBody,
-          apiKey: options.developerKey,
+          apiKey: options.signingSecret ?? options.developerKey,
           timestamp: options.timestamp,
         });
       }
@@ -1639,6 +1649,169 @@ test("Observed runtime webhook ingress uses key auth and idempotent import recei
     });
     assert.doesNotMatch(JSON.stringify(publicDetail.body), /fixture-private|fixture-secret|owner-visible|member-visible|alpha-watchers/);
   } finally {
+    setSupabaseAdminForTests(null);
+    setOperationalCacheProviderForTests(new DisabledOperationalCacheProvider("test_disabled"));
+  }
+});
+
+test("Observed runtime webhook signing secrets are owner-scoped encrypted and preferred over ingestion-key fallback", async () => {
+  const previousEncryptionKey = process.env.DEVELOPER_SPACE_WEBHOOK_SIGNING_SECRET_ENCRYPTION_KEY;
+  delete process.env.DEVELOPER_SPACE_WEBHOOK_SIGNING_SECRET_ENCRYPTION_KEY;
+  const db = new InMemorySupabase();
+  setSupabaseAdminForTests(db.client as any);
+  setOperationalCacheProviderForTests(new DisabledOperationalCacheProvider("test_disabled"));
+  const app = createDeveloperSpacesApp();
+
+  try {
+    const created = await requestJson(app, "POST", "/developer-spaces", {
+      token: "owner-token",
+      body: {
+        projectName: "Observed Runtime Signing Secret",
+        visibility: "public",
+      },
+    });
+    assert.equal(created.status, 201);
+
+    const apiKeyResponse = await requestJson(app, "POST", `/developer-spaces/${created.body.space.id}/api-key`, {
+      token: "owner-token",
+    });
+    assert.equal(apiKeyResponse.status, 201);
+
+    const bridge = bridgeObservedRuntimeFixtureToDeveloperSpaceImport(
+      observedRuntimeFixture("observed-runtime-canonical.json"),
+      { developerSpaceId: created.body.space.id },
+    );
+    const envelope = {
+      schema: "station.observed_runtime.webhook.v1",
+      deliveryId: "signing-secret-fallback-001",
+      source: {
+        id: "synthetic-observed-runtime",
+        runtimeHostedBy: "external",
+        stationRole: "observer",
+      },
+      observedAt: "2026-06-20T10:15:00.000Z",
+      payload: bridge.importPayload,
+    };
+
+    const missingConfig = await requestJson(app, "POST", `/developer-spaces/${created.body.space.id}/observed-runtime-signing-secret`, {
+      token: "owner-token",
+    });
+    assert.equal(missingConfig.status, 503);
+    assert.equal(missingConfig.body.code, "developer_space_webhook_signing_secret_encryption_unconfigured");
+    assert.equal(db.tables.developer_space_webhook_signing_secrets.length, 0);
+
+    const fallback = await requestObservedRuntimeWebhook(app, envelope, {
+      developerKey: apiKeyResponse.body.apiKey,
+    });
+    assert.equal(fallback.status, 202);
+    assert.equal(fallback.body.accepted, true);
+
+    process.env.DEVELOPER_SPACE_WEBHOOK_SIGNING_SECRET_ENCRYPTION_KEY = "test-observed-runtime-webhook-signing-secret-encryption-key";
+
+    const nonOwnerCreate = await requestJson(app, "POST", `/developer-spaces/${created.body.space.id}/observed-runtime-signing-secret`, {
+      token: "other-token",
+    });
+    assert.equal(nonOwnerCreate.status, 403);
+
+    const createdSecret = await requestJson(app, "POST", `/developer-spaces/${created.body.space.id}/observed-runtime-signing-secret`, {
+      token: "owner-token",
+    });
+    assert.equal(createdSecret.status, 201);
+    assert.match(createdSecret.body.signingSecret, /^station_whsec_/);
+    assert.equal(createdSecret.body.secret.status, "active");
+    assert.equal(typeof createdSecret.body.secret.fingerprint, "string");
+    assert.equal("encryptedSecret" in createdSecret.body.secret, false);
+    assert.equal("secretHash" in createdSecret.body.secret, false);
+    assert.equal(db.tables.developer_space_webhook_signing_secrets.length, 1);
+    assert.equal(db.tables.developer_space_webhook_signing_secrets[0].status, "active");
+    assert.equal(JSON.stringify(db.tables.developer_space_webhook_signing_secrets).includes(createdSecret.body.signingSecret), false);
+    assert.equal(typeof db.tables.developer_space_webhook_signing_secrets[0].encrypted_secret.ciphertext, "string");
+    assert.equal(typeof db.tables.developer_space_webhook_signing_secrets[0].secret_hash, "string");
+
+    const blockedFallback = await requestObservedRuntimeWebhook(app, {
+      ...envelope,
+      deliveryId: "signing-secret-dedicated-001",
+    }, {
+      developerKey: apiKeyResponse.body.apiKey,
+    });
+    assert.equal(blockedFallback.status, 401);
+    assert.equal(blockedFallback.body.code, "developer_space_webhook_signature_invalid");
+
+    const dedicatedAccepted = await requestObservedRuntimeWebhook(app, {
+      ...envelope,
+      deliveryId: "signing-secret-dedicated-001",
+    }, {
+      developerKey: apiKeyResponse.body.apiKey,
+      signingSecret: createdSecret.body.signingSecret,
+    });
+    assert.equal(dedicatedAccepted.status, 202);
+    assert.equal(dedicatedAccepted.body.accepted, true);
+    assert.equal(typeof db.tables.developer_space_webhook_signing_secrets[0].last_used_at, "string");
+
+    const rotatedSecret = await requestJson(app, "POST", `/developer-spaces/${created.body.space.id}/observed-runtime-signing-secret`, {
+      token: "owner-token",
+    });
+    assert.equal(rotatedSecret.status, 201);
+    assert.notEqual(rotatedSecret.body.signingSecret, createdSecret.body.signingSecret);
+    assert.equal(db.tables.developer_space_webhook_signing_secrets.length, 2);
+    assert.equal(db.tables.developer_space_webhook_signing_secrets[0].status, "revoked");
+    assert.equal(db.tables.developer_space_webhook_signing_secrets[1].status, "active");
+    assert.equal(JSON.stringify(db.tables.developer_space_webhook_signing_secrets).includes(rotatedSecret.body.signingSecret), false);
+
+    const oldSecretRejected = await requestObservedRuntimeWebhook(app, {
+      ...envelope,
+      deliveryId: "signing-secret-old-001",
+    }, {
+      developerKey: apiKeyResponse.body.apiKey,
+      signingSecret: createdSecret.body.signingSecret,
+    });
+    assert.equal(oldSecretRejected.status, 401);
+    assert.equal(oldSecretRejected.body.code, "developer_space_webhook_signature_invalid");
+
+    const newSecretAccepted = await requestObservedRuntimeWebhook(app, {
+      ...envelope,
+      deliveryId: "signing-secret-new-001",
+    }, {
+      developerKey: apiKeyResponse.body.apiKey,
+      signingSecret: rotatedSecret.body.signingSecret,
+    });
+    assert.equal(newSecretAccepted.status, 202);
+
+    const nonOwnerRevoke = await requestJson(app, "POST", `/developer-spaces/${created.body.space.id}/observed-runtime-signing-secret/revoke`, {
+      token: "other-token",
+    });
+    assert.equal(nonOwnerRevoke.status, 403);
+
+    const revoke = await requestJson(app, "POST", `/developer-spaces/${created.body.space.id}/observed-runtime-signing-secret/revoke`, {
+      token: "owner-token",
+    });
+    assert.equal(revoke.status, 200);
+    assert.equal(revoke.body.revoked.length, 1);
+    assert.equal(db.tables.developer_space_webhook_signing_secrets.every((row) => row.status === "revoked"), true);
+
+    const revokedSecretRejected = await requestObservedRuntimeWebhook(app, {
+      ...envelope,
+      deliveryId: "signing-secret-revoked-001",
+    }, {
+      developerKey: apiKeyResponse.body.apiKey,
+      signingSecret: rotatedSecret.body.signingSecret,
+    });
+    assert.equal(revokedSecretRejected.status, 401);
+
+    const fallbackAfterRevoke = await requestObservedRuntimeWebhook(app, {
+      ...envelope,
+      deliveryId: "signing-secret-fallback-after-revoke-001",
+    }, {
+      developerKey: apiKeyResponse.body.apiKey,
+    });
+    assert.equal(fallbackAfterRevoke.status, 202);
+    assert.equal(fallbackAfterRevoke.body.accepted, true);
+  } finally {
+    if (previousEncryptionKey === undefined) {
+      delete process.env.DEVELOPER_SPACE_WEBHOOK_SIGNING_SECRET_ENCRYPTION_KEY;
+    } else {
+      process.env.DEVELOPER_SPACE_WEBHOOK_SIGNING_SECRET_ENCRYPTION_KEY = previousEncryptionKey;
+    }
     setSupabaseAdminForTests(null);
     setOperationalCacheProviderForTests(new DisabledOperationalCacheProvider("test_disabled"));
   }

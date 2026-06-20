@@ -12,6 +12,7 @@ export type DeveloperSpaceEventProvenance = "api" | "imported" | "user" | "syste
 export type DeveloperSpaceObservedRuntimeFieldVisibility = "public" | "member" | "owner" | "private" | "secret";
 export type DeveloperSpaceObservedRuntimeContextType = "zone" | "resource" | "edge" | "provenance";
 export type DeveloperSpaceIngestionKeyStatus = "active" | "revoked";
+export type DeveloperSpaceWebhookSigningSecretStatus = "active" | "revoked";
 export type DeveloperSpaceDocumentRole = "methodology" | "finding" | "field_log" | "note";
 export type DeveloperSpaceDocumentLinkVisibility = "owner" | "public";
 export type DeveloperSpaceWidgetType =
@@ -193,6 +194,19 @@ export interface DeveloperSpaceIngestionKey {
   keyLastFour: string;
   label?: string | null;
   status: DeveloperSpaceIngestionKeyStatus;
+  createdAt: string;
+  updatedAt: string;
+  lastUsedAt?: string | null;
+  revokedAt?: string | null;
+}
+
+export interface DeveloperSpaceWebhookSigningSecret {
+  id: string;
+  developerSpaceId: string;
+  ownerUserId: string;
+  fingerprint: string;
+  lastFour: string;
+  status: DeveloperSpaceWebhookSigningSecretStatus;
   createdAt: string;
   updatedAt: string;
   lastUsedAt?: string | null;

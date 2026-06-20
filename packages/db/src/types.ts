@@ -67,6 +67,7 @@ export type DeveloperSpaceTopologyType = "radial" | "branching" | "lattice" | "c
 export type DeveloperSpaceEventVisibility = "private" | "community" | "public";
 export type DeveloperSpaceEventProvenance = "api" | "imported" | "user" | "system" | "ai_generated";
 export type DeveloperSpaceIngestionKeyStatus = "active" | "revoked";
+export type DeveloperSpaceWebhookSigningSecretStatus = "active" | "revoked";
 export type DeveloperSpaceDocumentRole = "methodology" | "finding" | "field_log" | "note";
 export type DeveloperSpaceDocumentLinkVisibility = "owner" | "public";
 export type ExportPackageKind = "persona_archive" | "developer_space_archive";
@@ -948,6 +949,31 @@ export interface Database {
           revoked_at?: string | null;
         };
         Update: Partial<Database["public"]["Tables"]["developer_space_ingestion_keys"]["Insert"]>;
+      };
+      developer_space_webhook_signing_secrets: {
+        Row: {
+          id: string;
+          developer_space_id: string;
+          owner_user_id: string;
+          encrypted_secret: Record<string, unknown>;
+          secret_hash: string;
+          secret_fingerprint: string;
+          secret_last_four: string;
+          status: DeveloperSpaceWebhookSigningSecretStatus;
+          created_at: string;
+          updated_at: string;
+          last_used_at: string | null;
+          revoked_at: string | null;
+        };
+        Insert: Omit<Database["public"]["Tables"]["developer_space_webhook_signing_secrets"]["Row"], "id" | "status" | "created_at" | "updated_at" | "last_used_at" | "revoked_at"> & {
+          id?: string;
+          status?: DeveloperSpaceWebhookSigningSecretStatus;
+          created_at?: string;
+          updated_at?: string;
+          last_used_at?: string | null;
+          revoked_at?: string | null;
+        };
+        Update: Partial<Database["public"]["Tables"]["developer_space_webhook_signing_secrets"]["Insert"]>;
       };
       developer_space_documents: {
         Row: {

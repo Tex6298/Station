@@ -1,4 +1,4 @@
-import { createHash, randomBytes } from "crypto";
+import { createCipheriv, createDecipheriv, createHash, randomBytes } from "crypto";
 import type {
   DeveloperSpaceDetail,
   DeveloperSpaceLinkedDocument,
@@ -15,6 +15,10 @@ import type {
 import type { AuthenticatedUser } from "../middleware/require-auth";
 
 const API_KEY_PREFIX = "station_dev_";
+const WEBHOOK_SIGNING_SECRET_PREFIX = "station_whsec_";
+const WEBHOOK_SIGNING_SECRET_ENCRYPTION_SCHEMA = "station.developer_space.webhook_signing_secret.v1";
+const WEBHOOK_SIGNING_SECRET_ENCRYPTION_ALGORITHM = "aes-256-gcm";
+const WEBHOOK_SIGNING_SECRET_ENCRYPTION_KEY_ENV = "DEVELOPER_SPACE_WEBHOOK_SIGNING_SECRET_ENCRYPTION_KEY";
 const DEFAULT_PROVIDER_POLICY: DeveloperSpaceProviderPolicy = "public_synthetic_only";
 const PROVIDER_POLICIES = new Set<DeveloperSpaceProviderPolicy>([
   "public_synthetic_only",
@@ -100,6 +104,76 @@ export function generateDeveloperSpaceApiKey(): string {
 
 export function hashDeveloperSpaceApiKey(apiKey: string): string {
   return createHash("sha256").update(apiKey).digest("hex");
+}
+
+export function generateDeveloperSpaceWebhookSigningSecret(): string {
+  return `${WEBHOOK_SIGNING_SECRET_PREFIX}${randomBytes(32).toString("base64url")}`;
+}
+
+export function hashDeveloperSpaceWebhookSigningSecret(secret: string): string {
+  return createHash("sha256").update(secret).digest("hex");
+}
+
+export function fingerprintDeveloperSpaceWebhookSigningSecret(secret: string): string {
+  return hashDeveloperSpaceWebhookSigningSecret(secret).slice(0, 12);
+}
+
+function webhookSigningSecretEncryptionKey() {
+  const raw = process.env[WEBHOOK_SIGNING_SECRET_ENCRYPTION_KEY_ENV]?.trim();
+  if (!raw) return null;
+  return createHash("sha256").update(raw).digest();
+}
+
+export function developerSpaceWebhookSigningSecretEncryptionConfigured() {
+  return Boolean(webhookSigningSecretEncryptionKey());
+}
+
+export function encryptDeveloperSpaceWebhookSigningSecret(secret: string) {
+  const key = webhookSigningSecretEncryptionKey();
+  if (!key) {
+    throw new Error(`${WEBHOOK_SIGNING_SECRET_ENCRYPTION_KEY_ENV} is required for Developer Space webhook signing secrets.`);
+  }
+  const iv = randomBytes(12);
+  const cipher = createCipheriv(WEBHOOK_SIGNING_SECRET_ENCRYPTION_ALGORITHM, key, iv);
+  const ciphertext = Buffer.concat([cipher.update(secret, "utf8"), cipher.final()]);
+  const authTag = cipher.getAuthTag();
+  return {
+    schema: WEBHOOK_SIGNING_SECRET_ENCRYPTION_SCHEMA,
+    algorithm: WEBHOOK_SIGNING_SECRET_ENCRYPTION_ALGORITHM,
+    iv: iv.toString("base64url"),
+    ciphertext: ciphertext.toString("base64url"),
+    authTag: authTag.toString("base64url"),
+  };
+}
+
+export function decryptDeveloperSpaceWebhookSigningSecret(payload: unknown) {
+  const key = webhookSigningSecretEncryptionKey();
+  if (!key) {
+    throw new Error(`${WEBHOOK_SIGNING_SECRET_ENCRYPTION_KEY_ENV} is required for Developer Space webhook signing secrets.`);
+  }
+  if (!payload || typeof payload !== "object" || Array.isArray(payload)) {
+    throw new Error("Developer Space webhook signing secret payload is malformed.");
+  }
+  const encrypted = payload as Record<string, unknown>;
+  if (
+    encrypted.schema !== WEBHOOK_SIGNING_SECRET_ENCRYPTION_SCHEMA ||
+    encrypted.algorithm !== WEBHOOK_SIGNING_SECRET_ENCRYPTION_ALGORITHM ||
+    typeof encrypted.iv !== "string" ||
+    typeof encrypted.ciphertext !== "string" ||
+    typeof encrypted.authTag !== "string"
+  ) {
+    throw new Error("Developer Space webhook signing secret payload is malformed.");
+  }
+  const decipher = createDecipheriv(
+    WEBHOOK_SIGNING_SECRET_ENCRYPTION_ALGORITHM,
+    key,
+    Buffer.from(encrypted.iv, "base64url")
+  );
+  decipher.setAuthTag(Buffer.from(encrypted.authTag, "base64url"));
+  return Buffer.concat([
+    decipher.update(Buffer.from(encrypted.ciphertext, "base64url")),
+    decipher.final(),
+  ]).toString("utf8");
 }
 
 export function normaliseDeveloperSpaceProviderPolicy(value: unknown): DeveloperSpaceProviderPolicy {
