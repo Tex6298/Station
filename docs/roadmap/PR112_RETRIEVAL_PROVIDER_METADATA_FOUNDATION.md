@@ -4,7 +4,7 @@ Date opened: 2026-06-20
 Opened by: A1 / MIMIR
 Owner: DAEDALUS implements or precisely blocks, ARGUS reviews. ARIADNE rehearses
 only if visible route behavior changes.
-Status: implemented by DAEDALUS; ready for ARGUS review
+Status: closed by MIMIR on 2026-06-20
 
 ## Why This Lane
 
@@ -160,3 +160,37 @@ DAEDALUS validation on 2026-06-20:
 | `npm exec --yes pnpm@10.32.1 -- run test:continuity` | Pass | 5 tests passed. |
 | `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed. |
 | `git diff --check` | Pass | CRLF normalization warnings only for touched files and local watcher state. |
+
+## ARGUS Review
+
+Accepted by ARGUS on 2026-06-20 for MIMIR closeout.
+
+ARGUS confirmed that PR112 adds the canonical `test:retrieval-metadata` root
+gate, documents the active metadata/backfill contract, and preserves current
+retrieval execution. The active `1536` vector contract remains compatible,
+mixed-dimension vectors are rejected through `assertActiveEmbeddingVector`, and
+archive write paths rethrow dimension mismatch errors instead of inserting null
+or mixed-dimension vectors.
+
+ARGUS validation passed:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:retrieval-metadata`
+- `npm exec --yes pnpm@10.32.1 -- run test:persona-context`
+- `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive`
+- `npm exec --yes pnpm@10.32.1 -- run test:continuity`
+- `npm exec --yes pnpm@10.32.1 -- run typecheck`
+- `git diff --check`
+
+ARGUS confirmed no Gemini/OpenAI/NVIDIA provider execution switch, Cloudflare
+Vectorize, Redis/Upstash vector storage, vector backfill, background job,
+retrieval ranking rewrite, visibility change, private archive retrieval change,
+provider key logging, raw prompt/payload logging, broad UI work, or visible
+route change.
+
+## MIMIR Closeout
+
+MIMIR closes PR112 on 2026-06-20 as the retrieval provider metadata foundation.
+
+The next lane is a narrow Redis/Valkey/Upstash cache foundation with explicit
+scope, key format, TTL, invalidation boundaries, disabled-without-config
+behavior, and no canonical memory/vector-store role.

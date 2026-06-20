@@ -8247,6 +8247,21 @@ when a PR lands, or when validation truth changes.
   `test:conversation-archive` with 35 tests, `test:continuity` with 5 tests,
   and `typecheck`; `git diff --check` passed with CRLF normalization warnings
   only.
+- ARGUS accepts PR112 Retrieval Provider Metadata Foundation on 2026-06-20, and
+  MIMIR closes it. The accepted work adds the `test:retrieval-metadata` root
+  gate, documents the active `1536` vector metadata/backfill contract, preserves
+  current retrieval execution and ranking, proves mixed-dimension rejection, and
+  keeps Redis/Upstash vector storage, Cloudflare Vectorize, vector backfill,
+  background jobs, visibility changes, private archive retrieval changes, raw
+  prompt/payload logging, and broad UI work out of scope.
+- MIMIR opens PR113 Redis/Valkey Cache Foundation for DAEDALUS on 2026-06-20.
+  PR113 should add a narrow cache foundation around the available Upstash config
+  with disabled-without-config behavior, scoped keys, required TTL/default short
+  TTLs, namespace/version prefix, invalidation helper/docs, and tests. It must
+  not make Redis canonical memory, add Redis vector storage, change retrieval
+  ranking, add Cloudflare, execute background jobs, store private archive text
+  as cache truth, change billing/auth/session behavior, add broad UI work, or
+  log provider keys/prompts/payloads/secrets.
 - DAEDALUS implements PR110 Memory Runtime Explanation Readback on 2026-06-20
   and wakes ARGUS for review. The owner Memory page now has a compact Runtime
   context / Memory explanation section that joins the existing owner-only Memory
