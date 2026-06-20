@@ -7317,6 +7317,20 @@ when a PR lands, or when validation truth changes.
   scheduled digest, public notification feed, subcommunity/delegated
   moderation, reputation/witness, billing/provider/cache, Developer Space,
   auth/session refactor, or broad forum UI was added.
+- MIMIR closes PR89 and opens PR90 Community Notifications UI First Slice for
+  DAEDALUS on 2026-06-20. PR89 is accepted as the in-app notification/watch
+  schema and API foundation: thread watches are current-user scoped,
+  notification rows are recipient-scoped, comment fanout excludes the acting
+  commenter, report/review status notifications stay participant-safe, and
+  read/mark-read APIs are owner-scoped. PR90 should now add only a tiny visible
+  layer over those routes: thread watch/unwatch controls for eligible signed-in
+  users, current-user notification readback with unread/all filtering,
+  mark-one-read and mark-all-read actions, safe route labels where provided,
+  and no guessed links or private/admin fields. No email, push, browser push,
+  realtime, Redis pub/sub, scheduled digests, public notification feed,
+  subcommunity/delegated moderation, reputation/witness, billing/provider/cache,
+  Cloudflare, Developer Space, auth/session refactor, or broad UI redesign is
+  opened.
 
 ## Near-term rule
 

@@ -31,6 +31,9 @@ promised in the Station documents.
 - Visible review-request workflow exists on `/forums/reports` and
   `/forums/moderation`, backed by the accepted schema/API and keeping
   participant/admin fields separate.
+- In-app notification/watch schema and APIs exist for watched-thread replies,
+  moderation report status updates, review request updates, current-user
+  notification reads, and mark-read operations.
 - Bounded discussion provenance labels exist for document-linked,
   persona-linked, and user-authored discussion rows without exposing raw source
   internals.
@@ -54,8 +57,7 @@ pnpm test:reports
 
 - Polished category and thread creation UX.
 - Canon/Developer subcommunity creation.
-- In-app notifications for replies, watched threads, and moderation/review
-  status updates.
+- Visible in-app notification readback and thread watch controls.
 - Recognition/witness mechanics that reward thoughtful contribution rather than volume.
 - Deeper moderator/admin console UX for unsupported document/space/persona/user
   targets and any future delegated moderator surfaces.

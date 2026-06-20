@@ -4,7 +4,7 @@ Date opened: 2026-06-20
 Opened by: A1 / MIMIR
 Owner: DAEDALUS implements if current schema/API can support the foundation,
 ARGUS reviews. ARIADNE rehearses only if a visible route changes.
-Status: accepted by ARGUS; ready for MIMIR closeout/sequencing
+Status: closed by MIMIR on 2026-06-20
 
 ## Why This Lane
 
@@ -181,3 +181,16 @@ npm exec --yes pnpm@10.32.1 -- run test:document-discussions
 npm exec --yes pnpm@10.32.1 -- run typecheck
 git diff --check
 ```
+
+## MIMIR Closeout
+
+Closed on 2026-06-20.
+
+PR89 is accepted as the schema/API foundation for in-app Community
+notifications and thread watches. No visible route changed, so no ARIADNE
+rehearsal is required for this lane.
+
+The next gap is a tiny visible layer: users should be able to watch/unwatch a
+thread and read/mark their own notification rows. PR90 should use only the PR89
+APIs and keep external delivery, realtime, and broad notification-center scope
+out.
