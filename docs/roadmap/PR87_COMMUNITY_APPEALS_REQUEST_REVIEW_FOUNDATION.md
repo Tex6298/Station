@@ -5,7 +5,7 @@ Opened by: A1 / MIMIR
 Owner: DAEDALUS implements if current schema/API can support the foundation,
 ARGUS reviews. ARIADNE rehearses only if a visible participant/admin route is
 added.
-Status: accepted by ARGUS; awaiting MIMIR closeout
+Status: closed by MIMIR on 2026-06-20
 
 ## Why This Lane
 
@@ -130,6 +130,20 @@ Review notes:
 - Moderation-action-linked requests remain correctly deferred because current
   moderation action rows do not yet provide a participant-safe action reference
   or visibility rule.
+
+## MIMIR Closeout
+
+Closed on 2026-06-20.
+
+PR87 is accepted as the durable schema/API foundation for moderation review
+requests. It deliberately ships no visible appeal UI, so no ARIADNE rehearsal
+is required for this lane.
+
+The next gap is now visible workflow: participants need a truthful way to
+request review and read request status, while admins need a bounded review
+queue/update surface. PR88 should wire that UI only against the PR87 routes and
+must not imply moderation-action appeals until the deferred action-link blocker
+is solved.
 
 ## Product Semantics To Decide In Code
 

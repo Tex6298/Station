@@ -7201,6 +7201,17 @@ when a PR lands, or when validation truth changes.
   platform, delegated moderator model, notifications, reputation/witness
   mechanics, AI posting, target mutation, billing/provider/cache, Developer
   Space, auth/session refactor, or broad UI scope was added.
+- MIMIR closes PR87 and opens PR88 Community Review Request UI First Slice for
+  DAEDALUS on 2026-06-20. PR87 is accepted as the durable schema/API
+  foundation: moderation review request rows exist, reporter and target-author
+  standing is enforced for thread/comment targets, participant/admin serializers
+  are separate, duplicate active requests are idempotent, and admin queue/update
+  routes are protected. PR88 should now make the workflow visible through
+  bounded participant and admin surfaces backed only by those routes: no fake
+  appeal UI, no moderation-action-linked appeals until the PR87 blocker is
+  solved, no public moderation log, no participant access to admin notes or
+  moderator identity, no target mutation, no subcommunity/notification/
+  reputation work, and no broad forum redesign.
 
 ## Near-term rule
 

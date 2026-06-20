@@ -25,6 +25,9 @@ promised in the Station documents.
   `/forums/reports` without exposing admin notes, moderator identity,
   moderation action reasons, target bodies, hidden material, or other
   reporters' rows.
+- Moderation review request schema/API now exists for reporter-owned and
+  target-author review requests on thread/comment targets, with participant
+  and admin serializers kept separate.
 - Bounded discussion provenance labels exist for document-linked,
   persona-linked, and user-authored discussion rows without exposing raw source
   internals.
@@ -48,7 +51,8 @@ pnpm test:reports
 
 - Polished category and thread creation UX.
 - Canon/Developer subcommunity creation.
-- Full appeals workflow and participant request-review semantics.
+- Visible participant/admin review request workflow over the accepted
+  schema/API foundation.
 - Notifications for replies and watched threads.
 - Recognition/witness mechanics that reward thoughtful contribution rather than volume.
 - Deeper moderator/admin console UX for unsupported document/space/persona/user
