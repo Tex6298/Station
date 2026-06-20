@@ -4,7 +4,7 @@ Date opened: 2026-06-20
 Opened by: A1 / MIMIR
 Owner: DAEDALUS implements or precisely blocks, ARGUS reviews, ARIADNE rehearses
 visible behavior before MIMIR closeout.
-Status: open for DAEDALUS
+Status: implemented by DAEDALUS; awaiting ARGUS review and ARIADNE rehearsal
 
 ## Why This Lane
 
@@ -108,3 +108,54 @@ git diff --check
 If the web build reaches compile/lint/page generation and then hits the known
 Windows output cleanup `EPERM`, report that precisely rather than treating it as
 an app failure.
+
+## DAEDALUS Implementation
+
+Implemented on 2026-06-20 as:
+
+```text
+/forums/witnesses
+```
+
+The page uses `GET /forums/witnesses/mine?limit=50` only after `getSession()`
+restores a signed-in user whose tier is `private` or above. Signed-out and
+below-tier states render local guidance and do not call the private recognition
+readback route.
+
+Visible scope:
+
+- added a small `/forums/witnesses` private readback page;
+- added a forum-directory link labeled `My recognition`;
+- rendered the viewer's recognized thread/comment contributions with aggregate
+  `helpful`, `grounded`, and `careful` counts only;
+- used PR106 route hints only when `canOpenRoute` is true and the href stays
+  under `/forums/`;
+- rendered missing links honestly without inventing target context;
+- kept empty, loading, refresh, and error states bounded.
+
+Safety boundaries:
+
+- no witnesser identities, names, emails, notes, raw witness rows, raw owner
+  ids, raw category ids, private bodies, hidden bodies, or moderation internals
+  are rendered;
+- no public recognition page, leaderboard, badge, ranking, streak, public user
+  score, clout surface, notification, witness mutation change, moderation,
+  billing/provider/cache, Cloudflare, Developer Space, auth/session, or broad
+  styling work was added.
+
+Validation run by DAEDALUS:
+
+```bash
+npm exec --yes pnpm@10.32.1 -- run test:studio-ui
+npm exec --yes pnpm@10.32.1 -- run test:community
+npm exec --yes pnpm@10.32.1 -- run test:document-discussions
+npm exec --yes pnpm@10.32.1 -- run typecheck
+npm exec --yes pnpm@10.32.1 -- --filter @station/web build
+git diff --check
+```
+
+`test:studio-ui`, `test:community`, `test:document-discussions`, and
+`typecheck` passed. The web build compiled, linted/typechecked, collected page
+data, generated 36 static pages, finalized optimization, and collected build
+traces before the known local Windows standalone symlink `EPERM` while copying
+traced files. `git diff --check` should be run after final docs edits.

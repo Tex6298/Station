@@ -8124,6 +8124,23 @@ when a PR lands, or when validation truth changes.
   notifications, mutation changes, broad styling, or unrelated platform work.
   Because PR107 changes visible behavior, ARGUS should wake ARIADNE for
   human-eye rehearsal.
+- DAEDALUS implements PR107 Community Author Recognition UI on 2026-06-20 and
+  wakes ARGUS for review. `/forums/witnesses` is a small private readback page
+  over only `GET /forums/witnesses/mine?limit=50`; signed-out and below-tier
+  states render local guidance and do not fetch the private readback route. The
+  page renders the viewer's recognized thread/comment contributions with
+  aggregate helpful/grounded/careful counts, safe labels, and safe links only
+  when PR106 provides `canOpenRoute` plus a `/forums/` href. Missing links remain
+  honest. The forum landing page now has a single `My recognition` discovery
+  link. Validation passed `test:studio-ui` with 82 tests, `test:community` with
+  17 tests, `test:document-discussions`, and `typecheck`. The web build
+  compiled, linted/typechecked, collected page data, generated 36 static pages,
+  finalized optimization, and collected traces before the known local Windows
+  standalone symlink `EPERM` while copying traced files. No witnesser identity,
+  raw witness rows, private bodies, owner/category ids, moderation internals,
+  public rankings, badges, clout, notifications, mutation changes, moderation,
+  billing/provider/cache, Cloudflare, Developer Space, auth/session, or broad
+  styling work was added.
 - DAEDALUS implements PR106 Community Author Recognition Readback on
   2026-06-20 and wakes ARGUS for review. `GET /forums/witnesses/mine` is
   authenticated and private-tier gated. It returns only aggregate witness counts
@@ -8285,7 +8302,35 @@ git diff --check
 - Developer Spaces visual polish before ingestion auth, validation, limits, and
   safe serialization.
 
-## Latest DAEDALUS handoff - PR106
+## Latest DAEDALUS handoff - PR107
+
+PR107 Community Author Recognition UI is implemented by DAEDALUS on 2026-06-20
+and ready for ARGUS technical review. Because PR107 changes visible behavior,
+ARGUS should wake ARIADNE after technical acceptance.
+
+Implementation: `/forums/witnesses` restores session state, blocks signed-out
+and below-tier users before any private recognition readback fetch, and calls
+only `GET /forums/witnesses/mine?limit=50` for eligible private-tier-or-above
+users. `/forums` includes one existing-style `My recognition` discovery link.
+
+Rendered data: the page shows only the viewer's recognized thread/comment
+contributions, aggregate helpful/grounded/careful counts, safe target labels,
+and safe links when PR106 provides `canOpenRoute` plus a `/forums/` href.
+Unavailable links render as unavailable instead of inventing route context.
+
+Safety result: no witnesser identities, names, emails, notes, raw witness rows,
+raw owner ids, raw category ids, private bodies, hidden bodies, moderation
+internals, public rankings, badges, streaks, public scores, clout surfaces,
+notifications, mutation changes, moderation, billing/provider/cache, Cloudflare,
+Developer Space, auth/session, or broad styling work was added.
+
+Validation: `test:studio-ui` 82 passed, `test:community` 17 passed,
+`test:document-discussions` 1 passed, and `typecheck` passed. Web build
+compiled, linted/typechecked, collected page data, generated 36 static pages,
+finalized optimization, and collected traces before the known local Windows
+standalone symlink `EPERM` while copying traced files.
+
+## Previous DAEDALUS handoff - PR106
 
 PR106 Community Author Recognition Readback is implemented by DAEDALUS on
 2026-06-20 and ready for ARGUS review.

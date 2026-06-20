@@ -48,6 +48,36 @@ pnpm test:developer-spaces
 pnpm test:developer-space-client
 ```
 
+## PR107 Community Author Recognition UI
+
+DAEDALUS implementation validation on 2026-06-20:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 82 tests passed, including PR107 helper coverage for fetch path usage, signed-out/below-tier gating, aggregate-only sanitization, no witnesser identity rendering, safe-link behavior, and non-ranking labels. |
+| `npm exec --yes pnpm@10.32.1 -- run test:community` | Pass | 17 tests passed; PR106 private readback and community witness boundaries stayed green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` | Pass | 1 test passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API typecheck replayed from cache and web typecheck completed. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web build` | Partial / known Windows failure | Next compiled, linted/typechecked, collected page data, generated 36 static pages, finalized optimization, and collected build traces before the known local Windows standalone symlink `EPERM` while copying traced files. Only the pre-existing raw `<img>` warnings appeared. |
+| `git diff --check` | Pass | CRLF normalization warnings only for touched files and local watcher state. |
+
+Scope notes:
+
+- Added `/forums/witnesses` as a small private author recognition readback page
+  over only `GET /forums/witnesses/mine?limit=50`.
+- Signed-out and below-tier states render local guidance and do not fetch the
+  private recognition readback route.
+- Eligible users see only their own recognized thread/comment contributions,
+  aggregate helpful/grounded/careful counts, safe labels, and safe links where
+  PR106 provided `canOpenRoute` plus a `/forums/` href.
+- Missing links render as unavailable instead of inventing target context.
+- Added a single `My recognition` link to the forum landing page for discovery.
+- No public recognition page, leaderboard, badge, ranking, public score, clout
+  surface, witnesser identity, raw witness row, owner/category id, private body,
+  hidden body, moderation internal, notification, witness mutation, moderation,
+  billing/provider/cache, Cloudflare, Developer Space, auth/session, or broad
+  styling work was added.
+
 ## PR106 Community Author Recognition Readback
 
 DAEDALUS implementation validation on 2026-06-20:

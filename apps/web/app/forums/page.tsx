@@ -38,6 +38,12 @@ export default function ForumsPage() {
         </div>
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
           <Link
+            href="/forums/witnesses"
+            style={{ padding: "0.45rem 0.75rem", border: "1px solid #d8d3c8", borderRadius: 7, color: "#1f2529", textDecoration: "none", fontSize: "0.8rem", background: "#fff" }}
+          >
+            My recognition
+          </Link>
+          <Link
             href="/forums/subcommunities"
             style={{ padding: "0.45rem 0.75rem", border: "1px solid #d8d3c8", borderRadius: 7, color: "#1f2529", textDecoration: "none", fontSize: "0.8rem", background: "#fff" }}
           >
