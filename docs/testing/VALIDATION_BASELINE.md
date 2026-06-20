@@ -48,6 +48,37 @@ pnpm test:developer-spaces
 pnpm test:developer-space-client
 ```
 
+## PR111 Developer Space Provider Policy Foundation
+
+DAEDALUS implementation validation on 2026-06-20:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 16 tests passed, including PR111 policy/default/update/public-serializer/observability coverage. |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-space-client` | Pass | 4 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:projects` | Pass | 5 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed. |
+| `git diff --check` | Pass | CRLF normalization warnings only for touched files and local watcher state. |
+
+Implementation result:
+
+- Current main already contained the durable Developer Space provider-policy
+  migration, DB/types, normalization/evaluation helpers, owner-only evaluation
+  route, and existing AI observability posture write path.
+- `PATCH /developer-spaces/:id` now supports owner/admin updates and rejects
+  authenticated non-owners.
+- Non-operational Developer Space serializers now mask stored provider policy
+  values to the safe public posture value for public/member/export summaries.
+- Focused tests prove safe default, invalid policy rejection, non-owner denial,
+  owner readback, public serializer masking, admin update, and policy-only
+  observability metadata without secret/prompt/payload/private archive leakage.
+- Explicit non-goals preserved: no provider execution switching,
+  NVIDIA/OpenAI/Gemini routing change, embedding provider change, vector
+  dimension/index change, Cloudflare/Redis/cache behavior, private archive
+  retrieval change, public prompt/payload logging, Developer Space realtime
+  work, billing/auth/session change, broad UI redesign, or visible web route
+  change.
+
 ## PR110 Memory Runtime Explanation Readback
 
 DAEDALUS implementation validation on 2026-06-20:

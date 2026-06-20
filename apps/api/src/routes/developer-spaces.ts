@@ -1402,6 +1402,17 @@ developerSpacesRouter.patch("/:id", requireAuth, async (req, res) => {
   if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
 
   const sb = getSupabaseAdmin();
+  const { data: existing, error: loadError } = await sb
+    .from("developer_spaces")
+    .select("id, owner_user_id")
+    .eq("id", req.params.id)
+    .single();
+
+  if (loadError || !existing) return res.status(404).json({ error: "Developer Space not found." });
+  if (existing.owner_user_id !== req.user!.id && !req.user!.isAdmin) {
+    return res.status(403).json({ error: "Not authorised." });
+  }
+
   const updatePayload: Record<string, unknown> = {};
   if (parsed.data.projectName !== undefined) updatePayload.project_name = parsed.data.projectName;
   if (parsed.data.slug !== undefined) updatePayload.slug = parsed.data.slug;
@@ -1415,7 +1426,6 @@ developerSpacesRouter.patch("/:id", requireAuth, async (req, res) => {
     .from("developer_spaces")
     .update(updatePayload)
     .eq("id", req.params.id)
-    .eq("owner_user_id", req.user!.id)
     .select("*")
     .single();
 

@@ -8202,6 +8202,19 @@ when a PR lands, or when validation truth changes.
   embeddings/vector dimensions, adding Cloudflare/Redis/cache behavior, changing
   private archive retrieval, logging prompts/payloads/secrets, adding Developer
   Space realtime, or broad UI redesign.
+- DAEDALUS implements PR111 Developer Space Provider Policy Foundation on
+  2026-06-20 and wakes ARGUS for review. Current main already had the durable
+  migration/type/evaluation/AI-observability policy foundation; this pass
+  tightened the remaining boundaries by allowing owner/admin updates through the
+  existing Developer Space update route, denying authenticated non-owners,
+  rejecting invalid policies, and masking stored private/provider policy values
+  from non-operational public/member/export serializers. Tests now prove safe
+  default policy, owner readback, admin update, non-owner denial, invalid policy
+  rejection, public serializer masking, and policy-only observability metadata
+  without key/prompt/payload/private archive leakage. Validation passed
+  `test:developer-spaces` with 16 tests, `test:developer-space-client` with 4
+  tests, `test:projects` with 5 tests, and `typecheck`; `git diff --check`
+  passed with CRLF normalization warnings only.
 - DAEDALUS implements PR110 Memory Runtime Explanation Readback on 2026-06-20
   and wakes ARGUS for review. The owner Memory page now has a compact Runtime
   context / Memory explanation section that joins the existing owner-only Memory
@@ -8442,7 +8455,44 @@ git diff --check
 - Developer Spaces visual polish before ingestion auth, validation, limits, and
   safe serialization.
 
-## Latest ARIADNE handoff - PR110
+## Latest DAEDALUS handoff - PR111
+
+PR111 Developer Space Provider Policy Foundation is implemented by DAEDALUS on
+2026-06-20 and ready for ARGUS review. No visible web route changed, so ARIADNE
+is not needed unless ARGUS finds a visible-route implication.
+
+Files changed: `apps/api/src/services/developer-space.service.ts`,
+`apps/api/src/routes/developer-spaces.ts`,
+`apps/api/src/routes/developer-spaces.test.ts`,
+`docs/roadmap/PR111_DEVELOPER_SPACE_PROVIDER_POLICY_FOUNDATION.md`,
+`docs/roadmap/ACTIVE_STATUS.md`, and
+`docs/testing/VALIDATION_BASELINE.md`.
+
+Implementation:
+
+- Current main already contained migration `027`, DB/types, provider-policy
+  normalization/evaluation, owner-only policy evaluation route, and existing AI
+  observability posture write path.
+- `PATCH /developer-spaces/:id` now authorizes owner or admin and rejects
+  authenticated non-owners.
+- Non-operational Developer Space serializers mask the stored provider policy to
+  the safe public posture value, preventing public/member/export readback from
+  revealing private archive, owner-BYOK, or platform policy internals.
+- Focused tests now prove safe default, invalid policy rejection, non-owner
+  denial, owner readback, public serializer masking, admin update, and
+  policy-only observability metadata with no secret/private payload leakage.
+
+Validation: `test:developer-spaces` 16 passed, `test:developer-space-client` 4
+passed, `test:projects` 5 passed, and `typecheck` passed. `git diff --check`
+passed with CRLF normalization warnings only.
+
+Non-scope confirmation: no provider execution switch, NVIDIA/OpenAI/Gemini
+routing change, embedding provider change, vector dimension/index change,
+Cloudflare/Redis/cache behavior, private archive retrieval change,
+prompt/payload/key logging, Developer Space realtime work, billing/auth/session
+change, broad UI redesign, or visible web route change was added.
+
+## Previous ARIADNE handoff - PR110
 
 PR110 Memory Runtime Explanation Readback is accepted by ARIADNE on
 2026-06-20 and ready for MIMIR closeout.

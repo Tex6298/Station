@@ -22,6 +22,7 @@ class InMemorySupabase {
     profiles: [
       { id: "owner-user", tier: "canon", is_admin: false },
       { id: "other-user", tier: "canon", is_admin: false },
+      { id: "admin-user", tier: "institutional", is_admin: true },
     ],
     projects: [],
     project_members: [],
@@ -42,6 +43,7 @@ class InMemorySupabase {
   private usersByToken = new Map([
     ["owner-token", { id: "owner-user", email: "owner@example.test" }],
     ["other-token", { id: "other-user", email: "other@example.test" }],
+    ["admin-token", { id: "admin-user", email: "admin@example.test" }],
   ]);
 
   client = {
@@ -494,10 +496,28 @@ test("Developer Space provider policy blocks private archive context unless expl
       token: "owner-token",
       body: {
         projectName: "Policy Observatory",
+        visibility: "public",
       },
     });
     assert.equal(created.status, 201);
+    assert.equal(created.body.space.providerPolicy, "public_synthetic_only");
     const spaceId = created.body.space.id;
+
+    const invalidPolicy = await requestJson(app, "PATCH", `/developer-spaces/${spaceId}`, {
+      token: "owner-token",
+      body: {
+        providerPolicy: "raw_private_archive",
+      },
+    });
+    assert.equal(invalidPolicy.status, 400);
+
+    const nonOwnerPolicy = await requestJson(app, "PATCH", `/developer-spaces/${spaceId}`, {
+      token: "other-token",
+      body: {
+        providerPolicy: "private_archive_allowed",
+      },
+    });
+    assert.equal(nonOwnerPolicy.status, 403);
 
     const blocked = await requestJson(app, "POST", `/developer-spaces/${spaceId}/provider-policy/evaluate`, {
       token: "owner-token",
@@ -550,6 +570,18 @@ test("Developer Space provider policy blocks private archive context unless expl
     assert.equal(updated.status, 200);
     assert.equal(updated.body.space.providerPolicy, "private_archive_allowed");
 
+    const publicDetail = await requestJson(app, "GET", "/developer-spaces/policy-observatory");
+    assert.equal(publicDetail.status, 200);
+    assert.equal(publicDetail.body.access, "public");
+    assert.equal(publicDetail.body.space.providerPolicy, "public_synthetic_only");
+
+    const ownerDetail = await requestJson(app, "GET", "/developer-spaces/policy-observatory", {
+      token: "owner-token",
+    });
+    assert.equal(ownerDetail.status, 200);
+    assert.equal(ownerDetail.body.access, "owner");
+    assert.equal(ownerDetail.body.space.providerPolicy, "private_archive_allowed");
+
     const allowed = await requestJson(app, "POST", `/developer-spaces/${spaceId}/provider-policy/evaluate`, {
       token: "owner-token",
       body: {
@@ -596,6 +628,15 @@ test("Developer Space provider policy blocks private archive context unless expl
     assert.equal(ownerByokAllowed.status, 200);
     assert.equal(ownerByokAllowed.body.decision.allowed, true);
     assert.equal(ownerByokAllowed.body.decision.posture.selectedProviderRoute, "owner_byok");
+
+    const adminPolicy = await requestJson(app, "PATCH", `/developer-spaces/${spaceId}`, {
+      token: "admin-token",
+      body: {
+        providerPolicy: "platform_allowed",
+      },
+    });
+    assert.equal(adminPolicy.status, 200);
+    assert.equal(adminPolicy.body.space.providerPolicy, "platform_allowed");
 
     const traces = {
       sessions: db.tables.ai_trace_sessions,

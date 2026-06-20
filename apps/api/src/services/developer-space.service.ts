@@ -241,7 +241,7 @@ export function serializeDeveloperSpace(row: any, options: { includeOperationalF
     slug: row.slug,
     description: row.description ?? null,
     visibility: row.visibility,
-    providerPolicy: normaliseDeveloperSpaceProviderPolicy(row.provider_policy),
+    providerPolicy: normaliseDeveloperSpaceProviderPolicy(includeOperationalFields ? row.provider_policy : null),
     visualisationType: row.visualisation_type,
     visualisationConfig: row.visualisation_config ?? {},
     apiKeyLastFour: includeOperationalFields ? row.api_key_last_four ?? null : null,

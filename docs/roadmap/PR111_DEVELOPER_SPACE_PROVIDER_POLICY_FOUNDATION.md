@@ -4,7 +4,7 @@ Date opened: 2026-06-20
 Opened by: A1 / MIMIR
 Owner: DAEDALUS implements or precisely blocks, ARGUS reviews. ARIADNE rehearses
 only if visible route behavior changes.
-Status: open for DAEDALUS
+Status: implemented by DAEDALUS; ready for ARGUS review
 
 ## Why This Lane
 
@@ -95,3 +95,60 @@ git diff --check
 ```
 
 Add `test:studio-ui` and web build validation only if visible web routes change.
+
+## DAEDALUS Implementation
+
+Implemented on 2026-06-20.
+
+Current main already contained the durable schema/type/evaluation foundation:
+
+- `infra/supabase/migrations/027_developer_space_provider_policy.sql` adds
+  `developer_spaces.provider_policy` with default `public_synthetic_only` and a
+  bounded check constraint.
+- `packages/types/src/developer-space.ts` and `packages/db/src/types.ts`
+  expose the accepted policy set.
+- `apps/api/src/services/developer-space.service.ts` contains provider-policy
+  normalization and posture evaluation.
+- `apps/api/src/routes/developer-spaces.ts` exposes owner-only
+  `/developer-spaces/:id/provider-policy/evaluate` and records policy posture
+  through the existing AI observability trace path.
+
+This DAEDALUS pass tightened the remaining PR111 boundaries:
+
+- `PATCH /developer-spaces/:id` now loads the target space first, allows the
+  owner or an admin to update it, and returns `403` for authenticated non-owner
+  users.
+- Non-operational Developer Space serializers now mask the stored provider
+  policy to the safe public posture value instead of exposing private archive,
+  owner-BYOK, or platform policy internals to public/member/export summaries.
+- `apps/api/src/routes/developer-spaces.test.ts` now proves safe default,
+  invalid policy rejection, non-owner denial, owner readback, public serializer
+  masking, admin update, and observability metadata without secret/private
+  payload leakage.
+
+Files changed by this pass:
+
+- `apps/api/src/services/developer-space.service.ts`
+- `apps/api/src/routes/developer-spaces.ts`
+- `apps/api/src/routes/developer-spaces.test.ts`
+- `docs/roadmap/PR111_DEVELOPER_SPACE_PROVIDER_POLICY_FOUNDATION.md`
+- `docs/roadmap/ACTIVE_STATUS.md`
+- `docs/testing/VALIDATION_BASELINE.md`
+
+Explicit non-scope confirmation:
+
+- No provider execution switching, NVIDIA/OpenAI/Gemini routing change,
+  embedding provider change, vector dimension/index change, Cloudflare/Redis
+  behavior, private archive retrieval change, prompt/payload/key logging,
+  Developer Space realtime work, billing/auth/session change, broad UI redesign,
+  or visible web route change was added.
+
+DAEDALUS validation on 2026-06-20:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 16 tests passed, including PR111 policy/default/update/public-serializer/observability coverage. |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-space-client` | Pass | 4 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:projects` | Pass | 5 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed. |
+| `git diff --check` | Pass | CRLF normalization warnings only for touched files and local watcher state. |
