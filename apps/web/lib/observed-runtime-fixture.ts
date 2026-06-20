@@ -4,6 +4,7 @@ import type {
   DeveloperSpaceEvent,
   DeveloperSpaceNode,
   DeveloperSpaceNodeStatePayload,
+  DeveloperSpaceObservedRuntimeContextPayload,
   DeveloperSpaceSnapshot,
   DeveloperSpaceSnapshotPayload,
   DeveloperSpaceTopologyType,
@@ -41,6 +42,7 @@ export interface ObservedRuntimeDeveloperSpaceImportPayload {
   nodes: Array<DeveloperSpaceNodeStatePayload & { nodeId: string }>;
   events: DeveloperSpaceEventPayload[];
   snapshots: DeveloperSpaceSnapshotPayload[];
+  supportingContext: DeveloperSpaceObservedRuntimeContextPayload[];
 }
 
 export interface ObservedRuntimeDeveloperSpaceBridge {
@@ -192,6 +194,32 @@ function payloadFieldClassifications(
     output[path.slice(prefixWithDot.length)] = visibility;
   }
   return output;
+}
+
+function recordFieldClassifications(record: Record<string, unknown>, context: string) {
+  const classifications = fieldClassifications(record, context);
+  const output: Record<string, Exclude<ObservedRuntimeFieldVisibility, "secret">> = {};
+  for (const [path, visibility] of classifications) {
+    if (visibility === "secret") continue;
+    output[path] = visibility;
+  }
+  return output;
+}
+
+function contextPayload(
+  contextType: DeveloperSpaceObservedRuntimeContextPayload["contextType"],
+  record: Record<string, unknown>,
+  payload: Record<string, unknown>,
+  context: string
+): DeveloperSpaceObservedRuntimeContextPayload {
+  return {
+    contextType,
+    externalId: typeof payload.id === "string" ? payload.id : undefined,
+    sourceRef: `observed-runtime:${contextType}:${typeof payload.id === "string" ? payload.id : context}`,
+    payload,
+    fieldClassifications: recordFieldClassifications(record, context),
+    provenance: "imported",
+  };
 }
 
 export function parseObservedRuntimeFixture(input: unknown): ObservedRuntimeFixture {
@@ -354,6 +382,18 @@ export function bridgeObservedRuntimeFixtureToDeveloperSpaceImport(
         visibility: "public",
         occurredAt: snapshot.occurredAt,
       })),
+      supportingContext: [
+        ...ownerReadback.zones.map((zone, index) =>
+          contextPayload("zone", fixture.zones[index], zone, `fixture.zones[${index}]`)
+        ),
+        ...ownerReadback.resources.map((resource, index) =>
+          contextPayload("resource", fixture.resources[index], resource, `fixture.resources[${index}]`)
+        ),
+        ...ownerReadback.edges.map((edge, index) =>
+          contextPayload("edge", fixture.edges[index], edge, `fixture.edges[${index}]`)
+        ),
+        contextPayload("provenance", fixture.provenance, ownerReadback.provenance, "fixture.provenance"),
+      ],
     },
     readbacks: {
       public: publicReadback,
@@ -361,11 +401,11 @@ export function bridgeObservedRuntimeFixtureToDeveloperSpaceImport(
       owner: ownerReadback,
     },
     unmapped: {
-      zones: publicReadback.zones,
-      resources: publicReadback.resources,
-      edges: publicReadback.edges,
-      provenance: publicReadback.provenance,
-      reason: "Current Developer Space ingestion accepts nodes, events, and snapshots. Zones, resources/economy, edges, and provenance remain supporting observed-runtime readback until a later schema lane gives them durable homes.",
+      zones: [],
+      resources: [],
+      edges: [],
+      provenance: {},
+      reason: "Zones, resources/economy, edges, and provenance now map to supportingContext entries through the existing Developer Space batch import route.",
     },
   };
 }

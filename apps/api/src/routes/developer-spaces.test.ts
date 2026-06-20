@@ -36,6 +36,7 @@ class InMemorySupabase {
     developer_space_nodes: [],
     developer_space_events: [],
     developer_space_snapshots: [],
+    developer_space_observed_runtime_context: [],
     documents: [],
     ai_trace_sessions: [],
     ai_trace_events: [],
@@ -169,6 +170,16 @@ class InMemorySupabase {
     }
 
     if (table === "developer_space_events" || table === "developer_space_snapshots") {
+      row.created_at ??= now;
+    }
+
+    if (table === "developer_space_observed_runtime_context") {
+      row.external_id ??= null;
+      row.source_ref ??= null;
+      row.payload ??= {};
+      row.observed_runtime_classifications ??= null;
+      row.provenance ??= "imported";
+      row.occurred_at ??= now;
       row.created_at ??= now;
     }
 
@@ -1255,9 +1266,8 @@ test("Developer Space import persists observed runtime classifications with exis
       { developerSpaceId: created.body.space.id },
     );
     assert.equal(bridge.auth.requiredHeader, "X-Station-Developer-Key");
-    assert.equal(bridge.unmapped.zones.length, 1);
-    assert.equal(bridge.unmapped.resources.length, 1);
-    assert.equal(bridge.unmapped.edges.length, 1);
+    assert.equal(bridge.importPayload.supportingContext.length, 4);
+    assert.equal(bridge.unmapped.zones.length, 0);
 
     const missingKey = await requestJson(app, "POST", bridge.route, {
       body: bridge.importPayload,
@@ -1275,13 +1285,21 @@ test("Developer Space import persists observed runtime classifications with exis
       ...overexposed.events[0].fieldClassifications,
       secretToken: "public",
     };
+    overexposed.supportingContext[0].payload = {
+      ...overexposed.supportingContext[0].payload,
+      secretAccessToken: "fixture-secret-context-overexposed",
+    };
+    overexposed.supportingContext[0].fieldClassifications = {
+      ...overexposed.supportingContext[0].fieldClassifications,
+      secretAccessToken: "public",
+    };
     const overexposedRejected = await requestJson(app, "POST", bridge.route, {
       developerKey: apiKeyResponse.body.apiKey,
       body: overexposed,
     });
     assert.equal(overexposedRejected.status, 400);
     assert.equal(overexposedRejected.body.code, "developer_space_observed_runtime_classification_failed");
-    assert.doesNotMatch(JSON.stringify(overexposedRejected.body), /fixture-secret-overexposed/);
+    assert.doesNotMatch(JSON.stringify(overexposedRejected.body), /fixture-secret-overexposed|fixture-secret-context-overexposed/);
 
     const classifiedWithSecret = clone(bridge.importPayload);
     classifiedWithSecret.events[0].eventData = {
@@ -1292,6 +1310,14 @@ test("Developer Space import persists observed runtime classifications with exis
       ...classifiedWithSecret.events[0].fieldClassifications,
       secretToken: "secret",
     };
+    classifiedWithSecret.supportingContext[0].payload = {
+      ...classifiedWithSecret.supportingContext[0].payload,
+      secretAccessToken: "fixture-secret-context-should-not-persist",
+    };
+    classifiedWithSecret.supportingContext[0].fieldClassifications = {
+      ...classifiedWithSecret.supportingContext[0].fieldClassifications,
+      secretAccessToken: "secret",
+    };
     const imported = await requestJson(app, "POST", bridge.route, {
       developerKey: apiKeyResponse.body.apiKey,
       body: classifiedWithSecret,
@@ -1301,11 +1327,16 @@ test("Developer Space import persists observed runtime classifications with exis
       nodes: 2,
       events: 1,
       snapshots: 1,
+      supportingContext: 4,
     });
     assert.doesNotMatch(JSON.stringify(db.tables.developer_space_events), /fixture-secret-should-not-persist/);
+    assert.doesNotMatch(JSON.stringify(db.tables.developer_space_observed_runtime_context), /fixture-secret-context-should-not-persist/);
     assert.equal(db.tables.developer_space_events[0].observed_runtime_classifications.fields.memberSignal, "member");
     assert.equal(db.tables.developer_space_events[0].observed_runtime_classifications.fields.secretToken, undefined);
     assert.equal(db.tables.developer_space_snapshots[0].observed_runtime_classifications.fields.privateMemoryTrace, "private");
+    assert.equal(db.tables.developer_space_observed_runtime_context.length, 4);
+    assert.equal(db.tables.developer_space_observed_runtime_context[0].observed_runtime_classifications.fields.memberDensityBand, "member");
+    assert.equal(db.tables.developer_space_observed_runtime_context[0].observed_runtime_classifications.fields.secretAccessToken, undefined);
 
     const publicDetail = await requestJson(app, "GET", "/developer-spaces/observed-runtime-bridge");
     assert.equal(publicDetail.status, 200);
@@ -1318,6 +1349,11 @@ test("Developer Space import persists observed runtime classifications with exis
     });
     assert.deepEqual(publicDetail.body.latestSnapshot.snapshotData, {
       publicSummary: "Synthetic runtime is observable but externally hosted.",
+    });
+    assert.deepEqual(publicDetail.body.supportingContext[0].payload, {
+      id: "zone-crossroads",
+      name: "Crossroads",
+      publicOccupancy: 18,
     });
 
     const memberDetail = await requestJson(app, "GET", "/developer-spaces/observed-runtime-bridge", {
@@ -1335,6 +1371,12 @@ test("Developer Space import persists observed runtime classifications with exis
     assert.deepEqual(memberDetail.body.latestSnapshot.snapshotData, {
       publicSummary: "Synthetic runtime is observable but externally hosted.",
       memberEconomy: "credits stable in synthetic fixture",
+    });
+    assert.deepEqual(memberDetail.body.supportingContext[0].payload, {
+      id: "zone-crossroads",
+      name: "Crossroads",
+      publicOccupancy: 18,
+      memberDensityBand: "medium",
     });
 
     const ownerDetail = await requestJson(app, "GET", "/developer-spaces/observed-runtime-bridge", {
@@ -1359,12 +1401,20 @@ test("Developer Space import persists observed runtime classifications with exis
       ownerDebug: "owner-safe fixture readback note",
       privateMemoryTrace: "fixture-private-snapshot-trace",
     });
+    assert.deepEqual(ownerDetail.body.supportingContext[0].payload, {
+      id: "zone-crossroads",
+      name: "Crossroads",
+      publicOccupancy: 18,
+      memberDensityBand: "medium",
+      privateModerationNote: "fixture-private-zone-note",
+    });
 
     const publicStream = await requestText(app, "GET", "/developer-spaces/observed-runtime-bridge/stream?once=1");
     assert.equal(publicStream.status, 200);
     const publicSse = parseSseUpdate(publicStream.body);
     assert.deepEqual(publicSse.data.detail.nodes[0].metrics, publicDetail.body.nodes[0].metrics);
     assert.deepEqual(publicSse.data.detail.latestSnapshot.snapshotData, publicDetail.body.latestSnapshot.snapshotData);
+    assert.deepEqual(publicSse.data.detail.supportingContext[0].payload, publicDetail.body.supportingContext[0].payload);
 
     const publicText = JSON.stringify({ public: publicDetail.body, sse: publicSse.data });
     assert.doesNotMatch(publicText, /fixture-secret|fixture-private|owner-visible|member-visible|alpha-watchers|owner-shard|fixture-owner/);
@@ -1372,8 +1422,9 @@ test("Developer Space import persists observed runtime classifications with exis
     assert.doesNotMatch(memberText, /fixture-secret|fixture-private|owner-visible|owner-shard|fixture-owner/);
     const ownerText = JSON.stringify(ownerDetail.body);
     assert.match(ownerText, /fixture-private-node-trace/);
+    assert.match(ownerText, /fixture-private-zone-note/);
     assert.match(ownerText, /owner-visible synthetic threshold/);
-    assert.doesNotMatch(ownerText, /fixture-secret|secretToken|secretApiKey|secretCookie/);
+    assert.doesNotMatch(ownerText, /fixture-secret|secretToken|secretApiKey|secretCookie|secretAccessToken/);
     for (const response of [publicDetail.body, memberDetail.body, ownerDetail.body, publicSse.data]) {
       assert.equal(JSON.stringify(response).includes("observed_runtime_classifications"), false);
     }

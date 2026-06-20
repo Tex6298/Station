@@ -10,6 +10,7 @@ export type DeveloperSpaceTopologyType = "radial" | "branching" | "lattice" | "c
 export type DeveloperSpaceEventVisibility = "private" | "community" | "public";
 export type DeveloperSpaceEventProvenance = "api" | "imported" | "user" | "system" | "ai_generated";
 export type DeveloperSpaceObservedRuntimeFieldVisibility = "public" | "member" | "owner" | "private" | "secret";
+export type DeveloperSpaceObservedRuntimeContextType = "zone" | "resource" | "edge" | "provenance";
 export type DeveloperSpaceIngestionKeyStatus = "active" | "revoked";
 export type DeveloperSpaceDocumentRole = "methodology" | "finding" | "field_log" | "note";
 export type DeveloperSpaceDocumentLinkVisibility = "owner" | "public";
@@ -101,6 +102,18 @@ export interface DeveloperSpaceSnapshot {
   createdAt: string;
 }
 
+export interface DeveloperSpaceObservedRuntimeContext {
+  id: string;
+  developerSpaceId: string;
+  contextType: DeveloperSpaceObservedRuntimeContextType;
+  externalId?: string | null;
+  sourceRef?: string | null;
+  payload: Record<string, unknown>;
+  provenance: DeveloperSpaceEventProvenance;
+  occurredAt: string;
+  createdAt: string;
+}
+
 export interface DeveloperSpaceLinkedDocument {
   id: string;
   developerSpaceId: string;
@@ -152,6 +165,7 @@ export interface DeveloperSpaceDetail {
   nodes: DeveloperSpaceNode[];
   events: DeveloperSpaceEvent[];
   latestSnapshot?: DeveloperSpaceSnapshot | null;
+  supportingContext?: DeveloperSpaceObservedRuntimeContext[];
   linkedDocuments: DeveloperSpaceLinkedDocument[];
   access: "owner" | "member" | "public";
 }
@@ -216,5 +230,15 @@ export interface DeveloperSpaceSnapshotPayload {
   sourceRefs?: string[];
   provenance?: DeveloperSpaceEventProvenance;
   visibility?: DeveloperSpaceEventVisibility;
+  occurredAt?: string;
+}
+
+export interface DeveloperSpaceObservedRuntimeContextPayload {
+  contextType: DeveloperSpaceObservedRuntimeContextType;
+  externalId?: string;
+  sourceRef?: string;
+  payload: Record<string, unknown>;
+  fieldClassifications?: Record<string, DeveloperSpaceObservedRuntimeFieldVisibility>;
+  provenance?: DeveloperSpaceEventProvenance;
   occurredAt?: string;
 }

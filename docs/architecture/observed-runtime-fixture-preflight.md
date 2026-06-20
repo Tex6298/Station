@@ -142,10 +142,35 @@ readback:
 - owner reads include `public`, `member`, `owner`, and `private` fields;
 - `secret` fields are never serialized.
 
-Zones, resources/economy, edges, and provenance remain supporting dry-run
-readback. They are not silently treated as complete persistence mappings; a
-future schema lane needs explicit homes for them before a live webhook can
-claim full observed-runtime ingestion.
+PR122 still left zones, resources/economy, edges, and provenance as explicit
+supporting-context deltas. PR123 adds a durable table for those families.
+
+## Supporting Context Persistence
+
+PR123 adds:
+
+- `developer_space_observed_runtime_context`
+
+Each row belongs to one Developer Space and has:
+
+- `context_type`: `zone`, `resource`, `edge`, or `provenance`;
+- optional `external_id` and `source_ref`;
+- classified `payload`;
+- nullable `observed_runtime_classifications`;
+- provenance and timestamps.
+
+The existing `/developer-spaces/ingest/import` batch route accepts optional
+`supportingContext[]` entries. The observed-runtime bridge maps canonical
+fixture zones, resources/economy, graph edges, and provenance into those
+entries instead of leaving them unmapped.
+
+Supporting context uses the same PR122 validation and serialization rules:
+secret-shaped paths must be classified `secret`, secret-class values are
+stripped before persistence, secret-class field names are not stored, and
+public/member/owner detail plus SSE readback filters payload fields by access.
+
+No supporting context is exposed through a new route. It rides on the existing
+Developer Space detail and SSE responses as `supportingContext`.
 
 ## Future Webhook Shape
 
@@ -179,7 +204,7 @@ ingestion path.
 
 ## Non-Claims
 
-PR120-PR122 add no hosted runtime, Cloudflare Worker, Vectorize index, D1
+PR120-PR123 add no hosted runtime, Cloudflare Worker, Vectorize index, D1
 binding, queue, background job, partner adapter, user-pasted secret flow,
 billing, Stripe behavior, Redis memory truth, provider routing, or visible
 Developer Space redesign.

@@ -2,6 +2,7 @@ export type DeveloperSpaceTopologyType = "radial" | "branching" | "lattice" | "c
 export type DeveloperSpaceEventVisibility = "private" | "community" | "public";
 export type DeveloperSpaceEventProvenance = "api" | "imported" | "user" | "system" | "ai_generated";
 export type DeveloperSpaceObservedRuntimeFieldVisibility = "public" | "member" | "owner" | "private" | "secret";
+export type DeveloperSpaceObservedRuntimeContextType = "zone" | "resource" | "edge" | "provenance";
 
 export interface DeveloperSpaceClientOptions {
   baseUrl: string;
@@ -44,10 +45,21 @@ export interface DeveloperSpaceSnapshotPayload {
   occurredAt?: string;
 }
 
+export interface DeveloperSpaceObservedRuntimeContextPayload {
+  contextType: DeveloperSpaceObservedRuntimeContextType;
+  externalId?: string;
+  sourceRef?: string;
+  payload: Record<string, unknown>;
+  fieldClassifications?: Record<string, DeveloperSpaceObservedRuntimeFieldVisibility>;
+  provenance?: DeveloperSpaceEventProvenance;
+  occurredAt?: string;
+}
+
 export interface DeveloperSpaceBatchImportPayload {
   nodes?: Array<DeveloperSpaceNodeStatePayload & { nodeId: string }>;
   events?: DeveloperSpaceEventPayload[];
   snapshots?: DeveloperSpaceSnapshotPayload[];
+  supportingContext?: DeveloperSpaceObservedRuntimeContextPayload[];
 }
 
 export type DeveloperSpaceClientErrorCategory =

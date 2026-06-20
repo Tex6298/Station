@@ -425,10 +425,20 @@ test("observed runtime bridge emits current Developer Space import payloads and 
   assert.equal(bridge.readbacks.member.nodes[0].metrics.memberCohort, "alpha-watchers");
   assert.equal(bridge.readbacks.owner.nodes[0].metrics.privateTrace, "fixture-private-node-trace");
   assert.equal(bridge.readbacks.owner.nodes[0].metrics.secretApiKey, undefined);
-  assert.equal(bridge.unmapped.zones.length, 1);
-  assert.equal(bridge.unmapped.resources.length, 1);
-  assert.equal(bridge.unmapped.edges.length, 1);
-  assert.match(bridge.unmapped.reason, /later schema lane/);
+  assert.deepEqual(
+    bridge.importPayload.supportingContext.map((context) => context.contextType),
+    ["zone", "resource", "edge", "provenance"]
+  );
+  assert.deepEqual(bridge.importPayload.supportingContext[0].payload, {
+    id: "zone-crossroads",
+    name: "Crossroads",
+    publicOccupancy: 18,
+    memberDensityBand: "medium",
+    privateModerationNote: "fixture-private-zone-note",
+  });
+  assert.equal(bridge.importPayload.supportingContext[0].fieldClassifications?.secretAccessToken, undefined);
+  assert.equal(bridge.unmapped.zones.length, 0);
+  assert.match(bridge.unmapped.reason, /supportingContext/);
 
   const payloadText = JSON.stringify(bridge.importPayload);
   assert.doesNotMatch(payloadText, /fixture-secret/);

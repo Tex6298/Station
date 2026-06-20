@@ -30,6 +30,7 @@ import {
   serializeDeveloperSpaceEvent,
   serializeDeveloperSpaceLinkedDocument,
   serializeDeveloperSpaceNode,
+  serializeDeveloperSpaceObservedRuntimeContext,
   serializeDeveloperSpaceSnapshot,
   slugifyProjectName,
 } from "../services/developer-space.service";
@@ -60,6 +61,7 @@ const visualisationSchema = z.enum(["node_field", "timeline", "world_map", "cons
 const topologySchema = z.enum(["radial", "branching", "lattice", "custom"]);
 const eventVisibilitySchema = z.enum(["private", "community", "public"]);
 const provenanceSchema = z.enum(["api", "imported", "user", "system", "ai_generated"]);
+const observedRuntimeContextTypeSchema = z.enum(["zone", "resource", "edge", "provenance"]);
 const documentRoleSchema = z.enum(["methodology", "finding", "field_log", "note"]);
 const documentLinkVisibilitySchema = z.enum(["owner", "public"]);
 const sourceRefsSchema = z.array(z.string().max(500)).max(24).default([]);
@@ -214,10 +216,21 @@ const snapshotSchema = z.object({
   occurredAt: z.string().datetime().optional(),
 });
 
+const observedRuntimeContextSchema = z.object({
+  contextType: observedRuntimeContextTypeSchema,
+  externalId: z.string().min(1).max(160).optional(),
+  sourceRef: z.string().min(1).max(500).optional(),
+  payload: jsonObjectSchema,
+  fieldClassifications: observedRuntimeFieldClassificationsSchema,
+  provenance: provenanceSchema.default("imported"),
+  occurredAt: z.string().datetime().optional(),
+});
+
 const batchImportSchema = z.object({
   nodes: z.array(nodeStateSchema.extend({ nodeId: z.string().min(1).max(160) })).max(250).default([]),
   events: z.array(eventSchema).max(500).default([]),
   snapshots: z.array(snapshotSchema).max(100).default([]),
+  supportingContext: z.array(observedRuntimeContextSchema).max(500).default([]),
 });
 
 const attachDocumentSchema = z.object({
@@ -641,7 +654,7 @@ async function buildDeveloperSpaceLiveUpdate(
   const access = accessLevelForDeveloperSpace(space.owner_user_id, user);
   const eventVisibility = eventVisibilitiesForAccess(access);
 
-  const [nodesResult, eventsResult, snapshotsResult] = await Promise.all([
+  const [nodesResult, eventsResult, snapshotsResult, contextResult] = await Promise.all([
     sb
       .from("developer_space_nodes")
       .select("*")
@@ -662,11 +675,18 @@ async function buildDeveloperSpaceLiveUpdate(
       .in("visibility", eventVisibility)
       .order("occurred_at", { ascending: false })
       .limit(1),
+    (sb as any)
+      .from("developer_space_observed_runtime_context")
+      .select("*")
+      .eq("developer_space_id", space.id)
+      .order("occurred_at", { ascending: false })
+      .limit(200),
   ]);
 
   if (nodesResult.error) return { status: 500, error: nodesResult.error.message };
   if (eventsResult.error) return { status: 500, error: eventsResult.error.message };
   if (snapshotsResult.error) return { status: 500, error: snapshotsResult.error.message };
+  if (contextResult.error) return { status: 500, error: contextResult.error.message };
 
   const nodes = nodesResult.data ?? [];
   const events = eventsResult.data ?? [];
@@ -699,6 +719,10 @@ async function buildDeveloperSpaceLiveUpdate(
       publicFieldKeys: publicFieldControls?.snapshotDataKeys,
       access,
     }) : null,
+    supportingContext: (contextResult.data ?? []).map((context) => serializeDeveloperSpaceObservedRuntimeContext(context, {
+      includeRawData,
+      access,
+    })),
     linkedDocuments: linkedDocumentsResult.linkedDocuments,
     access,
   };
@@ -973,6 +997,7 @@ developerSpacesRouter.post("/ingest/import", async (req, res) => {
   let classifiedNodes;
   let classifiedEvents;
   let classifiedSnapshots;
+  let classifiedContext;
   try {
     classifiedNodes = parsed.data.nodes.map((node) => ({
       input: node,
@@ -993,6 +1018,13 @@ developerSpacesRouter.post("/ingest/import", async (req, res) => {
       classified: prepareObservedRuntimeClassifiedData({
         data: snapshot.snapshotData,
         fieldClassifications: snapshot.fieldClassifications,
+      }),
+    }));
+    classifiedContext = parsed.data.supportingContext.map((context) => ({
+      input: context,
+      classified: prepareObservedRuntimeClassifiedData({
+        data: context.payload,
+        fieldClassifications: context.fieldClassifications,
       }),
     }));
   } catch (error) {
@@ -1049,6 +1081,17 @@ developerSpacesRouter.post("/ingest/import", async (req, res) => {
     occurred_at: snapshot.occurredAt ?? now,
   }));
 
+  const contextPayload = classifiedContext.map(({ input: context, classified }) => ({
+    developer_space_id: space.id,
+    context_type: context.contextType,
+    external_id: context.externalId ?? null,
+    source_ref: context.sourceRef ?? null,
+    payload: classified.data,
+    observed_runtime_classifications: classified.metadata,
+    provenance: context.provenance,
+    occurred_at: context.occurredAt ?? now,
+  }));
+
   if (eventsPayload.length > 0) {
     const { error } = await sb.from("developer_space_events").insert(eventsPayload);
     if (error) return res.status(500).json(ingestionServerError("Could not import Developer Space events."));
@@ -1057,6 +1100,11 @@ developerSpacesRouter.post("/ingest/import", async (req, res) => {
   if (snapshotsPayload.length > 0) {
     const { error } = await sb.from("developer_space_snapshots").insert(snapshotsPayload);
     if (error) return res.status(500).json(ingestionServerError("Could not import Developer Space snapshots."));
+  }
+
+  if (contextPayload.length > 0) {
+    const { error } = await (sb as any).from("developer_space_observed_runtime_context").insert(contextPayload);
+    if (error) return res.status(500).json(ingestionServerError("Could not import observed runtime context."));
   }
 
   await recordUsageSilently(space, usageDelta);
@@ -1075,6 +1123,7 @@ developerSpacesRouter.post("/ingest/import", async (req, res) => {
       nodes: nodes.length,
       events: eventsPayload.length,
       snapshots: snapshotsPayload.length,
+      supportingContext: contextPayload.length,
     },
   });
 });

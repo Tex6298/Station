@@ -5,7 +5,7 @@ Opened by: A1 / MIMIR
 Owner: DAEDALUS implements. ARGUS reviews schema compatibility, visibility,
 serialization, and overclaim risk. ARIADNE only rehearses if visible routes
 change.
-Status: opened for DAEDALUS
+Status: implemented by DAEDALUS; pending ARGUS review
 
 ## Why This Lane
 
@@ -100,3 +100,30 @@ Wake ARGUS with:
 
 If supporting context cannot be persisted narrowly, wake MIMIR with the exact
 blocker rather than widening the lane.
+
+## DAEDALUS Implementation Notes
+
+Implemented on 2026-06-20 with a single supporting-context table:
+
+- added `infra/supabase/migrations/046_observed_runtime_supporting_context.sql`
+  for `developer_space_observed_runtime_context`;
+- added `supportingContext[]` to Developer Space batch import payloads and
+  shared/client types;
+- mapped canonical fixture zones, resources/economy, graph edges, and
+  provenance into supporting context entries via the existing bridge helper;
+- persists supporting context through the existing `/developer-spaces/ingest/import`
+  route only, with no new live webhook route;
+- applies the PR122 classification validation and secret stripping rules to
+  supporting context payloads;
+- returns supporting context through the existing Developer Space detail and
+  SSE readback path, filtered by public/member/owner access.
+
+There are no remaining unmapped PR120 fixture families in the synthetic bridge:
+nodes, events, snapshots, zones, resources/economy, graph edges, and provenance
+all have a durable import/readback path. Future live webhook work still needs a
+delivery/auth/replay/rate-limit design before it can claim live ingestion.
+
+No live webhook, webhook signature scheme, replay protection, hosted runtime,
+Cloudflare Worker, Vectorize, D1, worker, queue, partner adapter, user-pasted
+secret flow, billing, Stripe, Redis memory truth, provider routing,
+chat-native developer agent, or visible Developer Space UI behavior changed.

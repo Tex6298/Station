@@ -52,6 +52,33 @@ pnpm test:developer-spaces
 pnpm test:developer-space-client
 ```
 
+## PR123 2C Observed Runtime Supporting Context
+
+DAEDALUS implementation validation on 2026-06-20:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 22 tests passed, including supportingContext bridge mapping, existing key auth, overexposed supporting-context classification rejection, secret-class context stripping before persistence, durable zone/resource/edge/provenance rows, public/member/owner supporting-context readback, and SSE public parity. |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-space-client` | Pass | 4 client tests passed after optional `supportingContext` stayed backward-compatible. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/api build` | Pass | API build completed, including dependent shared package builds. |
+| `git diff --check` | Pass | CRLF normalization warnings only. |
+
+Implementation result:
+
+- Added a durable `developer_space_observed_runtime_context` table for zones,
+  resources/economy, graph edges, and provenance.
+- Extended the existing batch import route with optional `supportingContext[]`;
+  no new live route or webhook was added.
+- Supporting context uses the PR122 classification and secret-stripping rules
+  and is serialized through existing detail/SSE responses by access.
+- The canonical bridge no longer has unmapped PR120 fixture families. Future
+  live ingestion still needs auth, delivery, replay, and rate-limit design.
+- No hosted runtime, Cloudflare Worker, Vectorize, D1, worker, queue, partner
+  adapter, user-pasted secret flow, billing, Stripe, Redis memory truth,
+  provider routing, chat-native developer agent, or visible Developer Space UI
+  changed.
+
 ## PR122 2C Observed Runtime Classification Persistence
 
 DAEDALUS implementation validation on 2026-06-20:

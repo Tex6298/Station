@@ -4,6 +4,7 @@ import type {
   DeveloperSpaceLinkedDocument,
   DeveloperSpaceEvent,
   DeveloperSpaceNode,
+  DeveloperSpaceObservedRuntimeContext,
   DeveloperSpaceObservedRuntimeFieldVisibility,
   DeveloperSpaceProviderPolicy,
   DeveloperSpacePublicFieldControls,
@@ -469,6 +470,30 @@ export function serializeDeveloperSpaceSnapshot(
     sourceRefs: normaliseSourceRefs(row.source_refs),
     provenance: row.provenance ?? "api",
     visibility: row.visibility ?? "public",
+    occurredAt: row.occurred_at,
+    createdAt: row.created_at,
+  };
+}
+
+export function serializeDeveloperSpaceObservedRuntimeContext(
+  row: any,
+  options: { includeRawData?: boolean; access?: DeveloperSpaceDetail["access"] } = {}
+): DeveloperSpaceObservedRuntimeContext {
+  const includeRawData = options.includeRawData ?? false;
+  const access = options.access ?? (includeRawData ? "owner" : "public");
+  return {
+    id: row.id,
+    developerSpaceId: row.developer_space_id,
+    contextType: row.context_type,
+    externalId: row.external_id ?? null,
+    sourceRef: row.source_ref ?? null,
+    payload: dataForDeveloperSpaceAccess({
+      data: row.payload ?? {},
+      metadata: row.observed_runtime_classifications,
+      access,
+      includeRawData,
+    }),
+    provenance: row.provenance ?? "imported",
     occurredAt: row.occurred_at,
     createdAt: row.created_at,
   };

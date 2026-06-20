@@ -8700,6 +8700,25 @@ when a PR lands, or when validation truth changes.
   worker, queue, partner adapter, user-pasted secret flow, billing, Stripe,
   Redis memory truth, provider routing, chat-native developer agent, or broad UI
   redesign.
+- DAEDALUS implements PR123 2C Observed Runtime Supporting Context on
+  2026-06-20 and wakes ARGUS for schema compatibility, mapping, visibility,
+  secret-stripping, and overclaim review. The schema choice is a single
+  `developer_space_observed_runtime_context` table, added by migration
+  `046_observed_runtime_supporting_context.sql`, with `context_type` values for
+  `zone`, `resource`, `edge`, and `provenance`, optional external/source refs,
+  classified `payload`, nullable classification metadata, provenance, and
+  timestamps. The existing `/developer-spaces/ingest/import` route now accepts
+  optional `supportingContext[]`; the PR120 bridge maps zones,
+  resources/economy, graph edges, and provenance into those entries. Supporting
+  context uses PR122 validation and secret-stripping rules, and existing detail
+  plus SSE readback serializes it by public/member/owner access. There are no
+  remaining unmapped canonical synthetic fixture families, but live webhook
+  delivery/auth/replay/rate-limit design is still deferred. Validation passed
+  `test:developer-spaces` with 22 tests, `test:developer-space-client` with 4
+  tests, `typecheck`, `@station/api` build, and diff hygiene. No live webhook,
+  hosted runtime, Cloudflare Worker/Vectorize/D1 path, queue, partner adapter,
+  user-pasted secret flow, billing, Stripe, Redis memory truth, provider
+  routing, chat-native developer agent, or visible Developer Space UI changed.
 - DAEDALUS implements PR110 Memory Runtime Explanation Readback on 2026-06-20
   and wakes ARGUS for review. The owner Memory page now has a compact Runtime
   context / Memory explanation section that joins the existing owner-only Memory
