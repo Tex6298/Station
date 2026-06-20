@@ -18,8 +18,12 @@ import {
 import {
   canCreateSubcommunity,
   canListSubcommunity,
+  canManageSubcommunityModerators,
   canReadSubcommunity,
+  assignSubcommunityModerator,
   loadSubcommunityForCategory,
+  loadSubcommunityModerators,
+  revokeSubcommunityModerator,
   serializeSubcommunity,
 } from "../services/community-subcommunities.service";
 
@@ -39,6 +43,9 @@ const createSubcommunitySchema = z.object({
   visibility: z.enum(["public", "community"]).default("public"),
   linkedSpaceId: z.string().uuid().optional().nullable(),
   linkedDeveloperSpaceId: z.string().uuid().optional().nullable(),
+});
+const moderatorAssignmentSchema = z.object({
+  userId: z.string().min(1),
 });
 
 export const forumsRouter = Router();
@@ -300,6 +307,66 @@ forumsRouter.get("/categories/:slug", optionalAuth, async (req: Request, res: Re
 // --- Auth-gated below --------------------------------------------------------
 forumsRouter.use(requireAuth);
 
+forumsRouter.get("/subcommunities/:slug/moderators", async (req: Request, res: Response) => {
+  const subcommunity = await loadSubcommunityBySlug(req.params.slug);
+  if (!subcommunity) return res.status(404).json({ error: "Subcommunity not found." });
+  if (!canManageSubcommunityModerators(subcommunity, req.user)) {
+    return res.status(403).json({ error: "Subcommunity owner or admin access required." });
+  }
+
+  try {
+    const moderators = await loadSubcommunityModerators(subcommunity.id);
+    return res.json({ moderators });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Could not load subcommunity moderators.";
+    return res.status(500).json({ error: message });
+  }
+});
+
+forumsRouter.post("/subcommunities/:slug/moderators", async (req: Request, res: Response) => {
+  const parsed = moderatorAssignmentSchema.safeParse(req.body);
+  if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
+
+  const subcommunity = await loadSubcommunityBySlug(req.params.slug);
+  if (!subcommunity) return res.status(404).json({ error: "Subcommunity not found." });
+  if (!canManageSubcommunityModerators(subcommunity, req.user)) {
+    return res.status(403).json({ error: "Subcommunity owner or admin access required." });
+  }
+
+  try {
+    const moderator = await assignSubcommunityModerator({
+      subcommunity,
+      targetUserId: parsed.data.userId,
+      actorUserId: req.user!.id,
+    });
+    return res.status(201).json({ moderator });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Could not assign subcommunity moderator.";
+    const status = message.includes("not found") ? 404 : message.includes("owner") ? 400 : 500;
+    return res.status(status).json({ error: message });
+  }
+});
+
+forumsRouter.delete("/subcommunities/:slug/moderators/:userId", async (req: Request, res: Response) => {
+  const subcommunity = await loadSubcommunityBySlug(req.params.slug);
+  if (!subcommunity) return res.status(404).json({ error: "Subcommunity not found." });
+  if (!canManageSubcommunityModerators(subcommunity, req.user)) {
+    return res.status(403).json({ error: "Subcommunity owner or admin access required." });
+  }
+
+  try {
+    const moderator = await revokeSubcommunityModerator({
+      subcommunityId: subcommunity.id,
+      targetUserId: req.params.userId,
+    });
+    if (!moderator) return res.status(404).json({ error: "Subcommunity moderator not found." });
+    return res.json({ moderator });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Could not revoke subcommunity moderator.";
+    return res.status(500).json({ error: message });
+  }
+});
+
 forumsRouter.post("/subcommunities", async (req: Request, res: Response) => {
   if (!canCreateSubcommunity(req.user)) {
     return res.status(403).json({ error: "Canon tier or admin access required." });
@@ -421,6 +488,16 @@ async function loadCommunityProfiles(userIds: string[]) {
 
   if (error) return {};
   return Object.fromEntries((data ?? []).map((row: any) => [row.user_id, serializeCommunityProfile(row)]));
+}
+
+async function loadSubcommunityBySlug(slug: string) {
+  const sb = getSupabaseAdmin();
+  const { data } = await (sb as any)
+    .from("community_subcommunities")
+    .select("*")
+    .eq("slug", slug)
+    .maybeSingle();
+  return data ?? null;
 }
 
 async function loadSubcommunityForCategoryOrRespond(

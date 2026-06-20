@@ -876,6 +876,27 @@ export interface Database {
         };
         Update: Partial<Database["public"]["Tables"]["community_subcommunities"]["Insert"]>;
       };
+      community_subcommunity_moderators: {
+        Row: {
+          id: string;
+          subcommunity_id: string;
+          user_id: string;
+          role: "moderator";
+          status: "active" | "revoked";
+          created_by: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: Omit<Database["public"]["Tables"]["community_subcommunity_moderators"]["Row"], "id" | "role" | "status" | "created_by" | "created_at" | "updated_at"> & {
+          id?: string;
+          role?: "moderator";
+          status?: "active" | "revoked";
+          created_by?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["community_subcommunity_moderators"]["Insert"]>;
+      };
       developer_spaces: {
         Row: {
           id: string;

@@ -7778,6 +7778,31 @@ when a PR lands, or when validation truth changes.
   fields, avoid visible moderator UI and target action route changes unless
   explicitly justified and tested, then wake ARGUS with validation and
   serializer/permission proof.
+- DAEDALUS implements PR98 Community Subcommunity Moderator Role Foundation on
+  2026-06-20 and wakes ARGUS for technical review. Migration 044 adds durable
+  `community_subcommunity_moderators` rows with `subcommunity_id`, `user_id`,
+  fixed `moderator` role, `active`/`revoked` status, `created_by`, timestamps,
+  uniqueness over subcommunity/user, and owner/admin RLS. Ownership remains
+  derived from `community_subcommunities.owner_user_id`; owners are not
+  duplicated as mutable moderator rows. Shared service helpers now cover
+  owner/admin management authority, safe moderator serialization, active
+  moderator checks, assignment, revocation, and `canModerateSubcommunity`
+  behavior for admins, owners, active moderators, revoked moderators, ordinary
+  members, and anonymous users. API routes add owner/admin-only
+  `GET`/`POST /forums/subcommunities/:slug/moderators` and
+  `DELETE /forums/subcommunities/:slug/moderators/:userId`, using stable user
+  ids and safe profile lookup limited to username/display name/avatar. Public
+  and community subcommunity serializers remain unchanged and do not expose
+  moderator identities, owner/admin-only fields, emails, auth/provider ids,
+  private profile fields, moderation notes, hidden bodies, prompts, or raw owner
+  ids. No thread/comment moderation action route now accepts owner/moderator
+  authority; action wiring is deferred. Validation passed `test:community` with
+  15 tests, `test:reports` with 6 tests, `test:document-discussions`,
+  `typecheck`, and `git diff --check` with CRLF normalization warnings only.
+  No visible moderator UI, delegated action button, public moderator directory,
+  public moderation log, review-request expansion, notification fanout,
+  billing/provider/cache, Redis/Upstash, Cloudflare, Developer Space work,
+  auth/session refactor, styling, or visibility widening was added.
 
 ## Near-term rule
 

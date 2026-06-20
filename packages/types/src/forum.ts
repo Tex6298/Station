@@ -44,6 +44,8 @@ export interface ForumCategory {
 export type SubcommunityType = 'general' | 'canon' | 'developer';
 export type SubcommunityVisibility = 'public' | 'community' | 'unlisted' | 'private';
 export type SubcommunityStatus = 'active' | 'paused' | 'archived';
+export type SubcommunityModeratorRole = 'moderator';
+export type SubcommunityModeratorStatus = 'active' | 'revoked';
 
 export interface CommunitySubcommunityRecord {
   id: string;
@@ -59,6 +61,22 @@ export interface CommunitySubcommunityRecord {
   ownerUserId?: string;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface CommunitySubcommunityModeratorRecord {
+  id: string;
+  subcommunityId: string;
+  userId: string;
+  role: SubcommunityModeratorRole;
+  status: SubcommunityModeratorStatus;
+  createdBy?: string | null;
+  createdAt: string;
+  updatedAt: string;
+  profile?: {
+    username: string;
+    displayName?: string | null;
+    avatarUrl?: string | null;
+  } | null;
 }
 
 export interface ThreadRecord {

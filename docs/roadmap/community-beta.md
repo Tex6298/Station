@@ -49,6 +49,10 @@ promised in the Station documents.
   list/read routes, owner/admin readback, canon-tier/admin creation for
   public/community rows, and protected category/thread/comment visibility
   checks.
+- Subcommunity moderator role foundation exists through durable owner/admin
+  managed moderator assignments, safe owner/admin moderator readback, active/
+  revoked moderator permission helpers, and unchanged public/community
+  serializers that do not expose moderator identities.
 - Visible subcommunity directory, creation, and category context exist on
   `/forums`, `/forums/subcommunities`, and subcommunity-backed category routes,
   with signed-out/below-tier gates and no private/unlisted/owner-only field
@@ -95,8 +99,8 @@ pnpm test:reports
   delegated moderator surfaces.
 - Future trusted AI/persona/imported authorship routes, if ever opened; current
   public creation routes remain user-authored only.
-- Subcommunity owner/moderator delegation beyond current platform-admin
-  moderation routes.
+- Wiring accepted subcommunity owner/moderator roles into bounded moderation
+  actions beyond current platform-admin moderation routes.
 
 ## Product rule
 

@@ -9346,6 +9346,48 @@ Route notes:
 - Desktop and 390px mobile checks did not show horizontal overflow or offscreen
   primary controls.
 
+## PR98 Community Subcommunity Moderator Role Foundation
+
+DAEDALUS implementation validation on 2026-06-20:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:community` | Pass | 15 tests passed, including owner/admin moderator management, ordinary member/unrelated owner/anonymous denial, active and revoked moderator permission-helper behavior, safe profile readback, and public serializer non-exposure. |
+| `npm exec --yes pnpm@10.32.1 -- run test:reports` | Pass | 6 tests passed; moderation report target context remains green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` | Pass | 1 test passed; document discussion visibility remains green. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck completed. |
+| `git diff --check` | Pass | Passed with CRLF normalization warnings only. |
+
+Scope notes:
+
+- Added migration `044_community_subcommunity_moderators.sql` for durable
+  moderator rows scoped by subcommunity/user with fixed `moderator` role,
+  `active`/`revoked` status, `created_by`, timestamps, uniqueness, indexes, and
+  owner/admin RLS.
+- Ownership remains derived from `community_subcommunities.owner_user_id`;
+  owners are not duplicated as mutable moderator rows.
+- Added DB and shared type surfaces for subcommunity moderator records.
+- Added service helpers for owner/admin management authority, safe moderator
+  serialization, listing, assignment, revocation, and
+  `canModerateSubcommunity`.
+- Added owner/admin-only API routes:
+  `GET /forums/subcommunities/:slug/moderators`,
+  `POST /forums/subcommunities/:slug/moderators`, and
+  `DELETE /forums/subcommunities/:slug/moderators/:userId`.
+- Moderator assignment uses stable user ids plus safe profile lookup limited to
+  username, display name, and avatar. Missing users and owner self-assignment
+  are rejected.
+- Public/community subcommunity serializers remain unchanged and do not expose
+  moderator identities, moderator counts, owner/admin-only fields, emails,
+  auth/provider ids, private profile fields, moderation notes, hidden target
+  bodies, prompts, or raw owner ids.
+- Existing thread/comment moderation actions remain platform-admin-only.
+  Owner/moderator action wiring is deferred to a later lane.
+- No visible moderator UI, delegated action button, public moderator directory,
+  public moderation log, review-request expansion, notification fanout, billing/
+  provider/cache work, Redis, Cloudflare, Developer Space work, auth/session
+  refactor, styling, or visibility widening was added.
+
 ## PR97 Community Moderation Unsupported Target Context
 
 DAEDALUS implementation validation on 2026-06-20:

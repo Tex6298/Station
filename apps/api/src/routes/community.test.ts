@@ -10,6 +10,7 @@ import { documentsRouter } from "./documents";
 import { forumsRouter } from "./forums";
 import { notificationsRouter } from "./notifications";
 import { threadsRouter } from "./threads";
+import { canModerateSubcommunity } from "../services/community-subcommunities.service";
 
 process.env.NODE_ENV = "test";
 process.env.SUPABASE_URL ??= "http://localhost";
@@ -185,6 +186,7 @@ class CommunitySupabase {
       },
     ],
     community_subcommunities: [],
+    community_subcommunity_moderators: [],
     threads: [
       thread(PUBLIC_THREAD_ID, "Public Thread", "public"),
       thread(COMMUNITY_THREAD_ID, "Community Thread", "community"),
@@ -441,6 +443,14 @@ class CommunitySupabase {
       row.updated_at ??= now;
     }
 
+    if (table === "community_subcommunity_moderators") {
+      row.role ??= "moderator";
+      row.status ??= "active";
+      row.created_by ??= null;
+      row.created_at ??= now;
+      row.updated_at ??= now;
+    }
+
     if (table === "comments") {
       row.authorship_kind ??= "user_authored";
       row.authorship_source_type ??= null;
@@ -673,6 +683,15 @@ function profile(id: string, username: string, tier: string, isAdmin = false): R
     bio: null,
     tier,
     is_admin: isAdmin,
+  };
+}
+
+function authUser(id: string, tier: "visitor" | "private" | "creator" | "canon" | "institutional", isAdmin = false) {
+  return {
+    id,
+    email: `${id}@example.test`,
+    tier,
+    isAdmin,
   };
 }
 
@@ -1182,6 +1201,148 @@ test("subcommunity foundation gates creation and filters public/community/owner 
       body: { value: 1 },
     });
     assert.equal(privateCommentVote.status, 404);
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
+
+test("subcommunity moderator role foundation is owner-admin managed and serializer-safe", async () => {
+  const db = new CommunitySupabase();
+  const category = db.insertRow("forum_categories", {
+    id: "12345678-1234-4123-8123-123456789abc",
+    slug: "moderator-lab",
+    title: "Moderator Lab",
+  });
+  const subcommunity = db.insertRow("community_subcommunities", {
+    id: "12345678-1234-4123-8123-123456789abd",
+    category_id: category.id,
+    owner_user_id: OWNER_ID,
+    slug: "moderator-lab",
+    title: "Moderator Lab",
+    description: "Moderator foundation checks.",
+    subcommunity_type: "canon",
+    visibility: "community",
+    status: "active",
+  });
+  const otherSubcommunity = db.insertRow("community_subcommunities", {
+    id: "12345678-1234-4123-8123-123456789abe",
+    category_id: CATEGORY_ID,
+    owner_user_id: OTHER_ID,
+    slug: "other-lab",
+    title: "Other Lab",
+    subcommunity_type: "canon",
+    visibility: "community",
+  });
+  db.insertRow("community_subcommunity_moderators", {
+    subcommunity_id: subcommunity.id,
+    user_id: VISITOR_ID,
+    status: "revoked",
+    created_by: OWNER_ID,
+  });
+
+  setSupabaseAdminForTests(db.client as any);
+  const app = createCommunityApp();
+
+  try {
+    assert.equal(await canModerateSubcommunity(subcommunity as any, null), false);
+    assert.equal(await canModerateSubcommunity(subcommunity as any, authUser(ADMIN_ID, "canon", true)), true);
+    assert.equal(await canModerateSubcommunity(subcommunity as any, authUser(OWNER_ID, "creator")), true);
+    assert.equal(await canModerateSubcommunity(subcommunity as any, authUser(MEMBER_ID, "private")), false);
+    assert.equal(await canModerateSubcommunity(subcommunity as any, authUser(VISITOR_ID, "visitor")), false);
+
+    const anonymousList = await requestJson(app, "GET", "/forums/subcommunities/moderator-lab/moderators");
+    assert.equal(anonymousList.status, 401);
+
+    const memberList = await requestJson(app, "GET", "/forums/subcommunities/moderator-lab/moderators", {
+      token: "member-token",
+    });
+    assert.equal(memberList.status, 403);
+
+    const unrelatedOwnerList = await requestJson(app, "GET", "/forums/subcommunities/moderator-lab/moderators", {
+      token: "other-token",
+    });
+    assert.equal(unrelatedOwnerList.status, 403);
+
+    const ownerInitialList = await requestJson(app, "GET", "/forums/subcommunities/moderator-lab/moderators", {
+      token: "owner-token",
+    });
+    assert.equal(ownerInitialList.status, 200);
+    assert.deepEqual(ownerInitialList.body.moderators.map((row: Row) => row.userId), [VISITOR_ID]);
+    assert.equal(ownerInitialList.body.moderators[0].status, "revoked");
+    assert.equal(ownerInitialList.body.moderators[0].profile.username, "visitor");
+    assert.equal(JSON.stringify(ownerInitialList.body).includes("visitor@example.test"), false);
+
+    const ownerSelfAssignment = await requestJson(app, "POST", "/forums/subcommunities/moderator-lab/moderators", {
+      token: "owner-token",
+      body: { userId: OWNER_ID },
+    });
+    assert.equal(ownerSelfAssignment.status, 400);
+
+    const missingAssignment = await requestJson(app, "POST", "/forums/subcommunities/moderator-lab/moderators", {
+      token: "owner-token",
+      body: { userId: "99999999-9999-4999-8999-999999999999" },
+    });
+    assert.equal(missingAssignment.status, 404);
+
+    const memberAssignment = await requestJson(app, "POST", "/forums/subcommunities/moderator-lab/moderators", {
+      token: "member-token",
+      body: { userId: MEMBER_ID },
+    });
+    assert.equal(memberAssignment.status, 403);
+
+    const ownerAssignment = await requestJson(app, "POST", "/forums/subcommunities/moderator-lab/moderators", {
+      token: "owner-token",
+      body: { userId: MEMBER_ID },
+    });
+    assert.equal(ownerAssignment.status, 201);
+    assert.equal(ownerAssignment.body.moderator.subcommunityId, subcommunity.id);
+    assert.equal(ownerAssignment.body.moderator.userId, MEMBER_ID);
+    assert.equal(ownerAssignment.body.moderator.status, "active");
+    assert.equal(ownerAssignment.body.moderator.role, "moderator");
+    assert.equal(ownerAssignment.body.moderator.createdBy, OWNER_ID);
+    assert.deepEqual(ownerAssignment.body.moderator.profile, {
+      username: "member",
+      displayName: "member",
+      avatarUrl: null,
+    });
+    assert.equal(await canModerateSubcommunity(subcommunity as any, authUser(MEMBER_ID, "private")), true);
+
+    const publicRead = await requestJson(app, "GET", "/forums/subcommunities/moderator-lab", {
+      token: "member-token",
+    });
+    assert.equal(publicRead.status, 200);
+    assert.equal(publicRead.body.subcommunity.ownerUserId, undefined);
+    assert.equal(JSON.stringify(publicRead.body).includes(MEMBER_ID), false);
+    assert.equal(publicRead.body.subcommunity.moderators, undefined);
+    assert.equal(publicRead.body.subcommunity.moderatorCount, undefined);
+
+    const adminAssignment = await requestJson(app, "POST", "/forums/subcommunities/other-lab/moderators", {
+      token: "admin-token",
+      body: { userId: MEMBER_ID },
+    });
+    assert.equal(adminAssignment.status, 201);
+    assert.equal(adminAssignment.body.moderator.subcommunityId, otherSubcommunity.id);
+
+    const ownerRevoke = await requestJson(app, "DELETE", `/forums/subcommunities/moderator-lab/moderators/${MEMBER_ID}`, {
+      token: "owner-token",
+    });
+    assert.equal(ownerRevoke.status, 200);
+    assert.equal(ownerRevoke.body.moderator.status, "revoked");
+    assert.equal(await canModerateSubcommunity(subcommunity as any, authUser(MEMBER_ID, "private")), false);
+
+    const adminList = await requestJson(app, "GET", "/forums/subcommunities/moderator-lab/moderators", {
+      token: "admin-token",
+    });
+    assert.equal(adminList.status, 200);
+    assert.deepEqual(
+      adminList.body.moderators.map((row: Row) => [row.userId, row.status]).sort(),
+      [[MEMBER_ID, "revoked"], [VISITOR_ID, "revoked"]]
+    );
+    const adminListJson = JSON.stringify(adminList.body);
+    assert.equal(adminListJson.includes("member@example.test"), false);
+    assert.equal(adminListJson.includes("visitor@example.test"), false);
+    assert.equal(adminListJson.includes("is_admin"), false);
+    assert.equal(adminListJson.includes("tier"), false);
   } finally {
     setSupabaseAdminForTests(null);
   }
