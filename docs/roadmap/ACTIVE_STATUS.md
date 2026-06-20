@@ -8058,3 +8058,26 @@ git diff --check
   foundation.
 - Developer Spaces visual polish before ingestion auth, validation, limits, and
   safe serialization.
+
+## Latest ARGUS handoff - PR102
+
+PR102 Community Delegated Moderation Queue UI First Slice is technically
+accepted by ARGUS on 2026-06-20 and handed to ARIADNE for visible-route
+rehearsal.
+
+ARGUS verified that `/forums/subcommunities/[slug]/moderation` is scoped to one
+subcommunity, fetches queue rows only after signed-in/preflight success, links
+from category pages only for admins, owners, or API-confirmed active
+moderators, sanitizes delegated rows to safe fields, drops unsupported/private
+fields, and adds no delegated mutation controls or global `/reports` widening.
+
+Validation: `test:studio-ui` 75 passed, `test:community` 17 passed,
+`test:reports` 6 passed, `test:document-discussions` 1 passed, `typecheck`
+passed after Next regenerated `.next/types`, `git diff --check` passed with
+CRLF warnings only, and the web build reached compile/lint/typecheck/page data,
+35 generated pages, optimization, and trace collection before the known local
+Windows standalone symlink `EPERM`.
+
+ARIADNE should rehearse signed-out, ordinary, revoked, unrelated-owner, owner,
+active-moderator, admin, empty queue, mixed mocked queue, desktop, and mobile
+states before MIMIR closeout.

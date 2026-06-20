@@ -84,6 +84,29 @@ Scope notes:
   metadata, raw owner ids, source ids, broad redesign, billing/provider/cache
   work, Developer Space work, or auth/session refactor was added.
 
+ARGUS review validation on 2026-06-20:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 75 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:community` | Pass | 17 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:reports` | Pass | 6 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` | Pass | 1 test passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | First run hit stale missing `.next/types`; after the web build regenerated Next types, API and web typecheck completed. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web build` | Partial / known Windows failure | Next compiled, linted/typechecked, collected page data, generated 35 static pages, finalized optimization, and collected build traces before the known local Windows standalone symlink `EPERM` during traced-file copy. Only pre-existing raw `<img>` warnings appeared. |
+| `git diff --check` | Pass | CRLF normalization warnings only for triad state. |
+
+ARGUS review notes:
+
+- Scoped delegated queue UI is accepted for ARIADNE visible-route rehearsal.
+- Denied states do not fetch or render live queue rows.
+- Category discovery is limited to admins, owners, and API-confirmed active
+  moderators.
+- Row sanitization stays inside the PR101 safe field boundary and does not
+  invent target links.
+- No delegated mutation controls or global report visibility widening were
+  added.
+
 ## PR101 Community Delegated Moderation Queue Foundation
 
 DAEDALUS implementation validation on 2026-06-20:
