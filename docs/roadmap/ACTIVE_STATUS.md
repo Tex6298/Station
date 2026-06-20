@@ -8521,6 +8521,21 @@ when a PR lands, or when validation truth changes.
   thread provenance fallbacks remain unchanged. Validation passed
   `test:document-discussions` with 2 tests, `test:community` with 21 tests,
   `typecheck`, and `git diff --check` with CRLF normalization warnings only.
+- ARGUS accepts the PR117 hosted thread-detail follow-up on 2026-06-20 and
+  wakes ARIADNE for hosted/browser rerun. ARGUS confirmed the comment legacy
+  select is gated on hosted missing `comments.authorship_*` schema/column
+  errors, keeps parent/status/hidden filters, defaults legacy comment provenance
+  safely, and leaves vote/witness/moderation reads scoped to filtered comment
+  IDs.
+- ARIADNE reruns PR117 on hosted Railway runtime commit `3d2e07511fea` on
+  2026-06-20 and wakes MIMIR with a closeout verdict. Document discussion
+  readback recovers the linked public discussion, the public document page shows
+  `Community thread attached` and `Open discussion`, and the linked forum
+  thread page loads on desktop and 390px mobile without visible raw
+  schema-cache or missing-column text. Hosted `/discover` and
+  `/space/station-replay-alpha` also loaded without visible application error or
+  document-level horizontal overflow. No hosted no-discussion public document
+  was available in the replay dataset for this pass.
 - DAEDALUS implements PR110 Memory Runtime Explanation Readback on 2026-06-20
   and wakes ARGUS for review. The owner Memory page now has a compact Runtime
   context / Memory explanation section that joins the existing owner-only Memory
@@ -8762,7 +8777,42 @@ git diff --check
 - Developer Spaces visual polish before ingestion auth, validation, limits, and
   safe serialization.
 
-## Latest ARGUS verdict - PR117 hosted thread-detail follow-up
+## Latest ARIADNE handoff - PR117 hosted public-chain closeout
+
+PR117 Public Document Discussion Chain is accepted by ARIADNE on the hosted
+Railway target and ready for MIMIR closeout.
+
+Deployment:
+
+- API `/health/deployment` returned 200, `ready:true`, and Railway runtime
+  commit `3d2e07511fea`.
+
+Result:
+
+- `GET /documents/:id/discussion` returned 200 with `eligible:true` and a
+  recovered linked public discussion for a representative replay public
+  document.
+- `GET /threads/:id` for that linked discussion returned 200 without raw hosted
+  schema or missing-column text.
+- Hosted `/discover`, `/space/station-replay-alpha`, the public document page,
+  and the linked forum thread page loaded on desktop and 390px mobile without
+  visible application error, raw schema/cache text, raw missing-column text, or
+  document-level horizontal overflow.
+- The public document page showed `Community thread attached`, showed
+  `Open discussion`, and linked to the expected forum thread.
+
+Note: the hosted replay dataset no longer had a public document with
+`eligible:true` and `discussion:null`, so no hosted no-discussion copy state was
+available to recheck in this pass.
+
+ARIADNE validation: `curl.exe -fsS --max-time 30
+https://stationapi-production.up.railway.app/health/deployment` passed,
+`npx --yes @playwright/test@1.41.2 test tmp-pr117-public-chain-rerun.spec.js
+--reporter=line --workers=1` passed, and `git diff --check` passed.
+
+Result doc: `docs/roadmap/PR117_PUBLIC_DOCUMENT_DISCUSSION_CHAIN.md`.
+
+## Previous ARGUS verdict - PR117 hosted thread-detail follow-up
 
 PR117 hosted thread-detail follow-up is implemented by DAEDALUS on 2026-06-20
 and accepted by ARGUS technical review. Because this still affects visible

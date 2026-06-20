@@ -4,8 +4,7 @@ Date opened: 2026-06-20
 Opened by: A1 / MIMIR
 Owner: DAEDALUS implements or precisely blocks, ARGUS reviews. ARIADNE rehearses
 visible route behavior after technical acceptance.
-Status: hosted ARIADNE rerun found a thread-detail blocker; ready for DAEDALUS
-follow-up
+Status: hosted ARIADNE rerun passed; ready for MIMIR closeout
 
 ## Why This Lane
 
@@ -313,3 +312,67 @@ Validation:
 - `npm exec --yes pnpm@10.32.1 -- run test:community` passed with 21 tests.
 - `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
 - `git diff --check` passed with CRLF normalization warnings only.
+
+## ARGUS Review - Thread-Detail Follow-Up
+
+Accepted on 2026-06-20 for hosted/browser rerun by ARIADNE.
+
+ARGUS confirmed:
+
+- comment legacy select is gated on hosted missing `comments.authorship_*`
+  schema/column errors;
+- the retry keeps the same `parent_type`, `parent_id`, active, and non-hidden
+  filters as the normal thread-detail comment query;
+- legacy comments receive bounded user-authored provenance defaults before the
+  public serializer removes raw authorship columns;
+- vote, witness, moderation-action, and viewer-moderation lookups still operate
+  on filtered comment IDs only;
+- the legacy-category/subcommunity fail-closed boundary from the previous
+  follow-up remains unchanged.
+
+## ARIADNE Hosted Rerun - Thread-Detail Follow-Up
+
+Status: pass; ready for MIMIR closeout.
+
+Deployment:
+
+- API `/health/deployment` returned 200, `ready:true`, and Railway runtime
+  commit `3d2e07511fea`.
+
+API checks:
+
+- `GET /documents/:id/discussion` returned 200 with `eligible:true` and a
+  recovered linked public discussion for a representative replay public
+  document.
+- `GET /threads/:id` for that linked discussion returned 200 without raw
+  hosted schema or missing-column text.
+- `GET /forums/categories/documents-and-codexes?sort=active` continued to
+  return active public threads linked to replay documents.
+
+Browser checks:
+
+- Hosted `/discover` and `/space/station-replay-alpha` loaded on desktop and
+  390px mobile without visible application error or document-level horizontal
+  overflow.
+- The public document page loaded on desktop and 390px mobile, showed
+  `Community thread attached`, showed `Open discussion`, and linked to the
+  expected forum thread.
+- The linked forum thread page loaded on desktop and 390px mobile with no raw
+  hosted schema-cache or missing-column text visible.
+
+Notes:
+
+- The hosted replay dataset no longer had a public document with
+  `eligible:true` and `discussion:null`, so no hosted no-discussion copy state
+  was available to recheck in this pass.
+
+Closeout verdict:
+
+- PR117's hosted public Space -> public document -> linked forum discussion
+  chain is accepted for the replay scope.
+
+ARIADNE validation:
+
+- `curl.exe -fsS --max-time 30 https://stationapi-production.up.railway.app/health/deployment`
+- `npx --yes @playwright/test@1.41.2 test tmp-pr117-public-chain-rerun.spec.js --reporter=line --workers=1`
+- `git diff --check`
