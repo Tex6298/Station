@@ -8307,6 +8307,27 @@ when a PR lands, or when validation truth changes.
   No worker execution, queue provider, route behavior, UI, export content,
   archive extraction rewrite, memory consolidation change, replay automation,
   billing/auth/session behavior, or private payload logging was added.
+- ARGUS accepts PR114 Background Jobs Foundation on 2026-06-20, and MIMIR
+  closes it. The accepted work adds the shared job registry/status/idempotency/
+  retry/redaction helpers and root `test:jobs` gate without adding worker
+  execution. Archive extraction and export assembly stay mapped to existing
+  owner-scoped durable rows; future job kinds remain route-follow-up items. No
+  worker execution, Cloudflare queues/workers, queue-provider migration, Redis
+  durable queue processing, embedding backfill execution, archive extraction
+  rewrite, memory consolidation change, export content change, replay
+  automation, billing/auth/session change, UI work, or private payload logging
+  was added.
+- MIMIR opens PR115 Cloudflare Retrieval Boundary for DAEDALUS on 2026-06-20.
+  PR115 is not Cloudflare implementation and needs no Cloudflare config. It
+  should inventory Cloudflare-dependent retrieval patterns from imported/source
+  work, identify what was carried over/replaced/future-only, document pros/cons
+  and hybrid options, and define the safe adapter/index-mirror boundary where
+  Station/Supabase remains canonical. It must not add Workers, Queues,
+  Vectorize runtime calls, credentials, deployment scripts, canonical-record
+  migration out of Supabase, private snippet indexing, retrieval provider/ranking
+  changes, embedding/vector backend changes, Redis vector storage, background
+  execution, visibility changes, broad UI work, or provider key/prompt/payload/
+  archive excerpt/secret logging.
 - DAEDALUS implements PR110 Memory Runtime Explanation Readback on 2026-06-20
   and wakes ARGUS for review. The owner Memory page now has a compact Runtime
   context / Memory explanation section that joins the existing owner-only Memory
