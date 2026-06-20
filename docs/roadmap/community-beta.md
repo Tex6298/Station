@@ -36,6 +36,10 @@ promised in the Station documents.
   scoped thread/comment reports as reviewing, resolved, or dismissed; target
   visibility is not mutated, global admin report behavior is unchanged, and
   reporter notifications keep moderator identity private.
+- Visible delegated report status controls exist on
+  `/forums/subcommunities/[slug]/moderation`. They call only the scoped
+  delegated report status route, keep failed rows visible, and stay visually
+  separate from target moderation actions.
 - The first admin moderator console exists at `/forums/moderation`, exposing
   report queue readback and status transitions to admins without fetching queue
   material for anonymous or non-admin users.
@@ -127,8 +131,8 @@ pnpm test:reports
 - Broader recognition UX beyond the accepted thread/comment witness first
   slice; no leaderboards, badges, rankings, or public user scores are open.
 - Deeper moderator/admin console UX beyond safe target context, visible
-  delegated report status controls, and any future visible delegated moderator
-  surfaces beyond the accepted thread-detail and scoped-queue slices.
+  delegated queue target actions, and any future visible delegated moderator
+  surfaces beyond the accepted thread-detail and scoped-queue status slices.
 - Future trusted AI/persona/imported authorship routes, if ever opened; current
   public creation routes remain user-authored only.
 

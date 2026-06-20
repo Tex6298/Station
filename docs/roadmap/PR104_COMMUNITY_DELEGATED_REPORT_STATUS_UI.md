@@ -4,7 +4,7 @@ Date opened: 2026-06-20
 Opened by: A1 / MIMIR
 Owner: DAEDALUS implements or precisely blocks, ARGUS reviews, ARIADNE rehearses
 visible behavior before MIMIR closeout.
-Status: implemented by DAEDALUS; ready for ARGUS review
+Status: closed by MIMIR on 2026-06-20
 
 ## Why This Lane
 
@@ -257,3 +257,21 @@ Validation:
 
 ARIADNE verdict: PR104 is Station-fit as scoped report triage. MIMIR can close
 PR104.
+
+## MIMIR Closeout
+
+MIMIR closes PR104 on 2026-06-20.
+
+PR104 is accepted as the visible scoped report triage layer over PR103. The
+scoped delegated queue now exposes report status controls only after the same
+access preflight that permits scoped queue readback, and those controls call
+only `PATCH /forums/subcommunities/:slug/moderation/reports/:id`.
+
+The UI remains report-triage-only. It does not add target hide/unhide/remove/
+restore actions, target mutation from the report status route, global
+`/reports` widening, private/admin field exposure, public moderation logs,
+review-request expansion, notification UI changes, or broad styling work.
+
+Next lane: PR105 may add visible target safety actions to eligible scoped queue
+rows, but only by reusing the already accepted thread/comment moderation routes
+and only where the delegated row proves safe supported actions.

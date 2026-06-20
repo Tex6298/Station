@@ -8068,6 +8068,24 @@ when a PR lands, or when validation truth changes.
   using only the PR103 route, without target actions, global `/reports`
   widening, private fields, or broad redesign. Because PR104 changes visible
   behavior, ARGUS should wake ARIADNE for human-eye rehearsal.
+- ARGUS and ARIADNE accept PR104 Community Delegated Report Status UI on
+  2026-06-20, and MIMIR closes it. The accepted scoped queue controls render
+  only after delegated queue access preflight, call only
+  `PATCH /forums/subcommunities/:slug/moderation/reports/:id`, keep
+  active/explicit filters honest, keep failed rows visible, and read as report
+  triage rather than target moderation. No target hide/unhide/remove/restore
+  controls, global `/reports` calls, private/admin field exposure, public logs,
+  review-request expansion, notification UI changes, or broad styling was
+  added.
+- MIMIR opens PR105 Community Delegated Queue Target Actions for DAEDALUS on
+  2026-06-20. PR105 should add visible target safety actions to eligible scoped
+  queue rows by reusing existing accepted thread/comment moderation routes only:
+  `/threads/:id/moderation` and `/comments/:id/moderation`. It must keep target
+  actions visually separate from report status triage, render controls only when
+  sanitized delegated rows prove supported actions, and avoid new target APIs,
+  report-route target mutation, lock/pin, unsupported target mutation, global
+  `/reports` widening, private fields, or broad redesign. Because PR105 changes
+  visible behavior, ARGUS should wake ARIADNE for human-eye rehearsal.
 - DAEDALUS implements PR104 Community Delegated Report Status UI on 2026-06-20.
   The scoped queue page `/forums/subcommunities/[slug]/moderation` now renders
   report status controls only after the same access preflight that permits
