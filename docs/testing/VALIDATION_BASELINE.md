@@ -9362,6 +9362,29 @@ Scope notes:
   auth/session refactor, persona-authored posting, or visibility widening was
   added.
 
+ARGUS review validation on 2026-06-20:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 64 tests passed after adding protected category preflight copy coverage. |
+| `npm exec --yes pnpm@10.32.1 -- run test:community` | Pass | 13 tests passed; category/thread API visibility and participation gates remain green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:reports` | Pass | 6 tests passed; moderation report scoping remains green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` | Pass | 1 test passed; document discussion visibility remains green. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API typecheck replayed from cache; web typecheck ran cleanly after the ARGUS patch. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web build` | Partial / known Windows failure | Next compiled, linted/typechecked, collected page data, and generated 35 static pages, then hit the known local Windows standalone symlink `EPERM`. Only pre-existing raw `<img>` warnings appeared. |
+| `git diff --check` | Pass | CRLF normalization warnings only for touched files and local triad state. |
+
+ARGUS review notes:
+
+- Patched protected category preflight copy so below-tier signed-in users see an
+  honest tier/unavailable state instead of only a hard not-found route state.
+- Confirmed signed-out and below-tier users do not call owner-only selector APIs
+  or mutating thread routes.
+- Confirmed eligible payload construction stays bounded to `categoryId`,
+  trimmed `title`, trimmed `body`, and offered public persona/Space links.
+- PR93 is technically accepted for ARIADNE visible-route rehearsal before MIMIR
+  closeout.
+
 ## PR91 Community Subcommunity Foundation
 
 DAEDALUS implementation validation on 2026-06-20:

@@ -3,10 +3,10 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import type { CommunitySubcommunityRecord } from "@station/types";
+import type { AuthUser, CommunitySubcommunityRecord } from "@station/types";
 import { apiGet, apiPost } from "@/lib/api-client";
 import { getSession } from "@/lib/auth";
-import { canCreateCommunityThread, newThreadPath } from "@/lib/community-forum-create";
+import { canCreateCommunityThread, categoryPreflightUnavailableCopy, newThreadPath } from "@/lib/community-forum-create";
 import { subcommunityBadgeLabel } from "@/lib/community-subcommunities";
 
 interface Author { username: string; display_name: string | null; }
@@ -49,6 +49,7 @@ export default function ForumCategoryPage() {
   useEffect(() => {
     if (!categorySlug) return;
     let hadSession = false;
+    let preflightUser: AuthUser | null = null;
 
     setLoading(true);
     setError(null);
@@ -56,6 +57,7 @@ export default function ForumCategoryPage() {
     getSession().then(async (session) => {
       const accessToken = session?.access_token;
       hadSession = Boolean(session);
+      preflightUser = session?.user ?? null;
       setToken(accessToken);
       setIsSignedIn(Boolean(session));
       setViewerUserId(session?.user.id ?? null);
@@ -69,10 +71,11 @@ export default function ForumCategoryPage() {
       setThreads(data.threads);
       setCanPost(canCreateCommunityThread(session?.user));
     }).catch((e) => {
-      if (hadSession) {
-        setError(e instanceof Error ? e.message : "Category not found.");
+      const unavailableCopy = categoryPreflightUnavailableCopy(preflightUser);
+      if (hadSession && canCreateCommunityThread(preflightUser)) {
+        setError(e instanceof Error ? e.message : unavailableCopy);
       } else {
-        setNotice("Sign in to open this category or start a thread.");
+        setNotice(unavailableCopy);
       }
     }).finally(() => setLoading(false));
   }, [categorySlug, sort, search]);
@@ -95,7 +98,13 @@ export default function ForumCategoryPage() {
   }
 
   if (loading) return <main className="container"><div className="card" style={{ textAlign: "center", padding: "3rem", color: "#687078" }}>Loading...</div></main>;
-  if (notice) return <main className="container"><div className="card" style={{ color: "#687078", lineHeight: 1.6 }}><Link href="/login" style={{ color: "#534ab7", fontWeight: 800 }}>Sign in</Link> to open this category or start a thread.</div></main>;
+  if (notice) return (
+    <main className="container">
+      <div className="card" style={{ color: "#687078", lineHeight: 1.6 }}>
+        {isSignedIn ? notice : <><Link href="/login" style={{ color: "#534ab7", fontWeight: 800 }}>Sign in</Link> to open protected categories or start a thread.</>}
+      </div>
+    </main>
+  );
   if (error || !category) return <main className="container"><div className="card" style={{ background: "#2d1515", borderColor: "#7d2e2e", color: "#eb5757" }}>{error ?? "Not found."}</div></main>;
 
   return (

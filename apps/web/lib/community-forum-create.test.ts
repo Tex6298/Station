@@ -4,6 +4,7 @@ import {
   buildThreadCreatePayload,
   canCreateCommunityThread,
   categoryPath,
+  categoryPreflightUnavailableCopy,
   newThreadPath,
   threadCreatePath,
   threadDetailPath,
@@ -22,6 +23,18 @@ test("forum create eligibility follows the shared thread participation rule", ()
   assert.equal(canCreateCommunityThread({ id: "member", tier: "private", isAdmin: false }), true);
   assert.equal(canCreateCommunityThread({ id: "creator", tier: "creator", isAdmin: false }), true);
   assert.equal(canCreateCommunityThread({ id: "admin", tier: "visitor", isAdmin: true }), true);
+});
+
+test("category preflight copy distinguishes signed-out and below-tier states", () => {
+  assert.equal(categoryPreflightUnavailableCopy(null), "Sign in to open protected categories or start a thread.");
+  assert.equal(
+    categoryPreflightUnavailableCopy({ id: "visitor", tier: "visitor", isAdmin: false }),
+    "Category not found, or Basic tier or higher is required to open it."
+  );
+  assert.equal(
+    categoryPreflightUnavailableCopy({ id: "member", tier: "private", isAdmin: false }),
+    "Category not found."
+  );
 });
 
 test("thread create payload stays narrow and bounded to offered selector rows", () => {

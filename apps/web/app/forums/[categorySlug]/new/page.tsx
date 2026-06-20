@@ -10,6 +10,7 @@ import {
   buildThreadCreatePayload,
   canCreateCommunityThread,
   categoryPath,
+  categoryPreflightUnavailableCopy,
   threadCreatePath,
   threadDetailPath,
 } from "@/lib/community-forum-create";
@@ -90,10 +91,11 @@ export default function NewThreadPage() {
         }
       } catch (e) {
         if (!cancelled) {
-          if (currentSession) {
-            setError(e instanceof Error ? e.message : "Category not found.");
+          const unavailableCopy = categoryPreflightUnavailableCopy(currentSession?.user);
+          if (currentSession && canCreateCommunityThread(currentSession.user)) {
+            setError(e instanceof Error ? e.message : unavailableCopy);
           } else {
-            setNotice("Sign in to open this category or start a thread.");
+            setNotice(unavailableCopy);
           }
         }
       } finally {
@@ -188,7 +190,7 @@ export default function NewThreadPage() {
         )}
         {notice && (
           <div className="card" style={{ color: "#687078", lineHeight: 1.6 }}>
-            <Link href="/login" style={{ color: "#534ab7", fontWeight: 800 }}>Sign in</Link> to open this category or start a thread.
+            {session ? notice : <><Link href="/login" style={{ color: "#534ab7", fontWeight: 800 }}>Sign in</Link> to open protected categories or start a thread.</>}
           </div>
         )}
         {feedback && (

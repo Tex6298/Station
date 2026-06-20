@@ -20,6 +20,12 @@ export function canCreateCommunityThread(user: AuthUser | null | undefined) {
   return canCreateThread(user ?? null);
 }
 
+export function categoryPreflightUnavailableCopy(user: AuthUser | null | undefined) {
+  if (!user) return "Sign in to open protected categories or start a thread.";
+  if (!canCreateCommunityThread(user)) return "Category not found, or Basic tier or higher is required to open it.";
+  return "Category not found.";
+}
+
 export function categoryPath(categorySlug: string) {
   return `/forums/${categorySlug}`;
 }

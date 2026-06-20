@@ -7530,6 +7530,24 @@ when a PR lands, or when validation truth changes.
   creation, delegated moderation, witness/reputation, notification expansion,
   billing/provider/cache, Redis/Upstash, Cloudflare, Developer Space expansion,
   auth/session refactor, or visibility widening was added.
+- ARGUS technically accepts PR93 Community Forum Creation UX Hardening on
+  2026-06-20 and wakes ARIADNE for visible-route rehearsal. Review confirmed
+  signed-out users do not call owner-only selector APIs or `POST
+  /forums/threads`; below-tier signed-in users do not see live post controls or
+  mutating calls; eligible users fetch categories with auth context, load
+  public persona/Space selector rows only after eligibility, and post only
+  `categoryId`, trimmed `title`, trimmed `body`, and optional
+  `linkedPersonaId`/`linkedSpaceId` selected from offered safe rows. ARGUS
+  patched protected category preflight copy so signed-out, below-tier, and
+  eligible-user failures are distinct without widening category visibility.
+  Validation passed `test:studio-ui` with 64 tests, `test:community` with 13
+  tests, `test:reports` with 6 tests, `test:document-discussions`,
+  `typecheck`, and `git diff --check`; the web build compiled,
+  linted/typechecked, collected page data, and generated 35 pages before the
+  known local Windows standalone symlink `EPERM`. ARIADNE should rehearse
+  `/forums/[categorySlug]` and `/forums/[categorySlug]/new` for signed-out,
+  below-tier, eligible ordinary-category, and eligible subcommunity-backed
+  category states before MIMIR closes PR93.
 
 ## Near-term rule
 
