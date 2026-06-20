@@ -8184,6 +8184,20 @@ when a PR lands, or when validation truth changes.
   and must avoid retrieval rewrites, provider/embedding changes, autonomous
   memory mutation, public Memory, Redis/Cloudflare/background jobs, Developer
   Space realtime, billing/auth/session, broad Studio redesign, or new AI calls.
+- DAEDALUS implements PR110 Memory Runtime Explanation Readback on 2026-06-20
+  and wakes ARGUS for review. The owner Memory page now has a compact Runtime
+  context / Memory explanation section that joins the existing owner-only Memory
+  list with the existing owner-only context-preview trace. The helper labels
+  selected runtime Memory, active-but-not-selected Memory, lifecycle holdouts,
+  archive/import skip-count notes, retrieval mode, and safe fallback notes using
+  sanitized labels and counts only. It does not expose raw prompts,
+  completions, trace bodies, provider payloads, private archive excerpts,
+  owner/persona/trace ids, raw memory ids, raw URLs, or secrets. Validation
+  passed `test:persona-context` with 7 tests, `test:conversation-archive` with
+  35 tests, `test:continuity` with 5 tests, `test:studio-ui` with 85 tests,
+  `typecheck`, and `git diff --check`; web build reached successful compile,
+  lint/typecheck, page data, 36 generated static pages, optimization, and trace
+  collection before the known local Windows standalone symlink `EPERM`.
 - DAEDALUS implements PR109 Memory UX Observability Audit on 2026-06-20 and
   wakes ARGUS for review. `docs/roadmap/MEMORY_UX_OBSERVABILITY_AUDIT.md`
   answers the PR109 audit questions directly and recommends `PR110 - Memory
@@ -8410,7 +8424,51 @@ git diff --check
 - Developer Spaces visual polish before ingestion auth, validation, limits, and
   safe serialization.
 
-## Latest DAEDALUS handoff - PR109
+## Latest DAEDALUS handoff - PR110
+
+PR110 Memory Runtime Explanation Readback is implemented by DAEDALUS on
+2026-06-20 and ready for ARGUS review. Because this changes visible owner route
+behavior on the persona Memory page, ARGUS should wake ARIADNE for rehearsal if
+the technical review accepts it.
+
+Files changed: `apps/web/lib/memory-lifecycle-ui.ts`,
+`apps/web/lib/memory-lifecycle-ui.test.ts`,
+`apps/web/app/studio/personas/[personaId]/memory/page.tsx`,
+`docs/roadmap/PR110_MEMORY_RUNTIME_EXPLANATION_READBACK.md`,
+`docs/roadmap/ACTIVE_STATUS.md`, and
+`docs/testing/VALIDATION_BASELINE.md`.
+
+Implementation:
+
+- Added a client-side runtime Memory explanation helper over existing
+  owner-only APIs only.
+- Added a compact Runtime context / Memory explanation section to the owner
+  Memory page.
+- Labeled selected Memory, active-but-not-selected Memory, lifecycle holdouts,
+  retrieval mode, archive/import skip-count notes, and fallback notes.
+- Kept visible output to sanitized target labels, source labels, lifecycle
+  labels, counts, and short reasons.
+
+Privacy and scope proof:
+
+- Owner scope stays on the existing session-backed Memory and context-preview
+  routes.
+- Raw prompts, completions, trace bodies, provider payloads, private archive
+  excerpts, owner/persona/trace ids, raw memory ids, raw URLs, and secrets do
+  not render.
+- No retrieval rewrite, embedding/provider change, autonomous memory mutation,
+  public Memory, Redis/Upstash, Cloudflare, background job, Developer Space
+  realtime, billing/auth/session change, broad Studio redesign, or new AI
+  provider call was added.
+
+Validation: `test:persona-context` 7 passed, `test:conversation-archive` 35
+passed, `test:continuity` 5 passed, `test:studio-ui` 85 passed, `typecheck`
+passed, and `git diff --check` passed with CRLF normalization warnings only.
+The web build reached successful compile, lint/typecheck, page data, 36 static
+pages, optimization, and trace collection before the known local Windows
+standalone symlink `EPERM`; only pre-existing raw `<img>` warnings appeared.
+
+## Previous DAEDALUS handoff - PR109
 
 PR109 Memory UX Observability Audit is implemented by DAEDALUS on 2026-06-20
 and ready for ARGUS review. No code or visible route behavior changed, so

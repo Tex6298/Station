@@ -5,11 +5,14 @@ import { useParams } from "next/navigation";
 import { getSession } from "@/lib/auth";
 import { apiGet, apiPatch, apiPost } from "@/lib/api-client";
 import {
+  buildMemoryRuntimeExplanation,
   memoryLifecycleActions,
   memoryLifecycleCounters,
   memoryLifecycleDisplayStatus,
   memoryLifecycleStatusLabel,
   memoryRuntimeCopy,
+  type RuntimeContextMemoryPreviewLike,
+  type MemoryRuntimeExplanationRow,
 } from "@/lib/memory-lifecycle-ui";
 import type { MemoryItemLifecycle, OwnerMemoryBlock, PersonaMemoryBriefing } from "@station/types/persona";
 import {
@@ -28,12 +31,16 @@ interface MemoryItem {
   lifecycle?: MemoryItemLifecycle | null;
 }
 
+const MEMORY_RUNTIME_PREVIEW_QUERY = "Which owner memory should shape the next response?";
+
 export default function PersonaMemoryPage() {
   const { personaId } = useParams<{ personaId: string }>();
   const [token, setToken] = useState<string | null>(null);
   const [persona, setPersona] = useState<PersonaWithContinuity | null>(null);
   const [items, setItems] = useState<MemoryItem[]>([]);
   const [briefing, setBriefing] = useState<PersonaMemoryBriefing | null>(null);
+  const [runtimePreview, setRuntimePreview] = useState<RuntimeContextMemoryPreviewLike | null>(null);
+  const [runtimePreviewLoading, setRuntimePreviewLoading] = useState(false);
   const [form, setForm] = useState({ title: "", summary: "", content: "", relevanceWeight: 1.25 });
   const [sharedForm, setSharedForm] = useState({ title: "", content: "", scope: "shared_user_profile" });
   const [loading, setLoading] = useState(true);
@@ -53,19 +60,26 @@ export default function PersonaMemoryPage() {
           return;
         }
         setToken(session.access_token);
-        const [personaData, memoryData, briefingData] = await Promise.all([
+        setRuntimePreviewLoading(true);
+        const [personaData, memoryData, briefingData, previewData] = await Promise.all([
           apiGet<{ persona: PersonaWithContinuity }>(`/personas/${personaId}`, session.access_token),
           apiGet<{ memory: MemoryItem[] }>(`/memory/persona/${personaId}`, session.access_token),
           apiGet<{ briefing: PersonaMemoryBriefing }>(`/memory/persona/${personaId}/briefing`, session.access_token),
+          apiGet<{ context: RuntimeContextMemoryPreviewLike }>(
+            `/conversations/persona/${personaId}/context-preview?query=${encodeURIComponent(MEMORY_RUNTIME_PREVIEW_QUERY)}`,
+            session.access_token,
+          ).catch(() => null),
         ]);
         if (cancelled) return;
         setPersona(personaData.persona);
         setItems(memoryData.memory ?? []);
         setBriefing(briefingData.briefing);
+        setRuntimePreview(previewData?.context ?? null);
       } catch (e) {
         if (!cancelled) setError(e instanceof Error ? e.message : "Could not load memory.");
       } finally {
         if (!cancelled) setLoading(false);
+        if (!cancelled) setRuntimePreviewLoading(false);
       }
     }
 
@@ -94,7 +108,8 @@ export default function PersonaMemoryPage() {
       );
       setItems((current) => [response.memoryItem, ...current]);
       setForm({ title: "", summary: "", content: "", relevanceWeight: 1.25 });
-      reloadBriefing(token, persona.id);
+      void reloadBriefing(token, persona.id);
+      void reloadRuntimePreview(token, persona.id);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Could not save memory.");
     } finally {
@@ -143,7 +158,8 @@ export default function PersonaMemoryPage() {
       setItems((current) => current.map((item) => (
         item.id === itemId ? { ...item, lifecycle: response.lifecycle } : item
       )));
-      reloadBriefing(token, persona.id);
+      void reloadBriefing(token, persona.id);
+      void reloadRuntimePreview(token, persona.id);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Could not update memory lifecycle.");
     }
@@ -154,11 +170,22 @@ export default function PersonaMemoryPage() {
     if (data) setBriefing(data.briefing);
   }
 
+  async function reloadRuntimePreview(accessToken: string, id: string) {
+    setRuntimePreviewLoading(true);
+    const data = await apiGet<{ context: RuntimeContextMemoryPreviewLike }>(
+      `/conversations/persona/${id}/context-preview?query=${encodeURIComponent(MEMORY_RUNTIME_PREVIEW_QUERY)}`,
+      accessToken,
+    ).catch(() => null);
+    setRuntimePreview(data?.context ?? null);
+    setRuntimePreviewLoading(false);
+  }
+
   if (loading) return <StudioMessage>Loading memory...</StudioMessage>;
   if (error && !persona) return <StudioMessage tone="error">{error}</StudioMessage>;
   if (!persona) return <StudioMessage tone="error">Persona not found.</StudioMessage>;
 
   const lifecycleMetrics = memoryLifecycleCounters(items, briefing);
+  const runtimeExplanation = buildMemoryRuntimeExplanation(items, runtimePreview);
 
   return (
     <main className="container studio-workspace">
@@ -176,6 +203,51 @@ export default function PersonaMemoryPage() {
             <BriefingMetric key={metric.status} label={metric.label} value={metric.value} />
           ))}
           <BriefingMetric label="Next cycle" value={`${briefing?.cycleState.nextThresholdPct ?? 75}%`} />
+        </div>
+      </section>
+
+      <section className="studio-list-panel" style={{ marginBottom: "1rem" }}>
+        <div className="studio-section-heading">
+          <div className="section-label">Runtime context</div>
+          <h2>Memory explanation</h2>
+        </div>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(132px, 1fr))", gap: "0.75rem", marginBottom: "1rem" }}>
+          <BriefingMetric label="Selected" value={runtimeExplanation.selected.length} />
+          <BriefingMetric label="Held out" value={runtimeExplanation.heldOut.length} />
+          <BriefingMetric label="Preview" value={runtimePreview ? "Loaded" : "Unavailable"} />
+        </div>
+        <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap", alignItems: "center", marginBottom: "1rem" }}>
+          <button
+            className="button secondary"
+            type="button"
+            disabled={!token || runtimePreviewLoading}
+            onClick={() => token && persona && reloadRuntimePreview(token, persona.id)}
+          >
+            {runtimePreviewLoading ? "Refreshing..." : "Refresh Preview"}
+          </button>
+          <p style={{ margin: 0, color: "#8ea0b8", fontSize: "0.9rem", lineHeight: 1.45 }}>
+            Owner-only preview labels and counts.
+          </p>
+        </div>
+        <div className="studio-two-column">
+          <RuntimeExplanationList
+            title="Selected for preview"
+            empty="No memory selected for this preview."
+            rows={runtimeExplanation.selected}
+          />
+          <RuntimeExplanationList
+            title="Held out"
+            empty="No memory held out."
+            rows={runtimeExplanation.heldOut}
+            limit={6}
+          />
+        </div>
+        <div style={{ display: "grid", gap: "0.4rem", marginTop: "1rem" }}>
+          {runtimeExplanation.fallbackNotes.map((note) => (
+            <p key={note} style={{ margin: 0, color: "#8ea0b8", fontSize: "0.9rem", lineHeight: 1.45 }}>
+              {note}
+            </p>
+          ))}
         </div>
       </section>
 
@@ -302,6 +374,44 @@ function BriefingMetric({ label, value }: { label: string; value: number | strin
       <h3 style={{ marginBottom: "0.25rem" }}>{value}</h3>
       <p style={{ margin: 0 }}>{label}</p>
     </div>
+  );
+}
+
+function RuntimeExplanationList({
+  title,
+  empty,
+  rows,
+  limit,
+}: {
+  title: string;
+  empty: string;
+  rows: MemoryRuntimeExplanationRow[];
+  limit?: number;
+}) {
+  const visibleRows = typeof limit === "number" ? rows.slice(0, limit) : rows;
+  const hiddenCount = Math.max(0, rows.length - visibleRows.length);
+
+  return (
+    <section>
+      <div className="studio-section-heading">
+        <div className="section-label">{title}</div>
+        <h2>{rows.length} items</h2>
+      </div>
+      <div className="studio-item-list">
+        {rows.length === 0 && <div className="studio-empty">{empty}</div>}
+        {visibleRows.map((row) => (
+          <article key={`${row.targetLabel}-${row.sourceLabel}-${row.statusLabel}-${row.reason}`} className="studio-item-card">
+            <div>
+              <span>{row.sourceLabel}</span>
+              <span>{row.statusLabel}</span>
+            </div>
+            <h3>{row.targetLabel}</h3>
+            <p>{row.reason}</p>
+          </article>
+        ))}
+        {hiddenCount > 0 && <div className="studio-empty">{hiddenCount} more held out by lifecycle or query fit.</div>}
+      </div>
+    </section>
   );
 }
 

@@ -48,6 +48,40 @@ pnpm test:developer-spaces
 pnpm test:developer-space-client
 ```
 
+## PR110 Memory Runtime Explanation Readback
+
+DAEDALUS implementation validation on 2026-06-20:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-context` | Pass | 7 tests passed; owner-only context preview and lifecycle filtering stayed green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass | 35 tests passed; private archive retrieval, context preview, import jobs, runtime budget trace, and provider failure safety stayed green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:continuity` | Pass | 5 tests passed; continuity source and UI helper coverage stayed green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 85 tests passed, including PR110 selected/held-out Memory explanation, lifecycle/source holdout labels, fallback notes, and redaction coverage. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web build` | Partial / known Windows failure | Next compiled, linted/typechecked, collected page data, generated 36 static pages, finalized optimization, and collected build traces before the known local Windows standalone symlink `EPERM` while copying traced files. Only pre-existing raw `<img>` warnings appeared. |
+| `git diff --check` | Pass | CRLF normalization warnings only for touched files. |
+
+Implementation result:
+
+- Added a client-side runtime Memory explanation helper over existing
+  owner-only APIs only.
+- Added a compact Runtime context / Memory explanation section to the owner
+  Memory page.
+- The readback distinguishes selected Memory, active-but-not-selected Memory,
+  quarantined/rejected/expired/superseded/missing lifecycle holdouts,
+  archive/import skip-count notes, retrieval mode, and safe fallback notes.
+- Visible output is limited to sanitized target labels, source labels, lifecycle
+  labels, counts, and short reasons.
+- Tests prove helper output does not expose raw memory ids, prompts, URLs, or
+  secret-shaped values.
+- Explicit non-goals preserved: no retrieval rewrite, embedding/provider
+  change, autonomous memory mutation, public Memory, Redis/Upstash, Cloudflare,
+  background job, Developer Space realtime, billing/auth/session change, broad
+  Studio redesign, or new AI provider call.
+- Because visible owner route behavior changed, ARGUS should wake ARIADNE for
+  rehearsal if the technical review accepts PR110.
+
 ## PR109 Memory UX Observability Audit
 
 DAEDALUS audit validation on 2026-06-20:

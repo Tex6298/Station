@@ -4,7 +4,7 @@ Date opened: 2026-06-20
 Opened by: A1 / MIMIR
 Owner: DAEDALUS implements or precisely blocks, ARGUS reviews, ARIADNE rehearses
 visible behavior before MIMIR closeout.
-Status: open for DAEDALUS
+Status: implemented by DAEDALUS; ready for ARGUS review
 
 ## Why This Lane
 
@@ -99,6 +99,51 @@ Add focused tests for:
 - no raw prompt/private content exposure in helper output;
 - visible route/helper behavior if a UI section changes.
 
+## DAEDALUS Implementation
+
+Implemented on 2026-06-20.
+
+Files changed:
+
+- `apps/web/lib/memory-lifecycle-ui.ts`
+- `apps/web/lib/memory-lifecycle-ui.test.ts`
+- `apps/web/app/studio/personas/[personaId]/memory/page.tsx`
+
+Implementation shape:
+
+- Added `buildMemoryRuntimeExplanation`, a client-side helper that joins the
+  existing owner Memory list to the existing owner-only context preview trace.
+- Added focused helper tests for selected versus active-not-selected memory,
+  lifecycle/source-readiness holdouts, fallback/retrieval notes, and redaction
+  of raw ids, prompts, URLs, and secret-shaped values.
+- Added a compact Runtime context / Memory explanation section to the owner
+  Memory page. It fetches only the existing
+  `/conversations/persona/:personaId/context-preview` route and can refresh the
+  preview without adding a new API.
+
+Owner-scope and privacy notes:
+
+- Owner scoping remains enforced by the existing session token and existing
+  owner-only context-preview route.
+- The UI renders selected and held-out rows without raw memory ids, owner ids,
+  persona ids, trace ids, raw prompts, completions, trace bodies, provider
+  payloads, private archive excerpts, raw URLs, or secrets.
+- Display rows contain only sanitized target labels, source labels, lifecycle
+  labels, counts, and short reasons.
+- Active memory selected by the context preview is labeled as selected. Active
+  memory not selected by the current preview query is labeled as eligible but
+  not selected. Quarantined, rejected, expired, superseded, and missing
+  lifecycle rows are labeled as held out.
+- Retrieval mode, memory skip counts, archive/import skip counts, and fallback
+  notes are reduced to sanitized labels and counts only.
+
+Explicit non-scope confirmation:
+
+- No retrieval ranking rewrite, embedding/provider change, autonomous memory
+  mutation, public Memory surface, Redis/Upstash, Cloudflare, background job,
+  Developer Space realtime, billing/auth/session change, broad Studio redesign,
+  or new AI provider call was added.
+
 ## ARGUS Review Requirements
 
 ARGUS should verify:
@@ -131,3 +176,15 @@ git diff --check
 If visible routes change, include web build validation. If the web build reaches
 compile/lint/page generation and then hits the known Windows output cleanup
 `EPERM`, report that precisely rather than treating it as an app failure.
+
+DAEDALUS validation on 2026-06-20:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-context` | Pass | 7 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass | 35 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:continuity` | Pass | 5 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 85 tests passed, including PR110 runtime Memory explanation helper coverage. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web build` | Partial / known Windows failure | Next compiled, linted/typechecked, collected page data, generated 36 static pages, finalized optimization, and collected build traces before the known local Windows standalone symlink `EPERM` while copying traced files. Only pre-existing raw `<img>` warnings appeared. |
+| `git diff --check` | Pass | CRLF normalization warnings only for touched files. |
