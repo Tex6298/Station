@@ -3,11 +3,13 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import type { AuthUser, CommunitySubcommunityRecord, DelegatedModerationReportRecord } from "@station/types";
+import type { AuthUser, CommunityModerationSafetyAction, CommunitySubcommunityRecord, DelegatedModerationReportRecord } from "@station/types";
 import { apiGet, apiPatch } from "@/lib/api-client";
 import { getSession } from "@/lib/auth";
+import { moderateComment, moderateThread, moderationActionLabel } from "@/lib/community-moderation";
 import {
   canRenderDelegatedStatusControls,
+  canRenderDelegatedTargetControls,
   canUseDelegatedModerationQueue,
   DELEGATED_QUEUE_STATUSES,
   delegatedModerationQueuePath,
@@ -17,6 +19,7 @@ import {
   delegatedReportContextLabel,
   delegatedReportRouteHref,
   delegatedReportTargetLabel,
+  delegatedTargetActions,
   nextDelegatedReportStatuses,
   sanitizeDelegatedQueueReports,
   updateDelegatedReportInQueue,
@@ -38,6 +41,7 @@ export default function SubcommunityModerationPage() {
   const [loadingReports, setLoadingReports] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [updatingStatus, setUpdatingStatus] = useState<{ reportId: string; status: DelegatedReportTransitionStatus } | null>(null);
+  const [updatingTarget, setUpdatingTarget] = useState<{ reportId: string; action: CommunityModerationSafetyAction } | null>(null);
   const [rowErrors, setRowErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
@@ -104,6 +108,14 @@ export default function SubcommunityModerationPage() {
   const canReadQueue = canUseDelegatedModerationQueue(user, subcommunity);
   const canUpdateReports = canRenderDelegatedStatusControls(user, subcommunity);
 
+  async function reloadReportsForCurrentFilter(accessToken: string) {
+    const reportData = await apiGet<{ reports: DelegatedModerationReportRecord[] }>(
+      delegatedModerationQueuePath(slug, { status, limit: 50 }),
+      accessToken
+    );
+    setReports(sanitizeDelegatedQueueReports(reportData.reports ?? []));
+  }
+
   async function updateReportStatus(report: DelegatedModerationReportRecord, nextStatus: DelegatedReportTransitionStatus) {
     if (!token || !canUpdateReports || report.status === nextStatus) return;
 
@@ -130,6 +142,33 @@ export default function SubcommunityModerationPage() {
       }));
     } finally {
       setUpdatingStatus(null);
+    }
+  }
+
+  async function updateTarget(report: DelegatedModerationReportRecord, action: CommunityModerationSafetyAction) {
+    if (!token || !canRenderDelegatedTargetControls(user, subcommunity, report)) return;
+
+    setUpdatingTarget({ reportId: report.id, action });
+    setRowErrors((current) => {
+      const next = { ...current };
+      delete next[report.id];
+      return next;
+    });
+
+    try {
+      if (report.targetType === "thread") {
+        await moderateThread(token, report.targetId, action);
+      } else {
+        await moderateComment(token, report.targetId, action);
+      }
+      await reloadReportsForCurrentFilter(token);
+    } catch (e) {
+      setRowErrors((current) => ({
+        ...current,
+        [report.id]: e instanceof Error ? e.message : "Could not update reported target.",
+      }));
+    } finally {
+      setUpdatingTarget(null);
     }
   }
 
@@ -208,8 +247,11 @@ export default function SubcommunityModerationPage() {
                   report={report}
                   canUpdate={canUpdateReports}
                   updatingStatus={updatingStatus?.reportId === report.id ? updatingStatus.status : null}
+                  canUpdateTarget={canRenderDelegatedTargetControls(user, subcommunity, report)}
+                  updatingTarget={updatingTarget?.reportId === report.id ? updatingTarget.action : null}
                   error={rowErrors[report.id] ?? null}
                   onUpdateStatus={updateReportStatus}
+                  onUpdateTarget={updateTarget}
                 />
               ))}
             </div>
@@ -224,17 +266,24 @@ function DelegatedReportRow({
   report,
   canUpdate,
   updatingStatus,
+  canUpdateTarget,
+  updatingTarget,
   error,
   onUpdateStatus,
+  onUpdateTarget,
 }: {
   report: DelegatedModerationReportRecord;
   canUpdate: boolean;
   updatingStatus: DelegatedReportTransitionStatus | null;
+  canUpdateTarget: boolean;
+  updatingTarget: CommunityModerationSafetyAction | null;
   error: string | null;
   onUpdateStatus: (report: DelegatedModerationReportRecord, status: DelegatedReportTransitionStatus) => void;
+  onUpdateTarget: (report: DelegatedModerationReportRecord, action: CommunityModerationSafetyAction) => void;
 }) {
   const href = delegatedReportRouteHref(report);
   const nextStatuses = nextDelegatedReportStatuses(report.status);
+  const targetActions = delegatedTargetActions(report);
 
   return (
     <article className="card" style={{ display: "grid", gap: "0.75rem" }}>
@@ -297,9 +346,30 @@ function DelegatedReportRow({
               </button>
             );
           })}
-          {error && <span style={{ color: "#7d2e2e" }}>{error}</span>}
         </div>
       )}
+
+      {canUpdateTarget && targetActions.length > 0 && (
+        <div style={targetPanel}>
+          <span style={{ color: "#1f2529", fontWeight: 700 }}>Target safety</span>
+          {targetActions.map((action) => {
+            const updating = updatingTarget === action;
+            return (
+              <button
+                key={action}
+                type="button"
+                disabled={updatingTarget !== null}
+                onClick={() => onUpdateTarget(report, action)}
+                style={targetButton(action === "remove" || action === "restore", updating)}
+              >
+                {updating ? "Saving..." : moderationActionLabel(action)}
+              </button>
+            );
+          })}
+        </div>
+      )}
+
+      {error && <div style={rowError}>{error}</div>}
     </article>
   );
 }
@@ -375,7 +445,36 @@ const statusPanel = {
   fontSize: "0.75rem",
 };
 
+const targetPanel = {
+  borderTop: "1px solid #ece8dd",
+  paddingTop: "0.75rem",
+  display: "flex",
+  gap: "0.45rem",
+  flexWrap: "wrap" as const,
+  alignItems: "center",
+  color: "#687078",
+  fontSize: "0.75rem",
+};
+
+const rowError = {
+  color: "#7d2e2e",
+  fontSize: "0.78rem",
+};
+
 function statusButton(strong: boolean, loading: boolean) {
+  return {
+    border: "1px solid #d8d3c8",
+    borderRadius: 6,
+    background: strong ? "#2d1515" : "#fff",
+    color: strong ? "#fff" : "#687078",
+    fontSize: "0.72rem",
+    padding: "0.16rem 0.48rem",
+    cursor: loading ? "wait" : "pointer",
+    opacity: loading ? 0.7 : 1,
+  };
+}
+
+function targetButton(strong: boolean, loading: boolean) {
   return {
     border: "1px solid #d8d3c8",
     borderRadius: 6,

@@ -8086,6 +8086,26 @@ when a PR lands, or when validation truth changes.
   report-route target mutation, lock/pin, unsupported target mutation, global
   `/reports` widening, private fields, or broad redesign. Because PR105 changes
   visible behavior, ARGUS should wake ARIADNE for human-eye rehearsal.
+- DAEDALUS implements PR105 Community Delegated Queue Target Actions on
+  2026-06-20. The scoped queue page now renders a separate `Target safety`
+  control group only after scoped queue access preflight succeeds and only when
+  sanitized delegated target context exposes supported actions. Supported
+  actions are limited to `hide`, `unhide`, `remove`, and `restore`; rows without
+  safe target context or supported actions render no target controls. Thread
+  rows call only existing `PATCH /threads/:id/moderation`, comment rows call
+  only existing `PATCH /comments/:id/moderation`, and report status controls
+  remain separate on the PR103 scoped report route. Successful target actions
+  refetch the scoped queue for the current filter so target state stays
+  API-authored; failed actions keep rows visible with a bounded row-level error.
+  Validation passed `test:studio-ui` with 78 tests, `test:community` with 17
+  tests, `test:reports` with 6 tests, `test:document-discussions`, and
+  `typecheck`. The web build reached compile, lint/typecheck, page-data
+  collection, 35 generated static pages, finalization, and trace collection
+  before the known local Windows standalone symlink `EPERM`. No new target
+  moderation APIs, target mutation from the report status route, lock/pin,
+  unsupported target mutation, global `/reports` widening, public logs,
+  notification UI changes, private/admin field rendering, broad styling,
+  billing/provider/cache, Developer Space, or auth/session work was added.
 - DAEDALUS implements PR104 Community Delegated Report Status UI on 2026-06-20.
   The scoped queue page `/forums/subcommunities/[slug]/moderation` now renders
   report status controls only after the same access preflight that permits

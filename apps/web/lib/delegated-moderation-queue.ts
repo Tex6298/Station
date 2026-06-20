@@ -1,5 +1,6 @@
 import type {
   AuthUser,
+  CommunityModerationSafetyAction,
   CommunitySubcommunityRecord,
   DelegatedModerationReportRecord,
   ModerationReportTargetContext,
@@ -7,6 +8,7 @@ import type {
 
 export const DELEGATED_QUEUE_STATUSES = ["open", "reviewing", "resolved", "dismissed"] as const;
 export const DELEGATED_REPORT_TRANSITION_STATUSES = ["reviewing", "resolved", "dismissed"] as const;
+export const DELEGATED_TARGET_ACTIONS: CommunityModerationSafetyAction[] = ["hide", "unhide", "remove", "restore"];
 export type DelegatedQueueStatus = typeof DELEGATED_QUEUE_STATUSES[number];
 export type DelegatedReportTransitionStatus = typeof DELEGATED_REPORT_TRANSITION_STATUSES[number];
 
@@ -53,6 +55,20 @@ export function canRenderDelegatedStatusControls(
   subcommunity?: Pick<CommunitySubcommunityRecord, "ownerUserId" | "viewerCanModerate"> | null
 ) {
   return canUseDelegatedModerationQueue(user, subcommunity);
+}
+
+export function delegatedTargetActions(report: Pick<DelegatedModerationReportRecord, "targetContext">) {
+  return (report.targetContext?.supportedActions ?? []).filter((action): action is CommunityModerationSafetyAction =>
+    DELEGATED_TARGET_ACTIONS.includes(action as CommunityModerationSafetyAction)
+  );
+}
+
+export function canRenderDelegatedTargetControls(
+  user: (AuthUser & { isAdmin?: boolean }) | null | undefined,
+  subcommunity: Pick<CommunitySubcommunityRecord, "ownerUserId" | "viewerCanModerate"> | null | undefined,
+  report: Pick<DelegatedModerationReportRecord, "targetContext">
+) {
+  return canRenderDelegatedStatusControls(user, subcommunity) && delegatedTargetActions(report).length > 0;
 }
 
 export function delegatedReportStatusLabel(status: DelegatedQueueStatus) {

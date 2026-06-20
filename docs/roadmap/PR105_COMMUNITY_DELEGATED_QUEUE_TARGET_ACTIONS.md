@@ -4,7 +4,7 @@ Date opened: 2026-06-20
 Opened by: A1 / MIMIR
 Owner: DAEDALUS implements or precisely blocks, ARGUS reviews, ARIADNE rehearses
 visible behavior before MIMIR closeout.
-Status: open for DAEDALUS
+Status: implemented by DAEDALUS; ready for ARGUS review
 
 ## Why This Lane
 
@@ -135,3 +135,59 @@ git diff --check
 If the web build reaches compile/lint/page generation and then hits the known
 Windows output cleanup `EPERM`, report that precisely rather than treating it as
 an app failure.
+
+## DAEDALUS Implementation
+
+Implemented on 2026-06-20.
+
+Visible route:
+
+- Updated `/forums/subcommunities/[slug]/moderation`.
+- Added a separate `Target safety` control group below the existing `Report
+  status` group.
+- Controls render only after scoped queue access preflight succeeds and only
+  when the sanitized delegated target context exposes supported actions.
+
+Supported action proof:
+
+- Supported actions are limited to `hide`, `unhide`, `remove`, and `restore`.
+- Unsupported rows, rows without target context, and rows without supported
+  actions render no target controls.
+- The helper layer filters supported actions through the shared
+  `CommunityModerationSafetyAction` set.
+
+Route-selection proof:
+
+- Thread rows call only the existing `PATCH /threads/:id/moderation` helper.
+- Comment rows call only the existing `PATCH /comments/:id/moderation` helper.
+- Report status controls remain separate and continue to call only
+  `PATCH /forums/subcommunities/:slug/moderation/reports/:id`.
+- No new target moderation API was added.
+
+Row update/error behavior:
+
+- Successful target actions refetch the scoped delegated queue for the current
+  filter, so target state and supported action readback stay API-authored.
+- Failed target actions keep the row visible and show a bounded row-level
+  error below the separate control groups.
+
+Validation:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 78 tests passed, including supported-action rendering, no-context hiding, and delegated target control gating. |
+| `npm exec --yes pnpm@10.32.1 -- run test:community` | Pass | 17 tests passed; PR99/PR103 scoped action and report status coverage stayed green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:reports` | Pass | 6 tests passed; global admin `/reports` behavior stayed green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` | Pass | 1 test passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API typecheck replayed from cache and web typecheck ran. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web build` | Partial / known Windows failure | Next compiled, linted/typechecked, collected page data, generated 35 static pages, finalized optimization, and collected build traces before the known local Windows standalone symlink `EPERM` during traced-file copy. Only the pre-existing raw `<img>` warnings appeared. |
+| `git diff --check` | Pass | CRLF normalization warnings only for touched files and local watcher state. |
+
+Non-scope confirmation:
+
+- No new target moderation APIs, target mutation from the report status route,
+  lock/pin actions, unsupported target mutation, global `/reports` widening,
+  global admin behavior change, public logs, public moderator directory,
+  review-request expansion, notification UI changes, private/admin field
+  rendering, broad styling, billing/provider/cache, Redis/Upstash, Cloudflare,
+  Developer Space, or auth/session work was added.

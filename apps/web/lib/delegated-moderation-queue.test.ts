@@ -3,6 +3,7 @@ import test from "node:test";
 import {
   canUseDelegatedModerationQueue,
   canRenderDelegatedStatusControls,
+  canRenderDelegatedTargetControls,
   delegatedModerationPagePath,
   delegatedModerationQueuePath,
   delegatedReportContextLabel,
@@ -11,6 +12,7 @@ import {
   delegatedReportStatusLabel,
   delegatedReportStatusPath,
   delegatedReportTargetLabel,
+  delegatedTargetActions,
   delegatedReportVisibleKeys,
   nextDelegatedReportStatuses,
   reportMatchesDelegatedQueueFilter,
@@ -55,6 +57,30 @@ test("delegated status labels and transitions stay bounded to PR103 statuses", (
   assert.deepEqual(nextDelegatedReportStatuses("open"), ["reviewing", "resolved", "dismissed"]);
   assert.deepEqual(nextDelegatedReportStatuses("reviewing"), ["resolved", "dismissed"]);
   assert.deepEqual(nextDelegatedReportStatuses("resolved"), ["reviewing", "dismissed"]);
+});
+
+test("delegated target actions render only from sanitized supported action context", () => {
+  const user = { id: "moderator-1", tier: "private" as const };
+  const report = {
+    id: "report-thread",
+    targetType: "thread" as const,
+    targetId: "thread-1",
+    reason: "unsafe_thread",
+    status: "open" as const,
+    targetContext: {
+      targetType: "thread" as const,
+      targetId: "thread-1",
+      canOpenRoute: false,
+      supportedActions: ["hide", "remove"] as Array<"hide" | "remove">,
+    },
+    createdAt: "2026-06-20T10:00:00.000Z",
+    updatedAt: "2026-06-20T10:00:00.000Z",
+  };
+
+  assert.deepEqual(delegatedTargetActions(report), ["hide", "remove"]);
+  assert.equal(canRenderDelegatedTargetControls(user, { viewerCanModerate: true }, report), true);
+  assert.equal(canRenderDelegatedTargetControls(user, { viewerCanModerate: true }, { ...report, targetContext: null }), false);
+  assert.equal(canRenderDelegatedTargetControls(user, { ownerUserId: "owner-1" }, report), false);
 });
 
 test("delegated moderation queue sanitizes unsupported rows and private fields", () => {

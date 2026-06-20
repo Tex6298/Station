@@ -48,6 +48,39 @@ pnpm test:developer-spaces
 pnpm test:developer-space-client
 ```
 
+## PR105 Community Delegated Queue Target Actions
+
+DAEDALUS implementation validation on 2026-06-20:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 78 tests passed, including delegated target supported-action rendering, no-context hiding, and target control gating. |
+| `npm exec --yes pnpm@10.32.1 -- run test:community` | Pass | 17 tests passed; scoped community moderation and delegated report status coverage stayed green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:reports` | Pass | 6 tests passed; global admin `/reports` behavior remained unchanged. |
+| `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` | Pass | 1 test passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API typecheck replayed from cache and web typecheck ran. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web build` | Partial / known Windows failure | Next compiled, linted/typechecked, collected page data, generated 35 static pages, finalized optimization, and collected build traces before the known local Windows standalone symlink `EPERM` during traced-file copy. Only the pre-existing raw `<img>` warnings appeared. |
+| `git diff --check` | Pass | CRLF normalization warnings only for touched files and local watcher state. |
+
+Scope notes:
+
+- Added a separate `Target safety` control group to
+  `/forums/subcommunities/[slug]/moderation`.
+- Target controls render only after scoped queue preflight succeeds and only
+  from sanitized delegated target context `supportedActions`.
+- Supported actions are limited to `hide`, `unhide`, `remove`, and `restore`.
+- Thread rows call only `PATCH /threads/:id/moderation`; comment rows call only
+  `PATCH /comments/:id/moderation`.
+- Report status controls remain separate and still call only the PR103 scoped
+  report route.
+- Successful target actions refetch the scoped queue for the current filter;
+  failed actions keep rows visible with bounded row-level errors.
+- No new target moderation APIs, target mutation from the report status route,
+  lock/pin, unsupported target mutation, global `/reports` widening, public
+  logs, notification UI changes, private/admin field rendering, broad styling,
+  billing/provider/cache work, Developer Space work, or auth/session refactor
+  was added.
+
 ## PR104 Community Delegated Report Status UI
 
 DAEDALUS implementation validation on 2026-06-20:
