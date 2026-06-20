@@ -80,6 +80,8 @@ export interface ThreadRecord {
   lastActivityAt?: string;
   moderationState?: 'normal' | 'needs_review' | 'hidden' | 'removed';
   viewerVote?: -1 | 0 | 1;
+  witnessCounts?: CommunityWitnessCounts;
+  viewerWitnesses?: CommunityWitnessKind[];
   authorshipProvenance?: CommunityAuthorshipProvenanceLabel;
   discussionProvenance?: DiscussionProvenanceLabel;
   score: number;
@@ -101,6 +103,8 @@ export interface CommentRecord {
   voteCount?: number;
   moderationState?: 'normal' | 'needs_review' | 'hidden' | 'removed';
   viewerVote?: -1 | 0 | 1;
+  witnessCounts?: CommunityWitnessCounts;
+  viewerWitnesses?: CommunityWitnessKind[];
   authorshipProvenance?: CommunityAuthorshipProvenanceLabel;
   discussionProvenance?: DiscussionProvenanceLabel;
   score: number;
@@ -134,12 +138,25 @@ export interface CommunityModerationActionRecord {
 
 export type CommunityNotificationType = 'thread_comment' | 'report_status' | 'review_request_status';
 export type CommunityNotificationTargetType = 'thread' | 'comment' | 'moderation_report' | 'moderation_review_request';
+export type CommunityWitnessKind = 'helpful' | 'grounded' | 'careful';
+export type CommunityWitnessCounts = Record<CommunityWitnessKind, number>;
 
 export interface CommunityThreadWatchRecord {
   id: string;
   userId: string;
   threadId: string;
   isMuted: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CommunityWitnessRecord {
+  id: string;
+  witnessUserId: string;
+  targetType: 'thread' | 'comment';
+  targetId: string;
+  witnessKind: CommunityWitnessKind;
+  revokedAt?: string | null;
   createdAt: string;
   updatedAt: string;
 }

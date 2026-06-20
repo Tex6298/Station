@@ -41,6 +41,8 @@ export type ThreadStatus = "active" | "locked" | "removed";
 export type ThreadVisibility = "public" | "community" | "unlisted";
 export type CommunityAuthorshipKind = "user_authored" | "ai_assisted" | "persona_authored" | "imported" | "derived";
 export type CommunityAuthorshipSourceType = "ai" | "persona" | "import" | "document" | "system";
+export type CommunityWitnessTargetType = "thread" | "comment";
+export type CommunityWitnessKind = "helpful" | "grounded" | "careful";
 export type SubcommunityType = "general" | "canon" | "developer";
 export type SubcommunityVisibility = "public" | "community" | "unlisted" | "private";
 export type SubcommunityStatus = "active" | "paused" | "archived";
@@ -1055,6 +1057,25 @@ export interface Database {
           updated_at?: string;
         };
         Update: Partial<Database["public"]["Tables"]["community_thread_watches"]["Insert"]>;
+      };
+      community_witnesses: {
+        Row: {
+          id: string;
+          witness_user_id: string;
+          target_type: CommunityWitnessTargetType;
+          target_id: string;
+          witness_kind: CommunityWitnessKind;
+          revoked_at: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: Omit<Database["public"]["Tables"]["community_witnesses"]["Row"], "id" | "revoked_at" | "created_at" | "updated_at"> & {
+          id?: string;
+          revoked_at?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["community_witnesses"]["Insert"]>;
       };
       community_notifications: {
         Row: {

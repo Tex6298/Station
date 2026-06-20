@@ -5,10 +5,14 @@ import { optionalAuth, requireAuth, type AuthenticatedUser } from "../middleware
 import { requireTier } from "../middleware/require-tier";
 import {
   castCommunityVote,
+  isCommunityWitnessKind,
+  listCommunityWitnessSummaries,
   listModerationActions,
   listViewerVotes,
   recordModerationAction,
+  removeCommunityWitness,
   serializeModerationAction,
+  setCommunityWitness,
 } from "../services/community.service";
 import { serializeCommunityThreadWatch } from "../services/community-notifications.service";
 import {
@@ -91,7 +95,7 @@ threadsRouter.get("/:id", optionalAuth, async (req: Request, res: Response) => {
 
   if (commentErr) return res.status(500).json({ error: commentErr.message });
 
-  const [viewerThreadVotes, viewerCommentVotes, moderationActions] = await Promise.all([
+  const [viewerThreadVotes, viewerCommentVotes, moderationActions, threadWitnesses, commentWitnesses] = await Promise.all([
     listViewerVotes({
       voterUserId: req.user?.id,
       targetType: "thread",
@@ -105,6 +109,16 @@ threadsRouter.get("/:id", optionalAuth, async (req: Request, res: Response) => {
     req.user?.isAdmin
       ? listModerationActions("thread", thread.id).catch(() => [])
       : Promise.resolve([]),
+    listCommunityWitnessSummaries({
+      viewerUserId: req.user?.id,
+      targetType: "thread",
+      targetIds: [thread.id],
+    }).catch(() => ({})),
+    listCommunityWitnessSummaries({
+      viewerUserId: req.user?.id,
+      targetType: "comment",
+      targetIds: (comments ?? []).map((comment) => comment.id),
+    }).catch(() => ({})),
   ]);
 
   res.json({
@@ -112,11 +126,13 @@ threadsRouter.get("/:id", optionalAuth, async (req: Request, res: Response) => {
       ...withCommunityAuthorshipProvenance(thread),
       document: serializeThreadDocumentLink(thread.document),
       viewer_vote: (viewerThreadVotes as Record<string, number>)[thread.id] ?? 0,
+      ...(threadWitnesses as Record<string, any>)[thread.id],
       discussion_provenance: serializeThreadDiscussionProvenance(thread),
     },
     comments: (comments ?? []).map((comment) => ({
       ...withCommunityAuthorshipProvenance(comment),
       viewer_vote: (viewerCommentVotes as Record<string, number>)[comment.id] ?? 0,
+      ...(commentWitnesses as Record<string, any>)[comment.id],
       discussion_provenance: serializeCommentDiscussionProvenance(),
     })),
     moderationActions: moderationActions.map(serializeModerationAction),
@@ -217,6 +233,44 @@ threadsRouter.delete("/:id/watch", requireTier("private"), async (req: Request, 
 
   if (error) return res.status(500).json({ error: error.message });
   return res.json({ isWatching: false, watch: null });
+});
+
+threadsRouter.put("/:id/witness/:kind", requireTier("private"), async (req: Request, res: Response) => {
+  if (!isCommunityWitnessKind(req.params.kind)) return res.status(400).json({ error: "Unsupported witness kind." });
+  const target = await loadReadableThreadForWitness(req.params.id, req.user, res);
+  if (!target) return;
+  if (target.author_user_id === req.user!.id) {
+    return res.status(400).json({ error: "You cannot witness your own contribution." });
+  }
+
+  await setCommunityWitness({
+    witnessUserId: req.user!.id,
+    targetType: "thread",
+    targetId: target.id,
+    witnessKind: req.params.kind,
+  });
+  return res.status(200).json({
+    witness: await witnessSummaryFor("thread", target.id, req.user!.id),
+  });
+});
+
+threadsRouter.delete("/:id/witness/:kind", requireTier("private"), async (req: Request, res: Response) => {
+  if (!isCommunityWitnessKind(req.params.kind)) return res.status(400).json({ error: "Unsupported witness kind." });
+  const target = await loadReadableThreadForWitness(req.params.id, req.user, res);
+  if (!target) return;
+  if (target.author_user_id === req.user!.id) {
+    return res.status(400).json({ error: "You cannot witness your own contribution." });
+  }
+
+  await removeCommunityWitness({
+    witnessUserId: req.user!.id,
+    targetType: "thread",
+    targetId: target.id,
+    witnessKind: req.params.kind,
+  });
+  return res.status(200).json({
+    witness: await witnessSummaryFor("thread", target.id, req.user!.id),
+  });
 });
 
 // --- Vote on a thread --------------------------------------------------------
@@ -363,4 +417,41 @@ async function loadSubcommunityForCategoryOrRespond(
     res.status(500).json({ error: message });
     return { ok: false };
   }
+}
+
+async function loadReadableThreadForWitness(
+  threadId: string,
+  user: AuthenticatedUser | undefined,
+  res: Response
+) {
+  const sb = getSupabaseAdmin();
+  const { data: thread } = await sb
+    .from("threads")
+    .select("id, category_id, status, visibility, is_hidden, author_user_id")
+    .eq("id", threadId)
+    .maybeSingle();
+
+  if (!thread || !canReadThread(thread, user)) {
+    res.status(404).json({ error: "Thread not found" });
+    return null;
+  }
+
+  const subcommunityLookup = await loadSubcommunityForCategoryOrRespond(thread.category_id, res);
+  if (!subcommunityLookup.ok) return null;
+  const subcommunity = subcommunityLookup.subcommunity;
+  if (subcommunity && !canReadSubcommunity(subcommunity, user)) {
+    res.status(404).json({ error: "Thread not found" });
+    return null;
+  }
+
+  return thread;
+}
+
+async function witnessSummaryFor(targetType: "thread" | "comment", targetId: string, viewerUserId: string) {
+  const summaries = await listCommunityWitnessSummaries({
+    viewerUserId,
+    targetType,
+    targetIds: [targetId],
+  });
+  return summaries[targetId] ?? { witness_counts: { helpful: 0, grounded: 0, careful: 0 }, viewer_witnesses: [] };
 }

@@ -1,6 +1,7 @@
 import { getSupabaseAdmin } from "../lib/supabase";
 
 export type CommunityVoteTargetType = "thread" | "comment";
+export type CommunityWitnessKind = "helpful" | "grounded" | "careful";
 export type CommunityModerationTargetType = "thread" | "comment" | "user";
 export type CommunityModerationAction =
   | "lock"
@@ -116,6 +117,94 @@ export async function listViewerVotes(input: {
 
   if (error) throw new Error(error.message);
   return Object.fromEntries((data ?? []).map((row: any) => [row.target_id, row.value]));
+}
+
+export function emptyWitnessCounts() {
+  return { helpful: 0, grounded: 0, careful: 0 };
+}
+
+export function isCommunityWitnessKind(value: string): value is CommunityWitnessKind {
+  return value === "helpful" || value === "grounded" || value === "careful";
+}
+
+export async function setCommunityWitness(input: {
+  witnessUserId: string;
+  targetType: CommunityVoteTargetType;
+  targetId: string;
+  witnessKind: CommunityWitnessKind;
+}) {
+  const sb = getSupabaseAdmin();
+  const { data, error } = await (sb as any)
+    .from("community_witnesses")
+    .upsert({
+      witness_user_id: input.witnessUserId,
+      target_type: input.targetType,
+      target_id: input.targetId,
+      witness_kind: input.witnessKind,
+      revoked_at: null,
+    }, { onConflict: "witness_user_id,target_type,target_id,witness_kind" })
+    .select("*")
+    .single();
+
+  if (error) throw new Error(error.message);
+  return data;
+}
+
+export async function removeCommunityWitness(input: {
+  witnessUserId: string;
+  targetType: CommunityVoteTargetType;
+  targetId: string;
+  witnessKind: CommunityWitnessKind;
+}) {
+  const sb = getSupabaseAdmin();
+  const { data, error } = await (sb as any)
+    .from("community_witnesses")
+    .update({ revoked_at: new Date().toISOString() })
+    .eq("witness_user_id", input.witnessUserId)
+    .eq("target_type", input.targetType)
+    .eq("target_id", input.targetId)
+    .eq("witness_kind", input.witnessKind)
+    .is("revoked_at", null)
+    .select("*");
+
+  if (error) throw new Error(error.message);
+  return data?.[0] ?? null;
+}
+
+export async function listCommunityWitnessSummaries(input: {
+  viewerUserId?: string | null;
+  targetType: CommunityVoteTargetType;
+  targetIds: string[];
+}) {
+  if (input.targetIds.length === 0) return {};
+  const sb = getSupabaseAdmin();
+  const { data, error } = await (sb as any)
+    .from("community_witnesses")
+    .select("target_id, witness_kind, witness_user_id")
+    .eq("target_type", input.targetType)
+    .in("target_id", input.targetIds)
+    .is("revoked_at", null);
+
+  if (error) throw new Error(error.message);
+
+  const summaries: Record<string, { witness_counts: ReturnType<typeof emptyWitnessCounts>; viewer_witnesses?: CommunityWitnessKind[] }> = {};
+  for (const targetId of input.targetIds) {
+    summaries[targetId] = { witness_counts: emptyWitnessCounts() };
+    if (input.viewerUserId) summaries[targetId].viewer_witnesses = [];
+  }
+
+  for (const row of data ?? []) {
+    const kind = isCommunityWitnessKind(row.witness_kind) ? row.witness_kind : null;
+    if (!kind) continue;
+    const summary = summaries[row.target_id] ?? { witness_counts: emptyWitnessCounts() };
+    summary.witness_counts[kind] += 1;
+    if (input.viewerUserId && row.witness_user_id === input.viewerUserId && !summary.viewer_witnesses?.includes(kind)) {
+      (summary.viewer_witnesses ??= []).push(kind);
+    }
+    summaries[row.target_id] = summary;
+  }
+
+  return summaries;
 }
 
 export async function recordModerationAction(input: {

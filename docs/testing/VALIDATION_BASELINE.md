@@ -9323,6 +9323,40 @@ Route notes:
 - Desktop and 390px mobile checks did not show horizontal overflow or offscreen
   primary controls.
 
+## PR95 Community Recognition/Witness Foundation
+
+DAEDALUS implementation validation on 2026-06-20:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:community` | Pass | 14 tests passed, including witness eligibility, self-witness prevention, hidden target fail-closed behavior, idempotency, aggregate-only public readback, viewer-scoped witness state, and soft revoke. |
+| `npm exec --yes pnpm@10.32.1 -- run test:reports` | Pass | 6 tests passed; moderation report scoping remains green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` | Pass | 1 test passed; document discussion visibility remains green. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck completed. |
+| `git diff --check` | Pass | Passed with CRLF normalization warnings only. |
+
+Scope notes:
+
+- Added migration `043_community_witnesses.sql` with current-user scoped
+  witness rows for thread/comment targets, `helpful`/`grounded`/`careful`
+  witness kinds, user/target/kind idempotency, and `revoked_at` soft removal.
+- Added DB and shared community type surfaces for witness kinds, records, counts,
+  and viewer-scoped witness state.
+- Added `PUT`/`DELETE /threads/:id/witness/:kind` and
+  `PUT`/`DELETE /comments/:id/witness/:kind`.
+- Witness routes require private tier, reject unsupported kinds, prevent
+  self-witness, and fail closed for unreadable, hidden, removed, or
+  subcommunity-protected targets.
+- Category, thread detail, comment list, and comment create serializers expose
+  aggregate `witness_counts` and, only for the current viewer, `viewer_witnesses`.
+- Serializers do not expose witnesser ids, private notes, hidden target bodies,
+  moderation internals, rankings, badges, leaderboards, or notification fanout.
+- No visible web route changed; no ARIADNE rehearsal is required unless ARGUS
+  asks for one.
+- No AI/persona posting, delegated moderation, billing/provider/cache, Redis,
+  Cloudflare, Developer Space expansion, auth/session refactor, broad forum UI,
+  or visibility widening was added.
+
 ## PR94 Community Authorship Provenance Foundation
 
 DAEDALUS implementation validation on 2026-06-20:

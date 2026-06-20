@@ -7,6 +7,7 @@ import { requireTier } from "../middleware/require-tier";
 import {
   bumpCommunityActivity,
   ensureCommunityProfile,
+  listCommunityWitnessSummaries,
   listViewerVotes,
   serializeCommunityProfile,
 } from "../services/community.service";
@@ -267,7 +268,14 @@ forumsRouter.get("/categories/:slug", optionalAuth, async (req: Request, res: Re
     targetIds: threads.map((thread) => thread.id),
   }).catch(() => ({}));
 
-  const authorProfiles = await loadCommunityProfiles([...new Set(threads.map((thread) => thread.author_user_id).filter(Boolean))]);
+  const [authorProfiles, witnessSummaries] = await Promise.all([
+    loadCommunityProfiles([...new Set(threads.map((thread) => thread.author_user_id).filter(Boolean))]),
+    listCommunityWitnessSummaries({
+      viewerUserId: req.user?.id,
+      targetType: "thread",
+      targetIds: threads.map((thread) => thread.id),
+    }).catch(() => ({})),
+  ]);
   const enrichedThreads = threads.map((thread) => {
     const threadPayload = { ...thread };
     delete threadPayload.document;
@@ -275,6 +283,7 @@ forumsRouter.get("/categories/:slug", optionalAuth, async (req: Request, res: Re
       ...withCommunityAuthorshipProvenance(threadPayload),
       viewer_vote: (viewerVotes as Record<string, number>)[thread.id] ?? 0,
       author_community_profile: authorProfiles[thread.author_user_id] ?? null,
+      ...(witnessSummaries as Record<string, any>)[thread.id],
       discussion_provenance: serializeThreadDiscussionProvenance(thread),
     };
   });

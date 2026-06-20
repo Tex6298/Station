@@ -197,6 +197,7 @@ class CommunitySupabase {
     comments: [],
     community_thread_watches: [],
     community_notifications: [],
+    community_witnesses: [],
     community_votes: [],
     community_moderation_actions: [
       {
@@ -456,6 +457,12 @@ class CommunitySupabase {
 
     if (table === "community_thread_watches") {
       row.is_muted ??= false;
+      row.created_at ??= now;
+      row.updated_at ??= now;
+    }
+
+    if (table === "community_witnesses") {
+      row.revoked_at ??= null;
       row.created_at ??= now;
       row.updated_at ??= now;
     }
@@ -1264,6 +1271,106 @@ test("community participation requires private tier for create, vote, and commun
       token: "member-token",
     });
     assert.equal(memberCommunityThread.status, 200);
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
+
+test("community witnesses are current-user scoped, idempotent, and aggregate-only", async () => {
+  const db = new CommunitySupabase();
+  const ownerComment = db.insertRow("comments", {
+    author_user_id: OWNER_ID,
+    parent_type: "thread",
+    parent_id: PUBLIC_THREAD_ID,
+    body: "Owner-authored comment for witness checks.",
+  });
+  const hiddenComment = db.insertRow("comments", {
+    author_user_id: OWNER_ID,
+    parent_type: "thread",
+    parent_id: PUBLIC_THREAD_ID,
+    body: "Hidden comment should fail closed.",
+    is_hidden: true,
+  });
+  setSupabaseAdminForTests(db.client as any);
+  const app = createCommunityApp();
+
+  try {
+    const anonymousWitness = await requestJson(app, "PUT", `/threads/${PUBLIC_THREAD_ID}/witness/helpful`);
+    assert.equal(anonymousWitness.status, 401);
+
+    const visitorWitness = await requestJson(app, "PUT", `/threads/${PUBLIC_THREAD_ID}/witness/helpful`, {
+      token: "visitor-token",
+    });
+    assert.equal(visitorWitness.status, 403);
+
+    const unsupportedKind = await requestJson(app, "PUT", `/threads/${PUBLIC_THREAD_ID}/witness/loud`, {
+      token: "member-token",
+    });
+    assert.equal(unsupportedKind.status, 400);
+
+    const selfWitness = await requestJson(app, "PUT", `/threads/${PUBLIC_THREAD_ID}/witness/helpful`, {
+      token: "owner-token",
+    });
+    assert.equal(selfWitness.status, 400);
+
+    const hiddenTarget = await requestJson(app, "PUT", `/threads/${HIDDEN_THREAD_ID}/witness/helpful`, {
+      token: "member-token",
+    });
+    assert.equal(hiddenTarget.status, 404);
+
+    const firstWitness = await requestJson(app, "PUT", `/threads/${PUBLIC_THREAD_ID}/witness/helpful`, {
+      token: "member-token",
+    });
+    assert.equal(firstWitness.status, 200);
+    assert.deepEqual(firstWitness.body.witness.witness_counts, { helpful: 1, grounded: 0, careful: 0 });
+    assert.deepEqual(firstWitness.body.witness.viewer_witnesses, ["helpful"]);
+    assert.equal(JSON.stringify(firstWitness.body).includes(MEMBER_ID), false);
+
+    const duplicateWitness = await requestJson(app, "PUT", `/threads/${PUBLIC_THREAD_ID}/witness/helpful`, {
+      token: "member-token",
+    });
+    assert.equal(duplicateWitness.status, 200);
+    assert.equal(db.tables.community_witnesses.length, 1);
+    assert.deepEqual(duplicateWitness.body.witness.witness_counts, { helpful: 1, grounded: 0, careful: 0 });
+
+    const publicThread = await requestJson(app, "GET", `/threads/${PUBLIC_THREAD_ID}`);
+    assert.equal(publicThread.status, 200);
+    assert.deepEqual(publicThread.body.thread.witness_counts, { helpful: 1, grounded: 0, careful: 0 });
+    assert.equal(publicThread.body.thread.viewer_witnesses, undefined);
+    assert.equal(JSON.stringify(publicThread.body).includes("witness_user_id"), false);
+    assert.equal(JSON.stringify(publicThread.body).includes(MEMBER_ID), false);
+
+    const memberThread = await requestJson(app, "GET", `/threads/${PUBLIC_THREAD_ID}`, {
+      token: "member-token",
+    });
+    assert.deepEqual(memberThread.body.thread.viewer_witnesses, ["helpful"]);
+
+    const commentWitness = await requestJson(app, "PUT", `/comments/${ownerComment.id}/witness/grounded`, {
+      token: "member-token",
+    });
+    assert.equal(commentWitness.status, 200);
+    assert.deepEqual(commentWitness.body.witness.witness_counts, { helpful: 0, grounded: 1, careful: 0 });
+
+    const hiddenCommentWitness = await requestJson(app, "PUT", `/comments/${hiddenComment.id}/witness/careful`, {
+      token: "member-token",
+    });
+    assert.equal(hiddenCommentWitness.status, 404);
+
+    const threadWithComments = await requestJson(app, "GET", `/threads/${PUBLIC_THREAD_ID}`, {
+      token: "member-token",
+    });
+    const witnessedComment = threadWithComments.body.comments.find((comment: Row) => comment.id === ownerComment.id);
+    assert.deepEqual(witnessedComment.witness_counts, { helpful: 0, grounded: 1, careful: 0 });
+    assert.deepEqual(witnessedComment.viewer_witnesses, ["grounded"]);
+    assert.equal(JSON.stringify(threadWithComments.body).includes("witness_user_id"), false);
+
+    const removeWitness = await requestJson(app, "DELETE", `/threads/${PUBLIC_THREAD_ID}/witness/helpful`, {
+      token: "member-token",
+    });
+    assert.equal(removeWitness.status, 200);
+    assert.deepEqual(removeWitness.body.witness.witness_counts, { helpful: 0, grounded: 0, careful: 0 });
+    assert.deepEqual(removeWitness.body.witness.viewer_witnesses, []);
+    assert.equal(db.tables.community_witnesses[0].revoked_at !== null, true);
   } finally {
     setSupabaseAdminForTests(null);
   }

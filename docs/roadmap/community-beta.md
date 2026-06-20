@@ -58,6 +58,10 @@ promised in the Station documents.
   keeping user-authored row authorship separate from linked document provenance
   and persona-link context while stripping raw authorship source ids from public
   serializers.
+- Recognition/witness storage and API foundations exist for readable
+  thread/comment targets, with self-witness prevention, idempotency, fail-closed
+  target visibility, aggregate-only public readback, and viewer-scoped witness
+  state.
 - Tier participation is explicit: public reads remain open, community reads
   require eligible tier, and creation/voting/reporting require `private` tier or
   higher.
@@ -76,7 +80,8 @@ pnpm test:reports
 
 ## Still open
 
-- Recognition/witness mechanics that reward thoughtful contribution rather than volume.
+- Visible recognition/witness UX, if accepted after API review; no leaderboards,
+  badges, or rankings are open.
 - Deeper moderator/admin console UX for unsupported document/space/persona/user
   targets and any future delegated moderator surfaces.
 - Future trusted AI/persona/imported authorship routes, if ever opened; current

@@ -7620,6 +7620,25 @@ when a PR lands, or when validation truth changes.
   AI/persona posting, delegated moderation, billing/provider/cache, Redis,
   Cloudflare, Developer Space expansion, auth/session refactor, broad forum UI,
   or visibility widening is opened.
+- DAEDALUS implements PR95 Community Recognition/Witness Foundation on
+  2026-06-20 and wakes ARGUS for technical review. Migration 043 adds
+  `community_witnesses` with current-user scoped `helpful`/`grounded`/`careful`
+  witness rows, idempotency over user/target/kind, soft revoke via
+  `revoked_at`, and RLS scoped to authenticated reads plus acting-user writes.
+  API routes add `PUT`/`DELETE /threads/:id/witness/:kind` and
+  `PUT`/`DELETE /comments/:id/witness/:kind`, all `private` tier gated,
+  self-witness blocked, and using the same thread/comment readability plus
+  subcommunity fail-closed checks as the existing detail/vote paths. Thread,
+  category, and comment serializers expose only aggregate `witness_counts` and
+  the current viewer's own `viewer_witnesses`; no witnesser ids, private notes,
+  hidden target bodies, moderation internals, rankings, badges, leaderboards,
+  or notification fanout are exposed. Validation passed `test:community` with
+  14 tests, `test:reports` with 6 tests, `test:document-discussions`,
+  `typecheck`, and `git diff --check`. No visible route changed, so ARGUS
+  should wake MIMIR directly if accepted. No AI/persona posting, delegated
+  moderation, billing/provider/cache, Redis/Upstash, Cloudflare, Developer
+  Space expansion, auth/session refactor, broad forum UI, or visibility
+  widening was added.
 
 ## Near-term rule
 
