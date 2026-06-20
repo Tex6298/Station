@@ -8499,6 +8499,19 @@ when a PR lands, or when validation truth changes.
   with 404 and no raw schema-cache message. Validation passed
   `test:document-discussions` with 2 tests, `test:community` with 20 tests,
   `typecheck`, and `git diff --check` with CRLF normalization warnings only.
+- ARGUS accepts the PR117 hosted follow-up on 2026-06-20 and wakes ARIADNE for
+  hosted/browser rerun. ARGUS confirmed the fallbacks are limited to hosted
+  missing schema/column errors and preserve active/non-hidden/visibility
+  filters, legacy-category limits, and fail-closed behavior for non-legacy or
+  subcommunity-backed categories.
+- ARIADNE reruns PR117 on hosted Railway runtime commit `b25f61e34f7d` on
+  2026-06-20 and wakes DAEDALUS with a narrower blocker. Document discussion
+  readback now recovers the linked public thread and the hosted public document
+  page shows `Community thread attached` with an `Open discussion` action on
+  desktop and 390px mobile. The linked thread detail route still returns HTTP
+  500 with `column comments.authorship_kind does not exist`, and the linked
+  forum thread page visibly renders that raw missing-column error on desktop and
+  390px mobile.
 - DAEDALUS implements PR110 Memory Runtime Explanation Readback on 2026-06-20
   and wakes ARGUS for review. The owner Memory page now has a compact Runtime
   context / Memory explanation section that joins the existing owner-only Memory
@@ -8740,7 +8753,57 @@ git diff --check
 - Developer Spaces visual polish before ingestion auth, validation, limits, and
   safe serialization.
 
-## Latest ARGUS verdict - PR117 hosted public-chain follow-up
+## Latest ARIADNE handoff - PR117 hosted thread-detail blocker
+
+PR117 Public Document Discussion Chain made progress after the hosted follow-up,
+but a narrower hosted thread-detail blocker remains. ARIADNE wakes DAEDALUS for
+follow-up.
+
+Deployment:
+
+- API `/health/deployment` returned 200, `ready:true`, and Railway runtime
+  commit `b25f61e34f7d`.
+
+What improved:
+
+- `GET /documents/:id/discussion` now returns 200 with `eligible:true` and a
+  recovered linked public discussion for a representative replay public
+  document.
+- The hosted public document page now shows `Community thread attached` and an
+  `Open discussion` action on desktop and 390px mobile.
+
+Remaining blocker:
+
+- `GET /threads/:id` for the linked public discussion thread still returns HTTP
+  500 on the hosted target.
+- Sanitized API error: `column comments.authorship_kind does not exist`.
+- The linked forum thread page visibly renders that raw missing-column error on
+  desktop and 390px mobile.
+
+Expected:
+
+- The linked forum thread page should load for public visitors when the linked
+  thread is active, non-hidden, and public.
+- Raw hosted schema/missing-column errors should not be visible to public
+  visitors.
+
+Likely patch area for DAEDALUS to verify:
+
+- thread detail comment reads still select hosted-missing `comments.authorship_*`
+  columns without a legacy fallback.
+
+ARIADNE validation: `curl.exe -fsS --max-time 30
+https://stationapi-production.up.railway.app/health/deployment` passed, a
+sanitized hosted API probe confirmed document readback recovery and the thread
+detail 500, `npx --yes @playwright/test@1.41.2 test
+tmp-pr117-public-chain-rerun.spec.js --reporter=line --workers=1` failed at
+linked thread detail status 500, `npx --yes @playwright/test@1.41.2 test
+tmp-pr117-public-chain-thread-blocker.spec.js --reporter=line --workers=1`
+passed as a blocker repro, and `git diff --check` passed.
+
+Result doc: `docs/roadmap/PR117_PUBLIC_DOCUMENT_DISCUSSION_CHAIN.md`.
+
+## Previous ARGUS verdict - PR117 hosted public-chain follow-up
 
 PR117 hosted public-chain follow-up is implemented by DAEDALUS on 2026-06-20
 and accepted by ARGUS technical review. Because this still affects visible

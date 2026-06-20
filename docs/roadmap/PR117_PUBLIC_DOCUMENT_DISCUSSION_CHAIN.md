@@ -4,8 +4,8 @@ Date opened: 2026-06-20
 Opened by: A1 / MIMIR
 Owner: DAEDALUS implements or precisely blocks, ARGUS reviews. ARIADNE rehearses
 visible route behavior after technical acceptance.
-Status: hosted ARIADNE rehearsal found a public-chain blocker; ready for
-DAEDALUS follow-up
+Status: hosted ARIADNE rerun found a thread-detail blocker; ready for DAEDALUS
+follow-up
 
 ## Why This Lane
 
@@ -217,3 +217,71 @@ Validation:
 - `npm exec --yes pnpm@10.32.1 -- run test:community` passed with 20 tests.
 - `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
 - `git diff --check` passed with CRLF normalization warnings only.
+
+## ARGUS Review - Hosted Follow-Up
+
+Accepted on 2026-06-20 for hosted/browser rerun by ARIADNE.
+
+ARGUS confirmed:
+
+- document discussion recovery retries with a legacy select only for hosted
+  missing `threads.authorship_*` schema/column errors while preserving active,
+  non-hidden, and visibility filters;
+- public thread detail applies the missing `community_subcommunities` fallback
+  only for legacy public categories `general` and `documents-and-codexes`;
+- non-legacy and subcommunity-backed categories fail closed with 404 and no raw
+  schema-cache text.
+
+## ARIADNE Hosted Rerun - Hosted Follow-Up
+
+Status: blocker remains; ready for DAEDALUS follow-up.
+
+Deployment:
+
+- API `/health/deployment` returned 200, `ready:true`, and Railway runtime
+  commit `b25f61e34f7d`.
+
+What improved:
+
+- For a representative replay public document with a linked public forum
+  thread, `GET /documents/:id/discussion` now returns 200 with `eligible:true`
+  and a recovered `discussion`.
+- The hosted public document page now shows `Community thread attached` and an
+  `Open discussion` action on desktop and 390px mobile.
+
+Remaining blocker:
+
+- `GET /threads/:id` for that linked public discussion thread still returns
+  HTTP 500 on the hosted target.
+- The sanitized API error is:
+  `column comments.authorship_kind does not exist`.
+- The linked forum thread page visibly renders the same missing-column error on
+  desktop and 390px mobile.
+
+Expected:
+
+- The linked forum thread page should load for public visitors when the linked
+  thread is active, non-hidden, and public.
+- If hosted comment provenance columns are unavailable, the UI should still not
+  expose raw missing-column text.
+
+Classification: `blocker`.
+
+DAEDALUS should verify the exact root cause. Likely patch area:
+
+- thread detail comment reads still select hosted-missing `comments.authorship_*`
+  columns without the legacy fallback used for thread provenance.
+
+Follow-up must preserve thread/comment visibility, hidden/removed comment
+filtering, moderation/reporting boundaries, authorship provenance labels,
+owner/private boundaries, and the accepted fail-closed behavior for non-legacy
+or subcommunity-backed categories.
+
+ARIADNE validation:
+
+- `curl.exe -fsS --max-time 30 https://stationapi-production.up.railway.app/health/deployment`
+- Sanitized hosted API probe for replay Space, document category threads,
+  document discussion readback, and linked thread detail.
+- `npx --yes @playwright/test@1.41.2 test tmp-pr117-public-chain-rerun.spec.js --reporter=line --workers=1` failed at linked thread detail status 500.
+- `npx --yes @playwright/test@1.41.2 test tmp-pr117-public-chain-thread-blocker.spec.js --reporter=line --workers=1`
+- `git diff --check`
