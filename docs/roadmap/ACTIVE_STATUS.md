@@ -8262,6 +8262,17 @@ when a PR lands, or when validation truth changes.
   ranking, add Cloudflare, execute background jobs, store private archive text
   as cache truth, change billing/auth/session behavior, add broad UI work, or
   log provider keys/prompts/payloads/secrets.
+- DAEDALUS implements PR113 Redis/Valkey Cache Foundation on 2026-06-20 and
+  wakes ARGUS for review. Current main already had the operational-cache helper
+  surface with disabled/no-op behavior, Upstash REST support, TCP Redis/Valkey
+  pending disabled state, JSON get/set/delete, scoped counters, short default
+  TTLs, invalidation helpers, and non-secret status. This pass adds root
+  `test:cache` and `docs/architecture/operational-cache-foundation.md`,
+  documenting config, disabled mode, scoped keys, TTLs, accepted roles, and
+  invalidation triggers. Validation passed `test:cache` with 5 tests,
+  `test:storage` with 16 tests, `test:persona-context` with 7 tests,
+  `test:developer-spaces` with 16 tests, and `typecheck`; `git diff --check`
+  passed with CRLF normalization warnings only.
 - DAEDALUS implements PR110 Memory Runtime Explanation Readback on 2026-06-20
   and wakes ARGUS for review. The owner Memory page now has a compact Runtime
   context / Memory explanation section that joins the existing owner-only Memory
@@ -8502,7 +8513,60 @@ git diff --check
 - Developer Spaces visual polish before ingestion auth, validation, limits, and
   safe serialization.
 
-## Latest ARGUS verdict - PR112
+## Latest DAEDALUS handoff - PR113
+
+PR113 Redis/Valkey Cache Foundation is implemented by DAEDALUS on 2026-06-20
+and ready for ARGUS review. No visible route changed, so ARIADNE is not needed
+unless ARGUS finds a visible-route implication.
+
+Files changed: `package.json`, `docs/architecture/operational-cache-foundation.md`,
+`docs/roadmap/PR113_REDIS_VALKEY_CACHE_FOUNDATION.md`,
+`docs/roadmap/ACTIVE_STATUS.md`, and `docs/testing/VALIDATION_BASELINE.md`.
+
+Implementation:
+
+- Current main already contained `apps/api/src/services/operational-cache.service.ts`
+  with disabled/no-op behavior, Upstash REST support, TCP Redis/Valkey pending
+  disabled state, JSON get/set/delete, scoped rate-limit counters,
+  deletion/invalidation helpers, and non-secret status.
+- Added root `test:cache` so the operational-cache suite is a canonical
+  validation gate.
+- Added `docs/architecture/operational-cache-foundation.md` documenting config,
+  disabled mode, key scope, TTLs, accepted roles, invalidation triggers, and
+  non-goals.
+
+Config and disabled-mode proof:
+
+- Missing config disables cache with `missing_config`.
+- TCP Redis/Valkey URLs are recognized but disabled with
+  `tcp_redis_configured_without_client`.
+- Upstash REST is enabled only with both `UPSTASH_REDIS_REST_URL` and
+  `UPSTASH_REDIS_REST_TOKEN`.
+- Status/readiness surfaces expose kind/enabled/disabled reason only, not token
+  or connection values.
+
+Key-scope, TTL, and invalidation proof:
+
+- Keys include `station:<environment>:<purpose>` plus owner, persona,
+  Developer Space, resource, operation, and optional extra parts.
+- Writes require an explicit TTL or use bounded defaults for runtime context,
+  idempotency, rate-limit, and queue-state purposes.
+- Existing invalidation helpers cover archive import, memory/canon edits,
+  continuity writes, persona edits, visibility changes, and Developer Space
+  changes.
+
+Validation: `test:cache` 5 passed, `test:storage` 16 passed,
+`test:persona-context` 7 passed, `test:developer-spaces` 16 passed, and
+`typecheck` passed. `git diff --check` passed with CRLF normalization warnings
+only.
+
+Non-scope confirmation: no Redis canonical memory truth, Redis vector storage,
+Redis-backed retrieval ranking, Cloudflare integration, background job
+execution, durable queue processing, private archive snippet cache truth,
+billing/auth/session change, broad UI work, provider key logging, prompt
+logging, payload logging, or visible route change was added.
+
+## Previous ARGUS verdict - PR112
 
 PR112 Retrieval Provider Metadata Foundation is implemented by DAEDALUS on
 2026-06-20 and accepted by ARGUS technical review. No visible route changed, so

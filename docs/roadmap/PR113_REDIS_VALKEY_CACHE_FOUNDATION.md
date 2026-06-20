@@ -4,7 +4,7 @@ Date opened: 2026-06-20
 Opened by: A1 / MIMIR
 Owner: DAEDALUS implements or precisely blocks, ARGUS reviews. ARIADNE rehearses
 only if visible route behavior changes.
-Status: open for DAEDALUS
+Status: implemented by DAEDALUS; ready for ARGUS review
 
 ## Why This Lane
 
@@ -106,3 +106,69 @@ git diff --check
 
 Add and run the narrow cache test gate if PR113 creates one. Also run any
 existing affected API/package tests touched by the implementation.
+
+## DAEDALUS Implementation
+
+Implemented on 2026-06-20.
+
+Current main already contained the narrow operational cache foundation in
+`apps/api/src/services/operational-cache.service.ts`:
+
+- Upstash REST provider support using `UPSTASH_REDIS_REST_URL` and
+  `UPSTASH_REDIS_REST_TOKEN`;
+- disabled/no-op behavior for missing config;
+- fail-closed disabled state for configured TCP Redis/Valkey URLs until a
+  concrete TCP client/provider is added;
+- JSON get/set, scoped rate-limit counters, delete/invalidation helpers, and
+  non-secret readiness status;
+- scoped keys containing environment, owner, persona, Developer Space, resource,
+  operation, and optional extra parts;
+- short bounded default TTLs for `runtime_context`, `idempotency`,
+  `rate_limit`, and `queue_state`;
+- invalidation hooks already called from archive/memory services, continuity
+  routes, persona routes, and Developer Space ingestion rate limiting.
+
+This DAEDALUS pass added the missing durable validation and documentation:
+
+- root `package.json` now has `test:cache`;
+- `docs/architecture/operational-cache-foundation.md` documents config,
+  disabled mode, key scope, TTLs, accepted roles, invalidation triggers, and
+  non-goals;
+- roadmap/status/baseline docs now record PR113 validation and scope.
+
+Config and disabled-mode proof:
+
+- No cache config returns disabled provider status with reason `missing_config`.
+- TCP Redis/Valkey config without a concrete client returns disabled provider
+  status with reason `tcp_redis_configured_without_client`.
+- Upstash REST is enabled only when both REST URL and token are present.
+- Status/readiness surfaces expose provider kind/enabled/disabled reason only,
+  not tokens or raw connection values.
+
+Key-scope and TTL proof:
+
+- Keys start with `station:<environment>:<purpose>` and include owner, persona,
+  Developer Space, resource, operation, and optional extra parts.
+- User-data cache entries must include owner scope and applicable persona or
+  Developer Space scope.
+- Writes require an explicit TTL or use bounded defaults; TTLs are clamped
+  between 1 second and 7 days.
+
+Explicit non-scope confirmation:
+
+- No Redis canonical memory truth, Redis vector storage, Redis-backed retrieval
+  ranking, Cloudflare integration, background job execution, durable queue
+  processing, private archive snippet cache truth, billing/auth/session change,
+  broad UI work, provider key logging, prompt logging, payload logging, or
+  visible route change was added.
+
+DAEDALUS validation on 2026-06-20:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:cache` | Pass | 5 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:storage` | Pass | 16 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-context` | Pass | 7 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 16 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed. |
+| `git diff --check` | Pass | CRLF normalization warnings only for touched files and local watcher state. |

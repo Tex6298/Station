@@ -34,6 +34,7 @@ pnpm test:billing
 pnpm test:storage
 pnpm test:integrity
 pnpm test:token-credits
+pnpm test:cache
 pnpm test:health
 pnpm test:reports
 pnpm test:community
@@ -48,6 +49,37 @@ pnpm test:exports
 pnpm test:developer-spaces
 pnpm test:developer-space-client
 ```
+
+## PR113 Redis/Valkey Cache Foundation
+
+DAEDALUS implementation validation on 2026-06-20:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:cache` | Pass | 5 tests passed, covering key scoping, disabled mode, TTL/defaults, cross-owner isolation, rate-limit counters, and invalidation keys. |
+| `npm exec --yes pnpm@10.32.1 -- run test:storage` | Pass | 16 tests passed; archive/memory invalidation-adjacent paths stayed green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-context` | Pass | 7 tests passed; persona/memory lifecycle invalidation-adjacent paths stayed green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 16 tests passed; Developer Space rate-limit/cache behavior stayed green. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed. |
+| `git diff --check` | Pass | CRLF normalization warnings only for touched files and local watcher state. |
+
+Implementation result:
+
+- Added root `test:cache` for the existing operational-cache service suite.
+- Added `docs/architecture/operational-cache-foundation.md` documenting config,
+  disabled mode, scoped keys, TTLs, accepted roles, invalidation triggers, and
+  non-goals.
+- Current main already contained the operational-cache helper surface with
+  disabled/no-op behavior, Upstash REST support, TCP Redis/Valkey pending
+  disabled state, JSON get/set/delete, scoped counters, default TTLs,
+  invalidation helpers, and non-secret status.
+- Accepted roles remain runtime context cache, idempotency keys, rate-limit
+  counters, and lightweight queue/job state after a later background-jobs lane.
+- Explicit non-goals preserved: no Redis canonical memory truth, Redis vector
+  storage, Redis-backed retrieval ranking, Cloudflare integration, background
+  job execution, durable queue processing, private archive snippet cache truth,
+  billing/auth/session change, broad UI work, provider key logging, prompt
+  logging, payload logging, or visible route change.
 
 ## PR112 Retrieval Provider Metadata Foundation
 
