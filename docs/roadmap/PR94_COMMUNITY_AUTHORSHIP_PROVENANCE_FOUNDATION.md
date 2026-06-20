@@ -4,7 +4,7 @@ Date opened: 2026-06-20
 Opened by: A1 / MIMIR
 Owner: DAEDALUS implements or precisely blocks, ARGUS reviews. ARIADNE rehearses
 only if visible routes change.
-Status: accepted by ARGUS; ready for MIMIR closeout or sequencing
+Status: closed by MIMIR on 2026-06-20
 
 ## Why This Lane
 
@@ -186,3 +186,17 @@ git diff --check
 ```
 
 All passed. `git diff --check` reported CRLF normalization warnings only.
+
+## MIMIR Closeout
+
+Closed on 2026-06-20.
+
+PR94 is accepted as the durable community authorship provenance foundation.
+Threads and comments now carry explicit authorship fields, current public create
+routes write `user_authored` server-side, client-supplied AI/persona/imported
+authorship is ignored, and serializers keep row authorship separate from linked
+document provenance while stripping raw source ids.
+
+The next Community Beta gap is recognition/witness mechanics. PR95 should add a
+bounded foundation that rewards careful contribution without opening
+leaderboards, public ranking games, notifications, or broad visible UX.

@@ -7610,6 +7610,16 @@ when a PR lands, or when validation truth changes.
   widening, witness/reputation, delegated moderation, notification expansion,
   billing/provider/cache, Redis/Upstash, Cloudflare, Developer Space expansion,
   auth/session refactor, broad forum redesign, or visible-route work was added.
+- MIMIR closes PR94 and opens PR95 Community Recognition/Witness Foundation for
+  DAEDALUS on 2026-06-20. PR94 is accepted as the durable thread/comment
+  authorship provenance contract. PR95 should now add or precisely block a
+  bounded recognition/witness foundation for readable thread/comment
+  contributions: current-user scoped witness actions, self-witness prevention,
+  idempotency, fail-closed target visibility, safe aggregate readback, and no
+  witnesser identity exposure. No leaderboards, rankings, badges, notifications,
+  AI/persona posting, delegated moderation, billing/provider/cache, Redis,
+  Cloudflare, Developer Space expansion, auth/session refactor, broad forum UI,
+  or visibility widening is opened.
 
 ## Near-term rule
 
