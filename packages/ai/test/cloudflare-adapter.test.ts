@@ -25,6 +25,36 @@ test("Cloudflare retrieval adapter stays disabled-safe without explicit config",
   assert.deepEqual(result.candidates, []);
 });
 
+test("Cloudflare retrieval stays pending and non-secret even with complete config", async () => {
+  const config = cloudflareRetrievalConfigFromEnv({
+    CLOUDFLARE_RETRIEVAL_ENABLED: "true",
+    CLOUDFLARE_RETRIEVAL_WORKER_URL: "https://station-memory.example.workers.dev",
+    CLOUDFLARE_RETRIEVAL_API_TOKEN: "cf-secret-token",
+    CLOUDFLARE_VECTORIZE_INDEX: "station-memory-1536",
+  });
+  const status = cloudflareRetrievalStatus(config);
+  const adapter = createCloudflareRetrievalAdapter(config);
+  const result = await adapter.searchCandidateIds({
+    query: "private archive query",
+    ownerUserId: "owner-a",
+    personaId: "persona-a",
+  });
+  const serializedStatus = JSON.stringify(status);
+
+  assert.deepEqual(status, {
+    enabled: false,
+    kind: "worker_vectorize_pending",
+    disabledReason: "remote_adapter_pending",
+    indexName: "station-memory-1536",
+  });
+  assert.deepEqual(result, {
+    status,
+    candidates: [],
+  });
+  assert.doesNotMatch(serializedStatus, /workers\.dev/);
+  assert.doesNotMatch(serializedStatus, /cf-secret-token/);
+});
+
 test("Cloudflare mirror payloads keep IDs and minimal metadata only", () => {
   const payload = buildCloudflareMemoryMirrorPayload({
     id: "memory-a",

@@ -5,7 +5,7 @@ Opened by: A1 / MIMIR
 Owner: DAEDALUS inventories or implements only safe local boundaries, ARGUS
 reviews authorization/index-content risk. ARIADNE rehearses only if visible
 route behavior changes.
-Status: open for DAEDALUS
+Status: implemented by DAEDALUS, awaiting ARGUS review
 
 ## Why This Lane
 
@@ -101,3 +101,70 @@ git diff --check
 
 Run focused retrieval/cache/job tests if any local interface or helper touches
 those areas.
+
+## DAEDALUS Result - 2026-06-20
+
+Implemented as an inventory and boundary-tightening lane. No Cloudflare runtime,
+credential, Worker, Queue, Vectorize call, deployment script, route behavior, UI,
+retrieval provider/ranking, embedding backend, Redis vector storage, background
+execution, or visibility behavior changed.
+
+Files changed:
+
+- `packages/ai/test/cloudflare-adapter.test.ts`
+- `docs/architecture/cloudflare-retrieval-adapter.md`
+- `docs/roadmap/PR115_CLOUDFLARE_RETRIEVAL_BOUNDARY.md`
+- `docs/roadmap/ACTIVE_STATUS.md`
+- `docs/testing/VALIDATION_BASELINE.md`
+- `package.json`
+
+Dependency inventory:
+
+- Carried over: the existing disabled-safe `@station/ai` Cloudflare retrieval
+  adapter contract, minimal mirror payload helper, and Station/Supabase
+  candidate reauthorization helper.
+- Replaced by current Station foundations: D1/canonical memory storage is
+  replaced by Supabase canonical tables; Cloudflare semantic recall is replaced
+  for now by Supabase pgvector plus `station_free_1536`; Redis/Upstash vector
+  ideas are replaced by PR113 operational cache roles only; execution jobs are
+  replaced by PR114 status/idempotency foundations until future lanes.
+- Future-only: Worker runtime, Vectorize live search, Workers AI embeddings,
+  Durable Objects/alarms/heartbeat decay, private snippet mirrors, Cloudflare
+  query privacy policy, delete/export/reindex propagation, and deployment
+  configuration.
+
+Safe boundary proof:
+
+- `docs/architecture/cloudflare-retrieval-adapter.md` now documents pros, cons,
+  and hybrid options for Station/Supabase-only retrieval, Worker adapter,
+  Vectorize ID/minimal-metadata mirror, Redis/Upstash cache around Station
+  retrieval, and mixed Station canonical plus edge mirror.
+- The safe boundary keeps Station/Supabase canonical for records, owner/persona
+  authorization, visibility, lifecycle, deletion, export, and reindex.
+- Future Cloudflare candidates remain hints only and must be re-fetched and
+  reauthorized through Station/Supabase before private records return.
+- Future index metadata may contain IDs and minimal visibility-safe routing and
+  embedding metadata only; private snippets, titles, content, summaries, source
+  names, prompts, provider payloads, provider keys, tokens, and secrets remain
+  barred until a later ARGUS-reviewed lane accepts delete/export/reindex
+  semantics.
+
+Validation:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:cloudflare-retrieval` | Pass | 4 tests passed, including disabled mode, complete-config pending/non-secret status, mirror minimization, and Station/Supabase reauthorization. |
+| `npm exec --yes pnpm@10.32.1 -- run test:retrieval-metadata` | Pass | 8 tests passed; active retrieval metadata and fallback boundaries stayed green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:cache` | Pass | 5 tests passed; PR113 operational-cache supplement boundaries stayed green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:jobs` | Pass | 5 tests passed; PR114 job foundation boundaries stayed green. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed. |
+| `git diff --check` | Pass | CRLF normalization warnings only. |
+
+ARGUS review ask:
+
+- Verify Cloudflare remains non-authoritative.
+- Verify complete local config still stays `remote_adapter_pending` and does not
+  expose worker URL or API token in status.
+- Verify the inventory classification is clear enough for MIMIR to decide
+  whether and when a live Cloudflare lane is worth opening.
+- Verify non-scope stayed intact.

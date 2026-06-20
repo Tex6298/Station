@@ -44,12 +44,43 @@ pnpm test:continuity
 pnpm test:persona-context
 pnpm test:conversation-archive
 pnpm test:retrieval-metadata
+pnpm test:cloudflare-retrieval
 pnpm test:continuity-publication
 pnpm test:document-discussions
 pnpm test:exports
 pnpm test:developer-spaces
 pnpm test:developer-space-client
 ```
+
+## PR115 Cloudflare Retrieval Boundary
+
+DAEDALUS implementation validation on 2026-06-20:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:cloudflare-retrieval` | Pass | 4 tests passed, covering disabled mode, complete-config pending/non-secret status, mirror minimization, and Station/Supabase reauthorization. |
+| `npm exec --yes pnpm@10.32.1 -- run test:retrieval-metadata` | Pass | 8 tests passed; active retrieval metadata and fallback boundaries stayed green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:cache` | Pass | 5 tests passed; PR113 operational-cache supplement boundaries stayed green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:jobs` | Pass | 5 tests passed; PR114 job foundation boundaries stayed green. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed. |
+| `git diff --check` | Pass | CRLF normalization warnings only. |
+
+Implementation result:
+
+- Added root `test:cloudflare-retrieval`.
+- Strengthened the existing Cloudflare adapter test so complete local config
+  still reports `remote_adapter_pending`, returns no candidates, and exposes no
+  Worker URL or API token in status.
+- Updated `docs/architecture/cloudflare-retrieval-adapter.md` with the PR115
+  source-pattern inventory, carried-over/replaced/future-only classification,
+  architecture option pros/cons, and the safe adapter/index-mirror boundary.
+- Confirmed Station/Supabase remains canonical for records, owner/persona
+  authorization, visibility, lifecycle, deletion, export, and reindex.
+- Explicit non-goals preserved: no Cloudflare runtime, Worker, Queue, Vectorize
+  runtime call, credential, deployment script, canonical-record migration out of
+  Supabase, private snippet indexing, provider/ranking change, embedding/vector
+  backend change, Redis vector storage, background execution, visibility change,
+  broad UI work, or private payload logging.
 
 ## PR114 Background Jobs Foundation
 

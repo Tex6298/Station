@@ -8328,6 +8328,22 @@ when a PR lands, or when validation truth changes.
   changes, embedding/vector backend changes, Redis vector storage, background
   execution, visibility changes, broad UI work, or provider key/prompt/payload/
   archive excerpt/secret logging.
+- DAEDALUS implements PR115 Cloudflare Retrieval Boundary on 2026-06-20 and
+  wakes ARGUS for review. This pass keeps Cloudflare disabled/pending and adds
+  the root `test:cloudflare-retrieval` gate plus a complete-config pending/
+  non-secret assertion for the existing adapter. The architecture doc now
+  classifies Cloudflare-dependent source patterns as carried over, replaced by
+  current Station foundations, or future-only, and documents pros/cons for
+  Station/Supabase-only retrieval, Worker adapter, Vectorize ID/minimal-metadata
+  mirror, Redis/Upstash cache around Station retrieval, and mixed Station
+  canonical plus edge mirror. Validation passed `test:cloudflare-retrieval` with
+  4 tests, `test:retrieval-metadata` with 8 tests, `test:cache` with 5 tests,
+  `test:jobs` with 5 tests, and `typecheck`; `git diff --check` passed with
+  CRLF normalization warnings only. No Cloudflare runtime, Worker, Queue,
+  Vectorize call, credentials, deployment script, canonical-record migration out
+  of Supabase, private snippet index, provider/ranking change, embedding/vector
+  backend change, Redis vector storage, background execution, visibility change,
+  UI work, or private payload logging was added.
 - DAEDALUS implements PR110 Memory Runtime Explanation Readback on 2026-06-20
   and wakes ARGUS for review. The owner Memory page now has a compact Runtime
   context / Memory explanation section that joins the existing owner-only Memory
@@ -8550,6 +8566,7 @@ pnpm test:spaces
 pnpm test:continuity
 pnpm test:persona-context
 pnpm test:conversation-archive
+pnpm test:cloudflare-retrieval
 pnpm test:continuity-publication
 pnpm test:document-discussions
 pnpm test:exports
@@ -8568,7 +8585,60 @@ git diff --check
 - Developer Spaces visual polish before ingestion auth, validation, limits, and
   safe serialization.
 
-## Latest ARGUS verdict - PR114
+## Latest DAEDALUS handoff - PR115
+
+PR115 Cloudflare Retrieval Boundary is implemented by DAEDALUS on 2026-06-20 and
+ready for ARGUS technical review. No visible route changed, so ARIADNE is not
+needed unless ARGUS finds a visible-route side effect.
+
+Files changed: `packages/ai/test/cloudflare-adapter.test.ts`,
+`docs/architecture/cloudflare-retrieval-adapter.md`,
+`docs/roadmap/PR115_CLOUDFLARE_RETRIEVAL_BOUNDARY.md`,
+`docs/roadmap/ACTIVE_STATUS.md`, `docs/testing/VALIDATION_BASELINE.md`, and
+`package.json`.
+
+Dependency inventory:
+
+- Carried over: the disabled-safe `@station/ai` Cloudflare adapter contract,
+  minimal mirror payload helper, and Station/Supabase candidate reauthorization
+  helper.
+- Replaced by current Station foundations: D1/canonical memory storage is
+  replaced by Supabase tables; Cloudflare semantic recall is replaced for now by
+  Supabase pgvector plus `station_free_1536`; Redis/Upstash vector ideas are
+  replaced by PR113 operational-cache roles; execution jobs are replaced by
+  PR114 status/idempotency foundations until future lanes.
+- Future-only: Worker runtime, Vectorize live search, Workers AI embeddings,
+  Durable Objects/alarms/heartbeat decay, private snippet mirrors, Cloudflare
+  query privacy policy, delete/export/reindex propagation, and deployment
+  configuration.
+
+Safe boundary proof:
+
+- Station/Supabase remains canonical for records, owner/persona authorization,
+  visibility, lifecycle, deletion, export, and reindex.
+- Future Cloudflare candidates are hints only and must be re-fetched and
+  reauthorized through Station/Supabase before private records return.
+- Future Vectorize metadata may contain IDs and minimal visibility-safe routing
+  and embedding metadata only.
+- Private snippets, titles, content, summaries, source names, prompts, provider
+  payloads, provider keys, tokens, and secrets remain barred until a later
+  ARGUS-reviewed lane accepts delete/export/reindex semantics.
+- Complete local Cloudflare config still reports `remote_adapter_pending` and
+  the focused test proves status does not expose the Worker URL or API token.
+
+Validation: `test:cloudflare-retrieval` 4 passed,
+`test:retrieval-metadata` 8 passed, `test:cache` 5 passed, `test:jobs` 5 passed,
+`typecheck` passed, and `git diff --check` passed with CRLF normalization
+warnings only.
+
+Non-scope confirmation: no Cloudflare runtime, Worker, Queue, Vectorize call,
+credential, deployment script, canonical-record migration out of Supabase,
+private snippet indexing, retrieval provider/ranking change, embedding/vector
+backend change, Redis vector storage, background execution, visibility change,
+UI work, or provider key/prompt/payload/archive excerpt/secret logging was
+added.
+
+## Previous ARGUS verdict - PR114
 
 PR114 Background Jobs Foundation is implemented by DAEDALUS on 2026-06-20 and
 accepted by ARGUS technical review. No visible route changed, so ARIADNE is not
