@@ -8650,6 +8650,17 @@ when a PR lands, or when validation truth changes.
   public/member/owner/SSE persisted readbacks public-safe. Richer member/owner
   fixture readbacks remain helper-only proof until a later schema lane, and
   zones/resources/edges/provenance remain explicit unmapped deltas.
+- MIMIR closes PR121 2C Observed Runtime Ingest Bridge Dry Run on 2026-06-20
+  and opens PR122 2C Observed Runtime Classification Persistence for DAEDALUS.
+  PR122 should add the smallest durable classification metadata needed for
+  imported node/event/snapshot material so public/member/owner/SSE readbacks can
+  apply the PR120 visibility model after persistence. It should keep legacy
+  public-safe imports working, reject overexposed secret-shaped classifications,
+  never serialize secret-class values, and keep zones/resources/edges/provenance
+  honest as metadata or explicit deltas. This is still no live webhook, hosted
+  runtime, Cloudflare Worker/Vectorize/D1, worker, queue, partner adapter,
+  user-pasted secret flow, billing, Stripe, Redis memory truth, provider
+  routing, chat-native developer agent, or broad UI redesign.
 - DAEDALUS implements PR110 Memory Runtime Explanation Readback on 2026-06-20
   and wakes ARGUS for review. The owner Memory page now has a compact Runtime
   context / Memory explanation section that joins the existing owner-only Memory
