@@ -35,6 +35,7 @@ pnpm test:storage
 pnpm test:integrity
 pnpm test:token-credits
 pnpm test:cache
+pnpm test:jobs
 pnpm test:health
 pnpm test:reports
 pnpm test:community
@@ -49,6 +50,40 @@ pnpm test:exports
 pnpm test:developer-spaces
 pnpm test:developer-space-client
 ```
+
+## PR114 Background Jobs Foundation
+
+DAEDALUS implementation validation on 2026-06-20:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:jobs` | Pass | 5 tests passed, covering the bounded job registry, status normalization/transitions, scoped idempotency keys, retry metadata, owner-scoped summaries, and payload redaction. |
+| `npm exec --yes pnpm@10.32.1 -- run test:storage` | Pass | 16 tests passed; archive/import job registration, idempotent reruns, owner gates, failed readback, and sanitization stayed green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:exports` | Pass | 4 tests passed; owner-scoped export package status/readback and failed-package behavior stayed green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:cache` | Pass | 5 tests passed; PR113 operational-cache/idempotency helper behavior stayed green. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed. |
+| `git diff --check` | Pass | CRLF normalization warnings only. |
+
+Implementation result:
+
+- Added root `test:jobs`.
+- Added `docs/architecture/background-jobs-foundation.md`.
+- Added a bounded background job registry/status helper for archive extraction,
+  embedding backfill, memory consolidation, export assembly, replay seed/setup,
+  and Developer Space import batches.
+- Existing durable status stores remain `import_jobs` for archive extraction
+  and `export_packages` for export assembly.
+- Added PR113-scoped idempotency key generation, retry metadata, safe status
+  transitions, export `requested` to queued normalization, and owner-scoped safe
+  import/export job summaries.
+- Follow-up route/status surfaces remain required before execution lanes for
+  embedding backfill, memory consolidation, replay seed/setup, and Developer
+  Space import batches.
+- Explicit non-goals preserved: no worker execution, queue-provider migration,
+  Cloudflare queues/workers, Redis durable queue processing, embedding backfill
+  execution, archive extraction rewrite, memory consolidation behavior change,
+  export content change, replay automation, billing/auth/session change, broad
+  UI work, or raw private payload logging.
 
 ## PR113 Redis/Valkey Cache Foundation
 

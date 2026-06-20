@@ -8293,6 +8293,20 @@ when a PR lands, or when validation truth changes.
   changes, replay automation, billing/auth/session changes, broad UI work, or
   raw private archive text/prompts/provider payloads/keys/secrets in job
   payloads/logs/status.
+- DAEDALUS implements PR114 Background Jobs Foundation on 2026-06-20 and wakes
+  ARGUS for review. This pass adds the shared background job registry/status
+  contract, status transition guard, PR113-scoped idempotency key helper,
+  retry metadata helper, safe import/export job summaries, root `test:jobs`,
+  and `docs/architecture/background-jobs-foundation.md`. Existing durable
+  stores remain `import_jobs` for archive extraction and `export_packages` for
+  export assembly; embedding backfill, memory consolidation, replay seed/setup,
+  and Developer Space import batch remain route-follow-up items before any
+  execution lane. Validation passed `test:jobs` with 5 tests, `test:storage`
+  with 16 tests, `test:exports` with 4 tests, `test:cache` with 5 tests, and
+  `typecheck`; `git diff --check` passed with CRLF normalization warnings only.
+  No worker execution, queue provider, route behavior, UI, export content,
+  archive extraction rewrite, memory consolidation change, replay automation,
+  billing/auth/session behavior, or private payload logging was added.
 - DAEDALUS implements PR110 Memory Runtime Explanation Readback on 2026-06-20
   and wakes ARGUS for review. The owner Memory page now has a compact Runtime
   context / Memory explanation section that joins the existing owner-only Memory
@@ -8533,7 +8547,70 @@ git diff --check
 - Developer Spaces visual polish before ingestion auth, validation, limits, and
   safe serialization.
 
-## Latest ARGUS verdict - PR113
+## Latest DAEDALUS handoff - PR114
+
+PR114 Background Jobs Foundation is implemented by DAEDALUS on 2026-06-20 and
+ready for ARGUS technical review. No visible route changed, so ARIADNE is not
+needed unless ARGUS finds a visible owner-facing status effect.
+
+Files changed: `apps/api/src/services/background-jobs.service.ts`,
+`apps/api/src/services/background-jobs.service.test.ts`,
+`docs/architecture/background-jobs-foundation.md`,
+`docs/roadmap/PR114_BACKGROUND_JOBS_FOUNDATION.md`,
+`docs/roadmap/ACTIVE_STATUS.md`, `docs/testing/VALIDATION_BASELINE.md`, and
+`package.json`.
+
+Implementation:
+
+- Added a bounded candidate job registry for archive extraction, embedding
+  backfill, memory consolidation, export assembly, replay seed/setup, and
+  Developer Space import batches.
+- Normalized export package `requested` rows into the shared `queued` status
+  model.
+- Added safe transition guards, PR113-scoped idempotency key generation, the
+  idempotency TTL helper, retry metadata, and safe import/export background job
+  summaries.
+- Added `test:jobs` and
+  `docs/architecture/background-jobs-foundation.md`.
+
+Job model/status proof:
+
+- `archive_extraction` maps to existing owner-scoped `import_jobs`.
+- `export_assembly` maps to existing owner-scoped `export_packages`.
+- Follow-up route/status surfaces remain required before execution lanes for
+  embedding backfill, memory consolidation, replay seed/setup, and Developer
+  Space import batches.
+- Completed jobs remain terminal except for idempotent readback; failed jobs can
+  move back to queued/processing or complete when partial work is already
+  safely persisted.
+
+Owner-scope and idempotency proof:
+
+- Job summaries expose owner/persona/Developer Space/resource identifiers from
+  existing durable rows without widening access.
+- Idempotency keys use the PR113 operational-cache shape with owner, persona,
+  Developer Space, resource, operation, and job kind scope.
+- Retry metadata records attempt count, retryable flag, and sanitized last error
+  only.
+
+Payload redaction proof:
+
+- Safe failure summaries reuse the existing job sanitizer.
+- Focused tests prove bearer tokens, `sk-...` keys, token assignments, and
+  caller-supplied private snippets are redacted.
+
+Validation: `test:jobs` 5 passed, `test:storage` 16 passed, `test:exports` 4
+passed, `test:cache` 5 passed, `typecheck` passed, and `git diff --check`
+passed with CRLF normalization warnings only.
+
+Non-scope confirmation: no worker execution, Cloudflare queues/workers, queue
+provider migration, Redis durable queue processing, embedding backfill
+execution, archive extraction rewrite, memory consolidation change, export
+content change, replay automation, billing/auth/session change, UI work, or raw
+private archive text/prompts/provider payloads/provider keys/secrets/export
+contents in job payloads/logs/status.
+
+## Previous ARGUS verdict - PR113
 
 PR113 Redis/Valkey Cache Foundation is implemented by DAEDALUS on 2026-06-20
 and accepted by ARGUS technical review. No visible route changed, so ARIADNE is

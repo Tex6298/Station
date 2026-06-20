@@ -4,7 +4,7 @@ Date opened: 2026-06-20
 Opened by: A1 / MIMIR
 Owner: DAEDALUS implements or precisely blocks, ARGUS reviews. ARIADNE rehearses
 only if visible route behavior changes.
-Status: open for DAEDALUS
+Status: implemented by DAEDALUS, awaiting ARGUS review
 
 ## Why This Lane
 
@@ -96,3 +96,82 @@ git diff --check
 
 Add and run a focused job test gate if PR114 creates one. Also run affected
 archive/export/import/cache/API tests touched by the implementation.
+
+## DAEDALUS Result - 2026-06-20
+
+Implemented as a narrow service contract, docs, and focused validation gate.
+No route behavior, worker execution, UI, queue provider, or payload format
+changed.
+
+Files changed:
+
+- `apps/api/src/services/background-jobs.service.ts`
+- `apps/api/src/services/background-jobs.service.test.ts`
+- `docs/architecture/background-jobs-foundation.md`
+- `docs/roadmap/PR114_BACKGROUND_JOBS_FOUNDATION.md`
+- `docs/roadmap/ACTIVE_STATUS.md`
+- `docs/testing/VALIDATION_BASELINE.md`
+- `package.json`
+
+Job model/status proof:
+
+- Added a bounded registry for `archive_extraction`, `embedding_backfill`,
+  `memory_consolidation`, `export_assembly`, `replay_seed_setup`, and
+  `developer_space_import_batch`.
+- Existing durable stores are documented as `import_jobs` for archive
+  extraction and `export_packages` for export assembly.
+- Export `requested` status normalizes to the shared `queued` job state.
+- Status transitions allow inline completion, processing failure, and failed
+  retry/idempotent completion while keeping completed jobs terminal except for
+  idempotent readback.
+
+Owner-scope proof:
+
+- Shared job summaries retain `ownerUserId`, `personaId`, `developerSpaceId`,
+  and `resourceId` without widening route access.
+- Existing owner-visible readback stays with storage/import routes for
+  `import_jobs` and export routes for `export_packages`.
+- Embedding backfill, memory consolidation, replay seed/setup, and Developer
+  Space import batch execution remain route-follow-up items until their lanes
+  add owner-visible failed/in-progress readback.
+
+Idempotency/retry proof:
+
+- Added `backgroundJobIdempotencyKey`, scoped through the PR113 operational-cache
+  key shape with owner/persona/Developer Space/resource/operation fields.
+- Idempotency TTL reuses the PR113 `idempotency` default of 24 hours.
+- Added retry metadata helper for attempt count, retryable flag, and last safe
+  error summary.
+
+Payload redaction proof:
+
+- Retry metadata and job summaries reuse `sanitizeJobErrorMessage`.
+- Focused tests prove bearer tokens, `sk-...` keys, token assignments, and
+  caller-supplied private snippets are redacted from safe error summaries.
+
+Validation:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:jobs` | Pass | 5 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:storage` | Pass | 16 tests passed; archive/import job behavior stayed green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:exports` | Pass | 4 tests passed; export package status/readback stayed green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:cache` | Pass | 5 tests passed; operational-cache/idempotency helper behavior stayed green. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed. |
+| `git diff --check` | Pass | CRLF normalization warnings only. |
+
+Non-scope confirmation:
+
+- No broad worker infrastructure.
+- No Cloudflare queues/workers.
+- No queue-provider migration.
+- No Redis durable queue processing.
+- No embedding backfill execution.
+- No archive extraction rewrite.
+- No memory consolidation behavior change.
+- No export package content change.
+- No replay automation.
+- No billing/auth/session change.
+- No UI work.
+- No raw private archive text, prompts, provider payloads, provider keys,
+  secrets, or export contents in job payloads/logs/status.

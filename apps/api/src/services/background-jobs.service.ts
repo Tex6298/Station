@@ -1,5 +1,6 @@
 import { getSupabaseAdmin } from "../lib/supabase";
 import { env } from "../lib/env";
+import { OPERATIONAL_CACHE_TTLS, operationalCacheKey } from "./operational-cache.service";
 
 export const IMPORT_JOB_SELECT =
   "id, persona_id, owner_user_id, kind, status, source_name, file_id, error_message, created_at, updated_at";
@@ -8,6 +9,96 @@ export const LEGACY_IMPORT_JOB_SELECT =
   "id, persona_id, owner_user_id, kind, status, source_name, error_message, created_at, updated_at";
 
 export type ImportJobStatus = "queued" | "processing" | "completed" | "failed";
+
+export type BackgroundJobStatus = "queued" | "processing" | "completed" | "failed";
+
+export type BackgroundJobKind =
+  | "archive_extraction"
+  | "embedding_backfill"
+  | "memory_consolidation"
+  | "export_assembly"
+  | "replay_seed_setup"
+  | "developer_space_import_batch";
+
+export type BackgroundJobScope = {
+  ownerUserId: string;
+  personaId?: string | null;
+  developerSpaceId?: string | null;
+  resourceId?: string | null;
+  operation?: string | null;
+};
+
+export type BackgroundJobRetryMetadata = {
+  attemptCount: number;
+  retryable: boolean;
+  lastSafeErrorSummary: string | null;
+};
+
+export type BackgroundJobSummary = {
+  id: string;
+  kind: BackgroundJobKind;
+  status: BackgroundJobStatus;
+  ownerUserId: string;
+  personaId: string | null;
+  developerSpaceId: string | null;
+  resourceId: string | null;
+  sourceLabel: string | null;
+  errorMessage: string | null;
+};
+
+export type ExportPackageJobRow = {
+  id: string;
+  owner_user_id: string;
+  persona_id?: string | null;
+  developer_space_id?: string | null;
+  status: "requested" | "processing" | "completed" | "failed";
+  package_kind?: string | null;
+  error_message?: string | null;
+};
+
+export const BACKGROUND_JOB_KINDS: Record<BackgroundJobKind, {
+  statusStore: "import_jobs" | "export_packages" | "route_followup";
+  ownerScoped: boolean;
+  readback: "existing_owner_route" | "route_followup";
+}> = {
+  archive_extraction: {
+    statusStore: "import_jobs",
+    ownerScoped: true,
+    readback: "existing_owner_route",
+  },
+  embedding_backfill: {
+    statusStore: "route_followup",
+    ownerScoped: true,
+    readback: "route_followup",
+  },
+  memory_consolidation: {
+    statusStore: "route_followup",
+    ownerScoped: true,
+    readback: "route_followup",
+  },
+  export_assembly: {
+    statusStore: "export_packages",
+    ownerScoped: true,
+    readback: "existing_owner_route",
+  },
+  replay_seed_setup: {
+    statusStore: "route_followup",
+    ownerScoped: false,
+    readback: "route_followup",
+  },
+  developer_space_import_batch: {
+    statusStore: "route_followup",
+    ownerScoped: true,
+    readback: "route_followup",
+  },
+};
+
+const BACKGROUND_JOB_STATUS_TRANSITIONS: Record<BackgroundJobStatus, BackgroundJobStatus[]> = {
+  queued: ["processing", "completed", "failed"],
+  processing: ["completed", "failed"],
+  completed: ["completed"],
+  failed: ["queued", "processing", "completed", "failed"],
+};
 
 export type ImportJobRow = {
   id: string;
@@ -21,6 +112,86 @@ export type ImportJobRow = {
   created_at: string;
   updated_at: string;
 };
+
+export function normalizeBackgroundJobStatus(status: ImportJobStatus | ExportPackageJobRow["status"]): BackgroundJobStatus {
+  return status === "requested" ? "queued" : status;
+}
+
+export function canTransitionBackgroundJobStatus(from: BackgroundJobStatus, to: BackgroundJobStatus) {
+  return BACKGROUND_JOB_STATUS_TRANSITIONS[from].includes(to);
+}
+
+export function assertBackgroundJobStatusTransition(from: BackgroundJobStatus, to: BackgroundJobStatus) {
+  if (!canTransitionBackgroundJobStatus(from, to)) {
+    throw new Error(`Invalid background job transition: ${from} -> ${to}.`);
+  }
+}
+
+export function backgroundJobIdempotencyKey(kind: BackgroundJobKind, scope: BackgroundJobScope, envName?: string) {
+  return operationalCacheKey({
+    purpose: "idempotency",
+    envName,
+    scope: {
+      ownerUserId: scope.ownerUserId,
+      personaId: scope.personaId ?? null,
+      developerSpaceId: scope.developerSpaceId ?? null,
+      resourceId: scope.resourceId ?? null,
+      operation: scope.operation ?? kind,
+    },
+    parts: ["background-job", kind],
+  });
+}
+
+export function backgroundJobIdempotencyTtlSeconds() {
+  return OPERATIONAL_CACHE_TTLS.idempotency;
+}
+
+export function buildBackgroundJobRetryMetadata(input: {
+  previousAttemptCount?: number | null;
+  error?: unknown;
+  privateSnippets?: Array<string | null | undefined>;
+  retryable?: boolean;
+}): BackgroundJobRetryMetadata {
+  const previous = Number.isFinite(input.previousAttemptCount ?? Number.NaN)
+    ? Math.max(0, Math.floor(input.previousAttemptCount as number))
+    : 0;
+
+  return {
+    attemptCount: previous + 1,
+    retryable: input.retryable ?? true,
+    lastSafeErrorSummary: input.error === undefined
+      ? null
+      : sanitizeJobErrorMessage(input.error, input.privateSnippets ?? []),
+  };
+}
+
+export function summarizeImportBackgroundJob(row: ImportJobRow): BackgroundJobSummary {
+  return {
+    id: row.id,
+    kind: "archive_extraction",
+    status: row.status,
+    ownerUserId: row.owner_user_id,
+    personaId: row.persona_id,
+    developerSpaceId: null,
+    resourceId: row.file_id ?? row.id,
+    sourceLabel: row.source_name,
+    errorMessage: row.error_message ? sanitizeJobErrorMessage(row.error_message, [row.source_name]) : null,
+  };
+}
+
+export function summarizeExportBackgroundJob(row: ExportPackageJobRow): BackgroundJobSummary {
+  return {
+    id: row.id,
+    kind: "export_assembly",
+    status: normalizeBackgroundJobStatus(row.status),
+    ownerUserId: row.owner_user_id,
+    personaId: row.persona_id ?? null,
+    developerSpaceId: row.developer_space_id ?? null,
+    resourceId: row.developer_space_id ?? row.persona_id ?? row.id,
+    sourceLabel: row.package_kind ?? "export_package",
+    errorMessage: row.error_message ? sanitizeJobErrorMessage(row.error_message) : null,
+  };
+}
 
 export function serializeImportJob(row: ImportJobRow) {
   return {
