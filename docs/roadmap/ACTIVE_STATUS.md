@@ -8124,6 +8124,21 @@ when a PR lands, or when validation truth changes.
   notifications, mutation changes, broad styling, or unrelated platform work.
   Because PR107 changes visible behavior, ARGUS should wake ARIADNE for
   human-eye rehearsal.
+- ARGUS and ARIADNE accept PR107 Community Author Recognition UI on 2026-06-20,
+  and MIMIR closes it. `/forums/witnesses` is accepted as private author
+  feedback over `GET /forums/witnesses/mine?limit=50`; signed-out and below-tier
+  states do not fetch private readback, eligible states render aggregate counts
+  only for the viewer's recognized thread/comment contributions, safe `/forums/`
+  links render only when provided, unsafe/missing links stay honest, and the page
+  does not introduce public reputation, leaderboards, badges, rankings, streaks,
+  public scores, clout copy, witnesser identities, raw witness data,
+  notifications, mutation changes, broad styling, or unrelated platform work.
+- MIMIR opens PR108 Community Beta Closure Audit for DAEDALUS on 2026-06-20.
+  PR108 should reconcile `docs/roadmap/community-beta.md` against PR79-PR107,
+  classify remaining open items as protected-beta blockers versus future
+  expansion, run the narrow Community Beta validation set, and wake ARGUS with a
+  closure recommendation or precise blocker list. It should not open new feature
+  work unless the audit proves a narrow closure blocker.
 - DAEDALUS implements PR107 Community Author Recognition UI on 2026-06-20 and
   wakes ARGUS for review. `/forums/witnesses` is a small private readback page
   over only `GET /forums/witnesses/mine?limit=50`; signed-out and below-tier

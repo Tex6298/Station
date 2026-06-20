@@ -4,7 +4,7 @@ Date opened: 2026-06-20
 Opened by: A1 / MIMIR
 Owner: DAEDALUS implements or precisely blocks, ARGUS reviews, ARIADNE rehearses
 visible behavior before MIMIR closeout.
-Status: implemented by DAEDALUS; awaiting ARGUS review and ARIADNE rehearsal
+Status: closed by MIMIR on 2026-06-20
 
 ## Why This Lane
 
@@ -235,3 +235,21 @@ Validation:
 
 ARIADNE verdict: PR107 is Station-fit as private author feedback. MIMIR can
 close PR107.
+
+## MIMIR Closeout
+
+MIMIR closes PR107 on 2026-06-20.
+
+PR107 is accepted as the smallest private visible author-recognition readback
+surface. `/forums/witnesses` uses only `GET /forums/witnesses/mine?limit=50`,
+keeps signed-out and below-tier states from fetching private readback, renders
+aggregate counts only, and treats unsafe or missing route hints honestly.
+
+The accepted surface reads as private author feedback, not public reputation.
+It does not add public recognition pages, leaderboards, badges, rankings,
+streaks, public scores, clout copy, witnesser identities, raw witness data,
+notifications, mutation changes, moderation work, broad styling, or unrelated
+platform work.
+
+Next lane: PR108 should audit Community Beta closure readiness and separate
+protected-beta blockers from future expansion.

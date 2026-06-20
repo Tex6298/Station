@@ -119,6 +119,9 @@ promised in the Station documents.
   returning aggregate witness counts received on the viewer's own readable
   thread/comment contributions without witnesser identities, raw witness rows,
   rankings, badges, public scores, or clout surfaces.
+- Private author recognition UI exists at `/forums/witnesses`, using only the
+  current-user readback route, rendering aggregate counts and safe forum links
+  where available, and staying clear of public reputation/gamification surfaces.
 - Tier participation is explicit: public reads remain open, community reads
   require eligible tier, and creation/voting/reporting require `private` tier or
   higher.
@@ -137,11 +140,12 @@ pnpm test:reports
 
 ## Still open
 
-- Private recognition readback UI beyond the accepted API route; no public
-  leaderboards, badges, rankings, or public user scores are open.
+- Community Beta closure audit: reconcile landed surfaces, validation, and
+  remaining blockers before opening more feature lanes.
 - Deeper moderator/admin console UX beyond safe target context and any future
   visible delegated moderator surfaces beyond the accepted thread-detail and
-  scoped-queue slices.
+  scoped-queue slices are future expansion unless PR108 proves a closure
+  blocker.
 - Future trusted AI/persona/imported authorship routes, if ever opened; current
   public creation routes remain user-authored only.
 
