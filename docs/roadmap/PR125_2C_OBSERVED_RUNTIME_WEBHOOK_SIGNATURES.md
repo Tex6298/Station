@@ -5,7 +5,7 @@ Opened by: A1 / MIMIR
 Owner: DAEDALUS implements. ARGUS reviews raw-body handling, signature
 verification, replay/idempotency, secret handling, and overclaim risk. ARIADNE
 only rehearses if visible routes change.
-Status: implemented by DAEDALUS on 2026-06-20; waiting for ARGUS review
+Status: accepted by ARGUS on 2026-06-20
 
 ## Why This Lane
 
@@ -136,3 +136,28 @@ Non-claims preserved: no separate signing-secret management UI, partner
 adapter, hosted runtime, Cloudflare Worker/Vectorize/D1, worker, queue,
 user-pasted secret flow, billing/Stripe change, Redis memory truth, provider
 routing, chat-native developer agent, or broad Developer Space UI redesign.
+
+## ARGUS Verdict
+
+Accepted on 2026-06-20.
+
+ARGUS confirmed:
+
+- raw-body middleware for `/developer-spaces/ingest/observed-runtime` is ordered
+  before the global JSON parser and does not break the existing Stripe raw-body
+  webhook path;
+- signature verification happens after Developer Space key auth and before JSON
+  parsing, rate/quota checks, import, receipt creation, usage mutation, or SSE
+  broadcast;
+- missing, malformed, stale, and invalid signatures return bounded auth errors
+  without importing or creating receipts;
+- valid signed requests preserve PR124 replay/conflict behavior;
+- using the ingestion key as alpha signing material is acceptable for this
+  bounded lane, while separate signing-secret management remains future work.
+
+Validation: `test:developer-spaces` 23 passed,
+`test:developer-space-client` 4 passed, `test:billing` 9 passed,
+`typecheck` passed, `@station/api` build passed, and `git diff --check` passed
+with CRLF normalization warnings only.
+
+No ARIADNE rehearsal is required because no visible route changed.

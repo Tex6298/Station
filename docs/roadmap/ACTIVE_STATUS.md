@@ -8799,6 +8799,13 @@ when a PR lands, or when validation truth changes.
   Worker/Vectorize/D1, worker, queue, user-pasted secret flow, billing/Stripe
   change, Redis memory truth, provider routing, chat-native developer agent, or
   broad Developer Space UI redesign was added.
+- ARGUS accepts PR125 2C Observed Runtime Webhook Signatures on 2026-06-20 and
+  wakes MIMIR for closeout. ARGUS confirmed raw-body middleware ordering,
+  signature verification before JSON parse/rate/quota/import/receipt/SSE side
+  effects, bounded auth errors for missing/malformed/stale/invalid signatures,
+  valid signed replay/conflict behavior, and no Stripe webhook regression.
+  Using the ingestion key as alpha signing material is accepted for this lane;
+  separate signing-secret management remains future work.
 - DAEDALUS implements PR110 Memory Runtime Explanation Readback on 2026-06-20
   and wakes ARGUS for review. The owner Memory page now has a compact Runtime
   context / Memory explanation section that joins the existing owner-only Memory
@@ -9040,38 +9047,44 @@ git diff --check
 - Developer Spaces visual polish before ingestion auth, validation, limits, and
   safe serialization.
 
-## Latest DAEDALUS handoff - PR125 observed runtime webhook signatures
+## Latest ARGUS verdict - PR125 observed runtime webhook signatures
 
 PR125 2C Observed Runtime Webhook Signatures is implemented by DAEDALUS on
-2026-06-20 and ready for ARGUS review. No visible route changed, so ARIADNE is
-not required unless ARGUS finds a visible-route implication.
+2026-06-20 and accepted by ARGUS technical review. No visible route changed, so
+ARIADNE is not required for this closeout.
 
-Implementation:
+ARGUS review notes:
 
-- `apps/api/src/app.ts` gives
-  `/developer-spaces/ingest/observed-runtime` a raw JSON body before the global
-  JSON parser.
-- `apps/api/src/routes/developer-spaces.ts` verifies
+- Raw-body middleware for `/developer-spaces/ingest/observed-runtime` is ordered
+  before the global JSON parser, following the local Stripe webhook pattern.
+- The existing Stripe webhook raw-body path still passes focused billing
+  coverage.
+- Signature verification happens after Developer Space key auth and before JSON
+  parsing, rate/quota checks, import, receipt creation, usage mutation, or SSE
+  broadcast.
+- The signature contract is
   `X-Station-Signature: t=<unix-seconds>,v1=<hex-hmac>` over
   `<timestamp>.<raw-body-bytes>` with HMAC-SHA256.
-- The existing Developer Space ingestion key is the alpha signing material.
-- Signature verification runs after key auth and before JSON parsing,
-  rate/quota checks, import, receipt creation, or SSE broadcast.
 - Missing, malformed, stale, and invalid signatures fail with non-secret
   machine-readable auth errors.
 - Valid signed requests keep PR124 idempotency: same id plus same payload
   returns the stored non-secret replay summary; same id plus different payload
   returns a bounded conflict without raw changed payload data.
-
-Validation: `test:developer-spaces` 23 passed, `test:developer-space-client` 4
-passed, `test:billing` 9 passed after app-level raw-body middleware changed,
-`typecheck` passed, `@station/api` build passed, and `git diff --check` passed
-with CRLF normalization warnings only.
+- Using the ingestion key as alpha signing material is acceptable for this
+  bounded lane; separate signing-secret management remains future work.
 
 Non-scope preserved: no separate signing-secret management UI, partner adapter,
 hosted runtime, Cloudflare Worker/Vectorize/D1, worker, queue, user-pasted
 secret flow, billing/Stripe change, Redis memory truth, provider routing,
 chat-native developer agent, or broad Developer Space UI redesign.
+
+ARGUS validation: `test:developer-spaces` 23 passed,
+`test:developer-space-client` 4 passed, `test:billing` 9 passed, `typecheck`
+passed, `@station/api` build passed, and `git diff --check` passed with CRLF
+normalization warnings only.
+
+Verdict: ready for MIMIR closeout or the next explicitly bounded Phase 2C
+hardening lane.
 
 ## Previous ARGUS verdict - PR124 observed runtime webhook ingress alpha
 
