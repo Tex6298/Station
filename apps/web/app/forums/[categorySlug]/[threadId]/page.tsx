@@ -3,8 +3,10 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { apiGet, apiPost, apiDelete } from "@/lib/api-client";
+import type { AuthUser } from "@station/types";
+import { apiGet, apiPost, apiPut, apiDelete } from "@/lib/api-client";
 import { getSession } from "@/lib/auth";
+import { canUseThreadWatch, threadWatchPath } from "@/lib/community-notifications";
 
 interface Author { username: string; display_name: string | null; avatar_url: string | null; }
 interface Thread {
@@ -27,6 +29,10 @@ interface ModerationAction {
   reason?: string | null;
   createdAt: string;
 }
+interface ThreadWatchResponse {
+  isWatching: boolean;
+  watch: { id: string; userId: string; threadId: string; isMuted: boolean } | null;
+}
 
 export default function ThreadPage() {
   const { categorySlug, threadId } = useParams<{ categorySlug: string; threadId: string }>();
@@ -36,10 +42,14 @@ export default function ThreadPage() {
   const [loading, setLoading]     = useState(true);
   const [error, setError]         = useState<string | null>(null);
 
-  const [session, setSession]     = useState<{ access_token: string; user: { id: string } } | null>(null);
+  const [session, setSession]     = useState<{ access_token: string; user: AuthUser } | null>(null);
   const [newComment, setNewComment] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [commentFeedback, setCommentFeedback] = useState<{ tone: "error" | "success"; message: string } | null>(null);
+  const [watchState, setWatchState] = useState<ThreadWatchResponse | null>(null);
+  const [watchLoading, setWatchLoading] = useState(false);
+  const [watchUpdating, setWatchUpdating] = useState(false);
+  const [watchFeedback, setWatchFeedback] = useState<string | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -52,7 +62,21 @@ export default function ThreadPage() {
       setThread(data.thread);
       setComments(data.comments);
       setModerationActions(data.moderationActions ?? []);
-      if (sess) setSession(sess as typeof session);
+      if (sess) {
+        const nextSession = { access_token: sess.access_token, user: sess.user };
+        setSession(nextSession);
+        if (canUseThreadWatch(sess.user)) {
+          setWatchLoading(true);
+          try {
+            const watch = await apiGet<ThreadWatchResponse>(threadWatchPath(data.thread.id), sess.access_token);
+            setWatchState(watch);
+          } catch (e) {
+            setWatchFeedback(e instanceof Error ? e.message : "Could not load watch state.");
+          } finally {
+            setWatchLoading(false);
+          }
+        }
+      }
     }).catch((e) => {
       setError(e instanceof Error ? e.message : "Thread not found.");
     }).finally(() => setLoading(false));
@@ -130,11 +154,30 @@ export default function ThreadPage() {
     }
   }
 
+  async function toggleThreadWatch() {
+    if (!session || !thread || !canUseThreadWatch(session.user)) return;
+    setWatchUpdating(true);
+    setWatchFeedback(null);
+    try {
+      const path = threadWatchPath(thread.id);
+      const data = watchState?.isWatching
+        ? await apiDelete<ThreadWatchResponse>(path, session.access_token)
+        : await apiPut<ThreadWatchResponse>(path, {}, session.access_token);
+      setWatchState(data);
+      setWatchFeedback(data.isWatching ? "Thread watched." : "Thread unwatched.");
+    } catch (e) {
+      setWatchFeedback(e instanceof Error ? e.message : "Could not update watch state.");
+    } finally {
+      setWatchUpdating(false);
+    }
+  }
+
   if (loading) return <main className="container"><div className="card" style={{ textAlign: "center", padding: "3rem", color: "#687078" }}>Loading...</div></main>;
   if (error || !thread) return <main className="container"><div className="card" style={{ background: "#2d1515", borderColor: "#7d2e2e", color: "#eb5757" }}>{error ?? "Not found."}</div></main>;
 
   const isLocked   = thread.status === "locked";
   const canComment = !!session && !isLocked;
+  const canWatchThread = canUseThreadWatch(session?.user);
 
   return (
     <main className="container" style={{ maxWidth: 780 }}>
@@ -195,6 +238,28 @@ export default function ThreadPage() {
               )}
             </>
           )}
+        </div>
+        <div style={watchPanel}>
+          {!session ? (
+            <span>Sign in to watch replies on this thread.</span>
+          ) : !canWatchThread ? (
+            <span>Thread watching is available to private tier and above.</span>
+          ) : watchLoading ? (
+            <span>Loading watch state...</span>
+          ) : (
+            <>
+              <button
+                type="button"
+                onClick={toggleThreadWatch}
+                disabled={watchUpdating}
+                style={utilityButton}
+              >
+                {watchUpdating ? "Saving..." : watchState?.isWatching ? "Unwatch thread" : "Watch thread"}
+              </button>
+              <span>{watchState?.isWatching ? "Watching replies" : "Not watching"}</span>
+            </>
+          )}
+          {watchFeedback && <span>{watchFeedback}</span>}
         </div>
         {thread.document?.space && (
           <div style={{ marginTop: "1rem" }}>
@@ -359,4 +424,16 @@ const utilityButton = {
   fontSize: "0.72rem",
   padding: "0.15rem 0.45rem",
   cursor: "pointer",
+};
+
+const watchPanel = {
+  borderTop: "1px solid #ece8dd",
+  marginTop: "1rem",
+  paddingTop: "0.85rem",
+  display: "flex",
+  gap: "0.5rem",
+  flexWrap: "wrap" as const,
+  alignItems: "center",
+  color: "#687078",
+  fontSize: "0.78rem",
 };

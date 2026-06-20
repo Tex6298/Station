@@ -7331,6 +7331,21 @@ when a PR lands, or when validation truth changes.
   subcommunity/delegated moderation, reputation/witness, billing/provider/cache,
   Cloudflare, Developer Space, auth/session refactor, or broad UI redesign is
   opened.
+- DAEDALUS implements PR90 Community Notifications UI First Slice on
+  2026-06-20 and wakes ARGUS for technical review before ARIADNE visible-route
+  rehearsal. `/notifications` now restores session before fetching, avoids
+  signed-out current-user API calls, lists current-user notifications with
+  unread/all filters, shows only safe type/title/summary/time/read state and
+  API-provided local route links, and supports mark-one-read and mark-all-read
+  actions. Settings now links to `/notifications`. Forum thread detail now
+  shows a signed-out unavailable state, a below-tier unavailable state, and
+  private-tier/admin watch/unwatch controls that fetch and mutate only
+  `GET`/`PUT`/`DELETE /threads/:id/watch`; it does not auto-watch anyone.
+  Helper tests cover current-user path building, local-route safety, labels,
+  and watch eligibility. No email, push, browser push, realtime, Redis
+  pub/sub, scheduled digest, public notification feed, subcommunity/delegated
+  moderation, reputation/witness, billing/provider/cache, Developer Space,
+  auth/session refactor, or broad forum UI was added.
 
 ## Near-term rule
 

@@ -39,10 +39,9 @@ const settingSections = [
   },
   {
     title: "Notifications",
-    description: "Forum replies, archive completions, integrity reminders, followers, and events.",
-    href: null,
+    description: "Forum replies and moderation status updates.",
+    href: "/notifications",
     mark: "N",
-    status: "Coming soon",
   },
 ];
 

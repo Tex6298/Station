@@ -9236,6 +9236,39 @@ Scope notes:
   expansion, raw ingestion key storage, secret logging, broad UI, public
   serializer expansion, or visible web UI changed.
 
+## PR90 Community Notifications UI First Slice
+
+DAEDALUS implementation validation on 2026-06-20:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:community` | Pass | 12 tests passed; PR89 watch/notification API gates remain green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:reports` | Pass | 6 tests passed; report/review-request notification safety remains green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` | Pass | 1 test passed; document discussion visibility/readback remains green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 56 tests passed, including notification path, label, local-route safety, and watch eligibility helper coverage. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck completed when run after the web build. A prior parallel typecheck overlapped with Next cleaning `.next` during build and failed on missing generated `.next/types`; rerun passed. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web build` | Partial / known Windows failure | Next compiled, linted/typechecked, collected page data, and generated 34 static pages, then hit the known local Windows standalone symlink `EPERM`. Only pre-existing raw `<img>` warnings appeared. |
+| `git diff --check` | Pass | CRLF normalization warnings only for touched files and local triad state. |
+
+Scope notes:
+
+- Added a bounded `/notifications` page that restores session first and does
+  not fetch current-user notification data for signed-out visitors.
+- The page supports unread/all filtering, current-user notification readback,
+  mark-one-read, and mark-all-read through the PR89 APIs.
+- Notification rows show type, title, safe summary, created date, read state,
+  and local route links only when `routeHref` is provided by the API.
+- Settings links to `/notifications`.
+- Thread detail now shows signed-out and below-tier watch unavailable states,
+  and eligible signed-in users can fetch, watch, and unwatch via
+  `GET`/`PUT`/`DELETE /threads/:id/watch`.
+- The UI does not render actor ids, recipient ids, moderator identities, admin
+  notes, target bodies, private material, or other-user notification rows.
+- No automatic watching, email, push, browser push, realtime, Redis pub/sub,
+  scheduled digest, public notification feed, subcommunity/delegated
+  moderation, reputation/witness mechanics, billing/provider/cache, Developer
+  Space, auth/session refactor, or broad forum UI changed.
+
 ## PR89 Community Notifications Foundation
 
 DAEDALUS implementation validation on 2026-06-20:
