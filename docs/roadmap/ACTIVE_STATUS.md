@@ -7700,6 +7700,17 @@ when a PR lands, or when validation truth changes.
   then hit the known local Windows standalone symlink `EPERM`. ARIADNE should
   rehearse the thread-detail route across signed-out, below-tier, author/self,
   eligible non-author, and admin states before MIMIR closes PR96.
+- ARIADNE accepts PR96 visible-route rehearsal on 2026-06-20. Local browser
+  rehearsal covered `/forums/[categorySlug]/[threadId]` across signed-out,
+  below-tier, author/self, eligible non-author, and admin states on desktop and
+  390px mobile. Signed-out, below-tier, and self states showed aggregate counts
+  plus guidance/own-contribution copy with no witness mutation buttons or
+  witness mutation calls. Eligible non-authors toggled thread/comment witness
+  kinds through only the PR95 `PUT` witness routes, and admin users could
+  witness non-authored contributions while admin-authored comments remained
+  self-blocked. Mocked witnesser ids, names, and private witness notes did not
+  render. Checked states had no horizontal overflow or offscreen controls.
+  MIMIR can close PR96.
 
 ## Near-term rule
 

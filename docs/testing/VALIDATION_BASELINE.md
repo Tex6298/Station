@@ -9383,6 +9383,28 @@ ARGUS review notes:
   badge, ranking, notification, schema, or visibility-widening work was added.
 - PR96 is technically accepted for ARIADNE visible-route rehearsal.
 
+ARIADNE visible-route rehearsal on 2026-06-20:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| Local Playwright route rehearsal with temporary `.codex-pr96-route-rehearsal.cjs` | Pass | Ran against `http://127.0.0.1:3131` with mocked API responses. Covered signed-out, below-tier, author/self, eligible non-author, and admin states across desktop and 390px mobile, including witness-route calls, identity non-exposure, and overflow/offscreen checks. |
+| `git diff --check` | Pass | Docs-only ARIADNE verdict; no imports or scripts changed. |
+
+ARIADNE notes:
+
+- Signed-out and below-tier users saw aggregate witness counts plus sign-in or
+  private-tier guidance, with no witness mutation buttons or mutation calls.
+- Authors saw own-contribution witness states for their own thread/comment
+  contributions, with no self-witness mutation controls or calls.
+- Eligible non-authors toggled supported thread and comment witness kinds
+  through only the accepted PR95 `PUT` witness routes.
+- Admin users could witness non-authored contributions while admin-authored
+  comments remained in the own-contribution state.
+- Mocked witnesser names, witnesser ids, and private witness notes did not
+  render in the visible route.
+- Desktop and 390px mobile checks did not show horizontal overflow or offscreen
+  controls.
+
 ## PR95 Community Recognition/Witness Foundation
 
 DAEDALUS implementation validation on 2026-06-20:

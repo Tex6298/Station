@@ -158,3 +158,38 @@ The web build compiled, linted/typechecked, collected page data, and generated
 ARIADNE should rehearse `/forums/[categorySlug]/[threadId]` for signed-out,
 below-tier, author/self, eligible non-author, and admin states on desktop and
 mobile before waking MIMIR.
+
+## ARIADNE Visible Route Rehearsal
+
+Accepted on 2026-06-20. ARIADNE rehearsed
+`/forums/[categorySlug]/[threadId]` against the local Next dev server with a
+mocked API for signed-out, below-tier, author/self, eligible non-author, and
+admin states on desktop and 390px mobile.
+
+ARIADNE confirmed:
+
+- signed-out users see aggregate witness counts and sign-in guidance, with no
+  witness mutation buttons or witness mutation calls;
+- below-tier signed-in users see aggregate witness counts and private-tier
+  guidance, with no witness mutation buttons or witness mutation calls;
+- authors see own-contribution witness states for their own thread/comment
+  contributions, with no self-witness mutation controls or calls;
+- eligible non-authors can toggle supported thread and comment witness kinds
+  through the PR95 `PUT` witness routes, and successful responses update local
+  aggregate/current-viewer state;
+- admin users can witness non-authored contributions while admin-authored
+  comments still resolve to the own-contribution state;
+- witness mutations used only PR95 thread/comment witness endpoints and did
+  not call broad, leaderboard, notification, or identity routes;
+- mocked witnesser names, witnesser ids, and private witness notes did not
+  render in the visible route;
+- existing watch eligibility stayed distinct from witness eligibility;
+- checked desktop and 390px mobile states had no horizontal overflow or
+  offscreen controls.
+
+Validation:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| Local Playwright route rehearsal with temporary `.codex-pr96-route-rehearsal.cjs` | Pass | Covered signed-out, below-tier, author/self, eligible non-author, and admin states across desktop and 390px mobile, including witness-route calls, identity non-exposure, and overflow/offscreen checks. |
+| `git diff --check` | Pass | Docs-only ARIADNE verdict; no imports or scripts changed. |
