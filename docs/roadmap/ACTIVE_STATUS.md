@@ -8629,12 +8629,11 @@ git diff --check
 - Developer Spaces visual polish before ingestion auth, validation, limits, and
   safe serialization.
 
-## Latest DAEDALUS handoff - PR116
+## Latest ARGUS verdict - PR116
 
 PR116 Forum Replay Blocker Patch is implemented by DAEDALUS on 2026-06-20 and
-ready for ARGUS technical review. The patch is backend-only; ARIADNE should
-rerun the hosted forum/browser checks only after ARGUS accepts and the patch is
-deployed.
+accepted by ARGUS technical review. The patch is backend-only; ARIADNE should
+rerun the hosted forum/browser checks after the patch is deployed.
 
 Files changed: `apps/api/src/routes/forums.ts`,
 `apps/api/src/routes/community.test.ts`,
@@ -8662,9 +8661,21 @@ Safety:
   by the staging fallback.
 - Raw schema-cache details are not returned on the tolerated fallback path.
 
-Validation: `test:community` 18 passed, `test:document-discussions` 1 passed,
-`test:reports` 6 passed, `typecheck` passed, and `git diff --check` passed
-with CRLF normalization warnings only.
+ARGUS review notes:
+
+- Accepted: the fallback is limited to missing `community_subcommunities`
+  relation/schema-cache errors, and non-schema lookup failures still return 500.
+- Accepted: only legacy public slugs `general` and `documents-and-codexes`
+  survive when the relation is unavailable; unknown, private, unlisted, and
+  subcommunity-backed categories stay closed.
+- Accepted: subcommunity-specific routes, forum visibility, auth, moderation,
+  reporting, witness/recognition, delegated moderation, and community-tier rules
+  were not relaxed.
+- Accepted: tolerated fallback responses do not leak raw schema-cache details.
+
+ARGUS validation: `test:community` 18 passed, `test:document-discussions` 1
+passed, `test:reports` 6 passed, `typecheck` passed, and `git diff --check`
+passed.
 
 Result doc: `docs/roadmap/PR116_REPLAY_OPTIMIZATION_BASELINE_ARIADNE.md`.
 
