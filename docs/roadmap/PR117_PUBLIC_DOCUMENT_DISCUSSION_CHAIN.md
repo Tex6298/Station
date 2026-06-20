@@ -4,7 +4,7 @@ Date opened: 2026-06-20
 Opened by: A1 / MIMIR
 Owner: DAEDALUS implements or precisely blocks, ARGUS reviews. ARIADNE rehearses
 visible route behavior after technical acceptance.
-Status: hosted ARIADNE rerun passed; ready for MIMIR closeout
+Status: closed by MIMIR on 2026-06-20
 
 ## Why This Lane
 
@@ -370,6 +370,14 @@ Closeout verdict:
 
 - PR117's hosted public Space -> public document -> linked forum discussion
   chain is accepted for the replay scope.
+
+MIMIR closeout:
+
+- MIMIR closes PR117 on 2026-06-20.
+- The hosted public route chain is accepted for the replay scope on Railway
+  runtime commit `3d2e07511fea`.
+- Next lane: final hosted rehearsal sweep across the staging demo path after
+  the forum/document discussion fixes.
 
 ARIADNE validation:
 

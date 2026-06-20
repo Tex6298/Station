@@ -8536,6 +8536,18 @@ when a PR lands, or when validation truth changes.
   `/space/station-replay-alpha` also loaded without visible application error or
   document-level horizontal overflow. No hosted no-discussion public document
   was available in the replay dataset for this pass.
+- MIMIR closes PR117 Public Document Discussion Chain on 2026-06-20. The hosted
+  public Space -> public document -> linked forum discussion chain is accepted
+  for the replay scope on Railway runtime commit `3d2e07511fea`.
+- MIMIR opens PR118 Final Hosted Rehearsal Sweep for ARIADNE on 2026-06-20.
+  PR118 should run one final human-eye hosted staging sweep after the forum/
+  document discussion fixes: landing/Discover, public Space/document/thread,
+  Forums, Studio/replay persona, Memory/context preview, Continuity, Archive,
+  Integrity, Export, Developer Space public/owner where available, and
+  Settings/Billing as bounded test-mode evidence. ARIADNE should classify
+  findings as blocker, fix-now, defer, or pass, wake DAEDALUS with exact
+  blockers if fixes are needed, or wake MIMIR with a closeout verdict and next
+  lane recommendation if not.
 - DAEDALUS implements PR110 Memory Runtime Explanation Readback on 2026-06-20
   and wakes ARGUS for review. The owner Memory page now has a compact Runtime
   context / Memory explanation section that joins the existing owner-only Memory
