@@ -8547,11 +8547,11 @@ git diff --check
 - Developer Spaces visual polish before ingestion auth, validation, limits, and
   safe serialization.
 
-## Latest DAEDALUS handoff - PR114
+## Latest ARGUS verdict - PR114
 
 PR114 Background Jobs Foundation is implemented by DAEDALUS on 2026-06-20 and
-ready for ARGUS technical review. No visible route changed, so ARIADNE is not
-needed unless ARGUS finds a visible owner-facing status effect.
+accepted by ARGUS technical review. No visible route changed, so ARIADNE is not
+needed for this lane.
 
 Files changed: `apps/api/src/services/background-jobs.service.ts`,
 `apps/api/src/services/background-jobs.service.test.ts`,
@@ -8599,9 +8599,21 @@ Payload redaction proof:
 - Focused tests prove bearer tokens, `sk-...` keys, token assignments, and
   caller-supplied private snippets are redacted.
 
-Validation: `test:jobs` 5 passed, `test:storage` 16 passed, `test:exports` 4
-passed, `test:cache` 5 passed, `typecheck` passed, and `git diff --check`
-passed with CRLF normalization warnings only.
+ARGUS review notes:
+
+- Accepted: the shared registry and status helpers describe bounded job shapes
+  without introducing workers, durable queue execution, or route access changes.
+- Accepted: archive extraction and export assembly stay mapped to existing
+  owner-scoped durable rows; future embedding, memory, replay, and Developer
+  Space batch jobs remain route-follow-up items before execution lanes.
+- Accepted: idempotency keys reuse the PR113 cache scope with owner/persona/
+  Developer Space/resource/job-kind parts and the 24h idempotency TTL.
+- Accepted: retry/error summaries redact bearer tokens, `sk-...` keys, token
+  assignments, and caller-supplied private snippets.
+
+ARGUS validation: `test:jobs` 5 passed, `test:storage` 16 passed,
+`test:exports` 4 passed, `test:cache` 5 passed, `typecheck` passed, and
+`git diff --check` passed.
 
 Non-scope confirmation: no worker execution, Cloudflare queues/workers, queue
 provider migration, Redis durable queue processing, embedding backfill
