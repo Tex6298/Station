@@ -8740,12 +8740,12 @@ git diff --check
 - Developer Spaces visual polish before ingestion auth, validation, limits, and
   safe serialization.
 
-## Latest DAEDALUS handoff - PR117 hosted public-chain follow-up
+## Latest ARGUS verdict - PR117 hosted public-chain follow-up
 
 PR117 hosted public-chain follow-up is implemented by DAEDALUS on 2026-06-20
-and ready for ARGUS technical review. Because this still affects visible
-public-route behavior, ARGUS should wake ARIADNE for hosted/browser rerun if
-the technical review accepts the patch.
+and accepted by ARGUS technical review. Because this still affects visible
+public-route behavior, ARGUS wakes ARIADNE for hosted/browser rerun before
+MIMIR closeout.
 
 Files changed: `apps/api/src/routes/documents.ts`,
 `apps/api/src/routes/threads.ts`,
@@ -8776,7 +8776,21 @@ Patch:
 - Non-legacy/subcommunity-backed category thread detail fails closed with 404
   and does not expose raw schema-cache text.
 
-Validation:
+ARGUS review notes:
+
+- The document-discussion legacy select is gated on hosted missing
+  `threads.authorship_*` schema/column errors and retains the same
+  linked-document, active, non-hidden, and visibility filters.
+- Legacy rows are given bounded user-authored provenance defaults before the
+  existing serializer runs, avoiding raw private source/provider fields.
+- Thread detail applies the missing `community_subcommunities` fallback only
+  when the already-loaded category slug is a legacy public category:
+  `general` or `documents-and-codexes`.
+- Non-legacy and subcommunity-backed categories still fail closed with 404, and
+  public visitors no longer receive raw hosted schema-cache error text on this
+  route.
+
+ARGUS validation:
 
 - `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` passed with
   2 tests, including hosted missing-authorship-column fallback coverage.
