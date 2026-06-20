@@ -9271,6 +9271,29 @@ Scope notes:
   Redis/Upstash, Cloudflare, Developer Space product expansion, auth/session
   refactor, or public visibility widening changed.
 
+ARGUS review validation on 2026-06-20:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:community` | Pass | 13 tests passed, including added hostile direct-access coverage for private subcommunity-backed thread reads, comment reads, and comment votes. |
+| `npm exec --yes pnpm@10.32.1 -- run test:reports` | Pass | 6 tests passed; report/review-request/notification safety remains green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` | Pass | 1 test passed; document-discussion visibility/readback remains green. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck completed. |
+| `git diff --check` | Pass | CRLF normalization warnings only for touched files and local triad state. |
+
+ARGUS review notes:
+
+- Patched subcommunity category lookup paths to fail closed when lookup errors
+  occur instead of treating protected categories as ordinary categories.
+- Category lists now return `500` if subcommunity visibility cannot be
+  verified.
+- Direct category/thread/watch/vote/delete paths use fail-closed subcommunity
+  lookup helpers.
+- Comment parent checks deny visibility when subcommunity lookup fails.
+- Private/unlisted subcommunity creation remains deferred; PR91 is accepted as
+  a protected-alpha schema/API foundation, not as full subcommunity product
+  completion.
+
 ## PR90 Community Notifications UI First Slice
 
 DAEDALUS implementation validation on 2026-06-20:

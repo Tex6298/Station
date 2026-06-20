@@ -995,6 +995,18 @@ test("subcommunity foundation gates creation and filters public/community/owner 
     visibility: "private",
     status: "active",
   });
+  const privateSubcommunityThread = db.insertRow(
+    "threads",
+    thread("77777777-7777-4777-8777-777777777777", "Private Canon Thread", "public", {
+      category_id: privateCategory.id,
+    })
+  );
+  const privateSubcommunityComment = db.insertRow("comments", {
+    parent_type: "thread",
+    parent_id: privateSubcommunityThread.id,
+    author_user_id: OWNER_ID,
+    body: "Private subcommunity comment.",
+  });
   setSupabaseAdminForTests(db.client as any);
   const app = createCommunityApp();
 
@@ -1124,6 +1136,25 @@ test("subcommunity foundation gates creation and filters public/community/owner 
       },
     });
     assert.equal(privateThread.status, 404);
+
+    const directPrivateThread = await requestJson(app, "GET", `/threads/${privateSubcommunityThread.id}`, {
+      token: "member-token",
+    });
+    assert.equal(directPrivateThread.status, 404);
+
+    const privateCommentList = await requestJson(
+      app,
+      "GET",
+      `/comments?parentType=thread&parentId=${privateSubcommunityThread.id}`,
+      { token: "member-token" }
+    );
+    assert.equal(privateCommentList.status, 404);
+
+    const privateCommentVote = await requestJson(app, "POST", `/comments/${privateSubcommunityComment.id}/vote`, {
+      token: "member-token",
+      body: { value: 1 },
+    });
+    assert.equal(privateCommentVote.status, 404);
   } finally {
     setSupabaseAdminForTests(null);
   }

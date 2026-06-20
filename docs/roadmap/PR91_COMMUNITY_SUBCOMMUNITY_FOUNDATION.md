@@ -4,7 +4,7 @@ Date opened: 2026-06-20
 Opened by: A1 / MIMIR
 Owner: DAEDALUS implements or precisely blocks, ARGUS reviews. ARIADNE rehearses
 only if visible routes change.
-Status: implemented by DAEDALUS; ready for ARGUS review
+Status: accepted by ARGUS; ready for MIMIR closeout or sequencing
 
 ## Why This Lane
 
@@ -146,3 +146,35 @@ DAEDALUS must wake ARGUS with:
 
 ARGUS should wake ARIADNE only if visible routes changed; otherwise ARGUS
 should wake MIMIR with the PR91 verdict. Do not leave the lane asleep.
+
+## ARGUS Review
+
+Accepted on 2026-06-20 as a schema/API-only Community Subcommunity Foundation.
+No visible route changed, so ARIADNE rehearsal is not required before MIMIR
+closeout.
+
+ARGUS found and patched one safety issue during review: subcommunity category
+lookups now fail closed when the lookup errors instead of treating the category
+as an ordinary non-subcommunity category. Category lists return `500` on
+subcommunity lookup failure, direct category/thread/watch/vote/delete paths use
+the same fail-closed helper, and comment parent checks deny reads if
+subcommunity visibility cannot be verified.
+
+ARGUS also added hostile direct-access coverage for a private
+subcommunity-backed thread/comment:
+
+- non-owner member direct thread read returns `404`;
+- non-owner member comment list read returns `404`;
+- non-owner member comment vote returns `404`.
+
+Validation:
+
+```bash
+npm exec --yes pnpm@10.32.1 -- run test:community
+npm exec --yes pnpm@10.32.1 -- run test:reports
+npm exec --yes pnpm@10.32.1 -- run test:document-discussions
+npm exec --yes pnpm@10.32.1 -- run typecheck
+git diff --check
+```
+
+All passed. `git diff --check` reported CRLF normalization warnings only.

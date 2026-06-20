@@ -56,10 +56,11 @@ export function serializeSubcommunity(
 
 export async function loadSubcommunityForCategory(categoryId: string) {
   const sb = getSupabaseAdmin();
-  const { data } = await (sb as any)
+  const { data, error } = await (sb as any)
     .from("community_subcommunities")
     .select("*")
     .eq("category_id", categoryId)
     .limit(1);
+  if (error) throw new Error(error.message ?? "Failed to load subcommunity.");
   return ((data ?? [])[0] ?? null) as SubcommunityRow | null;
 }

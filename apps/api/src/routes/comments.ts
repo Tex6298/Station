@@ -75,8 +75,12 @@ async function validateReadableParent(parentType: CommentParentType, parentId: s
       .eq("id", parentId)
       .single();
     if (!canReadThread(thread, user)) return false;
-    const subcommunity = await loadSubcommunityForCategory(thread.category_id);
-    return !subcommunity || canReadSubcommunity(subcommunity, user);
+    try {
+      const subcommunity = await loadSubcommunityForCategory(thread.category_id);
+      return !subcommunity || canReadSubcommunity(subcommunity, user);
+    } catch {
+      return false;
+    }
   }
 
   if (parentType === "document") {
@@ -187,7 +191,9 @@ commentsRouter.post(
         .single();
       if (!thread) return res.status(404).json({ error: "Thread not found" });
       if (!canReadThread(thread, req.user)) return res.status(404).json({ error: "Thread not found" });
-      const subcommunity = await loadSubcommunityForCategory(thread.category_id);
+      const subcommunityLookup = await loadSubcommunityForCategoryOrRespond(thread.category_id, res);
+      if (!subcommunityLookup.ok) return;
+      const subcommunity = subcommunityLookup.subcommunity;
       if (subcommunity && !canReadSubcommunity(subcommunity, req.user)) {
         return res.status(404).json({ error: "Thread not found" });
       }
@@ -372,3 +378,16 @@ commentsRouter.delete("/:id", async (req: Request, res: Response) => {
   if (error) return res.status(500).json({ error: error.message });
   res.json({ ok: true });
 });
+
+async function loadSubcommunityForCategoryOrRespond(
+  categoryId: string,
+  res: Response
+): Promise<{ ok: true; subcommunity: Awaited<ReturnType<typeof loadSubcommunityForCategory>> } | { ok: false }> {
+  try {
+    return { ok: true, subcommunity: await loadSubcommunityForCategory(categoryId) };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Could not verify subcommunity visibility.";
+    res.status(500).json({ error: message });
+    return { ok: false };
+  }
+}

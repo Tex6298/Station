@@ -7415,6 +7415,22 @@ when a PR lands, or when validation truth changes.
   route, delegated moderator UI, witness/reputation mechanics, notification
   expansion, billing/provider/cache, Redis, Cloudflare, Developer Space product
   expansion, auth/session refactor, or broad forum redesign was added.
+- ARGUS accepts PR91 Community Subcommunity Foundation on 2026-06-20 and wakes
+  MIMIR directly because no visible route changed. Review confirmed the
+  migration/type surfaces, canon-tier/admin creation gate, public/community
+  list/read behavior, owner/admin readback, linked public Space validation,
+  linked non-private Developer Space validation, and the protected-alpha
+  fallback that models private/unlisted rows while deferring new private/
+  unlisted creation. ARGUS patched subcommunity category lookup paths to fail
+  closed on lookup errors instead of treating protected categories as ordinary
+  categories, and added hostile direct-access coverage for private
+  subcommunity-backed thread reads, comment reads, and comment votes.
+  Validation passed `test:community` with 13 tests, `test:reports` with 6
+  tests, `test:document-discussions`, `typecheck`, and `git diff --check` with
+  CRLF normalization warnings only. No visible route, delegated moderator UI,
+  witness/reputation mechanics, notification expansion, billing/provider/cache,
+  Redis, Cloudflare, Developer Space product expansion, auth/session refactor,
+  or broad forum redesign was added.
 
 ## Near-term rule
 

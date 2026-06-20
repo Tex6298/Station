@@ -68,7 +68,9 @@ threadsRouter.get("/:id", optionalAuth, async (req: Request, res: Response) => {
 
   if (threadErr || !thread) return res.status(404).json({ error: "Thread not found" });
   if (!canReadThread(thread, req.user)) return res.status(404).json({ error: "Thread not found" });
-  const subcommunity = await loadSubcommunityForCategory(thread.category_id);
+  const subcommunityLookup = await loadSubcommunityForCategoryOrRespond(thread.category_id, res);
+  if (!subcommunityLookup.ok) return;
+  const subcommunity = subcommunityLookup.subcommunity;
   if (subcommunity && !canReadSubcommunity(subcommunity, req.user)) {
     return res.status(404).json({ error: "Thread not found" });
   }
@@ -132,7 +134,9 @@ threadsRouter.get("/:id/watch", async (req: Request, res: Response) => {
     .maybeSingle();
 
   if (!thread || !canReadThread(thread, req.user)) return res.status(404).json({ error: "Thread not found" });
-  const subcommunity = await loadSubcommunityForCategory(thread.category_id);
+  const subcommunityLookup = await loadSubcommunityForCategoryOrRespond(thread.category_id, res);
+  if (!subcommunityLookup.ok) return;
+  const subcommunity = subcommunityLookup.subcommunity;
   if (subcommunity && !canReadSubcommunity(subcommunity, req.user)) {
     return res.status(404).json({ error: "Thread not found" });
   }
@@ -160,7 +164,9 @@ threadsRouter.put("/:id/watch", requireTier("private"), async (req: Request, res
     .maybeSingle();
 
   if (!thread || !canReadThread(thread, req.user)) return res.status(404).json({ error: "Thread not found" });
-  const subcommunity = await loadSubcommunityForCategory(thread.category_id);
+  const subcommunityLookup = await loadSubcommunityForCategoryOrRespond(thread.category_id, res);
+  if (!subcommunityLookup.ok) return;
+  const subcommunity = subcommunityLookup.subcommunity;
   if (subcommunity && !canReadSubcommunity(subcommunity, req.user)) {
     return res.status(404).json({ error: "Thread not found" });
   }
@@ -194,7 +200,9 @@ threadsRouter.delete("/:id/watch", requireTier("private"), async (req: Request, 
     .maybeSingle();
 
   if (!thread || !canReadThread(thread, req.user)) return res.status(404).json({ error: "Thread not found" });
-  const subcommunity = await loadSubcommunityForCategory(thread.category_id);
+  const subcommunityLookup = await loadSubcommunityForCategoryOrRespond(thread.category_id, res);
+  if (!subcommunityLookup.ok) return;
+  const subcommunity = subcommunityLookup.subcommunity;
   if (subcommunity && !canReadSubcommunity(subcommunity, req.user)) {
     return res.status(404).json({ error: "Thread not found" });
   }
@@ -222,7 +230,9 @@ threadsRouter.post("/:id/vote", requireTier("private"), async (req: Request, res
     .maybeSingle();
 
   if (!thread || !canReadThread(thread, req.user)) return res.status(404).json({ error: "Thread not found" });
-  const subcommunity = await loadSubcommunityForCategory(thread.category_id);
+  const subcommunityLookup = await loadSubcommunityForCategoryOrRespond(thread.category_id, res);
+  if (!subcommunityLookup.ok) return;
+  const subcommunity = subcommunityLookup.subcommunity;
   if (subcommunity && !canReadSubcommunity(subcommunity, req.user)) {
     return res.status(404).json({ error: "Thread not found" });
   }
@@ -321,7 +331,9 @@ threadsRouter.delete("/:id", async (req: Request, res: Response) => {
     .single();
 
   if (findErr || !thread) return res.status(404).json({ error: "Thread not found" });
-  const subcommunity = await loadSubcommunityForCategory(thread.category_id);
+  const subcommunityLookup = await loadSubcommunityForCategoryOrRespond(thread.category_id, res);
+  if (!subcommunityLookup.ok) return;
+  const subcommunity = subcommunityLookup.subcommunity;
   if (subcommunity && !canReadSubcommunity(subcommunity, req.user)) {
     return res.status(404).json({ error: "Thread not found" });
   }
@@ -337,3 +349,16 @@ threadsRouter.delete("/:id", async (req: Request, res: Response) => {
   if (error) return res.status(500).json({ error: error.message });
   res.json({ ok: true });
 });
+
+async function loadSubcommunityForCategoryOrRespond(
+  categoryId: string,
+  res: Response
+): Promise<{ ok: true; subcommunity: Awaited<ReturnType<typeof loadSubcommunityForCategory>> } | { ok: false }> {
+  try {
+    return { ok: true, subcommunity: await loadSubcommunityForCategory(categoryId) };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Could not verify subcommunity visibility.";
+    res.status(500).json({ error: message });
+    return { ok: false };
+  }
+}

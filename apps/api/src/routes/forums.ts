@@ -136,9 +136,10 @@ forumsRouter.get("/categories", optionalAuth, async (req: Request, res: Response
 
   if (error) return res.status(500).json({ error: error.message });
 
-  const { data: subcommunities } = await (sb as any)
+  const { data: subcommunities, error: subcommunityError } = await (sb as any)
     .from("community_subcommunities")
     .select("*");
+  if (subcommunityError) return res.status(500).json({ error: subcommunityError.message });
   const subByCategory = new Map<string, any>((subcommunities ?? []).map((row: any) => [row.category_id, row]));
   const categories = (data ?? [])
     .map((category: any) => {
@@ -210,7 +211,9 @@ forumsRouter.get("/categories/:slug", optionalAuth, async (req: Request, res: Re
     .single();
 
   if (catErr || !category) return res.status(404).json({ error: "Category not found" });
-  const subcommunity = await loadSubcommunityForCategory(category.id);
+  const subcommunityLookup = await loadSubcommunityForCategoryOrRespond(category.id, res);
+  if (!subcommunityLookup.ok) return;
+  const subcommunity = subcommunityLookup.subcommunity;
   if (subcommunity && !canReadSubcommunity(subcommunity, req.user)) {
     return res.status(404).json({ error: "Category not found" });
   }
@@ -351,7 +354,9 @@ forumsRouter.post(
       .single();
 
     if (catErr || !category) return res.status(404).json({ error: "Category not found" });
-    const subcommunity = await loadSubcommunityForCategory(category.id);
+    const subcommunityLookup = await loadSubcommunityForCategoryOrRespond(category.id, res);
+    if (!subcommunityLookup.ok) return;
+    const subcommunity = subcommunityLookup.subcommunity;
     if (subcommunity && !canReadSubcommunity(subcommunity, req.user!)) {
       return res.status(404).json({ error: "Category not found" });
     }
@@ -399,6 +404,19 @@ async function loadCommunityProfiles(userIds: string[]) {
 
   if (error) return {};
   return Object.fromEntries((data ?? []).map((row: any) => [row.user_id, serializeCommunityProfile(row)]));
+}
+
+async function loadSubcommunityForCategoryOrRespond(
+  categoryId: string,
+  res: Response
+): Promise<{ ok: true; subcommunity: Awaited<ReturnType<typeof loadSubcommunityForCategory>> } | { ok: false }> {
+  try {
+    return { ok: true, subcommunity: await loadSubcommunityForCategory(categoryId) };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Could not verify subcommunity visibility.";
+    res.status(500).json({ error: message });
+    return { ok: false };
+  }
 }
 
 async function validateSubcommunityLinks(
