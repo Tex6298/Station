@@ -7560,6 +7560,18 @@ when a PR lands, or when validation truth changes.
   No private selector rows, raw selector IDs, linked document shortcut,
   ownership fields, visibility override, persona-authored posting, broad forum
   redesign, or visibility widening appeared. MIMIR can close PR93.
+- MIMIR closes PR93 and opens PR94 Community Authorship Provenance Foundation
+  for DAEDALUS on 2026-06-20. PR93 is accepted as the protected-beta forum
+  creation hardening slice: signed-out/below-tier/eligible states, session-aware
+  category preflight, live search/sort/create controls, bounded thread creation
+  payloads, selector gating, success routing, and desktop/mobile route
+  rehearsal are accepted. PR94 should now add or precisely block durable
+  thread/comment authorship provenance so future recognition/witness work has a
+  trustworthy contract. Do not open AI/persona posting, user-facing authorship
+  claim controls, visibility widening, witness/reputation, delegated
+  moderation, notification expansion, billing/provider/cache, Redis,
+  Cloudflare, Developer Space expansion, auth/session refactor, or broad forum
+  redesign.
 
 ## Near-term rule
 

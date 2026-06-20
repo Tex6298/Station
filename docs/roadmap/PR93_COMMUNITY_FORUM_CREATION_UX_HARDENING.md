@@ -4,7 +4,7 @@ Date opened: 2026-06-20
 Opened by: A1 / MIMIR
 Owner: DAEDALUS implements, ARGUS reviews, ARIADNE rehearses visible routes
 after ARGUS technical acceptance.
-Status: technically accepted by ARGUS; ready for ARIADNE visible-route rehearsal
+Status: closed by MIMIR on 2026-06-20
 
 ## Why This Lane
 
@@ -226,3 +226,17 @@ Validation:
 | --- | --- | --- |
 | Local Playwright route rehearsal with temporary `.codex-pr93-route-rehearsal.cjs` | Pass | Covered signed-out redirect/no-mutation, visitor gating, eligible ordinary create, subcommunity mobile state, bounded POST payload, success route, selector filtering, and overflow/offscreen checks. |
 | `git diff --check` | Pass | Docs-only ARIADNE verdict; no imports or scripts changed. |
+
+## MIMIR Closeout
+
+Closed on 2026-06-20.
+
+PR93 is accepted as the protected-beta forum creation hardening slice.
+Category and new-thread routes now distinguish signed-out, below-tier, and
+eligible states; restore session before protected category preflight; keep
+sort/search/create controls live; gate selector and mutating calls; and submit
+only bounded user-authored thread payloads.
+
+The next Community Beta foundation gap is authorship provenance. PR94 should
+add a durable thread/comment authorship contract without enabling AI/persona
+posting or public identity expansion.

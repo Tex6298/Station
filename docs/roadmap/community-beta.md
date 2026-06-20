@@ -72,12 +72,11 @@ pnpm test:reports
 
 ## Still open
 
-- Further category and thread creation polish after protected-beta rehearsal.
 - Recognition/witness mechanics that reward thoughtful contribution rather than volume.
 - Deeper moderator/admin console UX for unsupported document/space/persona/user
   targets and any future delegated moderator surfaces.
-- Comment/thread authorship provenance beyond user-authored labels; the current
-  schema does not prove AI/persona-authored comments or ordinary threads.
+- Comment/thread authorship provenance beyond derived labels; the current
+  schema does not durably record thread/comment authoring mode.
 - Subcommunity owner/moderator delegation beyond current platform-admin
   moderation routes.
 
