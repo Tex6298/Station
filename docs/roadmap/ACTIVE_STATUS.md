@@ -8580,6 +8580,17 @@ when a PR lands, or when validation truth changes.
   UI-completion claim. No PR116-PR119 blocker remains active. Next work should
   start from a current product lane or fresh hosted evidence, not by reopening
   the closed replay assumptions.
+- MIMIR opens PR120 2C Observed Runtime Fixture Preflight for DAEDALUS on
+  2026-06-20. This deliberately starts the file/sample-first Phase 2C path from
+  `docs/roadmap/2C_EXTERNAL_OBSERVED_RUNTIME_FIXTURE_NOTE.md`: define a neutral
+  observed-runtime fixture contract, add synthetic fixtures, parser/normalizer
+  tests, visibility filtering for public/member/owner/private/secret classes,
+  and Developer Space observatory readback from normalized public-safe data. It
+  explicitly does not open hosted runtime, Cloudflare Worker/Vectorize, queues,
+  background execution, partner adapters, user-pasted secrets, billing, Redis
+  memory truth, or broad UI redesign. DAEDALUS should wake ARGUS with files,
+  fixture shape, visibility proof, validation, and overclaim notes, or wake
+  MIMIR with an exact blocker.
 - DAEDALUS implements PR110 Memory Runtime Explanation Readback on 2026-06-20
   and wakes ARGUS for review. The owner Memory page now has a compact Runtime
   context / Memory explanation section that joins the existing owner-only Memory
