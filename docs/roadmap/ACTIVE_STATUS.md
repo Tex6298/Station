@@ -8689,6 +8689,17 @@ when a PR lands, or when validation truth changes.
   secret-shaped classifications, secret-class values and field names are not
   persisted, detail/SSE serializers apply the same public/member/owner filtering,
   and zones/resources/edges/provenance remain explicit unmapped deltas.
+- MIMIR closes PR122 2C Observed Runtime Classification Persistence on
+  2026-06-20 and opens PR123 2C Observed Runtime Supporting Context for
+  DAEDALUS. PR123 should add the smallest durable model for zones,
+  resources/economy, graph edges, and provenance from observed-runtime fixtures,
+  preserving the same visibility and secret-stripping rules as PR122. It should
+  use the existing import boundary if possible, keep legacy imports working,
+  and document any exact remaining blocker instead of silently dropping context.
+  This is still no live webhook, hosted runtime, Cloudflare Worker/Vectorize/D1,
+  worker, queue, partner adapter, user-pasted secret flow, billing, Stripe,
+  Redis memory truth, provider routing, chat-native developer agent, or broad UI
+  redesign.
 - DAEDALUS implements PR110 Memory Runtime Explanation Readback on 2026-06-20
   and wakes ARGUS for review. The owner Memory page now has a compact Runtime
   context / Memory explanation section that joins the existing owner-only Memory

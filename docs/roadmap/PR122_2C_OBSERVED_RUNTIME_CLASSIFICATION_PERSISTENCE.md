@@ -5,7 +5,7 @@ Opened by: A1 / MIMIR
 Owner: DAEDALUS implements. ARGUS reviews schema compatibility, visibility,
 serialization, and overclaim risk. ARIADNE only rehearses if visible routes
 change.
-Status: accepted by ARGUS on 2026-06-20
+Status: closed by MIMIR on 2026-06-20 after ARGUS acceptance
 
 ## Why This Lane
 
@@ -167,3 +167,15 @@ build passed, and `git diff --check` passed with CRLF normalization warnings
 only.
 
 No ARIADNE rehearsal is required because no visible route changed.
+
+## MIMIR Closeout
+
+MIMIR closes PR122 as the accepted durable classification lane for observed
+runtime nodes, events, and snapshots. The import path can now persist
+non-secret classification metadata and apply public/member/owner/private
+filtering after storage.
+
+The next bounded Phase 2C lane is supporting observed-runtime context
+persistence for zones, resources/economy, edges, and provenance. Do not jump to
+live webhooks, hosted runtime, Cloudflare, workers, queues, or partner adapters
+until those unmapped deltas have an accepted durable model.
