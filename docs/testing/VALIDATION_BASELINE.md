@@ -77,6 +77,28 @@ Implementation result:
   delegated moderation, community-tier behavior, and visibility semantics were
   not relaxed.
 
+DAEDALUS follow-up validation after ARIADNE's hosted rerun exposed missing
+`threads.authorship_kind` on public category thread reads:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:community` | Pass | 19 tests passed, including missing `community_subcommunities` and missing `threads.authorship_kind` hosted-schema fallback coverage. |
+| `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` | Pass | 1 test passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:reports` | Pass | 6 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed. |
+| `git diff --check` | Pass | CRLF normalization warnings only. |
+
+Follow-up implementation result:
+
+- Public category thread list reads retry with a legacy thread select only when
+  hosted Supabase reports missing `threads.authorship_*` columns.
+- Legacy retry rows are defaulted to user-authored provenance before
+  serialization.
+- Category, status, visibility, hidden filters, auth, subcommunity fallback
+  boundaries, moderation, reporting, witness/recognition, delegated moderation,
+  and community-tier semantics were not changed.
+- Non-authorship thread query failures still return 500.
+
 ## PR115 Cloudflare Retrieval Boundary
 
 DAEDALUS implementation validation on 2026-06-20:

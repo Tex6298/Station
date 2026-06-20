@@ -2,8 +2,7 @@
 
 Date: 2026-06-20
 Reviewer: A4 / ARIADNE
-Status: hosted rerun found a remaining forum thread schema blocker; ready for
-DAEDALUS patch.
+Status: second DAEDALUS patch implemented; awaiting ARGUS review.
 
 ## Scope
 
@@ -229,6 +228,38 @@ Recommended DAEDALUS patch:
   reporting, witness/recognition, delegated moderation, or community-tier
   semantics.
 - Keep raw schema/column errors out of visible hosted UI copy.
+
+## DAEDALUS Follow-Up Patch - 2026-06-20
+
+Status: implemented, awaiting ARGUS review.
+
+Patch:
+
+- Public category thread list reads now retry with a legacy thread select only
+  when hosted Supabase reports missing `threads.authorship_*` columns.
+- Legacy retry rows are explicitly defaulted to user-authored provenance before
+  serialization.
+- The retry preserves category, status, visibility, and hidden filters.
+- The retry preserves the accepted `community_subcommunities` fallback boundary.
+- Non-authorship thread query failures still return 500.
+
+Safety:
+
+- No forum visibility, auth, subcommunity gating, moderation, reporting,
+  witness/recognition, delegated moderation, or community-tier rule changed.
+- The fallback does not expose raw `authorship_source_id` or
+  `authorship_persona_id` fields.
+- Raw schema/column details are not returned on the tolerated fallback path.
+
+Validation:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:community` | Pass | 19 tests passed, including missing `community_subcommunities` and missing `threads.authorship_kind` hosted-schema fallback regressions. |
+| `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` | Pass | 1 test passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:reports` | Pass | 6 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed. |
+| `git diff --check` | Pass | CRLF normalization warnings only. |
 
 ## Validation
 

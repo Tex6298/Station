@@ -1096,6 +1096,32 @@ test("forum legacy public category reads tolerate missing subcommunity schema ca
   }
 });
 
+test("forum category thread reads tolerate missing hosted authorship columns", async () => {
+  const db = new CommunitySupabase();
+  setSupabaseAdminForTests(db.client as any);
+  const app = createCommunityApp();
+
+  try {
+    db.failNext("threads", "select", "Could not find the 'authorship_kind' column of 'threads' in the schema cache");
+    const category = await requestJson(app, "GET", "/forums/categories/community?sort=active");
+    assert.equal(category.status, 200);
+    assert.doesNotMatch(JSON.stringify(category.body), /schema cache/i);
+    assert.doesNotMatch(JSON.stringify(category.body), /authorship_source_id/i);
+
+    const publicThread = category.body.threads.find((row: Row) => row.id === PUBLIC_THREAD_ID);
+    assert.deepEqual(publicThread.authorship_provenance, {
+      kind: "user_authored",
+      label: "User-authored",
+    });
+    assert.equal(
+      category.body.threads.some((row: Row) => row.id === PUBLIC_THREAD_ID),
+      true
+    );
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
+
 test("subcommunity foundation gates creation and filters public/community/owner reads", async () => {
   const db = new CommunitySupabase();
   const privateCategory = db.insertRow("forum_categories", {

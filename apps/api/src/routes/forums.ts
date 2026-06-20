@@ -67,6 +67,17 @@ const authorRecognitionQuerySchema = z.object({
 });
 const DELEGATED_REPORT_PREFETCH_LIMIT = 500;
 const LEGACY_PUBLIC_FORUM_CATEGORY_SLUGS = new Set(["general", "documents-and-codexes"]);
+const CATEGORY_THREAD_SELECT = `id, title, body, status, visibility, score, comment_count, linked_document_id, linked_persona_id,
+         authorship_kind, authorship_source_type, authorship_source_id, authorship_persona_id,
+         is_pinned, is_hidden, reported_count, vote_count, hot_score, last_activity_at, moderation_state, created_at, updated_at,
+         author_user_id,
+         author:profiles!author_user_id(username, display_name, avatar_url),
+         document:documents!linked_document_id(id, provenance_type, source_type, source_persona_id)`;
+const LEGACY_CATEGORY_THREAD_SELECT = `id, title, body, status, visibility, score, comment_count, linked_document_id, linked_persona_id,
+         is_pinned, is_hidden, reported_count, vote_count, hot_score, last_activity_at, moderation_state, created_at, updated_at,
+         author_user_id,
+         author:profiles!author_user_id(username, display_name, avatar_url),
+         document:documents!linked_document_id(id, provenance_type, source_type, source_persona_id)`;
 
 export const forumsRouter = Router();
 const COMMUNITY_TIERS = new Set(["private", "creator", "canon", "institutional"]);
@@ -263,27 +274,13 @@ forumsRouter.get("/categories/:slug", optionalAuth, async (req: Request, res: Re
   const orderColumn = sort === "hot" ? "hot_score" : sort === "new" ? "created_at" : "last_activity_at";
 
   const threadResults = await Promise.all(listableThreadVisibilities(req.user).map((visibility) =>
-    {
-      let query = (sb as any)
-      .from("threads")
-      .select(
-        `id, title, body, status, visibility, score, comment_count, linked_document_id, linked_persona_id,
-         authorship_kind, authorship_source_type, authorship_source_id, authorship_persona_id,
-         is_pinned, is_hidden, reported_count, vote_count, hot_score, last_activity_at, moderation_state, created_at, updated_at,
-         author_user_id,
-         author:profiles!author_user_id(username, display_name, avatar_url),
-         document:documents!linked_document_id(id, provenance_type, source_type, source_persona_id)`
-      )
-      .eq("category_id", category.id)
-      .eq("status", "active")
-      .eq("visibility", visibility)
-      .eq("is_hidden", false)
-      .order("is_pinned", { ascending: false })
-      .order(orderColumn, { ascending: false });
-
-      if (search) query = query.or(`title.ilike.%${search}%,body.ilike.%${search}%`);
-      return query;
-    }
+    loadCategoryThreads({
+      sb,
+      categoryId: category.id,
+      visibility,
+      orderColumn,
+      search,
+    })
   ));
 
   const threadErr = threadResults.find((result) => result.error)?.error;
@@ -897,6 +894,54 @@ function hasWitnessCounts(counts: ReturnType<typeof emptyWitnessCounts>) {
   return counts.helpful > 0 || counts.grounded > 0 || counts.careful > 0;
 }
 
+async function loadCategoryThreads(input: {
+  sb: ReturnType<typeof getSupabaseAdmin>;
+  categoryId: string;
+  visibility: ThreadVisibility;
+  orderColumn: string;
+  search: string;
+}) {
+  const result = await buildCategoryThreadsQuery(input, CATEGORY_THREAD_SELECT);
+  if (!isMissingThreadAuthorshipSchemaError(result.error)) return result;
+
+  const legacy = await buildCategoryThreadsQuery(input, LEGACY_CATEGORY_THREAD_SELECT);
+  return {
+    ...legacy,
+    data: (legacy.data ?? []).map(withLegacyThreadAuthorship),
+  };
+}
+
+function buildCategoryThreadsQuery(input: {
+  sb: ReturnType<typeof getSupabaseAdmin>;
+  categoryId: string;
+  visibility: ThreadVisibility;
+  orderColumn: string;
+  search: string;
+}, selectColumns: string) {
+  let query = (input.sb as any)
+    .from("threads")
+    .select(selectColumns)
+    .eq("category_id", input.categoryId)
+    .eq("status", "active")
+    .eq("visibility", input.visibility)
+    .eq("is_hidden", false)
+    .order("is_pinned", { ascending: false })
+    .order(input.orderColumn, { ascending: false });
+
+  if (input.search) query = query.or(`title.ilike.%${input.search}%,body.ilike.%${input.search}%`);
+  return query;
+}
+
+function withLegacyThreadAuthorship(row: any) {
+  return {
+    authorship_kind: "user_authored",
+    authorship_source_type: null,
+    authorship_source_id: null,
+    authorship_persona_id: null,
+    ...row,
+  };
+}
+
 async function loadSubcommunityForCategoryOrRespond(
   categoryId: string,
   res: Response,
@@ -932,6 +977,19 @@ function isMissingSubcommunitySchemaError(error: unknown) {
         : "";
 
   return /community_subcommunities/i.test(message) && /schema cache|could not find|does not exist|relation .* does not exist/i.test(message);
+}
+
+function isMissingThreadAuthorshipSchemaError(error: unknown) {
+  const message = error instanceof Error
+    ? error.message
+    : typeof error === "string"
+      ? error
+      : typeof (error as { message?: unknown } | null)?.message === "string"
+        ? String((error as { message?: unknown }).message)
+        : "";
+
+  return /authorship_(kind|source_type|source_id|persona_id)/i.test(message)
+    && /threads|schema cache|column|could not find|does not exist/i.test(message);
 }
 
 async function validateSubcommunityLinks(

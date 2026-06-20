@@ -8409,6 +8409,18 @@ when a PR lands, or when validation truth changes.
   mobile. Spot checks for landing, Discover, Studio, public Space, public
   Developer Space, and Billing had no visible application error or document-level
   horizontal overflow.
+- DAEDALUS patches the second PR116 hosted forum schema blocker on 2026-06-20
+  and wakes ARGUS for review. Public category thread list reads now retry with a
+  legacy thread select only when hosted Supabase reports missing
+  `threads.authorship_*` columns, then default legacy rows to user-authored
+  provenance before serialization. The retry preserves category, status,
+  visibility, hidden filters, and the accepted `community_subcommunities`
+  fallback boundary. It does not change forum visibility, auth, subcommunity
+  gating, moderation, reporting, witness/recognition, delegated moderation, or
+  community-tier semantics; non-authorship thread query failures still return
+  500. Validation passed `test:community` with 19 tests,
+  `test:document-discussions` with 1 test, `test:reports` with 6 tests,
+  `typecheck`, and `git diff --check` with CRLF normalization warnings only.
 - DAEDALUS implements PR110 Memory Runtime Explanation Readback on 2026-06-20
   and wakes ARGUS for review. The owner Memory page now has a compact Runtime
   context / Memory explanation section that joins the existing owner-only Memory
@@ -8650,26 +8662,39 @@ git diff --check
 - Developer Spaces visual polish before ingestion auth, validation, limits, and
   safe serialization.
 
-## Latest ARIADNE handoff - PR116 hosted rerun
+## Latest DAEDALUS handoff - PR116 hosted thread-schema follow-up
 
-PR116 Replay Optimization Baseline still has one hosted forum thread-schema
-blocker after the first accepted DAEDALUS patch and is ready for DAEDALUS.
+PR116 hosted forum thread-schema follow-up is implemented by DAEDALUS on
+2026-06-20 and ready for ARGUS technical review. The patch is backend-only;
+ARIADNE should rerun hosted forum/browser checks after ARGUS accepts and the
+patch is deployed.
 
-Hosted rerun:
+Files changed: `apps/api/src/routes/forums.ts`,
+`apps/api/src/routes/community.test.ts`,
+`docs/roadmap/PR116_REPLAY_OPTIMIZATION_BASELINE_ARIADNE.md`,
+`docs/roadmap/ACTIVE_STATUS.md`, and `docs/testing/VALIDATION_BASELINE.md`.
 
-- Runtime deploy identity: `772b5fa14ed2`.
-- API `GET /forums/categories/documents-and-codexes?sort=active` and
-  `GET /forums/categories/general?sort=active` still return HTTP 500 for
-  anonymous visitors and for the replay owner.
-- Sanitized error: `column threads.authorship_kind does not exist`.
-- Hosted `/forums/general` visibly renders the column error on desktop and
-  390px mobile.
-- The accepted `community_subcommunities` fallback partially passed: public
-  category list returns two legacy categories, and unknown category slugs stay
-  404 for anonymous and replay-owner states.
-- Spot checks for landing, Discover, Studio, public Space, public Developer
-  Space, and Billing had no visible application error or document-level
-  horizontal overflow.
+Patch:
+
+- Public category thread list reads retry with a legacy thread select only when
+  hosted Supabase reports missing `threads.authorship_*` columns.
+- Legacy retry rows are defaulted to user-authored provenance before
+  serialization.
+- The retry preserves category, status, visibility, hidden filters, and the
+  accepted `community_subcommunities` fallback boundary.
+- Non-authorship thread query failures still return 500.
+
+Safety:
+
+- No forum visibility, auth, subcommunity gating, moderation, reporting,
+  witness/recognition, delegated moderation, or community-tier rule changed.
+- Raw `authorship_source_id` and `authorship_persona_id` fields stay out of the
+  category response.
+- Raw schema/column details are not returned on the tolerated fallback path.
+
+Validation: `test:community` 19 passed, `test:document-discussions` 1 passed,
+`test:reports` 6 passed, `typecheck` passed, and `git diff --check` passed
+with CRLF normalization warnings only.
 
 Result doc: `docs/roadmap/PR116_REPLAY_OPTIMIZATION_BASELINE_ARIADNE.md`.
 
