@@ -98,7 +98,10 @@ function serializeReporterReport(row: ModerationReportRow): ReporterModerationRe
   return report;
 }
 
-function serializeParticipantReviewRequest(row: ModerationReviewRequestRow): ParticipantModerationReviewRequestRecord {
+function serializeParticipantReviewRequest(
+  row: ModerationReviewRequestRow,
+  options: { includeLinkedReportId?: boolean } = {}
+): ParticipantModerationReviewRequestRecord {
   const request: ParticipantModerationReviewRequestRecord = {
     id: row.id,
     requesterRole: row.requester_role,
@@ -110,7 +113,8 @@ function serializeParticipantReviewRequest(row: ModerationReviewRequestRow): Par
     updatedAt: row.updated_at,
   };
 
-  if (row.report_id !== null) request.reportId = row.report_id;
+  const includeLinkedReportId = options.includeLinkedReportId ?? row.requester_role === "reporter";
+  if (includeLinkedReportId && row.report_id !== null) request.reportId = row.report_id;
   if (row.resolution_summary !== null) request.resolutionSummary = row.resolution_summary;
   if (row.reviewed_at !== null) request.reviewedAt = row.reviewed_at;
 
@@ -119,7 +123,7 @@ function serializeParticipantReviewRequest(row: ModerationReviewRequestRow): Par
 
 function serializeAdminReviewRequest(row: ModerationReviewRequestRow): AdminModerationReviewRequestRecord {
   const request: AdminModerationReviewRequestRecord = {
-    ...serializeParticipantReviewRequest(row),
+    ...serializeParticipantReviewRequest(row, { includeLinkedReportId: true }),
     requesterUserId: row.requester_id,
   };
 
@@ -271,7 +275,7 @@ reportsRouter.get("/review-requests/mine", async (req, res) => {
   const { data, error } = await query;
   if (error) return res.status(500).json({ error: error.message });
 
-  return res.json({ reviewRequests: (data ?? []).map(serializeParticipantReviewRequest) });
+  return res.json({ reviewRequests: (data ?? []).map((row) => serializeParticipantReviewRequest(row)) });
 });
 
 reportsRouter.get("/review-requests", async (req, res) => {

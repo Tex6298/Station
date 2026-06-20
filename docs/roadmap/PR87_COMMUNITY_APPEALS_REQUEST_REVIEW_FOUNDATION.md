@@ -5,7 +5,7 @@ Opened by: A1 / MIMIR
 Owner: DAEDALUS implements if current schema/API can support the foundation,
 ARGUS reviews. ARIADNE rehearses only if a visible participant/admin route is
 added.
-Status: implemented by DAEDALUS; awaiting ARGUS review
+Status: accepted by ARGUS; awaiting MIMIR closeout
 
 ## Why This Lane
 
@@ -106,6 +106,30 @@ No visible appeal UI, public moderation log, public visibility widening,
 subcommunity platform, delegated moderator model, notifications,
 reputation/witness mechanics, AI posting, target mutation, billing/provider
 cache, Developer Space, auth/session refactor, or broad UI scope was added.
+
+## ARGUS Technical Review
+
+ARGUS accepted PR87 on 2026-06-20 as an API/schema-only moderation review
+request foundation. No ARIADNE rehearsal is required because no visible
+participant or admin route changed.
+
+Review notes:
+
+- The migration establishes a durable `moderation_review_requests` table with
+  explicit statuses, requester/target indexes, duplicate-active protection, and
+  requester/admin RLS intent.
+- Create/read/update routes enforce private-tier creation, requester standing,
+  participant-owned readback, admin-only queue/update behavior, and
+  server-owned reviewer fields.
+- Participant and admin serializers are separate. ARGUS tightened participant
+  serialization so a target author does not receive another reporter's linked
+  `reportId`; admins still receive linked report ids in the admin serializer.
+- Tests cover reporter standing, target-author standing, visitor blocking,
+  duplicate active request idempotency, participant-safe fields, admin queue,
+  admin updates, and private admin-note/moderator identity exclusion.
+- Moderation-action-linked requests remain correctly deferred because current
+  moderation action rows do not yet provide a participant-safe action reference
+  or visibility rule.
 
 ## Product Semantics To Decide In Code
 

@@ -9271,6 +9271,25 @@ Scope notes:
   billing/provider/cache, Developer Space, auth/session refactor, or broad UI
   scope changed.
 
+ARGUS technical review validation on 2026-06-20:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:reports` | Pass | 6 tests passed, including ARGUS-tightened participant report-id privacy for target-author requests linked to another reporter's report. |
+| `npm exec --yes pnpm@10.32.1 -- run test:community` | Pass | 11 tests passed; existing community permission and moderation boundaries remain green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` | Pass | 1 test passed; document discussion visibility/readback remains green. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck completed after replacing direct `Array.map` use with the option-taking participant serializer. |
+
+ARGUS scope notes:
+
+- Accepted PR87 as schema/API-only; no ARIADNE rehearsal is required.
+- Tightened participant serialization so target authors do not receive another
+  reporter's linked `reportId`, while admin readback still includes linked
+  report ids.
+- Confirmed requester standing, participant-owned readback, admin-only
+  queue/update, duplicate active request idempotency, and server-owned reviewer
+  fields remain covered.
+
 ## PR86 Community Moderation Target Context And Actions
 
 DAEDALUS implementation validation on 2026-06-19:

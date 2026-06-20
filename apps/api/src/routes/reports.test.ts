@@ -855,19 +855,37 @@ test("moderation review requests enforce standing, safe participant serializatio
     assert.equal(targetAuthorRequest.body.reviewRequest.requesterRole, "target_author");
     assert.equal(targetAuthorRequest.body.reviewRequest.reportId, undefined);
 
+    const targetAuthorReportRequest = await requestJson(app, "POST", "/reports/review-requests", {
+      token: "owner-token",
+      body: { reportId: otherReport.id, reason: "Please review the report about my comment." },
+    });
+    assert.equal(targetAuthorReportRequest.status, 201);
+    assert.equal(targetAuthorReportRequest.body.reviewRequest.requesterRole, "target_author");
+    assert.equal(targetAuthorReportRequest.body.reviewRequest.reportId, undefined);
+
     const mine = await requestJson(app, "GET", "/reports/review-requests/mine", {
       token: "owner-token",
     });
     assert.equal(mine.status, 200);
     assert.deepEqual(
       mine.body.reviewRequests.map((request: Row) => request.id),
-      ["moderation_review_requests-2", "moderation_review_requests-1"]
+      ["moderation_review_requests-3", "moderation_review_requests-2", "moderation_review_requests-1"]
     );
     const mineJson = JSON.stringify(mine.body);
     assert.equal(mineJson.includes("admin_notes"), false);
     assert.equal(mineJson.includes("reviewed_by"), false);
     assert.equal(mineJson.includes("requester_id"), false);
     assert.equal(mineJson.includes("Admin-only report notes."), false);
+    assert.equal(mineJson.includes(otherReport.id), false);
+
+    const adminReadback = await requestJson(app, "GET", "/reports/review-requests?limit=10", {
+      token: "admin-token",
+    });
+    assert.equal(adminReadback.status, 200);
+    const adminTargetAuthorRequest = adminReadback.body.reviewRequests.find(
+      (request: Row) => request.id === targetAuthorReportRequest.body.reviewRequest.id
+    );
+    assert.equal(adminTargetAuthorRequest.reportId, otherReport.id);
 
     const otherMine = await requestJson(app, "GET", "/reports/review-requests/mine", {
       token: "other-token",

@@ -7184,6 +7184,23 @@ when a PR lands, or when validation truth changes.
   broad UI scope was added. ARGUS should review schema shape, standing checks,
   serializers, duplicate handling, admin queue/update behavior, and the
   action-link blocker.
+- ARGUS accepts PR87 Community Appeals Request Review Foundation on 2026-06-20
+  as an API/schema-only moderation review request foundation and wakes MIMIR
+  directly because no visible route changed. Review confirmed the migration
+  adds durable request rows with explicit statuses, requester/target indexes,
+  duplicate-active protection, and requester/admin RLS intent. The API enforces
+  private-tier creation, requester standing, participant-owned readback,
+  admin-only queue/update behavior, and server-owned reviewer fields. ARGUS
+  tightened participant serialization so target authors do not receive another
+  reporter's linked `reportId`, while admins still receive linked report ids in
+  admin readback. Validation passed `test:reports` with 6 tests,
+  `test:community` with 11 tests, `test:document-discussions`, and
+  `typecheck`; the initial typecheck failure was fixed by avoiding direct
+  `Array.map` use with the option-taking participant serializer. No visible
+  appeal UI, public moderation log, public visibility widening, subcommunity
+  platform, delegated moderator model, notifications, reputation/witness
+  mechanics, AI posting, target mutation, billing/provider/cache, Developer
+  Space, auth/session refactor, or broad UI scope was added.
 
 ## Near-term rule
 
