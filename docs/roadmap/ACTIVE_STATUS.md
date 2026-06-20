@@ -7749,6 +7749,20 @@ when a PR lands, or when validation truth changes.
   expansion, witness/notification/billing/provider/cache, Redis/Upstash,
   Cloudflare, Developer Space expansion, auth/session refactor, styling, or
   visibility widening was added.
+- ARGUS technically accepts PR97 Community Moderation Unsupported Target
+  Context on 2026-06-20 and wakes MIMIR for closeout. ARGUS patched one
+  truthfulness defect: public persona reports no longer advertise
+  `/studio/personas/:id` as a safe moderator route, because public persona pages
+  are not implemented and Studio remains a protected owner/workspace route.
+  Public persona target context now exposes only name/visibility plus
+  `canOpenRoute: false` and `Persona targets have no safe public route hint
+  yet.` Document and Space route hints remain accepted because the existing API
+  grants admin read access for those target pages. User targets remain label
+  only with no route. Validation passed `test:reports` with 6 tests,
+  `test:community` with 14 tests, `test:document-discussions`,
+  `test:studio-ui` with 68 tests, `typecheck`, and `git diff --check` with CRLF
+  normalization warnings only. No ARIADNE rehearsal is required because no
+  visible moderation route component changed.
 
 ## Near-term rule
 

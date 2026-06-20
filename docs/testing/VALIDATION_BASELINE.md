@@ -48,6 +48,29 @@ pnpm test:developer-spaces
 pnpm test:developer-space-client
 ```
 
+## PR97 ARGUS review result
+
+Validated on 2026-06-20 after the Community Moderation Unsupported Target
+Context review.
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:reports` | Pass | 6 tests passed. ARGUS repaired persona target context so public personas expose safe labels only and do not link to protected Studio routes. |
+| `npm exec --yes pnpm@10.32.1 -- run test:community` | Pass | 14 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` | Pass | 1 test passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 68 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck tasks completed. |
+| `git diff --check` | Pass | CRLF normalization warnings only for touched files and triad state. |
+
+Scope notes:
+
+- Admin `/reports` target context now covers document, Space, persona, and user
+  reports with bounded safe fields.
+- Public persona reports intentionally return no route hint until a real public
+  persona page exists; `/studio/personas/:id` is protected Studio navigation.
+- Reporter-owned `/reports/mine` remains target-context-free.
+- No visible route component changed, so no ARIADNE rehearsal was required.
+
 ## PR-01 result
 
 Validated on 2026-05-30 from base

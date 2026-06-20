@@ -24,7 +24,9 @@ promised in the Station documents.
 - Moderator console report context now also covers document, Space, persona,
   and user targets where safe fields can be proven, with explicit unavailable
   reasons for missing or unroutable targets and no mutation actions for those
-  target types.
+  target types. Persona targets remain label-only until a real public persona
+  route exists; the protected Studio route is not advertised as a public
+  moderator route hint.
 - Reporter-owned moderation status readback exists at `/reports/mine` and
   `/forums/reports` without exposing admin notes, moderator identity,
   moderation action reasons, target bodies, hidden material, or other

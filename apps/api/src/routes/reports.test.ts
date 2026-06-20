@@ -892,10 +892,10 @@ test("admin report queue includes safe target context for thread and comment rep
       targetId: "persona-1",
       title: "Public Persona",
       visibility: "public",
-      routeHref: "/studio/personas/persona-1",
-      routeLabel: "Public Persona",
-      canOpenRoute: true,
-      unavailableReason: null,
+      routeHref: null,
+      routeLabel: null,
+      canOpenRoute: false,
+      unavailableReason: "Persona targets have no safe public route hint yet.",
       supportedActions: [],
     });
     assert.deepEqual(byId.get(privatePersonaReport.id)?.targetContext, {

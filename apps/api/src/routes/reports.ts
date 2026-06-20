@@ -730,17 +730,17 @@ async function loadPersonaTargetContext(
     return unavailableTargetContext("persona", personaId, "Persona target not found.");
   }
 
-  const routeHref = persona.visibility === "public" ? `/studio/personas/${persona.id}` : null;
-
   return {
     targetType: "persona",
     targetId: persona.id,
     title: persona.name ?? null,
     visibility: persona.visibility ?? null,
-    routeHref,
-    routeLabel: routeHref ? (persona.name ?? persona.id) : null,
-    canOpenRoute: Boolean(routeHref),
-    unavailableReason: routeHref ? null : "Private persona target has no safe moderator route hint.",
+    routeHref: null,
+    routeLabel: null,
+    canOpenRoute: false,
+    unavailableReason: persona.visibility === "private"
+      ? "Private persona target has no safe moderator route hint."
+      : "Persona targets have no safe public route hint yet.",
     supportedActions: [],
   };
 }

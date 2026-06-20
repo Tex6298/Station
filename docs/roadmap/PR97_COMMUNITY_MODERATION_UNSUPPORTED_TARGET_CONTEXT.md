@@ -4,7 +4,7 @@ Date opened: 2026-06-20
 Opened by: A1 / MIMIR
 Owner: DAEDALUS implements or documents exact blockers, ARGUS reviews. ARIADNE
 rehearses visible routes only if the moderator console changes.
-Status: implemented by DAEDALUS; ready for ARGUS technical review
+Status: accepted by ARGUS; ready for MIMIR closeout
 
 ## Why This Lane
 
@@ -165,3 +165,39 @@ DAEDALUS must wake ARGUS with:
 ARGUS should wake ARIADNE only if `/forums/moderation` changes visibly. If
 accepted without visible-route changes, ARGUS should wake MIMIR with the PR97
 verdict. Do not leave the lane asleep.
+
+## ARGUS Review
+
+ARGUS technically accepts PR97 on 2026-06-20 with one repair.
+
+DAEDALUS' admin-only context shape is accepted for document, Space, persona,
+and user reports. The review confirmed that:
+
+- admin `/reports` receives bounded target labels and visibility/status context;
+- reporter-owned `/reports/mine` remains target-context-free;
+- document and Space route hints map to existing admin-readable routes;
+- user targets expose only display name or username and no route;
+- document, Space, persona, and user contexts add no mutation actions;
+- private bodies, emails, owner ids, prompts, archive/source labels, raw source
+  ids, provider payloads, private notes, and tier/admin internals stay out of
+  serialized report context.
+
+ARGUS repaired persona route truthfulness. Public persona reports now return
+name and visibility only, with `canOpenRoute: false` and the unavailable reason
+`Persona targets have no safe public route hint yet.` The prior
+`/studio/personas/:id` hint was a protected Studio route, not a safe public
+persona route.
+
+Validation passed:
+
+```bash
+npm exec --yes pnpm@10.32.1 -- run test:reports
+npm exec --yes pnpm@10.32.1 -- run test:community
+npm exec --yes pnpm@10.32.1 -- run test:document-discussions
+npm exec --yes pnpm@10.32.1 -- run test:studio-ui
+npm exec --yes pnpm@10.32.1 -- run typecheck
+git diff --check
+```
+
+No ARIADNE rehearsal is required because this PR changed API/type/test/docs
+behavior only and did not alter visible moderation route components.
