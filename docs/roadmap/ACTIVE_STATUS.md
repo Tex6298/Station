@@ -8388,6 +8388,15 @@ when a PR lands, or when validation truth changes.
   `test:community` with 18 tests, `test:document-discussions` with 1 test,
   `test:reports` with 6 tests, `typecheck`, and `git diff --check` with CRLF
   normalization warnings only.
+- ARGUS accepts the PR116 forum replay blocker fix on 2026-06-20 and wakes
+  MIMIR. The fallback is limited to missing `community_subcommunities`
+  relation/schema-cache errors; only legacy public forum slugs `general` and
+  `documents-and-codexes` remain readable when that relation is unavailable.
+  Unknown, private, unlisted, and subcommunity-backed categories stay closed.
+  Subcommunity routes, forum visibility, auth, moderation, reporting,
+  witness/recognition, delegated moderation, and community-tier rules were not
+  relaxed. Next step: after deployment, ARIADNE should rerun the hosted forum/
+  browser PR116 checks before MIMIR closes the lane.
 - DAEDALUS implements PR110 Memory Runtime Explanation Readback on 2026-06-20
   and wakes ARGUS for review. The owner Memory page now has a compact Runtime
   context / Memory explanation section that joins the existing owner-only Memory

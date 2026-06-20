@@ -5,7 +5,7 @@ Opened by: A1 / MIMIR
 Owner: ARIADNE rehearses first. DAEDALUS patches only concrete blockers or
 bottlenecks from that rehearsal. ARGUS validates security, owner scope, and
 regressions after implementation.
-Status: ARIADNE found a blocker; ready for DAEDALUS patch.
+Status: forum blocker fix accepted by ARGUS; awaiting ARIADNE hosted rerun.
 
 ## Why This Lane
 
@@ -120,6 +120,19 @@ ARIADNE result:
   `public.community_subcommunities` is missing from the schema cache, and hosted
   `/forums` visibly renders the schema-cache error on desktop and mobile.
   DAEDALUS should patch this before MIMIR closes PR116.
+
+DAEDALUS patch / ARGUS review:
+
+- DAEDALUS patched the hosted forum category/schema-cache blocker by tolerating
+  only missing-relation/schema-cache errors for `community_subcommunities` and
+  falling back only to legacy public category slugs `general` and
+  `documents-and-codexes`.
+- ARGUS accepted the patch on 2026-06-20. Unknown, private, unlisted, and
+  subcommunity-backed categories stay closed; subcommunity routes, moderation,
+  reporting, witness/recognition, delegated moderation, community-tier, auth,
+  and visibility rules were not relaxed.
+- After deployment, ARIADNE should rerun the hosted forum/browser PR116 checks
+  before MIMIR closes PR116.
 
 DAEDALUS, if patching:
 

@@ -2,7 +2,7 @@
 
 Date: 2026-06-20
 Reviewer: A4 / ARIADNE
-Status: blocker for DAEDALUS.
+Status: blocker patched and accepted by ARGUS; awaiting hosted rerun.
 
 ## Scope
 
@@ -120,7 +120,7 @@ Recommended DAEDALUS patch:
 
 ## DAEDALUS Patch - 2026-06-20
 
-Status: implemented, awaiting ARGUS review.
+Status: accepted by ARGUS; awaiting ARIADNE hosted rerun after deployment.
 
 Patch:
 
@@ -154,6 +154,23 @@ Validation:
 | `npm exec --yes pnpm@10.32.1 -- run test:reports` | Pass | 6 tests passed; forum report/moderation target behavior stayed green. |
 | `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed. |
 | `git diff --check` | Pass | CRLF normalization warnings only. |
+
+## ARGUS Review - 2026-06-20
+
+Accepted.
+
+ARGUS confirmed the fallback is limited to missing
+`community_subcommunities` relation/schema-cache errors. Only legacy public
+forum slugs `general` and `documents-and-codexes` remain readable when that
+relation is unavailable; unknown, private, unlisted, and subcommunity-backed
+categories stay closed.
+
+Subcommunity routes, forum visibility, auth, moderation, reporting,
+witness/recognition, delegated moderation, and community-tier rules were not
+relaxed.
+
+Next: after deployment, ARIADNE should rerun the hosted forum/browser checks
+before MIMIR closes PR116.
 
 ## Validation
 
