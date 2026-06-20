@@ -7548,6 +7548,18 @@ when a PR lands, or when validation truth changes.
   `/forums/[categorySlug]` and `/forums/[categorySlug]/new` for signed-out,
   below-tier, eligible ordinary-category, and eligible subcommunity-backed
   category states before MIMIR closes PR93.
+- ARIADNE accepts PR93 visible-route rehearsal on 2026-06-20. Local browser
+  rehearsal confirmed signed-out `/forums/general` sign-in guidance,
+  signed-out `/forums/general/new` protected-route redirect/no-mutation,
+  below-tier visitor gating with no selector or thread-create calls, eligible
+  paid ordinary-category creation with observable search/sort controls, safe
+  public persona/Space selector filtering, bounded `POST /forums/threads`
+  payload fields, success routing to the created thread detail, and eligible
+  subcommunity-backed category/new-thread mobile states. Checked desktop and
+  390px mobile states had no horizontal overflow or offscreen primary controls.
+  No private selector rows, raw selector IDs, linked document shortcut,
+  ownership fields, visibility override, persona-authored posting, broad forum
+  redesign, or visibility widening appeared. MIMIR can close PR93.
 
 ## Near-term rule
 

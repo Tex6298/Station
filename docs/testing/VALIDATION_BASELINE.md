@@ -9385,6 +9385,31 @@ ARGUS review notes:
 - PR93 is technically accepted for ARIADNE visible-route rehearsal before MIMIR
   closeout.
 
+ARIADNE visible-route rehearsal on 2026-06-20:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| Local Playwright route rehearsal with temporary `.codex-pr93-route-rehearsal.cjs` | Pass | Ran against `http://127.0.0.1:3130` with mocked API responses. Covered signed-out redirect/no-mutation, below-tier gating, eligible ordinary create, eligible subcommunity-backed mobile states, selector filtering, bounded payload, success routing, and overflow/offscreen primary-control checks. |
+| `git diff --check` | Pass | Docs-only ARIADNE verdict; no imports or scripts changed. |
+
+ARIADNE notes:
+
+- Signed-out `/forums/general` showed sign-in guidance and no `+ New thread`
+  control; signed-out `/forums/general/new` redirected to login before selector
+  or mutating calls.
+- Below-tier signed-in users saw tier guidance on category and new-thread
+  routes, with no live post button, selector calls, or `POST /forums/threads`.
+- Eligible paid users saw ordinary-category creation, working search/sort
+  changes, public persona/Space selector rows only, and successful routing to
+  the created thread detail.
+- Eligible subcommunity-backed category and new-thread routes preserved the
+  Developer/Community/active badge on 390px mobile.
+- `POST /forums/threads` sent only `categoryId`, trimmed `title`, trimmed
+  `body`, and optional offered `linkedPersonaId`/`linkedSpaceId`.
+- Private selector rows, raw selector IDs, linked document shortcuts, ownership
+  fields, visibility overrides, persona-authored posting, broad forum redesign,
+  and visibility widening did not appear.
+
 ## PR91 Community Subcommunity Foundation
 
 DAEDALUS implementation validation on 2026-06-20:

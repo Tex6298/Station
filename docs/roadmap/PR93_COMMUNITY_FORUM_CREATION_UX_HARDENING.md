@@ -190,3 +190,39 @@ git diff --check
 All tests and typecheck passed. The web build compiled, linted/typechecked,
 collected page data, and generated 35 pages before the known local Windows
 standalone symlink `EPERM`.
+
+## ARIADNE Visible Route Rehearsal
+
+Accepted on 2026-06-20. ARIADNE rehearsed `/forums/[categorySlug]` and
+`/forums/[categorySlug]/new` against the local Next dev server with a mocked API
+for signed-out, below-tier, eligible ordinary-category, and eligible
+subcommunity-backed category states.
+
+ARIADNE confirmed:
+
+- signed-out `/forums/general` shows sign-in guidance, no `+ New thread`
+  control, and no selector or thread-create calls;
+- signed-out `/forums/general/new` is caught by the protected-route redirect to
+  login before selector or mutating calls can run;
+- below-tier signed-in users see honest tier guidance on category and
+  new-thread routes, with no live post button, selector calls, or
+  `POST /forums/threads`;
+- eligible paid users see the ordinary category create entry point, observable
+  search/sort state changes, safe public persona/Space selector options, and
+  successful routing to the created thread detail;
+- eligible users can reach a subcommunity-backed category and new-thread route
+  on mobile with the Developer/Community/active badge intact;
+- `POST /forums/threads` sends only `categoryId`, trimmed `title`, trimmed
+  `body`, and optional offered `linkedPersonaId`/`linkedSpaceId`;
+- private persona/Space rows, raw selector IDs, linked document shortcuts,
+  ownership fields, visibility overrides, persona-authored posting, and
+  visibility widening were not visible or sent;
+- checked desktop and 390px mobile states had no horizontal overflow or
+  offscreen primary controls.
+
+Validation:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| Local Playwright route rehearsal with temporary `.codex-pr93-route-rehearsal.cjs` | Pass | Covered signed-out redirect/no-mutation, visitor gating, eligible ordinary create, subcommunity mobile state, bounded POST payload, success route, selector filtering, and overflow/offscreen checks. |
+| `git diff --check` | Pass | Docs-only ARIADNE verdict; no imports or scripts changed. |
