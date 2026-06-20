@@ -115,6 +115,10 @@ promised in the Station documents.
 - Visible witness controls exist on forum thread detail and comments, showing
   aggregate counts and current-viewer state only, with signed-out, below-tier,
   own-contribution, and eligible states kept explicit.
+- Private author recognition readback exists at `/forums/witnesses/mine`,
+  returning aggregate witness counts received on the viewer's own readable
+  thread/comment contributions without witnesser identities, raw witness rows,
+  rankings, badges, public scores, or clout surfaces.
 - Tier participation is explicit: public reads remain open, community reads
   require eligible tier, and creation/voting/reporting require `private` tier or
   higher.
@@ -133,8 +137,8 @@ pnpm test:reports
 
 ## Still open
 
-- Broader recognition UX beyond the accepted thread/comment witness first
-  slice; no leaderboards, badges, rankings, or public user scores are open.
+- Private recognition readback UI beyond the accepted API route; no public
+  leaderboards, badges, rankings, or public user scores are open.
 - Deeper moderator/admin console UX beyond safe target context and any future
   visible delegated moderator surfaces beyond the accepted thread-detail and
   scoped-queue slices.

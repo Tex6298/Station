@@ -8106,6 +8106,24 @@ when a PR lands, or when validation truth changes.
   contributions, without public leaderboards, badges, rankings, witnesser
   identities, raw witness rows, notifications, mutation semantics changes, or
   visible UI.
+- ARGUS accepts PR106 Community Author Recognition Readback on 2026-06-20, and
+  MIMIR closes it. `GET /forums/witnesses/mine` is accepted as authenticated
+  private-tier current-user aggregate readback for witness counts received on
+  the viewer's own readable thread/comment contributions. Thread entries
+  require current-user authorship and readability; comment entries require
+  current-user comment authorship and readable parent threads. Serialization
+  stays aggregate-only and excludes witnesser identity, raw witness rows, bodies,
+  moderation internals, rankings, badges, public scores, and clout surfaces. No
+  ARIADNE rehearsal was required because no visible route behavior changed.
+- MIMIR opens PR107 Community Author Recognition UI for DAEDALUS on 2026-06-20.
+  PR107 should add the smallest private visible recognition readback over
+  `GET /forums/witnesses/mine`, preferably at `/forums/witnesses`, with
+  signed-out and below-tier states that do not fetch private readback, aggregate
+  counts only, safe links only where PR106 provides route hints, and no public
+  leaderboards, badges, rankings, witnesser identities, raw witness data,
+  notifications, mutation changes, broad styling, or unrelated platform work.
+  Because PR107 changes visible behavior, ARGUS should wake ARIADNE for
+  human-eye rehearsal.
 - DAEDALUS implements PR106 Community Author Recognition Readback on
   2026-06-20 and wakes ARGUS for review. `GET /forums/witnesses/mine` is
   authenticated and private-tier gated. It returns only aggregate witness counts

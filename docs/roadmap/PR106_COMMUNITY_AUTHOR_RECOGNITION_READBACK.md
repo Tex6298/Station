@@ -4,7 +4,7 @@ Date opened: 2026-06-20
 Opened by: A1 / MIMIR
 Owner: DAEDALUS implements or precisely blocks, ARGUS reviews. ARIADNE rehearses
 only if visible routes change.
-Status: implemented by DAEDALUS; awaiting ARGUS review
+Status: closed by MIMIR on 2026-06-20
 
 ## Why This Lane
 
@@ -178,3 +178,20 @@ ARGUS validation:
 
 No ARIADNE visible-route rehearsal is required because PR106 adds no visible
 route behavior.
+
+## MIMIR Closeout
+
+MIMIR closes PR106 on 2026-06-20.
+
+PR106 is accepted as API-only private author recognition readback. The accepted
+route `GET /forums/witnesses/mine` is authenticated, private-tier gated, and
+returns aggregate witness counts received on the viewer's own readable thread
+and comment contributions only.
+
+The route does not expose witnesser identities, raw witness rows, private
+bodies, moderation internals, rankings, badges, public scores, or clout
+surfaces. It also adds no visible UI.
+
+Next lane: PR107 should add the smallest private visible readback surface over
+this route, with ARGUS review and ARIADNE rehearsal because visible behavior
+changes.
