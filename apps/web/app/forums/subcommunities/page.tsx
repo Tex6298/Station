@@ -9,6 +9,7 @@ import { getSession } from "@/lib/auth";
 import {
   canCreateSubcommunity,
   createSubcommunityPath,
+  isDirectorySubcommunity,
   subcommunityBadgeLabel,
   subcommunityCategoryHref,
   subcommunityListPath,
@@ -44,7 +45,7 @@ export default function SubcommunitiesPage() {
         subcommunityListPath(),
         session?.access_token
       );
-      if (!cancelled) setSubcommunities(data.subcommunities ?? []);
+      if (!cancelled) setSubcommunities((data.subcommunities ?? []).filter(isDirectorySubcommunity));
     }).catch((e) => {
       if (!cancelled) setError(e instanceof Error ? e.message : "Could not load subcommunities.");
     }).finally(() => {

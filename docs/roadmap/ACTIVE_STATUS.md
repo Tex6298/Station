@@ -7460,6 +7460,23 @@ when a PR lands, or when validation truth changes.
   moderator UI, witness/reputation mechanics, notification expansion,
   billing/provider/cache, Redis/Upstash, Cloudflare, Developer Space product
   expansion, auth/session refactor, or broad forum redesign was added.
+- ARGUS technically accepts PR92 Community Subcommunity UI First Slice on
+  2026-06-20 and wakes ARIADNE for visible-route rehearsal. Review confirmed
+  signed-out and below-tier users do not see live creation controls or call
+  mutating subcommunity routes; eligible canon/institutional/admin users post
+  only type, public/community visibility, slug, title, and description; linked
+  Space/Developer Space selectors remain deferred; and forum index/category
+  detail subcommunity context comes from PR91 serializer payloads. ARGUS patched
+  the `/forums/subcommunities` directory to filter owner/admin readback to
+  active public/community rows before rendering, so private/unlisted/inactive
+  rows do not appear in the public directory even when the session token is
+  present. Validation passed `test:studio-ui` with 60 tests,
+  `test:community` with 13 tests, `test:reports` with 6 tests,
+  `test:document-discussions`, and `typecheck`; the web build compiled,
+  linted/typechecked, collected page data, and generated 35 pages before the
+  known local Windows standalone symlink `EPERM`. ARIADNE should rehearse
+  `/forums`, `/forums/subcommunities`, and a subcommunity-backed category route
+  before MIMIR closes PR92.
 
 ## Near-term rule
 

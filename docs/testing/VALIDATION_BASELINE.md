@@ -9271,6 +9271,30 @@ Scope notes:
   notification expansion, billing/provider/cache, Redis, Cloudflare, Developer
   Space expansion, auth/session refactor, or broad forum redesign was added.
 
+ARGUS review validation on 2026-06-20:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 60 tests passed after adding directory filtering coverage for private/unlisted/inactive subcommunity suppression. |
+| `npm exec --yes pnpm@10.32.1 -- run test:community` | Pass | 13 tests passed; PR91 API visibility, creation, and category/thread guards remain green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:reports` | Pass | 6 tests passed; moderation report scoping remains green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` | Pass | 1 test passed; document discussion visibility remains green. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API typecheck replayed from cache; web typecheck ran cleanly for the PR92 patch. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web build` | Partial / known Windows failure | Next compiled, linted/typechecked, collected page data, and generated 35 static pages, then hit the known local Windows standalone symlink `EPERM`. Only pre-existing raw `<img>` warnings appeared. |
+
+ARGUS review notes:
+
+- Patched `/forums/subcommunities` so signed-in owner/admin readback is filtered
+  to active public/community rows before rendering the public directory.
+- Confirmed signed-out and below-tier users do not see live creation controls
+  or call mutating subcommunity routes.
+- Confirmed eligible creation posts only type, public/community visibility,
+  slug, title, and description.
+- Linked Space/Developer Space selectors remain deferred; no raw UUID field is
+  exposed in the first UI slice.
+- PR92 is technically accepted for ARIADNE visible-route rehearsal before MIMIR
+  closeout.
+
 ## PR91 Community Subcommunity Foundation
 
 DAEDALUS implementation validation on 2026-06-20:

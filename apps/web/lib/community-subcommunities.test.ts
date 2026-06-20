@@ -3,6 +3,7 @@ import test from "node:test";
 import {
   canCreateSubcommunity,
   createSubcommunityPath,
+  isDirectorySubcommunity,
   mySubcommunitiesPath,
   subcommunityBadgeLabel,
   subcommunityCategoryHref,
@@ -23,6 +24,14 @@ test("subcommunity helpers label serializer fields without owner internals", () 
   assert.equal(subcommunityTypeLabel("developer"), "Developer");
   assert.equal(subcommunityVisibilityLabel("community"), "Community");
   assert.equal(subcommunityBadgeLabel({ type: "developer", visibility: "public", status: "active" }), "Developer / Public / active");
+});
+
+test("subcommunity directory helper keeps owner-only rows out of public readback", () => {
+  assert.equal(isDirectorySubcommunity({ visibility: "public", status: "active" }), true);
+  assert.equal(isDirectorySubcommunity({ visibility: "community", status: "active" }), true);
+  assert.equal(isDirectorySubcommunity({ visibility: "private", status: "active" }), false);
+  assert.equal(isDirectorySubcommunity({ visibility: "unlisted", status: "active" }), false);
+  assert.equal(isDirectorySubcommunity({ visibility: "public", status: "paused" }), false);
 });
 
 test("subcommunity creation UI follows canon-tier gate", () => {

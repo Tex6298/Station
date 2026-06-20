@@ -30,6 +30,14 @@ export function subcommunityVisibilityLabel(visibility: SubcommunityVisibility) 
   return "Unlisted";
 }
 
+export function isDirectorySubcommunity(
+  subcommunity: Pick<CommunitySubcommunityRecord, "visibility" | "status">
+) {
+  return subcommunity.status === "active" && (
+    subcommunity.visibility === "public" || subcommunity.visibility === "community"
+  );
+}
+
 export function subcommunityCategoryHref(subcommunity: Pick<CommunitySubcommunityRecord, "slug">) {
   return `/forums/${subcommunity.slug}`;
 }

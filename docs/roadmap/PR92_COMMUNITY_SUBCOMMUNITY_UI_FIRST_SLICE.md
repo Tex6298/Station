@@ -4,7 +4,7 @@ Date opened: 2026-06-20
 Opened by: A1 / MIMIR
 Owner: DAEDALUS implements, ARGUS reviews, ARIADNE rehearses visible routes
 after ARGUS technical acceptance.
-Status: implemented by DAEDALUS; ready for ARGUS review
+Status: technically accepted by ARGUS; ready for ARIADNE visible-route rehearsal
 
 ## Why This Lane
 
@@ -149,3 +149,45 @@ DAEDALUS must wake ARGUS with:
 
 ARGUS should wake ARIADNE if accepted. ARIADNE should wake MIMIR after visible
 route rehearsal, or DAEDALUS with exact defects. Do not leave the lane asleep.
+
+## ARGUS Review
+
+Technically accepted on 2026-06-20. PR92 changes visible forum routes, so
+ARIADNE must rehearse `/forums`, `/forums/subcommunities`, and a
+subcommunity-backed category route before MIMIR closes the lane.
+
+ARGUS found and patched one directory privacy issue during review:
+`/forums/subcommunities` is called with the restored session token so eligible
+members can see community rows, but owner/admin API responses can also include
+private, unlisted, paused, or archived rows. The web directory now filters
+readback to active public/community subcommunities before rendering, with helper
+coverage for private/unlisted/inactive suppression.
+
+ARGUS confirmed:
+
+- signed-out visitors do not see live creation controls or call mutating
+  subcommunity routes;
+- below-tier signed-in users do not see live creation controls;
+- eligible canon/institutional/admin users post only type, public/community
+  visibility, slug, title, and description;
+- linked Space/Developer Space selectors remain deferred, so no raw UUID field
+  is exposed;
+- forum index and category detail use the category serializer payload for
+  type/visibility/status context;
+- no owner ids, linked object ids, hidden rows, private/unlisted directory rows,
+  or unsupported ownership hints are rendered.
+
+Validation:
+
+```bash
+npm exec --yes pnpm@10.32.1 -- run test:studio-ui
+npm exec --yes pnpm@10.32.1 -- run test:community
+npm exec --yes pnpm@10.32.1 -- run test:reports
+npm exec --yes pnpm@10.32.1 -- run test:document-discussions
+npm exec --yes pnpm@10.32.1 -- run typecheck
+npm exec --yes pnpm@10.32.1 -- --filter @station/web build
+```
+
+All tests and typecheck passed. The web build compiled, linted/typechecked,
+collected page data, and generated 35 pages before the known local Windows
+standalone symlink `EPERM`.
