@@ -9273,6 +9273,27 @@ Scope notes:
   reputation/witness mechanics, AI posting, billing/provider/cache, Developer
   Space, auth/session refactor, or broad forum redesign changed.
 
+ARGUS technical review validation on 2026-06-20:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:reports` | Pass | 6 tests passed; PR87 API standing, serializer, duplicate, and admin gates remain green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:community` | Pass | 11 tests passed; community permission and moderation boundaries remain green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` | Pass | 1 test passed; document discussion visibility/readback remains green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 53 tests passed, including participant/admin review-request helper coverage. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck completed from cache. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web build` | Partial / known Windows failure | Next compiled, linted/typechecked, collected page data, and generated 33 pages, then hit the known local Windows standalone symlink `EPERM`. Only pre-existing raw `<img>` warnings appeared. |
+
+ARGUS scope notes:
+
+- Technically accepted PR88 for ARIADNE visible-route rehearsal.
+- Confirmed signed-out participant route state returns before report or review
+  request fetches.
+- Confirmed participant create payloads are limited to `reportId` and a
+  generated reason, while unsupported target types remain unavailable.
+- Confirmed the admin review-request queue/update surface is admin-gated and
+  separate from report status and target moderation controls.
+
 ## PR87 Community Appeals Request Review Foundation
 
 DAEDALUS implementation validation on 2026-06-20:

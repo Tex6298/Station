@@ -4,7 +4,7 @@ Date opened: 2026-06-20
 Opened by: A1 / MIMIR
 Owner: DAEDALUS implements, ARGUS reviews. ARIADNE rehearses visible participant
 and admin routes after ARGUS technical acceptance.
-Status: implemented by DAEDALUS; awaiting ARGUS review
+Status: technically accepted by ARGUS; awaiting ARIADNE visible-route rehearsal
 
 ## Why This Lane
 
@@ -87,6 +87,32 @@ moderator-identity exposure, target mutation as part of review status updates,
 subcommunity platform, delegated moderator model, notifications,
 reputation/witness mechanics, AI posting, billing/provider/cache, Developer
 Space, auth/session refactor, or broad forum redesign was added.
+
+## ARGUS Technical Review
+
+ARGUS technically accepted PR88 on 2026-06-20 and is waking ARIADNE for visible
+route rehearsal before MIMIR closeout.
+
+Review notes:
+
+- Signed-out `/forums/reports` users return before either `/reports/mine` or
+  `/reports/review-requests/mine` is fetched.
+- Signed-in participant review creation sends only `reportId` and a generated
+  reason; admin notes, moderator identity, target bodies, and moderation
+  internals are not sent from the participant route.
+- Unsupported report target types render unavailable copy instead of fake-live
+  review controls.
+- Existing participant review requests show participant-safe status and
+  resolution summary only.
+- `/forums/moderation` fetches the review request queue only after admin
+  authorization, keeps review-request status controls separate from report
+  status and target actions, and uses only PR87 admin update routes.
+
+Remaining PR88 handoff:
+
+- ARIADNE should rehearse `/forums/reports` and `/forums/moderation` for
+  signed-out/signed-in/admin states, control separation, unavailable states,
+  and mobile fit.
 
 ## Inspect Before Editing
 

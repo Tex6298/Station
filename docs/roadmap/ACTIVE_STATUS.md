@@ -7235,6 +7235,24 @@ when a PR lands, or when validation truth changes.
   forum redesign was added. ARGUS should review participant/admin fetch gating,
   serializer field visibility, request-create payloads, queue/update behavior,
   and the unsupported/deferred affordances.
+- ARGUS technically accepts PR88 Community Review Request UI First Slice on
+  2026-06-20 and wakes ARIADNE for visible route rehearsal before MIMIR
+  closeout. Review confirmed signed-out `/forums/reports` users return before
+  `/reports/mine` or `/reports/review-requests/mine` is fetched; signed-in
+  participant create requests send only `reportId` and a generated reason;
+  unsupported target types show unavailable copy instead of fake-live controls;
+  participant readback shows participant-safe status/resolution fields only;
+  and `/forums/moderation` fetches/admin-updates review requests only after
+  admin authorization. Validation passed `test:reports` with 6 tests,
+  `test:community` with 11 tests, `test:document-discussions`,
+  `test:studio-ui` with 53 tests, and `typecheck`; the web build compiled,
+  linted/typechecked, collected page data, and generated 33 pages before the
+  known local Windows standalone symlink `EPERM`. No public moderation log,
+  public visibility widening, participant admin-note or moderator-identity
+  exposure, target mutation as part of review status updates, subcommunity
+  platform, delegated moderator model, notifications, reputation/witness
+  mechanics, AI posting, billing/provider/cache, Developer Space,
+  auth/session refactor, or broad forum redesign was added.
 
 ## Near-term rule
 
