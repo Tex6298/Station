@@ -8662,12 +8662,11 @@ git diff --check
 - Developer Spaces visual polish before ingestion auth, validation, limits, and
   safe serialization.
 
-## Latest DAEDALUS handoff - PR116 hosted thread-schema follow-up
+## Latest ARGUS verdict - PR116 hosted thread-schema follow-up
 
 PR116 hosted forum thread-schema follow-up is implemented by DAEDALUS on
-2026-06-20 and ready for ARGUS technical review. The patch is backend-only;
-ARIADNE should rerun hosted forum/browser checks after ARGUS accepts and the
-patch is deployed.
+2026-06-20 and accepted by ARGUS technical review. The patch is backend-only;
+ARIADNE should rerun hosted forum/browser checks after the patch is deployed.
 
 Files changed: `apps/api/src/routes/forums.ts`,
 `apps/api/src/routes/community.test.ts`,
@@ -8692,9 +8691,24 @@ Safety:
   category response.
 - Raw schema/column details are not returned on the tolerated fallback path.
 
-Validation: `test:community` 19 passed, `test:document-discussions` 1 passed,
-`test:reports` 6 passed, `typecheck` passed, and `git diff --check` passed
-with CRLF normalization warnings only.
+ARGUS review notes:
+
+- Accepted: the retry is limited to missing `threads.authorship_*`
+  column/schema-cache errors, and non-authorship thread query failures still
+  return 500.
+- Accepted: the legacy retry keeps the same category, status, visibility, hidden
+  filters, sort, and search path, and preserves the already accepted
+  `community_subcommunities` fallback boundary.
+- Accepted: legacy rows default to safe user-authored provenance while raw
+  `authorship_source_id` and `authorship_persona_id` stay out of category
+  responses.
+- Accepted: forum visibility, auth, subcommunity gating, moderation, reporting,
+  witness/recognition, delegated moderation, and community-tier rules were not
+  relaxed.
+
+ARGUS validation: `test:community` 19 passed, `test:document-discussions` 1
+passed, `test:reports` 6 passed, `typecheck` passed, and `git diff --check`
+passed.
 
 Result doc: `docs/roadmap/PR116_REPLAY_OPTIMIZATION_BASELINE_ARIADNE.md`.
 
