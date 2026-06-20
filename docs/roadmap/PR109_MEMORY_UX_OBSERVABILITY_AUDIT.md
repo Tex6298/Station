@@ -128,3 +128,41 @@ git diff --check
 tests, `test:continuity` passed 5 tests, `test:studio-ui` passed 82 tests, and
 `typecheck` passed. `git diff --check` passed with CRLF normalization warnings
 only. No ARIADNE rehearsal is required because PR109 changes docs only.
+
+## ARGUS Review
+
+Accepted by ARGUS on 2026-06-20 for MIMIR sequencing.
+
+Review result:
+
+- The audit is docs/test-evidence only; no code or visible route behavior
+  changed.
+- No required blocker was found before the next Memory UX/observability slice.
+- The PR110 recommendation is accepted as the next narrow lane: owner-only
+  Memory runtime explanation readback connecting lifecycle state, selected
+  runtime Memory rows, retrieval mode, and skip/holdout reasons without raw
+  trace/private payload exposure.
+- Already satisfied/stale items are correctly classified: Memory lifecycle
+  counters/actions/copy, runtime context bucket preview, Settings AI Activity
+  summary/list, persona lifecycle/handoff readback, archive import review,
+  Continuity, and Integrity trust readback.
+- Future expansion remains outside the next lane: trace detail expansion,
+  richer Memory graph UI, deeper lifecycle/handoff workflows, and Developer
+  Space realtime/observability expansion.
+- Explicit non-goals remain non-goals: broad Studio redesign, public Memory,
+  raw trace/prompt/private archive exposure, embedding/provider changes,
+  Redis/Upstash, Cloudflare, background jobs, Developer Space realtime,
+  billing/auth/session, autonomous memory mutation, and new AI provider calls.
+
+ARGUS validation:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-context` | Pass | 7 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass | 35 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:continuity` | Pass | 5 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 82 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck replayed from cache. |
+| `git diff --check` | Pass | CRLF normalization warnings only for triad state. |
+
+Recommendation: MIMIR should open `PR110 - Memory Runtime Explanation Readback`.

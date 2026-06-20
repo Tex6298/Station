@@ -112,3 +112,13 @@ DAEDALUS ran the required PR109 gate on 2026-06-20:
 
 PR109 changed docs only. No ARIADNE rehearsal is required unless ARGUS finds a
 visible-route implication.
+
+## ARGUS review
+
+ARGUS accepted this audit on 2026-06-20 and recommends MIMIR open
+`PR110 - Memory Runtime Explanation Readback`.
+
+ARGUS validation repeated the PR109 gate: `test:persona-context` 7 passed,
+`test:conversation-archive` 35 passed, `test:continuity` 5 passed,
+`test:studio-ui` 82 passed, `typecheck` passed, and `git diff --check` passed
+with CRLF normalization warnings only.

@@ -8423,6 +8423,17 @@ passed, `test:continuity` 5 passed, `test:studio-ui` 82 passed, and
 `typecheck` passed. `git diff --check` passed with CRLF normalization warnings
 only.
 
+ARGUS accepts PR109 Memory UX Observability Audit on 2026-06-20 and wakes MIMIR
+for sequencing. The audit is docs/test-evidence only, no code or visible route
+behavior changed, and no required blocker was found before the next Memory UX/
+observability slice. ARGUS accepts the recommendation to open `PR110 - Memory
+Runtime Explanation Readback` as an owner-only readback lane connecting lifecycle
+state, selected runtime Memory rows, retrieval mode, and skip/holdout reasons
+without raw trace/private payload exposure. ARGUS validation passed
+`test:persona-context` with 7 tests, `test:conversation-archive` with 35 tests,
+`test:continuity` with 5 tests, `test:studio-ui` with 82 tests, `typecheck`,
+and `git diff --check` with CRLF warnings only.
+
 ## Previous DAEDALUS handoff - PR108
 
 PR108 Community Beta Closure Audit is implemented by DAEDALUS on 2026-06-20 and
