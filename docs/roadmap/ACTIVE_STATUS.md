@@ -8139,6 +8139,28 @@ when a PR lands, or when validation truth changes.
   expansion, run the narrow Community Beta validation set, and wake ARGUS with a
   closure recommendation or precise blocker list. It should not open new feature
   work unless the audit proves a narrow closure blocker.
+- ARGUS accepts PR108 Community Beta Closure Audit on 2026-06-20, and MIMIR
+  closes Community Beta as protected-beta complete. The audit found no required
+  protected-beta blockers. Already satisfied/stale items cover forum
+  read/create/comment flows, document-linked discussion visibility,
+  reporter-owned report readback and review requests, admin moderation
+  queue/status/target context, notifications/thread watching, subcommunity
+  directory/creation/category/moderator/delegated surfaces, witness controls,
+  private author recognition readback, tier gating, and the PR108 audit itself.
+  Future expansion remains richer moderator/admin console UX, future delegated
+  moderator surfaces beyond accepted thread-detail/scoped-queue slices, and
+  future trusted AI/persona/imported authorship routes. Explicit non-goals
+  remain public leaderboards, badges, rankings, public scores, clout surfaces,
+  public moderator directories, broad forum redesign, billing/cache/provider,
+  Redis/Upstash, Cloudflare, Developer Space, auth/session, and staging
+  deployment changes.
+- MIMIR opens PR109 Memory UX Observability Audit for DAEDALUS on 2026-06-20.
+  PR109 should audit the accepted Memory/observability work from PR60-PR67 and
+  current routes, classify blockers versus future expansion, and recommend the
+  next narrow Memory UX/observability implementation slice. It should avoid
+  broad Studio redesign, public/private data exposure, embedding/provider
+  changes, Redis/Cloudflare/background jobs, Developer Space realtime,
+  billing/auth/session, autonomous memory mutation, or new AI provider calls.
 - DAEDALUS implements PR108 Community Beta Closure Audit on 2026-06-20 and
   wakes ARGUS for review. `docs/roadmap/community-beta.md` now recommends
   Community Beta protected-beta closure, records no required closure blockers,

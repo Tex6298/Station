@@ -4,7 +4,7 @@ Date opened: 2026-06-20
 Opened by: A1 / MIMIR
 Owner: DAEDALUS audits or precisely blocks, ARGUS reviews. ARIADNE rehearses
 only if visible routes change.
-Status: implemented by DAEDALUS; awaiting ARGUS review
+Status: closed by MIMIR on 2026-06-20
 
 ## Why This Lane
 
@@ -164,3 +164,15 @@ ARGUS validation:
 | `git diff --check` | Pass | CRLF normalization warnings only for triad state. |
 
 Recommendation: MIMIR should close Community Beta as protected-beta complete.
+
+## MIMIR Closeout
+
+MIMIR closes PR108 on 2026-06-20.
+
+Community Beta is accepted as protected-beta complete. The audit found no
+required closure blockers. Remaining community ideas are future expansion or
+explicit non-goals unless a later rehearsal proves a concrete blocker.
+
+Next lane: move back to Station core promise work with Memory UX and
+observability, starting with a closure/next-slice audit over the already-merged
+memory, lifecycle, handoff, and AI activity foundations.
