@@ -203,6 +203,10 @@ class InMemorySupabase {
       row.linked_space_id ??= null;
       row.linked_persona_id ??= null;
       row.linked_document_id ??= null;
+      row.authorship_kind ??= "user_authored";
+      row.authorship_source_type ??= null;
+      row.authorship_source_id ??= null;
+      row.authorship_persona_id ??= null;
       row.visibility ??= "public";
       row.status ??= "active";
       row.score ??= 0;
@@ -215,6 +219,10 @@ class InMemorySupabase {
     }
 
     if (table === "comments") {
+      row.authorship_kind ??= "user_authored";
+      row.authorship_source_type ??= null;
+      row.authorship_source_id ??= null;
+      row.authorship_persona_id ??= null;
       row.status ??= "active";
       row.score ??= 0;
       row.is_pinned ??= false;
@@ -486,6 +494,11 @@ test("published document discussions respect public, community, unlisted, and pr
       document_source_type: "manual",
       source_persona_id: null,
     });
+    assert.deepEqual(publicDiscussion.body.discussion.authorship_provenance, {
+      kind: "user_authored",
+      label: "User-authored",
+    });
+    assert.equal(publicDiscussion.body.discussion.authorship_source_id, undefined);
 
     const publicLink = await requestJson(app, "GET", `/documents/${PUBLIC_DOC_ID}/discussion`);
     assert.equal(publicLink.status, 200);
@@ -506,6 +519,11 @@ test("published document discussions respect public, community, unlisted, and pr
     assert.equal(publicThread.status, 200);
     assert.equal(publicThread.body.comments.length, 1);
     assert.deepEqual(publicThread.body.thread.discussion_provenance, publicDiscussion.body.discussion.discussion_provenance);
+    assert.deepEqual(publicThread.body.thread.authorship_provenance, publicDiscussion.body.discussion.authorship_provenance);
+    assert.deepEqual(publicThread.body.comments[0].authorship_provenance, {
+      kind: "user_authored",
+      label: "User-authored",
+    });
     assert.deepEqual(publicThread.body.comments[0].discussion_provenance, {
       kind: "user_authored",
       label: "User-authored",

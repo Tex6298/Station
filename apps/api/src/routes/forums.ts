@@ -10,7 +10,10 @@ import {
   listViewerVotes,
   serializeCommunityProfile,
 } from "../services/community.service";
-import { serializeThreadDiscussionProvenance } from "../services/community-provenance.service";
+import {
+  serializeThreadDiscussionProvenance,
+  withCommunityAuthorshipProvenance,
+} from "../services/community-provenance.service";
 import {
   canCreateSubcommunity,
   canListSubcommunity,
@@ -226,6 +229,7 @@ forumsRouter.get("/categories/:slug", optionalAuth, async (req: Request, res: Re
       .from("threads")
       .select(
         `id, title, body, status, visibility, score, comment_count, linked_document_id, linked_persona_id,
+         authorship_kind, authorship_source_type, authorship_source_id, authorship_persona_id,
          is_pinned, is_hidden, reported_count, vote_count, hot_score, last_activity_at, moderation_state, created_at, updated_at,
          author_user_id,
          author:profiles!author_user_id(username, display_name, avatar_url),
@@ -268,7 +272,7 @@ forumsRouter.get("/categories/:slug", optionalAuth, async (req: Request, res: Re
     const threadPayload = { ...thread };
     delete threadPayload.document;
     return {
-      ...threadPayload,
+      ...withCommunityAuthorshipProvenance(threadPayload),
       viewer_vote: (viewerVotes as Record<string, number>)[thread.id] ?? 0,
       author_community_profile: authorProfiles[thread.author_user_id] ?? null,
       discussion_provenance: serializeThreadDiscussionProvenance(thread),
@@ -374,6 +378,10 @@ forumsRouter.post(
         linked_space_id: parsed.data.linkedSpaceId ?? null,
         linked_persona_id: parsed.data.linkedPersonaId ?? null,
         linked_document_id: parsed.data.linkedDocumentId ?? null,
+        authorship_kind: "user_authored",
+        authorship_source_type: null,
+        authorship_source_id: null,
+        authorship_persona_id: null,
         status: "active",
         visibility: links.visibility,
         is_pinned: false,
@@ -390,7 +398,7 @@ forumsRouter.post(
       ensureCommunityProfile(userId).catch(() => undefined),
       bumpCommunityActivity(userId, "thread").catch(() => undefined),
     ]);
-    res.status(201).json({ thread });
+    res.status(201).json({ thread: withCommunityAuthorshipProvenance(thread) });
   }
 );
 

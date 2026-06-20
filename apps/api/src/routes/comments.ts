@@ -11,6 +11,10 @@ import {
   serializeModerationAction,
 } from "../services/community.service";
 import { notifyThreadComment } from "../services/community-notifications.service";
+import {
+  serializeCommentDiscussionProvenance,
+  withCommunityAuthorshipProvenance,
+} from "../services/community-provenance.service";
 import { canReadSubcommunity, loadSubcommunityForCategory } from "../services/community-subcommunities.service";
 
 const createCommentSchema = z.object({
@@ -124,6 +128,7 @@ commentsRouter.get("/", optionalAuth, async (req: Request, res: Response) => {
     .from("comments")
     .select(
       `id, body, status, score, is_pinned, is_hidden, reported_count, created_at, updated_at, parent_type, parent_id, author_user_id,
+       authorship_kind, authorship_source_type, authorship_source_id, authorship_persona_id,
        author:profiles!author_user_id(username, display_name, avatar_url)`
     )
     .eq("status", "active")
@@ -134,7 +139,12 @@ commentsRouter.get("/", optionalAuth, async (req: Request, res: Response) => {
 
   const { data, error } = await query;
   if (error) return res.status(500).json({ error: error.message });
-  res.json({ comments: data ?? [] });
+  res.json({
+    comments: (data ?? []).map((comment) => ({
+      ...withCommunityAuthorshipProvenance(comment),
+      discussion_provenance: serializeCommentDiscussionProvenance(),
+    })),
+  });
 });
 
 // --- Auth-gated below --------------------------------------------------------
@@ -207,6 +217,10 @@ commentsRouter.post(
         author_user_id: userId,
         parent_type: parentType,
         parent_id: parentId,
+        authorship_kind: "user_authored",
+        authorship_source_type: null,
+        authorship_source_id: null,
+        authorship_persona_id: null,
         body,
         status: "active",
         is_pinned: false,
@@ -234,7 +248,12 @@ commentsRouter.post(
       }).catch(() => undefined);
     }
 
-    res.status(201).json({ comment });
+    res.status(201).json({
+      comment: {
+        ...withCommunityAuthorshipProvenance(comment),
+        discussion_provenance: serializeCommentDiscussionProvenance(),
+      },
+    });
   }
 );
 

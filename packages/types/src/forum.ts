@@ -16,6 +16,23 @@ export interface DiscussionProvenanceLabel {
   linkedPersonaId?: string | null;
 }
 
+export type CommunityAuthorshipKind =
+  | 'user_authored'
+  | 'ai_assisted'
+  | 'persona_authored'
+  | 'imported'
+  | 'derived'
+  | 'unknown';
+
+export type CommunityAuthorshipSourceType = 'ai' | 'persona' | 'import' | 'document' | 'system';
+
+export interface CommunityAuthorshipProvenanceLabel {
+  kind: CommunityAuthorshipKind;
+  label: string;
+  sourceType?: CommunityAuthorshipSourceType | null;
+  hasSource?: boolean;
+}
+
 export interface ForumCategory {
   id: string;
   slug: string;
@@ -63,6 +80,7 @@ export interface ThreadRecord {
   lastActivityAt?: string;
   moderationState?: 'normal' | 'needs_review' | 'hidden' | 'removed';
   viewerVote?: -1 | 0 | 1;
+  authorshipProvenance?: CommunityAuthorshipProvenanceLabel;
   discussionProvenance?: DiscussionProvenanceLabel;
   score: number;
   commentCount: number;
@@ -83,6 +101,7 @@ export interface CommentRecord {
   voteCount?: number;
   moderationState?: 'normal' | 'needs_review' | 'hidden' | 'removed';
   viewerVote?: -1 | 0 | 1;
+  authorshipProvenance?: CommunityAuthorshipProvenanceLabel;
   discussionProvenance?: DiscussionProvenanceLabel;
   score: number;
   createdAt: string;

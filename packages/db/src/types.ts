@@ -39,6 +39,8 @@ export type TopupPurchaseStatus = "pending" | "completed" | "refunded";
 export type SpacePageType = "home" | "about" | "personas" | "documents" | "custom";
 export type ThreadStatus = "active" | "locked" | "removed";
 export type ThreadVisibility = "public" | "community" | "unlisted";
+export type CommunityAuthorshipKind = "user_authored" | "ai_assisted" | "persona_authored" | "imported" | "derived";
+export type CommunityAuthorshipSourceType = "ai" | "persona" | "import" | "document" | "system";
 export type SubcommunityType = "general" | "canon" | "developer";
 export type SubcommunityVisibility = "public" | "community" | "unlisted" | "private";
 export type SubcommunityStatus = "active" | "paused" | "archived";
@@ -802,6 +804,10 @@ export interface Database {
           linked_space_id: string | null;
           linked_persona_id: string | null;
           linked_document_id: string | null;
+          authorship_kind: CommunityAuthorshipKind;
+          authorship_source_type: CommunityAuthorshipSourceType | null;
+          authorship_source_id: string | null;
+          authorship_persona_id: string | null;
           title: string;
           body: string;
           status: ThreadStatus;
@@ -814,8 +820,12 @@ export interface Database {
           created_at: string;
           updated_at: string;
         };
-        Insert: Omit<Database["public"]["Tables"]["threads"]["Row"], "id" | "created_at" | "updated_at"> & {
+        Insert: Omit<Database["public"]["Tables"]["threads"]["Row"], "id" | "created_at" | "updated_at" | "authorship_kind" | "authorship_source_type" | "authorship_source_id" | "authorship_persona_id"> & {
           id?: string;
+          authorship_kind?: CommunityAuthorshipKind;
+          authorship_source_type?: CommunityAuthorshipSourceType | null;
+          authorship_source_id?: string | null;
+          authorship_persona_id?: string | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -1005,6 +1015,10 @@ export interface Database {
           author_user_id: string;
           parent_type: CommentParentType;
           parent_id: string;
+          authorship_kind: CommunityAuthorshipKind;
+          authorship_source_type: CommunityAuthorshipSourceType | null;
+          authorship_source_id: string | null;
+          authorship_persona_id: string | null;
           body: string;
           status: CommentStatus;
           is_pinned: boolean;
@@ -1014,8 +1028,12 @@ export interface Database {
           created_at: string;
           updated_at: string;
         };
-        Insert: Omit<Database["public"]["Tables"]["comments"]["Row"], "id" | "created_at" | "updated_at"> & {
+        Insert: Omit<Database["public"]["Tables"]["comments"]["Row"], "id" | "created_at" | "updated_at" | "authorship_kind" | "authorship_source_type" | "authorship_source_id" | "authorship_persona_id"> & {
           id?: string;
+          authorship_kind?: CommunityAuthorshipKind;
+          authorship_source_type?: CommunityAuthorshipSourceType | null;
+          authorship_source_id?: string | null;
+          authorship_persona_id?: string | null;
           created_at?: string;
           updated_at?: string;
         };

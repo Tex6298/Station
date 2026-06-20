@@ -9323,6 +9323,41 @@ Route notes:
 - Desktop and 390px mobile checks did not show horizontal overflow or offscreen
   primary controls.
 
+## PR94 Community Authorship Provenance Foundation
+
+DAEDALUS implementation validation on 2026-06-20:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:community` | Pass | 13 tests passed, including safe authorship labels, spoofed authorship rejection by omission, raw authorship source stripping, and linked document provenance separation. |
+| `npm exec --yes pnpm@10.32.1 -- run test:reports` | Pass | 6 tests passed; moderation report scoping remains green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` | Pass | 1 test passed with discussion thread/comment authorship provenance assertions. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck completed. |
+| `git diff --check` | Pass | CRLF normalization warnings only for touched files. |
+
+Scope notes:
+
+- Added migration `042_community_authorship_provenance.sql` with
+  `authorship_kind`, `authorship_source_type`, `authorship_source_id`, and
+  `authorship_persona_id` on `threads` and `comments`.
+- Existing rows and new route-created rows are defaulted/written as
+  `user_authored`.
+- `/forums/threads`, `/comments`, and `/documents/:id/discussion` write
+  authorship fields server-side; current request schemas do not accept a client
+  authorship mode.
+- Public/community serializers emit safe `authorship_provenance` labels and
+  strip raw authorship source ids/persona ids from responses.
+- `discussion_provenance` continues to describe linked document provenance or
+  persona-link context separately from community row authorship.
+- Comments under AI/archive/persona-derived document discussion threads remain
+  user-authored unless a future trusted route proves otherwise.
+- No visible web route changed; no ARIADNE rehearsal is required unless ARGUS
+  asks for one.
+- No AI/persona posting, user-facing authorship claim controls, visibility
+  widening, witness/reputation, delegated moderation, notification expansion,
+  billing/provider/cache, Redis, Cloudflare, Developer Space expansion,
+  auth/session refactor, or broad forum redesign was added.
+
 ## PR93 Community Forum Creation UX Hardening
 
 DAEDALUS implementation validation on 2026-06-20:

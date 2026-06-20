@@ -7572,6 +7572,28 @@ when a PR lands, or when validation truth changes.
   moderation, notification expansion, billing/provider/cache, Redis,
   Cloudflare, Developer Space expansion, auth/session refactor, or broad forum
   redesign.
+- DAEDALUS implements PR94 Community Authorship Provenance Foundation on
+  2026-06-20 and wakes ARGUS for technical review. Migration 042 adds explicit
+  community row authorship fields to `threads` and `comments`:
+  `authorship_kind`, `authorship_source_type`, `authorship_source_id`, and
+  `authorship_persona_id`, backfilled/defaulted as `user_authored` for current
+  rows. Shared DB/types surfaces now model the durable authorship contract.
+  `/forums/threads`, `/comments`, and `/documents/:id/discussion` write
+  user-authored authorship server-side and ignore client-provided AI/persona/
+  imported authorship claims. API responses expose only safe
+  `authorship_provenance` labels while stripping raw authorship source ids and
+  persona ids; `discussion_provenance` remains separate for linked document
+  provenance and persona-link context. Tests prove AI/archive/persona-linked
+  document discussion provenance does not make a human thread/comment appear
+  AI/persona authored, and comments under AI-derived document threads remain
+  user-authored. Validation passed `test:community` with 13 tests,
+  `test:reports` with 6 tests, `test:document-discussions`, `typecheck`, and
+  `git diff --check`. No visible route changed, so ARGUS should wake MIMIR
+  directly if accepted. No AI/persona posting, user-facing authorship claim
+  controls, visibility widening, witness/reputation, delegated moderation,
+  notification expansion, billing/provider/cache, Redis/Upstash, Cloudflare,
+  Developer Space expansion, auth/session refactor, or broad forum redesign was
+  added.
 
 ## Near-term rule
 

@@ -409,6 +409,10 @@ class CommunitySupabase {
       row.linked_space_id ??= null;
       row.linked_persona_id ??= null;
       row.linked_document_id ??= null;
+      row.authorship_kind ??= "user_authored";
+      row.authorship_source_type ??= null;
+      row.authorship_source_id ??= null;
+      row.authorship_persona_id ??= null;
       row.visibility ??= "public";
       row.status ??= "active";
       row.score ??= 0;
@@ -437,6 +441,10 @@ class CommunitySupabase {
     }
 
     if (table === "comments") {
+      row.authorship_kind ??= "user_authored";
+      row.authorship_source_type ??= null;
+      row.authorship_source_id ??= null;
+      row.authorship_persona_id ??= null;
       row.status ??= "active";
       row.score ??= 0;
       row.is_pinned ??= false;
@@ -754,6 +762,10 @@ function thread(id: string, title: string, visibility: string, overrides: Row = 
     linked_space_id: null,
     linked_persona_id: null,
     linked_document_id: null,
+    authorship_kind: "user_authored",
+    authorship_source_type: null,
+    authorship_source_id: null,
+    authorship_persona_id: null,
     title,
     body: `${title} body.`,
     status: "active",
@@ -918,12 +930,20 @@ test("forum thread creation validates linked entities and preserves visibility",
         title: "Community document thread",
         body: "Discuss the community document.",
         linkedDocumentId: COMMUNITY_DOC_ID,
+        authorship_kind: "ai_assisted",
+        authorshipSourceType: "ai",
       },
     });
 
     assert.equal(communityThread.status, 201);
     assert.equal(communityThread.body.thread.visibility, "community");
     assert.equal(communityThread.body.thread.linked_document_id, COMMUNITY_DOC_ID);
+    assert.deepEqual(communityThread.body.thread.authorship_provenance, {
+      kind: "user_authored",
+      label: "User-authored",
+    });
+    assert.equal(communityThread.body.thread.authorship_kind, undefined);
+    assert.equal(communityThread.body.thread.authorship_source_id, undefined);
 
     const visitorCategory = await requestJson(app, "GET", "/forums/categories/community");
     assert.equal(visitorCategory.status, 200);
@@ -1424,6 +1444,10 @@ test("forum thread payloads expose only proven safe provenance labels", async ()
 
     const aiThread = category.body.threads.find((thread: Row) => thread.id === AI_THREAD_ID);
     assert.equal(aiThread.document, undefined);
+    assert.deepEqual(aiThread.authorship_provenance, {
+      kind: "user_authored",
+      label: "User-authored",
+    });
     assert.deepEqual(aiThread.discussion_provenance, {
       kind: "ai_assisted",
       label: "AI-assisted",
@@ -1442,6 +1466,10 @@ test("forum thread payloads expose only proven safe provenance labels", async ()
     });
 
     const personaThread = category.body.threads.find((thread: Row) => thread.id === PERSONA_THREAD_ID);
+    assert.deepEqual(personaThread.authorship_provenance, {
+      kind: "user_authored",
+      label: "User-authored",
+    });
     assert.deepEqual(personaThread.discussion_provenance, {
       kind: "persona_linked",
       label: "Persona-linked",
@@ -1453,6 +1481,8 @@ test("forum thread payloads expose only proven safe provenance labels", async ()
       kind: "user_authored",
       label: "User-authored",
     });
+    assert.equal(JSON.stringify(category.body).includes("authorship_source_id"), false);
+    assert.equal(JSON.stringify(category.body).includes("authorship_persona_id"), false);
 
     assert.equal(JSON.stringify(category.body).includes("owner-only-ai-session-label"), false);
     assert.equal(JSON.stringify(category.body).includes("private-archive-file-name.txt"), false);
@@ -1463,9 +1493,17 @@ test("forum thread payloads expose only proven safe provenance labels", async ()
         parentType: "thread",
         parentId: AI_THREAD_ID,
         body: "Comment should not inherit document AI provenance.",
+        authorship_kind: "persona_authored",
+        authorshipPersonaId: PUBLIC_PERSONA_ID,
       },
     });
     assert.equal(createdComment.status, 201);
+    assert.deepEqual(createdComment.body.comment.authorship_provenance, {
+      kind: "user_authored",
+      label: "User-authored",
+    });
+    assert.equal(createdComment.body.comment.authorship_kind, undefined);
+    assert.equal(createdComment.body.comment.authorship_persona_id, undefined);
 
     const detail = await requestJson(app, "GET", `/threads/${AI_THREAD_ID}`);
     assert.equal(detail.status, 200);
@@ -1477,7 +1515,15 @@ test("forum thread payloads expose only proven safe provenance labels", async ()
     assert.equal(detail.body.thread.document.provenance_type, undefined);
     assert.equal(detail.body.thread.document.source_type, undefined);
     assert.equal(detail.body.thread.document.source_persona_id, undefined);
+    assert.deepEqual(detail.body.thread.authorship_provenance, {
+      kind: "user_authored",
+      label: "User-authored",
+    });
     assert.equal(detail.body.thread.discussion_provenance.kind, "ai_assisted");
+    assert.deepEqual(detail.body.comments[0].authorship_provenance, {
+      kind: "user_authored",
+      label: "User-authored",
+    });
     assert.deepEqual(detail.body.comments[0].discussion_provenance, {
       kind: "user_authored",
       label: "User-authored",

@@ -54,6 +54,10 @@ promised in the Station documents.
 - Bounded discussion provenance labels exist for document-linked,
   persona-linked, and user-authored discussion rows without exposing raw source
   internals.
+- Durable community authorship provenance exists for threads and comments,
+  keeping user-authored row authorship separate from linked document provenance
+  and persona-link context while stripping raw authorship source ids from public
+  serializers.
 - Tier participation is explicit: public reads remain open, community reads
   require eligible tier, and creation/voting/reporting require `private` tier or
   higher.
@@ -75,8 +79,8 @@ pnpm test:reports
 - Recognition/witness mechanics that reward thoughtful contribution rather than volume.
 - Deeper moderator/admin console UX for unsupported document/space/persona/user
   targets and any future delegated moderator surfaces.
-- Comment/thread authorship provenance beyond derived labels; the current
-  schema does not durably record thread/comment authoring mode.
+- Future trusted AI/persona/imported authorship routes, if ever opened; current
+  public creation routes remain user-authored only.
 - Subcommunity owner/moderator delegation beyond current platform-admin
   moderation routes.
 

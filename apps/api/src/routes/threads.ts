@@ -14,6 +14,7 @@ import { serializeCommunityThreadWatch } from "../services/community-notificatio
 import {
   serializeCommentDiscussionProvenance,
   serializeThreadDiscussionProvenance,
+  withCommunityAuthorshipProvenance,
 } from "../services/community-provenance.service";
 import { canReadSubcommunity, loadSubcommunityForCategory } from "../services/community-subcommunities.service";
 
@@ -79,6 +80,7 @@ threadsRouter.get("/:id", optionalAuth, async (req: Request, res: Response) => {
     .from("comments")
     .select(
       `id, body, status, score, is_pinned, is_hidden, reported_count, created_at, updated_at, author_user_id,
+       authorship_kind, authorship_source_type, authorship_source_id, authorship_persona_id,
        author:profiles!author_user_id(username, display_name, avatar_url)`
     )
     .eq("parent_type", "thread")
@@ -107,13 +109,13 @@ threadsRouter.get("/:id", optionalAuth, async (req: Request, res: Response) => {
 
   res.json({
     thread: {
-      ...thread,
+      ...withCommunityAuthorshipProvenance(thread),
       document: serializeThreadDocumentLink(thread.document),
       viewer_vote: (viewerThreadVotes as Record<string, number>)[thread.id] ?? 0,
       discussion_provenance: serializeThreadDiscussionProvenance(thread),
     },
     comments: (comments ?? []).map((comment) => ({
-      ...comment,
+      ...withCommunityAuthorshipProvenance(comment),
       viewer_vote: (viewerCommentVotes as Record<string, number>)[comment.id] ?? 0,
       discussion_provenance: serializeCommentDiscussionProvenance(),
     })),
