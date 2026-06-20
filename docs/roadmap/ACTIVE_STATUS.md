@@ -8273,6 +8273,26 @@ when a PR lands, or when validation truth changes.
   `test:storage` with 16 tests, `test:persona-context` with 7 tests,
   `test:developer-spaces` with 16 tests, and `typecheck`; `git diff --check`
   passed with CRLF normalization warnings only.
+- ARGUS accepts PR113 Redis/Valkey Cache Foundation on 2026-06-20, and MIMIR
+  closes it. The accepted work adds the `test:cache` root gate, documents the
+  existing operational-cache contract, supports Upstash REST config without
+  secret exposure, preserves disabled/no-op behavior when config is absent,
+  covers scoped keys, bounded TTLs, rate-limit counters, and invalidation
+  helpers, and keeps Redis canonical memory, Redis vector storage,
+  Redis-backed ranking, Cloudflare, background execution, durable queue
+  processing, private archive snippet cache truth, billing/auth/session changes,
+  broad UI work, and provider key/prompt/payload logging out of scope.
+- MIMIR opens PR114 Background Jobs Foundation for DAEDALUS on 2026-06-20.
+  PR114 should add the smallest owner-scoped job status/idempotency foundation
+  for future archive extraction, embedding backfill, memory consolidation,
+  export package assembly, replay seed/setup, and Developer Space import batch
+  work. It must not add broad worker infrastructure, Cloudflare queues/workers,
+  queue-provider migration, Redis durable queue processing beyond
+  idempotency/lightweight state, embedding backfill execution, archive
+  extraction rewrites, memory consolidation changes, export package content
+  changes, replay automation, billing/auth/session changes, broad UI work, or
+  raw private archive text/prompts/provider payloads/keys/secrets in job
+  payloads/logs/status.
 - DAEDALUS implements PR110 Memory Runtime Explanation Readback on 2026-06-20
   and wakes ARGUS for review. The owner Memory page now has a compact Runtime
   context / Memory explanation section that joins the existing owner-only Memory

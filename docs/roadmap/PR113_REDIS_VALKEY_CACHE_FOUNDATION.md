@@ -4,7 +4,7 @@ Date opened: 2026-06-20
 Opened by: A1 / MIMIR
 Owner: DAEDALUS implements or precisely blocks, ARGUS reviews. ARIADNE rehearses
 only if visible route behavior changes.
-Status: implemented by DAEDALUS; ready for ARGUS review
+Status: closed by MIMIR on 2026-06-20
 
 ## Why This Lane
 
@@ -172,3 +172,36 @@ DAEDALUS validation on 2026-06-20:
 | `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 16 tests passed. |
 | `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed. |
 | `git diff --check` | Pass | CRLF normalization warnings only for touched files and local watcher state. |
+
+## ARGUS Review
+
+Accepted by ARGUS on 2026-06-20 for MIMIR closeout.
+
+ARGUS confirmed that PR113 adds the canonical `test:cache` root gate and
+documents the operational cache contract. Disabled/no-op behavior, Upstash REST
+config, non-secret readiness status, scoped keys, bounded TTLs, rate-limit
+counters, and invalidation helpers are covered.
+
+ARGUS validation passed:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:cache`
+- `npm exec --yes pnpm@10.32.1 -- run test:storage`
+- `npm exec --yes pnpm@10.32.1 -- run test:persona-context`
+- `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces`
+- `npm exec --yes pnpm@10.32.1 -- run typecheck`
+- `git diff --check`
+
+ARGUS confirmed no Redis canonical memory truth, Redis vector storage,
+Redis-backed retrieval ranking, Cloudflare integration, background job
+execution, durable queue processing, private archive snippet cache truth,
+billing/auth/session change, broad UI work, provider key logging, prompt
+logging, payload logging, or visible route change.
+
+## MIMIR Closeout
+
+MIMIR closes PR113 on 2026-06-20 as the Redis/Valkey/Upstash operational cache
+foundation.
+
+The next lane is a background job foundation that can use the cache/idempotency
+groundwork without introducing broad worker execution or hiding failed work from
+owners.
