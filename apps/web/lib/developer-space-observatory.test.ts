@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import test from "node:test";
 import {
   developerSpaceOwnerCurrentState,
@@ -21,6 +22,11 @@ import {
   visualisationLabel,
 } from "./developer-space-observatory";
 import { normaliseDeveloperSpaceVisualConfig } from "./developer-space-visual-config";
+import { normalizeObservedRuntimeFixture, parseObservedRuntimeFixture } from "./observed-runtime-fixture";
+
+function fixture(name: string) {
+  return JSON.parse(readFileSync(new URL(`./__fixtures__/${name}`, import.meta.url), "utf8"));
+}
 
 test("observatory story helpers explain current public evidence", () => {
   const detail = {
@@ -287,4 +293,92 @@ test("visual config helpers provide bounded defaults per mode", () => {
       snapshotDataKeys: Array.from({ length: 32 }, (_, index) => `field_${index}`),
     },
   );
+});
+
+test("observed runtime fixtures parse neutral external observer samples", () => {
+  const canonical = parseObservedRuntimeFixture(fixture("observed-runtime-canonical.json"));
+  assert.equal(canonical.schema, "station.observed_runtime.fixture.v1");
+  assert.equal(canonical.source.runtimeHostedBy, "external");
+  assert.equal(canonical.source.stationRole, "observer");
+  assert.equal(canonical.nodes.length, 2);
+  assert.equal(canonical.events.length, 1);
+  assert.equal(canonical.snapshots.length, 1);
+  assert.equal(canonical.zones.length, 1);
+  assert.equal(canonical.resources.length, 1);
+  assert.equal(canonical.edges.length, 1);
+
+  assert.equal(parseObservedRuntimeFixture(fixture("observed-runtime-identity-shadow.json")).source.id, "synthetic-identity-shadow");
+  assert.equal(parseObservedRuntimeFixture(fixture("observed-runtime-world-shadow.json")).source.id, "synthetic-world-shadow");
+});
+
+test("observed runtime fixture filtering honors public member owner private and secret classes", () => {
+  const canonical = fixture("observed-runtime-canonical.json");
+  const publicReadback = normalizeObservedRuntimeFixture(canonical, { access: "public" });
+  const memberReadback = normalizeObservedRuntimeFixture(canonical, { access: "member" });
+  const ownerReadback = normalizeObservedRuntimeFixture(canonical, { access: "owner" });
+
+  assert.deepEqual(Object.keys(publicReadback.nodes[0].metrics), ["publicState"]);
+  assert.deepEqual(Object.keys(memberReadback.nodes[0].metrics), ["publicState", "memberCohort"]);
+  assert.deepEqual(Object.keys(ownerReadback.nodes[0].metrics), ["publicState", "memberCohort", "ownerShard", "privateTrace"]);
+  assert.equal(ownerReadback.nodes[0].metrics.secretApiKey, undefined);
+
+  assert.equal(publicReadback.events[0].eventData.memberSignal, undefined);
+  assert.equal(memberReadback.events[0].eventData.memberSignal, "member-visible zone pulse");
+  assert.equal(ownerReadback.events[0].eventData.privateRuntimeTrace, "fixture-private-event-trace");
+  assert.equal(ownerReadback.events[0].eventData.secretToken, undefined);
+
+  assert.equal(publicReadback.latestSnapshot?.snapshotData.memberEconomy, undefined);
+  assert.equal(memberReadback.latestSnapshot?.snapshotData.memberEconomy, "credits stable in synthetic fixture");
+  assert.equal(ownerReadback.latestSnapshot?.snapshotData.privateMemoryTrace, "fixture-private-snapshot-trace");
+  assert.equal(ownerReadback.latestSnapshot?.snapshotData.secretCookie, undefined);
+
+  assert.equal(publicReadback.zones[0].privateModerationNote, undefined);
+  assert.equal(ownerReadback.zones[0].privateModerationNote, "fixture-private-zone-note");
+  assert.equal(ownerReadback.zones[0].secretAccessToken, undefined);
+  assert.equal(ownerReadback.resources[0].ownerLedgerHint, "fixture-owner-ledger-hint");
+  assert.equal(ownerReadback.resources[0].secretLedgerKey, undefined);
+  assert.equal(ownerReadback.edges[0].privateCorrelationTrace, "fixture-private-edge-trace");
+  assert.equal(ownerReadback.edges[0].secretRawEdgePayload, undefined);
+  assert.equal(ownerReadback.provenance.ownerReviewNote, "Synthetic only; no partner runtime or hosted executor.");
+  assert.equal(ownerReadback.provenance.privateImportTrace, "fixture-private-provenance-trace");
+  assert.equal(ownerReadback.provenance.secretWebhookSignature, undefined);
+});
+
+test("observed runtime fixtures reject malformed and overexposed fields", () => {
+  const canonical = fixture("observed-runtime-canonical.json");
+  assert.throws(
+    () => parseObservedRuntimeFixture({ ...canonical, source: { ...canonical.source, runtimeHostedBy: "station" } }),
+    /external runtime/
+  );
+
+  const missingClassification = structuredClone(canonical);
+  delete missingClassification.nodes[0].fieldClassifications["observations.publicState"];
+  assert.throws(
+    () => normalizeObservedRuntimeFixture(missingClassification, { access: "public" }),
+    /missing a field classification/
+  );
+
+  const overexposedSecret = structuredClone(canonical);
+  overexposedSecret.events[0].fieldClassifications["data.secretToken"] = "public";
+  assert.throws(
+    () => normalizeObservedRuntimeFixture(overexposedSecret, { access: "public" }),
+    /must be classified as secret/
+  );
+});
+
+test("observed runtime readback feeds Developer Space observatory helpers without raw secrets", () => {
+  const readback = normalizeObservedRuntimeFixture(fixture("observed-runtime-canonical.json"), { access: "public" });
+
+  assert.equal(developerSpaceSignalStatus(readback.detail), "Live signals are arriving.");
+  assert.equal(
+    developerSpaceStorySummary(readback.detail),
+    "This observatory is currently showing 2 tracked nodes, 1 public signal, a current snapshot."
+  );
+  assert.deepEqual(publicEntries(readback.nodes[0].metrics).map(([key]) => key), ["publicState"]);
+
+  const rendered = JSON.stringify(readback);
+  assert.doesNotMatch(rendered, /fixture-secret/);
+  assert.doesNotMatch(rendered, /fixture-private/);
+  assert.doesNotMatch(rendered, /owner-visible synthetic threshold/);
+  assert.match(rendered, /world gate reached balanced state/);
 });

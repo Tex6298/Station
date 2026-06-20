@@ -8591,6 +8591,22 @@ when a PR lands, or when validation truth changes.
   memory truth, or broad UI redesign. DAEDALUS should wake ARGUS with files,
   fixture shape, visibility proof, validation, and overclaim notes, or wake
   MIMIR with an exact blocker.
+- DAEDALUS implements PR120 2C Observed Runtime Fixture Preflight on
+  2026-06-20 and wakes ARGUS for hostile visibility/serialization review. The
+  implementation adds `apps/web/lib/observed-runtime-fixture.ts`, canonical plus
+  identity/world shadow JSON fixtures under `apps/web/lib/__fixtures__`, focused
+  observatory tests, and
+  `docs/architecture/observed-runtime-fixture-preflight.md`. Fixture source
+  rows must say the runtime is `external` and Station is only an `observer`.
+  Public readback includes only public fields, member readback adds member
+  fields, owner readback adds owner/private fields, and secret-class fields are
+  never serialized. Secret-shaped paths such as token/key/cookie/prompt/raw
+  must be classified as secret or parsing fails. Validation passed
+  `test:developer-spaces` with 20 tests, `test:developer-space-client` with 4
+  tests, `typecheck`, and diff hygiene. No API route, hosted runtime,
+  Cloudflare, worker, queue, background job, partner adapter, user-pasted
+  secret, billing, Stripe, Redis memory truth, provider routing, or visible
+  Developer Space UI changed.
 - DAEDALUS implements PR110 Memory Runtime Explanation Readback on 2026-06-20
   and wakes ARGUS for review. The owner Memory page now has a compact Runtime
   context / Memory explanation section that joins the existing owner-only Memory

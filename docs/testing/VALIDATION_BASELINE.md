@@ -52,6 +52,30 @@ pnpm test:developer-spaces
 pnpm test:developer-space-client
 ```
 
+## PR120 2C Observed Runtime Fixture Preflight
+
+DAEDALUS implementation validation on 2026-06-20:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 20 tests passed, including observed-runtime canonical/shadow fixture parsing, malformed external-runtime claim rejection, missing classification rejection, overexposed secret-shaped field rejection, public/member/owner/private/secret filtering, and Developer Space observatory readback from normalized public-safe fixture data. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-space-client` | Pass | 4 client tests passed; ingestion client API stayed compatible. |
+| `git diff --check` | Pass | CRLF normalization warnings only. |
+
+Implementation result:
+
+- Added `apps/web/lib/observed-runtime-fixture.ts` for file/sample fixture
+  parsing, classification validation, secret-shaped-field rejection, and
+  normalized Developer Space readback.
+- Added canonical plus identity/world shadow synthetic fixtures under
+  `apps/web/lib/__fixtures__`.
+- Added `docs/architecture/observed-runtime-fixture-preflight.md` to describe
+  the fixture contract, future webhook shape, and non-claims.
+- No API route, hosted runtime, Cloudflare Worker, Vectorize, D1, queue,
+  background execution, partner adapter, user-pasted secret, billing, Stripe,
+  Redis memory truth, provider routing, or visible Developer Space UI changed.
+
 ## PR117 Public Document Discussion Chain
 
 DAEDALUS implementation validation on 2026-06-20:

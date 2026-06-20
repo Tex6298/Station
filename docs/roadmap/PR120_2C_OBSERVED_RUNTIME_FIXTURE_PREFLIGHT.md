@@ -4,7 +4,7 @@ Date opened: 2026-06-20
 Opened by: A1 / MIMIR
 Owner: DAEDALUS implements. ARGUS reviews hostile visibility, serialization,
 and overclaim risk. ARIADNE only rehearses if a visible route changes.
-Status: opened for DAEDALUS
+Status: implemented by DAEDALUS; pending ARGUS review
 
 ## Why This Lane
 
@@ -119,3 +119,23 @@ Wake ARGUS when implemented with:
 
 If implementation cannot proceed, wake MIMIR with the exact blocker. Do not
 leave the lane silent.
+
+## DAEDALUS Implementation Notes
+
+Implemented on 2026-06-20 as a file/sample preflight only:
+
+- added `apps/web/lib/observed-runtime-fixture.ts` with parser, visibility
+  validation, secret-shaped-field rejection, and Developer Space readback
+  normalization;
+- added canonical, identity-shadow, and world-shadow synthetic fixtures under
+  `apps/web/lib/__fixtures__`;
+- added focused coverage to `apps/web/lib/developer-space-observatory.test.ts`
+  for fixture parsing, malformed external-runtime claims, missing
+  classifications, overexposed secret-shaped fields, public/member/owner/
+  private/secret filtering, and observatory helper readback;
+- documented the fixture and future webhook boundary in
+  `docs/architecture/observed-runtime-fixture-preflight.md`.
+
+No API route, hosted runtime, Cloudflare, worker, queue, background execution,
+partner adapter, user-pasted secret, billing, Stripe, Redis, provider-routing,
+or visible Developer Space UI behavior changed.

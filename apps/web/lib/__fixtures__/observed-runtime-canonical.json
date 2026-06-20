@@ -1,0 +1,221 @@
+{
+  "schema": "station.observed_runtime.fixture.v1",
+  "source": {
+    "id": "synthetic-observed-runtime",
+    "name": "Synthetic Observed Runtime",
+    "kind": "synthetic_runtime",
+    "descriptor": "Neutral external runtime observed through public-safe fixture data.",
+    "observedAt": "2026-06-20T10:15:00.000Z",
+    "runtimeHostedBy": "external",
+    "stationRole": "observer",
+    "ownerRunbook": "Escalate if public and member signal counts diverge.",
+    "privateOperatorNote": "Fixture-only private owner note.",
+    "secretControlToken": "fixture-secret-should-never-render",
+    "fieldClassifications": {
+      "id": "public",
+      "name": "public",
+      "kind": "public",
+      "descriptor": "public",
+      "observedAt": "public",
+      "runtimeHostedBy": "public",
+      "stationRole": "public",
+      "ownerRunbook": "owner",
+      "privateOperatorNote": "private",
+      "secretControlToken": "secret"
+    }
+  },
+  "nodes": [
+    {
+      "id": "node-world-gate",
+      "externalId": "world:gate",
+      "name": "World Gate",
+      "topologyType": "branching",
+      "fragmentCount": 12,
+      "selfSimilarityScore": 0.82,
+      "dimensionality": 6,
+      "lastEventAt": "2026-06-20T10:12:00.000Z",
+      "observations": {
+        "publicState": "stable",
+        "memberCohort": "alpha-watchers",
+        "ownerShard": "world-gate-owner-shard",
+        "privateTrace": "fixture-private-node-trace",
+        "secretApiKey": "fixture-node-secret-key"
+      },
+      "fieldClassifications": {
+        "id": "public",
+        "externalId": "public",
+        "name": "public",
+        "topologyType": "public",
+        "fragmentCount": "public",
+        "selfSimilarityScore": "public",
+        "dimensionality": "member",
+        "lastEventAt": "public",
+        "observations.publicState": "public",
+        "observations.memberCohort": "member",
+        "observations.ownerShard": "owner",
+        "observations.privateTrace": "private",
+        "observations.secretApiKey": "secret"
+      }
+    },
+    {
+      "id": "node-identity-lens",
+      "externalId": "identity:lens",
+      "name": "Identity Lens",
+      "topologyType": "radial",
+      "fragmentCount": 7,
+      "selfSimilarityScore": 0.68,
+      "dimensionality": 4,
+      "lastEventAt": "2026-06-20T10:13:00.000Z",
+      "observations": {
+        "publicState": "coherent",
+        "memberSignal": "identity-cluster",
+        "ownerDriftNote": "low drift in synthetic fixture",
+        "privatePersonaNote": "fixture-private-persona-note",
+        "secretPrompt": "fixture-secret-prompt"
+      },
+      "fieldClassifications": {
+        "id": "public",
+        "externalId": "public",
+        "name": "public",
+        "topologyType": "public",
+        "fragmentCount": "public",
+        "selfSimilarityScore": "public",
+        "dimensionality": "member",
+        "lastEventAt": "public",
+        "observations.publicState": "public",
+        "observations.memberSignal": "member",
+        "observations.ownerDriftNote": "owner",
+        "observations.privatePersonaNote": "private",
+        "observations.secretPrompt": "secret"
+      }
+    }
+  ],
+  "events": [
+    {
+      "id": "event-world-balance",
+      "externalNodeId": "world:gate",
+      "type": "zone_balance",
+      "label": "Zone balance shifted",
+      "occurredAt": "2026-06-20T10:12:30.000Z",
+      "similarityScore": 0.73,
+      "sourceRefs": ["fixture://world/gate"],
+      "data": {
+        "publicSignal": "world gate reached balanced state",
+        "memberSignal": "member-visible zone pulse",
+        "ownerNote": "owner-visible synthetic threshold",
+        "privateRuntimeTrace": "fixture-private-event-trace",
+        "secretToken": "fixture-event-secret-token"
+      },
+      "fieldClassifications": {
+        "id": "public",
+        "externalNodeId": "public",
+        "type": "public",
+        "label": "public",
+        "occurredAt": "public",
+        "similarityScore": "public",
+        "sourceRefs": "public",
+        "data.publicSignal": "public",
+        "data.memberSignal": "member",
+        "data.ownerNote": "owner",
+        "data.privateRuntimeTrace": "private",
+        "data.secretToken": "secret"
+      }
+    }
+  ],
+  "snapshots": [
+    {
+      "id": "snapshot-observed-runtime",
+      "occurredAt": "2026-06-20T10:15:00.000Z",
+      "sourceRefs": ["fixture://snapshot/current"],
+      "data": {
+        "publicSummary": "Synthetic runtime is observable but externally hosted.",
+        "memberEconomy": "credits stable in synthetic fixture",
+        "ownerDebug": "owner-safe fixture readback note",
+        "privateMemoryTrace": "fixture-private-snapshot-trace",
+        "secretCookie": "fixture-secret-cookie"
+      },
+      "fieldClassifications": {
+        "id": "public",
+        "occurredAt": "public",
+        "sourceRefs": "public",
+        "data.publicSummary": "public",
+        "data.memberEconomy": "member",
+        "data.ownerDebug": "owner",
+        "data.privateMemoryTrace": "private",
+        "data.secretCookie": "secret"
+      }
+    }
+  ],
+  "zones": [
+    {
+      "id": "zone-crossroads",
+      "name": "Crossroads",
+      "publicOccupancy": 18,
+      "memberDensityBand": "medium",
+      "privateModerationNote": "fixture-private-zone-note",
+      "secretAccessToken": "fixture-zone-secret-token",
+      "fieldClassifications": {
+        "id": "public",
+        "name": "public",
+        "publicOccupancy": "public",
+        "memberDensityBand": "member",
+        "privateModerationNote": "private",
+        "secretAccessToken": "secret"
+      }
+    }
+  ],
+  "resources": [
+    {
+      "id": "resource-lanterns",
+      "name": "Lantern Credits",
+      "publicBalance": 240,
+      "memberVelocity": "rising",
+      "ownerLedgerHint": "fixture-owner-ledger-hint",
+      "secretLedgerKey": "fixture-resource-secret-key",
+      "fieldClassifications": {
+        "id": "public",
+        "name": "public",
+        "publicBalance": "public",
+        "memberVelocity": "member",
+        "ownerLedgerHint": "owner",
+        "secretLedgerKey": "secret"
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "edge-gate-lens",
+      "from": "world:gate",
+      "to": "identity:lens",
+      "relation": "observes",
+      "publicWeight": 0.64,
+      "privateCorrelationTrace": "fixture-private-edge-trace",
+      "secretRawEdgePayload": "fixture-edge-secret-raw",
+      "fieldClassifications": {
+        "id": "public",
+        "from": "public",
+        "to": "public",
+        "relation": "public",
+        "publicWeight": "public",
+        "privateCorrelationTrace": "private",
+        "secretRawEdgePayload": "secret"
+      }
+    }
+  ],
+  "provenance": {
+    "fixtureVersion": "2026-06-20.pr120",
+    "generatedBy": "Station synthetic fixture",
+    "sourceCommit": "synthetic",
+    "ownerReviewNote": "Synthetic only; no partner runtime or hosted executor.",
+    "privateImportTrace": "fixture-private-provenance-trace",
+    "secretWebhookSignature": "fixture-secret-signature",
+    "fieldClassifications": {
+      "fixtureVersion": "public",
+      "generatedBy": "public",
+      "sourceCommit": "public",
+      "ownerReviewNote": "owner",
+      "privateImportTrace": "private",
+      "secretWebhookSignature": "secret"
+    }
+  }
+}

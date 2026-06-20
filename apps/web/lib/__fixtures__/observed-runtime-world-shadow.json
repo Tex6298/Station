@@ -1,0 +1,37 @@
+{
+  "schema": "station.observed_runtime.fixture.v1",
+  "source": {
+    "id": "synthetic-world-shadow",
+    "name": "Synthetic World Shadow",
+    "kind": "synthetic_runtime",
+    "descriptor": "Neutral world/community-state observability fixture.",
+    "observedAt": "2026-06-20T10:25:00.000Z",
+    "runtimeHostedBy": "external",
+    "stationRole": "observer",
+    "secretApiKey": "fixture-secret-world-key",
+    "fieldClassifications": {
+      "id": "public",
+      "name": "public",
+      "kind": "public",
+      "descriptor": "public",
+      "observedAt": "public",
+      "runtimeHostedBy": "public",
+      "stationRole": "public",
+      "secretApiKey": "secret"
+    }
+  },
+  "nodes": [],
+  "events": [],
+  "snapshots": [],
+  "zones": [],
+  "resources": [],
+  "edges": [],
+  "provenance": {
+    "fixtureVersion": "2026-06-20.pr120",
+    "generatedBy": "Station synthetic fixture",
+    "fieldClassifications": {
+      "fixtureVersion": "public",
+      "generatedBy": "public"
+    }
+  }
+}
