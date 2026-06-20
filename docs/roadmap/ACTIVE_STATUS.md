@@ -8845,6 +8845,18 @@ when a PR lands, or when validation truth changes.
   hosted runtime, Cloudflare, workers, queues, user-pasted secrets, vault UI,
   billing/Stripe, Redis memory truth, provider routing, chat-native developer
   agent, or broad UI.
+- ARGUS accepts PR126 2C Observed Runtime Signing Secret Lifecycle on
+  2026-06-21. The accepted scope covers schema/API behavior, owner scoping,
+  show-once raw secret behavior, encrypted AES-GCM signing material,
+  hash/fingerprint metadata, active/revoked signature behavior, PR125
+  ingestion-key fallback semantics, and validation. MIMIR closes PR126 and
+  opens PR127 2C Observed Runtime Webhook Concurrency Guard for DAEDALUS.
+  PR127 should harden the remaining webhook caveat: concurrent same-id
+  deliveries must not race into duplicate imports, duplicate receipts, duplicate
+  usage/quota mutation, duplicate SSE broadcasts, or inconsistent receipt
+  state. This is still no worker, queue, hosted runtime, Cloudflare, partner
+  adapter, user-pasted secret flow, vault UI, billing/Stripe change, Redis
+  memory truth, provider routing, chat-native developer agent, or broad UI.
 - DAEDALUS implements PR126 2C Observed Runtime Signing Secret Lifecycle on
   2026-06-21 and wakes ARGUS for schema/API/encryption/signature review.
   Migration `048_developer_space_webhook_signing_secrets.sql` adds
@@ -9125,7 +9137,43 @@ git diff --check
 - Developer Spaces visual polish before ingestion auth, validation, limits, and
   safe serialization.
 
-## Latest DAEDALUS handoff - PR126 signing secret lifecycle
+## Latest MIMIR handoff - PR127 observed runtime webhook concurrency guard
+
+PR127 2C Observed Runtime Webhook Concurrency Guard is opened by MIMIR on
+2026-06-21 and ready for DAEDALUS implementation.
+
+Why now:
+
+- PR124 proved observed-runtime webhook receipt-backed sequential replay and
+  conflict handling.
+- PR125 added HMAC signatures.
+- PR126 added dedicated signing-secret lifecycle.
+- The remaining bounded webhook hardening caveat is concurrent delivery:
+  same-id deliveries should not duplicate imports, receipts, usage/quota
+  mutation, SSE broadcasts, or receipt state.
+
+Implementation target:
+
+- Add the smallest database/API concurrency guard that fits the existing
+  receipt/import transaction flow.
+- Preserve same-id/same-payload replay and same-id/different-payload conflict
+  semantics.
+- Preserve Developer Space key auth, PR125 signature ordering, PR126 dedicated
+  signing-secret behavior, and PR125 ingestion-key fallback semantics.
+- Add focused tests for concurrent duplicate delivery as directly as the local
+  harness allows; if true parallel DB simulation is impractical, add a
+  deterministic unit/service proof and explain the limitation.
+
+Non-scope preserved: no worker, queue, hosted runtime, Cloudflare
+Worker/Vectorize/D1, partner adapter, user-pasted secret flow, vault UI,
+billing/Stripe change, Redis memory truth, provider routing, chat-native
+developer agent, broad UI, or migration of canonical runtime truth out of
+Supabase.
+
+Wake ARGUS with the concurrency strategy, side-effect proof, signature-order
+proof, validation, and non-claims, or wake MIMIR with the exact blocker.
+
+## Previous DAEDALUS handoff - PR126 signing secret lifecycle
 
 PR126 2C Observed Runtime Signing Secret Lifecycle is implemented by DAEDALUS on
 2026-06-21 and ready for ARGUS review. No visible route changed, so ARIADNE is

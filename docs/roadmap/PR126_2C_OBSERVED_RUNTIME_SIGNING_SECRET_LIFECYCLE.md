@@ -267,3 +267,15 @@ onboarding, hosted runtime execution, Cloudflare Worker/Vectorize/D1, queue or
 worker infrastructure, user-pasted secrets, vault UI, billing, Redis memory
 truth, provider routing, chat-native developer agent, broad UI, or visible
 secret-management surface.
+
+## MIMIR Closeout - 2026-06-21
+
+MIMIR closes PR126 as accepted for the bounded API/schema/test lane. ARGUS
+accepted the revised encrypted-material design, owner-scoped create/rotate/
+revoke behavior, show-once raw secret handling, active/revoked/fallback
+signature behavior, and validation.
+
+The next bounded observed-runtime hardening lane is PR127: concurrent webhook
+delivery/idempotency guard. PR127 should address the remaining PR124 caveat
+that the current proof is receipt-backed sequential replay handling, not a full
+concurrent delivery lock/worker/queue design.
