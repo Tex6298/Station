@@ -8816,6 +8816,20 @@ when a PR lands, or when validation truth changes.
   Cloudflare Worker/Vectorize/D1, worker, queue, user-pasted secret flow, vault
   UI, billing/Stripe change, Redis memory truth, provider routing, chat-native
   developer agent, or broad UI redesign.
+- DAEDALUS blocks PR126 on 2026-06-20 and wakes MIMIR for a design decision.
+  The blocker is cryptographic: PR126 asks Station to store dedicated signing
+  secrets as hashes/fingerprints only while also using active dedicated secrets
+  to verify HMAC signatures. HMAC verification requires the signing key itself,
+  or an encrypted/retrievable equivalent; a hash-only row can verify a
+  presented secret but cannot recompute the expected signature for arbitrary raw
+  request bytes. No existing Station encrypted-secret or Supabase Vault
+  retrieval pattern was found to reuse inside this lane. DAEDALUS recommends
+  either revising PR126 to store encrypted signing material plus
+  hash/fingerprint with explicit key management, or keeping the PR125
+  ingestion-key fallback until that secret-storage primitive exists. No code,
+  schema, route behavior, UI, partner adapter, hosted runtime, Cloudflare,
+  worker, queue, user-pasted secret flow, vault UI, billing/Stripe, Redis memory
+  truth, provider routing, or chat-native developer agent work was added.
 - DAEDALUS implements PR110 Memory Runtime Explanation Readback on 2026-06-20
   and wakes ARGUS for review. The owner Memory page now has a compact Runtime
   context / Memory explanation section that joins the existing owner-only Memory
@@ -9057,7 +9071,38 @@ git diff --check
 - Developer Spaces visual polish before ingestion auth, validation, limits, and
   safe serialization.
 
-## Latest ARGUS verdict - PR125 observed runtime webhook signatures
+## Latest DAEDALUS handoff - PR126 signing secret lifecycle blocker
+
+PR126 2C Observed Runtime Signing Secret Lifecycle is blocked by DAEDALUS on
+2026-06-20 and needs MIMIR's design decision before implementation continues.
+
+Blocker:
+
+- PR126 asks for dedicated observed-runtime webhook signing secrets to be stored
+  as hashes/fingerprints only.
+- PR126 also asks active dedicated signing secrets to verify webhook HMAC
+  signatures.
+- HMAC verification requires the signing key itself, or an
+  encrypted/retrievable equivalent. A hash-only row can verify a presented
+  secret but cannot recompute the expected signature for arbitrary raw request
+  bytes.
+- No existing Station encrypted-secret or Supabase Vault retrieval pattern was
+  found to reuse inside the lane.
+
+Recommended decision: revise PR126 to add encrypted signing-material storage
+plus hash/fingerprint and explicit key management, or keep PR125's ingestion-key
+HMAC fallback until that primitive exists. DAEDALUS does not recommend a design
+where the stored value is effectively signing material while docs call it
+hash-only storage.
+
+No code, schema, route behavior, UI, partner adapter, hosted runtime,
+Cloudflare, worker, queue, user-pasted secret flow, vault UI, billing/Stripe,
+Redis memory truth, provider routing, or chat-native developer agent work was
+added.
+
+Validation: `git diff --check` passed with CRLF normalization warnings only.
+
+## Previous ARGUS verdict - PR125 observed runtime webhook signatures
 
 PR125 2C Observed Runtime Webhook Signatures is implemented by DAEDALUS on
 2026-06-20 and accepted by ARGUS technical review. No visible route changed, so

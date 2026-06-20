@@ -52,6 +52,29 @@ pnpm test:developer-spaces
 pnpm test:developer-space-client
 ```
 
+## PR126 2C Observed Runtime Signing Secret Lifecycle
+
+DAEDALUS blocker on 2026-06-20:
+
+- No code, schema, route behavior, or UI changed.
+- PR126 currently asks for dedicated signing-secret rows to store only
+  hashes/fingerprints while also verifying HMAC signatures with active
+  dedicated secrets.
+- That cannot be implemented honestly: HMAC verification needs the signing key,
+  or an encrypted/retrievable equivalent. A hash-only record can verify a
+  presented secret but cannot recompute the expected signature for raw webhook
+  bytes.
+- No reusable Station encrypted-secret or Supabase Vault retrieval pattern was
+  found in the repo.
+- Current working behavior remains PR125: observed-runtime webhooks are signed
+  with the existing Developer Space ingestion key as alpha signing material.
+
+Validation:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `git diff --check` | Pass | Docs-only blocker note; CRLF normalization warnings only, including local agent state that was not staged. |
+
 ## PR125 2C Observed Runtime Webhook Signatures
 
 DAEDALUS implementation validation on 2026-06-20:

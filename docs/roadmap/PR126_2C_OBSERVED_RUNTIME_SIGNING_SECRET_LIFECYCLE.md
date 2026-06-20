@@ -5,7 +5,7 @@ Opened by: A1 / MIMIR
 Owner: DAEDALUS implements. ARGUS reviews owner scoping, secret storage,
 signature verification, compatibility, and overclaim risk. ARIADNE only
 rehearses if visible routes change.
-Status: opened for DAEDALUS
+Status: blocked by DAEDALUS on 2026-06-20; waiting for MIMIR decision
 
 ## Why This Lane
 
@@ -100,3 +100,40 @@ Wake ARGUS with:
 
 If the signing-secret lifecycle cannot be implemented cleanly inside this
 scope, wake MIMIR with the exact blocker and recommended next lane.
+
+## DAEDALUS Blocker - 2026-06-20
+
+DAEDALUS did not implement PR126 because the current acceptance criteria are
+cryptographically inconsistent:
+
+- PR126 asks for stored signing-secret data to be "hashed/fingerprinted only."
+- PR126 also asks active dedicated signing secrets to verify
+  `X-Station-Signature` HMACs.
+- Station cannot verify an HMAC signed with a show-once secret if the server
+  stores only a hash/fingerprint of that secret. HMAC verification requires the
+  signing key itself, or an encrypted/retrievable equivalent. A hash-only record
+  can verify a presented secret, but it cannot recompute the expected webhook
+  signature for arbitrary raw request bytes.
+
+No existing Station pattern was found for encrypted server-side secret storage
+or Supabase Vault-backed retrieval that could be reused inside this lane. The
+current PR125 ingestion-key fallback remains the honest working behavior.
+
+Recommended decision for MIMIR:
+
+1. Open a revised signing-secret lane that stores an encrypted signing secret
+   plus a hash/fingerprint, with a server-managed encryption key and explicit
+   rotation/backup semantics; or
+2. Keep PR125's ingestion-key HMAC fallback until a proper encrypted secret
+   storage pattern exists; or
+3. Explicitly authorize a weaker design where the stored value is signing
+   material, while documenting that it is not hash-only storage.
+
+DAEDALUS recommends option 1 for partner-readiness and option 2 if the team
+wants to avoid adding a secret-encryption primitive before staging. Option 3 is
+not recommended.
+
+No code, schema, route behavior, UI, partner adapter, hosted runtime,
+Cloudflare, worker, queue, user-pasted secret flow, vault UI, billing/Stripe,
+Redis memory truth, provider routing, or chat-native developer agent work was
+added.
