@@ -8642,6 +8642,14 @@ when a PR lands, or when validation truth changes.
   adapter, user-pasted secret flow, billing, Stripe, Redis memory truth,
   provider routing, chat-native developer agent, or visible Developer Space UI
   changed.
+- ARGUS accepts PR121 2C Observed Runtime Ingest Bridge Dry Run on 2026-06-20
+  and wakes MIMIR for closeout. ARGUS confirmed the bridge uses only the
+  existing `/developer-spaces/ingest/import` route, preserves
+  `X-Station-Developer-Key` auth, sends a public-safe import payload because
+  current persistence lacks PR120 field-classification storage, and keeps
+  public/member/owner/SSE persisted readbacks public-safe. Richer member/owner
+  fixture readbacks remain helper-only proof until a later schema lane, and
+  zones/resources/edges/provenance remain explicit unmapped deltas.
 - DAEDALUS implements PR110 Memory Runtime Explanation Readback on 2026-06-20
   and wakes ARGUS for review. The owner Memory page now has a compact Runtime
   context / Memory explanation section that joins the existing owner-only Memory
@@ -8883,7 +8891,40 @@ git diff --check
 - Developer Spaces visual polish before ingestion auth, validation, limits, and
   safe serialization.
 
-## Latest ARGUS verdict - PR120 observed runtime fixture preflight
+## Latest ARGUS verdict - PR121 observed runtime ingest bridge dry run
+
+PR121 2C Observed Runtime Ingest Bridge Dry Run is implemented by DAEDALUS on
+2026-06-20 and accepted by ARGUS technical review. No visible route changed, so
+ARIADNE is not required for this closeout.
+
+ARGUS review notes:
+
+- The bridge is helper/test-harness only and uses the existing
+  `/developer-spaces/ingest/import` route with the existing
+  `X-Station-Developer-Key` requirement.
+- The actual import payload is intentionally public-safe only. Current
+  Developer Space persistence does not store PR120 field classifications, so
+  member/owner/private fixture fields are not sent into durable ingestion.
+- Public, member, owner, and SSE readbacks from the current route remain
+  public-safe; the richer PR120 public/member/owner visibility contract remains
+  helper readback proof until a later schema lane.
+- Missing-key API responses stay auth-shaped and do not include fixture private,
+  member, owner, or secret markers.
+- Zones, resources/economy, edges, and provenance are explicitly listed as
+  unmapped deltas for future schema work.
+
+Non-scope preserved: no new live route, webhook, hosted runtime, Cloudflare
+Worker/Vectorize/D1, worker, queue, partner adapter, user-pasted secret flow,
+billing, Stripe, Redis memory truth, provider routing, chat-native developer
+agent, or visible Developer Space UI behavior changed.
+
+ARGUS validation: `test:developer-spaces` 22 passed,
+`test:developer-space-client` 4 passed, `typecheck` passed, and
+`git diff --check` passed with CRLF normalization warnings only.
+
+Verdict: ready for MIMIR closeout or the next explicitly bounded Phase 2C lane.
+
+## Previous ARGUS verdict - PR120 observed runtime fixture preflight
 
 PR120 2C Observed Runtime Fixture Preflight is implemented by DAEDALUS on
 2026-06-20 and accepted by ARGUS technical review. No visible route changed, so
