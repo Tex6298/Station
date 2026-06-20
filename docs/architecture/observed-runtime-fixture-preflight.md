@@ -79,6 +79,38 @@ Focused tests in `apps/web/lib/developer-space-observatory.test.ts` prove:
 - Developer Space observatory summary helpers can read normalized public-safe
   fixture data.
 
+## Dry-Run Developer Space Ingest Bridge
+
+PR121 adds a helper-only dry-run bridge in:
+
+- `apps/web/lib/observed-runtime-fixture.ts`
+
+`bridgeObservedRuntimeFixtureToDeveloperSpaceImport` converts the accepted
+fixture into the existing Developer Space batch import payload shape:
+
+- fixture nodes become `nodes[]` entries with `nodeId`, node display fields,
+  public-safe `metrics`, source refs, and `provenance: "imported"`;
+- fixture events become `events[]` entries with event type, label, node id,
+  public-safe `eventData`, public visibility, source refs, and occurrence time;
+- fixture snapshots become `snapshots[]` entries with public-safe
+  `snapshotData`, source refs, public visibility, and occurrence times.
+
+The bridge keeps the existing auth boundary intact: the dry-run payload targets
+`/developer-spaces/ingest/import` and still requires
+`X-Station-Developer-Key`. No new route, webhook, auth bypass, or key shape was
+added.
+
+Current Developer Space ingestion has no durable field-classification storage,
+so the import payload is intentionally public-safe. The helper also returns
+public, member, and owner normalized readbacks to prove the accepted PR120
+visibility rules, but richer member/owner fixture classifications are not
+stored through the current import route.
+
+Zones, resources/economy, edges, and provenance remain supporting dry-run
+readback. They are not silently treated as complete persistence mappings; a
+future schema lane needs explicit homes for them before a live webhook can
+claim full observed-runtime ingestion.
+
 ## Future Webhook Shape
 
 A later lane can turn this fixture contract into an ingress envelope without

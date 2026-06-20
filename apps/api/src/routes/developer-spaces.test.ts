@@ -1,8 +1,11 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import type { Server } from "node:http";
 import type { AddressInfo } from "node:net";
+import { join } from "node:path";
 import test from "node:test";
 import express, { type Express } from "express";
+import { bridgeObservedRuntimeFixtureToDeveloperSpaceImport } from "../../../web/lib/observed-runtime-fixture";
 import { setSupabaseAdminForTests } from "../lib/supabase";
 import { hashDeveloperSpaceApiKey } from "../services/developer-space.service";
 import {
@@ -348,6 +351,10 @@ class QueryBuilder {
 
 function clone<T>(value: T): T {
   return JSON.parse(JSON.stringify(value));
+}
+
+function observedRuntimeFixture(name: string) {
+  return JSON.parse(readFileSync(join(process.cwd(), "apps", "web", "lib", "__fixtures__", name), "utf8"));
 }
 
 function createDeveloperSpacesApp() {
@@ -1219,6 +1226,109 @@ test("Developer Spaces smoke covers creation, keying, ingestion, and public/owne
   } finally {
     setSupabaseAdminForTests(null);
     resetOperationalCacheProviderForTests();
+  }
+});
+
+test("Developer Space import accepts public-safe observed runtime bridge with existing key auth", async () => {
+  const db = new InMemorySupabase();
+  setSupabaseAdminForTests(db.client as any);
+  setOperationalCacheProviderForTests(new DisabledOperationalCacheProvider("test_disabled"));
+  const app = createDeveloperSpacesApp();
+
+  try {
+    const created = await requestJson(app, "POST", "/developer-spaces", {
+      token: "owner-token",
+      body: {
+        projectName: "Observed Runtime Bridge",
+        visibility: "public",
+      },
+    });
+    assert.equal(created.status, 201);
+
+    const apiKeyResponse = await requestJson(app, "POST", `/developer-spaces/${created.body.space.id}/api-key`, {
+      token: "owner-token",
+    });
+    assert.equal(apiKeyResponse.status, 201);
+
+    const bridge = bridgeObservedRuntimeFixtureToDeveloperSpaceImport(
+      observedRuntimeFixture("observed-runtime-canonical.json"),
+      { developerSpaceId: created.body.space.id },
+    );
+    assert.equal(bridge.auth.requiredHeader, "X-Station-Developer-Key");
+    assert.equal(bridge.unmapped.zones.length, 1);
+    assert.equal(bridge.unmapped.resources.length, 1);
+    assert.equal(bridge.unmapped.edges.length, 1);
+
+    const missingKey = await requestJson(app, "POST", bridge.route, {
+      body: bridge.importPayload,
+    });
+    assert.equal(missingKey.status, 401);
+    assert.equal(missingKey.body.category, "auth");
+    assert.doesNotMatch(JSON.stringify(missingKey.body), /fixture-secret|fixture-private|owner-visible|member-visible/);
+
+    const imported = await requestJson(app, "POST", bridge.route, {
+      developerKey: apiKeyResponse.body.apiKey,
+      body: bridge.importPayload,
+    });
+    assert.equal(imported.status, 202);
+    assert.deepEqual(imported.body.imported, {
+      nodes: 2,
+      events: 1,
+      snapshots: 1,
+    });
+
+    const publicDetail = await requestJson(app, "GET", "/developer-spaces/observed-runtime-bridge");
+    assert.equal(publicDetail.status, 200);
+    assert.equal(publicDetail.body.access, "public");
+    assert.equal(publicDetail.body.nodes.length, 2);
+    assert.deepEqual(publicDetail.body.nodes[0].metrics, { publicState: "stable" });
+    assert.equal(publicDetail.body.events[0].eventType, "zone_balance");
+    assert.deepEqual(publicDetail.body.events[0].eventData, {
+      publicSignal: "world gate reached balanced state",
+    });
+    assert.deepEqual(publicDetail.body.latestSnapshot.snapshotData, {
+      publicSummary: "Synthetic runtime is observable but externally hosted.",
+    });
+
+    const memberDetail = await requestJson(app, "GET", "/developer-spaces/observed-runtime-bridge", {
+      token: "other-token",
+    });
+    assert.equal(memberDetail.status, 200);
+    assert.deepEqual(memberDetail.body.nodes[0].metrics, publicDetail.body.nodes[0].metrics);
+
+    const ownerDetail = await requestJson(app, "GET", "/developer-spaces/observed-runtime-bridge", {
+      token: "owner-token",
+    });
+    assert.equal(ownerDetail.status, 200);
+    assert.deepEqual(ownerDetail.body.nodes[0].metrics, publicDetail.body.nodes[0].metrics);
+
+    const publicStream = await requestText(app, "GET", "/developer-spaces/observed-runtime-bridge/stream?once=1");
+    assert.equal(publicStream.status, 200);
+    const publicSse = parseSseUpdate(publicStream.body);
+    assert.deepEqual(publicSse.data.detail.nodes[0].metrics, publicDetail.body.nodes[0].metrics);
+    assert.deepEqual(publicSse.data.detail.latestSnapshot.snapshotData, publicDetail.body.latestSnapshot.snapshotData);
+
+    const serializedReadbacks = JSON.stringify({
+      public: publicDetail.body,
+      member: memberDetail.body,
+      owner: ownerDetail.body,
+      sse: publicSse.data,
+      payload: bridge.importPayload,
+    });
+    for (const hidden of [
+      "fixture-secret",
+      "fixture-private",
+      "owner-visible synthetic threshold",
+      "member-visible zone pulse",
+      "alpha-watchers",
+      "owner-shard",
+      "fixture-owner",
+    ]) {
+      assert.equal(serializedReadbacks.includes(hidden), false, `${hidden} leaked through observed runtime bridge`);
+    }
+  } finally {
+    setSupabaseAdminForTests(null);
+    setOperationalCacheProviderForTests(new DisabledOperationalCacheProvider("test_disabled"));
   }
 });
 

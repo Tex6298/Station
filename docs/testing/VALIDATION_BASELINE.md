@@ -52,6 +52,32 @@ pnpm test:developer-spaces
 pnpm test:developer-space-client
 ```
 
+## PR121 2C Observed Runtime Ingest Bridge Dry Run
+
+DAEDALUS implementation validation on 2026-06-20:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 22 tests passed, including the observed-runtime bridge helper shape, unmapped zones/resources/edges/provenance reporting, existing ingestion-key auth requirement, public-safe batch import, public/member/owner readback, SSE parity, and no fixture private/secret marker leakage. |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-space-client` | Pass | 4 client tests passed; ingestion client API stayed compatible. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed after the API test fixture path was made CommonJS-compatible. |
+| `git diff --check` | Pass | CRLF normalization warnings only, including local agent state that was not staged. |
+
+Implementation result:
+
+- Added a helper-only bridge from the PR120 fixture contract into the existing
+  Developer Space `/developer-spaces/ingest/import` batch payload for nodes,
+  events, and snapshots.
+- Kept the real import payload public-safe because current Developer Space
+  persistence does not store fixture field classifications.
+- Preserved explicit public/member/owner normalized dry-run readbacks in the
+  helper, and documented zones, resources/economy, edges, and provenance as
+  unmapped future schema work.
+- No new live route, webhook, hosted runtime, Cloudflare Worker, Vectorize, D1,
+  worker, queue, partner adapter, user-pasted secret flow, billing, Stripe,
+  Redis memory truth, provider routing, chat-native developer agent, or visible
+  Developer Space UI changed.
+
 ## PR120 2C Observed Runtime Fixture Preflight
 
 DAEDALUS implementation validation on 2026-06-20:

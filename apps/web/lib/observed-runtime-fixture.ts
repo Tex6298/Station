@@ -1,8 +1,11 @@
 import type {
   DeveloperSpaceDetail,
+  DeveloperSpaceEventPayload,
   DeveloperSpaceEvent,
   DeveloperSpaceNode,
+  DeveloperSpaceNodeStatePayload,
   DeveloperSpaceSnapshot,
+  DeveloperSpaceSnapshotPayload,
   DeveloperSpaceTopologyType,
 } from "@station/types/developer-space";
 
@@ -25,12 +28,40 @@ export interface NormalizedObservedRuntimeReadback {
   source: Record<string, unknown>;
   nodes: DeveloperSpaceNode[];
   events: DeveloperSpaceEvent[];
+  snapshots: DeveloperSpaceSnapshot[];
   latestSnapshot: DeveloperSpaceSnapshot | null;
   zones: Record<string, unknown>[];
   resources: Record<string, unknown>[];
   edges: Record<string, unknown>[];
   provenance: Record<string, unknown>;
   detail: Pick<DeveloperSpaceDetail, "nodes" | "events" | "latestSnapshot" | "linkedDocuments" | "access">;
+}
+
+export interface ObservedRuntimeDeveloperSpaceImportPayload {
+  nodes: Array<DeveloperSpaceNodeStatePayload & { nodeId: string }>;
+  events: DeveloperSpaceEventPayload[];
+  snapshots: DeveloperSpaceSnapshotPayload[];
+}
+
+export interface ObservedRuntimeDeveloperSpaceBridge {
+  route: "/developer-spaces/ingest/import";
+  auth: {
+    requiredHeader: "X-Station-Developer-Key";
+    note: string;
+  };
+  importPayload: ObservedRuntimeDeveloperSpaceImportPayload;
+  readbacks: {
+    public: NormalizedObservedRuntimeReadback;
+    member: NormalizedObservedRuntimeReadback;
+    owner: NormalizedObservedRuntimeReadback;
+  };
+  unmapped: {
+    zones: Record<string, unknown>[];
+    resources: Record<string, unknown>[];
+    edges: Record<string, unknown>[];
+    provenance: Record<string, unknown>;
+    reason: string;
+  };
 }
 
 const SCHEMA = "station.observed_runtime.fixture.v1";
@@ -247,11 +278,75 @@ export function normalizeObservedRuntimeFixture(
     source,
     nodes,
     events,
+    snapshots,
     latestSnapshot,
     zones: fixture.zones.map((zone, index) => filterRecord(zone, access, `fixture.zones[${index}]`)),
     resources: fixture.resources.map((resource, index) => filterRecord(resource, access, `fixture.resources[${index}]`)),
     edges: fixture.edges.map((edge, index) => filterRecord(edge, access, `fixture.edges[${index}]`)),
     provenance: filterRecord(fixture.provenance, access, "fixture.provenance"),
     detail,
+  };
+}
+
+export function bridgeObservedRuntimeFixtureToDeveloperSpaceImport(
+  input: unknown,
+  options: {
+    developerSpaceId?: string;
+    observedAt?: string;
+  } = {}
+): ObservedRuntimeDeveloperSpaceBridge {
+  const publicReadback = normalizeObservedRuntimeFixture(input, { ...options, access: "public" });
+  const memberReadback = normalizeObservedRuntimeFixture(input, { ...options, access: "member" });
+  const ownerReadback = normalizeObservedRuntimeFixture(input, { ...options, access: "owner" });
+
+  return {
+    route: "/developer-spaces/ingest/import",
+    auth: {
+      requiredHeader: "X-Station-Developer-Key",
+      note: "Dry-run payloads still use the existing Developer Space ingestion route and therefore require a valid ingestion key.",
+    },
+    importPayload: {
+      nodes: publicReadback.nodes.map((node) => ({
+        nodeId: node.externalId,
+        nodeName: node.nodeName,
+        topologyType: node.topologyType,
+        fragmentCount: node.fragmentCount,
+        selfSimilarityScore: node.selfSimilarityScore,
+        dimensionality: node.dimensionality,
+        metrics: node.metrics,
+        sourceRefs: [`observed-runtime:node:${node.externalId}`],
+        provenance: "imported",
+      })),
+      events: publicReadback.events.map((event) => ({
+        eventType: event.eventType,
+        eventLabel: event.eventLabel ?? undefined,
+        nodeId: event.externalNodeId ?? undefined,
+        eventData: event.eventData,
+        similarityScore: event.similarityScore,
+        sourceRefs: event.sourceRefs,
+        provenance: "imported",
+        visibility: "public",
+        occurredAt: event.occurredAt,
+      })),
+      snapshots: publicReadback.snapshots.map((snapshot) => ({
+        snapshotData: snapshot.snapshotData,
+        sourceRefs: snapshot.sourceRefs,
+        provenance: "imported",
+        visibility: "public",
+        occurredAt: snapshot.occurredAt,
+      })),
+    },
+    readbacks: {
+      public: publicReadback,
+      member: memberReadback,
+      owner: ownerReadback,
+    },
+    unmapped: {
+      zones: publicReadback.zones,
+      resources: publicReadback.resources,
+      edges: publicReadback.edges,
+      provenance: publicReadback.provenance,
+      reason: "Current Developer Space ingestion accepts nodes, events, and snapshots. Zones, resources/economy, edges, and provenance remain supporting observed-runtime readback until a later schema lane gives them durable homes.",
+    },
   };
 }

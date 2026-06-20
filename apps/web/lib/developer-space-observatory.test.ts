@@ -22,7 +22,11 @@ import {
   visualisationLabel,
 } from "./developer-space-observatory";
 import { normaliseDeveloperSpaceVisualConfig } from "./developer-space-visual-config";
-import { normalizeObservedRuntimeFixture, parseObservedRuntimeFixture } from "./observed-runtime-fixture";
+import {
+  bridgeObservedRuntimeFixtureToDeveloperSpaceImport,
+  normalizeObservedRuntimeFixture,
+  parseObservedRuntimeFixture,
+} from "./observed-runtime-fixture";
 
 function fixture(name: string) {
   return JSON.parse(readFileSync(new URL(`./__fixtures__/${name}`, import.meta.url), "utf8"));
@@ -381,4 +385,37 @@ test("observed runtime readback feeds Developer Space observatory helpers withou
   assert.doesNotMatch(rendered, /fixture-private/);
   assert.doesNotMatch(rendered, /owner-visible synthetic threshold/);
   assert.match(rendered, /world gate reached balanced state/);
+});
+
+test("observed runtime bridge emits current Developer Space import payloads and unmapped deltas", () => {
+  const bridge = bridgeObservedRuntimeFixtureToDeveloperSpaceImport(fixture("observed-runtime-canonical.json"));
+
+  assert.equal(bridge.route, "/developer-spaces/ingest/import");
+  assert.equal(bridge.auth.requiredHeader, "X-Station-Developer-Key");
+  assert.deepEqual(
+    bridge.importPayload.nodes.map((node) => node.nodeId),
+    ["world:gate", "identity:lens"]
+  );
+  assert.deepEqual(bridge.importPayload.nodes[0].metrics, { publicState: "stable" });
+  assert.equal(bridge.importPayload.events[0].eventType, "zone_balance");
+  assert.deepEqual(bridge.importPayload.events[0].eventData, {
+    publicSignal: "world gate reached balanced state",
+  });
+  assert.deepEqual(bridge.importPayload.snapshots[0].snapshotData, {
+    publicSummary: "Synthetic runtime is observable but externally hosted.",
+  });
+
+  assert.equal(bridge.readbacks.member.nodes[0].metrics.memberCohort, "alpha-watchers");
+  assert.equal(bridge.readbacks.owner.nodes[0].metrics.privateTrace, "fixture-private-node-trace");
+  assert.equal(bridge.readbacks.owner.nodes[0].metrics.secretApiKey, undefined);
+  assert.equal(bridge.unmapped.zones.length, 1);
+  assert.equal(bridge.unmapped.resources.length, 1);
+  assert.equal(bridge.unmapped.edges.length, 1);
+  assert.match(bridge.unmapped.reason, /later schema lane/);
+
+  const payloadText = JSON.stringify(bridge.importPayload);
+  assert.doesNotMatch(payloadText, /fixture-secret/);
+  assert.doesNotMatch(payloadText, /fixture-private/);
+  assert.doesNotMatch(payloadText, /owner-visible synthetic threshold/);
+  assert.doesNotMatch(payloadText, /member-visible zone pulse/);
 });

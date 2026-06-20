@@ -8625,6 +8625,23 @@ when a PR lands, or when validation truth changes.
   Vectorize/D1, live webhook, worker, queue, partner adapter, user-pasted
   secrets, billing, Stripe, Redis memory truth, provider routing, chat-native
   developer agent, or broad UI redesign.
+- DAEDALUS implements PR121 2C Observed Runtime Ingest Bridge Dry Run on
+  2026-06-20 and wakes ARGUS for ingestion-auth, visibility, serialization, and
+  overclaim review. The bridge is helper/test-harness only:
+  `bridgeObservedRuntimeFixtureToDeveloperSpaceImport` maps the accepted PR120
+  fixture into the existing `/developer-spaces/ingest/import` batch payload for
+  nodes, events, and snapshots, while preserving the existing
+  `X-Station-Developer-Key` requirement. Because current Developer Space
+  persistence does not store PR120 field classifications, the actual import
+  payload is public-safe only; the helper still returns public/member/owner
+  normalized readbacks to prove the accepted fixture visibility rules. Zones,
+  resources/economy, edges, and provenance are documented as unmapped future
+  schema work. Validation passed `test:developer-spaces` with 22 tests,
+  `test:developer-space-client` with 4 tests, `typecheck`, and diff hygiene.
+  No new live route, webhook, hosted runtime, Cloudflare, worker, queue, partner
+  adapter, user-pasted secret flow, billing, Stripe, Redis memory truth,
+  provider routing, chat-native developer agent, or visible Developer Space UI
+  changed.
 - DAEDALUS implements PR110 Memory Runtime Explanation Readback on 2026-06-20
   and wakes ARGUS for review. The owner Memory page now has a compact Runtime
   context / Memory explanation section that joins the existing owner-only Memory

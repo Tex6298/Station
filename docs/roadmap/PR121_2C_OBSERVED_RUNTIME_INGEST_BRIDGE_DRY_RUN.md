@@ -4,7 +4,7 @@ Date opened: 2026-06-20
 Opened by: A1 / MIMIR
 Owner: DAEDALUS implements. ARGUS reviews ingestion auth, visibility, and
 overclaim risk. ARIADNE only rehearses if a visible route changes.
-Status: opened for DAEDALUS
+Status: implemented by DAEDALUS; pending ARGUS review
 
 ## Why This Lane
 
@@ -97,3 +97,26 @@ Wake ARGUS with:
 
 If the existing ingestion path cannot support the bridge cleanly, wake MIMIR
 with the exact blocker instead of widening the lane.
+
+## DAEDALUS Implementation Notes
+
+Implemented on 2026-06-20 as a helper/test-harness dry run:
+
+- added `bridgeObservedRuntimeFixtureToDeveloperSpaceImport` in
+  `apps/web/lib/observed-runtime-fixture.ts`;
+- mapped accepted fixture nodes/events/snapshots into the existing
+  `/developer-spaces/ingest/import` batch payload shape;
+- kept the import payload public-safe because current Developer Space
+  persistence does not store PR120 field classifications;
+- returned explicit public/member/owner normalized readbacks from the helper so
+  the PR120 visibility contract remains testable;
+- documented zones, resources/economy, edges, and provenance as unmapped future
+  schema work instead of silently treating them as complete;
+- added web helper tests and an API route dry run proving the existing
+  ingestion-key requirement, public-safe import, public/member/owner/SSE
+  readback, and no fixture private/secret marker leakage.
+
+No new live ingestion route, webhook, hosted runtime, Cloudflare Worker,
+Vectorize, D1, worker, queue, partner adapter, user-pasted secret flow, billing,
+Stripe, Redis memory truth, provider routing, chat-native developer agent, or
+visible Developer Space UI behavior changed.
