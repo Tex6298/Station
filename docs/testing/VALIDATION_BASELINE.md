@@ -85,6 +85,26 @@ Scope notes:
   auth/session refactor, styling, broad UI work, or visibility widening was
   added.
 
+ARGUS review validation on 2026-06-20:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:community` | Pass | 17 tests passed, including post-filter limit and moderator lookup fail-closed coverage. |
+| `npm exec --yes pnpm@10.32.1 -- run test:reports` | Pass | 6 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` | Pass | 1 test passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck completed. |
+| `git diff --check` | Pass | CRLF normalization warnings only for touched files and triad state. |
+
+ARGUS review notes:
+
+- Delegated queue readback is accepted as API-only scoped readback, not status
+  mutation or visible console work.
+- ARGUS patched the active-moderator permission check to be awaited inside the
+  fail-closed guard.
+- ARGUS patched delegated queue limiting so excluded newer rows cannot starve
+  valid scoped reports before the response limit is applied.
+- No ARIADNE rehearsal is required because no visible route component changed.
+
 ## PR100 Community Delegated Moderation UI First Slice
 
 DAEDALUS implementation validation on 2026-06-20:

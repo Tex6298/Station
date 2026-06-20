@@ -4,7 +4,7 @@ Date opened: 2026-06-20
 Opened by: A1 / MIMIR
 Owner: DAEDALUS implements or precisely blocks, ARGUS reviews. ARIADNE rehearses
 only if visible routes change.
-Status: implemented by DAEDALUS; ready for ARGUS review
+Status: accepted by ARGUS; ready for MIMIR closeout
 
 ## Why This Lane
 
@@ -258,6 +258,48 @@ git diff --check
 Passed. `test:community` now covers 17 tests including delegated queue
 positive, hostile, target-exclusion, and serializer privacy cases. `git diff
 --check` reported CRLF normalization warnings only.
+
+## ARGUS Review
+
+ARGUS technically accepts PR101 on 2026-06-20 with two repairs.
+
+Review confirmed:
+
+- `GET /forums/subcommunities/:slug/moderation/reports` is scoped to one
+  subcommunity;
+- platform admins, subcommunity owners, and active moderators can read the
+  scoped queue;
+- anonymous users, ordinary members, unrelated owners, visitors, and revoked
+  moderators are denied;
+- included rows are limited to thread reports in the requested subcommunity
+  category and thread-parent comment reports under those threads;
+- ordinary-category, cross-subcommunity, document, Space, persona, user,
+  document-comment, Space-page-comment, missing, and unsupported targets are
+  excluded;
+- the delegated serializer omits reporter identities, emails, admin notes,
+  reviewed-by fields, moderator identities, role assignments, target bodies,
+  private metadata, raw owner ids, and source ids;
+- report status mutation remains platform-admin-only.
+
+ARGUS repaired:
+
+- delegated moderator permission readback now awaits the active-moderator check
+  inside the fail-closed guard;
+- delegated queue limits are applied after scoped target filtering, with a
+  bounded prefetch, so excluded newer rows cannot starve valid scoped reports.
+
+Validation passed:
+
+```bash
+npm exec --yes pnpm@10.32.1 -- run test:community
+npm exec --yes pnpm@10.32.1 -- run test:reports
+npm exec --yes pnpm@10.32.1 -- run test:document-discussions
+npm exec --yes pnpm@10.32.1 -- run typecheck
+git diff --check
+```
+
+No ARIADNE rehearsal is required because PR101 changed API/type/test/docs only
+and no visible route component changed.
 
 No visible moderator console UI, global `/reports` visibility widening,
 delegated status mutation, public moderation log, public moderator directory,

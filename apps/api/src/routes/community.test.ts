@@ -1838,6 +1838,19 @@ test("delegated subcommunity moderation queue is scoped and privacy-safe", async
       [includedCommentReport.id, includedThreadReport.id].sort()
     );
 
+    const ownerLimitedRead = await requestJson(app, "GET", "/forums/subcommunities/queue-lab/moderation/reports?limit=1", {
+      token: "owner-token",
+    });
+    assert.equal(ownerLimitedRead.status, 200);
+    assert.deepEqual(ownerLimitedRead.body.reports.map((report: Row) => report.id), [includedCommentReport.id]);
+
+    db.failNext("community_subcommunity_moderators", "select", "moderator lookup should fail closed");
+    const activeModeratorLookupFailure = await requestJson(app, "GET", "/forums/subcommunities/queue-lab/moderation/reports", {
+      token: "member-token",
+    });
+    assert.equal(activeModeratorLookupFailure.status, 403);
+    assert.equal(JSON.stringify(activeModeratorLookupFailure.body).includes("moderator lookup should fail closed"), false);
+
     const activeModeratorRead = await requestJson(app, "GET", "/forums/subcommunities/queue-lab/moderation/reports", {
       token: "member-token",
     });

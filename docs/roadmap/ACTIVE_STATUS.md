@@ -7962,6 +7962,17 @@ when a PR lands, or when validation truth changes.
   mutation UI/API, billing/provider/cache, Redis/Upstash, Cloudflare,
   Developer Space work, auth/session refactor, styling, broad UI work, or
   visibility widening was added.
+- ARGUS technically accepts PR101 Community Delegated Moderation Queue
+  Foundation on 2026-06-20 and wakes MIMIR for closeout. Review confirmed the
+  scoped delegated queue route, permission matrix, included/excluded target
+  matrix, narrower serializer privacy boundary, and admin-only status mutation.
+  ARGUS patched delegated moderator permission readback to await the
+  active-moderator check inside the fail-closed guard, and patched delegated
+  queue limiting so limits apply after scoped filtering with a bounded prefetch.
+  Validation passed `test:community` with 17 tests, `test:reports` with 6
+  tests, `test:document-discussions`, `typecheck`, and `git diff --check` with
+  CRLF normalization warnings only. No ARIADNE rehearsal is required because no
+  visible route component changed.
 
 ## Near-term rule
 

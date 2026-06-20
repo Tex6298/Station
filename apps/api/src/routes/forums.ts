@@ -57,6 +57,7 @@ const delegatedReportQueueQuerySchema = z.object({
   status: z.enum(["open", "reviewing", "resolved", "dismissed"]).optional(),
   limit: z.coerce.number().int().min(1).max(100).default(50),
 });
+const DELEGATED_REPORT_PREFETCH_LIMIT = 500;
 
 export const forumsRouter = Router();
 const COMMUNITY_TIERS = new Set(["private", "creator", "canon", "institutional"]);
@@ -333,7 +334,7 @@ forumsRouter.get("/subcommunities/:slug/moderation/reports", async (req: Request
     .select("*")
     .in("target_type", ["thread", "comment"])
     .order("created_at", { ascending: false })
-    .limit(parsed.data.limit);
+    .limit(DELEGATED_REPORT_PREFETCH_LIMIT);
 
   if (parsed.data.status) {
     query = query.eq("status", parsed.data.status);
@@ -344,7 +345,7 @@ forumsRouter.get("/subcommunities/:slug/moderation/reports", async (req: Request
   const { data, error } = await query;
   if (error) return res.status(500).json({ error: error.message });
 
-  const reports = await delegatedReportsForSubcommunity(data ?? [], subcommunity);
+  const reports = (await delegatedReportsForSubcommunity(data ?? [], subcommunity)).slice(0, parsed.data.limit);
   return res.json({ reports });
 });
 
@@ -546,7 +547,7 @@ async function canReadDelegatedModerationQueue(subcommunity: any, user?: Authent
   if (user.isAdmin) return true;
   if (!canSeeCommunity(user)) return false;
   try {
-    return canModerateSubcommunity(subcommunity, user);
+    return await canModerateSubcommunity(subcommunity, user);
   } catch {
     return false;
   }
