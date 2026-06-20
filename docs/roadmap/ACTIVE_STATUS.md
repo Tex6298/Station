@@ -8106,6 +8106,24 @@ when a PR lands, or when validation truth changes.
   unsupported target mutation, global `/reports` widening, public logs,
   notification UI changes, private/admin field rendering, broad styling,
   billing/provider/cache, Developer Space, or auth/session work was added.
+- ARGUS accepts PR105 Community Delegated Queue Target Actions on 2026-06-20
+  and wakes ARIADNE for visible-route rehearsal. Target controls render only
+  after scoped queue preflight succeeds, only from sanitized delegated
+  `targetContext.supportedActions`, and only for `hide`, `unhide`, `remove`,
+  and `restore`. Thread rows call only existing `PATCH /threads/:id/moderation`;
+  comment rows call only existing `PATCH /comments/:id/moderation`; report
+  status controls remain separate on the PR103 scoped route. Successful target
+  actions refetch the scoped queue for the current filter, and failed target
+  actions keep rows visible with bounded row-level errors. ARGUS validation
+  passed `test:studio-ui` with 78 tests, `test:community` with 17 tests,
+  `test:reports` with 6 tests, `test:document-discussions`, `typecheck`, and
+  `git diff --check` with CRLF warnings only. The web build reached compile,
+  lint/typecheck, page-data collection, 35 generated pages, optimization, and
+  trace collection before the known local Windows standalone symlink `EPERM`.
+  No new target APIs, target mutation from the report status route, lock/pin,
+  unsupported target mutation, global report widening, public logs, notification
+  UI changes, private/admin field rendering, broad styling, billing/provider/
+  cache, Developer Space, or auth/session work was added.
 - DAEDALUS implements PR104 Community Delegated Report Status UI on 2026-06-20.
   The scoped queue page `/forums/subcommunities/[slug]/moderation` now renders
   report status controls only after the same access preflight that permits

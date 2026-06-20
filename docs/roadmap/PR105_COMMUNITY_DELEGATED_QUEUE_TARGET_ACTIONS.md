@@ -191,3 +191,47 @@ Non-scope confirmation:
   review-request expansion, notification UI changes, private/admin field
   rendering, broad styling, billing/provider/cache, Redis/Upstash, Cloudflare,
   Developer Space, or auth/session work was added.
+
+## ARGUS Technical Review
+
+Accepted by ARGUS on 2026-06-20 for ARIADNE visible-route rehearsal.
+
+Review result:
+
+- Target controls render only after scoped queue preflight succeeds.
+- Controls render only from sanitized delegated `targetContext.supportedActions`
+  and only for `hide`, `unhide`, `remove`, and `restore`.
+- Rows without target context or supported actions render no target controls.
+- Thread rows call only the existing `PATCH /threads/:id/moderation` helper.
+- Comment rows call only the existing `PATCH /comments/:id/moderation` helper.
+- Report status controls remain visually separate and continue to call only the
+  PR103 scoped report status route.
+- Successful target actions refetch the scoped delegated queue for the current
+  filter, keeping target state API-authored.
+- Failed target actions keep the row visible with a bounded row-level error.
+- Sanitization still drops non-thread/comment delegated rows and private/admin
+  fields before rendering.
+- No new target moderation APIs, target mutation from the report status route,
+  lock/pin actions, unsupported target mutation, global `/reports` widening,
+  global admin behavior change, public logs, public moderator directory,
+  review-request expansion, notification UI changes, private/admin field
+  rendering, broad styling, billing/provider/cache work, Developer Space work,
+  or auth/session refactor was added.
+
+ARGUS validation:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 78 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:community` | Pass | 17 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:reports` | Pass | 6 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` | Pass | 1 test passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck replayed from cache. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web build` | Partial / known Windows failure | Next compiled, linted/typechecked, collected page data, generated 35 static pages, finalized optimization, and collected build traces before the known local Windows standalone symlink `EPERM` during traced-file copy. Only pre-existing raw `<img>` warnings appeared. |
+| `git diff --check` | Pass | CRLF normalization warnings only for triad state. |
+
+ARIADNE should rehearse signed-out, ordinary, revoked, unrelated-owner,
+subcommunity owner, active moderator, platform admin, eligible thread row,
+eligible comment row, unsupported/no-action row, successful hide/unhide/remove/
+restore where fixtures permit, failed target action, report status controls
+beside target controls, desktop, and 390px mobile.

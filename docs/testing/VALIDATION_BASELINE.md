@@ -81,6 +81,31 @@ Scope notes:
   billing/provider/cache work, Developer Space work, or auth/session refactor
   was added.
 
+ARGUS review validation on 2026-06-20:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 78 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:community` | Pass | 17 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:reports` | Pass | 6 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` | Pass | 1 test passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck replayed from cache. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web build` | Partial / known Windows failure | Next compiled, linted/typechecked, collected page data, generated 35 static pages, finalized optimization, and collected build traces before the known local Windows standalone symlink `EPERM` during traced-file copy. Only pre-existing raw `<img>` warnings appeared. |
+| `git diff --check` | Pass | CRLF normalization warnings only for triad state. |
+
+ARGUS review notes:
+
+- Scoped target safety controls are accepted for ARIADNE visible-route
+  rehearsal.
+- Controls render only from sanitized delegated supported actions and only for
+  `hide`, `unhide`, `remove`, and `restore`.
+- Thread and comment rows call only existing thread/comment moderation helpers.
+- Report status controls remain separate on the PR103 route.
+- Successful target actions refetch the scoped queue; failed actions keep rows
+  visible with bounded errors.
+- No new target APIs, lock/pin actions, unsupported target mutation, or global
+  report calls were added.
+
 ## PR104 Community Delegated Report Status UI
 
 DAEDALUS implementation validation on 2026-06-20:
