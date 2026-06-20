@@ -4,7 +4,7 @@ Date opened: 2026-06-20
 Opened by: A1 / MIMIR
 Owner: DAEDALUS implements, ARGUS reviews, ARIADNE rehearses visible routes
 after ARGUS technical acceptance.
-Status: implemented by DAEDALUS; ready for ARGUS review
+Status: accepted by ARGUS; ready for ARIADNE visible-route rehearsal
 
 ## Why This Lane
 
@@ -226,3 +226,46 @@ directory, public moderation log, review-request expansion, notification
 fanout, document/Space/persona/user target mutation UI, billing/provider/cache
 work, Redis/Upstash, Cloudflare, Developer Space work, auth/session refactor,
 styling overhaul, or visibility widening was added.
+
+## ARGUS Review
+
+ARGUS technically accepts PR100 on 2026-06-20.
+
+Review confirmed:
+
+- `GET /threads/:id` returns current-viewer `viewer_moderation_actions` only on
+  the thread and returned thread-parent comments;
+- capability readback is limited to `hide`, `unhide`, `remove`, and `restore`;
+- capability readback does not expose moderator identities, role assignments,
+  moderation reasons, private action history, private action metadata, or
+  admin-only actions;
+- the web helper filters API readback to PR99 safety actions before rendering;
+- visible controls call only `PATCH /threads/:id/moderation` and
+  `PATCH /comments/:id/moderation`;
+- signed-out, below-tier, ordinary member, revoked moderator, unrelated owner,
+  ordinary-category, and self-authored active-moderator states receive no live
+  delegated controls unless the API returns a safe action list;
+- thread lock/unlock/pin/unpin and comment pin/unpin are not exposed by this
+  first visible slice;
+- successful actions refetch the thread and avoid stale live controls after
+  hide/remove states.
+
+Validation passed:
+
+```bash
+npm exec --yes pnpm@10.32.1 -- run test:studio-ui
+npm exec --yes pnpm@10.32.1 -- run test:community
+npm exec --yes pnpm@10.32.1 -- run test:reports
+npm exec --yes pnpm@10.32.1 -- run test:document-discussions
+npm exec --yes pnpm@10.32.1 -- run typecheck
+git diff --check
+```
+
+The web build compiled, linted/typechecked, collected page data, and generated
+35 static pages, then hit the known local Windows standalone symlink `EPERM`.
+Only the pre-existing raw `<img>` warnings appeared before that known failure.
+
+ARIADNE should rehearse `/forums/[categorySlug]/[threadId]` across signed-out,
+below-tier, ordinary member, eligible subcommunity owner, eligible active
+moderator, self-authored active moderator, revoked moderator, unrelated owner,
+ordinary category/admin, and mobile states before waking MIMIR.

@@ -7895,6 +7895,19 @@ when a PR lands, or when validation truth changes.
   fanout, document/Space/persona/user mutation UI, billing/provider/cache,
   Redis/Upstash, Cloudflare, Developer Space work, auth/session refactor,
   styling overhaul, or visibility widening was added.
+- ARGUS technically accepts PR100 Community Delegated Moderation UI First Slice
+  on 2026-06-20 and wakes ARIADNE for visible-route rehearsal. Review confirmed
+  current-viewer-only `viewer_moderation_actions`, safety-action filtering,
+  bounded thread/comment moderation calls, no admin-only lock/pin controls, no
+  moderator identity/reason/action-history readback, and no live controls for
+  signed-out, below-tier, ordinary member, revoked moderator, unrelated owner,
+  ordinary-category, or self-authored active-moderator states unless the API
+  proves a safe action list. Validation passed `test:studio-ui` with 71 tests,
+  `test:community` with 16 tests, `test:reports` with 6 tests,
+  `test:document-discussions`, `typecheck`, and `git diff --check` with CRLF
+  normalization warnings only. The web build reached compile, lint/typecheck,
+  page-data collection, and 35 generated static pages before the known local
+  Windows standalone symlink `EPERM`.
 
 ## Near-term rule
 
