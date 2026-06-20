@@ -4,7 +4,7 @@ Date opened: 2026-06-20
 Opened by: A1 / MIMIR
 Owner: DAEDALUS implements or precisely blocks, ARGUS reviews. ARIADNE rehearses
 only if visible routes change.
-Status: accepted by ARGUS; ready for MIMIR closeout
+Status: closed by MIMIR on 2026-06-20
 
 ## Why This Lane
 
@@ -268,3 +268,22 @@ git diff --check
 
 No ARIADNE rehearsal is required because PR99 changed API/service/tests/docs
 only and did not alter visible route components.
+
+## MIMIR Closeout
+
+Closed on 2026-06-20.
+
+PR99 is accepted as the bounded delegated moderation action slice. Existing
+thread/comment moderation endpoints now allow subcommunity owners and active
+moderators to use `hide`, `unhide`, `remove`, and `restore` only on their own
+subcommunity-backed thread targets and thread-parent comment targets.
+
+Platform admins retain all current powers. Ordinary categories, document
+comments, Space-page comments, thread lock/pin actions, and comment pin actions
+remain platform-admin-only. Public/member readback still does not expose
+moderation reasons, moderator identities, role assignments, or private action
+metadata.
+
+The next lane is PR100: expose a small, honest visible control surface on forum
+thread detail for users who can already perform PR99 delegated actions, then
+send the visible route through ARGUS and ARIADNE.

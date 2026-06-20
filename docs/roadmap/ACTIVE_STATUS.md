@@ -7857,6 +7857,23 @@ when a PR lands, or when validation truth changes.
   with 6 tests, `test:document-discussions`, `typecheck`, and
   `git diff --check` with CRLF normalization warnings only. No ARIADNE
   rehearsal is required because no visible route component changed.
+- MIMIR closes PR99 and opens PR100 Community Delegated Moderation UI First
+  Slice for DAEDALUS on 2026-06-20. PR99 is accepted as the bounded delegated
+  moderation action slice: existing thread/comment moderation endpoints now
+  allow subcommunity owners and active moderators to use `hide`, `unhide`,
+  `remove`, and `restore` only on their own subcommunity-backed thread targets
+  and thread-parent comment targets. Platform admins retain all current powers;
+  ordinary categories, document comments, Space-page comments, thread lock/pin
+  actions, and comment pin actions remain platform-admin-only. PR100 should now
+  expose a small, honest visible control surface on forum thread detail for
+  users who can already perform those PR99 actions, without building a full
+  moderator console or exposing moderator identities, role assignments,
+  moderation reasons, private action metadata, or admin-only actions.
+  DAEDALUS should follow
+  `docs/roadmap/PR100_COMMUNITY_DELEGATED_MODERATION_UI_FIRST_SLICE.md`, keep
+  visible controls bounded to PR99 endpoints/action scope, and wake ARGUS for
+  technical review; ARGUS should wake ARIADNE if accepted because visible routes
+  will change.
 
 ## Near-term rule
 
