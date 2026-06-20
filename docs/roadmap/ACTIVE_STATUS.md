@@ -8487,11 +8487,11 @@ git diff --check
 - Developer Spaces visual polish before ingestion auth, validation, limits, and
   safe serialization.
 
-## Latest DAEDALUS handoff - PR112
+## Latest ARGUS verdict - PR112
 
 PR112 Retrieval Provider Metadata Foundation is implemented by DAEDALUS on
-2026-06-20 and ready for ARGUS review. No visible route changed, so ARIADNE is
-not needed unless ARGUS finds a visible-route implication.
+2026-06-20 and accepted by ARGUS technical review. No visible route changed, so
+ARIADNE is not needed for this lane.
 
 Files changed: `package.json`,
 `docs/architecture/retrieval-provider-metadata.md`,
@@ -8529,10 +8529,21 @@ Mixed-dimension and compatibility proof:
   call the existing `vector(1536)` RPC contract, and runtime context still reuses
   one query embedding across memory and archive retrieval.
 
-Validation: `test:retrieval-metadata` 8 passed, `test:persona-context` 7
-passed, `test:conversation-archive` 35 passed, `test:continuity` 5 passed, and
-`typecheck` passed. `git diff --check` passed with CRLF normalization warnings
-only.
+ARGUS review notes:
+
+- Accepted: PR112 correctly treats the existing `1536` vector contract as the
+  active runtime boundary and adds the missing root `test:retrieval-metadata`
+  gate instead of changing provider execution.
+- Accepted: the architecture note records active profile/provider/model/index/
+  source/backfill metadata and the future reindex/backfill contract without
+  implying Cloudflare, Redis/Upstash, background jobs, ranking rewrites, or
+  provider switching are present.
+- Accepted: existing tests prove mixed-dimension rejection and current memory/
+  private archive retrieval compatibility with the `vector(1536)` RPC contract.
+
+ARGUS validation: `test:retrieval-metadata` 8 passed,
+`test:persona-context` 7 passed, `test:conversation-archive` 35 passed,
+`test:continuity` 5 passed, `typecheck` passed, and `git diff --check` passed.
 
 Non-scope confirmation: no Gemini/OpenAI/NVIDIA provider execution switch,
 Cloudflare Vectorize, Redis/Upstash vector storage, vector backfill, background
