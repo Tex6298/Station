@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { createHmac } from "node:crypto";
+import { createHash, createHmac } from "node:crypto";
 import { readFileSync } from "node:fs";
 import type { Server } from "node:http";
 import type { AddressInfo } from "node:net";
@@ -484,6 +484,20 @@ function stationSignature(input: { rawBody: string; apiKey: string; timestamp?: 
     .update(Buffer.from(input.rawBody, "utf8"))
     .digest("hex");
   return `t=${timestamp},v1=${signature}`;
+}
+
+function stableJsonValue(value: unknown): unknown {
+  if (Array.isArray(value)) return value.map(stableJsonValue);
+  if (!value || typeof value !== "object") return value;
+  return Object.fromEntries(
+    Object.entries(value as Record<string, unknown>)
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([key, nested]) => [key, stableJsonValue(nested)])
+  );
+}
+
+function webhookPayloadHash(payload: unknown) {
+  return createHash("sha256").update(JSON.stringify(stableJsonValue(payload))).digest("hex");
 }
 
 async function requestObservedRuntimeWebhook<TBody = any>(
@@ -1607,6 +1621,7 @@ test("Observed runtime webhook ingress uses key auth and idempotent import recei
     });
     assert.equal(db.tables.developer_space_observed_runtime_webhook_receipts.length, 1);
     assert.equal(JSON.stringify(db.tables.developer_space_observed_runtime_webhook_receipts).includes("fixture-private"), false);
+    assert.deepEqual(db.tables.developer_space_observed_runtime_webhook_receipts[0].response_body, accepted.body);
 
     const replayed = await requestObservedRuntimeWebhook(app, envelope, {
       developerKey: apiKeyResponse.body.apiKey,
@@ -1648,6 +1663,97 @@ test("Observed runtime webhook ingress uses key auth and idempotent import recei
       publicOccupancy: 18,
     });
     assert.doesNotMatch(JSON.stringify(publicDetail.body), /fixture-private|fixture-secret|owner-visible|member-visible|alpha-watchers/);
+  } finally {
+    setSupabaseAdminForTests(null);
+    setOperationalCacheProviderForTests(new DisabledOperationalCacheProvider("test_disabled"));
+  }
+});
+
+test("Observed runtime webhook receipt claim blocks in-progress duplicate delivery side effects", async () => {
+  const db = new InMemorySupabase();
+  setSupabaseAdminForTests(db.client as any);
+  setOperationalCacheProviderForTests(new DisabledOperationalCacheProvider("test_disabled"));
+  const app = createDeveloperSpacesApp();
+
+  try {
+    const created = await requestJson(app, "POST", "/developer-spaces", {
+      token: "owner-token",
+      body: {
+        projectName: "Observed Runtime Concurrency Guard",
+        visibility: "public",
+      },
+    });
+    assert.equal(created.status, 201);
+
+    const apiKeyResponse = await requestJson(app, "POST", `/developer-spaces/${created.body.space.id}/api-key`, {
+      token: "owner-token",
+    });
+    assert.equal(apiKeyResponse.status, 201);
+
+    const bridge = bridgeObservedRuntimeFixtureToDeveloperSpaceImport(
+      observedRuntimeFixture("observed-runtime-canonical.json"),
+      { developerSpaceId: created.body.space.id },
+    );
+    const envelope = {
+      schema: "station.observed_runtime.webhook.v1",
+      deliveryId: "fixture-concurrent-001",
+      source: {
+        id: "synthetic-observed-runtime",
+        runtimeHostedBy: "external",
+        stationRole: "observer",
+      },
+      observedAt: "2026-06-20T10:15:00.000Z",
+      payload: bridge.importPayload,
+    };
+    db.insertRow("developer_space_observed_runtime_webhook_receipts", {
+      developer_space_id: created.body.space.id,
+      webhook_id: envelope.deliveryId,
+      payload_hash: webhookPayloadHash(envelope.payload),
+      response_body: {
+        accepted: false,
+        replayed: false,
+        webhookId: envelope.deliveryId,
+        status: "processing",
+      },
+    });
+
+    const duplicateInProgress = await requestObservedRuntimeWebhook(app, envelope, {
+      developerKey: apiKeyResponse.body.apiKey,
+    });
+    assert.equal(duplicateInProgress.status, 409);
+    assert.equal(duplicateInProgress.body.code, "developer_space_webhook_in_progress");
+    assert.equal(duplicateInProgress.body.details.retryable, true);
+    assert.equal(db.tables.developer_space_observed_runtime_webhook_receipts.length, 1);
+    assert.equal(db.tables.developer_space_nodes.length, 0);
+    assert.equal(db.tables.developer_space_events.length, 0);
+    assert.equal(db.tables.developer_space_snapshots.length, 0);
+    assert.equal(db.tables.developer_space_observed_runtime_context.length, 0);
+    assert.equal(db.tables.developer_space_usage.length, 0);
+
+    const conflictingPayload = {
+      ...envelope,
+      payload: {
+        ...envelope.payload,
+        events: [
+          {
+            ...envelope.payload.events[0],
+            eventData: {
+              ...envelope.payload.events[0].eventData,
+              publicSignal: "changed concurrent signal",
+            },
+          },
+        ],
+      },
+    };
+    const conflict = await requestObservedRuntimeWebhook(app, conflictingPayload, {
+      developerKey: apiKeyResponse.body.apiKey,
+    });
+    assert.equal(conflict.status, 409);
+    assert.equal(conflict.body.code, "developer_space_webhook_replay_conflict");
+    assert.doesNotMatch(JSON.stringify(conflict.body), /changed concurrent signal|fixture-private|fixture-secret/);
+    assert.equal(db.tables.developer_space_observed_runtime_webhook_receipts.length, 1);
+    assert.equal(db.tables.developer_space_events.length, 0);
+    assert.equal(db.tables.developer_space_usage.length, 0);
   } finally {
     setSupabaseAdminForTests(null);
     setOperationalCacheProviderForTests(new DisabledOperationalCacheProvider("test_disabled"));

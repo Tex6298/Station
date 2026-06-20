@@ -248,6 +248,24 @@ not, and non-owners cannot create or revoke secret metadata. This is still an
 API/docs/test foundation, not a partner onboarding adapter or visible
 secret-management UI.
 
+PR127 adds the bounded concurrent-delivery guard for the same webhook path:
+
+- payload hashes use stable sorted JSON rather than insertion-order
+  `JSON.stringify`;
+- after auth, signature verification, JSON parse, envelope validation, webhook
+  id extraction, and payload hashing, the route claims the existing unique
+  `(developer_space_id, webhook_id)` receipt before import-side effects;
+- the initial claim stores non-secret processing state in `response_body`;
+- same-id/same-payload arrivals that see a processing receipt receive
+  `developer_space_webhook_in_progress` with `retryable:true` and do not import;
+- same-id/different-payload arrivals receive the existing bounded
+  `developer_space_webhook_replay_conflict` and do not import;
+- completed same-id/same-payload receipts keep returning the stored non-secret
+  replay summary.
+
+The guard is Supabase receipt-table based. It does not introduce workers,
+queues, Redis locks, Cloudflare, or a separate runtime truth store.
+
 PR124 adds durable idempotency receipts:
 
 - `developer_space_observed_runtime_webhook_receipts`
@@ -262,8 +280,8 @@ The webhook route reuses the existing batch import persistence path, including
 classification validation, secret stripping, supporting-context persistence,
 usage/quota checks, rate limits, and detail/SSE readback.
 
-Replay windows beyond the durable idempotency key, partner adapters, hosted
-secret-management UX, and delivery retry policy remain future hardening work.
+Partner adapters, hosted secret-management UX, delivery retry policy, and any
+future worker/queue delivery model remain future hardening work.
 
 ## Future Webhook Shape
 
@@ -297,7 +315,7 @@ partner or production ingestion path.
 
 ## Non-Claims
 
-PR120-PR126 add no hosted runtime, Cloudflare Worker, Vectorize index, D1
+PR120-PR127 add no hosted runtime, Cloudflare Worker, Vectorize index, D1
 binding, queue, background job, partner adapter, user-pasted secret flow,
 billing, Stripe behavior, Redis memory truth, provider routing, or visible
 Developer Space redesign.

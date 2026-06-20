@@ -1196,8 +1196,39 @@ function observedRuntimeWebhookId(req: Request, envelope: z.infer<typeof observe
   return typeof raw === "string" && raw.trim() ? raw.trim() : envelope.deliveryId ?? null;
 }
 
+function stableJsonValue(value: unknown): unknown {
+  if (Array.isArray(value)) return value.map(stableJsonValue);
+  if (!value || typeof value !== "object") return value;
+  return Object.fromEntries(
+    Object.entries(value as Record<string, unknown>)
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([key, nested]) => [key, stableJsonValue(nested)])
+  );
+}
+
 function payloadHash(value: unknown) {
-  return createHash("sha256").update(JSON.stringify(value)).digest("hex");
+  return createHash("sha256").update(JSON.stringify(stableJsonValue(value))).digest("hex");
+}
+
+function observedRuntimeProcessingReceiptBody(webhookId: string) {
+  return {
+    accepted: false,
+    replayed: false,
+    webhookId,
+    status: "processing",
+  };
+}
+
+function observedRuntimeInProgressBody(webhookId: string) {
+  return ingestionErrorBody({
+    error: "Observed runtime webhook delivery is already being processed.",
+    code: "developer_space_webhook_in_progress",
+    category: "validation",
+    details: {
+      webhookId,
+      retryable: true,
+    },
+  });
 }
 
 function serializeWebhookSigningSecret(row: any) {
@@ -1310,6 +1341,109 @@ async function resolveObservedRuntimeWebhookSigningSecret(input: {
   };
 }
 
+async function loadObservedRuntimeWebhookReceipt(input: {
+  developerSpaceId: string;
+  webhookId: string;
+}) {
+  const sb = getSupabaseAdmin();
+  const { data, error } = await (sb as any)
+    .from("developer_space_observed_runtime_webhook_receipts")
+    .select("*")
+    .eq("developer_space_id", input.developerSpaceId)
+    .eq("webhook_id", input.webhookId)
+    .maybeSingle();
+  if (error) throw new Error(error.message ?? "Could not check observed runtime webhook receipt.");
+  return data ?? null;
+}
+
+function existingObservedRuntimeWebhookReceiptResponse(input: {
+  existing: any;
+  payloadHash: string;
+  webhookId: string;
+}) {
+  if (input.existing.payload_hash !== input.payloadHash) {
+    return {
+      status: 409,
+      body: ingestionErrorBody({
+        error: "Observed runtime webhook id has already been used with a different payload.",
+        code: "developer_space_webhook_replay_conflict",
+        category: "validation",
+      }),
+    };
+  }
+
+  if (input.existing.response_body?.status === "processing") {
+    return {
+      status: 409,
+      body: observedRuntimeInProgressBody(input.webhookId),
+    };
+  }
+
+  return {
+    status: 200,
+    body: {
+      accepted: false,
+      replayed: true,
+      webhookId: input.webhookId,
+      imported: input.existing.response_body?.imported ?? {},
+    },
+  };
+}
+
+async function claimObservedRuntimeWebhookReceipt(input: {
+  developerSpaceId: string;
+  webhookId: string;
+  payloadHash: string;
+}) {
+  const existing = await loadObservedRuntimeWebhookReceipt({
+    developerSpaceId: input.developerSpaceId,
+    webhookId: input.webhookId,
+  });
+  if (existing) {
+    return {
+      claimed: false as const,
+      response: existingObservedRuntimeWebhookReceiptResponse({
+        existing,
+        payloadHash: input.payloadHash,
+        webhookId: input.webhookId,
+      }),
+    };
+  }
+
+  const sb = getSupabaseAdmin();
+  const { data, error } = await (sb as any)
+    .from("developer_space_observed_runtime_webhook_receipts")
+    .insert({
+      developer_space_id: input.developerSpaceId,
+      webhook_id: input.webhookId,
+      payload_hash: input.payloadHash,
+      response_body: observedRuntimeProcessingReceiptBody(input.webhookId),
+    })
+    .select("*")
+    .single();
+
+  if (!error && data) {
+    return { claimed: true as const, receipt: data };
+  }
+
+  const raced = await loadObservedRuntimeWebhookReceipt({
+    developerSpaceId: input.developerSpaceId,
+    webhookId: input.webhookId,
+  });
+  if (raced) {
+    return {
+      claimed: false as const,
+      response: existingObservedRuntimeWebhookReceiptResponse({
+        existing: raced,
+        payloadHash: input.payloadHash,
+        webhookId: input.webhookId,
+      }),
+    };
+  }
+
+  throw new Error(error?.message ?? "Could not claim observed runtime webhook receipt.");
+}
+
 developerSpacesRouter.post("/ingest/observed-runtime", async (req, res) => {
   const ingestion = await loadSpaceForIngestion(req, res);
   if (!ingestion) return;
@@ -1359,8 +1493,6 @@ developerSpacesRouter.post("/ingest/observed-runtime", async (req, res) => {
     }));
   }
 
-  if (!(await enforceIngestionRateLimit(res, ingestion))) return;
-
   const parsed = observedRuntimeWebhookSchema.safeParse(body);
   if (!parsed.success) return res.status(400).json(ingestionValidationError(parsed.error));
 
@@ -1374,30 +1506,19 @@ developerSpacesRouter.post("/ingest/observed-runtime", async (req, res) => {
   }
 
   const hash = payloadHash(parsed.data.payload);
-  const sb = getSupabaseAdmin();
-  const { data: existing, error: receiptLoadError } = await (sb as any)
-    .from("developer_space_observed_runtime_webhook_receipts")
-    .select("*")
-    .eq("developer_space_id", space.id)
-    .eq("webhook_id", webhookId)
-    .maybeSingle();
-
-  if (receiptLoadError) return res.status(500).json(ingestionServerError("Could not check observed runtime webhook receipt."));
-  if (existing) {
-    if (existing.payload_hash !== hash) {
-      return res.status(409).json(ingestionErrorBody({
-        error: "Observed runtime webhook id has already been used with a different payload.",
-        code: "developer_space_webhook_replay_conflict",
-        category: "validation",
-      }));
-    }
-    return res.status(200).json({
-      accepted: false,
-      replayed: true,
+  let claim;
+  try {
+    claim = await claimObservedRuntimeWebhookReceipt({
+      developerSpaceId: space.id,
       webhookId,
-      imported: existing.response_body?.imported ?? {},
+      payloadHash: hash,
     });
+  } catch {
+    return res.status(500).json(ingestionServerError("Could not claim observed runtime webhook receipt."));
   }
+  if (!claim.claimed) return res.status(claim.response.status).json(claim.response.body);
+
+  if (!(await enforceIngestionRateLimit(res, ingestion))) return;
 
   const result = await persistDeveloperSpaceBatchImport({
     res,
@@ -1413,14 +1534,12 @@ developerSpacesRouter.post("/ingest/observed-runtime", async (req, res) => {
     webhookId,
     imported: result.imported,
   };
-  const { error: receiptError } = await (sb as any)
+  const { error: receiptError } = await (getSupabaseAdmin() as any)
     .from("developer_space_observed_runtime_webhook_receipts")
-    .insert({
-      developer_space_id: space.id,
-      webhook_id: webhookId,
-      payload_hash: hash,
+    .update({
       response_body: responseBody,
-    });
+    })
+    .eq("id", claim.receipt.id);
   if (receiptError) return res.status(500).json(ingestionServerError("Could not record observed runtime webhook receipt."));
 
   return res.status(202).json(responseBody);

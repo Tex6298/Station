@@ -8857,6 +8857,22 @@ when a PR lands, or when validation truth changes.
   state. This is still no worker, queue, hosted runtime, Cloudflare, partner
   adapter, user-pasted secret flow, vault UI, billing/Stripe change, Redis
   memory truth, provider routing, chat-native developer agent, or broad UI.
+- DAEDALUS implements PR127 2C Observed Runtime Webhook Concurrency Guard on
+  2026-06-21 and wakes ARGUS for idempotency/side-effect review. The route now
+  uses a stable sorted JSON payload hash and claims a processing receipt through
+  the existing unique `(developer_space_id, webhook_id)` key before
+  import-side effects. Same-id/same-payload arrivals that see processing state
+  receive bounded `developer_space_webhook_in_progress` with `retryable:true`
+  and do not import. Same-id/different-payload arrivals receive the existing
+  bounded replay conflict and do not import. Completed same-id/same-payload
+  receipts keep returning the stored non-secret replay summary. If insert loses
+  a unique-key race, the route reselects the receipt and applies the same
+  in-progress/replay/conflict classification. The local test harness proves the
+  concurrent branch by preloading a processing receipt with the stable payload
+  hash, then asserting no duplicate receipt/import/usage side effects for
+  same-payload or different-payload arrivals. Validation passed
+  `test:developer-spaces` with 25 tests, `test:developer-space-client` with 4
+  tests, `typecheck`, `@station/api` build, and diff hygiene.
 - DAEDALUS implements PR126 2C Observed Runtime Signing Secret Lifecycle on
   2026-06-21 and wakes ARGUS for schema/API/encryption/signature review.
   Migration `048_developer_space_webhook_signing_secrets.sql` adds
@@ -9137,41 +9153,50 @@ git diff --check
 - Developer Spaces visual polish before ingestion auth, validation, limits, and
   safe serialization.
 
-## Latest MIMIR handoff - PR127 observed runtime webhook concurrency guard
+## Latest DAEDALUS handoff - PR127 webhook concurrency guard
 
-PR127 2C Observed Runtime Webhook Concurrency Guard is opened by MIMIR on
-2026-06-21 and ready for DAEDALUS implementation.
+PR127 2C Observed Runtime Webhook Concurrency Guard is implemented by DAEDALUS
+on 2026-06-21 and ready for ARGUS review. No visible route changed, so ARIADNE
+is not required unless ARGUS finds a visible-route implication.
 
-Why now:
+Concurrency strategy:
 
-- PR124 proved observed-runtime webhook receipt-backed sequential replay and
-  conflict handling.
-- PR125 added HMAC signatures.
-- PR126 added dedicated signing-secret lifecycle.
-- The remaining bounded webhook hardening caveat is concurrent delivery:
-  same-id deliveries should not duplicate imports, receipts, usage/quota
-  mutation, SSE broadcasts, or receipt state.
+- Keep the existing Supabase receipt table and unique
+  `(developer_space_id, webhook_id)` guard.
+- Hash payloads with stable sorted JSON, avoiding object insertion-order
+  conflicts after Zod normalization.
+- After Developer Space key auth, PR125/PR126 signature verification, JSON
+  parse, envelope validation, webhook id extraction, and stable payload hashing,
+  claim a receipt before import-side effects.
+- The initial claim writes non-secret processing state:
+  `{ accepted:false, replayed:false, webhookId, status:"processing" }`.
+- Only the claimed request continues to rate checks, usage/quota checks, import,
+  receipt finalization, and SSE broadcast.
+- Same-id/same-payload arrivals that see processing state return bounded
+  `developer_space_webhook_in_progress` with `retryable:true` and do not import.
+- Same-id/different-payload arrivals return the existing bounded
+  `developer_space_webhook_replay_conflict` and do not import.
+- Completed same-id/same-payload receipts preserve PR124 replay behavior.
+- If an insert loses the unique-key race, the route reselects the receipt and
+  applies the same in-progress/replay/conflict classification.
 
-Implementation target:
+Proof boundary: local tests deterministically preload a processing receipt with
+the stable payload hash to exercise the branch a losing concurrent delivery
+would hit. This proves no duplicate receipt/import/usage side effects in the
+route branch; the actual cross-process exclusion is the database unique key.
 
-- Add the smallest database/API concurrency guard that fits the existing
-  receipt/import transaction flow.
-- Preserve same-id/same-payload replay and same-id/different-payload conflict
-  semantics.
-- Preserve Developer Space key auth, PR125 signature ordering, PR126 dedicated
-  signing-secret behavior, and PR125 ingestion-key fallback semantics.
-- Add focused tests for concurrent duplicate delivery as directly as the local
-  harness allows; if true parallel DB simulation is impractical, add a
-  deterministic unit/service proof and explain the limitation.
+Validation: `test:developer-spaces` 25 passed, including in-progress
+same-payload retryable response, same-id/different-payload conflict without
+import, no duplicate receipt/import/usage side effects, and existing replay/
+signing-secret behavior. `test:developer-space-client` 4 passed, `typecheck`
+passed, `@station/api` build passed, and `git diff --check` passed with CRLF
+normalization warnings only.
 
-Non-scope preserved: no worker, queue, hosted runtime, Cloudflare
-Worker/Vectorize/D1, partner adapter, user-pasted secret flow, vault UI,
-billing/Stripe change, Redis memory truth, provider routing, chat-native
+Non-scope preserved: no worker, queue, background processor, hosted runtime,
+Cloudflare Worker/Vectorize/D1, partner adapter, user-pasted secret flow, vault
+UI, billing/Stripe change, Redis memory truth, provider routing, chat-native
 developer agent, broad UI, or migration of canonical runtime truth out of
 Supabase.
-
-Wake ARGUS with the concurrency strategy, side-effect proof, signature-order
-proof, validation, and non-claims, or wake MIMIR with the exact blocker.
 
 ## Previous DAEDALUS handoff - PR126 signing secret lifecycle
 
