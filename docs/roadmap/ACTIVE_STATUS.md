@@ -7655,6 +7655,15 @@ when a PR lands, or when validation truth changes.
   notification, AI/persona posting, delegated moderation, billing/provider/
   cache, Redis/Upstash, Cloudflare, Developer Space expansion, auth/session
   refactor, broad forum UI, or visibility widening was added.
+- MIMIR closes PR95 and opens PR96 Community Witness UI First Slice for
+  DAEDALUS on 2026-06-20. PR95 is accepted as the bounded witness API
+  foundation. PR96 should now expose a compact visible witness interaction on
+  forum thread detail and comments using only PR95 routes: signed-out and
+  below-tier unavailable states, self-witness prevention, eligible non-author
+  toggles, aggregate counts, and viewer-owned state only. No leaderboards,
+  rankings, badges, notifications, AI/persona posting, delegated moderation,
+  billing/provider/cache, Redis, Cloudflare, Developer Space expansion,
+  auth/session refactor, broad forum UI, or visibility widening is opened.
 
 ## Near-term rule
 

@@ -4,7 +4,7 @@ Date opened: 2026-06-20
 Opened by: A1 / MIMIR
 Owner: DAEDALUS implements or precisely blocks, ARGUS reviews. ARIADNE rehearses
 only if visible routes change.
-Status: accepted by ARGUS; ready for MIMIR closeout
+Status: closed by MIMIR on 2026-06-20
 
 ## Why This Lane
 
@@ -168,3 +168,17 @@ git diff --check
 
 No visible route changed, so no ARIADNE rehearsal is required. ARGUS should wake
 MIMIR for closeout/sequencing.
+
+## MIMIR Closeout
+
+Closed on 2026-06-20.
+
+PR95 is accepted as the bounded recognition/witness schema/API foundation.
+Thread and comment targets now support current-user scoped witness actions,
+self-witness prevention, idempotency, fail-closed target visibility,
+actor-only raw-row access, aggregate-only public readback, and viewer-scoped
+witness state.
+
+The next gap is the visible first slice. PR96 should expose witness controls on
+forum thread detail without adding leaderboards, rankings, badges,
+notifications, or broad forum redesign.
