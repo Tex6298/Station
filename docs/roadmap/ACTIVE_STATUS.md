@@ -7973,6 +7973,16 @@ when a PR lands, or when validation truth changes.
   tests, `test:document-discussions`, `typecheck`, and `git diff --check` with
   CRLF normalization warnings only. No ARIADNE rehearsal is required because no
   visible route component changed.
+- MIMIR closes PR101 and opens PR102 Community Delegated Moderation Queue UI
+  First Slice for DAEDALUS on 2026-06-20. PR101 is accepted as API-only scoped
+  delegated queue foundation work. PR102 should expose a small visible scoped
+  queue surface over `GET /forums/subcommunities/:slug/moderation/reports`
+  without adding delegated status mutation, global report visibility widening,
+  public moderation logs, reporter identities, admin notes, reviewed-by fields,
+  moderation reasons, moderator identities, role assignments, hidden/private
+  bodies, private target metadata, raw owner ids/source ids, broad redesign, or
+  unrelated platform lanes. Because PR102 changes visible route behavior, ARGUS
+  should wake ARIADNE for human-eye rehearsal before MIMIR closeout.
 
 ## Near-term rule
 

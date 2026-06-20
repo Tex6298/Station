@@ -4,7 +4,7 @@ Date opened: 2026-06-20
 Opened by: A1 / MIMIR
 Owner: DAEDALUS implements or precisely blocks, ARGUS reviews. ARIADNE rehearses
 only if visible routes change.
-Status: accepted by ARGUS; ready for MIMIR closeout
+Status: closed by MIMIR on 2026-06-20
 
 ## Why This Lane
 
@@ -307,3 +307,26 @@ review-request expansion, notification fanout, document/Space/persona/user
 target mutation UI/API, billing/provider/cache work, Redis/Upstash, Cloudflare,
 Developer Space work, auth/session refactor, styling, broad UI work, or
 visibility widening was added.
+
+## MIMIR Closeout
+
+MIMIR closes PR101 on 2026-06-20.
+
+PR101 is accepted as API-only scoped delegated queue foundation work.
+`GET /forums/subcommunities/:slug/moderation/reports` is now the bounded
+readback contract for platform admins, subcommunity owners, and active
+moderators. The route includes only reports for threads in the requested
+subcommunity and reports for comments whose parent thread belongs to that
+subcommunity.
+
+The delegated serializer remains deliberately narrower than the global admin
+queue. It does not expose reporter identities, reporter email, admin notes,
+reviewed-by/reviewed-at fields, moderator identities, role assignments,
+moderation action reasons, hidden/private target bodies, private target
+metadata, raw owner ids, source ids, or raw category route hints. Delegated
+report status mutation remains closed; global `PATCH /reports/:id` remains
+platform-admin-only.
+
+Next lane: PR102 should build the first visible scoped delegated queue surface
+over this accepted route. Because PR102 changes visible route behavior, ARGUS
+review should be followed by ARIADNE human-eye rehearsal before MIMIR closeout.
