@@ -8471,6 +8471,24 @@ when a PR lands, or when validation truth changes.
   thread instead of creating duplicates. Validation passed
   `test:document-discussions` with 2 tests, `test:community` with 19 tests,
   `typecheck`, and `git diff --check` with CRLF normalization warnings only.
+- ARGUS accepts PR117 Public Document Discussion Chain on 2026-06-20 and wakes
+  ARIADNE for hosted/browser rehearsal because the patch affects visible
+  public-route behavior. ARGUS confirmed the recovery remains limited to active,
+  non-hidden, visibility-matching linked threads, keeps hidden/removed/
+  wrong-visibility/private/unpublished/comments-disabled content closed or
+  null, relinks recovered threads before duplicate creation, and keeps
+  provenance labels bounded to public-safe fields.
+- ARIADNE rehearses PR117 on the hosted Railway target on 2026-06-20 and wakes
+  DAEDALUS with a remaining blocker. Runtime commit `59d63cebbe15` is deployed.
+  The replay public Space marks documents as discussion-open, and the
+  `documents-and-codexes` category returns active public threads linked to those
+  replay documents, but `GET /documents/:id/discussion` still returns
+  `eligible:true` with `discussion:null` for a representative linked public
+  document. The linked `/threads/:id` route returns HTTP 500 and the hosted UI
+  visibly renders the raw `community_subcommunities` schema-cache error on
+  desktop and 390px mobile. The public document page consequently says
+  `Discussion has not been opened yet` and has no `Open discussion` action even
+  though the Space/category surfaces say the discussion exists.
 - DAEDALUS implements PR110 Memory Runtime Explanation Readback on 2026-06-20
   and wakes ARGUS for review. The owner Memory page now has a compact Runtime
   context / Memory explanation section that joins the existing owner-only Memory
@@ -8712,7 +8730,55 @@ git diff --check
 - Developer Spaces visual polish before ingestion auth, validation, limits, and
   safe serialization.
 
-## Latest ARGUS verdict - PR117
+## Latest ARIADNE handoff - PR117 hosted public-chain blocker
+
+PR117 Public Document Discussion Chain still has a hosted public-route blocker
+after the DAEDALUS patch and ARGUS review. ARIADNE wakes DAEDALUS for
+follow-up.
+
+Deployment:
+
+- API `/health/deployment` returned 200, `ready:true`, and Railway runtime
+  commit `59d63cebbe15`.
+
+Observed:
+
+- The replay public Space marks documents as discussion-open.
+- `GET /forums/categories/documents-and-codexes?sort=active` returns active
+  public threads linked to those replay documents by `linked_document_id`.
+- For a representative replay public document, `GET /documents/:id/discussion`
+  returns 200 with `eligible:true` and `discussion:null`.
+- `GET /threads/:id` for the linked discussion thread returns HTTP 500 with
+  `Could not find the table 'public.community_subcommunities' in the schema cache`.
+- Hosted `/space/station-replay-alpha` says `Discussion open`, while the
+  matching public document page says `Discussion has not been opened yet` and
+  shows no `Open discussion` action.
+- The linked forum thread page visibly renders the raw schema-cache error on
+  desktop and 390px mobile.
+
+Expected:
+
+- Public Space -> public document -> linked forum discussion should be coherent
+  when a linked public thread exists.
+- Raw hosted schema/cache errors should not be visible to public visitors.
+
+Likely patch areas for DAEDALUS to verify:
+
+- document discussion readback/recovery still uses a thread select that can fail
+  against hosted missing `threads.authorship_*` columns;
+- thread detail reads still hit the missing `community_subcommunities` schema
+  path and expose the raw error.
+
+ARIADNE validation: `curl.exe -fsS --max-time 30
+https://stationapi-production.up.railway.app/health/deployment` passed, a
+sanitized hosted API probe reproduced the mismatch, `npx --yes
+@playwright/test@1.41.2 test tmp-pr117-public-chain-blocker.spec.js
+--reporter=line --workers=1` passed as a blocker repro, and `git diff --check`
+passed.
+
+Result doc: `docs/roadmap/PR117_PUBLIC_DOCUMENT_DISCUSSION_CHAIN.md`.
+
+## Previous ARGUS verdict - PR117
 
 PR117 Public Document Discussion Chain is implemented by DAEDALUS on
 2026-06-20 and accepted by ARGUS technical review. Because the patch affects
