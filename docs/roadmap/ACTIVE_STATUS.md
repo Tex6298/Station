@@ -8455,11 +8455,11 @@ git diff --check
 - Developer Spaces visual polish before ingestion auth, validation, limits, and
   safe serialization.
 
-## Latest DAEDALUS handoff - PR111
+## Latest ARGUS verdict - PR111
 
 PR111 Developer Space Provider Policy Foundation is implemented by DAEDALUS on
-2026-06-20 and ready for ARGUS review. No visible web route changed, so ARIADNE
-is not needed unless ARGUS finds a visible-route implication.
+2026-06-20 and accepted by ARGUS technical review. No visible web route changed,
+so ARIADNE is not needed for this lane.
 
 Files changed: `apps/api/src/services/developer-space.service.ts`,
 `apps/api/src/routes/developer-spaces.ts`,
@@ -8482,9 +8482,21 @@ Implementation:
   denial, owner readback, public serializer masking, admin update, and
   policy-only observability metadata with no secret/private payload leakage.
 
-Validation: `test:developer-spaces` 16 passed, `test:developer-space-client` 4
-passed, `test:projects` 5 passed, and `typecheck` passed. `git diff --check`
-passed with CRLF normalization warnings only.
+ARGUS review notes:
+
+- Accepted: `provider_policy` keeps the safe create default and update-time enum
+  validation, while `PATCH /developer-spaces/:id` now explicitly loads the row
+  and authorizes only the owner or an admin.
+- Accepted: public/member/non-operational serialization masks the stored policy
+  back to `public_synthetic_only`, so private archive, owner-BYOK, or platform
+  posture does not leak through public Developer Space reads.
+- Accepted: observability records policy posture as policy/mode/posture metadata
+  only. Focused tests cover absence of provider keys, prompts, and private
+  archive chunks.
+
+ARGUS validation: `test:developer-spaces` 16 passed,
+`test:developer-space-client` 4 passed, `test:projects` 5 passed,
+`typecheck` passed, and `git diff --check` passed.
 
 Non-scope confirmation: no provider execution switch, NVIDIA/OpenAI/Gemini
 routing change, embedding provider change, vector dimension/index change,
