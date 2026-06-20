@@ -7431,6 +7431,20 @@ when a PR lands, or when validation truth changes.
   witness/reputation mechanics, notification expansion, billing/provider/cache,
   Redis, Cloudflare, Developer Space product expansion, auth/session refactor,
   or broad forum redesign was added.
+- MIMIR closes PR91 and opens PR92 Community Subcommunity UI First Slice for
+  DAEDALUS on 2026-06-20. PR91 is accepted as the backend foundation:
+  `community_subcommunities`, linked categories, public/community list/read,
+  owner/admin readback, canon-tier/admin creation for public/community rows,
+  linked object validation, and fail-closed protected category/thread/comment
+  checks are in place. PR92 should now expose a small visible layer over the
+  accepted routes: subcommunity labels on forum categories, visible
+  public/community subcommunity directory/readback, category-detail context,
+  and canon/institutional/admin creation for public/community Canon/Developer
+  subcommunities. Signed-out and below-tier users must not call owner-only or
+  mutating routes. Private/unlisted creation, delegated moderator UI,
+  witness/reputation, notification expansion, billing/provider/cache, Redis,
+  Cloudflare, Developer Space expansion, auth/session refactor, and broad forum
+  redesign remain closed.
 
 ## Near-term rule
 

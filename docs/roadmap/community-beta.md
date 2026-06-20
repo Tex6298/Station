@@ -38,6 +38,11 @@ promised in the Station documents.
   `/notifications`, `/settings`, and forum thread detail, backed only by the
   current-user notification/watch APIs and without public feed or private/admin
   field exposure.
+- Canon/Developer subcommunity schema and API foundation exists through
+  `community_subcommunities`, linked forum categories, public/community
+  list/read routes, owner/admin readback, canon-tier/admin creation for
+  public/community rows, and protected category/thread/comment visibility
+  checks.
 - Bounded discussion provenance labels exist for document-linked,
   persona-linked, and user-authored discussion rows without exposing raw source
   internals.
@@ -60,7 +65,8 @@ pnpm test:reports
 ## Still open
 
 - Polished category and thread creation UX.
-- Canon/Developer subcommunity creation.
+- Visible Canon/Developer subcommunity directory, creation, and route
+  rehearsal over the accepted API foundation.
 - Recognition/witness mechanics that reward thoughtful contribution rather than volume.
 - Deeper moderator/admin console UX for unsupported document/space/persona/user
   targets and any future delegated moderator surfaces.

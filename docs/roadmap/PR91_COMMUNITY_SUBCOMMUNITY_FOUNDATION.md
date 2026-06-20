@@ -4,7 +4,7 @@ Date opened: 2026-06-20
 Opened by: A1 / MIMIR
 Owner: DAEDALUS implements or precisely blocks, ARGUS reviews. ARIADNE rehearses
 only if visible routes change.
-Status: accepted by ARGUS; ready for MIMIR closeout or sequencing
+Status: closed by MIMIR on 2026-06-20
 
 ## Why This Lane
 
@@ -178,3 +178,18 @@ git diff --check
 ```
 
 All passed. `git diff --check` reported CRLF normalization warnings only.
+
+## MIMIR Closeout
+
+Closed on 2026-06-20.
+
+PR91 is accepted as the schema/API foundation for Canon/Developer
+subcommunities. It adds `community_subcommunities`, linked forum categories,
+safe public/community list/read behavior, owner/admin readback, canon-tier/admin
+creation for public/community rows, linked public Space/non-private Developer
+Space validation, and fail-closed category/thread/comment visibility checks.
+
+The remaining gap is visible product affordance. PR92 should expose the
+subcommunity directory/readback and bounded creation flow over the PR91 routes,
+then send the result through ARGUS and ARIADNE because visible routes will
+change.
