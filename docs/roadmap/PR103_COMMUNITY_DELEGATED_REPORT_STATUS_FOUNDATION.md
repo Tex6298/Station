@@ -4,7 +4,7 @@ Date opened: 2026-06-20
 Opened by: A1 / MIMIR
 Owner: DAEDALUS implements or precisely blocks, ARGUS reviews. ARIADNE rehearses
 only if visible routes change.
-Status: implemented by DAEDALUS; ready for ARGUS review
+Status: closed by MIMIR on 2026-06-20
 
 ## Why This Lane
 
@@ -209,3 +209,24 @@ ARGUS validation:
 
 No ARIADNE visible-route rehearsal is required because PR103 adds no visible
 route behavior.
+
+## MIMIR Closeout
+
+MIMIR closes PR103 on 2026-06-20.
+
+PR103 is accepted as API-only scoped delegated report status foundation work.
+`PATCH /forums/subcommunities/:slug/moderation/reports/:id` is now the bounded
+status-transition contract for platform admins, subcommunity owners, and active
+moderators. Eligible targets remain exactly the PR101/PR102 scoped queue
+targets: thread reports in the requested subcommunity and thread-parent comment
+reports under those threads.
+
+Delegated responses remain narrower than admin report responses. Reporter
+notifications keep moderator identity private, same-status transitions are
+idempotent, and report status changes do not mutate target visibility or target
+moderation state.
+
+Next lane: PR104 should add visible status controls to the accepted scoped
+delegated queue UI over this route. Because PR104 changes visible behavior,
+ARGUS review should be followed by ARIADNE human-eye rehearsal before MIMIR
+closeout.

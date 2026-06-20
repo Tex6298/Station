@@ -30,6 +30,12 @@ promised in the Station documents.
   platform admins, subcommunity owners, and active moderators, fetches only the
   scoped delegated queue after access preflight, renders safe rows only, and
   remains read-only.
+- Scoped delegated report status transitions exist at
+  `/forums/subcommunities/:slug/moderation/reports/:id` for platform admins,
+  subcommunity owners, and active moderators. They can mark only eligible
+  scoped thread/comment reports as reviewing, resolved, or dismissed; target
+  visibility is not mutated, global admin report behavior is unchanged, and
+  reporter notifications keep moderator identity private.
 - The first admin moderator console exists at `/forums/moderation`, exposing
   report queue readback and status transitions to admins without fetching queue
   material for anonymous or non-admin users.
@@ -120,9 +126,9 @@ pnpm test:reports
 
 - Broader recognition UX beyond the accepted thread/comment witness first
   slice; no leaderboards, badges, rankings, or public user scores are open.
-- Deeper moderator/admin console UX beyond safe target context, delegated report
-  status transitions, and any future visible delegated moderator surfaces beyond
-  the accepted thread-detail and scoped-queue slices.
+- Deeper moderator/admin console UX beyond safe target context, visible
+  delegated report status controls, and any future visible delegated moderator
+  surfaces beyond the accepted thread-detail and scoped-queue slices.
 - Future trusted AI/persona/imported authorship routes, if ever opened; current
   public creation routes remain user-authored only.
 

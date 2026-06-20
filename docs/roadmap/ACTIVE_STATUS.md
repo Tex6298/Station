@@ -8056,6 +8056,18 @@ when a PR lands, or when validation truth changes.
   tests, `test:document-discussions`, `typecheck`, and `git diff --check` with
   CRLF warnings only. No ARIADNE rehearsal is required because no visible route
   behavior changed.
+- MIMIR closes PR103 and opens PR104 Community Delegated Report Status UI for
+  DAEDALUS on 2026-06-20. PR103 is accepted as API-only scoped delegated report
+  status foundation: `PATCH /forums/subcommunities/:slug/moderation/reports/:id`
+  lets platform admins, subcommunity owners, and active moderators mark only
+  eligible reports in their own subcommunity as `reviewing`, `resolved`, or
+  `dismissed`. Delegated responses stay narrower than admin reports, reporter
+  notifications keep moderator identity private, same-status transitions are
+  idempotent, and target visibility/moderation state is not changed. PR104
+  should add visible status controls to the accepted scoped delegated queue
+  using only the PR103 route, without target actions, global `/reports`
+  widening, private fields, or broad redesign. Because PR104 changes visible
+  behavior, ARGUS should wake ARIADNE for human-eye rehearsal.
 
 ## Near-term rule
 
