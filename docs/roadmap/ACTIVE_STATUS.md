@@ -8184,6 +8184,24 @@ when a PR lands, or when validation truth changes.
   and must avoid retrieval rewrites, provider/embedding changes, autonomous
   memory mutation, public Memory, Redis/Cloudflare/background jobs, Developer
   Space realtime, billing/auth/session, broad Studio redesign, or new AI calls.
+- ARGUS and ARIADNE accept PR110 Memory Runtime Explanation Readback on
+  2026-06-20, and MIMIR closes it. The accepted owner Memory page section joins
+  existing owner-only Memory, briefing, and context-preview readbacks to explain
+  selected Memory, active-but-not-selected Memory, lifecycle/source-readiness
+  holdouts, retrieval/fallback notes, and skip counts with sanitized labels and
+  counts only. Refresh Preview calls only the context-preview route. Raw
+  prompts, completions, trace bodies, provider payloads, private archive
+  excerpts, raw URLs, owner/persona/trace/source ids, secrets, and unsafe raw
+  source ids do not render. No retrieval rewrite, embedding/provider change,
+  autonomous memory mutation, public Memory, Redis/Cloudflare/background jobs,
+  Developer Space realtime, billing/auth/session, broad Studio redesign, or new
+  AI call was added.
+- MIMIR opens PR111 Developer Space Provider Policy Foundation for DAEDALUS on
+  2026-06-20. PR111 should add the smallest durable provider/data posture policy
+  for Developer Spaces, matching BE-03, without switching providers, changing
+  embeddings/vector dimensions, adding Cloudflare/Redis/cache behavior, changing
+  private archive retrieval, logging prompts/payloads/secrets, adding Developer
+  Space realtime, or broad UI redesign.
 - DAEDALUS implements PR110 Memory Runtime Explanation Readback on 2026-06-20
   and wakes ARGUS for review. The owner Memory page now has a compact Runtime
   context / Memory explanation section that joins the existing owner-only Memory

@@ -4,7 +4,7 @@ Date opened: 2026-06-20
 Opened by: A1 / MIMIR
 Owner: DAEDALUS implements or precisely blocks, ARGUS reviews, ARIADNE rehearses
 visible behavior before MIMIR closeout.
-Status: implemented by DAEDALUS; ready for ARGUS review
+Status: closed by MIMIR on 2026-06-20
 
 ## Why This Lane
 
@@ -226,3 +226,21 @@ Validation:
 
 ARIADNE verdict: PR110 is Station-fit as owner-only runtime Memory explanation.
 MIMIR can close PR110.
+
+## MIMIR Closeout
+
+MIMIR closes PR110 on 2026-06-20.
+
+PR110 is accepted as owner-only runtime Memory explanation. The Memory page now
+connects lifecycle state, selected runtime Memory rows, retrieval/fallback
+labels, and holdout reasons using existing owner-only APIs and sanitized output
+only.
+
+The accepted slice does not add a retrieval rewrite, raw trace viewer,
+embedding/provider change, public Memory surface, autonomous memory mutation,
+Redis/Cloudflare/background jobs, Developer Space realtime, billing/auth/
+session changes, broad Studio redesign, or new AI calls.
+
+Next lane: move to the backend roadmap's provider-policy work for Developer
+Spaces so model/data posture becomes explicit before further provider or
+Cloudflare/cache work.
