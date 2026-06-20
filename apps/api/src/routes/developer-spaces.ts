@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import { Router, type Request, type Response } from "express";
 import { z } from "zod";
 import { describePlatformProviderRoute } from "@station/ai";
@@ -231,6 +232,17 @@ const batchImportSchema = z.object({
   events: z.array(eventSchema).max(500).default([]),
   snapshots: z.array(snapshotSchema).max(100).default([]),
   supportingContext: z.array(observedRuntimeContextSchema).max(500).default([]),
+});
+
+const observedRuntimeWebhookSchema = z.object({
+  schema: z.literal("station.observed_runtime.webhook.v1"),
+  deliveryId: z.string().min(8).max(160).optional(),
+  source: z.object({
+    runtimeHostedBy: z.literal("external"),
+    stationRole: z.literal("observer"),
+  }).passthrough(),
+  observedAt: z.string().datetime(),
+  payload: batchImportSchema,
 });
 
 const attachDocumentSchema = z.object({
@@ -975,21 +987,19 @@ developerSpacesRouter.post("/ingest/snapshots", async (req, res) => {
   return res.status(202).json({ snapshot: serializeDeveloperSpaceSnapshot(data, { includeRawData: true }) });
 });
 
-developerSpacesRouter.post("/ingest/import", async (req, res) => {
-  const ingestion = await loadSpaceForIngestion(req, res);
-  if (!ingestion) return;
-  const { space } = ingestion;
-  if (!(await enforceIngestionRateLimit(res, ingestion))) return;
-
-  const parsed = batchImportSchema.safeParse(req.body);
-  if (!parsed.success) return res.status(400).json(ingestionValidationError(parsed.error));
+async function persistDeveloperSpaceBatchImport(input: {
+  res: Response;
+  space: { id: string; slug: string; owner_user_id: string };
+  payload: z.infer<typeof batchImportSchema>;
+  storageBytesSource: unknown;
+}) {
   const usageDelta = {
-    nodes: parsed.data.nodes.length,
-    events: parsed.data.events.length,
-    snapshots: parsed.data.snapshots.length,
-    storageBytes: estimateDeveloperSpaceStorageBytes(req.body),
+    nodes: input.payload.nodes.length,
+    events: input.payload.events.length,
+    snapshots: input.payload.snapshots.length,
+    storageBytes: estimateDeveloperSpaceStorageBytes(input.storageBytesSource),
   };
-  if (!(await enforceUsageQuota(res, space, usageDelta))) return;
+  if (!(await enforceUsageQuota(input.res, input.space, usageDelta))) return null;
 
   const sb = getSupabaseAdmin();
   const now = new Date().toISOString();
@@ -999,28 +1009,28 @@ developerSpacesRouter.post("/ingest/import", async (req, res) => {
   let classifiedSnapshots;
   let classifiedContext;
   try {
-    classifiedNodes = parsed.data.nodes.map((node) => ({
+    classifiedNodes = input.payload.nodes.map((node) => ({
       input: node,
       classified: prepareObservedRuntimeClassifiedData({
         data: node.metrics,
         fieldClassifications: node.fieldClassifications,
       }),
     }));
-    classifiedEvents = parsed.data.events.map((event) => ({
+    classifiedEvents = input.payload.events.map((event) => ({
       input: event,
       classified: prepareObservedRuntimeClassifiedData({
         data: event.eventData,
         fieldClassifications: event.fieldClassifications,
       }),
     }));
-    classifiedSnapshots = parsed.data.snapshots.map((snapshot) => ({
+    classifiedSnapshots = input.payload.snapshots.map((snapshot) => ({
       input: snapshot,
       classified: prepareObservedRuntimeClassifiedData({
         data: snapshot.snapshotData,
         fieldClassifications: snapshot.fieldClassifications,
       }),
     }));
-    classifiedContext = parsed.data.supportingContext.map((context) => ({
+    classifiedContext = input.payload.supportingContext.map((context) => ({
       input: context,
       classified: prepareObservedRuntimeClassifiedData({
         data: context.payload,
@@ -1028,14 +1038,15 @@ developerSpacesRouter.post("/ingest/import", async (req, res) => {
       }),
     }));
   } catch (error) {
-    return res.status(400).json(ingestionClassificationValidationError(error));
+    input.res.status(400).json(ingestionClassificationValidationError(error));
+    return null;
   }
 
   for (const { input: nodeInput, classified } of classifiedNodes) {
     const { data: node, error } = await sb
       .from("developer_space_nodes")
       .upsert({
-        developer_space_id: space.id,
+        developer_space_id: input.space.id,
         external_id: nodeInput.nodeId,
         node_name: nodeInput.nodeName ?? nodeInput.nodeId,
         topology_type: nodeInput.topologyType,
@@ -1048,15 +1059,18 @@ developerSpacesRouter.post("/ingest/import", async (req, res) => {
       }, { onConflict: "developer_space_id,external_id" })
       .select("*")
       .single();
-    if (error) return res.status(500).json(ingestionServerError("Could not import Developer Space node."));
+    if (error) {
+      input.res.status(500).json(ingestionServerError("Could not import Developer Space node."));
+      return null;
+    }
     nodes.push(node);
   }
 
   const eventsPayload = [];
   for (const { input: event, classified } of classifiedEvents) {
-    const node = await findNodeByExternalId(space.id, event.nodeId);
+    const node = await findNodeByExternalId(input.space.id, event.nodeId);
     eventsPayload.push({
-      developer_space_id: space.id,
+      developer_space_id: input.space.id,
       node_id: node?.id ?? null,
       external_node_id: event.nodeId ?? null,
       event_type: event.eventType,
@@ -1072,7 +1086,7 @@ developerSpacesRouter.post("/ingest/import", async (req, res) => {
   }
 
   const snapshotsPayload = classifiedSnapshots.map(({ input: snapshot, classified }) => ({
-    developer_space_id: space.id,
+    developer_space_id: input.space.id,
     snapshot_data: classified.data,
     observed_runtime_classifications: classified.metadata,
     source_refs: normaliseSourceRefs(snapshot.sourceRefs),
@@ -1082,7 +1096,7 @@ developerSpacesRouter.post("/ingest/import", async (req, res) => {
   }));
 
   const contextPayload = classifiedContext.map(({ input: context, classified }) => ({
-    developer_space_id: space.id,
+    developer_space_id: input.space.id,
     context_type: context.contextType,
     external_id: context.externalId ?? null,
     source_ref: context.sourceRef ?? null,
@@ -1094,22 +1108,31 @@ developerSpacesRouter.post("/ingest/import", async (req, res) => {
 
   if (eventsPayload.length > 0) {
     const { error } = await sb.from("developer_space_events").insert(eventsPayload);
-    if (error) return res.status(500).json(ingestionServerError("Could not import Developer Space events."));
+    if (error) {
+      input.res.status(500).json(ingestionServerError("Could not import Developer Space events."));
+      return null;
+    }
   }
 
   if (snapshotsPayload.length > 0) {
     const { error } = await sb.from("developer_space_snapshots").insert(snapshotsPayload);
-    if (error) return res.status(500).json(ingestionServerError("Could not import Developer Space snapshots."));
+    if (error) {
+      input.res.status(500).json(ingestionServerError("Could not import Developer Space snapshots."));
+      return null;
+    }
   }
 
   if (contextPayload.length > 0) {
     const { error } = await (sb as any).from("developer_space_observed_runtime_context").insert(contextPayload);
-    if (error) return res.status(500).json(ingestionServerError("Could not import observed runtime context."));
+    if (error) {
+      input.res.status(500).json(ingestionServerError("Could not import observed runtime context."));
+      return null;
+    }
   }
 
-  await recordUsageSilently(space, usageDelta);
+  await recordUsageSilently(input.space, usageDelta);
   broadcastDeveloperSpaceIngestion({
-    slug: space.slug,
+    slug: input.space.slug,
     source: "import",
     counts: {
       nodes: nodes.length,
@@ -1118,14 +1141,115 @@ developerSpacesRouter.post("/ingest/import", async (req, res) => {
     },
   });
 
-  return res.status(202).json({
+  return {
     imported: {
       nodes: nodes.length,
       events: eventsPayload.length,
       snapshots: snapshotsPayload.length,
       supportingContext: contextPayload.length,
     },
+  };
+}
+
+developerSpacesRouter.post("/ingest/import", async (req, res) => {
+  const ingestion = await loadSpaceForIngestion(req, res);
+  if (!ingestion) return;
+  const { space } = ingestion;
+  if (!(await enforceIngestionRateLimit(res, ingestion))) return;
+
+  const parsed = batchImportSchema.safeParse(req.body);
+  if (!parsed.success) return res.status(400).json(ingestionValidationError(parsed.error));
+  const result = await persistDeveloperSpaceBatchImport({
+    res,
+    space,
+    payload: parsed.data,
+    storageBytesSource: req.body,
   });
+  if (!result) return;
+  return res.status(202).json({
+    imported: result.imported,
+  });
+});
+
+function observedRuntimeWebhookId(req: Request, envelope: z.infer<typeof observedRuntimeWebhookSchema>) {
+  const header = req.headers["x-station-webhook-id"] ?? req.headers["idempotency-key"];
+  const raw = Array.isArray(header) ? header[0] : header;
+  return typeof raw === "string" && raw.trim() ? raw.trim() : envelope.deliveryId ?? null;
+}
+
+function payloadHash(value: unknown) {
+  return createHash("sha256").update(JSON.stringify(value)).digest("hex");
+}
+
+developerSpacesRouter.post("/ingest/observed-runtime", async (req, res) => {
+  const ingestion = await loadSpaceForIngestion(req, res);
+  if (!ingestion) return;
+  const { space } = ingestion;
+  if (!(await enforceIngestionRateLimit(res, ingestion))) return;
+
+  const parsed = observedRuntimeWebhookSchema.safeParse(req.body);
+  if (!parsed.success) return res.status(400).json(ingestionValidationError(parsed.error));
+
+  const webhookId = observedRuntimeWebhookId(req, parsed.data);
+  if (!webhookId) {
+    return res.status(400).json(ingestionErrorBody({
+      error: "Observed runtime webhook id is required.",
+      code: "developer_space_webhook_id_missing",
+      category: "validation",
+    }));
+  }
+
+  const hash = payloadHash(parsed.data.payload);
+  const sb = getSupabaseAdmin();
+  const { data: existing, error: receiptLoadError } = await (sb as any)
+    .from("developer_space_observed_runtime_webhook_receipts")
+    .select("*")
+    .eq("developer_space_id", space.id)
+    .eq("webhook_id", webhookId)
+    .maybeSingle();
+
+  if (receiptLoadError) return res.status(500).json(ingestionServerError("Could not check observed runtime webhook receipt."));
+  if (existing) {
+    if (existing.payload_hash !== hash) {
+      return res.status(409).json(ingestionErrorBody({
+        error: "Observed runtime webhook id has already been used with a different payload.",
+        code: "developer_space_webhook_replay_conflict",
+        category: "validation",
+      }));
+    }
+    return res.status(200).json({
+      accepted: false,
+      replayed: true,
+      webhookId,
+      imported: existing.response_body?.imported ?? {},
+    });
+  }
+
+  const result = await persistDeveloperSpaceBatchImport({
+    res,
+    space,
+    payload: parsed.data.payload,
+    storageBytesSource: req.body,
+  });
+  if (!result) return;
+
+  const responseBody = {
+    accepted: true,
+    replayed: false,
+    webhookId,
+    imported: result.imported,
+  };
+  const { error: receiptError } = await (sb as any)
+    .from("developer_space_observed_runtime_webhook_receipts")
+    .insert({
+      developer_space_id: space.id,
+      webhook_id: webhookId,
+      payload_hash: hash,
+      response_body: responseBody,
+    });
+  if (receiptError) return res.status(500).json(ingestionServerError("Could not record observed runtime webhook receipt."));
+
+  return res.status(202).json(responseBody);
 });
 
 

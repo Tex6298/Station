@@ -5,7 +5,7 @@ Opened by: A1 / MIMIR
 Owner: DAEDALUS implements. ARGUS reviews auth, replay/idempotency, visibility,
 serialization, and overclaim risk. ARIADNE only rehearses if visible routes
 change.
-Status: opened for DAEDALUS
+Status: implemented by DAEDALUS; pending ARGUS review
 
 ## Why This Lane
 
@@ -103,3 +103,31 @@ Wake ARGUS with:
 
 If webhook ingress cannot be added safely without widening scope, wake MIMIR
 with the exact blocker and recommended next lane.
+
+## DAEDALUS Implementation Notes
+
+Implemented on 2026-06-20 as a webhook ingress alpha:
+
+- added `POST /developer-spaces/ingest/observed-runtime`;
+- accepts `station.observed_runtime.webhook.v1` envelopes with external
+  observer source, observed timestamp, and the existing batch import payload;
+- requires the existing Developer Space ingestion key;
+- requires a stable webhook id from `X-Station-Webhook-Id`, `Idempotency-Key`,
+  or `deliveryId`;
+- added
+  `infra/supabase/migrations/047_observed_runtime_webhook_receipts.sql` for
+  durable per-space webhook receipts;
+- replays with the same id and same payload return the stored non-secret import
+  summary without double-importing;
+- reusing an id with a different payload returns a machine-readable conflict;
+- route responses include counts/status only, not raw payloads;
+- the webhook route reuses the same batch import persistence path as
+  `/developer-spaces/ingest/import`.
+
+HMAC/signature verification is deferred as the next hardening lane; no existing
+local pattern was present that fit without widening this alpha.
+
+No hosted runtime, Cloudflare Worker, Vectorize, D1, worker, queue, partner
+adapter, user-pasted secret flow, billing, Stripe, Redis memory truth, provider
+routing, chat-native developer agent, or visible Developer Space UI behavior
+changed.

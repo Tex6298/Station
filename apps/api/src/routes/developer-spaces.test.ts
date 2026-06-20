@@ -37,6 +37,7 @@ class InMemorySupabase {
     developer_space_events: [],
     developer_space_snapshots: [],
     developer_space_observed_runtime_context: [],
+    developer_space_observed_runtime_webhook_receipts: [],
     documents: [],
     ai_trace_sessions: [],
     ai_trace_events: [],
@@ -180,6 +181,11 @@ class InMemorySupabase {
       row.observed_runtime_classifications ??= null;
       row.provenance ??= "imported";
       row.occurred_at ??= now;
+      row.created_at ??= now;
+    }
+
+    if (table === "developer_space_observed_runtime_webhook_receipts") {
+      row.response_body ??= {};
       row.created_at ??= now;
     }
 
@@ -1428,6 +1434,120 @@ test("Developer Space import persists observed runtime classifications with exis
     for (const response of [publicDetail.body, memberDetail.body, ownerDetail.body, publicSse.data]) {
       assert.equal(JSON.stringify(response).includes("observed_runtime_classifications"), false);
     }
+  } finally {
+    setSupabaseAdminForTests(null);
+    setOperationalCacheProviderForTests(new DisabledOperationalCacheProvider("test_disabled"));
+  }
+});
+
+test("Observed runtime webhook ingress uses key auth and idempotent import receipts", async () => {
+  const db = new InMemorySupabase();
+  setSupabaseAdminForTests(db.client as any);
+  setOperationalCacheProviderForTests(new DisabledOperationalCacheProvider("test_disabled"));
+  const app = createDeveloperSpacesApp();
+
+  try {
+    const created = await requestJson(app, "POST", "/developer-spaces", {
+      token: "owner-token",
+      body: {
+        projectName: "Observed Runtime Webhook",
+        visibility: "public",
+      },
+    });
+    assert.equal(created.status, 201);
+
+    const apiKeyResponse = await requestJson(app, "POST", `/developer-spaces/${created.body.space.id}/api-key`, {
+      token: "owner-token",
+    });
+    assert.equal(apiKeyResponse.status, 201);
+
+    const bridge = bridgeObservedRuntimeFixtureToDeveloperSpaceImport(
+      observedRuntimeFixture("observed-runtime-canonical.json"),
+      { developerSpaceId: created.body.space.id },
+    );
+    const envelope = {
+      schema: "station.observed_runtime.webhook.v1",
+      deliveryId: "fixture-delivery-001",
+      source: {
+        id: "synthetic-observed-runtime",
+        runtimeHostedBy: "external",
+        stationRole: "observer",
+      },
+      observedAt: "2026-06-20T10:15:00.000Z",
+      payload: bridge.importPayload,
+    };
+
+    const missingKey = await requestJson(app, "POST", "/developer-spaces/ingest/observed-runtime", {
+      body: envelope,
+    });
+    assert.equal(missingKey.status, 401);
+    assert.equal(missingKey.body.category, "auth");
+
+    const missingWebhookId = await requestJson(app, "POST", "/developer-spaces/ingest/observed-runtime", {
+      developerKey: apiKeyResponse.body.apiKey,
+      body: { ...envelope, deliveryId: undefined },
+    });
+    assert.equal(missingWebhookId.status, 400);
+    assert.equal(missingWebhookId.body.code, "developer_space_webhook_id_missing");
+
+    const accepted = await requestJson(app, "POST", "/developer-spaces/ingest/observed-runtime", {
+      developerKey: apiKeyResponse.body.apiKey,
+      body: envelope,
+    });
+    assert.equal(accepted.status, 202);
+    assert.equal(accepted.body.accepted, true);
+    assert.equal(accepted.body.replayed, false);
+    assert.deepEqual(accepted.body.imported, {
+      nodes: 2,
+      events: 1,
+      snapshots: 1,
+      supportingContext: 4,
+    });
+    assert.equal(db.tables.developer_space_observed_runtime_webhook_receipts.length, 1);
+    assert.equal(JSON.stringify(db.tables.developer_space_observed_runtime_webhook_receipts).includes("fixture-private"), false);
+
+    const replayed = await requestJson(app, "POST", "/developer-spaces/ingest/observed-runtime", {
+      developerKey: apiKeyResponse.body.apiKey,
+      body: envelope,
+    });
+    assert.equal(replayed.status, 200);
+    assert.equal(replayed.body.accepted, false);
+    assert.equal(replayed.body.replayed, true);
+    assert.deepEqual(replayed.body.imported, accepted.body.imported);
+    assert.equal(db.tables.developer_space_events.length, 1);
+    assert.equal(db.tables.developer_space_observed_runtime_context.length, 4);
+
+    const conflict = await requestJson(app, "POST", "/developer-spaces/ingest/observed-runtime", {
+      developerKey: apiKeyResponse.body.apiKey,
+      body: {
+        ...envelope,
+        payload: {
+          ...envelope.payload,
+          events: [
+            {
+              ...envelope.payload.events[0],
+              eventData: {
+                ...envelope.payload.events[0].eventData,
+                publicSignal: "changed signal",
+              },
+            },
+          ],
+        },
+      },
+    });
+    assert.equal(conflict.status, 409);
+    assert.equal(conflict.body.code, "developer_space_webhook_replay_conflict");
+    assert.doesNotMatch(JSON.stringify(conflict.body), /changed signal|fixture-private|fixture-secret/);
+
+    const publicDetail = await requestJson(app, "GET", "/developer-spaces/observed-runtime-webhook");
+    assert.equal(publicDetail.status, 200);
+    assert.deepEqual(publicDetail.body.nodes[0].metrics, { publicState: "stable" });
+    assert.deepEqual(publicDetail.body.supportingContext[0].payload, {
+      id: "zone-crossroads",
+      name: "Crossroads",
+      publicOccupancy: 18,
+    });
+    assert.doesNotMatch(JSON.stringify(publicDetail.body), /fixture-private|fixture-secret|owner-visible|member-visible|alpha-watchers/);
   } finally {
     setSupabaseAdminForTests(null);
     setOperationalCacheProviderForTests(new DisabledOperationalCacheProvider("test_disabled"));

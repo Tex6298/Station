@@ -52,6 +52,32 @@ pnpm test:developer-spaces
 pnpm test:developer-space-client
 ```
 
+## PR124 2C Observed Runtime Webhook Ingress Alpha
+
+DAEDALUS implementation validation on 2026-06-20:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 23 tests passed, including observed-runtime webhook key auth, missing webhook id rejection, first import acceptance, same-id replay without double import, conflicting replay rejection, and public readback safety. |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-space-client` | Pass | 4 client tests passed; existing ingestion client behavior stayed compatible. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/api build` | Pass | API build completed, including dependent shared package builds. |
+| `git diff --check` | Pass | CRLF normalization warnings only, including local agent state that was not staged. |
+
+Implementation result:
+
+- Added `POST /developer-spaces/ingest/observed-runtime` for
+  `station.observed_runtime.webhook.v1` envelopes.
+- Added durable webhook receipts keyed by Developer Space and webhook id.
+- Reused existing ingestion-key auth, rate/quota checks, batch import
+  persistence, classification validation, secret stripping, and readback.
+- Duplicate same-payload delivery is idempotent; same id with a different
+  payload conflicts without echoing raw data.
+- HMAC/signature verification remains deferred; no hosted runtime, Cloudflare
+  Worker, Vectorize, D1, worker, queue, partner adapter, user-pasted secret
+  flow, billing, Stripe, Redis memory truth, provider routing, chat-native
+  developer agent, or visible Developer Space UI changed.
+
 ## PR123 2C Observed Runtime Supporting Context
 
 DAEDALUS implementation validation on 2026-06-20:

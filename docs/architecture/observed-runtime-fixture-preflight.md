@@ -172,6 +172,58 @@ public/member/owner detail plus SSE readback filters payload fields by access.
 No supporting context is exposed through a new route. It rides on the existing
 Developer Space detail and SSE responses as `supportingContext`.
 
+## Webhook Ingress Alpha
+
+PR124 adds the first observed-runtime webhook ingress route:
+
+- `POST /developer-spaces/ingest/observed-runtime`
+
+The route uses the existing Developer Space ingestion-key boundary:
+
+- `X-Station-Developer-Key` is still required;
+- missing or invalid keys fail before import;
+- no unauthenticated public webhook route was added.
+
+Accepted envelope:
+
+```json
+{
+  "schema": "station.observed_runtime.webhook.v1",
+  "deliveryId": "stable-delivery-id",
+  "source": {
+    "runtimeHostedBy": "external",
+    "stationRole": "observer"
+  },
+  "observedAt": "2026-06-20T10:15:00.000Z",
+  "payload": {
+    "nodes": [],
+    "events": [],
+    "snapshots": [],
+    "supportingContext": []
+  }
+}
+```
+
+The route also accepts `X-Station-Webhook-Id` or `Idempotency-Key`; those
+headers take precedence over `deliveryId`. A webhook id is required.
+
+PR124 adds durable idempotency receipts:
+
+- `developer_space_observed_runtime_webhook_receipts`
+
+Receipts store Developer Space id, webhook id, payload hash, non-secret response
+summary, and timestamp. They do not store raw webhook bodies. Replaying the same
+webhook id with the same payload returns the stored non-secret import summary
+and does not import again. Reusing the id with a different payload returns a
+machine-readable conflict.
+
+The webhook route reuses the existing batch import persistence path, including
+classification validation, secret stripping, supporting-context persistence,
+usage/quota checks, rate limits, and detail/SSE readback.
+
+HMAC/signature verification, replay windows beyond the durable idempotency key,
+partner adapters, and delivery retry policy remain future hardening work.
+
 ## Future Webhook Shape
 
 A later lane can turn this fixture contract into an ingress envelope without
@@ -204,7 +256,7 @@ ingestion path.
 
 ## Non-Claims
 
-PR120-PR123 add no hosted runtime, Cloudflare Worker, Vectorize index, D1
+PR120-PR124 add no hosted runtime, Cloudflare Worker, Vectorize index, D1
 binding, queue, background job, partner adapter, user-pasted secret flow,
 billing, Stripe behavior, Redis memory truth, provider routing, or visible
 Developer Space redesign.
