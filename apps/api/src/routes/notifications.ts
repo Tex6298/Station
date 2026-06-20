@@ -4,8 +4,15 @@ import { getSupabaseAdmin } from "../lib/supabase";
 import { requireAuth } from "../middleware/require-auth";
 import { serializeCommunityNotification } from "../services/community-notifications.service";
 
+const queryBooleanSchema = z.preprocess((value) => {
+  if (value === undefined) return false;
+  if (value === "true") return true;
+  if (value === "false") return false;
+  return value;
+}, z.boolean());
+
 const notificationQuerySchema = z.object({
-  unreadOnly: z.coerce.boolean().default(false),
+  unreadOnly: queryBooleanSchema,
   limit: z.coerce.number().int().min(1).max(100).default(50),
 });
 

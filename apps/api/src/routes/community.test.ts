@@ -1145,6 +1145,12 @@ test("thread watches and notifications are owner-scoped and comment fanout is pa
     assert.equal(unreadAfterRead.status, 200);
     assert.equal(unreadAfterRead.body.notifications.length, 0);
 
+    const explicitAllAfterRead = await requestJson(app, "GET", "/notifications?unreadOnly=false", {
+      token: "member-token",
+    });
+    assert.equal(explicitAllAfterRead.status, 200);
+    assert.equal(explicitAllAfterRead.body.notifications.length, 1);
+
     const otherComment = await requestJson(app, "POST", "/comments", {
       token: "other-token",
       body: {

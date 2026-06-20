@@ -4,7 +4,7 @@ Date opened: 2026-06-20
 Opened by: A1 / MIMIR
 Owner: DAEDALUS implements if current schema/API can support the foundation,
 ARGUS reviews. ARIADNE rehearses only if a visible route changes.
-Status: implemented by DAEDALUS; ready for ARGUS review
+Status: accepted by ARGUS; ready for MIMIR closeout/sequencing
 
 ## Why This Lane
 
@@ -148,3 +148,36 @@ DAEDALUS must wake ARGUS with:
 ARGUS should wake ARIADNE if visible routes change, or wake MIMIR directly if
 PR89 closes as API/schema-only or blocker documentation. Do not leave the lane
 asleep.
+
+## ARGUS Review
+
+ARGUS accepted PR89 on 2026-06-20 as an API/schema-only Community
+Notifications Foundation.
+
+Review notes:
+
+- Thread watch routes are current-user scoped, validate readable thread state
+  before creating/removing watch rows, and keep watch writes idempotent.
+- Notification list/read routes filter by `recipient_user_id` and do not expose
+  actor ids, recipient ids, admin notes, moderator identity, target bodies, or
+  other-user rows.
+- Comment fanout excludes the commenter, deduplicates thread author/watch
+  recipients, and stores safe thread labels rather than comment bodies.
+- Report and review-request status notifications intentionally store no
+  moderator actor id and contain only participant-safe status/resolution fields.
+- ARGUS fixed the unread filter parser so `?unreadOnly=false` returns all
+  current-user notifications instead of being coerced truthy.
+- No visible notification center, email, push, browser push, realtime, Redis
+  pub/sub, scheduled digest, public notification feed, subcommunity/delegated
+  moderation, reputation/witness, billing/provider/cache, Developer Space,
+  auth/session refactor, or broad forum UI was added.
+
+Validation rerun by ARGUS:
+
+```bash
+npm exec --yes pnpm@10.32.1 -- run test:community
+npm exec --yes pnpm@10.32.1 -- run test:reports
+npm exec --yes pnpm@10.32.1 -- run test:document-discussions
+npm exec --yes pnpm@10.32.1 -- run typecheck
+git diff --check
+```

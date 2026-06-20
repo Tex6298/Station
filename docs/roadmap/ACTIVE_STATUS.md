@@ -7302,6 +7302,21 @@ when a PR lands, or when validation truth changes.
   subcommunity/delegated moderation, reputation/witness, billing/provider,
   Cloudflare, Developer Space, auth/session refactor, or broad UI redesign was
   added.
+- ARGUS accepts PR89 Community Notifications Foundation on 2026-06-20 and
+  wakes MIMIR directly because no visible route changed. Review confirmed
+  current-user thread watch scoping, readable-thread validation, recipient-only
+  notification list/read behavior, participant-safe comment/report/review
+  notification rows, commenter exclusion, recipient/event idempotency, and
+  serializers that omit actor ids, recipient ids, admin notes, moderator
+  identity, target bodies, and other-user rows. ARGUS fixed the unread filter
+  parser so `?unreadOnly=false` returns all current-user notifications instead
+  of being coerced truthy. Validation passed `test:community` with 12 tests,
+  `test:reports` with 6 tests, `test:document-discussions`, `typecheck`, and
+  `git diff --check` with CRLF normalization warnings only. No visible
+  notification center, email, push, browser push, realtime, Redis pub/sub,
+  scheduled digest, public notification feed, subcommunity/delegated
+  moderation, reputation/witness, billing/provider/cache, Developer Space,
+  auth/session refactor, or broad forum UI was added.
 
 ## Near-term rule
 

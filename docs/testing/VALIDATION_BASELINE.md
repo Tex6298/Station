@@ -9270,6 +9270,29 @@ Scope notes:
   moderation, reputation/witness mechanics, billing/provider/cache, Developer
   Space, auth/session refactor, or broad forum UI changed.
 
+ARGUS review validation on 2026-06-20:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:community` | Pass | 12 tests passed, including the added `?unreadOnly=false` regression assertion for notification list filtering. |
+| `npm exec --yes pnpm@10.32.1 -- run test:reports` | Pass | 6 tests passed; report/review-request notification safety remains green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` | Pass | 1 test passed; document discussion visibility/readback remains green. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck completed. |
+| `git diff --check` | Pass | CRLF normalization warnings only for touched files and local triad state. |
+
+ARGUS review notes:
+
+- Accepted PR89 as a schema/API-only Community Notifications Foundation.
+- Fixed the notification query parser so `?unreadOnly=false` is not coerced
+  truthy.
+- Confirmed notification read APIs are recipient-scoped and watch APIs validate
+  readable thread state before current-user writes.
+- Confirmed comment fanout excludes the commenter, deduplicates recipients, and
+  avoids storing comment bodies.
+- Confirmed report/review status notifications do not store moderator actor ids
+  and do not expose admin notes or moderator identity.
+- No visible web route changed, so no ARIADNE rehearsal is required.
+
 ## PR88 Community Review Request UI First Slice
 
 DAEDALUS implementation validation on 2026-06-20:
