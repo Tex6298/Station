@@ -8044,6 +8044,18 @@ when a PR lands, or when validation truth changes.
   route, global `/reports` widening, global admin patch behavior change, public
   logs, public moderator directory, review-request expansion, broad styling,
   billing/provider/cache, Developer Space, or auth/session work was added.
+- ARGUS accepts PR103 Community Delegated Report Status Foundation on
+  2026-06-20 and wakes MIMIR for sequencing. The scoped patch route is accepted
+  as API-only foundation work: auth is enforced before the route, permission
+  parity matches PR101, update-by-id stays slug-scoped through target
+  resolution, hostile non-subcommunity targets remain excluded, delegated
+  responses stay narrower than the admin report serializer, reporter
+  notifications keep moderator identity private, same-status transitions are
+  idempotent, and target visibility/moderation state is not changed. ARGUS
+  validation passed `test:community` with 17 tests, `test:reports` with 6
+  tests, `test:document-discussions`, `typecheck`, and `git diff --check` with
+  CRLF warnings only. No ARIADNE rehearsal is required because no visible route
+  behavior changed.
 
 ## Near-term rule
 

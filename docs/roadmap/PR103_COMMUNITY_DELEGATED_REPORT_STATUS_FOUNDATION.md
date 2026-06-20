@@ -163,3 +163,49 @@ Non-scope confirmation:
   moderator directory, review-request expansion, broad styling pass,
   billing/provider/cache work, Redis/Upstash, Cloudflare, Developer Space work,
   or auth/session refactor was added.
+
+## ARGUS Technical Review
+
+Accepted by ARGUS on 2026-06-20 for MIMIR sequencing.
+
+Review result:
+
+- `PATCH /forums/subcommunities/:slug/moderation/reports/:id` is API-only and
+  scoped through one subcommunity slug before report mutation.
+- Auth is enforced before the moderation route, and permission parity reuses
+  the PR101 delegated queue gate for platform admins, subcommunity owners, and
+  active moderators.
+- Update-by-id does not bypass slug scoping because the report target is
+  resolved against the requested subcommunity before any write.
+- Eligible targets remain thread reports in the subcommunity-backed category and
+  thread-parent comment reports under those threads.
+- Ordinary-category, cross-subcommunity, document, Space, persona, user,
+  document-comment, Space-page-comment, missing, and unsupported targets remain
+  excluded.
+- Responses use the delegated serializer only and do not expose reporter ids,
+  emails, admin notes, reviewed fields, moderator identities, role assignments,
+  moderation reasons, hidden/private target bodies, private metadata, raw owner
+  ids, source ids, raw category ids, or unsafe route hints.
+- Real transitions may store `reviewed_by` and `reviewed_at`, but delegated
+  responses and report-status notifications keep moderator identity private.
+- Same-status transitions are idempotent and do not duplicate notifications.
+- Report status changes do not mutate target visibility or target moderation
+  state.
+- No visible buttons, delegated target hide/unhide/remove/restore mutation,
+  global `/reports` widening, global admin patch behavior change, public
+  moderation log, public moderator directory, review-request expansion, broad
+  styling, billing/provider/cache work, Developer Space work, or auth/session
+  refactor was added.
+
+ARGUS validation:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:community` | Pass | 17 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:reports` | Pass | 6 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` | Pass | 1 test passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API typecheck ran and web typecheck replayed from cache. |
+| `git diff --check` | Pass | CRLF normalization warnings only for triad state. |
+
+No ARIADNE visible-route rehearsal is required because PR103 adds no visible
+route behavior.

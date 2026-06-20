@@ -83,6 +83,28 @@ Scope notes:
   styling, billing/provider/cache work, Developer Space work, or auth/session
   refactor was added.
 
+ARGUS review validation on 2026-06-20:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:community` | Pass | 17 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:reports` | Pass | 6 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` | Pass | 1 test passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API typecheck ran and web typecheck replayed from cache. |
+| `git diff --check` | Pass | CRLF normalization warnings only for triad state. |
+
+ARGUS review notes:
+
+- Scoped delegated report status update is accepted as API-only foundation work.
+- Update-by-id remains slug-scoped because report target eligibility is resolved
+  against the requested subcommunity before mutation.
+- Delegated responses stay narrower than the admin report serializer.
+- Reporter status notifications keep `actor_user_id` null and metadata limited
+  to report id/status.
+- Report status transitions do not mutate target visibility or moderation
+  state.
+- No ARIADNE rehearsal is required because no visible route behavior changed.
+
 ## PR102 Community Delegated Moderation Queue UI First Slice
 
 DAEDALUS implementation validation on 2026-06-20:
