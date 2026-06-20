@@ -1,8 +1,35 @@
 # Community Beta
 
-Community Beta is reopened. The repo now has persistent community primitives
-and several protected beta surfaces, but not the complete community layer
-promised in the Station documents.
+Community Beta is ready for protected-beta closure after PR108 audit. The repo
+now has persistent community primitives, protected public/community/private
+visibility semantics, current-user participation loops, moderation/report
+readback, subcommunity delegation, witness controls, and private recognition
+readback. Remaining community ideas are future expansion unless a later replay
+or human rehearsal proves a concrete blocker.
+
+## PR108 closure recommendation
+
+Recommendation: close Community Beta as protected-beta complete.
+
+No required protected-beta blockers were found in PR108. The validated surfaces
+cover the current protected community loop without opening public
+reputation/gamification, public moderator directories, trusted AI/persona/
+imported authorship, broad forum redesign, or new infrastructure scope.
+
+Validation evidence from 2026-06-20:
+
+```bash
+npm exec --yes pnpm@10.32.1 -- run test:community
+npm exec --yes pnpm@10.32.1 -- run test:reports
+npm exec --yes pnpm@10.32.1 -- run test:document-discussions
+npm exec --yes pnpm@10.32.1 -- run test:studio-ui
+npm exec --yes pnpm@10.32.1 -- run typecheck
+```
+
+Results: `test:community` passed 17 tests, `test:reports` passed 6 tests,
+`test:document-discussions` passed 1 test, `test:studio-ui` passed 82 tests,
+and `typecheck` passed. `git diff --check` is recorded in
+`docs/testing/VALIDATION_BASELINE.md` for the final PR108 commit.
 
 ## Landed and partially protected
 
@@ -138,16 +165,26 @@ pnpm test:document-discussions
 pnpm test:reports
 ```
 
-## Still open
+## Closure classification
 
-- Community Beta closure audit: reconcile landed surfaces, validation, and
-  remaining blockers before opening more feature lanes.
-- Deeper moderator/admin console UX beyond safe target context and any future
-  visible delegated moderator surfaces beyond the accepted thread-detail and
-  scoped-queue slices are future expansion unless PR108 proves a closure
-  blocker.
-- Future trusted AI/persona/imported authorship routes, if ever opened; current
-  public creation routes remain user-authored only.
+| Item | Classification | Evidence / decision |
+| --- | --- | --- |
+| Forum category, thread, comment read/create/comment flows | Already satisfied | Covered by `apps/api/src/routes/forums.ts`, `apps/web/app/forums/*`, `apps/web/lib/community-forum-create.ts`, and `test:community` / `test:studio-ui`. |
+| Document-linked discussion visibility | Already satisfied | Covered by `apps/api/src/routes/document-discussions.ts`, document discussion serializers, and `test:document-discussions`. |
+| Reporter-owned report status readback and review requests | Already satisfied | Covered by `/reports/mine`, `/reports/review-requests`, `/forums/reports`, `apps/web/lib/report-resolution.ts`, `test:reports`, and `test:studio-ui`. |
+| Admin moderation queue/status/target context | Already satisfied | Covered by `/reports`, `/forums/moderation`, report target context helpers, `test:reports`, and `test:studio-ui`. |
+| Notifications and thread watching | Already satisfied | Covered by current-user notification/watch APIs, `/notifications`, settings notification entry points, thread detail watch controls, `test:community`, and `test:studio-ui`. |
+| Subcommunity directory, creation, category context, moderators, delegated actions, delegated queue/status/target actions | Already satisfied | Covered by `community_subcommunities`, forum category context, delegated moderation routes, `/forums/subcommunities`, `/forums/subcommunities/[slug]/moderation`, `test:community`, and `test:studio-ui`. |
+| Witness controls and private author recognition readback | Already satisfied | Covered by community witness APIs, forum thread detail controls, `/forums/witnesses/mine`, `/forums/witnesses`, `test:community`, and `test:studio-ui`. |
+| Tier gating for public/community/private actions | Already satisfied | Public reads remain open; protected reads/actions use private-or-higher gates as covered by community route tests and UI helper tests. |
+| Community Beta closure audit | Already satisfied by PR108 | This document now reconciles PR79 through PR107 and recommends protected-beta closure with validation evidence. |
+| Deeper moderator/admin console UX beyond accepted safe target context and delegated queue slices | Future expansion | The protected-beta loop already has admin queue/readback, scoped delegated queue/status/target controls, and accepted safety actions. Richer dashboards are not required for closure. |
+| Future visible delegated moderator surfaces beyond thread detail and scoped queue | Future expansion | Existing visible delegated controls cover thread detail and scoped queue rows. Additional moderator work should open only with a new bounded lane. |
+| Trusted AI/persona/imported authorship routes | Future expansion | Current public creation routes remain user-authored only. Provenance labels are readback-only and do not authorize autonomous/community posting. |
+| Public leaderboards, badges, rankings, public user scores, clout surfaces | Explicit non-goal | Witness and author recognition surfaces remain aggregate/private where appropriate; public reputation surfaces are not required and should not be inferred as blockers. |
+| Public moderator directory | Explicit non-goal | Current serializers avoid moderator identity exposure except where owner/admin management requires it. |
+| Broad forum redesign | Explicit non-goal | Current UI is protected-beta functional; broad visual/product redesign is a future product lane, not closure scope. |
+| Billing/cache/provider, Redis/Upstash, Cloudflare, Developer Space, auth/session, staging deployment changes | Out of scope | No evidence from Community Beta audit requires these platform lanes for closure. |
 
 ## Product rule
 

@@ -8139,6 +8139,22 @@ when a PR lands, or when validation truth changes.
   expansion, run the narrow Community Beta validation set, and wake ARGUS with a
   closure recommendation or precise blocker list. It should not open new feature
   work unless the audit proves a narrow closure blocker.
+- DAEDALUS implements PR108 Community Beta Closure Audit on 2026-06-20 and
+  wakes ARGUS for review. `docs/roadmap/community-beta.md` now recommends
+  Community Beta protected-beta closure, records no required closure blockers,
+  and classifies remaining items as already satisfied/stale, future expansion,
+  or explicit non-goals. The already-satisfied set covers forum read/create/
+  comment flows, document-linked discussion visibility, reporter report
+  readback and review requests, admin moderation queue/status/target context,
+  notifications and thread watching, subcommunity directory/creation/category/
+  moderators/delegated actions/delegated queue/status/target actions, witness
+  controls, private author recognition readback, tier gating, and the PR108
+  audit itself. Future expansion is limited to richer moderator/admin console
+  UX, future delegated moderator surfaces beyond the accepted thread-detail and
+  scoped-queue slices, and future trusted AI/persona/imported authorship routes.
+  Validation passed `test:community` with 17 tests, `test:reports` with 6 tests,
+  `test:document-discussions`, `test:studio-ui` with 82 tests, and
+  `typecheck`. No code or visible route behavior changed.
 - DAEDALUS implements PR107 Community Author Recognition UI on 2026-06-20 and
   wakes ARGUS for review. `/forums/witnesses` is a small private readback page
   over only `GET /forums/witnesses/mine?limit=50`; signed-out and below-tier
@@ -8332,7 +8348,44 @@ git diff --check
 - Developer Spaces visual polish before ingestion auth, validation, limits, and
   safe serialization.
 
-## Latest ARIADNE handoff - PR107
+## Latest DAEDALUS handoff - PR108
+
+PR108 Community Beta Closure Audit is implemented by DAEDALUS on 2026-06-20 and
+ready for ARGUS review. No code or visible route behavior changed, so ARIADNE
+is not needed unless ARGUS finds a visible-route implication.
+
+Closure recommendation: close Community Beta as protected-beta complete.
+
+Docs changed: `docs/roadmap/community-beta.md` now reconciles PR79 through
+PR107, records no required protected-beta closure blockers, and classifies
+remaining items as already satisfied/stale, future expansion, or explicit
+non-goals. `docs/roadmap/PR108_COMMUNITY_BETA_CLOSURE_AUDIT.md`,
+`docs/roadmap/ACTIVE_STATUS.md`, and
+`docs/testing/VALIDATION_BASELINE.md` record the same audit result.
+
+Classification:
+
+- Required before protected-beta closure: none found.
+- Already satisfied/stale: forum read/create/comment flows, document-linked
+  discussion visibility, reporter-owned report readback and review requests,
+  admin moderation queue/status/target context, notifications and thread
+  watching, subcommunity directory/creation/category/moderator/delegated
+  surfaces, witness controls, private author recognition readback, tier gating,
+  and the closure audit itself.
+- Future expansion: richer moderator/admin console UX, future delegated
+  moderator surfaces beyond accepted thread-detail/scoped-queue slices, and
+  future trusted AI/persona/imported authorship routes.
+- Explicit non-goals: public leaderboards, badges, rankings, public user scores,
+  clout surfaces, public moderator directory, broad forum redesign,
+  billing/cache/provider, Redis/Upstash, Cloudflare, Developer Space,
+  auth/session, and staging deployment changes.
+
+Validation: `test:community` 17 passed, `test:reports` 6 passed,
+`test:document-discussions` 1 passed, `test:studio-ui` 82 passed, and
+`typecheck` passed. `git diff --check` passed with CRLF normalization warnings
+only.
+
+## Previous ARIADNE handoff - PR107
 
 PR107 Community Author Recognition UI is accepted by ARIADNE on 2026-06-20 and
 ready for MIMIR closeout.

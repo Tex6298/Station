@@ -48,6 +48,38 @@ pnpm test:developer-spaces
 pnpm test:developer-space-client
 ```
 
+## PR108 Community Beta Closure Audit
+
+DAEDALUS audit validation on 2026-06-20:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:community` | Pass | 17 tests passed, covering forum flows, subcommunity/delegated moderation boundaries, witness/private recognition API boundaries, notifications/watch behavior, persona ownership, and Discover community visibility. |
+| `npm exec --yes pnpm@10.32.1 -- run test:reports` | Pass | 6 tests passed, covering reporter-owned report readback, admin queue/status, safe target context, and moderation review requests. |
+| `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` | Pass | 1 test passed, covering published document discussion visibility boundaries. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 82 tests passed, covering Community Beta UI helpers for thread creation gates, moderation/report surfaces, notifications, subcommunities, witnesses, author recognition, and delegated moderation. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck replayed from cache. |
+| `git diff --check` | Pass | CRLF normalization warnings only for touched docs. |
+
+Audit result:
+
+- `docs/roadmap/community-beta.md` now recommends Community Beta protected-beta
+  closure.
+- Required before protected-beta closure: none found.
+- Already satisfied/stale: forum read/create/comment flows, document-linked
+  discussion visibility, reporter-owned report readback and review requests,
+  admin moderation queue/status/target context, notifications/thread watching,
+  subcommunity directory/creation/category/moderator/delegated surfaces, witness
+  controls, private author recognition readback, tier gating, and PR108 itself.
+- Future expansion: richer moderator/admin console UX, future delegated
+  moderator surfaces beyond accepted thread-detail/scoped-queue slices, and
+  future trusted AI/persona/imported authorship routes.
+- Explicit non-goals: public leaderboards, badges, rankings, public user scores,
+  clout surfaces, public moderator directory, broad forum redesign,
+  billing/cache/provider, Redis/Upstash, Cloudflare, Developer Space,
+  auth/session, and staging deployment changes.
+- No code or visible route behavior changed.
+
 ## PR107 Community Author Recognition UI
 
 DAEDALUS implementation validation on 2026-06-20:
