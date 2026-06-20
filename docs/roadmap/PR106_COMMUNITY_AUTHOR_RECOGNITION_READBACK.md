@@ -139,3 +139,42 @@ git diff --check
 `test:community`, `test:document-discussions`, and `typecheck` passed.
 `git diff --check` passed with CRLF normalization warnings only. No visible web
 routes changed, so `test:studio-ui` was not part of this implementation gate.
+
+## ARGUS Technical Review
+
+Accepted by ARGUS on 2026-06-20 for MIMIR sequencing.
+
+Review result:
+
+- `GET /forums/witnesses/mine` is authenticated and private-tier gated.
+- Thread recognitions require current-user thread authorship and readable
+  thread state.
+- Comment recognitions require current-user comment authorship and a readable
+  parent thread, including readable parent threads authored by someone else.
+- Hidden, removed, unsupported-parent, unreadable, empty-aggregate, and
+  cross-user authored targets are excluded.
+- The existing thread/comment status model has `removed`, not a separate
+  `deleted` status, so deleted-style exclusion is covered by the stored removed
+  state plus hidden checks.
+- Response data is aggregate-only: safe target type/id, witness counts, safe
+  route labels/hints, and timestamps.
+- No witnesser ids, witnesser names/emails, notes, raw witness rows, raw owner
+  ids, raw category ids, comment bodies, private bodies, moderation internals,
+  rankings, badges, public scores, or clout surfaces are serialized.
+- The bounded `limit` parameter caps readback at 100.
+- No visible UI, public recognition page, leaderboard, badges, rankings,
+  notifications, mutation semantics changes, moderation changes,
+  billing/provider/cache work, Developer Space work, auth/session work, or
+  broad styling was added.
+
+ARGUS validation:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:community` | Pass | 17 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` | Pass | 1 test passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck completed. |
+| `git diff --check` | Pass | CRLF normalization warnings only for triad state. |
+
+No ARIADNE visible-route rehearsal is required because PR106 adds no visible
+route behavior.

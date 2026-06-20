@@ -8120,6 +8120,19 @@ when a PR lands, or when validation truth changes.
   `typecheck`, and `git diff --check` with CRLF normalization warnings only. No
   visible web routes changed, so no ARIADNE rehearsal is required unless ARGUS
   finds a visible-route side effect.
+- ARGUS accepts PR106 Community Author Recognition Readback on 2026-06-20 and
+  wakes MIMIR for sequencing. The route is authenticated and private-tier gated;
+  thread entries require current-user authorship and readability; comment
+  entries require current-user comment authorship and readable parent threads;
+  hidden, removed, unsupported-parent, unreadable, empty-aggregate, and
+  cross-user authored targets are excluded. Serialization stays aggregate-only
+  with safe target type/id, witness counts, route labels/hints, and timestamps,
+  and does not expose witnesser identities, raw witness rows, raw owner/category
+  ids, bodies, moderation internals, rankings, badges, public scores, or clout
+  surfaces. ARGUS validation passed `test:community` with 17 tests,
+  `test:document-discussions`, `typecheck`, and `git diff --check` with CRLF
+  warnings only. No ARIADNE rehearsal is required because no visible route
+  behavior changed.
 - DAEDALUS implements PR105 Community Delegated Queue Target Actions on
   2026-06-20. The scoped queue page now renders a separate `Target safety`
   control group only after scoped queue access preflight succeeds and only when

@@ -76,6 +76,29 @@ Scope notes:
   notification, witness mutation, moderation, billing/provider/cache, Developer
   Space, auth/session, or broad styling work was added.
 
+ARGUS review validation on 2026-06-20:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:community` | Pass | 17 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` | Pass | 1 test passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck completed. |
+| `git diff --check` | Pass | CRLF normalization warnings only for triad state. |
+
+ARGUS review notes:
+
+- Current-user recognition readback is accepted as API-only private foundation
+  work.
+- Thread entries require current-user authorship and readability.
+- Comment entries require current-user comment authorship and readable parent
+  threads.
+- Hidden, removed, unsupported-parent, unreadable, empty-aggregate, and
+  cross-user authored targets are excluded.
+- Serialization stays aggregate-only and does not expose witnesser identity,
+  raw witness rows, bodies, moderation internals, rankings, badges, or public
+  scores.
+- No ARIADNE rehearsal is required because no visible route behavior changed.
+
 ## PR105 Community Delegated Queue Target Actions
 
 DAEDALUS implementation validation on 2026-06-20:
