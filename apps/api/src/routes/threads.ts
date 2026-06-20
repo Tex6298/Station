@@ -10,6 +10,7 @@ import {
   recordModerationAction,
   serializeModerationAction,
 } from "../services/community.service";
+import { serializeCommunityThreadWatch } from "../services/community-notifications.service";
 import {
   serializeCommentDiscussionProvenance,
   serializeThreadDiscussionProvenance,
@@ -115,6 +116,81 @@ threadsRouter.get("/:id", optionalAuth, async (req: Request, res: Response) => {
 
 // --- Auth-gated below --------------------------------------------------------
 threadsRouter.use(requireAuth);
+
+// --- Current-user thread watch state -----------------------------------------
+threadsRouter.get("/:id/watch", async (req: Request, res: Response) => {
+  const sb = getSupabaseAdmin();
+  const { data: thread } = await sb
+    .from("threads")
+    .select("id, status, visibility, is_hidden, author_user_id")
+    .eq("id", req.params.id)
+    .maybeSingle();
+
+  if (!thread || !canReadThread(thread, req.user)) return res.status(404).json({ error: "Thread not found" });
+
+  const { data, error } = await (sb as any)
+    .from("community_thread_watches")
+    .select("*")
+    .eq("thread_id", thread.id)
+    .eq("user_id", req.user!.id)
+    .maybeSingle();
+
+  if (error) return res.status(500).json({ error: error.message });
+  return res.json({
+    isWatching: Boolean(data && !data.is_muted),
+    watch: data ? serializeCommunityThreadWatch(data) : null,
+  });
+});
+
+threadsRouter.put("/:id/watch", requireTier("private"), async (req: Request, res: Response) => {
+  const sb = getSupabaseAdmin();
+  const { data: thread } = await sb
+    .from("threads")
+    .select("id, status, visibility, is_hidden, author_user_id")
+    .eq("id", req.params.id)
+    .maybeSingle();
+
+  if (!thread || !canReadThread(thread, req.user)) return res.status(404).json({ error: "Thread not found" });
+
+  const { data, error } = await (sb as any)
+    .from("community_thread_watches")
+    .upsert(
+      {
+        user_id: req.user!.id,
+        thread_id: thread.id,
+        is_muted: false,
+      },
+      { onConflict: "user_id,thread_id" }
+    )
+    .select("*")
+    .single();
+
+  if (error || !data) return res.status(500).json({ error: error?.message ?? "Failed to watch thread." });
+  return res.status(200).json({
+    isWatching: true,
+    watch: serializeCommunityThreadWatch(data),
+  });
+});
+
+threadsRouter.delete("/:id/watch", requireTier("private"), async (req: Request, res: Response) => {
+  const sb = getSupabaseAdmin();
+  const { data: thread } = await sb
+    .from("threads")
+    .select("id, status, visibility, is_hidden, author_user_id")
+    .eq("id", req.params.id)
+    .maybeSingle();
+
+  if (!thread || !canReadThread(thread, req.user)) return res.status(404).json({ error: "Thread not found" });
+
+  const { error } = await (sb as any)
+    .from("community_thread_watches")
+    .delete()
+    .eq("thread_id", thread.id)
+    .eq("user_id", req.user!.id);
+
+  if (error) return res.status(500).json({ error: error.message });
+  return res.json({ isWatching: false, watch: null });
+});
 
 // --- Vote on a thread --------------------------------------------------------
 threadsRouter.post("/:id/vote", requireTier("private"), async (req: Request, res: Response) => {

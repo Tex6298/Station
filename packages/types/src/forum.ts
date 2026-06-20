@@ -93,6 +93,31 @@ export interface CommunityModerationActionRecord {
   createdAt: string;
 }
 
+export type CommunityNotificationType = 'thread_comment' | 'report_status' | 'review_request_status';
+export type CommunityNotificationTargetType = 'thread' | 'comment' | 'moderation_report' | 'moderation_review_request';
+
+export interface CommunityThreadWatchRecord {
+  id: string;
+  userId: string;
+  threadId: string;
+  isMuted: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CommunityNotificationRecord {
+  id: string;
+  type: CommunityNotificationType;
+  targetType: CommunityNotificationTargetType;
+  targetId: string;
+  title: string;
+  summary?: string | null;
+  routeHref?: string | null;
+  metadata: Record<string, unknown>;
+  readAt?: string | null;
+  createdAt: string;
+}
+
 export interface ModerationReportTargetContext {
   targetType: 'thread' | 'comment';
   targetId: string;

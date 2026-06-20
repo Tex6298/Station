@@ -17,6 +17,7 @@ import { discoverRouter } from "./routes/discover";
 import { forumsRouter } from "./routes/forums";
 import { threadsRouter } from "./routes/threads";
 import { commentsRouter } from "./routes/comments";
+import { notificationsRouter } from "./routes/notifications";
 import { reportsRouter } from "./routes/reports";
 import { socialRouter } from "./routes/social";
 import { projectsRouter } from "./routes/projects";
@@ -60,6 +61,7 @@ export function createApp() {
   app.use("/forums", forumsRouter);
   app.use("/threads", threadsRouter);
   app.use("/comments", commentsRouter);
+  app.use("/notifications", notificationsRouter);
   app.use("/reports", reportsRouter);
   app.use("/social", socialRouter);
   app.use("/projects", projectsRouter);

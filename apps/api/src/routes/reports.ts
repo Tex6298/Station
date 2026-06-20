@@ -13,6 +13,7 @@ import type {
   ReporterModerationReportRecord,
 } from "@station/types";
 import { ensureCommunityProfile } from "../services/community.service";
+import { notifyReportStatus, notifyReviewRequestStatus } from "../services/community-notifications.service";
 
 const createReportSchema = z.object({
   targetType: z.enum(["user", "space", "document", "thread", "comment", "persona"]),
@@ -327,6 +328,7 @@ reportsRouter.patch("/review-requests/:id", async (req, res) => {
     .single();
 
   if (error || !data) return res.status(404).json({ error: "Review request not found." });
+  await notifyReviewRequestStatus(data, req.user!.id).catch(() => undefined);
   return res.json({ reviewRequest: serializeAdminReviewRequest(data) });
 });
 
@@ -349,6 +351,7 @@ reportsRouter.patch("/:id", async (req, res) => {
     .single();
 
   if (error || !data) return res.status(404).json({ error: "Report not found." });
+  await notifyReportStatus(data, req.user!.id).catch(() => undefined);
   const contexts = await loadReportTargetContexts(sb, [data]).catch(() => new Map<string, ModerationReportTargetContext>());
   return res.json({ report: serializeReport(data, contexts.get(data.id) ?? null) });
 });

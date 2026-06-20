@@ -7284,6 +7284,24 @@ when a PR lands, or when validation truth changes.
   subcommunity/delegated moderation, reputation/witness, billing/provider,
   Cloudflare, Developer Space, auth/session refactor, or broad UI redesign is
   opened.
+- DAEDALUS implements PR89 Community Notifications Foundation on 2026-06-20 and
+  wakes ARGUS for hostile review. Migration 040 adds
+  `community_thread_watches` and `community_notifications` with owner-scoped
+  RLS intent, muted watch state, unread/read state, recipient/event
+  idempotency, and comments that frame the tables as in-app notification
+  infrastructure only. The API adds idempotent current-user
+  `GET`/`PUT`/`DELETE /threads/:id/watch` routes, current-user
+  `GET /notifications`, `PATCH /notifications/:id/read`, and
+  `PATCH /notifications/read-all` routes, and non-fatal notification creation
+  hooks for thread comments, moderation report status updates, and moderation
+  review-request status updates. Serializers omit recipient ids, actor ids,
+  admin notes, moderator identities, target bodies, and other-user rows; report
+  and review-request status notifications intentionally store no moderator
+  actor id. No visible notification center, email, push, browser push,
+  realtime, Redis pub/sub, scheduled digest, public notification feed,
+  subcommunity/delegated moderation, reputation/witness, billing/provider,
+  Cloudflare, Developer Space, auth/session refactor, or broad UI redesign was
+  added.
 
 ## Near-term rule
 

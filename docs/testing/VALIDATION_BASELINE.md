@@ -9236,6 +9236,40 @@ Scope notes:
   expansion, raw ingestion key storage, secret logging, broad UI, public
   serializer expansion, or visible web UI changed.
 
+## PR89 Community Notifications Foundation
+
+DAEDALUS implementation validation on 2026-06-20:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:community` | Pass | 12 tests passed, including idempotent thread watch state, owner-scoped notification readback, comment fanout to thread author/watchers, actor exclusion, and mark-read ownership. |
+| `npm exec --yes pnpm@10.32.1 -- run test:reports` | Pass | 6 tests passed, including report/review-request status notification rows with participant-safe status/resolution payloads and no moderator identity/admin-note leakage. |
+| `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` | Pass | 1 test passed; document discussion visibility/readback remains green. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck completed. |
+| `git diff --check` | Pass | CRLF normalization warnings only for touched files and local triad state. |
+
+Scope notes:
+
+- Added migration `040_community_notifications.sql` with
+  `community_thread_watches` and `community_notifications`.
+- Thread watch APIs are current-user scoped and validate readable threads before
+  watch read/create/delete.
+- Notification APIs list only the current user's rows and mark only the current
+  user's rows read.
+- Comment creation creates non-fatal in-app rows for eligible thread authors
+  and unmuted watchers while excluding the commenter and deduplicating
+  recipients for the comment event.
+- Report status updates notify the reporter with safe status language only.
+- Review-request status updates notify the requester with safe status and
+  participant-safe resolution summary only.
+- Serializers omit recipient ids, actor ids, admin notes, moderator identities,
+  target bodies, and other-user rows; report/review status rows do not store
+  moderator actor ids.
+- No visible notification center, email, push, browser push, realtime, Redis
+  pub/sub, scheduled digest, public notification feed, subcommunity/delegated
+  moderation, reputation/witness mechanics, billing/provider/cache, Developer
+  Space, auth/session refactor, or broad forum UI changed.
+
 ## PR88 Community Review Request UI First Slice
 
 DAEDALUS implementation validation on 2026-06-20:

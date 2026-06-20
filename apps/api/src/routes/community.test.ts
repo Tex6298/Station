@@ -8,6 +8,7 @@ import { commentsRouter } from "./comments";
 import { discoverRouter } from "./discover";
 import { documentsRouter } from "./documents";
 import { forumsRouter } from "./forums";
+import { notificationsRouter } from "./notifications";
 import { threadsRouter } from "./threads";
 
 process.env.NODE_ENV = "test";
@@ -193,6 +194,8 @@ class CommunitySupabase {
       thread(PERSONA_THREAD_ID, "Persona Linked Thread", "public", { linked_persona_id: PUBLIC_PERSONA_ID }),
     ],
     comments: [],
+    community_thread_watches: [],
+    community_notifications: [],
     community_votes: [],
     community_moderation_actions: [
       {
@@ -426,12 +429,28 @@ class CommunitySupabase {
       row.updated_at ??= now;
     }
 
+    if (table === "community_thread_watches") {
+      row.is_muted ??= false;
+      row.created_at ??= now;
+      row.updated_at ??= now;
+    }
+
+    if (table === "community_notifications") {
+      row.actor_user_id ??= null;
+      row.summary ??= null;
+      row.route_href ??= null;
+      row.metadata ??= {};
+      row.read_at ??= null;
+      row.created_at ??= now;
+    }
+
     return row;
   }
 }
 
 class QueryBuilder {
   private filters: Array<[string, unknown]> = [];
+  private isFilters: Array<[string, unknown]> = [];
   private inFilters: Array<[string, unknown[]]> = [];
   private ilikeFilters: Array<[string, string]> = [];
   private orderSpec: { field: string; ascending: boolean } | null = null;
@@ -455,6 +474,11 @@ class QueryBuilder {
 
   eq(field: string, value: unknown) {
     this.filters.push([field, value]);
+    return this;
+  }
+
+  is(field: string, value: unknown) {
+    this.isFilters.push([field, value]);
     return this;
   }
 
@@ -523,6 +547,10 @@ class QueryBuilder {
     let rows = [...this.db.rows(this.table)];
 
     for (const [field, value] of this.filters) {
+      rows = rows.filter((row) => row[field] === value);
+    }
+
+    for (const [field, value] of this.isFilters) {
       rows = rows.filter((row) => row[field] === value);
     }
 
@@ -808,6 +836,7 @@ function createCommunityApp() {
   app.use("/discover", discoverRouter);
   app.use("/documents", documentsRouter);
   app.use("/forums", forumsRouter);
+  app.use("/notifications", notificationsRouter);
   app.use("/threads", threadsRouter);
   return app;
 }
@@ -1016,6 +1045,135 @@ test("community participation requires private tier for create, vote, and commun
       token: "member-token",
     });
     assert.equal(memberCommunityThread.status, 200);
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
+
+test("thread watches and notifications are owner-scoped and comment fanout is participant-safe", async () => {
+  const db = new CommunitySupabase();
+  setSupabaseAdminForTests(db.client as any);
+  const app = createCommunityApp();
+
+  try {
+    const anonymousWatch = await requestJson(app, "PUT", `/threads/${PUBLIC_THREAD_ID}/watch`);
+    assert.equal(anonymousWatch.status, 401);
+
+    const visitorWatch = await requestJson(app, "PUT", `/threads/${PUBLIC_THREAD_ID}/watch`, {
+      token: "visitor-token",
+    });
+    assert.equal(visitorWatch.status, 403);
+
+    const hiddenWatch = await requestJson(app, "PUT", `/threads/${HIDDEN_THREAD_ID}/watch`, {
+      token: "member-token",
+    });
+    assert.equal(hiddenWatch.status, 404);
+
+    const watch = await requestJson(app, "PUT", `/threads/${PUBLIC_THREAD_ID}/watch`, {
+      token: "member-token",
+    });
+    assert.equal(watch.status, 200);
+    assert.equal(watch.body.isWatching, true);
+    assert.equal(watch.body.watch.userId, MEMBER_ID);
+    assert.equal(watch.body.watch.threadId, PUBLIC_THREAD_ID);
+
+    const duplicateWatch = await requestJson(app, "PUT", `/threads/${PUBLIC_THREAD_ID}/watch`, {
+      token: "member-token",
+    });
+    assert.equal(duplicateWatch.status, 200);
+    assert.equal(db.tables.community_thread_watches.length, 1);
+
+    const watchState = await requestJson(app, "GET", `/threads/${PUBLIC_THREAD_ID}/watch`, {
+      token: "member-token",
+    });
+    assert.equal(watchState.status, 200);
+    assert.equal(watchState.body.isWatching, true);
+
+    const ownerComment = await requestJson(app, "POST", "/comments", {
+      token: "owner-token",
+      body: {
+        parentType: "thread",
+        parentId: PUBLIC_THREAD_ID,
+        body: "Owner body should never leak through notification rows.",
+      },
+    });
+    assert.equal(ownerComment.status, 201);
+    assert.equal(db.tables.community_notifications.length, 1);
+    assert.equal(db.tables.community_notifications[0].recipient_user_id, MEMBER_ID);
+    assert.equal(db.tables.community_notifications[0].actor_user_id, OWNER_ID);
+    assert.equal(db.tables.community_notifications[0].notification_type, "thread_comment");
+    assert.equal(db.tables.community_notifications[0].route_href, `/forums/community/${PUBLIC_THREAD_ID}#comment-${ownerComment.body.comment.id}`);
+    assert.equal(JSON.stringify(db.tables.community_notifications[0]).includes("Owner body should never leak"), false);
+
+    const memberNotifications = await requestJson(app, "GET", "/notifications?unreadOnly=true", {
+      token: "member-token",
+    });
+    assert.equal(memberNotifications.status, 200);
+    assert.equal(memberNotifications.body.notifications.length, 1);
+    assert.equal(memberNotifications.body.notifications[0].targetType, "comment");
+    assert.equal(memberNotifications.body.notifications[0].metadata.threadId, PUBLIC_THREAD_ID);
+    assert.equal(memberNotifications.body.notifications[0].actorUserId, undefined);
+    assert.equal(memberNotifications.body.notifications[0].recipientUserId, undefined);
+    assert.equal(JSON.stringify(memberNotifications.body).includes("Owner body should never leak"), false);
+
+    const ownerNotifications = await requestJson(app, "GET", "/notifications", {
+      token: "owner-token",
+    });
+    assert.equal(ownerNotifications.status, 200);
+    assert.equal(ownerNotifications.body.notifications.length, 0);
+
+    const blockedRead = await requestJson(
+      app,
+      "PATCH",
+      `/notifications/${memberNotifications.body.notifications[0].id}/read`,
+      { token: "owner-token" }
+    );
+    assert.equal(blockedRead.status, 404);
+
+    const read = await requestJson(
+      app,
+      "PATCH",
+      `/notifications/${memberNotifications.body.notifications[0].id}/read`,
+      { token: "member-token" }
+    );
+    assert.equal(read.status, 200);
+    assert.equal(typeof read.body.notification.readAt, "string");
+
+    const unreadAfterRead = await requestJson(app, "GET", "/notifications?unreadOnly=true", {
+      token: "member-token",
+    });
+    assert.equal(unreadAfterRead.status, 200);
+    assert.equal(unreadAfterRead.body.notifications.length, 0);
+
+    const otherComment = await requestJson(app, "POST", "/comments", {
+      token: "other-token",
+      body: {
+        parentType: "thread",
+        parentId: PUBLIC_THREAD_ID,
+        body: "Other participant comment body should not leak.",
+      },
+    });
+    assert.equal(otherComment.status, 201);
+    const otherCommentNotifications = db.tables.community_notifications.filter(
+      (row) => row.event_key === `thread_comment:${otherComment.body.comment.id}`
+    );
+    assert.deepEqual(
+      otherCommentNotifications.map((row) => row.recipient_user_id).sort(),
+      [MEMBER_ID, OWNER_ID].sort()
+    );
+
+    const memberMarkAll = await requestJson(app, "PATCH", "/notifications/read-all", {
+      token: "member-token",
+    });
+    assert.equal(memberMarkAll.status, 200);
+    assert.equal(memberMarkAll.body.markedRead, 1);
+
+    const unwatch = await requestJson(app, "DELETE", `/threads/${PUBLIC_THREAD_ID}/watch`, {
+      token: "member-token",
+    });
+    assert.equal(unwatch.status, 200);
+    assert.equal(unwatch.body.isWatching, false);
+    assert.equal(db.tables.community_thread_watches.length, 0);
   } finally {
     setSupabaseAdminForTests(null);
   }

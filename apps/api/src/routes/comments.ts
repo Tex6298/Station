@@ -10,6 +10,7 @@ import {
   recordModerationAction,
   serializeModerationAction,
 } from "../services/community.service";
+import { notifyThreadComment } from "../services/community-notifications.service";
 
 const createCommentSchema = z.object({
   parentType: z.enum(["thread", "document", "space_page"]),
@@ -213,6 +214,11 @@ commentsRouter.post(
       } catch {
         // Non-fatal - comment_count is denormalised, can sync later
       }
+      await notifyThreadComment({
+        threadId: parentId,
+        commentId: comment.id,
+        commenterUserId: userId,
+      }).catch(() => undefined);
     }
 
     res.status(201).json({ comment });

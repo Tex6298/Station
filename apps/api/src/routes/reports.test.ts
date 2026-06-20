@@ -40,6 +40,7 @@ class ReportsSupabase {
     ],
     moderation_reports: [],
     moderation_review_requests: [],
+    community_notifications: [],
     forum_categories: [],
     threads: [],
     comments: [],
@@ -111,6 +112,15 @@ class ReportsSupabase {
       row.reviewed_at ??= null;
       row.created_at ??= now;
       row.updated_at ??= now;
+    }
+
+    if (table === "community_notifications") {
+      row.actor_user_id ??= null;
+      row.summary ??= null;
+      row.route_href ??= null;
+      row.metadata ??= {};
+      row.read_at ??= null;
+      row.created_at ??= now;
     }
 
     return row;
@@ -499,6 +509,21 @@ test("reports queue and status updates are admin-only and server-owned", async (
     assert.equal(stored?.status, "resolved");
     assert.equal(stored?.reviewed_by, "admin-user");
     assert.notEqual(stored?.reviewed_at, "2000-01-01T00:00:00.000Z");
+
+    assert.equal(db.tables.community_notifications.length, 1);
+    assert.equal(db.tables.community_notifications[0].recipient_user_id, "owner-user");
+    assert.equal(db.tables.community_notifications[0].actor_user_id, null);
+    assert.equal(db.tables.community_notifications[0].notification_type, "report_status");
+    assert.equal(db.tables.community_notifications[0].target_type, "moderation_report");
+    assert.equal(db.tables.community_notifications[0].target_id, openReport.id);
+    assert.equal(db.tables.community_notifications[0].summary, "Your report is now resolved.");
+    assert.deepEqual(db.tables.community_notifications[0].metadata, {
+      reportId: openReport.id,
+      status: "resolved",
+    });
+    const notificationJson = JSON.stringify(db.tables.community_notifications[0]);
+    assert.equal(notificationJson.includes("Visible only to admins."), false);
+    assert.equal(notificationJson.includes("admin-user"), false);
   } finally {
     setSupabaseAdminForTests(null);
   }
@@ -999,6 +1024,25 @@ test("moderation review request queue and updates are admin-only", async () => {
     assert.equal(updatedMine.adminNotes, undefined);
     assert.equal(updatedMine.reviewedBy, undefined);
     assert.equal(JSON.stringify(updatedMine).includes("Private admin context."), false);
+
+    assert.equal(db.tables.community_notifications.length, 1);
+    assert.equal(db.tables.community_notifications[0].recipient_user_id, "owner-user");
+    assert.equal(db.tables.community_notifications[0].actor_user_id, null);
+    assert.equal(db.tables.community_notifications[0].notification_type, "review_request_status");
+    assert.equal(db.tables.community_notifications[0].target_type, "moderation_review_request");
+    assert.equal(db.tables.community_notifications[0].target_id, openRequest.id);
+    assert.equal(
+      db.tables.community_notifications[0].summary,
+      "Your review request is now upheld: We restored the reported item."
+    );
+    assert.deepEqual(db.tables.community_notifications[0].metadata, {
+      reviewRequestId: openRequest.id,
+      status: "upheld",
+      resolutionSummary: "We restored the reported item.",
+    });
+    const notificationJson = JSON.stringify(db.tables.community_notifications[0]);
+    assert.equal(notificationJson.includes("Private admin context."), false);
+    assert.equal(notificationJson.includes("admin-user"), false);
   } finally {
     setSupabaseAdminForTests(null);
   }

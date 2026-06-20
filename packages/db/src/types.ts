@@ -45,6 +45,8 @@ export type ModerationTargetType = "user" | "space" | "document" | "thread" | "c
 export type ModerationStatus = "open" | "reviewing" | "resolved" | "dismissed";
 export type ModerationReviewRequestRole = "reporter" | "target_author";
 export type ModerationReviewRequestStatus = "open" | "reviewing" | "upheld" | "denied" | "dismissed" | "withdrawn";
+export type CommunityNotificationType = "thread_comment" | "report_status" | "review_request_status";
+export type CommunityNotificationTargetType = "thread" | "comment" | "moderation_report" | "moderation_review_request";
 export type PublishingApprovalState = "draft" | "grounding_check" | "human_review" | "approved" | "regenerate" | "cancelled" | "scheduled" | "published" | "archived";
 export type PublishingApprovalVisibility = "public" | "community" | "unlisted";
 export type DiscoverItemType = "document" | "thread" | "space" | "persona";
@@ -987,6 +989,50 @@ export interface Database {
           updated_at?: string;
         };
         Update: Partial<Database["public"]["Tables"]["comments"]["Insert"]>;
+      };
+      community_thread_watches: {
+        Row: {
+          id: string;
+          user_id: string;
+          thread_id: string;
+          is_muted: boolean;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: Omit<Database["public"]["Tables"]["community_thread_watches"]["Row"], "id" | "is_muted" | "created_at" | "updated_at"> & {
+          id?: string;
+          is_muted?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["community_thread_watches"]["Insert"]>;
+      };
+      community_notifications: {
+        Row: {
+          id: string;
+          recipient_user_id: string;
+          actor_user_id: string | null;
+          notification_type: CommunityNotificationType;
+          target_type: CommunityNotificationTargetType;
+          target_id: string;
+          event_key: string;
+          title: string;
+          summary: string | null;
+          route_href: string | null;
+          metadata: Record<string, unknown>;
+          read_at: string | null;
+          created_at: string;
+        };
+        Insert: Omit<Database["public"]["Tables"]["community_notifications"]["Row"], "id" | "actor_user_id" | "summary" | "route_href" | "metadata" | "read_at" | "created_at"> & {
+          id?: string;
+          actor_user_id?: string | null;
+          summary?: string | null;
+          route_href?: string | null;
+          metadata?: Record<string, unknown>;
+          read_at?: string | null;
+          created_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["community_notifications"]["Insert"]>;
       };
       moderation_reports: {
         Row: {
