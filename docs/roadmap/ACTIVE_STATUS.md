@@ -7726,6 +7726,29 @@ when a PR lands, or when validation truth changes.
   validation and field-visibility proof. ARGUS should wake ARIADNE only if
   `/forums/moderation` visibly changes; otherwise ARGUS should wake MIMIR with
   the PR97 verdict.
+- DAEDALUS implements PR97 Community Moderation Unsupported Target Context on
+  2026-06-20 and wakes ARGUS for technical review. Admin-only `/reports`
+  target context now covers the prior unsupported target types with narrow
+  fields: documents expose title/status/visibility plus a Space document route
+  only when a Space slug exists; Spaces expose title/public-vs-private and a
+  Space route; personas expose name/visibility and route only for public
+  personas, with private personas returning an explicit unavailable reason;
+  users expose display name or username only and no route. Thread/comment
+  target action behavior is unchanged, and document/Space/persona/user contexts
+  return no target mutation actions. Reporter-owned `/reports/mine` remains
+  participant-safe and does not include target context. Tests assert anonymous
+  and non-admin queue denial, missing/unroutable target reasons, and absence of
+  private bodies, emails, owner ids, prompts/style notes, archive/source labels,
+  raw source ids, hidden target bodies, moderation action reasons, provider
+  payloads, private notes, and subscription/tier internals. Validation passed
+  `test:reports` with 6 tests, `test:community` with 14 tests,
+  `test:document-discussions`, `test:studio-ui` with 68 tests, and
+  `typecheck`, and `git diff --check` with CRLF normalization warnings only.
+  No web component, schema, public moderation log, target mutation action,
+  delegated moderation, subcommunity owner/moderator role, review-request
+  expansion, witness/notification/billing/provider/cache, Redis/Upstash,
+  Cloudflare, Developer Space expansion, auth/session refactor, styling, or
+  visibility widening was added.
 
 ## Near-term rule
 

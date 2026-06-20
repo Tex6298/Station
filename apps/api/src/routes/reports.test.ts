@@ -16,24 +16,32 @@ class ReportsSupabase {
       {
         id: "owner-user",
         email: "owner@example.test",
+        username: "owner",
+        display_name: "Owner User",
         tier: "creator",
         is_admin: false,
       },
       {
         id: "other-user",
         email: "other@example.test",
+        username: "other",
+        display_name: "Other User",
         tier: "private",
         is_admin: false,
       },
       {
         id: "admin-user",
         email: "admin@example.test",
+        username: "admin",
+        display_name: "Admin User",
         tier: "canon",
         is_admin: true,
       },
       {
         id: "visitor-user",
         email: "visitor@example.test",
+        username: "visitor",
+        display_name: "Visitor User",
         tier: "visitor",
         is_admin: false,
       },
@@ -677,6 +685,59 @@ test("admin report queue includes safe target context for thread and comment rep
     is_hidden: false,
     moderation_state: "needs_review",
   });
+  db.insertRow("spaces", {
+    id: "space-1",
+    owner_user_id: "space-owner-private-id",
+    slug: "private-space",
+    title: "Private Space",
+    short_description: "Space summary that is safe for admin context.",
+    long_description: "Space body that must stay out of admin report context.",
+    is_public: false,
+  });
+  db.insertRow("documents", {
+    id: "doc-1",
+    author_user_id: "document-owner-private-id",
+    space_id: "space-1",
+    persona_id: "persona-private",
+    title: "Private Document",
+    slug: "private-document",
+    body: "Document body that must stay out of admin report context.",
+    document_type: "essay",
+    status: "published",
+    visibility: "private",
+    source_label: "Archive source label that must stay out.",
+    source_id: "raw-source-id-private",
+  });
+  db.insertRow("documents", {
+    id: "doc-orphan",
+    author_user_id: "document-owner-private-id",
+    space_id: null,
+    title: "Document Without Space",
+    slug: "document-without-space",
+    body: "Orphan document body that must stay out.",
+    document_type: "essay",
+    status: "draft",
+    visibility: "private",
+  });
+  db.insertRow("personas", {
+    id: "persona-1",
+    owner_user_id: "persona-owner-private-id",
+    name: "Public Persona",
+    short_description: "Persona safe summary.",
+    long_description: "Persona long private context that must stay out.",
+    visibility: "public",
+    provider: "openai",
+    awakening_prompt: "Prompt text that must stay out of admin report context.",
+    style_notes: "Style notes that must stay out.",
+  });
+  db.insertRow("personas", {
+    id: "persona-private",
+    owner_user_id: "persona-owner-private-id",
+    name: "Private Persona",
+    visibility: "private",
+    provider: "anthropic",
+    awakening_prompt: "Private prompt that must stay out.",
+  });
   const threadReport = db.insertRow("moderation_reports", {
     reporter_id: "owner-user",
     target_type: "thread",
@@ -698,6 +759,27 @@ test("admin report queue includes safe target context for thread and comment rep
     reason: "off-topic",
     status: "open",
   });
+  const documentReport = db.insertRow("moderation_reports", {
+    reporter_id: "owner-user",
+    target_type: "document",
+    target_id: "doc-1",
+    reason: "private document concern",
+    status: "open",
+  });
+  const orphanDocumentReport = db.insertRow("moderation_reports", {
+    reporter_id: "owner-user",
+    target_type: "document",
+    target_id: "doc-orphan",
+    reason: "orphan document concern",
+    status: "open",
+  });
+  const spaceReport = db.insertRow("moderation_reports", {
+    reporter_id: "owner-user",
+    target_type: "space",
+    target_id: "space-1",
+    reason: "space concern",
+    status: "open",
+  });
   const personaReport = db.insertRow("moderation_reports", {
     reporter_id: "owner-user",
     target_type: "persona",
@@ -705,11 +787,32 @@ test("admin report queue includes safe target context for thread and comment rep
     reason: "impersonation",
     status: "open",
   });
+  const privatePersonaReport = db.insertRow("moderation_reports", {
+    reporter_id: "owner-user",
+    target_type: "persona",
+    target_id: "persona-private",
+    reason: "private persona concern",
+    status: "open",
+  });
+  const userReport = db.insertRow("moderation_reports", {
+    reporter_id: "owner-user",
+    target_type: "user",
+    target_id: "other-user",
+    reason: "user concern",
+    status: "open",
+  });
+  const missingUserReport = db.insertRow("moderation_reports", {
+    reporter_id: "owner-user",
+    target_type: "user",
+    target_id: "missing-user",
+    reason: "missing user concern",
+    status: "open",
+  });
   setSupabaseAdminForTests(db.client as any);
   const app = createReportsApp();
 
   try {
-    const adminQueue = await requestJson(app, "GET", "/reports?limit=10", {
+    const adminQueue = await requestJson(app, "GET", "/reports?limit=20", {
       token: "admin-token",
     });
     assert.equal(adminQueue.status, 200);
@@ -749,16 +852,102 @@ test("admin report queue includes safe target context for thread and comment rep
       byId.get(unsupportedCommentReport.id)?.targetContext.unavailableReason,
       "Comment parent type document has no safe forum route hint yet."
     );
-    assert.equal(byId.get(personaReport.id)?.targetContext, undefined);
+    assert.deepEqual(byId.get(documentReport.id)?.targetContext, {
+      targetType: "document",
+      targetId: "doc-1",
+      title: "Private Document",
+      status: "published",
+      visibility: "private",
+      routeHref: "/space/private-space/documents/doc-1",
+      routeLabel: "Private Space / Private Document",
+      canOpenRoute: true,
+      unavailableReason: null,
+      supportedActions: [],
+    });
+    assert.deepEqual(byId.get(orphanDocumentReport.id)?.targetContext, {
+      targetType: "document",
+      targetId: "doc-orphan",
+      title: "Document Without Space",
+      status: "draft",
+      visibility: "private",
+      routeHref: null,
+      routeLabel: null,
+      canOpenRoute: false,
+      unavailableReason: "Document has no safe Space route hint.",
+      supportedActions: [],
+    });
+    assert.deepEqual(byId.get(spaceReport.id)?.targetContext, {
+      targetType: "space",
+      targetId: "space-1",
+      title: "Private Space",
+      visibility: "private",
+      routeHref: "/space/private-space",
+      routeLabel: "Private Space",
+      canOpenRoute: true,
+      unavailableReason: null,
+      supportedActions: [],
+    });
+    assert.deepEqual(byId.get(personaReport.id)?.targetContext, {
+      targetType: "persona",
+      targetId: "persona-1",
+      title: "Public Persona",
+      visibility: "public",
+      routeHref: "/studio/personas/persona-1",
+      routeLabel: "Public Persona",
+      canOpenRoute: true,
+      unavailableReason: null,
+      supportedActions: [],
+    });
+    assert.deepEqual(byId.get(privatePersonaReport.id)?.targetContext, {
+      targetType: "persona",
+      targetId: "persona-private",
+      title: "Private Persona",
+      visibility: "private",
+      routeHref: null,
+      routeLabel: null,
+      canOpenRoute: false,
+      unavailableReason: "Private persona target has no safe moderator route hint.",
+      supportedActions: [],
+    });
+    assert.deepEqual(byId.get(userReport.id)?.targetContext, {
+      targetType: "user",
+      targetId: "other-user",
+      title: "Other User",
+      canOpenRoute: false,
+      unavailableReason: "User reports have no safe moderator route hint yet.",
+      supportedActions: [],
+    });
+    assert.deepEqual(byId.get(missingUserReport.id)?.targetContext, {
+      targetType: "user",
+      targetId: "missing-user",
+      canOpenRoute: false,
+      unavailableReason: "User target not found.",
+      supportedActions: [],
+    });
     const queueJson = JSON.stringify(adminQueue.body);
     assert.equal(queueJson.includes("Thread body that must stay out of admin report context."), false);
     assert.equal(queueJson.includes("Parent body that must stay out of admin report context."), false);
     assert.equal(queueJson.includes("Comment body that must stay out of admin report context."), false);
     assert.equal(queueJson.includes("Document comment body that must stay out of admin report context."), false);
+    assert.equal(queueJson.includes("Document body that must stay out of admin report context."), false);
+    assert.equal(queueJson.includes("Orphan document body that must stay out."), false);
+    assert.equal(queueJson.includes("Space body that must stay out of admin report context."), false);
+    assert.equal(queueJson.includes("Persona long private context that must stay out."), false);
+    assert.equal(queueJson.includes("Prompt text that must stay out of admin report context."), false);
+    assert.equal(queueJson.includes("Private prompt that must stay out."), false);
+    assert.equal(queueJson.includes("Style notes that must stay out."), false);
+    assert.equal(queueJson.includes("Archive source label that must stay out."), false);
+    assert.equal(queueJson.includes("raw-source-id-private"), false);
     assert.equal(queueJson.includes("thread-author-private-id"), false);
     assert.equal(queueJson.includes("thread-parent-author-private-id"), false);
     assert.equal(queueJson.includes("comment-author-private-id"), false);
     assert.equal(queueJson.includes("document-comment-author-private-id"), false);
+    assert.equal(queueJson.includes("document-owner-private-id"), false);
+    assert.equal(queueJson.includes("space-owner-private-id"), false);
+    assert.equal(queueJson.includes("persona-owner-private-id"), false);
+    assert.equal(queueJson.includes("other@example.test"), false);
+    assert.equal(queueJson.includes("tier"), false);
+    assert.equal(queueJson.includes("is_admin"), false);
     assert.equal(queueJson.includes("thread-private-marker"), false);
 
     const reporterReadback = await requestJson(app, "GET", "/reports/mine?targetType=thread", {

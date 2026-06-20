@@ -21,6 +21,10 @@ promised in the Station documents.
 - Moderator console rows now include admin-only safe target context and route
   hints for supported thread/comment reports, plus separated thread/comment
   target actions where existing admin moderation routes support them.
+- Moderator console report context now also covers document, Space, persona,
+  and user targets where safe fields can be proven, with explicit unavailable
+  reasons for missing or unroutable targets and no mutation actions for those
+  target types.
 - Reporter-owned moderation status readback exists at `/reports/mine` and
   `/forums/reports` without exposing admin notes, moderator identity,
   moderation action reasons, target bodies, hidden material, or other
@@ -85,8 +89,8 @@ pnpm test:reports
 
 - Broader recognition UX beyond the accepted thread/comment witness first
   slice; no leaderboards, badges, rankings, or public user scores are open.
-- Deeper moderator/admin console UX for unsupported document/space/persona/user
-  targets and any future delegated moderator surfaces.
+- Deeper moderator/admin console UX beyond safe target context, and any future
+  delegated moderator surfaces.
 - Future trusted AI/persona/imported authorship routes, if ever opened; current
   public creation routes remain user-authored only.
 - Subcommunity owner/moderator delegation beyond current platform-admin

@@ -557,6 +557,14 @@ async function loadReportTargetContexts(
       contexts.set(report.id, await loadThreadTargetContext(sb, report.target_id));
     } else if (report.target_type === "comment") {
       contexts.set(report.id, await loadCommentTargetContext(sb, report.target_id));
+    } else if (report.target_type === "document") {
+      contexts.set(report.id, await loadDocumentTargetContext(sb, report.target_id));
+    } else if (report.target_type === "space") {
+      contexts.set(report.id, await loadSpaceTargetContext(sb, report.target_id));
+    } else if (report.target_type === "persona") {
+      contexts.set(report.id, await loadPersonaTargetContext(sb, report.target_id));
+    } else if (report.target_type === "user") {
+      contexts.set(report.id, await loadUserTargetContext(sb, report.target_id));
     }
   }
 
@@ -652,6 +660,115 @@ async function loadCommentTargetContext(
   };
 }
 
+async function loadDocumentTargetContext(
+  sb: ReturnType<typeof getSupabaseAdmin>,
+  documentId: string
+): Promise<ModerationReportTargetContext> {
+  const { data: document } = await (sb as any)
+    .from("documents")
+    .select("id, title, status, visibility, space_id")
+    .eq("id", documentId)
+    .maybeSingle();
+
+  if (!document) {
+    return unavailableTargetContext("document", documentId, "Document target not found.");
+  }
+
+  const space = document.space_id ? await loadSpaceById(sb, document.space_id) : null;
+  const routeHref = space?.slug ? `/space/${space.slug}/documents/${document.id}` : null;
+
+  return {
+    targetType: "document",
+    targetId: document.id,
+    title: document.title ?? null,
+    status: document.status ?? null,
+    visibility: document.visibility ?? null,
+    routeHref,
+    routeLabel: routeHref ? `${space?.title ?? "Space"} / ${document.title ?? document.id}` : null,
+    canOpenRoute: Boolean(routeHref),
+    unavailableReason: routeHref ? null : "Document has no safe Space route hint.",
+    supportedActions: [],
+  };
+}
+
+async function loadSpaceTargetContext(
+  sb: ReturnType<typeof getSupabaseAdmin>,
+  spaceId: string
+): Promise<ModerationReportTargetContext> {
+  const space = await loadSpaceById(sb, spaceId);
+
+  if (!space) {
+    return unavailableTargetContext("space", spaceId, "Space target not found.");
+  }
+
+  const routeHref = space.slug ? `/space/${space.slug}` : null;
+
+  return {
+    targetType: "space",
+    targetId: space.id,
+    title: space.title ?? null,
+    visibility: space.is_public ? "public" : "private",
+    routeHref,
+    routeLabel: routeHref ? (space.title ?? space.slug) : null,
+    canOpenRoute: Boolean(routeHref),
+    unavailableReason: routeHref ? null : "Space has no safe route hint.",
+    supportedActions: [],
+  };
+}
+
+async function loadPersonaTargetContext(
+  sb: ReturnType<typeof getSupabaseAdmin>,
+  personaId: string
+): Promise<ModerationReportTargetContext> {
+  const { data: persona } = await (sb as any)
+    .from("personas")
+    .select("id, name, visibility")
+    .eq("id", personaId)
+    .maybeSingle();
+
+  if (!persona) {
+    return unavailableTargetContext("persona", personaId, "Persona target not found.");
+  }
+
+  const routeHref = persona.visibility === "public" ? `/studio/personas/${persona.id}` : null;
+
+  return {
+    targetType: "persona",
+    targetId: persona.id,
+    title: persona.name ?? null,
+    visibility: persona.visibility ?? null,
+    routeHref,
+    routeLabel: routeHref ? (persona.name ?? persona.id) : null,
+    canOpenRoute: Boolean(routeHref),
+    unavailableReason: routeHref ? null : "Private persona target has no safe moderator route hint.",
+    supportedActions: [],
+  };
+}
+
+async function loadUserTargetContext(
+  sb: ReturnType<typeof getSupabaseAdmin>,
+  userId: string
+): Promise<ModerationReportTargetContext> {
+  const { data: profile } = await (sb as any)
+    .from("profiles")
+    .select("id, username, display_name")
+    .eq("id", userId)
+    .maybeSingle();
+
+  if (!profile) {
+    return unavailableTargetContext("user", userId, "User target not found.");
+  }
+
+  return {
+    targetType: "user",
+    targetId: profile.id,
+    title: profile.display_name ?? profile.username ?? "Station user",
+    canOpenRoute: false,
+    unavailableReason: "User reports have no safe moderator route hint yet.",
+    supportedActions: [],
+  };
+}
+
 async function loadForumCategory(sb: ReturnType<typeof getSupabaseAdmin>, categoryId: string | null | undefined) {
   if (!categoryId) return null;
   const { data } = await (sb as any)
@@ -662,8 +779,18 @@ async function loadForumCategory(sb: ReturnType<typeof getSupabaseAdmin>, catego
   return data ?? null;
 }
 
+async function loadSpaceById(sb: ReturnType<typeof getSupabaseAdmin>, spaceId: string | null | undefined) {
+  if (!spaceId) return null;
+  const { data } = await (sb as any)
+    .from("spaces")
+    .select("id, slug, title, is_public")
+    .eq("id", spaceId)
+    .maybeSingle();
+  return data ?? null;
+}
+
 function unavailableTargetContext(
-  targetType: "thread" | "comment",
+  targetType: ModerationReportTargetType,
   targetId: string,
   unavailableReason: string
 ): ModerationReportTargetContext {

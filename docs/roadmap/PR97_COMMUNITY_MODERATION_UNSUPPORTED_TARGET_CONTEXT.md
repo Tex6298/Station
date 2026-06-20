@@ -4,7 +4,7 @@ Date opened: 2026-06-20
 Opened by: A1 / MIMIR
 Owner: DAEDALUS implements or documents exact blockers, ARGUS reviews. ARIADNE
 rehearses visible routes only if the moderator console changes.
-Status: open
+Status: implemented by DAEDALUS; ready for ARGUS technical review
 
 ## Why This Lane
 

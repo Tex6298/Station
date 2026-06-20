@@ -9323,6 +9323,46 @@ Route notes:
 - Desktop and 390px mobile checks did not show horizontal overflow or offscreen
   primary controls.
 
+## PR97 Community Moderation Unsupported Target Context
+
+DAEDALUS implementation validation on 2026-06-20:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:reports` | Pass | 6 tests passed, including admin-only document, Space, persona, and user target context, missing/unroutable reasons, unchanged thread/comment actions, and reporter-owned context omission. |
+| `npm exec --yes pnpm@10.32.1 -- run test:community` | Pass | 14 tests passed; community route permissions and visibility remain green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` | Pass | 1 test passed; document discussion visibility remains green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 68 tests passed; moderation console helpers remain bounded to thread/comment target actions. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck completed. |
+| `git diff --check` | Pass | Passed with CRLF normalization warnings only. |
+
+Scope notes:
+
+- Expanded the moderation target-context type to include document, Space,
+  persona, and user report targets.
+- Admin `/reports` now includes narrow target context for:
+  documents: title, status, visibility, and a Space document route only when a
+  Space slug exists;
+  Spaces: title, public/private visibility, and Space route;
+  personas: name, visibility, and a route only for public personas;
+  users: display name or username only, with no route.
+- Missing users and unroutable document/private-persona targets return explicit
+  unavailable reasons instead of blank context or guessed links.
+- Reporter-owned `/reports/mine` remains unchanged and does not include admin
+  target context.
+- Thread/comment target actions are unchanged. Document, Space, persona, and
+  user reports expose no target mutation actions.
+- Tests assert no private bodies, emails, owner ids, prompt/style text, archive
+  source labels, raw source ids, hidden target bodies, moderation action
+  reasons, provider payloads, private notes, subscription fields, tier internals,
+  or profile admin flags are serialized.
+- No web component changed; `/forums/moderation` already renders target context
+  generically.
+- No schema, public moderation log, delegated moderation, subcommunity
+  owner/moderator role, review-request expansion, witness/notification/billing/
+  provider/cache work, Redis, Cloudflare, Developer Space expansion,
+  auth/session refactor, styling, or visibility widening was added.
+
 ## PR96 Community Witness UI First Slice
 
 DAEDALUS implementation validation on 2026-06-20:

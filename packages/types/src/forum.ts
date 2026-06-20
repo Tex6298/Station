@@ -175,7 +175,7 @@ export interface CommunityNotificationRecord {
 }
 
 export interface ModerationReportTargetContext {
-  targetType: 'thread' | 'comment';
+  targetType: 'user' | 'space' | 'document' | 'thread' | 'comment' | 'persona';
   targetId: string;
   title?: string | null;
   parentType?: 'thread' | 'document' | 'space_page' | null;
