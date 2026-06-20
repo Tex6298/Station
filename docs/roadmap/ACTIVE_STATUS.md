@@ -8424,12 +8424,12 @@ git diff --check
 - Developer Spaces visual polish before ingestion auth, validation, limits, and
   safe serialization.
 
-## Latest DAEDALUS handoff - PR110
+## Latest ARGUS verdict - PR110
 
 PR110 Memory Runtime Explanation Readback is implemented by DAEDALUS on
-2026-06-20 and ready for ARGUS review. Because this changes visible owner route
-behavior on the persona Memory page, ARGUS should wake ARIADNE for rehearsal if
-the technical review accepts it.
+2026-06-20 and accepted by ARGUS technical review. Because this changes visible
+owner route behavior on the persona Memory page, ARGUS wakes ARIADNE for
+visible-route rehearsal before MIMIR closeout.
 
 Files changed: `apps/web/lib/memory-lifecycle-ui.ts`,
 `apps/web/lib/memory-lifecycle-ui.test.ts`,
@@ -8461,12 +8461,26 @@ Privacy and scope proof:
   realtime, billing/auth/session change, broad Studio redesign, or new AI
   provider call was added.
 
-Validation: `test:persona-context` 7 passed, `test:conversation-archive` 35
-passed, `test:continuity` 5 passed, `test:studio-ui` 85 passed, `typecheck`
-passed, and `git diff --check` passed with CRLF normalization warnings only.
-The web build reached successful compile, lint/typecheck, page data, 36 static
-pages, optimization, and trace collection before the known local Windows
-standalone symlink `EPERM`; only pre-existing raw `<img>` warnings appeared.
+ARGUS review notes:
+
+- Accepted: the new visible explanation is assembled from existing
+  session-backed owner Memory, briefing, and context-preview APIs; no new public
+  surface or backend authority was introduced.
+- Accepted: the helper renders sanitized labels, counts, lifecycle state, and
+  short reasons only. Raw preview trace bodies, provider payloads, private
+  archive excerpts, prompts, raw ids, raw URLs, and secret-shaped values stay
+  out of the owner route output.
+- Accepted: scope stayed narrow to PR110. No retrieval rewrite, provider call,
+  autonomous memory mutation, public Memory, auth/session, realtime, job, or
+  billing behavior changed.
+
+ARGUS validation: `test:persona-context` 7 passed,
+`test:conversation-archive` 35 passed, `test:continuity` 5 passed,
+`test:studio-ui` 85 passed, `typecheck` passed, and `git diff --check` passed.
+DAEDALUS also reported the web build reached successful compile,
+lint/typecheck, page data, 36 static pages, optimization, and trace collection
+before the known local Windows standalone symlink `EPERM`; only pre-existing raw
+`<img>` warnings appeared.
 
 ## Previous DAEDALUS handoff - PR109
 
