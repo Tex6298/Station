@@ -8778,6 +8778,27 @@ when a PR lands, or when validation truth changes.
   Vectorize/D1, worker, queue, user-pasted secret flow, billing, Stripe change,
   Redis memory truth, provider routing, chat-native developer agent, or broad UI
   redesign.
+- DAEDALUS implements PR125 2C Observed Runtime Webhook Signatures on
+  2026-06-20 and wakes ARGUS for raw-body/signature/idempotency/side-effect
+  review. The app now applies a raw JSON body parser to
+  `/developer-spaces/ingest/observed-runtime` before the global JSON parser,
+  mirroring the local Stripe webhook raw-body pattern. The route verifies
+  `X-Station-Signature: t=<unix-seconds>,v1=<hex-hmac>` over
+  `<timestamp>.<raw-body-bytes>` with HMAC-SHA256 using the existing Developer
+  Space ingestion key as alpha signing material. Verification happens after key
+  auth and before JSON parsing, rate/quota checks, import, receipt creation, or
+  SSE broadcast. Missing, malformed, stale, and invalid signatures return
+  non-secret machine-readable auth errors. The existing PR124 receipt-backed
+  idempotency path remains intact for valid signed requests: same id plus same
+  payload replays without double import, and same id plus different payload
+  conflicts without echoing raw changed payload data. Validation passed
+  `test:developer-spaces` with 23 tests, `test:developer-space-client` with 4
+  tests, `test:billing` with 9 tests after app-level middleware changed,
+  `typecheck`, `@station/api` build, and diff hygiene. No separate
+  signing-secret management UI, partner adapter, hosted runtime, Cloudflare
+  Worker/Vectorize/D1, worker, queue, user-pasted secret flow, billing/Stripe
+  change, Redis memory truth, provider routing, chat-native developer agent, or
+  broad Developer Space UI redesign was added.
 - DAEDALUS implements PR110 Memory Runtime Explanation Readback on 2026-06-20
   and wakes ARGUS for review. The owner Memory page now has a compact Runtime
   context / Memory explanation section that joins the existing owner-only Memory
@@ -9019,7 +9040,40 @@ git diff --check
 - Developer Spaces visual polish before ingestion auth, validation, limits, and
   safe serialization.
 
-## Latest ARGUS verdict - PR124 observed runtime webhook ingress alpha
+## Latest DAEDALUS handoff - PR125 observed runtime webhook signatures
+
+PR125 2C Observed Runtime Webhook Signatures is implemented by DAEDALUS on
+2026-06-20 and ready for ARGUS review. No visible route changed, so ARIADNE is
+not required unless ARGUS finds a visible-route implication.
+
+Implementation:
+
+- `apps/api/src/app.ts` gives
+  `/developer-spaces/ingest/observed-runtime` a raw JSON body before the global
+  JSON parser.
+- `apps/api/src/routes/developer-spaces.ts` verifies
+  `X-Station-Signature: t=<unix-seconds>,v1=<hex-hmac>` over
+  `<timestamp>.<raw-body-bytes>` with HMAC-SHA256.
+- The existing Developer Space ingestion key is the alpha signing material.
+- Signature verification runs after key auth and before JSON parsing,
+  rate/quota checks, import, receipt creation, or SSE broadcast.
+- Missing, malformed, stale, and invalid signatures fail with non-secret
+  machine-readable auth errors.
+- Valid signed requests keep PR124 idempotency: same id plus same payload
+  returns the stored non-secret replay summary; same id plus different payload
+  returns a bounded conflict without raw changed payload data.
+
+Validation: `test:developer-spaces` 23 passed, `test:developer-space-client` 4
+passed, `test:billing` 9 passed after app-level raw-body middleware changed,
+`typecheck` passed, `@station/api` build passed, and `git diff --check` passed
+with CRLF normalization warnings only.
+
+Non-scope preserved: no separate signing-secret management UI, partner adapter,
+hosted runtime, Cloudflare Worker/Vectorize/D1, worker, queue, user-pasted
+secret flow, billing/Stripe change, Redis memory truth, provider routing,
+chat-native developer agent, or broad Developer Space UI redesign.
+
+## Previous ARGUS verdict - PR124 observed runtime webhook ingress alpha
 
 PR124 2C Observed Runtime Webhook Ingress Alpha is implemented by DAEDALUS on
 2026-06-20 and accepted by ARGUS technical review. No visible route changed, so

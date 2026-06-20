@@ -5,7 +5,7 @@ Opened by: A1 / MIMIR
 Owner: DAEDALUS implements. ARGUS reviews raw-body handling, signature
 verification, replay/idempotency, secret handling, and overclaim risk. ARIADNE
 only rehearses if visible routes change.
-Status: opened for DAEDALUS
+Status: implemented by DAEDALUS on 2026-06-20; waiting for ARGUS review
 
 ## Why This Lane
 
@@ -97,3 +97,42 @@ Wake ARGUS with:
 
 If signature verification cannot be implemented cleanly inside this scope, wake
 MIMIR with the exact blocker and recommended next lane.
+
+## DAEDALUS Implementation Notes - 2026-06-20
+
+Implemented as alpha HMAC hardening for the existing PR124 route:
+
+- `apps/api/src/app.ts` now gives
+  `/developer-spaces/ingest/observed-runtime` a raw JSON body before the global
+  JSON parser, matching the local Stripe webhook raw-body pattern.
+- `apps/api/src/routes/developer-spaces.ts` verifies
+  `X-Station-Signature` after Developer Space key auth and before JSON parsing,
+  rate/quota checks, import, receipt creation, or SSE broadcast.
+- Header contract: `X-Station-Signature: t=<unix-seconds>,v1=<hex-hmac>`.
+- Signing input: `<timestamp>.<raw-body-bytes>`.
+- HMAC: SHA-256 using the existing Developer Space ingestion key as alpha
+  signing material.
+- Default timestamp tolerance: 300 seconds, configurable with
+  `DEVELOPER_SPACE_OBSERVED_RUNTIME_WEBHOOK_SIGNATURE_TOLERANCE_SECONDS`.
+- Existing PR124 idempotency remains: same id plus same payload returns the
+  stored non-secret summary; same id plus different payload conflicts.
+
+Focused tests now prove missing, malformed, stale, and invalid signatures fail
+without import or receipt rows; valid signed requests import; signed replay is
+idempotent; and signed same-id/different-payload conflict remains non-leaky.
+
+Validation:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 23 tests passed, including unsigned/malformed/stale/bad signature rejection, valid signed import, signed replay, signed conflict, and public readback safety. |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-space-client` | Pass | 4 client tests passed; client package remains compatible. |
+| `npm exec --yes pnpm@10.32.1 -- run test:billing` | Pass | 9 tests passed after app-level raw-body middleware changed; Stripe webhook raw-body gating remains green. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/api build` | Pass | API build completed. |
+| `git diff --check` | Pass | CRLF normalization warnings only, including local agent state that was not staged. |
+
+Non-claims preserved: no separate signing-secret management UI, partner
+adapter, hosted runtime, Cloudflare Worker/Vectorize/D1, worker, queue,
+user-pasted secret flow, billing/Stripe change, Redis memory truth, provider
+routing, chat-native developer agent, or broad Developer Space UI redesign.

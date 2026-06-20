@@ -52,6 +52,35 @@ pnpm test:developer-spaces
 pnpm test:developer-space-client
 ```
 
+## PR125 2C Observed Runtime Webhook Signatures
+
+DAEDALUS implementation validation on 2026-06-20:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 23 tests passed, including observed-runtime webhook key auth, unsigned/malformed/stale/bad signature rejection before import or receipt rows, valid signed import, signed replay without double import, signed same-id/different-payload conflict, and public readback safety. |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-space-client` | Pass | 4 client tests passed; existing ingestion client behavior stayed compatible. |
+| `npm exec --yes pnpm@10.32.1 -- run test:billing` | Pass | 9 billing tests passed after app-level raw-body middleware changed; Stripe webhook raw-body signature handling remains green. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/api build` | Pass | API build completed, including dependent shared package builds. |
+| `git diff --check` | Pass | CRLF normalization warnings only, including local agent state that was not staged. |
+
+Implementation result:
+
+- Added raw-body handling for
+  `POST /developer-spaces/ingest/observed-runtime` before the global JSON
+  parser.
+- Added `X-Station-Signature: t=<unix-seconds>,v1=<hex-hmac>` verification
+  over `<timestamp>.<raw-body-bytes>` with HMAC-SHA256.
+- Uses the existing Developer Space ingestion key as alpha signing material.
+- Missing, malformed, stale, or invalid signatures fail before JSON parsing,
+  rate/quota checks, import, receipt creation, or SSE broadcast.
+- Existing PR124 key auth and receipt-backed idempotency remain in force.
+- No separate signing-secret management UI, partner adapter, hosted runtime,
+  Cloudflare Worker, Vectorize, D1, worker, queue, user-pasted secret flow,
+  billing/Stripe change, Redis memory truth, provider routing, chat-native
+  developer agent, or visible Developer Space UI changed.
+
 ## PR124 2C Observed Runtime Webhook Ingress Alpha
 
 DAEDALUS implementation validation on 2026-06-20:

@@ -207,6 +207,23 @@ Accepted envelope:
 The route also accepts `X-Station-Webhook-Id` or `Idempotency-Key`; those
 headers take precedence over `deliveryId`. A webhook id is required.
 
+PR125 adds alpha HMAC hardening for the same route:
+
+- `X-Station-Signature` is required after Developer Space key auth and before
+  parsing, rate/quota checks, import, receipt creation, or SSE broadcast;
+- header contract: `t=<unix-seconds>,v1=<hex-hmac>`;
+- signed input: `<timestamp>.<raw-body-bytes>`;
+- HMAC: SHA-256 using the existing Developer Space ingestion key as alpha
+  signing material;
+- default timestamp tolerance: 300 seconds, configurable with
+  `DEVELOPER_SPACE_OBSERVED_RUNTIME_WEBHOOK_SIGNATURE_TOLERANCE_SECONDS`.
+
+Missing, malformed, stale, or invalid signatures fail with non-secret
+machine-readable errors. Signature verification proves the sender knows the
+current ingestion key and that Station received the same raw JSON bytes that
+were signed. It does not add separate signing-secret rotation, partner-specific
+adapter semantics, concurrent delivery locking, or hosted runtime execution.
+
 PR124 adds durable idempotency receipts:
 
 - `developer_space_observed_runtime_webhook_receipts`
@@ -221,8 +238,8 @@ The webhook route reuses the existing batch import persistence path, including
 classification validation, secret stripping, supporting-context persistence,
 usage/quota checks, rate limits, and detail/SSE readback.
 
-HMAC/signature verification, replay windows beyond the durable idempotency key,
-partner adapters, and delivery retry policy remain future hardening work.
+Replay windows beyond the durable idempotency key, partner adapters, separate
+signing-secret rotation, and delivery retry policy remain future hardening work.
 
 ## Future Webhook Shape
 
@@ -250,13 +267,13 @@ changing the visibility model:
 }
 ```
 
-That later step still needs authentication, replay protection, rate limits,
-storage policy, and hosted-environment evidence before it can be called a live
-ingestion path.
+That later step still needs partner-specific semantics, delivery retry policy,
+storage policy, and hosted-environment evidence before it can be called a
+partner or production ingestion path.
 
 ## Non-Claims
 
-PR120-PR124 add no hosted runtime, Cloudflare Worker, Vectorize index, D1
+PR120-PR125 add no hosted runtime, Cloudflare Worker, Vectorize index, D1
 binding, queue, background job, partner adapter, user-pasted secret flow,
 billing, Stripe behavior, Redis memory truth, provider routing, or visible
 Developer Space redesign.

@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { createHmac } from "node:crypto";
 import { readFileSync } from "node:fs";
 import type { Server } from "node:http";
 import type { AddressInfo } from "node:net";
@@ -376,6 +377,7 @@ function observedRuntimeFixture(name: string) {
 
 function createDeveloperSpacesApp() {
   const app = express();
+  app.use("/developer-spaces/ingest/observed-runtime", express.raw({ type: "application/json", limit: "2mb" }));
   app.use(express.json());
   app.use("/developer-spaces", developerSpacesRouter);
   return app;
@@ -464,6 +466,59 @@ function close(server: Server) {
   return new Promise<void>((resolve, reject) => {
     server.close((error) => error ? reject(error) : resolve());
   });
+}
+
+function stationSignature(input: { rawBody: string; apiKey: string; timestamp?: number }) {
+  const timestamp = input.timestamp ?? Math.floor(Date.now() / 1000);
+  const signature = createHmac("sha256", input.apiKey)
+    .update(`${timestamp}.`)
+    .update(Buffer.from(input.rawBody, "utf8"))
+    .digest("hex");
+  return `t=${timestamp},v1=${signature}`;
+}
+
+async function requestObservedRuntimeWebhook<TBody = any>(
+  app: Express,
+  envelope: unknown,
+  options: {
+    developerKey?: string;
+    webhookId?: string;
+    signature?: string | null;
+    timestamp?: number;
+  } = {}
+) {
+  const server = await listen(app);
+  try {
+    const address = server.address() as AddressInfo;
+    const rawBody = JSON.stringify(envelope);
+    const headers: Record<string, string> = {
+      "Content-Type": "application/json",
+    };
+    if (options.developerKey) {
+      headers["X-Station-Developer-Key"] = options.developerKey;
+      if (options.signature !== null) {
+        headers["X-Station-Signature"] = options.signature ?? stationSignature({
+          rawBody,
+          apiKey: options.developerKey,
+          timestamp: options.timestamp,
+        });
+      }
+    }
+    if (options.webhookId) headers["X-Station-Webhook-Id"] = options.webhookId;
+
+    const response = await fetch(`http://127.0.0.1:${address.port}/developer-spaces/ingest/observed-runtime`, {
+      method: "POST",
+      headers,
+      body: rawBody,
+    });
+    const text = await response.text();
+    return {
+      status: response.status,
+      body: text ? JSON.parse(text) as TBody : null,
+    };
+  } finally {
+    await close(server);
+  }
 }
 
 class TestRateLimitProvider implements OperationalCacheProvider {
@@ -1483,16 +1538,53 @@ test("Observed runtime webhook ingress uses key auth and idempotent import recei
     assert.equal(missingKey.status, 401);
     assert.equal(missingKey.body.category, "auth");
 
-    const missingWebhookId = await requestJson(app, "POST", "/developer-spaces/ingest/observed-runtime", {
+    const unsigned = await requestObservedRuntimeWebhook(app, envelope, {
       developerKey: apiKeyResponse.body.apiKey,
-      body: { ...envelope, deliveryId: undefined },
+      signature: null,
+    });
+    assert.equal(unsigned.status, 401);
+    assert.equal(unsigned.body.code, "developer_space_webhook_signature_malformed");
+    assert.equal(db.tables.developer_space_nodes.length, 0);
+    assert.equal(db.tables.developer_space_events.length, 0);
+    assert.equal(db.tables.developer_space_snapshots.length, 0);
+    assert.equal(db.tables.developer_space_observed_runtime_context.length, 0);
+    assert.equal(db.tables.developer_space_observed_runtime_webhook_receipts.length, 0);
+
+    const malformedSignature = await requestObservedRuntimeWebhook(app, envelope, {
+      developerKey: apiKeyResponse.body.apiKey,
+      signature: "not-a-station-signature",
+    });
+    assert.equal(malformedSignature.status, 401);
+    assert.equal(malformedSignature.body.code, "developer_space_webhook_signature_malformed");
+    assert.equal(db.tables.developer_space_observed_runtime_webhook_receipts.length, 0);
+
+    const staleSignature = await requestObservedRuntimeWebhook(app, envelope, {
+      developerKey: apiKeyResponse.body.apiKey,
+      timestamp: Math.floor(Date.now() / 1000) - 1000,
+    });
+    assert.equal(staleSignature.status, 401);
+    assert.equal(staleSignature.body.code, "developer_space_webhook_signature_stale");
+    assert.equal(db.tables.developer_space_observed_runtime_webhook_receipts.length, 0);
+
+    const badSignature = await requestObservedRuntimeWebhook(app, envelope, {
+      developerKey: apiKeyResponse.body.apiKey,
+      signature: `t=${Math.floor(Date.now() / 1000)},v1=${"0".repeat(64)}`,
+    });
+    assert.equal(badSignature.status, 401);
+    assert.equal(badSignature.body.code, "developer_space_webhook_signature_invalid");
+    assert.equal(db.tables.developer_space_observed_runtime_webhook_receipts.length, 0);
+
+    const missingWebhookId = await requestObservedRuntimeWebhook(app, {
+      ...envelope,
+      deliveryId: undefined,
+    }, {
+      developerKey: apiKeyResponse.body.apiKey,
     });
     assert.equal(missingWebhookId.status, 400);
     assert.equal(missingWebhookId.body.code, "developer_space_webhook_id_missing");
 
-    const accepted = await requestJson(app, "POST", "/developer-spaces/ingest/observed-runtime", {
+    const accepted = await requestObservedRuntimeWebhook(app, envelope, {
       developerKey: apiKeyResponse.body.apiKey,
-      body: envelope,
     });
     assert.equal(accepted.status, 202);
     assert.equal(accepted.body.accepted, true);
@@ -1506,9 +1598,8 @@ test("Observed runtime webhook ingress uses key auth and idempotent import recei
     assert.equal(db.tables.developer_space_observed_runtime_webhook_receipts.length, 1);
     assert.equal(JSON.stringify(db.tables.developer_space_observed_runtime_webhook_receipts).includes("fixture-private"), false);
 
-    const replayed = await requestJson(app, "POST", "/developer-spaces/ingest/observed-runtime", {
+    const replayed = await requestObservedRuntimeWebhook(app, envelope, {
       developerKey: apiKeyResponse.body.apiKey,
-      body: envelope,
     });
     assert.equal(replayed.status, 200);
     assert.equal(replayed.body.accepted, false);
@@ -1517,23 +1608,22 @@ test("Observed runtime webhook ingress uses key auth and idempotent import recei
     assert.equal(db.tables.developer_space_events.length, 1);
     assert.equal(db.tables.developer_space_observed_runtime_context.length, 4);
 
-    const conflict = await requestJson(app, "POST", "/developer-spaces/ingest/observed-runtime", {
-      developerKey: apiKeyResponse.body.apiKey,
-      body: {
-        ...envelope,
-        payload: {
-          ...envelope.payload,
-          events: [
-            {
-              ...envelope.payload.events[0],
-              eventData: {
-                ...envelope.payload.events[0].eventData,
-                publicSignal: "changed signal",
-              },
+    const conflict = await requestObservedRuntimeWebhook(app, {
+      ...envelope,
+      payload: {
+        ...envelope.payload,
+        events: [
+          {
+            ...envelope.payload.events[0],
+            eventData: {
+              ...envelope.payload.events[0].eventData,
+              publicSignal: "changed signal",
             },
-          ],
-        },
+          },
+        ],
       },
+    }, {
+      developerKey: apiKeyResponse.body.apiKey,
     });
     assert.equal(conflict.status, 409);
     assert.equal(conflict.body.code, "developer_space_webhook_replay_conflict");

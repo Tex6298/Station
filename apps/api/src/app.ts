@@ -42,6 +42,12 @@ export function createApp() {
     express.raw({ type: "application/json" })
   );
 
+  // -- Observed-runtime webhooks also verify signatures over raw bytes ---------
+  app.use(
+    "/developer-spaces/ingest/observed-runtime",
+    express.raw({ type: "application/json", limit: "2mb" })
+  );
+
   // -- All other routes use parsed JSON -----------------------------------------
   app.use(express.json({ limit: "2mb" }));
 

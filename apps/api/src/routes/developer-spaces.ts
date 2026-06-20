@@ -1,4 +1,4 @@
-import { createHash } from "node:crypto";
+import { createHash, createHmac, timingSafeEqual } from "node:crypto";
 import { Router, type Request, type Response } from "express";
 import { z } from "zod";
 import { describePlatformProviderRoute } from "@station/ai";
@@ -81,6 +81,7 @@ const OPENAI_COMPATIBLE_ROLLBACK_PROFILE = {
 const INGEST_RATE_LIMIT_RESOURCE = "developer_space_ingest_requests";
 const DEFAULT_INGEST_RATE_LIMIT_PER_MINUTE = 120;
 const DEFAULT_INGEST_RATE_LIMIT_WINDOW_SECONDS = 60;
+const DEFAULT_OBSERVED_RUNTIME_WEBHOOK_SIGNATURE_TOLERANCE_SECONDS = 300;
 
 type IngestionErrorCategory = "auth" | "validation" | "quota" | "server";
 
@@ -99,6 +100,10 @@ function ingestionErrorBody(input: {
 }
 
 function ingestionAuthError(code: "developer_space_key_missing" | "developer_space_key_invalid", error: string) {
+  return ingestionErrorBody({ error, code, category: "auth" });
+}
+
+function ingestionSignatureError(code: string, error: string) {
   return ingestionErrorBody({ error, code, category: "auth" });
 }
 
@@ -307,7 +312,7 @@ async function loadSpaceForIngestion(req: any, res: any) {
       return null;
     }
 
-    return { space: keyedSpace, ingestionKeyId: ingestionKey.id as string };
+    return { space: keyedSpace, ingestionKeyId: ingestionKey.id as string, rawKey };
   }
 
   const { data, error } = await sb
@@ -324,7 +329,7 @@ async function loadSpaceForIngestion(req: any, res: any) {
     return null;
   }
 
-  return { space: data, ingestionKeyId: null };
+  return { space: data, ingestionKeyId: null, rawKey };
 }
 
 async function enforceIngestionRateLimit(
@@ -1181,13 +1186,103 @@ function payloadHash(value: unknown) {
   return createHash("sha256").update(JSON.stringify(value)).digest("hex");
 }
 
+function observedRuntimeWebhookSignatureToleranceSeconds() {
+  return positiveIntFromEnv(
+    "DEVELOPER_SPACE_OBSERVED_RUNTIME_WEBHOOK_SIGNATURE_TOLERANCE_SECONDS",
+    DEFAULT_OBSERVED_RUNTIME_WEBHOOK_SIGNATURE_TOLERANCE_SECONDS,
+  );
+}
+
+function parseStationSignatureHeader(value: unknown) {
+  const raw = Array.isArray(value) ? value[0] : value;
+  if (typeof raw !== "string" || !raw.trim()) return null;
+  const parts = Object.fromEntries(
+    raw.split(",")
+      .map((part) => part.trim().split("="))
+      .filter((part): part is [string, string] => part.length === 2 && part[0].length > 0 && part[1].length > 0)
+  );
+  const timestamp = Number.parseInt(parts.t ?? "", 10);
+  const signature = parts.v1 ?? "";
+  if (!Number.isInteger(timestamp) || !/^[a-f0-9]{64}$/i.test(signature)) return null;
+  return { timestamp, signature };
+}
+
+function verifyObservedRuntimeWebhookSignature(input: {
+  rawBody: Buffer;
+  signatureHeader: unknown;
+  signingSecret: string;
+}) {
+  const parsed = parseStationSignatureHeader(input.signatureHeader);
+  if (!parsed) {
+    return {
+      ok: false as const,
+      code: "developer_space_webhook_signature_malformed",
+      error: "Observed runtime webhook signature is missing or malformed.",
+    };
+  }
+
+  const toleranceSeconds = observedRuntimeWebhookSignatureToleranceSeconds();
+  const nowSeconds = Math.floor(Date.now() / 1000);
+  if (Math.abs(nowSeconds - parsed.timestamp) > toleranceSeconds) {
+    return {
+      ok: false as const,
+      code: "developer_space_webhook_signature_stale",
+      error: "Observed runtime webhook signature timestamp is outside the allowed tolerance.",
+    };
+  }
+
+  const expected = createHmac("sha256", input.signingSecret)
+    .update(`${parsed.timestamp}.`)
+    .update(input.rawBody)
+    .digest("hex");
+  const expectedBuffer = Buffer.from(expected, "hex");
+  const receivedBuffer = Buffer.from(parsed.signature, "hex");
+  if (expectedBuffer.length !== receivedBuffer.length || !timingSafeEqual(expectedBuffer, receivedBuffer)) {
+    return {
+      ok: false as const,
+      code: "developer_space_webhook_signature_invalid",
+      error: "Observed runtime webhook signature is invalid.",
+    };
+  }
+
+  return { ok: true as const };
+}
+
 developerSpacesRouter.post("/ingest/observed-runtime", async (req, res) => {
   const ingestion = await loadSpaceForIngestion(req, res);
   if (!ingestion) return;
   const { space } = ingestion;
+
+  if (!Buffer.isBuffer(req.body)) {
+    return res.status(400).json(ingestionSignatureError(
+      "developer_space_webhook_raw_body_required",
+      "Observed runtime webhook requires a raw JSON body for signature verification.",
+    ));
+  }
+
+  const signature = verifyObservedRuntimeWebhookSignature({
+    rawBody: req.body,
+    signatureHeader: req.headers["x-station-signature"],
+    signingSecret: ingestion.rawKey,
+  });
+  if (!signature.ok) {
+    return res.status(401).json(ingestionSignatureError(signature.code, signature.error));
+  }
+
+  let body: unknown;
+  try {
+    body = JSON.parse(req.body.toString("utf8"));
+  } catch {
+    return res.status(400).json(ingestionErrorBody({
+      error: "Observed runtime webhook body must be valid JSON.",
+      code: "developer_space_webhook_json_invalid",
+      category: "validation",
+    }));
+  }
+
   if (!(await enforceIngestionRateLimit(res, ingestion))) return;
 
-  const parsed = observedRuntimeWebhookSchema.safeParse(req.body);
+  const parsed = observedRuntimeWebhookSchema.safeParse(body);
   if (!parsed.success) return res.status(400).json(ingestionValidationError(parsed.error));
 
   const webhookId = observedRuntimeWebhookId(req, parsed.data);
@@ -1229,7 +1324,7 @@ developerSpacesRouter.post("/ingest/observed-runtime", async (req, res) => {
     res,
     space,
     payload: parsed.data.payload,
-    storageBytesSource: req.body,
+    storageBytesSource: body,
   });
   if (!result) return;
 
