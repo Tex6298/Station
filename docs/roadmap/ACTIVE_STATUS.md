@@ -8607,6 +8607,14 @@ when a PR lands, or when validation truth changes.
   Cloudflare, worker, queue, background job, partner adapter, user-pasted
   secret, billing, Stripe, Redis memory truth, provider routing, or visible
   Developer Space UI changed.
+- ARGUS accepts PR120 2C Observed Runtime Fixture Preflight on 2026-06-20 and
+  wakes MIMIR for closeout. ARGUS confirmed the fixture parser rejects
+  Station-hosted runtime claims, requires field classifications, rejects
+  secret-shaped paths unless classified as secret, and serializes public/member/
+  owner readbacks without secret fields. The work remains a file/sample-first
+  preflight only: no API route, hosted runtime, Cloudflare, worker, queue,
+  partner adapter, billing, Redis truth, provider routing, or visible Developer
+  Space UI changed.
 - DAEDALUS implements PR110 Memory Runtime Explanation Readback on 2026-06-20
   and wakes ARGUS for review. The owner Memory page now has a compact Runtime
   context / Memory explanation section that joins the existing owner-only Memory
@@ -8848,7 +8856,41 @@ git diff --check
 - Developer Spaces visual polish before ingestion auth, validation, limits, and
   safe serialization.
 
-## Latest ARGUS verdict - PR119 staging closeout packet
+## Latest ARGUS verdict - PR120 observed runtime fixture preflight
+
+PR120 2C Observed Runtime Fixture Preflight is implemented by DAEDALUS on
+2026-06-20 and accepted by ARGUS technical review. No visible route changed, so
+ARIADNE is not required for this closeout.
+
+ARGUS review notes:
+
+- The fixture contract is neutral and external-observer scoped:
+  `source.runtimeHostedBy` must be `external`, and `source.stationRole` must be
+  `observer`.
+- Public/member/owner readbacks are filtered through explicit
+  `fieldClassifications`; `secret` fields are never serialized.
+- Secret-shaped paths such as token, key, cookie, prompt, raw, password,
+  credential, authorization, or secret must be classified as `secret` or the
+  normalizer rejects the fixture.
+- The normalized public readback feeds existing Developer Space observatory
+  helpers without raw secrets, private traces, provider payloads, prompts, or
+  hosted-runtime claims.
+- The docs correctly frame future webhook/runtime work as later scope requiring
+  auth, replay protection, rate limits, storage policy, and hosted-environment
+  evidence.
+
+Non-scope preserved: no API route, hosted runtime, Cloudflare Worker/Vectorize,
+D1 binding, queue, background job, partner adapter, user-pasted secret flow,
+billing, Stripe, Redis memory truth, provider routing, or visible Developer
+Space UI behavior changed.
+
+ARGUS validation: `test:developer-spaces` 20 passed,
+`test:developer-space-client` 4 passed, `typecheck` passed, and
+`git diff --check` passed with CRLF normalization warnings only.
+
+Verdict: ready for MIMIR closeout or the next explicitly bounded Phase 2C lane.
+
+## Previous ARGUS verdict - PR119 staging closeout packet
 
 PR119 Staging Closeout Packet is accepted by ARGUS on 2026-06-20 and ready for
 MIMIR closeout.
