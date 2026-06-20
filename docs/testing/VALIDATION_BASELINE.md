@@ -107,6 +107,29 @@ ARGUS review notes:
 - No delegated mutation controls or global report visibility widening were
   added.
 
+ARIADNE visible-route rehearsal on 2026-06-20:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| Local Playwright route rehearsal with temporary `codex-pr102-route-rehearsal.spec.js` | Pass | Ran against `http://127.0.0.1:3133` with mocked API responses. Covered signed-out, ordinary member, revoked moderator, unrelated owner, subcommunity owner, active moderator, platform admin, empty queue, mixed mocked queue, desktop, and 390px mobile states. |
+
+ARIADNE notes:
+
+- Signed-out, ordinary, revoked, and unrelated-owner states did not fetch live
+  queue rows, render queue rows, or expose mutation controls.
+- Owner, active-moderator, and admin states discovered the scoped queue from the
+  category page and fetched only
+  `GET /forums/subcommunities/:slug/moderation/reports`.
+- Empty queue copy stayed plain and honest.
+- Mixed mocked rows rendered only safe thread/comment reports, dropped an
+  unsupported target row, and did not expose reporter emails, reporter ids,
+  admin notes, moderator identities, role assignments, raw owner/category/source
+  ids, private target body, or private target metadata.
+- Rows with safe route hints showed one `Open target` link; rows without safe
+  route access stayed read-only and showed the unavailable reason.
+- Desktop and 390px mobile states showed no horizontal overflow or offscreen
+  controls.
+
 ## PR101 Community Delegated Moderation Queue Foundation
 
 DAEDALUS implementation validation on 2026-06-20:

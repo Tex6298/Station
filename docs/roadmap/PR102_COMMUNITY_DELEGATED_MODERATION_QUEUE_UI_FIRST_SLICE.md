@@ -212,3 +212,44 @@ queue, mixed mocked rows, desktop, and 390px mobile states. Confirm denied
 states show no live rows or controls, permitted states can discover the scoped
 queue, unsupported/private fields do not appear, and read-only target rows stay
 honest when no safe link exists.
+
+## ARIADNE Visible-Route Rehearsal
+
+Accepted by ARIADNE on 2026-06-20 for MIMIR closeout.
+
+Local browser rehearsal covered `/forums/subcommunities/[slug]/moderation` and
+the category-page discovery link across signed-out, ordinary member, revoked
+moderator, unrelated owner, subcommunity owner, active moderator, platform
+admin, empty queue, mixed mocked queue, desktop, and 390px mobile states.
+
+Result:
+
+- Signed-out and denied direct-route states rendered access copy only; they did
+  not fetch `GET /forums/subcommunities/:slug/moderation/reports`, render queue
+  rows, or expose mutation controls.
+- Permitted owner, active-moderator, and admin states discovered the scoped
+  queue from the category page and fetched only the scoped delegated queue
+  endpoint.
+- Empty queue state stayed plain and honest.
+- Mixed mocked rows rendered the safe thread/comment reports, dropped the
+  unsupported target row, and did not expose reporter emails, reporter ids,
+  admin notes, moderator identities, role assignments, raw owner/category/source
+  ids, private target body, or private target metadata.
+- Rows with `canOpenRoute: true` showed one safe `Open target` link; rows with
+  `canOpenRoute: false` stayed read-only and showed the unavailable reason
+  instead of inventing navigation.
+- The surface remained read-only: no delegated `PATCH /reports/:id`, status
+  mutation controls, report action buttons, or global `/reports` calls appeared.
+- Desktop and 390px mobile rehearsals showed no horizontal overflow or offscreen
+  controls.
+
+Validation:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| Local Playwright route rehearsal with temporary `codex-pr102-route-rehearsal.spec.js` | Pass | Ran against `http://127.0.0.1:3133` with mocked API responses. Covered signed-out, ordinary, revoked, unrelated-owner, owner, active-moderator, admin, empty queue, mixed queue, desktop, and 390px mobile states. |
+
+ARIADNE verdict: PR102 is Station-fit as a small scoped queue readback surface.
+It is discoverable for users who can act, clear for users who cannot, and
+preserves the line between delegated moderation visibility and private/admin
+moderation infrastructure. MIMIR can close PR102.

@@ -8059,25 +8059,29 @@ git diff --check
 - Developer Spaces visual polish before ingestion auth, validation, limits, and
   safe serialization.
 
-## Latest ARGUS handoff - PR102
+## Latest ARIADNE handoff - PR102
 
-PR102 Community Delegated Moderation Queue UI First Slice is technically
-accepted by ARGUS on 2026-06-20 and handed to ARIADNE for visible-route
-rehearsal.
+PR102 Community Delegated Moderation Queue UI First Slice is accepted by
+ARIADNE on 2026-06-20 and ready for MIMIR closeout.
 
-ARGUS verified that `/forums/subcommunities/[slug]/moderation` is scoped to one
-subcommunity, fetches queue rows only after signed-in/preflight success, links
-from category pages only for admins, owners, or API-confirmed active
-moderators, sanitizes delegated rows to safe fields, drops unsupported/private
-fields, and adds no delegated mutation controls or global `/reports` widening.
+ARIADNE rehearsed `/forums/subcommunities/[slug]/moderation` and the
+category-page discovery link across signed-out, ordinary member, revoked
+moderator, unrelated owner, subcommunity owner, active moderator, platform
+admin, empty queue, mixed mocked queue, desktop, and 390px mobile states.
 
-Validation: `test:studio-ui` 75 passed, `test:community` 17 passed,
-`test:reports` 6 passed, `test:document-discussions` 1 passed, `typecheck`
-passed after Next regenerated `.next/types`, `git diff --check` passed with
-CRLF warnings only, and the web build reached compile/lint/typecheck/page data,
-35 generated pages, optimization, and trace collection before the known local
-Windows standalone symlink `EPERM`.
+Result: signed-out and denied states showed no live rows, controls, or scoped
+queue fetches; owner, active-moderator, and admin states could discover and read
+only the scoped delegated queue; unsupported/private mocked fields did not
+render; rows without safe target routes stayed read-only; no delegated mutation
+controls or global `/reports` calls appeared; and mobile showed no horizontal
+overflow.
 
-ARIADNE should rehearse signed-out, ordinary, revoked, unrelated-owner, owner,
-active-moderator, admin, empty queue, mixed mocked queue, desktop, and mobile
-states before MIMIR closeout.
+Validation: local Playwright route rehearsal with temporary
+`codex-pr102-route-rehearsal.spec.js` passed against
+`http://127.0.0.1:3133`. Earlier ARGUS validation remains: `test:studio-ui` 75
+passed, `test:community` 17 passed, `test:reports` 6 passed,
+`test:document-discussions` 1 passed, `typecheck` passed after Next regenerated
+`.next/types`, `git diff --check` passed with CRLF warnings only, and the web
+build reached compile/lint/typecheck/page data, 35 generated pages,
+optimization, and trace collection before the known local Windows standalone
+symlink `EPERM`.
