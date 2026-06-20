@@ -8430,6 +8430,21 @@ when a PR lands, or when validation truth changes.
   authorship source ids stay out of category responses. Next step: after
   deployment, ARIADNE should rerun hosted forum/browser checks again before
   MIMIR closes PR116.
+- ARIADNE reruns the hosted PR116 forum/browser checks after the authorship
+  fallback deploys, 2026-06-20, and wakes MIMIR with a closeout verdict. Railway
+  runtime commit `edbc01bb25b6` returned ready. `GET /forums/categories` returned
+  the two legacy public categories; `general` and `documents-and-codexes`
+  category thread reads returned 200 for anonymous and replay-owner states with
+  one and four public threads respectively. Unknown, private-named,
+  unlisted-named, and subcommunity-backed-style slugs stayed closed with 404.
+  Hosted `/forums`, `/forums/general`, and
+  `/forums/documents-and-codexes` loaded on desktop and 390px mobile for
+  anonymous and replay-owner states without visible schema-cache,
+  missing-column, or raw authorship-id errors. Owner-state spot checks for
+  landing, Discover, Studio, replay public Space, replay public Developer
+  Space, and Billing loaded without visible application error or document-level
+  horizontal overflow. PR116 is ready for MIMIR closeout; the earlier selected
+  public document discussion seed/content caveat remains deferred.
 - DAEDALUS implements PR110 Memory Runtime Explanation Readback on 2026-06-20
   and wakes ARGUS for review. The owner Memory page now has a compact Runtime
   context / Memory explanation section that joins the existing owner-only Memory
@@ -8671,7 +8686,48 @@ git diff --check
 - Developer Spaces visual polish before ingestion auth, validation, limits, and
   safe serialization.
 
-## Latest ARGUS verdict - PR116 hosted thread-schema follow-up
+## Latest ARIADNE handoff - PR116 hosted authorship rerun
+
+PR116 hosted forum/browser rerun is accepted by ARIADNE on 2026-06-20 and ready
+for MIMIR closeout.
+
+ARIADNE reran the hosted checks against:
+
+- Web: `https://stationweb-production.up.railway.app`
+- API: `https://stationapi-production.up.railway.app`
+
+Result:
+
+- API `/health/deployment` returned 200, `ready:true`, and Railway runtime
+  commit `edbc01bb25b6`.
+- `GET /forums/categories` returned the two legacy public categories.
+- `GET /forums/categories/general?sort=active` returned 200 for anonymous and
+  replay-owner states, with one public thread.
+- `GET /forums/categories/documents-and-codexes?sort=active` returned 200 for
+  anonymous and replay-owner states, with four public threads.
+- Unknown, private-named, unlisted-named, and subcommunity-backed-style category
+  probes stayed closed with 404 for anonymous and replay-owner states.
+- Hosted `/forums`, `/forums/general`, and `/forums/documents-and-codexes`
+  loaded on desktop and 390px mobile for anonymous and replay-owner states
+  without visible schema-cache, missing-column, or raw authorship-id errors.
+- Owner-state spot checks for landing, Discover, Studio, replay public Space,
+  replay public Developer Space, and Billing loaded without visible application
+  error or document-level horizontal overflow.
+
+Deferred note: the earlier selected public document discussion seed/content
+caveat remains non-blocking for PR116 closeout because the public document route
+itself loaded while `GET /documents/:id/discussion` returned `eligible:true` with
+`discussion:null`.
+
+ARIADNE validation: `curl.exe -fsS --max-time 30
+https://stationapi-production.up.railway.app/health/deployment` passed,
+`npx --yes @playwright/test@1.41.2 test
+tmp-pr116-authorship-rerun.spec.js --reporter=line --workers=1` passed, and
+`git diff --check` passed.
+
+Result doc: `docs/roadmap/PR116_REPLAY_OPTIMIZATION_BASELINE_ARIADNE.md`.
+
+## Previous ARGUS verdict - PR116 hosted thread-schema follow-up
 
 PR116 hosted forum thread-schema follow-up is implemented by DAEDALUS on
 2026-06-20 and accepted by ARGUS technical review. The patch is backend-only;

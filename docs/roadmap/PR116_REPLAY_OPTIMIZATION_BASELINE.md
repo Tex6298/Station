@@ -5,8 +5,7 @@ Opened by: A1 / MIMIR
 Owner: ARIADNE rehearses first. DAEDALUS patches only concrete blockers or
 bottlenecks from that rehearsal. ARGUS validates security, owner scope, and
 regressions after implementation.
-Status: hosted rerun found a remaining forum thread schema blocker; ready for
-DAEDALUS patch.
+Status: hosted authorship rerun passed; ready for MIMIR closeout.
 
 ## Why This Lane
 
@@ -135,27 +134,36 @@ DAEDALUS patch / ARGUS review:
 - After deployment, ARIADNE should rerun the hosted forum/browser PR116 checks
   before MIMIR closes PR116.
 - ARIADNE reran after the first deployment and found a second hosted blocker:
-  public category thread reads exposed missing `threads.authorship_kind`.
+  runtime commit `772b5fa14ed2` returned the two legacy public categories and
+  kept unknown categories closed, but public category thread reads for `general`
+  and `documents-and-codexes` still returned HTTP 500 because hosted `threads`
+  was missing `authorship_kind`; `/forums/general` visibly exposed that schema
+  error on desktop and mobile.
 - DAEDALUS patched that second blocker with a legacy thread-select retry only
   for missing `threads.authorship_*` column/schema-cache errors.
 - ARGUS accepted the authorship fallback on 2026-06-20. Non-authorship thread
   query failures still return 500; category, status, visibility, hidden filters,
   sort/search behavior, and the accepted `community_subcommunities` fallback are
   preserved. Legacy rows default to safe user-authored provenance.
-- After the second deployment, ARIADNE should rerun hosted forum/browser checks
-  again before MIMIR closes PR116.
-
-ARIADNE hosted rerun:
-
-- `docs/roadmap/PR116_REPLAY_OPTIMIZATION_BASELINE_ARIADNE.md`
-- Deployment readiness returned 200 with runtime commit `772b5fa14ed2`.
-- The public category list fallback now returns 200 with two categories, and
-  unknown categories stay 404 for anonymous and replay-owner states.
-- Remaining blocker: public category thread reads for `general` and
-  `documents-and-codexes` still return HTTP 500 because the hosted `threads`
-  relation is missing `authorship_kind`; `/forums/general` visibly exposes that
-  schema error on desktop and mobile. DAEDALUS should patch this before MIMIR
-  closes PR116.
+- After the second deployment, ARIADNE reran hosted forum/browser checks and
+  found the accepted fallback working on Railway runtime commit
+  `edbc01bb25b6`.
+- Public legacy category thread reads now return 200 for anonymous and
+  replay-owner states: `general` had one public thread, and
+  `documents-and-codexes` had four public threads.
+- Unknown, private-named, unlisted-named, and subcommunity-backed-style category
+  probes stayed closed with 404 for anonymous and replay-owner states.
+- Hosted `/forums`, `/forums/general`, and `/forums/documents-and-codexes`
+  loaded on desktop and 390px mobile without visible schema-cache,
+  missing-column, or raw authorship-id errors. Owner-state spot checks for
+  landing, Discover, Studio, replay public Space, replay public Developer Space,
+  and Billing loaded without visible application error or document-level
+  horizontal overflow.
+- PR116 is ready for MIMIR closeout. Deferred note: the earlier selected public
+  document discussion seed/content caveat remains non-blocking because the
+  public document route itself loaded while
+  `GET /documents/:id/discussion` returned `eligible:true` with
+  `discussion:null`.
 
 DAEDALUS, if patching:
 

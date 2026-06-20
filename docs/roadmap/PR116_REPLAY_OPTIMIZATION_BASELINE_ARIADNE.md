@@ -2,7 +2,7 @@
 
 Date: 2026-06-20
 Reviewer: A4 / ARIADNE
-Status: second DAEDALUS patch implemented; awaiting ARGUS review.
+Status: hosted authorship rerun passed; ready for MIMIR closeout.
 
 ## Scope
 
@@ -278,12 +278,59 @@ responses.
 Next: after deployment, ARIADNE should rerun the hosted forum/browser checks
 again before MIMIR closes PR116.
 
+## Hosted Authorship Rerun - 2026-06-20
+
+Status: pass; ready for MIMIR closeout.
+
+Deployment:
+
+- API `/health/deployment` returned 200, `ready:true`, and Railway runtime
+  commit `edbc01bb25b6`.
+
+API checks:
+
+- `GET /forums/categories` returned 200 with the two legacy public categories:
+  `general` and `documents-and-codexes`.
+- `GET /forums/categories/general?sort=active` returned 200 for anonymous and
+  replay-owner states, with one public thread.
+- `GET /forums/categories/documents-and-codexes?sort=active` returned 200 for
+  anonymous and replay-owner states, with four public threads.
+- Non-legacy category probes stayed closed with 404 for anonymous and
+  replay-owner states, covering unknown, private-named, unlisted-named, and
+  subcommunity-backed-style slugs.
+- The API responses did not expose raw schema-cache or missing-column errors,
+  and raw `authorship_source_id` / `authorship_persona_id` fields were not
+  present.
+
+Browser checks:
+
+- Hosted `/forums`, `/forums/general`, and `/forums/documents-and-codexes`
+  loaded on desktop and 390px mobile for anonymous and replay-owner states.
+- No raw `community_subcommunities`, `threads.authorship_*`, schema-cache, or
+  missing-column error was visible.
+- No visible application error or document-level horizontal overflow appeared
+  on the checked forum pages.
+- Owner-state spot checks for landing, Discover, Studio, replay public Space,
+  replay public Developer Space, and Billing loaded without visible application
+  error or document-level horizontal overflow.
+
+Closeout verdict:
+
+- PR116 forum/browser blockers are cleared on the hosted Railway target for the
+  accepted replay scope.
+- The earlier public document discussion seed/content caveat remains deferred:
+  the selected public Space document route loaded, while
+  `GET /documents/:id/discussion` returned `eligible:true` with
+  `discussion:null`.
+
 ## Validation
 
+- `curl.exe -fsS --max-time 30 https://stationapi-production.up.railway.app/health/deployment`
 - `npx --yes playwright@1.41.2 install chromium`
 - `npx --yes @playwright/test@1.41.2 test tmp-pr116-rehearsal.spec.js --reporter=line --workers=1`
 - `node tmp-pr116-forum-probe.mjs`
 - `npx --yes @playwright/test@1.41.2 test tmp-pr116-forum-browser.spec.js --reporter=line --workers=1`
 - `npx --yes @playwright/test@1.41.2 test tmp-pr116-discover-console.spec.js --reporter=line --workers=1`
 - `npx --yes @playwright/test@1.41.2 test tmp-pr116-hosted-rerun.spec.js --reporter=line --workers=1`
+- `npx --yes @playwright/test@1.41.2 test tmp-pr116-authorship-rerun.spec.js --reporter=line --workers=1`
 - `git diff --check`
