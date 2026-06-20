@@ -24,6 +24,26 @@ export interface ForumCategory {
   sortOrder: number;
 }
 
+export type SubcommunityType = 'general' | 'canon' | 'developer';
+export type SubcommunityVisibility = 'public' | 'community' | 'unlisted' | 'private';
+export type SubcommunityStatus = 'active' | 'paused' | 'archived';
+
+export interface CommunitySubcommunityRecord {
+  id: string;
+  categoryId: string;
+  slug: string;
+  title: string;
+  description?: string | null;
+  type: SubcommunityType;
+  visibility: SubcommunityVisibility;
+  status: SubcommunityStatus;
+  linkedSpaceId?: string | null;
+  linkedDeveloperSpaceId?: string | null;
+  ownerUserId?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface ThreadRecord {
   id: string;
   categoryId: string;

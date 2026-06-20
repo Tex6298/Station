@@ -9236,6 +9236,41 @@ Scope notes:
   expansion, raw ingestion key storage, secret logging, broad UI, public
   serializer expansion, or visible web UI changed.
 
+## PR91 Community Subcommunity Foundation
+
+DAEDALUS implementation validation on 2026-06-20:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:community` | Pass | 13 tests passed, including subcommunity creation gates, private/community list/read filtering, linked Developer Space refusal, category filtering, and thread-create category guard. |
+| `npm exec --yes pnpm@10.32.1 -- run test:reports` | Pass | 6 tests passed; report/review-request notification safety remains green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` | Pass | 1 test passed after changing subcommunity category lookup to a portable `select().eq().limit(1)` shape for older route test fakes. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck completed. |
+| `git diff --check` | Pass | CRLF normalization warnings only for touched files and local triad state. |
+
+Scope notes:
+
+- Added migration `041_community_subcommunities.sql` with a durable
+  subcommunity row linked one-to-one to `forum_categories`.
+- Shared DB/API types now expose subcommunity type, visibility, status, and
+  participant/owner-safe record shape.
+- Added public/community-safe list/read routes, owner/admin readback, and
+  canon-tier/admin creation at `/forums/subcommunities`.
+- Creation validates linked Spaces are owned/admin-accessible and public.
+- Creation validates linked Developer Spaces are owned/admin-accessible and not
+  private; this is a verified link only, not Developer Space product expansion.
+- Category/thread/comment reads now consult subcommunity visibility for
+  subcommunity-backed categories.
+- Temporary protected-alpha fallback: public/community subcommunity creation is
+  implemented; private/unlisted rows are modeled and owner-readable but new
+  private/unlisted creation is deferred until a dedicated thread-read/category
+  scoping slice can prove direct thread-id access cannot leak owner-only
+  material.
+- No visible route, broad forum redesign, delegated moderator UI,
+  witness/reputation mechanics, notification expansion, billing/provider/cache,
+  Redis/Upstash, Cloudflare, Developer Space product expansion, auth/session
+  refactor, or public visibility widening changed.
+
 ## PR90 Community Notifications UI First Slice
 
 DAEDALUS implementation validation on 2026-06-20:

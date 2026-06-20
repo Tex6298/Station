@@ -7396,6 +7396,25 @@ when a PR lands, or when validation truth changes.
   spaces. No delegated moderator UI, witness/reputation mechanics,
   notification expansion, billing/provider/cache work, Developer Space
   expansion, auth/session refactor, or broad UI redesign is opened.
+- DAEDALUS implements PR91 Community Subcommunity Foundation on 2026-06-20 and
+  wakes ARGUS for technical review. Migration 041 adds
+  `community_subcommunities`, linked one-to-one to `forum_categories`, with
+  slug/title/description, `general`/`canon`/`developer` type,
+  public/community/unlisted/private visibility, active/paused/archived status,
+  owner, and optional verified Space/Developer Space links. The API adds
+  public/community-safe `GET /forums/subcommunities`, owner/admin
+  `/forums/subcommunities/mine`, direct read by slug, and canon-tier/admin
+  creation. Creation currently permits public/community visibility only as a
+  protected-alpha safety fallback; private/unlisted rows are modeled and
+  owner-readable, but new private/unlisted creation is deferred until a
+  dedicated thread-read/category-scoping slice can prove no direct thread-id
+  leak. Linked Spaces must be owned/admin-accessible and public; linked
+  Developer Spaces must be owned/admin-accessible and not private. Existing
+  category/thread/comment reads now check subcommunity visibility before
+  exposing subcommunity-backed categories or thread/comment parents. No visible
+  route, delegated moderator UI, witness/reputation mechanics, notification
+  expansion, billing/provider/cache, Redis, Cloudflare, Developer Space product
+  expansion, auth/session refactor, or broad forum redesign was added.
 
 ## Near-term rule
 

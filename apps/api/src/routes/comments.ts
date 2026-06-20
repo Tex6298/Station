@@ -11,6 +11,7 @@ import {
   serializeModerationAction,
 } from "../services/community.service";
 import { notifyThreadComment } from "../services/community-notifications.service";
+import { canReadSubcommunity, loadSubcommunityForCategory } from "../services/community-subcommunities.service";
 
 const createCommentSchema = z.object({
   parentType: z.enum(["thread", "document", "space_page"]),
@@ -70,10 +71,12 @@ async function validateReadableParent(parentType: CommentParentType, parentId: s
   if (parentType === "thread") {
     const { data: thread } = await sb
       .from("threads")
-      .select("id, status, visibility, is_hidden, author_user_id")
+      .select("id, category_id, status, visibility, is_hidden, author_user_id")
       .eq("id", parentId)
       .single();
-    return canReadThread(thread, user);
+    if (!canReadThread(thread, user)) return false;
+    const subcommunity = await loadSubcommunityForCategory(thread.category_id);
+    return !subcommunity || canReadSubcommunity(subcommunity, user);
   }
 
   if (parentType === "document") {
@@ -179,11 +182,15 @@ commentsRouter.post(
     } else if (parentType === "thread") {
       const { data: thread } = await sb
         .from("threads")
-        .select("id, status, visibility, is_hidden, author_user_id")
+        .select("id, category_id, status, visibility, is_hidden, author_user_id")
         .eq("id", parentId)
         .single();
       if (!thread) return res.status(404).json({ error: "Thread not found" });
       if (!canReadThread(thread, req.user)) return res.status(404).json({ error: "Thread not found" });
+      const subcommunity = await loadSubcommunityForCategory(thread.category_id);
+      if (subcommunity && !canReadSubcommunity(subcommunity, req.user)) {
+        return res.status(404).json({ error: "Thread not found" });
+      }
       if (thread.status === "locked") return res.status(400).json({ error: "This thread is locked" });
       if (thread.status === "removed") return res.status(404).json({ error: "Thread not found" });
     }

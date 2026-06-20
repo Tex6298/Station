@@ -39,6 +39,9 @@ export type TopupPurchaseStatus = "pending" | "completed" | "refunded";
 export type SpacePageType = "home" | "about" | "personas" | "documents" | "custom";
 export type ThreadStatus = "active" | "locked" | "removed";
 export type ThreadVisibility = "public" | "community" | "unlisted";
+export type SubcommunityType = "general" | "canon" | "developer";
+export type SubcommunityVisibility = "public" | "community" | "unlisted" | "private";
+export type SubcommunityStatus = "active" | "paused" | "archived";
 export type CommentParentType = "thread" | "document" | "space_page";
 export type CommentStatus = "active" | "removed" | "flagged";
 export type ModerationTargetType = "user" | "space" | "document" | "thread" | "comment" | "persona";
@@ -832,6 +835,34 @@ export interface Database {
           created_at?: string;
         };
         Update: Partial<Database["public"]["Tables"]["forum_categories"]["Insert"]>;
+      };
+      community_subcommunities: {
+        Row: {
+          id: string;
+          category_id: string;
+          owner_user_id: string;
+          slug: string;
+          title: string;
+          description: string | null;
+          subcommunity_type: SubcommunityType;
+          visibility: SubcommunityVisibility;
+          status: SubcommunityStatus;
+          linked_space_id: string | null;
+          linked_developer_space_id: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: Omit<Database["public"]["Tables"]["community_subcommunities"]["Row"], "id" | "description" | "visibility" | "status" | "linked_space_id" | "linked_developer_space_id" | "created_at" | "updated_at"> & {
+          id?: string;
+          description?: string | null;
+          visibility?: SubcommunityVisibility;
+          status?: SubcommunityStatus;
+          linked_space_id?: string | null;
+          linked_developer_space_id?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["community_subcommunities"]["Insert"]>;
       };
       developer_spaces: {
         Row: {

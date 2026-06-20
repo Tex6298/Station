@@ -184,6 +184,7 @@ class CommunitySupabase {
         created_at: "2026-05-25T09:00:00.000Z",
       },
     ],
+    community_subcommunities: [],
     threads: [
       thread(PUBLIC_THREAD_ID, "Public Thread", "public"),
       thread(COMMUNITY_THREAD_ID, "Community Thread", "community"),
@@ -415,6 +416,22 @@ class CommunitySupabase {
       row.is_pinned ??= false;
       row.is_hidden ??= false;
       row.reported_count ??= 0;
+      row.created_at ??= now;
+      row.updated_at ??= now;
+    }
+
+    if (table === "forum_categories") {
+      row.description ??= null;
+      row.sort_order ??= 100;
+      row.created_at ??= now;
+    }
+
+    if (table === "community_subcommunities") {
+      row.description ??= null;
+      row.visibility ??= "public";
+      row.status ??= "active";
+      row.linked_space_id ??= null;
+      row.linked_developer_space_id ??= null;
       row.created_at ??= now;
       row.updated_at ??= now;
     }
@@ -956,6 +973,157 @@ test("forum thread creation validates linked entities and preserves visibility",
       },
     });
     assert.equal(privatePersonaLink.status, 400);
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
+
+test("subcommunity foundation gates creation and filters public/community/owner reads", async () => {
+  const db = new CommunitySupabase();
+  const privateCategory = db.insertRow("forum_categories", {
+    slug: "private-canon",
+    title: "Private Canon",
+    description: "Owner-only canon area.",
+  });
+  const privateSubcommunity = db.insertRow("community_subcommunities", {
+    category_id: privateCategory.id,
+    owner_user_id: OWNER_ID,
+    slug: "private-canon",
+    title: "Private Canon",
+    description: "Owner-only canon area.",
+    subcommunity_type: "canon",
+    visibility: "private",
+    status: "active",
+  });
+  setSupabaseAdminForTests(db.client as any);
+  const app = createCommunityApp();
+
+  try {
+    const anonymousCreate = await requestJson(app, "POST", "/forums/subcommunities", {
+      body: {
+        slug: "developer-lab",
+        title: "Developer Lab",
+        type: "developer",
+      },
+    });
+    assert.equal(anonymousCreate.status, 401);
+
+    const memberCreate = await requestJson(app, "POST", "/forums/subcommunities", {
+      token: "member-token",
+      body: {
+        slug: "developer-lab",
+        title: "Developer Lab",
+        type: "developer",
+      },
+    });
+    assert.equal(memberCreate.status, 403);
+
+    const privateDeveloperSpace = await requestJson(app, "POST", "/forums/subcommunities", {
+      token: "admin-token",
+      body: {
+        slug: "private-dev-lab",
+        title: "Private Developer Lab",
+        type: "developer",
+        linkedDeveloperSpaceId: PRIVATE_DEV_SPACE_ID,
+      },
+    });
+    assert.equal(privateDeveloperSpace.status, 400);
+
+    const created = await requestJson(app, "POST", "/forums/subcommunities", {
+      token: "admin-token",
+      body: {
+        slug: "developer-lab",
+        title: "Developer Lab",
+        description: "Community developer coordination.",
+        type: "developer",
+        visibility: "community",
+        linkedDeveloperSpaceId: PUBLIC_DEV_SPACE_ID,
+      },
+    });
+    assert.equal(created.status, 201);
+    assert.equal(created.body.subcommunity.slug, "developer-lab");
+    assert.equal(created.body.subcommunity.type, "developer");
+    assert.equal(created.body.subcommunity.visibility, "community");
+    assert.equal(created.body.subcommunity.ownerUserId, ADMIN_ID);
+    assert.equal(created.body.subcommunity.linkedDeveloperSpaceId, PUBLIC_DEV_SPACE_ID);
+
+    const anonymousList = await requestJson(app, "GET", "/forums/subcommunities");
+    assert.equal(anonymousList.status, 200);
+    assert.equal(anonymousList.body.subcommunities.some((row: Row) => row.slug === "developer-lab"), false);
+    assert.equal(anonymousList.body.subcommunities.some((row: Row) => row.slug === "private-canon"), false);
+
+    const memberList = await requestJson(app, "GET", "/forums/subcommunities", {
+      token: "member-token",
+    });
+    assert.equal(memberList.status, 200);
+    const memberDeveloper = memberList.body.subcommunities.find((row: Row) => row.slug === "developer-lab");
+    assert.equal(memberDeveloper.type, "developer");
+    assert.equal(memberDeveloper.ownerUserId, undefined);
+    assert.equal(memberDeveloper.linkedDeveloperSpaceId, undefined);
+    assert.equal(memberList.body.subcommunities.some((row: Row) => row.slug === "private-canon"), false);
+
+    const anonymousRead = await requestJson(app, "GET", "/forums/subcommunities/developer-lab");
+    assert.equal(anonymousRead.status, 404);
+
+    const memberRead = await requestJson(app, "GET", "/forums/subcommunities/developer-lab", {
+      token: "member-token",
+    });
+    assert.equal(memberRead.status, 200);
+    assert.equal(memberRead.body.subcommunity.ownerUserId, undefined);
+    assert.equal(memberRead.body.subcommunity.linkedDeveloperSpaceId, undefined);
+
+    const ownerPrivateRead = await requestJson(app, "GET", "/forums/subcommunities/private-canon", {
+      token: "owner-token",
+    });
+    assert.equal(ownerPrivateRead.status, 200);
+    assert.equal(ownerPrivateRead.body.subcommunity.id, privateSubcommunity.id);
+    assert.equal(ownerPrivateRead.body.subcommunity.ownerUserId, OWNER_ID);
+
+    const memberPrivateRead = await requestJson(app, "GET", "/forums/subcommunities/private-canon", {
+      token: "member-token",
+    });
+    assert.equal(memberPrivateRead.status, 404);
+
+    const anonymousCategories = await requestJson(app, "GET", "/forums/categories");
+    assert.equal(anonymousCategories.status, 200);
+    assert.equal(anonymousCategories.body.categories.some((category: Row) => category.slug === "developer-lab"), false);
+    assert.equal(anonymousCategories.body.categories.some((category: Row) => category.slug === "private-canon"), false);
+
+    const memberCategories = await requestJson(app, "GET", "/forums/categories", {
+      token: "member-token",
+    });
+    assert.equal(memberCategories.status, 200);
+    assert.equal(memberCategories.body.categories.some((category: Row) => category.slug === "developer-lab"), true);
+    assert.equal(memberCategories.body.categories.some((category: Row) => category.slug === "private-canon"), false);
+
+    const category = await requestJson(app, "GET", "/forums/categories/developer-lab", {
+      token: "member-token",
+    });
+    assert.equal(category.status, 200);
+    assert.equal(category.body.category.subcommunity.slug, "developer-lab");
+
+    const anonymousCategory = await requestJson(app, "GET", "/forums/categories/developer-lab");
+    assert.equal(anonymousCategory.status, 404);
+
+    const memberThread = await requestJson(app, "POST", "/forums/threads", {
+      token: "member-token",
+      body: {
+        categoryId: created.body.subcommunity.categoryId,
+        title: "Developer lab thread",
+        body: "Community-visible thread.",
+      },
+    });
+    assert.equal(memberThread.status, 201);
+
+    const privateThread = await requestJson(app, "POST", "/forums/threads", {
+      token: "member-token",
+      body: {
+        categoryId: privateCategory.id,
+        title: "Private category bypass",
+        body: "This should not land.",
+      },
+    });
+    assert.equal(privateThread.status, 404);
   } finally {
     setSupabaseAdminForTests(null);
   }

@@ -15,6 +15,7 @@ import {
   serializeCommentDiscussionProvenance,
   serializeThreadDiscussionProvenance,
 } from "../services/community-provenance.service";
+import { canReadSubcommunity, loadSubcommunityForCategory } from "../services/community-subcommunities.service";
 
 export const threadsRouter = Router();
 const COMMUNITY_TIERS = new Set(["private", "creator", "canon", "institutional"]);
@@ -67,6 +68,10 @@ threadsRouter.get("/:id", optionalAuth, async (req: Request, res: Response) => {
 
   if (threadErr || !thread) return res.status(404).json({ error: "Thread not found" });
   if (!canReadThread(thread, req.user)) return res.status(404).json({ error: "Thread not found" });
+  const subcommunity = await loadSubcommunityForCategory(thread.category_id);
+  if (subcommunity && !canReadSubcommunity(subcommunity, req.user)) {
+    return res.status(404).json({ error: "Thread not found" });
+  }
 
   const { data: comments, error: commentErr } = await sb
     .from("comments")
@@ -122,11 +127,15 @@ threadsRouter.get("/:id/watch", async (req: Request, res: Response) => {
   const sb = getSupabaseAdmin();
   const { data: thread } = await sb
     .from("threads")
-    .select("id, status, visibility, is_hidden, author_user_id")
+    .select("id, category_id, status, visibility, is_hidden, author_user_id")
     .eq("id", req.params.id)
     .maybeSingle();
 
   if (!thread || !canReadThread(thread, req.user)) return res.status(404).json({ error: "Thread not found" });
+  const subcommunity = await loadSubcommunityForCategory(thread.category_id);
+  if (subcommunity && !canReadSubcommunity(subcommunity, req.user)) {
+    return res.status(404).json({ error: "Thread not found" });
+  }
 
   const { data, error } = await (sb as any)
     .from("community_thread_watches")
@@ -146,11 +155,15 @@ threadsRouter.put("/:id/watch", requireTier("private"), async (req: Request, res
   const sb = getSupabaseAdmin();
   const { data: thread } = await sb
     .from("threads")
-    .select("id, status, visibility, is_hidden, author_user_id")
+    .select("id, category_id, status, visibility, is_hidden, author_user_id")
     .eq("id", req.params.id)
     .maybeSingle();
 
   if (!thread || !canReadThread(thread, req.user)) return res.status(404).json({ error: "Thread not found" });
+  const subcommunity = await loadSubcommunityForCategory(thread.category_id);
+  if (subcommunity && !canReadSubcommunity(subcommunity, req.user)) {
+    return res.status(404).json({ error: "Thread not found" });
+  }
 
   const { data, error } = await (sb as any)
     .from("community_thread_watches")
@@ -176,11 +189,15 @@ threadsRouter.delete("/:id/watch", requireTier("private"), async (req: Request, 
   const sb = getSupabaseAdmin();
   const { data: thread } = await sb
     .from("threads")
-    .select("id, status, visibility, is_hidden, author_user_id")
+    .select("id, category_id, status, visibility, is_hidden, author_user_id")
     .eq("id", req.params.id)
     .maybeSingle();
 
   if (!thread || !canReadThread(thread, req.user)) return res.status(404).json({ error: "Thread not found" });
+  const subcommunity = await loadSubcommunityForCategory(thread.category_id);
+  if (subcommunity && !canReadSubcommunity(subcommunity, req.user)) {
+    return res.status(404).json({ error: "Thread not found" });
+  }
 
   const { error } = await (sb as any)
     .from("community_thread_watches")
@@ -200,11 +217,15 @@ threadsRouter.post("/:id/vote", requireTier("private"), async (req: Request, res
   const sb = getSupabaseAdmin();
   const { data: thread } = await sb
     .from("threads")
-    .select("id, status, visibility, is_hidden, author_user_id")
+    .select("id, category_id, status, visibility, is_hidden, author_user_id")
     .eq("id", req.params.id)
     .maybeSingle();
 
   if (!thread || !canReadThread(thread, req.user)) return res.status(404).json({ error: "Thread not found" });
+  const subcommunity = await loadSubcommunityForCategory(thread.category_id);
+  if (subcommunity && !canReadSubcommunity(subcommunity, req.user)) {
+    return res.status(404).json({ error: "Thread not found" });
+  }
 
   try {
     const vote = await castCommunityVote({
@@ -295,11 +316,15 @@ threadsRouter.delete("/:id", async (req: Request, res: Response) => {
 
   const { data: thread, error: findErr } = await sb
     .from("threads")
-    .select("id, author_user_id")
+    .select("id, category_id, author_user_id")
     .eq("id", req.params.id)
     .single();
 
   if (findErr || !thread) return res.status(404).json({ error: "Thread not found" });
+  const subcommunity = await loadSubcommunityForCategory(thread.category_id);
+  if (subcommunity && !canReadSubcommunity(subcommunity, req.user)) {
+    return res.status(404).json({ error: "Thread not found" });
+  }
   if (thread.author_user_id !== userId && !req.user!.isAdmin) {
     return res.status(403).json({ error: "Forbidden" });
   }

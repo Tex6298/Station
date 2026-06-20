@@ -11,6 +11,13 @@ import {
   serializeCommunityProfile,
 } from "../services/community.service";
 import { serializeThreadDiscussionProvenance } from "../services/community-provenance.service";
+import {
+  canCreateSubcommunity,
+  canListSubcommunity,
+  canReadSubcommunity,
+  loadSubcommunityForCategory,
+  serializeSubcommunity,
+} from "../services/community-subcommunities.service";
 
 const createThreadSchema = z.object({
   categoryId: z.string().uuid(),
@@ -19,6 +26,15 @@ const createThreadSchema = z.object({
   linkedSpaceId: z.string().uuid().optional().nullable(),
   linkedPersonaId: z.string().uuid().optional().nullable(),
   linkedDocumentId: z.string().uuid().optional().nullable(),
+});
+const createSubcommunitySchema = z.object({
+  slug: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/).min(3).max(80),
+  title: z.string().min(1).max(120),
+  description: z.string().max(500).optional().nullable(),
+  type: z.enum(["canon", "developer"]),
+  visibility: z.enum(["public", "community"]).default("public"),
+  linkedSpaceId: z.string().uuid().optional().nullable(),
+  linkedDeveloperSpaceId: z.string().uuid().optional().nullable(),
 });
 
 export const forumsRouter = Router();
@@ -111,7 +127,7 @@ async function validateThreadLinks(
 }
 
 // --- Public: list all categories --------------------------------------------
-forumsRouter.get("/categories", async (_req: Request, res: Response) => {
+forumsRouter.get("/categories", optionalAuth, async (req: Request, res: Response) => {
   const sb = getSupabaseAdmin();
   const { data, error } = await sb
     .from("forum_categories")
@@ -119,7 +135,65 @@ forumsRouter.get("/categories", async (_req: Request, res: Response) => {
     .order("sort_order", { ascending: true });
 
   if (error) return res.status(500).json({ error: error.message });
-  res.json({ categories: data ?? [] });
+
+  const { data: subcommunities } = await (sb as any)
+    .from("community_subcommunities")
+    .select("*");
+  const subByCategory = new Map<string, any>((subcommunities ?? []).map((row: any) => [row.category_id, row]));
+  const categories = (data ?? [])
+    .map((category: any) => {
+      const subcommunity = subByCategory.get(category.id);
+      if (subcommunity && !canListSubcommunity(subcommunity, req.user)) return null;
+      return {
+        ...category,
+        subcommunity: subcommunity ? serializeSubcommunity(subcommunity, req.user) : null,
+      };
+    })
+    .filter(Boolean);
+
+  res.json({ categories });
+});
+
+forumsRouter.get("/subcommunities", optionalAuth, async (req: Request, res: Response) => {
+  const sb = getSupabaseAdmin();
+  const { data, error } = await (sb as any)
+    .from("community_subcommunities")
+    .select("*")
+    .order("created_at", { ascending: false });
+
+  if (error) return res.status(500).json({ error: error.message });
+  const subcommunities = (data ?? [])
+    .filter((row: any) => canListSubcommunity(row, req.user))
+    .map((row: any) => serializeSubcommunity(row, req.user));
+  return res.json({ subcommunities });
+});
+
+forumsRouter.get("/subcommunities/mine", optionalAuth, async (req: Request, res: Response) => {
+  if (!req.user) return res.status(401).json({ error: "Authentication required." });
+
+  const sb = getSupabaseAdmin();
+  let query = (sb as any)
+    .from("community_subcommunities")
+    .select("*")
+    .order("created_at", { ascending: false });
+  if (!req.user.isAdmin) query = query.eq("owner_user_id", req.user.id);
+
+  const { data, error } = await query;
+  if (error) return res.status(500).json({ error: error.message });
+  return res.json({ subcommunities: (data ?? []).map((row: any) => serializeSubcommunity(row, req.user)) });
+});
+
+forumsRouter.get("/subcommunities/:slug", optionalAuth, async (req: Request, res: Response) => {
+  const sb = getSupabaseAdmin();
+  const { data, error } = await (sb as any)
+    .from("community_subcommunities")
+    .select("*")
+    .eq("slug", req.params.slug)
+    .maybeSingle();
+
+  if (error) return res.status(500).json({ error: error.message });
+  if (!data || !canReadSubcommunity(data, req.user)) return res.status(404).json({ error: "Subcommunity not found" });
+  return res.json({ subcommunity: serializeSubcommunity(data, req.user) });
 });
 
 // --- Public: get category + its threads -------------------------------------
@@ -136,6 +210,10 @@ forumsRouter.get("/categories/:slug", optionalAuth, async (req: Request, res: Re
     .single();
 
   if (catErr || !category) return res.status(404).json({ error: "Category not found" });
+  const subcommunity = await loadSubcommunityForCategory(category.id);
+  if (subcommunity && !canReadSubcommunity(subcommunity, req.user)) {
+    return res.status(404).json({ error: "Category not found" });
+  }
 
   const orderColumn = sort === "hot" ? "hot_score" : sort === "new" ? "created_at" : "last_activity_at";
 
@@ -194,11 +272,65 @@ forumsRouter.get("/categories/:slug", optionalAuth, async (req: Request, res: Re
     };
   });
 
-  res.json({ category, threads: enrichedThreads });
+  res.json({
+    category: {
+      ...category,
+      subcommunity: subcommunity ? serializeSubcommunity(subcommunity, req.user) : null,
+    },
+    threads: enrichedThreads,
+  });
 });
 
 // --- Auth-gated below --------------------------------------------------------
 forumsRouter.use(requireAuth);
+
+forumsRouter.post("/subcommunities", async (req: Request, res: Response) => {
+  if (!canCreateSubcommunity(req.user)) {
+    return res.status(403).json({ error: "Canon tier or admin access required." });
+  }
+
+  const parsed = createSubcommunitySchema.safeParse(req.body);
+  if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
+
+  const sb = getSupabaseAdmin();
+  const linkCheck = await validateSubcommunityLinks(parsed.data, req.user!);
+  if ("error" in linkCheck) return res.status(linkCheck.status).json({ error: linkCheck.error });
+
+  const { data: category, error: categoryError } = await (sb as any)
+    .from("forum_categories")
+    .insert({
+      slug: parsed.data.slug,
+      title: parsed.data.title,
+      description: parsed.data.description ?? null,
+      sort_order: 100,
+    })
+    .select("*")
+    .single();
+
+  if (categoryError || !category) {
+    return res.status(500).json({ error: categoryError?.message ?? "Failed to create subcommunity category." });
+  }
+
+  const { data, error } = await (sb as any)
+    .from("community_subcommunities")
+    .insert({
+      category_id: category.id,
+      owner_user_id: req.user!.id,
+      slug: parsed.data.slug,
+      title: parsed.data.title,
+      description: parsed.data.description ?? null,
+      subcommunity_type: parsed.data.type,
+      visibility: parsed.data.visibility,
+      status: "active",
+      linked_space_id: parsed.data.linkedSpaceId ?? null,
+      linked_developer_space_id: parsed.data.linkedDeveloperSpaceId ?? null,
+    })
+    .select("*")
+    .single();
+
+  if (error || !data) return res.status(500).json({ error: error?.message ?? "Failed to create subcommunity." });
+  return res.status(201).json({ subcommunity: serializeSubcommunity(data, req.user) });
+});
 
 // --- Create thread (minimum: Basic tier) ---------------------------
 forumsRouter.post(
@@ -219,6 +351,10 @@ forumsRouter.post(
       .single();
 
     if (catErr || !category) return res.status(404).json({ error: "Category not found" });
+    const subcommunity = await loadSubcommunityForCategory(category.id);
+    if (subcommunity && !canReadSubcommunity(subcommunity, req.user!)) {
+      return res.status(404).json({ error: "Category not found" });
+    }
 
     const links = await validateThreadLinks(parsed.data, req.user!);
     if (links.ok === false) return res.status(links.status).json({ error: links.error });
@@ -263,4 +399,45 @@ async function loadCommunityProfiles(userIds: string[]) {
 
   if (error) return {};
   return Object.fromEntries((data ?? []).map((row: any) => [row.user_id, serializeCommunityProfile(row)]));
+}
+
+async function validateSubcommunityLinks(
+  input: z.infer<typeof createSubcommunitySchema>,
+  user: AuthenticatedUser
+): Promise<{ ok: true } | { status: number; error: string }> {
+  const sb = getSupabaseAdmin();
+
+  if (input.linkedSpaceId) {
+    const { data: space } = await (sb as any)
+      .from("spaces")
+      .select("id, owner_user_id, is_public")
+      .eq("id", input.linkedSpaceId)
+      .maybeSingle();
+
+    if (!space) return { status: 404, error: "Linked Space not found." };
+    if (space.owner_user_id !== user.id && !user.isAdmin) {
+      return { status: 403, error: "You do not own the linked Space." };
+    }
+    if (!space.is_public) {
+      return { status: 400, error: "Linked Space must be public." };
+    }
+  }
+
+  if (input.linkedDeveloperSpaceId) {
+    const { data: developerSpace } = await (sb as any)
+      .from("developer_spaces")
+      .select("id, owner_user_id, visibility")
+      .eq("id", input.linkedDeveloperSpaceId)
+      .maybeSingle();
+
+    if (!developerSpace) return { status: 404, error: "Linked Developer Space not found." };
+    if (developerSpace.owner_user_id !== user.id && !user.isAdmin) {
+      return { status: 403, error: "You do not own the linked Developer Space." };
+    }
+    if (developerSpace.visibility === "private") {
+      return { status: 400, error: "Linked Developer Space must not be private." };
+    }
+  }
+
+  return { ok: true };
 }
