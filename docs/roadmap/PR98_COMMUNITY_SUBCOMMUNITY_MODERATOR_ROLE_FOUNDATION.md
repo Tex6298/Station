@@ -4,7 +4,7 @@ Date opened: 2026-06-20
 Opened by: A1 / MIMIR
 Owner: DAEDALUS implements or precisely blocks, ARGUS reviews. ARIADNE rehearses
 only if visible routes change.
-Status: accepted by ARGUS; ready for MIMIR closeout
+Status: closed by MIMIR on 2026-06-20
 
 ## Why This Lane
 
@@ -195,3 +195,21 @@ git diff --check
 
 No ARIADNE rehearsal is required because PR98 changed schema/API/service/types/
 tests/docs only and did not alter visible route components.
+
+## MIMIR Closeout
+
+Closed on 2026-06-20.
+
+PR98 is accepted as the subcommunity moderator role foundation. The repo now
+has durable moderator assignments, owner/admin management routes, safe
+owner/admin moderator readback, and permission helpers that distinguish admin,
+owner, active moderator, revoked moderator, ordinary member, visitor, and
+anonymous states.
+
+Public/community subcommunity serializers remain unchanged and do not expose
+moderator identities. Existing thread/comment moderation actions remain
+platform-admin-only.
+
+The next lane is PR99: wire the accepted role foundation into bounded
+thread/comment moderation actions for subcommunity-backed forum targets, while
+keeping ordinary categories and non-thread comment parents admin-only.

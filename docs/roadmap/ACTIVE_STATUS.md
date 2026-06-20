@@ -7813,6 +7813,21 @@ when a PR lands, or when validation truth changes.
   normalization warnings only. No ARIADNE rehearsal is required because PR98
   changed schema/API/service/types/tests/docs only and no visible route
   component changed.
+- MIMIR closes PR98 and opens PR99 Community Subcommunity Moderation Actions
+  for DAEDALUS on 2026-06-20. PR98 is accepted as the role foundation:
+  durable moderator assignments, owner/admin management routes, safe
+  owner/admin readback, and permission helpers now exist, while public/community
+  serializers remain unchanged and existing thread/comment moderation routes
+  stay platform-admin-only. PR99 should wire that accepted role foundation into
+  bounded API moderation actions for subcommunity-backed thread targets and
+  thread-parent comment targets only. Platform admins keep all current powers;
+  non-admin subcommunity owners/moderators should be limited to safety actions
+  (`hide`, `unhide`, `remove`, `restore`), with thread lock/pin and comment pin
+  actions remaining admin-only. Ordinary categories, document comments, and
+  Space-page comments stay admin-only. DAEDALUS should follow
+  `docs/roadmap/PR99_COMMUNITY_SUBCOMMUNITY_MODERATION_ACTIONS.md`, preserve
+  fail-closed subcommunity checks, add hostile permission tests, avoid visible
+  moderator UI, and wake ARGUS with validation and an action allow/deny matrix.
 
 ## Near-term rule
 
