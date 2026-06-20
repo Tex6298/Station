@@ -14,7 +14,10 @@ import {
   serializeModerationAction,
   setCommunityWitness,
 } from "../services/community.service";
-import { authorizeSubcommunityModeration } from "../services/community-moderation-permissions.service";
+import {
+  authorizeSubcommunityModeration,
+  viewerModerationSafetyActions,
+} from "../services/community-moderation-permissions.service";
 import { serializeCommunityThreadWatch } from "../services/community-notifications.service";
 import {
   serializeCommentDiscussionProvenance,
@@ -96,7 +99,7 @@ threadsRouter.get("/:id", optionalAuth, async (req: Request, res: Response) => {
 
   if (commentErr) return res.status(500).json({ error: commentErr.message });
 
-  const [viewerThreadVotes, viewerCommentVotes, moderationActions, threadWitnesses, commentWitnesses] = await Promise.all([
+  const [viewerThreadVotes, viewerCommentVotes, moderationActions, threadWitnesses, commentWitnesses, threadModerationActions, commentModerationActions] = await Promise.all([
     listViewerVotes({
       voterUserId: req.user?.id,
       targetType: "thread",
@@ -120,6 +123,21 @@ threadsRouter.get("/:id", optionalAuth, async (req: Request, res: Response) => {
       targetType: "comment",
       targetIds: (comments ?? []).map((comment) => comment.id),
     }).catch(() => ({})),
+    viewerModerationSafetyActions({
+      user: req.user,
+      subcommunity,
+      targetAuthorUserId: thread.author_user_id,
+      target: thread,
+    }),
+    Promise.all((comments ?? []).map(async (comment) => [
+      comment.id,
+      await viewerModerationSafetyActions({
+        user: req.user,
+        subcommunity,
+        targetAuthorUserId: comment.author_user_id,
+        target: comment,
+      }),
+    ] as const)).then((entries) => Object.fromEntries(entries)),
   ]);
 
   res.json({
@@ -127,12 +145,14 @@ threadsRouter.get("/:id", optionalAuth, async (req: Request, res: Response) => {
       ...withCommunityAuthorshipProvenance(thread),
       document: serializeThreadDocumentLink(thread.document),
       viewer_vote: (viewerThreadVotes as Record<string, number>)[thread.id] ?? 0,
+      viewer_moderation_actions: threadModerationActions,
       ...(threadWitnesses as Record<string, any>)[thread.id],
       discussion_provenance: serializeThreadDiscussionProvenance(thread),
     },
     comments: (comments ?? []).map((comment) => ({
       ...withCommunityAuthorshipProvenance(comment),
       viewer_vote: (viewerCommentVotes as Record<string, number>)[comment.id] ?? 0,
+      viewer_moderation_actions: (commentModerationActions as Record<string, string[]>)[comment.id] ?? [],
       ...(commentWitnesses as Record<string, any>)[comment.id],
       discussion_provenance: serializeCommentDiscussionProvenance(),
     })),

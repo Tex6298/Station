@@ -154,6 +154,8 @@ export interface CommunityModerationActionRecord {
   createdAt: string;
 }
 
+export type CommunityModerationSafetyAction = 'hide' | 'unhide' | 'remove' | 'restore';
+
 export type CommunityNotificationType = 'thread_comment' | 'report_status' | 'review_request_status';
 export type CommunityNotificationTargetType = 'thread' | 'comment' | 'moderation_report' | 'moderation_review_request';
 export type CommunityWitnessKind = 'helpful' | 'grounded' | 'careful';

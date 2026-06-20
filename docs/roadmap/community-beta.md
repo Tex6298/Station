@@ -61,6 +61,11 @@ promised in the Station documents.
   `remove`, and `restore`; ordinary categories, document comments, Space-page
   comments, thread lock/pin actions, and comment pin actions remain
   platform-admin-only.
+- Visible delegated moderation controls exist on forum thread detail for
+  current viewers whose `viewer_moderation_actions` prove they can already use
+  the PR99 thread/comment safety actions. The visible controls do not expose
+  moderator identities, role assignments, moderation reasons, private action
+  history, private action metadata, or admin-only actions.
 - Visible subcommunity directory, creation, and category context exist on
   `/forums`, `/forums/subcommunities`, and subcommunity-backed category routes,
   with signed-out/below-tier gates and no private/unlisted/owner-only field
@@ -104,7 +109,8 @@ pnpm test:reports
 - Broader recognition UX beyond the accepted thread/comment witness first
   slice; no leaderboards, badges, rankings, or public user scores are open.
 - Deeper moderator/admin console UX beyond safe target context, and any future
-  visible delegated moderator surfaces.
+  visible delegated moderator surfaces beyond the accepted thread-detail first
+  slice.
 - Future trusted AI/persona/imported authorship routes, if ever opened; current
   public creation routes remain user-authored only.
 

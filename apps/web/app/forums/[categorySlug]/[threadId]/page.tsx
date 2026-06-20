@@ -1,11 +1,17 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import type { AuthUser, CommunityWitnessCounts, CommunityWitnessKind } from "@station/types";
+import type { AuthUser, CommunityModerationSafetyAction, CommunityWitnessCounts, CommunityWitnessKind } from "@station/types";
 import { apiGet, apiPost, apiPut, apiDelete } from "@/lib/api-client";
 import { getSession } from "@/lib/auth";
+import {
+  getViewerModerationActions,
+  moderateComment,
+  moderateThread,
+  moderationActionLabel,
+} from "@/lib/community-moderation";
 import { canUseThreadWatch, threadWatchPath } from "@/lib/community-notifications";
 import {
   addCommentWitness,
@@ -22,7 +28,8 @@ import {
 interface Author { username: string; display_name: string | null; avatar_url: string | null; }
 interface Thread {
   id: string; title: string; body: string; status: string;
-  visibility?: string; is_pinned?: boolean; linked_document_id?: string | null;
+  visibility?: string; is_pinned?: boolean; is_hidden?: boolean; linked_document_id?: string | null;
+  moderation_state?: string | null; viewer_moderation_actions?: CommunityModerationSafetyAction[];
   score: number; vote_count?: number; viewer_vote?: number; comment_count: number; created_at: string;
   witness_counts?: CommunityWitnessCounts; viewer_witnesses?: CommunityWitnessKind[];
   author_user_id: string; author: Author | null;
@@ -34,6 +41,7 @@ interface Comment {
   vote_count?: number; viewer_vote?: number;
   witness_counts?: CommunityWitnessCounts; viewer_witnesses?: CommunityWitnessKind[];
   is_pinned?: boolean; is_hidden?: boolean; reported_count?: number;
+  moderation_state?: string | null; viewer_moderation_actions?: CommunityModerationSafetyAction[];
   created_at: string; author_user_id: string; author: Author | null;
 }
 interface ModerationAction {
@@ -67,18 +75,25 @@ export default function ThreadPage() {
   const [watchFeedback, setWatchFeedback] = useState<string | null>(null);
   const [witnessUpdating, setWitnessUpdating] = useState<string | null>(null);
   const [witnessFeedback, setWitnessFeedback] = useState<string | null>(null);
+  const [moderationUpdating, setModerationUpdating] = useState<string | null>(null);
+  const [moderationFeedback, setModerationFeedback] = useState<{ tone: "error" | "success"; message: string } | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
+
+  const loadThreadData = useCallback(async (accessToken?: string) => {
+    const data = await apiGet<{ thread: Thread; comments: Comment[]; moderationActions?: ModerationAction[] }>(
+      `/threads/${threadId}`,
+      accessToken
+    );
+    setThread(data.thread);
+    setComments(data.comments);
+    setModerationActions(data.moderationActions ?? []);
+    return data;
+  }, [threadId]);
 
   useEffect(() => {
     if (!threadId) return;
     getSession().then(async (sess) => {
-      const data = await apiGet<{ thread: Thread; comments: Comment[]; moderationActions?: ModerationAction[] }>(
-        `/threads/${threadId}`,
-        sess?.access_token
-      );
-      setThread(data.thread);
-      setComments(data.comments);
-      setModerationActions(data.moderationActions ?? []);
+      const data = await loadThreadData(sess?.access_token);
       if (sess) {
         const nextSession = { access_token: sess.access_token, user: sess.user };
         setSession(nextSession);
@@ -97,7 +112,7 @@ export default function ThreadPage() {
     }).catch((e) => {
       setError(e instanceof Error ? e.message : "Thread not found.");
     }).finally(() => setLoading(false));
-  }, [threadId]);
+  }, [loadThreadData, threadId]);
 
   async function handleComment(e: React.FormEvent) {
     e.preventDefault();
@@ -233,6 +248,51 @@ export default function ThreadPage() {
     }
   }
 
+  async function handleModeration(
+    targetType: WitnessTargetType,
+    targetId: string,
+    action: CommunityModerationSafetyAction
+  ) {
+    if (!session) return;
+    const key = `${targetType}:${targetId}:${action}`;
+    setModerationUpdating(key);
+    setModerationFeedback(null);
+    setCommentFeedback(null);
+    try {
+      if (targetType === "thread") {
+        const data = await moderateThread(session.access_token, targetId, action);
+        setThread((current) => current?.id === targetId
+          ? { ...current, ...data.thread, viewer_moderation_actions: [] }
+          : current);
+      } else {
+        const data = await moderateComment(session.access_token, targetId, action);
+        setComments((current) => {
+          if (action === "hide" || action === "remove") {
+            return current.filter((comment) => comment.id !== targetId);
+          }
+          return current.map((comment) => comment.id === targetId
+            ? { ...comment, ...data.comment, viewer_moderation_actions: [] }
+            : comment);
+        });
+      }
+
+      setModerationFeedback({ tone: "success", message: "Moderation action applied." });
+      try {
+        await loadThreadData(session.access_token);
+      } catch (refreshError) {
+        if (targetType === "thread" && (action === "hide" || action === "remove")) {
+          setError("Moderation action applied. This thread is no longer visible here.");
+        } else {
+          throw refreshError;
+        }
+      }
+    } catch (e) {
+      setModerationFeedback({ tone: "error", message: e instanceof Error ? e.message : "Could not apply moderation action." });
+    } finally {
+      setModerationUpdating(null);
+    }
+  }
+
   if (loading) return <main className="container"><div className="card" style={{ textAlign: "center", padding: "3rem", color: "#687078" }}>Loading...</div></main>;
   if (error || !thread) return <main className="container"><div className="card" style={{ background: "#2d1515", borderColor: "#7d2e2e", color: "#eb5757" }}>{error ?? "Not found."}</div></main>;
 
@@ -307,6 +367,22 @@ export default function ThreadPage() {
           updatingKey={witnessUpdating}
           onToggle={toggleWitness}
         />
+        <ModerationControls
+          targetType="thread"
+          target={thread}
+          session={session}
+          updatingKey={moderationUpdating}
+          onAction={handleModeration}
+        />
+        {moderationFeedback && (
+          <div style={{
+            color: moderationFeedback.tone === "success" ? "#25633f" : "#7d2e2e",
+            fontSize: "0.78rem",
+            marginTop: "0.6rem",
+          }}>
+            {moderationFeedback.message}
+          </div>
+        )}
         <div style={watchPanel}>
           {!session ? (
             <span>Sign in to watch replies on this thread.</span>
@@ -421,6 +497,13 @@ export default function ThreadPage() {
                 session={session}
                 updatingKey={witnessUpdating}
                 onToggle={toggleWitness}
+              />
+              <ModerationControls
+                targetType="comment"
+                target={c}
+                session={session}
+                updatingKey={moderationUpdating}
+                onAction={handleModeration}
               />
             </div>
           ))}
@@ -539,6 +622,48 @@ function WitnessControls({
   );
 }
 
+function ModerationControls({
+  targetType,
+  target,
+  session,
+  updatingKey,
+  onAction,
+}: {
+  targetType: WitnessTargetType;
+  target: Pick<Thread | Comment, "id" | "viewer_moderation_actions">;
+  session: SessionState | null;
+  updatingKey: string | null;
+  onAction: (
+    targetType: WitnessTargetType,
+    targetId: string,
+    action: CommunityModerationSafetyAction
+  ) => void;
+}) {
+  const actions = getViewerModerationActions(session?.user ?? null, target);
+  if (actions.length === 0) return null;
+
+  return (
+    <div style={moderationPanel}>
+      <span style={{ color: "#1f2529", fontWeight: 600 }}>Moderation</span>
+      {actions.map((action) => {
+        const key = `${targetType}:${target.id}:${action}`;
+        const updating = updatingKey === key;
+        return (
+          <button
+            key={action}
+            type="button"
+            disabled={updatingKey !== null}
+            onClick={() => onAction(targetType, target.id, action)}
+            style={moderationButton(action === "remove" || action === "restore", updating)}
+          >
+            {updating ? "Saving..." : moderationActionLabel(action)}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
 function witnessKindLabel(kind: CommunityWitnessKind) {
   if (kind === "helpful") return "Helpful";
   if (kind === "grounded") return "Grounded";
@@ -591,6 +716,18 @@ const witnessPanel = {
   fontSize: "0.75rem",
 };
 
+const moderationPanel = {
+  borderTop: "1px solid #ece8dd",
+  marginTop: "0.75rem",
+  paddingTop: "0.75rem",
+  display: "flex",
+  gap: "0.45rem",
+  flexWrap: "wrap" as const,
+  alignItems: "center",
+  color: "#687078",
+  fontSize: "0.75rem",
+};
+
 function witnessButton(active: boolean, loading: boolean) {
   return {
     border: "1px solid #d8d3c8",
@@ -612,5 +749,18 @@ function witnessPill(active: boolean) {
     color: active ? "#25633f" : "#687078",
     fontSize: "0.72rem",
     padding: "0.16rem 0.48rem",
+  };
+}
+
+function moderationButton(strong: boolean, loading: boolean) {
+  return {
+    border: "1px solid #d8d3c8",
+    borderRadius: 6,
+    background: strong ? "#2d1515" : "#fff",
+    color: strong ? "#fff" : "#687078",
+    fontSize: "0.72rem",
+    padding: "0.16rem 0.48rem",
+    cursor: loading ? "wait" : "pointer",
+    opacity: loading ? 0.7 : 1,
   };
 }

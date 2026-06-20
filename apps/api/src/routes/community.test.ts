@@ -1463,12 +1463,65 @@ test("subcommunity owner and moderator actions are bounded to safety actions and
     });
     assert.equal(memberBeforeAssignment.status, 403);
 
+    const memberReadBeforeAssignment = await requestJson(app, "GET", `/threads/${subcommunityThread.id}`, {
+      token: "member-token",
+    });
+    assert.equal(memberReadBeforeAssignment.status, 200);
+    assert.deepEqual(memberReadBeforeAssignment.body.thread.viewer_moderation_actions, []);
+
     db.insertRow("community_subcommunity_moderators", {
       subcommunity_id: subcommunity.id,
       user_id: MEMBER_ID,
       status: "active",
       created_by: OWNER_ID,
     });
+
+    const ownerCapabilityRead = await requestJson(app, "GET", `/threads/${subcommunityThread.id}`, {
+      token: "owner-token",
+    });
+    assert.equal(ownerCapabilityRead.status, 200);
+    assert.deepEqual(ownerCapabilityRead.body.thread.viewer_moderation_actions, ["hide", "remove"]);
+    const ownerVisibleComment = ownerCapabilityRead.body.comments.find((row: Row) => row.id === subcommunityComment.id);
+    assert.deepEqual(ownerVisibleComment.viewer_moderation_actions, ["hide", "remove"]);
+
+    const memberCapabilityRead = await requestJson(app, "GET", `/threads/${subcommunityThread.id}`, {
+      token: "member-token",
+    });
+    assert.equal(memberCapabilityRead.status, 200);
+    assert.deepEqual(memberCapabilityRead.body.thread.viewer_moderation_actions, ["hide", "remove"]);
+    const memberVisibleComment = memberCapabilityRead.body.comments.find((row: Row) => row.id === subcommunityComment.id);
+    assert.deepEqual(memberVisibleComment.viewer_moderation_actions, ["hide", "remove"]);
+    const memberSelfCommentRead = memberCapabilityRead.body.comments.find((row: Row) => row.id === memberAuthoredComment.id);
+    assert.deepEqual(memberSelfCommentRead.viewer_moderation_actions, []);
+
+    const memberSelfThreadRead = await requestJson(app, "GET", `/threads/${memberAuthoredThread.id}`, {
+      token: "member-token",
+    });
+    assert.equal(memberSelfThreadRead.status, 200);
+    assert.deepEqual(memberSelfThreadRead.body.thread.viewer_moderation_actions, []);
+
+    const unrelatedOwnerRead = await requestJson(app, "GET", `/threads/${subcommunityThread.id}`, {
+      token: "other-token",
+    });
+    assert.equal(unrelatedOwnerRead.status, 200);
+    assert.deepEqual(unrelatedOwnerRead.body.thread.viewer_moderation_actions, []);
+
+    const visitorCapabilityRead = await requestJson(app, "GET", `/threads/${subcommunityThread.id}`, {
+      token: "visitor-token",
+    });
+    assert.equal(visitorCapabilityRead.status, 404);
+
+    const memberOrdinaryRead = await requestJson(app, "GET", `/threads/${PUBLIC_THREAD_ID}`, {
+      token: "member-token",
+    });
+    assert.equal(memberOrdinaryRead.status, 200);
+    assert.deepEqual(memberOrdinaryRead.body.thread.viewer_moderation_actions, []);
+
+    const adminOrdinaryRead = await requestJson(app, "GET", `/threads/${PUBLIC_THREAD_ID}`, {
+      token: "admin-token",
+    });
+    assert.equal(adminOrdinaryRead.status, 200);
+    assert.deepEqual(adminOrdinaryRead.body.thread.viewer_moderation_actions, ["hide", "remove"]);
 
     db.failNext("community_subcommunities", "select", "Could not prove subcommunity authority.");
     const blockedByLookupFailure = await requestJson(app, "PATCH", `/threads/${subcommunityThread.id}/moderation`, {

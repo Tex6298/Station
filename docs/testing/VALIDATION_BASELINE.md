@@ -48,6 +48,41 @@ pnpm test:developer-spaces
 pnpm test:developer-space-client
 ```
 
+## PR100 Community Delegated Moderation UI First Slice
+
+DAEDALUS implementation validation on 2026-06-20:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 71 tests passed, including new delegated moderation helper coverage for PR99 paths, safety-action filtering, signed-out/below-tier blocking, and no reason/identity labels. |
+| `npm exec --yes pnpm@10.32.1 -- run test:community` | Pass | 16 tests passed, including current-viewer moderation action readback for owner, active moderator, self-authored moderator target, unrelated owner, ordinary category, visitor, and admin states. |
+| `npm exec --yes pnpm@10.32.1 -- run test:reports` | Pass | 6 tests passed; report queue/readback and target context stayed green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` | Pass | 1 test passed; document discussion visibility stayed green. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck completed after the web build generated `.next/types`. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web build` | Partial / known Windows failure | Next compiled, linted/typechecked, collected page data, generated 35 static pages, then hit the known local Windows standalone symlink `EPERM`. Only the pre-existing raw `<img>` warnings appeared. |
+| `git diff --check` | Pass | CRLF normalization warnings only for touched files. |
+
+Scope notes:
+
+- `GET /threads/:id` now returns current-viewer `viewer_moderation_actions` on
+  the thread and returned thread-parent comments. The list is limited to
+  `hide`, `unhide`, `remove`, and `restore`.
+- The readback does not expose moderator identities, role assignments,
+  moderation reasons, private action history, private action metadata, or
+  admin-only actions.
+- Forum thread detail renders compact moderation controls only when the API
+  returns safe actions for the current viewer.
+- Visible controls call only `PATCH /threads/:id/moderation` and
+  `PATCH /comments/:id/moderation`.
+- Successful actions refetch the thread; hidden/removed comments are removed
+  from local state, and hidden/removed threads do not leave stale live controls
+  behind if the route is no longer readable.
+- No full moderator console redesign, report queue expansion, public moderator
+  directory, public moderation log, review-request expansion, notification
+  fanout, document/Space/persona/user mutation UI, billing/provider/cache,
+  Redis/Upstash, Cloudflare, Developer Space work, auth/session refactor,
+  styling overhaul, or visibility widening was added.
+
 ## PR99 Community Subcommunity Moderation Actions
 
 DAEDALUS implementation validation on 2026-06-20:

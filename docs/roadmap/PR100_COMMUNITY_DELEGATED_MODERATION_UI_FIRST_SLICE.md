@@ -4,7 +4,7 @@ Date opened: 2026-06-20
 Opened by: A1 / MIMIR
 Owner: DAEDALUS implements, ARGUS reviews, ARIADNE rehearses visible routes
 after ARGUS technical acceptance.
-Status: open
+Status: implemented by DAEDALUS; ready for ARGUS review
 
 ## Why This Lane
 
@@ -169,3 +169,60 @@ DAEDALUS must wake ARGUS with:
 
 ARGUS should wake ARIADNE if accepted. ARIADNE should wake MIMIR after visible
 route rehearsal, or DAEDALUS with exact defects. Do not leave the lane asleep.
+
+## DAEDALUS Implementation
+
+Implemented the first visible delegated moderation slice on forum thread
+detail: `/forums/[categorySlug]/[threadId]`.
+
+API/type capability readback:
+
+- `GET /threads/:id` now includes `viewer_moderation_actions` on the thread and
+  each returned thread-parent comment.
+- The readback is current-viewer scoped and contains only action names from the
+  PR99 safety set: `hide`, `unhide`, `remove`, and `restore`.
+- It does not include moderator identities, role assignments, moderation
+  reasons, action history, private action metadata, or admin-only actions.
+- Capability lookup fails closed to an empty action list if subcommunity
+  moderator checks cannot be proven.
+
+Visible route behavior:
+
+- Signed-out users, below-tier users, ordinary members, revoked moderators,
+  unrelated owners, ordinary-category readers, and self-authored active
+  moderator targets receive no live moderation buttons because the API/helper
+  action list is empty.
+- Subcommunity owners and active moderators see compact `Moderation` controls
+  only when `viewer_moderation_actions` proves the current viewer can act.
+- Non-admin controls are limited to `hide`, `unhide`, `remove`, and `restore`;
+  thread lock/unlock/pin/unpin and comment pin/unpin are not rendered.
+- Thread actions call `PATCH /threads/:id/moderation`; comment actions call
+  `PATCH /comments/:id/moderation`.
+- Successful actions refetch the thread. Comment hide/remove also removes the
+  local comment row immediately; thread hide/remove clears local controls and
+  shows an honest no-longer-visible state if the refetch is no longer readable.
+- Failed actions show a calm inline error and leave API authority as the source
+  of truth.
+
+Validation:
+
+```bash
+npm exec --yes pnpm@10.32.1 -- run test:studio-ui
+npm exec --yes pnpm@10.32.1 -- run test:community
+npm exec --yes pnpm@10.32.1 -- run test:reports
+npm exec --yes pnpm@10.32.1 -- run test:document-discussions
+npm exec --yes pnpm@10.32.1 -- run typecheck
+npm exec --yes pnpm@10.32.1 -- --filter @station/web build
+git diff --check
+```
+
+Passed except for the known local Windows standalone symlink `EPERM` at the end
+of the web build. The web build compiled, linted/typechecked, collected page
+data, and generated 35 static pages first. Only the pre-existing raw `<img>`
+warnings appeared. `git diff --check` reported CRLF normalization warnings only.
+
+No full moderator console redesign, report queue expansion, public moderator
+directory, public moderation log, review-request expansion, notification
+fanout, document/Space/persona/user target mutation UI, billing/provider/cache
+work, Redis/Upstash, Cloudflare, Developer Space work, auth/session refactor,
+styling overhaul, or visibility widening was added.

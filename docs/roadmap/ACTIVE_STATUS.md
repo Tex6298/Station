@@ -7874,6 +7874,27 @@ when a PR lands, or when validation truth changes.
   visible controls bounded to PR99 endpoints/action scope, and wake ARGUS for
   technical review; ARGUS should wake ARIADNE if accepted because visible routes
   will change.
+- DAEDALUS implements PR100 Community Delegated Moderation UI First Slice on
+  2026-06-20. `GET /threads/:id` now returns current-viewer
+  `viewer_moderation_actions` arrays for the thread and returned thread-parent
+  comments, limited to `hide`, `unhide`, `remove`, and `restore` and containing
+  no moderator identities, role assignments, reasons, private action history,
+  private action metadata, or admin-only actions. Forum thread detail now
+  renders compact `Moderation` controls only when those arrays are non-empty,
+  calls only the PR99 `PATCH /threads/:id/moderation` and
+  `PATCH /comments/:id/moderation` endpoints, refetches after successful
+  actions, removes hidden/removed comments from local state, and clears stale
+  thread controls if a moderated thread is no longer readable. Validation
+  passed `test:studio-ui` with 71 tests, `test:community` with 16 tests,
+  `test:reports` with 6 tests, `test:document-discussions`, and `typecheck`.
+  The web build compiled, linted/typechecked, collected page data, and
+  generated 35 static pages before the known local Windows standalone symlink
+  `EPERM`; only the pre-existing raw `<img>` warnings appeared. No full
+  moderator console redesign, report queue expansion, public moderator
+  directory, public moderation log, review-request expansion, notification
+  fanout, document/Space/persona/user mutation UI, billing/provider/cache,
+  Redis/Upstash, Cloudflare, Developer Space work, auth/session refactor,
+  styling overhaul, or visibility widening was added.
 
 ## Near-term rule
 

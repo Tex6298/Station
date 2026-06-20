@@ -2,12 +2,18 @@ import type { AuthenticatedUser } from "../middleware/require-auth";
 import type { CommunityModerationAction } from "./community.service";
 import { canModerateSubcommunity, loadSubcommunityForCategory } from "./community-subcommunities.service";
 
-const DELEGATED_SUBCOMMUNITY_ACTIONS = new Set<CommunityModerationAction>([
+export type CommunityModerationSafetyAction = "hide" | "unhide" | "remove" | "restore";
+
+const COMMUNITY_TIERS = new Set(["private", "creator", "canon", "institutional"]);
+
+export const COMMUNITY_MODERATION_SAFETY_ACTIONS: CommunityModerationSafetyAction[] = [
   "hide",
   "unhide",
   "remove",
   "restore",
-]);
+];
+
+const DELEGATED_SUBCOMMUNITY_ACTIONS = new Set<CommunityModerationAction>(COMMUNITY_MODERATION_SAFETY_ACTIONS);
 
 type ModerationAuthorization =
   | { ok: true; delegated: boolean }
@@ -52,4 +58,44 @@ export async function authorizeSubcommunityModeration(input: {
   }
 
   return { ok: true, delegated: true };
+}
+
+export function moderationSafetyActionsForTarget(target: {
+  status?: string | null;
+  is_hidden?: boolean | null;
+  isHidden?: boolean | null;
+  moderation_state?: string | null;
+  moderationState?: string | null;
+}): CommunityModerationSafetyAction[] {
+  const status = target.status ?? null;
+  const hidden = Boolean(target.is_hidden ?? target.isHidden);
+  const moderationState = target.moderation_state ?? target.moderationState ?? null;
+
+  if (status === "removed" || moderationState === "removed") return ["restore"];
+  if (hidden || moderationState === "hidden") return ["unhide", "remove"];
+  return ["hide", "remove"];
+}
+
+export async function viewerModerationSafetyActions(input: {
+  user?: AuthenticatedUser | null;
+  subcommunity: { id: string; owner_user_id: string } | null;
+  targetAuthorUserId?: string | null;
+  target: Parameters<typeof moderationSafetyActionsForTarget>[0];
+}): Promise<CommunityModerationSafetyAction[]> {
+  const user = input.user;
+  if (!user || (!user.isAdmin && !COMMUNITY_TIERS.has(user.tier))) return [];
+  if (user.isAdmin) return moderationSafetyActionsForTarget(input.target);
+  if (!input.subcommunity) return [];
+
+  let canModerate = false;
+  try {
+    canModerate = await canModerateSubcommunity(input.subcommunity as any, user);
+  } catch {
+    return [];
+  }
+
+  if (!canModerate) return [];
+  if (input.targetAuthorUserId === user.id && input.subcommunity.owner_user_id !== user.id) return [];
+
+  return moderationSafetyActionsForTarget(input.target);
 }
