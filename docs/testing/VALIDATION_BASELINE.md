@@ -48,6 +48,43 @@ pnpm test:developer-spaces
 pnpm test:developer-space-client
 ```
 
+## PR101 Community Delegated Moderation Queue Foundation
+
+DAEDALUS implementation validation on 2026-06-20:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:community` | Pass | 17 tests passed, including delegated queue owner/admin/active-moderator readback, ordinary/revoked/unrelated/visitor/anonymous denial, target exclusion, and serializer privacy. |
+| `npm exec --yes pnpm@10.32.1 -- run test:reports` | Pass | 6 tests passed; global admin `/reports` behavior and status mutation coverage stayed green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` | Pass | 1 test passed; document discussion visibility stayed green. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck completed. |
+| `git diff --check` | Pass | CRLF normalization warnings only for touched files. |
+
+Scope notes:
+
+- Added `GET /forums/subcommunities/:slug/moderation/reports` for scoped
+  delegated queue readback.
+- Platform admins, subcommunity owners, and active moderators can read the
+  scoped queue; ordinary members, revoked moderators, unrelated owners,
+  visitors, and anonymous users are denied.
+- Included reports are limited to threads in the subcommunity-backed category
+  and thread-parent comments under those threads.
+- Ordinary-category, cross-subcommunity, document, Space, persona, user,
+  document-comment, Space-page-comment, missing, and unsupported targets are
+  excluded.
+- The delegated serializer does not expose reporter ids/emails, admin notes,
+  reviewed-by/reviewed-at, moderator identities, role assignments, moderation
+  action reasons, hidden/private bodies, private target metadata, raw owner ids,
+  source ids, or raw category-id route hints.
+- Delegated status mutation remains closed; global `PATCH /reports/:id`
+  remains platform-admin-only.
+- No visible moderator console UI, global report visibility widening, public
+  moderation log, public moderator directory, review-request expansion,
+  notification fanout, document/Space/persona/user mutation UI/API,
+  billing/provider/cache, Redis/Upstash, Cloudflare, Developer Space work,
+  auth/session refactor, styling, broad UI work, or visibility widening was
+  added.
+
 ## PR100 Community Delegated Moderation UI First Slice
 
 DAEDALUS implementation validation on 2026-06-20:

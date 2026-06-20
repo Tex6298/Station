@@ -237,6 +237,17 @@ export interface ReporterModerationReportRecord {
   updatedAt: string;
 }
 
+export interface DelegatedModerationReportRecord {
+  id: string;
+  targetType: 'thread' | 'comment';
+  targetId: string;
+  reason: string;
+  status: 'open' | 'reviewing' | 'resolved' | 'dismissed';
+  targetContext?: ModerationReportTargetContext | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export type ModerationReviewRequestRole = 'reporter' | 'target_author';
 export type ModerationReviewRequestStatus = 'open' | 'reviewing' | 'upheld' | 'denied' | 'dismissed' | 'withdrawn';
 

@@ -7938,6 +7938,30 @@ when a PR lands, or when validation truth changes.
   categories and unsupported target types, keep status mutation admin-only by
   default, and wake ARGUS with route shape, permission matrix, serializer
   privacy proof, validation, and non-scope confirmation.
+- DAEDALUS implements PR101 Community Delegated Moderation Queue Foundation on
+  2026-06-20. Added API-only scoped readback at
+  `GET /forums/subcommunities/:slug/moderation/reports`, leaving global
+  `/reports` unchanged. The scoped queue is readable only by platform admins,
+  the subcommunity owner, and active moderators for that subcommunity. It
+  includes only reports for threads in the subcommunity-backed category and
+  thread-parent comments under those threads. It excludes ordinary categories,
+  cross-subcommunity targets, document/Space/persona/user reports,
+  document-comment reports, Space-page-comment reports, and unsupported/missing
+  targets. The delegated serializer returns report id, target type/id, reason,
+  status, timestamps, and bounded target context only; it does not expose
+  reporter ids/emails, admin notes, reviewed-by/reviewed-at, moderator
+  identities, role assignment rows, moderation action reasons, hidden/private
+  bodies, private target metadata, raw owner ids, source ids, or route hints
+  with raw category ids. Delegated report status mutation remains closed;
+  global `PATCH /reports/:id` remains platform-admin-only. Validation passed
+  `test:community` with 17 tests, `test:reports` with 6 tests,
+  `test:document-discussions`, `typecheck`, and `git diff --check` with CRLF
+  normalization warnings only. No visible moderator console UI, global report
+  visibility widening, public moderation log, public moderator directory,
+  review-request expansion, notification fanout, document/Space/persona/user
+  mutation UI/API, billing/provider/cache, Redis/Upstash, Cloudflare,
+  Developer Space work, auth/session refactor, styling, broad UI work, or
+  visibility widening was added.
 
 ## Near-term rule
 

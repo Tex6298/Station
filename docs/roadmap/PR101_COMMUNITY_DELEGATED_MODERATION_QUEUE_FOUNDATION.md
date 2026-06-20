@@ -4,7 +4,7 @@ Date opened: 2026-06-20
 Opened by: A1 / MIMIR
 Owner: DAEDALUS implements or precisely blocks, ARGUS reviews. ARIADNE rehearses
 only if visible routes change.
-Status: open
+Status: implemented by DAEDALUS; ready for ARGUS review
 
 ## Why This Lane
 
@@ -189,3 +189,79 @@ DAEDALUS must wake ARGUS with:
 
 ARGUS should wake ARIADNE only if visible routes changed; otherwise ARGUS
 should wake MIMIR with the PR101 verdict. Do not leave the lane asleep.
+
+## DAEDALUS Implementation
+
+Implemented an API-only scoped delegated queue route:
+
+```text
+GET /forums/subcommunities/:slug/moderation/reports
+```
+
+Permission behavior:
+
+- platform admins can read the scoped queue;
+- subcommunity owners can read their own scoped queue;
+- active moderators for that subcommunity can read the scoped queue;
+- ordinary members, unrelated owners, revoked moderators, visitors, and
+  anonymous users are denied.
+
+Included target matrix:
+
+- included: thread reports whose thread category is the requested
+  subcommunity-backed category;
+- included: comment reports only when the comment parent is a thread in the
+  requested subcommunity-backed category.
+
+Excluded target matrix:
+
+- ordinary-category thread reports;
+- cross-subcommunity thread/comment reports;
+- document, Space, persona, and user reports;
+- document-comment and Space-page-comment reports;
+- missing or unsupported targets.
+
+Delegated serializer fields:
+
+- report id;
+- target type and target id;
+- reason;
+- status;
+- created/updated timestamps;
+- bounded target context: title, status, visibility/moderation state where
+  applicable, hidden state, safe action list.
+
+Privacy proof:
+
+- no reporter user id, reporter email, admin notes, reviewed-by/reviewed-at,
+  moderator identity, role assignment row, moderation action reason, hidden
+  body, private target body, private target metadata, raw owner id, source id,
+  or route hint with raw category id is serialized.
+- delegated route hints are intentionally unavailable until a later visible
+  route can prove a safe slug; `canOpenRoute` is false.
+
+Status mutation decision:
+
+- delegated report status mutation remains closed. Global `PATCH /reports/:id`
+  is unchanged and remains platform-admin-only.
+
+Validation:
+
+```bash
+npm exec --yes pnpm@10.32.1 -- run test:community
+npm exec --yes pnpm@10.32.1 -- run test:reports
+npm exec --yes pnpm@10.32.1 -- run test:document-discussions
+npm exec --yes pnpm@10.32.1 -- run typecheck
+git diff --check
+```
+
+Passed. `test:community` now covers 17 tests including delegated queue
+positive, hostile, target-exclusion, and serializer privacy cases. `git diff
+--check` reported CRLF normalization warnings only.
+
+No visible moderator console UI, global `/reports` visibility widening,
+delegated status mutation, public moderation log, public moderator directory,
+review-request expansion, notification fanout, document/Space/persona/user
+target mutation UI/API, billing/provider/cache work, Redis/Upstash, Cloudflare,
+Developer Space work, auth/session refactor, styling, broad UI work, or
+visibility widening was added.

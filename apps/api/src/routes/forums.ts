@@ -1,6 +1,11 @@
 import { Router, Request, Response } from "express";
 import { z } from "zod";
 import type { ThreadVisibility } from "@station/db";
+import type {
+  CommunityModerationSafetyAction,
+  DelegatedModerationReportRecord,
+  ModerationReportTargetContext,
+} from "@station/types";
 import { getSupabaseAdmin } from "../lib/supabase";
 import { optionalAuth, requireAuth, type AuthenticatedUser } from "../middleware/require-auth";
 import { requireTier } from "../middleware/require-tier";
@@ -19,6 +24,7 @@ import {
   canCreateSubcommunity,
   canListSubcommunity,
   canManageSubcommunityModerators,
+  canModerateSubcommunity,
   canReadSubcommunity,
   assignSubcommunityModerator,
   loadSubcommunityForCategory,
@@ -46,6 +52,10 @@ const createSubcommunitySchema = z.object({
 });
 const moderatorAssignmentSchema = z.object({
   userId: z.string().min(1),
+});
+const delegatedReportQueueQuerySchema = z.object({
+  status: z.enum(["open", "reviewing", "resolved", "dismissed"]).optional(),
+  limit: z.coerce.number().int().min(1).max(100).default(50),
 });
 
 export const forumsRouter = Router();
@@ -307,6 +317,37 @@ forumsRouter.get("/categories/:slug", optionalAuth, async (req: Request, res: Re
 // --- Auth-gated below --------------------------------------------------------
 forumsRouter.use(requireAuth);
 
+forumsRouter.get("/subcommunities/:slug/moderation/reports", async (req: Request, res: Response) => {
+  const parsed = delegatedReportQueueQuerySchema.safeParse(req.query);
+  if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
+
+  const subcommunity = await loadSubcommunityBySlug(req.params.slug);
+  if (!subcommunity) return res.status(404).json({ error: "Subcommunity not found." });
+
+  const allowed = await canReadDelegatedModerationQueue(subcommunity, req.user);
+  if (!allowed) return res.status(403).json({ error: "Subcommunity moderator access required." });
+
+  const sb = getSupabaseAdmin();
+  let query = (sb as any)
+    .from("moderation_reports")
+    .select("*")
+    .in("target_type", ["thread", "comment"])
+    .order("created_at", { ascending: false })
+    .limit(parsed.data.limit);
+
+  if (parsed.data.status) {
+    query = query.eq("status", parsed.data.status);
+  } else {
+    query = query.in("status", ["open", "reviewing"]);
+  }
+
+  const { data, error } = await query;
+  if (error) return res.status(500).json({ error: error.message });
+
+  const reports = await delegatedReportsForSubcommunity(data ?? [], subcommunity);
+  return res.json({ reports });
+});
+
 forumsRouter.get("/subcommunities/:slug/moderators", async (req: Request, res: Response) => {
   const subcommunity = await loadSubcommunityBySlug(req.params.slug);
   if (!subcommunity) return res.status(404).json({ error: "Subcommunity not found." });
@@ -498,6 +539,125 @@ async function loadSubcommunityBySlug(slug: string) {
     .eq("slug", slug)
     .maybeSingle();
   return data ?? null;
+}
+
+async function canReadDelegatedModerationQueue(subcommunity: any, user?: AuthenticatedUser | null) {
+  if (!user) return false;
+  if (user.isAdmin) return true;
+  if (!canSeeCommunity(user)) return false;
+  try {
+    return canModerateSubcommunity(subcommunity, user);
+  } catch {
+    return false;
+  }
+}
+
+async function delegatedReportsForSubcommunity(
+  rows: any[],
+  subcommunity: any
+): Promise<DelegatedModerationReportRecord[]> {
+  const reports: DelegatedModerationReportRecord[] = [];
+
+  for (const row of rows) {
+    const resolved = await resolveDelegatedReportTarget(row, subcommunity);
+    if (!resolved) continue;
+    reports.push({
+      id: row.id,
+      targetType: row.target_type,
+      targetId: row.target_id,
+      reason: row.reason,
+      status: row.status,
+      targetContext: resolved,
+      createdAt: row.created_at,
+      updatedAt: row.updated_at,
+    });
+  }
+
+  return reports;
+}
+
+async function resolveDelegatedReportTarget(
+  report: any,
+  subcommunity: any
+): Promise<ModerationReportTargetContext | null> {
+  if (report.target_type === "thread") {
+    const thread = await loadThreadForDelegatedReport(report.target_id);
+    if (!thread || thread.category_id !== subcommunity.category_id) return null;
+    return delegatedThreadTargetContext(thread);
+  }
+
+  if (report.target_type === "comment") {
+    const comment = await loadCommentForDelegatedReport(report.target_id);
+    if (!comment || comment.parent_type !== "thread") return null;
+    const thread = await loadThreadForDelegatedReport(comment.parent_id);
+    if (!thread || thread.category_id !== subcommunity.category_id) return null;
+    return delegatedCommentTargetContext(comment, thread);
+  }
+
+  return null;
+}
+
+async function loadThreadForDelegatedReport(threadId: string) {
+  const sb = getSupabaseAdmin();
+  const { data } = await (sb as any)
+    .from("threads")
+    .select("id, title, status, visibility, is_hidden, moderation_state, category_id")
+    .eq("id", threadId)
+    .maybeSingle();
+  return data ?? null;
+}
+
+async function loadCommentForDelegatedReport(commentId: string) {
+  const sb = getSupabaseAdmin();
+  const { data } = await (sb as any)
+    .from("comments")
+    .select("id, parent_type, parent_id, status, is_hidden, moderation_state")
+    .eq("id", commentId)
+    .maybeSingle();
+  return data ?? null;
+}
+
+function delegatedThreadTargetContext(thread: any): ModerationReportTargetContext {
+  return {
+    targetType: "thread",
+    targetId: thread.id,
+    title: thread.title ?? null,
+    status: thread.status ?? null,
+    visibility: thread.visibility ?? null,
+    moderationState: thread.moderation_state ?? null,
+    isHidden: thread.is_hidden ?? false,
+    routeHref: null,
+    routeLabel: thread.title ?? thread.id,
+    canOpenRoute: false,
+    unavailableReason: "Delegated queue route hints do not expose category slugs yet.",
+    supportedActions: delegatedModerationActionsForTarget(thread),
+  };
+}
+
+function delegatedCommentTargetContext(comment: any, thread: any): ModerationReportTargetContext {
+  return {
+    targetType: "comment",
+    targetId: comment.id,
+    title: thread.title ?? null,
+    parentType: "thread",
+    parentId: thread.id,
+    status: comment.status ?? null,
+    moderationState: comment.moderation_state ?? null,
+    isHidden: comment.is_hidden ?? false,
+    routeHref: null,
+    routeLabel: thread.title ?? thread.id,
+    canOpenRoute: false,
+    unavailableReason: "Delegated queue route hints do not expose category slugs yet.",
+    supportedActions: delegatedModerationActionsForTarget(comment),
+  };
+}
+
+function delegatedModerationActionsForTarget(
+  target: { status?: string | null; is_hidden?: boolean | null }
+): CommunityModerationSafetyAction[] {
+  if (target.status === "removed") return ["restore"];
+  if (target.is_hidden) return ["unhide", "remove"];
+  return ["hide", "remove"];
 }
 
 async function loadSubcommunityForCategoryOrRespond(

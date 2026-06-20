@@ -201,6 +201,7 @@ class CommunitySupabase {
     community_notifications: [],
     community_witnesses: [],
     community_votes: [],
+    moderation_reports: [],
     community_moderation_actions: [
       {
         id: "moderation-action-public-thread",
@@ -484,6 +485,16 @@ class CommunitySupabase {
       row.metadata ??= {};
       row.read_at ??= null;
       row.created_at ??= now;
+    }
+
+    if (table === "moderation_reports") {
+      row.reason ??= "community_review";
+      row.notes ??= null;
+      row.status ??= "open";
+      row.reviewed_by ??= null;
+      row.reviewed_at ??= null;
+      row.created_at ??= now;
+      row.updated_at ??= now;
     }
 
     return row;
@@ -1647,6 +1658,236 @@ test("subcommunity owner and moderator actions are bounded to safety actions and
     assert.equal(actionRows.some((row) => row.moderator_user_id === MEMBER_ID && row.action_type === "unhide"), true);
     assert.equal(actionRows.some((row) => row.moderator_user_id === MEMBER_ID && row.target_id === subcommunityComment.id), true);
     assert.equal(actionRows.some((row) => row.reason === "lookup failure should not mutate target"), false);
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
+
+test("delegated subcommunity moderation queue is scoped and privacy-safe", async () => {
+  const db = new CommunitySupabase();
+  const category = db.insertRow("forum_categories", {
+    id: "32345678-1234-4123-8123-123456789abc",
+    slug: "queue-lab",
+    title: "Queue Lab",
+  });
+  const subcommunity = db.insertRow("community_subcommunities", {
+    id: "32345678-1234-4123-8123-123456789abd",
+    category_id: category.id,
+    owner_user_id: OWNER_ID,
+    slug: "queue-lab",
+    title: "Queue Lab",
+    subcommunity_type: "canon",
+    visibility: "community",
+    status: "active",
+  });
+  const otherCategory = db.insertRow("forum_categories", {
+    id: "32345678-1234-4123-8123-123456789abe",
+    slug: "other-queue-lab",
+    title: "Other Queue Lab",
+  });
+  db.insertRow("community_subcommunities", {
+    id: "32345678-1234-4123-8123-123456789abf",
+    category_id: otherCategory.id,
+    owner_user_id: OTHER_ID,
+    slug: "other-queue-lab",
+    title: "Other Queue Lab",
+    subcommunity_type: "canon",
+    visibility: "community",
+    status: "active",
+  });
+  const threadTarget = db.insertRow("threads", thread("32345678-1234-4123-8123-123456789ac0", "Queue Thread", "community", {
+    category_id: category.id,
+    author_user_id: OTHER_ID,
+    body: "Hidden/private thread body should not appear in delegated queue.",
+    moderation_state: "needs_review",
+  }));
+  const commentTarget = db.insertRow("comments", {
+    id: "32345678-1234-4123-8123-123456789ac1",
+    author_user_id: OTHER_ID,
+    parent_type: "thread",
+    parent_id: threadTarget.id,
+    body: "Hidden/private comment body should not appear in delegated queue.",
+    moderation_state: "needs_review",
+  });
+  const otherThreadTarget = db.insertRow("threads", thread("32345678-1234-4123-8123-123456789ac2", "Other Queue Thread", "community", {
+    category_id: otherCategory.id,
+  }));
+  const documentComment = db.insertRow("comments", {
+    id: "32345678-1234-4123-8123-123456789ac3",
+    author_user_id: OTHER_ID,
+    parent_type: "document",
+    parent_id: PUBLIC_DOC_ID,
+    body: "Document comment body should not appear.",
+  });
+  const spaceComment = db.insertRow("comments", {
+    id: "32345678-1234-4123-8123-123456789ac4",
+    author_user_id: OTHER_ID,
+    parent_type: "space_page",
+    parent_id: PUBLIC_PAGE_ID,
+    body: "Space page comment body should not appear.",
+  });
+  db.insertRow("community_subcommunity_moderators", {
+    subcommunity_id: subcommunity.id,
+    user_id: VISITOR_ID,
+    status: "revoked",
+    created_by: OWNER_ID,
+  });
+
+  const includedThreadReport = db.insertRow("moderation_reports", {
+    id: "report-thread-queue",
+    reporter_id: VISITOR_ID,
+    target_type: "thread",
+    target_id: threadTarget.id,
+    reason: "unsafe_thread",
+    notes: "Reporter private note should not appear.",
+    status: "open",
+    reviewed_by: ADMIN_ID,
+    reviewed_at: "2026-05-25T10:30:00.000Z",
+  });
+  const includedCommentReport = db.insertRow("moderation_reports", {
+    id: "report-comment-queue",
+    reporter_id: VISITOR_ID,
+    target_type: "comment",
+    target_id: commentTarget.id,
+    reason: "unsafe_comment",
+    notes: "Another private note should not appear.",
+    status: "reviewing",
+  });
+  db.insertRow("moderation_reports", {
+    id: "report-cross-subcommunity",
+    reporter_id: VISITOR_ID,
+    target_type: "thread",
+    target_id: otherThreadTarget.id,
+    reason: "cross_subcommunity",
+  });
+  db.insertRow("moderation_reports", {
+    id: "report-ordinary-category",
+    reporter_id: VISITOR_ID,
+    target_type: "thread",
+    target_id: PUBLIC_THREAD_ID,
+    reason: "ordinary_category",
+  });
+  db.insertRow("moderation_reports", {
+    id: "report-document",
+    reporter_id: VISITOR_ID,
+    target_type: "document",
+    target_id: PUBLIC_DOC_ID,
+    reason: "document_report",
+  });
+  db.insertRow("moderation_reports", {
+    id: "report-space",
+    reporter_id: VISITOR_ID,
+    target_type: "space",
+    target_id: PUBLIC_SPACE_ID,
+    reason: "space_report",
+  });
+  db.insertRow("moderation_reports", {
+    id: "report-persona",
+    reporter_id: VISITOR_ID,
+    target_type: "persona",
+    target_id: PUBLIC_PERSONA_ID,
+    reason: "persona_report",
+  });
+  db.insertRow("moderation_reports", {
+    id: "report-user",
+    reporter_id: VISITOR_ID,
+    target_type: "user",
+    target_id: OTHER_ID,
+    reason: "user_report",
+  });
+  db.insertRow("moderation_reports", {
+    id: "report-document-comment",
+    reporter_id: VISITOR_ID,
+    target_type: "comment",
+    target_id: documentComment.id,
+    reason: "document_comment",
+  });
+  db.insertRow("moderation_reports", {
+    id: "report-space-comment",
+    reporter_id: VISITOR_ID,
+    target_type: "comment",
+    target_id: spaceComment.id,
+    reason: "space_comment",
+  });
+
+  setSupabaseAdminForTests(db.client as any);
+  const app = createCommunityApp();
+
+  try {
+    const anonymous = await requestJson(app, "GET", "/forums/subcommunities/queue-lab/moderation/reports");
+    assert.equal(anonymous.status, 401);
+
+    const memberBeforeAssignment = await requestJson(app, "GET", "/forums/subcommunities/queue-lab/moderation/reports", {
+      token: "member-token",
+    });
+    assert.equal(memberBeforeAssignment.status, 403);
+
+    db.insertRow("community_subcommunity_moderators", {
+      subcommunity_id: subcommunity.id,
+      user_id: MEMBER_ID,
+      status: "active",
+      created_by: OWNER_ID,
+    });
+
+    const ownerRead = await requestJson(app, "GET", "/forums/subcommunities/queue-lab/moderation/reports", {
+      token: "owner-token",
+    });
+    assert.equal(ownerRead.status, 200);
+    assert.deepEqual(
+      ownerRead.body.reports.map((report: Row) => report.id).sort(),
+      [includedCommentReport.id, includedThreadReport.id].sort()
+    );
+
+    const activeModeratorRead = await requestJson(app, "GET", "/forums/subcommunities/queue-lab/moderation/reports", {
+      token: "member-token",
+    });
+    assert.equal(activeModeratorRead.status, 200);
+    assert.deepEqual(
+      activeModeratorRead.body.reports.map((report: Row) => report.id).sort(),
+      [includedCommentReport.id, includedThreadReport.id].sort()
+    );
+
+    const adminRead = await requestJson(app, "GET", "/forums/subcommunities/queue-lab/moderation/reports?status=open", {
+      token: "admin-token",
+    });
+    assert.equal(adminRead.status, 200);
+    assert.deepEqual(adminRead.body.reports.map((report: Row) => report.id), [includedThreadReport.id]);
+
+    const unrelatedOwner = await requestJson(app, "GET", "/forums/subcommunities/queue-lab/moderation/reports", {
+      token: "other-token",
+    });
+    assert.equal(unrelatedOwner.status, 403);
+
+    const revokedModerator = await requestJson(app, "GET", "/forums/subcommunities/queue-lab/moderation/reports", {
+      token: "visitor-token",
+    });
+    assert.equal(revokedModerator.status, 403);
+
+    const missingSubcommunity = await requestJson(app, "GET", "/forums/subcommunities/missing-queue/moderation/reports", {
+      token: "admin-token",
+    });
+    assert.equal(missingSubcommunity.status, 404);
+
+    const serialized = JSON.stringify(ownerRead.body);
+    assert.equal(serialized.includes(VISITOR_ID), false);
+    assert.equal(serialized.includes(ADMIN_ID), false);
+    assert.equal(serialized.includes("reporter"), false);
+    assert.equal(serialized.includes("Reporter private note"), false);
+    assert.equal(serialized.includes("reviewed"), false);
+    assert.equal(serialized.includes("Hidden/private thread body"), false);
+    assert.equal(serialized.includes("Hidden/private comment body"), false);
+    assert.equal(serialized.includes("Document comment body"), false);
+    assert.equal(serialized.includes("Space page comment body"), false);
+    assert.equal(serialized.includes("cross_subcommunity"), false);
+    assert.equal(serialized.includes("ordinary_category"), false);
+    assert.equal(serialized.includes("document_report"), false);
+    assert.equal(serialized.includes("space_report"), false);
+    assert.equal(serialized.includes("persona_report"), false);
+    assert.equal(serialized.includes("user_report"), false);
+    assert.equal(ownerRead.body.reports[0].targetContext.canOpenRoute, false);
+    assert.equal(ownerRead.body.reports[0].targetContext.supportedActions.every((action: string) =>
+      ["hide", "unhide", "remove", "restore"].includes(action)
+    ), true);
   } finally {
     setSupabaseAdminForTests(null);
   }

@@ -18,6 +18,13 @@ promised in the Station documents.
   targets.
 - Admin-only moderation report queue/readback and report status updates exist
   over `moderation_reports`.
+- Scoped delegated moderation report queue readback exists at
+  `/forums/subcommunities/:slug/moderation/reports` for platform admins,
+  subcommunity owners, and active moderators. It includes only thread and
+  thread-parent comment reports in the requested subcommunity, keeps status
+  mutation admin-only, and omits reporter identities, admin notes, moderation
+  reasons, hidden bodies, private target metadata, role assignments, and raw
+  route ids.
 - The first admin moderator console exists at `/forums/moderation`, exposing
   report queue readback and status transitions to admins without fetching queue
   material for anonymous or non-admin users.
