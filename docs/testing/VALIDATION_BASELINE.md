@@ -48,6 +48,41 @@ pnpm test:developer-spaces
 pnpm test:developer-space-client
 ```
 
+## PR109 Memory UX Observability Audit
+
+DAEDALUS audit validation on 2026-06-20:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-context` | Pass | 7 tests passed; runtime context and memory lifecycle behavior stayed green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass | 35 tests passed; conversation archive, import candidate, runtime budget trace, and observability sanitization coverage stayed green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:continuity` | Pass | 5 tests passed; memory/canon/archive/continuity write and UI helper coverage stayed green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 82 tests passed, including Memory lifecycle UI, AI observability UI, persona lifecycle/handoff, runtime/continuity UI, archive trust, import review, and related helper coverage. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck replayed from cache. |
+| `git diff --check` | Pass | CRLF normalization warnings only for touched docs. |
+
+Audit result:
+
+- Added `docs/roadmap/MEMORY_UX_OBSERVABILITY_AUDIT.md`.
+- Recommendation: open `PR110 - Memory Runtime Explanation Readback`.
+- Required blocker before the next Memory UX/observability slice: none found.
+- Already satisfied/stale: Memory lifecycle counters/actions/copy, runtime
+  context bucket preview, Settings AI Activity summary/list, persona lifecycle/
+  handoff readback, archive import review, Continuity, and Integrity trust
+  readback.
+- Next narrow lane: connect owner-only lifecycle state, selected runtime Memory
+  rows, retrieval mode, and skip/holdout reasons so owners can understand why
+  Memory did or did not enter runtime context without raw trace/private payload
+  exposure.
+- Future expansion: trace detail expansion, richer Memory graph UI, deeper
+  lifecycle/handoff workflows, and Developer Space realtime/observability
+  expansion.
+- Explicit non-goals: broad Studio redesign, public Memory, raw trace/prompt/
+  private archive exposure, embedding/provider changes, Redis/Upstash,
+  Cloudflare, background jobs, Developer Space realtime, billing/auth/session,
+  autonomous memory mutation, and new AI provider calls.
+- No code or visible route behavior changed.
+
 ## PR108 Community Beta Closure Audit
 
 DAEDALUS audit validation on 2026-06-20:

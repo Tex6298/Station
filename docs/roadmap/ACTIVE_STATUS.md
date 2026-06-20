@@ -8161,6 +8161,23 @@ when a PR lands, or when validation truth changes.
   broad Studio redesign, public/private data exposure, embedding/provider
   changes, Redis/Cloudflare/background jobs, Developer Space realtime,
   billing/auth/session, autonomous memory mutation, or new AI provider calls.
+- DAEDALUS implements PR109 Memory UX Observability Audit on 2026-06-20 and
+  wakes ARGUS for review. `docs/roadmap/MEMORY_UX_OBSERVABILITY_AUDIT.md`
+  answers the PR109 audit questions directly and recommends `PR110 - Memory
+  Runtime Explanation Readback` as the next narrow lane. No required blocker was
+  found before that lane. Already-satisfied/stale items include Memory
+  lifecycle counters/actions/copy, runtime context bucket preview, Settings AI
+  Activity summary/list, persona lifecycle/handoff readback, archive import
+  review, Continuity, and Integrity trust readback. Future expansion remains
+  trace detail expansion, richer Memory graph UI, deeper lifecycle/handoff
+  workflows, and Developer Space realtime/observability expansion. Explicit
+  non-goals remain broad Studio redesign, public Memory, raw trace/prompt/
+  private archive exposure, embedding/provider changes, Redis/Upstash,
+  Cloudflare, background jobs, Developer Space realtime, billing/auth/session,
+  autonomous memory mutation, and new AI provider calls. Validation passed
+  `test:persona-context` with 7 tests, `test:conversation-archive` with 35
+  tests, `test:continuity` with 5 tests, `test:studio-ui` with 82 tests, and
+  `typecheck`. No code or visible route behavior changed.
 - DAEDALUS implements PR108 Community Beta Closure Audit on 2026-06-20 and
   wakes ARGUS for review. `docs/roadmap/community-beta.md` now recommends
   Community Beta protected-beta closure, records no required closure blockers,
@@ -8370,7 +8387,43 @@ git diff --check
 - Developer Spaces visual polish before ingestion auth, validation, limits, and
   safe serialization.
 
-## Latest DAEDALUS handoff - PR108
+## Latest DAEDALUS handoff - PR109
+
+PR109 Memory UX Observability Audit is implemented by DAEDALUS on 2026-06-20
+and ready for ARGUS review. No code or visible route behavior changed, so
+ARIADNE is not needed unless ARGUS finds a visible-route implication.
+
+Recommendation: open `PR110 - Memory Runtime Explanation Readback`.
+
+Docs changed: `docs/roadmap/MEMORY_UX_OBSERVABILITY_AUDIT.md` answers the six
+PR109 audit questions directly; `docs/roadmap/PR109_MEMORY_UX_OBSERVABILITY_AUDIT.md`,
+`docs/roadmap/STATION_FUTURE_LANES.md`, `docs/roadmap/ACTIVE_STATUS.md`, and
+`docs/testing/VALIDATION_BASELINE.md` record the same recommendation.
+
+Classification:
+
+- Required blocker before next Memory UX/observability slice: none found.
+- Next recommended narrow lane: owner-only Memory runtime explanation readback
+  connecting lifecycle state, selected runtime Memory rows, retrieval mode, and
+  skip/holdout reasons without raw trace/private payload exposure.
+- Already satisfied/stale: Memory lifecycle counters/actions/copy, runtime
+  context bucket preview, Settings AI Activity summary/list, persona lifecycle/
+  handoff readback, archive import review, Continuity, and Integrity trust
+  readback.
+- Future expansion: trace detail expansion, richer Memory graph UI, deeper
+  lifecycle/handoff workflows, and Developer Space realtime/observability
+  expansion.
+- Explicit non-goals: broad Studio redesign, public Memory, raw trace/prompt/
+  private archive exposure, embedding/provider changes, Redis/Upstash,
+  Cloudflare, background jobs, Developer Space realtime, billing/auth/session,
+  autonomous memory mutation, and new AI provider calls.
+
+Validation: `test:persona-context` 7 passed, `test:conversation-archive` 35
+passed, `test:continuity` 5 passed, `test:studio-ui` 82 passed, and
+`typecheck` passed. `git diff --check` passed with CRLF normalization warnings
+only.
+
+## Previous DAEDALUS handoff - PR108
 
 PR108 Community Beta Closure Audit is implemented by DAEDALUS on 2026-06-20 and
 ready for ARGUS review. No code or visible route behavior changed, so ARIADNE

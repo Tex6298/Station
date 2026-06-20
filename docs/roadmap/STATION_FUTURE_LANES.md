@@ -269,6 +269,15 @@ ARGUS gates:
 Purpose: turn the upstream memory/observability foundations into user-visible
 trust surfaces after staging is coherent.
 
+PR109 audit update, 2026-06-20: the accepted PR60 through PR67 owner-readback
+stack is useful and sanitized enough to build from. No required blocker was
+found before the next Memory UX/observability slice. The recommended next
+implementation lane is `PR110 - Memory Runtime Explanation Readback`: connect
+owner-only Memory lifecycle state, selected runtime Memory rows, retrieval mode,
+and skip/holdout reasons so owners can understand why memory did or did not
+enter runtime context without exposing raw trace payloads, prompts,
+completions, provider payloads, private archive excerpts, or private ids.
+
 Inputs:
 
 - AI trace sessions and events.
@@ -280,12 +289,14 @@ Inputs:
 
 Likely UI work:
 
-- Memory trust/status controls in Studio.
-- Review surfaces for quarantined or superseded memories.
-- Lifecycle/handoff summaries that help users understand continuity without
-  exposing private internals publicly.
-- AI activity panels that show useful operational truth without becoming a
-  telemetry product.
+- Next: Memory runtime explanation readback.
+- Later: richer review surfaces for quarantined or superseded memories.
+- Later: deeper lifecycle/handoff workflows if current summaries prove
+  insufficient in rehearsal.
+- Later: richer AI trace detail only with a sanitization spec and ARGUS privacy
+  gates.
+- Later: Memory graph exploration after graph edges become meaningful enough for
+  owner decisions.
 
 Do not:
 
