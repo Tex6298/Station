@@ -78,6 +78,27 @@ Scope notes:
   billing/provider/cache, Cloudflare, Developer Space, auth/session, or broad
   styling work was added.
 
+ARGUS review validation on 2026-06-20:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 82 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:community` | Pass | 17 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` | Pass | 1 test passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck completed. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web build` | Partial / known Windows failure | Next compiled, linted/typechecked, collected page data, generated 36 static pages, finalized optimization, and collected build traces before the known local Windows standalone symlink `EPERM` while copying traced files. Only pre-existing raw `<img>` warnings appeared. |
+| `git diff --check` | Pass | CRLF normalization warnings only for triad state. |
+
+ARGUS review notes:
+
+- `/forums/witnesses` is accepted for ARIADNE visible-route rehearsal.
+- Signed-out and below-tier states do not fetch PR106 private readback.
+- Eligible rendering stays aggregate-only and uses sanitized PR106 rows.
+- Safe links require `canOpenRoute` and `/forums/` hrefs; unsafe links remain
+  unavailable.
+- No public ranking, badge, score, clout, witness mutation, or notification
+  surface was added.
+
 ## PR106 Community Author Recognition Readback
 
 DAEDALUS implementation validation on 2026-06-20:

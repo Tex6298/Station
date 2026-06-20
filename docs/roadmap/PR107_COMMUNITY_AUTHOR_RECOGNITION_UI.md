@@ -159,3 +159,42 @@ git diff --check
 data, generated 36 static pages, finalized optimization, and collected build
 traces before the known local Windows standalone symlink `EPERM` while copying
 traced files. `git diff --check` should be run after final docs edits.
+
+## ARGUS Technical Review
+
+Accepted by ARGUS on 2026-06-20 for ARIADNE visible-route rehearsal.
+
+Review result:
+
+- `/forums/witnesses` fetches only `GET /forums/witnesses/mine?limit=50`.
+- The page restores session first; signed-out and below-tier states render local
+  guidance and do not fetch the private recognition readback route.
+- Eligible users see aggregate helpful/grounded/careful counts only for their
+  own recognized thread/comment contributions returned by PR106.
+- Helper sanitization drops witnesser identity, raw witness rows, owner/category
+  ids, bodies, and unknown fields.
+- Links are used only when PR106 provides `canOpenRoute` and the href stays
+  under `/forums/`; missing/unsafe links render as unavailable instead of
+  inventing target context.
+- The forum landing page adds one private discovery link, `My recognition`.
+- The route reads as private author feedback and does not add a public
+  recognition page, leaderboard, badge, ranking, streak, public user score,
+  clout surface, notification, witness mutation change, moderation,
+  billing/provider/cache work, Developer Space work, auth/session change, or
+  broad styling pass.
+
+ARGUS validation:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 82 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:community` | Pass | 17 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` | Pass | 1 test passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck completed. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web build` | Partial / known Windows failure | Next compiled, linted/typechecked, collected page data, generated 36 static pages, finalized optimization, and collected build traces before the known local Windows standalone symlink `EPERM` while copying traced files. Only pre-existing raw `<img>` warnings appeared. |
+| `git diff --check` | Pass | CRLF normalization warnings only for triad state. |
+
+ARIADNE should rehearse signed-out, below-tier signed-in, eligible empty,
+eligible populated thread/comment recognition, missing unsafe link, desktop, and
+390px mobile states. Confirm the page reads as private feedback, not public
+reputation.

@@ -8141,6 +8141,21 @@ when a PR lands, or when validation truth changes.
   public rankings, badges, clout, notifications, mutation changes, moderation,
   billing/provider/cache, Cloudflare, Developer Space, auth/session, or broad
   styling work was added.
+- ARGUS accepts PR107 Community Author Recognition UI on 2026-06-20 and wakes
+  ARIADNE for visible-route rehearsal. `/forums/witnesses` fetches only
+  `GET /forums/witnesses/mine?limit=50`; signed-out and below-tier states render
+  local guidance and do not fetch private recognition readback; eligible rows
+  show aggregate helpful/grounded/careful counts, safe labels, and safe
+  `/forums/` links only when PR106 provides `canOpenRoute`. Helper sanitization
+  drops witnesser identity, raw witness rows, owner/category ids, bodies, and
+  unknown fields. ARGUS validation passed `test:studio-ui` with 82 tests,
+  `test:community` with 17 tests, `test:document-discussions`, `typecheck`,
+  and `git diff --check` with CRLF warnings only. The web build reached compile,
+  lint/typecheck, page-data collection, 36 generated pages, optimization, and
+  trace collection before the known local Windows standalone symlink `EPERM`.
+  No public recognition page, leaderboard, badge, ranking, public score, clout,
+  notification, witness mutation change, moderation, billing/provider/cache,
+  Developer Space, auth/session, or broad styling work was added.
 - DAEDALUS implements PR106 Community Author Recognition Readback on
   2026-06-20 and wakes ARGUS for review. `GET /forums/witnesses/mine` is
   authenticated and private-tier gated. It returns only aggregate witness counts
