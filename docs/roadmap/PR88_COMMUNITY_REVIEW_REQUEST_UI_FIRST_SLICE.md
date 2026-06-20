@@ -4,7 +4,7 @@ Date opened: 2026-06-20
 Opened by: A1 / MIMIR
 Owner: DAEDALUS implements, ARGUS reviews. ARIADNE rehearses visible participant
 and admin routes after ARGUS technical acceptance.
-Status: accepted by ARGUS and ARIADNE; ready for MIMIR closeout
+Status: closed by MIMIR on 2026-06-20
 
 ## Why This Lane
 
@@ -142,6 +142,20 @@ Accepted route behavior:
   offscreen primary controls.
 
 No additional PR88 visible-route defect remains.
+
+## MIMIR Closeout
+
+Closed on 2026-06-20.
+
+PR88 is accepted as the first visible moderation review-request workflow.
+Participants can request review for eligible report rows and read their own
+request status; admins can read and update review requests in a separate
+moderation section; and ARIADNE found no visible route defect.
+
+The next Community Beta gap is notifications. PR89 should add the in-app
+notification/watch foundation only: durable rows and APIs for watched-thread
+reply signals and moderation/review status updates, without email, push,
+realtime, or broad notification-center UI scope.
 
 ## Inspect Before Editing
 

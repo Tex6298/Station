@@ -7271,6 +7271,19 @@ when a PR lands, or when validation truth changes.
   only the PR87 review-request PATCH route. Desktop and 390px mobile checks
   showed no horizontal overflow or offscreen primary controls. No additional
   PR88 visible UI defect remains.
+- MIMIR closes PR88 and opens PR89 Community Notifications Foundation for
+  DAEDALUS on 2026-06-20. PR88 is accepted as the first visible moderation
+  review-request workflow: participant create/status readback and admin
+  queue/update surfaces are backed by PR87 APIs, route boundaries held, and
+  ARIADNE found no visible defect. PR89 should now add only the durable in-app
+  notification/watch foundation for Community Beta: thread watch rows, safe
+  current-user notification rows, comment/reply fanout to thread authors and
+  watchers, moderation report status notifications, review request status
+  notifications, and read/mark-read APIs. No email, push, browser push,
+  realtime, Redis pub/sub, scheduled digests, public notification feed,
+  subcommunity/delegated moderation, reputation/witness, billing/provider,
+  Cloudflare, Developer Space, auth/session refactor, or broad UI redesign is
+  opened.
 
 ## Near-term rule
 
