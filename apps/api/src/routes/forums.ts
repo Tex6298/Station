@@ -12,6 +12,7 @@ import { requireTier } from "../middleware/require-tier";
 import {
   bumpCommunityActivity,
   ensureCommunityProfile,
+  emptyWitnessCounts,
   listCommunityWitnessSummaries,
   listViewerVotes,
   serializeCommunityProfile,
@@ -60,6 +61,9 @@ const delegatedReportQueueQuerySchema = z.object({
 });
 const delegatedReportStatusUpdateSchema = z.object({
   status: z.enum(["reviewing", "resolved", "dismissed"]),
+});
+const authorRecognitionQuerySchema = z.object({
+  limit: z.coerce.number().int().min(1).max(100).default(50),
 });
 const DELEGATED_REPORT_PREFETCH_LIMIT = 500;
 
@@ -321,6 +325,19 @@ forumsRouter.get("/categories/:slug", optionalAuth, async (req: Request, res: Re
 
 // --- Auth-gated below --------------------------------------------------------
 forumsRouter.use(requireAuth);
+
+forumsRouter.get("/witnesses/mine", requireTier("private"), async (req: Request, res: Response) => {
+  const parsed = authorRecognitionQuerySchema.safeParse(req.query);
+  if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
+
+  try {
+    const recognitions = await loadAuthorRecognitions(req.user!, parsed.data.limit);
+    return res.json({ recognitions });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Could not load recognition readback.";
+    return res.status(500).json({ error: message });
+  }
+});
 
 forumsRouter.get("/subcommunities/:slug/moderation/reports", async (req: Request, res: Response) => {
   const parsed = delegatedReportQueueQuerySchema.safeParse(req.query);
@@ -725,6 +742,147 @@ function delegatedModerationActionsForTarget(
   if (target.status === "removed") return ["restore"];
   if (target.is_hidden) return ["unhide", "remove"];
   return ["hide", "remove"];
+}
+
+async function loadAuthorRecognitions(user: AuthenticatedUser, limit: number) {
+  const sb = getSupabaseAdmin();
+  const [{ data: threadRows, error: threadError }, { data: commentRows, error: commentError }] = await Promise.all([
+    (sb as any)
+      .from("threads")
+      .select("id, title, category_id, status, visibility, is_hidden, author_user_id, created_at, updated_at")
+      .eq("author_user_id", user.id),
+    (sb as any)
+      .from("comments")
+      .select("id, parent_type, parent_id, status, is_hidden, author_user_id, created_at, updated_at")
+      .eq("author_user_id", user.id),
+  ]);
+
+  if (threadError) throw new Error(threadError.message ?? "Could not load authored threads.");
+  if (commentError) throw new Error(commentError.message ?? "Could not load authored comments.");
+
+  const readableThreads = [];
+  for (const thread of threadRows ?? []) {
+    if (await isReadableRecognitionThread(thread, user, { requireAuthor: true })) readableThreads.push(thread);
+  }
+
+  const commentParentIds = Array.from(new Set<string>((commentRows ?? [])
+    .filter((comment: any) => comment.parent_type === "thread")
+    .map((comment: any) => comment.parent_id)
+    .filter((parentId: unknown): parentId is string => typeof parentId === "string" && parentId.length > 0)));
+  const parentThreads = await loadRecognitionThreadsById(commentParentIds);
+  const readableComments = [];
+  for (const comment of commentRows ?? []) {
+    if (comment.parent_type !== "thread" || comment.status !== "active" || comment.is_hidden) continue;
+    const parentThread = parentThreads.get(comment.parent_id);
+    if (!parentThread || !(await isReadableRecognitionThread(parentThread, user))) continue;
+    readableComments.push({ comment, parentThread });
+  }
+
+  const [threadSummaries, commentSummaries] = await Promise.all([
+    listCommunityWitnessSummaries({
+      targetType: "thread",
+      targetIds: readableThreads.map((thread: any) => thread.id),
+    }),
+    listCommunityWitnessSummaries({
+      targetType: "comment",
+      targetIds: readableComments.map(({ comment }: any) => comment.id),
+    }),
+  ]);
+
+  const categoryIds = Array.from(new Set<string>([
+    ...readableThreads.map((thread: any) => thread.category_id),
+    ...readableComments.map(({ parentThread }: any) => parentThread.category_id),
+  ].filter((categoryId): categoryId is string => typeof categoryId === "string" && categoryId.length > 0)));
+  const categories = await loadRecognitionCategories(categoryIds);
+
+  const recognitions = [
+    ...readableThreads.map((thread: any) => {
+      const summary = (threadSummaries as Record<string, any>)[thread.id] ?? { witness_counts: emptyWitnessCounts() };
+      if (!hasWitnessCounts(summary.witness_counts)) return null;
+      const category = categories.get(thread.category_id);
+      return {
+        targetType: "thread",
+        targetId: thread.id,
+        witnessCounts: summary.witness_counts,
+        targetContext: {
+          title: thread.title ?? null,
+          routeHref: category?.slug ? `/forums/${category.slug}/${thread.id}` : null,
+          routeLabel: thread.title ?? null,
+          canOpenRoute: Boolean(category?.slug),
+          createdAt: thread.created_at ?? null,
+          updatedAt: thread.updated_at ?? null,
+        },
+      };
+    }),
+    ...readableComments.map(({ comment, parentThread }: any) => {
+      const summary = (commentSummaries as Record<string, any>)[comment.id] ?? { witness_counts: emptyWitnessCounts() };
+      if (!hasWitnessCounts(summary.witness_counts)) return null;
+      const category = categories.get(parentThread.category_id);
+      return {
+        targetType: "comment",
+        targetId: comment.id,
+        witnessCounts: summary.witness_counts,
+        targetContext: {
+          title: parentThread.title ?? null,
+          parentThreadId: parentThread.id,
+          routeHref: category?.slug ? `/forums/${category.slug}/${parentThread.id}#comment-${comment.id}` : null,
+          routeLabel: parentThread.title ? `${parentThread.title} / comment` : "Thread comment",
+          canOpenRoute: Boolean(category?.slug),
+          createdAt: comment.created_at ?? null,
+          updatedAt: comment.updated_at ?? null,
+        },
+      };
+    }),
+  ].filter(Boolean) as any[];
+
+  return recognitions
+    .sort((a, b) => new Date(b.targetContext.updatedAt ?? b.targetContext.createdAt ?? 0).getTime() -
+      new Date(a.targetContext.updatedAt ?? a.targetContext.createdAt ?? 0).getTime())
+    .slice(0, limit);
+}
+
+async function isReadableRecognitionThread(
+  thread: any,
+  user: AuthenticatedUser,
+  options: { requireAuthor?: boolean } = {}
+) {
+  if (!thread) return false;
+  if (options.requireAuthor && thread.author_user_id !== user.id) return false;
+  if (thread.status === "removed" || thread.is_hidden) return false;
+  const visibility = thread.visibility ?? "public";
+  if (!(visibility === "public" || visibility === "unlisted" || (visibility === "community" && canSeeCommunity(user)))) {
+    return false;
+  }
+  const subcommunity = await loadSubcommunityForCategory(thread.category_id);
+  return !subcommunity || canReadSubcommunity(subcommunity as any, user);
+}
+
+async function loadRecognitionThreadsById(threadIds: string[]) {
+  const uniqueIds = [...new Set(threadIds.filter(Boolean))];
+  if (uniqueIds.length === 0) return new Map<string, any>();
+  const sb = getSupabaseAdmin();
+  const { data, error } = await (sb as any)
+    .from("threads")
+    .select("id, title, category_id, status, visibility, is_hidden, author_user_id, created_at, updated_at")
+    .in("id", uniqueIds);
+  if (error) throw new Error(error.message ?? "Could not load parent threads.");
+  return new Map<string, any>((data ?? []).map((thread: any) => [thread.id, thread]));
+}
+
+async function loadRecognitionCategories(categoryIds: string[]) {
+  const uniqueIds = [...new Set(categoryIds.filter(Boolean))];
+  if (uniqueIds.length === 0) return new Map<string, any>();
+  const sb = getSupabaseAdmin();
+  const { data, error } = await (sb as any)
+    .from("forum_categories")
+    .select("id, slug, title")
+    .in("id", uniqueIds);
+  if (error) throw new Error(error.message ?? "Could not load recognition categories.");
+  return new Map<string, any>((data ?? []).map((category: any) => [category.id, category]));
+}
+
+function hasWitnessCounts(counts: ReturnType<typeof emptyWitnessCounts>) {
+  return counts.helpful > 0 || counts.grounded > 0 || counts.careful > 0;
 }
 
 async function loadSubcommunityForCategoryOrRespond(

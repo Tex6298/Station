@@ -48,6 +48,34 @@ pnpm test:developer-spaces
 pnpm test:developer-space-client
 ```
 
+## PR106 Community Author Recognition Readback
+
+DAEDALUS implementation validation on 2026-06-20:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:community` | Pass | 17 tests passed, including authenticated/private-tier recognition readback, current-user authored target scoping, hidden/unreadable exclusion, aggregate-only serialization, no witnesser identity exposure, and limit behavior. |
+| `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` | Pass | 1 test passed; document discussion visibility stayed green. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck completed. |
+| `git diff --check` | Pass | CRLF normalization warnings only for touched files. |
+
+Scope notes:
+
+- Added private-tier `GET /forums/witnesses/mine` for current-user author
+  recognition readback.
+- Thread recognition entries require the current user to be the thread author
+  and the thread to remain readable.
+- Comment recognition entries require the current user to be the comment author
+  and the parent thread to remain readable; the parent thread can be authored by
+  someone else.
+- Response data is aggregate-only: witness counts plus safe labels, route hints,
+  and timestamps.
+- Hidden, removed, unreadable, unsupported-parent, empty-aggregate, and
+  cross-user authored targets are excluded.
+- No visible web route, public recognition page, leaderboard, badge, ranking,
+  notification, witness mutation, moderation, billing/provider/cache, Developer
+  Space, auth/session, or broad styling work was added.
+
 ## PR105 Community Delegated Queue Target Actions
 
 DAEDALUS implementation validation on 2026-06-20:

@@ -2123,6 +2123,15 @@ test("community witnesses are current-user scoped, idempotent, and aggregate-onl
     parent_id: HIDDEN_THREAD_ID,
     body: "Comment under a hidden thread should fail closed.",
   });
+  const otherThread = db.insertRow("threads", thread("other-witness-thread", "Other Witness Thread", "public", {
+    author_user_id: OTHER_ID,
+  }));
+  const ownerCommentOnOtherThread = db.insertRow("comments", {
+    author_user_id: OWNER_ID,
+    parent_type: "thread",
+    parent_id: otherThread.id,
+    body: "Owner-authored comment on another readable thread.",
+  });
   setSupabaseAdminForTests(db.client as any);
   const app = createCommunityApp();
 
@@ -2193,6 +2202,12 @@ test("community witnesses are current-user scoped, idempotent, and aggregate-onl
     assert.equal(commentWitness.status, 200);
     assert.deepEqual(commentWitness.body.witness.witness_counts, { helpful: 0, grounded: 1, careful: 0 });
 
+    const otherThreadCommentWitness = await requestJson(app, "PUT", `/comments/${ownerCommentOnOtherThread.id}/witness/careful`, {
+      token: "member-token",
+    });
+    assert.equal(otherThreadCommentWitness.status, 200);
+    assert.deepEqual(otherThreadCommentWitness.body.witness.witness_counts, { helpful: 0, grounded: 0, careful: 1 });
+
     const hiddenCommentWitness = await requestJson(app, "PUT", `/comments/${hiddenComment.id}/witness/careful`, {
       token: "member-token",
     });
@@ -2206,6 +2221,60 @@ test("community witnesses are current-user scoped, idempotent, and aggregate-onl
     assert.deepEqual(witnessedComment.viewer_witnesses, ["grounded"]);
     assert.equal(JSON.stringify(threadWithComments.body).includes("witness_user_id"), false);
 
+    db.insertRow("community_witnesses", {
+      witness_user_id: MEMBER_ID,
+      target_type: "comment",
+      target_id: hiddenComment.id,
+      witness_kind: "careful",
+    });
+    db.insertRow("community_witnesses", {
+      witness_user_id: OWNER_ID,
+      target_type: "thread",
+      target_id: otherThread.id,
+      witness_kind: "grounded",
+    });
+
+    const anonymousRecognition = await requestJson(app, "GET", "/forums/witnesses/mine");
+    assert.equal(anonymousRecognition.status, 401);
+
+    const visitorRecognition = await requestJson(app, "GET", "/forums/witnesses/mine", {
+      token: "visitor-token",
+    });
+    assert.equal(visitorRecognition.status, 403);
+
+    const memberRecognition = await requestJson(app, "GET", "/forums/witnesses/mine", {
+      token: "member-token",
+    });
+    assert.equal(memberRecognition.status, 200);
+    assert.deepEqual(memberRecognition.body.recognitions, []);
+
+    const ownerLimitedRecognition = await requestJson(app, "GET", "/forums/witnesses/mine?limit=1", {
+      token: "owner-token",
+    });
+    assert.equal(ownerLimitedRecognition.status, 200);
+    assert.equal(ownerLimitedRecognition.body.recognitions.length, 1);
+
+    const ownerRecognition = await requestJson(app, "GET", "/forums/witnesses/mine", {
+      token: "owner-token",
+    });
+    assert.equal(ownerRecognition.status, 200);
+    assert.deepEqual(
+      ownerRecognition.body.recognitions.map((recognition: Row) => [recognition.targetType, recognition.targetId]).sort(),
+      [["comment", ownerComment.id], ["comment", ownerCommentOnOtherThread.id], ["thread", PUBLIC_THREAD_ID]].sort()
+    );
+    const recognitionJson = JSON.stringify(ownerRecognition.body);
+    assert.equal(recognitionJson.includes(MEMBER_ID), false);
+    assert.equal(recognitionJson.includes(OTHER_ID), false);
+    assert.equal(recognitionJson.includes("witness_user_id"), false);
+    assert.equal(recognitionJson.includes("Hidden comment should fail closed"), false);
+    assert.equal(recognitionJson.includes("Owner-authored comment on another readable thread"), false);
+    assert.equal(recognitionJson.includes("Other Witness Thread body"), false);
+    assert.equal(recognitionJson.includes("category_id"), false);
+    assert.equal(ownerRecognition.body.recognitions.find((recognition: Row) => recognition.targetType === "thread").witnessCounts.helpful, 1);
+    assert.equal(ownerRecognition.body.recognitions.find((recognition: Row) => recognition.targetId === ownerComment.id).witnessCounts.grounded, 1);
+    assert.equal(ownerRecognition.body.recognitions.find((recognition: Row) => recognition.targetId === ownerCommentOnOtherThread.id).witnessCounts.careful, 1);
+    assert.equal(ownerRecognition.body.recognitions.every((recognition: Row) => recognition.targetContext.canOpenRoute), true);
+
     const removeWitness = await requestJson(app, "DELETE", `/threads/${PUBLIC_THREAD_ID}/witness/helpful`, {
       token: "member-token",
     });
@@ -2213,6 +2282,16 @@ test("community witnesses are current-user scoped, idempotent, and aggregate-onl
     assert.deepEqual(removeWitness.body.witness.witness_counts, { helpful: 0, grounded: 0, careful: 0 });
     assert.deepEqual(removeWitness.body.witness.viewer_witnesses, []);
     assert.equal(db.tables.community_witnesses[0].revoked_at !== null, true);
+
+    const ownerRecognitionAfterRemoval = await requestJson(app, "GET", "/forums/witnesses/mine", {
+      token: "owner-token",
+    });
+    assert.deepEqual(
+      ownerRecognitionAfterRemoval.body.recognitions
+        .map((recognition: Row) => [recognition.targetType, recognition.targetId])
+        .sort(),
+      [["comment", ownerComment.id], ["comment", ownerCommentOnOtherThread.id]].sort()
+    );
   } finally {
     setSupabaseAdminForTests(null);
   }

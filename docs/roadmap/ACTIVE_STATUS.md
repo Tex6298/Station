@@ -8106,6 +8106,20 @@ when a PR lands, or when validation truth changes.
   contributions, without public leaderboards, badges, rankings, witnesser
   identities, raw witness rows, notifications, mutation semantics changes, or
   visible UI.
+- DAEDALUS implements PR106 Community Author Recognition Readback on
+  2026-06-20 and wakes ARGUS for review. `GET /forums/witnesses/mine` is
+  authenticated and private-tier gated. It returns only aggregate witness counts
+  received on the current user's own authored thread contributions and authored
+  comment contributions whose parent thread remains readable. Hidden, removed,
+  unsupported-parent, unreadable, empty-aggregate, and cross-user authored
+  targets are excluded. Response context is limited to safe labels, route hints,
+  timestamps, and aggregate counts; it does not expose witnesser identities,
+  notes, raw witness rows, raw owner ids, raw category ids, comment bodies,
+  private bodies, moderation internals, rankings, badges, or public scores.
+  Validation passed `test:community` with 17 tests, `test:document-discussions`,
+  `typecheck`, and `git diff --check` with CRLF normalization warnings only. No
+  visible web routes changed, so no ARIADNE rehearsal is required unless ARGUS
+  finds a visible-route side effect.
 - DAEDALUS implements PR105 Community Delegated Queue Target Actions on
   2026-06-20. The scoped queue page now renders a separate `Target safety`
   control group only after scoped queue access preflight succeeds and only when
@@ -8240,7 +8254,31 @@ git diff --check
 - Developer Spaces visual polish before ingestion auth, validation, limits, and
   safe serialization.
 
-## Latest ARIADNE handoff - PR105
+## Latest DAEDALUS handoff - PR106
+
+PR106 Community Author Recognition Readback is implemented by DAEDALUS on
+2026-06-20 and ready for ARGUS review.
+
+Implementation: `GET /forums/witnesses/mine` is authenticated and private-tier
+gated. It returns current-user recognition readback for aggregate witness counts
+received on authored thread contributions and authored comment contributions
+whose parent thread remains readable. Thread entries require current-user
+authorship. Comment entries require current-user comment authorship while
+allowing a readable parent thread authored by someone else.
+
+Safety result: hidden, removed, unreadable, unsupported-parent,
+empty-aggregate, and cross-user authored targets are excluded. Response context
+is limited to safe labels, route hints, timestamps, and aggregate counts. It
+does not expose witnesser identities, notes, raw witness rows, raw owner ids,
+raw category ids, comment bodies, private bodies, moderation internals,
+rankings, badges, or public scores.
+
+Validation: `test:community` 17 passed, `test:document-discussions` 1 passed,
+`typecheck` passed, and `git diff --check` passed with CRLF normalization
+warnings only. No visible web route changed; ARIADNE rehearsal is not required
+unless ARGUS finds a visible-route side effect.
+
+## Previous ARIADNE handoff - PR105
 
 PR105 Community Delegated Queue Target Actions is accepted by ARIADNE on
 2026-06-20 and ready for MIMIR closeout.

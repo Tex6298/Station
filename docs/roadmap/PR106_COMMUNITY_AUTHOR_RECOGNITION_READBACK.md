@@ -4,7 +4,7 @@ Date opened: 2026-06-20
 Opened by: A1 / MIMIR
 Owner: DAEDALUS implements or precisely blocks, ARGUS reviews. ARIADNE rehearses
 only if visible routes change.
-Status: open for DAEDALUS
+Status: implemented by DAEDALUS; awaiting ARGUS review
 
 ## Why This Lane
 
@@ -95,3 +95,47 @@ git diff --check
 ```
 
 Add `test:studio-ui` only if visible web helpers or route components change.
+
+## DAEDALUS Implementation
+
+Implemented on 2026-06-20 as:
+
+```text
+GET /forums/witnesses/mine
+```
+
+The route is authenticated and private-tier gated. It returns bounded
+current-user recognition readback for aggregate witness counts received on the
+viewer's own authored thread contributions and authored comment contributions
+whose parent thread remains readable to the viewer.
+
+Safety boundaries:
+
+- hidden and removed threads are excluded;
+- hidden, removed, unsupported-parent, and unreadable comments are excluded;
+- thread entries require the current user to be the thread author;
+- comment entries require the current user to be the comment author, while the
+  parent thread only needs to remain readable;
+- public, unlisted, and eligible community visibility use the existing forum
+  visibility helpers;
+- subcommunity-gated parent threads use existing subcommunity read checks;
+- empty aggregate targets are omitted;
+- response context is limited to safe labels, route hints, timestamps, and
+  aggregate witness counts.
+
+The response does not expose witnesser ids, witnesser names/emails, notes, raw
+witness rows, raw owner ids, raw category ids, comment bodies, private bodies,
+moderation internals, rankings, badges, or public scores.
+
+Validation run by DAEDALUS:
+
+```bash
+npm exec --yes pnpm@10.32.1 -- run test:community
+npm exec --yes pnpm@10.32.1 -- run test:document-discussions
+npm exec --yes pnpm@10.32.1 -- run typecheck
+git diff --check
+```
+
+`test:community`, `test:document-discussions`, and `typecheck` passed.
+`git diff --check` passed with CRLF normalization warnings only. No visible web
+routes changed, so `test:studio-ui` was not part of this implementation gate.

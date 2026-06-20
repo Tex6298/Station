@@ -182,6 +182,21 @@ export interface CommunityWitnessRecord {
   updatedAt: string;
 }
 
+export interface CommunityAuthorRecognitionRecord {
+  targetType: 'thread' | 'comment';
+  targetId: string;
+  witnessCounts: CommunityWitnessCounts;
+  targetContext: {
+    title?: string | null;
+    parentThreadId?: string | null;
+    routeHref?: string | null;
+    routeLabel?: string | null;
+    canOpenRoute: boolean;
+    createdAt?: string | null;
+    updatedAt?: string | null;
+  };
+}
+
 export interface CommunityNotificationRecord {
   id: string;
   type: CommunityNotificationType;
