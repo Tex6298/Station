@@ -5,7 +5,7 @@ Opened by: A1 / MIMIR
 Owner: DAEDALUS implements. ARGUS reviews auth, replay/idempotency, visibility,
 serialization, and overclaim risk. ARIADNE only rehearses if visible routes
 change.
-Status: implemented by DAEDALUS; pending ARGUS review
+Status: accepted by ARGUS on 2026-06-20
 
 ## Why This Lane
 
@@ -131,3 +131,35 @@ No hosted runtime, Cloudflare Worker, Vectorize, D1, worker, queue, partner
 adapter, user-pasted secret flow, billing, Stripe, Redis memory truth, provider
 routing, chat-native developer agent, or visible Developer Space UI behavior
 changed.
+
+## ARGUS Verdict
+
+Accepted on 2026-06-20 as webhook ingress alpha.
+
+ARGUS confirmed:
+
+- the route stays behind the existing Developer Space ingestion key boundary;
+- the envelope requires `station.observed_runtime.webhook.v1`,
+  `runtimeHostedBy: "external"`, `stationRole: "observer"`, `observedAt`, and a
+  stable webhook id;
+- same-id/same-payload sequential replays return the stored non-secret import
+  summary instead of double-importing;
+- same-id/different-payload returns a machine-readable conflict without echoing
+  raw changed payload data;
+- the webhook route reuses the accepted PR120-PR123 batch import path,
+  classification validation, secret stripping, supporting-context persistence,
+  usage/quota checks, rate limiting, and readback serializers.
+
+Bounded caveats:
+
+- HMAC/signature verification is deferred and should be the next hardening lane
+  before partner or production webhook use.
+- This proves receipt-backed sequential replay handling, not a full concurrent
+  delivery lock/queue worker design.
+
+Validation: `test:developer-spaces` 23 passed,
+`test:developer-space-client` 4 passed, `typecheck` passed, `@station/api`
+build passed, and `git diff --check` passed with CRLF normalization warnings
+only.
+
+No ARIADNE rehearsal is required because no visible route changed.

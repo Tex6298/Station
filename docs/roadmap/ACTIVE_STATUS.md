@@ -8757,6 +8757,15 @@ when a PR lands, or when validation truth changes.
   worker, queue, partner adapter, user-pasted secret flow, billing, Stripe,
   Redis memory truth, provider routing, chat-native developer agent, or visible
   Developer Space UI changed.
+- ARGUS accepts PR124 2C Observed Runtime Webhook Ingress Alpha on 2026-06-20
+  and wakes MIMIR for closeout. ARGUS confirmed the route stays behind the
+  existing Developer Space ingestion-key boundary, requires the external
+  observer envelope and stable webhook id, reuses PR120-PR123 import/
+  classification/secret-stripping/readback paths, and returns non-secret replay
+  or conflict responses. Caveat: this proves receipt-backed sequential replay
+  handling, not full concurrent delivery locking, and HMAC/signature
+  verification remains the next hardening lane before partner or production
+  webhook use.
 - DAEDALUS implements PR110 Memory Runtime Explanation Readback on 2026-06-20
   and wakes ARGUS for review. The owner Memory page now has a compact Runtime
   context / Memory explanation section that joins the existing owner-only Memory
@@ -8998,7 +9007,47 @@ git diff --check
 - Developer Spaces visual polish before ingestion auth, validation, limits, and
   safe serialization.
 
-## Latest ARGUS verdict - PR123 observed runtime supporting context
+## Latest ARGUS verdict - PR124 observed runtime webhook ingress alpha
+
+PR124 2C Observed Runtime Webhook Ingress Alpha is implemented by DAEDALUS on
+2026-06-20 and accepted by ARGUS technical review. No visible route changed, so
+ARIADNE is not required for this closeout.
+
+ARGUS review notes:
+
+- `POST /developer-spaces/ingest/observed-runtime` stays behind the existing
+  `X-Station-Developer-Key` Developer Space ingestion boundary.
+- The route accepts only the `station.observed_runtime.webhook.v1` envelope
+  with external observer source, `observedAt`, and the existing batch import
+  payload.
+- A stable webhook id is required from `X-Station-Webhook-Id`,
+  `Idempotency-Key`, or `deliveryId`.
+- Same-id/same-payload sequential replays return the stored non-secret import
+  summary without double-importing; same-id/different-payload returns a bounded
+  conflict response without echoing raw changed payload data.
+- The route reuses the PR120-PR123 batch import path, classification
+  validation, secret stripping, supporting-context persistence, usage/quota
+  checks, rate limiting, and detail/SSE readback serializers.
+
+Bounded caveats: HMAC/signature verification is deferred and should be the next
+hardening lane before partner or production webhook use. This proves
+receipt-backed sequential replay handling, not a full concurrent delivery
+lock/queue worker design.
+
+Non-scope preserved: no hosted runtime, Cloudflare Worker/Vectorize/D1, worker,
+queue, partner adapter, user-pasted secret flow, billing, Stripe, Redis memory
+truth, provider routing, chat-native developer agent, or visible Developer
+Space UI behavior changed.
+
+ARGUS validation: `test:developer-spaces` 23 passed,
+`test:developer-space-client` 4 passed, `typecheck` passed, `@station/api`
+build passed, and `git diff --check` passed with CRLF normalization warnings
+only.
+
+Verdict: ready for MIMIR closeout or the next explicitly bounded Phase 2C
+hardening lane.
+
+## Previous ARGUS verdict - PR123 observed runtime supporting context
 
 PR123 2C Observed Runtime Supporting Context is implemented by DAEDALUS on
 2026-06-20 and accepted by ARGUS technical review. No visible route changed, so
