@@ -1096,6 +1096,34 @@ test("forum legacy public category reads tolerate missing subcommunity schema ca
   }
 });
 
+test("forum legacy public thread detail tolerates missing subcommunity schema cache", async () => {
+  const db = new CommunitySupabase();
+  const category = db.rows("forum_categories").find((row) => row.id === CATEGORY_ID);
+  assert.ok(category);
+  setSupabaseAdminForTests(db.client as any);
+  const app = createCommunityApp();
+  const missingSchema = "Could not find the table 'public.community_subcommunities' in the schema cache";
+
+  try {
+    db.failNext("community_subcommunities", "select", missingSchema);
+    const nonLegacy = await requestJson(app, "GET", `/threads/${PUBLIC_THREAD_ID}`);
+    assert.equal(nonLegacy.status, 404);
+    assert.doesNotMatch(JSON.stringify(nonLegacy.body), /schema cache/i);
+
+    category.slug = "documents-and-codexes";
+    category.title = "Documents & Codexes";
+
+    db.failNext("community_subcommunities", "select", missingSchema);
+    const legacyThread = await requestJson(app, "GET", `/threads/${PUBLIC_THREAD_ID}`);
+    assert.equal(legacyThread.status, 200);
+    assert.equal(legacyThread.body.thread.id, PUBLIC_THREAD_ID);
+    assert.equal(legacyThread.body.thread.category.slug, "documents-and-codexes");
+    assert.doesNotMatch(JSON.stringify(legacyThread.body), /schema cache/i);
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
+
 test("forum category thread reads tolerate missing hosted authorship columns", async () => {
   const db = new CommunitySupabase();
   setSupabaseAdminForTests(db.client as any);

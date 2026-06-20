@@ -58,8 +58,8 @@ DAEDALUS implementation validation on 2026-06-20:
 
 | Command | Result | Notes |
 | --- | --- | --- |
-| `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` | Pass | 2 tests passed, including stale `documents.discussion_thread_id` recovery from an existing active public thread linked by `threads.linked_document_id`; hidden linked threads still return `discussion:null`. |
-| `npm exec --yes pnpm@10.32.1 -- run test:community` | Pass | 19 tests passed; forum visibility, discussion provenance, moderation/reporting, subcommunity, Discover, and private search boundaries stayed green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` | Pass | 2 tests passed, including stale `documents.discussion_thread_id` recovery from an existing active public thread linked by `threads.linked_document_id`, hosted missing `threads.authorship_*` fallback coverage, and hidden linked-thread exclusion. |
+| `npm exec --yes pnpm@10.32.1 -- run test:community` | Pass | 20 tests passed, including legacy public thread-detail missing-`community_subcommunities` fallback, non-legacy fail-closed behavior, forum visibility, discussion provenance, moderation/reporting, subcommunity, Discover, and private search boundaries. |
 | `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed. |
 | `git diff --check` | Pass | CRLF normalization warnings only. |
 
@@ -73,6 +73,13 @@ Implementation result:
   states.
 - Private, unpublished, comments-disabled, hidden, removed, and
   wrong-visibility discussion surfaces remain excluded from public readback.
+- Hosted missing `threads.authorship_*` read errors now retry with a legacy
+  select and default legacy rows to user-authored provenance before
+  serialization.
+- Public thread detail now tolerates missing `community_subcommunities` only
+  for legacy public categories `general` and `documents-and-codexes`;
+  non-legacy/subcommunity-backed categories fail closed with 404 and no raw
+  schema-cache message.
 
 ## PR116 Forum Replay Blocker Patch
 

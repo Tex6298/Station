@@ -64,6 +64,10 @@ const DOCUMENT_DISCUSSION_THREAD_SELECT =
    authorship_kind, authorship_source_type, authorship_source_id, authorship_persona_id,
    is_pinned, is_hidden, reported_count, created_at,
    category:forum_categories!category_id(id, slug, title)`;
+const LEGACY_DOCUMENT_DISCUSSION_THREAD_SELECT =
+  `id, title, body, status, visibility, comment_count, category_id, linked_document_id, linked_persona_id,
+   is_pinned, is_hidden, reported_count, created_at,
+   category:forum_categories!category_id(id, slug, title)`;
 const PROVENANCE_LABELS: Record<string, string> = {
   user_authored: "User-authored",
   ai_assisted: "AI-assisted",
@@ -306,11 +310,7 @@ async function ensureDocumentDiscussion(document: any) {
   const sb = getSupabaseAdmin();
   const desiredVisibility = discussionVisibilityForDocument(document.visibility);
   if (document.discussion_thread_id) {
-    const { data: existing } = await sb
-      .from("threads")
-      .select(DOCUMENT_DISCUSSION_THREAD_SELECT)
-      .eq("id", document.discussion_thread_id)
-      .single();
+    const { data: existing } = await loadDiscussionThreadById(document.discussion_thread_id);
     if (existing) {
       if (existing.visibility !== desiredVisibility || existing.is_hidden || existing.status === "removed") {
         const { data: updated } = await sb
@@ -381,7 +381,7 @@ async function ensureDocumentDiscussion(document: any) {
 
 async function loadLinkedDocumentDiscussion(document: any) {
   const sb = getSupabaseAdmin();
-  const { data } = await sb
+  const result = await sb
     .from("threads")
     .select(DOCUMENT_DISCUSSION_THREAD_SELECT)
     .eq("linked_document_id", document.id)
@@ -391,7 +391,64 @@ async function loadLinkedDocumentDiscussion(document: any) {
     .order("created_at", { ascending: false })
     .limit(1);
 
-  return data?.[0] ?? null;
+  if (!isMissingThreadAuthorshipSchemaError(result.error)) return result.data?.[0] ?? null;
+
+  const legacy = await sb
+    .from("threads")
+    .select(LEGACY_DOCUMENT_DISCUSSION_THREAD_SELECT)
+    .eq("linked_document_id", document.id)
+    .eq("status", "active")
+    .eq("visibility", discussionVisibilityForDocument(document.visibility))
+    .eq("is_hidden", false)
+    .order("created_at", { ascending: false })
+    .limit(1);
+
+  return legacy.data?.[0] ? withLegacyThreadAuthorship(legacy.data[0]) : null;
+}
+
+async function loadDiscussionThreadById(threadId: string) {
+  const sb = getSupabaseAdmin();
+  const result = await sb
+    .from("threads")
+    .select(DOCUMENT_DISCUSSION_THREAD_SELECT)
+    .eq("id", threadId)
+    .single();
+
+  if (!isMissingThreadAuthorshipSchemaError(result.error)) return result;
+
+  const legacy = await sb
+    .from("threads")
+    .select(LEGACY_DOCUMENT_DISCUSSION_THREAD_SELECT)
+    .eq("id", threadId)
+    .single();
+
+  return {
+    ...legacy,
+    data: legacy.data ? withLegacyThreadAuthorship(legacy.data) : null,
+  };
+}
+
+function withLegacyThreadAuthorship(row: any) {
+  return {
+    authorship_kind: "user_authored",
+    authorship_source_type: null,
+    authorship_source_id: null,
+    authorship_persona_id: null,
+    ...row,
+  };
+}
+
+function isMissingThreadAuthorshipSchemaError(error: unknown) {
+  const message = error instanceof Error
+    ? error.message
+    : typeof error === "string"
+      ? error
+      : typeof (error as { message?: unknown } | null)?.message === "string"
+        ? String((error as { message?: unknown }).message)
+        : "";
+
+  return /authorship_(kind|source_type|source_id|persona_id)/i.test(message)
+    && /threads|schema cache|column|could not find|does not exist/i.test(message);
 }
 
 async function syncExistingDiscussion(document: any) {
@@ -607,11 +664,7 @@ documentsRouter.get("/:id/discussion", optionalAuth, async (req, res) => {
 
   let thread = null;
   if (document.discussion_thread_id) {
-    const { data } = await sb
-      .from("threads")
-      .select(DOCUMENT_DISCUSSION_THREAD_SELECT)
-      .eq("id", document.discussion_thread_id)
-      .single();
+    const { data } = await loadDiscussionThreadById(document.discussion_thread_id);
     thread = data ?? null;
   }
 

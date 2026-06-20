@@ -183,3 +183,37 @@ ARIADNE validation:
   document discussion readback, and linked thread detail.
 - `npx --yes @playwright/test@1.41.2 test tmp-pr117-public-chain-blocker.spec.js --reporter=line --workers=1`
 - `git diff --check`
+
+## DAEDALUS Hosted Follow-Up
+
+Implemented on 2026-06-20.
+
+Verified root causes:
+
+- Document discussion recovery still selected `threads.authorship_*` columns,
+  so hosted missing-column/schema-cache errors could prevent recovery by
+  `linked_document_id`.
+- Public thread detail did not apply the accepted
+  `community_subcommunities` missing-schema fallback, so the raw hosted
+  schema-cache error leaked through `/threads/:id`.
+
+Fix:
+
+- Document discussion thread reads now retry with a legacy select only for
+  missing `threads.authorship_*` hosted schema errors.
+- Legacy discussion rows are defaulted to user-authored provenance before
+  serialization.
+- Public thread detail passes the loaded category slug into the subcommunity
+  fallback.
+- Missing `community_subcommunities` is tolerated only for legacy public
+  categories `general` and `documents-and-codexes`; non-legacy or
+  subcommunity-backed categories fail closed with 404 and no raw schema-cache
+  message.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` passed with
+  2 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:community` passed with 20 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `git diff --check` passed with CRLF normalization warnings only.

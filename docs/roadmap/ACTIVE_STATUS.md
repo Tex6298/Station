@@ -8489,6 +8489,16 @@ when a PR lands, or when validation truth changes.
   desktop and 390px mobile. The public document page consequently says
   `Discussion has not been opened yet` and has no `Open discussion` action even
   though the Space/category surfaces say the discussion exists.
+- DAEDALUS implements the PR117 hosted public-chain follow-up on 2026-06-20 and
+  wakes ARGUS for review. Document discussion thread reads now retry without
+  `threads.authorship_*` columns only for the hosted missing-column/schema-cache
+  error, defaulting legacy rows to user-authored provenance before
+  serialization. Public thread detail now applies the accepted
+  `community_subcommunities` missing-schema fallback for legacy public
+  categories only, while non-legacy/subcommunity-backed categories fail closed
+  with 404 and no raw schema-cache message. Validation passed
+  `test:document-discussions` with 2 tests, `test:community` with 20 tests,
+  `typecheck`, and `git diff --check` with CRLF normalization warnings only.
 - DAEDALUS implements PR110 Memory Runtime Explanation Readback on 2026-06-20
   and wakes ARGUS for review. The owner Memory page now has a compact Runtime
   context / Memory explanation section that joins the existing owner-only Memory
@@ -8730,7 +8740,58 @@ git diff --check
 - Developer Spaces visual polish before ingestion auth, validation, limits, and
   safe serialization.
 
-## Latest ARIADNE handoff - PR117 hosted public-chain blocker
+## Latest DAEDALUS handoff - PR117 hosted public-chain follow-up
+
+PR117 hosted public-chain follow-up is implemented by DAEDALUS on 2026-06-20
+and ready for ARGUS technical review. Because this still affects visible
+public-route behavior, ARGUS should wake ARIADNE for hosted/browser rerun if
+the technical review accepts the patch.
+
+Files changed: `apps/api/src/routes/documents.ts`,
+`apps/api/src/routes/threads.ts`,
+`apps/api/src/routes/document-discussions.test.ts`,
+`apps/api/src/routes/community.test.ts`,
+`docs/roadmap/PR117_PUBLIC_DOCUMENT_DISCUSSION_CHAIN.md`,
+`docs/roadmap/ACTIVE_STATUS.md`, and `docs/testing/VALIDATION_BASELINE.md`.
+
+Root causes:
+
+- Document discussion recovery selected `threads.authorship_*` columns, so
+  hosted environments missing those columns still returned
+  `eligible:true`/`discussion:null` instead of falling back to a linked thread.
+- Public thread detail called the subcommunity lookup without the accepted
+  legacy-category missing-schema fallback, so `community_subcommunities`
+  schema-cache errors leaked through `/threads/:id`.
+
+Patch:
+
+- Document discussion thread reads now retry with a legacy select only when the
+  hosted error names missing `threads.authorship_*` columns.
+- Legacy discussion rows are defaulted to user-authored provenance before
+  serialization.
+- Public thread detail now passes the loaded category slug into the
+  subcommunity fallback and treats missing `community_subcommunities` as
+  readable only for legacy public categories `general` and
+  `documents-and-codexes`.
+- Non-legacy/subcommunity-backed category thread detail fails closed with 404
+  and does not expose raw schema-cache text.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` passed with
+  2 tests, including hosted missing-authorship-column fallback coverage.
+- `npm exec --yes pnpm@10.32.1 -- run test:community` passed with 20 tests,
+  including legacy public thread-detail missing-subcommunity fallback and
+  non-legacy fail-closed coverage.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `git diff --check` passed with CRLF normalization warnings only.
+
+Non-scope confirmation: no broad forum/document redesign, automatic anonymous
+discussion creation, moderation behavior change, visibility widening,
+billing/auth/session/provider/cache/Cloudflare change, AI call, private archive
+exposure, prompt/provider payload logging, or secret logging was added.
+
+## Previous ARIADNE handoff - PR117 hosted public-chain blocker
 
 PR117 Public Document Discussion Chain still has a hosted public-route blocker
 after the DAEDALUS patch and ARGUS review. ARIADNE wakes DAEDALUS for

@@ -21,6 +21,8 @@ const UNLISTED_DOC_ID = "66666666-6666-4666-8666-666666666666";
 const PRIVATE_DOC_ID = "77777777-7777-4777-8777-777777777777";
 
 class InMemorySupabase {
+  missingThreadAuthorshipColumns = false;
+
   tables: Record<string, Row[]> = {
     profiles: [
       {
@@ -346,6 +348,20 @@ class QueryBuilder {
 
   private async execute(mode?: "single") {
     let rows: Row[];
+    if (
+      this.operation === "select" &&
+      this.table === "threads" &&
+      this.db.missingThreadAuthorshipColumns &&
+      /authorship_(kind|source_type|source_id|persona_id)/.test(this.columns ?? "")
+    ) {
+      return {
+        data: null,
+        error: {
+          message: "Could not find the 'authorship_kind' column of 'threads' in the schema cache",
+        },
+        count: null,
+      };
+    }
 
     if (this.operation === "insert") {
       const payloads = Array.isArray(this.payload) ? this.payload : [this.payload as Row];
@@ -477,6 +493,7 @@ function close(server: Server) {
 
 test("published document discussion readback recovers an existing linked thread when the document pointer is missing", async () => {
   const db = new InMemorySupabase();
+  db.missingThreadAuthorshipColumns = true;
   const category = db.insertRow("forum_categories", {
     slug: "documents-and-codexes",
     title: "Documents & Codexes",

@@ -28,6 +28,7 @@ import { canReadSubcommunity, loadSubcommunityForCategory } from "../services/co
 
 export const threadsRouter = Router();
 const COMMUNITY_TIERS = new Set(["private", "creator", "canon", "institutional"]);
+const LEGACY_PUBLIC_FORUM_CATEGORY_SLUGS = new Set(["general", "documents-and-codexes"]);
 
 const voteSchema = z.object({
   value: z.union([z.literal(1), z.literal(-1)]),
@@ -77,7 +78,8 @@ threadsRouter.get("/:id", optionalAuth, async (req: Request, res: Response) => {
 
   if (threadErr || !thread) return res.status(404).json({ error: "Thread not found" });
   if (!canReadThread(thread, req.user)) return res.status(404).json({ error: "Thread not found" });
-  const subcommunityLookup = await loadSubcommunityForCategoryOrRespond(thread.category_id, res);
+  const categorySlug = typeof (thread as any).category?.slug === "string" ? (thread as any).category.slug : null;
+  const subcommunityLookup = await loadSubcommunityForCategoryOrRespond(thread.category_id, res, categorySlug);
   if (!subcommunityLookup.ok) return;
   const subcommunity = subcommunityLookup.subcommunity;
   if (subcommunity && !canReadSubcommunity(subcommunity, req.user)) {
@@ -437,15 +439,39 @@ threadsRouter.delete("/:id", async (req: Request, res: Response) => {
 
 async function loadSubcommunityForCategoryOrRespond(
   categoryId: string,
-  res: Response
+  res: Response,
+  categorySlug?: string | null
 ): Promise<{ ok: true; subcommunity: Awaited<ReturnType<typeof loadSubcommunityForCategory>> } | { ok: false }> {
   try {
     return { ok: true, subcommunity: await loadSubcommunityForCategory(categoryId) };
   } catch (error) {
     const message = error instanceof Error ? error.message : "Could not verify subcommunity visibility.";
+    if (isMissingSubcommunitySchemaError(error)) {
+      if (isLegacyPublicForumCategory(categorySlug)) {
+        return { ok: true, subcommunity: null };
+      }
+      res.status(404).json({ error: "Thread not found" });
+      return { ok: false };
+    }
     res.status(500).json({ error: message });
     return { ok: false };
   }
+}
+
+function isLegacyPublicForumCategory(slug: unknown) {
+  return typeof slug === "string" && LEGACY_PUBLIC_FORUM_CATEGORY_SLUGS.has(slug);
+}
+
+function isMissingSubcommunitySchemaError(error: unknown) {
+  const message = error instanceof Error
+    ? error.message
+    : typeof error === "string"
+      ? error
+      : typeof (error as { message?: unknown } | null)?.message === "string"
+        ? String((error as { message?: unknown }).message)
+        : "";
+
+  return /community_subcommunities/i.test(message) && /schema cache|could not find|does not exist|relation .* does not exist/i.test(message);
 }
 
 async function loadReadableThreadForWitness(
