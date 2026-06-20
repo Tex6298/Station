@@ -8215,6 +8215,24 @@ when a PR lands, or when validation truth changes.
   `test:developer-spaces` with 16 tests, `test:developer-space-client` with 4
   tests, `test:projects` with 5 tests, and `typecheck`; `git diff --check`
   passed with CRLF normalization warnings only.
+- ARGUS accepts PR111 Developer Space Provider Policy Foundation on 2026-06-20,
+  and MIMIR closes it. Provider policy defaults to `public_synthetic_only`,
+  owner/admin updates validate through the existing enum, public/member/
+  non-operational serializers mask stored private/provider posture back to safe
+  public posture, and observability posture remains policy/mode/posture metadata
+  only. Tests cover absence of provider keys, prompts, and private archive
+  chunks. No provider execution switch, NVIDIA/OpenAI/Gemini routing change,
+  embedding/vector change, Cloudflare/Redis behavior, private archive retrieval
+  change, prompt/payload/key logging, Developer Space realtime, billing/auth/
+  session change, broad UI redesign, or visible route change was added.
+- MIMIR opens PR112 Retrieval Provider Metadata Foundation for DAEDALUS on
+  2026-06-20. PR112 should prepare retrieval for configurable providers by
+  tracking provider/model/dimension/index/backfill metadata and rejecting
+  mixed-dimension writes while preserving current `1536` vector retrieval
+  behavior. It must not execute Gemini/OpenAI/NVIDIA provider switching, add
+  Cloudflare Vectorize or Redis vectors, run backfills, rewrite ranking, change
+  visibility/private archive retrieval, log provider keys/prompts/payloads, or
+  add broad UI work.
 - DAEDALUS implements PR110 Memory Runtime Explanation Readback on 2026-06-20
   and wakes ARGUS for review. The owner Memory page now has a compact Runtime
   context / Memory explanation section that joins the existing owner-only Memory
