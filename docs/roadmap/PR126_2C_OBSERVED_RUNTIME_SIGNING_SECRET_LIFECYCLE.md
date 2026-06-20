@@ -5,7 +5,7 @@ Opened by: A1 / MIMIR
 Owner: DAEDALUS implements. ARGUS reviews owner scoping, secret storage,
 signature verification, compatibility, and overclaim risk. ARIADNE only
 rehearses if visible routes change.
-Status: revised by MIMIR on 2026-06-21; ready for DAEDALUS implementation
+Status: accepted by ARGUS on 2026-06-21; ready for MIMIR closeout
 
 ## Why This Lane
 
@@ -176,3 +176,94 @@ Implementation constraints:
 - Wake MIMIR with the exact blocker if implementing a minimal encrypted
   primitive would require a broad vault, KMS, Cloudflare, hosted runtime, worker,
   queue, billing, Redis, provider-routing, or UI lane.
+
+## DAEDALUS Implementation Notes - 2026-06-21
+
+Implemented the revised design as a narrow API/schema/test lane:
+
+- Added migration `048_developer_space_webhook_signing_secrets.sql` with
+  `developer_space_webhook_signing_secrets`.
+- Stored columns include Developer Space/owner scope, encrypted signing
+  material, `secret_hash`, `secret_fingerprint`, `secret_last_four`, status,
+  created/updated/last-used/revoked timestamps, owner RLS, and lookup indexes.
+- Added a tiny app-level AES-256-GCM helper in
+  `apps/api/src/services/developer-space.service.ts`, deriving key material from
+  `DEVELOPER_SPACE_WEBHOOK_SIGNING_SECRET_ENCRYPTION_KEY`.
+- Create/rotate endpoint:
+  `POST /developer-spaces/:id/observed-runtime-signing-secret`.
+- Revoke endpoint:
+  `POST /developer-spaces/:id/observed-runtime-signing-secret/revoke`.
+- Create/rotate requires owner/admin access and configured encryption; missing
+  config returns
+  `developer_space_webhook_signing_secret_encryption_unconfigured`.
+- Raw `station_whsec_...` signing secrets are returned only on create/rotate.
+  Later responses expose only id, owner/space scope, fingerprint, last four,
+  status, and timestamps.
+- Webhook verification now prefers the newest active dedicated signing secret
+  when one exists and encryption is configured. Active dedicated secrets update
+  `last_used_at` only after signature acceptance.
+- PR125 ingestion-key fallback remains when no active dedicated signing secret
+  exists or when the dedicated-secret primitive is not configured.
+- If an active dedicated secret exists and encryption is configured, ingestion
+  key signatures are rejected for observed-runtime webhooks.
+
+Focused test coverage proves missing encryption config, owner-only create and
+revoke, show-once raw secret behavior, no plaintext persistence, encrypted
+storage plus hash/fingerprint metadata, active dedicated signature acceptance,
+ingestion-key rejection while active dedicated secret exists, old/revoked
+dedicated secret rejection, and fallback after revoke.
+
+Validation:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 24 tests passed, including observed-runtime signing-secret lifecycle and existing webhook idempotency/readback behavior. |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-space-client` | Pass | 4 client tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/api build` | Pass | API build completed. |
+| `git diff --check` | Pass | CRLF normalization warnings only, including local agent state that was not staged. |
+
+Non-claims preserved: no partner adapter, hosted runtime, Cloudflare
+Worker/Vectorize/D1, worker, queue, user-pasted secret flow, vault UI,
+billing/Stripe change, Redis memory truth, provider routing, chat-native
+developer agent, broad UI, or visible secret-management surface was added.
+
+## ARGUS Review - 2026-06-21
+
+ARGUS accepts PR126 for the bounded 2C lane.
+
+Review result:
+
+- Schema and API behavior match the revised MIMIR decision: Station stores
+  encrypted/retrievable signing material plus hash/fingerprint metadata, not
+  hash-only material and not plaintext.
+- Create/rotate/revoke routes are owner/admin scoped, and the route surface does
+  not expose encrypted payloads, hashes, or raw secrets after show-once
+  creation/rotation.
+- Encryption-key semantics are explicit: create/rotate requires
+  `DEVELOPER_SPACE_WEBHOOK_SIGNING_SECRET_ENCRYPTION_KEY`, while the PR125
+  ingestion-key fallback remains available when no active dedicated secret can
+  be used.
+- Observed-runtime webhook verification prefers the newest active dedicated
+  signing secret when configured; ingestion-key signatures are rejected while an
+  active dedicated secret is in force; old/revoked dedicated secrets are
+  rejected; fallback resumes after revoke.
+- Existing PR124/PR125 idempotency, visibility, secret stripping, and
+  non-secret response behavior remains covered by the Developer Spaces smoke
+  gate.
+
+ARGUS validation:
+
+| Command | Result |
+| --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass, 24 tests |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-space-client` | Pass, 4 tests |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/api build` | Pass |
+| `git diff --check` | Pass, CRLF normalization warnings only |
+
+Remaining non-claims: this is still an API/schema/test foundation, not partner
+onboarding, hosted runtime execution, Cloudflare Worker/Vectorize/D1, queue or
+worker infrastructure, user-pasted secrets, vault UI, billing, Redis memory
+truth, provider routing, chat-native developer agent, broad UI, or visible
+secret-management surface.

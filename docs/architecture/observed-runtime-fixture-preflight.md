@@ -224,6 +224,30 @@ current ingestion key and that Station received the same raw JSON bytes that
 were signed. It does not add separate signing-secret rotation, partner-specific
 adapter semantics, concurrent delivery locking, or hosted runtime execution.
 
+PR126 adds a dedicated observed-runtime webhook signing-secret lifecycle:
+
+- table: `developer_space_webhook_signing_secrets`;
+- owner endpoints:
+  - `POST /developer-spaces/:id/observed-runtime-signing-secret` creates or
+    rotates and returns the raw secret only once;
+  - `POST /developer-spaces/:id/observed-runtime-signing-secret/revoke` revokes
+    active dedicated signing secrets;
+- stored data: encrypted signing material plus hash/fingerprint/last-four
+  metadata, never plaintext;
+- encryption: AES-256-GCM with key material derived from
+  `DEVELOPER_SPACE_WEBHOOK_SIGNING_SECRET_ENCRYPTION_KEY`;
+- missing encryption config blocks create/rotate with a bounded config error;
+- webhook verification prefers the newest active dedicated signing secret when
+  one exists and the encryption primitive is configured;
+- PR125 ingestion-key HMAC fallback remains only when no active dedicated
+  signing secret exists, or when the dedicated-secret primitive is not
+  configured.
+
+Active dedicated secrets verify signatures, old/revoked dedicated secrets do
+not, and non-owners cannot create or revoke secret metadata. This is still an
+API/docs/test foundation, not a partner onboarding adapter or visible
+secret-management UI.
+
 PR124 adds durable idempotency receipts:
 
 - `developer_space_observed_runtime_webhook_receipts`
@@ -238,8 +262,8 @@ The webhook route reuses the existing batch import persistence path, including
 classification validation, secret stripping, supporting-context persistence,
 usage/quota checks, rate limits, and detail/SSE readback.
 
-Replay windows beyond the durable idempotency key, partner adapters, separate
-signing-secret rotation, and delivery retry policy remain future hardening work.
+Replay windows beyond the durable idempotency key, partner adapters, hosted
+secret-management UX, and delivery retry policy remain future hardening work.
 
 ## Future Webhook Shape
 
@@ -273,7 +297,7 @@ partner or production ingestion path.
 
 ## Non-Claims
 
-PR120-PR125 add no hosted runtime, Cloudflare Worker, Vectorize index, D1
+PR120-PR126 add no hosted runtime, Cloudflare Worker, Vectorize index, D1
 binding, queue, background job, partner adapter, user-pasted secret flow,
 billing, Stripe behavior, Redis memory truth, provider routing, or visible
 Developer Space redesign.

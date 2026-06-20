@@ -54,44 +54,34 @@ pnpm test:developer-space-client
 
 ## PR126 2C Observed Runtime Signing Secret Lifecycle
 
-DAEDALUS blocker on 2026-06-20:
-
-- No code, schema, route behavior, or UI changed.
-- PR126 currently asks for dedicated signing-secret rows to store only
-  hashes/fingerprints while also verifying HMAC signatures with active
-  dedicated secrets.
-- That cannot be implemented honestly: HMAC verification needs the signing key,
-  or an encrypted/retrievable equivalent. A hash-only record can verify a
-  presented secret but cannot recompute the expected signature for raw webhook
-  bytes.
-- No reusable Station encrypted-secret or Supabase Vault retrieval pattern was
-  found in the repo.
-- Current working behavior remains PR125: observed-runtime webhooks are signed
-  with the existing Developer Space ingestion key as alpha signing material.
-
-MIMIR decision on 2026-06-21:
-
-- The blocker is accepted. Hash-only storage is rejected for dedicated webhook
-  signing secrets because Station must recompute HMAC signatures over raw
-  webhook bytes without receiving the signing secret in the request.
-- PR126 is revised to store encrypted/retrievable server-side signing material
-  plus hash/fingerprint metadata and explicit key-management semantics.
-- If no reusable Station encrypted-secret or Supabase Vault retrieval pattern
-  exists, the lane may add the smallest app-level encryption primitive needed
-  for observed-runtime webhook signing secrets.
-- Dedicated signing-secret create/rotate and active-secret verification require
-  a runtime encryption key. Missing encryption configuration should produce
-  bounded API/config errors and keep the PR125 ingestion-key HMAC fallback
-  intact while no active dedicated signing secret exists or the dedicated-secret
-  primitive is unavailable.
-- Plaintext signing material must not be persisted, logged, serialized after
-  show-once creation/rotation, or committed.
-
-Validation:
+DAEDALUS implementation and ARGUS review validation on 2026-06-21:
 
 | Command | Result | Notes |
 | --- | --- | --- |
-| `git diff --check` | Pass | Docs-only revised handoff; CRLF normalization warnings only. |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 24 tests passed, including signing-secret missing encryption config, owner-only create/revoke, show-once raw secret, no plaintext persistence, encrypted storage plus hash/fingerprint metadata, active dedicated signature acceptance, ingestion-key rejection while active dedicated secret exists, old/revoked dedicated secret rejection, fallback after revoke, and existing webhook idempotency/readback behavior. |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-space-client` | Pass | 4 client tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/api build` | Pass | API build completed, including dependent shared package builds. |
+| `git diff --check` | Pass | CRLF normalization warnings only. |
+
+Implementation result:
+
+- Added `developer_space_webhook_signing_secrets` via migration `048`.
+- Added DB/shared type surfaces for signing-secret metadata.
+- Added app-level AES-256-GCM encryption for observed-runtime webhook signing
+  material using `DEVELOPER_SPACE_WEBHOOK_SIGNING_SECRET_ENCRYPTION_KEY`.
+- Added owner-scoped create/rotate and revoke API endpoints.
+- Raw `station_whsec_...` values are returned only on create/rotate; stored
+  rows contain encrypted signing material plus hash/fingerprint metadata, not
+  plaintext.
+- Webhook verification prefers active dedicated signing secrets when configured,
+  rejects old/revoked dedicated secrets, and preserves PR125 ingestion-key
+  fallback when no active dedicated secret exists or the dedicated-secret
+  primitive is not configured.
+- No partner adapter, hosted runtime, Cloudflare Worker, Vectorize, D1, worker,
+  queue, user-pasted secret flow, vault UI, billing/Stripe change, Redis memory
+  truth, provider routing, chat-native developer agent, broad UI, or visible
+  secret-management surface changed.
 
 ## PR125 2C Observed Runtime Webhook Signatures
 
