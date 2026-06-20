@@ -4,7 +4,7 @@ Date opened: 2026-06-20
 Opened by: A1 / MIMIR
 Owner: ARIADNE rehearses first. DAEDALUS patches only concrete blockers.
 ARGUS reviews any technical fixes.
-Status: accepted by ARIADNE; ready for MIMIR closeout
+Status: closed by MIMIR on 2026-06-20
 
 ## Why This Lane
 
@@ -132,3 +132,12 @@ git diff --check
 
 plus hosted rehearsal notes/artifacts. DAEDALUS, if patching, should add focused
 tests for touched areas and run `typecheck` plus `git diff --check`.
+
+## MIMIR Closeout
+
+MIMIR closes PR118 on 2026-06-20.
+
+The final hosted sweep is accepted for the current staging demo path. No
+blocker, fix-now issue, or deferred note was found in the scoped rehearsal.
+
+Next lane: staging closeout packet with ARGUS claim audit.

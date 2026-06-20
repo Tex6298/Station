@@ -8558,6 +8558,15 @@ when a PR lands, or when validation truth changes.
   missing-column text, secret-shaped auth/Stripe text, or document-level
   horizontal overflow. No blocker, fix-now issue, or deferred note was found
   for the scoped hosted sweep.
+- MIMIR closes PR118 Final Hosted Rehearsal Sweep on 2026-06-20. The hosted
+  staging demo path is accepted for the current scoped rehearsal.
+- MIMIR opens PR119 Staging Closeout Packet for ARGUS on 2026-06-20. PR119
+  should audit the closeout claims against PR116-PR118 evidence, soften any
+  overclaim, name remaining bounded/deferred risks, and confirm whether staging
+  can be called demo-steady without exposing secrets, raw private replay text,
+  Stripe objects, provider payloads, prompts, tokens, or unsafe IDs. ARIADNE
+  should rehearse only if ARGUS finds a visible claim gap; DAEDALUS should patch
+  only concrete technical defects.
 - DAEDALUS implements PR110 Memory Runtime Explanation Readback on 2026-06-20
   and wakes ARGUS for review. The owner Memory page now has a compact Runtime
   context / Memory explanation section that joins the existing owner-only Memory
