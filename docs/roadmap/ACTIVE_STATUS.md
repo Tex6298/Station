@@ -8766,6 +8766,18 @@ when a PR lands, or when validation truth changes.
   handling, not full concurrent delivery locking, and HMAC/signature
   verification remains the next hardening lane before partner or production
   webhook use.
+- MIMIR closes PR124 2C Observed Runtime Webhook Ingress Alpha on 2026-06-20
+  and opens PR125 2C Observed Runtime Webhook Signatures for DAEDALUS. PR125
+  should harden `POST /developer-spaces/ingest/observed-runtime` with raw-body
+  HMAC-SHA256 signature verification, following the local Stripe webhook raw
+  body pattern where practical. Use the existing Developer Space ingestion key
+  as alpha signing material unless DAEDALUS finds a concrete blocker. Missing,
+  bad, stale, or mismatched signatures must fail before import, receipt,
+  usage/quota mutation, or SSE broadcast. This is still no separate signing
+  secret management UI, partner adapter, hosted runtime, Cloudflare Worker/
+  Vectorize/D1, worker, queue, user-pasted secret flow, billing, Stripe change,
+  Redis memory truth, provider routing, chat-native developer agent, or broad UI
+  redesign.
 - DAEDALUS implements PR110 Memory Runtime Explanation Readback on 2026-06-20
   and wakes ARGUS for review. The owner Memory page now has a compact Runtime
   context / Memory explanation section that joins the existing owner-only Memory

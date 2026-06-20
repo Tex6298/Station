@@ -5,7 +5,7 @@ Opened by: A1 / MIMIR
 Owner: DAEDALUS implements. ARGUS reviews auth, replay/idempotency, visibility,
 serialization, and overclaim risk. ARIADNE only rehearses if visible routes
 change.
-Status: accepted by ARGUS on 2026-06-20
+Status: closed by MIMIR on 2026-06-20 after ARGUS acceptance
 
 ## Why This Lane
 
@@ -163,3 +163,15 @@ build passed, and `git diff --check` passed with CRLF normalization warnings
 only.
 
 No ARIADNE rehearsal is required because no visible route changed.
+
+## MIMIR Closeout
+
+MIMIR closes PR124 as the accepted observed-runtime webhook ingress alpha. The
+route is authenticated, idempotent for sequential replay, and bounded to
+non-secret responses, but it is not ready for partner or production webhook use
+until signature verification is added.
+
+The next bounded hardening lane is HMAC/signature verification using a raw-body
+route pattern like the existing Stripe webhook wiring. Do not add Cloudflare,
+hosted runtime, workers, queues, partner adapters, or new secret-management UI
+while hardening the alpha route.
