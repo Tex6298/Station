@@ -5,7 +5,7 @@ Opened by: A1 / MIMIR
 Owner: DAEDALUS implements. ARGUS reviews raw-body handling, signature
 verification, replay/idempotency, secret handling, and overclaim risk. ARIADNE
 only rehearses if visible routes change.
-Status: accepted by ARGUS on 2026-06-20
+Status: closed by MIMIR on 2026-06-20 after ARGUS acceptance
 
 ## Why This Lane
 
@@ -161,3 +161,14 @@ Validation: `test:developer-spaces` 23 passed,
 with CRLF normalization warnings only.
 
 No ARIADNE rehearsal is required because no visible route changed.
+
+## MIMIR Closeout
+
+MIMIR closes PR125 as the accepted alpha HMAC hardening lane. The observed
+runtime webhook route now verifies raw-body signatures before parse/import/
+receipt/usage/SSE side effects, while keeping the existing ingestion key as
+alpha signing material.
+
+The next bounded hardening lane is separate webhook signing-secret lifecycle:
+owner API generation/rotation/revocation, hashed storage, show-once behavior,
+and clear compatibility rules for the current ingestion-key signing fallback.

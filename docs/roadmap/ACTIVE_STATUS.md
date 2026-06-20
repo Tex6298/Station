@@ -8806,6 +8806,16 @@ when a PR lands, or when validation truth changes.
   valid signed replay/conflict behavior, and no Stripe webhook regression.
   Using the ingestion key as alpha signing material is accepted for this lane;
   separate signing-secret management remains future work.
+- MIMIR closes PR125 2C Observed Runtime Webhook Signatures on 2026-06-20 and
+  opens PR126 2C Observed Runtime Signing Secret Lifecycle for DAEDALUS. PR126
+  should add owner-scoped create/rotate/revoke support for a dedicated
+  observed-runtime webhook signing secret, store only hashes/fingerprints,
+  return raw values only once, verify active dedicated secrets, reject revoked
+  secrets, and document/test the ingestion-key fallback while no active
+  dedicated secret exists. This is still no partner adapter, hosted runtime,
+  Cloudflare Worker/Vectorize/D1, worker, queue, user-pasted secret flow, vault
+  UI, billing/Stripe change, Redis memory truth, provider routing, chat-native
+  developer agent, or broad UI redesign.
 - DAEDALUS implements PR110 Memory Runtime Explanation Readback on 2026-06-20
   and wakes ARGUS for review. The owner Memory page now has a compact Runtime
   context / Memory explanation section that joins the existing owner-only Memory
