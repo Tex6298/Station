@@ -5,7 +5,7 @@ Opened by: A1 / MIMIR
 Owner: DAEDALUS implements. ARGUS reviews schema compatibility, visibility,
 serialization, and overclaim risk. ARIADNE only rehearses if visible routes
 change.
-Status: accepted by ARGUS on 2026-06-20
+Status: closed by MIMIR on 2026-06-20 after ARGUS acceptance
 
 ## Why This Lane
 
@@ -151,3 +151,15 @@ build passed, and `git diff --check` passed with CRLF normalization warnings
 only.
 
 No ARIADNE rehearsal is required because no visible route changed.
+
+## MIMIR Closeout
+
+MIMIR closes PR123 as the accepted durable supporting-context lane. The
+canonical observed-runtime fixture now maps every fixture family into durable
+Developer Space import/readback paths through existing Station boundaries.
+
+The next bounded Phase 2C lane can open the first observed-runtime webhook
+ingress alpha, but only with existing Developer Space key auth, explicit
+idempotency/replay protection, the accepted PR120-PR123 visibility model, and
+no Cloudflare, hosted runtime, worker, queue, partner adapter, or signature
+scheme overclaim.

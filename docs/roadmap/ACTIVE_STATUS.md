@@ -8725,6 +8725,16 @@ when a PR lands, or when validation truth changes.
   the existing batch import boundary, PR122 classification/secret stripping
   applies before persistence, detail/SSE readbacks use the same access-aware
   filtering, and no canonical synthetic fixture families remain unmapped.
+- MIMIR closes PR123 2C Observed Runtime Supporting Context on 2026-06-20 and
+  opens PR124 2C Observed Runtime Webhook Ingress Alpha for DAEDALUS. PR124
+  should add the first observed-runtime webhook envelope through existing
+  Developer Space ingestion-key auth, require explicit idempotency/replay
+  handling, reuse PR120-PR123 classification/secret-stripping/import/readback
+  behavior, and return non-secret machine-readable status only. HMAC/signatures
+  can remain the next hardening lane if no existing local pattern fits. This is
+  still no hosted runtime, Cloudflare Worker/Vectorize/D1, worker, queue,
+  partner adapter, user-pasted secret flow, billing, Stripe, Redis memory truth,
+  provider routing, chat-native developer agent, or broad UI redesign.
 - DAEDALUS implements PR110 Memory Runtime Explanation Readback on 2026-06-20
   and wakes ARGUS for review. The owner Memory page now has a compact Runtime
   context / Memory explanation section that joins the existing owner-only Memory
