@@ -1124,6 +1124,41 @@ test("forum legacy public thread detail tolerates missing subcommunity schema ca
   }
 });
 
+test("forum public thread detail tolerates missing hosted comment authorship columns", async () => {
+  const db = new CommunitySupabase();
+  db.insertRow("comments", {
+    id: "comment-hosted-authorship-fallback",
+    author_user_id: MEMBER_ID,
+    parent_type: "thread",
+    parent_id: PUBLIC_THREAD_ID,
+    body: "Hosted comments can render without authorship columns.",
+    status: "active",
+    is_hidden: false,
+  });
+  setSupabaseAdminForTests(db.client as any);
+  const app = createCommunityApp();
+
+  try {
+    db.failNext("comments", "select", "column comments.authorship_kind does not exist");
+    const detail = await requestJson(app, "GET", `/threads/${PUBLIC_THREAD_ID}`);
+    assert.equal(detail.status, 200);
+    assert.doesNotMatch(JSON.stringify(detail.body), /authorship_kind|schema cache|does not exist/i);
+
+    const comment = detail.body.comments.find((row: Row) => row.id === "comment-hosted-authorship-fallback");
+    assert.equal(comment.body, "Hosted comments can render without authorship columns.");
+    assert.deepEqual(comment.authorship_provenance, {
+      kind: "user_authored",
+      label: "User-authored",
+    });
+    assert.deepEqual(comment.discussion_provenance, {
+      kind: "user_authored",
+      label: "User-authored",
+    });
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
+
 test("forum category thread reads tolerate missing hosted authorship columns", async () => {
   const db = new CommunitySupabase();
   setSupabaseAdminForTests(db.client as any);

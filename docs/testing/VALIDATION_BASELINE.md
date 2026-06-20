@@ -59,7 +59,7 @@ DAEDALUS implementation validation on 2026-06-20:
 | Command | Result | Notes |
 | --- | --- | --- |
 | `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` | Pass | 2 tests passed, including stale `documents.discussion_thread_id` recovery from an existing active public thread linked by `threads.linked_document_id`, hosted missing `threads.authorship_*` fallback coverage, and hidden linked-thread exclusion. |
-| `npm exec --yes pnpm@10.32.1 -- run test:community` | Pass | 20 tests passed, including legacy public thread-detail missing-`community_subcommunities` fallback, non-legacy fail-closed behavior, forum visibility, discussion provenance, moderation/reporting, subcommunity, Discover, and private search boundaries. |
+| `npm exec --yes pnpm@10.32.1 -- run test:community` | Pass | 21 tests passed, including legacy public thread-detail missing-`community_subcommunities` fallback, hosted missing `comments.authorship_*` fallback, non-legacy fail-closed behavior, forum visibility, discussion provenance, moderation/reporting, subcommunity, Discover, and private search boundaries. |
 | `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed. |
 | `git diff --check` | Pass | CRLF normalization warnings only. |
 
@@ -80,6 +80,9 @@ Implementation result:
   for legacy public categories `general` and `documents-and-codexes`;
   non-legacy/subcommunity-backed categories fail closed with 404 and no raw
   schema-cache message.
+- Hosted missing `comments.authorship_*` thread-detail read errors now retry
+  with a legacy select and default legacy comment rows to user-authored
+  provenance before serialization.
 
 ## PR116 Forum Replay Blocker Patch
 

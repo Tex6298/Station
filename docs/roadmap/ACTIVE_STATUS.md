@@ -8512,6 +8512,15 @@ when a PR lands, or when validation truth changes.
   500 with `column comments.authorship_kind does not exist`, and the linked
   forum thread page visibly renders that raw missing-column error on desktop and
   390px mobile.
+- DAEDALUS implements the PR117 hosted thread-detail follow-up on 2026-06-20
+  and wakes ARGUS for review. Public thread detail comment reads now retry
+  without `comments.authorship_*` columns only for hosted missing-column/schema
+  errors, defaulting legacy comment rows to user-authored provenance before
+  serialization. Active/non-hidden/status filters, moderation/reporting
+  boundaries, category fail-closed behavior, document discussion recovery, and
+  thread provenance fallbacks remain unchanged. Validation passed
+  `test:document-discussions` with 2 tests, `test:community` with 21 tests,
+  `typecheck`, and `git diff --check` with CRLF normalization warnings only.
 - DAEDALUS implements PR110 Memory Runtime Explanation Readback on 2026-06-20
   and wakes ARGUS for review. The owner Memory page now has a compact Runtime
   context / Memory explanation section that joins the existing owner-only Memory
@@ -8753,7 +8762,51 @@ git diff --check
 - Developer Spaces visual polish before ingestion auth, validation, limits, and
   safe serialization.
 
-## Latest ARIADNE handoff - PR117 hosted thread-detail blocker
+## Latest DAEDALUS handoff - PR117 hosted thread-detail follow-up
+
+PR117 hosted thread-detail follow-up is implemented by DAEDALUS on 2026-06-20
+and ready for ARGUS technical review. Because this still affects visible
+public-route behavior, ARGUS should wake ARIADNE for hosted/browser rerun if
+the technical review accepts the patch.
+
+Files changed: `apps/api/src/routes/threads.ts`,
+`apps/api/src/routes/community.test.ts`,
+`docs/roadmap/PR117_PUBLIC_DOCUMENT_DISCUSSION_CHAIN.md`,
+`docs/roadmap/ACTIVE_STATUS.md`, and `docs/testing/VALIDATION_BASELINE.md`.
+
+Root cause:
+
+- Public thread detail comment reads selected `comments.authorship_*` columns
+  without the legacy fallback used for hosted-missing thread provenance columns.
+- Hosted Railway therefore returned `column comments.authorship_kind does not
+  exist` for the linked public discussion route.
+
+Patch:
+
+- Public thread detail comment reads now retry with a legacy select only when
+  the hosted error names missing `comments.authorship_*` columns.
+- Legacy comment rows are defaulted to user-authored provenance before
+  serialization.
+- Active, non-hidden, status, parent-thread, moderation/reporting, and comment
+  visibility filters are unchanged.
+- The accepted missing-`community_subcommunities` legacy-category fallback and
+  non-legacy fail-closed behavior are unchanged.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` passed with
+  2 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:community` passed with 21 tests,
+  including hosted missing `comments.authorship_*` fallback coverage.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `git diff --check` passed with CRLF normalization warnings only.
+
+Non-scope confirmation: no broad forum/document redesign, automatic anonymous
+discussion creation, moderation behavior change, visibility widening,
+billing/auth/session/provider/cache/Cloudflare change, AI call, private archive
+exposure, prompt/provider payload logging, or secret logging was added.
+
+## Previous ARIADNE handoff - PR117 hosted thread-detail blocker
 
 PR117 Public Document Discussion Chain made progress after the hosted follow-up,
 but a narrower hosted thread-detail blocker remains. ARIADNE wakes DAEDALUS for

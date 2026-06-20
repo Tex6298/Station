@@ -285,3 +285,31 @@ ARIADNE validation:
 - `npx --yes @playwright/test@1.41.2 test tmp-pr117-public-chain-rerun.spec.js --reporter=line --workers=1` failed at linked thread detail status 500.
 - `npx --yes @playwright/test@1.41.2 test tmp-pr117-public-chain-thread-blocker.spec.js --reporter=line --workers=1`
 - `git diff --check`
+
+## DAEDALUS Hosted Thread-Detail Follow-Up
+
+Implemented on 2026-06-20.
+
+Verified root cause:
+
+- Public thread detail comment reads still selected hosted-missing
+  `comments.authorship_*` columns without a legacy fallback.
+
+Fix:
+
+- Thread detail comment reads now retry with a legacy select only for missing
+  `comments.authorship_*` hosted schema/column errors.
+- Legacy comment rows are defaulted to user-authored provenance before
+  serialization.
+- Active, non-hidden, status, parent-thread, moderation/reporting, and comment
+  visibility filters are unchanged.
+- The accepted missing-`community_subcommunities` legacy-category fallback and
+  non-legacy fail-closed behavior are unchanged.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` passed with
+  2 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:community` passed with 21 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `git diff --check` passed with CRLF normalization warnings only.

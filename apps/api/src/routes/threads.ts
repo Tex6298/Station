@@ -29,6 +29,13 @@ import { canReadSubcommunity, loadSubcommunityForCategory } from "../services/co
 export const threadsRouter = Router();
 const COMMUNITY_TIERS = new Set(["private", "creator", "canon", "institutional"]);
 const LEGACY_PUBLIC_FORUM_CATEGORY_SLUGS = new Set(["general", "documents-and-codexes"]);
+const THREAD_DETAIL_COMMENTS_SELECT =
+  `id, body, status, score, is_pinned, is_hidden, reported_count, created_at, updated_at, author_user_id,
+   authorship_kind, authorship_source_type, authorship_source_id, authorship_persona_id,
+   author:profiles!author_user_id(username, display_name, avatar_url)`;
+const LEGACY_THREAD_DETAIL_COMMENTS_SELECT =
+  `id, body, status, score, is_pinned, is_hidden, reported_count, created_at, updated_at, author_user_id,
+   author:profiles!author_user_id(username, display_name, avatar_url)`;
 
 const voteSchema = z.object({
   value: z.union([z.literal(1), z.literal(-1)]),
@@ -86,18 +93,7 @@ threadsRouter.get("/:id", optionalAuth, async (req: Request, res: Response) => {
     return res.status(404).json({ error: "Thread not found" });
   }
 
-  const { data: comments, error: commentErr } = await sb
-    .from("comments")
-    .select(
-      `id, body, status, score, is_pinned, is_hidden, reported_count, created_at, updated_at, author_user_id,
-       authorship_kind, authorship_source_type, authorship_source_id, authorship_persona_id,
-       author:profiles!author_user_id(username, display_name, avatar_url)`
-    )
-    .eq("parent_type", "thread")
-    .eq("parent_id", id)
-    .eq("status", "active")
-    .eq("is_hidden", false)
-    .order("created_at", { ascending: true });
+  const { data: comments, error: commentErr } = await loadThreadDetailComments(sb, id);
 
   if (commentErr) return res.status(500).json({ error: commentErr.message });
 
@@ -472,6 +468,56 @@ function isMissingSubcommunitySchemaError(error: unknown) {
         : "";
 
   return /community_subcommunities/i.test(message) && /schema cache|could not find|does not exist|relation .* does not exist/i.test(message);
+}
+
+async function loadThreadDetailComments(sb: ReturnType<typeof getSupabaseAdmin>, threadId: string) {
+  const result = await sb
+    .from("comments")
+    .select(THREAD_DETAIL_COMMENTS_SELECT)
+    .eq("parent_type", "thread")
+    .eq("parent_id", threadId)
+    .eq("status", "active")
+    .eq("is_hidden", false)
+    .order("created_at", { ascending: true });
+
+  if (!isMissingCommentAuthorshipSchemaError(result.error)) return result;
+
+  const legacy = await sb
+    .from("comments")
+    .select(LEGACY_THREAD_DETAIL_COMMENTS_SELECT)
+    .eq("parent_type", "thread")
+    .eq("parent_id", threadId)
+    .eq("status", "active")
+    .eq("is_hidden", false)
+    .order("created_at", { ascending: true });
+
+  return {
+    ...legacy,
+    data: (legacy.data ?? []).map(withLegacyCommentAuthorship),
+  };
+}
+
+function withLegacyCommentAuthorship(row: any) {
+  return {
+    authorship_kind: "user_authored",
+    authorship_source_type: null,
+    authorship_source_id: null,
+    authorship_persona_id: null,
+    ...row,
+  };
+}
+
+function isMissingCommentAuthorshipSchemaError(error: unknown) {
+  const message = error instanceof Error
+    ? error.message
+    : typeof error === "string"
+      ? error
+      : typeof (error as { message?: unknown } | null)?.message === "string"
+        ? String((error as { message?: unknown }).message)
+        : "";
+
+  return /authorship_(kind|source_type|source_id|persona_id)/i.test(message)
+    && /comments|schema cache|column|could not find|does not exist/i.test(message);
 }
 
 async function loadReadableThreadForWitness(
