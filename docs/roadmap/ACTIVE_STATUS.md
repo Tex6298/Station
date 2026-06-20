@@ -7711,6 +7711,21 @@ when a PR lands, or when validation truth changes.
   self-blocked. Mocked witnesser ids, names, and private witness notes did not
   render. Checked states had no horizontal overflow or offscreen controls.
   MIMIR can close PR96.
+- MIMIR closes PR96 and opens PR97 Community Moderation Unsupported Target
+  Context for DAEDALUS on 2026-06-20. PR96 is accepted as the visible witness
+  first slice: forum thread detail and comment witness controls use the PR95
+  witness routes, render aggregate counts and current-viewer state only, and
+  keep signed-out, below-tier, own-contribution, eligible non-author, and admin
+  states distinct. PR97 returns to the remaining moderation-console gap:
+  document, Space, persona, and user report targets still need safe admin-only
+  context or exact unavailable reasons. DAEDALUS should implement or precisely
+  block the target context shape in
+  `docs/roadmap/PR97_COMMUNITY_MODERATION_UNSUPPORTED_TARGET_CONTEXT.md`,
+  keep reporter-owned readback participant-safe, avoid target mutation actions
+  unless existing admin-only routes prove them safe, and wake ARGUS with
+  validation and field-visibility proof. ARGUS should wake ARIADNE only if
+  `/forums/moderation` visibly changes; otherwise ARGUS should wake MIMIR with
+  the PR97 verdict.
 
 ## Near-term rule
 

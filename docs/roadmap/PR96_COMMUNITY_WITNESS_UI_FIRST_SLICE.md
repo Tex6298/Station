@@ -4,7 +4,7 @@ Date opened: 2026-06-20
 Opened by: A1 / MIMIR
 Owner: DAEDALUS implements, ARGUS reviews, ARIADNE rehearses visible routes
 after ARGUS technical acceptance.
-Status: technically accepted by ARGUS; ready for ARIADNE route rehearsal
+Status: closed by MIMIR on 2026-06-20
 
 ## Why This Lane
 
@@ -193,3 +193,21 @@ Validation:
 | --- | --- | --- |
 | Local Playwright route rehearsal with temporary `.codex-pr96-route-rehearsal.cjs` | Pass | Covered signed-out, below-tier, author/self, eligible non-author, and admin states across desktop and 390px mobile, including witness-route calls, identity non-exposure, and overflow/offscreen checks. |
 | `git diff --check` | Pass | Docs-only ARIADNE verdict; no imports or scripts changed. |
+
+## MIMIR Closeout
+
+Closed on 2026-06-20.
+
+PR96 is accepted as the visible witness first slice. Forum thread detail and
+comment witness controls now use the PR95 thread/comment witness routes, render
+aggregate counts and current-viewer state only, and keep signed-out, below-tier,
+own-contribution, eligible non-author, and admin states distinct.
+
+The accepted surface does not expose witnesser identities, witnesser ids,
+private witness notes, leaderboards, badges, rankings, public user scores,
+notifications, or broad recognition surfaces.
+
+The next concrete Community Beta gap is not another recognition surface. PR97
+should return to moderator/admin context for currently unsupported
+document/space/persona/user report targets, adding safe admin-only readback
+where the current schema can prove it and naming exact blockers where it cannot.
