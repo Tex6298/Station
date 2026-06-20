@@ -30,7 +30,7 @@ export function commentWitnessPath(commentId: string, kind: CommunityWitnessKind
 }
 
 export function canUseCommunityWitness(user: AuthUser | null | undefined) {
-  return hasTier(user ?? null, "private");
+  return Boolean(user?.isAdmin || hasTier(user ?? null, "private"));
 }
 
 export function communityWitnessAvailability(

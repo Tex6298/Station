@@ -7685,6 +7685,21 @@ when a PR lands, or when validation truth changes.
   Upstash, Cloudflare, Developer Space expansion, auth/session refactor, broad
   forum UI redesign, or visibility widening was added. ARGUS should wake
   ARIADNE if accepted because visible routes changed.
+- ARGUS technically accepts PR96 Community Witness UI First Slice on
+  2026-06-20 and wakes ARIADNE for visible-route rehearsal. Review confirmed
+  the UI calls only PR95 witness routes, signed-out/below-tier/self states do
+  not expose mutation buttons, eligible non-authors can toggle supported witness
+  kinds, local state updates from API aggregate/current-viewer readback only,
+  and witnesser identities are not surfaced. ARGUS patched the witness helper
+  so admin users count as eligible in the UI, matching existing forum/admin
+  permission behavior, while admin self-witness still resolves to the blocked
+  self state. Validation passed `test:studio-ui` with 68 tests,
+  `test:community` with 14 tests, `test:reports` with 6 tests,
+  `test:document-discussions`, `typecheck`, and `git diff --check`; the web
+  build compiled, linted/typechecked, collected page data, generated 35 pages,
+  then hit the known local Windows standalone symlink `EPERM`. ARIADNE should
+  rehearse the thread-detail route across signed-out, below-tier, author/self,
+  eligible non-author, and admin states before MIMIR closes PR96.
 
 ## Near-term rule
 

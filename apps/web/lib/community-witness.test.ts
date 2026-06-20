@@ -20,15 +20,19 @@ test("community witness eligibility blocks signed-out, below-tier, and self stat
   const visitor = { id: "visitor", tier: "visitor" as const, isAdmin: false };
   const member = { id: "member", tier: "private" as const, isAdmin: false };
   const author = { id: "author", tier: "creator" as const, isAdmin: false };
+  const admin = { id: "admin", tier: "visitor" as const, isAdmin: true };
 
   assert.equal(canUseCommunityWitness(null), false);
   assert.equal(canUseCommunityWitness(visitor), false);
   assert.equal(canUseCommunityWitness(member), true);
+  assert.equal(canUseCommunityWitness(admin), true);
 
   assert.equal(communityWitnessAvailability(null, { author_user_id: "author" }), "signed-out");
   assert.equal(communityWitnessAvailability(visitor, { author_user_id: "author" }), "below-tier");
   assert.equal(communityWitnessAvailability(author, { author_user_id: "author" }), "self");
   assert.equal(communityWitnessAvailability(member, { author_user_id: "author" }), "eligible");
+  assert.equal(communityWitnessAvailability(admin, { author_user_id: "author" }), "eligible");
+  assert.equal(communityWitnessAvailability(admin, { author_user_id: "admin" }), "self");
 });
 
 test("community witness labels do not expose witnesser identities", () => {

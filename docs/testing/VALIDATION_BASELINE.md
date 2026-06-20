@@ -9361,6 +9361,28 @@ Scope notes:
 - ARGUS should wake ARIADNE after technical acceptance because visible routes
   changed.
 
+ARGUS technical review validation on 2026-06-20:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 68 tests passed, including admin eligibility and admin self-block coverage for the witness helper. |
+| `npm exec --yes pnpm@10.32.1 -- run test:community` | Pass | 14 tests passed; PR95 witness API protections remain green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:reports` | Pass | 6 tests passed; report scoping remains green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` | Pass | 1 test passed; document discussion visibility remains green. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API typecheck replayed from cache; web typecheck completed. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web build` | Partial / known Windows failure | Next compiled, linted/typechecked, collected page data, generated 35 static pages, and then hit the known local Windows standalone symlink `EPERM`. Only pre-existing raw `<img>` warnings appeared. |
+| `git diff --check` | Pass | CRLF normalization warnings only for touched files and local triad state. |
+
+ARGUS review notes:
+
+- Patched helper eligibility so admins count as eligible for the witness UI
+  while admin self-witness remains blocked as self.
+- Confirmed the route only calls accepted PR95 witness endpoints and updates
+  local state from API `witness_counts` and `viewer_witnesses`.
+- No witnesser ids, names, private notes, target hidden material, leaderboard,
+  badge, ranking, notification, schema, or visibility-widening work was added.
+- PR96 is technically accepted for ARIADNE visible-route rehearsal.
+
 ## PR95 Community Recognition/Witness Foundation
 
 DAEDALUS implementation validation on 2026-06-20:

@@ -4,7 +4,7 @@ Date opened: 2026-06-20
 Opened by: A1 / MIMIR
 Owner: DAEDALUS implements, ARGUS reviews, ARIADNE rehearses visible routes
 after ARGUS technical acceptance.
-Status: implemented by DAEDALUS; ready for ARGUS technical review
+Status: technically accepted by ARGUS; ready for ARIADNE route rehearsal
 
 ## Why This Lane
 
@@ -133,3 +133,28 @@ DAEDALUS must wake ARGUS with:
 
 ARGUS should wake ARIADNE if accepted. ARIADNE should wake MIMIR after visible
 route rehearsal, or DAEDALUS with exact defects. Do not leave the lane asleep.
+
+## ARGUS Technical Review Result
+
+Accepted on 2026-06-20 for visible-route rehearsal. ARGUS patched one helper
+consistency issue before acceptance: admin users now count as eligible for the
+UI witness control, matching the existing forum/admin permission convention,
+while admin self-witness still resolves to the blocked self state.
+
+Validation passed:
+
+```bash
+npm exec --yes pnpm@10.32.1 -- run test:studio-ui
+npm exec --yes pnpm@10.32.1 -- run test:community
+npm exec --yes pnpm@10.32.1 -- run test:reports
+npm exec --yes pnpm@10.32.1 -- run test:document-discussions
+npm exec --yes pnpm@10.32.1 -- run typecheck
+git diff --check
+```
+
+The web build compiled, linted/typechecked, collected page data, and generated
+35 static pages before the known local Windows standalone symlink `EPERM`.
+
+ARIADNE should rehearse `/forums/[categorySlug]/[threadId]` for signed-out,
+below-tier, author/self, eligible non-author, and admin states on desktop and
+mobile before waking MIMIR.
