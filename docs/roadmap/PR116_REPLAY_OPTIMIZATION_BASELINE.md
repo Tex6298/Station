@@ -5,7 +5,7 @@ Opened by: A1 / MIMIR
 Owner: ARIADNE rehearses first. DAEDALUS patches only concrete blockers or
 bottlenecks from that rehearsal. ARGUS validates security, owner scope, and
 regressions after implementation.
-Status: open for ARIADNE
+Status: ARIADNE found a blocker; ready for DAEDALUS patch.
 
 ## Why This Lane
 
@@ -112,6 +112,14 @@ git diff --check
 ```
 
 plus human rehearsal notes/artifacts.
+
+ARIADNE result:
+
+- `docs/roadmap/PR116_REPLAY_OPTIMIZATION_BASELINE_ARIADNE.md`
+- Blocker: staged public forum category reads return HTTP 500 because
+  `public.community_subcommunities` is missing from the schema cache, and hosted
+  `/forums` visibly renders the schema-cache error on desktop and mobile.
+  DAEDALUS should patch this before MIMIR closes PR116.
 
 DAEDALUS, if patching:
 

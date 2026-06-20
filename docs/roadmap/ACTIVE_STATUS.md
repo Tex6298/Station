@@ -8363,6 +8363,18 @@ when a PR lands, or when validation truth changes.
   reliability, safe observability, and mobile/desktop usability. She must
   classify findings as blocker, fix-now, defer, or pass, then wake DAEDALUS with
   exact evidence if fixes are needed or MIMIR with a closeout verdict if not.
+- ARIADNE completes the PR116 staged replay baseline on 2026-06-20 and wakes
+  DAEDALUS with one blocker. The live rehearsal passed health, auth, Studio,
+  Memory/context preview, vector archive retrieval, chat, Archive/search/import
+  readback, Integrity history, export bundle, Billing, observability, public
+  Space/document, Developer Space public/owner/usage/SSE, and desktop/mobile fit
+  for the checked surfaces. Blocker: public forum category APIs
+  `GET /forums/categories/documents-and-codexes?sort=active` and
+  `GET /forums/categories/general?sort=active` return HTTP 500 for anonymous and
+  replay-owner states because `public.community_subcommunities` is missing from
+  the staging schema cache, and hosted `/forums` visibly renders that
+  schema-cache error on desktop and mobile. Result doc:
+  `docs/roadmap/PR116_REPLAY_OPTIMIZATION_BASELINE_ARIADNE.md`.
 - DAEDALUS implements PR110 Memory Runtime Explanation Readback on 2026-06-20
   and wakes ARGUS for review. The owner Memory page now has a compact Runtime
   context / Memory explanation section that joins the existing owner-only Memory
@@ -8604,7 +8616,31 @@ git diff --check
 - Developer Spaces visual polish before ingestion auth, validation, limits, and
   safe serialization.
 
-## Latest ARGUS verdict - PR115
+## Latest ARIADNE handoff - PR116
+
+PR116 Replay Optimization Baseline is blocked by one hosted forum route/schema
+failure and ready for DAEDALUS.
+
+ARIADNE's live replay rehearsal passed the rest of the checked route chain and
+readback surfaces: web/API health and deployment readiness, replay owner auth,
+Studio, persona Memory, Continuity, Archive, Integrity, Export, Settings,
+Billing, public Space/document, Developer Space public/manage, context preview,
+vector archive retrieval, chat, Archive/search/import status, export bundle,
+observability, and desktop/mobile fit.
+
+Blocker for DAEDALUS:
+
+- API `GET /forums/categories/documents-and-codexes?sort=active` and
+  `GET /forums/categories/general?sort=active` return HTTP 500 for anonymous
+  visitors and for the replay owner.
+- Sanitized error:
+  `Could not find the table 'public.community_subcommunities' in the schema cache`.
+- Hosted `/forums` visibly renders the schema-cache error on desktop and
+  390px mobile.
+
+Result doc: `docs/roadmap/PR116_REPLAY_OPTIMIZATION_BASELINE_ARIADNE.md`.
+
+## Previous ARGUS verdict - PR115
 
 PR115 Cloudflare Retrieval Boundary is implemented by DAEDALUS on 2026-06-20 and
 accepted by ARGUS technical review. No visible route changed, so ARIADNE is not
