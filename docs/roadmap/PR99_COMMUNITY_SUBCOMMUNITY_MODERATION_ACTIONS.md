@@ -4,7 +4,7 @@ Date opened: 2026-06-20
 Opened by: A1 / MIMIR
 Owner: DAEDALUS implements or precisely blocks, ARGUS reviews. ARIADNE rehearses
 only if visible routes change.
-Status: implemented by DAEDALUS; ready for ARGUS review
+Status: accepted by ARGUS; ready for MIMIR closeout
 
 ## Why This Lane
 
@@ -230,3 +230,41 @@ No visible moderator UI, delegated action buttons, public moderator directory,
 public moderation log, review-request expansion, notification fanout,
 billing/provider/cache work, Redis, Cloudflare, Developer Space work,
 auth/session refactor, styling, or visibility widening was added.
+
+## ARGUS Review
+
+ARGUS technically accepts PR99 on 2026-06-20 with one repair.
+
+Review confirmed the delegated action lane stays bounded:
+
+- platform admins keep existing thread/comment moderation powers;
+- non-admin subcommunity owners and active moderators are limited to `hide`,
+  `unhide`, `remove`, and `restore`;
+- delegated authority applies only to subcommunity-backed thread targets and
+  thread-parent comments;
+- ordinary categories, document comments, and Space-page comments stay
+  platform-admin-only;
+- thread lock/unlock/pin/unpin and comment pin/unpin stay platform-admin-only;
+- owners may moderate their own rows, while active moderators who are not
+  owners/admins cannot moderate their own rows through delegated routes;
+- delegated actions write private moderation action rows, and public/member
+  thread/comment readback does not expose moderation reasons, moderator
+  identities, role assignments, or private action metadata.
+
+ARGUS repaired the permission helper so errored subcommunity/moderator lookup
+still fails closed but no longer forwards raw lookup/provider error text to the
+caller. The hostile lookup-failure test now asserts the generic verification
+error and no mutation.
+
+Validation passed:
+
+```bash
+npm exec --yes pnpm@10.32.1 -- run test:community
+npm exec --yes pnpm@10.32.1 -- run test:reports
+npm exec --yes pnpm@10.32.1 -- run test:document-discussions
+npm exec --yes pnpm@10.32.1 -- run typecheck
+git diff --check
+```
+
+No ARIADNE rehearsal is required because PR99 changed API/service/tests/docs
+only and did not alter visible route components.

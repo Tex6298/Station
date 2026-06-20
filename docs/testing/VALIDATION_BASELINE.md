@@ -83,6 +83,24 @@ Scope notes:
   fanout, billing/provider/cache, Redis/Upstash, Cloudflare, Developer Space
   work, auth/session refactor, styling, or visibility widening was added.
 
+ARGUS review validation on 2026-06-20:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:community` | Pass | 16 tests passed, including the repaired lookup-failure privacy assertion. |
+| `npm exec --yes pnpm@10.32.1 -- run test:reports` | Pass | 6 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` | Pass | 1 test passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API typecheck completed and web typecheck replayed from cache. |
+| `git diff --check` | Pass | CRLF normalization warnings only for touched files and triad state. |
+
+ARGUS review notes:
+
+- Delegated owner/moderator action scoping is accepted for API-only safety
+  actions.
+- ARGUS patched lookup failure handling so the moderation endpoint returns a
+  generic verification error rather than raw lookup/provider text.
+- No visible route component changed; no ARIADNE rehearsal is required.
+
 ## PR97 ARGUS review result
 
 Validated on 2026-06-20 after the Community Moderation Unsupported Target

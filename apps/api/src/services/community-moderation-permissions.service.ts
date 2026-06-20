@@ -28,9 +28,8 @@ export async function authorizeSubcommunityModeration(input: {
   let subcommunity: Awaited<ReturnType<typeof loadSubcommunityForCategory>>;
   try {
     subcommunity = await loadSubcommunityForCategory(input.categoryId);
-  } catch (error) {
-    const message = error instanceof Error ? error.message : "Could not verify subcommunity moderation authority.";
-    return { ok: false, status: 500, error: message };
+  } catch {
+    return { ok: false, status: 500, error: "Could not verify subcommunity moderation authority." };
   }
 
   if (!subcommunity) return { ok: false, status: 403, error: "Admin access required." };
@@ -38,9 +37,8 @@ export async function authorizeSubcommunityModeration(input: {
   let canModerate = false;
   try {
     canModerate = await canModerateSubcommunity(subcommunity, input.user);
-  } catch (error) {
-    const message = error instanceof Error ? error.message : "Could not verify subcommunity moderation authority.";
-    return { ok: false, status: 500, error: message };
+  } catch {
+    return { ok: false, status: 500, error: "Could not verify subcommunity moderation authority." };
   }
 
   if (!canModerate) return { ok: false, status: 403, error: "Admin access required." };

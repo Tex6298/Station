@@ -7847,6 +7847,16 @@ when a PR lands, or when validation truth changes.
   review-request expansion, notification fanout, billing/provider/cache,
   Redis/Upstash, Cloudflare, Developer Space work, auth/session refactor,
   styling, or visibility widening was added.
+- ARGUS technically accepts PR99 Community Subcommunity Moderation Actions on
+  2026-06-20 and wakes MIMIR for closeout. Review confirmed the delegated
+  action allow/deny matrix, subcommunity target scoping, self-moderation
+  decision, private action logging, and public readback non-leakage. ARGUS
+  patched errored subcommunity/moderator lookup so it still fails closed but
+  returns only a generic verification failure instead of forwarding raw lookup
+  error text. Validation passed `test:community` with 16 tests, `test:reports`
+  with 6 tests, `test:document-discussions`, `typecheck`, and
+  `git diff --check` with CRLF normalization warnings only. No ARIADNE
+  rehearsal is required because no visible route component changed.
 
 ## Near-term rule
 

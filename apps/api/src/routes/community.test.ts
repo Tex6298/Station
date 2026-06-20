@@ -1476,6 +1476,8 @@ test("subcommunity owner and moderator actions are bounded to safety actions and
       body: { action: "hide", reason: "lookup failure should not mutate target" },
     });
     assert.equal(blockedByLookupFailure.status, 500);
+    assert.equal(blockedByLookupFailure.body.error, "Could not verify subcommunity moderation authority.");
+    assert.equal(JSON.stringify(blockedByLookupFailure.body).includes("Could not prove subcommunity authority."), false);
 
     const ownerHide = await requestJson(app, "PATCH", `/threads/${subcommunityThread.id}/moderation`, {
       token: "owner-token",
