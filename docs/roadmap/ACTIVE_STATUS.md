@@ -7364,6 +7364,25 @@ when a PR lands, or when validation truth changes.
   Redis pub/sub, scheduled digest, public notification feed,
   subcommunity/delegated moderation, reputation/witness, billing/provider/cache,
   Developer Space, auth/session refactor, or broad forum UI was added.
+- ARIADNE accepts PR90 visible-route rehearsal on 2026-06-20 and wakes MIMIR
+  for closeout. The local `/notifications`, `/settings`, and forum thread
+  detail routes were rehearsed with browser-level `/auth/me`, current-user
+  notification, thread detail, and thread watch mocks; no live notification,
+  watch, thread, or moderation rows were read or mutated. Signed-out
+  `/notifications` showed sign-in copy and did not fetch notification data;
+  signed-in `/notifications` showed safe current-user type/title/summary/date/
+  read state, used only API-provided local `Open` links, rejected absolute or
+  protocol-relative links from the visible route, and kept all/unread plus
+  mark-one-read/mark-all-read actions on PR89 current-user routes. `/settings`
+  exposed the Notifications link without pretending notification preferences
+  are persisted. Thread detail showed signed-out and below-tier unavailable
+  states without watch fetches or mutations, while eligible private-tier users
+  fetched watch state and used only `GET`/`PUT`/`DELETE /threads/:id/watch`.
+  The visible routes did not show actor ids, recipient ids, moderator
+  identities, admin notes, target bodies, private material, other-user row
+  markers, guessed links, or public notification feed language. Desktop and
+  390px mobile checks showed no horizontal overflow or offscreen primary
+  controls. No additional PR90 visible UI defect remains.
 
 ## Near-term rule
 

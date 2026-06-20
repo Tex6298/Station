@@ -9293,6 +9293,34 @@ ARGUS review notes:
 - Confirmed notification UI omits actor ids, recipient ids, moderator
   identities, admin notes, target bodies, private material, and other-user rows.
 
+ARIADNE visible-route rehearsal on 2026-06-20:
+
+| Check | Result | Notes |
+| --- | --- | --- |
+| Local browser route rehearsal with mocked API responses | Pass | Exercised `/notifications`, `/settings`, and forum thread detail watch states on desktop plus 390px mobile without reading or mutating live notification, watch, thread, or moderation rows. |
+| `node --check .codex-pr90-route-rehearsal.cjs` | Pass | Temporary rehearsal script syntax check; script was not kept as a repo artifact. |
+
+Route notes:
+
+- Signed-out `/notifications` showed sign-in copy and did not fetch
+  `/notifications`.
+- Signed-in `/notifications` loaded unread/all current-user rows, showed safe
+  type/title/summary/date/read state, used only API-provided local `Open`
+  links, and kept absolute/protocol-relative links invisible.
+- Mark-one-read and mark-all-read called only PR89 current-user notification
+  PATCH routes with empty bodies.
+- `/settings` exposed the Notifications link without presenting notification
+  preferences as persisted settings.
+- Signed-out and below-tier thread detail states did not fetch or mutate
+  `GET`/`PUT`/`DELETE /threads/:id/watch`.
+- Eligible private-tier thread detail fetched watch state and used only the
+  PR89 watch routes for watch/unwatch.
+- Visible routes did not show actor ids, recipient ids, moderator identities,
+  admin notes, target bodies, private material, other-user row markers, guessed
+  links, or public notification feed language.
+- Desktop and 390px mobile checks did not show horizontal overflow or offscreen
+  primary controls.
+
 ## PR89 Community Notifications Foundation
 
 DAEDALUS implementation validation on 2026-06-20:

@@ -4,7 +4,7 @@ Date opened: 2026-06-20
 Opened by: A1 / MIMIR
 Owner: DAEDALUS implements, ARGUS reviews. ARIADNE rehearses visible routes
 after ARGUS technical acceptance.
-Status: technically accepted by ARGUS; ready for ARIADNE route rehearsal
+Status: accepted by ARGUS and ARIADNE; ready for MIMIR closeout
 
 ## Why This Lane
 
@@ -172,3 +172,40 @@ git diff --check
 
 The web build compiled, linted/typechecked, collected page data, and generated
 34 static pages before the known local Windows standalone symlink `EPERM`.
+
+## ARIADNE Visible Route Rehearsal
+
+ARIADNE accepts the visible PR90 route behavior.
+
+Rehearsal used the local `/notifications`, `/settings`, and forum thread detail
+routes with browser-level mocks for `/auth/me`, current-user notifications,
+thread detail, and thread watch APIs. No live notification, watch, thread, or
+moderation rows were read or mutated.
+
+Accepted route behavior:
+
+- Signed-out `/notifications` showed sign-in copy and did not fetch
+  `/notifications`.
+- Signed-in `/notifications` loaded unread current-user rows, showed safe
+  type/title/summary/date/read state, used only API-provided local `Open`
+  links, and rejected absolute/protocol-relative notification links from the
+  visible route.
+- Mark-one-read and mark-all-read called only PR89 current-user notification
+  PATCH routes with empty bodies, then updated visible readback.
+- The all/unread filter called the expected current-user list routes without
+  showing a public feed.
+- `/settings` exposed the Notifications card/link without turning preferences
+  into a fake persisted settings surface.
+- Signed-out thread detail showed a watch-unavailable sign-in state and did not
+  fetch `GET /threads/:id/watch`.
+- Below-tier signed-in thread detail showed private-tier unavailable copy and
+  did not fetch or mutate watch state.
+- Eligible private-tier thread detail fetched watch state and used only
+  `GET`/`PUT`/`DELETE /threads/:id/watch` for watch/unwatch.
+- Notification and thread routes did not show actor ids, recipient ids,
+  moderator identities, admin notes, target bodies, private material,
+  other-user row markers, guessed links, or public notification feed language.
+- Desktop and 390px mobile checks did not show horizontal overflow or
+  offscreen primary controls.
+
+No additional PR90 visible-route defect remains.
