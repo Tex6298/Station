@@ -4,7 +4,7 @@ Date opened: 2026-06-20
 Opened by: A1 / MIMIR
 Owner: DAEDALUS implements or precisely blocks, ARGUS reviews, ARIADNE rehearses
 visible behavior before MIMIR closeout.
-Status: open for DAEDALUS
+Status: implemented by DAEDALUS; ready for ARGUS review
 
 ## Why This Lane
 
@@ -118,3 +118,55 @@ git diff --check
 If the web build reaches compile/lint/page generation and then hits the known
 Windows output cleanup `EPERM`, report that precisely rather than treating it as
 an app failure.
+
+## DAEDALUS Implementation
+
+Implemented on 2026-06-20.
+
+Visible route:
+
+- Added `/forums/subcommunities/[slug]/moderation`.
+- The page is scoped to exactly one subcommunity slug.
+- It reads queue rows only from
+  `GET /forums/subcommunities/:slug/moderation/reports`.
+- It does not call global `/reports` and does not add status mutation controls.
+
+Route/link behavior:
+
+- Added a `viewerCanModerate` boolean to subcommunity readback for viewers who
+  already pass the delegated queue permission check.
+- The category page links to the scoped moderation queue only when the current
+  viewer is an admin, the owner, or has API-confirmed delegated moderator
+  access.
+- Signed-out and denied direct-route states show friendly copy and do not render
+  queue rows or controls.
+
+Visible fields:
+
+- Rows display only report id-derived target labels, target type/id, reason,
+  status, created/updated timestamps, and bounded target context.
+- The UI sanitizer drops unsupported target rows and strips reporter ids,
+  reporter emails, admin notes, reviewed-by/reviewed-at, moderation reasons,
+  moderator identities, role assignments, hidden/private bodies, private target
+  metadata, raw owner ids, source ids, and raw category ids.
+- If `canOpenRoute` is false or no safe route hint exists, rows stay read-only
+  and show the unavailable reason instead of inventing links.
+
+Validation:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 75 tests passed, including delegated queue path, permission, sanitization, unsupported-row, and no-invented-link helper coverage. |
+| `npm exec --yes pnpm@10.32.1 -- run test:community` | Pass | 17 tests passed, including active-moderator `viewerCanModerate` preflight readback and revoked-moderator removal. |
+| `npm exec --yes pnpm@10.32.1 -- run test:reports` | Pass | 6 tests passed; global admin `/reports` behavior stayed green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` | Pass | 1 test passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck completed. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web build` | Partial / known Windows failure | Next compiled, linted/typechecked, collected page data, generated 35 static pages, finalized optimization, and collected build traces before the known local Windows standalone symlink `EPERM` during traced-file copy. Only the pre-existing raw `<img>` warnings appeared. |
+
+Non-scope confirmation:
+
+- No delegated `PATCH /reports/:id`, report status mutation controls, global
+  report visibility widening, public moderation logs, public moderator
+  directory, review-request expansion, notification fanout, unsupported target
+  handling, broad styling pass, billing/provider/cache work, Redis/Upstash,
+  Cloudflare, Developer Space work, or auth/session refactor was added.

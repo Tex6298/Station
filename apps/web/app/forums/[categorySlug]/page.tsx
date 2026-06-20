@@ -7,7 +7,13 @@ import type { AuthUser, CommunitySubcommunityRecord } from "@station/types";
 import { apiGet, apiPost } from "@/lib/api-client";
 import { getSession } from "@/lib/auth";
 import { canCreateCommunityThread, categoryPreflightUnavailableCopy, newThreadPath } from "@/lib/community-forum-create";
-import { subcommunityBadgeLabel } from "@/lib/community-subcommunities";
+import {
+  subcommunityBadgeLabel,
+} from "@/lib/community-subcommunities";
+import {
+  canUseDelegatedModerationQueue,
+  delegatedModerationPagePath,
+} from "@/lib/delegated-moderation-queue";
 
 interface Author { username: string; display_name: string | null; }
 interface CommunityProfile { trustLevel: number; reputationScore: number; }
@@ -42,6 +48,7 @@ export default function ForumCategoryPage() {
   const [canPost, setCanPost]     = useState(false);
   const [isSignedIn, setIsSignedIn] = useState(false);
   const [token, setToken]         = useState<string | undefined>();
+  const [viewer, setViewer]       = useState<AuthUser | null>(null);
   const [viewerUserId, setViewerUserId] = useState<string | null>(null);
   const [sort, setSort]           = useState("active");
   const [search, setSearch]       = useState("");
@@ -60,6 +67,7 @@ export default function ForumCategoryPage() {
       preflightUser = session?.user ?? null;
       setToken(accessToken);
       setIsSignedIn(Boolean(session));
+      setViewer(session?.user ?? null);
       setViewerUserId(session?.user.id ?? null);
       const params = new URLSearchParams({ sort });
       if (search.trim()) params.set("search", search.trim());
@@ -139,11 +147,18 @@ export default function ForumCategoryPage() {
             <p style={{ margin: 0, color: "#687078", fontSize: "0.875rem" }}>{category.description}</p>
           )}
         </div>
-        {canPost && (
-          <Link href={newThreadPath(categorySlug)} className="button primary" style={{ textDecoration: "none", fontSize: "0.8rem" }}>
-            + New thread
-          </Link>
-        )}
+        <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap", alignItems: "center" }}>
+          {category.subcommunity && canUseDelegatedModerationQueue(viewer, category.subcommunity) && (
+            <Link href={delegatedModerationPagePath(category.subcommunity.slug)} style={secondaryButton}>
+              Moderation queue
+            </Link>
+          )}
+          {canPost && (
+            <Link href={newThreadPath(categorySlug)} className="button primary" style={{ textDecoration: "none", fontSize: "0.8rem" }}>
+              + New thread
+            </Link>
+          )}
+        </div>
         {!isSignedIn && (
           <div style={{ color: "#687078", fontSize: "0.78rem", maxWidth: 260 }}>
             <Link href="/login" style={{ color: "#534ab7", fontWeight: 800 }}>Sign in</Link> to start a thread. Public reading stays open.
@@ -238,3 +253,13 @@ function voteButton(active: boolean) {
     cursor: "pointer",
   };
 }
+
+const secondaryButton = {
+  padding: "0.45rem 0.75rem",
+  border: "1px solid #d8d3c8",
+  borderRadius: 7,
+  color: "#1f2529",
+  textDecoration: "none",
+  fontSize: "0.8rem",
+  background: "#fff",
+};

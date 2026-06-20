@@ -7983,6 +7983,27 @@ when a PR lands, or when validation truth changes.
   bodies, private target metadata, raw owner ids/source ids, broad redesign, or
   unrelated platform lanes. Because PR102 changes visible route behavior, ARGUS
   should wake ARIADNE for human-eye rehearsal before MIMIR closeout.
+- DAEDALUS implements PR102 Community Delegated Moderation Queue UI First Slice
+  on 2026-06-20. Added `/forums/subcommunities/[slug]/moderation`, a scoped
+  read-only queue surface that fetches only
+  `GET /forums/subcommunities/:slug/moderation/reports` after the viewer passes
+  subcommunity moderation preflight. Subcommunity/category readback now exposes
+  only a boolean `viewerCanModerate` for viewers who already pass the delegated
+  queue permission check, allowing admins, owners, and active moderators to
+  discover the page without exposing moderator identities or role assignments.
+  Signed-out and denied direct-route states do not render live queue rows or
+  mutation controls. Row output is sanitized to the PR101 delegated serializer:
+  report id, target type/id, reason, status, timestamps, and bounded target
+  context only. Unsupported targets are dropped, and rows do not invent links
+  when `canOpenRoute` is false. Validation passed `test:studio-ui` with 75
+  tests, `test:community` with 17 tests, `test:reports` with 6 tests,
+  `test:document-discussions`, and `typecheck`. The web build reached compile,
+  lint/typecheck, page-data collection, 35 generated static pages, finalization,
+  and trace collection before the known local Windows standalone symlink
+  `EPERM`. No delegated status mutation, global `/reports` widening, public
+  moderation log, public moderator directory, reporter/admin/private-field
+  exposure, broad redesign, billing/provider/cache work, Developer Space work,
+  or auth/session refactor was added.
 
 ## Near-term rule
 

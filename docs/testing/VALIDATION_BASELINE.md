@@ -48,6 +48,42 @@ pnpm test:developer-spaces
 pnpm test:developer-space-client
 ```
 
+## PR102 Community Delegated Moderation Queue UI First Slice
+
+DAEDALUS implementation validation on 2026-06-20:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 75 tests passed, including delegated queue route path, permission matrix, sanitizer, unsupported-row exclusion, private-field stripping, and no-invented-link coverage. |
+| `npm exec --yes pnpm@10.32.1 -- run test:community` | Pass | 17 tests passed, including active-moderator `viewerCanModerate` preflight readback and revoked-moderator removal. |
+| `npm exec --yes pnpm@10.32.1 -- run test:reports` | Pass | 6 tests passed; global admin `/reports` behavior remained unchanged. |
+| `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` | Pass | 1 test passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck completed. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web build` | Partial / known Windows failure | Next compiled, linted/typechecked, collected page data, generated 35 static pages, finalized optimization, and collected build traces before the known local Windows standalone symlink `EPERM` during traced-file copy. Only the pre-existing raw `<img>` warnings appeared. |
+
+Scope notes:
+
+- Added `/forums/subcommunities/[slug]/moderation` as a scoped, read-only
+  delegated queue page.
+- Queue data is fetched only from
+  `GET /forums/subcommunities/:slug/moderation/reports` after the viewer passes
+  the subcommunity moderation preflight.
+- Added `viewerCanModerate` boolean readback for viewers who already pass the
+  delegated queue permission check; no moderator identities, role assignments,
+  owner ids, or profile details are exposed by that flag.
+- Category pages link to the scoped queue only for admins, owners, or
+  API-confirmed active moderators.
+- Signed-out, ordinary, revoked, unrelated, and denied direct-route states do
+  not render queue rows or mutation controls.
+- Row rendering is sanitized to PR101 safe fields only and does not invent
+  target links when `canOpenRoute` is false.
+- No delegated `PATCH /reports/:id`, status mutation controls, global
+  `/reports` widening, public moderation logs, public moderator directory,
+  reporter identities, admin notes, reviewed-by fields, moderation reasons,
+  moderator identities, role assignments, hidden/private bodies, private target
+  metadata, raw owner ids, source ids, broad redesign, billing/provider/cache
+  work, Developer Space work, or auth/session refactor was added.
+
 ## PR101 Community Delegated Moderation Queue Foundation
 
 DAEDALUS implementation validation on 2026-06-20:

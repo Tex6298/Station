@@ -1323,6 +1323,7 @@ test("subcommunity moderator role foundation is owner-admin managed and serializ
     });
     assert.equal(publicRead.status, 200);
     assert.equal(publicRead.body.subcommunity.ownerUserId, undefined);
+    assert.equal(publicRead.body.subcommunity.viewerCanModerate, true);
     assert.equal(JSON.stringify(publicRead.body).includes(MEMBER_ID), false);
     assert.equal(publicRead.body.subcommunity.moderators, undefined);
     assert.equal(publicRead.body.subcommunity.moderatorCount, undefined);
@@ -1340,6 +1341,12 @@ test("subcommunity moderator role foundation is owner-admin managed and serializ
     assert.equal(ownerRevoke.status, 200);
     assert.equal(ownerRevoke.body.moderator.status, "revoked");
     assert.equal(await canModerateSubcommunity(subcommunity as any, authUser(MEMBER_ID, "private")), false);
+
+    const revokedRead = await requestJson(app, "GET", "/forums/subcommunities/moderator-lab", {
+      token: "member-token",
+    });
+    assert.equal(revokedRead.status, 200);
+    assert.equal(revokedRead.body.subcommunity.viewerCanModerate, undefined);
 
     const adminList = await requestJson(app, "GET", "/forums/subcommunities/moderator-lab/moderators", {
       token: "admin-token",

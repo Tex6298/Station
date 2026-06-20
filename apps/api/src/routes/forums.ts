@@ -216,7 +216,7 @@ forumsRouter.get("/subcommunities/:slug", optionalAuth, async (req: Request, res
 
   if (error) return res.status(500).json({ error: error.message });
   if (!data || !canReadSubcommunity(data, req.user)) return res.status(404).json({ error: "Subcommunity not found" });
-  return res.json({ subcommunity: serializeSubcommunity(data, req.user) });
+  return res.json({ subcommunity: await serializeSubcommunityForViewer(data, req.user) });
 });
 
 // --- Public: get category + its threads -------------------------------------
@@ -309,7 +309,7 @@ forumsRouter.get("/categories/:slug", optionalAuth, async (req: Request, res: Re
   res.json({
     category: {
       ...category,
-      subcommunity: subcommunity ? serializeSubcommunity(subcommunity, req.user) : null,
+      subcommunity: subcommunity ? await serializeSubcommunityForViewer(subcommunity, req.user) : null,
     },
     threads: enrichedThreads,
   });
@@ -540,6 +540,14 @@ async function loadSubcommunityBySlug(slug: string) {
     .eq("slug", slug)
     .maybeSingle();
   return data ?? null;
+}
+
+async function serializeSubcommunityForViewer(row: any, user?: AuthenticatedUser | null) {
+  const record = serializeSubcommunity(row, user);
+  if (await canReadDelegatedModerationQueue(row, user)) {
+    record.viewerCanModerate = true;
+  }
+  return record;
 }
 
 async function canReadDelegatedModerationQueue(subcommunity: any, user?: AuthenticatedUser | null) {
