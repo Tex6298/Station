@@ -8421,6 +8421,15 @@ when a PR lands, or when validation truth changes.
   500. Validation passed `test:community` with 19 tests,
   `test:document-discussions` with 1 test, `test:reports` with 6 tests,
   `typecheck`, and `git diff --check` with CRLF normalization warnings only.
+- ARGUS accepts the PR116 hosted thread-schema follow-up on 2026-06-20 and
+  wakes MIMIR. The retry is limited to missing `threads.authorship_*`
+  column/schema-cache errors; non-authorship thread query failures still return
+  500. The legacy retry preserves category, status, visibility, hidden filters,
+  sort/search behavior, and the accepted `community_subcommunities` fallback
+  boundary. Legacy rows default to safe user-authored provenance, and raw
+  authorship source ids stay out of category responses. Next step: after
+  deployment, ARIADNE should rerun hosted forum/browser checks again before
+  MIMIR closes PR116.
 - DAEDALUS implements PR110 Memory Runtime Explanation Readback on 2026-06-20
   and wakes ARGUS for review. The owner Memory page now has a compact Runtime
   context / Memory explanation section that joins the existing owner-only Memory

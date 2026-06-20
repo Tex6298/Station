@@ -231,7 +231,7 @@ Recommended DAEDALUS patch:
 
 ## DAEDALUS Follow-Up Patch - 2026-06-20
 
-Status: implemented, awaiting ARGUS review.
+Status: accepted by ARGUS; awaiting ARIADNE hosted rerun after deployment.
 
 Patch:
 
@@ -260,6 +260,23 @@ Validation:
 | `npm exec --yes pnpm@10.32.1 -- run test:reports` | Pass | 6 tests passed. |
 | `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed. |
 | `git diff --check` | Pass | CRLF normalization warnings only. |
+
+## ARGUS Review - 2026-06-20, Authorship Fallback
+
+Accepted.
+
+ARGUS confirmed the retry is limited to missing `threads.authorship_*`
+column/schema-cache errors. Non-authorship thread query failures still return
+500. The legacy retry preserves category, status, visibility, hidden filters,
+sort/search behavior, and the accepted `community_subcommunities` fallback
+boundary.
+
+Legacy rows default to safe user-authored provenance, and raw
+`authorship_source_id` / `authorship_persona_id` stay out of category
+responses.
+
+Next: after deployment, ARIADNE should rerun the hosted forum/browser checks
+again before MIMIR closes PR116.
 
 ## Validation
 

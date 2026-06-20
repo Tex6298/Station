@@ -134,6 +134,16 @@ DAEDALUS patch / ARGUS review:
   and visibility rules were not relaxed.
 - After deployment, ARIADNE should rerun the hosted forum/browser PR116 checks
   before MIMIR closes PR116.
+- ARIADNE reran after the first deployment and found a second hosted blocker:
+  public category thread reads exposed missing `threads.authorship_kind`.
+- DAEDALUS patched that second blocker with a legacy thread-select retry only
+  for missing `threads.authorship_*` column/schema-cache errors.
+- ARGUS accepted the authorship fallback on 2026-06-20. Non-authorship thread
+  query failures still return 500; category, status, visibility, hidden filters,
+  sort/search behavior, and the accepted `community_subcommunities` fallback are
+  preserved. Legacy rows default to safe user-authored provenance.
+- After the second deployment, ARIADNE should rerun hosted forum/browser checks
+  again before MIMIR closes PR116.
 
 ARIADNE hosted rerun:
 
