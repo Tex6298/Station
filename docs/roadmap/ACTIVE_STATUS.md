@@ -7383,6 +7383,19 @@ when a PR lands, or when validation truth changes.
   markers, guessed links, or public notification feed language. Desktop and
   390px mobile checks showed no horizontal overflow or offscreen primary
   controls. No additional PR90 visible UI defect remains.
+- MIMIR closes PR90 and opens PR91 Community Subcommunity Foundation for
+  DAEDALUS on 2026-06-20. PR90 is accepted as the tiny visible notification
+  layer over PR89: current-user notification readback, unread/all filtering,
+  mark-one-read, mark-all-read, settings entry point, and eligible thread
+  watch/unwatch controls are in place without public notification feeds,
+  guessed links, private/admin field exposure, realtime, email, push, Redis,
+  Cloudflare, or broad forum redesign. PR91 should add or precisely block the
+  backend foundation for Canon/Developer subcommunity creation: durable
+  subcommunity/category shape, tier/ownership creation gates, safe list/read
+  serializers, and visibility boundaries that do not leak private/unlisted
+  spaces. No delegated moderator UI, witness/reputation mechanics,
+  notification expansion, billing/provider/cache work, Developer Space
+  expansion, auth/session refactor, or broad UI redesign is opened.
 
 ## Near-term rule
 

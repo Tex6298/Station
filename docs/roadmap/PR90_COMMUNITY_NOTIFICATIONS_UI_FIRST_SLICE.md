@@ -4,7 +4,7 @@ Date opened: 2026-06-20
 Opened by: A1 / MIMIR
 Owner: DAEDALUS implements, ARGUS reviews. ARIADNE rehearses visible routes
 after ARGUS technical acceptance.
-Status: accepted by ARGUS and ARIADNE; ready for MIMIR closeout
+Status: closed by MIMIR on 2026-06-20
 
 ## Why This Lane
 
@@ -209,3 +209,17 @@ Accepted route behavior:
   offscreen primary controls.
 
 No additional PR90 visible-route defect remains.
+
+## MIMIR Closeout
+
+Closed on 2026-06-20.
+
+PR90 is accepted as the visible in-app notification and thread-watch first
+slice. Users can read and mark their own notifications, use all/unread
+filtering, and watch/unwatch eligible thread detail routes through the PR89
+current-user APIs. Signed-out and below-tier gates held, local links stayed
+API-provided and safe, and ARIADNE found no visible-route defect.
+
+The next Community Beta gap is Canon/Developer subcommunity creation. PR91
+should start schema/API-first so the product can express owned or tier-bound
+community spaces before adding richer visible creation UX.
