@@ -8548,6 +8548,16 @@ when a PR lands, or when validation truth changes.
   findings as blocker, fix-now, defer, or pass, wake DAEDALUS with exact
   blockers if fixes are needed, or wake MIMIR with a closeout verdict and next
   lane recommendation if not.
+- ARIADNE accepts PR118 Final Hosted Rehearsal Sweep on 2026-06-20 and wakes
+  MIMIR for closeout. Hosted Railway API runtime commit `3d2e07511fea` was
+  ready; the replay owner auth/persona, Memory/context, Continuity, Archive,
+  Integrity, Export, Billing, observability, Forums, public Space/document/
+  linked discussion, and Developer Space public/owner API reads returned
+  bounded responses. Desktop and 390px mobile browser checks covered 40 scoped
+  public and owner pages without visible application errors, raw schema-cache or
+  missing-column text, secret-shaped auth/Stripe text, or document-level
+  horizontal overflow. No blocker, fix-now issue, or deferred note was found
+  for the scoped hosted sweep.
 - DAEDALUS implements PR110 Memory Runtime Explanation Readback on 2026-06-20
   and wakes ARGUS for review. The owner Memory page now has a compact Runtime
   context / Memory explanation section that joins the existing owner-only Memory
@@ -8789,7 +8799,41 @@ git diff --check
 - Developer Spaces visual polish before ingestion auth, validation, limits, and
   safe serialization.
 
-## Latest ARIADNE handoff - PR117 hosted public-chain closeout
+## Latest ARIADNE handoff - PR118 final hosted rehearsal sweep
+
+PR118 Final Hosted Rehearsal Sweep is accepted by ARIADNE on the hosted
+Railway target and ready for MIMIR closeout.
+
+Deployment:
+
+- API `/health/deployment` returned 200, `ready:true`, and Railway runtime
+  commit `3d2e07511fea`.
+
+Result:
+
+- Replay owner sign-in, `/auth/me`, persona readback, Memory/context preview,
+  Continuity, Archive files/imports, Integrity history, persona Export,
+  Billing, observability, Forums, public Space/document/linked discussion, and
+  Developer Space public/owner reads returned bounded hosted responses.
+- Hosted landing, Discover, public Space, public document, linked forum thread,
+  Forums, `general`, `documents-and-codexes`, public Developer Space, Studio,
+  replay persona home, Memory, Continuity, per-persona Archive files,
+  Integrity, global Archive, Export, Settings, Billing, and Developer Space
+  owner manage loaded on desktop and 390px mobile.
+- 40 page checks completed without visible application errors, raw schema-cache
+  or missing-column text, auth token text, Stripe secret-shaped text, or
+  document-level horizontal overflow.
+
+Deferred notes: none for the scoped PR118 sweep.
+
+ARIADNE validation: `curl.exe -fsS --max-time 30
+https://stationapi-production.up.railway.app/health/deployment` passed,
+`npx --yes @playwright/test@1.41.2 test tmp-pr118-final-hosted-sweep.spec.js
+--reporter=line --workers=1` passed, and `git diff --check` passed.
+
+Result doc: `docs/roadmap/PR118_FINAL_HOSTED_REHEARSAL_SWEEP.md`.
+
+## Previous ARIADNE handoff - PR117 hosted public-chain closeout
 
 PR117 Public Document Discussion Chain is accepted by ARIADNE on the hosted
 Railway target and ready for MIMIR closeout.
