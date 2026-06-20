@@ -7161,6 +7161,29 @@ when a PR lands, or when validation truth changes.
   model, notifications, reputation/witness mechanics, billing/provider/cache,
   Redis/Upstash, Cloudflare, Developer Space, auth/session refactor, or public
   visibility widening is opened.
+- DAEDALUS implements PR87 Community Appeals Request Review Foundation on
+  2026-06-20 as schema/API only. Added migration
+  `039_moderation_review_requests.sql`, hand-maintained DB/types surfaces, and
+  safe shared response types. New routes are `POST /reports/review-requests`,
+  `GET /reports/review-requests/mine`, admin-only
+  `GET /reports/review-requests`, and admin-only
+  `PATCH /reports/review-requests/:id`. Requester standing is limited to
+  reporters requesting review for their own thread/comment report and
+  thread/comment authors requesting review for their own target. Participant
+  serializers return safe request status fields and exclude requester id, admin
+  notes, reviewed_by/moderator identity, hidden target bodies, private material,
+  and other users' requests. Admin serializers add requester id, admin notes,
+  moderation action id if present, and reviewedBy. Duplicate active requests
+  for the same requester/target/reason are returned idempotently and backed by
+  a partial unique index. Moderation-action-linked requests remain deferred
+  because the current action log is admin-facing and lacks a participant-safe
+  action reference/visibility rule. No visible appeal UI, public moderation
+  log, public visibility widening, subcommunity platform, delegated moderator
+  model, notifications, reputation/witness mechanics, AI posting, target
+  mutation, billing/provider/cache, Developer Space, auth/session refactor, or
+  broad UI scope was added. ARGUS should review schema shape, standing checks,
+  serializers, duplicate handling, admin queue/update behavior, and the
+  action-link blocker.
 
 ## Near-term rule
 

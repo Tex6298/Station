@@ -39,6 +39,7 @@ class ReportsSupabase {
       },
     ],
     moderation_reports: [],
+    moderation_review_requests: [],
     forum_categories: [],
     threads: [],
     comments: [],
@@ -95,6 +96,17 @@ class ReportsSupabase {
     if (table === "moderation_reports") {
       row.notes ??= null;
       row.status ??= "open";
+      row.reviewed_by ??= null;
+      row.reviewed_at ??= null;
+      row.created_at ??= now;
+      row.updated_at ??= now;
+    }
+
+    if (table === "moderation_review_requests") {
+      row.moderation_action_id ??= null;
+      row.status ??= "open";
+      row.resolution_summary ??= null;
+      row.admin_notes ??= null;
       row.reviewed_by ??= null;
       row.reviewed_at ??= null;
       row.created_at ??= now;
@@ -730,6 +742,245 @@ test("admin report queue includes safe target context for thread and comment rep
     assert.equal(reporterReadback.status, 200);
     assert.equal(reporterReadback.body.reports[0].id, threadReport.id);
     assert.equal(reporterReadback.body.reports[0].targetContext, undefined);
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
+
+test("moderation review requests enforce standing, safe participant serialization, and duplicate active requests", async () => {
+  const db = new ReportsSupabase();
+  db.insertRow("threads", {
+    id: "thread-1",
+    author_user_id: "other-user",
+    status: "active",
+  });
+  db.insertRow("comments", {
+    id: "comment-1",
+    author_user_id: "owner-user",
+    parent_type: "thread",
+    parent_id: "thread-1",
+    status: "active",
+  });
+  const ownerReport = db.insertRow("moderation_reports", {
+    reporter_id: "owner-user",
+    target_type: "thread",
+    target_id: "thread-1",
+    reason: "spam",
+    status: "resolved",
+    notes: "Admin-only report notes.",
+    reviewed_by: "admin-user",
+  });
+  const otherReport = db.insertRow("moderation_reports", {
+    reporter_id: "other-user",
+    target_type: "comment",
+    target_id: "comment-1",
+    reason: "harassment",
+    status: "resolved",
+  });
+  setSupabaseAdminForTests(db.client as any);
+  const app = createReportsApp();
+
+  try {
+    const anonymousCreate = await requestJson(app, "POST", "/reports/review-requests", {
+      body: { reportId: ownerReport.id, reason: "Please review this decision." },
+    });
+    assert.equal(anonymousCreate.status, 401);
+
+    const visitorCreate = await requestJson(app, "POST", "/reports/review-requests", {
+      token: "visitor-token",
+      body: { reportId: ownerReport.id, reason: "Please review this decision." },
+    });
+    assert.equal(visitorCreate.status, 403);
+
+    const created = await requestJson(app, "POST", "/reports/review-requests", {
+      token: "owner-token",
+      body: {
+        reportId: ownerReport.id,
+        reason: "Please review this decision.",
+        status: "upheld",
+        adminNotes: "spoofed admin note",
+        reviewedBy: "spoofed-user",
+      },
+    });
+    assert.equal(created.status, 201);
+    assert.deepEqual(created.body.reviewRequest, {
+      id: "moderation_review_requests-1",
+      requesterRole: "reporter",
+      targetType: "thread",
+      targetId: "thread-1",
+      reportId: ownerReport.id,
+      reason: "Please review this decision.",
+      status: "open",
+      createdAt: "2026-05-25T09:00:04.000Z",
+      updatedAt: "2026-05-25T09:00:04.000Z",
+    });
+    assert.deepEqual(db.tables.moderation_review_requests[0], {
+      id: "moderation_review_requests-1",
+      requester_id: "owner-user",
+      requester_role: "reporter",
+      target_type: "thread",
+      target_id: "thread-1",
+      report_id: ownerReport.id,
+      moderation_action_id: null,
+      reason: "Please review this decision.",
+      status: "open",
+      resolution_summary: null,
+      admin_notes: null,
+      reviewed_by: null,
+      reviewed_at: null,
+      created_at: "2026-05-25T09:00:04.000Z",
+      updated_at: "2026-05-25T09:00:04.000Z",
+    });
+
+    const duplicate = await requestJson(app, "POST", "/reports/review-requests", {
+      token: "owner-token",
+      body: { reportId: ownerReport.id, reason: "Please review this decision." },
+    });
+    assert.equal(duplicate.status, 200);
+    assert.equal(duplicate.body.duplicate, true);
+    assert.equal(duplicate.body.reviewRequest.id, "moderation_review_requests-1");
+    assert.equal(db.tables.moderation_review_requests.length, 1);
+
+    const blockedOtherReport = await requestJson(app, "POST", "/reports/review-requests", {
+      token: "visitor-token",
+      body: { reportId: otherReport.id, reason: "No standing." },
+    });
+    assert.equal(blockedOtherReport.status, 403);
+
+    const targetAuthorRequest = await requestJson(app, "POST", "/reports/review-requests", {
+      token: "owner-token",
+      body: { targetType: "comment", targetId: "comment-1", reason: "Please review the comment moderation." },
+    });
+    assert.equal(targetAuthorRequest.status, 201);
+    assert.equal(targetAuthorRequest.body.reviewRequest.requesterRole, "target_author");
+    assert.equal(targetAuthorRequest.body.reviewRequest.reportId, undefined);
+
+    const mine = await requestJson(app, "GET", "/reports/review-requests/mine", {
+      token: "owner-token",
+    });
+    assert.equal(mine.status, 200);
+    assert.deepEqual(
+      mine.body.reviewRequests.map((request: Row) => request.id),
+      ["moderation_review_requests-2", "moderation_review_requests-1"]
+    );
+    const mineJson = JSON.stringify(mine.body);
+    assert.equal(mineJson.includes("admin_notes"), false);
+    assert.equal(mineJson.includes("reviewed_by"), false);
+    assert.equal(mineJson.includes("requester_id"), false);
+    assert.equal(mineJson.includes("Admin-only report notes."), false);
+
+    const otherMine = await requestJson(app, "GET", "/reports/review-requests/mine", {
+      token: "other-token",
+    });
+    assert.equal(otherMine.status, 200);
+    assert.equal(otherMine.body.reviewRequests.length, 0);
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
+
+test("moderation review request queue and updates are admin-only", async () => {
+  const db = new ReportsSupabase();
+  const openRequest = db.insertRow("moderation_review_requests", {
+    requester_id: "owner-user",
+    requester_role: "reporter",
+    target_type: "thread",
+    target_id: "thread-1",
+    report_id: "report-1",
+    reason: "Please review.",
+    status: "open",
+  });
+  const reviewingRequest = db.insertRow("moderation_review_requests", {
+    requester_id: "other-user",
+    requester_role: "target_author",
+    target_type: "comment",
+    target_id: "comment-1",
+    report_id: null,
+    reason: "Please review the comment action.",
+    status: "reviewing",
+    admin_notes: "Internal handling note.",
+  });
+  const deniedRequest = db.insertRow("moderation_review_requests", {
+    requester_id: "owner-user",
+    requester_role: "reporter",
+    target_type: "comment",
+    target_id: "comment-2",
+    report_id: "report-2",
+    reason: "Already reviewed.",
+    status: "denied",
+    resolution_summary: "The original decision stands.",
+    admin_notes: "Private admin note.",
+    reviewed_by: "admin-user",
+    reviewed_at: "2026-05-25T08:00:00.000Z",
+  });
+  setSupabaseAdminForTests(db.client as any);
+  const app = createReportsApp();
+
+  try {
+    const anonymousQueue = await requestJson(app, "GET", "/reports/review-requests");
+    assert.equal(anonymousQueue.status, 401);
+
+    const memberQueue = await requestJson(app, "GET", "/reports/review-requests", {
+      token: "owner-token",
+    });
+    assert.equal(memberQueue.status, 403);
+
+    const adminQueue = await requestJson(app, "GET", "/reports/review-requests", {
+      token: "admin-token",
+    });
+    assert.equal(adminQueue.status, 200);
+    assert.deepEqual(
+      adminQueue.body.reviewRequests.map((request: Row) => request.id),
+      [reviewingRequest.id, openRequest.id]
+    );
+    assert.equal(adminQueue.body.reviewRequests[0].requesterUserId, "other-user");
+    assert.equal(adminQueue.body.reviewRequests[0].adminNotes, "Internal handling note.");
+
+    const deniedQueue = await requestJson(app, "GET", "/reports/review-requests?status=denied", {
+      token: "admin-token",
+    });
+    assert.equal(deniedQueue.status, 200);
+    assert.deepEqual(deniedQueue.body.reviewRequests.map((request: Row) => request.id), [deniedRequest.id]);
+
+    const memberUpdate = await requestJson(app, "PATCH", `/reports/review-requests/${openRequest.id}`, {
+      token: "owner-token",
+      body: { status: "upheld" },
+    });
+    assert.equal(memberUpdate.status, 403);
+
+    const invalidUpdate = await requestJson(app, "PATCH", `/reports/review-requests/${openRequest.id}`, {
+      token: "admin-token",
+      body: { status: "open" },
+    });
+    assert.equal(invalidUpdate.status, 400);
+
+    const adminUpdate = await requestJson(app, "PATCH", `/reports/review-requests/${openRequest.id}`, {
+      token: "admin-token",
+      body: {
+        status: "upheld",
+        resolutionSummary: "We restored the reported item.",
+        adminNotes: "Private admin context.",
+        reviewedBy: "spoofed-user",
+        reviewedAt: "2000-01-01T00:00:00.000Z",
+      },
+    });
+    assert.equal(adminUpdate.status, 200);
+    assert.equal(adminUpdate.body.reviewRequest.status, "upheld");
+    assert.equal(adminUpdate.body.reviewRequest.resolutionSummary, "We restored the reported item.");
+    assert.equal(adminUpdate.body.reviewRequest.adminNotes, "Private admin context.");
+    assert.equal(adminUpdate.body.reviewRequest.reviewedBy, "admin-user");
+    assert.notEqual(adminUpdate.body.reviewRequest.reviewedAt, "2000-01-01T00:00:00.000Z");
+
+    const ownerMine = await requestJson(app, "GET", "/reports/review-requests/mine", {
+      token: "owner-token",
+    });
+    assert.equal(ownerMine.status, 200);
+    const updatedMine = ownerMine.body.reviewRequests.find((request: Row) => request.id === openRequest.id);
+    assert.equal(updatedMine.status, "upheld");
+    assert.equal(updatedMine.resolutionSummary, "We restored the reported item.");
+    assert.equal(updatedMine.adminNotes, undefined);
+    assert.equal(updatedMine.reviewedBy, undefined);
+    assert.equal(JSON.stringify(updatedMine).includes("Private admin context."), false);
   } finally {
     setSupabaseAdminForTests(null);
   }

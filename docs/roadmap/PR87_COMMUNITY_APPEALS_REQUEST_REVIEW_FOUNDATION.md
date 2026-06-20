@@ -5,7 +5,7 @@ Opened by: A1 / MIMIR
 Owner: DAEDALUS implements if current schema/API can support the foundation,
 ARGUS reviews. ARIADNE rehearses only if a visible participant/admin route is
 added.
-Status: open for DAEDALUS
+Status: implemented by DAEDALUS; awaiting ARGUS review
 
 ## Why This Lane
 
@@ -40,6 +40,72 @@ Desired protected-beta outcome:
   or idempotent;
 - reporter-owned `/reports/mine`, admin `/reports`, and PR86 target actions
   keep their existing privacy boundaries.
+
+## DAEDALUS Implementation
+
+Implemented the durable moderation review request foundation as schema/API only.
+No visible participant or admin route was added.
+
+Schema:
+
+- added migration `039_moderation_review_requests.sql`;
+- added `public.moderation_review_requests` with requester, requester role,
+  thread/comment target, nullable report link, nullable future moderation action
+  link, participant-safe reason/status/resolution summary, admin-only notes,
+  reviewer/time, and timestamps;
+- statuses are `open`, `reviewing`, `upheld`, `denied`, `dismissed`, and
+  `withdrawn`;
+- duplicate active requests are prevented by a partial unique index on
+  requester, target type/id, and reason where status is `open` or `reviewing`;
+- RLS intent allows requester-owned insert/select and admin-all access.
+
+API:
+
+```text
+POST  /reports/review-requests
+GET   /reports/review-requests/mine
+GET   /reports/review-requests
+PATCH /reports/review-requests/:id
+```
+
+Requester standing:
+
+- reporters can request review for their own report when the report target is a
+  thread or comment;
+- thread/comment authors can request review for their own target directly or
+  through a report about their target;
+- unsupported target types return a bounded error instead of a fake appeal;
+- visitor-tier users are blocked from creating requests.
+
+Serializers:
+
+- participant serializer returns id, requester role, target type/id, owned
+  report id when present, reason, status, resolution summary when present,
+  reviewedAt when present, and created/updated timestamps;
+- participant serializer excludes requester id, admin notes, reviewed_by,
+  moderator identity, hidden target bodies, private material, and other users'
+  requests;
+- admin serializer adds requester id, moderation action id when present, admin
+  notes, and reviewedBy.
+
+Admin behavior:
+
+- admin queue is admin-only and defaults to active `open`/`reviewing` requests;
+- admin updates set server-controlled `reviewed_by` and `reviewed_at`;
+- participant-supplied status, admin notes, reviewer, and reviewedAt are ignored
+  on create.
+
+Deferred blocker:
+
+- moderation-action-linked review requests remain deferred. The current action
+  log is admin-facing and does not yet provide a participant-safe action
+  reference or visibility rule that proves a requester can address a specific
+  action id without exposing admin-only reasons or internals.
+
+No visible appeal UI, public moderation log, public visibility widening,
+subcommunity platform, delegated moderator model, notifications,
+reputation/witness mechanics, AI posting, target mutation, billing/provider
+cache, Developer Space, auth/session refactor, or broad UI scope was added.
 
 ## Product Semantics To Decide In Code
 

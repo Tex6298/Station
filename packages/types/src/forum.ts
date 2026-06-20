@@ -136,6 +136,30 @@ export interface ReporterModerationReportRecord {
   updatedAt: string;
 }
 
+export type ModerationReviewRequestRole = 'reporter' | 'target_author';
+export type ModerationReviewRequestStatus = 'open' | 'reviewing' | 'upheld' | 'denied' | 'dismissed' | 'withdrawn';
+
+export interface ParticipantModerationReviewRequestRecord {
+  id: string;
+  requesterRole: ModerationReviewRequestRole;
+  targetType: 'thread' | 'comment';
+  targetId: string;
+  reportId?: string | null;
+  reason: string;
+  status: ModerationReviewRequestStatus;
+  resolutionSummary?: string | null;
+  reviewedAt?: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface AdminModerationReviewRequestRecord extends ParticipantModerationReviewRequestRecord {
+  requesterUserId: string;
+  moderationActionId?: string | null;
+  adminNotes?: string | null;
+  reviewedBy?: string | null;
+}
+
 export interface DiscoverFeedItem {
   id: string;
   itemType: 'space' | 'persona' | 'document' | 'thread';

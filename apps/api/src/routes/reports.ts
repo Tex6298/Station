@@ -6,8 +6,10 @@ import { requireAuth } from "../middleware/require-auth";
 import { requireTier } from "../middleware/require-tier";
 import { getSupabaseAdmin } from "../lib/supabase";
 import type {
+  AdminModerationReviewRequestRecord,
   ModerationReportRecord,
   ModerationReportTargetContext,
+  ParticipantModerationReviewRequestRecord,
   ReporterModerationReportRecord,
 } from "@station/types";
 import { ensureCommunityProfile } from "../services/community.service";
@@ -27,13 +29,35 @@ const reportQueueQuerySchema = z.object({
 const updateReportStatusSchema = z.object({
   status: z.enum(["reviewing", "resolved", "dismissed"]),
 });
+const reviewRequestTargetTypeSchema = z.enum(["thread", "comment"]);
+const reviewRequestStatusSchema = z.enum(["open", "reviewing", "upheld", "denied", "dismissed", "withdrawn"]);
+const createReviewRequestSchema = z.object({
+  reportId: z.string().min(1).optional(),
+  targetType: reviewRequestTargetTypeSchema.optional(),
+  targetId: z.string().min(1).optional(),
+  reason: z.string().min(1).max(1000),
+}).refine((value) => Boolean(value.reportId || (value.targetType && value.targetId)), {
+  message: "Provide reportId or targetType and targetId.",
+});
+const reviewRequestQuerySchema = z.object({
+  status: reviewRequestStatusSchema.optional(),
+  targetType: reviewRequestTargetTypeSchema.optional(),
+  limit: z.coerce.number().int().min(1).max(100).default(50),
+});
+const updateReviewRequestSchema = z.object({
+  status: z.enum(["reviewing", "upheld", "denied", "dismissed"]),
+  resolutionSummary: z.string().max(1000).nullable().optional(),
+  adminNotes: z.string().max(2000).nullable().optional(),
+});
 
 export const reportsRouter = Router();
 reportsRouter.use(requireAuth);
 
 type ModerationReportRow = Database["public"]["Tables"]["moderation_reports"]["Row"];
+type ModerationReviewRequestRow = Database["public"]["Tables"]["moderation_review_requests"]["Row"];
 type ModerationReportTargetType = ModerationReportRow["target_type"];
 const ACTIVE_REPORT_STATUSES = new Set(["open", "reviewing"]);
+const ACTIVE_REVIEW_REQUEST_STATUSES = new Set(["open", "reviewing"]);
 
 function serializeReport(
   row: ModerationReportRow,
@@ -72,6 +96,38 @@ function serializeReporterReport(row: ModerationReportRow): ReporterModerationRe
   if (row.reviewed_at !== null) report.reviewedAt = row.reviewed_at;
 
   return report;
+}
+
+function serializeParticipantReviewRequest(row: ModerationReviewRequestRow): ParticipantModerationReviewRequestRecord {
+  const request: ParticipantModerationReviewRequestRecord = {
+    id: row.id,
+    requesterRole: row.requester_role,
+    targetType: row.target_type,
+    targetId: row.target_id,
+    reason: row.reason,
+    status: row.status,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+  };
+
+  if (row.report_id !== null) request.reportId = row.report_id;
+  if (row.resolution_summary !== null) request.resolutionSummary = row.resolution_summary;
+  if (row.reviewed_at !== null) request.reviewedAt = row.reviewed_at;
+
+  return request;
+}
+
+function serializeAdminReviewRequest(row: ModerationReviewRequestRow): AdminModerationReviewRequestRecord {
+  const request: AdminModerationReviewRequestRecord = {
+    ...serializeParticipantReviewRequest(row),
+    requesterUserId: row.requester_id,
+  };
+
+  if (row.moderation_action_id !== null) request.moderationActionId = row.moderation_action_id;
+  if (row.admin_notes !== null) request.adminNotes = row.admin_notes;
+  if (row.reviewed_by !== null) request.reviewedBy = row.reviewed_by;
+
+  return request;
 }
 
 function requireAdmin(req: { user?: { isAdmin: boolean } }, res: { status: (status: number) => { json: (body: unknown) => unknown } }) {
@@ -135,6 +191,139 @@ reportsRouter.get("/mine", async (req, res) => {
   if (error) return res.status(500).json({ error: error.message });
 
   return res.json({ reports: (data ?? []).map(serializeReporterReport) });
+});
+
+reportsRouter.post("/review-requests", requireTier("private"), async (req, res) => {
+  const parsed = createReviewRequestSchema.safeParse(req.body);
+  if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
+
+  const sb = getSupabaseAdmin();
+  const standing = await resolveReviewRequestStanding(sb, req.user!.id, parsed.data);
+  if ("error" in standing) return res.status(standing.status).json({ error: standing.error });
+
+  const existing = await loadActiveExistingReviewRequest(
+    sb,
+    req.user!.id,
+    standing.targetType,
+    standing.targetId,
+    parsed.data.reason
+  );
+  if (existing.error) return res.status(500).json({ error: existing.error });
+  if (existing.request) {
+    return res.status(200).json({
+      reviewRequest: serializeParticipantReviewRequest(existing.request),
+      duplicate: true,
+    });
+  }
+
+  const { data, error } = await sb
+    .from("moderation_review_requests")
+    .insert({
+      requester_id: req.user!.id,
+      requester_role: standing.requesterRole,
+      target_type: standing.targetType,
+      target_id: standing.targetId,
+      report_id: standing.reportId ?? null,
+      reason: parsed.data.reason,
+      status: "open",
+    })
+    .select("*")
+    .single();
+
+  if (error || !data) {
+    if (isUniqueViolation(error)) {
+      const duplicate = await loadActiveExistingReviewRequest(
+        sb,
+        req.user!.id,
+        standing.targetType,
+        standing.targetId,
+        parsed.data.reason
+      );
+      if (duplicate.request) {
+        return res.status(200).json({
+          reviewRequest: serializeParticipantReviewRequest(duplicate.request),
+          duplicate: true,
+        });
+      }
+    }
+
+    return res.status(500).json({ error: error?.message ?? "Failed to create review request." });
+  }
+
+  return res.status(201).json({ reviewRequest: serializeParticipantReviewRequest(data) });
+});
+
+reportsRouter.get("/review-requests/mine", async (req, res) => {
+  const parsed = reviewRequestQuerySchema.safeParse(req.query);
+  if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
+
+  const sb = getSupabaseAdmin();
+  let query = sb
+    .from("moderation_review_requests")
+    .select("*")
+    .eq("requester_id", req.user!.id)
+    .order("created_at", { ascending: false })
+    .limit(parsed.data.limit);
+
+  if (parsed.data.status) query = query.eq("status", parsed.data.status);
+  if (parsed.data.targetType) query = query.eq("target_type", parsed.data.targetType);
+
+  const { data, error } = await query;
+  if (error) return res.status(500).json({ error: error.message });
+
+  return res.json({ reviewRequests: (data ?? []).map(serializeParticipantReviewRequest) });
+});
+
+reportsRouter.get("/review-requests", async (req, res) => {
+  if (!requireAdmin(req, res)) return;
+
+  const parsed = reviewRequestQuerySchema.safeParse(req.query);
+  if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
+
+  const sb = getSupabaseAdmin();
+  let query = sb
+    .from("moderation_review_requests")
+    .select("*")
+    .order("created_at", { ascending: false })
+    .limit(parsed.data.limit);
+
+  if (parsed.data.status) {
+    query = query.eq("status", parsed.data.status);
+  } else {
+    query = query.in("status", ["open", "reviewing"]);
+  }
+  if (parsed.data.targetType) query = query.eq("target_type", parsed.data.targetType);
+
+  const { data, error } = await query;
+  if (error) return res.status(500).json({ error: error.message });
+
+  return res.json({ reviewRequests: (data ?? []).map(serializeAdminReviewRequest) });
+});
+
+reportsRouter.patch("/review-requests/:id", async (req, res) => {
+  if (!requireAdmin(req, res)) return;
+
+  const parsed = updateReviewRequestSchema.safeParse(req.body);
+  if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
+
+  const update: Record<string, unknown> = {
+    status: parsed.data.status,
+    reviewed_by: req.user!.id,
+    reviewed_at: new Date().toISOString(),
+  };
+  if ("resolutionSummary" in parsed.data) update.resolution_summary = parsed.data.resolutionSummary ?? null;
+  if ("adminNotes" in parsed.data) update.admin_notes = parsed.data.adminNotes ?? null;
+
+  const sb = getSupabaseAdmin();
+  const { data, error } = await sb
+    .from("moderation_review_requests")
+    .update(update)
+    .eq("id", req.params.id)
+    .select("*")
+    .single();
+
+  if (error || !data) return res.status(404).json({ error: "Review request not found." });
+  return res.json({ reviewRequest: serializeAdminReviewRequest(data) });
 });
 
 reportsRouter.patch("/:id", async (req, res) => {
@@ -244,6 +433,110 @@ async function loadActiveExistingReport(
 
   const report = (data ?? []).find((row: ModerationReportRow) => ACTIVE_REPORT_STATUSES.has(row.status));
   return { report: report ?? null };
+}
+
+async function resolveReviewRequestStanding(
+  sb: ReturnType<typeof getSupabaseAdmin>,
+  requesterId: string,
+  input: z.infer<typeof createReviewRequestSchema>
+): Promise<
+  | {
+      requesterRole: ModerationReviewRequestRow["requester_role"];
+      targetType: ModerationReviewRequestRow["target_type"];
+      targetId: string;
+      reportId?: string | null;
+    }
+  | { status: number; error: string }
+> {
+  if (input.reportId) {
+    const { data: report } = await sb
+      .from("moderation_reports")
+      .select("*")
+      .eq("id", input.reportId)
+      .maybeSingle();
+
+    if (!report) return { status: 404, error: "Report not found." };
+    if (report.target_type !== "thread" && report.target_type !== "comment") {
+      return { status: 400, error: "Review requests currently support thread and comment targets only." };
+    }
+
+    if (report.reporter_id === requesterId) {
+      return {
+        requesterRole: "reporter",
+        targetType: report.target_type,
+        targetId: report.target_id,
+        reportId: report.id,
+      };
+    }
+
+    const ownsTarget = await requesterOwnsTarget(sb, requesterId, report.target_type, report.target_id);
+    if (ownsTarget === "missing") return { status: 404, error: "Review target not found." };
+    if (ownsTarget) {
+      return {
+        requesterRole: "target_author",
+        targetType: report.target_type,
+        targetId: report.target_id,
+        reportId: report.id,
+      };
+    }
+
+    return { status: 403, error: "You cannot request review for this report." };
+  }
+
+  if (!input.targetType || !input.targetId) {
+    return { status: 400, error: "Provide reportId or targetType and targetId." };
+  }
+
+  const ownsTarget = await requesterOwnsTarget(sb, requesterId, input.targetType, input.targetId);
+  if (ownsTarget === "missing") return { status: 404, error: "Review target not found." };
+  if (!ownsTarget) return { status: 403, error: "You cannot request review for this target." };
+
+  return {
+    requesterRole: "target_author",
+    targetType: input.targetType,
+    targetId: input.targetId,
+    reportId: null,
+  };
+}
+
+async function requesterOwnsTarget(
+  sb: ReturnType<typeof getSupabaseAdmin>,
+  requesterId: string,
+  targetType: "thread" | "comment",
+  targetId: string
+): Promise<boolean | "missing"> {
+  const table = targetType === "thread" ? "threads" : "comments";
+  const { data } = await (sb as any)
+    .from(table)
+    .select("id, author_user_id")
+    .eq("id", targetId)
+    .maybeSingle();
+
+  if (!data) return "missing";
+  return data.author_user_id === requesterId;
+}
+
+async function loadActiveExistingReviewRequest(
+  sb: ReturnType<typeof getSupabaseAdmin>,
+  requesterId: string,
+  targetType: ModerationReviewRequestRow["target_type"],
+  targetId: string,
+  reason: string
+): Promise<{ request: ModerationReviewRequestRow | null; error?: string }> {
+  const { data, error } = await sb
+    .from("moderation_review_requests")
+    .select("*")
+    .eq("requester_id", requesterId)
+    .eq("target_type", targetType)
+    .eq("target_id", targetId)
+    .eq("reason", reason);
+
+  if (error) {
+    return { request: null, error: error.message ?? "Failed to check existing review request." };
+  }
+
+  const request = (data ?? []).find((row: ModerationReviewRequestRow) => ACTIVE_REVIEW_REQUEST_STATUSES.has(row.status));
+  return { request: request ?? null };
 }
 
 async function loadReportTargetContexts(

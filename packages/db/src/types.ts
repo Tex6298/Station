@@ -43,6 +43,8 @@ export type CommentParentType = "thread" | "document" | "space_page";
 export type CommentStatus = "active" | "removed" | "flagged";
 export type ModerationTargetType = "user" | "space" | "document" | "thread" | "comment" | "persona";
 export type ModerationStatus = "open" | "reviewing" | "resolved" | "dismissed";
+export type ModerationReviewRequestRole = "reporter" | "target_author";
+export type ModerationReviewRequestStatus = "open" | "reviewing" | "upheld" | "denied" | "dismissed" | "withdrawn";
 export type PublishingApprovalState = "draft" | "grounding_check" | "human_review" | "approved" | "regenerate" | "cancelled" | "scheduled" | "published" | "archived";
 export type PublishingApprovalVisibility = "public" | "community" | "unlisted";
 export type DiscoverItemType = "document" | "thread" | "space" | "persona";
@@ -1010,6 +1012,37 @@ export interface Database {
           updated_at?: string;
         };
         Update: Partial<Database["public"]["Tables"]["moderation_reports"]["Insert"]>;
+      };
+      moderation_review_requests: {
+        Row: {
+          id: string;
+          requester_id: string;
+          requester_role: ModerationReviewRequestRole;
+          target_type: "thread" | "comment";
+          target_id: string;
+          report_id: string | null;
+          moderation_action_id: string | null;
+          reason: string;
+          status: ModerationReviewRequestStatus;
+          resolution_summary: string | null;
+          admin_notes: string | null;
+          reviewed_by: string | null;
+          reviewed_at: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: Omit<Database["public"]["Tables"]["moderation_review_requests"]["Row"], "id" | "moderation_action_id" | "status" | "resolution_summary" | "admin_notes" | "reviewed_by" | "reviewed_at" | "created_at" | "updated_at"> & {
+          id?: string;
+          moderation_action_id?: string | null;
+          status?: ModerationReviewRequestStatus;
+          resolution_summary?: string | null;
+          admin_notes?: string | null;
+          reviewed_by?: string | null;
+          reviewed_at?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["moderation_review_requests"]["Insert"]>;
       };
       publishing_approval_items: {
         Row: {

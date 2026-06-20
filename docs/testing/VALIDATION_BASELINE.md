@@ -9236,6 +9236,41 @@ Scope notes:
   expansion, raw ingestion key storage, secret logging, broad UI, public
   serializer expansion, or visible web UI changed.
 
+## PR87 Community Appeals Request Review Foundation
+
+DAEDALUS implementation validation on 2026-06-20:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:reports` | Pass | 6 tests passed, including review request standing, participant serializer safety, duplicate active idempotency, admin queue/update, and server-controlled reviewer fields. |
+| `npm exec --yes pnpm@10.32.1 -- run test:community` | Pass | 11 tests passed; existing community permission and moderation boundaries remain green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` | Pass | 1 test passed; document discussion visibility/readback remains green. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck completed after adding DB/shared review-request types. |
+| `git diff --check` | Pass | CRLF normalization warnings only for touched files and local triad state. |
+
+Scope notes:
+
+- Added migration `039_moderation_review_requests.sql` and typed
+  `moderation_review_requests` DB/shared response surfaces.
+- Added schema/API-only routes for create, participant readback, admin queue,
+  and admin update under `/reports/review-requests`.
+- Requester standing is limited to own reports for thread/comment targets and
+  own thread/comment targets.
+- Participant serializers exclude requester id, admin notes, reviewed_by,
+  moderator identity, hidden target bodies, private material, and other users'
+  requests.
+- Admin queue/update remains admin-only and records server-controlled reviewer
+  and review time.
+- Duplicate active requests for the same requester/target/reason are idempotent
+  and backed by a partial unique index.
+- Moderation-action-linked requests are deferred because current action rows are
+  admin-facing and lack a participant-safe action reference/visibility rule.
+- No visible appeal UI, public moderation log, public visibility widening,
+  subcommunity platform, delegated moderator model, notifications,
+  reputation/witness mechanics, AI posting, target mutation,
+  billing/provider/cache, Developer Space, auth/session refactor, or broad UI
+  scope changed.
+
 ## PR86 Community Moderation Target Context And Actions
 
 DAEDALUS implementation validation on 2026-06-19:
