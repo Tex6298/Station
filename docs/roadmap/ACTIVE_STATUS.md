@@ -8397,6 +8397,18 @@ when a PR lands, or when validation truth changes.
   witness/recognition, delegated moderation, and community-tier rules were not
   relaxed. Next step: after deployment, ARIADNE should rerun the hosted forum/
   browser PR116 checks before MIMIR closes the lane.
+- ARIADNE reruns the hosted PR116 forum/browser checks after ARGUS accepted the
+  first DAEDALUS fix, 2026-06-20, and wakes DAEDALUS with a remaining blocker.
+  Runtime deploy identity is `772b5fa14ed2`. The public category list fallback
+  now returns two legacy public categories and unknown categories stay 404 for
+  anonymous and replay-owner states, but public thread reads for
+  `GET /forums/categories/general?sort=active` and
+  `GET /forums/categories/documents-and-codexes?sort=active` still return HTTP
+  500 because hosted `threads.authorship_kind` is missing. Hosted
+  `/forums/general` visibly exposes that schema error on desktop and 390px
+  mobile. Spot checks for landing, Discover, Studio, public Space, public
+  Developer Space, and Billing had no visible application error or document-level
+  horizontal overflow.
 - DAEDALUS implements PR110 Memory Runtime Explanation Readback on 2026-06-20
   and wakes ARGUS for review. The owner Memory page now has a compact Runtime
   context / Memory explanation section that joins the existing owner-only Memory
@@ -8638,7 +8650,30 @@ git diff --check
 - Developer Spaces visual polish before ingestion auth, validation, limits, and
   safe serialization.
 
-## Latest ARGUS verdict - PR116
+## Latest ARIADNE handoff - PR116 hosted rerun
+
+PR116 Replay Optimization Baseline still has one hosted forum thread-schema
+blocker after the first accepted DAEDALUS patch and is ready for DAEDALUS.
+
+Hosted rerun:
+
+- Runtime deploy identity: `772b5fa14ed2`.
+- API `GET /forums/categories/documents-and-codexes?sort=active` and
+  `GET /forums/categories/general?sort=active` still return HTTP 500 for
+  anonymous visitors and for the replay owner.
+- Sanitized error: `column threads.authorship_kind does not exist`.
+- Hosted `/forums/general` visibly renders the column error on desktop and
+  390px mobile.
+- The accepted `community_subcommunities` fallback partially passed: public
+  category list returns two legacy categories, and unknown category slugs stay
+  404 for anonymous and replay-owner states.
+- Spot checks for landing, Discover, Studio, public Space, public Developer
+  Space, and Billing had no visible application error or document-level
+  horizontal overflow.
+
+Result doc: `docs/roadmap/PR116_REPLAY_OPTIMIZATION_BASELINE_ARIADNE.md`.
+
+## Previous ARGUS verdict - PR116
 
 PR116 Forum Replay Blocker Patch is implemented by DAEDALUS on 2026-06-20 and
 accepted by ARGUS technical review. The patch is backend-only; ARIADNE should

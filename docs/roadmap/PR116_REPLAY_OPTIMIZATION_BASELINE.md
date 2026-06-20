@@ -5,7 +5,8 @@ Opened by: A1 / MIMIR
 Owner: ARIADNE rehearses first. DAEDALUS patches only concrete blockers or
 bottlenecks from that rehearsal. ARGUS validates security, owner scope, and
 regressions after implementation.
-Status: forum blocker fix accepted by ARGUS; awaiting ARIADNE hosted rerun.
+Status: hosted rerun found a remaining forum thread schema blocker; ready for
+DAEDALUS patch.
 
 ## Why This Lane
 
@@ -133,6 +134,18 @@ DAEDALUS patch / ARGUS review:
   and visibility rules were not relaxed.
 - After deployment, ARIADNE should rerun the hosted forum/browser PR116 checks
   before MIMIR closes PR116.
+
+ARIADNE hosted rerun:
+
+- `docs/roadmap/PR116_REPLAY_OPTIMIZATION_BASELINE_ARIADNE.md`
+- Deployment readiness returned 200 with runtime commit `772b5fa14ed2`.
+- The public category list fallback now returns 200 with two categories, and
+  unknown categories stay 404 for anonymous and replay-owner states.
+- Remaining blocker: public category thread reads for `general` and
+  `documents-and-codexes` still return HTTP 500 because the hosted `threads`
+  relation is missing `authorship_kind`; `/forums/general` visibly exposes that
+  schema error on desktop and mobile. DAEDALUS should patch this before MIMIR
+  closes PR116.
 
 DAEDALUS, if patching:
 

@@ -2,7 +2,8 @@
 
 Date: 2026-06-20
 Reviewer: A4 / ARIADNE
-Status: blocker patched and accepted by ARGUS; awaiting hosted rerun.
+Status: hosted rerun found a remaining forum thread schema blocker; ready for
+DAEDALUS patch.
 
 ## Scope
 
@@ -172,6 +173,63 @@ relaxed.
 Next: after deployment, ARIADNE should rerun the hosted forum/browser checks
 before MIMIR closes PR116.
 
+## Hosted Rerun - 2026-06-20
+
+Status: blocker remains; ready for DAEDALUS.
+
+Deployment:
+
+- API `/health/deployment` returned 200, `ready:true`, and Railway runtime
+  commit `772b5fa14ed2`.
+
+What passed:
+
+- `GET /forums/categories` returned 200 with two legacy public categories.
+- Unknown category probes returned 404 for both anonymous and replay-owner
+  states, so the fallback did not open arbitrary category slugs.
+- Hosted `/forums` no longer visibly renders the earlier
+  `community_subcommunities` schema-cache error on desktop or 390px mobile.
+- Spot checks for landing, Discover, Studio, public Space, public Developer
+  Space, and Billing loaded without visible application error or document-level
+  horizontal overflow.
+
+Remaining blocker:
+
+- API `GET /forums/categories/general?sort=active` returns HTTP 500 for
+  anonymous and replay-owner states.
+- API `GET /forums/categories/documents-and-codexes?sort=active` returns HTTP
+  500 for anonymous and replay-owner states.
+- Sanitized error:
+  `column threads.authorship_kind does not exist`.
+- Hosted `/forums/general` visibly exposes that schema error on desktop and
+  390px mobile.
+
+Expected:
+
+- Legacy public category thread reads should load for anonymous visitors and the
+  replay owner, or fail with bounded user-facing copy if a hosted schema column
+  is unavailable.
+- The UI should not expose raw database column errors.
+
+Classification: `blocker`.
+
+Affected viewports: desktop and mobile.
+
+Artifact reference:
+
+- Temporary local Playwright probe: `tmp-pr116-hosted-rerun.spec.js`.
+- The temp file was deleted before commit.
+
+Recommended DAEDALUS patch:
+
+- Apply or compensate for the hosted `threads.authorship_kind` schema mismatch
+  on public category thread reads.
+- Keep the accepted `community_subcommunities` fallback narrow.
+- Do not weaken forum visibility, auth, subcommunity gating, moderation,
+  reporting, witness/recognition, delegated moderation, or community-tier
+  semantics.
+- Keep raw schema/column errors out of visible hosted UI copy.
+
 ## Validation
 
 - `npx --yes playwright@1.41.2 install chromium`
@@ -179,4 +237,5 @@ before MIMIR closes PR116.
 - `node tmp-pr116-forum-probe.mjs`
 - `npx --yes @playwright/test@1.41.2 test tmp-pr116-forum-browser.spec.js --reporter=line --workers=1`
 - `npx --yes @playwright/test@1.41.2 test tmp-pr116-discover-console.spec.js --reporter=line --workers=1`
+- `npx --yes @playwright/test@1.41.2 test tmp-pr116-hosted-rerun.spec.js --reporter=line --workers=1`
 - `git diff --check`
