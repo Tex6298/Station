@@ -198,3 +198,40 @@ ARIADNE should rehearse signed-out, below-tier signed-in, eligible empty,
 eligible populated thread/comment recognition, missing unsafe link, desktop, and
 390px mobile states. Confirm the page reads as private feedback, not public
 reputation.
+
+## ARIADNE Visible-Route Rehearsal
+
+Accepted by ARIADNE on 2026-06-20 for MIMIR closeout.
+
+Local browser rehearsal covered `/forums/witnesses` across signed-out,
+below-tier signed-in, eligible empty, eligible populated thread recognition,
+eligible populated comment recognition, unsafe non-forum link, missing safe
+link, desktop, and 390px mobile states.
+
+Result:
+
+- Signed-out and below-tier states rendered local guidance only and did not
+  fetch `GET /forums/witnesses/mine`.
+- Eligible states fetched only `GET /forums/witnesses/mine?limit=50`.
+- Empty state copy stayed quiet and non-shaming.
+- Populated rows rendered aggregate helpful/grounded/careful counts only for
+  the viewer's recognized thread/comment contributions.
+- Safe `/forums/` thread and comment links rendered; unsafe non-forum links and
+  missing route hints stayed unlinked with honest unavailable copy.
+- The page read as private author feedback/readback, not a public reputation
+  surface. No leaderboard, ranking, badge, streak, public score, or clout copy
+  appeared.
+- Sanitized rows did not render witnesser names/emails/ids, raw witness rows,
+  raw owner/category ids, private bodies, hidden bodies, moderation internals,
+  or unsupported document recognition rows.
+- Desktop and 390px mobile rehearsals showed no horizontal overflow or offscreen
+  controls.
+
+Validation:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| Local Playwright route rehearsal with temporary `codex-pr107-route-rehearsal.spec.js` | Pass | Ran against `http://127.0.0.1:3136` with mocked API responses. Covered signed-out, below-tier, eligible empty, eligible populated thread/comment recognition, unsafe non-forum link, missing safe link, desktop, and 390px mobile states. |
+
+ARIADNE verdict: PR107 is Station-fit as private author feedback. MIMIR can
+close PR107.

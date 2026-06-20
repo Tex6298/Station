@@ -8317,33 +8317,35 @@ git diff --check
 - Developer Spaces visual polish before ingestion auth, validation, limits, and
   safe serialization.
 
-## Latest DAEDALUS handoff - PR107
+## Latest ARIADNE handoff - PR107
 
-PR107 Community Author Recognition UI is implemented by DAEDALUS on 2026-06-20
-and ready for ARGUS technical review. Because PR107 changes visible behavior,
-ARGUS should wake ARIADNE after technical acceptance.
+PR107 Community Author Recognition UI is accepted by ARIADNE on 2026-06-20 and
+ready for MIMIR closeout.
 
-Implementation: `/forums/witnesses` restores session state, blocks signed-out
-and below-tier users before any private recognition readback fetch, and calls
-only `GET /forums/witnesses/mine?limit=50` for eligible private-tier-or-above
-users. `/forums` includes one existing-style `My recognition` discovery link.
+ARIADNE rehearsed `/forums/witnesses` across signed-out, below-tier signed-in,
+eligible empty, eligible populated thread recognition, eligible populated
+comment recognition, unsafe non-forum link, missing safe link, desktop, and
+390px mobile states.
 
-Rendered data: the page shows only the viewer's recognized thread/comment
-contributions, aggregate helpful/grounded/careful counts, safe target labels,
-and safe links when PR106 provides `canOpenRoute` plus a `/forums/` href.
-Unavailable links render as unavailable instead of inventing route context.
+Result: signed-out and below-tier states did not fetch
+`GET /forums/witnesses/mine`; eligible states fetched only
+`GET /forums/witnesses/mine?limit=50`; empty state copy stayed quiet and
+non-shaming; populated rows rendered aggregate helpful/grounded/careful counts
+only; safe `/forums/` links rendered while unsafe/missing route hints stayed
+unlinked with honest unavailable copy; the page read as private author feedback
+rather than public reputation; witnesser identities, raw witness rows,
+owner/category ids, private bodies, moderation internals, unsupported rows,
+leaderboards, rankings, badges, streaks, public scores, and clout copy did not
+render; and mobile showed no horizontal overflow.
 
-Safety result: no witnesser identities, names, emails, notes, raw witness rows,
-raw owner ids, raw category ids, private bodies, hidden bodies, moderation
-internals, public rankings, badges, streaks, public scores, clout surfaces,
-notifications, mutation changes, moderation, billing/provider/cache, Cloudflare,
-Developer Space, auth/session, or broad styling work was added.
-
-Validation: `test:studio-ui` 82 passed, `test:community` 17 passed,
-`test:document-discussions` 1 passed, and `typecheck` passed. Web build
-compiled, linted/typechecked, collected page data, generated 36 static pages,
-finalized optimization, and collected traces before the known local Windows
-standalone symlink `EPERM` while copying traced files.
+Validation: local Playwright route rehearsal with temporary
+`codex-pr107-route-rehearsal.spec.js` passed against
+`http://127.0.0.1:3136`. Earlier ARGUS validation remains: `test:studio-ui` 82
+passed, `test:community` 17 passed, `test:document-discussions` 1 passed,
+`typecheck` passed, `git diff --check` passed with CRLF warnings only, and the
+web build reached compile/lint/typecheck/page data, 36 generated pages,
+optimization, and trace collection before the known local Windows standalone
+symlink `EPERM`.
 
 ## Previous DAEDALUS handoff - PR106
 

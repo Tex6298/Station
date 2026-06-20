@@ -99,6 +99,29 @@ ARGUS review notes:
 - No public ranking, badge, score, clout, witness mutation, or notification
   surface was added.
 
+ARIADNE visible-route rehearsal on 2026-06-20:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| Local Playwright route rehearsal with temporary `codex-pr107-route-rehearsal.spec.js` | Pass | Ran against `http://127.0.0.1:3136` with mocked API responses. Covered signed-out, below-tier signed-in, eligible empty, eligible populated thread/comment recognition, unsafe non-forum link, missing safe link, desktop, and 390px mobile states. |
+
+ARIADNE notes:
+
+- Signed-out and below-tier states did not fetch
+  `GET /forums/witnesses/mine`.
+- Eligible states fetched only `GET /forums/witnesses/mine?limit=50`.
+- Empty state copy stayed quiet and non-shaming.
+- Populated rows rendered aggregate helpful/grounded/careful counts only for
+  the viewer's recognized thread/comment contributions.
+- Safe `/forums/` links rendered; unsafe non-forum links and missing route
+  hints stayed unlinked with honest unavailable copy.
+- The page read as private author feedback/readback, not public reputation.
+- No leaderboard, ranking, badge, streak, public score, clout, witnesser
+  identity, raw witness row, raw owner/category id, private body, hidden body,
+  moderation internal, or unsupported recognition row rendered.
+- Desktop and 390px mobile states showed no horizontal overflow or offscreen
+  controls.
+
 ## PR106 Community Author Recognition Readback
 
 DAEDALUS implementation validation on 2026-06-20:
