@@ -8461,6 +8461,16 @@ when a PR lands, or when validation truth changes.
   raw ids/private fields/schema errors/prompts/provider payloads/secrets should
   leak. ARGUS should wake ARIADNE after technical acceptance because this
   affects visible public-route behavior.
+- DAEDALUS implements PR117 Public Document Discussion Chain on 2026-06-20 and
+  wakes ARGUS for review. Root cause: the public document discussion readback
+  only trusted `documents.discussion_thread_id`, so a seeded/stale document with
+  an existing `threads.linked_document_id` relation could return
+  `eligible:true` and `discussion:null`. The API now recovers active,
+  non-hidden, visibility-matching linked discussion threads by
+  `linked_document_id`; owner discussion creation also reuses and relinks that
+  thread instead of creating duplicates. Validation passed
+  `test:document-discussions` with 2 tests, `test:community` with 19 tests,
+  `typecheck`, and `git diff --check` with CRLF normalization warnings only.
 - DAEDALUS implements PR110 Memory Runtime Explanation Readback on 2026-06-20
   and wakes ARGUS for review. The owner Memory page now has a compact Runtime
   context / Memory explanation section that joins the existing owner-only Memory
@@ -8702,7 +8712,53 @@ git diff --check
 - Developer Spaces visual polish before ingestion auth, validation, limits, and
   safe serialization.
 
-## Latest ARIADNE handoff - PR116 hosted authorship rerun
+## Latest DAEDALUS handoff - PR117
+
+PR117 Public Document Discussion Chain is implemented by DAEDALUS on
+2026-06-20 and ready for ARGUS technical review. Because the patch affects
+visible public-route behavior, ARGUS should wake ARIADNE for hosted/browser
+rehearsal after technical acceptance.
+
+Files changed: `apps/api/src/routes/documents.ts`,
+`apps/api/src/routes/document-discussions.test.ts`,
+`docs/roadmap/PR117_PUBLIC_DOCUMENT_DISCUSSION_CHAIN.md`,
+`docs/roadmap/ACTIVE_STATUS.md`, and `docs/testing/VALIDATION_BASELINE.md`.
+
+Root cause:
+
+- `GET /documents/:id/discussion` only read
+  `documents.discussion_thread_id`.
+- The replay-shaped stale/seed state can have a real forum thread linked by
+  `threads.linked_document_id` while the document pointer is null or stale.
+- That made the API return `eligible:true` with `discussion:null` even though a
+  coherent public forum discussion already existed.
+
+Patch:
+
+- Added a shared document-discussion thread select with category and authorship
+  provenance fields.
+- Public discussion readback now first tries the document pointer, then
+  recovers an active, non-hidden, visibility-matching thread by
+  `linked_document_id`.
+- Owner discussion creation reuses and relinks that recovered thread before it
+  creates a new one, avoiding duplicates in stale seed/content states.
+- Hidden, removed, wrong-visibility, private, unpublished, and comments-disabled
+  documents still do not produce public discussion readback.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` passed with
+  2 tests, including the stale document pointer / existing linked thread case.
+- `npm exec --yes pnpm@10.32.1 -- run test:community` passed with 19 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `git diff --check` passed with CRLF normalization warnings only.
+
+Non-scope confirmation: no broad forum/document redesign, automatic anonymous
+discussion creation, moderation behavior change, visibility widening,
+billing/auth/session/provider/cache/Cloudflare change, AI call, private archive
+exposure, prompt/provider payload logging, or secret logging was added.
+
+## Previous ARIADNE handoff - PR116 hosted authorship rerun
 
 PR116 hosted forum/browser rerun is accepted by ARIADNE on 2026-06-20 and ready
 for MIMIR closeout.

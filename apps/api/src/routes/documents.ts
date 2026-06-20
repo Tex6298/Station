@@ -59,6 +59,11 @@ export const documentsRouter = Router();
 
 const COMMUNITY_TIERS = new Set(["private", "creator", "canon", "institutional"]);
 const DISCUSSION_CATEGORY_SLUG = "documents-and-codexes";
+const DOCUMENT_DISCUSSION_THREAD_SELECT =
+  `id, title, body, status, visibility, comment_count, category_id, linked_document_id, linked_persona_id,
+   authorship_kind, authorship_source_type, authorship_source_id, authorship_persona_id,
+   is_pinned, is_hidden, reported_count, created_at,
+   category:forum_categories!category_id(id, slug, title)`;
 const PROVENANCE_LABELS: Record<string, string> = {
   user_authored: "User-authored",
   ai_assisted: "AI-assisted",
@@ -303,7 +308,7 @@ async function ensureDocumentDiscussion(document: any) {
   if (document.discussion_thread_id) {
     const { data: existing } = await sb
       .from("threads")
-      .select("id, title, status, visibility, comment_count, category_id, linked_document_id, linked_persona_id, authorship_kind, authorship_source_type, authorship_source_id, authorship_persona_id, is_pinned, is_hidden, reported_count")
+      .select(DOCUMENT_DISCUSSION_THREAD_SELECT)
       .eq("id", document.discussion_thread_id)
       .single();
     if (existing) {
@@ -316,12 +321,21 @@ async function ensureDocumentDiscussion(document: any) {
             is_hidden: false,
           })
           .eq("id", existing.id)
-          .select("id, title, status, visibility, comment_count, category_id, linked_document_id, linked_persona_id, authorship_kind, authorship_source_type, authorship_source_id, authorship_persona_id, is_pinned, is_hidden, reported_count")
+          .select(DOCUMENT_DISCUSSION_THREAD_SELECT)
           .single();
         return serializeDocumentDiscussionThread(updated ?? existing, document);
       }
       return serializeDocumentDiscussionThread(existing, document);
     }
+  }
+
+  const recovered = await loadLinkedDocumentDiscussion(document);
+  if (recovered) {
+    await sb
+      .from("documents")
+      .update({ discussion_thread_id: recovered.id })
+      .eq("id", document.id);
+    return serializeDocumentDiscussionThread(recovered, document);
   }
 
   const category = await loadDiscussionCategory();
@@ -352,7 +366,7 @@ async function ensureDocumentDiscussion(document: any) {
       score: 0,
       comment_count: 0,
     })
-    .select("id, title, status, visibility, comment_count, category_id, linked_document_id, linked_persona_id, authorship_kind, authorship_source_type, authorship_source_id, authorship_persona_id, is_pinned, is_hidden, reported_count")
+    .select(DOCUMENT_DISCUSSION_THREAD_SELECT)
     .single();
 
   if (!thread) return null;
@@ -363,6 +377,21 @@ async function ensureDocumentDiscussion(document: any) {
     .eq("id", document.id);
 
   return serializeDocumentDiscussionThread(thread, document);
+}
+
+async function loadLinkedDocumentDiscussion(document: any) {
+  const sb = getSupabaseAdmin();
+  const { data } = await sb
+    .from("threads")
+    .select(DOCUMENT_DISCUSSION_THREAD_SELECT)
+    .eq("linked_document_id", document.id)
+    .eq("status", "active")
+    .eq("visibility", discussionVisibilityForDocument(document.visibility))
+    .eq("is_hidden", false)
+    .order("created_at", { ascending: false })
+    .limit(1);
+
+  return data?.[0] ?? null;
 }
 
 async function syncExistingDiscussion(document: any) {
@@ -576,18 +605,19 @@ documentsRouter.get("/:id/discussion", optionalAuth, async (req, res) => {
     return res.json({ eligible: false, discussion: null });
   }
 
-  if (!document.discussion_thread_id) {
-    return res.json({ eligible: true, discussion: null });
+  let thread = null;
+  if (document.discussion_thread_id) {
+    const { data } = await sb
+      .from("threads")
+      .select(DOCUMENT_DISCUSSION_THREAD_SELECT)
+      .eq("id", document.discussion_thread_id)
+      .single();
+    thread = data ?? null;
   }
 
-  const { data: thread } = await sb
-    .from("threads")
-    .select(
-      `id, title, body, status, visibility, comment_count, linked_document_id, authorship_kind, authorship_source_type, authorship_source_id, authorship_persona_id, is_pinned, is_hidden, reported_count, created_at,
-       category:forum_categories!category_id(id, slug, title)`
-    )
-    .eq("id", document.discussion_thread_id)
-    .single();
+  if (!thread || !canReadThread(thread, req.user)) {
+    thread = await loadLinkedDocumentDiscussion(document);
+  }
 
   if (!thread || !canReadThread(thread, req.user)) {
     return res.json({ eligible: true, discussion: null });

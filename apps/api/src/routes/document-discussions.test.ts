@@ -475,6 +475,54 @@ function close(server: Server) {
   });
 }
 
+test("published document discussion readback recovers an existing linked thread when the document pointer is missing", async () => {
+  const db = new InMemorySupabase();
+  const category = db.insertRow("forum_categories", {
+    slug: "documents-and-codexes",
+    title: "Documents & Codexes",
+  });
+  const linkedThread = db.insertRow("threads", {
+    category_id: category.id,
+    author_user_id: OWNER_ID,
+    linked_space_id: SPACE_ID,
+    linked_document_id: PUBLIC_DOC_ID,
+    title: "Discuss: Public Field Log",
+    body: "Discussion attached to the public replay document.",
+    visibility: "public",
+    status: "active",
+    is_hidden: false,
+    comment_count: 2,
+  });
+  setSupabaseAdminForTests(db.client as any);
+  const app = await createDiscussionApp();
+
+  try {
+    const publicLink = await requestJson(app, "GET", `/documents/${PUBLIC_DOC_ID}/discussion`);
+    assert.equal(publicLink.status, 200);
+    assert.equal(publicLink.body.eligible, true);
+    assert.equal(publicLink.body.discussion.id, linkedThread.id);
+    assert.equal(publicLink.body.discussion.linked_document_id, PUBLIC_DOC_ID);
+    assert.equal(publicLink.body.discussion.category.slug, "documents-and-codexes");
+    assert.deepEqual(publicLink.body.discussion.discussion_provenance, {
+      kind: "user_authored",
+      label: "User-authored",
+      document_provenance_type: "user_authored",
+      document_source_type: "manual",
+      source_persona_id: null,
+    });
+
+    const hiddenThread = db.rows("threads").find((row) => row.id === linkedThread.id);
+    if (hiddenThread) hiddenThread.is_hidden = true;
+
+    const hiddenLink = await requestJson(app, "GET", `/documents/${PUBLIC_DOC_ID}/discussion`);
+    assert.equal(hiddenLink.status, 200);
+    assert.equal(hiddenLink.body.eligible, true);
+    assert.equal(hiddenLink.body.discussion, null);
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
+
 test("published document discussions respect public, community, unlisted, and private boundaries", async () => {
   const db = new InMemorySupabase();
   setSupabaseAdminForTests(db.client as any);

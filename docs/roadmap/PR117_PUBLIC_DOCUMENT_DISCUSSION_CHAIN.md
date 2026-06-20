@@ -4,7 +4,7 @@ Date opened: 2026-06-20
 Opened by: A1 / MIMIR
 Owner: DAEDALUS implements or precisely blocks, ARGUS reviews. ARIADNE rehearses
 visible route behavior after technical acceptance.
-Status: open for DAEDALUS
+Status: implemented by DAEDALUS; ready for ARGUS review
 
 ## Why This Lane
 
@@ -84,3 +84,30 @@ git diff --check
 ```
 
 Add focused web/UI tests if visible page behavior changes.
+
+## DAEDALUS Implementation
+
+Implemented on 2026-06-20.
+
+Root cause: public document discussion readback trusted only
+`documents.discussion_thread_id`. A replay seed/content state with a real forum
+thread linked by `threads.linked_document_id`, but a missing or stale document
+pointer, returned `eligible:true` with `discussion:null`.
+
+Fix:
+
+- `GET /documents/:id/discussion` now recovers an active, non-hidden,
+  visibility-matching linked thread by `linked_document_id` when the document
+  pointer is missing, stale, or unreadable.
+- Owner discussion creation reuses and relinks that recovered thread before
+  creating a new one, so stale seeds do not duplicate discussion threads.
+- The route still refuses private/unpublished/comments-disabled documents and
+  does not expose hidden, removed, or wrong-visibility threads.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` passed with
+  2 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:community` passed with 19 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `git diff --check` passed with CRLF normalization warnings only.

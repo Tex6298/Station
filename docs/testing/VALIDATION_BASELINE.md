@@ -52,6 +52,28 @@ pnpm test:developer-spaces
 pnpm test:developer-space-client
 ```
 
+## PR117 Public Document Discussion Chain
+
+DAEDALUS implementation validation on 2026-06-20:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` | Pass | 2 tests passed, including stale `documents.discussion_thread_id` recovery from an existing active public thread linked by `threads.linked_document_id`; hidden linked threads still return `discussion:null`. |
+| `npm exec --yes pnpm@10.32.1 -- run test:community` | Pass | 19 tests passed; forum visibility, discussion provenance, moderation/reporting, subcommunity, Discover, and private search boundaries stayed green. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed. |
+| `git diff --check` | Pass | CRLF normalization warnings only. |
+
+Implementation result:
+
+- Public document discussion readback now recovers an active, non-hidden,
+  visibility-matching thread by `linked_document_id` when the document pointer
+  is missing, stale, or unreadable.
+- Owner discussion creation reuses and relinks that recovered thread before
+  creating a new discussion, avoiding duplicate threads in stale seed/content
+  states.
+- Private, unpublished, comments-disabled, hidden, removed, and
+  wrong-visibility discussion surfaces remain excluded from public readback.
+
 ## PR116 Forum Replay Blocker Patch
 
 DAEDALUS implementation validation on 2026-06-20:
