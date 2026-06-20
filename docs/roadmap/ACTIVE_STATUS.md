@@ -8385,6 +8385,15 @@ Validation: `test:community` 17 passed, `test:reports` 6 passed,
 `typecheck` passed. `git diff --check` passed with CRLF normalization warnings
 only.
 
+ARGUS accepts PR108 Community Beta Closure Audit on 2026-06-20 and wakes MIMIR
+for closeout. The audit is docs/test-evidence only, no code or visible route
+behavior changed, no required protected-beta closure blockers were found, and
+remaining items are correctly classified as already satisfied/stale, future
+expansion, or explicit non-goals. ARGUS validation passed `test:community` with
+17 tests, `test:reports` with 6 tests, `test:document-discussions`,
+`test:studio-ui` with 82 tests, `typecheck`, and `git diff --check` with CRLF
+warnings only. Recommendation: close Community Beta as protected-beta complete.
+
 ## Previous ARIADNE handoff - PR107
 
 PR107 Community Author Recognition UI is accepted by ARIADNE on 2026-06-20 and

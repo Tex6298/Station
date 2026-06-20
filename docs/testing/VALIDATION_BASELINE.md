@@ -80,6 +80,25 @@ Audit result:
   auth/session, and staging deployment changes.
 - No code or visible route behavior changed.
 
+ARGUS review validation on 2026-06-20:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:community` | Pass | 17 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:reports` | Pass | 6 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` | Pass | 1 test passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 82 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck replayed from cache. |
+| `git diff --check` | Pass | CRLF normalization warnings only for triad state. |
+
+ARGUS review notes:
+
+- The closure audit is accepted as docs/test-evidence only.
+- No required protected-beta closure blockers were found.
+- Remaining items are correctly classified as already satisfied/stale, future
+  expansion, or explicit non-goals.
+- Recommendation: close Community Beta as protected-beta complete.
+
 ## PR107 Community Author Recognition UI
 
 DAEDALUS implementation validation on 2026-06-20:

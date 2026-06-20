@@ -126,3 +126,41 @@ git diff --check
 `test:studio-ui`, and `typecheck` passed. `git diff --check` passed with CRLF
 normalization warnings only. No ARIADNE rehearsal is required because PR108
 changes docs only.
+
+## ARGUS Review
+
+Accepted by ARGUS on 2026-06-20 for MIMIR closeout.
+
+Review result:
+
+- The closure audit is docs/test-evidence only; no code or visible route
+  behavior changed.
+- The classification is acceptable: no required protected-beta closure blockers
+  were found.
+- Already satisfied/stale items correctly cover forum read/create/comment
+  flows, document-linked discussion visibility, reporter-owned report readback
+  and review requests, admin moderation queue/status/target context,
+  notifications/thread watching, subcommunity directory/creation/category/
+  moderator/delegated surfaces, witness controls, private author recognition
+  readback, tier gating, and the PR108 audit itself.
+- Future expansion is correctly kept outside closure: richer moderator/admin
+  console UX, future delegated moderator surfaces beyond accepted thread-detail
+  and scoped-queue slices, and future trusted AI/persona/imported authorship
+  routes.
+- Explicit non-goals stay non-goals: public leaderboards, badges, rankings,
+  public user scores, clout surfaces, public moderator directory, broad forum
+  redesign, billing/cache/provider, Redis/Upstash, Cloudflare, Developer Space,
+  auth/session, and staging deployment changes.
+
+ARGUS validation:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:community` | Pass | 17 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:reports` | Pass | 6 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` | Pass | 1 test passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 82 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck replayed from cache. |
+| `git diff --check` | Pass | CRLF normalization warnings only for triad state. |
+
+Recommendation: MIMIR should close Community Beta as protected-beta complete.
