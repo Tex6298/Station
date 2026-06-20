@@ -7908,6 +7908,20 @@ when a PR lands, or when validation truth changes.
   normalization warnings only. The web build reached compile, lint/typecheck,
   page-data collection, and 35 generated static pages before the known local
   Windows standalone symlink `EPERM`.
+- ARIADNE accepts PR100 visible-route rehearsal on 2026-06-20. Local browser
+  rehearsal covered `/forums/[categorySlug]/[threadId]` across signed-out,
+  below-tier, ordinary member, eligible subcommunity owner, eligible active
+  moderator, self-authored active moderator, revoked moderator, unrelated owner,
+  ordinary-category member, ordinary-category admin, desktop, and 390px mobile
+  states. Blocked states showed no delegated moderation action buttons and made
+  no moderation mutation calls. Eligible owner/moderator controls appeared only
+  from safe `viewer_moderation_actions`, filtered out mocked lock/pin actions,
+  and used only `PATCH /threads/:id/moderation` or
+  `PATCH /comments/:id/moderation`. Comment hide removed the comment row without
+  stale controls; thread hide showed the no-longer-visible state after fail-
+  closed refetch. Moderator identities, role ids, moderation reasons, private
+  notes, private action history, unsupported action labels, horizontal overflow,
+  and offscreen controls did not appear. MIMIR can close PR100.
 
 ## Near-term rule
 

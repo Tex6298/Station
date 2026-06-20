@@ -269,3 +269,38 @@ ARIADNE should rehearse `/forums/[categorySlug]/[threadId]` across signed-out,
 below-tier, ordinary member, eligible subcommunity owner, eligible active
 moderator, self-authored active moderator, revoked moderator, unrelated owner,
 ordinary category/admin, and mobile states before waking MIMIR.
+
+## ARIADNE Visible Route Rehearsal
+
+Accepted on 2026-06-20. ARIADNE rehearsed
+`/forums/[categorySlug]/[threadId]` against the local Next dev server with a
+mocked API for signed-out, below-tier, ordinary member, eligible subcommunity
+owner, eligible active moderator, self-authored active moderator, revoked
+moderator, unrelated owner, ordinary-category member, ordinary-category admin,
+desktop, and 390px mobile states.
+
+ARIADNE confirmed:
+
+- blocked states showed no delegated moderation action buttons and made no
+  moderation mutation calls;
+- eligible subcommunity owners and active moderators saw compact `Moderation`
+  controls only when `viewer_moderation_actions` supplied safe actions;
+- visible action buttons stayed limited to `Hide`, `Unhide`, `Remove`, and
+  `Restore`, even when mocked readback included unsupported lock/pin actions;
+- comment hide used only `PATCH /comments/:id/moderation`, showed the calm
+  success state, and removed the comment row without leaving stale controls;
+- thread hide used only `PATCH /threads/:id/moderation` and showed the honest
+  no-longer-visible state when the refetch failed closed;
+- ordinary-category admin saw only filtered safe controls when the API proved
+  them; ordinary-category member saw none;
+- moderator identities, role assignment ids, moderation reasons, private notes,
+  private action history, and unsupported action labels did not render;
+- checked desktop and 390px mobile states had no horizontal overflow or
+  offscreen controls.
+
+Validation:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| Local Playwright route rehearsal with temporary `.codex-pr100-route-rehearsal.cjs` | Pass | Covered the requested state matrix, PR99-only mutation routes, unsupported action filtering, stale-control checks after hide, private metadata non-exposure, and desktop/mobile overflow checks. |
+| `git diff --check` | Pass | Docs-only ARIADNE verdict; no imports or scripts changed. |

@@ -106,6 +106,30 @@ ARGUS review notes:
   readback or visible control labels.
 - PR100 is accepted for ARIADNE visible-route rehearsal before MIMIR closeout.
 
+ARIADNE visible-route rehearsal on 2026-06-20:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| Local Playwright route rehearsal with temporary `.codex-pr100-route-rehearsal.cjs` | Pass | Ran against `http://127.0.0.1:3132` with mocked API responses. Covered signed-out, below-tier, ordinary member, eligible subcommunity owner, eligible active moderator, self-authored active moderator, revoked moderator, unrelated owner, ordinary-category member, ordinary-category admin, desktop, and 390px mobile states. |
+| `git diff --check` | Pass | Docs-only ARIADNE verdict; no imports or scripts changed. |
+
+ARIADNE notes:
+
+- Blocked states showed no delegated moderation action buttons and made no
+  moderation mutation calls.
+- Eligible subcommunity owner and active moderator states rendered compact
+  controls only from safe `viewer_moderation_actions`.
+- Mocked unsupported lock/pin actions were filtered out before rendering.
+- Comment hide used only `PATCH /comments/:id/moderation`, showed success, and
+  removed the comment row without stale controls.
+- Thread hide used only `PATCH /threads/:id/moderation` and showed the
+  no-longer-visible state after fail-closed refetch.
+- Ordinary-category admin saw filtered safe controls when the API proved them;
+  ordinary-category member saw none.
+- Moderator identities, role ids, moderation reasons, private notes, private
+  action history, unsupported labels, horizontal overflow, and offscreen
+  controls did not appear.
+
 ## PR99 Community Subcommunity Moderation Actions
 
 DAEDALUS implementation validation on 2026-06-20:
