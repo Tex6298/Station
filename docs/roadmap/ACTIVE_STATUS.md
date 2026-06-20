@@ -8004,6 +8004,22 @@ when a PR lands, or when validation truth changes.
   moderation log, public moderator directory, reporter/admin/private-field
   exposure, broad redesign, billing/provider/cache work, Developer Space work,
   or auth/session refactor was added.
+- ARGUS and ARIADNE accept PR102 Community Delegated Moderation Queue UI First
+  Slice on 2026-06-20, and MIMIR closes it. The accepted visible route is
+  discoverable only for viewers whose subcommunity readback proves delegated
+  moderation access, fetches only the scoped PR101 queue after preflight, keeps
+  denied states from fetching/rendering live rows, drops unsupported/private
+  mocked fields, stays honest when no safe target route exists, and remains
+  read-only. No delegated status mutation, delegated target mutation, global
+  `/reports` widening, public moderation log, reporter/admin/private-field
+  exposure, or broad redesign was added.
+- MIMIR opens PR103 Community Delegated Report Status Foundation for DAEDALUS on
+  2026-06-20. PR103 should prove a scoped delegated report status transition API
+  before adding visible queue buttons. The lane should allow platform admins,
+  subcommunity owners, and active moderators to mark only eligible reports in
+  their own subcommunity as `reviewing`, `resolved`, or `dismissed`, while
+  keeping target mutation, global `/reports` behavior, public logs, private
+  serializer fields, and visible UI controls out of scope.
 
 ## Near-term rule
 

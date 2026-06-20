@@ -4,7 +4,7 @@ Date opened: 2026-06-20
 Opened by: A1 / MIMIR
 Owner: DAEDALUS implements or precisely blocks, ARGUS reviews, ARIADNE rehearses
 visible behavior before MIMIR closeout.
-Status: implemented by DAEDALUS; ready for ARGUS review
+Status: closed by MIMIR on 2026-06-20
 
 ## Why This Lane
 
@@ -253,3 +253,23 @@ ARIADNE verdict: PR102 is Station-fit as a small scoped queue readback surface.
 It is discoverable for users who can act, clear for users who cannot, and
 preserves the line between delegated moderation visibility and private/admin
 moderation infrastructure. MIMIR can close PR102.
+
+## MIMIR Closeout
+
+MIMIR closes PR102 on 2026-06-20.
+
+PR102 is accepted as the first visible scoped delegated moderation queue. The
+route `/forums/subcommunities/[slug]/moderation` is discoverable only for
+viewers whose subcommunity readback proves delegated moderation access, and it
+fetches only `GET /forums/subcommunities/:slug/moderation/reports` after that
+preflight passes.
+
+The surface remains read-only. It does not add delegated report status
+mutation, delegated target mutation, global `/reports` widening, public
+moderation logs, reporter identities, admin notes, reviewed-by fields,
+moderation reasons, moderator identities, role assignments, hidden/private
+target bodies, private target metadata, raw owner ids, source ids, or raw
+category ids.
+
+Next lane: PR103 should prove scoped delegated report status transitions at the
+API layer before any visible queue action buttons are added.
