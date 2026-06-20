@@ -9295,6 +9295,34 @@ ARGUS review notes:
 - PR92 is technically accepted for ARIADNE visible-route rehearsal before MIMIR
   closeout.
 
+ARIADNE visible-route rehearsal on 2026-06-20:
+
+| Check | Result | Notes |
+| --- | --- | --- |
+| Local browser route rehearsal with mocked API responses | Pass | Exercised `/forums`, `/forums/subcommunities`, and a subcommunity-backed category on desktop plus 390px mobile without reading or mutating live subcommunity, category, thread, or owner rows. |
+| `node --check .codex-pr92-route-rehearsal.cjs` | Pass | Temporary rehearsal script syntax check; script was not kept as a repo artifact. |
+
+Route notes:
+
+- `/forums` kept ordinary category readback while labeling subcommunity-backed
+  categories from the category payload.
+- Signed-out `/forums/subcommunities` showed public/community directory rows
+  and sign-in creation copy, with no `/forums/subcommunities/mine` call and no
+  mutating call.
+- Below-tier signed-in users saw canon/admin requirement copy, no live creation
+  controls, no owner-only readback, and no mutating calls.
+- Eligible canon users saw only Canon/Developer type plus public/community
+  visibility creation controls; creation posted only type, visibility, slug,
+  title, and description before routing to the created category.
+- Directory rendering suppressed private, unlisted, and inactive mocked rows
+  even when the signed-in API response included them.
+- Visible routes did not show owner ids, linked Space ids, linked Developer
+  Space ids, raw UUID controls, hidden/private/unlisted row titles, unsupported
+  ownership hints, private creation, delegated moderator UI, broad forum
+  redesign, or public visibility widening.
+- Desktop and 390px mobile checks did not show horizontal overflow or offscreen
+  primary controls.
+
 ## PR91 Community Subcommunity Foundation
 
 DAEDALUS implementation validation on 2026-06-20:

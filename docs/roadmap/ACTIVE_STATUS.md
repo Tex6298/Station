@@ -7477,6 +7477,27 @@ when a PR lands, or when validation truth changes.
   known local Windows standalone symlink `EPERM`. ARIADNE should rehearse
   `/forums`, `/forums/subcommunities`, and a subcommunity-backed category route
   before MIMIR closes PR92.
+- ARIADNE accepts PR92 visible-route rehearsal on 2026-06-20 and wakes MIMIR
+  for closeout. The local `/forums`, `/forums/subcommunities`, and
+  subcommunity-backed `/forums/developer-lab` category routes were rehearsed
+  with browser-level forum category, subcommunity directory/create, auth, and
+  category-detail mocks; no live subcommunity, category, thread, or owner rows
+  were read or mutated. `/forums` continued to show ordinary categories while
+  labeling subcommunity-backed categories from the category payload.
+  Signed-out directory visitors saw public/community directory rows and sign-in
+  creation copy, without `/forums/subcommunities/mine` or mutating calls.
+  Below-tier signed-in users saw canon/admin requirement copy without live
+  creation controls, owner-only readback, or mutating calls. Eligible canon
+  users saw only Canon/Developer type plus public/community visibility creation
+  controls; successful creation posted only type, visibility, slug, title, and
+  description, then routed to the created category. Directory rendering
+  suppressed private, unlisted, and inactive mocked rows even when the signed-in
+  API response included them. No owner ids, linked Space ids, linked Developer
+  Space ids, raw UUID controls, hidden/private/unlisted row titles, unsupported
+  ownership hints, private creation, delegated moderator UI, broad forum
+  redesign, or public visibility widening appeared. Desktop and 390px mobile
+  checks showed no horizontal overflow or offscreen primary controls. No
+  additional PR92 visible UI defect remains.
 
 ## Near-term rule
 

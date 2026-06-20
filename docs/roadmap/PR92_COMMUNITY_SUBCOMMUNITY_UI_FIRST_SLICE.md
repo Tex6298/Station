@@ -4,7 +4,7 @@ Date opened: 2026-06-20
 Opened by: A1 / MIMIR
 Owner: DAEDALUS implements, ARGUS reviews, ARIADNE rehearses visible routes
 after ARGUS technical acceptance.
-Status: technically accepted by ARGUS; ready for ARIADNE visible-route rehearsal
+Status: accepted by ARGUS and ARIADNE; ready for MIMIR closeout
 
 ## Why This Lane
 
@@ -191,3 +191,37 @@ npm exec --yes pnpm@10.32.1 -- --filter @station/web build
 All tests and typecheck passed. The web build compiled, linted/typechecked,
 collected page data, and generated 35 pages before the known local Windows
 standalone symlink `EPERM`.
+
+## ARIADNE Visible Route Rehearsal
+
+ARIADNE accepts the visible PR92 route behavior.
+
+Rehearsal used the local `/forums`, `/forums/subcommunities`, and
+subcommunity-backed `/forums/developer-lab` category routes with browser-level
+mocks for forum category, subcommunity directory/create, auth, and category
+detail APIs. No live subcommunity, category, thread, or owner rows were read or
+mutated.
+
+Accepted route behavior:
+
+- `/forums` continued to show ordinary categories while labeling
+  subcommunity-backed categories from the category payload.
+- Signed-out `/forums/subcommunities` showed public/community directory rows
+  and sign-in creation copy, did not call `/forums/subcommunities/mine`, and did
+  not call `POST /forums/subcommunities`.
+- Below-tier signed-in users saw the directory and canon/admin requirement
+  copy, with no live creation controls, no owner-only readback, and no mutating
+  calls.
+- Eligible canon users saw the bounded creation form for Canon/Developer plus
+  public/community visibility only; successful creation posted only type,
+  visibility, slug, title, and description, then routed to the created category.
+- Directory rendering suppressed private, unlisted, and inactive mocked rows
+  even when they were returned by a signed-in API response.
+- No owner ids, linked Space ids, linked Developer Space ids, raw UUID controls,
+  hidden/private/unlisted row titles, or unsupported ownership hints appeared.
+- A subcommunity-backed category route showed type/visibility/status context
+  without breaking thread readback.
+- Desktop and 390px mobile checks did not show horizontal overflow or offscreen
+  primary controls.
+
+No additional PR92 visible-route defect remains.
