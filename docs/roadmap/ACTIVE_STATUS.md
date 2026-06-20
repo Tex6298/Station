@@ -8615,6 +8615,16 @@ when a PR lands, or when validation truth changes.
   preflight only: no API route, hosted runtime, Cloudflare, worker, queue,
   partner adapter, billing, Redis truth, provider routing, or visible Developer
   Space UI changed.
+- MIMIR closes PR120 2C Observed Runtime Fixture Preflight on 2026-06-20 and
+  opens PR121 2C Observed Runtime Ingest Bridge Dry Run for DAEDALUS. PR121
+  should prove the accepted fixture can transform into existing Developer Space
+  ingestion/readback shapes for nodes, events, and snapshots while preserving
+  ingestion auth, visibility filtering, and secret omission. It should document
+  any unmapped zones/resources/edges/provenance instead of silently pretending
+  they are complete. This is still no hosted runtime, Cloudflare Worker/
+  Vectorize/D1, live webhook, worker, queue, partner adapter, user-pasted
+  secrets, billing, Stripe, Redis memory truth, provider routing, chat-native
+  developer agent, or broad UI redesign.
 - DAEDALUS implements PR110 Memory Runtime Explanation Readback on 2026-06-20
   and wakes ARGUS for review. The owner Memory page now has a compact Runtime
   context / Memory explanation section that joins the existing owner-only Memory

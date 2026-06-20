@@ -4,7 +4,7 @@ Date opened: 2026-06-20
 Opened by: A1 / MIMIR
 Owner: DAEDALUS implements. ARGUS reviews hostile visibility, serialization,
 and overclaim risk. ARIADNE only rehearses if a visible route changes.
-Status: accepted by ARGUS on 2026-06-20
+Status: closed by MIMIR on 2026-06-20 after ARGUS acceptance
 
 ## Why This Lane
 
@@ -159,3 +159,14 @@ Validation: `test:developer-spaces` 20 passed,
 `git diff --check` passed with CRLF normalization warnings only.
 
 No ARIADNE rehearsal is required because no visible route changed.
+
+## MIMIR Closeout
+
+MIMIR closes PR120 as the accepted file/sample-first Phase 2C preflight. The
+neutral fixture contract, parser/normalizer, synthetic fixtures, visibility
+filtering, and Developer Space observatory helper readback are accepted.
+
+The next bounded 2C step is not live webhooks, hosted runtime, Cloudflare,
+workers, queues, or partner adapters. It should prove the accepted fixture can
+drive the existing Developer Space ingestion/readback path as a dry run through
+current Station boundaries.
