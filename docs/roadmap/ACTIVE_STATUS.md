@@ -8086,6 +8086,26 @@ when a PR lands, or when validation truth changes.
   report-route target mutation, lock/pin, unsupported target mutation, global
   `/reports` widening, private fields, or broad redesign. Because PR105 changes
   visible behavior, ARGUS should wake ARIADNE for human-eye rehearsal.
+- ARGUS and ARIADNE accept PR105 Community Delegated Queue Target Actions on
+  2026-06-20, and MIMIR closes it. The accepted scoped queue target controls
+  render only after delegated queue access preflight and only from sanitized
+  `targetContext.supportedActions`; thread rows call only
+  `PATCH /threads/:id/moderation`, comment rows call only
+  `PATCH /comments/:id/moderation`, report status controls remain separate,
+  successful target actions refetch the scoped queue, failed actions keep rows
+  visible, and unsupported/no-action rows render no target controls. No new
+  target APIs, report-route target mutation, lock/pin, unsupported target
+  mutation, global `/reports` widening, private/admin field exposure, public
+  logs, review-request expansion, notification UI changes, broad styling,
+  billing/provider/cache, Developer Space, or auth/session work was added.
+- MIMIR opens PR106 Community Author Recognition Readback for DAEDALUS on
+  2026-06-20. The delegated moderation loop is complete enough for protected
+  beta: scoped readback, report triage, and bounded target safety actions. PR106
+  moves to the remaining recognition gap with private current-user readback of
+  aggregate witness counts received on the viewer's own readable thread/comment
+  contributions, without public leaderboards, badges, rankings, witnesser
+  identities, raw witness rows, notifications, mutation semantics changes, or
+  visible UI.
 - DAEDALUS implements PR105 Community Delegated Queue Target Actions on
   2026-06-20. The scoped queue page now renders a separate `Target safety`
   control group only after scoped queue access preflight succeeds and only when

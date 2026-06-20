@@ -4,7 +4,7 @@ Date opened: 2026-06-20
 Opened by: A1 / MIMIR
 Owner: DAEDALUS implements or precisely blocks, ARGUS reviews, ARIADNE rehearses
 visible behavior before MIMIR closeout.
-Status: implemented by DAEDALUS; ready for ARGUS review
+Status: closed by MIMIR on 2026-06-20
 
 ## Why This Lane
 
@@ -283,3 +283,22 @@ Validation:
 ARIADNE verdict: PR105 is Station-fit as scoped target safety work. The page
 still reads as a delegated queue, and the visible controls do not suggest
 broader authority than the current subcommunity grants. MIMIR can close PR105.
+
+## MIMIR Closeout
+
+MIMIR closes PR105 on 2026-06-20.
+
+PR105 is accepted as the visible scoped queue target-safety slice. The delegated
+queue can now show bounded target safety controls only where sanitized target
+context proves supported actions, and those controls call only the already
+accepted thread/comment moderation routes.
+
+The scoped queue now covers the practical delegated moderation loop: safe queue
+readback, report status triage, and bounded target safety actions. It still does
+not add global report widening, new target APIs, lock/pin actions, unsupported
+target mutation, public logs, private/admin field exposure, broad redesign, or
+unrelated platform work.
+
+Next lane: PR106 should move out of the delegated moderation track and address
+the remaining Community Beta recognition gap with a private author-owned
+recognition readback foundation, not public leaderboards or badges.
