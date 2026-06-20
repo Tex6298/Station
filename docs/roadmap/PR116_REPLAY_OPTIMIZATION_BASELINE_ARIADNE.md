@@ -118,6 +118,43 @@ Recommended DAEDALUS patch:
   because the public forum category failure already blocks the forum-discussion
   leg.
 
+## DAEDALUS Patch - 2026-06-20
+
+Status: implemented, awaiting ARGUS review.
+
+Patch:
+
+- `GET /forums/categories` now treats only missing-relation/schema-cache errors
+  for `community_subcommunities` as a staging-schema fallback.
+- In that fallback, the public category list returns only legacy public category
+  slugs `general` and `documents-and-codexes`, with `subcommunity:null`.
+- `GET /forums/categories/:slug` and thread creation now pass the category slug
+  into the subcommunity lookup guard.
+- If `community_subcommunities` is unavailable, only those legacy public
+  categories can continue as ordinary public categories; any other category
+  returns 404 instead of becoming readable.
+- Non-schema subcommunity lookup errors still return 500, preserving fail-closed
+  behavior for real permission/storage failures.
+
+Safety:
+
+- No subcommunity-specific route was relaxed.
+- No moderation, reporting, witness/recognition, delegated moderation, or
+  community-tier rule changed.
+- Unknown, private, unlisted, and subcommunity-backed categories are not opened
+  by the staging fallback.
+- Raw schema-cache details are not returned on the tolerated fallback path.
+
+Validation:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:community` | Pass | 18 tests passed, including the new missing-schema fallback regression. |
+| `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` | Pass | 1 test passed; document-linked forum discussion boundaries stayed green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:reports` | Pass | 6 tests passed; forum report/moderation target behavior stayed green. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed. |
+| `git diff --check` | Pass | CRLF normalization warnings only. |
+
 ## Validation
 
 - `npx --yes playwright@1.41.2 install chromium`

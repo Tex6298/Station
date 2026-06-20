@@ -66,6 +66,7 @@ const authorRecognitionQuerySchema = z.object({
   limit: z.coerce.number().int().min(1).max(100).default(50),
 });
 const DELEGATED_REPORT_PREFETCH_LIMIT = 500;
+const LEGACY_PUBLIC_FORUM_CATEGORY_SLUGS = new Set(["general", "documents-and-codexes"]);
 
 export const forumsRouter = Router();
 const COMMUNITY_TIERS = new Set(["private", "creator", "canon", "institutional"]);
@@ -169,7 +170,18 @@ forumsRouter.get("/categories", optionalAuth, async (req: Request, res: Response
   const { data: subcommunities, error: subcommunityError } = await (sb as any)
     .from("community_subcommunities")
     .select("*");
-  if (subcommunityError) return res.status(500).json({ error: subcommunityError.message });
+  if (subcommunityError && !isMissingSubcommunitySchemaError(subcommunityError)) {
+    return res.status(500).json({ error: subcommunityError.message });
+  }
+
+  if (subcommunityError) {
+    return res.json({
+      categories: (data ?? [])
+        .filter((category: any) => isLegacyPublicForumCategory(category.slug))
+        .map((category: any) => ({ ...category, subcommunity: null })),
+    });
+  }
+
   const subByCategory = new Map<string, any>((subcommunities ?? []).map((row: any) => [row.category_id, row]));
   const categories = (data ?? [])
     .map((category: any) => {
@@ -241,7 +253,7 @@ forumsRouter.get("/categories/:slug", optionalAuth, async (req: Request, res: Re
     .single();
 
   if (catErr || !category) return res.status(404).json({ error: "Category not found" });
-  const subcommunityLookup = await loadSubcommunityForCategoryOrRespond(category.id, res);
+  const subcommunityLookup = await loadSubcommunityForCategoryOrRespond(category.id, res, category.slug);
   if (!subcommunityLookup.ok) return;
   const subcommunity = subcommunityLookup.subcommunity;
   if (subcommunity && !canReadSubcommunity(subcommunity, req.user)) {
@@ -529,12 +541,12 @@ forumsRouter.post(
     // Verify category exists
     const { data: category, error: catErr } = await sb
       .from("forum_categories")
-      .select("id")
+      .select("id, slug")
       .eq("id", parsed.data.categoryId)
       .single();
 
     if (catErr || !category) return res.status(404).json({ error: "Category not found" });
-    const subcommunityLookup = await loadSubcommunityForCategoryOrRespond(category.id, res);
+    const subcommunityLookup = await loadSubcommunityForCategoryOrRespond(category.id, res, category.slug);
     if (!subcommunityLookup.ok) return;
     const subcommunity = subcommunityLookup.subcommunity;
     if (subcommunity && !canReadSubcommunity(subcommunity, req.user!)) {
@@ -887,15 +899,39 @@ function hasWitnessCounts(counts: ReturnType<typeof emptyWitnessCounts>) {
 
 async function loadSubcommunityForCategoryOrRespond(
   categoryId: string,
-  res: Response
+  res: Response,
+  categorySlug?: string | null
 ): Promise<{ ok: true; subcommunity: Awaited<ReturnType<typeof loadSubcommunityForCategory>> } | { ok: false }> {
   try {
     return { ok: true, subcommunity: await loadSubcommunityForCategory(categoryId) };
   } catch (error) {
     const message = error instanceof Error ? error.message : "Could not verify subcommunity visibility.";
+    if (isMissingSubcommunitySchemaError(error)) {
+      if (isLegacyPublicForumCategory(categorySlug)) {
+        return { ok: true, subcommunity: null };
+      }
+      res.status(404).json({ error: "Category not found" });
+      return { ok: false };
+    }
     res.status(500).json({ error: message });
     return { ok: false };
   }
+}
+
+function isLegacyPublicForumCategory(slug: unknown) {
+  return typeof slug === "string" && LEGACY_PUBLIC_FORUM_CATEGORY_SLUGS.has(slug);
+}
+
+function isMissingSubcommunitySchemaError(error: unknown) {
+  const message = error instanceof Error
+    ? error.message
+    : typeof error === "string"
+      ? error
+      : typeof (error as { message?: unknown } | null)?.message === "string"
+        ? String((error as { message?: unknown }).message)
+        : "";
+
+  return /community_subcommunities/i.test(message) && /schema cache|could not find|does not exist|relation .* does not exist/i.test(message);
 }
 
 async function validateSubcommunityLinks(

@@ -1035,6 +1035,67 @@ test("forum thread creation validates linked entities and preserves visibility",
   }
 });
 
+test("forum legacy public category reads tolerate missing subcommunity schema cache", async () => {
+  const db = new CommunitySupabase();
+  const generalCategory = db.insertRow("forum_categories", {
+    slug: "general",
+    title: "General",
+    description: "Public general discussion.",
+    sort_order: 0,
+  });
+  db.insertRow("forum_categories", {
+    slug: "documents-and-codexes",
+    title: "Documents and Codexes",
+    description: "Public document discussion.",
+    sort_order: 2,
+  });
+  db.insertRow("forum_categories", {
+    slug: "private-canon",
+    title: "Private Canon",
+    description: "Must not become public if the subcommunity relation is unavailable.",
+    sort_order: 3,
+  });
+  db.insertRow(
+    "threads",
+    thread("51515151-5151-4151-9151-515151515151", "General public replay thread", "public", {
+      category_id: generalCategory.id,
+    })
+  );
+  setSupabaseAdminForTests(db.client as any);
+  const app = createCommunityApp();
+  const missingSchema = "Could not find the table 'public.community_subcommunities' in the schema cache";
+
+  try {
+    db.failNext("community_subcommunities", "select", missingSchema);
+    const categories = await requestJson(app, "GET", "/forums/categories");
+    assert.equal(categories.status, 200);
+    assert.deepEqual(
+      categories.body.categories.map((category: Row) => category.slug),
+      ["general", "documents-and-codexes"]
+    );
+    assert.equal(categories.body.categories.every((category: Row) => category.subcommunity === null), true);
+    assert.doesNotMatch(JSON.stringify(categories.body), /schema cache/i);
+
+    db.failNext("community_subcommunities", "select", missingSchema);
+    const general = await requestJson(app, "GET", "/forums/categories/general?sort=active");
+    assert.equal(general.status, 200);
+    assert.equal(general.body.category.slug, "general");
+    assert.equal(general.body.category.subcommunity, null);
+    assert.equal(
+      general.body.threads.some((row: Row) => row.title === "General public replay thread"),
+      true
+    );
+    assert.doesNotMatch(JSON.stringify(general.body), /schema cache/i);
+
+    db.failNext("community_subcommunities", "select", missingSchema);
+    const privateCategory = await requestJson(app, "GET", "/forums/categories/private-canon?sort=active");
+    assert.equal(privateCategory.status, 404);
+    assert.doesNotMatch(JSON.stringify(privateCategory.body), /schema cache/i);
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
+
 test("subcommunity foundation gates creation and filters public/community/owner reads", async () => {
   const db = new CommunitySupabase();
   const privateCategory = db.insertRow("forum_categories", {

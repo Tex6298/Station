@@ -8375,6 +8375,19 @@ when a PR lands, or when validation truth changes.
   the staging schema cache, and hosted `/forums` visibly renders that
   schema-cache error on desktop and mobile. Result doc:
   `docs/roadmap/PR116_REPLAY_OPTIMIZATION_BASELINE_ARIADNE.md`.
+- DAEDALUS patches the PR116 forum replay blocker on 2026-06-20 and wakes
+  ARGUS for review. `GET /forums/categories` now tolerates only missing
+  `community_subcommunities` relation/schema-cache errors by falling back to
+  legacy public category slugs `general` and `documents-and-codexes` with
+  `subcommunity:null`. Category detail and thread creation pass the category
+  slug into the same guard, so only those legacy public categories continue when
+  the relation is unavailable; other categories return 404 instead of becoming
+  readable. Non-schema subcommunity errors still fail, and no subcommunity
+  route, moderation, reporting, witness/recognition, delegated moderation,
+  community-tier, or visibility rule was relaxed. Validation passed
+  `test:community` with 18 tests, `test:document-discussions` with 1 test,
+  `test:reports` with 6 tests, `typecheck`, and `git diff --check` with CRLF
+  normalization warnings only.
 - DAEDALUS implements PR110 Memory Runtime Explanation Readback on 2026-06-20
   and wakes ARGUS for review. The owner Memory page now has a compact Runtime
   context / Memory explanation section that joins the existing owner-only Memory
@@ -8616,27 +8629,42 @@ git diff --check
 - Developer Spaces visual polish before ingestion auth, validation, limits, and
   safe serialization.
 
-## Latest ARIADNE handoff - PR116
+## Latest DAEDALUS handoff - PR116
 
-PR116 Replay Optimization Baseline is blocked by one hosted forum route/schema
-failure and ready for DAEDALUS.
+PR116 Forum Replay Blocker Patch is implemented by DAEDALUS on 2026-06-20 and
+ready for ARGUS technical review. The patch is backend-only; ARIADNE should
+rerun the hosted forum/browser checks only after ARGUS accepts and the patch is
+deployed.
 
-ARIADNE's live replay rehearsal passed the rest of the checked route chain and
-readback surfaces: web/API health and deployment readiness, replay owner auth,
-Studio, persona Memory, Continuity, Archive, Integrity, Export, Settings,
-Billing, public Space/document, Developer Space public/manage, context preview,
-vector archive retrieval, chat, Archive/search/import status, export bundle,
-observability, and desktop/mobile fit.
+Files changed: `apps/api/src/routes/forums.ts`,
+`apps/api/src/routes/community.test.ts`,
+`docs/roadmap/PR116_REPLAY_OPTIMIZATION_BASELINE_ARIADNE.md`,
+`docs/roadmap/ACTIVE_STATUS.md`, and `docs/testing/VALIDATION_BASELINE.md`.
 
-Blocker for DAEDALUS:
+Patch:
 
-- API `GET /forums/categories/documents-and-codexes?sort=active` and
-  `GET /forums/categories/general?sort=active` return HTTP 500 for anonymous
-  visitors and for the replay owner.
-- Sanitized error:
-  `Could not find the table 'public.community_subcommunities' in the schema cache`.
-- Hosted `/forums` visibly renders the schema-cache error on desktop and
-  390px mobile.
+- `GET /forums/categories` now tolerates only missing-relation/schema-cache
+  errors for `community_subcommunities`.
+- In that fallback, the public category list returns only legacy public slugs
+  `general` and `documents-and-codexes`, with `subcommunity:null`.
+- `GET /forums/categories/:slug` and forum thread creation pass the category
+  slug into the same guard.
+- If the subcommunity relation is unavailable, only those legacy public
+  categories continue; any other category returns 404.
+- Non-schema subcommunity lookup failures still return 500.
+
+Safety:
+
+- No subcommunity-specific route was relaxed.
+- No moderation, reporting, witness/recognition, delegated moderation,
+  community-tier, or visibility rule changed.
+- Unknown, private, unlisted, and subcommunity-backed categories are not opened
+  by the staging fallback.
+- Raw schema-cache details are not returned on the tolerated fallback path.
+
+Validation: `test:community` 18 passed, `test:document-discussions` 1 passed,
+`test:reports` 6 passed, `typecheck` passed, and `git diff --check` passed
+with CRLF normalization warnings only.
 
 Result doc: `docs/roadmap/PR116_REPLAY_OPTIMIZATION_BASELINE_ARIADNE.md`.
 

@@ -52,6 +52,31 @@ pnpm test:developer-spaces
 pnpm test:developer-space-client
 ```
 
+## PR116 Forum Replay Blocker Patch
+
+DAEDALUS implementation validation on 2026-06-20:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:community` | Pass | 18 tests passed, including missing `community_subcommunities` schema-cache fallback coverage for legacy public forum categories and fail-closed unknown categories. |
+| `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` | Pass | 1 test passed; document-linked forum category/discussion behavior stayed green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:reports` | Pass | 6 tests passed; forum report/moderation target behavior stayed green. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed. |
+| `git diff --check` | Pass | CRLF normalization warnings only. |
+
+Implementation result:
+
+- Public forum category reads tolerate only missing-relation/schema-cache errors
+  for `community_subcommunities`.
+- The fallback returns legacy public categories `general` and
+  `documents-and-codexes` with `subcommunity:null`.
+- Category detail and thread creation keep the same guard: if the subcommunity
+  relation is unavailable, only legacy public categories continue; other
+  categories return 404.
+- Subcommunity-specific routes, moderation, reporting, witness/recognition,
+  delegated moderation, community-tier behavior, and visibility semantics were
+  not relaxed.
+
 ## PR115 Cloudflare Retrieval Boundary
 
 DAEDALUS implementation validation on 2026-06-20:
