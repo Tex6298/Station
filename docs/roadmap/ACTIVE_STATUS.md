@@ -8585,11 +8585,11 @@ git diff --check
 - Developer Spaces visual polish before ingestion auth, validation, limits, and
   safe serialization.
 
-## Latest DAEDALUS handoff - PR115
+## Latest ARGUS verdict - PR115
 
 PR115 Cloudflare Retrieval Boundary is implemented by DAEDALUS on 2026-06-20 and
-ready for ARGUS technical review. No visible route changed, so ARIADNE is not
-needed unless ARGUS finds a visible-route side effect.
+accepted by ARGUS technical review. No visible route changed, so ARIADNE is not
+needed for this lane.
 
 Files changed: `packages/ai/test/cloudflare-adapter.test.ts`,
 `docs/architecture/cloudflare-retrieval-adapter.md`,
@@ -8626,10 +8626,22 @@ Safe boundary proof:
 - Complete local Cloudflare config still reports `remote_adapter_pending` and
   the focused test proves status does not expose the Worker URL or API token.
 
-Validation: `test:cloudflare-retrieval` 4 passed,
-`test:retrieval-metadata` 8 passed, `test:cache` 5 passed, `test:jobs` 5 passed,
-`typecheck` passed, and `git diff --check` passed with CRLF normalization
-warnings only.
+ARGUS review notes:
+
+- Accepted: PR115 stays an inventory/boundary lane. It adds no Cloudflare
+  runtime, credentials, Worker/Vectorize calls, deployment scripts, or canonical
+  record migration out of Supabase.
+- Accepted: complete local Cloudflare config still reports
+  `remote_adapter_pending`, returns no candidates, and does not serialize the
+  Worker URL or API token.
+- Accepted: the documented future mirror boundary keeps Station/Supabase
+  canonical for authorization, visibility, lifecycle, deletion, export, and
+  reindex, with Cloudflare candidates treated as hints requiring Station
+  reauthorization.
+
+ARGUS validation: `test:cloudflare-retrieval` 4 passed,
+`test:retrieval-metadata` 8 passed, `test:cache` 5 passed,
+`test:jobs` 5 passed, `typecheck` passed, and `git diff --check` passed.
 
 Non-scope confirmation: no Cloudflare runtime, Worker, Queue, Vectorize call,
 credential, deployment script, canonical-record migration out of Supabase,
