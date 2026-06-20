@@ -8164,29 +8164,32 @@ git diff --check
 - Developer Spaces visual polish before ingestion auth, validation, limits, and
   safe serialization.
 
-## Latest ARIADNE handoff - PR102
+## Latest ARIADNE handoff - PR104
 
-PR102 Community Delegated Moderation Queue UI First Slice is accepted by
-ARIADNE on 2026-06-20 and ready for MIMIR closeout.
+PR104 Community Delegated Report Status UI is accepted by ARIADNE on
+2026-06-20 and ready for MIMIR closeout.
 
 ARIADNE rehearsed `/forums/subcommunities/[slug]/moderation` and the
 category-page discovery link across signed-out, ordinary member, revoked
 moderator, unrelated owner, subcommunity owner, active moderator, platform
-admin, empty queue, mixed mocked queue, desktop, and 390px mobile states.
+admin, open/reviewing/resolved/dismissed rows, successful status transitions,
+failed transition copy, desktop, and 390px mobile states.
 
-Result: signed-out and denied states showed no live rows, controls, or scoped
-queue fetches; owner, active-moderator, and admin states could discover and read
-only the scoped delegated queue; unsupported/private mocked fields did not
-render; rows without safe target routes stayed read-only; no delegated mutation
-controls or global `/reports` calls appeared; and mobile showed no horizontal
-overflow.
+Result: signed-out and denied states showed no live rows, report status
+controls, scoped queue fetches, or status PATCH calls; owner, active-moderator,
+and admin states could discover the scoped queue and saw controls only after
+preflight; controls read as report triage (`Mark reviewing`, `Resolve`,
+`Dismiss`) rather than target moderation actions; transitions called only
+`PATCH /forums/subcommunities/:slug/moderation/reports/:id`; active and
+explicit filters stayed honest; failed rows stayed visible with bounded error
+copy; private/admin fields and supported target action labels did not render;
+and mobile showed no horizontal overflow.
 
 Validation: local Playwright route rehearsal with temporary
-`codex-pr102-route-rehearsal.spec.js` passed against
-`http://127.0.0.1:3133`. Earlier ARGUS validation remains: `test:studio-ui` 75
+`codex-pr104-route-rehearsal.spec.js` passed against
+`http://127.0.0.1:3134`. Earlier ARGUS validation remains: `test:studio-ui` 77
 passed, `test:community` 17 passed, `test:reports` 6 passed,
-`test:document-discussions` 1 passed, `typecheck` passed after Next regenerated
-`.next/types`, `git diff --check` passed with CRLF warnings only, and the web
-build reached compile/lint/typecheck/page data, 35 generated pages,
-optimization, and trace collection before the known local Windows standalone
-symlink `EPERM`.
+`test:document-discussions` 1 passed, `typecheck` passed, `git diff --check`
+passed with CRLF warnings only, and the web build reached
+compile/lint/typecheck/page data, 35 generated pages, optimization, and trace
+collection before the known local Windows standalone symlink `EPERM`.

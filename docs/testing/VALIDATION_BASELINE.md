@@ -104,6 +104,29 @@ ARGUS review notes:
 - Failed updates keep rows visible with bounded row-level errors.
 - No target moderation actions or global report calls were added.
 
+ARIADNE visible-route rehearsal on 2026-06-20:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| Local Playwright route rehearsal with temporary `codex-pr104-route-rehearsal.spec.js` | Pass | Ran against `http://127.0.0.1:3134` with mocked API responses. Covered signed-out, ordinary member, revoked moderator, unrelated owner, subcommunity owner, active moderator, platform admin, open/reviewing/resolved/dismissed rows, successful status transitions, failed transition copy, desktop, and 390px mobile states. |
+
+ARIADNE notes:
+
+- Signed-out, ordinary, revoked, and unrelated-owner states did not fetch live
+  queue rows, render report status controls, or call scoped status PATCH.
+- Owner, active-moderator, and admin states discovered the queue from the
+  category page and rendered controls only after scoped queue preflight passed.
+- Controls read as report triage (`Mark reviewing`, `Resolve`, `Dismiss`), not
+  target moderation actions.
+- Successful transitions called only
+  `PATCH /forums/subcommunities/:slug/moderation/reports/:id`; no global
+  `/reports/:id` calls appeared.
+- Active and explicit filters stayed honest after updates.
+- Failed transition copy kept the report row visible and recoverable.
+- Private/admin fields and supported target action labels did not render.
+- Desktop and 390px mobile states showed no horizontal overflow or offscreen
+  controls.
+
 ## PR103 Community Delegated Report Status Foundation
 
 DAEDALUS implementation validation on 2026-06-20:

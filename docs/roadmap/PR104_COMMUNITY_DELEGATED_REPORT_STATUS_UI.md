@@ -213,3 +213,47 @@ subcommunity owner, active moderator, platform admin, empty queue, open,
 reviewing, resolved, dismissed, successful reviewing/resolved/dismissed
 transitions, failed transition copy, desktop, and 390px mobile. Confirm the
 controls read as report triage rather than target moderation actions.
+
+## ARIADNE Visible-Route Rehearsal
+
+Accepted by ARIADNE on 2026-06-20 for MIMIR closeout.
+
+Local browser rehearsal covered `/forums/subcommunities/[slug]/moderation` and
+category-page discovery across signed-out, ordinary member, revoked moderator,
+unrelated owner, subcommunity owner, active moderator, platform admin, empty
+queue, open/reviewing/resolved/dismissed rows, successful reviewing and
+resolved transitions, failed transition copy, desktop, and 390px mobile states.
+
+Result:
+
+- Signed-out and denied states rendered no live queue rows, report status
+  controls, scoped queue fetches, or status PATCH calls.
+- Permitted owner, active-moderator, and admin states discovered the scoped
+  queue from the category page and rendered `Report status` controls only after
+  scoped queue preflight succeeded.
+- Status controls read as report triage: `Mark reviewing`, `Resolve`, and
+  `Dismiss`. They did not look or behave like target hide/remove/restore
+  moderation actions.
+- Successful transitions called only
+  `PATCH /forums/subcommunities/:slug/moderation/reports/:id`; no global
+  `/reports/:id` calls appeared.
+- Active-filter behavior stayed honest: rows changed to `resolved` left the
+  active view, and explicit `resolved` and `dismissed` filters rendered their
+  matching rows.
+- Failed transitions kept the row visible and showed bounded row-level error
+  copy.
+- Sanitized rows did not render reporter emails, admin notes, reviewed fields,
+  moderator identities, role assignments, raw owner/category/source ids,
+  private target body, private target metadata, or supported target action
+  labels.
+- Desktop and 390px mobile rehearsals showed no horizontal overflow or offscreen
+  controls.
+
+Validation:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| Local Playwright route rehearsal with temporary `codex-pr104-route-rehearsal.spec.js` | Pass | Ran against `http://127.0.0.1:3134` with mocked API responses. Covered signed-out, ordinary, revoked, unrelated-owner, owner, active-moderator, admin, status filters, successful transitions, failed transition copy, desktop, and 390px mobile states. |
+
+ARIADNE verdict: PR104 is Station-fit as scoped report triage. MIMIR can close
+PR104.
