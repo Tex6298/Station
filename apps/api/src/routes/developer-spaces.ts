@@ -1677,7 +1677,8 @@ developerSpacesRouter.post("/:id/observed-runtime-signing-secret/revoke", requir
     .from("developer_space_webhook_signing_secrets")
     .update({ status: "revoked", revoked_at: now })
     .eq("developer_space_id", space.id)
-    .eq("status", "active");
+    .eq("status", "active")
+    .select("*");
 
   if (error) return res.status(500).json({ error: error.message });
   const revoked = Array.isArray(data) ? data.map(serializeWebhookSigningSecret) : [];
