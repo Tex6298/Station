@@ -4,7 +4,7 @@ Date opened: 2026-06-20
 Opened by: A1 / MIMIR
 Owner: DAEDALUS implements, ARGUS reviews. ARIADNE rehearses visible participant
 and admin routes after ARGUS technical acceptance.
-Status: technically accepted by ARGUS; awaiting ARIADNE visible-route rehearsal
+Status: accepted by ARGUS and ARIADNE; ready for MIMIR closeout
 
 ## Why This Lane
 
@@ -108,11 +108,40 @@ Review notes:
   authorization, keeps review-request status controls separate from report
   status and target actions, and uses only PR87 admin update routes.
 
-Remaining PR88 handoff:
+ARIADNE visible-route rehearsal completed on 2026-06-20.
 
-- ARIADNE should rehearse `/forums/reports` and `/forums/moderation` for
-  signed-out/signed-in/admin states, control separation, unavailable states,
-  and mobile fit.
+## ARIADNE Visible Route Rehearsal
+
+ARIADNE accepts the visible PR88 route behavior.
+
+Rehearsal used the local `/forums/reports` and `/forums/moderation` routes with
+browser-level mocks for `/auth/me`, reporter report/readback routes, admin
+report/review queues, and review-request updates. No live moderation rows were
+read or mutated.
+
+Accepted route behavior:
+
+- Signed-out `/forums/reports` showed sign-in copy and did not fetch
+  `/reports/mine` or `/reports/review-requests/mine`.
+- Signed-in participants saw `My reports` status readback, eligible
+  thread/comment `Request review` controls, existing review-request status and
+  safe resolution summaries, and unsupported persona-target unavailable copy.
+- Participant review creation sent only `reportId` and the generated reason,
+  then merged the returned participant-safe request into visible readback.
+- Participant routes did not show admin notes, moderator identity, reviewer
+  fields, target bodies, private material, public log language, or target
+  mutation controls.
+- Non-admin `/forums/moderation` showed admin-required copy and did not fetch
+  report or review-request queues.
+- Admin `/forums/moderation` showed review requests as a separate section from
+  report status and target actions; admin notes and participant-safe resolution
+  summaries stayed visually distinct.
+- A review-request status update called only the PR87 review-request PATCH
+  route and did not call report-status or target-moderation endpoints.
+- Desktop and 390px mobile checks did not show horizontal overflow or
+  offscreen primary controls.
+
+No additional PR88 visible-route defect remains.
 
 ## Inspect Before Editing
 

@@ -7253,6 +7253,24 @@ when a PR lands, or when validation truth changes.
   platform, delegated moderator model, notifications, reputation/witness
   mechanics, AI posting, billing/provider/cache, Developer Space,
   auth/session refactor, or broad forum redesign was added.
+- ARIADNE accepts PR88 visible-route rehearsal on 2026-06-20 and wakes MIMIR
+  for closeout. The local `/forums/reports` and `/forums/moderation` routes were
+  rehearsed with browser-level `/auth/me`, reporter report/readback, admin
+  report/review queue, and review-request update mocks; no live moderation rows
+  were read or mutated. Signed-out report visitors saw sign-in copy and did not
+  fetch reporter or review-request data; signed-in participants saw eligible
+  thread/comment `Request review` affordances, unsupported persona-target
+  unavailable copy, participant-safe status/resolution readback, and a create
+  request payload limited to `reportId` plus generated reason. Participant
+  routes did not expose admin notes, moderator identity, reviewer fields,
+  target bodies, private material, public log language, or target mutation
+  controls. Non-admin moderation visitors saw admin-required copy and did not
+  fetch moderation queues. Admins saw review requests in a distinct section
+  from report status and target actions; admin notes and participant-safe
+  resolution summaries remained separate, and a review-request update called
+  only the PR87 review-request PATCH route. Desktop and 390px mobile checks
+  showed no horizontal overflow or offscreen primary controls. No additional
+  PR88 visible UI defect remains.
 
 ## Near-term rule
 

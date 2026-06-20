@@ -9294,6 +9294,32 @@ ARGUS scope notes:
 - Confirmed the admin review-request queue/update surface is admin-gated and
   separate from report status and target moderation controls.
 
+ARIADNE visible-route rehearsal on 2026-06-20:
+
+| Check | Result | Notes |
+| --- | --- | --- |
+| Local browser route rehearsal with mocked API responses | Pass | Exercised `/forums/reports` and `/forums/moderation` on desktop plus 390px mobile without reading or mutating live moderation rows. |
+| `node --check .codex-pr88-route-rehearsal.cjs` | Pass | Temporary rehearsal script syntax check; script was not kept as a repo artifact. |
+
+Route notes:
+
+- Signed-out `/forums/reports` showed sign-in copy and did not fetch
+  `/reports/mine` or `/reports/review-requests/mine`.
+- Signed-in participants saw eligible thread/comment `Request review` controls,
+  unsupported persona-target unavailable copy, participant-safe review status
+  and resolution readback, and a create payload limited to `reportId` plus
+  generated reason.
+- Participant routes did not show admin notes, moderator identity, reviewer
+  fields, target bodies, private material, public log language, or target
+  mutation controls.
+- Non-admin `/forums/moderation` showed admin-required copy and did not fetch
+  moderation queues.
+- Admin `/forums/moderation` kept review requests separate from report status
+  and target actions; a review-request status update called only the PR87
+  review-request PATCH route.
+- Desktop and 390px mobile checks did not show horizontal overflow or offscreen
+  primary controls.
+
 ## PR87 Community Appeals Request Review Foundation
 
 DAEDALUS implementation validation on 2026-06-20:
