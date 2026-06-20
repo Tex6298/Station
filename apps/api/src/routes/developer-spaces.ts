@@ -25,6 +25,7 @@ import {
   hashDeveloperSpaceApiKey,
   normaliseDeveloperSpacePublicFieldControls,
   normaliseSourceRefs,
+  prepareObservedRuntimeClassifiedData,
   serializeDeveloperSpace,
   serializeDeveloperSpaceEvent,
   serializeDeveloperSpaceLinkedDocument,
@@ -62,6 +63,8 @@ const provenanceSchema = z.enum(["api", "imported", "user", "system", "ai_genera
 const documentRoleSchema = z.enum(["methodology", "finding", "field_log", "note"]);
 const documentLinkVisibilitySchema = z.enum(["owner", "public"]);
 const sourceRefsSchema = z.array(z.string().max(500)).max(24).default([]);
+const observedRuntimeFieldVisibilitySchema = z.enum(["public", "member", "owner", "private", "secret"]);
+const observedRuntimeFieldClassificationsSchema = z.record(observedRuntimeFieldVisibilitySchema).optional();
 const MAX_JSON_CHARS = 32_000;
 const MAX_JSON_DEPTH = 8;
 const SSE_RETRY_MS = 5_000;
@@ -102,6 +105,15 @@ function ingestionValidationError(error: z.ZodError) {
     code: "developer_space_validation_failed",
     category: "validation",
     details: error.flatten(),
+  });
+}
+
+function ingestionClassificationValidationError(error: unknown) {
+  return ingestionErrorBody({
+    error: "Developer Space observed-runtime classifications failed validation.",
+    code: "developer_space_observed_runtime_classification_failed",
+    category: "validation",
+    details: error instanceof Error ? error.message : "Invalid observed-runtime classifications.",
   });
 }
 
@@ -175,6 +187,7 @@ const nodeStateSchema = z.object({
   selfSimilarityScore: z.number().min(0).max(1).nullable().optional(),
   dimensionality: z.number().int().min(0).max(100_000).nullable().optional(),
   metrics: jsonObjectSchema.default({}),
+  fieldClassifications: observedRuntimeFieldClassificationsSchema,
   sourceRefs: sourceRefsSchema,
   provenance: provenanceSchema.default("api"),
 });
@@ -184,6 +197,7 @@ const eventSchema = z.object({
   eventLabel: z.string().max(220).optional(),
   nodeId: z.string().min(1).max(160).optional(),
   eventData: jsonObjectSchema.default({}),
+  fieldClassifications: observedRuntimeFieldClassificationsSchema,
   similarityScore: z.number().min(0).max(1).nullable().optional(),
   sourceRefs: sourceRefsSchema,
   provenance: provenanceSchema.default("api"),
@@ -193,6 +207,7 @@ const eventSchema = z.object({
 
 const snapshotSchema = z.object({
   snapshotData: jsonObjectSchema,
+  fieldClassifications: observedRuntimeFieldClassificationsSchema,
   sourceRefs: sourceRefsSchema,
   provenance: provenanceSchema.default("api"),
   visibility: eventVisibilitySchema.default("public"),
@@ -364,6 +379,19 @@ async function enforceUsageQuota(
     }
     throw error;
   }
+}
+
+function prefixObservedRuntimeMetadata(
+  metadata: ReturnType<typeof prepareObservedRuntimeClassifiedData>["metadata"],
+  prefix: string
+) {
+  if (!metadata) return null;
+  return {
+    schema: metadata.schema,
+    fields: Object.fromEntries(
+      Object.entries(metadata.fields).map(([path, visibility]) => [`${prefix}.${path}`, visibility])
+    ),
+  };
 }
 
 function eventVisibilitiesForAccess(access: "owner" | "member" | "public"): DeveloperSpaceEventVisibility[] {
@@ -659,14 +687,17 @@ async function buildDeveloperSpaceLiveUpdate(
     nodes: nodes.map((node) => serializeDeveloperSpaceNode(node, {
       includeRawData,
       publicFieldKeys: publicFieldControls?.nodeMetricKeys,
+      access,
     })),
     events: events.map((event) => serializeDeveloperSpaceEvent(event, {
       includeRawData,
       publicFieldKeys: publicFieldControls?.eventDataKeys,
+      access,
     })),
     latestSnapshot: latestSnapshot ? serializeDeveloperSpaceSnapshot(latestSnapshot, {
       includeRawData,
       publicFieldKeys: publicFieldControls?.snapshotDataKeys,
+      access,
     }) : null,
     linkedDocuments: linkedDocumentsResult.linkedDocuments,
     access,
@@ -739,6 +770,15 @@ developerSpacesRouter.post("/ingest/nodes/:nodeId/state", async (req, res) => {
 
   const parsed = nodeStateSchema.safeParse(req.body);
   if (!parsed.success) return res.status(400).json(ingestionValidationError(parsed.error));
+  let classifiedNode;
+  try {
+    classifiedNode = prepareObservedRuntimeClassifiedData({
+      data: parsed.data.metrics,
+      fieldClassifications: parsed.data.fieldClassifications,
+    });
+  } catch (error) {
+    return res.status(400).json(ingestionClassificationValidationError(error));
+  }
 
   const sb = getSupabaseAdmin();
   const now = new Date().toISOString();
@@ -760,7 +800,8 @@ developerSpacesRouter.post("/ingest/nodes/:nodeId/state", async (req, res) => {
       fragment_count: parsed.data.fragmentCount,
       self_similarity_score: parsed.data.selfSimilarityScore ?? null,
       dimensionality: parsed.data.dimensionality ?? null,
-      metrics: parsed.data.metrics,
+      metrics: classifiedNode.data,
+      observed_runtime_classifications: classifiedNode.metadata,
       last_event_at: now,
     }, { onConflict: "developer_space_id,external_id" })
     .select("*")
@@ -778,8 +819,9 @@ developerSpacesRouter.post("/ingest/nodes/:nodeId/state", async (req, res) => {
       fragmentCount: parsed.data.fragmentCount,
       selfSimilarityScore: parsed.data.selfSimilarityScore ?? null,
       dimensionality: parsed.data.dimensionality ?? null,
-      metrics: parsed.data.metrics,
+      metrics: classifiedNode.data,
     },
+    observed_runtime_classifications: prefixObservedRuntimeMetadata(classifiedNode.metadata, "metrics"),
     similarity_score: parsed.data.selfSimilarityScore ?? null,
     source_refs: normaliseSourceRefs(parsed.data.sourceRefs),
     provenance: parsed.data.provenance,
@@ -805,6 +847,15 @@ developerSpacesRouter.post("/ingest/events", async (req, res) => {
 
   const parsed = eventSchema.safeParse(req.body);
   if (!parsed.success) return res.status(400).json(ingestionValidationError(parsed.error));
+  let classifiedEvent;
+  try {
+    classifiedEvent = prepareObservedRuntimeClassifiedData({
+      data: parsed.data.eventData,
+      fieldClassifications: parsed.data.fieldClassifications,
+    });
+  } catch (error) {
+    return res.status(400).json(ingestionClassificationValidationError(error));
+  }
   const usageDelta = {
     events: 1,
     storageBytes: estimateDeveloperSpaceStorageBytes(req.body),
@@ -822,7 +873,8 @@ developerSpacesRouter.post("/ingest/events", async (req, res) => {
       external_node_id: parsed.data.nodeId ?? null,
       event_type: parsed.data.eventType,
       event_label: parsed.data.eventLabel ?? null,
-      event_data: parsed.data.eventData,
+      event_data: classifiedEvent.data,
+      observed_runtime_classifications: classifiedEvent.metadata,
       similarity_score: parsed.data.similarityScore ?? null,
       source_refs: normaliseSourceRefs(parsed.data.sourceRefs),
       provenance: parsed.data.provenance,
@@ -859,6 +911,15 @@ developerSpacesRouter.post("/ingest/snapshots", async (req, res) => {
 
   const parsed = snapshotSchema.safeParse(req.body);
   if (!parsed.success) return res.status(400).json(ingestionValidationError(parsed.error));
+  let classifiedSnapshot;
+  try {
+    classifiedSnapshot = prepareObservedRuntimeClassifiedData({
+      data: parsed.data.snapshotData,
+      fieldClassifications: parsed.data.fieldClassifications,
+    });
+  } catch (error) {
+    return res.status(400).json(ingestionClassificationValidationError(error));
+  }
   const usageDelta = {
     snapshots: 1,
     storageBytes: estimateDeveloperSpaceStorageBytes(req.body),
@@ -870,7 +931,8 @@ developerSpacesRouter.post("/ingest/snapshots", async (req, res) => {
     .from("developer_space_snapshots")
     .insert({
       developer_space_id: space.id,
-      snapshot_data: parsed.data.snapshotData,
+      snapshot_data: classifiedSnapshot.data,
+      observed_runtime_classifications: classifiedSnapshot.metadata,
       source_refs: normaliseSourceRefs(parsed.data.sourceRefs),
       provenance: parsed.data.provenance,
       visibility: parsed.data.visibility,
@@ -908,8 +970,36 @@ developerSpacesRouter.post("/ingest/import", async (req, res) => {
   const sb = getSupabaseAdmin();
   const now = new Date().toISOString();
   const nodes = [];
+  let classifiedNodes;
+  let classifiedEvents;
+  let classifiedSnapshots;
+  try {
+    classifiedNodes = parsed.data.nodes.map((node) => ({
+      input: node,
+      classified: prepareObservedRuntimeClassifiedData({
+        data: node.metrics,
+        fieldClassifications: node.fieldClassifications,
+      }),
+    }));
+    classifiedEvents = parsed.data.events.map((event) => ({
+      input: event,
+      classified: prepareObservedRuntimeClassifiedData({
+        data: event.eventData,
+        fieldClassifications: event.fieldClassifications,
+      }),
+    }));
+    classifiedSnapshots = parsed.data.snapshots.map((snapshot) => ({
+      input: snapshot,
+      classified: prepareObservedRuntimeClassifiedData({
+        data: snapshot.snapshotData,
+        fieldClassifications: snapshot.fieldClassifications,
+      }),
+    }));
+  } catch (error) {
+    return res.status(400).json(ingestionClassificationValidationError(error));
+  }
 
-  for (const nodeInput of parsed.data.nodes) {
+  for (const { input: nodeInput, classified } of classifiedNodes) {
     const { data: node, error } = await sb
       .from("developer_space_nodes")
       .upsert({
@@ -920,7 +1010,8 @@ developerSpacesRouter.post("/ingest/import", async (req, res) => {
         fragment_count: nodeInput.fragmentCount,
         self_similarity_score: nodeInput.selfSimilarityScore ?? null,
         dimensionality: nodeInput.dimensionality ?? null,
-        metrics: nodeInput.metrics,
+        metrics: classified.data,
+        observed_runtime_classifications: classified.metadata,
         last_event_at: now,
       }, { onConflict: "developer_space_id,external_id" })
       .select("*")
@@ -930,7 +1021,7 @@ developerSpacesRouter.post("/ingest/import", async (req, res) => {
   }
 
   const eventsPayload = [];
-  for (const event of parsed.data.events) {
+  for (const { input: event, classified } of classifiedEvents) {
     const node = await findNodeByExternalId(space.id, event.nodeId);
     eventsPayload.push({
       developer_space_id: space.id,
@@ -938,7 +1029,8 @@ developerSpacesRouter.post("/ingest/import", async (req, res) => {
       external_node_id: event.nodeId ?? null,
       event_type: event.eventType,
       event_label: event.eventLabel ?? null,
-      event_data: event.eventData,
+      event_data: classified.data,
+      observed_runtime_classifications: classified.metadata,
       similarity_score: event.similarityScore ?? null,
       source_refs: normaliseSourceRefs(event.sourceRefs),
       provenance: event.provenance,
@@ -947,9 +1039,10 @@ developerSpacesRouter.post("/ingest/import", async (req, res) => {
     });
   }
 
-  const snapshotsPayload = parsed.data.snapshots.map((snapshot) => ({
+  const snapshotsPayload = classifiedSnapshots.map(({ input: snapshot, classified }) => ({
     developer_space_id: space.id,
-    snapshot_data: snapshot.snapshotData,
+    snapshot_data: classified.data,
+    observed_runtime_classifications: classified.metadata,
     source_refs: normaliseSourceRefs(snapshot.sourceRefs),
     provenance: snapshot.provenance,
     visibility: snapshot.visibility,

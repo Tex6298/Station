@@ -4,6 +4,7 @@ import type {
   DeveloperSpaceLinkedDocument,
   DeveloperSpaceEvent,
   DeveloperSpaceNode,
+  DeveloperSpaceObservedRuntimeFieldVisibility,
   DeveloperSpaceProviderPolicy,
   DeveloperSpacePublicFieldControls,
   DeveloperSpaceRecord,
@@ -46,6 +47,14 @@ const PUBLIC_FIELD_CONTROL_KEYS = {
   eventDataKeys: "eventDataKeys",
   snapshotDataKeys: "snapshotDataKeys",
 } as const;
+const OBSERVED_RUNTIME_CLASSIFICATION_SCHEMA = "station.observed_runtime.classifications.v1";
+const OBSERVED_RUNTIME_FIELD_VISIBILITIES = new Set<DeveloperSpaceObservedRuntimeFieldVisibility>([
+  "public",
+  "member",
+  "owner",
+  "private",
+  "secret",
+]);
 
 export type DeveloperSpacePolicyContext = "public_synthetic" | "public_context" | "private_archive";
 export type DeveloperSpaceProviderMode = "platform" | "owner_byok";
@@ -203,6 +212,133 @@ export function publicSafeDeveloperSpaceData(value: unknown, allowedKeys?: strin
   );
 }
 
+function isAllowedObservedRuntimeField(
+  visibility: DeveloperSpaceObservedRuntimeFieldVisibility,
+  access: DeveloperSpaceDetail["access"]
+) {
+  if (visibility === "secret") return false;
+  if (access === "owner") return true;
+  if (visibility === "owner" || visibility === "private") return false;
+  return visibility === "public" || (access === "member" && visibility === "member");
+}
+
+function normaliseObservedRuntimeClassificationPath(value: unknown): string | null {
+  if (typeof value !== "string") return null;
+  const trimmed = value.trim();
+  if (!/^[a-zA-Z0-9_.:-]{1,160}$/.test(trimmed)) return null;
+  return trimmed;
+}
+
+export function normaliseObservedRuntimeFieldClassifications(value: unknown): Record<string, DeveloperSpaceObservedRuntimeFieldVisibility> | null {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return null;
+  const raw = value as Record<string, unknown>;
+  const fields = raw.fields && typeof raw.fields === "object" && !Array.isArray(raw.fields)
+    ? raw.fields as Record<string, unknown>
+    : raw;
+  const entries = Object.entries(fields);
+  if (entries.length === 0) return null;
+  if (entries.length > 256) {
+    throw new Error("Observed runtime field classifications must include 256 fields or fewer.");
+  }
+
+  const normalised: Record<string, DeveloperSpaceObservedRuntimeFieldVisibility> = {};
+  for (const [rawPath, rawVisibility] of entries) {
+    const path = normaliseObservedRuntimeClassificationPath(rawPath);
+    if (!path) throw new Error("Observed runtime field classification paths must be safe dotted keys.");
+    if (typeof rawVisibility !== "string" || !OBSERVED_RUNTIME_FIELD_VISIBILITIES.has(rawVisibility as DeveloperSpaceObservedRuntimeFieldVisibility)) {
+      throw new Error(`Observed runtime field classification for ${path} is invalid.`);
+    }
+    const visibility = rawVisibility as DeveloperSpaceObservedRuntimeFieldVisibility;
+    if (isSensitiveJsonKey(path) && visibility !== "secret") {
+      throw new Error(`Observed runtime field ${path} must be classified as secret.`);
+    }
+    normalised[path] = visibility;
+  }
+  return normalised;
+}
+
+export function observedRuntimeClassificationMetadata(
+  value: unknown
+): { schema: typeof OBSERVED_RUNTIME_CLASSIFICATION_SCHEMA; fields: Record<string, DeveloperSpaceObservedRuntimeFieldVisibility> } | null {
+  const fields = normaliseObservedRuntimeFieldClassifications(value);
+  return fields ? { schema: OBSERVED_RUNTIME_CLASSIFICATION_SCHEMA, fields } : null;
+}
+
+function leafPaths(value: unknown, prefix = ""): string[] {
+  if (Array.isArray(value)) return [prefix].filter(Boolean);
+  if (!value || typeof value !== "object") return [prefix].filter(Boolean);
+  return Object.entries(value as Record<string, unknown>).flatMap(([key, nested]) =>
+    leafPaths(nested, prefix ? `${prefix}.${key}` : key)
+  );
+}
+
+function filterObservedRuntimeValue(
+  value: unknown,
+  fields: Record<string, DeveloperSpaceObservedRuntimeFieldVisibility>,
+  access: DeveloperSpaceDetail["access"],
+  prefix = ""
+): unknown {
+  if (Array.isArray(value)) {
+    const visibility = fields[prefix];
+    return visibility && isAllowedObservedRuntimeField(visibility, access) ? value : undefined;
+  }
+  if (!value || typeof value !== "object") {
+    const visibility = fields[prefix];
+    return visibility && isAllowedObservedRuntimeField(visibility, access) ? value : undefined;
+  }
+
+  const output: Record<string, unknown> = {};
+  for (const [key, nested] of Object.entries(value as Record<string, unknown>)) {
+    const path = prefix ? `${prefix}.${key}` : key;
+    const filtered = filterObservedRuntimeValue(nested, fields, access, path);
+    if (filtered !== undefined) output[key] = filtered;
+  }
+  return output;
+}
+
+export function prepareObservedRuntimeClassifiedData(input: {
+  data: Record<string, unknown>;
+  fieldClassifications?: unknown;
+}) {
+  const metadata = observedRuntimeClassificationMetadata(input.fieldClassifications);
+  if (!metadata) return { data: input.data, metadata: null };
+
+  for (const path of leafPaths(input.data)) {
+    if (!metadata.fields[path]) {
+      throw new Error(`Observed runtime field ${path} is missing a classification.`);
+    }
+  }
+  const persistedFields = Object.fromEntries(
+    Object.entries(metadata.fields).filter(([, visibility]) => visibility !== "secret")
+  ) as Record<string, DeveloperSpaceObservedRuntimeFieldVisibility>;
+
+  return {
+    data: filterObservedRuntimeValue(input.data, metadata.fields, "owner") as Record<string, unknown>,
+    metadata: Object.keys(persistedFields).length > 0
+      ? { schema: metadata.schema, fields: persistedFields }
+      : null,
+  };
+}
+
+function dataForDeveloperSpaceAccess(input: {
+  data: Record<string, unknown>;
+  metadata?: unknown;
+  access: DeveloperSpaceDetail["access"];
+  includeRawData: boolean;
+  publicFieldKeys?: string[] | null;
+}) {
+  const fields = normaliseObservedRuntimeFieldClassifications(input.metadata);
+  if (fields) {
+    const filtered = filterObservedRuntimeValue(input.data, fields, input.access) as Record<string, unknown>;
+    return input.access === "owner"
+      ? filtered
+      : publicSafeDeveloperSpaceData(filtered, input.publicFieldKeys) as Record<string, unknown>;
+  }
+  return input.includeRawData
+    ? input.data
+    : publicSafeDeveloperSpaceData(input.data, input.publicFieldKeys) as Record<string, unknown>;
+}
+
 export function extractDeveloperApiKey(headerValue?: string | string[]): string | null {
   if (!headerValue) return null;
   const value = Array.isArray(headerValue) ? headerValue[0] : headerValue;
@@ -253,9 +389,10 @@ export function serializeDeveloperSpace(row: any, options: { includeOperationalF
 
 export function serializeDeveloperSpaceNode(
   row: any,
-  options: { includeRawData?: boolean; publicFieldKeys?: string[] | null } = {}
+  options: { includeRawData?: boolean; publicFieldKeys?: string[] | null; access?: DeveloperSpaceDetail["access"] } = {}
 ): DeveloperSpaceNode {
   const includeRawData = options.includeRawData ?? false;
+  const access = options.access ?? (includeRawData ? "owner" : "public");
   return {
     id: row.id,
     developerSpaceId: row.developer_space_id,
@@ -269,9 +406,13 @@ export function serializeDeveloperSpaceNode(
     dimensionality: row.dimensionality === null || row.dimensionality === undefined
       ? null
       : Number(row.dimensionality),
-    metrics: includeRawData
-      ? row.metrics ?? {}
-      : publicSafeDeveloperSpaceData(row.metrics ?? {}, options.publicFieldKeys) as Record<string, unknown>,
+    metrics: dataForDeveloperSpaceAccess({
+      data: row.metrics ?? {},
+      metadata: row.observed_runtime_classifications,
+      access,
+      includeRawData,
+      publicFieldKeys: options.publicFieldKeys,
+    }),
     lastEventAt: row.last_event_at ?? null,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
@@ -280,9 +421,10 @@ export function serializeDeveloperSpaceNode(
 
 export function serializeDeveloperSpaceEvent(
   row: any,
-  options: { includeRawData?: boolean; publicFieldKeys?: string[] | null } = {}
+  options: { includeRawData?: boolean; publicFieldKeys?: string[] | null; access?: DeveloperSpaceDetail["access"] } = {}
 ): DeveloperSpaceEvent {
   const includeRawData = options.includeRawData ?? false;
+  const access = options.access ?? (includeRawData ? "owner" : "public");
   return {
     id: row.id,
     developerSpaceId: row.developer_space_id,
@@ -290,9 +432,13 @@ export function serializeDeveloperSpaceEvent(
     externalNodeId: row.external_node_id ?? null,
     eventType: row.event_type,
     eventLabel: row.event_label ?? null,
-    eventData: includeRawData
-      ? row.event_data ?? {}
-      : publicSafeDeveloperSpaceData(row.event_data ?? {}, options.publicFieldKeys) as Record<string, unknown>,
+    eventData: dataForDeveloperSpaceAccess({
+      data: row.event_data ?? {},
+      metadata: row.observed_runtime_classifications,
+      access,
+      includeRawData,
+      publicFieldKeys: options.publicFieldKeys,
+    }),
     similarityScore: row.similarity_score === null || row.similarity_score === undefined
       ? null
       : Number(row.similarity_score),
@@ -306,15 +452,20 @@ export function serializeDeveloperSpaceEvent(
 
 export function serializeDeveloperSpaceSnapshot(
   row: any,
-  options: { includeRawData?: boolean; publicFieldKeys?: string[] | null } = {}
+  options: { includeRawData?: boolean; publicFieldKeys?: string[] | null; access?: DeveloperSpaceDetail["access"] } = {}
 ): DeveloperSpaceSnapshot {
   const includeRawData = options.includeRawData ?? false;
+  const access = options.access ?? (includeRawData ? "owner" : "public");
   return {
     id: row.id,
     developerSpaceId: row.developer_space_id,
-    snapshotData: includeRawData
-      ? row.snapshot_data ?? {}
-      : publicSafeDeveloperSpaceData(row.snapshot_data ?? {}, options.publicFieldKeys) as Record<string, unknown>,
+    snapshotData: dataForDeveloperSpaceAccess({
+      data: row.snapshot_data ?? {},
+      metadata: row.observed_runtime_classifications,
+      access,
+      includeRawData,
+      publicFieldKeys: options.publicFieldKeys,
+    }),
     sourceRefs: normaliseSourceRefs(row.source_refs),
     provenance: row.provenance ?? "api",
     visibility: row.visibility ?? "public",

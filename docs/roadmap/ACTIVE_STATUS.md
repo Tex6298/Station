@@ -8661,6 +8661,28 @@ when a PR lands, or when validation truth changes.
   runtime, Cloudflare Worker/Vectorize/D1, worker, queue, partner adapter,
   user-pasted secret flow, billing, Stripe, Redis memory truth, provider
   routing, chat-native developer agent, or broad UI redesign.
+- DAEDALUS implements PR122 2C Observed Runtime Classification Persistence on
+  2026-06-20 and wakes ARGUS for schema compatibility, ingestion validation,
+  visibility, serialization, and overclaim review. The schema choice is nullable
+  `observed_runtime_classifications jsonb` metadata on
+  `developer_space_nodes`, `developer_space_events`, and
+  `developer_space_snapshots`, added by migration
+  `045_observed_runtime_classifications.sql`; legacy rows without metadata keep
+  existing raw-owner/public-safe visitor behavior. Ingestion now accepts
+  optional `fieldClassifications`, rejects secret-shaped paths unless classified
+  as `secret`, strips secret-class values before persistence, and persists only
+  non-secret classification metadata. Detail and SSE serializers apply durable
+  classifications so public gets public fields, member gets public/member
+  fields, owner gets public/member/owner/private fields, and secret-class
+  values never serialize. The PR121 bridge now sends non-secret classified
+  node/event/snapshot values plus metadata through the existing batch import
+  route. Zones, resources/economy, edges, and provenance remain explicit
+  unmapped deltas. Validation passed `test:developer-spaces` with 22 tests,
+  `test:developer-space-client` with 4 tests, `typecheck`, `@station/api`
+  build, and diff hygiene. No live webhook, hosted runtime, Cloudflare,
+  Worker/Vectorize/D1 path, queue, partner adapter, user-pasted secret flow,
+  billing, Stripe, Redis memory truth, provider routing, chat-native developer
+  agent, or visible Developer Space UI changed.
 - DAEDALUS implements PR110 Memory Runtime Explanation Readback on 2026-06-20
   and wakes ARGUS for review. The owner Memory page now has a compact Runtime
   context / Memory explanation section that joins the existing owner-only Memory

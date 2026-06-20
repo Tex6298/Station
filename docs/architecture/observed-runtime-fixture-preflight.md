@@ -89,10 +89,10 @@ PR121 adds a helper-only dry-run bridge in:
 fixture into the existing Developer Space batch import payload shape:
 
 - fixture nodes become `nodes[]` entries with `nodeId`, node display fields,
-  public-safe `metrics`, source refs, and `provenance: "imported"`;
+  classified `metrics`, source refs, and `provenance: "imported"`;
 - fixture events become `events[]` entries with event type, label, node id,
-  public-safe `eventData`, public visibility, source refs, and occurrence time;
-- fixture snapshots become `snapshots[]` entries with public-safe
+  classified `eventData`, public visibility, source refs, and occurrence time;
+- fixture snapshots become `snapshots[]` entries with classified
   `snapshotData`, source refs, public visibility, and occurrence times.
 
 The bridge keeps the existing auth boundary intact: the dry-run payload targets
@@ -100,11 +100,47 @@ The bridge keeps the existing auth boundary intact: the dry-run payload targets
 `X-Station-Developer-Key`. No new route, webhook, auth bypass, or key shape was
 added.
 
-Current Developer Space ingestion has no durable field-classification storage,
-so the import payload is intentionally public-safe. The helper also returns
-public, member, and owner normalized readbacks to prove the accepted PR120
-visibility rules, but richer member/owner fixture classifications are not
-stored through the current import route.
+PR121 originally kept the route payload public-safe because classification
+storage did not exist yet. PR122 adds durable classification metadata for the
+node/event/snapshot fields below.
+
+## Classification Persistence
+
+PR122 adds nullable JSONB metadata columns:
+
+- `developer_space_nodes.observed_runtime_classifications`
+- `developer_space_events.observed_runtime_classifications`
+- `developer_space_snapshots.observed_runtime_classifications`
+
+The metadata shape is:
+
+```json
+{
+  "schema": "station.observed_runtime.classifications.v1",
+  "fields": {
+    "field.path": "public"
+  }
+}
+```
+
+`fields` may use `public`, `member`, `owner`, `private`, and `secret` during
+ingestion validation. Secret-class values are stripped before persistence, and
+secret-class field names are not kept in the persisted metadata. Secret-shaped
+paths such as token, key, cookie, prompt, raw, password, credential, or secret
+must be classified as `secret`; otherwise ingestion fails with a validation
+error.
+
+Legacy rows and current imports without classification metadata keep the
+existing behavior: owner reads can see raw stored data, while public/member
+reads use the existing public-safe scrubber and field allowlists.
+
+Rows with classification metadata are filtered by access on detail and SSE
+readback:
+
+- public reads include only `public` fields;
+- member reads include `public` and `member` fields;
+- owner reads include `public`, `member`, `owner`, and `private` fields;
+- `secret` fields are never serialized.
 
 Zones, resources/economy, edges, and provenance remain supporting dry-run
 readback. They are not silently treated as complete persistence mappings; a
@@ -143,7 +179,7 @@ ingestion path.
 
 ## Non-Claims
 
-PR120 adds no hosted runtime, Cloudflare Worker, Vectorize index, D1 binding,
-queue, background job, partner adapter, user-pasted secret flow, billing,
-Stripe behavior, Redis memory truth, provider routing, or visible Developer
-Space redesign.
+PR120-PR122 add no hosted runtime, Cloudflare Worker, Vectorize index, D1
+binding, queue, background job, partner adapter, user-pasted secret flow,
+billing, Stripe behavior, Redis memory truth, provider routing, or visible
+Developer Space redesign.

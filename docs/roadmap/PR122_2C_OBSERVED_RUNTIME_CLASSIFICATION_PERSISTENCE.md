@@ -5,7 +5,7 @@ Opened by: A1 / MIMIR
 Owner: DAEDALUS implements. ARGUS reviews schema compatibility, visibility,
 serialization, and overclaim risk. ARIADNE only rehearses if visible routes
 change.
-Status: opened for DAEDALUS
+Status: implemented by DAEDALUS; pending ARGUS review
 
 ## Why This Lane
 
@@ -111,3 +111,34 @@ Wake ARGUS with:
 
 If the current schema cannot support this narrowly, wake MIMIR with the exact
 blocker rather than widening the lane.
+
+## DAEDALUS Implementation Notes
+
+Implemented on 2026-06-20 with the smallest durable metadata surface:
+
+- added `infra/supabase/migrations/045_observed_runtime_classifications.sql`
+  with nullable `observed_runtime_classifications jsonb` columns on
+  `developer_space_nodes`, `developer_space_events`, and
+  `developer_space_snapshots`;
+- extended shared and client Developer Space payload types with optional
+  `fieldClassifications`;
+- extended ingestion schemas for node state, events, snapshots, and batch
+  imports to accept classification metadata;
+- validates classification maps, rejects secret-shaped paths unless classified
+  as `secret`, strips secret-class values before persistence, and does not keep
+  secret-class field names in persisted metadata;
+- keeps legacy rows/imports without metadata on the existing raw-owner /
+  public-safe visitor behavior;
+- applies persisted classifications in detail and SSE serializers so public,
+  member, and owner readbacks follow the PR120 visibility model after storage;
+- updates the observed-runtime bridge helper so the import payload carries
+  non-secret classified values plus metadata, rather than flattening to
+  public-safe only.
+
+Zones, resources/economy, edges, and provenance remain explicit dry-run deltas;
+they were not forced into node/event/snapshot payloads.
+
+No live webhook route, webhook signature scheme, hosted runtime, Cloudflare
+Worker, Vectorize, D1, worker, queue, partner adapter, user-pasted secret flow,
+billing, Stripe, Redis memory truth, provider routing, chat-native developer
+agent, or visible Developer Space UI behavior changed.

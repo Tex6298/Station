@@ -396,13 +396,30 @@ test("observed runtime bridge emits current Developer Space import payloads and 
     bridge.importPayload.nodes.map((node) => node.nodeId),
     ["world:gate", "identity:lens"]
   );
-  assert.deepEqual(bridge.importPayload.nodes[0].metrics, { publicState: "stable" });
+  assert.deepEqual(bridge.importPayload.nodes[0].metrics, {
+    publicState: "stable",
+    memberCohort: "alpha-watchers",
+    ownerShard: "world-gate-owner-shard",
+    privateTrace: "fixture-private-node-trace",
+  });
+  assert.deepEqual(bridge.importPayload.nodes[0].fieldClassifications, {
+    publicState: "public",
+    memberCohort: "member",
+    ownerShard: "owner",
+    privateTrace: "private",
+  });
   assert.equal(bridge.importPayload.events[0].eventType, "zone_balance");
   assert.deepEqual(bridge.importPayload.events[0].eventData, {
     publicSignal: "world gate reached balanced state",
+    memberSignal: "member-visible zone pulse",
+    ownerNote: "owner-visible synthetic threshold",
+    privateRuntimeTrace: "fixture-private-event-trace",
   });
   assert.deepEqual(bridge.importPayload.snapshots[0].snapshotData, {
     publicSummary: "Synthetic runtime is observable but externally hosted.",
+    memberEconomy: "credits stable in synthetic fixture",
+    ownerDebug: "owner-safe fixture readback note",
+    privateMemoryTrace: "fixture-private-snapshot-trace",
   });
 
   assert.equal(bridge.readbacks.member.nodes[0].metrics.memberCohort, "alpha-watchers");
@@ -415,7 +432,5 @@ test("observed runtime bridge emits current Developer Space import payloads and 
 
   const payloadText = JSON.stringify(bridge.importPayload);
   assert.doesNotMatch(payloadText, /fixture-secret/);
-  assert.doesNotMatch(payloadText, /fixture-private/);
-  assert.doesNotMatch(payloadText, /owner-visible synthetic threshold/);
-  assert.doesNotMatch(payloadText, /member-visible zone pulse/);
+  assert.doesNotMatch(payloadText, /secretToken|secretApiKey|secretCookie/);
 });

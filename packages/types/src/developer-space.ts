@@ -9,6 +9,7 @@ export type DeveloperSpaceVisualisationType = "node_field" | "timeline" | "world
 export type DeveloperSpaceTopologyType = "radial" | "branching" | "lattice" | "custom";
 export type DeveloperSpaceEventVisibility = "private" | "community" | "public";
 export type DeveloperSpaceEventProvenance = "api" | "imported" | "user" | "system" | "ai_generated";
+export type DeveloperSpaceObservedRuntimeFieldVisibility = "public" | "member" | "owner" | "private" | "secret";
 export type DeveloperSpaceIngestionKeyStatus = "active" | "revoked";
 export type DeveloperSpaceDocumentRole = "methodology" | "finding" | "field_log" | "note";
 export type DeveloperSpaceDocumentLinkVisibility = "owner" | "public";
@@ -191,6 +192,7 @@ export interface DeveloperSpaceNodeStatePayload {
   selfSimilarityScore?: number | null;
   dimensionality?: number | null;
   metrics?: Record<string, unknown>;
+  fieldClassifications?: Record<string, DeveloperSpaceObservedRuntimeFieldVisibility>;
   sourceRefs?: string[];
   provenance?: DeveloperSpaceEventProvenance;
 }
@@ -200,6 +202,7 @@ export interface DeveloperSpaceEventPayload {
   eventLabel?: string;
   nodeId?: string;
   eventData?: Record<string, unknown>;
+  fieldClassifications?: Record<string, DeveloperSpaceObservedRuntimeFieldVisibility>;
   similarityScore?: number | null;
   sourceRefs?: string[];
   provenance?: DeveloperSpaceEventProvenance;
@@ -209,6 +212,7 @@ export interface DeveloperSpaceEventPayload {
 
 export interface DeveloperSpaceSnapshotPayload {
   snapshotData: Record<string, unknown>;
+  fieldClassifications?: Record<string, DeveloperSpaceObservedRuntimeFieldVisibility>;
   sourceRefs?: string[];
   provenance?: DeveloperSpaceEventProvenance;
   visibility?: DeveloperSpaceEventVisibility;

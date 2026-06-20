@@ -1229,7 +1229,7 @@ test("Developer Spaces smoke covers creation, keying, ingestion, and public/owne
   }
 });
 
-test("Developer Space import accepts public-safe observed runtime bridge with existing key auth", async () => {
+test("Developer Space import persists observed runtime classifications with existing key auth", async () => {
   const db = new InMemorySupabase();
   setSupabaseAdminForTests(db.client as any);
   setOperationalCacheProviderForTests(new DisabledOperationalCacheProvider("test_disabled"));
@@ -1266,9 +1266,35 @@ test("Developer Space import accepts public-safe observed runtime bridge with ex
     assert.equal(missingKey.body.category, "auth");
     assert.doesNotMatch(JSON.stringify(missingKey.body), /fixture-secret|fixture-private|owner-visible|member-visible/);
 
+    const overexposed = clone(bridge.importPayload);
+    overexposed.events[0].eventData = {
+      ...overexposed.events[0].eventData,
+      secretToken: "fixture-secret-overexposed",
+    };
+    overexposed.events[0].fieldClassifications = {
+      ...overexposed.events[0].fieldClassifications,
+      secretToken: "public",
+    };
+    const overexposedRejected = await requestJson(app, "POST", bridge.route, {
+      developerKey: apiKeyResponse.body.apiKey,
+      body: overexposed,
+    });
+    assert.equal(overexposedRejected.status, 400);
+    assert.equal(overexposedRejected.body.code, "developer_space_observed_runtime_classification_failed");
+    assert.doesNotMatch(JSON.stringify(overexposedRejected.body), /fixture-secret-overexposed/);
+
+    const classifiedWithSecret = clone(bridge.importPayload);
+    classifiedWithSecret.events[0].eventData = {
+      ...classifiedWithSecret.events[0].eventData,
+      secretToken: "fixture-secret-should-not-persist",
+    };
+    classifiedWithSecret.events[0].fieldClassifications = {
+      ...classifiedWithSecret.events[0].fieldClassifications,
+      secretToken: "secret",
+    };
     const imported = await requestJson(app, "POST", bridge.route, {
       developerKey: apiKeyResponse.body.apiKey,
-      body: bridge.importPayload,
+      body: classifiedWithSecret,
     });
     assert.equal(imported.status, 202);
     assert.deepEqual(imported.body.imported, {
@@ -1276,6 +1302,10 @@ test("Developer Space import accepts public-safe observed runtime bridge with ex
       events: 1,
       snapshots: 1,
     });
+    assert.doesNotMatch(JSON.stringify(db.tables.developer_space_events), /fixture-secret-should-not-persist/);
+    assert.equal(db.tables.developer_space_events[0].observed_runtime_classifications.fields.memberSignal, "member");
+    assert.equal(db.tables.developer_space_events[0].observed_runtime_classifications.fields.secretToken, undefined);
+    assert.equal(db.tables.developer_space_snapshots[0].observed_runtime_classifications.fields.privateMemoryTrace, "private");
 
     const publicDetail = await requestJson(app, "GET", "/developer-spaces/observed-runtime-bridge");
     assert.equal(publicDetail.status, 200);
@@ -1294,13 +1324,41 @@ test("Developer Space import accepts public-safe observed runtime bridge with ex
       token: "other-token",
     });
     assert.equal(memberDetail.status, 200);
-    assert.deepEqual(memberDetail.body.nodes[0].metrics, publicDetail.body.nodes[0].metrics);
+    assert.deepEqual(memberDetail.body.nodes[0].metrics, {
+      publicState: "stable",
+      memberCohort: "alpha-watchers",
+    });
+    assert.deepEqual(memberDetail.body.events[0].eventData, {
+      publicSignal: "world gate reached balanced state",
+      memberSignal: "member-visible zone pulse",
+    });
+    assert.deepEqual(memberDetail.body.latestSnapshot.snapshotData, {
+      publicSummary: "Synthetic runtime is observable but externally hosted.",
+      memberEconomy: "credits stable in synthetic fixture",
+    });
 
     const ownerDetail = await requestJson(app, "GET", "/developer-spaces/observed-runtime-bridge", {
       token: "owner-token",
     });
     assert.equal(ownerDetail.status, 200);
-    assert.deepEqual(ownerDetail.body.nodes[0].metrics, publicDetail.body.nodes[0].metrics);
+    assert.deepEqual(ownerDetail.body.nodes[0].metrics, {
+      publicState: "stable",
+      memberCohort: "alpha-watchers",
+      ownerShard: "world-gate-owner-shard",
+      privateTrace: "fixture-private-node-trace",
+    });
+    assert.deepEqual(ownerDetail.body.events[0].eventData, {
+      publicSignal: "world gate reached balanced state",
+      memberSignal: "member-visible zone pulse",
+      ownerNote: "owner-visible synthetic threshold",
+      privateRuntimeTrace: "fixture-private-event-trace",
+    });
+    assert.deepEqual(ownerDetail.body.latestSnapshot.snapshotData, {
+      publicSummary: "Synthetic runtime is observable but externally hosted.",
+      memberEconomy: "credits stable in synthetic fixture",
+      ownerDebug: "owner-safe fixture readback note",
+      privateMemoryTrace: "fixture-private-snapshot-trace",
+    });
 
     const publicStream = await requestText(app, "GET", "/developer-spaces/observed-runtime-bridge/stream?once=1");
     assert.equal(publicStream.status, 200);
@@ -1308,23 +1366,16 @@ test("Developer Space import accepts public-safe observed runtime bridge with ex
     assert.deepEqual(publicSse.data.detail.nodes[0].metrics, publicDetail.body.nodes[0].metrics);
     assert.deepEqual(publicSse.data.detail.latestSnapshot.snapshotData, publicDetail.body.latestSnapshot.snapshotData);
 
-    const serializedReadbacks = JSON.stringify({
-      public: publicDetail.body,
-      member: memberDetail.body,
-      owner: ownerDetail.body,
-      sse: publicSse.data,
-      payload: bridge.importPayload,
-    });
-    for (const hidden of [
-      "fixture-secret",
-      "fixture-private",
-      "owner-visible synthetic threshold",
-      "member-visible zone pulse",
-      "alpha-watchers",
-      "owner-shard",
-      "fixture-owner",
-    ]) {
-      assert.equal(serializedReadbacks.includes(hidden), false, `${hidden} leaked through observed runtime bridge`);
+    const publicText = JSON.stringify({ public: publicDetail.body, sse: publicSse.data });
+    assert.doesNotMatch(publicText, /fixture-secret|fixture-private|owner-visible|member-visible|alpha-watchers|owner-shard|fixture-owner/);
+    const memberText = JSON.stringify(memberDetail.body);
+    assert.doesNotMatch(memberText, /fixture-secret|fixture-private|owner-visible|owner-shard|fixture-owner/);
+    const ownerText = JSON.stringify(ownerDetail.body);
+    assert.match(ownerText, /fixture-private-node-trace/);
+    assert.match(ownerText, /owner-visible synthetic threshold/);
+    assert.doesNotMatch(ownerText, /fixture-secret|secretToken|secretApiKey|secretCookie/);
+    for (const response of [publicDetail.body, memberDetail.body, ownerDetail.body, publicSse.data]) {
+      assert.equal(JSON.stringify(response).includes("observed_runtime_classifications"), false);
     }
   } finally {
     setSupabaseAdminForTests(null);

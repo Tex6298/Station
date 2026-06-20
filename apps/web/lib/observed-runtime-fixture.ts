@@ -179,6 +179,21 @@ function recordValue(record: Record<string, unknown>, key: string) {
   return value && typeof value === "object" && !Array.isArray(value) ? value as Record<string, unknown> : {};
 }
 
+function payloadFieldClassifications(
+  record: Record<string, unknown>,
+  prefix: string,
+  context: string
+) {
+  const classifications = fieldClassifications(record, context);
+  const output: Record<string, Exclude<ObservedRuntimeFieldVisibility, "secret">> = {};
+  for (const [path, visibility] of classifications) {
+    const prefixWithDot = `${prefix}.`;
+    if (!path.startsWith(prefixWithDot) || visibility === "secret") continue;
+    output[path.slice(prefixWithDot.length)] = visibility;
+  }
+  return output;
+}
+
 export function parseObservedRuntimeFixture(input: unknown): ObservedRuntimeFixture {
   const fixture = assertRecord(input, "fixture");
   if (fixture.schema !== SCHEMA) throw new Error(`fixture.schema must be ${SCHEMA}`);
@@ -295,9 +310,10 @@ export function bridgeObservedRuntimeFixtureToDeveloperSpaceImport(
     observedAt?: string;
   } = {}
 ): ObservedRuntimeDeveloperSpaceBridge {
-  const publicReadback = normalizeObservedRuntimeFixture(input, { ...options, access: "public" });
-  const memberReadback = normalizeObservedRuntimeFixture(input, { ...options, access: "member" });
-  const ownerReadback = normalizeObservedRuntimeFixture(input, { ...options, access: "owner" });
+  const fixture = parseObservedRuntimeFixture(input);
+  const publicReadback = normalizeObservedRuntimeFixture(fixture, { ...options, access: "public" });
+  const memberReadback = normalizeObservedRuntimeFixture(fixture, { ...options, access: "member" });
+  const ownerReadback = normalizeObservedRuntimeFixture(fixture, { ...options, access: "owner" });
 
   return {
     route: "/developer-spaces/ingest/import",
@@ -306,7 +322,7 @@ export function bridgeObservedRuntimeFixtureToDeveloperSpaceImport(
       note: "Dry-run payloads still use the existing Developer Space ingestion route and therefore require a valid ingestion key.",
     },
     importPayload: {
-      nodes: publicReadback.nodes.map((node) => ({
+      nodes: ownerReadback.nodes.map((node, index) => ({
         nodeId: node.externalId,
         nodeName: node.nodeName,
         topologyType: node.topologyType,
@@ -314,22 +330,25 @@ export function bridgeObservedRuntimeFixtureToDeveloperSpaceImport(
         selfSimilarityScore: node.selfSimilarityScore,
         dimensionality: node.dimensionality,
         metrics: node.metrics,
+        fieldClassifications: payloadFieldClassifications(fixture.nodes[index], "observations", `fixture.nodes[${index}]`),
         sourceRefs: [`observed-runtime:node:${node.externalId}`],
         provenance: "imported",
       })),
-      events: publicReadback.events.map((event) => ({
+      events: ownerReadback.events.map((event, index) => ({
         eventType: event.eventType,
         eventLabel: event.eventLabel ?? undefined,
         nodeId: event.externalNodeId ?? undefined,
         eventData: event.eventData,
+        fieldClassifications: payloadFieldClassifications(fixture.events[index], "data", `fixture.events[${index}]`),
         similarityScore: event.similarityScore,
         sourceRefs: event.sourceRefs,
         provenance: "imported",
         visibility: "public",
         occurredAt: event.occurredAt,
       })),
-      snapshots: publicReadback.snapshots.map((snapshot) => ({
+      snapshots: ownerReadback.snapshots.map((snapshot, index) => ({
         snapshotData: snapshot.snapshotData,
+        fieldClassifications: payloadFieldClassifications(fixture.snapshots[index], "data", `fixture.snapshots[${index}]`),
         sourceRefs: snapshot.sourceRefs,
         provenance: "imported",
         visibility: "public",

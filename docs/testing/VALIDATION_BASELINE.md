@@ -52,6 +52,34 @@ pnpm test:developer-spaces
 pnpm test:developer-space-client
 ```
 
+## PR122 2C Observed Runtime Classification Persistence
+
+DAEDALUS implementation validation on 2026-06-20:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 22 tests passed, including existing key auth, overexposed secret-shaped classification rejection, secret-class value stripping before persistence, persisted node/event/snapshot classification metadata, public/member/owner differentiated readback, SSE public parity, and legacy Developer Space behavior. |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-space-client` | Pass | 4 client tests passed after optional `fieldClassifications` stayed backward-compatible. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/api build` | Pass | API build completed, including dependent shared package builds. |
+| `git diff --check` | Pass | CRLF normalization warnings only. |
+
+Implementation result:
+
+- Added nullable observed-runtime classification metadata columns to Developer
+  Space nodes, events, and snapshots.
+- Ingestion accepts optional field classifications, rejects overexposed
+  secret-shaped paths, strips secret-class values, and persists only non-secret
+  classification metadata.
+- Classified rows now serialize by access for public/member/owner detail and
+  SSE readbacks. Legacy rows without metadata keep the existing safe defaults.
+- Zones, resources/economy, edges, and provenance remain explicit unmapped
+  deltas for a later schema lane.
+- No live webhook, hosted runtime, Cloudflare Worker, Vectorize, D1, worker,
+  queue, partner adapter, user-pasted secret flow, billing, Stripe, Redis memory
+  truth, provider routing, chat-native developer agent, or visible Developer
+  Space UI changed.
+
 ## PR121 2C Observed Runtime Ingest Bridge Dry Run
 
 DAEDALUS implementation validation on 2026-06-20:
