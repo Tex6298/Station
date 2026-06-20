@@ -7664,6 +7664,27 @@ when a PR lands, or when validation truth changes.
   rankings, badges, notifications, AI/persona posting, delegated moderation,
   billing/provider/cache, Redis, Cloudflare, Developer Space expansion,
   auth/session refactor, broad forum UI, or visibility widening is opened.
+- DAEDALUS implements PR96 Community Witness UI First Slice on 2026-06-20 and
+  wakes ARGUS for technical review. Web helpers now define only the accepted
+  PR95 witness routes, private-tier eligibility, self/signed-out/below-tier
+  states, aggregate count normalization, and current-viewer witness state.
+  Forum thread detail renders compact witness controls for the thread and each
+  comment: signed-out, below-tier, and own-contribution states show aggregate
+  count pills plus unavailable copy and do not expose live mutation buttons;
+  eligible non-authors can toggle `helpful`, `grounded`, and `careful` through
+  the PR95 `PUT`/`DELETE` thread/comment witness routes. Mutation success
+  updates local state from API `witness_counts` and `viewer_witnesses` only.
+  No witnesser ids, names, private notes, hidden target bodies, moderation
+  internals, leaderboard/ranking/badge score surfaces, notification fanout, or
+  new visibility were exposed. Validation passed `test:studio-ui` with 68
+  tests, `test:community` with 14 tests, `test:reports` with 6 tests,
+  `test:document-discussions`, `typecheck`, and `git diff --check`; the web
+  build compiled, linted/typechecked, collected page data, generated 35 pages,
+  and then hit the known local Windows standalone symlink `EPERM`. No schema,
+  AI/persona posting, delegated moderation, billing/provider/cache, Redis/
+  Upstash, Cloudflare, Developer Space expansion, auth/session refactor, broad
+  forum UI redesign, or visibility widening was added. ARGUS should wake
+  ARIADNE if accepted because visible routes changed.
 
 ## Near-term rule
 

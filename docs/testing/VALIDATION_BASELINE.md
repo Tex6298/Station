@@ -9323,6 +9323,44 @@ Route notes:
 - Desktop and 390px mobile checks did not show horizontal overflow or offscreen
   primary controls.
 
+## PR96 Community Witness UI First Slice
+
+DAEDALUS implementation validation on 2026-06-20:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 68 tests passed, including new witness helper coverage for PR95 route paths, signed-out/below-tier/self/eligible states, aggregate counts, and current-viewer state. |
+| `npm exec --yes pnpm@10.32.1 -- run test:community` | Pass | 14 tests passed; witness API eligibility, idempotency, fail-closed visibility, aggregate readback, and soft revoke remain green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:reports` | Pass | 6 tests passed; moderation report scoping remains green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` | Pass | 1 test passed; document discussion visibility remains green. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck completed. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web build` | Partial / known Windows failure | Next compiled, linted/typechecked, collected page data, generated 35 static pages, then hit the known local Windows standalone symlink `EPERM`. Only pre-existing raw `<img>` warnings appeared in `app/space/[slug]/page.tsx` and `components/discover/discover-front-door.tsx`. |
+| `git diff --check` | Pass | Passed with CRLF normalization warnings only. |
+
+Scope notes:
+
+- Added web helper functions for only the accepted PR95 witness routes:
+  `PUT`/`DELETE /threads/:id/witness/:kind` and
+  `PUT`/`DELETE /comments/:id/witness/:kind`.
+- Helper gating keeps signed-out, below-tier, self, and eligible states
+  explicit, using the existing private-tier participation rule.
+- Forum thread detail now renders compact witness controls for the thread and
+  visible comments.
+- Signed-out, below-tier, and own-contribution states show aggregate count
+  pills plus unavailable copy and do not render live mutation buttons.
+- Eligible non-authors can toggle `helpful`, `grounded`, and `careful`; local
+  state updates only after successful API responses.
+- The visible route shows aggregate `witness_counts` and the current viewer's
+  `viewer_witnesses` only. It does not expose witnesser ids, names, private
+  notes, hidden target bodies, moderation internals, leaderboards, rankings,
+  badges, public user scores, or notification fanout.
+- Existing vote, report, watch, and comment flows remain on their prior routes.
+- No schema, AI/persona posting, delegated moderation, billing/provider/cache,
+  Redis, Cloudflare, Developer Space expansion, auth/session refactor, broad
+  forum UI redesign, or visibility widening was added.
+- ARGUS should wake ARIADNE after technical acceptance because visible routes
+  changed.
+
 ## PR95 Community Recognition/Witness Foundation
 
 DAEDALUS implementation validation on 2026-06-20:

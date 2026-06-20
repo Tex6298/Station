@@ -3,16 +3,28 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import type { AuthUser } from "@station/types";
+import type { AuthUser, CommunityWitnessCounts, CommunityWitnessKind } from "@station/types";
 import { apiGet, apiPost, apiPut, apiDelete } from "@/lib/api-client";
 import { getSession } from "@/lib/auth";
 import { canUseThreadWatch, threadWatchPath } from "@/lib/community-notifications";
+import {
+  addCommentWitness,
+  addThreadWitness,
+  COMMUNITY_WITNESS_KINDS,
+  communityWitnessAvailability,
+  getViewerWitnesses,
+  getWitnessCounts,
+  removeCommentWitness,
+  removeThreadWitness,
+  witnessAvailabilityLabel,
+} from "@/lib/community-witness";
 
 interface Author { username: string; display_name: string | null; avatar_url: string | null; }
 interface Thread {
   id: string; title: string; body: string; status: string;
   visibility?: string; is_pinned?: boolean; linked_document_id?: string | null;
   score: number; vote_count?: number; viewer_vote?: number; comment_count: number; created_at: string;
+  witness_counts?: CommunityWitnessCounts; viewer_witnesses?: CommunityWitnessKind[];
   author_user_id: string; author: Author | null;
   category: { id: string; slug: string; title: string } | null;
   document?: { id: string; title: string; space: { slug: string } | null } | null;
@@ -20,6 +32,7 @@ interface Thread {
 interface Comment {
   id: string; body: string; status: string; score: number;
   vote_count?: number; viewer_vote?: number;
+  witness_counts?: CommunityWitnessCounts; viewer_witnesses?: CommunityWitnessKind[];
   is_pinned?: boolean; is_hidden?: boolean; reported_count?: number;
   created_at: string; author_user_id: string; author: Author | null;
 }
@@ -33,6 +46,8 @@ interface ThreadWatchResponse {
   isWatching: boolean;
   watch: { id: string; userId: string; threadId: string; isMuted: boolean } | null;
 }
+type SessionState = { access_token: string; user: AuthUser };
+type WitnessTargetType = "thread" | "comment";
 
 export default function ThreadPage() {
   const { categorySlug, threadId } = useParams<{ categorySlug: string; threadId: string }>();
@@ -42,7 +57,7 @@ export default function ThreadPage() {
   const [loading, setLoading]     = useState(true);
   const [error, setError]         = useState<string | null>(null);
 
-  const [session, setSession]     = useState<{ access_token: string; user: AuthUser } | null>(null);
+  const [session, setSession]     = useState<SessionState | null>(null);
   const [newComment, setNewComment] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [commentFeedback, setCommentFeedback] = useState<{ tone: "error" | "success"; message: string } | null>(null);
@@ -50,6 +65,8 @@ export default function ThreadPage() {
   const [watchLoading, setWatchLoading] = useState(false);
   const [watchUpdating, setWatchUpdating] = useState(false);
   const [watchFeedback, setWatchFeedback] = useState<string | null>(null);
+  const [witnessUpdating, setWitnessUpdating] = useState<string | null>(null);
+  const [witnessFeedback, setWitnessFeedback] = useState<string | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -172,6 +189,50 @@ export default function ThreadPage() {
     }
   }
 
+  async function toggleWitness(
+    targetType: WitnessTargetType,
+    targetId: string,
+    kind: CommunityWitnessKind,
+    selected: boolean
+  ) {
+    if (!session) return;
+    const key = `${targetType}:${targetId}:${kind}`;
+    setWitnessUpdating(key);
+    setWitnessFeedback(null);
+    setCommentFeedback(null);
+    try {
+      const data = targetType === "thread"
+        ? selected
+          ? await removeThreadWitness(session.access_token, targetId, kind)
+          : await addThreadWitness(session.access_token, targetId, kind)
+        : selected
+          ? await removeCommentWitness(session.access_token, targetId, kind)
+          : await addCommentWitness(session.access_token, targetId, kind);
+
+      if (targetType === "thread") {
+        setThread((current) => current?.id === targetId
+          ? {
+              ...current,
+              witness_counts: data.witness.witness_counts,
+              viewer_witnesses: data.witness.viewer_witnesses ?? [],
+            }
+          : current);
+      } else {
+        setComments((current) => current.map((comment) => comment.id === targetId
+          ? {
+              ...comment,
+              witness_counts: data.witness.witness_counts,
+              viewer_witnesses: data.witness.viewer_witnesses ?? [],
+            }
+          : comment));
+      }
+    } catch (e) {
+      setWitnessFeedback(e instanceof Error ? e.message : "Could not update witness state.");
+    } finally {
+      setWitnessUpdating(null);
+    }
+  }
+
   if (loading) return <main className="container"><div className="card" style={{ textAlign: "center", padding: "3rem", color: "#687078" }}>Loading...</div></main>;
   if (error || !thread) return <main className="container"><div className="card" style={{ background: "#2d1515", borderColor: "#7d2e2e", color: "#eb5757" }}>{error ?? "Not found."}</div></main>;
 
@@ -239,6 +300,13 @@ export default function ThreadPage() {
             </>
           )}
         </div>
+        <WitnessControls
+          targetType="thread"
+          target={thread}
+          session={session}
+          updatingKey={witnessUpdating}
+          onToggle={toggleWitness}
+        />
         <div style={watchPanel}>
           {!session ? (
             <span>Sign in to watch replies on this thread.</span>
@@ -261,6 +329,11 @@ export default function ThreadPage() {
           )}
           {watchFeedback && <span>{watchFeedback}</span>}
         </div>
+        {witnessFeedback && (
+          <div style={{ color: "#7d2e2e", fontSize: "0.78rem", marginTop: "0.6rem" }}>
+            {witnessFeedback}
+          </div>
+        )}
         {thread.document?.space && (
           <div style={{ marginTop: "1rem" }}>
             <Link
@@ -342,6 +415,13 @@ export default function ThreadPage() {
                   <span style={{ color: "#8b8f92" }}>Own comment</span>
                 )}
               </div>
+              <WitnessControls
+                targetType="comment"
+                target={c}
+                session={session}
+                updatingKey={witnessUpdating}
+                onToggle={toggleWitness}
+              />
             </div>
           ))}
         </div>
@@ -404,6 +484,67 @@ export default function ThreadPage() {
   );
 }
 
+function WitnessControls({
+  targetType,
+  target,
+  session,
+  updatingKey,
+  onToggle,
+}: {
+  targetType: WitnessTargetType;
+  target: Pick<Thread | Comment, "id" | "author_user_id" | "witness_counts" | "viewer_witnesses">;
+  session: SessionState | null;
+  updatingKey: string | null;
+  onToggle: (
+    targetType: WitnessTargetType,
+    targetId: string,
+    kind: CommunityWitnessKind,
+    selected: boolean
+  ) => void;
+}) {
+  const availability = communityWitnessAvailability(session?.user ?? null, target);
+  const counts = getWitnessCounts(target);
+  const viewerWitnesses = getViewerWitnesses(target);
+  const canToggle = availability === "eligible";
+
+  return (
+    <div style={witnessPanel}>
+      <span style={{ color: "#1f2529", fontWeight: 600 }}>Witness</span>
+      {COMMUNITY_WITNESS_KINDS.map((kind) => {
+        const selected = viewerWitnesses.includes(kind);
+        const key = `${targetType}:${target.id}:${kind}`;
+        const label = witnessKindLabel(kind);
+        if (!canToggle) {
+          return (
+            <span key={kind} style={witnessPill(false)}>
+              {label} {counts[kind]}
+            </span>
+          );
+        }
+        return (
+          <button
+            key={kind}
+            type="button"
+            aria-pressed={selected}
+            disabled={updatingKey !== null}
+            onClick={() => onToggle(targetType, target.id, kind, selected)}
+            style={witnessButton(selected, updatingKey === key)}
+          >
+            {updatingKey === key ? "Saving..." : `${label} ${counts[kind]}`}
+          </button>
+        );
+      })}
+      <span style={{ color: "#8b8f92" }}>{witnessAvailabilityLabel(availability)}</span>
+    </div>
+  );
+}
+
+function witnessKindLabel(kind: CommunityWitnessKind) {
+  if (kind === "helpful") return "Helpful";
+  if (kind === "grounded") return "Grounded";
+  return "Careful";
+}
+
 function voteButton(active: boolean) {
   return {
     border: "1px solid #d8d3c8",
@@ -437,3 +578,39 @@ const watchPanel = {
   color: "#687078",
   fontSize: "0.78rem",
 };
+
+const witnessPanel = {
+  borderTop: "1px solid #ece8dd",
+  marginTop: "0.85rem",
+  paddingTop: "0.75rem",
+  display: "flex",
+  gap: "0.45rem",
+  flexWrap: "wrap" as const,
+  alignItems: "center",
+  color: "#687078",
+  fontSize: "0.75rem",
+};
+
+function witnessButton(active: boolean, loading: boolean) {
+  return {
+    border: "1px solid #d8d3c8",
+    borderRadius: 6,
+    background: active ? "#25633f" : "#fff",
+    color: active ? "#fff" : "#687078",
+    fontSize: "0.72rem",
+    padding: "0.16rem 0.48rem",
+    cursor: loading ? "wait" : "pointer",
+    opacity: loading ? 0.7 : 1,
+  };
+}
+
+function witnessPill(active: boolean) {
+  return {
+    border: "1px solid #d8d3c8",
+    borderRadius: 6,
+    background: active ? "#e9f5ee" : "#f8f7f4",
+    color: active ? "#25633f" : "#687078",
+    fontSize: "0.72rem",
+    padding: "0.16rem 0.48rem",
+  };
+}

@@ -62,6 +62,9 @@ promised in the Station documents.
   thread/comment targets, with self-witness prevention, idempotency, fail-closed
   target visibility, actor-only raw-row access, aggregate-only public readback,
   and viewer-scoped witness state.
+- Visible witness controls exist on forum thread detail and comments, showing
+  aggregate counts and current-viewer state only, with signed-out, below-tier,
+  own-contribution, and eligible states kept explicit.
 - Tier participation is explicit: public reads remain open, community reads
   require eligible tier, and creation/voting/reporting require `private` tier or
   higher.
@@ -80,8 +83,8 @@ pnpm test:reports
 
 ## Still open
 
-- Visible recognition/witness UX, if accepted after API review; no leaderboards,
-  badges, or rankings are open.
+- Broader recognition UX beyond the accepted thread/comment witness first
+  slice; no leaderboards, badges, rankings, or public user scores are open.
 - Deeper moderator/admin console UX for unsupported document/space/persona/user
   targets and any future delegated moderator surfaces.
 - Future trusted AI/persona/imported authorship routes, if ever opened; current
