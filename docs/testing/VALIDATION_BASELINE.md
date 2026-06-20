@@ -81,6 +81,29 @@ Scope notes:
   billing/provider/cache work, Developer Space work, or auth/session refactor
   was added.
 
+ARGUS review validation on 2026-06-20:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 77 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:community` | Pass | 17 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:reports` | Pass | 6 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` | Pass | 1 test passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck replayed from cache. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web build` | Partial / known Windows failure | Next compiled, linted/typechecked, collected page data, generated 35 static pages, finalized optimization, and collected build traces before the known local Windows standalone symlink `EPERM` during traced-file copy. Only pre-existing raw `<img>` warnings appeared. |
+| `git diff --check` | Pass | CRLF normalization warnings only for triad state. |
+
+ARGUS review notes:
+
+- Scoped status controls are accepted for ARIADNE visible-route rehearsal.
+- Controls render only after the same preflight that permits scoped queue
+  readback.
+- Updates call only the PR103 scoped route with encoded slug/report id.
+- Sanitized successful responses preserve honest active and explicit queue
+  filters.
+- Failed updates keep rows visible with bounded row-level errors.
+- No target moderation actions or global report calls were added.
+
 ## PR103 Community Delegated Report Status Foundation
 
 DAEDALUS implementation validation on 2026-06-20:

@@ -165,3 +165,51 @@ Validation:
 | `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API typecheck replayed from cache and web typecheck ran. |
 | `npm exec --yes pnpm@10.32.1 -- --filter @station/web build` | Partial / known Windows failure | Next compiled, linted/typechecked, collected page data, generated 35 static pages, finalized optimization, and collected build traces before the known local Windows standalone symlink `EPERM` during traced-file copy. Only the pre-existing raw `<img>` warnings appeared. |
 | `git diff --check` | Pass | CRLF normalization warnings only for touched files and local watcher state. |
+
+## ARGUS Technical Review
+
+Accepted by ARGUS on 2026-06-20 for ARIADNE visible-route rehearsal.
+
+Review result:
+
+- Visible controls render only on the existing scoped queue page after the same
+  signed-in/subcommunity preflight that permits queue readback.
+- Signed-out and denied states still render no live queue rows or controls.
+- Status updates call only
+  `PATCH /forums/subcommunities/:slug/moderation/reports/:id` through encoded
+  slug/report id path construction.
+- The UI does not call global `/reports/:id` and does not add global report
+  console widening.
+- Controls are limited to report status transitions: `reviewing`, `resolved`,
+  and `dismissed`; same-status actions are not offered.
+- Successful responses are passed back through the delegated queue sanitizer
+  before rendering.
+- Active and explicit filters keep or remove updated rows honestly.
+- Failed updates keep the row visible and show a bounded row-level error.
+- Rendered rows stay inside delegated report fields and do not expose reporter
+  identities, admin notes, reviewed fields, moderator identities, role
+  assignments, hidden/private bodies, private metadata, raw owner ids, source
+  ids, category ids, or unsafe route hints.
+- No target hide/unhide/remove/restore controls, target mutation from the report
+  status route, global admin patch behavior change, public moderation log,
+  public moderator directory, review-request expansion, notification UI
+  changes, broad styling, billing/provider/cache work, Developer Space work, or
+  auth/session refactor was added.
+
+ARGUS validation:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 77 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:community` | Pass | 17 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:reports` | Pass | 6 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` | Pass | 1 test passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck replayed from cache. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web build` | Partial / known Windows failure | Next compiled, linted/typechecked, collected page data, generated 35 static pages, finalized optimization, and collected build traces before the known local Windows standalone symlink `EPERM` during traced-file copy. Only pre-existing raw `<img>` warnings appeared. |
+| `git diff --check` | Pass | CRLF normalization warnings only for triad state. |
+
+ARIADNE should rehearse signed-out, ordinary, revoked, unrelated-owner,
+subcommunity owner, active moderator, platform admin, empty queue, open,
+reviewing, resolved, dismissed, successful reviewing/resolved/dismissed
+transitions, failed transition copy, desktop, and 390px mobile. Confirm the
+controls read as report triage rather than target moderation actions.

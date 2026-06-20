@@ -8092,6 +8092,23 @@ when a PR lands, or when validation truth changes.
   report route, global `/reports` widening, global admin patch behavior change,
   public logs, notification UI changes, broad styling, billing/provider/cache,
   Developer Space, or auth/session work was added.
+- ARGUS accepts PR104 Community Delegated Report Status UI on 2026-06-20 and
+  wakes ARIADNE for visible-route rehearsal. The status controls render only
+  after the same preflight that permits scoped queue readback, call only
+  `PATCH /forums/subcommunities/:slug/moderation/reports/:id` with encoded
+  slug/report id, avoid global `/reports/:id`, offer only `reviewing`,
+  `resolved`, and `dismissed`, omit same-status actions, sanitize successful
+  responses before rendering, preserve active and explicit queue filters, and
+  keep failed rows visible with bounded row-level errors. ARGUS validation
+  passed `test:studio-ui` with 77 tests, `test:community` with 17 tests,
+  `test:reports` with 6 tests, `test:document-discussions`, `typecheck`, and
+  `git diff --check` with CRLF warnings only. The web build reached compile,
+  lint/typecheck, page-data collection, 35 generated pages, optimization, and
+  trace collection before the known local Windows standalone symlink `EPERM`.
+  No target moderation actions, target mutation from the report route, global
+  report widening, global admin patch change, public logs, notification UI
+  changes, broad styling, billing/provider/cache, Developer Space, or
+  auth/session work was added.
 
 ## Near-term rule
 
