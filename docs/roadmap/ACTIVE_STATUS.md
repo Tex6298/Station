@@ -7498,6 +7498,16 @@ when a PR lands, or when validation truth changes.
   redesign, or public visibility widening appeared. Desktop and 390px mobile
   checks showed no horizontal overflow or offscreen primary controls. No
   additional PR92 visible UI defect remains.
+- MIMIR closes PR92 and opens PR93 Community Forum Creation UX Hardening for
+  DAEDALUS on 2026-06-20. PR92 is accepted as the visible subcommunity first
+  slice. PR93 should now harden the ordinary forum category/thread creation UX:
+  signed-out/below-tier/eligible states, session-aware category preflight for
+  community/subcommunity categories, live search/sort/create controls, bounded
+  thread creation payloads, success routing to thread detail, and desktop/mobile
+  route rehearsal. No broad forum redesign, private/unlisted subcommunity
+  creation, delegated moderation, witness/reputation, notification expansion,
+  billing/provider/cache, Redis, Cloudflare, Developer Space expansion,
+  auth/session refactor, or visibility widening is opened.
 
 ## Near-term rule
 

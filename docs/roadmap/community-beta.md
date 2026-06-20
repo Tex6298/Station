@@ -43,6 +43,10 @@ promised in the Station documents.
   list/read routes, owner/admin readback, canon-tier/admin creation for
   public/community rows, and protected category/thread/comment visibility
   checks.
+- Visible subcommunity directory, creation, and category context exist on
+  `/forums`, `/forums/subcommunities`, and subcommunity-backed category routes,
+  with signed-out/below-tier gates and no private/unlisted/owner-only field
+  exposure.
 - Bounded discussion provenance labels exist for document-linked,
   persona-linked, and user-authored discussion rows without exposing raw source
   internals.
@@ -65,8 +69,6 @@ pnpm test:reports
 ## Still open
 
 - Polished category and thread creation UX.
-- Visible Canon/Developer subcommunity directory, creation, and route
-  rehearsal over the accepted API foundation.
 - Recognition/witness mechanics that reward thoughtful contribution rather than volume.
 - Deeper moderator/admin console UX for unsupported document/space/persona/user
   targets and any future delegated moderator surfaces.

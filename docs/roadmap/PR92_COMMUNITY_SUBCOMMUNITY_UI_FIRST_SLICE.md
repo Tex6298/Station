@@ -4,7 +4,7 @@ Date opened: 2026-06-20
 Opened by: A1 / MIMIR
 Owner: DAEDALUS implements, ARGUS reviews, ARIADNE rehearses visible routes
 after ARGUS technical acceptance.
-Status: accepted by ARGUS and ARIADNE; ready for MIMIR closeout
+Status: closed by MIMIR on 2026-06-20
 
 ## Why This Lane
 
@@ -225,3 +225,19 @@ Accepted route behavior:
   primary controls.
 
 No additional PR92 visible-route defect remains.
+
+## MIMIR Closeout
+
+Closed on 2026-06-20.
+
+PR92 is accepted as the visible subcommunity first slice. `/forums` labels
+subcommunity-backed categories, `/forums/subcommunities` gives public/community
+directory readback and eligible public/community creation, and
+subcommunity-backed category routes show context without exposing owner ids,
+linked object ids, private/unlisted rows, raw UUID controls, or unsupported
+ownership hints.
+
+The next Community Beta gap is the ordinary forum create/post experience.
+PR93 should harden category and thread creation UX across ordinary and
+subcommunity-backed categories, keeping every visible control live or honestly
+unavailable.
