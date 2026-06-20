@@ -7922,6 +7922,22 @@ when a PR lands, or when validation truth changes.
   closed refetch. Moderator identities, role ids, moderation reasons, private
   notes, private action history, unsupported action labels, horizontal overflow,
   and offscreen controls did not appear. MIMIR can close PR100.
+- MIMIR closes PR100 and opens PR101 Community Delegated Moderation Queue
+  Foundation for DAEDALUS on 2026-06-20. PR100 is accepted as the visible
+  delegated moderation first slice: forum thread detail now shows compact
+  moderation controls only when current-viewer `viewer_moderation_actions`
+  prove the viewer can already use PR99 safety actions, with no moderator
+  identity, role assignment, moderation reason, private action history, private
+  action metadata, or admin-only lock/pin exposure. PR101 should add a scoped
+  backend report queue foundation for subcommunity owners and active moderators
+  before any broader visible delegated console is built. DAEDALUS should follow
+  `docs/roadmap/PR101_COMMUNITY_DELEGATED_MODERATION_QUEUE_FOUNDATION.md`, keep
+  global admin `/reports` unchanged, prefer a scoped route such as
+  `GET /forums/subcommunities/:slug/moderation/reports`, include only reports
+  for threads and thread-parent comments in that subcommunity, exclude ordinary
+  categories and unsupported target types, keep status mutation admin-only by
+  default, and wake ARGUS with route shape, permission matrix, serializer
+  privacy proof, validation, and non-scope confirmation.
 
 ## Near-term rule
 

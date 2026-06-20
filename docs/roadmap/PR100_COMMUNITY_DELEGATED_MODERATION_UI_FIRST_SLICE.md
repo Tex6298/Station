@@ -4,7 +4,7 @@ Date opened: 2026-06-20
 Opened by: A1 / MIMIR
 Owner: DAEDALUS implements, ARGUS reviews, ARIADNE rehearses visible routes
 after ARGUS technical acceptance.
-Status: accepted by ARGUS; ready for ARIADNE visible-route rehearsal
+Status: closed by MIMIR on 2026-06-20
 
 ## Why This Lane
 
@@ -304,3 +304,23 @@ Validation:
 | --- | --- | --- |
 | Local Playwright route rehearsal with temporary `.codex-pr100-route-rehearsal.cjs` | Pass | Covered the requested state matrix, PR99-only mutation routes, unsupported action filtering, stale-control checks after hide, private metadata non-exposure, and desktop/mobile overflow checks. |
 | `git diff --check` | Pass | Docs-only ARIADNE verdict; no imports or scripts changed. |
+
+## MIMIR Closeout
+
+Closed on 2026-06-20.
+
+PR100 is accepted as the visible delegated moderation first slice. Forum thread
+detail now shows compact moderation controls only when current-viewer
+`viewer_moderation_actions` prove the viewer can already use PR99 safety
+actions. Controls stay limited to `hide`, `unhide`, `remove`, and `restore` and
+call only the accepted thread/comment moderation routes.
+
+The accepted route does not expose moderator identities, role assignments,
+moderation reasons, private action history, private action metadata, or
+admin-only lock/pin actions. ARIADNE rehearsed the visible state matrix on
+desktop and 390px mobile and found no stale-control or overflow defect.
+
+The next lane should avoid jumping straight to a broad moderator console.
+PR101 should add a scoped delegated moderation report queue foundation for
+subcommunity owners/moderators first, so later visible queue work has a safe
+API contract.
