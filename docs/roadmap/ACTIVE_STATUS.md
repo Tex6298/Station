@@ -8712,12 +8712,12 @@ git diff --check
 - Developer Spaces visual polish before ingestion auth, validation, limits, and
   safe serialization.
 
-## Latest DAEDALUS handoff - PR117
+## Latest ARGUS verdict - PR117
 
 PR117 Public Document Discussion Chain is implemented by DAEDALUS on
-2026-06-20 and ready for ARGUS technical review. Because the patch affects
-visible public-route behavior, ARGUS should wake ARIADNE for hosted/browser
-rehearsal after technical acceptance.
+2026-06-20 and accepted by ARGUS technical review. Because the patch affects
+visible public-route behavior, ARGUS wakes ARIADNE for hosted/browser rehearsal
+before MIMIR closeout.
 
 Files changed: `apps/api/src/routes/documents.ts`,
 `apps/api/src/routes/document-discussions.test.ts`,
@@ -8745,7 +8745,20 @@ Patch:
 - Hidden, removed, wrong-visibility, private, unpublished, and comments-disabled
   documents still do not produce public discussion readback.
 
-Validation:
+ARGUS review notes:
+
+- Public discussion readback recovers only active, non-hidden,
+  visibility-matching threads linked by `linked_document_id`.
+- Hidden, removed, wrong-visibility, private, unpublished, and
+  comments-disabled documents remain closed or return no discussion.
+- Owner discussion creation relinks a recovered thread before inserting a new
+  discussion thread, preventing duplicate discussion objects for stale seeded
+  documents.
+- The shared serializer keeps provenance labels bounded to already accepted
+  public-safe forum/document fields; no raw private source rows, prompt payloads,
+  provider metadata, secrets, or auth/session details are exposed.
+
+ARGUS validation:
 
 - `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` passed with
   2 tests, including the stale document pointer / existing linked thread case.
