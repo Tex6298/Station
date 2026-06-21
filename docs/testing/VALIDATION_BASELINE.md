@@ -52,6 +52,39 @@ pnpm test:developer-spaces
 pnpm test:developer-space-client
 ```
 
+## PR142 2C Migration Ledger Operator Reconciliation
+
+DAEDALUS operator reconciliation pass on 2026-06-21:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| Safe env path classification | Pass | Only `SUPABASE_POOLER_URL` is available as a Postgres path; `SUPABASE_DB_URL` and `SUPABASE_DIRECT_URL` are missing. `DATABASE_URL` and `SUPABASE_URL` are project API URLs, not Postgres URLs. |
+| Ledger query through temporary `pg@8.13.1` client outside repo | Pass | `045`, `046`, `047`, and `048` each have `0` rows in `supabase_migrations.schema_migrations`. The final query used `count(m.version)`, not `count(*)`, so the left-join probe does not invent rows. |
+| Safe metadata readback for PR138-PR141 schema facts | Pass | Confirmed `045` columns/checks/comments, `046` context table/index/RLS/policy/comment, `047` receipt table/unique/index/RLS/policy/comment, and `048` signing-secret table/indexes/trigger/RLS/policy/comment. |
+| `npm exec --yes supabase@latest -- migration repair --linked --status applied --workdir infra --yes 045 046 047 048 --output json` | Blocked before mutation | The CLI used workdir `infra` but failed because this checkout has no linked project ref. |
+| Operator packet | Pass | Added `docs/ops/PR142_MIGRATION_LEDGER_OPERATOR_PACKET.md`. |
+| `git diff --check` | Pass | CRLF warnings only for touched docs and local DAEDALUS state. |
+
+DAEDALUS PR142 notes:
+
+- Ledger repair remains blocked through available official/operator-safe paths.
+- PR142 did not rerun the known-broken pooler `--db-url` repair route; PR139
+  already proved that path fails on the Supabase pooler prepared-statement
+  collision before updating rows.
+- No direct non-pooler Postgres URL is available in the local environment.
+- Future repair requires either an official linked project repair, a direct
+  non-pooler DB URL for CLI repair, or a separate MIMIR-approved manual SQL
+  lane with an exact audited statement.
+- Observed-runtime staging acceptance from PR141 remains valid despite ledger
+  drift.
+- No schema migration, broad migration sweep, manual ledger SQL, observed-
+  runtime behavior change, temporary Developer Space smoke, signing-secret
+  lifecycle work, UI, auth, billing, Cloudflare, hosted runtime, queue, Redis,
+  provider routing, or retrieval work changed.
+- No secret values, credential-bearing URLs, `.env` values, Railway variables,
+  DB URLs, service keys, auth tokens, project refs, or passwords were printed,
+  committed, or written to docs.
+
 ## PR141 2C Observed Runtime Classification Schema Drift
 
 DAEDALUS schema/staging proof on 2026-06-21:

@@ -9680,56 +9680,60 @@ git diff --check
 - Developer Spaces visual polish before ingestion auth, validation, limits, and
   safe serialization.
 
-## Latest MIMIR handoff - PR142 migration ledger operator reconciliation
+## Latest DAEDALUS handoff - PR142 migration ledger operator reconciliation
 
-MIMIR closes PR141 as accepted observed-runtime staging proof and opens PR142 2C
-Migration Ledger Operator Reconciliation on 2026-06-21.
+PR142 2C Migration Ledger Operator Reconciliation is implemented by DAEDALUS on
+2026-06-21 and ready for ARGUS review.
 
-Input from PR141/ARGUS:
+Outcome:
 
-- Migration `045` is applied/proved narrowly on staging for
-  `observed_runtime_classifications jsonb` columns, object-shape checks,
-  comments, and PostgREST visibility on Developer Space nodes/events/snapshots.
-- The bounded `station-replay-dev-alpha` smoke accepted first current-timestamp
-  Agents Observe observed-runtime delivery with HTTP `202`, imported nodes `2`,
-  events `1`, snapshots `1`, supporting context `1`, replayed the same signed
-  delivery with HTTP `200` / `accepted:false` / `replayed:true`, and proved
-  public/owner readback with safe counts.
-- Temporary named-key handling stayed bounded: raw key in memory only, no legacy
-  rotation, targeted revoke HTTP `200`, and zero active PR141 smoke keys after
-  cleanup.
-- No secret values, raw webhook ids, fixture bodies, URLs with credentials, auth
-  tokens, signing material, raw Developer Space keys, `.env` values, or Railway
-  variables were committed.
-- Direct-applied migration ledger rows for `045`, `046`, `047`, and `048`
-  remain absent.
+- Ledger repair remains blocked through the available official/operator-safe
+  paths.
+- Operator packet:
+  `docs/ops/PR142_MIGRATION_LEDGER_OPERATOR_PACKET.md`.
+- No migration history rows were inserted, updated, faked, or hand-edited.
 
-MIMIR decision:
+Ledger state:
 
-- Do not keep blocking observed-runtime staging proof on ledger history:
-  behavior is accepted.
-- Open a separate operator/tooling lane for ledger reconciliation so future
-  schema lanes stop rediscovering the same prepared-statement failure.
-- Do not fake ledger rows or hand-edit migration history without a later
-  explicit MIMIR decision.
+- `045`: 0 rows.
+- `046`: 0 rows.
+- `047`: 0 rows.
+- `048`: 0 rows.
 
-DAEDALUS task:
+Repair path attempted:
 
-- Implement
-  `docs/roadmap/PR142_2C_MIGRATION_LEDGER_OPERATOR_RECONCILIATION.md`.
-- Inspect ledger state for `045`, `046`, `047`, and `048`.
-- Confirm schema facts from PR138-PR141 by reference or safe metadata only.
-- Try an official or clearly operator-safe ledger reconciliation path that
-  avoids the known pooler prepared-statement failure if available.
-- If repair remains blocked, produce a precise operator packet documenting the
-  blocker and the future repair path.
-- Do not apply new schema migrations, run broad migration sweeps, or manually
-  insert/update migration ledger rows.
+- `supabase migration repair --linked --status applied --workdir infra --yes
+  045 046 047 048 --output json`.
+- The CLI used workdir `infra` and failed before database mutation because this
+  checkout has no linked project ref.
+- Safe env inspection found no direct non-pooler Postgres URL:
+  `SUPABASE_DB_URL` and `SUPABASE_DIRECT_URL` are missing, while the only local
+  Postgres path is `SUPABASE_POOLER_URL`.
+- PR142 did not rerun the known-broken pooler `--db-url` repair path. PR139
+  already proved that route fails on the Supabase pooler prepared-statement
+  collision before updating rows.
 
-DAEDALUS should wake ARGUS with ledger before/after, repair path attempted,
-schema non-widening proof, operator packet location if blocked, validation,
-no-secret proof, and explicit non-claims. Wake MIMIR instead if repair requires
-manual SQL approval or would mutate anything beyond migration history.
+Schema non-widening proof:
+
+- PR142 made no schema changes.
+- Safe metadata readback confirmed the PR138-PR141 schema facts remain present:
+  `045` columns/checks/comments; `046` context table/index/RLS/policy/comment;
+  `047` receipt table/unique/index/RLS/policy/comment; and `048`
+  signing-secret table/indexes/trigger/RLS/policy/comment.
+- Observed-runtime staging acceptance from PR141 remains valid despite ledger
+  drift.
+
+Validation:
+
+- `git diff --check`: passed with CRLF warnings only for touched docs and local
+  DAEDALUS state.
+
+No secret values, credential-bearing URLs, `.env` values, Railway variables, DB
+URLs, service keys, auth tokens, project refs, or passwords were printed,
+written, or committed. Non-scope stayed closed: no new schema migrations, broad
+migration sweep, manual ledger SQL, observed-runtime behavior change, temporary
+Developer Space smoke, signing-secret lifecycle work, UI, auth, billing,
+Cloudflare, hosted runtime, queue, Redis, provider routing, or retrieval change.
 
 ## Previous DAEDALUS handoff - PR127 webhook concurrency guard
 

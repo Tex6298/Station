@@ -76,6 +76,64 @@ For staging proof, record only safe facts:
 - schema proof references, not raw connection details;
 - no-secret proof.
 
+## DAEDALUS Result
+
+DAEDALUS completed the PR142 operator reconciliation pass on 2026-06-21. Ledger
+repair remains blocked through the available official/operator-safe paths, so
+the accepted outcome for this lane is the operator packet:
+
+- `docs/ops/PR142_MIGRATION_LEDGER_OPERATOR_PACKET.md`
+
+Current ledger state:
+
+| Migration prefix | Ledger rows |
+| --- | ---: |
+| `045` | 0 |
+| `046` | 0 |
+| `047` | 0 |
+| `048` | 0 |
+
+Available connection classification:
+
+- `SUPABASE_POOLER_URL` is present and is the only local Postgres path.
+- `SUPABASE_DB_URL` and `SUPABASE_DIRECT_URL` are missing.
+- `DATABASE_URL` and `SUPABASE_URL` are project API URLs, not Postgres URLs.
+- `SUPABASE_ACCESS_TOKEN` is present, but the checkout is not linked.
+
+Official repair attempt:
+
+```bash
+npm exec --yes supabase@latest -- migration repair --linked --status applied --workdir infra --yes 045 046 047 048 --output json
+```
+
+Result:
+
+- The CLI used workdir `infra`.
+- The command failed before database mutation because no project ref is linked
+  in this checkout.
+- PR142 did not rerun the known-broken pooler `--db-url` repair path; PR139
+  already proved that path fails on the Supabase pooler prepared-statement
+  collision before updating rows, and no direct non-pooler DB URL is available
+  locally.
+
+Schema non-widening proof:
+
+- PR142 made no schema changes.
+- Safe metadata readback confirmed the PR138-PR141 schema facts remain present:
+  `045` columns/checks/comments; `046` context table/index/RLS/policy/comment;
+  `047` receipt table/unique/index/RLS/policy/comment; and `048`
+  signing-secret table/indexes/trigger/RLS/policy/comment.
+
+Validation:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `git diff --check` | Pass | CRLF warnings only for touched docs and local DAEDALUS state. |
+
+No secret values, credential-bearing URLs, `.env` values, Railway variables, DB
+URLs, service keys, auth tokens, project refs, or passwords were printed,
+written, or committed.
+
 ## Non-Scope
 
 - No broad migration sweep.
