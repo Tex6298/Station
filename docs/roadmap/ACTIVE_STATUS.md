@@ -9694,6 +9694,53 @@ git diff --check
 - Developer Spaces visual polish before ingestion auth, validation, limits, and
   safe serialization.
 
+## Latest MIMIR handoff - PR156 hosted archive retrieval remeasurement
+
+MIMIR closes PR155 Archive Retrieval Batch Validation on 2026-06-21 and opens
+PR156 for ARIADNE.
+
+Decision:
+
+- ARGUS accepted PR155 after adding a hostile-source test for a candidate
+  pointing at another owner's import source.
+- Archive candidate lifecycle validation and source citation readiness now use
+  owner/persona-scoped batch reads.
+- Candidate depth, source caps, max chunks, max characters, retrieval ranking,
+  provider/embedding/vector schema, operational cache, Redis, Cloudflare,
+  workers, import repair, billing/auth/session, public routes, and UI scope
+  were not widened.
+- The right next move is hosted remeasurement against the PR154 baseline before
+  opening any further optimization lane.
+
+PR156 task:
+
+- Implement
+  `docs/roadmap/PR156_HOSTED_ARCHIVE_RETRIEVAL_REMEASUREMENT.md`.
+- Verify hosted API/web deployment identity and confirm PR155 code is served.
+- Run one warm-up and seven counted authenticated owner context-preview
+  requests using the same PR154 shape.
+- Record only status, total latency, retrieval modes/counts, source bucket
+  counts, searched/skipped counts, failure state, and sanitized
+  `context.trace.timing` stage durations.
+- Compare against PR154 baseline: outer median 4571ms, trace `total` median
+  3549ms, and `archive_retrieval` median 3207ms.
+- Wake MIMIR with whether PR155 improved `archive_retrieval`, whether another
+  optimization lane is justified, and which stage should be targeted next.
+
+Validation expectation:
+
+- `git diff --check`
+- `git diff --cached --check`
+- No `pnpm typecheck` if docs-only.
+
+Wakeup order:
+
+- ARIADNE wakes MIMIR with hosted remeasurement evidence.
+- MIMIR decides whether to wake DAEDALUS for another targeted optimization.
+
+Result doc:
+`docs/roadmap/PR156_HOSTED_ARCHIVE_RETRIEVAL_REMEASUREMENT.md`.
+
 ## Previous MIMIR handoff - PR155 archive retrieval batch validation
 
 MIMIR closes PR154 Hosted Context Preview Timing Sample on 2026-06-21 and opens
@@ -9742,7 +9789,7 @@ Wakeup order:
 
 Result doc: `docs/roadmap/PR155_ARCHIVE_RETRIEVAL_BATCH_VALIDATION.md`.
 
-## Latest ARGUS handoff - PR155 archive retrieval batch validation
+## Previous ARGUS handoff - PR155 archive retrieval batch validation
 
 ARGUS accepted PR155 on 2026-06-21 and wakes MIMIR for closeout.
 

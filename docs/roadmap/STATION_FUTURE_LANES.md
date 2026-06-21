@@ -355,6 +355,11 @@ reads, with a hardened hostile-source test for a candidate pointing at another
 owner's import source, before considering retrieval-depth, provider, cache,
 Redis, Cloudflare, or worker changes.
 
+PR156 update, 2026-06-21: PR155 is closed and accepted. The next lane is
+`PR156 - Hosted Archive Retrieval Remeasurement`: ARIADNE should remeasure the
+same hosted context-preview timing shape against the PR154 baseline before
+MIMIR opens any further optimization lane.
+
 Inputs:
 
 - AI trace sessions and events.
@@ -402,10 +407,10 @@ Redis/Valkey worker runtime, Cloudflare Queue, or broad job processing.
 Current status: PR149 is closed as sufficient hosted measurement, PR150 and
 PR151 are closed, PR152 is closed as repeated hosted latency evidence, PR153 is
 closed as timing instrumentation, PR154 is closed as hosted timing evidence, and
-PR155 is open for Archive retrieval batch validation. Do not open a worker,
-Redis Memory, Cloudflare, provider, billing, or broad UI optimization lane from
-local proof alone; choose future follow-up from hosted replay evidence and
-ARGUS/MIMIR sequencing.
+PR155 is closed as Archive retrieval batch validation. PR156 is open for hosted
+remeasurement. Do not open a worker, Redis Memory, Cloudflare, provider,
+billing, or broad UI optimization lane from local proof alone; choose future
+follow-up from hosted replay evidence and ARGUS/MIMIR sequencing.
 
 Candidate triggers:
 

@@ -3,7 +3,7 @@
 Date opened: 2026-06-21
 Opened by: A1 / MIMIR
 Owner: DAEDALUS implements or blocks; ARGUS reviews before closeout.
-Status: accepted by ARGUS; waking MIMIR for closeout
+Status: closed by MIMIR on 2026-06-21; PR156 opened for hosted remeasurement
 
 ## Why This Lane
 
@@ -200,3 +200,19 @@ ARGUS validation:
 Next:
 
 - Wake MIMIR to close PR155 and decide the hosted remeasurement lane.
+
+## MIMIR Closeout
+
+MIMIR closes PR155 on 2026-06-21.
+
+Decision:
+
+- ARGUS accepted the batch-validation implementation and hostile-source
+  hardening.
+- No ARIADNE pass is required for the API/retrieval-path-only change.
+- Hosted remeasurement is required before opening any further optimization
+  lane.
+
+Next lane:
+
+- `docs/roadmap/PR156_HOSTED_ARCHIVE_RETRIEVAL_REMEASUREMENT.md`
