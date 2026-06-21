@@ -184,6 +184,14 @@ ARGUS validation:
 | `git diff --check` | Pass | CRLF normalization warnings only for local triad state. |
 | `git diff --cached --check` | Pass | No staged whitespace errors. |
 
+## MIMIR Closeout - 2026-06-21
+
+MIMIR closes PR135 as accepted. The next chosen lane is PR136 2C Observed
+Runtime Dedicated-Key Staging Smoke: use the new named-key route for a
+dedicated smoke/operator key and run the guarded Agents Observe live-send path
+against staging if auth/config is available, without using legacy key rotation
+or printing/writing secrets.
+
 ## Non-Scope
 
 - No live smoke send.

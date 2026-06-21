@@ -9167,6 +9167,20 @@ when a PR lands, or when validation truth changes.
   revoke, legacy rotate compatibility, active named observed-runtime ingest,
   revoked key failure, cross-space targeted revoke failure, owner/admin auth,
   and no raw key/hash readback.
+- ARGUS accepts PR135 2C Developer Space Named Ingestion Keys on 2026-06-21
+  and wakes MIMIR for closeout. Review accepted the owner/admin named-key
+  routes, no-migration table proof, no-rotation create path, scoped targeted
+  revoke, active/revoked ingestion auth behavior, metadata-only serialization,
+  PR130 smoke guidance, and validation. Legacy `POST
+  /developer-spaces/:id/api-key` still revokes prior active keys, including
+  named keys, so future smoke must use `POST
+  /developer-spaces/:id/ingestion-keys` for a dedicated smoke/operator key.
+- MIMIR closes PR135 and opens PR136 2C Observed Runtime Dedicated-Key Staging
+  Smoke for DAEDALUS on 2026-06-21. PR136 should use the new named-key route,
+  never legacy key rotation, run the guarded Agents Observe live-send path
+  against staging if auth/config is available, avoid printing/writing secrets,
+  and wake MIMIR with a precise missing-config report if auth/config is absent
+  or if smoke would require rotating real integration keys.
 - DAEDALUS implements PR126 2C Observed Runtime Signing Secret Lifecycle on
   2026-06-21 and wakes ARGUS for schema/API/encryption/signature review.
   Migration `048_developer_space_webhook_signing_secrets.sql` adds
@@ -9449,60 +9463,61 @@ git diff --check
 
 ## Latest ARGUS verdict - PR135 Developer Space named ingestion keys
 
-ARGUS accepts PR135 2C Developer Space Named Ingestion Keys on 2026-06-21 and
-wakes MIMIR for closeout and next sequencing.
+## Latest MIMIR handoff - PR136 dedicated-key staging smoke
 
-Accepted scope:
+PR135 2C Developer Space Named Ingestion Keys is accepted and closed by MIMIR
+on 2026-06-21. PR136 2C Observed Runtime Dedicated-Key Staging Smoke is opened
+for DAEDALUS.
 
-- `GET /developer-spaces/:id/ingestion-keys` lists owner/admin key metadata
-  only.
-- `POST /developer-spaces/:id/ingestion-keys` creates a named active key,
-  returns raw `apiKey` only once in the create response, and does not revoke
-  unrelated active keys.
-- `POST /developer-spaces/:id/ingestion-keys/:keyId/revoke` revokes a specific
-  key scoped to the Developer Space.
-- No migration was needed. Existing `developer_space_ingestion_keys` already
-  has `label`, `status`, `key_last_four`, `created_at`, `updated_at`,
-  `last_used_at`, and `revoked_at`.
-- Ingestion auth accepts active named-key hashes before the legacy
-  `developer_spaces.api_key_hash` fallback. Revoked named keys fail auth.
-- Key list/revoke readback serializes metadata only: id, Developer Space id,
-  owner id, label, status, last-four, and timestamps. Raw keys and hashes are
-  not serialized.
+Why now:
 
-Important compatibility note:
+- PR134 proved the guarded live-send path.
+- PR135 added named ingestion keys so smoke/operator keys no longer need to
+  rotate real integration keys.
+- PR130-style smoke can now proceed through a dedicated named key if auth/config
+  is available.
 
-- Legacy `POST /developer-spaces/:id/api-key` and
-  `POST /developer-spaces/:id/api-key/revoke` keep existing rotate/revoke
-  semantics and still revoke prior active keys, including named keys. PR130
-  smoke should use a dedicated named smoke/operator key rather than rotating
-  real integration keys.
+Task:
 
-PR130 smoke setup guidance remains:
+- Target `https://stationweb-production.up.railway.app` unless local env
+  explicitly overrides the staging URL.
+- Use a dedicated smoke Developer Space if one exists; otherwise create one
+  only if authenticated owner API/test account access is available.
+- Create a named ingestion key with
+  `POST /developer-spaces/:id/ingestion-keys`, labelled for PR136 smoke.
+- Do not use legacy `POST /developer-spaces/:id/api-key`.
+- Use the one-time raw key only in-process as external sender/operator config;
+  do not write it to `.env`, docs, logs, commits, or Railway variables.
+- Run the Agents Observe guarded live-send path with `STATION_API_URL`, the
+  one-time named key as `STATION_DEVELOPER_KEY`, a unique
+  `STATION_OBSERVED_RUNTIME_WEBHOOK_ID`, and signing secret only if the target
+  Developer Space requires a dedicated observed-runtime signing secret.
+- Verify accepted/bounded response, replay/idempotency behavior, and safe
+  public/owner readback without printing secrets.
+- Revoke the temporary named key at the end unless MIMIR explicitly decides it
+  should remain reusable; prove targeted revoke if revoked.
 
-- Create or select a dedicated smoke Developer Space.
-- Create a named ingestion key labelled for smoke/operator use.
-- Use the one-time raw key from create response as `STATION_DEVELOPER_KEY` in
-  the external sender environment only.
-- Do not store `STATION_DEVELOPER_KEY` as general Station app/backend env.
-- Do not rotate real integration keys for smoke.
+If config/auth is missing, wake MIMIR with a precise missing-config report:
+target URL status, auth/session/test-account need, named-key generation need,
+webhook-id generation, and signing-secret need if applicable. Do not reclassify
+`STATION_DEVELOPER_KEY` as general backend config.
 
-ARGUS validation:
+Validation: `test:developer-spaces`, `test:developer-space-client`,
+`--filter @station/api build`, `typecheck`, and `git diff --check`; plus safe
+live-smoke facts if staging smoke runs.
 
-- `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces`: pass, 27 tests.
-- `npm exec --yes pnpm@10.32.1 -- run test:developer-space-client`: pass, 15
-  tests.
-- `npm exec --yes pnpm@10.32.1 -- --filter @station/api build`: pass.
-- `npm exec --yes pnpm@10.32.1 -- run typecheck`: pass.
-- `git diff --check`: pass with CRLF normalization warnings only for local
-  triad state.
-- `git diff --cached --check`: pass.
+Non-scope: no legacy key rotation for smoke, no committed secrets, no writing
+smoke keys to `.env` or Railway variables, no Cloudflare Worker/Vectorize/D1/
+Queue/Durable Object work, no hosted runtime/scheduler/agent control plane, no
+broad UI, no billing/Stripe, no Redis memory truth, no provider routing, and no
+retrieval model changes.
 
-Non-scope confirmed: no live smoke send, no creation of real staging keys by
-this agent, no committed secrets, no Railway/Supabase/Cloudflare config
-request, no Cloudflare Worker/Vectorize/D1/Queue/Durable Object work, no hosted
-runtime/scheduler/agent control plane, no broad UI, no billing/Stripe, no Redis
-memory truth, no provider routing, and no retrieval model changes.
+Wake ARGUS with staging target, auth/config classification, Developer Space
+selection/creation evidence, named-key route proof, no legacy rotation proof,
+live-send shape, accepted/bounded response proof, replay/idempotency evidence,
+readback safety evidence, targeted revoke proof or reusable-key decision,
+validation, no-secret proof, and explicit non-claims. Wake MIMIR if auth/config
+is missing or smoke would require rotating real integration keys.
 
 ## Previous DAEDALUS handoff - PR127 webhook concurrency guard
 
