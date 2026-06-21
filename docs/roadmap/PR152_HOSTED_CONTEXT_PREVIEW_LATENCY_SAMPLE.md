@@ -4,7 +4,7 @@ Date opened: 2026-06-21
 Opened by: A1 / MIMIR
 Owner: ARIADNE measures hosted runtime first; MIMIR decides whether DAEDALUS
 gets an optimization lane.
-Status: open
+Status: measured by ARIADNE on 2026-06-21; waking MIMIR for decision
 
 ## Why This Lane
 
@@ -102,3 +102,97 @@ git diff --cached --check
 ```
 
 No `pnpm typecheck` is required if the result commit is docs-only.
+
+## ARIADNE Hosted Measurement
+
+Measured on 2026-06-21.
+
+Runtime:
+
+- API `/health/deployment`: `ready:true`, `@station/api`, `main`, commit
+  `2cd925fa2a93`.
+- Web `/health/deployment`: `ready:true`, `@station/web`, `main`, commit
+  `2cd925fa2a93`.
+
+Replay owner and persona:
+
+- Replay sign-in succeeded; replay owner was `canon`, non-admin.
+- Selected the first replay persona matching the required data shape:
+  private visibility, platform provider, 16 Memory items, 3 Canon items, 3
+  archive files, 3 archived chats, 10 continuity candidates, 5 continuity
+  records, and 5 integrity sessions.
+
+Warm-up:
+
+- HTTP 200 in 4761ms.
+- Retrieval modes: Memory vector, Archive vector, Memory fallback none.
+- Embedding profile: `station_free_1536`, provider `gemini`, model
+  `gemini-embedding-2`, dimension 1536.
+- Source counts: 3 canon, 3 memory, 1 integrity, 4 archive, 4 continuity.
+- Searched counts: Memory 3, Archive 12, Continuity 4.
+- Skipped counts: Memory all zero; Archive quarantined 5.
+
+Counted sample:
+
+| Sample | Status | Latency |
+| --- | --- | --- |
+| 1 | HTTP 200 | 4651ms |
+| 2 | HTTP 200 | 4617ms |
+| 3 | HTTP 200 | 4703ms |
+| 4 | HTTP 200 | 4870ms |
+| 5 | HTTP 200 | 4606ms |
+| 6 | HTTP 200 | 4622ms |
+| 7 | HTTP 200 | 4541ms |
+
+Latency summary:
+
+- Counted requests: 7.
+- Successes: 7.
+- Failures/timeouts: 0.
+- Minimum: 4541ms.
+- Median: 4622ms.
+- Maximum / rough p95: 4870ms.
+- Requests above 3000ms: 7.
+- Requests above 4000ms: 7.
+
+Repeated response shape:
+
+- Retrieval modes were stable across all counted requests: Memory vector,
+  Archive vector, Memory fallback none.
+- Embedding profile stayed `station_free_1536`, provider `gemini`, model
+  `gemini-embedding-2`, dimension 1536.
+- Source counts were stable across all counted requests: 3 canon, 3 memory,
+  1 integrity, 4 archive, 4 continuity.
+- Searched counts were stable across all counted requests: Memory 3,
+  Archive 12, Continuity 4.
+- Memory skipped counts stayed zero across all counted requests.
+- Archive skipped counts stayed at quarantined 5 and zero for other skip
+  buckets across all counted requests.
+
+Observability summary/list check:
+
+- Before sample: summary/list HTTP 200, 9 traces, 0 failed traces, 21,538 total
+  tokens, 10,220ms average trace latency, 6 recent completed conversation
+  traces.
+- After sample: summary/list HTTP 200, 9 traces, 0 failed traces, 21,538 total
+  tokens, 10,220ms average trace latency, 6 recent completed conversation
+  traces.
+- The context-preview sample did not increase trace failures or token totals.
+
+Recommendation:
+
+- Open a narrow DAEDALUS measurement/optimization lane for hosted
+  context-preview latency.
+- Evidence: median 4622ms exceeds the 3000ms threshold, all 7 counted requests
+  exceeded 4000ms, and Archive searched count was repeatedly 12 with stable
+  vector Memory/Archive retrieval and no failures.
+- Candidate focus should be measurement-first and bounded: context-preview
+  timing breakdown, Archive candidate depth/query cost, embedding/search
+  latency, continuity expansion cost, and whether preview can reuse cached
+  owner-safe readback without weakening privacy.
+
+Validation:
+
+- `node tmp-pr152-context-preview-sample.mjs`
+- `git diff --check`
+- `git diff --cached --check`

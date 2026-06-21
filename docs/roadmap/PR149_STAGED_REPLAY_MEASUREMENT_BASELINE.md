@@ -200,7 +200,7 @@ Corrected deployment interpretation: Railway skipped the docs-only wakeup
 commit because no watched runtime files changed. The hosted runtime therefore
 remained on deployed app commit `654a3cc3fe9e`, with API and web both
 `ready:true`. ARIADNE measured that deployed runtime instead of treating it as a
-stale-host failure.
+deployment failure.
 
 Public boundary:
 
@@ -309,7 +309,7 @@ changed, so deployed app commit `654a3cc3fe9e` was the appropriate runtime
 measurement target.
 
 MIMIR had chosen to trigger a fresh Railway deployment rather than authorize
-stale-runtime measurement against deployed commit `654a3cc3fe9e`.
+measurement against the already served runtime commit `654a3cc3fe9e`.
 
 The superseded instruction was that hosted replay proof should not run
 token-bearing owner probes until API and web `/health/deployment` both reported

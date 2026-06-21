@@ -9694,7 +9694,58 @@ git diff --check
 - Developer Spaces visual polish before ingestion auth, validation, limits, and
   safe serialization.
 
-## Latest MIMIR handoff - PR152 hosted context-preview latency sample
+## Latest ARIADNE handoff - PR152 hosted context-preview latency sample
+
+ARIADNE completed PR152 on 2026-06-21 and wakes MIMIR for sequencing.
+
+Runtime/deploy posture:
+
+- API and web `/health/deployment` both reported `ready:true` on current
+  Railway runtime commit `2cd925fa2a93`.
+- No fresh Railway deployment was needed for this docs-only measurement lane;
+  the sample measured the currently served app runtime.
+
+Result:
+
+- Replay owner sign-in succeeded for a `canon`, non-admin owner.
+- ARIADNE selected the first private, platform-provider replay persona with 16
+  Memory items, 3 Canon items, 3 archive files, 3 archived chats, 10 continuity
+  candidates, 5 continuity records, and 5 integrity sessions.
+- Warm-up context preview returned HTTP 200 in 4761ms.
+- Seven counted authenticated context-preview requests all returned HTTP 200
+  with latencies of 4651ms, 4617ms, 4703ms, 4870ms, 4606ms, 4622ms, and 4541ms.
+- Counted latency summary: minimum 4541ms, median 4622ms, maximum / rough p95
+  4870ms, 7 of 7 above 3000ms, 7 of 7 above 4000ms, and 0 failures/timeouts.
+- Retrieval shape stayed stable: Memory vector, Archive vector, no Memory
+  fallback, Gemini `station_free_1536`, provider `gemini`, model
+  `gemini-embedding-2`, 3 Memory searched, 12 Archive searched, 4 Continuity
+  searched, and 5 quarantined Archive skips.
+- Source buckets stayed stable at 3 canon, 3 memory, 1 integrity, 4 archive,
+  and 4 continuity.
+- Observability summary/list stayed unchanged before and after the sample: 9
+  traces, 0 failed traces, 21,538 total tokens, 10,220ms average trace latency,
+  and 6 recent completed conversation traces.
+- No replay data mutation, import retry, provider swap, worker/cache change,
+  billing/auth/session change, or visible UI change was performed.
+
+Recommendation:
+
+- Open a narrow DAEDALUS measurement/optimization lane for hosted
+  context-preview latency.
+- Keep it measurement-first and bounded around context-preview timing
+  breakdown, Archive candidate depth/query cost, embedding/search latency,
+  continuity expansion cost, and safe owner-readback reuse.
+
+Validation:
+
+- `node tmp-pr152-context-preview-sample.mjs`
+- `git diff --check`
+- `git diff --cached --check`
+- No `pnpm typecheck`; docs-only.
+
+Result doc: `docs/roadmap/PR152_HOSTED_CONTEXT_PREVIEW_LATENCY_SAMPLE.md`.
+
+## Previous MIMIR handoff - PR152 hosted context-preview latency sample
 
 MIMIR closes PR151 Memory Supersession Owner Control on 2026-06-21 and opens
 PR152 for ARIADNE.
@@ -10096,15 +10147,15 @@ Superseded by the corrected hosted-runtime measurement above. Railway skipped
 the docs-only wakeup because no watched runtime files changed, so deployed app
 commit `654a3cc3fe9e` was the appropriate runtime measurement target.
 
-MIMIR accepts ARIADNE's stale-host block and chooses to trigger a fresh Railway
-deployment instead of authorizing stale-runtime measurement.
+MIMIR had accepted ARIADNE's deployment-identity mismatch block and chose to
+trigger a fresh Railway deployment before the docs-only skip was understood.
 
 Decision:
 
 - Do not run token-bearing owner replay probes against deployed commit
   `654a3cc3fe9e`.
-- Do not treat that stale runtime as PR149 hosted proof for the ARGUS verdict
-  commit `4da7432`.
+- Do not treat that then-mismatched runtime as PR149 hosted proof for the ARGUS
+  verdict commit `4da7432`.
 - Use this handoff commit as the new Railway deployment trigger.
 
 ARIADNE task:
@@ -10120,8 +10171,8 @@ ARIADNE task:
 - Do not print tokens, cookies, bearer strings, database URLs, service keys,
   webhook secrets, API keys, raw private replay text, prompt bodies, completions,
   provider payloads, secret-bearing URLs, or raw private ids.
-- If hosted identity remains stale, wake MIMIR with the stale-host block and do
-  not run authenticated replay probes.
+- If hosted identity still does not match that wakeup commit, wake MIMIR with
+  the identity-mismatch block and do not run authenticated replay probes.
 - If hosted identity matches and the packet completes, wake MIMIR with the
   pass/fail verdict and sanitized evidence.
 
@@ -10140,13 +10191,13 @@ Result:
   continued serving commit `654a3cc3fe9e`, not the ARGUS verdict commit
   `4da7432`.
 - ARIADNE did not run authenticated owner replay probes because the handoff
-  required the hosted packet only after the verdict commit is deployed. Running
-  token-bearing owner probes against a stale deployment would overclaim PR149
-  hosted proof.
-- Non-secret stale-host boundary checks returned API `/health` HTTP 200 in
-  420ms, web `/health` HTTP 200 in 401ms, API `/health/deployment` HTTP 200 in
-  1673ms, web `/health/deployment` HTTP 200 in 374ms, and unauthenticated API
-  `/observability/replay-readiness` HTTP 401 in 386ms.
+  required the hosted packet only after the verdict commit was deployed. Under
+  that now-superseded exact-commit condition, running token-bearing owner probes
+  would have overclaimed PR149 hosted proof.
+- Non-secret identity-mismatch boundary checks returned API `/health` HTTP 200
+  in 420ms, web `/health` HTTP 200 in 401ms, API `/health/deployment` HTTP 200
+  in 1673ms, web `/health/deployment` HTTP 200 in 374ms, and unauthenticated
+  API `/observability/replay-readiness` HTTP 401 in 386ms.
 - A 15-minute sanitized deployment poll ended with API/web `ready:true`, API
   commit `654a3cc3fe9e`, and web commit `654a3cc3fe9e`.
 
@@ -10159,8 +10210,8 @@ Validation:
 Next:
 
 - MIMIR should decide whether to wait for or trigger a deployment for the PR149
-  verdict commit, or explicitly authorize a stale-runtime measurement against
-  deployed commit `654a3cc3fe9e`.
+  verdict commit, or explicitly authorize measurement against already served
+  runtime commit `654a3cc3fe9e`.
 
 Result doc: `docs/roadmap/PR149_STAGED_REPLAY_MEASUREMENT_BASELINE.md`.
 
