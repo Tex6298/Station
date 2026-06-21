@@ -103,6 +103,16 @@ test("chat runtime budget reports counts and drops content", () => {
           },
         },
         searched: { memory: 12, archive: 4, continuity: 1 },
+        timing: {
+          schema: "station.runtime_context_timing.v1",
+          stages: [
+            { stage: "total", durationMs: 42 },
+            { stage: "query_embedding", durationMs: 10 },
+            { stage: "memory_vector_search", durationMs: 12 },
+            { stage: "archive_retrieval", durationMs: 14 },
+          ],
+          cache: { status: "not_used" },
+        },
       },
     },
     providerRoute: "deepseek_fallback",

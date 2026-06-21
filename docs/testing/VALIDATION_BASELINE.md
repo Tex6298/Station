@@ -52,6 +52,33 @@ pnpm test:developer-spaces
 pnpm test:developer-space-client
 ```
 
+## PR153 Context Preview Latency Breakdown
+
+DAEDALUS implementation validation on 2026-06-21:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-context` | Pass | 8 tests passed; owner-only runtime context preview now asserts sanitized timing schema, stage names, durations, cache status, and no owner/persona/private-text leakage from timing metadata. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API typecheck ran; web typecheck replayed from cache. |
+| `git diff --check` | Pass | CRLF normalization warnings only for touched files and local triad state. |
+
+DAEDALUS PR153 notes:
+
+- Added `context.trace.timing` for owner context-preview/runtime-context
+  assembly.
+- Timing readback includes only `schema`, ordered stage names, integer
+  `durationMs`, and `cache.status: "not_used"`.
+- Recorded stages are `total`, `query_embedding`, `canon`, `owner_memory`,
+  `memory_vector_search`, `integrity`, `preference_profile`,
+  `archive_retrieval`, `continuity`, and `topology_prompt_assembly`.
+- Operational cache was not touched, Archive retrieval internals were not
+  changed, and no optimization was implemented before hosted per-stage evidence.
+- No prompt, completion, provider payload, private excerpt, source content,
+  owner/persona id, trace id, cache key, token, cookie, API key, DB URL, secret
+  value, provider switch, Redis Memory truth, Cloudflare path, worker, import
+  repair, billing/auth/session behavior, broad UI, or public route behavior was
+  added.
+
 ## PR151 Memory Supersession Owner Control
 
 ARGUS review validation on 2026-06-21 after the visible-label privacy patch:

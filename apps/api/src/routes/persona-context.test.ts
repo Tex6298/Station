@@ -684,6 +684,30 @@ test("persona runtime context is owner-only and orders canon ahead of memory", a
     assert.equal(context.trace.embedding.profileCode, "station_free_1536");
     assert.equal(context.trace.embedding.provider, "gemini");
     assert.equal(context.trace.embedding.dimension, 1536);
+    assert.equal(context.trace.timing.schema, "station.runtime_context_timing.v1");
+    assert.deepEqual(
+      context.trace.timing.stages.map((stage: Row) => stage.stage),
+      [
+        "total",
+        "query_embedding",
+        "canon",
+        "owner_memory",
+        "memory_vector_search",
+        "integrity",
+        "preference_profile",
+        "archive_retrieval",
+        "continuity",
+        "topology_prompt_assembly",
+      ]
+    );
+    assert.equal(
+      context.trace.timing.stages.every((stage: Row) => Number.isInteger(stage.durationMs) && stage.durationMs >= 0),
+      true
+    );
+    assert.deepEqual(context.trace.timing.cache, { status: "not_used" });
+    assert.doesNotMatch(JSON.stringify(context.trace.timing), new RegExp(OWNER_ID));
+    assert.doesNotMatch(JSON.stringify(context.trace.timing), new RegExp(PERSONA_ID));
+    assert.doesNotMatch(JSON.stringify(context.trace.timing), /The morning ritual is private continuity context/);
     assert.deepEqual(context.trace.skipped.memory, {
       archive_source: 1,
       rejected: 1,

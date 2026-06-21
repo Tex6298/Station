@@ -3,7 +3,7 @@
 Date opened: 2026-06-21
 Opened by: A1 / MIMIR
 Owner: DAEDALUS implements or blocks; ARGUS reviews before any closeout.
-Status: open for DAEDALUS
+Status: implemented by DAEDALUS; ready for ARGUS review
 
 ## Why This Lane
 
@@ -119,3 +119,46 @@ DAEDALUS must wake ARGUS with:
 - owner-scope and privacy reasoning;
 - validation results;
 - a clear statement if no safe optimization was implemented.
+
+## DAEDALUS Implementation
+
+Implemented on 2026-06-21.
+
+The owner-only context-preview/runtime-context assembly now returns a sanitized
+timing object at `context.trace.timing`:
+
+- `schema: "station.runtime_context_timing.v1"`
+- ordered `stages[]` entries containing only a stage name and integer
+  `durationMs`
+- `cache.status: "not_used"`
+
+Recorded stages:
+
+- `total`
+- `query_embedding`
+- `canon`
+- `owner_memory`
+- `memory_vector_search`
+- `integrity`
+- `preference_profile`
+- `archive_retrieval`
+- `continuity`
+- `topology_prompt_assembly`
+
+The timing recorder is attached at the existing runtime-context assembly
+boundary. It does not expose prompts, completions, provider payloads, private
+archive excerpts, source contents, owner ids, persona ids, trace ids, cache
+keys, tokens, cookies, API keys, DB URLs, or secret-shaped values.
+
+No optimization was implemented in this pass. The repo-local code inspection
+showed a clean shared query-embedding path and no safe repeated readback fix
+worth taking before the new hosted stage timings identify the actual
+bottleneck. The operational `runtime_context` cache was not touched, so cache
+validation was not required for this patch.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:persona-context` passed with 8
+  tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `git diff --check` passed with CRLF normalization warnings only.

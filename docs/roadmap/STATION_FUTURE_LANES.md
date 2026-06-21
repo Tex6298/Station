@@ -331,14 +331,13 @@ found context-preview latency is persistently above 4s on the current Railway
 runtime: 7 counted HTTP 200 requests, median 4622ms, max / rough p95 4870ms,
 and stable Memory/Archive vector retrieval shape.
 
-PR153 update, 2026-06-21: the next lane is `PR153 - Context Preview Latency
-Breakdown`. It is measurement-first: add sanitized per-stage timing for
-owner context-preview/runtime-context assembly and make one bounded repo-local
-optimization only if the timing evidence identifies it. The only cache path in
-scope is existing operational `runtime_context` cache with short TTL,
-owner/persona scope, disabled-mode fallback, and existing invalidation hooks.
-Provider swaps, Redis Memory truth/vector storage/ranking, Cloudflare, workers,
-import repair, billing/auth/session work, and broad UI are out of scope.
+PR153 update, 2026-06-21: `PR153 - Context Preview Latency Breakdown` is
+implemented by DAEDALUS and ready for ARGUS review. Owner context-preview now
+emits sanitized `context.trace.timing` stage names and durations for runtime
+context assembly. No optimization was implemented before hosted per-stage
+evidence, and operational cache was not touched. Provider swaps, Redis Memory
+truth/vector storage/ranking, Cloudflare, workers, import repair,
+billing/auth/session work, and broad UI remain out of scope.
 
 Inputs:
 
@@ -386,10 +385,10 @@ Redis/Valkey worker runtime, Cloudflare Queue, or broad job processing.
 
 Current status: PR149 is closed as sufficient hosted measurement, PR150 and
 PR151 are closed, PR152 is closed as repeated hosted latency evidence, and
-PR153 is open for context-preview latency breakdown. Do not open a worker,
-Redis Memory, Cloudflare, provider, billing, or broad UI optimization lane from
-local proof alone; choose future follow-up from hosted replay evidence and
-ARGUS/MIMIR sequencing.
+PR153 is implemented for ARGUS review. Do not open a worker, Redis Memory,
+Cloudflare, provider, billing, or broad UI optimization lane from local proof
+alone; choose future follow-up from hosted replay evidence and ARGUS/MIMIR
+sequencing.
 
 Candidate triggers:
 

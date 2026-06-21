@@ -94,6 +94,30 @@ export interface PersonaRuntimeContextTrace {
     archive: number;
     continuity: number;
   };
+  timing: PersonaRuntimeContextTiming;
+}
+
+export type RuntimeContextTimingStage =
+  | "total"
+  | "query_embedding"
+  | "canon"
+  | "owner_memory"
+  | "memory_vector_search"
+  | "integrity"
+  | "preference_profile"
+  | "archive_retrieval"
+  | "continuity"
+  | "topology_prompt_assembly";
+
+export interface PersonaRuntimeContextTiming {
+  schema: "station.runtime_context_timing.v1";
+  stages: Array<{
+    stage: RuntimeContextTimingStage;
+    durationMs: number;
+  }>;
+  cache: {
+    status: "not_used";
+  };
 }
 
 export type RuntimeContextTopologyBucket =
@@ -134,6 +158,19 @@ const TOPOLOGY_LIMITS: Record<RuntimeContextTopologyBucket, { maxItems: number; 
   archive: { maxItems: 8, maxCharactersPerItem: 900 },
 };
 
+const TIMING_STAGE_ORDER: RuntimeContextTimingStage[] = [
+  "total",
+  "query_embedding",
+  "canon",
+  "owner_memory",
+  "memory_vector_search",
+  "integrity",
+  "preference_profile",
+  "archive_retrieval",
+  "continuity",
+  "topology_prompt_assembly",
+];
+
 /**
  * Builds the full system prompt for a persona chat turn by:
  * 1. Loading top canon items (always-injected rules)
@@ -159,79 +196,88 @@ export async function buildPersonaContext(
 export async function assemblePersonaRuntimeContext(
   input: PersonaContextInput
 ): Promise<PersonaRuntimeContext> {
-  const queryEmbeddingPromise = sharedQueryEmbedding(input.userQuery, input.embeddingApiKey);
+  const timing = createRuntimeContextTimingRecorder();
+  const queryEmbeddingPromise = timing.measure("query_embedding", () =>
+    sharedQueryEmbedding(input.userQuery, input.embeddingApiKey)
+  );
 
   const [canon, ownerMemory, memoryRetrieval, integrity, preferenceProfile, archiveRetrieval, continuity] = await Promise.all([
-    loadCanon(input.supabase, input.persona.id, input.maxCanon ?? 6, input.ownerUserId),
-    loadOwnerMemoryBlocks(input, 4),
+    timing.measure("canon", () => loadCanon(input.supabase, input.persona.id, input.maxCanon ?? 6, input.ownerUserId)),
+    timing.measure("owner_memory", () => loadOwnerMemoryBlocks(input, 4)),
     queryEmbeddingPromise.then((queryEmbedding) =>
-      searchMemoryWithTrace({
-        supabase: input.supabase,
-        personaId: input.persona.id,
-        query: input.userQuery,
-        limit: input.maxMemory ?? 6,
-        embeddingApiKey: input.embeddingApiKey,
-        queryEmbedding,
-        ownerUserId: input.ownerUserId,
-      })
+      timing.measure("memory_vector_search", () =>
+        searchMemoryWithTrace({
+          supabase: input.supabase,
+          personaId: input.persona.id,
+          query: input.userQuery,
+          limit: input.maxMemory ?? 6,
+          embeddingApiKey: input.embeddingApiKey,
+          queryEmbedding,
+          ownerUserId: input.ownerUserId,
+        })
+      )
     ),
-    loadIntegrityNotes(input, input.maxIntegrity ?? 4),
-    loadPreferenceProfile(input),
+    timing.measure("integrity", () => loadIntegrityNotes(input, input.maxIntegrity ?? 4)),
+    timing.measure("preference_profile", () => loadPreferenceProfile(input)),
     queryEmbeddingPromise.then((queryEmbedding) =>
-      loadArchiveReferences(input, input.maxArchive ?? 8, queryEmbedding)
+      timing.measure("archive_retrieval", () => loadArchiveReferences(input, input.maxArchive ?? 8, queryEmbedding))
     ),
-    loadContinuityRecords(input, input.maxContinuity ?? 4),
+    timing.measure("continuity", () => loadContinuityRecords(input, input.maxContinuity ?? 4)),
   ]);
 
-  const canonSources = canon.map<PersonaContextSource>((item) => ({
-    id: item.id,
-    type: "canon",
-    title: item.title,
-    content: item.content,
-    priority: 100 + item.priority,
-    reason: "Always included canon, ordered by owner priority.",
-  }));
+  const { topology, sources, safeMemorySkipped, systemPrompt } = timing.measureSync("topology_prompt_assembly", () => {
+    const canonSources = canon.map<PersonaContextSource>((item) => ({
+      id: item.id,
+      type: "canon",
+      title: item.title,
+      content: item.content,
+      priority: 100 + item.priority,
+      reason: "Always included canon, ordered by owner priority.",
+    }));
 
-  const memorySources = memoryRetrieval.results.map<PersonaContextSource>((item) => ({
-    id: item.id,
-    type: "memory",
-    title: item.title,
-    content: item.summary ?? item.content,
-    priority: item.relevanceWeight,
-    reason: item.similarity > 0
-      ? `Selected by query match (${item.similarity.toFixed(2)}) and relevance weight.`
-      : "Selected by relevance weight fallback.",
-    sourceType: item.sourceType,
-  }));
+    const memorySources = memoryRetrieval.results.map<PersonaContextSource>((item) => ({
+      id: item.id,
+      type: "memory",
+      title: item.title,
+      content: item.summary ?? item.content,
+      priority: item.relevanceWeight,
+      reason: item.similarity > 0
+        ? `Selected by query match (${item.similarity.toFixed(2)}) and relevance weight.`
+        : "Selected by relevance weight fallback.",
+      sourceType: item.sourceType,
+    }));
 
-  const topology = applyRuntimeContextTopology({
-    canon: canonSources,
-    integrity: preferenceProfile ? [preferenceProfile, ...integrity] : integrity,
-    continuity: continuity.sources,
-    memory: [...ownerMemory, ...memorySources],
-    archive: archiveRetrieval.sources,
-  });
-  const sources = [
-    ...topology.buckets.canon.sources,
-    ...topology.buckets.integrity.sources,
-    ...topology.buckets.continuity.sources,
-    ...topology.buckets.memory.sources,
-    ...topology.buckets.archive.sources,
-  ];
-  const safeMemorySkipped = redactHiddenMemorySkippedCounts(memoryRetrieval.trace.skipped);
+    const topology = applyRuntimeContextTopology({
+      canon: canonSources,
+      integrity: preferenceProfile ? [preferenceProfile, ...integrity] : integrity,
+      continuity: continuity.sources,
+      memory: [...ownerMemory, ...memorySources],
+      archive: archiveRetrieval.sources,
+    });
+    const sources = [
+      ...topology.buckets.canon.sources,
+      ...topology.buckets.integrity.sources,
+      ...topology.buckets.continuity.sources,
+      ...topology.buckets.memory.sources,
+      ...topology.buckets.archive.sources,
+    ];
+    const safeMemorySkipped = redactHiddenMemorySkippedCounts(memoryRetrieval.trace.skipped);
 
-  const systemPrompt = buildPersonaChatPrompt({
-    name: input.persona.name,
-    shortDescription: input.persona.shortDescription ?? undefined,
-    longDescription: input.persona.longDescription ?? undefined,
-    visibility: input.persona.visibility,
-    awakeningPrompt: input.persona.awakeningPrompt ?? undefined,
-    styleNotes: input.persona.styleNotes ?? undefined,
-    canon: topology.buckets.canon.sources.map((source) => source.content),
-    integrity: topology.buckets.integrity.sources.map((source) => formatSourceForPrompt(source)),
-    memory: topology.buckets.memory.sources.map((source) => source.content),
-    continuity: topology.buckets.continuity.sources.map((source) => source.content),
-    archive: topology.buckets.archive.sources.map((source) => formatSourceForPrompt(source)),
+    const systemPrompt = buildPersonaChatPrompt({
+      name: input.persona.name,
+      shortDescription: input.persona.shortDescription ?? undefined,
+      longDescription: input.persona.longDescription ?? undefined,
+      visibility: input.persona.visibility,
+      awakeningPrompt: input.persona.awakeningPrompt ?? undefined,
+      styleNotes: input.persona.styleNotes ?? undefined,
+      canon: topology.buckets.canon.sources.map((source) => source.content),
+      integrity: topology.buckets.integrity.sources.map((source) => formatSourceForPrompt(source)),
+      memory: topology.buckets.memory.sources.map((source) => source.content),
+      continuity: topology.buckets.continuity.sources.map((source) => source.content),
+      archive: topology.buckets.archive.sources.map((source) => formatSourceForPrompt(source)),
+    });
+
+    return { topology, sources, safeMemorySkipped, systemPrompt };
   });
 
   return {
@@ -268,6 +314,7 @@ export async function assemblePersonaRuntimeContext(
         archive: archiveRetrieval.searched,
         continuity: continuity.searched,
       },
+      timing: timing.snapshot(),
     },
     topology: {
       schema: "station.runtime_context_topology.v1",
@@ -295,6 +342,49 @@ async function sharedQueryEmbedding(query: string, embeddingApiKey?: string) {
   } catch {
     return null;
   }
+}
+
+function createRuntimeContextTimingRecorder() {
+  const startedAt = Date.now();
+  const durations = new Map<RuntimeContextTimingStage, number>();
+
+  return {
+    async measure<T>(stage: RuntimeContextTimingStage, operation: () => Promise<T>): Promise<T> {
+      const stageStartedAt = Date.now();
+      try {
+        return await operation();
+      } finally {
+        durations.set(stage, elapsedMs(stageStartedAt));
+      }
+    },
+    measureSync<T>(stage: RuntimeContextTimingStage, operation: () => T): T {
+      const stageStartedAt = Date.now();
+      try {
+        return operation();
+      } finally {
+        durations.set(stage, elapsedMs(stageStartedAt));
+      }
+    },
+    snapshot(): PersonaRuntimeContextTiming {
+      durations.set("total", elapsedMs(startedAt));
+      return {
+        schema: "station.runtime_context_timing.v1",
+        stages: TIMING_STAGE_ORDER
+          .filter((stage) => durations.has(stage))
+          .map((stage) => ({
+            stage,
+            durationMs: durations.get(stage) ?? 0,
+          })),
+        cache: {
+          status: "not_used",
+        },
+      };
+    },
+  };
+}
+
+function elapsedMs(startedAt: number) {
+  return Math.max(0, Date.now() - startedAt);
 }
 
 async function loadOwnerMemoryBlocks(

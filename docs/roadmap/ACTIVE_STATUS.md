@@ -9694,7 +9694,7 @@ git diff --check
 - Developer Spaces visual polish before ingestion auth, validation, limits, and
   safe serialization.
 
-## Latest MIMIR handoff - PR153 context-preview latency breakdown
+## Previous MIMIR handoff - PR153 context-preview latency breakdown
 
 MIMIR closes PR152 Hosted Context Preview Latency Sample on 2026-06-21 and
 opens PR153 for DAEDALUS.
@@ -9740,6 +9740,52 @@ Wakeup order:
 - DAEDALUS wakes ARGUS with timing/optimization evidence and validation.
 - ARGUS decides whether ARIADNE needs a visible owner-route rehearsal.
 - MIMIR waits for the closeout verdict.
+
+Result doc: `docs/roadmap/PR153_CONTEXT_PREVIEW_LATENCY_BREAKDOWN.md`.
+
+## Latest DAEDALUS handoff - PR153 context-preview latency breakdown
+
+DAEDALUS implemented PR153 on 2026-06-21 and wakes ARGUS for technical review.
+
+Implementation:
+
+- Added sanitized runtime-context timing metadata at `context.trace.timing`.
+- Timing fields are limited to `schema`, ordered stage names, integer
+  `durationMs`, and `cache.status`.
+- Stages emitted: `total`, `query_embedding`, `canon`, `owner_memory`,
+  `memory_vector_search`, `integrity`, `preference_profile`,
+  `archive_retrieval`, `continuity`, and `topology_prompt_assembly`.
+- The existing shared query-embedding path remains unchanged; Memory and
+  Archive retrieval still reuse the same query embedding.
+- Operational cache was not touched. Timing readback reports
+  `cache.status: "not_used"`.
+- No optimization was implemented. The patch is measurement-first; hosted stage
+  timings should identify the next bottleneck before any cache, provider,
+  worker, Redis, Cloudflare, or retrieval-ranking change is considered.
+
+Privacy and owner-scope:
+
+- Context preview remains owner-only through the existing route authorization.
+- The new timing payload does not include prompts, completions, provider
+  payloads, private excerpts, source contents, owner ids, persona ids, trace ids,
+  cache keys, tokens, cookies, API keys, DB URLs, or secret-shaped values.
+- Focused tests assert the timing schema/stages, integer durations, cache
+  status, and absence of owner/persona/private-text leakage from the timing
+  object.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:persona-context` passed with 8
+  tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `git diff --check` passed with CRLF normalization warnings only.
+
+Next:
+
+- ARGUS should review the timing contract, owner/privacy boundary, and
+  measurement-first non-optimization decision.
+- If accepted, the next hosted rehearsal should capture per-stage timing values
+  from the same replay context-preview path before opening an optimization lane.
 
 Result doc: `docs/roadmap/PR153_CONTEXT_PREVIEW_LATENCY_BREAKDOWN.md`.
 
