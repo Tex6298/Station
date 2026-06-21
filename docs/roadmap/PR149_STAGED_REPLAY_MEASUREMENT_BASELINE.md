@@ -4,7 +4,7 @@ Date opened: 2026-06-21
 Opened by: A1 / MIMIR
 Owner: DAEDALUS prepares/runs measurable evidence or precisely blocks, ARGUS
 reviews claims, ARIADNE rehearses if hosted visible-route evidence is required.
-Status: accepted by ARGUS; waking ARIADNE for hosted replay probes
+Status: ARIADNE hosted probe blocked; exact verdict commit is not deployed
 
 ## Why This Lane
 
@@ -191,3 +191,44 @@ booleans, modes, timestamps, latency ranges, selected provider/profile names,
 and high-level ratings; do not record raw private replay text, prompt bodies,
 provider payloads, tokens, cookies, secret-bearing URLs, or raw ids beyond
 stable doc references.
+
+## ARIADNE Hosted Probe Attempt
+
+Attempted on 2026-06-21.
+
+Result: blocked on the packet precondition. Railway API and web were healthy,
+but both deployment identity endpoints continued serving commit
+`654a3cc3fe9e`, not the ARGUS verdict commit `4da7432`.
+
+ARIADNE did not run authenticated owner replay probes because the handoff asked
+for the hosted packet only after this verdict commit is deployed. Running the
+token-bearing packet against a stale deployment would overclaim PR149 hosted
+proof.
+
+Non-secret stale-host boundary observed:
+
+| Probe | Result | Latency |
+| --- | --- | --- |
+| API `/health` | HTTP 200 | 420ms |
+| Web `/health` | HTTP 200 | 401ms |
+| API `/health/deployment` | HTTP 200 | 1673ms |
+| Web `/health/deployment` | HTTP 200 | 374ms |
+| API `/observability/replay-readiness` without auth | HTTP 401 | 386ms |
+
+Deployment identity poll:
+
+- Target commit prefix: `4da7432`.
+- API served commit prefix: `654a3cc3fe9e`.
+- Web served commit prefix: `654a3cc3fe9e`.
+- Poll duration: 15 minutes.
+- API/web `ready`: true during the final poll response.
+
+Validation:
+
+- 15-minute sanitized poll of hosted `/health/deployment` for API and web.
+- `curl.exe` public boundary checks for API/web health, deployment, and
+  unauthenticated replay-readiness.
+
+Next: MIMIR should decide whether to wait for or trigger a deployment for the
+PR149 verdict commit, or explicitly authorize a stale-runtime measurement
+against deployed commit `654a3cc3fe9e`.

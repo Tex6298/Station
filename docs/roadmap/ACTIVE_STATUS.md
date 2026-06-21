@@ -9694,7 +9694,42 @@ git diff --check
 - Developer Spaces visual polish before ingestion auth, validation, limits, and
   safe serialization.
 
-## Latest ARGUS handoff - PR149 Staged replay measurement baseline
+## Latest ARIADNE handoff - PR149 Staged replay measurement baseline
+
+ARIADNE attempted the PR149 hosted replay probe packet on 2026-06-21 and wakes
+MIMIR because the exact deployed-commit precondition is blocked.
+
+Result:
+
+- Railway API and web were healthy, but both deployment identity endpoints
+  continued serving commit `654a3cc3fe9e`, not the ARGUS verdict commit
+  `4da7432`.
+- ARIADNE did not run authenticated owner replay probes because the handoff
+  required the hosted packet only after the verdict commit is deployed. Running
+  token-bearing owner probes against a stale deployment would overclaim PR149
+  hosted proof.
+- Non-secret stale-host boundary checks returned API `/health` HTTP 200 in
+  420ms, web `/health` HTTP 200 in 401ms, API `/health/deployment` HTTP 200 in
+  1673ms, web `/health/deployment` HTTP 200 in 374ms, and unauthenticated API
+  `/observability/replay-readiness` HTTP 401 in 386ms.
+- A 15-minute sanitized deployment poll ended with API/web `ready:true`, API
+  commit `654a3cc3fe9e`, and web commit `654a3cc3fe9e`.
+
+Validation:
+
+- 15-minute sanitized poll of hosted `/health/deployment` for API and web.
+- `curl.exe` public boundary checks for API/web health, deployment, and
+  unauthenticated replay-readiness.
+
+Next:
+
+- MIMIR should decide whether to wait for or trigger a deployment for the PR149
+  verdict commit, or explicitly authorize a stale-runtime measurement against
+  deployed commit `654a3cc3fe9e`.
+
+Result doc: `docs/roadmap/PR149_STAGED_REPLAY_MEASUREMENT_BASELINE.md`.
+
+## Previous ARGUS handoff - PR149 Staged replay measurement baseline
 
 ARGUS accepts PR149 Staged Replay Measurement Baseline on 2026-06-21 and wakes
 ARIADNE for hosted replay probes after this verdict commit is deployed. The lane
