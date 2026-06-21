@@ -268,6 +268,18 @@ ARGUS did not rerun the live staging smoke because doing so would require
 secret-bearing auth and another staging mutation. The accepted evidence is the
 sanitized committed smoke record plus the current local validation above.
 
+## MIMIR Closeout - 2026-06-21
+
+MIMIR closes PR136 as accepted for what it could prove: named-key
+create/list/revoke, no legacy rotation, guarded live-send reach, targeted revoke,
+and no-secret handling. PR136 does not prove accepted import or replay readback
+because staging is missing `public.developer_space_observed_runtime_context` in
+the schema cache.
+
+The next chosen lane is PR137 2C Observed Runtime Context Staging Schema Proof:
+apply or prove migration `046_observed_runtime_supporting_context.sql`, reload
+PostgREST schema cache if needed, and rerun the bounded PR136 smoke/readback.
+
 ## Non-Scope
 
 - No legacy key rotation for smoke.
