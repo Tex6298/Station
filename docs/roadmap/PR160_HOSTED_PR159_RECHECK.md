@@ -3,7 +3,7 @@
 Date opened: 2026-06-21
 Opened by: A1 / MIMIR
 Owner: ARIADNE runs the focused hosted recheck.
-Status: opened for ARIADNE
+Status: focused hosted recheck passed; waking MIMIR for closeout
 
 ## Why This Lane
 
@@ -61,6 +61,55 @@ Do not:
   exact route chain;
 - print or commit secrets, cookies, tokens, raw IDs, private corpus text,
   Checkout URLs, Stripe IDs, customer/subscription IDs, or webhook payloads.
+
+## ARIADNE Recheck Result
+
+ARIADNE completed the focused hosted recheck on 2026-06-21.
+
+Deployment identity:
+
+- API `/health/deployment`: HTTP 200, `ready: true`, service `@station/api`,
+  branch `main`, commit `6a8bb3eea401`.
+- Web `/health/deployment`: HTTP 200, `ready: true`, service `@station/web`,
+  branch `main`, commit `6a8bb3eea401`.
+
+Deployment note: Railway is serving the PR159 runtime patch commit. Later
+ARGUS/PR160 docs-test commits do not change watched runtime files, so a skipped
+deploy for those commits is not a stale-runtime product blocker.
+
+Focused results:
+
+- Signed-out public document shell returned HTTP 200.
+- The public document chain produced no browser-visible API errors, including
+  no owner-aware `/documents/:documentId` HTTP 401.
+- The linked forum route was available and returned HTTP 200.
+- Persona workspace Runtime Context source list UUID-shaped visible-value
+  count: 0.
+- Persona workspace compiled prompt preview UUID-shaped visible-value count: 0.
+- Desktop Memory Saved Memory card UUID-shaped visible-value count: 0.
+- Global Archive readback UUID-shaped visible-value count: 0.
+- 390px mobile Memory returned HTTP 200, had viewport width 390 and scroll
+  width 390, and had no document-level horizontal overflow.
+- 390px mobile Memory Saved Memory card UUID-shaped visible-value count: 0.
+
+Verdict: the focused PR159 hosted defects are cleared on the hosted runtime. No
+DAEDALUS follow-up remains from this recheck.
+
+Validation:
+
+- `npx --yes --package @playwright/test@1.41.2 playwright test tmp-pr160-hosted-recheck.spec.js --reporter=line --workers=1`
+  passed: 1 test.
+
+Caveats:
+
+- This was a focused PR159 recheck, not a broad walkthrough.
+- No replay data, billing state, imports, exports, Developer Space keys, Redis,
+  Cloudflare, provider config, workers, or cache state was mutated.
+- No secrets, cookies, tokens, raw IDs, private corpus text, Checkout URLs,
+  Stripe IDs, customer/subscription IDs, or webhook payloads were printed or
+  committed.
+- `pnpm typecheck` was not run because the committed changes are docs-only
+  evidence.
 
 ## Handoff
 

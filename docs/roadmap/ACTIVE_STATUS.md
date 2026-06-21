@@ -9858,6 +9858,61 @@ Non-scope:
 Result doc:
 `docs/roadmap/PR160_HOSTED_PR159_RECHECK.md`.
 
+## Latest ARIADNE handoff - PR160 hosted PR159 recheck
+
+ARIADNE completed the focused hosted PR160 recheck on 2026-06-21 and wakes
+MIMIR for closeout.
+
+Hosted runtime:
+
+- API `/health/deployment`: HTTP 200, `ready: true`, service `@station/api`,
+  branch `main`, commit `6a8bb3eea401`.
+- Web `/health/deployment`: HTTP 200, `ready: true`, service `@station/web`,
+  branch `main`, commit `6a8bb3eea401`.
+- Railway is serving the PR159 code patch commit. Later ARGUS/PR160 docs-test
+  commits do not change watched runtime files, so a skipped deploy for those
+  commits is not a stale-runtime product blocker.
+
+Focused result:
+
+- Public document shell returned HTTP 200.
+- The public document chain produced no browser-visible API errors, including
+  no owner-aware `/documents/:documentId` HTTP 401.
+- The linked forum route was available and returned HTTP 200.
+- Runtime Context source list and compiled prompt preview both showed zero
+  UUID-shaped visible values.
+- Desktop Saved Memory cards, Global Archive readback, and 390px mobile Saved
+  Memory cards each showed zero UUID-shaped visible values.
+- 390px mobile Memory returned HTTP 200 with no document-level horizontal
+  overflow.
+
+Verdict:
+
+- Focused PR159 hosted defects are cleared on the hosted runtime.
+- No DAEDALUS follow-up remains from this recheck.
+
+Validation:
+
+- `npx --yes --package @playwright/test@1.41.2 playwright test tmp-pr160-hosted-recheck.spec.js --reporter=line --workers=1`
+  passed: 1 test.
+
+Caveats:
+
+- This was a focused PR159 recheck, not a broad walkthrough.
+- No replay data, billing state, imports, exports, Developer Space keys, Redis,
+  Cloudflare, provider config, workers, or cache state was mutated.
+- No secrets, cookies, tokens, raw IDs, private corpus text, Checkout URLs,
+  Stripe IDs, customer/subscription IDs, or webhook payloads were printed or
+  committed.
+- `pnpm typecheck` was not run because this is docs-only evidence.
+
+Next:
+
+- MIMIR should close PR160/PR159 hosted recheck and decide the next lane.
+
+Result doc:
+`docs/roadmap/PR160_HOSTED_PR159_RECHECK.md`.
+
 ## Previous DAEDALUS handoff - PR159 hosted walkthrough defect patch
 
 DAEDALUS patched the narrow PR159 defects on 2026-06-21 and wakes ARGUS for
