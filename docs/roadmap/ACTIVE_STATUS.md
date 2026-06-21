@@ -9694,7 +9694,44 @@ git diff --check
 - Developer Spaces visual polish before ingestion auth, validation, limits, and
   safe serialization.
 
-## Latest ARIADNE handoff - PR146 Memory graph relationship readback
+## Latest MIMIR handoff - PR147 Background jobs activation audit
+
+MIMIR closes PR146 Memory Graph Relationship Readback on 2026-06-21 and wakes
+DAEDALUS for PR147.
+
+Closed PR146 facts:
+
+- ARGUS technically accepted the owner-only Memory graph relationship readback.
+- ARIADNE rehearsed the actual Persona Management route,
+  `/studio/personas/:personaId/edit`; `/manage` was a handoff wording error and
+  no such route exists in the repo.
+- Memory Graph counts, node list, relationship readback, dangling-edge/missing-
+  node copy, and no-node/no-edge/thin states rendered cleanly on desktop and
+  390px mobile.
+- The surface did not expose raw-looking memory ids, edge ids, persona/source
+  ids, prompts, URLs, bearer/token/key/password/webhook/DB URL values, secrets,
+  provider payload markers, graph canvas, automatic relationship generation,
+  public graph scope, or unrelated redesign.
+
+PR147 task:
+
+- Implement `docs/roadmap/PR147_BACKGROUND_JOBS_ACTIVATION_AUDIT.md`.
+- Audit whether current replay/import/export/developer-space flows justify a
+  real queue/worker lane now, or whether protected-alpha inline fallback
+  remains correct.
+- Inspect background job registry, operational cache, readiness, archive import
+  retry, export package, Developer Space import/webhook, and replay-readiness
+  code/docs.
+- Do not overclaim Upstash REST cache-only config as worker queue readiness.
+- If a narrow correctness/readiness wording gap is found, patch it; otherwise
+  produce a concise audit packet and a concrete PR148 recommendation.
+- Do not add BullMQ/Redis/Valkey worker runtime, production worker process,
+  Redis Memory truth, Cloudflare Queue/Worker implementation, broad job
+  processing, public job status, provider migration, or migration-ledger repair.
+- Wake ARGUS with audit findings, validation, any code patch scope, and next
+  lane recommendation. ARIADNE is only needed if visible route behavior changes.
+
+## Previous ARIADNE handoff - PR146 Memory graph relationship readback
 
 ARIADNE accepts PR146 Memory Graph Relationship Readback on 2026-06-21 and
 wakes MIMIR for closeout.

@@ -4,7 +4,7 @@ Date opened: 2026-06-21
 Opened by: A1 / MIMIR
 Owner: DAEDALUS implements or precisely blocks, ARGUS reviews, ARIADNE rehearses
 visible behavior after ARGUS technical acceptance.
-Status: accepted by ARIADNE on 2026-06-21; ready for MIMIR closeout
+Status: closed by MIMIR on 2026-06-21.
 
 ## Why This Lane
 
@@ -227,3 +227,20 @@ ARIADNE validation:
   passed with 3 tests after setting the auth cookie at the Playwright context
   level; the local Next server logged direct `GET
   /studio/personas/persona-pr146-private-id/edit 200` route hits.
+
+## MIMIR Closeout
+
+MIMIR closes PR146 on 2026-06-21.
+
+PR146 is accepted as owner-only Memory graph relationship readback. Persona
+Management now explains existing graph relationships when edges exist, keeps
+honest no-node/no-edge/thin-state copy when they do not, and avoids graph
+canvas work, fake relationship generation, public graph scope, and raw id or
+secret exposure.
+
+Route correction recorded: the actual owner-visible route is
+`/studio/personas/:personaId/edit`; `/manage` was a handoff wording error.
+
+Next lane: `PR147 - Background Jobs Activation Audit`. Lane 6 is sufficiently
+closed for now, so MIMIR moves to Lane 7 to decide whether real queue/worker
+infrastructure is justified by current replay/import/export evidence.

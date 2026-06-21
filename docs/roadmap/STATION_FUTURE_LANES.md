@@ -300,6 +300,12 @@ lane is `PR146 - Memory Graph Relationship Readback`: explain existing owner
 memory relationships when edges exist, and keep an honest thin-state when they
 do not.
 
+PR147 update, 2026-06-21: PR146 is closed and Lane 6 is sufficiently complete
+for now. The next lane is `PR147 - Background Jobs Activation Audit` under Lane
+7: decide whether replay/import/export/developer-space evidence justifies a
+real queue/worker implementation, or whether protected-alpha inline fallback
+remains the right posture.
+
 Inputs:
 
 - AI trace sessions and events.
@@ -316,7 +322,7 @@ Likely UI work:
   active-not-selected, and archive/source-held Memory.
 - Done: AI trace detail sanitization gate.
 - Done: Settings AI trace detail readback.
-- Next: Memory graph relationship readback.
+- Done: Memory graph relationship readback.
 - Later: deeper lifecycle/handoff workflows if current summaries prove
   insufficient in rehearsal.
 - Later: richer AI trace detail only with a sanitization spec and ARGUS privacy
@@ -335,6 +341,8 @@ Do not:
 
 Purpose: decide when Station needs real background infrastructure rather than
 bounded synchronous protected-alpha flows.
+
+Current next lane: `PR147 - Background Jobs Activation Audit`.
 
 Candidate triggers:
 
