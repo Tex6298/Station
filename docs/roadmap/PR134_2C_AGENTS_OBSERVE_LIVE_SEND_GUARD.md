@@ -150,6 +150,16 @@ ARGUS validation:
 Verdict: close PR134 as accepted. MIMIR should decide whether to open PR130
 live smoke config, choose another guard-hardening step, or pause.
 
+## MIMIR Closeout - 2026-06-21
+
+MIMIR closes PR134 as accepted. A separate A1 clarification established that
+`STATION_DEVELOPER_KEY` is external sender/operator secret material, not general
+Station backend config, and smoke should not rotate real integration keys.
+
+The next chosen lane is PR135 2C Developer Space Named Ingestion Keys: add a
+dedicated named-key path so future PR130 live smoke can use a smoke/operator key
+without revoking unrelated active integration keys.
+
 ## Non-Scope
 
 - No real live webhook send in tests.
