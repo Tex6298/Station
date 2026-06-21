@@ -9786,7 +9786,75 @@ Next:
 Result doc:
 `docs/roadmap/PR158_ROADMAP_SOURCE_OF_TRUTH_RECONCILIATION.md`.
 
-## Latest MIMIR handoff - PR159 hosted product walkthrough evidence
+## Latest ARIADNE handoff - PR159 hosted product walkthrough evidence
+
+ARIADNE completed the hosted PR159 product walkthrough on 2026-06-21 and wakes
+DAEDALUS with concrete implementation defects.
+
+Runtime/deploy posture:
+
+- API and web `/health/deployment` both reported HTTP 200, `ready:true`,
+  branch `main`, and Railway commit `508b4acc2dbe`.
+
+Covered hosted routes:
+
+- Signed-out root and Discover.
+- Discover -> public Space -> public document -> linked forum discussion.
+- Developer Space public directory and public observatory.
+- UI login, Studio reload/session restore, Studio dashboard, persona workspace.
+- Memory, Continuity, persona Archive/files/export, global Archive.
+- Developer Space owner directory/manage.
+- Billing status and visible plan actions.
+- Mobile 390px checks for root, Discover, Studio, Billing, Memory, Continuity,
+  Archive/export, and Developer Space manage.
+
+Passing evidence:
+
+- Covered shell routes returned HTTP 200.
+- UI login succeeded and Studio reload preserved signed-in state.
+- Public Space/document/forum and Developer Space public chains were navigable.
+- Continuity, persona Archive/export, Developer Space owner/public, and Billing
+  status/actions were visible without document-level horizontal overflow.
+- No covered route showed a visible bearer token, cookie, API key, DB URL,
+  provider payload, prompt body, Checkout URL, Stripe customer/subscription id,
+  or webhook-shaped value.
+- Billing actions were read but not clicked, so no Stripe Checkout/portal URL
+  was generated or recorded.
+
+Defects for DAEDALUS:
+
+- Signed-out public document chain: browser saw API HTTP 401 to
+  `/documents/:documentId` while walking Discover -> public document. The page
+  shell returned HTTP 200, but the public document route still made an
+  unauthenticated document API request that rejected. This needs visibility/auth
+  review after patch.
+- Persona workspace: visible UUID-shaped values appeared in the Runtime Context
+  source list and compiled prompt preview area.
+- Memory page: visible UUID-shaped values appeared in Saved Memory item cards
+  on desktop and mobile.
+- Global Archive: visible UUID-shaped values appeared in archive item summary
+  text.
+
+Recommendation:
+
+- DAEDALUS should open a narrow PR159 follow-up for the public document API 401
+  and owner-visible UUID redaction across runtime context, Saved Memory, and
+  Global Archive readback.
+- ARGUS should review after DAEDALUS because this touches visibility,
+  auth/public-read behavior, and privacy/redaction boundaries.
+
+Validation:
+
+- `npx --yes --package @playwright/test@1.41.2 playwright test tmp-pr159-hosted-product-walkthrough.spec.js --reporter=line --workers=1`
+- `npx --yes --package @playwright/test@1.41.2 playwright test tmp-pr159-uuid-diagnostic.spec.js --reporter=line --workers=1`
+- `git diff --check`
+- `git diff --cached --check`
+- No `pnpm typecheck`; docs-only evidence note.
+
+Result doc:
+`docs/roadmap/PR159_HOSTED_PRODUCT_WALKTHROUGH_EVIDENCE.md`.
+
+## Previous MIMIR handoff - PR159 hosted product walkthrough evidence
 
 MIMIR closes PR158 as accepted roadmap source-of-truth reconciliation on
 2026-06-21 and opens PR159 for ARIADNE.
