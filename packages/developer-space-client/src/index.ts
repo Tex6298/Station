@@ -62,6 +62,42 @@ export interface DeveloperSpaceBatchImportPayload {
   supportingContext?: DeveloperSpaceObservedRuntimeContextPayload[];
 }
 
+export interface DeveloperSpaceObservedRuntimeWebhookEnvelope {
+  schema: "station.observed_runtime.webhook.v1";
+  deliveryId?: string;
+  source: {
+    runtimeHostedBy: "external";
+    stationRole: "observer";
+    id?: string;
+    [key: string]: unknown;
+  };
+  observedAt: string;
+  payload: DeveloperSpaceBatchImportPayload;
+}
+
+export interface DeveloperSpaceObservedRuntimeWebhookInput {
+  payload: DeveloperSpaceBatchImportPayload;
+  deliveryId?: string;
+  observedAt?: string;
+  source?: Partial<DeveloperSpaceObservedRuntimeWebhookEnvelope["source"]>;
+}
+
+export interface DeveloperSpaceObservedRuntimeWebhookRequest {
+  body: string;
+  headers: {
+    "Content-Type": "application/json";
+    "X-Station-Signature": string;
+    "X-Station-Webhook-Id": string;
+  };
+  envelope: DeveloperSpaceObservedRuntimeWebhookEnvelope;
+}
+
+export interface DeveloperSpaceObservedRuntimeWebhookSendOptions extends DeveloperSpaceObservedRuntimeWebhookInput {
+  signingSecret?: string;
+  webhookId?: string;
+  timestamp?: number;
+}
+
 export type DeveloperSpaceClientErrorCategory =
   | "auth"
   | "validation"
@@ -141,15 +177,29 @@ export class DeveloperSpaceClient {
     return this.post("/developer-spaces/ingest/import", payload);
   }
 
+  async sendObservedRuntimeWebhook<T = unknown>(options: DeveloperSpaceObservedRuntimeWebhookSendOptions): Promise<T> {
+    const request = await createObservedRuntimeWebhookRequest({
+      ...options,
+      signingSecret: options.signingSecret ?? this.apiKey,
+    });
+    return this.postRaw("/developer-spaces/ingest/observed-runtime", request.body, request.headers);
+  }
+
   private async post<T = unknown>(path: string, payload: unknown): Promise<T> {
+    return this.postRaw(path, JSON.stringify(payload ?? {}), {
+      "Content-Type": "application/json",
+    });
+  }
+
+  private async postRaw<T = unknown>(path: string, bodyText: string, headers: Record<string, string>): Promise<T> {
     const response = await this.fetchImpl(`${this.baseUrl}${path}`, {
       method: "POST",
       headers: {
         ...this.headers,
-        "Content-Type": "application/json",
+        ...headers,
         "X-Station-Developer-Key": this.apiKey,
       },
-      body: JSON.stringify(payload ?? {}),
+      body: bodyText,
     });
 
     const text = await response.text();
@@ -168,6 +218,82 @@ export class DeveloperSpaceClient {
 
 export function createDeveloperSpaceClient(options: DeveloperSpaceClientOptions) {
   return new DeveloperSpaceClient(options);
+}
+
+export function createObservedRuntimeWebhookEnvelope(
+  input: DeveloperSpaceObservedRuntimeWebhookInput
+): DeveloperSpaceObservedRuntimeWebhookEnvelope {
+  return {
+    schema: "station.observed_runtime.webhook.v1",
+    deliveryId: input.deliveryId,
+    source: {
+      ...input.source,
+      runtimeHostedBy: "external",
+      stationRole: "observer",
+    },
+    observedAt: input.observedAt ?? new Date().toISOString(),
+    payload: input.payload,
+  };
+}
+
+export async function signObservedRuntimeWebhookBody(input: {
+  rawBody: string;
+  signingSecret: string;
+  timestamp?: number;
+}) {
+  const signingSecret = input.signingSecret.trim();
+  if (!signingSecret) throw new Error("signingSecret is required.");
+  const timestamp = input.timestamp ?? Math.floor(Date.now() / 1000);
+  if (!globalThis.crypto?.subtle) {
+    throw new Error("Web Crypto is required to sign observed-runtime webhooks.");
+  }
+  const encoder = new TextEncoder();
+  const key = await globalThis.crypto.subtle.importKey(
+    "raw",
+    encoder.encode(signingSecret),
+    { name: "HMAC", hash: "SHA-256" },
+    false,
+    ["sign"],
+  );
+  const signatureBytes = await globalThis.crypto.subtle.sign(
+    "HMAC",
+    key,
+    encoder.encode(`${timestamp}.${input.rawBody}`),
+  );
+  const signature = bytesToHex(new Uint8Array(signatureBytes));
+  return `t=${timestamp},v1=${signature}`;
+}
+
+export async function createObservedRuntimeWebhookRequest(input: DeveloperSpaceObservedRuntimeWebhookSendOptions & {
+  signingSecret: string;
+}): Promise<DeveloperSpaceObservedRuntimeWebhookRequest> {
+  const deliveryId = (input.webhookId ?? input.deliveryId)?.trim();
+  if (!deliveryId) throw new Error("deliveryId or webhookId is required.");
+  const envelopeDeliveryId = input.deliveryId?.trim() || deliveryId;
+  const envelope = createObservedRuntimeWebhookEnvelope({
+    payload: input.payload,
+    deliveryId: envelopeDeliveryId,
+    observedAt: input.observedAt,
+    source: input.source,
+  });
+  const body = JSON.stringify(envelope);
+  return {
+    body,
+    envelope,
+    headers: {
+      "Content-Type": "application/json",
+      "X-Station-Signature": await signObservedRuntimeWebhookBody({
+        rawBody: body,
+        signingSecret: input.signingSecret,
+        timestamp: input.timestamp,
+      }),
+      "X-Station-Webhook-Id": deliveryId,
+    },
+  };
+}
+
+function bytesToHex(bytes: Uint8Array) {
+  return Array.from(bytes, (byte) => byte.toString(16).padStart(2, "0")).join("");
 }
 
 function safeJson(text: string): unknown {

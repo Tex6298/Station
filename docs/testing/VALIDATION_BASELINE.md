@@ -52,6 +52,43 @@ pnpm test:developer-spaces
 pnpm test:developer-space-client
 ```
 
+## PR128 2C Observed Runtime Webhook Operator Packet
+
+DAEDALUS implementation validation on 2026-06-21:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 26 tests passed; existing observed-runtime webhook ingress, signing-secret, concurrency/idempotency, and readback behavior stayed green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-space-client` | Pass | 7 tests passed, including exact raw-body signature proof, dedicated signing-secret send behavior, no secret-in-body assertion, ingestion-key fallback signing, and in-progress error readback. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed from cache. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/api build` | Pass | API build completed with dependent shared package builds. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/developer-space-client build` | Pass | Client package build completed. |
+| `git diff --check` | Pass | CRLF normalization warnings only. |
+
+Implementation result:
+
+- The Developer Space client can build a
+  `station.observed_runtime.webhook.v1` envelope, serialize it to raw JSON, and
+  sign the exact raw body bytes with the `X-Station-Signature` header
+  (`t=<unix-seconds>,v1=<hex-hmac>`).
+- `sendObservedRuntimeWebhook` posts the signed body to
+  `/developer-spaces/ingest/observed-runtime` with
+  `X-Station-Developer-Key`, `X-Station-Signature`, and
+  `X-Station-Webhook-Id`.
+- The signing helper uses Web Crypto HMAC-SHA256 so the client package build
+  does not need Node-only type dependencies.
+- The local smoke example uses env names only and prints structured readback
+  without printing secrets.
+- The client README documents dedicated signing-secret versus ingestion-key
+  fallback behavior, success/replay/in-progress/conflict/auth categories, and
+  the boundary that Station observes/imports external runtime state but does
+  not execute, host, schedule, or control it.
+- No hosted runtime, container execution, scheduler, worker, queue, Cloudflare
+  Worker/Vectorize/D1, partner adapter, public onboarding wizard, visible
+  secret-management UI, user-pasted secret flow, vault UI, billing/Stripe,
+  Redis memory truth, provider routing, chat-native developer agent, broad UI,
+  production partner claim, or committed secret value was added.
+
 ## PR127 2C Observed Runtime Webhook Concurrency Guard
 
 DAEDALUS implementation and ARGUS review validation on 2026-06-21:

@@ -1,8 +1,11 @@
 import assert from "node:assert/strict";
+import { createHmac } from "node:crypto";
 import test from "node:test";
 import {
+  createObservedRuntimeWebhookRequest,
   createDeveloperSpaceClient,
   DeveloperSpaceClientError,
+  signObservedRuntimeWebhookBody,
 } from "./index";
 
 test("client posts node state with encoded path and required headers", async () => {
@@ -140,6 +143,151 @@ test("client exposes quota, rate-limit, and fallback error categories", async ()
       assert.equal(clientError.message, "Developer Space request failed with 503.");
       return true;
     },
+  );
+});
+
+test("observed runtime webhook helper signs the exact raw JSON body", async () => {
+  const request = await createObservedRuntimeWebhookRequest({
+    deliveryId: "delivery-001",
+    webhookId: "webhook-001",
+    observedAt: "2026-06-21T00:00:00.000Z",
+    signingSecret: "station_whsec_test",
+    timestamp: 1_771_452_800,
+    source: {
+      id: "operator-smoke",
+    },
+    payload: {
+      nodes: [
+        {
+          nodeId: "world:gate",
+          nodeName: "World Gate",
+          fragmentCount: 12,
+          metrics: { publicState: "stable" },
+        },
+      ],
+      events: [],
+      snapshots: [],
+      supportingContext: [],
+    },
+  });
+
+  const expectedSignature = createHmac("sha256", "station_whsec_test")
+    .update("1771452800.")
+    .update(Buffer.from(request.body, "utf8"))
+    .digest("hex");
+
+  assert.equal(request.headers["Content-Type"], "application/json");
+  assert.equal(request.headers["X-Station-Webhook-Id"], "webhook-001");
+  assert.equal(request.headers["X-Station-Signature"], `t=1771452800,v1=${expectedSignature}`);
+  assert.deepEqual(JSON.parse(request.body), {
+    schema: "station.observed_runtime.webhook.v1",
+    deliveryId: "delivery-001",
+    source: {
+      id: "operator-smoke",
+      runtimeHostedBy: "external",
+      stationRole: "observer",
+    },
+    observedAt: "2026-06-21T00:00:00.000Z",
+    payload: {
+      nodes: [
+        {
+          nodeId: "world:gate",
+          nodeName: "World Gate",
+          fragmentCount: 12,
+          metrics: { publicState: "stable" },
+        },
+      ],
+      events: [],
+      snapshots: [],
+      supportingContext: [],
+    },
+  });
+});
+
+test("client sends signed observed runtime webhooks without logging secrets", async () => {
+  const calls: Array<{ url: string; init: RequestInit }> = [];
+  const client = createDeveloperSpaceClient({
+    baseUrl: "https://station.example",
+    apiKey: "station_dev_test",
+    fetch: (async (url, init) => {
+      calls.push({ url: String(url), init: init ?? {} });
+      return new Response(JSON.stringify({
+        accepted: true,
+        replayed: false,
+        webhookId: "delivery-001",
+        imported: { nodes: 1, events: 0, snapshots: 0, supportingContext: 0 },
+      }), { status: 202 });
+    }) as typeof fetch,
+  });
+
+  const result = await client.sendObservedRuntimeWebhook({
+    deliveryId: "delivery-001",
+    signingSecret: "station_whsec_dedicated",
+    timestamp: 1_771_452_800,
+    payload: {
+      nodes: [{ nodeId: "world:gate", fragmentCount: 12 }],
+    },
+  });
+
+  assert.deepEqual(result, {
+    accepted: true,
+    replayed: false,
+    webhookId: "delivery-001",
+    imported: { nodes: 1, events: 0, snapshots: 0, supportingContext: 0 },
+  });
+  assert.equal(calls.length, 1);
+  assert.equal(calls[0].url, "https://station.example/developer-spaces/ingest/observed-runtime");
+  const headers = calls[0].init.headers as Record<string, string>;
+  assert.equal(headers["X-Station-Developer-Key"], "station_dev_test");
+  assert.equal(headers["X-Station-Webhook-Id"], "delivery-001");
+  assert.match(headers["X-Station-Signature"], /^t=1771452800,v1=[a-f0-9]{64}$/);
+  assert.equal(String(calls[0].init.body).includes("station_whsec_dedicated"), false);
+});
+
+test("client falls back to ingestion key signing and exposes webhook in-progress errors", async () => {
+  const calls: Array<{ url: string; init: RequestInit }> = [];
+  const client = createDeveloperSpaceClient({
+    baseUrl: "https://station.example",
+    apiKey: "station_dev_fallback",
+    fetch: (async (url, init) => {
+      calls.push({ url: String(url), init: init ?? {} });
+      return new Response(JSON.stringify({
+        error: "Observed runtime webhook delivery is already being processed.",
+        code: "developer_space_webhook_in_progress",
+        category: "validation",
+        details: { webhookId: "delivery-002", retryable: true },
+      }), { status: 409 });
+    }) as typeof fetch,
+  });
+
+  await assert.rejects(
+    () => client.sendObservedRuntimeWebhook({
+      deliveryId: "delivery-002",
+      timestamp: 1_771_452_800,
+      payload: { nodes: [{ nodeId: "world:gate" }] },
+    }),
+    (error) => {
+      const clientError = error as DeveloperSpaceClientError;
+      assert.equal(clientError.status, 409);
+      assert.equal(clientError.code, "developer_space_webhook_in_progress");
+      assert.equal(clientError.category, "validation");
+      assert.deepEqual((clientError.body as any).details, {
+        webhookId: "delivery-002",
+        retryable: true,
+      });
+      return true;
+    },
+  );
+
+  const headers = calls[0].init.headers as Record<string, string>;
+  const body = String(calls[0].init.body);
+  assert.equal(
+    headers["X-Station-Signature"],
+    await signObservedRuntimeWebhookBody({
+      rawBody: body,
+      signingSecret: "station_dev_fallback",
+      timestamp: 1_771_452_800,
+    }),
   );
 });
 

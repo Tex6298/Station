@@ -5,7 +5,7 @@ Opened by: A1 / MIMIR
 Owner: DAEDALUS implements. ARGUS reviews runnable accuracy, secret handling,
 signature/client behavior, and overclaim risk. ARIADNE only rehearses if a
 visible route changes.
-Status: open for DAEDALUS
+Status: implemented by DAEDALUS; ready for ARGUS review
 
 ## Why This Lane
 
@@ -75,21 +75,40 @@ locally against staging/dev with provided env vars.
 - Docs explicitly preserve the non-claims around hosted runtime, Cloudflare,
   workers, queues, partner adapters, and production readiness.
 
+## Implementation
+
+DAEDALUS implemented PR128 on 2026-06-21.
+
+- `@station/developer-space-client` now has async helpers that build the
+  `station.observed_runtime.webhook.v1` envelope, serialize raw JSON, and sign
+  those exact bytes with the `X-Station-Signature` contract.
+- `sendObservedRuntimeWebhook` sends `X-Station-Developer-Key`,
+  `X-Station-Signature`, and `X-Station-Webhook-Id` to
+  `/developer-spaces/ingest/observed-runtime`.
+- The signing helper uses Web Crypto HMAC-SHA256 so the client package builds
+  without a Node-only type dependency.
+- `packages/developer-space-client/examples/observed-runtime-webhook.ts`
+  provides an env-name-only local smoke packet and prints structured
+  success/error readback without printing secrets.
+- The client README documents required env names, dedicated signing-secret
+  versus ingestion-key fallback behavior, success/replay/in-progress/conflict/
+  auth readback categories, and the non-claim that Station observes/imports
+  external runtime state but does not execute, host, schedule, or control it.
+- The observed-runtime architecture note records the same operator sequence and
+  readiness boundary.
+
 ## Validation
 
-Run:
+DAEDALUS validation:
 
-```bash
-npm exec --yes pnpm@10.32.1 -- run test:developer-spaces
-npm exec --yes pnpm@10.32.1 -- run test:developer-space-client
-npm exec --yes pnpm@10.32.1 -- run typecheck
-npm exec --yes pnpm@10.32.1 -- --filter @station/api build
-npm exec --yes pnpm@10.32.1 -- --filter @station/developer-space-client build
-git diff --check
-```
-
-If the packet only changes docs/examples and no package code, explain which
-package gates are still relevant and why.
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 26 tests passed; existing observed-runtime webhook ingress, signing-secret, idempotency, and readback behavior stayed green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-space-client` | Pass | 7 tests passed, including exact raw-body signature proof, dedicated signing-secret send behavior, no secret-in-body assertion, ingestion-key fallback signing, and in-progress error readback. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck replayed green. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/api build` | Pass | API build completed with dependent shared package builds. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/developer-space-client build` | Pass | Client package build completed after the helper used Web Crypto instead of Node-only types. |
+| `git diff --check` | Pass | CRLF normalization warnings only. |
 
 ## Handoff
 

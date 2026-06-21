@@ -51,6 +51,81 @@ await station.recordSnapshot({
 
 See `examples/node-ingest.ts` for a complete local example.
 
+## Signed observed-runtime webhook
+
+The observed-runtime webhook is for importing state from an external runtime
+that Station observes. Station does not execute, host, schedule, or control
+that runtime.
+
+Use `sendObservedRuntimeWebhook` when you need the PR125/PR126 signature
+contract:
+
+```ts
+await station.sendObservedRuntimeWebhook({
+  deliveryId: "stable-delivery-id",
+  signingSecret: process.env.STATION_OBSERVED_RUNTIME_SIGNING_SECRET,
+  source: {
+    id: "external-runtime-id",
+  },
+  payload: {
+    nodes: [{ nodeId: "runtime:alpha", fragmentCount: 1 }],
+    events: [],
+    snapshots: [],
+    supportingContext: [],
+  },
+});
+```
+
+The helper builds a `station.observed_runtime.webhook.v1` envelope, serializes it
+to raw JSON, and signs those exact bytes with:
+
+```text
+X-Station-Signature: t=<unix-seconds>,v1=<hex-hmac>
+```
+
+The HMAC input is `<timestamp>.<raw-body-bytes>` using SHA-256. The request also
+sends `X-Station-Developer-Key` and `X-Station-Webhook-Id`.
+
+Run the local smoke example with env names only:
+
+```bash
+STATION_API_URL=http://localhost:4000 \
+STATION_DEVELOPER_KEY=... \
+STATION_OBSERVED_RUNTIME_WEBHOOK_ID=local-delivery-001 \
+STATION_OBSERVED_RUNTIME_SIGNING_SECRET=... \
+npx tsx packages/developer-space-client/examples/observed-runtime-webhook.ts
+```
+
+Required:
+
+- `STATION_API_URL`
+- `STATION_DEVELOPER_KEY`
+- `STATION_OBSERVED_RUNTIME_WEBHOOK_ID`
+
+Optional:
+
+- `STATION_OBSERVED_RUNTIME_SIGNING_SECRET`: required when the Developer Space
+  has an active dedicated observed-runtime signing secret. If no active
+  dedicated secret exists, the client can use the Developer Space ingestion key
+  as the PR125 fallback signing material.
+- `STATION_OBSERVED_RUNTIME_SOURCE_ID`: source id written into the envelope.
+- `STATION_OBSERVED_RUNTIME_PAYLOAD_PATH`: JSON file containing a
+  `DeveloperSpaceBatchImportPayload`; otherwise the example sends a small
+  public-safe sample payload.
+
+Do not print or commit key or signing-secret values. The example prints only
+structured success/error readback and never includes the secret in the body.
+
+Expected readback categories:
+
+| Case | Typical status | Client readback |
+| --- | --- | --- |
+| Accepted first delivery | `202` | `{ accepted:true, replayed:false, webhookId, imported }` |
+| Same id and same payload after completion | `200` | `{ accepted:false, replayed:true, webhookId, imported }` |
+| Same id and same payload while processing | `409` | `code:"developer_space_webhook_in_progress"`, `category:"validation"`, `details.retryable:true` |
+| Same id and different payload | `409` | `code:"developer_space_webhook_replay_conflict"`, `category:"validation"` |
+| Missing, invalid, stale, or wrong signing material | `401` or `403` | `category:"auth"` |
+
 ## Error handling
 
 Failed ingestion calls throw `DeveloperSpaceClientError`. Branch on `category`

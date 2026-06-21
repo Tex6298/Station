@@ -266,6 +266,35 @@ PR127 adds the bounded concurrent-delivery guard for the same webhook path:
 The guard is Supabase receipt-table based. It does not introduce workers,
 queues, Redis locks, Cloudflare, or a separate runtime truth store.
 
+PR128 adds an operator packet around the hardened webhook path:
+
+- `@station/developer-space-client` can build a
+  `station.observed_runtime.webhook.v1` envelope from the existing Developer
+  Space batch import payload shape;
+- the client serializes the envelope to raw JSON and signs those exact bytes
+  with `X-Station-Signature: t=<unix-seconds>,v1=<hex-hmac>`;
+- the HMAC input is `<timestamp>.<raw-body-bytes>` with SHA-256;
+- `X-Station-Developer-Key` and a stable `X-Station-Webhook-Id` are sent with
+  the signed body;
+- `packages/developer-space-client/examples/observed-runtime-webhook.ts`
+  provides a local smoke packet driven by env names only.
+
+The setup env names are:
+
+- `STATION_API_URL`;
+- `STATION_DEVELOPER_KEY`;
+- `STATION_OBSERVED_RUNTIME_WEBHOOK_ID`;
+- optional `STATION_OBSERVED_RUNTIME_SIGNING_SECRET`, required when a dedicated
+  active signing secret exists and otherwise replaceable by the PR125
+  ingestion-key fallback;
+- optional `STATION_OBSERVED_RUNTIME_SOURCE_ID`;
+- optional `STATION_OBSERVED_RUNTIME_PAYLOAD_PATH`.
+
+The packet documents first-delivery success, completed replay,
+in-progress/retryable delivery, replay conflict, and auth/signature failure
+readback. It does not include secret values and does not print key or signing
+secret material.
+
 PR124 adds durable idempotency receipts:
 
 - `developer_space_observed_runtime_webhook_receipts`
@@ -315,7 +344,7 @@ partner or production ingestion path.
 
 ## Non-Claims
 
-PR120-PR127 add no hosted runtime, Cloudflare Worker, Vectorize index, D1
+PR120-PR128 add no hosted runtime, Cloudflare Worker, Vectorize index, D1
 binding, queue, background job, partner adapter, user-pasted secret flow,
 billing, Stripe behavior, Redis memory truth, provider routing, or visible
 Developer Space redesign.
