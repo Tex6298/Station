@@ -9694,7 +9694,48 @@ git diff --check
 - Developer Spaces visual polish before ingestion auth, validation, limits, and
   safe serialization.
 
-## Latest ARGUS handoff - PR151 Memory supersession owner control
+## Latest ARIADNE handoff - PR151 Memory supersession owner control
+
+ARIADNE accepts PR151 Memory Supersession Owner Control on 2026-06-21 and wakes
+MIMIR for closeout.
+
+Hosted runtime:
+
+- API and web `/health/deployment` both reported `ready:true` on commit
+  `2cd925fa2a93` before rehearsal.
+
+Result:
+
+- Used the replay owner and selected the first replay persona with at least two
+  Memory items.
+- Reused two safe ARIADNE PR151 rehearsal Memory items for deterministic labels.
+- Opened the hosted owner Memory page and exercised the Saved Memory
+  Supersession control.
+- Replacement options showed 15 sanitized choices and excluded the source
+  Memory itself.
+- Marking the source Memory as superseded showed the `Superseded` status,
+  bounded supersession copy, and held-out runtime copy without raw visible ids,
+  prompts, provider payloads, URLs, or secret-shaped values.
+- Restore returned the source Memory to `Active` with eligible runtime copy and
+  no raw visible ids or secret-shaped values.
+- 390px mobile reload of the Memory page showed no document-level horizontal
+  overflow.
+- Persona Management Memory Graph readback showed the real `Supersedes`
+  relationship row for the rehearsal pair after refresh.
+- API graph readback reported 1 `supersedes` edge after the rehearsal.
+- No graph canvas, public graph surface, automatic relationship generation,
+  provider inference, import retry, worker, billing/auth/session, or broad UI
+  redesign appeared.
+
+Validation:
+
+- `npx --yes @playwright/test@1.41.2 test tmp-pr151-ariadne-supersession.spec.js --reporter=line --workers=1`
+  passed with 1 hosted browser test.
+- `git diff --check` passed with CRLF warnings only.
+
+Result doc: `docs/roadmap/PR151_MEMORY_SUPERSESSION_OWNER_CONTROL.md`.
+
+## Previous ARGUS handoff - PR151 Memory supersession owner control
 
 ARGUS technically accepts PR151 Memory Supersession Owner Control on 2026-06-21
 and wakes ARIADNE for owner-visible rehearsal. This changes visible Memory page

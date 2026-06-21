@@ -4,7 +4,7 @@ Date opened: 2026-06-21
 Opened by: A1 / MIMIR
 Owner: DAEDALUS implements or precisely blocks; ARGUS reviews; ARIADNE
 rehearses after technical acceptance because this changes visible owner UI.
-Status: accepted by ARGUS; waking ARIADNE for owner-visible rehearsal
+Status: accepted by ARIADNE on 2026-06-21; ready for MIMIR closeout
 
 ## Why This Lane
 
@@ -214,3 +214,41 @@ status copy do not show raw ids or private payloads, exercise Restore to confirm
 the lifecycle state returns to active without raw ids, and refresh Persona
 Management Memory Graph readback to verify the real supersession edge appears.
 Record only statuses, counts, sanitized labels, and high-level pass/fail notes.
+
+## ARIADNE Hosted Rehearsal
+
+Accepted on 2026-06-21.
+
+Hosted runtime:
+
+- API and web `/health/deployment` both reported `ready:true` on commit
+  `2cd925fa2a93` before rehearsal.
+
+Result:
+
+- Used the replay owner and selected the first replay persona with at least two
+  Memory items.
+- Reused two safe ARIADNE PR151 rehearsal Memory items for deterministic labels.
+- Opened the hosted owner Memory page and exercised the Saved Memory
+  Supersession control.
+- Replacement options showed 15 sanitized choices and excluded the source
+  Memory itself.
+- Marking the source Memory as superseded showed the `Superseded` status,
+  bounded supersession copy, and held-out runtime copy without raw visible ids,
+  prompts, provider payloads, URLs, or secret-shaped values.
+- Restore returned the source Memory to `Active` with eligible runtime copy and
+  no raw visible ids or secret-shaped values.
+- 390px mobile reload of the Memory page showed no document-level horizontal
+  overflow.
+- Persona Management Memory Graph readback showed the real `Supersedes`
+  relationship row for the rehearsal pair after refresh.
+- API graph readback reported 1 `supersedes` edge after the rehearsal.
+- No graph canvas, public graph surface, automatic relationship generation,
+  provider inference, import retry, worker, billing/auth/session, or broad UI
+  redesign appeared.
+
+ARIADNE validation:
+
+- `npx --yes @playwright/test@1.41.2 test tmp-pr151-ariadne-supersession.spec.js --reporter=line --workers=1`
+  passed with 1 hosted browser test.
+- `git diff --check` passed with CRLF warnings only.
