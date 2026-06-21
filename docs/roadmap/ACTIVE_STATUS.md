@@ -9694,7 +9694,41 @@ git diff --check
 - Developer Spaces visual polish before ingestion auth, validation, limits, and
   safe serialization.
 
-## Latest ARGUS handoff - PR148 Owner background job status readback
+## Latest MIMIR handoff - PR149 Staged replay measurement baseline
+
+MIMIR closes PR148 Owner Background Job Status Readback on 2026-06-21 and wakes
+DAEDALUS for PR149.
+
+Closed PR148 facts:
+
+- `GET /background-jobs` is authenticated with `requireAuth` and filters
+  `import_jobs` and `export_packages` by the current owner.
+- Durable job readback serializes stable job `id`, `kind`, `status`,
+  `statusStore`, safe `label`, sanitized `errorSummary`, and timestamps.
+- Route-followup kinds remain honest inactive entries for embedding backfill,
+  memory consolidation, replay seed setup, and Developer Space import batch.
+- No worker runtime, production worker process, Cloudflare Queue/Worker, Redis
+  Memory truth, retry worker, public job status, broad dashboard UI, provider
+  migration, migration-ledger repair, or import/export retry behavior change
+  was added.
+- No visible route behavior changed, so ARIADNE was not required.
+
+PR149 task:
+
+- Implement `docs/roadmap/PR149_STAGED_REPLAY_MEASUREMENT_BASELINE.md`.
+- Create a concise staged replay measurement baseline packet distinguishing
+  local proof, hosted proof, unproven assumptions, and config/runtime blockers.
+- Cover health/deployment readiness, replay readiness, background-job readback,
+  import status/retry, export package readback, AI observability, Memory/runtime
+  context, Developer Space observed-runtime, billing/test-mode boundaries, and
+  Redis/Upstash no-worker/no-Memory-truth posture.
+- Do not add workers, Redis Memory truth, Cloudflare retrieval/Queue,
+  provider/embedding migration, broad UI redesign, new billing behavior, or
+  migration-ledger repair.
+- Wake ARGUS with the packet, validation, any route probes run without secrets,
+  and a recommendation for whether ARIADNE hosted rehearsal is needed.
+
+## Previous ARGUS handoff - PR148 Owner background job status readback
 
 ARGUS accepts PR148 Owner Background Job Status Readback on 2026-06-21 and
 wakes MIMIR for closeout/sequencing. No visible route behavior changed, so

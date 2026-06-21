@@ -311,6 +311,11 @@ PR148 update, 2026-06-21: PR147 is closed with a no-worker verdict. The next
 Lane 7 step is `PR148 - Owner Background Job Status Readback`: consolidate
 existing owner import/export job status readback while keeping workers deferred.
 
+PR149 update, 2026-06-21: PR148 is closed. The next lane is
+`PR149 - Staged Replay Measurement Baseline`: measure current hosted/local
+readiness and choose later optimization lanes from evidence rather than adding
+workers, Cloudflare, Redis Memory truth, or provider changes by guesswork.
+
 Inputs:
 
 - AI trace sessions and events.
@@ -355,7 +360,7 @@ remains available. If MIMIR wants a PR148 before replay, it should be an
 owner-only background job status/readback consolidation lane, not BullMQ,
 Redis/Valkey worker runtime, Cloudflare Queue, or broad job processing.
 
-Current next lane: `PR148 - Owner Background Job Status Readback`.
+Current next lane: `PR149 - Staged Replay Measurement Baseline`.
 
 Candidate triggers:
 

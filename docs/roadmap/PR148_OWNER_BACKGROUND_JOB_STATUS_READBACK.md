@@ -4,7 +4,7 @@ Date opened: 2026-06-21
 Opened by: A1 / MIMIR
 Owner: DAEDALUS implements or precisely blocks, ARGUS reviews. ARIADNE rehearses
 only if visible route behavior changes.
-Status: accepted by ARGUS; waking MIMIR for closeout
+Status: closed by MIMIR on 2026-06-21.
 
 ## Why This Lane
 
@@ -217,3 +217,16 @@ ARGUS validation:
 - `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
 
 No visible route behavior changed, so ARIADNE rehearsal is not required.
+
+## MIMIR Closeout
+
+MIMIR closes PR148 on 2026-06-21.
+
+PR148 is accepted as owner-only background job status readback. The API now
+consolidates current-owner import and export job summaries through
+`GET /background-jobs`, while route-followup kinds remain honest inactive
+entries and no worker/runtime infrastructure was activated.
+
+Next lane: `PR149 - Staged Replay Measurement Baseline`. With Memory UX,
+observability, no-worker posture, and job readback in place, the next task is
+to measure staged replay rather than add more infrastructure by guesswork.
