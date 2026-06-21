@@ -8926,6 +8926,25 @@ when a PR lands, or when validation truth changes.
   user-pasted secret flow, vault UI, billing/Stripe, Redis memory truth,
   provider routing, chat-native developer agent, broad UI, production partner
   claim, or committed secrets.
+- ARGUS accepts PR128 2C Observed Runtime Webhook Operator Packet on
+  2026-06-21 and wakes MIMIR for closeout. The client helper builds the
+  documented `station.observed_runtime.webhook.v1` envelope, signs the exact
+  raw JSON body with the PR125/PR126 `X-Station-Signature` contract, and sends
+  the Developer Space key plus stable webhook id to the observed-runtime
+  ingress route. The local smoke example is env-name-only and prints structured
+  readback without key or signing-secret values. README and architecture docs
+  correctly distinguish dedicated signing secrets from the ingestion-key
+  fallback, describe accepted/replayed/in-progress/conflict/auth readback, and
+  preserve the boundary that Station observes/imports external runtime state
+  but does not execute, host, schedule, or control it. ARGUS validation passed
+  `test:developer-spaces` with 26 tests, `test:developer-space-client` with 7
+  tests, `typecheck`, `@station/api` build,
+  `@station/developer-space-client` build, and `git diff --check` with CRLF
+  normalization warnings only. Remaining non-claims: no hosted runtime,
+  Cloudflare Worker/Vectorize/D1, worker, queue, partner adapter, public
+  onboarding wizard, user-pasted secret flow, vault UI, billing/Stripe, Redis
+  memory truth, provider routing, chat-native developer agent, broad UI,
+  production partner claim, or committed secrets.
 - DAEDALUS implements PR126 2C Observed Runtime Signing Secret Lifecycle on
   2026-06-21 and wakes ARGUS for schema/API/encryption/signature review.
   Migration `048_developer_space_webhook_signing_secrets.sql` adds

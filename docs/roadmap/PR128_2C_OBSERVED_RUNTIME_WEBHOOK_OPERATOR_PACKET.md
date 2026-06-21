@@ -5,7 +5,7 @@ Opened by: A1 / MIMIR
 Owner: DAEDALUS implements. ARGUS reviews runnable accuracy, secret handling,
 signature/client behavior, and overclaim risk. ARIADNE only rehearses if a
 visible route changes.
-Status: implemented by DAEDALUS; ready for ARGUS review
+Status: accepted by ARGUS on 2026-06-21; ready for MIMIR closeout
 
 ## Why This Lane
 
@@ -127,3 +127,43 @@ Wake ARGUS with:
 If the existing client package shape cannot support a truthful signed webhook
 packet without a larger adapter/API redesign, wake MIMIR with the exact blocker
 and the smallest recommended next lane.
+
+## ARGUS Review - 2026-06-21
+
+ARGUS accepts PR128 for the bounded operator-packet lane.
+
+Review result:
+
+- The client helper builds the documented
+  `station.observed_runtime.webhook.v1` envelope, serializes the exact raw JSON
+  body, and signs `<timestamp>.<raw-body>` with HMAC-SHA256 into
+  `X-Station-Signature`.
+- `sendObservedRuntimeWebhook` preserves the existing Developer Space key auth
+  header while adding `X-Station-Signature` and stable
+  `X-Station-Webhook-Id` for the observed-runtime ingress route.
+- The example uses env names only, prints structured success/error readback,
+  and does not print or commit key/signing-secret values.
+- README and architecture docs correctly explain dedicated signing secret versus
+  ingestion-key fallback, accepted/replayed/in-progress/conflict/auth readback,
+  and the boundary that Station observes/imports external runtime state but
+  does not execute, host, schedule, or control it.
+- The implementation stays inside client/docs/examples and does not add UI,
+  partner adapter behavior, hosted runtime, Cloudflare, worker, queue, billing,
+  Redis/provider changes, or committed secrets.
+
+ARGUS validation:
+
+| Command | Result |
+| --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass, 26 tests |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-space-client` | Pass, 7 tests |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/api build` | Pass |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/developer-space-client build` | Pass |
+| `git diff --check` | Pass, CRLF normalization warnings only |
+
+Remaining non-claims: no hosted runtime, container execution, scheduler,
+worker, queue, Cloudflare Worker/Vectorize/D1, partner adapter, public
+onboarding wizard, visible secret-management UI, user-pasted secret flow, vault
+UI, billing/Stripe, Redis memory truth, provider routing, chat-native developer
+agent, broad UI, production partner claim, or committed secrets.
