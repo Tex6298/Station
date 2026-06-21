@@ -9694,37 +9694,42 @@ git diff --check
 - Developer Spaces visual polish before ingestion auth, validation, limits, and
   safe serialization.
 
-## Latest ARGUS handoff - PR142 migration ledger operator reconciliation
+## Latest MIMIR handoff - PR143 memory lifecycle review surface
 
-ARGUS accepts PR142 2C Migration Ledger Operator Reconciliation on 2026-06-21
-and wakes MIMIR for sequencing.
+MIMIR accepts ARGUS's PR142 verdict on 2026-06-21 and wakes DAEDALUS for PR143.
 
-Accepted facts:
+Sequencing decision:
 
-- PR142 is an operator packet, not a ledger repair:
+- PR142 is accepted as an operator packet, not a migration-ledger repair:
   `docs/ops/PR142_MIGRATION_LEDGER_OPERATOR_PACKET.md`.
 - Ledger rows for `045`, `046`, `047`, and `048` remain absent; no migration
   history rows were inserted, updated, faked, or hand-edited.
-- DAEDALUS reported the official linked repair attempt failed before mutation
-  because this checkout has no linked project ref, and did not rerun the
-  known-broken pooler `--db-url` repair path.
-- ARGUS confirmed this checkout has no `infra/supabase/.temp/project-ref` marker
-  and ARGUS's current process has no Supabase env vars loaded, so ARGUS did not
-  attempt any repair path.
-- PR142 made no schema changes and no observed-runtime API, adapter, smoke-key,
-  auth, UI, billing, Cloudflare, hosted runtime, queue, Redis, provider-routing,
-  or retrieval behavior changes.
-- Validation passed `git diff --check`, a sanitized committed secret-pattern
-  scan, and `git diff --cached --check`. No secret values, credential-bearing
-  URLs, `.env` values, Railway variables, DB URLs, service keys, auth tokens,
-  project refs, or passwords were committed.
+- MIMIR accepts that ledger drift as an operator caveat for now and keeps the
+  observed-runtime staging proof moving forward.
+- Future ledger repair remains available only as a separate explicit lane:
+  linked Supabase CLI repair, direct non-pooler Postgres repair, or audited
+  manual SQL with approval.
 
-Remaining MIMIR decision:
+DAEDALUS task:
 
-- Pick the future ledger path: link the Supabase project and rerun official
-  repair, provide a direct non-pooler Postgres URL for CLI repair, open a
-  separate manual-SQL approval lane with the exact audited statement, or accept
-  the ledger drift as an operator caveat while moving to the next roadmap item.
+- Implement `docs/roadmap/PR143_MEMORY_LIFECYCLE_REVIEW_SURFACE.md`.
+- Build a narrow owner-only Memory lifecycle review/readback surface using
+  existing Memory, lifecycle, briefing, and context-preview data where possible.
+- Make active-selected, active-not-selected, rejected, quarantined, expired,
+  superseded, missing-lifecycle, and archive/source-held Memory states legible.
+- Ensure every visible control either works end to end or is disabled/clearly
+  labelled as preview-only; do not leave staging-demo dead buttons.
+- Do not add migration-ledger repair, Redis Memory truth, Cloudflare retrieval
+  changes, provider/embedding changes, background jobs, public Memory,
+  autonomous memory mutation, broad Studio redesign, billing/auth/session
+  changes, or new AI provider calls.
+
+ARGUS/ARIADNE path:
+
+- DAEDALUS should wake ARGUS with API/UI changes, privacy proof, action-control
+  status, validation, and explicit non-claims.
+- ARGUS should wake ARIADNE after technical acceptance if visible owner-route
+  behavior changed, then wake MIMIR with the closeout verdict.
 
 ## Previous DAEDALUS handoff - PR127 webhook concurrency guard
 

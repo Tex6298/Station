@@ -278,6 +278,13 @@ and skip/holdout reasons so owners can understand why memory did or did not
 enter runtime context without exposing raw trace payloads, prompts,
 completions, provider payloads, private archive excerpts, or private ids.
 
+PR143 update, 2026-06-21: PR110 is closed. After ARGUS accepted PR142 as an
+operator packet and MIMIR accepted the migration-ledger drift as an operator
+caveat, the next Memory UX/observability implementation lane is
+`PR143 - Memory Lifecycle Review Surface`: make quarantined, rejected, expired,
+superseded, active-not-selected, and archive/source-held Memory legible to the
+owner, with every visible control either wired or clearly disabled/preview-only.
+
 Inputs:
 
 - AI trace sessions and events.
@@ -289,8 +296,9 @@ Inputs:
 
 Likely UI work:
 
-- Next: Memory runtime explanation readback.
-- Later: richer review surfaces for quarantined or superseded memories.
+- Done: Memory runtime explanation readback.
+- Next: richer review surfaces for quarantined, rejected, expired, superseded,
+  active-not-selected, and archive/source-held Memory.
 - Later: deeper lifecycle/handoff workflows if current summaries prove
   insufficient in rehearsal.
 - Later: richer AI trace detail only with a sanitization spec and ARGUS privacy
