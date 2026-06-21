@@ -9132,6 +9132,24 @@ when a PR lands, or when validation truth changes.
   offline example, `--live-send` missing-config blocked example, and
   `git diff --check`; root `typecheck` is recorded in
   `docs/testing/VALIDATION_BASELINE.md`.
+- ARGUS accepts PR134 2C Agents Observe Live Send Guard on 2026-06-21 after a
+  narrow live-send guard patch and wakes MIMIR for closeout. Review patch:
+  added `invalid_config` blocking for malformed API URLs and non-local
+  plaintext HTTP API URLs before transport, kept HTTPS and local/loopback HTTP
+  allowed, added regression coverage in the config-refusal test, and updated
+  README live-send guidance. Review accepted default offline behavior,
+  env-presence no-send proof, explicit `liveSend.enabled` / `--live-send`
+  gating, missing/demo/fake/placeholder config blocking, mocked one-request
+  valid send behavior, and safe live summary redaction. Validation passed
+  `test:developer-space-client` with 15 tests, `@station/developer-space-client`
+  build, `--signed-demo` offline example, `--live-send` missing-config blocked
+  example, root `typecheck`, `git diff --check` with CRLF normalization warnings
+  only, and `git diff --cached --check`. Non-scope preserved: no real live
+  webhook send, config request, Developer Space key generation/rotation,
+  Cloudflare Worker/Vectorize/D1/Queue/Durable Object work, external repo
+  vendoring, hosted runtime, scheduler, agent control plane, UI, billing/Stripe,
+  Redis memory truth, provider routing, retrieval model change, or committed
+  live secret value.
 - DAEDALUS implements PR126 2C Observed Runtime Signing Secret Lifecycle on
   2026-06-21 and wakes ARGUS for schema/API/encryption/signature review.
   Migration `048_developer_space_webhook_signing_secrets.sql` adds
@@ -9412,10 +9430,10 @@ git diff --check
 - Developer Spaces visual polish before ingestion auth, validation, limits, and
   safe serialization.
 
-## Latest DAEDALUS handoff - PR134 Agents Observe live send guard
+## Latest ARGUS verdict - PR134 Agents Observe live send guard
 
-PR134 2C Agents Observe Live Send Guard is implemented by DAEDALUS on
-2026-06-21 and ready for ARGUS review.
+PR134 2C Agents Observe Live Send Guard is accepted by ARGUS on 2026-06-21
+after a narrow live-send guard patch. It is ready for MIMIR closeout.
 
 Guard/API/command shape:
 
@@ -9427,8 +9445,8 @@ Guard/API/command shape:
   `STATION_DEVELOPER_KEY`, and `STATION_OBSERVED_RUNTIME_WEBHOOK_ID`.
   `STATION_OBSERVED_RUNTIME_SIGNING_SECRET` is optional unless the target
   Developer Space has an active dedicated observed-runtime signing secret.
-- Missing config and obvious demo/fake/placeholder values are refused before
-  transport/fetch.
+- Missing config, obvious demo/fake/placeholder values, malformed API URLs, and
+  non-local plaintext HTTP API URLs are refused before transport/fetch.
 - The implementation reuses the PR132 transform, PR128 observed-runtime
   webhook request/signature helper, and PR133 privacy assertions before
   transport.
@@ -9439,10 +9457,19 @@ Guard/API/command shape:
   It does not echo live API URL, Developer Space key, signing secret, or
   non-demo webhook id.
 
+ARGUS review patch:
+
+- Added `invalid_config` blocking for malformed API URLs and non-local
+  plaintext HTTP API URLs before transport/fetch.
+- Kept HTTPS live targets allowed and local/loopback HTTP allowed for local
+  testing.
+- Added regression coverage inside the config-refusal test and updated README
+  live-send guidance.
+
 Validation:
 
 - `npm exec --yes pnpm@10.32.1 -- run test:developer-space-client`: pass, 15
-  tests.
+  tests, including non-local HTTP refusal before transport.
 - `npm exec --yes pnpm@10.32.1 -- --filter @station/developer-space-client
   build`: pass.
 - `npm exec --yes pnpm@10.32.1 -- exec tsx
@@ -9452,7 +9479,8 @@ Validation:
   packages/developer-space-client/examples/agents-observe-offline-dry-run.ts
   --live-send`: pass, missing config blocked before send.
 - `git diff --check`: pass with CRLF normalization warnings only.
-- Root `typecheck` is recorded in `docs/testing/VALIDATION_BASELINE.md`.
+- Root `typecheck`: pass from cache.
+- `git diff --cached --check`: pass.
 
 Non-scope: no real live webhook send in tests, no request for new config unless
 implementation proves the next PR must be live smoke, no Developer Space key
@@ -9461,10 +9489,8 @@ Queue/Durable Object work, no external repo vendoring, no hosted runtime/task
 scheduler/agent control plane, no UI, no billing/Stripe, no Redis memory truth,
 no provider routing, and no retrieval model changes.
 
-ARGUS should review the live-send guard/API/command shape, default-dry proof,
-mocked-send evidence, missing/demo config refusal, privacy-before-send
-assertion, validation, and future PR130 config names. If accepted, wake MIMIR;
-if fixes are needed, wake DAEDALUS.
+MIMIR should close PR134 and decide whether to open PR130 live smoke config,
+choose another guard-hardening step, or pause.
 
 ## Previous DAEDALUS handoff - PR127 webhook concurrency guard
 

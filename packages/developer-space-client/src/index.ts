@@ -150,9 +150,10 @@ export type AgentsObserveLiveSendSummary =
       enabled: true;
       attempted: false;
       status: "blocked";
-      reason: "missing_config" | "placeholder_config";
+      reason: "missing_config" | "placeholder_config" | "invalid_config";
       missingEnvNames?: string[];
       rejectedEnvNames?: string[];
+      invalidEnvNames?: string[];
     }
   | {
       enabled: true;
@@ -182,6 +183,7 @@ export interface AgentsObserveLiveConfigValidation {
   ok: boolean;
   missingEnvNames: string[];
   rejectedEnvNames: string[];
+  invalidEnvNames: string[];
 }
 
 export interface AgentsObserveOfflineDryRunSummary {
@@ -547,9 +549,10 @@ async function maybeSendAgentsObserveLive(input: {
       enabled: true,
       attempted: false,
       status: "blocked",
-      reason: validation.missingEnvNames.length > 0 ? "missing_config" : "placeholder_config",
+      reason: liveConfigBlockReason(validation),
       missingEnvNames: validation.missingEnvNames.length > 0 ? validation.missingEnvNames : undefined,
       rejectedEnvNames: validation.rejectedEnvNames.length > 0 ? validation.rejectedEnvNames : undefined,
+      invalidEnvNames: validation.invalidEnvNames.length > 0 ? validation.invalidEnvNames : undefined,
     };
   }
 
@@ -636,14 +639,26 @@ function validateAgentsObserveLiveConfig(
   const rejectedEnvNames: string[] = required
     .filter(([, value]) => value && isPlaceholderLiveConfigValue(value))
     .map(([name]) => name);
+  const invalidEnvNames = options.apiUrl?.trim() && !isAllowedLiveApiUrl(options.apiUrl)
+    ? ["STATION_API_URL"]
+    : [];
   if (options.signingSecret && isPlaceholderLiveConfigValue(options.signingSecret)) {
     rejectedEnvNames.push("STATION_OBSERVED_RUNTIME_SIGNING_SECRET");
   }
   return {
-    ok: missingEnvNames.length === 0 && rejectedEnvNames.length === 0,
+    ok: missingEnvNames.length === 0 && rejectedEnvNames.length === 0 && invalidEnvNames.length === 0,
     missingEnvNames,
     rejectedEnvNames,
+    invalidEnvNames,
   };
+}
+
+function liveConfigBlockReason(
+  validation: AgentsObserveLiveConfigValidation,
+): "missing_config" | "placeholder_config" | "invalid_config" {
+  if (validation.missingEnvNames.length > 0) return "missing_config";
+  if (validation.invalidEnvNames.length > 0) return "invalid_config";
+  return "placeholder_config";
 }
 
 async function defaultAgentsObserveLiveTransport(
@@ -675,6 +690,17 @@ function isPlaceholderLiveConfigValue(value: string) {
     normalized.includes("changeme") ||
     normalized.includes("your-")
   );
+}
+
+function isAllowedLiveApiUrl(value: string) {
+  try {
+    const url = new URL(value.trim());
+    if (url.protocol === "https:") return true;
+    if (url.protocol !== "http:") return false;
+    return url.hostname === "localhost" || url.hostname === "127.0.0.1" || url.hostname === "::1";
+  } catch {
+    return false;
+  }
 }
 
 function classifyApiUrl(value: string): "local" | "https" | "http" | "unknown" {

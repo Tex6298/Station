@@ -196,7 +196,8 @@ npx tsx packages/developer-space-client/examples/agents-observe-offline-dry-run.
 ```
 
 The example refuses missing config and obvious demo/fake/placeholder values
-before network access.
+before network access. Live targets must use HTTPS; plain HTTP is accepted only
+for `localhost` or loopback testing.
 
 Tests use only a mocked transport. Do not run the live-send command with real
 config until the staging smoke lane explicitly asks for it.

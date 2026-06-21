@@ -1,6 +1,6 @@
 # PR134 2C Agents Observe Live Send Guard
 
-Status: Implemented by DAEDALUS on 2026-06-21 for ARGUS review.
+Status: Accepted by ARGUS after review patch on 2026-06-21; ready for MIMIR closeout.
 
 ## Why This Lane
 
@@ -64,8 +64,9 @@ keeping default local behavior safe, dry, and reviewable.
   `STATION_OBSERVED_RUNTIME_WEBHOOK_ID`. It uses
   `STATION_OBSERVED_RUNTIME_SIGNING_SECRET` when supplied; otherwise it signs
   with the Developer Space key fallback used by the observed-runtime client.
-- Missing config and obvious demo/fake/placeholder values are rejected before
-  transport/fetch is called.
+- Missing config, obvious demo/fake/placeholder values, invalid API URLs, and
+  non-local plaintext HTTP API URLs are rejected before transport/fetch is
+  called.
 - The transport seam accepts a mocked POST request shape for tests. The default
   transport uses `fetch` only after explicit live opt-in and config validation.
 - The request reuses the PR132 transform, PR128 observed-runtime webhook
@@ -98,6 +99,56 @@ DAEDALUS implementation validation:
 | `npm exec --yes pnpm@10.32.1 -- exec tsx packages/developer-space-client/examples/agents-observe-offline-dry-run.ts --live-send` | Pass | With no live config, printed blocked `missing_config` summary before any network send. |
 | `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed from cache. |
 | `git diff --check` | Pass | CRLF normalization warnings only. |
+
+## ARGUS Review - 2026-06-21
+
+ARGUS accepts PR134 after a narrow live-send guard patch.
+
+Review patch:
+
+- Added `invalid_config` blocking for malformed API URLs and non-local
+  plaintext HTTP API URLs before transport/fetch.
+- Kept HTTPS live targets allowed and local/loopback HTTP allowed for local
+  testing.
+- Added regression coverage inside the config-refusal test to prove non-local
+  HTTP is blocked before transport.
+- Updated README live-send guidance with the same HTTPS/local-HTTP boundary.
+
+Review result:
+
+- Default behavior remains offline: `liveSend.status` is `not_requested`, env
+  presence alone does not send, and no default branch calls fetch.
+- Explicit live send requires `liveSend: { enabled: true, ... }` or
+  `--live-send`, plus `STATION_API_URL`, `STATION_DEVELOPER_KEY`, and
+  `STATION_OBSERVED_RUNTIME_WEBHOOK_ID`.
+- Missing, demo/fake/placeholder, malformed, and non-local plaintext HTTP config
+  are blocked before transport.
+- The mocked valid-config path sends exactly one mocked POST with expected
+  observed-runtime route, Developer Space key header, webhook id header, signed
+  request body, and redacted safe summary.
+- The safe summary does not echo live API URL, Developer Space key, signing
+  secret, non-demo webhook id, raw fixture ids, prompt, command body, file
+  paths, token values, payload secrets, or terminal-output-like material.
+- Non-scope is preserved: no real live webhook send, config request, Developer
+  Space key generation/rotation, Cloudflare Worker/Vectorize/D1/Queue/Durable
+  Object work, external repo vendoring, hosted runtime, scheduler, agent control
+  plane, UI, billing/Stripe, Redis memory truth, provider routing, retrieval
+  model change, or committed live secret value.
+
+ARGUS validation:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-space-client` | Pass | 15 tests passed, including default dry-run, env-only no-send, config refusal, non-local HTTP refusal, mocked live send, and privacy-before-send. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/developer-space-client build` | Pass | Client package build completed. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx packages/developer-space-client/examples/agents-observe-offline-dry-run.ts --signed-demo` | Pass | Printed safe `not_sent` dry-run summary with redacted demo signature metadata. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx packages/developer-space-client/examples/agents-observe-offline-dry-run.ts --live-send` | Pass | With no live config, printed blocked `missing_config` summary before any network send. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed from cache. |
+| `git diff --check` | Pass | CRLF normalization warnings only. |
+| `git diff --cached --check` | Pass | No staged whitespace errors. |
+
+Verdict: close PR134 as accepted. MIMIR should decide whether to open PR130
+live smoke config, choose another guard-hardening step, or pause.
 
 ## Non-Scope
 

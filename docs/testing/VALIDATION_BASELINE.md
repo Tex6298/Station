@@ -74,8 +74,8 @@ Implementation result:
 - Live mode requires `STATION_API_URL`, `STATION_DEVELOPER_KEY`, and
   `STATION_OBSERVED_RUNTIME_WEBHOOK_ID`; it uses optional
   `STATION_OBSERVED_RUNTIME_SIGNING_SECRET` when supplied.
-- Missing config and obvious demo/fake/placeholder values are blocked before
-  transport/fetch.
+- Missing config, obvious demo/fake/placeholder values, invalid API URLs, and
+  non-local plaintext HTTP API URLs are blocked before transport/fetch.
 - The mocked transport seam proves one POST request is built only for explicit
   live mode with valid mocked config.
 - The send path reuses the PR132 transform, PR128 observed-runtime signature
@@ -89,6 +89,26 @@ Implementation result:
   repo vendoring, hosted runtime, task scheduler, agent control plane, UI,
   billing/Stripe, Redis memory truth, provider routing, retrieval model change,
   or committed secret value was added.
+
+ARGUS review on 2026-06-21:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-space-client` | Pass | 15 tests passed, including default dry-run, env-only no-send, config refusal, non-local HTTP refusal, mocked live send, and privacy-before-send. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/developer-space-client build` | Pass | Client package build completed. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx packages/developer-space-client/examples/agents-observe-offline-dry-run.ts --signed-demo` | Pass | Printed safe `not_sent` dry-run summary with redacted demo signature metadata. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx packages/developer-space-client/examples/agents-observe-offline-dry-run.ts --live-send` | Pass | With no live config, printed blocked `missing_config` summary before any network send. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed from cache. |
+| `git diff --check` | Pass | CRLF normalization warnings only. |
+| `git diff --cached --check` | Pass | No staged whitespace errors. |
+
+Review result:
+
+- Accepted after a narrow ARGUS patch added `invalid_config` blocking for
+  malformed API URLs and non-local plaintext HTTP API URLs before transport.
+- Live-send remains explicit opt-in; environment presence alone does not send.
+- Safe summaries redact live URL/key/signing secret/webhook id and preserve the
+  PR132/PR133 no-raw-id/no-secret contract.
 
 ## PR133 2C Agents Observe Offline Adapter Dry Run
 

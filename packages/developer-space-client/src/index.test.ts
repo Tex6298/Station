@@ -562,6 +562,24 @@ test("agents observe live send refuses missing and demo config before transport"
   assert.equal(serialized.includes("station_whsec_demo_value"), false);
   assert.equal(serialized.includes("demo-webhook-id"), false);
   assert.equal(transportCalls, 0);
+
+  const insecure = await createAgentsObserveOfflineDryRunSummary({
+    liveSend: {
+      enabled: true,
+      apiUrl: "http://station-live.invalid",
+      developerKey: "station_dev_live_guard_valid_key",
+      webhookId: "webhook_live_guard_valid_id",
+      transport,
+    },
+  });
+
+  assert.equal(insecure.liveSend.status, "blocked");
+  assert.equal(insecure.liveSend.attempted, false);
+  assert.deepEqual(
+    insecure.liveSend.status === "blocked" ? insecure.liveSend.invalidEnvNames : [],
+    ["STATION_API_URL"],
+  );
+  assert.equal(transportCalls, 0);
 });
 
 test("agents observe live send uses mocked transport once after privacy guard", async () => {
