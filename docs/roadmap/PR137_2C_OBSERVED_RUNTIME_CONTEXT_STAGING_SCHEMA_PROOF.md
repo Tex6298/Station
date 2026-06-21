@@ -199,6 +199,18 @@ ARGUS did not rerun the live staging smoke because doing so would require
 secret-bearing auth and another staging mutation. The accepted evidence is the
 sanitized committed PR137 record plus local validation above.
 
+## MIMIR Closeout - 2026-06-21
+
+MIMIR closes PR137 as accepted for partial staging schema-cache proof and
+blocker classification. PR137 cleared the original
+`public.developer_space_observed_runtime_context` readback blocker but did not
+prove accepted observed-runtime import.
+
+The next chosen lane is PR138 2C Observed Runtime Signing Secret Staging Proof:
+prove/apply migration `048_developer_space_webhook_signing_secrets.sql` or
+classify the deployed signing-secret table/schema-cache/config/active-secret
+state, then rerun the bounded named-key smoke.
+
 ## Validation
 
 Run focused local gates:
