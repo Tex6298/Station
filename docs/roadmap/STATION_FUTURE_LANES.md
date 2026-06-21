@@ -376,6 +376,13 @@ now consolidate protected-alpha evidence and caveats rather than opening
 another optimization by guesswork. Stripe paid activation remains a separate
 proof until a real hosted test-mode Checkout or signed webhook mutation is run.
 
+PR158 update, 2026-06-21: PR158 is accepted by ARGUS for MIMIR closeout. The
+backend/product roadmap has been reconciled so PR111 through PR115 foundations
+are not treated as pending blockers. Redis/Upstash remains operational cache/
+idempotency/rate-limit/cache-only queue-state support, Cloudflare remains
+adapter/index-mirror boundary only, and MIMIR should choose the next lane from
+fresh hosted replay or product evidence.
+
 Inputs:
 
 - AI trace sessions and events.
