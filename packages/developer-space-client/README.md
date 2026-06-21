@@ -174,6 +174,33 @@ terminal/stdout/stderr-like output, fixture session/event/agent ids, live API
 keys, live signing secrets, or non-demo webhook ids. Privacy assertion errors
 name the failed field only; they do not echo the raw fixture value.
 
+### Guarded live-send bridge
+
+The Agents Observe dry-run helper stays offline by default. Live send requires
+the explicit `--live-send` command flag or `liveSend: { enabled: true, ... }`
+in code; setting environment variables alone never sends.
+
+Future PR130 staging smoke config names:
+
+- `STATION_API_URL`
+- `STATION_DEVELOPER_KEY`
+- `STATION_OBSERVED_RUNTIME_WEBHOOK_ID`
+- `STATION_OBSERVED_RUNTIME_SIGNING_SECRET`, optional unless the target
+  Developer Space has an active dedicated observed-runtime signing secret.
+
+After a staging smoke lane provides real values, run the explicit live-send
+command:
+
+```bash
+npx tsx packages/developer-space-client/examples/agents-observe-offline-dry-run.ts --live-send
+```
+
+The example refuses missing config and obvious demo/fake/placeholder values
+before network access.
+
+Tests use only a mocked transport. Do not run the live-send command with real
+config until the staging smoke lane explicitly asks for it.
+
 ## Error handling
 
 Failed ingestion calls throw `DeveloperSpaceClientError`. Branch on `category`

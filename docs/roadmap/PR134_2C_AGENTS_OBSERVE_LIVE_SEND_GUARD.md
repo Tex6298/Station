@@ -1,6 +1,6 @@
 # PR134 2C Agents Observe Live Send Guard
 
-Status: Opened by MIMIR on 2026-06-21 for DAEDALUS.
+Status: Implemented by DAEDALUS on 2026-06-21 for ARGUS review.
 
 ## Why This Lane
 
@@ -53,6 +53,30 @@ keeping default local behavior safe, dry, and reviewable.
 - The no-raw-id/no-secret dry-run contract from PR132/PR133 still applies before
   send.
 
+## Implementation Notes
+
+- `createAgentsObserveOfflineDryRunSummary` keeps the default dry-run path
+  offline, `not_sent`, and network-free.
+- Live send is available only through `liveSend: { enabled: true, ... }` in the
+  helper or `--live-send` in the example command. Environment variables by
+  themselves do not trigger send.
+- Live mode requires `STATION_API_URL`, `STATION_DEVELOPER_KEY`, and
+  `STATION_OBSERVED_RUNTIME_WEBHOOK_ID`. It uses
+  `STATION_OBSERVED_RUNTIME_SIGNING_SECRET` when supplied; otherwise it signs
+  with the Developer Space key fallback used by the observed-runtime client.
+- Missing config and obvious demo/fake/placeholder values are rejected before
+  transport/fetch is called.
+- The transport seam accepts a mocked POST request shape for tests. The default
+  transport uses `fetch` only after explicit live opt-in and config validation.
+- The request reuses the PR132 transform, PR128 observed-runtime webhook
+  envelope/signature helper, and PR133 privacy assertions before transport.
+- The live summary reports only bounded facts: target API class, redacted
+  signature header, body byte length, response status/class, and a synthetic
+  configured-webhook marker. It does not echo the live API URL, Developer Space
+  key, signing secret, or non-demo webhook id.
+- The envelope body uses a synthetic delivery id for this guarded path while the
+  real configured webhook id is sent only in the outbound header.
+
 ## Validation
 
 Run the narrow relevant gates:
@@ -60,12 +84,20 @@ Run the narrow relevant gates:
 ```bash
 pnpm test:developer-space-client
 pnpm --filter @station/developer-space-client build
-pnpm --filter @station/developer-space-client typecheck
+pnpm typecheck
 git diff --check
 ```
 
-If package typecheck is unavailable, use the nearest repo typecheck that covers
-the changed files and report it.
+DAEDALUS implementation validation:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-space-client` | Pass | 15 tests passed, including default dry-run, env-only no-send, missing/demo config refusal before transport, mocked valid live send exactly once, and privacy-before-send. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/developer-space-client build` | Pass | Client package build completed. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx packages/developer-space-client/examples/agents-observe-offline-dry-run.ts --signed-demo` | Pass | Printed safe `not_sent` dry-run summary with redacted demo signature metadata. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx packages/developer-space-client/examples/agents-observe-offline-dry-run.ts --live-send` | Pass | With no live config, printed blocked `missing_config` summary before any network send. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed from cache. |
+| `git diff --check` | Pass | CRLF normalization warnings only. |
 
 ## Non-Scope
 

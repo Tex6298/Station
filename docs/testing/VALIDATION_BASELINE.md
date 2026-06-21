@@ -52,6 +52,44 @@ pnpm test:developer-spaces
 pnpm test:developer-space-client
 ```
 
+## PR134 2C Agents Observe Live Send Guard
+
+DAEDALUS implementation validation on 2026-06-21:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-space-client` | Pass | 15 tests passed, including default dry-run, env-only no-send, missing/demo config refusal before transport, mocked valid live send exactly once, and privacy-before-send. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/developer-space-client build` | Pass | Client package build completed; this remains the package-local typecheck gate because the package has no standalone `typecheck` script. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx packages/developer-space-client/examples/agents-observe-offline-dry-run.ts --signed-demo` | Pass | Printed safe `not_sent` summary with redacted demo signature metadata and no raw ids/secrets. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx packages/developer-space-client/examples/agents-observe-offline-dry-run.ts --live-send` | Pass | With no live config, printed blocked `missing_config` summary before any network send. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed from cache. |
+| `git diff --check` | Pass | CRLF normalization warnings only. |
+
+Implementation result:
+
+- Added an explicit live-send bridge to the Agents Observe dry-run helper and
+  example command through `liveSend: { enabled: true }` / `--live-send`.
+- Default behavior remains offline, `not_sent`, network-free, and does not send
+  when live env vars are merely present.
+- Live mode requires `STATION_API_URL`, `STATION_DEVELOPER_KEY`, and
+  `STATION_OBSERVED_RUNTIME_WEBHOOK_ID`; it uses optional
+  `STATION_OBSERVED_RUNTIME_SIGNING_SECRET` when supplied.
+- Missing config and obvious demo/fake/placeholder values are blocked before
+  transport/fetch.
+- The mocked transport seam proves one POST request is built only for explicit
+  live mode with valid mocked config.
+- The send path reuses the PR132 transform, PR128 observed-runtime signature
+  helper, and PR133 privacy assertions before transport.
+- The live summary redacts the signature header and does not echo live API URL,
+  Developer Space key, signing secret, non-demo webhook id, raw fixture ids,
+  raw prompts, command bodies, file paths, token values, raw tool payloads, or
+  terminal-output-like material.
+- No real live webhook send, config request, Developer Space key generation/
+  rotation, Cloudflare Worker/Vectorize/D1/Queue/Durable Object work, external
+  repo vendoring, hosted runtime, task scheduler, agent control plane, UI,
+  billing/Stripe, Redis memory truth, provider routing, retrieval model change,
+  or committed secret value was added.
+
 ## PR133 2C Agents Observe Offline Adapter Dry Run
 
 DAEDALUS implementation validation on 2026-06-21:

@@ -411,6 +411,11 @@ test("agents observe offline dry run returns safe not-sent summary with no live 
     assert.equal(summary.status, "not_sent");
     assert.equal(summary.liveConfigRequired, false);
     assert.equal(summary.networkAccessRequired, false);
+    assert.deepEqual(summary.liveSend, {
+      enabled: false,
+      attempted: false,
+      status: "not_requested",
+    });
     assert.equal(fetchCalled, false);
     assert.deepEqual(summary.payloadSummary, {
       nodes: 2,
@@ -477,6 +482,156 @@ test("agents observe offline dry run privacy errors do not echo raw values", asy
       return true;
     },
   );
+});
+
+test("agents observe live env presence alone does not send", async () => {
+  const previousFetch = globalThis.fetch;
+  let fetchCalled = false;
+  globalThis.fetch = (async () => {
+    fetchCalled = true;
+    throw new Error("network should not be used");
+  }) as typeof fetch;
+  const previousEnv = {
+    STATION_DEVELOPER_KEY: process.env.STATION_DEVELOPER_KEY,
+    STATION_API_URL: process.env.STATION_API_URL,
+    STATION_OBSERVED_RUNTIME_WEBHOOK_ID: process.env.STATION_OBSERVED_RUNTIME_WEBHOOK_ID,
+  };
+  process.env.STATION_DEVELOPER_KEY = "station_dev_live_guard_valid_env";
+  process.env.STATION_API_URL = "https://station-live.invalid";
+  process.env.STATION_OBSERVED_RUNTIME_WEBHOOK_ID = "webhook_live_guard_valid_env";
+
+  try {
+    const summary = await createAgentsObserveOfflineDryRunSummary();
+
+    assert.equal(fetchCalled, false);
+    assert.equal(summary.liveSend.status, "not_requested");
+  } finally {
+    globalThis.fetch = previousFetch;
+    restoreEnv("STATION_DEVELOPER_KEY", previousEnv.STATION_DEVELOPER_KEY);
+    restoreEnv("STATION_API_URL", previousEnv.STATION_API_URL);
+    restoreEnv("STATION_OBSERVED_RUNTIME_WEBHOOK_ID", previousEnv.STATION_OBSERVED_RUNTIME_WEBHOOK_ID);
+  }
+});
+
+test("agents observe live send refuses missing and demo config before transport", async () => {
+  let transportCalls = 0;
+  const transport = async () => {
+    transportCalls += 1;
+    return { status: 202, ok: true };
+  };
+
+  const missing = await createAgentsObserveOfflineDryRunSummary({
+    liveSend: {
+      enabled: true,
+      apiUrl: "https://station-live.invalid",
+      transport,
+    },
+  });
+
+  assert.equal(missing.liveSend.status, "blocked");
+  assert.equal(missing.liveSend.attempted, false);
+  assert.deepEqual(
+    missing.liveSend.status === "blocked" ? missing.liveSend.missingEnvNames : [],
+    ["STATION_DEVELOPER_KEY", "STATION_OBSERVED_RUNTIME_WEBHOOK_ID"],
+  );
+
+  const demo = await createAgentsObserveOfflineDryRunSummary({
+    liveSend: {
+      enabled: true,
+      apiUrl: "https://example.invalid",
+      developerKey: "station_dev_demo_value",
+      webhookId: "demo-webhook-id",
+      signingSecret: "station_whsec_demo_value",
+      transport,
+    },
+  });
+  const serialized = JSON.stringify(demo);
+
+  assert.equal(demo.liveSend.status, "blocked");
+  assert.equal(demo.liveSend.attempted, false);
+  assert.deepEqual(
+    demo.liveSend.status === "blocked" ? demo.liveSend.rejectedEnvNames : [],
+    [
+      "STATION_API_URL",
+      "STATION_DEVELOPER_KEY",
+      "STATION_OBSERVED_RUNTIME_WEBHOOK_ID",
+      "STATION_OBSERVED_RUNTIME_SIGNING_SECRET",
+    ],
+  );
+  assert.equal(serialized.includes("station_dev_demo_value"), false);
+  assert.equal(serialized.includes("station_whsec_demo_value"), false);
+  assert.equal(serialized.includes("demo-webhook-id"), false);
+  assert.equal(transportCalls, 0);
+});
+
+test("agents observe live send uses mocked transport once after privacy guard", async () => {
+  const calls: Array<{
+    url: string;
+    method: string;
+    headers: Record<string, string>;
+    body: string;
+  }> = [];
+  const transport = async (request: {
+    url: string;
+    method: "POST";
+    headers: Record<string, string>;
+    body: string;
+  }) => {
+    calls.push(request);
+    return {
+      status: 202,
+      ok: true,
+      body: { accepted: true, replayed: false },
+    };
+  };
+  const summary = await createAgentsObserveOfflineDryRunSummary({
+    liveSend: {
+      enabled: true,
+      apiUrl: "https://station-live.invalid",
+      developerKey: "station_dev_live_guard_valid_key",
+      webhookId: "webhook_live_guard_valid_id",
+      signingSecret: "station_whsec_live_guard_valid_secret",
+      transport,
+    },
+    timestamp: 1_771_452_800,
+  });
+  const serializedSummary = JSON.stringify(summary);
+
+  assert.equal(calls.length, 1);
+  assert.equal(calls[0].url, "https://station-live.invalid/developer-spaces/ingest/observed-runtime");
+  assert.equal(calls[0].method, "POST");
+  assert.equal(calls[0].headers["X-Station-Developer-Key"], "station_dev_live_guard_valid_key");
+  assert.equal(calls[0].headers["X-Station-Webhook-Id"], "webhook_live_guard_valid_id");
+  assert.match(calls[0].headers["X-Station-Signature"], /^t=1771452800,v1=[a-f0-9]{64}$/);
+  assert.equal(summary.liveSend.status, "sent");
+  assert.equal(summary.liveSend.attempted, true);
+  assert.equal(summary.liveSend.status === "sent" ? summary.liveSend.request.targetApiClass : "", "https");
+  assert.equal(
+    summary.liveSend.status === "sent" ? summary.liveSend.request.webhookId : "",
+    "configured-live-webhook-id",
+  );
+  assert.equal(
+    summary.liveSend.status === "sent" ? summary.liveSend.request.signatureHeader : "",
+    "t=1771452800,v1=<redacted>",
+  );
+
+  for (const forbidden of [
+    agentsObserveHookEventFixture.sessionId,
+    agentsObserveHookEventFixture.eventId,
+    agentsObserveHookEventFixture.agent.id,
+    agentsObserveHookEventFixture.raw.prompt,
+    agentsObserveHookEventFixture.raw.commandBody,
+    agentsObserveHookEventFixture.raw.terminalOutput,
+    agentsObserveHookEventFixture.raw.tokenValue,
+    "station_dev_live_guard_valid_key",
+    "station_whsec_live_guard_valid_secret",
+    "webhook_live_guard_valid_id",
+    "https://station-live.invalid",
+    ...(agentsObserveHookEventFixture.filesTouched ?? []),
+  ]) {
+    assert.equal(serializedSummary.includes(forbidden), false, `safe summary leaked: ${forbidden}`);
+    assert.equal(calls[0].body.includes(forbidden), false, `request body leaked: ${forbidden}`);
+  }
 });
 
 test("client rejects blank connection options after trimming", () => {

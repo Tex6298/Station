@@ -111,6 +111,77 @@ export interface AgentsObserveOfflineDryRunOptions {
   fixtureSource?: "default-fixture" | "provided-file";
   includeSignedRequest?: boolean;
   timestamp?: number;
+  liveSend?: AgentsObserveLiveSendOptions;
+}
+
+export interface AgentsObserveLiveSendOptions {
+  enabled: boolean;
+  apiUrl?: string;
+  developerKey?: string;
+  webhookId?: string;
+  signingSecret?: string;
+  transport?: AgentsObserveLiveSendTransport;
+}
+
+export interface AgentsObserveLiveSendTransportRequest {
+  url: string;
+  method: "POST";
+  headers: Record<string, string>;
+  body: string;
+}
+
+export interface AgentsObserveLiveSendTransportResponse {
+  status: number;
+  ok: boolean;
+  body?: unknown;
+}
+
+export type AgentsObserveLiveSendTransport = (
+  request: AgentsObserveLiveSendTransportRequest,
+) => Promise<AgentsObserveLiveSendTransportResponse>;
+
+export type AgentsObserveLiveSendSummary =
+  | {
+      enabled: false;
+      attempted: false;
+      status: "not_requested";
+    }
+  | {
+      enabled: true;
+      attempted: false;
+      status: "blocked";
+      reason: "missing_config" | "placeholder_config";
+      missingEnvNames?: string[];
+      rejectedEnvNames?: string[];
+    }
+  | {
+      enabled: true;
+      attempted: true;
+      status: "sent";
+      request: {
+        targetApiClass: "local" | "https" | "http" | "unknown";
+        webhookId: string;
+        signatureHeader: string;
+        bodyByteLength: number;
+      };
+      response: {
+        status: number;
+        ok: boolean;
+        class: "accepted" | "replayed" | "validation_or_conflict" | "auth" | "server" | "unknown";
+      };
+    }
+  | {
+      enabled: true;
+      attempted: true;
+      status: "failed";
+      reason: "transport_error";
+      message: string;
+    };
+
+export interface AgentsObserveLiveConfigValidation {
+  ok: boolean;
+  missingEnvNames: string[];
+  rejectedEnvNames: string[];
 }
 
 export interface AgentsObserveOfflineDryRunSummary {
@@ -147,6 +218,7 @@ export interface AgentsObserveOfflineDryRunSummary {
     signatureHeader: string;
     bodyByteLength: number;
   };
+  liveSend: AgentsObserveLiveSendSummary;
 }
 
 export type DeveloperSpaceClientErrorCategory =
@@ -371,6 +443,11 @@ export async function createAgentsObserveOfflineDryRunSummary(
     },
     classificationCounts,
     privacyAssertions: passingPrivacyAssertions(),
+    liveSend: {
+      enabled: false,
+      attempted: false,
+      status: "not_requested",
+    },
   };
 
   if (options.includeSignedRequest) {
@@ -396,6 +473,16 @@ export async function createAgentsObserveOfflineDryRunSummary(
   }
 
   summary.privacyAssertions = assertAgentsObserveDryRunPrivacy(JSON.stringify(summary), fixture);
+  if (options.liveSend?.enabled) {
+    summary.liveSend = await maybeSendAgentsObserveLive({
+      liveSend: options.liveSend,
+      fixture,
+      payload,
+      summary,
+      timestamp: options.timestamp,
+    });
+    summary.privacyAssertions = assertAgentsObserveDryRunPrivacy(JSON.stringify(summary), fixture);
+  }
   return summary;
 }
 
@@ -445,6 +532,180 @@ function passingPrivacyAssertions(): AgentsObserveOfflineDryRunSummary["privacyA
     noRawSourceIds: true,
     noLiveSecrets: true,
   };
+}
+
+async function maybeSendAgentsObserveLive(input: {
+  liveSend: AgentsObserveLiveSendOptions;
+  fixture: AgentsObserveHookEventFixture;
+  payload: DeveloperSpaceBatchImportPayload;
+  summary: AgentsObserveOfflineDryRunSummary;
+  timestamp?: number;
+}): Promise<AgentsObserveLiveSendSummary> {
+  const validation = validateAgentsObserveLiveConfig(input.liveSend);
+  if (!validation.ok) {
+    return {
+      enabled: true,
+      attempted: false,
+      status: "blocked",
+      reason: validation.missingEnvNames.length > 0 ? "missing_config" : "placeholder_config",
+      missingEnvNames: validation.missingEnvNames.length > 0 ? validation.missingEnvNames : undefined,
+      rejectedEnvNames: validation.rejectedEnvNames.length > 0 ? validation.rejectedEnvNames : undefined,
+    };
+  }
+
+  const apiUrl = input.liveSend.apiUrl!.trim().replace(/\/+$/, "");
+  const developerKey = input.liveSend.developerKey!.trim();
+  const webhookId = input.liveSend.webhookId!.trim();
+  const signingSecret = input.liveSend.signingSecret?.trim() || developerKey;
+  const request = await createObservedRuntimeWebhookRequest({
+    deliveryId: "agents-observe-live-send-guard",
+    webhookId,
+    signingSecret,
+    timestamp: input.timestamp ?? 1_771_452_800,
+    observedAt: input.fixture.observedAt,
+    source: {
+      id: "agents-observe-live-send-guard",
+    },
+    payload: input.payload,
+  });
+  const transportRequest: AgentsObserveLiveSendTransportRequest = {
+    url: `${apiUrl}/developer-spaces/ingest/observed-runtime`,
+    method: "POST",
+    headers: {
+      ...request.headers,
+      "X-Station-Developer-Key": developerKey,
+    },
+    body: request.body,
+  };
+
+  assertAgentsObserveDryRunPrivacy(JSON.stringify({
+    ...input.summary,
+    liveSend: {
+      enabled: true,
+      attempted: true,
+      status: "sent",
+      request: {
+        targetApiClass: classifyApiUrl(apiUrl),
+        webhookId: "configured-live-webhook-id",
+        signatureHeader: redactSignatureHeader(request.headers["X-Station-Signature"]),
+        bodyByteLength: new TextEncoder().encode(request.body).byteLength,
+      },
+    },
+  }), input.fixture);
+
+  try {
+    const response = await (input.liveSend.transport ?? defaultAgentsObserveLiveTransport)(transportRequest);
+    return {
+      enabled: true,
+      attempted: true,
+      status: "sent",
+      request: {
+        targetApiClass: classifyApiUrl(apiUrl),
+        webhookId: "configured-live-webhook-id",
+        signatureHeader: redactSignatureHeader(request.headers["X-Station-Signature"]),
+        bodyByteLength: new TextEncoder().encode(request.body).byteLength,
+      },
+      response: {
+        status: response.status,
+        ok: response.ok,
+        class: classifyLiveResponse(response.status, response.body),
+      },
+    };
+  } catch {
+    return {
+      enabled: true,
+      attempted: true,
+      status: "failed",
+      reason: "transport_error",
+      message: "Live send transport failed.",
+    };
+  }
+}
+
+function validateAgentsObserveLiveConfig(
+  options: AgentsObserveLiveSendOptions,
+): AgentsObserveLiveConfigValidation {
+  const required = [
+    ["STATION_API_URL", options.apiUrl],
+    ["STATION_DEVELOPER_KEY", options.developerKey],
+    ["STATION_OBSERVED_RUNTIME_WEBHOOK_ID", options.webhookId],
+  ] as const;
+  const missingEnvNames = required
+    .filter(([, value]) => !value?.trim())
+    .map(([name]) => name);
+  const rejectedEnvNames: string[] = required
+    .filter(([, value]) => value && isPlaceholderLiveConfigValue(value))
+    .map(([name]) => name);
+  if (options.signingSecret && isPlaceholderLiveConfigValue(options.signingSecret)) {
+    rejectedEnvNames.push("STATION_OBSERVED_RUNTIME_SIGNING_SECRET");
+  }
+  return {
+    ok: missingEnvNames.length === 0 && rejectedEnvNames.length === 0,
+    missingEnvNames,
+    rejectedEnvNames,
+  };
+}
+
+async function defaultAgentsObserveLiveTransport(
+  request: AgentsObserveLiveSendTransportRequest,
+): Promise<AgentsObserveLiveSendTransportResponse> {
+  if (!globalThis.fetch) throw new Error("fetch unavailable");
+  const response = await globalThis.fetch(request.url, {
+    method: request.method,
+    headers: request.headers,
+    body: request.body,
+  });
+  const text = await response.text();
+  return {
+    status: response.status,
+    ok: response.ok,
+    body: text ? safeJson(text) : null,
+  };
+}
+
+function isPlaceholderLiveConfigValue(value: string) {
+  const normalized = value.trim().toLowerCase();
+  return (
+    normalized.length === 0 ||
+    normalized === "..." ||
+    normalized.includes("demo") ||
+    normalized.includes("fake") ||
+    normalized.includes("placeholder") ||
+    normalized.includes("example") ||
+    normalized.includes("changeme") ||
+    normalized.includes("your-")
+  );
+}
+
+function classifyApiUrl(value: string): "local" | "https" | "http" | "unknown" {
+  try {
+    const url = new URL(value);
+    if (url.hostname === "localhost" || url.hostname === "127.0.0.1" || url.hostname === "::1") {
+      return "local";
+    }
+    if (url.protocol === "https:") return "https";
+    if (url.protocol === "http:") return "http";
+  } catch {
+    return "unknown";
+  }
+  return "unknown";
+}
+
+function redactSignatureHeader(value: string) {
+  const timestamp = value.match(/^t=([^,]+)/)?.[1] ?? "redacted";
+  return `t=${timestamp},v1=<redacted>`;
+}
+
+function classifyLiveResponse(
+  status: number,
+  body: unknown,
+): "accepted" | "replayed" | "validation_or_conflict" | "auth" | "server" | "unknown" {
+  if (status === 202) return "accepted";
+  if (status === 200 && typeof body === "object" && body !== null && "replayed" in body) return "replayed";
+  if (status === 400 || status === 409) return "validation_or_conflict";
+  if (status === 401 || status === 403) return "auth";
+  if (status >= 500) return "server";
+  return "unknown";
 }
 
 function countClassifications(payload: DeveloperSpaceBatchImportPayload) {

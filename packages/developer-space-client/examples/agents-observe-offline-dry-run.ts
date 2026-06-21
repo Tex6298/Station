@@ -8,6 +8,7 @@ import {
 const args = new Set(process.argv.slice(2));
 const fixturePath = readArgValue("--fixture");
 const includeSignedRequest = args.has("--signed-demo");
+const liveSend = args.has("--live-send");
 const fixture = fixturePath ? readFixture(fixturePath) : agentsObserveHookEventFixture;
 
 main().catch((error) => {
@@ -20,6 +21,15 @@ async function main() {
     fixture,
     fixtureSource: fixturePath ? "provided-file" : "default-fixture",
     includeSignedRequest,
+    liveSend: liveSend
+      ? {
+          enabled: true,
+          apiUrl: process.env.STATION_API_URL,
+          developerKey: process.env.STATION_DEVELOPER_KEY,
+          webhookId: process.env.STATION_OBSERVED_RUNTIME_WEBHOOK_ID,
+          signingSecret: process.env.STATION_OBSERVED_RUNTIME_SIGNING_SECRET,
+        }
+      : undefined,
   });
 
   console.log(JSON.stringify(summary, null, 2));
