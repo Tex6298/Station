@@ -295,6 +295,11 @@ lane is `PR145 - Settings AI Trace Detail Readback`: add a small owner-visible
 Settings expansion that consumes the sanitized trace-detail route and shows a
 safe event timeline.
 
+PR146 update, 2026-06-21: PR145 is closed. The next Memory UX/observability
+lane is `PR146 - Memory Graph Relationship Readback`: explain existing owner
+memory relationships when edges exist, and keep an honest thin-state when they
+do not.
+
 Inputs:
 
 - AI trace sessions and events.
@@ -310,7 +315,8 @@ Likely UI work:
 - Done: richer review surfaces for quarantined, rejected, expired, superseded,
   active-not-selected, and archive/source-held Memory.
 - Done: AI trace detail sanitization gate.
-- Next: Settings AI trace detail readback.
+- Done: Settings AI trace detail readback.
+- Next: Memory graph relationship readback.
 - Later: deeper lifecycle/handoff workflows if current summaries prove
   insufficient in rehearsal.
 - Later: richer AI trace detail only with a sanitization spec and ARGUS privacy

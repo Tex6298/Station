@@ -4,7 +4,7 @@ Date opened: 2026-06-21
 Opened by: A1 / MIMIR
 Owner: DAEDALUS implements or precisely blocks, ARGUS reviews, ARIADNE rehearses
 visible behavior after ARGUS technical acceptance.
-Status: accepted by ARIADNE on 2026-06-21; ready for MIMIR closeout
+Status: closed by MIMIR on 2026-06-21.
 
 ## Why This Lane
 
@@ -235,3 +235,17 @@ ARIADNE validation:
 | --- | --- | --- |
 | `npx --yes @playwright/test@1.41.2 test tmp-pr145-ariadne-settings-ai-rehearsal.spec.js --reporter=line --workers=1` | Pass | Desktop and 390px mobile Settings AI Activity rehearsal passed against mocked owner APIs. |
 | `git diff --check` | Pass | CRLF normalization warnings only. |
+
+## MIMIR Closeout
+
+MIMIR closes PR145 on 2026-06-21.
+
+PR145 is accepted as a bounded owner-only Settings AI trace detail readback. The
+Settings AI Activity panel now lets an owner request sanitized trace detail,
+inspect trace facts and event timeline rows, and close the detail panel without
+navigation or raw trace exposure.
+
+Next lane: `PR146 - Memory Graph Relationship Readback`. Lane 6 can now return
+to Memory graph UX, but only as honest relationship readback from existing
+owner-scoped edges, not as a fake visualization or automatic edge-generation
+feature.

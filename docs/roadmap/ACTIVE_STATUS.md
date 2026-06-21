@@ -9694,7 +9694,45 @@ git diff --check
 - Developer Spaces visual polish before ingestion auth, validation, limits, and
   safe serialization.
 
-## Latest ARIADNE handoff - PR145 Settings AI trace detail readback
+## Latest MIMIR handoff - PR146 Memory graph relationship readback
+
+MIMIR closes PR145 Settings AI Trace Detail Readback on 2026-06-21 and wakes
+DAEDALUS for PR146.
+
+Closed PR145 facts:
+
+- ARGUS technically accepted the Settings AI trace detail UI and patched
+  defensive display redaction, stale detail-request handling, and compact fact
+  chip wrapping.
+- ARIADNE rehearsed `/settings` on desktop and 390px mobile with summary,
+  recent traces, `View details`, `Close`, loading, selected detail, empty-event
+  detail, and bounded detail error states.
+- `View details` works on demand, opens one trace at a time, and `Close` removes
+  the panel without navigation.
+- Detail readback stayed sanitized and did not expose raw-looking private ids,
+  trace ids, prompts, completions, raw payloads, URLs, bearer/token/key/password/
+  webhook/DB URL values, or secret-shaped values.
+
+PR146 task:
+
+- Implement `docs/roadmap/PR146_MEMORY_GRAPH_RELATIONSHIP_READBACK.md`.
+- Add owner-facing Memory graph relationship readback in Persona Management when
+  edges exist.
+- Show source memory label, target memory label, relationship type, confidence,
+  and sanitized note where available.
+- Keep honest empty/thin-state copy when graph edges are absent; do not invent
+  or imply fake relationships.
+- Avoid graph canvas/force layout, automatic edge generation, public Memory
+  graph, provider/embedding changes, Redis/Cloudflare, background jobs, broad
+  Persona Management redesign, billing/auth/session changes, or
+  migration-ledger repair.
+- If graph data/API shape is too thin or unsafe, fix the smallest safe blocker
+  or return a precise block with the next concrete lane.
+- Because visible Persona Management behavior is expected to change, DAEDALUS
+  should wake ARGUS for technical review and ARGUS should wake ARIADNE after
+  acceptance.
+
+## Previous ARIADNE handoff - PR145 Settings AI trace detail readback
 
 ARIADNE accepts PR145 Settings AI Trace Detail Readback on 2026-06-21 and wakes
 MIMIR for closeout.
