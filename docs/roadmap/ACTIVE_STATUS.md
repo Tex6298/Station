@@ -9694,7 +9694,77 @@ git diff --check
 - Developer Spaces visual polish before ingestion auth, validation, limits, and
   safe serialization.
 
-## Latest MIMIR handoff - PR149 hosted replay redeploy trigger
+## Latest ARIADNE handoff - PR149 hosted replay measurement
+
+ARIADNE completed the PR149 hosted replay probe packet on 2026-06-21 and wakes
+MIMIR for closeout or next-lane decision.
+
+Corrected deployment interpretation: Railway skipped the docs-only wakeup
+commit because no watched runtime files changed. The hosted runtime remained on
+deployed app commit `654a3cc3fe9e`, with API and web both `ready:true`.
+
+Result:
+
+- Public boundary checks returned API `/health` HTTP 200 in 469ms, web
+  `/health` HTTP 200 in 378ms, API `/health/deployment` HTTP 200 in 1855ms,
+  web `/health/deployment` HTTP 200 in 270ms, and unauthenticated API
+  `/observability/replay-readiness` HTTP 401 in 325ms.
+- Authenticated replay-owner probes succeeded: sign-in, `/auth/me`,
+  authenticated replay-readiness, background jobs, imports, import status,
+  exports, export detail, observability summary/list/detail, Memory briefing,
+  Memory graph, context preview, Developer Space public/owner/usage/detail, and
+  billing all returned bounded readback.
+- Replay readiness returned 8 top-level sections and 28 route/checklist
+  references.
+- Background jobs returned 13 jobs: 12 completed, 1 failed; inactive
+  route-followup kinds remained embedding backfill, memory consolidation,
+  replay seed setup, and Developer Space import batch.
+- Imports returned 7 jobs: 6 completed, 1 failed; selected import status was a
+  completed file job with no error. Exports returned 5 completed
+  `persona_archive` packages in `json_markdown` format; selected detail had 11
+  included sections, 11 manifest keys, and Markdown present.
+- Observability returned 9 traces over the 7-day window, 0 failures, 21,538
+  total tokens, estimated cost 2.3383 pence, and 10,220ms average latency.
+  Selected trace detail had 2 completed events, provider
+  `nvidia_openai_compatible`, and model `openai/gpt-oss-120b`.
+- Memory briefing returned 8 active memories; Memory graph returned 14 nodes
+  and 0 edges. Context preview used vector Memory and Archive retrieval with
+  Gemini `station_free_1536`, returned 3 canon, 1 memory, 1 integrity, 4
+  archive, and 4 continuity sources, and recorded 5 quarantined Archive skips.
+- Developer Spaces returned 2 public spaces in public and owner lists; selected
+  owner detail returned owner access, 3 nodes, 2 events, 0 snapshots, and 4
+  linked documents. Billing returned `canon`, active subscription status, and
+  bounded entitlement limits.
+- Overall packet: 25 hosted requests, 24 HTTP 200, 1 expected unauthenticated
+  HTTP 401, latency range 270ms to 4611ms.
+- No import retry, signed Developer Space ingest, Stripe Checkout, worker,
+  Redis Memory truth, Cloudflare, provider migration, billing mutation, or
+  staged data mutation was run.
+- Recorded evidence is limited to statuses, counts, booleans, modes,
+  timestamps, latency ranges, provider/profile/model names, and high-level
+  readback. No tokens, cookies, raw private replay text, prompts, completions,
+  provider payloads, secret-bearing URLs, database URLs, service keys, webhook
+  secrets, API keys, or raw private ids were recorded.
+
+Validation:
+
+- `node tmp-pr149-hosted-probe.mjs`.
+- `git diff --check`.
+
+Next:
+
+- MIMIR should decide whether PR149 is sufficient as hosted measurement
+  evidence or whether the 0-edge Memory graph, 1 failed import job, or 4611ms
+  context-preview latency justify a narrow follow-up measurement/optimization
+  lane.
+
+Result doc: `docs/roadmap/PR149_STAGED_REPLAY_MEASUREMENT_BASELINE.md`.
+
+## Superseded MIMIR handoff - PR149 hosted replay redeploy trigger
+
+Superseded by the corrected hosted-runtime measurement above. Railway skipped
+the docs-only wakeup because no watched runtime files changed, so deployed app
+commit `654a3cc3fe9e` was the appropriate runtime measurement target.
 
 MIMIR accepts ARIADNE's stale-host block and chooses to trigger a fresh Railway
 deployment instead of authorizing stale-runtime measurement.
@@ -9725,7 +9795,11 @@ ARIADNE task:
 - If hosted identity matches and the packet completes, wake MIMIR with the
   pass/fail verdict and sanitized evidence.
 
-## Previous ARIADNE handoff - PR149 Staged replay measurement baseline
+## Superseded ARIADNE handoff - PR149 Staged replay measurement baseline
+
+Superseded by the corrected hosted-runtime measurement above. Railway skipped
+the docs-only wakeup because no watched runtime files changed, so deployed app
+commit `654a3cc3fe9e` was the appropriate runtime measurement target.
 
 ARIADNE attempted the PR149 hosted replay probe packet on 2026-06-21 and wakes
 MIMIR because the exact deployed-commit precondition is blocked.

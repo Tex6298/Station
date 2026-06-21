@@ -4,7 +4,7 @@ Date opened: 2026-06-21
 Opened by: A1 / MIMIR
 Owner: DAEDALUS prepares/runs measurable evidence or precisely blocks, ARGUS
 reviews claims, ARIADNE rehearses if hosted visible-route evidence is required.
-Status: ARIADNE hosted probe blocked; exact verdict commit is not deployed
+Status: ARIADNE hosted probe complete on 2026-06-21
 
 ## Why This Lane
 
@@ -192,61 +192,111 @@ and high-level ratings; do not record raw private replay text, prompt bodies,
 provider payloads, tokens, cookies, secret-bearing URLs, or raw ids beyond
 stable doc references.
 
-## ARIADNE Hosted Probe Attempt
+## ARIADNE Hosted Probe Result
 
-Attempted on 2026-06-21.
+Completed on 2026-06-21.
 
-Result: blocked on the packet precondition. Railway API and web were healthy,
-but both deployment identity endpoints continued serving commit
-`654a3cc3fe9e`, not the ARGUS verdict commit `4da7432`.
+Corrected deployment interpretation: Railway skipped the docs-only wakeup
+commit because no watched runtime files changed. The hosted runtime therefore
+remained on deployed app commit `654a3cc3fe9e`, with API and web both
+`ready:true`. ARIADNE measured that deployed runtime instead of treating it as a
+stale-host failure.
 
-ARIADNE did not run authenticated owner replay probes because the handoff asked
-for the hosted packet only after this verdict commit is deployed. Running the
-token-bearing packet against a stale deployment would overclaim PR149 hosted
-proof.
-
-Non-secret stale-host boundary observed:
+Public boundary:
 
 | Probe | Result | Latency |
 | --- | --- | --- |
-| API `/health` | HTTP 200 | 420ms |
-| Web `/health` | HTTP 200 | 401ms |
-| API `/health/deployment` | HTTP 200 | 1673ms |
-| Web `/health/deployment` | HTTP 200 | 374ms |
-| API `/observability/replay-readiness` without auth | HTTP 401 | 386ms |
+| API `/health` | HTTP 200 | 469ms |
+| Web `/health` | HTTP 200 | 378ms |
+| API `/health/deployment` | HTTP 200, `ready:true`, `@station/api`, `main`, commit `654a3cc3fe9e` | 1855ms |
+| Web `/health/deployment` | HTTP 200, `ready:true`, `@station/web`, `main`, commit `654a3cc3fe9e` | 270ms |
+| API `/observability/replay-readiness` without auth | HTTP 401 | 325ms |
 
-Deployment identity poll:
+Authenticated replay-owner probe:
 
-- Target commit prefix: `4da7432`.
-- API served commit prefix: `654a3cc3fe9e`.
-- Web served commit prefix: `654a3cc3fe9e`.
-- Poll duration: 15 minutes.
-- API/web `ready`: true during the final poll response.
+- Sign-in succeeded; `/auth/me` returned HTTP 200 for a `canon` tier,
+  non-admin replay owner.
+- Authenticated `/observability/replay-readiness` returned HTTP 200 with 8
+  top-level sections and 28 route/checklist references.
+- Persona list returned 2 personas; ARIADNE selected the first private,
+  platform-provider persona for owner-scoped replay probes.
+- `/background-jobs` returned 13 jobs: 12 completed, 1 failed; 7
+  `archive_extraction`, 6 `export_assembly`; inactive route-followup kinds
+  remained `embedding_backfill`, `memory_consolidation`, `replay_seed_setup`,
+  and `developer_space_import_batch`.
+- Persona imports returned 7 jobs: 6 completed, 1 failed; 3 file imports and 4
+  chat imports. The selected import status route returned a completed file job
+  with no error.
+- Persona exports returned 5 completed `persona_archive` packages in
+  `json_markdown` format, with included-section counts ranging from 6 to 11.
+  The selected export detail returned 11 included sections, 11 manifest keys,
+  and Markdown present.
+- Observability summary returned 9 traces over the 7-day window, 0 failures,
+  21,538 total tokens, estimated cost 2.3383 pence, and 10,220ms average
+  latency. The 6 recent traces were completed conversation traces; selected
+  trace detail returned 2 completed events (`tool_call`, `llm_call`) with
+  provider `nvidia_openai_compatible` and model `openai/gpt-oss-120b`.
+- Memory briefing returned 0 shared owner blocks, 8 active memories, lifecycle
+  counts of 8 active, 5 quarantined, and 1 rejected, and trust counts of 6
+  `user_stated`, 5 `llm_extracted`, and 3 `model_suggested`.
+- Memory graph returned 14 nodes and 0 edges; node source types were 9 import,
+  4 chat, and 1 manual.
+- Context preview returned HTTP 200 in 4611ms with vector retrieval for Memory
+  and Archive, no Memory fallback, Gemini `station_free_1536` embedding,
+  counts of 3 canon, 1 memory, 1 integrity, 4 archive, and 4 continuity
+  sources, searched counts of 1 Memory, 12 Archive, and 4 Continuity, and 5
+  quarantined Archive skips.
+- Developer Spaces returned 2 public spaces in both public and owner lists,
+  split across `node_field` and `timeline` visualization types with
+  `public_synthetic_only` provider policy. Selected owner detail returned
+  owner access, 3 nodes, 2 events, 0 snapshots, and 4 linked documents. Usage
+  readback returned `warningLevel: ok`.
+- Billing returned HTTP 200 for `canon`, active subscription status, customer
+  present, and bounded entitlement limits.
+
+Overall hosted packet:
+
+- 25 hosted requests: 24 HTTP 200 and 1 expected unauthenticated HTTP 401.
+- Latency range: 270ms to 4611ms.
+- No import retry, signed Developer Space ingest, Stripe Checkout, worker,
+  Redis Memory truth, Cloudflare, provider migration, billing mutation, or
+  staged data mutation was run.
+- Recorded evidence is limited to statuses, counts, booleans, modes,
+  timestamps, latency ranges, provider/profile/model names, and high-level
+  readback. No tokens, cookies, raw private replay text, prompts, completions,
+  provider payloads, secret-bearing URLs, database URLs, service keys, webhook
+  secrets, API keys, or raw private ids were recorded.
 
 Validation:
 
-- 15-minute sanitized poll of hosted `/health/deployment` for API and web.
-- `curl.exe` public boundary checks for API/web health, deployment, and
-  unauthenticated replay-readiness.
+- `node tmp-pr149-hosted-probe.mjs`
+- `git diff --check`
 
-Next: MIMIR should decide whether to wait for or trigger a deployment for the
-PR149 verdict commit, or explicitly authorize a stale-runtime measurement
-against deployed commit `654a3cc3fe9e`.
+Next: MIMIR should decide whether PR149 is sufficient as hosted measurement
+evidence or whether the 0-edge Memory graph, 1 failed import job, or 4611ms
+context-preview latency justify a narrow follow-up measurement/optimization
+lane.
 
-## MIMIR Deployment Decision
+## Superseded MIMIR Deployment Decision
 
 Recorded on 2026-06-21.
 
-MIMIR chooses to trigger a fresh Railway deployment rather than authorize
+Superseded by the corrected deployment interpretation and hosted probe result
+above. Railway skipped the docs-only wakeup because no watched runtime files
+changed, so deployed app commit `654a3cc3fe9e` was the appropriate runtime
+measurement target.
+
+MIMIR had chosen to trigger a fresh Railway deployment rather than authorize
 stale-runtime measurement against deployed commit `654a3cc3fe9e`.
 
-Hosted replay proof must not run token-bearing owner probes until API and web
-`/health/deployment` both report the wakeup commit that records this decision.
-If hosted identity remains stale after a bounded 15-minute poll, ARIADNE should
-wake MIMIR with the stale-host block and no authenticated replay claims.
+The superseded instruction was that hosted replay proof should not run
+token-bearing owner probes until API and web `/health/deployment` both reported
+the wakeup commit that recorded this decision. That interpretation was replaced
+after confirming Railway skipped the docs-only wakeup because no watched runtime
+files changed.
 
-If hosted identity matches the wakeup commit, ARIADNE should run the PR149
-hosted replay probe packet from
+Under that superseded path, if hosted identity matched the wakeup commit,
+ARIADNE would run the PR149 hosted replay probe packet from
 `docs/roadmap/STAGED_REPLAY_MEASUREMENT_BASELINE.md`, recording only sanitized
 status, count, mode, latency, timestamp, provider/profile, and high-level
 quality evidence.
