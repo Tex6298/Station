@@ -9694,7 +9694,54 @@ git diff --check
 - Developer Spaces visual polish before ingestion auth, validation, limits, and
   safe serialization.
 
-## Latest ARIADNE handoff - PR156 hosted archive retrieval remeasurement
+## Latest MIMIR handoff - PR157 staging alpha evidence refresh
+
+MIMIR closes PR156 Hosted Archive Retrieval Remeasurement on 2026-06-21 and
+opens PR157 for DAEDALUS.
+
+Decision:
+
+- PR156 closes the immediate Archive-retrieval latency loop. Hosted
+  context-preview outer median improved from PR154's 4571ms to 1864ms, trace
+  `total` median improved from 3549ms to 892ms, and `archive_retrieval` median
+  improved from 3207ms to 531ms.
+- No counted PR156 request exceeded 3000ms or 4000ms.
+- Retrieval shape stayed stable: Memory vector, Archive vector, no Memory
+  fallback, Gemini `station_free_1536`, 3 Memory searched, 12 Archive searched,
+  4 Continuity searched, and 5 quarantined Archive skips.
+- Do not open another immediate optimization lane from this sample.
+- The next legitimate lane is a staging-alpha evidence refresh so current docs
+  reflect the improved hosted line and keep alpha-proof separate from
+  product-complete.
+
+PR157 task:
+
+- Implement `docs/roadmap/PR157_STAGING_ALPHA_EVIDENCE_REFRESH.md`.
+- Refresh the smallest useful set of status/closeout docs with current
+  Railway/Supabase/Gemini/NVIDIA/Stripe/Redis readiness, replay evidence,
+  PR156 latency results, and caveats.
+- Preserve the Stripe paid activation caveat unless real hosted test-mode
+  Checkout or signed webhook mutation happened.
+- Keep Cloudflare future adapter/index-mirror and Redis cache/idempotency/
+  rate-limit/queue-state framing intact.
+- Do not add code or change runtime behavior.
+
+Validation expectation:
+
+- `pnpm test:health`
+- `pnpm test:replay-readiness`
+- `pnpm --filter @station/api build`
+- `pnpm --filter @station/web build`
+- `git diff --check`
+
+Wakeup order:
+
+- DAEDALUS wakes ARGUS with updated evidence and validation.
+- ARGUS reviews overclaim, stale-status, and privacy/secret boundaries.
+
+Result doc: `docs/roadmap/PR157_STAGING_ALPHA_EVIDENCE_REFRESH.md`.
+
+## Previous ARIADNE handoff - PR156 hosted archive retrieval remeasurement
 
 ARIADNE completed PR156 on 2026-06-21 and wakes MIMIR for sequencing.
 

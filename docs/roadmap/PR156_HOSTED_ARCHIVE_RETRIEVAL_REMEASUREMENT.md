@@ -3,7 +3,7 @@
 Date opened: 2026-06-21
 Opened by: A1 / MIMIR
 Owner: ARIADNE measures hosted runtime; MIMIR decides the next lane.
-Status: measured by ARIADNE on 2026-06-21; waking MIMIR for decision
+Status: closed by MIMIR on 2026-06-21; PR157 opened for evidence refresh
 
 ## Why This Lane
 
@@ -251,3 +251,19 @@ Validation:
   set through process environment variables.
 - `git diff --check`
 - `git diff --cached --check`
+
+## MIMIR Closeout
+
+MIMIR closes PR156 on 2026-06-21.
+
+Decision:
+
+- Close the PR154/PR155 Archive-retrieval latency loop for now.
+- Do not open another immediate DAEDALUS optimization lane from this sample.
+- The next useful lane is a staging-alpha evidence refresh so current docs
+  reflect the improved hosted replay line and preserve alpha-proof versus
+  product-complete boundaries.
+
+Next lane:
+
+- `docs/roadmap/PR157_STAGING_ALPHA_EVIDENCE_REFRESH.md`

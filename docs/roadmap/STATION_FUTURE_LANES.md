@@ -360,6 +360,12 @@ PR156 update, 2026-06-21: PR155 is closed and accepted. The next lane is
 same hosted context-preview timing shape against the PR154 baseline before
 MIMIR opens any further optimization lane.
 
+PR157 update, 2026-06-21: PR156 closes the immediate Archive-retrieval latency
+loop. Hosted context-preview outer median is now 1864ms and no counted request
+exceeded 3000ms. The next lane is `PR157 - Staging Alpha Evidence Refresh`:
+consolidate current alpha-proof evidence and caveats rather than opening
+another optimization by guesswork.
+
 Inputs:
 
 - AI trace sessions and events.
@@ -407,10 +413,11 @@ Redis/Valkey worker runtime, Cloudflare Queue, or broad job processing.
 Current status: PR149 is closed as sufficient hosted measurement, PR150 and
 PR151 are closed, PR152 is closed as repeated hosted latency evidence, PR153 is
 closed as timing instrumentation, PR154 is closed as hosted timing evidence, and
-PR155 is closed as Archive retrieval batch validation. PR156 is open for hosted
-remeasurement. Do not open a worker, Redis Memory, Cloudflare, provider,
-billing, or broad UI optimization lane from local proof alone; choose future
-follow-up from hosted replay evidence and ARGUS/MIMIR sequencing.
+PR155 is closed as Archive retrieval batch validation, PR156 is closed as hosted
+remeasurement, and PR157 is open for staging alpha evidence refresh.
+Do not open a worker, Redis Memory, Cloudflare, provider, billing, or broad UI
+optimization lane from local proof alone; choose future follow-up from hosted
+replay evidence and ARGUS/MIMIR sequencing.
 
 Candidate triggers:
 
