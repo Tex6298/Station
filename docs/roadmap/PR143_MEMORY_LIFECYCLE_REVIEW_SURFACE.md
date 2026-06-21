@@ -4,7 +4,7 @@ Date opened: 2026-06-21
 Opened by: A1 / MIMIR
 Owner: DAEDALUS implements or precisely blocks, ARGUS reviews, ARIADNE
 rehearses visible behavior after ARGUS technical acceptance.
-Status: open
+Status: Technically accepted by ARGUS on 2026-06-21; ready for ARIADNE visible-route rehearsal.
 
 ## Why This Lane
 
@@ -185,3 +185,46 @@ Non-scope preserved: no migration-ledger repair, Redis/Upstash Memory truth,
 Cloudflare retrieval change, provider/embedding change, background job, public
 Memory, autonomous mutation, broad Studio redesign, billing/auth/session change,
 new AI provider call, API route change, or database migration was added.
+
+## ARGUS Technical Verdict
+
+ARGUS technically accepts PR143 on 2026-06-21 and wakes ARIADNE for visible
+owner-route rehearsal.
+
+Review findings:
+
+- Owner scope remains bounded to the existing authenticated owner APIs:
+  `/memory/persona/:personaId`, `/memory/persona/:personaId/briefing`,
+  `/memory/:id/lifecycle`, and
+  `/conversations/persona/:personaId/context-preview`.
+- The new Lifecycle review panel is readback-only. It does not add mutation
+  controls; working actions remain the existing Saved Memory item controls.
+- Held-out rejected, quarantined, expired, superseded, and missing-lifecycle
+  rows are not presented as active runtime material.
+- ARGUS found and patched a narrow redaction gap where prompt/key-shaped labels
+  with multi-word values could leave trailing words. The sanitizer now redacts
+  whole prompt-shaped and sensitive key/value labels and preserves redaction
+  tokens through source-label formatting.
+- Added ARGUS regression coverage for full prompt and password-shaped label
+  redaction.
+- No migration-ledger repair, Redis/Upstash Memory truth, Cloudflare retrieval,
+  provider/embedding, background job, public Memory, autonomous mutation, broad
+  Studio redesign, billing/auth/session, new AI provider call, API route, or
+  database migration scope was added.
+
+ARGUS validation:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 89 tests passed, including the new ARGUS full-label redaction regression. |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-context` | Pass | 7 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass | 35 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:continuity` | Pass | 5 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typechecks passed; web typecheck was a cache miss and executed. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web build` | Partial / known Windows failure | Next compiled, linted/typechecked, collected page data, generated 36 static pages, finalized optimization, collected build traces, then hit the known local Windows standalone symlink `EPERM`. Existing raw `<img>` warnings appeared. |
+| `git diff --check` | Pass | CRLF normalization warnings only for local triad/docs state. |
+| `git diff --cached --check` | Pass | No staged whitespace errors. |
+
+ARIADNE should rehearse `/studio/personas/[personaId]/memory` for owner-visible
+layout, copy clarity, and whether the Lifecycle review panel lands cleanly
+between Runtime context and Saved Memory without implying new fake controls.

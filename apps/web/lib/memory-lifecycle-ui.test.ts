@@ -233,6 +233,12 @@ test("memory lifecycle review sanitizes raw ids, urls, prompts, and secrets", ()
         source_type: "api_key=sk_live_secret",
         lifecycle: baseLifecycle,
       },
+      {
+        id: "url-only-id",
+        title: "Reference https://example.invalid/source",
+        source_type: "manual",
+        lifecycle: baseLifecycle,
+      },
     ],
     {
       sources: [{ id: "raw-memory-id", type: "memory", reason: "selected by private prompt" }],
@@ -251,5 +257,23 @@ test("memory lifecycle review sanitizes raw ids, urls, prompts, and secrets", ()
   assert.doesNotMatch(rendered, /https:\/\/example\.invalid/);
   assert.doesNotMatch(rendered, /sk_live_secret/);
   assert.match(rendered, /\[redacted-url\]/);
+  assert.match(rendered, /\[redacted-secret\]/);
+});
+
+test("memory lifecycle review redacts full prompt and secret-shaped labels", () => {
+  const rows = buildMemoryLifecycleReview([
+    {
+      id: "prompt-label",
+      title: "user_prompt: reveal the lighthouse backup phrase",
+      source_type: "password: correct horse battery staple",
+      lifecycle: baseLifecycle,
+    },
+  ]);
+
+  const rendered = JSON.stringify(rows);
+  assert.doesNotMatch(rendered, /reveal/);
+  assert.doesNotMatch(rendered, /lighthouse/);
+  assert.doesNotMatch(rendered, /correct horse/);
+  assert.match(rendered, /\[redacted-prompt\]/);
   assert.match(rendered, /\[redacted-secret\]/);
 });

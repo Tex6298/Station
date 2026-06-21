@@ -84,6 +84,33 @@ DAEDALUS PR143 notes:
   change, background job, broad Studio redesign, billing/auth/session change, or
   migration-ledger repair was added.
 
+ARGUS technical review validation on 2026-06-21:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 89 tests passed, including ARGUS full-label prompt/key redaction regression coverage. |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-context` | Pass | 7 tests passed; owner-only Memory briefing/context behavior remains green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass | 35 tests passed; private archive/context-preview behavior remains green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:continuity` | Pass | 5 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typechecks passed; web typecheck was a cache miss and executed. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web build` | Partial / known Windows failure | Next compiled, linted/typechecked, collected page data, generated 36 static pages, finalized optimization, collected build traces, then hit the known local Windows standalone symlink `EPERM`. Existing raw `<img>` warnings appeared. |
+| `git diff --check` | Pass | CRLF normalization warnings only for local triad/docs state. |
+| `git diff --cached --check` | Pass | No staged whitespace errors. |
+
+ARGUS review notes:
+
+- PR143 is technically accepted for ARIADNE visible-route rehearsal.
+- ARGUS patched a narrow privacy edge: prompt-shaped and sensitive key/value
+  labels with multi-word values now redact the whole label, and redaction tokens
+  are preserved through source-label formatting.
+- Owner scope remains bounded to existing authenticated owner APIs; no API route
+  changed.
+- The Lifecycle review panel is readback-only; existing Saved Memory controls
+  remain the working Reinforce, Restore, Quarantine, and Reject actions.
+- ARIADNE should rehearse `/studio/personas/[personaId]/memory` for layout,
+  mobile/desktop scanability, copy clarity, and fake-control risk before MIMIR
+  closeout.
+
 ## PR142 2C Migration Ledger Operator Reconciliation
 
 DAEDALUS operator reconciliation pass on 2026-06-21:

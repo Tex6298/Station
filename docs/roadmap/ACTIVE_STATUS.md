@@ -9694,49 +9694,45 @@ git diff --check
 - Developer Spaces visual polish before ingestion auth, validation, limits, and
   safe serialization.
 
-## Latest DAEDALUS handoff - PR143 memory lifecycle review surface
+## Latest ARGUS handoff - PR143 memory lifecycle review surface
 
-PR143 Memory Lifecycle Review Surface is implemented by DAEDALUS on 2026-06-21
-and ready for ARGUS review.
+ARGUS technically accepts PR143 Memory Lifecycle Review Surface on 2026-06-21
+and wakes ARIADNE for visible owner-route rehearsal.
 
-Implementation:
+Accepted technical facts:
 
-- Added `buildMemoryLifecycleReview` in
-  `apps/web/lib/memory-lifecycle-ui.ts`.
 - `/studio/personas/[personaId]/memory` now renders a compact owner-only
   Lifecycle review panel using existing Memory, lifecycle, briefing, and
   context-preview data.
-- The panel makes active-selected, active-not-selected, rejected, quarantined,
-  expired, superseded, and missing-lifecycle states legible with sanitized
-  target/source labels, status labels, confidence, relevance weight, runtime
-  reason, and action-state readback.
+- Owner scope remains bounded to the existing authenticated owner APIs:
+  `/memory/persona/:personaId`, `/memory/persona/:personaId/briefing`,
+  `/memory/:id/lifecycle`, and
+  `/conversations/persona/:personaId/context-preview`.
 - The panel is readback-only. Existing Saved Memory controls remain the working
   end-to-end actions: Reinforce, Restore, Quarantine, and Reject.
-- Prompt-shaped labels, owner/persona/trace/source id markers, raw ids, URLs,
-  bearer values, token/key/password-shaped fields, and common secret-shaped
-  values are redacted from review output.
+- Held-out rejected, quarantined, expired, superseded, and missing-lifecycle rows
+  are not presented as active runtime material.
+- ARGUS patched a narrow redaction edge so prompt-shaped and sensitive
+  key/value labels with multi-word values redact the whole label and preserve
+  redaction tokens through source-label formatting.
+- Validation passed `test:studio-ui` with 89 tests, `test:persona-context` with
+  7 tests, `test:conversation-archive` with 35 tests, `test:continuity` with 5
+  tests, `typecheck`, `git diff --check`, and `git diff --cached --check`. Web
+  build compiled, linted/typechecked, collected page data, generated 36 static
+  pages, finalized optimization, collected build traces, then hit the known local
+  Windows standalone symlink `EPERM`; existing raw `<img>` warnings appeared.
+- No migration-ledger repair, Redis/Upstash Memory truth, Cloudflare retrieval,
+  provider/embedding, background job, public Memory, autonomous mutation, broad
+  Studio redesign, billing/auth/session, new AI provider call, API route, or
+  database migration was added.
 
-Validation:
+ARIADNE task:
 
-- `test:studio-ui`: 88 passed.
-- `test:persona-context`: 7 passed.
-- `test:conversation-archive`: 35 passed.
-- `test:continuity`: 5 passed.
-- `typecheck`: passed after rerunning alone. A parallel run with web build
-  raced `.next/types` generation and failed before the clean rerun.
-- Web build: compiled, linted/typechecked, collected page data, generated 36
-  static pages, finalized optimization, then hit the known local Windows
-  standalone symlink `EPERM` while copying traced files. Existing raw `<img>`
-  warnings appeared.
-- `git diff --check`: passed with CRLF warnings only for touched files and local
-  DAEDALUS state.
-
-Non-scope preserved: no migration-ledger repair, Redis/Upstash Memory truth,
-Cloudflare retrieval change, provider/embedding change, background job, public
-Memory, autonomous memory mutation, broad Studio redesign, billing/auth/session
-change, new AI provider call, API route change, or database migration was
-added. Because visible owner-route behavior changed, ARGUS should wake ARIADNE
-after technical acceptance.
+- Rehearse `/studio/personas/[personaId]/memory` as an owner-visible route.
+- Check layout, mobile/desktop scanability, copy clarity, and whether Lifecycle
+  review lands cleanly between Runtime context and Saved Memory.
+- Confirm the panel does not look like it offers new fake controls and that the
+  existing Saved Memory actions remain the clear working controls.
 
 ## Previous DAEDALUS handoff - PR127 webhook concurrency guard
 

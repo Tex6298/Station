@@ -322,11 +322,19 @@ function memoryRuntimeSourceLabel(value?: string | null) {
 
 function sanitizeMemoryRuntimeLabel(value?: string | null) {
   if (!value) return null;
-  const sanitized = value
+  const trimmed = value.trim();
+  if (!trimmed) return null;
+  if (/\b(?:raw|private|system|user)[_-]?prompt\b\s*[:=]?/i.test(trimmed)) {
+    return "[redacted-prompt]";
+  }
+  if (/\b(?:token|cookie|authorization|api[_-]?key|x-api-key|secret|password)\b\s*[:=]/i.test(trimmed)) {
+    return "[redacted-secret]";
+  }
+
+  const sanitized = trimmed
     .replace(/\b[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}\b/gi, "[id]")
     .replace(/https?:\/\/\S+/gi, "[redacted-url]")
     .replace(SECRET_SHAPED_VALUE_PATTERN, "[redacted-secret]")
-    .replace(/\b(?:raw|private|system|user)[_-]?prompt\b\s*[:=]?\s*\S*/gi, "[redacted-prompt]")
     .replace(/\b(?:bearer)\s+\S+/gi, "bearer [redacted]")
     .replace(/\b(owner[_-]?user[_-]?id|owner[_-]?id|persona[_-]?id|trace[_-]?id|source[_-]?id)\b\s*[:=]\s*\S+/gi, "$1=[redacted]")
     .replace(/\b(token|cookie|authorization|api[_-]?key|x-api-key|secret|password)\b\s*[:=]\s*\S+/gi, "$1=[redacted]")
@@ -337,6 +345,7 @@ function sanitizeMemoryRuntimeLabel(value?: string | null) {
 }
 
 function labelizeMemoryRuntimeValue(value: string) {
+  if (/^\[(?:id|redacted-(?:prompt|secret|url))\]$/i.test(value)) return value;
   return value.replace(/[_-]/g, " ").replace(/^./, (letter) => letter.toUpperCase());
 }
 
