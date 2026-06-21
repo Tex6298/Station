@@ -9276,6 +9276,24 @@ when a PR lands, or when validation truth changes.
   `047`, rerun the bounded named-key smoke on `station-replay-dev-alpha`, and
   verify whether current-timestamp observed-runtime live send now reaches
   accepted import/readback or a new bounded blocker.
+- DAEDALUS implements PR139 2C Observed Runtime Webhook Receipts Staging Proof
+  on 2026-06-21 and wakes ARGUS for review. Migration `047` is applied/proved:
+  receipt table, `(developer_space_id, webhook_id)` unique constraint, index,
+  RLS, owner policy, and table comment are present, and PostgREST sees the
+  table after schema reload. Direct-applied `046`/`047`/`048` ledger counts
+  remain `0`; the official Supabase `migration repair --status applied
+  --workdir infra --yes 046 047 048` command found the migration files but
+  failed before updating rows because the pooler hit `prepared statement
+  "lrupsc_1_0" already exists`. DAEDALUS did not hand-edit migration history.
+  Bounded current-timestamp smoke used temporary named keys only, no legacy
+  rotation, raw key in memory, and targeted revoke; cleanup confirmed zero
+  active PR139 smoke keys remain. The previous receipt-claim blocker is
+  cleared: the first delivery now reaches
+  `developer_space_observed_runtime_classification_failed`, and replaying the
+  same webhook id returns the stored failed receipt as
+  `developer_space_webhook_processing_failed`. Public and owner readback remain
+  HTTP `200` with safe counts. No accepted observed-runtime import/readback is
+  claimed, and no secrets were printed, written, or committed.
 - DAEDALUS implements PR126 2C Observed Runtime Signing Secret Lifecycle on
   2026-06-21 and wakes ARGUS for schema/API/encryption/signature review.
   Migration `048_developer_space_webhook_signing_secrets.sql` adds

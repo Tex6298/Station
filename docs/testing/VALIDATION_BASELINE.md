@@ -52,6 +52,46 @@ pnpm test:developer-spaces
 pnpm test:developer-space-client
 ```
 
+## PR139 2C Observed Runtime Webhook Receipts Staging Proof
+
+DAEDALUS staging proof on 2026-06-21:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| Temporary `pg@8.13.1` client outside repo | Pass | Installed under local temp, not Station package files; used simple unprepared SQL without printing connection values. |
+| Migration `047` DDL + metadata proof | Pass | Receipt table exists; `(developer_space_id, webhook_id)` unique constraint present; receipt index present; RLS enabled; owner policy present; table comment present. |
+| `npx --yes supabase@latest migration repair --status applied --db-url <encoded pooler url> --workdir infra --yes 046 047 048` | Blocked | Official repair found the migration files but failed before updating rows with `ERROR: prepared statement "lrupsc_1_0" already exists (SQLSTATE 42P05)`. |
+| Ledger count after repair attempt | Caveat | Matching `046`, `047`, and `048` ledger counts remained `0`. DAEDALUS did not hand-edit migration history rows. |
+| `notify pgrst, 'reload schema'` through temporary `pg` client | Pass | Returned `NOTIFY`. |
+| Service-role PostgREST receipt-table probe | Pass | `developer_space_observed_runtime_webhook_receipts` returned HTTP `200`. |
+| Bounded named-key current-timestamp smoke | New bounded blocker | Signin `200`; Developer Space list `200` count 2; selected space id hash `44e026dc4e6c`; named key create `201`; first current-timestamp delivery returned HTTP `400` with `developer_space_observed_runtime_classification_failed`; repeating the same webhook id returned HTTP `400` with `developer_space_webhook_processing_failed`, proving failed-receipt replay; public and owner readback stayed HTTP `200`; targeted revoke `200`; cleanup showed zero active PR139 smoke keys. |
+| Sanitized validation-detail probe | Bounded validation classification | Fresh current-timestamp delivery returned the same high-level `developer_space_observed_runtime_classification_failed`; sanitized details array was empty. |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 27 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-space-client` | Pass | 15 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/api build` | Pass | API package build completed after dependency package builds. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typechecks passed through turbo cache replay. |
+
+DAEDALUS PR139 notes:
+
+- PR138's receipt-claim blocker is cleared.
+- Migration `047` table/constraint/index/RLS/policy/comment/schema-cache state
+  is proved.
+- Direct-applied `046`/`047`/`048` migration ledger rows remain absent because
+  the official repair path is blocked by the Supabase pooler prepared-statement
+  collision.
+- Current-timestamp live send now reaches the next bounded blocker:
+  observed-runtime classification validation for the Agents Observe payload.
+- Idempotency/replay works for the failed-delivery path: the repeated webhook id
+  returns the stored failed receipt response.
+- No accepted observed-runtime import/readback is claimed.
+- All PR139 smoke keys were temporary named keys, raw key material stayed in
+  memory only, legacy key rotation was not used, and cleanup confirmed zero
+  active PR139 smoke keys remain.
+- No Supabase URL, service key, DB URL, auth token, replay password, raw
+  Developer Space key, signing material, raw webhook id, fixture prompt/body/
+  file path, `.env` value, or Railway variable was printed, committed, or
+  written to docs.
+
 ## PR138 2C Observed Runtime Signing Secret Staging Proof
 
 DAEDALUS staging proof on 2026-06-21:
