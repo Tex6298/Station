@@ -9694,42 +9694,49 @@ git diff --check
 - Developer Spaces visual polish before ingestion auth, validation, limits, and
   safe serialization.
 
-## Latest MIMIR handoff - PR143 memory lifecycle review surface
+## Latest DAEDALUS handoff - PR143 memory lifecycle review surface
 
-MIMIR accepts ARGUS's PR142 verdict on 2026-06-21 and wakes DAEDALUS for PR143.
+PR143 Memory Lifecycle Review Surface is implemented by DAEDALUS on 2026-06-21
+and ready for ARGUS review.
 
-Sequencing decision:
+Implementation:
 
-- PR142 is accepted as an operator packet, not a migration-ledger repair:
-  `docs/ops/PR142_MIGRATION_LEDGER_OPERATOR_PACKET.md`.
-- Ledger rows for `045`, `046`, `047`, and `048` remain absent; no migration
-  history rows were inserted, updated, faked, or hand-edited.
-- MIMIR accepts that ledger drift as an operator caveat for now and keeps the
-  observed-runtime staging proof moving forward.
-- Future ledger repair remains available only as a separate explicit lane:
-  linked Supabase CLI repair, direct non-pooler Postgres repair, or audited
-  manual SQL with approval.
+- Added `buildMemoryLifecycleReview` in
+  `apps/web/lib/memory-lifecycle-ui.ts`.
+- `/studio/personas/[personaId]/memory` now renders a compact owner-only
+  Lifecycle review panel using existing Memory, lifecycle, briefing, and
+  context-preview data.
+- The panel makes active-selected, active-not-selected, rejected, quarantined,
+  expired, superseded, and missing-lifecycle states legible with sanitized
+  target/source labels, status labels, confidence, relevance weight, runtime
+  reason, and action-state readback.
+- The panel is readback-only. Existing Saved Memory controls remain the working
+  end-to-end actions: Reinforce, Restore, Quarantine, and Reject.
+- Prompt-shaped labels, owner/persona/trace/source id markers, raw ids, URLs,
+  bearer values, token/key/password-shaped fields, and common secret-shaped
+  values are redacted from review output.
 
-DAEDALUS task:
+Validation:
 
-- Implement `docs/roadmap/PR143_MEMORY_LIFECYCLE_REVIEW_SURFACE.md`.
-- Build a narrow owner-only Memory lifecycle review/readback surface using
-  existing Memory, lifecycle, briefing, and context-preview data where possible.
-- Make active-selected, active-not-selected, rejected, quarantined, expired,
-  superseded, missing-lifecycle, and archive/source-held Memory states legible.
-- Ensure every visible control either works end to end or is disabled/clearly
-  labelled as preview-only; do not leave staging-demo dead buttons.
-- Do not add migration-ledger repair, Redis Memory truth, Cloudflare retrieval
-  changes, provider/embedding changes, background jobs, public Memory,
-  autonomous memory mutation, broad Studio redesign, billing/auth/session
-  changes, or new AI provider calls.
+- `test:studio-ui`: 88 passed.
+- `test:persona-context`: 7 passed.
+- `test:conversation-archive`: 35 passed.
+- `test:continuity`: 5 passed.
+- `typecheck`: passed after rerunning alone. A parallel run with web build
+  raced `.next/types` generation and failed before the clean rerun.
+- Web build: compiled, linted/typechecked, collected page data, generated 36
+  static pages, finalized optimization, then hit the known local Windows
+  standalone symlink `EPERM` while copying traced files. Existing raw `<img>`
+  warnings appeared.
+- `git diff --check`: passed with CRLF warnings only for touched files and local
+  DAEDALUS state.
 
-ARGUS/ARIADNE path:
-
-- DAEDALUS should wake ARGUS with API/UI changes, privacy proof, action-control
-  status, validation, and explicit non-claims.
-- ARGUS should wake ARIADNE after technical acceptance if visible owner-route
-  behavior changed, then wake MIMIR with the closeout verdict.
+Non-scope preserved: no migration-ledger repair, Redis/Upstash Memory truth,
+Cloudflare retrieval change, provider/embedding change, background job, public
+Memory, autonomous memory mutation, broad Studio redesign, billing/auth/session
+change, new AI provider call, API route change, or database migration was
+added. Because visible owner-route behavior changed, ARGUS should wake ARIADNE
+after technical acceptance.
 
 ## Previous DAEDALUS handoff - PR127 webhook concurrency guard
 

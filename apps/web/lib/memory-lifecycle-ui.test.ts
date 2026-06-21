@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import {
+  buildMemoryLifecycleReview,
   buildMemoryRuntimeExplanation,
   memoryLifecycleActions,
   memoryLifecycleCounters,
@@ -154,6 +155,101 @@ test("memory runtime explanation does not expose raw ids, prompts, urls, or secr
   assert.doesNotMatch(rendered, /persona-1/);
   assert.doesNotMatch(rendered, /trace-1/);
   assert.doesNotMatch(rendered, /raw-source-1/);
+  assert.match(rendered, /\[redacted-url\]/);
+  assert.match(rendered, /\[redacted-secret\]/);
+});
+
+test("memory lifecycle review labels active selection and available action state", () => {
+  const rows = buildMemoryLifecycleReview(
+    [
+      {
+        id: "memory-selected",
+        title: "Harbor ritual",
+        source_type: "manual",
+        relevance_weight: 1.25,
+        lifecycle: baseLifecycle,
+      },
+      {
+        id: "memory-not-selected",
+        title: "Workshop preference",
+        source_type: "chat",
+        relevance_weight: 0.9,
+        lifecycle: baseLifecycle,
+      },
+    ],
+    {
+      trace: {
+        selectedSources: [{ id: "memory-selected", type: "memory", title: "Harbor ritual" }],
+      },
+    },
+  );
+
+  assert.equal(rows[0]?.runtimeState, "active_selected");
+  assert.equal(rows[0]?.runtimeLabel, "Selected for preview");
+  assert.equal(rows[0]?.actionState, "available");
+  assert.match(rows[0]?.actionReason ?? "", /reinforce, quarantine, or reject/);
+  assert.equal(rows[0]?.weightLabel, "1.25");
+
+  assert.equal(rows[1]?.runtimeState, "active_not_selected");
+  assert.equal(rows[1]?.runtimeLabel, "Eligible, not selected");
+  assert.match(rows[1]?.runtimeReason ?? "", /not selected for this preview query/);
+});
+
+test("memory lifecycle review maps held-out states to restore actions", () => {
+  const rows = buildMemoryLifecycleReview([
+    { id: "rejected", title: "Rejected item", source_type: "manual", lifecycle: { ...baseLifecycle, status: "rejected" } },
+    { id: "quarantined", title: "Quarantined item", source_type: "import", lifecycle: { ...baseLifecycle, status: "quarantined" } },
+    { id: "expired", title: "Expired item", source_type: "manual", lifecycle: { ...baseLifecycle, expiresAt: "2020-01-01T00:00:00.000Z" } },
+    { id: "superseded", title: "Superseded item", source_type: "manual", lifecycle: { ...baseLifecycle, supersededByMemoryItemId: "replacement" } },
+    { id: "missing", title: "Missing lifecycle item", source_type: "chat", lifecycle: null },
+  ]);
+
+  assert.deepEqual(rows.map((row) => row.statusLabel), [
+    "Rejected",
+    "Quarantined",
+    "Expired",
+    "Superseded",
+    "Missing lifecycle",
+  ]);
+  assert.deepEqual(Array.from(new Set(rows.map((row) => row.runtimeState))), ["held_out"]);
+  assert.deepEqual(rows.map((row) => row.actionState), [
+    "available",
+    "available",
+    "available",
+    "available",
+    "available",
+  ]);
+  assert.equal(rows[4]?.actionLabel, "Restore creates lifecycle");
+  assert.match(rows[4]?.actionReason ?? "", /owner-only lifecycle route/);
+});
+
+test("memory lifecycle review sanitizes raw ids, urls, prompts, and secrets", () => {
+  const rows = buildMemoryLifecycleReview(
+    [
+      {
+        id: "raw-memory-id",
+        title: "PRIVATE_PROMPT owner_user_id=owner-1 https://example.invalid sk_live_secret",
+        summary: "persona_id=persona-1 trace_id=trace-1 source_id=source-1",
+        source_type: "api_key=sk_live_secret",
+        lifecycle: baseLifecycle,
+      },
+    ],
+    {
+      sources: [{ id: "raw-memory-id", type: "memory", reason: "selected by private prompt" }],
+      trace: {
+        retrievalMode: { memory: "keyword" },
+      },
+    },
+  );
+
+  const rendered = JSON.stringify(rows);
+  assert.doesNotMatch(rendered, /raw-memory-id/);
+  assert.doesNotMatch(rendered, /owner-1/);
+  assert.doesNotMatch(rendered, /persona-1/);
+  assert.doesNotMatch(rendered, /trace-1/);
+  assert.doesNotMatch(rendered, /source-1/);
+  assert.doesNotMatch(rendered, /https:\/\/example\.invalid/);
+  assert.doesNotMatch(rendered, /sk_live_secret/);
   assert.match(rendered, /\[redacted-url\]/);
   assert.match(rendered, /\[redacted-secret\]/);
 });

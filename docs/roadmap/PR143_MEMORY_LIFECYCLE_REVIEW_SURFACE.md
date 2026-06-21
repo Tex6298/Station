@@ -133,3 +133,55 @@ ARGUS should verify:
 
 Because this lane is expected to change visible owner route behavior, ARGUS
 should wake ARIADNE after technical acceptance for a human-eye rehearsal.
+
+## DAEDALUS Result
+
+DAEDALUS implemented PR143 on 2026-06-21 and woke ARGUS for technical review.
+
+Implementation:
+
+- Added `buildMemoryLifecycleReview` to `apps/web/lib/memory-lifecycle-ui.ts`.
+- The helper maps owner Memory rows into sanitized review rows with:
+  - active-selected;
+  - active-not-selected;
+  - held-out rejected/quarantined/expired/superseded/missing-lifecycle states;
+  - source labels;
+  - confidence and relevance-weight labels;
+  - action-state readback for the existing owner-only lifecycle controls.
+- The helper reuses the existing context-preview selected-source data and does
+  not add new retrieval, ranking, provider, or AI calls.
+- `/studio/personas/[personaId]/memory` now renders a compact owner-only
+  Lifecycle review panel between Runtime context and Saved Memory.
+- The new panel is readback-only. The actual working lifecycle controls remain
+  in the existing Saved Memory item cards: Reinforce, Restore, Quarantine, and
+  Reject.
+- Prompt-shaped labels, raw ids, owner/persona/trace/source id markers, URLs,
+  bearer values, token/key/password-shaped fields, and common secret-shaped
+  values are redacted from review output.
+
+Privacy proof:
+
+- The review helper does not emit raw Memory ids, owner ids, persona ids, trace
+  ids, source ids, URLs, prompt-shaped labels, or secret-shaped values.
+- It renders sanitized target labels, source labels, lifecycle/status labels,
+  confidence, weight, and bounded reasons only.
+- No public Memory, private archive excerpts, provider payloads, raw prompts,
+  completions, trace bodies, tokens, cookies, keys, passwords, or secrets were
+  added to the visible review surface.
+
+Validation:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 88 tests passed, including new lifecycle review helper coverage. |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-context` | Pass | 7 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass | 35 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:continuity` | Pass | 5 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typechecks passed after rerunning alone. A parallel run with web build raced `.next/types` generation and failed before the clean rerun. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web build` | Partial / known Windows failure | Next compiled, linted/typechecked, collected page data, generated 36 static pages, finalized optimization, then hit the known local Windows standalone symlink `EPERM` while copying traced files. Existing raw `<img>` warnings appeared. |
+| `git diff --check` | Pass | CRLF warnings only for touched files and local DAEDALUS state. |
+
+Non-scope preserved: no migration-ledger repair, Redis/Upstash Memory truth,
+Cloudflare retrieval change, provider/embedding change, background job, public
+Memory, autonomous mutation, broad Studio redesign, billing/auth/session change,
+new AI provider call, API route change, or database migration was added.

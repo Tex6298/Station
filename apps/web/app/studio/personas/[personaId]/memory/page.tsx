@@ -5,6 +5,7 @@ import { useParams } from "next/navigation";
 import { getSession } from "@/lib/auth";
 import { apiGet, apiPatch, apiPost } from "@/lib/api-client";
 import {
+  buildMemoryLifecycleReview,
   buildMemoryRuntimeExplanation,
   memoryLifecycleActions,
   memoryLifecycleCounters,
@@ -12,6 +13,7 @@ import {
   memoryLifecycleStatusLabel,
   memoryRuntimeCopy,
   type RuntimeContextMemoryPreviewLike,
+  type MemoryLifecycleReviewRow,
   type MemoryRuntimeExplanationRow,
 } from "@/lib/memory-lifecycle-ui";
 import type { MemoryItemLifecycle, OwnerMemoryBlock, PersonaMemoryBriefing } from "@station/types/persona";
@@ -186,6 +188,7 @@ export default function PersonaMemoryPage() {
 
   const lifecycleMetrics = memoryLifecycleCounters(items, briefing);
   const runtimeExplanation = buildMemoryRuntimeExplanation(items, runtimePreview);
+  const lifecycleReview = buildMemoryLifecycleReview(items, runtimePreview);
 
   return (
     <main className="container studio-workspace">
@@ -247,6 +250,24 @@ export default function PersonaMemoryPage() {
             <p key={note} style={{ margin: 0, color: "#8ea0b8", fontSize: "0.9rem", lineHeight: 1.45 }}>
               {note}
             </p>
+          ))}
+        </div>
+      </section>
+
+      <section className="studio-list-panel" style={{ marginBottom: "1rem" }}>
+        <div className="studio-section-heading">
+          <div className="section-label">Lifecycle review</div>
+          <h2>Runtime readiness and action state</h2>
+        </div>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(132px, 1fr))", gap: "0.75rem", marginBottom: "1rem" }}>
+          <BriefingMetric label="Selected" value={lifecycleReview.filter((row) => row.runtimeState === "active_selected").length} />
+          <BriefingMetric label="Eligible" value={lifecycleReview.filter((row) => row.runtimeState === "active_not_selected").length} />
+          <BriefingMetric label="Held out" value={lifecycleReview.filter((row) => row.runtimeState === "held_out").length} />
+        </div>
+        <div className="studio-item-list">
+          {lifecycleReview.length === 0 && <div className="studio-empty">No memory lifecycle rows to review.</div>}
+          {lifecycleReview.map((row) => (
+            <LifecycleReviewCard key={`${row.targetLabel}-${row.sourceLabel}-${row.statusLabel}-${row.runtimeLabel}`} row={row} />
           ))}
         </div>
       </section>
@@ -374,6 +395,36 @@ function BriefingMetric({ label, value }: { label: string; value: number | strin
       <h3 style={{ marginBottom: "0.25rem" }}>{value}</h3>
       <p style={{ margin: 0 }}>{label}</p>
     </div>
+  );
+}
+
+function LifecycleReviewCard({ row }: { row: MemoryLifecycleReviewRow }) {
+  return (
+    <article className="studio-item-card">
+      <div>
+        <span>{row.sourceLabel}</span>
+        <span>{row.statusLabel}</span>
+      </div>
+      <h3>{row.targetLabel}</h3>
+      <div style={{ display: "grid", gap: "0.55rem", marginTop: "0.75rem" }}>
+        <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
+          <span className="section-label">{row.runtimeLabel}</span>
+          <span className="section-label">confidence {row.confidenceLabel}</span>
+          <span className="section-label">weight {row.weightLabel}</span>
+        </div>
+        <p style={{ margin: 0, color: "#8ea0b8", fontSize: "0.9rem", lineHeight: 1.45 }}>
+          {row.runtimeReason}
+        </p>
+        <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap", alignItems: "center" }}>
+          <span className="section-label">
+            {row.actionState === "preview_only" ? "Preview only" : row.actionLabel}
+          </span>
+          <p style={{ margin: 0, color: "#8ea0b8", fontSize: "0.9rem", lineHeight: 1.45 }}>
+            {row.actionReason}
+          </p>
+        </div>
+      </div>
+    </article>
   );
 }
 

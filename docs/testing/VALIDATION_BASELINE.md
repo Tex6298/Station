@@ -52,6 +52,38 @@ pnpm test:developer-spaces
 pnpm test:developer-space-client
 ```
 
+## PR143 Memory Lifecycle Review Surface
+
+DAEDALUS implementation validation on 2026-06-21:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 88 tests passed, including lifecycle review label mapping, active-selected versus active-not-selected readback, held-out state labels, action-state readback, and privacy redaction coverage. |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-context` | Pass | 7 tests passed; owner-only Memory briefing/context behavior remains green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass | 35 tests passed; private archive/context-preview behavior remains green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:continuity` | Pass | 5 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typechecks passed after rerunning alone. A parallel run with web build raced `.next/types` generation and failed before the clean rerun. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web build` | Partial / known Windows failure | Next compiled, linted/typechecked, collected page data, generated 36 static pages, finalized optimization, then hit the known local Windows standalone symlink `EPERM` while copying traced files. Existing raw `<img>` warnings appeared. |
+| `git diff --check` | Pass | CRLF warnings only for touched files and local DAEDALUS state. |
+
+DAEDALUS PR143 notes:
+
+- Added a compact owner-only Lifecycle review panel to
+  `/studio/personas/[personaId]/memory`.
+- Added `buildMemoryLifecycleReview` for sanitized review rows covering active-
+  selected, active-not-selected, rejected, quarantined, expired, superseded, and
+  missing-lifecycle states.
+- The review panel is readback-only. Existing Saved Memory controls remain the
+  working end-to-end controls: Reinforce, Restore, Quarantine, and Reject.
+- Review output redacts prompt-shaped labels, owner/persona/trace/source id
+  markers, raw ids, URLs, bearer values, token/key/password-shaped fields, and
+  common secret-shaped values.
+- No raw prompts, completions, trace bodies, provider payloads, private archive
+  excerpts, public Memory, new AI call, API route change, database migration,
+  Redis/Upstash Memory truth, Cloudflare retrieval change, provider/embedding
+  change, background job, broad Studio redesign, billing/auth/session change, or
+  migration-ledger repair was added.
+
 ## PR142 2C Migration Ledger Operator Reconciliation
 
 DAEDALUS operator reconciliation pass on 2026-06-21:
