@@ -9294,6 +9294,19 @@ when a PR lands, or when validation truth changes.
   `developer_space_webhook_processing_failed`. Public and owner readback remain
   HTTP `200` with safe counts. No accepted observed-runtime import/readback is
   claimed, and no secrets were printed, written, or committed.
+- ARGUS accepts PR139 2C Observed Runtime Webhook Receipts Staging Proof on
+  2026-06-21 as a bounded staging proof and blocker classification. Migration
+  `047` receipt storage is metadata/RLS/PostgREST proved, receipt claim is
+  cleared, failed-delivery replay is proved, and temporary PR139 keys were
+  revoked. No accepted import is claimed. Official migration repair for
+  direct-applied `046`/`047`/`048` failed on the pooler prepared-statement
+  collision, so ledger counts remain `0`.
+- MIMIR closes PR139 and opens PR140 2C Agents Observe Classification Alignment
+  for DAEDALUS on 2026-06-21. PR140 should align the Agents Observe
+  transform/live-send payload with the deployed observed-runtime classification
+  validator, preserve PR120-PR123 privacy rules, rerun bounded staging smoke,
+  and prove accepted import/readback or classify the next blocker. Ledger repair
+  is explicitly out of scope for PR140 and remains an operator/tooling gap.
 - DAEDALUS implements PR126 2C Observed Runtime Signing Secret Lifecycle on
   2026-06-21 and wakes ARGUS for schema/API/encryption/signature review.
   Migration `048_developer_space_webhook_signing_secrets.sql` adds
@@ -9574,13 +9587,12 @@ git diff --check
 - Developer Spaces visual polish before ingestion auth, validation, limits, and
   safe serialization.
 
-## Latest ARGUS verdict - PR139 webhook receipts staging proof
+## Latest MIMIR handoff - PR140 classification alignment
 
-ARGUS accepts PR139 2C Observed Runtime Webhook Receipts Staging Proof on
-2026-06-21 as a bounded staging proof and blocker classification, and wakes
-MIMIR for the next ledger/classification sequencing decision.
+MIMIR opens PR140 2C Agents Observe Classification Alignment on 2026-06-21 and
+wakes DAEDALUS.
 
-Accepted proof:
+Input from PR139/ARGUS:
 
 - Migration `047` receipt storage is metadata-proved: table present,
   `(developer_space_id, webhook_id)` unique constraint present, index present,
@@ -9611,25 +9623,34 @@ ARGUS cautions:
   an empty sanitized `details` array for one fresh probe; this should not be
   generalized into a guarantee that all future classification details are empty.
 
-ARGUS validation:
+MIMIR decision:
 
-- `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces`: pass, 27 tests.
-- `npm exec --yes pnpm@10.32.1 -- run test:developer-space-client`: pass, 15
-  tests.
-- `npm exec --yes pnpm@10.32.1 -- --filter @station/api build`: pass.
-- `npm exec --yes pnpm@10.32.1 -- run typecheck`: pass.
-- `git diff --check`: pass with CRLF normalization warnings only for local
-  triad/docs state.
-- `git diff --cached --check`: pass.
+- Do not hand-edit or fake the `046`/`047`/`048` migration ledger inside this
+  payload lane. Official repair failed and the empty ledger rows remain an
+  operator/tooling gap.
+- Open a narrow Agents Observe classification-alignment lane so the staging
+  payload satisfies the deployed observed-runtime classification validator
+  without weakening privacy classification boundaries or printing secrets.
 
-ARGUS did not rerun live staging smoke because doing so would require
-secret-bearing auth and another staging mutation.
+DAEDALUS task:
 
-Recommended next sequencing for MIMIR: decide how to handle the still-empty
-`046`/`047`/`048` migration ledger, then open a narrow Agents Observe
-classification-alignment lane so the staging payload satisfies the deployed
-observed-runtime classification validator without weakening privacy
-classification boundaries or printing secrets.
+- Implement
+  `docs/roadmap/PR140_2C_AGENTS_OBSERVE_CLASSIFICATION_ALIGNMENT.md`.
+- Find and fix the exact mismatch between the Agents Observe generated payload
+  and `apps/api/src/routes/developer-spaces.ts` observed-runtime
+  classification validation.
+- Preserve the PR120-PR123 contract: secret-shaped fields must be secret,
+  secret values must not persist/serialize, and public/member/owner readbacks
+  must stay access-filtered.
+- Rerun bounded staging smoke on `station-replay-dev-alpha` with a temporary
+  named key, raw key in memory only, no legacy rotation, and targeted revoke.
+- Prove accepted import/readback and safe receipt replay if reached; otherwise
+  classify the next bounded blocker.
+
+DAEDALUS should wake ARGUS with mismatch/fix evidence, validation, staging
+smoke, no-secret proof, unchanged ledger classification, and explicit
+non-claims. Wake MIMIR instead if the validator requires a product/privacy
+decision or new schema.
 
 ## Previous DAEDALUS handoff - PR127 webhook concurrency guard
 
