@@ -76,6 +76,12 @@ export interface MemoryLifecycleReviewRow {
   weightLabel: string;
 }
 
+export interface MemorySupersessionOption {
+  value: string;
+  label: string;
+  detail: string;
+}
+
 const STATUS_ORDER: MemoryLifecycleDisplayStatus[] = [
   "active",
   "quarantined",
@@ -219,6 +225,32 @@ export function buildMemoryLifecycleReview(
       weightLabel: memoryLifecycleReviewWeightLabel(item),
     };
   });
+}
+
+export function buildMemorySupersessionOptions(
+  source: MemoryRuntimeExplanationItemLike,
+  items: MemoryRuntimeExplanationItemLike[],
+): MemorySupersessionOption[] {
+  return items
+    .filter((item) => item.id && item.id !== source.id)
+    .map((item) => {
+      const status = memoryLifecycleDisplayStatus(item.lifecycle);
+      return {
+        value: item.id,
+        label: memoryRuntimeTargetLabel(item),
+        detail: `${memoryRuntimeSourceLabel(item.source_type ?? item.sourceType)} / ${memoryLifecycleStatusLabel(status)}`,
+      };
+    });
+}
+
+export function memorySupersessionControlCopy(input: {
+  source: MemoryRuntimeExplanationItemLike;
+  optionCount: number;
+}) {
+  const status = memoryLifecycleDisplayStatus(input.source.lifecycle);
+  if (input.optionCount === 0) return "Add another memory before marking a replacement.";
+  if (status === "superseded") return "Superseded by an owner-selected replacement.";
+  return "Mark this memory as replaced by another saved memory.";
 }
 
 function memoryRuntimeSelectedIds(preview?: RuntimeContextMemoryPreviewLike | null) {

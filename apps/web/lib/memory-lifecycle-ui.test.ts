@@ -1,11 +1,13 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import {
+  buildMemorySupersessionOptions,
   buildMemoryLifecycleReview,
   buildMemoryRuntimeExplanation,
   memoryLifecycleActions,
   memoryLifecycleCounters,
   memoryLifecycleDisplayStatus,
+  memorySupersessionControlCopy,
   memoryRuntimeCopy,
 } from "./memory-lifecycle-ui";
 import type { MemoryItemLifecycle } from "@station/types/persona";
@@ -276,4 +278,50 @@ test("memory lifecycle review redacts full prompt and secret-shaped labels", () 
   assert.doesNotMatch(rendered, /correct horse/);
   assert.match(rendered, /\[redacted-prompt\]/);
   assert.match(rendered, /\[redacted-secret\]/);
+});
+
+test("memory supersession options exclude self and sanitize visible labels", () => {
+  const source = {
+    id: "source-memory-id",
+    title: "Source memory",
+    source_type: "manual",
+    lifecycle: baseLifecycle,
+  };
+  const options = buildMemorySupersessionOptions(source, [
+    source,
+    {
+      id: "replacement-memory-id",
+      title: "owner_user_id=owner-1 https://example.invalid sk_live_secret",
+      summary: "Replacement summary",
+      source_type: "api_key=sk_live_secret",
+      lifecycle: { ...baseLifecycle, memoryItemId: "replacement-memory-id" },
+    },
+  ]);
+
+  assert.equal(options.length, 1);
+  assert.equal(options[0]?.value, "replacement-memory-id");
+  const rendered = JSON.stringify(options);
+  assert.doesNotMatch(rendered, /source-memory-id/);
+  assert.doesNotMatch(rendered, /owner-1/);
+  assert.doesNotMatch(rendered, /https:\/\/example\.invalid/);
+  assert.doesNotMatch(rendered, /sk_live_secret/);
+  assert.match(rendered, /\[redacted-url\]/);
+  assert.match(rendered, /\[redacted-secret\]/);
+});
+
+test("memory supersession copy stays bounded to owner action state", () => {
+  assert.equal(
+    memorySupersessionControlCopy({
+      source: { id: "source", title: "Only memory", lifecycle: baseLifecycle },
+      optionCount: 0,
+    }),
+    "Add another memory before marking a replacement.",
+  );
+  assert.equal(
+    memorySupersessionControlCopy({
+      source: { id: "source", title: "Old memory", lifecycle: { ...baseLifecycle, supersededByMemoryItemId: "replacement" } },
+      optionCount: 2,
+    }),
+    "Superseded by an owner-selected replacement.",
+  );
 });

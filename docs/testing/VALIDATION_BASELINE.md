@@ -52,6 +52,32 @@ pnpm test:developer-spaces
 pnpm test:developer-space-client
 ```
 
+## PR151 Memory Supersession Owner Control
+
+DAEDALUS implementation validation on 2026-06-21:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 99 tests passed; added supersession replacement-option and copy coverage. |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-context` | Pass | 8 tests passed; PR150 lifecycle-created graph edge route remains green. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typechecks passed. |
+| `git diff --check` | Pass | CRLF warnings only for touched files and local triad state. |
+
+DAEDALUS PR151 notes:
+
+- Saved Memory cards now include a compact owner-only `Supersession` reveal.
+- Replacement choices exclude the source Memory and submit to the existing
+  `PATCH /memory/:id/lifecycle` route.
+- Restore behavior remains unchanged and still clears `supersededByMemoryItemId`.
+- Option labels and action copy use sanitized bounded helper output; raw Memory
+  ids remain internal select values and route payloads only.
+- Persona Management relationship readback is unchanged and remains tied to
+  real graph edge rows.
+- No graph canvas, public Memory graph, embedding/provider inference, automatic
+  relationship generation, Redis/Upstash graph work, Cloudflare graph/index
+  work, worker, import repair, context latency optimization, billing, auth,
+  session, broad Studio, or site-wide redesign was added.
+
 ## PR150 Memory Graph Edge Recording
 
 ARGUS review validation on 2026-06-21 after the self-supersession guard patch:

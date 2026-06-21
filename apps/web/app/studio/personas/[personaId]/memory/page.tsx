@@ -6,11 +6,13 @@ import { getSession } from "@/lib/auth";
 import { apiGet, apiPatch, apiPost } from "@/lib/api-client";
 import {
   buildMemoryLifecycleReview,
+  buildMemorySupersessionOptions,
   buildMemoryRuntimeExplanation,
   memoryLifecycleActions,
   memoryLifecycleCounters,
   memoryLifecycleDisplayStatus,
   memoryLifecycleStatusLabel,
+  memorySupersessionControlCopy,
   memoryRuntimeCopy,
   type RuntimeContextMemoryPreviewLike,
   type MemoryLifecycleReviewRow,
@@ -48,6 +50,8 @@ export default function PersonaMemoryPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [savingShared, setSavingShared] = useState(false);
+  const [supersessionChoices, setSupersessionChoices] = useState<Record<string, string>>({});
+  const [superseding, setSuperseding] = useState<Record<string, boolean>>({});
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -170,6 +174,19 @@ export default function PersonaMemoryPage() {
   async function reloadBriefing(accessToken: string, id: string) {
     const data = await apiGet<{ briefing: PersonaMemoryBriefing }>(`/memory/persona/${id}/briefing`, accessToken).catch(() => null);
     if (data) setBriefing(data.briefing);
+  }
+
+  async function markSuperseded(itemId: string, replacementId: string | undefined) {
+    if (!replacementId) return;
+    setSuperseding((current) => ({ ...current, [itemId]: true }));
+    try {
+      await updateLifecycle(itemId, {
+        status: "superseded",
+        supersededByMemoryItemId: replacementId,
+      });
+    } finally {
+      setSuperseding((current) => ({ ...current, [itemId]: false }));
+    }
   }
 
   async function reloadRuntimePreview(accessToken: string, id: string) {
@@ -300,6 +317,8 @@ export default function PersonaMemoryPage() {
             {items.map((item) => {
               const status = memoryLifecycleDisplayStatus(item.lifecycle);
               const actions = memoryLifecycleActions(item.lifecycle);
+              const supersessionOptions = buildMemorySupersessionOptions(item, items);
+              const selectedReplacementId = supersessionChoices[item.id] ?? supersessionOptions[0]?.value ?? "";
 
               return (
                 <article key={item.id} className="studio-item-card">
@@ -337,6 +356,36 @@ export default function PersonaMemoryPage() {
                         </button>
                       )}
                     </div>
+                    <details className="studio-runtime-prompt">
+                      <summary>Supersession</summary>
+                      <div style={{ display: "grid", gap: "0.5rem", marginTop: "0.65rem" }}>
+                        <p style={{ margin: 0, color: "#8ea0b8", fontSize: "0.9rem", lineHeight: 1.45 }}>
+                          {memorySupersessionControlCopy({ source: item, optionCount: supersessionOptions.length })}
+                        </p>
+                        <select
+                          className="input"
+                          value={selectedReplacementId}
+                          disabled={supersessionOptions.length === 0}
+                          onChange={(event) => setSupersessionChoices((current) => ({ ...current, [item.id]: event.target.value }))}
+                        >
+                          {supersessionOptions.length === 0 ? (
+                            <option value="">No replacement memory available</option>
+                          ) : supersessionOptions.map((option) => (
+                            <option key={option.value} value={option.value}>
+                              {option.label} - {option.detail}
+                            </option>
+                          ))}
+                        </select>
+                        <button
+                          className="button secondary"
+                          type="button"
+                          disabled={!selectedReplacementId || superseding[item.id]}
+                          onClick={() => markSuperseded(item.id, selectedReplacementId)}
+                        >
+                          {superseding[item.id] ? "Saving..." : "Mark Superseded"}
+                        </button>
+                      </div>
+                    </details>
                   </div>
                 </article>
               );

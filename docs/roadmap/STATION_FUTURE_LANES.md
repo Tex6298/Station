@@ -366,11 +366,12 @@ remains available. If MIMIR wants a PR148 before replay, it should be an
 owner-only background job status/readback consolidation lane, not BullMQ,
 Redis/Valkey worker runtime, Cloudflare Queue, or broad job processing.
 
-Current status: PR149 is closed as sufficient hosted measurement and PR150 is
-accepted by ARGUS. PR151 is open to make the PR150 supersession edge path usable
-from the owner Memory page. Do not open a worker, Redis Memory, Cloudflare,
-provider, billing, or broad UI optimization lane from local proof alone; choose
-future follow-up from hosted replay evidence and ARGUS/MIMIR sequencing.
+Current status: PR149 is closed as sufficient hosted measurement, PR150 is
+accepted by ARGUS, and PR151 is implemented for ARGUS review to make the PR150
+supersession edge path usable from the owner Memory page. Do not open a worker,
+Redis Memory, Cloudflare, provider, billing, or broad UI optimization lane from
+local proof alone; choose future follow-up from hosted replay evidence and
+ARGUS/MIMIR sequencing.
 
 Candidate triggers:
 

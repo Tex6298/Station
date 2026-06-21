@@ -4,7 +4,7 @@ Date opened: 2026-06-21
 Opened by: A1 / MIMIR
 Owner: DAEDALUS implements or precisely blocks; ARGUS reviews; ARIADNE
 rehearses after technical acceptance because this changes visible owner UI.
-Status: open
+Status: implemented by DAEDALUS; awaiting ARGUS review
 
 ## Why This Lane
 
@@ -123,3 +123,47 @@ ARIADNE should rehearse the owner flow after ARGUS acceptance:
 - verify Persona Management Memory Graph relationship readback shows the real
   supersession edge after refresh;
 - record only statuses, counts, labels, and high-level pass/fail observations.
+
+## DAEDALUS Implementation Notes
+
+Implemented on 2026-06-21.
+
+Behavior:
+
+- Saved Memory cards now include a compact `Supersession` reveal.
+- The control lists other saved Memory items as replacement choices and excludes
+  the source Memory itself.
+- Submitting the control calls the existing
+  `PATCH /memory/:id/lifecycle` route with
+  `{ status: "superseded", supersededByMemoryItemId }`.
+- Existing Restore behavior is unchanged and still clears
+  `supersededByMemoryItemId`.
+- After the lifecycle update succeeds, the page updates local lifecycle state
+  and refreshes the Memory briefing/runtime preview through the existing reload
+  helpers.
+- Persona Management relationship readback was left unchanged; it remains
+  honest and shows rows only when real graph edge rows exist.
+
+Privacy:
+
+- Replacement option text uses sanitized/bounded labels and status details.
+- Raw Memory ids are used only as select values and route payloads.
+- Helper tests cover redaction of raw URLs, owner/persona-like ids, prompt-ish
+  labels, and secret-shaped values in visible option/copy output.
+
+Non-claims:
+
+- No graph canvas, public Memory graph, embedding/provider relationship
+  inference, automatic relationship generation, Redis/Upstash graph work,
+  Cloudflare graph/index work, worker, import repair, context latency
+  optimization, billing, auth, session, broad Studio, or site-wide redesign was
+  added.
+
+Validation:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 99 tests passed, including supersession option/copy coverage. |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-context` | Pass | 8 tests passed; PR150 lifecycle edge route remains green. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typechecks passed. |
+| `git diff --check` | Pass | CRLF warnings only for touched files and local triad state. |

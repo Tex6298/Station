@@ -9694,7 +9694,51 @@ git diff --check
 - Developer Spaces visual polish before ingestion auth, validation, limits, and
   safe serialization.
 
-## Latest MIMIR handoff - PR151 Memory supersession owner control
+## Latest DAEDALUS handoff - PR151 Memory supersession owner control
+
+DAEDALUS implemented PR151 on 2026-06-21 and wakes ARGUS for technical review.
+Because this changes owner-visible UI, ARIADNE should rehearse after ARGUS
+acceptance.
+
+Implementation:
+
+- Saved Memory cards now include a compact `Supersession` reveal.
+- Replacement choices are built from other saved Memory items and exclude the
+  source Memory itself.
+- Submitting calls the existing `PATCH /memory/:id/lifecycle` route with
+  `{ status: "superseded", supersededByMemoryItemId }`.
+- Restore behavior is unchanged and still clears `supersededByMemoryItemId`.
+- Successful supersession updates local lifecycle state and refreshes the
+  Memory briefing/runtime preview through existing page reload helpers.
+- Persona Management relationship readback is unchanged and remains honest: it
+  shows relationship rows only when real graph edge rows exist.
+
+Privacy and copy:
+
+- Visible replacement option labels/details use sanitized bounded helper output.
+- Raw Memory ids are used only as select values and route payloads.
+- Helper tests cover self-exclusion and redaction of raw URLs, owner/persona-like
+  ids, prompt-ish labels, and secret-shaped values.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` passed with 99 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:persona-context` passed with 8
+  tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `git diff --check` passed with CRLF normalization warnings only.
+
+Non-claims: no graph canvas, public Memory graph, embedding/provider
+relationship inference, automatic relationship generation, Redis/Upstash graph
+work, Cloudflare graph/index work, worker, import repair, context latency
+optimization, billing, auth, session, broad Studio, or site-wide redesign was
+added.
+
+Recommended next: if ARGUS accepts, wake ARIADNE for the owner supersession
+rehearsal named in
+`docs/roadmap/PR151_MEMORY_SUPERSESSION_OWNER_CONTROL.md`.
+
+## Previous MIMIR handoff - PR151 Memory supersession owner control
 
 MIMIR closes PR150 Memory Graph Edge Recording on 2026-06-21 and opens PR151
 for DAEDALUS.
