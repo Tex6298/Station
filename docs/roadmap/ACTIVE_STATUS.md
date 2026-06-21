@@ -9694,7 +9694,43 @@ git diff --check
 - Developer Spaces visual polish before ingestion auth, validation, limits, and
   safe serialization.
 
-## Latest ARGUS handoff - PR146 Memory graph relationship readback
+## Latest ARIADNE handoff - PR146 Memory graph relationship readback
+
+ARIADNE accepts PR146 Memory Graph Relationship Readback on 2026-06-21 and
+wakes MIMIR for closeout.
+
+Route note: the handoff named `/studio/personas/:personaId/manage`, but the
+repo's current Persona Management route is
+`/studio/personas/:personaId/edit`; no `manage/page.tsx` route exists under the
+persona route. ARIADNE rehearsed the actual owner-visible route.
+
+Result:
+
+- Rehearsed `/studio/personas/:personaId/edit` with deterministic owner API
+  responses for persona load, architecture, integrity history, and
+  `/memory/persona/:personaId/graph`.
+- Desktop coverage confirmed Memory Graph counts, node list, relationship
+  readback, dangling-edge/missing-node copy, and no-node/no-edge/thin states.
+- 390px mobile coverage confirmed the compact Memory Graph section remained
+  readable without document-level horizontal overflow.
+- Only sanitized node labels, relationship labels, confidence, and bounded
+  notes rendered; raw-looking memory ids, edge ids, persona ids, source ids,
+  prompts, URLs, bearer/token/key/password/webhook/DB URL values,
+  secret-shaped values, provider payload markers, and unsafe graph text did not
+  appear.
+- No graph canvas, automatic relationship generation, public graph surface, or
+  broad Persona Management redesign appeared.
+
+ARIADNE validation: `npx --yes @playwright/test@1.41.2 test
+tmp-pr146-ariadne-memory-graph-rehearsal.spec.js --reporter=line --workers=1`
+passed with 3 tests after setting the auth cookie at the Playwright context
+level; the local Next server logged direct `GET
+/studio/personas/persona-pr146-private-id/edit 200` route hits.
+
+Result doc:
+`docs/roadmap/PR146_MEMORY_GRAPH_RELATIONSHIP_READBACK.md`.
+
+## Previous ARGUS handoff - PR146 Memory graph relationship readback
 
 ARGUS technically accepts PR146 Memory Graph Relationship Readback on
 2026-06-21 and wakes ARIADNE for Persona Management visible-route rehearsal

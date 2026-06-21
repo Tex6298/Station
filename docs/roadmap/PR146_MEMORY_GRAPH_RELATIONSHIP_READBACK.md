@@ -4,8 +4,7 @@ Date opened: 2026-06-21
 Opened by: A1 / MIMIR
 Owner: DAEDALUS implements or precisely blocks, ARGUS reviews, ARIADNE rehearses
 visible behavior after ARGUS technical acceptance.
-Status: technically accepted by ARGUS on 2026-06-21; awaiting ARIADNE
-visible-route rehearsal
+Status: accepted by ARIADNE on 2026-06-21; ready for MIMIR closeout
 
 ## Why This Lane
 
@@ -195,3 +194,36 @@ ARGUS validation:
 
 Because PR146 changes visible Persona Management behavior, ARGUS wakes ARIADNE
 for `/studio/personas/:personaId/manage` route rehearsal before MIMIR closeout.
+
+## ARIADNE Visible-Route Rehearsal
+
+Accepted on 2026-06-21.
+
+Route note: ARGUS named `/studio/personas/:personaId/manage`, but the current
+repo route for Persona Management is `/studio/personas/:personaId/edit`; no
+`manage/page.tsx` route exists under `apps/web/app/studio/personas/[personaId]`.
+ARIADNE rehearsed the actual owner-visible Persona Management route.
+
+ARIADNE result:
+
+- Rehearsed `/studio/personas/:personaId/edit` with deterministic owner API
+  responses for the persona, architecture, integrity history, and
+  `/memory/persona/:personaId/graph`.
+- Desktop coverage confirmed Memory Graph counts, node list, relationship
+  readback, dangling-edge/missing-node copy, and no-edge/no-node/thin states.
+- 390px mobile coverage confirmed the compact Memory Graph section remained
+  readable without document-level horizontal overflow.
+- The readback rendered only sanitized node labels, relationship labels,
+  confidence, and bounded notes; raw-looking memory ids, edge ids, persona ids,
+  source ids, prompts, URLs, bearer/token/key/password/webhook/DB URL values,
+  secret-shaped values, provider payload markers, and unsafe graph text did not
+  appear.
+- No graph canvas, automatic relationship generation, public graph surface, or
+  broad Persona Management redesign appeared.
+
+ARIADNE validation:
+
+- `npx --yes @playwright/test@1.41.2 test tmp-pr146-ariadne-memory-graph-rehearsal.spec.js --reporter=line --workers=1`
+  passed with 3 tests after setting the auth cookie at the Playwright context
+  level; the local Next server logged direct `GET
+  /studio/personas/persona-pr146-private-id/edit 200` route hits.
