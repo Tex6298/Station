@@ -7,6 +7,12 @@ activation proof are green for the current Railway staging target. Redis/
 Valkey/Upstash is bounded as optional operational cache, not current canonical
 memory.
 
+PR149 update, 2026-06-21: use
+`docs/roadmap/STAGED_REPLAY_MEASUREMENT_BASELINE.md` as the current replay
+measurement packet before opening new optimization work. It separates local
+source proof from hosted proof that must be rerun after the exact commit is
+deployed.
+
 This runbook names what must be true before a human replay pass can produce
 useful product evidence from an online/staged Station deployment.
 

@@ -296,6 +296,11 @@ Refresh: `docs/roadmap/PR29_LIVE_STAGING_REPLAY_REFRESH.md` was accepted by
 ARGUS on 2026-06-18 and closed by MIMIR after verifying the current pushed line
 on Railway before choosing more feature work.
 
+PR149 refresh packet: `docs/roadmap/STAGED_REPLAY_MEASUREMENT_BASELINE.md`
+separates current local/source proof from hosted checks that must be rerun for
+the exact deployed commit. Do not open the next optimization implementation lane
+from local proof alone.
+
 Exit:
 
 - The next backend/product lane is chosen from live replay evidence rather than

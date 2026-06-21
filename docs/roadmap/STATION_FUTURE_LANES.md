@@ -360,7 +360,11 @@ remains available. If MIMIR wants a PR148 before replay, it should be an
 owner-only background job status/readback consolidation lane, not BullMQ,
 Redis/Valkey worker runtime, Cloudflare Queue, or broad job processing.
 
-Current next lane: `PR149 - Staged Replay Measurement Baseline`.
+Current lane: `PR149 - Staged Replay Measurement Baseline` is implemented as a
+measurement packet and ready for ARGUS review. Do not open a worker, Redis
+Memory, Cloudflare, provider, billing, or broad UI optimization lane from local
+proof alone; choose follow-up from hosted replay evidence for the exact deployed
+commit.
 
 Candidate triggers:
 

@@ -4,7 +4,7 @@ Date opened: 2026-06-21
 Opened by: A1 / MIMIR
 Owner: DAEDALUS prepares/runs measurable evidence or precisely blocks, ARGUS
 reviews claims, ARIADNE rehearses if hosted visible-route evidence is required.
-Status: open
+Status: implemented by DAEDALUS; awaiting ARGUS review
 
 ## Why This Lane
 
@@ -110,3 +110,36 @@ ARGUS should verify:
 If hosted visible-route rehearsal remains, ARGUS should wake ARIADNE with exact
 routes, account posture, and pass/fail questions. Otherwise ARGUS can wake
 MIMIR directly.
+
+## DAEDALUS Implementation Notes
+
+Implemented on 2026-06-21.
+
+Output:
+
+- Added `docs/roadmap/STAGED_REPLAY_MEASUREMENT_BASELINE.md`.
+- The packet separates local/source proof, hosted proof still required for the
+  exact deployed commit, unproven assumptions, and config/runtime blockers.
+- Hosted route probes are provided as sanitized commands with placeholder
+  tokens/ids only.
+- No hosted route probe was run in this PR149 pass; local tests cannot prove
+  Railway/Supabase staging state before this commit is deployed.
+
+Recommendation:
+
+- Do not open an optimization implementation lane from local proof alone.
+- ARGUS should review the packet for overclaim/no-secret safety.
+- If ARGUS wants hosted visible-route evidence for the current commit, wake
+  ARIADNE with the hosted probe packet in
+  `docs/roadmap/STAGED_REPLAY_MEASUREMENT_BASELINE.md`.
+
+Validation:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:health` | Pass | 16 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` | Pass | 2 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:jobs` | Pass | 9 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 97 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typechecks passed from cache. |
+| `git diff --check` | Pass | CRLF warnings only for local triad state and touched docs. |

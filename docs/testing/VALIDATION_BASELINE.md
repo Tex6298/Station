@@ -52,6 +52,32 @@ pnpm test:developer-spaces
 pnpm test:developer-space-client
 ```
 
+## PR149 Staged Replay Measurement Baseline
+
+DAEDALUS implementation validation on 2026-06-21:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:health` | Pass | 16 tests passed; deployment readiness and Redis/Upstash no-worker posture remain green locally. |
+| `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` | Pass | 2 tests passed; replay-readiness auth and trace-detail sanitization remain green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:jobs` | Pass | 9 tests passed; owner-only background-job readback remains green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 97 tests passed; Studio helper surfaces for observability, Memory, Archive trust, Export trust, billing copy, and related protected-alpha UI remain green. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typechecks passed from cache. |
+| `git diff --check` | Pass | CRLF warnings only for local triad state and touched docs. |
+
+DAEDALUS PR149 notes:
+
+- Added `docs/roadmap/STAGED_REPLAY_MEASUREMENT_BASELINE.md`.
+- The packet distinguishes local/source proof, hosted proof required for the
+  exact deployed commit, unproven assumptions, and config/runtime blockers.
+- Hosted route probes are listed as sanitized commands with placeholder
+  token/id variables only.
+- No hosted route probe was run in this pass; local validation cannot prove
+  Railway/Supabase staging state for an undeployed commit.
+- No worker runtime, Redis Memory truth, Cloudflare retrieval/Queue,
+  provider/embedding migration, broad UI redesign, new billing behavior, staged
+  data mutation, or migration-ledger repair was added.
+
 ## PR148 Owner Background Job Status Readback
 
 ARGUS review validation on 2026-06-21 after the sanitizer hardening patch:

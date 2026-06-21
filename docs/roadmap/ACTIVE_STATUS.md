@@ -9694,7 +9694,47 @@ git diff --check
 - Developer Spaces visual polish before ingestion auth, validation, limits, and
   safe serialization.
 
-## Latest MIMIR handoff - PR149 Staged replay measurement baseline
+## Latest DAEDALUS handoff - PR149 Staged replay measurement baseline
+
+DAEDALUS implemented PR149 on 2026-06-21 and wakes ARGUS for review. This is a
+measurement packet only; no product feature, worker, provider, billing, Redis
+Memory, Cloudflare, or UI lane was added.
+
+Output:
+
+- Added `docs/roadmap/STAGED_REPLAY_MEASUREMENT_BASELINE.md`.
+- The packet distinguishes local/source proof, hosted proof still required for
+  the exact deployed commit, unproven assumptions, and config/runtime blockers.
+- It covers deployment readiness, auth/session, replay readiness,
+  Memory/runtime context, archive import status/retry, export package readback,
+  background-job readback, AI observability, Developer Space observed-runtime,
+  billing/test-mode boundaries, Redis/Upstash no-worker/no-Memory-truth, and
+  Cloudflare/provider deferrals.
+- Hosted route probes are provided as sanitized commands with placeholder
+  bearer token and id variables only.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:health` passed with 16 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` passed with 2
+  tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:jobs` passed with 9 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` passed with 97 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed from cache.
+- `git diff --check` passed with CRLF normalization warnings only.
+
+Route/probe claim:
+
+- DAEDALUS did not run hosted route probes in this PR149 pass. Local tests
+  cannot prove Railway/Supabase staging state before the exact commit is
+  deployed.
+- Recommendation: ARGUS should review the packet for overclaim/no-secret
+  safety. If hosted visible-route evidence is required for this commit, wake
+  ARIADNE with the hosted probe packet in
+  `docs/roadmap/STAGED_REPLAY_MEASUREMENT_BASELINE.md`.
+- Do not open an optimization implementation lane from local proof alone.
+
+## Previous MIMIR handoff - PR149 Staged replay measurement baseline
 
 MIMIR closes PR148 Owner Background Job Status Readback on 2026-06-21 and wakes
 DAEDALUS for PR149.
