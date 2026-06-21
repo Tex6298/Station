@@ -52,6 +52,43 @@ pnpm test:developer-spaces
 pnpm test:developer-space-client
 ```
 
+## PR137 2C Observed Runtime Context Staging Schema Proof
+
+DAEDALUS staging proof on 2026-06-21:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| Sanitized public/owner readback probe before schema action | Reproduced blocker | `station-replay-dev-alpha` public and owner readback both returned HTTP `500` with missing `public.developer_space_observed_runtime_context` schema-cache error. |
+| `npx --yes supabase@latest db query --db-url <local pooler url> --file infra/supabase/migrations/046_observed_runtime_supporting_context.sql --output table` | Blocked by pooler/CLI behavior | Connected to remote database, then failed because the multi-statement migration file could not be executed as one prepared statement. No secrets were printed. |
+| Sequential migration `046` apply attempt via one-statement temporary SQL files | Partial / bounded | The `create table if not exists public.developer_space_observed_runtime_context` statement returned `CREATE TABLE`. Remaining index/RLS-policy/comment statements and migration-ledger proof were blocked by `ERROR: prepared statement "lrupsc_1_0" already exists (SQLSTATE 42P05)`. |
+| Sanitized public/owner readback probe after table creation | Pass for PR136 schema-cache blocker | Public and owner readback both returned HTTP `200`; safe counts were nodes `1`, events `1`, supporting context `0`; the missing context-table schema-cache error was gone. |
+| Sanitized PR137 named-key smoke with guarded Agents Observe live send | New bounded blocker | Replay-owner signin `200`; Developer Space list `200` count 2; selected space id hash `44e026dc4e6c`; named key create `201`; guarded live send explicitly enabled and reached staging twice; both responses were HTTP `500`/`server`; public and owner readback stayed HTTP `200`; targeted revoke `200`; cleanup showed zero active PR137 smoke keys. |
+| Direct sanitized observed-runtime send probe | New bounded blocker classified | HTTP `500` body returned `developer_space_server_error` with `Could not load Developer Space webhook signing secret.` No accepted import/readback is claimed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 27 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-space-client` | Pass | 15 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/api build` | Pass | API package build completed after dependency package builds. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typechecks passed through turbo cache replay. |
+| `git diff --check` | Pass | CRLF normalization warnings only. |
+
+DAEDALUS PR137 notes:
+
+- The original PR136 staging schema-cache blocker is cleared for readback: the
+  `developer_space_observed_runtime_context` relation is no longer missing from
+  public/owner detail reads.
+- Migration `046` was not fully proven/applied through the local CLI path:
+  index, RLS policy, table comment, and migration-ledger proof remain blocked by
+  the Supabase pooler prepared-statement collision.
+- The next observed-runtime live-ingest blocker is the deployed
+  signing-secret load/config boundary, not the supporting-context table:
+  `Could not load Developer Space webhook signing secret.`
+- All PR137 smoke keys were temporary named keys, raw key material stayed in
+  memory only, legacy key rotation was not used, and cleanup confirmed zero
+  active PR137 smoke keys remain.
+- No Supabase URL, service key, DB URL, auth token, replay password, raw
+  Developer Space key, webhook signing material, raw webhook id, fixture
+  prompt/body/file path, `.env` value, or Railway variable was printed,
+  committed, or written to docs.
+
 ## PR136 2C Observed Runtime Dedicated-Key Staging Smoke
 
 DAEDALUS smoke attempt on 2026-06-21:

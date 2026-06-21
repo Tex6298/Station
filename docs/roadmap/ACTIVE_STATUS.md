@@ -9210,6 +9210,24 @@ when a PR lands, or when validation truth changes.
   `046_observed_runtime_supporting_context.sql`, reload PostgREST schema cache
   if needed, and rerun the bounded PR136 smoke/readback with a temporary named
   key on `station-replay-dev-alpha`.
+- DAEDALUS implements PR137 2C Observed Runtime Context Staging Schema Proof on
+  2026-06-21 and wakes ARGUS for review. Initial public/owner readback still
+  reproduced the missing `public.developer_space_observed_runtime_context`
+  schema-cache error. The Supabase CLI/pooler path rejected the full
+  multi-statement migration file, but applying only the migration `046`
+  `create table if not exists` statement through a temporary one-statement SQL
+  file returned `CREATE TABLE`; follow-up index/RLS/comment and migration-ledger
+  proof were blocked by the pooler's `prepared statement "lrupsc_1_0" already
+  exists` collision. After that, public and owner readback for
+  `station-replay-dev-alpha` returned HTTP `200` with safe counts and no missing
+  context-table error. A bounded named-key smoke used the existing
+  `station-replay-dev-alpha` space, held the raw key in memory only, explicitly
+  enabled guarded Agents Observe live send, and revoked the temporary key. Live
+  send now reaches a different bounded server blocker:
+  `developer_space_server_error` / `Could not load Developer Space webhook
+  signing secret.` Cleanup confirmed zero active PR137 smoke keys remain. No
+  accepted observed-runtime import/readback is claimed, and no secrets were
+  printed, written, or committed.
 - DAEDALUS implements PR126 2C Observed Runtime Signing Secret Lifecycle on
   2026-06-21 and wakes ARGUS for schema/API/encryption/signature review.
   Migration `048_developer_space_webhook_signing_secrets.sql` adds
