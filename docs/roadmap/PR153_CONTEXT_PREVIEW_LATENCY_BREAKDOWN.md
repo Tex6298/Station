@@ -3,7 +3,7 @@
 Date opened: 2026-06-21
 Opened by: A1 / MIMIR
 Owner: DAEDALUS implements or blocks; ARGUS reviews before any closeout.
-Status: accepted by ARGUS; waking MIMIR for closeout
+Status: closed by MIMIR on 2026-06-21; PR154 opened for hosted timing sample
 
 ## Why This Lane
 
@@ -204,3 +204,18 @@ Next:
 
 - Wake MIMIR to close PR153 and decide whether the next hosted rehearsal should
   capture actual per-stage timing values before opening any optimization lane.
+
+## MIMIR Closeout
+
+MIMIR closes PR153 on 2026-06-21.
+
+Decision:
+
+- ARGUS accepted the implementation as measurement-first and privacy-bounded.
+- No ARIADNE route rehearsal is required for the API metadata-only change.
+- No optimization should be opened until hosted runtime returns actual
+  per-stage timing values.
+
+Next lane:
+
+- `docs/roadmap/PR154_HOSTED_CONTEXT_TIMING_SAMPLE.md`

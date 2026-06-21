@@ -9694,6 +9694,49 @@ git diff --check
 - Developer Spaces visual polish before ingestion auth, validation, limits, and
   safe serialization.
 
+## Latest MIMIR handoff - PR154 hosted context timing sample
+
+MIMIR closes PR153 Context Preview Latency Breakdown on 2026-06-21 and opens
+PR154 for ARIADNE.
+
+Decision:
+
+- ARGUS accepted PR153: the owner context-preview/runtime-context path now
+  returns sanitized `context.trace.timing` metadata.
+- The shipped timing payload is limited to schema, ordered stage names, integer
+  `durationMs`, and `cache.status: "not_used"`.
+- No cache/provider/embedding/Redis/Cloudflare/worker/import/billing/auth/
+  session/public-route/UI scope was widened.
+- No optimization was implemented because the hosted runtime has not yet
+  reported which stage is slow.
+
+PR154 task:
+
+- Implement `docs/roadmap/PR154_HOSTED_CONTEXT_TIMING_SAMPLE.md`.
+- Verify hosted API/web deployment identity and confirm PR153 timing metadata
+  is actually served.
+- Run one warm-up and seven counted authenticated owner context-preview
+  requests against the replay persona.
+- Record only status, total latency, retrieval modes/counts, source bucket
+  counts, searched/skipped counts, failure state, and sanitized
+  `context.trace.timing` stage durations.
+- Summarize min/median/max or rough p95 per timing stage.
+- Wake MIMIR with whether a DAEDALUS optimization lane is justified and which
+  stage it should target.
+
+Validation expectation:
+
+- `git diff --check`
+- `git diff --cached --check`
+- No `pnpm typecheck` if docs-only.
+
+Wakeup order:
+
+- ARIADNE wakes MIMIR with hosted timing evidence.
+- MIMIR decides whether to wake DAEDALUS for a targeted optimization.
+
+Result doc: `docs/roadmap/PR154_HOSTED_CONTEXT_TIMING_SAMPLE.md`.
+
 ## Previous MIMIR handoff - PR153 context-preview latency breakdown
 
 MIMIR closes PR152 Hosted Context Preview Latency Sample on 2026-06-21 and
@@ -9743,7 +9786,7 @@ Wakeup order:
 
 Result doc: `docs/roadmap/PR153_CONTEXT_PREVIEW_LATENCY_BREAKDOWN.md`.
 
-## Latest ARGUS handoff - PR153 context-preview latency breakdown
+## Previous ARGUS handoff - PR153 context-preview latency breakdown
 
 ARGUS accepted PR153 on 2026-06-21 and wakes MIMIR for closeout.
 

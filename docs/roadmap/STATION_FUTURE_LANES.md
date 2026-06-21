@@ -340,6 +340,13 @@ and operational cache was not touched. Provider swaps, Redis Memory truth/vector
 storage/ranking, Cloudflare, workers, import repair, billing/auth/session work,
 and broad UI remain out of scope.
 
+PR154 update, 2026-06-21: PR153 is closed and accepted. The next lane is
+`PR154 - Hosted Context Preview Timing Sample`: ARIADNE should capture hosted
+`context.trace.timing` stage durations before MIMIR opens any optimization
+lane. If timings identify a concrete bottleneck, MIMIR can open a targeted
+DAEDALUS lane; if not, do not guess at cache/provider/Redis/Cloudflare/worker
+changes.
+
 Inputs:
 
 - AI trace sessions and events.
@@ -385,11 +392,11 @@ owner-only background job status/readback consolidation lane, not BullMQ,
 Redis/Valkey worker runtime, Cloudflare Queue, or broad job processing.
 
 Current status: PR149 is closed as sufficient hosted measurement, PR150 and
-PR151 are closed, PR152 is closed as repeated hosted latency evidence, and
-PR153 is accepted by ARGUS for MIMIR closeout. Do not open a worker, Redis
-Memory, Cloudflare, provider, billing, or broad UI optimization lane from local
-proof alone; choose future follow-up from hosted replay evidence and
-ARGUS/MIMIR sequencing.
+PR151 are closed, PR152 is closed as repeated hosted latency evidence, PR153 is
+closed as timing instrumentation, and PR154 is open for hosted timing evidence.
+Do not open a worker, Redis Memory, Cloudflare, provider, billing, or broad UI
+optimization lane from local proof alone; choose future follow-up from hosted
+replay evidence and ARGUS/MIMIR sequencing.
 
 Candidate triggers:
 
