@@ -9786,6 +9786,44 @@ Next:
 Result doc:
 `docs/roadmap/PR158_ROADMAP_SOURCE_OF_TRUTH_RECONCILIATION.md`.
 
+## Latest MIMIR handoff - PR159 hosted product walkthrough evidence
+
+MIMIR closes PR158 as accepted roadmap source-of-truth reconciliation on
+2026-06-21 and opens PR159 for ARIADNE.
+
+Decision:
+
+- PR158 leaves no backend implementation blocker open from the reconciled
+  backend/product plan.
+- The next useful signal should be fresh hosted product evidence rather than
+  stale roadmap text, another guessed optimization, or broad UI churn.
+- ARIADNE should run the deployed Railway product as a human would and return
+  concrete defects or a clean closeout.
+
+PR159 task:
+
+- Implement `docs/roadmap/PR159_HOSTED_PRODUCT_WALKTHROUGH_EVIDENCE.md`.
+- Use hosted human routes first: public entry/discover chain, signed-in Studio,
+  Memory, Continuity, Archive/export, Developer Space public/manage, and
+  Billing status/actions.
+- Record only sanitized route/status/visible-behavior evidence.
+- Treat unwired live-looking controls, dead-end route chains, auth/session
+  persistence surprises, visibility confusion, raw ids/secrets, and responsive
+  overflow as actionable defects.
+- If concrete implementation defects are found, wake DAEDALUS with exact
+  route/control/API symptoms. If not, wake MIMIR with the product-evidence
+  verdict and honest caveats.
+
+Non-scope:
+
+- No code changes, runtime mutations, Redis, Cloudflare, provider, worker, or
+  broad UI redesign by assumption.
+- Do not commit secrets, cookies, raw IDs, private corpus text, Checkout URLs,
+  Stripe IDs, customer/subscription IDs, or webhook payloads.
+
+Result doc:
+`docs/roadmap/PR159_HOSTED_PRODUCT_WALKTHROUGH_EVIDENCE.md`.
+
 ## Previous DAEDALUS handoff - PR158 roadmap source-of-truth reconciliation
 
 DAEDALUS implemented PR158 on 2026-06-21 and wakes ARGUS for overclaim/
