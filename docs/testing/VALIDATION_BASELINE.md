@@ -54,6 +54,33 @@ pnpm test:developer-space-client
 
 ## PR155 Archive Retrieval Batch Validation
 
+ARGUS review validation on 2026-06-21 after hostile-source test hardening:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass | 35 tests passed; includes the isolated other-owner import-source readiness exclusion added by ARGUS. |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-context` | Pass | 8 tests passed; owner-only runtime context and PR153 timing metadata remain green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:retrieval-metadata` | Pass | 8 tests passed; embedding/vector RPC metadata contract remains green. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typechecks passed. |
+| `git diff --check` | Pass | CRLF normalization warnings only for touched files and local triad state. |
+| Staged secret-shaped value scan | Pass | No staged secret-shaped additions found. |
+
+ARGUS PR155 notes:
+
+- Accepted owner/persona-scoped batching for Archive lifecycle and citation
+  readiness validation.
+- Added an isolated owner query proving a candidate that points at another
+  owner's import source is skipped by source readiness, not merely hidden by
+  source caps.
+- Candidate depth, retrieval ranking policy, source caps, max chunks, max
+  characters, citation reason strings, runtime lifecycle skip behavior, and
+  `includeQuarantined` compatibility are preserved.
+- No Archive sub-timing surface, prompt/completion/provider payload exposure,
+  private excerpt trace, raw owner/persona/source/trace id trace, cache key,
+  token, cookie, API key, DB URL, secret-shaped value, operational cache,
+  provider/embedding/vector schema, Redis Memory, Cloudflare, worker, import
+  repair, billing/auth/session, broad UI, or public route behavior was added.
+
 DAEDALUS implementation validation on 2026-06-21:
 
 | Command | Result | Notes |

@@ -243,6 +243,14 @@ test("private archive retrieval is owner-scoped and source-authoritative", async
       2
     );
 
+    const otherOwnedSource = await requestJson(app, "GET", `/conversations/persona/${PERSONA_ID}/archive-retrieval?query=other-owned&limit=1`, {
+      token: "owner-token",
+    });
+    assert.equal(otherOwnedSource.status, 200);
+    assert.equal(otherOwnedSource.body.retrieval.chunks.length, 0);
+    assert.equal(otherOwnedSource.body.retrieval.trace.skipped.source_not_ready >= 1, true);
+    assert.doesNotMatch(JSON.stringify(otherOwnedSource.body), /Other-owned source private grief/);
+
     db.tables.import_jobs = db.tables.import_jobs.filter((row) => row.id !== "import-1");
     const afterDelete = await requestJson(app, "GET", `/conversations/persona/${PERSONA_ID}/archive-retrieval?query=anchor`, {
       token: "owner-token",

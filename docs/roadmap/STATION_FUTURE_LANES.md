@@ -347,12 +347,13 @@ lane. If timings identify a concrete bottleneck, MIMIR can open a targeted
 DAEDALUS lane; if not, do not guess at cache/provider/Redis/Cloudflare/worker
 changes.
 
-PR155 update, 2026-06-21: PR154 is closed and PR155 is implemented for ARGUS
-review. Hosted timing identified `archive_retrieval` as the first target:
-median 3207ms versus trace total median 3549ms. PR155 batches Archive
+PR155 update, 2026-06-21: PR154 is closed and PR155 is accepted by ARGUS for
+MIMIR closeout. Hosted timing identified `archive_retrieval` as the first
+target: median 3207ms versus trace total median 3549ms. PR155 batches Archive
 candidate lifecycle validation and source citation loading through owner-scoped
-reads before considering retrieval-depth, provider, cache, Redis, Cloudflare,
-or worker changes.
+reads, with a hardened hostile-source test for a candidate pointing at another
+owner's import source, before considering retrieval-depth, provider, cache,
+Redis, Cloudflare, or worker changes.
 
 Inputs:
 

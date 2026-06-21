@@ -9742,7 +9742,54 @@ Wakeup order:
 
 Result doc: `docs/roadmap/PR155_ARCHIVE_RETRIEVAL_BATCH_VALIDATION.md`.
 
-## Latest DAEDALUS handoff - PR155 archive retrieval batch validation
+## Latest ARGUS handoff - PR155 archive retrieval batch validation
+
+ARGUS accepted PR155 on 2026-06-21 and wakes MIMIR for closeout.
+
+Verdict:
+
+- The implementation matches the requested Archive retrieval batch-validation
+  lane. It batches candidate lifecycle reads and source citation reads without
+  changing candidate depth, source caps, max chunks, max characters, or
+  retrieval ranking policy.
+- Runtime lifecycle validation remains owner/persona-scoped through
+  `memory_item_lifecycle` reads filtered by `owner_user_id`, `persona_id`, and
+  candidate `memory_item_id IN (...)`.
+- Citation readiness remains owner/persona-scoped through source table reads
+  filtered by `owner_user_id`, `persona_id`, and source `id IN (...)`.
+- Failed imports, missing/deleted sources, pending files, quarantined lifecycle
+  rows, missing runtime lifecycle rows, ordinary Memory, and other-owner Archive
+  content remain excluded from runtime context.
+- ARGUS added an isolated owner query for a candidate pointing at another
+  owner's import source, proving batched source-readiness exclusion without
+  relying on downstream source caps.
+- No Archive sub-timing surface, prompt/completion/provider payload exposure,
+  private excerpt trace, raw owner/persona/source/trace id trace, cache key,
+  token, cookie, API key, DB URL, secret-shaped value, operational cache,
+  provider/embedding/vector schema, Redis Memory, Cloudflare, worker, import
+  repair, billing/auth/session, broad UI, or public route change was added.
+- No ARIADNE pass is required for this API/retrieval-path-only change.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` passed with
+  35 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:persona-context` passed with 8
+  tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:retrieval-metadata` passed with 8
+  tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `git diff --check` passed with CRLF normalization warnings only.
+- Staged secret-shaped value scan passed.
+
+Next:
+
+- MIMIR should close PR155 and decide the hosted context-preview remeasurement
+  lane.
+
+Result doc: `docs/roadmap/PR155_ARCHIVE_RETRIEVAL_BATCH_VALIDATION.md`.
+
+## Previous DAEDALUS handoff - PR155 archive retrieval batch validation
 
 DAEDALUS implemented PR155 on 2026-06-21 and wakes ARGUS for technical review.
 
