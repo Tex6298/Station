@@ -5,6 +5,11 @@ Date: 2026-06-21
 Status: ledger repair remains blocked through available official/operator-safe
 paths. No migration history rows were inserted, updated, faked, or hand-edited.
 
+ARGUS review on 2026-06-21 accepted this as a blocked repair/operator packet,
+not a ledger repair. ARGUS confirmed this checkout has no
+`infra/supabase/.temp/project-ref` marker and did not attempt a repair path from
+the current shell.
+
 ## Current Ledger State
 
 DAEDALUS queried `supabase_migrations.schema_migrations` through the available

@@ -9400,6 +9400,20 @@ when a PR lands, or when validation truth changes.
   statement failure if available, and otherwise produce a precise operator
   packet. It must not apply new schema migrations, fake rows, or hand-edit
   migration history without a later explicit MIMIR decision.
+- DAEDALUS completes PR142 2C Migration Ledger Operator Reconciliation and
+  ARGUS accepts it on 2026-06-21 as a blocked repair/operator packet, not a
+  ledger repair. Ledger rows for `045`/`046`/`047`/`048` remain `0`; no migration
+  history row was inserted, updated, faked, or hand-edited. The operator packet
+  is `docs/ops/PR142_MIGRATION_LEDGER_OPERATOR_PACKET.md`. DAEDALUS reported the
+  official linked repair path failed before mutation because the checkout has no
+  linked project ref and did not rerun the known-broken pooler `--db-url` repair
+  path. ARGUS confirmed this checkout has no
+  `infra/supabase/.temp/project-ref` marker and the current ARGUS process has no
+  Supabase env vars loaded, so ARGUS did not attempt any repair path. PR142 made
+  no schema, API, adapter, smoke-key, auth, UI, billing, Cloudflare, hosted
+  runtime, queue, Redis, provider-routing, or retrieval behavior change.
+  Validation passed `git diff --check`, a sanitized committed secret-pattern
+  scan, and `git diff --cached --check`; no secret-bearing values were committed.
 - DAEDALUS implements PR126 2C Observed Runtime Signing Secret Lifecycle on
   2026-06-21 and wakes ARGUS for schema/API/encryption/signature review.
   Migration `048_developer_space_webhook_signing_secrets.sql` adds
@@ -9680,60 +9694,37 @@ git diff --check
 - Developer Spaces visual polish before ingestion auth, validation, limits, and
   safe serialization.
 
-## Latest DAEDALUS handoff - PR142 migration ledger operator reconciliation
+## Latest ARGUS handoff - PR142 migration ledger operator reconciliation
 
-PR142 2C Migration Ledger Operator Reconciliation is implemented by DAEDALUS on
-2026-06-21 and ready for ARGUS review.
+ARGUS accepts PR142 2C Migration Ledger Operator Reconciliation on 2026-06-21
+and wakes MIMIR for sequencing.
 
-Outcome:
+Accepted facts:
 
-- Ledger repair remains blocked through the available official/operator-safe
-  paths.
-- Operator packet:
+- PR142 is an operator packet, not a ledger repair:
   `docs/ops/PR142_MIGRATION_LEDGER_OPERATOR_PACKET.md`.
-- No migration history rows were inserted, updated, faked, or hand-edited.
+- Ledger rows for `045`, `046`, `047`, and `048` remain absent; no migration
+  history rows were inserted, updated, faked, or hand-edited.
+- DAEDALUS reported the official linked repair attempt failed before mutation
+  because this checkout has no linked project ref, and did not rerun the
+  known-broken pooler `--db-url` repair path.
+- ARGUS confirmed this checkout has no `infra/supabase/.temp/project-ref` marker
+  and ARGUS's current process has no Supabase env vars loaded, so ARGUS did not
+  attempt any repair path.
+- PR142 made no schema changes and no observed-runtime API, adapter, smoke-key,
+  auth, UI, billing, Cloudflare, hosted runtime, queue, Redis, provider-routing,
+  or retrieval behavior changes.
+- Validation passed `git diff --check`, a sanitized committed secret-pattern
+  scan, and `git diff --cached --check`. No secret values, credential-bearing
+  URLs, `.env` values, Railway variables, DB URLs, service keys, auth tokens,
+  project refs, or passwords were committed.
 
-Ledger state:
+Remaining MIMIR decision:
 
-- `045`: 0 rows.
-- `046`: 0 rows.
-- `047`: 0 rows.
-- `048`: 0 rows.
-
-Repair path attempted:
-
-- `supabase migration repair --linked --status applied --workdir infra --yes
-  045 046 047 048 --output json`.
-- The CLI used workdir `infra` and failed before database mutation because this
-  checkout has no linked project ref.
-- Safe env inspection found no direct non-pooler Postgres URL:
-  `SUPABASE_DB_URL` and `SUPABASE_DIRECT_URL` are missing, while the only local
-  Postgres path is `SUPABASE_POOLER_URL`.
-- PR142 did not rerun the known-broken pooler `--db-url` repair path. PR139
-  already proved that route fails on the Supabase pooler prepared-statement
-  collision before updating rows.
-
-Schema non-widening proof:
-
-- PR142 made no schema changes.
-- Safe metadata readback confirmed the PR138-PR141 schema facts remain present:
-  `045` columns/checks/comments; `046` context table/index/RLS/policy/comment;
-  `047` receipt table/unique/index/RLS/policy/comment; and `048`
-  signing-secret table/indexes/trigger/RLS/policy/comment.
-- Observed-runtime staging acceptance from PR141 remains valid despite ledger
-  drift.
-
-Validation:
-
-- `git diff --check`: passed with CRLF warnings only for touched docs and local
-  DAEDALUS state.
-
-No secret values, credential-bearing URLs, `.env` values, Railway variables, DB
-URLs, service keys, auth tokens, project refs, or passwords were printed,
-written, or committed. Non-scope stayed closed: no new schema migrations, broad
-migration sweep, manual ledger SQL, observed-runtime behavior change, temporary
-Developer Space smoke, signing-secret lifecycle work, UI, auth, billing,
-Cloudflare, hosted runtime, queue, Redis, provider routing, or retrieval change.
+- Pick the future ledger path: link the Supabase project and rerun official
+  repair, provide a direct non-pooler Postgres URL for CLI repair, open a
+  separate manual-SQL approval lane with the exact audited statement, or accept
+  the ledger drift as an operator caveat while moving to the next roadmap item.
 
 ## Previous DAEDALUS handoff - PR127 webhook concurrency guard
 

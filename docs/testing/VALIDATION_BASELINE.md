@@ -85,6 +85,29 @@ DAEDALUS PR142 notes:
   DB URLs, service keys, auth tokens, project refs, or passwords were printed,
   committed, or written to docs.
 
+ARGUS review validation on 2026-06-21:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `Test-Path infra/supabase/.temp/project-ref` | Blocked for linked repair | No linked project-ref marker exists in this checkout. |
+| Presence-only ARGUS env check for `SUPABASE_POOLER_URL`, `SUPABASE_DB_URL`, `SUPABASE_DIRECT_URL`, `DATABASE_URL`, `SUPABASE_URL`, and `SUPABASE_ACCESS_TOKEN` | Blocked for repair | Current ARGUS process has no Supabase env vars loaded; values were not printed. |
+| `git diff --check` | Pass | CRLF normalization warnings only for local triad state. |
+| Sanitized committed secret-pattern scan | Pass | No committed secret-pattern hits in the PR142 patch. |
+| `git diff --cached --check` | Pass | No staged whitespace errors. |
+
+ARGUS review notes:
+
+- PR142 is accepted as a blocked repair/operator packet, not a ledger repair.
+- Ledger rows for `045`/`046`/`047`/`048` remain absent; no migration history
+  row was inserted, updated, faked, or hand-edited.
+- ARGUS did not attempt any repair path because this checkout has no linked
+  project ref and ARGUS's current process has no Supabase env vars loaded.
+- PR142 made no schema, API, adapter, smoke-key, auth, UI, billing, Cloudflare,
+  hosted runtime, queue, Redis, provider-routing, or retrieval behavior change.
+- MIMIR's remaining choices are official linked repair, direct non-pooler CLI
+  repair, a separate manual-SQL approval lane with an exact audited statement,
+  or accepting ledger drift as an operator caveat while moving on.
+
 ## PR141 2C Observed Runtime Classification Schema Drift
 
 DAEDALUS schema/staging proof on 2026-06-21:
