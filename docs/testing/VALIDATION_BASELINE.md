@@ -52,6 +52,41 @@ pnpm test:developer-spaces
 pnpm test:developer-space-client
 ```
 
+## PR133 2C Agents Observe Offline Adapter Dry Run
+
+DAEDALUS implementation validation on 2026-06-21:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-space-client` | Pass | 11 tests passed, including no-live-config/no-network dry-run proof. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/developer-space-client build` | Pass | Client package build completed; this is the package-local typecheck gate because the package has no standalone `typecheck` script. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx packages/developer-space-client/examples/agents-observe-offline-dry-run.ts --signed-demo` | Pass | Printed safe `not_sent` summary with redacted demo signature metadata and no raw ids/secrets. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed from cache. |
+| `git diff --check` | Pass | CRLF normalization warnings only. |
+
+Implementation result:
+
+- Added `createAgentsObserveOfflineDryRunSummary` to the Developer Space client.
+- Added
+  `packages/developer-space-client/examples/agents-observe-offline-dry-run.ts`.
+- Dry run defaults to the PR132 fixture or accepts a local fixture path through
+  the example command.
+- Dry run optionally builds a PR128 signed request proof with demo signing
+  material and demo webhook id only.
+- Dry run returns/prints safe not-sent output: payload counts, classification
+  counts, coarse event labels, provenance names, privacy booleans, redacted demo
+  signature header, and synthetic demo webhook id.
+- Tests prove no `STATION_DEVELOPER_KEY`, `STATION_API_URL`, live webhook id,
+  Railway, Supabase, Cloudflare, or network access is required.
+- Tests fail if output includes raw prompt, command body, file path, token
+  value, raw tool payload values, terminal-output-like material, fixture
+  `sessionId`, fixture `eventId`, fixture `agent.id`, or demo signing material.
+- No live webhook send, key generation/rotation, config request, Cloudflare
+  Worker/Vectorize/D1/Queue/Durable Object work, external repo vendoring,
+  hosted runtime, scheduler, agent control plane, UI, billing/Stripe, Redis
+  memory truth, provider routing, retrieval model change, or committed secret
+  value was added.
+
 ## PR132 2C Agents Observe Transform Spike
 
 DAEDALUS implementation validation on 2026-06-21:

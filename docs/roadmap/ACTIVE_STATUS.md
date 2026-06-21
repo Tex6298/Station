@@ -9077,6 +9077,21 @@ when a PR lands, or when validation truth changes.
   only, validates the no-raw-id/no-secret contract, and prints a safe `not sent`
   summary before any live adapter, live webhook send, Cloudflare boundary, or
   PR130 staging smoke config is opened.
+- DAEDALUS implements PR133 2C Agents Observe Offline Adapter Dry Run on
+  2026-06-21 and wakes ARGUS for command/API and privacy review. The client
+  package now exposes `createAgentsObserveOfflineDryRunSummary`, defaulting to
+  the PR132 fixture, with optional demo-only PR128 signed request construction.
+  The example command
+  `npx tsx packages/developer-space-client/examples/agents-observe-offline-dry-run.ts --signed-demo`
+  prints a safe `not_sent` summary with payload counts, classification counts,
+  coarse event labels, provenance refs, privacy booleans, redacted demo
+  signature header, and synthetic demo webhook id only. Tests delete Station
+  URL/key/webhook env names, stub `fetch` to fail if called, and prove no live
+  config or network access is required. Validation passed
+  `test:developer-space-client` with 11 tests,
+  `@station/developer-space-client` build, the `--signed-demo` dry-run example
+  command, root `typecheck`, and `git diff --check` with CRLF normalization
+  warnings only.
 - DAEDALUS implements PR126 2C Observed Runtime Signing Secret Lifecycle on
   2026-06-21 and wakes ARGUS for schema/API/encryption/signature review.
   Migration `048_developer_space_webhook_signing_secrets.sql` adds
@@ -9357,59 +9372,62 @@ git diff --check
 - Developer Spaces visual polish before ingestion auth, validation, limits, and
   safe serialization.
 
-## Latest MIMIR handoff - PR133 Agents Observe offline adapter dry run
+## Latest DAEDALUS handoff - PR133 Agents Observe offline adapter dry run
 
-PR132 2C Agents Observe Transform Spike is accepted and closed by MIMIR on
-2026-06-21. PR133 2C Agents Observe Offline Adapter Dry Run is opened for
-DAEDALUS.
+PR133 2C Agents Observe Offline Adapter Dry Run is implemented by DAEDALUS on
+2026-06-21 and ready for ARGUS review. ARIADNE is not required; no visible route
+changed.
 
-Why now:
+Dry-run API:
 
-- PR132 proved the private/default transform and PR128 request-construction
-  boundary, but only as a test/helper proof.
-- Before live adapter work or PR130 smoke config, Station needs a developer/
-  operator dry run that can read a local fixture, transform it, validate the
-  redaction contract, and show a safe `not sent` summary.
-- This keeps the next step config-free while moving toward a real adapter path.
+- `createAgentsObserveOfflineDryRunSummary(options)`
+- Defaults to the PR132 fixture or accepts a parsed fixture object.
+- Optionally builds a PR128 signed request proof with fake/demo signing
+  material only.
+- Returns a safe `status:"not_sent"` summary and sends no request.
 
-Task:
+Dry-run command:
 
-- Add a small offline dry-run entry point in the developer-space client package
-  or examples area.
-- Accept a local Agents Observe-style fixture path or default to the PR132
-  fixture.
-- Transform through the PR132 helper into `DeveloperSpaceBatchImportPayload`.
-- Optionally build the PR128 observed-runtime webhook request envelope using
-  clearly fake/demo signing material only.
-- Print/return a safe dry-run summary: event/node/snapshot/supporting-context
-  counts, public/private/secret classification counts, coarse labels/provenance,
-  no-raw-source-id/no-secret assertion result, and explicit `not sent` status.
-- Add tests proving no `STATION_DEVELOPER_KEY`, `STATION_API_URL`, live webhook
-  id, Railway, Supabase, Cloudflare, or network access is required.
-- Document the local command/API and safe output shape.
+```bash
+npx tsx packages/developer-space-client/examples/agents-observe-offline-dry-run.ts --signed-demo
+```
 
-Privacy contract:
+Optional fixture path:
 
-- Do not print or serialize raw prompts, command bodies, file paths, token
-  values, raw tool payloads, terminal/stdout/stderr-like output, fixture
-  `sessionId`, fixture `eventId`, fixture `agent.id`, live API keys, live
-  signing secrets, or non-demo webhook ids.
+```bash
+npx tsx packages/developer-space-client/examples/agents-observe-offline-dry-run.ts --fixture=./agents-observe-fixture.json --signed-demo
+```
 
-Validation: `test:developer-space-client`,
-`--filter @station/developer-space-client build`, package/root typecheck as
-needed, and `git diff --check`.
+Safe output shape: not-sent status, source, fixture source, live-config/network
+booleans, payload counts, event types, public event-data keys, provenance refs,
+classification counts, privacy assertion booleans, and optional redacted demo
+signature metadata. Output does not include raw prompts, command bodies, file
+paths, token values, raw tool payload values, terminal/stdout/stderr-like
+output, fixture `sessionId`, fixture `eventId`, fixture `agent.id`, live API
+keys, live signing secrets, or non-demo webhook ids.
 
-Non-scope: no live webhook send, no required `STATION_DEVELOPER_KEY`, no
-Developer Space key generation/rotation, no Railway/Supabase/Cloudflare config
-request, no Cloudflare Worker/Vectorize/D1/Queue/Durable Object work, no
-external repo code vendoring, no hosted runtime/task scheduler/agent control
-plane, no UI, no billing/Stripe, no Redis memory truth, no provider routing, no
-retrieval model changes, and no committed secrets.
+No-live-config/no-network proof: tests delete `STATION_DEVELOPER_KEY`,
+`STATION_API_URL`, and `STATION_OBSERVED_RUNTIME_WEBHOOK_ID`, replace
+`globalThis.fetch` with a failing stub, and prove the dry run completes without
+calling fetch. The example command was also run with `--signed-demo`; it printed
+safe output and sent no request.
 
-Wake ARGUS with dry-run command/API shape, sample safe output shape, fixture/
+Validation: `test:developer-space-client` passed with 11 tests,
+`@station/developer-space-client` build passed, the dry-run example command
+passed, root `typecheck` passed, and `git diff --check` passed with CRLF
+normalization warnings only. The client package has no standalone `typecheck`
+script, so the package build is the package-local typecheck gate.
+
+Non-scope preserved: no live webhook send, no required
+`STATION_DEVELOPER_KEY`, no Developer Space key generation/rotation, no
+Railway/Supabase/Cloudflare config request, no Cloudflare Worker/Vectorize/D1/
+Queue/Durable Object work, no external repo code vendoring, no hosted runtime,
+task scheduler, agent control plane, UI, billing/Stripe, Redis memory truth,
+provider routing, retrieval model changes, or committed secrets.
+
+ARGUS should review dry-run command/API shape, sample safe output, fixture/
 source evidence, no-live-config/no-network proof, privacy/no-raw-id/no-secret
-test evidence, validation, and explicit non-claims. Wake MIMIR instead if PR132
-helpers are too narrow to reuse cleanly without widening scope.
+test evidence, validation, and explicit non-claims.
 
 ## Previous DAEDALUS handoff - PR127 webhook concurrency guard
 

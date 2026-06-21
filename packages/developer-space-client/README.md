@@ -151,6 +151,28 @@ This is adapter-shape evidence only. It does not install Agents Observe, send a
 live webhook, request a Developer Space key, or make Station execute, host,
 schedule, or control an external runtime.
 
+### Offline dry run
+
+Run the PR133 offline dry run with no Station URL, Developer Space key, live
+webhook id, Railway, Supabase, Cloudflare, or network access:
+
+```bash
+npx tsx packages/developer-space-client/examples/agents-observe-offline-dry-run.ts --signed-demo
+```
+
+Optional local fixture path:
+
+```bash
+npx tsx packages/developer-space-client/examples/agents-observe-offline-dry-run.ts --fixture=./agents-observe-fixture.json --signed-demo
+```
+
+The output is safe to paste into a review handoff. It includes not-sent status,
+payload counts, classification counts, coarse event labels, provenance names,
+privacy assertion booleans, and a redacted demo signature header. It does not
+print raw prompts, command bodies, file paths, token values, raw tool payloads,
+terminal/stdout/stderr-like output, fixture session/event/agent ids, live API
+keys, live signing secrets, or non-demo webhook ids.
+
 ## Error handling
 
 Failed ingestion calls throw `DeveloperSpaceClientError`. Branch on `category`

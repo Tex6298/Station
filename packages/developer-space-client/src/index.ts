@@ -1,3 +1,9 @@
+import {
+  agentsObserveHookEventFixture,
+  transformAgentsObserveHookEvent,
+  type AgentsObserveHookEventFixture,
+} from "./agents-observe";
+
 export type DeveloperSpaceTopologyType = "radial" | "branching" | "lattice" | "custom";
 export type DeveloperSpaceEventVisibility = "private" | "community" | "public";
 export type DeveloperSpaceEventProvenance = "api" | "imported" | "user" | "system" | "ai_generated";
@@ -98,6 +104,51 @@ export interface DeveloperSpaceObservedRuntimeWebhookSendOptions extends Develop
   signingSecret?: string;
   webhookId?: string;
   timestamp?: number;
+}
+
+export interface AgentsObserveOfflineDryRunOptions {
+  fixture?: AgentsObserveHookEventFixture;
+  fixtureSource?: "default-fixture" | "provided-file";
+  includeSignedRequest?: boolean;
+  demoSigningSecret?: string;
+  demoWebhookId?: string;
+  timestamp?: number;
+}
+
+export interface AgentsObserveOfflineDryRunSummary {
+  status: "not_sent";
+  source: "agents-observe";
+  fixtureSource: "default-fixture" | "provided-file";
+  liveConfigRequired: false;
+  networkAccessRequired: false;
+  payloadSummary: {
+    nodes: number;
+    events: number;
+    snapshots: number;
+    supportingContext: number;
+    eventTypes: string[];
+    publicEventDataKeys: string[];
+    provenanceRefs: string[];
+  };
+  classificationCounts: Record<DeveloperSpaceObservedRuntimeFieldVisibility, number>;
+  privacyAssertions: {
+    noRawPrompt: true;
+    noCommandBody: true;
+    noFilePaths: true;
+    noToolPayload: true;
+    noTerminalOutput: true;
+    noTokenValue: true;
+    noRawSourceIds: true;
+    noLiveSecrets: true;
+  };
+  signedRequest?: {
+    built: true;
+    status: "not_sent";
+    schema: "station.observed_runtime.webhook.v1";
+    demoWebhookId: string;
+    signatureHeader: string;
+    bodyByteLength: number;
+  };
 }
 
 export type DeveloperSpaceClientErrorCategory =
@@ -294,8 +345,126 @@ export async function createObservedRuntimeWebhookRequest(input: DeveloperSpaceO
   };
 }
 
+export async function createAgentsObserveOfflineDryRunSummary(
+  options: AgentsObserveOfflineDryRunOptions = {},
+): Promise<AgentsObserveOfflineDryRunSummary> {
+  const fixture = options.fixture ?? agentsObserveHookEventFixture;
+  const payload = transformAgentsObserveHookEvent(fixture);
+  const classificationCounts = countClassifications(payload);
+  const summary: AgentsObserveOfflineDryRunSummary = {
+    status: "not_sent",
+    source: "agents-observe",
+    fixtureSource: options.fixtureSource ?? (options.fixture ? "provided-file" : "default-fixture"),
+    liveConfigRequired: false,
+    networkAccessRequired: false,
+    payloadSummary: {
+      nodes: payload.nodes?.length ?? 0,
+      events: payload.events?.length ?? 0,
+      snapshots: payload.snapshots?.length ?? 0,
+      supportingContext: payload.supportingContext?.length ?? 0,
+      eventTypes: payload.events?.map((event) => event.eventType) ?? [],
+      publicEventDataKeys: Object.keys(payload.events?.[0]?.eventData ?? {}),
+      provenanceRefs: Array.from(new Set([
+        ...(payload.nodes?.flatMap((node) => node.sourceRefs ?? []) ?? []),
+        ...(payload.events?.flatMap((event) => event.sourceRefs ?? []) ?? []),
+        ...(payload.snapshots?.flatMap((snapshot) => snapshot.sourceRefs ?? []) ?? []),
+        ...(payload.supportingContext?.map((context) => context.sourceRef).filter(isString) ?? []),
+      ])).sort(),
+    },
+    classificationCounts,
+    privacyAssertions: passingPrivacyAssertions(),
+  };
+
+  if (options.includeSignedRequest) {
+    const request = await createObservedRuntimeWebhookRequest({
+      deliveryId: options.demoWebhookId ?? "demo-agents-observe-dry-run",
+      signingSecret: options.demoSigningSecret ?? "station_whsec_demo_agents_observe_dry_run",
+      timestamp: options.timestamp ?? 1_771_452_800,
+      observedAt: fixture.observedAt,
+      source: {
+        id: "agents-observe-offline-dry-run",
+      },
+      payload,
+    });
+    const timestamp = request.headers["X-Station-Signature"].match(/^t=([^,]+)/)?.[1] ?? "redacted";
+    summary.signedRequest = {
+      built: true,
+      status: "not_sent",
+      schema: request.envelope.schema,
+      demoWebhookId: request.headers["X-Station-Webhook-Id"],
+      signatureHeader: `t=${timestamp},v1=<redacted>`,
+      bodyByteLength: new TextEncoder().encode(request.body).byteLength,
+    };
+  }
+
+  summary.privacyAssertions = assertAgentsObserveDryRunPrivacy(JSON.stringify(summary), fixture);
+  return summary;
+}
+
 function bytesToHex(bytes: Uint8Array) {
   return Array.from(bytes, (byte) => byte.toString(16).padStart(2, "0")).join("");
+}
+
+function assertAgentsObserveDryRunPrivacy(
+  serializedOutput: string,
+  fixture: AgentsObserveHookEventFixture,
+): AgentsObserveOfflineDryRunSummary["privacyAssertions"] {
+  const forbidden = [
+    fixture.sessionId,
+    fixture.eventId,
+    fixture.agent.id,
+    fixture.raw.prompt,
+    fixture.raw.commandBody,
+    fixture.raw.terminalOutput,
+    fixture.raw.tokenValue,
+    ...(fixture.filesTouched ?? []),
+    ...Object.values(fixture.raw.toolPayload ?? {}).map((value) => String(value)),
+  ].filter(isString);
+  for (const value of forbidden) {
+    if (value && serializedOutput.includes(value)) {
+      throw new Error(`Agents Observe dry run would expose raw fixture value: ${value}`);
+    }
+  }
+  return passingPrivacyAssertions();
+}
+
+function passingPrivacyAssertions(): AgentsObserveOfflineDryRunSummary["privacyAssertions"] {
+  return {
+    noRawPrompt: true,
+    noCommandBody: true,
+    noFilePaths: true,
+    noToolPayload: true,
+    noTerminalOutput: true,
+    noTokenValue: true,
+    noRawSourceIds: true,
+    noLiveSecrets: true,
+  };
+}
+
+function countClassifications(payload: DeveloperSpaceBatchImportPayload) {
+  const counts: Record<DeveloperSpaceObservedRuntimeFieldVisibility, number> = {
+    public: 0,
+    member: 0,
+    owner: 0,
+    private: 0,
+    secret: 0,
+  };
+  const classifications = [
+    ...(payload.nodes?.map((node) => node.fieldClassifications) ?? []),
+    ...(payload.events?.map((event) => event.fieldClassifications) ?? []),
+    ...(payload.snapshots?.map((snapshot) => snapshot.fieldClassifications) ?? []),
+    ...(payload.supportingContext?.map((context) => context.fieldClassifications) ?? []),
+  ];
+  for (const fields of classifications) {
+    for (const visibility of Object.values(fields ?? {})) {
+      counts[visibility] += 1;
+    }
+  }
+  return counts;
+}
+
+function isString(value: unknown): value is string {
+  return typeof value === "string";
 }
 
 function safeJson(text: string): unknown {

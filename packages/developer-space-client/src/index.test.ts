@@ -3,6 +3,7 @@ import { createHmac } from "node:crypto";
 import test from "node:test";
 import {
   agentsObserveHookEventFixture,
+  createAgentsObserveOfflineDryRunSummary,
   createObservedRuntimeWebhookRequest,
   createDeveloperSpaceClient,
   DeveloperSpaceClientError,
@@ -384,6 +385,79 @@ test("agents observe transform builds signed observed-runtime request without li
   assert.equal(request.body.includes("FIXTURE_TOKEN_VALUE_SHOULD_NOT_APPEAR"), false);
 });
 
+test("agents observe offline dry run returns safe not-sent summary with no live config", async () => {
+  const previousFetch = globalThis.fetch;
+  let fetchCalled = false;
+  globalThis.fetch = (async () => {
+    fetchCalled = true;
+    throw new Error("network should not be used");
+  }) as typeof fetch;
+  const previousEnv = {
+    STATION_DEVELOPER_KEY: process.env.STATION_DEVELOPER_KEY,
+    STATION_API_URL: process.env.STATION_API_URL,
+    STATION_OBSERVED_RUNTIME_WEBHOOK_ID: process.env.STATION_OBSERVED_RUNTIME_WEBHOOK_ID,
+  };
+  delete process.env.STATION_DEVELOPER_KEY;
+  delete process.env.STATION_API_URL;
+  delete process.env.STATION_OBSERVED_RUNTIME_WEBHOOK_ID;
+
+  try {
+    const summary = await createAgentsObserveOfflineDryRunSummary({
+      includeSignedRequest: true,
+      timestamp: 1_771_452_800,
+    });
+    const serialized = JSON.stringify(summary);
+
+    assert.equal(summary.status, "not_sent");
+    assert.equal(summary.liveConfigRequired, false);
+    assert.equal(summary.networkAccessRequired, false);
+    assert.equal(fetchCalled, false);
+    assert.deepEqual(summary.payloadSummary, {
+      nodes: 2,
+      events: 1,
+      snapshots: 1,
+      supportingContext: 1,
+      eventTypes: ["agents_observe.tool_call"],
+      publicEventDataKeys: [
+        "source",
+        "hookName",
+        "toolName",
+        "status",
+        "agentRole",
+        "fileTouchCount",
+        "inputTokenCount",
+        "outputTokenCount",
+        "redactedSensitiveFieldCount",
+      ],
+      provenanceRefs: ["simple10/agents-observe public docs"],
+    });
+    assert.equal(summary.classificationCounts.private, 5);
+    assert.equal(summary.classificationCounts.secret, 1);
+    assert.equal(summary.signedRequest?.status, "not_sent");
+    assert.equal(summary.signedRequest?.demoWebhookId, "demo-agents-observe-dry-run");
+    assert.equal(summary.signedRequest?.signatureHeader, "t=1771452800,v1=<redacted>");
+
+    for (const forbidden of [
+      agentsObserveHookEventFixture.sessionId,
+      agentsObserveHookEventFixture.eventId,
+      agentsObserveHookEventFixture.agent.id,
+      agentsObserveHookEventFixture.raw.prompt,
+      agentsObserveHookEventFixture.raw.commandBody,
+      agentsObserveHookEventFixture.raw.terminalOutput,
+      agentsObserveHookEventFixture.raw.tokenValue,
+      "station_whsec_demo_agents_observe_dry_run",
+      ...(agentsObserveHookEventFixture.filesTouched ?? []),
+    ]) {
+      assert.equal(serialized.includes(forbidden), false, `dry-run output leaked: ${forbidden}`);
+    }
+  } finally {
+    globalThis.fetch = previousFetch;
+    restoreEnv("STATION_DEVELOPER_KEY", previousEnv.STATION_DEVELOPER_KEY);
+    restoreEnv("STATION_API_URL", previousEnv.STATION_API_URL);
+    restoreEnv("STATION_OBSERVED_RUNTIME_WEBHOOK_ID", previousEnv.STATION_OBSERVED_RUNTIME_WEBHOOK_ID);
+  }
+});
+
 test("client rejects blank connection options after trimming", () => {
   assert.throws(
     () => createDeveloperSpaceClient({ baseUrl: "   ", apiKey: "station_dev_test" }),
@@ -394,3 +468,11 @@ test("client rejects blank connection options after trimming", () => {
     /requires apiKey/,
   );
 });
+
+function restoreEnv(name: string, value: string | undefined) {
+  if (value === undefined) {
+    delete process.env[name];
+  } else {
+    process.env[name] = value;
+  }
+}
