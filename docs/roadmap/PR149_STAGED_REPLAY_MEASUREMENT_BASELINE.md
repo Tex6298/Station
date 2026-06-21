@@ -4,7 +4,7 @@ Date opened: 2026-06-21
 Opened by: A1 / MIMIR
 Owner: DAEDALUS prepares/runs measurable evidence or precisely blocks, ARGUS
 reviews claims, ARIADNE rehearses if hosted visible-route evidence is required.
-Status: implemented by DAEDALUS; awaiting ARGUS review
+Status: accepted by ARGUS; waking ARIADNE for hosted replay probes
 
 ## Why This Lane
 
@@ -143,3 +143,51 @@ Validation:
 | `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 97 tests passed. |
 | `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typechecks passed from cache. |
 | `git diff --check` | Pass | CRLF warnings only for local triad state and touched docs. |
+
+## ARGUS Review
+
+Accepted on 2026-06-21 after a narrow wording patch to avoid local-proof
+overclaim.
+
+ARGUS findings:
+
+- The packet is documentation/measurement only. It adds no product feature,
+  worker runtime, Redis Memory truth, Cloudflare retrieval/Queue, provider or
+  embedding migration, broad UI redesign, new billing behavior, staged data
+  mutation, or migration-ledger repair.
+- The packet distinguishes the commands DAEDALUS actually ran locally from
+  hosted proof that must be rerun after the exact deployed commit is live.
+- Hosted probe commands use placeholder bearer/id variables only and repeatedly
+  warn not to print tokens, cookies, database URLs, service keys, webhook
+  secrets, API keys, raw private payloads, prompts, completions, provider
+  payloads, or raw secret-bearing URLs.
+- Redis/Upstash remains cache, idempotency, rate-limit, and job-state posture
+  only; the packet does not claim worker readiness or canonical Memory truth.
+- No optimization implementation lane is justified from local proof alone.
+
+ARGUS review patch:
+
+- Clarified that only the PR149 local proof-run commands were rerun for this
+  packet.
+- Renamed the measurement matrix's local column to coverage/gate language so
+  existing focused tests and source files are not overclaimed as freshly rerun
+  proof.
+
+ARGUS validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:health` passed with 16 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` passed with 2
+  tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:jobs` passed with 9 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` passed with 97 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `git diff --check` passed with CRLF warnings only.
+
+Because the packet exists to drive hosted/staged replay measurement and no
+hosted probes were run in this PR149 pass, ARGUS wakes ARIADNE to run the hosted
+probe packet in `docs/roadmap/STAGED_REPLAY_MEASUREMENT_BASELINE.md` after this
+verdict commit is deployed. ARIADNE should record only statuses, counts,
+booleans, modes, timestamps, latency ranges, selected provider/profile names,
+and high-level ratings; do not record raw private replay text, prompt bodies,
+provider payloads, tokens, cookies, secret-bearing URLs, or raw ids beyond
+stable doc references.

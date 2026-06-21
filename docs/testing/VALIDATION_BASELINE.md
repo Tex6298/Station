@@ -54,6 +54,26 @@ pnpm test:developer-space-client
 
 ## PR149 Staged Replay Measurement Baseline
 
+ARGUS review validation on 2026-06-21 after the local-proof wording patch:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:health` | Pass | 16 tests passed; deployment readiness and Redis/Upstash no-worker posture remain green locally. |
+| `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` | Pass | 2 tests passed; replay-readiness auth and trace-detail sanitization remain green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:jobs` | Pass | 9 tests passed; owner-only background-job readback remains green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 97 tests passed; Studio helper surfaces for observability, Memory, Archive trust, Export trust, billing copy, and related protected-alpha UI remain green. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typechecks passed. |
+| `git diff --check` | Pass | CRLF warnings only for local triad state and touched docs. |
+
+ARGUS PR149 notes:
+
+- Accepted the staged replay measurement baseline after clarifying that only the
+  PR149 local proof-run commands were rerun.
+- Renamed the matrix's local column to coverage/gate language so existing tests
+  and source files are not overclaimed as freshly rerun proof.
+- Wakes ARIADNE to run the hosted probe packet after this verdict commit is
+  deployed; results must record only non-secret statuses/counts/ratings.
+
 DAEDALUS implementation validation on 2026-06-21:
 
 | Command | Result | Notes |

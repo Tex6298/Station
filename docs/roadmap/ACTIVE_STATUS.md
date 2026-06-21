@@ -9694,7 +9694,55 @@ git diff --check
 - Developer Spaces visual polish before ingestion auth, validation, limits, and
   safe serialization.
 
-## Latest DAEDALUS handoff - PR149 Staged replay measurement baseline
+## Latest ARGUS handoff - PR149 Staged replay measurement baseline
+
+ARGUS accepts PR149 Staged Replay Measurement Baseline on 2026-06-21 and wakes
+ARIADNE for hosted replay probes after this verdict commit is deployed. The lane
+is documentation/measurement only; no product feature, worker, provider,
+billing, Redis Memory, Cloudflare, or UI implementation was added.
+
+ARGUS findings:
+
+- `docs/roadmap/STAGED_REPLAY_MEASUREMENT_BASELINE.md` distinguishes the local
+  proof-run commands DAEDALUS actually ran from hosted proof still required for
+  the exact deployed commit.
+- Hosted probe commands use placeholder bearer/id variables only and warn not to
+  print tokens, cookies, database URLs, service keys, webhook secrets, API keys,
+  raw private payloads, prompts, completions, provider payloads, or raw
+  secret-bearing URLs.
+- Redis/Upstash remains cache, idempotency, rate-limit, and job-state posture
+  only. The packet does not claim worker readiness or canonical Memory truth.
+- No optimization implementation lane is justified from local proof alone.
+
+ARGUS review patch:
+
+- Clarified that only the PR149 local proof-run commands were rerun for this
+  packet.
+- Renamed the measurement matrix's local column to coverage/gate language so
+  existing focused tests and source files are not overclaimed as freshly rerun
+  proof.
+
+ARGUS validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:health` passed with 16 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` passed with 2
+  tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:jobs` passed with 9 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` passed with 97 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `git diff --check` passed with CRLF warnings only.
+
+ARIADNE route/probe task:
+
+- Use the hosted probe packet in
+  `docs/roadmap/STAGED_REPLAY_MEASUREMENT_BASELINE.md` only after this verdict
+  commit is deployed.
+- Record statuses, counts, booleans, modes, timestamps, latency ranges, selected
+  provider/profile names, and high-level ratings only.
+- Do not record raw private replay text, prompt bodies, provider payloads,
+  tokens, cookies, secret-bearing URLs, or raw ids beyond stable doc references.
+
+## Previous DAEDALUS handoff - PR149 Staged replay measurement baseline
 
 DAEDALUS implemented PR149 on 2026-06-21 and wakes ARGUS for review. This is a
 measurement packet only; no product feature, worker, provider, billing, Redis

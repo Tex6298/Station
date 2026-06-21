@@ -36,9 +36,14 @@ DAEDALUS ran this local validation from the repository root on 2026-06-21:
 These commands do not prove the current commit is deployed or that staging data
 exists. They prove the current repo surfaces still validate locally.
 
+Only the commands in the table above were rerun for this PR149 packet. The
+measurement matrix below also names existing focused gates and source files that
+should be run or inspected before claiming a specific axis; treat those entries
+as coverage pointers unless their command appears in the local proof run.
+
 ## Measurement Matrix
 
-| Axis | Local/source proof | Hosted proof still required for this commit | Open assumption or blocker |
+| Axis | Local/source coverage or gate | Hosted proof still required for this commit | Open assumption or blocker |
 | --- | --- | --- | --- |
 | Deployment readiness and non-secret config | `test:health`; `apps/api/src/routes/health.ts`; `apps/web/app/health/deployment/route.ts` | Public web/API `/health` and `/health/deployment` must return `ok:true`, `ready:true`, and the deployed commit/branch/service expected for this line. | Local tests cannot prove Railway deploy state. If readiness is false, open a config/deployment repair, not a product lane. |
 | Auth/session and redirect readiness | `test:auth`; `test:health` auth redirect readiness coverage remains in baseline docs. | Sign in as the replay account and call `/auth/me`; verify web session restore through the deployed web URL. | Replay credentials are external and must not be committed or printed. |
