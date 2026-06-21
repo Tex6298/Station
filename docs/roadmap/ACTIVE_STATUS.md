@@ -9574,67 +9574,62 @@ git diff --check
 - Developer Spaces visual polish before ingestion auth, validation, limits, and
   safe serialization.
 
-## Latest MIMIR handoff - PR139 webhook receipts staging proof
+## Latest ARGUS verdict - PR139 webhook receipts staging proof
 
-MIMIR opens PR139 2C Observed Runtime Webhook Receipts Staging Proof on
-2026-06-21 and wakes DAEDALUS.
+ARGUS accepts PR139 2C Observed Runtime Webhook Receipts Staging Proof on
+2026-06-21 as a bounded staging proof and blocker classification, and wakes
+MIMIR for the next ledger/classification sequencing decision.
 
-Input from PR138/ARGUS:
+Accepted proof:
 
-- Migration `046` supporting-context safety metadata is now proved: index
-  present, RLS enabled, owner policy present, and table comment present.
-- Migration `048` signing-secret metadata is proved: table present, both
-  indexes present, update trigger present, RLS enabled, owner policy present,
-  table comment present, and PostgREST sees the table after schema reload.
-- Active dedicated signing-secret count for `station-replay-dev-alpha` is `0`,
-  so ingestion-key HMAC fallback is expected.
-- The previous PR137 signing-secret load blocker is cleared. A current-
-  timestamp send got past signing-secret load/auth and reached a new bounded
-  server blocker:
-  `developer_space_server_error` /
-  `Could not claim observed runtime webhook receipt.`
-- PostgREST/service-role proof classifies the new blocker as missing/uncached
-  `public.developer_space_observed_runtime_webhook_receipts`, which belongs to
-  migration `047`, not the PR138-authorized `048` lane.
-- Temporary PR138 named keys were revoked, cleanup found zero active PR138
+- Migration `047` receipt storage is metadata-proved: table present,
+  `(developer_space_id, webhook_id)` unique constraint present, index present,
+  RLS enabled, owner policy present, table comment present, and PostgREST sees
+  the table after schema reload.
+- The prior PR138 receipt-claim blocker is cleared. Current-timestamp live send
+  no longer stops on `Could not claim observed runtime webhook receipt`.
+- First delivery now reaches
+  `developer_space_observed_runtime_classification_failed`, which is the next
+  bounded blocker.
+- Repeating the same webhook id/payload returns the stored failed response,
+  `developer_space_webhook_processing_failed`; this proves failed-delivery
+  receipt replay, not successful import replay.
+- Temporary PR139 named keys were revoked, cleanup found zero active PR139
   smoke keys, and no legacy key rotation was used.
 - No Supabase URL, service key, DB URL, auth token, replay password, Developer
   Space key, signing material, raw webhook id, fixture prompt/body/path, `.env`
-  value, Railway variable, decrypted secret, or committed secret was printed or
-  written.
+  value, Railway variable, or committed secret was printed or written.
 
 ARGUS cautions:
 
 - No accepted observed-runtime import, successful replay/idempotency proof, or
   persisted import readback is claimed.
-- Migration ledger state is not clean:
-  `supabase_migrations.schema_migrations` is queryable but has zero matching
-  rows for direct-applied `046` and `048`. ARGUS accepts metadata proof, not
-  migration-history cleanliness.
-- Before applying `047` with another direct-DDL path, MIMIR should decide how to
-  repair or intentionally document the ledger state for `046`/`048`, and how to
-  avoid compounding migration-history drift.
-- The stale fixed-demo timestamp `401` was a smoke-harness timestamp issue; the
-  current-timestamp probe is the relevant staging blocker proof.
+- Official Supabase migration repair for direct-applied `046`/`047`/`048` found
+  the files but failed on the pooler prepared-statement collision. Matching
+  ledger counts remain `0`, and DAEDALUS did not hand-edit migration history.
+- The committed staging evidence records a high-level classification failure and
+  an empty sanitized `details` array for one fresh probe; this should not be
+  generalized into a guarantee that all future classification details are empty.
 
-DAEDALUS task:
+ARGUS validation:
 
-- Implement
-  `docs/roadmap/PR139_2C_OBSERVED_RUNTIME_WEBHOOK_RECEIPTS_STAGING_PROOF.md`.
-- Reconcile migration ledger rows for direct-applied `046`/`048` only if schema
-  equivalence and the repair path are proved safe; otherwise classify the drift
-  explicitly.
-- Apply/prove migration `047` webhook receipts: table, unique constraint, index,
-  RLS, owner policy, comment, PostgREST/schema-cache visibility, and ledger
-  status.
-- Rerun bounded named-key smoke on `station-replay-dev-alpha` with a temporary
-  named key, raw key in memory only, no legacy rotation, and targeted revoke.
-- Verify current-timestamp live send no longer stops on webhook receipt claim;
-  then prove accepted import/readback or classify the next bounded blocker.
+- `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces`: pass, 27 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:developer-space-client`: pass, 15
+  tests.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/api build`: pass.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck`: pass.
+- `git diff --check`: pass with CRLF normalization warnings only for local
+  triad/docs state.
+- `git diff --cached --check`: pass.
 
-DAEDALUS should wake ARGUS with ledger classification, `047` proof, smoke
-evidence, validation, no-secret proof, and explicit non-claims. Wake MIMIR
-instead if ledger repair or external access requires a sequencing decision.
+ARGUS did not rerun live staging smoke because doing so would require
+secret-bearing auth and another staging mutation.
+
+Recommended next sequencing for MIMIR: decide how to handle the still-empty
+`046`/`047`/`048` migration ledger, then open a narrow Agents Observe
+classification-alignment lane so the staging payload satisfies the deployed
+observed-runtime classification validator without weakening privacy
+classification boundaries or printing secrets.
 
 ## Previous DAEDALUS handoff - PR127 webhook concurrency guard
 

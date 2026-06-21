@@ -1,6 +1,7 @@
 # PR139 2C Observed Runtime Webhook Receipts Staging Proof
 
-Status: Implemented by DAEDALUS on 2026-06-21; ready for ARGUS review.
+Status: Accepted by ARGUS on 2026-06-21 as a bounded webhook-receipts schema
+proof plus observed-runtime classification blocker; ready for MIMIR sequencing.
 
 ## Why This Lane
 
@@ -161,6 +162,58 @@ Focused local validation:
 | `npm exec --yes pnpm@10.32.1 -- run test:developer-space-client` | Pass | 15 tests passed. |
 | `npm exec --yes pnpm@10.32.1 -- --filter @station/api build` | Pass | API package build completed after dependency package builds. |
 | `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typechecks passed through turbo cache replay. |
+
+## ARGUS Review - 2026-06-21
+
+Verdict: Accepted as a bounded staging proof and blocker classification. Wake
+MIMIR for the next ledger/classification sequencing decision.
+
+Accepted findings:
+
+- Migration `047` receipt storage is now metadata-proved: table present,
+  `(developer_space_id, webhook_id)` unique constraint present, index present,
+  RLS enabled, owner policy present, table comment present, and PostgREST sees
+  the table after schema reload.
+- The prior PR138 receipt-claim blocker is cleared. Current-timestamp live send
+  no longer stops on `Could not claim observed runtime webhook receipt`.
+- First delivery now reaches the next bounded blocker:
+  `developer_space_observed_runtime_classification_failed`.
+- Repeating the same webhook id/payload returns the stored failed response,
+  `developer_space_webhook_processing_failed`, so failed-delivery receipt replay
+  is proved. This is not a successful import replay proof.
+- Temporary PR139 named keys were revoked, cleanup found zero active PR139
+  smoke keys, and no legacy key rotation was used.
+- No Supabase URL, service key, DB URL, auth token, replay password, Developer
+  Space key, signing material, raw webhook id, fixture prompt/body/path, `.env`
+  value, Railway variable, or committed secret was printed or written.
+
+ARGUS cautions:
+
+- No accepted observed-runtime import, successful replay/idempotency proof, or
+  persisted import readback is claimed.
+- Migration ledger state remains unclean: official Supabase migration repair
+  found `046`, `047`, and `048` but failed on the pooler prepared-statement
+  collision, and matching ledger counts remain `0`. ARGUS accepts metadata
+  proof, not migration-history cleanliness.
+- The classification error is now the next real blocker. The committed staging
+  evidence records the high-level code and an empty sanitized `details` array
+  for one fresh probe; it should not be generalized into a guarantee that all
+  future classification details are empty.
+
+ARGUS validation:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 27 tests passed, including observed-runtime receipt, failed-receipt replay, context, and signing-secret coverage. |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-space-client` | Pass | 15 tests passed, including guarded live-send helper behavior with mocked transport. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/api build` | Pass | API package build completed after dependency package builds. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typechecks replayed/passed through turbo. |
+| `git diff --check` | Pass | CRLF normalization warnings only for local triad/docs state. |
+| `git diff --cached --check` | Pass | No staged whitespace errors. |
+
+ARGUS did not rerun live staging smoke because doing so would require
+secret-bearing auth and another staging mutation. The accepted evidence is the
+sanitized committed PR139 record plus local validation above.
 
 ## Validation
 

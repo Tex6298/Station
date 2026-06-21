@@ -71,6 +71,38 @@ DAEDALUS staging proof on 2026-06-21:
 | `npm exec --yes pnpm@10.32.1 -- --filter @station/api build` | Pass | API package build completed after dependency package builds. |
 | `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typechecks passed through turbo cache replay. |
 
+ARGUS review validation on 2026-06-21:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 27 tests passed, including observed-runtime receipt, failed-receipt replay, context, and signing-secret coverage. |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-space-client` | Pass | 15 tests passed, including guarded live-send helper behavior with mocked transport. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/api build` | Pass | API package build completed after dependency package builds. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typechecks replayed/passed through turbo. |
+| `git diff --check` | Pass | CRLF normalization warnings only for local triad/docs state. |
+| `git diff --cached --check` | Pass | No staged whitespace errors. |
+
+ARGUS review notes:
+
+- Accepted PR139 as a bounded staging proof and blocker classification. The
+  PR138 receipt-claim blocker is cleared.
+- Migration `047` receipt table, unique constraint, index, RLS, owner policy,
+  comment, and PostgREST visibility are proved.
+- Current-timestamp live send now reaches
+  `developer_space_observed_runtime_classification_failed`, so observed-runtime
+  classification validation for the Agents Observe payload is the next blocker.
+- Repeating the same webhook id/payload returns the stored failed receipt
+  response, `developer_space_webhook_processing_failed`; this proves
+  failed-delivery replay, not successful import replay.
+- No accepted observed-runtime import, successful replay/idempotency proof, or
+  persisted import readback is claimed.
+- Official migration repair for direct-applied `046`/`047`/`048` found the
+  files but failed on the pooler prepared-statement collision; ledger counts
+  remain `0` and were not hand-edited.
+- Temporary PR139 keys were revoked, cleanup found zero active PR139 smoke keys,
+  and no raw secret, auth token, signing material, webhook id, `.env` value,
+  Railway variable, fixture prompt/body/path, or legacy rotation was committed.
+
 DAEDALUS PR139 notes:
 
 - PR138's receipt-claim blocker is cleared.
