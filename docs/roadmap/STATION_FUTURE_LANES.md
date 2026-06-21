@@ -39,10 +39,10 @@ This note folds the current external/upstream work into future sequencing:
   review, but NVIDIA embeddings are not a drop-in swap. Provider/data-policy
   posture may vary by Developer Space requirement; do not assume one global
   production policy before replay evidence exists.
-- Redis/Valkey's role is undecided. The conservative current recommendation is
-  cache, queue, idempotency, rate-limit, and short-lived working-memory support,
-  but Redis as a memory source of truth remains an architecture option for
-  discussion if a Developer Space or imported repo pattern requires it.
+- Redis/Valkey's role is undecided beyond operational support. The accepted
+  current role is cache, queue state, idempotency, rate-limit, and short-lived
+  working state only; Redis as Memory truth is not a current implementation
+  role and would require a separate MIMIR lane plus ARGUS privacy review.
 - Cloudflare can be an edge adapter or index mirror, not a replacement for
   Station authorization unless a separate privacy review accepts it. Cloudflare
   work should follow the concrete demands of imported repo ideas rather than
@@ -200,18 +200,19 @@ Purpose: decide what Redis/Valkey should be for Station before implementing it.
 
 MIMIR correction:
 
-- Redis is not rejected as memory truth. MIMIR's conservative recommendation is
-  to start with cache/queue/working-memory roles because the current system's
-  durable memory, visibility, export, and deletion contracts are Supabase-led.
-  That recommendation is not an accepted architecture decision.
+- Redis-backed Memory truth is not an accepted current role. MIMIR's
+  conservative recommendation is to start with cache/queue/working-state roles
+  because the current system's durable memory, visibility, export, and deletion
+  contracts are Supabase-led.
 - If a Developer Space or imported repo pattern wants Redis-backed memory truth,
   discuss it explicitly and define the durability, eviction, backup, ownership,
   deletion, export, search, and audit contracts before implementing.
 
 Railway-side default:
 
-- Use Railway Redis/Valkey for API-local cache, queue, idempotency, or rate
-- limit state when the API owns the workload, if the cache/queue path is chosen.
+- Use Railway Redis/Valkey for API-local cache, queue, idempotency, or
+  rate-limit state when the API owns the workload, if the cache/queue path is
+  chosen.
 - Use owner/persona-scoped keys and short TTLs.
 
 Cloudflare-side default:

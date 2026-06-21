@@ -80,6 +80,32 @@ DAEDALUS PR147 notes:
   job status, provider migration, visible route behavior, or migration-ledger
   repair was added.
 
+ARGUS review validation on 2026-06-21:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:jobs` | Pass | 5 tests passed; background job registry, transitions, idempotency keys, retry metadata, and safe summaries remain green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:cache` | Pass | 5 tests passed; operational-cache scope, TTL, rate-limit, disabled fallback, and invalidation behavior remain green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:health` | Pass | 16 tests passed; TCP Redis/Valkey queue posture and Upstash REST cache-only readiness remain green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` | Pass | 2 tests passed; replay measurement prep remains green. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typechecks passed from cache. |
+| `git diff --check` | Pass | CRLF warnings only for touched docs and local triad state. |
+
+ARGUS review notes:
+
+- PR147 is accepted for MIMIR closeout/sequencing; no ARIADNE rehearsal is
+  required because no visible route behavior changed.
+- ARGUS patched a narrow roadmap wording gap so Redis/Valkey Memory truth is
+  clearly not an accepted current role. Any Redis-backed Memory-truth design
+  now remains behind a separate MIMIR lane and ARGUS privacy review.
+- The audit correctly keeps Upstash REST cache-only, treats TCP Redis/Valkey as
+  queue-capable config only when present, preserves protected-alpha inline
+  fallback, and does not open a worker runtime.
+- PR148 remains a recommendation, not a roadmap decision: default to staged
+  replay measurement; if MIMIR opens PR148 before replay, make it owner-only
+  background job status/readback consolidation rather than BullMQ, Redis/Valkey
+  worker runtime, Cloudflare Queue, broad job processing, or Redis Memory truth.
+
 ## PR146 Memory Graph Relationship Readback
 
 DAEDALUS implementation validation on 2026-06-21:

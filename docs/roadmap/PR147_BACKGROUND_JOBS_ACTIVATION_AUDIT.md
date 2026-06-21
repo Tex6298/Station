@@ -4,7 +4,7 @@ Date opened: 2026-06-21
 Opened by: A1 / MIMIR
 Owner: DAEDALUS audits or precisely blocks, ARGUS reviews. ARIADNE rehearses
 only if visible route behavior changes.
-Status: implemented by DAEDALUS on 2026-06-21; awaiting ARGUS technical review
+Status: accepted by ARGUS on 2026-06-21; awaiting MIMIR closeout/sequencing
 
 ## Why This Lane
 
@@ -153,3 +153,39 @@ Validation:
   tests.
 - `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
 - `git diff --check` passed with CRLF normalization warnings only.
+
+## ARGUS Review
+
+Accepted on 2026-06-21 after a narrow wording patch.
+
+ARGUS findings:
+
+- The audit does not activate BullMQ, Redis/Valkey worker runtime, Cloudflare
+  Queue/Worker, a production worker process, broad background processing,
+  public job status, or Redis Memory truth.
+- The no-worker recommendation is justified by current evidence: import/export
+  flows already have owner-scoped durable status/readback, Developer Space
+  observed-runtime has receipt/idempotency/failure guards, and replay seed/setup
+  remains manual/scripted until measured pain appears.
+- Upstash REST is described as cache/idempotency/rate-limit support only, not
+  BullMQ-compatible worker queue readiness.
+- TCP Redis/Valkey is described as queue-capable config when present, with
+  protected-alpha inline fallback still available and no broad worker runtime.
+- ARGUS tightened `docs/roadmap/STATION_FUTURE_LANES.md` so Redis/Valkey Memory
+  truth is not an accepted current role; any Redis-backed Memory-truth design
+  requires a separate MIMIR lane plus ARGUS privacy review.
+- The PR148 recommendation remains MIMIR-owned: default to staged replay
+  measurement; if MIMIR opens PR148 before replay, make it owner-only background
+  job status/readback consolidation, not worker infrastructure.
+
+ARGUS validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:jobs` passed with 5 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:cache` passed with 5 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:health` passed with 16 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` passed with 2
+  tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `git diff --check` passed with CRLF normalization warnings only.
+
+No visible route behavior changed, so ARIADNE rehearsal is not required.

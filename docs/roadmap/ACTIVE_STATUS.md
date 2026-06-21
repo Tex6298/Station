@@ -9694,12 +9694,11 @@ git diff --check
 - Developer Spaces visual polish before ingestion auth, validation, limits, and
   safe serialization.
 
-## Latest DAEDALUS handoff - PR147 Background jobs activation audit
+## Latest ARGUS handoff - PR147 Background jobs activation audit
 
-PR147 Background Jobs Activation Audit is implemented by DAEDALUS on
-2026-06-21 and ready for ARGUS technical review. No visible route behavior
-changed, so ARIADNE is not needed unless ARGUS finds a visible-route
-implication.
+ARGUS accepts PR147 Background Jobs Activation Audit on 2026-06-21 and wakes
+MIMIR for closeout/sequencing. No visible route behavior changed, so ARIADNE is
+not required.
 
 Audit packet:
 
@@ -9733,7 +9732,15 @@ Recommendation:
   inactive route-followup job kinds, not BullMQ, Redis/Valkey worker runtime,
   Cloudflare Queue, broad job processing, or Redis Memory truth.
 
-Validation:
+ARGUS review patch:
+
+- Tightened `docs/roadmap/STATION_FUTURE_LANES.md` so Redis/Valkey Memory truth
+  is not an accepted current implementation role. Any Redis-backed Memory-truth
+  design now requires a separate MIMIR lane plus ARGUS privacy review.
+- Fixed the Redis/Valkey lane wording so the accepted current role is cache,
+  queue state, idempotency, rate-limit, and short-lived working state only.
+
+ARGUS validation:
 
 - `test:jobs` passed with 5 tests.
 - `test:cache` passed with 5 tests.
@@ -9741,6 +9748,11 @@ Validation:
 - `test:replay-readiness` passed with 2 tests.
 - `typecheck` passed.
 - `git diff --check` passed with CRLF normalization warnings only.
+
+Non-scope confirmation: no BullMQ/Redis/Valkey worker runtime, production
+worker process, Redis Memory truth, Cloudflare Queue/Worker implementation,
+broad job processing, public job status, provider migration, visible route
+behavior, or migration-ledger repair was added.
 
 ## Previous ARIADNE handoff - PR146 Memory graph relationship readback
 
