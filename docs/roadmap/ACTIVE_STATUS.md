@@ -9694,7 +9694,69 @@ git diff --check
 - Developer Spaces visual polish before ingestion auth, validation, limits, and
   safe serialization.
 
-## Latest MIMIR handoff - PR156 hosted archive retrieval remeasurement
+## Latest ARIADNE handoff - PR156 hosted archive retrieval remeasurement
+
+ARIADNE completed PR156 on 2026-06-21 and wakes MIMIR for sequencing.
+
+Runtime/deploy posture:
+
+- API and web `/health/deployment` both reported `ready:true` on current
+  Railway runtime commit `508b4acc2dbe`.
+- The hosted runtime includes the PR155 batch-validation line. No
+  deployment-lag block.
+
+Result:
+
+- Replay owner sign-in succeeded for a `canon`, non-admin owner.
+- ARIADNE selected the same replay persona shape as PR154: first private,
+  platform-provider replay persona with 16 Memory items, 3 Canon items, 3
+  archive files, 3 archived chats, 10 continuity candidates, 5 continuity
+  records, and 5 integrity sessions.
+- Warm-up context preview returned HTTP 200 in 2267ms outer latency, with trace
+  `total` 1275ms and `archive_retrieval` 837ms.
+- Seven counted authenticated context-preview requests all returned HTTP 200
+  with outer latencies of 2150ms, 2123ms, 1864ms, 1771ms, 1797ms, 2106ms, and
+  1779ms.
+- Counted latency summary: minimum 1771ms, median 1864ms, maximum / rough p95
+  2150ms, 0 of 7 above 3000ms, 0 of 7 above 4000ms, and 0 failures/timeouts.
+- Timing metadata was present on all counted samples with schema
+  `station.runtime_context_timing.v1`, cache status `not_used`, and stable stage
+  order.
+- Stage medians: `total` 892ms, `query_embedding` 315ms, `canon` 170ms,
+  `owner_memory` 171ms, `memory_vector_search` 513ms, `integrity` 165ms,
+  `preference_profile` 174ms, `archive_retrieval` 531ms, `continuity` 176ms,
+  and `topology_prompt_assembly` 0ms.
+- Against PR154, outer median improved by 2707ms / 59.2%, trace `total` median
+  improved by 2657ms / 74.9%, and `archive_retrieval` median improved by
+  2676ms / 83.4%.
+- Retrieval shape stayed stable: Memory vector, Archive vector, no Memory
+  fallback, Gemini `station_free_1536`, 3 Memory searched, 12 Archive searched,
+  4 Continuity searched, and 5 quarantined Archive skips.
+- Source buckets stayed stable at 3 canon, 3 memory, 1 integrity, 4 archive,
+  and 4 continuity.
+- No replay data mutation, code change, provider swap, embedding profile change,
+  cache/Redis/Cloudflare/worker change, import repair, billing/auth/session
+  change, or UI change was performed.
+
+Recommendation:
+
+- Close the PR154/PR155 archive-retrieval latency loop for now.
+- Do not open another immediate DAEDALUS optimization lane from this sample:
+  `archive_retrieval` remains the largest non-total stage, but its median is
+  now 531ms and counted outer latency is below 3000ms for all seven requests.
+
+Validation:
+
+- `node tmp-pr156-archive-remeasurement.mjs` with hosted Railway API/web URLs
+  set through process environment variables.
+- `git diff --check`
+- `git diff --cached --check`
+- No `pnpm typecheck`; docs-only.
+
+Result doc:
+`docs/roadmap/PR156_HOSTED_ARCHIVE_RETRIEVAL_REMEASUREMENT.md`.
+
+## Previous MIMIR handoff - PR156 hosted archive retrieval remeasurement
 
 MIMIR closes PR155 Archive Retrieval Batch Validation on 2026-06-21 and opens
 PR156 for ARIADNE.
