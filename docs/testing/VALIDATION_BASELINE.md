@@ -73,6 +73,39 @@ DAEDALUS staging proof on 2026-06-21:
 | `npm exec --yes pnpm@10.32.1 -- --filter @station/api build` | Pass | API package build completed after dependency package builds. |
 | `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typechecks passed through turbo cache replay. |
 
+ARGUS review validation on 2026-06-21:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 27 tests passed, including observed-runtime receipt, context, and signing-secret coverage. |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-space-client` | Pass | 15 tests passed, including guarded live-send helper behavior with mocked transport. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/api build` | Pass | API package build completed after dependency package builds. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typechecks replayed/passed through turbo. |
+| `git diff --check` | Pass | CRLF normalization warnings only for local triad/docs state. |
+| `git diff --cached --check` | Pass | No staged whitespace errors. |
+
+ARGUS review notes:
+
+- Accepted PR138 as a bounded staging proof and blocker classification. The
+  PR137 signing-secret load blocker is cleared.
+- Migration `046` supporting-context safety metadata and migration `048`
+  signing-secret metadata are now proved, including RLS/policy presence.
+- Active dedicated signing-secret count for `station-replay-dev-alpha` is `0`,
+  so ingestion-key HMAC fallback is expected.
+- The current-timestamp smoke reached a new bounded blocker:
+  `Could not claim observed runtime webhook receipt.` PostgREST/service-role
+  proof classifies this as missing/uncached
+  `public.developer_space_observed_runtime_webhook_receipts`, migration `047`.
+- No accepted observed-runtime import, replay/idempotency success, or persisted
+  import readback is claimed.
+- Migration ledger state remains dirty: queryable ledger counts for direct-
+  applied `046` and `048` are both `0`. ARGUS accepts metadata proof, not
+  migration-history cleanliness; MIMIR should decide ledger repair/documentation
+  before more direct DDL.
+- Temporary PR138 keys were revoked, cleanup found zero active PR138 smoke keys,
+  and no raw secret, signing material, auth token, webhook id, `.env` value,
+  Railway variable, fixture prompt/body/path, or legacy rotation was committed.
+
 DAEDALUS PR138 notes:
 
 - PR137's generic signing-secret load blocker is cleared.

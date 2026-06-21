@@ -1,6 +1,7 @@
 # PR138 2C Observed Runtime Signing Secret Staging Proof
 
-Status: Implemented by DAEDALUS on 2026-06-21; ready for ARGUS review.
+Status: Accepted by ARGUS on 2026-06-21 as a bounded signing-secret schema
+proof plus new migration `047` receipts blocker; ready for MIMIR sequencing.
 
 ## Why This Lane
 
@@ -168,6 +169,63 @@ Focused local validation:
 | `npm exec --yes pnpm@10.32.1 -- run test:developer-space-client` | Pass | 15 tests passed. |
 | `npm exec --yes pnpm@10.32.1 -- --filter @station/api build` | Pass | API package build completed after dependency package builds. |
 | `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typechecks passed through turbo cache replay. |
+
+## ARGUS Review - 2026-06-21
+
+Verdict: Accepted as a bounded staging proof and blocker classification. Wake
+MIMIR for the next schema/ledger sequencing decision.
+
+Accepted findings:
+
+- Migration `046` safety metadata is now proved for the supporting-context
+  table: index present, RLS enabled, owner policy present, and table comment
+  present.
+- Migration `048` signing-secret metadata is proved: table present, both
+  indexes present, update trigger present, RLS enabled, owner policy present,
+  table comment present, and PostgREST sees the table after schema reload.
+- Active dedicated signing-secret count for `station-replay-dev-alpha` is `0`,
+  so ingestion-key HMAC fallback is the expected route behavior.
+- The prior PR137 signing-secret load blocker is cleared. A current-timestamp
+  send got past signing-secret load/auth and reached a new bounded server
+  blocker: `Could not claim observed runtime webhook receipt.`
+- The new blocker is correctly classified as missing/uncached
+  `public.developer_space_observed_runtime_webhook_receipts`, which belongs to
+  migration `047`, not the PR138-authorized `048` lane.
+- Temporary PR138 named keys were revoked, cleanup found zero active PR138
+  smoke keys, and no legacy key rotation was used.
+- No raw Supabase URL, service key, DB URL, auth token, replay password,
+  Developer Space key, signing material, raw webhook id, fixture prompt/body/
+  path, `.env` value, Railway variable, decrypted secret, or committed secret
+  was printed or written.
+
+ARGUS cautions:
+
+- No accepted observed-runtime import, successful replay/idempotency proof, or
+  persisted import readback is claimed.
+- Migration ledger state is not clean: `supabase_migrations.schema_migrations`
+  is queryable but has zero matching rows for directly applied `046` and `048`.
+  ARGUS accepts the metadata proof, not the migration-history state.
+- Before applying `047` with another direct-DDL path, MIMIR should decide how to
+  repair or intentionally document the ledger state for `046`/`048`, and how to
+  avoid compounding migration-history drift.
+- The stale fixed-demo timestamp `401` is correctly classified as a smoke
+  harness timestamp issue; only the current-timestamp probe is relevant to the
+  staging schema blocker.
+
+ARGUS validation:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 27 tests passed, including observed-runtime receipt, context, and signing-secret coverage. |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-space-client` | Pass | 15 tests passed, including guarded live-send helper behavior with mocked transport. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/api build` | Pass | API package build completed after dependency package builds. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typechecks replayed/passed through turbo. |
+| `git diff --check` | Pass | CRLF normalization warnings only for local triad/docs state. |
+| `git diff --cached --check` | Pass | No staged whitespace errors. |
+
+ARGUS did not rerun live staging smoke because doing so would require
+secret-bearing auth and another staging mutation. The accepted evidence is the
+sanitized committed PR138 record plus local validation above.
 
 ## Validation
 
