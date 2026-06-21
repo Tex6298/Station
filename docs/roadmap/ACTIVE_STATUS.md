@@ -8888,6 +8888,21 @@ when a PR lands, or when validation truth changes.
   adapter, user-pasted secret flow, vault UI, billing/Stripe change, Redis
   memory truth, provider routing, chat-native developer agent, broad UI, or
   migration of canonical runtime truth out of Supabase.
+- MIMIR closes PR127 on 2026-06-21 and opens PR128 2C Observed Runtime Webhook
+  Operator Packet for DAEDALUS. PR120-PR127 now prove fixture/import,
+  classification/supporting-context persistence, webhook ingress, signatures,
+  dedicated signing-secret lifecycle, and concurrent idempotency. PR128 should
+  make the hardened observed-runtime webhook path runnable by an operator or
+  partner engineer through the existing Developer Space client/docs/examples:
+  build a `station.observed_runtime.webhook.v1` envelope, sign raw JSON with
+  the PR125/PR126 `X-Station-Signature` contract, send the Developer Space
+  ingestion key and stable webhook id, document env names without values, and
+  show success/replay/in-progress/conflict/auth failure readback without
+  printing secrets. This is still no hosted runtime, Cloudflare Worker/
+  Vectorize/D1, worker, queue, partner adapter, public onboarding wizard,
+  user-pasted secret flow, vault UI, billing/Stripe, Redis memory truth,
+  provider routing, chat-native developer agent, broad UI, or production
+  partner claim.
 - DAEDALUS implements PR126 2C Observed Runtime Signing Secret Lifecycle on
   2026-06-21 and wakes ARGUS for schema/API/encryption/signature review.
   Migration `048_developer_space_webhook_signing_secrets.sql` adds
@@ -9168,7 +9183,46 @@ git diff --check
 - Developer Spaces visual polish before ingestion auth, validation, limits, and
   safe serialization.
 
-## Latest DAEDALUS handoff - PR127 webhook concurrency guard
+## Latest MIMIR handoff - PR128 observed runtime webhook operator packet
+
+PR128 2C Observed Runtime Webhook Operator Packet is opened by MIMIR on
+2026-06-21 and ready for DAEDALUS implementation.
+
+Why now:
+
+- PR120 through PR123 proved neutral observed-runtime fixture/import,
+  classifications, and supporting context.
+- PR124 through PR127 proved webhook ingress, HMAC signatures, dedicated
+  signing-secret lifecycle, and concurrent delivery/idempotency safety.
+- The next bounded move is making that hardened path runnable for an operator
+  or partner engineer without inventing hosted runtime, workers, queues,
+  Cloudflare, partner adapters, UI, or secret-management scope.
+
+Implementation target:
+
+- Extend `@station/developer-space-client` docs/examples only as needed for
+  signed observed-runtime webhook delivery.
+- Add or update a runnable local smoke example that builds a
+  `station.observed_runtime.webhook.v1` envelope, signs the raw JSON body,
+  sends `X-Station-Developer-Key`, `X-Station-Signature`, and a stable webhook
+  id, and explains success/replay/in-progress/conflict/auth failure categories.
+- Document required env names without values, including API base URL, Developer
+  Space identifier as needed, ingestion key, dedicated webhook signing secret
+  when active, webhook/delivery id, and optional fixture path.
+- Keep docs honest that Station observes and imports external runtime state; it
+  does not execute, host, schedule, or control the runtime.
+
+Non-scope preserved: no hosted runtime, container execution, scheduler, worker,
+queue, Cloudflare Worker/Vectorize/D1, partner-specific adapter, public
+onboarding wizard, visible secret-management UI, user-pasted secret flow, vault
+UI, billing/Stripe, Redis memory truth, provider routing, chat-native developer
+agent, broad UI, production partner claim, or committed secret values.
+
+Wake ARGUS with helper/example contract, env-name-only setup, signature proof,
+readback categories, no-secret proof, validation, and non-claims, or wake MIMIR
+with the exact blocker.
+
+## Previous DAEDALUS handoff - PR127 webhook concurrency guard
 
 PR127 2C Observed Runtime Webhook Concurrency Guard is implemented by DAEDALUS
 on 2026-06-21 and ready for ARGUS review. No visible route changed, so ARIADNE

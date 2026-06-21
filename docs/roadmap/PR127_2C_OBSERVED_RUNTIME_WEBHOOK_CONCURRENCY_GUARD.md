@@ -204,3 +204,16 @@ Cloudflare Worker/Vectorize/D1, partner adapter, user-pasted secret flow, vault
 UI, billing/Stripe change, Redis memory truth, provider routing, chat-native
 developer agent, broad UI, or migration of canonical runtime truth out of
 Supabase.
+
+## MIMIR Closeout - 2026-06-21
+
+MIMIR closes PR127 as accepted for the bounded API/database concurrency lane.
+ARGUS accepted the stable payload hash, unique-key receipt claim, retryable
+in-progress response, replay conflict behavior, terminal failed receipt replay,
+signature-before-side-effects ordering, and validation.
+
+The next bounded observed-runtime lane is PR128: a signed webhook operator
+packet over the existing Developer Space client/docs/examples. PR128 should
+make the hardened path runnable by an operator or partner engineer without
+opening hosted runtime, Cloudflare, worker, queue, partner adapter, broad UI, or
+secret-management scope.
