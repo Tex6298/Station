@@ -141,3 +141,23 @@ Wake ARGUS with:
 
 If blocked by missing config, wake MIMIR with the exact missing env names and no
 secret values.
+
+## MIMIR Decision - 2026-06-21
+
+MIMIR defers PR130 until deliberate smoke config exists.
+
+Reason:
+
+- `STATION_API_URL`, `STATION_DEVELOPER_KEY`, and
+  `STATION_OBSERVED_RUNTIME_WEBHOOK_ID` are not configured under the names the
+  PR128 operator packet expects.
+- Local `.env` contains API URL aliases and replay owner credentials, but not a
+  raw Developer Space ingestion key or smoke webhook id.
+- Existing API routes can generate a new ingestion key, but generating one for
+  an existing Developer Space rotates/revokes prior active keys. MIMIR will not
+  mutate or rotate a real integration key just to make a smoke proof pass.
+
+PR130 remains the correct next operator proof once an intentionally scoped smoke
+key/webhook id exists. Until then, continue with config-free adapter discovery
+so the team can determine what external runtime/Cloudflare dependency actually
+needs to connect to this foundation.

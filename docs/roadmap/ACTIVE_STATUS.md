@@ -8986,6 +8986,16 @@ when a PR lands, or when validation truth changes.
   passed `test:developer-space-client` with 7 tests,
   `@station/developer-space-client` build, and `git diff --check` with CRLF
   normalization warnings only.
+- MIMIR defers PR130 on 2026-06-21 until deliberate smoke config exists. Local
+  `.env` has API URL aliases and replay owner credentials, but not a raw
+  Developer Space ingestion key or smoke webhook id under the PR128 packet env
+  names. Generating a key for an existing Developer Space would rotate/revoke a
+  real active key, so MIMIR will not mutate integration credentials just to make
+  a smoke proof pass. MIMIR opens PR131 2C Observed Runtime Adapter Discovery
+  for DAEDALUS as the next config-free lane: map GitHub-derived/runtime repo
+  needs, Cloudflare hard dependencies versus deployment defaults, overlap with
+  Station's PR120-PR128 foundation, hybrid options, and a specific next-lane
+  recommendation.
 - DAEDALUS implements PR126 2C Observed Runtime Signing Secret Lifecycle on
   2026-06-21 and wakes ARGUS for schema/API/encryption/signature review.
   Migration `048_developer_space_webhook_signing_secrets.sql` adds
@@ -9266,48 +9276,41 @@ git diff --check
 - Developer Spaces visual polish before ingestion auth, validation, limits, and
   safe serialization.
 
-## Latest DAEDALUS handoff - PR130 observed runtime staging operator smoke
+## Latest MIMIR handoff - PR131 observed runtime adapter discovery
 
-PR130 2C Observed Runtime Staging Operator Smoke is blocked by missing required
-smoke config after DAEDALUS proof on 2026-06-21, and ready for MIMIR decision.
+PR131 2C Observed Runtime Adapter Discovery is opened by MIMIR on 2026-06-21
+and ready for DAEDALUS investigation.
 
-Proof path:
+Why now:
 
-- DAEDALUS checked process env and root local `.env` for the PR128 smoke env
-  names, excluding `.env.example` as placeholder-only.
-- The inventory printed names and presence/missing categories only. No values
-  were printed.
+- PR130 is blocked until deliberate smoke config exists:
+  `STATION_API_URL`, `STATION_DEVELOPER_KEY`, and
+  `STATION_OBSERVED_RUNTIME_WEBHOOK_ID`.
+- MIMIR will not rotate/revoke an existing Developer Space ingestion key just
+  to satisfy smoke proof.
+- Adapter discovery can proceed without secrets and should determine whether
+  Cloudflare is a hard dependency, a deployment default, an overlap, or a
+  hybrid option for the GitHub-derived/runtime repos.
 
-Required env inventory:
+Task:
 
-- `STATION_API_URL`: missing.
-- `STATION_DEVELOPER_KEY`: missing.
-- `STATION_OBSERVED_RUNTIME_WEBHOOK_ID`: missing.
+- Review existing Station docs for GitHub-derived/runtime clues, especially
+  `docs/ops/open-repo-upgrade-review.md`, observed-runtime docs from
+  PR120-PR130, Developer Space partner/readiness docs, and integration docs.
+- Inspect public repo docs/code only when local docs identify targets clearly
+  enough; cite exact evidence for dependency claims.
+- Produce an adapter discovery map covering emitted/expected data, whether the
+  PR128 signed webhook packet is sufficient, Cloudflare dependencies, Station
+  overlap, smallest adapter/bridge, hybrid possibilities, and deferred work.
+- Recommend a specific next lane: PR130 smoke config retry, concrete adapter
+  spike, Cloudflare boundary design, visible UX/readback, or pause.
 
-Optional env inventory:
+Validation: docs/evidence hygiene with `git diff --check` unless code/scripts
+are added.
 
-- `STATION_OBSERVED_RUNTIME_SIGNING_SECRET`: missing.
-- `STATION_OBSERVED_RUNTIME_SOURCE_ID`: missing.
-- `STATION_OBSERVED_RUNTIME_PAYLOAD_PATH`: missing.
-
-Smoke result: no request was sent. Target API class is blocked before target
-selection because `STATION_API_URL` is missing. Response class is
-missing-config blocker. Runnable result is blocked until the required env names
-are configured in process env or local/staging `.env`.
-
-Validation: `test:developer-space-client` passed with 7 tests,
-`@station/developer-space-client` build passed, and `git diff --check` passed
-with CRLF normalization warnings only.
-
-Non-scope preserved: no hosted runtime, Cloudflare Worker/Vectorize/D1, worker,
-queue, scheduler, partner adapter, public onboarding wizard, visible
-secret-management UI, user-pasted secret flow, vault UI, billing/Stripe, Redis
-memory truth, provider routing, chat-native developer agent, broad UI,
-production partner claim, committed secret values, or live Cloudflare/
-deployment dependency work.
-
-MIMIR decision needed: either provide/configure the required smoke env names in
-the intended environment or defer PR130 until staging/operator config exists.
+Wake ARGUS with the discovery map and dependency classification, or wake MIMIR
+only if the repo/source list is too ambiguous to proceed without a
+user-provided target.
 
 ## Previous DAEDALUS handoff - PR127 webhook concurrency guard
 
