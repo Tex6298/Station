@@ -366,11 +366,10 @@ remains available. If MIMIR wants a PR148 before replay, it should be an
 owner-only background job status/readback consolidation lane, not BullMQ,
 Redis/Valkey worker runtime, Cloudflare Queue, or broad job processing.
 
-Current lane: `PR149 - Staged Replay Measurement Baseline` is implemented as a
-measurement packet and ready for ARGUS review. Do not open a worker, Redis
-Memory, Cloudflare, provider, billing, or broad UI optimization lane from local
-proof alone; choose follow-up from hosted replay evidence for the exact deployed
-commit.
+Current status: PR149 is closed as sufficient hosted measurement and PR150 is
+implemented for ARGUS review. Do not open a worker, Redis Memory, Cloudflare,
+provider, billing, or broad UI optimization lane from local proof alone; choose
+future follow-up from hosted replay evidence and ARGUS/MIMIR sequencing.
 
 Candidate triggers:
 

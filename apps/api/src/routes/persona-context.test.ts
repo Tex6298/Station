@@ -430,8 +430,9 @@ class QueryBuilder {
   private orderSpec: { field: string; ascending: boolean } | null = null;
   private limitCount: number | null = null;
   private selectedColumns = "*";
-  private operation: "select" | "insert" | "update" = "select";
+  private operation: "select" | "insert" | "update" | "upsert" = "select";
   private payload: Row | Row[] | null = null;
+  private upsertConflictFields: string[] = [];
 
   constructor(private db: InMemorySupabase, private table: string) {}
 
@@ -469,6 +470,16 @@ class QueryBuilder {
   update(payload: Row) {
     this.operation = "update";
     this.payload = payload;
+    return this;
+  }
+
+  upsert(payload: Row | Row[], options: { onConflict?: string } = {}) {
+    this.operation = "upsert";
+    this.payload = payload;
+    this.upsertConflictFields = (options.onConflict ?? "id")
+      .split(",")
+      .map((field) => field.trim())
+      .filter(Boolean);
     return this;
   }
 
@@ -513,6 +524,9 @@ class QueryBuilder {
     if (this.operation === "insert") {
       const payloads = Array.isArray(this.payload) ? this.payload : [this.payload as Row];
       rows = payloads.map((payload) => this.insertRow(payload));
+    } else if (this.operation === "upsert") {
+      const payloads = Array.isArray(this.payload) ? this.payload : [this.payload as Row];
+      rows = payloads.map((payload) => this.upsertRow(payload));
     } else if (this.operation === "update") {
       rows = this.matchingRows();
       for (const row of rows) {
@@ -550,6 +564,22 @@ class QueryBuilder {
     };
     this.db.rows(this.table).push(row);
     return row;
+  }
+
+  private upsertRow(payload: Row | null) {
+    const candidate = payload ?? {};
+    const conflictFields = this.upsertConflictFields.length > 0 ? this.upsertConflictFields : ["id"];
+    const existing = this.db.rows(this.table).find((row) =>
+      conflictFields.every((field) => row[field] === candidate[field])
+    );
+
+    if (existing) {
+      Object.assign(existing, candidate);
+      if ("updated_at" in existing) existing.updated_at = "2026-05-25T10:30:00.000Z";
+      return existing;
+    }
+
+    return this.insertRow(candidate);
   }
 
   private withRequestedJoins(rows: Row[]) {
@@ -773,6 +803,103 @@ test("persona memory briefing is owner-only and reports lifecycle filtering", as
   }
 });
 
+test("explicit memory graph edge route is owner-scoped and idempotent", async () => {
+  const db = new InMemorySupabase();
+  const sourceId = "66666666-6666-4666-8666-666666666666";
+  const targetId = "77777777-7777-4777-8777-777777777777";
+  db.tables.memory_items.push(
+    {
+      id: sourceId,
+      persona_id: PERSONA_ID,
+      owner_user_id: OWNER_ID,
+      title: "Explicit source",
+      content: "Owner-visible source memory.",
+      summary: "Source summary.",
+      source_type: "manual",
+      relevance_weight: 1,
+      created_at: "2026-05-25T09:31:00.000Z",
+      updated_at: "2026-05-25T09:31:00.000Z",
+    },
+    {
+      id: targetId,
+      persona_id: PERSONA_ID,
+      owner_user_id: OWNER_ID,
+      title: "Explicit target",
+      content: "Owner-visible target memory.",
+      summary: "Target summary.",
+      source_type: "manual",
+      relevance_weight: 1,
+      created_at: "2026-05-25T09:32:00.000Z",
+      updated_at: "2026-05-25T09:32:00.000Z",
+    }
+  );
+  setSupabaseAdminForTests(db.client as any);
+  const app = await createPersonaContextApp();
+
+  try {
+    const otherUser = await requestJson(app, "POST", `/memory/persona/${PERSONA_ID}/edges`, {
+      token: "other-token",
+      body: {
+        fromMemoryItemId: sourceId,
+        toMemoryItemId: targetId,
+        edgeType: "supports",
+      },
+    });
+    assert.equal(otherUser.status, 404);
+
+    const crossOwner = await requestJson(app, "POST", `/memory/persona/${PERSONA_ID}/edges`, {
+      token: "owner-token",
+      body: {
+        fromMemoryItemId: sourceId,
+        toMemoryItemId: OTHER_MEMORY_ID,
+        edgeType: "supports",
+      },
+    });
+    assert.equal(crossOwner.status, 404);
+
+    const created = await requestJson(app, "POST", `/memory/persona/${PERSONA_ID}/edges`, {
+      token: "owner-token",
+      body: {
+        fromMemoryItemId: sourceId,
+        toMemoryItemId: targetId,
+        edgeType: "supports",
+        confidence: 0.8,
+        note: "Owner linked these two memories.",
+      },
+    });
+    assert.equal(created.status, 201);
+    assert.equal(created.body.edge.fromMemoryItemId, sourceId);
+    assert.equal(created.body.edge.toMemoryItemId, targetId);
+    assert.equal(created.body.edge.edgeType, "supports");
+    assert.equal(created.body.edge.confidence, 0.8);
+
+    const repeated = await requestJson(app, "POST", `/memory/persona/${PERSONA_ID}/edges`, {
+      token: "owner-token",
+      body: {
+        fromMemoryItemId: sourceId,
+        toMemoryItemId: targetId,
+        edgeType: "supports",
+        confidence: 0.6,
+      },
+    });
+    assert.equal(repeated.status, 201);
+    assert.equal(
+      db.tables.memory_item_edges.filter((edge) =>
+        edge.from_memory_item_id === sourceId &&
+        edge.to_memory_item_id === targetId &&
+        edge.edge_type === "supports"
+      ).length,
+      1
+    );
+    assert.equal(
+      db.tables.memory_item_edges.find((edge) => edge.from_memory_item_id === sourceId)?.confidence,
+      0.6
+    );
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
+
 test("memory lifecycle updates are owner-only and validate supersession targets", async () => {
   const db = new InMemorySupabase();
   setSupabaseAdminForTests(db.client as any);
@@ -808,6 +935,45 @@ test("memory lifecycle updates are owner-only and validate supersession targets"
     assert.equal(updated.body.lifecycle.supersededByMemoryItemId, MEMORY_REPLACEMENT_ID);
     assert.equal(updated.body.lifecycle.reinforcementCount, 1);
     assert.deepEqual(updated.body.lifecycle.evidence, [{ source: "owner_review", note: "Replacement is current." }]);
+    const lifecycleEdge = db.tables.memory_item_edges.find((edge) =>
+      edge.from_memory_item_id === "memory-1" &&
+      edge.to_memory_item_id === MEMORY_REPLACEMENT_ID &&
+      edge.edge_type === "supersedes"
+    );
+    assert.equal(lifecycleEdge?.owner_user_id, OWNER_ID);
+    assert.equal(lifecycleEdge?.persona_id, PERSONA_ID);
+    assert.equal(lifecycleEdge?.confidence, 1);
+    assert.equal(lifecycleEdge?.note, "Supersession recorded from owner lifecycle review.");
+
+    const repeated = await requestJson(app, "PATCH", "/memory/memory-1/lifecycle", {
+      token: "owner-token",
+      body: {
+        status: "superseded",
+        supersededByMemoryItemId: MEMORY_REPLACEMENT_ID,
+      },
+    });
+    assert.equal(repeated.status, 200);
+    assert.equal(
+      db.tables.memory_item_edges.filter((edge) =>
+        edge.from_memory_item_id === "memory-1" &&
+        edge.to_memory_item_id === MEMORY_REPLACEMENT_ID &&
+        edge.edge_type === "supersedes"
+      ).length,
+      1
+    );
+
+    const graph = await requestJson(app, "GET", `/memory/persona/${PERSONA_ID}/graph`, {
+      token: "owner-token",
+    });
+    assert.equal(graph.status, 200);
+    assert.equal(
+      graph.body.graph.edges.some((edge: Row) =>
+        edge.fromMemoryItemId === "memory-1" &&
+        edge.toMemoryItemId === MEMORY_REPLACEMENT_ID &&
+        edge.edgeType === "supersedes"
+      ),
+      true
+    );
     assert.equal(db.tables.persona_lifecycle_events.some((event) => event.event_type === "memory_graph_update"), true);
   } finally {
     setSupabaseAdminForTests(null);

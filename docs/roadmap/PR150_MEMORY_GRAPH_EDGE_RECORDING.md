@@ -3,7 +3,7 @@
 Date opened: 2026-06-21
 Opened by: A1 / MIMIR
 Owner: DAEDALUS implements or precisely blocks; ARGUS reviews.
-Status: open
+Status: implemented by DAEDALUS; awaiting ARGUS review
 
 ## Why This Lane
 
@@ -118,3 +118,53 @@ ARGUS should review:
 - idempotent edge upsert behavior;
 - no raw ids or private text leaking into owner-facing relationship readback;
 - no claims that Station now infers semantic Memory relationships broadly.
+
+## DAEDALUS Implementation Notes
+
+Implemented on 2026-06-21.
+
+Behavior:
+
+- `PATCH /memory/:id/lifecycle` now records a durable
+  `memory_item_edges` row when the owner supplies a valid
+  `supersededByMemoryItemId`.
+- The edge is same-owner and same-persona because the route already validates
+  the source memory row and the superseding target row before updating
+  lifecycle state.
+- The edge direction preserves the existing graph fixture direction:
+  `from_memory_item_id` is the superseded/source memory and
+  `to_memory_item_id` is the replacement memory.
+- The edge type is `supersedes`, matching the existing graph vocabulary and
+  PR146 readback helper tests.
+- Edge upsert uses the existing
+  `owner_user_id,from_memory_item_id,to_memory_item_id,edge_type` conflict
+  target, so repeated lifecycle updates do not duplicate edges.
+- Edge metadata is bounded to lifecycle confidence and a fixed non-private note.
+  The lifecycle evidence array is not copied into graph edge notes.
+
+Test coverage:
+
+- `persona-context.test.ts` now proves lifecycle supersession creates one
+  owner-scoped edge, repeated updates are idempotent, and
+  `/memory/persona/:personaId/graph` returns the new edge.
+- The existing explicit `POST /memory/persona/:personaId/edges` route now has
+  focused coverage for owner gating, cross-owner target rejection, and
+  idempotent upsert.
+- PR146 UI helper coverage remains green; no web code changed, so relationship
+  rows still appear only when real edge rows exist.
+
+Non-claims:
+
+- No embedding/provider relationship inference, automatic graph generation,
+  Redis/Upstash graph work, Cloudflare graph/index work, background worker,
+  public Memory graph, graph canvas, import retry repair, context latency
+  optimization, billing, auth, or session behavior was added.
+
+Validation:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-context` | Pass | 8 tests passed, including lifecycle-created graph edge proof. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 97 tests passed; PR146 relationship readback helpers remain green. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API typecheck ran; web typecheck replayed from cache. |
+| `git diff --check` | Pass | CRLF warnings only for touched files and local triad state. |

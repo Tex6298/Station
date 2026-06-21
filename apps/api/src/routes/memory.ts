@@ -370,6 +370,24 @@ memoryRouter.patch("/:id/lifecycle", async (req, res) => {
       reinforce: parsed.data.reinforce,
     });
 
+    if (parsed.data.supersededByMemoryItemId) {
+      const { error: edgeError } = await (sb as any)
+        .from("memory_item_edges")
+        .upsert({
+          owner_user_id: userId,
+          persona_id: memory.persona_id,
+          from_memory_item_id: memory.id,
+          to_memory_item_id: parsed.data.supersededByMemoryItemId,
+          edge_type: "supersedes",
+          confidence: Number(lifecycle.confidence ?? parsed.data.confidence ?? 1),
+          note: "Supersession recorded from owner lifecycle review.",
+        }, { onConflict: "owner_user_id,from_memory_item_id,to_memory_item_id,edge_type" })
+        .select("*")
+        .single();
+
+      if (edgeError) return res.status(500).json({ error: edgeError.message });
+    }
+
     await recordPersonaLifecycleEvent({
       personaId: memory.persona_id,
       ownerUserId: userId,

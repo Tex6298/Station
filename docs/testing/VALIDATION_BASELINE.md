@@ -52,6 +52,32 @@ pnpm test:developer-spaces
 pnpm test:developer-space-client
 ```
 
+## PR150 Memory Graph Edge Recording
+
+DAEDALUS implementation validation on 2026-06-21:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-context` | Pass | 8 tests passed; lifecycle supersession creates one owner-scoped graph edge, repeated updates are idempotent, graph readback returns the edge, and the explicit edge route is owner/cross-owner guarded. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 97 tests passed; PR146 relationship readback helpers remain green. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API typecheck ran; web typecheck replayed from cache. |
+| `git diff --check` | Pass | CRLF warnings only for touched files and local triad state. |
+
+DAEDALUS PR150 notes:
+
+- Lifecycle supersession now records a durable `memory_item_edges` row with
+  `edge_type: "supersedes"` after same-owner/same-persona validation.
+- Edge direction follows the existing graph fixture convention: superseded
+  memory -> replacement memory.
+- Upsert conflict handling keeps repeated lifecycle updates from duplicating
+  edges.
+- Edge metadata is bounded to lifecycle confidence and a fixed non-private note;
+  lifecycle evidence is not copied into graph edge notes.
+- No embedding/provider relationship inference, automatic graph generation,
+  Redis/Upstash graph work, Cloudflare graph/index work, background worker,
+  public Memory graph, graph canvas, import retry repair, context latency
+  optimization, billing, auth, or session behavior was added.
+
 ## PR149 Staged Replay Measurement Baseline
 
 ARGUS review validation on 2026-06-21 after the local-proof wording patch:
