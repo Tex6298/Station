@@ -18,6 +18,10 @@ live replay evidence.
 
 ## PR 0 - Staging Alpha Closure And Source/Live Evidence Alignment
 
+Status: implemented by PR157 on 2026-06-21 and ready for ARGUS overclaim/
+privacy review. See `docs/roadmap/PR157_STAGING_ALPHA_EVIDENCE_REFRESH.md` and
+`docs/roadmap/STATION_LAUNCH_CORE_ALPHA_CLOSEOUT.md`.
+
 Goal: close the current staging replay lane as alpha-proof and stop it being
 reopened as "backend not built."
 
@@ -50,6 +54,24 @@ Exit:
 
 - The team has one source-backed status saying staging replay is good enough for
   alpha proof, and remaining backend work is optimization/productization.
+
+Current PR157 result:
+
+- Public Railway web/API health and deployment endpoints return HTTP 200,
+  `ok:true`, and deployment `ready:true` at commit `508b4acc2dbe`.
+- API readiness reports Supabase database, migration proof, private
+  `persona-files` storage, Supabase Auth redirects, Gemini
+  `station_free_1536` embeddings, NVIDIA platform chat config, Stripe test
+  config, and Upstash REST operational cache configured at accepted proof
+  levels.
+- PR156 closed the immediate Archive-retrieval latency loop: outer median
+  1864ms, trace `total` median 892ms, `archive_retrieval` median 531ms, and
+  0 of 7 counted requests above 3000ms.
+- Stripe paid activation remains outside PR0 until a real hosted test-mode
+  Checkout or signed webhook mutation proves subscription activation for the
+  replay owner.
+- This is protected-alpha proof, not production readiness or product
+  completeness.
 
 ## PR 1 - Replay Memory/Retrieval Quality Pass
 

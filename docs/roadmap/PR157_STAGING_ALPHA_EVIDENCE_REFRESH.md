@@ -3,7 +3,7 @@
 Date opened: 2026-06-21
 Opened by: A1 / MIMIR
 Owner: DAEDALUS refreshes evidence; ARGUS reviews overclaim/privacy.
-Status: open for DAEDALUS
+Status: implemented by DAEDALUS; ready for ARGUS review
 
 ## Why This Lane
 
@@ -107,3 +107,75 @@ DAEDALUS should wake ARGUS with:
 - what is accepted alpha-proof;
 - what remains external/productization caveat;
 - confirmation that no secrets/private data were recorded.
+
+## DAEDALUS Evidence Refresh
+
+Implemented on 2026-06-21.
+
+Updated files:
+
+- `docs/roadmap/STATION_BACKEND_PRODUCT_PR_PLAN.md`
+- `docs/roadmap/STATION_BACKEND_IMPLEMENTATION_ROADMAP.md`
+- `docs/roadmap/STATION_LAUNCH_CORE_ALPHA_CLOSEOUT.md`
+- `docs/roadmap/ACTIVE_STATUS.md`
+- `docs/roadmap/STATION_FUTURE_LANES.md`
+- `docs/testing/VALIDATION_BASELINE.md`
+- `docs/ops/STAGING_PROOF_WAIVER_HANDOFF.md`
+- `docs/roadmap/PR157_STAGING_ALPHA_EVIDENCE_REFRESH.md`
+
+Sanitized public live checks run:
+
+- `https://stationweb-production.up.railway.app/health`: HTTP 200,
+  `ok:true`.
+- `https://stationweb-production.up.railway.app/health/deployment`: HTTP 200,
+  `ok:true`, `ready:true`, service `@station/web`, branch `main`, commit
+  `508b4acc2dbe`.
+- `https://stationapi-production.up.railway.app/health`: HTTP 200,
+  `ok:true`.
+- `https://stationapi-production.up.railway.app/health/deployment`: HTTP 200,
+  `ok:true`, `ready:true`, service `@station/api`, branch `main`, commit
+  `508b4acc2dbe`, app/API URLs on Railway HTTPS.
+
+Accepted alpha-proof status:
+
+- PR156 closes the immediate Archive-retrieval latency loop for now:
+  context-preview outer median improved from 4571ms to 1864ms, trace `total`
+  median from 3549ms to 892ms, and `archive_retrieval` median from 3207ms to
+  531ms; 0 of 7 counted requests exceeded 3000ms.
+- Current public deployment readiness reports Supabase database, migration proof,
+  private `persona-files` storage, Supabase Auth redirects, Gemini
+  `station_free_1536` embeddings, NVIDIA platform chat configuration, Stripe
+  test config, and Upstash REST operational cache configured at their accepted
+  proof levels.
+- Redis/Upstash remains operational cache, idempotency, rate-limit, and
+  cache-only queue-state support; it is not canonical Memory truth.
+- Cloudflare remains future adapter/index-mirror scope unless MIMIR opens a
+  concrete Cloudflare replay objective.
+
+Remaining caveats:
+
+- This is protected-alpha proof, not production readiness or product
+  completeness.
+- Stripe readiness is config-level/test-resource readiness. Paid subscription
+  activation still needs a real hosted test-mode Checkout or signed Stripe
+  webhook mutation for the replay owner; no subscription/payment state was
+  fabricated.
+- The web build reaches successful compile, lint/typecheck, page data, 36
+  static pages, optimization, and trace collection locally, then fails in
+  Windows standalone trace-copy on symlink `EPERM`; this matches the known local
+  packaging limitation.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:health` passed with 16 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` passed with 2
+  tests.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/api build` passed.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/web build` reached compile,
+  lint/typecheck, page data, 36 static pages, optimization, and trace
+  collection, then failed on known local Windows standalone symlink `EPERM`
+  while copying traced files.
+- `git diff --check` passed with CRLF normalization warnings only.
+
+No secrets, tokens, cookies, DB URLs, service keys, webhook secrets, replay
+credentials, raw IDs, or raw private corpus text were recorded.

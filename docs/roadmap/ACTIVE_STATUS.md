@@ -9694,7 +9694,7 @@ git diff --check
 - Developer Spaces visual polish before ingestion auth, validation, limits, and
   safe serialization.
 
-## Latest MIMIR handoff - PR157 staging alpha evidence refresh
+## Previous MIMIR handoff - PR157 staging alpha evidence refresh
 
 MIMIR closes PR156 Hosted Archive Retrieval Remeasurement on 2026-06-21 and
 opens PR157 for DAEDALUS.
@@ -9738,6 +9738,72 @@ Wakeup order:
 
 - DAEDALUS wakes ARGUS with updated evidence and validation.
 - ARGUS reviews overclaim, stale-status, and privacy/secret boundaries.
+
+Result doc: `docs/roadmap/PR157_STAGING_ALPHA_EVIDENCE_REFRESH.md`.
+
+## Latest DAEDALUS handoff - PR157 staging alpha evidence refresh
+
+DAEDALUS implemented PR157 on 2026-06-21 and wakes ARGUS for overclaim/privacy
+review.
+
+Files updated:
+
+- `docs/roadmap/STATION_BACKEND_PRODUCT_PR_PLAN.md`
+- `docs/roadmap/STATION_BACKEND_IMPLEMENTATION_ROADMAP.md`
+- `docs/roadmap/STATION_LAUNCH_CORE_ALPHA_CLOSEOUT.md`
+- `docs/roadmap/ACTIVE_STATUS.md`
+- `docs/roadmap/STATION_FUTURE_LANES.md`
+- `docs/testing/VALIDATION_BASELINE.md`
+- `docs/ops/STAGING_PROOF_WAIVER_HANDOFF.md`
+- `docs/roadmap/PR157_STAGING_ALPHA_EVIDENCE_REFRESH.md`
+
+Current sanitized live checks:
+
+- Web `/health`: HTTP 200, `ok:true`.
+- Web `/health/deployment`: HTTP 200, `ok:true`, `ready:true`, service
+  `@station/web`, branch `main`, commit `508b4acc2dbe`.
+- API `/health`: HTTP 200, `ok:true`.
+- API `/health/deployment`: HTTP 200, `ok:true`, `ready:true`, service
+  `@station/api`, branch `main`, commit `508b4acc2dbe`, Railway HTTPS app/API
+  URLs.
+
+Alpha-proof evidence:
+
+- PR156 closes the immediate Archive-retrieval latency loop for now:
+  context-preview outer median improved from 4571ms to 1864ms, trace `total`
+  median from 3549ms to 892ms, and `archive_retrieval` median from 3207ms to
+  531ms; 0 of 7 counted requests exceeded 3000ms.
+- API readiness reports Supabase database, migration proof, private
+  `persona-files` storage, Supabase Auth redirects, Gemini
+  `station_free_1536` embeddings, NVIDIA platform chat config, Stripe test
+  config, and Upstash REST operational cache configured at accepted proof
+  levels.
+- Redis/Upstash remains operational cache, idempotency, rate-limit, and
+  cache-only queue-state support. It is not canonical Memory truth.
+- Cloudflare remains future adapter/index-mirror scope unless MIMIR opens a
+  concrete Cloudflare replay objective.
+
+Caveats:
+
+- This is protected-alpha proof, not production readiness or product
+  completeness.
+- Stripe paid activation remains unproven until a real hosted test-mode
+  Checkout or signed Stripe webhook mutation proves subscription activation for
+  the replay owner.
+- No secrets, tokens, cookies, DB URLs, service keys, webhook secrets, replay
+  credentials, raw IDs, or raw private corpus text were recorded.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:health` passed with 16 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` passed with 2
+  tests.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/api build` passed.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/web build` reached compile,
+  lint/typecheck, page data, 36 static pages, optimization, and trace
+  collection, then failed on known local Windows standalone symlink `EPERM`
+  while copying traced files.
+- `git diff --check` passed with CRLF normalization warnings only.
 
 Result doc: `docs/roadmap/PR157_STAGING_ALPHA_EVIDENCE_REFRESH.md`.
 

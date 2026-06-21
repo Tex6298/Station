@@ -52,6 +52,40 @@ pnpm test:developer-spaces
 pnpm test:developer-space-client
 ```
 
+## PR157 Staging Alpha Evidence Refresh
+
+DAEDALUS implementation validation on 2026-06-21:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:health` | Pass | 16 tests passed; deployment readiness and non-secret health surfaces remain green locally. |
+| `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` | Pass | 2 tests passed; replay readiness and AI trace sanitization remain green. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/api build` | Pass | API package build passed after dependent package builds. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web build` | Partial / known Windows failure | Next compiled, linted/typechecked, collected page data, generated 36 static pages, finalized optimization, and collected build traces before the known local Windows standalone symlink `EPERM` while copying traced files. Existing raw `<img>` warnings appeared. |
+| `git diff --check` | Pass | CRLF normalization warnings only for touched docs and local triad state. |
+
+DAEDALUS PR157 notes:
+
+- Public live checks on 2026-06-21 returned HTTP 200 and `ok:true` for web/API
+  `/health`; web/API `/health/deployment` returned `ok:true`, `ready:true`,
+  branch `main`, and commit `508b4acc2dbe`.
+- API readiness reports Supabase database, migration proof, private
+  `persona-files` storage, Supabase Auth redirects, Gemini
+  `station_free_1536` embeddings, NVIDIA platform chat config, Stripe test
+  config, and Upstash REST operational cache configured at accepted proof
+  levels.
+- PR156 closes the immediate Archive-retrieval latency loop for now: outer
+  median 1864ms, trace `total` median 892ms, `archive_retrieval` median 531ms,
+  and 0 of 7 counted requests above 3000ms.
+- Stripe remains config/test-resource readiness only until real hosted
+  test-mode Checkout or signed webhook mutation proves paid activation.
+- Redis/Upstash remains cache/idempotency/rate-limit/cache-only queue-state
+  support, not canonical Memory truth. Cloudflare remains future adapter/
+  index-mirror scope.
+- No code changed and no secrets, tokens, cookies, DB URLs, service keys,
+  webhook secrets, replay credentials, raw IDs, or raw private corpus text were
+  recorded.
+
 ## PR155 Archive Retrieval Batch Validation
 
 ARGUS review validation on 2026-06-21 after hostile-source test hardening:

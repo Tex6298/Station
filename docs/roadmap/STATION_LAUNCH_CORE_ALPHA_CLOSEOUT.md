@@ -26,6 +26,36 @@ developer intervention:
 
 This is not a production readiness claim and not a complete Station MVP claim.
 
+## Current Evidence Refresh
+
+Last refreshed: 2026-06-21 by PR157.
+
+- Public Railway web health:
+  `https://stationweb-production.up.railway.app/health` returned HTTP 200 with
+  `ok:true`.
+- Public Railway web deployment:
+  `https://stationweb-production.up.railway.app/health/deployment` returned
+  HTTP 200 with `ok:true`, `ready:true`, service `@station/web`, branch `main`,
+  and commit `508b4acc2dbe`.
+- Public Railway API health:
+  `https://stationapi-production.up.railway.app/health` returned HTTP 200 with
+  `ok:true`.
+- Public Railway API deployment:
+  `https://stationapi-production.up.railway.app/health/deployment` returned
+  HTTP 200 with `ok:true`, `ready:true`, service `@station/api`, branch `main`,
+  commit `508b4acc2dbe`, and Railway HTTPS app/API URLs.
+- API readiness reports Supabase database, migration proof, private
+  `persona-files` storage, Supabase Auth redirects, Gemini
+  `station_free_1536` embeddings, NVIDIA platform chat configuration, Stripe
+  test config, and Upstash REST operational cache configured at their accepted
+  proof levels.
+- PR156 closes the immediate Archive-retrieval latency loop for now:
+  context-preview outer median improved from 4571ms to 1864ms, trace `total`
+  median from 3549ms to 892ms, and `archive_retrieval` median from 3207ms to
+  531ms; 0 of 7 counted requests exceeded 3000ms.
+- Current replay evidence remains protected-alpha evidence. It supports a
+  staged proof/demo loop, not production readiness or product completeness.
+
 ## Evidence Map
 
 | Loop | Evidence |
@@ -83,6 +113,13 @@ Use public-safe synthetic content only.
 - Redis memory truth, Cloudflare retrieval, production vector hardening,
   provider marketplace, social dispatch, scheduled publishing, and broad UI
   reskin remain future lanes.
+- Stripe readiness is config/test-resource readiness only until a real hosted
+  test-mode Checkout or signed Stripe webhook mutation proves paid subscription
+  activation for the replay owner.
+- Redis/Upstash is operational cache, idempotency, rate-limit, and cache-only
+  queue-state support. It is not canonical Memory truth.
+- Cloudflare remains future adapter/index-mirror scope unless a concrete
+  Cloudflare replay objective is opened.
 
 ## Recommended Next Moves
 

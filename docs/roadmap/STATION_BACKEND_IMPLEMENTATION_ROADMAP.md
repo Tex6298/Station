@@ -3,31 +3,39 @@
 Date: 2026-06-08
 
 Status: MIMIR-opened backend roadmap. BE-00 through BE-08 are accepted as the
-backend foundation. Since the original 2026-06-09 setup note, staging has moved
-past the old blockers: migrations through `030` are applied/proven, the private
-`persona-files` bucket is proven, Supabase Auth redirects are configured for
-the Railway web URL and reset-password route, Redis/Upstash and Stripe test
-config are present at readiness level, and the active `station_free_1536`
-embedding profile is backed by Gemini with populated replay evidence. Later
-lanes remain ordered implementation scope, not permission to build everything
-at once.
+backend foundation. As of the PR157 refresh on 2026-06-21, staging has moved
+past the old setup blockers: the public Railway web/API deployment checks are
+ready, migration proof now reports through the `025-037` public-schema object
+range, the private `persona-files` bucket is proven, Supabase Auth redirects
+are configured for the Railway web URL and reset-password route, Redis/Upstash
+and Stripe test config are present at readiness level, and the active
+`station_free_1536` embedding profile is backed by Gemini with populated replay
+evidence. Later lanes remain ordered implementation scope, not permission to
+build everything at once.
 
 ## Current staging truth
 
 - Railway web is live at `https://stationweb-production.up.railway.app`.
 - Railway API is live at `https://stationapi-production.up.railway.app`.
 - API `/health` and web `/health` return `200` with `{ "ok": true }`.
+- Web `/health/deployment` and API `/health/deployment` return `200`,
+  `ok:true`, and `ready:true` for Railway branch `main`, commit
+  `508b4acc2dbe`.
 - API `/health/deployment` reports the Railway app/API URLs, not localhost, and
-  now includes the BE-00 `ready` plus `readiness` shape.
-- API `/health/deployment.ready` is `true` for the current Railway staging
-  target, with database, migrations, private storage, auth redirects,
-  Gemini-backed embedding config, Stripe test config, Redis/Upstash config, and
-  public URL checks green.
-- Migration `029` provider-aware RPC proof and migration `030` integrity
-  question-bank RLS proof are accepted on staging.
+  includes the BE-00 `ready` plus `readiness` shape.
+- API readiness is green for database, migration object proof, private storage,
+  Supabase Auth redirects, Gemini-backed embedding config, Stripe test config,
+  Redis/Upstash operational cache config, and public URL checks.
+- Migration `029` provider-aware RPC proof, migration `030` integrity
+  question-bank RLS proof, and the later public-schema object proof through
+  `025-037` are accepted on staging.
 - Populated Gemini retrieval/context-preview evidence is accepted for the seeded
   replay corpus, including owner-scoped vector mode, rejected-memory exclusion,
   and hostile anonymous/invalid/wrong-persona/second-owner blocks.
+- PR156 closes the immediate Archive-retrieval latency loop for now:
+  context-preview outer median improved from 4571ms to 1864ms, trace `total`
+  median from 3549ms to 892ms, and `archive_retrieval` median from 3207ms to
+  531ms; 0 of 7 counted requests exceeded 3000ms.
 - The staged deployed-API replay walkthrough, browser/mobile replay
   walkthrough, portable export-bundle readback, and narrow non-zero-token LLM
   observability proof are accepted.
@@ -42,13 +50,14 @@ Still external or replay-adjacent:
 
 - Stripe paid subscription activation remains externally blocked on a real
   hosted Checkout payment or a real signed Stripe test subscription event for
-  the replay owner. Do not fabricate subscription state.
+  the replay owner. Current Stripe readiness is config/test-resource readiness;
+  do not fabricate subscription state.
 - The LLM trace proof is accepted; the two-trace/status-capture retry caveat is
   hygiene only if exact one-call replay ergonomics become part of the demo bar.
 - Cloudflare remains a future adapter/index-mirror lane unless a concrete
   Cloudflare-specific replay objective is opened.
-- Redis/Valkey remains cache, queue, rate-limit, idempotency, or short-lived
-  working-memory support unless a separate memory-truth decision is opened.
+- Redis/Valkey remains cache, idempotency, rate-limit, and cache-only
+  queue-state support unless a separate memory-truth decision is opened.
 
 ## Roadmap rule
 
