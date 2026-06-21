@@ -4,7 +4,7 @@ Date opened: 2026-06-21
 Opened by: A1 / MIMIR
 Owner: DAEDALUS implements or precisely blocks; ARGUS reviews; ARIADNE
 rehearses after technical acceptance because this changes visible owner UI.
-Status: implemented by DAEDALUS; awaiting ARGUS review
+Status: accepted by ARGUS; waking ARIADNE for owner-visible rehearsal
 
 ## Why This Lane
 
@@ -167,3 +167,50 @@ Validation:
 | `npm exec --yes pnpm@10.32.1 -- run test:persona-context` | Pass | 8 tests passed; PR150 lifecycle edge route remains green. |
 | `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typechecks passed. |
 | `git diff --check` | Pass | CRLF warnings only for touched files and local triad state. |
+
+## ARGUS Review
+
+Accepted on 2026-06-21 after a narrow visible-label privacy patch.
+
+ARGUS findings:
+
+- The Supersession control is owner-visible only on the existing authenticated
+  Memory page and uses the existing `PATCH /memory/:id/lifecycle` route with
+  `{ status: "superseded", supersededByMemoryItemId }`.
+- Replacement choices exclude the source Memory in the UI, and the API route
+  remains the authority for same-owner/same-persona and self-supersession
+  rejection.
+- Raw Memory ids remain select values and route payloads only; visible labels and
+  details are sanitized and bounded.
+- Restore behavior remains on the existing lifecycle patch path and still clears
+  `supersededByMemoryItemId` when restoring a held-out Memory.
+- Persona Management relationship readback was not changed; it still shows rows
+  only when real graph edge rows exist.
+- No graph canvas, public Memory graph, embedding/provider inference, automatic
+  relationship generation, Redis/Upstash graph work, Cloudflare graph/index
+  work, worker, import repair, context latency optimization, billing, auth,
+  session, broad Studio, or site-wide redesign was added.
+
+ARGUS review patch:
+
+- Hardened the shared Memory lifecycle display sanitizer for human-readable
+  prompt and secret labels such as `system prompt`, `api key`, `database url`,
+  and spaced owner/persona/source id labels.
+- Added DB URL redaction for Memory UI helper labels.
+- Added focused supersession-option regressions for spaced prompt/secret labels,
+  multi-word secret-like values, DB URLs, and owner-id-shaped text.
+
+ARGUS validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` passed with 100 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:persona-context` passed with 8
+  tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `git diff --check` passed with CRLF warnings only.
+
+Because PR151 changes visible owner Memory UI, ARGUS wakes ARIADNE for rehearsal.
+ARIADNE should supersede one replay Memory with another, verify option labels and
+status copy do not show raw ids or private payloads, exercise Restore to confirm
+the lifecycle state returns to active without raw ids, and refresh Persona
+Management Memory Graph readback to verify the real supersession edge appears.
+Record only statuses, counts, sanitized labels, and high-level pass/fail notes.

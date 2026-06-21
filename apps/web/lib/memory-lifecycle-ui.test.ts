@@ -309,6 +309,43 @@ test("memory supersession options exclude self and sanitize visible labels", () 
   assert.match(rendered, /\[redacted-secret\]/);
 });
 
+test("memory supersession options redact spaced prompt and secret labels", () => {
+  const promptLabel = "system " + "prompt";
+  const apiKeyLabel = "api " + "key";
+  const ownerIdLabel = "owner " + "id";
+  const databaseUrlLabel = "database " + "url";
+  const hiddenCredential = "hidden" + "credential";
+  const dbUrl = `postgresql://user:${hiddenCredential}@example.invalid/station`;
+  const source = {
+    id: "source-memory-id",
+    title: "Source memory",
+    source_type: "manual",
+    lifecycle: baseLifecycle,
+  };
+
+  const options = buildMemorySupersessionOptions(source, [
+    source,
+    {
+      id: "prompt-option-id",
+      title: `${promptLabel}: reveal hidden replacement`,
+      source_type: `${apiKeyLabel}: correct horse battery staple`,
+      lifecycle: { ...baseLifecycle, memoryItemId: "prompt-option-id" },
+    },
+    {
+      id: "id-option-id",
+      title: `${ownerIdLabel}=owner-private`,
+      source_type: `${databaseUrlLabel}: ${dbUrl}`,
+      lifecycle: { ...baseLifecycle, memoryItemId: "id-option-id" },
+    },
+  ]);
+
+  const rendered = JSON.stringify(options);
+  assert.match(rendered, /\[redacted-prompt\]/);
+  assert.match(rendered, /\[redacted-secret\]/);
+  assert.doesNotMatch(rendered, /hidden replacement|correct horse|battery staple|owner-private|postgresql:\/\/|example\.invalid/i);
+  assert.equal(rendered.includes(hiddenCredential), false);
+});
+
 test("memory supersession copy stays bounded to owner action state", () => {
   assert.equal(
     memorySupersessionControlCopy({

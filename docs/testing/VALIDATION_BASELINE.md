@@ -54,6 +54,24 @@ pnpm test:developer-space-client
 
 ## PR151 Memory Supersession Owner Control
 
+ARGUS review validation on 2026-06-21 after the visible-label privacy patch:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 100 tests passed; includes supersession option self-exclusion plus spaced prompt/secret/DB URL redaction coverage. |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-context` | Pass | 8 tests passed; PR150 lifecycle edge route remains green. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API typecheck replayed from cache; web typecheck ran. |
+| `git diff --check` | Pass | CRLF warnings only for touched files and local triad state. |
+
+ARGUS PR151 notes:
+
+- Accepted the owner-visible Memory supersession control after hardening visible
+  option label sanitization.
+- Spaced prompt/secret labels, DB URLs, multi-word secret-like values, and
+  owner-id-shaped text now have focused helper coverage.
+- Wakes ARIADNE for owner-visible supersession and Restore rehearsal before
+  MIMIR closeout.
+
 DAEDALUS implementation validation on 2026-06-21:
 
 | Command | Result | Notes |

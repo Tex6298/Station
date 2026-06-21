@@ -356,20 +356,30 @@ function sanitizeMemoryRuntimeLabel(value?: string | null) {
   if (!value) return null;
   const trimmed = value.trim();
   if (!trimmed) return null;
-  if (/\b(?:raw|private|system|user)[_-]?prompt\b\s*[:=]?/i.test(trimmed)) {
+  if (/\b(?:raw|private|system|user)[\s_-]?prompt\b\s*[:=]?/i.test(trimmed)) {
     return "[redacted-prompt]";
   }
-  if (/\b(?:token|cookie|authorization|api[_-]?key|x-api-key|secret|password)\b\s*[:=]/i.test(trimmed)) {
+  if (
+    /\b(?:token|cookie|authorization|api[\s_-]?key|x[\s_-]?api[\s_-]?key|service[\s_-]?role|secret|password|webhook[\s_-]?secret|db[\s_-]?url|database[\s_-]?url)\b\s*[:=]/i
+      .test(trimmed)
+  ) {
     return "[redacted-secret]";
   }
 
   const sanitized = trimmed
     .replace(/\b[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}\b/gi, "[id]")
+    .replace(/\b(?:postgres(?:ql)?|redis|mysql):\/\/\S+/gi, "[redacted-url]")
     .replace(/https?:\/\/\S+/gi, "[redacted-url]")
     .replace(SECRET_SHAPED_VALUE_PATTERN, "[redacted-secret]")
     .replace(/\b(?:bearer)\s+\S+/gi, "bearer [redacted]")
-    .replace(/\b(owner[_-]?user[_-]?id|owner[_-]?id|persona[_-]?id|trace[_-]?id|source[_-]?id)\b\s*[:=]\s*\S+/gi, "$1=[redacted]")
-    .replace(/\b(token|cookie|authorization|api[_-]?key|x-api-key|secret|password)\b\s*[:=]\s*\S+/gi, "$1=[redacted]")
+    .replace(
+      /\b(owner[\s_-]?user[\s_-]?id|owner[\s_-]?id|persona[\s_-]?id|trace[\s_-]?id|source[\s_-]?id|memory[\s_-]?id|developer[\s_-]?space[\s_-]?id)\b\s*[:=]\s*\S+/gi,
+      "$1=[redacted]"
+    )
+    .replace(
+      /\b(token|cookie|authorization|api[\s_-]?key|x[\s_-]?api[\s_-]?key|service[\s_-]?role|secret|password|webhook[\s_-]?secret|db[\s_-]?url|database[\s_-]?url)\b\s*[:=]\s*[^,;]*/gi,
+      "$1=[redacted]"
+    )
     .trim();
 
   if (!sanitized) return null;
