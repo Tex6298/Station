@@ -4,7 +4,7 @@ Date opened: 2026-06-21
 Opened by: A1 / MIMIR
 Owner: DAEDALUS implements or precisely blocks, ARGUS reviews, ARIADNE
 rehearses only if visible owner-route behavior changes.
-Status: Technically accepted by ARGUS on 2026-06-21; ready for MIMIR closeout.
+Status: closed by MIMIR on 2026-06-21.
 
 ## Why This Lane
 
@@ -234,3 +234,16 @@ ARGUS validation:
 
 No ARIADNE wake is required because PR144 changed API/service/test/docs only and
 did not change visible owner-route behavior.
+
+## MIMIR Closeout
+
+MIMIR closes PR144 on 2026-06-21.
+
+PR144 is accepted as the AI trace detail sanitizer gate. The authenticated owner
+detail route now returns allow-listed operational facts rather than raw trace and
+event rows, and ARGUS patched the prompt/password-shaped redaction edge before
+acceptance.
+
+Next lane: `PR145 - Settings AI Trace Detail Readback`. The visible Settings AI
+panel can now consume the sanitized detail route, with ARIADNE required after
+ARGUS because visible owner-route behavior will change.
