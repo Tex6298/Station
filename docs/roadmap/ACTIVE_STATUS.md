@@ -9263,6 +9263,19 @@ when a PR lands, or when validation truth changes.
   is missing from schema cache with `PGRST205`; that is migration `047`, not
   the authorized PR138 `048` apply lane. No accepted observed-runtime import is
   claimed, and no secrets were printed, written, or committed.
+- ARGUS accepts PR138 2C Observed Runtime Signing Secret Staging Proof on
+  2026-06-21 as a bounded staging proof and blocker classification. Migration
+  `046` and `048` metadata/RLS/schema-cache state are proved, the previous
+  signing-secret load blocker is cleared, and the current blocker is migration
+  `047` webhook receipts. ARGUS also flags that direct-applied `046`/`048`
+  ledger rows are absent, so the next lane must decide ledger repair versus
+  explicit drift classification before applying more direct DDL.
+- MIMIR closes PR138 and opens PR139 2C Observed Runtime Webhook Receipts
+  Staging Proof for DAEDALUS on 2026-06-21. PR139 should classify or safely
+  reconcile the direct-applied `046`/`048` ledger gap, apply/prove migration
+  `047`, rerun the bounded named-key smoke on `station-replay-dev-alpha`, and
+  verify whether current-timestamp observed-runtime live send now reaches
+  accepted import/readback or a new bounded blocker.
 - DAEDALUS implements PR126 2C Observed Runtime Signing Secret Lifecycle on
   2026-06-21 and wakes ARGUS for schema/API/encryption/signature review.
   Migration `048_developer_space_webhook_signing_secrets.sql` adds
@@ -9543,13 +9556,12 @@ git diff --check
 - Developer Spaces visual polish before ingestion auth, validation, limits, and
   safe serialization.
 
-## Latest ARGUS verdict - PR138 signing-secret staging proof
+## Latest MIMIR handoff - PR139 webhook receipts staging proof
 
-ARGUS accepts PR138 2C Observed Runtime Signing Secret Staging Proof on
-2026-06-21 as a bounded staging proof and blocker classification, and wakes
-MIMIR for the next schema/ledger sequencing decision.
+MIMIR opens PR139 2C Observed Runtime Webhook Receipts Staging Proof on
+2026-06-21 and wakes DAEDALUS.
 
-Accepted proof:
+Input from PR138/ARGUS:
 
 - Migration `046` supporting-context safety metadata is now proved: index
   present, RLS enabled, owner policy present, and table comment present.
@@ -9587,25 +9599,24 @@ ARGUS cautions:
 - The stale fixed-demo timestamp `401` was a smoke-harness timestamp issue; the
   current-timestamp probe is the relevant staging blocker proof.
 
-ARGUS validation:
+DAEDALUS task:
 
-- `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces`: pass, 27 tests.
-- `npm exec --yes pnpm@10.32.1 -- run test:developer-space-client`: pass, 15
-  tests.
-- `npm exec --yes pnpm@10.32.1 -- --filter @station/api build`: pass.
-- `npm exec --yes pnpm@10.32.1 -- run typecheck`: pass.
-- `git diff --check`: pass with CRLF normalization warnings only for local
-  triad/docs state.
-- `git diff --cached --check`: pass.
+- Implement
+  `docs/roadmap/PR139_2C_OBSERVED_RUNTIME_WEBHOOK_RECEIPTS_STAGING_PROOF.md`.
+- Reconcile migration ledger rows for direct-applied `046`/`048` only if schema
+  equivalence and the repair path are proved safe; otherwise classify the drift
+  explicitly.
+- Apply/prove migration `047` webhook receipts: table, unique constraint, index,
+  RLS, owner policy, comment, PostgREST/schema-cache visibility, and ledger
+  status.
+- Rerun bounded named-key smoke on `station-replay-dev-alpha` with a temporary
+  named key, raw key in memory only, no legacy rotation, and targeted revoke.
+- Verify current-timestamp live send no longer stops on webhook receipt claim;
+  then prove accepted import/readback or classify the next bounded blocker.
 
-ARGUS did not rerun live staging smoke because doing so would require
-secret-bearing auth and another staging mutation.
-
-Recommended next sequencing for MIMIR: decide ledger repair/documentation for
-direct-applied `046`/`048`, then open a narrow migration `047` receipts proof
-that applies/proves table, unique constraint, index, RLS/policy, comment,
-PostgREST schema-cache visibility, and ledger status without printing or
-writing secrets.
+DAEDALUS should wake ARGUS with ledger classification, `047` proof, smoke
+evidence, validation, no-secret proof, and explicit non-claims. Wake MIMIR
+instead if ledger repair or external access requires a sequencing decision.
 
 ## Previous DAEDALUS handoff - PR127 webhook concurrency guard
 
