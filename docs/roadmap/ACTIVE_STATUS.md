@@ -9478,41 +9478,52 @@ git diff --check
 
 ## Latest ARGUS verdict - PR135 Developer Space named ingestion keys
 
-## Latest MIMIR handoff - PR136 smoke space selected
+## Latest DAEDALUS handoff - PR136 dedicated-key staging smoke
 
-PR136 2C Observed Runtime Dedicated-Key Staging Smoke remains active. MIMIR has
-selected `station-replay-dev-alpha` / `Station Replay Dev Alpha` as the reusable
-PR136 smoke target after DAEDALUS hit the replay owner's Developer Space tier
-limit while trying to create a brand-new smoke space.
+PR136 2C Observed Runtime Dedicated-Key Staging Smoke ran against MIMIR-selected
+`station-replay-dev-alpha` on 2026-06-21 and is ready for ARGUS review as a
+bounded staging schema/readback blocker.
 
-Decision basis:
+Sanitized execution evidence:
 
-- Auth worked with local replay-owner credentials.
-- Local `STATION_API_URL` was present and used without printing the value.
-- Authenticated `GET /developer-spaces` returned `station-replay-dev-alpha` and
-  `animus-field-lab`.
-- `station-replay-dev-alpha` is already the public-safe staging replay
-  Developer Space and is the right reusable smoke target.
-- Current non-secret list output shows no legacy key summary for that space.
-- The PR135 named-key route can create a smoke/operator key without legacy key
-  rotation.
+- Target came from local `STATION_API_URL` override; the value was not printed
+  or committed.
+- Replay-owner `/auth/signin` returned HTTP `200`.
+- Authenticated `GET /developer-spaces` returned HTTP `200` with count 2.
+- Selected `station-replay-dev-alpha`; selected space id hash
+  `44e026dc4e6c`.
+- Named key route proof:
+  - list before create returned HTTP `200`, active count 0;
+  - named key create returned HTTP `201`;
+  - key id hash `97ac37e24575`;
+  - list after create returned HTTP `200`, active count 1;
+  - no legacy `POST /developer-spaces/:id/api-key` route was used.
+- Guarded Agents Observe live send used the one-time named key in memory only;
+  generated webhook id hash `1313db6dbcdd`.
+- First live send reached staging and returned HTTP `500`, classified `server`.
+- Second live send with the same webhook id also returned HTTP `500`,
+  classified `server`.
+- Public and owner readback for `station-replay-dev-alpha` both returned HTTP
+  `500` with the bounded schema-cache error:
+  `Could not find the table 'public.developer_space_observed_runtime_context' in the schema cache`.
+- Public readback did not contain the generated key, generated webhook id,
+  fixture raw prompt, command body, terminal output, token value, fixture source
+  ids, or fixture file paths.
+- Targeted revoke returned HTTP `200`; follow-up list showed the smoke key
+  `revoked`; unrelated active key count after revoke was 0, matching the count
+  before create.
 
-Continue task:
+Result:
 
-- Use the existing `station-replay-dev-alpha` Developer Space.
-- Create a named key via `POST /developer-spaces/:id/ingestion-keys`, labelled
-  `PR136 observed-runtime smoke` or equivalent.
-- Do not use legacy `POST /developer-spaces/:id/api-key`.
-- Keep the one-time raw key in memory only.
-- Run the PR134 guarded Agents Observe live-send path against staging.
-- Verify accepted/bounded response, replay/idempotency behavior, and safe
-  readback without printing secrets.
-- Revoke the temporary named key after smoke unless live evidence shows a strong
-  reason to keep it reusable and MIMIR explicitly accepts that.
+- PR136 proved named-key creation, no legacy rotation, guarded live-send reach,
+  and targeted revoke.
+- Staging did not accept/import/replay because the observed-runtime context
+  table is missing from the live schema cache.
+- No secret values were printed, committed, written to `.env`, or written to
+  Railway variables.
 
-Wake ARGUS with the completed PR136 evidence if the smoke runs. Wake MIMIR only
-if auth/config fails again or smoke would require legacy key rotation or secret
-printing.
+ARGUS should review this as a bounded staging schema/readback issue, not as a
+client guard or named-key failure.
 
 ## Previous DAEDALUS handoff - PR127 webhook concurrency guard
 

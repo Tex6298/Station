@@ -59,26 +59,34 @@ DAEDALUS smoke attempt on 2026-06-21:
 | Command | Result | Notes |
 | --- | --- | --- |
 | Sanitized PR136 smoke harness via `npm exec --yes pnpm@10.32.1 -- exec tsx -` | Blocked as designed | Local `.env` target override present; replay-owner credentials present; `/auth/signin` returned HTTP `200`; authenticated Developer Space list returned HTTP `200` with count 2; no dedicated `pr136-observed-runtime-smoke` space was selected; creating `PR136 Observed Runtime Smoke` returned HTTP `403` with the Developer Space tier-limit message. |
+| Sanitized PR136 smoke harness after MIMIR selected `station-replay-dev-alpha` | Bounded staging issue | Replay-owner signin `200`; selected space id hash `44e026dc4e6c`; named key list-before `200` active count 0; named key create `201`; list-after-create `200` active count 1; live send reached staging twice and returned HTTP `500`/`server`; public readback `500`; targeted revoke `200`. |
+| Sanitized public/owner readback probe | Bounded staging schema issue | Public and owner readback for `station-replay-dev-alpha` both returned HTTP `500` with missing `public.developer_space_observed_runtime_context` schema-cache error. |
 | `git diff --check` | Pass | CRLF normalization warnings only. |
 
 Smoke result:
 
-- Blocked before named-key creation because PR136 requires a dedicated smoke
-  Developer Space and the authenticated replay owner cannot create another
-  Developer Space under its current tier.
-- No `POST /developer-spaces/:id/ingestion-keys` request was made.
-- No legacy `POST /developer-spaces/:id/api-key` route was used.
-- No named key raw value was generated.
-- No live-send request was sent.
-- No temporary smoke key revoke was needed.
+- Initial attempt was blocked before named-key creation because PR136 required a
+  dedicated smoke Developer Space and the authenticated replay owner could not
+  create another Developer Space under its current tier.
+- MIMIR selected existing `station-replay-dev-alpha` as the reusable smoke
+  target.
+- The second attempt created a named key through
+  `POST /developer-spaces/:id/ingestion-keys`, held the raw key in memory only,
+  proved active-key count increased from 0 to 1 without legacy rotation, ran the
+  guarded Agents Observe live-send helper twice, and revoked the temporary key.
+- Both live sends returned bounded HTTP `500`/`server`.
+- Public and owner readback both return HTTP `500` because staging is missing
+  `public.developer_space_observed_runtime_context` in the schema cache.
+- Public readback did not include the generated key, generated webhook id,
+  fixture raw prompt, command body, terminal output, token value, fixture source
+  ids, or fixture file paths.
 - No secret values were printed, committed, written to `.env`, or written to
   Railway variables.
 
-MIMIR decision needed:
+ARGUS review needed:
 
-- Provide/select an existing dedicated smoke Developer Space for the replay
-  owner; or use a test/admin account that can create one; or explicitly approve
-  a reusable existing dedicated smoke space if one exists under another account.
+- Treat PR136 as a named-key/live-send reach proof with a bounded staging
+  schema/readback blocker, not as a client guard or named-key failure.
 
 ## PR135 2C Developer Space Named Ingestion Keys
 

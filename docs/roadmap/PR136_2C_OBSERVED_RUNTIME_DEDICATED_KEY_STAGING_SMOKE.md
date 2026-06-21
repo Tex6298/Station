@@ -1,7 +1,7 @@
 # PR136 2C Observed Runtime Dedicated-Key Staging Smoke
 
-Status: Unblocked by MIMIR smoke-space decision on 2026-06-21; continue using
-the existing `station-replay-dev-alpha` staging replay Developer Space.
+Status: Smoke ran with bounded staging schema/readback issue on 2026-06-21;
+ready for ARGUS review.
 
 ## MIMIR Smoke Space Decision - 2026-06-21
 
@@ -143,6 +143,65 @@ MIMIR decision needed:
 DAEDALUS did not use the existing non-dedicated owner spaces and did not rotate
 real integration keys to make the smoke pass.
 
+## DAEDALUS Smoke Attempt After MIMIR Space Selection - 2026-06-21
+
+MIMIR selected existing `station-replay-dev-alpha` / Station Replay Dev Alpha as
+the reusable PR136 smoke target. DAEDALUS continued without creating another
+Developer Space.
+
+Sanitized execution evidence:
+
+- Target: local `.env` override for `STATION_API_URL` was present and used; the
+  value was not printed or committed.
+- Auth: replay-owner `/auth/signin` returned HTTP `200`.
+- Space selection: authenticated `GET /developer-spaces` returned HTTP `200`
+  with count 2; selected `station-replay-dev-alpha` with id hash
+  `44e026dc4e6c`.
+- Named key route proof:
+  - `GET /developer-spaces/:id/ingestion-keys` before create returned HTTP
+    `200` with active count 0.
+  - `POST /developer-spaces/:id/ingestion-keys` returned HTTP `201`.
+  - The one-time raw key was held in memory only and not printed.
+  - Key id hash: `97ac37e24575`.
+  - `GET /developer-spaces/:id/ingestion-keys` after create returned HTTP
+    `200` with active count 1.
+  - No legacy `POST /developer-spaces/:id/api-key` route was used.
+- Live-send proof:
+  - Guarded Agents Observe live send used the named key in memory as
+    `STATION_DEVELOPER_KEY`.
+  - Generated webhook id hash: `1313db6dbcdd`.
+  - First send reached staging and returned bounded HTTP `500`, classified
+    `server`.
+  - Second send with the same generated webhook id also returned bounded HTTP
+    `500`, classified `server`.
+- Readback proof:
+  - Public readback for `station-replay-dev-alpha` returned HTTP `500`.
+  - Owner readback for `station-replay-dev-alpha` returned HTTP `500`.
+  - Both readbacks reported the same bounded schema-cache error:
+    `Could not find the table 'public.developer_space_observed_runtime_context' in the schema cache`.
+  - The public readback body did not contain the generated key, generated
+    webhook id, fixture raw prompt, command body, terminal output, token value,
+    fixture source ids, or fixture file paths.
+- Revoke proof:
+  - `POST /developer-spaces/:id/ingestion-keys/:keyId/revoke` returned HTTP
+    `200`.
+  - Follow-up key list showed the smoke key status `revoked`.
+  - Unrelated active key count after revoke was 0, matching the active count
+    before create.
+
+Result:
+
+- PR136 proved the named-key smoke path can create a temporary key without
+  legacy rotation and can reach staging through the guarded live-send helper.
+- The import did not reach accepted/replay readback because staging is missing
+  the observed-runtime context table in the schema cache.
+- The temporary smoke key was revoked.
+- No secret values were printed, committed, written to `.env`, or written to
+  Railway variables.
+
+ARGUS should review this as a bounded staging schema/readback blocker, not as a
+client guard or named-key failure.
+
 ## Validation
 
 Run focused local gates before or after staging smoke as appropriate:
@@ -163,6 +222,8 @@ DAEDALUS validation:
 | Command | Result | Notes |
 | --- | --- | --- |
 | Sanitized PR136 smoke harness via `npm exec --yes pnpm@10.32.1 -- exec tsx -` | Blocked as designed | Sign-in `200`; Developer Space list `200` with count 2; dedicated smoke space create `403` tier limit; stopped before named-key creation/live send. |
+| Sanitized PR136 smoke harness after MIMIR selected `station-replay-dev-alpha` | Bounded staging issue | Named key create `201`; live send reached staging twice and returned HTTP `500`/`server`; public readback `500`; targeted revoke `200`. |
+| Sanitized public/owner readback probe | Bounded staging schema issue | Public and owner readback both returned HTTP `500` with missing `public.developer_space_observed_runtime_context` schema-cache error. |
 | `git diff --check` | Pass | CRLF normalization warnings only. |
 
 ## Non-Scope
