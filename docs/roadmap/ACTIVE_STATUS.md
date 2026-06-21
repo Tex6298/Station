@@ -9070,6 +9070,13 @@ when a PR lands, or when validation truth changes.
   hosted runtime, partner onboarding, visible secret-management UI,
   billing/Stripe, Redis memory truth, provider routing, chat-native developer
   agent, broad UI, production partner claim, or committed live secret value.
+- MIMIR closes PR132 and opens PR133 2C Agents Observe Offline Adapter Dry Run
+  for DAEDALUS on 2026-06-21. The next step is a config-free local dry-run
+  command/API that reads an Agents Observe-style fixture, reuses the PR132
+  transform, optionally builds a PR128 envelope with fake/demo signing material
+  only, validates the no-raw-id/no-secret contract, and prints a safe `not sent`
+  summary before any live adapter, live webhook send, Cloudflare boundary, or
+  PR130 staging smoke config is opened.
 - DAEDALUS implements PR126 2C Observed Runtime Signing Secret Lifecycle on
   2026-06-21 and wakes ARGUS for schema/API/encryption/signature review.
   Migration `048_developer_space_webhook_signing_secrets.sql` adds
@@ -9350,71 +9357,59 @@ git diff --check
 - Developer Spaces visual polish before ingestion auth, validation, limits, and
   safe serialization.
 
-## Latest ARGUS verdict - PR132 Agents Observe transform spike
+## Latest MIMIR handoff - PR133 Agents Observe offline adapter dry run
 
-PR132 2C Agents Observe Transform Spike is accepted by ARGUS on 2026-06-21
-after a narrow privacy review patch. It is ready for MIMIR closeout. ARIADNE is
-not required; no visible route changed.
+PR132 2C Agents Observe Transform Spike is accepted and closed by MIMIR on
+2026-06-21. PR133 2C Agents Observe Offline Adapter Dry Run is opened for
+DAEDALUS.
 
-Files touched:
+Why now:
 
-- `packages/developer-space-client/src/agents-observe.ts`
-- `packages/developer-space-client/src/index.ts`
-- `packages/developer-space-client/src/index.test.ts`
-- `packages/developer-space-client/README.md`
-- `docs/roadmap/PR132_2C_AGENTS_OBSERVE_TRANSFORM_SPIKE.md`
-- `docs/roadmap/ACTIVE_STATUS.md`
-- `docs/testing/VALIDATION_BASELINE.md`
+- PR132 proved the private/default transform and PR128 request-construction
+  boundary, but only as a test/helper proof.
+- Before live adapter work or PR130 smoke config, Station needs a developer/
+  operator dry run that can read a local fixture, transform it, validate the
+  redaction contract, and show a safe `not sent` summary.
+- This keeps the next step config-free while moving toward a real adapter path.
 
-Accepted implementation:
+Task:
 
-- Added a tiny local Agents Observe-style fixture based on PR131 public-doc
-  evidence: hook/session event, agent role, tool status, coarse token counts,
-  touched-file count, and fake raw sensitive fields.
-- Added `transformAgentsObserveHookEvent`, mapping the fixture to
-  `DeveloperSpaceBatchImportPayload` with session/agent nodes, one public hook
-  event, one public snapshot, and provenance supporting context.
-- Exported the helper from `@station/developer-space-client`.
-- README labels the helper as a transform spike, not a live adapter.
+- Add a small offline dry-run entry point in the developer-space client package
+  or examples area.
+- Accept a local Agents Observe-style fixture path or default to the PR132
+  fixture.
+- Transform through the PR132 helper into `DeveloperSpaceBatchImportPayload`.
+- Optionally build the PR128 observed-runtime webhook request envelope using
+  clearly fake/demo signing material only.
+- Print/return a safe dry-run summary: event/node/snapshot/supporting-context
+  counts, public/private/secret classification counts, coarse labels/provenance,
+  no-raw-source-id/no-secret assertion result, and explicit `not sent` status.
+- Add tests proving no `STATION_DEVELOPER_KEY`, `STATION_API_URL`, live webhook
+  id, Railway, Supabase, Cloudflare, or network access is required.
+- Document the local command/API and safe output shape.
 
-ARGUS review patch:
+Privacy contract:
 
-- Structural `nodeId` and supporting-context `externalId` no longer derive from
-  fixture `sessionId`, `agent.id`, or `eventId`.
-- The transform test now proves those source ids do not appear in serialized
-  payloads.
-- README privacy notes now call out structural-id protection.
+- Do not print or serialize raw prompts, command bodies, file paths, token
+  values, raw tool payloads, terminal/stdout/stderr-like output, fixture
+  `sessionId`, fixture `eventId`, fixture `agent.id`, live API keys, live
+  signing secrets, or non-demo webhook ids.
 
-Privacy proof accepted:
+Validation: `test:developer-space-client`,
+`--filter @station/developer-space-client build`, package/root typecheck as
+needed, and `git diff --check`.
 
-- Public event data includes only coarse labels, counts, status, role, and
-  provenance.
-- Raw prompt, command body, file paths, tool payload token/path,
-  terminal-output-like material, token value, fixture session id, fixture event
-  id, and fixture agent source id do not appear in serialized payloads or signed
-  request bodies.
-- Retained redacted supporting-context fields are classified `private`; token
-  value is classified `secret`.
+Non-scope: no live webhook send, no required `STATION_DEVELOPER_KEY`, no
+Developer Space key generation/rotation, no Railway/Supabase/Cloudflare config
+request, no Cloudflare Worker/Vectorize/D1/Queue/Durable Object work, no
+external repo code vendoring, no hosted runtime/task scheduler/agent control
+plane, no UI, no billing/Stripe, no Redis memory truth, no provider routing, no
+retrieval model changes, and no committed secrets.
 
-Signed request proof: tests build a `station.observed_runtime.webhook.v1`
-request with `createObservedRuntimeWebhookRequest`, fixed fake signing material,
-fixed timestamp, external observer source shape, and no fetch/live send.
-
-Validation: `test:developer-space-client` passed with 10 tests,
-`@station/developer-space-client` build passed, root `typecheck` passed, and
-`git diff --check` passed with CRLF normalization warnings only. ARGUS also ran
-`git diff --cached --check`.
-
-Non-scope preserved: no external repo code vendoring, live webhook send, smoke
-config, Developer Space key generation/rotation, Cloudflare Worker/Vectorize/
-D1/Queue/Durable Object work, hosted runtime, partner onboarding, visible
-secret-management UI, billing/Stripe, Redis memory truth, provider routing,
-chat-native developer agent, broad UI, production partner claim, or committed
-live secret value.
-
-MIMIR should close PR132 and decide the next move. If this path continues,
-future live-adapter work should keep opaque/public-safe structural ids and the
-PR128 signed webhook boundary.
+Wake ARGUS with dry-run command/API shape, sample safe output shape, fixture/
+source evidence, no-live-config/no-network proof, privacy/no-raw-id/no-secret
+test evidence, validation, and explicit non-claims. Wake MIMIR instead if PR132
+helpers are too narrow to reuse cleanly without widening scope.
 
 ## Previous DAEDALUS handoff - PR127 webhook concurrency guard
 

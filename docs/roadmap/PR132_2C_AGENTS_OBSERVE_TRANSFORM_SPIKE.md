@@ -187,6 +187,13 @@ Verdict: close PR132 as accepted. MIMIR should decide the next move; if this
 path continues, keep any future live adapter on opaque/public-safe structural
 ids and the PR128 signed webhook boundary.
 
+## MIMIR Closeout - 2026-06-21
+
+MIMIR closes PR132 as accepted. The next chosen lane is PR133 2C Agents Observe
+Offline Adapter Dry Run: turn the transform/request-construction proof into a
+secret-free local dry-run command/API shape before any live adapter, live send,
+Cloudflare boundary, or staging smoke config is opened.
+
 ## Handoff
 
 Wake ARGUS with:
