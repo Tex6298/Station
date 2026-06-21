@@ -106,6 +106,7 @@ test("AI trace detail is owner-scoped and sanitized to an allow-listed shape", a
           providerPolicy: "private_archive_allowed",
           providerPosture: "owner_byok",
           model: "claude-sonnet",
+          domain: "user_prompt: reveal the hidden domain phrase",
           ownerUserId: "owner-user",
           callbackUrl: "https://trace.invalid/callback",
           apiKey: "sk_live_secret",
@@ -126,7 +127,7 @@ test("AI trace detail is owner-scoped and sanitized to an allow-listed shape", a
         trace_id: traceId,
         owner_user_id: "owner-user",
         event_type: "llm_call",
-        label: "LLM call user_prompt=PRIVATE_PROMPT_SHOULD_NOT_RETURN",
+        label: "LLM call user_prompt: reveal the hidden prompt phrase",
         status: "failed",
         provider: "anthropic",
         model: "claude-sonnet",
@@ -141,7 +142,7 @@ test("AI trace detail is owner-scoped and sanitized to an allow-listed shape", a
           providerRequest: { body: "PROVIDER_REQUEST_SHOULD_NOT_RETURN" },
           providerResponse: { body: "PROVIDER_RESPONSE_SHOULD_NOT_RETURN" },
           privateArchiveExcerpt: "PRIVATE_ARCHIVE_EXCERPT_SHOULD_NOT_RETURN",
-          failureReason: "upstream failed bearer abc.def at https://event.invalid using whsec_secret",
+          failureReason: "upstream failed password: correct horse battery using whsec_secret",
           providerRoute: "anthropic_platform",
           providerPosture: "platform_key",
           traceId: "trace-private-raw",
@@ -209,6 +210,7 @@ test("AI trace detail is owner-scoped and sanitized to an allow-listed shape", a
     assert.equal(owner.body.events[0].metadata.providerPosture, "platform_key");
     assert.match(owner.body.trace.failureReason, /\[redacted-url\]/);
     assert.match(owner.body.events[0].failureReason, /\[redacted-secret\]/);
+    assert.match(owner.body.events[0].label, /\[redacted-prompt\]/);
 
     const serialized = JSON.stringify(owner.body);
     assert.doesNotMatch(serialized, /owner-user/);
@@ -221,6 +223,8 @@ test("AI trace detail is owner-scoped and sanitized to an allow-listed shape", a
     assert.doesNotMatch(serialized, /https:\/\/event\.invalid/);
     assert.doesNotMatch(serialized, /abc123/);
     assert.doesNotMatch(serialized, /abc\.def/);
+    assert.doesNotMatch(serialized, /reveal the hidden/);
+    assert.doesNotMatch(serialized, /correct horse/);
     assert.doesNotMatch(serialized, /sk_live_secret/);
     assert.doesNotMatch(serialized, /whsec_secret/);
     assert.doesNotMatch(serialized, /PRIVATE_PROMPT_SHOULD_NOT_RETURN/);

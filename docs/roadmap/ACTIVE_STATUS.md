@@ -9694,51 +9694,35 @@ git diff --check
 - Developer Spaces visual polish before ingestion auth, validation, limits, and
   safe serialization.
 
-## Latest DAEDALUS handoff - PR144 AI trace detail sanitization gate
+## Latest ARGUS handoff - PR144 AI trace detail sanitization gate
 
-PR144 AI Trace Detail Sanitization Gate is implemented by DAEDALUS on
-2026-06-21 and ready for ARGUS review.
+ARGUS technically accepts PR144 AI Trace Detail Sanitization Gate on 2026-06-21
+and wakes MIMIR for closeout.
 
-Implementation:
+Accepted technical facts:
 
-- Hardened `getAiTraceDetail` so `/observability/traces/:traceId` no longer
-  returns raw `select("*")` trace or event rows.
-- Trace detail now uses an allow-listed trace select and serializer for source,
-  status, started/completed timestamps, duration, input/output/total tokens,
-  estimated cost, sanitized failure reason, and sanitized metadata.
-- Event detail now uses an allow-listed event select and serializer for event
-  type, sanitized label/failure reason, status, provider, model, created time,
-  duration, input/output/total tokens, estimated cost, and sanitized metadata.
-- Raw event payload objects are sanitizer input only and are not returned.
-- Sanitized metadata keeps only safe route/profile/provider/model/model-tier/
-  policy/posture/domain facts.
-- Existing summary/list behavior and authenticated owner scoping are preserved.
-- No Settings AI panel or visible owner-route behavior changed.
-
-Privacy proof:
-
-- Route-level test proves cross-owner trace detail returns `404`.
-- Route-level test proves the response omits raw prompts, completions, provider
-  request/response payloads, private archive excerpts, owner/persona/
-  conversation/event/source ids, raw URLs, bearer values, token/key/password-
-  shaped fields, webhook secrets, and common secret-shaped values.
-- The requested route trace id remains in the sanitized trace object as the
-  owner-requested detail identifier.
-
-Validation:
-
-- `test:replay-readiness`: 2 passed, including the new sanitizer route test.
-- `test:studio-ui`: 89 passed.
-- `test:conversation-archive`: 35 passed.
-- `typecheck`: passed.
-- `git diff --check`: passed with CRLF warnings only for touched files and local
-  DAEDALUS state.
-
-Non-scope preserved: no public observability, raw trace viewer, new AI calls,
-provider/embedding changes, Redis/Upstash, Cloudflare, background jobs, Memory
-mutation, billing/auth/session changes, broad Settings or Studio redesign, UI
-trace detail expansion, or migration-ledger repair was added. Because no visible
-owner route changed, ARGUS can wake MIMIR directly after technical acceptance.
+- `/observability/traces/:traceId` remains authenticated and owner-scoped; cross-
+  owner trace detail returns `404`.
+- Trace and event detail now use allow-listed selects and serializers instead of
+  raw `select("*")` row readback.
+- Returned shapes omit raw event payload objects, owner/persona/conversation/
+  event/source ids, provider request/response bodies, prompts, completions,
+  private archive excerpts, URLs, and secret-shaped values.
+- Owners still receive useful operational facts: source/status/timestamps,
+  duration, token counts, cost, provider/model, sanitized labels/failure reasons,
+  and allow-listed route/profile/policy/posture metadata.
+- ARGUS patched a narrow redaction edge so prompt-shaped multi-word text redacts
+  through the end of the label, prompt-shaped allow-listed metadata is rejected,
+  and password/secret/key values redact safely while tokenized errors keep
+  non-secret operational context.
+- Validation passed `test:replay-readiness` with 2 tests, `test:studio-ui` with
+  89 tests, `test:conversation-archive` with 35 tests, `typecheck`,
+  `git diff --check`, and `git diff --cached --check`.
+- No Settings AI panel, visible owner route, public observability, raw trace
+  viewer, new AI call, provider/embedding, Redis/Upstash, Cloudflare, background
+  job, Memory mutation, billing/auth/session, broad Settings/Studio redesign, UI
+  trace expansion, API route, database migration, or migration-ledger scope was
+  added. No ARIADNE wake is required.
 
 ## Previous ARIADNE handoff - PR143 memory lifecycle review surface
 

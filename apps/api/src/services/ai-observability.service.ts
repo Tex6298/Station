@@ -297,9 +297,10 @@ function sanitizeTraceText(value: unknown) {
     .replace(/https?:\/\/\S+/gi, "[redacted-url]")
     .replace(SECRET_SHAPED_VALUE_PATTERN, "[redacted-secret]")
     .replace(/\b(?:bearer)\s+\S+/gi, "bearer [redacted]")
-    .replace(/\b(?:raw|private|system|user)[_-]?prompt\b\s*[:=]?\s*\S*/gi, "[redacted-prompt]")
+    .replace(/\b(?:raw|private|system|user)[_-]?prompt\b\s*[:=]?.*/gi, "[redacted-prompt]")
     .replace(/\b(owner[_-]?user[_-]?id|owner[_-]?id|persona[_-]?id|conversation[_-]?id|trace[_-]?id|event[_-]?id|source[_-]?id)\b\s*[:=]\s*\S+/gi, "$1=[redacted]")
-    .replace(/\b(token|cookie|authorization|api[_-]?key|x-api-key|secret|password|db[_-]?url|webhook[_-]?secret)\b\s*[:=]\s*\S+/gi, "$1=[redacted]");
+    .replace(/\b(api[_-]?key|x-api-key|secret|password)\b\s*[:=]\s*[^,;]*/gi, "$1=[redacted-secret]")
+    .replace(/\b(token|cookie|authorization|db[_-]?url|webhook[_-]?secret)\b\s*[:=]\s*\S+/gi, "$1=[redacted]");
   return text.length > 160 ? `${text.slice(0, 157).trim()}...` : text;
 }
 
@@ -348,4 +349,4 @@ function roundPence(value: number) {
 
 const SECRET_SHAPED_VALUE_PATTERN = /\b(?:sk|pk|rk|whsec|ghp|pat)[_-][A-Za-z0-9._-]+/gi;
 const PRIVATE_ID_KEY_PATTERN = /(owner[_-]?user|owner[_-]?id|persona[_-]?id|conversation[_-]?id|trace[_-]?id|event[_-]?id|source[_-]?id)/i;
-const UNSAFE_TRACE_TEXT_PATTERN = /https?:\/\/|\b(?:bearer)\s+\S+|\b(?:token|cookie|authorization|api[_-]?key|x-api-key|secret|password|db[_-]?url|webhook[_-]?secret)\b|(?:sk|pk|rk|whsec|ghp|pat)[_-][A-Za-z0-9._-]+/gi;
+const UNSAFE_TRACE_TEXT_PATTERN = /https?:\/\/|\b(?:bearer)\s+\S+|\b(?:raw|private|system|user)[_-]?prompt\b|\b(?:token|cookie|authorization|api[_-]?key|x-api-key|secret|password|db[_-]?url|webhook[_-]?secret)\b|(?:sk|pk|rk|whsec|ghp|pat)[_-][A-Za-z0-9._-]+/gi;

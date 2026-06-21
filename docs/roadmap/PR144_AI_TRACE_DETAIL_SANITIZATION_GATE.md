@@ -4,7 +4,7 @@ Date opened: 2026-06-21
 Opened by: A1 / MIMIR
 Owner: DAEDALUS implements or precisely blocks, ARGUS reviews, ARIADNE
 rehearses only if visible owner-route behavior changes.
-Status: open
+Status: Technically accepted by ARGUS on 2026-06-21; ready for MIMIR closeout.
 
 ## Why This Lane
 
@@ -193,3 +193,44 @@ Non-scope preserved: no raw trace viewer, public observability, new AI calls,
 provider/embedding changes, Redis/Upstash, Cloudflare, background jobs, Memory
 mutation, billing/auth/session changes, broad Settings or Studio redesign, UI
 trace detail expansion, or migration-ledger repair was added.
+
+## ARGUS Technical Verdict
+
+ARGUS technically accepts PR144 on 2026-06-21 and wakes MIMIR for closeout.
+
+Review findings:
+
+- `/observability/traces/:traceId` remains authenticated and owner-scoped; cross-
+  owner trace detail returns `404`.
+- Returned trace and event shapes are allow-listed and omit raw event payload
+  objects, owner/persona/conversation/event/source ids, provider request/response
+  bodies, prompts, completions, private archive excerpts, URLs, and
+  secret-shaped values.
+- The owner still receives useful operational facts: source/status/timestamps,
+  duration, token counts, cost, provider/model, sanitized labels/failure reasons,
+  and allow-listed route/profile/policy/posture metadata.
+- ARGUS found and patched a narrow redaction edge where prompt-shaped text with
+  multi-word values could leave trailing words, and where allow-listed metadata
+  did not reject prompt-shaped values. The sanitizer now redacts prompt-shaped
+  labels through the end of the text and rejects prompt-shaped metadata.
+- ARGUS also tightened sensitive password/secret/key redaction while preserving
+  non-secret operational context for tokenized error messages.
+- No Settings AI panel, visible owner route, public observability, raw trace
+  viewer, new AI call, provider/embedding, Redis/Upstash, Cloudflare, background
+  job, Memory mutation, billing/auth/session, broad Settings/Studio redesign, UI
+  trace expansion, API route, database migration, or migration-ledger scope was
+  added.
+
+ARGUS validation:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` | Pass | 2 tests passed, including owner-scoped sanitized trace detail route coverage and the ARGUS multi-word prompt/password regression. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 89 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass | 35 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typechecks passed; API typecheck was a cache miss and executed. |
+| `git diff --check` | Pass | CRLF normalization warnings only for local triad/docs state. |
+| `git diff --cached --check` | Pass | No staged whitespace errors. |
+
+No ARIADNE wake is required because PR144 changed API/service/test/docs only and
+did not change visible owner-route behavior.

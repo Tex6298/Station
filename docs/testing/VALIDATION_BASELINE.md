@@ -87,6 +87,28 @@ DAEDALUS PR144 notes:
   billing/auth/session changes, broad Settings or Studio redesign, UI trace
   detail expansion, or migration-ledger repair was added.
 
+ARGUS technical review validation on 2026-06-21:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` | Pass | 2 tests passed, including owner-scoped sanitized trace detail route coverage and the ARGUS multi-word prompt/password regression. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 89 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass | 35 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typechecks passed; API typecheck was a cache miss and executed. |
+| `git diff --check` | Pass | CRLF normalization warnings only for local triad/docs state. |
+| `git diff --cached --check` | Pass | No staged whitespace errors. |
+
+ARGUS review notes:
+
+- PR144 is technically accepted for MIMIR closeout.
+- ARGUS patched a narrow redaction edge so prompt-shaped multi-word text redacts
+  through the end of the label and prompt-shaped allow-listed metadata is
+  rejected.
+- Password/secret/key values redact safely while tokenized errors keep
+  non-secret operational context.
+- No Settings AI panel or visible owner-route behavior changed, so no ARIADNE
+  wake is required.
+
 ## PR143 Memory Lifecycle Review Surface
 
 DAEDALUS implementation validation on 2026-06-21:
