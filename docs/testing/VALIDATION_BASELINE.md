@@ -52,6 +52,43 @@ pnpm test:developer-spaces
 pnpm test:developer-space-client
 ```
 
+## PR141 2C Observed Runtime Classification Schema Drift
+
+DAEDALUS schema/staging proof on 2026-06-21:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| Temporary `pg@8.13.1` client outside repo | Pass | Used unprepared SQL without printing connection values. |
+| Migration `045` DDL + metadata proof | Pass | `observed_runtime_classifications jsonb` exists on Developer Space nodes, events, and snapshots; object-shape checks and column comments are present on all three columns. |
+| `notify pgrst, 'reload schema'` through temporary `pg` client | Pass | Returned `NOTIFY`. |
+| Service-role PostgREST schema-cache probes | Pass | `developer_space_nodes`, `developer_space_events`, and `developer_space_snapshots` all returned HTTP `200` for `id,observed_runtime_classifications`. |
+| Migration ledger count probe | Caveat | Matching `045`, `046`, `047`, and `048` ledger counts remain `0`. DAEDALUS did not repair or hand-edit migration history rows. |
+| Bounded named-key current-timestamp smoke | Pass | Signin `200`; Developer Space list `200` count 2; selected space id hash `44e026dc4e6c`; named key create `201`; first current-timestamp Agents Observe delivery returned HTTP `202`, `accepted:true`, `replayed:false`, imported nodes `2`, events `1`, snapshots `1`, supporting context `1`; same signed delivery replay returned HTTP `200`, `accepted:false`, `replayed:true`; public and owner readback returned HTTP `200`; targeted revoke `200`; cleanup showed zero active PR141 smoke keys. |
+| Public/owner readback count probe | Pass | Public counts: nodes `3`, events `2`, latest snapshot `1`, supporting context `1`, linked documents `3`. Owner counts: nodes `3`, events `2`, latest snapshot `1`, supporting context `1`, linked documents `4`. |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 27 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-space-client` | Pass | 15 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/api build` | Pass | API package build completed after dependency package builds. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typechecks replayed/passed through turbo cache. |
+| `git diff --check` | Pass | CRLF warning only for local `.station-agents/state/DAEDALUS.json`. |
+
+DAEDALUS PR141 notes:
+
+- PR140's missing `observed_runtime_classifications` base-table schema blocker
+  is cleared on staging.
+- Accepted observed-runtime import, same-delivery receipt replay, and public/
+  owner readback are proved for the bounded Agents Observe smoke.
+- Direct-applied `045`/`046`/`047`/`048` migration ledger rows remain absent;
+  PR141 did not repair or hand-edit them.
+- `developer_space_nodes.node_id` was not chased because local nodes use
+  `external_id`.
+- All PR141 smoke keys were temporary named keys, raw key material stayed in
+  memory only, legacy key rotation was not used, and cleanup confirmed zero
+  active PR141 smoke keys remain.
+- No Supabase URL, service key, DB URL, auth token, replay password, raw
+  Developer Space key, signing material, raw webhook id, fixture body, `.env`
+  value, Railway variable, or secret value was printed, committed, or written
+  to docs.
+
 ## PR140 2C Agents Observe Classification Alignment
 
 DAEDALUS implementation/staging proof on 2026-06-21:

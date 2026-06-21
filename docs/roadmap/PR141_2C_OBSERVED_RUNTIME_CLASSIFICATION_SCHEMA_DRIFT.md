@@ -100,6 +100,63 @@ For staging proof, record only safe facts:
 - receipt replay response class if reached;
 - public/owner readback status classes and safe counts.
 
+## DAEDALUS Result
+
+DAEDALUS applied and proved the narrow `045` staging schema repair on
+2026-06-21.
+
+Schema proof:
+
+- Used a temporary `pg@8.13.1` client outside the repo and unprepared SQL.
+- Added/proved `observed_runtime_classifications jsonb` on
+  `developer_space_nodes`, `developer_space_events`, and
+  `developer_space_snapshots`.
+- Proved object-shape check constraints on all three columns:
+  `developer_space_nodes_observed_runtime_classifications_check`,
+  `developer_space_events_observed_runtime_classifications_check`, and
+  `developer_space_snapshots_observed_runtime_classification_check`.
+- Proved column comments on all three columns.
+- Sent `NOTIFY pgrst, 'reload schema'`.
+- Service-role PostgREST probes for
+  `id,observed_runtime_classifications` returned HTTP `200` for nodes, events,
+  and snapshots after schema reload.
+- Migration ledger counts for `045`, `046`, `047`, and `048` remain `0`.
+  DAEDALUS did not repair, fake, or hand-edit migration history.
+
+Bounded staging smoke:
+
+- Target: existing `station-replay-dev-alpha`, selected id hash
+  `44e026dc4e6c`.
+- Replay-owner signin returned HTTP `200`; Developer Space list returned HTTP
+  `200` with count `2`.
+- Temporary named key create returned HTTP `201`; raw key stayed in memory only.
+- No legacy key rotation endpoint was used.
+- First current-timestamp Agents Observe observed-runtime delivery returned HTTP
+  `202`, `accepted: true`, `replayed: false`, and imported nodes `2`, events
+  `1`, snapshots `1`, supporting context `1`.
+- Repeating the same signed delivery returned HTTP `200`, `accepted: false`,
+  `replayed: true`, with the same imported counts.
+- Public readback returned HTTP `200` with safe counts: nodes `3`, events `2`,
+  latest snapshot `1`, supporting context `1`, linked documents `3`.
+- Owner readback returned HTTP `200` with safe counts: nodes `3`, events `2`,
+  latest snapshot `1`, supporting context `1`, linked documents `4`.
+- Targeted key revoke returned HTTP `200`; cleanup found zero active PR141
+  smoke keys.
+
+Focused validation:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 27 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-space-client` | Pass | 15 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/api build` | Pass | API package build completed after dependency package builds. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typechecks replayed/passed through turbo cache. |
+| `git diff --check` | Pass | CRLF warning only for local `.station-agents/state/DAEDALUS.json`. |
+
+No Supabase URL, service key, DB URL, auth token, replay password, raw Developer
+Space key, signing material, raw webhook id, fixture body, `.env` value,
+Railway variable, or secret value was printed, written, or committed.
+
 ## Non-Scope
 
 - No broad migration sweep.
