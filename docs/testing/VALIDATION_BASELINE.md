@@ -54,6 +54,26 @@ pnpm test:developer-space-client
 
 ## PR150 Memory Graph Edge Recording
 
+ARGUS review validation on 2026-06-21 after the self-supersession guard patch:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-context` | Pass | 8 tests passed; includes self-supersession rejection, same-owner/same-persona supersession edge creation, idempotent updates, graph readback, and explicit edge route owner/cross-owner guards. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 97 tests passed; PR146 relationship readback helpers remain green. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API typecheck ran; web typecheck replayed from cache. |
+| `git diff --check` | Pass | CRLF warnings only for touched files and local triad state. |
+
+ARGUS PR150 notes:
+
+- Accepted lifecycle-created Memory graph edge recording after a narrow review
+  patch.
+- Rejected self-supersession before lifecycle update or edge upsert so the graph
+  cannot record a meaningless self-edge.
+- Preserved the no-inference boundary: no embedding/provider relationship
+  inference, automatic graph generation, Redis/Upstash graph work, Cloudflare
+  graph/index work, background worker, public Memory graph, or graph canvas was
+  added.
+
 DAEDALUS implementation validation on 2026-06-21:
 
 | Command | Result | Notes |

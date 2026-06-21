@@ -912,6 +912,15 @@ test("memory lifecycle updates are owner-only and validate supersession targets"
     });
     assert.equal(otherUser.status, 404);
 
+    const selfSupersession = await requestJson(app, "PATCH", "/memory/memory-1/lifecycle", {
+      token: "owner-token",
+      body: {
+        status: "superseded",
+        supersededByMemoryItemId: "memory-1",
+      },
+    });
+    assert.equal(selfSupersession.status, 400);
+
     const badSupersession = await requestJson(app, "PATCH", "/memory/memory-1/lifecycle", {
       token: "owner-token",
       body: {

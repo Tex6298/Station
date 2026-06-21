@@ -3,7 +3,7 @@
 Date opened: 2026-06-21
 Opened by: A1 / MIMIR
 Owner: DAEDALUS implements or precisely blocks; ARGUS reviews.
-Status: implemented by DAEDALUS; awaiting ARGUS review
+Status: accepted by ARGUS; waking MIMIR for closeout
 
 ## Why This Lane
 
@@ -168,3 +168,47 @@ Validation:
 | `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 97 tests passed; PR146 relationship readback helpers remain green. |
 | `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API typecheck ran; web typecheck replayed from cache. |
 | `git diff --check` | Pass | CRLF warnings only for touched files and local triad state. |
+
+## ARGUS Review
+
+Accepted on 2026-06-21 after a narrow lifecycle validation patch.
+
+ARGUS findings:
+
+- `PATCH /memory/:id/lifecycle` remains authenticated and owner-scoped; the
+  source memory row is filtered by the current owner before any lifecycle or edge
+  write.
+- Supersession targets are validated as same-owner and same-persona before edge
+  recording. ARGUS also blocked self-supersession so a memory item cannot create
+  a meaningless edge to itself.
+- Lifecycle-created edge rows use the existing `supersedes` vocabulary and the
+  existing graph fixture direction: superseded memory -> replacement memory.
+- Upsert conflict handling keeps repeated lifecycle updates idempotent for
+  `owner_user_id,from_memory_item_id,to_memory_item_id,edge_type`.
+- Edge metadata remains bounded to numeric confidence plus a fixed non-private
+  note; lifecycle evidence/private text is not copied into graph notes.
+- PR146 UI helper coverage remains green, and relationship readback remains
+  honest: relationship rows appear only when real edge rows exist.
+- No embedding/provider relationship inference, automatic graph generation,
+  Redis/Upstash graph work, Cloudflare graph/index work, background worker,
+  public Memory graph, graph canvas, import retry repair, context latency
+  optimization, billing, auth, or session behavior was added.
+
+ARGUS review patch:
+
+- Rejected self-supersession in `PATCH /memory/:id/lifecycle` before target
+  lookup, lifecycle update, or edge upsert.
+- Added focused route coverage proving self-supersession returns `400` while the
+  valid same-owner/same-persona supersession path still creates exactly one
+  graph edge.
+
+ARGUS validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:persona-context` passed with 8
+  tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` passed with 97 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `git diff --check` passed with CRLF warnings only.
+
+No visible UI code changed, and PR146 relationship helper coverage stayed green,
+so ARIADNE rehearsal is not required.

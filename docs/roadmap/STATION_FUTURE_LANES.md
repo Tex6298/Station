@@ -367,9 +367,10 @@ owner-only background job status/readback consolidation lane, not BullMQ,
 Redis/Valkey worker runtime, Cloudflare Queue, or broad job processing.
 
 Current status: PR149 is closed as sufficient hosted measurement and PR150 is
-implemented for ARGUS review. Do not open a worker, Redis Memory, Cloudflare,
-provider, billing, or broad UI optimization lane from local proof alone; choose
-future follow-up from hosted replay evidence and ARGUS/MIMIR sequencing.
+accepted by ARGUS for MIMIR closeout. Do not open a worker, Redis Memory,
+Cloudflare, provider, billing, or broad UI optimization lane from local proof
+alone; choose future follow-up from hosted replay evidence and ARGUS/MIMIR
+sequencing.
 
 Candidate triggers:
 

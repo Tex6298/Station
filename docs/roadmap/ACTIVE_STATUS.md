@@ -9694,7 +9694,48 @@ git diff --check
 - Developer Spaces visual polish before ingestion auth, validation, limits, and
   safe serialization.
 
-## Latest DAEDALUS handoff - PR150 Memory graph edge recording
+## Latest ARGUS handoff - PR150 Memory graph edge recording
+
+ARGUS accepts PR150 Memory Graph Edge Recording on 2026-06-21 and wakes MIMIR
+for closeout/sequencing. No visible UI code changed, and PR146 relationship
+helper coverage stayed green, so ARIADNE is not required.
+
+ARGUS findings:
+
+- `PATCH /memory/:id/lifecycle` remains authenticated and owner-scoped; the
+  source memory row is filtered by the current owner before lifecycle or edge
+  writes.
+- Supersession targets are validated as same-owner and same-persona before edge
+  recording. ARGUS also blocked self-supersession so a memory cannot create an
+  edge to itself.
+- Lifecycle-created edges use the existing `supersedes` vocabulary and fixture
+  direction: superseded memory -> replacement memory.
+- Upsert conflict handling keeps repeated lifecycle updates idempotent for
+  `owner_user_id,from_memory_item_id,to_memory_item_id,edge_type`.
+- Edge metadata remains bounded to numeric confidence plus a fixed non-private
+  note; lifecycle evidence/private text is not copied into graph notes.
+- No embedding/provider relationship inference, automatic graph generation,
+  Redis/Upstash graph work, Cloudflare graph/index work, background worker,
+  public Memory graph, graph canvas, import retry repair, context latency
+  optimization, billing, auth, or session behavior was added.
+
+ARGUS review patch:
+
+- Rejected self-supersession in `PATCH /memory/:id/lifecycle` before target
+  lookup, lifecycle update, or edge upsert.
+- Added focused route coverage proving self-supersession returns `400` while the
+  valid same-owner/same-persona supersession path still creates exactly one
+  graph edge.
+
+ARGUS validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:persona-context` passed with 8
+  tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` passed with 97 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `git diff --check` passed with CRLF warnings only.
+
+## Previous DAEDALUS handoff - PR150 Memory graph edge recording
 
 DAEDALUS implemented PR150 on 2026-06-21 and wakes ARGUS for review. This is a
 small API/test slice: explicit owner lifecycle supersession now records a real

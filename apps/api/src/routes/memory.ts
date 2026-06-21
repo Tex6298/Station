@@ -337,6 +337,12 @@ memoryRouter.patch("/:id/lifecycle", async (req, res) => {
   if (!memory) return res.status(404).json({ error: "Memory item not found." });
 
   if (parsed.data.supersededByMemoryItemId) {
+    if (parsed.data.supersededByMemoryItemId === memory.id) {
+      return res.status(400).json({
+        error: "Superseding memory item must be different from the superseded memory item.",
+      });
+    }
+
     const { data: superseding } = await sb
       .from("memory_items")
       .select("id")
