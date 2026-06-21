@@ -9027,6 +9027,18 @@ when a PR lands, or when validation truth changes.
   open a docs/test-only `simple10/agents-observe` transform spike into
   `DeveloperSpaceBatchImportPayload` plus PR128 signed webhook request
   construction, or choose a different next move deliberately.
+- MIMIR closes PR131 and opens PR132 2C Agents Observe Transform Spike for
+  DAEDALUS on 2026-06-21. This lane follows ARGUS's accepted recommendation:
+  prove a tiny local Agents Observe-style fixture can transform into
+  `DeveloperSpaceBatchImportPayload` and pass through PR128 signed observed
+  runtime webhook request construction without a live send, Developer Space
+  key, Cloudflare setup, or external repo code import. Raw prompts, command
+  bodies, file paths, tokens, tool payloads, and terminal/stdout-like material
+  stay private/secret by default; public-safe output is limited to coarse
+  labels, counts, provenance, and non-sensitive summaries. Wake ARGUS with the
+  fixture evidence, transform shape, privacy proof, signed-request proof,
+  validation, non-claims, and no-secret proof, or wake MIMIR if public Agents
+  Observe evidence is too thin.
 - DAEDALUS implements PR126 2C Observed Runtime Signing Secret Lifecycle on
   2026-06-21 and wakes ARGUS for schema/API/encryption/signature review.
   Migration `048_developer_space_webhook_signing_secrets.sql` adds
@@ -9307,69 +9319,49 @@ git diff --check
 - Developer Spaces visual polish before ingestion auth, validation, limits, and
   safe serialization.
 
-## Latest ARGUS verdict - PR131 observed runtime adapter discovery
+## Latest MIMIR handoff - PR132 Agents Observe transform spike
 
-PR131 2C Observed Runtime Adapter Discovery is accepted by ARGUS on
-2026-06-21 and ready for MIMIR closeout. ARIADNE is not required; no visible
-route changed.
+PR132 2C Agents Observe Transform Spike is opened by MIMIR on 2026-06-21 and
+ready for DAEDALUS implementation.
 
-Discovery map:
+Why now:
 
-- `docs/architecture/observed-runtime-adapter-discovery.md`
+- ARGUS accepted PR131 and recommended a docs/test-only
+  `simple10/agents-observe` transform spike before any Cloudflare boundary
+  design.
+- Agents Observe is the closest fit to the PR128 observed-runtime packet and no
+  hard Cloudflare dependency was found for the first adapter bridge.
+- This can proceed while PR130 live smoke remains deferred, because PR132 proves
+  transform and request construction only. It must not require live smoke config.
 
-Sources reviewed:
+Task:
 
-- Local: `docs/ops/open-repo-upgrade-review.md`,
-  `docs/integration/intelhub-to-station-developer-spaces.md`,
-  `docs/architecture/observed-runtime-fixture-preflight.md`,
-  `docs/ops/CLOUDFLARE_DEPENDENCY_CHECK.md`,
-  `docs/roadmap/PR129_2C_OBSERVED_RUNTIME_READINESS_CLOSEOUT.md`, and
-  `packages/developer-space-client/README.md`.
-- Public GitHub: `simple10/agents-observe`,
-  `simple10/agents-observe/docs/DEVELOPMENT.md`,
-  `builderz-labs/mission-control/docs/quickstart.md`,
-  `builderz-labs/mission-control/package.json`,
-  `tobilg/ai-observer/README.md`, and
-  `cindiekinzz-coder/NESTstack`.
+- Add a tiny local Agents Observe-style hook/session fixture based on PR131
+  public-doc evidence.
+- Add a transform helper mapping that fixture to
+  `DeveloperSpaceBatchImportPayload`.
+- Prove the transformed payload can be wrapped/signed through PR128
+  observed-runtime webhook request construction without sending a live request
+  or requiring `STATION_DEVELOPER_KEY`.
+- Classify raw prompts, command bodies, file paths, tokens, tool payloads, and
+  terminal/stdout-like material as private/secret by default.
+- Keep docs clear that Station observes/imports external runtime state; it does
+  not execute, host, schedule, or control Agents Observe.
 
-ARGUS review:
+Validation: `test:developer-space-client`,
+`--filter @station/developer-space-client build`, typecheck if touched, and
+`git diff --check`.
 
-- No hard Cloudflare dependency found for `simple10/agents-observe`,
-  `tobilg/ai-observer`, or `builderz-labs/mission-control` adapter bridges.
-- `cindiekinzz-coder/NESTstack` is mixed: local starter path does not require
-  Cloudflare; full continuity/daemon/mobile path is Cloudflare-native with
-  Workers/D1/Vectorize/Durable Objects.
-- Station already has overlapping Supabase-backed Developer Space persistence,
-  signed observed-runtime webhook delivery, classified readback, and
-  receipt-backed replay/conflict/in-progress behavior.
-- External source spot-check supports the classification: Agents Observe uses
-  hook stdin JSON plus `observe_cli.mjs` HTTP posting into Hono/SQLite/
-  WebSocket readback; AI Observer documents self-hosted local/DuckDB/
-  file-watch/OTLP paths; Mission Control documents a `curl`-only first agent
-  loop plus local Next/SQLite/WebSocket/pty dependencies; NESTstack documents
-  no-Cloudflare local Path A and Cloudflare-native full continuity paths.
-
-Recommendation: open one concrete adapter spike for `simple10/agents-observe`.
-Keep it docs/test-only first: transform a hook/session sample into
-`DeveloperSpaceBatchImportPayload`, classify raw prompts/commands/paths/tokens/
-tool payloads as private or secret by default, and prove PR128 signed webhook
-request construction. Do not open Cloudflare boundary design yet.
-
-Validation: `git diff --check HEAD^ HEAD` passed, `git diff --check` passed
-with CRLF normalization warnings only,
-`git diff --cached --check` passed, and a patch secret-pattern scan found no
-committed secret-shaped values.
-
-Non-scope preserved: no external repo code imported, no adapter implemented, no
-Cloudflare account/config/deployment work, no hosted runtime, worker, queue,
-Durable Object, Vectorize index, D1 database, partner onboarding wizard, visible
+Non-scope: no external repo code vendoring, live webhook send, smoke config,
+Developer Space key generation/rotation, Cloudflare Worker/Vectorize/D1/Queue/
+Durable Object work, hosted runtime, partner onboarding, visible
 secret-management UI, billing/Stripe, Redis memory truth, provider routing,
 chat-native developer agent, broad UI, production partner claim, or committed
-secret values.
+secrets.
 
-MIMIR should close PR131 and decide whether to open the recommended
-`simple10/agents-observe` docs/test-only adapter spike or choose a different
-next move deliberately.
+Wake ARGUS with fixture shape, source evidence, transform output, privacy proof,
+signed request construction proof, validation, non-claims, and no-secret proof;
+or wake MIMIR if public Agents Observe evidence is too thin.
 
 ## Previous DAEDALUS handoff - PR127 webhook concurrency guard
 
