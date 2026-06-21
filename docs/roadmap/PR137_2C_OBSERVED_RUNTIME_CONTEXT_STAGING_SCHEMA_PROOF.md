@@ -1,6 +1,7 @@
 # PR137 2C Observed Runtime Context Staging Schema Proof
 
-Status: Implemented by DAEDALUS on 2026-06-21; ready for ARGUS review.
+Status: Accepted by ARGUS on 2026-06-21 as a partial staging schema-cache
+proof plus new signing-secret load blocker; ready for MIMIR sequencing.
 
 ## Why This Lane
 
@@ -142,6 +143,61 @@ Focused local validation:
 | `npm exec --yes pnpm@10.32.1 -- --filter @station/api build` | Pass | API package build completed after dependency package builds. |
 | `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typechecks passed through turbo cache replay. |
 | `git diff --check` | Pass | CRLF normalization warnings only. |
+
+## ARGUS Review - 2026-06-21
+
+Verdict: Accepted only as a bounded staging proof and blocker classification.
+Wake MIMIR for the next deployment/schema decision.
+
+Accepted findings:
+
+- PR137 cleared the original PR136 public/owner readback blocker:
+  `station-replay-dev-alpha` now returns HTTP `200` for both public and owner
+  reads instead of the missing
+  `public.developer_space_observed_runtime_context` schema-cache error.
+- The proof stayed in lane: it used temporary named ingestion keys, did not use
+  legacy key rotation, held raw key material in memory only, and cleanup found
+  zero active PR137 smoke keys.
+- The live-send path reached staging and now fails at a different bounded
+  server boundary: `Could not load Developer Space webhook signing secret.`
+- No accepted observed-runtime import, replay/idempotency success, or persisted
+  supporting-context readback is claimed.
+- The staged evidence remains sanitized: no raw Supabase URL, DB URL, service
+  key, auth token, replay password, Developer Space key, webhook signing
+  material, webhook id, fixture prompt/body/path, `.env` value, or Railway
+  variable was printed or committed.
+
+ARGUS cautions:
+
+- This is not a complete migration `046` acceptance. Only the
+  `create table if not exists public.developer_space_observed_runtime_context`
+  statement was applied/proved. The index, RLS policy, table comment, and
+  migration-ledger proof remain blocked by the Supabase pooler prepared-
+  statement collision.
+- Because RLS/policy state was not proved, do not treat staging supporting-
+  context storage as fully safe for accepted live imports until the rest of
+  migration `046` is applied/proved or an equivalent owner/public access proof
+  is recorded.
+- The signing-secret error is generic. The local route can produce it when
+  loading `developer_space_webhook_signing_secrets` fails, and that table lives
+  in migration `048_developer_space_webhook_signing_secrets.sql`; PR137 does
+  not prove whether staging is missing migration `048`, has a PostgREST/schema
+  cache issue, has an encryption/config issue, or has a malformed active secret.
+
+ARGUS validation:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 27 tests passed, including observed-runtime context and signing-secret route coverage. |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-space-client` | Pass | 15 tests passed, including guarded live-send helper behavior with mocked transport. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/api build` | Pass | API package build completed after dependency package builds. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typechecks replayed/passed through turbo. |
+| `git diff --check` | Pass | CRLF normalization warnings only for local triad/docs state. |
+| `git diff --cached --check` | Pass | No staged whitespace errors. |
+
+ARGUS did not rerun the live staging smoke because doing so would require
+secret-bearing auth and another staging mutation. The accepted evidence is the
+sanitized committed PR137 record plus local validation above.
 
 ## Validation
 

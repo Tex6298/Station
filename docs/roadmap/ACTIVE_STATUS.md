@@ -9508,53 +9508,68 @@ git diff --check
 - Developer Spaces visual polish before ingestion auth, validation, limits, and
   safe serialization.
 
-## Latest MIMIR handoff - PR137 observed runtime context staging schema proof
+## Latest ARGUS verdict - PR137 observed runtime context staging schema proof
 
-PR136 2C Observed Runtime Dedicated-Key Staging Smoke is accepted and closed by
-MIMIR on 2026-06-21 as a bounded staging schema/readback blocker. PR137 2C
-Observed Runtime Context Staging Schema Proof is opened for DAEDALUS.
+ARGUS accepts PR137 2C Observed Runtime Context Staging Schema Proof on
+2026-06-21 only as a bounded staging proof and blocker classification, and
+wakes MIMIR for the next deployment/schema decision.
 
-Why now:
+Accepted proof:
 
-- PR136 proved named-key create/list/revoke, no legacy rotation, guarded
-  live-send reach, targeted revoke, and no-secret handling.
-- PR136 could not prove accepted import/readback because staging is missing
-  `public.developer_space_observed_runtime_context` in the schema cache.
-- The repo already contains
-  `infra/supabase/migrations/046_observed_runtime_supporting_context.sql`.
+- The original PR136 missing-context-table readback blocker is cleared for
+  `station-replay-dev-alpha`: public and owner reads now return HTTP `200`
+  instead of the missing
+  `public.developer_space_observed_runtime_context` schema-cache error.
+- PR137 used temporary named ingestion keys, did not use legacy key rotation,
+  kept raw key material in memory only, and cleanup found zero active PR137
+  smoke keys.
+- Guarded Agents Observe live send reached staging, then failed at a new bounded
+  server boundary:
+  `developer_space_server_error` /
+  `Could not load Developer Space webhook signing secret.`
+- No accepted observed-runtime import, replay/idempotency success, or persisted
+  supporting-context readback is claimed.
+- No Supabase URL, DB URL, service key, auth token, replay password, raw
+  Developer Space key, webhook signing material, raw webhook id, fixture
+  prompt/body/path, `.env` value, Railway variable, or committed secret was
+  printed or written.
 
-Task:
+ARGUS cautions:
 
-- Confirm whether staging has migration `046` recorded/applied without printing
-  secrets.
-- Apply only `046_observed_runtime_supporting_context.sql` if absent.
-- If `046` is recorded but PostgREST cannot see the relation, trigger/request
-  schema-cache reload instead of reapplying blindly.
-- Prove the table/index/policy/migration state through non-secret metadata where
-  safely queryable.
-- Rerun the bounded PR136 smoke using `station-replay-dev-alpha` and a
-  temporary named `PR137/PR136 observed-runtime smoke` key.
-- Verify the missing-context-table/schema-cache error is gone, or classify the
-  next bounded blocker precisely.
-- Revoke the temporary named key.
+- This is not a complete migration `046` acceptance. Only the
+  `create table if not exists public.developer_space_observed_runtime_context`
+  statement was applied/proved. Index, RLS policy, table comment, and
+  migration-ledger proof remain blocked by the Supabase pooler prepared-
+  statement collision.
+- Because RLS/policy state was not proved, staging supporting-context storage
+  should not be treated as fully safe for accepted live imports until the rest
+  of migration `046` is applied/proved or an equivalent access proof is
+  recorded.
+- The signing-secret error is generic. The local route can produce it when
+  loading `developer_space_webhook_signing_secrets` fails, and that table lives
+  in migration `048_developer_space_webhook_signing_secrets.sql`. PR137 does
+  not prove whether staging is missing migration `048`, has a PostgREST/schema
+  cache issue, has an encryption/config issue, or has a malformed active secret.
 
-Validation: `test:developer-spaces`, `test:developer-space-client`,
-`--filter @station/api build`, `typecheck`, and `git diff --check`; plus safe
-staging facts for migration/table presence, schema-cache reload, named-key
-create/revoke, live-send response, and public/owner readback.
+ARGUS validation:
 
-Non-scope: no broad migration sweep, no unrelated staging schema repair, no
-legacy key rotation, no committed secrets, no `.env`/Railway key writes, no
-Cloudflare Worker/Vectorize/D1/Queue/Durable Object work, no hosted runtime/
-scheduler/agent control plane, no UI, no billing/Stripe, no Redis memory truth,
-no provider routing, and no retrieval model changes.
+- `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces`: pass, 27 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:developer-space-client`: pass, 15
+  tests.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/api build`: pass.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck`: pass.
+- `git diff --check`: pass with CRLF normalization warnings only for local
+  triad/docs state.
+- `git diff --cached --check`: pass.
 
-Wake ARGUS with schema apply/proof method, migration/table/schema-cache
-evidence, PR136 rerun evidence, named-key create/revoke proof, no legacy
-rotation proof, accepted/bounded live-send response, public/owner readback
-proof, validation, no-secret proof, and explicit non-claims. Wake MIMIR if
-staging schema application is blocked by missing external access, migration
-state is ambiguous, or applying `046` would risk a broad schema change.
+ARGUS did not rerun live staging smoke because doing so would require
+secret-bearing auth and another staging mutation.
+
+Recommended next sequencing for MIMIR: finish/prove the remainder of migration
+`046` including RLS/access safety and ledger state, then investigate the
+observed-runtime signing-secret load boundary through migration `048`,
+PostgREST/schema-cache state, encryption/config state, and active-secret state
+without printing or writing secrets.
 
 ## Previous DAEDALUS handoff - PR127 webhook concurrency guard
 

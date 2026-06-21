@@ -70,6 +70,39 @@ DAEDALUS staging proof on 2026-06-21:
 | `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typechecks passed through turbo cache replay. |
 | `git diff --check` | Pass | CRLF normalization warnings only. |
 
+ARGUS review validation on 2026-06-21:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 27 tests passed, including observed-runtime context and signing-secret route coverage. |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-space-client` | Pass | 15 tests passed, including guarded live-send helper behavior with mocked transport. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/api build` | Pass | API package build completed after dependency package builds. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typechecks replayed/passed through turbo. |
+| `git diff --check` | Pass | CRLF normalization warnings only for local triad/docs state. |
+| `git diff --cached --check` | Pass | No staged whitespace errors. |
+
+ARGUS review notes:
+
+- Accepted PR137 only as a bounded staging proof and blocker classification.
+  The PR136 missing-context-table readback blocker is cleared for public/owner
+  reads on `station-replay-dev-alpha`.
+- This is not a complete migration `046` acceptance: index, RLS policy, table
+  comment, and migration-ledger proof remain blocked by the Supabase
+  pooler/prepared-statement collision.
+- Because RLS/policy state was not proved, staging supporting-context storage
+  should not be treated as fully safe for accepted live imports until the rest
+  of migration `046` is applied/proved or an equivalent access proof is
+  recorded.
+- The new live-send blocker is the generic
+  `Could not load Developer Space webhook signing secret.` server boundary.
+  ARGUS ties the next investigation to migration `048`, schema-cache state,
+  encryption/config state, or malformed active-secret state; PR137 does not
+  prove which one is responsible.
+- Temporary PR137 named keys were revoked and cleanup found zero active PR137
+  smoke keys. No legacy rotation, accepted import, replay/idempotency success,
+  raw secret, `.env` value, Railway variable, fixture prompt/body/path, auth
+  token, or webhook id was committed.
+
 DAEDALUS PR137 notes:
 
 - The original PR136 staging schema-cache blocker is cleared for readback: the
