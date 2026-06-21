@@ -171,7 +171,8 @@ payload counts, classification counts, coarse event labels, provenance names,
 privacy assertion booleans, and a redacted demo signature header. It does not
 print raw prompts, command bodies, file paths, token values, raw tool payloads,
 terminal/stdout/stderr-like output, fixture session/event/agent ids, live API
-keys, live signing secrets, or non-demo webhook ids.
+keys, live signing secrets, or non-demo webhook ids. Privacy assertion errors
+name the failed field only; they do not echo the raw fixture value.
 
 ## Error handling
 

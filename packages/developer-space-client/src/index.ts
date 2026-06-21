@@ -110,8 +110,6 @@ export interface AgentsObserveOfflineDryRunOptions {
   fixture?: AgentsObserveHookEventFixture;
   fixtureSource?: "default-fixture" | "provided-file";
   includeSignedRequest?: boolean;
-  demoSigningSecret?: string;
-  demoWebhookId?: string;
   timestamp?: number;
 }
 
@@ -377,8 +375,8 @@ export async function createAgentsObserveOfflineDryRunSummary(
 
   if (options.includeSignedRequest) {
     const request = await createObservedRuntimeWebhookRequest({
-      deliveryId: options.demoWebhookId ?? "demo-agents-observe-dry-run",
-      signingSecret: options.demoSigningSecret ?? "station_whsec_demo_agents_observe_dry_run",
+      deliveryId: "demo-agents-observe-dry-run",
+      signingSecret: "demo-agents-observe-dry-run-signing-material",
       timestamp: options.timestamp ?? 1_771_452_800,
       observedAt: fixture.observedAt,
       source: {
@@ -401,6 +399,11 @@ export async function createAgentsObserveOfflineDryRunSummary(
   return summary;
 }
 
+type ForbiddenFixtureValue = {
+  label: string;
+  value?: string;
+};
+
 function bytesToHex(bytes: Uint8Array) {
   return Array.from(bytes, (byte) => byte.toString(16).padStart(2, "0")).join("");
 }
@@ -409,20 +412,23 @@ function assertAgentsObserveDryRunPrivacy(
   serializedOutput: string,
   fixture: AgentsObserveHookEventFixture,
 ): AgentsObserveOfflineDryRunSummary["privacyAssertions"] {
-  const forbidden = [
-    fixture.sessionId,
-    fixture.eventId,
-    fixture.agent.id,
-    fixture.raw.prompt,
-    fixture.raw.commandBody,
-    fixture.raw.terminalOutput,
-    fixture.raw.tokenValue,
-    ...(fixture.filesTouched ?? []),
-    ...Object.values(fixture.raw.toolPayload ?? {}).map((value) => String(value)),
-  ].filter(isString);
-  for (const value of forbidden) {
+  const forbidden: ForbiddenFixtureValue[] = [
+    { label: "sessionId", value: fixture.sessionId },
+    { label: "eventId", value: fixture.eventId },
+    { label: "agent.id", value: fixture.agent.id },
+    { label: "rawPrompt", value: fixture.raw.prompt },
+    { label: "commandBody", value: fixture.raw.commandBody },
+    { label: "terminalOutput", value: fixture.raw.terminalOutput },
+    { label: "tokenValue", value: fixture.raw.tokenValue },
+    ...(fixture.filesTouched ?? []).map((value, index) => ({ label: `filesTouched[${index}]`, value })),
+    ...Object.entries(fixture.raw.toolPayload ?? {}).map(([key, value]) => ({
+      label: `toolPayload.${key}`,
+      value: typeof value === "string" ? value : JSON.stringify(value),
+    })),
+  ];
+  for (const { label, value } of forbidden) {
     if (value && serializedOutput.includes(value)) {
-      throw new Error(`Agents Observe dry run would expose raw fixture value: ${value}`);
+      throw new Error(`Agents Observe dry run would expose ${label}.`);
     }
   }
   return passingPrivacyAssertions();

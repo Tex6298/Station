@@ -445,7 +445,7 @@ test("agents observe offline dry run returns safe not-sent summary with no live 
       agentsObserveHookEventFixture.raw.commandBody,
       agentsObserveHookEventFixture.raw.terminalOutput,
       agentsObserveHookEventFixture.raw.tokenValue,
-      "station_whsec_demo_agents_observe_dry_run",
+      "demo-agents-observe-dry-run-signing-material",
       ...(agentsObserveHookEventFixture.filesTouched ?? []),
     ]) {
       assert.equal(serialized.includes(forbidden), false, `dry-run output leaked: ${forbidden}`);
@@ -456,6 +456,27 @@ test("agents observe offline dry run returns safe not-sent summary with no live 
     restoreEnv("STATION_API_URL", previousEnv.STATION_API_URL);
     restoreEnv("STATION_OBSERVED_RUNTIME_WEBHOOK_ID", previousEnv.STATION_OBSERVED_RUNTIME_WEBHOOK_ID);
   }
+});
+
+test("agents observe offline dry run privacy errors do not echo raw values", async () => {
+  const rawPrompt = "agents-observe";
+  await assert.rejects(
+    () => createAgentsObserveOfflineDryRunSummary({
+      fixture: {
+        ...agentsObserveHookEventFixture,
+        raw: {
+          ...agentsObserveHookEventFixture.raw,
+          prompt: rawPrompt,
+        },
+      },
+    }),
+    (error) => {
+      const message = error instanceof Error ? error.message : String(error);
+      assert.match(message, /rawPrompt/);
+      assert.equal(message.includes(rawPrompt), false);
+      return true;
+    },
+  );
 });
 
 test("client rejects blank connection options after trimming", () => {

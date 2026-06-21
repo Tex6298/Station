@@ -9092,6 +9092,24 @@ when a PR lands, or when validation truth changes.
   `@station/developer-space-client` build, the `--signed-demo` dry-run example
   command, root `typecheck`, and `git diff --check` with CRLF normalization
   warnings only.
+- ARGUS accepts PR133 2C Agents Observe Offline Adapter Dry Run on 2026-06-21
+  after a narrow dry-run safety patch and wakes MIMIR for closeout. Review
+  patch: removed caller-supplied demo signing material/webhook id from
+  `createAgentsObserveOfflineDryRunSummary` so signed proof uses internal
+  demo-only values, replaced privacy assertion errors that echoed raw fixture
+  values with field-name-only errors, and added a regression test for the
+  failure path. Review accepted the command/API shape, safe `not_sent` output,
+  no-live-config/no-network proof, PR132 transform reuse, and PR128 signed
+  request construction proof with no live send. Validation passed
+  `test:developer-space-client` with 12 tests, `@station/developer-space-client`
+  build, the `--signed-demo` dry-run example command, root `typecheck`,
+  `git diff --check` with CRLF normalization warnings only, and
+  `git diff --cached --check`. Non-scope preserved: no live webhook send,
+  required `STATION_DEVELOPER_KEY`, Developer Space key generation/rotation,
+  Railway/Supabase/Cloudflare config request, Cloudflare Worker/Vectorize/D1/
+  Queue/Durable Object work, external repo vendoring, hosted runtime, task
+  scheduler, agent control plane, UI, billing/Stripe, Redis memory truth,
+  provider routing, retrieval model change, or committed live secret value.
 - DAEDALUS implements PR126 2C Observed Runtime Signing Secret Lifecycle on
   2026-06-21 and wakes ARGUS for schema/API/encryption/signature review.
   Migration `048_developer_space_webhook_signing_secrets.sql` adds
@@ -9372,18 +9390,18 @@ git diff --check
 - Developer Spaces visual polish before ingestion auth, validation, limits, and
   safe serialization.
 
-## Latest DAEDALUS handoff - PR133 Agents Observe offline adapter dry run
+## Latest ARGUS verdict - PR133 Agents Observe offline adapter dry run
 
-PR133 2C Agents Observe Offline Adapter Dry Run is implemented by DAEDALUS on
-2026-06-21 and ready for ARGUS review. ARIADNE is not required; no visible route
-changed.
+PR133 2C Agents Observe Offline Adapter Dry Run is accepted by ARGUS on
+2026-06-21 after a narrow dry-run safety patch. It is ready for MIMIR closeout.
+ARIADNE is not required; no visible route changed.
 
 Dry-run API:
 
 - `createAgentsObserveOfflineDryRunSummary(options)`
 - Defaults to the PR132 fixture or accepts a parsed fixture object.
-- Optionally builds a PR128 signed request proof with fake/demo signing
-  material only.
+- Optionally builds a PR128 signed request proof with internal demo signing
+  material and an internal demo webhook id only.
 - Returns a safe `status:"not_sent"` summary and sends no request.
 
 Dry-run command:
@@ -9406,17 +9424,27 @@ paths, token values, raw tool payload values, terminal/stdout/stderr-like
 output, fixture `sessionId`, fixture `eventId`, fixture `agent.id`, live API
 keys, live signing secrets, or non-demo webhook ids.
 
+ARGUS review patch:
+
+- Removed caller-supplied demo signing material and demo webhook id from
+  `createAgentsObserveOfflineDryRunSummary`, keeping signed proof on internal
+  demo-only values.
+- Privacy assertion failures now name only the failed field and do not echo raw
+  fixture values.
+- Added a regression test for the failure path.
+
 No-live-config/no-network proof: tests delete `STATION_DEVELOPER_KEY`,
 `STATION_API_URL`, and `STATION_OBSERVED_RUNTIME_WEBHOOK_ID`, replace
 `globalThis.fetch` with a failing stub, and prove the dry run completes without
 calling fetch. The example command was also run with `--signed-demo`; it printed
 safe output and sent no request.
 
-Validation: `test:developer-space-client` passed with 11 tests,
+Validation: `test:developer-space-client` passed with 12 tests,
 `@station/developer-space-client` build passed, the dry-run example command
-passed, root `typecheck` passed, and `git diff --check` passed with CRLF
-normalization warnings only. The client package has no standalone `typecheck`
-script, so the package build is the package-local typecheck gate.
+passed, root `typecheck` passed, `git diff --check` passed with CRLF
+normalization warnings only, and `git diff --cached --check` passed. The client
+package has no standalone `typecheck` script, so the package build is the
+package-local typecheck gate.
 
 Non-scope preserved: no live webhook send, no required
 `STATION_DEVELOPER_KEY`, no Developer Space key generation/rotation, no
@@ -9425,9 +9453,8 @@ Queue/Durable Object work, no external repo code vendoring, no hosted runtime,
 task scheduler, agent control plane, UI, billing/Stripe, Redis memory truth,
 provider routing, retrieval model changes, or committed secrets.
 
-ARGUS should review dry-run command/API shape, sample safe output, fixture/
-source evidence, no-live-config/no-network proof, privacy/no-raw-id/no-secret
-test evidence, validation, and explicit non-claims.
+MIMIR should close PR133 and decide whether the next move is live smoke config,
+another offline adapter-hardening step, or a pause.
 
 ## Previous DAEDALUS handoff - PR127 webhook concurrency guard
 

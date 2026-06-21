@@ -71,8 +71,8 @@ Implementation result:
   `packages/developer-space-client/examples/agents-observe-offline-dry-run.ts`.
 - Dry run defaults to the PR132 fixture or accepts a local fixture path through
   the example command.
-- Dry run optionally builds a PR128 signed request proof with demo signing
-  material and demo webhook id only.
+- Dry run optionally builds a PR128 signed request proof with internal demo
+  signing material and an internal demo webhook id only.
 - Dry run returns/prints safe not-sent output: payload counts, classification
   counts, coarse event labels, provenance names, privacy booleans, redacted demo
   signature header, and synthetic demo webhook id.
@@ -86,6 +86,27 @@ Implementation result:
   hosted runtime, scheduler, agent control plane, UI, billing/Stripe, Redis
   memory truth, provider routing, retrieval model change, or committed secret
   value was added.
+
+ARGUS review on 2026-06-21:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-space-client` | Pass | 12 tests passed, including no-network dry run and non-echoing privacy error regression. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/developer-space-client build` | Pass | Client package build completed. |
+| `npm exec --yes pnpm@10.32.1 -- tsx packages/developer-space-client/examples/agents-observe-offline-dry-run.ts --signed-demo` | Pass | Printed safe `not_sent` summary with redacted demo signature metadata and no raw ids/secrets. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed from cache. |
+| `git diff --check` | Pass | CRLF normalization warnings only. |
+| `git diff --cached --check` | Pass | No staged whitespace errors. |
+
+Review result:
+
+- Accepted after a narrow ARGUS patch removed caller-supplied demo signing
+  material/webhook id from the dry-run API and kept the signed proof on
+  internal demo-only values.
+- Privacy assertion errors now name only the failed field and do not echo the
+  raw fixture value.
+- Dry-run output remains `not_sent`, config-free, network-free, and safe to
+  paste into a handoff.
 
 ## PR132 2C Agents Observe Transform Spike
 

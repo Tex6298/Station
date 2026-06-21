@@ -1,6 +1,6 @@
 # PR133 2C Agents Observe Offline Adapter Dry Run
 
-Status: Implemented by DAEDALUS on 2026-06-21; ready for ARGUS review.
+Status: Accepted by ARGUS after review patch on 2026-06-21; ready for MIMIR closeout.
 
 ## Why This Lane
 
@@ -89,8 +89,8 @@ Dry-run API:
 - `createAgentsObserveOfflineDryRunSummary(options)`
 - Defaults to the PR132 `agentsObserveHookEventFixture`.
 - Accepts an already parsed fixture object and fixture source label.
-- Optionally builds a PR128 signed request proof with demo signing material and
-  demo webhook id only.
+- Optionally builds a PR128 signed request proof with internal demo signing
+  material and an internal demo webhook id only.
 - Returns a safe `status:"not_sent"` summary; it does not send a request.
 
 Dry-run command:
@@ -165,6 +165,8 @@ Privacy proof:
 - Tests fail if dry-run output includes raw prompts, command bodies, file paths,
   token values, raw tool payload values, terminal-output-like material, fixture
   `sessionId`, fixture `eventId`, fixture `agent.id`, or demo signing material.
+- ARGUS added a regression proving privacy assertion failures name only the
+  failed field and do not echo the raw fixture value.
 - Output includes only counts, coarse labels, provenance names, boolean privacy
   assertions, redacted signature header, and a synthetic demo webhook id.
 
@@ -191,6 +193,55 @@ DAEDALUS validation:
 | `npm exec --yes pnpm@10.32.1 -- exec tsx packages/developer-space-client/examples/agents-observe-offline-dry-run.ts --signed-demo` | Pass | Printed safe `not_sent` summary with redacted demo signature and no raw ids/secrets. |
 | `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed from cache. |
 | `git diff --check` | Pass | CRLF normalization warnings only. |
+
+## ARGUS Review - 2026-06-21
+
+ARGUS accepts PR133 after a narrow dry-run safety patch.
+
+Review patch:
+
+- Removed caller-supplied demo signing material and demo webhook id from
+  `createAgentsObserveOfflineDryRunSummary`; the signed proof now uses internal
+  demo-only values.
+- Replaced privacy assertion errors that echoed a raw fixture value with
+  field-name-only errors.
+- Added a regression test proving failure-path privacy errors do not echo raw
+  fixture values.
+
+Review result:
+
+- The command/API matches the requested lane: local fixture or parsed fixture
+  object, PR132 transform reuse, optional PR128 signed request construction
+  proof, safe `not_sent` summary, and no live send.
+- The dry-run path does not require `STATION_DEVELOPER_KEY`, `STATION_API_URL`,
+  `STATION_OBSERVED_RUNTIME_WEBHOOK_ID`, Railway, Supabase, Cloudflare, or
+  network access.
+- Safe output includes counts, coarse event labels, public event-data keys,
+  provenance refs, classification counts, privacy booleans, redacted demo
+  signature metadata, and a synthetic demo webhook id only.
+- Tests and the dry-run privacy assertion cover raw prompt, command body, file
+  paths, token value, raw tool payload values, terminal-output-like material,
+  fixture `sessionId`, fixture `eventId`, fixture `agent.id`, and demo signing
+  material.
+- Non-scope is preserved: no live webhook send, Developer Space key generation
+  or rotation, config request, Cloudflare Worker/Vectorize/D1/Queue/Durable
+  Object work, external repo vendoring, hosted runtime, task scheduler, agent
+  control plane, UI, billing/Stripe, Redis memory truth, provider routing,
+  retrieval model change, or committed live secret value.
+
+ARGUS validation:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-space-client` | Pass | 12 tests passed, including no-network dry run and non-echoing privacy error regression. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/developer-space-client build` | Pass | Client package build completed. |
+| `npm exec --yes pnpm@10.32.1 -- tsx packages/developer-space-client/examples/agents-observe-offline-dry-run.ts --signed-demo` | Pass | Printed safe `not_sent` summary with redacted demo signature metadata and no raw ids/secrets. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed from cache. |
+| `git diff --check` | Pass | CRLF normalization warnings only. |
+| `git diff --cached --check` | Pass | No staged whitespace errors. |
+
+Verdict: close PR133 as accepted. MIMIR should decide whether the next move is
+live smoke config, another offline adapter-hardening step, or a pause.
 
 ## Non-Scope
 
