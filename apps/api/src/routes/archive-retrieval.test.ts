@@ -50,6 +50,7 @@ class InMemorySupabase {
       archiveChunk("chunk-missing-lifecycle-file", OWNER_ID, "persona_file", "file-1", "source-notebook.md", "Missing lifecycle imported blue notebook chunk must not enter runtime context.", 13, 0, 1),
       archiveChunk("chunk-failed", OWNER_ID, "import_job", "import-failed", "Failed import", "Failed import private grief should not become authoritative.", 10, 0, 1),
       archiveChunk("chunk-missing", OWNER_ID, "import_job", "import-missing", "Deleted import", "Deleted source private grief should not be retrievable.", 9, 0, 1),
+      archiveChunk("chunk-other-source", OWNER_ID, "import_job", "import-other", "Other-owned source", "Other-owned source private grief should not become authoritative.", 9, 0, 1),
       archiveChunk("chunk-pending-file", OWNER_ID, "persona_file", "file-pending", "pending.txt", "Pending file private grief should not be retrievable.", 8, 0, 1),
       archiveChunk("chunk-other", OTHER_ID, "import_job", "import-other", "Other import", "Other owner private grief must not leak.", 10, 0, 1),
       {
@@ -123,6 +124,7 @@ class InMemorySupabase {
 
 class QueryBuilder {
   private filters: Array<[string, unknown]> = [];
+  private inFilters: Array<[string, unknown[]]> = [];
   private orderSpec: { field: string; ascending: boolean } | null = null;
   private limitCount: number | null = null;
 
@@ -134,6 +136,11 @@ class QueryBuilder {
 
   eq(field: string, value: unknown) {
     this.filters.push([field, value]);
+    return this;
+  }
+
+  in(field: string, values: unknown[]) {
+    this.inFilters.push([field, values]);
     return this;
   }
 
@@ -164,6 +171,9 @@ class QueryBuilder {
 
     for (const [field, value] of this.filters) {
       rows = rows.filter((row) => row[field] === value);
+    }
+    for (const [field, values] of this.inFilters) {
+      rows = rows.filter((row) => values.includes(row[field]));
     }
 
     if (this.orderSpec) {
@@ -225,6 +235,7 @@ test("private archive retrieval is owner-scoped and source-authoritative", async
     assert.doesNotMatch(serialized, /Other owner private grief/);
     assert.doesNotMatch(serialized, /Failed import private grief/);
     assert.doesNotMatch(serialized, /Deleted source private grief/);
+    assert.doesNotMatch(serialized, /Other-owned source private grief/);
     assert.doesNotMatch(serialized, /Pending file private grief/);
     assert.doesNotMatch(serialized, /Ordinary memory private grief/);
     assert.equal(

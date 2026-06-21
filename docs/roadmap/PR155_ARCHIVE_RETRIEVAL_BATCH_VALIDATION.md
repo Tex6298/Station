@@ -3,7 +3,7 @@
 Date opened: 2026-06-21
 Opened by: A1 / MIMIR
 Owner: DAEDALUS implements or blocks; ARGUS reviews before closeout.
-Status: open for DAEDALUS
+Status: implemented by DAEDALUS; ready for ARGUS review
 
 ## Why This Lane
 
@@ -112,3 +112,48 @@ DAEDALUS should wake ARGUS with:
 
 ARGUS should review the hostile owner/privacy paths before MIMIR opens any
 hosted remeasurement lane.
+
+## DAEDALUS Implementation
+
+Implemented on 2026-06-21.
+
+Archive retrieval now validates candidate metadata with owner/persona-scoped
+batch reads instead of per-candidate reads:
+
+- runtime lifecycle rows are loaded once from `memory_item_lifecycle` with
+  `owner_user_id`, `persona_id`, and candidate `memory_item_id IN (...)`;
+- completed import citations are loaded once from `import_jobs` with
+  `owner_user_id`, `persona_id`, and source `id IN (...)`;
+- processed file citations are loaded once from `persona_files` with
+  `owner_user_id`, `persona_id`, and source `id IN (...)`;
+- archived conversation citations are loaded once from
+  `archived_chat_transcripts` with `owner_user_id`, `persona_id`, and source
+  `id IN (...)`.
+
+The candidate order, score ordering, source caps, max chunk limit, max
+character limit, citation reason strings, runtime lifecycle exclusion reasons,
+and `includeQuarantined` behavior are preserved. The batch lookup feeds the
+existing downstream limit/cap application rather than changing candidate depth
+or retrieval policy.
+
+Focused test coverage was extended so an owner candidate pointing at another
+owner's import source is not returned by the batched citation lookup. The
+existing failed import, deleted import, pending file, quarantined lifecycle,
+missing lifecycle, and owner-only archive/context-preview assertions remain
+green.
+
+No sanitized Archive sub-timing metadata was added in this patch. PR153 already
+exposes the owner-level `archive_retrieval` stage, and PR155 specifically
+removes repeated readback calls inside that stage without adding another public
+trace surface.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` passed with
+  35 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:persona-context` passed with 8
+  tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:retrieval-metadata` passed with 8
+  tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `git diff --check` passed with CRLF normalization warnings only.

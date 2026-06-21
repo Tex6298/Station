@@ -228,6 +228,7 @@ class InMemorySupabase {
 
 class QueryBuilder {
   private filters: Array<[string, unknown]> = [];
+  private inFilters: Array<[string, unknown[]]> = [];
   private orderSpec: { field: string; ascending: boolean } | null = null;
   private limitCount: number | null = null;
   private operation: "select" | "insert" | "update" | "delete" = "select";
@@ -243,6 +244,11 @@ class QueryBuilder {
 
   eq(field: string, value: unknown) {
     this.filters.push([field, value]);
+    return this;
+  }
+
+  in(field: string, values: unknown[]) {
+    this.inFilters.push([field, values]);
     return this;
   }
 
@@ -290,6 +296,9 @@ class QueryBuilder {
 
     for (const [field, value] of this.filters) {
       rows = rows.filter((row) => row[field] === value);
+    }
+    for (const [field, values] of this.inFilters) {
+      rows = rows.filter((row) => values.includes(row[field]));
     }
 
     if (this.orderSpec) {

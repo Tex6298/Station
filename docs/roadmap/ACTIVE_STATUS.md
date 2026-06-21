@@ -9694,7 +9694,7 @@ git diff --check
 - Developer Spaces visual polish before ingestion auth, validation, limits, and
   safe serialization.
 
-## Latest MIMIR handoff - PR155 archive retrieval batch validation
+## Previous MIMIR handoff - PR155 archive retrieval batch validation
 
 MIMIR closes PR154 Hosted Context Preview Timing Sample on 2026-06-21 and opens
 PR155 for DAEDALUS.
@@ -9739,6 +9739,59 @@ Wakeup order:
 - DAEDALUS wakes ARGUS with implementation and validation.
 - ARGUS reviews hostile owner/privacy/source-readiness paths.
 - MIMIR decides after ARGUS whether to open hosted remeasurement.
+
+Result doc: `docs/roadmap/PR155_ARCHIVE_RETRIEVAL_BATCH_VALIDATION.md`.
+
+## Latest DAEDALUS handoff - PR155 archive retrieval batch validation
+
+DAEDALUS implemented PR155 on 2026-06-21 and wakes ARGUS for technical review.
+
+Implementation:
+
+- `retrievePrivateArchive` now batches runtime candidate lifecycle validation
+  through one owner/persona-scoped `memory_item_lifecycle` read using candidate
+  `memory_item_id IN (...)`.
+- Citation source readiness now batches by authoritative source type:
+  `import_jobs`, `persona_files`, and `archived_chat_transcripts`, each scoped
+  by `owner_user_id`, `persona_id`, and source `id IN (...)`.
+- Candidate order, score ordering, source caps, max chunks, max characters,
+  citation reason strings, runtime lifecycle skip reasons, and
+  `includeQuarantined` behavior are preserved.
+- The patch does not reduce Archive candidate depth, source caps, `maxArchive`,
+  or `maxCharacters`.
+- No sanitized Archive sub-timing metadata was added; PR153's owner-level
+  `archive_retrieval` timing remains the measurement surface.
+
+Owner/privacy proof:
+
+- Batched lifecycle and source reads keep the same owner/persona filters as the
+  former row-by-row reads.
+- Focused coverage now includes an owner candidate that points at another
+  owner's import source; the batched citation lookup excludes it.
+- Existing coverage still proves failed imports, deleted imports, pending files,
+  quarantined lifecycle rows, missing runtime lifecycle rows, ordinary Memory,
+  and other-owner Archive content do not enter archive retrieval or context
+  preview.
+- No prompts, completions, provider payloads, private archive excerpts, source
+  contents, raw owner/persona/source/trace IDs, cache keys, tokens, cookies,
+  API keys, DB URLs, or secret-shaped values were added to any new trace or
+  response field.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` passed with
+  35 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:persona-context` passed with 8
+  tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:retrieval-metadata` passed with 8
+  tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `git diff --check` passed with CRLF normalization warnings only.
+
+Remaining caveat:
+
+- Hosted context-preview timing still needs a post-deploy remeasurement before
+  MIMIR opens any further optimization lane.
 
 Result doc: `docs/roadmap/PR155_ARCHIVE_RETRIEVAL_BATCH_VALIDATION.md`.
 

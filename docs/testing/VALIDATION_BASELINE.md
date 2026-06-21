@@ -52,6 +52,35 @@ pnpm test:developer-spaces
 pnpm test:developer-space-client
 ```
 
+## PR155 Archive Retrieval Batch Validation
+
+DAEDALUS implementation validation on 2026-06-21:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass | 35 tests passed; archive retrieval, context-preview archive use, conversation archive, import parser, and runtime history coverage remain green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-context` | Pass | 8 tests passed; PR153 timing metadata and owner-only runtime context remain green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:retrieval-metadata` | Pass | 8 tests passed; active embedding/vector RPC contract and shared query embedding behavior remain green. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typechecks passed. |
+| `git diff --check` | Pass | CRLF normalization warnings only for touched files and local triad state. |
+
+DAEDALUS PR155 notes:
+
+- Archive candidate lifecycle validation now uses one owner/persona-scoped
+  `memory_item_lifecycle` batch read keyed by candidate memory item ids.
+- Archive citation readiness now batches source reads by authoritative source
+  type: `import_jobs`, `persona_files`, and `archived_chat_transcripts`.
+- Candidate order, score ordering, source caps, max chunks, max characters,
+  citation reason strings, lifecycle skip counts, and `includeQuarantined`
+  behavior are preserved.
+- Focused archive retrieval coverage now proves an owner candidate pointing at
+  another owner's import source is excluded by the batched citation lookup.
+- No archive sub-timing field, operational cache, provider/embedding/vector
+  schema change, Redis Memory truth, Cloudflare path, worker, import repair,
+  billing/auth/session change, broad UI, public route behavior, prompt/payload
+  logging, private excerpt trace, raw id trace, cache key, token, cookie, API
+  key, DB URL, or secret-shaped value exposure was added.
+
 ## PR153 Context Preview Latency Breakdown
 
 ARGUS review validation on 2026-06-21:
