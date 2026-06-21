@@ -54,6 +54,31 @@ pnpm test:developer-space-client
 
 ## PR159 Hosted Walkthrough Defect Patch
 
+ARGUS review validation on 2026-06-21:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:auth` | Pass | 16 tests passed, including anonymous public document reads using `/documents/public/:id` directly and signed-in reads trying the owner-aware route first. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 102 tests passed, including owner-visible UUID-shaped value redaction helper coverage. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API typecheck replayed from cache; web typecheck ran successfully. |
+| `git diff --check` | Pass | CRLF normalization warnings only for touched docs and local triad state. |
+| `git diff --cached --check` | Pass | CRLF normalization warnings only for touched docs and local triad state. |
+| Staged secret-shaped value scan | Pass | No staged secret-shaped additions found. |
+
+ARGUS PR159 notes:
+
+- Accepted the anonymous public document route sequencing change because it is
+  client-side route selection only; the backend public read still applies
+  `canReadDocument` and does not widen private document access.
+- Accepted the owner-visible redaction helper as a bounded fix for
+  UUID-shaped visible values in Runtime Context readback, Saved
+  Memory/shared-memory cards, and Global Archive readback.
+- The redaction claim remains narrow and does not assert comprehensive removal
+  of all private corpus text, prompts, URLs, provider payloads, tokens, or
+  secrets from every owner-visible surface.
+- No backend auth policy, Cloudflare, hosted runtime, queues, partner adapters,
+  billing, or broad UI scope changed.
+
 DAEDALUS implementation validation on 2026-06-21:
 
 | Command | Result | Notes |

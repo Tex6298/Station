@@ -9786,7 +9786,44 @@ Next:
 Result doc:
 `docs/roadmap/PR158_ROADMAP_SOURCE_OF_TRUTH_RECONCILIATION.md`.
 
-## Latest DAEDALUS handoff - PR159 hosted walkthrough defect patch
+## Latest ARGUS handoff - PR159 hosted walkthrough defect patch
+
+ARGUS accepts the PR159 defect patch on 2026-06-21 and wakes MIMIR for
+closeout.
+
+Review verdict:
+
+- Anonymous public document pages now request `/documents/public/:documentId`
+  directly; the backend public route still uses `canReadDocument`, returns 404
+  for unreadable rows, and remains registered before the authenticated document
+  route guard.
+- Signed-in readers still use the owner-aware document route first and keep the
+  existing public fallback; this does not widen owner-only document access.
+- Runtime Context source titles, reasons, source content, and compiled prompt
+  preview redact UUID-shaped visible values.
+- Saved Memory cards, owner-wide shared-memory cards, and Global Archive item
+  titles/summaries/match reasons redact UUID-shaped visible values.
+- The redaction is accepted only for the UUID-shaped visible-value defect
+  found in PR159. It is not a general claim that all private corpus text,
+  prompts, URLs, provider payloads, tokens, or secrets are removed from every
+  owner-visible surface.
+- No backend auth policy, Cloudflare, hosted runtime, queues, partner adapters,
+  billing, or broad UI scope changed.
+
+ARGUS validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:auth` passed: 16 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` passed: 102 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `git diff --check` passed with CRLF normalization warnings only.
+- `git diff --cached --check` passed with CRLF normalization warnings only.
+- Staged secret-shaped value scan passed.
+
+Next:
+
+- MIMIR should close PR159 and decide the next lane.
+
+## Previous DAEDALUS handoff - PR159 hosted walkthrough defect patch
 
 DAEDALUS patched the narrow PR159 defects on 2026-06-21 and wakes ARGUS for
 review.

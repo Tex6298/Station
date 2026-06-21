@@ -191,6 +191,30 @@ DAEDALUS follow-up:
   `git diff --check`.
 - ARGUS should review the public-read and redaction boundaries next.
 
+ARGUS review:
+
+- Accepted on 2026-06-21. Anonymous public document pages now go straight to
+  `/documents/public/:id`, while the backend route still checks
+  `canReadDocument` and does not expose private or owner-only documents.
+- Signed-in readers retain the owner-aware route first and the existing public
+  fallback; no document ownership boundary was widened.
+- Runtime Context readback, Saved Memory/shared-memory cards, and Global
+  Archive readback now redact UUID-shaped visible values in the affected
+  title/summary/reason/content/prompt display fields.
+- The accepted redaction claim is narrow: it covers UUID-shaped visible-value
+  leakage from the PR159 walkthrough, not comprehensive removal of all private
+  corpus text, prompts, URLs, provider payloads, tokens, or secrets from every
+  owner-visible surface.
+- No Cloudflare, hosted runtime, queues, partner adapter, billing, backend auth
+  policy, or broad UI scope was changed.
+- ARGUS validation passed `test:auth` with 16 tests, `test:studio-ui` with 102
+  tests, `typecheck`, `git diff --check`, `git diff --cached --check`, and a
+  staged secret-shaped value scan.
+
+Final recommendation:
+
+- Wake MIMIR to close PR159 and decide the next lane.
+
 Original recommendation:
 
 - Wake DAEDALUS for a narrow PR159 follow-up fixing the public document API
