@@ -64,7 +64,7 @@ DAEDALUS implementation/staging proof on 2026-06-21:
 | `npm exec --yes pnpm@10.32.1 -- run test:developer-space-client` | Pass | 15 tests passed, including secret-shaped supporting-context classification assertion. |
 | `npm exec --yes pnpm@10.32.1 -- --filter @station/developer-space-client build` | Pass | Client package build completed. |
 | Bounded named-key current-timestamp smoke | New bounded blocker | Signin `200`; Developer Space list `200` count 2; selected space id hash `44e026dc4e6c`; named key create `201`; live send no longer returned `developer_space_observed_runtime_classification_failed`; it returned HTTP `500` with `developer_space_server_error` / `Could not import Developer Space node.` Public and owner readback stayed HTTP `200`; targeted revoke `200`; cleanup showed zero active PR140 smoke keys. |
-| Service-role PostgREST schema probes for base Developer Space tables | New bounded blocker classified | Staging returned missing-column errors for `developer_space_nodes.observed_runtime_classifications`, `developer_space_nodes.node_id`, `developer_space_events.observed_runtime_classifications`, and `developer_space_snapshots.observed_runtime_classifications`. |
+| Service-role PostgREST schema probes for base Developer Space tables | New bounded blocker classified | Staging returned missing-column errors for `developer_space_nodes.observed_runtime_classifications`, `developer_space_events.observed_runtime_classifications`, and `developer_space_snapshots.observed_runtime_classifications`. DAEDALUS also reported `developer_space_nodes.node_id`, but ARGUS later corrected that probe as non-authoritative because local migration `006` defines `developer_space_nodes.external_id`, while `node_id` belongs to `developer_space_events`. |
 | `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 27 tests passed. |
 | `npm exec --yes pnpm@10.32.1 -- --filter @station/api build` | Pass | API package build completed after dependency package builds. |
 | `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typechecks passed through turbo cache replay. |
@@ -85,6 +85,36 @@ DAEDALUS PR140 notes:
   Developer Space key, signing material, raw webhook id, fixture prompt/body/
   file path, `.env` value, Railway variable, or secret value was printed,
   committed, or written to docs.
+
+ARGUS review validation on 2026-06-21:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-space-client` | Pass | 15 tests passed, including secret-shaped supporting-context classification assertions. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/developer-space-client build` | Pass | Client package build completed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 27 tests passed, including observed-runtime classification/readback coverage. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/api build` | Pass | API package build completed after dependency package builds. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typechecks replayed/passed through turbo cache. |
+| `rg -n "inputTokenCount\|outputTokenCount" packages/developer-space-client/src packages/developer-space-client/examples apps/api/src/routes/developer-spaces.test.ts docs/roadmap/PR140_2C_AGENTS_OBSERVE_CLASSIFICATION_ALIGNMENT.md docs/testing/VALIDATION_BASELINE.md docs/roadmap/ACTIVE_STATUS.md` | Pass | No live code hits; remaining hits describe the old failure. |
+| `git diff --check` | Pass | CRLF normalization warnings only for local triad/docs state. |
+| `git diff --cached --check` | Pass | No staged whitespace errors. |
+
+ARGUS review notes:
+
+- PR140 is accepted as a narrow, privacy-positive Agents Observe classification
+  alignment.
+- The adapter no longer emits public token-shaped metric paths; `rawPrompt` and
+  `tokenValue` are secret-classified.
+- The remaining accepted staging blocker is missing
+  `observed_runtime_classifications` schema on base Developer Space
+  nodes/events/snapshots, not the payload classifier.
+- The reported `developer_space_nodes.node_id` probe is corrected as
+  non-authoritative because it is not part of the local node-table baseline.
+- No accepted observed-runtime import/readback is claimed; direct-applied
+  `046`/`047`/`048` ledger rows remain absent.
+- No auth/owner-scope, legacy key rotation, signing-secret lifecycle,
+  Cloudflare, hosted runtime, queue, partner adapter, UI, billing, or migration
+  ledger scope was widened.
 
 ## PR139 2C Observed Runtime Webhook Receipts Staging Proof
 

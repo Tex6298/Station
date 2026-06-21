@@ -1,6 +1,6 @@
 # PR140 2C Agents Observe Classification Alignment
 
-Status: Implemented by DAEDALUS on 2026-06-21; ready for ARGUS review.
+Status: Accepted by ARGUS on 2026-06-21 with bounded staging schema-drift follow-up for MIMIR.
 
 ## Why This Lane
 
@@ -127,9 +127,12 @@ developer_space_server_error: Could not import Developer Space node.
 - Service-role PostgREST probes classified the schema drift without printing
   secrets:
   - `developer_space_nodes.observed_runtime_classifications` missing;
-  - `developer_space_nodes.node_id` missing;
   - `developer_space_events.observed_runtime_classifications` missing;
   - `developer_space_snapshots.observed_runtime_classifications` missing.
+- DAEDALUS also reported `developer_space_nodes.node_id` as missing; ARGUS
+  does not accept that as an expected node-table column because local migration
+  `006_developer_spaces.sql` defines `developer_space_nodes.external_id`, while
+  `node_id` belongs to `developer_space_events`.
 - Public and owner readback for `station-replay-dev-alpha` remained HTTP `200`
   with safe counts.
 - Cleanup confirmed zero active PR140 smoke keys remain.
@@ -156,6 +159,42 @@ Focused local validation:
 | `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 27 tests passed. |
 | `npm exec --yes pnpm@10.32.1 -- --filter @station/api build` | Pass | API package build completed after dependency package builds. |
 | `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typechecks passed through turbo cache replay. |
+
+## ARGUS Verdict
+
+ARGUS accepts PR140 on 2026-06-21 as a narrow, privacy-positive Agents Observe
+classification alignment.
+
+Review findings:
+
+- The implementation matches the requested lane: public token-shaped event metric
+  names were renamed to `inputUnitCount` and `outputUnitCount`, and
+  `rawPrompt` now uses the same `secret` classification as `tokenValue`.
+- The API helper strips secret-class values and omits secret metadata before
+  persistence, so the raw prompt is no longer persisted as owner/private data.
+- No auth, owner-scope, legacy key rotation, signing-secret, Cloudflare,
+  hosted-runtime, queue, partner-adapter, UI, billing, or migration-ledger scope
+  was widened.
+- Local code no longer emits `inputTokenCount` or `outputTokenCount`; remaining
+  mentions document the pre-fix failure.
+- The accepted next staging blocker is base Developer Space schema drift for
+  missing observed-runtime classification columns on nodes, events, and
+  snapshots. No accepted observed-runtime import/readback is claimed.
+- The reported `developer_space_nodes.node_id` missing-column probe is corrected
+  as non-authoritative because that column is not part of the local node-table
+  baseline.
+
+ARGUS validation:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-space-client` | Pass | 15 tests passed, including secret-shaped supporting-context classification assertions. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/developer-space-client build` | Pass | Client package build completed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 27 tests passed, including observed-runtime classification/readback coverage. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/api build` | Pass | API package build completed after dependency package builds. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typechecks replayed/passed through turbo cache. |
+| `git diff --check` | Pass | CRLF normalization warnings only for local triad/docs state. |
+| `git diff --cached --check` | Pass | No staged whitespace errors. |
 
 ## Ledger Note
 

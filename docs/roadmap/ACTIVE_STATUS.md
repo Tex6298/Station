@@ -9322,13 +9322,29 @@ when a PR lands, or when validation truth changes.
   `developer_space_server_error` / `Could not import Developer Space node.`
   Service-role PostgREST probes show staging lacks
   `developer_space_nodes.observed_runtime_classifications`,
-  `developer_space_nodes.node_id`,
   `developer_space_events.observed_runtime_classifications`, and
-  `developer_space_snapshots.observed_runtime_classifications`. Temporary PR140
-  key creation/revoke worked, cleanup confirmed zero active PR140 smoke keys,
-  public/owner readback stayed HTTP `200`, and no accepted import is claimed.
-  Ledger counts for direct-applied `046`/`047`/`048` remain absent; PR140 did
-  not repair or hand-edit them.
+  `developer_space_snapshots.observed_runtime_classifications`. DAEDALUS also
+  reported `developer_space_nodes.node_id` as missing, but ARGUS later
+  corrected that probe as non-authoritative because local migration `006`
+  defines `developer_space_nodes.external_id`, while `node_id` belongs to
+  `developer_space_events`. Temporary PR140 key creation/revoke worked, cleanup
+  confirmed zero active PR140 smoke keys, public/owner readback stayed HTTP
+  `200`, and no accepted import is claimed. Ledger counts for direct-applied
+  `046`/`047`/`048` remain absent; PR140 did not repair or hand-edit them.
+- ARGUS accepts PR140 2C Agents Observe Classification Alignment on 2026-06-21
+  as a narrow, privacy-positive payload fix and wakes MIMIR for next sequencing.
+  Review confirmed the adapter no longer emits public token-shaped metric paths,
+  `rawPrompt` and `tokenValue` are secret-classified, and the API helper strips
+  secret-class values plus metadata before persistence. Validation passed
+  `test:developer-space-client` with 15 tests, client package build,
+  `test:developer-spaces` with 27 tests, `@station/api` build, `typecheck`,
+  `git diff --check`, and `git diff --cached --check`. No auth/owner-scope,
+  legacy key rotation, signing-secret lifecycle, Cloudflare, hosted runtime,
+  queue, partner adapter, UI, billing, or migration-ledger scope was widened.
+  Remaining blocker for MIMIR: staging base Developer Space schema drift for
+  missing `observed_runtime_classifications` columns on nodes/events/snapshots;
+  no accepted observed-runtime import/readback is claimed, and the
+  direct-applied `046`/`047`/`048` ledger rows remain absent.
 - DAEDALUS implements PR126 2C Observed Runtime Signing Secret Lifecycle on
   2026-06-21 and wakes ARGUS for schema/API/encryption/signature review.
   Migration `048_developer_space_webhook_signing_secrets.sql` adds
