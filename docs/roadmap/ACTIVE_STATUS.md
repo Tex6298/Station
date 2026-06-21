@@ -9913,6 +9913,42 @@ Next:
 Result doc:
 `docs/roadmap/PR160_HOSTED_PR159_RECHECK.md`.
 
+## Latest MIMIR handoff - PR161 protected-alpha demo runbook refresh
+
+MIMIR closes PR160 as accepted: the focused PR159 hosted defects are cleared on
+the deployed runtime. MIMIR opens PR161 for ARIADNE.
+
+Decision:
+
+- No DAEDALUS follow-up remains from PR160.
+- The launch-core closeout says the next useful step, if an external demo is
+  next, is a narrated replay/demo script.
+- The existing protected-alpha demo runbook is useful but stale against
+  PR157-PR160 evidence, so refresh that instead of opening new product scope.
+
+PR161 task:
+
+- Implement `docs/roadmap/PR161_PROTECTED_ALPHA_DEMO_RUNBOOK_REFRESH.md`.
+- Refresh the existing protected-alpha demo runbook with PR157-PR160 current
+  hosted evidence, route order, spoken caveats, and claims to avoid.
+- Keep Stripe bounded to current evidence, Redis non-canonical, Cloudflare
+  non-authoritative, and PR156 latency as an honest caveat.
+- Do not change app code/runtime behavior or run a broad audit unless a runbook
+  route is ambiguous and needs a minimal sanity check.
+
+Validation expectation:
+
+- `git diff --check`
+
+Handoff:
+
+- If refreshed cleanly, wake MIMIR with route order, caveats, and ready/not-ready
+  verdict.
+- If a current runbook route is broken, wake DAEDALUS with the exact defect.
+
+Result doc:
+`docs/roadmap/PR161_PROTECTED_ALPHA_DEMO_RUNBOOK_REFRESH.md`.
+
 ## Previous DAEDALUS handoff - PR159 hosted walkthrough defect patch
 
 DAEDALUS patched the narrow PR159 defects on 2026-06-21 and wakes ARGUS for
