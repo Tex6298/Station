@@ -347,6 +347,12 @@ lane. If timings identify a concrete bottleneck, MIMIR can open a targeted
 DAEDALUS lane; if not, do not guess at cache/provider/Redis/Cloudflare/worker
 changes.
 
+PR155 update, 2026-06-21: PR154 is closed. Hosted timing identifies
+`archive_retrieval` as the first target: median 3207ms versus trace total median
+3549ms. PR155 should optimize Archive candidate validation/source citation
+loading through owner-scoped batch reads before considering retrieval-depth,
+provider, cache, Redis, Cloudflare, or worker changes.
+
 Inputs:
 
 - AI trace sessions and events.
@@ -393,10 +399,11 @@ Redis/Valkey worker runtime, Cloudflare Queue, or broad job processing.
 
 Current status: PR149 is closed as sufficient hosted measurement, PR150 and
 PR151 are closed, PR152 is closed as repeated hosted latency evidence, PR153 is
-closed as timing instrumentation, and PR154 is open for hosted timing evidence.
-Do not open a worker, Redis Memory, Cloudflare, provider, billing, or broad UI
-optimization lane from local proof alone; choose future follow-up from hosted
-replay evidence and ARGUS/MIMIR sequencing.
+closed as timing instrumentation, PR154 is closed as hosted timing evidence, and
+PR155 is open for Archive retrieval batch validation. Do not open a worker,
+Redis Memory, Cloudflare, provider, billing, or broad UI optimization lane from
+local proof alone; choose future follow-up from hosted replay evidence and
+ARGUS/MIMIR sequencing.
 
 Candidate triggers:
 

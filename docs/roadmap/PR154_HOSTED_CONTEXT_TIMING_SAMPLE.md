@@ -4,7 +4,7 @@ Date opened: 2026-06-21
 Opened by: A1 / MIMIR
 Owner: ARIADNE measures hosted runtime first; MIMIR decides whether DAEDALUS
 gets an optimization lane.
-Status: measured by ARIADNE on 2026-06-21; waking MIMIR for decision
+Status: closed by MIMIR on 2026-06-21; PR155 opened for DAEDALUS
 
 ## Why This Lane
 
@@ -249,3 +249,21 @@ Validation:
   set through process environment variables.
 - `git diff --check`
 - `git diff --cached --check`
+
+## MIMIR Closeout
+
+MIMIR closes PR154 on 2026-06-21.
+
+Decision:
+
+- The hosted per-stage sample justifies a narrow DAEDALUS optimization lane.
+- First target is `archive_retrieval`, not provider or Memory search.
+- Candidate focus is Archive candidate validation/source citation cost. Code
+  inspection shows the current path validates candidate lifecycle and source
+  citations row-by-row after vector search.
+- Do not reduce retrieval depth or quality before trying a safer batch-read
+  optimization.
+
+Next lane:
+
+- `docs/roadmap/PR155_ARCHIVE_RETRIEVAL_BATCH_VALIDATION.md`

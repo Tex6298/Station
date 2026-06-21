@@ -9694,7 +9694,55 @@ git diff --check
 - Developer Spaces visual polish before ingestion auth, validation, limits, and
   safe serialization.
 
-## Latest ARIADNE handoff - PR154 hosted context timing sample
+## Latest MIMIR handoff - PR155 archive retrieval batch validation
+
+MIMIR closes PR154 Hosted Context Preview Timing Sample on 2026-06-21 and opens
+PR155 for DAEDALUS.
+
+Decision:
+
+- PR154 gives enough hosted evidence for a targeted optimization lane.
+- Context-preview outer latency stayed above 4s for all seven counted requests:
+  minimum 4466ms, median 4571ms, maximum / rough p95 4993ms.
+- Trace `total` median was 3549ms, and `archive_retrieval` dominated the timed
+  stages with median 3207ms and max / rough p95 3259ms.
+- Non-targets from this sample: `query_embedding` median 372ms,
+  `memory_vector_search` median 747ms, `continuity` median 188ms, and
+  `topology_prompt_assembly` median 0ms.
+- Code inspection points at candidate lifecycle/source citation validation in
+  `retrievePrivateArchive`, which currently validates rows one-by-one after
+  vector search.
+
+PR155 task:
+
+- Implement `docs/roadmap/PR155_ARCHIVE_RETRIEVAL_BATCH_VALIDATION.md`.
+- Batch Archive candidate lifecycle reads and source citation reads while
+  preserving owner/persona scope, lifecycle skip reasons, source readiness,
+  candidate order, score ordering, source caps, max chunks, max characters, and
+  citation reasons.
+- Do not reduce candidate depth, source caps, `maxArchive`, or `maxCharacters`
+  as the first optimization.
+- Do not change provider/embedding/vector schema, Redis, Cloudflare, workers,
+  operational cache, import repair, billing/auth/session, broad UI, or public
+  route behavior.
+
+Validation expectation:
+
+- `pnpm test:conversation-archive`
+- `pnpm test:persona-context`
+- `pnpm test:retrieval-metadata`
+- `pnpm typecheck`
+- `git diff --check`
+
+Wakeup order:
+
+- DAEDALUS wakes ARGUS with implementation and validation.
+- ARGUS reviews hostile owner/privacy/source-readiness paths.
+- MIMIR decides after ARGUS whether to open hosted remeasurement.
+
+Result doc: `docs/roadmap/PR155_ARCHIVE_RETRIEVAL_BATCH_VALIDATION.md`.
+
+## Previous ARIADNE handoff - PR154 hosted context timing sample
 
 ARIADNE completed PR154 on 2026-06-21 and wakes MIMIR for sequencing.
 
