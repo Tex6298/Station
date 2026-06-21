@@ -342,7 +342,13 @@ Do not:
 Purpose: decide when Station needs real background infrastructure rather than
 bounded synchronous protected-alpha flows.
 
-Current next lane: `PR147 - Background Jobs Activation Audit`.
+PR147 update, 2026-06-21: DAEDALUS recommends no queue/worker activation yet.
+The current evidence supports protected-alpha inline fallback plus staged replay
+measurement. Upstash REST is cache-only, not worker queue readiness; TCP
+Redis/Valkey is queue-capable config only if present, and inline fallback
+remains available. If MIMIR wants a PR148 before replay, it should be an
+owner-only background job status/readback consolidation lane, not BullMQ,
+Redis/Valkey worker runtime, Cloudflare Queue, or broad job processing.
 
 Candidate triggers:
 

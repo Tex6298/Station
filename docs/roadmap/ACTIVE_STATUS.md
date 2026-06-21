@@ -9694,42 +9694,53 @@ git diff --check
 - Developer Spaces visual polish before ingestion auth, validation, limits, and
   safe serialization.
 
-## Latest MIMIR handoff - PR147 Background jobs activation audit
+## Latest DAEDALUS handoff - PR147 Background jobs activation audit
 
-MIMIR closes PR146 Memory Graph Relationship Readback on 2026-06-21 and wakes
-DAEDALUS for PR147.
+PR147 Background Jobs Activation Audit is implemented by DAEDALUS on
+2026-06-21 and ready for ARGUS technical review. No visible route behavior
+changed, so ARIADNE is not needed unless ARGUS finds a visible-route
+implication.
 
-Closed PR146 facts:
+Audit packet:
 
-- ARGUS technically accepted the owner-only Memory graph relationship readback.
-- ARIADNE rehearsed the actual Persona Management route,
-  `/studio/personas/:personaId/edit`; `/manage` was a handoff wording error and
-  no such route exists in the repo.
-- Memory Graph counts, node list, relationship readback, dangling-edge/missing-
-  node copy, and no-node/no-edge/thin states rendered cleanly on desktop and
-  390px mobile.
-- The surface did not expose raw-looking memory ids, edge ids, persona/source
-  ids, prompts, URLs, bearer/token/key/password/webhook/DB URL values, secrets,
-  provider payload markers, graph canvas, automatic relationship generation,
-  public graph scope, or unrelated redesign.
+- `docs/roadmap/BACKGROUND_JOBS_ACTIVATION_AUDIT.md`
 
-PR147 task:
+Findings:
 
-- Implement `docs/roadmap/PR147_BACKGROUND_JOBS_ACTIVATION_AUDIT.md`.
-- Audit whether current replay/import/export/developer-space flows justify a
-  real queue/worker lane now, or whether protected-alpha inline fallback
-  remains correct.
-- Inspect background job registry, operational cache, readiness, archive import
-  retry, export package, Developer Space import/webhook, and replay-readiness
-  code/docs.
-- Do not overclaim Upstash REST cache-only config as worker queue readiness.
-- If a narrow correctness/readiness wording gap is found, patch it; otherwise
-  produce a concise audit packet and a concrete PR148 recommendation.
-- Do not add BullMQ/Redis/Valkey worker runtime, production worker process,
-  Redis Memory truth, Cloudflare Queue/Worker implementation, broad job
-  processing, public job status, provider migration, or migration-ledger repair.
-- Wake ARGUS with audit findings, validation, any code patch scope, and next
-  lane recommendation. ARIADNE is only needed if visible route behavior changes.
+- Do not activate a real queue/worker lane yet.
+- Current evidence supports protected-alpha inline fallback plus staged replay
+  measurement through existing import/export/replay-readiness surfaces.
+- Upstash REST is cache-only for this repo and must not be treated as worker
+  queue readiness.
+- TCP Redis/Valkey is queue-capable config when present, but inline fallback
+  remains available and no broad worker runtime exists.
+- Archive imports already have `import_jobs`, owner status/list readback,
+  sanitized errors, and retry for failed chat imports.
+- Export packages already write owner-scoped `export_packages` rows with
+  processing/completed/failed states and owner list/detail readback.
+- Developer Space observed-runtime ingestion has guardrails, rate limiting,
+  signing-secret checks, receipt/idempotency handling, in-progress responses,
+  replay-conflict detection, and failed-receipt finalization.
+- Replay seed/setup remains script/manual oriented; replay readiness exposes
+  measurement points, not a job execution surface.
+
+Recommendation:
+
+- PR148 should be no worker implementation by default; run staged replay and
+  decide from measured pain.
+- If MIMIR wants a PR148 before replay, make it owner-only background job
+  status/readback consolidation over existing import/export summaries and
+  inactive route-followup job kinds, not BullMQ, Redis/Valkey worker runtime,
+  Cloudflare Queue, broad job processing, or Redis Memory truth.
+
+Validation:
+
+- `test:jobs` passed with 5 tests.
+- `test:cache` passed with 5 tests.
+- `test:health` passed with 16 tests.
+- `test:replay-readiness` passed with 2 tests.
+- `typecheck` passed.
+- `git diff --check` passed with CRLF normalization warnings only.
 
 ## Previous ARIADNE handoff - PR146 Memory graph relationship readback
 

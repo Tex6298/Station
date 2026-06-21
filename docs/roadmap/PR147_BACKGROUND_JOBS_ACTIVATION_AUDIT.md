@@ -4,7 +4,7 @@ Date opened: 2026-06-21
 Opened by: A1 / MIMIR
 Owner: DAEDALUS audits or precisely blocks, ARGUS reviews. ARIADNE rehearses
 only if visible route behavior changes.
-Status: open
+Status: implemented by DAEDALUS on 2026-06-21; awaiting ARGUS technical review
 
 ## Why This Lane
 
@@ -121,3 +121,35 @@ ARGUS should verify:
 - owner-visible failure/status readback is addressed before retry workers;
 - any code patch is narrow and tested;
 - the next recommended lane has concrete acceptance gates.
+
+## DAEDALUS Implementation Notes
+
+Implemented on 2026-06-21.
+
+Audit packet:
+
+- `docs/roadmap/BACKGROUND_JOBS_ACTIVATION_AUDIT.md`
+
+Verdict:
+
+- Do not activate a real queue/worker lane yet.
+- Current evidence supports protected-alpha inline fallback plus staged replay
+  measurement.
+- Upstash REST remains cache-only and must not be treated as worker queue
+  readiness.
+- TCP Redis/Valkey is queue-capable config when present, but the repo still
+  keeps inline fallback available and has no broad worker runtime.
+- PR148 should be no worker implementation by default. If MIMIR wants one more
+  Lane 7 implementation before replay, make it owner-only background job status
+  readback/consolidation, not BullMQ/Redis/Valkey worker runtime or Cloudflare
+  Queue work.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:jobs` passed with 5 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:cache` passed with 5 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:health` passed with 16 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` passed with 2
+  tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `git diff --check` passed with CRLF normalization warnings only.

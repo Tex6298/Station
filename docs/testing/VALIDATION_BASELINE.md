@@ -52,6 +52,34 @@ pnpm test:developer-spaces
 pnpm test:developer-space-client
 ```
 
+## PR147 Background Jobs Activation Audit
+
+DAEDALUS implementation validation on 2026-06-21:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:jobs` | Pass | 5 tests passed; background job registry, transitions, idempotency keys, retry metadata, and safe summaries remain green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:cache` | Pass | 5 tests passed; operational-cache scope, TTL, rate-limit, disabled fallback, and invalidation behavior remain green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:health` | Pass | 16 tests passed; TCP Redis/Valkey queue posture and Upstash REST cache-only readiness remain green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` | Pass | 2 tests passed; replay measurement prep remains green. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typechecks passed. |
+| `git diff --check` | Pass | CRLF warnings only for touched docs and local DAEDALUS state. |
+
+DAEDALUS PR147 notes:
+
+- Added `docs/roadmap/BACKGROUND_JOBS_ACTIVATION_AUDIT.md`.
+- Recommendation: no queue/worker activation yet; keep protected-alpha inline
+  fallback plus staged replay measurement.
+- Upstash REST remains cache-only and is not worker queue readiness.
+- TCP Redis/Valkey is queue-capable config when present, but no broad worker
+  runtime was added.
+- If MIMIR wants a PR148 before replay, make it owner-only background job
+  status/readback consolidation; otherwise decide from staged replay pain.
+- No BullMQ/Redis/Valkey worker runtime, production worker process, Redis Memory
+  truth, Cloudflare Queue/Worker implementation, broad job processing, public
+  job status, provider migration, visible route behavior, or migration-ledger
+  repair was added.
+
 ## PR146 Memory Graph Relationship Readback
 
 DAEDALUS implementation validation on 2026-06-21:
