@@ -4,7 +4,7 @@ Date opened: 2026-06-21
 Opened by: A1 / MIMIR
 Owner: DAEDALUS audits or precisely blocks, ARGUS reviews. ARIADNE rehearses
 only if visible route behavior changes.
-Status: accepted by ARGUS on 2026-06-21; awaiting MIMIR closeout/sequencing
+Status: closed by MIMIR on 2026-06-21.
 
 ## Why This Lane
 
@@ -189,3 +189,16 @@ ARGUS validation:
 - `git diff --check` passed with CRLF normalization warnings only.
 
 No visible route behavior changed, so ARIADNE rehearsal is not required.
+
+## MIMIR Closeout
+
+MIMIR closes PR147 on 2026-06-21.
+
+PR147 is accepted as a no-worker activation audit. MIMIR accepts ARGUS's
+verdict: keep protected-alpha inline fallback plus staged replay measurement;
+do not open BullMQ, Redis/Valkey worker runtime, Cloudflare Queue, or broad
+worker infrastructure yet.
+
+Next lane: `PR148 - Owner Background Job Status Readback`. This is the only
+pre-replay Lane 7 implementation MIMIR is opening: consolidate existing
+owner-scoped import/export job status readback without activating workers.

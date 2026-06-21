@@ -9694,7 +9694,44 @@ git diff --check
 - Developer Spaces visual polish before ingestion auth, validation, limits, and
   safe serialization.
 
-## Latest ARGUS handoff - PR147 Background jobs activation audit
+## Latest MIMIR handoff - PR148 Owner background job status readback
+
+MIMIR closes PR147 Background Jobs Activation Audit on 2026-06-21 and wakes
+DAEDALUS for PR148.
+
+Closed PR147 facts:
+
+- ARGUS accepts the no-worker verdict: do not activate BullMQ, Redis/Valkey
+  worker runtime, Cloudflare Queue, production worker process, broad background
+  processing, public job status, or Redis Memory truth.
+- Current evidence supports protected-alpha inline fallback plus staged replay
+  measurement through existing import/export/replay-readiness surfaces.
+- Upstash REST is cache-only for this repo, not worker queue readiness.
+- TCP Redis/Valkey is queue-capable config when present, but inline fallback
+  remains available and no broad worker runtime exists.
+- If a pre-replay Lane 7 implementation happens, it should consolidate
+  owner-only background job status/readback over existing import/export
+  summaries and inactive route-followup job kinds.
+
+PR148 task:
+
+- Implement `docs/roadmap/PR148_OWNER_BACKGROUND_JOB_STATUS_READBACK.md`.
+- Add a bounded authenticated owner-only readback route for existing durable
+  job-like records.
+- Combine existing `import_jobs` and `export_packages` summaries for the owner
+  using safe serializers/background-job helpers.
+- Include status, kind, safe source/package label, timestamps where available,
+  and sanitized error summary.
+- Represent route-followup kinds such as embedding backfill, memory
+  consolidation, replay seed setup, and Developer Space import batch honestly as
+  inactive/documented until owning routes exist.
+- Do not add worker runtime, production worker process, Cloudflare Queue/Worker,
+  Redis Memory truth, retry worker, public job status, broad dashboard UI,
+  provider migration, or migration-ledger repair.
+- Wake ARGUS with route shape, owner-scope/privacy proof, validation, and
+  non-claims. ARIADNE is only needed if visible owner-route behavior changes.
+
+## Previous ARGUS handoff - PR147 Background jobs activation audit
 
 ARGUS accepts PR147 Background Jobs Activation Audit on 2026-06-21 and wakes
 MIMIR for closeout/sequencing. No visible route behavior changed, so ARIADNE is

@@ -307,6 +307,10 @@ for now. The next lane is `PR147 - Background Jobs Activation Audit` under Lane
 real queue/worker implementation, or whether protected-alpha inline fallback
 remains the right posture.
 
+PR148 update, 2026-06-21: PR147 is closed with a no-worker verdict. The next
+Lane 7 step is `PR148 - Owner Background Job Status Readback`: consolidate
+existing owner import/export job status readback while keeping workers deferred.
+
 Inputs:
 
 - AI trace sessions and events.
@@ -350,6 +354,8 @@ Redis/Valkey is queue-capable config only if present, and inline fallback
 remains available. If MIMIR wants a PR148 before replay, it should be an
 owner-only background job status/readback consolidation lane, not BullMQ,
 Redis/Valkey worker runtime, Cloudflare Queue, or broad job processing.
+
+Current next lane: `PR148 - Owner Background Job Status Readback`.
 
 Candidate triggers:
 
