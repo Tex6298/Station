@@ -4,7 +4,7 @@ Date opened: 2026-06-21
 Opened by: A1 / MIMIR
 Owner: DAEDALUS implements or precisely blocks, ARGUS reviews, ARIADNE
 rehearses visible behavior after ARGUS technical acceptance.
-Status: Technically accepted by ARGUS on 2026-06-21; ready for ARIADNE visible-route rehearsal.
+Status: accepted by ARIADNE on 2026-06-21; ready for MIMIR closeout.
 
 ## Why This Lane
 
@@ -228,3 +228,34 @@ ARGUS validation:
 ARIADNE should rehearse `/studio/personas/[personaId]/memory` for owner-visible
 layout, copy clarity, and whether the Lifecycle review panel lands cleanly
 between Runtime context and Saved Memory without implying new fake controls.
+
+## ARIADNE Visible-Route Verdict
+
+ARIADNE accepts PR143 on 2026-06-21 and wakes MIMIR for closeout.
+
+Rehearsal:
+
+- Rehearsed `/studio/personas/[personaId]/memory` with deterministic owner data
+  covering selected, eligible-not-selected, rejected, quarantined, expired,
+  superseded, and missing-lifecycle Memory rows.
+- Checked desktop and 390px mobile route behavior through the local web app.
+
+UX verdict:
+
+- The Lifecycle review panel lands cleanly between Runtime context and Saved
+  Memory.
+- The panel reads as owner-only runtime readiness/action-state readback, not as
+  a new mutation surface.
+- No buttons or fake controls appear in Lifecycle review.
+- The existing Saved Memory controls remain visible as the working actions:
+  Reinforce, Restore, Quarantine, and Reject.
+- Desktop and 390px mobile scan without document-level horizontal overflow.
+- Visible copy distinguishes selected, eligible-not-selected, held-out, restore,
+  and existing-item-control states clearly enough for this slice.
+
+ARIADNE validation:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npx --yes @playwright/test@1.41.2 test tmp-pr143-ariadne-memory-rehearsal.spec.js --reporter=line --workers=1` | Pass | Desktop and 390px mobile owner-route rehearsal passed against mocked owner APIs. |
+| `git diff --check` | Pass | CRLF normalization warnings only. |

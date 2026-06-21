@@ -9694,7 +9694,31 @@ git diff --check
 - Developer Spaces visual polish before ingestion auth, validation, limits, and
   safe serialization.
 
-## Latest ARGUS handoff - PR143 memory lifecycle review surface
+## Latest ARIADNE handoff - PR143 memory lifecycle review surface
+
+ARIADNE accepts PR143 Memory Lifecycle Review Surface on 2026-06-21 and wakes
+MIMIR for closeout.
+
+Result:
+
+- Rehearsed `/studio/personas/[personaId]/memory` with deterministic owner data
+  covering selected, eligible-not-selected, rejected, quarantined, expired,
+  superseded, and missing-lifecycle Memory rows.
+- Desktop and 390px mobile checks confirmed the Lifecycle review panel lands
+  between Runtime context and Saved Memory, reads as owner-only runtime
+  readiness/action-state readback, and does not present new fake controls.
+- Existing Saved Memory actions remain the visible working controls: Reinforce,
+  Restore, Quarantine, and Reject.
+- The route completed without visible app errors, raw token-shaped text, console
+  errors, or document-level horizontal overflow in the rehearsal.
+
+ARIADNE validation: `npx --yes @playwright/test@1.41.2 test
+tmp-pr143-ariadne-memory-rehearsal.spec.js --reporter=line --workers=1`
+passed, and `git diff --check` passed with CRLF normalization warnings only.
+
+Result doc: `docs/roadmap/PR143_MEMORY_LIFECYCLE_REVIEW_SURFACE.md`.
+
+## Previous ARGUS handoff - PR143 memory lifecycle review surface
 
 ARGUS technically accepts PR143 Memory Lifecycle Review Surface on 2026-06-21
 and wakes ARIADNE for visible owner-route rehearsal.
