@@ -8945,6 +8945,13 @@ when a PR lands, or when validation truth changes.
   onboarding wizard, user-pasted secret flow, vault UI, billing/Stripe, Redis
   memory truth, provider routing, chat-native developer agent, broad UI,
   production partner claim, or committed secrets.
+- MIMIR closes PR128 on 2026-06-21 and opens PR129 2C Observed Runtime
+  Readiness Closeout for ARGUS. PR129 is a docs-only overclaim and blocker
+  audit of PR120-PR128 before any larger staging/operator, adapter-discovery,
+  Cloudflare, or visible UX lane opens. It should confirm the readiness
+  inventory, non-claims, config boundary for
+  `DEVELOPER_SPACE_WEBHOOK_SIGNING_SECRET_ENCRYPTION_KEY`, and recommended next
+  ordering without printing or requesting secret values.
 - DAEDALUS implements PR126 2C Observed Runtime Signing Secret Lifecycle on
   2026-06-21 and wakes ARGUS for schema/API/encryption/signature review.
   Migration `048_developer_space_webhook_signing_secrets.sql` adds
@@ -9225,53 +9232,33 @@ git diff --check
 - Developer Spaces visual polish before ingestion auth, validation, limits, and
   safe serialization.
 
-## Latest DAEDALUS handoff - PR128 observed runtime webhook operator packet
+## Latest MIMIR handoff - PR129 observed runtime readiness closeout
 
-PR128 2C Observed Runtime Webhook Operator Packet is implemented by DAEDALUS on
-2026-06-21 and ready for ARGUS review. No visible route changed, so ARIADNE is
-not required unless ARGUS finds a visible-route implication.
+PR129 2C Observed Runtime Readiness Closeout is opened by MIMIR on 2026-06-21
+and ready for ARGUS review.
 
-Implementation:
+Review target:
 
-- `@station/developer-space-client` now builds a
-  `station.observed_runtime.webhook.v1` envelope, serializes raw JSON, and signs
-  those exact bytes with the `X-Station-Signature` header
-  (`t=<unix-seconds>,v1=<hex-hmac>`).
-- `sendObservedRuntimeWebhook` sends `X-Station-Developer-Key`,
-  `X-Station-Signature`, and `X-Station-Webhook-Id` to
-  `/developer-spaces/ingest/observed-runtime`.
-- The signing helper uses async Web Crypto HMAC-SHA256, avoiding Node-only type
-  dependencies in the client package build.
-- `packages/developer-space-client/examples/observed-runtime-webhook.ts`
-  provides a local smoke packet that can use a dedicated active signing secret
-  or the PR125 ingestion-key fallback.
-- The client README documents env names only:
-  `STATION_API_URL`, `STATION_DEVELOPER_KEY`,
-  `STATION_OBSERVED_RUNTIME_WEBHOOK_ID`, optional
-  `STATION_OBSERVED_RUNTIME_SIGNING_SECRET`, optional
-  `STATION_OBSERVED_RUNTIME_SOURCE_ID`, and optional
-  `STATION_OBSERVED_RUNTIME_PAYLOAD_PATH`.
-- The README documents first-delivery success, completed replay,
-  in-progress/retryable, replay conflict, and auth/signature failure readback
-  categories without printing secrets.
-- The observed-runtime architecture note records the PR128 operator sequence
-  and reiterates that Station observes/imports external runtime state but does
-  not execute, host, schedule, or control it.
+- Audit whether PR120-PR128 are accurately summarized as a bounded observed-
+  runtime backend/client foundation.
+- Confirm whether any accepted lane still has an unclosed blocker.
+- Check the config boundary: dedicated signing-secret lifecycle needs
+  `DEVELOPER_SPACE_WEBHOOK_SIGNING_SECRET_ENCRYPTION_KEY`, while the documented
+  PR125 ingestion-key HMAC fallback remains available when no active dedicated
+  secret exists or the dedicated-secret primitive is unavailable.
+- Confirm the next-lane ordering: staging/operator smoke proof first, adapter
+  discovery second, Cloudflare only if adapter discovery proves a real
+  dependency, visible Developer Space UX only after smoke evidence shows what
+  humans need.
+- Confirm the non-claims: no hosted runtime, external runtime execution,
+  partner adapter, Cloudflare Worker/Vectorize/D1/Queue integration, worker/
+  queue runtime, Redis memory truth, public onboarding wizard, visible secret
+  management UI, user-pasted secret flow, production partner launch, provider
+  routing, chat-native developer agent, billing expansion, or broad UI.
 
-Validation: `test:developer-spaces` 26 passed,
-`test:developer-space-client` 7 passed, `typecheck` passed, `@station/api`
-build passed, `@station/developer-space-client` build passed, and
-`git diff --check` passed with CRLF normalization warnings only.
+Validation: docs hygiene with `git diff --check`.
 
-Non-scope preserved: no hosted runtime, container execution, scheduler, worker,
-queue, Cloudflare Worker/Vectorize/D1, partner-specific adapter, public
-onboarding wizard, visible secret-management UI, user-pasted secret flow, vault
-UI, billing/Stripe, Redis memory truth, provider routing, chat-native developer
-agent, broad UI, production partner claim, or committed secret values.
-
-ARGUS should review helper/example/API contract, env-name-only setup, signature
-proof, replay/conflict/in-progress/auth readback, no-secret proof, validation,
-and non-claims.
+Wake MIMIR with accepted/blocked verdict and exact next recommendation.
 
 ## Previous DAEDALUS handoff - PR127 webhook concurrency guard
 

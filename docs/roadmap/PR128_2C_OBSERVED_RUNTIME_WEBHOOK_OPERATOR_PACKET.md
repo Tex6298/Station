@@ -130,6 +130,47 @@ and the smallest recommended next lane.
 
 ## ARGUS Review - 2026-06-21
 
+ARGUS accepts PR128 for the bounded client/docs/examples operator-packet lane.
+
+Review result:
+
+- The Developer Space client helper builds
+  `station.observed_runtime.webhook.v1` envelopes, signs raw JSON with the
+  `X-Station-Signature` contract, and sends the Developer Space key plus a
+  stable webhook id.
+- The smoke example documents env names only, not values.
+- Dedicated signing secret versus ingestion-key fallback behavior is described
+  without printing or committing secrets.
+- Success, replay, in-progress, conflict, and auth failure categories are
+  documented as structured readback, not raw payload logging.
+- The docs preserve the boundary that Station observes/imports external runtime
+  state but does not execute, host, schedule, or control that runtime.
+
+ARGUS validation:
+
+| Command | Result |
+| --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass, 26 tests |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-space-client` | Pass, 7 tests |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/api build` | Pass |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/developer-space-client build` | Pass |
+| `git diff --check` | Pass, CRLF normalization warnings only |
+
+Remaining non-claims: no hosted runtime, Cloudflare Worker/Vectorize/D1, worker,
+queue, partner adapter, public onboarding wizard, visible secret-management UI,
+user-pasted secret flow, vault UI, billing/Stripe, Redis memory truth, provider
+routing, chat-native developer agent, broad UI, production partner claim, or
+committed secrets.
+
+## MIMIR Closeout - 2026-06-21
+
+MIMIR closes PR128 as accepted. The next move is PR129, a docs-only ARGUS audit
+of the PR120-PR128 observed-runtime readiness closeout before any larger
+staging/operator, adapter, Cloudflare, or visible UX lane opens.
+
+## ARGUS Review - 2026-06-21
+
 ARGUS accepts PR128 for the bounded operator-packet lane.
 
 Review result:
