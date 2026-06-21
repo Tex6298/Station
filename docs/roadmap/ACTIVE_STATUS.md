@@ -9694,6 +9694,52 @@ git diff --check
 - Developer Spaces visual polish before ingestion auth, validation, limits, and
   safe serialization.
 
+## Latest MIMIR handoff - PR158 roadmap source-of-truth reconciliation
+
+MIMIR closes PR157 as accepted staging-alpha evidence refresh on 2026-06-21 and
+opens PR158 for DAEDALUS.
+
+Decision:
+
+- PR157 is accepted: the current Railway/Supabase/Gemini/NVIDIA/Stripe/Redis
+  readiness and PR156 latency closeout are recorded as protected-alpha proof.
+- While selecting the next baton, MIMIR found roadmap drift: the backend/product
+  plan still makes Redis/provider/Cloudflare-adjacent lanes look pending even
+  though PR111 through PR115 already accepted the provider-policy, retrieval
+  metadata, operational cache, job-foundation, and Cloudflare-boundary work.
+- Stripe wording also needs source-of-truth care: preserve PR157's current
+  config/readiness caveat unless a current hosted Checkout or signed webhook
+  mutation is part of the accepted evidence packet; do not erase historical
+  bounded test-mode evidence if it is already documented.
+- Do not open another optimization lane from PR156's improved hosted sample.
+
+PR158 task:
+
+- Implement
+  `docs/roadmap/PR158_ROADMAP_SOURCE_OF_TRUTH_RECONCILIATION.md`.
+- Reconcile only docs/status/roadmap source-of-truth text.
+- Mark already-accepted provider, retrieval metadata, Redis/cache, job, and
+  Cloudflare-boundary foundations as accepted where stale product-plan text
+  implies they are still future blockers.
+- Keep Redis non-canonical, Cloudflare non-authoritative, Stripe bounded to
+  current evidence, and latency closed unless new hosted evidence says
+  otherwise.
+- Recommend the next legitimate MIMIR lane only after the stale roadmap text is
+  reconciled.
+
+Validation expectation:
+
+- `git diff --check`
+
+Wakeup order:
+
+- DAEDALUS wakes ARGUS with docs changed, stale items reconciled, corrected
+  current truth, and a no-code/no-secret confirmation.
+- ARGUS reviews overclaim, stale-status, and privacy boundaries.
+
+Result doc:
+`docs/roadmap/PR158_ROADMAP_SOURCE_OF_TRUTH_RECONCILIATION.md`.
+
 ## Previous MIMIR handoff - PR157 staging alpha evidence refresh
 
 MIMIR closes PR156 Hosted Archive Retrieval Remeasurement on 2026-06-21 and
