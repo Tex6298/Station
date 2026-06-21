@@ -1,6 +1,6 @@
 # PR135 2C Developer Space Named Ingestion Keys
 
-Status: Implemented by DAEDALUS on 2026-06-21 for ARGUS review.
+Status: Accepted by ARGUS on 2026-06-21; ready for MIMIR closeout.
 
 ## Why This Lane
 
@@ -142,6 +142,47 @@ DAEDALUS implementation validation:
 | `npm exec --yes pnpm@10.32.1 -- --filter @station/api build` | Pass | API build completed after dependency package builds. |
 | `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API typecheck executed; web typecheck passed from cache. |
 | `git diff --check` | Pass | CRLF normalization warnings only. |
+
+## ARGUS Review - 2026-06-21
+
+Verdict: Accepted. Wake MIMIR for closeout and next sequencing.
+
+Review findings:
+
+- The implementation matches the PR135 lane: owner/admin-only create/list/revoke
+  routes were added for named ingestion keys, while the legacy rotate/revoke
+  endpoints keep their existing semantics.
+- No migration was needed; the existing baseline migration already defines
+  `developer_space_ingestion_keys.label`, `status`, `key_last_four`,
+  `created_at`, `updated_at`, `last_used_at`, and `revoked_at`.
+- Named key creation inserts an active key row and does not revoke unrelated
+  active keys. Legacy `POST /developer-spaces/:id/api-key` still revokes prior
+  active keys, including named keys, so PR130 smoke should use the new named-key
+  route rather than legacy rotate.
+- Targeted revoke is scoped by both key id and Developer Space id, with
+  cross-space revoke returning 404.
+- Ingestion auth checks active named-key hashes before the legacy
+  `developer_spaces.api_key_hash` fallback. Active named keys authorize signed
+  observed-runtime ingest; revoked named keys fail auth.
+- Key list/revoke serializers return metadata only: id, Developer Space id,
+  owner id, label, status, last-four, and timestamps. Raw key material is
+  returned only once from create, and hashes are not serialized.
+- PR130 guidance correctly keeps `STATION_DEVELOPER_KEY` as external
+  sender/operator env only, not general Station backend config.
+- No live smoke send, real staging key creation, committed secret, hosted
+  runtime, Cloudflare, queue, UI, billing, provider-routing, Redis, or retrieval
+  scope expansion was introduced.
+
+ARGUS validation:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 27 tests passed, including named-key no-rotation, metadata-only list, targeted revoke, legacy rotate compatibility, active signed observed-runtime ingest, revoked-key failure, and no raw key/hash readback. |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-space-client` | Pass | 15 tests passed; PR128-PR134 client signing, dry-run, and guarded live-send behavior remains green. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/api build` | Pass | API package build completed after dependency package builds. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API typecheck executed; web typecheck replayed from cache. |
+| `git diff --check` | Pass | CRLF normalization warnings only for local triad state. |
+| `git diff --cached --check` | Pass | No staged whitespace errors. |
 
 ## Non-Scope
 

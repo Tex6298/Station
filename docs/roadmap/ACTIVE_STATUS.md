@@ -9447,43 +9447,38 @@ git diff --check
 - Developer Spaces visual polish before ingestion auth, validation, limits, and
   safe serialization.
 
-## Latest DAEDALUS handoff - PR135 Developer Space named ingestion keys
+## Latest ARGUS verdict - PR135 Developer Space named ingestion keys
 
-PR135 2C Developer Space Named Ingestion Keys is implemented by DAEDALUS on
-2026-06-21 and ready for ARGUS review.
+ARGUS accepts PR135 2C Developer Space Named Ingestion Keys on 2026-06-21 and
+wakes MIMIR for closeout and next sequencing.
 
-API route shape:
+Accepted scope:
 
-- `GET /developer-spaces/:id/ingestion-keys`: owner/admin metadata-only list.
-- `POST /developer-spaces/:id/ingestion-keys`: owner/admin named key create,
-  returning raw `apiKey` only once in the create response and not revoking
+- `GET /developer-spaces/:id/ingestion-keys` lists owner/admin key metadata
+  only.
+- `POST /developer-spaces/:id/ingestion-keys` creates a named active key,
+  returns raw `apiKey` only once in the create response, and does not revoke
   unrelated active keys.
-- `POST /developer-spaces/:id/ingestion-keys/:keyId/revoke`: owner/admin
-  targeted revoke scoped to the Developer Space.
-
-Schema/migration assessment:
-
+- `POST /developer-spaces/:id/ingestion-keys/:keyId/revoke` revokes a specific
+  key scoped to the Developer Space.
 - No migration was needed. Existing `developer_space_ingestion_keys` already
-  has `label`, `status`, `key_last_four`, `created_at`, `last_used_at`, and
-  `revoked_at`.
-- Existing `developer_spaces.api_key_hash`, `api_key_last_four`, and
-  `api_key_created_at` remain legacy/default summary fields.
+  has `label`, `status`, `key_last_four`, `created_at`, `updated_at`,
+  `last_used_at`, and `revoked_at`.
+- Ingestion auth accepts active named-key hashes before the legacy
+  `developer_spaces.api_key_hash` fallback. Revoked named keys fail auth.
+- Key list/revoke readback serializes metadata only: id, Developer Space id,
+  owner id, label, status, last-four, and timestamps. Raw keys and hashes are
+  not serialized.
 
-Behavior proof:
+Important compatibility note:
 
-- Named key creation does not revoke existing active keys.
-- Metadata list exposes id, Developer Space id, owner id, label, status,
-  last-four, and timestamps only; no raw key or hash.
-- Targeted revoke revokes only the selected key and returns 404 for a key id
-  from another Developer Space.
-- Legacy `POST /developer-spaces/:id/api-key` still rotates/revokes prior
-  active keys as documented.
-- Active named smoke keys authorize signed observed-runtime ingest; revoked
-  named keys fail auth.
-- Owner/admin authorization is covered; non-owner create is blocked.
-- Owner detail/readback still does not expose raw keys or hashes.
+- Legacy `POST /developer-spaces/:id/api-key` and
+  `POST /developer-spaces/:id/api-key/revoke` keep existing rotate/revoke
+  semantics and still revoke prior active keys, including named keys. PR130
+  smoke should use a dedicated named smoke/operator key rather than rotating
+  real integration keys.
 
-PR130 smoke setup guidance:
+PR130 smoke setup guidance remains:
 
 - Create or select a dedicated smoke Developer Space.
 - Create a named ingestion key labelled for smoke/operator use.
@@ -9492,25 +9487,22 @@ PR130 smoke setup guidance:
 - Do not store `STATION_DEVELOPER_KEY` as general Station app/backend env.
 - Do not rotate real integration keys for smoke.
 
-Validation:
+ARGUS validation:
 
 - `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces`: pass, 27 tests.
 - `npm exec --yes pnpm@10.32.1 -- run test:developer-space-client`: pass, 15
   tests.
 - `npm exec --yes pnpm@10.32.1 -- --filter @station/api build`: pass.
 - `npm exec --yes pnpm@10.32.1 -- run typecheck`: pass.
-- `git diff --check`: pass with CRLF normalization warnings only.
+- `git diff --check`: pass with CRLF normalization warnings only for local
+  triad state.
+- `git diff --cached --check`: pass.
 
-Non-scope: no live smoke send, no creation of real staging keys by this agent,
-no committed secrets, no Railway/Supabase/Cloudflare config request, no
-Cloudflare Worker/Vectorize/D1/Queue/Durable Object work, no hosted runtime/
-scheduler/agent control plane, no broad UI, no billing/Stripe, no Redis memory
-truth, no provider routing, and no retrieval model changes.
-
-ARGUS should review the API route shape, no-migration assessment, owner/admin
-auth proof, no-rotation proof, legacy rotate compatibility, targeted revoke,
-ingestion auth, serialization/no-secret proof, exact PR130 smoke guidance, and
-validation. If accepted, wake MIMIR; if fixes are needed, wake DAEDALUS.
+Non-scope confirmed: no live smoke send, no creation of real staging keys by
+this agent, no committed secrets, no Railway/Supabase/Cloudflare config
+request, no Cloudflare Worker/Vectorize/D1/Queue/Durable Object work, no hosted
+runtime/scheduler/agent control plane, no broad UI, no billing/Stripe, no Redis
+memory truth, no provider routing, and no retrieval model changes.
 
 ## Previous DAEDALUS handoff - PR127 webhook concurrency guard
 

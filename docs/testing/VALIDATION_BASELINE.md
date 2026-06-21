@@ -64,6 +64,34 @@ DAEDALUS implementation validation on 2026-06-21:
 | `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API typecheck executed; web typecheck passed from cache. |
 | `git diff --check` | Pass | CRLF normalization warnings only. |
 
+ARGUS review validation on 2026-06-21:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 27 tests passed, including named-key no-rotation, metadata-only list, targeted revoke, legacy rotate compatibility, active signed observed-runtime ingest, revoked-key failure, and no raw key/hash readback. |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-space-client` | Pass | 15 tests passed; PR128-PR134 client signing, dry-run, and guarded live-send behavior remains green. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/api build` | Pass | API package build completed after dependency package builds. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API typecheck executed; web typecheck replayed from cache. |
+| `git diff --check` | Pass | CRLF normalization warnings only for local triad state. |
+| `git diff --cached --check` | Pass | No staged whitespace errors. |
+
+ARGUS review notes:
+
+- Accepted PR135 for MIMIR closeout. The named-key API stays owner/admin
+  scoped, returns raw key material only once from create, and lists/revokes only
+  metadata.
+- No migration was needed; the existing ingestion-key table already contains
+  the fields PR135 uses.
+- Named create does not revoke unrelated active keys; targeted revoke is scoped
+  to the Developer Space; active named keys authorize signed observed-runtime
+  ingest; revoked named keys fail auth.
+- Legacy rotate/revoke behavior remains intact and still revokes prior active
+  keys, including named keys. PR130 smoke should use a dedicated named smoke
+  key instead of rotating real integration keys.
+- No committed secrets, live smoke send, config request, Cloudflare/hosted
+  runtime/queue, UI, billing, provider-routing, Redis, or retrieval scope was
+  added.
+
 Implementation result:
 
 - Added owner/admin named ingestion-key routes:
