@@ -9694,7 +9694,7 @@ git diff --check
 - Developer Spaces visual polish before ingestion auth, validation, limits, and
   safe serialization.
 
-## Latest MIMIR handoff - PR158 roadmap source-of-truth reconciliation
+## Previous MIMIR handoff - PR158 roadmap source-of-truth reconciliation
 
 MIMIR closes PR157 as accepted staging-alpha evidence refresh on 2026-06-21 and
 opens PR158 for DAEDALUS.
@@ -9736,6 +9736,63 @@ Wakeup order:
 - DAEDALUS wakes ARGUS with docs changed, stale items reconciled, corrected
   current truth, and a no-code/no-secret confirmation.
 - ARGUS reviews overclaim, stale-status, and privacy boundaries.
+
+Result doc:
+`docs/roadmap/PR158_ROADMAP_SOURCE_OF_TRUTH_RECONCILIATION.md`.
+
+## Latest DAEDALUS handoff - PR158 roadmap source-of-truth reconciliation
+
+DAEDALUS implemented PR158 on 2026-06-21 and wakes ARGUS for overclaim/
+stale-status review.
+
+Docs changed:
+
+- `docs/roadmap/STATION_BACKEND_PRODUCT_PR_PLAN.md`
+- `docs/roadmap/STATION_BACKEND_IMPLEMENTATION_ROADMAP.md`
+- `docs/roadmap/STATION_FUTURE_LANES.md`
+- `docs/roadmap/ACTIVE_STATUS.md`
+- `docs/testing/VALIDATION_BASELINE.md`
+- `docs/roadmap/PR158_ROADMAP_SOURCE_OF_TRUTH_RECONCILIATION.md`
+
+Stale items reconciled:
+
+- Provider policy is marked accepted through PR111, not pending.
+- Retrieval provider metadata is marked accepted through PR112, not a provider
+  switch or pending blocker.
+- Redis/Valkey cache foundation is marked accepted through PR113, with
+  Redis/Upstash constrained to operational cache, idempotency, rate-limit, and
+  cache-only queue-state support.
+- Background job foundation is marked accepted through PR114, with no active
+  worker runtime.
+- Cloudflare retrieval boundary is marked accepted through PR115, with
+  Cloudflare constrained to adapter/index-mirror scope only.
+- Stripe wording now keeps PR157's current config/test-resource readiness
+  separate from any fresh/current paid activation proof.
+- PR156 latency remains closed for now; no further optimization lane is opened
+  from that sample alone.
+
+Corrected current truth:
+
+- No backend implementation blocker is open from the backend/product plan after
+  PR157 and PR158.
+- Redis is not canonical Memory truth.
+- Cloudflare is not authoritative private-memory behavior and has no live
+  Worker/Queue/Vectorize runtime in accepted scope.
+- Stripe paid activation requires a new hosted Checkout or signed webhook proof
+  if MIMIR wants current evidence.
+
+Recommended next MIMIR lane:
+
+- Choose from fresh hosted replay or product evidence, not stale foundation
+  text. Plausible branches are a fresh paid-activation proof, product demo/
+  walkthrough scripting, or a specific replay-quality issue if one is observed.
+
+Validation:
+
+- `git diff --check` passed with CRLF normalization warnings only.
+
+No code, runtime behavior, secrets, tokens, cookies, DB URLs, service keys,
+webhook secrets, raw IDs, or private corpus text changed or were recorded.
 
 Result doc:
 `docs/roadmap/PR158_ROADMAP_SOURCE_OF_TRUTH_RECONCILIATION.md`.

@@ -52,6 +52,29 @@ pnpm test:developer-spaces
 pnpm test:developer-space-client
 ```
 
+## PR158 Roadmap Source-Of-Truth Reconciliation
+
+DAEDALUS implementation validation on 2026-06-21:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `git diff --check` | Pass | CRLF normalization warnings only for touched docs and local triad state. |
+
+DAEDALUS PR158 notes:
+
+- Reconciled stale backend/product roadmap text so provider policy, retrieval
+  metadata, operational cache, background-job foundation, and Cloudflare
+  boundary are marked as accepted foundations through PR111 through PR115.
+- Preserved current constraints: Redis/Upstash is not canonical Memory truth;
+  Cloudflare is not authoritative private-memory behavior and has no accepted
+  live Worker/Queue/Vectorize runtime; Stripe paid activation needs a new
+  hosted Checkout or signed webhook proof if MIMIR wants current evidence; PR156
+  closes the immediate Archive-retrieval latency loop for now.
+- Recommended next sequencing from fresh hosted replay/product evidence rather
+  than stale foundation text.
+- No code, runtime behavior, secrets, tokens, cookies, DB URLs, service keys,
+  webhook secrets, raw IDs, or private corpus text changed or were recorded.
+
 ## PR157 Staging Alpha Evidence Refresh
 
 ARGUS review validation on 2026-06-21:

@@ -166,6 +166,9 @@ Acceptance gates:
 
 ## BE-03 - Provider policy per Developer Space
 
+Status: accepted foundation via PR111 Developer Space Provider Policy
+Foundation. Future provider-policy expansion requires a new MIMIR lane.
+
 Owner: DAEDALUS first. ARGUS reviews provider privacy and logs. ARIADNE reviews
 operator-facing mode names.
 
@@ -193,6 +196,9 @@ Acceptance gates:
 
 ## BE-04 - Retrieval provider metadata
 
+Status: accepted foundation via PR112 Retrieval Provider Metadata Foundation.
+This records metadata and guards; it does not imply a provider switch.
+
 Owner: DAEDALUS first. ARGUS reviews mixed-dimension and migration failure
 paths.
 
@@ -215,6 +221,10 @@ Acceptance gates:
 - No retrieval provider change is implied by metadata alone.
 
 ## BE-05 - Redis or Valkey foundation
+
+Status: accepted foundation via PR113 Redis/Valkey Cache Foundation. Redis/
+Upstash is operational cache, idempotency, rate-limit, and cache-only
+queue-state support; it is not canonical Memory truth.
 
 Owner: MIMIR decides role, then DAEDALUS builds. ARGUS reviews key scoping,
 expiry, and privacy.
@@ -240,6 +250,10 @@ Required design before implementation:
 
 ## BE-06 - Background jobs
 
+Status: accepted foundation via PR114 Background Jobs Foundation. No worker
+runtime is active; future worker execution opens only from concrete replay or
+import/export pain.
+
 Owner: DAEDALUS first after BE-01 or BE-05 exposes real need. ARGUS reviews job
 ownership and failure surfaces.
 
@@ -263,6 +277,10 @@ Acceptance gates:
 - Replay evidence justifies the infrastructure.
 
 ## BE-07 - Cloudflare retrieval adapter
+
+Status: accepted boundary via PR115 Cloudflare Retrieval Boundary. Cloudflare
+is adapter/index-mirror scope only; no live Worker, Queue, Vectorize call, or
+authoritative private-memory behavior is accepted.
 
 Owner: MIMIR opens only after imported repo demands are concrete. DAEDALUS
 prototypes. ARGUS reviews authorization and index contents.
@@ -307,21 +325,20 @@ Default order:
 4. ARIADNE reviews product experience only when user-facing surfaces change.
 5. MIMIR accepts, narrows, or reorders the next lane.
 
-Immediate active task:
+Current source-of-truth reconciliation:
 
-- `docs/roadmap/STATION_BACKEND_PRODUCT_PR_PLAN.md` is now the source-of-truth
-  sequence for the next backend/product lanes.
-- PR 0 is the active next lane: staging alpha closure plus source/live evidence
-  alignment. It should consolidate the current Railway/Supabase/Gemini/NVIDIA/
-  Stripe/Redis readiness claims, replay evidence links or commands, and the
-  alpha-proof/product-complete boundary into one concise status.
+- `docs/roadmap/STATION_BACKEND_PRODUCT_PR_PLAN.md` remains the sequencing
+  reference, but its early backend/product foundations are no longer pending
+  blockers.
+- PR157 completed the staging alpha closure plus source/live evidence
+  alignment.
+- PR111 through PR115 accepted the provider-policy, retrieval metadata,
+  operational cache, background-job foundation, and Cloudflare-boundary work.
+- PR156 closed the immediate Archive-retrieval latency loop; no worker,
+  provider, Redis, Cloudflare, or cache optimization lane is justified by that
+  sample alone.
 - Do not assign broad checking back to Marty. ARIADNE owns human-eye rehearsals
   when a lane changes the user journey or when a concrete staging-facing defect
   needs verification.
-- After PR 0, proceed in order unless MIMIR reorders from fresh evidence:
-  replay memory/retrieval quality, archive/import robustness, Stripe paid-path
-  proof, Redis boundary hardening, provider policy, and workers only if replay
-  or import pain forces them.
-- Carry Cloudflare adapter work, Redis working memory, broad UI polish, and
-  background-worker platform work as deferred unless a concrete replay objective
-  forces a bounded lane.
+- Next implementation should be chosen by MIMIR from fresh hosted replay or
+  product evidence, not stale foundation text.

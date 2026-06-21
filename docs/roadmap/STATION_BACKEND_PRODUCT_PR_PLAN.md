@@ -157,7 +157,10 @@ Exit:
 ## PR 3 - Stripe Paid-Path Proof
 
 Status: ARGUS accepted the reconciliation-only proof and recommends MIMIR close
-PR 3. See `docs/roadmap/PR3_STRIPE_PAID_PATH_RECONCILIATION.md`.
+PR 3. See `docs/roadmap/PR3_STRIPE_PAID_PATH_RECONCILIATION.md`. Current PR157
+launch closeout only claims Stripe config/test-resource readiness; do not treat
+that as a fresh/current paid activation proof without a hosted Checkout or
+signed webhook mutation in the current evidence packet.
 
 Goal: prove commercial activation once without turning billing into a polish
 rabbit hole.
@@ -196,6 +199,11 @@ Exit:
 
 ## PR 4 - Redis Operational Boundary Hardening
 
+Status: accepted foundation via PR113 Redis/Valkey Cache Foundation and PR114
+Background Jobs Foundation. See
+`docs/roadmap/PR113_REDIS_VALKEY_CACHE_FOUNDATION.md` and
+`docs/roadmap/PR114_BACKGROUND_JOBS_FOUNDATION.md`.
+
 Goal: keep Redis useful but boring.
 
 Scope:
@@ -222,8 +230,17 @@ Validation:
 Exit:
 
 - Redis is clearly infrastructure, not memory truth.
+- Current accepted truth: Upstash REST is operational cache/idempotency/
+  rate-limit/cache-only queue-state support; TCP Redis/Valkey is recognized as
+  queue-capable config when present but no worker queue is active; Redis is not
+  canonical Memory truth.
 
 ## PR 5 - Provider Policy Per Developer Space, Minimal Version
+
+Status: accepted foundation via PR111 Developer Space Provider Policy
+Foundation and PR112 Retrieval Provider Metadata Foundation. See
+`docs/roadmap/PR111_DEVELOPER_SPACE_PROVIDER_POLICY_FOUNDATION.md` and
+`docs/roadmap/PR112_RETRIEVAL_PROVIDER_METADATA_FOUNDATION.md`.
 
 Goal: prevent provider confusion once staging has multiple AI routes.
 
@@ -254,6 +271,11 @@ Validation:
 Exit:
 
 - Space-level provider choice is explicit enough to avoid mystery routing.
+- Current accepted truth: Developer Spaces have a bounded provider-policy
+  foundation; retrieval metadata records active profile/provider/model/
+  dimension/index/backfill posture; the active staging embedding profile remains
+  Gemini `station_free_1536`; no provider execution switch or embedding
+  dimension change is implied.
 
 ## PR 6 - Background Jobs Only If Replay/Import Proves Pain
 
@@ -298,8 +320,13 @@ Retrieval candidate-depth follow-up:
 
 Cloudflare retrieval adapter:
 
-- Open only if borrowed repo patterns require it or current Supabase/Gemini
-  retrieval hits a specific proven limitation.
+- Accepted boundary via PR115 Cloudflare Retrieval Boundary. See
+  `docs/roadmap/PR115_CLOUDFLARE_RETRIEVAL_BOUNDARY.md`.
+- Future Cloudflare work opens only if borrowed repo patterns require it or
+  current Supabase/Gemini retrieval hits a specific proven limitation.
+- Current truth: Cloudflare remains adapter/index-mirror scope only; no live
+  Worker, Queue, Vectorize call, or authoritative private-memory behavior is
+  accepted.
 
 Redis working memory:
 
@@ -366,13 +393,22 @@ redesign.
 
 ## Recommended Order
 
-1. PR 0 - closure/evidence alignment.
-2. PR 1 - memory/retrieval quality.
-3. PR 2 - archive/import robustness.
-4. PR 3 - Stripe paid-path proof.
-5. PR 4 - Redis boundary.
-6. PR 5 - provider policy.
-7. PR 6 - workers only if forced.
+Current reconciliation, 2026-06-21:
+
+- PR 0 evidence alignment is implemented by PR157 and accepted by MIMIR.
+- PR 1 and PR 2 have accepted follow-on work through the later retrieval,
+  archive, and context-preview lanes, including the PR156 latency closeout.
+- PR 3 remains bounded to historical/reconciliation evidence plus current
+  config readiness; a fresh paid-activation proof is a separate lane only if
+  MIMIR wants it.
+- PR 4, PR 5, and the Cloudflare boundary have accepted foundations through
+  PR111 through PR115.
+- PR 6 remains "workers only if forced"; PR156 does not force one.
+
+Recommended next move: no backend implementation blocker is open from this
+plan. MIMIR should choose the next lane from fresh hosted replay/product
+evidence. Plausible branches are a fresh paid-activation proof, a product demo
+script/walkthrough, or a specific replay-quality issue if one is observed.
 
 ## Agent Roles
 

@@ -198,6 +198,11 @@ Required migration work if switching dimensions:
 
 Purpose: decide what Redis/Valkey should be for Station before implementing it.
 
+Status: accepted foundation via PR113 Redis/Valkey Cache Foundation and PR114
+Background Jobs Foundation. Current Redis/Upstash truth is operational cache,
+idempotency, rate-limit, and cache-only queue-state support. Redis-backed
+Memory truth is still not accepted.
+
 MIMIR correction:
 
 - Redis-backed Memory truth is not an accepted current role. MIMIR's
@@ -238,6 +243,10 @@ Discussion axes before choosing Redis as memory truth:
 
 Purpose: evaluate Cloudflare-only memory retrieval repos without forcing
 Station onto Cloudflare.
+
+Status: accepted boundary via PR115 Cloudflare Retrieval Boundary. Cloudflare
+remains adapter/index-mirror scope only; no live Worker, Queue, Vectorize call,
+or authoritative private-memory behavior is accepted.
 
 Default architecture:
 
