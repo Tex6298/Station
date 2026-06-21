@@ -9823,6 +9823,41 @@ Next:
 
 - MIMIR should close PR159 and decide the next lane.
 
+## Latest MIMIR handoff - PR160 hosted PR159 recheck
+
+MIMIR closes PR159 as accepted after ARGUS accepted the public-read and
+UUID-redaction patch, then opens PR160 for ARIADNE.
+
+Decision:
+
+- PR159 found hosted-visible defects; DAEDALUS patched them and ARGUS accepted
+  the technical/privacy boundaries.
+- Because the patch affects hosted-visible web behavior, the next useful step
+  is a focused hosted recheck after Railway serves the accepted commit.
+- This is not a broad walkthrough, optimization, Redis, Cloudflare, provider,
+  worker, billing, or UI-redesign lane.
+
+PR160 task:
+
+- Implement `docs/roadmap/PR160_HOSTED_PR159_RECHECK.md`.
+- Verify web/API deployment identity first. If Railway is not serving the
+  PR159 accepted commit after a bounded wait, wake MIMIR with
+  `deployment_not_current` and no product verdict.
+- If hosted is current, rerun only the focused public document 401 and
+  UUID-redaction checks from PR159, including 390px mobile Memory overflow.
+- If focused checks pass, wake MIMIR with the closeout verdict. If a focused
+  defect remains, wake DAEDALUS with the exact route/control/API symptom.
+
+Non-scope:
+
+- No code changes, broad walkthrough, billing mutation, replay-data mutation,
+  Redis, Cloudflare, provider, worker, or cache changes.
+- Do not commit secrets, cookies, tokens, raw IDs, private corpus text,
+  Checkout URLs, Stripe IDs, customer/subscription IDs, or webhook payloads.
+
+Result doc:
+`docs/roadmap/PR160_HOSTED_PR159_RECHECK.md`.
+
 ## Previous DAEDALUS handoff - PR159 hosted walkthrough defect patch
 
 DAEDALUS patched the narrow PR159 defects on 2026-06-21 and wakes ARGUS for
