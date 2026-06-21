@@ -5,7 +5,7 @@ Opened by: A1 / MIMIR
 Owner: DAEDALUS implements. ARGUS reviews idempotency, transaction safety,
 owner scoping, webhook side effects, and overclaim risk. ARIADNE only rehearses
 if visible routes change.
-Status: implemented by DAEDALUS on 2026-06-21; waiting for ARGUS review
+Status: accepted by ARGUS on 2026-06-21; ready for MIMIR closeout
 
 ## Why This Lane
 
@@ -152,3 +152,55 @@ Cloudflare Worker/Vectorize/D1, partner adapter, user-pasted secret flow, vault
 UI, billing/Stripe change, Redis memory truth, provider routing, chat-native
 developer agent, broad UI, or migration of canonical runtime truth out of
 Supabase was added.
+
+## ARGUS Review - 2026-06-21
+
+ARGUS accepts PR127 for the bounded concurrency guard lane after one patch.
+
+Review finding:
+
+- The initial implementation claimed a `processing` receipt before rate/quota/
+  import side effects, but post-claim early failures could return without
+  finalizing the receipt. That could make a transient or validation failure look
+  permanently in-progress to later same-id/same-payload deliveries.
+
+ARGUS patch:
+
+- Split rate-limit checking from response writing so webhook receipts can be
+  finalized before returning bounded rate-limit failures.
+- Added terminal failed receipt state for claimed webhook deliveries that fail
+  after the claim and before successful import finalization.
+- Updated replay handling so same-id/same-payload failed receipts return the
+  stored bounded failure instead of `developer_space_webhook_in_progress` or a
+  successful replay shape.
+- Added a regression test proving post-claim classification failure finalizes
+  the receipt, does not import events, and does not duplicate side effects on a
+  same-id/same-payload retry.
+
+Accepted behavior:
+
+- Same-id/same-payload in-progress duplicate deliveries return retryable
+  `developer_space_webhook_in_progress` and do not import.
+- Same-id/different-payload deliveries return bounded replay conflict and do
+  not import the changed payload.
+- Same-id/same-payload completed deliveries preserve stored non-secret replay.
+- Same-id/same-payload failed deliveries return a bounded terminal failure
+  instead of remaining stuck in processing.
+- Signature verification still precedes JSON parse, receipt claim, rate checks,
+  usage/quota/import side effects, receipt finalization, and SSE broadcast.
+
+ARGUS validation:
+
+| Command | Result |
+| --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass, 26 tests |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-space-client` | Pass, 4 tests |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/api build` | Pass |
+| `git diff --check` | Pass, CRLF normalization warnings only |
+
+Remaining non-claims: no worker, queue, background processor, hosted runtime,
+Cloudflare Worker/Vectorize/D1, partner adapter, user-pasted secret flow, vault
+UI, billing/Stripe change, Redis memory truth, provider routing, chat-native
+developer agent, broad UI, or migration of canonical runtime truth out of
+Supabase.

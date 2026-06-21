@@ -346,8 +346,7 @@ async function loadSpaceForIngestion(req: any, res: any) {
   return { space: data, ingestionKeyId: null, rawKey };
 }
 
-async function enforceIngestionRateLimit(
-  res: Response,
+async function checkIngestionRateLimit(
   input: { space: { id: string; owner_user_id: string }; ingestionKeyId: string | null }
 ) {
   const limit = positiveIntFromEnv(
@@ -372,16 +371,32 @@ async function enforceIngestionRateLimit(
       parts: ["developer-space-ingestion"],
     });
   } catch {
-    res.status(500).json(ingestionServerError("Could not check Developer Space ingestion rate limit."));
-    return false;
+    return {
+      allowed: false as const,
+      status: 500,
+      body: ingestionServerError("Could not check Developer Space ingestion rate limit."),
+    };
   }
 
+  if (result.allowed) return { allowed: true as const };
+  return {
+    allowed: false as const,
+    status: 429,
+    body: ingestionRateLimitError({
+      limit: result.limit,
+      used: result.used,
+      retryAfter: result.retryAfter ?? result.windowSeconds,
+    }),
+  };
+}
+
+async function enforceIngestionRateLimit(
+  res: Response,
+  input: { space: { id: string; owner_user_id: string }; ingestionKeyId: string | null }
+) {
+  const result = await checkIngestionRateLimit(input);
   if (result.allowed) return true;
-  res.status(429).json(ingestionRateLimitError({
-    limit: result.limit,
-    used: result.used,
-    retryAfter: result.retryAfter ?? result.windowSeconds,
-  }));
+  res.status(result.status).json(result.body);
   return false;
 }
 
@@ -1231,6 +1246,29 @@ function observedRuntimeInProgressBody(webhookId: string) {
   });
 }
 
+function observedRuntimeFailedReceiptBody(input: {
+  webhookId: string;
+  status: number;
+  body: unknown;
+}) {
+  return {
+    accepted: false,
+    replayed: false,
+    webhookId: input.webhookId,
+    status: "failed",
+    statusCode: input.status,
+    body: input.body,
+  };
+}
+
+function observedRuntimeProcessingFailedBody(status: number) {
+  return ingestionErrorBody({
+    error: "Observed runtime webhook delivery did not complete.",
+    code: "developer_space_webhook_processing_failed",
+    category: status >= 500 ? "server" : "validation",
+  });
+}
+
 function serializeWebhookSigningSecret(row: any) {
   return {
     id: row.id,
@@ -1379,6 +1417,13 @@ function existingObservedRuntimeWebhookReceiptResponse(input: {
     };
   }
 
+  if (input.existing.response_body?.status === "failed") {
+    return {
+      status: input.existing.response_body.statusCode ?? 500,
+      body: input.existing.response_body.body ?? ingestionServerError("Observed runtime webhook delivery did not complete."),
+    };
+  }
+
   return {
     status: 200,
     body: {
@@ -1442,6 +1487,29 @@ async function claimObservedRuntimeWebhookReceipt(input: {
   }
 
   throw new Error(error?.message ?? "Could not claim observed runtime webhook receipt.");
+}
+
+async function finalizeObservedRuntimeWebhookReceipt(input: {
+  receiptId: string;
+  responseBody: unknown;
+}) {
+  const { error } = await (getSupabaseAdmin() as any)
+    .from("developer_space_observed_runtime_webhook_receipts")
+    .update({ response_body: input.responseBody })
+    .eq("id", input.receiptId);
+  if (error) throw new Error(error.message ?? "Could not finalize observed runtime webhook receipt.");
+}
+
+async function finalizeFailedObservedRuntimeWebhookReceipt(input: {
+  receiptId: string;
+  webhookId: string;
+  status: number;
+  body: unknown;
+}) {
+  await finalizeObservedRuntimeWebhookReceipt({
+    receiptId: input.receiptId,
+    responseBody: observedRuntimeFailedReceiptBody(input),
+  });
 }
 
 developerSpacesRouter.post("/ingest/observed-runtime", async (req, res) => {
@@ -1518,7 +1586,20 @@ developerSpacesRouter.post("/ingest/observed-runtime", async (req, res) => {
   }
   if (!claim.claimed) return res.status(claim.response.status).json(claim.response.body);
 
-  if (!(await enforceIngestionRateLimit(res, ingestion))) return;
+  const rateLimit = await checkIngestionRateLimit(ingestion);
+  if (!rateLimit.allowed) {
+    try {
+      await finalizeFailedObservedRuntimeWebhookReceipt({
+        receiptId: claim.receipt.id,
+        webhookId,
+        status: rateLimit.status,
+        body: rateLimit.body,
+      });
+    } catch {
+      return res.status(500).json(ingestionServerError("Could not finalize observed runtime webhook receipt."));
+    }
+    return res.status(rateLimit.status).json(rateLimit.body);
+  }
 
   const result = await persistDeveloperSpaceBatchImport({
     res,
@@ -1526,7 +1607,19 @@ developerSpacesRouter.post("/ingest/observed-runtime", async (req, res) => {
     payload: parsed.data.payload,
     storageBytesSource: body,
   });
-  if (!result) return;
+  if (!result) {
+    try {
+      await finalizeFailedObservedRuntimeWebhookReceipt({
+        receiptId: claim.receipt.id,
+        webhookId,
+        status: res.statusCode >= 400 ? res.statusCode : 500,
+        body: observedRuntimeProcessingFailedBody(res.statusCode >= 400 ? res.statusCode : 500),
+      });
+    } catch {
+      // The original bounded ingestion response has already been sent.
+    }
+    return;
+  }
 
   const responseBody = {
     accepted: true,
@@ -1534,13 +1627,14 @@ developerSpacesRouter.post("/ingest/observed-runtime", async (req, res) => {
     webhookId,
     imported: result.imported,
   };
-  const { error: receiptError } = await (getSupabaseAdmin() as any)
-    .from("developer_space_observed_runtime_webhook_receipts")
-    .update({
-      response_body: responseBody,
-    })
-    .eq("id", claim.receipt.id);
-  if (receiptError) return res.status(500).json(ingestionServerError("Could not record observed runtime webhook receipt."));
+  try {
+    await finalizeObservedRuntimeWebhookReceipt({
+      receiptId: claim.receipt.id,
+      responseBody,
+    });
+  } catch {
+    return res.status(500).json(ingestionServerError("Could not record observed runtime webhook receipt."));
+  }
 
   return res.status(202).json(responseBody);
 });

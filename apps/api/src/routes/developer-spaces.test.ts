@@ -1760,6 +1760,78 @@ test("Observed runtime webhook receipt claim blocks in-progress duplicate delive
   }
 });
 
+test("Observed runtime webhook receipt claim finalizes failed imports instead of leaving processing state", async () => {
+  const db = new InMemorySupabase();
+  setSupabaseAdminForTests(db.client as any);
+  setOperationalCacheProviderForTests(new DisabledOperationalCacheProvider("test_disabled"));
+  const app = createDeveloperSpacesApp();
+
+  try {
+    const created = await requestJson(app, "POST", "/developer-spaces", {
+      token: "owner-token",
+      body: {
+        projectName: "Observed Runtime Failed Claim",
+        visibility: "public",
+      },
+    });
+    assert.equal(created.status, 201);
+
+    const apiKeyResponse = await requestJson(app, "POST", `/developer-spaces/${created.body.space.id}/api-key`, {
+      token: "owner-token",
+    });
+    assert.equal(apiKeyResponse.status, 201);
+
+    const bridge = bridgeObservedRuntimeFixtureToDeveloperSpaceImport(
+      observedRuntimeFixture("observed-runtime-canonical.json"),
+      { developerSpaceId: created.body.space.id },
+    );
+    const envelope = {
+      schema: "station.observed_runtime.webhook.v1",
+      deliveryId: "fixture-failed-claim-001",
+      source: {
+        id: "synthetic-observed-runtime",
+        runtimeHostedBy: "external",
+        stationRole: "observer",
+      },
+      observedAt: "2026-06-20T10:15:00.000Z",
+      payload: {
+        ...bridge.importPayload,
+        events: [{
+          ...bridge.importPayload.events[0],
+          eventData: {
+            publicSignal: "visible",
+            unclassifiedSignal: "missing classification should fail after claim",
+          },
+          fieldClassifications: {
+            publicSignal: "public",
+          },
+        }],
+      },
+    };
+    const failed = await requestObservedRuntimeWebhook(app, envelope, {
+      developerKey: apiKeyResponse.body.apiKey,
+    });
+    assert.equal(failed.status, 400);
+    assert.equal(failed.body.code, "developer_space_observed_runtime_classification_failed");
+    assert.equal(db.tables.developer_space_observed_runtime_webhook_receipts.length, 1);
+    assert.equal(db.tables.developer_space_observed_runtime_webhook_receipts[0].response_body.status, "failed");
+    assert.equal(db.tables.developer_space_events.length, 0);
+    const usageRowsAfterFailure = db.tables.developer_space_usage.length;
+
+    const replayFailed = await requestObservedRuntimeWebhook(app, envelope, {
+      developerKey: apiKeyResponse.body.apiKey,
+    });
+    assert.equal(replayFailed.status, 400);
+    assert.equal(replayFailed.body.code, "developer_space_webhook_processing_failed");
+    assert.equal(db.tables.developer_space_observed_runtime_webhook_receipts.length, 1);
+    assert.equal(db.tables.developer_space_events.length, 0);
+    assert.equal(db.tables.developer_space_usage.length, usageRowsAfterFailure);
+  } finally {
+    setSupabaseAdminForTests(null);
+    setOperationalCacheProviderForTests(new DisabledOperationalCacheProvider("test_disabled"));
+  }
+});
+
 test("Observed runtime webhook signing secrets are owner-scoped encrypted and preferred over ingestion-key fallback", async () => {
   const previousEncryptionKey = process.env.DEVELOPER_SPACE_WEBHOOK_SIGNING_SECRET_ENCRYPTION_KEY;
   delete process.env.DEVELOPER_SPACE_WEBHOOK_SIGNING_SECRET_ENCRYPTION_KEY;

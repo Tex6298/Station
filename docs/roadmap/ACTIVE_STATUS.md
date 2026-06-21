@@ -8873,6 +8873,21 @@ when a PR lands, or when validation truth changes.
   same-payload or different-payload arrivals. Validation passed
   `test:developer-spaces` with 25 tests, `test:developer-space-client` with 4
   tests, `typecheck`, `@station/api` build, and diff hygiene.
+- ARGUS accepts PR127 2C Observed Runtime Webhook Concurrency Guard on
+  2026-06-21 after patching one receipt-finalization weakness. The accepted
+  route claims a non-secret processing receipt before webhook import side
+  effects, returns retryable `developer_space_webhook_in_progress` for
+  same-id/same-payload concurrent deliveries, returns bounded replay conflict
+  for same-id/different-payload deliveries, preserves completed replay behavior,
+  and now finalizes post-claim failed deliveries as terminal failed receipts
+  instead of leaving stale processing state. ARGUS validation passed
+  `test:developer-spaces` with 26 tests, `test:developer-space-client` with 4
+  tests, `typecheck`, `@station/api` build, and `git diff --check` with CRLF
+  normalization warnings only. Remaining non-claims: no worker, queue,
+  background processor, hosted runtime, Cloudflare Worker/Vectorize/D1, partner
+  adapter, user-pasted secret flow, vault UI, billing/Stripe change, Redis
+  memory truth, provider routing, chat-native developer agent, broad UI, or
+  migration of canonical runtime truth out of Supabase.
 - DAEDALUS implements PR126 2C Observed Runtime Signing Secret Lifecycle on
   2026-06-21 and wakes ARGUS for schema/API/encryption/signature review.
   Migration `048_developer_space_webhook_signing_secrets.sql` adds

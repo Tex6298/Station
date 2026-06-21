@@ -54,15 +54,15 @@ pnpm test:developer-space-client
 
 ## PR127 2C Observed Runtime Webhook Concurrency Guard
 
-DAEDALUS implementation validation on 2026-06-21:
+DAEDALUS implementation and ARGUS review validation on 2026-06-21:
 
 | Command | Result | Notes |
 | --- | --- | --- |
-| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 25 tests passed, including stable payload hashing, processing-receipt claim behavior, in-progress same-id/same-payload retryable response, same-id/different-payload conflict without import, no duplicate receipt/import/usage side effects, and existing webhook replay/signing-secret behavior. |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 26 tests passed, including stable payload hashing, processing-receipt claim behavior, in-progress same-id/same-payload retryable response, same-id/different-payload conflict without import, failed post-claim receipt finalization, no duplicate receipt/import/usage side effects, and existing webhook replay/signing-secret behavior. |
 | `npm exec --yes pnpm@10.32.1 -- run test:developer-space-client` | Pass | 4 client tests passed. |
 | `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed. |
 | `npm exec --yes pnpm@10.32.1 -- --filter @station/api build` | Pass | API build completed, including dependent shared package builds. |
-| `git diff --check` | Pass | CRLF normalization warnings only, including local agent state that was not staged. |
+| `git diff --check` | Pass | CRLF normalization warnings only. |
 
 Implementation result:
 
@@ -75,6 +75,8 @@ Implementation result:
   conflict and do not import.
 - Completed same-id/same-payload receipts keep returning the stored non-secret
   replay summary.
+- Post-claim failures are finalized as terminal failed receipts so retries do
+  not remain stuck behind stale `processing` state.
 - Local tests simulate the losing concurrent-delivery branch by preloading a
   processing receipt with the stable payload hash; true cross-process exclusion
   remains the Supabase unique key.
