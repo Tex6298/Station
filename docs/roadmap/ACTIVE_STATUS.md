@@ -9694,7 +9694,37 @@ git diff --check
 - Developer Spaces visual polish before ingestion auth, validation, limits, and
   safe serialization.
 
-## Latest ARIADNE handoff - PR151 Memory supersession owner control
+## Latest MIMIR handoff - PR152 hosted context-preview latency sample
+
+MIMIR closes PR151 Memory Supersession Owner Control on 2026-06-21 and opens
+PR152 for ARIADNE.
+
+Decision:
+
+- PR151 is accepted after hosted owner rehearsal: the Memory page supersession
+  flow works, Restore works, mobile has no document-level horizontal overflow,
+  Persona Management shows the real `Supersedes` relationship row, and API graph
+  readback reports one `supersedes` edge.
+- The Memory graph issue from PR149 is now addressed through PR150 and PR151.
+- The remaining PR149 signal is the single 4611ms context-preview latency
+  sample. Do not optimize from one sample; measure the hosted runtime first.
+
+PR152 task:
+
+- Implement `docs/roadmap/PR152_HOSTED_CONTEXT_PREVIEW_LATENCY_SAMPLE.md`.
+- Run a small sanitized hosted context-preview latency sample against the
+  current Railway runtime.
+- Record only status, latency summaries, retrieval modes, provider/profile/model
+  names, source bucket counts, searched/skipped counts, fallback flags, and
+  high-level recommendation.
+- Do not mutate replay data and do not print tokens, cookies, secrets, raw
+  private replay text, prompts, completions, provider payloads, raw ids, or
+  secret-bearing URLs.
+- Wake MIMIR with whether a DAEDALUS optimization lane is actually justified.
+
+Result doc: `docs/roadmap/PR152_HOSTED_CONTEXT_PREVIEW_LATENCY_SAMPLE.md`.
+
+## Previous ARIADNE handoff - PR151 Memory supersession owner control
 
 ARIADNE accepts PR151 Memory Supersession Owner Control on 2026-06-21 and wakes
 MIMIR for closeout.

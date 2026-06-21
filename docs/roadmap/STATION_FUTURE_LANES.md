@@ -367,10 +367,11 @@ owner-only background job status/readback consolidation lane, not BullMQ,
 Redis/Valkey worker runtime, Cloudflare Queue, or broad job processing.
 
 Current status: PR149 is closed as sufficient hosted measurement, PR150 is
-closed, and PR151 is technically accepted by ARGUS pending ARIADNE owner-visible
-rehearsal. Do not open a worker, Redis Memory, Cloudflare, provider, billing, or
-broad UI optimization lane from local proof alone; choose future follow-up from
-hosted replay evidence and ARGUS/MIMIR sequencing.
+closed, and PR151 is closed after ARIADNE owner-visible rehearsal. PR152 is open
+to repeat hosted context-preview latency sampling before any optimization lane.
+Do not open a worker, Redis Memory, Cloudflare, provider, billing, or broad UI
+optimization lane from local proof alone; choose future follow-up from hosted
+replay evidence and ARGUS/MIMIR sequencing.
 
 Candidate triggers:
 

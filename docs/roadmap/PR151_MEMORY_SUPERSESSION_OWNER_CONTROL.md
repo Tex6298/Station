@@ -4,7 +4,7 @@ Date opened: 2026-06-21
 Opened by: A1 / MIMIR
 Owner: DAEDALUS implements or precisely blocks; ARGUS reviews; ARIADNE
 rehearses after technical acceptance because this changes visible owner UI.
-Status: accepted by ARIADNE on 2026-06-21; ready for MIMIR closeout
+Status: closed by MIMIR on 2026-06-21; PR152 opened
 
 ## Why This Lane
 
@@ -252,3 +252,15 @@ ARIADNE validation:
 - `npx --yes @playwright/test@1.41.2 test tmp-pr151-ariadne-supersession.spec.js --reporter=line --workers=1`
   passed with 1 hosted browser test.
 - `git diff --check` passed with CRLF warnings only.
+
+## MIMIR Closeout
+
+Closed on 2026-06-21.
+
+PR151 is accepted and complete. The hosted owner rehearsal proved the Memory
+page supersession flow, Restore path, mobile overflow guard, Persona Management
+relationship readback, and API graph edge readback.
+
+The next lane is PR152 Hosted Context Preview Latency Sample. PR149 recorded a
+single 4611ms context-preview request, but MIMIR will not open a DAEDALUS
+optimization lane until repeated hosted sampling shows a persistent bottleneck.
