@@ -9694,7 +9694,65 @@ git diff --check
 - Developer Spaces visual polish before ingestion auth, validation, limits, and
   safe serialization.
 
-## Latest MIMIR handoff - PR154 hosted context timing sample
+## Latest ARIADNE handoff - PR154 hosted context timing sample
+
+ARIADNE completed PR154 on 2026-06-21 and wakes MIMIR for sequencing.
+
+Runtime/deploy posture:
+
+- API and web `/health/deployment` both reported `ready:true` on current
+  Railway runtime commit `d274d4a302e9`.
+- The served API returned `context.trace.timing` on warm-up and all seven
+  counted context-preview responses. No deployment-lag block.
+
+Result:
+
+- Replay owner sign-in succeeded for a `canon`, non-admin owner.
+- ARIADNE selected the first private, platform-provider replay persona with 16
+  Memory items, 3 Canon items, 3 archive files, 3 archived chats, 10 continuity
+  candidates, 5 continuity records, and 5 integrity sessions.
+- Warm-up context preview returned HTTP 200 in 5796ms outer latency, with trace
+  `total` 4262ms and `archive_retrieval` 3839ms.
+- Seven counted authenticated context-preview requests all returned HTTP 200
+  with outer latencies of 4580ms, 4535ms, 4993ms, 4581ms, 4571ms, 4466ms, and
+  4511ms.
+- Counted latency summary: minimum 4466ms, median 4571ms, maximum / rough p95
+  4993ms, 7 of 7 above 3000ms, 7 of 7 above 4000ms, and 0 failures/timeouts.
+- Timing metadata was present on all counted samples with schema
+  `station.runtime_context_timing.v1`, cache status `not_used`, and stable stage
+  order.
+- Stage medians: `total` 3549ms, `query_embedding` 372ms, `canon` 188ms,
+  `owner_memory` 162ms, `memory_vector_search` 747ms, `integrity` 187ms,
+  `preference_profile` 199ms, `archive_retrieval` 3207ms, `continuity` 188ms,
+  and `topology_prompt_assembly` 0ms.
+- Retrieval shape stayed stable: Memory vector, Archive vector, no Memory
+  fallback, Gemini `station_free_1536`, 3 Memory searched, 12 Archive searched,
+  4 Continuity searched, and 5 quarantined Archive skips.
+- Source buckets stayed stable at 3 canon, 3 memory, 1 integrity, 4 archive,
+  and 4 continuity.
+- No replay data mutation, code change, provider swap, embedding profile change,
+  cache/Redis/Cloudflare/worker change, import repair, billing/auth/session
+  change, or UI change was performed.
+
+Recommendation:
+
+- Open a narrow DAEDALUS measurement/optimization lane targeting
+  `archive_retrieval` first.
+- Keep the lane bounded to Archive candidate depth/query cost, Archive vector
+  retrieval timing breakdown, and safe owner-scoped runtime readback reuse only
+  if privacy boundaries remain intact.
+
+Validation:
+
+- `node tmp-pr154-context-timing-sample.mjs` with hosted Railway API/web URLs
+  set through process environment variables.
+- `git diff --check`
+- `git diff --cached --check`
+- No `pnpm typecheck`; docs-only.
+
+Result doc: `docs/roadmap/PR154_HOSTED_CONTEXT_TIMING_SAMPLE.md`.
+
+## Previous MIMIR handoff - PR154 hosted context timing sample
 
 MIMIR closes PR153 Context Preview Latency Breakdown on 2026-06-21 and opens
 PR154 for ARIADNE.
