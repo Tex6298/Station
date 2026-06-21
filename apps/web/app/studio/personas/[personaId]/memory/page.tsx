@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { getSession } from "@/lib/auth";
 import { apiGet, apiPatch, apiPost } from "@/lib/api-client";
+import { ownerVisibleText } from "@/lib/owner-visible-redaction";
 import {
   buildMemoryLifecycleReview,
   buildMemorySupersessionOptions,
@@ -326,8 +327,8 @@ export default function PersonaMemoryPage() {
                     <span>{item.lifecycle?.trustLevel ?? item.source_type}</span>
                     <time>{formatDate(item.created_at)}</time>
                   </div>
-                  <h3>{item.title || "Untitled memory"}</h3>
-                  <p>{item.summary || item.content}</p>
+                  <h3>{ownerVisibleText(item.title, "Untitled memory")}</h3>
+                  <p>{ownerVisibleText(item.summary || item.content, "No memory summary saved.")}</p>
                   <div style={{ display: "grid", gap: "0.5rem", marginTop: "0.75rem" }}>
                     <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
                       <span className="section-label">{memoryLifecycleStatusLabel(status)}</span>
@@ -427,8 +428,8 @@ export default function PersonaMemoryPage() {
                   <span>{block.scope}</span>
                   <time>{formatDate(block.updatedAt)}</time>
                 </div>
-                <h3>{block.title}</h3>
-                <p>{block.content}</p>
+                <h3>{ownerVisibleText(block.title, "Untitled shared memory")}</h3>
+                <p>{ownerVisibleText(block.content, "No shared memory content saved.")}</p>
               </article>
             ))}
           </div>

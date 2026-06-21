@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { apiGet, apiPost } from "@/lib/api-client";
 import { getSession } from "@/lib/auth";
+import { documentReadRoute, shouldFallbackToPublicDocumentRead } from "@/lib/document-read-route";
 import { PostComposer } from "@/components/social/post-composer";
 
 interface Document {
@@ -90,9 +91,10 @@ export default function DocumentPage() {
     if (!documentId) return;
     getSession().then(async (session) => {
       if (session) setToken(session.access_token);
+      const hasSession = Boolean(session?.access_token);
       try {
         const data = await apiGet<{ document: Document; access?: "owner" | "reader" }>(
-          `/documents/${documentId}`,
+          documentReadRoute(documentId, hasSession),
           session?.access_token
         );
         setDoc(data.document);
@@ -101,6 +103,11 @@ export default function DocumentPage() {
         if (fallbackDiscussion) setDiscussion(fallbackDiscussion);
         void loadDiscussionForDocument(data.document.id, session?.access_token, fallbackDiscussion);
       } catch {
+        if (!shouldFallbackToPublicDocumentRead(hasSession)) {
+          setError("Document not found.");
+          setLoading(false);
+          return;
+        }
         try {
           const data = await apiGet<{ document: Document }>(`/documents/public/${documentId}`);
           setDoc(data.document);

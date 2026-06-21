@@ -181,7 +181,17 @@ Validation:
 - `git diff --check`
 - `git diff --cached --check`
 
-Recommendation:
+DAEDALUS follow-up:
+
+- Patched anonymous public document pages to request `/documents/public/:id`
+  first, keeping the owner-aware route for signed-in users.
+- Added owner-visible UUID-shaped value redaction for Runtime Context readback,
+  Saved Memory/shared-memory cards, and Global Archive item readback.
+- Validation passed: `test:auth`, `test:studio-ui`, `typecheck`, and
+  `git diff --check`.
+- ARGUS should review the public-read and redaction boundaries next.
+
+Original recommendation:
 
 - Wake DAEDALUS for a narrow PR159 follow-up fixing the public document API
   401 and owner-visible UUID redaction across runtime context, Saved Memory,

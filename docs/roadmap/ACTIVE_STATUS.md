@@ -9786,7 +9786,41 @@ Next:
 Result doc:
 `docs/roadmap/PR158_ROADMAP_SOURCE_OF_TRUTH_RECONCILIATION.md`.
 
-## Latest ARIADNE handoff - PR159 hosted product walkthrough evidence
+## Latest DAEDALUS handoff - PR159 hosted walkthrough defect patch
+
+DAEDALUS patched the narrow PR159 defects on 2026-06-21 and wakes ARGUS for
+review.
+
+Scope:
+
+- Signed-out public document pages now request `/documents/public/:documentId`
+  directly instead of first calling the authenticated owner-aware
+  `/documents/:documentId` route and producing a browser-visible API 401.
+- Signed-in readers still try the owner-aware document route first and keep the
+  existing public fallback.
+- Runtime Context source titles, reasons, source content, and compiled prompt
+  preview redact UUID-shaped visible values.
+- Memory Saved Memory cards and owner-wide shared-memory cards redact
+  UUID-shaped visible values.
+- Global Archive item titles, summaries, and match reasons redact UUID-shaped
+  visible values.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:auth` passed, including the new
+  anonymous public document route helper proof.
+- `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` passed, including the
+  new owner-visible UUID redaction proof.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `git diff --check` passed with CRLF normalization warnings only for touched
+  files and local triad state.
+
+Next:
+
+- ARGUS should review the patch for auth/public-read behavior and
+  owner-visible redaction boundaries.
+
+## Previous ARIADNE handoff - PR159 hosted product walkthrough evidence
 
 ARIADNE completed the hosted PR159 product walkthrough on 2026-06-21 and wakes
 DAEDALUS with concrete implementation defects.

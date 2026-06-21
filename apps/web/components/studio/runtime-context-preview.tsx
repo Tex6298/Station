@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { apiGet } from "@/lib/api-client";
 import { getSession } from "@/lib/auth";
+import { ownerVisibleText, redactOwnerVisibleIds } from "@/lib/owner-visible-redaction";
 import {
   RUNTIME_CONTEXT_SECTIONS,
   runtimeContextCountRows,
@@ -113,11 +114,11 @@ export function RuntimeContextPreview({
                   ) : (
                     sources.map((source) => {
                       const sourceTitle = showSourceContent
-                        ? source.title || section.label
-                        : runtimeContextPreviewLabel(source.title, section.label);
+                        ? ownerVisibleText(source.title, section.label)
+                        : redactOwnerVisibleIds(runtimeContextPreviewLabel(source.title, section.label));
                       const sourceReason = showSourceContent
-                        ? source.reason
-                        : runtimeContextPreviewLabel(source.reason, "Selected for runtime context.");
+                        ? ownerVisibleText(source.reason, "Selected for runtime context.")
+                        : redactOwnerVisibleIds(runtimeContextPreviewLabel(source.reason, "Selected for runtime context."));
 
                       return (
                         <article key={`${source.type}-${source.id}`} className="studio-runtime-source">
@@ -125,7 +126,7 @@ export function RuntimeContextPreview({
                             <strong>{sourceTitle}</strong>
                             <span>{sourceReason}</span>
                           </div>
-                          {showSourceContent && source.content ? <p>{source.content}</p> : null}
+                          {showSourceContent && source.content ? <p>{redactOwnerVisibleIds(source.content)}</p> : null}
                         </article>
                       );
                     })
@@ -138,7 +139,7 @@ export function RuntimeContextPreview({
           {showCompiledPrompt && preview.systemPrompt ? (
             <details className="studio-runtime-prompt">
               <summary>Compiled system prompt</summary>
-              <pre>{preview.systemPrompt}</pre>
+              <pre>{redactOwnerVisibleIds(preview.systemPrompt)}</pre>
             </details>
           ) : null}
         </>

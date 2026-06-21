@@ -10,6 +10,7 @@ import {
 } from "@/lib/archive-search";
 import { archiveSourceNarrative } from "@/lib/archive-trust";
 import { getSession } from "@/lib/auth";
+import { ownerVisibleText } from "@/lib/owner-visible-redaction";
 
 type ArchiveItem = {
   id: string;
@@ -196,11 +197,15 @@ export function ArchiveLibrary() {
                     <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12 }}>
                       <span style={iconBox}>{item.type.slice(0, 1).toUpperCase()}</span>
                       <div style={{ minWidth: 0 }}>
-                        <h3 style={{ margin: 0, color: "var(--station-page-text)", fontSize: 14, lineHeight: 1.25 }}>{item.title}</h3>
+                        <h3 style={{ margin: 0, color: "var(--station-page-text)", fontSize: 14, lineHeight: 1.25 }}>
+                          {ownerVisibleText(item.title, "Untitled archive item")}
+                        </h3>
                         <div style={{ color: "var(--station-page-muted)", fontSize: 11 }}>{item.source} / {formatDate(item.date)}</div>
                       </div>
                     </div>
-                    <p style={{ margin: "0 0 12px", color: "var(--station-page-muted)", fontSize: 12, lineHeight: 1.55 }}>{item.summary}</p>
+                    <p style={{ margin: "0 0 12px", color: "var(--station-page-muted)", fontSize: 12, lineHeight: 1.55 }}>
+                      {ownerVisibleText(item.summary, "No archive summary saved.")}
+                    </p>
                     <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 12 }}>
                       <span style={pill}>{item.type}</span>
                       <span style={pill}>{item.persona}</span>
@@ -208,7 +213,7 @@ export function ArchiveLibrary() {
                     </div>
                     {item.match ? (
                       <div style={{ color: "var(--station-page-accent)", fontSize: 11, marginBottom: 12 }}>
-                        {item.match.reason}
+                        {ownerVisibleText(item.match.reason, "Archive match")}
                       </div>
                     ) : null}
                     <Link href={item.href} style={miniLink}>Open source</Link>

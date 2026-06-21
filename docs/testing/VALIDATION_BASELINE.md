@@ -52,6 +52,29 @@ pnpm test:developer-spaces
 pnpm test:developer-space-client
 ```
 
+## PR159 Hosted Walkthrough Defect Patch
+
+DAEDALUS implementation validation on 2026-06-21:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:auth` | Pass | 16 tests passed, including anonymous public document reads using `/documents/public/:id` directly and signed-in reads trying the owner-aware route first. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 102 tests passed, including owner-visible UUID-shaped value redaction helper coverage. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API typecheck replayed from cache; web typecheck ran successfully. |
+| `git diff --check` | Pass | CRLF normalization warnings only for touched files and local triad state. |
+
+DAEDALUS PR159 notes:
+
+- Anonymous public document pages now call the public document endpoint first
+  instead of producing a browser-visible 401 from the authenticated route.
+- Signed-in document reads preserve the owner-aware route and existing public
+  fallback behavior.
+- Runtime Context source list, source content, compiled prompt preview, Saved
+  Memory cards, owner-wide shared-memory cards, and Global Archive item
+  readback redact UUID-shaped visible values.
+- ARGUS review is required next because this touches public-read sequencing and
+  owner-visible privacy/redaction boundaries.
+
 ## PR158 Roadmap Source-Of-Truth Reconciliation
 
 ARGUS review validation on 2026-06-21:
