@@ -9010,6 +9010,23 @@ when a PR lands, or when validation truth changes.
   `DeveloperSpaceBatchImportPayload` plus PR128 signed webhook construction;
   do not open Cloudflare boundary design yet. Validation: `git diff --check`
   passed with CRLF normalization warnings only.
+- ARGUS accepts PR131 2C Observed Runtime Adapter Discovery on 2026-06-21 and
+  wakes MIMIR for closeout. Review found the docs/evidence lane matches MIMIR's
+  scope: source evidence is named, Cloudflare is separated into hard dependency
+  versus local/deployment paths, Station remains the Supabase-backed observed
+  persistence/readback system, and the recommendation does not widen into
+  runtime hosting, orchestration, Cloudflare setup, queues, UI, billing, Redis
+  memory truth, provider routing, or partner onboarding. External source
+  spot-check accepted the classifications: Agents Observe, AI Observer, and
+  Mission Control show local/self-hosted adapter paths with no Cloudflare hard
+  dependency; NESTstack remains mixed with no-Cloudflare Path A and
+  Cloudflare-native full continuity paths. Validation passed
+  `git diff --check HEAD^ HEAD`, `git diff --check` with CRLF normalization
+  warnings only, `git diff --cached --check`, and a
+  patch secret-pattern scan. Next recommendation accepted for MIMIR decision:
+  open a docs/test-only `simple10/agents-observe` transform spike into
+  `DeveloperSpaceBatchImportPayload` plus PR128 signed webhook request
+  construction, or choose a different next move deliberately.
 - DAEDALUS implements PR126 2C Observed Runtime Signing Secret Lifecycle on
   2026-06-21 and wakes ARGUS for schema/API/encryption/signature review.
   Migration `048_developer_space_webhook_signing_secrets.sql` adds
@@ -9290,11 +9307,11 @@ git diff --check
 - Developer Spaces visual polish before ingestion auth, validation, limits, and
   safe serialization.
 
-## Latest DAEDALUS handoff - PR131 observed runtime adapter discovery
+## Latest ARGUS verdict - PR131 observed runtime adapter discovery
 
-PR131 2C Observed Runtime Adapter Discovery is implemented by DAEDALUS on
-2026-06-21 and ready for ARGUS review. ARIADNE is not required; no visible route
-changed.
+PR131 2C Observed Runtime Adapter Discovery is accepted by ARGUS on
+2026-06-21 and ready for MIMIR closeout. ARIADNE is not required; no visible
+route changed.
 
 Discovery map:
 
@@ -9315,7 +9332,7 @@ Sources reviewed:
   `tobilg/ai-observer/README.md`, and
   `cindiekinzz-coder/NESTstack`.
 
-Cloudflare classification:
+ARGUS review:
 
 - No hard Cloudflare dependency found for `simple10/agents-observe`,
   `tobilg/ai-observer`, or `builderz-labs/mission-control` adapter bridges.
@@ -9325,6 +9342,12 @@ Cloudflare classification:
 - Station already has overlapping Supabase-backed Developer Space persistence,
   signed observed-runtime webhook delivery, classified readback, and
   receipt-backed replay/conflict/in-progress behavior.
+- External source spot-check supports the classification: Agents Observe uses
+  hook stdin JSON plus `observe_cli.mjs` HTTP posting into Hono/SQLite/
+  WebSocket readback; AI Observer documents self-hosted local/DuckDB/
+  file-watch/OTLP paths; Mission Control documents a `curl`-only first agent
+  loop plus local Next/SQLite/WebSocket/pty dependencies; NESTstack documents
+  no-Cloudflare local Path A and Cloudflare-native full continuity paths.
 
 Recommendation: open one concrete adapter spike for `simple10/agents-observe`.
 Keep it docs/test-only first: transform a hook/session sample into
@@ -9332,7 +9355,10 @@ Keep it docs/test-only first: transform a hook/session sample into
 tool payloads as private or secret by default, and prove PR128 signed webhook
 request construction. Do not open Cloudflare boundary design yet.
 
-Validation: `git diff --check` passed with CRLF normalization warnings only.
+Validation: `git diff --check HEAD^ HEAD` passed, `git diff --check` passed
+with CRLF normalization warnings only,
+`git diff --cached --check` passed, and a patch secret-pattern scan found no
+committed secret-shaped values.
 
 Non-scope preserved: no external repo code imported, no adapter implemented, no
 Cloudflare account/config/deployment work, no hosted runtime, worker, queue,
@@ -9341,8 +9367,9 @@ secret-management UI, billing/Stripe, Redis memory truth, provider routing,
 chat-native developer agent, broad UI, production partner claim, or committed
 secret values.
 
-ARGUS should review the discovery map, Cloudflare dependency classification,
-source evidence, recommendation, validation, non-claims, and no-secret proof.
+MIMIR should close PR131 and decide whether to open the recommended
+`simple10/agents-observe` docs/test-only adapter spike or choose a different
+next move deliberately.
 
 ## Previous DAEDALUS handoff - PR127 webhook concurrency guard
 
