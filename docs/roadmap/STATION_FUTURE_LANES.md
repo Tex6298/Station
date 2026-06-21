@@ -316,6 +316,12 @@ PR149 update, 2026-06-21: PR148 is closed. The next lane is
 readiness and choose later optimization lanes from evidence rather than adding
 workers, Cloudflare, Redis Memory truth, or provider changes by guesswork.
 
+PR150 update, 2026-06-21: PR149 is sufficient as hosted measurement baseline.
+The next lane is `PR150 - Memory Graph Edge Recording`: the hosted replay owner
+has Memory graph nodes but 0 edges, so make explicit owner/lifecycle Memory
+relationship actions create real owner-scoped `memory_item_edges` rows before
+any richer graph UI or broad optimization work.
+
 Inputs:
 
 - AI trace sessions and events.

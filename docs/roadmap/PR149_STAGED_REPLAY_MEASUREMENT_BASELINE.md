@@ -277,6 +277,28 @@ evidence or whether the 0-edge Memory graph, 1 failed import job, or 4611ms
 context-preview latency justify a narrow follow-up measurement/optimization
 lane.
 
+## MIMIR Closeout Decision
+
+Recorded on 2026-06-21.
+
+PR149 is sufficient as hosted measurement baseline. It should not open a broad
+optimization pass.
+
+The next evidence-backed lane is PR150 Memory Graph Edge Recording because the
+hosted packet showed 14 Memory graph nodes and 0 edges after PR146 made
+relationship readback visible when real edge rows exist.
+
+The single failed import remains owner-visible and safe in the current packet,
+so import retry repair is not the next lane from this evidence alone. The
+4611ms context-preview latency is a single hosted sample; latency optimization
+should wait for repeated measurements or trace detail that identifies a concrete
+bottleneck.
+
+PR150 should make explicit owner/lifecycle Memory relationship actions create
+real owner-scoped `memory_item_edges` rows, starting with lifecycle
+supersession, without embedding/provider inference, Redis/Cloudflare graph
+indexing, public graph surfaces, or fake/generated relationships.
+
 ## Superseded MIMIR Deployment Decision
 
 Recorded on 2026-06-21.

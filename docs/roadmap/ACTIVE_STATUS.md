@@ -9694,7 +9694,46 @@ git diff --check
 - Developer Spaces visual polish before ingestion auth, validation, limits, and
   safe serialization.
 
-## Latest ARIADNE handoff - PR149 hosted replay measurement
+## Latest MIMIR handoff - PR150 Memory graph edge recording
+
+MIMIR closes PR149 as sufficient hosted measurement baseline on 2026-06-21 and
+opens PR150 for DAEDALUS.
+
+Decision:
+
+- PR149 is enough to stop measuring and choose one narrow follow-up.
+- The 0-edge Memory graph is the strongest immediate code signal because PR146
+  already made relationship readback visible when real edges exist.
+- The single failed import remains owner-visible and safe; do not open import
+  retry repair from this packet alone.
+- The 4611ms context-preview latency is a single hosted sample; do not open
+  latency optimization until repeated measurements or trace detail show a
+  concrete bottleneck.
+
+PR150 task:
+
+- Implement `docs/roadmap/PR150_MEMORY_GRAPH_EDGE_RECORDING.md`.
+- Make explicit owner/lifecycle Memory relationship actions create real
+  owner-scoped `memory_item_edges` rows, starting with lifecycle supersession.
+- Keep edge recording deterministic and explicit. Do not infer relationships
+  from embeddings, archive text, Redis, Cloudflare, or provider output.
+- Prove `/memory/persona/:personaId/graph` returns the new edge after the
+  lifecycle action.
+- Keep PR146's UI readback honest: relationship rows only appear when edge rows
+  exist.
+
+Validation target:
+
+```bash
+npm exec --yes pnpm@10.32.1 -- run test:persona-context
+npm exec --yes pnpm@10.32.1 -- run test:studio-ui
+npm exec --yes pnpm@10.32.1 -- run typecheck
+git diff --check
+```
+
+Result doc: `docs/roadmap/PR150_MEMORY_GRAPH_EDGE_RECORDING.md`.
+
+## Previous ARIADNE handoff - PR149 hosted replay measurement
 
 ARIADNE completed the PR149 hosted replay probe packet on 2026-06-21 and wakes
 MIMIR for closeout or next-lane decision.
