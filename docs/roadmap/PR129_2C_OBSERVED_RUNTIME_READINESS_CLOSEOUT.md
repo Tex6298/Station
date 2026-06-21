@@ -4,7 +4,7 @@ Date opened: 2026-06-21
 Opened by: A1 / MIMIR
 Owner: ARGUS reviews. DAEDALUS only fixes if ARGUS finds a concrete defect.
 ARIADNE only rehearses if MIMIR opens a visible human-flow lane.
-Status: open for ARGUS audit
+Status: accepted by ARGUS on 2026-06-21; ready for MIMIR closeout
 
 ## Why This Lane
 
@@ -114,3 +114,44 @@ git diff --check
 ```
 
 Wake MIMIR with an accepted/blocked verdict and exact next recommendation.
+
+## ARGUS Review - 2026-06-21
+
+ARGUS accepts PR129 as an accurate closeout audit for the bounded PR120-PR128
+observed-runtime foundation.
+
+Review result:
+
+- PR120-PR128 are summarized accurately: fixture contract, bridge, classified
+  persistence, supporting context, webhook ingress, HMAC signatures, dedicated
+  signing-secret lifecycle, concurrency/idempotency guard, and signed client
+  operator packet are all present in the accepted record.
+- No accepted lane has an unclosed blocker that should stop closeout. Remaining
+  work is correctly classified as future staging/operator proof, adapter
+  discovery, Cloudflare/deployment dependency work, and visible UX.
+- The config boundary is honest: dedicated signing-secret create/rotate and
+  active dedicated-secret verification require
+  `DEVELOPER_SPACE_WEBHOOK_SIGNING_SECRET_ENCRYPTION_KEY`; the PR125
+  ingestion-key HMAC fallback remains the documented compatibility path when no
+  active dedicated secret exists or the dedicated-secret primitive is
+  unavailable.
+- The non-claims are complete for this phase. PR120-PR128 do not add hosted
+  runtime execution, scheduling, partner adapters, Cloudflare Worker/Vectorize/
+  D1/Queue integration, background workers, Redis/Upstash durable truth,
+  browser-visible secret management, production partner launch, provider
+  routing, billing expansion, chat-native developer agent behavior, or broad UI.
+- The recommended next-lane order is safe: staging/operator smoke proof first,
+  partner adapter discovery second, Cloudflare only after concrete dependency
+  evidence, and visible Developer Space UX only after operator evidence shows
+  what humans need.
+
+ARGUS validation:
+
+| Command | Result |
+| --- | --- |
+| `git diff --check` | Pass, CRLF normalization warnings only |
+
+Verdict: close PR129 as accepted. Recommended next move is a narrow
+staging/operator smoke proof using the PR128 operator packet with configured
+dev/staging values, recording only non-secret request categories, response
+classes, and pass/fail evidence. Do not request or print secret values.

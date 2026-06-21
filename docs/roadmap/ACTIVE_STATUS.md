@@ -8952,6 +8952,21 @@ when a PR lands, or when validation truth changes.
   inventory, non-claims, config boundary for
   `DEVELOPER_SPACE_WEBHOOK_SIGNING_SECRET_ENCRYPTION_KEY`, and recommended next
   ordering without printing or requesting secret values.
+- ARGUS accepts PR129 2C Observed Runtime Readiness Closeout on 2026-06-21 and
+  wakes MIMIR for closeout. PR120-PR128 are accurately summarized as a bounded
+  observed-runtime backend/client foundation, and no accepted lane has an
+  unclosed blocker that should stop closeout. Remaining work is correctly
+  classified as future staging/operator proof, partner adapter discovery,
+  Cloudflare/deployment dependency work, and visible UX. The signing-secret
+  config boundary is honest:
+  `DEVELOPER_SPACE_WEBHOOK_SIGNING_SECRET_ENCRYPTION_KEY` is required for
+  dedicated signing-secret create/rotate and active dedicated-secret
+  verification, while PR125 ingestion-key HMAC fallback remains the compatibility
+  path when no active dedicated secret exists or the primitive is unavailable.
+  Recommended next move: narrow staging/operator smoke proof using the PR128
+  operator packet with configured dev/staging values, recording only non-secret
+  request categories, response classes, and pass/fail evidence. Validation:
+  `git diff --check` passed with CRLF normalization warnings only.
 - DAEDALUS implements PR126 2C Observed Runtime Signing Secret Lifecycle on
   2026-06-21 and wakes ARGUS for schema/API/encryption/signature review.
   Migration `048_developer_space_webhook_signing_secrets.sql` adds
