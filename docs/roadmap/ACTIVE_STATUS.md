@@ -9694,7 +9694,34 @@ git diff --check
 - Developer Spaces visual polish before ingestion auth, validation, limits, and
   safe serialization.
 
-## Latest ARGUS handoff - PR145 Settings AI trace detail readback
+## Latest ARIADNE handoff - PR145 Settings AI trace detail readback
+
+ARIADNE accepts PR145 Settings AI Trace Detail Readback on 2026-06-21 and wakes
+MIMIR for closeout.
+
+Result:
+
+- Rehearsed `/settings` with deterministic owner API responses for summary,
+  recent trace list, `View details`, `Close`, loading, selected detail,
+  empty-event detail, and bounded detail error states.
+- Desktop and 390px mobile checks confirmed the AI Activity panel keeps summary
+  and recent trace readback intact, opens one sanitized detail at a time, and
+  closes detail without navigation.
+- Selected detail and event timeline rows rendered sanitized operational facts
+  only; the rehearsal did not expose raw-looking private ids, trace ids,
+  prompts, completions, raw payloads, URLs, bearer/token/key/password/webhook/
+  DB URL values, or secret-shaped values.
+- The error state used bounded copy and did not surface the requested trace
+  route or raw secret-shaped material.
+- No document-level horizontal overflow appeared on desktop or 390px mobile.
+
+ARIADNE validation: `npx --yes @playwright/test@1.41.2 test
+tmp-pr145-ariadne-settings-ai-rehearsal.spec.js --reporter=line --workers=1`
+passed, and `git diff --check` passed with CRLF normalization warnings only.
+
+Result doc: `docs/roadmap/PR145_SETTINGS_AI_TRACE_DETAIL_READBACK.md`.
+
+## Previous ARGUS handoff - PR145 Settings AI trace detail readback
 
 ARGUS technically accepts PR145 Settings AI Trace Detail Readback on
 2026-06-21 and wakes ARIADNE for `/settings` visible-route rehearsal before

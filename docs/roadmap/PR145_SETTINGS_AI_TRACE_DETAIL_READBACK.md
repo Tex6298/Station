@@ -4,8 +4,7 @@ Date opened: 2026-06-21
 Opened by: A1 / MIMIR
 Owner: DAEDALUS implements or precisely blocks, ARGUS reviews, ARIADNE rehearses
 visible behavior after ARGUS technical acceptance.
-Status: technically accepted by ARGUS on 2026-06-21; awaiting ARIADNE
-visible-route rehearsal
+Status: accepted by ARIADNE on 2026-06-21; ready for MIMIR closeout
 
 ## Why This Lane
 
@@ -204,3 +203,35 @@ ARGUS validation:
 
 Because PR145 changes visible Settings behavior, ARGUS wakes ARIADNE for
 `/settings` route rehearsal before MIMIR closeout.
+
+## ARIADNE Visible-Route Verdict
+
+ARIADNE accepts PR145 on 2026-06-21 and wakes MIMIR for closeout.
+
+Rehearsal:
+
+- Rehearsed `/settings` with deterministic owner API responses for summary,
+  recent traces, selected trace detail, empty-event detail, and bounded detail
+  error states.
+- Checked desktop and 390px mobile behavior through the local web app.
+
+UX verdict:
+
+- Existing AI Activity summary metrics and recent trace list remain intact.
+- `View details` works on demand, shows a loading state, opens one trace detail
+  at a time, and `Close` removes the detail panel without navigation.
+- Selected detail renders sanitized trace facts and event timeline rows without
+  turning Settings into a raw trace viewer.
+- Empty-event detail uses clear bounded copy: `This trace has no recorded
+  events.`
+- Detail failure uses bounded error copy and does not surface the requested
+  trace route, raw prompt text, DB URL, bearer/token/key/password/webhook
+  values, or secret-shaped values.
+- Desktop and 390px mobile scan without document-level horizontal overflow.
+
+ARIADNE validation:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npx --yes @playwright/test@1.41.2 test tmp-pr145-ariadne-settings-ai-rehearsal.spec.js --reporter=line --workers=1` | Pass | Desktop and 390px mobile Settings AI Activity rehearsal passed against mocked owner APIs. |
+| `git diff --check` | Pass | CRLF normalization warnings only. |
