@@ -8952,6 +8952,13 @@ when a PR lands, or when validation truth changes.
   inventory, non-claims, config boundary for
   `DEVELOPER_SPACE_WEBHOOK_SIGNING_SECRET_ENCRYPTION_KEY`, and recommended next
   ordering without printing or requesting secret values.
+- ARGUS accepts PR129 2C Observed Runtime Readiness Closeout on 2026-06-21.
+  PR120-PR128 are accepted as a bounded observed-runtime backend/client
+  foundation with no unclosed blocker that should stop closeout. The accepted
+  next lane is PR130 2C Observed Runtime Staging Operator Smoke for DAEDALUS:
+  use the PR128 operator packet with configured dev/staging values, record only
+  non-secret request categories, response classes, and pass/fail evidence, and
+  wake MIMIR with exact missing env names if config is absent.
 - ARGUS accepts PR129 2C Observed Runtime Readiness Closeout on 2026-06-21 and
   wakes MIMIR for closeout. PR120-PR128 are accurately summarized as a bounded
   observed-runtime backend/client foundation, and no accepted lane has an
@@ -9247,33 +9254,38 @@ git diff --check
 - Developer Spaces visual polish before ingestion auth, validation, limits, and
   safe serialization.
 
-## Latest MIMIR handoff - PR129 observed runtime readiness closeout
+## Latest MIMIR handoff - PR130 observed runtime staging operator smoke
 
-PR129 2C Observed Runtime Readiness Closeout is opened by MIMIR on 2026-06-21
-and ready for ARGUS review.
+PR130 2C Observed Runtime Staging Operator Smoke is opened by MIMIR on
+2026-06-21 and ready for DAEDALUS proof.
 
-Review target:
+Task:
 
-- Audit whether PR120-PR128 are accurately summarized as a bounded observed-
-  runtime backend/client foundation.
-- Confirm whether any accepted lane still has an unclosed blocker.
-- Check the config boundary: dedicated signing-secret lifecycle needs
-  `DEVELOPER_SPACE_WEBHOOK_SIGNING_SECRET_ENCRYPTION_KEY`, while the documented
-  PR125 ingestion-key HMAC fallback remains available when no active dedicated
-  secret exists or the dedicated-secret primitive is unavailable.
-- Confirm the next-lane ordering: staging/operator smoke proof first, adapter
-  discovery second, Cloudflare only if adapter discovery proves a real
-  dependency, visible Developer Space UX only after smoke evidence shows what
-  humans need.
-- Confirm the non-claims: no hosted runtime, external runtime execution,
-  partner adapter, Cloudflare Worker/Vectorize/D1/Queue integration, worker/
-  queue runtime, Redis memory truth, public onboarding wizard, visible secret
-  management UI, user-pasted secret flow, production partner launch, provider
-  routing, chat-native developer agent, billing expansion, or broad UI.
+- Use the PR128 operator packet and existing committed docs/examples.
+- Prefer configured local `.env` or staging environment variables if present;
+  do not print values.
+- Record non-secret evidence only: env-name presence/missing inventory,
+  request category, response class, runnable/blocked result, and no-secret
+  proof.
+- If values are missing, wake MIMIR with exact missing env names and no secret
+  values.
+- If the packet/client fails despite config being present, fix the narrow
+  code/docs defect and wake ARGUS.
 
-Validation: docs hygiene with `git diff --check`.
+Validation target: `test:developer-space-client`,
+`@station/developer-space-client` build, and `git diff --check`; add
+`test:developer-spaces`, `@station/api` build, and `typecheck` if API behavior
+changes.
 
-Wake MIMIR with accepted/blocked verdict and exact next recommendation.
+Non-scope preserved: no hosted runtime, Cloudflare Worker/Vectorize/D1, worker,
+queue, scheduler, partner adapter, public onboarding wizard, visible
+secret-management UI, user-pasted secret flow, vault UI, billing/Stripe, Redis
+memory truth, provider routing, chat-native developer agent, broad UI,
+production partner claim, committed secret values, or live Cloudflare/
+deployment dependency work.
+
+Wake ARGUS with non-secret smoke evidence and validation, or wake MIMIR with
+the exact missing env/config blocker.
 
 ## Previous DAEDALUS handoff - PR127 webhook concurrency guard
 
