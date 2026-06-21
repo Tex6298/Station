@@ -301,8 +301,8 @@ test("agents observe fixture maps to deterministic Developer Space import payloa
   assert.equal(payload.snapshots?.length, 1);
   assert.equal(payload.supportingContext?.length, 1);
   assert.deepEqual(payload.nodes?.map((node) => node.nodeId), [
-    "agents-observe:session:session-alpha",
-    "agents-observe:agent:agent-reviewer",
+    "agents-observe:session:fixture",
+    "agents-observe:agent:reviewer",
   ]);
   assert.deepEqual(payload.events?.[0].eventData, {
     source: "agents-observe",
@@ -331,6 +331,9 @@ test("agents observe transform redacts raw values and classifies sensitive field
     agentsObserveHookEventFixture.raw.tokenValue,
     agentsObserveHookEventFixture.raw.toolPayload?.token,
     agentsObserveHookEventFixture.raw.toolPayload?.path,
+    agentsObserveHookEventFixture.sessionId,
+    agentsObserveHookEventFixture.eventId,
+    agentsObserveHookEventFixture.agent.id,
     ...(agentsObserveHookEventFixture.filesTouched ?? []),
   ]) {
     assert.equal(serialized.includes(String(rawValue)), false, `raw value leaked: ${rawValue}`);

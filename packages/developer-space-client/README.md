@@ -141,6 +141,8 @@ Privacy defaults are intentionally conservative:
 
 - raw prompts, command bodies, file paths, tool payloads, terminal/stdout-like
   material, and token values are not copied into public event data;
+- fixture session, event, and agent source ids are not copied into structural
+  `nodeId` or supporting-context `externalId` fields;
 - retained redacted fields are classified `private` or `secret`;
 - public output is limited to coarse labels, counts, status, role, and
   provenance.

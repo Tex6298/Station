@@ -84,6 +84,28 @@ Implementation result:
   agent, broad UI, production partner claim, or committed secret value was
   added.
 
+ARGUS review on 2026-06-21:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-space-client` | Pass | 10 tests passed after the structural-id privacy assertion was strengthened. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/developer-space-client build` | Pass | Client package build completed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed from cache. |
+| `git diff --check` | Pass | CRLF normalization warnings only. |
+| `git diff --cached --check` | Pass | No staged whitespace errors. |
+
+Review result:
+
+- Accepted after a narrow ARGUS patch stopped fixture `sessionId`, `agent.id`,
+  and `eventId` from becoming public structural `nodeId`/`externalId` values.
+- Public output is limited to coarse labels, counts, role/status, provenance,
+  and synthetic/coarse structural ids.
+- Raw prompt, command body, file paths, tool payload token/path,
+  terminal-output-like material, token value, fixture session id, fixture event
+  id, and fixture agent source id are absent from serialized payloads.
+- Signed request construction still uses the PR128 helper with fixed fake
+  signing material and no live send.
+
 ## PR131 2C Observed Runtime Adapter Discovery
 
 DAEDALUS docs/evidence discovery on 2026-06-21:

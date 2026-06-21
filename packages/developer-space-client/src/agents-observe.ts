@@ -70,8 +70,8 @@ const REDACTED = "[redacted by Station Agents Observe transform]";
 export function transformAgentsObserveHookEvent(
   event: AgentsObserveHookEventFixture,
 ): DeveloperSpaceBatchImportPayload {
-  const sessionNodeId = `agents-observe:session:${stableId(event.sessionId)}`;
-  const agentNodeId = `agents-observe:agent:${stableId(event.agent.id)}`;
+  const sessionNodeId = "agents-observe:session:fixture";
+  const agentNodeId = `agents-observe:agent:${stableId(event.agent.role)}`;
   const fileTouchCount = event.filesTouched?.length ?? 0;
   const inputTokens = event.tokenUsage?.inputTokens ?? 0;
   const outputTokens = event.tokenUsage?.outputTokens ?? 0;
@@ -181,15 +181,13 @@ export function transformAgentsObserveHookEvent(
     supportingContext: [
       {
         contextType: "provenance",
-        externalId: event.eventId,
+        externalId: `agents-observe:event:${stableId(event.hook.name)}:${stableId(event.hook.status)}`,
         sourceRef: "simple10/agents-observe public docs",
         occurredAt: event.observedAt,
         provenance: "imported",
         payload: {
           source: "agents-observe",
           evidence: "Public docs describe hook stdin JSON, CLI POST, API server, SQLite storage, and WebSocket live updates.",
-          sessionId: event.sessionId,
-          agentId: event.agent.id,
           sensitiveFieldInventory: sensitiveInventory,
           rawPrompt: event.raw.prompt ? REDACTED : undefined,
           commandBody: event.raw.commandBody ? REDACTED : undefined,
@@ -201,8 +199,6 @@ export function transformAgentsObserveHookEvent(
         fieldClassifications: {
           source: "public",
           evidence: "public",
-          sessionId: "private",
-          agentId: "private",
           sensitiveFieldInventory: "owner",
           rawPrompt: "private",
           commandBody: "private",

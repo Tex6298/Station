@@ -9053,6 +9053,23 @@ when a PR lands, or when validation truth changes.
   or `STATION_DEVELOPER_KEY`. Validation passed `test:developer-space-client`
   with 10 tests, `@station/developer-space-client` build, root `typecheck`, and
   `git diff --check` with CRLF normalization warnings only.
+- ARGUS accepts PR132 2C Agents Observe Transform Spike on 2026-06-21 after a
+  narrow privacy review patch and wakes MIMIR for closeout. Review patch:
+  structural `nodeId` and supporting-context `externalId` no longer derive from
+  fixture `sessionId`, `agent.id`, or `eventId`; the transform test now proves
+  those source ids, plus raw prompt, command body, file paths, tool payload
+  token/path, terminal output, and token value, are absent from serialized
+  payloads. Review accepted the transform shape, README caveat, signed
+  PR128 request construction proof with fixed fake signing material, and
+  no-live-send boundary. Validation passed `test:developer-space-client` with
+  10 tests, `@station/developer-space-client` build, root `typecheck`,
+  `git diff --check` with CRLF normalization warnings only, and
+  `git diff --cached --check`. Non-scope preserved: no external repo code,
+  package dependency, live webhook send, smoke config, Developer Space key
+  generation/rotation, Cloudflare Worker/Vectorize/D1/Queue/Durable Object,
+  hosted runtime, partner onboarding, visible secret-management UI,
+  billing/Stripe, Redis memory truth, provider routing, chat-native developer
+  agent, broad UI, production partner claim, or committed live secret value.
 - DAEDALUS implements PR126 2C Observed Runtime Signing Secret Lifecycle on
   2026-06-21 and wakes ARGUS for schema/API/encryption/signature review.
   Migration `048_developer_space_webhook_signing_secrets.sql` adds
@@ -9333,11 +9350,11 @@ git diff --check
 - Developer Spaces visual polish before ingestion auth, validation, limits, and
   safe serialization.
 
-## Latest DAEDALUS handoff - PR132 Agents Observe transform spike
+## Latest ARGUS verdict - PR132 Agents Observe transform spike
 
-PR132 2C Agents Observe Transform Spike is implemented by DAEDALUS on
-2026-06-21 and ready for ARGUS review. ARIADNE is not required; no visible route
-changed.
+PR132 2C Agents Observe Transform Spike is accepted by ARGUS on 2026-06-21
+after a narrow privacy review patch. It is ready for MIMIR closeout. ARIADNE is
+not required; no visible route changed.
 
 Files touched:
 
@@ -9349,7 +9366,7 @@ Files touched:
 - `docs/roadmap/ACTIVE_STATUS.md`
 - `docs/testing/VALIDATION_BASELINE.md`
 
-Implementation:
+Accepted implementation:
 
 - Added a tiny local Agents Observe-style fixture based on PR131 public-doc
   evidence: hook/session event, agent role, tool status, coarse token counts,
@@ -9360,13 +9377,22 @@ Implementation:
 - Exported the helper from `@station/developer-space-client`.
 - README labels the helper as a transform spike, not a live adapter.
 
-Privacy proof:
+ARGUS review patch:
+
+- Structural `nodeId` and supporting-context `externalId` no longer derive from
+  fixture `sessionId`, `agent.id`, or `eventId`.
+- The transform test now proves those source ids do not appear in serialized
+  payloads.
+- README privacy notes now call out structural-id protection.
+
+Privacy proof accepted:
 
 - Public event data includes only coarse labels, counts, status, role, and
   provenance.
 - Raw prompt, command body, file paths, tool payload token/path,
-  terminal-output-like material, and token value do not appear in serialized
-  payloads or signed request bodies.
+  terminal-output-like material, token value, fixture session id, fixture event
+  id, and fixture agent source id do not appear in serialized payloads or signed
+  request bodies.
 - Retained redacted supporting-context fields are classified `private`; token
   value is classified `secret`.
 
@@ -9376,17 +9402,19 @@ fixed timestamp, external observer source shape, and no fetch/live send.
 
 Validation: `test:developer-space-client` passed with 10 tests,
 `@station/developer-space-client` build passed, root `typecheck` passed, and
-`git diff --check` passed with CRLF normalization warnings only.
+`git diff --check` passed with CRLF normalization warnings only. ARGUS also ran
+`git diff --cached --check`.
 
 Non-scope preserved: no external repo code vendoring, live webhook send, smoke
 config, Developer Space key generation/rotation, Cloudflare Worker/Vectorize/
 D1/Queue/Durable Object work, hosted runtime, partner onboarding, visible
 secret-management UI, billing/Stripe, Redis memory truth, provider routing,
 chat-native developer agent, broad UI, production partner claim, or committed
-secret values.
+live secret value.
 
-ARGUS should review fixture/source evidence, transform shape, privacy proof,
-signed request construction proof, validation, non-claims, and no-secret proof.
+MIMIR should close PR132 and decide the next move. If this path continues,
+future live-adapter work should keep opaque/public-safe structural ids and the
+PR128 signed webhook boundary.
 
 ## Previous DAEDALUS handoff - PR127 webhook concurrency guard
 

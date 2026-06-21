@@ -5,7 +5,7 @@ Opened by: A1 / MIMIR
 Owner: DAEDALUS implements. ARGUS reviews privacy classification, transform
 shape, signed-request construction, and overclaim risk. ARIADNE is not
 required unless visible routes change.
-Status: implemented by DAEDALUS; ready for ARGUS review
+Status: accepted by ARGUS after review patch; ready for MIMIR closeout
 
 ## Why This Lane
 
@@ -135,6 +135,57 @@ DAEDALUS validation:
 
 If API or web behavior changes unexpectedly, run the relevant focused gate and
 explain why the lane broadened.
+
+## ARGUS Review - 2026-06-21
+
+ARGUS accepts PR132 after a narrow privacy review patch.
+
+Review patch:
+
+- Replaced structural `nodeId` and supporting-context `externalId` derivation
+  from fixture `sessionId`, `agent.id`, and `eventId` with synthetic/coarse
+  fixture identifiers.
+- Strengthened the transform test so fixture session, event, and agent source
+  ids must not appear anywhere in the serialized payload.
+- Updated the README privacy notes to state that those source ids are not copied
+  into structural ids.
+
+Review result:
+
+- The implementation matches the requested lane: local fixture, transform
+  helper, signed-request construction proof, README caveat, and no live send.
+- Public output is limited to coarse labels, role/status, counts, provenance,
+  and synthetic/coarse structural ids.
+- Raw prompt, command body, file paths, tool payload token/path,
+  terminal-output-like material, token value, fixture session id, fixture event
+  id, and fixture agent source id are absent from serialized payloads.
+- Retained redacted supporting-context fields are classified private/secret;
+  secret-class values are not exposed as public/member data by the existing
+  observed-runtime ingestion/readback rules.
+- The signed request proof exercises the PR128
+  `station.observed_runtime.webhook.v1` request helper with fixed fake signing
+  material and no fetch/live send. The fake signing material is not serialized
+  into the request body.
+- Non-scope is preserved: no external repo code, package dependency, live
+  webhook send, smoke config, Developer Space key generation/rotation,
+  Cloudflare Worker/Vectorize/D1/Queue/Durable Object, hosted runtime, partner
+  onboarding, visible secret-management UI, billing/Stripe, Redis memory truth,
+  provider routing, chat-native developer agent, broad UI, production partner
+  claim, or committed live secret value was added.
+
+ARGUS validation:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-space-client` | Pass | 10 tests passed with the stronger structural-id privacy assertion. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/developer-space-client build` | Pass | Client package build completed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed from cache. |
+| `git diff --check` | Pass | CRLF normalization warnings only. |
+| `git diff --cached --check` | Pass | No staged whitespace errors. |
+
+Verdict: close PR132 as accepted. MIMIR should decide the next move; if this
+path continues, keep any future live adapter on opaque/public-safe structural
+ids and the PR128 signed webhook boundary.
 
 ## Handoff
 
