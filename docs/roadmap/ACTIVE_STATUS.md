@@ -9376,6 +9376,22 @@ when a PR lands, or when validation truth changes.
   signing material, webhook id, fixture body, `.env` value, Railway variable,
   URL with credentials, or Developer Space key was printed, written, or
   committed.
+- ARGUS accepts PR141 2C Observed Runtime Classification Schema Drift on
+  2026-06-21 as a bounded staging schema proof and observed-runtime smoke
+  acceptance. Review confirmed the `045` proof matches local migration scope:
+  `observed_runtime_classifications jsonb` columns, object-shape checks, and
+  comments on Developer Space nodes/events/snapshots. Bounded staging smoke now
+  proves accepted Agents Observe import, same-delivery receipt replay, and
+  public/owner readback for `station-replay-dev-alpha`. Temporary named-key
+  handling stayed bounded, cleanup found zero active PR141 smoke keys, and no
+  raw secrets or credential-bearing values were committed. Validation passed
+  `test:developer-spaces` with 27 tests, `test:developer-space-client` with 15
+  tests, `@station/api` build, `typecheck`, `git diff --check`, and
+  `git diff --cached --check`. No auth/owner-scope, signing-secret lifecycle,
+  Cloudflare, hosted runtime, queue, partner adapter, UI, billing, Redis,
+  provider routing, or broad migration sweep was widened. Remaining caveat for
+  MIMIR: direct-applied migration ledger rows for `045`/`046`/`047`/`048` remain
+  absent; PR141 did not repair, fake, or hand-edit migration history.
 - DAEDALUS implements PR126 2C Observed Runtime Signing Secret Lifecycle on
   2026-06-21 and wakes ARGUS for schema/API/encryption/signature review.
   Migration `048_developer_space_webhook_signing_secrets.sql` adds
@@ -9656,59 +9672,39 @@ git diff --check
 - Developer Spaces visual polish before ingestion auth, validation, limits, and
   safe serialization.
 
-## Latest DAEDALUS handoff - PR141 classification schema drift
+## Latest ARGUS handoff - PR141 classification schema drift
 
-PR141 2C Observed Runtime Classification Schema Drift is implemented by
-DAEDALUS on 2026-06-21 and ready for ARGUS review.
+ARGUS accepts PR141 2C Observed Runtime Classification Schema Drift on
+2026-06-21 and wakes MIMIR for sequencing.
 
-Schema proof:
+Accepted facts:
 
-- Applied/proved migration `045` narrowly with a temporary `pg@8.13.1` client
-  outside the repo and unprepared SQL.
-- `developer_space_nodes`, `developer_space_events`, and
-  `developer_space_snapshots` now have
-  `observed_runtime_classifications jsonb`.
-- Object-shape check constraints and column comments are present on all three
-  columns.
-- `NOTIFY pgrst, 'reload schema'` was sent.
-- Service-role PostgREST probes for `id,observed_runtime_classifications`
-  returned HTTP `200` on all three tables.
-- Migration ledger counts for `045`, `046`, `047`, and `048` remain `0`;
-  DAEDALUS did not repair, fake, or hand-edit migration history.
+- Migration `045` was applied/proved narrowly on staging for
+  `observed_runtime_classifications jsonb` columns, object-shape checks, column
+  comments, and PostgREST visibility on Developer Space nodes/events/snapshots.
+- The bounded `station-replay-dev-alpha` smoke accepted first current-timestamp
+  Agents Observe observed-runtime delivery with HTTP `202`, imported nodes `2`,
+  events `1`, snapshots `1`, supporting context `1`, replayed the same signed
+  delivery with HTTP `200` / `accepted:false` / `replayed:true`, and proved
+  public/owner readback with safe counts.
+- Temporary named-key handling stayed bounded: raw key in memory only, no legacy
+  rotation, targeted revoke HTTP `200`, and zero active PR141 smoke keys after
+  cleanup.
+- ARGUS reran `test:developer-spaces` with 27 tests,
+  `test:developer-space-client` with 15 tests, `@station/api` build,
+  `typecheck`, `git diff --check`, and `git diff --cached --check`.
+- No secret values, raw webhook ids, fixture bodies, URLs with credentials, auth
+  tokens, signing material, raw Developer Space keys, `.env` values, or Railway
+  variables were committed. Non-scope stayed closed: `developer_space_nodes.node_id`
+  was not chased, no auth/owner-scope, UI, billing, hosted runtime, Cloudflare,
+  queue, provider routing, Redis, or broad migration sweep was added.
 
-Staging smoke:
+Remaining MIMIR decision:
 
-- Existing `station-replay-dev-alpha` was selected; selected id hash
-  `44e026dc4e6c`.
-- Temporary named key create returned HTTP `201`; raw key stayed in memory only.
-- No legacy key rotation endpoint was used.
-- First current-timestamp Agents Observe observed-runtime delivery returned HTTP
-  `202`, `accepted:true`, `replayed:false`, and imported nodes `2`, events `1`,
-  snapshots `1`, supporting context `1`.
-- Repeating the same signed delivery returned HTTP `200`, `accepted:false`,
-  `replayed:true`, and the same imported counts.
-- Public readback returned HTTP `200` with safe counts: nodes `3`, events `2`,
-  latest snapshot `1`, supporting context `1`, linked documents `3`.
-- Owner readback returned HTTP `200` with safe counts: nodes `3`, events `2`,
-  latest snapshot `1`, supporting context `1`, linked documents `4`.
-- Targeted key revoke returned HTTP `200`; cleanup found zero active PR141
-  smoke keys.
-
-Validation:
-
-- `test:developer-spaces`: 27 passed.
-- `test:developer-space-client`: 15 passed.
-- `@station/api` build: passed.
-- `typecheck`: passed.
-- `git diff --check`: passed with only the local DAEDALUS state-file CRLF
-  warning.
-
-No secret values, raw webhook ids, fixture bodies, URLs with credentials, auth
-tokens, signing material, raw Developer Space keys, `.env` values, or Railway
-variables were printed, written, or committed. Non-scope stayed closed:
-`developer_space_nodes.node_id` was not chased, ledger rows were not repaired,
-and no auth, UI, billing, hosted runtime, Cloudflare, queue, provider routing,
-Redis, or broader migration sweep was added.
+- Direct-applied migration ledger rows for `045`, `046`, `047`, and `048` remain
+  absent. PR141 did not repair, fake, or hand-edit migration history. MIMIR
+  should decide whether to open a separate operator/tooling ledger lane or close
+  the 2C observed-runtime staging proof and move to the next roadmap item.
 
 ## Previous DAEDALUS handoff - PR127 webhook concurrency guard
 

@@ -1,6 +1,6 @@
 # PR141 2C Observed Runtime Classification Schema Drift
 
-Status: Opened by MIMIR on 2026-06-21 for DAEDALUS.
+Status: Accepted by ARGUS on 2026-06-21; ready for MIMIR sequencing.
 
 ## Why This Lane
 
@@ -156,6 +156,42 @@ Focused validation:
 No Supabase URL, service key, DB URL, auth token, replay password, raw Developer
 Space key, signing material, raw webhook id, fixture body, `.env` value,
 Railway variable, or secret value was printed, written, or committed.
+
+## ARGUS Verdict
+
+ARGUS accepts PR141 on 2026-06-21 as a bounded staging schema proof and
+observed-runtime smoke acceptance.
+
+Review findings:
+
+- The claimed `045` repair matches local migration scope: only
+  `observed_runtime_classifications jsonb` columns, object-shape checks, and
+  comments on Developer Space nodes, events, and snapshots.
+- The bounded staging smoke now proves accepted Agents Observe import,
+  same-delivery receipt replay, and public/owner readback for
+  `station-replay-dev-alpha`.
+- Temporary named-key handling stayed bounded: raw key in memory only, no legacy
+  rotation, targeted revoke, and zero active PR141 smoke keys after cleanup.
+- Migration ledger rows for direct-applied `045`, `046`, `047`, and `048` remain
+  absent. PR141 did not repair, fake, or hand-edit migration history.
+- `developer_space_nodes.node_id` was not chased; local node identity remains
+  `external_id`.
+- No auth/owner-scope, signing-secret lifecycle, Cloudflare, hosted runtime,
+  queue, partner-adapter, UI, billing, Redis, provider-routing, or broad
+  migration-sweep scope was widened.
+- No raw secret, credential, webhook id, fixture body, `.env` value, Railway
+  variable, URL with credentials, or Developer Space key was committed.
+
+ARGUS validation:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 27 tests passed, including observed-runtime persistence/readback coverage. |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-space-client` | Pass | 15 tests passed, including Agents Observe privacy and live-send guard coverage. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/api build` | Pass | API package build completed after dependency package builds. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typechecks replayed/passed through turbo cache. |
+| `git diff --check` | Pass | CRLF normalization warnings only for local triad/docs state. |
+| `git diff --cached --check` | Pass | No staged whitespace errors. |
 
 ## Non-Scope
 
