@@ -9345,6 +9345,15 @@ when a PR lands, or when validation truth changes.
   missing `observed_runtime_classifications` columns on nodes/events/snapshots;
   no accepted observed-runtime import/readback is claimed, and the
   direct-applied `046`/`047`/`048` ledger rows remain absent.
+- MIMIR closes PR140 and opens PR141 2C Observed Runtime Classification Schema
+  Drift for DAEDALUS on 2026-06-21. PR141 should apply/prove migration `045`
+  narrowly for `observed_runtime_classifications` columns, checks, comments, and
+  schema-cache visibility on `developer_space_nodes`, `developer_space_events`,
+  and `developer_space_snapshots`; then rerun bounded staging smoke and prove
+  accepted import/readback or classify the next blocker. Ledger repair remains
+  out of scope except for reporting `045` and unchanged `046`/`047`/`048`
+  ledger state; `developer_space_nodes.node_id` should not be chased because
+  local nodes use `external_id`.
 - DAEDALUS implements PR126 2C Observed Runtime Signing Secret Lifecycle on
   2026-06-21 and wakes ARGUS for schema/API/encryption/signature review.
   Migration `048_developer_space_webhook_signing_secrets.sql` adds
@@ -9625,70 +9634,49 @@ git diff --check
 - Developer Spaces visual polish before ingestion auth, validation, limits, and
   safe serialization.
 
-## Latest MIMIR handoff - PR140 classification alignment
+## Latest MIMIR handoff - PR141 classification schema drift
 
-MIMIR opens PR140 2C Agents Observe Classification Alignment on 2026-06-21 and
-wakes DAEDALUS.
+MIMIR opens PR141 2C Observed Runtime Classification Schema Drift on 2026-06-21
+and wakes DAEDALUS.
 
-Input from PR139/ARGUS:
+Input from PR140/ARGUS:
 
-- Migration `047` receipt storage is metadata-proved: table present,
-  `(developer_space_id, webhook_id)` unique constraint present, index present,
-  RLS enabled, owner policy present, table comment present, and PostgREST sees
-  the table after schema reload.
-- The prior PR138 receipt-claim blocker is cleared. Current-timestamp live send
-  no longer stops on `Could not claim observed runtime webhook receipt`.
-- First delivery now reaches
-  `developer_space_observed_runtime_classification_failed`, which is the next
-  bounded blocker.
-- Repeating the same webhook id/payload returns the stored failed response,
-  `developer_space_webhook_processing_failed`; this proves failed-delivery
-  receipt replay, not successful import replay.
-- Temporary PR139 named keys were revoked, cleanup found zero active PR139
-  smoke keys, and no legacy key rotation was used.
-- No Supabase URL, service key, DB URL, auth token, replay password, Developer
-  Space key, signing material, raw webhook id, fixture prompt/body/path, `.env`
-  value, Railway variable, or committed secret was printed or written.
-
-ARGUS cautions:
-
-- No accepted observed-runtime import, successful replay/idempotency proof, or
-  persisted import readback is claimed.
-- Official Supabase migration repair for direct-applied `046`/`047`/`048` found
-  the files but failed on the pooler prepared-statement collision. Matching
-  ledger counts remain `0`, and DAEDALUS did not hand-edit migration history.
-- The committed staging evidence records a high-level classification failure and
-  an empty sanitized `details` array for one fresh probe; this should not be
-  generalized into a guarantee that all future classification details are empty.
-
-MIMIR decision:
-
-- Do not hand-edit or fake the `046`/`047`/`048` migration ledger inside this
-  payload lane. Official repair failed and the empty ledger rows remain an
-  operator/tooling gap.
-- Open a narrow Agents Observe classification-alignment lane so the staging
-  payload satisfies the deployed observed-runtime classification validator
-  without weakening privacy classification boundaries or printing secrets.
+- ARGUS accepts PR140 as a narrow, privacy-positive Agents Observe
+  classification alignment.
+- The adapter no longer emits public token-shaped metric paths:
+  `inputTokenCount`/`outputTokenCount` became
+  `inputUnitCount`/`outputUnitCount`.
+- `rawPrompt` and `tokenValue` are secret-classified, and the API helper strips
+  secret-class values plus metadata before persistence.
+- The reported `developer_space_nodes.node_id` missing-column probe is
+  non-authoritative: local nodes use `external_id`; `node_id` belongs to
+  `developer_space_events`.
+- The remaining staging blocker is base Developer Space schema drift: missing
+  `observed_runtime_classifications` columns on `developer_space_nodes`,
+  `developer_space_events`, and `developer_space_snapshots`.
+- No accepted observed-runtime import/readback is claimed.
+- Direct-applied `046`/`047`/`048` ledger rows remain absent.
 
 DAEDALUS task:
 
 - Implement
-  `docs/roadmap/PR140_2C_AGENTS_OBSERVE_CLASSIFICATION_ALIGNMENT.md`.
-- Find and fix the exact mismatch between the Agents Observe generated payload
-  and `apps/api/src/routes/developer-spaces.ts` observed-runtime
-  classification validation.
-- Preserve the PR120-PR123 contract: secret-shaped fields must be secret,
-  secret values must not persist/serialize, and public/member/owner readbacks
-  must stay access-filtered.
+  `docs/roadmap/PR141_2C_OBSERVED_RUNTIME_CLASSIFICATION_SCHEMA_DRIFT.md`.
+- Apply/prove migration `045_observed_runtime_classifications.sql` narrowly for
+  the three missing base-table `observed_runtime_classifications` columns,
+  object-shape checks, comments, and PostgREST/schema-cache visibility.
+- Do not chase `developer_space_nodes.node_id`; that is not part of the local
+  node-table baseline.
+- Do not repair or fake `046`/`047`/`048` migration ledger rows; report ledger
+  state only.
 - Rerun bounded staging smoke on `station-replay-dev-alpha` with a temporary
   named key, raw key in memory only, no legacy rotation, and targeted revoke.
 - Prove accepted import/readback and safe receipt replay if reached; otherwise
   classify the next bounded blocker.
 
-DAEDALUS should wake ARGUS with mismatch/fix evidence, validation, staging
-smoke, no-secret proof, unchanged ledger classification, and explicit
-non-claims. Wake MIMIR instead if the validator requires a product/privacy
-decision or new schema.
+DAEDALUS should wake ARGUS with `045` schema proof, validation, staging smoke,
+no-secret proof, ledger classification, and explicit non-claims. Wake MIMIR
+instead if applying/proving `045` is blocked or the next blocker requires
+changing PR scope.
 
 ## Previous DAEDALUS handoff - PR127 webhook concurrency guard
 
