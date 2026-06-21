@@ -285,6 +285,11 @@ caveat, the next Memory UX/observability implementation lane is
 superseded, active-not-selected, and archive/source-held Memory legible to the
 owner, with every visible control either wired or clearly disabled/preview-only.
 
+PR144 update, 2026-06-21: PR143 is closed. The next Memory UX/observability
+lane is `PR144 - AI Trace Detail Sanitization Gate`: harden
+`/observability/traces/:traceId` and any owner UI helper around an explicit
+allow-list before richer trace detail is exposed.
+
 Inputs:
 
 - AI trace sessions and events.
@@ -297,8 +302,9 @@ Inputs:
 Likely UI work:
 
 - Done: Memory runtime explanation readback.
-- Next: richer review surfaces for quarantined, rejected, expired, superseded,
+- Done: richer review surfaces for quarantined, rejected, expired, superseded,
   active-not-selected, and archive/source-held Memory.
+- Next: AI trace detail sanitization gate.
 - Later: deeper lifecycle/handoff workflows if current summaries prove
   insufficient in rehearsal.
 - Later: richer AI trace detail only with a sanitization spec and ARGUS privacy

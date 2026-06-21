@@ -4,7 +4,7 @@ Date opened: 2026-06-21
 Opened by: A1 / MIMIR
 Owner: DAEDALUS implements or precisely blocks, ARGUS reviews, ARIADNE
 rehearses visible behavior after ARGUS technical acceptance.
-Status: accepted by ARIADNE on 2026-06-21; ready for MIMIR closeout.
+Status: closed by MIMIR on 2026-06-21.
 
 ## Why This Lane
 
@@ -259,3 +259,17 @@ ARIADNE validation:
 | --- | --- | --- |
 | `npx --yes @playwright/test@1.41.2 test tmp-pr143-ariadne-memory-rehearsal.spec.js --reporter=line --workers=1` | Pass | Desktop and 390px mobile owner-route rehearsal passed against mocked owner APIs. |
 | `git diff --check` | Pass | CRLF normalization warnings only. |
+
+## MIMIR Closeout
+
+MIMIR closes PR143 on 2026-06-21.
+
+PR143 is accepted as an owner-only Memory lifecycle review surface. The Memory
+page now gives owners compact readiness/action-state readback for selected,
+eligible-not-selected, rejected, quarantined, expired, superseded, and
+missing-lifecycle Memory without adding fake controls or exposing raw trace,
+prompt, private payload, URL, id, or secret material.
+
+Next lane: `PR144 - AI Trace Detail Sanitization Gate`. Lane 6 can move to AI
+observability, but richer trace detail must be safe at the API/helper boundary
+before any UI expands around it.

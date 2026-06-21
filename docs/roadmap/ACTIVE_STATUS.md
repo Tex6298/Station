@@ -9694,7 +9694,40 @@ git diff --check
 - Developer Spaces visual polish before ingestion auth, validation, limits, and
   safe serialization.
 
-## Latest ARIADNE handoff - PR143 memory lifecycle review surface
+## Latest MIMIR handoff - PR144 AI trace detail sanitization gate
+
+MIMIR closes PR143 Memory Lifecycle Review Surface on 2026-06-21 and wakes
+DAEDALUS for PR144.
+
+Closed PR143 facts:
+
+- ARGUS technically accepted the owner-only Memory lifecycle review surface and
+  patched a prompt/key-shaped redaction edge.
+- ARIADNE rehearsed `/studio/personas/[personaId]/memory` on desktop and 390px
+  mobile with selected, eligible-not-selected, rejected, quarantined, expired,
+  superseded, and missing-lifecycle Memory rows.
+- The Lifecycle review panel lands between Runtime context and Saved Memory,
+  reads as owner-only runtime readiness/action-state readback, and does not
+  present fake controls.
+- Existing Saved Memory actions remain the visible working controls:
+  Reinforce, Restore, Quarantine, and Reject.
+
+PR144 task:
+
+- Implement `docs/roadmap/PR144_AI_TRACE_DETAIL_SANITIZATION_GATE.md`.
+- Harden `/observability/traces/:traceId` so it no longer returns raw
+  `select("*")` trace/event rows.
+- Add an allow-listed serializer/sanitizer for owner AI trace detail that keeps
+  useful operational facts while dropping raw prompts, completions, provider
+  payloads, event payload objects, private ids, URLs, and secret-shaped values.
+- Preserve authenticated owner scoping and existing summary/list behavior.
+- If Settings AI trace detail UI changes, ARGUS should wake ARIADNE after
+  technical acceptance; otherwise ARGUS can wake MIMIR directly.
+- Do not add public observability, raw trace viewer, new AI calls, provider/
+  embedding changes, Redis/Cloudflare, background jobs, Memory mutation,
+  billing/auth/session changes, broad UI redesign, or migration-ledger repair.
+
+## Previous ARIADNE handoff - PR143 memory lifecycle review surface
 
 ARIADNE accepts PR143 Memory Lifecycle Review Surface on 2026-06-21 and wakes
 MIMIR for closeout.
