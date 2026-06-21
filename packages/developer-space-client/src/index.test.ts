@@ -312,8 +312,8 @@ test("agents observe fixture maps to deterministic Developer Space import payloa
     status: "completed",
     agentRole: "reviewer",
     fileTouchCount: 2,
-    inputTokenCount: 1200,
-    outputTokenCount: 340,
+    inputUnitCount: 1200,
+    outputUnitCount: 340,
     redactedSensitiveFieldCount: 6,
   });
   assert.equal(payload.events?.[0].fieldClassifications?.hookName, "public");
@@ -347,12 +347,17 @@ test("agents observe transform redacts raw values and classifies sensitive field
   assert.equal(publicEventKeys.includes("filePaths"), false);
 
   const context = payload.supportingContext?.[0];
-  assert.equal(context?.fieldClassifications?.rawPrompt, "private");
+  assert.equal(context?.fieldClassifications?.rawPrompt, "secret");
   assert.equal(context?.fieldClassifications?.commandBody, "private");
   assert.equal(context?.fieldClassifications?.filePaths, "private");
   assert.equal(context?.fieldClassifications?.toolPayload, "private");
   assert.equal(context?.fieldClassifications?.terminalOutput, "private");
   assert.equal(context?.fieldClassifications?.tokenValue, "secret");
+  for (const [path, visibility] of Object.entries(context?.fieldClassifications ?? {})) {
+    if (/(prompt|token|secret|credential|cookie)/i.test(path)) {
+      assert.equal(visibility, "secret", `${path} must stay secret-classified for API validation`);
+    }
+  }
 });
 
 test("agents observe transform builds signed observed-runtime request without live send", async () => {
@@ -430,14 +435,14 @@ test("agents observe offline dry run returns safe not-sent summary with no live 
         "status",
         "agentRole",
         "fileTouchCount",
-        "inputTokenCount",
-        "outputTokenCount",
+        "inputUnitCount",
+        "outputUnitCount",
         "redactedSensitiveFieldCount",
       ],
       provenanceRefs: ["simple10/agents-observe public docs"],
     });
-    assert.equal(summary.classificationCounts.private, 5);
-    assert.equal(summary.classificationCounts.secret, 1);
+    assert.equal(summary.classificationCounts.private, 4);
+    assert.equal(summary.classificationCounts.secret, 2);
     assert.equal(summary.signedRequest?.status, "not_sent");
     assert.equal(summary.signedRequest?.demoWebhookId, "demo-agents-observe-dry-run");
     assert.equal(summary.signedRequest?.signatureHeader, "t=1771452800,v1=<redacted>");

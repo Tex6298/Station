@@ -1,6 +1,6 @@
 # PR140 2C Agents Observe Classification Alignment
 
-Status: Opened by MIMIR on 2026-06-21 for DAEDALUS.
+Status: Implemented by DAEDALUS on 2026-06-21; ready for ARGUS review.
 
 ## Why This Lane
 
@@ -67,6 +67,95 @@ contract from PR120-PR123 without weakening privacy boundaries.
 - No secret values, raw webhook ids, fixture bodies, URLs with credentials,
   tokens, signing material, `.env` values, or Railway variables are printed,
   written, or committed.
+
+## DAEDALUS Result
+
+DAEDALUS implemented PR140 on 2026-06-21.
+
+Mismatch found:
+
+- The Agents Observe adapter emitted public fields named `inputTokenCount` and
+  `outputTokenCount`.
+- The API validator intentionally treats field paths containing the sensitive
+  fragment `token` as secret-shaped, so those public classifications fail with:
+
+```text
+Observed runtime field inputTokenCount must be classified as secret.
+```
+
+- The adapter also classified `rawPrompt` as `private`; the API treats `prompt`
+  as secret-shaped, so `rawPrompt` must be `secret`.
+
+Fix:
+
+- Renamed public coarse-count fields to `inputUnitCount` and
+  `outputUnitCount`.
+- Changed supporting-context `rawPrompt` classification to `secret`, so the
+  value is stripped before persistence just like `tokenValue`.
+- Added a client test assertion that secret-shaped supporting-context paths
+  such as `rawPrompt` and `tokenValue` remain secret-classified.
+- Updated dry-run classification counts from private `5` / secret `1` to
+  private `4` / secret `2`.
+
+Local classification proof:
+
+- The rebuilt Agents Observe payload passes
+  `prepareObservedRuntimeClassifiedData` for session node metrics, agent node
+  metrics, event data, snapshot data, and supporting context.
+- Public event data keys now include `inputUnitCount` and `outputUnitCount`,
+  not token-shaped field names.
+- Supporting context reports `rawPrompt: "secret"` and
+  `tokenValue: "secret"`; both secret values are stripped from persisted owner
+  data by the existing API helper.
+
+Staging smoke result:
+
+- Replay-owner signin returned HTTP `200`.
+- `GET /developer-spaces` returned HTTP `200` with count `2`.
+- Selected `station-replay-dev-alpha`, id hash `44e026dc4e6c`.
+- Temporary named PR140 key create returned HTTP `201`; raw key stayed in
+  memory only; targeted revoke returned HTTP `200`.
+- Current-timestamp live send no longer stops on
+  `developer_space_observed_runtime_classification_failed`.
+- The next bounded blocker is staging schema drift for the older base
+  Developer Spaces tables:
+
+```text
+developer_space_server_error: Could not import Developer Space node.
+```
+
+- Service-role PostgREST probes classified the schema drift without printing
+  secrets:
+  - `developer_space_nodes.observed_runtime_classifications` missing;
+  - `developer_space_nodes.node_id` missing;
+  - `developer_space_events.observed_runtime_classifications` missing;
+  - `developer_space_snapshots.observed_runtime_classifications` missing.
+- Public and owner readback for `station-replay-dev-alpha` remained HTTP `200`
+  with safe counts.
+- Cleanup confirmed zero active PR140 smoke keys remain.
+
+Ledger classification:
+
+- Migration ledger rows for direct-applied `046`, `047`, and `048` remain
+  absent after official Supabase repair failed on the pooler
+  prepared-statement collision. PR140 did not repair or hand-edit ledger rows.
+
+No-secret proof:
+
+- No raw Supabase URL, service role key, DB URL, auth token, replay password,
+  Developer Space key, signing material, raw webhook id, fixture prompt/body/
+  file path, `.env` value, Railway variable, or secret value was printed,
+  written, or committed.
+
+Focused local validation:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-space-client` | Pass | 15 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/developer-space-client build` | Pass | Client package build completed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 27 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/api build` | Pass | API package build completed after dependency package builds. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typechecks passed through turbo cache replay. |
 
 ## Ledger Note
 

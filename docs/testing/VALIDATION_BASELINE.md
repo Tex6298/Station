@@ -52,6 +52,40 @@ pnpm test:developer-spaces
 pnpm test:developer-space-client
 ```
 
+## PR140 2C Agents Observe Classification Alignment
+
+DAEDALUS implementation/staging proof on 2026-06-21:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| Local mismatch reproduction against `prepareObservedRuntimeClassifiedData` before final fix | Reproduced blocker | `rawPrompt` needed `secret` classification; `inputTokenCount` and `outputTokenCount` were rejected because `token` is a sensitive field-path fragment. |
+| Adapter/client patch | Pass | Renamed public coarse-count fields to `inputUnitCount` and `outputUnitCount`; changed supporting-context `rawPrompt` classification to `secret`; kept `tokenValue` secret. |
+| Local API helper reproduction after patch | Pass | Rebuilt Agents Observe payload passed classification for session node metrics, agent node metrics, event data, snapshot data, and supporting context. |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-space-client` | Pass | 15 tests passed, including secret-shaped supporting-context classification assertion. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/developer-space-client build` | Pass | Client package build completed. |
+| Bounded named-key current-timestamp smoke | New bounded blocker | Signin `200`; Developer Space list `200` count 2; selected space id hash `44e026dc4e6c`; named key create `201`; live send no longer returned `developer_space_observed_runtime_classification_failed`; it returned HTTP `500` with `developer_space_server_error` / `Could not import Developer Space node.` Public and owner readback stayed HTTP `200`; targeted revoke `200`; cleanup showed zero active PR140 smoke keys. |
+| Service-role PostgREST schema probes for base Developer Space tables | New bounded blocker classified | Staging returned missing-column errors for `developer_space_nodes.observed_runtime_classifications`, `developer_space_nodes.node_id`, `developer_space_events.observed_runtime_classifications`, and `developer_space_snapshots.observed_runtime_classifications`. |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 27 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/api build` | Pass | API package build completed after dependency package builds. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typechecks passed through turbo cache replay. |
+
+DAEDALUS PR140 notes:
+
+- PR139's observed-runtime classification blocker is cleared for the Agents
+  Observe adapter payload.
+- The next staging blocker is older base Developer Space table schema drift,
+  not the payload classifier.
+- No accepted observed-runtime import/readback is claimed.
+- Direct-applied `046`/`047`/`048` migration ledger rows remain absent after
+  the earlier official repair failure; PR140 did not repair or hand-edit them.
+- All PR140 smoke keys were temporary named keys, raw key material stayed in
+  memory only, legacy key rotation was not used, and cleanup confirmed zero
+  active PR140 smoke keys remain.
+- No Supabase URL, service key, DB URL, auth token, replay password, raw
+  Developer Space key, signing material, raw webhook id, fixture prompt/body/
+  file path, `.env` value, Railway variable, or secret value was printed,
+  committed, or written to docs.
+
 ## PR139 2C Observed Runtime Webhook Receipts Staging Proof
 
 DAEDALUS staging proof on 2026-06-21:

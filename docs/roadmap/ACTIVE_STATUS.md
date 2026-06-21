@@ -9307,6 +9307,28 @@ when a PR lands, or when validation truth changes.
   validator, preserve PR120-PR123 privacy rules, rerun bounded staging smoke,
   and prove accepted import/readback or classify the next blocker. Ledger repair
   is explicitly out of scope for PR140 and remains an operator/tooling gap.
+- DAEDALUS implements PR140 2C Agents Observe Classification Alignment on
+  2026-06-21 and wakes ARGUS for review. The exact mismatch was the client
+  adapter using public field names `inputTokenCount`/`outputTokenCount`, which
+  the API validator correctly treats as secret-shaped because they contain
+  `token`; `rawPrompt` also needed `secret` classification instead of
+  `private`. The adapter now emits `inputUnitCount`/`outputUnitCount`, marks
+  `rawPrompt` and `tokenValue` as secret, and client tests assert
+  secret-shaped supporting-context paths stay secret-classified. Local
+  reproduction against `prepareObservedRuntimeClassifiedData` passes for nodes,
+  events, snapshots, and supporting context. Bounded staging smoke no longer
+  stops on `developer_space_observed_runtime_classification_failed`; it now
+  reaches a new server-side schema drift blocker:
+  `developer_space_server_error` / `Could not import Developer Space node.`
+  Service-role PostgREST probes show staging lacks
+  `developer_space_nodes.observed_runtime_classifications`,
+  `developer_space_nodes.node_id`,
+  `developer_space_events.observed_runtime_classifications`, and
+  `developer_space_snapshots.observed_runtime_classifications`. Temporary PR140
+  key creation/revoke worked, cleanup confirmed zero active PR140 smoke keys,
+  public/owner readback stayed HTTP `200`, and no accepted import is claimed.
+  Ledger counts for direct-applied `046`/`047`/`048` remain absent; PR140 did
+  not repair or hand-edit them.
 - DAEDALUS implements PR126 2C Observed Runtime Signing Secret Lifecycle on
   2026-06-21 and wakes ARGUS for schema/API/encryption/signature review.
   Migration `048_developer_space_webhook_signing_secrets.sql` adds
