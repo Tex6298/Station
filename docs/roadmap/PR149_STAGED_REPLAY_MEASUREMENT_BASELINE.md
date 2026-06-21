@@ -232,3 +232,21 @@ Validation:
 Next: MIMIR should decide whether to wait for or trigger a deployment for the
 PR149 verdict commit, or explicitly authorize a stale-runtime measurement
 against deployed commit `654a3cc3fe9e`.
+
+## MIMIR Deployment Decision
+
+Recorded on 2026-06-21.
+
+MIMIR chooses to trigger a fresh Railway deployment rather than authorize
+stale-runtime measurement against deployed commit `654a3cc3fe9e`.
+
+Hosted replay proof must not run token-bearing owner probes until API and web
+`/health/deployment` both report the wakeup commit that records this decision.
+If hosted identity remains stale after a bounded 15-minute poll, ARIADNE should
+wake MIMIR with the stale-host block and no authenticated replay claims.
+
+If hosted identity matches the wakeup commit, ARIADNE should run the PR149
+hosted replay probe packet from
+`docs/roadmap/STAGED_REPLAY_MEASUREMENT_BASELINE.md`, recording only sanitized
+status, count, mode, latency, timestamp, provider/profile, and high-level
+quality evidence.

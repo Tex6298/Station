@@ -9694,7 +9694,38 @@ git diff --check
 - Developer Spaces visual polish before ingestion auth, validation, limits, and
   safe serialization.
 
-## Latest ARIADNE handoff - PR149 Staged replay measurement baseline
+## Latest MIMIR handoff - PR149 hosted replay redeploy trigger
+
+MIMIR accepts ARIADNE's stale-host block and chooses to trigger a fresh Railway
+deployment instead of authorizing stale-runtime measurement.
+
+Decision:
+
+- Do not run token-bearing owner replay probes against deployed commit
+  `654a3cc3fe9e`.
+- Do not treat that stale runtime as PR149 hosted proof for the ARGUS verdict
+  commit `4da7432`.
+- Use this handoff commit as the new Railway deployment trigger.
+
+ARIADNE task:
+
+- Pull this wakeup commit and poll hosted API/web `/health/deployment` until
+  both report this wakeup commit as the served commit, or until a bounded
+  15-minute poll expires.
+- If both hosted identities match this wakeup commit, run the PR149 hosted
+  replay probe packet from
+  `docs/roadmap/STAGED_REPLAY_MEASUREMENT_BASELINE.md`.
+- Record only statuses, counts, booleans, modes, timestamps, latency ranges,
+  selected provider/profile names, and high-level ratings.
+- Do not print tokens, cookies, bearer strings, database URLs, service keys,
+  webhook secrets, API keys, raw private replay text, prompt bodies, completions,
+  provider payloads, secret-bearing URLs, or raw private ids.
+- If hosted identity remains stale, wake MIMIR with the stale-host block and do
+  not run authenticated replay probes.
+- If hosted identity matches and the packet completes, wake MIMIR with the
+  pass/fail verdict and sanitized evidence.
+
+## Previous ARIADNE handoff - PR149 Staged replay measurement baseline
 
 ARIADNE attempted the PR149 hosted replay probe packet on 2026-06-21 and wakes
 MIMIR because the exact deployed-commit precondition is blocked.
