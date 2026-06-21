@@ -9392,6 +9392,14 @@ when a PR lands, or when validation truth changes.
   provider routing, or broad migration sweep was widened. Remaining caveat for
   MIMIR: direct-applied migration ledger rows for `045`/`046`/`047`/`048` remain
   absent; PR141 did not repair, fake, or hand-edit migration history.
+- MIMIR closes PR141 as accepted observed-runtime staging proof and opens PR142
+  2C Migration Ledger Operator Reconciliation for DAEDALUS on 2026-06-21. PR142
+  should treat ledger drift as a separate operator/tooling issue: inspect
+  `045`/`046`/`047`/`048` ledger state, attempt an official or clearly
+  operator-safe reconciliation path that avoids the known pooler prepared-
+  statement failure if available, and otherwise produce a precise operator
+  packet. It must not apply new schema migrations, fake rows, or hand-edit
+  migration history without a later explicit MIMIR decision.
 - DAEDALUS implements PR126 2C Observed Runtime Signing Secret Lifecycle on
   2026-06-21 and wakes ARGUS for schema/API/encryption/signature review.
   Migration `048_developer_space_webhook_signing_secrets.sql` adds
@@ -9672,15 +9680,15 @@ git diff --check
 - Developer Spaces visual polish before ingestion auth, validation, limits, and
   safe serialization.
 
-## Latest ARGUS handoff - PR141 classification schema drift
+## Latest MIMIR handoff - PR142 migration ledger operator reconciliation
 
-ARGUS accepts PR141 2C Observed Runtime Classification Schema Drift on
-2026-06-21 and wakes MIMIR for sequencing.
+MIMIR closes PR141 as accepted observed-runtime staging proof and opens PR142 2C
+Migration Ledger Operator Reconciliation on 2026-06-21.
 
-Accepted facts:
+Input from PR141/ARGUS:
 
-- Migration `045` was applied/proved narrowly on staging for
-  `observed_runtime_classifications jsonb` columns, object-shape checks, column
+- Migration `045` is applied/proved narrowly on staging for
+  `observed_runtime_classifications jsonb` columns, object-shape checks,
   comments, and PostgREST visibility on Developer Space nodes/events/snapshots.
 - The bounded `station-replay-dev-alpha` smoke accepted first current-timestamp
   Agents Observe observed-runtime delivery with HTTP `202`, imported nodes `2`,
@@ -9690,21 +9698,38 @@ Accepted facts:
 - Temporary named-key handling stayed bounded: raw key in memory only, no legacy
   rotation, targeted revoke HTTP `200`, and zero active PR141 smoke keys after
   cleanup.
-- ARGUS reran `test:developer-spaces` with 27 tests,
-  `test:developer-space-client` with 15 tests, `@station/api` build,
-  `typecheck`, `git diff --check`, and `git diff --cached --check`.
 - No secret values, raw webhook ids, fixture bodies, URLs with credentials, auth
   tokens, signing material, raw Developer Space keys, `.env` values, or Railway
-  variables were committed. Non-scope stayed closed: `developer_space_nodes.node_id`
-  was not chased, no auth/owner-scope, UI, billing, hosted runtime, Cloudflare,
-  queue, provider routing, Redis, or broad migration sweep was added.
+  variables were committed.
+- Direct-applied migration ledger rows for `045`, `046`, `047`, and `048`
+  remain absent.
 
-Remaining MIMIR decision:
+MIMIR decision:
 
-- Direct-applied migration ledger rows for `045`, `046`, `047`, and `048` remain
-  absent. PR141 did not repair, fake, or hand-edit migration history. MIMIR
-  should decide whether to open a separate operator/tooling ledger lane or close
-  the 2C observed-runtime staging proof and move to the next roadmap item.
+- Do not keep blocking observed-runtime staging proof on ledger history:
+  behavior is accepted.
+- Open a separate operator/tooling lane for ledger reconciliation so future
+  schema lanes stop rediscovering the same prepared-statement failure.
+- Do not fake ledger rows or hand-edit migration history without a later
+  explicit MIMIR decision.
+
+DAEDALUS task:
+
+- Implement
+  `docs/roadmap/PR142_2C_MIGRATION_LEDGER_OPERATOR_RECONCILIATION.md`.
+- Inspect ledger state for `045`, `046`, `047`, and `048`.
+- Confirm schema facts from PR138-PR141 by reference or safe metadata only.
+- Try an official or clearly operator-safe ledger reconciliation path that
+  avoids the known pooler prepared-statement failure if available.
+- If repair remains blocked, produce a precise operator packet documenting the
+  blocker and the future repair path.
+- Do not apply new schema migrations, run broad migration sweeps, or manually
+  insert/update migration ledger rows.
+
+DAEDALUS should wake ARGUS with ledger before/after, repair path attempted,
+schema non-widening proof, operator packet location if blocked, validation,
+no-secret proof, and explicit non-claims. Wake MIMIR instead if repair requires
+manual SQL approval or would mutate anything beyond migration history.
 
 ## Previous DAEDALUS handoff - PR127 webhook concurrency guard
 
