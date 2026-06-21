@@ -183,7 +183,7 @@ export async function getAiTraceDetail(ownerUserId: string, traceId: string) {
   const sb = getSupabaseAdmin();
   const { data: trace, error } = await (sb as any)
     .from("ai_trace_sessions")
-    .select("*")
+    .select("id, source, status, started_at, completed_at, duration_ms, total_input_tokens, total_output_tokens, total_estimated_cost_pence, error_message, metadata")
     .eq("id", traceId)
     .eq("owner_user_id", ownerUserId)
     .maybeSingle();
@@ -193,13 +193,133 @@ export async function getAiTraceDetail(ownerUserId: string, traceId: string) {
 
   const { data: events, error: eventsError } = await (sb as any)
     .from("ai_trace_events")
-    .select("*")
+    .select("event_type, label, status, provider, model, input_tokens, output_tokens, estimated_cost_pence, duration_ms, created_at, payload")
     .eq("trace_id", traceId)
     .eq("owner_user_id", ownerUserId)
     .order("created_at", { ascending: true });
 
   if (eventsError) throw new Error(eventsError.message);
-  return { trace, events: events ?? [] };
+  return {
+    trace: serializeAiTraceDetail(trace),
+    events: (events ?? []).map(serializeAiTraceEventDetail),
+  };
+}
+
+function serializeAiTraceDetail(trace: any) {
+  const inputTokens = safeTokenCount(trace.total_input_tokens);
+  const outputTokens = safeTokenCount(trace.total_output_tokens);
+
+  return {
+    id: trace.id,
+    source: safeLabel(trace.source) ?? "system",
+    status: safeLabel(trace.status) ?? "running",
+    startedAt: trace.started_at ?? null,
+    completedAt: trace.completed_at ?? null,
+    durationMs: safeNumber(trace.duration_ms),
+    inputTokens,
+    outputTokens,
+    totalTokens: inputTokens + outputTokens,
+    estimatedCostPence: safeCost(trace.total_estimated_cost_pence),
+    failureReason: sanitizeTraceText(trace.error_message),
+    metadata: sanitizeTraceMetadata(trace.metadata),
+  };
+}
+
+function serializeAiTraceEventDetail(event: any) {
+  const inputTokens = safeTokenCount(event.input_tokens);
+  const outputTokens = safeTokenCount(event.output_tokens);
+  const payload = asRecord(event.payload);
+
+  return {
+    eventType: safeLabel(event.event_type) ?? "event",
+    label: sanitizeTraceText(event.label),
+    status: safeLabel(event.status) ?? "completed",
+    provider: sanitizeTraceText(event.provider),
+    model: sanitizeTraceText(event.model),
+    createdAt: event.created_at ?? null,
+    durationMs: safeNumber(event.duration_ms),
+    inputTokens,
+    outputTokens,
+    totalTokens: inputTokens + outputTokens,
+    estimatedCostPence: safeCost(event.estimated_cost_pence),
+    failureReason: sanitizeTraceText(payload?.failureReason ?? payload?.error ?? payload?.message),
+    metadata: sanitizeTraceMetadata(payload),
+  };
+}
+
+function sanitizeTraceMetadata(value: unknown) {
+  const metadata = asRecord(value);
+  if (!metadata) return {};
+
+  const runtimeBudget = asRecord(metadata.runtimeBudget);
+  const budgetProvider = asRecord(runtimeBudget?.provider);
+  const embedding = asRecord(metadata.embedding);
+  const candidates: Array<[string, unknown]> = [
+    ["route", metadata.providerRoute ?? budgetProvider?.route],
+    ["profile", metadata.providerProfile ?? metadata.profileCode ?? embedding?.profileCode],
+    ["provider", metadata.provider ?? embedding?.provider],
+    ["model", metadata.model ?? budgetProvider?.model],
+    ["modelTier", metadata.modelTier ?? runtimeBudget?.modelTier],
+    ["providerPolicy", metadata.providerPolicy],
+    ["providerPosture", metadata.providerPosture],
+    ["domain", metadata.domain],
+  ];
+
+  return Object.fromEntries(
+    candidates
+      .map(([key, candidate]) => [key, safeMetadataValue(candidate)] as const)
+      .filter((entry): entry is readonly [string, string | number | boolean] => entry[1] !== null)
+  );
+}
+
+function safeMetadataValue(value: unknown): string | number | boolean | null {
+  if (typeof value !== "string" && typeof value !== "number" && typeof value !== "boolean") return null;
+  if (typeof value === "number") return Number.isFinite(value) ? value : null;
+  if (typeof value === "boolean") return value;
+
+  const text = value.trim();
+  if (!text) return null;
+  if (UNSAFE_TRACE_TEXT_PATTERN.test(text)) {
+    UNSAFE_TRACE_TEXT_PATTERN.lastIndex = 0;
+    return null;
+  }
+  UNSAFE_TRACE_TEXT_PATTERN.lastIndex = 0;
+  if (PRIVATE_ID_KEY_PATTERN.test(text)) return null;
+  return text.length > 80 ? `${text.slice(0, 77).trim()}...` : text;
+}
+
+function sanitizeTraceText(value: unknown) {
+  if (typeof value !== "string" && typeof value !== "number" && typeof value !== "boolean") return null;
+  let text = String(value).trim();
+  if (!text) return null;
+  text = text
+    .replace(/\b[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}\b/gi, "[id]")
+    .replace(/https?:\/\/\S+/gi, "[redacted-url]")
+    .replace(SECRET_SHAPED_VALUE_PATTERN, "[redacted-secret]")
+    .replace(/\b(?:bearer)\s+\S+/gi, "bearer [redacted]")
+    .replace(/\b(?:raw|private|system|user)[_-]?prompt\b\s*[:=]?\s*\S*/gi, "[redacted-prompt]")
+    .replace(/\b(owner[_-]?user[_-]?id|owner[_-]?id|persona[_-]?id|conversation[_-]?id|trace[_-]?id|event[_-]?id|source[_-]?id)\b\s*[:=]\s*\S+/gi, "$1=[redacted]")
+    .replace(/\b(token|cookie|authorization|api[_-]?key|x-api-key|secret|password|db[_-]?url|webhook[_-]?secret)\b\s*[:=]\s*\S+/gi, "$1=[redacted]");
+  return text.length > 160 ? `${text.slice(0, 157).trim()}...` : text;
+}
+
+function safeLabel(value: unknown) {
+  const text = sanitizeTraceText(value);
+  if (!text) return null;
+  return text.replace(/[^\w.-]/g, "_").slice(0, 80);
+}
+
+function safeNumber(value: unknown) {
+  return typeof value === "number" && Number.isFinite(value) ? value : null;
+}
+
+function safeCost(value: unknown) {
+  const numberValue = typeof value === "number" ? value : Number(value ?? 0);
+  return Number.isFinite(numberValue) ? roundPence(numberValue) : 0;
+}
+
+function asRecord(value: unknown): JsonRecord | null {
+  return value && typeof value === "object" && !Array.isArray(value) ? value as JsonRecord : null;
 }
 
 export function estimateModelCostPence(model: string | null | undefined, inputTokens: number, outputTokens: number) {
@@ -225,3 +345,7 @@ function safeTokenCount(value: number | null | undefined) {
 function roundPence(value: number) {
   return Math.round(value * 10_000) / 10_000;
 }
+
+const SECRET_SHAPED_VALUE_PATTERN = /\b(?:sk|pk|rk|whsec|ghp|pat)[_-][A-Za-z0-9._-]+/gi;
+const PRIVATE_ID_KEY_PATTERN = /(owner[_-]?user|owner[_-]?id|persona[_-]?id|conversation[_-]?id|trace[_-]?id|event[_-]?id|source[_-]?id)/i;
+const UNSAFE_TRACE_TEXT_PATTERN = /https?:\/\/|\b(?:bearer)\s+\S+|\b(?:token|cookie|authorization|api[_-]?key|x-api-key|secret|password|db[_-]?url|webhook[_-]?secret)\b|(?:sk|pk|rk|whsec|ghp|pat)[_-][A-Za-z0-9._-]+/gi;

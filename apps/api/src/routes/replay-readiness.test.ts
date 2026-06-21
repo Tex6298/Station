@@ -82,6 +82,158 @@ test("replay readiness exposes non-secret measurement prep behind auth", async (
   }
 });
 
+test("AI trace detail is owner-scoped and sanitized to an allow-listed shape", async () => {
+  const traceId = "11111111-1111-4111-8111-111111111111";
+  const db = new ObservabilitySupabase({
+    traces: [
+      {
+        id: traceId,
+        owner_user_id: "owner-user",
+        persona_id: "persona-private-1",
+        conversation_id: "conversation-private-1",
+        source: "conversation",
+        status: "failed",
+        started_at: "2026-06-21T12:00:00.000Z",
+        completed_at: "2026-06-21T12:00:04.000Z",
+        duration_ms: 4000,
+        total_input_tokens: 1200,
+        total_output_tokens: 200,
+        total_estimated_cost_pence: 0.42,
+        error_message: "provider failed token=abc123 at https://trace.invalid with sk_live_secret",
+        metadata: {
+          providerRoute: "anthropic_platform",
+          providerProfile: "sonnet_default",
+          providerPolicy: "private_archive_allowed",
+          providerPosture: "owner_byok",
+          model: "claude-sonnet",
+          ownerUserId: "owner-user",
+          callbackUrl: "https://trace.invalid/callback",
+          apiKey: "sk_live_secret",
+          rawPrompt: "PRIVATE_PROMPT_SHOULD_NOT_RETURN",
+          runtimeBudget: {
+            provider: {
+              route: "deepseek_fallback",
+              model: "deepseek-chat",
+            },
+          },
+        },
+        raw_prompt: "RAW_SYSTEM_PROMPT_SHOULD_NOT_RETURN",
+      },
+    ],
+    events: [
+      {
+        id: "event-private-1",
+        trace_id: traceId,
+        owner_user_id: "owner-user",
+        event_type: "llm_call",
+        label: "LLM call user_prompt=PRIVATE_PROMPT_SHOULD_NOT_RETURN",
+        status: "failed",
+        provider: "anthropic",
+        model: "claude-sonnet",
+        input_tokens: 1100,
+        output_tokens: 150,
+        estimated_cost_pence: 0.37,
+        duration_ms: 3500,
+        created_at: "2026-06-21T12:00:02.000Z",
+        payload: {
+          rawPrompt: "PRIVATE_PROMPT_SHOULD_NOT_RETURN",
+          completion: "PRIVATE_COMPLETION_SHOULD_NOT_RETURN",
+          providerRequest: { body: "PROVIDER_REQUEST_SHOULD_NOT_RETURN" },
+          providerResponse: { body: "PROVIDER_RESPONSE_SHOULD_NOT_RETURN" },
+          privateArchiveExcerpt: "PRIVATE_ARCHIVE_EXCERPT_SHOULD_NOT_RETURN",
+          failureReason: "upstream failed bearer abc.def at https://event.invalid using whsec_secret",
+          providerRoute: "anthropic_platform",
+          providerPosture: "platform_key",
+          traceId: "trace-private-raw",
+          sourceId: "source-private-raw",
+        },
+      },
+    ],
+  });
+  setSupabaseAdminForTests(db.client as any);
+  const app = createObservabilityApp();
+
+  try {
+    const blocked = await requestJson(app, "GET", `/observability/traces/${traceId}`, {
+      token: "other-token",
+    });
+    assert.equal(blocked.status, 404);
+
+    const owner = await requestJson(app, "GET", `/observability/traces/${traceId}`, {
+      token: "owner-token",
+    });
+    assert.equal(owner.status, 200);
+    assert.deepEqual(Object.keys(owner.body.trace).sort(), [
+      "completedAt",
+      "durationMs",
+      "estimatedCostPence",
+      "failureReason",
+      "id",
+      "inputTokens",
+      "metadata",
+      "outputTokens",
+      "source",
+      "startedAt",
+      "status",
+      "totalTokens",
+    ]);
+    assert.equal(owner.body.trace.source, "conversation");
+    assert.equal(owner.body.trace.inputTokens, 1200);
+    assert.equal(owner.body.trace.outputTokens, 200);
+    assert.equal(owner.body.trace.totalTokens, 1400);
+    assert.deepEqual(owner.body.trace.metadata, {
+      route: "anthropic_platform",
+      profile: "sonnet_default",
+      model: "claude-sonnet",
+      providerPolicy: "private_archive_allowed",
+      providerPosture: "owner_byok",
+    });
+    assert.equal(owner.body.events.length, 1);
+    assert.deepEqual(Object.keys(owner.body.events[0]).sort(), [
+      "createdAt",
+      "durationMs",
+      "estimatedCostPence",
+      "eventType",
+      "failureReason",
+      "inputTokens",
+      "label",
+      "metadata",
+      "model",
+      "outputTokens",
+      "provider",
+      "status",
+      "totalTokens",
+    ]);
+    assert.equal(owner.body.events[0].eventType, "llm_call");
+    assert.equal(owner.body.events[0].metadata.route, "anthropic_platform");
+    assert.equal(owner.body.events[0].metadata.providerPosture, "platform_key");
+    assert.match(owner.body.trace.failureReason, /\[redacted-url\]/);
+    assert.match(owner.body.events[0].failureReason, /\[redacted-secret\]/);
+
+    const serialized = JSON.stringify(owner.body);
+    assert.doesNotMatch(serialized, /owner-user/);
+    assert.doesNotMatch(serialized, /persona-private-1/);
+    assert.doesNotMatch(serialized, /conversation-private-1/);
+    assert.doesNotMatch(serialized, /event-private-1/);
+    assert.doesNotMatch(serialized, /trace-private-raw/);
+    assert.doesNotMatch(serialized, /source-private-raw/);
+    assert.doesNotMatch(serialized, /https:\/\/trace\.invalid/);
+    assert.doesNotMatch(serialized, /https:\/\/event\.invalid/);
+    assert.doesNotMatch(serialized, /abc123/);
+    assert.doesNotMatch(serialized, /abc\.def/);
+    assert.doesNotMatch(serialized, /sk_live_secret/);
+    assert.doesNotMatch(serialized, /whsec_secret/);
+    assert.doesNotMatch(serialized, /PRIVATE_PROMPT_SHOULD_NOT_RETURN/);
+    assert.doesNotMatch(serialized, /PRIVATE_COMPLETION_SHOULD_NOT_RETURN/);
+    assert.doesNotMatch(serialized, /PROVIDER_REQUEST_SHOULD_NOT_RETURN/);
+    assert.doesNotMatch(serialized, /PROVIDER_RESPONSE_SHOULD_NOT_RETURN/);
+    assert.doesNotMatch(serialized, /PRIVATE_ARCHIVE_EXCERPT_SHOULD_NOT_RETURN/);
+    assert.equal("payload" in owner.body.events[0], false);
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
+
 class AuthSupabase {
   client = {
     auth: {
@@ -96,6 +248,38 @@ class AuthSupabase {
       },
     },
     from: (table: string) => new ProfileQuery(table),
+  };
+}
+
+type Row = Record<string, any>;
+
+class ObservabilitySupabase {
+  constructor(private readonly tables: { traces: Row[]; events: Row[] }) {}
+
+  client = {
+    auth: {
+      getUser: async (token: string) => {
+        if (token === "owner-token") {
+          return {
+            data: { user: { id: "owner-user", email: "owner@example.test" } },
+            error: null,
+          };
+        }
+
+        if (token === "other-token") {
+          return {
+            data: { user: { id: "other-user", email: "other@example.test" } },
+            error: null,
+          };
+        }
+
+        return { data: { user: null }, error: { message: "Invalid token" } };
+      },
+    },
+    from: (table: string) => {
+      if (table === "profiles") return new ProfileQuery(table);
+      return new ObservabilityQuery(table, this.tables);
+    },
   };
 }
 
@@ -116,6 +300,47 @@ class ProfileQuery {
       data: { tier: "private", is_admin: false },
       error: null,
     };
+  }
+}
+
+class ObservabilityQuery {
+  private readonly filters: Array<{ column: string; value: unknown }> = [];
+
+  constructor(
+    private readonly table: string,
+    private readonly tables: { traces: Row[]; events: Row[] },
+  ) {}
+
+  select() {
+    return this;
+  }
+
+  eq(column: string, value: unknown) {
+    this.filters.push({ column, value });
+    return this;
+  }
+
+  async maybeSingle() {
+    const rows = this.rows();
+    return { data: rows[0] ?? null, error: null };
+  }
+
+  async order() {
+    const rows = this.rows();
+    if (this.table === "ai_trace_events") {
+      rows.sort((a, b) => String(a.created_at).localeCompare(String(b.created_at)));
+    }
+    return { data: rows, error: null };
+  }
+
+  private rows() {
+    const source = this.table === "ai_trace_sessions"
+      ? this.tables.traces
+      : this.table === "ai_trace_events"
+        ? this.tables.events
+        : [];
+
+    return source.filter((row) => this.filters.every((filter) => row[filter.column] === filter.value));
   }
 }
 

@@ -142,3 +142,54 @@ ARGUS should verify:
 
 If visible owner-route behavior changes, ARGUS should wake ARIADNE with exact
 routes and human-eye checks. Otherwise ARGUS can wake MIMIR directly.
+
+## DAEDALUS Result
+
+DAEDALUS implemented PR144 on 2026-06-21 and woke ARGUS for technical review.
+
+Implementation:
+
+- Hardened `getAiTraceDetail` in
+  `apps/api/src/services/ai-observability.service.ts`.
+- Replaced raw trace `select("*")` with an allow-listed trace select:
+  `id`, source, status, timestamps, duration, token totals, estimated cost,
+  failure message, and metadata.
+- Replaced raw event `select("*")` with an allow-listed event select:
+  event type, label, status, provider, model, token counts, estimated cost,
+  duration, created timestamp, and payload only as sanitizer input.
+- The returned trace detail shape now serializes operational fields and sanitized
+  metadata only.
+- The returned event detail shape omits raw event ids, trace ids, owner ids, and
+  raw payload objects. It keeps event type, sanitized label/failure reason,
+  provider/model, timestamps, duration, token counts, estimated cost, and
+  allow-listed metadata facts.
+- Sanitized metadata keeps only safe route/profile/provider/model/model-tier/
+  policy/posture/domain facts, including selected nested runtime-budget and
+  embedding metadata.
+- No Settings AI panel visible behavior changed in this slice.
+
+Privacy proof:
+
+- Added route-level coverage proving cross-owner trace detail returns `404`.
+- Added route-level coverage proving trace/event detail does not return raw
+  prompts, completions, provider request/response payloads, private archive
+  excerpts, owner/persona/conversation/event/source ids, raw URLs, bearer
+  values, token/key/password-shaped fields, webhook secrets, or common
+  secret-shaped values.
+- The requested route trace id remains in the sanitized trace object as the
+  owner-requested detail identifier.
+
+Validation:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` | Pass | 2 tests passed, including the new trace detail sanitizer route test. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 89 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass | 35 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typechecks passed. |
+| `git diff --check` | Pass | CRLF warnings only for touched files and local DAEDALUS state. |
+
+Non-scope preserved: no raw trace viewer, public observability, new AI calls,
+provider/embedding changes, Redis/Upstash, Cloudflare, background jobs, Memory
+mutation, billing/auth/session changes, broad Settings or Studio redesign, UI
+trace detail expansion, or migration-ledger repair was added.

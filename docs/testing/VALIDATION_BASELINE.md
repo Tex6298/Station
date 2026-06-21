@@ -52,6 +52,41 @@ pnpm test:developer-spaces
 pnpm test:developer-space-client
 ```
 
+## PR144 AI Trace Detail Sanitization Gate
+
+DAEDALUS implementation validation on 2026-06-21:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` | Pass | 2 tests passed, including the new owner-scoped sanitized trace detail route test. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 89 tests passed; existing AI observability helper behavior remains green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass | 35 tests passed; provider failure trace safety remains green. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typechecks passed. |
+| `git diff --check` | Pass | CRLF warnings only for touched files and local DAEDALUS state. |
+
+DAEDALUS PR144 notes:
+
+- Hardened `/observability/traces/:traceId` by replacing raw trace/event
+  `select("*")` detail readback with allow-listed selects and serializers.
+- Trace detail keeps source, status, timestamps, duration, token counts, cost,
+  sanitized failure reason, and sanitized metadata.
+- Event detail keeps event type, sanitized label/failure reason, status,
+  provider/model, created time, duration, token counts, cost, and sanitized
+  metadata.
+- Raw event payload objects are sanitizer input only and are not returned.
+- Sanitized metadata keeps only safe route/profile/provider/model/model-tier/
+  policy/posture/domain facts.
+- Route tests prove owner scoping and absence of raw prompts, completions,
+  provider request/response payloads, private archive excerpts, private ids, raw
+  URLs, bearer values, token/key/password-shaped fields, webhook secrets, and
+  common secret-shaped values.
+- Existing summary/list behavior is preserved, and no Settings AI panel visible
+  behavior changed.
+- No public observability, raw trace viewer, new AI calls, provider/embedding
+  changes, Redis/Upstash, Cloudflare, background jobs, Memory mutation,
+  billing/auth/session changes, broad Settings or Studio redesign, UI trace
+  detail expansion, or migration-ledger repair was added.
+
 ## PR143 Memory Lifecycle Review Surface
 
 DAEDALUS implementation validation on 2026-06-21:

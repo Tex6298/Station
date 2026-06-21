@@ -9694,38 +9694,51 @@ git diff --check
 - Developer Spaces visual polish before ingestion auth, validation, limits, and
   safe serialization.
 
-## Latest MIMIR handoff - PR144 AI trace detail sanitization gate
+## Latest DAEDALUS handoff - PR144 AI trace detail sanitization gate
 
-MIMIR closes PR143 Memory Lifecycle Review Surface on 2026-06-21 and wakes
-DAEDALUS for PR144.
+PR144 AI Trace Detail Sanitization Gate is implemented by DAEDALUS on
+2026-06-21 and ready for ARGUS review.
 
-Closed PR143 facts:
+Implementation:
 
-- ARGUS technically accepted the owner-only Memory lifecycle review surface and
-  patched a prompt/key-shaped redaction edge.
-- ARIADNE rehearsed `/studio/personas/[personaId]/memory` on desktop and 390px
-  mobile with selected, eligible-not-selected, rejected, quarantined, expired,
-  superseded, and missing-lifecycle Memory rows.
-- The Lifecycle review panel lands between Runtime context and Saved Memory,
-  reads as owner-only runtime readiness/action-state readback, and does not
-  present fake controls.
-- Existing Saved Memory actions remain the visible working controls:
-  Reinforce, Restore, Quarantine, and Reject.
+- Hardened `getAiTraceDetail` so `/observability/traces/:traceId` no longer
+  returns raw `select("*")` trace or event rows.
+- Trace detail now uses an allow-listed trace select and serializer for source,
+  status, started/completed timestamps, duration, input/output/total tokens,
+  estimated cost, sanitized failure reason, and sanitized metadata.
+- Event detail now uses an allow-listed event select and serializer for event
+  type, sanitized label/failure reason, status, provider, model, created time,
+  duration, input/output/total tokens, estimated cost, and sanitized metadata.
+- Raw event payload objects are sanitizer input only and are not returned.
+- Sanitized metadata keeps only safe route/profile/provider/model/model-tier/
+  policy/posture/domain facts.
+- Existing summary/list behavior and authenticated owner scoping are preserved.
+- No Settings AI panel or visible owner-route behavior changed.
 
-PR144 task:
+Privacy proof:
 
-- Implement `docs/roadmap/PR144_AI_TRACE_DETAIL_SANITIZATION_GATE.md`.
-- Harden `/observability/traces/:traceId` so it no longer returns raw
-  `select("*")` trace/event rows.
-- Add an allow-listed serializer/sanitizer for owner AI trace detail that keeps
-  useful operational facts while dropping raw prompts, completions, provider
-  payloads, event payload objects, private ids, URLs, and secret-shaped values.
-- Preserve authenticated owner scoping and existing summary/list behavior.
-- If Settings AI trace detail UI changes, ARGUS should wake ARIADNE after
-  technical acceptance; otherwise ARGUS can wake MIMIR directly.
-- Do not add public observability, raw trace viewer, new AI calls, provider/
-  embedding changes, Redis/Cloudflare, background jobs, Memory mutation,
-  billing/auth/session changes, broad UI redesign, or migration-ledger repair.
+- Route-level test proves cross-owner trace detail returns `404`.
+- Route-level test proves the response omits raw prompts, completions, provider
+  request/response payloads, private archive excerpts, owner/persona/
+  conversation/event/source ids, raw URLs, bearer values, token/key/password-
+  shaped fields, webhook secrets, and common secret-shaped values.
+- The requested route trace id remains in the sanitized trace object as the
+  owner-requested detail identifier.
+
+Validation:
+
+- `test:replay-readiness`: 2 passed, including the new sanitizer route test.
+- `test:studio-ui`: 89 passed.
+- `test:conversation-archive`: 35 passed.
+- `typecheck`: passed.
+- `git diff --check`: passed with CRLF warnings only for touched files and local
+  DAEDALUS state.
+
+Non-scope preserved: no public observability, raw trace viewer, new AI calls,
+provider/embedding changes, Redis/Upstash, Cloudflare, background jobs, Memory
+mutation, billing/auth/session changes, broad Settings or Studio redesign, UI
+trace detail expansion, or migration-ledger repair was added. Because no visible
+owner route changed, ARGUS can wake MIMIR directly after technical acceptance.
 
 ## Previous ARIADNE handoff - PR143 memory lifecycle review surface
 
