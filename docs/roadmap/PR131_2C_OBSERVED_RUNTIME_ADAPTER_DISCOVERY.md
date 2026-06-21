@@ -4,7 +4,7 @@ Date opened: 2026-06-21
 Opened by: A1 / MIMIR
 Owner: DAEDALUS investigates and documents. ARGUS reviews dependency claims,
 Cloudflare scope, and overclaim risk. ARIADNE is not required.
-Status: open for DAEDALUS
+Status: implemented by DAEDALUS; ready for ARGUS review
 
 ## Why This Lane
 
@@ -80,6 +80,56 @@ choice.
 - The next-lane recommendation is specific enough for MIMIR to wake DAEDALUS or
   ARGUS without re-litigating the whole backend plan.
 
+## DAEDALUS Discovery Result
+
+DAEDALUS completed the docs/evidence discovery on 2026-06-21.
+
+Discovery map:
+
+- `docs/architecture/observed-runtime-adapter-discovery.md`
+
+Local Station sources reviewed:
+
+- `docs/ops/open-repo-upgrade-review.md`
+- `docs/integration/intelhub-to-station-developer-spaces.md`
+- `docs/architecture/observed-runtime-fixture-preflight.md`
+- `docs/ops/CLOUDFLARE_DEPENDENCY_CHECK.md`
+- `docs/roadmap/PR129_2C_OBSERVED_RUNTIME_READINESS_CLOSEOUT.md`
+- `packages/developer-space-client/README.md`
+
+Public repo sources reviewed:
+
+- `https://github.com/simple10/agents-observe`
+- `https://github.com/simple10/agents-observe/blob/main/docs/DEVELOPMENT.md`
+- `https://github.com/builderz-labs/mission-control/blob/main/docs/quickstart.md`
+- `https://github.com/builderz-labs/mission-control/blob/main/package.json`
+- `https://github.com/tobilg/ai-observer/blob/main/README.md`
+- `https://github.com/cindiekinzz-coder/NESTstack`
+
+Finding:
+
+- `simple10/agents-observe`, `tobilg/ai-observer`, and
+  `builderz-labs/mission-control` do not show a Cloudflare hard dependency for
+  the adapter shape. Each can be treated as local/self-hosted source material
+  that would need a small bridge into the PR128 signed webhook packet.
+- `cindiekinzz-coder/NESTstack` is mixed: local Path A does not require
+  Cloudflare, while its full continuity/daemon/mobile path is Cloudflare-native
+  and uses Workers/D1/Vectorize/Durable Objects as core architecture.
+- Station already overlaps on Supabase-backed Developer Space persistence,
+  signed webhooks, classified readback, receipt-backed replay, and public/
+  member/owner filtering. It should observe/import runtime state, not adopt
+  external runtime execution or orchestration truth.
+
+Recommendation:
+
+- Next lane should be one concrete adapter spike for
+  `simple10/agents-observe`: a docs/test-only transform from hook/session sample
+  data to `DeveloperSpaceBatchImportPayload`, then PR128 signed webhook request
+  construction.
+- Do not open Cloudflare boundary design yet. Current evidence only makes
+  Cloudflare mandatory for a full NESTstack-style Cloudflare runtime, not for
+  the first Station observed-runtime adapter proof.
+
 ## Validation
 
 Docs/evidence lane:
@@ -87,6 +137,12 @@ Docs/evidence lane:
 ```bash
 git diff --check
 ```
+
+DAEDALUS validation:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `git diff --check` | Pass | CRLF normalization warnings only. |
 
 If DAEDALUS adds scripts or package code, run the relevant focused tests and
 explain why the lane stopped being docs-only.

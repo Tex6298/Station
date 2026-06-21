@@ -8996,6 +8996,20 @@ when a PR lands, or when validation truth changes.
   needs, Cloudflare hard dependencies versus deployment defaults, overlap with
   Station's PR120-PR128 foundation, hybrid options, and a specific next-lane
   recommendation.
+- DAEDALUS implements PR131 2C Observed Runtime Adapter Discovery on
+  2026-06-21 and wakes ARGUS for dependency/overclaim review. The discovery map
+  lives in `docs/architecture/observed-runtime-adapter-discovery.md`. Reviewed
+  local docs plus public GitHub docs for `simple10/agents-observe`,
+  `tobilg/ai-observer`, `builderz-labs/mission-control`, and
+  `cindiekinzz-coder/NESTstack`. Finding: Agents Observe, AI Observer, and
+  Mission Control do not show Cloudflare hard dependencies for an adapter
+  bridge; NESTstack is mixed, with no-Cloudflare local starter and a
+  Cloudflare-native full continuity/daemon path using Workers/D1/Vectorize/
+  Durable Objects. Recommendation: next lane should be a concrete
+  `simple10/agents-observe` docs/test-only transform spike into
+  `DeveloperSpaceBatchImportPayload` plus PR128 signed webhook construction;
+  do not open Cloudflare boundary design yet. Validation: `git diff --check`
+  passed with CRLF normalization warnings only.
 - DAEDALUS implements PR126 2C Observed Runtime Signing Secret Lifecycle on
   2026-06-21 and wakes ARGUS for schema/API/encryption/signature review.
   Migration `048_developer_space_webhook_signing_secrets.sql` adds
@@ -9276,41 +9290,59 @@ git diff --check
 - Developer Spaces visual polish before ingestion auth, validation, limits, and
   safe serialization.
 
-## Latest MIMIR handoff - PR131 observed runtime adapter discovery
+## Latest DAEDALUS handoff - PR131 observed runtime adapter discovery
 
-PR131 2C Observed Runtime Adapter Discovery is opened by MIMIR on 2026-06-21
-and ready for DAEDALUS investigation.
+PR131 2C Observed Runtime Adapter Discovery is implemented by DAEDALUS on
+2026-06-21 and ready for ARGUS review. ARIADNE is not required; no visible route
+changed.
 
-Why now:
+Discovery map:
 
-- PR130 is blocked until deliberate smoke config exists:
-  `STATION_API_URL`, `STATION_DEVELOPER_KEY`, and
-  `STATION_OBSERVED_RUNTIME_WEBHOOK_ID`.
-- MIMIR will not rotate/revoke an existing Developer Space ingestion key just
-  to satisfy smoke proof.
-- Adapter discovery can proceed without secrets and should determine whether
-  Cloudflare is a hard dependency, a deployment default, an overlap, or a
-  hybrid option for the GitHub-derived/runtime repos.
+- `docs/architecture/observed-runtime-adapter-discovery.md`
 
-Task:
+Sources reviewed:
 
-- Review existing Station docs for GitHub-derived/runtime clues, especially
-  `docs/ops/open-repo-upgrade-review.md`, observed-runtime docs from
-  PR120-PR130, Developer Space partner/readiness docs, and integration docs.
-- Inspect public repo docs/code only when local docs identify targets clearly
-  enough; cite exact evidence for dependency claims.
-- Produce an adapter discovery map covering emitted/expected data, whether the
-  PR128 signed webhook packet is sufficient, Cloudflare dependencies, Station
-  overlap, smallest adapter/bridge, hybrid possibilities, and deferred work.
-- Recommend a specific next lane: PR130 smoke config retry, concrete adapter
-  spike, Cloudflare boundary design, visible UX/readback, or pause.
+- Local: `docs/ops/open-repo-upgrade-review.md`,
+  `docs/integration/intelhub-to-station-developer-spaces.md`,
+  `docs/architecture/observed-runtime-fixture-preflight.md`,
+  `docs/ops/CLOUDFLARE_DEPENDENCY_CHECK.md`,
+  `docs/roadmap/PR129_2C_OBSERVED_RUNTIME_READINESS_CLOSEOUT.md`, and
+  `packages/developer-space-client/README.md`.
+- Public GitHub: `simple10/agents-observe`,
+  `simple10/agents-observe/docs/DEVELOPMENT.md`,
+  `builderz-labs/mission-control/docs/quickstart.md`,
+  `builderz-labs/mission-control/package.json`,
+  `tobilg/ai-observer/README.md`, and
+  `cindiekinzz-coder/NESTstack`.
 
-Validation: docs/evidence hygiene with `git diff --check` unless code/scripts
-are added.
+Cloudflare classification:
 
-Wake ARGUS with the discovery map and dependency classification, or wake MIMIR
-only if the repo/source list is too ambiguous to proceed without a
-user-provided target.
+- No hard Cloudflare dependency found for `simple10/agents-observe`,
+  `tobilg/ai-observer`, or `builderz-labs/mission-control` adapter bridges.
+- `cindiekinzz-coder/NESTstack` is mixed: local starter path does not require
+  Cloudflare; full continuity/daemon/mobile path is Cloudflare-native with
+  Workers/D1/Vectorize/Durable Objects.
+- Station already has overlapping Supabase-backed Developer Space persistence,
+  signed observed-runtime webhook delivery, classified readback, and
+  receipt-backed replay/conflict/in-progress behavior.
+
+Recommendation: open one concrete adapter spike for `simple10/agents-observe`.
+Keep it docs/test-only first: transform a hook/session sample into
+`DeveloperSpaceBatchImportPayload`, classify raw prompts/commands/paths/tokens/
+tool payloads as private or secret by default, and prove PR128 signed webhook
+request construction. Do not open Cloudflare boundary design yet.
+
+Validation: `git diff --check` passed with CRLF normalization warnings only.
+
+Non-scope preserved: no external repo code imported, no adapter implemented, no
+Cloudflare account/config/deployment work, no hosted runtime, worker, queue,
+Durable Object, Vectorize index, D1 database, partner onboarding wizard, visible
+secret-management UI, billing/Stripe, Redis memory truth, provider routing,
+chat-native developer agent, broad UI, production partner claim, or committed
+secret values.
+
+ARGUS should review the discovery map, Cloudflare dependency classification,
+source evidence, recommendation, validation, non-claims, and no-secret proof.
 
 ## Previous DAEDALUS handoff - PR127 webhook concurrency guard
 

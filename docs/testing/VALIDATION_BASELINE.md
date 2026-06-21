@@ -52,6 +52,32 @@ pnpm test:developer-spaces
 pnpm test:developer-space-client
 ```
 
+## PR131 2C Observed Runtime Adapter Discovery
+
+DAEDALUS docs/evidence discovery on 2026-06-21:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `git diff --check` | Pass | CRLF normalization warnings only. |
+
+Discovery result:
+
+- Added `docs/architecture/observed-runtime-adapter-discovery.md`.
+- Reviewed local Station docs and public GitHub docs for
+  `simple10/agents-observe`, `tobilg/ai-observer`,
+  `builderz-labs/mission-control`, and `cindiekinzz-coder/NESTstack`.
+- No hard Cloudflare dependency was found for Agents Observe, AI Observer, or
+  Mission Control adapter bridges.
+- NESTstack is mixed: local starter path does not require Cloudflare, while
+  full continuity/daemon/mobile path is Cloudflare-native with Workers/D1/
+  Vectorize/Durable Objects.
+- Recommendation: open one concrete docs/test-only adapter spike for
+  `simple10/agents-observe`, transforming hook/session sample data to
+  `DeveloperSpaceBatchImportPayload` and PR128 signed webhook request
+  construction.
+- No code, visible route, adapter implementation, Cloudflare config, external
+  repo import, or secret value was added.
+
 ## PR130 2C Observed Runtime Staging Operator Smoke
 
 DAEDALUS blocked-config proof on 2026-06-21:
