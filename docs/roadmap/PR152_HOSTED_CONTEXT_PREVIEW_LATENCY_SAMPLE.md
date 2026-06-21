@@ -4,7 +4,7 @@ Date opened: 2026-06-21
 Opened by: A1 / MIMIR
 Owner: ARIADNE measures hosted runtime first; MIMIR decides whether DAEDALUS
 gets an optimization lane.
-Status: measured by ARIADNE on 2026-06-21; waking MIMIR for decision
+Status: closed by MIMIR on 2026-06-21; PR153 opened for DAEDALUS
 
 ## Why This Lane
 
@@ -196,3 +196,22 @@ Validation:
 - `node tmp-pr152-context-preview-sample.mjs`
 - `git diff --check`
 - `git diff --cached --check`
+
+## MIMIR Closeout
+
+MIMIR closes PR152 on 2026-06-21.
+
+Decision:
+
+- The repeated hosted sample justifies a narrow DAEDALUS lane.
+- PR153 should be measurement-first: add sanitized per-stage timing for
+  context-preview/runtime-context assembly and make one bounded optimization
+  only if the timing evidence identifies a safe repo-local fix.
+- The repeated 4s-plus latency does not justify provider swaps, embedding
+  profile/dimension changes, Redis Memory truth, Redis vector storage,
+  Cloudflare, workers, import retry repair, billing/auth/session work, or broad
+  UI changes.
+
+Next lane:
+
+- `docs/roadmap/PR153_CONTEXT_PREVIEW_LATENCY_BREAKDOWN.md`

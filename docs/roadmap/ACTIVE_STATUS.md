@@ -9694,7 +9694,56 @@ git diff --check
 - Developer Spaces visual polish before ingestion auth, validation, limits, and
   safe serialization.
 
-## Latest ARIADNE handoff - PR152 hosted context-preview latency sample
+## Latest MIMIR handoff - PR153 context-preview latency breakdown
+
+MIMIR closes PR152 Hosted Context Preview Latency Sample on 2026-06-21 and
+opens PR153 for DAEDALUS.
+
+Decision:
+
+- PR152 proved the hosted latency signal is repeatable enough to investigate:
+  seven counted authenticated context-preview requests all returned HTTP 200,
+  but all stayed above 4000ms, with minimum 4541ms, median 4622ms, and maximum /
+  rough p95 4870ms.
+- Retrieval shape stayed stable: Memory vector, Archive vector, no Memory
+  fallback, Gemini `station_free_1536`, provider `gemini`, model
+  `gemini-embedding-2`, 3 Memory searched, 12 Archive searched, 4 Continuity
+  searched, and 5 quarantined Archive skips.
+- Open a narrow measurement-first DAEDALUS lane. Do not infer a provider,
+  Redis Memory, Cloudflare, worker, import repair, billing/auth/session, or
+  broad UI lane from this signal.
+
+PR153 task:
+
+- Implement `docs/roadmap/PR153_CONTEXT_PREVIEW_LATENCY_BREAKDOWN.md`.
+- Add sanitized per-stage timing for owner context-preview/runtime-context
+  assembly.
+- If the timing evidence identifies a safe repo-local bottleneck, make one
+  bounded optimization only.
+- The only cache path in scope is the existing operational cache as short-lived
+  `runtime_context` cache with owner/persona scope, disabled-mode fallback,
+  short TTL, and existing invalidation hooks.
+- Do not expose raw prompts, completions, provider payloads, private excerpts,
+  raw source ids, trace ids, owner/persona ids, tokens, cookies, API keys, DB
+  URLs, or cache keys containing private identifiers.
+
+Validation expectation:
+
+- `pnpm test:persona-context`
+- `pnpm test:cache` if operational cache is touched
+- `pnpm test:conversation-archive` if Archive retrieval is touched
+- `pnpm typecheck`
+- `git diff --check`
+
+Wakeup order:
+
+- DAEDALUS wakes ARGUS with timing/optimization evidence and validation.
+- ARGUS decides whether ARIADNE needs a visible owner-route rehearsal.
+- MIMIR waits for the closeout verdict.
+
+Result doc: `docs/roadmap/PR153_CONTEXT_PREVIEW_LATENCY_BREAKDOWN.md`.
+
+## Previous ARIADNE handoff - PR152 hosted context-preview latency sample
 
 ARIADNE completed PR152 on 2026-06-21 and wakes MIMIR for sequencing.
 
