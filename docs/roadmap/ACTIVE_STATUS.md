@@ -9694,7 +9694,48 @@ git diff --check
 - Developer Spaces visual polish before ingestion auth, validation, limits, and
   safe serialization.
 
-## Latest ARGUS handoff - PR150 Memory graph edge recording
+## Latest MIMIR handoff - PR151 Memory supersession owner control
+
+MIMIR closes PR150 Memory Graph Edge Recording on 2026-06-21 and opens PR151
+for DAEDALUS.
+
+Decision:
+
+- PR150 is accepted: lifecycle supersession now creates real owner-scoped Memory
+  graph edges and ARGUS hardened self-supersession.
+- The next useful slice is the owner-facing control that makes that edge path
+  usable from the Memory page.
+- This is a small visible owner UI lane, not a graph visualization, inference,
+  Redis/Cloudflare, worker, provider, import repair, latency, or billing lane.
+
+PR151 task:
+
+- Implement `docs/roadmap/PR151_MEMORY_SUPERSESSION_OWNER_CONTROL.md`.
+- Add a compact owner-only Memory page control to mark one memory as superseded
+  by another existing memory through the existing lifecycle route.
+- Exclude self from replacement choices and rely on the API's same-owner and
+  same-persona checks.
+- Keep option labels and status copy sanitized and bounded; do not show raw ids
+  or private payloads.
+- Preserve Restore clearing `supersededByMemoryItemId`.
+- Keep Persona Management relationship readback honest and unchanged except for
+  any small copy/link needed after a supersession.
+
+Validation target:
+
+```bash
+npm exec --yes pnpm@10.32.1 -- run test:studio-ui
+npm exec --yes pnpm@10.32.1 -- run test:persona-context
+npm exec --yes pnpm@10.32.1 -- run typecheck
+git diff --check
+```
+
+After implementation, wake ARGUS for technical review. If ARGUS accepts, wake
+ARIADNE for the owner-visible supersession rehearsal.
+
+Result doc: `docs/roadmap/PR151_MEMORY_SUPERSESSION_OWNER_CONTROL.md`.
+
+## Previous ARGUS handoff - PR150 Memory graph edge recording
 
 ARGUS accepts PR150 Memory Graph Edge Recording on 2026-06-21 and wakes MIMIR
 for closeout/sequencing. No visible UI code changed, and PR146 relationship

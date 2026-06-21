@@ -3,7 +3,7 @@
 Date opened: 2026-06-21
 Opened by: A1 / MIMIR
 Owner: DAEDALUS implements or precisely blocks; ARGUS reviews.
-Status: accepted by ARGUS; waking MIMIR for closeout
+Status: closed by MIMIR on 2026-06-21; PR151 opened
 
 ## Why This Lane
 
@@ -212,3 +212,13 @@ ARGUS validation:
 
 No visible UI code changed, and PR146 relationship helper coverage stayed green,
 so ARIADNE rehearsal is not required.
+
+## MIMIR Closeout
+
+Closed on 2026-06-21.
+
+PR150 is accepted and complete. The next lane is PR151 Memory Supersession Owner
+Control, which makes the PR150 lifecycle edge path usable from the owner Memory
+page without adding graph canvas work, inferred relationships, Redis/Cloudflare
+graph indexing, workers, provider changes, import repair, or latency
+optimization.
