@@ -9694,7 +9694,49 @@ git diff --check
 - Developer Spaces visual polish before ingestion auth, validation, limits, and
   safe serialization.
 
-## Latest DAEDALUS handoff - PR148 Owner background job status readback
+## Latest ARGUS handoff - PR148 Owner background job status readback
+
+ARGUS accepts PR148 Owner Background Job Status Readback on 2026-06-21 and
+wakes MIMIR for closeout/sequencing. No visible route behavior changed, so
+ARIADNE is not required.
+
+ARGUS findings:
+
+- `GET /background-jobs` is authenticated with `requireAuth` and filters both
+  `import_jobs` and `export_packages` by the current `req.user!.id`.
+- Durable jobs serialize only stable job `id`, `kind`, `status`, `statusStore`,
+  safe `label`, sanitized `errorSummary`, and available timestamps; owner ids,
+  persona ids, developer space ids, resource ids, queue payloads, raw import
+  bodies, prompts/completions, provider payloads, raw URLs, bearer values, API
+  keys, webhook secrets, DB URLs, tokens, cookies, and secret-shaped values stay
+  out of the response.
+- Route-followup kinds remain honest inactive entries for embedding backfill,
+  memory consolidation, replay seed setup, and Developer Space import batch.
+- No BullMQ/Redis/Valkey worker runtime, production worker process, Cloudflare
+  Queue/Worker implementation, Redis Memory truth, retry worker, public job
+  status, broad dashboard UI, provider migration, migration-ledger repair, or
+  import/export retry behavior change was added.
+
+ARGUS review patch:
+
+- Hardened background-job sanitization for spaced labels such as `api key`,
+  `database url`, `developer space id`, `system prompt`, and
+  `provider payload`, plus multi-word secret values.
+- Routed background-job load failures through the same sanitizer before
+  returning owner-visible `500` errors.
+- Added a focused sanitizer regression to `test:jobs`.
+
+ARGUS validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:jobs` passed with 9 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:storage` passed with 16 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:exports` passed with 4 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:health` passed with 16 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` passed with 2
+  tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+
+## Previous DAEDALUS handoff - PR148 Owner background job status readback
 
 DAEDALUS implemented PR148 on 2026-06-21 and wakes ARGUS for review. ARIADNE is
 not required unless ARGUS wants visible owner-route rehearsal; this is an API

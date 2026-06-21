@@ -6,6 +6,7 @@ import {
   serializeExportBackgroundJobReadback,
   serializeImportBackgroundJobReadback,
   inactiveRouteFollowupBackgroundJobs,
+  sanitizeJobErrorMessage,
   type ExportPackageJobReadbackRow,
   type OwnerBackgroundJobReadback,
 } from "../services/background-jobs.service";
@@ -39,10 +40,10 @@ backgroundJobsRouter.get("/", async (req, res) => {
   ]);
 
   if (importsResult.error) {
-    return res.status(500).json({ error: importsResult.error.message ?? "Failed to load import jobs." });
+    return res.status(500).json({ error: safeBackgroundJobLoadError(importsResult.error.message) });
   }
   if (exportsResult.error) {
-    return res.status(500).json({ error: exportsResult.error.message ?? "Failed to load export jobs." });
+    return res.status(500).json({ error: safeBackgroundJobLoadError(exportsResult.error.message) });
   }
 
   const jobs = [
@@ -76,4 +77,8 @@ function readTime(value: string | null) {
   if (!value) return 0;
   const time = Date.parse(value);
   return Number.isFinite(time) ? time : 0;
+}
+
+function safeBackgroundJobLoadError(message?: string) {
+  return sanitizeJobErrorMessage(message ?? "Failed to load background jobs.");
 }

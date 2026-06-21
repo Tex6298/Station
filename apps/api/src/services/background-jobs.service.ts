@@ -344,9 +344,18 @@ export function sanitizeJobErrorMessage(error: unknown, privateSnippets: Array<s
     .replace(/Bearer\s+[A-Za-z0-9._~+/-]+=*/gi, "Bearer [redacted]")
     .replace(/\b(?:sk|pk|rk|whsec|ghp|pat)[_-][A-Za-z0-9._-]+\b/gi, "[redacted]")
     .replace(/\b[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}\b/gi, "[id]")
-    .replace(/\b(?:owner|user|persona|developer[_-]?space|space|memory|trace|event|source|resource)[_-]?id\s*[:=]\s*\S+/gi, "[redacted-id]")
-    .replace(/\b(?:authorization|cookie|token|api[_-]?key|x-api-key|service[_-]?role|secret|password|webhook[_-]?secret|db[_-]?url)\s*[:=]\s*\S+/gi, "[redacted]")
-    .replace(/\b(?:prompt|completion|provider[_-]?payload|private[_-]?text|raw[_-]?body|archive[_-]?excerpt)\s*[:=]\s*[^.;]+/gi, "[redacted private text]");
+    .replace(
+      /\b(?:owner|user|persona|developer[\s_-]?space|space|memory|trace|event|source|resource)[\s_-]?id\s*[:=]\s*\S+/gi,
+      "[redacted-id]"
+    )
+    .replace(
+      /\b(?:authorization|cookie|token|api[\s_-]?key|x[\s_-]?api[\s_-]?key|service[\s_-]?role|secret|password|webhook[\s_-]?secret|db[\s_-]?url|database[\s_-]?url)\s*[:=]\s*[^,;]*/gi,
+      "[redacted]"
+    )
+    .replace(
+      /\b(?:(?:raw|private|system|user)[\s_-]?prompt|prompt|completion|provider[\s_-]?payload|private[\s_-]?text|raw[\s_-]?body|archive[\s_-]?excerpt)\s*[:=]\s*[^.;]+/gi,
+      "[redacted private text]"
+    );
 
   const normalized = message.replace(/\s+/g, " ").trim() || "Job failed.";
   return normalized.length > 240 ? `${normalized.slice(0, 237)}...` : normalized;

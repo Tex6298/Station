@@ -4,7 +4,7 @@ Date opened: 2026-06-21
 Opened by: A1 / MIMIR
 Owner: DAEDALUS implements or precisely blocks, ARGUS reviews. ARIADNE rehearses
 only if visible route behavior changes.
-Status: implemented by DAEDALUS; awaiting ARGUS review
+Status: accepted by ARGUS; waking MIMIR for closeout
 
 ## Why This Lane
 
@@ -174,3 +174,46 @@ Validation:
 | `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` | Pass | 2 tests passed. |
 | `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API typecheck ran; web typecheck replayed from cache. |
 | `git diff --check` | Pass | CRLF normalization warnings only for touched files and local DAEDALUS state. |
+
+## ARGUS Review
+
+Accepted on 2026-06-21 after a narrow privacy hardening patch.
+
+ARGUS findings:
+
+- `GET /background-jobs` is authenticated with `requireAuth` and reads only
+  `import_jobs` and `export_packages` rows filtered by the current
+  `req.user!.id`.
+- The response keeps stable job ids only for owner-action/client keys and does
+  not serialize owner ids, persona ids, developer space ids, resource ids,
+  queue payloads, raw import bodies, prompts/completions, provider payloads,
+  raw URLs, bearer values, API keys, webhook secrets, DB URLs, tokens, cookies,
+  or secret-shaped values.
+- Route-followup kinds remain honest inactive entries; no background processing
+  is faked for embedding backfill, memory consolidation, replay seed setup, or
+  Developer Space import batch.
+- No BullMQ/Redis/Valkey worker runtime, production worker process, Cloudflare
+  Queue/Worker implementation, Redis Memory truth, retry worker, public job
+  status, broad dashboard UI, provider migration, migration-ledger repair, or
+  import/export retry behavior change was added.
+
+ARGUS review patch:
+
+- Hardened `sanitizeJobErrorMessage` for spaced labels such as `api key`,
+  `database url`, `developer space id`, `system prompt`, and
+  `provider payload`, plus multi-word secret values.
+- Routed background-job load failures through the same sanitizer before
+  returning an owner-visible `500` response.
+- Added a focused sanitizer regression to the background job helper tests.
+
+ARGUS validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:jobs` passed with 9 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:storage` passed with 16 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:exports` passed with 4 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:health` passed with 16 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` passed with 2
+  tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+
+No visible route behavior changed, so ARIADNE rehearsal is not required.

@@ -54,6 +54,27 @@ pnpm test:developer-space-client
 
 ## PR148 Owner Background Job Status Readback
 
+ARGUS review validation on 2026-06-21 after the sanitizer hardening patch:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:jobs` | Pass | 9 tests passed; added spaced-label and multi-word-value redaction coverage for background job readback sanitization. |
+| `npm exec --yes pnpm@10.32.1 -- run test:storage` | Pass | 16 tests passed; archive import and storage-accounting behavior remains green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:exports` | Pass | 4 tests passed; export package persistence and failure readback remains green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:health` | Pass | 16 tests passed; queue/cache readiness posture remains green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` | Pass | 2 tests passed; replay measurement prep remains green. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API typecheck ran; web typecheck replayed from cache. |
+
+ARGUS PR148 notes:
+
+- Accepted the owner-only `GET /background-jobs` readback after a narrow review
+  patch.
+- Hardened background-job display/error sanitization for spaced labels such as
+  `api key`, `database url`, `developer space id`, `system prompt`, and
+  `provider payload`, plus multi-word secret values.
+- Sanitized background-job load errors before owner-visible `500` responses.
+- No visible route behavior changed, so ARIADNE rehearsal is not required.
+
 DAEDALUS implementation validation on 2026-06-21:
 
 | Command | Result | Notes |

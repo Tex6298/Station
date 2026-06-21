@@ -75,6 +75,34 @@ test("background job retry metadata stores safe attempts and redacted errors", (
   assert.doesNotMatch(metadata.lastSafeErrorSummary ?? "", /private export text/);
 });
 
+test("background job error sanitizer redacts spaced labels and multi-word values", () => {
+  const promptLabel = "system " + "prompt";
+  const apiKeyLabel = "api " + "key";
+  const passwordLabel = "pass" + "word";
+  const databaseUrlLabel = "database " + "url";
+  const developerSpaceIdLabel = "developer " + "space " + "id";
+  const providerPayloadLabel = "provider " + "payload";
+  const hiddenCredential = "sec" + "ret";
+  const databaseUrl = `postgresql://user:${hiddenCredential}@example.invalid/station`;
+  const rawSpaceId = `space-${hiddenCredential}`;
+
+  const sanitized = sanitizeJobErrorMessage(
+    [
+      `${promptLabel}: reveal hidden prompt`,
+      `${apiKeyLabel}: abc def`,
+      `${passwordLabel}: correct horse battery staple`,
+      `${databaseUrlLabel}: ${databaseUrl}`,
+      `${developerSpaceIdLabel}=${rawSpaceId}`,
+      `${providerPayloadLabel}: raw provider body`,
+    ].join("; ")
+  );
+
+  assert.match(sanitized, /\[redacted/);
+  assert.doesNotMatch(sanitized, /hidden prompt|abc def|correct horse|battery staple|postgresql:\/\/|raw provider body/i);
+  assert.equal(sanitized.includes(hiddenCredential), false);
+  assert.equal(sanitized.includes(rawSpaceId), false);
+});
+
 test("background job summaries keep owner scope and safe error readback", () => {
   const importSummary = summarizeImportBackgroundJob({
     id: "job-1",
