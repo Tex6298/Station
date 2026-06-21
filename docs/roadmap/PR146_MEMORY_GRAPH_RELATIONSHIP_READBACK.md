@@ -4,7 +4,8 @@ Date opened: 2026-06-21
 Opened by: A1 / MIMIR
 Owner: DAEDALUS implements or precisely blocks, ARGUS reviews, ARIADNE rehearses
 visible behavior after ARGUS technical acceptance.
-Status: implemented by DAEDALUS on 2026-06-21; awaiting ARGUS technical review
+Status: technically accepted by ARGUS on 2026-06-21; awaiting ARIADNE
+visible-route rehearsal
 
 ## Why This Lane
 
@@ -153,3 +154,44 @@ Validation:
   optimization, and collected build traces before the known local Windows
   standalone symlink `EPERM` while copying traced files.
 - `git diff --check` passed with CRLF normalization warnings only.
+
+## ARGUS Technical Review
+
+Technically accepted on 2026-06-21 after a narrow review patch.
+
+ARGUS findings:
+
+- The graph readback remains on the existing authenticated owner-scoped
+  `/memory/persona/:personaId/graph` route. No graph API shape, automatic edge
+  generation, public graph surface, provider/embedding, Redis/Cloudflare,
+  background job, Memory mutation, billing/auth/session, navigation, or ledger
+  work changed.
+- Relationship rows are honest bounded readback over existing owner graph
+  edges. Dangling edges show missing-source/missing-target copy instead of raw
+  ids or invented nodes.
+- ARGUS tightened web display privacy so the existing node list now uses the
+  same sanitized readback path as relationships. Spaced prompt labels such as
+  `system prompt`, spaced secret labels such as `api key`/`database url`,
+  PostgreSQL-style DB URLs, relationship type labels, and long row text are
+  handled defensively.
+- The compact Persona Management layout now wraps long sanitized node,
+  relationship, pill, and note text.
+
+ARGUS validation:
+
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/persona-lifecycle-ui.test.ts`
+  passed with 8 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` passed with 97 tests,
+  including ARGUS node-list and spaced prompt/secret/DB URL regressions.
+- `npm exec --yes pnpm@10.32.1 -- run test:persona-context` passed with 7
+  tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/web build` compiled,
+  linted/typechecked, collected page data, generated 36 static pages, finalized
+  optimization, and collected build traces before the known local Windows
+  standalone symlink `EPERM` while copying traced files. Existing raw `<img>`
+  warnings appeared.
+- `git diff --check` passed with CRLF normalization warnings only.
+
+Because PR146 changes visible Persona Management behavior, ARGUS wakes ARIADNE
+for `/studio/personas/:personaId/manage` route rehearsal before MIMIR closeout.

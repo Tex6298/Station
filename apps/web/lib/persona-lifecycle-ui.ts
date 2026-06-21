@@ -65,6 +65,18 @@ export type MemoryGraphRelationshipReadback = {
   note: string | null;
 };
 
+export type MemoryGraphNodeReadback = {
+  title: string;
+  detail: string;
+};
+
+export function memoryGraphNodeReadback(node: MemoryGraphNode): MemoryGraphNodeReadback {
+  return {
+    title: memoryNodeLabel(node, "Untitled memory"),
+    detail: `${labelize(String(node.sourceType ?? "memory"))} - ${boundedPreview(node.summary, "No summary yet", 140)}`,
+  };
+}
+
 export function memoryGraphRelationshipReadbacks(graph: MemoryGraph, limit = 5): MemoryGraphRelationshipReadback[] {
   const nodeById = new Map(graph.nodes.map((node) => [node.id, node]));
 
@@ -97,12 +109,13 @@ function safePreviewText(value: string | null | undefined, fallback: string) {
   const sanitized = withoutTranscriptLines
     .join(" ")
     .replace(/\b[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}\b/gi, "[id]")
-    .replace(/https?:\/\/\S+/gi, "[redacted-url]")
+    .replace(RAW_URL_PATTERN, "[redacted-url]")
     .replace(SECRET_SHAPED_VALUE_PATTERN, "[redacted-secret]")
     .replace(/\b(?:bearer)\s+\S+/gi, "bearer [redacted]")
-    .replace(/\b(?:raw|private|system|user)[_-]?prompt\b\s*[:=]?.*/gi, "[redacted-prompt]")
-    .replace(/\b(owner[_-]?user[_-]?id|owner[_-]?id|persona[_-]?id|memory[_-]?item[_-]?id|edge[_-]?id|source[_-]?id|trace[_-]?id|event[_-]?id)\b\s*[:=]\s*\S+/gi, "$1=[redacted]")
-    .replace(/\b(token|cookie|authorization|api[_-]?key|x-api-key|secret|password|db[_-]?url|webhook[_-]?secret)\b\s*[:=]\s*\S+/gi, "$1=[redacted]")
+    .replace(PROMPT_LABEL_REPLACE_PATTERN, "[redacted-prompt]")
+    .replace(PRIVATE_ID_REPLACE_PATTERN, "$1=[redacted]")
+    .replace(SECRET_LABEL_REPLACE_PATTERN, "$1=[redacted-secret]")
+    .replace(TOKEN_LABEL_REPLACE_PATTERN, "$1=[redacted]")
     .replace(/\s+/g, " ")
     .trim();
 
@@ -125,7 +138,7 @@ function memoryNodeLabel(node: MemoryGraphNode | undefined, fallback: string) {
 }
 
 function memoryRelationshipLabel(edge: Pick<MemoryGraphEdge, "edgeType">) {
-  return labelize(edge.edgeType);
+  return labelize(safePreviewText(edge.edgeType, "related_to"));
 }
 
 function memoryRelationshipConfidenceLabel(confidence: number) {
@@ -138,4 +151,9 @@ function boundedPreview(value: string | null | undefined, fallback: string, maxL
   return sanitized.length > maxLength ? `${sanitized.slice(0, maxLength - 3).trim()}...` : sanitized;
 }
 
+const RAW_URL_PATTERN = /\b(?:https?|postgres(?:ql)?):\/\/\S+/gi;
+const PROMPT_LABEL_REPLACE_PATTERN = /\b(?:raw|private|system|user)[\s_-]?prompt\b\s*[:=]?.*/gi;
+const PRIVATE_ID_REPLACE_PATTERN = /\b(owner[\s_-]?user[\s_-]?id|owner[\s_-]?id|persona[\s_-]?id|memory[\s_-]?item[\s_-]?id|edge[\s_-]?id|source[\s_-]?id|trace[\s_-]?id|event[\s_-]?id)\b\s*[:=]\s*\S+/gi;
+const SECRET_LABEL_REPLACE_PATTERN = /\b(api[\s_-]?key|x-api-key|secret|password)\b\s*[:=]\s*[^,;]*/gi;
+const TOKEN_LABEL_REPLACE_PATTERN = /\b(token|cookie|authorization|(?:db|database)[\s_-]?url|webhook[\s_-]?secret)\b\s*[:=]\s*\S+/gi;
 const SECRET_SHAPED_VALUE_PATTERN = /\b(?:sk|pk|rk|whsec|ghp|pat)[_-][A-Za-z0-9._-]+/gi;

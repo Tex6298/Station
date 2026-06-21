@@ -81,6 +81,32 @@ DAEDALUS PR146 notes:
   layout, Memory mutation, broad Persona Management redesign, billing/auth/
   session change, or migration-ledger repair was added.
 
+ARGUS technical review validation on 2026-06-21:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/persona-lifecycle-ui.test.ts` | Pass | 8 tests passed, including ARGUS node-list and spaced prompt/secret/DB URL redaction coverage. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 97 tests passed, including relationship readback, dangling-edge copy, thin-state copy, sanitized node readback, and unsafe label/note redaction. |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-context` | Pass | 7 tests passed; owner-only Memory/persona context behavior remains green. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typechecks passed. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web build` | Partial / known Windows failure | Next compiled, linted/typechecked, collected page data, generated 36 static pages, finalized optimization, and collected build traces before the known local Windows standalone symlink `EPERM` while copying traced files. Existing raw `<img>` warnings appeared. |
+| `git diff --check` | Pass | CRLF warnings only for touched files and local triad state. |
+
+ARGUS review notes:
+
+- PR146 is technically accepted for ARIADNE visible-route rehearsal, not MIMIR
+  closeout yet.
+- ARGUS patched a narrow web-display hardening edge: the existing Memory Graph
+  node list now renders through sanitized helper readback instead of raw
+  `title`/`summary`, and relationship labels/notes now handle spaced prompt
+  labels, spaced secret labels, and PostgreSQL-style DB URLs defensively.
+- Long sanitized node, relationship, pill, and note text wraps in the compact
+  Persona Management section.
+- The implementation remains bounded to Persona Management and web helpers.
+  No graph API change, automatic edge generation, public Memory graph,
+  provider/embedding, Redis/Cloudflare, background job, Memory mutation,
+  billing/auth/session, navigation, or migration-ledger scope was added.
+
 ## PR145 Settings AI Trace Detail Readback
 
 DAEDALUS implementation validation on 2026-06-21:

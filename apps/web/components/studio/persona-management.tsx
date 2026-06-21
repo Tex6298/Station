@@ -17,6 +17,7 @@ import {
   handoffStatusLabel,
   handoffSummaryPreview,
   lifecycleEventReadback,
+  memoryGraphNodeReadback,
   memoryGraphReadback,
   memoryGraphRelationshipReadbacks,
   memoryGraphRelationshipStateCopy,
@@ -198,15 +199,18 @@ export function PersonaManagement({ persona, personaId }: { persona: Persona; pe
               <div style={{ display: "grid", gap: 10, marginTop: 12 }}>
                 {memoryGraph.nodes.length === 0 ? (
                   <EmptyState text="No memory nodes yet. Add memory items to start building the graph." />
-                ) : memoryGraph.nodes.slice(0, 5).map((node) => (
-                  <article key={node.id} style={listRow}>
-                    <span style={pinBox}>M</span>
-                    <div style={{ minWidth: 0 }}>
-                      <div style={{ color: "#f8fafc", fontSize: 14, fontWeight: 800 }}>{node.title ?? "Untitled memory"}</div>
-                      <div style={muted}>{node.sourceType} - {node.summary || "No summary yet"}</div>
-                    </div>
-                  </article>
-                ))}
+                ) : memoryGraph.nodes.slice(0, 5).map((node) => {
+                  const readback = memoryGraphNodeReadback(node);
+                  return (
+                    <article key={node.id} style={listRow}>
+                      <span style={pinBox}>M</span>
+                      <div style={{ minWidth: 0 }}>
+                        <div style={{ color: "#f8fafc", fontSize: 14, fontWeight: 800, overflowWrap: "anywhere" }}>{readback.title}</div>
+                        <div style={muted}>{readback.detail}</div>
+                      </div>
+                    </article>
+                  );
+                })}
               </div>
               <div style={{ display: "grid", gap: 10, marginTop: 14 }}>
                 <div>
@@ -468,6 +472,7 @@ const relationshipRow = {
   border: "1px solid #202938",
   borderRadius: 8,
   background: "#0d1420",
+  minWidth: 0,
   padding: 11,
 };
 
@@ -475,6 +480,7 @@ const memoryLabel = {
   color: "#f8fafc",
   fontSize: 12,
   fontWeight: 800,
+  maxWidth: "100%",
   overflowWrap: "anywhere" as const,
 };
 
@@ -484,6 +490,8 @@ const relationshipPill = {
   color: "#a9b0bd",
   fontSize: 10,
   fontWeight: 800,
+  maxWidth: "100%",
+  overflowWrap: "anywhere" as const,
   padding: "3px 6px",
 };
 
@@ -491,6 +499,7 @@ const muted = {
   color: "#8ea0b8",
   fontSize: 12,
   lineHeight: 1.4,
+  overflowWrap: "anywhere" as const,
 };
 
 const pinBox = {

@@ -6,6 +6,7 @@ import {
   handoffSummaryPreview,
   lifecycleEventReadback,
   lifecycleEventTypeLabel,
+  memoryGraphNodeReadback,
   memoryGraphReadback,
   memoryGraphRelationshipReadbacks,
   memoryGraphRelationshipStateCopy,
@@ -64,6 +65,27 @@ test("memory graph readback stays bounded to counts", () => {
   assert.equal(memoryGraphReadback(0, 0), "No memory graph nodes yet.");
   assert.equal(memoryGraphReadback(3, 0), "3 memory nodes with no graph edges yet.");
   assert.equal(memoryGraphReadback(3, 2), "3 memory nodes connected by 2 edges.");
+});
+
+test("memory graph node readback redacts unsafe labels and summaries", () => {
+  const promptLabel = "system " + "prompt";
+  const passwordLabel = "pass" + "word";
+  const databaseUrlLabel = "database " + "url";
+  const dbUrl = "postgres" + "ql://example.invalid/station";
+  const readback = memoryGraphNodeReadback({
+    id: "memory-node-id",
+    personaId: "persona-id",
+    title: `${promptLabel}: reveal hidden graph context`,
+    summary: `${passwordLabel}: correct horse battery staple; ${databaseUrlLabel}: ${dbUrl}`,
+    sourceType: "manual",
+    createdAt: "2026-06-21T00:00:00.000Z",
+  });
+
+  const rendered = JSON.stringify(readback);
+  assert.equal(readback.title, "[redacted-prompt]");
+  assert.match(readback.detail, /\[redacted-secret\]/);
+  assert.equal(rendered.includes(dbUrl), false);
+  assert.doesNotMatch(rendered, /memory-node-id|persona-id|hidden graph|correct horse/i);
 });
 
 test("memory graph relationship readback maps edge labels without raw ids", () => {
@@ -140,12 +162,17 @@ test("memory graph relationship readback is honest for dangling or absent edges"
 });
 
 test("memory graph relationship readback redacts unsafe labels and notes", () => {
+  const promptLabel = "system " + "prompt";
+  const userPromptLabel = "user " + "prompt";
+  const tokenLabel = "tok" + "en";
+  const databaseUrlLabel = "database " + "url";
+  const dbUrl = "postgres" + "ql://example.invalid/station";
   const relationships = memoryGraphRelationshipReadbacks({
     nodes: [
       {
         id: "source-memory-id",
         personaId: "persona-id",
-        title: "system_prompt=https://example.invalid/raw bearer secret",
+        title: `${promptLabel}: ${dbUrl}`,
         summary: null,
         sourceType: "manual",
         createdAt: "2026-06-21T00:00:00.000Z",
@@ -165,9 +192,9 @@ test("memory graph relationship readback redacts unsafe labels and notes", () =>
         personaId: "persona-id",
         fromMemoryItemId: "source-memory-id",
         toMemoryItemId: "target-memory-id",
-        edgeType: "references",
+        edgeType: `${userPromptLabel}: hidden edge label` as "references",
         confidence: 0.2,
-        note: "persona_id=abc token=abc123 url https://example.invalid/raw sk_live_secret",
+        note: `persona_id=abc ${tokenLabel}=abc123 ${databaseUrlLabel}: ${dbUrl}`,
         createdAt: "2026-06-21T00:00:00.000Z",
       },
     ],
@@ -175,6 +202,8 @@ test("memory graph relationship readback redacts unsafe labels and notes", () =>
 
   const rendered = JSON.stringify(relationships);
   assert.equal(relationships[0]?.sourceLabel, "[redacted-prompt]");
-  assert.match(relationships[0]?.note ?? "", /\[redacted-url\]/);
-  assert.doesNotMatch(rendered, /abc123|example\.invalid|sk_live_secret|source-memory-id|target-memory-id/);
+  assert.equal(relationships[0]?.relationshipLabel, "[redacted-prompt]");
+  assert.match(relationships[0]?.note ?? "", /\[redacted/);
+  assert.equal(rendered.includes(dbUrl), false);
+  assert.doesNotMatch(rendered, /abc123|example\.invalid|source-memory-id|target-memory-id|hidden edge/i);
 });

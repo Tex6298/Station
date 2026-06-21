@@ -9694,14 +9694,13 @@ git diff --check
 - Developer Spaces visual polish before ingestion auth, validation, limits, and
   safe serialization.
 
-## Latest DAEDALUS handoff - PR146 Memory graph relationship readback
+## Latest ARGUS handoff - PR146 Memory graph relationship readback
 
-PR146 Memory Graph Relationship Readback is implemented by DAEDALUS on
-2026-06-21 and ready for ARGUS technical review. Because this changes visible
-Persona Management behavior, ARGUS should wake ARIADNE after technical
-acceptance.
+ARGUS technically accepts PR146 Memory Graph Relationship Readback on
+2026-06-21 and wakes ARIADNE for Persona Management visible-route rehearsal
+before MIMIR closeout.
 
-Implementation:
+Accepted implementation:
 
 - Reused the existing authenticated owner-scoped `/memory/persona/:personaId/graph`
   route; no graph API shape change was needed.
@@ -9719,9 +9718,20 @@ Implementation:
   webhook/DB URL-shaped values, owner/persona/memory/edge/source/trace/event id
   markers, UUIDs, and common secret-shaped values.
 
-Validation:
+ARGUS review patch:
 
-- `test:studio-ui` passed with 96 tests.
+- Routed the existing Memory Graph node list through sanitized helper readback
+  instead of rendering raw node `title`/`summary`.
+- Tightened helper redaction for spaced prompt labels such as `system prompt`,
+  spaced secret labels such as `api key` and `database url`, PostgreSQL-style
+  DB URLs, and relationship type labels.
+- Added wrapping for long sanitized node, relationship, pill, and note text in
+  the compact Persona Management section.
+
+ARGUS validation:
+
+- Focused `persona-lifecycle-ui.test.ts` passed with 8 tests.
+- `test:studio-ui` passed with 97 tests.
 - `test:persona-context` passed with 7 tests.
 - `typecheck` passed.
 - Web build compiled, linted/typechecked, collected page data, generated all 36
@@ -9733,6 +9743,15 @@ Non-scope confirmation: no automatic edge generation, provider/embedding
 change, Redis/Cloudflare graph or index work, background job, public Memory
 graph, graph canvas/force layout, Memory mutation, broad Persona Management
 redesign, billing/auth/session change, or migration-ledger repair was added.
+
+ARIADNE should rehearse `/studio/personas/:personaId/manage` across Memory Graph
+counts, node list, relationship readback, dangling-edge/missing-node copy,
+no-node/no-edge/thin states, desktop, and 390px mobile. Confirm only sanitized
+node and relationship labels/notes render; no raw-looking memory ids, edge ids,
+persona ids, source ids, prompts, private archive excerpts, provider payloads,
+URLs, bearer/token/key/password/webhook/DB URL values, or secrets appear; and
+no graph canvas, automatic edge generation, public graph surface, or unrelated
+Persona Management redesign is visible.
 
 ## Previous ARIADNE handoff - PR145 Settings AI trace detail readback
 
