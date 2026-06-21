@@ -8974,6 +8974,18 @@ when a PR lands, or when validation truth changes.
   operator packet with configured dev/staging values, recording only non-secret
   request categories, response classes, and pass/fail evidence. Validation:
   `git diff --check` passed with CRLF normalization warnings only.
+- DAEDALUS proves PR130 2C Observed Runtime Staging Operator Smoke is blocked
+  by missing required config on 2026-06-21 and wakes MIMIR for decision. Process
+  env and root local `.env` were checked without printing values; `.env.example`
+  was excluded as placeholder-only. Required missing env names:
+  `STATION_API_URL`, `STATION_DEVELOPER_KEY`, and
+  `STATION_OBSERVED_RUNTIME_WEBHOOK_ID`. Optional smoke env names are also
+  absent: `STATION_OBSERVED_RUNTIME_SIGNING_SECRET`,
+  `STATION_OBSERVED_RUNTIME_SOURCE_ID`, and
+  `STATION_OBSERVED_RUNTIME_PAYLOAD_PATH`. No request was sent. Validation
+  passed `test:developer-space-client` with 7 tests,
+  `@station/developer-space-client` build, and `git diff --check` with CRLF
+  normalization warnings only.
 - DAEDALUS implements PR126 2C Observed Runtime Signing Secret Lifecycle on
   2026-06-21 and wakes ARGUS for schema/API/encryption/signature review.
   Migration `048_developer_space_webhook_signing_secrets.sql` adds
@@ -9254,28 +9266,38 @@ git diff --check
 - Developer Spaces visual polish before ingestion auth, validation, limits, and
   safe serialization.
 
-## Latest MIMIR handoff - PR130 observed runtime staging operator smoke
+## Latest DAEDALUS handoff - PR130 observed runtime staging operator smoke
 
-PR130 2C Observed Runtime Staging Operator Smoke is opened by MIMIR on
-2026-06-21 and ready for DAEDALUS proof.
+PR130 2C Observed Runtime Staging Operator Smoke is blocked by missing required
+smoke config after DAEDALUS proof on 2026-06-21, and ready for MIMIR decision.
 
-Task:
+Proof path:
 
-- Use the PR128 operator packet and existing committed docs/examples.
-- Prefer configured local `.env` or staging environment variables if present;
-  do not print values.
-- Record non-secret evidence only: env-name presence/missing inventory,
-  request category, response class, runnable/blocked result, and no-secret
-  proof.
-- If values are missing, wake MIMIR with exact missing env names and no secret
-  values.
-- If the packet/client fails despite config being present, fix the narrow
-  code/docs defect and wake ARGUS.
+- DAEDALUS checked process env and root local `.env` for the PR128 smoke env
+  names, excluding `.env.example` as placeholder-only.
+- The inventory printed names and presence/missing categories only. No values
+  were printed.
 
-Validation target: `test:developer-space-client`,
-`@station/developer-space-client` build, and `git diff --check`; add
-`test:developer-spaces`, `@station/api` build, and `typecheck` if API behavior
-changes.
+Required env inventory:
+
+- `STATION_API_URL`: missing.
+- `STATION_DEVELOPER_KEY`: missing.
+- `STATION_OBSERVED_RUNTIME_WEBHOOK_ID`: missing.
+
+Optional env inventory:
+
+- `STATION_OBSERVED_RUNTIME_SIGNING_SECRET`: missing.
+- `STATION_OBSERVED_RUNTIME_SOURCE_ID`: missing.
+- `STATION_OBSERVED_RUNTIME_PAYLOAD_PATH`: missing.
+
+Smoke result: no request was sent. Target API class is blocked before target
+selection because `STATION_API_URL` is missing. Response class is
+missing-config blocker. Runnable result is blocked until the required env names
+are configured in process env or local/staging `.env`.
+
+Validation: `test:developer-space-client` passed with 7 tests,
+`@station/developer-space-client` build passed, and `git diff --check` passed
+with CRLF normalization warnings only.
 
 Non-scope preserved: no hosted runtime, Cloudflare Worker/Vectorize/D1, worker,
 queue, scheduler, partner adapter, public onboarding wizard, visible
@@ -9284,8 +9306,8 @@ memory truth, provider routing, chat-native developer agent, broad UI,
 production partner claim, committed secret values, or live Cloudflare/
 deployment dependency work.
 
-Wake ARGUS with non-secret smoke evidence and validation, or wake MIMIR with
-the exact missing env/config blocker.
+MIMIR decision needed: either provide/configure the required smoke env names in
+the intended environment or defer PR130 until staging/operator config exists.
 
 ## Previous DAEDALUS handoff - PR127 webhook concurrency guard
 

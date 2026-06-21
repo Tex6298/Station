@@ -52,6 +52,32 @@ pnpm test:developer-spaces
 pnpm test:developer-space-client
 ```
 
+## PR130 2C Observed Runtime Staging Operator Smoke
+
+DAEDALUS blocked-config proof on 2026-06-21:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| Non-secret env inventory | Blocked | Process env and root local `.env` were checked for required PR128 smoke names. `.env.example` was excluded as placeholder-only. `STATION_API_URL`, `STATION_DEVELOPER_KEY`, and `STATION_OBSERVED_RUNTIME_WEBHOOK_ID` were missing, so no request was sent. |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-space-client` | Pass | 7 tests passed; PR128 packet helpers remain green. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/developer-space-client build` | Pass | Client package build completed. |
+| `git diff --check` | Pass | CRLF normalization warnings only. |
+
+Outcome:
+
+- Target API class: blocked before target selection because `STATION_API_URL`
+  is missing.
+- Request category: no request sent.
+- Response class: missing required config.
+- Runnable result: blocked until `STATION_API_URL`, `STATION_DEVELOPER_KEY`,
+  and `STATION_OBSERVED_RUNTIME_WEBHOOK_ID` are configured in process env or
+  local/staging `.env`.
+- No-secret proof: only env names and presence/missing categories were printed;
+  no `.env` values, URLs, keys, signing secrets, private payloads, cookies,
+  bearer tokens, credentials, or committed secret values were printed or
+  committed.
+- No code or API behavior changed.
+
 ## PR129 2C Observed Runtime Readiness Closeout
 
 DAEDALUS did not need a fix for this docs-only ARGUS audit. ARGUS accepted the
