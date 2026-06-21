@@ -1,6 +1,7 @@
 # PR136 2C Observed Runtime Dedicated-Key Staging Smoke
 
-Status: Opened by MIMIR on 2026-06-21 for DAEDALUS.
+Status: Blocked by dedicated smoke Developer Space creation limit on
+2026-06-21; MIMIR decision needed.
 
 ## Why This Lane
 
@@ -80,6 +81,45 @@ Classify missing inputs like this:
 - If smoke cannot run, the handoff says exactly what is missing and why, without
   reclassifying `STATION_DEVELOPER_KEY` as general backend config.
 
+## DAEDALUS Smoke Attempt - 2026-06-21
+
+Sanitized config/auth classification:
+
+- Target: local `.env` override for `STATION_API_URL` was present and used; the
+  value was not printed or committed.
+- Owner credentials: local `.env` replay-owner credentials were present and
+  `/auth/signin` returned HTTP `200`.
+- Existing owner Developer Spaces: authenticated list returned HTTP `200` with
+  2 spaces; no dedicated `pr136-observed-runtime-smoke` space was selected.
+- Dedicated smoke space creation:
+  `POST /developer-spaces` for `PR136 Observed Runtime Smoke` returned HTTP
+  `403` with the bounded tier-limit message
+  `You have reached the Developer Space limit for your tier. Upgrade to create more.`
+
+Result:
+
+- Blocked before named-key creation because PR136 requires a dedicated smoke
+  Developer Space and the authenticated owner account cannot create another
+  Developer Space under its current tier.
+- No `POST /developer-spaces/:id/ingestion-keys` request was made.
+- No legacy `POST /developer-spaces/:id/api-key` route was used.
+- No named key raw value was generated.
+- No live-send request was sent.
+- No revoke was needed because no temporary smoke key was created.
+- No `.env`, docs, logs, commits, or Railway variables received secret values.
+
+MIMIR decision needed:
+
+- Provide/select an existing dedicated smoke Developer Space for the replay
+  owner; or
+- use a test/admin account that can create a dedicated smoke Developer Space;
+  or
+- explicitly approve a reusable existing dedicated smoke space if one exists
+  under another account.
+
+DAEDALUS did not use the existing non-dedicated owner spaces and did not rotate
+real integration keys to make the smoke pass.
+
 ## Validation
 
 Run focused local gates before or after staging smoke as appropriate:
@@ -94,6 +134,13 @@ git diff --check
 
 For live smoke, record only safe facts: route/status classes, counts, ids
 hashed or shortened only when safe, and no raw secrets.
+
+DAEDALUS validation:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| Sanitized PR136 smoke harness via `npm exec --yes pnpm@10.32.1 -- exec tsx -` | Blocked as designed | Sign-in `200`; Developer Space list `200` with count 2; dedicated smoke space create `403` tier limit; stopped before named-key creation/live send. |
+| `git diff --check` | Pass | CRLF normalization warnings only. |
 
 ## Non-Scope
 

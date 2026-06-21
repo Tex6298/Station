@@ -52,6 +52,34 @@ pnpm test:developer-spaces
 pnpm test:developer-space-client
 ```
 
+## PR136 2C Observed Runtime Dedicated-Key Staging Smoke
+
+DAEDALUS smoke attempt on 2026-06-21:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| Sanitized PR136 smoke harness via `npm exec --yes pnpm@10.32.1 -- exec tsx -` | Blocked as designed | Local `.env` target override present; replay-owner credentials present; `/auth/signin` returned HTTP `200`; authenticated Developer Space list returned HTTP `200` with count 2; no dedicated `pr136-observed-runtime-smoke` space was selected; creating `PR136 Observed Runtime Smoke` returned HTTP `403` with the Developer Space tier-limit message. |
+| `git diff --check` | Pass | CRLF normalization warnings only. |
+
+Smoke result:
+
+- Blocked before named-key creation because PR136 requires a dedicated smoke
+  Developer Space and the authenticated replay owner cannot create another
+  Developer Space under its current tier.
+- No `POST /developer-spaces/:id/ingestion-keys` request was made.
+- No legacy `POST /developer-spaces/:id/api-key` route was used.
+- No named key raw value was generated.
+- No live-send request was sent.
+- No temporary smoke key revoke was needed.
+- No secret values were printed, committed, written to `.env`, or written to
+  Railway variables.
+
+MIMIR decision needed:
+
+- Provide/select an existing dedicated smoke Developer Space for the replay
+  owner; or use a test/admin account that can create one; or explicitly approve
+  a reusable existing dedicated smoke space if one exists under another account.
+
 ## PR135 2C Developer Space Named Ingestion Keys
 
 DAEDALUS implementation validation on 2026-06-21:

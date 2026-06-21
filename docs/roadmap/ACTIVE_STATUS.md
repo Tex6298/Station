@@ -9463,48 +9463,48 @@ git diff --check
 
 ## Latest ARGUS verdict - PR135 Developer Space named ingestion keys
 
-## Latest MIMIR handoff - PR136 dedicated-key staging smoke
+## Latest DAEDALUS handoff - PR136 dedicated-key staging smoke blocked
 
-PR135 2C Developer Space Named Ingestion Keys is accepted and closed by MIMIR
-on 2026-06-21. PR136 2C Observed Runtime Dedicated-Key Staging Smoke is opened
-for DAEDALUS.
+PR136 2C Observed Runtime Dedicated-Key Staging Smoke was attempted by
+DAEDALUS on 2026-06-21 and is blocked before named-key creation/live send.
 
-Why now:
+Sanitized auth/config classification:
 
-- PR134 proved the guarded live-send path.
-- PR135 added named ingestion keys so smoke/operator keys no longer need to
-  rotate real integration keys.
-- PR130-style smoke can now proceed through a dedicated named key if auth/config
-  is available.
+- Target: local `.env` override for `STATION_API_URL` was present and used; the
+  value was not printed or committed.
+- Owner credentials: local replay-owner credentials were present and
+  `/auth/signin` returned HTTP `200`.
+- Existing spaces: authenticated `GET /developer-spaces` returned HTTP `200`
+  with count 2; no dedicated `pr136-observed-runtime-smoke` space was selected.
+- Dedicated smoke space creation:
+  `POST /developer-spaces` for `PR136 Observed Runtime Smoke` returned HTTP
+  `403` with the bounded Developer Space tier-limit message.
 
-Task:
+Result:
 
-- Target `https://stationweb-production.up.railway.app` unless local env
-  explicitly overrides the staging URL.
-- Use a dedicated smoke Developer Space if one exists; otherwise create one
-  only if authenticated owner API/test account access is available.
-- Create a named ingestion key with
-  `POST /developer-spaces/:id/ingestion-keys`, labelled for PR136 smoke.
-- Do not use legacy `POST /developer-spaces/:id/api-key`.
-- Use the one-time raw key only in-process as external sender/operator config;
-  do not write it to `.env`, docs, logs, commits, or Railway variables.
-- Run the Agents Observe guarded live-send path with `STATION_API_URL`, the
-  one-time named key as `STATION_DEVELOPER_KEY`, a unique
-  `STATION_OBSERVED_RUNTIME_WEBHOOK_ID`, and signing secret only if the target
-  Developer Space requires a dedicated observed-runtime signing secret.
-- Verify accepted/bounded response, replay/idempotency behavior, and safe
-  public/owner readback without printing secrets.
-- Revoke the temporary named key at the end unless MIMIR explicitly decides it
-  should remain reusable; prove targeted revoke if revoked.
+- Blocked because PR136 requires a dedicated smoke Developer Space and the
+  authenticated replay owner cannot create another Developer Space under its
+  current tier.
+- No named ingestion key was created.
+- No legacy `POST /developer-spaces/:id/api-key` route was used.
+- No live-send request was sent.
+- No temporary key revoke was needed.
+- No secret values were printed, committed, written to `.env`, or written to
+  Railway variables.
 
-If config/auth is missing, wake MIMIR with a precise missing-config report:
-target URL status, auth/session/test-account need, named-key generation need,
-webhook-id generation, and signing-secret need if applicable. Do not reclassify
-`STATION_DEVELOPER_KEY` as general backend config.
+MIMIR decision needed:
 
-Validation: `test:developer-spaces`, `test:developer-space-client`,
-`--filter @station/api build`, `typecheck`, and `git diff --check`; plus safe
-live-smoke facts if staging smoke runs.
+- Provide/select an existing dedicated smoke Developer Space for the replay
+  owner; or
+- use a test/admin account that can create a dedicated smoke Developer Space;
+  or
+- explicitly approve a reusable existing dedicated smoke space if one exists
+  under another account.
+
+Validation: sanitized PR136 smoke harness ran through `npm exec --yes
+pnpm@10.32.1 -- exec tsx -` and stopped before mutation beyond the failed
+space-create request. `git diff --check` is recorded in
+`docs/testing/VALIDATION_BASELINE.md`.
 
 Non-scope: no legacy key rotation for smoke, no committed secrets, no writing
 smoke keys to `.env` or Railway variables, no Cloudflare Worker/Vectorize/D1/
@@ -9512,12 +9512,8 @@ Queue/Durable Object work, no hosted runtime/scheduler/agent control plane, no
 broad UI, no billing/Stripe, no Redis memory truth, no provider routing, and no
 retrieval model changes.
 
-Wake ARGUS with staging target, auth/config classification, Developer Space
-selection/creation evidence, named-key route proof, no legacy rotation proof,
-live-send shape, accepted/bounded response proof, replay/idempotency evidence,
-readback safety evidence, targeted revoke proof or reusable-key decision,
-validation, no-secret proof, and explicit non-claims. Wake MIMIR if auth/config
-is missing or smoke would require rotating real integration keys.
+Wake MIMIR with this blocker report. Do not wake ARGUS because no live smoke or
+named-key mutation occurred.
 
 ## Previous DAEDALUS handoff - PR127 webhook concurrency guard
 
