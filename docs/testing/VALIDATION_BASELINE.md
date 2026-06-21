@@ -52,6 +52,44 @@ pnpm test:developer-spaces
 pnpm test:developer-space-client
 ```
 
+## PR135 2C Developer Space Named Ingestion Keys
+
+DAEDALUS implementation validation on 2026-06-21:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 27 tests passed, including named-key no-rotation, metadata-only list, targeted revoke, legacy rotate compatibility, active named observed-runtime ingest, revoked key failure, cross-space targeted revoke failure, owner/admin auth, and no raw key/hash readback. |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-space-client` | Pass | 15 tests passed, including observed-runtime client signing and guarded Agents Observe live-send tests. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/api build` | Pass | API build completed after dependency package builds. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API typecheck executed; web typecheck passed from cache. |
+| `git diff --check` | Pass | CRLF normalization warnings only. |
+
+Implementation result:
+
+- Added owner/admin named ingestion-key routes:
+  `GET /developer-spaces/:id/ingestion-keys`,
+  `POST /developer-spaces/:id/ingestion-keys`, and
+  `POST /developer-spaces/:id/ingestion-keys/:keyId/revoke`.
+- No Supabase migration was needed; existing `developer_space_ingestion_keys`
+  already has label/status/last-four/timestamp/revocation metadata.
+- Named key create returns raw key material only once and does not revoke
+  unrelated active keys.
+- Key listing and revoke responses serialize metadata only and never expose raw
+  keys or hashes.
+- Targeted revoke is scoped to the Developer Space and does not revoke other
+  active keys.
+- Legacy `POST /developer-spaces/:id/api-key` rotate semantics remain covered:
+  it still revokes prior active keys before creating a default key.
+- Active named keys authorize signed observed-runtime ingest through the
+  existing ingestion auth path; revoked named keys fail.
+- PR130 smoke guidance now uses a dedicated smoke Developer Space/named key and
+  treats `STATION_DEVELOPER_KEY` as external sender/operator env only, not
+  general Station backend config.
+- No live smoke send, real staging key creation, config request, committed
+  secret, Cloudflare Worker/Vectorize/D1/Queue/Durable Object work, hosted
+  runtime, scheduler, agent control plane, broad UI, billing/Stripe, Redis
+  memory truth, provider routing, or retrieval model change was added.
+
 ## PR134 2C Agents Observe Live Send Guard
 
 DAEDALUS implementation validation on 2026-06-21:

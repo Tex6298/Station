@@ -161,3 +161,19 @@ PR130 remains the correct next operator proof once an intentionally scoped smoke
 key/webhook id exists. Until then, continue with config-free adapter discovery
 so the team can determine what external runtime/Cloudflare dependency actually
 needs to connect to this foundation.
+
+## PR135 Smoke-Key Update - 2026-06-21
+
+PR135 adds a safer setup path for this lane:
+
+- create or select a dedicated smoke Developer Space;
+- create a named ingestion key labelled for smoke/operator use through
+  `POST /developer-spaces/:id/ingestion-keys`;
+- copy the one-time raw key from that create response into the external sender
+  environment as `STATION_DEVELOPER_KEY`;
+- keep `STATION_DEVELOPER_KEY` out of general Station app/backend env;
+- use `STATION_API_URL` as the target app URL;
+- use `STATION_OBSERVED_RUNTIME_WEBHOOK_ID` as the delivery/idempotency value;
+- use `STATION_OBSERVED_RUNTIME_SIGNING_SECRET` only when the target Developer
+  Space has an active dedicated observed-runtime signing secret;
+- do not rotate real integration keys for smoke.

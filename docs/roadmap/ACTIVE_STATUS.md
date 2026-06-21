@@ -9158,6 +9158,15 @@ when a PR lands, or when validation truth changes.
   active ingestion key, so PR135 should add a named/dedicated ingestion-key
   lifecycle that can create a smoke/operator key without disrupting real active
   integration keys.
+- DAEDALUS implements PR135 2C Developer Space Named Ingestion Keys on
+  2026-06-21 and wakes ARGUS for review. New owner/admin routes list
+  metadata-only ingestion keys, create a named active key without revoking
+  unrelated keys, and revoke a specific key by id. No migration was needed
+  because `developer_space_ingestion_keys` already has the required metadata
+  columns. Tests prove no-rotation named create, metadata-only list, targeted
+  revoke, legacy rotate compatibility, active named observed-runtime ingest,
+  revoked key failure, cross-space targeted revoke failure, owner/admin auth,
+  and no raw key/hash readback.
 - DAEDALUS implements PR126 2C Observed Runtime Signing Secret Lifecycle on
   2026-06-21 and wakes ARGUS for schema/API/encryption/signature review.
   Migration `048_developer_space_webhook_signing_secrets.sql` adds
@@ -9438,45 +9447,59 @@ git diff --check
 - Developer Spaces visual polish before ingestion auth, validation, limits, and
   safe serialization.
 
-## Latest MIMIR handoff - PR135 Developer Space named ingestion keys
+## Latest DAEDALUS handoff - PR135 Developer Space named ingestion keys
 
-PR134 2C Agents Observe Live Send Guard is accepted and closed by MIMIR on
-2026-06-21. PR135 2C Developer Space Named Ingestion Keys is opened for
-DAEDALUS.
+PR135 2C Developer Space Named Ingestion Keys is implemented by DAEDALUS on
+2026-06-21 and ready for ARGUS review.
 
-Why now:
+API route shape:
 
-- PR134 makes the adapter live-send path explicit and guarded.
-- A1 clarification says `STATION_API_URL` is not the blocker, but
-  `STATION_DEVELOPER_KEY` is external sender/operator secret material, not
-  general Station app/backend env.
-- Current `POST /developer-spaces/:id/api-key` revokes every active ingestion
-  key before creating a new default key, which is unsafe for a dedicated
-  smoke/operator key.
+- `GET /developer-spaces/:id/ingestion-keys`: owner/admin metadata-only list.
+- `POST /developer-spaces/:id/ingestion-keys`: owner/admin named key create,
+  returning raw `apiKey` only once in the create response and not revoking
+  unrelated active keys.
+- `POST /developer-spaces/:id/ingestion-keys/:keyId/revoke`: owner/admin
+  targeted revoke scoped to the Developer Space.
 
-Task:
+Schema/migration assessment:
 
-- Preserve existing legacy rotate/revoke endpoints unless a focused
-  compatibility adjustment is unavoidable.
-- Add owner/admin API for named ingestion keys:
-  - create a named key without revoking unrelated active keys;
-  - list non-secret key metadata;
-  - revoke a specific key by id;
-  - return raw key material only once on create.
-- Reuse `developer_space_ingestion_keys` if possible: `label`, `status`,
-  `key_last_four`, `created_at`, `last_used_at`, and `revoked_at`.
-- Ensure ingestion auth accepts any active named key for the target Developer
-  Space and rejects revoked, other-space, and other-owner keys.
-- Test no-rotation for named keys, metadata-only listing, targeted revoke,
-  legacy rotate compatibility, active named smoke-key ingest, revoked/other-
-  space failures, owner/admin auth, and no raw keys/hashes in export/readback.
-- Document future PR130 setup: create/select a dedicated smoke Developer Space,
-  create a named smoke/operator key, use the one-time raw key as
-  `STATION_DEVELOPER_KEY` in the external sender environment only, and do not
-  rotate real integration keys for smoke.
+- No migration was needed. Existing `developer_space_ingestion_keys` already
+  has `label`, `status`, `key_last_four`, `created_at`, `last_used_at`, and
+  `revoked_at`.
+- Existing `developer_spaces.api_key_hash`, `api_key_last_four`, and
+  `api_key_created_at` remain legacy/default summary fields.
 
-Validation: `test:developer-spaces`, `test:developer-space-client`,
-`--filter @station/api build`, `typecheck`, and `git diff --check`.
+Behavior proof:
+
+- Named key creation does not revoke existing active keys.
+- Metadata list exposes id, Developer Space id, owner id, label, status,
+  last-four, and timestamps only; no raw key or hash.
+- Targeted revoke revokes only the selected key and returns 404 for a key id
+  from another Developer Space.
+- Legacy `POST /developer-spaces/:id/api-key` still rotates/revokes prior
+  active keys as documented.
+- Active named smoke keys authorize signed observed-runtime ingest; revoked
+  named keys fail auth.
+- Owner/admin authorization is covered; non-owner create is blocked.
+- Owner detail/readback still does not expose raw keys or hashes.
+
+PR130 smoke setup guidance:
+
+- Create or select a dedicated smoke Developer Space.
+- Create a named ingestion key labelled for smoke/operator use.
+- Use the one-time raw key from create response as `STATION_DEVELOPER_KEY` in
+  the external sender environment only.
+- Do not store `STATION_DEVELOPER_KEY` as general Station app/backend env.
+- Do not rotate real integration keys for smoke.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces`: pass, 27 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:developer-space-client`: pass, 15
+  tests.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/api build`: pass.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck`: pass.
+- `git diff --check`: pass with CRLF normalization warnings only.
 
 Non-scope: no live smoke send, no creation of real staging keys by this agent,
 no committed secrets, no Railway/Supabase/Cloudflare config request, no
@@ -9484,12 +9507,10 @@ Cloudflare Worker/Vectorize/D1/Queue/Durable Object work, no hosted runtime/
 scheduler/agent control plane, no broad UI, no billing/Stripe, no Redis memory
 truth, no provider routing, and no retrieval model changes.
 
-Wake ARGUS with API route shape, schema/migration assessment, owner/admin auth
-proof, no-rotation proof, legacy rotate compatibility proof, targeted revoke
-proof, ingestion auth proof, serialization/no-secret proof, exact PR130 smoke
-config guidance, validation, and explicit non-claims. Wake MIMIR if the
-existing table/route shape cannot support named keys without a broader
-secret-management design.
+ARGUS should review the API route shape, no-migration assessment, owner/admin
+auth proof, no-rotation proof, legacy rotate compatibility, targeted revoke,
+ingestion auth, serialization/no-secret proof, exact PR130 smoke guidance, and
+validation. If accepted, wake MIMIR; if fixes are needed, wake DAEDALUS.
 
 ## Previous DAEDALUS handoff - PR127 webhook concurrency guard
 

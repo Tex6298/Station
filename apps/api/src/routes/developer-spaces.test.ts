@@ -1325,6 +1325,167 @@ test("Developer Spaces smoke covers creation, keying, ingestion, and public/owne
   }
 });
 
+test("Developer Space named ingestion keys support smoke keys without rotating active keys", async () => {
+  const db = new InMemorySupabase();
+  setSupabaseAdminForTests(db.client as any);
+  setOperationalCacheProviderForTests(new DisabledOperationalCacheProvider("test_disabled"));
+  const app = createDeveloperSpacesApp();
+
+  try {
+    const created = await requestJson(app, "POST", "/developer-spaces", {
+      token: "owner-token",
+      body: {
+        projectName: "Named Key Smoke",
+        visibility: "public",
+      },
+    });
+    assert.equal(created.status, 201);
+    const spaceId = created.body.space.id;
+
+    const legacy = await requestJson(app, "POST", `/developer-spaces/${spaceId}/api-key`, {
+      token: "owner-token",
+    });
+    assert.equal(legacy.status, 201);
+    const legacyKeyId = db.tables.developer_space_ingestion_keys[0].id;
+
+    const nonOwnerCreate = await requestJson(app, "POST", `/developer-spaces/${spaceId}/ingestion-keys`, {
+      token: "other-token",
+      body: { label: "Other user key" },
+    });
+    assert.equal(nonOwnerCreate.status, 403);
+
+    const named = await requestJson(app, "POST", `/developer-spaces/${spaceId}/ingestion-keys`, {
+      token: "owner-token",
+      body: { label: "PR130 smoke operator" },
+    });
+    assert.equal(named.status, 201);
+    assert.match(named.body.apiKey, /^station_dev_/);
+    assert.equal(named.body.key.label, "PR130 smoke operator");
+    assert.equal(named.body.key.status, "active");
+    assert.equal(named.body.key.keyLastFour, named.body.apiKey.slice(-4));
+    assert.equal(JSON.stringify(named.body.key).includes("key_hash"), false);
+    assert.equal(JSON.stringify(named.body.key).includes(hashDeveloperSpaceApiKey(named.body.apiKey)), false);
+    assert.equal(db.tables.developer_space_ingestion_keys.find((row) => row.id === legacyKeyId)!.status, "active");
+
+    const adminNamed = await requestJson(app, "POST", `/developer-spaces/${spaceId}/ingestion-keys`, {
+      token: "admin-token",
+      body: { label: "Admin support key" },
+    });
+    assert.equal(adminNamed.status, 201);
+    assert.equal(adminNamed.body.key.label, "Admin support key");
+
+    const listed = await requestJson(app, "GET", `/developer-spaces/${spaceId}/ingestion-keys`, {
+      token: "owner-token",
+    });
+    assert.equal(listed.status, 200);
+    assert.equal(listed.body.keys.length, 3);
+    assert.deepEqual(
+      listed.body.keys.map((key: Row) => key.label).sort(),
+      ["Admin support key", "Default ingestion key", "PR130 smoke operator"],
+    );
+    const listedText = JSON.stringify(listed.body);
+    assert.equal(listedText.includes(legacy.body.apiKey), false);
+    assert.equal(listedText.includes(named.body.apiKey), false);
+    assert.equal(listedText.includes(adminNamed.body.apiKey), false);
+    assert.equal(listedText.includes(hashDeveloperSpaceApiKey(named.body.apiKey)), false);
+    assert.equal(listedText.includes("key_hash"), false);
+
+    const bridge = bridgeObservedRuntimeFixtureToDeveloperSpaceImport(
+      observedRuntimeFixture("observed-runtime-canonical.json"),
+      { developerSpaceId: spaceId },
+    );
+    const envelope = {
+      schema: "station.observed_runtime.webhook.v1",
+      deliveryId: "named-key-smoke-001",
+      source: {
+        id: "synthetic-observed-runtime",
+        runtimeHostedBy: "external",
+        stationRole: "observer",
+      },
+      observedAt: "2026-06-20T10:15:00.000Z",
+      payload: bridge.importPayload,
+    };
+
+    const activeNamedAccepted = await requestObservedRuntimeWebhook(app, envelope, {
+      developerKey: named.body.apiKey,
+      webhookId: "named-key-smoke-001",
+    });
+    assert.equal(activeNamedAccepted.status, 202);
+    assert.equal(activeNamedAccepted.body.accepted, true);
+    assert.equal(typeof db.tables.developer_space_ingestion_keys.find((row) => row.id === named.body.key.id)!.last_used_at, "string");
+
+    const otherSpace = await requestJson(app, "POST", "/developer-spaces", {
+      token: "admin-token",
+      body: {
+        projectName: "Other Named Key Space",
+        visibility: "private",
+      },
+    });
+    assert.equal(otherSpace.status, 201);
+    const otherSpaceKey = await requestJson(app, "POST", `/developer-spaces/${otherSpace.body.space.id}/ingestion-keys`, {
+      token: "admin-token",
+      body: { label: "Other space key" },
+    });
+    assert.equal(otherSpaceKey.status, 201);
+
+    const crossSpaceRevoke = await requestJson(app, "POST", `/developer-spaces/${spaceId}/ingestion-keys/${otherSpaceKey.body.key.id}/revoke`, {
+      token: "owner-token",
+    });
+    assert.equal(crossSpaceRevoke.status, 404);
+    assert.equal(db.tables.developer_space_ingestion_keys.find((row) => row.id === otherSpaceKey.body.key.id)!.status, "active");
+
+    const targetedRevoke = await requestJson(app, "POST", `/developer-spaces/${spaceId}/ingestion-keys/${named.body.key.id}/revoke`, {
+      token: "owner-token",
+    });
+    assert.equal(targetedRevoke.status, 200);
+    assert.equal(targetedRevoke.body.key.status, "revoked");
+    assert.equal(db.tables.developer_space_ingestion_keys.find((row) => row.id === named.body.key.id)!.status, "revoked");
+    assert.equal(db.tables.developer_space_ingestion_keys.find((row) => row.id === legacyKeyId)!.status, "active");
+    assert.equal(db.tables.developer_space_ingestion_keys.find((row) => row.id === adminNamed.body.key.id)!.status, "active");
+
+    const revokedNamedBlocked = await requestJson(app, "POST", "/developer-spaces/ingest/events", {
+      developerKey: named.body.apiKey,
+      body: { eventType: "revoked.named.blocked" },
+    });
+    assert.equal(revokedNamedBlocked.status, 401);
+    assert.equal(revokedNamedBlocked.body.code, "developer_space_key_invalid");
+
+    const adminNamedStillActive = await requestJson(app, "POST", "/developer-spaces/ingest/events", {
+      developerKey: adminNamed.body.apiKey,
+      body: { eventType: "admin.named.active" },
+    });
+    assert.equal(adminNamedStillActive.status, 202);
+
+    const legacyRotate = await requestJson(app, "POST", `/developer-spaces/${spaceId}/api-key`, {
+      token: "owner-token",
+    });
+    assert.equal(legacyRotate.status, 201);
+    assert.equal(db.tables.developer_space_ingestion_keys.find((row) => row.id === legacyKeyId)!.status, "revoked");
+    assert.equal(db.tables.developer_space_ingestion_keys.find((row) => row.id === adminNamed.body.key.id)!.status, "revoked");
+    assert.equal(db.tables.developer_space_ingestion_keys.at(-1)!.status, "active");
+
+    const postRotateAdminBlocked = await requestJson(app, "POST", "/developer-spaces/ingest/events", {
+      developerKey: adminNamed.body.apiKey,
+      body: { eventType: "legacy.rotate.revoked.named" },
+    });
+    assert.equal(postRotateAdminBlocked.status, 401);
+    assert.equal(postRotateAdminBlocked.body.code, "developer_space_key_invalid");
+
+    const ownerDetail = await requestJson(app, "GET", "/developer-spaces/named-key-smoke", {
+      token: "owner-token",
+    });
+    assert.equal(ownerDetail.status, 200);
+    const ownerDetailText = JSON.stringify(ownerDetail.body);
+    assert.equal(ownerDetailText.includes(named.body.apiKey), false);
+    assert.equal(ownerDetailText.includes(adminNamed.body.apiKey), false);
+    assert.equal(ownerDetailText.includes(hashDeveloperSpaceApiKey(adminNamed.body.apiKey)), false);
+    assert.equal(ownerDetailText.includes("key_hash"), false);
+  } finally {
+    setSupabaseAdminForTests(null);
+    resetOperationalCacheProviderForTests();
+  }
+});
+
 test("Developer Space import persists observed runtime classifications with existing key auth", async () => {
   const db = new InMemorySupabase();
   setSupabaseAdminForTests(db.client as any);

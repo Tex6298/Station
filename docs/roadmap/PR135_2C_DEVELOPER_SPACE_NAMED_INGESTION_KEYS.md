@@ -1,6 +1,6 @@
 # PR135 2C Developer Space Named Ingestion Keys
 
-Status: Opened by MIMIR on 2026-06-21 for DAEDALUS.
+Status: Implemented by DAEDALUS on 2026-06-21 for ARGUS review.
 
 ## Why This Lane
 
@@ -77,6 +77,47 @@ dedicated key without disrupting real keys.
   - optional signing secret remains separate from the ingestion key when
     dedicated observed-runtime signing secrets are active.
 
+## Implementation Notes
+
+API route shape:
+
+- `GET /developer-spaces/:id/ingestion-keys`: owner/admin only, lists
+  non-secret key metadata.
+- `POST /developer-spaces/:id/ingestion-keys`: owner/admin only, creates one
+  named active key without revoking unrelated active keys and returns raw
+  `apiKey` only in that create response.
+- `POST /developer-spaces/:id/ingestion-keys/:keyId/revoke`: owner/admin only,
+  revokes a specific key scoped to that Developer Space.
+
+Schema assessment:
+
+- No migration was needed. The existing `developer_space_ingestion_keys` table
+  already has `label`, `status`, `key_last_four`, `created_at`,
+  `last_used_at`, and `revoked_at`.
+- `developer_spaces.api_key_hash`, `api_key_last_four`, and
+  `api_key_created_at` remain legacy/default summary fields.
+
+Behavior:
+
+- Legacy `POST /developer-spaces/:id/api-key` and
+  `POST /developer-spaces/:id/api-key/revoke` keep their existing rotate/revoke
+  semantics.
+- Ingestion auth already checks `developer_space_ingestion_keys` by hash and
+  active status before the legacy `developer_spaces.api_key_hash` fallback, so
+  active named keys authorize ingestion and revoked keys fail.
+- Metadata serialization exposes id, Developer Space id, owner id, label,
+  status, key last four, and timestamps only. It never exposes raw keys or
+  hashes.
+
+PR130 smoke setup guidance:
+
+- Create or select a dedicated smoke Developer Space.
+- Create a named ingestion key labelled for smoke/operator use.
+- Copy the one-time raw key from the create response into the external sender
+  environment as `STATION_DEVELOPER_KEY`.
+- Do not store `STATION_DEVELOPER_KEY` as general Station app/backend config.
+- Do not rotate real integration keys for smoke.
+
 ## Validation
 
 Run focused gates:
@@ -91,6 +132,16 @@ git diff --check
 
 If UI types or shared types are touched, add the relevant web/shared package
 typecheck and report it.
+
+DAEDALUS implementation validation:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 27 tests passed, including named-key no-rotation, metadata-only list, targeted revoke, legacy rotate compatibility, active named observed-runtime ingest, revoked key failure, cross-space targeted revoke failure, owner/admin auth, and no raw key/hash readback. |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-space-client` | Pass | 15 tests passed, including observed-runtime client signing and guarded Agents Observe live-send tests. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/api build` | Pass | API build completed after dependency package builds. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API typecheck executed; web typecheck passed from cache. |
+| `git diff --check` | Pass | CRLF normalization warnings only. |
 
 ## Non-Scope
 

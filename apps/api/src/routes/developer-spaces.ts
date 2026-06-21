@@ -275,6 +275,10 @@ const attachProjectSchema = z.object({
   projectId: z.string().uuid().nullable(),
 });
 
+const createIngestionKeySchema = z.object({
+  label: z.string().trim().min(1).max(80).default("Named ingestion key"),
+});
+
 const templateDocumentSchema = z.object({
   role: documentRoleSchema.default("note"),
   title: z.string().min(1).max(200).optional(),
@@ -571,6 +575,21 @@ function buildDeveloperSpaceProviderPosture(decision: ReturnType<typeof evaluate
 
 function isOwnerOrAdmin(space: any, user?: AuthenticatedUser | null) {
   return space.owner_user_id === user?.id || user?.isAdmin;
+}
+
+function serializeDeveloperSpaceIngestionKey(row: any) {
+  return {
+    id: row.id,
+    developerSpaceId: row.developer_space_id,
+    ownerUserId: row.owner_user_id,
+    label: row.label ?? null,
+    status: row.status,
+    keyLastFour: row.key_last_four,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+    lastUsedAt: row.last_used_at ?? null,
+    revokedAt: row.revoked_at ?? null,
+  };
 }
 
 function isPublicSafeLinkedDocument(document: any) {
@@ -1787,6 +1806,63 @@ developerSpacesRouter.post("/:id/api-key", requireAuth, async (req, res) => {
 
   if (error || !data) return res.status(500).json({ error: error?.message ?? "Could not rotate API key." });
   return res.status(201).json({ apiKey, space: serializeDeveloperSpace(data) });
+});
+
+developerSpacesRouter.get("/:id/ingestion-keys", requireAuth, async (req, res) => {
+  const ownerLoad = await loadDeveloperSpaceForOwner(req.params.id, req.user!);
+  if (ownerLoad.status !== 200) return res.status(ownerLoad.status).json({ error: ownerLoad.error });
+
+  const { data, error } = await getSupabaseAdmin()
+    .from("developer_space_ingestion_keys")
+    .select("*")
+    .eq("developer_space_id", ownerLoad.space.id)
+    .order("created_at", { ascending: false });
+
+  if (error) return res.status(500).json({ error: error.message });
+  return res.json({ keys: (data ?? []).map(serializeDeveloperSpaceIngestionKey) });
+});
+
+developerSpacesRouter.post("/:id/ingestion-keys", requireAuth, async (req, res) => {
+  const parsed = createIngestionKeySchema.safeParse(req.body ?? {});
+  if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
+
+  const ownerLoad = await loadDeveloperSpaceForOwner(req.params.id, req.user!);
+  if (ownerLoad.status !== 200) return res.status(ownerLoad.status).json({ error: ownerLoad.error });
+
+  const apiKey = generateDeveloperSpaceApiKey();
+  const { data, error } = await getSupabaseAdmin()
+    .from("developer_space_ingestion_keys")
+    .insert({
+      developer_space_id: ownerLoad.space.id,
+      owner_user_id: ownerLoad.space.owner_user_id,
+      key_hash: hashDeveloperSpaceApiKey(apiKey),
+      key_last_four: apiKey.slice(-4),
+      label: parsed.data.label,
+      status: "active",
+    })
+    .select("*")
+    .single();
+
+  if (error || !data) return res.status(500).json({ error: error?.message ?? "Could not create ingestion key." });
+  return res.status(201).json({ apiKey, key: serializeDeveloperSpaceIngestionKey(data) });
+});
+
+developerSpacesRouter.post("/:id/ingestion-keys/:keyId/revoke", requireAuth, async (req, res) => {
+  const ownerLoad = await loadDeveloperSpaceForOwner(req.params.id, req.user!);
+  if (ownerLoad.status !== 200) return res.status(ownerLoad.status).json({ error: ownerLoad.error });
+
+  const now = new Date().toISOString();
+  const { data, error } = await getSupabaseAdmin()
+    .from("developer_space_ingestion_keys")
+    .update({ status: "revoked", revoked_at: now })
+    .eq("id", req.params.keyId)
+    .eq("developer_space_id", ownerLoad.space.id)
+    .select("*")
+    .maybeSingle();
+
+  if (error) return res.status(500).json({ error: error.message });
+  if (!data) return res.status(404).json({ error: "Ingestion key not found." });
+  return res.json({ key: serializeDeveloperSpaceIngestionKey(data) });
 });
 
 developerSpacesRouter.post("/:id/api-key/revoke", requireAuth, async (req, res) => {
