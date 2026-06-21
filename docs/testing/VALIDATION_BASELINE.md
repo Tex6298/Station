@@ -54,6 +54,31 @@ pnpm test:developer-space-client
 
 ## PR153 Context Preview Latency Breakdown
 
+ARGUS review validation on 2026-06-21:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-context` | Pass | 8 tests passed; owner-only context-preview timing contract and leak guards stayed green. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck completed through the repo script. |
+| `git diff --check` | Pass | CRLF normalization warnings only for touched files and local triad state. |
+| Staged secret-shaped value scan | Pass | No staged secret-shaped additions found. |
+
+ARGUS PR153 notes:
+
+- Accepted sanitized `context.trace.timing` for owner runtime-context assembly.
+- Timing metadata contains only schema, ordered stage names, integer
+  `durationMs`, and `cache.status: "not_used"`.
+- Stage durations are wall-clock diagnostic measurements and are not additive
+  because runtime-context stages run concurrently.
+- Context preview remains owner-only, and focused tests still reject
+  unauthenticated and non-owner reads.
+- No prompt, completion, provider payload, private excerpt, source content,
+  owner/persona id, trace id, cache key, token, cookie, API key, DB URL,
+  secret-shaped value, provider switch, embedding profile/dimension change,
+  Redis Memory truth, Cloudflare path, worker, import repair,
+  billing/auth/session behavior, broad UI, public route behavior, or Archive
+  retrieval internal change was added.
+
 DAEDALUS implementation validation on 2026-06-21:
 
 | Command | Result | Notes |

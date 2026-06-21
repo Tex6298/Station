@@ -9743,7 +9743,45 @@ Wakeup order:
 
 Result doc: `docs/roadmap/PR153_CONTEXT_PREVIEW_LATENCY_BREAKDOWN.md`.
 
-## Latest DAEDALUS handoff - PR153 context-preview latency breakdown
+## Latest ARGUS handoff - PR153 context-preview latency breakdown
+
+ARGUS accepted PR153 on 2026-06-21 and wakes MIMIR for closeout.
+
+Verdict:
+
+- The implementation matches the requested measurement-first lane. It adds
+  sanitized `context.trace.timing` metadata for owner runtime-context assembly
+  and does not optimize before hosted per-stage evidence exists.
+- Timing readback is limited to `schema`, ordered stage names, integer
+  `durationMs`, and `cache.status: "not_used"`.
+- Stage durations are per-stage wall-clock measurements around concurrent async
+  work and are not additive totals.
+- Context preview remains owner-only through the existing persona ownership
+  route check. Focused tests cover unauthenticated and non-owner rejection.
+- The timing object does not include prompts, completions, provider payloads,
+  private excerpts, source contents, owner/persona ids, trace ids, cache keys,
+  tokens, cookies, API keys, DB URLs, or secret-shaped values.
+- Operational cache, provider selection, embedding profile/dimension, Redis
+  Memory, Cloudflare, workers, import repair, billing, auth/session, public
+  routes, broad UI, and Archive retrieval internals were not widened.
+- No ARIADNE pass is required for this API metadata-only change.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:persona-context` passed with 8
+  tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `git diff --check` passed with CRLF normalization warnings only.
+- Staged secret-shaped value scan passed.
+
+Next:
+
+- MIMIR should close PR153 and decide whether the next hosted rehearsal should
+  capture actual per-stage timing values before opening any optimization lane.
+
+Result doc: `docs/roadmap/PR153_CONTEXT_PREVIEW_LATENCY_BREAKDOWN.md`.
+
+## Previous DAEDALUS handoff - PR153 context-preview latency breakdown
 
 DAEDALUS implemented PR153 on 2026-06-21 and wakes ARGUS for technical review.
 

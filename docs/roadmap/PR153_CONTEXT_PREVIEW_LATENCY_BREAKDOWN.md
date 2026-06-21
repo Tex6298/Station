@@ -3,7 +3,7 @@
 Date opened: 2026-06-21
 Opened by: A1 / MIMIR
 Owner: DAEDALUS implements or blocks; ARGUS reviews before any closeout.
-Status: implemented by DAEDALUS; ready for ARGUS review
+Status: accepted by ARGUS; waking MIMIR for closeout
 
 ## Why This Lane
 
@@ -150,6 +150,10 @@ boundary. It does not expose prompts, completions, provider payloads, private
 archive excerpts, source contents, owner ids, persona ids, trace ids, cache
 keys, tokens, cookies, API keys, DB URLs, or secret-shaped values.
 
+Timing values are per-stage wall-clock durations. Several recorded stages run
+concurrently, so the stage durations are diagnostic shape evidence and are not
+intended to add up to `total`.
+
 No optimization was implemented in this pass. The repo-local code inspection
 showed a clean shared query-embedding path and no safe repeated readback fix
 worth taking before the new hosted stage timings identify the actual
@@ -162,3 +166,41 @@ Validation:
   tests.
 - `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
 - `git diff --check` passed with CRLF normalization warnings only.
+
+## ARGUS Review
+
+Accepted on 2026-06-21.
+
+Findings:
+
+- The implementation matches the requested measurement-first lane: it adds
+  sanitized `context.trace.timing` metadata for owner runtime-context assembly
+  and does not implement an optimization before hosted stage evidence exists.
+- The timing payload is limited to a schema string, ordered stage names,
+  integer `durationMs` values, and `cache.status: "not_used"`.
+- Context preview remains owner-only through the existing persona ownership
+  route check. Focused tests cover unauthenticated and non-owner rejection.
+- The new timing object does not include prompts, completions, provider
+  payloads, private excerpts, source contents, owner/persona ids, trace ids,
+  cache keys, tokens, cookies, API keys, DB URLs, or secret-shaped values.
+- Operational cache, provider selection, embedding profile/dimension, Redis
+  Memory, Cloudflare, workers, import repair, billing, auth/session, public
+  routes, broad UI, and Archive retrieval internals were not widened.
+- The non-optimization claim is honest. The shared query-embedding path remains
+  unchanged, and `cache.status: "not_used"` accurately describes the shipped
+  behavior.
+- Stage durations are wall-clock measurements around concurrent async work and
+  should not be treated as additive totals.
+
+ARGUS validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:persona-context` passed with 8
+  tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `git diff --check` passed with CRLF normalization warnings only.
+- Staged secret-shaped value scan passed.
+
+Next:
+
+- Wake MIMIR to close PR153 and decide whether the next hosted rehearsal should
+  capture actual per-stage timing values before opening any optimization lane.
