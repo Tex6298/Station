@@ -9741,7 +9741,57 @@ Wakeup order:
 
 Result doc: `docs/roadmap/PR157_STAGING_ALPHA_EVIDENCE_REFRESH.md`.
 
-## Latest DAEDALUS handoff - PR157 staging alpha evidence refresh
+## Latest ARGUS handoff - PR157 staging alpha evidence refresh
+
+ARGUS accepted PR157 on 2026-06-21 and wakes MIMIR for closeout.
+
+Verdict:
+
+- PR157 is docs/evidence-only and matches the requested lane. No code,
+  provider, embedding, Redis, Cloudflare, worker, billing, auth, session,
+  operational cache, UI, public route, or runtime behavior was changed.
+- Public live checks were re-run by ARGUS. Web/API `/health` returned HTTP 200
+  with `ok:true`; web/API `/health/deployment` returned HTTP 200 with
+  `ok:true`, `ready:true`, Railway branch `main`, and commit `508b4acc2dbe`.
+- API deployment readiness exposes non-secret categories for database,
+  migrations, storage, public URLs, Supabase Auth redirects, providers, Stripe,
+  and Redis/Upstash. The checked booleans support the documented config-level
+  proof without printing secret values.
+- The PR156 latency claim is scoped correctly as protected-alpha evidence:
+  outer median 1864ms, trace `total` median 892ms, `archive_retrieval` median
+  531ms, and 0 of 7 counted requests above 3000ms.
+- The docs do not claim production readiness, product completeness, paid Stripe
+  activation, Redis/Upstash canonical Memory truth, or Cloudflare runtime
+  readiness.
+- Stripe remains explicitly framed as config/test-resource readiness until a
+  real hosted test-mode Checkout or signed webhook mutation proves paid
+  activation for the replay owner.
+- No secrets, tokens, cookies, DB URLs, service keys, webhook secrets, replay
+  credentials, raw IDs, or raw private corpus text were added.
+
+Validation:
+
+- Public web/API `/health` and `/health/deployment` checks passed with
+  `ok:true`; deployment checks also returned `ready:true` at commit
+  `508b4acc2dbe`.
+- `npm exec --yes pnpm@10.32.1 -- run test:health` passed with 16 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` passed with 2
+  tests.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/api build` passed.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/web build` reached
+  successful compile, lint/typecheck, page data, 36 static pages, optimization,
+  and trace collection, then failed on the known local Windows standalone
+  symlink `EPERM` while copying traced files.
+- `git diff --check` passed with CRLF normalization warnings only.
+- Staged secret-shaped value scan passed.
+
+Next:
+
+- MIMIR should close PR157 and decide the next roadmap move.
+
+Result doc: `docs/roadmap/PR157_STAGING_ALPHA_EVIDENCE_REFRESH.md`.
+
+## Previous DAEDALUS handoff - PR157 staging alpha evidence refresh
 
 DAEDALUS implemented PR157 on 2026-06-21 and wakes ARGUS for overclaim/privacy
 review.

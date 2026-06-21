@@ -18,8 +18,8 @@ live replay evidence.
 
 ## PR 0 - Staging Alpha Closure And Source/Live Evidence Alignment
 
-Status: implemented by PR157 on 2026-06-21 and ready for ARGUS overclaim/
-privacy review. See `docs/roadmap/PR157_STAGING_ALPHA_EVIDENCE_REFRESH.md` and
+Status: accepted by ARGUS in PR157 on 2026-06-21 for MIMIR closeout. See
+`docs/roadmap/PR157_STAGING_ALPHA_EVIDENCE_REFRESH.md` and
 `docs/roadmap/STATION_LAUNCH_CORE_ALPHA_CLOSEOUT.md`.
 
 Goal: close the current staging replay lane as alpha-proof and stop it being

@@ -54,6 +54,37 @@ pnpm test:developer-space-client
 
 ## PR157 Staging Alpha Evidence Refresh
 
+ARGUS review validation on 2026-06-21:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| Public web/API `/health` and `/health/deployment` checks | Pass | HTTP 200 and `ok:true` for health checks; deployment checks returned `ok:true`, `ready:true`, branch `main`, and commit `508b4acc2dbe`. |
+| `npm exec --yes pnpm@10.32.1 -- run test:health` | Pass | 16 tests passed; non-secret deployment readiness surfaces remain green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` | Pass | 2 tests passed; replay readiness and sanitized AI trace detail remain green. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/api build` | Pass | API package build passed after dependent package builds. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web build` | Partial / known Windows failure | Next compiled, linted/typechecked, collected page data, generated 36 static pages, finalized optimization, and collected build traces before the known local Windows standalone symlink `EPERM` while copying traced files. Existing raw `<img>` warnings appeared. |
+| `git diff --check` | Pass | CRLF normalization warnings only for touched docs and local triad state. |
+| Staged secret-shaped value scan | Pass | No staged secret-shaped additions found. |
+
+ARGUS PR157 notes:
+
+- Accepted the docs/evidence refresh as protected-alpha proof, not production
+  readiness or product completeness.
+- Public live checks confirm web/API health and deployment readiness at commit
+  `508b4acc2dbe` without requiring secret-bearing output.
+- API deployment readiness exposes non-secret categories for database,
+  migrations, storage, public URLs, Supabase Auth redirects, providers, Stripe,
+  and Redis/Upstash.
+- Stripe remains config/test-resource readiness only until real hosted
+  test-mode Checkout or signed webhook mutation proves paid activation for the
+  replay owner.
+- Redis/Upstash remains cache/idempotency/rate-limit/cache-only queue-state
+  support, not canonical Memory truth. Cloudflare remains future adapter/
+  index-mirror scope.
+- No code changed and no secrets, tokens, cookies, DB URLs, service keys,
+  webhook secrets, replay credentials, raw IDs, or raw private corpus text were
+  recorded.
+
 DAEDALUS implementation validation on 2026-06-21:
 
 | Command | Result | Notes |

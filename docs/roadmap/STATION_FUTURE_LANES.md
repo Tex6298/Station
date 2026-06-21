@@ -360,12 +360,12 @@ PR156 update, 2026-06-21: PR155 is closed and accepted. The next lane is
 same hosted context-preview timing shape against the PR154 baseline before
 MIMIR opens any further optimization lane.
 
-PR157 update, 2026-06-21: PR157 is implemented for ARGUS review. PR156 closes
-the immediate Archive-retrieval latency loop: hosted context-preview outer
-median is now 1864ms and no counted request exceeded 3000ms. Current docs now
-consolidate alpha-proof evidence and caveats rather than opening another
-optimization by guesswork. Stripe paid activation remains a separate proof
-until a real hosted test-mode Checkout or signed webhook mutation is run.
+PR157 update, 2026-06-21: PR157 is accepted by ARGUS for MIMIR closeout. PR156
+closes the immediate Archive-retrieval latency loop: hosted context-preview
+outer median is now 1864ms and no counted request exceeded 3000ms. Current docs
+now consolidate protected-alpha evidence and caveats rather than opening
+another optimization by guesswork. Stripe paid activation remains a separate
+proof until a real hosted test-mode Checkout or signed webhook mutation is run.
 
 Inputs:
 
