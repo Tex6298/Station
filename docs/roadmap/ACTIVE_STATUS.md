@@ -9181,6 +9181,21 @@ when a PR lands, or when validation truth changes.
   against staging if auth/config is available, avoid printing/writing secrets,
   and wake MIMIR with a precise missing-config report if auth/config is absent
   or if smoke would require rotating real integration keys.
+- DAEDALUS attempts PR136 on 2026-06-21 and wakes MIMIR with a smoke-space
+  blocker before named-key creation/live send. Auth worked, local
+  `STATION_API_URL` was present, and authenticated `GET /developer-spaces`
+  returned two spaces, but creating a new `PR136 Observed Runtime Smoke` space
+  returned the bounded Developer Space tier-limit `403`. No named key was
+  created, no legacy key route was used, no live send occurred, and no secret
+  values were printed or written.
+- MIMIR unblocks PR136 on 2026-06-21 by selecting the existing
+  `station-replay-dev-alpha` / `Station Replay Dev Alpha` Developer Space as
+  the reusable PR136 smoke target. It is already the public-safe staging replay
+  Developer Space, it is under the replay owner account, and the current
+  non-secret list output shows no legacy key summary. Continue with a named
+  `PR136 observed-runtime smoke` key on that space, keep the raw key in memory
+  only, avoid legacy rotation, and revoke the temporary named key after smoke
+  unless MIMIR explicitly accepts keeping it reusable.
 - DAEDALUS implements PR126 2C Observed Runtime Signing Secret Lifecycle on
   2026-06-21 and wakes ARGUS for schema/API/encryption/signature review.
   Migration `048_developer_space_webhook_signing_secrets.sql` adds
@@ -9463,57 +9478,41 @@ git diff --check
 
 ## Latest ARGUS verdict - PR135 Developer Space named ingestion keys
 
-## Latest DAEDALUS handoff - PR136 dedicated-key staging smoke blocked
+## Latest MIMIR handoff - PR136 smoke space selected
 
-PR136 2C Observed Runtime Dedicated-Key Staging Smoke was attempted by
-DAEDALUS on 2026-06-21 and is blocked before named-key creation/live send.
+PR136 2C Observed Runtime Dedicated-Key Staging Smoke remains active. MIMIR has
+selected `station-replay-dev-alpha` / `Station Replay Dev Alpha` as the reusable
+PR136 smoke target after DAEDALUS hit the replay owner's Developer Space tier
+limit while trying to create a brand-new smoke space.
 
-Sanitized auth/config classification:
+Decision basis:
 
-- Target: local `.env` override for `STATION_API_URL` was present and used; the
-  value was not printed or committed.
-- Owner credentials: local replay-owner credentials were present and
-  `/auth/signin` returned HTTP `200`.
-- Existing spaces: authenticated `GET /developer-spaces` returned HTTP `200`
-  with count 2; no dedicated `pr136-observed-runtime-smoke` space was selected.
-- Dedicated smoke space creation:
-  `POST /developer-spaces` for `PR136 Observed Runtime Smoke` returned HTTP
-  `403` with the bounded Developer Space tier-limit message.
+- Auth worked with local replay-owner credentials.
+- Local `STATION_API_URL` was present and used without printing the value.
+- Authenticated `GET /developer-spaces` returned `station-replay-dev-alpha` and
+  `animus-field-lab`.
+- `station-replay-dev-alpha` is already the public-safe staging replay
+  Developer Space and is the right reusable smoke target.
+- Current non-secret list output shows no legacy key summary for that space.
+- The PR135 named-key route can create a smoke/operator key without legacy key
+  rotation.
 
-Result:
+Continue task:
 
-- Blocked because PR136 requires a dedicated smoke Developer Space and the
-  authenticated replay owner cannot create another Developer Space under its
-  current tier.
-- No named ingestion key was created.
-- No legacy `POST /developer-spaces/:id/api-key` route was used.
-- No live-send request was sent.
-- No temporary key revoke was needed.
-- No secret values were printed, committed, written to `.env`, or written to
-  Railway variables.
+- Use the existing `station-replay-dev-alpha` Developer Space.
+- Create a named key via `POST /developer-spaces/:id/ingestion-keys`, labelled
+  `PR136 observed-runtime smoke` or equivalent.
+- Do not use legacy `POST /developer-spaces/:id/api-key`.
+- Keep the one-time raw key in memory only.
+- Run the PR134 guarded Agents Observe live-send path against staging.
+- Verify accepted/bounded response, replay/idempotency behavior, and safe
+  readback without printing secrets.
+- Revoke the temporary named key after smoke unless live evidence shows a strong
+  reason to keep it reusable and MIMIR explicitly accepts that.
 
-MIMIR decision needed:
-
-- Provide/select an existing dedicated smoke Developer Space for the replay
-  owner; or
-- use a test/admin account that can create a dedicated smoke Developer Space;
-  or
-- explicitly approve a reusable existing dedicated smoke space if one exists
-  under another account.
-
-Validation: sanitized PR136 smoke harness ran through `npm exec --yes
-pnpm@10.32.1 -- exec tsx -` and stopped before mutation beyond the failed
-space-create request. `git diff --check` is recorded in
-`docs/testing/VALIDATION_BASELINE.md`.
-
-Non-scope: no legacy key rotation for smoke, no committed secrets, no writing
-smoke keys to `.env` or Railway variables, no Cloudflare Worker/Vectorize/D1/
-Queue/Durable Object work, no hosted runtime/scheduler/agent control plane, no
-broad UI, no billing/Stripe, no Redis memory truth, no provider routing, and no
-retrieval model changes.
-
-Wake MIMIR with this blocker report. Do not wake ARGUS because no live smoke or
-named-key mutation occurred.
+Wake ARGUS with the completed PR136 evidence if the smoke runs. Wake MIMIR only
+if auth/config fails again or smoke would require legacy key rotation or secret
+printing.
 
 ## Previous DAEDALUS handoff - PR127 webhook concurrency guard
 

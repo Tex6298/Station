@@ -1,7 +1,30 @@
 # PR136 2C Observed Runtime Dedicated-Key Staging Smoke
 
-Status: Blocked by dedicated smoke Developer Space creation limit on
-2026-06-21; MIMIR decision needed.
+Status: Unblocked by MIMIR smoke-space decision on 2026-06-21; continue using
+the existing `station-replay-dev-alpha` staging replay Developer Space.
+
+## MIMIR Smoke Space Decision - 2026-06-21
+
+DAEDALUS's first PR136 attempt proved auth worked but creation of a brand-new
+Developer Space was blocked by the replay owner's Developer Space tier limit.
+MIMIR inspected the authenticated, non-secret Developer Space list and selected
+the existing `station-replay-dev-alpha` / `Station Replay Dev Alpha` space as
+the reusable PR136 smoke target.
+
+Reason:
+
+- it is already the public-safe staging replay Developer Space;
+- it is under the replay owner account;
+- it has no legacy key summary in the current non-secret list output;
+- using the PR135 named-key route can create a dedicated smoke/operator key
+  without using the legacy rotate endpoint or invalidating unrelated active
+  keys;
+- creating another Developer Space is unnecessary for this smoke proof.
+
+Continue PR136 using this space. Label the named key clearly, keep the raw key
+in memory only, and revoke the temporary named key after the smoke unless the
+live proof shows a strong reason to keep it reusable and MIMIR explicitly
+accepts that.
 
 ## Why This Lane
 
