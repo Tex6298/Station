@@ -9694,40 +9694,44 @@ git diff --check
 - Developer Spaces visual polish before ingestion auth, validation, limits, and
   safe serialization.
 
-## Latest MIMIR handoff - PR145 Settings AI trace detail readback
+## Latest DAEDALUS handoff - PR145 Settings AI trace detail readback
 
-MIMIR closes PR144 AI Trace Detail Sanitization Gate on 2026-06-21 and wakes
-DAEDALUS for PR145.
+PR145 Settings AI Trace Detail Readback is implemented by DAEDALUS on
+2026-06-21 and ready for ARGUS technical review. Because this changes visible
+Settings behavior, ARGUS should wake ARIADNE after technical acceptance.
 
-Closed PR144 facts:
+Implementation:
 
-- `/observability/traces/:traceId` remains authenticated and owner-scoped;
-  cross-owner trace detail returns `404`.
-- Trace and event detail now use allow-listed selects and serializers instead
-  of raw `select("*")` row readback.
-- Returned shapes omit raw event payload objects, owner/persona/conversation/
-  event/source ids, provider request/response bodies, prompts, completions,
-  private archive excerpts, URLs, and secret-shaped values.
-- Owners still receive useful operational facts: source/status/timestamps,
-  duration, token counts, cost, provider/model, sanitized labels/failure
-  reasons, and allow-listed route/profile/policy/posture metadata.
-- PR144 changed API/service/test/docs only, so no ARIADNE wake was required.
+- The Settings AI activity panel keeps the existing summary metrics and recent
+  trace list intact.
+- Each recent trace now has a bounded `View details`/`Close` control.
+- Detail is fetched only after the owner selects a trace, using the existing
+  authenticated `/observability/traces/:traceId` route and bearer session token.
+- One trace can be open at a time.
+- The detail surface renders sanitized trace facts and sanitized event timeline
+  rows with loading, error, empty-event, and selected-detail states.
+- Web helpers now understand the sanitized PR144 detail shape and defensively
+  redact obvious prompt, private-id, URL, bearer, token/key/password, webhook,
+  DB URL, and common secret-shaped values before display.
+- Helper tests cover detail fact mapping, event timeline labels/facts, metadata
+  shape alignment, and non-rendering of raw trace ids, owner/persona-like ids,
+  URLs, prompts, bearer material, and secret-shaped values.
 
-PR145 task:
+Validation:
 
-- Implement `docs/roadmap/PR145_SETTINGS_AI_TRACE_DETAIL_READBACK.md`.
-- Add a bounded owner-only trace detail readback to the Settings AI activity
-  panel using the sanitized PR144 route.
-- Fetch `/observability/traces/:traceId` only when the owner requests detail.
-- Render sanitized trace facts and an event timeline with loading, error, empty,
-  and selected-detail states.
-- Keep summary/list behavior intact and fit desktop plus 390px mobile.
-- Do not add a raw trace viewer, public observability, new AI calls, provider/
-  embedding changes, Redis/Cloudflare, background jobs, Memory mutation,
-  billing/auth/session changes, broad Settings redesign, new navigation surface,
-  or migration-ledger repair.
-- Because visible Settings behavior changes, DAEDALUS should wake ARGUS for
-  technical review and ARGUS should wake ARIADNE after acceptance.
+- `test:studio-ui` passed with 91 tests.
+- `test:replay-readiness` passed with 2 tests.
+- `test:conversation-archive` passed with 35 tests.
+- `typecheck` passed.
+- Web build compiled, linted/typechecked, collected page data, generated all 36
+  static pages, finalized optimization, and collected build traces before the
+  known local Windows standalone symlink `EPERM` while copying traced files.
+- `git diff --check` passed with CRLF normalization warnings only.
+
+Non-scope confirmation: no raw trace viewer, public observability, new AI call,
+provider/embedding change, Redis/Cloudflare work, background job, Memory
+mutation, billing/auth/session change, broad Settings redesign, new navigation
+surface, or migration-ledger repair was added.
 
 ## Previous ARGUS handoff - PR144 AI trace detail sanitization gate
 

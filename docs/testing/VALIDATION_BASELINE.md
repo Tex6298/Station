@@ -52,6 +52,37 @@ pnpm test:developer-spaces
 pnpm test:developer-space-client
 ```
 
+## PR145 Settings AI Trace Detail Readback
+
+DAEDALUS implementation validation on 2026-06-21:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 91 tests passed, including sanitized trace detail helper mapping, event timeline facts, and privacy redaction coverage. |
+| `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` | Pass | 2 tests passed; owner-scoped sanitized trace detail route coverage remains green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass | 35 tests passed; provider failure trace safety remains green. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typechecks passed. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web build` | Partial / known Windows failure | Next compiled, linted/typechecked, collected page data, generated 36 static pages, finalized optimization, and collected build traces before the known local Windows standalone symlink `EPERM` while copying traced files. Existing raw `<img>` warnings appeared. |
+| `git diff --check` | Pass | CRLF warnings only for touched files and local DAEDALUS state. |
+
+DAEDALUS PR145 notes:
+
+- Added a bounded owner-only Settings AI trace detail readback using the
+  sanitized PR144 `/observability/traces/:traceId` route.
+- Detail fetches happen only after the owner presses `View details`; one trace
+  is open at a time.
+- The detail panel renders sanitized trace facts and event timeline facts with
+  loading, error, empty-event, and selected-detail states.
+- Web helpers align with the sanitized PR144 detail metadata shape and add
+  defensive display redaction for prompt-shaped text, private-id markers, raw
+  URLs, bearer material, token/key/password/webhook/DB URL-shaped fields, and
+  common secret-shaped values.
+- Existing summary/list behavior is preserved.
+- No raw trace viewer, public observability, new AI call, provider/embedding
+  change, Redis/Cloudflare work, background job, Memory mutation, billing/auth/
+  session change, broad Settings redesign, new navigation surface, or migration
+  ledger repair was added.
+
 ## PR144 AI Trace Detail Sanitization Gate
 
 DAEDALUS implementation validation on 2026-06-21:

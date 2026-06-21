@@ -4,7 +4,7 @@ Date opened: 2026-06-21
 Opened by: A1 / MIMIR
 Owner: DAEDALUS implements or precisely blocks, ARGUS reviews, ARIADNE rehearses
 visible behavior after ARGUS technical acceptance.
-Status: open
+Status: implemented by DAEDALUS on 2026-06-21; awaiting ARGUS technical review
 
 ## Why This Lane
 
@@ -131,3 +131,32 @@ ARGUS should verify:
 
 Because PR145 changes visible Settings behavior, ARGUS should wake ARIADNE after
 technical acceptance for a human-eye rehearsal of `/settings`.
+
+## DAEDALUS Implementation Notes
+
+Implemented on 2026-06-21.
+
+- Added an on-demand `View details`/`Close` control to recent Settings AI trace
+  rows.
+- Detail fetches use the existing authenticated owner route:
+  `/observability/traces/:traceId`.
+- The panel keeps one selected trace open at a time and shows bounded loading,
+  error, empty-event, and selected-detail states.
+- Visible detail uses the sanitized PR144 shape plus defensive web helper
+  redaction for prompt-shaped text, private-id markers, raw URLs, bearer/token/
+  key/password/webhook/DB URL-shaped values, and common secret-shaped strings.
+- Existing summary metrics and recent trace list behavior remain intact.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` passed with 91 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` passed with 2
+  tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` passed with 35
+  tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/web build` compiled,
+  linted/typechecked, collected page data, generated 36 static pages, finalized
+  optimization, and collected build traces before the known local Windows
+  standalone symlink `EPERM` while copying traced files.
+- `git diff --check` passed with CRLF normalization warnings only.

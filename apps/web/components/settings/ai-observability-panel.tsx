@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { apiGet } from "@/lib/api-client";
 import {
+  AiTraceDetail,
   formatDate,
   formatDuration,
   formatPence,
@@ -10,6 +11,9 @@ import {
   sanitizedFailureMessage,
   sourceLabel,
   statusTone,
+  traceDetailOperationalFacts,
+  traceEventOperationalFacts,
+  traceEventTitle,
   traceOperationalFacts,
   traceTokenTotal,
 } from "@/lib/ai-observability-ui";
@@ -40,12 +44,18 @@ type AiTrace = {
 export function AiObservabilityPanel() {
   const [summary, setSummary] = useState<ObservabilitySummary | null>(null);
   const [traces, setTraces] = useState<AiTrace[]>([]);
+  const [token, setToken] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [selectedTraceId, setSelectedTraceId] = useState<string | null>(null);
+  const [traceDetail, setTraceDetail] = useState<AiTraceDetail | null>(null);
+  const [detailError, setDetailError] = useState<string | null>(null);
+  const [detailLoading, setDetailLoading] = useState(false);
 
   useEffect(() => {
     getSession().then(async (session) => {
       if (!session) return;
       const token = session.accessToken ?? session.access_token;
+      setToken(token);
 
       try {
         const [summaryData, traceData] = await Promise.all([
@@ -59,6 +69,33 @@ export function AiObservabilityPanel() {
       }
     });
   }, []);
+
+  async function loadTraceDetail(traceId: string) {
+    if (selectedTraceId === traceId) {
+      setSelectedTraceId(null);
+      setTraceDetail(null);
+      setDetailError(null);
+      setDetailLoading(false);
+      return;
+    }
+
+    setSelectedTraceId(traceId);
+    setTraceDetail(null);
+    setDetailError(null);
+    setDetailLoading(true);
+
+    try {
+      const fallbackSession = token ? null : await getSession();
+      const activeToken = token ?? fallbackSession?.accessToken ?? fallbackSession?.access_token;
+      if (!activeToken) throw new Error("Sign in again to view trace details.");
+      const detail = await apiGet<AiTraceDetail>(`/observability/traces/${encodeURIComponent(traceId)}`, activeToken);
+      setTraceDetail(detail);
+    } catch (e) {
+      setDetailError(e instanceof Error ? e.message : "Could not load trace details.");
+    } finally {
+      setDetailLoading(false);
+    }
+  }
 
   if (error) return <p style={{ margin: 0, color: "#fca5a5", fontSize: 12 }}>{error}</p>;
   if (!summary) return <p style={{ margin: 0, color: "#7d8796", fontSize: 12 }}>Loading AI activity...</p>;
@@ -77,27 +114,45 @@ export function AiObservabilityPanel() {
         {traces.length ? (
           <div style={{ display: "grid", gap: 8 }}>
             {traces.map((trace) => (
-              <div key={trace.id} style={traceRow}>
-                <div style={{ minWidth: 0 }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 7, flexWrap: "wrap" }}>
-                    <span style={{ color: "#e5e7eb", fontSize: 12, fontWeight: 800 }}>{sourceLabel(trace.source)}</span>
-                    <span style={{ ...statusPill, color: statusTone(trace.status) }}>{trace.status}</span>
+              <Fragment key={trace.id}>
+                <div style={traceRow}>
+                  <div style={{ minWidth: 0 }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 7, flexWrap: "wrap" }}>
+                      <span style={{ color: "#e5e7eb", fontSize: 12, fontWeight: 800 }}>{sourceLabel(trace.source)}</span>
+                      <span style={{ ...statusPill, color: statusTone(trace.status) }}>{trace.status}</span>
+                    </div>
+                    <div style={{ color: "#7d8796", fontSize: 11, marginTop: 4 }}>
+                      {formatDate(trace.started_at)}
+                      {trace.duration_ms ? ` / ${formatDuration(trace.duration_ms)}` : ""}
+                      {sanitizedFailureMessage(trace.error_message) ? ` / ${sanitizedFailureMessage(trace.error_message)}` : ""}
+                    </div>
+                    <div style={factList}>
+                      {traceOperationalFacts(trace).map((fact) => (
+                        <span key={fact} style={factPill}>{fact}</span>
+                      ))}
+                    </div>
                   </div>
-                  <div style={{ color: "#7d8796", fontSize: 11, marginTop: 4 }}>
-                    {formatDate(trace.started_at)}
-                    {trace.duration_ms ? ` / ${formatDuration(trace.duration_ms)}` : ""}
-                    {sanitizedFailureMessage(trace.error_message) ? ` / ${sanitizedFailureMessage(trace.error_message)}` : ""}
-                  </div>
-                  <div style={factList}>
-                    {traceOperationalFacts(trace).map((fact) => (
-                      <span key={fact} style={factPill}>{fact}</span>
-                    ))}
+                  <div style={traceActions}>
+                    <div style={{ color: "#a9b0bd", fontSize: 12, fontWeight: 800 }}>
+                      {formatTokens(traceTokenTotal(trace))}
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => void loadTraceDetail(trace.id)}
+                      style={detailButton}
+                    >
+                      {selectedTraceId === trace.id ? "Close" : "View details"}
+                    </button>
                   </div>
                 </div>
-                <div style={{ color: "#a9b0bd", fontSize: 12, fontWeight: 800, whiteSpace: "nowrap" }}>
-                  {formatTokens(traceTokenTotal(trace))}
-                </div>
-              </div>
+                {selectedTraceId === trace.id ? (
+                  <TraceDetailPanel
+                    detail={traceDetail}
+                    error={detailError}
+                    loading={detailLoading}
+                  />
+                ) : null}
+              </Fragment>
             ))}
           </div>
         ) : (
@@ -105,6 +160,75 @@ export function AiObservabilityPanel() {
             New chat and integrity AI calls will appear here after the next run.
           </p>
         )}
+      </div>
+    </div>
+  );
+}
+
+function TraceDetailPanel({
+  detail,
+  error,
+  loading,
+}: {
+  detail: AiTraceDetail | null;
+  error: string | null;
+  loading: boolean;
+}) {
+  if (loading) {
+    return <div style={detailPanel}>Loading trace details...</div>;
+  }
+
+  if (error) {
+    return <div style={{ ...detailPanel, color: "#fca5a5" }}>{error}</div>;
+  }
+
+  if (!detail) {
+    return <div style={detailPanel}>Select a trace to view sanitized operational detail.</div>;
+  }
+
+  return (
+    <div style={detailPanel}>
+      <div style={{ display: "grid", gap: 8 }}>
+        <div>
+          <div style={detailHeading}>Trace detail</div>
+          <div style={{ color: "#7d8796", fontSize: 11, marginTop: 4 }}>
+            {detail.trace.startedAt ? formatDate(detail.trace.startedAt) : "Start time unavailable"}
+            {detail.trace.completedAt ? ` / completed ${formatDate(detail.trace.completedAt)}` : ""}
+          </div>
+          <div style={factList}>
+            {traceDetailOperationalFacts(detail.trace).map((fact) => (
+              <span key={fact} style={factPill}>{fact}</span>
+            ))}
+          </div>
+        </div>
+
+        <div style={{ borderTop: "1px solid #253044", paddingTop: 8 }}>
+          <div style={detailHeading}>Event timeline</div>
+          {detail.events.length ? (
+            <div style={{ display: "grid", gap: 7, marginTop: 7 }}>
+              {detail.events.map((event, index) => (
+                <div key={`${event.createdAt ?? "event"}-${index}`} style={eventRow}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 7, flexWrap: "wrap" }}>
+                    <span style={{ color: "#e5e7eb", fontSize: 12, fontWeight: 800 }}>{traceEventTitle(event)}</span>
+                    <span style={{ ...statusPill, color: statusTone(event.status) }}>{event.status}</span>
+                  </div>
+                  <div style={{ color: "#7d8796", fontSize: 11, marginTop: 4 }}>
+                    {event.createdAt ? formatDate(event.createdAt) : "Event time unavailable"}
+                  </div>
+                  <div style={factList}>
+                    {traceEventOperationalFacts(event).map((fact) => (
+                      <span key={fact} style={factPill}>{fact}</span>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p style={{ margin: "7px 0 0", color: "#8ea0b8", fontSize: 12, lineHeight: 1.5 }}>
+              This trace has no recorded events.
+            </p>
+          )}
+        </div>
       </div>
     </div>
   );
@@ -120,14 +244,57 @@ function Metric({ label, value, tone = "#e5e7eb" }: { label: string; value: stri
 }
 
 const traceRow = {
-  display: "flex",
-  alignItems: "flex-start",
+  display: "grid",
+  gridTemplateColumns: "minmax(0, 1fr) auto",
+  alignItems: "start",
   justifyContent: "space-between",
   gap: 10,
   border: "1px solid #253044",
   borderRadius: 8,
   padding: 9,
   background: "#0c1320",
+};
+
+const traceActions = {
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "flex-end",
+  flexWrap: "wrap" as const,
+  gap: 8,
+};
+
+const detailButton = {
+  border: "1px solid #334155",
+  borderRadius: 6,
+  background: "#111827",
+  color: "#e5e7eb",
+  cursor: "pointer",
+  fontSize: 11,
+  fontWeight: 800,
+  padding: "6px 8px",
+};
+
+const detailPanel = {
+  border: "1px solid #253044",
+  borderRadius: 8,
+  background: "#080d16",
+  color: "#a9b0bd",
+  fontSize: 12,
+  lineHeight: 1.5,
+  padding: 10,
+};
+
+const detailHeading = {
+  color: "#f8fafc",
+  fontSize: 12,
+  fontWeight: 800,
+};
+
+const eventRow = {
+  border: "1px solid #1d283a",
+  borderRadius: 8,
+  background: "#0c1320",
+  padding: 8,
 };
 
 const factList = {
