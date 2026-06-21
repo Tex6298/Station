@@ -18,6 +18,8 @@ import {
   handoffSummaryPreview,
   lifecycleEventReadback,
   memoryGraphReadback,
+  memoryGraphRelationshipReadbacks,
+  memoryGraphRelationshipStateCopy,
 } from "@/lib/persona-lifecycle-ui";
 
 interface IntegrityHistorySession {
@@ -86,6 +88,11 @@ export function PersonaManagement({ persona, personaId }: { persona: Persona; pe
     const keys: PersonaLayerKey[] = ["soul", "body", "faculty", "skill", "evolution"];
     return keys.map((key) => ({ key, value: architecture.profile[key] }));
   }, [architecture]);
+
+  const memoryRelationships = useMemo(
+    () => memoryGraphRelationshipReadbacks(memoryGraph, 5),
+    [memoryGraph],
+  );
 
   async function createHandoff() {
     if (!token || creatingHandoff) return;
@@ -197,6 +204,36 @@ export function PersonaManagement({ persona, personaId }: { persona: Persona; pe
                     <div style={{ minWidth: 0 }}>
                       <div style={{ color: "#f8fafc", fontSize: 14, fontWeight: 800 }}>{node.title ?? "Untitled memory"}</div>
                       <div style={muted}>{node.sourceType} - {node.summary || "No summary yet"}</div>
+                    </div>
+                  </article>
+                ))}
+              </div>
+              <div style={{ display: "grid", gap: 10, marginTop: 14 }}>
+                <div>
+                  <div style={{ color: "#f8fafc", fontSize: 13, fontWeight: 800 }}>Relationships</div>
+                  <p style={{ ...muted, margin: "4px 0 0" }}>
+                    {memoryGraphRelationshipStateCopy(
+                      memoryGraph.nodes.length,
+                      memoryGraph.edges.length,
+                      memoryRelationships.length,
+                    )}
+                  </p>
+                </div>
+                {memoryRelationships.length === 0 ? (
+                  <EmptyState text="Relationship rows will appear here after owner graph edges exist." />
+                ) : memoryRelationships.map((relationship) => (
+                  <article key={relationship.key} style={relationshipRow}>
+                    <div style={{ minWidth: 0 }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+                        <span style={memoryLabel}>{relationship.sourceLabel}</span>
+                        <span style={{ color: "#64748b", fontSize: 11, fontWeight: 800 }}>to</span>
+                        <span style={memoryLabel}>{relationship.targetLabel}</span>
+                      </div>
+                      <div style={{ display: "flex", alignItems: "center", gap: 7, flexWrap: "wrap", marginTop: 7 }}>
+                        <span style={relationshipPill}>{relationship.relationshipLabel}</span>
+                        <span style={relationshipPill}>{relationship.confidenceLabel}</span>
+                      </div>
+                      {relationship.note ? <div style={{ ...muted, marginTop: 7 }}>{relationship.note}</div> : null}
                     </div>
                   </article>
                 ))}
@@ -425,6 +462,29 @@ const listRow = {
   borderRadius: 8,
   background: "#0d1420",
   padding: 11,
+};
+
+const relationshipRow = {
+  border: "1px solid #202938",
+  borderRadius: 8,
+  background: "#0d1420",
+  padding: 11,
+};
+
+const memoryLabel = {
+  color: "#f8fafc",
+  fontSize: 12,
+  fontWeight: 800,
+  overflowWrap: "anywhere" as const,
+};
+
+const relationshipPill = {
+  border: "1px solid #334155",
+  borderRadius: 6,
+  color: "#a9b0bd",
+  fontSize: 10,
+  fontWeight: 800,
+  padding: "3px 6px",
 };
 
 const muted = {

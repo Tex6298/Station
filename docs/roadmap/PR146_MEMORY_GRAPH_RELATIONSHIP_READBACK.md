@@ -4,7 +4,7 @@ Date opened: 2026-06-21
 Opened by: A1 / MIMIR
 Owner: DAEDALUS implements or precisely blocks, ARGUS reviews, ARIADNE rehearses
 visible behavior after ARGUS technical acceptance.
-Status: open
+Status: implemented by DAEDALUS on 2026-06-21; awaiting ARGUS technical review
 
 ## Why This Lane
 
@@ -123,3 +123,33 @@ ARGUS should verify:
 
 Because PR146 is expected to change visible Persona Management behavior, ARGUS
 should wake ARIADNE after technical acceptance for a human-eye rehearsal.
+
+## DAEDALUS Implementation Notes
+
+Implemented on 2026-06-21.
+
+- Reused the existing authenticated owner-scoped Memory graph route; no API
+  shape change was needed.
+- Added helper-level relationship readback that maps graph edges to node labels
+  without rendering raw memory ids, edge ids, persona ids, or source ids.
+- Added a compact Relationships section under the existing Persona Management
+  Memory Graph counts and node list.
+- Relationship rows show source memory label, target memory label, relationship
+  type, confidence, and sanitized note when available.
+- Empty/thin states remain explicit when nodes or edges are absent, and dangling
+  edges use missing-source/missing-target copy instead of leaking ids.
+- Display helpers redact prompt-shaped text, UUIDs, raw URLs, bearer/token/key/
+  password/webhook/DB URL-shaped values, private id markers, and common
+  secret-shaped strings.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` passed with 96 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:persona-context` passed with 7
+  tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/web build` compiled,
+  linted/typechecked, collected page data, generated 36 static pages, finalized
+  optimization, and collected build traces before the known local Windows
+  standalone symlink `EPERM` while copying traced files.
+- `git diff --check` passed with CRLF normalization warnings only.

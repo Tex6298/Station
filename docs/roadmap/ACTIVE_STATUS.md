@@ -9694,43 +9694,45 @@ git diff --check
 - Developer Spaces visual polish before ingestion auth, validation, limits, and
   safe serialization.
 
-## Latest MIMIR handoff - PR146 Memory graph relationship readback
+## Latest DAEDALUS handoff - PR146 Memory graph relationship readback
 
-MIMIR closes PR145 Settings AI Trace Detail Readback on 2026-06-21 and wakes
-DAEDALUS for PR146.
+PR146 Memory Graph Relationship Readback is implemented by DAEDALUS on
+2026-06-21 and ready for ARGUS technical review. Because this changes visible
+Persona Management behavior, ARGUS should wake ARIADNE after technical
+acceptance.
 
-Closed PR145 facts:
+Implementation:
 
-- ARGUS technically accepted the Settings AI trace detail UI and patched
-  defensive display redaction, stale detail-request handling, and compact fact
-  chip wrapping.
-- ARIADNE rehearsed `/settings` on desktop and 390px mobile with summary,
-  recent traces, `View details`, `Close`, loading, selected detail, empty-event
-  detail, and bounded detail error states.
-- `View details` works on demand, opens one trace at a time, and `Close` removes
-  the panel without navigation.
-- Detail readback stayed sanitized and did not expose raw-looking private ids,
-  trace ids, prompts, completions, raw payloads, URLs, bearer/token/key/password/
-  webhook/DB URL values, or secret-shaped values.
+- Reused the existing authenticated owner-scoped `/memory/persona/:personaId/graph`
+  route; no graph API shape change was needed.
+- Added helper-level relationship readback that joins graph edges to owner graph
+  nodes without rendering raw memory ids, edge ids, persona ids, or source ids.
+- Persona Management now keeps the existing Memory Graph counts and node list,
+  then adds a compact Relationships readback when edges exist.
+- Relationship rows show source memory label, target memory label, relationship
+  type, confidence, and sanitized note when available.
+- Dangling edges use honest `Missing source memory` / `Missing target memory`
+  labels instead of leaking ids or pretending the node exists.
+- Empty/thin graph states say when relationship readback will appear or when no
+  edges have been recorded.
+- Display helpers redact prompt-shaped text, raw URLs, bearer/token/key/password/
+  webhook/DB URL-shaped values, owner/persona/memory/edge/source/trace/event id
+  markers, UUIDs, and common secret-shaped values.
 
-PR146 task:
+Validation:
 
-- Implement `docs/roadmap/PR146_MEMORY_GRAPH_RELATIONSHIP_READBACK.md`.
-- Add owner-facing Memory graph relationship readback in Persona Management when
-  edges exist.
-- Show source memory label, target memory label, relationship type, confidence,
-  and sanitized note where available.
-- Keep honest empty/thin-state copy when graph edges are absent; do not invent
-  or imply fake relationships.
-- Avoid graph canvas/force layout, automatic edge generation, public Memory
-  graph, provider/embedding changes, Redis/Cloudflare, background jobs, broad
-  Persona Management redesign, billing/auth/session changes, or
-  migration-ledger repair.
-- If graph data/API shape is too thin or unsafe, fix the smallest safe blocker
-  or return a precise block with the next concrete lane.
-- Because visible Persona Management behavior is expected to change, DAEDALUS
-  should wake ARGUS for technical review and ARGUS should wake ARIADNE after
-  acceptance.
+- `test:studio-ui` passed with 96 tests.
+- `test:persona-context` passed with 7 tests.
+- `typecheck` passed.
+- Web build compiled, linted/typechecked, collected page data, generated all 36
+  static pages, finalized optimization, and collected build traces before the
+  known local Windows standalone symlink `EPERM` while copying traced files.
+- `git diff --check` passed with CRLF normalization warnings only.
+
+Non-scope confirmation: no automatic edge generation, provider/embedding
+change, Redis/Cloudflare graph or index work, background job, public Memory
+graph, graph canvas/force layout, Memory mutation, broad Persona Management
+redesign, billing/auth/session change, or migration-ledger repair was added.
 
 ## Previous ARIADNE handoff - PR145 Settings AI trace detail readback
 

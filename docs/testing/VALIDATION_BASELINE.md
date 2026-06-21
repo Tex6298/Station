@@ -52,6 +52,35 @@ pnpm test:developer-spaces
 pnpm test:developer-space-client
 ```
 
+## PR146 Memory Graph Relationship Readback
+
+DAEDALUS implementation validation on 2026-06-21:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 96 tests passed, including relationship readback mapping, dangling-edge copy, thin-state copy, and unsafe label/note redaction. |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-context` | Pass | 7 tests passed; owner-only Memory/persona context behavior remains green. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typechecks passed. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web build` | Partial / known Windows failure | Next compiled, linted/typechecked, collected page data, generated 36 static pages, finalized optimization, and collected build traces before the known local Windows standalone symlink `EPERM` while copying traced files. Existing raw `<img>` warnings appeared. |
+| `git diff --check` | Pass | CRLF warnings only for touched files and local DAEDALUS state. |
+
+DAEDALUS PR146 notes:
+
+- Reused the existing authenticated owner-scoped Memory graph API route; no API
+  shape change was needed.
+- Persona Management now shows a compact relationship readback under the
+  existing Memory Graph counts and node list.
+- Relationship rows show source memory label, target memory label, relationship
+  type, confidence, and sanitized note when available.
+- Helper coverage proves normal mapping, dangling-edge copy, absent/thin graph
+  copy, and redaction of prompt-shaped text, UUIDs, raw URLs, bearer/token/key/
+  password/webhook/DB URL-shaped values, private id markers, and secret-shaped
+  values.
+- No automatic edge generation, provider/embedding change, Redis/Cloudflare
+  graph or index work, background job, public Memory graph, graph canvas/force
+  layout, Memory mutation, broad Persona Management redesign, billing/auth/
+  session change, or migration-ledger repair was added.
+
 ## PR145 Settings AI Trace Detail Readback
 
 DAEDALUS implementation validation on 2026-06-21:

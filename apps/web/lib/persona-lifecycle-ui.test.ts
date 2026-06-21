@@ -7,6 +7,8 @@ import {
   lifecycleEventReadback,
   lifecycleEventTypeLabel,
   memoryGraphReadback,
+  memoryGraphRelationshipReadbacks,
+  memoryGraphRelationshipStateCopy,
 } from "./persona-lifecycle-ui";
 import type { PersonaHandoff, PersonaLifecycleEvent } from "@station/types/persona";
 
@@ -62,4 +64,117 @@ test("memory graph readback stays bounded to counts", () => {
   assert.equal(memoryGraphReadback(0, 0), "No memory graph nodes yet.");
   assert.equal(memoryGraphReadback(3, 0), "3 memory nodes with no graph edges yet.");
   assert.equal(memoryGraphReadback(3, 2), "3 memory nodes connected by 2 edges.");
+});
+
+test("memory graph relationship readback maps edge labels without raw ids", () => {
+  const relationships = memoryGraphRelationshipReadbacks({
+    nodes: [
+      {
+        id: "source-memory-id",
+        personaId: "persona-id",
+        title: "Opening boundaries",
+        summary: "Private summary should not be needed",
+        sourceType: "manual",
+        createdAt: "2026-06-21T00:00:00.000Z",
+      },
+      {
+        id: "target-memory-id",
+        personaId: "persona-id",
+        title: "Support ritual",
+        summary: null,
+        sourceType: "chat",
+        createdAt: "2026-06-21T00:00:00.000Z",
+      },
+    ],
+    edges: [
+      {
+        id: "edge-id",
+        personaId: "persona-id",
+        fromMemoryItemId: "source-memory-id",
+        toMemoryItemId: "target-memory-id",
+        edgeType: "supports",
+        confidence: 0.82,
+        note: "Useful relationship note.",
+        createdAt: "2026-06-21T00:00:00.000Z",
+      },
+    ],
+  });
+
+  assert.deepEqual(relationships, [
+    {
+      key: "edge-id",
+      sourceLabel: "Opening boundaries",
+      targetLabel: "Support ritual",
+      relationshipLabel: "Supports",
+      confidenceLabel: "82% confidence",
+      note: "Useful relationship note.",
+    },
+  ]);
+  assert.doesNotMatch(JSON.stringify(relationships), /source-memory-id|target-memory-id|persona-id/);
+});
+
+test("memory graph relationship readback is honest for dangling or absent edges", () => {
+  const relationships = memoryGraphRelationshipReadbacks({
+    nodes: [],
+    edges: [
+      {
+        id: "edge-id",
+        personaId: "persona-id",
+        fromMemoryItemId: "missing-source-id",
+        toMemoryItemId: "missing-target-id",
+        edgeType: "related_to",
+        confidence: 2,
+        note: null,
+        createdAt: "2026-06-21T00:00:00.000Z",
+      },
+    ],
+  });
+
+  assert.equal(relationships[0]?.sourceLabel, "Missing source memory");
+  assert.equal(relationships[0]?.targetLabel, "Missing target memory");
+  assert.equal(relationships[0]?.confidenceLabel, "100% confidence");
+  assert.equal(memoryGraphRelationshipStateCopy(0, 0, 0), "Relationship readback will appear after memory nodes exist.");
+  assert.equal(memoryGraphRelationshipStateCopy(2, 0, 0), "No relationship edges have been recorded yet.");
+  assert.equal(memoryGraphRelationshipStateCopy(2, 1, 0), "Relationship edges exist, but none are safe to display yet.");
+  assert.equal(memoryGraphRelationshipStateCopy(2, 1, 1), "1 relationship shown from the owner graph.");
+});
+
+test("memory graph relationship readback redacts unsafe labels and notes", () => {
+  const relationships = memoryGraphRelationshipReadbacks({
+    nodes: [
+      {
+        id: "source-memory-id",
+        personaId: "persona-id",
+        title: "system_prompt=https://example.invalid/raw bearer secret",
+        summary: null,
+        sourceType: "manual",
+        createdAt: "2026-06-21T00:00:00.000Z",
+      },
+      {
+        id: "target-memory-id",
+        personaId: "persona-id",
+        title: "Target memory",
+        summary: null,
+        sourceType: "manual",
+        createdAt: "2026-06-21T00:00:00.000Z",
+      },
+    ],
+    edges: [
+      {
+        id: "edge-id",
+        personaId: "persona-id",
+        fromMemoryItemId: "source-memory-id",
+        toMemoryItemId: "target-memory-id",
+        edgeType: "references",
+        confidence: 0.2,
+        note: "persona_id=abc token=abc123 url https://example.invalid/raw sk_live_secret",
+        createdAt: "2026-06-21T00:00:00.000Z",
+      },
+    ],
+  });
+
+  const rendered = JSON.stringify(relationships);
+  assert.equal(relationships[0]?.sourceLabel, "[redacted-prompt]");
+  assert.match(relationships[0]?.note ?? "", /\[redacted-url\]/);
+  assert.doesNotMatch(rendered, /abc123|example\.invalid|sk_live_secret|source-memory-id|target-memory-id/);
 });
