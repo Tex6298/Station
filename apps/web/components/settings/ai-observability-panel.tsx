@@ -1,6 +1,6 @@
 "use client";
 
-import { Fragment, useEffect, useState } from "react";
+import { Fragment, useEffect, useRef, useState } from "react";
 import { apiGet } from "@/lib/api-client";
 import {
   AiTraceDetail,
@@ -9,12 +9,14 @@ import {
   formatPence,
   formatTokens,
   sanitizedFailureMessage,
-  sourceLabel,
+  sanitizedTraceDetailErrorMessage,
   statusTone,
   traceDetailOperationalFacts,
   traceEventOperationalFacts,
   traceEventTitle,
   traceOperationalFacts,
+  traceSourceLabel,
+  traceStatusLabel,
   traceTokenTotal,
 } from "@/lib/ai-observability-ui";
 import { getSession } from "@/lib/auth";
@@ -50,6 +52,7 @@ export function AiObservabilityPanel() {
   const [traceDetail, setTraceDetail] = useState<AiTraceDetail | null>(null);
   const [detailError, setDetailError] = useState<string | null>(null);
   const [detailLoading, setDetailLoading] = useState(false);
+  const detailRequestRef = useRef(0);
 
   useEffect(() => {
     getSession().then(async (session) => {
@@ -72,6 +75,7 @@ export function AiObservabilityPanel() {
 
   async function loadTraceDetail(traceId: string) {
     if (selectedTraceId === traceId) {
+      detailRequestRef.current += 1;
       setSelectedTraceId(null);
       setTraceDetail(null);
       setDetailError(null);
@@ -79,6 +83,8 @@ export function AiObservabilityPanel() {
       return;
     }
 
+    const requestId = detailRequestRef.current + 1;
+    detailRequestRef.current = requestId;
     setSelectedTraceId(traceId);
     setTraceDetail(null);
     setDetailError(null);
@@ -89,11 +95,13 @@ export function AiObservabilityPanel() {
       const activeToken = token ?? fallbackSession?.accessToken ?? fallbackSession?.access_token;
       if (!activeToken) throw new Error("Sign in again to view trace details.");
       const detail = await apiGet<AiTraceDetail>(`/observability/traces/${encodeURIComponent(traceId)}`, activeToken);
-      setTraceDetail(detail);
+      if (detailRequestRef.current === requestId) setTraceDetail(detail);
     } catch (e) {
-      setDetailError(e instanceof Error ? e.message : "Could not load trace details.");
+      if (detailRequestRef.current === requestId) {
+        setDetailError(sanitizedTraceDetailErrorMessage(e instanceof Error ? e.message : null));
+      }
     } finally {
-      setDetailLoading(false);
+      if (detailRequestRef.current === requestId) setDetailLoading(false);
     }
   }
 
@@ -118,8 +126,8 @@ export function AiObservabilityPanel() {
                 <div style={traceRow}>
                   <div style={{ minWidth: 0 }}>
                     <div style={{ display: "flex", alignItems: "center", gap: 7, flexWrap: "wrap" }}>
-                      <span style={{ color: "#e5e7eb", fontSize: 12, fontWeight: 800 }}>{sourceLabel(trace.source)}</span>
-                      <span style={{ ...statusPill, color: statusTone(trace.status) }}>{trace.status}</span>
+                      <span style={{ color: "#e5e7eb", fontSize: 12, fontWeight: 800 }}>{traceSourceLabel(trace.source)}</span>
+                      <span style={{ ...statusPill, color: statusTone(trace.status) }}>{traceStatusLabel(trace.status)}</span>
                     </div>
                     <div style={{ color: "#7d8796", fontSize: 11, marginTop: 4 }}>
                       {formatDate(trace.started_at)}
@@ -210,7 +218,7 @@ function TraceDetailPanel({
                 <div key={`${event.createdAt ?? "event"}-${index}`} style={eventRow}>
                   <div style={{ display: "flex", alignItems: "center", gap: 7, flexWrap: "wrap" }}>
                     <span style={{ color: "#e5e7eb", fontSize: 12, fontWeight: 800 }}>{traceEventTitle(event)}</span>
-                    <span style={{ ...statusPill, color: statusTone(event.status) }}>{event.status}</span>
+                    <span style={{ ...statusPill, color: statusTone(event.status) }}>{traceStatusLabel(event.status)}</span>
                   </div>
                   <div style={{ color: "#7d8796", fontSize: 11, marginTop: 4 }}>
                     {event.createdAt ? formatDate(event.createdAt) : "Event time unavailable"}
@@ -281,6 +289,8 @@ const detailPanel = {
   color: "#a9b0bd",
   fontSize: 12,
   lineHeight: 1.5,
+  minWidth: 0,
+  overflowWrap: "anywhere" as const,
   padding: 10,
 };
 
@@ -310,6 +320,8 @@ const factPill = {
   color: "#a9b0bd",
   fontSize: 10,
   fontWeight: 700,
+  maxWidth: "100%",
+  overflowWrap: "anywhere" as const,
   padding: "3px 6px",
 };
 

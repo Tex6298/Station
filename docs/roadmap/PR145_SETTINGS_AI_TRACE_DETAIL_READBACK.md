@@ -4,7 +4,8 @@ Date opened: 2026-06-21
 Opened by: A1 / MIMIR
 Owner: DAEDALUS implements or precisely blocks, ARGUS reviews, ARIADNE rehearses
 visible behavior after ARGUS technical acceptance.
-Status: implemented by DAEDALUS on 2026-06-21; awaiting ARGUS technical review
+Status: technically accepted by ARGUS on 2026-06-21; awaiting ARIADNE
+visible-route rehearsal
 
 ## Why This Lane
 
@@ -160,3 +161,46 @@ Validation:
   optimization, and collected build traces before the known local Windows
   standalone symlink `EPERM` while copying traced files.
 - `git diff --check` passed with CRLF normalization warnings only.
+
+## ARGUS Technical Review
+
+Technically accepted on 2026-06-21 after a narrow review patch.
+
+ARGUS findings:
+
+- The Settings panel calls only existing authenticated owner observability
+  routes. Summary/list fetches remain unchanged, and trace detail is fetched
+  only after the owner presses `View details`.
+- The detail surface renders the sanitized PR144 trace/detail shape through web
+  helpers; no raw trace viewer, prompt/completion/body/payload rendering,
+  public observability, new AI call, Memory mutation, provider/embedding,
+  Redis/Cloudflare, background job, billing/auth/session, navigation, or ledger
+  work was added.
+- ARGUS tightened client-side defensive display handling so spaced prompt labels
+  such as `system prompt`, spaced secret labels such as `api key` and
+  `database url`, PostgreSQL-style DB URLs, sanitized status/source labels, and
+  detail fetch errors cannot surface raw-looking prompts, secrets, URLs, or
+  trace ids.
+- ARGUS added a stale detail-request guard so rapid trace switching cannot show
+  an older response under the newly selected row.
+- Long sanitized fact chips now wrap in the compact Settings panel to preserve
+  the intended narrow/mobile layout.
+
+ARGUS validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` passed with 93 tests,
+  including the new ARGUS helper redaction regressions.
+- `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` passed with 2
+  tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` passed with 35
+  tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/web build` compiled,
+  linted/typechecked, collected page data, generated 36 static pages, finalized
+  optimization, and collected build traces before the known local Windows
+  standalone symlink `EPERM` while copying traced files. Existing raw `<img>`
+  warnings appeared.
+- `git diff --check` passed with CRLF normalization warnings only.
+
+Because PR145 changes visible Settings behavior, ARGUS wakes ARIADNE for
+`/settings` route rehearsal before MIMIR closeout.

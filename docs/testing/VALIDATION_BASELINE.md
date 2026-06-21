@@ -83,6 +83,33 @@ DAEDALUS PR145 notes:
   session change, broad Settings redesign, new navigation surface, or migration
   ledger repair was added.
 
+ARGUS technical review validation on 2026-06-21:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 93 tests passed, including ARGUS regressions for spaced prompt labels, spaced secret labels, DB URLs, sanitized display labels, and trace-detail error copy. |
+| `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` | Pass | 2 tests passed; owner-scoped sanitized trace detail route coverage remains green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass | 35 tests passed; provider failure trace safety remains green. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typechecks passed. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web build` | Partial / known Windows failure | Next compiled, linted/typechecked, collected page data, generated 36 static pages, finalized optimization, and collected build traces before the known local Windows standalone symlink `EPERM` while copying traced files. Existing raw `<img>` warnings appeared. |
+| `git diff --check` | Pass | CRLF warnings only for touched files and local triad state. |
+
+ARGUS review notes:
+
+- PR145 is technically accepted for ARIADNE visible-route rehearsal, not MIMIR
+  closeout yet.
+- ARGUS patched a narrow client-side hardening edge: spaced prompt labels,
+  spaced secret labels, PostgreSQL-style DB URLs, status/source display labels,
+  and detail fetch errors now pass through stricter redaction so raw-looking
+  prompts, secrets, URLs, and trace ids do not render.
+- ARGUS added a stale detail-request guard so rapid trace switching cannot show
+  an older response under the currently selected row.
+- Long sanitized fact chips wrap in the compact Settings panel.
+- The implementation remains bounded to the Settings AI panel and web display
+  helpers. No raw trace viewer, public observability, provider/runtime,
+  Memory, Redis/Cloudflare, background job, billing/auth/session, navigation,
+  or migration-ledger scope was added.
+
 ## PR144 AI Trace Detail Sanitization Gate
 
 DAEDALUS implementation validation on 2026-06-21:

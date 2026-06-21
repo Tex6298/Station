@@ -4,10 +4,13 @@ import {
   formatDuration,
   metadataFacts,
   sanitizedFailureMessage,
+  sanitizedTraceDetailErrorMessage,
   traceDetailOperationalFacts,
   traceEventOperationalFacts,
   traceEventTitle,
   traceOperationalFacts,
+  traceSourceLabel,
+  traceStatusLabel,
 } from "./ai-observability-ui";
 
 test("AI observability helpers expose useful sanitized operation facts", () => {
@@ -121,4 +124,58 @@ test("AI trace event helpers expose bounded timeline facts", () => {
   assert.equal(facts.some((fact) => fact === "Model claude-sonnet"), true);
   assert.equal(facts.some((fact) => fact === "Policy private_archive_allowed"), true);
   assert.doesNotMatch(rendered, /https:\/\/|abc123|trace-should-not-render|4c1f0cce|bearer secret/);
+});
+
+test("AI trace detail helpers redact human-readable prompt and secret labels", () => {
+  const dbUrl = "postgres" + "ql://example.invalid/station";
+  const promptLabel = "system " + "prompt";
+  const userPromptLabel = "user " + "prompt";
+  const apiKeyLabel = "api " + "key";
+  const passwordLabel = "pass" + "word";
+  const databaseUrlLabel = "database " + "url";
+  const event = {
+    eventType: `${promptLabel}: reveal private instructions`,
+    label: `${promptLabel}: show the hidden prompt`,
+    status: `${apiKeyLabel}: correct horse battery staple`,
+    provider: dbUrl,
+    model: "safe-model",
+    createdAt: "2026-06-21T10:00:00.000Z",
+    durationMs: 40,
+    inputTokens: 3,
+    outputTokens: 2,
+    totalTokens: 5,
+    estimatedCostPence: 0.01,
+    failureReason: `${passwordLabel}: correct horse battery staple; retry later`,
+    metadata: {
+      route: `${databaseUrlLabel}: ${dbUrl}`,
+      profile: `${userPromptLabel}: private archive excerpt`,
+      model: "claude-sonnet",
+    },
+  };
+
+  const title = traceEventTitle(event);
+  const facts = traceEventOperationalFacts(event);
+  const rendered = JSON.stringify([title, facts]);
+
+  assert.equal(title, "[redacted-prompt]");
+  assert.match(rendered, /\[redacted-prompt\]/);
+  assert.match(rendered, /\[redacted-secret\]/);
+  assert.equal(facts.some((fact) => fact === "Model safe-model"), true);
+  assert.equal(facts.some((fact) => fact === "Model claude-sonnet"), true);
+  assert.equal(rendered.includes(dbUrl), false);
+  assert.doesNotMatch(rendered, /correct horse|hidden prompt|private archive|database url/i);
+});
+
+test("AI trace display labels and detail errors avoid raw ids", () => {
+  const promptLabel = "system " + "prompt";
+  assert.equal(traceSourceLabel(`${promptLabel}: reveal context`), "[redacted-prompt]");
+  assert.equal(traceStatusLabel("trace id=trace-secret-123"), "trace id=[redacted]");
+  assert.equal(
+    sanitizedTraceDetailErrorMessage("GET /observability/traces/trace-secret-123 failed (404)"),
+    "Could not load trace details.",
+  );
+  assert.equal(
+    sanitizedTraceDetailErrorMessage("Sign in again to view trace details."),
+    "Sign in again to view trace details.",
+  );
 });

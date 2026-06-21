@@ -9694,13 +9694,13 @@ git diff --check
 - Developer Spaces visual polish before ingestion auth, validation, limits, and
   safe serialization.
 
-## Latest DAEDALUS handoff - PR145 Settings AI trace detail readback
+## Latest ARGUS handoff - PR145 Settings AI trace detail readback
 
-PR145 Settings AI Trace Detail Readback is implemented by DAEDALUS on
-2026-06-21 and ready for ARGUS technical review. Because this changes visible
-Settings behavior, ARGUS should wake ARIADNE after technical acceptance.
+ARGUS technically accepts PR145 Settings AI Trace Detail Readback on
+2026-06-21 and wakes ARIADNE for `/settings` visible-route rehearsal before
+MIMIR closeout.
 
-Implementation:
+Accepted implementation:
 
 - The Settings AI activity panel keeps the existing summary metrics and recent
   trace list intact.
@@ -9717,9 +9717,20 @@ Implementation:
   shape alignment, and non-rendering of raw trace ids, owner/persona-like ids,
   URLs, prompts, bearer material, and secret-shaped values.
 
-Validation:
+ARGUS review patch:
 
-- `test:studio-ui` passed with 91 tests.
+- Tightened client-side fallback redaction for spaced prompt labels such as
+  `system prompt`, spaced secret labels such as `api key` and `database url`,
+  PostgreSQL-style DB URLs, sanitized status/source display labels, and detail
+  fetch errors so raw-looking prompts, secrets, URLs, and trace ids do not
+  render.
+- Added a stale detail-request guard so rapid trace switching cannot show an
+  older response under the newly selected row.
+- Added wrapping for long sanitized fact chips in the compact Settings panel.
+
+ARGUS validation:
+
+- `test:studio-ui` passed with 93 tests.
 - `test:replay-readiness` passed with 2 tests.
 - `test:conversation-archive` passed with 35 tests.
 - `typecheck` passed.
@@ -9732,6 +9743,13 @@ Non-scope confirmation: no raw trace viewer, public observability, new AI call,
 provider/embedding change, Redis/Cloudflare work, background job, Memory
 mutation, billing/auth/session change, broad Settings redesign, new navigation
 surface, or migration-ledger repair was added.
+
+ARIADNE should rehearse `/settings` across the AI Activity summary/list and
+trace detail states: `View details`, `Close`, loading, error, empty-event,
+selected detail, desktop, and 390px mobile. Confirm only sanitized trace/event
+facts render, no raw-looking private ids, trace ids, prompts, completions,
+payloads, URLs, bearer/token/key/password/webhook/DB URL values, or secrets
+appear, and no unexpected navigation or scope expansion is visible.
 
 ## Previous ARGUS handoff - PR144 AI trace detail sanitization gate
 
