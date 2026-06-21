@@ -9,6 +9,7 @@ import { personasRouter } from "./routes/personas";
 import { memoryRouter } from "./routes/memory";
 import { canonRouter } from "./routes/canon";
 import { importsRouter } from "./routes/imports";
+import { backgroundJobsRouter } from "./routes/background-jobs";
 import { personaFilesRouter } from "./routes/persona-files";
 import { calibrationRouter } from "./routes/calibration";
 import { spacesRouter } from "./routes/spaces";
@@ -59,6 +60,7 @@ export function createApp() {
   app.use("/memory", memoryRouter);
   app.use("/canon", canonRouter);
   app.use("/imports", importsRouter);
+  app.use("/background-jobs", backgroundJobsRouter);
   app.use("/persona-files", personaFilesRouter);
   app.use("/calibration", calibrationRouter);
   app.use("/spaces", spacesRouter);

@@ -15,7 +15,7 @@
     "test:integrity": "pnpm --filter @station/types --filter @station/config --filter @station/db --filter @station/auth --filter @station/ai build && tsx --test apps/api/src/routes/integrity.test.ts",
     "test:token-credits": "pnpm --filter @station/types --filter @station/config --filter @station/db --filter @station/auth build && tsx --test apps/api/src/routes/token-credits.test.ts",
     "test:cache": "tsx --test apps/api/src/services/operational-cache.service.test.ts",
-    "test:jobs": "tsx --test apps/api/src/services/background-jobs.service.test.ts",
+    "test:jobs": "tsx --test apps/api/src/services/background-jobs.service.test.ts apps/api/src/routes/background-jobs.test.ts",
     "test:health": "tsx --test apps/api/src/routes/health.test.ts apps/web/lib/deployment-identity.test.ts",
     "test:projects": "pnpm --filter @station/types --filter @station/config --filter @station/db --filter @station/auth build && tsx --test apps/api/src/routes/projects.test.ts",
     "test:replay-readiness": "pnpm --filter @station/types --filter @station/config --filter @station/db --filter @station/auth build && tsx --test apps/api/src/routes/replay-readiness.test.ts",

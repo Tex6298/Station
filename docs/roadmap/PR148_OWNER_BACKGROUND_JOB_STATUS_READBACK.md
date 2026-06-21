@@ -4,7 +4,7 @@ Date opened: 2026-06-21
 Opened by: A1 / MIMIR
 Owner: DAEDALUS implements or precisely blocks, ARGUS reviews. ARIADNE rehearses
 only if visible route behavior changes.
-Status: open
+Status: implemented by DAEDALUS; awaiting ARGUS review
 
 ## Why This Lane
 
@@ -129,3 +129,48 @@ ARGUS should verify:
 - validation passed.
 
 ARIADNE is not required unless DAEDALUS changes visible owner-route behavior.
+
+## DAEDALUS Implementation Notes
+
+Implemented on 2026-06-21.
+
+Route shape:
+
+- `GET /background-jobs` is authenticated with `requireAuth`.
+- The route reads only the current owner's `import_jobs` and `export_packages`
+  rows.
+- The response combines recent durable jobs into a single bounded list with
+  `id`, `kind`, `status`, `statusStore`, safe `label`, sanitized
+  `errorSummary`, and available `createdAt`/`updatedAt` timestamps.
+- Route-followup kinds are listed separately as inactive:
+  `embedding_backfill`, `memory_consolidation`, `replay_seed_setup`, and
+  `developer_space_import_batch`.
+
+Privacy proof:
+
+- The route response does not serialize owner ids, persona ids, developer space
+  ids, resource ids, queue payloads, raw import bodies, prompts/completions,
+  trace/provider payloads, raw URLs, bearer values, API keys, webhook secrets,
+  DB URLs, tokens, cookies, or secret-shaped values.
+- Job ids are retained only as stable owner-action/client keys.
+- Display labels and errors reuse hardened background-job sanitization.
+
+Non-claims:
+
+- No BullMQ/Redis/Valkey worker runtime, production worker process, Cloudflare
+  Queue/Worker implementation, Redis Memory truth, retry worker, public job
+  status, broad dashboard UI, provider migration, or migration-ledger repair
+  was added.
+- Existing import/export routes and retry behavior were left intact.
+
+Validation:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:jobs` | Pass | 8 tests passed, including the new owner readback route. |
+| `npm exec --yes pnpm@10.32.1 -- run test:storage` | Pass | 16 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:exports` | Pass | 4 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:health` | Pass | 16 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` | Pass | 2 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API typecheck ran; web typecheck replayed from cache. |
+| `git diff --check` | Pass | CRLF normalization warnings only for touched files and local DAEDALUS state. |

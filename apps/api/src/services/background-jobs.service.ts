@@ -56,6 +56,32 @@ export type ExportPackageJobRow = {
   error_message?: string | null;
 };
 
+export type ExportPackageJobReadbackRow = ExportPackageJobRow & {
+  requested_at?: string | null;
+  completed_at?: string | null;
+  created_at?: string | null;
+  updated_at?: string | null;
+};
+
+export type OwnerBackgroundJobReadback = {
+  id: string;
+  kind: BackgroundJobKind;
+  status: BackgroundJobStatus;
+  statusStore: "import_jobs" | "export_packages";
+  label: string;
+  errorSummary: string | null;
+  createdAt: string | null;
+  updatedAt: string | null;
+};
+
+export type InactiveBackgroundJobReadback = {
+  kind: BackgroundJobKind;
+  status: "inactive";
+  statusStore: "route_followup";
+  ownerScoped: boolean;
+  reason: string;
+};
+
 export const BACKGROUND_JOB_KINDS: Record<BackgroundJobKind, {
   statusStore: "import_jobs" | "export_packages" | "route_followup";
   ownerScoped: boolean;
@@ -193,6 +219,53 @@ export function summarizeExportBackgroundJob(row: ExportPackageJobRow): Backgrou
   };
 }
 
+export function serializeOwnerBackgroundJobReadback(
+  summary: BackgroundJobSummary,
+  timestamps: { createdAt?: string | null; updatedAt?: string | null } = {}
+): OwnerBackgroundJobReadback {
+  const statusStore = BACKGROUND_JOB_KINDS[summary.kind].statusStore;
+  if (statusStore !== "import_jobs" && statusStore !== "export_packages") {
+    throw new Error(`Background job kind ${summary.kind} does not have durable owner readback.`);
+  }
+
+  return {
+    id: summary.id,
+    kind: summary.kind,
+    status: summary.status,
+    statusStore,
+    label: sanitizeJobDisplayLabel(summary.sourceLabel, fallbackJobLabel(summary.kind)),
+    errorSummary: summary.errorMessage ? sanitizeJobErrorMessage(summary.errorMessage) : null,
+    createdAt: timestamps.createdAt ?? null,
+    updatedAt: timestamps.updatedAt ?? timestamps.createdAt ?? null,
+  };
+}
+
+export function serializeImportBackgroundJobReadback(row: ImportJobRow): OwnerBackgroundJobReadback {
+  return serializeOwnerBackgroundJobReadback(summarizeImportBackgroundJob(row), {
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+  });
+}
+
+export function serializeExportBackgroundJobReadback(row: ExportPackageJobReadbackRow): OwnerBackgroundJobReadback {
+  return serializeOwnerBackgroundJobReadback(summarizeExportBackgroundJob(row), {
+    createdAt: row.created_at ?? row.requested_at ?? null,
+    updatedAt: row.updated_at ?? row.completed_at ?? row.requested_at ?? row.created_at ?? null,
+  });
+}
+
+export function inactiveRouteFollowupBackgroundJobs(): InactiveBackgroundJobReadback[] {
+  return (Object.entries(BACKGROUND_JOB_KINDS) as Array<[BackgroundJobKind, typeof BACKGROUND_JOB_KINDS[BackgroundJobKind]]>)
+    .filter(([, definition]) => definition.statusStore === "route_followup")
+    .map(([kind, definition]) => ({
+      kind,
+      status: "inactive",
+      statusStore: "route_followup",
+      ownerScoped: definition.ownerScoped,
+      reason: routeFollowupInactiveReason(kind),
+    }));
+}
+
 export function serializeImportJob(row: ImportJobRow) {
   return {
     id: row.id,
@@ -266,12 +339,27 @@ export function sanitizeJobErrorMessage(error: unknown, privateSnippets: Array<s
   }
 
   message = message
+    .replace(/\b(?:postgres(?:ql)?|redis|mysql):\/\/\S+/gi, "[redacted-url]")
+    .replace(/\bhttps?:\/\/\S+/gi, "[redacted-url]")
     .replace(/Bearer\s+[A-Za-z0-9._~+/-]+=*/gi, "Bearer [redacted]")
-    .replace(/\bsk-[A-Za-z0-9_-]+\b/g, "[redacted]")
-    .replace(/\b(?:service[_-]?role|api[_-]?key|secret|token)\s*[:=]\s*\S+/gi, "[redacted]");
+    .replace(/\b(?:sk|pk|rk|whsec|ghp|pat)[_-][A-Za-z0-9._-]+\b/gi, "[redacted]")
+    .replace(/\b[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}\b/gi, "[id]")
+    .replace(/\b(?:owner|user|persona|developer[_-]?space|space|memory|trace|event|source|resource)[_-]?id\s*[:=]\s*\S+/gi, "[redacted-id]")
+    .replace(/\b(?:authorization|cookie|token|api[_-]?key|x-api-key|service[_-]?role|secret|password|webhook[_-]?secret|db[_-]?url)\s*[:=]\s*\S+/gi, "[redacted]")
+    .replace(/\b(?:prompt|completion|provider[_-]?payload|private[_-]?text|raw[_-]?body|archive[_-]?excerpt)\s*[:=]\s*[^.;]+/gi, "[redacted private text]");
 
   const normalized = message.replace(/\s+/g, " ").trim() || "Job failed.";
   return normalized.length > 240 ? `${normalized.slice(0, 237)}...` : normalized;
+}
+
+export function sanitizeJobDisplayLabel(
+  label: string | null | undefined,
+  fallback = "background job"
+) {
+  const normalized = typeof label === "string" && label.trim()
+    ? sanitizeJobErrorMessage(label)
+    : fallback;
+  return normalized.length > 80 ? `${normalized.slice(0, 77)}...` : normalized;
 }
 
 export async function loadOwnedImportJob(jobId: string, ownerUserId: string) {
@@ -420,6 +508,32 @@ function isMissingImportJobFileIdError(error: { message?: string } | null | unde
 
 function hasValue(value: string | undefined | null) {
   return typeof value === "string" && value.trim().length > 0;
+}
+
+function fallbackJobLabel(kind: BackgroundJobKind) {
+  switch (kind) {
+    case "archive_extraction":
+      return "archive import";
+    case "export_assembly":
+      return "export package";
+    default:
+      return "background job";
+  }
+}
+
+function routeFollowupInactiveReason(kind: BackgroundJobKind) {
+  switch (kind) {
+    case "embedding_backfill":
+      return "No embedding backfill owner job route exists yet.";
+    case "memory_consolidation":
+      return "No memory consolidation owner job route exists yet.";
+    case "replay_seed_setup":
+      return "Replay seed setup remains a readiness/manual lane until a job route exists.";
+    case "developer_space_import_batch":
+      return "Developer Space batch import remains on current ingestion routes until a batch job route exists.";
+    default:
+      return "No owner job route exists yet.";
+  }
 }
 
 function replaceAll(input: string, search: string, replacement: string) {

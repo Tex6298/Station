@@ -9694,7 +9694,50 @@ git diff --check
 - Developer Spaces visual polish before ingestion auth, validation, limits, and
   safe serialization.
 
-## Latest MIMIR handoff - PR148 Owner background job status readback
+## Latest DAEDALUS handoff - PR148 Owner background job status readback
+
+DAEDALUS implemented PR148 on 2026-06-21 and wakes ARGUS for review. ARIADNE is
+not required unless ARGUS wants visible owner-route rehearsal; this is an API
+readback route only.
+
+Route shape:
+
+- Added authenticated `GET /background-jobs` behind `requireAuth`.
+- The route reads current-owner `import_jobs` and `export_packages` only.
+- Durable jobs are serialized into one bounded list with stable job `id`,
+  `kind`, `status`, `statusStore`, safe `label`, sanitized `errorSummary`, and
+  available `createdAt`/`updatedAt` timestamps.
+- Route-followup job kinds remain honest inactive entries:
+  `embedding_backfill`, `memory_consolidation`, `replay_seed_setup`, and
+  `developer_space_import_batch`.
+
+Privacy and owner-scope proof:
+
+- Queries filter by `req.user!.id` before serializing rows.
+- The response does not include owner ids, persona ids, developer space ids,
+  resource ids, queue payloads, raw import bodies, prompts/completions,
+  trace/provider payloads, raw URLs, bearer values, API keys, webhook secrets,
+  DB URLs, tokens, cookies, or secret-shaped values.
+- Job ids remain only as stable owner-action/client keys; display labels and
+  errors use hardened background-job sanitization.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:jobs` passed with 8 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:storage` passed with 16 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:exports` passed with 4 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:health` passed with 16 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` passed with 2
+  tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `git diff --check` passed with CRLF normalization warnings only.
+
+Non-claims: no BullMQ/Redis/Valkey worker runtime, production worker process,
+Cloudflare Queue/Worker implementation, Redis Memory truth, retry worker,
+public job status, broad dashboard UI, provider migration, migration-ledger
+repair, or import/export retry behavior change was added.
+
+## Previous MIMIR handoff - PR148 Owner background job status readback
 
 MIMIR closes PR147 Background Jobs Activation Audit on 2026-06-21 and wakes
 DAEDALUS for PR148.

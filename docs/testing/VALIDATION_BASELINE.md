@@ -52,6 +52,33 @@ pnpm test:developer-spaces
 pnpm test:developer-space-client
 ```
 
+## PR148 Owner Background Job Status Readback
+
+DAEDALUS implementation validation on 2026-06-21:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:jobs` | Pass | 8 tests passed; the gate now covers background-job helpers and the owner-only `GET /background-jobs` readback route. |
+| `npm exec --yes pnpm@10.32.1 -- run test:storage` | Pass | 16 tests passed; archive import and storage-accounting behavior remains green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:exports` | Pass | 4 tests passed; export package persistence and failure readback remains green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:health` | Pass | 16 tests passed; queue/cache readiness posture remains green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` | Pass | 2 tests passed; replay measurement prep remains green. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API typecheck ran; web typecheck replayed from cache. |
+| `git diff --check` | Pass | CRLF warnings only for touched files and local DAEDALUS state. |
+
+DAEDALUS PR148 notes:
+
+- Added authenticated `GET /background-jobs` for current-owner durable
+  `import_jobs` and `export_packages` status readback.
+- Added `apps/api/src/routes/background-jobs.test.ts` to `test:jobs`.
+- Hardened background-job display sanitization for raw URLs, DB URLs, bearer
+  values, secret-shaped keys, UUIDs, id-like key-values, and private
+  payload-shaped fields.
+- Route-followup kinds remain inactive/documented until owning routes exist.
+- No worker runtime, production worker, Cloudflare Queue/Worker, Redis Memory
+  truth, retry worker, public job status, broad dashboard UI, provider
+  migration, or migration-ledger repair was added.
+
 ## PR147 Background Jobs Activation Audit
 
 DAEDALUS implementation validation on 2026-06-21:
