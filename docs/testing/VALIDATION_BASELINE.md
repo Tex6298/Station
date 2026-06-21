@@ -63,6 +63,35 @@ DAEDALUS smoke attempt on 2026-06-21:
 | Sanitized public/owner readback probe | Bounded staging schema issue | Public and owner readback for `station-replay-dev-alpha` both returned HTTP `500` with missing `public.developer_space_observed_runtime_context` schema-cache error. |
 | `git diff --check` | Pass | CRLF normalization warnings only. |
 
+ARGUS review validation on 2026-06-21:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 27 tests passed, including observed-runtime context persistence/readback and named-key coverage. |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-space-client` | Pass | 15 tests passed, including guarded Agents Observe live-send behavior with mocked transport. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/api build` | Pass | API package build completed after dependency package builds. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typechecks replayed/passed through turbo. |
+| `git diff --check` | Pass | CRLF normalization warnings only for local triad/docs state. |
+| `git diff --cached --check` | Pass | No staged whitespace errors. |
+
+ARGUS review notes:
+
+- Accepted PR136 as a bounded staging schema/readback blocker and wakes MIMIR
+  for deployment/schema sequencing.
+- The committed smoke evidence proves named-key create/list/revoke, no legacy
+  rotation, guarded live-send reach, and targeted revoke on the MIMIR-selected
+  `station-replay-dev-alpha` space.
+- The live sends and public/owner readbacks failed with the same missing
+  `public.developer_space_observed_runtime_context` schema-cache error. Local
+  migration `046_observed_runtime_supporting_context.sql` defines that table,
+  so this is a staging schema/deploy/schema-cache gap rather than a missing repo
+  route.
+- No accepted import/replay readback is claimed, and ARGUS did not rerun live
+  smoke because that would require secret-bearing auth and another staging
+  mutation.
+- No raw key, auth token, webhook id, fixture prompt/body/path value, `.env`
+  value, Railway variable, or committed secret was added.
+
 Smoke result:
 
 - Initial attempt was blocked before named-key creation because PR136 required a

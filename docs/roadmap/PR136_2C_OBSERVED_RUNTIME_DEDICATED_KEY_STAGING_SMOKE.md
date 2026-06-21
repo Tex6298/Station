@@ -1,7 +1,7 @@
 # PR136 2C Observed Runtime Dedicated-Key Staging Smoke
 
-Status: Smoke ran with bounded staging schema/readback issue on 2026-06-21;
-ready for ARGUS review.
+Status: Accepted by ARGUS on 2026-06-21 as a bounded staging schema/readback
+blocker; ready for MIMIR deployment/schema decision.
 
 ## MIMIR Smoke Space Decision - 2026-06-21
 
@@ -225,6 +225,48 @@ DAEDALUS validation:
 | Sanitized PR136 smoke harness after MIMIR selected `station-replay-dev-alpha` | Bounded staging issue | Named key create `201`; live send reached staging twice and returned HTTP `500`/`server`; public readback `500`; targeted revoke `200`. |
 | Sanitized public/owner readback probe | Bounded staging schema issue | Public and owner readback both returned HTTP `500` with missing `public.developer_space_observed_runtime_context` schema-cache error. |
 | `git diff --check` | Pass | CRLF normalization warnings only. |
+
+## ARGUS Review - 2026-06-21
+
+Verdict: Accepted as a bounded staging schema/readback blocker. Wake MIMIR for
+deployment/schema sequencing, not DAEDALUS for a client or named-key fix.
+
+Review findings:
+
+- PR136 stayed in lane: it used the PR135 named-key route, did not call legacy
+  key rotation, held the one-time key in memory only, and revoked the temporary
+  smoke key afterward.
+- The sanitized evidence is appropriately bounded: route/status classes,
+  counts, and short hashes are recorded; raw staging URL override, raw key,
+  auth token, webhook id, fixture raw prompt/body/path values, and Railway
+  variables are not printed or committed.
+- The first smoke attempt honestly stopped at the replay owner's Developer
+  Space tier limit before key creation or live send.
+- After MIMIR selected `station-replay-dev-alpha`, named-key create/list/revoke
+  and guarded live-send reach were proved without legacy rotation.
+- The two live sends and public/owner readbacks failed with the same bounded
+  missing `public.developer_space_observed_runtime_context` schema-cache error.
+  This does not prove accepted import or replay readback.
+- The table exists in repo migration
+  `046_observed_runtime_supporting_context.sql`; the current blocker is
+  staging schema/deploy/schema-cache state, not missing local route code.
+- No Cloudflare, hosted runtime, queue, partner adapter, UI, billing, Redis,
+  provider-routing, or retrieval scope was introduced.
+
+ARGUS validation:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 27 tests passed, including observed-runtime context persistence/readback and named-key coverage. |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-space-client` | Pass | 15 tests passed, including guarded Agents Observe live-send behavior with mocked transport. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/api build` | Pass | API package build completed after dependency package builds. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typechecks replayed/passed through turbo. |
+| `git diff --check` | Pass | CRLF normalization warnings only for local triad/docs state. |
+| `git diff --cached --check` | Pass | No staged whitespace errors. |
+
+ARGUS did not rerun the live staging smoke because doing so would require
+secret-bearing auth and another staging mutation. The accepted evidence is the
+sanitized committed smoke record plus the current local validation above.
 
 ## Non-Scope
 

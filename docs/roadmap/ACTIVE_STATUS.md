@@ -9476,54 +9476,67 @@ git diff --check
 - Developer Spaces visual polish before ingestion auth, validation, limits, and
   safe serialization.
 
-## Latest ARGUS verdict - PR135 Developer Space named ingestion keys
+## Latest ARGUS verdict - PR136 dedicated-key staging smoke
 
-## Latest DAEDALUS handoff - PR136 dedicated-key staging smoke
+ARGUS accepts PR136 2C Observed Runtime Dedicated-Key Staging Smoke on
+2026-06-21 as a bounded staging schema/readback blocker and wakes MIMIR for
+deployment/schema sequencing.
 
-PR136 2C Observed Runtime Dedicated-Key Staging Smoke ran against MIMIR-selected
-`station-replay-dev-alpha` on 2026-06-21 and is ready for ARGUS review as a
-bounded staging schema/readback blocker.
+Accepted proof:
 
-Sanitized execution evidence:
-
-- Target came from local `STATION_API_URL` override; the value was not printed
-  or committed.
-- Replay-owner `/auth/signin` returned HTTP `200`.
-- Authenticated `GET /developer-spaces` returned HTTP `200` with count 2.
-- Selected `station-replay-dev-alpha`; selected space id hash
-  `44e026dc4e6c`.
-- Named key route proof:
-  - list before create returned HTTP `200`, active count 0;
-  - named key create returned HTTP `201`;
-  - key id hash `97ac37e24575`;
-  - list after create returned HTTP `200`, active count 1;
-  - no legacy `POST /developer-spaces/:id/api-key` route was used.
-- Guarded Agents Observe live send used the one-time named key in memory only;
-  generated webhook id hash `1313db6dbcdd`.
-- First live send reached staging and returned HTTP `500`, classified `server`.
-- Second live send with the same webhook id also returned HTTP `500`,
-  classified `server`.
-- Public and owner readback for `station-replay-dev-alpha` both returned HTTP
-  `500` with the bounded schema-cache error:
+- Initial auth/config probe was honest: local `STATION_API_URL` override and
+  replay-owner credentials were present; sign-in returned HTTP `200`; owner
+  Developer Space list returned HTTP `200`; new smoke-space creation stopped at
+  the bounded tier-limit `403` before key creation or live send.
+- After MIMIR selected existing `station-replay-dev-alpha`, the smoke used
+  `POST /developer-spaces/:id/ingestion-keys` to create a temporary named key,
+  proved active count 0 -> 1, and did not call legacy
+  `POST /developer-spaces/:id/api-key`.
+- Guarded Agents Observe live send reached staging twice using the one-time key
+  in process memory only. Both sends returned bounded HTTP `500` classified
+  `server`.
+- Public and owner readback both returned HTTP `500` with the same bounded
+  schema-cache error:
   `Could not find the table 'public.developer_space_observed_runtime_context' in the schema cache`.
-- Public readback did not contain the generated key, generated webhook id,
-  fixture raw prompt, command body, terminal output, token value, fixture source
-  ids, or fixture file paths.
 - Targeted revoke returned HTTP `200`; follow-up list showed the smoke key
-  `revoked`; unrelated active key count after revoke was 0, matching the count
-  before create.
+  revoked; unrelated active key count after revoke matched the before-create
+  active count.
+- Sanitized docs record route/status classes, counts, and short hashes only.
+  Raw staging URL override, raw key, auth token, webhook id, fixture prompt/body
+  or path values, `.env` values, Railway variables, and secrets were not printed
+  or committed.
 
-Result:
+ARGUS interpretation:
 
-- PR136 proved named-key creation, no legacy rotation, guarded live-send reach,
-  and targeted revoke.
-- Staging did not accept/import/replay because the observed-runtime context
-  table is missing from the live schema cache.
-- No secret values were printed, committed, written to `.env`, or written to
-  Railway variables.
+- PR136 proves named-key create/list/revoke, no legacy rotation, guarded
+  live-send reach, and targeted revoke.
+- PR136 does not prove accepted import, successful replay, or public/owner
+  readback because staging is missing the observed-runtime context table in the
+  live schema cache.
+- The repo already contains migration
+  `046_observed_runtime_supporting_context.sql` for
+  `public.developer_space_observed_runtime_context`; the next decision is a
+  staging schema/deploy/schema-cache matter, not a client guard or named-key
+  implementation fix.
 
-ARGUS should review this as a bounded staging schema/readback issue, not as a
-client guard or named-key failure.
+ARGUS validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces`: pass, 27 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:developer-space-client`: pass, 15
+  tests.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/api build`: pass.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck`: pass.
+- `git diff --check`: pass with CRLF normalization warnings only for local
+  triad/docs state.
+- `git diff --cached --check`: pass.
+
+ARGUS did not rerun live staging smoke because doing so would require
+secret-bearing auth and another staging mutation.
+
+Non-scope confirmed: no legacy key rotation, committed secrets, `.env` writes,
+Railway variable writes, Cloudflare Worker/Vectorize/D1/Queue/Durable Object
+work, hosted runtime, scheduler, agent control plane, broad UI, billing/Stripe,
+Redis memory truth, provider routing, or retrieval model change.
 
 ## Previous DAEDALUS handoff - PR127 webhook concurrency guard
 
