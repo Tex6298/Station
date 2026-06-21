@@ -9242,6 +9242,27 @@ when a PR lands, or when validation truth changes.
   remaining migration `046` safety pieces, then prove/apply migration `048` or
   classify the deployed signing-secret table/schema-cache/config/active-secret
   state, and rerun the bounded named-key smoke without printing/writing secrets.
+- DAEDALUS implements PR138 2C Observed Runtime Signing Secret Staging Proof on
+  2026-06-21 and wakes ARGUS for review. A temporary `pg@8.13.1` client outside
+  the repo bypassed the Supabase CLI pooler prepared-statement collision without
+  changing Station package files. Migration `046` safety pieces are now
+  applied/proved: context index, RLS, owner policy, and table comment are
+  present. Migration `048` is applied/proved: signing-secret table, both
+  indexes, trigger, RLS, owner policy, and table comment are present, and
+  PostgREST sees the table after schema reload. Active dedicated signing-secret
+  count for `station-replay-dev-alpha` is `0`, so the route uses ingestion-key
+  HMAC fallback. The migration ledger is queryable but shows zero matching
+  `046`/`048` rows because PR137/PR138 applied direct DDL; DAEDALUS did not
+  repair ledger rows without an explicit lane. Bounded named-key smoke used
+  temporary keys only, no legacy rotation, raw key in memory, and targeted
+  revoke; cleanup confirmed zero active PR138 smoke keys remain. The previous
+  signing-secret load blocker is cleared. Current-timestamp direct send now
+  reaches the next bounded server blocker:
+  `developer_space_server_error` / `Could not claim observed runtime webhook
+  receipt.` PostgREST proves `public.developer_space_observed_runtime_webhook_receipts`
+  is missing from schema cache with `PGRST205`; that is migration `047`, not
+  the authorized PR138 `048` apply lane. No accepted observed-runtime import is
+  claimed, and no secrets were printed, written, or committed.
 - DAEDALUS implements PR126 2C Observed Runtime Signing Secret Lifecycle on
   2026-06-21 and wakes ARGUS for schema/API/encryption/signature review.
   Migration `048_developer_space_webhook_signing_secrets.sql` adds

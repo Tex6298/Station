@@ -1,6 +1,6 @@
 # PR138 2C Observed Runtime Signing Secret Staging Proof
 
-Status: Opened by MIMIR on 2026-06-21 for DAEDALUS.
+Status: Implemented by DAEDALUS on 2026-06-21; ready for ARGUS review.
 
 ## Why This Lane
 
@@ -78,6 +78,96 @@ rerun the bounded PR136/PR137 smoke.
 - Temporary smoke named key is revoked.
 - No secret values are printed, committed, written to `.env`, docs, logs, or
   Railway variables.
+
+## DAEDALUS Result
+
+DAEDALUS ran PR138 against staging on 2026-06-21 using local secret-bearing env
+only. No raw Supabase URL, service role key, DB URL, auth token, replay
+password, Developer Space key, signing material, raw webhook id, fixture
+prompt/body/file path, `.env` value, Railway variable, or decrypted secret was
+printed, written to docs, or committed.
+
+Schema apply/proof method:
+
+- The Supabase CLI pooler path remained unreliable for DDL after a first
+  statement because it repeatedly hit:
+
+```text
+ERROR: prepared statement "lrupsc_1_0" already exists (SQLSTATE 42P05)
+```
+
+- DAEDALUS installed a temporary `pg@8.13.1` client outside the repo under the
+  local temp directory, used simple unprepared SQL, and did not change Station
+  package files.
+- Migration `046` safety pieces were completed/proved:
+  - `developer_space_observed_runtime_context_space_idx` returned
+    `CREATE INDEX` through the CLI before the pooler collision returned;
+  - RLS enable returned `ALTER`;
+  - owner policy returned `CREATE`;
+  - table comment returned `COMMENT`;
+  - metadata queries proved table exists, RLS enabled, index present, owner
+    policy present, and comment present.
+- Migration `048` schema was applied/proved:
+  - table returned `CREATE`;
+  - both indexes returned `CREATE`;
+  - trigger drop/create returned `DROP`/`CREATE`;
+  - RLS enable returned `ALTER`;
+  - owner policy returned `CREATE`;
+  - table comment returned `COMMENT`;
+  - metadata queries proved table exists, RLS enabled, both indexes present,
+    trigger present, owner policy present, and comment present.
+- `notify pgrst, 'reload schema'` returned `NOTIFY`.
+- PostgREST/service-role probes then returned HTTP `200` for
+  `developer_space_webhook_signing_secrets`.
+- Active dedicated signing-secret count for `station-replay-dev-alpha` is `0`.
+- The Supabase migration ledger is queryable, but direct DDL did not record
+  migrations: matching ledger counts for `046` and `048` are both `0`. DAEDALUS
+  did not repair or mutate ledger rows because that was not explicitly opened.
+
+Bounded smoke result:
+
+- Replay-owner signin returned HTTP `200`.
+- `GET /developer-spaces` returned HTTP `200` with count `2`.
+- Selected `station-replay-dev-alpha`, id hash `44e026dc4e6c`.
+- Temporary named PR138 keys were created with
+  `POST /developer-spaces/:id/ingestion-keys`, held in memory only, and revoked.
+- The stale fixed-demo timestamp path returned HTTP `401`/`auth` with
+  `developer_space_webhook_signature_stale`; this is a smoke-harness timestamp
+  issue, not the remaining staging schema blocker.
+- With a current timestamp, direct observed-runtime send got past signing-secret
+  load/auth and returned the new bounded server blocker:
+
+```text
+developer_space_server_error: Could not claim observed runtime webhook receipt.
+```
+
+- PostGREST/service-role probe proves
+  `public.developer_space_observed_runtime_webhook_receipts` is missing from the
+  schema cache with `PGRST205`. That table is migration `047`, which PR138 did
+  not authorize applying.
+- Public and owner readback for `station-replay-dev-alpha` remained HTTP `200`
+  with safe counts.
+- Cleanup confirmed zero active PR138 smoke keys remain.
+
+Classification:
+
+- The prior PR137 signing-secret load blocker is cleared.
+- No active dedicated signing secret exists, so the route uses ingestion-key
+  HMAC fallback.
+- The next blocker is not migration `048`; it is the missing/uncached migration
+  `047` observed-runtime webhook receipts table.
+- No accepted observed-runtime import/readback is claimed.
+- Migration ledger repair for direct-applied `046`/`048` remains a separate
+  operator decision.
+
+Focused local validation:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 27 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-space-client` | Pass | 15 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/api build` | Pass | API package build completed after dependency package builds. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typechecks passed through turbo cache replay. |
 
 ## Validation
 

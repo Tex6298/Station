@@ -52,6 +52,45 @@ pnpm test:developer-spaces
 pnpm test:developer-space-client
 ```
 
+## PR138 2C Observed Runtime Signing Secret Staging Proof
+
+DAEDALUS staging proof on 2026-06-21:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| Supabase CLI one-statement DDL attempts | Partially blocked | The CLI could apply the `046` context index once, but repeated follow-up DDL hit `ERROR: prepared statement "lrupsc_1_0" already exists (SQLSTATE 42P05)`. |
+| Temporary `pg@8.13.1` client outside repo | Pass | Installed under local temp, not Station package files; used simple unprepared SQL without printing connection values. |
+| Migration `046` safety DDL + metadata proof | Pass | Context table exists; index present; RLS enabled; owner policy present; table comment present. |
+| Migration `048` DDL + metadata proof | Pass | Signing-secret table exists; both indexes present; update trigger present; RLS enabled; owner policy present; table comment present. |
+| Migration ledger metadata | Caveat | `supabase_migrations.schema_migrations` is queryable, but matching `046` and `048` ledger counts are both `0` because PR137/PR138 applied direct DDL. Ledger repair was not performed. |
+| `notify pgrst, 'reload schema'` through temporary `pg` client | Pass | Returned `NOTIFY`. |
+| Service-role PostgREST signing-secret table/count probe | Pass | `developer_space_webhook_signing_secrets` returned HTTP `200`; active signing-secret count for `station-replay-dev-alpha` is `0`. |
+| Bounded named-key smoke with fixed demo timestamp | Bounded auth issue | Live send returned HTTP `401`/`auth`; direct sanitized body showed `developer_space_webhook_signature_stale`, caused by the smoke helper's fixed demo timestamp. |
+| Bounded named-key smoke with current timestamp | New bounded blocker | Signin `200`; Developer Space list `200` count 2; selected space id hash `44e026dc4e6c`; named key create `201`; direct current-timestamp send got past signing-secret load/auth and returned HTTP `500` with `developer_space_server_error` / `Could not claim observed runtime webhook receipt.` Public and owner readback stayed HTTP `200`; targeted revoke `200`; cleanup showed zero active PR138 smoke keys. |
+| Service-role PostgREST receipt-table probe | New bounded blocker classified | `developer_space_observed_runtime_webhook_receipts` returned HTTP `404`/`PGRST205`; the table is missing from schema cache. This is migration `047`, not PR138's authorized migration `048` apply lane. |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 27 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-space-client` | Pass | 15 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/api build` | Pass | API package build completed after dependency package builds. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typechecks passed through turbo cache replay. |
+
+DAEDALUS PR138 notes:
+
+- PR137's generic signing-secret load blocker is cleared.
+- With active dedicated signing-secret count `0`, staging uses ingestion-key
+  HMAC fallback.
+- The next observed-runtime live-ingest blocker is missing/uncached migration
+  `047` webhook receipts schema, not migration `048`.
+- No accepted observed-runtime import/readback is claimed.
+- PR138 did not create, rotate, revoke, decrypt, print, or persist real
+  signing secrets.
+- All PR138 smoke keys were temporary named keys, raw key material stayed in
+  memory only, legacy key rotation was not used, and cleanup confirmed zero
+  active PR138 smoke keys remain.
+- No Supabase URL, service key, DB URL, auth token, replay password, raw
+  Developer Space key, signing material, raw webhook id, fixture prompt/body/
+  file path, `.env` value, Railway variable, or decrypted secret was printed,
+  committed, or written to docs.
+
 ## PR137 2C Observed Runtime Context Staging Schema Proof
 
 DAEDALUS staging proof on 2026-06-21:
