@@ -4,6 +4,8 @@ export type DeveloperSpaceEventProvenance = "api" | "imported" | "user" | "syste
 export type DeveloperSpaceObservedRuntimeFieldVisibility = "public" | "member" | "owner" | "private" | "secret";
 export type DeveloperSpaceObservedRuntimeContextType = "zone" | "resource" | "edge" | "provenance";
 
+export * from "./agents-observe";
+
 export interface DeveloperSpaceClientOptions {
   baseUrl: string;
   apiKey: string;

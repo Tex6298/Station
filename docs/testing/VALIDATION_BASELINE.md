@@ -52,6 +52,38 @@ pnpm test:developer-spaces
 pnpm test:developer-space-client
 ```
 
+## PR132 2C Agents Observe Transform Spike
+
+DAEDALUS implementation validation on 2026-06-21:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-space-client` | Pass | 10 tests passed, including Agents Observe transform mapping, raw-value redaction/classification, and signed observed-runtime request construction without live send. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/developer-space-client build` | Pass | Client package build completed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed from cache. |
+| `git diff --check` | Pass | CRLF normalization warnings only. |
+
+Implementation result:
+
+- Added a tiny local Agents Observe-style fixture and
+  `transformAgentsObserveHookEvent` in the Developer Space client package.
+- The transform maps one hook/session event into `DeveloperSpaceBatchImportPayload`
+  with session/agent nodes, a public hook event, a public snapshot, and
+  provenance supporting context.
+- Public-safe values are limited to coarse labels, counts, role/status, and
+  provenance.
+- Raw prompt, command body, file paths, tool payload token/path,
+  terminal-output-like material, and token value are redacted and classified
+  private/secret where retained.
+- The PR128 signed observed-runtime request helper is exercised with fixed fake
+  signing material and no live request.
+- No external repo code, live webhook send, smoke config, Developer Space key
+  generation/rotation, Cloudflare Worker/Vectorize/D1/Queue/Durable Object,
+  hosted runtime, partner onboarding, visible secret-management UI,
+  billing/Stripe, Redis memory truth, provider routing, chat-native developer
+  agent, broad UI, production partner claim, or committed secret value was
+  added.
+
 ## PR131 2C Observed Runtime Adapter Discovery
 
 DAEDALUS docs/evidence discovery on 2026-06-21:

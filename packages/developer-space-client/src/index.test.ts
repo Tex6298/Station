@@ -2,10 +2,12 @@ import assert from "node:assert/strict";
 import { createHmac } from "node:crypto";
 import test from "node:test";
 import {
+  agentsObserveHookEventFixture,
   createObservedRuntimeWebhookRequest,
   createDeveloperSpaceClient,
   DeveloperSpaceClientError,
   signObservedRuntimeWebhookBody,
+  transformAgentsObserveHookEvent,
 } from "./index";
 
 test("client posts node state with encoded path and required headers", async () => {
@@ -289,6 +291,94 @@ test("client falls back to ingestion key signing and exposes webhook in-progress
       timestamp: 1_771_452_800,
     }),
   );
+});
+
+test("agents observe fixture maps to deterministic Developer Space import payload", () => {
+  const payload = transformAgentsObserveHookEvent(agentsObserveHookEventFixture);
+
+  assert.equal(payload.nodes?.length, 2);
+  assert.equal(payload.events?.length, 1);
+  assert.equal(payload.snapshots?.length, 1);
+  assert.equal(payload.supportingContext?.length, 1);
+  assert.deepEqual(payload.nodes?.map((node) => node.nodeId), [
+    "agents-observe:session:session-alpha",
+    "agents-observe:agent:agent-reviewer",
+  ]);
+  assert.deepEqual(payload.events?.[0].eventData, {
+    source: "agents-observe",
+    hookName: "tool_call",
+    toolName: "shell",
+    status: "completed",
+    agentRole: "reviewer",
+    fileTouchCount: 2,
+    inputTokenCount: 1200,
+    outputTokenCount: 340,
+    redactedSensitiveFieldCount: 6,
+  });
+  assert.equal(payload.events?.[0].fieldClassifications?.hookName, "public");
+  assert.equal(payload.events?.[0].visibility, "public");
+  assert.equal(payload.events?.[0].provenance, "imported");
+});
+
+test("agents observe transform redacts raw values and classifies sensitive fields", () => {
+  const payload = transformAgentsObserveHookEvent(agentsObserveHookEventFixture);
+  const serialized = JSON.stringify(payload);
+
+  for (const rawValue of [
+    agentsObserveHookEventFixture.raw.prompt,
+    agentsObserveHookEventFixture.raw.commandBody,
+    agentsObserveHookEventFixture.raw.terminalOutput,
+    agentsObserveHookEventFixture.raw.tokenValue,
+    agentsObserveHookEventFixture.raw.toolPayload?.token,
+    agentsObserveHookEventFixture.raw.toolPayload?.path,
+    ...(agentsObserveHookEventFixture.filesTouched ?? []),
+  ]) {
+    assert.equal(serialized.includes(String(rawValue)), false, `raw value leaked: ${rawValue}`);
+  }
+
+  const publicEventKeys = Object.keys(payload.events?.[0].eventData ?? {});
+  assert.equal(publicEventKeys.includes("rawPrompt"), false);
+  assert.equal(publicEventKeys.includes("commandBody"), false);
+  assert.equal(publicEventKeys.includes("tokenValue"), false);
+  assert.equal(publicEventKeys.includes("filePaths"), false);
+
+  const context = payload.supportingContext?.[0];
+  assert.equal(context?.fieldClassifications?.rawPrompt, "private");
+  assert.equal(context?.fieldClassifications?.commandBody, "private");
+  assert.equal(context?.fieldClassifications?.filePaths, "private");
+  assert.equal(context?.fieldClassifications?.toolPayload, "private");
+  assert.equal(context?.fieldClassifications?.terminalOutput, "private");
+  assert.equal(context?.fieldClassifications?.tokenValue, "secret");
+});
+
+test("agents observe transform builds signed observed-runtime request without live send", async () => {
+  const payload = transformAgentsObserveHookEvent(agentsObserveHookEventFixture);
+  const request = await createObservedRuntimeWebhookRequest({
+    deliveryId: "agents-observe-fixture-001",
+    signingSecret: "station_whsec_agents_observe_fixture",
+    timestamp: 1_771_452_800,
+    observedAt: agentsObserveHookEventFixture.observedAt,
+    source: {
+      id: "agents-observe-local-fixture",
+    },
+    payload,
+  });
+
+  const expectedSignature = createHmac("sha256", "station_whsec_agents_observe_fixture")
+    .update("1771452800.")
+    .update(Buffer.from(request.body, "utf8"))
+    .digest("hex");
+  const body = JSON.parse(request.body);
+
+  assert.equal(request.headers["X-Station-Webhook-Id"], "agents-observe-fixture-001");
+  assert.equal(request.headers["X-Station-Signature"], `t=1771452800,v1=${expectedSignature}`);
+  assert.equal(body.schema, "station.observed_runtime.webhook.v1");
+  assert.equal(body.source.runtimeHostedBy, "external");
+  assert.equal(body.source.stationRole, "observer");
+  assert.equal(body.payload.events[0].eventType, "agents_observe.tool_call");
+  assert.equal(request.body.includes("station_whsec_agents_observe_fixture"), false);
+  assert.equal(request.body.includes("FIXTURE_RAW_PROMPT_SHOULD_NOT_APPEAR"), false);
+  assert.equal(request.body.includes("FIXTURE_TOKEN_VALUE_SHOULD_NOT_APPEAR"), false);
 });
 
 test("client rejects blank connection options after trimming", () => {

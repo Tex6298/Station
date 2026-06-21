@@ -126,6 +126,29 @@ Expected readback categories:
 | Same id and different payload | `409` | `code:"developer_space_webhook_replay_conflict"`, `category:"validation"` |
 | Missing, invalid, stale, or wrong signing material | `401` or `403` | `category:"auth"` |
 
+## Agents Observe transform spike
+
+`transformAgentsObserveHookEvent` is a PR132 local proof helper, not a live
+adapter. It maps a tiny Agents Observe-style hook/session fixture into
+`DeveloperSpaceBatchImportPayload`, then the PR128 request helper can wrap that
+payload into a signed observed-runtime webhook request without sending it.
+
+The fixture shape follows public Agents Observe docs that describe hook stdin
+JSON, a CLI posting events to a local API server, SQLite storage, and WebSocket
+live updates. No external Agents Observe code is vendored.
+
+Privacy defaults are intentionally conservative:
+
+- raw prompts, command bodies, file paths, tool payloads, terminal/stdout-like
+  material, and token values are not copied into public event data;
+- retained redacted fields are classified `private` or `secret`;
+- public output is limited to coarse labels, counts, status, role, and
+  provenance.
+
+This is adapter-shape evidence only. It does not install Agents Observe, send a
+live webhook, request a Developer Space key, or make Station execute, host,
+schedule, or control an external runtime.
+
 ## Error handling
 
 Failed ingestion calls throw `DeveloperSpaceClientError`. Branch on `category`

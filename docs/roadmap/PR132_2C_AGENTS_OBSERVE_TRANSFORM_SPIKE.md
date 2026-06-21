@@ -5,7 +5,7 @@ Opened by: A1 / MIMIR
 Owner: DAEDALUS implements. ARGUS reviews privacy classification, transform
 shape, signed-request construction, and overclaim risk. ARIADNE is not
 required unless visible routes change.
-Status: open for DAEDALUS
+Status: implemented by DAEDALUS; ready for ARGUS review
 
 ## Why This Lane
 
@@ -61,6 +61,58 @@ sending a live request.
   observed-runtime webhook request/signature shape without sending a request.
 - Docs identify the transform as a spike and do not claim live adapter support.
 
+## DAEDALUS Implementation
+
+DAEDALUS implemented PR132 on 2026-06-21.
+
+Files touched:
+
+- `packages/developer-space-client/src/agents-observe.ts`
+- `packages/developer-space-client/src/index.ts`
+- `packages/developer-space-client/src/index.test.ts`
+- `packages/developer-space-client/README.md`
+- `docs/roadmap/PR132_2C_AGENTS_OBSERVE_TRANSFORM_SPIKE.md`
+- `docs/roadmap/ACTIVE_STATUS.md`
+- `docs/testing/VALIDATION_BASELINE.md`
+
+Source evidence:
+
+- PR131 local review identified `simple10/agents-observe` as the closest first
+  bridge target.
+- Public Agents Observe docs describe hook stdin JSON, a CLI posting events to
+  a local API server, Hono + SQLite storage, and WebSocket live updates.
+
+Transform shape:
+
+- Added `agentsObserveHookEventFixture`, a tiny local fixture with session,
+  event, agent, hook/tool status, coarse token counts, touched-file count, and
+  fake raw sensitive fields.
+- Added `transformAgentsObserveHookEvent`, which maps that fixture to
+  `DeveloperSpaceBatchImportPayload`:
+  - session and agent nodes;
+  - one public event with coarse labels/counts;
+  - one public snapshot with counts and policy;
+  - one provenance supporting-context record with redacted sensitive fields and
+    private/secret classifications.
+
+Privacy proof:
+
+- Raw prompt, command body, file paths, tool payload token/path,
+  terminal-output-like material, and token value are not copied into public
+  event data.
+- Retained redacted supporting-context fields are classified `private` or
+  `secret`; token value is classified `secret`.
+- Tests assert raw fixture sentinel values do not appear in serialized payload
+  or signed request body.
+
+Signed request proof:
+
+- Tests build a `station.observed_runtime.webhook.v1` request with
+  `createObservedRuntimeWebhookRequest` from the transformed payload.
+- The proof uses a fixed fake signing secret and timestamp, checks the
+  HMAC-SHA256 signature header, checks the external observer source shape, and
+  sends no network request.
+
 ## Validation
 
 Run:
@@ -71,6 +123,15 @@ npm exec --yes pnpm@10.32.1 -- --filter @station/developer-space-client build
 npm exec --yes pnpm@10.32.1 -- run typecheck
 git diff --check
 ```
+
+DAEDALUS validation:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-space-client` | Pass | 10 tests passed, including transform mapping, privacy redaction/classification, and signed request construction. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/developer-space-client build` | Pass | Client package build completed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed from cache. |
+| `git diff --check` | Pass | CRLF normalization warnings only. |
 
 If API or web behavior changes unexpectedly, run the relevant focused gate and
 explain why the lane broadened.

@@ -9039,6 +9039,20 @@ when a PR lands, or when validation truth changes.
   fixture evidence, transform shape, privacy proof, signed-request proof,
   validation, non-claims, and no-secret proof, or wake MIMIR if public Agents
   Observe evidence is too thin.
+- DAEDALUS implements PR132 2C Agents Observe Transform Spike on 2026-06-21 and
+  wakes ARGUS for privacy/request-construction review. The client package now
+  has a tiny local Agents Observe-style fixture plus
+  `transformAgentsObserveHookEvent`, mapping the fixture to
+  `DeveloperSpaceBatchImportPayload` with session/agent nodes, a coarse public
+  hook event, a public count snapshot, and provenance supporting context with
+  redacted private/secret fields. Tests prove raw prompt, command body, file
+  paths, tool payload token/path, terminal output, and token value do not appear
+  in serialized payloads or signed request bodies; retained redacted fields are
+  classified private/secret. Tests also prove PR128 signed
+  `station.observed_runtime.webhook.v1` request construction without live send
+  or `STATION_DEVELOPER_KEY`. Validation passed `test:developer-space-client`
+  with 10 tests, `@station/developer-space-client` build, root `typecheck`, and
+  `git diff --check` with CRLF normalization warnings only.
 - DAEDALUS implements PR126 2C Observed Runtime Signing Secret Lifecycle on
   2026-06-21 and wakes ARGUS for schema/API/encryption/signature review.
   Migration `048_developer_space_webhook_signing_secrets.sql` adds
@@ -9319,49 +9333,60 @@ git diff --check
 - Developer Spaces visual polish before ingestion auth, validation, limits, and
   safe serialization.
 
-## Latest MIMIR handoff - PR132 Agents Observe transform spike
+## Latest DAEDALUS handoff - PR132 Agents Observe transform spike
 
-PR132 2C Agents Observe Transform Spike is opened by MIMIR on 2026-06-21 and
-ready for DAEDALUS implementation.
+PR132 2C Agents Observe Transform Spike is implemented by DAEDALUS on
+2026-06-21 and ready for ARGUS review. ARIADNE is not required; no visible route
+changed.
 
-Why now:
+Files touched:
 
-- ARGUS accepted PR131 and recommended a docs/test-only
-  `simple10/agents-observe` transform spike before any Cloudflare boundary
-  design.
-- Agents Observe is the closest fit to the PR128 observed-runtime packet and no
-  hard Cloudflare dependency was found for the first adapter bridge.
-- This can proceed while PR130 live smoke remains deferred, because PR132 proves
-  transform and request construction only. It must not require live smoke config.
+- `packages/developer-space-client/src/agents-observe.ts`
+- `packages/developer-space-client/src/index.ts`
+- `packages/developer-space-client/src/index.test.ts`
+- `packages/developer-space-client/README.md`
+- `docs/roadmap/PR132_2C_AGENTS_OBSERVE_TRANSFORM_SPIKE.md`
+- `docs/roadmap/ACTIVE_STATUS.md`
+- `docs/testing/VALIDATION_BASELINE.md`
 
-Task:
+Implementation:
 
-- Add a tiny local Agents Observe-style hook/session fixture based on PR131
-  public-doc evidence.
-- Add a transform helper mapping that fixture to
-  `DeveloperSpaceBatchImportPayload`.
-- Prove the transformed payload can be wrapped/signed through PR128
-  observed-runtime webhook request construction without sending a live request
-  or requiring `STATION_DEVELOPER_KEY`.
-- Classify raw prompts, command bodies, file paths, tokens, tool payloads, and
-  terminal/stdout-like material as private/secret by default.
-- Keep docs clear that Station observes/imports external runtime state; it does
-  not execute, host, schedule, or control Agents Observe.
+- Added a tiny local Agents Observe-style fixture based on PR131 public-doc
+  evidence: hook/session event, agent role, tool status, coarse token counts,
+  touched-file count, and fake raw sensitive fields.
+- Added `transformAgentsObserveHookEvent`, mapping the fixture to
+  `DeveloperSpaceBatchImportPayload` with session/agent nodes, one public hook
+  event, one public snapshot, and provenance supporting context.
+- Exported the helper from `@station/developer-space-client`.
+- README labels the helper as a transform spike, not a live adapter.
 
-Validation: `test:developer-space-client`,
-`--filter @station/developer-space-client build`, typecheck if touched, and
-`git diff --check`.
+Privacy proof:
 
-Non-scope: no external repo code vendoring, live webhook send, smoke config,
-Developer Space key generation/rotation, Cloudflare Worker/Vectorize/D1/Queue/
-Durable Object work, hosted runtime, partner onboarding, visible
+- Public event data includes only coarse labels, counts, status, role, and
+  provenance.
+- Raw prompt, command body, file paths, tool payload token/path,
+  terminal-output-like material, and token value do not appear in serialized
+  payloads or signed request bodies.
+- Retained redacted supporting-context fields are classified `private`; token
+  value is classified `secret`.
+
+Signed request proof: tests build a `station.observed_runtime.webhook.v1`
+request with `createObservedRuntimeWebhookRequest`, fixed fake signing material,
+fixed timestamp, external observer source shape, and no fetch/live send.
+
+Validation: `test:developer-space-client` passed with 10 tests,
+`@station/developer-space-client` build passed, root `typecheck` passed, and
+`git diff --check` passed with CRLF normalization warnings only.
+
+Non-scope preserved: no external repo code vendoring, live webhook send, smoke
+config, Developer Space key generation/rotation, Cloudflare Worker/Vectorize/
+D1/Queue/Durable Object work, hosted runtime, partner onboarding, visible
 secret-management UI, billing/Stripe, Redis memory truth, provider routing,
 chat-native developer agent, broad UI, production partner claim, or committed
-secrets.
+secret values.
 
-Wake ARGUS with fixture shape, source evidence, transform output, privacy proof,
-signed request construction proof, validation, non-claims, and no-secret proof;
-or wake MIMIR if public Agents Observe evidence is too thin.
+ARGUS should review fixture/source evidence, transform shape, privacy proof,
+signed request construction proof, validation, non-claims, and no-secret proof.
 
 ## Previous DAEDALUS handoff - PR127 webhook concurrency guard
 
