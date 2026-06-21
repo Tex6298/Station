@@ -9110,6 +9110,12 @@ when a PR lands, or when validation truth changes.
   Queue/Durable Object work, external repo vendoring, hosted runtime, task
   scheduler, agent control plane, UI, billing/Stripe, Redis memory truth,
   provider routing, retrieval model change, or committed live secret value.
+- MIMIR closes PR133 and opens PR134 2C Agents Observe Live Send Guard for
+  DAEDALUS on 2026-06-21. The next step is an explicit opt-in live-send bridge
+  that keeps default behavior dry-run/network-free, rejects missing or
+  demo/fake live config before network, reuses PR132/PR133 privacy assertions,
+  proves mocked transport behavior in tests, and records the exact future
+  PR130 config names without requesting config yet.
 - DAEDALUS implements PR126 2C Observed Runtime Signing Secret Lifecycle on
   2026-06-21 and wakes ARGUS for schema/API/encryption/signature review.
   Migration `048_developer_space_webhook_signing_secrets.sql` adds
@@ -9390,71 +9396,53 @@ git diff --check
 - Developer Spaces visual polish before ingestion auth, validation, limits, and
   safe serialization.
 
-## Latest ARGUS verdict - PR133 Agents Observe offline adapter dry run
+## Latest MIMIR handoff - PR134 Agents Observe live send guard
 
-PR133 2C Agents Observe Offline Adapter Dry Run is accepted by ARGUS on
-2026-06-21 after a narrow dry-run safety patch. It is ready for MIMIR closeout.
-ARIADNE is not required; no visible route changed.
+PR133 2C Agents Observe Offline Adapter Dry Run is accepted and closed by MIMIR
+on 2026-06-21. PR134 2C Agents Observe Live Send Guard is opened for DAEDALUS.
 
-Dry-run API:
+Why now:
 
-- `createAgentsObserveOfflineDryRunSummary(options)`
-- Defaults to the PR132 fixture or accepts a parsed fixture object.
-- Optionally builds a PR128 signed request proof with internal demo signing
-  material and an internal demo webhook id only.
-- Returns a safe `status:"not_sent"` summary and sends no request.
+- PR132 proved transform/request construction.
+- PR133 proved the safe config-free dry run.
+- The next bridge should define explicit live-send gating and mocked transport
+  behavior so PR130 staging smoke can run later only when deliberate config
+  exists.
 
-Dry-run command:
+Task:
 
-```bash
-npx tsx packages/developer-space-client/examples/agents-observe-offline-dry-run.ts --signed-demo
-```
+- Add an explicit opt-in live-send path for the Agents Observe dry-run entry
+  point/helper.
+- Keep default behavior offline/dry-run and network-free.
+- Require an explicit live flag or option; environment presence alone must not
+  send.
+- Require real config names for live mode: `STATION_API_URL`,
+  `STATION_DEVELOPER_KEY`, `STATION_OBSERVED_RUNTIME_WEBHOOK_ID`, and signing
+  material if the chosen helper path requires caller-side signing.
+- Reject obvious demo/fake placeholder values for live-send mode before network.
+- Reuse PR132/PR133 transform, privacy assertions, and summary shape before
+  sending.
+- Add a transport seam so tests prove live-send behavior with mocked transport/
+  fetch and no real network access.
+- Document the dry-run command, explicit live-send command, and future PR130
+  config names.
 
-Optional fixture path:
+Validation: `test:developer-space-client`,
+`--filter @station/developer-space-client build`, package/root typecheck as
+needed, and `git diff --check`.
 
-```bash
-npx tsx packages/developer-space-client/examples/agents-observe-offline-dry-run.ts --fixture=./agents-observe-fixture.json --signed-demo
-```
+Non-scope: no real live webhook send in tests, no request for new config unless
+implementation proves the next PR must be live smoke, no Developer Space key
+generation/rotation, no committed secrets, no Cloudflare Worker/Vectorize/D1/
+Queue/Durable Object work, no external repo vendoring, no hosted runtime/task
+scheduler/agent control plane, no UI, no billing/Stripe, no Redis memory truth,
+no provider routing, and no retrieval model changes.
 
-Safe output shape: not-sent status, source, fixture source, live-config/network
-booleans, payload counts, event types, public event-data keys, provenance refs,
-classification counts, privacy assertion booleans, and optional redacted demo
-signature metadata. Output does not include raw prompts, command bodies, file
-paths, token values, raw tool payload values, terminal/stdout/stderr-like
-output, fixture `sessionId`, fixture `eventId`, fixture `agent.id`, live API
-keys, live signing secrets, or non-demo webhook ids.
-
-ARGUS review patch:
-
-- Removed caller-supplied demo signing material and demo webhook id from
-  `createAgentsObserveOfflineDryRunSummary`, keeping signed proof on internal
-  demo-only values.
-- Privacy assertion failures now name only the failed field and do not echo raw
-  fixture values.
-- Added a regression test for the failure path.
-
-No-live-config/no-network proof: tests delete `STATION_DEVELOPER_KEY`,
-`STATION_API_URL`, and `STATION_OBSERVED_RUNTIME_WEBHOOK_ID`, replace
-`globalThis.fetch` with a failing stub, and prove the dry run completes without
-calling fetch. The example command was also run with `--signed-demo`; it printed
-safe output and sent no request.
-
-Validation: `test:developer-space-client` passed with 12 tests,
-`@station/developer-space-client` build passed, the dry-run example command
-passed, root `typecheck` passed, `git diff --check` passed with CRLF
-normalization warnings only, and `git diff --cached --check` passed. The client
-package has no standalone `typecheck` script, so the package build is the
-package-local typecheck gate.
-
-Non-scope preserved: no live webhook send, no required
-`STATION_DEVELOPER_KEY`, no Developer Space key generation/rotation, no
-Railway/Supabase/Cloudflare config request, no Cloudflare Worker/Vectorize/D1/
-Queue/Durable Object work, no external repo code vendoring, no hosted runtime,
-task scheduler, agent control plane, UI, billing/Stripe, Redis memory truth,
-provider routing, retrieval model changes, or committed secrets.
-
-MIMIR should close PR133 and decide whether the next move is live smoke config,
-another offline adapter-hardening step, or a pause.
+Wake ARGUS with live-send guard/API/command shape, default-dry proof,
+mocked-send test evidence, missing-config/demo-config refusal evidence,
+privacy-before-send evidence, validation, exact future PR130 config names, and
+explicit non-claims. Wake MIMIR instead if the helper shape cannot support a
+guarded send without broad refactor.
 
 ## Previous DAEDALUS handoff - PR127 webhook concurrency guard
 
