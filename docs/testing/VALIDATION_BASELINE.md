@@ -54,6 +54,40 @@ pnpm test:developer-space-client
 
 ## PR163 Phase 2D Developer Agent Preview Panel
 
+ARGUS review validation on 2026-06-22:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 31 tests passed, including owner-scoped agent registry/readback, future-action boundaries, and web helper coverage for available/future grouping and preview status copy. |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-space-client` | Pass | 15 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 102 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/types build` | Pass | Shared Developer Space action types compiled. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/api build` | Pass | API package build passed after dependent package builds. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` | Pass | Web TypeScript typecheck passed directly. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` | Pass | API typecheck passed directly. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web build` | Blocked locally after successful compile/type/static generation | Next compiled, linted/typechecked, collected page data, generated 36 static pages, finalized optimization, and collected traces, then failed while copying standalone trace files because Windows denied symlink creation under `.next/standalone` for React/Next/@next/env. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Blocked locally before TypeScript | Windows Application Control blocks `node_modules/.pnpm/turbo-windows-64@2.8.17/node_modules/turbo-windows-64/bin/turbo.exe` with `spawnSync ... UNKNOWN`. |
+| `git diff --check` | Pass | CRLF normalization warnings only for touched docs/state. |
+| `git diff --cached --check` | Pass | No whitespace errors in the staged verdict patch. |
+| Staged secret-shaped value scan | Pass | No staged secret-shaped additions found. |
+
+ARGUS PR163 notes:
+
+- Accepted the owner manage-page Developer Agent preview panel for ARIADNE
+  human-eye rehearsal.
+- The UI renders only PR162 summaries, sections, facts, and items, and does
+  not dump arbitrary preview JSON or raw response bodies.
+- Generic error copy avoids echoing ids, keys, payloads, prompts, logs,
+  provider data, or raw API errors.
+- Preview links are clickable only for local `/developer-spaces/...` hrefs.
+- Future actions are visibly separated as blocked boundary vocabulary and only
+  preview `requires_future_lane` readback.
+- Existing evidence, ingestion-key, visual-mode, widget, usage, export, public
+  page, and webhook behavior was not changed.
+- No model chat loop, provider call, autonomous execution, mutation,
+  shell/repo/deploy path, Cloudflare, Redis worker, hosted runtime, route/table
+  rename, or public Developer Space behavior changed.
+
 DAEDALUS implementation validation on 2026-06-22:
 
 | Command | Result | Notes |

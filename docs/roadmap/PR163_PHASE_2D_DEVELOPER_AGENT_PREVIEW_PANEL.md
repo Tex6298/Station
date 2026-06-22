@@ -4,7 +4,7 @@ Date opened: 2026-06-22
 Opened by: A1 / MIMIR
 Owner: DAEDALUS implements. ARGUS reviews. ARIADNE rehearses after ARGUS if
 visible UI changes are accepted.
-Status: implemented by DAEDALUS; open for ARGUS review
+Status: accepted by ARGUS; awaiting ARIADNE visible UI rehearsal
 
 ## Why This Lane
 
@@ -150,3 +150,54 @@ DAEDALUS should wake ARGUS with:
 - whether ARIADNE should run the human-eye rehearsal after review.
 
 If blocked, wake MIMIR with the exact blocker instead of going silent.
+
+## ARGUS Review
+
+Accepted on 2026-06-22.
+
+Findings:
+
+- The Developer Agent panel remains on the owner manage surface and calls the
+  PR162 owner/admin registry and preview routes by Developer Space id.
+- The UI renders only route-provided summaries, sections, facts, and items; it
+  does not render arbitrary preview JSON or raw response bodies.
+- Error states are generic and do not echo raw API errors, ids, keys, payloads,
+  prompts, logs, provider data, or response bodies.
+- Item links are clickable only for local `/developer-spaces/...` hrefs;
+  non-local preview hrefs render as text.
+- Future mutation/execution actions are visually separated as blocked boundary
+  vocabulary. Clicking them only previews the PR162 `requires_future_lane`
+  response and does not add execution or mutation.
+- Existing evidence, ingestion-key, visual-mode, widget, usage, export, public
+  page, and webhook behavior was not changed.
+- No model chat loop, provider call, autonomous execution, document/public-page
+  mutation, layout mutation, key/signing-secret mutation, provider setting
+  mutation, billing mutation, observed-runtime write, shell/repo/deploy path,
+  queue/worker, Cloudflare, Redis worker, hosted runtime, route/table rename,
+  or public Developer Space behavior changed.
+
+ARGUS validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` passed with 31
+  tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:developer-space-client` passed with
+  15 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` passed with 102 tests.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/types build` passed.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/api build` passed.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/web build` reached
+  successful compile/lint/typecheck/page-data/static-page generation/
+  optimization/trace collection, then hit the known local Windows standalone
+  symlink `EPERM` while copying traced React/Next/@next/env files.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` remains blocked before
+  TypeScript because Windows Application Control blocks the local Turbo binary
+  with `spawnSync ... UNKNOWN`.
+- `git diff --check` passed with CRLF normalization warnings only.
+- `git diff --cached --check` passed.
+- Staged secret-shaped value scan passed.
+
+Recommendation:
+
+- Wake ARIADNE for the visible owner UI rehearsal requested by PR163.

@@ -4,7 +4,62 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current DAEDALUS handoff - PR163
+## Latest ARGUS handoff - PR163
+
+ARGUS accepts PR163 on 2026-06-22 and wakes ARIADNE for visible UI rehearsal.
+
+Review verdict:
+
+- The manage-page Developer Agent panel is owner-surface UI only; it is loaded
+  after the authenticated Developer Space detail resolves and calls the PR162
+  owner/admin registry and preview routes by Developer Space id.
+- The panel renders only the PR162 preview shape: summaries, sections, facts,
+  and items. It does not dump arbitrary JSON or raw response bodies.
+- Preview errors are generic UI copy and do not echo raw API errors, ids, keys,
+  payloads, prompts, logs, provider data, or response bodies.
+- Preview item links are clickable only when the href starts with the local
+  `/developer-spaces/` route prefix; non-local hrefs render as plain text.
+- Future mutation/execution actions are separated into "Future lane
+  vocabulary" and shown as blocked boundary actions. Clicking them only asks
+  the PR162 preview endpoint for `requires_future_lane` readback; no mutation
+  or execution path is added.
+- Existing evidence, ingestion-key, visual-mode, widget, usage, export, public
+  page, and webhook behavior remains untouched by this UI slice.
+- No model chat loop, provider call, autonomous execution, document/public-page
+  mutation, visual layout mutation, key/signing-secret mutation, provider
+  setting mutation, billing mutation, observed-runtime write, shell/repo/deploy
+  path, queue/worker, Cloudflare, Redis worker, hosted runtime, route/table
+  rename, or public Developer Space behavior changed.
+
+ARGUS validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` passed with 31
+  tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:developer-space-client` passed with
+  15 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` passed with 102 tests.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/types build` passed.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/api build` passed.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/web build` compiled,
+  linted/typechecked, collected page data, generated 36 static pages, finalized
+  optimization, and collected traces, then hit the known local Windows
+  standalone symlink `EPERM` while copying React/Next/@next/env traced files.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` remains blocked before
+  TypeScript because Windows Application Control blocks the local Turbo binary
+  with `spawnSync ... UNKNOWN`.
+- `git diff --check` passed with CRLF normalization warnings only.
+- `git diff --cached --check` passed.
+- Staged secret-shaped value scan passed.
+
+Next:
+
+- ARIADNE should rehearse the visible owner manage panel on desktop and 390px
+  mobile for clarity, blocked-action affordance, overlap/overflow, and
+  human-eye privacy/copy concerns.
+
+## Previous DAEDALUS handoff - PR163
 
 DAEDALUS implemented PR163 on 2026-06-22 and wakes ARGUS for hostile review.
 The Developer Space owner manage surface now includes a bounded Developer
