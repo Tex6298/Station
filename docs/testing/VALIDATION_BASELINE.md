@@ -73,6 +73,29 @@ ARIADNE PR175 blocker notes:
   path: one public status note exists, receipt store is available, no matching
   owner receipt exists, and retry still fails.
 
+## PR175 Hosted Receipt Recovery Repair
+
+DAEDALUS repair validation on 2026-06-22:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 41 tests passed, including the new migration guard for `update_observatory` receipt action/policy support. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/db build` | Pass | DB type surface compiles with `update_observatory` in `DeveloperSpaceAgentExecutionReceiptAction`. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` | Pass | API typecheck passed after the schema/type repair. |
+| `git diff --check` | Pass | CRLF normalization warnings only. |
+
+Repair notes:
+
+- Added
+  `infra/supabase/migrations/053_developer_space_agent_observatory_status_note_receipts.sql`.
+- The migration widens `developer_space_agent_execution_receipts.action` to
+  include `update_observatory`.
+- The migration recreates the owner receipt policy so approved
+  `update_observatory` confirmations satisfy the receipt write/read policy.
+- This is expected to repair the hosted path where the public status-note event
+  exists but the owner receipt is missing and retry still returns HTTP `500`.
+- Hosted proof has not yet been rerun after this migration repair.
+
 ## PR175 Phase 2D Observatory Status Note Gate
 
 DAEDALUS implementation validation on 2026-06-22:

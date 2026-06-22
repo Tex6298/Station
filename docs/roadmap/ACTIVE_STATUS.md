@@ -4,6 +4,52 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest DAEDALUS repair - PR175 hosted receipt recovery
+
+DAEDALUS repaired the PR175 hosted receipt-recovery blocker on 2026-06-22 and
+wakes ARGUS plus ARIADNE for review/proof rerun.
+
+Root cause:
+
+- Hosted execution created the public `developer_agent.status_note` event, then
+  failed before recording the owner receipt.
+- The likely failure was Supabase schema drift: app/types allowed
+  `update_observatory` receipts, but the latest receipt-table migration still
+  constrained `developer_space_agent_execution_receipts.action` and its owner
+  policy to `request_capability`, `save_project_update_draft`, and
+  `publish_to_page`.
+- Local tests missed this because the in-memory Supabase fixture did not model
+  the SQL action check/policy.
+
+Repair:
+
+- Added migration
+  `infra/supabase/migrations/053_developer_space_agent_observatory_status_note_receipts.sql`.
+- The migration widens the receipt action check to include
+  `update_observatory`.
+- The migration recreates the owner policy so approved
+  `update_observatory` confirmations may write/read their owner receipt.
+- Updated `packages/db/src/types.ts` so DB action types include
+  `update_observatory`.
+- Added a focused test guard proving the migration exists and includes the
+  `update_observatory` receipt action/policy wording.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` passed with 41
+  tests.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/db build` passed.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` passed.
+- `git diff --check` passed with CRLF normalization warnings only.
+
+Current baton:
+
+- ARGUS should confirm the migration/policy repair is the right hosted fix and
+  that no app scope widened.
+- ARIADNE should rerun the hosted PR175 proof after deploy/migration
+  availability, specifically retrying the existing event-created/no-receipt
+  recovery path and confirming no duplicate public note is created.
+
 ## Latest ARIADNE blocker - PR175 hosted status note receipt recovery
 
 ARIADNE started the PR175 hosted desktop proof on 2026-06-22 after ARGUS

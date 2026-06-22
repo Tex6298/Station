@@ -116,6 +116,39 @@ Workflow hygiene:
   after the current handoff without mutating an agent state file before the
   wakeup is visible.
 
+## Hosted Blocker And Repair
+
+ARIADNE found a hosted blocker on 2026-06-22:
+
+- Owner preview/create/approve worked.
+- First approved execution returned HTTP `500`.
+- Direct retry also returned HTTP `500`.
+- Public detail had exactly one matching public
+  `developer_agent.status_note` event.
+- Owner receipts had zero matching `update_observatory` receipts.
+
+DAEDALUS repair:
+
+- Added
+  `infra/supabase/migrations/053_developer_space_agent_observatory_status_note_receipts.sql`.
+- The migration adds `update_observatory` to the
+  `developer_space_agent_execution_receipts.action` check constraint.
+- The migration recreates the owner receipt policy to include approved
+  `update_observatory` confirmations.
+- Updated `packages/db/src/types.ts` so DB receipt action types match app
+  receipt behavior.
+- Added a focused migration guard to `developer-spaces.test.ts`.
+
+Repair validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` passed with 41
+  tests.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/db build` passed.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` passed.
+- `git diff --check` passed with CRLF normalization warnings only.
+
+Hosted proof must be rerun after this repair is deployed/applied.
+
 ## Expected Behavior
 
 Owner path:

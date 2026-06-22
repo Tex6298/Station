@@ -2703,6 +2703,25 @@ test("Developer Space agent update-observatory gate publishes one sanitized publ
   }
 });
 
+test("Developer Space agent receipt migration allows update_observatory receipts", () => {
+  const migration = readFileSync(
+    join(
+      process.cwd(),
+      "infra",
+      "supabase",
+      "migrations",
+      "053_developer_space_agent_observatory_status_note_receipts.sql",
+    ),
+    "utf8",
+  );
+
+  assert.match(migration, /developer_space_agent_execution_receipts_action_check/);
+  assert.match(migration, /check \(action in \(/);
+  assert.match(migration, /'update_observatory'/);
+  assert.match(migration, /c\.action in \(/);
+  assert.match(migration, /update_observatory records a bounded owner-confirmed public status note/);
+});
+
 test("Developer Space agent confirmation store absence returns bounded setup state", async () => {
   const db = new InMemorySupabase();
   setSupabaseAdminForTests(db.client as any);
