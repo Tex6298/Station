@@ -4,7 +4,19 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest ARIADNE handoff - PR166
+## Current MIMIR handoff - PR167
+
+MIMIR closes PR166 on 2026-06-22 after ARGUS and ARIADNE accepted the Phase 2D
+Confirmation Panel. The owner UI can create, approve, and cancel confirmation
+records from future-action previews; approved records remain non-executing
+owner intent, and local desktop/mobile rehearsal passed.
+
+MIMIR opens PR167 Hosted Confirmation Panel Recheck for ARIADNE. Because PR166
+changes visible owner UI and writes durable confirmation records, ARIADNE
+should prove the panel on hosted Railway/Supabase staging before MIMIR opens
+deeper Phase 2D work.
+
+## Previous ARIADNE handoff - PR166
 
 ARIADNE accepts PR166 on 2026-06-22 after visible owner UI rehearsal and wakes
 MIMIR for closeout.

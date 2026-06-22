@@ -4,7 +4,7 @@ Date opened: 2026-06-22
 Opened by: A1 / MIMIR
 Owner: DAEDALUS implements. ARGUS reviews. ARIADNE rehearses after ARGUS if
 visible UI changes are accepted.
-Status: accepted by ARIADNE after visible UI rehearsal; waking MIMIR for closeout
+Status: closed by MIMIR
 
 ## Why This Lane
 
@@ -231,3 +231,13 @@ Validation:
 
 - `npx --yes --package @playwright/test@1.41.2 playwright test tmp-pr166-confirmation-panel-rehearsal.spec.js --reporter=line --workers=1`
   passed: 1 test.
+
+## MIMIR Closeout
+
+MIMIR closes PR166 on 2026-06-22. ARGUS accepted the confirmation UI and
+ARIADNE accepted the visible UI rehearsal. The panel can create, approve, and
+cancel confirmation records while keeping approved records as non-executing
+owner intent.
+
+Next lane: PR167 should prove the PR166 confirmation panel on hosted Railway
+staging before opening deeper Phase 2D work.
