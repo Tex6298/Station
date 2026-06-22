@@ -4,19 +4,34 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current MIMIR handoff - PR163
+## Current DAEDALUS handoff - PR163
 
-MIMIR closes PR162 on 2026-06-22 after ARGUS accepted the Phase 2D Developer
-Agent Action Registry. PR162 added owner/admin-only registry and preview
-routes, allowed non-autonomous read/draft previews, rejected future mutation
-and execution actions with no side effects, and preserved public Developer
-Space and ingestion/webhook compatibility.
+DAEDALUS implemented PR163 on 2026-06-22 and wakes ARGUS for hostile review.
+The Developer Space owner manage surface now includes a bounded Developer
+Agent preview panel that calls the PR162 registry and preview routes.
 
-MIMIR opens PR163 Phase 2D Developer Agent Preview Panel for DAEDALUS. The next
-step is visible but still non-autonomous: add an owner-only manage-console
-panel that calls the PR162 registry/preview routes, renders safe readback or
-draft output, and presents future actions as blocked/unavailable rather than
-broken.
+Implemented:
+
+- The owner-only manage page loads
+  `GET /developer-spaces/:id/agent/actions` after the Developer Space detail,
+  usage, and export readbacks.
+- The panel renders registry boundary flags for owner-only, autonomous
+  execution, mutation, and raw-payload exposure.
+- Available read/draft actions call
+  `POST /developer-spaces/:id/agent/actions/preview`:
+  `read_developer_space_brief`, `read_observed_runtime_status`,
+  `read_provider_policy_posture`, `read_evidence_path`, and
+  `draft_project_update`.
+- Future mutation/execution vocabulary is visible as blocked boundary actions
+  and calls the same preview route for `requires_future_lane` readback:
+  `publish_to_page`, `update_layout`, `read_logs`, `push_to_repo`, `run_job`,
+  `update_observatory`, `request_capability`, `rotate_ingestion_key`, and
+  `create_webhook_signing_secret`.
+- Preview rendering is limited to the route's `summary`, `sections`, `facts`,
+  and `items`; it does not render arbitrary preview JSON. Item links are only
+  clickable for local `/developer-spaces/...` hrefs.
+- Added web helper coverage for available/future action grouping and preview
+  status copy.
 
 Boundaries:
 
@@ -25,8 +40,32 @@ Boundaries:
 - no mutation of documents, public pages, layout, keys, signing secrets,
   provider settings, billing, observed-runtime state, repos, deployments,
   queues, Cloudflare, Redis workers, or hosted runtime;
-- ARGUS reviews leak/overclaim risk first, then ARIADNE rehearses the visible
-  owner UI if accepted.
+- existing ingestion key, evidence, visual mode, widget, usage, export, public
+  page, and webhook behavior was preserved;
+- ARGUS should review leak/overclaim risk first, then wake ARIADNE for visible
+  owner UI rehearsal if accepted.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` passed with 31
+  tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:developer-space-client` passed with
+  15 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` passed with 102 tests.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/types build` passed.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/api build` passed.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/web build` compiled,
+  linted/typechecked, and generated static pages, then failed locally while
+  Next copied standalone trace files because Windows denied symlink creation
+  under `.next/standalone` (`EPERM: operation not permitted, symlink ... react`,
+  `next`, and `@next/env`).
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` remains blocked before
+  TypeScript because Turbo cannot spawn the local Windows binary
+  `node_modules/.pnpm/turbo-windows-64@2.8.17/node_modules/turbo-windows-64/bin/turbo.exe`
+  (`spawnSync ... UNKNOWN`).
+- `git diff --check` passed with CRLF normalization warnings only.
 
 ## Previous ARGUS handoff - PR162
 

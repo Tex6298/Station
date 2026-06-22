@@ -1,4 +1,6 @@
 import type {
+  DeveloperSpaceAgentActionPreview,
+  DeveloperSpaceAgentActionRegistryEntry,
   DeveloperSpaceDetail,
   DeveloperSpaceWidgetConfig,
   DeveloperSpaceWidgetType,
@@ -187,6 +189,33 @@ export function developerSpaceUsageReadback(
       ? `Usage counters differ from current observatory state for ${mismatchParts.join(", ")}. Treat the live state above as the current readback and this panel as metering/quota.`
       : "Usage counters match the current observatory summary.",
   };
+}
+
+export function developerSpaceAgentActionGroups(actions: DeveloperSpaceAgentActionRegistryEntry[]) {
+  return {
+    available: actions.filter((action) => !action.futureLane),
+    future: actions.filter((action) => action.futureLane),
+  };
+}
+
+export function developerSpaceAgentActionStatusCopy(action: Pick<DeveloperSpaceAgentActionRegistryEntry, "futureLane" | "mode">) {
+  if (action.futureLane) return "Future lane";
+  if (action.mode === "draft_preview") return "Draft preview";
+  return "Safe readback";
+}
+
+export function developerSpaceAgentPreviewStatusCopy(preview: Pick<DeveloperSpaceAgentActionPreview, "status" | "requiresConfirmation">) {
+  if (preview.status === "previewed") {
+    return preview.requiresConfirmation ? "Owner review draft" : "Safe readback";
+  }
+  if (preview.status === "requires_future_lane") return "Blocked for future lane";
+  if (preview.status === "unsupported_action") return "Unsupported action";
+  return humaniseKey(preview.status);
+}
+
+export function developerSpaceAgentPreviewEmptyCopy(actions: DeveloperSpaceAgentActionRegistryEntry[]) {
+  if (actions.length === 0) return "Developer Agent actions are loading or unavailable.";
+  return "Choose an available action to preview a safe owner readback.";
 }
 
 export function developerSpaceMethodologyCopy(detail: Pick<DeveloperSpaceDetail, "linkedDocuments" | "access">) {

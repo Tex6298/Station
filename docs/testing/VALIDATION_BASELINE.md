@@ -52,6 +52,45 @@ pnpm test:developer-spaces
 pnpm test:developer-space-client
 ```
 
+## PR163 Phase 2D Developer Agent Preview Panel
+
+DAEDALUS implementation validation on 2026-06-22:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 31 tests passed, including owner-scoped agent registry/readback, future-action boundaries, and new web helper coverage for available/future grouping and preview status copy. |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-space-client` | Pass | 15 tests passed; Developer Space client/webhook helper coverage remained unchanged. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 102 tests passed; existing owner-visible redaction and Studio UI helpers remain green. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/types build` | Pass | Shared Developer Space action types compiled. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/api build` | Pass | API package build passed after dependent package builds. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` | Pass | Web TypeScript typecheck passed directly. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` | Pass | API typecheck passed directly. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web build` | Blocked locally after successful compile/type/static generation | Next compiled, linted/typechecked, and generated 36 static pages, then failed while copying standalone trace files because Windows denied symlink creation under `.next/standalone` (`EPERM: operation not permitted, symlink ... react`, `next`, and `@next/env`). Existing `<img>` warnings remain in unrelated files. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Blocked locally before TypeScript | Turbo cannot spawn `node_modules/.pnpm/turbo-windows-64@2.8.17/node_modules/turbo-windows-64/bin/turbo.exe` on this machine (`spawnSync ... UNKNOWN`). |
+| `git diff --check` | Pass | CRLF normalization warnings only for touched files and local triad state. |
+
+DAEDALUS PR163 notes:
+
+- Added an owner manage-page Developer Agent preview panel backed by the PR162
+  `GET /developer-spaces/:id/agent/actions` registry and
+  `POST /developer-spaces/:id/agent/actions/preview` readback route.
+- Available actions shown and previewable:
+  `read_developer_space_brief`, `read_observed_runtime_status`,
+  `read_provider_policy_posture`, `read_evidence_path`, and
+  `draft_project_update`.
+- Future actions are shown as blocked boundary vocabulary and preview their
+  `requires_future_lane` response: `publish_to_page`, `update_layout`,
+  `read_logs`, `push_to_repo`, `run_job`, `update_observatory`,
+  `request_capability`, `rotate_ingestion_key`, and
+  `create_webhook_signing_secret`.
+- Preview UI renders only route-provided summaries, sections, facts, and items;
+  it does not render raw JSON. Links are clickable only for local
+  `/developer-spaces/...` hrefs.
+- No model chat, provider call, autonomous execution, mutation, key/signing
+  change, observed-runtime write, shell/repo/deploy path, Cloudflare, Redis
+  worker, hosted runtime, route rename, or public Developer Space behavior
+  change was added.
+
 ## PR162 Phase 2D Developer Agent Action Registry
 
 ARGUS review validation on 2026-06-22:

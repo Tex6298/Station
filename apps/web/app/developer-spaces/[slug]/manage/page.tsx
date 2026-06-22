@@ -6,6 +6,10 @@ import { useParams } from "next/navigation";
 import { apiGet, apiPatch, apiPost, apiUrl } from "@/lib/api-client";
 import { getSession } from "@/lib/auth";
 import {
+  developerSpaceAgentActionGroups,
+  developerSpaceAgentActionStatusCopy,
+  developerSpaceAgentPreviewEmptyCopy,
+  developerSpaceAgentPreviewStatusCopy,
   developerSpaceEvidenceEmptyCopy,
   developerSpaceEvidenceRoleCopy,
   developerSpaceEvidenceRoleDescription,
@@ -23,6 +27,8 @@ import {
   normaliseDeveloperSpaceVisualConfig,
 } from "@/lib/developer-space-visual-config";
 import type {
+  DeveloperSpaceAgentActionPreview,
+  DeveloperSpaceAgentActionRegistryEntry,
   DeveloperSpaceDetail,
   DeveloperSpaceDocumentRole,
   DeveloperSpaceLinkedDocument,
@@ -41,6 +47,18 @@ const DEVELOPER_SPACE_EVIDENCE_ROLES: DeveloperSpaceDocumentRole[] = [
   "field_log",
   "note",
 ];
+
+type DeveloperSpaceAgentRegistryBoundary = {
+  autonomousExecution?: boolean;
+  mutatesDeveloperSpace?: boolean;
+  exposesRawPayloads?: boolean;
+  ownerOnly?: boolean;
+};
+
+type DeveloperSpaceAgentRegistryResponse = {
+  actions: DeveloperSpaceAgentActionRegistryEntry[];
+  boundary?: DeveloperSpaceAgentRegistryBoundary;
+};
 
 function CodeBlock({ code }: { code: string }) {
   return (
@@ -67,6 +85,11 @@ function websocketUrl(path: string) {
   return url.toString();
 }
 
+function safeDeveloperSpacePreviewHref(href?: string | null) {
+  if (!href?.startsWith("/developer-spaces/")) return null;
+  return href;
+}
+
 export default function DeveloperSpaceManagePage() {
   const { slug } = useParams<{ slug: string }>();
   const [token, setToken] = useState<string | null>(null);
@@ -86,6 +109,13 @@ export default function DeveloperSpaceManagePage() {
   const [usage, setUsage] = useState<DeveloperSpaceUsage | null>(null);
   const [exportsList, setExportsList] = useState<ArchiveExportPackage[]>([]);
   const [exporting, setExporting] = useState(false);
+  const [agentActions, setAgentActions] = useState<DeveloperSpaceAgentActionRegistryEntry[]>([]);
+  const [agentBoundary, setAgentBoundary] = useState<DeveloperSpaceAgentRegistryBoundary | null>(null);
+  const [selectedAgentAction, setSelectedAgentAction] = useState<string>("");
+  const [agentPreview, setAgentPreview] = useState<DeveloperSpaceAgentActionPreview | null>(null);
+  const [agentRegistryLoading, setAgentRegistryLoading] = useState(false);
+  const [agentPreviewLoading, setAgentPreviewLoading] = useState(false);
+  const [agentError, setAgentError] = useState<string | null>(null);
   const [visualisationType, setVisualisationType] = useState<DeveloperSpaceVisualisationType>("node_field");
   const [visualisationConfig, setVisualisationConfig] = useState<Record<string, unknown>>(
     defaultDeveloperSpaceVisualConfig("node_field")
@@ -100,6 +130,32 @@ export default function DeveloperSpaceManagePage() {
     ));
   }, []);
 
+  const loadAgentActions = useCallback(async (spaceId: string, sessionToken: string) => {
+    setAgentRegistryLoading(true);
+    setAgentError(null);
+    try {
+      const data = await apiGet<DeveloperSpaceAgentRegistryResponse>(
+        `/developer-spaces/${spaceId}/agent/actions`,
+        sessionToken
+      );
+      const actions = data.actions ?? [];
+      setAgentActions(actions);
+      setAgentBoundary(data.boundary ?? null);
+      setAgentPreview(null);
+      setSelectedAgentAction((current) => {
+        if (actions.some((action) => action.action === current && !action.futureLane)) return current;
+        return actions.find((action) => !action.futureLane)?.action ?? "";
+      });
+    } catch {
+      setAgentActions([]);
+      setAgentBoundary(null);
+      setAgentPreview(null);
+      setAgentError("Could not load Developer Agent actions.");
+    } finally {
+      setAgentRegistryLoading(false);
+    }
+  }, []);
+
   const load = useCallback(async (sessionToken: string) => {
     const data = await apiGet<DeveloperSpaceDetail>(`/developer-spaces/${slug}`, sessionToken);
     setDetail(data);
@@ -110,7 +166,8 @@ export default function DeveloperSpaceManagePage() {
     ]);
     setUsage(usageData.usage);
     setExportsList(exportsData.exports);
-  }, [slug, syncVisualState]);
+    await loadAgentActions(data.space.id, sessionToken);
+  }, [loadAgentActions, slug, syncVisualState]);
 
   useEffect(() => {
     getSession().then(async (session) => {
@@ -337,6 +394,25 @@ export default function DeveloperSpaceManagePage() {
     }
   }
 
+  async function previewAgentAction(action: string = selectedAgentAction) {
+    if (!token || !detail || !action) return;
+    setSelectedAgentAction(action);
+    setAgentPreviewLoading(true);
+    setAgentError(null);
+    try {
+      const data = await apiPost<DeveloperSpaceAgentActionPreview>(
+        `/developer-spaces/${detail.space.id}/agent/actions/preview`,
+        { action },
+        token
+      );
+      setAgentPreview(data);
+    } catch {
+      setAgentError("Could not preview that Developer Agent action.");
+    } finally {
+      setAgentPreviewLoading(false);
+    }
+  }
+
   function updateVisualConfig(key: string, value: unknown) {
     setVisualisationConfig((current) => ({
       ...current,
@@ -405,6 +481,14 @@ export default function DeveloperSpaceManagePage() {
   const orderedEvidence = orderedDeveloperSpaceEvidence(detail.linkedDocuments ?? []);
   const currentState = developerSpaceOwnerCurrentState(detail);
   const usageReadback = developerSpaceUsageReadback(usage, detail, exportsList.length);
+  const agentActionGroups = developerSpaceAgentActionGroups(agentActions);
+  const selectedAgentEntry = agentActions.find((action) => action.action === selectedAgentAction) ?? null;
+  const boundaryRows = [
+    { label: "Owner only", value: agentBoundary?.ownerOnly === true ? "Yes" : "Unknown" },
+    { label: "Autonomous execution", value: agentBoundary?.autonomousExecution === false ? "No" : "Unknown" },
+    { label: "Mutates space", value: agentBoundary?.mutatesDeveloperSpace === false ? "No" : "Unknown" },
+    { label: "Raw payloads", value: agentBoundary?.exposesRawPayloads === false ? "No" : "Unknown" },
+  ];
 
   return (
     <main className="container" style={{ display: "grid", gap: "1.25rem", maxWidth: 1120 }}>
@@ -522,6 +606,155 @@ export default function DeveloperSpaceManagePage() {
         </aside>
 
         <section style={{ display: "grid", gap: "1rem" }}>
+          <div className="card" style={{ display: "grid", gap: "0.9rem" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", gap: "0.75rem", alignItems: "flex-start", flexWrap: "wrap" }}>
+              <div>
+                <h2 style={{ margin: "0 0 0.35rem", fontSize: "1.05rem" }}>Developer Agent preview</h2>
+                <p style={{ margin: 0, color: "#687078", lineHeight: 1.55 }}>
+                  Owner-only readbacks and drafts from the typed Phase 2D action contract.
+                </p>
+              </div>
+              <span className="pill" style={{ color: agentRegistryLoading ? "#854f0b" : "#25633f" }}>
+                {agentRegistryLoading ? "Loading actions" : `${agentActionGroups.available.length} available`}
+              </span>
+            </div>
+
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 150px), 1fr))", gap: "0.55rem" }}>
+              {boundaryRows.map((row) => (
+                <div key={row.label} style={agentFactBox}>
+                  <span style={{ color: "#8b8f92", fontSize: "0.72rem" }}>{row.label}</span>
+                  <strong style={{ color: "#1f2529", fontSize: "0.84rem" }}>{row.value}</strong>
+                </div>
+              ))}
+            </div>
+
+            {agentError ? (
+              <div style={{ background: "#2d1515", border: "1px solid #7d2e2e", borderRadius: 8, color: "#fca5a5", padding: "0.75rem", fontSize: "0.84rem" }}>
+                {agentError}
+              </div>
+            ) : null}
+
+            <div style={{ display: "grid", gap: "0.55rem" }}>
+              <span style={{ color: "#1f2529", fontSize: "0.82rem", fontWeight: 700 }}>Available actions</span>
+              {agentActionGroups.available.length === 0 ? (
+                <p style={{ margin: 0, color: "#687078", fontSize: "0.84rem" }}>
+                  {developerSpaceAgentPreviewEmptyCopy(agentActions)}
+                </p>
+              ) : (
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 190px), 1fr))", gap: "0.55rem" }}>
+                  {agentActionGroups.available.map((action) => (
+                    <button
+                      key={action.action}
+                      type="button"
+                      className="button"
+                      onClick={() => previewAgentAction(action.action)}
+                      disabled={agentPreviewLoading && selectedAgentAction === action.action}
+                      style={{
+                        ...agentActionButton,
+                        borderColor: selectedAgentAction === action.action ? "#534ab7" : "#d8d3c8",
+                      }}
+                    >
+                      <strong style={{ color: "#1f2529" }}>{action.label}</strong>
+                      <span style={{ color: "#687078", fontSize: "0.74rem" }}>
+                        {developerSpaceAgentActionStatusCopy(action)}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <div style={agentPreviewBox}>
+              {agentPreview ? (
+                <div style={{ display: "grid", gap: "0.75rem" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", gap: "0.75rem", alignItems: "flex-start", flexWrap: "wrap" }}>
+                    <div>
+                      <span className="pill" style={{ color: agentPreview.futureLane ? "#854f0b" : "#25633f" }}>
+                        {developerSpaceAgentPreviewStatusCopy(agentPreview)}
+                      </span>
+                      <h3 style={{ margin: "0.45rem 0 0", fontSize: "0.98rem" }}>
+                        {selectedAgentEntry?.label ?? humaniseKey(agentPreview.action)}
+                      </h3>
+                    </div>
+                    {agentPreview.requiresConfirmation ? (
+                      <span className="pill" style={{ color: "#854f0b" }}>Owner review required</span>
+                    ) : null}
+                  </div>
+                  <p style={{ margin: 0, color: "#687078", lineHeight: 1.55 }}>
+                    {agentPreview.summary}
+                  </p>
+                  <div style={{ display: "grid", gap: "0.65rem" }}>
+                    {agentPreview.sections.map((section, sectionIndex) => (
+                      <section key={`${section.title}-${sectionIndex}`} style={agentPreviewSection}>
+                        <h4 style={{ margin: "0 0 0.35rem", fontSize: "0.9rem" }}>{section.title}</h4>
+                        {section.summary ? (
+                          <p style={{ margin: "0 0 0.45rem", color: "#687078", lineHeight: 1.5 }}>{section.summary}</p>
+                        ) : null}
+                        {section.facts?.length ? (
+                          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 140px), 1fr))", gap: "0.45rem", marginBottom: section.items?.length ? "0.55rem" : 0 }}>
+                            {section.facts.map((fact) => (
+                              <div key={fact.label} style={agentFactBox}>
+                                <span style={{ color: "#8b8f92", fontSize: "0.72rem" }}>{fact.label}</span>
+                                <strong style={{ color: "#1f2529", fontSize: "0.82rem" }}>{String(fact.value ?? "Not recorded")}</strong>
+                              </div>
+                            ))}
+                          </div>
+                        ) : null}
+                        {section.items?.length ? (
+                          <div style={{ display: "grid", gap: "0.45rem" }}>
+                            {section.items.map((item, itemIndex) => {
+                              const href = safeDeveloperSpacePreviewHref(item.href);
+                              return (
+                                <div key={`${item.title}-${itemIndex}`} style={{ borderTop: "1px solid #e7e0d4", paddingTop: "0.45rem" }}>
+                                  {href ? (
+                                    <Link href={href} style={{ color: "#534ab7", fontWeight: 700 }}>{item.title}</Link>
+                                  ) : (
+                                    <strong style={{ display: "block", color: "#1f2529" }}>{item.title}</strong>
+                                  )}
+                                  {item.detail ? (
+                                    <p style={{ margin: "0.2rem 0 0", color: "#687078", lineHeight: 1.45 }}>{item.detail}</p>
+                                  ) : null}
+                                  {item.status ? (
+                                    <span className="pill" style={{ marginTop: "0.35rem", fontSize: "0.68rem" }}>{humaniseKey(item.status)}</span>
+                                  ) : null}
+                                </div>
+                              );
+                            })}
+                          </div>
+                        ) : null}
+                      </section>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <p style={{ margin: 0, color: "#687078" }}>
+                  {developerSpaceAgentPreviewEmptyCopy(agentActions)}
+                </p>
+              )}
+            </div>
+
+            {agentActionGroups.future.length ? (
+              <div style={{ display: "grid", gap: "0.55rem" }}>
+                <span style={{ color: "#1f2529", fontSize: "0.82rem", fontWeight: 700 }}>Future lane vocabulary</span>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 180px), 1fr))", gap: "0.55rem" }}>
+                  {agentActionGroups.future.map((action) => (
+                    <button
+                      key={action.action}
+                      type="button"
+                      className="button"
+                      onClick={() => previewAgentAction(action.action)}
+                      disabled={agentPreviewLoading && selectedAgentAction === action.action}
+                      style={agentFutureButton}
+                    >
+                      <strong style={{ color: "#1f2529" }}>{action.label}</strong>
+                      <span style={{ color: "#854f0b", fontSize: "0.74rem" }}>Blocked boundary</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ) : null}
+          </div>
+
           <div className="card" style={{ display: "grid", gap: "0.9rem" }}>
             <div>
               <h2 style={{ margin: "0 0 0.35rem", fontSize: "1.05rem" }}>Visual mode</h2>
@@ -793,4 +1026,49 @@ const smallWidgetButton = {
   minHeight: 30,
   padding: "0 0.55rem",
   fontSize: "0.74rem",
+};
+
+const agentActionButton = {
+  alignItems: "flex-start",
+  borderRadius: 8,
+  display: "grid",
+  gap: "0.25rem",
+  justifyContent: "stretch",
+  minHeight: 78,
+  padding: "0.7rem",
+  textAlign: "left" as const,
+  whiteSpace: "normal" as const,
+};
+
+const agentFutureButton = {
+  ...agentActionButton,
+  background: "#f7f0e4",
+  borderColor: "#d8d3c8",
+};
+
+const agentPreviewBox = {
+  background: "#fbfaf7",
+  border: "1px solid #d8d3c8",
+  borderRadius: 8,
+  display: "grid",
+  gap: "0.75rem",
+  minHeight: 150,
+  padding: "0.85rem",
+};
+
+const agentPreviewSection = {
+  background: "#ffffff",
+  border: "1px solid #e7e0d4",
+  borderRadius: 8,
+  padding: "0.75rem",
+};
+
+const agentFactBox = {
+  background: "#ffffff",
+  border: "1px solid #e7e0d4",
+  borderRadius: 8,
+  display: "grid",
+  gap: "0.2rem",
+  minWidth: 0,
+  padding: "0.55rem",
 };

@@ -2,6 +2,10 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
 import {
+  developerSpaceAgentActionGroups,
+  developerSpaceAgentActionStatusCopy,
+  developerSpaceAgentPreviewEmptyCopy,
+  developerSpaceAgentPreviewStatusCopy,
   developerSpaceOwnerCurrentState,
   developerSpaceUsageReadback,
   developerSpaceSignalStatus,
@@ -146,6 +150,69 @@ test("owner observability helpers separate live state from metered usage", () =>
   assert.equal(laggingUsage.warningLabel, "Notice");
   assert.match(laggingUsage.mismatchCopy, /node count, event count, snapshot availability, export count/);
   assert.match(laggingUsage.rows.find((row) => row.label === "Storage")?.value ?? "", /2 KB of unlimited/);
+});
+
+test("developer agent helpers separate safe previews from future lane actions", () => {
+  const groups = developerSpaceAgentActionGroups([
+    {
+      action: "read_developer_space_brief",
+      label: "Read Developer Space brief",
+      description: "Safe readback",
+      mode: "read",
+      requiresConfirmation: false,
+      futureLane: false,
+    },
+    {
+      action: "draft_project_update",
+      label: "Draft project update",
+      description: "Owner review draft",
+      mode: "draft_preview",
+      requiresConfirmation: true,
+      futureLane: false,
+    },
+    {
+      action: "run_job",
+      label: "Run job",
+      description: "Future lane only",
+      mode: "future",
+      requiresConfirmation: true,
+      futureLane: true,
+    },
+  ]);
+
+  assert.deepEqual(groups.available.map((action) => action.action), [
+    "read_developer_space_brief",
+    "draft_project_update",
+  ]);
+  assert.deepEqual(groups.future.map((action) => action.action), ["run_job"]);
+  assert.equal(developerSpaceAgentActionStatusCopy(groups.available[0]), "Safe readback");
+  assert.equal(developerSpaceAgentActionStatusCopy(groups.available[1]), "Draft preview");
+  assert.equal(developerSpaceAgentActionStatusCopy(groups.future[0]), "Future lane");
+});
+
+test("developer agent preview helper copy labels blocked and review states", () => {
+  assert.equal(
+    developerSpaceAgentPreviewStatusCopy({
+      status: "previewed",
+      requiresConfirmation: false,
+    }),
+    "Safe readback"
+  );
+  assert.equal(
+    developerSpaceAgentPreviewStatusCopy({
+      status: "previewed",
+      requiresConfirmation: true,
+    }),
+    "Owner review draft"
+  );
+  assert.equal(
+    developerSpaceAgentPreviewStatusCopy({
+      status: "requires_future_lane",
+      requiresConfirmation: true,
+    }),
+    "Blocked for future lane"
+  );
+  assert.equal(developerSpaceAgentPreviewEmptyCopy([]), "Developer Agent actions are loading or unavailable.");
 });
 
 test("observatory helpers keep visitor data readable and non-raw", () => {
