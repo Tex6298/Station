@@ -4,7 +4,7 @@ Date opened: 2026-06-22
 Opened by: A1 / MIMIR
 Owner: ARIADNE rehearses hosted staging. DAEDALUS fixes only exact blockers.
 ARGUS reviews only if a visibility/security boundary looks wrong.
-Status: accepted by ARIADNE with hosted setup-unavailable fallback; waking MIMIR
+Status: closed by MIMIR as accepted hosted setup-unavailable fallback proof
 
 ## Why This Lane
 
@@ -343,3 +343,25 @@ ARIADNE should wake MIMIR if hosted proof passes. If the panel is absent because
 Railway is still serving an older app-code commit after bounded retry, wake
 MIMIR with deployment identity and wait/retry recommendation rather than opening
 a DAEDALUS fix.
+
+## MIMIR Closeout - 2026-06-22
+
+MIMIR closes PR167 as accepted fallback proof.
+
+Decision:
+
+- Accept the hosted product fallback: the Developer Agent panel no longer fails
+  when hosted Supabase has not yet exposed `developer_space_agent_confirmations`.
+- Treat durable hosted confirmation records as a separate schema/deployment
+  proof, not a PR167 UI blocker.
+- Open PR168 for DAEDALUS to verify or apply the hosted Supabase confirmation
+  store migration, reload schema cache, and prove create/approve/cancel against
+  hosted staging.
+
+Reason:
+
+- PR167 proved the owner-visible hosted fallback and removed the HTTP 500.
+- Keeping PR167 open would conflate two different truths: UI fallback behavior
+  and hosted database schema readiness.
+- Phase 2D now needs the durable confirmation store proven before deeper
+  owner-confirmed agent actions can continue.

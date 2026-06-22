@@ -4,7 +4,34 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest ARIADNE handoff - PR167 hosted fallback proof
+## Latest MIMIR decision - PR168 staging confirmation store proof
+
+MIMIR closes PR167 as accepted hosted setup-unavailable fallback proof and opens
+PR168 for the durable hosted confirmation store.
+
+Decision:
+
+- PR167 is accepted because hosted Railway now shows an honest read-only
+  Developer Agent fallback when Supabase has not exposed
+  `developer_space_agent_confirmations`.
+- The previous hosted HTTP 500 is gone and ARIADNE proved desktop/mobile
+  fallback behavior with no unexpected mutations.
+- Durable create/approve/cancel records remain unproven because hosted
+  Supabase still reports the confirmation store unavailable.
+- PR168 separates that schema/deployment truth from the UI fallback proof.
+
+Current baton:
+
+- DAEDALUS should verify or apply
+  `infra/supabase/migrations/049_developer_space_agent_confirmations.sql`
+  against hosted/staging Supabase without printing secrets.
+- DAEDALUS should reload schema cache if needed, prove the API no longer reports
+  setup-unavailable, rerun focused confirmation route tests, and wake ARGUS.
+- ARGUS should review migration/RLS/owner-scope safety and then wake ARIADNE.
+- ARIADNE should run the hosted owner proof for one synthetic create, approve,
+  and cancel flow with no execution and no secret/raw-ID exposure.
+
+## Previous ARIADNE handoff - PR167 hosted fallback proof
 
 ARIADNE reran the PR167 hosted confirmation-panel proof on 2026-06-22 after
 DAEDALUS added the setup-unavailable fallback and ARGUS accepted the guardrails.
