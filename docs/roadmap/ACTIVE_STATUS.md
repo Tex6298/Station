@@ -4,6 +4,28 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Current MIMIR handoff - PR162
+
+MIMIR opens PR162 Phase 2D Developer Agent Action Registry on 2026-06-22 for
+DAEDALUS. This interprets "2D" as the Developer Pages Phase 2D lane:
+chat-native developer workspace and developer agent. The first slice is an
+owner-only Developer Space action registry and preview/readback route, not
+autonomous execution.
+
+Boundaries:
+
+- allowed now: owner-scoped readback and draft/preview responses over existing
+  Developer Space data;
+- rejected now: `publish_to_page`, `update_layout`, `read_logs`,
+  `push_to_repo`, `run_job`, `update_observatory`, `request_capability`, key
+  rotation, signing-secret creation, deployment, shell, repo, queue, Cloudflare,
+  Redis worker, hosted runtime, and arbitrary model/tool execution;
+- review required: ARGUS must check owner scoping, leak risk, and overclaim
+  before any later chat-native UI or mutating tool lane opens.
+
+The product-spec 2D canvas remains the existing `node_field` visualisation
+concept and is not the PR162 target unless DAEDALUS finds a direct dependency.
+
 ## Active roadmap
 
 - Source of truth: `docs/roadmap/STATION_PR_PLAN_V3.md`. The v2 roadmap remains
