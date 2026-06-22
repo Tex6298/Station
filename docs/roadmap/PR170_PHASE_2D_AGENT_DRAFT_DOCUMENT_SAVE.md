@@ -410,3 +410,71 @@ Next baton:
   create/approve `save_project_update_draft`, expose `Save draft`, render one
   private draft receipt on desktop/mobile, keep public detail clean, and keep
   `publish_to_page` blocked.
+
+## ARIADNE Hosted Browser Acceptance - 2026-06-22
+
+ARIADNE reran the PR170 hosted desktop/mobile browser proof after DAEDALUS
+repaired the hosted `051` schema gap.
+
+Deployment identity:
+
+- Web `/health/deployment`: HTTP `200`, ready, branch `main`, service
+  `@station/web`, commit `472c12d2e09f`.
+- API `/health/deployment`: HTTP `200`, ready, branch `main`, service
+  `@station/api`, commit `472c12d2e09f`.
+- Runtime is current enough for PR170 app-code proof.
+
+Hosted owner proof:
+
+- Replay owner route `/developer-spaces/:slug/manage` loaded on desktop
+  `1440x1000`.
+- Nearby owner Developer Space surfaces were present: ingestion key, current
+  observatory state, usage/quota, visual mode, widgets, exports, evidence path,
+  and public link.
+- Developer Agent preview panel loaded with no confirmation/receipt
+  setup-unavailable copy and no generic load-failure copy.
+- Visible panel scan found zero UUID-shaped values and zero secret-shaped
+  strings.
+- `draft_project_update` preview worked and exposed zero enabled
+  `Record confirmation` controls.
+- `save_project_update_draft` preview returned HTTP `200`, confirmation create
+  returned HTTP `201`, approval returned HTTP `200`, and the approved row
+  exposed `Save draft`.
+- The approved save row retained the non-execution copy.
+- `Save draft` execute returned HTTP `201`, rendered one private draft receipt,
+  and displayed private/draft/owner metadata.
+- Repeat `Save draft` execute returned HTTP `200` and did not duplicate visible
+  receipt evidence: receipt count stayed `1`.
+- `publish_to_page` preview returned HTTP `200`, confirmation create returned
+  HTTP `201`, approval returned HTTP `200`, retained non-execution copy, and
+  did not expose `Save draft`.
+- Browser saw no API errors and no unexpected mutation requests.
+
+Hosted boundary proof:
+
+- Anonymous public Developer Space detail returned HTTP `200`.
+- The public detail did not show the project-update draft or private draft
+  receipt copy.
+- Mobile `390x900` owner manage showed the private draft receipt and metadata
+  with no document-level horizontal overflow.
+
+Mutation result:
+
+- Preview requests: `3`.
+- Confirmation creates: `2`.
+- Confirmation approvals: `2`.
+- Receipt execute requests: `2` (initial save plus idempotent repeat).
+- External executions: `0`.
+
+Verdict:
+
+- ARIADNE accepts PR170.
+- The hosted schema blocker is cleared.
+- PR170 proves the first bounded Developer Agent artifact mutation without
+  public publishing, provider/deploy/repo/key/layout/billing/webhook/export/
+  worker/runtime execution, or public document leakage.
+
+Validation:
+
+- `npx --yes --package @playwright/test@1.41.2 playwright test tmp-pr170-hosted-draft-save-proof.spec.js --reporter=line --workers=1`
+  passed: 1 test.

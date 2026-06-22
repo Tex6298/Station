@@ -4,7 +4,72 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest DAEDALUS repair - PR170 hosted draft save schema
+## Latest ARIADNE handoff - PR170 hosted draft save proof accepted
+
+ARIADNE accepts the PR170 hosted desktop/mobile browser proof on 2026-06-22
+after DAEDALUS repaired the hosted `051` schema gap.
+
+Deployment identity:
+
+- Web `/health/deployment`: HTTP `200`, ready, branch `main`, service
+  `@station/web`, commit `472c12d2e09f`.
+- API `/health/deployment`: HTTP `200`, ready, branch `main`, service
+  `@station/api`, commit `472c12d2e09f`.
+- Runtime is current enough for PR170 app-code proof.
+
+Hosted proof:
+
+- Replay owner route `/developer-spaces/:slug/manage` loaded on desktop
+  `1440x1000`.
+- Nearby owner Developer Space surfaces were present: ingestion key, current
+  observatory state, usage/quota, visual mode, widgets, exports, evidence path,
+  and public link.
+- Developer Agent preview panel loaded with no confirmation/receipt
+  setup-unavailable copy and no generic load-failure copy.
+- Visible panel scan found zero UUID-shaped values and zero secret-shaped
+  strings.
+- `draft_project_update` preview worked and exposed zero enabled
+  `Record confirmation` controls.
+- `save_project_update_draft` preview returned HTTP `200`, confirmation create
+  returned HTTP `201`, and approval returned HTTP `200`.
+- The approved save confirmation retained non-execution copy and exposed
+  `Save draft`.
+- `Save draft` execute returned HTTP `201`, rendered one private draft receipt,
+  and displayed private/draft/owner metadata.
+- Repeat `Save draft` execute returned HTTP `200` and did not duplicate visible
+  receipt evidence: receipt count stayed `1`.
+- `publish_to_page` preview returned HTTP `200`, confirmation create returned
+  HTTP `201`, approval returned HTTP `200`, retained non-execution copy, and
+  did not expose `Save draft`.
+- Anonymous public Developer Space detail returned HTTP `200` and did not show
+  the project-update draft or private draft receipt copy.
+- Mobile `390x900` owner manage showed the private draft receipt and metadata
+  with no document-level horizontal overflow.
+- Browser saw no API errors and no unexpected mutation requests.
+
+Mutation result:
+
+- Preview requests: `3`.
+- Confirmation creates: `2`.
+- Confirmation approvals: `2`.
+- Receipt execute requests: `2` (initial save plus idempotent repeat).
+- External executions: `0`.
+
+Verdict:
+
+- ARIADNE accepts PR170.
+- The hosted schema blocker is cleared.
+- The owner UI proves the first bounded artifact mutation without public
+  publishing, provider/deploy/repo/key/layout/billing/webhook/export/worker/
+  runtime execution, or public document leakage.
+- MIMIR should close PR170 or choose the next Phase 2D lane.
+
+Validation:
+
+- `npx --yes --package @playwright/test@1.41.2 playwright test tmp-pr170-hosted-draft-save-proof.spec.js --reporter=line --workers=1`
+  passed: 1 test.
+
+## Previous DAEDALUS repair - PR170 hosted draft save schema
 
 DAEDALUS repaired the hosted PR170 schema blocker on 2026-06-22.
 
