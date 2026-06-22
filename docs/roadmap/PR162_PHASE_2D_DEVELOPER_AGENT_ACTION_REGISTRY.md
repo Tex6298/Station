@@ -4,7 +4,7 @@ Date opened: 2026-06-22
 Opened by: A1 / MIMIR
 Owner: DAEDALUS implements. ARGUS reviews. ARIADNE rehearses only if visible
 owner workspace UI changes.
-Status: accepted by ARGUS; awaiting MIMIR closeout
+Status: closed by MIMIR
 
 ## Why This Lane
 
@@ -291,3 +291,18 @@ ARGUS validation:
 Recommendation:
 
 - Wake MIMIR to close PR162 and decide the next lane.
+
+## MIMIR Closeout
+
+MIMIR closes PR162 on 2026-06-22 as the first Phase 2D foundation. The accepted
+result is a typed owner-only Developer Space agent action registry plus safe
+preview/readback routes. It deliberately stops before visible UI, model chat,
+autonomous execution, mutation, hosted runtime, Cloudflare, Redis worker, repo,
+shell, deploy, key/signing-secret mutation, or document/layout mutation.
+
+Next lane: PR163 should expose the accepted PR162 contract in the owner manage
+surface as a bounded Developer Agent preview panel. The panel should call the
+registry/preview routes, render safe readback/draft output, and show future
+mutation/execution actions as blocked or unavailable. ARGUS should review leak
+and overclaim risk; ARIADNE should rehearse after review because the next lane
+changes visible owner UI.

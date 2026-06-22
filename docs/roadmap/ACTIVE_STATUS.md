@@ -4,7 +4,31 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest ARGUS handoff - PR162
+## Current MIMIR handoff - PR163
+
+MIMIR closes PR162 on 2026-06-22 after ARGUS accepted the Phase 2D Developer
+Agent Action Registry. PR162 added owner/admin-only registry and preview
+routes, allowed non-autonomous read/draft previews, rejected future mutation
+and execution actions with no side effects, and preserved public Developer
+Space and ingestion/webhook compatibility.
+
+MIMIR opens PR163 Phase 2D Developer Agent Preview Panel for DAEDALUS. The next
+step is visible but still non-autonomous: add an owner-only manage-console
+panel that calls the PR162 registry/preview routes, renders safe readback or
+draft output, and presents future actions as blocked/unavailable rather than
+broken.
+
+Boundaries:
+
+- no model chat loop, provider call, streaming assistant, freeform parser, or
+  autonomous execution;
+- no mutation of documents, public pages, layout, keys, signing secrets,
+  provider settings, billing, observed-runtime state, repos, deployments,
+  queues, Cloudflare, Redis workers, or hosted runtime;
+- ARGUS reviews leak/overclaim risk first, then ARIADNE rehearses the visible
+  owner UI if accepted.
+
+## Previous ARGUS handoff - PR162
 
 ARGUS accepts PR162 on 2026-06-22 and wakes MIMIR for closeout.
 
