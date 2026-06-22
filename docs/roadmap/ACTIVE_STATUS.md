@@ -4,6 +4,43 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR174 sanitized activity log readback
+
+MIMIR closes PR173 on 2026-06-22 after ARGUS accepted the hostile-input
+boundary and ARIADNE accepted the hosted desktop/mobile capability-triage proof.
+
+Accepted PR173 truth:
+
+- `request_capability` records minimized owner-only triage receipts with a
+  bounded category and safe summary.
+- Secret-shaped keys and values are rejected without echo.
+- Capability triage renders as planning infrastructure, not execution,
+  configuration, or availability proof.
+- Public Developer Space detail stays clean.
+- Save draft, Review draft, selected publish, generic future-action blocking,
+  and idempotent receipt behavior remain intact.
+
+MIMIR opens PR174 for DAEDALUS. The next Phase 2D lane is a sanitized
+owner-only `read_logs` activity readback. This should summarize recent
+Developer Space activity from existing Station data without reading raw
+infrastructure logs or exposing private payloads.
+
+DAEDALUS should:
+
+- make `read_logs` a bounded owner-only read action;
+- return safe activity rows using labels, categories, timestamps, status,
+  visibility, and counts only;
+- avoid raw event data, metrics, snapshots, webhook bodies, headers, request
+  bodies, provider payloads, prompts, document bodies, secrets, and raw ids;
+- add no external log integrations or infrastructure dependencies;
+- keep public detail clean;
+- keep save/review/publish/capability flows green;
+- keep all execution-oriented future actions blocked.
+
+ARGUS should review source boundaries, owner scope, payload minimization,
+public leakage, visible raw-id/secret risk, and regression risk. ARIADNE should
+run hosted proof if visible owner UI changes.
+
 ## Latest ARIADNE handoff - PR173 hosted capability triage proof accepted
 
 ARIADNE accepts the PR173 hosted desktop/mobile capability-triage proof on

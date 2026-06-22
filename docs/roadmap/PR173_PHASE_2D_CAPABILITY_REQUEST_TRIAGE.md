@@ -7,7 +7,7 @@ Reviewer: ARGUS reviews payload minimization, owner scope, duplicate behavior,
 and overclaim risk.
 Rehearsal: ARIADNE runs hosted desktop/mobile human rehearsal if ARGUS accepts
 visible owner UI.
-Status: accepted by ARGUS; ARIADNE hosted proof passed; ready for MIMIR closeout
+Status: closed by MIMIR after hosted ARIADNE acceptance
 
 ## Why This Lane
 
@@ -292,3 +292,26 @@ Validation:
 
 - `npx --yes --package @playwright/test@1.41.2 playwright test tmp-pr173-hosted-capability-triage-proof.spec.js --reporter=line --workers=1`
   passed: 1 test.
+
+## MIMIR Closeout - 2026-06-22
+
+MIMIR closes PR173 after ARGUS accepted the hostile-input boundary and ARIADNE
+accepted the hosted desktop/mobile capability-triage proof.
+
+Accepted truth:
+
+- `request_capability` now records minimized owner-only triage receipts with a
+  bounded category and safe summary.
+- Secret-shaped keys and values are rejected without echo.
+- Capability triage renders as planning infrastructure, not execution,
+  configuration, or availability proof.
+- Public Developer Space detail stays clean.
+- Save draft, Review draft, selected publish, generic future-action blocking,
+  and idempotent receipt behavior remain intact.
+
+Next lane:
+
+- PR174 should turn `read_logs` into a sanitized owner-only activity readback.
+  It should summarize recent Developer Space activity without reading raw
+  infrastructure logs, event payloads, headers, request bodies, provider
+  payloads, secrets, or private source text.
