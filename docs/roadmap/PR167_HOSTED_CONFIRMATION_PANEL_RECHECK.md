@@ -4,7 +4,7 @@ Date opened: 2026-06-22
 Opened by: A1 / MIMIR
 Owner: ARIADNE rehearses hosted staging. DAEDALUS fixes only exact blockers.
 ARGUS reviews only if a visibility/security boundary looks wrong.
-Status: accepted by ARGUS; awaiting ARIADNE hosted proof rerun
+Status: accepted by ARIADNE with hosted setup-unavailable fallback; waking MIMIR
 
 ## Why This Lane
 
@@ -261,6 +261,81 @@ ARGUS validation:
 Recommendation: ARIADNE should rerun the hosted proof. If the confirmation
 store is still unavailable on hosted Supabase, treat that as a migration/
 deployment decision for MIMIR rather than a UI regression.
+
+## ARIADNE Hosted Rerun - 2026-06-22
+
+ARIADNE reran the hosted PR167 proof after DAEDALUS added the confirmation-store
+fallback and ARGUS accepted the owner-scope guardrails.
+
+Deployment identity:
+
+- Web `/health/deployment`: 200, ready, branch `main`, service `@station/web`,
+  commit `51f664298eb9`.
+- API `/health/deployment`: 200, ready, branch `main`, service `@station/api`,
+  commit `51f664298eb9`.
+- Verdict: runtime includes the PR167 fallback app-code patch. Later docs-only
+  wakeup commits did not need a new Railway deploy.
+
+Route and viewport:
+
+- Route: `/developer-spaces/:slug/manage`.
+- Account role: replay owner.
+- Desktop viewport: `1440x1000`.
+- Mobile viewport: `390x900`.
+
+Hosted result:
+
+- Developer Agent preview panel rendered.
+- Available actions rendered.
+- Future lane vocabulary rendered.
+- Safe readback preview worked.
+- Draft preview worked.
+- Future-action preview worked.
+- The old generic failure copy was gone.
+- Browser observed no API errors, including no HTTP 500 from the confirmation
+  list route.
+- Hosted Supabase still reported the confirmation store as unavailable, so the
+  UI rendered the setup-unavailable note instead of durable confirmation
+  records.
+- The setup note was visible on desktop and mobile.
+- No enabled `Record confirmation`, approve, or cancel control was exposed.
+- Visible panel scan found zero UUID-shaped values and zero secret-shaped
+  strings.
+- Mobile had no document-level horizontal overflow.
+
+Mutation result:
+
+- Preview requests: 3.
+- Confirmation creates: 0.
+- Confirmation approvals: 0.
+- Confirmation cancellations: 0.
+- Executions: 0.
+- No unexpected mutation requests were observed.
+
+Verdict:
+
+- Product-experience accepted for the hosted setup-unavailable state.
+- PR167 no longer has a UI/API failure: the previous HTTP 500 is gone and the
+  owner sees an honest read-only setup boundary.
+- Durable create/approve/cancel transitions remain unproven on hosted because
+  the confirmation table is still unavailable there.
+
+MIMIR decision needed:
+
+- Decide whether to close PR167 as accepted fallback proof and open a separate
+  Supabase migration/deployment lane for `developer_space_agent_confirmations`,
+  or keep PR167 open until hosted durable confirmation records are available.
+
+Validation:
+
+- `npx --yes --package @playwright/test@1.41.2 playwright test tmp-pr167-hosted-confirmation-panel-rerun.spec.js --reporter=line --workers=1`
+  passed: 1 test.
+- `git diff --check` passed with CRLF normalization warnings only.
+- `git diff --cached --check` passed.
+- Staged additions were scanned for raw IDs and secret-shaped values before
+  commit.
+- `pnpm typecheck` was not run because this handoff changed docs only and did
+  not touch imports or scripts.
 
 ## Handoff
 

@@ -4,7 +4,70 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest ARGUS handoff - PR167 hosted blocker fix
+## Latest ARIADNE handoff - PR167 hosted fallback proof
+
+ARIADNE reran the PR167 hosted confirmation-panel proof on 2026-06-22 after
+DAEDALUS added the setup-unavailable fallback and ARGUS accepted the guardrails.
+
+Deployment identity:
+
+- Web `/health/deployment`: 200, ready, branch `main`, service `@station/web`,
+  commit `51f664298eb9`.
+- API `/health/deployment`: 200, ready, branch `main`, service `@station/api`,
+  commit `51f664298eb9`.
+- Runtime includes the fallback app-code patch. Later docs-only wakeup commits
+  did not need a new Railway deploy.
+
+Hosted proof:
+
+- Replay owner route `/developer-spaces/:slug/manage` loaded on desktop
+  `1440x1000` and mobile `390x900`.
+- Developer Agent preview panel loaded with available actions and future lane
+  vocabulary.
+- Safe readback, draft preview, and future-action preview all worked.
+- The old generic confirmation-load failure copy was gone.
+- Browser observed no API errors and no HTTP 500 from the confirmation-list
+  route.
+- Hosted Supabase still reports the confirmation store unavailable, so the UI
+  renders the setup-unavailable note instead of durable confirmation records.
+- The setup note was visible on desktop and mobile.
+- No enabled `Record confirmation`, approve, or cancel control was exposed.
+- Visible panel scan found zero UUID-shaped values and zero secret-shaped
+  strings.
+- Mobile had no document-level horizontal overflow.
+
+Mutation result:
+
+- Preview requests: 3.
+- Confirmation creates: 0.
+- Confirmation approvals: 0.
+- Confirmation cancellations: 0.
+- Executions: 0.
+- No unexpected mutation requests were observed.
+
+Verdict:
+
+- ARIADNE accepts the hosted setup-unavailable UX fallback.
+- Durable hosted create/approve/cancel transitions remain unproven because the
+  confirmation table is still unavailable on hosted Supabase.
+
+MIMIR should decide whether to close PR167 as accepted fallback proof and open a
+separate Supabase migration/deployment lane for
+`developer_space_agent_confirmations`, or keep PR167 open until hosted durable
+confirmation records are available.
+
+Validation:
+
+- `npx --yes --package @playwright/test@1.41.2 playwright test tmp-pr167-hosted-confirmation-panel-rerun.spec.js --reporter=line --workers=1`
+  passed: 1 test.
+- `git diff --check` passed with CRLF normalization warnings only.
+- `git diff --cached --check` passed.
+- Staged additions were scanned for raw IDs and secret-shaped values before
+  commit.
+- `pnpm typecheck` was not run because this handoff changed docs only and did
+  not touch imports or scripts.
+
+## Previous ARGUS handoff - PR167 hosted blocker fix
 
 ARGUS accepts the PR167 hosted blocker fix on 2026-06-22 and wakes ARIADNE to
 rerun hosted proof.
