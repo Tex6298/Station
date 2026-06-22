@@ -7,7 +7,7 @@ Reviewer: ARGUS reviews public-boundary scope, payload minimization,
 idempotency, and overclaim risk.
 Rehearsal: ARIADNE runs hosted desktop/mobile proof if ARGUS accepts visible
 owner/public UI.
-Status: implemented by DAEDALUS; waiting for ARGUS review
+Status: hosted ARIADNE proof blocked on receipt retry after public event
 
 ## Why This Lane
 
@@ -176,3 +176,59 @@ DAEDALUS should implement PR175, then wake ARGUS with changed files, validation,
 payload examples, public before/after behavior, idempotency proof, and remaining
 risks. ARGUS should wake ARIADNE if hosted proof is needed; ARIADNE wakes MIMIR
 with the verdict.
+
+## ARIADNE Hosted Browser Blocker - 2026-06-22
+
+ARIADNE started the requested hosted desktop proof after ARGUS accepted the
+receipt-label/readback fix.
+
+Deployment identity:
+
+- Web `/health/deployment`: HTTP `200`, ready, branch `main`, service
+  `@station/web`, commit `882edabee109`.
+- API `/health/deployment`: HTTP `200`, ready, branch `main`, service
+  `@station/api`, commit `a53d348a1be1`.
+- The web runtime includes the PR175 receipt-label/readback UI fix. The API
+  runtime descends from the PR175 app-code patch.
+
+Hosted proof before blocker:
+
+- Replay owner route `/developer-spaces/:slug/manage` loaded on desktop
+  `1440x1000`.
+- Generic/unselected `update_observatory` preview returned the expected
+  selected-status-note requirement.
+- Secret-shaped status-note creation was rejected with HTTP `400` and did not
+  echo the submitted probe.
+- Public Developer Space detail did not show the proof note before execution.
+- Owner UI could preview the selected status note, create the confirmation, and
+  approve it.
+
+Blocker:
+
+- First approved `update_observatory` execution returned HTTP `500`.
+- A direct owner retry of the same approved confirmation also returned HTTP
+  `500`.
+- Public detail shows exactly one matching `developer_agent.status_note` event,
+  so the public event was created.
+- Owner receipt list shows zero matching `update_observatory` receipt records.
+- Receipt store reports available.
+
+Why this blocks acceptance:
+
+- PR175 requires approved execution to create exactly one public event and one
+  minimized owner-only receipt.
+- PR175 also requires retry after receipt failure to reuse the public event
+  dedupe marker and recover the receipt without duplicating the public note.
+- Hosted currently has the public event but no receipt, and retry does not
+  recover the receipt.
+
+Verdict:
+
+- ARIADNE does not accept PR175 yet.
+- DAEDALUS should repair hosted execution/receipt recovery for
+  `update_observatory`, then wake ARGUS and ARIADNE for rerun.
+
+Validation:
+
+- `npx --yes --package @playwright/test@1.41.2 playwright test tmp-pr175-hosted-status-note-proof.spec.js --reporter=line --workers=1`
+  failed: approved `update_observatory` execution returned HTTP `500`.

@@ -52,6 +52,27 @@ pnpm test:developer-spaces
 pnpm test:developer-space-client
 ```
 
+## PR175 Hosted Observatory Status Note Blocker
+
+ARIADNE hosted proof on 2026-06-22:
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `npx --yes --package @playwright/test@1.41.2 playwright test tmp-pr175-hosted-status-note-proof.spec.js --reporter=line --workers=1` | Fail | Owner preview/create/approve reached the approved status-note execution step, but approved `update_observatory` execution returned HTTP `500`. |
+| Direct owner retry | Fail | Retrying the same approved confirmation returned HTTP `500`; public detail had exactly one matching public `developer_agent.status_note` event and owner receipt list had zero matching `update_observatory` receipts. |
+| Hosted deployment identity | Partial | Web ready on `@station/web` commit `882edabee109`; API ready on `@station/api` commit `a53d348a1be1`, which descends from the PR175 app-code patch. |
+
+ARIADNE PR175 blocker notes:
+
+- Generic/unselected `update_observatory` preview still returned the
+  selected-status-note requirement.
+- Secret-shaped status-note creation was rejected with HTTP `400` and did not
+  echo the submitted probe.
+- Public detail stayed clean before execution.
+- The hosted blocker is specifically the event-created/no-receipt recovery
+  path: one public status note exists, receipt store is available, no matching
+  owner receipt exists, and retry still fails.
+
 ## PR175 Phase 2D Observatory Status Note Gate
 
 DAEDALUS implementation validation on 2026-06-22:
