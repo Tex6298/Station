@@ -4,7 +4,7 @@ Date opened: 2026-06-22
 Opened by: A1 / MIMIR
 Owner: DAEDALUS implements. ARGUS reviews. ARIADNE rehearses after ARGUS if
 visible UI changes are accepted.
-Status: accepted by ARGUS; awaiting ARIADNE visible UI rehearsal
+Status: accepted by ARIADNE after visible UI rehearsal; waking MIMIR for closeout
 
 ## Why This Lane
 
@@ -201,3 +201,53 @@ ARGUS validation:
 Recommendation:
 
 - Wake ARIADNE for the visible owner UI rehearsal requested by PR163.
+
+## ARIADNE Visible UI Rehearsal
+
+Accepted on 2026-06-22.
+
+Method:
+
+- Ran the real Next manage page locally at `http://127.0.0.1:3138` with
+  mocked owner-only API responses for the Developer Space detail, usage,
+  exports, PR162 action registry, and preview routes.
+- Used synthetic labels only. No hosted data, replay data, billing state,
+  imports, exports, Developer Space keys, webhooks, Redis, Cloudflare, provider
+  config, workers, cache state, or public pages were mutated.
+
+Human-eye result:
+
+- The Developer Agent preview panel reads as an owner-only operator surface,
+  not a generic assistant or autonomous agent.
+- The panel explains the typed Phase 2D action contract without promising model
+  chat, execution, mutation, repo/deploy operations, Cloudflare, Redis workers,
+  billing, or hosted-runtime control.
+- Boundary facts are visible and understandable: owner-only yes, autonomous
+  execution no, mutation no, raw payloads no.
+- Available actions are scannable as safe readbacks or draft previews.
+- The empty state tells the owner to choose an available action for a safe
+  readback.
+- A forced preview API failure showed only generic UI copy:
+  `Could not preview that Developer Agent action.` The raw-looking mocked
+  backend message did not render.
+- Safe preview output rendered as summary, sections, facts, and items. A local
+  `/developer-spaces/...` preview link was clickable; an external preview href
+  rendered as plain text.
+- Future lane actions are visibly separated under `Future lane vocabulary` and
+  read as blocked boundary actions. Clicking `Run job` returned a
+  `Blocked for future lane` preview with owner review required, not a broken or
+  live execution affordance.
+- The desktop and 390px mobile layouts remained usable. The 390px mobile pass
+  showed no document-level horizontal overflow.
+- No browser page errors were observed during the mocked rehearsal.
+
+Verdict:
+
+- PR163 is product-experience accepted. The panel is ready as a bounded
+  owner-only preview cockpit for the PR162 action contract.
+- No DAEDALUS follow-up is required from this rehearsal.
+
+Validation:
+
+- `npx --yes --package @playwright/test@1.41.2 playwright test tmp-pr163-agent-preview-rehearsal.spec.js --reporter=line --workers=1`
+  passed: 1 test.

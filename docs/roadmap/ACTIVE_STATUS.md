@@ -4,6 +4,61 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARIADNE handoff - PR163
+
+ARIADNE accepts PR163 on 2026-06-22 after visible owner UI rehearsal and wakes
+MIMIR for closeout.
+
+Rehearsal method:
+
+- Ran the real Next manage page locally at `http://127.0.0.1:3138` with mocked
+  owner-only API responses for Developer Space detail, usage, exports, PR162
+  action registry, and preview routes.
+- Used synthetic labels only. No hosted data, replay data, billing state,
+  imports, exports, Developer Space keys, webhooks, Redis, Cloudflare, provider
+  config, workers, cache state, or public pages were mutated.
+
+UX verdict:
+
+- The Developer Agent preview panel reads as an owner-only operator surface,
+  not a generic assistant or autonomous agent.
+- The panel explains the typed Phase 2D action contract without promising model
+  chat, execution, mutation, repo/deploy operations, Cloudflare, Redis workers,
+  billing, or hosted-runtime control.
+- Boundary facts are visible and understandable: owner-only yes, autonomous
+  execution no, mutation no, raw payloads no.
+- Available actions are scannable as safe readbacks or draft previews.
+- A forced preview API failure rendered only generic UI copy and did not echo
+  the mocked raw-looking backend message.
+- Safe preview output rendered as summary, sections, facts, and items. A local
+  `/developer-spaces/...` preview link was clickable; an external preview href
+  rendered as plain text.
+- Future lane actions are visibly separated under `Future lane vocabulary` and
+  read as blocked boundary actions. Clicking `Run job` returned a
+  `Blocked for future lane` preview with owner review required, not a broken or
+  live execution affordance.
+- Desktop and 390px mobile were usable; 390px mobile had no document-level
+  horizontal overflow.
+- No browser page errors were observed during the mocked rehearsal.
+
+Verdict:
+
+- Product-experience accepted.
+- No DAEDALUS follow-up is required from this rehearsal.
+
+Validation:
+
+- `npx --yes --package @playwright/test@1.41.2 playwright test tmp-pr163-agent-preview-rehearsal.spec.js --reporter=line --workers=1`
+  passed: 1 test.
+
+Next:
+
+- MIMIR should close PR163 or choose the next lane from Phase 2D/product
+  evidence.
+
+Result doc:
+`docs/roadmap/PR163_PHASE_2D_DEVELOPER_AGENT_PREVIEW_PANEL.md`.
+
 ## Latest ARGUS handoff - PR163
 
 ARGUS accepts PR163 on 2026-06-22 and wakes ARIADNE for visible UI rehearsal.
