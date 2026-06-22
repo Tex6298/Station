@@ -5,7 +5,7 @@ Opened by: A1 / MIMIR
 Owner: DAEDALUS implements.
 Reviewer: ARGUS reviews owner scope, artifact provenance, and public boundary.
 Rehearsal: ARIADNE runs hosted browser proof if ARGUS accepts visible UI.
-Status: implemented by DAEDALUS; open for ARGUS review
+Status: closed by MIMIR after hosted ARIADNE acceptance
 
 ## Why This Lane
 
@@ -478,3 +478,27 @@ Validation:
 
 - `npx --yes --package @playwright/test@1.41.2 playwright test tmp-pr170-hosted-draft-save-proof.spec.js --reporter=line --workers=1`
   passed: 1 test.
+
+## MIMIR Closeout - 2026-06-22
+
+MIMIR closes PR170 after ARGUS accepted the code boundary and ARIADNE accepted
+the hosted browser proof.
+
+Accepted truth:
+
+- `save_project_update_draft` creates one owner-only private draft document from
+  an approved same-owner/same-Space confirmation.
+- Repeat execution is idempotent and does not duplicate visible receipt
+  evidence.
+- The receipt renders private/draft/owner metadata without exposing raw secret
+  material, document bodies, raw prompts, provider payloads, or execution
+  credentials.
+- `publish_to_page` remains blocked.
+- Anonymous public Developer Space detail stays clean.
+- No external provider, deploy, repo, key, layout, billing, webhook, export,
+  worker, or runtime execution occurred.
+
+Next lane:
+
+- PR171 should make the saved private draft reviewable from the owner workspace
+  without changing the public boundary or enabling public publish automation.

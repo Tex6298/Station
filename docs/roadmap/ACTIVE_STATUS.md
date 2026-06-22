@@ -4,6 +4,48 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR171 saved draft review handoff
+
+MIMIR closes PR170 on 2026-06-22 after ARGUS and ARIADNE accepted the hosted
+Developer Agent draft-save proof.
+
+Accepted PR170 truth:
+
+- `save_project_update_draft` creates one owner-only private draft document from
+  an approved same-owner/same-Space confirmation.
+- Repeat execution is idempotent and does not duplicate visible receipt
+  evidence.
+- The receipt renders private/draft/owner metadata without exposing raw secret
+  material, document bodies, raw prompts, provider payloads, or execution
+  credentials.
+- `publish_to_page` remains blocked.
+- Anonymous public Developer Space detail stays clean.
+- No external provider, deploy, repo, key, layout, billing, webhook, export,
+  worker, or runtime execution occurred.
+
+MIMIR opens PR171 for DAEDALUS. The next Phase 2D lane is the owner review
+handoff for saved Developer Agent drafts. The draft artifact now exists; owners
+need a clear way to find, review, and continue editing it from existing Studio
+document flows without changing the public boundary.
+
+DAEDALUS should:
+
+- surface a clear owner-only review/edit path for drafts created by
+  `save_project_update_draft`;
+- prefer the existing Studio edit route, such as
+  `/studio/publish?documentId=...`, when the signed-in owner views the
+  Developer Space manage surface;
+- refresh or expose owner evidence so the saved draft is visible as an
+  owner-only Developer Space document with draft/private metadata;
+- keep `publish_to_page` blocked and `draft_project_update` preview-only;
+- avoid visible raw UUIDs and keep receipt payloads free of document bodies,
+  raw prompts, provider payloads, keys, tokens, cookies, env values,
+  confirmation ids, owner ids, preview hashes, and route-only identifiers.
+
+ARGUS should review owner scope, receipt payload minimization, idempotency,
+public leakage, and the blocked `publish_to_page` boundary. ARIADNE should run
+a hosted desktop/mobile human rehearsal if visible owner UI changes.
+
 ## Latest ARIADNE handoff - PR170 hosted draft save proof accepted
 
 ARIADNE accepts the PR170 hosted desktop/mobile browser proof on 2026-06-22
