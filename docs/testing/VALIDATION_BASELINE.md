@@ -52,6 +52,35 @@ pnpm test:developer-spaces
 pnpm test:developer-space-client
 ```
 
+## PR175 Phase 2D Observatory Status Note Gate
+
+DAEDALUS implementation validation on 2026-06-22:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 40 tests passed, including the new `update_observatory` status-note gate, hostile note/input rejection, public before/after cleanliness, receipt-failure retry idempotency, and read/save/publish/capability regression coverage. |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-space-client` | Pass | 15 tests passed; Developer Space client behavior remains compatible. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/types build` | Pass | Shared Developer Space action/receipt types compiled with `update_observatory` as a bounded receipt action. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` | Pass | API typecheck passed for status-note confirmation, execution, event, and receipt paths. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` | Pass | Web typecheck passed for the owner manage status-note control and helper copy. |
+| `git diff --check` | Pass | CRLF normalization warnings only. |
+
+DAEDALUS PR175 notes:
+
+- Generic/unselected `update_observatory` remains blocked.
+- Selected safe `statusNote` input can create, approve, and execute one
+  owner-confirmed public status note.
+- Public detail gains only the legitimate `developer_agent.status_note` event
+  after execution.
+- Public event data exposes safe note/category/source fields; the private
+  dedupe key is owner-classified and omitted from public detail.
+- Receipt payload is minimized to note/event metadata and explicitly non-
+  external-dispatch.
+- Repeat execution does not duplicate the public note or receipt, including the
+  case where the event exists but receipt insertion previously failed.
+- No layout/config/runtime/provider/repo/key/webhook/billing/worker,
+  document-body, raw-log, or infrastructure mutation was added.
+
 ## PR174 Hosted Sanitized Activity Readback Proof
 
 ARIADNE hosted proof on 2026-06-22:

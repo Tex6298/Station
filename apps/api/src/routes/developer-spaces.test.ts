@@ -2487,6 +2487,189 @@ test("Developer Space agent publish gate publishes only the selected saved draft
   }
 });
 
+test("Developer Space agent update-observatory gate publishes one sanitized public status note", async () => {
+  const db = new InMemorySupabase();
+  setSupabaseAdminForTests(db.client as any);
+  const app = createDeveloperSpacesApp();
+
+  try {
+    const created = await requestJson(app, "POST", "/developer-spaces", {
+      token: "owner-token",
+      body: {
+        projectName: "Agent Observatory Note Lane",
+        visibility: "public",
+      },
+    });
+    assert.equal(created.status, 201);
+    const spaceId = created.body.space.id;
+    const slug = created.body.space.slug;
+    const note = "Status note: replay harness is green and ready for public review.";
+
+    const genericPreview = await requestJson(app, "POST", `/developer-spaces/${spaceId}/agent/actions/preview`, {
+      token: "owner-token",
+      body: { action: "update_observatory" },
+    });
+    assert.equal(genericPreview.status, 200);
+    assert.equal(genericPreview.body.status, "requires_future_lane");
+    assert.equal(genericPreview.body.requiresConfirmation, true);
+    assert.equal(db.tables.developer_space_events.length, 0);
+
+    const selectedPreview = await requestJson(app, "POST", `/developer-spaces/${spaceId}/agent/actions/preview`, {
+      token: "owner-token",
+      body: { action: "update_observatory", input: { statusNote: note } },
+    });
+    assert.equal(selectedPreview.status, 200);
+    assert.equal(selectedPreview.body.status, "previewed");
+    assert.equal(selectedPreview.body.summary.includes(note), true);
+    assert.doesNotMatch(JSON.stringify(selectedPreview.body), /dedupeKey|confirmationId|receiptId|previewHash/);
+
+    const missingNote = await requestJson(app, "POST", `/developer-spaces/${spaceId}/agent/actions/confirmations`, {
+      token: "owner-token",
+      body: { action: "update_observatory" },
+    });
+    assert.equal(missingNote.status, 400);
+    assert.equal(db.tables.developer_space_agent_confirmations.length, 0);
+
+    const secretNote = await requestJson(app, "POST", `/developer-spaces/${spaceId}/agent/actions/confirmations`, {
+      token: "owner-token",
+      body: { action: "update_observatory", statusNote: "Publish token=do-not-leak in public note." },
+    });
+    assert.equal(secretNote.status, 400);
+    assert.doesNotMatch(JSON.stringify(secretNote.body), /do-not-leak/);
+
+    const sensitiveInput = await requestJson(app, "POST", `/developer-spaces/${spaceId}/agent/actions/confirmations`, {
+      token: "owner-token",
+      body: {
+        action: "update_observatory",
+        statusNote: note,
+        input: { rawPrompt: "private prompt should not persist" },
+      },
+    });
+    assert.equal(sensitiveInput.status, 400);
+    assert.doesNotMatch(JSON.stringify(sensitiveInput.body), /private prompt should not persist|rawPrompt/);
+
+    const publicBefore = await requestJson(app, "GET", `/developer-spaces/${slug}`);
+    assert.equal(publicBefore.status, 200);
+    assert.equal(publicBefore.body.events.some((event: Row) => event.eventType === "developer_agent.status_note"), false);
+    assert.doesNotMatch(JSON.stringify(publicBefore.body), /replay harness is green/);
+
+    const create = await requestJson(app, "POST", `/developer-spaces/${spaceId}/agent/actions/confirmations`, {
+      token: "owner-token",
+      body: { action: "update_observatory", statusNote: note },
+    });
+    assert.equal(create.status, 201);
+    assert.equal(create.body.executionAvailable, true);
+    assert.equal(create.body.confirmation.action, "update_observatory");
+    assert.equal(create.body.confirmation.sanitizedPayload.executionAvailable, true);
+    assert.equal(create.body.confirmation.sanitizedPayload.mutationAvailable, true);
+    assert.equal(create.body.confirmation.sanitizedPayload.statusNote.note, note);
+    assert.equal(create.body.confirmation.sanitizedPayload.statusNote.visibility, "public");
+    assert.equal(create.body.confirmation.sanitizedPayload.statusNote.provenance, "user");
+    assert.equal("confirmationId" in create.body.confirmation.sanitizedPayload, false);
+    assert.equal("receiptId" in create.body.confirmation.sanitizedPayload, false);
+
+    const pendingExecute = await requestJson(app, "POST", `/developer-spaces/${spaceId}/agent/actions/confirmations/${create.body.confirmation.id}/execute`, {
+      token: "owner-token",
+    });
+    assert.equal(pendingExecute.status, 409);
+    assert.equal(pendingExecute.body.code, "developer_space_agent_confirmation_not_approved");
+
+    const approved = await requestJson(app, "POST", `/developer-spaces/${spaceId}/agent/actions/confirmations/${create.body.confirmation.id}/approve`, {
+      token: "owner-token",
+    });
+    assert.equal(approved.status, 200);
+    assert.equal(approved.body.executionAvailable, true);
+
+    const nonOwnerExecute = await requestJson(app, "POST", `/developer-spaces/${spaceId}/agent/actions/confirmations/${create.body.confirmation.id}/execute`, {
+      token: "other-token",
+    });
+    assert.equal(nonOwnerExecute.status, 403);
+
+    db.insertErrors.set("developer_space_agent_execution_receipts", {
+      code: "XX999",
+      message: "synthetic receipt insert failure",
+    });
+    const failedReceipt = await requestJson(app, "POST", `/developer-spaces/${spaceId}/agent/actions/confirmations/${create.body.confirmation.id}/execute`, {
+      token: "owner-token",
+    });
+    assert.equal(failedReceipt.status, 500);
+    assert.equal(failedReceipt.body.code, "developer_space_agent_execution_receipt_create_failed");
+    assert.equal(JSON.stringify(failedReceipt.body).includes("synthetic receipt insert failure"), false);
+    assert.equal(db.tables.developer_space_events.length, 1);
+    assert.equal(db.tables.developer_space_agent_execution_receipts.length, 0);
+
+    const firstExecute = await requestJson(app, "POST", `/developer-spaces/${spaceId}/agent/actions/confirmations/${create.body.confirmation.id}/execute`, {
+      token: "owner-token",
+    });
+    assert.equal(firstExecute.status, 201);
+    assert.equal(firstExecute.body.idempotent, false);
+    assert.equal(firstExecute.body.executionAvailable, true);
+    assert.equal(firstExecute.body.receipt.action, "update_observatory");
+    assert.equal(firstExecute.body.receipt.receiptPayload.outcome, "observatory_status_note_published");
+    assert.equal(firstExecute.body.receipt.receiptPayload.executionAvailable, true);
+    assert.equal(firstExecute.body.receipt.receiptPayload.mutationAvailable, true);
+    assert.equal(firstExecute.body.receipt.receiptPayload.externalDispatch, false);
+    assert.equal(firstExecute.body.receipt.receiptPayload.statusNote.note, note);
+    assert.equal(firstExecute.body.receipt.receiptPayload.statusNote.eventType, "developer_agent.status_note");
+    assert.equal(firstExecute.body.receipt.receiptPayload.statusNote.visibility, "public");
+    assert.equal("id" in firstExecute.body.receipt, false);
+    assert.equal("confirmationId" in firstExecute.body.receipt, false);
+    assert.equal("ownerUserId" in firstExecute.body.receipt, false);
+    assert.equal(db.tables.developer_space_events.length, 1);
+    assert.equal(db.tables.developer_space_agent_execution_receipts.length, 1);
+
+    const eventRow = db.tables.developer_space_events[0];
+    assert.equal(eventRow.event_type, "developer_agent.status_note");
+    assert.equal(eventRow.visibility, "public");
+    assert.equal(eventRow.provenance, "user");
+    assert.equal(eventRow.external_node_id, null);
+    assert.deepEqual(eventRow.source_refs, []);
+    assert.equal(eventRow.event_data.statusNote, note);
+    assert.equal(typeof eventRow.event_data.dedupeKey, "string");
+    assert.equal(eventRow.observed_runtime_classifications.fields.statusNote, "public");
+    assert.equal(eventRow.observed_runtime_classifications.fields.dedupeKey, "owner");
+
+    const publicAfter = await requestJson(app, "GET", `/developer-spaces/${slug}`);
+    assert.equal(publicAfter.status, 200);
+    const publicNote = publicAfter.body.events.find((event: Row) => event.eventType === "developer_agent.status_note");
+    assert.ok(publicNote);
+    assert.equal(publicNote.eventData.statusNote, note);
+    assert.equal(publicNote.eventData.category, "observatory_status_note");
+    assert.equal(publicNote.eventData.dedupeKey, undefined);
+    assert.doesNotMatch(JSON.stringify(publicAfter.body), /confirmation|receipt|previewHash|dedupeKey/);
+
+    const secondExecute = await requestJson(app, "POST", `/developer-spaces/${spaceId}/agent/actions/confirmations/${create.body.confirmation.id}/execute`, {
+      token: "owner-token",
+    });
+    assert.equal(secondExecute.status, 200);
+    assert.equal(secondExecute.body.idempotent, true);
+    assert.equal(secondExecute.body.executionAvailable, true);
+    assert.equal(db.tables.developer_space_events.length, 1);
+    assert.equal(db.tables.developer_space_agent_execution_receipts.length, 1);
+
+    const ownerReceipts = await requestJson(app, "GET", `/developer-spaces/${spaceId}/agent/actions/receipts`, {
+      token: "owner-token",
+    });
+    assert.equal(ownerReceipts.status, 200);
+    assert.equal(ownerReceipts.body.receipts.length, 1);
+    assert.equal(ownerReceipts.body.receipts[0].action, "update_observatory");
+    assert.equal(ownerReceipts.body.receipts[0].receiptPayload.statusNote.note, note);
+
+    const responseText = JSON.stringify({
+      failedReceipt: failedReceipt.body,
+      firstExecute: firstExecute.body,
+      secondExecute: secondExecute.body,
+      publicAfter: publicAfter.body,
+      ownerReceipts: ownerReceipts.body,
+    });
+    assert.doesNotMatch(responseText, /private prompt should not persist|token=do-not-leak|previewHash/);
+    assert.equal(responseText.includes(create.body.confirmation.id), false);
+    assert.equal(responseText.includes(eventRow.event_data.dedupeKey), false);
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
+
 test("Developer Space agent confirmation store absence returns bounded setup state", async () => {
   const db = new InMemorySupabase();
   setSupabaseAdminForTests(db.client as any);

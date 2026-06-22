@@ -181,6 +181,7 @@ export default function DeveloperSpaceManagePage() {
   const [agentReceiptBusyId, setAgentReceiptBusyId] = useState<string | null>(null);
   const [capabilityCategory, setCapabilityCategory] = useState("roadmap_decision");
   const [capabilitySummary, setCapabilitySummary] = useState(DEFAULT_CAPABILITY_SUMMARY);
+  const [observatoryStatusNote, setObservatoryStatusNote] = useState("");
   const [agentNotice, setAgentNotice] = useState<string | null>(null);
   const [agentError, setAgentError] = useState<string | null>(null);
   const [visualisationType, setVisualisationType] = useState<DeveloperSpaceVisualisationType>("node_field");
@@ -511,7 +512,12 @@ export default function DeveloperSpaceManagePage() {
     try {
       const data = await apiPost<DeveloperSpaceAgentActionPreview>(
         `/developer-spaces/${detail.space.id}/agent/actions/preview`,
-        { action },
+        {
+          action,
+          ...(action === "update_observatory" && observatoryStatusNote.trim()
+            ? { input: { statusNote: observatoryStatusNote.trim() } }
+            : {}),
+        },
         token
       );
       setAgentPreview(data);
@@ -540,7 +546,7 @@ export default function DeveloperSpaceManagePage() {
 
   async function createAgentConfirmation(
     action: DeveloperSpaceAgentFutureAction,
-    options: { targetDocumentId?: string; capabilityCategory?: string; capabilitySummary?: string } = {}
+    options: { targetDocumentId?: string; capabilityCategory?: string; capabilitySummary?: string; statusNote?: string } = {}
   ) {
     if (!token || !detail || !agentConfirmationStoreAvailable) return;
     setAgentConfirmationCreatingAction(action);
@@ -554,6 +560,7 @@ export default function DeveloperSpaceManagePage() {
           ...(options.targetDocumentId ? { targetDocumentId: options.targetDocumentId } : {}),
           ...(options.capabilityCategory ? { capabilityCategory: options.capabilityCategory } : {}),
           ...(options.capabilitySummary ? { capabilitySummary: options.capabilitySummary } : {}),
+          ...(options.statusNote ? { statusNote: options.statusNote } : {}),
         },
         token
       );
@@ -601,7 +608,11 @@ export default function DeveloperSpaceManagePage() {
       );
       upsertAgentReceipt(data.receipt);
       setAgentNotice(data.message);
-      if (data.receipt.action === "save_project_update_draft" || data.receipt.action === "publish_to_page") {
+      if (
+        data.receipt.action === "save_project_update_draft"
+        || data.receipt.action === "publish_to_page"
+        || data.receipt.action === "update_observatory"
+      ) {
         const nextDetail = await apiGet<DeveloperSpaceDetail>(
           `/developer-spaces/${detail.space.slug}`,
           token,
@@ -944,6 +955,42 @@ export default function DeveloperSpaceManagePage() {
                         </span>
                       </div>
                     </div>
+                  ) : agentPreview.futureLane && selectedFutureAction === "update_observatory" ? (
+                    <div style={{ display: "grid", gap: "0.65rem" }}>
+                      <label style={{ display: "grid", gap: "0.25rem", color: "#687078", fontSize: "0.78rem", fontWeight: 700 }}>
+                        Public status note
+                        <textarea
+                          className="textarea"
+                          value={observatoryStatusNote}
+                          maxLength={360}
+                          onChange={(event) => setObservatoryStatusNote(event.target.value)}
+                          style={{ minHeight: 84 }}
+                        />
+                      </label>
+                      <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap", alignItems: "center" }}>
+                        <button
+                          type="button"
+                          className="button"
+                          onClick={() => previewAgentAction(selectedFutureAction)}
+                          disabled={agentPreviewLoading || observatoryStatusNote.trim().length === 0}
+                        >
+                          {agentPreviewLoading ? "Previewing..." : "Preview note"}
+                        </button>
+                        <button
+                          type="button"
+                          className="button primary"
+                          onClick={() => createAgentConfirmation(selectedFutureAction, {
+                            statusNote: observatoryStatusNote.trim(),
+                          })}
+                          disabled={!agentConfirmationStoreAvailable || agentConfirmationCreatingAction === selectedFutureAction || observatoryStatusNote.trim().length === 0}
+                        >
+                          {agentConfirmationCreatingAction === selectedFutureAction ? "Recording..." : "Record status note"}
+                        </button>
+                        <span style={{ color: "#854f0b", fontSize: "0.82rem", lineHeight: 1.4 }}>
+                          Publishes one public note only after approval. No layout, key, provider, repo, deploy, webhook, worker, billing, or runtime target changes.
+                        </span>
+                      </div>
+                    </div>
                   ) : agentPreview.futureLane && selectedFutureAction ? (
                     <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap", alignItems: "center" }}>
                       <button
@@ -1117,6 +1164,8 @@ export default function DeveloperSpaceManagePage() {
                                   ? "Save draft"
                                   : confirmation.action === "publish_to_page"
                                     ? "Publish to page"
+                                    : confirmation.action === "update_observatory"
+                                      ? "Publish status note"
                                   : "Create receipt"}
                             </button>
                           </div>

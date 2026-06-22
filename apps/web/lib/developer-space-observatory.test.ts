@@ -242,6 +242,10 @@ test("developer agent confirmation helpers keep intent separate from execution",
     developerSpaceAgentConfirmationExecutionCopy({ action: "publish_to_page", status: "approved" }),
     /selected reviewed private draft/
   );
+  assert.match(
+    developerSpaceAgentConfirmationExecutionCopy({ action: "update_observatory", status: "approved" }),
+    /one public status note/
+  );
   assert.equal(
     developerSpaceAgentConfirmationEmptyCopy(false),
     "No confirmation records yet. Preview a future action to record owner intent."
@@ -263,6 +267,10 @@ test("developer agent receipt helpers gate bounded receipt actions", () => {
   }), false);
   assert.equal(developerSpaceAgentReceiptCanRecord({
     action: "publish_to_page",
+    status: "approved",
+  }), true);
+  assert.equal(developerSpaceAgentReceiptCanRecord({
+    action: "update_observatory",
     status: "approved",
   }), true);
   assert.equal(developerSpaceAgentReceiptStatusCopy("recorded"), "Request recorded");
@@ -318,6 +326,24 @@ test("developer agent receipt helpers gate bounded receipt actions", () => {
       },
     },
   }), /Reviewed private draft published/);
+  assert.match(developerSpaceAgentReceiptExecutionCopy({
+    receiptPayload: {
+      action: "update_observatory",
+      outcome: "observatory_status_note_published",
+      executionAvailable: true,
+      mutationAvailable: true,
+      externalDispatch: false,
+      nextStep: "Review the public observatory.",
+      boundaries: [],
+      statusNote: {
+        note: "Public status is green.",
+        eventType: "developer_agent.status_note",
+        eventLabel: "Status note: Public status is green.",
+        visibility: "public",
+        provenance: "user",
+      },
+    },
+  }), /Public observatory status note published/);
   assert.equal(
     developerSpaceAgentReceiptEmptyCopy(false),
     "No Developer Agent receipts yet. Approved receipt actions can record bounded owner evidence here."

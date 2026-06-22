@@ -7,7 +7,7 @@ Reviewer: ARGUS reviews public-boundary scope, payload minimization,
 idempotency, and overclaim risk.
 Rehearsal: ARIADNE runs hosted desktop/mobile proof if ARGUS accepts visible
 owner/public UI.
-Status: open for DAEDALUS
+Status: implemented by DAEDALUS; waiting for ARGUS review
 
 ## Why This Lane
 
@@ -60,6 +60,61 @@ Do not:
   `rotate_ingestion_key`, or `create_webhook_signing_secret`.
 
 This lane creates a public-safe observatory status note only.
+
+## DAEDALUS Implementation Handoff
+
+Implemented on 2026-06-22.
+
+Changed files:
+
+- `apps/api/src/routes/developer-spaces.ts`
+- `apps/api/src/routes/developer-spaces.test.ts`
+- `apps/web/app/developer-spaces/[slug]/manage/page.tsx`
+- `apps/web/lib/developer-space-observatory.ts`
+- `apps/web/lib/developer-space-observatory.test.ts`
+- `packages/types/src/developer-space.ts`
+- `scripts/triad-watch.mjs`
+- `scripts/triad-wakeups.mjs`
+- `docs/roadmap/ACTIVE_STATUS.md`
+- `docs/roadmap/PR175_PHASE_2D_OBSERVATORY_STATUS_NOTE_GATE.md`
+- `docs/testing/VALIDATION_BASELINE.md`
+
+Implementation truth:
+
+- Generic/unselected `update_observatory` remains blocked with
+  `requires_future_lane`.
+- A selected `statusNote` lets the owner preview, create, approve, and execute
+  one `update_observatory` confirmation.
+- Status-note creation rejects missing notes, secret-shaped values, and
+  sensitive/raw/private/provider fields in the input envelope.
+- Approved execution creates one public `developer_agent.status_note`
+  Developer Space event with public note text, public category/source labels,
+  provenance `user`, visibility `public`, and a private owner-only dedupe key.
+- Execution records one minimized owner receipt with the safe note/event
+  metadata and no raw ids, preview hash, provider payload, prompt, key, token,
+  cookie, environment value, document body, layout/config target, or runtime
+  target.
+- Repeat execution returns the existing receipt and does not duplicate the
+  public event. If receipt insertion fails after event creation, retry uses the
+  event dedupe key and still avoids duplicate public notes.
+- Owner manage has a bounded status-note textarea for this lane only and
+  refreshes Developer Space detail after receipt execution.
+
+Payload examples:
+
+- Confirmation input:
+  `{ "action": "update_observatory", "statusNote": "Status note: replay harness is green and ready for public review." }`
+- Public event data:
+  `{ "statusNote": "...", "category": "observatory_status_note", "source": "owner_confirmed_developer_agent" }`
+- Owner receipt payload:
+  `{ action: "update_observatory", outcome: "observatory_status_note_published", executionAvailable: true, mutationAvailable: true, externalDispatch: false, statusNote: { note, eventType, eventLabel, visibility: "public", provenance: "user" } }`
+
+Workflow hygiene:
+
+- `scripts/triad-watch.mjs` now supports `--fetch`, `--ref`, and
+  `--since`, plus `--no-consume`, so foreground wait can watch `fork/main`
+  after the current handoff without mutating an agent state file before the
+  wakeup is visible.
 
 ## Expected Behavior
 

@@ -1,9 +1,10 @@
 import { execFileSync } from "node:child_process";
 
-export function readRecentCommits(maxCount = 50) {
+export function readRecentCommits({ maxCount = 50, ref = "HEAD", since = null } = {}) {
+  const revision = since ? `${since}..${ref}` : ref;
   const output = execFileSync(
     "git",
-    ["log", `--max-count=${maxCount}`, "--date=iso-strict", "--format=%x1e%H%x1f%aI%x1f%s%x1f%b"],
+    ["log", `--max-count=${maxCount}`, "--date=iso-strict", "--format=%x1e%H%x1f%aI%x1f%s%x1f%b", revision],
     { encoding: "utf8" },
   );
 
@@ -22,14 +23,16 @@ export function readRecentCommits(maxCount = 50) {
     });
 }
 
-export function wakeupsFor(agent) {
+export function wakeupsFor(agent, { ref = "HEAD", since = null } = {}) {
   const headerPattern = new RegExp(`(^|\\n)WAKEUP\\s+${agent.id}:`, "i");
 
-  return readRecentCommits().filter((commit) => headerPattern.test(commit.body));
+  return readRecentCommits({ ref, since }).filter((commit) => headerPattern.test(commit.body));
 }
 
-export function newWakeupsFor(agent, state) {
-  const wakeups = wakeupsFor(agent);
+export function newWakeupsFor(agent, state, { ref = "HEAD", since = null } = {}) {
+  const wakeups = wakeupsFor(agent, { ref, since });
+  if (since) return wakeups;
+
   const lastSeenIndex = state.lastSeenCommit
     ? wakeups.findIndex((commit) => commit.hash === state.lastSeenCommit)
     : -1;

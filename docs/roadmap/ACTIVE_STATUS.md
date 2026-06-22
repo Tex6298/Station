@@ -4,6 +4,82 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest DAEDALUS handoff - PR175 observatory status note gate
+
+DAEDALUS implemented PR175 on 2026-06-22 and wakes ARGUS for review.
+
+Changed files:
+
+- `apps/api/src/routes/developer-spaces.ts`
+- `apps/api/src/routes/developer-spaces.test.ts`
+- `apps/web/app/developer-spaces/[slug]/manage/page.tsx`
+- `apps/web/lib/developer-space-observatory.ts`
+- `apps/web/lib/developer-space-observatory.test.ts`
+- `packages/types/src/developer-space.ts`
+- `scripts/triad-watch.mjs`
+- `scripts/triad-wakeups.mjs`
+- `docs/roadmap/PR175_PHASE_2D_OBSERVATORY_STATUS_NOTE_GATE.md`
+- `docs/roadmap/ACTIVE_STATUS.md`
+- `docs/testing/VALIDATION_BASELINE.md`
+
+Implementation truth:
+
+- Generic/unselected `update_observatory` stays blocked.
+- A selected safe `statusNote` lets the owner preview, create, approve, and
+  execute one `update_observatory` confirmation.
+- Secret-shaped notes and sensitive/raw/private/provider input fields are
+  rejected before persistence.
+- Approved execution creates exactly one public
+  `developer_agent.status_note` event/note using existing Developer Space event
+  semantics and records one minimized owner-only receipt.
+- Repeat execution is idempotent for both receipt and public event. If the
+  public event was created but receipt insert failed, retry reuses the private
+  dedupe marker and does not duplicate the public note.
+- Public Developer Space detail shows only the legitimate public note after
+  execution; it does not expose confirmation, receipt, preview hash, or dedupe
+  metadata.
+- Owner manage includes a bounded status-note input for this lane and refreshes
+  detail after execution so the note appears without a manual reload.
+- No layout/config/runtime/provider/repo/key/webhook/billing/worker,
+  document-body, raw-log, or infrastructure mutation was added.
+
+Payload examples:
+
+- Confirmation input:
+  `{ action: "update_observatory", statusNote: "Status note: replay harness is green and ready for public review." }`
+- Public event data:
+  `{ statusNote, category: "observatory_status_note", source: "owner_confirmed_developer_agent" }`
+- Owner receipt outcome: `observatory_status_note_published` with
+  `executionAvailable: true`, `mutationAvailable: true`, and
+  `externalDispatch: false`.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` passed with 40
+  tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:developer-space-client` passed with
+  15 tests.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/types build` passed.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` passed.
+- `git diff --check` passed with CRLF normalization warnings only.
+
+Workflow hygiene:
+
+- DAEDALUS also fixed the missed-wakeup failure mode in `triad-watch`: foreground
+  waiting can now use `--fetch --ref fork/main --since HEAD --no-consume` so
+  wakeups on `fork/main` after the current handoff are visible without
+  advancing `.station-agents/state/*.json`.
+
+Current baton:
+
+- ARGUS should review owner scope, status-note payload minimization, public
+  before/after boundaries, idempotency after receipt failure, hostile-input
+  rejection, no layout/config/runtime mutation, and regression risk across
+  `read_logs`, capability triage, draft save, selected publish, and generic
+  future-action blocking.
+- If accepted, ARGUS should wake ARIADNE for hosted owner/public proof.
+
 ## Latest MIMIR decision - PR175 observatory status note gate
 
 MIMIR closes PR174 on 2026-06-22 after ARGUS accepted the boundary and ARIADNE

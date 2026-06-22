@@ -1,3 +1,4 @@
+import { execFileSync } from "node:child_process";
 import {
   getAgent,
   readState,
@@ -10,16 +11,45 @@ import { formatWakeup, newWakeupsFor } from "./triad-wakeups.mjs";
 const POLL_MS = 5_000;
 
 function usage() {
-  console.log("Usage: node scripts/triad-watch.mjs <A1|A2|A3|A4> [--watch]");
+  console.log([
+    "Usage: node scripts/triad-watch.mjs <A1|A2|A3|A4> [--watch] [--no-consume]",
+    "       [--ref <git-ref>] [--since <commit-ish>]",
+    "       [--fetch --remote <remote> --branch <branch>]",
+    "",
+    "Examples:",
+    "  node scripts/triad-watch.mjs A2 --watch",
+    "  node scripts/triad-watch.mjs A2 --watch --fetch --ref fork/main --since HEAD --no-consume",
+  ].join("\n"));
 }
 
-function poll(agent, { quiet = false } = {}) {
+function flagValue(flags, name) {
+  const index = flags.indexOf(name);
+  if (index < 0) return null;
+  const value = flags[index + 1];
+  return value && !value.startsWith("--") ? value : null;
+}
+
+function fetchLatest({ remote, branch }) {
+  execFileSync(
+    "git",
+    ["fetch", "--quiet", remote, `${branch}:refs/remotes/${remote}/${branch}`],
+    { stdio: "pipe" },
+  );
+}
+
+function poll(agent, { quiet = false, consume = true, fetchConfig = null, ref = "HEAD", since = null } = {}) {
+  if (fetchConfig) {
+    fetchLatest(fetchConfig);
+  }
+
   const state = readState(agent);
-  const newWakeups = newWakeupsFor(agent, state);
+  const newWakeups = newWakeupsFor(agent, state, { ref, since });
 
   if (newWakeups.length === 0) {
     if (!quiet) {
       console.log(`${agent.id} / ${agent.codename} - ${agent.title}: no new wakeups.`);
+      console.log(`Ref: ${ref}`);
+      if (since) console.log(`Since: ${since}`);
       console.log(`State: ${relativePath(statePath(agent))}`);
     }
 
@@ -31,12 +61,17 @@ function poll(agent, { quiet = false } = {}) {
   }
 
   const latest = newWakeups[0];
-  writeState(agent, {
-    ...state,
-    lastSeenCommit: latest.hash,
-    lastWakeupAt: latest.authoredAt,
-    updatedAt: new Date().toISOString(),
-  });
+  if (consume && !since) {
+    writeState(agent, {
+      ...state,
+      lastSeenCommit: latest.hash,
+      lastWakeupAt: latest.authoredAt,
+      updatedAt: new Date().toISOString(),
+    });
+  } else if (!quiet) {
+    const reason = since ? "--since" : "--no-consume";
+    console.log(`State not updated (${reason}): ${relativePath(statePath(agent))}`);
+  }
 
   return true;
 }
@@ -51,15 +86,22 @@ function main() {
 
   const agent = getAgent(agentId);
   const shouldWatch = flags.includes("--watch");
+  const consume = !flags.includes("--no-consume");
+  const shouldFetch = flags.includes("--fetch");
+  const remote = flagValue(flags, "--remote") ?? "fork";
+  const branch = flagValue(flags, "--branch") ?? "main";
+  const ref = flagValue(flags, "--ref") ?? (shouldFetch ? `${remote}/${branch}` : "HEAD");
+  const since = flagValue(flags, "--since");
+  const fetchConfig = shouldFetch ? { remote, branch } : null;
 
-  const foundWakeup = poll(agent);
+  const foundWakeup = poll(agent, { consume, fetchConfig, ref, since });
 
   if (shouldWatch) {
     if (foundWakeup) return;
 
-    console.log(`${agent.codename} is watching for WAKEUP ${agent.id}: every ${POLL_MS / 1_000}s.`);
+    console.log(`${agent.codename} is watching ${ref} for WAKEUP ${agent.id}: every ${POLL_MS / 1_000}s.`);
     setInterval(() => {
-      if (poll(agent, { quiet: true })) process.exit(0);
+      if (poll(agent, { quiet: true, consume, fetchConfig, ref, since })) process.exit(0);
     }, POLL_MS);
   }
 }

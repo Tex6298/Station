@@ -244,11 +244,17 @@ export function developerSpaceAgentConfirmationExecutionCopy(
     if (confirmation.action === "publish_to_page") {
       return "Owner intent is approved. Publishing will use the selected reviewed private draft only.";
     }
+    if (confirmation.action === "update_observatory") {
+      return "Owner intent is approved. Publishing will create one public status note only.";
+    }
     return "Owner intent is recorded. Execution remains unavailable in this lane.";
   }
   if (confirmation.status === "pending") {
     if (confirmation.action === "publish_to_page") {
       return "Pending owner intent. Approval is required before the selected draft can be published.";
+    }
+    if (confirmation.action === "update_observatory") {
+      return "Pending owner intent. Approval is required before the public status note can be published.";
     }
     return "Pending owner intent. Approval records intent only; it does not execute.";
   }
@@ -267,6 +273,7 @@ export function developerSpaceAgentReceiptCanRecord(confirmation: Pick<Developer
     confirmation.action === "request_capability"
     || confirmation.action === "save_project_update_draft"
     || confirmation.action === "publish_to_page"
+    || confirmation.action === "update_observatory"
   ) && confirmation.status === "approved";
 }
 
@@ -280,6 +287,9 @@ export function developerSpaceAgentReceiptExecutionCopy(receipt: Pick<DeveloperS
   }
   if (receipt.receiptPayload.action === "publish_to_page") {
     return "Reviewed private draft published to the public Developer Space evidence path. No provider, deploy, repo, key, layout, billing, webhook, export, worker, or runtime action executed.";
+  }
+  if (receipt.receiptPayload.action === "update_observatory") {
+    return "Public observatory status note published. No provider, deploy, repo, key, layout, billing, webhook, export, worker, document body, or runtime action executed.";
   }
   return receipt.receiptPayload.executionAvailable === false
     ? "Planning receipt only. No provider, deploy, repo, key, document, layout, billing, webhook, export, worker, or runtime action executed."

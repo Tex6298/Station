@@ -40,6 +40,7 @@ import {
   hashDeveloperSpaceWebhookSigningSecret,
   normaliseDeveloperSpacePublicFieldControls,
   normaliseSourceRefs,
+  observedRuntimeClassificationMetadata,
   prepareObservedRuntimeClassifiedData,
   serializeDeveloperSpace,
   serializeDeveloperSpaceEvent,
@@ -172,6 +173,8 @@ const DEVELOPER_SPACE_AGENT_ACTION_REGISTRY: readonly DeveloperSpaceAgentActionR
       ? "Confirmed owner action that saves a private linked project-update draft without publishing."
       : action === "publish_to_page"
         ? "Confirmed owner action that publishes a selected reviewed private draft to the public Developer Space evidence path."
+      : action === "update_observatory"
+        ? "Confirmed owner action that publishes one sanitized public observatory status note."
       : "Registered future Phase 2D vocabulary. This PR does not execute or mutate this action.",
     mode: "future" as const,
     requiresConfirmation: true,
@@ -185,6 +188,9 @@ const DEVELOPER_SPACE_AGENT_CONFIRMATION_MAX_EXPIRY_MINUTES = 7 * 24 * 60;
 const DEVELOPER_SPACE_AGENT_EXECUTION_RECEIPT_ACTION: DeveloperSpaceAgentExecutionReceiptAction = "request_capability";
 const DEVELOPER_SPACE_AGENT_DRAFT_DOCUMENT_ACTION: DeveloperSpaceAgentExecutionReceiptAction = "save_project_update_draft";
 const DEVELOPER_SPACE_AGENT_PUBLISH_DOCUMENT_ACTION: DeveloperSpaceAgentExecutionReceiptAction = "publish_to_page";
+const DEVELOPER_SPACE_AGENT_OBSERVATORY_UPDATE_ACTION: DeveloperSpaceAgentExecutionReceiptAction = "update_observatory";
+const DEVELOPER_SPACE_AGENT_STATUS_NOTE_MAX_LENGTH = 360;
+const DEVELOPER_SPACE_AGENT_STATUS_NOTE_EVENT_TYPE = "developer_agent.status_note";
 const DEVELOPER_SPACE_AGENT_CAPABILITY_REQUEST_CATEGORIES = [
   "provider_config",
   "cache_config",
@@ -219,6 +225,7 @@ const DEVELOPER_SPACE_AGENT_EXECUTABLE_ACTIONS = new Set<string>([
   DEVELOPER_SPACE_AGENT_EXECUTION_RECEIPT_ACTION,
   DEVELOPER_SPACE_AGENT_DRAFT_DOCUMENT_ACTION,
   DEVELOPER_SPACE_AGENT_PUBLISH_DOCUMENT_ACTION,
+  DEVELOPER_SPACE_AGENT_OBSERVATORY_UPDATE_ACTION,
 ]);
 const DEVELOPER_SPACE_AGENT_EXECUTION_RECEIPT_BOUNDARIES = [
   "No autonomous agent loop ran.",
@@ -237,6 +244,13 @@ const DEVELOPER_SPACE_AGENT_PUBLISH_DOCUMENT_BOUNDARIES = [
   "Only the selected owner-reviewed private draft document was published.",
   "No layout, key, signing secret, repo, deploy, worker, billing, export, webhook, or observed-runtime target was mutated.",
   "Receipt metadata omits document bodies, route-only ids, prompts, provider payloads, keys, tokens, cookies, environment values, and preview hashes.",
+];
+const DEVELOPER_SPACE_AGENT_OBSERVATORY_STATUS_NOTE_BOUNDARIES = [
+  "No autonomous agent loop ran.",
+  "No provider call was made.",
+  "Only one owner-approved public status note event was created.",
+  "No layout, key, signing secret, repo, deploy, worker, billing, export, webhook, document body, or observed-runtime target was mutated.",
+  "Receipt metadata omits raw ids, prompts, provider payloads, keys, tokens, cookies, environment values, and preview hashes.",
 ];
 
 type IngestionErrorCategory = "auth" | "validation" | "quota" | "server";
@@ -444,52 +458,81 @@ const developerSpaceAgentActionPreviewSchema = z.object({
 });
 
 const capabilityRequestCategorySchema = z.enum(DEVELOPER_SPACE_AGENT_CAPABILITY_REQUEST_CATEGORIES);
+const developerSpaceAgentStatusNoteSchema = z.string().trim().min(1).max(DEVELOPER_SPACE_AGENT_STATUS_NOTE_MAX_LENGTH);
 
 const createDeveloperSpaceAgentConfirmationSchema = z.object({
   action: z.string().trim().min(1).max(80).regex(/^[a-z0-9_:-]+$/),
   targetDocumentId: z.string().trim().min(1).max(120).optional(),
   capabilityCategory: capabilityRequestCategorySchema.optional(),
   capabilitySummary: z.string().trim().min(1).max(600).optional(),
+  statusNote: developerSpaceAgentStatusNoteSchema.optional(),
   input: z.object({
     category: capabilityRequestCategorySchema.optional(),
     summary: z.string().trim().min(1).max(600).optional(),
+    statusNote: developerSpaceAgentStatusNoteSchema.optional(),
   }).passthrough().optional(),
   expiresInMinutes: z.number().int().min(5).max(DEVELOPER_SPACE_AGENT_CONFIRMATION_MAX_EXPIRY_MINUTES)
     .default(DEVELOPER_SPACE_AGENT_CONFIRMATION_DEFAULT_EXPIRY_MINUTES),
 }).superRefine((value, ctx) => {
-  if (value.action !== DEVELOPER_SPACE_AGENT_EXECUTION_RECEIPT_ACTION) return;
+  if (value.action === DEVELOPER_SPACE_AGENT_EXECUTION_RECEIPT_ACTION) {
+    const category = value.capabilityCategory ?? value.input?.category;
+    const summary = value.capabilitySummary ?? value.input?.summary;
+    if (!category) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["capabilityCategory"],
+        message: "Capability request category is required.",
+      });
+    }
+    if (!summary?.trim()) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["capabilitySummary"],
+        message: "Capability request summary is required.",
+      });
+    }
 
-  const category = value.capabilityCategory ?? value.input?.category;
-  const summary = value.capabilitySummary ?? value.input?.summary;
-  if (!category) {
-    ctx.addIssue({
-      code: z.ZodIssueCode.custom,
-      path: ["capabilityCategory"],
-      message: "Capability request category is required.",
-    });
-  }
-  if (!summary?.trim()) {
-    ctx.addIssue({
-      code: z.ZodIssueCode.custom,
-      path: ["capabilitySummary"],
-      message: "Capability request summary is required.",
-    });
+    const unsafeInput = developerSpaceAgentUnsafeCapabilityInputReason(value.input ?? {});
+    if (unsafeInput) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["input"],
+        message: unsafeInput,
+      });
+    }
+    if (summary && developerSpaceAgentSecretLikeText(summary)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["capabilitySummary"],
+        message: "Capability request summary must not include secret-like values.",
+      });
+    }
   }
 
-  const unsafeInput = developerSpaceAgentUnsafeCapabilityInputReason(value.input ?? {});
-  if (unsafeInput) {
-    ctx.addIssue({
-      code: z.ZodIssueCode.custom,
-      path: ["input"],
-      message: unsafeInput,
-    });
-  }
-  if (summary && developerSpaceAgentSecretLikeText(summary)) {
-    ctx.addIssue({
-      code: z.ZodIssueCode.custom,
-      path: ["capabilitySummary"],
-      message: "Capability request summary must not include secret-like values.",
-    });
+  if (value.action === DEVELOPER_SPACE_AGENT_OBSERVATORY_UPDATE_ACTION) {
+    const statusNote = value.statusNote ?? value.input?.statusNote;
+    if (!statusNote?.trim()) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["statusNote"],
+        message: "A selected observatory status note is required.",
+      });
+    }
+    if (statusNote && developerSpaceAgentSecretLikeText(statusNote)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["statusNote"],
+        message: "Observatory status note must not include secret-like values.",
+      });
+    }
+    const unsafeInput = developerSpaceAgentUnsafeStatusNoteInputReason(value.input ?? {});
+    if (unsafeInput) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["input"],
+        message: unsafeInput,
+      });
+    }
   }
 });
 
@@ -934,6 +977,35 @@ function developerSpaceAgentUnsafeCapabilityInputReason(value: unknown, path: st
   return null;
 }
 
+function developerSpaceAgentUnsafeStatusNoteInputReason(value: unknown, path: string[] = []): string | null {
+  if (!value || typeof value !== "object") {
+    return typeof value === "string" && developerSpaceAgentSecretLikeText(value)
+      ? "Observatory status note input must not include secret-like values."
+      : null;
+  }
+
+  if (Array.isArray(value)) {
+    for (let index = 0; index < value.length; index += 1) {
+      const result = developerSpaceAgentUnsafeStatusNoteInputReason(value[index], [...path, String(index)]);
+      if (result) return result;
+    }
+    return null;
+  }
+
+  for (const [key, child] of Object.entries(value as Record<string, unknown>)) {
+    if (/token|secret|password|cookie|authorization|service[_-]?role|api[_-]?key|private[_-]?key|connection|string|database[_-]?url|pooler|raw[_-]?prompt|provider[_-]?payload|private[_-]?text|raw[_-]?body|archive[_-]?excerpt/i.test(key)) {
+      return "Observatory status note input includes an unsupported sensitive field.";
+    }
+    if (typeof child === "string" && developerSpaceAgentSecretLikeText(child)) {
+      return "Observatory status note input must not include secret-like values.";
+    }
+    const result = developerSpaceAgentUnsafeStatusNoteInputReason(child, [...path, key]);
+    if (result) return result;
+  }
+
+  return null;
+}
+
 function developerSpaceAgentCapabilityRequest(input: {
   capabilityCategory?: unknown;
   capabilitySummary?: unknown;
@@ -951,6 +1023,57 @@ function developerSpaceAgentCapabilityRequest(input: {
     category,
     categoryLabel: developerSpaceAgentCapabilityCategoryLabel(category),
     summary,
+  };
+}
+
+type DeveloperSpaceAgentStatusNote = {
+  note: string;
+  eventType: string;
+  eventLabel: string;
+  visibility: "public";
+  provenance: "user";
+  occurredAt?: string | null;
+};
+
+function developerSpaceAgentStatusNote(input: {
+  statusNote?: unknown;
+  input?: Record<string, unknown>;
+}): DeveloperSpaceAgentStatusNote | null {
+  const rawNote = input.statusNote ?? input.input?.statusNote;
+  if (typeof rawNote !== "string" || !rawNote.trim()) return null;
+  const note = safeAgentText(
+    rawNote,
+    "",
+    DEVELOPER_SPACE_AGENT_STATUS_NOTE_MAX_LENGTH,
+  );
+  if (!note) return null;
+  return {
+    note,
+    eventType: DEVELOPER_SPACE_AGENT_STATUS_NOTE_EVENT_TYPE,
+    eventLabel: `Status note: ${safeAgentText(note, "Project status update", 120)}`,
+    visibility: "public",
+    provenance: "user",
+  };
+}
+
+function developerSpaceAgentStatusNoteFromPayload(payload: unknown): DeveloperSpaceAgentStatusNote {
+  const record = payload && typeof payload === "object" ? payload as Record<string, unknown> : {};
+  const statusNote = record.statusNote && typeof record.statusNote === "object"
+    ? record.statusNote as Record<string, unknown>
+    : record;
+  const note = safeAgentText(statusNote.note, "Owner-approved observatory status update.", DEVELOPER_SPACE_AGENT_STATUS_NOTE_MAX_LENGTH);
+  const eventType = typeof statusNote.eventType === "string"
+    ? safeAgentText(statusNote.eventType, DEVELOPER_SPACE_AGENT_STATUS_NOTE_EVENT_TYPE, 100)
+    : DEVELOPER_SPACE_AGENT_STATUS_NOTE_EVENT_TYPE;
+  return {
+    note,
+    eventType: eventType === DEVELOPER_SPACE_AGENT_STATUS_NOTE_EVENT_TYPE
+      ? DEVELOPER_SPACE_AGENT_STATUS_NOTE_EVENT_TYPE
+      : DEVELOPER_SPACE_AGENT_STATUS_NOTE_EVENT_TYPE,
+    eventLabel: safeAgentText(statusNote.eventLabel, `Status note: ${safeAgentText(note, "Project status update", 120)}`, 160),
+    visibility: "public",
+    provenance: "user",
+    occurredAt: typeof statusNote.occurredAt === "string" ? safeAgentText(statusNote.occurredAt, "", 80) : null,
   };
 }
 
@@ -1228,7 +1351,7 @@ function buildDeveloperSpaceAgentActivityReadback(
   };
 }
 
-function futureLaneAgentPreview(action: string): DeveloperSpaceAgentActionPreview {
+function futureLaneAgentPreview(action: string, input: Record<string, unknown> = {}): DeveloperSpaceAgentActionPreview {
   if (action === DEVELOPER_SPACE_AGENT_DRAFT_DOCUMENT_ACTION) {
     return {
       action,
@@ -1244,6 +1367,67 @@ function futureLaneAgentPreview(action: string): DeveloperSpaceAgentActionPrevie
             safeAgentFact("Developer Space link", "owner"),
             safeAgentFact("External dispatch", false),
           ],
+        },
+      ],
+      requiresConfirmation: true,
+      futureLane: true,
+    };
+  }
+
+  if (action === DEVELOPER_SPACE_AGENT_OBSERVATORY_UPDATE_ACTION) {
+    const statusNote = developerSpaceAgentStatusNote({ input });
+    if (!statusNote || developerSpaceAgentSecretLikeText(statusNote.note)) {
+      return {
+        action,
+        status: "requires_future_lane",
+        summary: "Select a sanitized public status note before requesting an update_observatory confirmation.",
+        sections: [
+          {
+            title: "Status note boundary",
+            facts: [
+              safeAgentFact("Registered action", action),
+              safeAgentFact("Required payload", "statusNote"),
+              safeAgentFact("Visibility after execution", "public"),
+              safeAgentFact("External dispatch", false),
+            ],
+            items: DEVELOPER_SPACE_AGENT_OBSERVATORY_STATUS_NOTE_BOUNDARIES.map((boundary) => ({
+              title: safeAgentText(boundary, "No external action executed.", 160),
+              status: "boundary",
+            })),
+          },
+        ],
+        requiresConfirmation: true,
+        futureLane: true,
+      };
+    }
+
+    return {
+      action,
+      status: "previewed",
+      summary: `Owner-approved observatory status note is ready for confirmation: ${statusNote.note}`,
+      sections: [
+        {
+          title: "Selected public status note",
+          facts: [
+            safeAgentFact("Event type", statusNote.eventType),
+            safeAgentFact("Visibility", statusNote.visibility),
+            safeAgentFact("Provenance", statusNote.provenance),
+            safeAgentFact("External dispatch", false),
+          ],
+          items: [
+            {
+              title: statusNote.eventLabel,
+              detail: statusNote.note,
+              status: "pending_owner_confirmation",
+            },
+          ],
+        },
+        {
+          title: "Boundaries",
+          items: DEVELOPER_SPACE_AGENT_OBSERVATORY_STATUS_NOTE_BOUNDARIES.map((boundary) => ({
+            title: safeAgentText(boundary, "No external action executed.", 160),
+            status: "boundary",
+          })),
         },
       ],
       requiresConfirmation: true,
@@ -1275,7 +1459,7 @@ function futureLaneAgentPreview(action: string): DeveloperSpaceAgentActionPrevie
   return {
     action,
     status: "requires_future_lane",
-    summary: "This action is registered as future Phase 2D vocabulary, but PR162 does not execute or mutate it.",
+    summary: "This action is registered as future Phase 2D vocabulary, but this lane does not execute or mutate it.",
     sections: [
       {
         title: "Future lane boundary",
@@ -1468,6 +1652,50 @@ function developerSpaceAgentPublishConfirmationPayload(
           safeAgentFact("After approval", "published public evidence"),
           safeAgentFact("External dispatch", false),
         ],
+      },
+    ],
+  };
+}
+
+function developerSpaceAgentUpdateObservatoryConfirmationPayload(
+  entry: DeveloperSpaceAgentActionRegistryEntry,
+  statusNote: DeveloperSpaceAgentStatusNote
+) {
+  return {
+    action: DEVELOPER_SPACE_AGENT_OBSERVATORY_UPDATE_ACTION,
+    label: safeAgentText(entry.label, "Update observatory", 120),
+    description: safeAgentText(entry.description, "Publish one public observatory status note.", 220),
+    mode: entry.mode,
+    requiresConfirmation: true,
+    futureLane: true,
+    previewStatus: "previewed",
+    summary: `Publish public observatory status note: ${statusNote.note}`,
+    executionAvailable: true,
+    mutationAvailable: true,
+    statusNote,
+    sections: [
+      {
+        title: "Selected public status note",
+        facts: [
+          safeAgentFact("Event type", statusNote.eventType),
+          safeAgentFact("Visibility", statusNote.visibility),
+          safeAgentFact("Provenance", statusNote.provenance),
+          safeAgentFact("External dispatch", false),
+        ],
+        items: [
+          {
+            title: statusNote.eventLabel,
+            detail: statusNote.note,
+            status: "pending_owner_confirmation",
+          },
+        ],
+      },
+      {
+        title: "Boundaries",
+        items: DEVELOPER_SPACE_AGENT_OBSERVATORY_STATUS_NOTE_BOUNDARIES.map((boundary) => ({
+          title: safeAgentText(boundary, "No external action executed.", 160),
+          status: "boundary",
+        })),
       },
     ],
   };
@@ -1868,17 +2096,43 @@ function developerSpaceAgentPublishDocumentReceiptPayload(input: {
   };
 }
 
+function developerSpaceAgentObservatoryStatusNoteReceiptPayload(
+  statusNote: DeveloperSpaceAgentStatusNote
+): DeveloperSpaceAgentExecutionReceiptRecord["receiptPayload"] {
+  return {
+    action: DEVELOPER_SPACE_AGENT_OBSERVATORY_UPDATE_ACTION,
+    outcome: "observatory_status_note_published" as const,
+    executionAvailable: true,
+    mutationAvailable: true,
+    externalDispatch: false as const,
+    nextStep: "Review the public Developer Space observatory and leave broader observatory automation blocked.",
+    boundaries: DEVELOPER_SPACE_AGENT_OBSERVATORY_STATUS_NOTE_BOUNDARIES,
+    statusNote: {
+      note: safeAgentText(statusNote.note, "Owner-approved observatory status update.", DEVELOPER_SPACE_AGENT_STATUS_NOTE_MAX_LENGTH),
+      eventType: DEVELOPER_SPACE_AGENT_STATUS_NOTE_EVENT_TYPE,
+      eventLabel: safeAgentText(statusNote.eventLabel, "Status note", 160),
+      visibility: "public",
+      provenance: "user",
+      occurredAt: statusNote.occurredAt ?? null,
+    },
+  };
+}
+
 function normaliseDeveloperSpaceAgentExecutionReceiptPayload(input: unknown): DeveloperSpaceAgentExecutionReceiptRecord["receiptPayload"] {
   const payload = input && typeof input === "object" ? input as Record<string, unknown> : {};
   const action = payload.action === DEVELOPER_SPACE_AGENT_DRAFT_DOCUMENT_ACTION
     ? DEVELOPER_SPACE_AGENT_DRAFT_DOCUMENT_ACTION
     : payload.action === DEVELOPER_SPACE_AGENT_PUBLISH_DOCUMENT_ACTION
       ? DEVELOPER_SPACE_AGENT_PUBLISH_DOCUMENT_ACTION
-      : DEVELOPER_SPACE_AGENT_EXECUTION_RECEIPT_ACTION;
+      : payload.action === DEVELOPER_SPACE_AGENT_OBSERVATORY_UPDATE_ACTION
+        ? DEVELOPER_SPACE_AGENT_OBSERVATORY_UPDATE_ACTION
+        : DEVELOPER_SPACE_AGENT_EXECUTION_RECEIPT_ACTION;
   const defaultBoundaries = action === DEVELOPER_SPACE_AGENT_DRAFT_DOCUMENT_ACTION
     ? DEVELOPER_SPACE_AGENT_DRAFT_DOCUMENT_BOUNDARIES
     : action === DEVELOPER_SPACE_AGENT_PUBLISH_DOCUMENT_ACTION
       ? DEVELOPER_SPACE_AGENT_PUBLISH_DOCUMENT_BOUNDARIES
+      : action === DEVELOPER_SPACE_AGENT_OBSERVATORY_UPDATE_ACTION
+        ? DEVELOPER_SPACE_AGENT_OBSERVATORY_STATUS_NOTE_BOUNDARIES
       : DEVELOPER_SPACE_AGENT_EXECUTION_RECEIPT_BOUNDARIES;
   const boundaries = Array.isArray(payload.boundaries)
     ? payload.boundaries
@@ -1896,6 +2150,7 @@ function normaliseDeveloperSpaceAgentExecutionReceiptPayload(input: unknown): De
     : null;
   const publishedRole = developerSpaceAgentDocumentRole(publishedDocumentPayload?.role);
   const capabilityRequest = developerSpaceAgentCapabilityRequestFromPayload(payload);
+  const statusNote = developerSpaceAgentStatusNoteFromPayload(payload);
 
   return {
     action: action as DeveloperSpaceAgentExecutionReceiptAction,
@@ -1903,10 +2158,14 @@ function normaliseDeveloperSpaceAgentExecutionReceiptPayload(input: unknown): De
       ? "private_draft_document_saved"
       : action === DEVELOPER_SPACE_AGENT_PUBLISH_DOCUMENT_ACTION
         ? "draft_document_published"
+        : action === DEVELOPER_SPACE_AGENT_OBSERVATORY_UPDATE_ACTION
+          ? "observatory_status_note_published"
         : "capability_request_recorded",
-    executionAvailable: action === DEVELOPER_SPACE_AGENT_PUBLISH_DOCUMENT_ACTION,
+    executionAvailable: action === DEVELOPER_SPACE_AGENT_PUBLISH_DOCUMENT_ACTION
+      || action === DEVELOPER_SPACE_AGENT_OBSERVATORY_UPDATE_ACTION,
     mutationAvailable: action === DEVELOPER_SPACE_AGENT_DRAFT_DOCUMENT_ACTION
-      || action === DEVELOPER_SPACE_AGENT_PUBLISH_DOCUMENT_ACTION,
+      || action === DEVELOPER_SPACE_AGENT_PUBLISH_DOCUMENT_ACTION
+      || action === DEVELOPER_SPACE_AGENT_OBSERVATORY_UPDATE_ACTION,
     externalDispatch: false,
     nextStep: safeAgentText(
       typeof payload.nextStep === "string"
@@ -1915,6 +2174,8 @@ function normaliseDeveloperSpaceAgentExecutionReceiptPayload(input: unknown): De
           ? "Review the private draft document before any human publication decision."
           : action === DEVELOPER_SPACE_AGENT_PUBLISH_DOCUMENT_ACTION
             ? "Review the public Developer Space evidence path and leave future publishing automation blocked."
+            : action === DEVELOPER_SPACE_AGENT_OBSERVATORY_UPDATE_ACTION
+              ? "Review the public Developer Space observatory and leave broader observatory automation blocked."
             : "Review this capability request in the roadmap before opening a new implementation lane.",
       "Human review required before any implementation lane.",
       220,
@@ -1956,6 +2217,18 @@ function normaliseDeveloperSpaceAgentExecutionReceiptPayload(input: unknown): De
           },
         }
       : {}),
+    ...(action === DEVELOPER_SPACE_AGENT_OBSERVATORY_UPDATE_ACTION
+      ? {
+          statusNote: {
+            note: statusNote.note,
+            eventType: DEVELOPER_SPACE_AGENT_STATUS_NOTE_EVENT_TYPE,
+            eventLabel: safeAgentText(statusNote.eventLabel, "Status note", 160),
+            visibility: "public" as const,
+            provenance: "user" as const,
+            occurredAt: statusNote.occurredAt ?? null,
+          },
+        }
+      : {}),
   };
 }
 
@@ -1964,7 +2237,9 @@ function serializeDeveloperSpaceAgentExecutionReceipt(row: any): DeveloperSpaceA
     ? DEVELOPER_SPACE_AGENT_DRAFT_DOCUMENT_ACTION
     : row.action === DEVELOPER_SPACE_AGENT_PUBLISH_DOCUMENT_ACTION
       ? DEVELOPER_SPACE_AGENT_PUBLISH_DOCUMENT_ACTION
-      : DEVELOPER_SPACE_AGENT_EXECUTION_RECEIPT_ACTION;
+      : row.action === DEVELOPER_SPACE_AGENT_OBSERVATORY_UPDATE_ACTION
+        ? DEVELOPER_SPACE_AGENT_OBSERVATORY_UPDATE_ACTION
+        : DEVELOPER_SPACE_AGENT_EXECUTION_RECEIPT_ACTION;
   return {
     action: action as DeveloperSpaceAgentExecutionReceiptAction,
     status: "recorded",
@@ -1974,6 +2249,8 @@ function serializeDeveloperSpaceAgentExecutionReceipt(row: any): DeveloperSpaceA
         ? "Private project update draft saved for owner review."
         : action === DEVELOPER_SPACE_AGENT_PUBLISH_DOCUMENT_ACTION
           ? "Reviewed project update draft published to the public Developer Space evidence path."
+          : action === DEVELOPER_SPACE_AGENT_OBSERVATORY_UPDATE_ACTION
+            ? "Public observatory status note published."
           : "Capability request receipt recorded. No external action executed.",
       400,
     ),
@@ -2283,6 +2560,110 @@ async function rollbackDeveloperSpaceAgentDraftPublish(input: {
     .eq("developer_space_id", input.space.id)
     .eq("document_id", targetDocumentId)
     .eq("owner_user_id", input.space.owner_user_id);
+}
+
+function developerSpaceAgentStatusNoteDedupeKey(input: { spaceId: string; confirmationId: string }) {
+  return payloadHash({
+    action: DEVELOPER_SPACE_AGENT_OBSERVATORY_UPDATE_ACTION,
+    developerSpaceId: input.spaceId,
+    confirmationId: input.confirmationId,
+  }).slice(0, 20);
+}
+
+async function loadDeveloperSpaceAgentObservatoryStatusEvent(input: {
+  space: any;
+  confirmationId: string;
+}) {
+  const dedupeKey = developerSpaceAgentStatusNoteDedupeKey({
+    spaceId: input.space.id,
+    confirmationId: input.confirmationId,
+  });
+  const { data, error } = await (getSupabaseAdmin() as any)
+    .from("developer_space_events")
+    .select("*")
+    .eq("developer_space_id", input.space.id)
+    .eq("event_type", DEVELOPER_SPACE_AGENT_STATUS_NOTE_EVENT_TYPE)
+    .limit(200);
+
+  if (error) {
+    return { status: 500 as const, error: "Could not load Developer Agent status-note event." };
+  }
+
+  const event = (data ?? []).find((row: any) => row.event_data?.dedupeKey === dedupeKey) ?? null;
+  return { status: 200 as const, event };
+}
+
+async function publishDeveloperSpaceAgentObservatoryStatusNote(input: {
+  space: any;
+  confirmationId: string;
+  statusNote: DeveloperSpaceAgentStatusNote;
+  occurredAt: string;
+}) {
+  const existing = await loadDeveloperSpaceAgentObservatoryStatusEvent({
+    space: input.space,
+    confirmationId: input.confirmationId,
+  });
+  if (existing.status !== 200) return existing;
+  if (existing.event) {
+    return {
+      status: 200 as const,
+      event: existing.event,
+      statusNote: {
+        ...input.statusNote,
+        occurredAt: existing.event.occurred_at ?? input.occurredAt,
+      },
+    };
+  }
+
+  const dedupeKey = developerSpaceAgentStatusNoteDedupeKey({
+    spaceId: input.space.id,
+    confirmationId: input.confirmationId,
+  });
+  const statusNote = {
+    ...input.statusNote,
+    occurredAt: input.occurredAt,
+  };
+  const { data, error } = await (getSupabaseAdmin() as any)
+    .from("developer_space_events")
+    .insert({
+      developer_space_id: input.space.id,
+      node_id: null,
+      external_node_id: null,
+      event_type: DEVELOPER_SPACE_AGENT_STATUS_NOTE_EVENT_TYPE,
+      event_label: statusNote.eventLabel,
+      event_data: {
+        statusNote: statusNote.note,
+        category: "observatory_status_note",
+        source: "owner_confirmed_developer_agent",
+        dedupeKey,
+      },
+      observed_runtime_classifications: observedRuntimeClassificationMetadata({
+        statusNote: "public",
+        category: "public",
+        source: "public",
+        dedupeKey: "owner",
+      }),
+      similarity_score: null,
+      source_refs: [],
+      provenance: "user",
+      visibility: "public",
+      occurred_at: input.occurredAt,
+    })
+    .select("*")
+    .single();
+
+  if (error || !data) {
+    return {
+      status: 500 as const,
+      error: "Could not publish Developer Agent observatory status note.",
+    };
+  }
+
+  return {
+    status: 200 as const,
+    event: data,
+    statusNote,
+  };
 }
 
 function buildFreshness(
@@ -3404,7 +3785,7 @@ developerSpacesRouter.post("/:id/agent/actions/preview", requireAuth, async (req
 
   const action = parsed.data.action;
   if (DEVELOPER_SPACE_AGENT_FUTURE_ACTION_SET.has(action)) {
-    return res.json(futureLaneAgentPreview(action));
+    return res.json(futureLaneAgentPreview(action, parsed.data.input));
   }
   if (!DEVELOPER_SPACE_AGENT_ALLOWED_ACTION_SET.has(action)) {
     return res.status(400).json(unsupportedAgentPreview(action));
@@ -3527,6 +3908,16 @@ developerSpacesRouter.post("/:id/agent/actions/confirmations", requireAuth, asyn
       entry,
       developerSpaceAgentCapabilityRequest(parsed.data),
     );
+  } else if (action === DEVELOPER_SPACE_AGENT_OBSERVATORY_UPDATE_ACTION) {
+    const statusNote = developerSpaceAgentStatusNote(parsed.data);
+    if (!statusNote) {
+      return res.status(400).json({
+        error: "A selected observatory status note is required.",
+        code: "developer_space_agent_status_note_required",
+        executionAvailable: false,
+      });
+    }
+    sanitizedPayload = developerSpaceAgentUpdateObservatoryConfirmationPayload(entry, statusNote);
   } else if (action === DEVELOPER_SPACE_AGENT_PUBLISH_DOCUMENT_ACTION) {
     const target = await loadDeveloperSpaceAgentPublishTarget({
       space: ownerLoad.space,
@@ -3571,11 +3962,14 @@ developerSpacesRouter.post("/:id/agent/actions/confirmations", requireAuth, asyn
   }
   return res.status(201).json({
     confirmation: serializeDeveloperSpaceAgentConfirmation(data),
-    executionAvailable: action === DEVELOPER_SPACE_AGENT_PUBLISH_DOCUMENT_ACTION,
+    executionAvailable: action === DEVELOPER_SPACE_AGENT_PUBLISH_DOCUMENT_ACTION
+      || action === DEVELOPER_SPACE_AGENT_OBSERVATORY_UPDATE_ACTION,
     message: action === DEVELOPER_SPACE_AGENT_EXECUTION_RECEIPT_ACTION
       ? "Capability request recorded for owner triage. No external action executed."
       : action === DEVELOPER_SPACE_AGENT_PUBLISH_DOCUMENT_ACTION
         ? "Publish confirmation recorded for the selected reviewed draft."
+        : action === DEVELOPER_SPACE_AGENT_OBSERVATORY_UPDATE_ACTION
+          ? "Observatory status-note confirmation recorded for owner review."
         : "Confirmation recorded for owner review only. Execution is unavailable in this lane.",
   });
 });
@@ -3653,9 +4047,12 @@ developerSpacesRouter.post("/:id/agent/actions/confirmations/:confirmationId/app
   }
   return res.json({
     confirmation: serializeDeveloperSpaceAgentConfirmation(data),
-    executionAvailable: data.action === DEVELOPER_SPACE_AGENT_PUBLISH_DOCUMENT_ACTION,
+    executionAvailable: data.action === DEVELOPER_SPACE_AGENT_PUBLISH_DOCUMENT_ACTION
+      || data.action === DEVELOPER_SPACE_AGENT_OBSERVATORY_UPDATE_ACTION,
     message: data.action === DEVELOPER_SPACE_AGENT_PUBLISH_DOCUMENT_ACTION
       ? "Confirmation approved. The selected reviewed draft can now be published."
+      : data.action === DEVELOPER_SPACE_AGENT_OBSERVATORY_UPDATE_ACTION
+        ? "Confirmation approved. The selected observatory status note can now be published."
       : "Confirmation approved. Execution is unavailable in this lane.",
   });
 });
@@ -3806,15 +4203,20 @@ developerSpacesRouter.post("/:id/agent/actions/confirmations/:confirmationId/exe
       ? DEVELOPER_SPACE_AGENT_DRAFT_DOCUMENT_ACTION
       : existing.receipt.action === DEVELOPER_SPACE_AGENT_PUBLISH_DOCUMENT_ACTION
         ? DEVELOPER_SPACE_AGENT_PUBLISH_DOCUMENT_ACTION
+        : existing.receipt.action === DEVELOPER_SPACE_AGENT_OBSERVATORY_UPDATE_ACTION
+          ? DEVELOPER_SPACE_AGENT_OBSERVATORY_UPDATE_ACTION
       : DEVELOPER_SPACE_AGENT_EXECUTION_RECEIPT_ACTION;
     return res.json({
       receipt: serializeDeveloperSpaceAgentExecutionReceipt(existing.receipt),
       idempotent: true,
-      executionAvailable: receiptAction === DEVELOPER_SPACE_AGENT_PUBLISH_DOCUMENT_ACTION,
+      executionAvailable: receiptAction === DEVELOPER_SPACE_AGENT_PUBLISH_DOCUMENT_ACTION
+        || receiptAction === DEVELOPER_SPACE_AGENT_OBSERVATORY_UPDATE_ACTION,
       message: receiptAction === DEVELOPER_SPACE_AGENT_DRAFT_DOCUMENT_ACTION
         ? "Private project update draft receipt was already recorded. No duplicate draft was created."
         : receiptAction === DEVELOPER_SPACE_AGENT_PUBLISH_DOCUMENT_ACTION
           ? "Reviewed project update draft was already published. No duplicate receipt or publication was created."
+        : receiptAction === DEVELOPER_SPACE_AGENT_OBSERVATORY_UPDATE_ACTION
+          ? "Public observatory status note was already published. No duplicate note or receipt was created."
         : "Capability request receipt was already recorded. No external action executed.",
     });
   }
@@ -3866,6 +4268,25 @@ developerSpacesRouter.post("/:id/agent/actions/confirmations/:confirmationId/exe
     receiptSummary = "Reviewed project update draft published to the public Developer Space evidence path.";
     successMessage = "Reviewed project update draft published to the public Developer Space evidence path.";
     executionAvailable = true;
+  } else if (receiptAction === DEVELOPER_SPACE_AGENT_OBSERVATORY_UPDATE_ACTION) {
+    const statusNote = developerSpaceAgentStatusNoteFromPayload(loaded.confirmation.sanitized_payload);
+    const published = await publishDeveloperSpaceAgentObservatoryStatusNote({
+      space: ownerLoad.space,
+      confirmationId: loaded.confirmation.id,
+      statusNote,
+      occurredAt: now.toISOString(),
+    });
+    if (published.status !== 200) {
+      return res.status(published.status).json({
+        error: published.error,
+        code: "developer_space_agent_status_note_publish_failed",
+        executionAvailable: false,
+      });
+    }
+    receiptPayload = developerSpaceAgentObservatoryStatusNoteReceiptPayload(published.statusNote);
+    receiptSummary = `Public observatory status note published: ${published.statusNote.note}`;
+    successMessage = "Public observatory status note published to the Developer Space event stream.";
+    executionAvailable = true;
   } else {
     const capabilityRequest = developerSpaceAgentCapabilityRequestFromPayload(loaded.confirmation.sanitized_payload);
     receiptPayload = developerSpaceAgentExecutionReceiptPayload(capabilityRequest);
@@ -3899,11 +4320,14 @@ developerSpacesRouter.post("/:id/agent/actions/confirmations/:confirmationId/exe
         return res.json({
           receipt: serializeDeveloperSpaceAgentExecutionReceipt(receipt.receipt),
           idempotent: true,
-          executionAvailable: receiptAction === DEVELOPER_SPACE_AGENT_PUBLISH_DOCUMENT_ACTION,
+          executionAvailable: receiptAction === DEVELOPER_SPACE_AGENT_PUBLISH_DOCUMENT_ACTION
+            || receiptAction === DEVELOPER_SPACE_AGENT_OBSERVATORY_UPDATE_ACTION,
           message: receiptAction === DEVELOPER_SPACE_AGENT_DRAFT_DOCUMENT_ACTION
             ? "Private project update draft receipt was already recorded. No duplicate draft was created."
             : receiptAction === DEVELOPER_SPACE_AGENT_PUBLISH_DOCUMENT_ACTION
               ? "Reviewed project update draft was already published. No duplicate receipt or publication was created."
+            : receiptAction === DEVELOPER_SPACE_AGENT_OBSERVATORY_UPDATE_ACTION
+              ? "Public observatory status note was already published. No duplicate note or receipt was created."
             : "Capability request receipt was already recorded. No external action executed.",
         });
       }
