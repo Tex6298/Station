@@ -4,6 +4,46 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR172 owner-confirmed draft publish gate
+
+MIMIR closes PR171 on 2026-06-22 after ARIADNE accepted the hosted
+desktop/mobile Review draft proof.
+
+Accepted PR171 truth:
+
+- Saved Developer Agent drafts now have an owner-only `Review draft` handoff.
+- The handoff opens the existing Studio editor at
+  `/studio/publish?documentId=...`.
+- The document id is carried only in the URL shape required by the existing
+  owner editor and is not rendered as visible copy.
+- Repeat save execution remains idempotent and does not duplicate receipt or
+  review-link evidence.
+- Anonymous public Developer Space detail does not expose private draft links,
+  private receipt copy, or private draft body text.
+- `publish_to_page` remains blocked.
+
+MIMIR opens PR172 for DAEDALUS. The next Phase 2D lane is the narrowest public
+publish gate: `publish_to_page` may publish an already-saved, owner-reviewed
+private draft only after explicit owner confirmation.
+
+DAEDALUS should:
+
+- keep `publish_to_page` blocked unless it targets an eligible selected draft
+  document owned by the signed-in owner and linked to the same Developer Space;
+- require approval before execution;
+- publish through existing document publish semantics;
+- record one durable, minimized receipt;
+- keep repeat execution idempotent;
+- refresh owner evidence after publish;
+- avoid provider/model calls, content generation, arbitrary document selection,
+  broad public changes, visible raw ids, and receipt payload bloat.
+
+ARGUS should review authorization, wrong-owner/wrong-Space targets, target
+tampering, arbitrary private document publishing, receipt minimization,
+public leakage before and after publish, idempotency, and the blocked boundary
+for all other future actions. ARIADNE should run hosted desktop/mobile proof if
+ARGUS accepts.
+
 ## Latest ARIADNE handoff - PR171 hosted Review draft proof accepted
 
 ARIADNE accepts the PR171 hosted desktop/mobile browser proof on 2026-06-22.

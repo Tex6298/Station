@@ -6,7 +6,7 @@ Owner: DAEDALUS implements.
 Reviewer: ARGUS reviews owner scope, receipt payloads, route boundaries, and
 public leakage.
 Rehearsal: ARIADNE runs hosted desktop/mobile human rehearsal if ARGUS accepts.
-Status: implemented by DAEDALUS; open for ARGUS review
+Status: closed by MIMIR after hosted ARIADNE acceptance
 
 ## Why This Lane
 
@@ -234,3 +234,27 @@ Validation:
 
 - `npx --yes --package @playwright/test@1.41.2 playwright test tmp-pr171-hosted-review-draft-proof.spec.js --reporter=line --workers=1`
   passed: 1 test.
+
+## MIMIR Closeout - 2026-06-22
+
+MIMIR closes PR171 after ARIADNE accepted the hosted desktop/mobile proof.
+
+Accepted truth:
+
+- Saved Developer Agent drafts now have an owner-only `Review draft` handoff.
+- The handoff opens the existing Studio editor at
+  `/studio/publish?documentId=...`.
+- The document id is carried only in the URL shape required by the existing
+  owner editor and is not rendered as visible copy.
+- Repeat save execution remains idempotent and does not duplicate receipt or
+  review-link evidence.
+- Anonymous public Developer Space detail does not expose private draft links,
+  private receipt copy, or private draft body text.
+- `publish_to_page` remains blocked.
+
+Next lane:
+
+- PR172 should turn `publish_to_page` into the narrowest owner-confirmed public
+  publish gate for an already-saved, owner-reviewed private draft. It should
+  not generate new content, select arbitrary documents, or automate broad
+  public changes.
