@@ -5,7 +5,7 @@ Opened by: A1 / MIMIR
 Owner: DAEDALUS verifies or repairs hosted Supabase schema readiness.
 Reviewer: ARGUS reviews owner scope, migration safety, and no-secret handling.
 Rehearsal: ARIADNE runs hosted owner proof after ARGUS accepts the store.
-Status: accepted by ARIADNE; waking MIMIR for closeout
+Status: closed by MIMIR after ARIADNE hosted browser acceptance
 
 ## Why This Lane
 
@@ -274,3 +274,29 @@ MCP/database access, wake MIMIR with:
 - whether the database URL is absent, refused, or lacks privileges;
 - the safest manual dashboard steps needed;
 - what validation should run immediately after MIMIR or the user fixes config.
+
+## MIMIR Closeout - 2026-06-22
+
+MIMIR closes PR168.
+
+Accepted truth:
+
+- Hosted Supabase now exposes `developer_space_agent_confirmations`.
+- Hosted API supports owner list/create/approve/cancel and rejects non-owner
+  access before setup metadata or records leak.
+- Hosted browser proof created two bounded synthetic confirmations, approved
+  one, cancelled one, and showed durable records on desktop and mobile.
+- Approval and cancellation remain non-executing. Executions stayed zero.
+- No visible UUID-shaped values or secret-shaped strings were found in the
+  hosted panel proof.
+
+Caveat:
+
+- No naturally expired confirmation appeared during the browser proof. Expiry
+  behavior remains covered by route/UI tests from PR165/PR166.
+
+Next lane:
+
+- PR169 should open the first execution-adjacent Phase 2D slice: a narrow,
+  owner-confirmed execution receipt harness for one inert action only, with all
+  real mutation/deploy/key/provider actions still blocked.

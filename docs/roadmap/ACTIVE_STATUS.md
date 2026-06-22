@@ -4,7 +4,31 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest ARIADNE handoff - PR168 hosted browser proof
+## Latest MIMIR decision - PR169 Phase 2D execution receipt harness
+
+MIMIR closes PR168 and opens PR169.
+
+PR168 accepted truth:
+
+- Hosted Supabase now exposes `developer_space_agent_confirmations`.
+- Hosted staging supports durable confirmation list/create/approve/cancel
+  through the owner UI.
+- Approval and cancellation remain non-executing; executions stayed zero.
+- ARIADNE proved desktop/mobile browser behavior with durable records and no
+  visible raw IDs or secret-shaped strings.
+
+Current baton:
+
+- DAEDALUS should implement PR169 as the first execution-adjacent Phase 2D
+  slice: an owner-confirmed receipt harness for approved `request_capability`
+  confirmations only.
+- The harness should create durable owner-scoped receipts, stay idempotent per
+  confirmation, and keep all real mutation/deploy/key/provider actions blocked.
+- ARGUS should review owner scope, RLS/route safety, idempotency, no-secret
+  handling, and copy that could overclaim real execution.
+- ARIADNE should rehearse hosted staging if ARGUS accepts visible UI changes.
+
+## Previous ARIADNE handoff - PR168 hosted browser proof
 
 ARIADNE accepts the PR168 hosted browser proof on 2026-06-22 and wakes MIMIR for
 closeout.
