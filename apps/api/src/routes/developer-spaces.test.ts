@@ -1812,6 +1812,29 @@ test("Developer Space agent request-capability receipts are owner-scoped and ide
     assert.equal(rejectedSecretRequest.status, 400);
     assert.doesNotMatch(JSON.stringify(rejectedSecretRequest.body), /token=redacted|rawPrompt/);
 
+    const rejectedSecretSummary = await requestJson(app, "POST", `/developer-spaces/${spaceId}/agent/actions/confirmations`, {
+      token: "owner-token",
+      body: {
+        action: "request_capability",
+        capabilityCategory: "provider_config",
+        capabilitySummary: "Provider setup leaked whsec_live_secret and Bearer abc.defgh.",
+      },
+    });
+    assert.equal(rejectedSecretSummary.status, 400);
+    assert.doesNotMatch(JSON.stringify(rejectedSecretSummary.body), /whsec_live_secret|Bearer abc\.defgh/);
+
+    const rejectedSecretKey = await requestJson(app, "POST", `/developer-spaces/${spaceId}/agent/actions/confirmations`, {
+      token: "owner-token",
+      body: {
+        action: "request_capability",
+        capabilityCategory: "provider_config",
+        capabilitySummary: "Need hosted provider configuration reviewed before opening an implementation lane.",
+        input: { api_key_whsec_live_secret: "redacted", note: "whsec_live_secret" },
+      },
+    });
+    assert.equal(rejectedSecretKey.status, 400);
+    assert.doesNotMatch(JSON.stringify(rejectedSecretKey.body), /api_key_whsec_live_secret|whsec_live_secret/);
+
     const requestCapability = await requestJson(app, "POST", `/developer-spaces/${spaceId}/agent/actions/confirmations`, {
       token: "owner-token",
       body: {
@@ -1958,7 +1981,7 @@ test("Developer Space agent request-capability receipts are owner-scoped and ide
       cancelledExecute: cancelledExecute.body,
       expiredExecute: expiredExecute.body,
     });
-    assert.doesNotMatch(responseText, /private capability prompt|token=redacted|rawPrompt|expired-capability-preview-hash/);
+    assert.doesNotMatch(responseText, /private capability prompt|token=redacted|rawPrompt|whsec_live_secret|Bearer abc\.defgh|api_key_whsec_live_secret|expired-capability-preview-hash/);
     assert.equal(responseText.includes(requestCapability.body.confirmation.id), false);
     assert.equal(responseText.includes(runJob.body.confirmation.id), false);
     assert.equal(db.tables.developer_space_agent_execution_receipts.length, 1);

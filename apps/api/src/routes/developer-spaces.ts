@@ -192,6 +192,21 @@ const DEVELOPER_SPACE_AGENT_CAPABILITY_REQUEST_CATEGORIES = [
 const DEVELOPER_SPACE_AGENT_CAPABILITY_REQUEST_DEFAULT_CATEGORY = "roadmap_decision";
 const DEVELOPER_SPACE_AGENT_CAPABILITY_REQUEST_DEFAULT_SUMMARY =
   "Review this requested capability before opening a new implementation lane.";
+const DEVELOPER_SPACE_AGENT_SECRET_SHAPED_TEXT_PATTERN = new RegExp([
+  String.raw`\b(?:postgres(?:ql)?|redis|mysql):\/\/\S+`,
+  String.raw`https?:\/\/[^/\s:@]+:[^/\s@]+@`,
+  String.raw`bearer\s+[a-z0-9._~+/-]+=*`,
+  String.raw`\b(?:sk|pk|rk|whsec|ghp|pat)[_-][a-z0-9._-]+\b`,
+  String.raw`\bgithub` + String.raw`_pat_[a-z0-9_]+\b`,
+  String.raw`\bxox` + String.raw`[baprs]?-[a-z0-9-]+\b`,
+  String.raw`\bA` + String.raw`KIA[0-9A-Z]{16}\b`,
+  String.raw`\bAI` + String.raw`za[0-9A-Za-z_-]{35}\b`,
+  String.raw`eyJ[a-z0-9_-]{20,}`,
+  String.raw`-{5}BEGIN`,
+  String.raw`\b[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}\b`,
+  String.raw`\b(?:authorization|cookie|token|api[\s_-]?key|x[\s_-]?api[\s_-]?key|service[\s_-]?role|secret|password|webhook[\s_-]?secret|db[\s_-]?url|database[\s_-]?url)\s*[:=]\s*[^,;]+`,
+  String.raw`\b(?:(?:raw|private|system|user)[\s_-]?prompt|prompt|completion|provider[\s_-]?payload|private[\s_-]?text|raw[\s_-]?body|archive[\s_-]?excerpt)\s*[:=]\s*[^.;]+`,
+].join("|"), "i");
 const DEVELOPER_SPACE_AGENT_EXECUTABLE_ACTIONS = new Set<string>([
   DEVELOPER_SPACE_AGENT_EXECUTION_RECEIPT_ACTION,
   DEVELOPER_SPACE_AGENT_DRAFT_DOCUMENT_ACTION,
@@ -876,8 +891,7 @@ function developerSpaceAgentCapabilityCategory(value: unknown) {
 }
 
 function developerSpaceAgentSecretLikeText(value: string) {
-  return /(?:sk-[a-z0-9_-]{8,}|eyJ[a-z0-9_-]{20,}|(?:postgres|postgresql|redis):\/\/|bearer\s+[a-z0-9._-]{8,}|-----BEGIN|service[_-]?role|api[_-]?key\s*[:=]|token\s*[:=]|password\s*[:=]|cookie\s*[:=]|secret\s*[:=])/i
-    .test(value);
+  return DEVELOPER_SPACE_AGENT_SECRET_SHAPED_TEXT_PATTERN.test(value);
 }
 
 function developerSpaceAgentUnsafeCapabilityInputReason(value: unknown, path: string[] = []): string | null {
@@ -897,7 +911,7 @@ function developerSpaceAgentUnsafeCapabilityInputReason(value: unknown, path: st
 
   for (const [key, child] of Object.entries(value as Record<string, unknown>)) {
     if (/token|secret|password|cookie|authorization|service[_-]?role|api[_-]?key|private[_-]?key|connection|string|database[_-]?url|pooler|raw[_-]?prompt|provider[_-]?payload/i.test(key)) {
-      return `Capability request input field "${[...path, key].join(".")}" is not allowed.`;
+      return "Capability request input includes an unsupported sensitive field.";
     }
     if (typeof child === "string" && developerSpaceAgentSecretLikeText(child)) {
       return "Capability request input must not include secret-like values.";
