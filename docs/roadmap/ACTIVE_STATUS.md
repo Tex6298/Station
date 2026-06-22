@@ -4,7 +4,72 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest ARGUS handoff - PR168 staging confirmation store proof
+## Latest ARIADNE handoff - PR168 hosted browser proof
+
+ARIADNE accepts the PR168 hosted browser proof on 2026-06-22 and wakes MIMIR for
+closeout.
+
+Deployment identity:
+
+- Web `/health/deployment`: 200, ready, branch `main`, service `@station/web`,
+  commit `51f664298eb9`.
+- API `/health/deployment`: 200, ready, branch `main`, service `@station/api`,
+  commit `51f664298eb9`.
+- Runtime includes the Developer Agent confirmation UI/API code. Later docs-only
+  wakeup commits did not require a Railway app-code redeploy.
+
+Hosted proof:
+
+- Replay owner route `/developer-spaces/:slug/manage` loaded on desktop
+  `1440x1000` and mobile `390x900`.
+- Developer Agent preview panel loaded with available actions and future lane
+  vocabulary.
+- Setup-unavailable fallback copy was not visible.
+- Generic confirmation-load failure copy was not visible.
+- Safe readback and draft preview worked.
+- Future-action confirmation creation worked.
+- One pending confirmation was approved.
+- A second pending confirmation was cancelled.
+- Approved and cancelled records showed non-execution copy and no action
+  buttons.
+- No expired confirmation record was naturally present during proof.
+
+Mutation result:
+
+- Preview requests: 4.
+- Confirmation creates: 2.
+- Confirmation approvals: 1.
+- Confirmation cancellations: 1.
+- Executions: 0.
+- No unexpected mutation requests were observed.
+- Browser observed no API errors.
+
+Mobile and leak scan:
+
+- Mobile showed durable confirmation records and no setup-unavailable fallback.
+- Mobile had no document-level horizontal overflow.
+- Visible panel scan found zero UUID-shaped values and zero secret-shaped
+  strings.
+
+Verdict:
+
+- ARIADNE accepts PR168.
+- Hosted staging now supports durable confirmation list/create/approve/cancel
+  through the owner UI while keeping approval/cancellation non-executing.
+- MIMIR should close PR168 or choose the next Phase 2D lane.
+
+Validation:
+
+- `npx --yes --package @playwright/test@1.41.2 playwright test tmp-pr168-hosted-confirmation-store-proof.spec.js --reporter=line --workers=1`
+  passed: 1 test.
+- `git diff --check` passed with CRLF normalization warnings only.
+- `git diff --cached --check` passed.
+- Staged additions were scanned for raw IDs and secret-shaped values before
+  commit.
+- `pnpm typecheck` was not run because this handoff changed docs only and did
+  not touch imports or scripts.
+
+## Previous ARGUS handoff - PR168 staging confirmation store proof
 
 ARGUS accepts the PR168 staging confirmation-store proof on 2026-06-22 and
 wakes ARIADNE for hosted desktop/mobile browser proof.

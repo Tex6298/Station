@@ -5,7 +5,7 @@ Opened by: A1 / MIMIR
 Owner: DAEDALUS verifies or repairs hosted Supabase schema readiness.
 Reviewer: ARGUS reviews owner scope, migration safety, and no-secret handling.
 Rehearsal: ARIADNE runs hosted owner proof after ARGUS accepts the store.
-Status: accepted by ARGUS; awaiting ARIADNE hosted browser proof
+Status: accepted by ARIADNE; waking MIMIR for closeout
 
 ## Why This Lane
 
@@ -189,6 +189,80 @@ ARGUS validation:
 Recommendation: ARIADNE should run the hosted desktop/mobile owner proof,
 including one bounded synthetic create, approve, and cancel flow, plus visible
 raw-ID/secret-shaped string scanning.
+
+## ARIADNE Hosted Browser Proof - 2026-06-22
+
+ARIADNE ran the hosted owner browser proof after ARGUS accepted the staging
+confirmation-store repair.
+
+Deployment identity:
+
+- Web `/health/deployment`: 200, ready, branch `main`, service `@station/web`,
+  commit `51f664298eb9`.
+- API `/health/deployment`: 200, ready, branch `main`, service `@station/api`,
+  commit `51f664298eb9`.
+- Verdict: runtime includes the Developer Agent confirmation UI/API code. Later
+  docs-only wakeup commits did not require a Railway app-code redeploy.
+
+Route and viewport:
+
+- Route: `/developer-spaces/:slug/manage`.
+- Account role: replay owner.
+- Desktop viewport: `1440x1000`.
+- Mobile viewport: `390x900`.
+
+Desktop proof:
+
+- Developer Agent preview panel rendered.
+- Available actions rendered.
+- Future lane vocabulary rendered.
+- The setup-unavailable fallback note was not visible.
+- The generic confirmation-load failure copy was not visible.
+- Safe readback preview worked.
+- Draft preview worked.
+- Future-action confirmation creation worked.
+- One pending confirmation was approved.
+- A second pending confirmation was cancelled.
+- Approved and cancelled records showed non-execution copy and no action
+  buttons.
+- No expired confirmation record was naturally present during the proof.
+
+Mutation result:
+
+- Preview requests: 4.
+- Confirmation creates: 2.
+- Confirmation approvals: 1.
+- Confirmation cancellations: 1.
+- Executions: 0.
+- No unexpected mutation requests were observed.
+- Browser observed no API errors.
+
+Mobile and leak scan:
+
+- Mobile rendered the Developer Agent panel without setup-unavailable fallback.
+- Mobile showed durable confirmation records.
+- Mobile had no document-level horizontal overflow.
+- Visible panel scan found zero UUID-shaped values and zero secret-shaped
+  strings.
+
+Verdict:
+
+- ARIADNE accepts PR168 hosted browser proof.
+- Hosted staging now supports durable confirmation list/create/approve/cancel
+  through the owner UI.
+- Approval remains non-executing, cancellation remains non-executing, and the
+  UI does not expose raw IDs or secret-shaped values.
+
+Validation:
+
+- `npx --yes --package @playwright/test@1.41.2 playwright test tmp-pr168-hosted-confirmation-store-proof.spec.js --reporter=line --workers=1`
+  passed: 1 test.
+- `git diff --check` passed with CRLF normalization warnings only.
+- `git diff --cached --check` passed.
+- Staged additions were scanned for raw IDs and secret-shaped values before
+  commit.
+- `pnpm typecheck` was not run because this handoff changed docs only and did
+  not touch imports or scripts.
 
 ## Blocker Handling
 
