@@ -54,6 +54,27 @@ pnpm test:developer-space-client
 
 ## PR168 Staging Confirmation Store Proof
 
+ARGUS review validation on 2026-06-22:
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 34 tests passed, including confirmation owner-scope and missing-store fallback coverage. |
+| `git diff --check` | Pass | CRLF normalization warnings only for touched local triad state. |
+| Added proof text secret/raw-id scan | Pass | No Supabase URLs, service-role keys, pooler URLs, bearer tokens, cookies, passwords, raw UUID-shaped ids, confirmation ids, preview hashes, Checkout/Stripe ids, or common secret-shaped values were found in the added proof text. |
+
+ARGUS PR168 notes:
+
+- Accepted the direct SQL deployment because only migration `049` was applied
+  after missing-relation proof, with migration history row
+  `20260622074200 / 049_developer_space_agent_confirmations` recorded.
+- Accepted post-apply table/index/RLS/policy/column proof and service-role
+  PostgREST readiness.
+- Accepted hosted API smoke proving owner create/list/approve/cancel,
+  non-owner `403`, `executionAvailable: false`, final approved/cancelled
+  records, and no unavailable-store fallback code.
+- No secret values, raw ids, confirmation ids, preview hashes, provider
+  payloads, raw prompts, or private owner content were committed.
+
 DAEDALUS staging proof on 2026-06-22:
 
 | Command / check | Result | Notes |

@@ -5,7 +5,7 @@ Opened by: A1 / MIMIR
 Owner: DAEDALUS verifies or repairs hosted Supabase schema readiness.
 Reviewer: ARGUS reviews owner scope, migration safety, and no-secret handling.
 Rehearsal: ARIADNE runs hosted owner proof after ARGUS accepts the store.
-Status: DAEDALUS proof complete; open for ARGUS review
+Status: accepted by ARGUS; awaiting ARIADNE hosted browser proof
 
 ## Why This Lane
 
@@ -145,6 +145,50 @@ Next baton:
 - ARGUS should review migration safety, RLS/owner scope, ledger handling,
   no-secret handling, and the hosted API smoke.
 - If accepted, ARGUS should wake ARIADNE for the desktop/mobile browser proof.
+
+## ARGUS Review - 2026-06-22
+
+ARGUS accepts the staging confirmation-store proof and wakes ARIADNE for hosted
+browser rehearsal.
+
+Findings:
+
+- Accepted: before repair, hosted Supabase was missing
+  `developer_space_agent_confirmations`; both service-role PostgREST and the
+  pooler proved the missing relation without printing credential values.
+- Accepted: DAEDALUS applied only migration `049` through the pooler and
+  recorded migration history row
+  `20260622074200 / 049_developer_space_agent_confirmations`.
+- Accepted: PostgREST schema reload was requested after the direct SQL repair.
+- Accepted: post-apply proof matches the PR165 schema/RLS contract: table
+  exists, both expected indexes exist, RLS is enabled, owner policy count is
+  `1`, and column count is `14`.
+- Accepted: hosted API smoke proved owner create/list/approve/cancel with
+  `executionAvailable: false`, non-owner list denial with HTTP `403`, final
+  approved/cancelled records, and no unavailable-store fallback code.
+- Accepted: the smoke used bounded synthetic users and confirmation records.
+  Cleanup was attempted, and the synthetic Space slug readback returned `0`
+  rows afterward.
+- Accepted: no Supabase URL, service-role key, pooler URL, auth token, cookie,
+  password, raw user id, raw Space id, confirmation id, preview hash, raw prompt
+  body, provider payload, or private owner content was printed or committed.
+- No non-scope work was added: no model chat, autonomous execution, freeform
+  parser, live agent tool execution, broad migration sweep, public page,
+  document, layout, billing, provider, Redis, Cloudflare, archive import,
+  export, webhook, observed-runtime, deployment architecture, or unrelated
+  Supabase work.
+
+ARGUS validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` passed with 34
+  tests.
+- `git diff --check` passed with CRLF normalization warnings only.
+- Added proof text secret/raw-id scan found no secret-shaped values or raw
+  UUID-shaped ids.
+
+Recommendation: ARIADNE should run the hosted desktop/mobile owner proof,
+including one bounded synthetic create, approve, and cancel flow, plus visible
+raw-ID/secret-shaped string scanning.
 
 ## Blocker Handling
 

@@ -4,7 +4,58 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest DAEDALUS handoff - PR168 staging confirmation store proof
+## Latest ARGUS handoff - PR168 staging confirmation store proof
+
+ARGUS accepts the PR168 staging confirmation-store proof on 2026-06-22 and
+wakes ARIADNE for hosted desktop/mobile browser proof.
+
+Review verdict:
+
+- The direct SQL deployment is accepted as a recorded equivalent repair because
+  DAEDALUS applied only `infra/supabase/migrations/049_developer_space_agent_confirmations.sql`
+  after proving the hosted relation was missing.
+- Migration history handling is accepted: the ledger row
+  `20260622074200 / 049_developer_space_agent_confirmations` records the exact
+  applied migration, and `NOTIFY pgrst, 'reload schema'` was sent afterward.
+- Post-apply object proof matches PR165 expectations: confirmation table
+  present, both expected indexes present, RLS enabled, owner policy count `1`,
+  and column count `14`.
+- Hosted API smoke is accepted as owner-scope proof: synthetic owner could
+  create/list/approve/cancel confirmations with `executionAvailable: false`,
+  while the synthetic non-owner list request returned HTTP `403` before records
+  or setup metadata leaked.
+- Hosted API no longer returned
+  `developer_space_agent_confirmation_store_unavailable`, so the durable store
+  is available for ARIADNE browser proof.
+- Cleanup evidence is bounded and honest: synthetic auth-user deletion was
+  attempted, and service-role readback for the synthetic Space slug returned
+  `0` rows.
+- The proof text does not commit Supabase URLs, service-role keys, pooler URLs,
+  auth tokens, cookies, passwords, raw user ids, raw Space ids, confirmation
+  ids, preview hashes, raw prompt bodies, provider payloads, or private owner
+  content.
+- No model chat, autonomous execution, freeform parser, live agent tool
+  execution, key/signing-secret mutation, broad migration sweep, public page,
+  document, layout, billing, provider, Redis, Cloudflare, archive import,
+  export, webhook, observed-runtime, deployment architecture, or unrelated
+  Supabase work was added.
+
+ARGUS validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` passed with 34
+  tests.
+- `git diff --check` passed with CRLF normalization warnings only.
+- Added proof text was scanned for secret-shaped values and raw UUID-shaped ids;
+  no matches were found.
+
+Next:
+
+- ARIADNE should run the hosted browser owner proof from
+  `docs/roadmap/PR168_STAGING_CONFIRMATION_STORE_PROOF.md`: desktop and 390px
+  mobile, create/approve/cancel bounded synthetic confirmations, verify
+  non-execution copy, and scan visible UI for raw IDs or secret-shaped strings.
+
+## Previous DAEDALUS handoff - PR168 staging confirmation store proof
 
 DAEDALUS completed the PR168 staging confirmation-store proof on 2026-06-22.
 
