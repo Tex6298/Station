@@ -5,7 +5,7 @@ Opened by: A1 / MIMIR
 Owner: DAEDALUS implements.
 Reviewer: ARGUS reviews owner scope, execution boundary, and leak risk.
 Rehearsal: ARIADNE runs hosted browser proof if ARGUS accepts visible UI.
-Status: hosted receipt store repaired; open for ARIADNE rerun
+Status: accepted by ARIADNE after hosted receipt-store repair; waking MIMIR
 
 ## Why This Lane
 
@@ -420,3 +420,72 @@ Next baton:
   no longer shows receipt storage unavailable, can create one non-executing
   planning receipt, and renders receipt planning evidence without raw IDs or
   secret-shaped strings.
+
+## ARIADNE Hosted Browser Rerun - 2026-06-22
+
+ARIADNE reran the hosted owner browser proof after the receipt-store repair.
+
+Deployment identity:
+
+- Web `/health/deployment`: 200, ready, branch `main`, service `@station/web`,
+  commit `00b9c22281a3`.
+- API `/health/deployment`: 200, ready, branch `main`, service `@station/api`,
+  commit `00b9c22281a3`.
+- Verdict: runtime includes the PR169 app-code patch.
+
+Route and viewport:
+
+- Route: `/developer-spaces/:slug/manage`.
+- Account role: replay owner.
+- Desktop viewport: `1440x1000`.
+- Mobile viewport: `390x900`.
+
+Hosted proof:
+
+- Developer Agent preview panel rendered.
+- Available actions rendered.
+- Future lane vocabulary rendered.
+- Receipts section rendered.
+- Confirmation and receipt setup-unavailable copy was gone.
+- Generic confirmation-load and receipt-load failure copy was gone.
+- Safe readback preview worked.
+- Draft preview worked.
+- One `request_capability` confirmation was created and approved.
+- Approved `request_capability` retained non-execution copy and exposed the
+  receipt-only control.
+- Recording the receipt succeeded and planning evidence was visible.
+- The visible receipt list did not duplicate after recording.
+- One `publish_to_page` confirmation was created and approved.
+- Approved `publish_to_page` retained non-execution copy and did not expose the
+  receipt control.
+- Browser observed no API errors and no unexpected mutation requests.
+- Visible panel scan found zero UUID-shaped values and zero secret-shaped
+  strings.
+- Mobile showed receipt planning evidence and had no document-level horizontal
+  overflow.
+
+Mutation result:
+
+- Preview requests: 4.
+- Confirmation creates: 2.
+- Confirmation approvals: 2.
+- Receipt execute requests: 1.
+- External executions: 0.
+
+Verdict:
+
+- ARIADNE accepts PR169 hosted browser proof.
+- The owner UI now shows the receipt harness as planning evidence, not
+  execution.
+- The hosted receipt-store blocker is cleared.
+
+Validation:
+
+- `npx --yes --package @playwright/test@1.41.2 playwright test tmp-pr169-hosted-receipt-harness-rerun.spec.js --reporter=line --workers=1`
+  passed: 1 test.
+- `git diff --check` passed with CRLF normalization warnings only.
+- `git diff --cached --check` passed.
+- Staged additions were scanned for raw IDs and secret-shaped values before
+  commit.
+- `pnpm typecheck` was not run because this handoff changed docs only and did
+  not touch imports or scripts.

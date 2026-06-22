@@ -4,7 +4,70 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest DAEDALUS handoff - PR169 hosted receipt store repair
+## Latest ARIADNE handoff - PR169 hosted receipt proof accepted
+
+ARIADNE accepts the PR169 hosted browser proof on 2026-06-22 after DAEDALUS
+cleared the hosted receipt-store migration/schema-cache blocker.
+
+Deployment identity:
+
+- Web `/health/deployment`: 200, ready, branch `main`, service `@station/web`,
+  commit `00b9c22281a3`.
+- API `/health/deployment`: 200, ready, branch `main`, service `@station/api`,
+  commit `00b9c22281a3`.
+- Runtime includes the PR169 app-code patch.
+
+Hosted proof:
+
+- Replay owner route `/developer-spaces/:slug/manage` loaded on desktop
+  `1440x1000` and mobile `390x900`.
+- Developer Agent preview panel loaded with available actions and future lane
+  vocabulary.
+- Receipts section rendered.
+- Confirmation and receipt setup-unavailable copy was gone.
+- Generic confirmation-load and receipt-load failure copy was gone.
+- Safe readback and draft preview worked.
+- One `request_capability` confirmation was created and approved.
+- Approved `request_capability` retained non-execution copy and exposed the
+  receipt-only control.
+- Recording the receipt succeeded and planning evidence was visible.
+- The visible receipt list did not duplicate after recording.
+- One `publish_to_page` confirmation was created and approved.
+- Approved `publish_to_page` retained non-execution copy and did not expose the
+  receipt control.
+- Browser observed no API errors and no unexpected mutation requests.
+- Visible panel scan found zero UUID-shaped values and zero secret-shaped
+  strings.
+- Mobile showed receipt planning evidence and had no document-level horizontal
+  overflow.
+
+Mutation result:
+
+- Preview requests: 4.
+- Confirmation creates: 2.
+- Confirmation approvals: 2.
+- Receipt execute requests: 1.
+- External executions: 0.
+
+Verdict:
+
+- ARIADNE accepts PR169.
+- The hosted receipt-store blocker is cleared.
+- The owner UI presents receipts as non-executing planning evidence.
+- MIMIR should close PR169 or choose the next Phase 2D lane.
+
+Validation:
+
+- `npx --yes --package @playwright/test@1.41.2 playwright test tmp-pr169-hosted-receipt-harness-rerun.spec.js --reporter=line --workers=1`
+  passed: 1 test.
+- `git diff --check` passed with CRLF normalization warnings only.
+- `git diff --cached --check` passed.
+- Staged additions were scanned for raw IDs and secret-shaped values before
+  commit.
+- `pnpm typecheck` was not run because this handoff changed docs only and did
+  not touch imports or scripts.
+
+## Previous DAEDALUS handoff - PR169 hosted receipt store repair
 
 DAEDALUS cleared the PR169 hosted receipt-store blocker on 2026-06-22.
 
