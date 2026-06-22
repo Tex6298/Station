@@ -22,6 +22,7 @@ import {
   developerSpaceEvidenceRoleCopy,
   developerSpaceEvidenceRoleDescription,
   developerSpaceEvidenceEmptyCopy,
+  developerSpaceEvidenceCanRequestPublish,
   developerSpaceEvidenceReviewHref,
   developerSpaceEvidenceTitle,
   formatValue,
@@ -230,12 +231,16 @@ test("developer agent confirmation helpers keep intent separate from execution",
   assert.equal(developerSpaceAgentConfirmationCanAct({ status: "pending" }), true);
   assert.equal(developerSpaceAgentConfirmationCanAct({ status: "approved" }), false);
   assert.match(
-    developerSpaceAgentConfirmationExecutionCopy({ status: "approved" }),
+    developerSpaceAgentConfirmationExecutionCopy({ action: "request_capability", status: "approved" }),
     /Execution remains unavailable/
   );
   assert.match(
-    developerSpaceAgentConfirmationExecutionCopy({ status: "pending" }),
+    developerSpaceAgentConfirmationExecutionCopy({ action: "request_capability", status: "pending" }),
     /does not execute/
+  );
+  assert.match(
+    developerSpaceAgentConfirmationExecutionCopy({ action: "publish_to_page", status: "approved" }),
+    /selected reviewed private draft/
   );
   assert.equal(
     developerSpaceAgentConfirmationEmptyCopy(false),
@@ -259,7 +264,7 @@ test("developer agent receipt helpers gate bounded receipt actions", () => {
   assert.equal(developerSpaceAgentReceiptCanRecord({
     action: "publish_to_page",
     status: "approved",
-  }), false);
+  }), true);
   assert.equal(developerSpaceAgentReceiptStatusCopy("recorded"), "Request recorded");
   assert.match(developerSpaceAgentReceiptExecutionCopy({
     receiptPayload: {
@@ -290,6 +295,24 @@ test("developer agent receipt helpers gate bounded receipt actions", () => {
       },
     },
   }), /Private draft document saved/);
+  assert.match(developerSpaceAgentReceiptExecutionCopy({
+    receiptPayload: {
+      action: "publish_to_page",
+      outcome: "draft_document_published",
+      executionAvailable: true,
+      mutationAvailable: true,
+      externalDispatch: false,
+      nextStep: "Review the public evidence path.",
+      boundaries: [],
+      publishedDocument: {
+        title: "Project update draft",
+        status: "published",
+        visibility: "public",
+        linkVisibility: "public",
+        role: "field_log",
+      },
+    },
+  }), /Reviewed private draft published/);
   assert.equal(
     developerSpaceAgentReceiptEmptyCopy(false),
     "No Developer Agent receipts yet. Approved receipt actions can record bounded owner evidence here."
@@ -383,15 +406,25 @@ test("observatory evidence review links stay owner-only for private drafts", () 
     developerSpaceEvidenceReviewHref(draftLink as any, true),
     "/studio/publish?documentId=doc%20private%20id"
   );
+  assert.equal(developerSpaceEvidenceCanRequestPublish(draftLink as any, true), true);
   assert.equal(developerSpaceEvidenceReviewHref(draftLink as any, false), null);
+  assert.equal(developerSpaceEvidenceCanRequestPublish(draftLink as any, false), false);
   assert.equal(developerSpaceEvidenceReviewHref({
     ...draftLink,
     linkVisibility: "public",
   } as any, true), null);
+  assert.equal(developerSpaceEvidenceCanRequestPublish({
+    ...draftLink,
+    linkVisibility: "public",
+  } as any, true), false);
   assert.equal(developerSpaceEvidenceReviewHref({
     ...draftLink,
     document: { ...draftLink.document, status: "published", visibility: "public" },
   } as any, true), null);
+  assert.equal(developerSpaceEvidenceCanRequestPublish({
+    ...draftLink,
+    document: { ...draftLink.document, status: "published", visibility: "public" },
+  } as any, true), false);
 });
 
 test("observatory evidence reading path orders roles and stays honest when empty", () => {

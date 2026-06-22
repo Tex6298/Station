@@ -1637,22 +1637,22 @@ test("Developer Space agent confirmations record owner intent without execution"
     assert.equal(unsupported.body.code, "developer_space_agent_confirmation_unsupported_action");
     assert.equal(db.tables.developer_space_agent_confirmations.length, 0);
 
-    const publish = await requestJson(app, "POST", `/developer-spaces/${spaceId}/agent/actions/confirmations`, {
+    const pushToRepo = await requestJson(app, "POST", `/developer-spaces/${spaceId}/agent/actions/confirmations`, {
       token: "owner-token",
       body: {
-        action: "publish_to_page",
+        action: "push_to_repo",
         expiresInMinutes: 30,
-        input: { rawPrompt: "publish this private owner prompt", privateMarker: "fixture-sensitive-marker" },
+        input: { rawPrompt: "push this private owner prompt", privateMarker: "fixture-sensitive-marker" },
       },
     });
-    assert.equal(publish.status, 201);
-    assert.equal(publish.body.executionAvailable, false);
-    assert.equal(publish.body.confirmation.action, "publish_to_page");
-    assert.equal(publish.body.confirmation.status, "pending");
-    assert.equal(typeof publish.body.confirmation.previewHash, "string");
-    assert.equal(publish.body.confirmation.sanitizedPayload.executionAvailable, false);
-    assert.equal(publish.body.confirmation.sanitizedPayload.mutationAvailable, false);
-    assert.doesNotMatch(JSON.stringify(publish.body), /private owner prompt|fixture-sensitive-marker|rawPrompt/);
+    assert.equal(pushToRepo.status, 201);
+    assert.equal(pushToRepo.body.executionAvailable, false);
+    assert.equal(pushToRepo.body.confirmation.action, "push_to_repo");
+    assert.equal(pushToRepo.body.confirmation.status, "pending");
+    assert.equal(typeof pushToRepo.body.confirmation.previewHash, "string");
+    assert.equal(pushToRepo.body.confirmation.sanitizedPayload.executionAvailable, false);
+    assert.equal(pushToRepo.body.confirmation.sanitizedPayload.mutationAvailable, false);
+    assert.doesNotMatch(JSON.stringify(pushToRepo.body), /private owner prompt|fixture-sensitive-marker|rawPrompt/);
 
     const adminRunJob = await requestJson(app, "POST", `/developer-spaces/${spaceId}/agent/actions/confirmations`, {
       token: "admin-token",
@@ -1680,7 +1680,7 @@ test("Developer Space agent confirmations record owner intent without execution"
     assert.equal(ownerList.body.confirmations.length, 2);
     assert.deepEqual(
       ownerList.body.confirmations.map((confirmation: Row) => confirmation.action).sort(),
-      ["publish_to_page", "run_job"],
+      ["push_to_repo", "run_job"],
     );
     assert.doesNotMatch(JSON.stringify(ownerList.body), /cross-owner-private-marker/);
 
@@ -1689,12 +1689,12 @@ test("Developer Space agent confirmations record owner intent without execution"
     });
     assert.equal(ownerApproveMalformed.status, 404);
 
-    const nonOwnerApprove = await requestJson(app, "POST", `/developer-spaces/${spaceId}/agent/actions/confirmations/${publish.body.confirmation.id}/approve`, {
+    const nonOwnerApprove = await requestJson(app, "POST", `/developer-spaces/${spaceId}/agent/actions/confirmations/${pushToRepo.body.confirmation.id}/approve`, {
       token: "other-token",
     });
     assert.equal(nonOwnerApprove.status, 403);
 
-    const approved = await requestJson(app, "POST", `/developer-spaces/${spaceId}/agent/actions/confirmations/${publish.body.confirmation.id}/approve`, {
+    const approved = await requestJson(app, "POST", `/developer-spaces/${spaceId}/agent/actions/confirmations/${pushToRepo.body.confirmation.id}/approve`, {
       token: "owner-token",
     });
     assert.equal(approved.status, 200);
@@ -1702,7 +1702,7 @@ test("Developer Space agent confirmations record owner intent without execution"
     assert.equal(approved.body.executionAvailable, false);
     assert.match(approved.body.message, /Execution is unavailable/);
 
-    const approveAgain = await requestJson(app, "POST", `/developer-spaces/${spaceId}/agent/actions/confirmations/${publish.body.confirmation.id}/approve`, {
+    const approveAgain = await requestJson(app, "POST", `/developer-spaces/${spaceId}/agent/actions/confirmations/${pushToRepo.body.confirmation.id}/approve`, {
       token: "owner-token",
     });
     assert.equal(approveAgain.status, 409);
@@ -1747,7 +1747,7 @@ test("Developer Space agent confirmations record owner intent without execution"
     assert.equal(approveExpired.body.confirmation.status, "expired");
 
     const responseText = JSON.stringify({
-      publish: publish.body,
+      pushToRepo: pushToRepo.body,
       adminRunJob: adminRunJob.body,
       approved: approved.body,
       cancelled: cancelled.body,
@@ -1854,18 +1854,26 @@ test("Developer Space agent request-capability receipts are owner-scoped and ide
       token: "owner-token",
       body: { action: "publish_to_page" },
     });
-    assert.equal(publish.status, 201);
-    const approvedPublish = await requestJson(app, "POST", `/developer-spaces/${spaceId}/agent/actions/confirmations/${publish.body.confirmation.id}/approve`, {
+    assert.equal(publish.status, 400);
+    assert.equal(publish.body.code, "developer_space_agent_publish_target_required");
+    assert.equal(publish.body.executionAvailable, false);
+
+    const runJob = await requestJson(app, "POST", `/developer-spaces/${spaceId}/agent/actions/confirmations`, {
+      token: "owner-token",
+      body: { action: "run_job" },
+    });
+    assert.equal(runJob.status, 201);
+    const approvedRunJob = await requestJson(app, "POST", `/developer-spaces/${spaceId}/agent/actions/confirmations/${runJob.body.confirmation.id}/approve`, {
       token: "owner-token",
     });
-    assert.equal(approvedPublish.status, 200);
-    const blockedPublish = await requestJson(app, "POST", `/developer-spaces/${spaceId}/agent/actions/confirmations/${publish.body.confirmation.id}/execute`, {
+    assert.equal(approvedRunJob.status, 200);
+    const blockedRunJob = await requestJson(app, "POST", `/developer-spaces/${spaceId}/agent/actions/confirmations/${runJob.body.confirmation.id}/execute`, {
       token: "owner-token",
     });
-    assert.equal(blockedPublish.status, 409);
-    assert.equal(blockedPublish.body.code, "developer_space_agent_execution_action_blocked");
-    assert.equal(blockedPublish.body.executionAvailable, false);
-    assert.equal(JSON.stringify(blockedPublish.body).includes(publish.body.confirmation.id), false);
+    assert.equal(blockedRunJob.status, 409);
+    assert.equal(blockedRunJob.body.code, "developer_space_agent_execution_action_blocked");
+    assert.equal(blockedRunJob.body.executionAvailable, false);
+    assert.equal(JSON.stringify(blockedRunJob.body).includes(runJob.body.confirmation.id), false);
 
     const cancelCandidate = await requestJson(app, "POST", `/developer-spaces/${spaceId}/agent/actions/confirmations`, {
       token: "owner-token",
@@ -1903,13 +1911,14 @@ test("Developer Space agent request-capability receipts are owner-scoped and ide
       firstExecute: firstExecute.body,
       secondExecute: secondExecute.body,
       ownerList: ownerList.body,
-      blockedPublish: blockedPublish.body,
+      publish: publish.body,
+      blockedRunJob: blockedRunJob.body,
       cancelledExecute: cancelledExecute.body,
       expiredExecute: expiredExecute.body,
     });
     assert.doesNotMatch(responseText, /private capability prompt|secret-capability-token|rawPrompt|expired-capability-preview-hash/);
     assert.equal(responseText.includes(requestCapability.body.confirmation.id), false);
-    assert.equal(responseText.includes(publish.body.confirmation.id), false);
+    assert.equal(responseText.includes(runJob.body.confirmation.id), false);
     assert.equal(db.tables.developer_space_agent_execution_receipts.length, 1);
     assert.equal(db.tables.developer_space_ingestion_keys.length, 0);
     assert.equal(db.tables.developer_space_webhook_signing_secrets.length, 0);
@@ -2096,6 +2105,200 @@ test("Developer Space agent draft save creates one private owner-only linked doc
     });
     assert.doesNotMatch(responseText, /save this private prompt|save-secret-token|event payload should not appear|event-secret-token|private:event:source/);
     assert.equal(responseText.includes(save.body.confirmation.id), false);
+    assert.equal(responseText.includes(document.id), false);
+    assert.equal(responseText.includes(link.id), false);
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
+
+test("Developer Space agent publish gate publishes only the selected saved draft", async () => {
+  const db = new InMemorySupabase();
+  setSupabaseAdminForTests(db.client as any);
+  const app = createDeveloperSpacesApp();
+
+  try {
+    const created = await requestJson(app, "POST", "/developer-spaces", {
+      token: "owner-token",
+      body: {
+        projectName: "Agent Publish Lane",
+        visibility: "public",
+      },
+    });
+    assert.equal(created.status, 201);
+    const spaceId = created.body.space.id;
+    const slug = created.body.space.slug;
+
+    const save = await requestJson(app, "POST", `/developer-spaces/${spaceId}/agent/actions/confirmations`, {
+      token: "owner-token",
+      body: { action: "save_project_update_draft" },
+    });
+    assert.equal(save.status, 201);
+    const approvedSave = await requestJson(app, "POST", `/developer-spaces/${spaceId}/agent/actions/confirmations/${save.body.confirmation.id}/approve`, {
+      token: "owner-token",
+    });
+    assert.equal(approvedSave.status, 200);
+    const saved = await requestJson(app, "POST", `/developer-spaces/${spaceId}/agent/actions/confirmations/${save.body.confirmation.id}/execute`, {
+      token: "owner-token",
+    });
+    assert.equal(saved.status, 201);
+    assert.equal(saved.body.receipt.action, "save_project_update_draft");
+
+    assert.equal(db.tables.documents.length, 1);
+    assert.equal(db.tables.developer_space_documents.length, 1);
+    const document = db.tables.documents[0];
+    const link = db.tables.developer_space_documents[0];
+    assert.equal(document.status, "draft");
+    assert.equal(document.visibility, "private");
+    assert.equal(link.link_visibility, "owner");
+
+    const publicBefore = await requestJson(app, "GET", `/developer-spaces/${slug}`);
+    assert.equal(publicBefore.status, 200);
+    assert.equal(publicBefore.body.linkedDocuments.length, 0);
+
+    const missingTarget = await requestJson(app, "POST", `/developer-spaces/${spaceId}/agent/actions/confirmations`, {
+      token: "owner-token",
+      body: { action: "publish_to_page" },
+    });
+    assert.equal(missingTarget.status, 400);
+    assert.equal(missingTarget.body.code, "developer_space_agent_publish_target_required");
+
+    const arbitraryPrivateDocument = db.insertRow("documents", {
+      author_user_id: "owner-user",
+      title: "Manual private note",
+      slug: "manual-private-note",
+      body: "Private body should not publish through the agent gate.",
+      document_type: "field_log",
+      status: "draft",
+      visibility: "private",
+      comments_enabled: false,
+      provenance_type: "user_authored",
+      source_type: "manual",
+      source_id: spaceId,
+      source_label: "Manual private note",
+    });
+    db.insertRow("developer_space_documents", {
+      developer_space_id: spaceId,
+      document_id: arbitraryPrivateDocument.id,
+      owner_user_id: "owner-user",
+      document_role: "field_log",
+      link_visibility: "owner",
+      sort_order: 1,
+    });
+    const arbitraryPublish = await requestJson(app, "POST", `/developer-spaces/${spaceId}/agent/actions/confirmations`, {
+      token: "owner-token",
+      body: { action: "publish_to_page", targetDocumentId: arbitraryPrivateDocument.id },
+    });
+    assert.equal(arbitraryPublish.status, 400);
+    assert.equal(arbitraryPublish.body.code, "developer_space_agent_publish_target_ineligible");
+
+    const otherSpace = db.insertRow("developer_spaces", {
+      owner_user_id: "owner-user",
+      project_name: "Wrong Space",
+      slug: "wrong-space",
+      visibility: "public",
+      visualisation_type: "node_field",
+    });
+    db.insertRow("developer_space_documents", {
+      developer_space_id: otherSpace.id,
+      document_id: document.id,
+      owner_user_id: "owner-user",
+      document_role: "field_log",
+      link_visibility: "owner",
+      sort_order: 0,
+    });
+    const wrongSpacePublish = await requestJson(app, "POST", `/developer-spaces/${otherSpace.id}/agent/actions/confirmations`, {
+      token: "owner-token",
+      body: { action: "publish_to_page", targetDocumentId: document.id },
+    });
+    assert.equal(wrongSpacePublish.status, 400);
+    assert.equal(wrongSpacePublish.body.code, "developer_space_agent_publish_target_ineligible");
+
+    const publish = await requestJson(app, "POST", `/developer-spaces/${spaceId}/agent/actions/confirmations`, {
+      token: "owner-token",
+      body: {
+        action: "publish_to_page",
+        targetDocumentId: document.id,
+        input: { rawPrompt: "publish this private prompt", token: "publish-secret-token" },
+      },
+    });
+    assert.equal(publish.status, 201);
+    assert.equal(publish.body.executionAvailable, true);
+    assert.equal(publish.body.confirmation.action, "publish_to_page");
+    assert.equal(publish.body.confirmation.sanitizedPayload.executionAvailable, true);
+    assert.equal(publish.body.confirmation.sanitizedPayload.mutationAvailable, true);
+    assert.equal(publish.body.confirmation.summary.includes(document.id), false);
+    assert.doesNotMatch(JSON.stringify(publish.body), /publish this private prompt|publish-secret-token|rawPrompt|Private body should not publish/);
+
+    const nonOwnerApprove = await requestJson(app, "POST", `/developer-spaces/${spaceId}/agent/actions/confirmations/${publish.body.confirmation.id}/approve`, {
+      token: "other-token",
+    });
+    assert.equal(nonOwnerApprove.status, 403);
+
+    const approvedPublish = await requestJson(app, "POST", `/developer-spaces/${spaceId}/agent/actions/confirmations/${publish.body.confirmation.id}/approve`, {
+      token: "owner-token",
+    });
+    assert.equal(approvedPublish.status, 200);
+    assert.equal(approvedPublish.body.executionAvailable, true);
+
+    const firstExecute = await requestJson(app, "POST", `/developer-spaces/${spaceId}/agent/actions/confirmations/${publish.body.confirmation.id}/execute`, {
+      token: "owner-token",
+    });
+    assert.equal(firstExecute.status, 201);
+    assert.equal(firstExecute.body.idempotent, false);
+    assert.equal(firstExecute.body.executionAvailable, true);
+    assert.equal(firstExecute.body.receipt.action, "publish_to_page");
+    assert.equal(firstExecute.body.receipt.receiptPayload.outcome, "draft_document_published");
+    assert.equal(firstExecute.body.receipt.receiptPayload.executionAvailable, true);
+    assert.equal(firstExecute.body.receipt.receiptPayload.mutationAvailable, true);
+    assert.equal(firstExecute.body.receipt.receiptPayload.externalDispatch, false);
+    assert.equal(firstExecute.body.receipt.receiptPayload.publishedDocument.title, document.title);
+    assert.equal(firstExecute.body.receipt.receiptPayload.publishedDocument.status, "published");
+    assert.equal(firstExecute.body.receipt.receiptPayload.publishedDocument.visibility, "public");
+    assert.equal(firstExecute.body.receipt.receiptPayload.publishedDocument.linkVisibility, "public");
+    assert.equal("id" in firstExecute.body.receipt, false);
+    assert.equal("confirmationId" in firstExecute.body.receipt, false);
+    assert.equal("ownerUserId" in firstExecute.body.receipt, false);
+    assert.equal("body" in firstExecute.body.receipt.receiptPayload, false);
+    assert.equal("targetDocumentId" in firstExecute.body.receipt.receiptPayload, false);
+
+    assert.equal(db.tables.documents.find((row) => row.id === document.id)?.status, "published");
+    assert.equal(db.tables.documents.find((row) => row.id === document.id)?.visibility, "public");
+    assert.equal(typeof db.tables.documents.find((row) => row.id === document.id)?.published_at, "string");
+    assert.equal(db.tables.developer_space_documents.find((row) => row.id === link.id)?.link_visibility, "public");
+    assert.equal(db.tables.documents.find((row) => row.id === arbitraryPrivateDocument.id)?.status, "draft");
+
+    const publicAfter = await requestJson(app, "GET", `/developer-spaces/${slug}`);
+    assert.equal(publicAfter.status, 200);
+    assert.equal(publicAfter.body.access, "public");
+    assert.equal(publicAfter.body.linkedDocuments.length, 1);
+    assert.equal(publicAfter.body.linkedDocuments[0].document.title, document.title);
+    assert.equal(publicAfter.body.linkedDocuments[0].linkVisibility, "public");
+    assert.equal(JSON.stringify(publicAfter.body).includes("Manual private note"), false);
+
+    const secondExecute = await requestJson(app, "POST", `/developer-spaces/${spaceId}/agent/actions/confirmations/${publish.body.confirmation.id}/execute`, {
+      token: "owner-token",
+    });
+    assert.equal(secondExecute.status, 200);
+    assert.equal(secondExecute.body.idempotent, true);
+    assert.equal(secondExecute.body.executionAvailable, true);
+    assert.equal(db.tables.developer_space_agent_execution_receipts.length, 2);
+    assert.equal(db.tables.documents.filter((row) => row.id === document.id).length, 1);
+    assert.equal(db.tables.developer_space_documents.filter((row) => row.document_id === document.id && row.developer_space_id === spaceId).length, 1);
+
+    const publishAgain = await requestJson(app, "POST", `/developer-spaces/${spaceId}/agent/actions/confirmations`, {
+      token: "owner-token",
+      body: { action: "publish_to_page", targetDocumentId: document.id },
+    });
+    assert.equal(publishAgain.status, 400);
+    assert.equal(publishAgain.body.code, "developer_space_agent_publish_target_ineligible");
+
+    const responseText = JSON.stringify({
+      firstExecute: firstExecute.body,
+      secondExecute: secondExecute.body,
+    });
+    assert.doesNotMatch(responseText, /publish this private prompt|publish-secret-token|Private body should not publish/);
+    assert.equal(responseText.includes(publish.body.confirmation.id), false);
     assert.equal(responseText.includes(document.id), false);
     assert.equal(responseText.includes(link.id), false);
   } finally {

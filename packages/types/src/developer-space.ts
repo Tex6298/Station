@@ -209,7 +209,8 @@ export type DeveloperSpaceAgentExecutionReceiptStatus = "recorded";
 
 export type DeveloperSpaceAgentExecutionReceiptAction =
   | "request_capability"
-  | "save_project_update_draft";
+  | "save_project_update_draft"
+  | "publish_to_page";
 
 export interface DeveloperSpaceAgentActionRegistryEntry {
   action: DeveloperSpaceAgentRegisteredAction;
@@ -271,8 +272,8 @@ export interface DeveloperSpaceAgentExecutionReceiptRecord {
   summary: string;
   receiptPayload: {
     action: DeveloperSpaceAgentExecutionReceiptAction;
-    outcome: "capability_request_recorded" | "private_draft_document_saved";
-    executionAvailable: false;
+    outcome: "capability_request_recorded" | "private_draft_document_saved" | "draft_document_published";
+    executionAvailable: boolean;
     mutationAvailable: boolean;
     externalDispatch: false;
     nextStep: string;
@@ -283,6 +284,14 @@ export interface DeveloperSpaceAgentExecutionReceiptRecord {
       visibility: "private";
       linkVisibility: "owner";
       role: DeveloperSpaceDocumentRole;
+    };
+    publishedDocument?: {
+      title: string;
+      status: "published";
+      visibility: "public";
+      linkVisibility: "public";
+      role: DeveloperSpaceDocumentRole;
+      publishedAt?: string | null;
     };
   };
   dispatchedAt: string;

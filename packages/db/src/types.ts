@@ -81,7 +81,7 @@ export type DeveloperSpaceAgentFutureAction =
   | "create_webhook_signing_secret";
 export type DeveloperSpaceAgentConfirmationStatus = "pending" | "approved" | "cancelled" | "expired";
 export type DeveloperSpaceAgentExecutionReceiptStatus = "recorded";
-export type DeveloperSpaceAgentExecutionReceiptAction = "request_capability" | "save_project_update_draft";
+export type DeveloperSpaceAgentExecutionReceiptAction = "request_capability" | "save_project_update_draft" | "publish_to_page";
 export type DeveloperSpaceDocumentRole = "methodology" | "finding" | "field_log" | "note";
 export type DeveloperSpaceDocumentLinkVisibility = "owner" | "public";
 export type ExportPackageKind = "persona_archive" | "developer_space_archive";

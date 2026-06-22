@@ -238,12 +238,18 @@ export function developerSpaceAgentConfirmationCanAct(
 }
 
 export function developerSpaceAgentConfirmationExecutionCopy(
-  confirmation: Pick<DeveloperSpaceAgentConfirmationRecord, "status">
+  confirmation: Pick<DeveloperSpaceAgentConfirmationRecord, "status" | "action">
 ) {
   if (confirmation.status === "approved") {
+    if (confirmation.action === "publish_to_page") {
+      return "Owner intent is approved. Publishing will use the selected reviewed private draft only.";
+    }
     return "Owner intent is recorded. Execution remains unavailable in this lane.";
   }
   if (confirmation.status === "pending") {
+    if (confirmation.action === "publish_to_page") {
+      return "Pending owner intent. Approval is required before the selected draft can be published.";
+    }
     return "Pending owner intent. Approval records intent only; it does not execute.";
   }
   if (confirmation.status === "cancelled") return "Cancelled intent record. No action executed.";
@@ -260,6 +266,7 @@ export function developerSpaceAgentReceiptCanRecord(confirmation: Pick<Developer
   return (
     confirmation.action === "request_capability"
     || confirmation.action === "save_project_update_draft"
+    || confirmation.action === "publish_to_page"
   ) && confirmation.status === "approved";
 }
 
@@ -270,6 +277,9 @@ export function developerSpaceAgentReceiptStatusCopy(status: DeveloperSpaceAgent
 export function developerSpaceAgentReceiptExecutionCopy(receipt: Pick<DeveloperSpaceAgentExecutionReceiptRecord, "receiptPayload">) {
   if (receipt.receiptPayload.action === "save_project_update_draft") {
     return "Private draft document saved for owner review. No public page, provider, deploy, repo, key, layout, billing, webhook, export, worker, or runtime action executed.";
+  }
+  if (receipt.receiptPayload.action === "publish_to_page") {
+    return "Reviewed private draft published to the public Developer Space evidence path. No provider, deploy, repo, key, layout, billing, webhook, export, worker, or runtime action executed.";
   }
   return receipt.receiptPayload.executionAvailable === false
     ? "Planning receipt only. No provider, deploy, repo, key, document, layout, billing, webhook, export, worker, or runtime action executed."
@@ -363,6 +373,16 @@ export function developerSpaceEvidenceReviewHref(
   if (link.document.status !== "draft" || link.document.visibility !== "private") return null;
   if (!link.document.id) return null;
   return `/studio/publish?documentId=${encodeURIComponent(link.document.id)}`;
+}
+
+export function developerSpaceEvidenceCanRequestPublish(
+  link: Pick<DeveloperSpaceLinkedDocument, "linkVisibility" | "document">,
+  ownerView: boolean
+) {
+  if (!ownerView) return false;
+  if (link.linkVisibility !== "owner") return false;
+  if (link.document.status !== "draft" || link.document.visibility !== "private") return false;
+  return Boolean(link.document.id);
 }
 
 const DEFAULT_WIDGETS: DeveloperSpaceWidgetConfig[] = [

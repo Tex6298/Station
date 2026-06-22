@@ -4,6 +4,56 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest DAEDALUS handoff - PR172 owner-confirmed draft publish gate
+
+DAEDALUS implemented PR172 on 2026-06-22. Status is open for ARGUS review.
+
+Implementation truth:
+
+- `publish_to_page` is executable only for an explicit selected target document.
+- Confirmation creation rejects missing targets and ineligible targets.
+- The selected document must be owned by the Developer Space owner, linked to
+  the same Developer Space as owner-only evidence, `draft`/`private`, and
+  recognizably produced by the current Developer Agent saved-draft path
+  (`ai_assisted`, `manual`, `source_id` = Developer Space id, field-log link,
+  `Developer Agent safe readback:` source label).
+- Approved execution publishes exactly that target by setting the document to
+  `published`/`public` and making the Developer Space evidence link `public`.
+- Repeat execution returns the existing receipt and does not duplicate receipt
+  rows, linked evidence, or publication side effects.
+- Receipt payloads carry safe metadata only: title, published/public/link
+  visibility, role, timestamp, next step, and boundary copy. They do not carry
+  document body, target document id, confirmation id, owner id, prompt,
+  provider payload, keys, tokens, cookies, environment values, or preview hash.
+- Owner manage evidence rows now expose `Request publish` only for owner-only
+  draft/private evidence rows, alongside `Review draft`.
+- Generic `publish_to_page` future-lane preview does not create a confirmation;
+  the owner must choose a draft from Project evidence.
+- `draft_project_update` remains preview-only.
+- `save_project_update_draft` remains the only draft-creation receipt action.
+- Other future actions, such as `run_job`, remain blocked at execution.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` passed with 39
+  tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:developer-space-client` passed with
+  15 tests.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/types build` passed.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/db build` passed.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` passed.
+
+ARGUS should review:
+
+- owner/wrong-owner/wrong-Space target scoping;
+- arbitrary private document rejection;
+- already-published and missing target behavior;
+- confirmation target tampering;
+- receipt minimization and public leakage before/after publish;
+- UI visible-copy boundary, especially raw ids;
+- whether ARIADNE should run hosted desktop/mobile proof.
+
 ## Latest MIMIR decision - PR172 owner-confirmed draft publish gate
 
 MIMIR closes PR171 on 2026-06-22 after ARIADNE accepted the hosted

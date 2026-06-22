@@ -6,7 +6,7 @@ Owner: DAEDALUS implements.
 Reviewer: ARGUS reviews authorization, public boundary, target selection,
 receipt minimization, and idempotency.
 Rehearsal: ARIADNE runs hosted desktop/mobile human rehearsal if ARGUS accepts.
-Status: open for DAEDALUS
+Status: implemented by DAEDALUS; open for ARGUS review
 
 ## Why This Lane
 
@@ -129,7 +129,63 @@ ARIADNE should run a hosted human rehearsal if ARGUS accepts:
 
 ## Next Baton
 
-DAEDALUS should implement PR172, then wake ARGUS with changed files, validation,
-target-selection details, receipt payload proof, and remaining risks. ARGUS
-should wake ARIADNE for hosted proof if accepted, then ARIADNE wakes MIMIR with
-the closeout verdict.
+DAEDALUS implemented PR172 on 2026-06-22.
+
+Changed files:
+
+- `apps/api/src/routes/developer-spaces.ts`
+- `apps/api/src/routes/developer-spaces.test.ts`
+- `apps/web/app/developer-spaces/[slug]/manage/page.tsx`
+- `apps/web/lib/developer-space-observatory.ts`
+- `apps/web/lib/developer-space-observatory.test.ts`
+- `packages/types/src/developer-space.ts`
+- `packages/db/src/types.ts`
+- `infra/supabase/migrations/052_developer_space_agent_draft_publish_gate.sql`
+
+Implementation details:
+
+- `publish_to_page` confirmations require a selected `targetDocumentId`.
+- The API rejects missing targets, wrong-Space links, arbitrary private
+  documents, already-published targets, and documents not produced by the
+  current Developer Agent saved-draft path.
+- Eligible targets must be owner-owned, linked to the same Developer Space as
+  owner-only field-log evidence, `draft`/`private`, `ai_assisted`, `manual`,
+  and sourced from the same Developer Space with a `Developer Agent safe
+  readback:` source label.
+- Approved execution publishes the selected document to `published`/`public`,
+  flips the Developer Space evidence link to `public`, and records one
+  minimized `publish_to_page` receipt.
+- Repeat execution returns the existing receipt and does not duplicate receipts,
+  links, or publication side effects.
+- Owner UI starts publish confirmations from the selected evidence row, not
+  from the generic future-lane preview.
+
+Receipt proof:
+
+- The publish receipt includes safe metadata only: title, status, visibility,
+  link visibility, role, published timestamp, next step, and boundary copy.
+- The publish receipt does not include target document id, confirmation id,
+  owner id, document body, prompts, provider payloads, keys, tokens, cookies,
+  environment values, or preview hashes.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` passed with 39
+  tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:developer-space-client` passed with
+  15 tests.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/types build` passed.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/db build` passed.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` passed.
+
+Remaining review risks:
+
+- ARGUS should review hostile confirmation payload tampering and public leakage
+  before accepting.
+- ARIADNE should run hosted desktop/mobile proof if ARGUS accepts the code path.
+
+ARGUS should review changed files, target-selection rules, receipt payload
+minimization, public/private leakage, idempotency, and blocked future-action
+boundaries. If accepted, ARGUS should wake ARIADNE for hosted proof. ARIADNE
+then wakes MIMIR with the closeout verdict.

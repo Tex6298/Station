@@ -18,6 +18,7 @@ import {
   developerSpaceAgentReceiptEmptyCopy,
   developerSpaceAgentReceiptExecutionCopy,
   developerSpaceAgentReceiptStatusCopy,
+  developerSpaceEvidenceCanRequestPublish,
   developerSpaceEvidenceEmptyCopy,
   developerSpaceEvidenceReviewHref,
   developerSpaceEvidenceRoleCopy,
@@ -82,7 +83,7 @@ type DeveloperSpaceAgentConfirmationsResponse = {
 
 type DeveloperSpaceAgentConfirmationMutationResponse = {
   confirmation: DeveloperSpaceAgentConfirmationRecord;
-  executionAvailable: false;
+  executionAvailable: boolean;
   message: string;
 };
 
@@ -97,7 +98,7 @@ type DeveloperSpaceAgentReceiptsResponse = {
 type DeveloperSpaceAgentReceiptMutationResponse = {
   receipt: DeveloperSpaceAgentExecutionReceiptRecord;
   idempotent: boolean;
-  executionAvailable: false;
+  executionAvailable: boolean;
   message: string;
 };
 
@@ -522,7 +523,10 @@ export default function DeveloperSpaceManagePage() {
     ].sort((a, b) => Date.parse(b.dispatchedAt) - Date.parse(a.dispatchedAt)));
   }
 
-  async function createAgentConfirmation(action: DeveloperSpaceAgentFutureAction) {
+  async function createAgentConfirmation(
+    action: DeveloperSpaceAgentFutureAction,
+    options: { targetDocumentId?: string } = {}
+  ) {
     if (!token || !detail || !agentConfirmationStoreAvailable) return;
     setAgentConfirmationCreatingAction(action);
     setAgentError(null);
@@ -530,7 +534,10 @@ export default function DeveloperSpaceManagePage() {
     try {
       const data = await apiPost<DeveloperSpaceAgentConfirmationMutationResponse>(
         `/developer-spaces/${detail.space.id}/agent/actions/confirmations`,
-        { action },
+        {
+          action,
+          ...(options.targetDocumentId ? { targetDocumentId: options.targetDocumentId } : {}),
+        },
         token
       );
       upsertAgentConfirmation(data.confirmation);
@@ -577,7 +584,7 @@ export default function DeveloperSpaceManagePage() {
       );
       upsertAgentReceipt(data.receipt);
       setAgentNotice(data.message);
-      if (data.receipt.action === "save_project_update_draft") {
+      if (data.receipt.action === "save_project_update_draft" || data.receipt.action === "publish_to_page") {
         const nextDetail = await apiGet<DeveloperSpaceDetail>(
           `/developer-spaces/${detail.space.slug}`,
           token,
@@ -872,7 +879,11 @@ export default function DeveloperSpaceManagePage() {
                   <p style={{ margin: 0, color: "#687078", lineHeight: 1.55 }}>
                     {agentPreview.summary}
                   </p>
-                  {agentPreview.futureLane && selectedFutureAction ? (
+                  {agentPreview.futureLane && selectedFutureAction === "publish_to_page" ? (
+                    <span style={{ color: "#854f0b", fontSize: "0.82rem", lineHeight: 1.4 }}>
+                      Select an owner-only private draft in Project evidence to request publication.
+                    </span>
+                  ) : agentPreview.futureLane && selectedFutureAction ? (
                     <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap", alignItems: "center" }}>
                       <button
                         type="button"
@@ -1043,6 +1054,8 @@ export default function DeveloperSpaceManagePage() {
                                 ? "Recording..."
                                 : confirmation.action === "save_project_update_draft"
                                   ? "Save draft"
+                                  : confirmation.action === "publish_to_page"
+                                    ? "Publish to page"
                                   : "Create receipt"}
                             </button>
                           </div>
@@ -1077,7 +1090,11 @@ export default function DeveloperSpaceManagePage() {
                       <div style={{ display: "flex", justifyContent: "space-between", gap: "0.65rem", alignItems: "flex-start", flexWrap: "wrap" }}>
                         <div>
                           <strong style={{ display: "block", color: "#1f2529" }}>
-                            {receipt.action === "save_project_update_draft" ? "Project update draft" : "Capability request"}
+                            {receipt.action === "save_project_update_draft"
+                              ? "Project update draft"
+                              : receipt.action === "publish_to_page"
+                                ? "Published page update"
+                                : "Capability request"}
                           </strong>
                           <span style={{ color: "#8b8f92", fontSize: "0.74rem" }}>
                             Recorded {formatDate(receipt.dispatchedAt)}
@@ -1096,6 +1113,11 @@ export default function DeveloperSpaceManagePage() {
                       {receipt.receiptPayload.draftDocument ? (
                         <p style={{ margin: 0, color: "#687078", fontSize: "0.82rem", lineHeight: 1.4 }}>
                           Draft: {receipt.receiptPayload.draftDocument.title} / {receipt.receiptPayload.draftDocument.status} / {receipt.receiptPayload.draftDocument.visibility} / {receipt.receiptPayload.draftDocument.linkVisibility}
+                        </p>
+                      ) : null}
+                      {receipt.receiptPayload.publishedDocument ? (
+                        <p style={{ margin: 0, color: "#687078", fontSize: "0.82rem", lineHeight: 1.4 }}>
+                          Published: {receipt.receiptPayload.publishedDocument.title} / {receipt.receiptPayload.publishedDocument.status} / {receipt.receiptPayload.publishedDocument.visibility} / {receipt.receiptPayload.publishedDocument.linkVisibility}
                         </p>
                       ) : null}
                       <p style={{ margin: 0, color: "#687078", fontSize: "0.82rem", lineHeight: 1.4 }}>
@@ -1314,6 +1336,7 @@ export default function DeveloperSpaceManagePage() {
                     && link.document.status === "published"
                     && link.document.visibility === "public";
                   const reviewHref = developerSpaceEvidenceReviewHref(link, true);
+                  const canRequestPublish = developerSpaceEvidenceCanRequestPublish(link, true);
 
                   return (
                   <article key={link.id} style={{ borderTop: "1px solid #d8d3c8", paddingTop: "0.65rem" }}>
@@ -1329,10 +1352,25 @@ export default function DeveloperSpaceManagePage() {
                     {link.document.excerpt ? (
                       <p style={{ margin: "0.35rem 0 0", color: "#687078", lineHeight: 1.55 }}>{link.document.excerpt}</p>
                     ) : null}
-                    {reviewHref ? (
-                      <Link className="station-muted-button" href={reviewHref} style={{ marginTop: "0.55rem", width: "fit-content" }}>
-                        Review draft
-                      </Link>
+                    {reviewHref || canRequestPublish ? (
+                      <div style={{ display: "flex", gap: "0.45rem", flexWrap: "wrap", marginTop: "0.55rem" }}>
+                        {reviewHref ? (
+                          <Link className="station-muted-button" href={reviewHref} style={{ width: "fit-content" }}>
+                            Review draft
+                          </Link>
+                        ) : null}
+                        {canRequestPublish ? (
+                          <button
+                            type="button"
+                            className="button primary"
+                            onClick={() => createAgentConfirmation("publish_to_page", { targetDocumentId: link.document.id })}
+                            disabled={!agentConfirmationStoreAvailable || agentConfirmationCreatingAction === "publish_to_page"}
+                            style={{ width: "fit-content" }}
+                          >
+                            {agentConfirmationCreatingAction === "publish_to_page" ? "Requesting..." : "Request publish"}
+                          </button>
+                        ) : null}
+                      </div>
                     ) : null}
                   </article>
                   );

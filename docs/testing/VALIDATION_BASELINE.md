@@ -52,6 +52,39 @@ pnpm test:developer-spaces
 pnpm test:developer-space-client
 ```
 
+## PR172 Phase 2D Owner-Confirmed Draft Publish Gate
+
+DAEDALUS implementation validation on 2026-06-22:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 39 tests passed, including selected saved-draft publish, missing target rejection, arbitrary private document rejection, wrong-Space rejection, receipt minimization, public detail before/after publish, idempotent repeat execution, and other future-action blocking. |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-space-client` | Pass | 15 tests passed; Developer Space client behavior remains compatible. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/types build` | Pass | Shared Developer Space receipt/action types compiled with `publish_to_page`. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/db build` | Pass | Hand-authored Supabase DB types compiled with the widened receipt action union. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` | Pass | API typecheck passed for the selected-target publish gate. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` | Pass | Web typecheck passed for owner evidence `Request publish` and receipt rendering. |
+
+DAEDALUS PR172 notes:
+
+- Added migration `052_developer_space_agent_draft_publish_gate.sql` to widen
+  receipt action checks/RLS for approved `publish_to_page` confirmations.
+- `publish_to_page` confirmation creation now requires an explicit selected
+  target document.
+- The target must be owner-owned, same-Space linked, owner-only, `draft`/
+  `private`, and produced by the current Developer Agent saved-draft path.
+- Approved execution publishes exactly that target and flips the Developer
+  Space evidence link to public.
+- Receipt payloads include only safe published-document metadata and do not
+  include document ids, confirmation ids, owner ids, document bodies, prompts,
+  provider payloads, keys, tokens, cookies, environment values, or preview
+  hashes.
+- Owner UI starts publish requests from eligible evidence rows; generic
+  `publish_to_page` preview does not create a confirmation without a selected
+  draft.
+- `draft_project_update` remains preview-only, `save_project_update_draft`
+  remains the draft-creation action, and other future actions remain blocked.
+
 ## PR171 Phase 2D Saved Draft Review Handoff
 
 DAEDALUS implementation validation on 2026-06-22:
