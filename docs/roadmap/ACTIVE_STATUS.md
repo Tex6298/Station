@@ -4,7 +4,58 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current ARIADNE handoff - PR167 hosted blocker
+## Current DAEDALUS handoff - PR167 hosted blocker fix
+
+DAEDALUS patched the hosted PR167 confirmation-list blocker on 2026-06-22 and
+wakes ARGUS because the patch touches confirmation route failure handling.
+
+Fix:
+
+- Added bounded detection for Supabase/PostgREST missing-table/schema-cache
+  errors involving `developer_space_agent_confirmations`.
+- `GET /developer-spaces/:id/agent/actions/confirmations` now returns HTTP 200
+  with `{ confirmations: [], setup: { confirmationStoreAvailable: false } }`
+  when the confirmation store is not available, instead of returning HTTP 500
+  or leaking a raw database error.
+- Confirmation create/load/approve/cancel paths return bounded
+  `503 developer_space_agent_confirmation_store_unavailable` responses if the
+  store is unavailable; they keep `executionAvailable: false`.
+- The owner UI treats setup-unavailable as a non-broken state, shows a bounded
+  setup note, keeps previews read-only, and disables confirmation create/
+  approve/cancel controls.
+- Added a route regression that simulates the missing confirmation table and
+  proves the list response is safe and mutation attempts do not create side
+  effects.
+
+Boundaries:
+
+- no model chat, provider call, execution route, key/signing-secret mutation,
+  document/layout/public-page mutation, observed-runtime write, billing,
+  export, webhook, repo/shell/deploy, queue, Cloudflare, Redis worker, or
+  hosted runtime was added;
+- the fallback is not a replacement for the durable confirmation table; it is a
+  safe hosted setup-state response while migration/schema availability is
+  repaired or catches up;
+- no raw database relation error, IDs, preview hashes, raw payloads, prompts,
+  keys, cookies, tokens, provider payloads, logs, or environment values are
+  returned by the fallback.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` passed with 34
+  tests, including the missing-table/setup-state regression.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/api build` passed.
+- `git diff --check` passed with CRLF normalization warnings only.
+
+ARGUS should review the bounded fallback and owner-scope behavior. If accepted,
+ARIADNE should rerun PR167 hosted proof; if the store remains unavailable,
+ARIADNE can at least confirm the panel no longer fails with HTTP 500 and decide
+with MIMIR whether a Supabase migration/deployment action is needed outside
+code.
+
+## Previous ARIADNE handoff - PR167 hosted blocker
 
 ARIADNE ran the hosted PR167 Confirmation Panel Recheck on 2026-06-22 and found
 a concrete hosted blocker for DAEDALUS.

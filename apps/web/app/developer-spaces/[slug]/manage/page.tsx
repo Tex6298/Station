@@ -68,6 +68,10 @@ type DeveloperSpaceAgentRegistryResponse = {
 
 type DeveloperSpaceAgentConfirmationsResponse = {
   confirmations: DeveloperSpaceAgentConfirmationRecord[];
+  setup?: {
+    confirmationStoreAvailable?: boolean;
+    code?: string;
+  };
 };
 
 type DeveloperSpaceAgentConfirmationMutationResponse = {
@@ -133,6 +137,7 @@ export default function DeveloperSpaceManagePage() {
   const [agentPreviewLoading, setAgentPreviewLoading] = useState(false);
   const [agentConfirmations, setAgentConfirmations] = useState<DeveloperSpaceAgentConfirmationRecord[]>([]);
   const [agentConfirmationsLoading, setAgentConfirmationsLoading] = useState(false);
+  const [agentConfirmationStoreAvailable, setAgentConfirmationStoreAvailable] = useState(true);
   const [agentConfirmationCreatingAction, setAgentConfirmationCreatingAction] = useState<string | null>(null);
   const [agentConfirmationBusyId, setAgentConfirmationBusyId] = useState<string | null>(null);
   const [agentNotice, setAgentNotice] = useState<string | null>(null);
@@ -186,8 +191,10 @@ export default function DeveloperSpaceManagePage() {
         sessionToken
       );
       setAgentConfirmations(data.confirmations ?? []);
+      setAgentConfirmationStoreAvailable(data.setup?.confirmationStoreAvailable !== false);
     } catch {
       setAgentConfirmations([]);
+      setAgentConfirmationStoreAvailable(false);
       setAgentError("Could not load Developer Agent confirmations.");
     } finally {
       setAgentConfirmationsLoading(false);
@@ -462,7 +469,7 @@ export default function DeveloperSpaceManagePage() {
   }
 
   async function createAgentConfirmation(action: DeveloperSpaceAgentFutureAction) {
-    if (!token || !detail) return;
+    if (!token || !detail || !agentConfirmationStoreAvailable) return;
     setAgentConfirmationCreatingAction(action);
     setAgentError(null);
     setAgentNotice(null);
@@ -482,7 +489,7 @@ export default function DeveloperSpaceManagePage() {
   }
 
   async function updateAgentConfirmation(confirmation: DeveloperSpaceAgentConfirmationRecord, action: "approve" | "cancel") {
-    if (!token || !detail) return;
+    if (!token || !detail || !agentConfirmationStoreAvailable) return;
     setAgentConfirmationBusyId(confirmation.id);
     setAgentError(null);
     setAgentNotice(null);
@@ -787,7 +794,7 @@ export default function DeveloperSpaceManagePage() {
                         type="button"
                         className="button primary"
                         onClick={() => createAgentConfirmation(selectedFutureAction)}
-                        disabled={agentConfirmationCreatingAction === selectedFutureAction}
+                        disabled={!agentConfirmationStoreAvailable || agentConfirmationCreatingAction === selectedFutureAction}
                       >
                         {agentConfirmationCreatingAction === selectedFutureAction ? "Recording..." : "Record confirmation"}
                       </button>
@@ -874,6 +881,11 @@ export default function DeveloperSpaceManagePage() {
                   {agentConfirmationsLoading ? "Loading" : `${agentConfirmations.length} recorded`}
                 </span>
               </div>
+              {!agentConfirmationStoreAvailable ? (
+                <div style={{ background: "#fff7ed", border: "1px solid #f1c27d", borderRadius: 8, color: "#854f0b", padding: "0.7rem", fontSize: "0.84rem", lineHeight: 1.45 }}>
+                  Confirmation storage is not available in this environment. Existing previews remain read-only and no action executed.
+                </div>
+              ) : null}
               {agentConfirmations.length === 0 ? (
                 <p style={{ margin: 0, color: "#687078", fontSize: "0.84rem" }}>
                   {developerSpaceAgentConfirmationEmptyCopy(agentConfirmationsLoading)}
@@ -916,7 +928,7 @@ export default function DeveloperSpaceManagePage() {
                               type="button"
                               className="button primary"
                               onClick={() => updateAgentConfirmation(confirmation, "approve")}
-                              disabled={busy}
+                              disabled={!agentConfirmationStoreAvailable || busy}
                               style={agentConfirmationButton}
                             >
                               {busy ? "Updating..." : "Approve intent"}
@@ -925,7 +937,7 @@ export default function DeveloperSpaceManagePage() {
                               type="button"
                               className="button"
                               onClick={() => updateAgentConfirmation(confirmation, "cancel")}
-                              disabled={busy}
+                              disabled={!agentConfirmationStoreAvailable || busy}
                               style={agentConfirmationButton}
                             >
                               {busy ? "Updating..." : "Cancel intent"}

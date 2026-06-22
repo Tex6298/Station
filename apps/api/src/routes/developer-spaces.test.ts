@@ -48,6 +48,7 @@ class InMemorySupabase {
 
   private idCounters: Record<string, number> = {};
   private clock = Date.parse("2026-05-24T09:00:00.000Z");
+  unavailableTables = new Set<string>();
   private usersByToken = new Map([
     ["owner-token", { id: "owner-user", email: "owner@example.test" }],
     ["other-token", { id: "other-user", email: "other@example.test" }],
@@ -346,6 +347,16 @@ class QueryBuilder {
 
   private async execute(mode?: "single" | "maybeSingle") {
     let rows: Row[];
+    if (this.db.unavailableTables.has(this.table)) {
+      return {
+        data: null,
+        error: {
+          code: "42P01",
+          message: `relation "public.${this.table}" does not exist`,
+        },
+        count: null,
+      };
+    }
 
     if (this.operation === "insert") {
       const payloads = Array.isArray(this.payload) ? this.payload : [this.payload as Row];
@@ -1743,6 +1754,72 @@ test("Developer Space agent confirmations record owner intent without execution"
     assert.equal(db.tables.documents.length, 0);
     assert.equal(db.tables.ai_trace_sessions.length, 0);
     assert.equal(db.tables.ai_trace_events.length, 0);
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
+
+test("Developer Space agent confirmation store absence returns bounded setup state", async () => {
+  const db = new InMemorySupabase();
+  setSupabaseAdminForTests(db.client as any);
+  const app = createDeveloperSpacesApp();
+
+  try {
+    const created = await requestJson(app, "POST", "/developer-spaces", {
+      token: "owner-token",
+      body: {
+        projectName: "Agent Confirmation Store Lag",
+        visibility: "private",
+      },
+    });
+    assert.equal(created.status, 201);
+    const spaceId = created.body.space.id;
+    db.unavailableTables.add("developer_space_agent_confirmations");
+
+    const nonOwnerList = await requestJson(app, "GET", `/developer-spaces/${spaceId}/agent/actions/confirmations`, {
+      token: "other-token",
+    });
+    assert.equal(nonOwnerList.status, 403);
+
+    const list = await requestJson(app, "GET", `/developer-spaces/${spaceId}/agent/actions/confirmations`, {
+      token: "owner-token",
+    });
+    assert.equal(list.status, 200);
+    assert.deepEqual(list.body.confirmations, []);
+    assert.equal(list.body.setup.confirmationStoreAvailable, false);
+    assert.equal(list.body.setup.code, "developer_space_agent_confirmation_store_unavailable");
+    assert.equal(JSON.stringify(list.body).includes("relation"), false);
+
+    const create = await requestJson(app, "POST", `/developer-spaces/${spaceId}/agent/actions/confirmations`, {
+      token: "owner-token",
+      body: { action: "run_job" },
+    });
+    assert.equal(create.status, 503);
+    assert.equal(create.body.code, "developer_space_agent_confirmation_store_unavailable");
+    assert.equal(create.body.executionAvailable, false);
+    assert.equal(JSON.stringify(create.body).includes("relation"), false);
+
+    const approve = await requestJson(app, "POST", `/developer-spaces/${spaceId}/agent/actions/confirmations/missing-confirmation/approve`, {
+      token: "owner-token",
+    });
+    assert.equal(approve.status, 503);
+    assert.equal(approve.body.code, "developer_space_agent_confirmation_store_unavailable");
+    assert.equal(approve.body.executionAvailable, false);
+    assert.equal(JSON.stringify(approve.body).includes("relation"), false);
+
+    const cancel = await requestJson(app, "POST", `/developer-spaces/${spaceId}/agent/actions/confirmations/missing-confirmation/cancel`, {
+      token: "owner-token",
+    });
+    assert.equal(cancel.status, 503);
+    assert.equal(cancel.body.code, "developer_space_agent_confirmation_store_unavailable");
+    assert.equal(cancel.body.executionAvailable, false);
+    assert.equal(JSON.stringify(cancel.body).includes("relation"), false);
+
+    assert.equal(db.tables.developer_space_agent_confirmations.length, 0);
+    assert.equal(db.tables.developer_space_ingestion_keys.length, 0);
+    assert.equal(db.tables.developer_space_webhook_signing_secrets.length, 0);
+    assert.equal(db.tables.developer_space_events.length, 0);
+    assert.equal(db.tables.developer_space_nodes.length, 0);
   } finally {
     setSupabaseAdminForTests(null);
   }

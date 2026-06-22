@@ -1146,6 +1146,27 @@ function serializeDeveloperSpaceAgentConfirmation(row: any): DeveloperSpaceAgent
   };
 }
 
+function developerSpaceAgentConfirmationStoreUnavailable(error: unknown) {
+  const anyError = error as { code?: string; message?: string; details?: string };
+  const text = `${anyError?.code ?? ""} ${anyError?.message ?? ""} ${anyError?.details ?? ""}`.toLowerCase();
+  return text.includes("developer_space_agent_confirmations")
+    && (
+      text.includes("does not exist")
+      || text.includes("schema cache")
+      || text.includes("could not find")
+      || text.includes("pgrst205")
+      || text.includes("42p01")
+    );
+}
+
+function developerSpaceAgentConfirmationStoreUnavailableBody() {
+  return {
+    error: "Developer Agent confirmation store is not available in this environment.",
+    code: "developer_space_agent_confirmation_store_unavailable",
+    executionAvailable: false,
+  };
+}
+
 async function loadDeveloperSpaceAgentConfirmation(spaceId: string, ownerUserId: string, confirmationId: string) {
   const { data, error } = await (getSupabaseAdmin() as any)
     .from("developer_space_agent_confirmations")
@@ -1155,7 +1176,16 @@ async function loadDeveloperSpaceAgentConfirmation(spaceId: string, ownerUserId:
     .eq("owner_user_id", ownerUserId)
     .maybeSingle();
 
-  if (error) return { status: 500 as const, error: error.message };
+  if (error) {
+    if (developerSpaceAgentConfirmationStoreUnavailable(error)) {
+      return {
+        status: 503 as const,
+        error: developerSpaceAgentConfirmationStoreUnavailableBody().error,
+        code: developerSpaceAgentConfirmationStoreUnavailableBody().code,
+      };
+    }
+    return { status: 500 as const, error: "Could not load Developer Agent confirmation." };
+  }
   if (!data) return { status: 404 as const, error: "Developer Space agent confirmation not found." };
   return { status: 200 as const, confirmation: data };
 }
@@ -2310,8 +2340,25 @@ developerSpacesRouter.get("/:id/agent/actions/confirmations", requireAuth, async
     .eq("owner_user_id", ownerLoad.space.owner_user_id)
     .order("requested_at", { ascending: false });
 
-  if (error) return res.status(500).json({ error: error.message });
-  return res.json({ confirmations: (data ?? []).map(serializeDeveloperSpaceAgentConfirmation) });
+  if (error) {
+    if (developerSpaceAgentConfirmationStoreUnavailable(error)) {
+      return res.json({
+        confirmations: [],
+        setup: {
+          confirmationStoreAvailable: false,
+          code: developerSpaceAgentConfirmationStoreUnavailableBody().code,
+        },
+      });
+    }
+    return res.status(500).json({
+      error: "Could not load Developer Agent confirmations.",
+      code: "developer_space_agent_confirmations_unavailable",
+    });
+  }
+  return res.json({
+    confirmations: (data ?? []).map(serializeDeveloperSpaceAgentConfirmation),
+    setup: { confirmationStoreAvailable: true },
+  });
 });
 
 developerSpacesRouter.post("/:id/agent/actions/confirmations", requireAuth, async (req, res) => {
@@ -2362,7 +2409,16 @@ developerSpacesRouter.post("/:id/agent/actions/confirmations", requireAuth, asyn
     .select("*")
     .single();
 
-  if (error || !data) return res.status(500).json({ error: error?.message ?? "Could not create Developer Agent confirmation." });
+  if (error || !data) {
+    if (error && developerSpaceAgentConfirmationStoreUnavailable(error)) {
+      return res.status(503).json(developerSpaceAgentConfirmationStoreUnavailableBody());
+    }
+    return res.status(500).json({
+      error: "Could not create Developer Agent confirmation.",
+      code: "developer_space_agent_confirmation_create_failed",
+      executionAvailable: false,
+    });
+  }
   return res.status(201).json({
     confirmation: serializeDeveloperSpaceAgentConfirmation(data),
     executionAvailable: false,
@@ -2379,7 +2435,11 @@ developerSpacesRouter.post("/:id/agent/actions/confirmations/:confirmationId/app
     ownerLoad.space.owner_user_id,
     req.params.confirmationId,
   );
-  if (loaded.status !== 200) return res.status(loaded.status).json({ error: loaded.error });
+  if (loaded.status !== 200) return res.status(loaded.status).json({
+    error: loaded.error,
+    ...("code" in loaded ? { code: loaded.code } : {}),
+    executionAvailable: false,
+  });
 
   const now = new Date();
   const effectiveStatus = effectiveDeveloperSpaceAgentConfirmationStatus(loaded.confirmation, now);
@@ -2392,7 +2452,16 @@ developerSpacesRouter.post("/:id/agent/actions/confirmations/:confirmationId/app
       .eq("owner_user_id", ownerLoad.space.owner_user_id)
       .select("*")
       .single();
-    if (error || !data) return res.status(500).json({ error: error?.message ?? "Could not expire Developer Agent confirmation." });
+    if (error || !data) {
+      if (error && developerSpaceAgentConfirmationStoreUnavailable(error)) {
+        return res.status(503).json(developerSpaceAgentConfirmationStoreUnavailableBody());
+      }
+      return res.status(500).json({
+        error: "Could not expire Developer Agent confirmation.",
+        code: "developer_space_agent_confirmation_expire_failed",
+        executionAvailable: false,
+      });
+    }
     return res.status(409).json({
       error: "Developer Agent confirmation has expired.",
       code: "developer_space_agent_confirmation_expired",
@@ -2418,7 +2487,16 @@ developerSpacesRouter.post("/:id/agent/actions/confirmations/:confirmationId/app
     .select("*")
     .single();
 
-  if (error || !data) return res.status(500).json({ error: error?.message ?? "Could not approve Developer Agent confirmation." });
+  if (error || !data) {
+    if (error && developerSpaceAgentConfirmationStoreUnavailable(error)) {
+      return res.status(503).json(developerSpaceAgentConfirmationStoreUnavailableBody());
+    }
+    return res.status(500).json({
+      error: "Could not approve Developer Agent confirmation.",
+      code: "developer_space_agent_confirmation_approve_failed",
+      executionAvailable: false,
+    });
+  }
   return res.json({
     confirmation: serializeDeveloperSpaceAgentConfirmation(data),
     executionAvailable: false,
@@ -2435,7 +2513,11 @@ developerSpacesRouter.post("/:id/agent/actions/confirmations/:confirmationId/can
     ownerLoad.space.owner_user_id,
     req.params.confirmationId,
   );
-  if (loaded.status !== 200) return res.status(loaded.status).json({ error: loaded.error });
+  if (loaded.status !== 200) return res.status(loaded.status).json({
+    error: loaded.error,
+    ...("code" in loaded ? { code: loaded.code } : {}),
+    executionAvailable: false,
+  });
 
   const effectiveStatus = effectiveDeveloperSpaceAgentConfirmationStatus(loaded.confirmation);
   if (effectiveStatus === "cancelled") {
@@ -2467,7 +2549,16 @@ developerSpacesRouter.post("/:id/agent/actions/confirmations/:confirmationId/can
     .select("*")
     .single();
 
-  if (error || !data) return res.status(500).json({ error: error?.message ?? "Could not cancel Developer Agent confirmation." });
+  if (error || !data) {
+    if (error && developerSpaceAgentConfirmationStoreUnavailable(error)) {
+      return res.status(503).json(developerSpaceAgentConfirmationStoreUnavailableBody());
+    }
+    return res.status(500).json({
+      error: "Could not cancel Developer Agent confirmation.",
+      code: "developer_space_agent_confirmation_cancel_failed",
+      executionAvailable: false,
+    });
+  }
   return res.json({
     confirmation: serializeDeveloperSpaceAgentConfirmation(data),
     executionAvailable: false,

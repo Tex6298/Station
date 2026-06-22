@@ -52,6 +52,32 @@ pnpm test:developer-spaces
 pnpm test:developer-space-client
 ```
 
+## PR167 Hosted Confirmation Panel Blocker Fix
+
+DAEDALUS blocker-fix validation on 2026-06-22:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 34 tests passed, including a missing `developer_space_agent_confirmations` table/setup-state regression. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` | Pass | Web TypeScript typecheck passed directly. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` | Pass | API typecheck passed directly. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/api build` | Pass | API package build passed after dependent package builds. |
+| `git diff --check` | Pass | CRLF normalization warnings only for touched files and local triad state. |
+
+DAEDALUS PR167 notes:
+
+- Confirmation-list route now returns a safe empty/setup response when the
+  confirmation table is missing or absent from the hosted schema cache.
+- Confirmation create/load/approve/cancel paths return bounded 503 setup
+  errors with `executionAvailable: false` when the store is unavailable.
+- The owner UI shows confirmation storage as setup-unavailable, keeps previews
+  read-only, and disables confirmation create/approve/cancel controls in that
+  state.
+- This patch does not execute actions, replace the durable confirmation table,
+  or mutate documents, layout, keys, signing secrets, observed-runtime state,
+  billing, exports, webhooks, public pages, provider settings, repos, deploys,
+  Cloudflare, Redis workers, queues, or hosted runtime.
+
 ## PR166 Phase 2D Confirmation Panel
 
 ARGUS review validation on 2026-06-22:

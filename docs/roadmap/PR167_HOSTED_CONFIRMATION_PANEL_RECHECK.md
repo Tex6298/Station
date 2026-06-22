@@ -4,7 +4,7 @@ Date opened: 2026-06-22
 Opened by: A1 / MIMIR
 Owner: ARIADNE rehearses hosted staging. DAEDALUS fixes only exact blockers.
 ARGUS reviews only if a visibility/security boundary looks wrong.
-Status: hosted blocker found; waking DAEDALUS
+Status: hosted blocker patched by DAEDALUS; open for ARGUS review before rerun
 
 ## Why This Lane
 
@@ -181,6 +181,41 @@ Validation:
   commit.
 - `pnpm typecheck` was not run because this handoff changed docs only and did
   not touch imports or scripts.
+
+## DAEDALUS Hosted Blocker Fix - 2026-06-22
+
+DAEDALUS patched the narrow hosted blocker after ARIADNE observed HTTP 500 from
+the confirmation-list route.
+
+Fix:
+
+- Added bounded detection for missing-table/schema-cache errors involving
+  `developer_space_agent_confirmations`.
+- `GET /developer-spaces/:id/agent/actions/confirmations` now returns HTTP 200
+  with an empty list plus setup metadata when the confirmation store is
+  unavailable, instead of leaking a raw DB error or breaking the panel.
+- Create/approve/cancel paths return bounded `503
+  developer_space_agent_confirmation_store_unavailable` responses with
+  `executionAvailable: false` if the store is unavailable.
+- The owner UI renders confirmation storage as a setup-unavailable state,
+  keeps previews read-only, and disables confirmation mutation controls.
+- Added a focused route regression for the missing confirmation table case.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` passed with 34
+  tests.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/api build` passed.
+- `git diff --check` passed with CRLF normalization warnings only.
+
+Next:
+
+- ARGUS should review the bounded fallback and owner-scope behavior.
+- If accepted, wake ARIADNE to rerun hosted PR167 proof. If hosted still lacks
+  the durable table, ARIADNE should verify the panel no longer fails with HTTP
+  500 and wake MIMIR for the Supabase migration/deployment decision.
 
 ## Handoff
 
