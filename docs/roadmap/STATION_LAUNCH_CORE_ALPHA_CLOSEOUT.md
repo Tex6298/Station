@@ -28,19 +28,19 @@ This is not a production readiness claim and not a complete Station MVP claim.
 
 ## Current Evidence Refresh
 
-Last refreshed: 2026-06-21 by PR161.
+Last refreshed: 2026-06-22 by PR161 ARGUS review.
 
-- Public Railway web health:
+- PR157 public Railway web health:
   `https://stationweb-production.up.railway.app/health` returned HTTP 200 with
   `ok:true`.
-- Public Railway web deployment:
+- PR157 public Railway web deployment:
   `https://stationweb-production.up.railway.app/health/deployment` returned
   HTTP 200 with `ok:true`, `ready:true`, service `@station/web`, branch `main`,
   and commit `508b4acc2dbe`.
-- Public Railway API health:
+- PR157 public Railway API health:
   `https://stationapi-production.up.railway.app/health` returned HTTP 200 with
   `ok:true`.
-- Public Railway API deployment:
+- PR157 public Railway API deployment:
   `https://stationapi-production.up.railway.app/health/deployment` returned
   HTTP 200 with `ok:true`, `ready:true`, service `@station/api`, branch `main`,
   commit `508b4acc2dbe`, and Railway HTTPS app/API URLs.
@@ -53,12 +53,12 @@ Last refreshed: 2026-06-21 by PR161.
   context-preview outer median improved from 4571ms to 1864ms, trace `total`
   median from 3549ms to 892ms, and `archive_retrieval` median from 3207ms to
   531ms; 0 of 7 counted requests exceeded 3000ms.
-- PR160 confirms the hosted runtime serves the PR159 public-read and
-  UUID-redaction patch at deployment commit `6a8bb3eea401`: the focused public
-  document chain no longer showed a browser-visible owner-aware document API
-  401, Runtime Context/readback, Saved Memory, Global Archive, and 390px mobile
-  Memory showed zero UUID-shaped visible values, and 390px mobile Memory had no
-  document-level horizontal overflow.
+- PR160 later confirms the hosted runtime relevant to the PR159 public-read and
+  UUID-redaction patch served deployment commit `6a8bb3eea401`: the focused
+  public document chain no longer showed a browser-visible owner-aware document
+  API 401, Runtime Context/readback, Saved Memory, Global Archive, and 390px
+  mobile Memory showed zero UUID-shaped visible values, and 390px mobile Memory
+  had no document-level horizontal overflow.
 - Later docs-test commits may skip Railway deployment when no watched runtime
   files change. That is not stale runtime by itself; for demo planning, the
   runtime is current enough when it serves the PR159 runtime patch commit or a

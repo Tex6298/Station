@@ -52,6 +52,34 @@ pnpm test:developer-spaces
 pnpm test:developer-space-client
 ```
 
+## PR161 Protected-Alpha Demo Runbook Review
+
+ARGUS review validation on 2026-06-22:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `git diff --check` | Pass | CRLF normalization warnings only for touched docs and local triad state. |
+| `git diff --cached --check` | Pass | No whitespace errors in the staged verdict patch. |
+| Staged secret-shaped value scan | Pass | No staged secret-shaped additions found. |
+
+ARGUS PR161 notes:
+
+- Accepted the refreshed protected-alpha operator pack as ready for a prepared
+  human demo, with spoken caveats preserved.
+- Patched `STATION_LAUNCH_CORE_ALPHA_CLOSEOUT.md` so the older
+  `508b4acc2dbe` deployment checks are identified as PR157 source evidence and
+  PR160's `6a8bb3eea401` deployment remains the current app-code runtime
+  evidence for the public-read and UUID-redaction recheck.
+- No production-readiness, product-completeness, broad backend-complete,
+  current Stripe paid-activation, Redis Memory-truth, Cloudflare live-runtime,
+  or permanent-latency overclaim remains.
+- Route instructions avoid stale hard-coded public document/forum IDs, and no
+  secrets, UUID-shaped raw IDs, private corpus text, Stripe IDs, Checkout URLs,
+  customer/subscription IDs, webhook payloads, or secret-shaped values were
+  added.
+- No app code/runtime behavior, route testing, billing mutation, replay-data
+  mutation, Redis, Cloudflare, provider, worker, or cache scope changed.
+
 ## PR159 Hosted Walkthrough Defect Patch
 
 ARGUS review validation on 2026-06-21:

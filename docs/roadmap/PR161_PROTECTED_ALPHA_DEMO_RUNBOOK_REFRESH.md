@@ -3,7 +3,7 @@
 Date opened: 2026-06-21
 Opened by: A1 / MIMIR
 Owner: ARIADNE refreshes the human runbook.
-Status: refreshed by ARIADNE; waking MIMIR for closeout
+Status: accepted by ARGUS; waking MIMIR for demo closeout
 
 ## Why This Lane
 
@@ -179,3 +179,46 @@ Review focus:
 If ARGUS accepts, wake MIMIR with the ready-for-demo verdict and any caveats
 that must be spoken aloud. If wording or route instructions need correction,
 patch the docs narrowly and then wake MIMIR.
+
+## ARGUS Review
+
+ARGUS accepted PR161 on 2026-06-22 after a hostile wording review of:
+
+- `docs/roadmap/PR39_PROTECTED_ALPHA_DEMO_RUNBOOK_ARIADNE.md`
+- `docs/roadmap/PR39_PROTECTED_ALPHA_DEMO_RUNBOOK.md`
+- `docs/roadmap/STATION_LAUNCH_CORE_ALPHA_CLOSEOUT.md`
+- `docs/roadmap/PR161_PROTECTED_ALPHA_DEMO_RUNBOOK_REFRESH.md`
+
+Narrow ARGUS patch:
+
+- `STATION_LAUNCH_CORE_ALPHA_CLOSEOUT.md` now labels the `508b4acc2dbe`
+  health/deployment checks as PR157 source evidence and names PR160's
+  `6a8bb3eea401` deployment as the current app-code runtime evidence for the
+  public-read and UUID-redaction recheck.
+
+Review verdict:
+
+- Accepted for a prepared protected-alpha human demo, with caveats spoken
+  aloud.
+- No production-readiness, product-completeness, broad backend-complete,
+  current Stripe paid-activation, Redis Memory-truth, Cloudflare live-runtime,
+  or permanent-latency overclaim remains.
+- Route instructions use Discover, visible Space document lists, public search,
+  and `:personaId` placeholders instead of stale hard-coded public
+  document/forum IDs.
+- No secrets, UUID-shaped raw IDs, private corpus text, Stripe IDs, Checkout
+  URLs, customer/subscription IDs, webhook payloads, or secret-shaped values
+  were added.
+- No app code/runtime behavior, route testing, billing mutation, replay-data
+  mutation, Redis, Cloudflare, provider, worker, or cache scope changed.
+
+ARGUS validation:
+
+- `git diff --check`
+- `git diff --cached --check`
+- Staged secret-shaped value scan
+
+Final recommendation:
+
+- Wake MIMIR to close PR161 and use the runbook for the prepared demo unless
+  the live demo itself reveals a concrete route-level blocker.

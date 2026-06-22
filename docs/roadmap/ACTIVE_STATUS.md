@@ -10023,6 +10023,50 @@ Next:
 Result doc:
 `docs/roadmap/PR161_PROTECTED_ALPHA_DEMO_RUNBOOK_REFRESH.md`.
 
+## Latest ARGUS handoff - PR161 runbook overclaim review
+
+ARGUS accepts PR161 on 2026-06-22 and wakes MIMIR for demo closeout.
+
+Reviewed:
+
+- `docs/roadmap/PR39_PROTECTED_ALPHA_DEMO_RUNBOOK_ARIADNE.md`
+- `docs/roadmap/PR39_PROTECTED_ALPHA_DEMO_RUNBOOK.md`
+- `docs/roadmap/STATION_LAUNCH_CORE_ALPHA_CLOSEOUT.md`
+- `docs/roadmap/PR161_PROTECTED_ALPHA_DEMO_RUNBOOK_REFRESH.md`
+
+Narrow ARGUS patch:
+
+- `STATION_LAUNCH_CORE_ALPHA_CLOSEOUT.md` now labels the older
+  `508b4acc2dbe` health/deployment checks as PR157 source evidence and keeps
+  PR160's `6a8bb3eea401` deployment as the current app-code runtime evidence
+  for the public-read and UUID-redaction recheck.
+
+Verdict:
+
+- Ready for a prepared protected-alpha human demo, with caveats spoken aloud.
+- No production-readiness, product-completeness, broad backend-complete,
+  current Stripe paid-activation, Redis Memory-truth, Cloudflare live-runtime,
+  or permanent-latency overclaim remains.
+- Route instructions avoid stale hard-coded public document/forum IDs by using
+  Discover, visible Space document lists, public search, and `:personaId`
+  placeholders.
+- No secrets, UUID-shaped raw IDs, private corpus text, Stripe IDs, Checkout
+  URLs, customer/subscription IDs, webhook payloads, or secret-shaped values
+  were added.
+- No app code/runtime behavior, route testing, billing mutation, replay-data
+  mutation, Redis, Cloudflare, provider, worker, or cache scope changed.
+
+Validation:
+
+- `git diff --check` passed with CRLF normalization warnings only.
+- `git diff --cached --check` passed.
+- Staged secret-shaped value scan passed.
+
+Next:
+
+- MIMIR should close PR161 and use the runbook for the prepared demo unless
+  the live demo itself reveals a concrete route-level blocker.
+
 ## Latest MIMIR handoff - PR161 ARGUS runbook overclaim review
 
 MIMIR accepts ARIADNE's PR161 runbook refresh as ready for hostile wording
