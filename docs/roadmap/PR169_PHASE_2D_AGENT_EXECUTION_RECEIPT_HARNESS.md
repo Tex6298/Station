@@ -5,7 +5,7 @@ Opened by: A1 / MIMIR
 Owner: DAEDALUS implements.
 Reviewer: ARGUS reviews owner scope, execution boundary, and leak risk.
 Rehearsal: ARIADNE runs hosted browser proof if ARGUS accepts visible UI.
-Status: open for DAEDALUS
+Status: DAEDALUS implementation complete; open for ARGUS review
 
 ## Why This Lane
 
@@ -153,3 +153,91 @@ DAEDALUS should wake ARGUS with:
 
 If implementation cannot proceed, wake MIMIR with the exact blocker instead of
 going silent.
+
+## DAEDALUS Implementation
+
+Implemented on 2026-06-22.
+
+Files touched:
+
+- `infra/supabase/migrations/050_developer_space_agent_execution_receipts.sql`
+- `packages/types/src/developer-space.ts`
+- `packages/db/src/types.ts`
+- `apps/api/src/routes/developer-spaces.ts`
+- `apps/api/src/routes/developer-spaces.test.ts`
+- `apps/web/app/developer-spaces/[slug]/manage/page.tsx`
+- `apps/web/lib/developer-space-observatory.ts`
+- `apps/web/lib/developer-space-observatory.test.ts`
+- `docs/roadmap/ACTIVE_STATUS.md`
+- `docs/testing/VALIDATION_BASELINE.md`
+
+Receipt data shape:
+
+- Added `developer_space_agent_execution_receipts`.
+- Columns: `id`, `developer_space_id`, `owner_user_id`, `confirmation_id`,
+  `action`, `status`, `summary`, `receipt_payload`, `dispatched_at`,
+  `created_at`, and `updated_at`.
+- `action` is constrained to `request_capability`.
+- `status` is constrained to `recorded`.
+- `confirmation_id` is unique, making the route idempotent per confirmation.
+- RLS requires the authenticated owner to own the Developer Space and the linked
+  `request_capability` confirmation.
+
+Route shape:
+
+```text
+GET  /developer-spaces/:id/agent/actions/receipts
+POST /developer-spaces/:id/agent/actions/confirmations/:confirmationId/execute
+```
+
+Behavior:
+
+- Approved `request_capability` confirmations create one owner-scoped receipt.
+- Repeat execute calls return the existing receipt with `idempotent: true`.
+- Pending, cancelled, expired, non-owner, unknown, and unsupported confirmation
+  states are rejected without creating receipts.
+- Approved real-action confirmations such as `publish_to_page` remain blocked
+  with `developer_space_agent_execution_action_blocked`.
+- The receipt payload says no autonomous loop, provider call, document/layout/
+  key/signing-secret/repo/deploy/worker/billing/export/webhook/observed-runtime
+  target was mutated.
+
+Visible owner UI:
+
+- The owner manage panel loads recent receipts.
+- It exposes `Create receipt` only for approved `request_capability`
+  confirmations.
+- Receipts render as planning evidence with non-execution copy.
+- Other approved future actions remain non-actionable.
+
+Leak/overclaim boundary:
+
+- Serialized receipts intentionally omit raw owner ids, confirmation ids,
+  preview hashes, raw payload JSON, prompts, keys, provider payloads, cookies,
+  tokens, environment values, and private logs.
+- No provider, repo, deploy, key, secret, worker, Cloudflare, Redis, public
+  page, document, layout, billing, archive, export, webhook, or observed-runtime
+  target is called or mutated.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` passed with 36
+  tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:developer-space-client` passed with
+  15 tests.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/types build` passed.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/api build` passed.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/web build` compiled,
+  linted/typechecked, generated 36 static pages, finalized optimization, and
+  collected traces before the known local Windows symlink `EPERM` in
+  `.next/standalone`.
+- `git diff --check` passed with CRLF normalization warnings only.
+
+Next baton:
+
+- ARGUS should review RLS/route owner scope, idempotency, blocked real actions,
+  receipt serialization, and visible copy.
+- Visible owner UI changed, so ARIADNE should rehearse hosted staging after
+  ARGUS acceptance.

@@ -3,6 +3,7 @@ import type {
   DeveloperSpaceAgentActionRegistryEntry,
   DeveloperSpaceAgentConfirmationRecord,
   DeveloperSpaceAgentConfirmationStatus,
+  DeveloperSpaceAgentExecutionReceiptRecord,
   DeveloperSpaceDetail,
   DeveloperSpaceWidgetConfig,
   DeveloperSpaceWidgetType,
@@ -253,6 +254,26 @@ export function developerSpaceAgentConfirmationEmptyCopy(loading: boolean) {
   return loading
     ? "Loading confirmation records."
     : "No confirmation records yet. Preview a future action to record owner intent.";
+}
+
+export function developerSpaceAgentReceiptCanRecord(confirmation: Pick<DeveloperSpaceAgentConfirmationRecord, "action" | "status">) {
+  return confirmation.action === "request_capability" && confirmation.status === "approved";
+}
+
+export function developerSpaceAgentReceiptStatusCopy(status: DeveloperSpaceAgentExecutionReceiptRecord["status"]) {
+  return status === "recorded" ? "Request recorded" : "Receipt recorded";
+}
+
+export function developerSpaceAgentReceiptExecutionCopy(receipt: Pick<DeveloperSpaceAgentExecutionReceiptRecord, "receiptPayload">) {
+  return receipt.receiptPayload.executionAvailable === false
+    ? "Planning receipt only. No provider, deploy, repo, key, document, layout, billing, webhook, export, worker, or runtime action executed."
+    : "Receipt recorded for owner review.";
+}
+
+export function developerSpaceAgentReceiptEmptyCopy(loading: boolean) {
+  return loading
+    ? "Loading receipt records."
+    : "No capability request receipts yet. Approved request-capability confirmations can record planning evidence here.";
 }
 
 export function developerSpaceMethodologyCopy(detail: Pick<DeveloperSpaceDetail, "linkedDocuments" | "access">) {

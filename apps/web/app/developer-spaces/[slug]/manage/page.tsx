@@ -14,6 +14,10 @@ import {
   developerSpaceAgentConfirmationStatusCopy,
   developerSpaceAgentPreviewEmptyCopy,
   developerSpaceAgentPreviewStatusCopy,
+  developerSpaceAgentReceiptCanRecord,
+  developerSpaceAgentReceiptEmptyCopy,
+  developerSpaceAgentReceiptExecutionCopy,
+  developerSpaceAgentReceiptStatusCopy,
   developerSpaceEvidenceEmptyCopy,
   developerSpaceEvidenceRoleCopy,
   developerSpaceEvidenceRoleDescription,
@@ -34,6 +38,7 @@ import type {
   DeveloperSpaceAgentActionPreview,
   DeveloperSpaceAgentActionRegistryEntry,
   DeveloperSpaceAgentConfirmationRecord,
+  DeveloperSpaceAgentExecutionReceiptRecord,
   DeveloperSpaceAgentFutureAction,
   DeveloperSpaceDetail,
   DeveloperSpaceDocumentRole,
@@ -76,6 +81,21 @@ type DeveloperSpaceAgentConfirmationsResponse = {
 
 type DeveloperSpaceAgentConfirmationMutationResponse = {
   confirmation: DeveloperSpaceAgentConfirmationRecord;
+  executionAvailable: false;
+  message: string;
+};
+
+type DeveloperSpaceAgentReceiptsResponse = {
+  receipts: DeveloperSpaceAgentExecutionReceiptRecord[];
+  setup?: {
+    receiptStoreAvailable?: boolean;
+    code?: string;
+  };
+};
+
+type DeveloperSpaceAgentReceiptMutationResponse = {
+  receipt: DeveloperSpaceAgentExecutionReceiptRecord;
+  idempotent: boolean;
   executionAvailable: false;
   message: string;
 };
@@ -140,6 +160,10 @@ export default function DeveloperSpaceManagePage() {
   const [agentConfirmationStoreAvailable, setAgentConfirmationStoreAvailable] = useState(true);
   const [agentConfirmationCreatingAction, setAgentConfirmationCreatingAction] = useState<string | null>(null);
   const [agentConfirmationBusyId, setAgentConfirmationBusyId] = useState<string | null>(null);
+  const [agentReceipts, setAgentReceipts] = useState<DeveloperSpaceAgentExecutionReceiptRecord[]>([]);
+  const [agentReceiptsLoading, setAgentReceiptsLoading] = useState(false);
+  const [agentReceiptStoreAvailable, setAgentReceiptStoreAvailable] = useState(true);
+  const [agentReceiptBusyId, setAgentReceiptBusyId] = useState<string | null>(null);
   const [agentNotice, setAgentNotice] = useState<string | null>(null);
   const [agentError, setAgentError] = useState<string | null>(null);
   const [visualisationType, setVisualisationType] = useState<DeveloperSpaceVisualisationType>("node_field");
@@ -201,6 +225,25 @@ export default function DeveloperSpaceManagePage() {
     }
   }, []);
 
+  const loadAgentReceipts = useCallback(async (spaceId: string, sessionToken: string) => {
+    setAgentReceiptsLoading(true);
+    setAgentError(null);
+    try {
+      const data = await apiGet<DeveloperSpaceAgentReceiptsResponse>(
+        `/developer-spaces/${spaceId}/agent/actions/receipts`,
+        sessionToken
+      );
+      setAgentReceipts(data.receipts ?? []);
+      setAgentReceiptStoreAvailable(data.setup?.receiptStoreAvailable !== false);
+    } catch {
+      setAgentReceipts([]);
+      setAgentReceiptStoreAvailable(false);
+      setAgentError("Could not load Developer Agent receipts.");
+    } finally {
+      setAgentReceiptsLoading(false);
+    }
+  }, []);
+
   const load = useCallback(async (sessionToken: string) => {
     const data = await apiGet<DeveloperSpaceDetail>(`/developer-spaces/${slug}`, sessionToken);
     setDetail(data);
@@ -214,8 +257,9 @@ export default function DeveloperSpaceManagePage() {
     await Promise.all([
       loadAgentActions(data.space.id, sessionToken),
       loadAgentConfirmations(data.space.id, sessionToken),
+      loadAgentReceipts(data.space.id, sessionToken),
     ]);
-  }, [loadAgentActions, loadAgentConfirmations, slug, syncVisualState]);
+  }, [loadAgentActions, loadAgentConfirmations, loadAgentReceipts, slug, syncVisualState]);
 
   useEffect(() => {
     getSession().then(async (session) => {
@@ -468,6 +512,15 @@ export default function DeveloperSpaceManagePage() {
     ].sort((a, b) => Date.parse(b.requestedAt) - Date.parse(a.requestedAt)));
   }
 
+  function upsertAgentReceipt(receipt: DeveloperSpaceAgentExecutionReceiptRecord) {
+    setAgentReceipts((current) => [
+      receipt,
+      ...current.filter((item) =>
+        !(item.action === receipt.action && item.dispatchedAt === receipt.dispatchedAt && item.summary === receipt.summary)
+      ),
+    ].sort((a, b) => Date.parse(b.dispatchedAt) - Date.parse(a.dispatchedAt)));
+  }
+
   async function createAgentConfirmation(action: DeveloperSpaceAgentFutureAction) {
     if (!token || !detail || !agentConfirmationStoreAvailable) return;
     setAgentConfirmationCreatingAction(action);
@@ -507,6 +560,26 @@ export default function DeveloperSpaceManagePage() {
         : "Could not cancel that Developer Agent confirmation.");
     } finally {
       setAgentConfirmationBusyId(null);
+    }
+  }
+
+  async function recordAgentReceipt(confirmation: DeveloperSpaceAgentConfirmationRecord) {
+    if (!token || !detail || !agentReceiptStoreAvailable || !developerSpaceAgentReceiptCanRecord(confirmation)) return;
+    setAgentReceiptBusyId(confirmation.id);
+    setAgentError(null);
+    setAgentNotice(null);
+    try {
+      const data = await apiPost<DeveloperSpaceAgentReceiptMutationResponse>(
+        `/developer-spaces/${detail.space.id}/agent/actions/confirmations/${confirmation.id}/execute`,
+        {},
+        token
+      );
+      upsertAgentReceipt(data.receipt);
+      setAgentNotice(data.message);
+    } catch {
+      setAgentError("Could not record that Developer Agent receipt.");
+    } finally {
+      setAgentReceiptBusyId(null);
     }
   }
 
@@ -894,7 +967,9 @@ export default function DeveloperSpaceManagePage() {
                 <div style={{ display: "grid", gap: "0.55rem" }}>
                   {agentConfirmations.slice(0, 6).map((confirmation) => {
                     const canAct = developerSpaceAgentConfirmationCanAct(confirmation);
+                    const canRecordReceipt = developerSpaceAgentReceiptCanRecord(confirmation);
                     const busy = agentConfirmationBusyId === confirmation.id;
+                    const receiptBusy = agentReceiptBusyId === confirmation.id;
                     return (
                       <article key={confirmation.id} style={agentConfirmationRow}>
                         <div style={{ display: "flex", justifyContent: "space-between", gap: "0.65rem", alignItems: "flex-start", flexWrap: "wrap" }}>
@@ -944,9 +1019,70 @@ export default function DeveloperSpaceManagePage() {
                             </button>
                           </div>
                         ) : null}
+                        {canRecordReceipt ? (
+                          <div style={{ display: "flex", gap: "0.45rem", flexWrap: "wrap" }}>
+                            <button
+                              type="button"
+                              className="button primary"
+                              onClick={() => recordAgentReceipt(confirmation)}
+                              disabled={!agentReceiptStoreAvailable || receiptBusy}
+                              style={agentConfirmationButton}
+                            >
+                              {receiptBusy ? "Recording..." : "Create receipt"}
+                            </button>
+                          </div>
+                        ) : null}
                       </article>
                     );
                   })}
+                </div>
+              )}
+            </div>
+
+            <div style={{ display: "grid", gap: "0.65rem" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", gap: "0.75rem", alignItems: "center", flexWrap: "wrap" }}>
+                <h3 style={{ margin: 0, fontSize: "0.92rem" }}>Receipts</h3>
+                <span className="pill">
+                  {agentReceiptsLoading ? "Loading" : `${agentReceipts.length} recorded`}
+                </span>
+              </div>
+              {!agentReceiptStoreAvailable ? (
+                <div style={{ background: "#fff7ed", border: "1px solid #f1c27d", borderRadius: 8, color: "#854f0b", padding: "0.7rem", fontSize: "0.84rem", lineHeight: 1.45 }}>
+                  Receipt storage is not available in this environment. Approved intent records remain non-executing.
+                </div>
+              ) : null}
+              {agentReceipts.length === 0 ? (
+                <p style={{ margin: 0, color: "#687078", fontSize: "0.84rem" }}>
+                  {developerSpaceAgentReceiptEmptyCopy(agentReceiptsLoading)}
+                </p>
+              ) : (
+                <div style={{ display: "grid", gap: "0.55rem" }}>
+                  {agentReceipts.slice(0, 6).map((receipt) => (
+                    <article key={`${receipt.action}-${receipt.dispatchedAt}`} style={agentConfirmationRow}>
+                      <div style={{ display: "flex", justifyContent: "space-between", gap: "0.65rem", alignItems: "flex-start", flexWrap: "wrap" }}>
+                        <div>
+                          <strong style={{ display: "block", color: "#1f2529" }}>
+                            Capability request
+                          </strong>
+                          <span style={{ color: "#8b8f92", fontSize: "0.74rem" }}>
+                            Recorded {formatDate(receipt.dispatchedAt)}
+                          </span>
+                        </div>
+                        <span className="pill" style={{ color: "#25633f" }}>
+                          {developerSpaceAgentReceiptStatusCopy(receipt.status)}
+                        </span>
+                      </div>
+                      <p style={{ margin: 0, color: "#687078", lineHeight: 1.45 }}>
+                        {receipt.summary}
+                      </p>
+                      <p style={{ margin: 0, color: "#854f0b", fontSize: "0.82rem", lineHeight: 1.4 }}>
+                        {developerSpaceAgentReceiptExecutionCopy(receipt)}
+                      </p>
+                      <p style={{ margin: 0, color: "#687078", fontSize: "0.82rem", lineHeight: 1.4 }}>
+                        {receipt.receiptPayload.nextStep}
+                      </p>
+                    </article>
+                  ))}
                 </div>
               )}
             </div>

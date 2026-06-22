@@ -52,6 +52,39 @@ pnpm test:developer-spaces
 pnpm test:developer-space-client
 ```
 
+## PR169 Phase 2D Agent Execution Receipt Harness
+
+DAEDALUS implementation validation on 2026-06-22:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 36 tests passed, including request-capability receipt owner scope, non-owner denial, pending/cancelled/expired rejection, approved real-action blocking, idempotent repeated dispatch, and UI helper coverage. |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-space-client` | Pass | 15 tests passed; Developer Space client behavior remains compatible. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/types build` | Pass | Shared receipt types compiled. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` | Pass | API TypeScript typecheck passed. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/api build` | Pass | API package build passed after dependent package builds. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` | Pass | Web TypeScript typecheck passed. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web build` | Blocked locally after successful compile/type/static generation | Next compiled, linted/typechecked, generated 36 static pages, finalized optimization, and collected traces, then failed while copying standalone trace files because Windows denied symlinks under `.next/standalone` for React/Next/@next/env. Existing `<img>` warnings remain in unrelated files. |
+| `git diff --check` | Pass | CRLF normalization warnings only for touched files and local DAEDALUS state. |
+
+DAEDALUS PR169 notes:
+
+- Added `developer_space_agent_execution_receipts` as a dedicated inert receipt
+  table for approved `request_capability` confirmations only.
+- The execute route is idempotent per confirmation and returns existing
+  receipts on repeat calls without duplicate rows.
+- Approved real actions such as `publish_to_page` remain blocked; pending,
+  cancelled, expired, and non-owner paths do not create receipts.
+- The owner UI exposes `Create receipt` only for approved `request_capability`
+  confirmations and renders receipts as planning evidence.
+- No autonomous loop, provider call, document/layout/public-page mutation, key
+  rotation, signing-secret creation, repo/deploy action, worker/Cloudflare/
+  Redis path, billing/export/webhook/archive/import path, or observed-runtime
+  mutation was added.
+- Serialized receipts do not expose raw owner ids, confirmation ids, preview
+  hashes, raw payload JSON, prompts, keys, provider payloads, cookies, tokens,
+  environment values, or private logs.
+
 ## PR168 Staging Confirmation Store Proof
 
 ARGUS review validation on 2026-06-22:

@@ -41,6 +41,7 @@ class InMemorySupabase {
     developer_space_observed_runtime_webhook_receipts: [],
     developer_space_webhook_signing_secrets: [],
     developer_space_agent_confirmations: [],
+    developer_space_agent_execution_receipts: [],
     documents: [],
     ai_trace_sessions: [],
     ai_trace_events: [],
@@ -207,6 +208,15 @@ class InMemorySupabase {
       row.requested_at ??= now;
       row.approved_at ??= null;
       row.cancelled_at ??= null;
+      row.created_at ??= now;
+      row.updated_at ??= now;
+    }
+
+    if (table === "developer_space_agent_execution_receipts") {
+      row.action ??= "request_capability";
+      row.status ??= "recorded";
+      row.receipt_payload ??= {};
+      row.dispatched_at ??= now;
       row.created_at ??= now;
       row.updated_at ??= now;
     }
@@ -1754,6 +1764,159 @@ test("Developer Space agent confirmations record owner intent without execution"
     assert.equal(db.tables.documents.length, 0);
     assert.equal(db.tables.ai_trace_sessions.length, 0);
     assert.equal(db.tables.ai_trace_events.length, 0);
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
+
+test("Developer Space agent request-capability receipts are owner-scoped and idempotent", async () => {
+  const db = new InMemorySupabase();
+  setSupabaseAdminForTests(db.client as any);
+  const app = createDeveloperSpacesApp();
+
+  try {
+    const created = await requestJson(app, "POST", "/developer-spaces", {
+      token: "owner-token",
+      body: {
+        projectName: "Agent Receipt Lane",
+        visibility: "private",
+      },
+    });
+    assert.equal(created.status, 201);
+    const spaceId = created.body.space.id;
+
+    const anonymousList = await requestJson(app, "GET", `/developer-spaces/${spaceId}/agent/actions/receipts`);
+    assert.equal(anonymousList.status, 401);
+
+    const nonOwnerList = await requestJson(app, "GET", `/developer-spaces/${spaceId}/agent/actions/receipts`, {
+      token: "other-token",
+    });
+    assert.equal(nonOwnerList.status, 403);
+
+    const requestCapability = await requestJson(app, "POST", `/developer-spaces/${spaceId}/agent/actions/confirmations`, {
+      token: "owner-token",
+      body: {
+        action: "request_capability",
+        input: { rawPrompt: "private capability prompt", token: "secret-capability-token" },
+      },
+    });
+    assert.equal(requestCapability.status, 201);
+    assert.equal(requestCapability.body.confirmation.action, "request_capability");
+
+    const pendingExecute = await requestJson(app, "POST", `/developer-spaces/${spaceId}/agent/actions/confirmations/${requestCapability.body.confirmation.id}/execute`, {
+      token: "owner-token",
+    });
+    assert.equal(pendingExecute.status, 409);
+    assert.equal(pendingExecute.body.code, "developer_space_agent_confirmation_not_approved");
+    assert.equal(JSON.stringify(pendingExecute.body).includes(requestCapability.body.confirmation.id), false);
+
+    const nonOwnerExecute = await requestJson(app, "POST", `/developer-spaces/${spaceId}/agent/actions/confirmations/${requestCapability.body.confirmation.id}/execute`, {
+      token: "other-token",
+    });
+    assert.equal(nonOwnerExecute.status, 403);
+
+    const approved = await requestJson(app, "POST", `/developer-spaces/${spaceId}/agent/actions/confirmations/${requestCapability.body.confirmation.id}/approve`, {
+      token: "owner-token",
+    });
+    assert.equal(approved.status, 200);
+
+    const firstExecute = await requestJson(app, "POST", `/developer-spaces/${spaceId}/agent/actions/confirmations/${requestCapability.body.confirmation.id}/execute`, {
+      token: "owner-token",
+    });
+    assert.equal(firstExecute.status, 201);
+    assert.equal(firstExecute.body.idempotent, false);
+    assert.equal(firstExecute.body.executionAvailable, false);
+    assert.equal(firstExecute.body.receipt.action, "request_capability");
+    assert.equal(firstExecute.body.receipt.status, "recorded");
+    assert.equal(firstExecute.body.receipt.receiptPayload.executionAvailable, false);
+    assert.equal(firstExecute.body.receipt.receiptPayload.mutationAvailable, false);
+    assert.equal(firstExecute.body.receipt.receiptPayload.externalDispatch, false);
+    assert.equal("id" in firstExecute.body.receipt, false);
+    assert.equal("ownerUserId" in firstExecute.body.receipt, false);
+    assert.equal("confirmationId" in firstExecute.body.receipt, false);
+
+    const secondExecute = await requestJson(app, "POST", `/developer-spaces/${spaceId}/agent/actions/confirmations/${requestCapability.body.confirmation.id}/execute`, {
+      token: "owner-token",
+    });
+    assert.equal(secondExecute.status, 200);
+    assert.equal(secondExecute.body.idempotent, true);
+    assert.equal(db.tables.developer_space_agent_execution_receipts.length, 1);
+
+    const ownerList = await requestJson(app, "GET", `/developer-spaces/${spaceId}/agent/actions/receipts`, {
+      token: "owner-token",
+    });
+    assert.equal(ownerList.status, 200);
+    assert.equal(ownerList.body.setup.receiptStoreAvailable, true);
+    assert.equal(ownerList.body.receipts.length, 1);
+    assert.equal(ownerList.body.receipts[0].action, "request_capability");
+
+    const publish = await requestJson(app, "POST", `/developer-spaces/${spaceId}/agent/actions/confirmations`, {
+      token: "owner-token",
+      body: { action: "publish_to_page" },
+    });
+    assert.equal(publish.status, 201);
+    const approvedPublish = await requestJson(app, "POST", `/developer-spaces/${spaceId}/agent/actions/confirmations/${publish.body.confirmation.id}/approve`, {
+      token: "owner-token",
+    });
+    assert.equal(approvedPublish.status, 200);
+    const blockedPublish = await requestJson(app, "POST", `/developer-spaces/${spaceId}/agent/actions/confirmations/${publish.body.confirmation.id}/execute`, {
+      token: "owner-token",
+    });
+    assert.equal(blockedPublish.status, 409);
+    assert.equal(blockedPublish.body.code, "developer_space_agent_execution_action_blocked");
+    assert.equal(blockedPublish.body.executionAvailable, false);
+    assert.equal(JSON.stringify(blockedPublish.body).includes(publish.body.confirmation.id), false);
+
+    const cancelCandidate = await requestJson(app, "POST", `/developer-spaces/${spaceId}/agent/actions/confirmations`, {
+      token: "owner-token",
+      body: { action: "request_capability" },
+    });
+    assert.equal(cancelCandidate.status, 201);
+    const cancelled = await requestJson(app, "POST", `/developer-spaces/${spaceId}/agent/actions/confirmations/${cancelCandidate.body.confirmation.id}/cancel`, {
+      token: "owner-token",
+    });
+    assert.equal(cancelled.status, 200);
+    const cancelledExecute = await requestJson(app, "POST", `/developer-spaces/${spaceId}/agent/actions/confirmations/${cancelCandidate.body.confirmation.id}/execute`, {
+      token: "owner-token",
+    });
+    assert.equal(cancelledExecute.status, 409);
+    assert.equal(cancelledExecute.body.code, "developer_space_agent_confirmation_not_approved");
+
+    const expired = db.insertRow("developer_space_agent_confirmations", {
+      developer_space_id: spaceId,
+      owner_user_id: "owner-user",
+      action: "request_capability",
+      status: "pending",
+      summary: "Expired capability request.",
+      preview_hash: "expired-capability-preview-hash",
+      sanitized_payload: { action: "request_capability", executionAvailable: false },
+      requested_at: "2026-05-01T00:00:00.000Z",
+      expires_at: "2026-05-01T00:05:00.000Z",
+    });
+    const expiredExecute = await requestJson(app, "POST", `/developer-spaces/${spaceId}/agent/actions/confirmations/${expired.id}/execute`, {
+      token: "owner-token",
+    });
+    assert.equal(expiredExecute.status, 409);
+    assert.equal(expiredExecute.body.code, "developer_space_agent_confirmation_expired");
+
+    const responseText = JSON.stringify({
+      firstExecute: firstExecute.body,
+      secondExecute: secondExecute.body,
+      ownerList: ownerList.body,
+      blockedPublish: blockedPublish.body,
+      cancelledExecute: cancelledExecute.body,
+      expiredExecute: expiredExecute.body,
+    });
+    assert.doesNotMatch(responseText, /private capability prompt|secret-capability-token|rawPrompt|expired-capability-preview-hash/);
+    assert.equal(responseText.includes(requestCapability.body.confirmation.id), false);
+    assert.equal(responseText.includes(publish.body.confirmation.id), false);
+    assert.equal(db.tables.developer_space_agent_execution_receipts.length, 1);
+    assert.equal(db.tables.developer_space_ingestion_keys.length, 0);
+    assert.equal(db.tables.developer_space_webhook_signing_secrets.length, 0);
+    assert.equal(db.tables.developer_space_events.length, 0);
+    assert.equal(db.tables.developer_space_nodes.length, 0);
+    assert.equal(db.tables.developer_space_snapshots.length, 0);
+    assert.equal(db.tables.documents.length, 0);
   } finally {
     setSupabaseAdminForTests(null);
   }

@@ -5,6 +5,7 @@ import { describePlatformProviderRoute } from "@station/ai";
 import type {
   DeveloperSpaceAgentConfirmationRecord,
   DeveloperSpaceAgentConfirmationStatus,
+  DeveloperSpaceAgentExecutionReceiptRecord,
   DeveloperSpaceAgentActionPreview,
   DeveloperSpaceAgentActionRegistryEntry,
   DeveloperSpaceAgentAllowedAction,
@@ -167,6 +168,12 @@ const DEVELOPER_SPACE_AGENT_ALLOWED_ACTION_SET = new Set<string>(DEVELOPER_SPACE
 const DEVELOPER_SPACE_AGENT_FUTURE_ACTION_SET = new Set<string>(DEVELOPER_SPACE_AGENT_FUTURE_ACTIONS);
 const DEVELOPER_SPACE_AGENT_CONFIRMATION_DEFAULT_EXPIRY_MINUTES = 24 * 60;
 const DEVELOPER_SPACE_AGENT_CONFIRMATION_MAX_EXPIRY_MINUTES = 7 * 24 * 60;
+const DEVELOPER_SPACE_AGENT_EXECUTION_RECEIPT_ACTION = "request_capability";
+const DEVELOPER_SPACE_AGENT_EXECUTION_RECEIPT_BOUNDARIES = [
+  "No autonomous agent loop ran.",
+  "No provider call was made.",
+  "No document, layout, key, signing secret, repo, deploy, worker, billing, export, webhook, or observed-runtime target was mutated.",
+];
 
 type IngestionErrorCategory = "auth" | "validation" | "quota" | "server";
 
@@ -1146,6 +1153,56 @@ function serializeDeveloperSpaceAgentConfirmation(row: any): DeveloperSpaceAgent
   };
 }
 
+function developerSpaceAgentExecutionReceiptPayload() {
+  return {
+    action: DEVELOPER_SPACE_AGENT_EXECUTION_RECEIPT_ACTION,
+    outcome: "capability_request_recorded" as const,
+    executionAvailable: false as const,
+    mutationAvailable: false as const,
+    externalDispatch: false as const,
+    nextStep: "Review this capability request in the roadmap before opening a new implementation lane.",
+    boundaries: DEVELOPER_SPACE_AGENT_EXECUTION_RECEIPT_BOUNDARIES,
+  };
+}
+
+function normaliseDeveloperSpaceAgentExecutionReceiptPayload(input: unknown): DeveloperSpaceAgentExecutionReceiptRecord["receiptPayload"] {
+  const payload = input && typeof input === "object" ? input as Record<string, unknown> : {};
+  const boundaries = Array.isArray(payload.boundaries)
+    ? payload.boundaries
+        .filter((value): value is string => typeof value === "string" && value.trim().length > 0)
+        .slice(0, 8)
+        .map((value) => safeAgentText(value, "No external action executed.", 220))
+    : DEVELOPER_SPACE_AGENT_EXECUTION_RECEIPT_BOUNDARIES;
+
+  return {
+    action: DEVELOPER_SPACE_AGENT_EXECUTION_RECEIPT_ACTION,
+    outcome: "capability_request_recorded",
+    executionAvailable: false,
+    mutationAvailable: false,
+    externalDispatch: false,
+    nextStep: safeAgentText(
+      typeof payload.nextStep === "string"
+        ? payload.nextStep
+        : "Review this capability request in the roadmap before opening a new implementation lane.",
+      "Human review required before any implementation lane.",
+      220,
+    ),
+    boundaries,
+  };
+}
+
+function serializeDeveloperSpaceAgentExecutionReceipt(row: any): DeveloperSpaceAgentExecutionReceiptRecord {
+  return {
+    action: DEVELOPER_SPACE_AGENT_EXECUTION_RECEIPT_ACTION,
+    status: "recorded",
+    summary: safeAgentText(row.summary, "Capability request receipt recorded. No external action executed.", 400),
+    receiptPayload: normaliseDeveloperSpaceAgentExecutionReceiptPayload(row.receipt_payload),
+    dispatchedAt: row.dispatched_at,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+  };
+}
+
 function developerSpaceAgentConfirmationStoreUnavailable(error: unknown) {
   const anyError = error as { code?: string; message?: string; details?: string };
   const text = `${anyError?.code ?? ""} ${anyError?.message ?? ""} ${anyError?.details ?? ""}`.toLowerCase();
@@ -1163,6 +1220,27 @@ function developerSpaceAgentConfirmationStoreUnavailableBody() {
   return {
     error: "Developer Agent confirmation store is not available in this environment.",
     code: "developer_space_agent_confirmation_store_unavailable",
+    executionAvailable: false,
+  };
+}
+
+function developerSpaceAgentExecutionReceiptStoreUnavailable(error: unknown) {
+  const anyError = error as { code?: string; message?: string; details?: string };
+  const text = `${anyError?.code ?? ""} ${anyError?.message ?? ""} ${anyError?.details ?? ""}`.toLowerCase();
+  return text.includes("developer_space_agent_execution_receipts")
+    && (
+      text.includes("does not exist")
+      || text.includes("schema cache")
+      || text.includes("could not find")
+      || text.includes("pgrst205")
+      || text.includes("42p01")
+    );
+}
+
+function developerSpaceAgentExecutionReceiptStoreUnavailableBody() {
+  return {
+    error: "Developer Agent receipt store is not available in this environment.",
+    code: "developer_space_agent_execution_receipt_store_unavailable",
     executionAvailable: false,
   };
 }
@@ -1188,6 +1266,28 @@ async function loadDeveloperSpaceAgentConfirmation(spaceId: string, ownerUserId:
   }
   if (!data) return { status: 404 as const, error: "Developer Space agent confirmation not found." };
   return { status: 200 as const, confirmation: data };
+}
+
+async function loadDeveloperSpaceAgentExecutionReceipt(spaceId: string, ownerUserId: string, confirmationId: string) {
+  const { data, error } = await (getSupabaseAdmin() as any)
+    .from("developer_space_agent_execution_receipts")
+    .select("*")
+    .eq("developer_space_id", spaceId)
+    .eq("owner_user_id", ownerUserId)
+    .eq("confirmation_id", confirmationId)
+    .maybeSingle();
+
+  if (error) {
+    if (developerSpaceAgentExecutionReceiptStoreUnavailable(error)) {
+      return {
+        status: 503 as const,
+        error: developerSpaceAgentExecutionReceiptStoreUnavailableBody().error,
+        code: developerSpaceAgentExecutionReceiptStoreUnavailableBody().code,
+      };
+    }
+    return { status: 500 as const, error: "Could not load Developer Agent receipt." };
+  }
+  return { status: 200 as const, receipt: data ?? null };
 }
 
 function buildFreshness(
@@ -2361,6 +2461,40 @@ developerSpacesRouter.get("/:id/agent/actions/confirmations", requireAuth, async
   });
 });
 
+developerSpacesRouter.get("/:id/agent/actions/receipts", requireAuth, async (req, res) => {
+  const ownerLoad = await loadDeveloperSpaceForOwner(req.params.id, req.user!);
+  if (ownerLoad.status !== 200) return res.status(ownerLoad.status).json({ error: ownerLoad.error });
+
+  const { data, error } = await (getSupabaseAdmin() as any)
+    .from("developer_space_agent_execution_receipts")
+    .select("*")
+    .eq("developer_space_id", ownerLoad.space.id)
+    .eq("owner_user_id", ownerLoad.space.owner_user_id)
+    .order("dispatched_at", { ascending: false })
+    .limit(20);
+
+  if (error) {
+    if (developerSpaceAgentExecutionReceiptStoreUnavailable(error)) {
+      return res.json({
+        receipts: [],
+        setup: {
+          receiptStoreAvailable: false,
+          code: developerSpaceAgentExecutionReceiptStoreUnavailableBody().code,
+        },
+      });
+    }
+    return res.status(500).json({
+      error: "Could not load Developer Agent receipts.",
+      code: "developer_space_agent_execution_receipts_unavailable",
+    });
+  }
+
+  return res.json({
+    receipts: (data ?? []).map(serializeDeveloperSpaceAgentExecutionReceipt),
+    setup: { receiptStoreAvailable: true },
+  });
+});
+
 developerSpacesRouter.post("/:id/agent/actions/confirmations", requireAuth, async (req, res) => {
   const parsed = createDeveloperSpaceAgentConfirmationSchema.safeParse(req.body ?? {});
   if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
@@ -2565,6 +2699,134 @@ developerSpacesRouter.post("/:id/agent/actions/confirmations/:confirmationId/can
     message: effectiveStatus === "expired"
       ? "Confirmation expired. No action executed."
       : "Confirmation cancelled. No action executed.",
+  });
+});
+
+developerSpacesRouter.post("/:id/agent/actions/confirmations/:confirmationId/execute", requireAuth, async (req, res) => {
+  const ownerLoad = await loadDeveloperSpaceForOwner(req.params.id, req.user!);
+  if (ownerLoad.status !== 200) return res.status(ownerLoad.status).json({ error: ownerLoad.error });
+
+  const loaded = await loadDeveloperSpaceAgentConfirmation(
+    ownerLoad.space.id,
+    ownerLoad.space.owner_user_id,
+    req.params.confirmationId,
+  );
+  if (loaded.status !== 200) return res.status(loaded.status).json({
+    error: loaded.error,
+    ...("code" in loaded ? { code: loaded.code } : {}),
+    executionAvailable: false,
+  });
+
+  const now = new Date();
+  const effectiveStatus = effectiveDeveloperSpaceAgentConfirmationStatus(loaded.confirmation, now);
+  if (effectiveStatus === "expired") {
+    const { data, error } = await (getSupabaseAdmin() as any)
+      .from("developer_space_agent_confirmations")
+      .update({ status: "expired" })
+      .eq("id", loaded.confirmation.id)
+      .eq("developer_space_id", ownerLoad.space.id)
+      .eq("owner_user_id", ownerLoad.space.owner_user_id)
+      .select("*")
+      .single();
+    if (error || !data) {
+      if (error && developerSpaceAgentConfirmationStoreUnavailable(error)) {
+        return res.status(503).json(developerSpaceAgentConfirmationStoreUnavailableBody());
+      }
+      return res.status(500).json({
+        error: "Could not expire Developer Agent confirmation.",
+        code: "developer_space_agent_confirmation_expire_failed",
+        executionAvailable: false,
+      });
+    }
+    return res.status(409).json({
+      error: "Developer Agent confirmation has expired.",
+      code: "developer_space_agent_confirmation_expired",
+      executionAvailable: false,
+    });
+  }
+
+  if (effectiveStatus !== "approved") {
+    return res.status(409).json({
+      error: "Developer Agent confirmation must be approved before a receipt can be recorded.",
+      code: "developer_space_agent_confirmation_not_approved",
+      executionAvailable: false,
+    });
+  }
+
+  if (loaded.confirmation.action !== DEVELOPER_SPACE_AGENT_EXECUTION_RECEIPT_ACTION) {
+    return res.status(409).json({
+      error: "This approved Developer Agent action remains blocked in the receipt harness.",
+      code: "developer_space_agent_execution_action_blocked",
+      executionAvailable: false,
+    });
+  }
+
+  const existing = await loadDeveloperSpaceAgentExecutionReceipt(
+    ownerLoad.space.id,
+    ownerLoad.space.owner_user_id,
+    loaded.confirmation.id,
+  );
+  if (existing.status !== 200) return res.status(existing.status).json({
+    error: existing.error,
+    ...("code" in existing ? { code: existing.code } : {}),
+    executionAvailable: false,
+  });
+  if (existing.receipt) {
+    return res.json({
+      receipt: serializeDeveloperSpaceAgentExecutionReceipt(existing.receipt),
+      idempotent: true,
+      executionAvailable: false,
+      message: "Capability request receipt was already recorded. No external action executed.",
+    });
+  }
+
+  const receiptPayload = developerSpaceAgentExecutionReceiptPayload();
+  const { data, error } = await (getSupabaseAdmin() as any)
+    .from("developer_space_agent_execution_receipts")
+    .insert({
+      developer_space_id: ownerLoad.space.id,
+      owner_user_id: ownerLoad.space.owner_user_id,
+      confirmation_id: loaded.confirmation.id,
+      action: DEVELOPER_SPACE_AGENT_EXECUTION_RECEIPT_ACTION,
+      status: "recorded",
+      summary: "Capability request receipt recorded for owner planning. No external action executed.",
+      receipt_payload: receiptPayload,
+      dispatched_at: now.toISOString(),
+    })
+    .select("*")
+    .single();
+
+  if (error || !data) {
+    if (error && developerSpaceAgentExecutionReceiptStoreUnavailable(error)) {
+      return res.status(503).json(developerSpaceAgentExecutionReceiptStoreUnavailableBody());
+    }
+    if ((error as { code?: string } | null)?.code === "23505") {
+      const receipt = await loadDeveloperSpaceAgentExecutionReceipt(
+        ownerLoad.space.id,
+        ownerLoad.space.owner_user_id,
+        loaded.confirmation.id,
+      );
+      if (receipt.status === 200 && receipt.receipt) {
+        return res.json({
+          receipt: serializeDeveloperSpaceAgentExecutionReceipt(receipt.receipt),
+          idempotent: true,
+          executionAvailable: false,
+          message: "Capability request receipt was already recorded. No external action executed.",
+        });
+      }
+    }
+    return res.status(500).json({
+      error: "Could not record Developer Agent receipt.",
+      code: "developer_space_agent_execution_receipt_create_failed",
+      executionAvailable: false,
+    });
+  }
+
+  return res.status(201).json({
+    receipt: serializeDeveloperSpaceAgentExecutionReceipt(data),
+    idempotent: false,
+    executionAvailable: false,
+    message: "Capability request receipt recorded. No external action executed.",
   });
 });
 

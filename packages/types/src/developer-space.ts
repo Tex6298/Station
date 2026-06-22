@@ -204,6 +204,8 @@ export type DeveloperSpaceAgentConfirmationStatus =
   | "cancelled"
   | "expired";
 
+export type DeveloperSpaceAgentExecutionReceiptStatus = "recorded";
+
 export interface DeveloperSpaceAgentActionRegistryEntry {
   action: DeveloperSpaceAgentRegisteredAction;
   label: string;
@@ -254,6 +256,24 @@ export interface DeveloperSpaceAgentConfirmationRecord {
   expiresAt: string;
   approvedAt?: string | null;
   cancelledAt?: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface DeveloperSpaceAgentExecutionReceiptRecord {
+  action: "request_capability";
+  status: DeveloperSpaceAgentExecutionReceiptStatus;
+  summary: string;
+  receiptPayload: {
+    action: "request_capability";
+    outcome: "capability_request_recorded";
+    executionAvailable: false;
+    mutationAvailable: false;
+    externalDispatch: false;
+    nextStep: string;
+    boundaries: string[];
+  };
+  dispatchedAt: string;
   createdAt: string;
   updatedAt: string;
 }

@@ -10,6 +10,10 @@ import {
   developerSpaceAgentConfirmationStatusCopy,
   developerSpaceAgentPreviewEmptyCopy,
   developerSpaceAgentPreviewStatusCopy,
+  developerSpaceAgentReceiptCanRecord,
+  developerSpaceAgentReceiptEmptyCopy,
+  developerSpaceAgentReceiptExecutionCopy,
+  developerSpaceAgentReceiptStatusCopy,
   developerSpaceOwnerCurrentState,
   developerSpaceUsageReadback,
   developerSpaceSignalStatus,
@@ -235,6 +239,37 @@ test("developer agent confirmation helpers keep intent separate from execution",
   assert.equal(
     developerSpaceAgentConfirmationEmptyCopy(false),
     "No confirmation records yet. Preview a future action to record owner intent."
+  );
+});
+
+test("developer agent receipt helpers only allow inert capability receipts", () => {
+  assert.equal(developerSpaceAgentReceiptCanRecord({
+    action: "request_capability",
+    status: "approved",
+  }), true);
+  assert.equal(developerSpaceAgentReceiptCanRecord({
+    action: "request_capability",
+    status: "pending",
+  }), false);
+  assert.equal(developerSpaceAgentReceiptCanRecord({
+    action: "publish_to_page",
+    status: "approved",
+  }), false);
+  assert.equal(developerSpaceAgentReceiptStatusCopy("recorded"), "Request recorded");
+  assert.match(developerSpaceAgentReceiptExecutionCopy({
+    receiptPayload: {
+      action: "request_capability",
+      outcome: "capability_request_recorded",
+      executionAvailable: false,
+      mutationAvailable: false,
+      externalDispatch: false,
+      nextStep: "Review before implementation.",
+      boundaries: [],
+    },
+  }), /No provider, deploy, repo, key/);
+  assert.equal(
+    developerSpaceAgentReceiptEmptyCopy(false),
+    "No capability request receipts yet. Approved request-capability confirmations can record planning evidence here."
   );
 });
 

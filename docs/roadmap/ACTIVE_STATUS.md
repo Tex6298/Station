@@ -4,7 +4,64 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest MIMIR decision - PR169 Phase 2D execution receipt harness
+## Latest DAEDALUS handoff - PR169 Phase 2D execution receipt harness
+
+DAEDALUS implemented PR169 on 2026-06-22.
+
+Receipt data shape:
+
+- Added `infra/supabase/migrations/050_developer_space_agent_execution_receipts.sql`.
+- New table: `developer_space_agent_execution_receipts`.
+- One receipt is allowed per confirmation through a unique
+  `confirmation_id` constraint.
+- RLS requires the authenticated user to own both the Developer Space and the
+  linked `request_capability` confirmation.
+- Stored payload is route-generated planning evidence only:
+  `executionAvailable: false`, `mutationAvailable: false`, and
+  `externalDispatch: false`.
+
+Route/UI shape:
+
+- Added owner-only `GET /developer-spaces/:id/agent/actions/receipts`.
+- Added owner-only
+  `POST /developer-spaces/:id/agent/actions/confirmations/:confirmationId/execute`.
+- The execute route creates a receipt only for approved `request_capability`
+  confirmations.
+- Pending, cancelled, expired, and non-`request_capability` confirmations return
+  bounded non-executing errors.
+- Repeat execute calls for the same confirmation return the existing receipt
+  with `idempotent: true`; they do not create duplicates.
+- The owner manage panel now loads recent receipts, renders them as planning
+  evidence, and exposes `Create receipt` only for approved
+  `request_capability` confirmations.
+- The serialized receipt/readback shape intentionally omits raw owner ids,
+  confirmation ids, preview hashes, raw payload JSON, prompts, keys, provider
+  payloads, cookies, tokens, environment values, and private logs.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` passed with 36
+  tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:developer-space-client` passed with
+  15 tests.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/types build` passed.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/api build` passed.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/web build` compiled,
+  linted/typechecked, generated 36 static pages, finalized optimization, and
+  collected traces, then hit the known local Windows symlink `EPERM` while
+  copying `.next/standalone` traced files.
+- `git diff --check` passed with CRLF normalization warnings only.
+
+Current baton:
+
+- ARGUS should review route/RLS owner scope, receipt serialization leak risk,
+  idempotency, blocked approved real actions, and visible UI copy.
+- Because visible owner UI changed, ARGUS should wake ARIADNE for hosted browser
+  proof if accepted.
+
+## Previous MIMIR decision - PR169 Phase 2D execution receipt harness
 
 MIMIR closes PR168 and opens PR169.
 
