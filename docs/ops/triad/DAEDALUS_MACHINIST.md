@@ -41,6 +41,10 @@ commit when `--since` resolves to the same commit as `--ref`. That prevents the
 specific miss where `HEAD` itself contains `WAKEUP A2:` but the range
 `HEAD..fork/main` is empty.
 
+`triad-watch` also keeps running when a transient `git fetch` fails. It reports
+the fetch failure on foreground startup/checks, keeps using the last fetched
+ref, and retries on the next poll instead of dropping out of foreground wait.
+
 ## Response Contract
 
 - DAEDALUS must answer every wakeup with a commit wakeup to the assigned next

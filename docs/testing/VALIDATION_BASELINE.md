@@ -64,6 +64,7 @@ DAEDALUS hosted schema repair on 2026-06-22:
 | Fresh pooler object proof | Pass | Confirmation action check includes `update_observatory`; receipt action check includes `update_observatory`; receipt owner policy includes `update_observatory`; receipt owner policy still requires approved confirmations; migration ledger row count is `1`. |
 | `node --check scripts/triad-watch.mjs; node --check scripts/triad-wakeups.mjs` | Pass | Wakeup watcher script syntax is valid after the current-commit guard. |
 | `node scripts/triad-watch.mjs A2 --ref fork/main --since HEAD --no-consume` | Pass | The watcher now surfaces a `WAKEUP A2:` in the current `HEAD` commit when `--since HEAD` would otherwise create an empty range. |
+| `node scripts/triad-watch.mjs A2 --fetch --remote definitely-not-a-remote --branch main --ref fork/main --since HEAD --no-consume` | Pass | Forced fetch failure reports the error, keeps using the existing fetched ref, and exits without crashing. |
 | `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 41 tests passed after the hosted schema apply and watcher guard. |
 
 DAEDALUS hosted repair notes:

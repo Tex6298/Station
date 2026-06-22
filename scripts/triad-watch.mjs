@@ -34,12 +34,27 @@ function flagValue(flags, name) {
   return value && !value.startsWith("--") ? value : null;
 }
 
-function fetchLatest({ remote, branch }) {
-  execFileSync(
-    "git",
-    ["fetch", "--quiet", remote, `${branch}:refs/remotes/${remote}/${branch}`],
-    { stdio: "pipe" },
-  );
+function formatFetchError(error) {
+  const stderr = error.stderr?.toString().trim();
+  return stderr || error.message;
+}
+
+function fetchLatest({ remote, branch }, { quiet = false } = {}) {
+  try {
+    execFileSync(
+      "git",
+      ["fetch", "--quiet", remote, `${branch}:refs/remotes/${remote}/${branch}`],
+      { stdio: "pipe" },
+    );
+    return true;
+  } catch (error) {
+    if (!quiet) {
+      console.log(`Fetch failed for ${remote}/${branch}; retrying on the next poll.`);
+      console.log(formatFetchError(error));
+    }
+
+    return false;
+  }
 }
 
 function resolveCommitish(commitish) {
@@ -62,7 +77,7 @@ function currentCommitWakeup(agent, { ref, since }) {
 
 function poll(agent, { quiet = false, consume = true, fetchConfig = null, ref = "HEAD", since = null } = {}) {
   if (fetchConfig) {
-    fetchLatest(fetchConfig);
+    fetchLatest(fetchConfig, { quiet });
   }
 
   const state = readState(agent);
