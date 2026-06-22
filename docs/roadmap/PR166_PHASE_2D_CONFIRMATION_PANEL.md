@@ -4,7 +4,7 @@ Date opened: 2026-06-22
 Opened by: A1 / MIMIR
 Owner: DAEDALUS implements. ARGUS reviews. ARIADNE rehearses after ARGUS if
 visible UI changes are accepted.
-Status: accepted by ARGUS; awaiting ARIADNE visible UI rehearsal
+Status: accepted by ARIADNE after visible UI rehearsal; waking MIMIR for closeout
 
 ## Why This Lane
 
@@ -181,3 +181,53 @@ DAEDALUS should wake ARGUS with:
 - whether ARIADNE should run visible UI rehearsal after review.
 
 If blocked, wake MIMIR with the exact blocker instead of going silent.
+
+## ARIADNE Visible UI Rehearsal
+
+Accepted on 2026-06-22.
+
+Method:
+
+- Ran the real Next manage page locally at `http://127.0.0.1:3139` with
+  mocked owner-only API responses for Developer Space detail, usage, exports,
+  PR162 action registry, PR162 previews, and PR165 confirmation routes.
+- Used synthetic labels only. No hosted data, replay data, billing state,
+  imports, exports, Developer Space keys, webhooks, Redis, Cloudflare, provider
+  config, workers, cache state, public pages, documents, layout, shell/repo/
+  deploy paths, or runtime state were mutated.
+
+Human-eye result:
+
+- The confirmation panel appears inside the Developer Agent owner manage
+  surface and reads as intent history, not execution.
+- Allowed `Read Developer Space brief` and `Draft project update` previews
+  still work as previews and do not show confirmation creation controls.
+- A future `Run job` preview exposes `Record confirmation` only after the
+  blocked future-lane preview, with copy that says owner intent only and
+  execution remains unavailable.
+- Creating a future-action confirmation added a pending record.
+- Approving that pending record changed it to `Intent approved`, removed
+  approve/cancel actions, and kept the explicit copy:
+  `Owner intent is recorded. Execution remains unavailable in this lane.`
+- Cancelling a separate pending confirmation changed it to `Cancelled`, removed
+  approve/cancel actions, and kept no-execution copy.
+- An expired confirmation displayed as `Expired` and did not render action
+  buttons.
+- The rehearsal recorded one confirmation create, one approve, and one cancel;
+  it recorded zero executions.
+- The confirmation panel did not render the synthetic confirmation ids,
+  owner id, preview hash, raw `sanitizedPayload`, or checked secret/provider/
+  prompt-shaped strings.
+- Desktop and 390px mobile layouts remained usable. The 390px mobile pass had
+  no document-level horizontal overflow.
+
+Verdict:
+
+- PR166 is product-experience accepted. The UI makes confirmation records
+  understandable as durable owner intent while keeping execution unavailable.
+- No DAEDALUS follow-up is required from this rehearsal.
+
+Validation:
+
+- `npx --yes --package @playwright/test@1.41.2 playwright test tmp-pr166-confirmation-panel-rehearsal.spec.js --reporter=line --workers=1`
+  passed: 1 test.

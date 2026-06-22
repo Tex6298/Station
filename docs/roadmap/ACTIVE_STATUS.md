@@ -4,6 +4,62 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARIADNE handoff - PR166
+
+ARIADNE accepts PR166 on 2026-06-22 after visible owner UI rehearsal and wakes
+MIMIR for closeout.
+
+Rehearsal method:
+
+- Ran the real Next manage page locally at `http://127.0.0.1:3139` with mocked
+  owner-only API responses for Developer Space detail, usage, exports, PR162
+  action registry, PR162 previews, and PR165 confirmation routes.
+- Used synthetic labels only. No hosted data, replay data, billing state,
+  imports, exports, Developer Space keys, webhooks, Redis, Cloudflare, provider
+  config, workers, cache state, public pages, documents, layout, shell/repo/
+  deploy paths, or runtime state were mutated.
+
+UX verdict:
+
+- The confirmation panel appears inside the Developer Agent owner manage
+  surface and reads as intent history, not execution.
+- Allowed `Read Developer Space brief` and `Draft project update` previews
+  still work as previews and do not show confirmation creation controls.
+- A future `Run job` preview exposes `Record confirmation` only after the
+  blocked future-lane preview, with copy that says owner intent only and
+  execution remains unavailable.
+- Creating a future-action confirmation added a pending record.
+- Approving that pending record changed it to `Intent approved`, removed
+  approve/cancel actions, and kept explicit non-execution copy.
+- Cancelling a separate pending confirmation changed it to `Cancelled`, removed
+  approve/cancel actions, and kept no-execution copy.
+- An expired confirmation displayed as `Expired` and did not render action
+  buttons.
+- The rehearsal recorded one confirmation create, one approve, one cancel, and
+  zero executions.
+- The confirmation panel did not render the synthetic confirmation ids, owner
+  id, preview hash, raw `sanitizedPayload`, or checked secret/provider/
+  prompt-shaped strings.
+- Desktop and 390px mobile layouts remained usable; 390px mobile had no
+  document-level horizontal overflow.
+
+Verdict:
+
+- Product-experience accepted.
+- No DAEDALUS follow-up is required from this rehearsal.
+
+Validation:
+
+- `npx --yes --package @playwright/test@1.41.2 playwright test tmp-pr166-confirmation-panel-rehearsal.spec.js --reporter=line --workers=1`
+  passed: 1 test.
+
+Next:
+
+- MIMIR should close PR166 or choose the next Phase 2D lane.
+
+Result doc:
+`docs/roadmap/PR166_PHASE_2D_CONFIRMATION_PANEL.md`.
+
 ## Latest ARGUS handoff - PR166
 
 ARGUS accepts PR166 on 2026-06-22 and wakes ARIADNE for visible UI rehearsal.
