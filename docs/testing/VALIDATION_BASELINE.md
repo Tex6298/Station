@@ -52,6 +52,33 @@ pnpm test:developer-spaces
 pnpm test:developer-space-client
 ```
 
+## PR170 Hosted Draft Save Schema Repair
+
+DAEDALUS hosted repair validation on 2026-06-22:
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Pooler object precheck | Missing migration `051` | Confirmation action check, receipt action check, and receipt owner policy did not include `save_project_update_draft`; receipt policy still required approved confirmations; migration ledger rows for `051_developer_space_agent_draft_document_save` were `0`. |
+| Temporary `pg@8.13.1` client outside repo | Pass | Reused the temp package path outside the repo and used unprepared SQL through `SUPABASE_POOLER_URL`; no credential values were printed. |
+| Migration `051` DDL + ledger row + schema reload | Pass | Applied only `051_developer_space_agent_draft_document_save.sql`, recorded `20260622093600 / 051_developer_space_agent_draft_document_save`, and sent `NOTIFY pgrst, 'reload schema'`. |
+| Pooler object proof | Pass | Confirmation action check includes `save_project_update_draft`; receipt action check includes `save_project_update_draft`; receipt owner policy includes `save_project_update_draft`; receipt owner policy still requires approved confirmations; migration ledger row count is `1`. |
+| Hosted API draft-save smoke | Pass | Synthetic run `953ef9bed6`: owner/non-owner signup `201`/`201`, owner tier `canon`, public Space create `201`, owner receipt list `200` store available count `0`, non-owner receipt list `403`, save confirmation create `201`, save approve `200`, save execute `201`, repeat save execute `200` idempotent, publish confirmation create `201`, approved publish execute `409` / `developer_space_agent_execution_action_blocked`, final owner receipt list `200` count `1`, public detail `200` with `linkedDocuments: 0`, hosted DB readback showed one receipt/one draft document/one owner-only link before cleanup. |
+| Synthetic cleanup readback | Pass | Auth-user deletion returned success for both synthetic users; synthetic Space readback after cleanup returned `0` rows. |
+
+DAEDALUS hosted repair notes:
+
+- No Supabase URL, service-role key, pooler URL, auth token, cookie, password,
+  raw user id, raw Space id, confirmation id, receipt id, document id, link id,
+  preview hash, raw prompt body, provider payload, or private owner content was
+  printed or committed.
+- This was a hosted schema/cache repair plus bounded hosted API smoke only. No
+  app code, UI behavior, provider call, autonomous loop, key/signing-secret
+  mutation, repo/deploy action, worker/Cloudflare/Redis path, billing/import/
+  export/webhook path, public page/layout mutation, or observed-runtime mutation
+  was added.
+- ARIADNE should rerun the hosted browser proof now that confirmation creation
+  and draft-save execution are available in hosted staging.
+
 ## PR170 Phase 2D Agent Draft Document Save
 
 DAEDALUS implementation validation on 2026-06-22:

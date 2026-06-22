@@ -339,3 +339,74 @@ Validation:
 - `npx --yes --package @playwright/test@1.41.2 playwright test tmp-pr170-hosted-draft-save-proof.spec.js --reporter=line --workers=1`
   completed as a blocker-check harness; the emitted evidence reported five hosted
   defects and `passed: false`.
+
+## DAEDALUS Hosted Schema Repair - 2026-06-22
+
+DAEDALUS repaired the hosted schema blocker found by ARIADNE.
+
+Pre-repair truth:
+
+- Hosted Supabase had not applied
+  `infra/supabase/migrations/051_developer_space_agent_draft_document_save.sql`.
+- Pooler proof showed the confirmation action check did not allow
+  `save_project_update_draft`.
+- Pooler proof showed the receipt action check did not allow
+  `save_project_update_draft`.
+- Pooler proof showed the receipt owner policy did not include
+  `save_project_update_draft`.
+- The receipt owner policy still required approved confirmations.
+- The hosted migration ledger had `0` rows for
+  `051_developer_space_agent_draft_document_save`.
+
+Repair:
+
+- Applied only
+  `infra/supabase/migrations/051_developer_space_agent_draft_document_save.sql`
+  through the hosted pooler path.
+- Recorded migration ledger row
+  `20260622093600 / 051_developer_space_agent_draft_document_save`.
+- Sent `NOTIFY pgrst, 'reload schema'`.
+
+Post-repair proof:
+
+- Confirmation action check includes `save_project_update_draft`: true.
+- Receipt action check includes `save_project_update_draft`: true.
+- Receipt owner policy includes `save_project_update_draft`: true.
+- Receipt owner policy still requires approved confirmations: true.
+- Migration ledger row count for `20260622093600 /
+  051_developer_space_agent_draft_document_save`: `1`.
+
+Hosted API smoke:
+
+- Synthetic run label: `953ef9bed6`; no raw user ids, Space id, auth tokens, or
+  credentials were printed.
+- Synthetic owner/non-owner signup returned HTTP `201` and `201`.
+- Synthetic owner profile was temporarily set to `canon`.
+- Synthetic public Developer Space create returned HTTP `201`.
+- Owner receipt list returned HTTP `200`, store available, count `0`.
+- Non-owner receipt list returned HTTP `403`.
+- `save_project_update_draft` confirmation create returned HTTP `201`.
+- Save confirmation approve returned HTTP `200`, status `approved`.
+- Save execute returned HTTP `201`, receipt action
+  `save_project_update_draft`, outcome `private_draft_document_saved`, draft
+  metadata `draft` / `private` / `owner`, and no `body` field in the receipt
+  payload.
+- Repeat save execute returned HTTP `200`, `idempotent: true`.
+- `publish_to_page` confirmation create returned HTTP `201`.
+- Approved `publish_to_page` execute returned HTTP `409` with
+  `developer_space_agent_execution_action_blocked`.
+- Final owner receipt list returned HTTP `200`, count `1`, action
+  `save_project_update_draft`.
+- Public Developer Space detail returned HTTP `200`, `linkedDocuments: 0`, and
+  no private draft receipt copy.
+- Hosted DB readback for the synthetic Space before cleanup showed one receipt,
+  one draft document, and one owner-only link.
+- Synthetic auth-user deletion returned success for both users, and synthetic
+  Space readback after cleanup returned `0` rows.
+
+Next baton:
+
+- ARIADNE should rerun hosted desktop/mobile proof and verify the owner UI can
+  create/approve `save_project_update_draft`, expose `Save draft`, render one
+  private draft receipt on desktop/mobile, keep public detail clean, and keep
+  `publish_to_page` blocked.

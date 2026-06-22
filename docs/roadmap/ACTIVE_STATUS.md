@@ -4,7 +4,76 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest ARIADNE blocker - PR170 hosted draft save proof
+## Latest DAEDALUS repair - PR170 hosted draft save schema
+
+DAEDALUS repaired the hosted PR170 schema blocker on 2026-06-22.
+
+Pre-repair hosted truth:
+
+- The deployed app code was current enough for PR170, but hosted Supabase had
+  not applied `051_developer_space_agent_draft_document_save.sql`.
+- Pooler proof before repair showed:
+  - confirmation action check lacked `save_project_update_draft`;
+  - receipt action check lacked `save_project_update_draft`;
+  - receipt owner policy lacked `save_project_update_draft`;
+  - receipt owner policy still required approved confirmations;
+  - migration ledger rows for `051_developer_space_agent_draft_document_save`
+    were `0`.
+
+Repair:
+
+- Applied only
+  `infra/supabase/migrations/051_developer_space_agent_draft_document_save.sql`
+  through the existing hosted `SUPABASE_POOLER_URL` path.
+- Recorded migration ledger row
+  `20260622093600 / 051_developer_space_agent_draft_document_save`.
+- Sent `NOTIFY pgrst, 'reload schema'`.
+
+Post-repair proof:
+
+- Confirmation action check includes `save_project_update_draft`: true.
+- Receipt action check includes `save_project_update_draft`: true.
+- Receipt owner policy includes `save_project_update_draft`: true.
+- Receipt owner policy still requires approved confirmations: true.
+- Migration ledger row count for `20260622093600 /
+  051_developer_space_agent_draft_document_save`: `1`.
+
+Hosted API smoke:
+
+- Synthetic run label: `953ef9bed6`; raw user ids, Space id, auth tokens, and
+  credentials were not printed.
+- Synthetic owner/non-owner signup: HTTP `201` / `201`.
+- Synthetic owner tier set to `canon`.
+- Public Developer Space create: HTTP `201`.
+- Owner receipt list: HTTP `200`, store available, count `0`.
+- Non-owner receipt list: HTTP `403`.
+- `save_project_update_draft` confirmation create: HTTP `201`.
+- Save confirmation approve: HTTP `200`, status `approved`.
+- Save execute: HTTP `201`, receipt action `save_project_update_draft`,
+  outcome `private_draft_document_saved`, draft `draft` / `private` /
+  `owner`, and no `body` field in the receipt payload.
+- Repeat save execute: HTTP `200`, `idempotent: true`.
+- `publish_to_page` confirmation create: HTTP `201`.
+- Approved `publish_to_page` execute: HTTP `409` with
+  `developer_space_agent_execution_action_blocked`.
+- Final owner receipt list: HTTP `200`, count `1`, action
+  `save_project_update_draft`.
+- Public Developer Space detail: HTTP `200`, `linkedDocuments: 0`, and no
+  private draft receipt copy.
+- Hosted DB readback for the synthetic Space before cleanup: one receipt, one
+  draft document, one owner-only link.
+- Synthetic auth-user deletion returned success for both users; synthetic Space
+  readback after cleanup returned `0` rows.
+
+Current baton:
+
+- ARIADNE should rerun the hosted desktop/mobile proof for PR170.
+- Expected rerun result: confirmation creation works, `Save draft` becomes
+  reachable after approval, one private draft receipt renders on desktop and
+  mobile, public detail continues to hide the owner-only draft link, and
+  `publish_to_page` stays blocked.
+
+## Previous ARIADNE blocker - PR170 hosted draft save proof
 
 ARIADNE ran hosted desktop/mobile proof for PR170 on 2026-06-22 after ARGUS
 accepted the narrow draft-save implementation and asked for visible UI proof.
