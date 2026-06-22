@@ -5,7 +5,7 @@ Opened by: A1 / MIMIR
 Owner: DAEDALUS implements.
 Reviewer: ARGUS reviews owner scope, execution boundary, and leak risk.
 Rehearsal: ARIADNE runs hosted browser proof if ARGUS accepts visible UI.
-Status: hosted browser blocker found; waking DAEDALUS
+Status: hosted receipt store repaired; open for ARIADNE rerun
 
 ## Why This Lane
 
@@ -362,3 +362,61 @@ Validation:
   commit.
 - `pnpm typecheck` was not run because this handoff changed docs only and did
   not touch imports or scripts.
+
+## DAEDALUS Hosted Receipt Store Repair - 2026-06-22
+
+DAEDALUS verified and repaired the hosted Supabase receipt-store blocker found
+by ARIADNE.
+
+Pre-repair truth:
+
+- Service-role PostgREST returned HTTP `404` / `PGRST205` for
+  `developer_space_agent_execution_receipts`.
+- Pooler proof showed the receipt table, receipt indexes, `confirmation_id`
+  unique constraint, RLS, owner policy, columns, and migration ledger row were
+  absent.
+
+Repair:
+
+- Applied only
+  `infra/supabase/migrations/050_developer_space_agent_execution_receipts.sql`
+  through the existing hosted `SUPABASE_POOLER_URL` path.
+- Recorded migration ledger row
+  `20260622082200 / 050_developer_space_agent_execution_receipts`.
+- Sent `NOTIFY pgrst, 'reload schema'`.
+
+Post-repair proof:
+
+- Table exists: true.
+- Space index exists: true.
+- Owner index exists: true.
+- `confirmation_id` unique constraint exists: true.
+- RLS enabled: true.
+- Owner policy count: `1`.
+- Policy requires approved `request_capability`: true.
+- Column count: `11`.
+- Service-role PostgREST returned HTTP `200` for
+  `/rest/v1/developer_space_agent_execution_receipts?select=action,status&limit=1`.
+
+Hosted API smoke:
+
+- Target host: `stationapi-production.up.railway.app`.
+- Run label: `cfe5ace655`.
+- Owner receipt list: HTTP `200`, setup available, count `0`.
+- Non-owner receipt list: HTTP `403`.
+- Approved `request_capability` execute: HTTP `201`,
+  `executionAvailable: false`, receipt status `recorded`.
+- Repeat execute: HTTP `200`, `idempotent: true`.
+- Approved `publish_to_page` execute: HTTP `409`,
+  `developer_space_agent_execution_action_blocked`.
+- Final owner receipt list: HTTP `200`, setup available, count `1`, status
+  `recorded`.
+- Synthetic auth-user cleanup was attempted for both users; service-role
+  readback for the synthetic Space slug returned `0` rows.
+
+Next baton:
+
+- ARIADNE should rerun the hosted desktop/mobile proof and verify the owner UI
+  no longer shows receipt storage unavailable, can create one non-executing
+  planning receipt, and renders receipt planning evidence without raw IDs or
+  secret-shaped strings.

@@ -52,6 +52,34 @@ pnpm test:developer-spaces
 pnpm test:developer-space-client
 ```
 
+## PR169 Hosted Receipt Store Repair
+
+DAEDALUS hosted schema proof on 2026-06-22:
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Service-role PostgREST precheck | Missing table | `developer_space_agent_execution_receipts` returned HTTP `404` / `PGRST205` before repair. |
+| Pooler object precheck | Missing table | The table, receipt indexes, `confirmation_id` unique constraint, RLS, owner policy, columns, and migration ledger row were absent. |
+| Temporary `pg@8.13.1` client outside repo | Pass | Reused the temp package path outside the repo and used unprepared SQL through `SUPABASE_POOLER_URL`. |
+| Migration `050` DDL + ledger row + schema reload | Pass | Applied only `050_developer_space_agent_execution_receipts.sql`, recorded `20260622082200 / 050_developer_space_agent_execution_receipts`, and sent `NOTIFY pgrst, 'reload schema'`. |
+| Pooler object proof | Pass | Receipt table exists; space/owner indexes exist; `confirmation_id` unique constraint exists; RLS is enabled; owner policy count is `1`; policy requires approved `request_capability`; column count is `11`. |
+| Service-role PostgREST postcheck | Pass | `/rest/v1/developer_space_agent_execution_receipts?select=action,status&limit=1` returned HTTP `200` with `rowCount: 0`. |
+| Hosted API receipt smoke | Pass | Synthetic run `cfe5ace655` on `stationapi-production.up.railway.app`: owner receipt list `200` setup available, non-owner receipt list `403`, approved `request_capability` execute `201`, repeat execute `200` idempotent, approved `publish_to_page` execute `409` / `developer_space_agent_execution_action_blocked`, final owner receipt list `200` count `1` status `recorded`. |
+| Synthetic cleanup readback | Pass | Auth-user deletion was attempted for both synthetic users; service-role readback for the synthetic Space slug returned `0` rows. |
+
+DAEDALUS hosted repair notes:
+
+- No Supabase URL, service-role key, pooler URL, auth token, cookie, password,
+  raw user id, raw Space id, confirmation id, preview hash, raw prompt body,
+  provider payload, or private owner content was printed or committed.
+- This was a hosted schema/cache repair only. No app code, UI behavior,
+  provider call, autonomous loop, key/signing-secret mutation, repo/deploy
+  action, worker/Cloudflare/Redis path, billing/export/webhook/archive/import
+  path, document/layout/public-page mutation, or observed-runtime mutation was
+  added.
+- ARIADNE should rerun the hosted browser proof now that the receipt store is
+  visible to the deployed API.
+
 ## PR169 Phase 2D Agent Execution Receipt Harness
 
 DAEDALUS implementation validation on 2026-06-22:

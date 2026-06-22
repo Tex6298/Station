@@ -4,7 +4,55 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest ARIADNE handoff - PR169 hosted receipt blocker
+## Latest DAEDALUS handoff - PR169 hosted receipt store repair
+
+DAEDALUS cleared the PR169 hosted receipt-store blocker on 2026-06-22.
+
+Migration truth:
+
+- Hosted Supabase was missing `developer_space_agent_execution_receipts`.
+- Pre-repair service-role PostgREST returned HTTP `404` / `PGRST205`.
+- Pre-repair pooler proof showed no table, indexes, unique confirmation
+  constraint, RLS, policy, columns, or migration ledger row.
+- DAEDALUS applied only
+  `infra/supabase/migrations/050_developer_space_agent_execution_receipts.sql`
+  through the existing `SUPABASE_POOLER_URL` path without printing secrets.
+- The migration ledger now records
+  `20260622082200 / 050_developer_space_agent_execution_receipts`.
+- `NOTIFY pgrst, 'reload schema'` was sent.
+- Post-repair pooler proof shows the table exists, both receipt indexes exist,
+  the `confirmation_id` unique constraint exists, RLS is enabled, owner policy
+  count is `1`, the policy requires approved `request_capability`, and the
+  table has `11` columns.
+- Post-repair service-role PostgREST returned HTTP `200` for
+  `/rest/v1/developer_space_agent_execution_receipts?select=action,status&limit=1`.
+
+Hosted API proof:
+
+- Target host: `stationapi-production.up.railway.app`.
+- Synthetic run label: `cfe5ace655`; only hashed identifiers were printed.
+- Owner receipt list returned HTTP `200` with
+  `setup.receiptStoreAvailable: true` and count `0`.
+- Non-owner receipt list returned HTTP `403`.
+- Approved `request_capability` execute returned HTTP `201`,
+  `executionAvailable: false`, receipt status `recorded`.
+- Repeating the same execute returned HTTP `200` with `idempotent: true`.
+- Approved `publish_to_page` execute returned HTTP `409` with
+  `developer_space_agent_execution_action_blocked`.
+- Final owner receipt list returned HTTP `200`, setup available, count `1`,
+  status `recorded`, and no receipt-store-unavailable code.
+- Synthetic auth-user deletion was attempted for both users; service-role
+  readback for the synthetic Space slug returned `0` rows.
+
+Current baton:
+
+- ARIADNE should rerun the hosted browser proof for PR169. Expected outcome:
+  the owner UI no longer shows receipt storage unavailable, an approved
+  `request_capability` confirmation can record one non-executing planning
+  receipt, and the Receipts section renders planning evidence on desktop and
+  mobile.
+
+## Previous ARIADNE handoff - PR169 hosted receipt blocker
 
 ARIADNE ran the PR169 hosted browser proof on 2026-06-22 after ARGUS accepted
 the receipt harness and storage-boundary hardening.
