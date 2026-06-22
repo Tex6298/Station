@@ -7,7 +7,7 @@ Reviewer: ARGUS reviews payload minimization, owner scope, duplicate behavior,
 and overclaim risk.
 Rehearsal: ARIADNE runs hosted desktop/mobile human rehearsal if ARGUS accepts
 visible owner UI.
-Status: implemented by DAEDALUS; open for ARGUS review
+Status: accepted by ARGUS; ARIADNE hosted proof passed; ready for MIMIR closeout
 
 ## Why This Lane
 
@@ -200,3 +200,95 @@ ARGUS should review changed files, payload minimization, hostile-input
 handling, owner-only visibility, public leakage, idempotency, overclaiming, and
 save/review/publish regression risk. Because owner UI changed, ARGUS should
 wake ARIADNE for hosted proof if accepted.
+
+## ARGUS Review Acceptance - 2026-06-22
+
+ARGUS accepted PR173 after a narrow hostile-input hardening patch.
+
+Accepted review truth:
+
+- `request_capability` rejects a repo-standard set of secret-shaped values,
+  including webhook-like probes, authorization-token probes, credentialed URLs,
+  PAT-shaped strings, UUID-shaped ids, private prompt/payload labels, and
+  connection strings.
+- Rejected sensitive input keys return a generic bounded error rather than
+  echoing submitted probe names.
+- The route remains a planning/triage receipt path only. It records minimized
+  capability metadata with `executionAvailable: false`,
+  `mutationAvailable: false`, and `externalDispatch: false`.
+- Public Developer Space detail does not receive capability categories,
+  summaries, confirmations, receipts, or private next-step copy.
+- Save draft, Review draft, and selected publish behavior remain covered and
+  unchanged.
+
+## ARIADNE Hosted Browser Acceptance - 2026-06-22
+
+ARIADNE ran the requested hosted desktop/mobile capability-triage proof after
+ARGUS accepted the boundary.
+
+Deployment identity:
+
+- Web `/health/deployment`: HTTP `200`, ready, branch `main`, service
+  `@station/web`, commit `4b0064596c0f`.
+- API `/health/deployment`: HTTP `200`, ready, branch `main`, service
+  `@station/api`, commit `9f4147cfd544`.
+- The web runtime is the PR173 app-code patch. The API runtime descends from
+  that patch and includes the A4 wakeup-consumption commit.
+
+Hosted owner proof:
+
+- Replay owner route `/developer-spaces/:slug/manage` loaded on desktop
+  `1440x1000`.
+- Developer Agent preview, future-lane vocabulary, confirmation records,
+  capability triage, and receipts rendered without setup-unavailable copy or
+  generic load-failure copy.
+- A safe `request_capability` preview accepted category `provider_config` and
+  a bounded summary.
+- Confirmation create returned HTTP `201` with `executionAvailable: false` and
+  a sanitized capability payload.
+- Approval returned HTTP `200` with execution still unavailable.
+- Receipt execution returned HTTP `201` and recorded one minimized owner-only
+  capability receipt with `executionAvailable: false`,
+  `mutationAvailable: false`, and `externalDispatch: false`.
+- Repeat execution returned HTTP `200`, stayed idempotent, and did not duplicate
+  the visible receipt for the proof summary.
+- The owner UI rendered `Capability triage` readback with the category, safe
+  summary, recorded state, and non-execution next-step copy.
+- A generic future action such as `run_job` still showed intent-only copy and
+  did not expose a receipt-execution control.
+
+Hosted hostile-input and public-boundary proof:
+
+- Secret-shaped summary input was rejected with HTTP `400` and did not echo the
+  submitted probe text.
+- A sensitive nested input-key probe was rejected with HTTP `400` and did not
+  echo the submitted key name.
+- Anonymous public API/detail readback did not include the capability summary,
+  `provider_config`, confirmation copy, receipt copy, or private next-step copy.
+- Anonymous public mobile detail did not show `Capability triage` or capability
+  request receipt text.
+- Owner mobile `390x900` showed the capability triage readback and generic
+  receipt readback without document-level horizontal overflow.
+- Visible owner and public text scans found zero UUID-shaped values and zero
+  secret-shaped strings.
+- Browser saw no API errors and no unexpected mutation requests.
+
+Mutation result:
+
+- Preview requests: `2`.
+- Confirmation creates: `1`.
+- Confirmation approvals: `1`.
+- Receipt execute requests: `2` including the idempotent repeat.
+- External executions: `0`.
+
+Verdict:
+
+- ARIADNE accepts PR173.
+- The hosted capability-triage UI reads as owner-only planning infrastructure,
+  not execution or configuration.
+- The public Developer Space boundary stays clean.
+
+Validation:
+
+- `npx --yes --package @playwright/test@1.41.2 playwright test tmp-pr173-hosted-capability-triage-proof.spec.js --reporter=line --workers=1`
+  passed: 1 test.

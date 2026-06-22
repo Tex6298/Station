@@ -4,9 +4,70 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest DAEDALUS handoff - PR173 capability request triage
+## Latest ARIADNE handoff - PR173 hosted capability triage proof accepted
 
-DAEDALUS implemented PR173 on 2026-06-22. Status is open for ARGUS review.
+ARIADNE accepts the PR173 hosted desktop/mobile capability-triage proof on
+2026-06-22 after ARGUS accepted the code boundary and hostile-input hardening.
+
+Deployment identity:
+
+- Web `/health/deployment`: HTTP `200`, ready, branch `main`, service
+  `@station/web`, commit `4b0064596c0f`.
+- API `/health/deployment`: HTTP `200`, ready, branch `main`, service
+  `@station/api`, commit `9f4147cfd544`.
+- The web runtime is the PR173 app-code patch. The API runtime descends from
+  that patch and includes the A4 wakeup-consumption commit.
+
+Hosted proof:
+
+- Replay owner route `/developer-spaces/:slug/manage` loaded on desktop
+  `1440x1000` and mobile `390x900`.
+- Developer Agent preview, future-lane vocabulary, confirmation records,
+  capability triage, and receipts rendered without setup-unavailable copy or
+  generic load-failure copy.
+- A safe `request_capability` preview/create/approve/execute path succeeded:
+  confirmation create `201`, approval `200`, receipt execute `201`.
+- The receipt recorded one minimized owner-only capability request with
+  `executionAvailable: false`, `mutationAvailable: false`, and
+  `externalDispatch: false`.
+- Repeat execution returned HTTP `200`, stayed idempotent, and did not duplicate
+  the visible receipt for the proof summary.
+- The owner UI rendered the `Capability triage` readback with category, safe
+  summary, recorded state, and non-execution next-step copy.
+- A generic future action such as `run_job` stayed intent-only and did not
+  expose receipt execution.
+- Secret-shaped summary input and a sensitive nested input-key probe both
+  returned HTTP `400` without echoing the submitted probe text/key.
+- Anonymous public API/detail and public mobile detail did not expose capability
+  summaries, `provider_config`, confirmation copy, receipt copy, private
+  next-step copy, or `Capability triage`.
+- Visible owner/public text scans found zero UUID-shaped values and zero
+  secret-shaped strings.
+- Browser saw no API errors and no unexpected mutation requests.
+
+Mutation result:
+
+- Preview requests: `2`.
+- Confirmation creates: `1`.
+- Confirmation approvals: `1`.
+- Receipt execute requests: `2` including the idempotent repeat.
+- External executions: `0`.
+
+Verdict:
+
+- ARIADNE accepts PR173.
+- The hosted capability-triage UI reads as owner-only planning infrastructure,
+  not execution or configuration.
+- The public Developer Space boundary stays clean.
+
+Current baton:
+
+- MIMIR should close PR173 or choose the next Phase 2D lane.
+
+## Previous DAEDALUS handoff - PR173 capability request triage
+
+DAEDALUS implemented PR173 on 2026-06-22. ARGUS later accepted the code
+boundary and ARIADNE accepted the hosted proof.
 
 Changed files:
 
@@ -72,7 +133,7 @@ Validation:
 - `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` passed.
 - `git diff --check` passed with CRLF warnings only.
 
-Current baton:
+Original baton:
 
 - ARGUS should review request-capability payload minimization, hostile input
   rejection, owner-only visibility, public detail cleanliness, idempotency,

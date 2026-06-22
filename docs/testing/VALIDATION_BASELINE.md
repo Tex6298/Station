@@ -52,6 +52,29 @@ pnpm test:developer-spaces
 pnpm test:developer-space-client
 ```
 
+## PR173 Hosted Capability Triage Proof
+
+ARIADNE hosted proof on 2026-06-22:
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `npx --yes --package @playwright/test@1.41.2 playwright test tmp-pr173-hosted-capability-triage-proof.spec.js --reporter=line --workers=1` | Pass | 1 hosted browser test passed after setting `NODE_PATH` to the cached npx package path. Desktop owner manage created, approved, executed, and idempotently repeated one safe `request_capability` receipt; mobile owner readback fit without document-level overflow; hostile secret-shaped inputs were rejected without echoing probes; anonymous public API/detail and mobile detail stayed clean. |
+| Hosted deployment identity | Pass | Web ready on `@station/web` commit `4b0064596c0f`; API ready on `@station/api` commit `9f4147cfd544`. |
+
+ARIADNE PR173 notes:
+
+- The owner UI presents `request_capability` as capability triage and
+  non-executing planning infrastructure.
+- Receipt payload readback stayed minimized with `executionAvailable: false`,
+  `mutationAvailable: false`, and `externalDispatch: false`.
+- Repeat execution stayed idempotent and did not duplicate the proof receipt.
+- Public Developer Space detail did not expose capability categories, summaries,
+  confirmation copy, receipt copy, private next-step copy, or `Capability
+  triage`.
+- No Railway, Supabase, Stripe, Cloudflare, Redis, provider, repo, key,
+  webhook, layout, worker, runtime, billing, import, export, or autonomous loop
+  was added or triggered by the hosted proof.
+
 ## PR173 Phase 2D Capability Request Triage
 
 DAEDALUS implementation validation on 2026-06-22:
