@@ -2582,8 +2582,7 @@ async function loadDeveloperSpaceAgentObservatoryStatusEvent(input: {
     .from("developer_space_events")
     .select("*")
     .eq("developer_space_id", input.space.id)
-    .eq("event_type", DEVELOPER_SPACE_AGENT_STATUS_NOTE_EVENT_TYPE)
-    .limit(200);
+    .eq("event_type", DEVELOPER_SPACE_AGENT_STATUS_NOTE_EVENT_TYPE);
 
   if (error) {
     return { status: 500 as const, error: "Could not load Developer Agent status-note event." };

@@ -2585,6 +2585,36 @@ test("Developer Space agent update-observatory gate publishes one sanitized publ
     });
     assert.equal(nonOwnerExecute.status, 403);
 
+    for (let index = 0; index < 205; index += 1) {
+      db.insertRow("developer_space_events", {
+        developer_space_id: spaceId,
+        node_id: null,
+        external_node_id: null,
+        event_type: "developer_agent.status_note",
+        event_label: `Historical status note ${index}`,
+        event_data: {
+          statusNote: `Historical status note ${index}`,
+          category: "observatory_status_note",
+          source: "owner_confirmed_developer_agent",
+          dedupeKey: `historical-status-note-${index}`,
+        },
+        observed_runtime_classifications: {
+          schema: "station.observed_runtime.classifications.v1",
+          fields: {
+            statusNote: "public",
+            category: "public",
+            source: "public",
+            dedupeKey: "owner",
+          },
+        },
+        similarity_score: null,
+        source_refs: [],
+        provenance: "user",
+        visibility: "public",
+        occurred_at: `2026-05-01T09:${String(Math.floor(index / 60)).padStart(2, "0")}:${String(index % 60).padStart(2, "0")}.000Z`,
+      });
+    }
+
     db.insertErrors.set("developer_space_agent_execution_receipts", {
       code: "XX999",
       message: "synthetic receipt insert failure",
@@ -2595,7 +2625,7 @@ test("Developer Space agent update-observatory gate publishes one sanitized publ
     assert.equal(failedReceipt.status, 500);
     assert.equal(failedReceipt.body.code, "developer_space_agent_execution_receipt_create_failed");
     assert.equal(JSON.stringify(failedReceipt.body).includes("synthetic receipt insert failure"), false);
-    assert.equal(db.tables.developer_space_events.length, 1);
+    assert.equal(db.tables.developer_space_events.length, 206);
     assert.equal(db.tables.developer_space_agent_execution_receipts.length, 0);
 
     const firstExecute = await requestJson(app, "POST", `/developer-spaces/${spaceId}/agent/actions/confirmations/${create.body.confirmation.id}/execute`, {
@@ -2615,10 +2645,11 @@ test("Developer Space agent update-observatory gate publishes one sanitized publ
     assert.equal("id" in firstExecute.body.receipt, false);
     assert.equal("confirmationId" in firstExecute.body.receipt, false);
     assert.equal("ownerUserId" in firstExecute.body.receipt, false);
-    assert.equal(db.tables.developer_space_events.length, 1);
+    assert.equal(db.tables.developer_space_events.length, 206);
     assert.equal(db.tables.developer_space_agent_execution_receipts.length, 1);
 
-    const eventRow = db.tables.developer_space_events[0];
+    const eventRow = db.tables.developer_space_events.find((event: Row) => event.event_data.statusNote === note);
+    assert.ok(eventRow);
     assert.equal(eventRow.event_type, "developer_agent.status_note");
     assert.equal(eventRow.visibility, "public");
     assert.equal(eventRow.provenance, "user");
@@ -2631,7 +2662,9 @@ test("Developer Space agent update-observatory gate publishes one sanitized publ
 
     const publicAfter = await requestJson(app, "GET", `/developer-spaces/${slug}`);
     assert.equal(publicAfter.status, 200);
-    const publicNote = publicAfter.body.events.find((event: Row) => event.eventType === "developer_agent.status_note");
+    const publicNote = publicAfter.body.events.find((event: Row) =>
+      event.eventType === "developer_agent.status_note" && event.eventData.statusNote === note
+    );
     assert.ok(publicNote);
     assert.equal(publicNote.eventData.statusNote, note);
     assert.equal(publicNote.eventData.category, "observatory_status_note");
@@ -2644,7 +2677,7 @@ test("Developer Space agent update-observatory gate publishes one sanitized publ
     assert.equal(secondExecute.status, 200);
     assert.equal(secondExecute.body.idempotent, true);
     assert.equal(secondExecute.body.executionAvailable, true);
-    assert.equal(db.tables.developer_space_events.length, 1);
+    assert.equal(db.tables.developer_space_events.length, 206);
     assert.equal(db.tables.developer_space_agent_execution_receipts.length, 1);
 
     const ownerReceipts = await requestJson(app, "GET", `/developer-spaces/${spaceId}/agent/actions/receipts`, {
