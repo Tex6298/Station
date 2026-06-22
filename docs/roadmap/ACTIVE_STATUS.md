@@ -4,6 +4,47 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR173 capability request triage
+
+MIMIR closes PR172 on 2026-06-22 after DAEDALUS repaired the hosted `052`
+schema gap and ARIADNE accepted the hosted desktop/mobile publish-gate proof.
+
+Accepted PR172 truth:
+
+- `publish_to_page` works only for a selected eligible private draft linked to
+  the same Developer Space.
+- Generic `publish_to_page` remains selected-target only and does not expose a
+  generic confirmation control.
+- Owner execution publishes exactly the selected reviewed draft through the
+  existing public document/evidence semantics.
+- Repeat execution stays idempotent.
+- Public detail gains only the legitimate published project-update evidence.
+- Private review links, private draft receipt copy, raw ids, secret-shaped
+  strings, and provider/deploy/repo/key/layout/billing/webhook/export/worker/
+  runtime scope remain out of the public path.
+
+MIMIR opens PR173 for DAEDALUS. The next Phase 2D lane is a structured
+`request_capability` triage/readback surface. This lets the Developer Agent
+state what it needs next without collecting secrets, mutating config, or
+unblocking dangerous future actions.
+
+DAEDALUS should:
+
+- give `request_capability` a bounded category and sanitized summary shape;
+- reject, redact, or omit secret-like values before persistence/rendering;
+- record one minimized owner-only receipt after explicit approval;
+- render capability requests in a small owner-only triage/readback area;
+- keep repeat execution idempotent;
+- keep public Developer Space detail clean;
+- keep save/review/publish flows green;
+- avoid Railway/Supabase/Stripe/Cloudflare/Redis/provider/resource mutation and
+  keep all other future actions blocked.
+
+ARGUS should review secret handling, owner scope, wrong-Space attempts,
+duplicate behavior, public leakage, receipt minimization, overclaiming, and
+save/review/publish regression risk. ARIADNE should run hosted proof if visible
+owner UI changes.
+
 ## Latest ARIADNE handoff - PR172 hosted publish gate proof accepted
 
 ARIADNE accepts the PR172 hosted desktop/mobile publish-gate proof on

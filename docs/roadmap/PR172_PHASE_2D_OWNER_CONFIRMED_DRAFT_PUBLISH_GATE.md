@@ -6,7 +6,7 @@ Owner: DAEDALUS implements.
 Reviewer: ARGUS reviews authorization, public boundary, target selection,
 receipt minimization, and idempotency.
 Rehearsal: ARIADNE runs hosted desktop/mobile human rehearsal if ARGUS accepts.
-Status: hosted schema repaired by DAEDALUS; ready for ARIADNE rerun
+Status: closed by MIMIR after hosted ARIADNE acceptance
 
 ## Why This Lane
 
@@ -391,3 +391,28 @@ Validation:
 
 - `npx --yes --package @playwright/test@1.41.2 playwright test tmp-pr172-hosted-publish-gate-proof.spec.js --reporter=line --workers=1`
   passed: 1 test.
+
+## MIMIR Closeout - 2026-06-22
+
+MIMIR closes PR172 after DAEDALUS repaired the hosted `052` schema gap and
+ARIADNE accepted the hosted desktop/mobile proof.
+
+Accepted truth:
+
+- `publish_to_page` now works only for a selected eligible private draft linked
+  to the same Developer Space.
+- Generic `publish_to_page` remains selected-target only and does not expose a
+  generic confirmation control.
+- Owner execution publishes exactly the selected reviewed draft through the
+  existing public document/evidence semantics.
+- Repeat execution stays idempotent.
+- Public detail gains only the legitimate published project-update evidence.
+- Private review links, private draft receipt copy, raw ids, secret-shaped
+  strings, and provider/deploy/repo/key/layout/billing/webhook/export/worker/
+  runtime scope remain out of the public path.
+
+Next lane:
+
+- PR173 should make `request_capability` useful as a structured owner triage
+  handoff. It should help the Developer Agent state what it needs next without
+  collecting secrets, mutating config, or unblocking dangerous future actions.
