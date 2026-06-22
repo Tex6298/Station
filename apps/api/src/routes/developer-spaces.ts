@@ -1442,7 +1442,12 @@ async function saveDeveloperSpaceProjectUpdateDraft(input: {
   confirmationId: string;
 }) {
   const sb = getSupabaseAdmin() as any;
-  const readback = await loadDeveloperSpaceAgentReadback(input.space);
+  let readback: DeveloperSpaceAgentReadback;
+  try {
+    readback = await loadDeveloperSpaceAgentReadback(input.space);
+  } catch {
+    return { status: 500 as const, error: "Could not load Developer Agent draft readback." };
+  }
   const draft = buildDeveloperSpaceProjectUpdateDraft(input.space, readback);
   const role: DeveloperSpaceDocumentRole = "field_log";
   const slugHash = payloadHash({

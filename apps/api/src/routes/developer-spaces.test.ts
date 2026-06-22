@@ -2059,11 +2059,40 @@ test("Developer Space agent draft save creates one private owner-only linked doc
     assert.equal(publicDetail.body.access, "public");
     assert.equal(publicDetail.body.linkedDocuments.length, 0);
 
+    const readbackFailureCandidate = await requestJson(app, "POST", `/developer-spaces/${spaceId}/agent/actions/confirmations`, {
+      token: "owner-token",
+      body: { action: "save_project_update_draft" },
+    });
+    assert.equal(readbackFailureCandidate.status, 201);
+    const approvedReadbackFailure = await requestJson(
+      app,
+      "POST",
+      `/developer-spaces/${spaceId}/agent/actions/confirmations/${readbackFailureCandidate.body.confirmation.id}/approve`,
+      { token: "owner-token" },
+    );
+    assert.equal(approvedReadbackFailure.status, 200);
+    db.unavailableTables.add("developer_space_observed_runtime_context");
+    const readbackFailureExecute = await requestJson(
+      app,
+      "POST",
+      `/developer-spaces/${spaceId}/agent/actions/confirmations/${readbackFailureCandidate.body.confirmation.id}/execute`,
+      { token: "owner-token" },
+    );
+    db.unavailableTables.delete("developer_space_observed_runtime_context");
+    assert.equal(readbackFailureExecute.status, 500);
+    assert.equal(readbackFailureExecute.body.code, "developer_space_agent_draft_document_save_failed");
+    assert.equal(readbackFailureExecute.body.executionAvailable, false);
+    assert.equal(JSON.stringify(readbackFailureExecute.body).includes("relation"), false);
+    assert.equal(db.tables.documents.length, 1);
+    assert.equal(db.tables.developer_space_documents.length, 1);
+    assert.equal(db.tables.developer_space_agent_execution_receipts.length, 1);
+
     const responseText = JSON.stringify({
       firstExecute: firstExecute.body,
       secondExecute: secondExecute.body,
       ownerList: ownerList.body,
       publicDetail: publicDetail.body,
+      readbackFailureExecute: readbackFailureExecute.body,
     });
     assert.doesNotMatch(responseText, /save this private prompt|save-secret-token|event payload should not appear|event-secret-token|private:event:source/);
     assert.equal(responseText.includes(save.body.confirmation.id), false);
