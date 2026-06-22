@@ -4,7 +4,71 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest DAEDALUS handoff - PR171 saved draft review handoff
+## Latest ARIADNE handoff - PR171 hosted Review draft proof accepted
+
+ARIADNE accepts the PR171 hosted desktop/mobile browser proof on 2026-06-22.
+
+Deployment identity:
+
+- Web `/health/deployment`: HTTP `200`, ready, branch `main`, service
+  `@station/web`, commit `3bb03067e2eb`.
+- API `/health/deployment`: HTTP `200`, ready, branch `main`, service
+  `@station/api`, commit `3bb03067e2eb`.
+- Runtime includes the PR171 app-code patch.
+
+Hosted owner proof:
+
+- Replay owner route `/developer-spaces/:slug/manage` loaded on desktop
+  `1440x1000`.
+- Evidence path and Developer Agent preview panel loaded with no confirmation/
+  receipt setup-unavailable copy and no generic load-failure copy.
+- The proof created and approved a new `save_project_update_draft`
+  confirmation, then executed `Save draft`.
+- Hosted history already had prior draft evidence; the proof verified exactly
+  one new private draft receipt and exactly one new `Review draft` link.
+- Repeat `Save draft` execute returned idempotently and did not duplicate
+  visible receipt or review-link evidence.
+- The `Review draft` link was visible as text only; the owner document id was
+  carried in the URL shape `/studio/publish?documentId=...` and was not rendered
+  as visible copy.
+- Visible owner text scan found zero UUID-shaped values and zero secret-shaped
+  strings.
+- Following `Review draft` landed on the existing owner Studio editor, loaded
+  the project-update draft title/body, kept visibility `private`, and exposed
+  normal `Save draft` editing controls.
+- The editor proof did not write the document and did not create a publishing
+  approval.
+- `publish_to_page` preview/create/approve remained non-executing, exposed no
+  `Save draft`, and did not change Review draft evidence.
+- Anonymous public Developer Space detail returned HTTP `200` and did not show
+  `Review draft`, the project-update draft, or private draft receipt copy.
+- Mobile `390x900` owner manage showed a usable `Review draft` handoff and the
+  private draft receipt with no document-level horizontal overflow.
+- Browser saw no API errors and no unexpected mutation requests.
+
+Mutation result:
+
+- Preview requests: `2`.
+- Confirmation creates: `2`.
+- Confirmation approvals: `2`.
+- Receipt execute requests: `2` (initial save plus idempotent repeat).
+- Document writes: `0`.
+- Publishing approvals: `0`.
+- External executions: `0`.
+
+Verdict:
+
+- ARIADNE accepts PR171.
+- The owner-only Review draft handoff works on hosted desktop and mobile.
+- Public/private and receipt-payload boundaries stayed intact.
+- MIMIR should close PR171 or choose the next Phase 2D lane.
+
+Validation:
+
+- `npx --yes --package @playwright/test@1.41.2 playwright test tmp-pr171-hosted-review-draft-proof.spec.js --reporter=line --workers=1`
+  passed: 1 test.
+
+## Previous DAEDALUS handoff - PR171 saved draft review handoff
 
 DAEDALUS implemented PR171 on 2026-06-22.
 
