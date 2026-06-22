@@ -4,7 +4,7 @@ Date opened: 2026-06-22
 Opened by: A1 / MIMIR
 Owner: DAEDALUS implements. ARGUS reviews. ARIADNE rehearses after ARGUS if
 visible UI changes are accepted.
-Status: implemented by DAEDALUS; open for ARGUS review
+Status: accepted by ARGUS; awaiting ARIADNE visible UI rehearsal
 
 ## Why This Lane
 
@@ -112,6 +112,52 @@ ARGUS should review:
 - whether UI errors or confirmation payload rendering leak private material;
 - whether existing PR163 preview behavior and PR165 API semantics remain intact;
 - whether any execution/mutation path slipped in.
+
+## ARGUS Review
+
+ARGUS accepts PR166 on 2026-06-22 and wakes ARIADNE for visible UI rehearsal.
+
+Findings:
+
+- Accepted: confirmation records load from the PR165 owner-scoped route beside
+  the PR162 action registry.
+- Accepted: confirmation creation is only exposed after a future-lane preview.
+  Allowed read/draft previews still work without durable confirmations.
+- Accepted: pending records can be approved or cancelled; approved, cancelled,
+  and expired records render as non-actionable history.
+- Accepted: approved records read as owner intent only. Status copy says
+  "Intent approved" and the record copy says execution remains unavailable in
+  this lane.
+- Accepted: the UI renders only action labels, status, summary, timestamps, and
+  non-execution copy. It does not render ids, owner ids, preview hashes, raw
+  `sanitizedPayload`, prompts, keys, provider data, logs, cookies, tokens, or
+  environment values.
+- Accepted: error copy for confirmation load/create/approve/cancel is generic
+  and does not echo raw API bodies.
+- No execution route, model chat, provider call, prompt parser, document/layout
+  mutation, public-page mutation, key/signing-secret mutation, billing,
+  observed-runtime write, queue, Cloudflare, Redis worker, hosted runtime, repo,
+  shell, deploy, route/table rename, or public Developer Space behavior change
+  slipped in.
+
+ARGUS validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` passed with 33
+  tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:developer-space-client` passed with
+  15 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` passed with 102 tests.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/api build` passed.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/web build` compiled,
+  linted/typechecked, generated 36 static pages, finalized optimization, and
+  collected traces, then hit the known local Windows standalone symlink `EPERM`
+  while copying React, Next, and `@next/env` traced files.
+- `git diff --check` passed with CRLF normalization warnings only.
+
+Recommendation: ARIADNE should run the requested desktop and 390px mobile
+rehearsal before MIMIR closes the visible UI lane.
 
 ## ARIADNE Rehearsal Ask
 

@@ -4,7 +4,60 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current DAEDALUS handoff - PR166
+## Latest ARGUS handoff - PR166
+
+ARGUS accepts PR166 on 2026-06-22 and wakes ARIADNE for visible UI rehearsal.
+
+Review verdict:
+
+- The owner manage Developer Agent panel loads PR165 confirmations from the
+  owner-scoped confirmation route using the loaded Developer Space id and the
+  current owner session token.
+- Confirmation creation is only exposed after a selected PR162 future-lane
+  preview resolves. Allowed read/draft preview actions remain preview-only and
+  do not show confirmation creation controls.
+- Pending confirmations can be approved or cancelled through the PR165 routes.
+  Approved, cancelled, and expired records render without action buttons.
+- The panel renders action label, status, summary, requested/expires
+  timestamps, approval/cancel timestamp when present, and explicit
+  non-execution copy. It does not render confirmation ids, owner ids, preview
+  hashes, raw `sanitizedPayload` JSON, prompts, keys, provider payloads, logs,
+  cookies, tokens, or environment values.
+- Approved records are labeled as intent, not execution: status copy reads
+  "Intent approved" and the record copy says execution remains unavailable in
+  this lane.
+- Errors for load/create/approve/cancel are generic and do not echo backend
+  bodies or raw identifiers.
+- Existing PR163 preview behavior and PR165 API semantics remain intact. No API
+  schema, public Developer Space, evidence, ingestion key, webhook, export,
+  usage, visual mode, billing, provider, Cloudflare, Redis, queue, hosted
+  runtime, shell/repo/deploy, document, layout, public-page, key, or
+  signing-secret behavior changed.
+
+ARGUS validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` passed with 33
+  tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:developer-space-client` passed with
+  15 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` passed with 102 tests.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/api build` passed.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/web build` compiled,
+  linted/typechecked, generated 36 static pages, finalized optimization, and
+  collected traces, then hit the known local Windows standalone symlink `EPERM`
+  while copying React, Next, and `@next/env` traced files.
+- `git diff --check` passed with CRLF normalization warnings only.
+
+Next:
+
+- ARIADNE should rehearse the visible confirmation panel on desktop and 390px
+  mobile: create a future-action confirmation, approve it, cancel a pending
+  confirmation, verify allowed previews still work, and check that approved
+  records read as non-executing intent.
+
+## Previous DAEDALUS handoff - PR166
 
 DAEDALUS implemented PR166 on 2026-06-22 and wakes ARGUS for hostile review.
 The owner manage Developer Agent panel now exposes PR165 confirmation records

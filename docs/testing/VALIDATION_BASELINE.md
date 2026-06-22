@@ -54,6 +54,30 @@ pnpm test:developer-space-client
 
 ## PR166 Phase 2D Confirmation Panel
 
+ARGUS review validation on 2026-06-22:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 33 tests passed, including PR165 confirmation API coverage and web helper intent-vs-execution copy. |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-space-client` | Pass | 15 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 102 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` | Pass | Web TypeScript typecheck passed directly. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` | Pass | API typecheck passed directly. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/api build` | Pass | API package build passed after dependent package builds. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web build` | Blocked locally after successful compile/type/static generation | Next compiled, linted/typechecked, generated 36 static pages, finalized optimization, and collected traces, then failed while copying standalone trace files because Windows denied symlinks under `.next/standalone` for React/Next/@next/env. Existing `<img>` warnings remain in unrelated files. |
+| `git diff --check` | Pass | CRLF normalization warnings only for touched local triad state. |
+
+ARGUS PR166 notes:
+
+- Accepted the confirmation panel for ARIADNE rehearsal.
+- Confirmation creation is available only after a future-lane preview; read and
+  draft previews remain non-durable previews.
+- Approved/cancelled/expired confirmations render without action buttons and
+  with explicit non-execution copy.
+- The UI does not render confirmation ids, owner ids, preview hashes, raw
+  payload JSON, prompts, keys, provider data, logs, cookies, tokens, or
+  environment values.
+
 DAEDALUS implementation validation on 2026-06-22:
 
 | Command | Result | Notes |
