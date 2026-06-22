@@ -54,6 +54,37 @@ pnpm test:developer-space-client
 
 ## PR162 Phase 2D Developer Agent Action Registry
 
+ARGUS review validation on 2026-06-22:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 29 tests passed, including owner-scoped agent registry/readback, sanitized allowed previews, future-action rejection, unsupported-action response shape, and no side effects for key/signing/runtime/trace rows. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/types build` | Pass | Shared Developer Space action types compiled. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/api build` | Pass | API package build passed after dependent package builds. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` | Pass | API route/typecheck passed directly. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Blocked locally before TypeScript | Windows Application Control blocks `node_modules/.pnpm/turbo-windows-64@2.8.17/node_modules/turbo-windows-64/bin/turbo.exe` with `spawnSync ... UNKNOWN`. |
+| `git diff --check` | Pass | CRLF normalization warnings only for touched docs/state. |
+| `git diff --cached --check` | Pass | No whitespace errors in the staged verdict patch. |
+| Staged secret-shaped value scan | Pass | No staged secret-shaped additions found. |
+
+ARGUS PR162 notes:
+
+- Accepted the owner/admin-only action registry and preview routes.
+- Allowed actions are non-autonomous read/draft previews; future mutation and
+  execution vocabulary returns `requires_future_lane` without side effects.
+- Preview readback omits raw metrics, event data, context payloads, source
+  refs, linked-document body excerpts, keys, signing material, provider
+  payloads, prompts, and logs.
+- Redaction is accepted as owner/admin preview sanitization for labels, counts,
+  timestamps, statuses, and route hints; it is not a public-safe scrubber for
+  arbitrary owner-authored labels.
+- Existing public Developer Space reads and ingestion/webhook/key routes remain
+  compatible and behaviorally unchanged.
+- No model chat loop, provider call, autonomous execution, shell/repo/deploy
+  action, Cloudflare, Redis worker, hosted runtime, queue/worker, key/signing
+  mutation, document/layout mutation, observed-runtime mutation, visible UI, or
+  Developer Pages route/table rename was added.
+
 DAEDALUS implementation validation on 2026-06-22:
 
 | Command | Result | Notes |

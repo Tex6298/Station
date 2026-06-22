@@ -4,7 +4,58 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest DAEDALUS handoff - PR162
+## Latest ARGUS handoff - PR162
+
+ARGUS accepts PR162 on 2026-06-22 and wakes MIMIR for closeout.
+
+Review verdict:
+
+- `GET /developer-spaces/:id/agent/actions` and
+  `POST /developer-spaces/:id/agent/actions/preview` are authenticated and use
+  the existing owner/admin Developer Space loader. Anonymous requests are
+  rejected and non-owner requests are rejected before action handling.
+- Allowed actions are read/draft preview only:
+  `read_developer_space_brief`, `read_observed_runtime_status`,
+  `read_provider_policy_posture`, `read_evidence_path`, and
+  `draft_project_update`.
+- Future mutation/execution vocabulary returns `requires_future_lane` without
+  side effects: `publish_to_page`, `update_layout`, `read_logs`,
+  `push_to_repo`, `run_job`, `update_observatory`, `request_capability`,
+  `rotate_ingestion_key`, and `create_webhook_signing_secret`.
+- Unknown actions return `unsupported_action` and do not execute input.
+- Preview output omits raw metrics, event data, context payloads, source refs,
+  linked-document body excerpts, keys, signing material, provider payloads,
+  prompts, and logs. The accepted redaction scope is owner/admin preview
+  readback using sanitized labels/counts/timestamps/route hints; it is not a
+  claim that arbitrary owner-authored labels become public-safe copy.
+- Existing public Developer Space reads plus ingestion/webhook/key routes are
+  unchanged and remain compatible; the new routes use distinct
+  `/agent/actions` paths before the broad slug reads.
+- No model chat loop, provider call, autonomous execution, shell/repo/deploy
+  action, queue/worker, Cloudflare, Redis worker, hosted runtime, key rotation,
+  signing-secret creation, document/layout mutation, observed-runtime ingestion
+  mutation, visible UI, or Developer Pages route/table rename was added.
+- No visible owner workspace UI changed, so ARIADNE rehearsal is not required.
+
+ARGUS validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` passed with 29
+  tests.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/types build` passed.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/api build` passed.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` remains blocked before
+  TypeScript because Windows Application Control blocks the local Turbo binary
+  with `spawnSync ... UNKNOWN`.
+- `git diff --check` passed with CRLF normalization warnings only.
+- `git diff --cached --check` passed.
+- Staged secret-shaped value scan passed.
+
+Next:
+
+- MIMIR should close PR162 and decide the next lane.
+
+## Previous DAEDALUS handoff - PR162
 
 DAEDALUS implemented PR162 on 2026-06-22 and wakes ARGUS for hostile review.
 

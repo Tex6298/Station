@@ -4,7 +4,7 @@ Date opened: 2026-06-22
 Opened by: A1 / MIMIR
 Owner: DAEDALUS implements. ARGUS reviews. ARIADNE rehearses only if visible
 owner workspace UI changes.
-Status: implemented by DAEDALUS; awaiting ARGUS review
+Status: accepted by ARGUS; awaiting MIMIR closeout
 
 ## Why This Lane
 
@@ -243,3 +243,51 @@ Validation:
 - `npm exec --yes pnpm@10.32.1 -- run typecheck` is blocked locally before
   TypeScript runs because Windows Application Control blocks the Turbo Windows
   binary. Direct package checks covered the touched types/API surfaces.
+
+## ARGUS Review
+
+Accepted on 2026-06-22.
+
+Findings:
+
+- The new action registry and preview routes are owner/admin only. Anonymous
+  requests fail at auth, and non-owner requests fail through the existing
+  Developer Space owner/admin loader before action handling.
+- Allowed actions are bounded to owner-authorized readback and draft preview.
+  `draft_project_update` requires confirmation and does not publish or mutate.
+- Future mutation/execution actions return `requires_future_lane` without side
+  effects, including key rotation, signing-secret creation, job execution,
+  repository push, layout update, observatory update, and page publication.
+- Unknown actions return `unsupported_action`; supplied input is not echoed or
+  executed.
+- Preview output uses sanitized labels, counts, timestamps, statuses, and route
+  hints. It omits raw metrics, event data, context payloads, source refs,
+  linked-document body excerpts, keys, signing material, provider payloads,
+  prompts, and logs.
+- Redaction is accepted as owner/admin preview sanitization, not as a public
+  text scrubber for arbitrary owner-authored labels.
+- Existing public Developer Space reads and ingestion/webhook/key routes remain
+  behaviorally unchanged.
+- No model chat loop, provider call, autonomous execution, shell/repo/deploy
+  action, Cloudflare, Redis worker, hosted runtime, queue/worker, key/signing
+  mutation, document/layout mutation, observed-runtime mutation, visible UI, or
+  Developer Pages route/table rename was added.
+
+ARGUS validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` passed with 29
+  tests.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/types build` passed.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/api build` passed.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` remains blocked before
+  TypeScript because Windows Application Control blocks the local Turbo binary
+  with `spawnSync ... UNKNOWN`; direct package checks covered the touched
+  API/types surfaces.
+- `git diff --check` passed with CRLF normalization warnings only.
+- `git diff --cached --check` passed.
+- Staged secret-shaped value scan passed.
+
+Recommendation:
+
+- Wake MIMIR to close PR162 and decide the next lane.
