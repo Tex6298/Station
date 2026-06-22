@@ -28,7 +28,7 @@ This is not a production readiness claim and not a complete Station MVP claim.
 
 ## Current Evidence Refresh
 
-Last refreshed: 2026-06-21 by PR157.
+Last refreshed: 2026-06-21 by PR161.
 
 - Public Railway web health:
   `https://stationweb-production.up.railway.app/health` returned HTTP 200 with
@@ -53,6 +53,16 @@ Last refreshed: 2026-06-21 by PR157.
   context-preview outer median improved from 4571ms to 1864ms, trace `total`
   median from 3549ms to 892ms, and `archive_retrieval` median from 3207ms to
   531ms; 0 of 7 counted requests exceeded 3000ms.
+- PR160 confirms the hosted runtime serves the PR159 public-read and
+  UUID-redaction patch at deployment commit `6a8bb3eea401`: the focused public
+  document chain no longer showed a browser-visible owner-aware document API
+  401, Runtime Context/readback, Saved Memory, Global Archive, and 390px mobile
+  Memory showed zero UUID-shaped visible values, and 390px mobile Memory had no
+  document-level horizontal overflow.
+- Later docs-test commits may skip Railway deployment when no watched runtime
+  files change. That is not stale runtime by itself; for demo planning, the
+  runtime is current enough when it serves the PR159 runtime patch commit or a
+  later accepted app-code runtime.
 - Current replay evidence remains protected-alpha evidence. It supports a
   staged proof/demo loop, not production readiness or product completeness.
 
@@ -123,7 +133,9 @@ Use public-safe synthetic content only.
 
 ## Recommended Next Moves
 
-1. Prepare a narrated replay/demo script if an external demo is next.
+1. Use the refreshed PR161 operator pack in
+   `docs/roadmap/PR39_PROTECTED_ALPHA_DEMO_RUNBOOK_ARIADNE.md` if an external
+   demo is next.
 2. PR25 accepted the alpha route map for the four onboarding paths; future work
    should deepen those paths only from replay evidence.
 3. Otherwise choose the next feature from live replay evidence, not from generic

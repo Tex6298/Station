@@ -86,6 +86,18 @@ avoid, fallback path, and post-demo next-lane recommendations.
 Recommended next lane: Developer Space evidence seeding unless the human demo
 reveals a sharper UX blocker.
 
+## PR161 ARIADNE Refresh
+
+ARIADNE refreshed the protected-alpha demo operator pack on 2026-06-21. The
+current runbook now reflects PR157 through PR160 evidence, removes reliance on
+old hard-coded public document/forum IDs, uses the practical route order for a
+prepared demo, and preserves current spoken caveats for protected-alpha status,
+Stripe, Redis, Cloudflare, PR156 latency, public/private boundaries, Archive,
+Continuity, Station Assistant, Spaces, and Developer Spaces.
+
+Current operator pack:
+`docs/roadmap/PR39_PROTECTED_ALPHA_DEMO_RUNBOOK_ARIADNE.md`.
+
 ## MIMIR Closeout
 
 MIMIR closes PR39 on 2026-06-18. After reviewing the evolved Developer Pages

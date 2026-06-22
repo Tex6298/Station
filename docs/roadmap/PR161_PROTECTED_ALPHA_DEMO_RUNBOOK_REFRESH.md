@@ -3,7 +3,7 @@
 Date opened: 2026-06-21
 Opened by: A1 / MIMIR
 Owner: ARIADNE refreshes the human runbook.
-Status: opened for ARIADNE
+Status: refreshed by ARIADNE; waking MIMIR for closeout
 
 ## Why This Lane
 
@@ -86,3 +86,72 @@ If a current route in the runbook is broken:
 
 - wake DAEDALUS with the exact route, viewport, expected behavior, actual
   behavior, and whether ARGUS should review first.
+
+## ARIADNE Refresh Result
+
+ARIADNE refreshed the protected-alpha demo operator pack on 2026-06-21.
+
+Files refreshed:
+
+- `docs/roadmap/PR39_PROTECTED_ALPHA_DEMO_RUNBOOK_ARIADNE.md`
+- `docs/roadmap/PR39_PROTECTED_ALPHA_DEMO_RUNBOOK.md`
+- `docs/roadmap/STATION_LAUNCH_CORE_ALPHA_CLOSEOUT.md`
+
+Route order now used by the operator pack:
+
+1. Signed-out landing and Discover.
+2. Public Space, public document, and linked forum discussion.
+3. Signed-in Studio and persona workspace.
+4. Memory.
+5. Continuity.
+6. Archive and export.
+7. Developer Space public observatory and owner manage console.
+8. Billing status and visible actions.
+9. Station Assistant.
+10. Integrity Session.
+11. Optional chat/context-preview moment with the PR156 latency caveat.
+
+Current evidence now reflected:
+
+- PR157 protected-alpha evidence refresh and PR156 latency closeout.
+- PR158 source-of-truth reconciliation for Redis, Cloudflare, provider, Stripe,
+  and backend-blocker posture.
+- PR159 hosted walkthrough defects and ARGUS-accepted PR159 patch.
+- PR160 focused hosted recheck on runtime `6a8bb3eea401`, including cleared
+  public document 401, zero UUID-shaped visible values on the focused readback
+  surfaces, and 390px mobile Memory overflow pass.
+- Docs-test commits after the PR159 runtime patch may skip Railway deployment
+  when no watched runtime files changed; that is not stale runtime by itself.
+
+Spoken caveats preserved:
+
+- Protected-alpha replay, not production readiness or product completeness.
+- Stripe is current config/test-resource readiness unless a fresh hosted
+  Checkout or signed webhook mutation proof is part of the demo.
+- Redis/Upstash is operational cache, idempotency, rate-limit, and cache-only
+  queue-state support, not canonical Memory truth.
+- Cloudflare is future adapter/index-mirror boundary, not live runtime or
+  authoritative private-memory retrieval.
+- PR156 latency evidence closes the immediate Archive-retrieval spike for now,
+  but live provider/context latency can still vary.
+- Archive is trust infrastructure; Continuity is the core paid value; Station
+  Assistant is operational, not a persona; Spaces are public microsites, not
+  profiles; Developer Spaces are live observatories, not generic dashboards.
+- Station must not broaden into IntelHub CTI, exposure, recon, finance, or
+  unrelated intelligence scope.
+
+Claims to avoid are explicit in the operator pack, including production-launch
+polish, broad backend completion, public Discover over private Studio data,
+public Continuity, comprehensive private-text redaction, current Stripe paid
+activation without fresh proof, Redis canonical Memory truth, Cloudflare live
+runtime, and generic-dashboard framing.
+
+Verdict: ready for a prepared protected-alpha human demo, with caveats spoken
+aloud. No live blocker was found or reopened during this docs-only refresh.
+
+Validation:
+
+- `git diff --check`
+- No route sanity check was run; the refresh used accepted PR157 through PR160
+  evidence and corrected stale route instructions to avoid old hard-coded
+  public document/forum IDs.

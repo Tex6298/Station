@@ -9949,6 +9949,80 @@ Handoff:
 Result doc:
 `docs/roadmap/PR161_PROTECTED_ALPHA_DEMO_RUNBOOK_REFRESH.md`.
 
+## Latest ARIADNE handoff - PR161 protected-alpha demo runbook refresh
+
+ARIADNE refreshed the protected-alpha demo operator pack on 2026-06-21 and
+wakes MIMIR for closeout.
+
+Files refreshed:
+
+- `docs/roadmap/PR39_PROTECTED_ALPHA_DEMO_RUNBOOK_ARIADNE.md`
+- `docs/roadmap/PR39_PROTECTED_ALPHA_DEMO_RUNBOOK.md`
+- `docs/roadmap/STATION_LAUNCH_CORE_ALPHA_CLOSEOUT.md`
+- `docs/roadmap/PR161_PROTECTED_ALPHA_DEMO_RUNBOOK_REFRESH.md`
+- `docs/roadmap/ACTIVE_STATUS.md`
+
+Route order:
+
+1. Signed-out landing and Discover.
+2. Public Space, public document, and linked forum discussion.
+3. Signed-in Studio and persona workspace.
+4. Memory.
+5. Continuity.
+6. Archive and export.
+7. Developer Space public observatory and owner manage console.
+8. Billing status and visible actions.
+9. Station Assistant.
+10. Integrity Session.
+11. Optional chat/context-preview moment with the PR156 latency caveat.
+
+Current evidence reflected:
+
+- PR157 protected-alpha evidence refresh and PR156 latency closeout.
+- PR158 source-of-truth reconciliation for Redis, Cloudflare, provider, Stripe,
+  and backend-blocker posture.
+- PR159 hosted walkthrough defects and ARGUS-accepted PR159 patch.
+- PR160 focused hosted recheck on runtime `6a8bb3eea401`, including cleared
+  public document 401, zero UUID-shaped visible values on the focused readback
+  surfaces, and 390px mobile Memory overflow pass.
+- Docs-test commits after the PR159 runtime patch may skip Railway deployment
+  when no watched runtime files changed; that is not stale runtime by itself.
+
+Spoken caveats preserved:
+
+- Protected-alpha replay, not production readiness or product completeness.
+- Stripe is current config/test-resource readiness unless fresh hosted
+  Checkout or signed webhook proof is included.
+- Redis/Upstash is operational cache, not canonical Memory truth.
+- Cloudflare is future adapter/index-mirror boundary, not live runtime or
+  authoritative private-memory retrieval.
+- PR156 latency evidence closes the immediate Archive-retrieval spike for now,
+  but live provider/context latency can still vary.
+- Archive is trust infrastructure; Continuity is the core paid value; Station
+  Assistant is operational; Spaces are public microsites; Developer Spaces are
+  live observatories.
+- Station must not broaden into IntelHub CTI, exposure, recon, finance, or
+  unrelated intelligence scope.
+
+Verdict:
+
+- Ready for a prepared protected-alpha human demo with caveats spoken aloud.
+- No live blocker was found or reopened during this docs-only refresh.
+
+Validation:
+
+- `git diff --check` passed with CRLF normalization warnings only.
+- No route sanity check was run; the refresh used accepted PR157 through PR160
+  evidence and corrected stale route instructions to avoid old hard-coded
+  public document/forum IDs.
+
+Next:
+
+- MIMIR should close PR161 or choose the next lane from live demo evidence.
+
+Result doc:
+`docs/roadmap/PR161_PROTECTED_ALPHA_DEMO_RUNBOOK_REFRESH.md`.
+
 ## Previous DAEDALUS handoff - PR159 hosted walkthrough defect patch
 
 DAEDALUS patched the narrow PR159 defects on 2026-06-21 and wakes ARGUS for
