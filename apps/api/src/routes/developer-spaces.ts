@@ -1400,6 +1400,11 @@ function serializeDeveloperSpaceAgentConfirmation(row: any): DeveloperSpaceAgent
   };
 }
 
+function developerSpaceAgentConfirmationPayloadMatchesHash(row: any) {
+  return typeof row.preview_hash === "string"
+    && row.preview_hash === payloadHash(row.sanitized_payload ?? {});
+}
+
 function developerSpaceAgentExecutionReceiptPayload(): DeveloperSpaceAgentExecutionReceiptRecord["receiptPayload"] {
   return {
     action: DEVELOPER_SPACE_AGENT_EXECUTION_RECEIPT_ACTION,
@@ -1830,6 +1835,32 @@ async function publishDeveloperSpaceAgentDraftDocument(input: {
       publishedAt: document.published_at ?? now,
     },
   };
+}
+
+async function rollbackDeveloperSpaceAgentDraftPublish(input: {
+  space: any;
+  targetDocumentId?: string | null;
+}) {
+  const targetDocumentId = input.targetDocumentId?.trim();
+  if (!targetDocumentId) return;
+  const sb = getSupabaseAdmin() as any;
+  await sb
+    .from("documents")
+    .update({
+      status: "draft",
+      visibility: "private",
+      published_at: null,
+    })
+    .eq("id", targetDocumentId)
+    .eq("author_user_id", input.space.owner_user_id);
+  await sb
+    .from("developer_space_documents")
+    .update({
+      link_visibility: "owner",
+    })
+    .eq("developer_space_id", input.space.id)
+    .eq("document_id", targetDocumentId)
+    .eq("owner_user_id", input.space.owner_user_id);
 }
 
 function buildFreshness(
@@ -3323,6 +3354,14 @@ developerSpacesRouter.post("/:id/agent/actions/confirmations/:confirmationId/exe
     });
   }
 
+  if (!developerSpaceAgentConfirmationPayloadMatchesHash(loaded.confirmation)) {
+    return res.status(409).json({
+      error: "Developer Agent confirmation payload no longer matches its review hash.",
+      code: "developer_space_agent_confirmation_payload_mismatch",
+      executionAvailable: false,
+    });
+  }
+
   const existing = await loadDeveloperSpaceAgentExecutionReceipt(
     ownerLoad.space.id,
     ownerLoad.space.owner_user_id,
@@ -3356,6 +3395,7 @@ developerSpacesRouter.post("/:id/agent/actions/confirmations/:confirmationId/exe
   let receiptSummary = "Capability request receipt recorded for owner planning. No external action executed.";
   let successMessage = "Capability request receipt recorded. No external action executed.";
   let executionAvailable = false;
+  let publishedTargetDocumentId: string | null = null;
 
   if (receiptAction === DEVELOPER_SPACE_AGENT_DRAFT_DOCUMENT_ACTION) {
     const saved = await saveDeveloperSpaceProjectUpdateDraft({
@@ -3393,6 +3433,7 @@ developerSpacesRouter.post("/:id/agent/actions/confirmations/:confirmationId/exe
       role: published.publishedDocument.role,
       publishedAt: published.publishedDocument.publishedAt,
     });
+    publishedTargetDocumentId = targetDocumentId;
     receiptSummary = "Reviewed project update draft published to the public Developer Space evidence path.";
     successMessage = "Reviewed project update draft published to the public Developer Space evidence path.";
     executionAvailable = true;
@@ -3416,9 +3457,6 @@ developerSpacesRouter.post("/:id/agent/actions/confirmations/:confirmationId/exe
     .single();
 
   if (error || !data) {
-    if (error && developerSpaceAgentExecutionReceiptStoreUnavailable(error)) {
-      return res.status(503).json(developerSpaceAgentExecutionReceiptStoreUnavailableBody());
-    }
     if ((error as { code?: string } | null)?.code === "23505") {
       const receipt = await loadDeveloperSpaceAgentExecutionReceipt(
         ownerLoad.space.id,
@@ -3437,6 +3475,15 @@ developerSpacesRouter.post("/:id/agent/actions/confirmations/:confirmationId/exe
             : "Capability request receipt was already recorded. No external action executed.",
         });
       }
+    }
+    if (receiptAction === DEVELOPER_SPACE_AGENT_PUBLISH_DOCUMENT_ACTION) {
+      await rollbackDeveloperSpaceAgentDraftPublish({
+        space: ownerLoad.space,
+        targetDocumentId: publishedTargetDocumentId,
+      });
+    }
+    if (error && developerSpaceAgentExecutionReceiptStoreUnavailable(error)) {
+      return res.status(503).json(developerSpaceAgentExecutionReceiptStoreUnavailableBody());
     }
     return res.status(500).json({
       error: "Could not record Developer Agent receipt.",

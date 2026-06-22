@@ -50,6 +50,7 @@ class InMemorySupabase {
   private idCounters: Record<string, number> = {};
   private clock = Date.parse("2026-05-24T09:00:00.000Z");
   unavailableTables = new Set<string>();
+  insertErrors = new Map<string, { code?: string; message: string; details?: string }>();
   private usersByToken = new Map([
     ["owner-token", { id: "owner-user", email: "owner@example.test" }],
     ["other-token", { id: "other-user", email: "other@example.test" }],
@@ -369,6 +370,11 @@ class QueryBuilder {
     }
 
     if (this.operation === "insert") {
+      const insertError = this.db.insertErrors.get(this.table);
+      if (insertError) {
+        this.db.insertErrors.delete(this.table);
+        return { data: null, error: insertError, count: null };
+      }
       const payloads = Array.isArray(this.payload) ? this.payload : [this.payload as Row];
       rows = payloads.map((payload) => this.db.insertRow(this.table, payload));
     } else if (this.operation === "upsert") {
@@ -2214,6 +2220,29 @@ test("Developer Space agent publish gate publishes only the selected saved draft
     assert.equal(wrongSpacePublish.status, 400);
     assert.equal(wrongSpacePublish.body.code, "developer_space_agent_publish_target_ineligible");
 
+    const tamperCandidate = await requestJson(app, "POST", `/developer-spaces/${spaceId}/agent/actions/confirmations`, {
+      token: "owner-token",
+      body: { action: "publish_to_page", targetDocumentId: document.id },
+    });
+    assert.equal(tamperCandidate.status, 201);
+    const approvedTamperCandidate = await requestJson(app, "POST", `/developer-spaces/${spaceId}/agent/actions/confirmations/${tamperCandidate.body.confirmation.id}/approve`, {
+      token: "owner-token",
+    });
+    assert.equal(approvedTamperCandidate.status, 200);
+    const tamperedRow = db.tables.developer_space_agent_confirmations.find((row) => row.id === tamperCandidate.body.confirmation.id)!;
+    tamperedRow.sanitized_payload = {
+      ...tamperedRow.sanitized_payload,
+      target: { documentId: arbitraryPrivateDocument.id },
+    };
+    const tamperedExecute = await requestJson(app, "POST", `/developer-spaces/${spaceId}/agent/actions/confirmations/${tamperCandidate.body.confirmation.id}/execute`, {
+      token: "owner-token",
+    });
+    assert.equal(tamperedExecute.status, 409);
+    assert.equal(tamperedExecute.body.code, "developer_space_agent_confirmation_payload_mismatch");
+    assert.equal(db.tables.documents.find((row) => row.id === document.id)?.status, "draft");
+    assert.equal(db.tables.documents.find((row) => row.id === arbitraryPrivateDocument.id)?.status, "draft");
+    assert.equal(db.tables.developer_space_agent_execution_receipts.length, 1);
+
     const publish = await requestJson(app, "POST", `/developer-spaces/${spaceId}/agent/actions/confirmations`, {
       token: "owner-token",
       body: {
@@ -2240,6 +2269,23 @@ test("Developer Space agent publish gate publishes only the selected saved draft
     });
     assert.equal(approvedPublish.status, 200);
     assert.equal(approvedPublish.body.executionAvailable, true);
+
+    db.insertErrors.set("developer_space_agent_execution_receipts", {
+      code: "XX999",
+      message: "synthetic receipt insert failure",
+    });
+    const failedReceiptExecute = await requestJson(app, "POST", `/developer-spaces/${spaceId}/agent/actions/confirmations/${publish.body.confirmation.id}/execute`, {
+      token: "owner-token",
+    });
+    assert.equal(failedReceiptExecute.status, 500);
+    assert.equal(failedReceiptExecute.body.code, "developer_space_agent_execution_receipt_create_failed");
+    assert.equal(failedReceiptExecute.body.executionAvailable, false);
+    assert.equal(JSON.stringify(failedReceiptExecute.body).includes("synthetic receipt insert failure"), false);
+    assert.equal(db.tables.documents.find((row) => row.id === document.id)?.status, "draft");
+    assert.equal(db.tables.documents.find((row) => row.id === document.id)?.visibility, "private");
+    assert.equal(db.tables.documents.find((row) => row.id === document.id)?.published_at, null);
+    assert.equal(db.tables.developer_space_documents.find((row) => row.id === link.id)?.link_visibility, "owner");
+    assert.equal(db.tables.developer_space_agent_execution_receipts.length, 1);
 
     const firstExecute = await requestJson(app, "POST", `/developer-spaces/${spaceId}/agent/actions/confirmations/${publish.body.confirmation.id}/execute`, {
       token: "owner-token",
@@ -2296,6 +2342,8 @@ test("Developer Space agent publish gate publishes only the selected saved draft
     const responseText = JSON.stringify({
       firstExecute: firstExecute.body,
       secondExecute: secondExecute.body,
+      tamperedExecute: tamperedExecute.body,
+      failedReceiptExecute: failedReceiptExecute.body,
     });
     assert.doesNotMatch(responseText, /publish this private prompt|publish-secret-token|Private body should not publish/);
     assert.equal(responseText.includes(publish.body.confirmation.id), false);
