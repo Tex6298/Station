@@ -52,6 +52,35 @@ pnpm test:developer-spaces
 pnpm test:developer-space-client
 ```
 
+## PR166 Phase 2D Confirmation Panel
+
+DAEDALUS implementation validation on 2026-06-22:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 33 tests passed, including PR165 confirmation API coverage and new web helper assertions for intent-vs-execution copy. |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-space-client` | Pass | 15 tests passed; Developer Space client/webhook behavior unchanged. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 102 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` | Pass | Web TypeScript typecheck passed directly. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` | Pass | API typecheck passed directly. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/api build` | Pass | API package build passed after dependent package builds. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web build` | Blocked locally after successful compile/type/static generation | Next compiled, linted/typechecked, generated 36 static pages, finalized optimization, and collected traces, then failed while copying standalone trace files because Windows denied symlink creation under `.next/standalone` for React/Next/@next/env. Existing `<img>` warnings remain in unrelated files. |
+| `git diff --check` | Pass | CRLF normalization warnings only for touched files and local triad state. |
+
+DAEDALUS PR166 notes:
+
+- Extended the existing Developer Agent preview panel to load and render PR165
+  confirmation records.
+- Future-lane actions still preview as blocked actions first. A future preview
+  can record a confirmation; it does not execute.
+- Pending records can be approved or cancelled. Approved/cancelled/expired
+  records render as non-actionable history.
+- The panel renders action label, status, summary, and timestamps only; it does
+  not render confirmation ids, owner ids, preview hashes, raw payload JSON,
+  prompts, keys, provider data, logs, cookies, tokens, or environment values.
+- No API/schema behavior changed in this UI slice, and no execution/mutation
+  path was added.
+
 ## PR165 Phase 2D Agent Confirmation Envelope
 
 ARGUS review validation on 2026-06-22:

@@ -4,7 +4,60 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current MIMIR handoff - PR166
+## Current DAEDALUS handoff - PR166
+
+DAEDALUS implemented PR166 on 2026-06-22 and wakes ARGUS for hostile review.
+The owner manage Developer Agent panel now exposes PR165 confirmation records
+without adding execution or mutation.
+
+Implemented:
+
+- The panel loads `GET /developer-spaces/:id/agent/actions/confirmations`
+  alongside the PR162 action registry.
+- Future actions still preview through the PR162 preview route as blocked
+  future-lane actions.
+- A future-lane preview can create a confirmation through
+  `POST /developer-spaces/:id/agent/actions/confirmations`.
+- Confirmation records render compactly with action label, status, summary,
+  requested/expires timestamps, approval/cancel timestamp when present, and
+  non-execution copy.
+- Pending confirmations can be approved or cancelled through the PR165 routes.
+- Approved, cancelled, and expired records do not render action buttons.
+- Allowed read/draft preview actions remain unchanged and do not require
+  confirmations.
+
+Boundaries:
+
+- approval is visible as recorded owner intent only; execution remains
+  unavailable in this lane;
+- the UI does not render confirmation ids, owner ids, preview hashes, raw
+  sanitized payload JSON, prompts, keys, provider data, logs, cookies, tokens,
+  or environment values;
+- no documents, layout, keys, signing secrets, provider settings, billing,
+  observed-runtime state, public pages, exports, repos, deployments, queues,
+  Cloudflare, Redis workers, or hosted runtime were mutated;
+- ARGUS should review first, then wake ARIADNE for visible UI rehearsal if
+  accepted.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` passed with 33
+  tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:developer-space-client` passed with
+  15 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` passed with 102 tests.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/api build` passed.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/web build` compiled,
+  linted/typechecked, generated 36 static pages, finalized optimization, and
+  collected traces, then failed locally while Next copied standalone trace
+  files because Windows denied symlink creation under `.next/standalone`
+  (`EPERM: operation not permitted, symlink ... react`, `next`, and
+  `@next/env`).
+- `git diff --check` passed with CRLF normalization warnings only.
+
+## Previous MIMIR handoff - PR166
 
 MIMIR closes PR165 on 2026-06-22 after ARGUS accepted the Phase 2D Agent
 Confirmation Envelope with an owner-scope hardening patch. The durable

@@ -1,6 +1,8 @@
 import type {
   DeveloperSpaceAgentActionPreview,
   DeveloperSpaceAgentActionRegistryEntry,
+  DeveloperSpaceAgentConfirmationRecord,
+  DeveloperSpaceAgentConfirmationStatus,
   DeveloperSpaceDetail,
   DeveloperSpaceWidgetConfig,
   DeveloperSpaceWidgetType,
@@ -216,6 +218,41 @@ export function developerSpaceAgentPreviewStatusCopy(preview: Pick<DeveloperSpac
 export function developerSpaceAgentPreviewEmptyCopy(actions: DeveloperSpaceAgentActionRegistryEntry[]) {
   if (actions.length === 0) return "Developer Agent actions are loading or unavailable.";
   return "Choose an available action to preview a safe owner readback.";
+}
+
+export function developerSpaceAgentConfirmationStatusCopy(status: DeveloperSpaceAgentConfirmationStatus) {
+  const labels: Record<DeveloperSpaceAgentConfirmationStatus, string> = {
+    pending: "Pending intent",
+    approved: "Intent approved",
+    cancelled: "Cancelled",
+    expired: "Expired",
+  };
+  return labels[status] ?? "Unknown";
+}
+
+export function developerSpaceAgentConfirmationCanAct(
+  confirmation: Pick<DeveloperSpaceAgentConfirmationRecord, "status">
+) {
+  return confirmation.status === "pending";
+}
+
+export function developerSpaceAgentConfirmationExecutionCopy(
+  confirmation: Pick<DeveloperSpaceAgentConfirmationRecord, "status">
+) {
+  if (confirmation.status === "approved") {
+    return "Owner intent is recorded. Execution remains unavailable in this lane.";
+  }
+  if (confirmation.status === "pending") {
+    return "Pending owner intent. Approval records intent only; it does not execute.";
+  }
+  if (confirmation.status === "cancelled") return "Cancelled intent record. No action executed.";
+  return "Expired intent record. No action executed.";
+}
+
+export function developerSpaceAgentConfirmationEmptyCopy(loading: boolean) {
+  return loading
+    ? "Loading confirmation records."
+    : "No confirmation records yet. Preview a future action to record owner intent.";
 }
 
 export function developerSpaceMethodologyCopy(detail: Pick<DeveloperSpaceDetail, "linkedDocuments" | "access">) {

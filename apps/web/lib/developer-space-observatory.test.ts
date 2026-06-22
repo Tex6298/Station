@@ -4,6 +4,10 @@ import test from "node:test";
 import {
   developerSpaceAgentActionGroups,
   developerSpaceAgentActionStatusCopy,
+  developerSpaceAgentConfirmationCanAct,
+  developerSpaceAgentConfirmationEmptyCopy,
+  developerSpaceAgentConfirmationExecutionCopy,
+  developerSpaceAgentConfirmationStatusCopy,
   developerSpaceAgentPreviewEmptyCopy,
   developerSpaceAgentPreviewStatusCopy,
   developerSpaceOwnerCurrentState,
@@ -213,6 +217,25 @@ test("developer agent preview helper copy labels blocked and review states", () 
     "Blocked for future lane"
   );
   assert.equal(developerSpaceAgentPreviewEmptyCopy([]), "Developer Agent actions are loading or unavailable.");
+});
+
+test("developer agent confirmation helpers keep intent separate from execution", () => {
+  assert.equal(developerSpaceAgentConfirmationStatusCopy("pending"), "Pending intent");
+  assert.equal(developerSpaceAgentConfirmationStatusCopy("approved"), "Intent approved");
+  assert.equal(developerSpaceAgentConfirmationCanAct({ status: "pending" }), true);
+  assert.equal(developerSpaceAgentConfirmationCanAct({ status: "approved" }), false);
+  assert.match(
+    developerSpaceAgentConfirmationExecutionCopy({ status: "approved" }),
+    /Execution remains unavailable/
+  );
+  assert.match(
+    developerSpaceAgentConfirmationExecutionCopy({ status: "pending" }),
+    /does not execute/
+  );
+  assert.equal(
+    developerSpaceAgentConfirmationEmptyCopy(false),
+    "No confirmation records yet. Preview a future action to record owner intent."
+  );
 });
 
 test("observatory helpers keep visitor data readable and non-raw", () => {

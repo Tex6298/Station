@@ -8,6 +8,10 @@ import { getSession } from "@/lib/auth";
 import {
   developerSpaceAgentActionGroups,
   developerSpaceAgentActionStatusCopy,
+  developerSpaceAgentConfirmationCanAct,
+  developerSpaceAgentConfirmationEmptyCopy,
+  developerSpaceAgentConfirmationExecutionCopy,
+  developerSpaceAgentConfirmationStatusCopy,
   developerSpaceAgentPreviewEmptyCopy,
   developerSpaceAgentPreviewStatusCopy,
   developerSpaceEvidenceEmptyCopy,
@@ -29,6 +33,8 @@ import {
 import type {
   DeveloperSpaceAgentActionPreview,
   DeveloperSpaceAgentActionRegistryEntry,
+  DeveloperSpaceAgentConfirmationRecord,
+  DeveloperSpaceAgentFutureAction,
   DeveloperSpaceDetail,
   DeveloperSpaceDocumentRole,
   DeveloperSpaceLinkedDocument,
@@ -58,6 +64,16 @@ type DeveloperSpaceAgentRegistryBoundary = {
 type DeveloperSpaceAgentRegistryResponse = {
   actions: DeveloperSpaceAgentActionRegistryEntry[];
   boundary?: DeveloperSpaceAgentRegistryBoundary;
+};
+
+type DeveloperSpaceAgentConfirmationsResponse = {
+  confirmations: DeveloperSpaceAgentConfirmationRecord[];
+};
+
+type DeveloperSpaceAgentConfirmationMutationResponse = {
+  confirmation: DeveloperSpaceAgentConfirmationRecord;
+  executionAvailable: false;
+  message: string;
 };
 
 function CodeBlock({ code }: { code: string }) {
@@ -115,6 +131,11 @@ export default function DeveloperSpaceManagePage() {
   const [agentPreview, setAgentPreview] = useState<DeveloperSpaceAgentActionPreview | null>(null);
   const [agentRegistryLoading, setAgentRegistryLoading] = useState(false);
   const [agentPreviewLoading, setAgentPreviewLoading] = useState(false);
+  const [agentConfirmations, setAgentConfirmations] = useState<DeveloperSpaceAgentConfirmationRecord[]>([]);
+  const [agentConfirmationsLoading, setAgentConfirmationsLoading] = useState(false);
+  const [agentConfirmationCreatingAction, setAgentConfirmationCreatingAction] = useState<string | null>(null);
+  const [agentConfirmationBusyId, setAgentConfirmationBusyId] = useState<string | null>(null);
+  const [agentNotice, setAgentNotice] = useState<string | null>(null);
   const [agentError, setAgentError] = useState<string | null>(null);
   const [visualisationType, setVisualisationType] = useState<DeveloperSpaceVisualisationType>("node_field");
   const [visualisationConfig, setVisualisationConfig] = useState<Record<string, unknown>>(
@@ -156,6 +177,23 @@ export default function DeveloperSpaceManagePage() {
     }
   }, []);
 
+  const loadAgentConfirmations = useCallback(async (spaceId: string, sessionToken: string) => {
+    setAgentConfirmationsLoading(true);
+    setAgentError(null);
+    try {
+      const data = await apiGet<DeveloperSpaceAgentConfirmationsResponse>(
+        `/developer-spaces/${spaceId}/agent/actions/confirmations`,
+        sessionToken
+      );
+      setAgentConfirmations(data.confirmations ?? []);
+    } catch {
+      setAgentConfirmations([]);
+      setAgentError("Could not load Developer Agent confirmations.");
+    } finally {
+      setAgentConfirmationsLoading(false);
+    }
+  }, []);
+
   const load = useCallback(async (sessionToken: string) => {
     const data = await apiGet<DeveloperSpaceDetail>(`/developer-spaces/${slug}`, sessionToken);
     setDetail(data);
@@ -166,8 +204,11 @@ export default function DeveloperSpaceManagePage() {
     ]);
     setUsage(usageData.usage);
     setExportsList(exportsData.exports);
-    await loadAgentActions(data.space.id, sessionToken);
-  }, [loadAgentActions, slug, syncVisualState]);
+    await Promise.all([
+      loadAgentActions(data.space.id, sessionToken),
+      loadAgentConfirmations(data.space.id, sessionToken),
+    ]);
+  }, [loadAgentActions, loadAgentConfirmations, slug, syncVisualState]);
 
   useEffect(() => {
     getSession().then(async (session) => {
@@ -413,6 +454,55 @@ export default function DeveloperSpaceManagePage() {
     }
   }
 
+  function upsertAgentConfirmation(confirmation: DeveloperSpaceAgentConfirmationRecord) {
+    setAgentConfirmations((current) => [
+      confirmation,
+      ...current.filter((item) => item.id !== confirmation.id),
+    ].sort((a, b) => Date.parse(b.requestedAt) - Date.parse(a.requestedAt)));
+  }
+
+  async function createAgentConfirmation(action: DeveloperSpaceAgentFutureAction) {
+    if (!token || !detail) return;
+    setAgentConfirmationCreatingAction(action);
+    setAgentError(null);
+    setAgentNotice(null);
+    try {
+      const data = await apiPost<DeveloperSpaceAgentConfirmationMutationResponse>(
+        `/developer-spaces/${detail.space.id}/agent/actions/confirmations`,
+        { action },
+        token
+      );
+      upsertAgentConfirmation(data.confirmation);
+      setAgentNotice(data.message);
+    } catch {
+      setAgentError("Could not record that Developer Agent confirmation.");
+    } finally {
+      setAgentConfirmationCreatingAction(null);
+    }
+  }
+
+  async function updateAgentConfirmation(confirmation: DeveloperSpaceAgentConfirmationRecord, action: "approve" | "cancel") {
+    if (!token || !detail) return;
+    setAgentConfirmationBusyId(confirmation.id);
+    setAgentError(null);
+    setAgentNotice(null);
+    try {
+      const data = await apiPost<DeveloperSpaceAgentConfirmationMutationResponse>(
+        `/developer-spaces/${detail.space.id}/agent/actions/confirmations/${confirmation.id}/${action}`,
+        {},
+        token
+      );
+      upsertAgentConfirmation(data.confirmation);
+      setAgentNotice(data.message);
+    } catch {
+      setAgentError(action === "approve"
+        ? "Could not approve that Developer Agent confirmation."
+        : "Could not cancel that Developer Agent confirmation.");
+    } finally {
+      setAgentConfirmationBusyId(null);
+    }
+  }
+
   function updateVisualConfig(key: string, value: unknown) {
     setVisualisationConfig((current) => ({
       ...current,
@@ -483,6 +573,8 @@ export default function DeveloperSpaceManagePage() {
   const usageReadback = developerSpaceUsageReadback(usage, detail, exportsList.length);
   const agentActionGroups = developerSpaceAgentActionGroups(agentActions);
   const selectedAgentEntry = agentActions.find((action) => action.action === selectedAgentAction) ?? null;
+  const selectedFutureAction = agentActionGroups.future.find((action) => action.action === agentPreview?.action)?.action as DeveloperSpaceAgentFutureAction | undefined;
+  const confirmationActionLabels = new Map(agentActions.map((action) => [action.action, action.label]));
   const boundaryRows = [
     { label: "Owner only", value: agentBoundary?.ownerOnly === true ? "Yes" : "Unknown" },
     { label: "Autonomous execution", value: agentBoundary?.autonomousExecution === false ? "No" : "Unknown" },
@@ -634,6 +726,12 @@ export default function DeveloperSpaceManagePage() {
               </div>
             ) : null}
 
+            {agentNotice ? (
+              <div style={{ background: "#f0f8ef", border: "1px solid #b9d8bd", borderRadius: 8, color: "#25633f", padding: "0.75rem", fontSize: "0.84rem" }}>
+                {agentNotice}
+              </div>
+            ) : null}
+
             <div style={{ display: "grid", gap: "0.55rem" }}>
               <span style={{ color: "#1f2529", fontSize: "0.82rem", fontWeight: 700 }}>Available actions</span>
               {agentActionGroups.available.length === 0 ? (
@@ -683,6 +781,21 @@ export default function DeveloperSpaceManagePage() {
                   <p style={{ margin: 0, color: "#687078", lineHeight: 1.55 }}>
                     {agentPreview.summary}
                   </p>
+                  {agentPreview.futureLane && selectedFutureAction ? (
+                    <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap", alignItems: "center" }}>
+                      <button
+                        type="button"
+                        className="button primary"
+                        onClick={() => createAgentConfirmation(selectedFutureAction)}
+                        disabled={agentConfirmationCreatingAction === selectedFutureAction}
+                      >
+                        {agentConfirmationCreatingAction === selectedFutureAction ? "Recording..." : "Record confirmation"}
+                      </button>
+                      <span style={{ color: "#854f0b", fontSize: "0.82rem", lineHeight: 1.4 }}>
+                        Records owner intent only. Execution remains unavailable.
+                      </span>
+                    </div>
+                  ) : null}
                   <div style={{ display: "grid", gap: "0.65rem" }}>
                     {agentPreview.sections.map((section, sectionIndex) => (
                       <section key={`${section.title}-${sectionIndex}`} style={agentPreviewSection}>
@@ -753,6 +866,78 @@ export default function DeveloperSpaceManagePage() {
                 </div>
               </div>
             ) : null}
+
+            <div style={{ display: "grid", gap: "0.55rem" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", gap: "0.75rem", alignItems: "center", flexWrap: "wrap" }}>
+                <span style={{ color: "#1f2529", fontSize: "0.82rem", fontWeight: 700 }}>Confirmation records</span>
+                <span className="pill" style={{ color: agentConfirmationsLoading ? "#854f0b" : "#25633f" }}>
+                  {agentConfirmationsLoading ? "Loading" : `${agentConfirmations.length} recorded`}
+                </span>
+              </div>
+              {agentConfirmations.length === 0 ? (
+                <p style={{ margin: 0, color: "#687078", fontSize: "0.84rem" }}>
+                  {developerSpaceAgentConfirmationEmptyCopy(agentConfirmationsLoading)}
+                </p>
+              ) : (
+                <div style={{ display: "grid", gap: "0.55rem" }}>
+                  {agentConfirmations.slice(0, 6).map((confirmation) => {
+                    const canAct = developerSpaceAgentConfirmationCanAct(confirmation);
+                    const busy = agentConfirmationBusyId === confirmation.id;
+                    return (
+                      <article key={confirmation.id} style={agentConfirmationRow}>
+                        <div style={{ display: "flex", justifyContent: "space-between", gap: "0.65rem", alignItems: "flex-start", flexWrap: "wrap" }}>
+                          <div>
+                            <strong style={{ display: "block", color: "#1f2529" }}>
+                              {confirmationActionLabels.get(confirmation.action) ?? humaniseKey(confirmation.action)}
+                            </strong>
+                            <span style={{ color: "#8b8f92", fontSize: "0.74rem" }}>
+                              Requested {formatDate(confirmation.requestedAt)} / Expires {formatDate(confirmation.expiresAt)}
+                            </span>
+                          </div>
+                          <span className="pill" style={{ color: confirmation.status === "approved" ? "#25633f" : confirmation.status === "pending" ? "#854f0b" : "#687078" }}>
+                            {developerSpaceAgentConfirmationStatusCopy(confirmation.status)}
+                          </span>
+                        </div>
+                        <p style={{ margin: 0, color: "#687078", lineHeight: 1.45 }}>
+                          {confirmation.summary}
+                        </p>
+                        <p style={{ margin: 0, color: "#854f0b", fontSize: "0.82rem", lineHeight: 1.4 }}>
+                          {developerSpaceAgentConfirmationExecutionCopy(confirmation)}
+                        </p>
+                        {confirmation.approvedAt ? (
+                          <span style={{ color: "#8b8f92", fontSize: "0.74rem" }}>Approved {formatDate(confirmation.approvedAt)}</span>
+                        ) : null}
+                        {confirmation.cancelledAt ? (
+                          <span style={{ color: "#8b8f92", fontSize: "0.74rem" }}>Cancelled {formatDate(confirmation.cancelledAt)}</span>
+                        ) : null}
+                        {canAct ? (
+                          <div style={{ display: "flex", gap: "0.45rem", flexWrap: "wrap" }}>
+                            <button
+                              type="button"
+                              className="button primary"
+                              onClick={() => updateAgentConfirmation(confirmation, "approve")}
+                              disabled={busy}
+                              style={agentConfirmationButton}
+                            >
+                              {busy ? "Updating..." : "Approve intent"}
+                            </button>
+                            <button
+                              type="button"
+                              className="button"
+                              onClick={() => updateAgentConfirmation(confirmation, "cancel")}
+                              disabled={busy}
+                              style={agentConfirmationButton}
+                            >
+                              {busy ? "Updating..." : "Cancel intent"}
+                            </button>
+                          </div>
+                        ) : null}
+                      </article>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
           </div>
 
           <div className="card" style={{ display: "grid", gap: "0.9rem" }}>
@@ -1071,4 +1256,19 @@ const agentFactBox = {
   gap: "0.2rem",
   minWidth: 0,
   padding: "0.55rem",
+};
+
+const agentConfirmationRow = {
+  background: "#ffffff",
+  border: "1px solid #e7e0d4",
+  borderRadius: 8,
+  display: "grid",
+  gap: "0.5rem",
+  padding: "0.7rem",
+};
+
+const agentConfirmationButton = {
+  minHeight: 32,
+  padding: "0 0.65rem",
+  fontSize: "0.76rem",
 };
