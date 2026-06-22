@@ -52,6 +52,30 @@ pnpm test:developer-spaces
 pnpm test:developer-space-client
 ```
 
+## PR174 Hosted Sanitized Activity Readback Proof
+
+ARIADNE hosted proof on 2026-06-22:
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `npx --yes --package @playwright/test@1.41.2 playwright test tmp-pr174-hosted-activity-readback-proof.spec.js --reporter=line --workers=1` | Pass | 1 hosted browser test passed after setting `NODE_PATH` to the cached npx package path. Desktop owner manage rendered `read_logs` as a safe available preview; mobile owner readback fit without document-level overflow after the wrap fix; hostile preview input was not echoed; anonymous public API/detail and public mobile detail stayed clean. |
+| Hosted deployment identity | Pass | Web and API ready on commit `fae38fb9f65e`, including the PR174 app-code patch and A4 mobile wrap fix. |
+
+ARIADNE PR174 notes:
+
+- `read_logs` previews as owner-only sanitized activity context, not raw logs
+  and not execution.
+- The owner UI rendered `Sanitized activity sources`, `Recent sanitized
+  activity`, and `Omitted raw fields` with bounded/newest-first copy.
+- Activity rows stayed within the 14-row preview limit.
+- Browser mutation counts were preview `1`, confirmation create `0`,
+  confirmation approve `0`, receipt execute `0`, and external execution `0`.
+- Public Developer Space detail did not expose activity readback, Developer
+  Agent confirmation state, `developer_space_agent_confirmations`,
+  `webhook_receipt`, or omitted-field owner copy.
+- Visible owner/public text scans found no UUID-shaped values or secret-shaped
+  strings.
+
 ## PR174 Phase 2D Sanitized Activity Log Readback
 
 DAEDALUS implementation validation on 2026-06-22:

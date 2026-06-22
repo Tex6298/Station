@@ -7,7 +7,7 @@ Reviewer: ARGUS reviews owner scope, payload minimization, source boundaries,
 and overclaim risk.
 Rehearsal: ARIADNE runs hosted desktop/mobile proof if ARGUS accepts visible
 owner UI.
-Status: implemented by DAEDALUS; open for ARGUS review
+Status: accepted by ARGUS; ARIADNE hosted proof passed; ready for MIMIR closeout
 
 ## Why This Lane
 
@@ -194,3 +194,90 @@ public leakage, visible raw-id/secret risk, no external log-provider dependency,
 and save/review/publish/capability regression risk. Because owner-visible
 action vocabulary changed, ARGUS should wake ARIADNE for hosted proof if
 accepted.
+
+## ARGUS Review Acceptance - 2026-06-22
+
+ARGUS accepted PR174 after a focused UI wrap patch for the hosted mobile
+readback.
+
+Accepted review truth:
+
+- `read_logs` is an owner-only safe preview action, not a confirmation or
+  execution path.
+- The preview route authenticates and authorizes owner/admin access before
+  loading readback data.
+- Activity rows use existing Station tables only and serialize through safe
+  source, category, status, timestamp, and count copy with explicit omitted-field
+  boundaries.
+- Public Developer Space detail does not receive the `read_logs` activity
+  surface.
+- The mobile wrap patch is scoped to Developer Agent preview layout wrapping and
+  does not touch API routes, auth, readback sources, payload serialization,
+  public detail, confirmation/receipt execution, or save/review/publish/
+  capability behavior.
+
+## ARIADNE Hosted Browser Acceptance - 2026-06-22
+
+ARIADNE reran the hosted desktop/mobile `read_logs` proof after the wrap-fix
+runtime deployed.
+
+Deployment identity:
+
+- Web `/health/deployment`: HTTP `200`, ready, branch `main`, service
+  `@station/web`, commit `fae38fb9f65e`.
+- API `/health/deployment`: HTTP `200`, ready, branch `main`, service
+  `@station/api`, commit `fae38fb9f65e`.
+- The deployed runtime includes the PR174 app-code patch and the A4 mobile wrap
+  fix.
+
+Hosted owner proof:
+
+- Replay owner route `/developer-spaces/:slug/manage` loaded on desktop
+  `1440x1000`.
+- Developer Agent preview rendered with `Read activity log` as an available
+  action, while `Request capability`, `Save project update draft`, and
+  execution-oriented future vocabulary remained visible in their expected
+  lanes.
+- A `read_logs` preview returned HTTP `200` with `status: previewed`,
+  `futureLane: false`, and `requiresConfirmation: false`.
+- The owner UI rendered `Sanitized activity sources`, `Recent sanitized
+  activity`, `Omitted raw fields`, bounded/newest-first copy, and explicit raw
+  infrastructure-log omission copy.
+- A hosted API preview with hostile `rawPrompt`/`token` input returned HTTP
+  `200` and did not echo the submitted probe text.
+- The readback contained bounded activity rows and stayed within the 14-row
+  preview limit.
+- Browser saw no API errors and no unexpected mutation requests.
+
+Hosted boundary proof:
+
+- Anonymous public API/detail readback did not expose `Sanitized activity
+  sources`, `Omitted raw fields`, `developer_space_agent_confirmations`, or
+  `webhook_receipt`.
+- Anonymous public mobile detail did not expose activity-readback, Developer
+  Agent confirmation, or omitted-field owner copy.
+- Owner mobile `390x900` rendered the activity readback with no document-level
+  horizontal overflow after the wrap fix.
+- Public mobile `390x900` also had no document-level horizontal overflow.
+- Visible owner and public text scans found zero UUID-shaped values and zero
+  secret-shaped strings.
+
+Mutation result:
+
+- Browser preview requests: `1`.
+- Confirmation creates: `0`.
+- Confirmation approvals: `0`.
+- Receipt execute requests: `0`.
+- External executions: `0`.
+
+Verdict:
+
+- ARIADNE accepts PR174.
+- `read_logs` reads as owner-only activity context, not raw logs and not
+  execution.
+- The public Developer Space boundary stays clean.
+
+Validation:
+
+- `npx --yes --package @playwright/test@1.41.2 playwright test tmp-pr174-hosted-activity-readback-proof.spec.js --reporter=line --workers=1`
+  passed: 1 test.

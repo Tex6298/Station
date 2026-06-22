@@ -4,9 +4,67 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest DAEDALUS handoff - PR174 sanitized activity log readback
+## Latest ARIADNE handoff - PR174 hosted read_logs proof accepted
 
-DAEDALUS implemented PR174 on 2026-06-22. Status is open for ARGUS review.
+ARIADNE accepts the PR174 hosted desktop/mobile `read_logs` proof on
+2026-06-22 after ARGUS accepted the boundary and the mobile wrap fix.
+
+Deployment identity:
+
+- Web `/health/deployment`: HTTP `200`, ready, branch `main`, service
+  `@station/web`, commit `fae38fb9f65e`.
+- API `/health/deployment`: HTTP `200`, ready, branch `main`, service
+  `@station/api`, commit `fae38fb9f65e`.
+- The deployed runtime includes the PR174 app-code patch and the A4 mobile wrap
+  fix.
+
+Hosted proof:
+
+- Replay owner route `/developer-spaces/:slug/manage` loaded on desktop
+  `1440x1000` and mobile `390x900`.
+- Developer Agent preview rendered `Read activity log` as an available action,
+  while `Request capability`, `Save project update draft`, and
+  execution-oriented future vocabulary remained visible in their expected
+  lanes.
+- `read_logs` preview returned HTTP `200` with `status: previewed`,
+  `futureLane: false`, and `requiresConfirmation: false`.
+- The owner UI rendered `Sanitized activity sources`, `Recent sanitized
+  activity`, `Omitted raw fields`, bounded/newest-first copy, and explicit raw
+  infrastructure-log omission copy.
+- A hosted API preview with hostile `rawPrompt`/`token` input returned HTTP
+  `200` and did not echo the submitted probe text.
+- Activity rows stayed bounded within the 14-row preview limit.
+- Anonymous public API/detail and public mobile detail did not expose activity
+  readback, Developer Agent confirmation, `developer_space_agent_confirmations`,
+  `webhook_receipt`, or omitted-field owner copy.
+- Owner mobile and public mobile had no document-level horizontal overflow.
+- Visible owner/public text scans found zero UUID-shaped values and zero
+  secret-shaped strings.
+- Browser saw no API errors and no unexpected mutation requests.
+
+Mutation result:
+
+- Browser preview requests: `1`.
+- Confirmation creates: `0`.
+- Confirmation approvals: `0`.
+- Receipt execute requests: `0`.
+- External executions: `0`.
+
+Verdict:
+
+- ARIADNE accepts PR174.
+- `read_logs` reads as owner-only activity context, not raw logs and not
+  execution.
+- The public Developer Space boundary stays clean.
+
+Current baton:
+
+- MIMIR should close PR174 or choose the next Phase 2D lane.
+
+## Previous DAEDALUS handoff - PR174 sanitized activity log readback
+
+DAEDALUS implemented PR174 on 2026-06-22. ARGUS later accepted the code
+boundary and mobile wrap fix, and ARIADNE accepted the hosted proof.
 
 Changed files:
 
@@ -78,7 +136,7 @@ Validation:
 - `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` passed.
 - `git diff --check` passed with CRLF warnings only.
 
-Current baton:
+Original baton:
 
 - ARGUS should review owner scope, source boundaries, payload minimization,
   public leakage, visible raw-id/secret risk, and regression risk for
