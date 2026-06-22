@@ -981,14 +981,14 @@ export default function DeveloperSpaceManagePage() {
                             {section.items.map((item, itemIndex) => {
                               const href = safeDeveloperSpacePreviewHref(item.href);
                               return (
-                                <div key={`${item.title}-${itemIndex}`} style={{ borderTop: "1px solid #e7e0d4", paddingTop: "0.45rem" }}>
+                                <div key={`${item.title}-${itemIndex}`} style={{ borderTop: "1px solid #e7e0d4", minWidth: 0, overflowWrap: "anywhere", paddingTop: "0.45rem" }}>
                                   {href ? (
-                                    <Link href={href} style={{ color: "#534ab7", fontWeight: 700 }}>{item.title}</Link>
+                                    <Link href={href} style={{ color: "#534ab7", fontWeight: 700, overflowWrap: "anywhere" }}>{item.title}</Link>
                                   ) : (
-                                    <strong style={{ display: "block", color: "#1f2529" }}>{item.title}</strong>
+                                    <strong style={{ display: "block", color: "#1f2529", overflowWrap: "anywhere" }}>{item.title}</strong>
                                   )}
                                   {item.detail ? (
-                                    <p style={{ margin: "0.2rem 0 0", color: "#687078", lineHeight: 1.45 }}>{item.detail}</p>
+                                    <p style={{ margin: "0.2rem 0 0", color: "#687078", lineHeight: 1.45, overflowWrap: "anywhere" }}>{item.detail}</p>
                                   ) : null}
                                   {item.status ? (
                                     <span className="pill" style={{ marginTop: "0.35rem", fontSize: "0.68rem" }}>{humaniseKey(item.status)}</span>
@@ -1566,6 +1566,8 @@ const agentPreviewSection = {
   background: "#ffffff",
   border: "1px solid #e7e0d4",
   borderRadius: 8,
+  minWidth: 0,
+  overflowWrap: "anywhere" as const,
   padding: "0.75rem",
 };
 
