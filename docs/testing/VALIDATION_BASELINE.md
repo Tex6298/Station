@@ -52,6 +52,25 @@ pnpm test:developer-spaces
 pnpm test:developer-space-client
 ```
 
+## PR175 Hosted Receipt Recovery Rerun Blocker
+
+ARIADNE hosted rerun on 2026-06-22 after `ad07aaf` deployed:
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `npx --yes --package @playwright/test@1.41.2 playwright test tmp-pr175-hosted-status-note-proof.spec.js --reporter=line --workers=1` | Fail | Web and API deployment identity were both `ad07aaf36890`; retrying the existing approved `update_observatory` event-created/no-receipt confirmation still failed with HTTP `500` / `developer_space_agent_execution_receipt_create_failed`. |
+| Temporary read-only pooler schema probe | Fail | `developer_space_agent_execution_receipts.action` check includes `update_observatory`: false; receipt owner policy includes `update_observatory`: false; policy still requires approved confirmations: true; migration `053` ledger rows: `0`. |
+
+ARIADNE rerun notes:
+
+- The app repair is deployed, but hosted Supabase has not applied migration
+  `053_developer_space_agent_observatory_status_note_receipts`.
+- Generic/unselected `update_observatory` remained blocked as expected.
+- Secret-shaped status-note creation returned HTTP `400` and did not echo the
+  probe.
+- PR175 remains blocked until DAEDALUS applies migration `053`, records the
+  ledger row, reloads PostgREST schema, and wakes ARGUS/ARIADNE.
+
 ## PR175 Hosted Observatory Status Note Blocker
 
 ARIADNE hosted proof on 2026-06-22:

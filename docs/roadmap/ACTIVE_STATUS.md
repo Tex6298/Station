@@ -4,6 +4,52 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARIADNE blocker - PR175 migration 053 not applied on hosted
+
+ARIADNE reran the PR175 hosted receipt-recovery proof on 2026-06-22 after
+commit `ad07aaf` deployed to both Railway services.
+
+Deployment identity:
+
+- Web `/health/deployment`: ready, branch `main`, service `@station/web`,
+  commit `ad07aaf36890`.
+- API `/health/deployment`: ready, branch `main`, service `@station/api`,
+  commit `ad07aaf36890`.
+
+Hosted rerun result:
+
+- Generic/unselected `update_observatory` still returned the expected
+  selected-status-note requirement.
+- Secret-shaped status-note creation still returned HTTP `400` and did not
+  echo the submitted probe.
+- Retrying the approved `update_observatory` confirmation from the existing
+  event-created/no-receipt path still returned HTTP `500`.
+- The API response code was
+  `developer_space_agent_execution_receipt_create_failed`.
+
+Read-only hosted schema probe:
+
+- `developer_space_agent_execution_receipts.action` check includes
+  `update_observatory`: false.
+- Receipt owner policy includes `update_observatory`: false.
+- Receipt owner policy still requires approved confirmations: true.
+- Migration `053_developer_space_agent_observatory_status_note_receipts`
+  ledger rows: `0`.
+
+Verdict:
+
+- The PR175 app repair is deployed, but migration `053` has not been applied to
+  hosted Supabase.
+- ARIADNE still does not accept PR175.
+
+Current baton:
+
+- DAEDALUS should apply only
+  `infra/supabase/migrations/053_developer_space_agent_observatory_status_note_receipts.sql`
+  through the hosted pooler path, record the migration ledger row, reload
+  PostgREST schema, prove the action check/policy/ledger booleans are true, and
+  then wake ARGUS and ARIADNE.
+
 ## Latest DAEDALUS repair - PR175 hosted receipt recovery
 
 DAEDALUS repaired the PR175 hosted receipt-recovery blocker on 2026-06-22 and

@@ -7,7 +7,7 @@ Reviewer: ARGUS reviews public-boundary scope, payload minimization,
 idempotency, and overclaim risk.
 Rehearsal: ARIADNE runs hosted desktop/mobile proof if ARGUS accepts visible
 owner/public UI.
-Status: hosted ARIADNE proof blocked on receipt retry after public event
+Status: hosted ARIADNE rerun blocked because migration 053 is not applied
 
 ## Why This Lane
 
@@ -148,6 +148,31 @@ Repair validation:
 - `git diff --check` passed with CRLF normalization warnings only.
 
 Hosted proof must be rerun after this repair is deployed/applied.
+
+ARIADNE rerun blocker on 2026-06-22:
+
+- Web and API `/health/deployment` both reported ready on commit
+  `ad07aaf36890`.
+- Retrying the approved `update_observatory` confirmation from the existing
+  event-created/no-receipt path still returned HTTP `500`.
+- The API response code was
+  `developer_space_agent_execution_receipt_create_failed`.
+- Read-only hosted schema probe showed the receipt action check does not include
+  `update_observatory`.
+- The same probe showed the receipt owner policy does not include
+  `update_observatory`.
+- The receipt owner policy still requires approved confirmations.
+- Migration `053_developer_space_agent_observatory_status_note_receipts`
+  ledger rows were `0`.
+
+Rerun verdict:
+
+- The PR175 app repair is deployed, but hosted Supabase has not applied
+  migration `053`.
+- ARIADNE still does not accept PR175.
+- DAEDALUS should apply only migration `053` through the hosted pooler path,
+  record the ledger row, reload PostgREST schema, prove the action
+  check/policy/ledger booleans are true, and wake ARGUS plus ARIADNE.
 
 ## Expected Behavior
 
