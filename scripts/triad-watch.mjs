@@ -37,6 +37,14 @@ function fetchLatest({ remote, branch }) {
   );
 }
 
+function resolveCommitish(commitish) {
+  return execFileSync(
+    "git",
+    ["rev-parse", "--verify", `${commitish}^{commit}`],
+    { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] },
+  ).trim();
+}
+
 function poll(agent, { quiet = false, consume = true, fetchConfig = null, ref = "HEAD", since = null } = {}) {
   if (fetchConfig) {
     fetchLatest(fetchConfig);
@@ -91,8 +99,12 @@ function main() {
   const remote = flagValue(flags, "--remote") ?? "fork";
   const branch = flagValue(flags, "--branch") ?? "main";
   const ref = flagValue(flags, "--ref") ?? (shouldFetch ? `${remote}/${branch}` : "HEAD");
-  const since = flagValue(flags, "--since");
   const fetchConfig = shouldFetch ? { remote, branch } : null;
+  if (fetchConfig) {
+    fetchLatest(fetchConfig);
+  }
+  const sinceFlag = flagValue(flags, "--since");
+  const since = sinceFlag ? resolveCommitish(sinceFlag) : null;
 
   const foundWakeup = poll(agent, { consume, fetchConfig, ref, since });
 
