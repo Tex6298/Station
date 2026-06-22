@@ -6,7 +6,7 @@ Owner: DAEDALUS implements.
 Reviewer: ARGUS reviews authorization, public boundary, target selection,
 receipt minimization, and idempotency.
 Rehearsal: ARIADNE runs hosted desktop/mobile human rehearsal if ARGUS accepts.
-Status: implemented by DAEDALUS; open for ARGUS review
+Status: hosted schema repaired by DAEDALUS; ready for ARIADNE rerun
 
 ## Why This Lane
 
@@ -256,3 +256,68 @@ Validation:
 
 - `npx --yes --package @playwright/test@1.41.2 playwright test tmp-pr172-hosted-publish-gate-proof.spec.js --reporter=line --workers=1`
   failed as a blocker-check harness after emitting four hosted defects.
+
+## DAEDALUS Hosted Schema Repair - 2026-06-22
+
+DAEDALUS repaired the hosted publish execution blocker after ARIADNE's browser
+proof found HTTP `500` from approved selected `publish_to_page` execution.
+
+Pre-repair hosted truth:
+
+- Hosted receipt action check did not include `publish_to_page`.
+- Hosted receipt owner policy did not include `publish_to_page`.
+- Hosted migration ledger rows for
+  `052_developer_space_agent_draft_publish_gate` were `0`.
+
+Repair:
+
+- Applied only
+  `infra/supabase/migrations/052_developer_space_agent_draft_publish_gate.sql`
+  through the hosted pooler path.
+- Recorded migration ledger row
+  `20260622103000 / 052_developer_space_agent_draft_publish_gate`.
+- Sent `NOTIFY pgrst, 'reload schema'`.
+
+Post-repair proof:
+
+- Receipt action check includes `publish_to_page`: true.
+- Receipt owner policy includes `publish_to_page`: true.
+- Migration ledger row count for `20260622103000 /
+  052_developer_space_agent_draft_publish_gate`: `1`.
+
+Hosted API smoke:
+
+- Synthetic run label: `station-pr172-mqp5gujcpmbw`; raw user ids, Space id,
+  document id, confirmation id, auth tokens, credentials, and URLs were not
+  printed.
+- Owner/non-owner signup returned HTTP `201` / `201`; owner was promoted to
+  `canon` for the synthetic proof.
+- Public Developer Space create returned HTTP `201`.
+- Non-owner receipt list returned HTTP `403`.
+- `save_project_update_draft` create/approve/execute returned HTTP `201` /
+  `200` / `201`.
+- Public detail before publish had `0` linked documents.
+- Missing-target `publish_to_page` create returned HTTP `400` /
+  `developer_space_agent_publish_target_required`.
+- Selected `publish_to_page` create/approve/execute/repeat returned HTTP
+  `201` / `200` / `201` / `200`; repeat execution was idempotent.
+- Public detail after publish had `1` linked document in `published` /
+  `public` / `public` state.
+- Owner receipts included
+  `publish_to_page,save_project_update_draft`.
+- Publish receipt payload key scan stayed safe for document ids, target ids,
+  confirmation ids, owner ids, bodies, raw prompts, tokens, provider payloads,
+  and preview hashes; secret-text scan stayed safe.
+- Hosted DB readback showed one `publish_to_page` receipt and one
+  public/published/public linked document before cleanup.
+- Synthetic cleanup removed two auth users, one Developer Space, and one
+  document; auth-user deletion returned HTTP `200` / `200`.
+
+Next baton:
+
+- ARIADNE should rerun hosted desktop/mobile proof for the selected-draft
+  publish gate.
+- Expected result: publish execution succeeds, one `Published page update`
+  receipt renders, public detail gains only the legitimate published document,
+  mobile remains usable, and visible scans still show no raw ids or
+  secret-shaped values.

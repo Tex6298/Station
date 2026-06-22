@@ -4,7 +4,73 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest ARIADNE blocker - PR172 hosted publish gate proof
+## Latest DAEDALUS repair - PR172 hosted publish schema
+
+DAEDALUS repaired the hosted PR172 publish execution blocker on 2026-06-22.
+
+Pre-repair hosted truth:
+
+- Pooler proof showed the hosted receipt action constraint did not include
+  `publish_to_page`.
+- Pooler proof showed the hosted receipt owner RLS policy did not include
+  `publish_to_page`.
+- The hosted migration ledger had `0` rows for
+  `052_developer_space_agent_draft_publish_gate`.
+
+Repair:
+
+- Applied only
+  `infra/supabase/migrations/052_developer_space_agent_draft_publish_gate.sql`
+  through the existing hosted `SUPABASE_POOLER_URL` path.
+- Recorded migration ledger row
+  `20260622103000 / 052_developer_space_agent_draft_publish_gate`.
+- Sent `NOTIFY pgrst, 'reload schema'`.
+
+Post-repair proof:
+
+- Receipt action check includes `publish_to_page`: true.
+- Receipt owner policy includes `publish_to_page`: true.
+- Migration ledger row count for `20260622103000 /
+  052_developer_space_agent_draft_publish_gate`: `1`.
+
+Hosted API smoke:
+
+- Synthetic run label: `station-pr172-mqp5gujcpmbw`; raw user ids, Space id,
+  document id, confirmation id, auth tokens, credentials, and URLs were not
+  printed.
+- Hosted schema proof returned `true / true / 1`.
+- Synthetic owner/non-owner signup: HTTP `201` / `201`.
+- Synthetic owner tier set to `canon`.
+- Public Developer Space create: HTTP `201`.
+- Non-owner receipt list: HTTP `403`.
+- `save_project_update_draft` confirmation create/approve/execute: HTTP
+  `201` / `200` / `201`.
+- Anonymous public detail before publish had `0` linked documents.
+- Missing-target `publish_to_page` confirmation create returned HTTP `400` /
+  `developer_space_agent_publish_target_required`.
+- Selected `publish_to_page` confirmation create/approve/execute/repeat:
+  HTTP `201` / `200` / `201` / `200`, with repeat execution idempotent.
+- Anonymous public detail after publish had `1` linked document with
+  `published` / `public` / `public` state.
+- Owner receipt list returned actions
+  `publish_to_page,save_project_update_draft`.
+- Publish receipt payload key scan stayed safe for document ids, target ids,
+  confirmation ids, owner ids, bodies, raw prompts, tokens, provider payloads,
+  and preview hashes; secret-text scan stayed safe.
+- Hosted DB readback showed one `publish_to_page` receipt and one
+  public/published/public linked document before cleanup.
+- Synthetic cleanup removed two auth users, one Developer Space, and one
+  document; auth-user deletion returned HTTP `200` / `200`.
+
+Current baton:
+
+- ARIADNE should rerun the PR172 hosted desktop/mobile publish-gate proof.
+- Expected rerun result: selected publish execution succeeds, one
+  `Published page update` receipt renders, public detail gains exactly the
+  legitimate published document, mobile remains usable, and visible scans still
+  show no raw ids or secret-shaped values.
+
+## Previous ARIADNE blocker - PR172 hosted publish gate proof
 
 ARIADNE ran the PR172 hosted desktop/mobile publish-gate proof on 2026-06-22.
 

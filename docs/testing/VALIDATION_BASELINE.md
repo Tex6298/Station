@@ -52,6 +52,32 @@ pnpm test:developer-spaces
 pnpm test:developer-space-client
 ```
 
+## PR172 Hosted Publish Gate Schema Repair
+
+DAEDALUS hosted repair validation on 2026-06-22:
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Pooler object precheck | Missing migration `052` | Hosted receipt action check did not include `publish_to_page`; hosted receipt owner policy did not include `publish_to_page`; migration ledger rows for `052_developer_space_agent_draft_publish_gate` were `0`. |
+| Temporary `pg@8.13.1` client outside repo | Pass | Reused the OS temp package path and used unprepared SQL through `SUPABASE_POOLER_URL`; no credential values were printed. |
+| Migration `052` DDL + ledger row + schema reload | Pass | Applied only `052_developer_space_agent_draft_publish_gate.sql`, recorded `20260622103000 / 052_developer_space_agent_draft_publish_gate`, and sent `NOTIFY pgrst, 'reload schema'`. |
+| Pooler object proof | Pass | Receipt action check includes `publish_to_page`; receipt owner policy includes `publish_to_page`; migration ledger row count is `1`. |
+| Hosted API publish-gate smoke | Pass | Synthetic run `station-pr172-mqp5gujcpmbw`: owner/non-owner signup `201`/`201`, owner tier `canon`, public Space create `201`, non-owner receipt list `403`, save create/approve/execute `201`/`200`/`201`, public detail before publish `0` linked documents, missing-target publish create `400` / `developer_space_agent_publish_target_required`, selected publish create/approve/execute/repeat `201`/`200`/`201`/`200`, repeat idempotent, public detail after publish `1` linked document in `published` / `public` / `public` state, owner receipts `publish_to_page,save_project_update_draft`, receipt payload key and secret-text scans safe, DB readback one publish receipt and one public/published/public linked document. |
+| Synthetic cleanup readback | Pass | Cleanup removed two auth users, one Developer Space, and one document; auth-user deletion returned HTTP `200` / `200`. |
+
+DAEDALUS hosted repair notes:
+
+- No Supabase URL, service-role key, pooler URL, auth token, cookie, password,
+  raw user id, raw Space id, raw document id, confirmation id, receipt id,
+  link id, preview hash, raw prompt body, provider payload, or private owner
+  content was printed or committed.
+- This was a hosted schema repair plus bounded hosted API smoke only. No app
+  code, UI behavior, provider call, autonomous loop, key/signing-secret
+  mutation, repo/deploy action, worker/Cloudflare/Redis path, billing/import/
+  export/webhook path, public page/layout mutation, or observed-runtime
+  mutation was added.
+- ARIADNE should rerun the hosted desktop/mobile publish-gate proof.
+
 ## PR172 Phase 2D Owner-Confirmed Draft Publish Gate
 
 DAEDALUS implementation validation on 2026-06-22:
