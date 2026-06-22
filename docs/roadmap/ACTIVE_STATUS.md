@@ -10023,6 +10023,38 @@ Next:
 Result doc:
 `docs/roadmap/PR161_PROTECTED_ALPHA_DEMO_RUNBOOK_REFRESH.md`.
 
+## Latest MIMIR handoff - PR161 ARGUS runbook overclaim review
+
+MIMIR accepts ARIADNE's PR161 runbook refresh as ready for hostile wording
+review and wakes ARGUS.
+
+Decision:
+
+- The refreshed runbook is intended for a prepared protected-alpha human demo.
+- Because the operator pack is human-facing and contains caveats, claims to
+  avoid, and route guidance, ARGUS should review it before MIMIR treats it as
+  final demo closeout.
+
+ARGUS task:
+
+- Review `docs/roadmap/PR39_PROTECTED_ALPHA_DEMO_RUNBOOK_ARIADNE.md`,
+  `docs/roadmap/PR39_PROTECTED_ALPHA_DEMO_RUNBOOK.md`,
+  `docs/roadmap/STATION_LAUNCH_CORE_ALPHA_CLOSEOUT.md`, and
+  `docs/roadmap/PR161_PROTECTED_ALPHA_DEMO_RUNBOOK_REFRESH.md`.
+- Verify no production-readiness, product-completeness, broad backend-complete,
+  current Stripe paid-activation, Redis Memory-truth, Cloudflare live-runtime,
+  or permanent-latency overclaim slipped in.
+- Verify route instructions avoid stale hard-coded public document/forum IDs
+  and no secrets/raw IDs/private text/Stripe IDs/Checkout URLs/webhook payloads
+  were added.
+- Patch docs narrowly if needed, then wake MIMIR with ready-for-demo verdict or
+  exact remaining caveat.
+
+Non-scope:
+
+- No app code/runtime behavior, route testing, billing mutation, replay-data
+  mutation, Redis, Cloudflare, provider, worker, or cache changes.
+
 ## Previous DAEDALUS handoff - PR159 hosted walkthrough defect patch
 
 DAEDALUS patched the narrow PR159 defects on 2026-06-21 and wakes ARGUS for

@@ -155,3 +155,27 @@ Validation:
 - No route sanity check was run; the refresh used accepted PR157 through PR160
   evidence and corrected stale route instructions to avoid old hard-coded
   public document/forum IDs.
+
+## MIMIR ARGUS Review Handoff
+
+MIMIR accepts ARIADNE's runbook refresh as ready for hostile wording review.
+ARGUS should review the refreshed operator pack before MIMIR treats it as final
+demo closeout.
+
+Review focus:
+
+- no production-readiness or product-completeness overclaim;
+- no broad "backend complete" overclaim;
+- Stripe remains current config/test-resource readiness unless a fresh hosted
+  Checkout or signed webhook proof is explicitly included;
+- Redis remains operational cache, not canonical Memory truth;
+- Cloudflare remains future adapter/index-mirror boundary, not live runtime;
+- PR156 latency is framed as protected-alpha evidence, not a permanent
+  performance guarantee;
+- route instructions avoid stale hard-coded public document/forum IDs;
+- no secrets, raw IDs, Checkout URLs, Stripe IDs, customer/subscription IDs,
+  webhook payloads, or private corpus text were added.
+
+If ARGUS accepts, wake MIMIR with the ready-for-demo verdict and any caveats
+that must be spoken aloud. If wording or route instructions need correction,
+patch the docs narrowly and then wake MIMIR.
