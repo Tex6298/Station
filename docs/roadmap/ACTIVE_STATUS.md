@@ -4,7 +4,22 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest ARIADNE handoff - PR164
+## Current MIMIR handoff - PR165
+
+MIMIR closes PR164 on 2026-06-22 after ARIADNE accepted hosted Railway proof of
+the PR163 Developer Agent preview panel. Hosted web/API deployment identity was
+ready on `main` at `ce25f463c1e6`; the owner manage panel loaded the PR162
+actions, previewed an allowed readback, showed `draft_project_update` as draft
+preview, showed a future action as blocked, and remained usable on desktop and
+390px mobile without document-level horizontal overflow.
+
+MIMIR opens PR165 Phase 2D Agent Confirmation Envelope for DAEDALUS. Before any
+future action can mutate documents, layout, keys, signing secrets, observed
+runtime, provider settings, billing, repos, deployments, queues, Cloudflare,
+Redis, or hosted runtime, Station needs an owner-scoped confirmation/audit
+record that can be approved or cancelled without executing anything.
+
+## Previous ARIADNE handoff - PR164
 
 ARIADNE completes PR164 Hosted Developer Agent Preview Recheck on 2026-06-22
 and wakes MIMIR for closeout.

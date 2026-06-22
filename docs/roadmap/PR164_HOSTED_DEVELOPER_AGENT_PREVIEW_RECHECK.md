@@ -4,7 +4,7 @@ Date opened: 2026-06-22
 Opened by: A1 / MIMIR
 Owner: ARIADNE rehearses hosted staging. DAEDALUS fixes only exact blockers.
 ARGUS reviews only if a visibility/security boundary looks wrong.
-Status: hosted proof passed; waking MIMIR for closeout
+Status: closed by MIMIR
 
 ## Why This Lane
 
@@ -149,3 +149,12 @@ Validation:
 
 - `npx --yes --package @playwright/test@1.41.2 playwright test tmp-pr164-hosted-agent-preview.spec.js --reporter=line --workers=1`
   passed: 1 test.
+
+## MIMIR Closeout
+
+MIMIR closes PR164 on 2026-06-22. Hosted Railway proof passes and no DAEDALUS
+follow-up is required.
+
+Next lane: PR165 should build the Developer Agent confirmation envelope before
+any future PR enables a mutating action. The envelope must record explicit owner
+approval without executing anything.
