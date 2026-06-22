@@ -253,3 +253,89 @@ Next baton:
   serialization, and visible copy.
 - Because visible owner UI changed, ARGUS should wake ARIADNE for hosted
   desktop/mobile proof if accepted.
+
+## ARGUS Review - 2026-06-22
+
+ARGUS accepted PR170 after a narrow safety patch and asked ARIADNE to run hosted
+desktop/mobile proof because the owner manage UI changed.
+
+Accepted review truth:
+
+- `save_project_update_draft` is the first bounded artifact mutation in the
+  Developer Agent lane.
+- Approved dispatch creates one private draft document and one owner-only
+  Developer Space document link from route-generated safe readback.
+- Repeat dispatch returns the existing receipt instead of creating duplicate
+  documents, links, or receipts.
+- `request_capability` receipts still work.
+- `publish_to_page` and dangerous actions remain blocked.
+- Saved drafts are draft/private/comments-disabled/field-log/AI-assisted, with
+  owner-only Developer Space link visibility.
+- Public Developer Space detail hides the owner-only draft link.
+- Confirmation and receipt payloads do not store document bodies, raw prompts,
+  private event payloads, provider payloads, keys, cookies, tokens, environment
+  values, confirmation ids, owner ids, preview hashes, document ids, or link ids.
+
+No-scope remains unchanged: no public publish, model/provider call, autonomous
+loop, shell/repo/deploy action, queue, hosted runtime, Cloudflare, Redis, key
+rotation, signing-secret mutation, layout mutation, observed-runtime mutation,
+billing, import/export/webhook, or private log read.
+
+## ARIADNE Hosted Browser Blocker - 2026-06-22
+
+ARIADNE ran hosted desktop/mobile proof against the deployed owner manage UI.
+
+Deployment identity:
+
+- Web `/health/deployment`: HTTP `200`, ready, branch `main`, service
+  `@station/web`, commit `472c12d2e09f`.
+- API `/health/deployment`: HTTP `200`, ready, branch `main`, service
+  `@station/api`, commit `472c12d2e09f`.
+- Runtime is current enough for PR170 app-code proof.
+
+Hosted proof that passed before the blocker:
+
+- Replay owner route `/developer-spaces/:slug/manage` loaded on desktop
+  `1440x1000`.
+- Nearby owner Developer Space surfaces were present: ingestion key, current
+  observatory state, usage/quota, visual mode, widgets, exports, evidence path,
+  and public link.
+- Developer Agent preview panel loaded.
+- Confirmation and receipt setup-unavailable copy was not visible.
+- Generic confirmation-load and receipt-load failure copy was not visible.
+- Visible panel scan found zero UUID-shaped values and zero secret-shaped
+  strings.
+- `draft_project_update` preview worked and exposed zero enabled
+  `Record confirmation` controls.
+- Anonymous public Developer Space detail stayed clean: the project-update draft
+  title and private-draft receipt copy were not visible.
+- Mobile `390x900` owner manage loaded with no document-level horizontal
+  overflow.
+
+Hosted blocker:
+
+- The browser attempted confirmation creation for
+  `save_project_update_draft` and `publish_to_page`.
+- The hosted API returned HTTP `500` from
+  `POST /developer-spaces/:spaceRef/agent/actions/confirmations`.
+- No pending confirmation rows surfaced in the owner panel.
+- `save_project_update_draft` could not be approved.
+- The `Save draft` control never became reachable.
+- No draft-save receipt rendered, so ARIADNE could not verify private draft
+  metadata on desktop or mobile.
+
+Likely repair target:
+
+- Verify/apply
+  `infra/supabase/migrations/051_developer_space_agent_draft_document_save.sql`
+  against hosted Supabase, including the widened confirmation action check,
+  receipt action check, receipt owner policy, and PostgREST schema reload.
+- Prove hosted confirmation creation works again for at least one existing
+  future action and for `save_project_update_draft` before waking ARIADNE to
+  rerun browser proof.
+
+Validation:
+
+- `npx --yes --package @playwright/test@1.41.2 playwright test tmp-pr170-hosted-draft-save-proof.spec.js --reporter=line --workers=1`
+  completed as a blocker-check harness; the emitted evidence reported five hosted
+  defects and `passed: false`.

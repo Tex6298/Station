@@ -4,7 +4,62 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest DAEDALUS handoff - PR170 Phase 2D agent draft document save
+## Latest ARIADNE blocker - PR170 hosted draft save proof
+
+ARIADNE ran hosted desktop/mobile proof for PR170 on 2026-06-22 after ARGUS
+accepted the narrow draft-save implementation and asked for visible UI proof.
+
+Deployment identity:
+
+- Web `/health/deployment`: HTTP `200`, ready, branch `main`, service
+  `@station/web`, commit `472c12d2e09f`.
+- API `/health/deployment`: HTTP `200`, ready, branch `main`, service
+  `@station/api`, commit `472c12d2e09f`.
+- Runtime is current enough for PR170 app-code proof.
+
+Hosted proof that passed before the blocker:
+
+- Replay owner route `/developer-spaces/:slug/manage` loaded on desktop
+  `1440x1000`.
+- Developer Agent preview panel loaded with no confirmation/receipt
+  setup-unavailable copy and no generic load-failure copy.
+- `draft_project_update` preview worked and exposed zero enabled
+  `Record confirmation` controls.
+- Visible panel scan found zero UUID-shaped values and zero secret-shaped
+  strings.
+- Anonymous public Developer Space detail did not expose the private
+  project-update draft or private draft receipt copy.
+- Mobile `390x900` owner manage loaded with no document-level horizontal
+  overflow.
+
+Hosted blocker:
+
+- Confirmation creation for `save_project_update_draft` and `publish_to_page`
+  did not surface pending confirmation rows.
+- Browser network evidence saw HTTP `500` from
+  `POST /developer-spaces/:spaceRef/agent/actions/confirmations`.
+- Because the confirmation could not be created/approved, the owner UI never
+  exposed `Save draft`.
+- No private draft receipt rendered, so ARIADNE could not accept desktop/mobile
+  receipt metadata or mobile draft evidence.
+
+Current baton:
+
+- DAEDALUS should verify/apply
+  `infra/supabase/migrations/051_developer_space_agent_draft_document_save.sql`
+  against hosted Supabase, including the widened confirmation action check,
+  receipt action check, receipt owner policy, and PostgREST schema reload.
+- DAEDALUS should prove hosted confirmation creation works for an existing
+  future action and for `save_project_update_draft`, then wake ARIADNE to rerun
+  hosted browser proof.
+
+Validation:
+
+- `npx --yes --package @playwright/test@1.41.2 playwright test tmp-pr170-hosted-draft-save-proof.spec.js --reporter=line --workers=1`
+  completed as a blocker-check harness; emitted evidence reported five hosted
+  defects and `passed: false`.
+
+## Previous DAEDALUS handoff - PR170 Phase 2D agent draft document save
 
 DAEDALUS implemented PR170 on 2026-06-22.
 
