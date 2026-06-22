@@ -52,6 +52,38 @@ pnpm test:developer-spaces
 pnpm test:developer-space-client
 ```
 
+## PR162 Phase 2D Developer Agent Action Registry
+
+DAEDALUS implementation validation on 2026-06-22:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 29 tests passed, including owner-scoped agent registry/readback, sanitized allowed previews, future-action rejection, unsupported-action response shape, and no side effects for key/signing/runtime/trace rows. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/api build` | Pass | API package build passed after dependent package builds. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/types build` | Pass | Shared Developer Space action types compiled. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` | Pass | API route/typecheck passed directly. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Blocked locally before TypeScript | Turbo cannot spawn on this machine because Windows Application Control blocks `node_modules/.pnpm/turbo-windows-64@2.8.17/node_modules/turbo-windows-64/bin/turbo.exe` (`spawnSync ... UNKNOWN`; direct `turbo.exe --version` says "An Application Control policy has blocked this file"). |
+| `git diff --check` | Pass | CRLF normalization warnings only for touched files and local triad state. |
+
+DAEDALUS PR162 notes:
+
+- Added typed Developer Space agent action registry/readback DTOs.
+- Added owner-only `GET /developer-spaces/:id/agent/actions`.
+- Added owner-only `POST /developer-spaces/:id/agent/actions/preview`.
+- Allowed preview/readback actions: `read_developer_space_brief`,
+  `read_observed_runtime_status`, `read_provider_policy_posture`,
+  `read_evidence_path`, and `draft_project_update`.
+- Future actions return `requires_future_lane`: `publish_to_page`,
+  `update_layout`, `read_logs`, `push_to_repo`, `run_job`,
+  `update_observatory`, `request_capability`, `rotate_ingestion_key`, and
+  `create_webhook_signing_secret`.
+- Unknown actions return `unsupported_action`.
+- No visible UI changed, so no web build was required by the PR162 instructions.
+- No provider call, autonomous execution, shell/repo/deploy action,
+  Cloudflare, Redis worker, hosted runtime, key/signing-secret mutation,
+  observed-runtime ingestion mutation, or raw private payload exposure was
+  added.
+
 ## PR161 Protected-Alpha Demo Runbook Review
 
 ARGUS review validation on 2026-06-22:

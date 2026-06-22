@@ -171,6 +171,70 @@ export interface DeveloperSpaceDetail {
   access: "owner" | "member" | "public";
 }
 
+export type DeveloperSpaceAgentAllowedAction =
+  | "read_developer_space_brief"
+  | "read_observed_runtime_status"
+  | "read_provider_policy_posture"
+  | "read_evidence_path"
+  | "draft_project_update";
+
+export type DeveloperSpaceAgentFutureAction =
+  | "publish_to_page"
+  | "update_layout"
+  | "read_logs"
+  | "push_to_repo"
+  | "run_job"
+  | "update_observatory"
+  | "request_capability"
+  | "rotate_ingestion_key"
+  | "create_webhook_signing_secret";
+
+export type DeveloperSpaceAgentRegisteredAction =
+  | DeveloperSpaceAgentAllowedAction
+  | DeveloperSpaceAgentFutureAction;
+
+export type DeveloperSpaceAgentActionStatus =
+  | "previewed"
+  | "requires_future_lane"
+  | "unsupported_action";
+
+export interface DeveloperSpaceAgentActionRegistryEntry {
+  action: DeveloperSpaceAgentRegisteredAction;
+  label: string;
+  description: string;
+  mode: "read" | "draft_preview" | "future";
+  requiresConfirmation: boolean;
+  futureLane: boolean;
+}
+
+export interface DeveloperSpaceAgentActionFact {
+  label: string;
+  value: string | number | boolean | null;
+}
+
+export interface DeveloperSpaceAgentActionItem {
+  title: string;
+  detail?: string | null;
+  status?: string | null;
+  href?: string | null;
+}
+
+export interface DeveloperSpaceAgentActionSection {
+  title: string;
+  summary?: string | null;
+  facts?: DeveloperSpaceAgentActionFact[];
+  items?: DeveloperSpaceAgentActionItem[];
+}
+
+export interface DeveloperSpaceAgentActionPreview {
+  action: string;
+  status: DeveloperSpaceAgentActionStatus;
+  summary: string;
+  sections: DeveloperSpaceAgentActionSection[];
+  requiresConfirmation: boolean;
+  futureLane: boolean;
+}
+
 export interface DeveloperSpaceFreshness {
   streamId: string;
   spaceUpdatedAt: string;

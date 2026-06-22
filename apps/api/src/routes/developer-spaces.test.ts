@@ -1325,6 +1325,247 @@ test("Developer Spaces smoke covers creation, keying, ingestion, and public/owne
   }
 });
 
+test("Developer Space agent registry and previews are owner-scoped and sanitized", async () => {
+  const db = new InMemorySupabase();
+  setSupabaseAdminForTests(db.client as any);
+  const app = createDeveloperSpacesApp();
+  const rawUuid = "123e4567-e89b-12d3-a456-426614174000";
+
+  try {
+    const created = await requestJson(app, "POST", "/developer-spaces", {
+      token: "owner-token",
+      body: {
+        projectName: "Agent Registry Observatory",
+        description: `Owner brief with token=owner-secret and ${rawUuid}`,
+        visibility: "public",
+        providerPolicy: "private_archive_allowed",
+      },
+    });
+    assert.equal(created.status, 201);
+    const spaceId = created.body.space.id;
+
+    db.insertRow("developer_space_nodes", {
+      developer_space_id: spaceId,
+      external_id: "node-secret-external-id",
+      node_name: `Primary node token=node-secret ${rawUuid}`,
+      topology_type: "radial",
+      fragment_count: 12,
+      metrics: {
+        rawPayload: "raw node payload should not appear",
+        token: "node-token-should-not-appear",
+      },
+      last_event_at: "2026-06-22T04:00:00.000Z",
+    });
+    db.insertRow("developer_space_events", {
+      developer_space_id: spaceId,
+      node_id: null,
+      external_node_id: "node-secret-external-id",
+      event_type: "deploy.private",
+      event_label: `Deploy signal Bearer event-secret ${rawUuid}`,
+      event_data: {
+        rawPayload: "private event payload should not appear",
+        token: "event-token-should-not-appear",
+      },
+      similarity_score: 0.8,
+      source_refs: ["private:event:source"],
+      provenance: "api",
+      visibility: "private",
+      occurred_at: "2026-06-22T04:05:00.000Z",
+    });
+    db.insertRow("developer_space_snapshots", {
+      developer_space_id: spaceId,
+      snapshot_data: {
+        rawPrompt: "private snapshot prompt should not appear",
+        publicSummary: "runtime stable",
+      },
+      source_refs: ["private:snapshot:source"],
+      provenance: "api",
+      visibility: "private",
+      occurred_at: "2026-06-22T04:06:00.000Z",
+    });
+    db.insertRow("developer_space_observed_runtime_context", {
+      developer_space_id: spaceId,
+      context_type: "zone",
+      external_id: "zone-private-external-id",
+      source_ref: "private:context:source",
+      payload: {
+        privatePrompt: "private context prompt should not appear",
+        token: "context-token-should-not-appear",
+      },
+      provenance: "api",
+      occurred_at: "2026-06-22T04:07:00.000Z",
+    });
+    const privateDoc = db.insertRow("documents", {
+      author_user_id: "owner-user",
+      title: `Private evidence api_key=hidden-test-key ${rawUuid}`,
+      slug: "private-agent-evidence",
+      body: "private document body should not appear in agent preview",
+      status: "draft",
+      visibility: "private",
+    });
+    db.insertRow("developer_space_documents", {
+      developer_space_id: spaceId,
+      document_id: privateDoc.id,
+      owner_user_id: "owner-user",
+      document_role: "methodology",
+      link_visibility: "owner",
+      sort_order: 0,
+    });
+
+    const anonymousRegistry = await requestJson(app, "GET", `/developer-spaces/${spaceId}/agent/actions`);
+    assert.equal(anonymousRegistry.status, 401);
+
+    const nonOwnerRegistry = await requestJson(app, "GET", `/developer-spaces/${spaceId}/agent/actions`, {
+      token: "other-token",
+    });
+    assert.equal(nonOwnerRegistry.status, 403);
+
+    const ownerRegistry = await requestJson(app, "GET", `/developer-spaces/${spaceId}/agent/actions`, {
+      token: "owner-token",
+    });
+    assert.equal(ownerRegistry.status, 200);
+    assert.equal(ownerRegistry.body.boundary.autonomousExecution, false);
+    assert.equal(ownerRegistry.body.boundary.mutatesDeveloperSpace, false);
+    assert.equal(ownerRegistry.body.actions.some((entry: Row) => entry.action === "read_developer_space_brief" && entry.futureLane === false), true);
+    assert.equal(ownerRegistry.body.actions.some((entry: Row) => entry.action === "run_job" && entry.futureLane === true), true);
+
+    const adminRegistry = await requestJson(app, "GET", `/developer-spaces/${spaceId}/agent/actions`, {
+      token: "admin-token",
+    });
+    assert.equal(adminRegistry.status, 200);
+
+    const brief = await requestJson(app, "POST", `/developer-spaces/${spaceId}/agent/actions/preview`, {
+      token: "owner-token",
+      body: { action: "read_developer_space_brief" },
+    });
+    assert.equal(brief.status, 200);
+    assert.equal(brief.body.status, "previewed");
+    assert.equal(brief.body.futureLane, false);
+    assert.equal(brief.body.requiresConfirmation, false);
+
+    const runtime = await requestJson(app, "POST", `/developer-spaces/${spaceId}/agent/actions/preview`, {
+      token: "owner-token",
+      body: { action: "read_observed_runtime_status" },
+    });
+    assert.equal(runtime.status, 200);
+    assert.equal(runtime.body.status, "previewed");
+    assert.equal(runtime.body.sections.some((section: Row) => section.title === "Recent event labels"), true);
+
+    const evidence = await requestJson(app, "POST", `/developer-spaces/${spaceId}/agent/actions/preview`, {
+      token: "owner-token",
+      body: { action: "read_evidence_path" },
+    });
+    assert.equal(evidence.status, 200);
+    assert.equal(evidence.body.status, "previewed");
+    assert.match(JSON.stringify(evidence.body), /\[id\]|\[redacted\]/);
+
+    const draft = await requestJson(app, "POST", `/developer-spaces/${spaceId}/agent/actions/preview`, {
+      token: "owner-token",
+      body: { action: "draft_project_update" },
+    });
+    assert.equal(draft.status, 200);
+    assert.equal(draft.body.status, "previewed");
+    assert.equal(draft.body.requiresConfirmation, true);
+    assert.equal(draft.body.futureLane, false);
+
+    const previewText = JSON.stringify({ brief: brief.body, runtime: runtime.body, evidence: evidence.body, draft: draft.body });
+    for (const hidden of [
+      rawUuid,
+      "owner-secret",
+      "node-secret",
+      "event-secret",
+      "hidden-test-key",
+      "raw node payload should not appear",
+      "node-token-should-not-appear",
+      "private event payload should not appear",
+      "event-token-should-not-appear",
+      "private snapshot prompt should not appear",
+      "private context prompt should not appear",
+      "context-token-should-not-appear",
+      "private document body should not appear",
+      "node-secret-external-id",
+      "zone-private-external-id",
+      "private:event:source",
+      "private:snapshot:source",
+      "private:context:source",
+    ]) {
+      assert.equal(previewText.includes(hidden), false, `${hidden} leaked into agent preview`);
+    }
+    assert.equal(db.tables.ai_trace_sessions.length, 0);
+    assert.equal(db.tables.ai_trace_events.length, 0);
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
+
+test("Developer Space agent future and unsupported actions reject without side effects", async () => {
+  const db = new InMemorySupabase();
+  setSupabaseAdminForTests(db.client as any);
+  const app = createDeveloperSpacesApp();
+
+  try {
+    const created = await requestJson(app, "POST", "/developer-spaces", {
+      token: "owner-token",
+      body: {
+        projectName: "Agent Future Lane",
+        visibility: "private",
+      },
+    });
+    assert.equal(created.status, 201);
+    const spaceId = created.body.space.id;
+
+    const nonOwnerFuture = await requestJson(app, "POST", `/developer-spaces/${spaceId}/agent/actions/preview`, {
+      token: "other-token",
+      body: { action: "run_job" },
+    });
+    assert.equal(nonOwnerFuture.status, 403);
+
+    const runJob = await requestJson(app, "POST", `/developer-spaces/${spaceId}/agent/actions/preview`, {
+      token: "owner-token",
+      body: { action: "run_job", input: { command: "npm test", token: "secret-token" } },
+    });
+    assert.equal(runJob.status, 200);
+    assert.equal(runJob.body.status, "requires_future_lane");
+    assert.equal(runJob.body.futureLane, true);
+    assert.equal(runJob.body.requiresConfirmation, true);
+
+    const rotateKey = await requestJson(app, "POST", `/developer-spaces/${spaceId}/agent/actions/preview`, {
+      token: "owner-token",
+      body: { action: "rotate_ingestion_key" },
+    });
+    assert.equal(rotateKey.status, 200);
+    assert.equal(rotateKey.body.status, "requires_future_lane");
+
+    const signingSecret = await requestJson(app, "POST", `/developer-spaces/${spaceId}/agent/actions/preview`, {
+      token: "owner-token",
+      body: { action: "create_webhook_signing_secret" },
+    });
+    assert.equal(signingSecret.status, 200);
+    assert.equal(signingSecret.body.status, "requires_future_lane");
+
+    const unsupported = await requestJson(app, "POST", `/developer-spaces/${spaceId}/agent/actions/preview`, {
+      token: "owner-token",
+      body: { action: "delete_everything" },
+    });
+    assert.equal(unsupported.status, 400);
+    assert.equal(unsupported.body.status, "unsupported_action");
+    assert.equal(unsupported.body.futureLane, false);
+    assert.equal(unsupported.body.sections[0].items.some((item: Row) => item.title === "publish_to_page" && item.status === "requires_future_lane"), true);
+
+    const responseText = JSON.stringify({ runJob: runJob.body, rotateKey: rotateKey.body, signingSecret: signingSecret.body, unsupported: unsupported.body });
+    assert.doesNotMatch(responseText, /secret-token|npm test/);
+    assert.equal(db.tables.developer_space_ingestion_keys.length, 0);
+    assert.equal(db.tables.developer_space_webhook_signing_secrets.length, 0);
+    assert.equal(db.tables.developer_space_events.length, 0);
+    assert.equal(db.tables.developer_space_nodes.length, 0);
+    assert.equal(db.tables.developer_space_snapshots.length, 0);
+    assert.equal(db.tables.ai_trace_sessions.length, 0);
+    assert.equal(db.tables.ai_trace_events.length, 0);
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
+
 test("Developer Space named ingestion keys support smoke keys without rotating active keys", async () => {
   const db = new InMemorySupabase();
   setSupabaseAdminForTests(db.client as any);

@@ -3,6 +3,10 @@ import { Router, type Request, type Response } from "express";
 import { z } from "zod";
 import { describePlatformProviderRoute } from "@station/ai";
 import type {
+  DeveloperSpaceAgentActionPreview,
+  DeveloperSpaceAgentActionRegistryEntry,
+  DeveloperSpaceAgentAllowedAction,
+  DeveloperSpaceAgentFutureAction,
   DeveloperSpaceDocumentLinkVisibility,
   DeveloperSpaceDocumentRole,
   DeveloperSpaceEventVisibility,
@@ -52,6 +56,7 @@ import {
   getDeveloperSpaceUsage,
   recordDeveloperSpaceUsage,
 } from "../services/developer-space-usage.service";
+import { sanitizeJobErrorMessage } from "../services/background-jobs.service";
 import { quotaErrorResponse } from "../services/operational-quota.service";
 import { broadcastDeveloperSpaceIngestion } from "../services/developer-space-live.service";
 import { incrementOperationalRateLimit } from "../services/operational-cache.service";
@@ -88,6 +93,76 @@ const INGEST_RATE_LIMIT_RESOURCE = "developer_space_ingest_requests";
 const DEFAULT_INGEST_RATE_LIMIT_PER_MINUTE = 120;
 const DEFAULT_INGEST_RATE_LIMIT_WINDOW_SECONDS = 60;
 const DEFAULT_OBSERVED_RUNTIME_WEBHOOK_SIGNATURE_TOLERANCE_SECONDS = 300;
+const DEVELOPER_SPACE_AGENT_ALLOWED_ACTIONS: readonly DeveloperSpaceAgentAllowedAction[] = [
+  "read_developer_space_brief",
+  "read_observed_runtime_status",
+  "read_provider_policy_posture",
+  "read_evidence_path",
+  "draft_project_update",
+];
+const DEVELOPER_SPACE_AGENT_FUTURE_ACTIONS: readonly DeveloperSpaceAgentFutureAction[] = [
+  "publish_to_page",
+  "update_layout",
+  "read_logs",
+  "push_to_repo",
+  "run_job",
+  "update_observatory",
+  "request_capability",
+  "rotate_ingestion_key",
+  "create_webhook_signing_secret",
+];
+const DEVELOPER_SPACE_AGENT_ACTION_REGISTRY: readonly DeveloperSpaceAgentActionRegistryEntry[] = [
+  {
+    action: "read_developer_space_brief",
+    label: "Read Developer Space brief",
+    description: "Summarize owner-visible Space posture, counts, and route hints without raw payloads.",
+    mode: "read",
+    requiresConfirmation: false,
+    futureLane: false,
+  },
+  {
+    action: "read_observed_runtime_status",
+    label: "Read observed runtime status",
+    description: "Read counts, latest timestamps, event labels, and node labels without metrics or event payloads.",
+    mode: "read",
+    requiresConfirmation: false,
+    futureLane: false,
+  },
+  {
+    action: "read_provider_policy_posture",
+    label: "Read provider policy posture",
+    description: "Preview provider policy gates and platform/owner BYOK posture without provider execution.",
+    mode: "read",
+    requiresConfirmation: false,
+    futureLane: false,
+  },
+  {
+    action: "read_evidence_path",
+    label: "Read evidence path",
+    description: "List linked evidence titles, roles, publication states, and visibility without document body excerpts.",
+    mode: "read",
+    requiresConfirmation: false,
+    futureLane: false,
+  },
+  {
+    action: "draft_project_update",
+    label: "Draft project update",
+    description: "Draft owner-review copy from safe counts and labels; nothing is published.",
+    mode: "draft_preview",
+    requiresConfirmation: true,
+    futureLane: false,
+  },
+  ...DEVELOPER_SPACE_AGENT_FUTURE_ACTIONS.map((action) => ({
+    action,
+    label: action.replace(/_/g, " ").replace(/^./, (letter) => letter.toUpperCase()),
+    description: "Registered future Phase 2D vocabulary. This PR does not execute or mutate this action.",
+    mode: "future" as const,
+    requiresConfirmation: true,
+    futureLane: true,
+  })),
+];
+const DEVELOPER_SPACE_AGENT_ALLOWED_ACTION_SET = new Set<string>(DEVELOPER_SPACE_AGENT_ALLOWED_ACTIONS);
+const DEVELOPER_SPACE_AGENT_FUTURE_ACTION_SET = new Set<string>(DEVELOPER_SPACE_AGENT_FUTURE_ACTIONS);
 
 type IngestionErrorCategory = "auth" | "validation" | "quota" | "server";
 
@@ -286,6 +361,11 @@ const templateDocumentSchema = z.object({
   linkVisibility: documentLinkVisibilitySchema.default("owner"),
   publish: z.boolean().default(false),
   sortOrder: z.number().int().min(0).max(100_000).default(0),
+});
+
+const developerSpaceAgentActionPreviewSchema = z.object({
+  action: z.string().trim().min(1).max(80).regex(/^[a-z0-9_:-]+$/),
+  input: jsonObjectSchema.default({}),
 });
 
 export const developerSpacesRouter = Router();
@@ -657,6 +737,340 @@ async function loadLinkedDocumentsForSpace(space: any, access: "owner" | "member
     ),
     linkRows: readablePairs.map(({ link }: any) => link),
     documentRows: readablePairs.map(({ document }: any) => document),
+  };
+}
+
+type DeveloperSpaceAgentReadback = {
+  nodes: any[];
+  events: any[];
+  snapshots: any[];
+  supportingContext: any[];
+  linkedDocuments: Awaited<ReturnType<typeof loadLinkedDocumentsForSpace>>["linkedDocuments"];
+};
+
+function developerSpaceAgentRegistry() {
+  return DEVELOPER_SPACE_AGENT_ACTION_REGISTRY.map((entry) => ({ ...entry }));
+}
+
+function safeAgentText(value: unknown, fallback: string, maxLength = 160) {
+  const raw = typeof value === "string" && value.trim() ? value : fallback;
+  const sanitized = sanitizeJobErrorMessage(raw);
+  const normalized = sanitized.trim() || fallback;
+  return normalized.length > maxLength ? `${normalized.slice(0, maxLength - 3).trim()}...` : normalized;
+}
+
+function safeAgentFact(label: string, value: string | number | boolean | null | undefined) {
+  return {
+    label,
+    value: typeof value === "string" ? safeAgentText(value, "unknown", 120) : value ?? null,
+  };
+}
+
+function countByValue(rows: any[], field: string) {
+  return rows.reduce<Record<string, number>>((counts, row) => {
+    const key = safeAgentText(row?.[field], "unknown", 80);
+    counts[key] = (counts[key] ?? 0) + 1;
+    return counts;
+  }, {});
+}
+
+function countFacts(prefix: string, counts: Record<string, number>) {
+  return Object.entries(counts)
+    .sort(([left], [right]) => left.localeCompare(right))
+    .map(([label, value]) => safeAgentFact(`${prefix}: ${label}`, value));
+}
+
+function latestRows(rows: any[], dateField: string, limit: number) {
+  return [...rows]
+    .sort((a, b) => Date.parse(b?.[dateField] ?? "") - Date.parse(a?.[dateField] ?? ""))
+    .slice(0, limit);
+}
+
+async function loadDeveloperSpaceAgentReadback(space: any): Promise<DeveloperSpaceAgentReadback> {
+  const sb = getSupabaseAdmin();
+  const [nodesResult, eventsResult, snapshotsResult, contextResult] = await Promise.all([
+    sb
+      .from("developer_space_nodes")
+      .select("*")
+      .eq("developer_space_id", space.id)
+      .order("last_event_at", { ascending: false, nullsFirst: false })
+      .limit(80),
+    sb
+      .from("developer_space_events")
+      .select("*")
+      .eq("developer_space_id", space.id)
+      .order("occurred_at", { ascending: false })
+      .limit(80),
+    sb
+      .from("developer_space_snapshots")
+      .select("*")
+      .eq("developer_space_id", space.id)
+      .order("occurred_at", { ascending: false })
+      .limit(10),
+    (sb as any)
+      .from("developer_space_observed_runtime_context")
+      .select("*")
+      .eq("developer_space_id", space.id)
+      .order("occurred_at", { ascending: false })
+      .limit(80),
+  ]);
+
+  if (nodesResult.error) throw new Error(nodesResult.error.message);
+  if (eventsResult.error) throw new Error(eventsResult.error.message);
+  if (snapshotsResult.error) throw new Error(snapshotsResult.error.message);
+  if (contextResult.error) throw new Error(contextResult.error.message);
+
+  const linkedDocumentsResult = await loadLinkedDocumentsForSpace(space, "owner");
+  return {
+    nodes: nodesResult.data ?? [],
+    events: eventsResult.data ?? [],
+    snapshots: snapshotsResult.data ?? [],
+    supportingContext: contextResult.data ?? [],
+    linkedDocuments: linkedDocumentsResult.linkedDocuments,
+  };
+}
+
+function futureLaneAgentPreview(action: string): DeveloperSpaceAgentActionPreview {
+  return {
+    action,
+    status: "requires_future_lane",
+    summary: "This action is registered as future Phase 2D vocabulary, but PR162 does not execute or mutate it.",
+    sections: [
+      {
+        title: "Future lane boundary",
+        facts: [
+          safeAgentFact("Registered action", action),
+          safeAgentFact("Current behavior", "No execution, no mutation, no provider call."),
+          safeAgentFact("Future requirement", "Owner confirmation and a dedicated implementation lane."),
+        ],
+      },
+    ],
+    requiresConfirmation: true,
+    futureLane: true,
+  };
+}
+
+function unsupportedAgentPreview(action: string): DeveloperSpaceAgentActionPreview {
+  return {
+    action,
+    status: "unsupported_action",
+    summary: "This developer-agent action is not registered for the current Developer Space command contract.",
+    sections: [
+      {
+        title: "Supported actions",
+        items: developerSpaceAgentRegistry().map((entry) => ({
+          title: entry.action,
+          detail: entry.futureLane ? "future lane only" : entry.mode,
+          status: entry.futureLane ? "requires_future_lane" : "available",
+        })),
+      },
+    ],
+    requiresConfirmation: false,
+    futureLane: false,
+  };
+}
+
+function providerPolicyFacts(space: any) {
+  const providerMode = space.provider_policy === "owner_byok_only" ? "owner_byok" : "platform";
+  const synthetic = evaluateDeveloperSpaceProviderPolicy({
+    providerPolicy: space.provider_policy,
+    requestedContext: "public_synthetic",
+    providerMode,
+  });
+  const publicContext = evaluateDeveloperSpaceProviderPolicy({
+    providerPolicy: space.provider_policy,
+    requestedContext: "public_context",
+    providerMode,
+  });
+  const privateArchive = evaluateDeveloperSpaceProviderPolicy({
+    providerPolicy: space.provider_policy,
+    requestedContext: "private_archive",
+    providerMode,
+  });
+  const posture = buildDeveloperSpaceProviderPosture(synthetic);
+
+  return {
+    facts: [
+      safeAgentFact("Provider policy", synthetic.providerPolicy),
+      safeAgentFact("Provider mode", providerMode),
+      safeAgentFact("Selected provider route", posture.selectedProviderRoute),
+      safeAgentFact("Embedding profile", `${posture.embeddingProfile.provider} / ${posture.embeddingProfile.dimension}`),
+      safeAgentFact("Public synthetic", synthetic.allowed ? "allowed" : `blocked: ${synthetic.denialReason}`),
+      safeAgentFact("Public context", publicContext.allowed ? "allowed" : `blocked: ${publicContext.denialReason}`),
+      safeAgentFact("Private archive", privateArchive.allowed ? "allowed" : `blocked: ${privateArchive.denialReason}`),
+    ],
+    posture,
+  };
+}
+
+function buildDeveloperSpaceAgentPreview(
+  action: DeveloperSpaceAgentAllowedAction,
+  space: any,
+  readback: DeveloperSpaceAgentReadback
+): DeveloperSpaceAgentActionPreview {
+  const projectName = safeAgentText(space.project_name, "Developer Space", 120);
+  const latestNodeAt = latestIso(readback.nodes.flatMap((node) => [node.last_event_at, node.updated_at, node.created_at]));
+  const latestEventAt = latestIso(readback.events.flatMap((event) => [event.occurred_at, event.created_at]));
+  const latestSnapshotAt = latestIso(readback.snapshots.flatMap((snapshot) => [snapshot.occurred_at, snapshot.created_at]));
+  const baseFacts = [
+    safeAgentFact("Visibility", space.visibility),
+    safeAgentFact("Visualisation", space.visualisation_type),
+    safeAgentFact("Provider policy", space.provider_policy),
+    safeAgentFact("Nodes", readback.nodes.length),
+    safeAgentFact("Events", readback.events.length),
+    safeAgentFact("Snapshots", readback.snapshots.length),
+    safeAgentFact("Supporting context", readback.supportingContext.length),
+    safeAgentFact("Linked evidence", readback.linkedDocuments.length),
+  ];
+
+  if (action === "read_developer_space_brief") {
+    return {
+      action,
+      status: "previewed",
+      summary: `${projectName} has ${readback.nodes.length} nodes, ${readback.events.length} events, and ${readback.linkedDocuments.length} linked evidence items.`,
+      sections: [
+        {
+          title: "Space brief",
+          summary: safeAgentText(space.description, "No project description saved.", 220),
+          facts: [
+            safeAgentFact("Project", projectName),
+            ...baseFacts,
+            safeAgentFact("Updated", space.updated_at ?? null),
+          ],
+        },
+        {
+          title: "Owner route hints",
+          items: [
+            {
+              title: "Public observatory",
+              detail: "Read-only visitor surface.",
+              href: `/developer-spaces/${space.slug}`,
+              status: space.visibility,
+            },
+            {
+              title: "Owner manage view",
+              detail: "Owner console for ingestion keys, evidence, widgets, and exports.",
+              href: `/developer-spaces/${space.slug}/manage`,
+              status: "owner_only",
+            },
+          ],
+        },
+      ],
+      requiresConfirmation: false,
+      futureLane: false,
+    };
+  }
+
+  if (action === "read_observed_runtime_status") {
+    return {
+      action,
+      status: "previewed",
+      summary: `Observed runtime readback has ${readback.nodes.length} nodes and ${readback.events.length} events. No raw metrics, event data, or context payloads are included.`,
+      sections: [
+        {
+          title: "Runtime freshness",
+          facts: [
+            safeAgentFact("Latest node signal", latestNodeAt),
+            safeAgentFact("Latest event", latestEventAt),
+            safeAgentFact("Latest snapshot", latestSnapshotAt),
+            safeAgentFact("Supporting context rows", readback.supportingContext.length),
+          ],
+        },
+        {
+          title: "Recent event labels",
+          items: latestRows(readback.events, "occurred_at", 5).map((event) => ({
+            title: safeAgentText(event.event_label ?? event.event_type, "Untitled event", 120),
+            detail: `${safeAgentText(event.event_type, "event", 80)} / ${safeAgentText(event.visibility, "unknown", 40)}`,
+            status: safeAgentText(event.provenance ?? "api", "api", 40),
+          })),
+        },
+        {
+          title: "Recent node labels",
+          items: latestRows(readback.nodes, "updated_at", 5).map((node) => ({
+            title: safeAgentText(node.node_name, "Untitled node", 120),
+            detail: `${safeAgentText(node.topology_type, "custom", 40)} / fragments ${Number(node.fragment_count ?? 0)}`,
+            status: node.last_event_at ?? "no event timestamp",
+          })),
+        },
+      ],
+      requiresConfirmation: false,
+      futureLane: false,
+    };
+  }
+
+  if (action === "read_provider_policy_posture") {
+    const provider = providerPolicyFacts(space);
+    return {
+      action,
+      status: "previewed",
+      summary: "Provider policy posture previewed without model execution, provider calls, or private archive retrieval.",
+      sections: [
+        {
+          title: "Provider policy posture",
+          facts: provider.facts,
+        },
+      ],
+      requiresConfirmation: false,
+      futureLane: false,
+    };
+  }
+
+  if (action === "read_evidence_path") {
+    return {
+      action,
+      status: "previewed",
+      summary: `Evidence path has ${readback.linkedDocuments.length} linked documents. Body excerpts are intentionally omitted from the agent preview.`,
+      sections: [
+        {
+          title: "Evidence counts",
+          facts: [
+            ...countFacts("Role", countByValue(readback.linkedDocuments, "role")),
+            ...countFacts("Link visibility", countByValue(readback.linkedDocuments, "linkVisibility")),
+          ],
+        },
+        {
+          title: "Linked evidence",
+          items: readback.linkedDocuments.slice(0, 12).map((link) => ({
+            title: safeAgentText(link.document.title, "Untitled document", 140),
+            detail: `${safeAgentText(link.role, "note", 40)} / ${safeAgentText(link.linkVisibility, "owner", 40)} / ${safeAgentText(link.document.status, "draft", 40)} / ${safeAgentText(link.document.visibility, "private", 40)}`,
+            status: link.document.publishedAt ? "published" : "not_published",
+          })),
+        },
+      ],
+      requiresConfirmation: false,
+      futureLane: false,
+    };
+  }
+
+  const draft = [
+    `${projectName} update: observed runtime currently tracks ${readback.nodes.length} nodes and ${readback.events.length} events.`,
+    latestEventAt ? `Latest event timestamp: ${latestEventAt}.` : "No event timestamp is available yet.",
+    `Evidence path includes ${readback.linkedDocuments.length} owner-linked item${readback.linkedDocuments.length === 1 ? "" : "s"}.`,
+    "Owner review is required before any public page, layout, key, or runtime state changes.",
+  ].join(" ");
+
+  return {
+    action,
+    status: "previewed",
+    summary: "Draft project update generated for owner review only. Nothing was published or mutated.",
+    sections: [
+      {
+        title: "Draft update",
+        items: [
+          {
+            title: "Owner-review draft",
+            detail: safeAgentText(draft, "Draft unavailable.", 500),
+            status: "draft_preview",
+          },
+        ],
+      },
+      {
+        title: "Source counts",
+        facts: baseFacts,
+      },
+    ],
+    requiresConfirmation: true,
+    futureLane: false,
   };
 }
 
@@ -1753,6 +2167,50 @@ developerSpacesRouter.post("/", requireAuth, requireTier("canon"), async (req, r
 
   if (error) return res.status(500).json({ error: error.message });
   return res.status(201).json({ space: serializeDeveloperSpace(data) });
+});
+
+developerSpacesRouter.get("/:id/agent/actions", requireAuth, async (req, res) => {
+  const ownerLoad = await loadDeveloperSpaceForOwner(req.params.id, req.user!);
+  if (ownerLoad.status !== 200) return res.status(ownerLoad.status).json({ error: ownerLoad.error });
+
+  return res.json({
+    actions: developerSpaceAgentRegistry(),
+    boundary: {
+      autonomousExecution: false,
+      mutatesDeveloperSpace: false,
+      exposesRawPayloads: false,
+      ownerOnly: true,
+    },
+  });
+});
+
+developerSpacesRouter.post("/:id/agent/actions/preview", requireAuth, async (req, res) => {
+  const parsed = developerSpaceAgentActionPreviewSchema.safeParse(req.body ?? {});
+  if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
+
+  const ownerLoad = await loadDeveloperSpaceForOwner(req.params.id, req.user!);
+  if (ownerLoad.status !== 200) return res.status(ownerLoad.status).json({ error: ownerLoad.error });
+
+  const action = parsed.data.action;
+  if (DEVELOPER_SPACE_AGENT_FUTURE_ACTION_SET.has(action)) {
+    return res.json(futureLaneAgentPreview(action));
+  }
+  if (!DEVELOPER_SPACE_AGENT_ALLOWED_ACTION_SET.has(action)) {
+    return res.status(400).json(unsupportedAgentPreview(action));
+  }
+
+  try {
+    const readback = await loadDeveloperSpaceAgentReadback(ownerLoad.space);
+    return res.json(buildDeveloperSpaceAgentPreview(
+      action as DeveloperSpaceAgentAllowedAction,
+      ownerLoad.space,
+      readback,
+    ));
+  } catch (e) {
+    return res.status(500).json({
+      error: e instanceof Error ? e.message : "Could not preview Developer Space agent action.",
+    });
+  }
 });
 
 developerSpacesRouter.post("/:id/api-key", requireAuth, async (req, res) => {

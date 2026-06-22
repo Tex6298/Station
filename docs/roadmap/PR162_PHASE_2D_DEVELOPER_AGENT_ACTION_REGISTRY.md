@@ -4,7 +4,7 @@ Date opened: 2026-06-22
 Opened by: A1 / MIMIR
 Owner: DAEDALUS implements. ARGUS reviews. ARIADNE rehearses only if visible
 owner workspace UI changes.
-Status: open for DAEDALUS
+Status: implemented by DAEDALUS; awaiting ARGUS review
 
 ## Why This Lane
 
@@ -194,3 +194,52 @@ DAEDALUS should wake ARGUS with:
 
 If implementation cannot proceed, wake MIMIR with the exact blocker instead of
 going silent.
+
+## DAEDALUS Implementation
+
+Implemented on 2026-06-22:
+
+- Added typed Developer Space agent action DTOs in `@station/types`.
+- Added owner-only `GET /developer-spaces/:id/agent/actions`.
+- Added owner-only `POST /developer-spaces/:id/agent/actions/preview`.
+- Implemented allowed preview actions:
+  - `read_developer_space_brief`
+  - `read_observed_runtime_status`
+  - `read_provider_policy_posture`
+  - `read_evidence_path`
+  - `draft_project_update`
+- Implemented future-lane rejection for:
+  - `publish_to_page`
+  - `update_layout`
+  - `read_logs`
+  - `push_to_repo`
+  - `run_job`
+  - `update_observatory`
+  - `request_capability`
+  - `rotate_ingestion_key`
+  - `create_webhook_signing_secret`
+- Unknown commands return `unsupported_action`.
+
+Implementation boundaries:
+
+- No autonomous tool execution, model chat loop, provider call, shell/repo/
+  deploy action, queue/worker, Cloudflare, Redis worker, hosted runtime, key
+  rotation, webhook signing-secret creation, visual layout mutation, linked
+  document mutation, or observed-runtime ingestion mutation.
+- Readback uses sanitized labels, counts, timestamps, route hints, statuses, and
+  draft text. It omits raw metrics, event data, context payloads, source refs,
+  linked-document body excerpts, secrets, private prompts, provider payloads,
+  and raw logs.
+- No visible owner UI changed; ARIADNE rehearsal is not needed unless ARGUS
+  requests one.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` passed.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/api build` passed.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/types build` passed.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` passed.
+- `git diff --check` passed.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` is blocked locally before
+  TypeScript runs because Windows Application Control blocks the Turbo Windows
+  binary. Direct package checks covered the touched types/API surfaces.

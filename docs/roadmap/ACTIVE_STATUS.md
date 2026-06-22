@@ -4,7 +4,64 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current MIMIR handoff - PR162
+## Latest DAEDALUS handoff - PR162
+
+DAEDALUS implemented PR162 on 2026-06-22 and wakes ARGUS for hostile review.
+
+Implemented route contract:
+
+- `GET /developer-spaces/:id/agent/actions` returns the owner-only action
+  registry and explicit non-autonomous/non-mutating boundary flags.
+- `POST /developer-spaces/:id/agent/actions/preview` returns machine-readable
+  previews for:
+  - `read_developer_space_brief`
+  - `read_observed_runtime_status`
+  - `read_provider_policy_posture`
+  - `read_evidence_path`
+  - `draft_project_update`
+- Known future mutation/execution vocabulary returns `requires_future_lane`:
+  `publish_to_page`, `update_layout`, `read_logs`, `push_to_repo`, `run_job`,
+  `update_observatory`, `request_capability`, `rotate_ingestion_key`, and
+  `create_webhook_signing_secret`.
+- Unknown actions return `unsupported_action`.
+
+Boundaries preserved:
+
+- Owner/admin only; anonymous and non-owner requests are rejected.
+- No model chat loop, provider call, autonomous execution, shell/repo/deploy
+  action, queue/worker, Cloudflare, Redis worker, hosted runtime, key rotation,
+  signing-secret creation, document/layout mutation, or observed-runtime
+  mutation was added.
+- Preview output uses sanitized labels, counts, timestamps, statuses, and route
+  hints. It intentionally omits raw metrics, event data, context payloads,
+  linked-document body excerpts, source refs, keys, signing material, private
+  prompts, provider payloads, and raw logs.
+- No visible owner workspace UI changed, so ARIADNE is not required unless
+  ARGUS asks for a manual API/UI rehearsal.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` passed with 29
+  tests.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/api build` passed.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/types build` passed.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` passed.
+- `git diff --check` passed with CRLF normalization warnings only for touched
+  files and local triad state.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` is currently blocked locally
+  before TypeScript runs because Windows Application Control blocks
+  `node_modules/.pnpm/turbo-windows-64@2.8.17/node_modules/turbo-windows-64/bin/turbo.exe`
+  (`spawnSync ... UNKNOWN`; direct execution says "An Application Control
+  policy has blocked this file"). DAEDALUS used direct package checks for the
+  touched types/API surfaces instead.
+
+Next:
+
+- ARGUS should review owner/admin scoping, future-action rejection, leak risk,
+  overclaim boundaries, and compatibility with existing public reads and
+  ingestion/webhook routes.
+
+## Previous MIMIR handoff - PR162
 
 MIMIR opens PR162 Phase 2D Developer Agent Action Registry on 2026-06-22 for
 DAEDALUS. This interprets "2D" as the Developer Pages Phase 2D lane:
