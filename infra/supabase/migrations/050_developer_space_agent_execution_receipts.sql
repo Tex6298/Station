@@ -49,6 +49,7 @@ create policy "developer_space_agent_execution_receipts_all_owner"
       and c.developer_space_id = developer_space_id
       and c.owner_user_id = owner_user_id
       and c.action = 'request_capability'
+      and c.status = 'approved'
     )
   )
   with check (
@@ -64,6 +65,7 @@ create policy "developer_space_agent_execution_receipts_all_owner"
       and c.developer_space_id = developer_space_id
       and c.owner_user_id = owner_user_id
       and c.action = 'request_capability'
+      and c.status = 'approved'
     )
   );
 
