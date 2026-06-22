@@ -1381,6 +1381,7 @@ test("Developer Space agent registry and previews are owner-scoped and sanitized
     });
     assert.equal(created.status, 201);
     const spaceId = created.body.space.id;
+    const slug = created.body.space.slug;
 
     db.insertRow("developer_space_nodes", {
       developer_space_id: spaceId,
@@ -1548,6 +1549,17 @@ test("Developer Space agent registry and previews are owner-scoped and sanitized
     assert.equal(activity.body.sections.some((section: Row) => section.title === "Recent sanitized activity"), true);
     assert.match(JSON.stringify(activity.body), /developer_space_events|developer_space_agent_confirmations|webhook_receipt/);
     assert.doesNotMatch(JSON.stringify(activity.body), /activity prompt should not appear|activity-token/);
+
+    const nonOwnerActivity = await requestJson(app, "POST", `/developer-spaces/${spaceId}/agent/actions/preview`, {
+      token: "other-token",
+      body: { action: "read_logs" },
+    });
+    assert.equal(nonOwnerActivity.status, 403);
+    assert.doesNotMatch(JSON.stringify(nonOwnerActivity.body), /webhook-private-delivery-id|agent private summary|receipt private summary/);
+
+    const publicDetail = await requestJson(app, "GET", `/developer-spaces/${slug}`);
+    assert.equal(publicDetail.status, 200);
+    assert.doesNotMatch(JSON.stringify(publicDetail.body), /developer_space_agent_confirmations|webhook_receipt|agent private summary|receipt private summary/);
 
     const draft = await requestJson(app, "POST", `/developer-spaces/${spaceId}/agent/actions/preview`, {
       token: "owner-token",
