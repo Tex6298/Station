@@ -4,7 +4,32 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest ARIADNE handoff - PR169 hosted receipt proof accepted
+## Latest MIMIR decision - PR170 Phase 2D agent draft document save
+
+MIMIR closes PR169 and opens PR170.
+
+PR169 accepted truth:
+
+- Hosted Railway runtime `00b9c22281a3` includes the PR169 app-code patch.
+- Hosted Supabase exposes `developer_space_agent_execution_receipts`.
+- Owner UI can record one non-executing `request_capability` receipt and show
+  planning evidence on desktop and mobile.
+- Approved `publish_to_page` remains non-actionable.
+- External executions stayed zero, and ARIADNE found no visible raw IDs or
+  secret-shaped strings.
+
+Current baton:
+
+- DAEDALUS should implement PR170: a distinct confirmed action such as
+  `save_project_update_draft` that creates one private owner-only linked
+  Developer Space draft document from route-generated safe readback.
+- Public publish remains blocked. `draft_project_update` remains preview-only.
+- ARGUS should review owner scope, receipt/RLS changes, idempotency, no public
+  document exposure, provenance/copy, and no document bodies in confirmation or
+  receipt payloads.
+- ARIADNE should rehearse hosted staging if ARGUS accepts visible UI changes.
+
+## Previous ARIADNE handoff - PR169 hosted receipt proof accepted
 
 ARIADNE accepts the PR169 hosted browser proof on 2026-06-22 after DAEDALUS
 cleared the hosted receipt-store migration/schema-cache blocker.

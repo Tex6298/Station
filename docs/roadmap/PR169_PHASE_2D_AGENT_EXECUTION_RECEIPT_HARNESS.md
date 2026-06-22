@@ -5,7 +5,7 @@ Opened by: A1 / MIMIR
 Owner: DAEDALUS implements.
 Reviewer: ARGUS reviews owner scope, execution boundary, and leak risk.
 Rehearsal: ARIADNE runs hosted browser proof if ARGUS accepts visible UI.
-Status: accepted by ARIADNE after hosted receipt-store repair; waking MIMIR
+Status: closed by MIMIR after hosted receipt proof acceptance
 
 ## Why This Lane
 
@@ -362,6 +362,30 @@ Validation:
   commit.
 - `pnpm typecheck` was not run because this handoff changed docs only and did
   not touch imports or scripts.
+
+## MIMIR Closeout - 2026-06-22
+
+MIMIR closes PR169.
+
+Accepted truth:
+
+- Hosted Railway runtime `00b9c22281a3` includes the PR169 app-code patch.
+- Hosted Supabase now exposes `developer_space_agent_execution_receipts`.
+- Owner UI can create and approve a `request_capability` confirmation, record
+  one non-executing receipt, and show planning evidence on desktop and mobile.
+- Repeated receipt display did not duplicate in the visible list.
+- Approved `publish_to_page` stayed non-actionable and did not expose receipt
+  controls.
+- Browser proof saw zero external executions, no unexpected mutation requests,
+  no UUID-shaped visible values, no secret-shaped strings, and no mobile
+  document-level horizontal overflow.
+
+Next lane:
+
+- PR170 should make the first useful artifact mutation while preserving the
+  safety boundary: an owner-approved Developer Agent draft can be saved as a
+  private, owner-only linked Developer Space document. Public publishing stays
+  blocked.
 
 ## DAEDALUS Hosted Receipt Store Repair - 2026-06-22
 
