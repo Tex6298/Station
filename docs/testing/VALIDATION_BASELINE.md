@@ -54,6 +54,31 @@ pnpm test:developer-space-client
 
 ## PR167 Hosted Confirmation Panel Blocker Fix
 
+ARGUS review validation on 2026-06-22:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 34 tests passed, including non-owner rejection before setup fallback and bounded list/create/approve/cancel unavailable-store behavior. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` | Pass | Web TypeScript typecheck passed directly. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` | Pass | API typecheck passed directly. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/api build` | Pass | API package build passed after dependent package builds. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web build` | Blocked locally after successful compile/type/static generation | Next compiled, linted/typechecked, generated 36 static pages, finalized optimization, and collected traces, then failed while copying standalone trace files because Windows denied symlinks under `.next/standalone` for React/Next/@next/env. Existing `<img>` warnings remain in unrelated files. |
+| `git diff --check` | Pass | CRLF normalization warnings only for touched local triad state. |
+
+ARGUS PR167 notes:
+
+- Accepted the bounded confirmation-store setup-state fallback.
+- Owner scope remains intact because the Developer Space owner/admin load
+  happens before confirmation-store fallback handling.
+- Missing-store list returns safe setup metadata, while create/load/approve/
+  cancel return bounded 503 responses with `executionAvailable: false`.
+- The owner UI disables confirmation mutation controls and keeps previews
+  read-only when the store is unavailable.
+- No action execution, durable-table replacement, document/layout/public-page
+  mutation, key/signing-secret mutation, provider/billing/observed-runtime
+  write, export/webhook/repo/deploy/queue/Cloudflare/Redis/hosted-runtime path,
+  or raw database error leak was added.
+
 DAEDALUS blocker-fix validation on 2026-06-22:
 
 | Command | Result | Notes |

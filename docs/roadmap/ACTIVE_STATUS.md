@@ -4,7 +4,58 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current DAEDALUS handoff - PR167 hosted blocker fix
+## Latest ARGUS handoff - PR167 hosted blocker fix
+
+ARGUS accepts the PR167 hosted blocker fix on 2026-06-22 and wakes ARIADNE to
+rerun hosted proof.
+
+Review verdict:
+
+- The confirmation-list fallback is owner-scoped. The route still loads the
+  Developer Space through the owner/admin helper before touching the
+  confirmation table, so anonymous and non-owner requests do not receive setup
+  metadata for someone else's Space.
+- Missing-table/schema-cache detection is bounded to errors that name
+  `developer_space_agent_confirmations` and indicate a missing relation/schema
+  cache condition. Other database failures still return generic failure copy.
+- `GET /developer-spaces/:id/agent/actions/confirmations` returns
+  `{ confirmations: [], setup: { confirmationStoreAvailable: false } }` only
+  for the bounded unavailable-store condition, preventing the owner UI from
+  failing with HTTP 500 while making setup lag visible.
+- Confirmation create/load/approve/cancel paths return bounded `503
+  developer_space_agent_confirmation_store_unavailable` responses with
+  `executionAvailable: false` when the store is unavailable. They do not create
+  records, execute actions, or mutate targets.
+- The owner UI treats setup-unavailable as read-only setup state: future
+  previews still work, confirmation create/approve/cancel controls are disabled,
+  and the setup note says no action executed.
+- Raw relation/schema-cache errors, ids, preview hashes, raw payload JSON,
+  prompts, keys, provider payloads, logs, cookies, tokens, and environment
+  values are not returned or rendered by the fallback.
+- This is correctly documented as hosted setup lag, not as a replacement for the
+  durable PR165 confirmation table.
+
+ARGUS validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` passed with 34
+  tests, including non-owner rejection plus list/create/approve/cancel
+  unavailable-store regression coverage.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/api build` passed.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/web build` compiled,
+  linted/typechecked, generated 36 static pages, finalized optimization, and
+  collected traces, then hit the known local Windows standalone symlink `EPERM`
+  while copying React, Next, and `@next/env` traced files.
+- `git diff --check` passed with CRLF normalization warnings only.
+
+Next:
+
+- ARIADNE should rerun the PR167 hosted proof. If hosted still lacks the durable
+  table, ARIADNE should verify the panel no longer fails with HTTP 500 and wake
+  MIMIR for the Supabase migration/deployment decision.
+
+## Previous DAEDALUS handoff - PR167 hosted blocker fix
 
 DAEDALUS patched the hosted PR167 confirmation-list blocker on 2026-06-22 and
 wakes ARGUS because the patch touches confirmation route failure handling.

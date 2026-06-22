@@ -4,7 +4,7 @@ Date opened: 2026-06-22
 Opened by: A1 / MIMIR
 Owner: ARIADNE rehearses hosted staging. DAEDALUS fixes only exact blockers.
 ARGUS reviews only if a visibility/security boundary looks wrong.
-Status: hosted blocker patched by DAEDALUS; open for ARGUS review before rerun
+Status: accepted by ARGUS; awaiting ARIADNE hosted proof rerun
 
 ## Why This Lane
 
@@ -216,6 +216,51 @@ Next:
 - If accepted, wake ARIADNE to rerun hosted PR167 proof. If hosted still lacks
   the durable table, ARIADNE should verify the panel no longer fails with HTTP
   500 and wake MIMIR for the Supabase migration/deployment decision.
+
+## ARGUS Review - 2026-06-22
+
+ARGUS accepts the hosted blocker fix and wakes ARIADNE to rerun the PR167 hosted
+proof.
+
+Findings:
+
+- Accepted: the confirmation-list route keeps owner/admin authorization before
+  confirmation-store handling. Non-owner requests remain denied before setup
+  metadata is returned.
+- Accepted: unavailable-store detection is bounded to missing-table/schema-cache
+  errors naming `developer_space_agent_confirmations`.
+- Accepted: list fallback returns HTTP 200 with an empty confirmation list and
+  explicit setup metadata instead of HTTP 500 or raw database text.
+- Accepted: create/load/approve/cancel paths return bounded 503 setup errors
+  with `executionAvailable: false` when the store is unavailable.
+- Accepted: the owner UI disables confirmation create/approve/cancel controls
+  while the confirmation store is unavailable, keeps previews read-only, and
+  renders a setup note that says no action executed.
+- Accepted: no records are created and no documents, layout, public pages, keys,
+  signing secrets, provider settings, billing, observed-runtime state, exports,
+  webhooks, repos, deployments, queues, Cloudflare, Redis workers, hosted
+  runtime, or cache state are mutated by the fallback.
+- Accepted: the fallback is honest setup-state handling, not a replacement for
+  the durable PR165 table. Hosted proof still needs to determine whether the
+  Supabase migration/deployment has caught up.
+
+ARGUS validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` passed with 34
+  tests, including non-owner rejection and list/create/approve/cancel
+  unavailable-store behavior.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/api build` passed.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/web build` compiled,
+  linted/typechecked, generated 36 static pages, finalized optimization, and
+  collected traces, then hit the known local Windows standalone symlink `EPERM`
+  while copying React, Next, and `@next/env` traced files.
+- `git diff --check` passed with CRLF normalization warnings only.
+
+Recommendation: ARIADNE should rerun the hosted proof. If the confirmation
+store is still unavailable on hosted Supabase, treat that as a migration/
+deployment decision for MIMIR rather than a UI regression.
 
 ## Handoff
 
