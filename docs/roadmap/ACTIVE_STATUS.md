@@ -4,6 +4,88 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest DAEDALUS handoff - PR174 sanitized activity log readback
+
+DAEDALUS implemented PR174 on 2026-06-22. Status is open for ARGUS review.
+
+Changed files:
+
+- `apps/api/src/routes/developer-spaces.ts`
+- `apps/api/src/routes/developer-spaces.test.ts`
+- `packages/types/src/developer-space.ts`
+- `docs/roadmap/PR174_PHASE_2D_SANITIZED_ACTIVITY_LOG_READBACK.md`
+- `docs/roadmap/ACTIVE_STATUS.md`
+- `docs/testing/VALIDATION_BASELINE.md`
+
+Implementation truth:
+
+- `read_logs` moved from blocked future vocabulary to an available owner-only
+  safe read action.
+- The preview route still loads the Developer Space through owner/admin auth
+  before returning activity rows, so anonymous and non-owner callers remain
+  blocked.
+- The activity readback uses existing Station data only; it does not read
+  Railway, Supabase, provider, Cloudflare, Redis, operating-system, CI,
+  container, or external log-provider streams.
+- Rows are bounded, sorted newest first, and serialized through the existing
+  Developer Agent preview shape.
+
+Source list:
+
+- `developer_space_documents` plus safe linked document metadata.
+- `developer_space_events` safe event label/type/visibility/provenance.
+- `developer_space_nodes` safe node label/topology/fragment count.
+- `developer_space_snapshots` safe snapshot visibility/provenance/timestamp.
+- `developer_space_observed_runtime_context` safe context type/provenance only.
+- `developer_space_observed_runtime_webhook_receipts` status category only.
+- `developer_space_agent_confirmations` action/status/timestamp only.
+- `developer_space_agent_execution_receipts` action/status/timestamp only.
+
+Sample sanitized rows:
+
+- `Runtime event: <safe label>` with source `developer_space_events`,
+  category `observed_runtime_event`, event type, visibility, provenance,
+  status, and timestamp.
+- `Observed runtime webhook receipt` with source
+  `developer_space_observed_runtime_webhook_receipts`, category
+  `webhook_receipt`, response status, and timestamp; delivery id and payload
+  hash are explicitly omitted.
+- `Developer Agent confirmation: request_capability` with source
+  `developer_space_agent_confirmations`, category
+  `developer_agent_confirmation`, action/status/timestamp only.
+
+Omitted-field proof:
+
+- Focused tests seed raw UUIDs, raw node/event/snapshot/context payloads,
+  raw metrics, private source refs, private document body text, webhook
+  delivery id, payload hash, webhook response payload, confirmation preview
+  hash, sanitized payload summary, receipt confirmation id, receipt summary,
+  receipt payload summary, and receipt token-like text.
+- The `read_logs` preview response is asserted not to contain those values.
+- The response includes explicit `Omitted raw fields` copy for raw
+  infrastructure logs, raw runtime payloads, webhook bodies/headers/hashes/
+  delivery ids, document bodies, prompts, provider payloads, private archive
+  excerpts, owner ids, route ids, keys, tokens, cookies, and connection strings.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` passed with 39
+  tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:developer-space-client` passed with
+  15 tests.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/types build` passed.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` passed.
+- `git diff --check` passed with CRLF warnings only.
+
+Current baton:
+
+- ARGUS should review owner scope, source boundaries, payload minimization,
+  public leakage, visible raw-id/secret risk, and regression risk for
+  save/review/publish/capability flows.
+- Because owner-visible action vocabulary changed, ARGUS should wake ARIADNE
+  for hosted desktop/mobile proof if accepted.
+
 ## Latest MIMIR decision - PR174 sanitized activity log readback
 
 MIMIR closes PR173 on 2026-06-22 after ARGUS accepted the hostile-input

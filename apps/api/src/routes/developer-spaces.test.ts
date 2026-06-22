@@ -1449,6 +1449,44 @@ test("Developer Space agent registry and previews are owner-scoped and sanitized
       link_visibility: "owner",
       sort_order: 0,
     });
+    db.insertRow("developer_space_observed_runtime_webhook_receipts", {
+      developer_space_id: spaceId,
+      webhook_id: "webhook-private-delivery-id",
+      payload_hash: "payload-hash-should-not-appear",
+      response_body: {
+        status: "accepted",
+        privatePayload: "webhook-private-response-should-not-appear",
+      },
+    });
+    db.insertRow("developer_space_agent_confirmations", {
+      developer_space_id: spaceId,
+      owner_user_id: "owner-user",
+      action: "request_capability",
+      status: "approved",
+      summary: "agent private summary should not appear in read logs",
+      preview_hash: "preview-hash-should-not-appear",
+      sanitized_payload: {
+        capabilityRequest: {
+          category: "provider_config",
+          summary: "private capability summary should not appear in read logs",
+        },
+      },
+    });
+    db.insertRow("developer_space_agent_execution_receipts", {
+      developer_space_id: spaceId,
+      owner_user_id: "owner-user",
+      confirmation_id: "confirmation-id-should-not-appear",
+      action: "request_capability",
+      status: "recorded",
+      summary: "receipt private summary should not appear in read logs",
+      receipt_payload: {
+        capabilityRequest: {
+          category: "provider_config",
+          summary: "receipt payload summary should not appear in read logs",
+        },
+        token: "receipt-token-should-not-appear",
+      },
+    });
 
     const anonymousRegistry = await requestJson(app, "GET", `/developer-spaces/${spaceId}/agent/actions`);
     assert.equal(anonymousRegistry.status, 401);
@@ -1465,6 +1503,7 @@ test("Developer Space agent registry and previews are owner-scoped and sanitized
     assert.equal(ownerRegistry.body.boundary.autonomousExecution, false);
     assert.equal(ownerRegistry.body.boundary.mutatesDeveloperSpace, false);
     assert.equal(ownerRegistry.body.actions.some((entry: Row) => entry.action === "read_developer_space_brief" && entry.futureLane === false), true);
+    assert.equal(ownerRegistry.body.actions.some((entry: Row) => entry.action === "read_logs" && entry.futureLane === false && entry.requiresConfirmation === false), true);
     assert.equal(ownerRegistry.body.actions.some((entry: Row) => entry.action === "run_job" && entry.futureLane === true), true);
 
     const adminRegistry = await requestJson(app, "GET", `/developer-spaces/${spaceId}/agent/actions`, {
@@ -1497,6 +1536,19 @@ test("Developer Space agent registry and previews are owner-scoped and sanitized
     assert.equal(evidence.body.status, "previewed");
     assert.match(JSON.stringify(evidence.body), /\[id\]|\[redacted\]/);
 
+    const activity = await requestJson(app, "POST", `/developer-spaces/${spaceId}/agent/actions/preview`, {
+      token: "owner-token",
+      body: { action: "read_logs", input: { rawPrompt: "activity prompt should not appear", token: "activity-token" } },
+    });
+    assert.equal(activity.status, 200);
+    assert.equal(activity.body.status, "previewed");
+    assert.equal(activity.body.futureLane, false);
+    assert.equal(activity.body.requiresConfirmation, false);
+    assert.equal(activity.body.sections.some((section: Row) => section.title === "Sanitized activity sources"), true);
+    assert.equal(activity.body.sections.some((section: Row) => section.title === "Recent sanitized activity"), true);
+    assert.match(JSON.stringify(activity.body), /developer_space_events|developer_space_agent_confirmations|webhook_receipt/);
+    assert.doesNotMatch(JSON.stringify(activity.body), /activity prompt should not appear|activity-token/);
+
     const draft = await requestJson(app, "POST", `/developer-spaces/${spaceId}/agent/actions/preview`, {
       token: "owner-token",
       body: { action: "draft_project_update" },
@@ -1506,7 +1558,7 @@ test("Developer Space agent registry and previews are owner-scoped and sanitized
     assert.equal(draft.body.requiresConfirmation, true);
     assert.equal(draft.body.futureLane, false);
 
-    const previewText = JSON.stringify({ brief: brief.body, runtime: runtime.body, evidence: evidence.body, draft: draft.body });
+    const previewText = JSON.stringify({ brief: brief.body, runtime: runtime.body, evidence: evidence.body, activity: activity.body, draft: draft.body });
     for (const hidden of [
       rawUuid,
       "owner-secret",
@@ -1526,6 +1578,16 @@ test("Developer Space agent registry and previews are owner-scoped and sanitized
       "private:event:source",
       "private:snapshot:source",
       "private:context:source",
+      "webhook-private-delivery-id",
+      "payload-hash-should-not-appear",
+      "webhook-private-response-should-not-appear",
+      "agent private summary should not appear in read logs",
+      "preview-hash-should-not-appear",
+      "private capability summary should not appear in read logs",
+      "confirmation-id-should-not-appear",
+      "receipt private summary should not appear in read logs",
+      "receipt payload summary should not appear in read logs",
+      "receipt-token-should-not-appear",
     ]) {
       assert.equal(previewText.includes(hidden), false, `${hidden} leaked into agent preview`);
     }

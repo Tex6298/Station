@@ -7,7 +7,7 @@ Reviewer: ARGUS reviews owner scope, payload minimization, source boundaries,
 and overclaim risk.
 Rehearsal: ARIADNE runs hosted desktop/mobile proof if ARGUS accepts visible
 owner UI.
-Status: open for DAEDALUS
+Status: implemented by DAEDALUS; open for ARGUS review
 
 ## Why This Lane
 
@@ -119,7 +119,78 @@ ARIADNE should run hosted proof if visible UI changes:
 
 ## Next Baton
 
-DAEDALUS should implement PR174, then wake ARGUS with changed files, validation,
-source list, sample sanitized rows, proof of omitted raw fields, and remaining
-risks. ARGUS should wake ARIADNE if visible UI needs hosted proof; otherwise
-ARGUS wakes MIMIR with the verdict.
+DAEDALUS implemented PR174 on 2026-06-22.
+
+Changed files:
+
+- `apps/api/src/routes/developer-spaces.ts`
+- `apps/api/src/routes/developer-spaces.test.ts`
+- `packages/types/src/developer-space.ts`
+
+Implementation details:
+
+- `read_logs` moved from blocked future vocabulary into the owner-only safe
+  read action list.
+- The action is served through the existing owner-scoped Developer Agent
+  preview route; anonymous and non-owner access stays blocked before activity
+  data is loaded.
+- The readback uses existing Station rows only and does not query raw
+  infrastructure logs or external log providers.
+- Rows are bounded, sorted newest first, and serialized through the existing
+  Developer Agent preview section/item shape.
+
+Source list:
+
+- `developer_space_documents` safe linked evidence metadata.
+- `developer_space_events` safe event label/type/visibility/provenance.
+- `developer_space_nodes` safe node label/topology/fragment count.
+- `developer_space_snapshots` safe snapshot visibility/provenance/timestamp.
+- `developer_space_observed_runtime_context` safe context type/provenance only.
+- `developer_space_observed_runtime_webhook_receipts` status category only.
+- `developer_space_agent_confirmations` action/status/timestamp only.
+- `developer_space_agent_execution_receipts` action/status/timestamp only.
+
+Sample sanitized rows:
+
+- `Runtime event: <safe label>` with source `developer_space_events`,
+  category `observed_runtime_event`, event type, visibility, provenance,
+  status, and timestamp.
+- `Runtime node: <safe label>` with source `developer_space_nodes`, category
+  `observed_runtime_node`, topology, fragment count, status, and timestamp.
+- `Observed runtime webhook receipt` with source
+  `developer_space_observed_runtime_webhook_receipts`, category
+  `webhook_receipt`, response status, and timestamp; delivery id and payload
+  hash are omitted.
+- `Developer Agent confirmation: request_capability` with source
+  `developer_space_agent_confirmations`, category
+  `developer_agent_confirmation`, action/status/timestamp only.
+
+Omitted-field proof:
+
+- Focused tests seed raw UUID-shaped ids, raw node/event/snapshot/context
+  payloads, raw metrics, private source refs, private document body text,
+  webhook delivery id, webhook payload hash, webhook response payload,
+  confirmation preview hash, sanitized payload summary, receipt confirmation
+  id, receipt summary, receipt payload summary, and receipt token-like text.
+- The `read_logs` preview response is asserted not to contain those values.
+- The response carries explicit omitted-field copy for raw infrastructure logs,
+  raw runtime payloads, webhook bodies/headers/hashes/delivery ids, document
+  bodies, prompts, provider payloads, private archive excerpts, owner ids,
+  route ids, keys, tokens, cookies, and connection strings.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` passed with 39
+  tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:developer-space-client` passed with
+  15 tests.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/types build` passed.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` passed.
+- `git diff --check` passed with CRLF warnings only.
+
+ARGUS should review owner scope, source boundaries, payload minimization,
+public leakage, visible raw-id/secret risk, no external log-provider dependency,
+and save/review/publish/capability regression risk. Because owner-visible
+action vocabulary changed, ARGUS should wake ARIADNE for hosted proof if
+accepted.

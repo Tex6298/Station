@@ -52,6 +52,37 @@ pnpm test:developer-spaces
 pnpm test:developer-space-client
 ```
 
+## PR174 Phase 2D Sanitized Activity Log Readback
+
+DAEDALUS implementation validation on 2026-06-22:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 39 tests passed, including owner-only `read_logs` availability, sanitized activity source counts, safe recent activity rows, omitted raw-field proof, and save/review/publish/capability regression coverage. |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-space-client` | Pass | 15 tests passed; Developer Space client behavior remains compatible. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/types build` | Pass | Shared Developer Space action types compiled with `read_logs` as an allowed safe read action. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` | Pass | API typecheck passed for sanitized activity aggregation. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` | Pass | Web typecheck passed against the changed action vocabulary. |
+| `git diff --check` | Pass | CRLF normalization warnings only. |
+
+DAEDALUS PR174 notes:
+
+- `read_logs` is now an owner-only safe read preview, not a confirmation or
+  execution action.
+- The readback uses existing Station data only: linked evidence metadata,
+  runtime event/node/snapshot labels, supporting-context type/provenance,
+  webhook receipt status category, and Developer Agent confirmation/receipt
+  action/status/timestamp.
+- The readback omits raw infrastructure logs, raw event data, raw metrics, raw
+  snapshots, supporting-context payloads, webhook bodies/headers/hashes/
+  delivery ids, document bodies, prompts, provider payloads, private archive
+  excerpts, owner ids, route ids, keys, tokens, cookies, and connection
+  strings.
+- No Railway, Supabase, provider, Cloudflare, Redis, operating-system, CI,
+  container, or external log-provider integration was added.
+- No save/review/publish/capability behavior changed beyond the safe action
+  vocabulary.
+
 ## PR173 Hosted Capability Triage Proof
 
 ARIADNE hosted proof on 2026-06-22:

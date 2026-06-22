@@ -102,12 +102,12 @@ const DEVELOPER_SPACE_AGENT_ALLOWED_ACTIONS: readonly DeveloperSpaceAgentAllowed
   "read_observed_runtime_status",
   "read_provider_policy_posture",
   "read_evidence_path",
+  "read_logs",
   "draft_project_update",
 ];
 const DEVELOPER_SPACE_AGENT_FUTURE_ACTIONS: readonly DeveloperSpaceAgentFutureAction[] = [
   "publish_to_page",
   "update_layout",
-  "read_logs",
   "push_to_repo",
   "run_job",
   "update_observatory",
@@ -145,6 +145,14 @@ const DEVELOPER_SPACE_AGENT_ACTION_REGISTRY: readonly DeveloperSpaceAgentActionR
     action: "read_evidence_path",
     label: "Read evidence path",
     description: "List linked evidence titles, roles, publication states, and visibility without document body excerpts.",
+    mode: "read",
+    requiresConfirmation: false,
+    futureLane: false,
+  },
+  {
+    action: "read_logs",
+    label: "Read activity log",
+    description: "Summarize recent owner-visible Developer Space activity from existing Station data without raw logs or payloads.",
     mode: "read",
     requiresConfirmation: false,
     futureLane: false,
@@ -862,6 +870,9 @@ type DeveloperSpaceAgentReadback = {
   events: any[];
   snapshots: any[];
   supportingContext: any[];
+  webhookReceipts: any[];
+  agentConfirmations: any[];
+  agentReceipts: any[];
   linkedDocuments: Awaited<ReturnType<typeof loadLinkedDocumentsForSpace>>["linkedDocuments"];
 };
 
@@ -993,7 +1004,7 @@ function latestRows(rows: any[], dateField: string, limit: number) {
 
 async function loadDeveloperSpaceAgentReadback(space: any): Promise<DeveloperSpaceAgentReadback> {
   const sb = getSupabaseAdmin();
-  const [nodesResult, eventsResult, snapshotsResult, contextResult] = await Promise.all([
+  const [nodesResult, eventsResult, snapshotsResult, contextResult, webhookReceiptResult, agentConfirmationResult, agentReceiptResult] = await Promise.all([
     sb
       .from("developer_space_nodes")
       .select("*")
@@ -1018,12 +1029,41 @@ async function loadDeveloperSpaceAgentReadback(space: any): Promise<DeveloperSpa
       .eq("developer_space_id", space.id)
       .order("occurred_at", { ascending: false })
       .limit(80),
+    (sb as any)
+      .from("developer_space_observed_runtime_webhook_receipts")
+      .select("*")
+      .eq("developer_space_id", space.id)
+      .order("created_at", { ascending: false })
+      .limit(20),
+    (sb as any)
+      .from("developer_space_agent_confirmations")
+      .select("*")
+      .eq("developer_space_id", space.id)
+      .eq("owner_user_id", space.owner_user_id)
+      .order("requested_at", { ascending: false })
+      .limit(20),
+    (sb as any)
+      .from("developer_space_agent_execution_receipts")
+      .select("*")
+      .eq("developer_space_id", space.id)
+      .eq("owner_user_id", space.owner_user_id)
+      .order("dispatched_at", { ascending: false })
+      .limit(20),
   ]);
 
   if (nodesResult.error) throw new Error(nodesResult.error.message);
   if (eventsResult.error) throw new Error(eventsResult.error.message);
   if (snapshotsResult.error) throw new Error(snapshotsResult.error.message);
   if (contextResult.error) throw new Error(contextResult.error.message);
+  if (webhookReceiptResult.error && !developerSpaceObservedRuntimeWebhookReceiptStoreUnavailable(webhookReceiptResult.error)) {
+    throw new Error(webhookReceiptResult.error.message);
+  }
+  if (agentConfirmationResult.error && !developerSpaceAgentConfirmationStoreUnavailable(agentConfirmationResult.error)) {
+    throw new Error(agentConfirmationResult.error.message);
+  }
+  if (agentReceiptResult.error && !developerSpaceAgentExecutionReceiptStoreUnavailable(agentReceiptResult.error)) {
+    throw new Error(agentReceiptResult.error.message);
+  }
 
   const linkedDocumentsResult = await loadLinkedDocumentsForSpace(space, "owner");
   return {
@@ -1031,7 +1071,160 @@ async function loadDeveloperSpaceAgentReadback(space: any): Promise<DeveloperSpa
     events: eventsResult.data ?? [],
     snapshots: snapshotsResult.data ?? [],
     supportingContext: contextResult.data ?? [],
+    webhookReceipts: webhookReceiptResult.error ? [] : webhookReceiptResult.data ?? [],
+    agentConfirmations: agentConfirmationResult.error ? [] : agentConfirmationResult.data ?? [],
+    agentReceipts: agentReceiptResult.error ? [] : agentReceiptResult.data ?? [],
     linkedDocuments: linkedDocumentsResult.linkedDocuments,
+  };
+}
+
+type DeveloperSpaceAgentActivityItem = {
+  source: string;
+  category: string;
+  title: string;
+  detail: string;
+  status: string;
+  timestamp: string | null;
+};
+
+function activityTimestamp(value: unknown) {
+  return typeof value === "string" && !Number.isNaN(Date.parse(value)) ? value : null;
+}
+
+function activityItem(input: DeveloperSpaceAgentActivityItem) {
+  return {
+    title: safeAgentText(input.title, "Activity", 140),
+    detail: [
+      `Source: ${safeAgentText(input.source, "station", 80)}`,
+      `Category: ${safeAgentText(input.category, "activity", 80)}`,
+      `Timestamp: ${input.timestamp ?? "not recorded"}`,
+      input.detail,
+    ].join(" / "),
+    status: safeAgentText(input.status, "recorded", 80),
+  };
+}
+
+function developerSpaceWebhookReceiptStatus(row: any) {
+  const response = row?.response_body && typeof row.response_body === "object"
+    ? row.response_body as Record<string, unknown>
+    : {};
+  return safeAgentText(response.status ?? response.code ?? "recorded", "recorded", 80);
+}
+
+function buildDeveloperSpaceAgentActivityReadback(
+  space: any,
+  readback: DeveloperSpaceAgentReadback
+): DeveloperSpaceAgentActionPreview {
+  const projectName = safeAgentText(space.project_name, "Developer Space", 120);
+  const activity = [
+    ...readback.linkedDocuments.map((link) => ({
+      source: "developer_space_documents",
+      category: "evidence",
+      title: `Evidence: ${safeAgentText(link.document.title, "Untitled evidence", 120)}`,
+      detail: `Role: ${safeAgentText(link.role, "note", 40)} / Visibility: ${safeAgentText(link.linkVisibility, "owner", 40)} / Document: ${safeAgentText(link.document.status, "draft", 40)} ${safeAgentText(link.document.visibility, "private", 40)}`,
+      status: link.document.publishedAt ? "published" : safeAgentText(link.document.status, "draft", 40),
+      timestamp: activityTimestamp(link.document.updatedAt ?? link.document.publishedAt ?? link.document.createdAt),
+    })),
+    ...readback.events.map((event) => ({
+      source: "developer_space_events",
+      category: "observed_runtime_event",
+      title: `Runtime event: ${safeAgentText(event.event_label ?? event.event_type, "Untitled event", 120)}`,
+      detail: `Type: ${safeAgentText(event.event_type, "event", 80)} / Visibility: ${safeAgentText(event.visibility, "public", 40)} / Provenance: ${safeAgentText(event.provenance, "api", 40)}`,
+      status: safeAgentText(event.visibility, "public", 40),
+      timestamp: activityTimestamp(event.occurred_at ?? event.created_at),
+    })),
+    ...readback.nodes.map((node) => ({
+      source: "developer_space_nodes",
+      category: "observed_runtime_node",
+      title: `Runtime node: ${safeAgentText(node.node_name, "Untitled node", 120)}`,
+      detail: `Topology: ${safeAgentText(node.topology_type, "custom", 40)} / Fragments: ${Number(node.fragment_count ?? 0)}`,
+      status: node.last_event_at ? "recent_event" : "node_state",
+      timestamp: activityTimestamp(node.last_event_at ?? node.updated_at ?? node.created_at),
+    })),
+    ...readback.snapshots.map((snapshot) => ({
+      source: "developer_space_snapshots",
+      category: "observed_runtime_snapshot",
+      title: "Runtime snapshot",
+      detail: `Visibility: ${safeAgentText(snapshot.visibility, "public", 40)} / Provenance: ${safeAgentText(snapshot.provenance, "api", 40)}`,
+      status: safeAgentText(snapshot.visibility, "public", 40),
+      timestamp: activityTimestamp(snapshot.occurred_at ?? snapshot.created_at),
+    })),
+    ...readback.supportingContext.map((context) => ({
+      source: "developer_space_observed_runtime_context",
+      category: "supporting_context",
+      title: `Supporting context: ${safeAgentText(context.context_type, "context", 80)}`,
+      detail: `Provenance: ${safeAgentText(context.provenance, "imported", 40)} / External label omitted`,
+      status: safeAgentText(context.context_type, "context", 80),
+      timestamp: activityTimestamp(context.occurred_at ?? context.created_at),
+    })),
+    ...readback.webhookReceipts.map((receipt) => ({
+      source: "developer_space_observed_runtime_webhook_receipts",
+      category: "webhook_receipt",
+      title: "Observed runtime webhook receipt",
+      detail: "Delivery identifier and payload hash omitted.",
+      status: developerSpaceWebhookReceiptStatus(receipt),
+      timestamp: activityTimestamp(receipt.created_at),
+    })),
+    ...readback.agentConfirmations.map((confirmation) => ({
+      source: "developer_space_agent_confirmations",
+      category: "developer_agent_confirmation",
+      title: `Developer Agent confirmation: ${safeAgentText(confirmation.action, "action", 80)}`,
+      detail: "Confirmation id, owner id, preview hash, and sanitized payload omitted.",
+      status: safeAgentText(effectiveDeveloperSpaceAgentConfirmationStatus(confirmation), "pending", 40),
+      timestamp: activityTimestamp(confirmation.requested_at ?? confirmation.created_at),
+    })),
+    ...readback.agentReceipts.map((receipt) => ({
+      source: "developer_space_agent_execution_receipts",
+      category: "developer_agent_receipt",
+      title: `Developer Agent receipt: ${safeAgentText(receipt.action, "action", 80)}`,
+      detail: "Receipt id, confirmation id, owner id, and receipt payload omitted.",
+      status: safeAgentText(receipt.status, "recorded", 40),
+      timestamp: activityTimestamp(receipt.dispatched_at ?? receipt.created_at),
+    })),
+  ]
+    .sort((left, right) => Date.parse(right.timestamp ?? "") - Date.parse(left.timestamp ?? ""))
+    .slice(0, 14);
+
+  return {
+    action: "read_logs",
+    status: "previewed",
+    summary: `${projectName} activity readback uses existing Station data only. Raw logs, payloads, ids, document bodies, prompts, metrics, snapshots, webhook bodies, headers, and secrets are omitted.`,
+    sections: [
+      {
+        title: "Sanitized activity sources",
+        facts: [
+          safeAgentFact("Evidence/document rows", readback.linkedDocuments.length),
+          safeAgentFact("Runtime events", readback.events.length),
+          safeAgentFact("Runtime nodes", readback.nodes.length),
+          safeAgentFact("Runtime snapshots", readback.snapshots.length),
+          safeAgentFact("Supporting context rows", readback.supportingContext.length),
+          safeAgentFact("Webhook receipts", readback.webhookReceipts.length),
+          safeAgentFact("Agent confirmations", readback.agentConfirmations.length),
+          safeAgentFact("Agent receipts", readback.agentReceipts.length),
+        ],
+      },
+      {
+        title: "Recent sanitized activity",
+        summary: activity.length > 0
+          ? "Rows are bounded, owner-only, and ordered newest first."
+          : "No owner-visible activity rows are available yet.",
+        items: activity.map(activityItem),
+      },
+      {
+        title: "Omitted raw fields",
+        items: [
+          "Raw infrastructure logs",
+          "Raw event data, metrics, snapshots, and supporting-context payloads",
+          "Webhook bodies, headers, payload hashes, and delivery ids",
+          "Document bodies, prompts, provider payloads, private archive excerpts, owner ids, route ids, keys, tokens, cookies, and connection strings",
+        ].map((title) => ({
+          title,
+          status: "omitted",
+        })),
+      },
+    ],
+    requiresConfirmation: false,
+    futureLane: false,
   };
 }
 
@@ -1472,6 +1665,10 @@ function buildDeveloperSpaceAgentPreview(
     };
   }
 
+  if (action === "read_logs") {
+    return buildDeveloperSpaceAgentActivityReadback(space, readback);
+  }
+
   const draft = buildDeveloperSpaceProjectUpdateDraft(space, readback);
 
   return {
@@ -1812,6 +2009,19 @@ function developerSpaceAgentExecutionReceiptStoreUnavailable(error: unknown) {
   const anyError = error as { code?: string; message?: string; details?: string };
   const text = `${anyError?.code ?? ""} ${anyError?.message ?? ""} ${anyError?.details ?? ""}`.toLowerCase();
   return text.includes("developer_space_agent_execution_receipts")
+    && (
+      text.includes("does not exist")
+      || text.includes("schema cache")
+      || text.includes("could not find")
+      || text.includes("pgrst205")
+      || text.includes("42p01")
+    );
+}
+
+function developerSpaceObservedRuntimeWebhookReceiptStoreUnavailable(error: unknown) {
+  const anyError = error as { code?: string; message?: string; details?: string };
+  const text = `${anyError?.code ?? ""} ${anyError?.message ?? ""} ${anyError?.details ?? ""}`.toLowerCase();
+  return text.includes("developer_space_observed_runtime_webhook_receipts")
     && (
       text.includes("does not exist")
       || text.includes("schema cache")

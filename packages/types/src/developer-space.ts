@@ -176,12 +176,12 @@ export type DeveloperSpaceAgentAllowedAction =
   | "read_observed_runtime_status"
   | "read_provider_policy_posture"
   | "read_evidence_path"
+  | "read_logs"
   | "draft_project_update";
 
 export type DeveloperSpaceAgentFutureAction =
   | "publish_to_page"
   | "update_layout"
-  | "read_logs"
   | "push_to_repo"
   | "run_job"
   | "update_observatory"
