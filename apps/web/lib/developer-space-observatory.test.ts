@@ -242,9 +242,13 @@ test("developer agent confirmation helpers keep intent separate from execution",
   );
 });
 
-test("developer agent receipt helpers only allow inert capability receipts", () => {
+test("developer agent receipt helpers gate bounded receipt actions", () => {
   assert.equal(developerSpaceAgentReceiptCanRecord({
     action: "request_capability",
+    status: "approved",
+  }), true);
+  assert.equal(developerSpaceAgentReceiptCanRecord({
+    action: "save_project_update_draft",
     status: "approved",
   }), true);
   assert.equal(developerSpaceAgentReceiptCanRecord({
@@ -267,9 +271,27 @@ test("developer agent receipt helpers only allow inert capability receipts", () 
       boundaries: [],
     },
   }), /No provider, deploy, repo, key/);
+  assert.match(developerSpaceAgentReceiptExecutionCopy({
+    receiptPayload: {
+      action: "save_project_update_draft",
+      outcome: "private_draft_document_saved",
+      executionAvailable: false,
+      mutationAvailable: true,
+      externalDispatch: false,
+      nextStep: "Review the private draft.",
+      boundaries: [],
+      draftDocument: {
+        title: "Project update draft",
+        status: "draft",
+        visibility: "private",
+        linkVisibility: "owner",
+        role: "field_log",
+      },
+    },
+  }), /Private draft document saved/);
   assert.equal(
     developerSpaceAgentReceiptEmptyCopy(false),
-    "No capability request receipts yet. Approved request-capability confirmations can record planning evidence here."
+    "No Developer Agent receipts yet. Approved receipt actions can record bounded owner evidence here."
   );
 });
 

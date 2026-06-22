@@ -1922,6 +1922,158 @@ test("Developer Space agent request-capability receipts are owner-scoped and ide
   }
 });
 
+test("Developer Space agent draft save creates one private owner-only linked document", async () => {
+  const db = new InMemorySupabase();
+  setSupabaseAdminForTests(db.client as any);
+  const app = createDeveloperSpacesApp();
+
+  try {
+    const created = await requestJson(app, "POST", "/developer-spaces", {
+      token: "owner-token",
+      body: {
+        projectName: "Agent Draft Lane",
+        visibility: "public",
+      },
+    });
+    assert.equal(created.status, 201);
+    const spaceId = created.body.space.id;
+    const slug = created.body.space.slug;
+
+    db.insertRow("developer_space_nodes", {
+      developer_space_id: spaceId,
+      external_id: "safe-node-1",
+      node_name: "Runtime API",
+      topology_type: "custom",
+      fragment_count: 7,
+      metrics: { health: "ok" },
+      source_refs: ["private:node:source"],
+      last_event_at: "2026-05-24T09:30:00.000Z",
+    });
+    db.insertRow("developer_space_events", {
+      developer_space_id: spaceId,
+      node_id: null,
+      external_node_id: "safe-node-1",
+      event_type: "deploy.preview",
+      event_label: "Preview deploy",
+      event_data: { privatePayload: "event payload should not appear", token: "event-secret-token" },
+      similarity_score: null,
+      source_refs: ["private:event:source"],
+      provenance: "api",
+      visibility: "private",
+      occurred_at: "2026-05-24T09:35:00.000Z",
+    });
+
+    const previewOnly = await requestJson(app, "POST", `/developer-spaces/${spaceId}/agent/actions/confirmations`, {
+      token: "owner-token",
+      body: { action: "draft_project_update" },
+    });
+    assert.equal(previewOnly.status, 400);
+    assert.equal(previewOnly.body.code, "developer_space_agent_confirmation_not_required");
+
+    const save = await requestJson(app, "POST", `/developer-spaces/${spaceId}/agent/actions/confirmations`, {
+      token: "owner-token",
+      body: {
+        action: "save_project_update_draft",
+        input: { rawPrompt: "save this private prompt", token: "save-secret-token" },
+      },
+    });
+    assert.equal(save.status, 201);
+    assert.equal(save.body.confirmation.action, "save_project_update_draft");
+    assert.equal(save.body.confirmation.sanitizedPayload.action, "save_project_update_draft");
+    assert.equal(save.body.confirmation.sanitizedPayload.executionAvailable, false);
+    assert.equal(save.body.confirmation.sanitizedPayload.mutationAvailable, false);
+    assert.doesNotMatch(JSON.stringify(save.body), /save this private prompt|save-secret-token|rawPrompt/);
+
+    const approved = await requestJson(app, "POST", `/developer-spaces/${spaceId}/agent/actions/confirmations/${save.body.confirmation.id}/approve`, {
+      token: "owner-token",
+    });
+    assert.equal(approved.status, 200);
+    assert.equal(approved.body.confirmation.status, "approved");
+
+    const firstExecute = await requestJson(app, "POST", `/developer-spaces/${spaceId}/agent/actions/confirmations/${save.body.confirmation.id}/execute`, {
+      token: "owner-token",
+    });
+    assert.equal(firstExecute.status, 201);
+    assert.equal(firstExecute.body.idempotent, false);
+    assert.equal(firstExecute.body.executionAvailable, false);
+    assert.equal(firstExecute.body.receipt.action, "save_project_update_draft");
+    assert.equal(firstExecute.body.receipt.receiptPayload.outcome, "private_draft_document_saved");
+    assert.equal(firstExecute.body.receipt.receiptPayload.executionAvailable, false);
+    assert.equal(firstExecute.body.receipt.receiptPayload.mutationAvailable, true);
+    assert.equal(firstExecute.body.receipt.receiptPayload.externalDispatch, false);
+    assert.equal(firstExecute.body.receipt.receiptPayload.draftDocument.status, "draft");
+    assert.equal(firstExecute.body.receipt.receiptPayload.draftDocument.visibility, "private");
+    assert.equal(firstExecute.body.receipt.receiptPayload.draftDocument.linkVisibility, "owner");
+    assert.equal("id" in firstExecute.body.receipt, false);
+    assert.equal("confirmationId" in firstExecute.body.receipt, false);
+    assert.equal("ownerUserId" in firstExecute.body.receipt, false);
+    assert.equal("body" in firstExecute.body.receipt.receiptPayload, false);
+
+    assert.equal(db.tables.documents.length, 1);
+    const document = db.tables.documents[0];
+    assert.equal(document.author_user_id, "owner-user");
+    assert.equal(document.status, "draft");
+    assert.equal(document.visibility, "private");
+    assert.equal(document.comments_enabled, false);
+    assert.equal(document.document_type, "field_log");
+    assert.equal(document.provenance_type, "ai_assisted");
+    assert.equal(document.source_id, spaceId);
+    assert.match(document.body, /observed nodes/);
+    assert.match(document.body, /Owner review checklist/);
+    assert.doesNotMatch(document.body, /save this private prompt|save-secret-token|event payload should not appear|event-secret-token|private:event:source/);
+
+    assert.equal(db.tables.developer_space_documents.length, 1);
+    const link = db.tables.developer_space_documents[0];
+    assert.equal(link.developer_space_id, spaceId);
+    assert.equal(link.document_id, document.id);
+    assert.equal(link.owner_user_id, "owner-user");
+    assert.equal(link.document_role, "field_log");
+    assert.equal(link.link_visibility, "owner");
+
+    const secondExecute = await requestJson(app, "POST", `/developer-spaces/${spaceId}/agent/actions/confirmations/${save.body.confirmation.id}/execute`, {
+      token: "owner-token",
+    });
+    assert.equal(secondExecute.status, 200);
+    assert.equal(secondExecute.body.idempotent, true);
+    assert.equal(db.tables.documents.length, 1);
+    assert.equal(db.tables.developer_space_documents.length, 1);
+    assert.equal(db.tables.developer_space_agent_execution_receipts.length, 1);
+
+    const ownerList = await requestJson(app, "GET", `/developer-spaces/${spaceId}/agent/actions/receipts`, {
+      token: "owner-token",
+    });
+    assert.equal(ownerList.status, 200);
+    assert.equal(ownerList.body.receipts.length, 1);
+    assert.equal(ownerList.body.receipts[0].action, "save_project_update_draft");
+
+    const ownerDetail = await requestJson(app, "GET", `/developer-spaces/${slug}`, {
+      token: "owner-token",
+    });
+    assert.equal(ownerDetail.status, 200);
+    assert.equal(ownerDetail.body.access, "owner");
+    assert.equal(ownerDetail.body.linkedDocuments.length, 1);
+    assert.equal(ownerDetail.body.linkedDocuments[0].linkVisibility, "owner");
+
+    const publicDetail = await requestJson(app, "GET", `/developer-spaces/${slug}`);
+    assert.equal(publicDetail.status, 200);
+    assert.equal(publicDetail.body.access, "public");
+    assert.equal(publicDetail.body.linkedDocuments.length, 0);
+
+    const responseText = JSON.stringify({
+      firstExecute: firstExecute.body,
+      secondExecute: secondExecute.body,
+      ownerList: ownerList.body,
+      publicDetail: publicDetail.body,
+    });
+    assert.doesNotMatch(responseText, /save this private prompt|save-secret-token|event payload should not appear|event-secret-token|private:event:source/);
+    assert.equal(responseText.includes(save.body.confirmation.id), false);
+    assert.equal(responseText.includes(document.id), false);
+    assert.equal(responseText.includes(link.id), false);
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
+
 test("Developer Space agent confirmation store absence returns bounded setup state", async () => {
   const db = new InMemorySupabase();
   setSupabaseAdminForTests(db.client as any);

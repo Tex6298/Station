@@ -76,10 +76,12 @@ export type DeveloperSpaceAgentFutureAction =
   | "run_job"
   | "update_observatory"
   | "request_capability"
+  | "save_project_update_draft"
   | "rotate_ingestion_key"
   | "create_webhook_signing_secret";
 export type DeveloperSpaceAgentConfirmationStatus = "pending" | "approved" | "cancelled" | "expired";
 export type DeveloperSpaceAgentExecutionReceiptStatus = "recorded";
+export type DeveloperSpaceAgentExecutionReceiptAction = "request_capability" | "save_project_update_draft";
 export type DeveloperSpaceDocumentRole = "methodology" | "finding" | "field_log" | "note";
 export type DeveloperSpaceDocumentLinkVisibility = "owner" | "public";
 export type ExportPackageKind = "persona_archive" | "developer_space_archive";
@@ -1022,7 +1024,7 @@ export interface Database {
           developer_space_id: string;
           owner_user_id: string;
           confirmation_id: string;
-          action: "request_capability";
+          action: DeveloperSpaceAgentExecutionReceiptAction;
           status: DeveloperSpaceAgentExecutionReceiptStatus;
           summary: string;
           receipt_payload: Record<string, unknown>;
@@ -1032,7 +1034,7 @@ export interface Database {
         };
         Insert: Omit<Database["public"]["Tables"]["developer_space_agent_execution_receipts"]["Row"], "id" | "action" | "status" | "receipt_payload" | "dispatched_at" | "created_at" | "updated_at"> & {
           id?: string;
-          action?: "request_capability";
+          action?: DeveloperSpaceAgentExecutionReceiptAction;
           status?: DeveloperSpaceAgentExecutionReceiptStatus;
           receipt_payload?: Record<string, unknown>;
           dispatched_at?: string;

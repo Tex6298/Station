@@ -5,7 +5,7 @@ Opened by: A1 / MIMIR
 Owner: DAEDALUS implements.
 Reviewer: ARGUS reviews owner scope, artifact provenance, and public boundary.
 Rehearsal: ARIADNE runs hosted browser proof if ARGUS accepts visible UI.
-Status: open for DAEDALUS
+Status: implemented by DAEDALUS; open for ARGUS review
 
 ## Why This Lane
 
@@ -157,3 +157,99 @@ DAEDALUS should wake ARGUS with:
 
 If implementation cannot proceed, wake MIMIR with the exact blocker instead of
 going silent.
+
+## DAEDALUS Implementation - 2026-06-22
+
+DAEDALUS implemented PR170 as a narrow confirmed draft-document save.
+
+Files touched:
+
+- `infra/supabase/migrations/051_developer_space_agent_draft_document_save.sql`
+- `packages/types/src/developer-space.ts`
+- `packages/db/src/types.ts`
+- `apps/api/src/routes/developer-spaces.ts`
+- `apps/api/src/routes/developer-spaces.test.ts`
+- `apps/web/app/developer-spaces/[slug]/manage/page.tsx`
+- `apps/web/lib/developer-space-observatory.ts`
+- `apps/web/lib/developer-space-observatory.test.ts`
+- `docs/roadmap/PR170_PHASE_2D_AGENT_DRAFT_DOCUMENT_SAVE.md`
+- `docs/roadmap/ACTIVE_STATUS.md`
+- `docs/testing/VALIDATION_BASELINE.md`
+
+Schema/type shape:
+
+- Added migration `051_developer_space_agent_draft_document_save.sql`.
+- The confirmation action constraint now includes
+  `save_project_update_draft`.
+- The receipt action constraint now allows `request_capability` and
+  `save_project_update_draft`.
+- Receipt RLS still requires authenticated owner access to the Developer Space
+  and an approved same-owner/same-Space confirmation, now for either executable
+  receipt action.
+- Shared/db types now expose
+  `DeveloperSpaceAgentExecutionReceiptAction =
+  "request_capability" | "save_project_update_draft"`.
+
+Route behavior:
+
+- `draft_project_update` remains preview-only and cannot create a confirmation.
+- `save_project_update_draft` is registered as a confirmed future action.
+- Approved `save_project_update_draft` dispatch creates one private draft
+  `documents` row and one owner-only `developer_space_documents` link.
+- The saved document is route-generated from safe Developer Space readback:
+  counts, timestamps, and owner review checklist only.
+- The saved document is `status: draft`, `visibility: private`,
+  `comments_enabled: false`, `document_type: field_log`,
+  `provenance_type: ai_assisted`, and linked with
+  `link_visibility: owner` / `document_role: field_log`.
+- Dispatch is idempotent per confirmation through the existing unique receipt
+  constraint; repeat dispatch returns the existing receipt and does not create
+  duplicate documents or links.
+- `request_capability` receipts from PR169 still work.
+- `publish_to_page` and the other dangerous future actions remain blocked even
+  if approved.
+
+Receipt/UI behavior:
+
+- Receipt payloads for draft saves include safe metadata only: title, draft
+  status, private visibility, owner link visibility, and role.
+- Confirmation and receipt payloads do not store document bodies, raw prompt
+  text, event payloads, provider payloads, keys, cookies, tokens, environment
+  values, confirmation ids, owner ids, or preview hashes.
+- The owner manage panel exposes `Save draft` only for approved
+  `save_project_update_draft` confirmations.
+- Receipt rows label saved drafts separately from capability requests and show
+  private/draft/owner metadata without raw ids.
+
+Focused proof:
+
+- API coverage proves owner-only draft save, private document/link shape,
+  public Developer Space detail hiding the owner-only link, repeat dispatch
+  idempotency, blocked `publish_to_page`, and no prompt/token/private event
+  payload leakage in confirmation/receipt responses.
+- Web helper coverage proves approved `save_project_update_draft` can dispatch
+  while pending save confirmations and approved dangerous actions stay blocked.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` passed with 37
+  tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:developer-space-client` passed with
+  15 tests.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/types build` passed.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/api build` passed.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/web build` compiled,
+  linted/typechecked, generated 36 static pages, finalized optimization, and
+  collected traces, then hit the known local Windows symlink `EPERM` while
+  copying `.next/standalone` traced files. Existing raw `<img>` warnings remain
+  unrelated.
+
+Next baton:
+
+- ARGUS should review the migration/RLS widening, route owner scope,
+  idempotency across document/link/receipt creation, public boundary, receipt
+  serialization, and visible copy.
+- Because visible owner UI changed, ARGUS should wake ARIADNE for hosted
+  desktop/mobile proof if accepted.

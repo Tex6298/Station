@@ -1028,7 +1028,11 @@ export default function DeveloperSpaceManagePage() {
                               disabled={!agentReceiptStoreAvailable || receiptBusy}
                               style={agentConfirmationButton}
                             >
-                              {receiptBusy ? "Recording..." : "Create receipt"}
+                              {receiptBusy
+                                ? "Recording..."
+                                : confirmation.action === "save_project_update_draft"
+                                  ? "Save draft"
+                                  : "Create receipt"}
                             </button>
                           </div>
                         ) : null}
@@ -1062,7 +1066,7 @@ export default function DeveloperSpaceManagePage() {
                       <div style={{ display: "flex", justifyContent: "space-between", gap: "0.65rem", alignItems: "flex-start", flexWrap: "wrap" }}>
                         <div>
                           <strong style={{ display: "block", color: "#1f2529" }}>
-                            Capability request
+                            {receipt.action === "save_project_update_draft" ? "Project update draft" : "Capability request"}
                           </strong>
                           <span style={{ color: "#8b8f92", fontSize: "0.74rem" }}>
                             Recorded {formatDate(receipt.dispatchedAt)}
@@ -1078,6 +1082,11 @@ export default function DeveloperSpaceManagePage() {
                       <p style={{ margin: 0, color: "#854f0b", fontSize: "0.82rem", lineHeight: 1.4 }}>
                         {developerSpaceAgentReceiptExecutionCopy(receipt)}
                       </p>
+                      {receipt.receiptPayload.draftDocument ? (
+                        <p style={{ margin: 0, color: "#687078", fontSize: "0.82rem", lineHeight: 1.4 }}>
+                          Draft: {receipt.receiptPayload.draftDocument.title} / {receipt.receiptPayload.draftDocument.status} / {receipt.receiptPayload.draftDocument.visibility} / {receipt.receiptPayload.draftDocument.linkVisibility}
+                        </p>
+                      ) : null}
                       <p style={{ margin: 0, color: "#687078", fontSize: "0.82rem", lineHeight: 1.4 }}>
                         {receipt.receiptPayload.nextStep}
                       </p>

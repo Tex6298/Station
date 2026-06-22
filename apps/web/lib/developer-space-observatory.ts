@@ -257,7 +257,10 @@ export function developerSpaceAgentConfirmationEmptyCopy(loading: boolean) {
 }
 
 export function developerSpaceAgentReceiptCanRecord(confirmation: Pick<DeveloperSpaceAgentConfirmationRecord, "action" | "status">) {
-  return confirmation.action === "request_capability" && confirmation.status === "approved";
+  return (
+    confirmation.action === "request_capability"
+    || confirmation.action === "save_project_update_draft"
+  ) && confirmation.status === "approved";
 }
 
 export function developerSpaceAgentReceiptStatusCopy(status: DeveloperSpaceAgentExecutionReceiptRecord["status"]) {
@@ -265,6 +268,9 @@ export function developerSpaceAgentReceiptStatusCopy(status: DeveloperSpaceAgent
 }
 
 export function developerSpaceAgentReceiptExecutionCopy(receipt: Pick<DeveloperSpaceAgentExecutionReceiptRecord, "receiptPayload">) {
+  if (receipt.receiptPayload.action === "save_project_update_draft") {
+    return "Private draft document saved for owner review. No public page, provider, deploy, repo, key, layout, billing, webhook, export, worker, or runtime action executed.";
+  }
   return receipt.receiptPayload.executionAvailable === false
     ? "Planning receipt only. No provider, deploy, repo, key, document, layout, billing, webhook, export, worker, or runtime action executed."
     : "Receipt recorded for owner review.";
@@ -273,7 +279,7 @@ export function developerSpaceAgentReceiptExecutionCopy(receipt: Pick<DeveloperS
 export function developerSpaceAgentReceiptEmptyCopy(loading: boolean) {
   return loading
     ? "Loading receipt records."
-    : "No capability request receipts yet. Approved request-capability confirmations can record planning evidence here.";
+    : "No Developer Agent receipts yet. Approved receipt actions can record bounded owner evidence here.";
 }
 
 export function developerSpaceMethodologyCopy(detail: Pick<DeveloperSpaceDetail, "linkedDocuments" | "access">) {

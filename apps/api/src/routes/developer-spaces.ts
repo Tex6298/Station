@@ -5,6 +5,7 @@ import { describePlatformProviderRoute } from "@station/ai";
 import type {
   DeveloperSpaceAgentConfirmationRecord,
   DeveloperSpaceAgentConfirmationStatus,
+  DeveloperSpaceAgentExecutionReceiptAction,
   DeveloperSpaceAgentExecutionReceiptRecord,
   DeveloperSpaceAgentActionPreview,
   DeveloperSpaceAgentActionRegistryEntry,
@@ -111,6 +112,7 @@ const DEVELOPER_SPACE_AGENT_FUTURE_ACTIONS: readonly DeveloperSpaceAgentFutureAc
   "run_job",
   "update_observatory",
   "request_capability",
+  "save_project_update_draft",
   "rotate_ingestion_key",
   "create_webhook_signing_secret",
 ];
@@ -158,7 +160,9 @@ const DEVELOPER_SPACE_AGENT_ACTION_REGISTRY: readonly DeveloperSpaceAgentActionR
   ...DEVELOPER_SPACE_AGENT_FUTURE_ACTIONS.map((action) => ({
     action,
     label: action.replace(/_/g, " ").replace(/^./, (letter) => letter.toUpperCase()),
-    description: "Registered future Phase 2D vocabulary. This PR does not execute or mutate this action.",
+    description: action === "save_project_update_draft"
+      ? "Confirmed owner action that saves a private linked project-update draft without publishing."
+      : "Registered future Phase 2D vocabulary. This PR does not execute or mutate this action.",
     mode: "future" as const,
     requiresConfirmation: true,
     futureLane: true,
@@ -168,11 +172,22 @@ const DEVELOPER_SPACE_AGENT_ALLOWED_ACTION_SET = new Set<string>(DEVELOPER_SPACE
 const DEVELOPER_SPACE_AGENT_FUTURE_ACTION_SET = new Set<string>(DEVELOPER_SPACE_AGENT_FUTURE_ACTIONS);
 const DEVELOPER_SPACE_AGENT_CONFIRMATION_DEFAULT_EXPIRY_MINUTES = 24 * 60;
 const DEVELOPER_SPACE_AGENT_CONFIRMATION_MAX_EXPIRY_MINUTES = 7 * 24 * 60;
-const DEVELOPER_SPACE_AGENT_EXECUTION_RECEIPT_ACTION = "request_capability";
+const DEVELOPER_SPACE_AGENT_EXECUTION_RECEIPT_ACTION: DeveloperSpaceAgentExecutionReceiptAction = "request_capability";
+const DEVELOPER_SPACE_AGENT_DRAFT_DOCUMENT_ACTION: DeveloperSpaceAgentExecutionReceiptAction = "save_project_update_draft";
+const DEVELOPER_SPACE_AGENT_EXECUTABLE_ACTIONS = new Set<string>([
+  DEVELOPER_SPACE_AGENT_EXECUTION_RECEIPT_ACTION,
+  DEVELOPER_SPACE_AGENT_DRAFT_DOCUMENT_ACTION,
+]);
 const DEVELOPER_SPACE_AGENT_EXECUTION_RECEIPT_BOUNDARIES = [
   "No autonomous agent loop ran.",
   "No provider call was made.",
   "No document, layout, key, signing secret, repo, deploy, worker, billing, export, webhook, or observed-runtime target was mutated.",
+];
+const DEVELOPER_SPACE_AGENT_DRAFT_DOCUMENT_BOUNDARIES = [
+  "No autonomous agent loop ran.",
+  "No provider call was made.",
+  "No public page, layout, key, signing secret, repo, deploy, worker, billing, export, webhook, or observed-runtime target was mutated.",
+  "A private owner-only draft document was saved for human review.",
 ];
 
 type IngestionErrorCategory = "auth" | "validation" | "quota" | "server";
@@ -848,6 +863,28 @@ async function loadDeveloperSpaceAgentReadback(space: any): Promise<DeveloperSpa
 }
 
 function futureLaneAgentPreview(action: string): DeveloperSpaceAgentActionPreview {
+  if (action === DEVELOPER_SPACE_AGENT_DRAFT_DOCUMENT_ACTION) {
+    return {
+      action,
+      status: "previewed",
+      summary: "Approved owner confirmation can save one private Developer Space project-update draft. Nothing is published or sent externally.",
+      sections: [
+        {
+          title: "Private draft boundary",
+          facts: [
+            safeAgentFact("Registered action", action),
+            safeAgentFact("Document status", "draft"),
+            safeAgentFact("Document visibility", "private"),
+            safeAgentFact("Developer Space link", "owner"),
+            safeAgentFact("External dispatch", false),
+          ],
+        },
+      ],
+      requiresConfirmation: true,
+      futureLane: true,
+    };
+  }
+
   return {
     action,
     status: "requires_future_lane",
@@ -864,6 +901,43 @@ function futureLaneAgentPreview(action: string): DeveloperSpaceAgentActionPrevie
     ],
     requiresConfirmation: true,
     futureLane: true,
+  };
+}
+
+function buildDeveloperSpaceProjectUpdateDraft(space: any, readback: DeveloperSpaceAgentReadback) {
+  const projectName = safeAgentText(space.project_name, "Developer Space", 120);
+  const latestEventAt = latestIso(readback.events.flatMap((event) => [event.occurred_at, event.created_at]));
+  const latestNodeAt = latestIso(readback.nodes.flatMap((node) => [node.last_event_at, node.updated_at, node.created_at]));
+  const latestSnapshotAt = latestIso(readback.snapshots.flatMap((snapshot) => [snapshot.occurred_at, snapshot.created_at]));
+  const title = `${projectName} project update draft`;
+  const body = [
+    `# ${title}`,
+    "",
+    `${projectName} currently has ${readback.nodes.length} observed nodes, ${readback.events.length} observed events, and ${readback.snapshots.length} snapshots in the Developer Space readback.`,
+    latestEventAt ? `Latest observed event timestamp: ${latestEventAt}.` : "No observed event timestamp is available yet.",
+    latestNodeAt ? `Latest node signal timestamp: ${latestNodeAt}.` : "No node signal timestamp is available yet.",
+    latestSnapshotAt ? `Latest snapshot timestamp: ${latestSnapshotAt}.` : "No snapshot timestamp is available yet.",
+    `Owner-linked evidence count: ${readback.linkedDocuments.length}.`,
+    "",
+    "Owner review checklist:",
+    "- Confirm public claims against linked evidence before publication.",
+    "- Keep this draft private until a human intentionally publishes it.",
+    "- Do not treat this draft as a provider execution, deploy, key change, or observed-runtime mutation.",
+  ].join("\n");
+
+  return {
+    title,
+    body,
+    summary: `${projectName} private project-update draft saved for owner review.`,
+    latestEventAt,
+    latestNodeAt,
+    latestSnapshotAt,
+    counts: {
+      nodes: readback.nodes.length,
+      events: readback.events.length,
+      snapshots: readback.snapshots.length,
+      linkedEvidence: readback.linkedDocuments.length,
+    },
   };
 }
 
@@ -1059,12 +1133,7 @@ function buildDeveloperSpaceAgentPreview(
     };
   }
 
-  const draft = [
-    `${projectName} update: observed runtime currently tracks ${readback.nodes.length} nodes and ${readback.events.length} events.`,
-    latestEventAt ? `Latest event timestamp: ${latestEventAt}.` : "No event timestamp is available yet.",
-    `Evidence path includes ${readback.linkedDocuments.length} owner-linked item${readback.linkedDocuments.length === 1 ? "" : "s"}.`,
-    "Owner review is required before any public page, layout, key, or runtime state changes.",
-  ].join(" ");
+  const draft = buildDeveloperSpaceProjectUpdateDraft(space, readback);
 
   return {
     action,
@@ -1075,8 +1144,8 @@ function buildDeveloperSpaceAgentPreview(
         title: "Draft update",
         items: [
           {
-            title: "Owner-review draft",
-            detail: safeAgentText(draft, "Draft unavailable.", 500),
+            title: draft.title,
+            detail: safeAgentText(draft.body.replace(/\s+/g, " "), "Draft unavailable.", 500),
             status: "draft_preview",
           },
         ],
@@ -1153,7 +1222,7 @@ function serializeDeveloperSpaceAgentConfirmation(row: any): DeveloperSpaceAgent
   };
 }
 
-function developerSpaceAgentExecutionReceiptPayload() {
+function developerSpaceAgentExecutionReceiptPayload(): DeveloperSpaceAgentExecutionReceiptRecord["receiptPayload"] {
   return {
     action: DEVELOPER_SPACE_AGENT_EXECUTION_RECEIPT_ACTION,
     outcome: "capability_request_recorded" as const,
@@ -1165,37 +1234,103 @@ function developerSpaceAgentExecutionReceiptPayload() {
   };
 }
 
+function developerSpaceAgentDraftDocumentReceiptPayload(input: {
+  title: string;
+  role: DeveloperSpaceDocumentRole;
+}): DeveloperSpaceAgentExecutionReceiptRecord["receiptPayload"] {
+  return {
+    action: DEVELOPER_SPACE_AGENT_DRAFT_DOCUMENT_ACTION,
+    outcome: "private_draft_document_saved" as const,
+    executionAvailable: false as const,
+    mutationAvailable: true,
+    externalDispatch: false as const,
+    nextStep: "Review the private draft document before any human publication decision.",
+    boundaries: DEVELOPER_SPACE_AGENT_DRAFT_DOCUMENT_BOUNDARIES,
+    draftDocument: {
+      title: safeAgentText(input.title, "Developer Space project update draft", 160),
+      status: "draft" as const,
+      visibility: "private" as const,
+      linkVisibility: "owner" as const,
+      role: input.role,
+    },
+  };
+}
+
 function normaliseDeveloperSpaceAgentExecutionReceiptPayload(input: unknown): DeveloperSpaceAgentExecutionReceiptRecord["receiptPayload"] {
   const payload = input && typeof input === "object" ? input as Record<string, unknown> : {};
+  const action = payload.action === DEVELOPER_SPACE_AGENT_DRAFT_DOCUMENT_ACTION
+    ? DEVELOPER_SPACE_AGENT_DRAFT_DOCUMENT_ACTION
+    : DEVELOPER_SPACE_AGENT_EXECUTION_RECEIPT_ACTION;
+  const defaultBoundaries = action === DEVELOPER_SPACE_AGENT_DRAFT_DOCUMENT_ACTION
+    ? DEVELOPER_SPACE_AGENT_DRAFT_DOCUMENT_BOUNDARIES
+    : DEVELOPER_SPACE_AGENT_EXECUTION_RECEIPT_BOUNDARIES;
   const boundaries = Array.isArray(payload.boundaries)
     ? payload.boundaries
         .filter((value): value is string => typeof value === "string" && value.trim().length > 0)
         .slice(0, 8)
         .map((value) => safeAgentText(value, "No external action executed.", 220))
-    : DEVELOPER_SPACE_AGENT_EXECUTION_RECEIPT_BOUNDARIES;
+    : defaultBoundaries;
+
+  const draftDocumentPayload = payload.draftDocument && typeof payload.draftDocument === "object"
+    ? payload.draftDocument as Record<string, unknown>
+    : null;
+  const draftRole = draftDocumentPayload?.role === "methodology"
+    || draftDocumentPayload?.role === "finding"
+    || draftDocumentPayload?.role === "field_log"
+    || draftDocumentPayload?.role === "note"
+    ? draftDocumentPayload.role
+    : "field_log";
 
   return {
-    action: DEVELOPER_SPACE_AGENT_EXECUTION_RECEIPT_ACTION,
-    outcome: "capability_request_recorded",
+    action: action as DeveloperSpaceAgentExecutionReceiptAction,
+    outcome: action === DEVELOPER_SPACE_AGENT_DRAFT_DOCUMENT_ACTION
+      ? "private_draft_document_saved"
+      : "capability_request_recorded",
     executionAvailable: false,
-    mutationAvailable: false,
+    mutationAvailable: action === DEVELOPER_SPACE_AGENT_DRAFT_DOCUMENT_ACTION,
     externalDispatch: false,
     nextStep: safeAgentText(
       typeof payload.nextStep === "string"
         ? payload.nextStep
-        : "Review this capability request in the roadmap before opening a new implementation lane.",
+        : action === DEVELOPER_SPACE_AGENT_DRAFT_DOCUMENT_ACTION
+          ? "Review the private draft document before any human publication decision."
+          : "Review this capability request in the roadmap before opening a new implementation lane.",
       "Human review required before any implementation lane.",
       220,
     ),
     boundaries,
+    ...(action === DEVELOPER_SPACE_AGENT_DRAFT_DOCUMENT_ACTION
+      ? {
+          draftDocument: {
+            title: safeAgentText(
+              draftDocumentPayload?.title,
+              "Developer Space project update draft",
+              160,
+            ),
+            status: "draft" as const,
+            visibility: "private" as const,
+            linkVisibility: "owner" as const,
+            role: draftRole as DeveloperSpaceDocumentRole,
+          },
+        }
+      : {}),
   };
 }
 
 function serializeDeveloperSpaceAgentExecutionReceipt(row: any): DeveloperSpaceAgentExecutionReceiptRecord {
+  const action = row.action === DEVELOPER_SPACE_AGENT_DRAFT_DOCUMENT_ACTION
+    ? DEVELOPER_SPACE_AGENT_DRAFT_DOCUMENT_ACTION
+    : DEVELOPER_SPACE_AGENT_EXECUTION_RECEIPT_ACTION;
   return {
-    action: DEVELOPER_SPACE_AGENT_EXECUTION_RECEIPT_ACTION,
+    action: action as DeveloperSpaceAgentExecutionReceiptAction,
     status: "recorded",
-    summary: safeAgentText(row.summary, "Capability request receipt recorded. No external action executed.", 400),
+    summary: safeAgentText(
+      row.summary,
+      action === DEVELOPER_SPACE_AGENT_DRAFT_DOCUMENT_ACTION
+        ? "Private project update draft saved for owner review."
+        : "Capability request receipt recorded. No external action executed.",
+      400,
+    ),
     receiptPayload: normaliseDeveloperSpaceAgentExecutionReceiptPayload(row.receipt_payload),
     dispatchedAt: row.dispatched_at,
     createdAt: row.created_at,
@@ -1288,6 +1423,110 @@ async function loadDeveloperSpaceAgentExecutionReceipt(spaceId: string, ownerUse
     return { status: 500 as const, error: "Could not load Developer Agent receipt." };
   }
   return { status: 200 as const, receipt: data ?? null };
+}
+
+async function loadDocumentByAuthorSlug(authorUserId: string, slug: string) {
+  const { data, error } = await (getSupabaseAdmin() as any)
+    .from("documents")
+    .select("*")
+    .eq("author_user_id", authorUserId)
+    .eq("slug", slug)
+    .maybeSingle();
+
+  if (error) return { status: 500 as const, error: "Could not load Developer Agent draft document." };
+  return { status: 200 as const, document: data ?? null };
+}
+
+async function saveDeveloperSpaceProjectUpdateDraft(input: {
+  space: any;
+  confirmationId: string;
+}) {
+  const sb = getSupabaseAdmin() as any;
+  const readback = await loadDeveloperSpaceAgentReadback(input.space);
+  const draft = buildDeveloperSpaceProjectUpdateDraft(input.space, readback);
+  const role: DeveloperSpaceDocumentRole = "field_log";
+  const slugHash = payloadHash({
+    action: DEVELOPER_SPACE_AGENT_DRAFT_DOCUMENT_ACTION,
+    developerSpaceId: input.space.id,
+    confirmationId: input.confirmationId,
+  }).slice(0, 10);
+  const slug = slugifyDocumentTitle(`${draft.title} ${slugHash}`);
+
+  const existing = await loadDocumentByAuthorSlug(input.space.owner_user_id, slug);
+  if (existing.status !== 200) return existing;
+
+  let document = existing.document;
+  if (!document) {
+    const { data, error } = await sb
+      .from("documents")
+      .insert({
+        author_user_id: input.space.owner_user_id,
+        space_id: null,
+        persona_id: null,
+        title: draft.title,
+        slug,
+        body: draft.body,
+        document_type: documentTypeForRole(role),
+        status: "draft",
+        visibility: "private",
+        comments_enabled: false,
+        published_at: null,
+        provenance_type: "ai_assisted",
+        source_type: "manual",
+        source_id: input.space.id,
+        source_label: `Developer Agent safe readback: ${safeAgentText(input.space.project_name, "Developer Space", 120)}`,
+        source_persona_id: null,
+      })
+      .select("*")
+      .single();
+
+    if (error || !data) {
+      if ((error as { code?: string } | null)?.code === "23505") {
+        const reloaded = await loadDocumentByAuthorSlug(input.space.owner_user_id, slug);
+        if (reloaded.status === 200 && reloaded.document) {
+          document = reloaded.document;
+        } else {
+          return reloaded.status === 200
+            ? { status: 500 as const, error: "Could not reload Developer Agent draft document." }
+            : reloaded;
+        }
+      } else {
+        return { status: 500 as const, error: "Could not create Developer Agent draft document." };
+      }
+    } else {
+      document = data;
+    }
+  }
+
+  const { data: link, error: linkError } = await sb
+    .from("developer_space_documents")
+    .upsert({
+      developer_space_id: input.space.id,
+      document_id: document.id,
+      owner_user_id: input.space.owner_user_id,
+      document_role: role,
+      link_visibility: "owner",
+      sort_order: 0,
+    }, { onConflict: "developer_space_id,document_id" })
+    .select("*")
+    .single();
+
+  if (linkError || !link) {
+    return { status: 500 as const, error: "Could not link Developer Agent draft document." };
+  }
+
+  return {
+    status: 200 as const,
+    document,
+    link,
+    draftDocument: {
+      title: safeAgentText(document.title, draft.title, 160),
+      status: "draft" as const,
+      visibility: "private" as const,
+      linkVisibility: "owner" as const,
+      role,
+    },
+  };
 }
 
 function buildFreshness(
@@ -2753,7 +2992,7 @@ developerSpacesRouter.post("/:id/agent/actions/confirmations/:confirmationId/exe
     });
   }
 
-  if (loaded.confirmation.action !== DEVELOPER_SPACE_AGENT_EXECUTION_RECEIPT_ACTION) {
+  if (!DEVELOPER_SPACE_AGENT_EXECUTABLE_ACTIONS.has(loaded.confirmation.action)) {
     return res.status(409).json({
       error: "This approved Developer Agent action remains blocked in the receipt harness.",
       code: "developer_space_agent_execution_action_blocked",
@@ -2772,24 +3011,55 @@ developerSpacesRouter.post("/:id/agent/actions/confirmations/:confirmationId/exe
     executionAvailable: false,
   });
   if (existing.receipt) {
+    const receiptAction = existing.receipt.action === DEVELOPER_SPACE_AGENT_DRAFT_DOCUMENT_ACTION
+      ? DEVELOPER_SPACE_AGENT_DRAFT_DOCUMENT_ACTION
+      : DEVELOPER_SPACE_AGENT_EXECUTION_RECEIPT_ACTION;
     return res.json({
       receipt: serializeDeveloperSpaceAgentExecutionReceipt(existing.receipt),
       idempotent: true,
       executionAvailable: false,
-      message: "Capability request receipt was already recorded. No external action executed.",
+      message: receiptAction === DEVELOPER_SPACE_AGENT_DRAFT_DOCUMENT_ACTION
+        ? "Private project update draft receipt was already recorded. No duplicate draft was created."
+        : "Capability request receipt was already recorded. No external action executed.",
     });
   }
 
-  const receiptPayload = developerSpaceAgentExecutionReceiptPayload();
+  const receiptAction = loaded.confirmation.action as DeveloperSpaceAgentExecutionReceiptAction;
+  let receiptPayload: DeveloperSpaceAgentExecutionReceiptRecord["receiptPayload"];
+  let receiptSummary = "Capability request receipt recorded for owner planning. No external action executed.";
+  let successMessage = "Capability request receipt recorded. No external action executed.";
+
+  if (receiptAction === DEVELOPER_SPACE_AGENT_DRAFT_DOCUMENT_ACTION) {
+    const saved = await saveDeveloperSpaceProjectUpdateDraft({
+      space: ownerLoad.space,
+      confirmationId: loaded.confirmation.id,
+    });
+    if (saved.status !== 200) {
+      return res.status(saved.status).json({
+        error: saved.error,
+        code: "developer_space_agent_draft_document_save_failed",
+        executionAvailable: false,
+      });
+    }
+    receiptPayload = developerSpaceAgentDraftDocumentReceiptPayload({
+      title: saved.draftDocument.title,
+      role: saved.draftDocument.role,
+    });
+    receiptSummary = "Private project update draft saved for owner review. Nothing was published.";
+    successMessage = "Private project update draft saved. Public publishing and external execution remain unavailable.";
+  } else {
+    receiptPayload = developerSpaceAgentExecutionReceiptPayload();
+  }
+
   const { data, error } = await (getSupabaseAdmin() as any)
     .from("developer_space_agent_execution_receipts")
     .insert({
       developer_space_id: ownerLoad.space.id,
       owner_user_id: ownerLoad.space.owner_user_id,
       confirmation_id: loaded.confirmation.id,
-      action: DEVELOPER_SPACE_AGENT_EXECUTION_RECEIPT_ACTION,
+      action: receiptAction,
       status: "recorded",
-      summary: "Capability request receipt recorded for owner planning. No external action executed.",
+      summary: receiptSummary,
       receipt_payload: receiptPayload,
       dispatched_at: now.toISOString(),
     })
@@ -2811,7 +3081,9 @@ developerSpacesRouter.post("/:id/agent/actions/confirmations/:confirmationId/exe
           receipt: serializeDeveloperSpaceAgentExecutionReceipt(receipt.receipt),
           idempotent: true,
           executionAvailable: false,
-          message: "Capability request receipt was already recorded. No external action executed.",
+          message: receiptAction === DEVELOPER_SPACE_AGENT_DRAFT_DOCUMENT_ACTION
+            ? "Private project update draft receipt was already recorded. No duplicate draft was created."
+            : "Capability request receipt was already recorded. No external action executed.",
         });
       }
     }
@@ -2826,7 +3098,7 @@ developerSpacesRouter.post("/:id/agent/actions/confirmations/:confirmationId/exe
     receipt: serializeDeveloperSpaceAgentExecutionReceipt(data),
     idempotent: false,
     executionAvailable: false,
-    message: "Capability request receipt recorded. No external action executed.",
+    message: successMessage,
   });
 });
 

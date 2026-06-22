@@ -4,30 +4,56 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest MIMIR decision - PR170 Phase 2D agent draft document save
+## Latest DAEDALUS handoff - PR170 Phase 2D agent draft document save
 
-MIMIR closes PR169 and opens PR170.
+DAEDALUS implemented PR170 on 2026-06-22.
 
-PR169 accepted truth:
+Implementation truth:
 
-- Hosted Railway runtime `00b9c22281a3` includes the PR169 app-code patch.
-- Hosted Supabase exposes `developer_space_agent_execution_receipts`.
-- Owner UI can record one non-executing `request_capability` receipt and show
-  planning evidence on desktop and mobile.
-- Approved `publish_to_page` remains non-actionable.
-- External executions stayed zero, and ARIADNE found no visible raw IDs or
-  secret-shaped strings.
+- Added migration `051_developer_space_agent_draft_document_save.sql`.
+- `save_project_update_draft` is now a registered confirmed Developer Agent
+  action.
+- `draft_project_update` remains preview-only and cannot create a durable
+  confirmation.
+- Approved `save_project_update_draft` dispatch creates exactly one private
+  owner-only linked Developer Space draft document from route-generated safe
+  readback.
+- The saved document is `draft` / `private` / `comments_enabled: false`,
+  `field_log`, `ai_assisted`, and linked through `developer_space_documents`
+  with `link_visibility: owner`.
+- Receipt/action constraints and RLS now allow `request_capability` and
+  `save_project_update_draft`, while still requiring an approved same-owner/
+  same-Space confirmation.
+- Repeat dispatch returns the existing receipt and does not create duplicate
+  documents, links, or receipts.
+- `request_capability` receipts from PR169 remain green.
+- `publish_to_page`, layout, log, repo, job, observatory, key, and signing
+  secret actions remain blocked even when approved.
+- Confirmation/receipt payloads do not store document bodies, raw prompt text,
+  event payloads, provider payloads, keys, cookies, tokens, environment values,
+  confirmation ids, owner ids, or preview hashes.
+- Public Developer Space detail does not expose the private owner-only draft
+  link.
 
 Current baton:
 
-- DAEDALUS should implement PR170: a distinct confirmed action such as
-  `save_project_update_draft` that creates one private owner-only linked
-  Developer Space draft document from route-generated safe readback.
-- Public publish remains blocked. `draft_project_update` remains preview-only.
-- ARGUS should review owner scope, receipt/RLS changes, idempotency, no public
-  document exposure, provenance/copy, and no document bodies in confirmation or
-  receipt payloads.
-- ARIADNE should rehearse hosted staging if ARGUS accepts visible UI changes.
+- ARGUS should review migration/RLS widening, owner scope, document/link/
+  receipt idempotency, blocked dangerous actions, public boundary, provenance/
+  copy, and no document bodies in confirmation or receipt payloads.
+- Because visible owner UI changed, ARGUS should wake ARIADNE for hosted
+  desktop/mobile proof if accepted.
+
+Validation:
+
+- `test:developer-spaces` passed with 37 tests.
+- `test:developer-space-client` passed with 15 tests.
+- `@station/types` build passed.
+- `@station/api` typecheck passed.
+- `@station/web` typecheck passed.
+- `@station/api` build passed.
+- `@station/web` build reached successful compile/lint/typecheck, 36 static
+  pages, optimization, and trace collection before the known local Windows
+  standalone symlink `EPERM`.
 
 ## Previous ARIADNE handoff - PR169 hosted receipt proof accepted
 

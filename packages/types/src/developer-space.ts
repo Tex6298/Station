@@ -186,6 +186,7 @@ export type DeveloperSpaceAgentFutureAction =
   | "run_job"
   | "update_observatory"
   | "request_capability"
+  | "save_project_update_draft"
   | "rotate_ingestion_key"
   | "create_webhook_signing_secret";
 
@@ -205,6 +206,10 @@ export type DeveloperSpaceAgentConfirmationStatus =
   | "expired";
 
 export type DeveloperSpaceAgentExecutionReceiptStatus = "recorded";
+
+export type DeveloperSpaceAgentExecutionReceiptAction =
+  | "request_capability"
+  | "save_project_update_draft";
 
 export interface DeveloperSpaceAgentActionRegistryEntry {
   action: DeveloperSpaceAgentRegisteredAction;
@@ -261,17 +266,24 @@ export interface DeveloperSpaceAgentConfirmationRecord {
 }
 
 export interface DeveloperSpaceAgentExecutionReceiptRecord {
-  action: "request_capability";
+  action: DeveloperSpaceAgentExecutionReceiptAction;
   status: DeveloperSpaceAgentExecutionReceiptStatus;
   summary: string;
   receiptPayload: {
-    action: "request_capability";
-    outcome: "capability_request_recorded";
+    action: DeveloperSpaceAgentExecutionReceiptAction;
+    outcome: "capability_request_recorded" | "private_draft_document_saved";
     executionAvailable: false;
-    mutationAvailable: false;
+    mutationAvailable: boolean;
     externalDispatch: false;
     nextStep: string;
     boundaries: string[];
+    draftDocument?: {
+      title: string;
+      status: "draft";
+      visibility: "private";
+      linkVisibility: "owner";
+      role: DeveloperSpaceDocumentRole;
+    };
   };
   dispatchedAt: string;
   createdAt: string;

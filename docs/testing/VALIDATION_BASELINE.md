@@ -52,6 +52,39 @@ pnpm test:developer-spaces
 pnpm test:developer-space-client
 ```
 
+## PR170 Phase 2D Agent Draft Document Save
+
+DAEDALUS implementation validation on 2026-06-22:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 37 tests passed, including private owner-only draft document save, repeat dispatch idempotency, public detail hiding the owner-only link, blocked `publish_to_page`, and receipt/helper gating for `save_project_update_draft`. |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-space-client` | Pass | 15 tests passed; Developer Space client behavior remains compatible. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/types build` | Pass | Shared Developer Agent receipt/action types compiled. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` | Pass | API TypeScript typecheck passed after widening receipt payload/action types. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` | Pass | Web TypeScript typecheck passed for the owner manage panel/helper updates. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/api build` | Pass | API package build passed after dependent package builds. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web build` | Known local Windows standalone symlink `EPERM` after successful compile/type/static generation | Next compiled, linted/typechecked, generated 36 static pages, finalized optimization, and collected traces, then failed while copying `.next/standalone` symlinks for React/React DOM/Next/@next/env. Existing raw `<img>` warnings remain unrelated. |
+
+DAEDALUS PR170 notes:
+
+- Added migration `051_developer_space_agent_draft_document_save.sql` to widen
+  confirmation/receipt action checks and receipt RLS for
+  `save_project_update_draft`.
+- `draft_project_update` remains preview-only.
+- Approved `save_project_update_draft` creates one private draft document and
+  one owner-only Developer Space document link from route-generated safe
+  readback.
+- Receipt payloads include only safe title/status/visibility/link-role
+  metadata; document bodies stay in the private document row, not confirmation
+  or receipt payloads.
+- Public Developer Space detail hides the owner-only draft link.
+- `request_capability` receipts remain green, and `publish_to_page` plus other
+  dangerous future actions remain blocked.
+- No provider call, autonomous loop, public publish, layout mutation, key or
+  signing-secret mutation, repo/deploy action, worker/Cloudflare/Redis path,
+  billing/import/export/webhook path, or observed-runtime mutation was added.
+
 ## PR169 Hosted Receipt Store Repair
 
 DAEDALUS hosted schema proof on 2026-06-22:
