@@ -5,7 +5,7 @@ Opened by: A1 / MIMIR
 Owner: DAEDALUS verifies or repairs hosted Supabase schema readiness.
 Reviewer: ARGUS reviews owner scope, migration safety, and no-secret handling.
 Rehearsal: ARIADNE runs hosted owner proof after ARGUS accepts the store.
-Status: open for DAEDALUS
+Status: DAEDALUS proof complete; open for ARGUS review
 
 ## Why This Lane
 
@@ -77,6 +77,74 @@ PR168 is accepted when:
 - the hosted UI shows durable confirmation records rather than setup-unavailable
   fallback copy;
 - ARIADNE records desktop/mobile proof with no secret or raw-ID exposure.
+
+## DAEDALUS Proof - 2026-06-22
+
+DAEDALUS verified the hosted Supabase staging target and applied only the PR165
+confirmation-store migration.
+
+Pre-apply truth:
+
+- Tool discovery exposed no callable Supabase MCP query tool in this shell.
+- Local `.env` contained the needed Supabase REST/service-role and pooler paths;
+  values were not printed.
+- Service-role PostgREST returned HTTP `404` / `PGRST205` for
+  `developer_space_agent_confirmations`.
+- The pooler confirmed the relation was missing.
+
+Apply path:
+
+- Installed `pg@8.13.1` under the OS temp directory, outside the repo.
+- Applied only
+  `infra/supabase/migrations/049_developer_space_agent_confirmations.sql`
+  through `SUPABASE_POOLER_URL`.
+- Recorded migration history row
+  `20260622074200 / 049_developer_space_agent_confirmations`.
+- Requested PostgREST schema reload with `NOTIFY pgrst, 'reload schema'`.
+
+Post-apply proof:
+
+- Table exists: true.
+- `developer_space_agent_confirmations_space_status_idx`: true.
+- `developer_space_agent_confirmations_owner_idx`: true.
+- RLS enabled: true.
+- Owner policy count: `1`.
+- Column count: `14`.
+- Service-role PostgREST returned HTTP `200` for
+  `/rest/v1/developer_space_agent_confirmations?select=id,status&limit=1`.
+
+Hosted API smoke:
+
+- Target host: `stationapi-production.up.railway.app`.
+- Run label: `c7ba671c89`.
+- Created synthetic owner and non-owner beta users; printed only hashed
+  identifiers.
+- Temporarily set the synthetic owner profile to `canon`.
+- Created one private Developer Space: HTTP `201`.
+- Owner confirmation list: HTTP `200`, setup available, count `0`.
+- Non-owner confirmation list: HTTP `403`.
+- Created one `publish_to_page` confirmation: HTTP `201`,
+  `executionAvailable: false`.
+- Approved it: HTTP `200`, `executionAvailable: false`.
+- Created and cancelled one `rotate_ingestion_key` confirmation: HTTP `201`
+  then `200`, `executionAvailable: false`.
+- Final owner list: HTTP `200`, setup available, count `2`, statuses
+  `approved` and `cancelled`.
+- The hosted API did not return
+  `developer_space_agent_confirmation_store_unavailable`.
+- Synthetic auth-user cleanup was attempted for both users; follow-up
+  service-role readback for the synthetic Space slug returned `0` rows.
+
+Local validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` passed with 34
+  tests.
+
+Next baton:
+
+- ARGUS should review migration safety, RLS/owner scope, ledger handling,
+  no-secret handling, and the hosted API smoke.
+- If accepted, ARGUS should wake ARIADNE for the desktop/mobile browser proof.
 
 ## Blocker Handling
 

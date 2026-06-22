@@ -52,6 +52,34 @@ pnpm test:developer-spaces
 pnpm test:developer-space-client
 ```
 
+## PR168 Staging Confirmation Store Proof
+
+DAEDALUS staging proof on 2026-06-22:
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Supabase MCP/tool discovery | Blocked for MCP | No callable Supabase query/migration tool was exposed in this shell, so DAEDALUS used the documented local Supabase REST and pooler paths instead. |
+| Service-role PostgREST precheck | Missing table | `developer_space_agent_confirmations` returned HTTP `404` / `PGRST205` before repair. |
+| Pooler relation precheck | Missing table | The staging pooler reported the relation missing before repair; no secret values were printed. |
+| Temporary `pg@8.13.1` client outside repo | Pass | Installed under the OS temp directory and used for unprepared SQL through `SUPABASE_POOLER_URL`. |
+| Migration `049` DDL + ledger row + schema reload | Pass | Applied only `049_developer_space_agent_confirmations.sql`, recorded `20260622074200 / 049_developer_space_agent_confirmations`, and sent `NOTIFY pgrst, 'reload schema'`. |
+| Pooler object proof | Pass | Confirmation table exists; both expected indexes exist; RLS is enabled; owner policy count is `1`; column count is `14`. |
+| Service-role PostgREST postcheck | Pass | `/rest/v1/developer_space_agent_confirmations?select=id,status&limit=1` returned HTTP `200` with `rowCount: 0`. |
+| Hosted API confirmation smoke | Pass | Synthetic run `c7ba671c89` on `stationapi-production.up.railway.app`: owner signup/tier, private Space create `201`, owner list `200` setup available, non-owner list `403`, create `201`, approve `200`, cancel `200`, final list `200` with `approved` and `cancelled`, and no unavailable-store code. |
+| Synthetic cleanup readback | Pass | Auth-user deletion was attempted for both synthetic users; service-role readback for the synthetic Space slug returned `0` rows. |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 34 tests passed, including confirmation owner-scope and missing-store fallback coverage. |
+
+DAEDALUS PR168 notes:
+
+- No Supabase URL, service-role key, pooler URL, auth token, cookie, password,
+  raw user id, raw Space id, confirmation id, preview hash, raw prompt body,
+  provider payload, or private owner content was printed or committed.
+- The hosted smoke used bounded synthetic confirmation records only and did not
+  execute any Developer Agent action.
+- ARGUS should review the direct SQL deployment, migration history row, RLS,
+  owner-scope behavior, and sanitized proof before waking ARIADNE for browser
+  rehearsal.
+
 ## PR167 Hosted Confirmation Panel Blocker Fix
 
 ARGUS review validation on 2026-06-22:

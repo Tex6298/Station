@@ -4,7 +4,68 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest MIMIR decision - PR168 staging confirmation store proof
+## Latest DAEDALUS handoff - PR168 staging confirmation store proof
+
+DAEDALUS completed the PR168 staging confirmation-store proof on 2026-06-22.
+
+Migration truth:
+
+- No Supabase MCP query tool was exposed in this shell after tool discovery, so
+  DAEDALUS used the existing local `.env` Supabase REST and pooler paths without
+  printing credential values.
+- Before repair, service-role PostgREST returned HTTP `404` / `PGRST205` for
+  `developer_space_agent_confirmations`, and the pooler confirmed the relation
+  was missing.
+- DAEDALUS installed `pg@8.13.1` under the OS temp directory, not the repo, and
+  applied only `infra/supabase/migrations/049_developer_space_agent_confirmations.sql`
+  through `SUPABASE_POOLER_URL`.
+- The direct SQL transaction recorded migration history row
+  `20260622074200 / 049_developer_space_agent_confirmations`, requested
+  `NOTIFY pgrst, 'reload schema'`, and did not broaden schema beyond PR165.
+- Post-apply pooler proof shows the confirmation table exists, both expected
+  indexes exist, RLS is enabled, the owner policy count is `1`, and the table
+  has `14` columns.
+- Post-apply service-role PostgREST proof returned HTTP `200` for
+  `/rest/v1/developer_space_agent_confirmations?select=id,status&limit=1`.
+
+Hosted API proof:
+
+- Target host: `stationapi-production.up.railway.app`.
+- Synthetic owner/non-owner beta signups were created for run `c7ba671c89`;
+  only hashed identifiers were printed.
+- The synthetic owner profile was temporarily set to `canon` so the existing
+  Developer Space create gate could be exercised.
+- Owner created one private Developer Space: HTTP `201`.
+- Owner initial confirmation list returned HTTP `200` with
+  `setup.confirmationStoreAvailable: true` and count `0`.
+- Non-owner confirmation list returned HTTP `403` before records or setup
+  metadata leaked.
+- Owner created a `publish_to_page` confirmation: HTTP `201`,
+  `executionAvailable: false`.
+- Owner approved that confirmation: HTTP `200`, `executionAvailable: false`.
+- Owner created and cancelled a `rotate_ingestion_key` confirmation: HTTP
+  `201` then `200`, `executionAvailable: false`.
+- Owner final list returned HTTP `200`,
+  `setup.confirmationStoreAvailable: true`, count `2`, statuses `approved` and
+  `cancelled`, with no `developer_space_agent_confirmation_store_unavailable`
+  code.
+- Synthetic auth-user deletion was attempted for both users; follow-up
+  service-role readback for the synthetic Space slug returned `0` rows.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` passed with 34
+  tests, including confirmation list/create/approve/cancel owner-scope coverage
+  and the missing-store fallback regression.
+
+Current baton:
+
+- ARGUS should review the direct SQL deployment, migration ledger row, RLS,
+  owner-scope behavior, no-secret handling, and hosted smoke proof.
+- If accepted, ARGUS should wake ARIADNE to run the browser owner proof from
+  `docs/roadmap/PR168_STAGING_CONFIRMATION_STORE_PROOF.md`.
+
+## Previous MIMIR decision - PR168 staging confirmation store proof
 
 MIMIR closes PR167 as accepted hosted setup-unavailable fallback proof and opens
 PR168 for the durable hosted confirmation store.
