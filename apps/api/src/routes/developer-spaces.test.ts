@@ -1640,6 +1640,18 @@ test("Developer Space agent confirmations record owner intent without execution"
     assert.equal(adminRunJob.status, 201);
     assert.equal(adminRunJob.body.confirmation.ownerUserId, "owner-user");
 
+    const malformedCrossOwner = db.insertRow("developer_space_agent_confirmations", {
+      developer_space_id: spaceId,
+      owner_user_id: "other-user",
+      action: "run_job",
+      status: "pending",
+      summary: "Malformed cross-owner confirmation.",
+      preview_hash: "cross-owner-preview-hash",
+      sanitized_payload: { marker: "cross-owner-private-marker" },
+      requested_at: "2026-05-24T09:10:00.000Z",
+      expires_at: "2026-05-25T09:10:00.000Z",
+    });
+
     const ownerList = await requestJson(app, "GET", `/developer-spaces/${spaceId}/agent/actions/confirmations`, {
       token: "owner-token",
     });
@@ -1649,6 +1661,12 @@ test("Developer Space agent confirmations record owner intent without execution"
       ownerList.body.confirmations.map((confirmation: Row) => confirmation.action).sort(),
       ["publish_to_page", "run_job"],
     );
+    assert.doesNotMatch(JSON.stringify(ownerList.body), /cross-owner-private-marker/);
+
+    const ownerApproveMalformed = await requestJson(app, "POST", `/developer-spaces/${spaceId}/agent/actions/confirmations/${malformedCrossOwner.id}/approve`, {
+      token: "owner-token",
+    });
+    assert.equal(ownerApproveMalformed.status, 404);
 
     const nonOwnerApprove = await requestJson(app, "POST", `/developer-spaces/${spaceId}/agent/actions/confirmations/${publish.body.confirmation.id}/approve`, {
       token: "other-token",
@@ -1716,7 +1734,7 @@ test("Developer Space agent confirmations record owner intent without execution"
       rows: db.tables.developer_space_agent_confirmations,
     });
     assert.doesNotMatch(responseText, /fixture-sensitive-marker|private owner prompt|rawPrompt|npm test/);
-    assert.equal(db.tables.developer_space_agent_confirmations.length, 4);
+    assert.equal(db.tables.developer_space_agent_confirmations.length, 5);
     assert.equal(db.tables.developer_space_ingestion_keys.length, 0);
     assert.equal(db.tables.developer_space_webhook_signing_secrets.length, 0);
     assert.equal(db.tables.developer_space_events.length, 0);

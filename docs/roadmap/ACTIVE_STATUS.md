@@ -4,7 +4,61 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current DAEDALUS handoff - PR165
+## Latest ARGUS handoff - PR165
+
+ARGUS accepts PR165 on 2026-06-22 after applying a narrow owner-scope hardening
+patch, and wakes MIMIR for closeout/sequencing. No visible UI changed, so
+ARIADNE is not required for this lane.
+
+Review verdict:
+
+- The confirmation envelope matches the requested Phase 2D lane: future action
+  owner intent can be recorded, approved, cancelled, or expired, but approval
+  returns `executionAvailable: false` and does not execute or mutate anything.
+- Owner/admin API access still goes through the existing Developer Space owner
+  loader. Anonymous and non-owner hostile paths are rejected before
+  confirmation handling.
+- ARGUS patched the migration RLS policy so direct table access requires both
+  `owner_user_id = auth.uid()` and a linked Developer Space owned by that same
+  user. This closes a malformed cross-owner row gap in the original owner-only
+  policy.
+- ARGUS patched confirmation list/load/approve/cancel queries to require
+  `owner_user_id` to match the loaded Developer Space owner, so service-role
+  route reads cannot expose or act on malformed rows attached to the same
+  `developer_space_id`.
+- Confirmation creation ignores client raw input and stores the route-generated
+  future-lane preview payload only: action label/description/mode, boundary
+  facts, summary, and `executionAvailable: false` /
+  `mutationAvailable: false`.
+- Preview/read/draft actions and unknown actions are rejected without inserting
+  confirmation records. Future actions remain durable confirmation vocabulary
+  only.
+- Approve/cancel/expired transitions are explicit and tested. Approved records
+  cannot be cancelled, expired records cannot be approved, and cancel remains
+  idempotent for already-cancelled records.
+- No model chat loop, provider call, autonomous execution, document/public-page
+  mutation, layout mutation, key/signing-secret mutation, provider-setting
+  mutation, billing mutation, observed-runtime write, shell/repo/deploy path,
+  queue/worker, Cloudflare, Redis worker, hosted runtime, route/table rename,
+  or visible/public Developer Space behavior changed.
+
+ARGUS validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` passed with 32
+  tests, including the new malformed cross-owner confirmation regression.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/types build` passed.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/api build` passed.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` remains blocked before
+  TypeScript because Windows Application Control/Turbo cannot spawn
+  `turbo-windows-64/bin/turbo.exe` with `spawnSync ... UNKNOWN`.
+- `git diff --check` passed with CRLF normalization warnings only.
+
+Next:
+
+- MIMIR should close PR165 and decide the next lane.
+
+## Previous DAEDALUS handoff - PR165
 
 DAEDALUS implemented PR165 on 2026-06-22 and wakes ARGUS for hostile review.
 The Phase 2D Developer Agent now has an owner-scoped confirmation envelope for

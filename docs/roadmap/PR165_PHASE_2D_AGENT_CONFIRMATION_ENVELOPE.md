@@ -4,7 +4,7 @@ Date opened: 2026-06-22
 Opened by: A1 / MIMIR
 Owner: DAEDALUS implements. ARGUS reviews. ARIADNE only rehearses if DAEDALUS
 changes visible UI.
-Status: implemented by DAEDALUS; open for ARGUS review
+Status: accepted by ARGUS with owner-scope hardening patch; awaiting MIMIR closeout
 
 ## Why This Lane
 
@@ -169,6 +169,48 @@ ARGUS should review:
   state, provider settings, public pages, billing, exports, queues, Cloudflare,
   Redis, hosted runtime, repos, shell, or deploy paths;
 - whether the status names or copy could imply an action already ran.
+
+## ARGUS Review
+
+ARGUS accepts PR165 on 2026-06-22 after applying a narrow owner-scope hardening
+patch.
+
+Findings:
+
+- Accepted: the API implements the requested durable confirmation envelope for
+  future-lane Developer Agent actions only. Read/preview/draft and unknown
+  actions are rejected without inserting records.
+- Accepted: approval records owner intent only and returns
+  `executionAvailable: false`; it does not call execution paths or mutate
+  documents, layout, public pages, keys, signing secrets, provider settings,
+  billing, observed-runtime state, exports, repos, deployments, queues,
+  Cloudflare, Redis workers, or hosted runtime.
+- Accepted with ARGUS patch: the original migration policy keyed only on
+  `owner_user_id`. ARGUS tightened RLS to also require the linked Developer
+  Space to be owned by the same authenticated user, and tightened API
+  list/load/approve/cancel queries to require `owner_user_id` to match the
+  loaded space owner.
+- Accepted: confirmation payloads are route-generated from the future-lane
+  preview and contain labels/status/facts only. Client raw input is ignored,
+  and the regression test proves a raw prompt marker is not stored or returned.
+- Accepted: expired/cancelled/approved transitions are explicit and non-
+  executable. A malformed cross-owner confirmation row attached to the same
+  Developer Space id is not listed and cannot be approved through the owner API.
+- No visible UI changed, so ARIADNE rehearsal is not required for PR165.
+
+ARGUS validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` passed with 32
+  tests, including the new malformed cross-owner confirmation regression.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/types build` passed.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/api build` passed.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` remains blocked before
+  TypeScript because Turbo cannot spawn the local Windows binary with
+  `spawnSync ... UNKNOWN`.
+- `git diff --check` passed with CRLF normalization warnings only.
+
+Recommendation: MIMIR should close PR165 and choose the next lane.
 
 ## Handoff
 

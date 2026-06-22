@@ -1146,12 +1146,13 @@ function serializeDeveloperSpaceAgentConfirmation(row: any): DeveloperSpaceAgent
   };
 }
 
-async function loadDeveloperSpaceAgentConfirmation(spaceId: string, confirmationId: string) {
+async function loadDeveloperSpaceAgentConfirmation(spaceId: string, ownerUserId: string, confirmationId: string) {
   const { data, error } = await (getSupabaseAdmin() as any)
     .from("developer_space_agent_confirmations")
     .select("*")
     .eq("id", confirmationId)
     .eq("developer_space_id", spaceId)
+    .eq("owner_user_id", ownerUserId)
     .maybeSingle();
 
   if (error) return { status: 500 as const, error: error.message };
@@ -2306,6 +2307,7 @@ developerSpacesRouter.get("/:id/agent/actions/confirmations", requireAuth, async
     .from("developer_space_agent_confirmations")
     .select("*")
     .eq("developer_space_id", ownerLoad.space.id)
+    .eq("owner_user_id", ownerLoad.space.owner_user_id)
     .order("requested_at", { ascending: false });
 
   if (error) return res.status(500).json({ error: error.message });
@@ -2372,7 +2374,11 @@ developerSpacesRouter.post("/:id/agent/actions/confirmations/:confirmationId/app
   const ownerLoad = await loadDeveloperSpaceForOwner(req.params.id, req.user!);
   if (ownerLoad.status !== 200) return res.status(ownerLoad.status).json({ error: ownerLoad.error });
 
-  const loaded = await loadDeveloperSpaceAgentConfirmation(ownerLoad.space.id, req.params.confirmationId);
+  const loaded = await loadDeveloperSpaceAgentConfirmation(
+    ownerLoad.space.id,
+    ownerLoad.space.owner_user_id,
+    req.params.confirmationId,
+  );
   if (loaded.status !== 200) return res.status(loaded.status).json({ error: loaded.error });
 
   const now = new Date();
@@ -2383,6 +2389,7 @@ developerSpacesRouter.post("/:id/agent/actions/confirmations/:confirmationId/app
       .update({ status: "expired" })
       .eq("id", loaded.confirmation.id)
       .eq("developer_space_id", ownerLoad.space.id)
+      .eq("owner_user_id", ownerLoad.space.owner_user_id)
       .select("*")
       .single();
     if (error || !data) return res.status(500).json({ error: error?.message ?? "Could not expire Developer Agent confirmation." });
@@ -2407,6 +2414,7 @@ developerSpacesRouter.post("/:id/agent/actions/confirmations/:confirmationId/app
     .update({ status: "approved", approved_at: now.toISOString() })
     .eq("id", loaded.confirmation.id)
     .eq("developer_space_id", ownerLoad.space.id)
+    .eq("owner_user_id", ownerLoad.space.owner_user_id)
     .select("*")
     .single();
 
@@ -2422,7 +2430,11 @@ developerSpacesRouter.post("/:id/agent/actions/confirmations/:confirmationId/can
   const ownerLoad = await loadDeveloperSpaceForOwner(req.params.id, req.user!);
   if (ownerLoad.status !== 200) return res.status(ownerLoad.status).json({ error: ownerLoad.error });
 
-  const loaded = await loadDeveloperSpaceAgentConfirmation(ownerLoad.space.id, req.params.confirmationId);
+  const loaded = await loadDeveloperSpaceAgentConfirmation(
+    ownerLoad.space.id,
+    ownerLoad.space.owner_user_id,
+    req.params.confirmationId,
+  );
   if (loaded.status !== 200) return res.status(loaded.status).json({ error: loaded.error });
 
   const effectiveStatus = effectiveDeveloperSpaceAgentConfirmationStatus(loaded.confirmation);
@@ -2451,6 +2463,7 @@ developerSpacesRouter.post("/:id/agent/actions/confirmations/:confirmationId/can
     .update(patch)
     .eq("id", loaded.confirmation.id)
     .eq("developer_space_id", ownerLoad.space.id)
+    .eq("owner_user_id", ownerLoad.space.owner_user_id)
     .select("*")
     .single();
 

@@ -45,8 +45,22 @@ alter table public.developer_space_agent_confirmations enable row level security
 
 create policy "developer_space_agent_confirmations_all_owner"
   on public.developer_space_agent_confirmations
-  for all using (auth.uid() = owner_user_id)
-  with check (auth.uid() = owner_user_id);
+  for all using (
+    auth.uid() = owner_user_id
+    and exists (
+      select 1 from public.developer_spaces s
+      where s.id = developer_space_id
+      and s.owner_user_id = auth.uid()
+    )
+  )
+  with check (
+    auth.uid() = owner_user_id
+    and exists (
+      select 1 from public.developer_spaces s
+      where s.id = developer_space_id
+      and s.owner_user_id = auth.uid()
+    )
+  );
 
 comment on table public.developer_space_agent_confirmations is
   'Owner-scoped confirmation envelopes for future Developer Space agent actions. Approved records capture owner intent only; this table does not execute or mutate actions.';

@@ -54,6 +54,30 @@ pnpm test:developer-space-client
 
 ## PR165 Phase 2D Agent Confirmation Envelope
 
+ARGUS review validation on 2026-06-22:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 32 tests passed, including ARGUS coverage that a malformed cross-owner confirmation row attached to the same Developer Space id is neither listed nor approveable. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/types build` | Pass | Shared Developer Space confirmation types compiled. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/api build` | Pass | API package build passed after dependent package builds. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` | Pass | API typecheck passed directly. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Blocked locally before TypeScript | Turbo cannot spawn `node_modules/.pnpm/turbo-windows-64@2.8.17/node_modules/turbo-windows-64/bin/turbo.exe` on this machine (`spawnSync ... UNKNOWN`). |
+| `git diff --check` | Pass | CRLF normalization warnings only for touched files and local triad state. |
+
+ARGUS PR165 notes:
+
+- Accepted PR165 after applying a narrow owner-scope patch.
+- Tightened confirmation table RLS so direct access requires both
+  `owner_user_id = auth.uid()` and a linked Developer Space owned by the same
+  user.
+- Tightened confirmation list/load/approve/cancel API queries to require
+  `owner_user_id` to match the loaded Developer Space owner.
+- Confirmed approval records owner intent only with `executionAvailable:
+  false`; no action execution, mutation, provider call, hosted runtime,
+  Cloudflare, Redis, queue, repo/deploy, billing, key/signing-secret, document,
+  layout, public page, export, or observed-runtime write path was added.
+
 DAEDALUS implementation validation on 2026-06-22:
 
 | Command | Result | Notes |
