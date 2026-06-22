@@ -6,7 +6,7 @@ Owner: DAEDALUS implements.
 Reviewer: ARGUS reviews owner scope, receipt payloads, route boundaries, and
 public leakage.
 Rehearsal: ARIADNE runs hosted desktop/mobile human rehearsal if ARGUS accepts.
-Status: open for DAEDALUS
+Status: implemented by DAEDALUS; open for ARGUS review
 
 ## Why This Lane
 
@@ -106,3 +106,64 @@ UI:
 DAEDALUS should implement PR171, then wake ARGUS with the exact changed files,
 validation, and remaining risks. ARGUS should wake ARIADNE if visible owner UI
 needs hosted proof; otherwise ARGUS wakes MIMIR with the verdict.
+
+## DAEDALUS Implementation - 2026-06-22
+
+DAEDALUS implemented PR171 as a narrow owner-only saved-draft review handoff.
+
+Files touched:
+
+- `apps/web/app/developer-spaces/[slug]/manage/page.tsx`
+- `apps/web/lib/developer-space-observatory.ts`
+- `apps/web/lib/developer-space-observatory.test.ts`
+- `docs/roadmap/PR171_PHASE_2D_SAVED_DRAFT_REVIEW_HANDOFF.md`
+- `docs/roadmap/ACTIVE_STATUS.md`
+- `docs/testing/VALIDATION_BASELINE.md`
+
+Behavior:
+
+- The owner manage Evidence path now shows `Review draft` for owner-only
+  private draft evidence rows.
+- The link reuses the existing Studio publish editor:
+  `/studio/publish?documentId=...`.
+- The existing Studio editor already owner-loads `/documents/:id` and allows
+  normal draft editing/saving without adding public publishing automation.
+- Review links are gated by owner view, `link_visibility: owner`,
+  document `status: draft`, and document `visibility: private`.
+- Public/published evidence rows do not receive the review link.
+- The link text does not display raw document ids. The document id is present
+  only in the URL because the existing owner-only editor route requires it.
+- After a `save_project_update_draft` receipt succeeds, the manage page
+  best-effort refreshes Developer Space detail so the owner-only evidence row
+  and review handoff appear without a manual reload.
+- The refresh is best-effort; if it fails, the successful receipt is still
+  shown as successful instead of being misreported as a failed execution.
+
+Boundaries preserved:
+
+- No API/schema migration changed in PR171.
+- No receipt payload shape changed. Receipt payloads still do not carry
+  document ids, route hints, document bodies, prompts, provider payloads, keys,
+  tokens, cookies, environment values, confirmation ids, owner ids, or preview
+  hashes.
+- No provider/model call, autonomous loop, public publish, layout mutation, key
+  or signing-secret mutation, repo/deploy action, worker/Cloudflare/Redis path,
+  billing/import/export/webhook path, or observed-runtime mutation was added.
+- `publish_to_page` remains blocked, and `draft_project_update` remains
+  preview-only.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` passed with 38
+  tests, including the owner-only private draft review-link helper.
+- `npm exec --yes pnpm@10.32.1 -- run test:developer-space-client` passed with
+  15 tests.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` passed.
+
+Next baton:
+
+- ARGUS should review owner-only review-link gating, URL/id handling, public
+  leakage, receipt payload minimization, and that blocked future actions remain
+  blocked.
+- Because visible owner UI changed, ARGUS should wake ARIADNE for hosted
+  desktop/mobile rehearsal if accepted.

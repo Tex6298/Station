@@ -52,6 +52,33 @@ pnpm test:developer-spaces
 pnpm test:developer-space-client
 ```
 
+## PR171 Phase 2D Saved Draft Review Handoff
+
+DAEDALUS implementation validation on 2026-06-22:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 38 tests passed, including the owner-only private draft review-link helper and existing Developer Agent draft-save coverage. |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-space-client` | Pass | 15 tests passed; Developer Space client behavior remains compatible. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` | Pass | Web TypeScript typecheck passed for the manage-page review handoff. |
+
+DAEDALUS PR171 notes:
+
+- Added an owner-only `Review draft` link for Developer Space evidence rows
+  where the link is owner-only and the linked document is draft/private.
+- The link reuses the existing Studio publish editor at
+  `/studio/publish?documentId=...`; no public publish automation was added.
+- The manage page best-effort refreshes Developer Space detail after a
+  `save_project_update_draft` receipt so the saved draft evidence row appears
+  without manual reload.
+- Receipt payloads were not expanded with document ids, route hints, document
+  bodies, prompts, provider payloads, keys, tokens, cookies, environment values,
+  confirmation ids, owner ids, or preview hashes.
+- Public/published evidence rows and public Developer Space detail do not get
+  review links.
+- `publish_to_page` remains blocked, and `draft_project_update` remains
+  preview-only.
+
 ## PR170 Hosted Draft Save Schema Repair
 
 DAEDALUS hosted repair validation on 2026-06-22:

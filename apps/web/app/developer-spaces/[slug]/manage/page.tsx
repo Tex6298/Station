@@ -19,6 +19,7 @@ import {
   developerSpaceAgentReceiptExecutionCopy,
   developerSpaceAgentReceiptStatusCopy,
   developerSpaceEvidenceEmptyCopy,
+  developerSpaceEvidenceReviewHref,
   developerSpaceEvidenceRoleCopy,
   developerSpaceEvidenceRoleDescription,
   developerSpaceOwnerCurrentState,
@@ -576,6 +577,16 @@ export default function DeveloperSpaceManagePage() {
       );
       upsertAgentReceipt(data.receipt);
       setAgentNotice(data.message);
+      if (data.receipt.action === "save_project_update_draft") {
+        const nextDetail = await apiGet<DeveloperSpaceDetail>(
+          `/developer-spaces/${detail.space.slug}`,
+          token,
+        ).catch(() => null);
+        if (nextDetail) {
+          setDetail(nextDetail);
+          syncVisualState(nextDetail);
+        }
+      }
     } catch {
       setAgentError("Could not record that Developer Agent receipt.");
     } finally {
@@ -1302,6 +1313,7 @@ export default function DeveloperSpaceManagePage() {
                   const visitorVisible = link.linkVisibility === "public"
                     && link.document.status === "published"
                     && link.document.visibility === "public";
+                  const reviewHref = developerSpaceEvidenceReviewHref(link, true);
 
                   return (
                   <article key={link.id} style={{ borderTop: "1px solid #d8d3c8", paddingTop: "0.65rem" }}>
@@ -1316,6 +1328,11 @@ export default function DeveloperSpaceManagePage() {
                     </p>
                     {link.document.excerpt ? (
                       <p style={{ margin: "0.35rem 0 0", color: "#687078", lineHeight: 1.55 }}>{link.document.excerpt}</p>
+                    ) : null}
+                    {reviewHref ? (
+                      <Link className="station-muted-button" href={reviewHref} style={{ marginTop: "0.55rem", width: "fit-content" }}>
+                        Review draft
+                      </Link>
                     ) : null}
                   </article>
                   );

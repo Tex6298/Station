@@ -22,6 +22,7 @@ import {
   developerSpaceEvidenceRoleCopy,
   developerSpaceEvidenceRoleDescription,
   developerSpaceEvidenceEmptyCopy,
+  developerSpaceEvidenceReviewHref,
   developerSpaceEvidenceTitle,
   formatValue,
   moveDeveloperSpaceWidget,
@@ -366,6 +367,31 @@ test("observatory evidence labels use role-aware Developer Page language", () =>
   assert.match(developerSpaceEvidenceRoleDescription("finding"), /Read next/);
   assert.match(developerSpaceEvidenceRoleDescription("field_log"), /live-operation trail/);
   assert.match(developerSpaceEvidenceRoleDescription("note"), /Supplementary/);
+});
+
+test("observatory evidence review links stay owner-only for private drafts", () => {
+  const draftLink = {
+    linkVisibility: "owner",
+    document: {
+      id: "doc private id",
+      status: "draft",
+      visibility: "private",
+    },
+  };
+
+  assert.equal(
+    developerSpaceEvidenceReviewHref(draftLink as any, true),
+    "/studio/publish?documentId=doc%20private%20id"
+  );
+  assert.equal(developerSpaceEvidenceReviewHref(draftLink as any, false), null);
+  assert.equal(developerSpaceEvidenceReviewHref({
+    ...draftLink,
+    linkVisibility: "public",
+  } as any, true), null);
+  assert.equal(developerSpaceEvidenceReviewHref({
+    ...draftLink,
+    document: { ...draftLink.document, status: "published", visibility: "public" },
+  } as any, true), null);
 });
 
 test("observatory evidence reading path orders roles and stays honest when empty", () => {

@@ -4,47 +4,47 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest MIMIR decision - PR171 saved draft review handoff
+## Latest DAEDALUS handoff - PR171 saved draft review handoff
 
-MIMIR closes PR170 on 2026-06-22 after ARGUS and ARIADNE accepted the hosted
-Developer Agent draft-save proof.
+DAEDALUS implemented PR171 on 2026-06-22.
 
-Accepted PR170 truth:
+Implementation truth:
 
-- `save_project_update_draft` creates one owner-only private draft document from
-  an approved same-owner/same-Space confirmation.
-- Repeat execution is idempotent and does not duplicate visible receipt
-  evidence.
-- The receipt renders private/draft/owner metadata without exposing raw secret
-  material, document bodies, raw prompts, provider payloads, or execution
-  credentials.
-- `publish_to_page` remains blocked.
-- Anonymous public Developer Space detail stays clean.
-- No external provider, deploy, repo, key, layout, billing, webhook, export,
-  worker, or runtime execution occurred.
+- Added owner-only review handoff links for private draft Developer Space
+  evidence rows.
+- The handoff reuses the existing Studio publish editor at
+  `/studio/publish?documentId=...`; no new publish automation was added.
+- Review links render as `Review draft` text only. The document id is carried in
+  the URL because the existing owner-only editor requires it, but raw ids are
+  not rendered as visible copy.
+- Review links are available only when the signed-in owner is on the manage
+  surface and the linked document is `draft` / `private` /
+  `link_visibility: owner`.
+- Public/published evidence rows and non-owner/public detail do not receive
+  review links.
+- After `save_project_update_draft` receipt creation, the manage page refreshes
+  Developer Space detail so the new owner-only evidence row and `Review draft`
+  handoff appear without a manual reload.
+- Receipt payloads remain unchanged and minimized; no document ids, route hints,
+  document bodies, prompts, provider payloads, keys, tokens, cookies,
+  environment values, confirmation ids, owner ids, or preview hashes were added
+  to receipts.
+- `publish_to_page` remains blocked, and `draft_project_update` remains
+  preview-only.
 
-MIMIR opens PR171 for DAEDALUS. The next Phase 2D lane is the owner review
-handoff for saved Developer Agent drafts. The draft artifact now exists; owners
-need a clear way to find, review, and continue editing it from existing Studio
-document flows without changing the public boundary.
+Current baton:
 
-DAEDALUS should:
+- ARGUS should review owner-only review-link gating, the URL/id boundary,
+  receipt payload minimization, public leakage, and the blocked
+  `publish_to_page` boundary.
+- Because visible owner UI changed, ARGUS should wake ARIADNE for hosted
+  desktop/mobile rehearsal if accepted.
 
-- surface a clear owner-only review/edit path for drafts created by
-  `save_project_update_draft`;
-- prefer the existing Studio edit route, such as
-  `/studio/publish?documentId=...`, when the signed-in owner views the
-  Developer Space manage surface;
-- refresh or expose owner evidence so the saved draft is visible as an
-  owner-only Developer Space document with draft/private metadata;
-- keep `publish_to_page` blocked and `draft_project_update` preview-only;
-- avoid visible raw UUIDs and keep receipt payloads free of document bodies,
-  raw prompts, provider payloads, keys, tokens, cookies, env values,
-  confirmation ids, owner ids, preview hashes, and route-only identifiers.
+Validation:
 
-ARGUS should review owner scope, receipt payload minimization, idempotency,
-public leakage, and the blocked `publish_to_page` boundary. ARIADNE should run
-a hosted desktop/mobile human rehearsal if visible owner UI changes.
+- `test:developer-spaces` passed with 38 tests.
+- `test:developer-space-client` passed with 15 tests.
+- `@station/web` typecheck passed.
 
 ## Latest ARIADNE handoff - PR170 hosted draft save proof accepted
 

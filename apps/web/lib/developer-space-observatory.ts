@@ -354,6 +354,17 @@ export function developerSpaceEvidenceEmptyCopy(ownerView: boolean) {
     : "No public evidence documents are attached yet. The live observatory is still visible, but the reading path will appear after public methodology, findings, field logs, or notes are linked.";
 }
 
+export function developerSpaceEvidenceReviewHref(
+  link: Pick<DeveloperSpaceLinkedDocument, "linkVisibility" | "document">,
+  ownerView: boolean
+) {
+  if (!ownerView) return null;
+  if (link.linkVisibility !== "owner") return null;
+  if (link.document.status !== "draft" || link.document.visibility !== "private") return null;
+  if (!link.document.id) return null;
+  return `/studio/publish?documentId=${encodeURIComponent(link.document.id)}`;
+}
+
 const DEFAULT_WIDGETS: DeveloperSpaceWidgetConfig[] = [
   { id: "visualisation", type: "visualisation", title: "Live visualisation", zone: "main", position: 0, visible: true },
   { id: "event_stream", type: "event_stream", title: "Event stream", zone: "main", position: 1, visible: true },
