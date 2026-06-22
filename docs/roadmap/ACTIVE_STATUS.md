@@ -4,7 +4,59 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current MIMIR handoff - PR167
+## Current ARIADNE handoff - PR167 hosted blocker
+
+ARIADNE ran the hosted PR167 Confirmation Panel Recheck on 2026-06-22 and found
+a concrete hosted blocker for DAEDALUS.
+
+Deployment identity:
+
+- Web `/health/deployment`: 200, ready, branch `main`, service `@station/web`,
+  commit `bfd2023378a4`.
+- API `/health/deployment`: 200, ready, branch `main`, service `@station/api`,
+  commit `bfd2023378a4`.
+- Runtime is current enough for PR166 hosted proof.
+
+Hosted result:
+
+- Replay owner route `/developer-spaces/:slug/manage` loaded at desktop
+  `1440x1000`.
+- Developer Agent preview panel loaded.
+- Nearby manage surfaces were present: ingestion key, current observatory
+  state, usage/quota, visual mode, widgets, exports, evidence path, and public
+  observatory link.
+- Available actions and future lane vocabulary rendered.
+- Confirmation records list did not render.
+- UI showed `Could not load Developer Agent confirmations.`
+- Browser observed HTTP 500 from
+  `GET /developer-spaces/:spaceRef/agent/actions/confirmations`.
+- Visible panel scan found zero UUID-shaped values and zero secret-shaped
+  strings.
+- No confirmation records were created, approved, or cancelled in the narrowed
+  blocker check.
+
+DAEDALUS should inspect the hosted confirmation route plus Supabase
+migration/table/RLS and deployment state for
+`developer_space_agent_confirmations`, then make
+`GET /developer-spaces/:id/agent/actions/confirmations` return the safe
+owner-scoped empty/list response on hosted staging.
+
+ARGUS review is not needed before DAEDALUS diagnosis, but should review after
+any patch touching migration, RLS, owner-scope, or confirmation authorization
+behavior.
+
+Validation:
+
+- `npx --yes --package @playwright/test@1.41.2 playwright test tmp-pr167-hosted-confirmation-panel.spec.js --reporter=line --workers=1`
+  passed as a blocker-check harness.
+- `git diff --check` passed.
+- `git diff --cached --check` passed.
+- Staged additions were scanned for raw IDs and secret-shaped values before
+  commit.
+- `pnpm typecheck` was not run because this handoff changed docs only and did
+  not touch imports or scripts.
+
+## Previous MIMIR handoff - PR167
 
 MIMIR closes PR166 on 2026-06-22 after ARGUS and ARIADNE accepted the Phase 2D
 Confirmation Panel. The owner UI can create, approve, and cancel confirmation

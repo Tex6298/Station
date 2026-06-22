@@ -4,7 +4,7 @@ Date opened: 2026-06-22
 Opened by: A1 / MIMIR
 Owner: ARIADNE rehearses hosted staging. DAEDALUS fixes only exact blockers.
 ARGUS reviews only if a visibility/security boundary looks wrong.
-Status: open for ARIADNE
+Status: hosted blocker found; waking DAEDALUS
 
 ## Why This Lane
 
@@ -87,6 +87,100 @@ waking the next agent.
 Do not print credentials, tokens, cookies, localStorage values, raw API keys,
 signing material, Supabase/Railway variables, raw provider payloads, raw prompts,
 raw response bodies, confirmation ids, preview hashes, or private owner content.
+
+## ARIADNE Hosted Recheck - 2026-06-22
+
+ARIADNE ran the hosted PR167 proof as the replay owner against Railway staging.
+
+Deployment identity:
+
+- Web `/health/deployment`: 200, ready, branch `main`, service `@station/web`,
+  commit `bfd2023378a4`.
+- API `/health/deployment`: 200, ready, branch `main`, service `@station/api`,
+  commit `bfd2023378a4`.
+- Verdict: runtime is current enough for PR166 hosted proof.
+
+Route and viewport:
+
+- Route: `/developer-spaces/:slug/manage`.
+- Viewport: desktop `1440x1000`.
+- Account role: replay owner.
+
+Observed intact nearby surfaces:
+
+- Ingestion key.
+- Current observatory state.
+- Metered usage and quota.
+- Visual mode.
+- Observatory widgets.
+- Exports.
+- Evidence path.
+- Open observatory link.
+
+Panel result:
+
+- Developer Agent preview panel rendered.
+- Available actions rendered.
+- Future lane vocabulary rendered.
+- Confirmation records list did not render.
+- UI showed the generic failure copy: `Could not load Developer Agent
+  confirmations.`
+- Visible panel scan found zero UUID-shaped values and zero secret-shaped
+  strings.
+
+Network signal:
+
+- Browser observed HTTP 500 from
+  `GET /developer-spaces/:spaceRef/agent/actions/confirmations`.
+- No unexpected mutation requests were made during the narrowed blocker check.
+- No confirmation records were created, approved, or cancelled in the narrowed
+  blocker check.
+
+Expected:
+
+- The PR165 owner-scoped confirmation-list route returns an empty/list response
+  so the PR166 owner UI can inspect, create, approve, and cancel confirmation
+  records.
+
+Actual:
+
+- Hosted confirmation-list route fails before the confirmation records list can
+  render, blocking the hosted proof for create/approve/cancel state changes.
+
+Caveats:
+
+- A first hosted pass verified the allowed read/draft preview controls before
+  the check was narrowed, but the confirmation-list failure prevents completing
+  PR167 proof.
+- Mobile confirmation proof was not continued after the desktop owner list
+  route reproduced the hosted blocker.
+
+Narrowest DAEDALUS fix:
+
+- Inspect the hosted confirmation route plus Supabase migration/table/RLS and
+  deployment state for `developer_space_agent_confirmations`.
+- Make `GET /developer-spaces/:id/agent/actions/confirmations` return the safe
+  owner-scoped empty/list response on hosted staging instead of HTTP 500.
+- After the route is fixed, rerun PR167 hosted proof for create, approve,
+  cancel, non-execution copy, mobile usability, and leak scan.
+
+ARGUS:
+
+- ARGUS review is not needed before DAEDALUS diagnoses this hosted route
+  failure.
+- ARGUS should review after any patch touching migration, RLS, owner-scope, or
+  confirmation authorization behavior.
+
+Validation:
+
+- `npx --yes --package @playwright/test@1.41.2 playwright test tmp-pr167-hosted-confirmation-panel.spec.js --reporter=line --workers=1`
+  passed as a blocker-check harness.
+- `git diff --check` passed.
+- `git diff --cached --check` passed.
+- Staged additions were scanned for raw IDs and secret-shaped values before
+  commit.
+- `pnpm typecheck` was not run because this handoff changed docs only and did
+  not touch imports or scripts.
 
 ## Handoff
 
