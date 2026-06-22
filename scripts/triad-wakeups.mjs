@@ -24,9 +24,12 @@ export function readRecentCommits({ maxCount = 50, ref = "HEAD", since = null } 
 }
 
 export function wakeupsFor(agent, { ref = "HEAD", since = null } = {}) {
-  const headerPattern = new RegExp(`(^|\\n)WAKEUP\\s+${agent.id}:`, "i");
+  return readRecentCommits({ ref, since }).filter((commit) => hasWakeupHeader(agent, commit));
+}
 
-  return readRecentCommits({ ref, since }).filter((commit) => headerPattern.test(commit.body));
+export function hasWakeupHeader(agent, commit) {
+  const headerPattern = new RegExp(`(^|\\n)WAKEUP\\s+${agent.id}:`, "i");
+  return headerPattern.test(commit.body);
 }
 
 export function newWakeupsFor(agent, state, { ref = "HEAD", since = null } = {}) {

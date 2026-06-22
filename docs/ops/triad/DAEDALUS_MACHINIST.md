@@ -27,6 +27,20 @@ triad:watch:daedalus
 Foreground waiting is the watch command. Wakeups come only from git commit
 bodies containing the header above.
 
+## Foreground Watch Guard
+
+Before going back to foreground wait, run the same wakeup check once against the
+current ref:
+
+```text
+node scripts/triad-watch.mjs A2 --fetch --ref fork/main --since HEAD --no-consume
+```
+
+As of the PR175 hosted migration repair, `triad-watch` also checks the current
+commit when `--since` resolves to the same commit as `--ref`. That prevents the
+specific miss where `HEAD` itself contains `WAKEUP A2:` but the range
+`HEAD..fork/main` is empty.
+
 ## Response Contract
 
 - DAEDALUS must answer every wakeup with a commit wakeup to the assigned next

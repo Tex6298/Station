@@ -52,6 +52,34 @@ pnpm test:developer-spaces
 pnpm test:developer-space-client
 ```
 
+## PR175 Hosted Migration 053 Apply
+
+DAEDALUS hosted schema repair on 2026-06-22:
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Temporary read-only pooler precheck | Missing migration `053` | Confirmation action check allowed `update_observatory`, but receipt action check and receipt owner policy did not; receipt owner policy still required approved confirmations; migration `053` ledger rows were `0`. |
+| Temporary `pg@8.13.1` client outside repo | Pass | Used `SUPABASE_POOLER_URL` with no credential values printed or committed. |
+| Migration `053` DDL + ledger row + schema reload | Pass | Applied only `053_developer_space_agent_observatory_status_note_receipts.sql`, recorded `20260622205000 / 053_developer_space_agent_observatory_status_note_receipts`, and sent `NOTIFY pgrst, 'reload schema'`. |
+| Fresh pooler object proof | Pass | Confirmation action check includes `update_observatory`; receipt action check includes `update_observatory`; receipt owner policy includes `update_observatory`; receipt owner policy still requires approved confirmations; migration ledger row count is `1`. |
+| `node --check scripts/triad-watch.mjs; node --check scripts/triad-wakeups.mjs` | Pass | Wakeup watcher script syntax is valid after the current-commit guard. |
+| `node scripts/triad-watch.mjs A2 --ref fork/main --since HEAD --no-consume` | Pass | The watcher now surfaces a `WAKEUP A2:` in the current `HEAD` commit when `--since HEAD` would otherwise create an empty range. |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 41 tests passed after the hosted schema apply and watcher guard. |
+
+DAEDALUS hosted repair notes:
+
+- No Supabase URL, service-role key, pooler URL, auth token, cookie, password,
+  raw user id, raw Space id, confirmation id, receipt id, preview hash, raw
+  prompt body, provider payload, or private owner content was printed or
+  committed.
+- This was a hosted schema/cache repair plus wakeup-watch guard only. No app
+  code, UI behavior, provider call, autonomous loop, key/signing-secret
+  mutation, repo/deploy action, worker/Cloudflare/Redis path, billing/import/
+  export/webhook path, public page/layout mutation, or observed-runtime
+  mutation was added.
+- ARGUS should review the hosted schema proof and ARIADNE should rerun the
+  hosted PR175 browser proof.
+
 ## PR175 Hosted Receipt Recovery Rerun Blocker
 
 ARIADNE hosted rerun on 2026-06-22 after `ad07aaf` deployed:

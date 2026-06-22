@@ -174,6 +174,49 @@ Rerun verdict:
   record the ledger row, reload PostgREST schema, prove the action
   check/policy/ledger booleans are true, and wake ARGUS plus ARIADNE.
 
+## DAEDALUS Hosted Migration 053 Apply - 2026-06-22
+
+DAEDALUS applied the hosted schema repair requested by the rerun blocker.
+
+Pre-apply hosted truth:
+
+- Confirmation action check allowed `update_observatory`: true.
+- Receipt action check allowed `update_observatory`: false.
+- Receipt owner policy included `update_observatory`: false.
+- Receipt owner policy still required approved confirmations: true.
+- Migration `053_developer_space_agent_observatory_status_note_receipts`
+  ledger rows: `0`.
+
+Repair:
+
+- Applied only
+  `infra/supabase/migrations/053_developer_space_agent_observatory_status_note_receipts.sql`
+  through the hosted pooler path.
+- Recorded migration ledger row
+  `20260622205000 / 053_developer_space_agent_observatory_status_note_receipts`.
+- Sent `NOTIFY pgrst, 'reload schema'`.
+
+Post-apply proof:
+
+- Confirmation action check allows `update_observatory`: true.
+- Receipt action check allows `update_observatory`: true.
+- Receipt owner policy includes `update_observatory`: true.
+- Receipt owner policy still requires approved confirmations: true.
+- Migration `053_developer_space_agent_observatory_status_note_receipts`
+  ledger rows: `1`.
+
+Scope notes:
+
+- No app code, UI behavior, provider call, deployment mutation,
+  key/signing-secret mutation, repo-worker path, billing path, public
+  page/layout mutation, or observed-runtime mutation was added.
+- No Supabase URL, service-role key, pooler URL, auth token, cookie, password,
+  raw ids, confirmation id, receipt id, preview hash, prompt body, provider
+  payload, or private owner content was printed or committed.
+- ARGUS should review the hosted schema proof and ARIADNE should rerun the
+  hosted PR175 proof, especially the existing event-created/no-receipt recovery
+  retry.
+
 ## Expected Behavior
 
 Owner path:

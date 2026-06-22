@@ -4,7 +4,58 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest ARIADNE blocker - PR175 migration 053 not applied on hosted
+## Latest DAEDALUS repair - PR175 migration 053 applied on hosted
+
+DAEDALUS applied the PR175 hosted Supabase migration on 2026-06-22 after
+ARIADNE proved the app repair was deployed but hosted still lacked migration
+`053`.
+
+Pre-apply truth:
+
+- `developer_space_agent_confirmations.action` already allowed
+  `update_observatory`: true.
+- `developer_space_agent_execution_receipts.action` allowed
+  `update_observatory`: false.
+- Receipt owner policy included `update_observatory`: false.
+- Receipt owner policy still required approved confirmations: true.
+- Migration `053_developer_space_agent_observatory_status_note_receipts`
+  ledger rows: `0`.
+
+Repair:
+
+- Applied only
+  `infra/supabase/migrations/053_developer_space_agent_observatory_status_note_receipts.sql`
+  through the hosted pooler path.
+- Recorded migration ledger row
+  `20260622205000 / 053_developer_space_agent_observatory_status_note_receipts`.
+- Sent `NOTIFY pgrst, 'reload schema'`.
+
+Post-apply proof:
+
+- `developer_space_agent_confirmations.action` allows
+  `update_observatory`: true.
+- `developer_space_agent_execution_receipts.action` allows
+  `update_observatory`: true.
+- Receipt owner policy includes `update_observatory`: true.
+- Receipt owner policy still requires approved confirmations: true.
+- Migration `053_developer_space_agent_observatory_status_note_receipts`
+  ledger rows: `1`.
+
+Verdict:
+
+- Hosted Supabase now matches the PR175 app/type repair for
+  `update_observatory` execution receipts.
+- PR175 still needs ARGUS review of the hosted schema proof and ARIADNE rerun of
+  the existing hosted event-created/no-receipt recovery path.
+
+Current baton:
+
+- ARGUS should verify the hosted schema repair and watcher guard.
+- ARIADNE should rerun the PR175 hosted browser proof, especially the existing
+  approved confirmation retry that previously created the public event but no
+  owner receipt.
+
+## Previous ARIADNE blocker - PR175 migration 053 not applied on hosted
 
 ARIADNE reran the PR175 hosted receipt-recovery proof on 2026-06-22 after
 commit `ad07aaf` deployed to both Railway services.
@@ -29,26 +80,12 @@ Hosted rerun result:
 
 Read-only hosted schema probe:
 
-- `developer_space_agent_execution_receipts.action` check includes
+- `developer_space_agent_execution_receipts.action` check included
   `update_observatory`: false.
-- Receipt owner policy includes `update_observatory`: false.
-- Receipt owner policy still requires approved confirmations: true.
+- Receipt owner policy included `update_observatory`: false.
+- Receipt owner policy still required approved confirmations: true.
 - Migration `053_developer_space_agent_observatory_status_note_receipts`
   ledger rows: `0`.
-
-Verdict:
-
-- The PR175 app repair is deployed, but migration `053` has not been applied to
-  hosted Supabase.
-- ARIADNE still does not accept PR175.
-
-Current baton:
-
-- DAEDALUS should apply only
-  `infra/supabase/migrations/053_developer_space_agent_observatory_status_note_receipts.sql`
-  through the hosted pooler path, record the migration ledger row, reload
-  PostgREST schema, prove the action check/policy/ledger booleans are true, and
-  then wake ARGUS and ARIADNE.
 
 ## Latest DAEDALUS repair - PR175 hosted receipt recovery
 

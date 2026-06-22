@@ -6,7 +6,12 @@ import {
   statePath,
   writeState,
 } from "./triad-agents.mjs";
-import { formatWakeup, newWakeupsFor } from "./triad-wakeups.mjs";
+import {
+  formatWakeup,
+  hasWakeupHeader,
+  newWakeupsFor,
+  readRecentCommits,
+} from "./triad-wakeups.mjs";
 
 const POLL_MS = 5_000;
 
@@ -45,12 +50,31 @@ function resolveCommitish(commitish) {
   ).trim();
 }
 
+function currentCommitWakeup(agent, { ref, since }) {
+  if (!since) return null;
+
+  const resolvedRef = resolveCommitish(ref);
+  if (resolvedRef !== since) return null;
+
+  const [currentCommit] = readRecentCommits({ maxCount: 1, ref });
+  return currentCommit && hasWakeupHeader(agent, currentCommit) ? currentCommit : null;
+}
+
 function poll(agent, { quiet = false, consume = true, fetchConfig = null, ref = "HEAD", since = null } = {}) {
   if (fetchConfig) {
     fetchLatest(fetchConfig);
   }
 
   const state = readState(agent);
+  const sameCommitWakeup = currentCommitWakeup(agent, { ref, since });
+  if (sameCommitWakeup) {
+    console.log(formatWakeup(agent, sameCommitWakeup));
+    if (!quiet) {
+      console.log(`State not updated (--since includes current ${ref}): ${relativePath(statePath(agent))}`);
+    }
+    return true;
+  }
+
   const newWakeups = newWakeupsFor(agent, state, { ref, since });
 
   if (newWakeups.length === 0) {
