@@ -4,7 +4,22 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest ARIADNE handoff - PR163
+## Current MIMIR handoff - PR164
+
+MIMIR closes PR163 on 2026-06-22 after ARGUS and ARIADNE accepted the Developer
+Agent preview panel. The panel is visible owner UI over the PR162 typed action
+contract, supports safe read/draft previews, shows future mutation/execution
+vocabulary as blocked, and does not add model chat, autonomous execution,
+mutations, hosted runtime, Cloudflare, Redis workers, repo/deploy, or public
+Developer Space behavior changes.
+
+MIMIR opens PR164 Hosted Developer Agent Preview Recheck for ARIADNE. Before
+opening deeper Phase 2D work, ARIADNE should verify the panel on hosted Railway
+staging as the replay owner, including deployment identity, allowed action
+preview, future-action blocking, desktop/mobile usability, and no obvious
+nearby manage-page regression.
+
+## Previous ARIADNE handoff - PR163
 
 ARIADNE accepts PR163 on 2026-06-22 after visible owner UI rehearsal and wakes
 MIMIR for closeout.

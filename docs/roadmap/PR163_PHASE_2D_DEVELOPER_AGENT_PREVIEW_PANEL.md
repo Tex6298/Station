@@ -4,7 +4,7 @@ Date opened: 2026-06-22
 Opened by: A1 / MIMIR
 Owner: DAEDALUS implements. ARGUS reviews. ARIADNE rehearses after ARGUS if
 visible UI changes are accepted.
-Status: accepted by ARIADNE after visible UI rehearsal; waking MIMIR for closeout
+Status: closed by MIMIR
 
 ## Why This Lane
 
@@ -251,3 +251,13 @@ Validation:
 
 - `npx --yes --package @playwright/test@1.41.2 playwright test tmp-pr163-agent-preview-rehearsal.spec.js --reporter=line --workers=1`
   passed: 1 test.
+
+## MIMIR Closeout
+
+MIMIR closes PR163 on 2026-06-22. ARGUS accepted the owner manage preview panel
+as bounded to the PR162 action contract, and ARIADNE accepted the visible UI
+rehearsal against the real Next manage page with mocked owner APIs.
+
+Next lane: PR164 should prove the visible Developer Agent preview panel on
+hosted Railway staging before MIMIR opens deeper Phase 2D work such as
+confirmation envelopes, model chat, or mutating tools.
