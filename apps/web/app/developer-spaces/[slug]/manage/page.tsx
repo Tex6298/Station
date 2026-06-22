@@ -1247,6 +1247,8 @@ export default function DeveloperSpaceManagePage() {
                               ? "Project update draft"
                               : receipt.action === "publish_to_page"
                                 ? "Published page update"
+                                : receipt.action === "update_observatory"
+                                  ? "Observatory status note"
                                 : "Capability request"}
                           </strong>
                           <span style={{ color: "#8b8f92", fontSize: "0.74rem" }}>
@@ -1276,6 +1278,11 @@ export default function DeveloperSpaceManagePage() {
                       {receipt.receiptPayload.capabilityRequest ? (
                         <p style={{ margin: 0, color: "#687078", fontSize: "0.82rem", lineHeight: 1.4 }}>
                           Capability: {receipt.receiptPayload.capabilityRequest.categoryLabel} / {receipt.receiptPayload.capabilityRequest.summary}
+                        </p>
+                      ) : null}
+                      {receipt.receiptPayload.statusNote ? (
+                        <p style={{ margin: 0, color: "#687078", fontSize: "0.82rem", lineHeight: 1.4, overflowWrap: "anywhere" }}>
+                          Status note: {receipt.receiptPayload.statusNote.note} / {receipt.receiptPayload.statusNote.visibility} / {receipt.receiptPayload.statusNote.provenance}
                         </p>
                       ) : null}
                       <p style={{ margin: 0, color: "#687078", fontSize: "0.82rem", lineHeight: 1.4 }}>
