@@ -1785,11 +1785,12 @@ test("Developer Space agent request-capability receipts are owner-scoped and ide
       token: "owner-token",
       body: {
         projectName: "Agent Receipt Lane",
-        visibility: "private",
+        visibility: "public",
       },
     });
     assert.equal(created.status, 201);
     const spaceId = created.body.space.id;
+    const slug = created.body.space.slug;
 
     const anonymousList = await requestJson(app, "GET", `/developer-spaces/${spaceId}/agent/actions/receipts`);
     assert.equal(anonymousList.status, 401);
@@ -1799,15 +1800,34 @@ test("Developer Space agent request-capability receipts are owner-scoped and ide
     });
     assert.equal(nonOwnerList.status, 403);
 
+    const rejectedSecretRequest = await requestJson(app, "POST", `/developer-spaces/${spaceId}/agent/actions/confirmations`, {
+      token: "owner-token",
+      body: {
+        action: "request_capability",
+        capabilityCategory: "provider_config",
+        capabilitySummary: "Use token=redacted for this provider.",
+        input: { token: "redacted" },
+      },
+    });
+    assert.equal(rejectedSecretRequest.status, 400);
+    assert.doesNotMatch(JSON.stringify(rejectedSecretRequest.body), /token=redacted|rawPrompt/);
+
     const requestCapability = await requestJson(app, "POST", `/developer-spaces/${spaceId}/agent/actions/confirmations`, {
       token: "owner-token",
       body: {
         action: "request_capability",
-        input: { rawPrompt: "private capability prompt", token: "secret-capability-token" },
+        capabilityCategory: "provider_config",
+        capabilitySummary: "Need hosted provider configuration reviewed before opening an implementation lane.",
       },
     });
     assert.equal(requestCapability.status, 201);
     assert.equal(requestCapability.body.confirmation.action, "request_capability");
+    assert.equal(requestCapability.body.confirmation.sanitizedPayload.capabilityRequest.category, "provider_config");
+    assert.equal(
+      requestCapability.body.confirmation.sanitizedPayload.capabilityRequest.summary,
+      "Need hosted provider configuration reviewed before opening an implementation lane."
+    );
+    assert.doesNotMatch(JSON.stringify(requestCapability.body), /private capability prompt|token=redacted|rawPrompt/);
 
     const pendingExecute = await requestJson(app, "POST", `/developer-spaces/${spaceId}/agent/actions/confirmations/${requestCapability.body.confirmation.id}/execute`, {
       token: "owner-token",
@@ -1837,6 +1857,12 @@ test("Developer Space agent request-capability receipts are owner-scoped and ide
     assert.equal(firstExecute.body.receipt.receiptPayload.executionAvailable, false);
     assert.equal(firstExecute.body.receipt.receiptPayload.mutationAvailable, false);
     assert.equal(firstExecute.body.receipt.receiptPayload.externalDispatch, false);
+    assert.equal(firstExecute.body.receipt.receiptPayload.capabilityRequest.category, "provider_config");
+    assert.equal(firstExecute.body.receipt.receiptPayload.capabilityRequest.categoryLabel, "Provider Config");
+    assert.equal(
+      firstExecute.body.receipt.receiptPayload.capabilityRequest.summary,
+      "Need hosted provider configuration reviewed before opening an implementation lane."
+    );
     assert.equal("id" in firstExecute.body.receipt, false);
     assert.equal("ownerUserId" in firstExecute.body.receipt, false);
     assert.equal("confirmationId" in firstExecute.body.receipt, false);
@@ -1855,6 +1881,11 @@ test("Developer Space agent request-capability receipts are owner-scoped and ide
     assert.equal(ownerList.body.setup.receiptStoreAvailable, true);
     assert.equal(ownerList.body.receipts.length, 1);
     assert.equal(ownerList.body.receipts[0].action, "request_capability");
+    assert.equal(ownerList.body.receipts[0].receiptPayload.capabilityRequest.category, "provider_config");
+
+    const publicDetail = await requestJson(app, "GET", `/developer-spaces/${slug}`);
+    assert.equal(publicDetail.status, 200);
+    assert.doesNotMatch(JSON.stringify(publicDetail.body), /provider configuration reviewed|Provider Config|Capability request/);
 
     const publish = await requestJson(app, "POST", `/developer-spaces/${spaceId}/agent/actions/confirmations`, {
       token: "owner-token",
@@ -1883,7 +1914,11 @@ test("Developer Space agent request-capability receipts are owner-scoped and ide
 
     const cancelCandidate = await requestJson(app, "POST", `/developer-spaces/${spaceId}/agent/actions/confirmations`, {
       token: "owner-token",
-      body: { action: "request_capability" },
+      body: {
+        action: "request_capability",
+        capabilityCategory: "human_review",
+        capabilitySummary: "Need a human review decision before continuing.",
+      },
     });
     assert.equal(cancelCandidate.status, 201);
     const cancelled = await requestJson(app, "POST", `/developer-spaces/${spaceId}/agent/actions/confirmations/${cancelCandidate.body.confirmation.id}/cancel`, {
@@ -1917,12 +1952,13 @@ test("Developer Space agent request-capability receipts are owner-scoped and ide
       firstExecute: firstExecute.body,
       secondExecute: secondExecute.body,
       ownerList: ownerList.body,
+      publicDetail: publicDetail.body,
       publish: publish.body,
       blockedRunJob: blockedRunJob.body,
       cancelledExecute: cancelledExecute.body,
       expiredExecute: expiredExecute.body,
     });
-    assert.doesNotMatch(responseText, /private capability prompt|secret-capability-token|rawPrompt|expired-capability-preview-hash/);
+    assert.doesNotMatch(responseText, /private capability prompt|token=redacted|rawPrompt|expired-capability-preview-hash/);
     assert.equal(responseText.includes(requestCapability.body.confirmation.id), false);
     assert.equal(responseText.includes(runJob.body.confirmation.id), false);
     assert.equal(db.tables.developer_space_agent_execution_receipts.length, 1);

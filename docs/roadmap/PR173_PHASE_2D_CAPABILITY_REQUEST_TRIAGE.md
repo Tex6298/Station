@@ -7,7 +7,7 @@ Reviewer: ARGUS reviews payload minimization, owner scope, duplicate behavior,
 and overclaim risk.
 Rehearsal: ARIADNE runs hosted desktop/mobile human rehearsal if ARGUS accepts
 visible owner UI.
-Status: open for DAEDALUS
+Status: implemented by DAEDALUS; open for ARGUS review
 
 ## Why This Lane
 
@@ -132,7 +132,71 @@ ARIADNE should run hosted proof if owner UI changes:
 
 ## Next Baton
 
-DAEDALUS should implement PR173, then wake ARGUS with changed files, validation,
-payload examples, hostile-input behavior, and remaining risks. ARGUS should wake
-ARIADNE if visible UI requires hosted proof; otherwise ARGUS wakes MIMIR with
-the verdict.
+DAEDALUS implemented PR173 on 2026-06-22.
+
+Changed files:
+
+- `apps/api/src/routes/developer-spaces.ts`
+- `apps/api/src/routes/developer-spaces.test.ts`
+- `apps/web/app/developer-spaces/[slug]/manage/page.tsx`
+- `apps/web/lib/developer-space-observatory.test.ts`
+- `packages/types/src/developer-space.ts`
+
+Implementation details:
+
+- `request_capability` confirmations now require a bounded category and a short
+  safe summary.
+- Supported categories are `provider_config`, `cache_config`,
+  `cloudflare_adapter`, `repo_access`, `railway_env`, `supabase_schema`,
+  `stripe_webhook`, `worker_runtime`, `human_review`, and
+  `roadmap_decision`.
+- Confirmation and receipt payloads store only safe triage metadata:
+  category, category label, summary, non-execution next step, and boundaries.
+- Approved execution records one minimized `request_capability` receipt with
+  `executionAvailable: false`, `mutationAvailable: false`, and
+  `externalDispatch: false`.
+- Repeat execution remains idempotent for the same confirmation.
+- Owner manage renders a small owner-only `Capability triage` readback sourced
+  from receipt records.
+- Public Developer Space detail remains clean and does not expose capability
+  request receipts, categories, summaries, confirmation copy, or private
+  next-step instructions.
+
+Payload examples:
+
+- Safe create body:
+  `{ action: "request_capability", capabilityCategory: "provider_config",
+  capabilitySummary: "Need hosted provider configuration reviewed before
+  opening an implementation lane." }`
+- Minimized receipt payload:
+  `{ action: "request_capability", outcome: "capability_request_recorded",
+  executionAvailable: false, mutationAvailable: false,
+  externalDispatch: false, capabilityRequest: { category, categoryLabel,
+  summary } }`
+
+Hostile-input behavior:
+
+- Secret-shaped input keys such as token, secret, password, cookie,
+  authorization, service-role, API-key, private-key, connection-string,
+  database URL, pooler, raw prompt, and provider payload are rejected.
+- Secret-shaped values such as bearer strings, `sk-...` keys, JWT-looking
+  values, connection strings, service-role labels, PEM material, and
+  `token=`/`password=`/`cookie=` style values are rejected before persistence.
+- Focused API coverage proves rejected secret-looking input does not echo the
+  submitted secret-looking strings.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` passed with 39
+  tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:developer-space-client` passed with
+  15 tests.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/types build` passed.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` passed.
+- `git diff --check` passed with CRLF warnings only.
+
+ARGUS should review changed files, payload minimization, hostile-input
+handling, owner-only visibility, public leakage, idempotency, overclaiming, and
+save/review/publish regression risk. Because owner UI changed, ARGUS should
+wake ARIADNE for hosted proof if accepted.

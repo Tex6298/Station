@@ -52,6 +52,35 @@ pnpm test:developer-spaces
 pnpm test:developer-space-client
 ```
 
+## PR173 Phase 2D Capability Request Triage
+
+DAEDALUS implementation validation on 2026-06-22:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 39 tests passed, including request-capability category/summary persistence, hostile secret-shaped input rejection, minimized receipt payload, idempotent repeat execution, public detail cleanliness, and save/review/publish regression coverage. |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-space-client` | Pass | 15 tests passed; Developer Space client behavior remains compatible. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` | Pass | Web TypeScript typecheck passed for owner-only capability triage UI. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/types build` | Pass | Shared Developer Space receipt types compiled with optional `capabilityRequest` metadata. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` | Pass | API typecheck passed for bounded request-capability confirmation and receipt payload handling. |
+| `git diff --check` | Pass | CRLF normalization warnings only. |
+
+DAEDALUS PR173 notes:
+
+- `request_capability` now requires a bounded category and safe summary before
+  confirmation persistence.
+- Approved execution records a minimized owner-only receipt with category,
+  category label, summary, next-step copy, and non-execution boundaries.
+- Secret-shaped input keys and values are rejected for `request_capability`
+  before persistence; the regression test proves rejected secret-looking
+  strings are not echoed in the response.
+- Owner manage renders a `Capability triage` readback from receipt records.
+- Public Developer Space detail stays clean and does not expose capability
+  request receipts, categories, summaries, confirmations, or private next-step
+  copy.
+- No Railway, Supabase, Stripe, Cloudflare, Redis, provider, repo, key, webhook,
+  layout, worker, runtime, or other future-action execution was added.
+
 ## PR172 Hosted Publish Gate Schema Repair
 
 DAEDALUS hosted repair validation on 2026-06-22:

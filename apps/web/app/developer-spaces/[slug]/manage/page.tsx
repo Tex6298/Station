@@ -60,6 +60,19 @@ const DEVELOPER_SPACE_EVIDENCE_ROLES: DeveloperSpaceDocumentRole[] = [
   "field_log",
   "note",
 ];
+const DEVELOPER_SPACE_CAPABILITY_CATEGORIES = [
+  "provider_config",
+  "cache_config",
+  "cloudflare_adapter",
+  "repo_access",
+  "railway_env",
+  "supabase_schema",
+  "stripe_webhook",
+  "worker_runtime",
+  "human_review",
+  "roadmap_decision",
+];
+const DEFAULT_CAPABILITY_SUMMARY = "Review this requested capability before opening a new implementation lane.";
 
 type DeveloperSpaceAgentRegistryBoundary = {
   autonomousExecution?: boolean;
@@ -166,6 +179,8 @@ export default function DeveloperSpaceManagePage() {
   const [agentReceiptsLoading, setAgentReceiptsLoading] = useState(false);
   const [agentReceiptStoreAvailable, setAgentReceiptStoreAvailable] = useState(true);
   const [agentReceiptBusyId, setAgentReceiptBusyId] = useState<string | null>(null);
+  const [capabilityCategory, setCapabilityCategory] = useState("roadmap_decision");
+  const [capabilitySummary, setCapabilitySummary] = useState(DEFAULT_CAPABILITY_SUMMARY);
   const [agentNotice, setAgentNotice] = useState<string | null>(null);
   const [agentError, setAgentError] = useState<string | null>(null);
   const [visualisationType, setVisualisationType] = useState<DeveloperSpaceVisualisationType>("node_field");
@@ -525,7 +540,7 @@ export default function DeveloperSpaceManagePage() {
 
   async function createAgentConfirmation(
     action: DeveloperSpaceAgentFutureAction,
-    options: { targetDocumentId?: string } = {}
+    options: { targetDocumentId?: string; capabilityCategory?: string; capabilitySummary?: string } = {}
   ) {
     if (!token || !detail || !agentConfirmationStoreAvailable) return;
     setAgentConfirmationCreatingAction(action);
@@ -537,6 +552,8 @@ export default function DeveloperSpaceManagePage() {
         {
           action,
           ...(options.targetDocumentId ? { targetDocumentId: options.targetDocumentId } : {}),
+          ...(options.capabilityCategory ? { capabilityCategory: options.capabilityCategory } : {}),
+          ...(options.capabilitySummary ? { capabilitySummary: options.capabilitySummary } : {}),
         },
         token
       );
@@ -673,6 +690,7 @@ export default function DeveloperSpaceManagePage() {
   const selectedAgentEntry = agentActions.find((action) => action.action === selectedAgentAction) ?? null;
   const selectedFutureAction = agentActionGroups.future.find((action) => action.action === agentPreview?.action)?.action as DeveloperSpaceAgentFutureAction | undefined;
   const confirmationActionLabels = new Map(agentActions.map((action) => [action.action, action.label]));
+  const capabilityReceipts = agentReceipts.filter((receipt) => receipt.action === "request_capability");
   const boundaryRows = [
     { label: "Owner only", value: agentBoundary?.ownerOnly === true ? "Yes" : "Unknown" },
     { label: "Autonomous execution", value: agentBoundary?.autonomousExecution === false ? "No" : "Unknown" },
@@ -883,6 +901,49 @@ export default function DeveloperSpaceManagePage() {
                     <span style={{ color: "#854f0b", fontSize: "0.82rem", lineHeight: 1.4 }}>
                       Select an owner-only private draft in Project evidence to request publication.
                     </span>
+                  ) : agentPreview.futureLane && selectedFutureAction === "request_capability" ? (
+                    <div style={{ display: "grid", gap: "0.65rem" }}>
+                      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 180px), 1fr))", gap: "0.55rem" }}>
+                        <label style={{ display: "grid", gap: "0.25rem", color: "#687078", fontSize: "0.78rem", fontWeight: 700 }}>
+                          Category
+                          <select
+                            className="input"
+                            value={capabilityCategory}
+                            onChange={(event) => setCapabilityCategory(event.target.value)}
+                          >
+                            {DEVELOPER_SPACE_CAPABILITY_CATEGORIES.map((category) => (
+                              <option key={category} value={category}>{humaniseKey(category)}</option>
+                            ))}
+                          </select>
+                        </label>
+                        <label style={{ display: "grid", gap: "0.25rem", color: "#687078", fontSize: "0.78rem", fontWeight: 700 }}>
+                          Summary
+                          <textarea
+                            className="textarea"
+                            value={capabilitySummary}
+                            maxLength={600}
+                            onChange={(event) => setCapabilitySummary(event.target.value)}
+                            style={{ minHeight: 84 }}
+                          />
+                        </label>
+                      </div>
+                      <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap", alignItems: "center" }}>
+                        <button
+                          type="button"
+                          className="button primary"
+                          onClick={() => createAgentConfirmation(selectedFutureAction, {
+                            capabilityCategory,
+                            capabilitySummary,
+                          })}
+                          disabled={!agentConfirmationStoreAvailable || agentConfirmationCreatingAction === selectedFutureAction || capabilitySummary.trim().length === 0}
+                        >
+                          {agentConfirmationCreatingAction === selectedFutureAction ? "Recording..." : "Record request"}
+                        </button>
+                        <span style={{ color: "#854f0b", fontSize: "0.82rem", lineHeight: 1.4 }}>
+                          Owner triage only. No configuration, provider, repo, deploy, key, webhook, worker, layout, or runtime action executes.
+                        </span>
+                      </div>
+                    </div>
                   ) : agentPreview.futureLane && selectedFutureAction ? (
                     <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap", alignItems: "center" }}>
                       <button
@@ -1069,6 +1130,49 @@ export default function DeveloperSpaceManagePage() {
 
             <div style={{ display: "grid", gap: "0.65rem" }}>
               <div style={{ display: "flex", justifyContent: "space-between", gap: "0.75rem", alignItems: "center", flexWrap: "wrap" }}>
+                <h3 style={{ margin: 0, fontSize: "0.92rem" }}>Capability triage</h3>
+                <span className="pill">
+                  {agentReceiptsLoading ? "Loading" : `${capabilityReceipts.length} recorded`}
+                </span>
+              </div>
+              {capabilityReceipts.length === 0 ? (
+                <p style={{ margin: 0, color: "#687078", fontSize: "0.84rem" }}>
+                  No capability requests recorded.
+                </p>
+              ) : (
+                <div style={{ display: "grid", gap: "0.55rem" }}>
+                  {capabilityReceipts.slice(0, 4).map((receipt) => {
+                    const capability = receipt.receiptPayload.capabilityRequest;
+                    return (
+                      <article key={`capability-${receipt.dispatchedAt}`} style={agentConfirmationRow}>
+                        <div style={{ display: "flex", justifyContent: "space-between", gap: "0.65rem", alignItems: "flex-start", flexWrap: "wrap" }}>
+                          <div>
+                            <strong style={{ display: "block", color: "#1f2529" }}>
+                              {capability?.categoryLabel ?? "Roadmap Decision"}
+                            </strong>
+                            <span style={{ color: "#8b8f92", fontSize: "0.74rem" }}>
+                              Recorded {formatDate(receipt.dispatchedAt)}
+                            </span>
+                          </div>
+                          <span className="pill" style={{ color: "#25633f" }}>
+                            {developerSpaceAgentReceiptStatusCopy(receipt.status)}
+                          </span>
+                        </div>
+                        <p style={{ margin: 0, color: "#687078", lineHeight: 1.45 }}>
+                          {capability?.summary ?? receipt.summary}
+                        </p>
+                        <p style={{ margin: 0, color: "#854f0b", fontSize: "0.82rem", lineHeight: 1.4 }}>
+                          {receipt.receiptPayload.nextStep}
+                        </p>
+                      </article>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
+            <div style={{ display: "grid", gap: "0.65rem" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", gap: "0.75rem", alignItems: "center", flexWrap: "wrap" }}>
                 <h3 style={{ margin: 0, fontSize: "0.92rem" }}>Receipts</h3>
                 <span className="pill">
                   {agentReceiptsLoading ? "Loading" : `${agentReceipts.length} recorded`}
@@ -1118,6 +1222,11 @@ export default function DeveloperSpaceManagePage() {
                       {receipt.receiptPayload.publishedDocument ? (
                         <p style={{ margin: 0, color: "#687078", fontSize: "0.82rem", lineHeight: 1.4 }}>
                           Published: {receipt.receiptPayload.publishedDocument.title} / {receipt.receiptPayload.publishedDocument.status} / {receipt.receiptPayload.publishedDocument.visibility} / {receipt.receiptPayload.publishedDocument.linkVisibility}
+                        </p>
+                      ) : null}
+                      {receipt.receiptPayload.capabilityRequest ? (
+                        <p style={{ margin: 0, color: "#687078", fontSize: "0.82rem", lineHeight: 1.4 }}>
+                          Capability: {receipt.receiptPayload.capabilityRequest.categoryLabel} / {receipt.receiptPayload.capabilityRequest.summary}
                         </p>
                       ) : null}
                       <p style={{ margin: 0, color: "#687078", fontSize: "0.82rem", lineHeight: 1.4 }}>

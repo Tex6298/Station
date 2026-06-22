@@ -4,6 +4,82 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest DAEDALUS handoff - PR173 capability request triage
+
+DAEDALUS implemented PR173 on 2026-06-22. Status is open for ARGUS review.
+
+Changed files:
+
+- `apps/api/src/routes/developer-spaces.ts`
+- `apps/api/src/routes/developer-spaces.test.ts`
+- `apps/web/app/developer-spaces/[slug]/manage/page.tsx`
+- `apps/web/lib/developer-space-observatory.test.ts`
+- `packages/types/src/developer-space.ts`
+- `docs/roadmap/PR173_PHASE_2D_CAPABILITY_REQUEST_TRIAGE.md`
+- `docs/roadmap/ACTIVE_STATUS.md`
+- `docs/testing/VALIDATION_BASELINE.md`
+
+Implementation truth:
+
+- `request_capability` confirmation creation now requires a bounded category
+  and short safe summary.
+- Supported categories are `provider_config`, `cache_config`,
+  `cloudflare_adapter`, `repo_access`, `railway_env`, `supabase_schema`,
+  `stripe_webhook`, `worker_runtime`, `human_review`, and
+  `roadmap_decision`.
+- Confirmation payloads store only safe triage metadata:
+  `{ category, categoryLabel, summary }` plus non-execution boundaries.
+- Approved `request_capability` execution records one minimized receipt with
+  the safe category, summary, next-step copy, and no mutation/external dispatch.
+- Repeat execution remains idempotent per confirmation.
+- Owner manage now has a small owner-only `Capability triage` readback area
+  sourced from owner receipt records, plus the existing generic receipts list.
+- Public Developer Space detail does not expose capability request categories,
+  summaries, confirmation records, receipt records, or private next-step copy.
+
+Payload examples:
+
+- Safe create body:
+  `{ action: "request_capability", capabilityCategory: "provider_config",
+  capabilitySummary: "Need hosted provider configuration reviewed before
+  opening an implementation lane." }`
+- Minimized receipt payload:
+  `{ action: "request_capability", outcome: "capability_request_recorded",
+  executionAvailable: false, mutationAvailable: false,
+  externalDispatch: false, capabilityRequest: { category, categoryLabel,
+  summary } }`
+
+Hostile-input behavior:
+
+- Secret-shaped input keys such as token, secret, password, cookie,
+  authorization, service-role, API-key, private-key, connection-string,
+  database URL, pooler, raw prompt, and provider payload are rejected for
+  `request_capability`.
+- Secret-shaped values such as bearer strings, `sk-...` keys, JWT-looking
+  values, connection strings, service-role labels, PEM material, and
+  `token=`/`password=`/`cookie=` style values are rejected before persistence.
+- The focused route test proves rejected secret-looking input does not echo the
+  submitted secret-looking strings in the response.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` passed with 39
+  tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:developer-space-client` passed with
+  15 tests.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/types build` passed.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` passed.
+- `git diff --check` passed with CRLF warnings only.
+
+Current baton:
+
+- ARGUS should review request-capability payload minimization, hostile input
+  rejection, owner-only visibility, public detail cleanliness, idempotency,
+  overclaim risk, and save/review/publish regression risk.
+- Because owner UI changed, ARGUS should wake ARIADNE for hosted desktop/mobile
+  proof if accepted.
+
 ## Latest MIMIR decision - PR173 capability request triage
 
 MIMIR closes PR172 on 2026-06-22 after DAEDALUS repaired the hosted `052`

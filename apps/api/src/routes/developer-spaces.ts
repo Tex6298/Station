@@ -177,6 +177,21 @@ const DEVELOPER_SPACE_AGENT_CONFIRMATION_MAX_EXPIRY_MINUTES = 7 * 24 * 60;
 const DEVELOPER_SPACE_AGENT_EXECUTION_RECEIPT_ACTION: DeveloperSpaceAgentExecutionReceiptAction = "request_capability";
 const DEVELOPER_SPACE_AGENT_DRAFT_DOCUMENT_ACTION: DeveloperSpaceAgentExecutionReceiptAction = "save_project_update_draft";
 const DEVELOPER_SPACE_AGENT_PUBLISH_DOCUMENT_ACTION: DeveloperSpaceAgentExecutionReceiptAction = "publish_to_page";
+const DEVELOPER_SPACE_AGENT_CAPABILITY_REQUEST_CATEGORIES = [
+  "provider_config",
+  "cache_config",
+  "cloudflare_adapter",
+  "repo_access",
+  "railway_env",
+  "supabase_schema",
+  "stripe_webhook",
+  "worker_runtime",
+  "human_review",
+  "roadmap_decision",
+] as const;
+const DEVELOPER_SPACE_AGENT_CAPABILITY_REQUEST_DEFAULT_CATEGORY = "roadmap_decision";
+const DEVELOPER_SPACE_AGENT_CAPABILITY_REQUEST_DEFAULT_SUMMARY =
+  "Review this requested capability before opening a new implementation lane.";
 const DEVELOPER_SPACE_AGENT_EXECUTABLE_ACTIONS = new Set<string>([
   DEVELOPER_SPACE_AGENT_EXECUTION_RECEIPT_ACTION,
   DEVELOPER_SPACE_AGENT_DRAFT_DOCUMENT_ACTION,
@@ -405,11 +420,54 @@ const developerSpaceAgentActionPreviewSchema = z.object({
   input: jsonObjectSchema.default({}),
 });
 
+const capabilityRequestCategorySchema = z.enum(DEVELOPER_SPACE_AGENT_CAPABILITY_REQUEST_CATEGORIES);
+
 const createDeveloperSpaceAgentConfirmationSchema = z.object({
   action: z.string().trim().min(1).max(80).regex(/^[a-z0-9_:-]+$/),
   targetDocumentId: z.string().trim().min(1).max(120).optional(),
+  capabilityCategory: capabilityRequestCategorySchema.optional(),
+  capabilitySummary: z.string().trim().min(1).max(600).optional(),
+  input: z.object({
+    category: capabilityRequestCategorySchema.optional(),
+    summary: z.string().trim().min(1).max(600).optional(),
+  }).passthrough().optional(),
   expiresInMinutes: z.number().int().min(5).max(DEVELOPER_SPACE_AGENT_CONFIRMATION_MAX_EXPIRY_MINUTES)
     .default(DEVELOPER_SPACE_AGENT_CONFIRMATION_DEFAULT_EXPIRY_MINUTES),
+}).superRefine((value, ctx) => {
+  if (value.action !== DEVELOPER_SPACE_AGENT_EXECUTION_RECEIPT_ACTION) return;
+
+  const category = value.capabilityCategory ?? value.input?.category;
+  const summary = value.capabilitySummary ?? value.input?.summary;
+  if (!category) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ["capabilityCategory"],
+      message: "Capability request category is required.",
+    });
+  }
+  if (!summary?.trim()) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ["capabilitySummary"],
+      message: "Capability request summary is required.",
+    });
+  }
+
+  const unsafeInput = developerSpaceAgentUnsafeCapabilityInputReason(value.input ?? {});
+  if (unsafeInput) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ["input"],
+      message: unsafeInput,
+    });
+  }
+  if (summary && developerSpaceAgentSecretLikeText(summary)) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ["capabilitySummary"],
+      message: "Capability request summary must not include secret-like values.",
+    });
+  }
 });
 
 export const developerSpacesRouter = Router();
@@ -801,6 +859,95 @@ function safeAgentText(value: unknown, fallback: string, maxLength = 160) {
   const sanitized = sanitizeJobErrorMessage(raw);
   const normalized = sanitized.trim() || fallback;
   return normalized.length > maxLength ? `${normalized.slice(0, maxLength - 3).trim()}...` : normalized;
+}
+
+function developerSpaceAgentCapabilityCategoryLabel(category: string) {
+  return category
+    .split("_")
+    .filter(Boolean)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(" ");
+}
+
+function developerSpaceAgentCapabilityCategory(value: unknown) {
+  return DEVELOPER_SPACE_AGENT_CAPABILITY_REQUEST_CATEGORIES.includes(value as any)
+    ? value as typeof DEVELOPER_SPACE_AGENT_CAPABILITY_REQUEST_CATEGORIES[number]
+    : DEVELOPER_SPACE_AGENT_CAPABILITY_REQUEST_DEFAULT_CATEGORY;
+}
+
+function developerSpaceAgentSecretLikeText(value: string) {
+  return /(?:sk-[a-z0-9_-]{8,}|eyJ[a-z0-9_-]{20,}|(?:postgres|postgresql|redis):\/\/|bearer\s+[a-z0-9._-]{8,}|-----BEGIN|service[_-]?role|api[_-]?key\s*[:=]|token\s*[:=]|password\s*[:=]|cookie\s*[:=]|secret\s*[:=])/i
+    .test(value);
+}
+
+function developerSpaceAgentUnsafeCapabilityInputReason(value: unknown, path: string[] = []): string | null {
+  if (!value || typeof value !== "object") {
+    return typeof value === "string" && developerSpaceAgentSecretLikeText(value)
+      ? "Capability request input must not include secret-like values."
+      : null;
+  }
+
+  if (Array.isArray(value)) {
+    for (let index = 0; index < value.length; index += 1) {
+      const result = developerSpaceAgentUnsafeCapabilityInputReason(value[index], [...path, String(index)]);
+      if (result) return result;
+    }
+    return null;
+  }
+
+  for (const [key, child] of Object.entries(value as Record<string, unknown>)) {
+    if (/token|secret|password|cookie|authorization|service[_-]?role|api[_-]?key|private[_-]?key|connection|string|database[_-]?url|pooler|raw[_-]?prompt|provider[_-]?payload/i.test(key)) {
+      return `Capability request input field "${[...path, key].join(".")}" is not allowed.`;
+    }
+    if (typeof child === "string" && developerSpaceAgentSecretLikeText(child)) {
+      return "Capability request input must not include secret-like values.";
+    }
+    const result = developerSpaceAgentUnsafeCapabilityInputReason(child, [...path, key]);
+    if (result) return result;
+  }
+
+  return null;
+}
+
+function developerSpaceAgentCapabilityRequest(input: {
+  capabilityCategory?: unknown;
+  capabilitySummary?: unknown;
+  input?: Record<string, unknown>;
+}) {
+  const category = developerSpaceAgentCapabilityCategory(
+    input.capabilityCategory ?? input.input?.category,
+  );
+  const summary = safeAgentText(
+    input.capabilitySummary ?? input.input?.summary,
+    DEVELOPER_SPACE_AGENT_CAPABILITY_REQUEST_DEFAULT_SUMMARY,
+    360,
+  );
+  return {
+    category,
+    categoryLabel: developerSpaceAgentCapabilityCategoryLabel(category),
+    summary,
+  };
+}
+
+function developerSpaceAgentCapabilityRequestFromPayload(payload: unknown) {
+  const record = payload && typeof payload === "object" ? payload as Record<string, unknown> : {};
+  const request = record.capabilityRequest && typeof record.capabilityRequest === "object"
+    ? record.capabilityRequest as Record<string, unknown>
+    : record;
+  const category = developerSpaceAgentCapabilityCategory(request.category);
+  return {
+    category,
+    categoryLabel: safeAgentText(
+      request.categoryLabel,
+      developerSpaceAgentCapabilityCategoryLabel(category),
+      80,
+    ),
+    summary: safeAgentText(
+      request.summary,
+      DEVELOPER_SPACE_AGENT_CAPABILITY_REQUEST_DEFAULT_SUMMARY,
+      360,
+    ),
+  };
 }
 
 function safeAgentFact(label: string, value: string | number | boolean | null | undefined) {
@@ -1374,6 +1521,50 @@ function developerSpaceAgentConfirmationPayload(
   };
 }
 
+function developerSpaceAgentCapabilityConfirmationPayload(
+  entry: DeveloperSpaceAgentActionRegistryEntry,
+  request: ReturnType<typeof developerSpaceAgentCapabilityRequest>
+) {
+  return {
+    action: DEVELOPER_SPACE_AGENT_EXECUTION_RECEIPT_ACTION,
+    label: safeAgentText(entry.label, "Request capability", 120),
+    description: safeAgentText(entry.description, "Future lane action.", 220),
+    mode: entry.mode,
+    requiresConfirmation: entry.requiresConfirmation,
+    futureLane: true,
+    previewStatus: "requires_future_lane" as const,
+    summary: `Capability request: ${request.categoryLabel} - ${request.summary}`,
+    executionAvailable: false,
+    mutationAvailable: false,
+    capabilityRequest: request,
+    sections: [
+      {
+        title: "Capability request",
+        summary: request.summary,
+        facts: [
+          { label: "Category", value: request.categoryLabel },
+          { label: "External execution", value: false },
+          { label: "Mutation", value: false },
+        ],
+        items: [
+          {
+            title: "Owner triage",
+            detail: "Record this request as planning evidence before any implementation lane.",
+            status: "owner_review",
+          },
+        ],
+      },
+      {
+        title: "Boundaries",
+        items: DEVELOPER_SPACE_AGENT_EXECUTION_RECEIPT_BOUNDARIES.map((boundary) => ({
+          title: safeAgentText(boundary, "No external action executed.", 160),
+          status: "not_executed",
+        })),
+      },
+    ],
+  };
+}
+
 function effectiveDeveloperSpaceAgentConfirmationStatus(row: any, now = new Date()) {
   if (row.status === "pending" && row.expires_at && Date.parse(row.expires_at) <= now.getTime()) {
     return "expired" as const;
@@ -1405,15 +1596,18 @@ function developerSpaceAgentConfirmationPayloadMatchesHash(row: any) {
     && row.preview_hash === payloadHash(row.sanitized_payload ?? {});
 }
 
-function developerSpaceAgentExecutionReceiptPayload(): DeveloperSpaceAgentExecutionReceiptRecord["receiptPayload"] {
+function developerSpaceAgentExecutionReceiptPayload(
+  request = developerSpaceAgentCapabilityRequest({})
+): DeveloperSpaceAgentExecutionReceiptRecord["receiptPayload"] {
   return {
     action: DEVELOPER_SPACE_AGENT_EXECUTION_RECEIPT_ACTION,
     outcome: "capability_request_recorded" as const,
     executionAvailable: false as const,
     mutationAvailable: false as const,
     externalDispatch: false as const,
-    nextStep: "Review this capability request in the roadmap before opening a new implementation lane.",
+    nextStep: `Review this ${request.categoryLabel.toLowerCase()} request before opening a new implementation lane.`,
     boundaries: DEVELOPER_SPACE_AGENT_EXECUTION_RECEIPT_BOUNDARIES,
+    capabilityRequest: request,
   };
 }
 
@@ -1490,6 +1684,7 @@ function normaliseDeveloperSpaceAgentExecutionReceiptPayload(input: unknown): De
     ? payload.publishedDocument as Record<string, unknown>
     : null;
   const publishedRole = developerSpaceAgentDocumentRole(publishedDocumentPayload?.role);
+  const capabilityRequest = developerSpaceAgentCapabilityRequestFromPayload(payload);
 
   return {
     action: action as DeveloperSpaceAgentExecutionReceiptAction,
@@ -1514,6 +1709,9 @@ function normaliseDeveloperSpaceAgentExecutionReceiptPayload(input: unknown): De
       220,
     ),
     boundaries,
+    ...(action === DEVELOPER_SPACE_AGENT_EXECUTION_RECEIPT_ACTION
+      ? { capabilityRequest }
+      : {}),
     ...(action === DEVELOPER_SPACE_AGENT_DRAFT_DOCUMENT_ACTION
       ? {
           draftDocument: {
@@ -3100,7 +3298,12 @@ developerSpacesRouter.post("/:id/agent/actions/confirmations", requireAuth, asyn
   const now = new Date();
   const expiresAt = new Date(now.getTime() + parsed.data.expiresInMinutes * 60_000).toISOString();
   let sanitizedPayload: Record<string, unknown>;
-  if (action === DEVELOPER_SPACE_AGENT_PUBLISH_DOCUMENT_ACTION) {
+  if (action === DEVELOPER_SPACE_AGENT_EXECUTION_RECEIPT_ACTION) {
+    sanitizedPayload = developerSpaceAgentCapabilityConfirmationPayload(
+      entry,
+      developerSpaceAgentCapabilityRequest(parsed.data),
+    );
+  } else if (action === DEVELOPER_SPACE_AGENT_PUBLISH_DOCUMENT_ACTION) {
     const target = await loadDeveloperSpaceAgentPublishTarget({
       space: ownerLoad.space,
       targetDocumentId: parsed.data.targetDocumentId,
@@ -3145,9 +3348,11 @@ developerSpacesRouter.post("/:id/agent/actions/confirmations", requireAuth, asyn
   return res.status(201).json({
     confirmation: serializeDeveloperSpaceAgentConfirmation(data),
     executionAvailable: action === DEVELOPER_SPACE_AGENT_PUBLISH_DOCUMENT_ACTION,
-    message: action === DEVELOPER_SPACE_AGENT_PUBLISH_DOCUMENT_ACTION
-      ? "Publish confirmation recorded for the selected reviewed draft."
-      : "Confirmation recorded for owner review only. Execution is unavailable in this lane.",
+    message: action === DEVELOPER_SPACE_AGENT_EXECUTION_RECEIPT_ACTION
+      ? "Capability request recorded for owner triage. No external action executed."
+      : action === DEVELOPER_SPACE_AGENT_PUBLISH_DOCUMENT_ACTION
+        ? "Publish confirmation recorded for the selected reviewed draft."
+        : "Confirmation recorded for owner review only. Execution is unavailable in this lane.",
   });
 });
 
@@ -3438,7 +3643,10 @@ developerSpacesRouter.post("/:id/agent/actions/confirmations/:confirmationId/exe
     successMessage = "Reviewed project update draft published to the public Developer Space evidence path.";
     executionAvailable = true;
   } else {
-    receiptPayload = developerSpaceAgentExecutionReceiptPayload();
+    const capabilityRequest = developerSpaceAgentCapabilityRequestFromPayload(loaded.confirmation.sanitized_payload);
+    receiptPayload = developerSpaceAgentExecutionReceiptPayload(capabilityRequest);
+    receiptSummary = `Capability request recorded: ${capabilityRequest.categoryLabel} - ${capabilityRequest.summary}`;
+    successMessage = "Capability request recorded for owner triage. No external action executed.";
   }
 
   const { data, error } = await (getSupabaseAdmin() as any)

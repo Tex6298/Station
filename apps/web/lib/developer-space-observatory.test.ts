@@ -275,6 +275,11 @@ test("developer agent receipt helpers gate bounded receipt actions", () => {
       externalDispatch: false,
       nextStep: "Review before implementation.",
       boundaries: [],
+      capabilityRequest: {
+        category: "provider_config",
+        categoryLabel: "Provider Config",
+        summary: "Need provider configuration reviewed before implementation.",
+      },
     },
   }), /No provider, deploy, repo, key/);
   assert.match(developerSpaceAgentReceiptExecutionCopy({

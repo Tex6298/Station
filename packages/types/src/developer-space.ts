@@ -278,6 +278,11 @@ export interface DeveloperSpaceAgentExecutionReceiptRecord {
     externalDispatch: false;
     nextStep: string;
     boundaries: string[];
+    capabilityRequest?: {
+      category: string;
+      categoryLabel: string;
+      summary: string;
+    };
     draftDocument?: {
       title: string;
       status: "draft";
