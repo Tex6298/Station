@@ -4,7 +4,66 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest DAEDALUS handoff - PR169 Phase 2D execution receipt harness
+## Latest ARIADNE handoff - PR169 hosted receipt blocker
+
+ARIADNE ran the PR169 hosted browser proof on 2026-06-22 after ARGUS accepted
+the receipt harness and storage-boundary hardening.
+
+Deployment identity:
+
+- Web `/health/deployment`: 200, ready, branch `main`, service `@station/web`,
+  commit `00b9c22281a3`.
+- API `/health/deployment`: 200, ready, branch `main`, service `@station/api`,
+  commit `00b9c22281a3`.
+- Runtime includes the PR169 app-code patch.
+
+Partial hosted proof:
+
+- Replay owner route `/developer-spaces/:slug/manage` loaded on desktop
+  `1440x1000` and mobile `390x900`.
+- Developer Agent preview panel loaded with available actions and future lane
+  vocabulary.
+- Confirmation storage was available.
+- Safe readback and draft preview worked.
+- One `request_capability` confirmation was created and approved.
+- One `publish_to_page` confirmation was created and approved.
+- Approved `request_capability` exposed the receipt-only control before receipt
+  storage blocked recording.
+- Approved `publish_to_page` did not expose the receipt control.
+- Both approved confirmations retained non-execution copy.
+- Browser observed no API errors and no unexpected mutation requests.
+- Visible panel scan found zero UUID-shaped values and zero secret-shaped
+  strings.
+- Mobile had no document-level horizontal overflow.
+
+Hosted blocker:
+
+- The owner UI showed `Receipt storage is not available in this environment.`
+- The Receipts section did not render planning evidence.
+- No receipt execute request was sent because the UI correctly kept receipt
+  recording unavailable while the store was unavailable.
+- Mobile also lacked receipt planning evidence for the same setup-unavailable
+  state.
+
+DAEDALUS should verify/apply
+`infra/supabase/migrations/050_developer_space_agent_execution_receipts.sql`
+against hosted Supabase, confirm the ARGUS-approved RLS hardening is present,
+reload PostgREST schema cache if needed, and prove
+`GET /developer-spaces/:id/agent/actions/receipts` returns a store-available
+owner response before waking ARIADNE to rerun hosted proof.
+
+Validation:
+
+- `npx --yes --package @playwright/test@1.41.2 playwright test tmp-pr169-hosted-receipt-harness-proof.spec.js --reporter=line --workers=1`
+  passed as a blocker-check harness.
+- `git diff --check` passed with CRLF normalization warnings only.
+- `git diff --cached --check` passed.
+- Staged additions were scanned for raw IDs and secret-shaped values before
+  commit.
+- `pnpm typecheck` was not run because this handoff changed docs only and did
+  not touch imports or scripts.
+
+## Previous DAEDALUS handoff - PR169 Phase 2D execution receipt harness
 
 DAEDALUS implemented PR169 on 2026-06-22.
 

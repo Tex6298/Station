@@ -5,7 +5,7 @@ Opened by: A1 / MIMIR
 Owner: DAEDALUS implements.
 Reviewer: ARGUS reviews owner scope, execution boundary, and leak risk.
 Rehearsal: ARIADNE runs hosted browser proof if ARGUS accepts visible UI.
-Status: DAEDALUS implementation complete; open for ARGUS review
+Status: hosted browser blocker found; waking DAEDALUS
 
 ## Why This Lane
 
@@ -241,3 +241,124 @@ Next baton:
   receipt serialization, and visible copy.
 - Visible owner UI changed, so ARIADNE should rehearse hosted staging after
   ARGUS acceptance.
+
+## ARGUS Review - 2026-06-22
+
+ARGUS accepts PR169 with a narrow storage-boundary hardening patch and wakes
+ARIADNE for hosted browser proof because the owner manage UI changed.
+
+Review verdict:
+
+- Accepted: `developer_space_agent_execution_receipts` RLS now requires the
+  linked confirmation to be approved, owner-scoped, same-Space, and
+  `action = request_capability`.
+- Accepted: this aligns direct table access with the API rule that pending,
+  cancelled, expired, and real-action confirmations do not create receipts.
+- Accepted: the receipt harness remains inert. Owner-only execute records one
+  route-generated planning receipt only for approved `request_capability`
+  confirmations.
+- Accepted: repeat execute is idempotent.
+- Accepted: approved real actions remain blocked.
+- Accepted: serialized receipts omit raw owner ids, confirmation ids, preview
+  hashes, raw payloads, prompts, keys, provider payloads, cookies, tokens,
+  environment values, and private logs.
+- Accepted: UI copy presents receipts as planning evidence rather than
+  execution.
+
+ARGUS validation:
+
+- `npx -y pnpm@10.32.1 test:developer-spaces` passed with 36 tests.
+- `npx -y pnpm@10.32.1 test:developer-space-client` passed with 15 tests.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/types build` passed.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/api build` passed.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/web build` compiled,
+  linted/typechecked, generated 36 static pages, finalized optimization, and
+  collected traces, then hit the known local Windows `.next/standalone` symlink
+  `EPERM`.
+- `git diff --check` and `git diff --cached --check` passed with CRLF warnings
+  only.
+- Staged added-line secret/UUID scan passed.
+
+## ARIADNE Hosted Browser Proof - 2026-06-22
+
+ARIADNE ran the hosted owner browser proof after ARGUS acceptance.
+
+Deployment identity:
+
+- Web `/health/deployment`: 200, ready, branch `main`, service `@station/web`,
+  commit `00b9c22281a3`.
+- API `/health/deployment`: 200, ready, branch `main`, service `@station/api`,
+  commit `00b9c22281a3`.
+- Verdict: runtime includes the PR169 app-code patch.
+
+Route and viewport:
+
+- Route: `/developer-spaces/:slug/manage`.
+- Account role: replay owner.
+- Desktop viewport: `1440x1000`.
+- Mobile viewport: `390x900`.
+
+Partial hosted proof:
+
+- Developer Agent preview panel rendered.
+- Available actions rendered.
+- Future lane vocabulary rendered.
+- Confirmation storage was available.
+- Generic confirmation-load and receipt-load failure copy was not visible.
+- Safe readback preview worked.
+- Draft preview worked.
+- One `request_capability` confirmation was created and approved.
+- One `publish_to_page` confirmation was created and approved.
+- Approved `request_capability` showed the receipt-only control before receipt
+  storage blocked recording.
+- Approved `publish_to_page` did not expose the receipt control.
+- Both approved confirmations retained non-execution copy.
+- Browser observed no API errors and no unexpected mutation requests.
+- Visible panel scan found zero UUID-shaped values and zero secret-shaped
+  strings.
+- Mobile had no document-level horizontal overflow.
+
+Hosted blocker:
+
+- The owner UI showed `Receipt storage is not available in this environment.`
+- The Receipts section did not render planning evidence.
+- No receipt execute request was sent because the UI correctly kept receipt
+  recording unavailable while the store was unavailable.
+- Mobile also lacked receipt planning evidence for the same setup-unavailable
+  state.
+
+Expected:
+
+- Hosted staging exposes `developer_space_agent_execution_receipts` to the
+  deployed API, `GET /developer-spaces/:id/agent/actions/receipts` returns a
+  store-available owner response, and an approved `request_capability`
+  confirmation can record one non-executing planning receipt.
+
+Actual:
+
+- Hosted app-code is current, but receipt storage is still unavailable to the
+  owner UI, so the browser proof cannot record or display the PR169 receipt.
+
+Narrowest DAEDALUS fix:
+
+- Verify/apply
+  `infra/supabase/migrations/050_developer_space_agent_execution_receipts.sql`
+  against hosted Supabase.
+- Verify the RLS policy includes the ARGUS hardening that requires approved
+  `request_capability` confirmations.
+- Reload PostgREST schema cache if needed.
+- Prove hosted `GET /developer-spaces/:id/agent/actions/receipts` returns a
+  store-available owner response, then wake ARIADNE to rerun the browser proof.
+
+Validation:
+
+- `npx --yes --package @playwright/test@1.41.2 playwright test tmp-pr169-hosted-receipt-harness-proof.spec.js --reporter=line --workers=1`
+  passed as a blocker-check harness.
+- `git diff --check` passed with CRLF normalization warnings only.
+- `git diff --cached --check` passed.
+- Staged additions were scanned for raw IDs and secret-shaped values before
+  commit.
+- `pnpm typecheck` was not run because this handoff changed docs only and did
+  not touch imports or scripts.
