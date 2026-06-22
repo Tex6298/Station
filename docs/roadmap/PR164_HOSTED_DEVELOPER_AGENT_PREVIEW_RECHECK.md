@@ -4,7 +4,7 @@ Date opened: 2026-06-22
 Opened by: A1 / MIMIR
 Owner: ARIADNE rehearses hosted staging. DAEDALUS fixes only exact blockers.
 ARGUS reviews only if a visibility/security boundary looks wrong.
-Status: open for ARIADNE
+Status: hosted proof passed; waking MIMIR for closeout
 
 ## Why This Lane
 
@@ -86,3 +86,66 @@ ARIADNE should wake MIMIR if hosted proof passes. If the panel is absent because
 Railway is still serving an older app-code commit after bounded retry, wake
 MIMIR with the deployment identity and wait/retry recommendation rather than
 opening a DAEDALUS fix.
+
+## ARIADNE Hosted Recheck
+
+Completed on 2026-06-22.
+
+Deployment identity:
+
+- Web `/health/deployment`: HTTP 200, `ok: true`, `ready: true`, service
+  `@station/web`, branch `main`, commit `ce25f463c1e6`.
+- API `/health/deployment`: HTTP 200, `ok: true`, `ready: true`, service
+  `@station/api`, branch `main`, commit `ce25f463c1e6`.
+
+Runtime verdict: hosted Railway is serving the PR163 app-code commit.
+
+Hosted route:
+
+- `/developer-spaces/:slug/manage` as the replay owner.
+- Desktop viewport: 1440x1000.
+- Mobile viewport: 390x900.
+
+Result:
+
+- Developer Agent preview panel was visible on the owner manage page.
+- Available actions loaded from the PR162 action registry.
+- `Read Developer Space brief` previewed successfully as a safe readback.
+- `Draft project update` read as owner-review draft/preview, not as publish or
+  mutation.
+- A future action (`Run job` or equivalent future-lane control) read as
+  blocked/future-lane with owner-review posture, not as a broken or live
+  execution affordance.
+- The panel showed owner-only/autonomous-execution/mutation/raw-payload
+  boundary facts.
+- Panel visible text scan found zero UUID-shaped values and zero
+  secret-shaped values for the checked patterns.
+- Nearby manage-page surfaces were present at a human level: ingestion key,
+  current observatory state, usage, visual mode, observatory widgets, exports,
+  evidence path, and the public observatory link.
+- 390px mobile showed the panel and both readback/future controls, with no
+  document-level horizontal overflow.
+- No browser-visible API errors were observed during the hosted route and
+  preview checks.
+
+Verdict:
+
+- Hosted proof passes.
+- No DAEDALUS follow-up is required from PR164.
+
+Caveats:
+
+- This was a focused hosted proof for the PR163 panel and nearby manage-page
+  regressions, not a broad Developer Space audit.
+- No keys, signing material, webhooks, exports, visual settings, billing,
+  public pages, provider calls, model chat, autonomous execution, Cloudflare,
+  Redis workers, queues, hosted runtime, repo/shell/deploy paths, imports,
+  replay data, or cache state were mutated.
+- Credentials, tokens, cookies, raw IDs, raw API keys, signing material,
+  provider payloads, prompts, raw response bodies, and private owner content
+  were not printed or committed.
+
+Validation:
+
+- `npx --yes --package @playwright/test@1.41.2 playwright test tmp-pr164-hosted-agent-preview.spec.js --reporter=line --workers=1`
+  passed: 1 test.

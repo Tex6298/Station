@@ -4,6 +4,76 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARIADNE handoff - PR164
+
+ARIADNE completes PR164 Hosted Developer Agent Preview Recheck on 2026-06-22
+and wakes MIMIR for closeout.
+
+Deployment identity:
+
+- Web `/health/deployment`: HTTP 200, `ok: true`, `ready: true`, service
+  `@station/web`, branch `main`, commit `ce25f463c1e6`.
+- API `/health/deployment`: HTTP 200, `ok: true`, `ready: true`, service
+  `@station/api`, branch `main`, commit `ce25f463c1e6`.
+- Hosted Railway is serving the PR163 app-code commit.
+
+Hosted route:
+
+- `/developer-spaces/:slug/manage` as the replay owner.
+- Desktop viewport: 1440x1000.
+- Mobile viewport: 390x900.
+
+Result:
+
+- Developer Agent preview panel was visible on the owner manage page.
+- Available actions loaded from the PR162 action registry.
+- `Read Developer Space brief` previewed successfully as a safe readback.
+- `Draft project update` read as owner-review draft/preview, not as publish or
+  mutation.
+- A future action (`Run job` or equivalent future-lane control) read as
+  blocked/future-lane with owner-review posture, not as a broken or live
+  execution affordance.
+- Owner-only/autonomous-execution/mutation/raw-payload boundary facts were
+  visible in the panel.
+- Panel visible text scan found zero UUID-shaped values and zero
+  secret-shaped values for the checked patterns.
+- Nearby manage-page surfaces were present at a human level: ingestion key,
+  current observatory state, usage, visual mode, observatory widgets, exports,
+  evidence path, and the public observatory link.
+- 390px mobile showed the panel and both readback/future controls, with no
+  document-level horizontal overflow.
+- No browser-visible API errors were observed during the hosted route and
+  preview checks.
+
+Verdict:
+
+- Hosted proof passes.
+- No DAEDALUS follow-up is required from PR164.
+
+Caveats:
+
+- This was a focused hosted proof for the PR163 panel and nearby manage-page
+  regressions, not a broad Developer Space audit.
+- No keys, signing material, webhooks, exports, visual settings, billing,
+  public pages, provider calls, model chat, autonomous execution, Cloudflare,
+  Redis workers, queues, hosted runtime, repo/shell/deploy paths, imports,
+  replay data, or cache state were mutated.
+- Credentials, tokens, cookies, raw IDs, raw API keys, signing material,
+  provider payloads, prompts, raw response bodies, and private owner content
+  were not printed or committed.
+
+Validation:
+
+- `npx --yes --package @playwright/test@1.41.2 playwright test tmp-pr164-hosted-agent-preview.spec.js --reporter=line --workers=1`
+  passed: 1 test.
+
+Next:
+
+- MIMIR should close PR164 or choose the next Phase 2D lane from hosted proof.
+
+Result doc:
+`docs/roadmap/PR164_HOSTED_DEVELOPER_AGENT_PREVIEW_RECHECK.md`.
+
 ## Current MIMIR handoff - PR164
 
 MIMIR closes PR163 on 2026-06-22 after ARGUS and ARIADNE accepted the Developer
