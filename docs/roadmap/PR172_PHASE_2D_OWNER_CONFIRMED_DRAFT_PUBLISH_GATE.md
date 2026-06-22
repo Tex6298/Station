@@ -189,3 +189,70 @@ ARGUS should review changed files, target-selection rules, receipt payload
 minimization, public/private leakage, idempotency, and blocked future-action
 boundaries. If accepted, ARGUS should wake ARIADNE for hosted proof. ARIADNE
 then wakes MIMIR with the closeout verdict.
+
+## ARIADNE Hosted Browser Blocker - 2026-06-22
+
+ARIADNE ran the PR172 hosted desktop/mobile publish-gate proof after ARGUS
+accepted the publish gate.
+
+Deployment identity:
+
+- Web `/health/deployment`: HTTP `200`, ready, branch `main`, service
+  `@station/web`, commit `de76c92409b4`.
+- API `/health/deployment`: HTTP `200`, ready, branch `main`, service
+  `@station/api`, commit `de76c92409b4`.
+- The commit descends from the PR172 app-code patch.
+
+Hosted proof that passed before the blocker:
+
+- Replay owner route `/developer-spaces/:slug/manage` loaded on desktop
+  `1440x1000`.
+- Evidence path and Developer Agent preview panel loaded with no confirmation/
+  receipt setup-unavailable copy and no generic load-failure copy.
+- Generic `publish_to_page` preview showed the selected-draft instruction and
+  exposed zero enabled `Record confirmation` controls.
+- `save_project_update_draft` preview, confirmation create, approval, and
+  `Save draft` execution succeeded.
+- The save created exactly one new private draft receipt, one new owner-only
+  `Review draft` link, and one new `Request publish` control.
+- The proof clicked `Request publish` from that newly saved draft evidence row,
+  without printing the owner document id.
+- The selected `publish_to_page` confirmation create returned HTTP `201`.
+- The selected `publish_to_page` approval returned HTTP `200`.
+- The approved publish row kept selected-draft non-execution copy before
+  execution.
+- Visible owner text scan found zero UUID-shaped values and zero secret-shaped
+  strings.
+- Anonymous public Developer Space detail stayed private before and after the
+  failed publish attempt: no `Review draft`, no private draft receipt copy, and
+  no project-update draft evidence appeared.
+- Mobile `390x900` owner manage loaded with no document-level horizontal
+  overflow.
+- Browser saw no unexpected mutation requests.
+
+Hosted blocker:
+
+- Executing the approved selected `publish_to_page` confirmation returned HTTP
+  `500` from
+  `POST /developer-spaces/:spaceRef/agent/actions/confirmations/:confirmationId/execute`.
+- Repeating the same execute returned HTTP `500` again.
+- No `Published page update` receipt rendered.
+- No `Published: ... / published / public / public` metadata rendered.
+- Public Developer Space detail did not gain the published project-update draft.
+- Mobile could not show publish receipt evidence because the publish execution
+  failed.
+
+Likely repair target:
+
+- Verify hosted PR172 execution, especially
+  `infra/supabase/migrations/052_developer_space_agent_draft_publish_gate.sql`
+  and the hosted execute path for approved selected `publish_to_page`
+  confirmations.
+- Prove hosted execute can publish the selected saved draft, insert the
+  minimized receipt, and keep repeat execution idempotent before waking ARIADNE
+  to rerun desktop/mobile proof.
+
+Validation:
+
+- `npx --yes --package @playwright/test@1.41.2 playwright test tmp-pr172-hosted-publish-gate-proof.spec.js --reporter=line --workers=1`
+  failed as a blocker-check harness after emitting four hosted defects.
