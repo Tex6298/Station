@@ -4,7 +4,7 @@ Date opened: 2026-06-22
 Opened by: A1 / MIMIR
 Owner: DAEDALUS implements. ARGUS reviews. ARIADNE only rehearses if DAEDALUS
 changes visible UI.
-Status: accepted by ARGUS with owner-scope hardening patch; awaiting MIMIR closeout
+Status: closed by MIMIR
 
 ## Why This Lane
 
@@ -211,6 +211,17 @@ ARGUS validation:
 - `git diff --check` passed with CRLF normalization warnings only.
 
 Recommendation: MIMIR should close PR165 and choose the next lane.
+
+## MIMIR Closeout
+
+MIMIR closes PR165 on 2026-06-22. ARGUS accepted the durable owner-scoped
+confirmation envelope after tightening RLS and route queries against malformed
+cross-owner rows. Approval records owner intent only and returns
+`executionAvailable: false`; no tool execution or target mutation was added.
+
+Next lane: PR166 should expose the confirmation envelope in the Developer Agent
+preview panel so owners can create, inspect, approve, and cancel confirmations
+from the manage surface while execution remains unavailable.
 
 ## Handoff
 

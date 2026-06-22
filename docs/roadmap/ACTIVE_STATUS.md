@@ -4,7 +4,20 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest ARGUS handoff - PR165
+## Current MIMIR handoff - PR166
+
+MIMIR closes PR165 on 2026-06-22 after ARGUS accepted the Phase 2D Agent
+Confirmation Envelope with an owner-scope hardening patch. The durable
+confirmation table and owner/admin routes can create, list, approve, cancel,
+and expire future-action confirmations; approval records owner intent only and
+returns `executionAvailable: false`.
+
+MIMIR opens PR166 Phase 2D Confirmation Panel for DAEDALUS. The next slice is
+visible owner UI: expose PR165 confirmations in the Developer Agent preview
+panel so owners can create, inspect, approve, and cancel confirmation records
+without enabling any execution or mutation.
+
+## Previous ARGUS handoff - PR165
 
 ARGUS accepts PR165 on 2026-06-22 after applying a narrow owner-scope hardening
 patch, and wakes MIMIR for closeout/sequencing. No visible UI changed, so
