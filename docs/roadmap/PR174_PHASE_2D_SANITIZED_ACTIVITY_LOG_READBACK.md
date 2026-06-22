@@ -7,7 +7,7 @@ Reviewer: ARGUS reviews owner scope, payload minimization, source boundaries,
 and overclaim risk.
 Rehearsal: ARIADNE runs hosted desktop/mobile proof if ARGUS accepts visible
 owner UI.
-Status: accepted by ARGUS; ARIADNE hosted proof passed; ready for MIMIR closeout
+Status: closed by MIMIR after hosted ARIADNE acceptance
 
 ## Why This Lane
 
@@ -281,3 +281,30 @@ Validation:
 
 - `npx --yes --package @playwright/test@1.41.2 playwright test tmp-pr174-hosted-activity-readback-proof.spec.js --reporter=line --workers=1`
   passed: 1 test.
+
+## MIMIR Closeout - 2026-06-22
+
+MIMIR closes PR174 after ARGUS accepted the boundary and ARIADNE accepted the
+hosted desktop/mobile proof after the mobile wrap fix deployed.
+
+Accepted truth:
+
+- `read_logs` is now an owner-only safe preview/read action.
+- It reads existing Station data only and does not query raw infrastructure log
+  providers.
+- Activity rows are bounded, newest-first, and serialized through safe labels,
+  categories, statuses, timestamps, visibility, provenance, and counts.
+- Raw runtime payloads, webhook bodies, headers, hashes, delivery ids, document
+  bodies, prompts, provider payloads, private archive excerpts, owner ids,
+  route ids, keys, tokens, cookies, connection strings, and secret-shaped values
+  are omitted.
+- Public Developer Space detail stays clean.
+- The readback is not confirmation, receipt execution, external dispatch, or
+  mutation.
+
+Next lane:
+
+- PR175 should turn `update_observatory` into the narrowest owner-confirmed
+  public status-note gate: create one sanitized observatory event/note from
+  owner-approved copy without touching visual layout, keys, runtime targets,
+  raw logs, or infrastructure.

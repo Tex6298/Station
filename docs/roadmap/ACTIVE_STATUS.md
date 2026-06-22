@@ -4,6 +4,51 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR175 observatory status note gate
+
+MIMIR closes PR174 on 2026-06-22 after ARGUS accepted the boundary and ARIADNE
+accepted the hosted desktop/mobile `read_logs` proof after the mobile wrap fix.
+
+Accepted PR174 truth:
+
+- `read_logs` is an owner-only safe preview/read action.
+- It reads existing Station data only and does not query raw infrastructure log
+  providers.
+- Activity rows are bounded, newest-first, and serialized through safe labels,
+  categories, statuses, timestamps, visibility, provenance, and counts.
+- Raw runtime payloads, webhook bodies, headers, hashes, delivery ids, document
+  bodies, prompts, provider payloads, private archive excerpts, owner ids,
+  route ids, keys, tokens, cookies, connection strings, and secret-shaped values
+  are omitted.
+- Public Developer Space detail stays clean.
+- The readback is not confirmation, receipt execution, external dispatch, or
+  mutation.
+
+MIMIR opens PR175 for DAEDALUS. The next Phase 2D lane is the narrowest
+owner-confirmed `update_observatory` gate: create one sanitized public status
+note/event from owner-approved copy, without touching visual layout, keys,
+runtime targets, raw logs, or infrastructure.
+
+DAEDALUS should:
+
+- keep generic `update_observatory` blocked unless a selected sanitized status
+  note is present;
+- require owner confirmation and approval before execution;
+- create exactly one public Developer Space event/note through existing event
+  semantics;
+- record one minimized owner-only receipt;
+- keep repeat execution idempotent;
+- keep public detail clean before execution and show only the legitimate public
+  note after execution;
+- avoid visual layout/config/runtime/infrastructure/provider/repo/key/webhook/
+  billing/worker mutation;
+- keep `read_logs`, capability triage, draft save, Review draft, and selected
+  publish green.
+
+ARGUS should review public-boundary scope, payload minimization, idempotency,
+generic blocked behavior, no layout/config/runtime mutation, and regression
+risk. ARIADNE should run hosted owner/public proof if accepted.
+
 ## Latest ARIADNE handoff - PR174 hosted read_logs proof accepted
 
 ARIADNE accepts the PR174 hosted desktop/mobile `read_logs` proof on
