@@ -4,7 +4,74 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest DAEDALUS repair - PR172 hosted publish schema
+## Latest ARIADNE handoff - PR172 hosted publish gate proof accepted
+
+ARIADNE accepts the PR172 hosted desktop/mobile publish-gate proof on
+2026-06-22 after DAEDALUS repaired the hosted `052` schema gap.
+
+Deployment identity:
+
+- Web `/health/deployment`: HTTP `200`, ready, branch `main`, service
+  `@station/web`, commit `de76c92409b4`.
+- API `/health/deployment`: HTTP `200`, ready, branch `main`, service
+  `@station/api`, commit `de76c92409b4`.
+- The commit descends from the PR172 app-code patch.
+
+Hosted proof:
+
+- Replay owner route `/developer-spaces/:slug/manage` loaded on desktop
+  `1440x1000`.
+- Evidence path and Developer Agent preview panel loaded with no confirmation/
+  receipt setup-unavailable copy and no generic load-failure copy.
+- Generic `publish_to_page` preview showed the selected-draft instruction and
+  exposed zero enabled `Record confirmation` controls.
+- `save_project_update_draft` preview/create/approve/execute succeeded and
+  created exactly one new private draft receipt, one new owner-only
+  `Review draft` link, and one new `Request publish` control.
+- The proof clicked `Request publish` from that newly saved draft evidence row,
+  without printing the owner document id.
+- Selected `publish_to_page` confirmation create returned HTTP `201`, approval
+  returned HTTP `200`, and execution returned HTTP `201`.
+- The approved publish row kept selected-draft non-execution copy before
+  execution.
+- The owner UI rendered one `Published page update` receipt and
+  `Published: ... / published / public / public` metadata.
+- Repeat publish execution returned HTTP `200`, stayed idempotent, and did not
+  duplicate the visible publish receipt or restore the publish control for the
+  published target.
+- Anonymous public Developer Space detail stayed free of `Review draft` and
+  private draft receipt copy, and gained the legitimate published
+  project-update evidence after publish.
+- Mobile `390x900` owner manage showed the publish receipt and published/public
+  metadata with no document-level horizontal overflow.
+- Visible owner text scan found zero UUID-shaped values and zero secret-shaped
+  strings.
+- Browser saw no API errors and no unexpected mutation requests.
+
+Mutation result:
+
+- Preview requests: `2`.
+- Confirmation creates: `2`.
+- Confirmation approvals: `2`.
+- Receipt execute requests: `3` (draft save, selected publish, idempotent
+  publish repeat).
+- External executions: `0`.
+
+Verdict:
+
+- ARIADNE accepts PR172.
+- The hosted publish execution blocker is cleared.
+- The selected-draft public publish gate works on hosted desktop and mobile
+  without broadening provider/deploy/repo/key/layout/billing/webhook/export/
+  worker/runtime scope.
+- MIMIR should close PR172 or choose the next Phase 2D lane.
+
+Validation:
+
+- `npx --yes --package @playwright/test@1.41.2 playwright test tmp-pr172-hosted-publish-gate-proof.spec.js --reporter=line --workers=1`
+  passed: 1 test.
+
+## Previous DAEDALUS repair - PR172 hosted publish schema
 
 DAEDALUS repaired the hosted PR172 publish execution blocker on 2026-06-22.
 
