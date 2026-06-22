@@ -40,6 +40,7 @@ class InMemorySupabase {
     developer_space_observed_runtime_context: [],
     developer_space_observed_runtime_webhook_receipts: [],
     developer_space_webhook_signing_secrets: [],
+    developer_space_agent_confirmations: [],
     documents: [],
     ai_trace_sessions: [],
     ai_trace_events: [],
@@ -195,6 +196,16 @@ class InMemorySupabase {
       row.status ??= "active";
       row.last_used_at ??= null;
       row.revoked_at ??= null;
+      row.created_at ??= now;
+      row.updated_at ??= now;
+    }
+
+    if (table === "developer_space_agent_confirmations") {
+      row.status ??= "pending";
+      row.sanitized_payload ??= {};
+      row.requested_at ??= now;
+      row.approved_at ??= null;
+      row.cancelled_at ??= null;
       row.created_at ??= now;
       row.updated_at ??= now;
     }
@@ -1559,6 +1570,159 @@ test("Developer Space agent future and unsupported actions reject without side e
     assert.equal(db.tables.developer_space_events.length, 0);
     assert.equal(db.tables.developer_space_nodes.length, 0);
     assert.equal(db.tables.developer_space_snapshots.length, 0);
+    assert.equal(db.tables.ai_trace_sessions.length, 0);
+    assert.equal(db.tables.ai_trace_events.length, 0);
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
+
+test("Developer Space agent confirmations record owner intent without execution", async () => {
+  const db = new InMemorySupabase();
+  setSupabaseAdminForTests(db.client as any);
+  const app = createDeveloperSpacesApp();
+
+  try {
+    const created = await requestJson(app, "POST", "/developer-spaces", {
+      token: "owner-token",
+      body: {
+        projectName: "Agent Confirmation Lane",
+        visibility: "private",
+      },
+    });
+    assert.equal(created.status, 201);
+    const spaceId = created.body.space.id;
+
+    const anonymousList = await requestJson(app, "GET", `/developer-spaces/${spaceId}/agent/actions/confirmations`);
+    assert.equal(anonymousList.status, 401);
+
+    const nonOwnerList = await requestJson(app, "GET", `/developer-spaces/${spaceId}/agent/actions/confirmations`, {
+      token: "other-token",
+    });
+    assert.equal(nonOwnerList.status, 403);
+
+    const previewOnly = await requestJson(app, "POST", `/developer-spaces/${spaceId}/agent/actions/confirmations`, {
+      token: "owner-token",
+      body: { action: "draft_project_update" },
+    });
+    assert.equal(previewOnly.status, 400);
+    assert.equal(previewOnly.body.code, "developer_space_agent_confirmation_not_required");
+
+    const unsupported = await requestJson(app, "POST", `/developer-spaces/${spaceId}/agent/actions/confirmations`, {
+      token: "owner-token",
+      body: { action: "delete_everything" },
+    });
+    assert.equal(unsupported.status, 400);
+    assert.equal(unsupported.body.code, "developer_space_agent_confirmation_unsupported_action");
+    assert.equal(db.tables.developer_space_agent_confirmations.length, 0);
+
+    const publish = await requestJson(app, "POST", `/developer-spaces/${spaceId}/agent/actions/confirmations`, {
+      token: "owner-token",
+      body: {
+        action: "publish_to_page",
+        expiresInMinutes: 30,
+        input: { rawPrompt: "publish this private owner prompt", privateMarker: "fixture-sensitive-marker" },
+      },
+    });
+    assert.equal(publish.status, 201);
+    assert.equal(publish.body.executionAvailable, false);
+    assert.equal(publish.body.confirmation.action, "publish_to_page");
+    assert.equal(publish.body.confirmation.status, "pending");
+    assert.equal(typeof publish.body.confirmation.previewHash, "string");
+    assert.equal(publish.body.confirmation.sanitizedPayload.executionAvailable, false);
+    assert.equal(publish.body.confirmation.sanitizedPayload.mutationAvailable, false);
+    assert.doesNotMatch(JSON.stringify(publish.body), /private owner prompt|fixture-sensitive-marker|rawPrompt/);
+
+    const adminRunJob = await requestJson(app, "POST", `/developer-spaces/${spaceId}/agent/actions/confirmations`, {
+      token: "admin-token",
+      body: { action: "run_job" },
+    });
+    assert.equal(adminRunJob.status, 201);
+    assert.equal(adminRunJob.body.confirmation.ownerUserId, "owner-user");
+
+    const ownerList = await requestJson(app, "GET", `/developer-spaces/${spaceId}/agent/actions/confirmations`, {
+      token: "owner-token",
+    });
+    assert.equal(ownerList.status, 200);
+    assert.equal(ownerList.body.confirmations.length, 2);
+    assert.deepEqual(
+      ownerList.body.confirmations.map((confirmation: Row) => confirmation.action).sort(),
+      ["publish_to_page", "run_job"],
+    );
+
+    const nonOwnerApprove = await requestJson(app, "POST", `/developer-spaces/${spaceId}/agent/actions/confirmations/${publish.body.confirmation.id}/approve`, {
+      token: "other-token",
+    });
+    assert.equal(nonOwnerApprove.status, 403);
+
+    const approved = await requestJson(app, "POST", `/developer-spaces/${spaceId}/agent/actions/confirmations/${publish.body.confirmation.id}/approve`, {
+      token: "owner-token",
+    });
+    assert.equal(approved.status, 200);
+    assert.equal(approved.body.confirmation.status, "approved");
+    assert.equal(approved.body.executionAvailable, false);
+    assert.match(approved.body.message, /Execution is unavailable/);
+
+    const approveAgain = await requestJson(app, "POST", `/developer-spaces/${spaceId}/agent/actions/confirmations/${publish.body.confirmation.id}/approve`, {
+      token: "owner-token",
+    });
+    assert.equal(approveAgain.status, 409);
+    assert.equal(approveAgain.body.code, "developer_space_agent_confirmation_not_pending");
+
+    const rotate = await requestJson(app, "POST", `/developer-spaces/${spaceId}/agent/actions/confirmations`, {
+      token: "owner-token",
+      body: { action: "rotate_ingestion_key" },
+    });
+    assert.equal(rotate.status, 201);
+
+    const cancelled = await requestJson(app, "POST", `/developer-spaces/${spaceId}/agent/actions/confirmations/${rotate.body.confirmation.id}/cancel`, {
+      token: "owner-token",
+    });
+    assert.equal(cancelled.status, 200);
+    assert.equal(cancelled.body.confirmation.status, "cancelled");
+    assert.equal(cancelled.body.executionAvailable, false);
+
+    const cancelledAgain = await requestJson(app, "POST", `/developer-spaces/${spaceId}/agent/actions/confirmations/${rotate.body.confirmation.id}/cancel`, {
+      token: "owner-token",
+    });
+    assert.equal(cancelledAgain.status, 200);
+    assert.equal(cancelledAgain.body.confirmation.status, "cancelled");
+
+    const expired = db.insertRow("developer_space_agent_confirmations", {
+      developer_space_id: spaceId,
+      owner_user_id: "owner-user",
+      action: "create_webhook_signing_secret",
+      status: "pending",
+      summary: "Expired signing-secret confirmation.",
+      preview_hash: "expired-preview-hash",
+      sanitized_payload: { action: "create_webhook_signing_secret", executionAvailable: false },
+      requested_at: "2026-05-01T00:00:00.000Z",
+      expires_at: "2026-05-01T00:05:00.000Z",
+    });
+
+    const approveExpired = await requestJson(app, "POST", `/developer-spaces/${spaceId}/agent/actions/confirmations/${expired.id}/approve`, {
+      token: "owner-token",
+    });
+    assert.equal(approveExpired.status, 409);
+    assert.equal(approveExpired.body.code, "developer_space_agent_confirmation_expired");
+    assert.equal(approveExpired.body.confirmation.status, "expired");
+
+    const responseText = JSON.stringify({
+      publish: publish.body,
+      adminRunJob: adminRunJob.body,
+      approved: approved.body,
+      cancelled: cancelled.body,
+      approveExpired: approveExpired.body,
+      rows: db.tables.developer_space_agent_confirmations,
+    });
+    assert.doesNotMatch(responseText, /fixture-sensitive-marker|private owner prompt|rawPrompt|npm test/);
+    assert.equal(db.tables.developer_space_agent_confirmations.length, 4);
+    assert.equal(db.tables.developer_space_ingestion_keys.length, 0);
+    assert.equal(db.tables.developer_space_webhook_signing_secrets.length, 0);
+    assert.equal(db.tables.developer_space_events.length, 0);
+    assert.equal(db.tables.developer_space_nodes.length, 0);
+    assert.equal(db.tables.developer_space_snapshots.length, 0);
+    assert.equal(db.tables.documents.length, 0);
     assert.equal(db.tables.ai_trace_sessions.length, 0);
     assert.equal(db.tables.ai_trace_events.length, 0);
   } finally {

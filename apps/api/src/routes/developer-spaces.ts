@@ -3,6 +3,8 @@ import { Router, type Request, type Response } from "express";
 import { z } from "zod";
 import { describePlatformProviderRoute } from "@station/ai";
 import type {
+  DeveloperSpaceAgentConfirmationRecord,
+  DeveloperSpaceAgentConfirmationStatus,
   DeveloperSpaceAgentActionPreview,
   DeveloperSpaceAgentActionRegistryEntry,
   DeveloperSpaceAgentAllowedAction,
@@ -163,6 +165,8 @@ const DEVELOPER_SPACE_AGENT_ACTION_REGISTRY: readonly DeveloperSpaceAgentActionR
 ];
 const DEVELOPER_SPACE_AGENT_ALLOWED_ACTION_SET = new Set<string>(DEVELOPER_SPACE_AGENT_ALLOWED_ACTIONS);
 const DEVELOPER_SPACE_AGENT_FUTURE_ACTION_SET = new Set<string>(DEVELOPER_SPACE_AGENT_FUTURE_ACTIONS);
+const DEVELOPER_SPACE_AGENT_CONFIRMATION_DEFAULT_EXPIRY_MINUTES = 24 * 60;
+const DEVELOPER_SPACE_AGENT_CONFIRMATION_MAX_EXPIRY_MINUTES = 7 * 24 * 60;
 
 type IngestionErrorCategory = "auth" | "validation" | "quota" | "server";
 
@@ -366,6 +370,12 @@ const templateDocumentSchema = z.object({
 const developerSpaceAgentActionPreviewSchema = z.object({
   action: z.string().trim().min(1).max(80).regex(/^[a-z0-9_:-]+$/),
   input: jsonObjectSchema.default({}),
+});
+
+const createDeveloperSpaceAgentConfirmationSchema = z.object({
+  action: z.string().trim().min(1).max(80).regex(/^[a-z0-9_:-]+$/),
+  expiresInMinutes: z.number().int().min(5).max(DEVELOPER_SPACE_AGENT_CONFIRMATION_MAX_EXPIRY_MINUTES)
+    .default(DEVELOPER_SPACE_AGENT_CONFIRMATION_DEFAULT_EXPIRY_MINUTES),
 });
 
 export const developerSpacesRouter = Router();
@@ -1072,6 +1082,81 @@ function buildDeveloperSpaceAgentPreview(
     requiresConfirmation: true,
     futureLane: false,
   };
+}
+
+function developerSpaceAgentEntry(action: string) {
+  return DEVELOPER_SPACE_AGENT_ACTION_REGISTRY.find((entry) => entry.action === action) ?? null;
+}
+
+function developerSpaceAgentConfirmationPayload(
+  action: DeveloperSpaceAgentFutureAction,
+  entry: DeveloperSpaceAgentActionRegistryEntry
+) {
+  const preview = futureLaneAgentPreview(action);
+  return {
+    action,
+    label: safeAgentText(entry.label, action, 120),
+    description: safeAgentText(entry.description, "Future lane action.", 220),
+    mode: entry.mode,
+    requiresConfirmation: entry.requiresConfirmation,
+    futureLane: true,
+    previewStatus: preview.status,
+    summary: preview.summary,
+    executionAvailable: false,
+    mutationAvailable: false,
+    sections: preview.sections.map((section) => ({
+      title: safeAgentText(section.title, "Boundary", 120),
+      ...(section.summary ? { summary: safeAgentText(section.summary, "No summary.", 220) } : {}),
+      facts: (section.facts ?? []).map((fact) => ({
+        label: safeAgentText(fact.label, "Fact", 80),
+        value: typeof fact.value === "string" ? safeAgentText(fact.value, "unknown", 160) : fact.value ?? null,
+      })),
+      items: (section.items ?? []).map((item) => ({
+        title: safeAgentText(item.title, "Item", 120),
+        ...(item.detail ? { detail: safeAgentText(item.detail, "No detail.", 220) } : {}),
+        ...(item.status ? { status: safeAgentText(item.status, "unknown", 80) } : {}),
+      })),
+    })),
+  };
+}
+
+function effectiveDeveloperSpaceAgentConfirmationStatus(row: any, now = new Date()) {
+  if (row.status === "pending" && row.expires_at && Date.parse(row.expires_at) <= now.getTime()) {
+    return "expired" as const;
+  }
+  return row.status as DeveloperSpaceAgentConfirmationStatus;
+}
+
+function serializeDeveloperSpaceAgentConfirmation(row: any): DeveloperSpaceAgentConfirmationRecord {
+  return {
+    id: row.id,
+    developerSpaceId: row.developer_space_id,
+    ownerUserId: row.owner_user_id,
+    action: row.action,
+    status: effectiveDeveloperSpaceAgentConfirmationStatus(row),
+    summary: safeAgentText(row.summary, "Confirmation requested.", 400),
+    previewHash: row.preview_hash,
+    sanitizedPayload: row.sanitized_payload ?? {},
+    requestedAt: row.requested_at,
+    expiresAt: row.expires_at,
+    approvedAt: row.approved_at ?? null,
+    cancelledAt: row.cancelled_at ?? null,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+  };
+}
+
+async function loadDeveloperSpaceAgentConfirmation(spaceId: string, confirmationId: string) {
+  const { data, error } = await (getSupabaseAdmin() as any)
+    .from("developer_space_agent_confirmations")
+    .select("*")
+    .eq("id", confirmationId)
+    .eq("developer_space_id", spaceId)
+    .maybeSingle();
+
+  if (error) return { status: 500 as const, error: error.message };
+  if (!data) return { status: 404 as const, error: "Developer Space agent confirmation not found." };
+  return { status: 200 as const, confirmation: data };
 }
 
 function buildFreshness(
@@ -2211,6 +2296,172 @@ developerSpacesRouter.post("/:id/agent/actions/preview", requireAuth, async (req
       error: e instanceof Error ? e.message : "Could not preview Developer Space agent action.",
     });
   }
+});
+
+developerSpacesRouter.get("/:id/agent/actions/confirmations", requireAuth, async (req, res) => {
+  const ownerLoad = await loadDeveloperSpaceForOwner(req.params.id, req.user!);
+  if (ownerLoad.status !== 200) return res.status(ownerLoad.status).json({ error: ownerLoad.error });
+
+  const { data, error } = await (getSupabaseAdmin() as any)
+    .from("developer_space_agent_confirmations")
+    .select("*")
+    .eq("developer_space_id", ownerLoad.space.id)
+    .order("requested_at", { ascending: false });
+
+  if (error) return res.status(500).json({ error: error.message });
+  return res.json({ confirmations: (data ?? []).map(serializeDeveloperSpaceAgentConfirmation) });
+});
+
+developerSpacesRouter.post("/:id/agent/actions/confirmations", requireAuth, async (req, res) => {
+  const parsed = createDeveloperSpaceAgentConfirmationSchema.safeParse(req.body ?? {});
+  if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
+
+  const ownerLoad = await loadDeveloperSpaceForOwner(req.params.id, req.user!);
+  if (ownerLoad.status !== 200) return res.status(ownerLoad.status).json({ error: ownerLoad.error });
+
+  const action = parsed.data.action;
+  if (DEVELOPER_SPACE_AGENT_ALLOWED_ACTION_SET.has(action)) {
+    return res.status(400).json({
+      error: "This Developer Agent action is preview-only and does not require a durable confirmation.",
+      code: "developer_space_agent_confirmation_not_required",
+    });
+  }
+  if (!DEVELOPER_SPACE_AGENT_FUTURE_ACTION_SET.has(action)) {
+    return res.status(400).json({
+      error: "This Developer Agent action is not registered for confirmation.",
+      code: "developer_space_agent_confirmation_unsupported_action",
+    });
+  }
+
+  const entry = developerSpaceAgentEntry(action);
+  if (!entry?.futureLane || !entry.requiresConfirmation) {
+    return res.status(400).json({
+      error: "This Developer Agent action is not confirmable in the current lane.",
+      code: "developer_space_agent_confirmation_not_required",
+    });
+  }
+
+  const now = new Date();
+  const expiresAt = new Date(now.getTime() + parsed.data.expiresInMinutes * 60_000).toISOString();
+  const sanitizedPayload = developerSpaceAgentConfirmationPayload(action as DeveloperSpaceAgentFutureAction, entry);
+  const { data, error } = await (getSupabaseAdmin() as any)
+    .from("developer_space_agent_confirmations")
+    .insert({
+      developer_space_id: ownerLoad.space.id,
+      owner_user_id: ownerLoad.space.owner_user_id,
+      action,
+      status: "pending",
+      summary: sanitizedPayload.summary,
+      preview_hash: payloadHash(sanitizedPayload),
+      sanitized_payload: sanitizedPayload,
+      requested_at: now.toISOString(),
+      expires_at: expiresAt,
+    })
+    .select("*")
+    .single();
+
+  if (error || !data) return res.status(500).json({ error: error?.message ?? "Could not create Developer Agent confirmation." });
+  return res.status(201).json({
+    confirmation: serializeDeveloperSpaceAgentConfirmation(data),
+    executionAvailable: false,
+    message: "Confirmation recorded for owner review only. Execution is unavailable in this lane.",
+  });
+});
+
+developerSpacesRouter.post("/:id/agent/actions/confirmations/:confirmationId/approve", requireAuth, async (req, res) => {
+  const ownerLoad = await loadDeveloperSpaceForOwner(req.params.id, req.user!);
+  if (ownerLoad.status !== 200) return res.status(ownerLoad.status).json({ error: ownerLoad.error });
+
+  const loaded = await loadDeveloperSpaceAgentConfirmation(ownerLoad.space.id, req.params.confirmationId);
+  if (loaded.status !== 200) return res.status(loaded.status).json({ error: loaded.error });
+
+  const now = new Date();
+  const effectiveStatus = effectiveDeveloperSpaceAgentConfirmationStatus(loaded.confirmation, now);
+  if (effectiveStatus === "expired") {
+    const { data, error } = await (getSupabaseAdmin() as any)
+      .from("developer_space_agent_confirmations")
+      .update({ status: "expired" })
+      .eq("id", loaded.confirmation.id)
+      .eq("developer_space_id", ownerLoad.space.id)
+      .select("*")
+      .single();
+    if (error || !data) return res.status(500).json({ error: error?.message ?? "Could not expire Developer Agent confirmation." });
+    return res.status(409).json({
+      error: "Developer Agent confirmation has expired.",
+      code: "developer_space_agent_confirmation_expired",
+      confirmation: serializeDeveloperSpaceAgentConfirmation(data),
+      executionAvailable: false,
+    });
+  }
+  if (effectiveStatus !== "pending") {
+    return res.status(409).json({
+      error: `Developer Agent confirmation is ${effectiveStatus}.`,
+      code: "developer_space_agent_confirmation_not_pending",
+      confirmation: serializeDeveloperSpaceAgentConfirmation(loaded.confirmation),
+      executionAvailable: false,
+    });
+  }
+
+  const { data, error } = await (getSupabaseAdmin() as any)
+    .from("developer_space_agent_confirmations")
+    .update({ status: "approved", approved_at: now.toISOString() })
+    .eq("id", loaded.confirmation.id)
+    .eq("developer_space_id", ownerLoad.space.id)
+    .select("*")
+    .single();
+
+  if (error || !data) return res.status(500).json({ error: error?.message ?? "Could not approve Developer Agent confirmation." });
+  return res.json({
+    confirmation: serializeDeveloperSpaceAgentConfirmation(data),
+    executionAvailable: false,
+    message: "Confirmation approved. Execution is unavailable in this lane.",
+  });
+});
+
+developerSpacesRouter.post("/:id/agent/actions/confirmations/:confirmationId/cancel", requireAuth, async (req, res) => {
+  const ownerLoad = await loadDeveloperSpaceForOwner(req.params.id, req.user!);
+  if (ownerLoad.status !== 200) return res.status(ownerLoad.status).json({ error: ownerLoad.error });
+
+  const loaded = await loadDeveloperSpaceAgentConfirmation(ownerLoad.space.id, req.params.confirmationId);
+  if (loaded.status !== 200) return res.status(loaded.status).json({ error: loaded.error });
+
+  const effectiveStatus = effectiveDeveloperSpaceAgentConfirmationStatus(loaded.confirmation);
+  if (effectiveStatus === "cancelled") {
+    return res.json({
+      confirmation: serializeDeveloperSpaceAgentConfirmation(loaded.confirmation),
+      executionAvailable: false,
+      message: "Confirmation already cancelled. No action executed.",
+    });
+  }
+  if (effectiveStatus === "approved") {
+    return res.status(409).json({
+      error: "Approved Developer Agent confirmations cannot be cancelled in this lane.",
+      code: "developer_space_agent_confirmation_already_approved",
+      confirmation: serializeDeveloperSpaceAgentConfirmation(loaded.confirmation),
+      executionAvailable: false,
+    });
+  }
+
+  const now = new Date();
+  const patch = effectiveStatus === "expired"
+    ? { status: "expired" }
+    : { status: "cancelled", cancelled_at: now.toISOString() };
+  const { data, error } = await (getSupabaseAdmin() as any)
+    .from("developer_space_agent_confirmations")
+    .update(patch)
+    .eq("id", loaded.confirmation.id)
+    .eq("developer_space_id", ownerLoad.space.id)
+    .select("*")
+    .single();
+
+  if (error || !data) return res.status(500).json({ error: error?.message ?? "Could not cancel Developer Agent confirmation." });
+  return res.json({
+    confirmation: serializeDeveloperSpaceAgentConfirmation(data),
+    executionAvailable: false,
+    message: effectiveStatus === "expired"
+      ? "Confirmation expired. No action executed."
+      : "Confirmation cancelled. No action executed.",
+  });
 });
 
 developerSpacesRouter.post("/:id/api-key", requireAuth, async (req, res) => {

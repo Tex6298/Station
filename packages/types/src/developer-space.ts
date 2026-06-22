@@ -198,6 +198,12 @@ export type DeveloperSpaceAgentActionStatus =
   | "requires_future_lane"
   | "unsupported_action";
 
+export type DeveloperSpaceAgentConfirmationStatus =
+  | "pending"
+  | "approved"
+  | "cancelled"
+  | "expired";
+
 export interface DeveloperSpaceAgentActionRegistryEntry {
   action: DeveloperSpaceAgentRegisteredAction;
   label: string;
@@ -233,6 +239,23 @@ export interface DeveloperSpaceAgentActionPreview {
   sections: DeveloperSpaceAgentActionSection[];
   requiresConfirmation: boolean;
   futureLane: boolean;
+}
+
+export interface DeveloperSpaceAgentConfirmationRecord {
+  id: string;
+  developerSpaceId: string;
+  ownerUserId: string;
+  action: DeveloperSpaceAgentFutureAction;
+  status: DeveloperSpaceAgentConfirmationStatus;
+  summary: string;
+  previewHash: string;
+  sanitizedPayload: Record<string, unknown>;
+  requestedAt: string;
+  expiresAt: string;
+  approvedAt?: string | null;
+  cancelledAt?: string | null;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface DeveloperSpaceFreshness {

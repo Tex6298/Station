@@ -4,7 +4,7 @@ Date opened: 2026-06-22
 Opened by: A1 / MIMIR
 Owner: DAEDALUS implements. ARGUS reviews. ARIADNE only rehearses if DAEDALUS
 changes visible UI.
-Status: open for DAEDALUS
+Status: implemented by DAEDALUS; open for ARGUS review
 
 ## Why This Lane
 

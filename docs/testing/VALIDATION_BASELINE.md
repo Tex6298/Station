@@ -52,6 +52,37 @@ pnpm test:developer-spaces
 pnpm test:developer-space-client
 ```
 
+## PR165 Phase 2D Agent Confirmation Envelope
+
+DAEDALUS implementation validation on 2026-06-22:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 32 tests passed, including owner-scoped confirmation creation/listing, non-owner rejection, read/draft and unknown-action rejection, approve/cancel/expired transitions, and no side effects for publish/run/key/signing-secret representative future actions. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/types build` | Pass | Shared Developer Space confirmation types compiled. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/api build` | Pass | API package build passed after dependent package builds. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` | Pass | API typecheck passed directly. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Blocked locally before TypeScript | Turbo cannot spawn `node_modules/.pnpm/turbo-windows-64@2.8.17/node_modules/turbo-windows-64/bin/turbo.exe` on this machine (`spawnSync ... UNKNOWN`). |
+| `git diff --check` | Pass | CRLF normalization warnings only for touched files and local triad state. |
+
+DAEDALUS PR165 notes:
+
+- Added durable `developer_space_agent_confirmations` migration/table with
+  owner/developer-space references, future action, status, summary,
+  `preview_hash`, sanitized payload, expiry, approval/cancel, and timestamps.
+- Added owner/admin-only list/create/approve/cancel routes under
+  `/developer-spaces/:id/agent/actions/confirmations`.
+- Confirmations are future-lane only. Preview/read/draft actions and unknown
+  actions are rejected without inserting rows.
+- Create derives sanitized payload from the existing future-lane preview
+  contract, hashes it, and ignores client-supplied raw input.
+- Approval records owner intent with `executionAvailable: false`; it does not
+  execute actions or mutate documents, layout, keys, signing secrets,
+  observed-runtime state, provider settings, billing, exports, public pages,
+  repos, deployments, queues, Cloudflare, Redis workers, or hosted runtime.
+- No visible UI changed; ARIADNE is not required unless ARGUS requests a later
+  rehearsal.
+
 ## PR163 Phase 2D Developer Agent Preview Panel
 
 ARGUS review validation on 2026-06-22:

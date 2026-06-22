@@ -68,6 +68,17 @@ export type DeveloperSpaceEventVisibility = "private" | "community" | "public";
 export type DeveloperSpaceEventProvenance = "api" | "imported" | "user" | "system" | "ai_generated";
 export type DeveloperSpaceIngestionKeyStatus = "active" | "revoked";
 export type DeveloperSpaceWebhookSigningSecretStatus = "active" | "revoked";
+export type DeveloperSpaceAgentFutureAction =
+  | "publish_to_page"
+  | "update_layout"
+  | "read_logs"
+  | "push_to_repo"
+  | "run_job"
+  | "update_observatory"
+  | "request_capability"
+  | "rotate_ingestion_key"
+  | "create_webhook_signing_secret";
+export type DeveloperSpaceAgentConfirmationStatus = "pending" | "approved" | "cancelled" | "expired";
 export type DeveloperSpaceDocumentRole = "methodology" | "finding" | "field_log" | "note";
 export type DeveloperSpaceDocumentLinkVisibility = "owner" | "public";
 export type ExportPackageKind = "persona_archive" | "developer_space_archive";
@@ -974,6 +985,35 @@ export interface Database {
           revoked_at?: string | null;
         };
         Update: Partial<Database["public"]["Tables"]["developer_space_webhook_signing_secrets"]["Insert"]>;
+      };
+      developer_space_agent_confirmations: {
+        Row: {
+          id: string;
+          developer_space_id: string;
+          owner_user_id: string;
+          action: DeveloperSpaceAgentFutureAction;
+          status: DeveloperSpaceAgentConfirmationStatus;
+          summary: string;
+          preview_hash: string;
+          sanitized_payload: Record<string, unknown>;
+          requested_at: string;
+          expires_at: string;
+          approved_at: string | null;
+          cancelled_at: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: Omit<Database["public"]["Tables"]["developer_space_agent_confirmations"]["Row"], "id" | "status" | "sanitized_payload" | "requested_at" | "approved_at" | "cancelled_at" | "created_at" | "updated_at"> & {
+          id?: string;
+          status?: DeveloperSpaceAgentConfirmationStatus;
+          sanitized_payload?: Record<string, unknown>;
+          requested_at?: string;
+          approved_at?: string | null;
+          cancelled_at?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["developer_space_agent_confirmations"]["Insert"]>;
       };
       developer_space_documents: {
         Row: {

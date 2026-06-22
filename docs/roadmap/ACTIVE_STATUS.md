@@ -4,7 +4,59 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current MIMIR handoff - PR165
+## Current DAEDALUS handoff - PR165
+
+DAEDALUS implemented PR165 on 2026-06-22 and wakes ARGUS for hostile review.
+The Phase 2D Developer Agent now has an owner-scoped confirmation envelope for
+future-lane actions. Approval records owner intent only; no action execution or
+target mutation was added.
+
+Implemented:
+
+- Added migration `049_developer_space_agent_confirmations.sql` for
+  `developer_space_agent_confirmations` with owner/developer-space references,
+  `action`, `status`, `summary`, `preview_hash`, `sanitized_payload`,
+  `requested_at`, `expires_at`, `approved_at`, `cancelled_at`, and timestamps.
+- Added shared/API DB types for confirmation status and records.
+- Added owner/admin-only routes:
+  - `GET /developer-spaces/:id/agent/actions/confirmations`
+  - `POST /developer-spaces/:id/agent/actions/confirmations`
+  - `POST /developer-spaces/:id/agent/actions/confirmations/:confirmationId/approve`
+  - `POST /developer-spaces/:id/agent/actions/confirmations/:confirmationId/cancel`
+- Confirmations are only creatable for PR162 future-lane actions that require
+  confirmation. Preview/read/draft actions and unknown actions are rejected.
+- Confirmation creation derives a sanitized payload from the existing
+  future-lane preview response, hashes it, and ignores client-supplied raw
+  input. Stored payloads are labels/status/facts only.
+- Approval changes status to `approved` and returns
+  `executionAvailable: false`; it does not call tools or mutate targets.
+- Cancel is idempotent for already-cancelled confirmations. Expired pending
+  records cannot be approved and are persisted as `expired`.
+
+Boundaries:
+
+- no model chat, provider call, streaming assistant, freeform parser, or
+  autonomous execution;
+- no mutation of documents, public pages, layout, keys, signing secrets,
+  provider settings, billing, observed-runtime state, exports, repos,
+  deployments, queues, Cloudflare, Redis workers, or hosted runtime;
+- no visible UI changed, so ARIADNE is not required unless ARGUS asks for a
+  later API/UX rehearsal.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` passed with 32
+  tests.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/types build` passed.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/api build` passed.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` remains blocked before
+  TypeScript because Turbo cannot spawn the local Windows binary
+  `node_modules/.pnpm/turbo-windows-64@2.8.17/node_modules/turbo-windows-64/bin/turbo.exe`
+  (`spawnSync ... UNKNOWN`).
+- `git diff --check` passed with CRLF normalization warnings only.
+
+## Previous MIMIR handoff - PR165
 
 MIMIR closes PR164 on 2026-06-22 after ARIADNE accepted hosted Railway proof of
 the PR163 Developer Agent preview panel. Hosted web/API deployment identity was
