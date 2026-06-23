@@ -52,6 +52,39 @@ pnpm test:developer-spaces
 pnpm test:developer-space-client
 ```
 
+## PR181 Stripe Clean Proof Account Activation
+
+DAEDALUS hosted proof on 2026-06-23:
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Hosted API deployment identity | Pass | HTTP 200, `ok:true`, `ready:true`, branch `main`, service `@station/api`, served commit prefix `be37b1f4ac9a`. |
+| Hosted Stripe readiness | Pass | Stripe ready true; Canon monthly Price configured true. |
+| Generated proof account signup | Pass | HTTP 201; token held in memory only; initial tier `visitor`. |
+| Billing before activation | Pass, clean | HTTP 200; tier `visitor`, subscription status `inactive`, no customer present, no subscription present. |
+| Checkout Session creation | Pass | HTTP 200; hosted Checkout URL present; host `checkout.stripe.com`; full URL/path not printed. |
+| Billing after Checkout creation only | Pass, no entitlement mutation | HTTP 200; tier `visitor`, subscription status `inactive`, customer present, no subscription present. |
+| Hosted Checkout completion | Pass | Chrome headless loaded hosted Checkout, filled card/expiry/CVC/name fields, submitted, and returned to Station. Postal field was not present or not required in the rendered flow. |
+| Billing after hosted Checkout | Pass, activated | HTTP 200; tier `canon`, subscription status `active`, customer present, subscription present. |
+| `/auth/me` after hosted Checkout | Pass | HTTP 200; tier `canon`, admin false, email present. |
+| Stripe event-class lookup | Pass | Stripe test event lookup found `checkout.session.completed` and `customer.subscription.created` for the proof subscription. |
+| `npm exec --yes pnpm@10.32.1 -- run test:billing` | Pass | 11 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:token-credits` | Pass | 3 tests passed. |
+| `git diff --check` | Pass | No whitespace errors. |
+
+Scope notes:
+
+- The dirty replay owner's duplicate active/trialing Stripe test subscriptions
+  were not cancelled, reset, or otherwise mutated.
+- No code, Billing UI, pricing, tiers, token top-ups, invoices, tax, Connect,
+  marketplaces, usage metering, Customer Portal semantics, Redis, Cloudflare,
+  providers, workers, queues, Developer Agent, or replay retrieval behavior
+  changed.
+- No proof credentials, auth tokens, cookies, owner IDs, Stripe customer IDs,
+  subscription IDs, Checkout URLs or paths, webhook payloads, payment details,
+  private excerpts, prompts, completions, raw API responses, or raw Stripe
+  responses were printed or committed.
+
 ## PR180 Active Subscription Checkout Guard
 
 DAEDALUS implementation validation on 2026-06-23:

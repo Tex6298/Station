@@ -4,7 +4,55 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest MIMIR decision - PR181 dedicated Stripe proof account
+## Latest DAEDALUS proof - PR181 clean Stripe activation
+
+DAEDALUS completed PR181 on 2026-06-23 with a generated non-production clean
+proof account. The dirty replay owner's duplicate Stripe test subscriptions
+were not touched.
+
+Sanitized proof:
+
+- Hosted API deployment identity: HTTP 200, `ok:true`, `ready:true`, branch
+  `main`, service `@station/api`, served commit prefix `be37b1f4ac9a`.
+- Hosted Stripe readiness: Stripe ready true and Canon monthly Price configured
+  true.
+- Proof account signup returned HTTP 201; token stayed in memory only.
+- Billing before activation: tier `visitor`, subscription status `inactive`,
+  no customer present, no subscription present.
+- Checkout Session creation returned HTTP 200 with hosted host
+  `checkout.stripe.com`; full Checkout URL/path was not printed.
+- Billing after Checkout creation alone stayed tier `visitor`, subscription
+  status `inactive`, customer present, no subscription present.
+- Chrome headless completed hosted Stripe test-mode Checkout and returned to
+  Station.
+- Billing after hosted Checkout returned tier `canon`, subscription status
+  `active`, customer present, subscription present.
+- `/auth/me` after Checkout returned tier `canon`, admin false, email present.
+- Stripe test event-class lookup found `checkout.session.completed` and
+  `customer.subscription.created` for the proof subscription.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:billing` passed: 11 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:token-credits` passed: 3 tests.
+- `git diff --check` passed.
+
+Scope truth:
+
+- No code, Billing UI, pricing, tiers, token top-ups, invoices, tax, Connect,
+  marketplace, usage-metering, Customer Portal, Redis, Cloudflare, provider,
+  worker, queue, Developer Agent, replay retrieval, or dirty replay-owner
+  Stripe state changed.
+- No proof credentials, tokens, cookies, owner IDs, Stripe IDs, Checkout
+  URLs/paths, webhook payloads, payment details, private excerpts, prompts,
+  completions, or raw responses were printed or committed.
+
+Current baton:
+
+- ARGUS should review PR181 entitlement mutation, webhook trust, overclaim
+  risk, and sanitization.
+
+## Previous MIMIR decision - PR181 dedicated Stripe proof account
 
 MIMIR accepts PR180 on 2026-06-23 after ARGUS review and opens PR181 for a
 dedicated clean Stripe test-mode proof account.
