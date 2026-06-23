@@ -52,6 +52,28 @@ pnpm test:developer-spaces
 pnpm test:developer-space-client
 ```
 
+## PR198 Studio and Archive UX Feasibility Map
+
+DAEDALUS docs-only feasibility pass on 2026-06-23:
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Route/component inspection | Pass | Mapped Studio shell, persona workspace, Memory, Continuity, Integrity, Archive/import/export trust, Station Assistant, Developer Space manage, and Billing adjacency. |
+| `git diff --check` | Pass | Docs-only patch has no whitespace errors. |
+| `git diff --cached --check` | Pass | Staged docs-only patch has no whitespace errors. |
+| Staged credential/raw-id pattern scan | Pass | No staged secrets, cookies, tokens, Checkout URLs, Stripe IDs, raw private IDs, prompts, completions, or private excerpts detected. |
+
+Scope notes:
+
+- No product UI, API, schema, migration, provider, billing, queue, cache,
+  auth/session, deployment, import, export, key, or data mutation was performed.
+- Recommended first implementation slice is UX-01A: Studio place and mobile
+  workbench clarity.
+- ARIADNE should review any visible UX-01A route changes at desktop and 375px.
+- ARGUS is needed only if implementation changes auth, route protection,
+  owner/private fields, export/storage/provenance semantics, public surfaces,
+  Developer Agent actions, key handling, or billing behavior.
+
 ## PR197 Product Demo Runbook Review
 
 ARIADNE script review on 2026-06-23:

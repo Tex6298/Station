@@ -4,7 +4,82 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest MIMIR decision - PR198 Studio/Archive UX feasibility opened
+## Latest DAEDALUS result - PR198 Studio/Archive UX feasibility complete
+
+DAEDALUS completed PR198 on 2026-06-23.
+
+Verdict:
+
+- Feasible as narrow UI/UX implementation slices.
+- No backend route, schema, migration, provider, billing, queue, cache,
+  auth/session, deployment, or data-model work is needed before the first slice.
+- Main has moved beyond the older June 6 feasibility note: Studio now has
+  mobile navigation and shared frame primitives, Continuity is a first-class
+  persona tab, Memory has lifecycle/runtime readback, global Archive has
+  owner-only search, and Archive/Export trust helpers exist.
+
+Route/component map:
+
+- Studio shell and workbench chrome:
+  `apps/web/app/studio/layout.tsx`,
+  `apps/web/components/studio/studio-sidebar.tsx`,
+  `apps/web/components/studio/studio-frame.tsx`,
+  `apps/web/components/studio/studio-dashboard.tsx`,
+  `apps/web/lib/studio-navigation.ts`, and `apps/web/app/globals.css`.
+- Persona workspace, Memory, Continuity, and Integrity:
+  `apps/web/app/studio/personas/[personaId]/*`,
+  `apps/web/components/studio/persona-workspace.tsx`,
+  `apps/web/components/studio/persona-management.tsx`,
+  `apps/web/components/studio/continuity-timeline.tsx`,
+  `apps/web/components/studio/runtime-context-preview.tsx`,
+  `apps/web/components/studio/calibration-panel.tsx`,
+  `apps/web/lib/memory-lifecycle-ui.ts`,
+  `apps/web/lib/continuity-ui.ts`, and `apps/web/lib/integrity-ui.ts`.
+- Archive/import/export trust:
+  `apps/web/components/studio/archive-library.tsx`,
+  `apps/web/app/studio/personas/[personaId]/files/page.tsx`,
+  `apps/web/components/studio/import-review-inbox.tsx`,
+  `apps/web/components/studio/archive-export-status.tsx`,
+  `apps/web/components/studio/export-workspace.tsx`,
+  `apps/web/lib/archive-search.ts`, `apps/web/lib/archive-trust.ts`,
+  `apps/web/lib/export-trust.ts`, and `apps/web/lib/import-review.ts`.
+- Adjacent density surfaces:
+  `apps/web/app/developer-spaces/[slug]/manage/page.tsx`,
+  `apps/web/lib/developer-space-observatory.ts`,
+  `apps/web/app/billing/page.tsx`, and
+  `apps/web/lib/billing-plan-actions.ts`.
+
+Recommended ranked slices:
+
+1. UX-01A - Studio place and mobile workbench clarity.
+2. UX-02A - Archive trust scan pass.
+3. UX-01B - Dense owner console grouping for Developer Space manage plus tiny
+   Billing entitlement/status clarity.
+
+Recommended first slice:
+
+- Open UX-01A for DAEDALUS if MIMIR wants implementation next.
+- Keep it layout/copy/classes and existing route helpers only.
+- ARIADNE should review the visible route changes at desktop and 375px.
+- ARGUS is needed only if the slice changes auth, route protection,
+  owner/private fields, export/storage/provenance semantics, public surfaces,
+  Developer Agent actions, key handling, or billing behavior.
+
+Validation:
+
+- Code inspection only.
+- No product UI, API, schema, migration, provider, billing, queue, cache,
+  auth/session, deployment, import, export, key, or data mutation was performed.
+- `git diff --check` passed.
+- `git diff --cached --check` passed.
+- Staged credential/raw-id pattern scan passed.
+
+Current baton:
+
+- MIMIR should decide whether to open UX-01A, UX-02A, UX-01B, or hold for a
+  Marty-facing protected-alpha demo.
+
+## Previous MIMIR decision - PR198 Studio/Archive UX feasibility opened
 
 MIMIR closes PR197 after ARIADNE accepted the refreshed protected-alpha demo
 runbook as ready for a prepared Marty-facing demo script.
