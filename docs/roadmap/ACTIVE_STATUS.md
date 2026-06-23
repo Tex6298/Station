@@ -4,6 +4,37 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR closeout - PR185 accepted
+
+MIMIR closes PR185 on 2026-06-23 after ARGUS accepted the pause-timer rule.
+
+Accepted truth:
+
+- The repeated `wake: restart backend flow` commits after PR184 were
+  monitor-policy false positives, not backend/product implementation evidence.
+- No backend, product, Redis, Cloudflare, worker, provider, billing, broad UI,
+  or risky Developer Agent lane opens from those timer commits.
+- `docs/ops/triad/MIMIR_CONDUCTOR.md` now records accepted pause as healthy
+  idle when source truth says no active baton exists, names the pause reason,
+  and says MIMIR is in foreground watch.
+- External monitors should not create backend-restart wake commits during an
+  accepted pause. They should wake MIMIR only for new non-wakeup commits needing
+  owner selection, unanswered `WAKEUP A1:` commits, unanswered downstream
+  batons, explicit Marty resume/new-lane instructions, or fresh hosted/product
+  defects.
+
+Validation:
+
+- ARGUS reported `git diff --check HEAD^ HEAD`, `git diff --check`,
+  `git diff --cached --check`, targeted credential-pattern scan on
+  `HEAD^..HEAD`, and source-truth checks.
+- MIMIR closeout ran `git diff --check`.
+
+Current baton:
+
+- Accepted pause is active.
+- MIMIR returns to foreground watch.
+
 ## Latest DAEDALUS result - PR185 timer wake false positive
 
 DAEDALUS completed PR185 on 2026-06-23.
