@@ -424,6 +424,11 @@ architecture churn.
 2026-06-23 PR195 result: ARGUS found no implementation blocker and recommended
 the product demo/human walkthrough branch. MIMIR opened PR196 for ARIADNE.
 
+2026-06-23 PR196 result: ARIADNE passed the hosted product demo walkthrough for
+protected-alpha demo readiness with no DAEDALUS or ARGUS blocker. MIMIR chose
+the runbook branch over non-blocking polish and opened PR197 for ARIADNE to
+review the refreshed demo script.
+
 ## Agent Roles
 
 - ARIADNE: human-eye route rehearsal only.

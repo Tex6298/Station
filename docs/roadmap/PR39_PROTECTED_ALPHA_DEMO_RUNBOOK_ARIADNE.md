@@ -1,8 +1,8 @@
 # PR39 Protected-Alpha Demo Runbook - ARIADNE
 
-Date: 2026-06-21
+Date: 2026-06-23
 Agent: A4 / ARIADNE
-Verdict: refreshed for PR161 protected-alpha replay
+Verdict: refreshed through PR196 protected-alpha product demo walkthrough
 
 ## Frame
 
@@ -38,7 +38,7 @@ Operator stance:
 
 ## Current Accepted Evidence
 
-This runbook is current through PR161.
+This runbook is current through PR196.
 
 - PR157 refreshed protected-alpha evidence: Railway web/API health and
   deployment checks were ready, Supabase/Gemini/NVIDIA/Stripe/Redis readiness
@@ -65,6 +65,17 @@ This runbook is current through PR161.
   change watched runtime files. That is not stale runtime by itself. For this
   runbook, the deployed runtime is current enough when it serves the PR159
   runtime patch commit or a later accepted app-code runtime.
+- PR192 through PR194 made Continuity a first-class persona stop and accepted
+  the narrow readability follow-up. Treat Continuity as an owner/private
+  product stop, not a hidden Timeline alias and not a public surface.
+- PR195 refreshed hosted replay evidence after the Continuity pass. Hosted
+  web/API health and deployment readiness passed as protected-alpha evidence,
+  the private replay-readiness surface stayed owner/auth gated, and no
+  implementation blocker was found.
+- PR196 completed the hosted product demo walkthrough. The public, owner, and
+  mobile route order passed for protected-alpha demo readiness. No DAEDALUS
+  implementation blocker or ARGUS security/visibility/entitlement/auth/privacy
+  blocker was found.
 
 ## Preflight
 
@@ -115,6 +126,9 @@ Show:
   archive, memory, canon, imports, or continuity.
 - Public browsing can route to Spaces, publications, forum threads, and
   Developer Space observatories.
+- The public route stack is accepted as demoable when it reaches Discover,
+  replay Space, public replay document, linked forum discussion, and public
+  Developer Space without exposing private owner material.
 
 Say:
 
@@ -168,6 +182,8 @@ Show:
 - Studio is the private workbench.
 - Persona workspace, Memory, Continuity, Archive/export, Billing, and Station
   Assistant are reachable.
+- Continuity is now a first-class persona stop. Do not call it Timeline in the
+  spoken run.
 - Runtime Context can be explained without displaying raw IDs or private source
   bodies.
 
@@ -432,6 +448,11 @@ Latency caveat:
   it is not a promise that every future context-preview request is sub-3s.
 - Stripe current closeout is config/test-resource readiness unless the demo
   includes a fresh hosted Checkout or signed webhook proof.
+- Billing must be narrated as Stripe test-mode handoff plus
+  server-authoritative entitlement readback. Do not present it as live-money
+  production billing.
+- Export must be narrated as per-persona JSON/Markdown manifest and portable
+  bundle readback. Do not present it as full workspace, PDF, or binary export.
 - Redis/Upstash is operational cache, idempotency, rate-limit, and cache-only
   queue-state support. It is not canonical Memory truth.
 - Cloudflare is future adapter/index-mirror boundary. It is not live runtime,
@@ -441,8 +462,10 @@ Latency caveat:
 - Archive import/source review works for protected-alpha explanation, but
   parser/OAuth/recurring import polish remains future work.
 - Onboarding paths exist but are not the final onboarding experience.
-- Developer Space evidence is present enough to show a live observatory; richer
-  methodology/finding/field-log storytelling can remain content/product depth.
+- Developer Space evidence is present enough to show a live observatory and
+  owner manage console. The owner-side Memory, Archive, and Developer Space
+  manage surfaces are long and dense, so use guided narration rather than
+  pretending they are finished public-facing polish.
 
 ## Claims To Avoid
 
@@ -461,6 +484,9 @@ Latency caveat:
   provider payloads.
 - Do not claim Stripe paid activation is current unless the demo includes a
   fresh hosted test-mode Checkout or signed webhook mutation proof.
+- Do not claim the Billing page proves live-money production billing.
+- Do not claim Export proves full workspace export, PDF export, binary archive
+  export, or background package generation.
 - Do not call Station Assistant a persona.
 - Do not present Spaces as profiles; they are public microsites/public
   surfaces.

@@ -4,6 +4,26 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR197 product demo runbook refresh opened
+
+MIMIR closes PR196 after ARIADNE's hosted product demo walkthrough passed for
+protected-alpha demo readiness with no DAEDALUS or ARGUS blocker.
+
+Decision:
+
+- Choose the runbook branch next, not a non-blocking copy/layout polish slice.
+- Refresh `docs/roadmap/PR39_PROTECTED_ALPHA_DEMO_RUNBOOK_ARIADNE.md` through
+  PR196 truth.
+- Open PR197 for ARIADNE to review the refreshed script as a human-eye
+  protected-alpha demo runbook.
+- Do not open implementation work unless the runbook rehearsal finds a concrete
+  route/control blocker or a privacy, visibility, entitlement, auth, billing, or
+  overclaim risk.
+
+Current baton:
+
+- ARIADNE owns PR197 runbook review.
+
 ## Latest ARIADNE result - PR196 product demo walkthrough complete
 
 ARIADNE completed PR196 on 2026-06-23.
