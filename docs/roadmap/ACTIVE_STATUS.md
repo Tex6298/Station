@@ -4,6 +4,34 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR193 ARIADNE rehearsal opened
+
+MIMIR closes PR192 on 2026-06-23 after ARGUS accepted the narrow Continuity stop
+implementation.
+
+Accepted PR192 truth:
+
+- The existing private Studio continuity route is now exposed as `Continuity`,
+  not `Timeline`.
+- Internal continuity record truth did not change.
+- Memory lifecycle/evidence readback and Developer Space methodology/field-log
+  storytelling were verified as already present, not newly implemented.
+- No provider, retrieval, embedding, Redis/Cloudflare, queue, worker, billing,
+  auth/session, deployment, migration, or public visibility scope changed.
+
+Decision:
+
+- Open PR193 for ARIADNE human-eye rehearsal.
+- The purpose is product comprehension, not safety re-review: check Continuity,
+  Memory lifecycle/evidence, and Developer Space methodology/field-log
+  storytelling in the human routes.
+- MIMIR will choose the next implementation slice from Ariadne's verdict.
+
+Current baton:
+
+- ARIADNE owns PR193.
+- ARIADNE should wake MIMIR with pass/fail and the smallest next slice.
+
 ## Latest MIMIR result - PR192 narrow implementation
 
 MIMIR implemented a narrow PR192 slice on 2026-06-23 after DAEDALUS did not

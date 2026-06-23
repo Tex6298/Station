@@ -109,8 +109,9 @@ Current intended posture:
 
 ## Memory continuity and observability UX
 
-Status, 2026-06-23: PR192 has a narrow MIMIR implementation awaiting ARGUS
-review after DAEDALUS did not answer the PR192 wakeup/restart.
+Status, 2026-06-23: PR192 is accepted after a narrow MIMIR implementation.
+PR193 is open for ARIADNE human-eye rehearsal before the next implementation
+slice is selected.
 
 Current intent:
 
@@ -124,6 +125,9 @@ Current intent:
 - Do not change provider, embedding, Redis/Cloudflare, queue, worker, billing,
   migration, auth/session, deployment, retrieval ranking, or memory truth in
   this lane.
+- Use PR193 to decide whether the next implementation slice should be Memory
+  lifecycle/evidence polish, Developer Space methodology/field-log storytelling,
+  or no immediate UX follow-up.
 
 ## MIMIR decisions after provider/repo questions
 
