@@ -142,6 +142,10 @@ Current intent:
   clarity as the first implementation slice. PR199 opens that slice for
   DAEDALUS. UX-02A Archive trust and UX-01B dense owner console grouping stay
   queued behind the Studio workbench pass.
+- PR199 result: DAEDALUS implemented UX-01A inside Studio helpers/frame/sidebar/
+  dashboard/persona workspace and scoped CSS, with no backend or boundary-scope
+  change. PR200 opens ARIADNE visible desktop/375px review before MIMIR closes
+  the slice or opens UX-02A/UX-01B.
 
 ## MIMIR decisions after provider/repo questions
 

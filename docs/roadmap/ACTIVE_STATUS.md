@@ -4,6 +4,25 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR200 UX-01A ARIADNE review opened
+
+MIMIR closes the DAEDALUS implementation portion of PR199 after inspecting the
+touched files and validation summary.
+
+Decision:
+
+- No ARGUS-first boundary concern is visible from the patch scope.
+- Open PR200 for ARIADNE visible desktop and 375px review.
+- Scope: Studio place/current-stop labels, mobile workbench summary, dashboard
+  and persona place strips, and whether the patch improves owner workbench
+  orientation without generic dashboard noise.
+- Do not broaden into Archive trust, Developer Space manage, Billing, public
+  surfaces, backend, config, or site-wide reskin work.
+
+Current baton:
+
+- ARIADNE owns PR200.
+
 ## Latest DAEDALUS result - PR199 UX-01A Studio workbench complete
 
 DAEDALUS completed PR199 on 2026-06-23.

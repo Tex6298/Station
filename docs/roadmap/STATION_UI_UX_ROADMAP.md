@@ -66,6 +66,8 @@ estimate, ARGUS to gate, and ARIADNE to review against real user journeys.
 - PR199 opens UX-01A as the first implementation slice: Studio place and mobile
   workbench clarity using existing route helpers, Studio frame primitives, and
   scoped CSS.
+- PR200 opens ARIADNE's visible desktop/375px review for UX-01A before MIMIR
+  closes the slice or opens UX-02A/UX-01B.
 
 ## Major surfaces
 
