@@ -52,6 +52,28 @@ pnpm test:developer-spaces
 pnpm test:developer-space-client
 ```
 
+## PR194 Title/Body Follow-up Recheck
+
+ARIADNE hosted recheck on 2026-06-23:
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `npx --yes --package @playwright/test@1.41.2 playwright test tmp-pr194-title-body-recheck.spec.js --reporter=line --workers=1` | Pass | Covered authenticated Continuity desktop and mobile routes against the hosted web/API surface; computed title/body colors matched the scoped light-text overrides and screenshots were inspected locally. |
+| `npm exec --yes pnpm@10.32.1 -- run test:continuity` | Pass | 5 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 103 tests passed. |
+| Continuity record titles/body | Pass | Titles and body copy now read clearly on the dark record cards on desktop and mobile. |
+| Continuity mobile layout | Pass | No horizontal overflow in the checked mobile route. |
+
+Scope notes:
+
+- No product code changed during ARIADNE's recheck.
+- No data mutation, Stripe, provider, Redis, Cloudflare, worker, migration,
+  deploy, billing, key, repo, or configuration flow was run.
+- PR194 is accepted by ARIADNE. ARGUS is not needed because the accepted patch
+  remained CSS/copy-only and did not change displayed fields, source
+  serialization, visibility, auth, runtime context, route data loading, or
+  owner/private exposure.
+
 ## PR194 Continuity Readability Recheck
 
 ARIADNE hosted recheck on 2026-06-23:

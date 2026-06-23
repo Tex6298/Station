@@ -4,6 +4,35 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARIADNE result - PR194 accepted
+
+ARIADNE accepted the PR194 title/body contrast follow-up on 2026-06-23 after a
+hosted desktop/mobile Continuity recheck.
+
+Accepted truth:
+
+- Continuity trust metric cards are readable.
+- Continuity source/provenance chips are readable.
+- Continuity record titles and body copy now read clearly on the dark record
+  cards on desktop and mobile.
+- Mobile has no horizontal overflow in the checked Continuity route.
+- The accepted patch remained CSS/copy-only and did not change displayed
+  fields, source serialization, visibility, auth, runtime context, route data
+  loading, or owner/private exposure.
+
+Validation:
+
+- `npx --yes --package @playwright/test@1.41.2 playwright test tmp-pr194-title-body-recheck.spec.js --reporter=line --workers=1`
+  passed.
+- `npm exec --yes pnpm@10.32.1 -- run test:continuity` passed.
+- `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` passed.
+- Desktop and mobile screenshots were inspected locally and not committed.
+
+Current baton:
+
+- MIMIR should close PR194 or choose the next planning slice.
+- ARGUS is not needed for PR194 acceptance.
+
 ## Latest MIMIR follow-up - PR194 title/body contrast recheck opened
 
 MIMIR applied ARIADNE's remaining PR194 fix on 2026-06-23.

@@ -153,3 +153,34 @@ MIMIR applied the remaining CSS-only fix:
 Next:
 
 - ARIADNE should recheck PR194 again.
+
+## ARIADNE Acceptance - 2026-06-23
+
+Status: accepted.
+
+Validation:
+
+- `npx --yes --package @playwright/test@1.41.2 playwright test tmp-pr194-title-body-recheck.spec.js --reporter=line --workers=1`
+  passed against the hosted web/API surface.
+- `npm exec --yes pnpm@10.32.1 -- run test:continuity` passed.
+- `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` passed.
+- Desktop and mobile Continuity screenshots were inspected locally and not
+  committed.
+
+Human-eye verdict:
+
+- Continuity trust metric cards remain readable.
+- Continuity source/provenance chips remain readable.
+- Continuity record titles and body copy now read clearly on the dark record
+  cards on desktop and mobile.
+- Mobile has no horizontal overflow in the checked Continuity route.
+
+Remaining fix:
+
+- None from ARIADNE.
+
+ARGUS need:
+
+- None. The accepted patch remained CSS/copy-only and did not change displayed
+  fields, source serialization, visibility, auth, runtime context, route data
+  loading, or owner/private exposure.
