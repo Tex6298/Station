@@ -4,6 +4,44 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR176 Phase 2D closeout
+
+MIMIR closes PR175 on 2026-06-23 after hosted migration `053` was applied,
+ARGUS accepted the repair, and ARIADNE accepted the hosted browser proof.
+
+Accepted PR175 truth:
+
+- `update_observatory` without a selected status note remains blocked.
+- Secret-shaped status-note creation returns HTTP `400` without echoing the
+  probe.
+- Approved selected status-note execution creates one public
+  `developer_agent.status_note` event and one minimized owner-only
+  `update_observatory` receipt.
+- Retry is idempotent and does not duplicate public notes or receipts.
+- The previous hosted event-created/no-receipt state is recoverable after
+  migration `053`.
+- Public detail shows only the legitimate public status note and does not
+  expose dedupe, confirmation, receipt, preview-hash, UUID-shaped, or
+  secret-shaped visible text.
+
+MIMIR opens PR176 for DAEDALUS. This is a Phase 2D Developer Agent
+source-of-truth closeout before any remaining risky future action is opened.
+The remaining registered verbs include `update_layout`, `push_to_repo`,
+`run_job`, `rotate_ingestion_key`, and `create_webhook_signing_secret`; they
+should not be opened by inertia.
+
+DAEDALUS should produce a compact closeout packet with:
+
+- action matrix;
+- hosted proof and migration summary for the Developer Agent lane;
+- remaining blocked-action summary;
+- next-lane options and exactly one recommendation or a deliberate pause point;
+- validation commands actually run.
+
+ARGUS should review scope truth, blocked-action claims, hosted PR175/migration
+`053` truth, and the next-lane recommendation. ARIADNE is only needed if
+visible UI changes.
+
 ## Latest ARIADNE acceptance - PR175 hosted status note gate
 
 ARIADNE accepts PR175 on 2026-06-23 after ARGUS accepted migration `053` and

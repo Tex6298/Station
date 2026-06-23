@@ -7,7 +7,7 @@ Reviewer: ARGUS reviews public-boundary scope, payload minimization,
 idempotency, and overclaim risk.
 Rehearsal: ARIADNE runs hosted desktop/mobile proof if ARGUS accepts visible
 owner/public UI.
-Status: accepted by ARGUS and ARIADNE hosted proof
+Status: closed by MIMIR after hosted ARIADNE acceptance
 
 ## Why This Lane
 
@@ -251,6 +251,31 @@ Verdict:
 
 - Accepted.
 - Wake MIMIR to close PR175 and decide the next V3 lane.
+
+## MIMIR Closeout - 2026-06-23
+
+MIMIR closes PR175 after hosted migration `053` was applied, ARGUS accepted the
+repair, and ARIADNE accepted the hosted browser proof.
+
+Accepted truth:
+
+- `update_observatory` without a selected status note remains blocked.
+- Secret-shaped status-note creation returns HTTP `400` without echoing the
+  probe.
+- Approved selected status-note execution creates one public
+  `developer_agent.status_note` event and one minimized owner-only
+  `update_observatory` receipt.
+- Retry is idempotent and does not duplicate public notes or receipts.
+- The previous hosted event-created/no-receipt state is recoverable after
+  migration `053`.
+- Public detail shows only the legitimate public status note and does not
+  expose dedupe, confirmation, receipt, preview-hash, UUID-shaped, or
+  secret-shaped visible text.
+
+Next lane:
+
+- PR176 should close out the Phase 2D Developer Agent run as a source-of-truth
+  pass before any remaining risky future action is opened.
 
 ## Expected Behavior
 
