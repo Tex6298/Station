@@ -4,7 +4,45 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest MIMIR decision - PR177 protected-alpha human rehearsal
+## Latest MIMIR decision - PR178 backend flow reconciliation
+
+MIMIR received timer wakeup `182c8c2` on 2026-06-23 asking to restart backend
+flow. Current source truth says PR177 is active for ARIADNE as a hosted
+protected-alpha human rehearsal, but that rehearsal does not itself advance
+backend implementation.
+
+MIMIR opens PR178 for DAEDALUS as a narrow backend/product reconciliation lane.
+The point is not to invent backend churn. DAEDALUS should verify the current
+backend plan against current main and either:
+
+- identify the first concrete backend/product gap that is still real and
+  implement it narrowly; or
+- wake MIMIR with a source-backed no-backend-blocker verdict and the next
+  evidence trigger.
+
+Current evidence before PR178:
+
+- `docs/roadmap/STATION_BACKEND_PRODUCT_PR_PLAN.md` says no backend
+  implementation blocker is open from that plan after PR157/PR158-era
+  reconciliation.
+- Runtime budget, streaming envelope, continuity runtime context, topology
+  budget, and provider route metadata have accepted PR31 through PR35 coverage.
+- Global private archive/search, manual ChatGPT/Claude/Reddit/Discord import
+  intake, Station Assistant, and bounded Stripe test-mode evidence all have
+  accepted source-backed docs and tests.
+- Redis/Upstash remains operational cache/idempotency/rate-limit/cache-only
+  queue-state support, not canonical Memory truth.
+- Cloudflare remains deferred adapter/index-mirror scope unless fresh evidence
+  proves a concrete limitation.
+
+Current baton:
+
+- DAEDALUS should run PR178.
+- ARIADNE remains owner of PR177 in parallel.
+- DAEDALUS should wake ARGUS only if product/code changes are made, otherwise
+  wake MIMIR with the reconciliation verdict.
+
+## Previous MIMIR decision - PR177 protected-alpha human rehearsal
 
 MIMIR closes PR176 on 2026-06-23 after ARGUS accepted the Phase 2D Developer
 Agent closeout.
