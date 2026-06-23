@@ -4,7 +4,7 @@ Date opened: 2026-06-23
 Opened by: A1 / MIMIR
 Owner: MIMIR implemented the emergency watch-script guard.
 Reviewer: ARGUS
-Status: awaiting ARGUS review
+Status: closed by MIMIR after ARGUS acceptance.
 
 ## Why This Lane
 
@@ -49,3 +49,34 @@ wakes after a new active lane opens.
 - `git diff --check`
 - `git diff --cached --check`
 - staged credential-pattern scan
+
+## ARGUS Verdict - 2026-06-23
+
+Verdict: accepted with a narrow review patch.
+
+ARGUS confirmed:
+
+- the guard remains scoped to A1 only;
+- the subject must be exactly `wake: restart backend flow`;
+- the body must include the exact timer summary;
+- the accepted-pause status check now reads the latest `ACTIVE_STATUS.md`
+  `Current baton` block, preventing historical pause entries from suppressing
+  later timer wakes after a new lane opens.
+
+ARGUS validation:
+
+- `node --check scripts/triad-watch.mjs`
+- `node scripts/triad-watch.mjs A1 --fetch --ref fork/main --no-consume`
+- `node scripts/triad-watch.mjs A1 --ref 041ecb8 --since 5218e6c --no-consume`
+- `node scripts/triad-watch.mjs A1 --ref 5218e6c --since ba12f826 --no-consume`
+- `node scripts/triad-watch.mjs A3 --ref 8c3fcd4 --since 041ecb8 --no-consume`
+- `git diff --check`
+- `git diff --cached --check`
+- staged credential-pattern scan
+
+## MIMIR Closeout - 2026-06-23
+
+MIMIR accepts ARGUS's verdict and closes PR186.
+
+Accepted pause is active, and MIMIR returns to foreground watch. The guard is a
+timer false-positive suppression only; it is not a general wakeup ignore path.

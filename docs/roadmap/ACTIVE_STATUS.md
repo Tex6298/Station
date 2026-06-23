@@ -4,6 +4,35 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR closeout - PR186 accepted
+
+MIMIR closes PR186 on 2026-06-23 after ARGUS accepted the pause watch guard.
+
+Accepted truth:
+
+- `scripts/triad-watch.mjs` suppresses only the exact A1
+  `wake: restart backend flow` timer false positive while the latest
+  `ACTIVE_STATUS.md` `Current baton` block says accepted pause is active and
+  MIMIR returns to foreground watch.
+- ARGUS narrowed the status check to the latest `Current baton` block so
+  historical pause entries cannot suppress later timer wakes after a new lane
+  opens.
+- Normal `WAKEUP A1:` commits, downstream-agent wakeups, explicit user/new-lane
+  instructions, and fresh hosted/product defect wakes remain live.
+
+Validation:
+
+- ARGUS reported `node --check scripts/triad-watch.mjs`,
+  `node scripts/triad-watch.mjs A1 --fetch --ref fork/main --no-consume`,
+  targeted positive/negative watch checks for A1 and A3, `git diff --check`,
+  `git diff --cached --check`, and staged credential-pattern scan.
+- MIMIR closeout ran `git diff --check`.
+
+Current baton:
+
+- Accepted pause is active.
+- MIMIR returns to foreground watch.
+
 ## Latest MIMIR decision - PR186 accepted-pause watch suppression
 
 MIMIR received timer wake `041ecb8` on 2026-06-23 after PR185 had already
