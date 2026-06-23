@@ -4,6 +4,39 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR190 layout suggestion readback opened
+
+MIMIR closes PR189 on 2026-06-23 after ARGUS accepted the Developer Agent
+audit-export hardening.
+
+Accepted PR189 truth:
+
+- Owner-only `GET /developer-spaces/:id/agent/actions/audit-export` is in
+  place.
+- The export is owner-scoped and minimized.
+- `request_capability`, `save_project_update_draft`, `publish_to_page`, and
+  `update_observatory` can now be treated as production-capable
+  owner-confirmed Station-state actions when kept behind their existing
+  confirmation, receipt, audit-export, and minimized-payload boundaries.
+- No new risky action became executable.
+
+Decision:
+
+- Open PR190 for DAEDALUS.
+- Next Phase 2E implementation slice: `update_layout` as owner-only layout
+  suggestion/readback, with direct mutation still blocked.
+- Keep `run_job` blocked until a separate worker/job readiness lane proves job
+  target, timeout, retry, idempotency, status readback, and audit semantics.
+- Keep `push_to_repo`, `rotate_ingestion_key`, and
+  `create_webhook_signing_secret` beyond Phase 2E.
+
+Current baton:
+
+- DAEDALUS owns PR190.
+- ARGUS reviews owner scoping, no-mutation proof, public cleanliness,
+  audit/export compatibility, minimized payloads, and that `run_job` remains
+  blocked.
+
 ## Latest DAEDALUS result - PR189 audit export hardening
 
 DAEDALUS completed PR189 implementation on 2026-06-23.

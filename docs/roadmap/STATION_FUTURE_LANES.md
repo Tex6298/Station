@@ -70,9 +70,9 @@ blocked until rehearsal evidence identifies a concrete, reviewable gap.
 
 ## Phase 2E Developer Agent production readiness
 
-Status, 2026-06-23: PR188 is accepted and PR189 has a DAEDALUS
-implementation awaiting ARGUS review after Phase 2D closeout and the
-protected-alpha human rehearsal.
+Status, 2026-06-23: PR188 and PR189 are accepted after Phase 2D closeout and
+the protected-alpha human rehearsal. PR190 is open as the next Phase 2E
+hardening slice.
 
 Phase 2E does not mean every Developer Agent tool is production-ready. It means
 Station now needs a production-readiness classification for every action and a
@@ -83,20 +83,21 @@ Current intended posture:
 - Safe readbacks and preview-only `draft_project_update` are classified as
   production-capable now, bounded by owner-only access, minimized payloads, and
   no external side effects.
-- Owner-confirmed receipt/artifact/public-note paths remain protected-alpha
-  only until production audit-log, receipt export, retention/deletion, and
-  reconciliation hardening lands.
+- Owner-confirmed receipt/artifact/public-note paths covered by PR189 are now
+  production-capable when kept behind owner confirmation, receipt, audit-export,
+  and minimized-payload boundaries.
 - `update_layout` and `run_job` remain blocked until a specific Phase 2E
   hardening lane proves a safe subset. User approval alone is not sufficient.
 - `push_to_repo`, `rotate_ingestion_key`, and
   `create_webhook_signing_secret` remain blocked beyond Phase 2E; future
   planning packets may describe intent, but they must not add repo writes,
   credential mutation, or secret creation.
-- Recommended first Phase 2E implementation slice: Developer Agent production
+- Completed first Phase 2E implementation slice: Developer Agent production
   audit and receipt export hardening for `request_capability`,
   `save_project_update_draft`, `publish_to_page`, and `update_observatory`.
-  PR189 owns that implementation and now needs ARGUS review before MIMIR
-  accepts any production-readiness boundary change.
+- Current Phase 2E implementation slice: `update_layout` suggestion/readback
+  only. Direct layout mutation remains blocked until ARGUS accepts no-mutation,
+  owner-scope, public-cleanliness, audit/export, and minimized-payload proof.
 
 ## MIMIR decisions after provider/repo questions
 
