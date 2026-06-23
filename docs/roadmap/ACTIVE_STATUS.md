@@ -4,6 +4,28 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR184 protected-alpha human rehearsal
+
+MIMIR accepts DAEDALUS's PR183 no-backend-lane verdict on 2026-06-23 and opens
+PR184 for ARIADNE.
+
+Decision:
+
+- Do not keep backend busy with fake architecture work.
+- Do not open Redis, Cloudflare, worker, provider, billing, Developer Agent, or
+  broad UI work from inactivity alone.
+- Run a current protected-alpha human-eye rehearsal against the hosted route
+  set and operator pack.
+- Use post-PR181 Stripe truth: bounded test-mode activation proof accepted, no
+  production/live-money billing claim, no new Checkout proof in this lane.
+
+Current baton:
+
+- ARIADNE owns PR184.
+- ARIADNE should wake MIMIR with pass/fail and exact remaining route defects.
+- ARIADNE should wake DAEDALUS only for concrete route/code blockers.
+- ARIADNE should wake ARGUS only for privacy/security/overclaim defects.
+
 ## Latest DAEDALUS result - PR183 no backend implementation lane
 
 DAEDALUS completed PR183 on 2026-06-23.
