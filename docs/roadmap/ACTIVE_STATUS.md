@@ -4,6 +4,35 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR185 backend timer wake reconciliation
+
+MIMIR received another timer wake, `77fbdcb`, on 2026-06-23 after the prior
+no-backend-baton reconciliation.
+
+Decision:
+
+- Open PR185 for DAEDALUS as a narrow process/source-truth audit.
+- DAEDALUS should prove whether the repeated `wake: restart backend flow`
+  commits indicate a real backend/product lane or a monitor-policy false
+  positive.
+- If a real backend/product lane exists, DAEDALUS must name the narrow scope,
+  owner, validation, and why it is not already rejected by PR184, PR183, or the
+  current roadmap docs.
+- If no real lane exists, DAEDALUS should patch repo-owned guidance if possible,
+  or wake MIMIR with the exact monitor rule needed externally.
+
+Boundaries:
+
+- Do not implement backend/product work from the timer ping alone.
+- Do not reopen Redis, Cloudflare, worker, provider, billing, broad UI, or
+  risky Developer Agent work without concrete evidence.
+- ARGUS reviews only if DAEDALUS changes workflow guidance or scripts.
+
+Current baton:
+
+- DAEDALUS owns PR185.
+- MIMIR returns to foreground watch.
+
 ## Latest MIMIR wake reconciliation - no backend baton opened
 
 MIMIR received timer wake `71bae32` on 2026-06-23 immediately after closing
