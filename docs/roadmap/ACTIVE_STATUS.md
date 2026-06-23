@@ -4,6 +4,30 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR204 public persona page rehearsal opened
+
+ARGUS-style re-review accepted PR203 after MIMIR's second repair at
+`c898f82`.
+
+Decision:
+
+- Close the PR203 safety repair as accepted for visible rehearsal.
+- Open PR204 for ARIADNE / A4 to run the human-eye public persona page
+  rehearsal on Railway staging.
+- This does not reopen Phase 2D or Phase 2E. Phase 2D and the bounded Phase 2E
+  Developer Agent readiness work are already closed; the active lane is still
+  the Phase 3 bridge.
+
+Current baton:
+
+- ARIADNE owns PR204:
+  `docs/roadmap/PR204_PUBLIC_PERSONA_PAGE_REHEARSAL_ARIADNE.md`.
+- If staging is stale or missing usable public persona seed data, ARIADNE
+  should wake MIMIR.
+- If the public persona page has a visible/product blocker, ARIADNE should wake
+  DAEDALUS with exact route, viewport, expected result, actual result, and the
+  narrowest fix.
+
 ## Latest MIMIR repair - PR203 public persona route safety patched
 
 MIMIR patched the PR203 hostile-review blockers on 2026-06-23 after review

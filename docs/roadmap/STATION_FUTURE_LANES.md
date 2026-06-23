@@ -160,13 +160,15 @@ Current intent:
   P3-B2 public persona page readback with a hard route-contract guard. MIMIR
   has patched the first hostile-review blockers: UUID-shaped public slugs are
   rejected/prefixed, and public Space persona cards now require current owner
-  public-persona exposure eligibility before ARIADNE rehearsal.
+  public-persona exposure eligibility. Follow-up review accepted the second
+  repair at `c898f82`; PR204 now sends the public persona page to ARIADNE for
+  visible rehearsal.
 
 ## Phase 3 bridge sequence
 
-Status, 2026-06-23: PR202 is accepted. PR203 is implemented and repaired after
-hostile review found route-safety gaps. ARGUS re-review is required before
-MIMIR sends the public persona page to ARIADNE visible rehearsal.
+Status, 2026-06-23: PR202 is accepted. PR203 is implemented, repaired, and
+accepted for visible rehearsal. PR204 is open for ARIADNE to rehearse the
+public persona page on Railway staging.
 
 Current MIMIR position:
 
@@ -184,11 +186,13 @@ Bridge order:
 1. ARGUS hostile boundary preflight.
 2. Done: public persona eligibility, server-side visibility guards, serializer
    split, and owner readback.
-3. Active: public persona page readback with no visitor chat.
-4. Visitor-safe context assembly readback/preview.
-5. Bounded visitor chat alpha with rate/message limits and reporting.
-6. Owner analytics, moderation, and report readback.
-7. Only then consider Roulette, Salons, voice/avatar, public persona events,
+3. Accepted for visible rehearsal: public persona page readback with no visitor
+   chat.
+4. Active: ARIADNE public persona page rehearsal.
+5. Visitor-safe context assembly readback/preview.
+6. Bounded visitor chat alpha with rate/message limits and reporting.
+7. Owner analytics, moderation, and report readback.
+8. Only then consider Roulette, Salons, voice/avatar, public persona events,
    institutional/research features, or persona-to-persona encounters.
 
 ARGUS P3-B1A gates:

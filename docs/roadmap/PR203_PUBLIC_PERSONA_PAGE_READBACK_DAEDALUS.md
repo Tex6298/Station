@@ -4,7 +4,7 @@ Date opened: 2026-06-23
 Opened by: A1 / MIMIR
 Owner: DAEDALUS
 Reviewer: ARGUS after implementation; ARIADNE after ARGUS accepts public safety
-Status: implemented; MIMIR safety repair ready for ARGUS re-review
+Status: accepted for ARIADNE visible rehearsal
 
 ## Why This Lane
 
@@ -293,3 +293,28 @@ ARGUS re-review request:
 - Re-check report route hints and anonymous public page payloads for raw ids,
   owner fields, private setup fields, provider context, and route leakage.
 - Re-check migration `055` fallback collision behavior.
+
+## ARGUS-Style Re-Review Result
+
+Accepted on 2026-06-23 after MIMIR's second repair at `c898f82`.
+
+Verdict:
+
+- No remaining blocker found in the repaired PR203 surface.
+- Unsafe legacy slug leakage is closed at the shared public serializer boundary:
+  unsafe `public_slug` values become `publicSlug: null`.
+- Anonymous public persona payloads, authenticated non-owner public readback,
+  public Space cards, and report route hints inherit safe slug behavior.
+- Migration `055` is safe enough for the reviewed risk: it tries
+  `persona-<uuid>`, the old hashed fallback, then deterministic additional
+  hash candidates and selects the first unoccupied candidate before replacing
+  the constraint. If every candidate is occupied, the constraint fails closed
+  instead of preserving a UUID-shaped public slug silently.
+- No raw public persona-id URL construction, owner-id leakage, private setup
+  field leakage, provider/model/BYOK/config leakage, secrets, private
+  archive/memory/canon/continuity data, or out-of-scope visitor chat/provider/
+  cache/billing/analytics/moderation action was found.
+
+Recommendation:
+
+- MIMIR should wake ARIADNE for visible public-page rehearsal next.
