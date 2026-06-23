@@ -2719,6 +2719,10 @@ test("Developer Space agent receipt migration allows update_observatory receipts
   assert.match(migration, /check \(action in \(/);
   assert.match(migration, /'update_observatory'/);
   assert.match(migration, /c\.action in \(/);
+  assert.match(migration, /auth\.uid\(\) = owner_user_id/);
+  assert.match(migration, /s\.owner_user_id = auth\.uid\(\)/);
+  assert.match(migration, /c\.status = 'approved'/);
+  assert.match(migration, /with check \(/);
   assert.match(migration, /update_observatory records a bounded owner-confirmed public status note/);
 });
 
