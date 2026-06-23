@@ -60,8 +60,8 @@ DAEDALUS implementation plus MIMIR safety-repair validation on 2026-06-23:
 
 | Command / check | Result | Notes |
 | --- | --- | --- |
-| `npm exec --yes pnpm@10.32.1 -- run test:personas` | Pass | 6 tests passed. Coverage includes public slug creation, UUID-shaped slug prefixing/rejection, anonymous public readback, private persona 404, ineligible legacy public persona 404, and PR202 tier/serializer regression coverage. |
-| `npm exec --yes pnpm@10.32.1 -- run test:spaces` | Pass | Public Space cards include safe public slugs, omit owner/setup/provider fields, and disappear when the Space owner no longer satisfies existing-public-persona exposure eligibility. |
+| `npm exec --yes pnpm@10.32.1 -- run test:personas` | Pass | 6 tests passed. Coverage includes public slug creation, UUID-shaped slug prefixing/rejection, anonymous public readback, unsafe legacy slug nulling in public serializer output, private persona 404, ineligible legacy public persona 404, and PR202 tier/serializer regression coverage. |
+| `npm exec --yes pnpm@10.32.1 -- run test:spaces` | Pass | Public Space cards include safe public slugs, omit owner/setup/provider fields, null unsafe legacy UUID-shaped slugs, and disappear when the Space owner no longer satisfies existing-public-persona exposure eligibility. |
 | `npm exec --yes pnpm@10.32.1 -- run test:reports` | Pass | Persona report route hints are added only for public, eligible personas with a valid public slug; private persona reports still have no route hint. |
 | `npm exec --yes pnpm@10.32.1 -- run test:writing` | Pass | 9 tests passed, including focused public persona route helper/copy tests. |
 | `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | Turbo typecheck passed for API and web packages. |
@@ -81,6 +81,9 @@ Scope notes:
   for databases that already ran the first public-slug migration.
 - Public Space persona cards now require current owner exposure eligibility,
   not just `visibility = public`.
+- Public serializers now null unsafe legacy `public_slug` values, and migration
+  `055` selects the first unoccupied deterministic repair slug before replacing
+  the format constraint.
 - No visitor chat, provider call, model context assembly, embeddings,
   cache/worker architecture, billing/Stripe, analytics, broad reskin, Archive
   trust UX, Roulette, Salons, voice/avatar, or persona-to-persona interaction

@@ -246,6 +246,9 @@ Findings repaired:
 - The route contract allowed UUID-shaped public slugs. That meant a persona
   named like a UUID could receive a public route that looked like a raw persona
   id even though it was technically stored in `public_slug`.
+- Follow-up review found that unsafe legacy `public_slug` values could still be
+  echoed by the public serializer, and that migration `055` needed stronger
+  fallback collision handling before replacing the format constraint.
 
 Repair:
 
@@ -259,6 +262,12 @@ Repair:
 - Migration `054` now backfills UUID-shaped generated slugs with a `persona-`
   prefix, and migration `055` repairs already-migrated databases by remapping
   any UUID-shaped `public_slug` values before replacing the format constraint.
+- Public serializers now return `publicSlug: null` for unsafe legacy
+  `public_slug` values, so public Space cards and non-owner persona readback do
+  not echo a UUID-shaped route id even before migration repair is applied.
+- Migration `055` now uses a deterministic candidate list and selects the first
+  unoccupied candidate before updating UUID-shaped slugs, instead of assuming a
+  single hashed fallback is unique.
 
 Validation:
 
@@ -278,6 +287,9 @@ ARGUS re-review request:
 
 - Re-check UUID-shaped slug rejection across API, web helper, migration, and
   generated public slugs.
+- Re-check public serializer nulling of unsafe legacy slugs before migration
+  repair.
 - Re-check public Space persona cards for downgraded/legacy owner exposure.
 - Re-check report route hints and anonymous public page payloads for raw ids,
   owner fields, private setup fields, provider context, and route leakage.
+- Re-check migration `055` fallback collision behavior.

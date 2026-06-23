@@ -482,6 +482,7 @@ test("non-owner public persona readback uses the public serializer only", async 
       provider: "anthropic",
       avatar_url: "https://example.test/public-avatar.png",
       visibility: "public",
+      public_slug: "550e8400-e29b-41d4-a716-446655440000",
     });
 
     const readback = await requestJson(app, "GET", `/personas/${persona.id}`, {

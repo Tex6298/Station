@@ -36,7 +36,7 @@ export function serializePersonaPublicFields(row: any): PersonaPublicFields {
     shortDescription: row.short_description,
     visibility: row.visibility,
     avatarUrl: row.avatar_url,
-    publicSlug: row.public_slug ?? null,
+    publicSlug: isSafePublicPersonaSlug(row.public_slug) ? row.public_slug : null,
   };
 }
 

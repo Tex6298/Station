@@ -10,18 +10,27 @@ with uuid_slugs as (
   where public_slug ~* '^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$'
 ),
 safe_slugs as (
-  select
+  select distinct on (u.id)
     u.id,
-    case
-      when exists (
-        select 1
-        from public.personas p
-        where p.id <> u.id
-          and p.public_slug = u.base_slug
-      ) then u.base_slug || '-' || substr(md5(u.id::text), 1, 8)
-      else u.base_slug
-    end as public_slug
+    candidate.public_slug
   from uuid_slugs u
+  cross join lateral (
+    select
+      case
+        when candidate_index.i = 0 then u.base_slug
+        when candidate_index.i = 1 then u.base_slug || '-' || substr(md5(u.id::text), 1, 8)
+        else u.base_slug || '-' || substr(md5(u.id::text || ':' || candidate_index.i::text), 1, 8)
+      end as public_slug,
+      candidate_index.i as sort_order
+    from generate_series(0, 32) as candidate_index(i)
+  ) candidate
+  where not exists (
+    select 1
+    from public.personas p
+    where p.id <> u.id
+      and p.public_slug = candidate.public_slug
+  )
+  order by u.id, candidate.sort_order
 )
 update public.personas p
 set public_slug = safe_slugs.public_slug

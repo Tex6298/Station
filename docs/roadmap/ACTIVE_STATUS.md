@@ -9,6 +9,9 @@ when a PR lands, or when validation truth changes.
 MIMIR patched the PR203 hostile-review blockers on 2026-06-23 after review
 found two route-safety gaps.
 
+Follow-up ARGUS-style re-review found two remaining repair gaps; MIMIR patched
+those too before re-waking review.
+
 Verdict:
 
 - PR203 remains the active Phase 3 bridge lane.
@@ -28,6 +31,11 @@ What changed:
 - Public Space persona cards now require the Space owner to still satisfy
   existing-public-persona exposure eligibility. Legacy/downgraded owners no
   longer expose public persona cards through a public Space payload.
+- Public serializers now null unsafe legacy `public_slug` values instead of
+  echoing UUID-shaped slugs through Space cards or non-owner persona readback.
+- Migration `055` now tries deterministic candidate slugs and skips occupied
+  values before replacing the format constraint, reducing upgrade collision
+  risk for databases that already contain `persona-<uuid>` style slugs.
 
 Validation:
 
@@ -42,9 +50,10 @@ Validation:
 
 Current baton:
 
-- ARGUS should re-review the PR203 repair for public slug UUID-shape rejection,
-  Space-owner eligibility, migration upgrade safety, public payload shape, and
-  route-hint behavior.
+- ARGUS should re-review the second PR203 repair for public slug UUID-shape
+  rejection, serializer nulling of unsafe legacy slugs, Space-owner eligibility,
+  migration upgrade collision safety, public payload shape, and route-hint
+  behavior.
 - If safe, ARGUS should wake MIMIR with an accept verdict and recommend
   ARIADNE visible public-page review next.
 

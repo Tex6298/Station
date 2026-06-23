@@ -384,6 +384,21 @@ test("Public Spaces smoke covers authored microsite config and owner/private vis
     assert.equal(publicPersonasJson.includes("style_notes"), false);
     assert.equal(publicDetail.body.pages.some((page: Row) => page.slug === "about"), false);
 
+    db.insertRow("personas", {
+      owner_user_id: "owner-user",
+      name: "Legacy UUID Persona",
+      short_description: "Unsafe legacy slug should not be echoed.",
+      visibility: "public",
+      public_slug: "550e8400-e29b-41d4-a716-446655440000",
+    });
+    const unsafeSlugDetail = await requestJson(app, "GET", "/spaces/mirror-archive");
+    assert.equal(unsafeSlugDetail.status, 200);
+    const unsafePersona = unsafeSlugDetail.body.personas.find(
+      (persona: Row) => persona.name === "Legacy UUID Persona"
+    );
+    assert.equal(unsafePersona.publicSlug, null);
+    assert.equal(JSON.stringify(unsafeSlugDetail.body.personas).includes("550e8400-e29b-41d4-a716-446655440000"), false);
+
     db.tables.profiles[0].tier = "private";
     const ineligibleOwnerDetail = await requestJson(app, "GET", "/spaces/mirror-archive");
     assert.equal(ineligibleOwnerDetail.status, 200);
