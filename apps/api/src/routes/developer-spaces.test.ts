@@ -1757,6 +1757,9 @@ test("Developer Space agent risky future actions stay blocked after owner approv
     assert.equal(db.tables.documents.length, 0);
     assert.equal(db.tables.ai_trace_sessions.length, 0);
     assert.equal(db.tables.ai_trace_events.length, 0);
+    const spaceRow = db.tables.developer_spaces.find((row) => row.id === spaceId);
+    assert.deepEqual(spaceRow?.visualisation_config, {});
+    assert.equal(spaceRow?.visibility, "private");
   } finally {
     setSupabaseAdminForTests(null);
   }
