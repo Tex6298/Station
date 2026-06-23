@@ -13,19 +13,21 @@ export function canExposeExistingPublicPersona(
 }
 
 export async function ownerCanExposeExistingPublicPersonas(sb: any, ownerUserId: string) {
-  const { data: profile } = await sb
+  const { data: profile, error: profileError } = await sb
     .from("profiles")
     .select("id, tier, is_admin")
     .eq("id", ownerUserId)
     .maybeSingle();
 
-  if (!profile) return false;
+  if (profileError || !profile) return false;
 
-  const { count } = await sb
+  const { count, error: countError } = await sb
     .from("personas")
     .select("id", { count: "exact", head: true })
     .eq("owner_user_id", ownerUserId)
     .eq("visibility", "public");
+
+  if (countError || count === null) return false;
 
   return canExposeExistingPublicPersona(
     {

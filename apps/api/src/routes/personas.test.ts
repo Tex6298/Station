@@ -4,6 +4,7 @@ import type { AddressInfo } from "node:net";
 import test from "node:test";
 import express, { type Express } from "express";
 import { setSupabaseAdminForTests } from "../lib/supabase";
+import { ownerCanExposeExistingPublicPersonas } from "../lib/public-persona-eligibility";
 import { personasRouter } from "./personas";
 
 process.env.NODE_ENV = "test";
@@ -584,4 +585,36 @@ test("public persona slug readback is anonymous, public-only, and owner-tier eli
   } finally {
     setSupabaseAdminForTests(null);
   }
+});
+
+test("public persona exposure eligibility fails closed when public count cannot load", async () => {
+  function queryResult(result: Row) {
+    return {
+      select() { return this; },
+      eq() { return this; },
+      maybeSingle: async () => result,
+      then(onfulfilled: (value: Row) => unknown, onrejected: (reason: unknown) => unknown) {
+        return Promise.resolve(result).then(onfulfilled, onrejected);
+      },
+    };
+  }
+
+  const sb = {
+    from(table: string) {
+      if (table === "profiles") {
+        return queryResult({
+          data: { id: "private-owner", tier: "private", is_admin: false },
+          error: null,
+        });
+      }
+
+      return queryResult({
+        data: null,
+        error: { message: "count failed" },
+        count: null,
+      });
+    },
+  };
+
+  assert.equal(await ownerCanExposeExistingPublicPersonas(sb, "private-owner"), false);
 });

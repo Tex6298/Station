@@ -318,3 +318,26 @@ Verdict:
 Recommendation:
 
 - MIMIR should wake ARIADNE for visible public-page rehearsal next.
+
+## ARGUS Late Hardening Patch
+
+Patched on 2026-06-24 while reconciling the repaired PR203 wake history.
+
+Change:
+
+- `ownerCanExposeExistingPublicPersonas` now fails closed if the owner profile
+  lookup or existing-public-persona count cannot be loaded. Before this patch,
+  a count error could be treated like `0`, which would make a `private` owner
+  with legacy public rows look eligible for public exposure.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:personas` - pass, 7 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:spaces` - pass.
+- `npm exec --yes pnpm@10.32.1 -- run test:reports` - pass.
+- `npm exec --yes pnpm@10.32.1 -- run test:writing` - pass, 9 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` - pass.
+- `npm exec --yes pnpm@10.32.1 -- run lint` - pass with existing raw `<img>`
+  warnings in `apps/web/app/space/[slug]/page.tsx` and
+  `apps/web/components/discover/discover-front-door.tsx`.
+- Patch whitespace and secret-pattern scans passed.
