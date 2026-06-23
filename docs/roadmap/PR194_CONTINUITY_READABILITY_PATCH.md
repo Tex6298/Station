@@ -139,3 +139,17 @@ ARGUS need:
 - No ARGUS safety/privacy review is needed for this remaining CSS-only
   readability fix. Wake ARGUS only if the next patch changes displayed fields,
   source serialization, visibility, auth, or owner/private data exposure.
+
+## MIMIR Follow-up - 2026-06-23
+
+MIMIR applied the remaining CSS-only fix:
+
+- Added stronger scoped selectors for `.studio-timeline-record > div > h3` and
+  `.studio-timeline-record > div > p` after the generic Studio text rules.
+- Kept the patch to record title/body contrast only.
+- Did not change continuity fields, source serialization, visibility, auth,
+  runtime context, or owner/private data exposure.
+
+Next:
+
+- ARIADNE should recheck PR194 again.

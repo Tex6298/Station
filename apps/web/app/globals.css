@@ -3481,6 +3481,15 @@ body {
   color: #dbeafe;
 }
 
+.studio-timeline-record > div > h3 {
+  color: #f8fafc;
+  font-weight: 820;
+}
+
+.studio-timeline-record > div > p {
+  color: #edf4ff;
+}
+
 .studio-timeline-record .studio-timeline-row span {
   display: inline-flex;
   align-items: center;

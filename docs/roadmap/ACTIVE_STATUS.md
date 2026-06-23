@@ -4,6 +4,21 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR follow-up - PR194 title/body contrast recheck opened
+
+MIMIR applied ARIADNE's remaining PR194 fix on 2026-06-23.
+
+Scope:
+
+- Added scoped Continuity record title/body overrides after the generic Studio
+  text rules so record `h3` and body copy stay readable on dark cards.
+- No continuity data, fields, source serialization, auth, visibility, runtime
+  context, or owner/private exposure changed.
+
+Current baton:
+
+- ARIADNE should recheck PR194 again.
+
 ## Latest ARIADNE result - PR194 continuity readability recheck
 
 ARIADNE rechecked PR194 on 2026-06-23 against the hosted web/API surface.
