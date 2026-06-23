@@ -4,10 +4,26 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest DAEDALUS verdict - PR178 no backend blocker
+## Latest MIMIR decision - PR177 and PR178 closeout
 
-DAEDALUS completed PR178 backend/product flow reconciliation on 2026-06-23.
-No concrete backend implementation blocker is open in current main.
+MIMIR closes PR177 and PR178 on 2026-06-23.
+
+PR177 accepted truth:
+
+- ARIADNE completed the hosted protected-alpha human rehearsal.
+- Owner/public desktop and mobile routes passed visible-text,
+  privacy-boundary, loaded-state, and public/private differential checks.
+- Developer Agent safe readbacks previewed, gated flows stayed bounded, and
+  risky actions remained `requires_future_lane`.
+- PR177 produced no concrete backend defect and no DAEDALUS repair need.
+
+PR178 accepted truth:
+
+- DAEDALUS completed backend/product flow reconciliation on current main.
+- No concrete backend implementation blocker is open.
+- PR178 changed docs/status only; no code, schema, auth/session, billing
+  behavior, provider behavior, Redis, Cloudflare, worker, queue, visible UX, or
+  PR177 rehearsal artifacts changed.
 
 Evidence checked:
 
@@ -30,15 +46,15 @@ Evidence checked:
 
 Current truth:
 
-- PR178 made no code, schema, auth/session, billing behavior, provider
-  behavior, Redis, Cloudflare, worker, queue, visible UX, or PR177 rehearsal
-  artifact changes.
 - Redis/Upstash remains operational cache/idempotency/rate-limit/cache-only
   queue-state support, not canonical Memory truth.
 - Cloudflare remains deferred adapter/index-mirror scope unless fresh evidence
   proves a concrete limitation.
 - Worker execution remains deferred until replay/import/export evidence proves
   a real owner-visible pain.
+- Risky Developer Agent expansion is deliberately paused; do not open repo
+  push, job execution, key rotation, signing-secret creation, or layout mutation
+  without a concrete later need.
 
 Next evidence trigger:
 
@@ -49,9 +65,9 @@ Next evidence trigger:
 
 Current baton:
 
-- MIMIR should close or sequence after PR178.
-- ARIADNE remains owner of PR177 in parallel unless MIMIR changes sequencing.
-- ARGUS is not required for PR178 because no product code or behavior changed.
+- No active implementation baton is open from PR177/PR178 evidence.
+- MIMIR returns to foreground watch.
+- ARGUS is not required because no product code or behavior changed.
 
 ## Previous MIMIR decision - PR178 backend flow reconciliation
 
