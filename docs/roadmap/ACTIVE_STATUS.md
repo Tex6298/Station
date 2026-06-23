@@ -4,6 +4,40 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR192 memory continuity UX opened
+
+MIMIR closes PR191 on 2026-06-23 after ARGUS accepted the Developer Agent
+`run_job` dry-run/readiness boundary.
+
+Accepted Developer Agent 2E truth:
+
+- Safe readbacks and preview-only `draft_project_update` are production-capable.
+- `request_capability`, `save_project_update_draft`, `publish_to_page`, and
+  `update_observatory` are production-capable owner-confirmed Station-state
+  actions behind confirmation, receipt, audit-export, and minimized payloads.
+- `update_layout` is suggestion/readback only; direct visual config mutation is
+  blocked.
+- `run_job` is dry-run/readiness only; actual job execution is blocked.
+- `push_to_repo`, `rotate_ingestion_key`, and
+  `create_webhook_signing_secret` remain beyond Phase 2E.
+
+Decision:
+
+- Pivot back to memory UX/observability.
+- Open PR192 for DAEDALUS.
+- First product slice: make Continuity a first-class persona stop, improve
+  memory lifecycle/evidence readback from existing data, and add a small
+  public-safe Developer Space observability storytelling improvement.
+- No provider, embedding, Redis, Cloudflare, worker, billing, migration, auth,
+  or deployment config work in this lane.
+
+Current baton:
+
+- DAEDALUS owns PR192.
+- ARGUS reviews owner/public visibility boundaries, lifecycle/status truth, no
+  retrieval/provider/config drift, public cleanliness, and whether ARIADNE needs
+  a human rehearsal before MIMIR accepts the lane.
+
 ## Latest DAEDALUS result - PR191 run_job readiness boundary
 
 DAEDALUS completed PR191 implementation on 2026-06-23.

@@ -70,9 +70,9 @@ blocked until rehearsal evidence identifies a concrete, reviewable gap.
 
 ## Phase 2E Developer Agent production readiness
 
-Status, 2026-06-23: PR188, PR189, and PR190 are accepted after Phase 2D
-closeout and the protected-alpha human rehearsal. PR191 is open as the final
-currently justified Phase 2E Developer Agent boundary-hardening slice.
+Status, 2026-06-23: PR188 through PR191 are accepted after Phase 2D closeout
+and the protected-alpha human rehearsal. Developer Agent Phase 2E is bounded
+enough for now unless fresh evidence names a production blocker.
 
 Phase 2E does not mean every Developer Agent tool is production-ready. It means
 Station now needs a production-readiness classification for every action and a
@@ -89,9 +89,9 @@ Current intended posture:
 - `update_layout` is accepted as owner-only suggestion/readback. Direct layout
   mutation remains blocked until a separate lane proves rollback/readback and
   owner safety.
-- `run_job` is implemented as owner-only dry-run/readiness readback. Actual job
-  execution remains blocked until a separate lane proves worker/queue,
-  timeout, retry, idempotency, and owner status safety.
+- `run_job` is accepted as owner-only dry-run/readiness readback. Actual job
+  execution remains blocked until a separate lane proves worker/queue, timeout,
+  retry, idempotency, and owner status safety.
 - `push_to_repo`, `rotate_ingestion_key`, and
   `create_webhook_signing_secret` remain blocked beyond Phase 2E; future
   planning packets may describe intent, but they must not add repo writes,
@@ -102,11 +102,26 @@ Current intended posture:
 - Completed second Phase 2E implementation slice: `update_layout`
   suggestion/readback only. Direct layout mutation remains blocked and needs a
   separate future lane.
-- Current Phase 2E implementation slice: `run_job` dry-run/readiness boundary
-  only. DAEDALUS implemented minimized owner readiness readback and audit-export
-  compatibility; actual job execution, worker/queue enqueue, provider calls,
+- Completed third Phase 2E implementation slice: `run_job` dry-run/readiness
+  boundary only. Actual job execution, worker/queue enqueue, provider calls,
   shell, Redis/Upstash job state, deploys, and credential mutation remain out
-  of scope pending ARGUS review.
+  of scope.
+
+## Memory continuity and observability UX
+
+Status, 2026-06-23: PR192 is open as the first post-Developer-Agent product
+slice.
+
+Current intent:
+
+- Make Continuity a first-class persona stop instead of only a runtime-context
+  count.
+- Improve memory lifecycle/evidence readback using existing authorized fields.
+- Add a small public-safe Developer Space storytelling improvement around
+  methodology, field logs, or thin live-state explanation.
+- Do not change provider, embedding, Redis/Cloudflare, queue, worker, billing,
+  migration, auth/session, deployment, retrieval ranking, or memory truth in
+  this lane.
 
 ## MIMIR decisions after provider/repo questions
 
