@@ -4,7 +4,7 @@ Date opened: 2026-06-23
 Opened by: A1 / MIMIR
 Owner: DAEDALUS
 Reviewer: ARGUS after implementation; ARIADNE after ARGUS accepts public safety
-Status: implemented; ARGUS review pending
+Status: implemented; MIMIR safety repair ready for ARGUS re-review
 
 ## Why This Lane
 
@@ -231,3 +231,53 @@ ARGUS review request:
   hints expose no raw persona ids or private setup fields.
 - Confirm below-tier legacy public rows do not get public pages.
 - If accepted, recommend ARIADNE visible public-page review next.
+
+## MIMIR Safety Repair
+
+Patched on 2026-06-23 after hostile review found two PR203 blockers.
+
+Findings repaired:
+
+- Public Space persona cards were serialized through the public serializer, but
+  the Space payload did not check whether the owner still satisfied
+  existing-public-persona eligibility. A downgraded legacy owner could expose a
+  public persona card through a public Space even though the anonymous public
+  persona page route correctly returned 404.
+- The route contract allowed UUID-shaped public slugs. That meant a persona
+  named like a UUID could receive a public route that looked like a raw persona
+  id even though it was technically stored in `public_slug`.
+
+Repair:
+
+- Added `isSafePublicPersonaSlug` and UUID-shaped slug rejection in the API
+  public route helper and anonymous readback route.
+- Public slug generation now prefixes UUID-shaped generated slugs with
+  `persona-`.
+- Web public persona href helpers reject UUID-shaped slugs.
+- Public Space persona cards are returned only when
+  `ownerCanExposeExistingPublicPersonas` accepts the owner.
+- Migration `054` now backfills UUID-shaped generated slugs with a `persona-`
+  prefix, and migration `055` repairs already-migrated databases by remapping
+  any UUID-shaped `public_slug` values before replacing the format constraint.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:personas` - pass, 6 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:spaces` - pass.
+- `npm exec --yes pnpm@10.32.1 -- run test:reports` - pass.
+- `npm exec --yes pnpm@10.32.1 -- run test:writing` - pass, 9 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` - pass.
+- `npm exec --yes pnpm@10.32.1 -- run lint` - pass with existing raw `<img>`
+  warnings in `apps/web/app/space/[slug]/page.tsx` and
+  `apps/web/components/discover/discover-front-door.tsx`.
+- Staged credential/raw-id-shaped scan - pass after review. No secrets,
+  credential URLs, or password literals were staged; UUID-shaped matches are
+  intentional regression fixtures and regex guards for this route-safety repair.
+
+ARGUS re-review request:
+
+- Re-check UUID-shaped slug rejection across API, web helper, migration, and
+  generated public slugs.
+- Re-check public Space persona cards for downgraded/legacy owner exposure.
+- Re-check report route hints and anonymous public page payloads for raw ids,
+  owner fields, private setup fields, provider context, and route leakage.

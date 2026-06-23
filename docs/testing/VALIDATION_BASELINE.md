@@ -56,19 +56,19 @@ pnpm test:writing
 
 ## PR203 Public Persona Page Readback
 
-DAEDALUS implementation validation on 2026-06-23:
+DAEDALUS implementation plus MIMIR safety-repair validation on 2026-06-23:
 
 | Command / check | Result | Notes |
 | --- | --- | --- |
-| `npm exec --yes pnpm@10.32.1 -- run test:personas` | Pass | 5 tests passed. Coverage includes public slug creation, anonymous public readback, private persona 404, ineligible legacy public persona 404, and PR202 tier/serializer regression coverage. |
-| `npm exec --yes pnpm@10.32.1 -- run test:spaces` | Pass | Public Space cards include safe public slugs and still omit owner/setup/provider fields. |
+| `npm exec --yes pnpm@10.32.1 -- run test:personas` | Pass | 6 tests passed. Coverage includes public slug creation, UUID-shaped slug prefixing/rejection, anonymous public readback, private persona 404, ineligible legacy public persona 404, and PR202 tier/serializer regression coverage. |
+| `npm exec --yes pnpm@10.32.1 -- run test:spaces` | Pass | Public Space cards include safe public slugs, omit owner/setup/provider fields, and disappear when the Space owner no longer satisfies existing-public-persona exposure eligibility. |
 | `npm exec --yes pnpm@10.32.1 -- run test:reports` | Pass | Persona report route hints are added only for public, eligible personas with a valid public slug; private persona reports still have no route hint. |
 | `npm exec --yes pnpm@10.32.1 -- run test:writing` | Pass | 9 tests passed, including focused public persona route helper/copy tests. |
 | `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | Turbo typecheck passed for API and web packages. |
 | `npm exec --yes pnpm@10.32.1 -- run lint` | Pass with existing warnings | Existing raw `<img>` warnings remain in `apps/web/app/space/[slug]/page.tsx` and `apps/web/components/discover/discover-front-door.tsx`. |
 | `git diff --check` | Pass | No whitespace errors. |
 | `git diff --cached --check` | Pass | No staged whitespace errors. |
-| Staged secret/raw-id-shaped scan | Pass | No staged secret, token, credential URL, password literal, or UUID-shaped value detected. |
+| Staged credential/raw-id-shaped scan | Pass after review | No staged secrets, credential URLs, or password literals. UUID-shaped matches are intentional PR203 regression fixtures and migration/helper regex guards proving UUID-shaped public slugs are rejected or remapped. |
 | Temporary Playwright public page smoke | Blocked before test execution | A fake local API and local web dev server were started, but the npm temp Playwright runner could not resolve `@playwright/test` from the temporary spec. The spec was removed and both local servers were stopped. |
 
 Scope notes:
@@ -77,6 +77,10 @@ Scope notes:
   instead of using raw persona ids in public URLs.
 - Added the sparse `/personas/:publicSlug` web page and anonymous
   `/personas/public/:publicSlug` API readback.
+- Added UUID-shaped public slug rejection/prefixing and a follow-up migration
+  for databases that already ran the first public-slug migration.
+- Public Space persona cards now require current owner exposure eligibility,
+  not just `visibility = public`.
 - No visitor chat, provider call, model context assembly, embeddings,
   cache/worker architecture, billing/Stripe, analytics, broad reskin, Archive
   trust UX, Roulette, Salons, voice/avatar, or persona-to-persona interaction

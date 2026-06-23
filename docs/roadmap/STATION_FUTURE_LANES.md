@@ -156,16 +156,17 @@ Current intent:
   first implementation lane to P3-B1A public persona eligibility, serializer
   split, and owner readback. PR202 opens that safety lane for DAEDALUS before
   UX-02A Archive trust or UX-01B dense owner-console grouping.
-- PR202 result: DAEDALUS implemented and ARGUS accepted P3-B1A. PR203 now opens
-  P3-B2 public persona page readback with a hard route-contract guard: no raw
-  persona-id public URL unless MIMIR/ARGUS explicitly accept that route
-  contract.
+- PR202 result: DAEDALUS implemented and ARGUS accepted P3-B1A. PR203 opened
+  P3-B2 public persona page readback with a hard route-contract guard. MIMIR
+  has patched the first hostile-review blockers: UUID-shaped public slugs are
+  rejected/prefixed, and public Space persona cards now require current owner
+  public-persona exposure eligibility before ARIADNE rehearsal.
 
 ## Phase 3 bridge sequence
 
-Status, 2026-06-23: PR202 is accepted. PR203 is open for DAEDALUS to implement
-P3-B2 public persona page readback, or wake MIMIR if the safe public route
-identifier needs a broader schema/product decision.
+Status, 2026-06-23: PR202 is accepted. PR203 is implemented and repaired after
+hostile review found route-safety gaps. ARGUS re-review is required before
+MIMIR sends the public persona page to ARIADNE visible rehearsal.
 
 Current MIMIR position:
 

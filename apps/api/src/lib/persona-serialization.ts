@@ -1,6 +1,16 @@
 import type { PersonaPublicFields, PublicPersonaProfile } from "@station/types";
 
 export const PUBLIC_PERSONA_SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+export const UUID_SHAPED_PUBLIC_PERSONA_SLUG_PATTERN =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+export function isSafePublicPersonaSlug(value: string | null | undefined): value is string {
+  return Boolean(
+    value &&
+    PUBLIC_PERSONA_SLUG_PATTERN.test(value) &&
+    !UUID_SHAPED_PUBLIC_PERSONA_SLUG_PATTERN.test(value)
+  );
+}
 
 export function slugifyPublicPersonaName(value: string): string {
   const slug = value
@@ -9,11 +19,14 @@ export function slugifyPublicPersonaName(value: string): string {
     .replace(/^-+|-+$/g, "")
     .replace(/-{2,}/g, "-");
 
-  return slug || "persona";
+  const normalized = slug || "persona";
+  return UUID_SHAPED_PUBLIC_PERSONA_SLUG_PATTERN.test(normalized)
+    ? `persona-${normalized}`
+    : normalized;
 }
 
 export function publicPersonaRouteHref(publicSlug: string | null | undefined) {
-  if (!publicSlug || !PUBLIC_PERSONA_SLUG_PATTERN.test(publicSlug)) return null;
+  if (!isSafePublicPersonaSlug(publicSlug)) return null;
   return `/personas/${publicSlug}`;
 }
 

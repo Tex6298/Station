@@ -11,6 +11,7 @@ import { optionalAuth, requireAuth, type AuthenticatedUser } from "../middleware
 import { requireTier } from "../middleware/require-tier";
 import { getSupabaseAdmin } from "../lib/supabase";
 import { serializePublicPersona } from "../lib/persona-serialization";
+import { ownerCanExposeExistingPublicPersonas } from "../lib/public-persona-eligibility";
 import { canCreateSpace } from "@station/auth/permissions";
 import type { AuthUser } from "@station/types";
 
@@ -110,7 +111,12 @@ spacesRouter.get("/:slug", optionalAuth, async (req, res) => {
   }
 
   const documentVisibilities = listedDocumentVisibilities(req.user, hasOwnerAccess);
-  const [{ data: pages }, documentResults, { data: personas }] = await Promise.all([
+  const [
+    { data: pages },
+    documentResults,
+    { data: personas },
+    canExposePublicPersonas,
+  ] = await Promise.all([
     sb
       .from("space_pages")
       .select("id, slug, title, page_type, body, sort_order, is_published, comments_enabled")
@@ -132,6 +138,7 @@ spacesRouter.get("/:slug", optionalAuth, async (req, res) => {
       .select("name, short_description, visibility, avatar_url, public_slug")
       .eq("owner_user_id", space.owner_user_id)
       .eq("visibility", "public"),
+    ownerCanExposeExistingPublicPersonas(sb, space.owner_user_id),
   ]);
 
   // Fetch owner profile for display
@@ -149,7 +156,7 @@ spacesRouter.get("/:slug", optionalAuth, async (req, res) => {
       .flatMap((result) => result.data ?? [])
       .sort((a, b) => new Date(b.published_at ?? b.created_at ?? 0).getTime() - new Date(a.published_at ?? a.created_at ?? 0).getTime())
       .slice(0, 20),
-    personas: (personas ?? []).map(serializePublicPersona),
+    personas: canExposePublicPersonas ? (personas ?? []).map(serializePublicPersona) : [],
     owner,
   });
 });

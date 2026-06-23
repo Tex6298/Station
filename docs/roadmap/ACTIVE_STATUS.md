@@ -4,6 +4,50 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR repair - PR203 public persona route safety patched
+
+MIMIR patched the PR203 hostile-review blockers on 2026-06-23 after review
+found two route-safety gaps.
+
+Verdict:
+
+- PR203 remains the active Phase 3 bridge lane.
+- Phase 2D and the bounded Phase 2E Developer Agent production-readiness work
+  are already closed in the roadmap; the current baton is not another 2E
+  automation pass.
+- PR203 is repaired locally and needs ARGUS re-review before ARIADNE visible
+  public-page rehearsal.
+
+What changed:
+
+- UUID-shaped public persona slugs are no longer accepted as public route ids.
+  Slug generation prefixes UUID-shaped names with `persona-`, API anonymous
+  readback rejects UUID-shaped slugs, web route helpers reject UUID-shaped
+  slugs, and migration `055_public_persona_slug_uuid_guard.sql` repairs
+  databases that already ran the earlier PR203 migration.
+- Public Space persona cards now require the Space owner to still satisfy
+  existing-public-persona exposure eligibility. Legacy/downgraded owners no
+  longer expose public persona cards through a public Space payload.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:personas` passed.
+- `npm exec --yes pnpm@10.32.1 -- run test:spaces` passed.
+- `npm exec --yes pnpm@10.32.1 -- run test:reports` passed.
+- `npm exec --yes pnpm@10.32.1 -- run test:writing` passed.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed with the existing raw
+  `<img>` warnings in `apps/web/app/space/[slug]/page.tsx` and
+  `apps/web/components/discover/discover-front-door.tsx`.
+
+Current baton:
+
+- ARGUS should re-review the PR203 repair for public slug UUID-shape rejection,
+  Space-owner eligibility, migration upgrade safety, public payload shape, and
+  route-hint behavior.
+- If safe, ARGUS should wake MIMIR with an accept verdict and recommend
+  ARIADNE visible public-page review next.
+
 ## Latest DAEDALUS result - PR203 public persona page readback implemented
 
 DAEDALUS implemented PR203 / P3-B2 on 2026-06-23.

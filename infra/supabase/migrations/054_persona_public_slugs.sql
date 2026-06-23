@@ -13,7 +13,12 @@ begin
   ) then
     alter table public.personas
       add constraint personas_public_slug_format
-      check (public_slug is null or public_slug ~ '^[a-z0-9]+(-[a-z0-9]+)*$');
+      check (
+        public_slug is null or (
+          public_slug ~ '^[a-z0-9]+(-[a-z0-9]+)*$'
+          and public_slug !~* '^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$'
+        )
+      );
   end if;
 end $$;
 
@@ -21,7 +26,7 @@ create unique index if not exists personas_public_slug_unique_idx
   on public.personas (public_slug)
   where public_slug is not null;
 
-with candidates as (
+with raw_candidates as (
   select
     id,
     coalesce(
@@ -30,10 +35,20 @@ with candidates as (
         ''
       ),
       'persona'
-    ) as base_slug
+    ) as raw_base_slug
   from public.personas
   where visibility = 'public'
     and public_slug is null
+),
+candidates as (
+  select
+    id,
+    case
+      when raw_base_slug ~* '^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$'
+        then 'persona-' || raw_base_slug
+      else raw_base_slug
+    end as base_slug
+  from raw_candidates
 ),
 ranked as (
   select

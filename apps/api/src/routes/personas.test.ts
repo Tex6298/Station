@@ -433,6 +433,39 @@ test("creator, canon, institutional, and admin-private users can create public p
   }
 });
 
+test("generated public persona slugs never expose UUID-shaped route ids", async () => {
+  const db = new InMemorySupabase();
+  setSupabaseAdminForTests(db.client as any);
+  const app = createPersonasApp();
+
+  try {
+    const uuidLikeName = "550e8400-e29b-41d4-a716-446655440000";
+    const created = await requestJson(app, "POST", "/personas", {
+      token: "creator-token",
+      body: {
+        name: uuidLikeName,
+        shortDescription: "Public-safe UUID-shaped name.",
+        visibility: "public",
+      },
+    });
+
+    assert.equal(created.status, 201);
+    assert.equal(
+      created.body.persona.publicReadback.publicFields.publicSlug,
+      `persona-${uuidLikeName}`
+    );
+
+    const rawUuidReadback = await requestJson(app, "GET", `/personas/public/${uuidLikeName}`);
+    assert.equal(rawUuidReadback.status, 404);
+
+    const safeReadback = await requestJson(app, "GET", `/personas/public/persona-${uuidLikeName}`);
+    assert.equal(safeReadback.status, 200);
+    assert.equal(safeReadback.body.persona.publicSlug, `persona-${uuidLikeName}`);
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
+
 test("non-owner public persona readback uses the public serializer only", async () => {
   const db = new InMemorySupabase();
   setSupabaseAdminForTests(db.client as any);
@@ -516,6 +549,12 @@ test("public persona slug readback is anonymous, public-only, and owner-tier eli
       visibility: "public",
       public_slug: "legacy-ineligible-persona",
     });
+    db.insertRow("personas", {
+      owner_user_id: "creator-owner",
+      name: "UUID Shaped Legacy Persona",
+      visibility: "public",
+      public_slug: "550e8400-e29b-41d4-a716-446655440000",
+    });
 
     const publicReadback = await requestJson(app, "GET", "/personas/public/public-slug-persona");
     assert.equal(publicReadback.status, 200);
@@ -538,6 +577,9 @@ test("public persona slug readback is anonymous, public-only, and owner-tier eli
 
     const ineligibleReadback = await requestJson(app, "GET", "/personas/public/legacy-ineligible-persona");
     assert.equal(ineligibleReadback.status, 404);
+
+    const rawUuidReadback = await requestJson(app, "GET", "/personas/public/550e8400-e29b-41d4-a716-446655440000");
+    assert.equal(rawUuidReadback.status, 404);
   } finally {
     setSupabaseAdminForTests(null);
   }

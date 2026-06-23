@@ -4,6 +4,7 @@ import { requireAuth, type AuthenticatedUser } from "../middleware/require-auth"
 import { requireTier } from "../middleware/require-tier";
 import { getSupabaseAdmin } from "../lib/supabase";
 import {
+  isSafePublicPersonaSlug,
   serializePersonaPublicFields,
   serializePublicPersona,
   slugifyPublicPersonaName,
@@ -60,6 +61,10 @@ export const personasRouter = Router();
 
 // Public readback route. This must stay before the authenticated router guard.
 personasRouter.get("/public/:publicSlug", async (req, res) => {
+  if (!isSafePublicPersonaSlug(req.params.publicSlug)) {
+    return res.status(404).json({ error: "Public persona not found." });
+  }
+
   const sb = getSupabaseAdmin();
   const { data, error } = await sb
     .from("personas")
