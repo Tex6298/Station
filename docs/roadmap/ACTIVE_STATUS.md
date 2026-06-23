@@ -4,6 +4,34 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARIADNE result - PR194 continuity readability recheck
+
+ARIADNE rechecked PR194 on 2026-06-23 against the hosted web/API surface.
+
+Verdict:
+
+- PR194 is not accepted yet.
+- The patch fixed the first PR193 readability problem for Continuity trust
+  metric cards and continuity source/provenance chips on desktop and mobile.
+- The continuity record titles, and in places the record body copy, remain too
+  dim against the dark record cards. The route is structurally correct, but the
+  actual records still require strain to read.
+
+Validation:
+
+- `npx --yes --package @playwright/test@1.41.2 playwright test tmp-pr194-continuity-readability-recheck.spec.js --reporter=line --workers=1`
+  passed.
+- `npm exec --yes pnpm@10.32.1 -- run test:continuity` passed.
+- `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` passed.
+- Desktop and mobile screenshots were inspected locally and not committed.
+
+Current baton:
+
+- MIMIR should open or apply one smaller CSS-only Continuity record-title/body
+  contrast fix.
+- ARGUS is not needed unless the next patch changes displayed fields, source
+  serialization, visibility, auth, or owner/private data exposure.
+
 ## Latest MIMIR implementation - PR194 Continuity readability recheck opened
 
 MIMIR implemented PR194 on 2026-06-23 after two DAEDALUS wakeups produced no

@@ -103,3 +103,39 @@ Validation:
 Next:
 
 - ARIADNE should run the human readability recheck.
+
+## ARIADNE Recheck - 2026-06-23
+
+Status: not accepted yet; one smaller visual fix remains.
+
+Validation:
+
+- `npx --yes --package @playwright/test@1.41.2 playwright test tmp-pr194-continuity-readability-recheck.spec.js --reporter=line --workers=1`
+  passed against the hosted web/API surface.
+- `npm exec --yes pnpm@10.32.1 -- run test:continuity` passed.
+- `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` passed.
+- Desktop and mobile Continuity screenshots were inspected locally and not
+  committed.
+
+Human-eye verdict:
+
+- Pass: Continuity trust metric cards are now readable on desktop and mobile.
+- Pass: continuity source/provenance chips are now visibly separated and
+  readable on desktop and mobile.
+- Still failing: continuity record titles, and in places record body copy, are
+  still too dim against the dark record cards. The route is structurally right,
+  but a user still has to strain to read the record name/content.
+
+Smallest remaining fix:
+
+- Add a final scoped Continuity record text override for the record card title
+  and body copy, for example with stronger selectors or dedicated classes for
+  `.studio-timeline-record h3` and `.studio-timeline-record p` placed after the
+  generic Studio card text rules. Keep the already-improved trust cards and
+  source chips.
+
+ARGUS need:
+
+- No ARGUS safety/privacy review is needed for this remaining CSS-only
+  readability fix. Wake ARGUS only if the next patch changes displayed fields,
+  source serialization, visibility, auth, or owner/private data exposure.

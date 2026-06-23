@@ -52,6 +52,29 @@ pnpm test:developer-spaces
 pnpm test:developer-space-client
 ```
 
+## PR194 Continuity Readability Recheck
+
+ARIADNE hosted recheck on 2026-06-23:
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `npx --yes --package @playwright/test@1.41.2 playwright test tmp-pr194-continuity-readability-recheck.spec.js --reporter=line --workers=1` | Pass | Covered authenticated Continuity desktop and mobile routes against the hosted web/API surface; screenshots were inspected locally and not committed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:continuity` | Pass | 5 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 103 tests passed. |
+| Continuity trust metric cards | Pass | Labels and body copy are now readable on desktop and mobile. |
+| Continuity source/provenance chips | Pass | Source/provenance labels are visibly separated and readable on desktop and mobile. |
+| Continuity record titles/body | Needs follow-up | Record titles, and some record body copy, remain too dim against the dark record cards. The remaining slice should be CSS-only title/body contrast. |
+
+Scope notes:
+
+- No product code changed during ARIADNE's recheck.
+- No data mutation, Stripe, provider, Redis, Cloudflare, worker, migration,
+  deploy, billing, key, repo, or configuration flow was run.
+- Recommended smallest remaining slice: scoped CSS override or dedicated classes
+  for Continuity record title/body text. ARGUS is not needed unless the next
+  patch changes displayed fields, source serialization, visibility, auth, or
+  owner/private data exposure.
+
 ## PR193 Continuity Memory Observability Rehearsal
 
 ARIADNE hosted rehearsal on 2026-06-23:
