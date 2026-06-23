@@ -52,6 +52,33 @@ pnpm test:developer-spaces
 pnpm test:developer-space-client
 ```
 
+## PR180 Active Subscription Checkout Guard
+
+DAEDALUS implementation validation on 2026-06-23:
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:billing` | Pass | 10 tests passed. New coverage proves active and trialing profile fixtures receive HTTP `409`, blocked responses do not expose customer/subscription ids, blocked profiles do not call `stripe.checkout.sessions.create`, Customer Portal remains available, and inactive Checkout creation still works. |
+| `npm exec --yes pnpm@10.32.1 -- run test:token-credits` | Pass | 3 tests passed; token top-up Checkout/payment handling remains unchanged. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` | Pass | API typecheck completed for the changed code path. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/api build` | Pass | API and dependent package builds completed. |
+| `git diff --check` | Pass | CRLF normalization warnings only for touched files. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Local tooling failure | Failed before TypeScript ran because local Turbo on Windows could not spawn `turbo-windows-64\bin\turbo.exe` and returned `spawnSync ... UNKNOWN`. The narrower API typecheck/build passed. |
+
+Scope notes:
+
+- Added a service-level guard before Stripe customer lookup and before
+  `stripe.checkout.sessions.create`.
+- `POST /billing/checkout` now maps the active/trialing-subscription guard to
+  HTTP `409` with a safe Customer Portal action message.
+- No hosted Checkout was opened, no webhook was sent, no Stripe subscription
+  was cancelled/reset, no proof account was created, and no Billing UI,
+  pricing, token-topup, Customer Portal, invoice, tax, Connect, marketplace, or
+  usage-metering behavior changed.
+- No live Stripe identifiers, secrets, Checkout URLs, webhook payloads, owner
+  IDs, tokens, cookies, payment details, or raw responses were printed or
+  committed.
+
 ## PR179 Stripe Test-Mode Activation Refresh
 
 DAEDALUS blocked proof result on 2026-06-23:

@@ -116,3 +116,73 @@ MIMIR should decide whether to:
 - close PR179 as blocked by existing active state plus accepted API safety
   guard;
 - or ask the user to reconcile duplicate Stripe test subscriptions manually.
+
+## DAEDALUS Implementation - 2026-06-23
+
+DAEDALUS implemented the narrow API safety guard.
+
+Changed files:
+
+- `apps/api/src/services/billing.service.ts`
+- `apps/api/src/controllers/billing.controller.ts`
+- `apps/api/src/routes/billing.test.ts`
+- `docs/roadmap/PR180_ACTIVE_SUBSCRIPTION_CHECKOUT_GUARD.md`
+- `docs/roadmap/ACTIVE_STATUS.md`
+- `docs/testing/VALIDATION_BASELINE.md`
+
+Behavior:
+
+- `createCheckoutSession` now loads the requesting user's recorded
+  `stripe_subscription_id` and `subscription_status` before creating or
+  reusing a Stripe customer and before calling
+  `stripe.checkout.sessions.create`.
+- If Station records a `stripe_subscription_id` with `subscription_status` of
+  `active` or `trialing`, Checkout creation fails closed with
+  `ActiveSubscriptionCheckoutBlockedError`.
+- `POST /billing/checkout` maps that error to HTTP `409` with a safe,
+  actionable message telling the user to use the Customer Portal.
+- Inactive/no-subscription paid-tier activation still creates Checkout.
+- Customer Portal behavior remains available for active subscribers.
+
+Focused test proof:
+
+- Active and trialing profile fixtures receive HTTP `409`.
+- The blocked response does not expose fake customer/subscription ids.
+- Blocked active/trialing profiles do not call
+  `stripe.checkout.sessions.create`.
+- The guard runs before customer creation/reuse side effects in the fake
+  Stripe client.
+- Customer Portal still returns a session for the active subscriber fixture.
+- The existing inactive Checkout creation test still passes and proves server
+  pricing/metadata behavior.
+
+Validation:
+
+```bash
+npm exec --yes pnpm@10.32.1 -- run test:billing
+npm exec --yes pnpm@10.32.1 -- run test:token-credits
+npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck
+npm exec --yes pnpm@10.32.1 -- --filter @station/api build
+git diff --check
+```
+
+Results:
+
+- `test:billing` passed: 10 tests.
+- `test:token-credits` passed: 3 tests.
+- `@station/api typecheck` passed.
+- `@station/api build` passed.
+- `git diff --check` passed with CRLF normalization warnings only.
+
+Additional attempted check:
+
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` failed before TypeScript ran
+  because local Turbo on Windows could not spawn
+  `turbo-windows-64\bin\turbo.exe` and returned `spawnSync ... UNKNOWN`.
+  The narrower API typecheck/build above passed for the changed code path.
+
+No hosted Checkout, webhook send, Stripe cancellation/reset, proof-account
+creation, billing UI redesign, pricing change, token-topup change, Stripe
+identifier/secret logging, or raw response logging was performed.
+
+Next baton: wake ARGUS for entitlement/security review.

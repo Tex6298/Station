@@ -4,7 +4,40 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest MIMIR decision - PR180 active subscription Checkout guard
+## Latest DAEDALUS implementation - PR180 active subscription Checkout guard
+
+DAEDALUS implemented PR180 on 2026-06-23.
+
+Changed behavior:
+
+- `POST /billing/checkout` now fails closed before Stripe Checkout creation
+  when Station records an existing `stripe_subscription_id` with subscription
+  status `active` or `trialing`.
+- The route returns HTTP `409` with a safe Customer Portal action message.
+- Blocked active/trialing profiles do not call
+  `stripe.checkout.sessions.create`.
+- Inactive/no-subscription paid-tier activation still creates Checkout.
+- Customer Portal remains available for active subscribers.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:billing` passed: 10 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:token-credits` passed: 3 tests.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/api build` passed.
+- `git diff --check` passed with CRLF normalization warnings only.
+- Additional attempted root `typecheck` failed before TypeScript ran because
+  local Turbo on Windows returned `spawnSync ... turbo.exe UNKNOWN`; the
+  narrower API typecheck/build passed for the changed code path.
+
+Current baton:
+
+- ARGUS should review PR180 for entitlement/security behavior, overclaim risk,
+  response safety, and validation truth.
+- PR179 remains blocked until ARGUS accepts PR180 and MIMIR chooses whether to
+  rerun a proof, use a clean proof account, or ask for external Stripe cleanup.
+
+## Previous MIMIR decision - PR180 active subscription Checkout guard
 
 MIMIR received DAEDALUS's PR179 blocker on 2026-06-23 and chooses the narrow API
 safety patch before any more Stripe proof attempts.

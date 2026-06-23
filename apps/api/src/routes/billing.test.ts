@@ -302,6 +302,49 @@ test("billing routes create Checkout and portal sessions with server pricing", a
   }
 });
 
+test("billing checkout blocks active or trialing subscriptions before creating Checkout", async () => {
+  for (const subscriptionStatus of ["active", "trialing"]) {
+    const db = new InMemorySupabase();
+    db.tables.profiles[0].tier = "canon";
+    db.tables.profiles[0].stripe_customer_id = "cus_owner";
+    db.tables.profiles[0].stripe_subscription_id = `sub_${subscriptionStatus}`;
+    db.tables.profiles[0].subscription_status = subscriptionStatus;
+    const stripe = createFakeStripe();
+    setSupabaseAdminForTests(db.client as any);
+    setStripeForTests(stripe as any);
+    const app = createBillingApp();
+
+    try {
+      const blocked = await requestJson(app, "POST", "/billing/checkout", {
+        token: "owner-token",
+        body: {
+          tier: "canon",
+          interval: "monthly",
+        },
+      });
+
+      assert.equal(blocked.status, 409);
+      assert.match(blocked.body.error, /active subscription/i);
+      assert.match(blocked.body.error, /customer portal/i);
+      assert.equal(stripe.calls.checkout.length, 0);
+      assert.equal(stripe.calls.customers.length, 0);
+      assert.doesNotMatch(JSON.stringify(blocked.body), /cus_owner|sub_/);
+
+      const portal = await requestJson(app, "POST", "/billing/portal", {
+        token: "owner-token",
+        body: {},
+      });
+
+      assert.equal(portal.status, 200);
+      assert.equal(portal.body.url, "https://portal.example.test/session");
+      assert.equal(stripe.calls.portal.length, 1);
+      assert.equal(stripe.calls.portal[0].customer, "cus_owner");
+    } finally {
+      resetFakes();
+    }
+  }
+});
+
 test("billing webhooks require verified signatures before entitlement changes", async () => {
   const db = new InMemorySupabase();
   db.tables.profiles[0].stripe_customer_id = "cus_owner";

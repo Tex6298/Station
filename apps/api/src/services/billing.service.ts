@@ -63,6 +63,23 @@ function stripeObjectId(value: string | { id?: string | null } | null | undefine
   return value.id ?? null;
 }
 
+function hasBlockingActiveSubscription(profile: {
+  stripe_subscription_id?: string | null;
+  subscription_status?: string | null;
+} | null | undefined): boolean {
+  return Boolean(
+    profile?.stripe_subscription_id &&
+    ["active", "trialing"].includes(profile.subscription_status ?? "")
+  );
+}
+
+export class ActiveSubscriptionCheckoutBlockedError extends Error {
+  constructor() {
+    super("An active subscription is already recorded. Use the customer portal to manage billing.");
+    this.name = "ActiveSubscriptionCheckoutBlockedError";
+  }
+}
+
 export function getPriceId(tier: PaidTier, interval: BillingInterval): string {
   const primaryEnv = STRIPE_PRICE_ENV_BY_TIER_INTERVAL[tier][interval];
   const legacyEnvs = LEGACY_STRIPE_PRICE_ENV_ALIASES[tier]?.[interval] ?? [];
@@ -135,6 +152,17 @@ export async function createCheckoutSession(input: {
   successUrl: string;
   cancelUrl: string;
 }): Promise<string> {
+  const sb = getSupabaseAdmin();
+  const { data: profile } = await sb
+    .from("profiles")
+    .select("stripe_subscription_id, subscription_status")
+    .eq("id", input.userId)
+    .single();
+
+  if (hasBlockingActiveSubscription(profile)) {
+    throw new ActiveSubscriptionCheckoutBlockedError();
+  }
+
   const stripe = getStripe();
   const customerId = await getOrCreateCustomer(input.userId, input.email);
   const priceId = getPriceId(input.tier, input.interval);
