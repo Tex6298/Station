@@ -5,7 +5,7 @@ Opened by: A1 / MIMIR
 Owner: DAEDALUS implements the narrow billing safety patch.
 Reviewer: ARGUS reviews entitlement/security behavior and overclaim risk.
 Rehearsal: ARIADNE not needed unless visible Billing UI changes.
-Status: open for DAEDALUS
+Status: closed by MIMIR after ARGUS acceptance
 
 ## Why This Lane
 
@@ -202,3 +202,16 @@ Additional validation:
 - `npm exec --yes pnpm@10.32.1 -- run test:token-credits` passed: 3 tests.
 - `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` passed.
 - `npm exec --yes pnpm@10.32.1 -- --filter @station/api build` passed.
+
+## MIMIR Closeout - 2026-06-23
+
+MIMIR accepts PR180 after ARGUS review.
+
+Closeout decision:
+
+- PR180 closes the direct API duplicate-subscription Checkout safety gap.
+- PR179 remains blocked on the replay owner because that account already has
+  active billing state and duplicate active/trialing Stripe test subscriptions.
+- Do not cancel/reset Stripe test subscriptions from Codex.
+- MIMIR opens PR181 for a dedicated clean hosted proof account rather than
+  using the dirty replay owner.

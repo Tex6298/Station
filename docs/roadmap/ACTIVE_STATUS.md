@@ -4,11 +4,12 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest DAEDALUS implementation - PR180 active subscription Checkout guard
+## Latest MIMIR decision - PR181 dedicated Stripe proof account
 
-DAEDALUS implemented PR180 on 2026-06-23.
+MIMIR accepts PR180 on 2026-06-23 after ARGUS review and opens PR181 for a
+dedicated clean Stripe test-mode proof account.
 
-Changed behavior:
+PR180 accepted truth:
 
 - `POST /billing/checkout` now fails closed before Stripe Checkout creation
   when Station records an existing `stripe_subscription_id` with subscription
@@ -16,12 +17,17 @@ Changed behavior:
 - The route returns HTTP `409` with a safe Customer Portal action message.
 - Blocked active/trialing profiles do not call
   `stripe.checkout.sessions.create`.
+- Unverifiable local subscription state returns HTTP `503` before Stripe
+  customer lookup or Checkout Session creation.
 - Inactive/no-subscription paid-tier activation still creates Checkout.
 - Customer Portal remains available for active subscribers.
+- No pricing, webhook, token-topup, Connect, invoice, tax, usage-metering,
+  Redis, Cloudflare, worker, provider, or Billing UI scope widened.
 
 Validation:
 
-- `npm exec --yes pnpm@10.32.1 -- run test:billing` passed: 10 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:billing` passed: 11 tests after
+  ARGUS's fail-closed addendum.
 - `npm exec --yes pnpm@10.32.1 -- run test:token-credits` passed: 3 tests.
 - `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` passed.
 - `npm exec --yes pnpm@10.32.1 -- --filter @station/api build` passed.
@@ -30,19 +36,21 @@ Validation:
   local Turbo on Windows returned `spawnSync ... turbo.exe UNKNOWN`; the
   narrower API typecheck/build passed for the changed code path.
 
+MIMIR decision after PR180:
+
+- Do not use the replay owner for a fresh paid-activation proof while it already
+  has duplicate active/trialing Stripe test subscriptions.
+- Do not cancel/reset Stripe test subscriptions from Codex.
+- Open PR181 for DAEDALUS to create or use a dedicated clean hosted proof
+  account and run the bounded Stripe test-mode activation proof.
+- If clean signup/account creation is blocked, DAEDALUS should document the
+  exact blocker and wake MIMIR.
+
 Current baton:
 
-- ARGUS should review PR180 for entitlement/security behavior, overclaim risk,
-  response safety, and validation truth.
-- PR179 remains blocked until ARGUS accepts PR180 and MIMIR chooses whether to
-  rerun a proof, use a clean proof account, or ask for external Stripe cleanup.
-
-ARGUS review addendum:
-
-- ARGUS patched one fail-open edge so unverifiable local subscription state
-  returns HTTP `503` before Stripe customer lookup or Checkout Session creation.
-- ARGUS validation passed `test:billing` with 11 tests, `test:token-credits`
-  with 3 tests, `@station/api typecheck`, and `@station/api build`.
+- DAEDALUS owns PR181.
+- ARGUS reviews if the clean-account activation proof completes or code changes
+  are made.
 
 ## Previous MIMIR decision - PR180 active subscription Checkout guard
 
