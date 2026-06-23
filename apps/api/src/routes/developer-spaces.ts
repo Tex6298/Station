@@ -1145,7 +1145,7 @@ function developerSpaceAgentUnsafeRunJobInputReason(value: unknown, path: string
   }
 
   for (const [key, child] of Object.entries(value as Record<string, unknown>)) {
-    if (/command|shell|script|argv|args|exec|spawn|queue[_-]?payload|worker[_-]?payload|job[_-]?payload|token|secret|password|cookie|authorization|service[_-]?role|api[_-]?key|private[_-]?key|connection|string|database[_-]?url|pooler|raw[_-]?prompt|provider[_-]?payload|private[_-]?text|raw[_-]?body|archive[_-]?excerpt/i.test(key)) {
+    if (/\bcmd\b|command|shell|script|argv|args|exec|spawn|queue[_-]?payload|worker[_-]?payload|job[_-]?payload|token|secret|password|cookie|authorization|service[_-]?role|api[_-]?key|private[_-]?key|connection|string|database[_-]?url|pooler|raw[_-]?prompt|provider[_-]?payload|private[_-]?text|raw[_-]?body|archive[_-]?excerpt/i.test(key)) {
       return "Run-job readiness input includes an unsupported execution or sensitive field.";
     }
     if (typeof child === "string" && developerSpaceAgentSecretLikeText(child)) {

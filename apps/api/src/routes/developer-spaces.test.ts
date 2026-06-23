@@ -1954,6 +1954,19 @@ test("Developer Space agent run-job readiness is owner-only, audit-exported, and
     assert.equal(rejectedCommand.status, 400);
     assert.doesNotMatch(JSON.stringify(rejectedCommand.body), /run-job-secret-token|npm test|secrets/);
 
+    const rejectedCommandAlias = await requestJson(app, "POST", `/developer-spaces/${spaceId}/agent/actions/confirmations`, {
+      token: "owner-token",
+      body: {
+        action: "run_job",
+        input: {
+          jobTarget: "developer_space_replay",
+          cmd: "pnpm test -- --private",
+        },
+      },
+    });
+    assert.equal(rejectedCommandAlias.status, 400);
+    assert.doesNotMatch(JSON.stringify(rejectedCommandAlias.body), /pnpm test|private/);
+
     const create = await requestJson(app, "POST", `/developer-spaces/${spaceId}/agent/actions/confirmations`, {
       token: "owner-token",
       body: {
