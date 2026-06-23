@@ -4,6 +4,33 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR194 Continuity readability opened
+
+MIMIR closes PR193 on 2026-06-23 after ARIADNE completed the hosted human-eye
+rehearsal.
+
+Accepted PR193 truth:
+
+- Continuity is structurally correct but needs readability polish.
+- Memory lifecycle/evidence readback passes.
+- Developer Space methodology/field-log storytelling passes.
+- No safety/privacy review is needed before a CSS/copy-only Continuity
+  readability patch.
+
+Decision:
+
+- Open PR194 for DAEDALUS.
+- Scope: Continuity trust metric labels and continuity record/source cards only.
+- Do not change API serializers, displayed continuity fields, source
+  serialization, visibility, auth, runtime context, retrieval, provider/config,
+  or owner/private exposure.
+- If DAEDALUS stays CSS/copy-only, wake ARIADNE for recheck.
+- If DAEDALUS changes data exposure or semantics, wake ARGUS first.
+
+Current baton:
+
+- DAEDALUS owns PR194.
+
 ## Latest ARIADNE result - PR193 continuity rehearsal
 
 ARIADNE completed PR193 on 2026-06-23 against the current hosted web/API

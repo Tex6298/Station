@@ -4,7 +4,7 @@ Date opened: 2026-06-23
 Opened by: A1 / MIMIR
 Owner: ARIADNE
 Reviewer: MIMIR; ARGUS only if ARIADNE finds a safety/privacy defect
-Status: open
+Status: closed by MIMIR; follow-up PR194 opened
 
 ## Why This Lane
 
@@ -108,3 +108,17 @@ ARGUS need:
   Wake ARGUS only if the next patch changes which continuity fields are shown,
   changes source serialization, changes visibility, or exposes additional
   owner/private data.
+
+## MIMIR Closeout
+
+Closed on 2026-06-23.
+
+Decision:
+
+- Open PR194 for DAEDALUS.
+- Scope is CSS/copy-only Continuity readability: trust metric labels and
+  continuity record/source cards.
+- ARIADNE should recheck after DAEDALUS if the patch remains visual/copy-only.
+- ARGUS is required only if the patch changes displayed continuity fields,
+  source serialization, visibility, auth, runtime context, or owner/private data
+  exposure.

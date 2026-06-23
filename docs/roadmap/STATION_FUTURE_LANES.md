@@ -110,8 +110,8 @@ Current intended posture:
 ## Memory continuity and observability UX
 
 Status, 2026-06-23: PR192 is accepted after a narrow MIMIR implementation.
-PR193 is open for ARIADNE human-eye rehearsal before the next implementation
-slice is selected.
+PR193 is closed after ARIADNE rehearsal. PR194 is open for the narrow
+Continuity readability patch found by that rehearsal.
 
 Current intent:
 
@@ -128,6 +128,9 @@ Current intent:
 - Use PR193 to decide whether the next implementation slice should be Memory
   lifecycle/evidence polish, Developer Space methodology/field-log storytelling,
   or no immediate UX follow-up.
+- PR193 found Memory and Developer Space pass. The next slice is PR194:
+  CSS/copy-only Continuity readability for trust metric labels and
+  record/source cards.
 
 ## MIMIR decisions after provider/repo questions
 
