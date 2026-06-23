@@ -52,6 +52,27 @@ pnpm test:developer-spaces
 pnpm test:developer-space-client
 ```
 
+## PR177 Protected Alpha Human Rehearsal
+
+ARIADNE hosted rehearsal on 2026-06-23:
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `npx --yes --package @playwright/test@1.41.2 playwright test tmp-pr177-protected-alpha-rehearsal.spec.js --reporter=line --workers=1` | Pass | 1 hosted rehearsal test passed after stricter loaded-state waits. Owner desktop covered Studio, persona overview, memory, continuity, archive/files, integrity, and Developer Space manage. Owner mobile covered Developer Space manage. Anonymous desktop covered front door, Discover, Developer Spaces index/detail, public Space, public document, forums, category, and linked discussion. Anonymous mobile covered public Developer Space detail and public document. |
+| Visible-text scans | Pass | Owner and public browser routes did not expose UUID-shaped or secret-shaped visible text. Public routes also did not expose owner-only Developer Agent vocabulary such as dedupe, confirmation, receipt, preview hash, webhook secret, or private payload. |
+| Developer Agent rehearsal | Pass | Safe readbacks previewed; gated flows remained owner-confirmed/future-lane bounded; `update_layout`, `push_to_repo`, `run_job`, `rotate_ingestion_key`, and `create_webhook_signing_secret` all remained `requires_future_lane`. Owner-only receipts were readable by the owner and rejected anonymously with HTTP `401`. |
+
+ARIADNE rehearsal notes:
+
+- No product code changed.
+- No repo push, job execution, key rotation, signing-secret creation, layout
+  mutation, provider call, worker, billing action, Railway, Redis, Cloudflare,
+  or Supabase config mutation was performed.
+- Temporary local screenshots were inspected for owner Studio, owner Developer
+  Space manage desktop/mobile, and public Developer Space desktop/mobile; they
+  were not committed.
+- Recommendation for MIMIR: deliberately pause risky Developer Agent expansion.
+
 ## PR176 Phase 2D Developer Agent Closeout
 
 DAEDALUS closeout validation on 2026-06-23:

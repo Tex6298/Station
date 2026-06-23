@@ -6,7 +6,7 @@ Owner: ARIADNE runs hosted human-eye rehearsal.
 Reviewer: MIMIR sequences from ARIADNE's verdict. ARGUS reviews only if the
 rehearsal raises security, privacy, public-boundary, or receipt concerns.
 Builder: DAEDALUS repairs only concrete blocking defects with repro steps.
-Status: open for ARIADNE rehearsal
+Status: ARIADNE rehearsal complete; awaiting MIMIR closeout
 
 ## Why This Lane
 
@@ -139,3 +139,86 @@ must include:
 - actual behavior;
 - safe evidence reference;
 - whether the defect blocks protected-alpha rehearsal closeout.
+
+## ARIADNE Rehearsal Verdict - 2026-06-23
+
+Verdict: pass for protected-alpha rehearsal closeout. No DAEDALUS repair is
+needed from PR177.
+
+Hosted deployment identity:
+
+- Web `/health/deployment`: ready, Railway service `@station/web`, main commit
+  `b10eb8b9b8e0`.
+- API `/health/deployment`: ready, Railway service `@station/api`, main commit
+  `b10eb8b9b8e0`.
+
+Routes exercised:
+
+- Owner desktop: `/studio`, `/studio/personas/<persona>`,
+  `/studio/personas/<persona>/memory`,
+  `/studio/personas/<persona>/continuity`,
+  `/studio/personas/<persona>/files`,
+  `/studio/personas/<persona>/calibration`, and
+  `/developer-spaces/station-replay-dev-alpha/manage`.
+- Owner mobile: `/developer-spaces/station-replay-dev-alpha/manage`.
+- Anonymous desktop: `/`, `/discover`, `/developer-spaces`,
+  `/developer-spaces/station-replay-dev-alpha`, `/space/station-replay-alpha`,
+  `/space/<public-document>`, `/forums`, `/forums/documents-and-codexes`, and
+  `/forums/<public-discussion>`.
+- Anonymous mobile: `/developer-spaces/station-replay-dev-alpha` and
+  `/space/<public-document>`.
+
+Developer Agent boundedness:
+
+- Safe readbacks all previewed without future-lane escalation:
+  `read_developer_space_brief`, `read_observed_runtime_status`,
+  `read_provider_policy_posture`, `read_evidence_path`, `read_logs`, and
+  `draft_project_update`.
+- Gated flows stayed bounded: `request_capability`, `publish_to_page`, and
+  `update_observatory` required a future lane without selected owner input;
+  `save_project_update_draft` previewed as an owner-confirmed private draft
+  path.
+- Risky actions stayed blocked as `requires_future_lane`: `update_layout`,
+  `push_to_repo`, `run_job`, `rotate_ingestion_key`, and
+  `create_webhook_signing_secret`.
+- No repo push, job execution, key rotation, signing-secret creation, layout
+  mutation, provider call, worker, billing action, Railway, Redis, Cloudflare,
+  or Supabase config mutation was performed.
+
+Privacy and public-boundary observations:
+
+- Visible-text scans for UUID-shaped and secret-shaped strings passed on owner
+  and public browser routes.
+- Public routes also passed a scan for owner-only Developer Agent vocabulary
+  such as dedupe, confirmation, receipt, preview hash, webhook secret, and
+  private payload.
+- Owner-only Developer Agent receipts were readable to the owner and rejected
+  anonymously with HTTP `401`.
+- Public Developer Space detail exposed public evidence and event-stream items
+  without owner receipts or confirmation artifacts.
+
+UX observations:
+
+- Studio reads as the private continuity workspace: personas, integrity
+  sessions, archive activity, and export affordances were legible on desktop.
+- Developer Space manage is dense but coherent on desktop and mobile. The
+  Developer Agent panel reads as bounded owner review rather than autonomous
+  action.
+- Public Developer Space detail reads as a live observatory, not a generic
+  dashboard or profile. Mobile is long but navigable and did not overflow.
+- Public Space, public document, Discover, forums, and linked discussion routes
+  loaded without visible application error.
+
+Safe evidence reference:
+
+- `npx --yes --package @playwright/test@1.41.2 playwright test tmp-pr177-protected-alpha-rehearsal.spec.js --reporter=line --workers=1`
+  passed locally against hosted with sanitized output only.
+- Temporary local screenshots were inspected for owner Studio, owner Developer
+  Space manage desktop/mobile, and public Developer Space desktop/mobile. They
+  were not committed.
+
+Recommendation:
+
+- Deliberately pause risky Developer Agent expansion. PR177 did not produce a
+  concrete defect or product need that justifies opening repo push, job
+  execution, key rotation, signing-secret creation, or layout mutation.
