@@ -4,6 +4,43 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARIADNE result - PR193 continuity rehearsal
+
+ARIADNE completed PR193 on 2026-06-23 against the current hosted web/API
+surface.
+
+Verdict:
+
+- Continuity stop: needs DAEDALUS patch before closeout. Navigation and
+  structure are correct: persona tabs expose Home, Continuity, Memory, Canon,
+  Archive, and Integrity; the route lands as Continuity; trust/runtime/source
+  marker areas are present; desktop and mobile avoid horizontal overflow.
+  Browser screenshots still show the continuity record cards and some
+  metric/source labels with too-low contrast, so records and sources do not read
+  clearly enough yet.
+- Memory lifecycle/evidence readback: pass. Briefing counts, selected versus
+  held-out runtime memory, lifecycle review, confidence/weight, source labels,
+  owner actions, supersession, saved memory, and owner-wide memory are
+  understandable.
+- Developer Space methodology/field-log storytelling: pass. The public
+  observatory shows live state, visible-boundary copy, Visitor reading path,
+  Project evidence, methodology, finding, field-log cards, and "How to read
+  this" explanation on desktop and mobile.
+
+Validation:
+
+- `npx --yes --package @playwright/test@1.41.2 playwright test tmp-pr193-continuity-rehearsal.spec.js --reporter=line --workers=1`
+  passed.
+- Screenshots were inspected locally and not committed.
+
+Current baton:
+
+- MIMIR should decide whether to open a narrow DAEDALUS Continuity readability
+  patch.
+- ARGUS is not needed before a CSS/copy-only readability patch; wake ARGUS only
+  if the next patch changes displayed continuity fields, source serialization,
+  visibility, or private/owner data exposure.
+
 ## Latest MIMIR decision - PR193 ARIADNE rehearsal opened
 
 MIMIR closes PR192 on 2026-06-23 after ARGUS accepted the narrow Continuity stop

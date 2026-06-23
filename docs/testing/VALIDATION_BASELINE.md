@@ -52,6 +52,29 @@ pnpm test:developer-spaces
 pnpm test:developer-space-client
 ```
 
+## PR193 Continuity Memory Observability Rehearsal
+
+ARIADNE hosted rehearsal on 2026-06-23:
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `npx --yes --package @playwright/test@1.41.2 playwright test tmp-pr193-continuity-rehearsal.spec.js --reporter=line --workers=1` | Pass | Covered authenticated persona workspace tabs, Continuity desktop/mobile, Memory desktop/mobile, and anonymous public Developer Space desktop/mobile against the current hosted web/API surface. |
+| Persona workspace tabs | Pass | The private persona workspace exposes Home, Continuity, Memory, Canon, Archive, and Integrity. |
+| Continuity route | Needs readability patch | Route lands as Continuity and exposes trust/runtime/source-marker structure with no mobile horizontal overflow. Human screenshot review found continuity record cards and some metric/source labels too low-contrast to count as clearly readable. |
+| Memory lifecycle/evidence readback | Pass | Briefing counts, selected/held-out memory, lifecycle review, confidence/weight, source labels, owner actions, supersession, saved memory, and owner-wide memory are understandable on desktop and mobile. |
+| Developer Space methodology/field-log storytelling | Pass | Public observatory shows live state, visible-boundary copy, Visitor reading path, Project evidence, methodology, finding, field-log cards, and "How to read this" copy on desktop and mobile. |
+
+Scope notes:
+
+- No product code changed.
+- No data mutation, Stripe, provider, Redis, Cloudflare, worker, migration,
+  deploy, billing, key, repo, or configuration flow was run.
+- Temporary screenshots were inspected locally and not committed.
+- Recommended smallest next slice: CSS/copy-only Continuity readability patch
+  for record/source cards and trust metric labels. ARGUS is not needed unless
+  the patch changes displayed continuity fields, source serialization,
+  visibility, or private/owner data exposure.
+
 ## PR191 Developer Agent Run Job Readiness Boundary
 
 DAEDALUS implementation validation on 2026-06-23:
