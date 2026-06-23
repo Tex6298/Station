@@ -3,7 +3,8 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { Persona } from "@station/types/persona";
-import { studioPersonaWorkspaceTabs } from "@/lib/studio-navigation";
+import { activeStudioHref, studioPersonaWorkspaceTabs } from "@/lib/studio-navigation";
+import { StudioPlaceStrip } from "@/components/studio/studio-frame";
 
 export interface ContinuitySummary {
   memoryCount: number;
@@ -29,6 +30,10 @@ const PROVIDER_LABELS: Record<string, string> = {
 
 export function PersonaWorkspaceHeader({ persona }: { persona: PersonaWithContinuity }) {
   const pathname = usePathname();
+  const tabs = studioPersonaWorkspaceTabs(persona.id);
+  const activeTab = [...tabs]
+    .sort((a, b) => b.href.length - a.href.length)
+    .find((tab) => activeStudioHref(pathname, tab.href)) ?? tabs[0];
 
   return (
     <header className="studio-persona-header">
@@ -42,8 +47,15 @@ export function PersonaWorkspaceHeader({ persona }: { persona: PersonaWithContin
         </div>
       </div>
 
+      <StudioPlaceStrip
+        label={`${persona.name} / ${activeTab.label}`}
+        detail={activeTab.detail}
+        privacy="Owner-only persona workspace"
+        action={<Link href="/studio/assistant" className="studio-place-action">Ask Assistant</Link>}
+      />
+
       <nav className="studio-persona-tabs" aria-label="Persona workspace">
-        {studioPersonaWorkspaceTabs(persona.id).map((tab) => {
+        {tabs.map((tab) => {
           const href = tab.href;
           const active = pathname === href;
           return (

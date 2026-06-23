@@ -4,6 +4,7 @@ import {
   SIGNED_MOBILE_TOP_NAV_MENU_ROUTES,
   STUDIO_MOBILE_NAV_SUMMARY_LABEL,
   activeStudioHref,
+  studioRouteContext,
   studioPersonaHref,
   studioPersonaMeta,
   studioPersonaWorkspaceTabs,
@@ -28,9 +29,39 @@ test("Studio navigation helpers expose private persona links and labels", () => 
 
 test("Studio persona workspace exposes Continuity as its own stop", () => {
   const tabs = studioPersonaWorkspaceTabs("persona-1");
-  assert.deepEqual(tabs.map((tab) => tab.label), ["Home", "Continuity", "Memory", "Canon", "Archive", "Integrity"]);
+  const labels = tabs.map((tab) => tab.label);
+  assert.deepEqual(labels, ["Home", "Continuity", "Memory", "Canon", "Archive", "Integrity"]);
   assert.equal(tabs.find((tab) => tab.label === "Continuity")?.href, "/studio/personas/persona-1/continuity");
-  assert.equal(tabs.some((tab) => tab.label === "Timeline"), false);
+  assert.match(tabs.find((tab) => tab.label === "Memory")?.detail ?? "", /lifecycle/);
+  assert.equal((labels as string[]).includes("Timeline"), false);
+});
+
+test("Studio route context names static Studio stops for mobile summaries", () => {
+  assert.deepEqual(studioRouteContext("/studio/archive"), {
+    label: "Global Archive",
+    detail: "Owner-only archive search",
+    privacy: "Private archive",
+    href: "/studio/archive",
+  });
+
+  assert.equal(studioRouteContext("/studio/assistant").label, "Station Assistant");
+  assert.equal(studioRouteContext("/studio").detail, "Private workbench overview");
+});
+
+test("Studio route context names persona workspace stops without exposing raw ids", () => {
+  const context = studioRouteContext(
+    "/studio/personas/persona-1/memory",
+    [{ id: "persona-1", name: "Ariadne" }],
+  );
+
+  assert.equal(context.label, "Ariadne / Memory");
+  assert.equal(context.detail, "Recallable context and lifecycle state");
+  assert.equal(context.privacy, "Owner-only persona workspace");
+  assert.equal(context.href, "/studio/personas/persona-1/memory");
+
+  const fallback = studioRouteContext("/studio/personas/persona-2/files");
+  assert.equal(fallback.label, "Persona / Archive");
+  assert.equal(fallback.detail, "Private source material and imports");
 });
 
 test("Studio mobile navigation exposes an explicit disclosure label", () => {

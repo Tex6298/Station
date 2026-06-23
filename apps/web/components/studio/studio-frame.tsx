@@ -67,3 +67,29 @@ export function StudioStatusBadge({
 export function StudioActionRow({ children }: { children: React.ReactNode }) {
   return <div className="studio-action-row">{children}</div>;
 }
+
+export function StudioPlaceStrip({
+  label,
+  detail,
+  privacy,
+  action,
+}: {
+  label: string;
+  detail: string;
+  privacy: string;
+  action?: React.ReactNode;
+}) {
+  return (
+    <section className="studio-place-strip" aria-label="Current Studio place">
+      <div>
+        <span>Current stop</span>
+        <strong>{label}</strong>
+        <p>{detail}</p>
+      </div>
+      <div className="studio-place-strip-meta">
+        <span>{privacy}</span>
+        {action}
+      </div>
+    </section>
+  );
+}

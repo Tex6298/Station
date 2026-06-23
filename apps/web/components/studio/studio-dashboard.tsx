@@ -6,6 +6,7 @@ import {
   StudioErrorState,
   StudioFrame,
   StudioPanel,
+  StudioPlaceStrip,
   StudioStatusBadge,
 } from "./studio-frame";
 
@@ -66,11 +67,17 @@ function Header({ personaCount }: { personaCount: number }) {
             ? `${personaCount} persona${personaCount === 1 ? "" : "s"} to tend, recent archive activity to review, and continuity work ready when you are.`
             : "Set up your first persona, then Studio becomes your private workspace for chat, memory, notes, and publishing."}
         </p>
+        <StudioPlaceStrip
+          label="Dashboard"
+          detail={personaCount > 0 ? "Scan private work, then jump into the next persona, archive, or Integrity task." : "Start with a persona; the rest of Studio stays owner-only until you publish."}
+          privacy="Owner-only Studio"
+          action={<Link href="/studio/assistant" style={placeAction}>Ask Assistant</Link>}
+        />
       </div>
       <StudioActionRow>
-        <Link href="/studio/onboarding" style={secondaryButton}>Start Path</Link>
+        <Link href="/studio/onboarding" style={secondaryButton}>Choose Path</Link>
         <Link href="/studio/new" style={primaryButton}>New Persona</Link>
-        <Link href="/space" style={secondaryButton}>Public Space</Link>
+        <Link href="/space" style={secondaryButton}>Open Public Space</Link>
       </StudioActionRow>
     </header>
   );
@@ -350,6 +357,17 @@ const secondaryButton = {
   background: "#111827",
   border: "1px solid #334155",
   color: "#d1d5db",
+};
+
+const placeAction = {
+  border: "1px solid var(--station-page-border)",
+  borderRadius: 8,
+  background: "var(--station-page-surface)",
+  color: "var(--station-page-text)",
+  padding: "7px 10px",
+  fontSize: 12,
+  fontWeight: 800,
+  textDecoration: "none",
 };
 
 const miniButton = {

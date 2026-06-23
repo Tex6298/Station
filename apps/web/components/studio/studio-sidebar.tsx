@@ -8,10 +8,12 @@ import { getSession } from "@/lib/auth";
 import {
   STUDIO_MOBILE_NAV_SUMMARY_LABEL,
   activeStudioHref,
+  studioRouteContext,
   studioPersonaHref,
   studioPersonaMeta,
   studioPublicLinks,
   studioWorkspaceLinks,
+  type StudioRouteContext,
 } from "@/lib/studio-navigation";
 import { StorageUsagePanel } from "@/components/settings/storage-usage-panel";
 import { TokenUsagePanel } from "@/components/settings/token-usage-panel";
@@ -97,6 +99,8 @@ function SectionLabel({ children }: { children: React.ReactNode }) {
 
 export function StudioSidebar() {
   const [personas, setPersonas] = useState<PersonaSummary[]>([]);
+  const pathname = usePathname();
+  const currentContext = studioRouteContext(pathname, personas);
 
   useEffect(() => {
     getSession().then(async (session) => {
@@ -112,7 +116,7 @@ export function StudioSidebar() {
 
   return (
     <>
-    <StudioMobileNav personas={personas} />
+    <StudioMobileNav personas={personas} currentContext={currentContext} />
     <aside className="studio-sidebar-desktop">
       <div style={{ padding: "16px 14px 12px", borderBottom: "1px solid #1f2937" }}>
         <Link href="/studio" style={{ display: "flex", alignItems: "center", gap: 10, color: "#f8fafc", textDecoration: "none" }}>
@@ -130,6 +134,8 @@ export function StudioSidebar() {
           <Link href="/studio" style={smallAction}>New Chat</Link>
           <Link href="/studio/new" style={smallAction}>New Persona</Link>
         </div>
+
+        <CurrentPlace context={currentContext} />
 
         <label style={{ display: "block", marginTop: 12 }}>
           <span style={{ position: "absolute", width: 1, height: 1, overflow: "hidden" }}>Search personas and chat history</span>
@@ -202,16 +208,40 @@ export function StudioSidebar() {
   );
 }
 
-function StudioMobileNav({ personas }: { personas: PersonaSummary[] }) {
+function CurrentPlace({ context }: { context: StudioRouteContext }) {
+  return (
+    <div className="studio-current-place" aria-label="Current Studio place">
+      <span>Current stop</span>
+      <strong>{context.label}</strong>
+      <small>{context.detail}</small>
+      <em>{context.privacy}</em>
+    </div>
+  );
+}
+
+function StudioMobileNav({
+  personas,
+  currentContext,
+}: {
+  personas: PersonaSummary[];
+  currentContext: StudioRouteContext;
+}) {
   return (
     <details className="studio-mobile-nav">
       <summary aria-label={STUDIO_MOBILE_NAV_SUMMARY_LABEL}>
-        <span>
-          <strong>Studio</strong>
-          <small>Private workbench</small>
+        <span className="studio-mobile-nav-current">
+          <small>{currentContext.privacy}</small>
+          <strong>{currentContext.label}</strong>
+          <small>{currentContext.detail}</small>
         </span>
       </summary>
       <nav className="studio-mobile-nav-panel" aria-label="Studio mobile navigation">
+        <div className="studio-mobile-current-card">
+          <span>Current stop</span>
+          <strong>{currentContext.label}</strong>
+          <small>{currentContext.detail}</small>
+        </div>
+
         <div className="studio-mobile-nav-grid">
           <MobileNavLink href="/studio" label="Dashboard" />
           <MobileNavLink href="/studio/new" label="New Persona" />

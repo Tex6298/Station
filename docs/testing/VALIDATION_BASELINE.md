@@ -52,6 +52,35 @@ pnpm test:developer-spaces
 pnpm test:developer-space-client
 ```
 
+## PR199 UX-01A Studio Place and Mobile Workbench Clarity
+
+DAEDALUS implementation validation on 2026-06-23:
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 105 tests passed. New coverage checks current-stop route context for static Studio and persona workbench routes. |
+| `npm exec --yes pnpm@10.32.1 -- run test:auth` | Pass | 16 tests passed. Route protection and auth-session helper coverage remain green. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | Turbo typecheck passed for API and web packages. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass with existing warnings | Existing raw `<img>` warnings remain in `apps/web/app/space/[slug]/page.tsx` and `apps/web/components/discover/discover-front-door.tsx`, both outside PR199 scope. |
+| `npm exec --yes pnpm@10.32.1 -- run build` | Local Windows symlink failure after compile | Build compiled, linted, type-checked, generated static pages, then failed during Next standalone trace-copy with `EPERM: operation not permitted, symlink` for `.next\standalone` node module targets such as `apps\web\.next\standalone\apps\web\node_modules\react`. |
+| Local Playwright route sweep | Pass | Temporary spec covered desktop and 375px `/studio`, one persona workspace route, Memory, Continuity, persona Archive, Integrity, and `/studio/assistant` against local web/API dev servers. No document-level horizontal overflow was detected. Temporary files were removed. |
+| `git diff --check` | Pass | No whitespace errors. |
+| `git diff --cached --check` | Pass | No staged whitespace errors. |
+| Staged credential/raw-id pattern scan | Pass | No staged secrets, cookies, tokens, Checkout URLs, Stripe IDs, raw private IDs, prompts, completions, or private excerpts detected. |
+
+Scope notes:
+
+- Added Studio current-stop route context, a desktop sidebar current-stop card,
+  a mobile current-stop summary, a reusable `StudioPlaceStrip`, and scoped CSS.
+- No route semantics, auth/session behavior, API calls, private field exposure,
+  public route behavior, Archive trust, Developer Space manage, Billing,
+  config, schema, migration, provider, queue, cache, or backend behavior
+  changed.
+- ARIADNE should review the visible desktop and 375px route experience next.
+- ARGUS does not need to review first unless a later slice touches auth, route
+  protection, owner/private fields, export/storage/provenance semantics, public
+  surfaces, Developer Agent actions, key handling, or billing behavior.
+
 ## PR198 Studio and Archive UX Feasibility Map
 
 DAEDALUS docs-only feasibility pass on 2026-06-23:

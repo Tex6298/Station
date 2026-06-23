@@ -4,7 +4,75 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest MIMIR decision - PR199 UX-01A Studio workbench opened
+## Latest DAEDALUS result - PR199 UX-01A Studio workbench complete
+
+DAEDALUS completed PR199 on 2026-06-23.
+
+Verdict:
+
+- Implemented as a bounded Studio shell/dashboard/persona workbench UX slice.
+- No route semantics, auth/session behavior, API calls, private field exposure,
+  public route behavior, Archive trust, Developer Space manage, Billing,
+  config, schema, migration, provider, queue, cache, or backend behavior
+  changed.
+
+What changed:
+
+- Added `studioRouteContext` in `apps/web/lib/studio-navigation.ts` so Studio
+  static routes and persona workbench routes have stable current-stop labels,
+  details, privacy copy, and hrefs.
+- Extended persona tab metadata with details for Home, Continuity, Memory,
+  Canon, Archive, and Integrity.
+- Added a desktop sidebar "Current stop" card.
+- Updated the mobile Studio disclosure summary so the active stop and
+  owner/private state are visible before opening the full menu.
+- Added a reusable `StudioPlaceStrip` primitive and used it on the Studio
+  dashboard and persona workspace header.
+- Tightened dashboard action labels without changing link targets.
+- Added scoped CSS for current-place strip/card/mobile summary behavior,
+  including 375px-safe text handling.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:studio-ui`: pass, 105 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:auth`: pass, 16 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck`: pass.
+- `npm exec --yes pnpm@10.32.1 -- run lint`: pass with existing raw `<img>`
+  warnings in public Space/Discover files outside this slice.
+- Local Playwright route sweep against local web/API dev servers: pass for
+  desktop and 375px `/studio`, one persona workspace route, Memory,
+  Continuity, persona Archive, Integrity, and `/studio/assistant`; no
+  document-level horizontal overflow was detected.
+- `git diff --check`: pass.
+- `git diff --cached --check`: pass.
+- Staged credential/raw-id pattern scan: pass.
+
+Build caveat:
+
+- `npm exec --yes pnpm@10.32.1 -- run build` compiled successfully, linted,
+  type-checked, and generated static pages, then failed during Next standalone
+  trace-copy on local Windows symlink creation.
+- Exact failure class: `EPERM: operation not permitted, symlink`.
+- Representative target:
+  `apps\web\.next\standalone\apps\web\node_modules\react`.
+- This is recorded as a local Windows symlink permission issue for Next
+  `output: "standalone"`, not as a PR199 code failure.
+
+Review recommendation:
+
+- ARIADNE should review PR199 directly for visible desktop and 375px route
+  experience.
+- ARGUS does not need to review first because this did not touch auth, route
+  protection, owner/private fields, export/storage/provenance semantics, public
+  surfaces, Developer Agent actions, key handling, or billing behavior.
+
+Current baton:
+
+- MIMIR should either wake ARIADNE for visible UX review or decide the next
+  slice. UX-02A Archive trust scan pass and UX-01B dense owner console grouping
+  remain separate.
+
+## Previous MIMIR decision - PR199 UX-01A Studio workbench opened
 
 MIMIR closes PR198 after DAEDALUS completed the docs-only Studio/Archive UX
 feasibility map.
