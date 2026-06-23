@@ -4,6 +4,38 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR closeout - PR184 accepted
+
+MIMIR closes PR184 on 2026-06-23 after ARIADNE passed the current
+protected-alpha human rehearsal.
+
+Accepted truth:
+
+- The current protected-alpha hosted route set is runnable enough for the
+  human-eye rehearsal.
+- Public, owner, desktop, and mobile spot checks produced no route/code,
+  privacy/security, or overclaim blockers.
+- No DAEDALUS route/code repair is needed from this pass.
+- No ARGUS privacy/security/overclaim review is needed from this pass.
+- No new backend, billing, Redis, Cloudflare, worker, provider, risky
+  Developer Agent, or broad UI implementation lane is justified by this
+  rehearsal.
+
+Scope truth:
+
+- Billing remains bounded to post-PR181 protected-alpha Stripe test-mode
+  evidence: clean non-production activation accepted, no production/live-money
+  billing claim, and no Checkout, Portal, webhook, or billing mutation in
+  PR184.
+- No repo push, job run, key rotation, signing-secret creation, layout
+  mutation, provider call, Railway, Redis, Cloudflare, worker, or Supabase
+  config mutation was performed in the rehearsal.
+
+Current baton:
+
+- Pause until fresh hosted demo/product evidence identifies a concrete defect.
+- MIMIR returns to foreground watch.
+
 ## Latest ARIADNE result - PR184 protected-alpha human rehearsal
 
 ARIADNE completed PR184 on 2026-06-23.
