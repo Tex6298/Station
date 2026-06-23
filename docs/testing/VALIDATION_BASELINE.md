@@ -52,6 +52,23 @@ pnpm test:developer-spaces
 pnpm test:developer-space-client
 ```
 
+## PR190 Developer Agent Layout Suggestion Readback
+
+DAEDALUS implementation validation on 2026-06-23:
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 44 tests passed. New coverage proves `update_layout` preview is owner-only, stores a minimized suggestion confirmation, appears in owner-only audit export as `layout_suggestion` with `receiptStatus: not_executable`, leaves live visual config unchanged, creates no receipt/event/document/trace rows, and keeps public detail clean of suggestion/control payloads. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` | Pass | API typecheck completed after shared layout-suggestion/audit-export DTO updates. |
+
+Scope notes:
+
+- `update_layout` is useful as suggestion/readback only.
+- Direct layout mutation remains blocked.
+- No worker/job execution, provider call, repo push, key/signing-secret
+  mutation, billing, Cloudflare, Redis, Railway/Supabase config, public
+  observatory output change, or UI redesign was added.
+
 ## PR189 Developer Agent Audit Export Hardening
 
 DAEDALUS implementation validation on 2026-06-23:

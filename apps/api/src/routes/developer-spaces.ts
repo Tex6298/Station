@@ -4,6 +4,7 @@ import { z } from "zod";
 import { describePlatformProviderRoute } from "@station/ai";
 import type {
   DeveloperSpaceAgentAuditExport,
+  DeveloperSpaceAgentAuditExportAction,
   DeveloperSpaceAgentAuditExportArtifact,
   DeveloperSpaceAgentAuditExportItem,
   DeveloperSpaceAgentConfirmationRecord,
@@ -14,6 +15,7 @@ import type {
   DeveloperSpaceAgentActionRegistryEntry,
   DeveloperSpaceAgentAllowedAction,
   DeveloperSpaceAgentFutureAction,
+  DeveloperSpaceAgentLayoutSuggestion,
   DeveloperSpaceDocumentLinkVisibility,
   DeveloperSpaceDocumentRole,
   DeveloperSpaceEventVisibility,
@@ -192,6 +194,7 @@ const DEVELOPER_SPACE_AGENT_EXECUTION_RECEIPT_ACTION: DeveloperSpaceAgentExecuti
 const DEVELOPER_SPACE_AGENT_DRAFT_DOCUMENT_ACTION: DeveloperSpaceAgentExecutionReceiptAction = "save_project_update_draft";
 const DEVELOPER_SPACE_AGENT_PUBLISH_DOCUMENT_ACTION: DeveloperSpaceAgentExecutionReceiptAction = "publish_to_page";
 const DEVELOPER_SPACE_AGENT_OBSERVATORY_UPDATE_ACTION: DeveloperSpaceAgentExecutionReceiptAction = "update_observatory";
+const DEVELOPER_SPACE_AGENT_LAYOUT_SUGGESTION_ACTION: DeveloperSpaceAgentFutureAction = "update_layout";
 const DEVELOPER_SPACE_AGENT_STATUS_NOTE_MAX_LENGTH = 360;
 const DEVELOPER_SPACE_AGENT_STATUS_NOTE_EVENT_TYPE = "developer_agent.status_note";
 const DEVELOPER_SPACE_AGENT_CAPABILITY_REQUEST_CATEGORIES = [
@@ -230,11 +233,12 @@ const DEVELOPER_SPACE_AGENT_EXECUTABLE_ACTIONS = new Set<string>([
   DEVELOPER_SPACE_AGENT_PUBLISH_DOCUMENT_ACTION,
   DEVELOPER_SPACE_AGENT_OBSERVATORY_UPDATE_ACTION,
 ]);
-const DEVELOPER_SPACE_AGENT_AUDIT_EXPORT_ACTIONS: readonly DeveloperSpaceAgentExecutionReceiptAction[] = [
+const DEVELOPER_SPACE_AGENT_AUDIT_EXPORT_ACTIONS: readonly DeveloperSpaceAgentAuditExportAction[] = [
   DEVELOPER_SPACE_AGENT_EXECUTION_RECEIPT_ACTION,
   DEVELOPER_SPACE_AGENT_DRAFT_DOCUMENT_ACTION,
   DEVELOPER_SPACE_AGENT_PUBLISH_DOCUMENT_ACTION,
   DEVELOPER_SPACE_AGENT_OBSERVATORY_UPDATE_ACTION,
+  DEVELOPER_SPACE_AGENT_LAYOUT_SUGGESTION_ACTION,
 ];
 const DEVELOPER_SPACE_AGENT_AUDIT_EXPORT_ACTION_SET = new Set<string>(DEVELOPER_SPACE_AGENT_AUDIT_EXPORT_ACTIONS);
 const DEVELOPER_SPACE_AGENT_AUDIT_EXPORT_LIMIT = 100;
@@ -253,6 +257,26 @@ const DEVELOPER_SPACE_AGENT_AUDIT_EXPORT_OMITTED_FIELDS = [
   "cookies",
   "keys",
   "connection_strings",
+] as const;
+const DEVELOPER_SPACE_AGENT_LAYOUT_SUGGESTION_BOUNDARIES = [
+  "No live Developer Space visual config was changed.",
+  "No public observatory output changed.",
+  "No provider call, job, worker, repo, deploy, billing, key, signing secret, Cloudflare, Redis, Railway, or Supabase config action ran.",
+  "The suggestion records minimized labels and summaries only; raw config, route ids, prompts, provider payloads, keys, tokens, cookies, and connection strings are omitted.",
+];
+const DEVELOPER_SPACE_AGENT_VISUAL_MODE_LABELS: Record<string, string> = {
+  node_field: "Node field",
+  timeline: "Timeline",
+  world_map: "World map",
+  constellation: "Constellation",
+};
+const DEVELOPER_SPACE_AGENT_DEFAULT_WIDGETS = [
+  { type: "visualisation", title: "Live visualisation", zone: "main", position: 0, visible: true },
+  { type: "event_stream", title: "Event stream", zone: "main", position: 1, visible: true },
+  { type: "reading_guide", title: "How to read this", zone: "side", position: 0, visible: true },
+  { type: "project_notes", title: "Project notes", zone: "side", position: 1, visible: true },
+  { type: "current_nodes", title: "Current nodes", zone: "side", position: 2, visible: true },
+  { type: "latest_snapshot", title: "Latest snapshot", zone: "side", position: 3, visible: true },
 ] as const;
 const DEVELOPER_SPACE_AGENT_EXECUTION_RECEIPT_BOUNDARIES = [
   "No autonomous agent loop ran.",
@@ -1132,6 +1156,209 @@ function safeAgentFact(label: string, value: string | number | boolean | null | 
   };
 }
 
+type DeveloperSpaceAgentWidgetSummary = {
+  type: string;
+  title: string;
+  zone: "main" | "side";
+  position: number;
+  visible: boolean;
+};
+
+function developerSpaceAgentVisualMode(value: unknown): DeveloperSpaceAgentLayoutSuggestion["currentVisualMode"] {
+  return value === "timeline" || value === "world_map" || value === "constellation" || value === "node_field"
+    ? value
+    : "node_field";
+}
+
+function developerSpaceAgentVisualModeLabel(value: DeveloperSpaceAgentLayoutSuggestion["currentVisualMode"]) {
+  return DEVELOPER_SPACE_AGENT_VISUAL_MODE_LABELS[value] ?? "Node field";
+}
+
+function developerSpaceAgentSuggestedVisualMode(
+  currentMode: DeveloperSpaceAgentLayoutSuggestion["currentVisualMode"],
+): DeveloperSpaceAgentLayoutSuggestion["suggestedVisualMode"] {
+  return currentMode === "timeline" ? "constellation" : "timeline";
+}
+
+function developerSpaceAgentLayoutWidgets(config: unknown): DeveloperSpaceAgentWidgetSummary[] {
+  const record = config && typeof config === "object" ? config as Record<string, unknown> : {};
+  const provided = Array.isArray(record.widgets) ? record.widgets : [];
+  const byType = new Map<string, Record<string, unknown>>();
+  for (const value of provided) {
+    if (!value || typeof value !== "object") continue;
+    const widget = value as Record<string, unknown>;
+    if (typeof widget.type !== "string") continue;
+    if (!DEVELOPER_SPACE_AGENT_DEFAULT_WIDGETS.some((fallback) => fallback.type === widget.type)) continue;
+    byType.set(widget.type, widget);
+  }
+
+  return DEVELOPER_SPACE_AGENT_DEFAULT_WIDGETS.map((fallback) => {
+    const candidate = byType.get(fallback.type);
+    const zone = candidate?.zone === "main" || candidate?.zone === "side"
+      ? candidate.zone
+      : fallback.zone;
+    return {
+      type: fallback.type,
+      title: safeAgentAuditText(candidate?.title, fallback.title, 80),
+      zone,
+      position: typeof candidate?.position === "number" && Number.isFinite(candidate.position)
+        ? Math.max(0, Math.floor(candidate.position))
+        : fallback.position,
+      visible: candidate?.visible !== false,
+    };
+  }).sort((left, right) => left.zone.localeCompare(right.zone) || left.position - right.position || left.title.localeCompare(right.title));
+}
+
+function developerSpaceAgentVisibleWidgetLabels(widgets: DeveloperSpaceAgentWidgetSummary[], zone: "main" | "side") {
+  const labels = widgets
+    .filter((widget) => widget.zone === zone && widget.visible)
+    .sort((left, right) => left.position - right.position)
+    .map((widget) => safeAgentAuditText(widget.title, "Widget", 80));
+  return labels.length > 0 ? labels : ["none"];
+}
+
+function developerSpaceAgentWidgetLabel(widgets: DeveloperSpaceAgentWidgetSummary[], type: string, fallback: string) {
+  return safeAgentAuditText(widgets.find((widget) => widget.type === type)?.title, fallback, 80);
+}
+
+function developerSpaceAgentLayoutSuggestion(space: any): DeveloperSpaceAgentLayoutSuggestion {
+  const currentVisualMode = developerSpaceAgentVisualMode(space?.visualisation_type);
+  const suggestedVisualMode = developerSpaceAgentSuggestedVisualMode(currentVisualMode);
+  const currentVisualModeLabel = developerSpaceAgentVisualModeLabel(currentVisualMode);
+  const suggestedVisualModeLabel = developerSpaceAgentVisualModeLabel(suggestedVisualMode);
+  const widgets = developerSpaceAgentLayoutWidgets(space?.visualisation_config);
+  const mainLabels = developerSpaceAgentVisibleWidgetLabels(widgets, "main");
+  const sideLabels = developerSpaceAgentVisibleWidgetLabels(widgets, "side");
+  const affectedWidgetLabels = [
+    developerSpaceAgentWidgetLabel(widgets, "visualisation", "Live visualisation"),
+    developerSpaceAgentWidgetLabel(widgets, "event_stream", "Event stream"),
+    developerSpaceAgentWidgetLabel(widgets, "latest_snapshot", "Latest snapshot"),
+  ];
+
+  return {
+    currentVisualMode,
+    currentVisualModeLabel,
+    suggestedVisualMode,
+    suggestedVisualModeLabel,
+    beforeSummary: safeAgentAuditText(
+      `${currentVisualModeLabel} mode currently shows main panel widgets: ${mainLabels.join(", ")}; side rail widgets: ${sideLabels.join(", ")}.`,
+      "Current layout summary omitted.",
+      360,
+    ),
+    afterSummary: safeAgentAuditText(
+      `Suggested ${suggestedVisualModeLabel} readback would foreground ${affectedWidgetLabels.join(", ")} for owner review without changing the live layout.`,
+      "Suggested layout summary omitted.",
+      360,
+    ),
+    rationale: "Make the public observatory story easier to review before any future owner-applied layout change.",
+    affectedPanelLabels: ["Main panel", "Side rail"],
+    affectedWidgetLabels,
+    boundaries: DEVELOPER_SPACE_AGENT_LAYOUT_SUGGESTION_BOUNDARIES,
+  };
+}
+
+function developerSpaceAgentLayoutSuggestionFromPayload(payload: unknown): DeveloperSpaceAgentLayoutSuggestion {
+  const record = payload && typeof payload === "object" ? payload as Record<string, unknown> : {};
+  const source = record.layoutSuggestion && typeof record.layoutSuggestion === "object"
+    ? record.layoutSuggestion as Record<string, unknown>
+    : record;
+  const currentVisualMode = developerSpaceAgentVisualMode(source.currentVisualMode);
+  const suggestedVisualMode = developerSpaceAgentVisualMode(source.suggestedVisualMode);
+  const currentVisualModeLabel = safeAgentAuditText(
+    source.currentVisualModeLabel,
+    developerSpaceAgentVisualModeLabel(currentVisualMode),
+    80,
+  );
+  const suggestedVisualModeLabel = safeAgentAuditText(
+    source.suggestedVisualModeLabel,
+    developerSpaceAgentVisualModeLabel(suggestedVisualMode),
+    80,
+  );
+  const stringList = (value: unknown, fallback: string[]) => {
+    const values = Array.isArray(value) ? value : fallback;
+    return values
+      .filter((item): item is string => typeof item === "string" && item.trim().length > 0)
+      .slice(0, 8)
+      .map((item) => safeAgentAuditText(item, "Layout item", 120));
+  };
+
+  return {
+    currentVisualMode,
+    currentVisualModeLabel,
+    suggestedVisualMode,
+    suggestedVisualModeLabel,
+    beforeSummary: safeAgentAuditText(source.beforeSummary, "Current layout summary omitted.", 360),
+    afterSummary: safeAgentAuditText(source.afterSummary, "Suggested layout summary omitted.", 360),
+    rationale: safeAgentAuditText(source.rationale, "Owner should review this suggestion before any future layout change.", 220),
+    affectedPanelLabels: stringList(source.affectedPanelLabels, ["Main panel", "Side rail"]),
+    affectedWidgetLabels: stringList(source.affectedWidgetLabels, ["Live visualisation", "Event stream"]),
+    boundaries: stringList(source.boundaries, DEVELOPER_SPACE_AGENT_LAYOUT_SUGGESTION_BOUNDARIES),
+  };
+}
+
+function developerSpaceAgentLayoutSuggestionPreview(
+  action: string,
+  suggestion: DeveloperSpaceAgentLayoutSuggestion,
+): DeveloperSpaceAgentActionPreview {
+  return {
+    action,
+    status: "previewed",
+    summary: `Layout suggestion ready for owner review: ${suggestion.currentVisualModeLabel} to ${suggestion.suggestedVisualModeLabel}. No live layout is changed.`,
+    sections: [
+      {
+        title: "Layout suggestion",
+        summary: suggestion.rationale,
+        facts: [
+          safeAgentFact("Current visual mode", suggestion.currentVisualModeLabel),
+          safeAgentFact("Suggested visual mode", suggestion.suggestedVisualModeLabel),
+          safeAgentFact("Execution available", false),
+          safeAgentFact("Mutation available", false),
+          safeAgentFact("External dispatch", false),
+        ],
+        items: [
+          { title: "Current layout", detail: suggestion.beforeSummary, status: "before" },
+          { title: "Suggested layout", detail: suggestion.afterSummary, status: "after" },
+          {
+            title: "Affected widgets",
+            detail: suggestion.affectedWidgetLabels.join(", "),
+            status: "owner_review",
+          },
+        ],
+      },
+      {
+        title: "No-mutation boundaries",
+        items: suggestion.boundaries.map((boundary) => ({
+          title: safeAgentAuditText(boundary, "No live layout was changed.", 180),
+          status: "not_executed",
+        })),
+      },
+    ],
+    requiresConfirmation: true,
+    futureLane: true,
+  };
+}
+
+function developerSpaceAgentLayoutSuggestionConfirmationPayload(
+  entry: DeveloperSpaceAgentActionRegistryEntry,
+  space: any,
+) {
+  const suggestion = developerSpaceAgentLayoutSuggestion(space);
+  return {
+    action: DEVELOPER_SPACE_AGENT_LAYOUT_SUGGESTION_ACTION,
+    label: safeAgentText(entry.label, "Update layout", 120),
+    description: safeAgentText(entry.description, "Suggest a layout change for owner review.", 220),
+    mode: entry.mode,
+    requiresConfirmation: true,
+    futureLane: true,
+    previewStatus: "previewed" as const,
+    summary: `Layout suggestion: ${suggestion.currentVisualModeLabel} to ${suggestion.suggestedVisualModeLabel}. No live layout is changed.`,
+    executionAvailable: false,
+    mutationAvailable: false,
+    layoutSuggestion: suggestion,
+    sections: developerSpaceAgentLayoutSuggestionPreview(DEVELOPER_SPACE_AGENT_LAYOUT_SUGGESTION_ACTION, suggestion).sections,
+  };
+}
+
 function countByValue(rows: any[], field: string) {
   return rows.reduce<Record<string, number>>((counts, row) => {
     const key = safeAgentText(row?.[field], "unknown", 80);
@@ -1378,7 +1605,7 @@ function buildDeveloperSpaceAgentActivityReadback(
   };
 }
 
-function futureLaneAgentPreview(action: string, input: Record<string, unknown> = {}): DeveloperSpaceAgentActionPreview {
+function futureLaneAgentPreview(action: string, input: Record<string, unknown> = {}, space?: any): DeveloperSpaceAgentActionPreview {
   if (action === DEVELOPER_SPACE_AGENT_DRAFT_DOCUMENT_ACTION) {
     return {
       action,
@@ -1399,6 +1626,13 @@ function futureLaneAgentPreview(action: string, input: Record<string, unknown> =
       requiresConfirmation: true,
       futureLane: true,
     };
+  }
+
+  if (action === DEVELOPER_SPACE_AGENT_LAYOUT_SUGGESTION_ACTION) {
+    return developerSpaceAgentLayoutSuggestionPreview(
+      action,
+      developerSpaceAgentLayoutSuggestion(space),
+    );
   }
 
   if (action === DEVELOPER_SPACE_AGENT_OBSERVATORY_UPDATE_ACTION) {
@@ -2364,7 +2598,7 @@ function developerSpaceAgentAuditArtifactFromReceiptPayload(
 }
 
 function developerSpaceAgentAuditArtifactFromConfirmation(row: any): DeveloperSpaceAgentAuditExportArtifact {
-  const action = row.action as DeveloperSpaceAgentExecutionReceiptAction;
+  const action = row.action as DeveloperSpaceAgentAuditExportAction;
   if (action === DEVELOPER_SPACE_AGENT_EXECUTION_RECEIPT_ACTION) {
     const request = developerSpaceAgentCapabilityRequestFromPayload(row.sanitized_payload);
     return {
@@ -2402,6 +2636,19 @@ function developerSpaceAgentAuditArtifactFromConfirmation(row: any): DeveloperSp
       occurredAt: safeAgentAuditTimestamp(statusNote.occurredAt),
     };
   }
+  if (action === DEVELOPER_SPACE_AGENT_LAYOUT_SUGGESTION_ACTION) {
+    const suggestion = developerSpaceAgentLayoutSuggestionFromPayload(row.sanitized_payload);
+    return {
+      type: "layout_suggestion",
+      label: safeAgentAuditText(
+        `${suggestion.currentVisualModeLabel} to ${suggestion.suggestedVisualModeLabel}`,
+        "Layout suggestion",
+        160,
+      ),
+      status: "suggested",
+      layoutSuggestion: suggestion,
+    };
+  }
   return {
     type: "none",
     label: "No artifact recorded",
@@ -2413,16 +2660,21 @@ function serializeDeveloperSpaceAgentAuditExportItem(
   confirmation: any,
   receipt: any | null,
 ): DeveloperSpaceAgentAuditExportItem {
-  const action = confirmation.action as DeveloperSpaceAgentExecutionReceiptAction;
+  const action = confirmation.action as DeveloperSpaceAgentAuditExportAction;
   const receiptRecord = receipt ? serializeDeveloperSpaceAgentExecutionReceipt(receipt) : null;
   const receiptPayload = receiptRecord?.receiptPayload ?? null;
   const fallbackSummary = action === DEVELOPER_SPACE_AGENT_DRAFT_DOCUMENT_ACTION
     ? "Private project update draft requested."
     : action === DEVELOPER_SPACE_AGENT_PUBLISH_DOCUMENT_ACTION
       ? "Reviewed draft publish requested."
-      : action === DEVELOPER_SPACE_AGENT_OBSERVATORY_UPDATE_ACTION
-        ? "Observatory status-note update requested."
+    : action === DEVELOPER_SPACE_AGENT_OBSERVATORY_UPDATE_ACTION
+      ? "Observatory status-note update requested."
+      : action === DEVELOPER_SPACE_AGENT_LAYOUT_SUGGESTION_ACTION
+        ? "Layout suggestion recorded for owner review."
       : "Capability request recorded for owner planning.";
+  const layoutSuggestion = action === DEVELOPER_SPACE_AGENT_LAYOUT_SUGGESTION_ACTION
+    ? developerSpaceAgentLayoutSuggestionFromPayload(confirmation.sanitized_payload)
+    : null;
 
   return {
     action,
@@ -2433,7 +2685,9 @@ function serializeDeveloperSpaceAgentAuditExportItem(
     cancelledAt: safeAgentAuditTimestamp(confirmation.cancelled_at),
     completedAt: receipt ? safeAgentAuditTimestamp(receipt.dispatched_at) : null,
     summary: safeAgentAuditText(confirmation.summary, fallbackSummary, 400),
-    receiptStatus: receiptRecord?.status ?? "missing",
+    receiptStatus: receiptRecord?.status ?? (
+      action === DEVELOPER_SPACE_AGENT_LAYOUT_SUGGESTION_ACTION ? "not_executable" : "missing"
+    ),
     receiptSummary: receiptRecord
       ? safeAgentAuditText(receiptRecord.summary, "Receipt recorded.", 400)
       : null,
@@ -2441,7 +2695,7 @@ function serializeDeveloperSpaceAgentAuditExportItem(
       ? developerSpaceAgentAuditArtifactFromReceiptPayload(receiptPayload)
       : developerSpaceAgentAuditArtifactFromConfirmation(confirmation),
     idempotency: {
-      retrySafe: true,
+      retrySafe: action !== DEVELOPER_SPACE_AGENT_LAYOUT_SUGGESTION_ACTION,
       receiptRecorded: Boolean(receiptRecord),
       repeatUsesExistingReceipt: Boolean(receiptRecord),
     },
@@ -2451,9 +2705,10 @@ function serializeDeveloperSpaceAgentAuditExportItem(
         || action === DEVELOPER_SPACE_AGENT_OBSERVATORY_UPDATE_ACTION,
     mutationAvailable: receiptPayload
       ? receiptPayload.mutationAvailable
-      : action !== DEVELOPER_SPACE_AGENT_EXECUTION_RECEIPT_ACTION,
+      : action !== DEVELOPER_SPACE_AGENT_EXECUTION_RECEIPT_ACTION
+        && action !== DEVELOPER_SPACE_AGENT_LAYOUT_SUGGESTION_ACTION,
     externalDispatch: false,
-    boundaries: safeAgentAuditBoundaries(receiptPayload?.boundaries),
+    boundaries: safeAgentAuditBoundaries(receiptPayload?.boundaries ?? layoutSuggestion?.boundaries),
     omittedFields: [...DEVELOPER_SPACE_AGENT_AUDIT_EXPORT_OMITTED_FIELDS],
   };
 }
@@ -4020,7 +4275,7 @@ developerSpacesRouter.post("/:id/agent/actions/preview", requireAuth, async (req
 
   const action = parsed.data.action;
   if (DEVELOPER_SPACE_AGENT_FUTURE_ACTION_SET.has(action)) {
-    return res.json(futureLaneAgentPreview(action, parsed.data.input));
+    return res.json(futureLaneAgentPreview(action, parsed.data.input, ownerLoad.space));
   }
   if (!DEVELOPER_SPACE_AGENT_ALLOWED_ACTION_SET.has(action)) {
     return res.status(400).json(unsupportedAgentPreview(action));
@@ -4208,6 +4463,8 @@ developerSpacesRouter.post("/:id/agent/actions/confirmations", requireAuth, asyn
       entry,
       developerSpaceAgentCapabilityRequest(parsed.data),
     );
+  } else if (action === DEVELOPER_SPACE_AGENT_LAYOUT_SUGGESTION_ACTION) {
+    sanitizedPayload = developerSpaceAgentLayoutSuggestionConfirmationPayload(entry, ownerLoad.space);
   } else if (action === DEVELOPER_SPACE_AGENT_OBSERVATORY_UPDATE_ACTION) {
     const statusNote = developerSpaceAgentStatusNote(parsed.data);
     if (!statusNote) {

@@ -5,7 +5,7 @@ Opened by: A1 / MIMIR
 Owner: DAEDALUS
 Reviewer: ARGUS
 Rehearsal: ARIADNE only if visible owner flows change.
-Status: open
+Status: implemented by DAEDALUS; awaiting ARGUS review
 
 ## Why This Lane
 
@@ -86,3 +86,40 @@ If web/client helpers change:
 ARGUS should review owner scoping, no-mutation proof, public cleanliness,
 audit/export compatibility, minimized payloads, and that `run_job` remains
 blocked.
+
+## DAEDALUS Implementation Result
+
+Completed on 2026-06-23.
+
+Implemented:
+
+- `update_layout` now returns an owner-only layout suggestion preview using
+  current Developer Space visual mode and widget labels.
+- Owner confirmations for `update_layout` persist a minimized suggestion with
+  current/suggested visual mode labels, before/after summaries, affected
+  panel/widget labels, rationale, and no-mutation boundaries.
+- Direct execution remains blocked; `update_layout` was not added to the
+  executable-action set.
+- Audit export includes `update_layout` confirmation records as
+  `layout_suggestion` items with `receiptStatus: not_executable`, no receipt,
+  no execution, and no mutation.
+- The remaining risky actions stay blocked:
+  `run_job`, `push_to_repo`, `rotate_ingestion_key`, and
+  `create_webhook_signing_secret`.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` passed, 44 tests.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` passed.
+
+Scope notes:
+
+- No Developer Space `visualisation_type` or `visualisation_config` mutation was
+  added.
+- No public observatory output changed as part of this lane.
+- No worker/job execution, provider call, repo push, shell, deploy, credential
+  mutation, signing-secret creation, Cloudflare, Redis, Railway/Supabase
+  config, billing, or UI redesign was added.
+
+ARGUS should review before MIMIR accepts any production-readiness boundary
+change for `update_layout`.

@@ -1694,7 +1694,6 @@ test("Developer Space agent risky future actions stay blocked after owner approv
     assert.equal(created.status, 201);
     const spaceId = created.body.space.id;
     const riskyActions = [
-      "update_layout",
       "push_to_repo",
       "run_job",
       "rotate_ingestion_key",
@@ -1760,6 +1759,141 @@ test("Developer Space agent risky future actions stay blocked after owner approv
     const spaceRow = db.tables.developer_spaces.find((row) => row.id === spaceId);
     assert.deepEqual(spaceRow?.visualisation_config, {});
     assert.equal(spaceRow?.visibility, "private");
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
+
+test("Developer Space agent update-layout suggestion is owner-only, audit-exported, and non-mutating", async () => {
+  const db = new InMemorySupabase();
+  setSupabaseAdminForTests(db.client as any);
+  const app = createDeveloperSpacesApp();
+
+  try {
+    const created = await requestJson(app, "POST", "/developer-spaces", {
+      token: "owner-token",
+      body: {
+        projectName: "Agent Layout Suggestion Lane",
+        visibility: "public",
+        visualisationType: "node_field",
+        visualisationConfig: {
+          widgets: [
+            { type: "event_stream", title: "Event pulse", zone: "main", position: 0, visible: true },
+            { type: "visualisation", title: "Node field", zone: "main", position: 1, visible: true },
+            { type: "latest_snapshot", title: "Latest snapshot", zone: "side", position: 0, visible: false },
+          ],
+        },
+      },
+    });
+    assert.equal(created.status, 201);
+    const spaceId = created.body.space.id;
+    const slug = created.body.space.slug;
+    const originalSpaceRow = db.tables.developer_spaces.find((row) => row.id === spaceId);
+    const originalVisualisationType = originalSpaceRow?.visualisation_type;
+    const originalVisualisationConfig = clone(originalSpaceRow?.visualisation_config);
+
+    const anonymousPreview = await requestJson(app, "POST", `/developer-spaces/${spaceId}/agent/actions/preview`, {
+      body: { action: "update_layout" },
+    });
+    assert.equal(anonymousPreview.status, 401);
+
+    const nonOwnerPreview = await requestJson(app, "POST", `/developer-spaces/${spaceId}/agent/actions/preview`, {
+      token: "other-token",
+      body: { action: "update_layout" },
+    });
+    assert.equal(nonOwnerPreview.status, 403);
+
+    const preview = await requestJson(app, "POST", `/developer-spaces/${spaceId}/agent/actions/preview`, {
+      token: "owner-token",
+      body: {
+        action: "update_layout",
+        input: {
+          rawPrompt: "private layout prompt should not persist",
+          token: "layout-secret-token",
+        },
+      },
+    });
+    assert.equal(preview.status, 200);
+    assert.equal(preview.body.status, "previewed");
+    assert.equal(preview.body.requiresConfirmation, true);
+    assert.equal(preview.body.futureLane, true);
+    assert.equal(preview.body.summary.includes("No live layout is changed"), true);
+    assert.equal(preview.body.sections[0].facts.some((fact: Row) => fact.label === "Current visual mode" && fact.value === "Node field"), true);
+    assert.equal(preview.body.sections[0].facts.some((fact: Row) => fact.label === "Suggested visual mode" && fact.value === "Timeline"), true);
+    assert.doesNotMatch(JSON.stringify(preview.body), /layout-secret-token|private layout prompt|rawPrompt/);
+
+    const create = await requestJson(app, "POST", `/developer-spaces/${spaceId}/agent/actions/confirmations`, {
+      token: "owner-token",
+      body: {
+        action: "update_layout",
+        input: {
+          rawPrompt: "private layout prompt should not persist",
+          targetDocumentId: "11111111-1111-4111-8111-111111111111",
+          token: "layout-secret-token",
+        },
+      },
+    });
+    assert.equal(create.status, 201);
+    assert.equal(create.body.confirmation.action, "update_layout");
+    assert.equal(create.body.executionAvailable, false);
+    assert.equal(create.body.confirmation.sanitizedPayload.executionAvailable, false);
+    assert.equal(create.body.confirmation.sanitizedPayload.mutationAvailable, false);
+    assert.equal(create.body.confirmation.sanitizedPayload.layoutSuggestion.currentVisualModeLabel, "Node field");
+    assert.equal(create.body.confirmation.sanitizedPayload.layoutSuggestion.suggestedVisualModeLabel, "Timeline");
+    assert.equal(create.body.confirmation.sanitizedPayload.layoutSuggestion.affectedWidgetLabels.includes("Event pulse"), true);
+    assert.equal(create.body.confirmation.sanitizedPayload.layoutSuggestion.boundaries.some((boundary: string) => boundary.includes("No live Developer Space visual config was changed")), true);
+    assert.doesNotMatch(JSON.stringify(create.body), /layout-secret-token|private layout prompt|rawPrompt|11111111-1111-4111-8111-111111111111/);
+
+    const approved = await requestJson(app, "POST", `/developer-spaces/${spaceId}/agent/actions/confirmations/${create.body.confirmation.id}/approve`, {
+      token: "owner-token",
+    });
+    assert.equal(approved.status, 200);
+    assert.equal(approved.body.executionAvailable, false);
+
+    const execute = await requestJson(app, "POST", `/developer-spaces/${spaceId}/agent/actions/confirmations/${create.body.confirmation.id}/execute`, {
+      token: "owner-token",
+    });
+    assert.equal(execute.status, 409);
+    assert.equal(execute.body.code, "developer_space_agent_execution_action_blocked");
+    assert.equal(execute.body.executionAvailable, false);
+    assert.equal(JSON.stringify(execute.body).includes(create.body.confirmation.id), false);
+    assert.equal(db.tables.developer_space_agent_execution_receipts.length, 0);
+
+    const currentSpaceRow = db.tables.developer_spaces.find((row) => row.id === spaceId);
+    assert.equal(currentSpaceRow?.visualisation_type, originalVisualisationType);
+    assert.deepEqual(currentSpaceRow?.visualisation_config, originalVisualisationConfig);
+    assert.equal(db.tables.developer_space_events.length, 0);
+    assert.equal(db.tables.documents.length, 0);
+    assert.equal(db.tables.ai_trace_sessions.length, 0);
+    assert.equal(db.tables.ai_trace_events.length, 0);
+
+    const ownerExport = await requestJson(app, "GET", `/developer-spaces/${spaceId}/agent/actions/audit-export`, {
+      token: "owner-token",
+    });
+    assert.equal(ownerExport.status, 200);
+    const layoutItem = ownerExport.body.auditExport.items.find((item: Row) => item.action === "update_layout");
+    assert.ok(layoutItem);
+    assert.equal(layoutItem.receiptStatus, "not_executable");
+    assert.equal(layoutItem.executionAvailable, false);
+    assert.equal(layoutItem.mutationAvailable, false);
+    assert.equal(layoutItem.externalDispatch, false);
+    assert.equal(layoutItem.artifact.type, "layout_suggestion");
+    assert.equal(layoutItem.artifact.layoutSuggestion.currentVisualModeLabel, "Node field");
+    assert.equal(layoutItem.artifact.layoutSuggestion.suggestedVisualModeLabel, "Timeline");
+    assert.equal(layoutItem.idempotency.receiptRecorded, false);
+    assert.equal(layoutItem.idempotency.retrySafe, false);
+    assert.equal(layoutItem.boundaries.some((boundary: string) => boundary.includes("No live Developer Space visual config was changed")), true);
+
+    const publicDetail = await requestJson(app, "GET", `/developer-spaces/${slug}`);
+    assert.equal(publicDetail.status, 200);
+    assert.doesNotMatch(
+      JSON.stringify({
+        auditExport: ownerExport.body,
+        publicDetail: publicDetail.body,
+      }),
+      /layout-secret-token|private layout prompt|rawPrompt|11111111-1111-4111-8111-111111111111|confirmationId|previewHash|targetDocumentId/,
+    );
+    assert.doesNotMatch(JSON.stringify(publicDetail.body), /Layout suggestion|Suggested visual mode|No live Developer Space visual config was changed/);
   } finally {
     setSupabaseAdminForTests(null);
   }
@@ -3017,6 +3151,7 @@ test("Developer Space agent audit export is owner-only and minimized across rece
       "save_project_update_draft",
       "publish_to_page",
       "update_observatory",
+      "update_layout",
     ]);
     assert.equal(ownerExport.body.auditExport.items.length, 4);
 

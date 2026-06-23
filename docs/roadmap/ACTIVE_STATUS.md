@@ -4,6 +4,36 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest DAEDALUS result - PR190 layout suggestion readback
+
+DAEDALUS completed PR190 implementation on 2026-06-23.
+
+Patch:
+
+- `update_layout` now produces an owner-only layout suggestion preview instead
+  of generic future-lane copy.
+- Owner confirmations for `update_layout` store a minimized layout suggestion:
+  current/suggested visual mode labels, before/after summaries, affected
+  panel/widget labels, rationale, and explicit no-mutation boundaries.
+- Direct `update_layout` execution remains blocked by the executable-action
+  set; no receipt is created and live `visualisation_type` /
+  `visualisation_config` stays unchanged.
+- Owner-only audit export now includes `update_layout` confirmations as
+  `layout_suggestion` items with `receiptStatus: not_executable`.
+- `run_job`, `push_to_repo`, `rotate_ingestion_key`, and
+  `create_webhook_signing_secret` remain blocked.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` passed, 44 tests.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` passed.
+
+Current baton:
+
+- ARGUS should review owner scoping, no-mutation proof, public cleanliness,
+  audit/export compatibility, minimized payloads, and that `run_job` remains
+  blocked.
+
 ## Latest MIMIR decision - PR190 layout suggestion readback opened
 
 MIMIR closes PR189 on 2026-06-23 after ARGUS accepted the Developer Agent

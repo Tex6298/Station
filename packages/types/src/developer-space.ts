@@ -213,6 +213,10 @@ export type DeveloperSpaceAgentExecutionReceiptAction =
   | "publish_to_page"
   | "update_observatory";
 
+export type DeveloperSpaceAgentAuditExportAction =
+  | DeveloperSpaceAgentExecutionReceiptAction
+  | "update_layout";
+
 export interface DeveloperSpaceAgentActionRegistryEntry {
   action: DeveloperSpaceAgentRegisteredAction;
   label: string;
@@ -317,11 +321,25 @@ export interface DeveloperSpaceAgentExecutionReceiptRecord {
   updatedAt: string;
 }
 
+export interface DeveloperSpaceAgentLayoutSuggestion {
+  currentVisualMode: DeveloperSpaceVisualisationType;
+  currentVisualModeLabel: string;
+  suggestedVisualMode: DeveloperSpaceVisualisationType;
+  suggestedVisualModeLabel: string;
+  beforeSummary: string;
+  afterSummary: string;
+  rationale: string;
+  affectedPanelLabels: string[];
+  affectedWidgetLabels: string[];
+  boundaries: string[];
+}
+
 export type DeveloperSpaceAgentAuditExportArtifactType =
   | "capability_request"
   | "private_draft_document"
   | "published_document"
   | "observatory_status_note"
+  | "layout_suggestion"
   | "none";
 
 export interface DeveloperSpaceAgentAuditExportArtifact {
@@ -333,10 +351,11 @@ export interface DeveloperSpaceAgentAuditExportArtifact {
   role?: DeveloperSpaceDocumentRole | null;
   occurredAt?: string | null;
   publishedAt?: string | null;
+  layoutSuggestion?: DeveloperSpaceAgentLayoutSuggestion;
 }
 
 export interface DeveloperSpaceAgentAuditExportItem {
-  action: DeveloperSpaceAgentExecutionReceiptAction;
+  action: DeveloperSpaceAgentAuditExportAction;
   confirmationStatus: DeveloperSpaceAgentConfirmationStatus;
   requestedAt: string;
   expiresAt: string;
@@ -344,7 +363,7 @@ export interface DeveloperSpaceAgentAuditExportItem {
   cancelledAt?: string | null;
   completedAt?: string | null;
   summary: string;
-  receiptStatus: DeveloperSpaceAgentExecutionReceiptStatus | "missing";
+  receiptStatus: DeveloperSpaceAgentExecutionReceiptStatus | "missing" | "not_executable";
   receiptSummary?: string | null;
   artifact: DeveloperSpaceAgentAuditExportArtifact;
   idempotency: {
@@ -362,7 +381,7 @@ export interface DeveloperSpaceAgentAuditExportItem {
 export interface DeveloperSpaceAgentAuditExport {
   generatedAt: string;
   scope: "owner_developer_space";
-  actions: DeveloperSpaceAgentExecutionReceiptAction[];
+  actions: DeveloperSpaceAgentAuditExportAction[];
   omittedFields: string[];
   retention: {
     source: "developer_space_agent_confirmations_and_receipts";

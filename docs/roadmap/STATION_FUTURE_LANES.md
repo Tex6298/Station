@@ -71,8 +71,8 @@ blocked until rehearsal evidence identifies a concrete, reviewable gap.
 ## Phase 2E Developer Agent production readiness
 
 Status, 2026-06-23: PR188 and PR189 are accepted after Phase 2D closeout and
-the protected-alpha human rehearsal. PR190 is open as the next Phase 2E
-hardening slice.
+the protected-alpha human rehearsal. PR190 has a DAEDALUS implementation
+awaiting ARGUS review.
 
 Phase 2E does not mean every Developer Agent tool is production-ready. It means
 Station now needs a production-readiness classification for every action and a
@@ -96,8 +96,10 @@ Current intended posture:
   audit and receipt export hardening for `request_capability`,
   `save_project_update_draft`, `publish_to_page`, and `update_observatory`.
 - Current Phase 2E implementation slice: `update_layout` suggestion/readback
-  only. Direct layout mutation remains blocked until ARGUS accepts no-mutation,
-  owner-scope, public-cleanliness, audit/export, and minimized-payload proof.
+  only. DAEDALUS implemented minimized owner suggestions and audit-export
+  readback; direct layout mutation remains blocked until ARGUS accepts
+  no-mutation, owner-scope, public-cleanliness, audit/export, and
+  minimized-payload proof.
 
 ## MIMIR decisions after provider/repo questions
 
