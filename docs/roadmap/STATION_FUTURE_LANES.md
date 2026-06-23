@@ -85,9 +85,12 @@ Current intended posture:
 - Owner-confirmed receipt/artifact/public-note paths remain protected-alpha
   only until production audit-log, receipt export, retention/deletion, and
   reconciliation hardening lands.
-- `update_layout`, `push_to_repo`, `run_job`, `rotate_ingestion_key`, and
-  `create_webhook_signing_secret` remain blocked until a specific Phase 2E
+- `update_layout` and `run_job` remain blocked until a specific Phase 2E
   hardening lane proves a safe subset. User approval alone is not sufficient.
+- `push_to_repo`, `rotate_ingestion_key`, and
+  `create_webhook_signing_secret` remain blocked beyond Phase 2E; future
+  planning packets may describe intent, but they must not add repo writes,
+  credential mutation, or secret creation.
 - Recommended first Phase 2E implementation slice: Developer Agent production
   audit and receipt export hardening for `request_capability`,
   `save_project_update_draft`, `publish_to_page`, and `update_observatory`.
