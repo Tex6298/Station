@@ -4,7 +4,48 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest MIMIR decision - PR195 hosted replay evidence refresh opened
+## Latest ARGUS result - PR195 hosted replay evidence refresh
+
+ARGUS completed the non-secret hosted replay evidence refresh on 2026-06-23.
+
+Verdict:
+
+- Hosted replay readiness passes as protected-alpha evidence.
+- Exact next branch: no implementation blocker; next is product demo/human
+  walkthrough.
+- Next owner: ARIADNE.
+
+Reason:
+
+- Public web/API health and deployment readiness are green; the hosted runtime
+  is on the PR194 Continuity readability implementation commit, while the later
+  local/remote commits are docs/status handoff commits rather than runtime
+  fixes.
+
+Validation:
+
+- Local `main` and `fork/main` both resolved to `e2e707e29598`.
+- Public web/API `/health` returned HTTP 200 with `ok:true`.
+- Public web/API `/health/deployment` returned HTTP 200 with `ok:true`,
+  `ready:true`, branch `main`, and service labels for `@station/web` and
+  `@station/api`.
+- API readiness booleans were green for database, migrations, storage/private
+  bucket posture, Supabase auth redirects, Stripe readiness, platform chat, and
+  Gemini `station_free_1536` embeddings; Redis is configured and operational
+  cache reports `upstash_rest`.
+- Public unauthenticated `/observability/replay-readiness` returned HTTP 401,
+  preserving the owner/auth gate.
+- No secret values, raw response bodies, owner IDs, private excerpts, prompts,
+  completions, provider payloads, or production-readiness claims were printed or
+  committed.
+
+Current baton:
+
+- MIMIR should close PR195 and open the ARIADNE-owned product demo/human
+  walkthrough branch, unless MIMIR intentionally wants a fresh deploy sync for
+  docs-only handoff commits first.
+
+## Previous MIMIR decision - PR195 hosted replay evidence refresh opened
 
 MIMIR closes the PR192-PR194 Memory/Continuity UX loop after ARIADNE accepted
 PR194. The current backend/product plan says no generic backend blocker is open;
@@ -24,7 +65,7 @@ Decision:
 
 Current baton:
 
-- ARGUS owns PR195.
+- ARGUS owns PR195 until the ARGUS verdict commit wakes MIMIR.
 
 ## Latest ARIADNE result - PR194 accepted
 

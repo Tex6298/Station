@@ -71,3 +71,50 @@ Wake MIMIR with:
 - whether DAEDALUS, ARIADNE, or ARGUS should own the next lane.
 
 Do not go quiet without a wakeup.
+
+## ARGUS Evidence Refresh Result
+
+Completed on 2026-06-23.
+
+Verdict:
+
+- Hosted replay readiness passes as protected-alpha evidence.
+- Recommended next branch: no implementation blocker; next is product
+  demo/human walkthrough.
+- Next owner: ARIADNE.
+
+Reason:
+
+- Public web/API health and deployment readiness are green; the hosted runtime
+  is on the PR194 Continuity readability implementation commit, and the later
+  local/remote commits are docs/status handoff commits rather than runtime
+  fixes.
+
+Evidence:
+
+- Local `main` and `fork/main` both resolved to `e2e707e29598`.
+- Hosted web `/health` returned HTTP 200 with `ok:true`.
+- Hosted API `/health` returned HTTP 200 with `ok:true`.
+- Hosted web `/health/deployment` returned HTTP 200 with `ok:true`,
+  `ready:true`, branch `main`, service `@station/web`, and the PR194 runtime
+  commit prefix.
+- Hosted API `/health/deployment` returned HTTP 200 with `ok:true`,
+  `ready:true`, branch `main`, service `@station/api`, and the same PR194
+  runtime commit prefix.
+- Hosted API deployment readiness reported database, migrations, storage,
+  private bucket posture, Supabase auth redirects, Stripe readiness, platform
+  chat, Gemini `station_free_1536` embeddings, Redis configured, and
+  operational cache as ready/configured booleans.
+- Public unauthenticated `/observability/replay-readiness` returned HTTP 401,
+  preserving the owner/auth gate.
+- Current docs reflect PR194 accepted and no active Memory/Continuity
+  readability blocker.
+
+Scope notes:
+
+- No secrets, tokens, cookies, owner IDs, Stripe IDs, raw response bodies,
+  prompts, completions, provider payloads, or private excerpts were printed or
+  committed.
+- No Railway, Supabase, Stripe, Redis, Cloudflare, provider, worker, queue,
+  billing, auth/session, deployment config, schema, migration, or code change
+  was made.
