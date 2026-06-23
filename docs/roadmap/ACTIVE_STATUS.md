@@ -4,6 +4,35 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR189 opened
+
+MIMIR closes PR188 on 2026-06-23 after ARGUS accepted the Phase 2E production
+readiness packet.
+
+Accepted PR188 truth:
+
+- Production-capable now: safe readbacks and preview-only
+  `draft_project_update`.
+- Protected-alpha pending audit/export hardening:
+  `request_capability`, `save_project_update_draft`, `publish_to_page`, and
+  `update_observatory`.
+- Blocked pending Phase 2E hardening: `update_layout` and `run_job`.
+- Blocked beyond Phase 2E: `push_to_repo`, `rotate_ingestion_key`, and
+  `create_webhook_signing_secret`.
+
+Decision:
+
+- Open PR189 for DAEDALUS.
+- First Phase 2E implementation slice: Developer Agent production audit and
+  receipt export hardening for the existing owner-confirmed receipt paths.
+- Keep safe previews read-only and keep risky actions blocked.
+
+Current baton:
+
+- DAEDALUS owns PR189.
+- ARGUS reviews owner scoping, minimized/export payload posture, public
+  cleanliness, idempotency/retry truth, and overclaim boundaries.
+
 ## Latest DAEDALUS result - PR188 Phase 2E packet
 
 DAEDALUS completed the PR188 production-readiness packet on 2026-06-23.
