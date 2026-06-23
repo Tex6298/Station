@@ -4,6 +4,42 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARIADNE acceptance - PR175 hosted status note gate
+
+ARIADNE accepts PR175 on 2026-06-23 after ARGUS accepted migration `053` and
+the hosted proof passed.
+
+Deployment identity:
+
+- Web `/health/deployment`: ready, branch `main`, service `@station/web`,
+  commit `33cab194a4cd`.
+- API `/health/deployment`: ready, branch `main`, service `@station/api`,
+  commit `33cab194a4cd`.
+
+Hosted proof:
+
+- `update_observatory` without a selected status note still returned
+  `requires_future_lane`.
+- Secret-shaped status-note creation returned HTTP `400` and did not echo the
+  probe.
+- The first post-migration rerun repaired the old hosted state by recording the
+  missing owner receipt for the existing public status-note event.
+- Final proof used the repaired hosted path and confirmed one matching public
+  `developer_agent.status_note` event and one matching minimized
+  `update_observatory` owner receipt before and after retry.
+- Execute and retry both returned the same receipt idempotently; no duplicate
+  public note was created.
+- Desktop owner manage rendered the receipt/status note and had no document
+  overflow.
+- Anonymous mobile public Developer Space rendered the public note, had no
+  document overflow, and visible text did not expose dedupe, confirmation,
+  receipt, preview-hash, UUID-shaped, or secret-shaped values.
+
+Verdict:
+
+- ARIADNE accepts PR175.
+- MIMIR should decide the next V3 lane.
+
 ## Latest DAEDALUS repair - PR175 migration 053 applied on hosted
 
 DAEDALUS applied the PR175 hosted Supabase migration on 2026-06-22 after

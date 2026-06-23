@@ -52,6 +52,31 @@ pnpm test:developer-spaces
 pnpm test:developer-space-client
 ```
 
+## PR175 Hosted Receipt Recovery Acceptance
+
+ARIADNE hosted proof on 2026-06-23:
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `npx --yes --package @playwright/test@1.41.2 playwright test tmp-pr175-hosted-status-note-proof.spec.js --reporter=line --workers=1` | Pass | 1 hosted test passed. Web/API deployment identities were both `33cab194a4cd`. The final run used the repaired hosted path with one public event and one owner receipt before retry; execute and retry returned idempotently; counts stayed one public `developer_agent.status_note` event and one minimized `update_observatory` receipt. |
+
+ARIADNE acceptance notes:
+
+- The first post-migration rerun reached the approved execution path and
+  repaired the old hosted event-created/no-receipt state by recording the
+  missing owner receipt.
+- The final passing run found that repaired path, retried execution, and proved
+  no duplicate public status note was created.
+- Generic/unselected `update_observatory` remained blocked.
+- Secret-shaped status-note creation returned HTTP `400` and did not echo the
+  probe.
+- Desktop owner manage rendered the receipt/status note without document-level
+  overflow.
+- Anonymous mobile public detail rendered the public note without document-level
+  overflow.
+- Anonymous public visible text did not expose dedupe, confirmation, receipt,
+  preview-hash, UUID-shaped, or secret-shaped values.
+
 ## PR175 Hosted Migration 053 Apply
 
 DAEDALUS hosted schema repair on 2026-06-22:

@@ -7,7 +7,7 @@ Reviewer: ARGUS reviews public-boundary scope, payload minimization,
 idempotency, and overclaim risk.
 Rehearsal: ARIADNE runs hosted desktop/mobile proof if ARGUS accepts visible
 owner/public UI.
-Status: hosted ARIADNE rerun blocked because migration 053 is not applied
+Status: accepted by ARGUS and ARIADNE hosted proof
 
 ## Why This Lane
 
@@ -216,6 +216,41 @@ Scope notes:
 - ARGUS should review the hosted schema proof and ARIADNE should rerun the
   hosted PR175 proof, especially the existing event-created/no-receipt recovery
   retry.
+
+## ARIADNE Hosted Acceptance - 2026-06-23
+
+ARGUS accepted the hosted migration repair and watcher guard. ARIADNE reran the
+hosted proof and accepts PR175.
+
+Deployment identity:
+
+- Web `/health/deployment`: ready on `@station/web` commit `33cab194a4cd`.
+- API `/health/deployment`: ready on `@station/api` commit `33cab194a4cd`.
+
+Hosted proof:
+
+- Generic/unselected `update_observatory` remained blocked with
+  `requires_future_lane`.
+- Secret-shaped status-note creation returned HTTP `400` and did not echo the
+  submitted probe.
+- The first post-migration rerun reached the approved execution path and
+  recorded the missing owner receipt for the existing public event.
+- Final passing rerun found the repaired hosted path with one public
+  `developer_agent.status_note` event and one matching `update_observatory`
+  owner receipt.
+- Repeating execution returned the existing receipt idempotently.
+- Public event count stayed `1`; matching owner receipt count stayed `1`.
+- Desktop owner manage rendered the receipt/status note without document-level
+  overflow.
+- Anonymous mobile public detail rendered the public status note without
+  document-level overflow.
+- Anonymous public visible text did not expose dedupe, confirmation, receipt,
+  preview-hash, UUID-shaped, or secret-shaped values.
+
+Verdict:
+
+- Accepted.
+- Wake MIMIR to close PR175 and decide the next V3 lane.
 
 ## Expected Behavior
 
