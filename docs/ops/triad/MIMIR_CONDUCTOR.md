@@ -39,29 +39,31 @@ bodies containing the header above.
   responder.
 - After issuing a wakeup, MIMIR returns to foreground watch for `WAKEUP A1:`
   unless the lane is explicitly waiting on Marty.
-- MIMIR may intentionally close a lane with an accepted pause. In that state,
-  `ACTIVE_STATUS.md` must say the current baton is paused until fresh evidence,
-  and the next action is foreground watch rather than another agent wakeup.
+- MIMIR may intentionally decide that a wake should not open a new teammate
+  baton. That is a reasoned ignore, not a sleep default: MIMIR must first check
+  current repo state, recent wakeups, active roadmap truth, and the mission
+  direction, then record or speak the reason if the wake changes nothing.
 
-## Accepted Pause / Timer Rule
+## Timer Wake / Reasoned Ignore Rule
 
-An accepted pause is not a stuck backend flow. Treat the workflow as healthy
-idle when the latest source-of-truth status says there is no active
-implementation/review/rehearsal baton, names the reason for pausing, and says
-MIMIR is in foreground watch.
+Timer wakeups are planning signals. They should reach MIMIR, and MIMIR should
+use judgement rather than suppressing them.
 
-External timer/monitor jobs should not create `wake: restart backend flow`
-commits during an accepted pause. They should only wake MIMIR when at least one
-of these is true:
+On a timer wake, MIMIR checks:
 
-- a new non-wakeup commit lands after the pause and needs owner selection;
-- a `WAKEUP A1:` commit has not been answered by MIMIR;
-- a downstream agent is assigned a baton but has not answered it;
-- Marty explicitly asks to resume or names a new lane;
-- fresh hosted demo/product evidence records a concrete defect.
+- new commits since the last MIMIR decision;
+- unanswered downstream batons;
+- whether the latest `ACTIVE_STATUS.md` truth is stale, too passive, or missing
+  a mission-advancing next lane;
+- whether fresh hosted/product evidence, user instruction, or roadmap drift
+  justifies waking DAEDALUS, ARGUS, or ARIADNE.
 
-If none of those conditions is true, the correct action is no commit: let MIMIR
-continue foreground watch.
+Ignoring a timer wake is allowed only as an explicit decision after that check.
+The reason should be concrete, for example "no new commits, no unanswered
+batons, current roadmap says no backend lane, next useful action is waiting for
+fresh product evidence." If the reason is merely "nothing is active," MIMIR
+should think harder about the mission and either open a planning/recon lane or
+ask for the missing decision.
 
 ## Handoff Shape
 

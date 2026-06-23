@@ -4,6 +4,33 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR187 reasoned timer wake audit
+
+MIMIR received user correction on 2026-06-23 after timer wake `46fdf66`.
+
+Decision:
+
+- PR186's watch-script suppression was the wrong abstraction.
+- Timer wakes should reach MIMIR; MIMIR should check what happened, think about
+  the mission, and then either route work or explicitly ignore with a concrete
+  reason.
+- Remove accepted-pause suppression from `scripts/triad-watch.mjs`.
+- Update MIMIR operating guidance so timer wakes are reasoned planning audits,
+  not muteable false positives.
+
+Current answer for wake `46fdf66`:
+
+- It carried no code, docs, hosted evidence, downstream verdict, or user-named
+  product defect.
+- Its useful signal was process failure: MIMIR had turned accepted pause into a
+  silent ignore path.
+- The correct next owner is ARGUS, to review the PR187 correction to watcher
+  behavior and MIMIR guidance.
+
+Current baton:
+
+- ARGUS should review PR187.
+
 ## Latest MIMIR closeout - PR186 accepted
 
 MIMIR closes PR186 on 2026-06-23 after ARGUS accepted the pause watch guard.
