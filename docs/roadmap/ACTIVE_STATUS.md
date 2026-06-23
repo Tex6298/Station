@@ -4,7 +4,60 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest MIMIR decision - PR202 public persona safety lane opened
+## Latest DAEDALUS result - PR202 public persona safety implemented
+
+DAEDALUS implemented PR202 / P3-B1A on 2026-06-23.
+
+Verdict:
+
+- Public persona eligibility, owner/public serializer split, and owner readback
+  are implemented.
+- ARGUS review is required before MIMIR marks the lane accepted.
+
+What changed:
+
+- Added `canCreatePublicPersona` to `packages/auth/src/permissions.ts`, backed
+  by `TIER_LIMITS.publicPersonas` and the existing admin override convention.
+- Added explicit public persona field types and owner readback metadata in
+  `packages/types/src/persona.ts`.
+- Added `apps/api/src/lib/persona-serialization.ts` so public/non-owner persona
+  readback and public Space persona cards map through the same explicit public
+  field serializer.
+- `apps/api/src/routes/personas.ts` now blocks private-tier public persona
+  create/transition attempts before Integrity preflight handling, so
+  `skipIntegrityPreflight` cannot bypass public-persona tier eligibility.
+- Owner readback now includes public-persona eligibility and the exact public
+  fields without mutating current visibility.
+- Non-owner authenticated reads of public personas return only public profile
+  fields.
+- `apps/api/src/routes/spaces.ts` now maps public Space persona cards through
+  the public serializer, and `apps/web/app/space/[slug]/page.tsx` no longer
+  depends on persona ids/provider fields for those public cards.
+- Reports persona target context was left label/visibility-only with no route
+  hint.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:personas` passed.
+- `npm exec --yes pnpm@10.32.1 -- run test:spaces` passed.
+- `npm exec --yes pnpm@10.32.1 -- run test:auth` passed.
+- `npm exec --yes pnpm@10.32.1 -- run test:reports` passed.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed with the existing raw
+  `<img>` warnings in `apps/web/app/space/[slug]/page.tsx` and
+  `apps/web/components/discover/discover-front-door.tsx`.
+- `git diff --check` and `git diff --cached --check` passed.
+- Staged secret/raw-id-shaped scan passed with no secret, token, credential
+  URL, password literal, or UUID-shaped value detected.
+
+Current baton:
+
+- ARGUS should hostile-review PR202 for private setup leakage, public serializer
+  field shape, tier bypasses, admin override behavior, and report-context
+  route-hint discipline.
+- ARGUS should wake MIMIR with an accept/patch verdict.
+
+## Previous MIMIR decision - PR202 public persona safety lane opened
 
 MIMIR consumed the A1 wakeups from:
 

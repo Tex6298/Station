@@ -33,12 +33,10 @@ interface Document {
 }
 
 interface Persona {
-  id: string;
   name: string;
-  short_description: string | null;
+  shortDescription: string | null;
   visibility: string;
-  provider?: string | null;
-  avatar_url?: string | null;
+  avatarUrl?: string | null;
 }
 
 interface Owner {
@@ -285,12 +283,12 @@ function PersonaGrid({ personas, hasDocuments }: { personas: Persona[]; hasDocum
 
   return (
     <div className="space-persona-grid">
-      {personas.map((persona) => (
-        <article key={persona.id} className="space-persona-card">
-          <IdentityMark title={persona.name} imageUrl={persona.avatar_url ?? null} />
+      {personas.map((persona, index) => (
+        <article key={`${persona.name}-${index}`} className="space-persona-card">
+          <IdentityMark title={persona.name} imageUrl={persona.avatarUrl ?? null} />
           <div>
             <h3>{persona.name}</h3>
-            {persona.short_description && <p>{persona.short_description}</p>}
+            {persona.shortDescription && <p>{persona.shortDescription}</p>}
           </div>
         </article>
       ))}

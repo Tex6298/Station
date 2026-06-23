@@ -6,6 +6,7 @@ import express, { type Express } from "express";
 import {
   canCreateDeveloperSpace,
   canCreatePersona,
+  canCreatePublicPersona,
   canCreateSpace,
   canCreateThread,
   canPublishDocuments,
@@ -375,6 +376,9 @@ test("tier and admin permission helpers use normalized AuthUser shape", () => {
   assert.equal(hasTier(creator, "creator"), true);
   assert.equal(canCreatePersona(visitor, 0), false);
   assert.equal(canCreatePersona(creator, 250), true);
+  assert.equal(canCreatePublicPersona(visitor, 0), false);
+  assert.equal(canCreatePublicPersona({ id: "private", tier: "private", email: "private@example.test" }, 0), false);
+  assert.equal(canCreatePublicPersona(creator, 250), true);
   assert.equal(canCreateSpace(creator, 0), true);
   assert.equal(canCreateSpace(creator, 1), false);
   assert.equal(canCreateDeveloperSpace(creator, 0), false);
@@ -384,5 +388,6 @@ test("tier and admin permission helpers use normalized AuthUser shape", () => {
   assert.equal(canCreateThread(creator), true);
   assert.equal(canPublishDocuments(creator), true);
   assert.equal(canCreateSpace(admin, 999), true);
+  assert.equal(canCreatePublicPersona(admin, 999), true);
   assert.equal(canCreateDeveloperSpace(admin, 999), true);
 });

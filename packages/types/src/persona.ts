@@ -12,12 +12,37 @@ export interface PersonaSummary {
   createdAt?: string;
 }
 
+export interface PersonaPublicFields {
+  name: string;
+  shortDescription?: string | null;
+  visibility: PersonaVisibility;
+  avatarUrl?: string | null;
+}
+
+export interface PublicPersonaProfile extends Omit<PersonaPublicFields, "visibility"> {
+  visibility: "public";
+}
+
+export interface PublicPersonaEligibility {
+  eligible: boolean;
+  limit: number;
+  used: number;
+  remaining: number | null;
+  blockers: string[];
+}
+
+export interface PersonaPublicReadback {
+  eligibility: PublicPersonaEligibility;
+  publicFields: PersonaPublicFields;
+}
+
 export interface Persona extends PersonaSummary {
   ownerUserId: string;
   longDescription?: string | null;
   awakeningPrompt?: string | null;
   styleNotes?: string | null;
   updatedAt?: string;
+  publicReadback?: PersonaPublicReadback;
 }
 
 export type PersonaLayerKey = "soul" | "body" | "faculty" | "skill" | "evolution";

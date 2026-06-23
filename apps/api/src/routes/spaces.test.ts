@@ -339,6 +339,10 @@ test("Public Spaces smoke covers authored microsite config and owner/private vis
       name: "Public Persona",
       short_description: "Readable public collaborator.",
       visibility: "public",
+      provider: "openai",
+      long_description: "Owner-only setup material.",
+      awakening_prompt: "Owner-only awakening prompt.",
+      style_notes: "Owner-only style notes.",
     });
     db.insertRow("personas", {
       owner_user_id: "owner-user",
@@ -353,6 +357,18 @@ test("Public Spaces smoke covers authored microsite config and owner/private vis
     assert.equal(publicDetail.body.space.presentation.theme, "garden");
     assert.deepEqual(publicDetail.body.documents.map((doc: Row) => doc.title), ["Published Essay"]);
     assert.deepEqual(publicDetail.body.personas.map((persona: Row) => persona.name), ["Public Persona"]);
+    assert.deepEqual(publicDetail.body.personas, [{
+      name: "Public Persona",
+      shortDescription: "Readable public collaborator.",
+      visibility: "public",
+      avatarUrl: null,
+    }]);
+    const publicPersonasJson = JSON.stringify(publicDetail.body.personas);
+    assert.equal(publicPersonasJson.includes("owner-user"), false);
+    assert.equal(publicPersonasJson.includes("provider"), false);
+    assert.equal(publicPersonasJson.includes("long_description"), false);
+    assert.equal(publicPersonasJson.includes("awakening_prompt"), false);
+    assert.equal(publicPersonasJson.includes("style_notes"), false);
     assert.equal(publicDetail.body.pages.some((page: Row) => page.slug === "about"), false);
 
     const visitorManage = await requestJson(app, "GET", "/spaces/mirror-archive/manage");

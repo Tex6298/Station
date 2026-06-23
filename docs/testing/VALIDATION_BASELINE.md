@@ -38,6 +38,7 @@ pnpm test:cache
 pnpm test:jobs
 pnpm test:health
 pnpm test:reports
+pnpm test:personas
 pnpm test:community
 pnpm test:spaces
 pnpm test:continuity
@@ -51,6 +52,31 @@ pnpm test:exports
 pnpm test:developer-spaces
 pnpm test:developer-space-client
 ```
+
+## PR202 Public Persona Eligibility And Serializer Split
+
+DAEDALUS implementation validation on 2026-06-23:
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:personas` | Pass | 4 tests passed. New coverage proves private-tier public persona create/transition blocking, `skipIntegrityPreflight` cannot bypass public-persona eligibility, creator/canon/institutional/admin-private eligible creation, owner public-readback metadata, and public/non-owner serializer omission of owner/setup/provider fields. |
+| `npm exec --yes pnpm@10.32.1 -- run test:spaces` | Pass | Public Space smoke remains green and now proves public persona cards are mapped through the public serializer rather than returning owner-shaped rows. |
+| `npm exec --yes pnpm@10.32.1 -- run test:auth` | Pass | 16 tests passed. Shared permission helper coverage now includes `canCreatePublicPersona`. |
+| `npm exec --yes pnpm@10.32.1 -- run test:reports` | Pass | 6 tests passed. Persona report target context remains label/visibility-only with no public route hint, and reporter-owned readback remains target-context-free. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | Turbo typecheck passed for API and web packages. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass with existing warnings | Existing raw `<img>` warnings remain in `apps/web/app/space/[slug]/page.tsx` and `apps/web/components/discover/discover-front-door.tsx`. |
+| `git diff --check` | Pass | No whitespace errors. |
+| `git diff --cached --check` | Pass | No staged whitespace errors. |
+| Staged secret/raw-id-shaped scan | Pass | No staged secret, token, credential URL, password literal, or UUID-shaped value detected. |
+
+Scope notes:
+
+- Added a focused `test:personas` script to the baseline command list.
+- No public persona page, visitor chat, provider call, embedding/cache/worker
+  architecture, billing/Stripe, analytics, moderation action, or broad UI work
+  was added.
+- ARGUS should review the public serializer and tier-bypass boundaries before
+  MIMIR marks PR202 accepted.
 
 ## PR200 UX-01A Studio Workbench Visible Review
 

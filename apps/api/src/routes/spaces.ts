@@ -10,6 +10,7 @@ import type { DocumentVisibility } from "@station/db";
 import { optionalAuth, requireAuth, type AuthenticatedUser } from "../middleware/require-auth";
 import { requireTier } from "../middleware/require-tier";
 import { getSupabaseAdmin } from "../lib/supabase";
+import { serializePublicPersona } from "../lib/persona-serialization";
 import { canCreateSpace } from "@station/auth/permissions";
 import type { AuthUser } from "@station/types";
 
@@ -128,7 +129,7 @@ spacesRouter.get("/:slug", optionalAuth, async (req, res) => {
     )),
     sb
       .from("personas")
-      .select("id, name, short_description, visibility, provider, avatar_url")
+      .select("name, short_description, visibility, avatar_url")
       .eq("owner_user_id", space.owner_user_id)
       .eq("visibility", "public"),
   ]);
@@ -148,7 +149,7 @@ spacesRouter.get("/:slug", optionalAuth, async (req, res) => {
       .flatMap((result) => result.data ?? [])
       .sort((a, b) => new Date(b.published_at ?? b.created_at ?? 0).getTime() - new Date(a.published_at ?? a.created_at ?? 0).getTime())
       .slice(0, 20),
-    personas: personas ?? [],
+    personas: (personas ?? []).map(serializePublicPersona),
     owner,
   });
 });

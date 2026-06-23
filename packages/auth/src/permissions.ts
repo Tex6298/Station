@@ -30,6 +30,12 @@ export function canCreatePersona(user: AuthUser | null, existingPersonaCount: nu
   return withinLimit(tierLimits(user).personas, existingPersonaCount);
 }
 
+export function canCreatePublicPersona(user: AuthUser | null, existingPublicPersonaCount: number): boolean {
+  if (!user) return false;
+  if (isAdmin(user)) return true;
+  return withinLimit(tierLimits(user).publicPersonas, existingPublicPersonaCount);
+}
+
 export function canCreateSpace(user: AuthUser | null, existingSpaceCount: number): boolean {
   if (!user) return false;
   if (isAdmin(user)) return true;

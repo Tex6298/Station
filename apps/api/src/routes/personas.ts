@@ -1,10 +1,11 @@
-import { Router } from "express";
+import { Router, type Response } from "express";
 import { z } from "zod";
-import { requireAuth } from "../middleware/require-auth";
+import { requireAuth, type AuthenticatedUser } from "../middleware/require-auth";
 import { requireTier } from "../middleware/require-tier";
 import { getSupabaseAdmin } from "../lib/supabase";
-import { canCreatePersona } from "@station/auth/permissions";
-import type { AuthUser } from "@station/types";
+import { serializePersonaPublicFields, serializePublicPersona } from "../lib/persona-serialization";
+import { canCreatePersona, canCreatePublicPersona, tierLimits } from "@station/auth/permissions";
+import type { AuthUser, PublicPersonaEligibility } from "@station/types";
 import {
   createPersonaHandoff,
   ensurePersonaLayerProfile,
@@ -53,10 +54,10 @@ const handoffSchema = z.object({
 export const personasRouter = Router();
 personasRouter.use(requireAuth);
 
-function serializePersona(row: any, continuity?: any) {
+function serializePersona(row: any, continuity?: any, publicEligibility?: PublicPersonaEligibility) {
   if (!row) return row;
 
-  return {
+  const persona: Record<string, unknown> = {
     id: row.id,
     ownerUserId: row.owner_user_id,
     name: row.name,
@@ -72,6 +73,70 @@ function serializePersona(row: any, continuity?: any) {
     updatedAt: row.updated_at,
     continuity,
   };
+
+  if (publicEligibility) {
+    persona.publicReadback = {
+      eligibility: publicEligibility,
+      publicFields: serializePersonaPublicFields(row),
+    };
+  }
+
+  return persona;
+}
+
+function toAuthUser(user: AuthenticatedUser): AuthUser {
+  return {
+    id: user.id,
+    tier: user.tier,
+    isAdmin: user.isAdmin,
+    email: user.email,
+  };
+}
+
+function publicPersonaEligibility(
+  user: AuthUser,
+  existingPublicPersonaCount: number
+): PublicPersonaEligibility {
+  const limit = user.isAdmin ? -1 : tierLimits(user).publicPersonas;
+  const eligible = canCreatePublicPersona(user, existingPublicPersonaCount);
+  const blockers: string[] = [];
+
+  if (!eligible && limit === 0) {
+    blockers.push("public_personas_not_available_for_tier");
+  } else if (!eligible) {
+    blockers.push("public_persona_limit_reached");
+  }
+
+  return {
+    eligible,
+    limit,
+    used: existingPublicPersonaCount,
+    remaining: limit < 0 ? null : Math.max(0, limit - existingPublicPersonaCount),
+    blockers,
+  };
+}
+
+async function loadPublicPersonaEligibility(ownerUserId: string, user: AuthUser) {
+  const sb = getSupabaseAdmin();
+  const { count } = await sb
+    .from("personas")
+    .select("id", { count: "exact", head: true })
+    .eq("owner_user_id", ownerUserId)
+    .eq("visibility", "public");
+
+  return publicPersonaEligibility(user, count ?? 0);
+}
+
+async function assertPublicPersonaAllowed(res: Response, ownerUserId: string, user: AuthUser) {
+  const eligibility = await loadPublicPersonaEligibility(ownerUserId, user);
+  if (!eligibility.eligible) {
+    res.status(403).json({
+      error: "Your tier does not allow public personas.",
+      publicPersonaEligibility: eligibility,
+    });
+    return null;
+  }
+  return eligibility;
 }
 
 function serializeLayerProfile(row: any) {
@@ -225,8 +290,16 @@ personasRouter.get("/:id", async (req, res) => {
     return res.status(403).json({ error: "Not authorised." });
   }
 
-  const continuity = isOwner ? await loadContinuitySummary(data.id, req.user!.id) : null;
-  return res.json({ persona: serializePersona(data, continuity) });
+  if (!isOwner) {
+    return res.json({ persona: serializePublicPersona(data) });
+  }
+
+  const authUser = toAuthUser(req.user!);
+  const [continuity, publicEligibility] = await Promise.all([
+    loadContinuitySummary(data.id, req.user!.id),
+    loadPublicPersonaEligibility(req.user!.id, authUser),
+  ]);
+  return res.json({ persona: serializePersona(data, continuity, publicEligibility) });
 });
 
 // -- Persona layer architecture, lifecycle, and handoffs ----------------------
@@ -338,6 +411,11 @@ personasRouter.post("/", requireTier("private"), async (req, res) => {
     });
   }
 
+  if (parsed.data.visibility === "public") {
+    const publicEligibility = await assertPublicPersonaAllowed(res, userId, authUser);
+    if (!publicEligibility) return;
+  }
+
   const { data, error } = await sb
     .from("personas")
     .insert({
@@ -368,7 +446,8 @@ personasRouter.post("/", requireTier("private"), async (req, res) => {
     personaId: data.id,
     resourceId: data.id,
   }).catch(() => undefined);
-  return res.status(201).json({ persona: serializePersona(data) });
+  const publicEligibility = await loadPublicPersonaEligibility(userId, authUser);
+  return res.status(201).json({ persona: serializePersona(data, undefined, publicEligibility) });
 });
 
 // -- Update a persona ----------------------------------------------------------
@@ -386,6 +465,15 @@ personasRouter.patch("/:id", async (req, res) => {
 
   if (!existing || existing.owner_user_id !== req.user!.id) {
     return res.status(404).json({ error: "Persona not found." });
+  }
+
+  const authUser = toAuthUser(req.user!);
+  if (
+    parsed.data.visibility === "public" &&
+    existing.visibility !== "public"
+  ) {
+    const publicEligibility = await assertPublicPersonaAllowed(res, req.user!.id, authUser);
+    if (!publicEligibility) return;
   }
 
   if (
@@ -435,7 +523,8 @@ personasRouter.patch("/:id", async (req, res) => {
     personaId: data.id,
     resourceId: data.id,
   }).catch(() => undefined);
-  return res.json({ persona: serializePersona(data) });
+  const publicEligibility = await loadPublicPersonaEligibility(req.user!.id, authUser);
+  return res.json({ persona: serializePersona(data, undefined, publicEligibility) });
 });
 
 // -- Delete a persona ----------------------------------------------------------

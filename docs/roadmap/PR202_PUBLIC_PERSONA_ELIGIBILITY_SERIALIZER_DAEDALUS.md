@@ -4,7 +4,7 @@ Date opened: 2026-06-23
 Opened by: A1 / MIMIR
 Owner: DAEDALUS
 Reviewer: ARGUS after implementation
-Status: open
+Status: implemented; ARGUS review pending
 
 ## Why This Lane
 
@@ -172,3 +172,53 @@ Task:
 
 If blocked before implementation, wake MIMIR with the exact blocker and no
 silent sleep.
+
+## DAEDALUS Implementation Result
+
+Implemented on 2026-06-23.
+
+What landed:
+
+- `packages/auth/src/permissions.ts` now exports `canCreatePublicPersona`,
+  using `TIER_LIMITS.publicPersonas` and the existing admin override
+  convention.
+- `packages/types/src/persona.ts` now has explicit public persona field,
+  eligibility, and owner readback types.
+- `apps/api/src/lib/persona-serialization.ts` centralizes the public persona
+  serializer used by `/personas/:id` non-owner readback and public Space
+  persona cards.
+- `apps/api/src/routes/personas.ts` blocks public persona create/transition
+  attempts when public-persona eligibility fails. The check runs before
+  Integrity preflight handling, so `skipIntegrityPreflight` cannot bypass tier
+  eligibility.
+- Owner persona readback includes public-persona eligibility and exact public
+  fields without changing current visibility.
+- Non-owner authenticated reads of public personas return only public profile
+  fields: `name`, `shortDescription`, `visibility`, and `avatarUrl`.
+- `apps/api/src/routes/spaces.ts` maps public Space persona cards through the
+  same public serializer, and the public Space page no longer depends on
+  persona ids/provider fields for those cards.
+- Reports persona target context remains label/visibility-only with no public
+  route hint.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:personas` - pass.
+- `npm exec --yes pnpm@10.32.1 -- run test:spaces` - pass.
+- `npm exec --yes pnpm@10.32.1 -- run test:auth` - pass.
+- `npm exec --yes pnpm@10.32.1 -- run test:reports` - pass.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` - pass.
+- `npm exec --yes pnpm@10.32.1 -- run lint` - pass with existing raw `<img>`
+  warnings in `apps/web/app/space/[slug]/page.tsx` and
+  `apps/web/components/discover/discover-front-door.tsx`.
+- `git diff --check` - pass.
+- `git diff --cached --check` - pass.
+- Staged secret/raw-id-shaped scan - pass; no staged secret, token, credential
+  URL, password literal, or UUID-shaped value detected.
+
+Review request for ARGUS:
+
+- Hostile-review the public/non-owner persona shape and public Space persona
+  cards for private setup leakage.
+- Check public persona eligibility for tier/admin bypass mistakes.
+- Confirm reports stayed label/visibility-only with no public route hint.
