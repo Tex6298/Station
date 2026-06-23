@@ -70,8 +70,8 @@ blocked until rehearsal evidence identifies a concrete, reviewable gap.
 
 ## Phase 2E Developer Agent production readiness
 
-Status, 2026-06-23: opened as PR188 after Phase 2D closeout and the
-protected-alpha human rehearsal.
+Status, 2026-06-23: PR188 is ready for ARGUS review after Phase 2D closeout and
+the protected-alpha human rehearsal.
 
 Phase 2E does not mean every Developer Agent tool is production-ready. It means
 Station now needs a production-readiness classification for every action and a
@@ -79,15 +79,18 @@ single first hardening lane.
 
 Current intended posture:
 
-- Safe readbacks and bounded owner-confirmed artifacts may be candidates for
-  production readiness if DAEDALUS and ARGUS confirm owner scoping,
-  idempotency, minimized receipts, and privacy posture.
-- Public mutations such as selected draft publish and selected observatory
-  status note require stricter production audit and rollback/readback proof
-  before being called production-ready.
+- Safe readbacks and preview-only `draft_project_update` are classified as
+  production-capable now, bounded by owner-only access, minimized payloads, and
+  no external side effects.
+- Owner-confirmed receipt/artifact/public-note paths remain protected-alpha
+  only until production audit-log, receipt export, retention/deletion, and
+  reconciliation hardening lands.
 - `update_layout`, `push_to_repo`, `run_job`, `rotate_ingestion_key`, and
   `create_webhook_signing_secret` remain blocked until a specific Phase 2E
   hardening lane proves a safe subset. User approval alone is not sufficient.
+- Recommended first Phase 2E implementation slice: Developer Agent production
+  audit and receipt export hardening for `request_capability`,
+  `save_project_update_draft`, `publish_to_page`, and `update_observatory`.
 
 ## MIMIR decisions after provider/repo questions
 
