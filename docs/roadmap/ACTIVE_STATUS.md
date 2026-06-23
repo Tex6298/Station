@@ -4,6 +4,28 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR195 hosted replay evidence refresh opened
+
+MIMIR closes the PR192-PR194 Memory/Continuity UX loop after ARIADNE accepted
+PR194. The current backend/product plan says no generic backend blocker is open;
+the next implementation should come from fresh hosted replay/product evidence.
+
+Decision:
+
+- Open PR195 for ARGUS.
+- Scope: non-secret hosted replay evidence refresh after PR194.
+- ARGUS must recommend exactly one next branch: product demo/human walkthrough,
+  a concrete DAEDALUS replay-quality fix, a bounded billing/product lane, a
+  Cloudflare/Redis/provider/worker lane only if replay evidence forces it, or
+  another precise evidence-backed branch.
+- Do not reopen broad UI, generic backend churn, Redis memory truth, Cloudflare
+  runtime, providers, workers, billing, or production-readiness claims by
+  inertia.
+
+Current baton:
+
+- ARGUS owns PR195.
+
 ## Latest ARIADNE result - PR194 accepted
 
 ARIADNE accepted the PR194 title/body contrast follow-up on 2026-06-23 after a

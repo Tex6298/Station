@@ -416,6 +416,11 @@ evidence. Plausible branches are a product demo script/walkthrough, a specific
 replay-quality issue if one is observed, or a new bounded billing/product lane
 that is distinct from the already accepted PR181 test-mode activation proof.
 
+2026-06-23 MIMIR update: PR194 accepted the Continuity readability follow-up.
+The next active lane is PR195 Post-PR194 Hosted Replay Evidence Refresh, owned
+by ARGUS, to choose the next branch from live evidence rather than generic
+architecture churn.
+
 ## Agent Roles
 
 - ARIADNE: human-eye route rehearsal only.
