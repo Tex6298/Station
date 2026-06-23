@@ -4,6 +4,50 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARIADNE result - PR197 demo runbook ready
+
+ARIADNE completed PR197 on 2026-06-23.
+
+Verdict:
+
+- Ready for a prepared Marty-facing protected-alpha demo script.
+- No concrete DAEDALUS route/control blocker was found.
+- No ARGUS privacy, visibility, entitlement, auth, billing, or overclaim risk
+  was found.
+
+Must-say sentence:
+
+> This is a protected-alpha replay: public surfaces show public-safe story,
+> private Studio continuity and archive stay owner-only, Billing is test-mode
+> entitlement readback, and Export is per-persona bundle readback.
+
+Runbook truth:
+
+- The refreshed operator pack matches PR196 route truth.
+- Continuity is framed as a first-class owner/private persona stop.
+- Billing and Export caveats are easy to say without sounding evasive, but they
+  must stay in the spoken path.
+- Public discovery remains public/community-visible only; private Studio,
+  archive, memory, canon, imports, and continuity stay behind sign-in.
+- Redis/Upstash and Cloudflare stay inside their accepted cache/future-adapter
+  boundaries.
+- Dense owner-side Memory, Archive, and Developer Space manage surfaces are
+  manageable with guided narration rather than a new implementation lane.
+
+Validation/probes:
+
+- Read `docs/roadmap/PR197_PRODUCT_DEMO_RUNBOOK_REFRESH_ARIADNE.md`.
+- Read `docs/roadmap/PR39_PROTECTED_ALPHA_DEMO_RUNBOOK_ARIADNE.md`.
+- Checked app route structure for `/studio/assistant`,
+  `/studio/personas/:personaId/calibration`, `/studio/archive`,
+  `/studio/export`, `/developer-spaces/:slug/manage`, `/billing`, and
+  `/settings`.
+
+Current baton:
+
+- MIMIR should close PR197 and either run the prepared demo or choose the next
+  branch. No implementation lane is justified by PR197.
+
 ## Latest MIMIR decision - PR197 product demo runbook refresh opened
 
 MIMIR closes PR196 after ARIADNE's hosted product demo walkthrough passed for

@@ -5,7 +5,7 @@ Opened by: A1 / MIMIR
 Owner: MIMIR refreshes the runbook truth; ARIADNE reviews the human-eye script
 Reviewer: ARIADNE first; ARGUS only for overclaim, privacy, visibility,
 entitlement, auth, or billing-risk wording
-Status: open
+Status: complete
 
 ## Why This Lane
 
@@ -96,3 +96,47 @@ Wake MIMIR with:
 - validation/probes run.
 
 Do not go quiet without a wakeup.
+
+## ARIADNE Result - 2026-06-23
+
+Verdict: ready for a prepared Marty-facing protected-alpha demo script.
+
+The refreshed operator pack matches PR196 route truth and keeps the demo from
+sliding into generic SaaS language. It leads with private continuity,
+authorship, archive trust, public story surfaces, community discussion, and live
+Developer Space observatories. Billing, Export, Redis, Cloudflare, public
+search, Continuity, Station Assistant, Spaces, and Developer Spaces are all
+bounded in the script.
+
+Sentence that must be spoken aloud:
+
+> This is a protected-alpha replay: public surfaces show public-safe story,
+> private Studio continuity and archive stay owner-only, Billing is test-mode
+> entitlement readback, and Export is per-persona bundle readback.
+
+Top script/narration gap:
+
+- No blocking gap. The operator must keep the Billing and Export caveats in the
+  spoken path, not leave them buried in the caveats section.
+
+Top UX friction that cannot be solved by narration:
+
+- None. The PR196 dense owner-side Memory, Archive, and Developer Space manage
+  surfaces are handled by guided narration in the runbook.
+
+Concrete blockers:
+
+- None found.
+- No DAEDALUS handoff is required from PR197.
+- No ARGUS handoff is required from PR197.
+
+Validation/probes:
+
+- Read `docs/roadmap/PR197_PRODUCT_DEMO_RUNBOOK_REFRESH_ARIADNE.md`.
+- Read `docs/roadmap/PR39_PROTECTED_ALPHA_DEMO_RUNBOOK_ARIADNE.md`.
+- Checked app route structure for `/studio/assistant`,
+  `/studio/personas/:personaId/calibration`, `/studio/archive`,
+  `/studio/export`, `/developer-spaces/:slug/manage`, `/billing`, and
+  `/settings`.
+- No app code, schema, migration, deploy, provider, Stripe, Redis, Cloudflare,
+  worker, queue, billing, auth/session, or configuration flow was changed.

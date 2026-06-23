@@ -52,6 +52,26 @@ pnpm test:developer-spaces
 pnpm test:developer-space-client
 ```
 
+## PR197 Product Demo Runbook Review
+
+ARIADNE script review on 2026-06-23:
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Runbook human-eye review | Pass | `docs/roadmap/PR39_PROTECTED_ALPHA_DEMO_RUNBOOK_ARIADNE.md` matches PR196 route truth and stays inside protected-alpha caveats. |
+| Required spoken caveats | Pass | Billing is framed as Stripe test-mode entitlement readback, and Export is framed as per-persona JSON/Markdown bundle readback rather than full workspace export. |
+| Public/private boundary | Pass | Public discovery remains public/community-visible only; private Studio, archive, memory, canon, imports, and continuity stay owner-only. |
+| Route structure spot check | Pass | App route structure includes Assistant, Integrity, Archive, Export, Developer Space manage, Billing, and Settings paths named by the runbook. |
+| DAEDALUS/ARGUS need | Pass | No route/control blocker and no privacy, visibility, entitlement, auth, billing, or overclaim risk was found. |
+
+Scope notes:
+
+- No product code changed during ARIADNE's review.
+- No data mutation, Stripe, provider, Redis, Cloudflare, worker, migration,
+  deploy, billing, key, repo, import, export, or configuration flow was run.
+- PR197 is accepted as ready for a prepared Marty-facing protected-alpha demo
+  script.
+
 ## PR196 Product Demo Human Walkthrough
 
 ARIADNE hosted walkthrough on 2026-06-23:
