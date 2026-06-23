@@ -171,7 +171,7 @@ export function ContinuityTimeline({ personaId, personaName, onRecordCreated }: 
     <section className="studio-timeline-layout">
       <div className="studio-timeline-main">
         <div className="studio-section-heading">
-          <div className="section-label">Continuity Timeline</div>
+          <div className="section-label">Continuity</div>
           <h2>{personaName} across sources</h2>
         </div>
 
@@ -205,7 +205,7 @@ export function ContinuityTimeline({ personaId, personaName, onRecordCreated }: 
 
       <form className="studio-timeline-form" onSubmit={createRecord}>
         <div className="studio-section-heading">
-          <div className="section-label">Timeline Marker</div>
+          <div className="section-label">Continuity Marker</div>
           <h2>Capture a source link</h2>
         </div>
 

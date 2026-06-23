@@ -57,7 +57,7 @@ const TYPE_LABELS: Record<ContinuityRecordType, string> = {
   archived_chat: "Archived chat",
   candidate: "Candidate",
   publication: "Publication",
-  timeline: "Timeline",
+  timeline: "Continuity marker",
 };
 
 export function continuityRecordTypeLabel(type: ContinuityRecordType) {

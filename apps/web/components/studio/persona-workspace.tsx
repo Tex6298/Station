@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { Persona } from "@station/types/persona";
+import { studioPersonaWorkspaceTabs } from "@/lib/studio-navigation";
 
 export interface ContinuitySummary {
   memoryCount: number;
@@ -17,15 +18,6 @@ export interface ContinuitySummary {
 export interface PersonaWithContinuity extends Persona {
   continuity?: ContinuitySummary | null;
 }
-
-const NAV_TABS = [
-  { label: "Home", href: (id: string) => `/studio/personas/${id}` },
-  { label: "Timeline", href: (id: string) => `/studio/personas/${id}/continuity` },
-  { label: "Memory", href: (id: string) => `/studio/personas/${id}/memory` },
-  { label: "Canon", href: (id: string) => `/studio/personas/${id}/canon` },
-  { label: "Archive", href: (id: string) => `/studio/personas/${id}/files` },
-  { label: "Integrity", href: (id: string) => `/studio/personas/${id}/calibration` },
-] as const;
 
 const PROVIDER_LABELS: Record<string, string> = {
   platform: "Station AI",
@@ -51,8 +43,8 @@ export function PersonaWorkspaceHeader({ persona }: { persona: PersonaWithContin
       </div>
 
       <nav className="studio-persona-tabs" aria-label="Persona workspace">
-        {NAV_TABS.map((tab) => {
-          const href = tab.href(persona.id);
+        {studioPersonaWorkspaceTabs(persona.id).map((tab) => {
+          const href = tab.href;
           const active = pathname === href;
           return (
             <Link key={tab.label} href={href} data-active={active}>
@@ -79,10 +71,10 @@ export function ContinuityCards({ persona }: { persona: PersonaWithContinuity })
   return (
     <section className="studio-continuity-grid" aria-label="Continuity summary">
       <ContinuityCard
-        label="Timeline"
+        label="Continuity"
         value={continuity.continuityRecordCount ?? 0}
         href={`/studio/personas/${persona.id}/continuity`}
-        body="Cross-source markers linking memory, conversations, documents, and archive."
+        body="Cross-source records linking memory, conversations, documents, and archive."
       />
       <ContinuityCard
         label="Memory"

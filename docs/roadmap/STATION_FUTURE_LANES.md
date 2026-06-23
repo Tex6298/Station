@@ -109,16 +109,18 @@ Current intended posture:
 
 ## Memory continuity and observability UX
 
-Status, 2026-06-23: PR192 is open as the first post-Developer-Agent product
-slice.
+Status, 2026-06-23: PR192 has a narrow MIMIR implementation awaiting ARGUS
+review after DAEDALUS did not answer the PR192 wakeup/restart.
 
 Current intent:
 
-- Make Continuity a first-class persona stop instead of only a runtime-context
-  count.
-- Improve memory lifecycle/evidence readback using existing authorized fields.
-- Add a small public-safe Developer Space storytelling improvement around
-  methodology, field logs, or thin live-state explanation.
+- Make Continuity a first-class persona stop instead of hiding the existing
+  continuity route behind a `Timeline` label.
+- Keep memory lifecycle/evidence readback on existing authorized fields; current
+  Memory page helpers already expose runtime/lifecycle review.
+- Keep Developer Space storytelling on existing public-safe methodology,
+  evidence ordering, field-log, and reading-guide helpers already present on
+  the public observatory route.
 - Do not change provider, embedding, Redis/Cloudflare, queue, worker, billing,
   migration, auth/session, deployment, retrieval ranking, or memory truth in
   this lane.

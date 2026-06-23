@@ -17,6 +17,15 @@ export const studioWorkspaceLinks = [
   { label: "Settings", href: "/settings", mark: "S" },
 ] as const;
 
+const personaWorkspaceTabSpecs = [
+  { label: "Home", suffix: "" },
+  { label: "Continuity", suffix: "/continuity" },
+  { label: "Memory", suffix: "/memory" },
+  { label: "Canon", suffix: "/canon" },
+  { label: "Archive", suffix: "/files" },
+  { label: "Integrity", suffix: "/calibration" },
+] as const;
+
 export function activeStudioHref(pathname: string, href: string) {
   if (href === "/studio") return pathname === "/studio";
   return pathname === href || pathname.startsWith(`${href}/`);
@@ -28,4 +37,12 @@ export function studioPersonaHref(persona: Pick<PersonaSummary, "id">) {
 
 export function studioPersonaMeta(persona: Pick<PersonaSummary, "visibility">) {
   return `${persona.visibility} - private Studio`;
+}
+
+export function studioPersonaWorkspaceTabs(personaId: string) {
+  const base = `/studio/personas/${personaId}`;
+  return personaWorkspaceTabSpecs.map((tab) => ({
+    label: tab.label,
+    href: `${base}${tab.suffix}`,
+  }));
 }

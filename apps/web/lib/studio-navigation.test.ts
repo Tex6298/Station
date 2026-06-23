@@ -6,6 +6,7 @@ import {
   activeStudioHref,
   studioPersonaHref,
   studioPersonaMeta,
+  studioPersonaWorkspaceTabs,
   studioWorkspaceLinks,
 } from "./studio-navigation";
 
@@ -23,6 +24,13 @@ test("Studio navigation helpers expose private persona links and labels", () => 
   assert.equal(studioPersonaMeta(persona), "private - private Studio");
   assert.equal(studioWorkspaceLinks.some((link) => link.href === "/studio/onboarding"), true);
   assert.equal(studioWorkspaceLinks.some((link) => link.href === "/studio/archive"), true);
+});
+
+test("Studio persona workspace exposes Continuity as its own stop", () => {
+  const tabs = studioPersonaWorkspaceTabs("persona-1");
+  assert.deepEqual(tabs.map((tab) => tab.label), ["Home", "Continuity", "Memory", "Canon", "Archive", "Integrity"]);
+  assert.equal(tabs.find((tab) => tab.label === "Continuity")?.href, "/studio/personas/persona-1/continuity");
+  assert.equal(tabs.some((tab) => tab.label === "Timeline"), false);
 });
 
 test("Studio mobile navigation exposes an explicit disclosure label", () => {

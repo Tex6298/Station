@@ -4,6 +4,38 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR result - PR192 narrow implementation
+
+MIMIR implemented a narrow PR192 slice on 2026-06-23 after DAEDALUS did not
+answer the initial PR192 wakeup or the restart wakeup.
+
+Patch:
+
+- Persona workspace tabs now come from a tested Studio navigation helper.
+- The persona workspace exposes `Continuity` as its own stop instead of labeling
+  the route `Timeline`.
+- The home summary card now says `Continuity`.
+- Continuity route copy now says `Continuity` / `Continuity Marker`.
+- The `timeline` continuity record display label now reads
+  `Continuity marker`.
+- Existing memory lifecycle/evidence readback and Developer Space
+  methodology/field-log storytelling were verified as already present, so this
+  patch did not widen scope into provider/config/schema/UI redesign work.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/studio-navigation.test.ts apps/web/lib/continuity-ui.test.ts`
+  passed, 7 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:continuity` passed, 5 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` passed, 103 tests.
+- `git diff --check` passed with CRLF normalization warnings only.
+
+Current baton:
+
+- ARGUS should review PR192 for owner/public visibility boundaries,
+  lifecycle/status truth, no retrieval/provider/config drift, public
+  cleanliness, and whether ARIADNE human rehearsal is needed.
+
 ## Latest MIMIR decision - PR192 memory continuity UX opened
 
 MIMIR closes PR191 on 2026-06-23 after ARGUS accepted the Developer Agent

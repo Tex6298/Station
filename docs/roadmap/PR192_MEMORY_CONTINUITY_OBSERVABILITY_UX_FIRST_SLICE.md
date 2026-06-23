@@ -2,10 +2,10 @@
 
 Date opened: 2026-06-23
 Opened by: A1 / MIMIR
-Owner: DAEDALUS
+Owner: DAEDALUS; implemented narrowly by MIMIR after A2 no-response
 Reviewer: ARGUS
 Rehearsal: ARIADNE after visible route changes
-Status: open
+Status: implemented by MIMIR; awaiting ARGUS review
 
 ## Why This Lane
 
@@ -100,3 +100,45 @@ If API serializers change:
 ARGUS should review owner/public visibility boundaries, lifecycle/status truth,
 no retrieval/provider/config drift, public cleanliness, and whether ARIADNE
 needs a human rehearsal before MIMIR accepts the lane.
+
+## MIMIR Implementation Result
+
+Completed on 2026-06-23 after no downstream commit landed from DAEDALUS after
+the initial PR192 wakeup and one restart wakeup.
+
+Implemented:
+
+- Moved persona workspace tab definitions into the tested Studio navigation
+  helper.
+- Changed the persona workspace tab label from `Timeline` to `Continuity` while
+  keeping the existing `/studio/personas/:id/continuity` route.
+- Changed the home summary card from `Timeline` to `Continuity`.
+- Changed continuity route section/form language from timeline-first copy to
+  Continuity/Continuity Marker copy.
+- Changed the `timeline` continuity record display label to
+  `Continuity marker`.
+- Added focused tests proving the persona workspace exposes Continuity as its
+  own stop and no `Timeline` tab label remains.
+
+Observed existing scope already present:
+
+- Memory lifecycle/evidence readback is already backed by
+  `memory-lifecycle-ui` helpers and the Memory page runtime/lifecycle review.
+- Developer Space methodology, field-log, evidence ordering, and thin-state copy
+  are already present through `developerSpaceMethodologyCopy`,
+  `EvidenceReadingPath`, and the public observatory reading guide.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/studio-navigation.test.ts apps/web/lib/continuity-ui.test.ts`
+  passed, 7 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:continuity` passed, 5 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` passed, 103 tests.
+- `git diff --check` passed with CRLF normalization warnings only.
+
+Remaining review:
+
+- ARGUS should verify the narrow MIMIR implementation did not overclaim the
+  broader PR192 lane, that the continuity route is now discoverable as
+  Continuity, and that existing memory/Developer Space observability coverage is
+  correctly described.

@@ -55,6 +55,7 @@ test("continuity UI helpers build source links and order timeline records", () =
   assert.deepEqual(sortContinuityRecords(records).map((item) => item.id), ["new", "old"]);
   assert.equal(continuityRecordText(records[0]), "Old summary");
   assert.equal(continuityRecordText(records[1]), "New body");
+  assert.equal(continuityRecordProvenanceLabels(records[0])[0], "Continuity marker");
 });
 
 test("continuity helpers expose provenance and runtime continuity separately", () => {
