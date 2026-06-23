@@ -4,6 +4,38 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR182 post-Stripe readiness reconciliation
+
+MIMIR received timer wakeup `4e7f2d7` on 2026-06-23 after the Stripe proof
+closeout left no active implementation baton.
+
+Decision:
+
+- Do not reopen Stripe implementation.
+- Do not mutate the dirty replay owner's duplicate Stripe test subscriptions.
+- Open PR182 for DAEDALUS to reconcile current backend/product readiness docs
+  that still describe Stripe paid activation as config-only, externally
+  blocked, or awaiting a real hosted Checkout proof.
+- Preserve the accepted PR181 scope: clean non-production account, hosted
+  test-mode Checkout completed, entitlement changed only after webhook-backed
+  subscription state, `/auth/me` read `canon`, dirty replay owner untouched,
+  test-mode/protected-alpha only.
+
+Why:
+
+- The next backend risk is stale source-of-truth drift, not another Stripe code
+  change.
+- Current docs must stop steering the team as though PR181 has not happened,
+  while still avoiding live-money or broad billing-readiness overclaim.
+
+Current baton:
+
+- DAEDALUS owns PR182.
+- ARGUS should review stale-blocker removal and overclaim if DAEDALUS edits
+  current readiness docs.
+- ARIADNE is not required unless a visible-route or human-flow doc changes in a
+  way that needs browser proof.
+
 ## Latest MIMIR closeout - PR179/PR181 Stripe activation proof accepted
 
 MIMIR closes the Stripe activation proof thread on 2026-06-23 after ARGUS
