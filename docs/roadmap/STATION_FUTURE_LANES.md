@@ -86,8 +86,9 @@ Current intended posture:
 - Owner-confirmed receipt/artifact/public-note paths covered by PR189 are now
   production-capable when kept behind owner confirmation, receipt, audit-export,
   and minimized-payload boundaries.
-- `update_layout` and `run_job` remain blocked until a specific Phase 2E
-  hardening lane proves a safe subset. User approval alone is not sufficient.
+- Direct `update_layout` mutation and `run_job` execution remain blocked until
+  a specific Phase 2E hardening lane proves a safe subset. User approval alone
+  is not sufficient.
 - `push_to_repo`, `rotate_ingestion_key`, and
   `create_webhook_signing_secret` remain blocked beyond Phase 2E; future
   planning packets may describe intent, but they must not add repo writes,
@@ -97,9 +98,9 @@ Current intended posture:
   `save_project_update_draft`, `publish_to_page`, and `update_observatory`.
 - Current Phase 2E implementation slice: `update_layout` suggestion/readback
   only. DAEDALUS implemented minimized owner suggestions and audit-export
-  readback; direct layout mutation remains blocked until ARGUS accepts
-  no-mutation, owner-scope, public-cleanliness, audit/export, and
-  minimized-payload proof.
+  readback. ARGUS review decides whether this suggestion/readback boundary is
+  acceptable; direct layout mutation remains blocked and needs a separate
+  future lane.
 
 ## MIMIR decisions after provider/repo questions
 
