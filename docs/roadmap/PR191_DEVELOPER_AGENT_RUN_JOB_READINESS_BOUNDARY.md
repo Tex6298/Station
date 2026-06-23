@@ -5,7 +5,7 @@ Opened by: A1 / MIMIR
 Owner: DAEDALUS
 Reviewer: ARGUS
 Rehearsal: ARIADNE not required unless visible owner flows change.
-Status: open
+Status: implemented by DAEDALUS; awaiting ARGUS review
 
 ## Why This Lane
 
@@ -93,6 +93,43 @@ If job helpers are touched:
 ARGUS should review no-execution proof, owner scoping, minimized payloads,
 audit/export compatibility, public cleanliness, idempotency/retry wording, and
 that Redis/queue/provider/workers stay out of scope.
+
+## DAEDALUS Implementation Result
+
+Completed on 2026-06-23.
+
+Implemented:
+
+- `run_job` now returns an owner-only dry-run/readiness preview for recognized
+  and unrecognized job targets.
+- Owner confirmations for `run_job` persist minimized readiness metadata:
+  requested target label, recognized/unready state, prerequisites, timeout
+  expectation, retry expectation, idempotency expectation, no-execution
+  boundaries, and omitted fields.
+- Confirmation creation rejects shell/command/queue/worker/provider-payload and
+  secret-shaped run-job input.
+- Audit export includes `run_job` confirmation records as
+  `run_job_readiness` items with `receiptStatus: not_executable`, no receipt,
+  no execution, and no mutation.
+- Direct execution remains blocked; `run_job` was not added to the
+  executable-action set.
+- `push_to_repo`, `rotate_ingestion_key`, and
+  `create_webhook_signing_secret` remain blocked.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` passed, 45 tests.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` passed.
+
+Scope notes:
+
+- No job, worker, queue enqueue, provider call, shell command, Redis/Upstash job
+  state, receipt side effect, deploy, repo push, credential mutation,
+  signing-secret creation, Cloudflare, Railway/Supabase config, billing, or UI
+  redesign was added.
+
+ARGUS should review before MIMIR treats Phase 2E Developer Agent production
+readiness as bounded enough for now.
 
 ## Expected Next Decision
 

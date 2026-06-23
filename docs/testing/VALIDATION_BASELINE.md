@@ -52,6 +52,24 @@ pnpm test:developer-spaces
 pnpm test:developer-space-client
 ```
 
+## PR191 Developer Agent Run Job Readiness Boundary
+
+DAEDALUS implementation validation on 2026-06-23:
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 45 tests passed. New coverage proves `run_job` preview is owner-only, confirmation rejects command/secret-shaped input, valid confirmation stores minimized readiness metadata, execution remains blocked, audit export shows `run_job_readiness` with `receiptStatus: not_executable`, and no receipt/event/document/trace/key/secret side effects occur. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` | Pass | API typecheck completed after shared run-job readiness/audit-export DTO updates. |
+
+Scope notes:
+
+- `run_job` is useful as dry-run/readiness readback only.
+- Actual job execution remains blocked.
+- No worker, queue enqueue, provider call, shell command, Redis/Upstash job
+  state, receipt side effect, repo push, credential mutation, key/signing-secret
+  mutation, billing, Cloudflare, Railway/Supabase config, public output change,
+  or UI redesign was added.
+
 ## PR190 Developer Agent Layout Suggestion Readback
 
 DAEDALUS implementation validation on 2026-06-23:

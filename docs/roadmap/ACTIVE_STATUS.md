@@ -4,6 +4,38 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest DAEDALUS result - PR191 run_job readiness boundary
+
+DAEDALUS completed PR191 implementation on 2026-06-23.
+
+Patch:
+
+- `run_job` now produces owner-only dry-run/readiness preview rather than
+  generic future-lane copy.
+- Owner confirmations for `run_job` persist minimized readiness metadata:
+  requested target label, recognized/unready state, prerequisites, timeout,
+  retry, idempotency expectations, no-execution boundaries, and omitted fields.
+- Confirmation creation rejects shell/command/queue/worker/provider-payload and
+  secret-shaped run-job input.
+- Direct `run_job` execution remains blocked by the executable-action set; no
+  receipt, job, worker, queue enqueue, provider call, shell, Redis/Upstash job
+  state, or external dispatch is created.
+- Owner-only audit export includes `run_job` confirmations as
+  `run_job_readiness` items with `receiptStatus: not_executable`.
+- `push_to_repo`, `rotate_ingestion_key`, and
+  `create_webhook_signing_secret` remain blocked.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` passed, 45 tests.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` passed.
+
+Current baton:
+
+- ARGUS should review no-execution proof, owner scoping, minimized payloads,
+  audit/export compatibility, public cleanliness, idempotency/retry wording, and
+  that Redis/queue/provider/workers stay out of scope.
+
 ## Latest MIMIR decision - PR191 run_job readiness boundary opened
 
 MIMIR closes PR190 on 2026-06-23 after ARGUS accepted the Developer Agent

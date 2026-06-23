@@ -89,8 +89,9 @@ Current intended posture:
 - `update_layout` is accepted as owner-only suggestion/readback. Direct layout
   mutation remains blocked until a separate lane proves rollback/readback and
   owner safety.
-- `run_job` execution remains blocked until a specific Phase 2E hardening lane
-  proves a safe subset. User approval alone is not sufficient.
+- `run_job` is implemented as owner-only dry-run/readiness readback. Actual job
+  execution remains blocked until a separate lane proves worker/queue,
+  timeout, retry, idempotency, and owner status safety.
 - `push_to_repo`, `rotate_ingestion_key`, and
   `create_webhook_signing_secret` remain blocked beyond Phase 2E; future
   planning packets may describe intent, but they must not add repo writes,
@@ -102,9 +103,10 @@ Current intended posture:
   suggestion/readback only. Direct layout mutation remains blocked and needs a
   separate future lane.
 - Current Phase 2E implementation slice: `run_job` dry-run/readiness boundary
-  only. Actual job execution, worker/queue enqueue, provider calls, shell,
-  Redis/Upstash job state, deploys, and credential mutation remain out of
-  scope.
+  only. DAEDALUS implemented minimized owner readiness readback and audit-export
+  compatibility; actual job execution, worker/queue enqueue, provider calls,
+  shell, Redis/Upstash job state, deploys, and credential mutation remain out
+  of scope pending ARGUS review.
 
 ## MIMIR decisions after provider/repo questions
 

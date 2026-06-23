@@ -1637,9 +1637,10 @@ test("Developer Space agent future and unsupported actions reject without side e
       body: { action: "run_job", input: { command: "npm test", token: "secret-token" } },
     });
     assert.equal(runJob.status, 200);
-    assert.equal(runJob.body.status, "requires_future_lane");
+    assert.equal(runJob.body.status, "previewed");
     assert.equal(runJob.body.futureLane, true);
     assert.equal(runJob.body.requiresConfirmation, true);
+    assert.equal(runJob.body.summary.includes("No job is executed"), true);
 
     const rotateKey = await requestJson(app, "POST", `/developer-spaces/${spaceId}/agent/actions/preview`, {
       token: "owner-token",
@@ -1695,7 +1696,6 @@ test("Developer Space agent risky future actions stay blocked after owner approv
     const spaceId = created.body.space.id;
     const riskyActions = [
       "push_to_repo",
-      "run_job",
       "rotate_ingestion_key",
       "create_webhook_signing_secret",
     ] as const;
@@ -1894,6 +1894,134 @@ test("Developer Space agent update-layout suggestion is owner-only, audit-export
       /layout-secret-token|private layout prompt|rawPrompt|11111111-1111-4111-8111-111111111111|confirmationId|previewHash|targetDocumentId/,
     );
     assert.doesNotMatch(JSON.stringify(publicDetail.body), /Layout suggestion|Suggested visual mode|No live Developer Space visual config was changed/);
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
+
+test("Developer Space agent run-job readiness is owner-only, audit-exported, and non-executing", async () => {
+  const db = new InMemorySupabase();
+  setSupabaseAdminForTests(db.client as any);
+  const app = createDeveloperSpacesApp();
+
+  try {
+    const created = await requestJson(app, "POST", "/developer-spaces", {
+      token: "owner-token",
+      body: {
+        projectName: "Agent Run Job Readiness Lane",
+        visibility: "public",
+      },
+    });
+    assert.equal(created.status, 201);
+    const spaceId = created.body.space.id;
+    const slug = created.body.space.slug;
+
+    const nonOwnerPreview = await requestJson(app, "POST", `/developer-spaces/${spaceId}/agent/actions/preview`, {
+      token: "other-token",
+      body: { action: "run_job", input: { jobTarget: "developer_space_replay" } },
+    });
+    assert.equal(nonOwnerPreview.status, 403);
+
+    const preview = await requestJson(app, "POST", `/developer-spaces/${spaceId}/agent/actions/preview`, {
+      token: "owner-token",
+      body: {
+        action: "run_job",
+        input: {
+          jobTarget: "developer_space_replay",
+          command: "npm test -- --secrets",
+          token: "run-job-secret-token",
+        },
+      },
+    });
+    assert.equal(preview.status, 200);
+    assert.equal(preview.body.status, "previewed");
+    assert.equal(preview.body.summary.includes("No job is executed"), true);
+    assert.equal(preview.body.sections[0].facts.some((fact: Row) => fact.label === "Requested target" && fact.value === "Developer Space replay readiness check"), true);
+    assert.equal(preview.body.sections[0].facts.some((fact: Row) => fact.label === "Recognized target" && fact.value === true), true);
+    assert.doesNotMatch(JSON.stringify(preview.body), /run-job-secret-token|npm test|--secrets/);
+
+    const rejectedCommand = await requestJson(app, "POST", `/developer-spaces/${spaceId}/agent/actions/confirmations`, {
+      token: "owner-token",
+      body: {
+        action: "run_job",
+        input: {
+          jobTarget: "developer_space_replay",
+          command: "npm test -- --secrets",
+          token: "run-job-secret-token",
+        },
+      },
+    });
+    assert.equal(rejectedCommand.status, 400);
+    assert.doesNotMatch(JSON.stringify(rejectedCommand.body), /run-job-secret-token|npm test|secrets/);
+
+    const create = await requestJson(app, "POST", `/developer-spaces/${spaceId}/agent/actions/confirmations`, {
+      token: "owner-token",
+      body: {
+        action: "run_job",
+        input: { jobTarget: "developer_space_replay" },
+      },
+    });
+    assert.equal(create.status, 201);
+    assert.equal(create.body.confirmation.action, "run_job");
+    assert.equal(create.body.executionAvailable, false);
+    assert.equal(create.body.confirmation.sanitizedPayload.executionAvailable, false);
+    assert.equal(create.body.confirmation.sanitizedPayload.mutationAvailable, false);
+    assert.equal(create.body.confirmation.sanitizedPayload.runJobReadiness.targetLabel, "Developer Space replay readiness check");
+    assert.equal(create.body.confirmation.sanitizedPayload.runJobReadiness.recognized, true);
+    assert.equal(create.body.confirmation.sanitizedPayload.runJobReadiness.readiness, "unready");
+    assert.equal(create.body.confirmation.sanitizedPayload.runJobReadiness.prerequisites.includes("Timeout budget"), true);
+    assert.equal(create.body.confirmation.sanitizedPayload.runJobReadiness.omittedFields.includes("shell_command"), true);
+
+    const approved = await requestJson(app, "POST", `/developer-spaces/${spaceId}/agent/actions/confirmations/${create.body.confirmation.id}/approve`, {
+      token: "owner-token",
+    });
+    assert.equal(approved.status, 200);
+    assert.equal(approved.body.executionAvailable, false);
+
+    const execute = await requestJson(app, "POST", `/developer-spaces/${spaceId}/agent/actions/confirmations/${create.body.confirmation.id}/execute`, {
+      token: "owner-token",
+    });
+    assert.equal(execute.status, 409);
+    assert.equal(execute.body.code, "developer_space_agent_execution_action_blocked");
+    assert.equal(execute.body.executionAvailable, false);
+    assert.equal(JSON.stringify(execute.body).includes(create.body.confirmation.id), false);
+    assert.equal(db.tables.developer_space_agent_execution_receipts.length, 0);
+    assert.equal(db.tables.developer_space_events.length, 0);
+    assert.equal(db.tables.developer_space_nodes.length, 0);
+    assert.equal(db.tables.developer_space_snapshots.length, 0);
+    assert.equal(db.tables.documents.length, 0);
+    assert.equal(db.tables.ai_trace_sessions.length, 0);
+    assert.equal(db.tables.ai_trace_events.length, 0);
+    assert.equal(db.tables.developer_space_ingestion_keys.length, 0);
+    assert.equal(db.tables.developer_space_webhook_signing_secrets.length, 0);
+
+    const ownerExport = await requestJson(app, "GET", `/developer-spaces/${spaceId}/agent/actions/audit-export`, {
+      token: "owner-token",
+    });
+    assert.equal(ownerExport.status, 200);
+    const runJobItem = ownerExport.body.auditExport.items.find((item: Row) => item.action === "run_job");
+    assert.ok(runJobItem);
+    assert.equal(runJobItem.receiptStatus, "not_executable");
+    assert.equal(runJobItem.executionAvailable, false);
+    assert.equal(runJobItem.mutationAvailable, false);
+    assert.equal(runJobItem.externalDispatch, false);
+    assert.equal(runJobItem.artifact.type, "run_job_readiness");
+    assert.equal(runJobItem.artifact.runJobReadiness.targetLabel, "Developer Space replay readiness check");
+    assert.equal(runJobItem.artifact.runJobReadiness.recognized, true);
+    assert.equal(runJobItem.idempotency.receiptRecorded, false);
+    assert.equal(runJobItem.idempotency.retrySafe, false);
+    assert.equal(runJobItem.boundaries.some((boundary: string) => boundary.includes("No job was executed")), true);
+
+    const publicDetail = await requestJson(app, "GET", `/developer-spaces/${slug}`);
+    assert.equal(publicDetail.status, 200);
+    assert.doesNotMatch(
+      JSON.stringify({
+        auditExport: ownerExport.body,
+        publicDetail: publicDetail.body,
+      }),
+      /run-job-secret-token|npm test|secrets|confirmationId|previewHash|queuePayload|workerPayload/,
+    );
+    assert.doesNotMatch(JSON.stringify(publicDetail.body), /Run-job readiness|Developer Space replay readiness check|No job was executed/);
   } finally {
     setSupabaseAdminForTests(null);
   }
@@ -3152,6 +3280,7 @@ test("Developer Space agent audit export is owner-only and minimized across rece
       "publish_to_page",
       "update_observatory",
       "update_layout",
+      "run_job",
     ]);
     assert.equal(ownerExport.body.auditExport.items.length, 4);
 

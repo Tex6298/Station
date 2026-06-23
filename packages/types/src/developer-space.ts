@@ -215,7 +215,8 @@ export type DeveloperSpaceAgentExecutionReceiptAction =
 
 export type DeveloperSpaceAgentAuditExportAction =
   | DeveloperSpaceAgentExecutionReceiptAction
-  | "update_layout";
+  | "update_layout"
+  | "run_job";
 
 export interface DeveloperSpaceAgentActionRegistryEntry {
   action: DeveloperSpaceAgentRegisteredAction;
@@ -334,12 +335,26 @@ export interface DeveloperSpaceAgentLayoutSuggestion {
   boundaries: string[];
 }
 
+export interface DeveloperSpaceAgentRunJobReadiness {
+  requestedTarget: string;
+  targetLabel: string;
+  recognized: boolean;
+  readiness: "unready";
+  prerequisites: string[];
+  timeoutExpectation: string;
+  retryExpectation: string;
+  idempotencyExpectation: string;
+  boundaries: string[];
+  omittedFields: string[];
+}
+
 export type DeveloperSpaceAgentAuditExportArtifactType =
   | "capability_request"
   | "private_draft_document"
   | "published_document"
   | "observatory_status_note"
   | "layout_suggestion"
+  | "run_job_readiness"
   | "none";
 
 export interface DeveloperSpaceAgentAuditExportArtifact {
@@ -352,6 +367,7 @@ export interface DeveloperSpaceAgentAuditExportArtifact {
   occurredAt?: string | null;
   publishedAt?: string | null;
   layoutSuggestion?: DeveloperSpaceAgentLayoutSuggestion;
+  runJobReadiness?: DeveloperSpaceAgentRunJobReadiness;
 }
 
 export interface DeveloperSpaceAgentAuditExportItem {

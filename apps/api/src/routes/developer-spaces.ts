@@ -16,6 +16,7 @@ import type {
   DeveloperSpaceAgentAllowedAction,
   DeveloperSpaceAgentFutureAction,
   DeveloperSpaceAgentLayoutSuggestion,
+  DeveloperSpaceAgentRunJobReadiness,
   DeveloperSpaceDocumentLinkVisibility,
   DeveloperSpaceDocumentRole,
   DeveloperSpaceEventVisibility,
@@ -195,6 +196,7 @@ const DEVELOPER_SPACE_AGENT_DRAFT_DOCUMENT_ACTION: DeveloperSpaceAgentExecutionR
 const DEVELOPER_SPACE_AGENT_PUBLISH_DOCUMENT_ACTION: DeveloperSpaceAgentExecutionReceiptAction = "publish_to_page";
 const DEVELOPER_SPACE_AGENT_OBSERVATORY_UPDATE_ACTION: DeveloperSpaceAgentExecutionReceiptAction = "update_observatory";
 const DEVELOPER_SPACE_AGENT_LAYOUT_SUGGESTION_ACTION: DeveloperSpaceAgentFutureAction = "update_layout";
+const DEVELOPER_SPACE_AGENT_RUN_JOB_READINESS_ACTION: DeveloperSpaceAgentFutureAction = "run_job";
 const DEVELOPER_SPACE_AGENT_STATUS_NOTE_MAX_LENGTH = 360;
 const DEVELOPER_SPACE_AGENT_STATUS_NOTE_EVENT_TYPE = "developer_agent.status_note";
 const DEVELOPER_SPACE_AGENT_CAPABILITY_REQUEST_CATEGORIES = [
@@ -239,6 +241,7 @@ const DEVELOPER_SPACE_AGENT_AUDIT_EXPORT_ACTIONS: readonly DeveloperSpaceAgentAu
   DEVELOPER_SPACE_AGENT_PUBLISH_DOCUMENT_ACTION,
   DEVELOPER_SPACE_AGENT_OBSERVATORY_UPDATE_ACTION,
   DEVELOPER_SPACE_AGENT_LAYOUT_SUGGESTION_ACTION,
+  DEVELOPER_SPACE_AGENT_RUN_JOB_READINESS_ACTION,
 ];
 const DEVELOPER_SPACE_AGENT_AUDIT_EXPORT_ACTION_SET = new Set<string>(DEVELOPER_SPACE_AGENT_AUDIT_EXPORT_ACTIONS);
 const DEVELOPER_SPACE_AGENT_AUDIT_EXPORT_LIMIT = 100;
@@ -257,6 +260,9 @@ const DEVELOPER_SPACE_AGENT_AUDIT_EXPORT_OMITTED_FIELDS = [
   "cookies",
   "keys",
   "connection_strings",
+  "shell_command",
+  "job_payload",
+  "queue_payload",
 ] as const;
 const DEVELOPER_SPACE_AGENT_LAYOUT_SUGGESTION_BOUNDARIES = [
   "No live Developer Space visual config was changed.",
@@ -277,6 +283,61 @@ const DEVELOPER_SPACE_AGENT_DEFAULT_WIDGETS = [
   { type: "project_notes", title: "Project notes", zone: "side", position: 1, visible: true },
   { type: "current_nodes", title: "Current nodes", zone: "side", position: 2, visible: true },
   { type: "latest_snapshot", title: "Latest snapshot", zone: "side", position: 3, visible: true },
+] as const;
+const DEVELOPER_SPACE_AGENT_RUN_JOB_BOUNDARIES = [
+  "No job was executed.",
+  "No worker, queue, shell, provider, external dispatch, Redis, Upstash, deploy, repo, billing, key, signing secret, Railway, Supabase config, or Cloudflare action ran.",
+  "No receipt was created because run_job is not executable in this lane.",
+  "Readiness metadata omits commands, queue payloads, prompts, provider payloads, raw ids, keys, tokens, cookies, and connection strings.",
+];
+const DEVELOPER_SPACE_AGENT_RUN_JOB_OMITTED_FIELDS = [
+  "shell_command",
+  "queue_payload",
+  "worker_payload",
+  "provider_payload",
+  "prompt",
+  "raw_ids",
+  "tokens",
+  "cookies",
+  "keys",
+  "connection_strings",
+] as const;
+const DEVELOPER_SPACE_AGENT_RUN_JOB_TARGETS = [
+  {
+    key: "developer_space_replay",
+    label: "Developer Space replay readiness check",
+    prerequisites: [
+      "Named owner-scoped job target",
+      "Timeout budget",
+      "Retry policy",
+      "Idempotency key",
+      "Owner-visible status readback",
+      "Worker or queue implementation accepted by a later lane",
+    ],
+  },
+  {
+    key: "export_package",
+    label: "Export package assembly readiness check",
+    prerequisites: [
+      "Owner-scoped package target",
+      "Retryable package status",
+      "Idempotency key",
+      "Failed-package readback",
+      "Worker or queue implementation accepted by a later lane",
+    ],
+  },
+  {
+    key: "archive_import",
+    label: "Archive import backfill readiness check",
+    prerequisites: [
+      "Owner-scoped import target",
+      "Storage reservation plan",
+      "Retry policy",
+      "Idempotency key",
+      "Owner-visible failure status",
+      "Worker or queue implementation accepted by a later lane",
+    ],
+  },
 ] as const;
 const DEVELOPER_SPACE_AGENT_EXECUTION_RECEIPT_BOUNDARIES = [
   "No autonomous agent loop ran.",
@@ -577,6 +638,17 @@ const createDeveloperSpaceAgentConfirmationSchema = z.object({
       });
     }
     const unsafeInput = developerSpaceAgentUnsafeStatusNoteInputReason(value.input ?? {});
+    if (unsafeInput) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["input"],
+        message: unsafeInput,
+      });
+    }
+  }
+
+  if (value.action === DEVELOPER_SPACE_AGENT_RUN_JOB_READINESS_ACTION) {
+    const unsafeInput = developerSpaceAgentUnsafeRunJobInputReason(value.input ?? {});
     if (unsafeInput) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
@@ -1057,6 +1129,35 @@ function developerSpaceAgentUnsafeStatusNoteInputReason(value: unknown, path: st
   return null;
 }
 
+function developerSpaceAgentUnsafeRunJobInputReason(value: unknown, path: string[] = []): string | null {
+  if (!value || typeof value !== "object") {
+    return typeof value === "string" && developerSpaceAgentSecretLikeText(value)
+      ? "Run-job readiness input must not include secret-like values."
+      : null;
+  }
+
+  if (Array.isArray(value)) {
+    for (let index = 0; index < value.length; index += 1) {
+      const result = developerSpaceAgentUnsafeRunJobInputReason(value[index], [...path, String(index)]);
+      if (result) return result;
+    }
+    return null;
+  }
+
+  for (const [key, child] of Object.entries(value as Record<string, unknown>)) {
+    if (/command|shell|script|argv|args|exec|spawn|queue[_-]?payload|worker[_-]?payload|job[_-]?payload|token|secret|password|cookie|authorization|service[_-]?role|api[_-]?key|private[_-]?key|connection|string|database[_-]?url|pooler|raw[_-]?prompt|provider[_-]?payload|private[_-]?text|raw[_-]?body|archive[_-]?excerpt/i.test(key)) {
+      return "Run-job readiness input includes an unsupported execution or sensitive field.";
+    }
+    if (typeof child === "string" && developerSpaceAgentSecretLikeText(child)) {
+      return "Run-job readiness input must not include secret-like values.";
+    }
+    const result = developerSpaceAgentUnsafeRunJobInputReason(child, [...path, key]);
+    if (result) return result;
+  }
+
+  return null;
+}
+
 function developerSpaceAgentCapabilityRequest(input: {
   capabilityCategory?: unknown;
   capabilitySummary?: unknown;
@@ -1359,6 +1460,170 @@ function developerSpaceAgentLayoutSuggestionConfirmationPayload(
   };
 }
 
+function developerSpaceAgentRunJobTarget(input: {
+  jobTarget?: unknown;
+  target?: unknown;
+  input?: Record<string, unknown>;
+}) {
+  const rawTarget = input.jobTarget ?? input.target ?? input.input?.jobTarget ?? input.input?.target;
+  const target = typeof rawTarget === "string"
+    ? safeAgentAuditText(rawTarget, "unknown", 80).toLowerCase().replace(/[^a-z0-9_:-]/g, "_")
+    : "developer_space_replay";
+  const known = DEVELOPER_SPACE_AGENT_RUN_JOB_TARGETS.find((candidate) => candidate.key === target);
+  if (known) return known;
+  return {
+    key: target || "unknown",
+    label: "Unrecognized job target",
+    prerequisites: [
+      "Named supported job target",
+      "Owner-visible status readback",
+      "Timeout budget",
+      "Retry policy",
+      "Idempotency key",
+      "Worker or queue implementation accepted by a later lane",
+    ],
+  };
+}
+
+function developerSpaceAgentRunJobReadiness(input: {
+  jobTarget?: unknown;
+  target?: unknown;
+  input?: Record<string, unknown>;
+}): DeveloperSpaceAgentRunJobReadiness {
+  const target = developerSpaceAgentRunJobTarget(input);
+  const recognized = DEVELOPER_SPACE_AGENT_RUN_JOB_TARGETS.some((candidate) => candidate.key === target.key);
+  return {
+    requestedTarget: safeAgentAuditText(target.key, "unknown", 80),
+    targetLabel: safeAgentAuditText(target.label, "Unrecognized job target", 120),
+    recognized,
+    readiness: "unready",
+    prerequisites: target.prerequisites.map((item) => safeAgentAuditText(item, "Readiness prerequisite", 140)),
+    timeoutExpectation: "Future execution must define an owner-visible timeout budget before any job can run.",
+    retryExpectation: "Future execution must define retry limits and terminal failure readback before any job can run.",
+    idempotencyExpectation: "Future execution must use a stable owner-scoped idempotency key before enqueueing work.",
+    boundaries: DEVELOPER_SPACE_AGENT_RUN_JOB_BOUNDARIES,
+    omittedFields: [...DEVELOPER_SPACE_AGENT_RUN_JOB_OMITTED_FIELDS],
+  };
+}
+
+function developerSpaceAgentRunJobReadinessFromPayload(payload: unknown): DeveloperSpaceAgentRunJobReadiness {
+  const record = payload && typeof payload === "object" ? payload as Record<string, unknown> : {};
+  const source = record.runJobReadiness && typeof record.runJobReadiness === "object"
+    ? record.runJobReadiness as Record<string, unknown>
+    : record;
+  const stringList = (value: unknown, fallback: readonly string[]) => {
+    const values = Array.isArray(value) ? value : fallback;
+    return values
+      .filter((item): item is string => typeof item === "string" && item.trim().length > 0)
+      .slice(0, 10)
+      .map((item) => safeAgentAuditText(item, "Run-job readiness item", 160));
+  };
+  const requestedTarget = safeAgentAuditText(source.requestedTarget, "unknown", 80);
+  const target = DEVELOPER_SPACE_AGENT_RUN_JOB_TARGETS.find((candidate) => candidate.key === requestedTarget);
+
+  return {
+    requestedTarget,
+    targetLabel: safeAgentAuditText(source.targetLabel, target?.label ?? "Unrecognized job target", 120),
+    recognized: source.recognized === true,
+    readiness: "unready",
+    prerequisites: stringList(source.prerequisites, target?.prerequisites ?? [
+      "Named supported job target",
+      "Owner-visible status readback",
+      "Timeout budget",
+      "Retry policy",
+      "Idempotency key",
+    ]),
+    timeoutExpectation: safeAgentAuditText(source.timeoutExpectation, "Future execution must define an owner-visible timeout budget before any job can run.", 220),
+    retryExpectation: safeAgentAuditText(source.retryExpectation, "Future execution must define retry limits and terminal failure readback before any job can run.", 220),
+    idempotencyExpectation: safeAgentAuditText(source.idempotencyExpectation, "Future execution must use a stable owner-scoped idempotency key before enqueueing work.", 220),
+    boundaries: stringList(source.boundaries, DEVELOPER_SPACE_AGENT_RUN_JOB_BOUNDARIES),
+    omittedFields: stringList(source.omittedFields, DEVELOPER_SPACE_AGENT_RUN_JOB_OMITTED_FIELDS),
+  };
+}
+
+function developerSpaceAgentRunJobReadinessPreview(
+  action: string,
+  readiness: DeveloperSpaceAgentRunJobReadiness,
+): DeveloperSpaceAgentActionPreview {
+  return {
+    action,
+    status: "previewed",
+    summary: `Run-job readiness dry-run for ${readiness.targetLabel}: ${readiness.recognized ? "recognized but unready" : "unrecognized and unready"}. No job is executed.`,
+    sections: [
+      {
+        title: "Run-job readiness",
+        summary: "This is a dry-run contract only. Station records what would be required before a later lane can execute work.",
+        facts: [
+          safeAgentFact("Requested target", readiness.targetLabel),
+          safeAgentFact("Recognized target", readiness.recognized),
+          safeAgentFact("Readiness", readiness.readiness),
+          safeAgentFact("Execution available", false),
+          safeAgentFact("Mutation available", false),
+          safeAgentFact("External dispatch", false),
+        ],
+        items: [
+          {
+            title: "Timeout expectation",
+            detail: readiness.timeoutExpectation,
+            status: "required_before_execution",
+          },
+          {
+            title: "Retry expectation",
+            detail: readiness.retryExpectation,
+            status: "required_before_execution",
+          },
+          {
+            title: "Idempotency expectation",
+            detail: readiness.idempotencyExpectation,
+            status: "required_before_execution",
+          },
+        ],
+      },
+      {
+        title: "Prerequisites",
+        items: readiness.prerequisites.map((title) => ({
+          title,
+          status: "unready",
+        })),
+      },
+      {
+        title: "No-execution boundaries",
+        items: readiness.boundaries.map((boundary) => ({
+          title: safeAgentAuditText(boundary, "No job was executed.", 180),
+          status: "not_executed",
+        })),
+      },
+    ],
+    requiresConfirmation: true,
+    futureLane: true,
+  };
+}
+
+function developerSpaceAgentRunJobReadinessConfirmationPayload(
+  entry: DeveloperSpaceAgentActionRegistryEntry,
+  input: {
+    jobTarget?: unknown;
+    target?: unknown;
+    input?: Record<string, unknown>;
+  },
+) {
+  const readiness = developerSpaceAgentRunJobReadiness(input);
+  return {
+    action: DEVELOPER_SPACE_AGENT_RUN_JOB_READINESS_ACTION,
+    label: safeAgentText(entry.label, "Run job", 120),
+    description: safeAgentText(entry.description, "Dry-run job readiness for owner review.", 220),
+    mode: entry.mode,
+    requiresConfirmation: true,
+    futureLane: true,
+    previewStatus: "previewed" as const,
+    summary: `Run-job readiness dry-run: ${readiness.targetLabel} is ${readiness.recognized ? "recognized but unready" : "unrecognized and unready"}. No job is executed.`,
+    executionAvailable: false,
+    mutationAvailable: false,
+    runJobReadiness: readiness,
+    sections: developerSpaceAgentRunJobReadinessPreview(DEVELOPER_SPACE_AGENT_RUN_JOB_READINESS_ACTION, readiness).sections,
+  };
+}
+
 function countByValue(rows: any[], field: string) {
   return rows.reduce<Record<string, number>>((counts, row) => {
     const key = safeAgentText(row?.[field], "unknown", 80);
@@ -1632,6 +1897,13 @@ function futureLaneAgentPreview(action: string, input: Record<string, unknown> =
     return developerSpaceAgentLayoutSuggestionPreview(
       action,
       developerSpaceAgentLayoutSuggestion(space),
+    );
+  }
+
+  if (action === DEVELOPER_SPACE_AGENT_RUN_JOB_READINESS_ACTION) {
+    return developerSpaceAgentRunJobReadinessPreview(
+      action,
+      developerSpaceAgentRunJobReadiness({ input }),
     );
   }
 
@@ -2649,6 +2921,15 @@ function developerSpaceAgentAuditArtifactFromConfirmation(row: any): DeveloperSp
       layoutSuggestion: suggestion,
     };
   }
+  if (action === DEVELOPER_SPACE_AGENT_RUN_JOB_READINESS_ACTION) {
+    const readiness = developerSpaceAgentRunJobReadinessFromPayload(row.sanitized_payload);
+    return {
+      type: "run_job_readiness",
+      label: readiness.targetLabel,
+      status: readiness.recognized ? "recognized_unready" : "unrecognized_unready",
+      runJobReadiness: readiness,
+    };
+  }
   return {
     type: "none",
     label: "No artifact recorded",
@@ -2671,9 +2952,14 @@ function serializeDeveloperSpaceAgentAuditExportItem(
       ? "Observatory status-note update requested."
       : action === DEVELOPER_SPACE_AGENT_LAYOUT_SUGGESTION_ACTION
         ? "Layout suggestion recorded for owner review."
-      : "Capability request recorded for owner planning.";
+        : action === DEVELOPER_SPACE_AGENT_RUN_JOB_READINESS_ACTION
+          ? "Run-job readiness dry-run recorded for owner review."
+          : "Capability request recorded for owner planning.";
   const layoutSuggestion = action === DEVELOPER_SPACE_AGENT_LAYOUT_SUGGESTION_ACTION
     ? developerSpaceAgentLayoutSuggestionFromPayload(confirmation.sanitized_payload)
+    : null;
+  const runJobReadiness = action === DEVELOPER_SPACE_AGENT_RUN_JOB_READINESS_ACTION
+    ? developerSpaceAgentRunJobReadinessFromPayload(confirmation.sanitized_payload)
     : null;
 
   return {
@@ -2686,7 +2972,10 @@ function serializeDeveloperSpaceAgentAuditExportItem(
     completedAt: receipt ? safeAgentAuditTimestamp(receipt.dispatched_at) : null,
     summary: safeAgentAuditText(confirmation.summary, fallbackSummary, 400),
     receiptStatus: receiptRecord?.status ?? (
-      action === DEVELOPER_SPACE_AGENT_LAYOUT_SUGGESTION_ACTION ? "not_executable" : "missing"
+      action === DEVELOPER_SPACE_AGENT_LAYOUT_SUGGESTION_ACTION
+        || action === DEVELOPER_SPACE_AGENT_RUN_JOB_READINESS_ACTION
+        ? "not_executable"
+        : "missing"
     ),
     receiptSummary: receiptRecord
       ? safeAgentAuditText(receiptRecord.summary, "Receipt recorded.", 400)
@@ -2695,7 +2984,8 @@ function serializeDeveloperSpaceAgentAuditExportItem(
       ? developerSpaceAgentAuditArtifactFromReceiptPayload(receiptPayload)
       : developerSpaceAgentAuditArtifactFromConfirmation(confirmation),
     idempotency: {
-      retrySafe: action !== DEVELOPER_SPACE_AGENT_LAYOUT_SUGGESTION_ACTION,
+      retrySafe: action !== DEVELOPER_SPACE_AGENT_LAYOUT_SUGGESTION_ACTION
+        && action !== DEVELOPER_SPACE_AGENT_RUN_JOB_READINESS_ACTION,
       receiptRecorded: Boolean(receiptRecord),
       repeatUsesExistingReceipt: Boolean(receiptRecord),
     },
@@ -2706,9 +2996,10 @@ function serializeDeveloperSpaceAgentAuditExportItem(
     mutationAvailable: receiptPayload
       ? receiptPayload.mutationAvailable
       : action !== DEVELOPER_SPACE_AGENT_EXECUTION_RECEIPT_ACTION
-        && action !== DEVELOPER_SPACE_AGENT_LAYOUT_SUGGESTION_ACTION,
+        && action !== DEVELOPER_SPACE_AGENT_LAYOUT_SUGGESTION_ACTION
+        && action !== DEVELOPER_SPACE_AGENT_RUN_JOB_READINESS_ACTION,
     externalDispatch: false,
-    boundaries: safeAgentAuditBoundaries(receiptPayload?.boundaries ?? layoutSuggestion?.boundaries),
+    boundaries: safeAgentAuditBoundaries(receiptPayload?.boundaries ?? layoutSuggestion?.boundaries ?? runJobReadiness?.boundaries),
     omittedFields: [...DEVELOPER_SPACE_AGENT_AUDIT_EXPORT_OMITTED_FIELDS],
   };
 }
@@ -4465,6 +4756,8 @@ developerSpacesRouter.post("/:id/agent/actions/confirmations", requireAuth, asyn
     );
   } else if (action === DEVELOPER_SPACE_AGENT_LAYOUT_SUGGESTION_ACTION) {
     sanitizedPayload = developerSpaceAgentLayoutSuggestionConfirmationPayload(entry, ownerLoad.space);
+  } else if (action === DEVELOPER_SPACE_AGENT_RUN_JOB_READINESS_ACTION) {
+    sanitizedPayload = developerSpaceAgentRunJobReadinessConfirmationPayload(entry, parsed.data);
   } else if (action === DEVELOPER_SPACE_AGENT_OBSERVATORY_UPDATE_ACTION) {
     const statusNote = developerSpaceAgentStatusNote(parsed.data);
     if (!statusNote) {
