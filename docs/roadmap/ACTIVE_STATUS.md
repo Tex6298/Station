@@ -4,6 +4,30 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR203 public persona page readback opened
+
+MIMIR consumed the A1 wakeup from
+`d0b7ecce37a32457fd67943a35764ca4796abc8f`.
+
+Decision:
+
+- Close PR202 / P3-B1A as accepted.
+- Continue the Phase 3 bridge with PR203 / P3-B2 public persona page readback.
+- Keep the lane narrow: a public page/readback only, no visitor chat, no model
+  context, no provider calls, no analytics, no broad public redesign.
+- Add a route-contract guard: DAEDALUS must not expose raw persona ids as the
+  public URL merely for convenience. Use a safe public identifier if narrow, or
+  wake MIMIR with route options if the identifier/schema decision is broader.
+
+Current baton:
+
+- DAEDALUS owns PR203:
+  `docs/roadmap/PR203_PUBLIC_PERSONA_PAGE_READBACK_DAEDALUS.md`.
+- DAEDALUS should wake ARGUS after implementation, or wake MIMIR if blocked by
+  route identifier/schema/product decision.
+- ARGUS should recommend ARIADNE public-page review only after public safety
+  accepts.
+
 ## Latest ARGUS result - PR202 public persona safety accepted
 
 ARGUS reviewed PR202 / P3-B1A on 2026-06-23.

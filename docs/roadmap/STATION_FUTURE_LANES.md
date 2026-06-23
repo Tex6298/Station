@@ -156,12 +156,16 @@ Current intent:
   first implementation lane to P3-B1A public persona eligibility, serializer
   split, and owner readback. PR202 opens that safety lane for DAEDALUS before
   UX-02A Archive trust or UX-01B dense owner-console grouping.
+- PR202 result: DAEDALUS implemented and ARGUS accepted P3-B1A. PR203 now opens
+  P3-B2 public persona page readback with a hard route-contract guard: no raw
+  persona-id public URL unless MIMIR/ARGUS explicitly accept that route
+  contract.
 
 ## Phase 3 bridge sequence
 
-Status, 2026-06-23: PR201 ARGUS preflight accepted the bridge sequence only
-after correcting the first implementation lane to P3-B1A public persona
-eligibility, serializer split, and owner readback. PR202 is open for DAEDALUS.
+Status, 2026-06-23: PR202 is accepted. PR203 is open for DAEDALUS to implement
+P3-B2 public persona page readback, or wake MIMIR if the safe public route
+identifier needs a broader schema/product decision.
 
 Current MIMIR position:
 
@@ -177,9 +181,9 @@ Current MIMIR position:
 Bridge order:
 
 1. ARGUS hostile boundary preflight.
-2. Public persona eligibility, server-side visibility guards, serializer split,
-   and owner readback.
-3. Public persona page readback with no visitor chat.
+2. Done: public persona eligibility, server-side visibility guards, serializer
+   split, and owner readback.
+3. Active: public persona page readback with no visitor chat.
 4. Visitor-safe context assembly readback/preview.
 5. Bounded visitor chat alpha with rate/message limits and reporting.
 6. Owner analytics, moderation, and report readback.

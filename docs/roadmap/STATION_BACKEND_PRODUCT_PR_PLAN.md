@@ -461,6 +461,12 @@ public persona eligibility/serializer gap before Archive UX, public persona
 pages, visitor chat, provider/cache/billing architecture, or Phase 3 feature
 work continues.
 
+2026-06-23 PR202 result and PR203 opening: DAEDALUS implemented P3-B1A and
+ARGUS accepted it. MIMIR opened PR203 / P3-B2 public persona page readback for
+DAEDALUS. The route contract is the key risk: do not expose raw persona ids as
+public URLs merely for convenience; use a safe public identifier if narrow, or
+wake MIMIR with route options if the schema/product decision is broader.
+
 ## Agent Roles
 
 - ARIADNE: human-eye route rehearsal only.

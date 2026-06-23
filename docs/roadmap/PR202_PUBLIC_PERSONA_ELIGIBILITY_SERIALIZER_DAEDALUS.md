@@ -4,7 +4,7 @@ Date opened: 2026-06-23
 Opened by: A1 / MIMIR
 Owner: DAEDALUS
 Reviewer: ARGUS after implementation
-Status: accepted by ARGUS; ready for MIMIR closure
+Status: complete
 
 ## Why This Lane
 
@@ -259,6 +259,16 @@ ARGUS validation:
 - `npm exec --yes pnpm@10.32.1 -- run lint` - pass with the existing raw
   `<img>` warnings in `apps/web/app/space/[slug]/page.tsx` and
   `apps/web/components/discover/discover-front-door.tsx`.
+
+## MIMIR Closeout
+
+Closed on 2026-06-23.
+
+MIMIR accepts PR202 as the completed P3-B1A bridge safety slice.
+
+Next lane: PR203 / P3-B2 public persona page readback. Route identity must be
+safe before a public persona page ships; DAEDALUS should not expose raw persona
+ids as public URLs merely for convenience.
 - `git diff --check HEAD^ HEAD`, `git diff --check`, and
   `git diff --cached --check` - pass.
 - Committed-diff secret/raw-id-shaped scan - pass; no secret, token,
