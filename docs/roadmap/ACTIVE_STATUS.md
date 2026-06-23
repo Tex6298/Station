@@ -4,7 +4,109 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest MIMIR decision - PR201 Phase 3 bridge preflight opened
+## Latest ARIADNE result - PR200 UX-01A accepted
+
+ARIADNE completed the visible desktop and 375px review for PR200 on
+2026-06-23.
+
+Verdict:
+
+- Accept PR199 / UX-01A.
+- No DAEDALUS route/control follow-up is required.
+- No ARGUS privacy, visibility, owner/private data, public surface, export,
+  storage, provenance, Developer Agent, key, billing, or overclaim review is
+  required.
+
+Desktop truth:
+
+- `/studio` now clearly names `Dashboard` in the sidebar current-stop card and
+  the in-page place strip.
+- Persona home, Memory, Continuity, Archive, and Integrity show the persona name
+  plus the active stop in the sidebar and place strip.
+- `/studio/assistant` reads as `Station Assistant` with `Owner-only helper`
+  context, and the page still frames Station Assistant as operational rather
+  than a persona.
+
+375px truth:
+
+- The mobile disclosure summary names the current stop, privacy state, and
+  short route purpose before the menu opens.
+- Dashboard, persona home, Memory, Continuity, Archive, Integrity, and
+  Assistant had no document-level horizontal overflow in the checked viewport.
+- The dashboard public-space action wraps but remains readable and non-blocking.
+
+UX truth:
+
+- The current-place labels make the Studio workbench easier to orient without
+  generic dashboard filler.
+- The main remaining friction is current-stop repetition between mobile summary
+  and in-page strip. It is helpful redundancy in this slice, not a blocker.
+
+Validation/probes:
+
+- Read PR200 and PR199 docs.
+- Inspected the PR199 Studio UI diff.
+- Ran local current-checkout browser review with the web app at
+  `http://127.0.0.1:3010` pointed at the configured Station API.
+- `npx --yes --package @playwright/test@1.41.2 playwright test tmp-pr200-studio-workbench-review.spec.js --reporter=line --workers=1`
+  passed for desktop and 375px Studio routes.
+- Temporary screenshots were inspected locally and not committed.
+
+Current baton:
+
+- MIMIR should close PR200 and decide whether the next UX slice is UX-02A
+  Archive trust scan, UX-01B dense owner-console grouping, or another
+  evidence-backed branch.
+
+## Latest ARGUS result - PR201 Phase 3 bridge preflight
+
+ARGUS completed the Phase 3 hostile boundary preflight on 2026-06-23.
+
+Verdict:
+
+- Accept the bridge sequence only with a corrected first implementation lane.
+- P3-B1 as passive owner readback is not safe enough.
+- Corrected first implementation lane:
+  `P3-B1A - Public persona eligibility, serializer split, and owner readback`.
+
+Critical finding:
+
+- `packages/config/src/tiers.ts` says `private.publicPersonas` is `0`, but
+  `apps/api/src/routes/personas.ts` currently accepts `visibility: "public"` on
+  persona create/update under the private-tier persona route.
+- `apps/api/src/routes/personas.ts` also lets non-owner authenticated users read
+  public personas through the owner serializer shape, including owner/setup
+  fields that are not safe for public persona readback.
+- `apps/api/src/routes/spaces.ts` already lists `visibility = public` personas
+  on public Space responses, so public persona eligibility and serializer
+  safety cannot wait for visitor chat.
+
+Required gates for DAEDALUS:
+
+- Add server-side public-persona eligibility using
+  `TIER_LIMITS.publicPersonas`.
+- Block `visitor`/`private` owners from creating or transitioning personas to
+  public visibility.
+- Ensure `skipIntegrityPreflight` cannot bypass tier/public-persona
+  eligibility.
+- Split owner and public/non-owner persona serializers.
+- Keep public/non-owner persona readback and public Space persona cards to
+  explicit public profile/card fields only.
+- Keep reports persona context label/visibility-only with no route hint until a
+  real public persona route exists.
+- Do not add public persona pages, visitor chat, provider calls, embeddings,
+  Redis/Cloudflare/cache architecture, workers, queues, billing, Stripe, new
+  entitlement policy, analytics, or moderation actions in P3-B1A.
+
+Current baton:
+
+- MIMIR should close PR201 and open DAEDALUS on P3-B1A, unless MIMIR wants a
+  separate immediate safety patch for the existing persona serializer/visibility
+  gap before broader Phase 3 bridge sequencing.
+- ARIADNE is not needed before P3-B1A; rehearse before or during P3-B2 if a
+  public persona page or visible public copy is added.
+
+## Previous MIMIR decision - PR201 Phase 3 bridge preflight opened
 
 MIMIR consumed the A1 Phase 3 bridge wakeup from
 `cf6c4d8dd502e4a93edf87c7152c632618f185be`.

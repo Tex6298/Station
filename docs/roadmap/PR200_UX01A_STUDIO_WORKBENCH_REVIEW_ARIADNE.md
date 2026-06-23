@@ -6,7 +6,7 @@ Owner: ARIADNE
 Reviewer: MIMIR; ARGUS only if ARIADNE finds auth, visibility, owner/private
 data, public surface, export/storage/provenance, Developer Agent, key, billing,
 or overclaim risk
-Status: open
+Status: complete
 
 ## Why This Lane
 
@@ -111,3 +111,64 @@ Wake MIMIR with:
 - validation/probes run.
 
 Do not go quiet without a wakeup.
+
+## ARIADNE Result - 2026-06-23
+
+Verdict: accept PR199 / UX-01A.
+
+Desktop route notes:
+
+- `/studio` now clearly names `Dashboard` in both the sidebar current-stop card
+  and the in-page place strip. The strip improves the first scan without
+  turning the dashboard into warning copy.
+- Persona home, Memory, Continuity, Archive, and Integrity all show the persona
+  name plus the current stop in the sidebar and place strip. This makes the
+  private workbench feel easier to locate without changing the existing tabs.
+- `/studio/assistant` clearly reads as `Station Assistant` with `Owner-only
+  helper` context in the sidebar; the page copy still correctly says the
+  assistant is operational and not a persona.
+
+375px route notes:
+
+- The mobile disclosure summary names the current stop, privacy state, and
+  short route purpose before the user opens the menu.
+- Dashboard, persona home, Memory, Continuity, Archive, Integrity, and
+  Assistant all stayed within the document width in the checked viewport.
+- The dashboard action stack remains readable at 375px; the public-space button
+  wraps but does not overlap or lose meaning.
+
+Top visible improvement:
+
+- The owner can now tell whether they are in Dashboard, a persona stop, Archive,
+  Integrity, or Station Assistant without inferring it from the tab row or page
+  body. This is a real orientation gain and feels like Station workbench
+  guidance rather than generic dashboard filler.
+
+Top remaining UX friction:
+
+- The current-stop language appears in more than one place on Studio routes,
+  especially mobile summary plus in-page strip. In this slice it reads as
+  helpful redundancy, not noise. Future UX-01B work can decide whether to tune
+  repetition once broader Studio grouping lands.
+
+Concrete blockers:
+
+- None found.
+- No DAEDALUS follow-up is required for PR200.
+- No ARGUS review is required for PR200.
+
+Validation/probes:
+
+- Read `docs/roadmap/PR200_UX01A_STUDIO_WORKBENCH_REVIEW_ARIADNE.md`.
+- Read `docs/roadmap/PR199_UX01A_STUDIO_PLACE_MOBILE_WORKBENCH_DAEDALUS.md`.
+- Inspected the PR199 Studio UI diff.
+- Ran local current-checkout browser review with the web app at
+  `http://127.0.0.1:3010` pointed at the configured Station API.
+- `npx --yes --package @playwright/test@1.41.2 playwright test tmp-pr200-studio-workbench-review.spec.js --reporter=line --workers=1`
+  passed for desktop and 375px `/studio`, persona home, Memory, Continuity,
+  Archive, Integrity, and `/studio/assistant`.
+- Temporary screenshots were inspected locally and not committed.
+- No app code, schema, migrations, Railway, Supabase, Stripe, Redis,
+  Cloudflare, provider, worker, queue, auth/session, billing, export, storage,
+  Developer Agent, key, deployment config, import, export, cache, or provider
+  state was changed.

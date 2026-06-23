@@ -52,6 +52,27 @@ pnpm test:developer-spaces
 pnpm test:developer-space-client
 ```
 
+## PR200 UX-01A Studio Workbench Visible Review
+
+ARIADNE visible review on 2026-06-23:
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `npx --yes --package @playwright/test@1.41.2 playwright test tmp-pr200-studio-workbench-review.spec.js --reporter=line --workers=1` | Pass | Covered desktop and 375px `/studio`, persona home, Memory, Continuity, Archive, Integrity, and `/studio/assistant` using the current checkout web app pointed at the configured Station API. |
+| Desktop current-stop labels | Pass | Sidebar card and in-page strip clearly name Dashboard, persona route stops, Archive, Integrity, and Station Assistant. |
+| 375px mobile summary | Pass | Mobile disclosure summary names current stop, privacy state, and route purpose before opening the menu. |
+| 375px layout | Pass | No document-level horizontal overflow on checked routes. The dashboard public-space action wraps but remains readable. |
+| UX verdict | Accept | Current-place labels improve owner workbench orientation without generic dashboard filler. Remaining repetition between mobile summary and in-page strip is non-blocking. |
+
+Scope notes:
+
+- No product code changed during ARIADNE's review.
+- No route data, imports, exports, billing, Developer Space keys, cache,
+  provider state, schema, migration, deployment config, auth/session, or backend
+  behavior was changed.
+- Temporary screenshots were inspected locally and not committed.
+- No DAEDALUS or ARGUS follow-up is required for PR200.
+
 ## PR199 UX-01A Studio Place and Mobile Workbench Clarity
 
 DAEDALUS implementation validation on 2026-06-23:
