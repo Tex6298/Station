@@ -138,6 +138,10 @@ Current intent:
   and UX-02 Archive trust because the owner-side surfaces are demoable but
   dense. This is route/component mapping and ranked slice planning, not a broad
   reskin or backend lane.
+- PR198 result: DAEDALUS recommended UX-01A Studio place and mobile workbench
+  clarity as the first implementation slice. PR199 opens that slice for
+  DAEDALUS. UX-02A Archive trust and UX-01B dense owner console grouping stay
+  queued behind the Studio workbench pass.
 
 ## MIMIR decisions after provider/repo questions
 

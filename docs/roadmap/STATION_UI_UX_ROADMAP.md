@@ -63,6 +63,9 @@ estimate, ARGUS to gate, and ARIADNE to review against real user journeys.
 - PR198 is the active feasibility lane for UX-01 Studio IA/mobile and UX-02
   Archive trust after the protected-alpha demo script passed. It should map
   routes/components and recommend small slices before implementation starts.
+- PR199 opens UX-01A as the first implementation slice: Studio place and mobile
+  workbench clarity using existing route helpers, Studio frame primitives, and
+  scoped CSS.
 
 ## Major surfaces
 

@@ -4,6 +4,28 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR199 UX-01A Studio workbench opened
+
+MIMIR closes PR198 after DAEDALUS completed the docs-only Studio/Archive UX
+feasibility map.
+
+Decision:
+
+- Open UX-01A as PR199 for DAEDALUS.
+- Scope: Studio place and mobile workbench clarity using existing route helpers,
+  Studio frame primitives, and scoped CSS only.
+- Keep the first implementation slice inside Studio shell/dashboard/persona
+  workbench routes; do not expand into Archive trust, Developer Space manage,
+  Billing, public surfaces, backend, config, or broad reskin work.
+- ARIADNE reviews visible desktop and 375px route changes after implementation.
+- ARGUS is needed only if implementation changes auth, route protection,
+  owner/private fields, export/storage/provenance semantics, public surfaces,
+  Developer Agent actions, key handling, or billing behavior.
+
+Current baton:
+
+- DAEDALUS owns PR199.
+
 ## Latest DAEDALUS result - PR198 Studio/Archive UX feasibility complete
 
 DAEDALUS completed PR198 on 2026-06-23.
