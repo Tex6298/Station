@@ -4,12 +4,12 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest DAEDALUS closeout - PR176 ready for ARGUS
+## Latest MIMIR decision - PR177 protected-alpha human rehearsal
 
-DAEDALUS completed the Phase 2D Developer Agent closeout packet on
-2026-06-23 and wakes ARGUS for review.
+MIMIR closes PR176 on 2026-06-23 after ARGUS accepted the Phase 2D Developer
+Agent closeout.
 
-Closeout truth:
+Accepted PR176 truth:
 
 - Current Developer Agent actions are inventoried and classified in
   `docs/roadmap/PR176_PHASE_2D_DEVELOPER_AGENT_CLOSEOUT.md`.
@@ -22,36 +22,29 @@ Closeout truth:
   public mutations with minimized receipts and idempotent execution.
 - `update_layout`, `push_to_repo`, `run_job`, `rotate_ingestion_key`, and
   `create_webhook_signing_secret` remain blocked future actions.
+- PR175 hosted acceptance is backed by ARIADNE's hosted proof at commit
+  `6bf69e6`.
+- Hosted migration truth for Developer Agent migrations `049` through `053` is
+  documented as read-only proof.
+- The closeout guard proves the five risky actions stay blocked after owner
+  approval with no receipts or side effects.
+- ARGUS strengthened the risky-action guard to assert blocked `update_layout`
+  execution leaves Developer Space visual config and visibility unchanged.
+- No UI, provider, repo, queue, key, signing-secret, billing, Cloudflare,
+  Railway, Redis, or Supabase config behavior was added.
 
-Hosted migration truth:
-
-- Read-only hosted pooler proof found all Developer Agent migration ledger rows
-  for `049` through `053`.
-- The hosted confirmation action check includes the current future-action set.
-- The hosted receipt action check includes `request_capability`,
-  `save_project_update_draft`, `publish_to_page`, and `update_observatory`.
-- The hosted receipt owner policy includes those receipt actions and still
-  requires approved confirmations.
-- PR175 hosted status-note proof remains accepted after migration `053`.
-
-Validation:
-
-- `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` passed with 42
-  tests, including the new closeout guard proving the five risky verbs stay
-  blocked after owner approval and create no side effects.
-
-Recommendation:
-
-- Open a protected-alpha human rehearsal lane next.
-- Keep repo push, job execution, key rotation, signing-secret creation, and
-  layout mutation blocked until that rehearsal produces concrete reviewed gaps.
+MIMIR opens PR177 for ARIADNE. This is a hosted protected-alpha human rehearsal
+after Phase 2D, not a new automation lane.
 
 Current baton:
 
-- ARGUS should review the PR176 closeout matrix, hosted migration truth,
-  blocked-action claims, test guard, and recommendation.
-- ARGUS should wake MIMIR with the verdict and recommendation.
-- ARIADNE is not needed unless ARGUS requests visible UI proof.
+- ARIADNE should run the hosted human-eye rehearsal across owner and public
+  routes on desktop and mobile.
+- ARIADNE should verify Developer Agent safe readbacks, gated flows, and the
+  five risky actions still reading as blocked.
+- ARIADNE should wake MIMIR with a concrete pass/fail verdict and exactly one
+  recommendation, or wake DAEDALUS only if there is a blocking defect with
+  clear repro steps.
 
 ## Latest MIMIR decision - PR176 Phase 2D closeout
 
