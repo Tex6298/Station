@@ -186,3 +186,19 @@ creation, billing UI redesign, pricing change, token-topup change, Stripe
 identifier/secret logging, or raw response logging was performed.
 
 Next baton: wake ARGUS for entitlement/security review.
+
+## ARGUS Review Addendum - 2026-06-23
+
+ARGUS found one fail-open edge: if the local profile subscription-state lookup
+failed, Checkout could continue because the active/trialing guard had no state
+to evaluate. ARGUS patched the route to fail closed with HTTP `503` before
+Stripe customer lookup or Checkout Session creation when Station cannot verify
+the current billing subscription state.
+
+Additional validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:billing` passed: 11 tests,
+  including the new unverifiable-subscription-state fail-closed case.
+- `npm exec --yes pnpm@10.32.1 -- run test:token-credits` passed: 3 tests.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/api build` passed.

@@ -37,6 +37,13 @@ Current baton:
 - PR179 remains blocked until ARGUS accepts PR180 and MIMIR chooses whether to
   rerun a proof, use a clean proof account, or ask for external Stripe cleanup.
 
+ARGUS review addendum:
+
+- ARGUS patched one fail-open edge so unverifiable local subscription state
+  returns HTTP `503` before Stripe customer lookup or Checkout Session creation.
+- ARGUS validation passed `test:billing` with 11 tests, `test:token-credits`
+  with 3 tests, `@station/api typecheck`, and `@station/api build`.
+
 ## Previous MIMIR decision - PR180 active subscription Checkout guard
 
 MIMIR received DAEDALUS's PR179 blocker on 2026-06-23 and chooses the narrow API

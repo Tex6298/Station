@@ -1,6 +1,7 @@
 import type { Request, Response } from "express";
 import {
   ActiveSubscriptionCheckoutBlockedError,
+  BillingSubscriptionStateUnavailableError,
   createCheckoutSession,
   createPortalSession,
   getBillingStatus,
@@ -42,6 +43,10 @@ export async function handleCreateCheckout(req: Request, res: Response): Promise
     const message = err instanceof Error ? err.message : "Checkout creation failed.";
     if (err instanceof ActiveSubscriptionCheckoutBlockedError) {
       res.status(409).json({ error: message });
+      return;
+    }
+    if (err instanceof BillingSubscriptionStateUnavailableError) {
+      res.status(503).json({ error: message });
       return;
     }
     res.status(400).json({ error: message });

@@ -80,6 +80,13 @@ export class ActiveSubscriptionCheckoutBlockedError extends Error {
   }
 }
 
+export class BillingSubscriptionStateUnavailableError extends Error {
+  constructor() {
+    super("Could not verify current billing subscription state. Try again before starting Checkout.");
+    this.name = "BillingSubscriptionStateUnavailableError";
+  }
+}
+
 export function getPriceId(tier: PaidTier, interval: BillingInterval): string {
   const primaryEnv = STRIPE_PRICE_ENV_BY_TIER_INTERVAL[tier][interval];
   const legacyEnvs = LEGACY_STRIPE_PRICE_ENV_ALIASES[tier]?.[interval] ?? [];
@@ -153,11 +160,15 @@ export async function createCheckoutSession(input: {
   cancelUrl: string;
 }): Promise<string> {
   const sb = getSupabaseAdmin();
-  const { data: profile } = await sb
+  const { data: profile, error } = await sb
     .from("profiles")
     .select("stripe_subscription_id, subscription_status")
     .eq("id", input.userId)
     .single();
+
+  if (error || !profile) {
+    throw new BillingSubscriptionStateUnavailableError();
+  }
 
   if (hasBlockingActiveSubscription(profile)) {
     throw new ActiveSubscriptionCheckoutBlockedError();

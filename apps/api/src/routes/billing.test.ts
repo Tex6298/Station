@@ -345,6 +345,33 @@ test("billing checkout blocks active or trialing subscriptions before creating C
   }
 });
 
+test("billing checkout fails closed when subscription state cannot be verified", async () => {
+  const db = new InMemorySupabase();
+  db.tables.profiles = [];
+  const stripe = createFakeStripe();
+  setSupabaseAdminForTests(db.client as any);
+  setStripeForTests(stripe as any);
+  const app = createBillingApp();
+
+  try {
+    const blocked = await requestJson(app, "POST", "/billing/checkout", {
+      token: "owner-token",
+      body: {
+        tier: "canon",
+        interval: "monthly",
+      },
+    });
+
+    assert.equal(blocked.status, 503);
+    assert.match(blocked.body.error, /verify current billing subscription state/i);
+    assert.equal(stripe.calls.checkout.length, 0);
+    assert.equal(stripe.calls.customers.length, 0);
+    assert.doesNotMatch(JSON.stringify(blocked.body), /owner-user|owner@example\.test|cus_|sub_/);
+  } finally {
+    resetFakes();
+  }
+});
+
 test("billing webhooks require verified signatures before entitlement changes", async () => {
   const db = new InMemorySupabase();
   db.tables.profiles[0].stripe_customer_id = "cus_owner";

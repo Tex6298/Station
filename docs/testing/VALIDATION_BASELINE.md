@@ -79,6 +79,24 @@ Scope notes:
   IDs, tokens, cookies, payment details, or raw responses were printed or
   committed.
 
+ARGUS review validation on 2026-06-23:
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:billing` | Pass | 11 tests passed after ARGUS added a fail-closed regression for unverifiable profile subscription state before Stripe customer or Checkout Session creation. |
+| `npm exec --yes pnpm@10.32.1 -- run test:token-credits` | Pass | 3 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` | Pass | API typecheck completed. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/api build` | Pass | API and dependent package builds completed. |
+
+ARGUS PR180 notes:
+
+- Accepted after the narrow fail-closed patch for subscription-state lookup
+  errors.
+- Active/trialing recorded subscriptions still return HTTP `409` before Stripe
+  side effects.
+- Unverifiable subscription state now returns HTTP `503` before Stripe side
+  effects and without echoing owner/customer/subscription identifiers.
+
 ## PR179 Stripe Test-Mode Activation Refresh
 
 DAEDALUS blocked proof result on 2026-06-23:
