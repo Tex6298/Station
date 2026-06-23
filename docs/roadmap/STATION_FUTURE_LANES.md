@@ -111,7 +111,10 @@ Current intended posture:
 
 Status, 2026-06-23: PR192 is accepted after a narrow MIMIR implementation.
 PR193 is closed after ARIADNE rehearsal. PR194 is accepted after the narrow
-Continuity readability patch and ARIADNE hosted desktop/mobile recheck.
+Continuity readability patch and ARIADNE hosted desktop/mobile recheck. PR195
+through PR197 then closed the hosted replay evidence refresh, product demo
+walkthrough, and protected-alpha demo runbook refresh with no implementation
+blocker.
 
 Current intent:
 
@@ -131,8 +134,10 @@ Current intent:
 - PR193 found Memory and Developer Space pass. PR194 closed the remaining
   CSS/copy-only Continuity readability issue for trust metric labels,
   record/source cards, record titles, and record body copy.
-- The active follow-up is PR195: non-secret hosted replay evidence refresh
-  before opening another implementation lane.
+- Active follow-up: PR198 opens DAEDALUS feasibility mapping for UX-01 Studio IA
+  and UX-02 Archive trust because the owner-side surfaces are demoable but
+  dense. This is route/component mapping and ranked slice planning, not a broad
+  reskin or backend lane.
 
 ## MIMIR decisions after provider/repo questions
 

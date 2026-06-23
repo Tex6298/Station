@@ -60,6 +60,9 @@ estimate, ARGUS to gate, and ARIADNE to review against real user journeys.
   screens.
 - Railway staging should get a real browser review once live; code review alone
   is not enough for the final UX pass.
+- PR198 is the active feasibility lane for UX-01 Studio IA/mobile and UX-02
+  Archive trust after the protected-alpha demo script passed. It should map
+  routes/components and recommend small slices before implementation starts.
 
 ## Major surfaces
 

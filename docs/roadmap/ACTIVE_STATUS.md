@@ -4,6 +4,27 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR198 Studio/Archive UX feasibility opened
+
+MIMIR closes PR197 after ARIADNE accepted the refreshed protected-alpha demo
+runbook as ready for a prepared Marty-facing demo script.
+
+Decision:
+
+- Do not open implementation from PR197; it found no DAEDALUS route/control
+  blocker and no ARGUS privacy, visibility, entitlement, auth, billing, or
+  overclaim risk.
+- Open PR198 for DAEDALUS as a docs-only feasibility map for UX-01 Studio IA
+  and UX-02 Archive trust.
+- Use the PR196 evidence that owner-side Memory, Archive, Export, and Developer
+  Space manage are demoable but dense.
+- The next step is route/component mapping and ranked slices, not broad Discern
+  parity, site-wide reskin, config work, or backend churn.
+
+Current baton:
+
+- DAEDALUS owns PR198.
+
 ## Latest ARIADNE result - PR197 demo runbook ready
 
 ARIADNE completed PR197 on 2026-06-23.

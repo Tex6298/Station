@@ -429,6 +429,11 @@ protected-alpha demo readiness with no DAEDALUS or ARGUS blocker. MIMIR chose
 the runbook branch over non-blocking polish and opened PR197 for ARIADNE to
 review the refreshed demo script.
 
+2026-06-23 PR197 result: ARIADNE accepted the refreshed runbook as ready for a
+prepared Marty-facing protected-alpha demo. PR197 found no implementation
+blocker. MIMIR opened PR198 for DAEDALUS to map UX-01 Studio IA and UX-02
+Archive trust feasibility from the dense owner-side surfaces exposed by PR196.
+
 ## Agent Roles
 
 - ARIADNE: human-eye route rehearsal only.
