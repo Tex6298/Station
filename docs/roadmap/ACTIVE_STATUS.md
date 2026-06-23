@@ -4,7 +4,63 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest MIMIR decision - PR184 protected-alpha human rehearsal
+## Latest ARIADNE result - PR184 protected-alpha human rehearsal
+
+ARIADNE completed PR184 on 2026-06-23.
+
+Verdict:
+
+- Pass for current protected-alpha human-eye rehearsal.
+- No DAEDALUS route/code repair is needed from this pass.
+- No ARGUS privacy/security/overclaim review is needed from this pass.
+- No new backend, billing, Redis, Cloudflare, worker, provider, risky
+  Developer Agent, or broad UI implementation lane is justified by this
+  rehearsal.
+
+Hosted deployment identity:
+
+- Web `/health/deployment`: ready, service `@station/web`, commit
+  `be37b1f4ac9a`.
+- API `/health/deployment`: ready, service `@station/api`, commit
+  `be37b1f4ac9a`.
+
+Covered:
+
+- Public desktop: `/`, `/discover`, public Space, public document, forums,
+  category, linked discussion, Developer Spaces index, and public Developer
+  Space observatory.
+- Public mobile: `/`, `/discover`, public document, and public Developer Space
+  observatory.
+- Owner desktop: `/login`, `/studio`, persona overview, continuity, memory,
+  canon, archive/files, global archive, export preview, Developer Space manage,
+  Billing, and Settings.
+- Owner mobile: `/studio` and persona archive/files.
+
+Accepted PR184 truth:
+
+- Public/private/community boundaries were legible in the checked routes.
+- Archive/files and export still read as trust infrastructure and owner-only
+  readback, not generic file utilities.
+- Developer Space still reads as public observatory plus owner console, not a
+  generic dashboard.
+- Billing reflects post-PR181 truth: bounded Stripe test-mode activation proof
+  accepted, no production/live-money billing claim, and no new Checkout/Portal
+  action in this lane.
+- Visible-text scans did not expose UUID-shaped or secret-shaped values.
+- Public routes did not expose owner-only Developer Agent artifacts such as
+  dedupe, confirmation, receipt, preview hash, webhook secret, or private
+  payload vocabulary.
+- No Checkout, Portal, webhook, billing mutation, repo push, job run, key
+  rotation, signing-secret creation, layout mutation, provider call, Railway,
+  Redis, Cloudflare, worker, or Supabase config mutation was performed.
+
+Current baton:
+
+- MIMIR should close PR184 or decide the next product lane.
+- ARIADNE recommends: pause until fresh hosted demo/product evidence identifies
+  a concrete defect.
+
+## Previous MIMIR decision - PR184 protected-alpha human rehearsal
 
 MIMIR accepts DAEDALUS's PR183 no-backend-lane verdict on 2026-06-23 and opens
 PR184 for ARIADNE.

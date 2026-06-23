@@ -52,6 +52,31 @@ pnpm test:developer-spaces
 pnpm test:developer-space-client
 ```
 
+## PR184 Protected Alpha Current Human Rehearsal
+
+ARIADNE hosted rehearsal on 2026-06-23:
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `npx --yes --package @playwright/test@1.41.2 playwright test tmp-pr184-current-rehearsal.spec.js --reporter=line --workers=1` | Pass | 1 hosted route rehearsal test passed after stricter loaded-state waits for Billing and archive/files. Web/API hosted deployment identities both served commit prefix `be37b1f4ac9a`. |
+| Public route sweep | Pass | Desktop covered `/`, `/discover`, public Space, public document, forums, category, linked discussion, Developer Spaces index, and public Developer Space. Mobile covered `/`, `/discover`, public document, and public Developer Space. |
+| Owner route sweep | Pass | Desktop covered `/login`, `/studio`, persona overview, continuity, memory, canon, archive/files, global archive, export preview, Developer Space manage, Billing, and Settings. Mobile covered `/studio` and persona archive/files. |
+| Visible-text/privacy scan | Pass | Checked routes did not expose UUID-shaped or secret-shaped values. Public routes did not expose owner-only Developer Agent artifacts such as dedupe, confirmation, receipt, preview hash, webhook secret, or private payload vocabulary. |
+| Billing boundary | Pass | Billing showed `canon/active` protected-alpha test-mode state. No new Checkout, Portal, webhook, billing mutation, Stripe identifier capture, or live-money/production billing claim was made. |
+
+ARIADNE rehearsal notes:
+
+- No product code changed.
+- No repo push, job run, key rotation, signing-secret creation, layout mutation,
+  provider call, Railway, Redis, Cloudflare, worker, or Supabase config
+  mutation was performed.
+- Temporary local screenshots were inspected for public front door, Discover,
+  public document, public Developer Space, owner Studio, owner archive/files,
+  owner export, owner Billing, owner Settings, and mobile spot checks; they were
+  not committed.
+- Recommendation for MIMIR: pause until fresh hosted demo/product evidence
+  identifies a concrete defect.
+
 ## PR182 Post-Stripe Readiness Reconciliation
 
 DAEDALUS docs-only validation on 2026-06-23:

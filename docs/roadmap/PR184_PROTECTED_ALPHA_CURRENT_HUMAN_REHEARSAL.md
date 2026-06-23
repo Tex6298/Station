@@ -6,7 +6,7 @@ Owner: ARIADNE runs the human-eye route rehearsal.
 Reviewer: MIMIR accepts the product verdict; DAEDALUS fixes only concrete
 route/code blockers; ARGUS reviews only if a security/privacy/backend claim is
 implicated.
-Status: open for ARIADNE
+Status: ARIADNE rehearsal complete; awaiting MIMIR closeout
 
 ## Why This Lane
 
@@ -146,3 +146,82 @@ If a concrete route/code defect appears, wake DAEDALUS with:
 
 If a privacy/security/overclaim defect appears, wake ARGUS with the exact
 claim or boundary at risk.
+
+## ARIADNE Rehearsal Verdict - 2026-06-23
+
+Verdict: pass. PR184 does not produce a DAEDALUS route/code repair, ARGUS
+privacy/security review, or new backend/billing/risky-automation lane.
+
+Hosted deployment identity:
+
+- Web `/health/deployment`: ready, Railway service `@station/web`, main commit
+  `be37b1f4ac9a`.
+- API `/health/deployment`: ready, Railway service `@station/api`, main commit
+  `be37b1f4ac9a`.
+
+Routes covered:
+
+- Public desktop: `/`, `/discover`, `/space/station-replay-alpha`,
+  `/space/<public-document>`, `/forums`, `/forums/documents-and-codexes`,
+  `/forums/<public-discussion>`, `/developer-spaces`, and
+  `/developer-spaces/station-replay-dev-alpha`.
+- Public mobile: `/`, `/discover`, `/space/<public-document>`, and
+  `/developer-spaces/station-replay-dev-alpha`.
+- Owner desktop: `/login`, `/studio`, `/studio/personas/<persona>`,
+  `/studio/personas/<persona>/continuity`,
+  `/studio/personas/<persona>/memory`,
+  `/studio/personas/<persona>/canon`,
+  `/studio/personas/<persona>/files`, `/studio/archive`, `/studio/export`,
+  `/developer-spaces/station-replay-dev-alpha/manage`, `/billing`, and
+  `/settings`.
+- Owner mobile: `/studio` and `/studio/personas/<persona>/files`.
+
+Pass/fail by area:
+
+- Public front door and Discover: pass. The public search/feed reads as
+  public-only and names that private Studio, archive, continuity, and owner
+  search stay behind sign-in.
+- Public chain and forums: pass. Public Space, public document, attached
+  discussion, forums category, and linked thread loaded on desktop; public
+  document remained mobile-safe.
+- Studio, continuity, memory, and canon: pass. The owner route set makes the
+  private workspace, continuity, memory, canon, and Integrity/Archive links
+  visible without exposing raw IDs in visible text.
+- Archive and export: pass. Persona archive/files presents archive as private
+  source/trust infrastructure with import status, review candidates, storage,
+  and export status. `/studio/export` clearly says global workspace export is
+  planned while per-persona bundles are live.
+- Developer Spaces: pass. The public detail reads as a live observatory and
+  owner manage reads as an owner console. No raw API key, signing secret, or
+  secret-shaped material was visible.
+- Billing: pass. `/billing` shows current `canon/active` status, test-mode
+  Stripe wording, plan limits, and plan cards. No Checkout, Portal, webhook, or
+  billing mutation was run.
+- Settings/account: pass. Settings loads account, usage/credits, storage,
+  AI-activity, privacy/profile placeholders, export, and notification surfaces
+  without overclaiming persistence.
+- Mobile spot check: pass. No document-level overflow was found on the checked
+  public and owner routes.
+
+Boundary and caveat observations:
+
+- Visible-text scans for UUID-shaped and secret-shaped values passed across the
+  checked owner and public routes.
+- Public routes did not expose owner-only Developer Agent artifacts such as
+  dedupe keys, confirmations, receipts, preview hashes, webhook secrets, or
+  private payloads.
+- Stripe remains bounded protected-alpha test-mode evidence only. This
+  rehearsal did not claim production billing or live-money readiness.
+- No new Checkout, Portal, webhook, billing mutation, repo push, job run, key
+  rotation, signing-secret creation, layout mutation, provider call, Railway,
+  Redis, Cloudflare, worker, or Supabase config mutation was performed.
+- Temporary local screenshots were inspected for public front door, Discover,
+  public document, public Developer Space, owner Studio, owner archive/files,
+  owner export, owner Billing, owner Settings, and mobile spot checks. They
+  were not committed.
+
+Recommendation:
+
+- Pause until fresh evidence. The current protected-alpha route set is runnable
+  enough for this rehearsal, and the next lane should be opened only from a
+  concrete hosted demo/product defect rather than inactivity.
