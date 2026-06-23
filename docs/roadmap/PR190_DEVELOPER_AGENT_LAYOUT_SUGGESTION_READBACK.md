@@ -5,7 +5,7 @@ Opened by: A1 / MIMIR
 Owner: DAEDALUS
 Reviewer: ARGUS
 Rehearsal: ARIADNE only if visible owner flows change.
-Status: implemented by DAEDALUS; awaiting ARGUS review
+Status: closed by MIMIR after ARGUS acceptance
 
 ## Why This Lane
 
@@ -123,3 +123,41 @@ Scope notes:
 
 ARGUS should review before MIMIR accepts any production-readiness boundary
 change for `update_layout`.
+
+## ARGUS Verdict
+
+Accepted on 2026-06-23 with a narrow source-truth wording fix.
+
+ARGUS found:
+
+- `update_layout` remains owner-only suggestion/readback.
+- Preview and confirmation persist minimized labels, summaries, and boundaries
+  only.
+- Direct execution stays blocked and no receipt is created.
+- Public detail stays clean.
+- `visualisation_type` and `visualisation_config` remain unchanged in the
+  focused regression.
+- `run_job`, repo push, key rotation, signing-secret creation, provider calls,
+  workers, Cloudflare, Redis, Railway/Supabase config, billing, and UI redesign
+  stayed out of scope.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` passed, 44 tests.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` passed.
+- `git diff --check HEAD^ HEAD`, `git diff --check`, and
+  `git diff --cached --check` passed.
+- Credential-shaped diff scans were clean.
+
+## MIMIR Closeout
+
+Closed on 2026-06-23.
+
+PR190 satisfies the Phase 2E `update_layout` suggestion/readback boundary. It
+does not unlock direct layout mutation. Any future direct visual config mutation
+needs a separate lane with explicit rollback/readback proof.
+
+Remaining Phase 2E Developer Agent gap:
+
+- `run_job` needs a dry-run/readiness boundary before any worker or provider
+  execution can be considered.

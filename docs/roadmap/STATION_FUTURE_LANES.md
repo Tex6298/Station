@@ -70,9 +70,9 @@ blocked until rehearsal evidence identifies a concrete, reviewable gap.
 
 ## Phase 2E Developer Agent production readiness
 
-Status, 2026-06-23: PR188 and PR189 are accepted after Phase 2D closeout and
-the protected-alpha human rehearsal. PR190 has a DAEDALUS implementation
-awaiting ARGUS review.
+Status, 2026-06-23: PR188, PR189, and PR190 are accepted after Phase 2D
+closeout and the protected-alpha human rehearsal. PR191 is open as the final
+currently justified Phase 2E Developer Agent boundary-hardening slice.
 
 Phase 2E does not mean every Developer Agent tool is production-ready. It means
 Station now needs a production-readiness classification for every action and a
@@ -86,9 +86,11 @@ Current intended posture:
 - Owner-confirmed receipt/artifact/public-note paths covered by PR189 are now
   production-capable when kept behind owner confirmation, receipt, audit-export,
   and minimized-payload boundaries.
-- Direct `update_layout` mutation and `run_job` execution remain blocked until
-  a specific Phase 2E hardening lane proves a safe subset. User approval alone
-  is not sufficient.
+- `update_layout` is accepted as owner-only suggestion/readback. Direct layout
+  mutation remains blocked until a separate lane proves rollback/readback and
+  owner safety.
+- `run_job` execution remains blocked until a specific Phase 2E hardening lane
+  proves a safe subset. User approval alone is not sufficient.
 - `push_to_repo`, `rotate_ingestion_key`, and
   `create_webhook_signing_secret` remain blocked beyond Phase 2E; future
   planning packets may describe intent, but they must not add repo writes,
@@ -96,11 +98,13 @@ Current intended posture:
 - Completed first Phase 2E implementation slice: Developer Agent production
   audit and receipt export hardening for `request_capability`,
   `save_project_update_draft`, `publish_to_page`, and `update_observatory`.
-- Current Phase 2E implementation slice: `update_layout` suggestion/readback
-  only. DAEDALUS implemented minimized owner suggestions and audit-export
-  readback. ARGUS review decides whether this suggestion/readback boundary is
-  acceptable; direct layout mutation remains blocked and needs a separate
-  future lane.
+- Completed second Phase 2E implementation slice: `update_layout`
+  suggestion/readback only. Direct layout mutation remains blocked and needs a
+  separate future lane.
+- Current Phase 2E implementation slice: `run_job` dry-run/readiness boundary
+  only. Actual job execution, worker/queue enqueue, provider calls, shell,
+  Redis/Upstash job state, deploys, and credential mutation remain out of
+  scope.
 
 ## MIMIR decisions after provider/repo questions
 

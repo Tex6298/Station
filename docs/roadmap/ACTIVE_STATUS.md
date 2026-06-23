@@ -4,6 +4,38 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR191 run_job readiness boundary opened
+
+MIMIR closes PR190 on 2026-06-23 after ARGUS accepted the Developer Agent
+layout suggestion/readback boundary.
+
+Accepted PR190 truth:
+
+- `update_layout` is useful as owner-only suggestion/readback.
+- Direct layout mutation remains blocked.
+- No public observatory output changed.
+- Audit/export can include minimized `layout_suggestion` records.
+- `run_job`, repo push, key rotation, signing-secret creation, provider calls,
+  workers, Cloudflare, Redis, Railway/Supabase config, billing, and broad UI
+  redesign stayed out of scope.
+
+Decision:
+
+- Open PR191 for DAEDALUS.
+- Next Phase 2E implementation slice: `run_job` dry-run/readiness boundary.
+- Do not execute jobs, enqueue queues, call providers, use Redis/Upstash, run
+  shell, deploy, or mutate credentials in this lane.
+- If ARGUS accepts PR191, MIMIR should treat Developer Agent 2E as bounded
+  enough for now and pivot back to memory UX/observability unless fresh evidence
+  names a Developer Agent production blocker.
+
+Current baton:
+
+- DAEDALUS owns PR191.
+- ARGUS reviews no-execution proof, owner scoping, minimized payloads,
+  audit/export compatibility, public cleanliness, idempotency/retry wording, and
+  that Redis/queue/provider/workers stay out of scope.
+
 ## Latest DAEDALUS result - PR190 layout suggestion readback
 
 DAEDALUS completed PR190 implementation on 2026-06-23.
