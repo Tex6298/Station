@@ -4,6 +4,31 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR186 accepted-pause watch suppression
+
+MIMIR received timer wake `041ecb8` on 2026-06-23 after PR185 had already
+documented and accepted the pause-timer rule.
+
+Decision:
+
+- Docs-only guidance did not stop the external timer from interrupting
+  foreground watch.
+- Open PR186 as a narrow watch-script guard.
+- `scripts/triad-watch.mjs` now suppresses only the exact A1
+  `wake: restart backend flow` timer false positive when `ACTIVE_STATUS.md`
+  says accepted pause is active and MIMIR returns to foreground watch.
+
+Boundaries:
+
+- Normal `WAKEUP A1:` commits still wake MIMIR.
+- DAEDALUS, ARGUS, and ARIADNE wakeups are not suppressed.
+- The guard does not open backend/product work and does not hide fresh
+  hosted/product defects or explicit Marty/new-lane instructions.
+
+Current baton:
+
+- ARGUS should review PR186.
+
 ## Latest MIMIR closeout - PR185 accepted
 
 MIMIR closes PR185 on 2026-06-23 after ARGUS accepted the pause-timer rule.

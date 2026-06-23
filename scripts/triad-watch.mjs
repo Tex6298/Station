@@ -1,5 +1,8 @@
 import { execFileSync } from "node:child_process";
+import { readFileSync } from "node:fs";
+import path from "node:path";
 import {
+  REPO_ROOT,
   getAgent,
   readState,
   relativePath,
@@ -14,6 +17,10 @@ import {
 } from "./triad-wakeups.mjs";
 
 const POLL_MS = 5_000;
+const TIMER_RESTART_SUBJECT = "wake: restart backend flow";
+const TIMER_RESTART_SUMMARY = "Timer monitor found no active triad progress.";
+const ACCEPTED_PAUSE_MARKER = "Accepted pause is active.";
+const FOREGROUND_WATCH_MARKER = "MIMIR returns to foreground watch.";
 
 function usage() {
   console.log([
@@ -72,7 +79,33 @@ function currentCommitWakeup(agent, { ref, since }) {
   if (resolvedRef !== since) return null;
 
   const [currentCommit] = readRecentCommits({ maxCount: 1, ref });
-  return currentCommit && hasWakeupHeader(agent, currentCommit) ? currentCommit : null;
+  return currentCommit &&
+    hasWakeupHeader(agent, currentCommit) &&
+    !isAcceptedPauseTimerWake(agent, currentCommit)
+    ? currentCommit
+    : null;
+}
+
+function acceptedPauseIsActive() {
+  try {
+    const status = readFileSync(
+      path.join(REPO_ROOT, "docs", "roadmap", "ACTIVE_STATUS.md"),
+      "utf8",
+    );
+
+    return status.includes(ACCEPTED_PAUSE_MARKER) &&
+      status.includes(FOREGROUND_WATCH_MARKER);
+  } catch {
+    return false;
+  }
+}
+
+function isAcceptedPauseTimerWake(agent, commit) {
+  if (agent.id !== "A1") return false;
+  if (commit.subject !== TIMER_RESTART_SUBJECT) return false;
+  if (!commit.body.includes(TIMER_RESTART_SUMMARY)) return false;
+
+  return acceptedPauseIsActive();
 }
 
 function poll(agent, { quiet = false, consume = true, fetchConfig = null, ref = "HEAD", since = null } = {}) {
@@ -90,7 +123,8 @@ function poll(agent, { quiet = false, consume = true, fetchConfig = null, ref = 
     return true;
   }
 
-  const newWakeups = newWakeupsFor(agent, state, { ref, since });
+  const newWakeups = newWakeupsFor(agent, state, { ref, since })
+    .filter((commit) => !isAcceptedPauseTimerWake(agent, commit));
 
   if (newWakeups.length === 0) {
     if (!quiet) {
