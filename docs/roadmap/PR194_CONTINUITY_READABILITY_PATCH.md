@@ -4,7 +4,7 @@ Date opened: 2026-06-23
 Opened by: A1 / MIMIR
 Owner: DAEDALUS
 Reviewer: ARIADNE for human readability; ARGUS only if safety scope changes
-Status: open
+Status: implemented by MIMIR; ARIADNE recheck requested
 
 ## Why This Lane
 
@@ -70,3 +70,36 @@ After implementation:
 - If the patch is CSS/copy-only, wake ARIADNE for the human readability recheck.
 - If any displayed fields, source serialization, visibility, auth, runtime
   context, or owner/private exposure changes, wake ARGUS before ARIADNE.
+
+## MIMIR Implementation Note - 2026-06-23
+
+MIMIR carried the patch after the original DAEDALUS wakeup and a restart wakeup
+produced no downstream commit. The patch stayed within the CSS/copy-only
+fallback boundary.
+
+Changed:
+
+- Added scoped Continuity trust-card classes and stronger label/body contrast.
+- Strengthened Continuity record card contrast, body text, date text, and
+  source/provenance chip readability.
+- Changed the loading copy from "Loading continuity timeline..." to "Loading
+  Continuity..." so the stop remains named as Continuity.
+
+Not changed:
+
+- API serializers.
+- Displayed continuity fields.
+- Source serialization.
+- Visibility, auth, runtime context, retrieval, provider/config, memory truth,
+  schema, migrations, Redis/Cloudflare, workers, queues, billing, deployment
+  config, route data loading, or owner/private exposure.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:continuity`
+- `npm exec --yes pnpm@10.32.1 -- run test:studio-ui`
+- `git diff --check`
+
+Next:
+
+- ARIADNE should run the human readability recheck.

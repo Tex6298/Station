@@ -2250,10 +2250,11 @@ html, body {
   display: grid;
   grid-template-columns: 18px minmax(0, 1fr);
   gap: 0.75rem;
-  border: 1px solid #243246;
+  border: 1px solid #31445f;
   border-radius: 8px;
-  background: #0f172a;
+  background: linear-gradient(180deg, rgba(18, 30, 49, 0.98), rgba(13, 22, 38, 0.98));
   padding: 0.85rem;
+  box-shadow: inset 0 1px 0 rgba(148, 163, 184, 0.06);
 }
 
 .studio-timeline-marker {
@@ -2281,7 +2282,7 @@ html, body {
 }
 
 .studio-timeline-row time {
-  color: #64748b;
+  color: #cbd5e1;
   font-size: 0.76rem;
 }
 
@@ -2292,14 +2293,24 @@ html, body {
 
 .studio-timeline-record p {
   margin: 0;
-  color: #a8b4c7;
+  color: #d7e3f4;
   line-height: 1.6;
   white-space: pre-wrap;
 }
 
 .studio-timeline-source {
   margin-top: 0.65rem;
-  color: #93a4ba;
+  color: #dbeafe;
+  text-transform: none;
+}
+
+.studio-timeline-source-chip {
+  border: 1px solid rgba(125, 211, 252, 0.32);
+  border-radius: 999px;
+  background: rgba(14, 165, 233, 0.1);
+  color: #e0f2fe;
+  padding: 0.24rem 0.5rem;
+  line-height: 1.25;
   text-transform: none;
 }
 
@@ -3445,6 +3456,48 @@ body {
 .studio-context-panel p,
 .studio-continuity-card p {
   color: var(--station-page-muted);
+}
+
+.studio-continuity-trust-card {
+  border-color: #31445f;
+  background: linear-gradient(180deg, rgba(18, 30, 49, 0.98), rgba(13, 22, 38, 0.98));
+}
+
+.studio-continuity-trust-card .studio-continuity-trust-value {
+  color: #f8fafc;
+}
+
+.studio-continuity-trust-card .studio-continuity-trust-label {
+  color: #e0f2fe;
+  font-weight: 820;
+}
+
+.studio-continuity-trust-card .studio-continuity-trust-body {
+  color: #c7d7eb;
+}
+
+.studio-timeline-record .studio-timeline-row span,
+.studio-timeline-record .studio-timeline-source {
+  color: #dbeafe;
+}
+
+.studio-timeline-record .studio-timeline-row span {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid rgba(125, 211, 252, 0.32);
+  border-radius: 999px;
+  background: rgba(14, 165, 233, 0.1);
+  color: #e0f2fe;
+  padding: 0.22rem 0.5rem;
+  line-height: 1.25;
+}
+
+.studio-timeline-record .studio-timeline-row time {
+  color: #cbd5e1;
+}
+
+.studio-timeline-record .studio-timeline-source-chip {
+  color: #e0f2fe;
 }
 
 .studio-status-badge,

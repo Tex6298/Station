@@ -100,10 +100,10 @@ function ContinuityTrustOverview({ persona }: { persona: PersonaWithContinuity }
       </div>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))", gap: "0.75rem" }}>
         {rows.map((row) => (
-          <article key={row.label} className="studio-item-card" style={{ minHeight: 120 }}>
-            <h3 style={{ marginBottom: "0.25rem" }}>{row.value}</h3>
-            <p style={{ margin: 0, fontWeight: 800, color: "#f8fafc" }}>{row.label}</p>
-            <p style={{ margin: "0.35rem 0 0" }}>{row.body}</p>
+          <article key={row.label} className="studio-item-card studio-continuity-trust-card" style={{ minHeight: 120 }}>
+            <h3 className="studio-continuity-trust-value" style={{ marginBottom: "0.25rem" }}>{row.value}</h3>
+            <p className="studio-continuity-trust-label" style={{ margin: 0 }}>{row.label}</p>
+            <p className="studio-continuity-trust-body" style={{ margin: "0.35rem 0 0" }}>{row.body}</p>
           </article>
         ))}
       </div>

@@ -164,7 +164,7 @@ export function ContinuityTimeline({ personaId, personaName, onRecordCreated }: 
   }
 
   if (loading) {
-    return <div className="studio-empty">Loading continuity timeline...</div>;
+    return <div className="studio-empty">Loading Continuity...</div>;
   }
 
   return (
@@ -193,7 +193,7 @@ export function ContinuityTimeline({ personaId, personaName, onRecordCreated }: 
                   <p>{continuityRecordText(record)}</p>
                   <div className="studio-timeline-source" style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
                     {continuityRecordProvenanceLabels(record).map((label) => (
-                      <span key={label}>{label}</span>
+                      <span className="studio-timeline-source-chip" key={label}>{label}</span>
                     ))}
                   </div>
                 </div>

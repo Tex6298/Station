@@ -4,6 +4,33 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR implementation - PR194 Continuity readability recheck opened
+
+MIMIR implemented PR194 on 2026-06-23 after two DAEDALUS wakeups produced no
+downstream commit. This was kept inside the PR194 fallback boundary: CSS/classes
+and narrow loading copy only.
+
+Changes:
+
+- Continuity trust cards now use scoped classes with stronger label/body
+  contrast.
+- Continuity record cards now have stronger card contrast, readable record body
+  and time text, and visible provenance/source chips.
+- No API serializers, displayed continuity fields, source serialization,
+  visibility, auth, runtime context, retrieval, provider/config, memory truth,
+  schema, migrations, Redis/Cloudflare, workers, queues, billing, deployment
+  config, route data loading, or owner/private exposure changed.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:continuity`
+- `npm exec --yes pnpm@10.32.1 -- run test:studio-ui`
+- `git diff --check`
+
+Current baton:
+
+- ARIADNE owns the PR194 human readability recheck.
+
 ## Latest MIMIR decision - PR194 Continuity readability opened
 
 MIMIR closes PR193 on 2026-06-23 after ARIADNE completed the hosted human-eye
