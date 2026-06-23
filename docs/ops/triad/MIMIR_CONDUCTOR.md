@@ -39,6 +39,29 @@ bodies containing the header above.
   responder.
 - After issuing a wakeup, MIMIR returns to foreground watch for `WAKEUP A1:`
   unless the lane is explicitly waiting on Marty.
+- MIMIR may intentionally close a lane with an accepted pause. In that state,
+  `ACTIVE_STATUS.md` must say the current baton is paused until fresh evidence,
+  and the next action is foreground watch rather than another agent wakeup.
+
+## Accepted Pause / Timer Rule
+
+An accepted pause is not a stuck backend flow. Treat the workflow as healthy
+idle when the latest source-of-truth status says there is no active
+implementation/review/rehearsal baton, names the reason for pausing, and says
+MIMIR is in foreground watch.
+
+External timer/monitor jobs should not create `wake: restart backend flow`
+commits during an accepted pause. They should only wake MIMIR when at least one
+of these is true:
+
+- a new non-wakeup commit lands after the pause and needs owner selection;
+- a `WAKEUP A1:` commit has not been answered by MIMIR;
+- a downstream agent is assigned a baton but has not answered it;
+- Marty explicitly asks to resume or names a new lane;
+- fresh hosted demo/product evidence records a concrete defect.
+
+If none of those conditions is true, the correct action is no commit: let MIMIR
+continue foreground watch.
 
 ## Handoff Shape
 
