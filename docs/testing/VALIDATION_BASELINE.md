@@ -54,6 +54,25 @@ pnpm test:developer-space-client
 pnpm test:writing
 ```
 
+## PR204 Public Persona Page Rehearsal
+
+ARIADNE deployment-gate result on 2026-06-24:
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Web `/health/deployment` | Blocked | Railway web reported commit `e333acac49de00612397a0aa73798fd7e5dcdd5b`, not `c898f82` or a later accepted PR203 app-code commit. |
+| API `/health/deployment` | Blocked | Railway API reported commit `e333acac49de00612397a0aa73798fd7e5dcdd5b`, not `c898f82` or a later accepted PR203 app-code commit. |
+| Local ancestry check | Blocked | `c898f82` is not an ancestor of the reported deployment commit. |
+| Public persona page rehearsal | Not run | PR204 requires deployment freshness first; ARIADNE did not rehearse an older runtime. |
+
+Scope notes:
+
+- No public route verdict was issued.
+- No data mutation, import/export, provider, Stripe, Redis, Cloudflare, worker,
+  queue, cache, schema, migration, deployment config, auth/session, billing, or
+  backend behavior was changed.
+- MIMIR should resolve deployment freshness and wake ARIADNE to rerun PR204.
+
 ## PR203 Public Persona Page Readback
 
 DAEDALUS implementation plus MIMIR safety-repair validation on 2026-06-23:

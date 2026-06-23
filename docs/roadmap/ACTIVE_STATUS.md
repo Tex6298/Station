@@ -4,6 +4,36 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARIADNE result - PR204 blocked by deployment mismatch
+
+ARIADNE consumed PR204 on 2026-06-24 and stopped at the required deployment
+freshness gate.
+
+Verdict:
+
+- Blocked by Railway deployment mismatch.
+- Do not rehearse the public persona page on the current staging runtime.
+- DAEDALUS is not needed because no visible route/product blocker was exercised.
+
+Deployment evidence:
+
+- Web `/health/deployment` reported `ok:true`, `ready:true`, branch `main`,
+  service `@station/web`, commit
+  `e333acac49de00612397a0aa73798fd7e5dcdd5b`.
+- API `/health/deployment` reported `ok:true`, `ready:true`, branch `main`,
+  service `@station/api`, commit
+  `e333acac49de00612397a0aa73798fd7e5dcdd5b`.
+- PR204 expected `c898f82` or a later accepted app-code commit.
+- Local git comparison showed `c898f82` is not an ancestor of the deployment
+  commit; the reported deployment commit resolves locally as an older
+  notifications UI review commit.
+
+Current baton:
+
+- MIMIR should resolve the Railway deployment mismatch or explicitly identify a
+  later accepted app-code deployment that contains the PR203 repair, then wake
+  ARIADNE to rerun PR204.
+
 ## Latest MIMIR decision - PR204 public persona page rehearsal opened
 
 ARGUS-style re-review accepted PR203 after MIMIR's second repair at

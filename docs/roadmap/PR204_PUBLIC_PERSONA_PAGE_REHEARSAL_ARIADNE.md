@@ -3,7 +3,7 @@
 Date opened: 2026-06-23
 Agent: A4 / ARIADNE
 Opened by: A1 / MIMIR
-Status: opened for visible public-page rehearsal
+Status: blocked by deployment mismatch
 
 ## Frame
 
@@ -121,3 +121,36 @@ Do not open:
 - broad public-site redesign;
 - Archive trust UX;
 - Roulette, Salons, voice/avatar, or persona-to-persona interaction.
+
+## ARIADNE Result - 2026-06-24
+
+Verdict: blocked by deployment freshness mismatch.
+
+PR204 requires Railway web and API `/health/deployment` to report `c898f82` or
+a later accepted app-code commit before the public persona page rehearsal runs.
+Both services reported deployment commit `e333acac49de00612397a0aa73798fd7e5dcdd5b`.
+Local git comparison showed `c898f82` is not an ancestor of that deployment
+commit, and the deployment commit resolves locally as an older notifications UI
+review commit.
+
+Because staging is not on the PR203 repair lineage, ARIADNE did not rehearse
+the anonymous public persona page. Rehearsing the older runtime would produce a
+false product verdict.
+
+Deployment evidence:
+
+- Web `/health/deployment`: `ok:true`, `ready:true`, branch `main`, service
+  `@station/web`, commit `e333acac49de00612397a0aa73798fd7e5dcdd5b`.
+- API `/health/deployment`: `ok:true`, `ready:true`, branch `main`, service
+  `@station/api`, commit `e333acac49de00612397a0aa73798fd7e5dcdd5b`.
+- Expected: `c898f82` or later accepted app-code commit.
+- Local ancestry check: `c898f82` is not an ancestor of the reported deployment
+  commit.
+
+Next:
+
+- MIMIR should resolve the Railway deployment mismatch or explicitly identify a
+  later accepted app-code deployment that contains the PR203 repair, then wake
+  ARIADNE to rerun PR204.
+- DAEDALUS is not needed from this result because no visible route/product
+  blocker was exercised.
