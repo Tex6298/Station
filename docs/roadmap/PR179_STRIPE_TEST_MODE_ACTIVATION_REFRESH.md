@@ -133,3 +133,73 @@ Station can honestly say:
 "The replay owner completed a hosted Stripe test-mode subscription activation
 against current staging, and Station reads the account as the expected paid
 tier/status through verified webhook-backed entitlement state."
+
+## DAEDALUS Blocked Result - 2026-06-23
+
+DAEDALUS did not create a new Checkout Session or attempt a hosted payment.
+Current hosted state makes a fresh activation proof unsafe: the replay owner is
+already active, and the Stripe test customer already has more than one active
+Station-price subscription.
+
+Sanitized hosted checks:
+
+| Probe | Result | Notes |
+| --- | --- | --- |
+| API deployment identity | Pass | `https://stationapi-production.up.railway.app/health/deployment` returned HTTP 200, `ok:true`, `ready:true`, branch `main`, service `@station/api`, served commit prefix `b10eb8b9b8e0`. |
+| Web health | Pass | `https://stationweb-production.up.railway.app/health` returned HTTP 200 with `ok:true`. |
+| Stripe readiness | Pass | Hosted deployment readiness reports Stripe billing secrets true and all configured subscription Price IDs true. |
+| Replay owner sign-in | Pass | HTTP 200; token captured in memory only and not printed. |
+| `/billing/me` before any PR179 checkout | Pass, already active | HTTP 200; tier `canon`, subscription status `active`, customer present, subscription present. |
+| `/auth/me` | Pass | HTTP 200; tier `canon`, admin false, email present. |
+| Stripe test subscription lookup | Blocked for fresh activation | Stripe test API lookup succeeded without printing identifiers. It found `2` active/trialing subscriptions for the replay customer, and `2` active Station-price matches. |
+| Stripe CLI | Unavailable | `stripe` CLI is not installed in this shell. |
+
+Reason PR179 cannot honestly complete the acceptance target yet:
+
+- The replay owner is already active before PR179 creates any Checkout Session.
+- Creating or completing another Checkout Session could add a third active
+  subscription instead of proving a clean inactive-to-active mutation.
+- Resetting/canceling Stripe subscriptions, choosing a new proof account, or
+  changing checkout behavior are separate decisions. DAEDALUS did not perform
+  them inside this proof lane.
+
+Observed repo safety gap:
+
+- The API Checkout service currently creates a subscription-mode Checkout
+  Session for the requested paid tier after customer lookup. It does not first
+  block an already-active profile/customer from opening another subscription
+  Checkout. The web Billing UI avoids active same-tier checkout, but the API
+  surface is still callable directly.
+
+Recommended next decision:
+
+1. Reconcile the duplicate Stripe test subscriptions externally and rerun a
+   clean hosted activation proof on the replay owner; or
+2. Approve a dedicated fresh proof account for PR179; or
+3. Open a narrow billing safety patch to block subscription Checkout creation
+   when Station already records an active/trialing subscription, then let ARGUS
+   review the behavior change.
+
+Validation run:
+
+```bash
+npm exec --yes pnpm@10.32.1 -- run test:billing
+npm exec --yes pnpm@10.32.1 -- run test:token-credits
+git diff --check
+```
+
+Results:
+
+- `test:billing` passed: 9 tests.
+- `test:token-credits` passed: 3 tests.
+- `git diff --check` passed with CRLF normalization warnings only.
+
+Sanitization:
+
+- No Stripe secrets, Checkout URLs or paths, webhook payloads, customer IDs,
+  subscription IDs, owner IDs, tokens, cookies, payment details, private
+  excerpts, prompts, completions, raw API response bodies, or raw Stripe
+  response bodies were printed or committed.
+
+Next baton: wake MIMIR because PR179 is blocked before proof and no code
+behavior changed.

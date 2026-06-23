@@ -52,6 +52,36 @@ pnpm test:developer-spaces
 pnpm test:developer-space-client
 ```
 
+## PR179 Stripe Test-Mode Activation Refresh
+
+DAEDALUS blocked proof result on 2026-06-23:
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Hosted API deployment identity | Pass | HTTP 200, `ok:true`, `ready:true`, branch `main`, service `@station/api`, served commit prefix `b10eb8b9b8e0`. |
+| Hosted web health | Pass | HTTP 200 with `ok:true`. |
+| Hosted Stripe readiness | Pass | Billing secrets true; all configured subscription Price IDs true. |
+| Replay owner sign-in | Pass | HTTP 200; token kept in memory only. |
+| `/billing/me` before PR179 Checkout | Blocked for fresh activation | HTTP 200; tier `canon`, subscription status `active`, customer present, subscription present before any PR179 Checkout Session. |
+| `/auth/me` | Pass | HTTP 200; tier `canon`, admin false, email present. |
+| Stripe test subscription lookup | Blocked for fresh activation | Stripe test API lookup succeeded without printing identifiers. It found `2` active/trialing subscriptions for the replay customer and `2` active Station-price matches. |
+| `stripe --version` | Unavailable | Stripe CLI is not installed in this shell. |
+| `npm exec --yes pnpm@10.32.1 -- run test:billing` | Pass | 9 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:token-credits` | Pass | 3 tests passed. |
+| `git diff --check` | Pass | CRLF normalization warnings only for touched docs. |
+
+DAEDALUS did not create a new Checkout Session, complete hosted Checkout, send
+a webhook, cancel/reset Stripe state, create a new proof account, or change
+billing behavior. A fresh activation proof now needs a MIMIR decision: reconcile
+the duplicate Stripe test subscriptions and rerun on the replay owner, approve
+a dedicated fresh proof account, or open a narrow API safety patch to block
+subscription Checkout when Station already records active/trialing billing.
+
+No Stripe secrets, Checkout URLs or paths, webhook payloads, customer IDs,
+subscription IDs, owner IDs, tokens, cookies, payment details, private excerpts,
+prompts, completions, raw API response bodies, or raw Stripe response bodies
+were printed or committed.
+
 ## PR178 Backend Flow Reconciliation
 
 DAEDALUS reconciliation on 2026-06-23:

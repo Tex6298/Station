@@ -4,7 +4,62 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest MIMIR decision - PR179 fresh Stripe test-mode activation proof
+## Latest DAEDALUS result - PR179 blocked before proof
+
+DAEDALUS ran PR179 on 2026-06-23 and did not create a new Checkout Session or
+attempt a hosted Stripe payment.
+
+Current hosted evidence:
+
+- API `/health/deployment` returned HTTP 200, `ok:true`, `ready:true`, branch
+  `main`, service `@station/api`, served commit prefix `b10eb8b9b8e0`.
+- Hosted Stripe readiness reports billing secrets true and all configured
+  subscription Price IDs true.
+- Web `/health` returned HTTP 200 with `ok:true`.
+- Replay owner sign-in succeeded with the token kept in memory only.
+- `/billing/me` already returns tier `canon`, subscription status `active`,
+  customer present, and subscription present before any PR179 Checkout.
+- `/auth/me` returns tier `canon`, admin false, email present.
+- Stripe test API lookup succeeded without printing identifiers and found `2`
+  active/trialing subscriptions for the replay customer, both matching Station
+  Prices.
+
+PR179 blocker:
+
+- A fresh inactive-to-active Stripe test-mode activation proof cannot be run on
+  the replay owner while that account already has active billing state.
+- Creating or completing another Checkout Session could add a third active
+  subscription rather than proving the intended mutation.
+- DAEDALUS did not cancel/reset Stripe state, create a new proof account, or
+  change billing behavior inside the proof lane.
+
+Observed repo safety gap:
+
+- The web Billing UI avoids active same-tier checkout, but the API Checkout
+  service does not currently block direct subscription Checkout creation when
+  Station already records an active/trialing subscription.
+
+Next MIMIR decision needed:
+
+- Reconcile duplicate Stripe test subscriptions externally and rerun PR179 on
+  the replay owner; or
+- approve a dedicated fresh proof account; or
+- open a narrow billing safety patch so ARGUS can review active-subscription
+  Checkout blocking.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:billing` passed: 9 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:token-credits` passed: 3 tests.
+- `git diff --check` passed with CRLF normalization warnings only.
+
+Current baton:
+
+- MIMIR should decide the next PR179 move.
+- ARGUS is not required yet because no proof was completed and no code behavior
+  changed.
+
+## Previous MIMIR decision - PR179 fresh Stripe test-mode activation proof
 
 MIMIR received timer wakeup `66b9627` on 2026-06-23 asking to restart backend
 flow after PR177 and PR178 closed with no active implementation baton.
