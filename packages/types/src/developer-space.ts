@@ -317,6 +317,60 @@ export interface DeveloperSpaceAgentExecutionReceiptRecord {
   updatedAt: string;
 }
 
+export type DeveloperSpaceAgentAuditExportArtifactType =
+  | "capability_request"
+  | "private_draft_document"
+  | "published_document"
+  | "observatory_status_note"
+  | "none";
+
+export interface DeveloperSpaceAgentAuditExportArtifact {
+  type: DeveloperSpaceAgentAuditExportArtifactType;
+  label: string;
+  status?: string | null;
+  visibility?: string | null;
+  linkVisibility?: DeveloperSpaceDocumentLinkVisibility | null;
+  role?: DeveloperSpaceDocumentRole | null;
+  occurredAt?: string | null;
+  publishedAt?: string | null;
+}
+
+export interface DeveloperSpaceAgentAuditExportItem {
+  action: DeveloperSpaceAgentExecutionReceiptAction;
+  confirmationStatus: DeveloperSpaceAgentConfirmationStatus;
+  requestedAt: string;
+  expiresAt: string;
+  approvedAt?: string | null;
+  cancelledAt?: string | null;
+  completedAt?: string | null;
+  summary: string;
+  receiptStatus: DeveloperSpaceAgentExecutionReceiptStatus | "missing";
+  receiptSummary?: string | null;
+  artifact: DeveloperSpaceAgentAuditExportArtifact;
+  idempotency: {
+    retrySafe: boolean;
+    receiptRecorded: boolean;
+    repeatUsesExistingReceipt: boolean;
+  };
+  executionAvailable: boolean;
+  mutationAvailable: boolean;
+  externalDispatch: false;
+  boundaries: string[];
+  omittedFields: string[];
+}
+
+export interface DeveloperSpaceAgentAuditExport {
+  generatedAt: string;
+  scope: "owner_developer_space";
+  actions: DeveloperSpaceAgentExecutionReceiptAction[];
+  omittedFields: string[];
+  retention: {
+    source: "developer_space_agent_confirmations_and_receipts";
+    note: string;
+  };
+  items: DeveloperSpaceAgentAuditExportItem[];
+}
+
 export interface DeveloperSpaceFreshness {
   streamId: string;
   spaceUpdatedAt: string;

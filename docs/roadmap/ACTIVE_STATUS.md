@@ -4,6 +4,35 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest DAEDALUS result - PR189 audit export hardening
+
+DAEDALUS completed PR189 implementation on 2026-06-23.
+
+Patch:
+
+- Added owner-only `GET /developer-spaces/:id/agent/actions/audit-export`.
+- The audit export joins Developer Agent confirmations to execution receipts
+  internally, but returns only minimized owner export fields.
+- Export items cover `request_capability`, `save_project_update_draft`,
+  `publish_to_page`, and `update_observatory`.
+- Each item includes action, confirmation status and timestamps, safe summary,
+  receipt status/summary, affected artifact type/label, idempotency markers,
+  execution/mutation/external-dispatch posture, boundaries, and the explicit
+  omitted-field list.
+- Raw owner ids, Space ids, confirmation ids, receipt ids, preview hashes,
+  target document ids, dedupe keys, document bodies, prompts, provider payloads,
+  tokens, cookies, keys, and connection strings remain omitted from the export.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` passed, 43 tests.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` passed.
+
+Current baton:
+
+- ARGUS should review PR189 owner scoping, minimized/export payload posture,
+  public cleanliness, idempotency/retry truth, and overclaim boundaries.
+
 ## Latest MIMIR decision - PR189 opened
 
 MIMIR closes PR188 on 2026-06-23 after ARGUS accepted the Phase 2E production

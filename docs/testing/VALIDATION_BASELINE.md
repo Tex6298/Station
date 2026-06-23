@@ -52,6 +52,24 @@ pnpm test:developer-spaces
 pnpm test:developer-space-client
 ```
 
+## PR189 Developer Agent Audit Export Hardening
+
+DAEDALUS implementation validation on 2026-06-23:
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 43 tests passed. New coverage proves the owner-only audit export rejects anonymous/non-owner reads, covers all four owner-confirmed receipt actions, returns idempotency markers, omits raw ids/private payload fields, and leaves public detail clean of receipt/export content. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` | Pass | API typecheck completed after shared Developer Space audit export DTOs and the API route were added. |
+
+Scope notes:
+
+- Added an owner-only minimized audit/export readback for Developer Agent
+  confirmations and receipts.
+- No new Developer Agent action became executable.
+- No provider call, repo push, job/worker execution, key rotation,
+  signing-secret creation, layout mutation, billing, Cloudflare, Redis,
+  Railway/Supabase config, or UI behavior changed.
+
 ## PR184 Protected Alpha Current Human Rehearsal
 
 ARIADNE hosted rehearsal on 2026-06-23:

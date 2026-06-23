@@ -2790,6 +2790,285 @@ test("Developer Space agent update-observatory gate publishes one sanitized publ
   }
 });
 
+test("Developer Space agent audit export is owner-only and minimized across receipt actions", async () => {
+  const db = new InMemorySupabase();
+  setSupabaseAdminForTests(db.client as any);
+  const app = createDeveloperSpacesApp();
+
+  try {
+    const created = await requestJson(app, "POST", "/developer-spaces", {
+      token: "owner-token",
+      body: {
+        projectName: "Agent Audit Export Lane",
+        visibility: "public",
+      },
+    });
+    assert.equal(created.status, 201);
+    const spaceId = created.body.space.id;
+    const slug = created.body.space.slug;
+    const ids = {
+      capability: "11111111-1111-4111-8111-111111111111",
+      draft: "22222222-2222-4222-8222-222222222222",
+      publish: "33333333-3333-4333-8333-333333333333",
+      observatory: "44444444-4444-4444-8444-444444444444",
+      crossOwner: "55555555-5555-4555-8555-555555555555",
+      target: "66666666-6666-4666-8666-666666666666",
+    };
+
+    const insertAuditPair = (input: {
+      id: string;
+      action: string;
+      summary: string;
+      sanitizedPayload: Row;
+      receiptSummary: string;
+      receiptPayload: Row;
+      requestedAt: string;
+    }) => {
+      const confirmation = db.insertRow("developer_space_agent_confirmations", {
+        id: input.id,
+        developer_space_id: spaceId,
+        owner_user_id: "owner-user",
+        action: input.action,
+        status: "approved",
+        summary: input.summary,
+        preview_hash: `preview-hash-${input.action}-should-not-export`,
+        sanitized_payload: {
+          ...input.sanitizedPayload,
+          confirmationId: input.id,
+          previewHash: `preview-hash-${input.action}-should-not-export`,
+          targetDocumentId: ids.target,
+          rawPrompt: "private prompt should not export",
+          token: "token=should-not-export",
+        },
+        requested_at: input.requestedAt,
+        approved_at: "2026-05-24T10:00:00.000Z",
+        expires_at: "2026-05-25T09:00:00.000Z",
+      });
+      db.insertRow("developer_space_agent_execution_receipts", {
+        id: `receipt-${input.id}`,
+        developer_space_id: spaceId,
+        owner_user_id: "owner-user",
+        confirmation_id: confirmation.id,
+        action: input.action,
+        status: "recorded",
+        summary: input.receiptSummary,
+        receipt_payload: {
+          ...input.receiptPayload,
+          confirmationId: input.id,
+          ownerUserId: "owner-user",
+          targetDocumentId: ids.target,
+          dedupeKey: "dedupe-key-should-not-export",
+          body: "Private body should not export.",
+          providerPayload: { rawPrompt: "provider prompt should not export" },
+        },
+        dispatched_at: "2026-05-24T11:00:00.000Z",
+      });
+      return confirmation;
+    };
+
+    insertAuditPair({
+      id: ids.capability,
+      action: "request_capability",
+      summary: "Capability request recorded for owner planning.",
+      sanitizedPayload: {
+        action: "request_capability",
+        capabilityRequest: {
+          category: "provider_config",
+          categoryLabel: "Provider Config",
+          summary: "Need hosted provider review before opening an implementation lane.",
+        },
+      },
+      receiptSummary: "Capability request recorded: Provider Config - Need hosted provider review before opening an implementation lane.",
+      receiptPayload: {
+        action: "request_capability",
+        outcome: "capability_request_recorded",
+        executionAvailable: false,
+        mutationAvailable: false,
+        externalDispatch: false,
+        nextStep: "Review this provider request before implementation.",
+        boundaries: ["No provider call was made.", "token=boundary-should-not-export"],
+        capabilityRequest: {
+          category: "provider_config",
+          categoryLabel: "Provider Config",
+          summary: "Need hosted provider review before opening an implementation lane.",
+        },
+      },
+      requestedAt: "2026-05-24T09:04:00.000Z",
+    });
+    insertAuditPair({
+      id: ids.draft,
+      action: "save_project_update_draft",
+      summary: "Private project update draft requested.",
+      sanitizedPayload: { action: "save_project_update_draft" },
+      receiptSummary: "Private project update draft saved for owner review.",
+      receiptPayload: {
+        action: "save_project_update_draft",
+        outcome: "private_draft_document_saved",
+        executionAvailable: false,
+        mutationAvailable: true,
+        externalDispatch: false,
+        nextStep: "Review the private draft.",
+        boundaries: ["A private owner-only draft document was saved for human review."],
+        draftDocument: {
+          title: "Private Alpha Draft",
+          status: "draft",
+          visibility: "private",
+          linkVisibility: "owner",
+          role: "field_log",
+          body: "Private draft body should not export.",
+        },
+      },
+      requestedAt: "2026-05-24T09:03:00.000Z",
+    });
+    insertAuditPair({
+      id: ids.publish,
+      action: "publish_to_page",
+      summary: "Publish reviewed draft to the public Developer Space evidence path.",
+      sanitizedPayload: {
+        action: "publish_to_page",
+        target: { documentId: ids.target },
+      },
+      receiptSummary: "Reviewed project update draft published to the public Developer Space evidence path.",
+      receiptPayload: {
+        action: "publish_to_page",
+        outcome: "draft_document_published",
+        executionAvailable: true,
+        mutationAvailable: true,
+        externalDispatch: false,
+        nextStep: "Review the public evidence path.",
+        boundaries: ["Only the selected owner-reviewed private draft document was published."],
+        publishedDocument: {
+          title: "Public Alpha Update",
+          status: "published",
+          visibility: "public",
+          linkVisibility: "public",
+          role: "field_log",
+          publishedAt: "2026-05-24T11:00:00.000Z",
+        },
+      },
+      requestedAt: "2026-05-24T09:02:00.000Z",
+    });
+    insertAuditPair({
+      id: ids.observatory,
+      action: "update_observatory",
+      summary: "Observatory status-note update requested.",
+      sanitizedPayload: {
+        action: "update_observatory",
+        statusNote: {
+          note: "Public launch note is ready for review.",
+          eventType: "developer_agent.status_note",
+          eventLabel: "Status note: Public launch note",
+          visibility: "public",
+          provenance: "user",
+        },
+      },
+      receiptSummary: "Public observatory status note published: Public launch note is ready for review.",
+      receiptPayload: {
+        action: "update_observatory",
+        outcome: "observatory_status_note_published",
+        executionAvailable: true,
+        mutationAvailable: true,
+        externalDispatch: false,
+        nextStep: "Review the public observatory.",
+        boundaries: ["Only one owner-approved public status note event was created."],
+        statusNote: {
+          note: "Public launch note is ready for review.",
+          eventType: "developer_agent.status_note",
+          eventLabel: "Status note: Public launch note",
+          visibility: "public",
+          provenance: "user",
+          occurredAt: "2026-05-24T11:00:00.000Z",
+        },
+      },
+      requestedAt: "2026-05-24T09:01:00.000Z",
+    });
+
+    db.insertRow("developer_space_agent_confirmations", {
+      id: ids.crossOwner,
+      developer_space_id: spaceId,
+      owner_user_id: "other-user",
+      action: "request_capability",
+      status: "approved",
+      summary: "Other owner capability request should not export.",
+      preview_hash: "other-owner-preview-hash",
+      sanitized_payload: { action: "request_capability" },
+      requested_at: "2026-05-24T09:05:00.000Z",
+      approved_at: "2026-05-24T10:00:00.000Z",
+      expires_at: "2026-05-25T09:00:00.000Z",
+    });
+
+    const anonymousExport = await requestJson(app, "GET", `/developer-spaces/${spaceId}/agent/actions/audit-export`);
+    assert.equal(anonymousExport.status, 401);
+
+    const nonOwnerExport = await requestJson(app, "GET", `/developer-spaces/${spaceId}/agent/actions/audit-export`, {
+      token: "other-token",
+    });
+    assert.equal(nonOwnerExport.status, 403);
+
+    const ownerExport = await requestJson(app, "GET", `/developer-spaces/${spaceId}/agent/actions/audit-export`, {
+      token: "owner-token",
+    });
+    assert.equal(ownerExport.status, 200);
+    assert.equal(ownerExport.body.setup.confirmationStoreAvailable, true);
+    assert.equal(ownerExport.body.setup.receiptStoreAvailable, true);
+    assert.equal(ownerExport.body.auditExport.scope, "owner_developer_space");
+    assert.deepEqual(ownerExport.body.auditExport.actions, [
+      "request_capability",
+      "save_project_update_draft",
+      "publish_to_page",
+      "update_observatory",
+    ]);
+    assert.equal(ownerExport.body.auditExport.items.length, 4);
+
+    const itemsByAction = Object.fromEntries(
+      ownerExport.body.auditExport.items.map((item: Row) => [item.action, item]),
+    );
+    assert.equal(itemsByAction.request_capability.artifact.type, "capability_request");
+    assert.equal(itemsByAction.request_capability.receiptStatus, "recorded");
+    assert.equal(itemsByAction.request_capability.idempotency.repeatUsesExistingReceipt, true);
+    assert.equal(itemsByAction.request_capability.executionAvailable, false);
+    assert.equal(itemsByAction.request_capability.mutationAvailable, false);
+    assert.equal(itemsByAction.request_capability.externalDispatch, false);
+    assert.equal(itemsByAction.save_project_update_draft.artifact.type, "private_draft_document");
+    assert.equal(itemsByAction.save_project_update_draft.artifact.visibility, "private");
+    assert.equal(itemsByAction.save_project_update_draft.artifact.linkVisibility, "owner");
+    assert.equal(itemsByAction.publish_to_page.artifact.type, "published_document");
+    assert.equal(itemsByAction.publish_to_page.artifact.visibility, "public");
+    assert.equal(itemsByAction.publish_to_page.artifact.linkVisibility, "public");
+    assert.equal(itemsByAction.update_observatory.artifact.type, "observatory_status_note");
+    assert.equal(itemsByAction.update_observatory.artifact.visibility, "public");
+    assert.ok(ownerExport.body.auditExport.omittedFields.includes("confirmation_id"));
+    assert.ok(itemsByAction.publish_to_page.omittedFields.includes("target_document_id"));
+
+    const repeatedOwnerExport = await requestJson(app, "GET", `/developer-spaces/${spaceId}/agent/actions/audit-export`, {
+      token: "owner-token",
+    });
+    assert.equal(repeatedOwnerExport.status, 200);
+    assert.deepEqual(
+      repeatedOwnerExport.body.auditExport.items.map((item: Row) => item.action),
+      ownerExport.body.auditExport.items.map((item: Row) => item.action),
+    );
+
+    const publicDetail = await requestJson(app, "GET", `/developer-spaces/${slug}`);
+    assert.equal(publicDetail.status, 200);
+
+    const exportText = JSON.stringify({
+      ownerExport: ownerExport.body,
+      repeatedOwnerExport: repeatedOwnerExport.body,
+    });
+    assert.doesNotMatch(exportText, /11111111-1111-4111-8111-111111111111|22222222-2222-4222-8222-222222222222|33333333-3333-4333-8333-333333333333|44444444-4444-4444-8444-444444444444/);
+    assert.doesNotMatch(exportText, /55555555-5555-4555-8555-555555555555|66666666-6666-4666-8666-666666666666|other owner capability request/i);
+    const hiddenAuditValuePattern = /preview-hash-(request_capability|save_project_update_draft|publish_to_page|update_observatory)-should-not-export|dedupe-key-should-not-export|targetDocumentId|ownerUserId|confirmationId|receipt-11111111|receipt-22222222|receipt-33333333|receipt-44444444|private prompt should not export|token=should-not-export|boundary-should-not-export|Private body should not export|provider prompt should not export/;
+    assert.equal(exportText.match(hiddenAuditValuePattern)?.[0] ?? null, null);
+    assert.doesNotMatch(
+      JSON.stringify(publicDetail.body),
+      /Provider Config|Private Alpha Draft|Public Alpha Update|Public launch note|Capability request recorded/,
+    );
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
+
 test("Developer Space agent receipt migration allows update_observatory receipts", () => {
   const migration = readFileSync(
     join(

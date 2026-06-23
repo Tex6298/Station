@@ -3,6 +3,9 @@ import { Router, type Request, type Response } from "express";
 import { z } from "zod";
 import { describePlatformProviderRoute } from "@station/ai";
 import type {
+  DeveloperSpaceAgentAuditExport,
+  DeveloperSpaceAgentAuditExportArtifact,
+  DeveloperSpaceAgentAuditExportItem,
   DeveloperSpaceAgentConfirmationRecord,
   DeveloperSpaceAgentConfirmationStatus,
   DeveloperSpaceAgentExecutionReceiptAction,
@@ -227,6 +230,30 @@ const DEVELOPER_SPACE_AGENT_EXECUTABLE_ACTIONS = new Set<string>([
   DEVELOPER_SPACE_AGENT_PUBLISH_DOCUMENT_ACTION,
   DEVELOPER_SPACE_AGENT_OBSERVATORY_UPDATE_ACTION,
 ]);
+const DEVELOPER_SPACE_AGENT_AUDIT_EXPORT_ACTIONS: readonly DeveloperSpaceAgentExecutionReceiptAction[] = [
+  DEVELOPER_SPACE_AGENT_EXECUTION_RECEIPT_ACTION,
+  DEVELOPER_SPACE_AGENT_DRAFT_DOCUMENT_ACTION,
+  DEVELOPER_SPACE_AGENT_PUBLISH_DOCUMENT_ACTION,
+  DEVELOPER_SPACE_AGENT_OBSERVATORY_UPDATE_ACTION,
+];
+const DEVELOPER_SPACE_AGENT_AUDIT_EXPORT_ACTION_SET = new Set<string>(DEVELOPER_SPACE_AGENT_AUDIT_EXPORT_ACTIONS);
+const DEVELOPER_SPACE_AGENT_AUDIT_EXPORT_LIMIT = 100;
+const DEVELOPER_SPACE_AGENT_AUDIT_EXPORT_OMITTED_FIELDS = [
+  "owner_user_id",
+  "developer_space_id",
+  "confirmation_id",
+  "receipt_id",
+  "preview_hash",
+  "target_document_id",
+  "dedupe_key",
+  "document_body",
+  "raw_prompt",
+  "provider_payload",
+  "tokens",
+  "cookies",
+  "keys",
+  "connection_strings",
+] as const;
 const DEVELOPER_SPACE_AGENT_EXECUTION_RECEIPT_BOUNDARIES = [
   "No autonomous agent loop ran.",
   "No provider call was made.",
@@ -2261,6 +2288,215 @@ function serializeDeveloperSpaceAgentExecutionReceipt(row: any): DeveloperSpaceA
   };
 }
 
+function safeAgentAuditText(value: unknown, fallback: string, maxLength: number) {
+  const text = safeAgentText(value, fallback, maxLength);
+  return developerSpaceAgentSecretLikeText(text) ? fallback : text;
+}
+
+function safeAgentAuditTimestamp(value: unknown) {
+  return typeof value === "string" && !developerSpaceAgentSecretLikeText(value)
+    ? safeAgentText(value, "", 80)
+    : null;
+}
+
+function safeAgentAuditBoundaries(boundaries: string[] | undefined) {
+  const values = Array.isArray(boundaries) && boundaries.length > 0
+    ? boundaries
+    : ["No receipt has been recorded for this confirmation."];
+  return values.slice(0, 8).map((boundary) =>
+    safeAgentAuditText(boundary, "Boundary omitted from minimized audit export.", 220)
+  );
+}
+
+function developerSpaceAgentAuditArtifactFromReceiptPayload(
+  payload: DeveloperSpaceAgentExecutionReceiptRecord["receiptPayload"],
+): DeveloperSpaceAgentAuditExportArtifact {
+  if (payload.action === DEVELOPER_SPACE_AGENT_DRAFT_DOCUMENT_ACTION && payload.draftDocument) {
+    return {
+      type: "private_draft_document",
+      label: safeAgentAuditText(payload.draftDocument.title, "Private project-update draft", 160),
+      status: "draft",
+      visibility: "private",
+      linkVisibility: "owner",
+      role: payload.draftDocument.role,
+    };
+  }
+
+  if (payload.action === DEVELOPER_SPACE_AGENT_PUBLISH_DOCUMENT_ACTION && payload.publishedDocument) {
+    return {
+      type: "published_document",
+      label: safeAgentAuditText(payload.publishedDocument.title, "Published project update", 160),
+      status: "published",
+      visibility: "public",
+      linkVisibility: "public",
+      role: payload.publishedDocument.role,
+      publishedAt: safeAgentAuditTimestamp(payload.publishedDocument.publishedAt),
+    };
+  }
+
+  if (payload.action === DEVELOPER_SPACE_AGENT_OBSERVATORY_UPDATE_ACTION && payload.statusNote) {
+    return {
+      type: "observatory_status_note",
+      label: safeAgentAuditText(payload.statusNote.eventLabel || payload.statusNote.note, "Observatory status note", 160),
+      status: "published",
+      visibility: "public",
+      occurredAt: safeAgentAuditTimestamp(payload.statusNote.occurredAt),
+    };
+  }
+
+  if (payload.capabilityRequest) {
+    return {
+      type: "capability_request",
+      label: safeAgentAuditText(
+        `${payload.capabilityRequest.categoryLabel}: ${payload.capabilityRequest.summary}`,
+        "Capability request",
+        220,
+      ),
+      status: "recorded",
+    };
+  }
+
+  return {
+    type: "none",
+    label: "No artifact recorded",
+    status: "missing",
+  };
+}
+
+function developerSpaceAgentAuditArtifactFromConfirmation(row: any): DeveloperSpaceAgentAuditExportArtifact {
+  const action = row.action as DeveloperSpaceAgentExecutionReceiptAction;
+  if (action === DEVELOPER_SPACE_AGENT_EXECUTION_RECEIPT_ACTION) {
+    const request = developerSpaceAgentCapabilityRequestFromPayload(row.sanitized_payload);
+    return {
+      type: "capability_request",
+      label: safeAgentAuditText(`${request.categoryLabel}: ${request.summary}`, "Capability request", 220),
+      status: "requested",
+    };
+  }
+  if (action === DEVELOPER_SPACE_AGENT_DRAFT_DOCUMENT_ACTION) {
+    return {
+      type: "private_draft_document",
+      label: safeAgentAuditText(row.summary, "Private project-update draft", 160),
+      status: "not_recorded",
+      visibility: "private",
+      linkVisibility: "owner",
+      role: "field_log",
+    };
+  }
+  if (action === DEVELOPER_SPACE_AGENT_PUBLISH_DOCUMENT_ACTION) {
+    return {
+      type: "published_document",
+      label: safeAgentAuditText(row.summary, "Selected reviewed draft", 160),
+      status: "not_recorded",
+      visibility: "public",
+      linkVisibility: "public",
+    };
+  }
+  if (action === DEVELOPER_SPACE_AGENT_OBSERVATORY_UPDATE_ACTION) {
+    const statusNote = developerSpaceAgentStatusNoteFromPayload(row.sanitized_payload);
+    return {
+      type: "observatory_status_note",
+      label: safeAgentAuditText(statusNote.eventLabel || statusNote.note, "Observatory status note", 160),
+      status: "not_recorded",
+      visibility: "public",
+      occurredAt: safeAgentAuditTimestamp(statusNote.occurredAt),
+    };
+  }
+  return {
+    type: "none",
+    label: "No artifact recorded",
+    status: "missing",
+  };
+}
+
+function serializeDeveloperSpaceAgentAuditExportItem(
+  confirmation: any,
+  receipt: any | null,
+): DeveloperSpaceAgentAuditExportItem {
+  const action = confirmation.action as DeveloperSpaceAgentExecutionReceiptAction;
+  const receiptRecord = receipt ? serializeDeveloperSpaceAgentExecutionReceipt(receipt) : null;
+  const receiptPayload = receiptRecord?.receiptPayload ?? null;
+  const fallbackSummary = action === DEVELOPER_SPACE_AGENT_DRAFT_DOCUMENT_ACTION
+    ? "Private project update draft requested."
+    : action === DEVELOPER_SPACE_AGENT_PUBLISH_DOCUMENT_ACTION
+      ? "Reviewed draft publish requested."
+      : action === DEVELOPER_SPACE_AGENT_OBSERVATORY_UPDATE_ACTION
+        ? "Observatory status-note update requested."
+      : "Capability request recorded for owner planning.";
+
+  return {
+    action,
+    confirmationStatus: effectiveDeveloperSpaceAgentConfirmationStatus(confirmation),
+    requestedAt: safeAgentAuditTimestamp(confirmation.requested_at) ?? "",
+    expiresAt: safeAgentAuditTimestamp(confirmation.expires_at) ?? "",
+    approvedAt: safeAgentAuditTimestamp(confirmation.approved_at),
+    cancelledAt: safeAgentAuditTimestamp(confirmation.cancelled_at),
+    completedAt: receipt ? safeAgentAuditTimestamp(receipt.dispatched_at) : null,
+    summary: safeAgentAuditText(confirmation.summary, fallbackSummary, 400),
+    receiptStatus: receiptRecord?.status ?? "missing",
+    receiptSummary: receiptRecord
+      ? safeAgentAuditText(receiptRecord.summary, "Receipt recorded.", 400)
+      : null,
+    artifact: receiptPayload
+      ? developerSpaceAgentAuditArtifactFromReceiptPayload(receiptPayload)
+      : developerSpaceAgentAuditArtifactFromConfirmation(confirmation),
+    idempotency: {
+      retrySafe: true,
+      receiptRecorded: Boolean(receiptRecord),
+      repeatUsesExistingReceipt: Boolean(receiptRecord),
+    },
+    executionAvailable: receiptPayload
+      ? receiptPayload.executionAvailable
+      : action === DEVELOPER_SPACE_AGENT_PUBLISH_DOCUMENT_ACTION
+        || action === DEVELOPER_SPACE_AGENT_OBSERVATORY_UPDATE_ACTION,
+    mutationAvailable: receiptPayload
+      ? receiptPayload.mutationAvailable
+      : action !== DEVELOPER_SPACE_AGENT_EXECUTION_RECEIPT_ACTION,
+    externalDispatch: false,
+    boundaries: safeAgentAuditBoundaries(receiptPayload?.boundaries),
+    omittedFields: [...DEVELOPER_SPACE_AGENT_AUDIT_EXPORT_OMITTED_FIELDS],
+  };
+}
+
+function buildDeveloperSpaceAgentAuditExport(input: {
+  confirmations: any[];
+  receipts: any[];
+  generatedAt: string;
+}): DeveloperSpaceAgentAuditExport {
+  const receiptByConfirmationId = new Map<string, any>();
+  for (const receipt of input.receipts) {
+    if (!DEVELOPER_SPACE_AGENT_AUDIT_EXPORT_ACTION_SET.has(receipt.action)) continue;
+    if (typeof receipt.confirmation_id !== "string") continue;
+    if (!receiptByConfirmationId.has(receipt.confirmation_id)) {
+      receiptByConfirmationId.set(receipt.confirmation_id, receipt);
+    }
+  }
+
+  const confirmations = [...input.confirmations]
+    .filter((row) => DEVELOPER_SPACE_AGENT_AUDIT_EXPORT_ACTION_SET.has(row.action))
+    .sort((left, right) => Date.parse(right.requested_at ?? "") - Date.parse(left.requested_at ?? ""))
+    .slice(0, DEVELOPER_SPACE_AGENT_AUDIT_EXPORT_LIMIT);
+
+  return {
+    generatedAt: input.generatedAt,
+    scope: "owner_developer_space",
+    actions: [...DEVELOPER_SPACE_AGENT_AUDIT_EXPORT_ACTIONS],
+    omittedFields: [...DEVELOPER_SPACE_AGENT_AUDIT_EXPORT_OMITTED_FIELDS],
+    retention: {
+      source: "developer_space_agent_confirmations_and_receipts",
+      note: "Audit export uses minimized owner-scoped confirmation and receipt metadata; private payloads and route identifiers remain omitted.",
+    },
+    items: confirmations.map((confirmation) =>
+      serializeDeveloperSpaceAgentAuditExportItem(
+        confirmation,
+        typeof confirmation.id === "string"
+          ? receiptByConfirmationId.get(confirmation.id) ?? null
+          : null,
+      )
+    ),
+  };
+}
+
 function developerSpaceAgentConfirmationStoreUnavailable(error: unknown) {
   const anyError = error as { code?: string; message?: string; details?: string };
   const text = `${anyError?.code ?? ""} ${anyError?.message ?? ""} ${anyError?.details ?? ""}`.toLowerCase();
@@ -3867,6 +4103,71 @@ developerSpacesRouter.get("/:id/agent/actions/receipts", requireAuth, async (req
   return res.json({
     receipts: (data ?? []).map(serializeDeveloperSpaceAgentExecutionReceipt),
     setup: { receiptStoreAvailable: true },
+  });
+});
+
+developerSpacesRouter.get("/:id/agent/actions/audit-export", requireAuth, async (req, res) => {
+  const ownerLoad = await loadDeveloperSpaceForOwner(req.params.id, req.user!);
+  if (ownerLoad.status !== 200) return res.status(ownerLoad.status).json({ error: ownerLoad.error });
+
+  const sb = getSupabaseAdmin() as any;
+  const confirmationsResult = await sb
+    .from("developer_space_agent_confirmations")
+    .select("*")
+    .eq("developer_space_id", ownerLoad.space.id)
+    .eq("owner_user_id", ownerLoad.space.owner_user_id)
+    .order("requested_at", { ascending: false })
+    .limit(DEVELOPER_SPACE_AGENT_AUDIT_EXPORT_LIMIT);
+
+  if (confirmationsResult.error) {
+    if (developerSpaceAgentConfirmationStoreUnavailable(confirmationsResult.error)) {
+      return res.json({
+        auditExport: buildDeveloperSpaceAgentAuditExport({
+          confirmations: [],
+          receipts: [],
+          generatedAt: new Date().toISOString(),
+        }),
+        setup: {
+          confirmationStoreAvailable: false,
+          receiptStoreAvailable: false,
+          code: developerSpaceAgentConfirmationStoreUnavailableBody().code,
+        },
+      });
+    }
+    return res.status(500).json({
+      error: "Could not load Developer Agent audit confirmations.",
+      code: "developer_space_agent_audit_confirmations_unavailable",
+    });
+  }
+
+  const receiptsResult = await sb
+    .from("developer_space_agent_execution_receipts")
+    .select("*")
+    .eq("developer_space_id", ownerLoad.space.id)
+    .eq("owner_user_id", ownerLoad.space.owner_user_id)
+    .order("dispatched_at", { ascending: false })
+    .limit(DEVELOPER_SPACE_AGENT_AUDIT_EXPORT_LIMIT);
+
+  if (receiptsResult.error && !developerSpaceAgentExecutionReceiptStoreUnavailable(receiptsResult.error)) {
+    return res.status(500).json({
+      error: "Could not load Developer Agent audit receipts.",
+      code: "developer_space_agent_audit_receipts_unavailable",
+    });
+  }
+
+  return res.json({
+    auditExport: buildDeveloperSpaceAgentAuditExport({
+      confirmations: confirmationsResult.data ?? [],
+      receipts: receiptsResult.error ? [] : receiptsResult.data ?? [],
+      generatedAt: new Date().toISOString(),
+    }),
+    setup: {
+      confirmationStoreAvailable: true,
+      receiptStoreAvailable: !receiptsResult.error,
+      ...(receiptsResult.error
+        ? { code: developerSpaceAgentExecutionReceiptStoreUnavailableBody().code }
+        : {}),
+    },
   });
 });
 
