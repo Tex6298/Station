@@ -393,8 +393,14 @@ PR157 update, 2026-06-21: PR157 is accepted by ARGUS for MIMIR closeout. PR156
 closes the immediate Archive-retrieval latency loop: hosted context-preview
 outer median is now 1864ms and no counted request exceeded 3000ms. Current docs
 now consolidate protected-alpha evidence and caveats rather than opening
-another optimization by guesswork. Stripe paid activation remains a separate
-proof until a real hosted test-mode Checkout or signed webhook mutation is run.
+another optimization by guesswork.
+
+PR181 update, 2026-06-23: the bounded Stripe paid-activation proof is accepted
+for protected-alpha test mode. A clean non-production account completed hosted
+Checkout, entitlement stayed inactive after Checkout creation alone, and
+webhook-backed subscription state produced `canon/active`. Keep live-money
+billing, broader Billing UX, pricing, invoices, tax, token top-ups, and the
+dirty replay-owner cleanup as separate future lanes.
 
 PR158 update, 2026-06-21: PR158 is accepted by ARGUS for MIMIR closeout. The
 backend/product roadmap has been reconciled so PR111 through PR115 foundations

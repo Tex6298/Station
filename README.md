@@ -7,21 +7,22 @@ Included:
 - web shell with Studio routes
 - API shell with persona and conversation routes
 - shared config, types, permissions, and AI adapter scaffolding
-- in-memory repositories for local development
+- Supabase-backed core persistence and protected-alpha route coverage
 - first DeepSeek-compatible provider wrapper shape
+- bounded Stripe test-mode billing/entitlement foundation
 
 Not yet included:
-- real Stripe integration
-- persistent repository implementation
+- production/live-money Stripe readiness
 - production-ready validation and tests
 
 ## Active roadmap
 
-The active roadmap is now `docs/roadmap/STATION_PR_PLAN_V2.md`.
+The active roadmap is now `docs/roadmap/STATION_PR_PLAN_V3.md`.
 
 Use these roadmap docs as the source of truth:
 
-- `docs/roadmap/STATION_PR_PLAN_V2.md` - PR sequence and acceptance gates.
+- `docs/roadmap/STATION_PR_PLAN_V3.md` - current PR sequence and acceptance gates.
+- `docs/roadmap/STATION_PR_PLAN_V2.md` - historical PR-00 through PR-17 record.
 - `docs/roadmap/ACTIVE_STATUS.md` - current lane and validation status.
 - `docs/roadmap/SUPERSEDED.md` - older notes that should not drive new work.
 

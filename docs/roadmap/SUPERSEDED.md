@@ -1,6 +1,6 @@
 # Superseded roadmap notes
 
-`docs/roadmap/STATION_PR_PLAN_V2.md` is the active roadmap. This file records
+`docs/roadmap/STATION_PR_PLAN_V3.md` is the active roadmap. This file records
 older notes that should not drive new Codex work unless they are explicitly
 reconciled into the active roadmap.
 
@@ -8,10 +8,10 @@ reconciled into the active roadmap.
 
 | Source | Status | Replacement |
 | --- | --- | --- |
-| README "Next steps" | Superseded | `STATION_PR_PLAN_V2.md` PR-00 through PR-05 |
+| README "Next steps" | Superseded | `STATION_PR_PLAN_V2.md` PR-00 through PR-05, then `STATION_PR_PLAN_V3.md` |
 | `docs/integration/intelhub-to-station-developer-spaces.md` follow-up list | Superseded as a queue | `STATION_PR_PLAN_V2.md` PR-10 through PR-16 |
-| `docs/roadmap/pr-plan.md` | Historical backlog | `STATION_PR_PLAN_V2.md` |
-| Older informal Station roadmap notes | Superseded | `STATION_PR_PLAN_V2.md` and `ACTIVE_STATUS.md` |
+| `docs/roadmap/pr-plan.md` | Historical backlog | `STATION_PR_PLAN_V2.md`, then `STATION_PR_PLAN_V3.md` |
+| Older informal Station roadmap notes | Superseded | `STATION_PR_PLAN_V3.md` and `ACTIVE_STATUS.md` |
 
 ## Carry-forward decisions
 
@@ -28,6 +28,5 @@ browser-worker, PM, or model-gateway modules into Station's current roadmap.
 ## How to use historical docs
 
 Historical roadmap docs may still be useful for context and feature detail. Before
-implementing from them, check whether the work appears in `STATION_PR_PLAN_V2.md`.
+implementing from them, check whether the work appears in `STATION_PR_PLAN_V3.md`.
 If it does not, treat it as parked until the active roadmap is updated.
-

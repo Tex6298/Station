@@ -123,9 +123,12 @@ Use public-safe synthetic content only.
 - Redis memory truth, Cloudflare retrieval, production vector hardening,
   provider marketplace, social dispatch, scheduled publishing, and broad UI
   reskin remain future lanes.
-- Stripe readiness is config/test-resource readiness only until a real hosted
-  test-mode Checkout or signed Stripe webhook mutation proves paid subscription
-  activation for the replay owner.
+- Stripe paid activation is now covered separately by the accepted PR181
+  bounded test-mode proof: a clean non-production account completed hosted
+  Checkout, Checkout creation alone did not grant entitlement, and
+  webhook-backed subscription state produced `canon/active`. The dirty replay
+  owner remains dirty and untouched, and this is not production/live-money
+  billing readiness.
 - Redis/Upstash is operational cache, idempotency, rate-limit, and cache-only
   queue-state support. It is not canonical Memory truth.
 - Cloudflare remains future adapter/index-mirror scope unless a concrete

@@ -67,9 +67,11 @@ Current PR157 result:
 - PR156 closed the immediate Archive-retrieval latency loop: outer median
   1864ms, trace `total` median 892ms, `archive_retrieval` median 531ms, and
   0 of 7 counted requests above 3000ms.
-- Stripe paid activation remains outside PR0 until a real hosted test-mode
-  Checkout or signed webhook mutation proves subscription activation for the
-  replay owner.
+- Stripe paid activation was later proven in bounded test mode by PR181 using a
+  clean non-production account: hosted Checkout completed, Checkout creation
+  alone did not grant entitlement, webhook-backed subscription state produced
+  `canon/active`, and `/auth/me` read the activated tier. The dirty replay
+  owner remains dirty and untouched.
 - This is protected-alpha proof, not production readiness or product
   completeness.
 
@@ -156,11 +158,13 @@ Exit:
 
 ## PR 3 - Stripe Paid-Path Proof
 
-Status: ARGUS accepted the reconciliation-only proof and recommends MIMIR close
-PR 3. See `docs/roadmap/PR3_STRIPE_PAID_PATH_RECONCILIATION.md`. Current PR157
-launch closeout only claims Stripe config/test-resource readiness; do not treat
-that as a fresh/current paid activation proof without a hosted Checkout or
-signed webhook mutation in the current evidence packet.
+Status: superseded by the later PR181 clean-account activation proof. ARGUS
+accepted that proof, and MIMIR closed the Stripe activation thread for
+protected-alpha test-mode readiness. See
+`docs/roadmap/PR181_STRIPE_CLEAN_PROOF_ACCOUNT_ACTIVATION.md` and
+`docs/roadmap/ACTIVE_STATUS.md`. Earlier PR3/PR157 language about
+config/test-resource readiness was true before PR181 and should not be read as
+the current Stripe blocker.
 
 Goal: prove commercial activation once without turning billing into a polish
 rabbit hole.
@@ -398,17 +402,19 @@ Current reconciliation, 2026-06-21:
 - PR 0 evidence alignment is implemented by PR157 and accepted by MIMIR.
 - PR 1 and PR 2 have accepted follow-on work through the later retrieval,
   archive, and context-preview lanes, including the PR156 latency closeout.
-- PR 3 remains bounded to historical/reconciliation evidence plus current
-  config readiness; a fresh paid-activation proof is a separate lane only if
-  MIMIR wants it.
+- PR 3's old config-readiness caveat is superseded by PR181's accepted clean
+  non-production hosted Checkout proof. Further Stripe work should be a
+  specific product/billing lane, not another attempt to prove the same
+  test-mode activation path.
 - PR 4, PR 5, and the Cloudflare boundary have accepted foundations through
   PR111 through PR115.
 - PR 6 remains "workers only if forced"; PR156 does not force one.
 
 Recommended next move: no backend implementation blocker is open from this
 plan. MIMIR should choose the next lane from fresh hosted replay/product
-evidence. Plausible branches are a fresh paid-activation proof, a product demo
-script/walkthrough, or a specific replay-quality issue if one is observed.
+evidence. Plausible branches are a product demo script/walkthrough, a specific
+replay-quality issue if one is observed, or a new bounded billing/product lane
+that is distinct from the already accepted PR181 test-mode activation proof.
 
 ## Agent Roles
 

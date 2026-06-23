@@ -372,9 +372,10 @@ Remaining E2E blockers before replay evidence is meaningful:
   and observability metadata with sanitized counts only.
 - ARGUS accepted the staged replay E2E walkthrough as deployed-API evidence.
   ARIADNE accepted the browser/mobile walkthrough and UX-EXPORT-01, and ARGUS
-  accepted the narrow non-zero-token LLM observability proof. Active Stripe
-  customer/subscription flow, Discover polish, onboarding, and partner-grade
-  replay remain product/demo follow-ups.
+  accepted the narrow non-zero-token LLM observability proof. PR181 later
+  accepted bounded active Stripe customer/subscription flow proof for test mode;
+  Discover polish, onboarding, partner-grade replay, and production billing
+  remain product/demo follow-ups.
 - Capture retrieval quality as counts, modes, timings, skipped-source counts,
   provider/profile metadata, and human relevance ratings only. Do not store
   private excerpts or prompt bodies in docs.

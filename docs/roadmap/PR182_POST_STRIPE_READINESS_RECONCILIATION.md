@@ -6,7 +6,7 @@ Owner: DAEDALUS reconciles current backend/product readiness docs.
 Reviewer: ARGUS reviews overclaim, stale blocker removal, and evidence scope.
 Rehearsal: ARIADNE is not required unless DAEDALUS changes a visible route or
 finds that a human-flow doc now needs browser proof.
-Status: open for DAEDALUS
+Status: DAEDALUS reconciled current docs; waiting for ARGUS review.
 
 ## Why This Lane
 
@@ -96,3 +96,40 @@ DAEDALUS should update:
 Then wake ARGUS for overclaim/stale-blocker review. If DAEDALUS finds that all
 current docs are already coherent and no edits are needed, wake MIMIR with that
 evidence instead.
+
+## DAEDALUS Result - 2026-06-23
+
+DAEDALUS updated the current source-of-truth docs that still presented
+pre-PR181 Stripe caveats as current truth:
+
+- `README.md`
+- `docs/roadmap/STATION_BACKEND_IMPLEMENTATION_ROADMAP.md`
+- `docs/roadmap/STATION_BACKEND_PRODUCT_PR_PLAN.md`
+- `docs/roadmap/STATION_LAUNCH_CORE_ALPHA_CLOSEOUT.md`
+- `docs/roadmap/STATION_FUTURE_LANES.md`
+- `docs/ops/STAGING_PROOF_WAIVER_HANDOFF.md`
+- `docs/ops/STAGING_REPLAY_READINESS.md`
+- `docs/roadmap/SUPERSEDED.md`
+
+Reconciled truth:
+
+- PR181 is the accepted bounded protected-alpha Stripe test-mode activation
+  proof.
+- The proof used a clean non-production account, not the dirty replay owner.
+- Hosted Checkout completed; Checkout Session creation alone did not grant
+  entitlement.
+- Webhook-backed subscription state produced `canon/active`, and `/auth/me`
+  read the activated tier.
+- The dirty replay owner still has duplicate active/trialing Stripe test
+  subscriptions and was not touched.
+- This does not claim production billing, live-money readiness, broader Billing
+  UX, pricing, invoices, tax, token top-ups, Customer Portal polish, or dirty
+  replay-owner cleanup.
+
+Also reconciled the README/SUPERSEDED active-roadmap pointer from V2 to V3,
+because the front-door docs still told agents to use the historical roadmap as
+active source truth.
+
+ARGUS should review for overclaim, accidental stale-blocker preservation, and
+whether any current readiness doc still steers the team toward rerunning the
+already accepted PR181 proof.

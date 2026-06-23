@@ -48,10 +48,13 @@ build everything at once.
 
 Still external or replay-adjacent:
 
-- Stripe paid subscription activation remains externally blocked on a real
-  hosted Checkout payment or a real signed Stripe test subscription event for
-  the replay owner. Current Stripe readiness is config/test-resource readiness;
-  do not fabricate subscription state.
+- Stripe paid subscription activation has bounded protected-alpha test-mode
+  proof after PR181: a clean non-production proof account completed hosted
+  Checkout, entitlement stayed inactive after Checkout creation alone, and
+  webhook-backed subscription state produced `canon/active` with `/auth/me`
+  reading the activated tier. The dirty replay owner still has duplicate
+  active/trialing Stripe test subscriptions and was not touched; do not claim
+  live-money or production billing readiness from this proof.
 - The LLM trace proof is accepted; the two-trace/status-capture retry caveat is
   hygiene only if exact one-call replay ergonomics become part of the demo bar.
 - Cloudflare remains a future adapter/index-mirror lane unless a concrete
