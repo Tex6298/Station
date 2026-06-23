@@ -16,7 +16,8 @@ Decision:
 - Open PR186 as a narrow watch-script guard.
 - `scripts/triad-watch.mjs` now suppresses only the exact A1
   `wake: restart backend flow` timer false positive when `ACTIVE_STATUS.md`
-  says accepted pause is active and MIMIR returns to foreground watch.
+  says in its latest `Current baton` block that accepted pause is active and
+  MIMIR returns to foreground watch.
 
 Boundaries:
 

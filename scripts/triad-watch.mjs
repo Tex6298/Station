@@ -92,12 +92,37 @@ function acceptedPauseIsActive() {
       path.join(REPO_ROOT, "docs", "roadmap", "ACTIVE_STATUS.md"),
       "utf8",
     );
+    const currentBaton = currentBatonFromLatestStatus(status);
 
-    return status.includes(ACCEPTED_PAUSE_MARKER) &&
-      status.includes(FOREGROUND_WATCH_MARKER);
+    return currentBaton.includes(ACCEPTED_PAUSE_MARKER) &&
+      currentBaton.includes(FOREGROUND_WATCH_MARKER);
   } catch {
     return false;
   }
+}
+
+function latestStatusSection(status) {
+  const firstSectionIndex = status.startsWith("## ")
+    ? 0
+    : status.indexOf("\n## ");
+  if (firstSectionIndex < 0) return status;
+
+  const nextSectionIndex = status.indexOf(
+    "\n## ",
+    firstSectionIndex === 0 ? 1 : firstSectionIndex + 1,
+  );
+
+  return nextSectionIndex >= 0
+    ? status.slice(firstSectionIndex, nextSectionIndex)
+    : status.slice(firstSectionIndex);
+}
+
+function currentBatonFromLatestStatus(status) {
+  const latestSection = latestStatusSection(status);
+  const marker = "\nCurrent baton:";
+  const currentBatonIndex = latestSection.indexOf(marker);
+
+  return currentBatonIndex >= 0 ? latestSection.slice(currentBatonIndex) : "";
 }
 
 function isAcceptedPauseTimerWake(agent, commit) {

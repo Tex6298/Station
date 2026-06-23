@@ -24,10 +24,14 @@ false positive:
 - agent is A1 / MIMIR;
 - subject is exactly `wake: restart backend flow`;
 - body contains the timer text `Timer monitor found no active triad progress.`;
-- `ACTIVE_STATUS.md` contains both `Accepted pause is active.` and
-  `MIMIR returns to foreground watch.`
+- the latest `ACTIVE_STATUS.md` entry's `Current baton` block contains both
+  `Accepted pause is active.` and `MIMIR returns to foreground watch.`
 
 All other `WAKEUP A1:` commits still wake MIMIR.
+
+ARGUS review patch: the status check is intentionally limited to the latest
+`Current baton` block so historical pause entries do not suppress later timer
+wakes after a new active lane opens.
 
 ## Boundaries
 
@@ -41,6 +45,7 @@ All other `WAKEUP A1:` commits still wake MIMIR.
 
 - `node --check scripts/triad-watch.mjs`
 - `node scripts/triad-watch.mjs A1 --fetch --ref fork/main --no-consume`
+- `node scripts/triad-watch.mjs A1 --ref 041ecb8 --since 5218e6c --no-consume`
 - `git diff --check`
 - `git diff --cached --check`
 - staged credential-pattern scan
