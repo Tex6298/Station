@@ -52,6 +52,28 @@ pnpm test:developer-spaces
 pnpm test:developer-space-client
 ```
 
+## PR196 Product Demo Human Walkthrough
+
+ARIADNE hosted walkthrough on 2026-06-23:
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `npx --yes --package @playwright/test@1.41.2 playwright test tmp-pr196-product-demo-walkthrough.spec.js --reporter=line --workers=1` | Pass | Covered the protected-alpha product demo route stack against the hosted web/API surfaces. |
+| Public product route order | Pass | Covered `/`, `/discover`, replay Space, a public replay document, linked forum discussion, and public Developer Space. Public copy preserves the public/private boundary. |
+| Owner Studio route order | Pass | Covered Studio home, persona workspace, Memory, Continuity, Archive, Export, Developer Space manage, Billing, and Settings/observability. |
+| Mobile confidence routes | Pass | Studio, Memory, Continuity, and Archive had no document-level horizontal overflow in the checked mobile viewport. |
+| Demo readiness | Pass with narration notes | Billing must be presented as Stripe test-mode handoff plus entitlement readback, and Export must be presented as per-persona JSON/Markdown manifest and portable bundle readback rather than full workspace export. |
+
+Scope notes:
+
+- No product code changed during ARIADNE's walkthrough.
+- No data mutation, Stripe, provider, Redis, Cloudflare, worker, migration,
+  deploy, billing, key, repo, or configuration flow was run.
+- Temporary screenshots were inspected locally and not committed.
+- Remaining UX friction is future polish: long owner-side Memory, Archive, and
+  Developer Space manage surfaces need guided narration, and some secondary
+  source-context preview cards remain softer than primary evidence cards.
+
 ## PR194 Title/Body Follow-up Recheck
 
 ARIADNE hosted recheck on 2026-06-23:

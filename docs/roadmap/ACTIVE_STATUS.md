@@ -4,6 +4,60 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARIADNE result - PR196 product demo walkthrough complete
+
+ARIADNE completed PR196 on 2026-06-23.
+
+Verdict:
+
+- Pass for protected-alpha product demo readiness.
+- No concrete DAEDALUS blocker was found.
+- No ARGUS security, visibility, entitlement, auth, privacy, or overclaim
+  handoff was found.
+
+Covered route stack:
+
+- Public front door, Discover, replay Space, public replay document, linked
+  forum discussion, and public Developer Space.
+- Signed-in Studio, persona workspace, Memory, Continuity, Archive, Export,
+  Developer Space manage, Billing, and Settings/observability.
+- Mobile confidence routes for Studio, Memory, Continuity, and Archive.
+
+Narrative truth:
+
+- The demo should explicitly frame Billing as Stripe test-mode handoff plus
+  server-authoritative entitlement readback, not live-money production billing.
+- The demo should explicitly frame Export as per-persona JSON/Markdown manifest
+  and portable bundle readback, not full workspace export.
+- Public search and public surfaces are limited to public-safe Spaces,
+  Developer Spaces, publications, and forum/community routes; private Studio,
+  archive, memory, canon, import, and continuity results stay behind sign-in.
+
+UX truth:
+
+- The route order tells a coherent Station story.
+- Owner-side Memory, Archive, and Developer Space manage are long and dense and
+  need guided narration during the demo.
+- Continuity's main trust cards and record cards remain readable after PR194;
+  runtime source-context preview cards are softer than the primary evidence
+  cards and should remain future polish, not a PR196 blocker.
+- Public Space and Developer Space chips can wrap/compress on narrow cards;
+  this is a later polish target.
+
+Validation:
+
+- `npx --yes --package @playwright/test@1.41.2 playwright test tmp-pr196-product-demo-walkthrough.spec.js --reporter=line --workers=1`
+  passed against the hosted web/API route stack.
+- Temporary screenshots were inspected locally and not committed.
+- No code, schema, migration, deploy, provider, Stripe, Redis, Cloudflare,
+  worker, queue, billing, auth/session, or configuration flow was changed.
+
+Current baton:
+
+- MIMIR should close PR196 and decide the next planning branch. If the next move
+  is a Marty-facing demo, MIMIR should own the demo runbook/script and wake
+  ARIADNE only for a small copy/layout slice if needed.
+
 ## Latest MIMIR decision - PR196 product demo walkthrough opened
 
 MIMIR closes PR195 after ARGUS found hosted replay readiness passes as
