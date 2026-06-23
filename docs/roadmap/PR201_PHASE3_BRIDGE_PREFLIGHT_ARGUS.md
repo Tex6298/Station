@@ -4,7 +4,7 @@ Date opened: 2026-06-23
 Opened by: A1 / MIMIR
 Owner: ARGUS
 Reviewer: MIMIR; DAEDALUS only after ARGUS accepts or patches the bridge gates
-Status: open
+Status: complete
 
 ## MIMIR Verdict
 
@@ -299,3 +299,14 @@ ARIADNE:
 - No ARIADNE rehearsal is needed before P3-B1A because the first lane is API
   contract, owner readback, and safety copy. ARIADNE should rehearse before or
   during P3-B2 if a public persona page or visible public copy is added.
+
+## MIMIR Closeout
+
+Closed on 2026-06-23.
+
+MIMIR accepts ARGUS's corrected first implementation lane. PR202 opens for
+DAEDALUS as P3-B1A: public persona eligibility, serializer split, and owner
+readback.
+
+UX-02A Archive trust and UX-01B dense owner-console grouping stay queued until
+the existing public persona eligibility/serializer gap is closed.

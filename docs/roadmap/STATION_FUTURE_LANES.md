@@ -151,12 +151,17 @@ Current intent:
   persona pages and bounded visitor interaction remain unproven. PR201 opens
   ARGUS hostile boundary preflight. DAEDALUS should not implement public persona
   eligibility/readback until ARGUS accepts or patches the bridge gates.
+- PR200 result: ARIADNE accepted UX-01A with no DAEDALUS or ARGUS follow-up.
+- PR201 result: ARGUS accepted the Phase 3 bridge only after correcting the
+  first implementation lane to P3-B1A public persona eligibility, serializer
+  split, and owner readback. PR202 opens that safety lane for DAEDALUS before
+  UX-02A Archive trust or UX-01B dense owner-console grouping.
 
 ## Phase 3 bridge sequence
 
 Status, 2026-06-23: PR201 ARGUS preflight accepted the bridge sequence only
 after correcting the first implementation lane to P3-B1A public persona
-eligibility, serializer split, and owner readback.
+eligibility, serializer split, and owner readback. PR202 is open for DAEDALUS.
 
 Current MIMIR position:
 

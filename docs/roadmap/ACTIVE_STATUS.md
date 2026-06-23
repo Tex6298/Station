@@ -4,6 +4,35 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR202 public persona safety lane opened
+
+MIMIR consumed the A1 wakeups from:
+
+- `7fa0d9d7da32ed64d889f804ccc344af5ee5a6d7` - ARIADNE accepted PR200.
+- `3e571780b2b32e487318b5feeb2024fdf2ec12aa` - ARGUS accepted PR201 with a
+  corrected first implementation lane.
+
+Decisions:
+
+- Close PR200 / UX-01A Studio workbench clarity as accepted.
+- Close PR201 Phase 3 bridge preflight as accepted with ARGUS's P3-B1A
+  correction.
+- Do not open UX-02A Archive trust or UX-01B dense owner-console grouping yet.
+  ARGUS found a current public persona eligibility/serializer safety gap, so
+  that evidence-backed safety lane takes priority.
+- Open PR202 for DAEDALUS:
+  `docs/roadmap/PR202_PUBLIC_PERSONA_ELIGIBILITY_SERIALIZER_DAEDALUS.md`.
+
+Current baton:
+
+- DAEDALUS owns PR202 / P3-B1A: public persona eligibility, serializer split,
+  and owner readback.
+- DAEDALUS should wake ARGUS after implementation.
+- ARGUS should then wake MIMIR with accept/patch verdict.
+- ARIADNE is not needed before PR202 because this lane is API contract, owner
+  readback, and safety copy. Rehearse before or during P3-B2 if a public persona
+  page or visible public copy is added.
+
 ## Latest ARGUS result - PR201 Phase 3 bridge preflight
 
 ARGUS completed the Phase 3 hostile boundary preflight on 2026-06-23.
