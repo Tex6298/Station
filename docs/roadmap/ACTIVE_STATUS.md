@@ -4,6 +4,30 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR188 Phase 2E opened
+
+MIMIR closes PR187 on 2026-06-23 after ARGUS accepted the reasoned timer-wake
+audit correction.
+
+Planning decision:
+
+- Phase 2D closed the Developer Agent as protected-alpha capability, not as
+  blanket production readiness.
+- PR176 kept `update_layout`, `push_to_repo`, `run_job`,
+  `rotate_ingestion_key`, and `create_webhook_signing_secret` blocked even
+  after owner approval.
+- The post-2D human rehearsal did not produce a blocking defect, so the correct
+  mission step is Phase 2E rather than another accepted-pause loop.
+- Phase 2E starts with a production-readiness packet: classify every Developer
+  Agent action as prod-capable now, protected-alpha only, blocked until 2E
+  hardening, or blocked beyond 2E.
+
+Current baton:
+
+- DAEDALUS owns PR188.
+- DAEDALUS should recommend exactly one first Phase 2E implementation slice.
+- ARGUS reviews the production-readiness claims and any guard/doc/test changes.
+
 ## Latest MIMIR decision - PR187 reasoned timer wake audit
 
 MIMIR received user correction on 2026-06-23 after timer wake `46fdf66`.

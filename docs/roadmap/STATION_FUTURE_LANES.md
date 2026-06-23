@@ -68,6 +68,27 @@ Recommendation: open a protected-alpha human rehearsal lane next. Keep repo
 push, job execution, key rotation, signing-secret creation, and layout mutation
 blocked until rehearsal evidence identifies a concrete, reviewable gap.
 
+## Phase 2E Developer Agent production readiness
+
+Status, 2026-06-23: opened as PR188 after Phase 2D closeout and the
+protected-alpha human rehearsal.
+
+Phase 2E does not mean every Developer Agent tool is production-ready. It means
+Station now needs a production-readiness classification for every action and a
+single first hardening lane.
+
+Current intended posture:
+
+- Safe readbacks and bounded owner-confirmed artifacts may be candidates for
+  production readiness if DAEDALUS and ARGUS confirm owner scoping,
+  idempotency, minimized receipts, and privacy posture.
+- Public mutations such as selected draft publish and selected observatory
+  status note require stricter production audit and rollback/readback proof
+  before being called production-ready.
+- `update_layout`, `push_to_repo`, `run_job`, `rotate_ingestion_key`, and
+  `create_webhook_signing_secret` remain blocked until a specific Phase 2E
+  hardening lane proves a safe subset. User approval alone is not sufficient.
+
 ## MIMIR decisions after provider/repo questions
 
 - Treat `origin/main:docs/ops/open-repo-upgrade-review.md` and any later
