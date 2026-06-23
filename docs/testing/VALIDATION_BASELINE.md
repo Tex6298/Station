@@ -52,6 +52,27 @@ pnpm test:developer-spaces
 pnpm test:developer-space-client
 ```
 
+## PR178 Backend Flow Reconciliation
+
+DAEDALUS reconciliation on 2026-06-23:
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:billing` | Pass | 9 tests passed. Current coverage includes inactive same-tier checkout activation, Checkout/portal creation, signed webhook entitlement mutation, invalid-signature rejection, unknown Price ID rejection, and customer/user mismatch rejection. |
+| `npm exec --yes pnpm@10.32.1 -- run test:jobs` | Pass | 9 tests passed. Current coverage includes owner-scoped background-job readback, import/export summary combination, inactive route-followup kinds, bounded registry entries, status transition validation, idempotency keys, safe retry metadata, and redacted error summaries. |
+| `git diff --check` | Pass | CRLF normalization warnings only for touched docs. |
+
+DAEDALUS reconciliation notes:
+
+- No code, schema, auth/session, billing behavior, provider behavior, Redis,
+  Cloudflare, worker, queue, visible UX, or PR177 rehearsal artifact changed.
+- Current backend/product source truth does not open a backend implementation
+  blocker.
+- Reopen backend work only on a concrete PR177 backend-defect report, explicit
+  MIMIR selection of a fresh hosted Stripe paid-activation proof lane, or live
+  replay/import/export evidence of a real owner-visible latency, failure-state,
+  or status-readback gap.
+
 ## PR177 Protected Alpha Human Rehearsal
 
 ARIADNE hosted rehearsal on 2026-06-23:
