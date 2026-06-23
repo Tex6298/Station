@@ -146,6 +146,37 @@ Current intent:
   dashboard/persona workspace and scoped CSS, with no backend or boundary-scope
   change. PR200 opens ARIADNE visible desktop/375px review before MIMIR closes
   the slice or opens UX-02A/UX-01B.
+- Phase 3 bridge decision, 2026-06-23: Phase 3 is not ready for direct product
+  implementation. It is ready for a bridge/preflight sequence because public
+  persona pages and bounded visitor interaction remain unproven. PR201 opens
+  ARGUS hostile boundary preflight. DAEDALUS should not implement public persona
+  eligibility/readback until ARGUS accepts or patches the bridge gates.
+
+## Phase 3 bridge sequence
+
+Status, 2026-06-23: PR201 is open for ARGUS preflight.
+
+Current MIMIR position:
+
+- The repo has public-safe patterns for Public Spaces, Developer Spaces,
+  published documents, community read paths, and protected-alpha Studio.
+- The repo does not yet have a real public persona route, visitor-safe public
+  persona context assembly, bounded visitor chat, owner disable controls,
+  public persona reporting/moderation, or owner analytics for public persona
+  interaction.
+- Tier limits already include `publicPersonas`, but entitlement shape is not
+  enough to open Phase 3 safely.
+
+Bridge order:
+
+1. ARGUS hostile boundary preflight.
+2. Public persona eligibility and owner readback.
+3. Public persona page readback with no visitor chat.
+4. Visitor-safe context assembly readback/preview.
+5. Bounded visitor chat alpha with rate/message limits and reporting.
+6. Owner analytics, moderation, and report readback.
+7. Only then consider Roulette, Salons, voice/avatar, public persona events,
+   institutional/research features, or persona-to-persona encounters.
 
 ## MIMIR decisions after provider/repo questions
 

@@ -4,6 +4,47 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR201 Phase 3 bridge preflight opened
+
+MIMIR consumed the A1 Phase 3 bridge wakeup from
+`cf6c4d8dd502e4a93edf87c7152c632618f185be`.
+
+Verdict:
+
+- Phase 3 is not ready for direct product-code opening.
+- It is ready for a bridge/preflight sequence because the repo proves public
+  Space, Developer Space, community, published document, and protected-alpha
+  Studio patterns, but does not yet prove public persona pages, visitor-safe
+  persona context, bounded visitor interaction, public persona reporting, or
+  owner controls.
+- PR199/PR200 continues independently as the UX-01A Studio workbench review.
+  It improves private Studio orientation and does not prove or block Phase 3.
+- The protected-alpha product demo remains ready, but must not claim public
+  persona interaction, Roulette, Salons, voice, or institutional/research
+  surfaces are implemented.
+
+Source-truth anchors:
+
+- `docs/roadmap/pr-plan.md` names public persona pages with bounded
+  interaction as a later lane and excludes Roulette, voice/avatar mode, and
+  persona-to-persona encounters.
+- `docs/roadmap/prep-lane-audit.md` says public persona cards/interactions
+  remain open.
+- `docs/roadmap/PR97_COMMUNITY_MODERATION_UNSUPPORTED_TARGET_CONTEXT.md` says
+  persona target context remains label-only until a real public persona route
+  exists.
+- `packages/config/src/tiers.ts` has `publicPersonas` limits, but limits are
+  not the public route, context, interaction, reporting, or owner-control
+  substrate.
+
+Current baton:
+
+- ARGUS owns PR201 hostile boundary preflight:
+  `docs/roadmap/PR201_PHASE3_BRIDGE_PREFLIGHT_ARGUS.md`.
+- ARIADNE still owns PR200 UX-01A visible review.
+- DAEDALUS should not open public persona implementation until ARGUS accepts or
+  patches the Phase 3 bridge gates.
+
 ## Latest MIMIR decision - PR200 UX-01A ARIADNE review opened
 
 MIMIR closes the DAEDALUS implementation portion of PR199 after inspecting the

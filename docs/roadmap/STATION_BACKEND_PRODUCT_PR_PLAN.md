@@ -442,6 +442,16 @@ UI/UX implementation slice.
 boundary-scope change. MIMIR opened PR200 for ARIADNE visible desktop/375px
 review.
 
+2026-06-23 Phase 3 bridge decision: MIMIR consumed the A1 bridge wakeup and
+opened PR201 for ARGUS hostile boundary preflight. Phase 3 is not ready for
+direct product-code opening because public persona pages, bounded visitor
+interaction, visitor-safe persona context assembly, public persona
+reporting/moderation, and owner controls are not proven. If ARGUS accepts the
+bridge, the first implementation lane should be public persona eligibility and
+owner readback, not Roulette, Salons, voice/avatar, persona-to-persona
+encounters, institutional/research UI, provider/cache/billing architecture, or
+public visitor chat.
+
 ## Agent Roles
 
 - ARIADNE: human-eye route rehearsal only.
