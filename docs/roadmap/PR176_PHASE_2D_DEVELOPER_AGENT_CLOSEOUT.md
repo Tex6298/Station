@@ -7,7 +7,7 @@ needed.
 Reviewer: ARGUS reviews scope truth, blocked-action claims, and next-lane
 recommendation.
 Rehearsal: ARIADNE runs no browser proof unless DAEDALUS changes visible UI.
-Status: open for DAEDALUS
+Status: ready for ARGUS review
 
 ## Why This Lane
 
@@ -93,6 +93,118 @@ The closeout should include:
 - remaining blocked-action summary;
 - next-lane recommendation with why not the other options;
 - validation commands actually run.
+
+## DAEDALUS Closeout Packet - 2026-06-23
+
+DAEDALUS completed the closeout as a source-of-truth packet plus one focused
+test guard. No new product behavior, UI behavior, autonomous loop, provider
+call, repo push, deployment, key rotation, signing-secret creation, worker,
+billing, Cloudflare, Redis, Railway, or Supabase config behavior was added.
+
+### Action Matrix
+
+| Action | Class | Current behavior |
+| --- | --- | --- |
+| `read_developer_space_brief` | Safe read/preview | Owner-only preview of Space posture, counts, and route hints. No confirmation, mutation, raw payloads, or provider calls. |
+| `read_observed_runtime_status` | Safe read/preview | Owner-only preview of counts, latest timestamps, event labels, and node labels. Raw metrics/payloads omitted. |
+| `read_provider_policy_posture` | Safe read/preview | Owner-only provider/privacy posture preview. No provider execution. |
+| `read_evidence_path` | Safe read/preview | Owner-only evidence title/role/publication/visibility preview. Document bodies and raw ids omitted. |
+| `read_logs` | Safe read/preview | Owner-only sanitized activity readback from existing Station rows. Raw logs, webhook bodies, payload hashes, prompts, provider payloads, ids, cookies, keys, tokens, and connection strings omitted. |
+| `draft_project_update` | Safe read/preview | Owner-review draft text generated from safe counts/labels only. It is preview-only; durable confirmation is rejected with `developer_space_agent_confirmation_not_required`. |
+| `request_capability` | Owner-confirmed non-external receipt | Creates approved-owner planning evidence and one idempotent receipt. `executionAvailable`, `mutationAvailable`, and `externalDispatch` remain false. Public detail stays clean. |
+| `save_project_update_draft` | Owner-confirmed private artifact | Approved owner execution saves one private `draft` document and owner-only Developer Space link, then records one minimized receipt. Public detail stays clean. |
+| `publish_to_page` | Owner-confirmed public mutation | Only publishes an explicitly selected, owner-owned, same-Space, owner-only private draft produced by the Developer Agent save path. Generic publish remains blocked; receipt is minimized and idempotent. |
+| `update_observatory` | Owner-confirmed public mutation | Only publishes one selected sanitized public status note/event and one minimized owner receipt. Generic/unselected updates and secret-shaped notes remain blocked; retry is idempotent. |
+| `update_layout` | Still-blocked future action | Preview/confirmation can record owner intent only; approved execution returns `developer_space_agent_execution_action_blocked`. No layout/config mutation. |
+| `push_to_repo` | Still-blocked future action | Preview/confirmation can record owner intent only; approved execution returns `developer_space_agent_execution_action_blocked`. No repo write. |
+| `run_job` | Still-blocked future action | Preview/confirmation can record owner intent only; approved execution returns `developer_space_agent_execution_action_blocked`. No job/worker/provider execution. |
+| `rotate_ingestion_key` | Still-blocked future action | Preview/confirmation/cancel paths record owner intent only; approved execution remains blocked. No ingestion-key mutation. |
+| `create_webhook_signing_secret` | Still-blocked future action | Preview/confirmation paths record owner intent only; approved execution remains blocked. No signing-secret mutation. |
+
+### Hosted Proof And Migration Truth
+
+Hosted Developer Agent schema state is current for the Phase 2D receipt lane:
+
+| Migration | Hosted ledger |
+| --- | --- |
+| `049_developer_space_agent_confirmations` | `20260622074200` present |
+| `050_developer_space_agent_execution_receipts` | `20260622082200` present |
+| `051_developer_space_agent_draft_document_save` | `20260622093600` present |
+| `052_developer_space_agent_draft_publish_gate` | `20260622103000` present |
+| `053_developer_space_agent_observatory_status_note_receipts` | `20260622205000` present |
+
+Read-only hosted pooler proof on 2026-06-23:
+
+- Developer Agent migration ledger rows for `049` through `053`: `5`.
+- Confirmation action check includes the current registered future-action set:
+  true.
+- Receipt action check includes `request_capability`,
+  `save_project_update_draft`, `publish_to_page`, and `update_observatory`:
+  true.
+- Receipt owner policy includes those receipt actions and still requires an
+  approved confirmation: true.
+
+Hosted PR175 proof is accepted:
+
+- ARIADNE accepted the hosted status-note gate after web/API deployment identity
+  reported commit `33cab194a4cd`.
+- Generic/unselected `update_observatory` stayed blocked.
+- Secret-shaped status-note creation returned HTTP `400` without echoing the
+  probe.
+- The previous event-created/no-receipt state was repaired after migration
+  `053`.
+- Final hosted proof showed exactly one public
+  `developer_agent.status_note` event and one minimized
+  `update_observatory` owner receipt before and after retry.
+- Public/mobile visible text did not expose dedupe, confirmation, receipt,
+  preview-hash, UUID-shaped, or secret-shaped values.
+
+### Blocked-Action Proof
+
+DAEDALUS added a focused closeout guard covering all five remaining risky
+future actions:
+
+- `update_layout`
+- `push_to_repo`
+- `run_job`
+- `rotate_ingestion_key`
+- `create_webhook_signing_secret`
+
+For each action, the test proves:
+
+- owner preview returns `requires_future_lane`;
+- confirmation can record sanitized owner intent with `executionAvailable:
+  false` and `mutationAvailable: false`;
+- approval still has `executionAvailable: false`;
+- approved execution returns HTTP `409` with
+  `developer_space_agent_execution_action_blocked`;
+- confirmation ids and raw input are not echoed from the blocked execution;
+- no receipt is recorded;
+- no ingestion key, signing secret, event, node, snapshot, document, AI trace
+  session, or AI trace event is created.
+
+### Next-Lane Options
+
+| Option | Tradeoff |
+| --- | --- |
+| Owner-confirmed layout suggestion gate | Bounded if it only records a suggestion/preview, but it still touches public-facing layout vocabulary and could drift into visual/config mutation before a human rehearsal says what is actually needed. |
+| Owner-confirmed background-job dry-run/queue gate | Useful eventually, but it crosses into queue/job semantics and should wait until Station has a concrete non-destructive job target and reviewer-owned proof shape. |
+| Protected-alpha human rehearsal | Uses the current proven surface without opening new risky verbs. Best chance to find real UX, privacy, owner/public, and staging gaps before adding more automation. |
+| Deliberate pause before repo/job/key work | Sensible if MIMIR wants no new lane yet, but it produces less evidence than a bounded human rehearsal. |
+
+Recommendation: open a protected-alpha human rehearsal lane next and keep the
+five risky Developer Agent verbs blocked. Do not open repo push, job execution,
+key rotation, signing-secret creation, or layout mutation from the Developer
+Agent until the rehearsal produces concrete, reviewed gaps.
+
+### Validation
+
+- Read-only hosted pooler closeout probe passed: ledger rows for `049` through
+  `053` are present; confirmation action check is complete; receipt action
+  check is complete; receipt owner policy is complete and still requires
+  approved confirmations.
+- `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` passed with 42
+  tests, including the new risky-action closeout guard.
 
 ## Validation
 

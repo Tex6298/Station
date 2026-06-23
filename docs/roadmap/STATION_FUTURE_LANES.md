@@ -48,6 +48,26 @@ This note folds the current external/upstream work into future sequencing:
   work should follow the concrete demands of imported repo ideas rather than
   forcing Station into a Cloudflare-first architecture.
 
+## Phase 2D Developer Agent closeout
+
+Status, 2026-06-23: PR176 closes Phase 2D Developer Agent expansion as a
+source-of-truth packet rather than opening another automation verb by inertia.
+
+Current truth:
+
+- Safe readbacks, confirmation envelopes, non-external capability receipts,
+  private draft save, selected draft publish, sanitized activity readback, and
+  selected observatory status note are implemented and bounded.
+- Hosted migrations `049` through `053` are present in the migration ledger for
+  the Developer Agent confirmation/receipt lane.
+- `update_layout`, `push_to_repo`, `run_job`, `rotate_ingestion_key`, and
+  `create_webhook_signing_secret` remain blocked future actions even after
+  owner approval.
+
+Recommendation: open a protected-alpha human rehearsal lane next. Keep repo
+push, job execution, key rotation, signing-secret creation, and layout mutation
+blocked until rehearsal evidence identifies a concrete, reviewable gap.
+
 ## MIMIR decisions after provider/repo questions
 
 - Treat `origin/main:docs/ops/open-repo-upgrade-review.md` and any later

@@ -1678,6 +1678,90 @@ test("Developer Space agent future and unsupported actions reject without side e
   }
 });
 
+test("Developer Space agent risky future actions stay blocked after owner approval", async () => {
+  const db = new InMemorySupabase();
+  setSupabaseAdminForTests(db.client as any);
+  const app = createDeveloperSpacesApp();
+
+  try {
+    const created = await requestJson(app, "POST", "/developer-spaces", {
+      token: "owner-token",
+      body: {
+        projectName: "Agent Risky Closeout",
+        visibility: "private",
+      },
+    });
+    assert.equal(created.status, 201);
+    const spaceId = created.body.space.id;
+    const riskyActions = [
+      "update_layout",
+      "push_to_repo",
+      "run_job",
+      "rotate_ingestion_key",
+      "create_webhook_signing_secret",
+    ] as const;
+
+    const responses = [];
+    for (const action of riskyActions) {
+      const input = {
+        command: "npm test",
+        rawPrompt: `private ${action} prompt should not persist`,
+        token: `${action}-secret-token`,
+      };
+
+      const preview = await requestJson(app, "POST", `/developer-spaces/${spaceId}/agent/actions/preview`, {
+        token: "owner-token",
+        body: { action, input },
+      });
+      assert.equal(preview.status, 200);
+      assert.equal(preview.body.status, "requires_future_lane");
+      assert.equal(preview.body.futureLane, true);
+      assert.equal(preview.body.requiresConfirmation, true);
+
+      const create = await requestJson(app, "POST", `/developer-spaces/${spaceId}/agent/actions/confirmations`, {
+        token: "owner-token",
+        body: { action, input },
+      });
+      assert.equal(create.status, 201);
+      assert.equal(create.body.executionAvailable, false);
+      assert.equal(create.body.confirmation.action, action);
+      assert.equal(create.body.confirmation.sanitizedPayload.executionAvailable, false);
+      assert.equal(create.body.confirmation.sanitizedPayload.mutationAvailable, false);
+
+      const approved = await requestJson(app, "POST", `/developer-spaces/${spaceId}/agent/actions/confirmations/${create.body.confirmation.id}/approve`, {
+        token: "owner-token",
+      });
+      assert.equal(approved.status, 200);
+      assert.equal(approved.body.executionAvailable, false);
+
+      const execute = await requestJson(app, "POST", `/developer-spaces/${spaceId}/agent/actions/confirmations/${create.body.confirmation.id}/execute`, {
+        token: "owner-token",
+      });
+      assert.equal(execute.status, 409);
+      assert.equal(execute.body.code, "developer_space_agent_execution_action_blocked");
+      assert.equal(execute.body.executionAvailable, false);
+      assert.equal(JSON.stringify(execute.body).includes(create.body.confirmation.id), false);
+
+      responses.push({ preview: preview.body, create: create.body, approved: approved.body, execute: execute.body });
+    }
+
+    const responseText = JSON.stringify(responses);
+    assert.doesNotMatch(responseText, /secret-token|npm test|private .* prompt should not persist|rawPrompt/);
+    assert.equal(db.tables.developer_space_agent_confirmations.length, riskyActions.length);
+    assert.equal(db.tables.developer_space_agent_execution_receipts.length, 0);
+    assert.equal(db.tables.developer_space_ingestion_keys.length, 0);
+    assert.equal(db.tables.developer_space_webhook_signing_secrets.length, 0);
+    assert.equal(db.tables.developer_space_events.length, 0);
+    assert.equal(db.tables.developer_space_nodes.length, 0);
+    assert.equal(db.tables.developer_space_snapshots.length, 0);
+    assert.equal(db.tables.documents.length, 0);
+    assert.equal(db.tables.ai_trace_sessions.length, 0);
+    assert.equal(db.tables.ai_trace_events.length, 0);
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
+
 test("Developer Space agent confirmations record owner intent without execution", async () => {
   const db = new InMemorySupabase();
   setSupabaseAdminForTests(db.client as any);
