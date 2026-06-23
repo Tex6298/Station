@@ -4,35 +4,70 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest ARIADNE result - PR204 blocked by deployment mismatch
+## Latest ARIADNE result - PR204 accepted
 
-ARIADNE consumed PR204 on 2026-06-24 and stopped at the required deployment
-freshness gate.
+ARIADNE reran the PR204 public persona page rehearsal on 2026-06-24 after
+MIMIR fixed staging schema/seed drift.
 
 Verdict:
 
-- Blocked by Railway deployment mismatch.
-- Do not rehearse the public persona page on the current staging runtime.
-- DAEDALUS is not needed because no visible route/product blocker was exercised.
+- PASS.
+- Close PR204.
+- The public persona readback route is accepted for the current Phase 3 bridge.
 
-Deployment evidence:
+Evidence:
 
-- Web `/health/deployment` reported `ok:true`, `ready:true`, branch `main`,
-  service `@station/web`, commit
-  `e333acac49de00612397a0aa73798fd7e5dcdd5b`.
-- API `/health/deployment` reported `ok:true`, `ready:true`, branch `main`,
-  service `@station/api`, commit
-  `e333acac49de00612397a0aa73798fd7e5dcdd5b`.
-- PR204 expected `c898f82` or a later accepted app-code commit.
-- Local git comparison showed `c898f82` is not an ancestor of the deployment
-  commit; the reported deployment commit resolves locally as an older
-  notifications UI review commit.
+- `/discover` returned HTTP 200 and public search surfaced Station Replay Alpha.
+- `/space/station-replay-alpha` returned HTTP 200, showed `1 Persona`, and
+  linked to `/personas/station-replay-alpha-persona`.
+- `/personas/station-replay-alpha-persona` returned HTTP 200 and showed
+  `PUBLIC PERSONA`, `Station Replay Persona Public Readback`,
+  `VISIBILITY public`, and the public/private boundary readback copy.
+- Desktop `1365x900` and mobile `390x844` showed no obvious layout breakage in
+  the Space persona section or public persona page.
+- No owner IDs, raw UUIDs, provider internals, private excerpts, memory,
+  archive, canon, continuity data, or management controls were visible.
 
 Current baton:
 
-- MIMIR should resolve the Railway deployment mismatch or explicitly identify a
-  later accepted app-code deployment that contains the PR203 repair, then wake
-  ARIADNE to rerun PR204.
+- MIMIR should choose the next Phase 3 bridge slice.
+- PR204 is closed unless later regression evidence appears.
+
+## Previous MIMIR result - PR204 staging seed unblocked
+
+MIMIR resolved the PR204 orchestration blocker on 2026-06-24.
+
+What changed:
+
+- Railway web and API now both report deployed commit
+  `374268ae2e8bed8c143915676b968edf81961503`.
+- The PR203 public persona code was deployed, but staging Supabase was missing
+  the `personas.public_slug` schema.
+- MIMIR applied the scoped PR203 public-slug migration statements to staging via
+  the Supabase session pooler without printing secrets.
+- MIMIR reran `replay:seed:staging`; the staging replay now includes a public
+  persona fixture:
+  `station-replay-alpha-persona`.
+
+Validation:
+
+- `/spaces/station-replay-alpha` returns `access: public` and one persona card
+  with `publicSlug: station-replay-alpha-persona`.
+- `/personas/public/station-replay-alpha-persona` returns a public persona,
+  one memory item, one document reference, and no owner/provider fields.
+- `/personas/station-replay-alpha-persona` returns HTTP 200 from Next.
+- `node --check scripts/staging-replay-seed.mjs` passed.
+- `npm exec --yes pnpm@10.32.1 -- run replay:seed:validate` passed.
+- `node scripts/staging-replay-seed.mjs --dry-run` passed.
+- `npm exec --yes pnpm@10.32.1 -- run replay:seed:staging` passed.
+
+Current baton:
+
+- ARIADNE should rerun PR204 visible public persona rehearsal against the live
+  human route.
+- If accepted, MIMIR chooses the next Phase 3 bridge slice.
+- If ARIADNE finds a visible route/product blocker, DAEDALUS should patch the
+  narrowest issue and wake ARGUS.
 
 ## Latest MIMIR decision - PR204 public persona page rehearsal opened
 

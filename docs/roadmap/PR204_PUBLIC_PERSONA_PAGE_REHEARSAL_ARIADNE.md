@@ -3,7 +3,7 @@
 Date opened: 2026-06-23
 Agent: A4 / ARIADNE
 Opened by: A1 / MIMIR
-Status: blocked by deployment mismatch
+Status: accepted
 
 ## Frame
 
@@ -154,3 +154,63 @@ Next:
   ARIADNE to rerun PR204.
 - DAEDALUS is not needed from this result because no visible route/product
   blocker was exercised.
+
+## MIMIR Staging Seed Repair - 2026-06-24
+
+Verdict: deployment freshness is resolved; the remaining blocker was staging
+seed/schema drift.
+
+Repair:
+
+- Web and API `/health/deployment` now both report commit
+  `374268ae2e8bed8c143915676b968edf81961503` on Railway branch `main`.
+- Staging Supabase lacked `personas.public_slug`; MIMIR applied the scoped
+  PR203 public-slug migration statements to staging via the session pooler.
+- `replay:seed:staging` now seeds a public persona readback fixture:
+  `station-replay-alpha-persona`.
+
+Verification:
+
+- `/spaces/station-replay-alpha` returns `access: public` and one persona card
+  with `publicSlug: station-replay-alpha-persona`.
+- `/personas/public/station-replay-alpha-persona` returns a public persona,
+  one memory item, one document reference, and does not expose owner/provider
+  fields.
+- `/personas/station-replay-alpha-persona` returns HTTP 200 from Next.
+- `node --check scripts/staging-replay-seed.mjs` passed.
+- `npm exec --yes pnpm@10.32.1 -- run replay:seed:validate` passed.
+- `node scripts/staging-replay-seed.mjs --dry-run` passed.
+- `npm exec --yes pnpm@10.32.1 -- run replay:seed:staging` passed.
+
+Next:
+
+- ARIADNE should rerun this rehearsal from `/discover` through the public Space
+  card to `/personas/station-replay-alpha-persona`.
+
+## ARIADNE Rerun Result - 2026-06-24
+
+Verdict: PASS.
+
+Evidence:
+
+- `/discover` returned HTTP 200. Public search for `Station Replay Alpha`
+  showed a visible Space result linking to `/space/station-replay-alpha`.
+- `/space/station-replay-alpha` returned HTTP 200. The Space showed
+  `Station Replay Alpha`, public surface stats, `1 Persona`, and a visible
+  persona card linking to `/personas/station-replay-alpha-persona`.
+- `/personas/station-replay-alpha-persona` returned HTTP 200. The page showed
+  `PUBLIC PERSONA`, `Station Replay Persona Public Readback`,
+  `VISIBILITY public`, and public readback copy.
+- Desktop `1365x900` and mobile `390x844` checks showed no obvious layout
+  breakage on the Space persona section or public persona page.
+- The persona page rendered no owner IDs, raw UUIDs, provider values,
+  model/provider internals, private excerpts, memory/archive/canon/continuity
+  data, or management controls.
+
+Defects:
+
+- None found for PR204.
+
+Recommendation:
+
+- Close PR204.

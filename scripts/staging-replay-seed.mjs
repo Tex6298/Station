@@ -39,6 +39,9 @@ const DEVELOPER_SPACE_PROVIDER_POLICIES = new Set([
   "owner_byok_only",
   "platform_allowed",
 ]);
+const PUBLIC_PERSONA_SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+const UUID_SHAPED_PUBLIC_PERSONA_SLUG_PATTERN =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 const args = process.argv.slice(2);
 
@@ -85,6 +88,7 @@ async function main({ dryRun }) {
   const api = createSupabaseRest(env.SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY);
   const owner = await ensureReplayOwner(api, env, corpus);
   const persona = await ensurePersona(api, owner.id, corpus);
+  const publicPersona = await ensurePublicPersonaReadback(api, owner.id, corpus);
   const archivedChat = await ensureArchivedChat(api, owner.id, persona.id, corpus);
   const memories = await ensureMemoryCorpus(api, geminiKey, owner.id, persona.id, archivedChat.transcript.id, corpus);
   const continuity = await ensureContinuityRecord(api, owner.id, persona.id, memories.active.id, corpus);
@@ -101,7 +105,8 @@ async function main({ dryRun }) {
     corpus,
     counts: {
       ownerProfiles: 1,
-      personas: 1,
+      personas: 2,
+      publicPersonas: 1,
       conversations: 1,
       archivedTranscripts: 1,
       memoryItems: memories.count,
@@ -120,6 +125,8 @@ async function main({ dryRun }) {
     labels: {
       ownerUsername: owner.username,
       personaName: persona.name,
+      publicPersonaName: publicPersona.name,
+      publicPersonaSlug: publicPersona.public_slug,
       spaceSlug: publicSurface.space.slug,
       documentSlug: publicSurface.document.slug,
       developerSpaceSlug: primaryDeveloperSpace.slug,
@@ -192,6 +199,14 @@ function validateCorpus(corpus) {
   requireObject(corpus.persona, "persona");
   requireString(corpus.persona.name, "persona.name");
   requireString(corpus.persona.shortDescription, "persona.shortDescription");
+  if (corpus.publicPersona !== undefined) {
+    requireObject(corpus.publicPersona, "publicPersona");
+    requireString(corpus.publicPersona.name, "publicPersona.name");
+    requireString(corpus.publicPersona.shortDescription, "publicPersona.shortDescription");
+    if (corpus.publicPersona.publicSlug !== undefined) {
+      requireSafePublicSlug(corpus.publicPersona.publicSlug, "publicPersona.publicSlug");
+    }
+  }
 
   if (!Array.isArray(corpus.archiveSources) || corpus.archiveSources.length < 2 || corpus.archiveSources.length > 3) {
     throw new Error("archiveSources must contain two or three bounded replay sources.");
@@ -308,6 +323,16 @@ function requireString(value, label) {
 function requireSetValue(value, allowed, label) {
   if (typeof value !== "string" || !allowed.has(value)) {
     throw new Error(`${label} must be one of: ${Array.from(allowed).join(", ")}.`);
+  }
+}
+
+function requireSafePublicSlug(value, label) {
+  if (
+    typeof value !== "string" ||
+    !PUBLIC_PERSONA_SLUG_PATTERN.test(value) ||
+    UUID_SHAPED_PUBLIC_PERSONA_SLUG_PATTERN.test(value)
+  ) {
+    throw new Error(`${label} must be a safe public persona slug, not a raw-id-shaped value.`);
   }
 }
 
@@ -500,6 +525,40 @@ async function ensurePersona(api, ownerUserId, corpus) {
     style_notes: corpus.persona.styleNotes ?? null,
     sort_order: 0,
   };
+  return existing
+    ? api.patch("personas", [eq("id", existing.id), eq("owner_user_id", ownerUserId)], payload)
+    : api.insert("personas", payload);
+}
+
+async function ensurePublicPersonaReadback(api, ownerUserId, corpus) {
+  const input = publicPersonaInput(corpus);
+  const existingBySlug = await first(await api.select("personas", [
+    eq("public_slug", input.publicSlug),
+    limit(1),
+  ]));
+  if (existingBySlug && existingBySlug.owner_user_id !== ownerUserId) {
+    throw new Error(`Replay public persona slug is already owned by another profile: ${input.publicSlug}`);
+  }
+
+  const existingByName = await first(await api.select("personas", [
+    eq("owner_user_id", ownerUserId),
+    eq("name", input.name),
+    limit(1),
+  ]));
+  const existing = existingBySlug ?? existingByName;
+  const payload = {
+    owner_user_id: ownerUserId,
+    name: input.name,
+    short_description: input.shortDescription,
+    long_description: null,
+    visibility: "public",
+    public_slug: input.publicSlug,
+    provider: "platform",
+    awakening_prompt: null,
+    style_notes: null,
+    sort_order: 1,
+  };
+
   return existing
     ? api.patch("personas", [eq("id", existing.id), eq("owner_user_id", ownerUserId)], payload)
     : api.insert("personas", payload);
@@ -975,6 +1034,29 @@ function replayTitle(corpus, label) {
   return `[replay:${corpus.runLabel}] ${label}`;
 }
 
+function publicPersonaInput(corpus) {
+  const publicSlug = corpus.publicPersona?.publicSlug ??
+    safePublicPersonaSlug(`${corpus.space.slug}-persona`);
+  requireSafePublicSlug(publicSlug, "publicPersona.publicSlug");
+
+  return {
+    name: corpus.publicPersona?.name ?? `${corpus.persona.name} Public Readback`,
+    shortDescription: corpus.publicPersona?.shortDescription ??
+      "Public-safe staging persona for PR204 public readback rehearsal.",
+    publicSlug,
+  };
+}
+
+function safePublicPersonaSlug(value) {
+  const slug = value
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .replace(/-{2,}/g, "-") || "persona";
+
+  return UUID_SHAPED_PUBLIC_PERSONA_SLUG_PATTERN.test(slug) ? `persona-${slug}` : slug;
+}
+
 function first(rows) {
   return Array.isArray(rows) && rows.length > 0 ? rows[0] : null;
 }
@@ -998,7 +1080,8 @@ function printSummary({ mode, corpus, counts, labels }) {
     },
     planned: {
       replayOwners: 1,
-      personas: 1,
+      personas: 2,
+      publicPersonas: 1,
       archiveSources: corpus.archiveSources.length,
       activeMemoryItems: corpus.archiveSources.length + 1,
       excludedMemoryItems: 1,
@@ -1017,6 +1100,8 @@ function printSummary({ mode, corpus, counts, labels }) {
     labels: labels ?? {
       archiveSources: corpus.archiveSources.map((source) => source.label),
       personaName: corpus.persona.name,
+      publicPersonaName: publicPersonaInput(corpus).name,
+      publicPersonaSlug: publicPersonaInput(corpus).publicSlug,
       spaceSlug: corpus.space.slug,
       documentSlug: corpus.space.document.slug,
       developerSpaceSlug: corpus.developerSpace.slug,

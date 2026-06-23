@@ -56,22 +56,31 @@ pnpm test:writing
 
 ## PR204 Public Persona Page Rehearsal
 
-ARIADNE deployment-gate result on 2026-06-24:
+MIMIR staging seed repair on 2026-06-24:
 
 | Command / check | Result | Notes |
 | --- | --- | --- |
-| Web `/health/deployment` | Blocked | Railway web reported commit `e333acac49de00612397a0aa73798fd7e5dcdd5b`, not `c898f82` or a later accepted PR203 app-code commit. |
-| API `/health/deployment` | Blocked | Railway API reported commit `e333acac49de00612397a0aa73798fd7e5dcdd5b`, not `c898f82` or a later accepted PR203 app-code commit. |
-| Local ancestry check | Blocked | `c898f82` is not an ancestor of the reported deployment commit. |
-| Public persona page rehearsal | Not run | PR204 requires deployment freshness first; ARIADNE did not rehearse an older runtime. |
+| Web `/health/deployment` | Pass | Railway web reports commit `374268ae2e8bed8c143915676b968edf81961503`, branch `main`, service `@station/web`, `ready:true`. |
+| API `/health/deployment` | Pass | Railway API reports commit `374268ae2e8bed8c143915676b968edf81961503`, branch `main`, service `@station/api`, `ready:true`. |
+| Supabase staging schema | Pass after repair | Staging initially lacked `personas.public_slug`; MIMIR applied the scoped PR203 public-slug migration statements via the session pooler without printing secrets. |
+| `npm exec --yes pnpm@10.32.1 -- run replay:seed:staging` | Pass | Seed completed and created public persona fixture `station-replay-alpha-persona` with sanitized output only. |
+| `/spaces/station-replay-alpha` | Pass | Returns `access: public` and one persona card with `publicSlug: station-replay-alpha-persona`. |
+| `/personas/public/station-replay-alpha-persona` | Pass | Returns public persona readback, one memory item, one document reference, and no owner/provider fields. |
+| `/personas/station-replay-alpha-persona` | Pass | Railway web returns HTTP 200 from Next. |
+| `node --check scripts/staging-replay-seed.mjs` | Pass | Seed script syntax checked. |
+| `npm exec --yes pnpm@10.32.1 -- run replay:seed:validate` | Pass | Example corpus validates with planned `personas: 2` and `publicPersonas: 1`. |
+| `node scripts/staging-replay-seed.mjs --dry-run` | Pass | Dry run reports public persona slug `station-replay-alpha-persona`. |
+| `npm exec --yes pnpm@10.32.1 --filter @station/web build` | Local environment failure after successful compile/page generation | Next compiled, linted, typechecked, and generated pages including `/personas/[publicSlug]`, then failed writing standalone traced-file symlinks on this Windows shell: `EPERM: operation not permitted, symlink ... .next\\standalone ...`. Treat Railway/Linux as decisive for standalone packaging. |
+| Public persona page rehearsal | Pass | ARIADNE reran the human-eye route after staging repair: `/discover` -> `/space/station-replay-alpha` -> `/personas/station-replay-alpha-persona`. Desktop `1365x900` and mobile `390x844` showed no obvious layout breakage, and no owner IDs, raw UUIDs, provider internals, private excerpts, memory/archive/canon/continuity data, or management controls were visible. |
 
 Scope notes:
 
-- No public route verdict was issued.
-- No data mutation, import/export, provider, Stripe, Redis, Cloudflare, worker,
-  queue, cache, schema, migration, deployment config, auth/session, billing, or
-  backend behavior was changed.
-- MIMIR should resolve deployment freshness and wake ARIADNE to rerun PR204.
+- The only live mutation was the scoped PR203 staging schema repair plus replay
+  seed refresh needed to make the accepted public persona route rehearseable.
+- No provider, Stripe, Redis, Cloudflare, worker, queue, cache architecture,
+  auth/session, billing, Railway config, or application behavior beyond the
+  staging public persona fixture was changed.
+- ARIADNE accepted PR204 and recommended closure.
 
 ## PR203 Public Persona Page Readback
 
