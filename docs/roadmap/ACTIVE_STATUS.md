@@ -4,6 +4,54 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS result - PR201 Phase 3 bridge preflight
+
+ARGUS completed the Phase 3 hostile boundary preflight on 2026-06-23.
+
+Verdict:
+
+- Accept the bridge sequence only with a corrected first implementation lane.
+- P3-B1 as passive owner readback is not safe enough.
+- Corrected first implementation lane:
+  `P3-B1A - Public persona eligibility, serializer split, and owner readback`.
+
+Critical finding:
+
+- `packages/config/src/tiers.ts` says `private.publicPersonas` is `0`, but
+  `apps/api/src/routes/personas.ts` currently accepts `visibility: "public"` on
+  persona create/update under the private-tier persona route.
+- `apps/api/src/routes/personas.ts` also lets non-owner authenticated users read
+  public personas through the owner serializer shape, including owner/setup
+  fields that are not safe for public persona readback.
+- `apps/api/src/routes/spaces.ts` already lists `visibility = public` personas
+  on public Space responses, so public persona eligibility and serializer
+  safety cannot wait for visitor chat.
+
+Required gates for DAEDALUS:
+
+- Add server-side public-persona eligibility using
+  `TIER_LIMITS.publicPersonas`.
+- Block `visitor`/`private` owners from creating or transitioning personas to
+  public visibility.
+- Ensure `skipIntegrityPreflight` cannot bypass tier/public-persona
+  eligibility.
+- Split owner and public/non-owner persona serializers.
+- Keep public/non-owner persona readback and public Space persona cards to
+  explicit public profile/card fields only.
+- Keep reports persona context label/visibility-only with no route hint until a
+  real public persona route exists.
+- Do not add public persona pages, visitor chat, provider calls, embeddings,
+  Redis/Cloudflare/cache architecture, workers, queues, billing, Stripe, new
+  entitlement policy, analytics, or moderation actions in P3-B1A.
+
+Current baton:
+
+- MIMIR should close PR201 and open DAEDALUS on P3-B1A, unless MIMIR wants a
+  separate immediate safety patch for the existing persona serializer/visibility
+  gap before broader Phase 3 bridge sequencing.
+- ARIADNE is not needed before P3-B1A; rehearse before or during P3-B2 if a
+  public persona page or visible public copy is added.
+
 ## Latest ARIADNE result - PR200 UX-01A accepted
 
 ARIADNE completed the visible desktop and 375px review for PR200 on
@@ -57,54 +105,6 @@ Current baton:
 - MIMIR should close PR200 and decide whether the next UX slice is UX-02A
   Archive trust scan, UX-01B dense owner-console grouping, or another
   evidence-backed branch.
-
-## Latest ARGUS result - PR201 Phase 3 bridge preflight
-
-ARGUS completed the Phase 3 hostile boundary preflight on 2026-06-23.
-
-Verdict:
-
-- Accept the bridge sequence only with a corrected first implementation lane.
-- P3-B1 as passive owner readback is not safe enough.
-- Corrected first implementation lane:
-  `P3-B1A - Public persona eligibility, serializer split, and owner readback`.
-
-Critical finding:
-
-- `packages/config/src/tiers.ts` says `private.publicPersonas` is `0`, but
-  `apps/api/src/routes/personas.ts` currently accepts `visibility: "public"` on
-  persona create/update under the private-tier persona route.
-- `apps/api/src/routes/personas.ts` also lets non-owner authenticated users read
-  public personas through the owner serializer shape, including owner/setup
-  fields that are not safe for public persona readback.
-- `apps/api/src/routes/spaces.ts` already lists `visibility = public` personas
-  on public Space responses, so public persona eligibility and serializer
-  safety cannot wait for visitor chat.
-
-Required gates for DAEDALUS:
-
-- Add server-side public-persona eligibility using
-  `TIER_LIMITS.publicPersonas`.
-- Block `visitor`/`private` owners from creating or transitioning personas to
-  public visibility.
-- Ensure `skipIntegrityPreflight` cannot bypass tier/public-persona
-  eligibility.
-- Split owner and public/non-owner persona serializers.
-- Keep public/non-owner persona readback and public Space persona cards to
-  explicit public profile/card fields only.
-- Keep reports persona context label/visibility-only with no route hint until a
-  real public persona route exists.
-- Do not add public persona pages, visitor chat, provider calls, embeddings,
-  Redis/Cloudflare/cache architecture, workers, queues, billing, Stripe, new
-  entitlement policy, analytics, or moderation actions in P3-B1A.
-
-Current baton:
-
-- MIMIR should close PR201 and open DAEDALUS on P3-B1A, unless MIMIR wants a
-  separate immediate safety patch for the existing persona serializer/visibility
-  gap before broader Phase 3 bridge sequencing.
-- ARIADNE is not needed before P3-B1A; rehearse before or during P3-B2 if a
-  public persona page or visible public copy is added.
 
 ## Previous MIMIR decision - PR201 Phase 3 bridge preflight opened
 

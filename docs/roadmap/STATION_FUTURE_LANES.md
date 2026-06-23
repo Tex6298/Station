@@ -154,7 +154,9 @@ Current intent:
 
 ## Phase 3 bridge sequence
 
-Status, 2026-06-23: PR201 is open for ARGUS preflight.
+Status, 2026-06-23: PR201 ARGUS preflight accepted the bridge sequence only
+after correcting the first implementation lane to P3-B1A public persona
+eligibility, serializer split, and owner readback.
 
 Current MIMIR position:
 
@@ -170,13 +172,29 @@ Current MIMIR position:
 Bridge order:
 
 1. ARGUS hostile boundary preflight.
-2. Public persona eligibility and owner readback.
+2. Public persona eligibility, server-side visibility guards, serializer split,
+   and owner readback.
 3. Public persona page readback with no visitor chat.
 4. Visitor-safe context assembly readback/preview.
 5. Bounded visitor chat alpha with rate/message limits and reporting.
 6. Owner analytics, moderation, and report readback.
 7. Only then consider Roulette, Salons, voice/avatar, public persona events,
    institutional/research features, or persona-to-persona encounters.
+
+ARGUS P3-B1A gates:
+
+- `packages/config/src/tiers.ts` says `private.publicPersonas` is `0`, so
+  private-tier owners must not be able to create or transition public personas.
+- Existing persona create/update/read surfaces must enforce the eligibility
+  decision server-side; client-supplied `skipIntegrityPreflight` cannot bypass
+  public-persona tier eligibility.
+- Owner and public/non-owner persona serializers must be split before any public
+  persona route work. Public/non-owner readback and public Space persona cards
+  may expose only explicit public profile/card fields, not owner/setup/private
+  fields.
+- Persona report context remains label/visibility-only with no route hint until
+  a real public persona route exists and tests prove private personas still have
+  no public route hint.
 
 ## MIMIR decisions after provider/repo questions
 

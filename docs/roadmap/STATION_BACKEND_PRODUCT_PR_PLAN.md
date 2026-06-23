@@ -446,9 +446,10 @@ review.
 opened PR201 for ARGUS hostile boundary preflight. Phase 3 is not ready for
 direct product-code opening because public persona pages, bounded visitor
 interaction, visitor-safe persona context assembly, public persona
-reporting/moderation, and owner controls are not proven. If ARGUS accepts the
-bridge, the first implementation lane should be public persona eligibility and
-owner readback, not Roulette, Salons, voice/avatar, persona-to-persona
+reporting/moderation, and owner controls are not proven. ARGUS accepted the
+bridge only after correcting the first implementation lane to P3-B1A: public
+persona eligibility, server-side visibility guards, serializer split, and owner
+readback. That comes before Roulette, Salons, voice/avatar, persona-to-persona
 encounters, institutional/research UI, provider/cache/billing architecture, or
 public visitor chat.
 

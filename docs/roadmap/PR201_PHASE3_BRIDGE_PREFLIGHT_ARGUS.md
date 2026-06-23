@@ -70,9 +70,14 @@ Questions ARGUS must answer:
 
 Owner: DAEDALUS after ARGUS preflight.
 
-Add owner-side eligibility/readback only. Owners should be able to see whether a
-persona can become public, why it is blocked, and what making it public would
-expose. This does not add a public persona page or visitor chat.
+Add server-authoritative eligibility/readback and close the current public
+persona visibility gaps. Owners should be able to see whether a persona can
+become public, why it is blocked, and what making it public would expose.
+
+This lane must also ensure existing persona create/update/read serializers
+cannot bypass the eligibility decision. In particular, public persona exposure
+must not rely on client copy or the current owner serializer. This does not add
+a standalone public persona page or visitor chat.
 
 ### P3-B2 - Public Persona Page Readback
 
@@ -116,7 +121,8 @@ persona implementation until ARGUS either accepts this sequence or patches the
 required gates.
 
 If ARGUS accepts, the first implementation lane should be P3-B1:
-public persona eligibility and owner readback.
+public persona eligibility, owner readback, and server-side public visibility
+guards.
 
 ## Explicit Non-Scope
 
@@ -162,3 +168,134 @@ Wake MIMIR with:
 - whether ARIADNE should rehearse any public persona copy before code starts.
 
 Do not go quiet without a wakeup.
+
+## ARGUS Preflight Result
+
+Completed on 2026-06-23.
+
+Verdict: accept the bridge sequence only with the P3-B1 correction above.
+
+P3-B1 as originally worded was not safe enough as passive owner readback. The
+first implementation lane must be:
+
+```text
+P3-B1A - Public persona eligibility, serializer split, and owner readback
+```
+
+Why:
+
+- `packages/config/src/tiers.ts` says `private.publicPersonas` is `0`, but
+  `apps/api/src/routes/personas.ts` currently accepts `visibility: "public"` on
+  persona create/update under the private-tier persona route.
+- `apps/api/src/routes/personas.ts` also allows a non-owner authenticated user
+  to fetch a public persona by id and receive the owner serializer shape, which
+  includes owner/setup fields that are not public-page safe.
+- `apps/api/src/routes/spaces.ts` already lists `visibility = public` personas
+  on public Space responses. That existing public-card path is not a standalone
+  persona page, but it means public persona eligibility cannot wait until
+  visitor chat work.
+
+Required P3-B1A gates:
+
+- Add a server-side public-persona eligibility helper using
+  `TIER_LIMITS.publicPersonas` and owner/admin identity. `visitor` and
+  `private` tier owners must not be able to create or transition a persona to
+  public visibility.
+- Count existing public personas for limited tiers if finite limits are added
+  later; treat `-1` as unlimited, matching the existing tier convention.
+- Remove or contain client-supplied `skipIntegrityPreflight` as a public
+  visibility bypass. It must not override tier/public-persona eligibility.
+- Split owner and public/non-owner persona serializers. Public/non-owner
+  persona readback may include only explicit public profile/card fields such as
+  name, short description, avatar, visibility, and a future dedicated public
+  slug/copy field if one is added.
+- Never expose these fields through public/non-owner persona routes, public
+  Space persona cards, reports, analytics, or future visitor context:
+  `owner_user_id`, owner id hashes, emails, provider/model/provider config,
+  API/BYOK state, `awakening_prompt`, `style_notes`, owner-only
+  `long_description`, layer profiles, lifecycle events, handoffs, conversations
+  and archived chats, memory, canon, archive/import source material, continuity
+  records/candidates, export package data, private documents, private Space
+  links, raw ids, storage paths, trace ids, prompts, completions, provider
+  payloads, cookies, tokens, secrets, billing identifiers, and Stripe objects.
+- Treat existing `long_description`, `awakening_prompt`, and `style_notes` as
+  Studio setup/private by default. If Phase 3 needs longer public copy, add a
+  dedicated public copy field with explicit owner confirmation in a later lane.
+- Keep `GET /personas/:id` owner-scoped for owner detail. If non-owner public
+  readback remains available before P3-B2, it must use the public serializer and
+  tests must prove private fields are absent.
+- Keep public Space persona cards on `apps/api/src/routes/spaces.ts` to the
+  same public serializer. Do not return provider, owner ids, prompts, style
+  notes, long setup copy, or private source labels.
+- P3-B1A is not allowed to add public visitor chat, provider calls, embedding
+  changes, Redis/Cloudflare/cache architecture, queues, workers, billing,
+  Stripe changes, new entitlement policy, public persona analytics, or
+  moderation actions.
+
+Reporting and moderation gates:
+
+- `apps/api/src/routes/reports.ts` and PR97 remain the current source truth:
+  persona target context is label/visibility-only with no route hint until a
+  real public persona route exists.
+- Before P3-B2 public persona pages launch, DAEDALUS must define a minimal
+  report path for the public persona page or explicitly limit reporting to the
+  existing signed-in `/reports` flow with `targetType: "persona"`.
+- Adding a public persona route in P3-B2 must update report target context tests
+  so route hints are safe only for public persona pages and remain unavailable
+  for private personas.
+- No target mutation actions for persona reports in P3-B1A or P3-B2.
+
+Rate, analytics, provider, cache, and billing gates:
+
+- P3-B1A and P3-B2 have no visitor chat, so no message/session counters are
+  needed yet beyond route abuse protections already used by the app.
+- P3-B3 is readback/preview only and must not call providers.
+- P3-B4 visitor chat requires server-side per-session/per-user/per-IP message
+  limits, owner disable controls, report/abuse handling, transcript policy, and
+  no private writes or memory/canon promotion.
+- Owner analytics must be aggregate-only: page views, interaction counts,
+  report status counts, and opt-in state. Do not expose visitor identity, IPs,
+  reporter identity, prompts, completions, or transcript bodies.
+- Redis/Upstash may only store short-lived counters/cache if a later lane proves
+  a need. It is not memory truth and must not store persona context, prompts, or
+  transcripts.
+- Billing work is limited to using existing tier limits. No Stripe/pricing,
+  checkout, portal, invoice, token-credit, or entitlement-policy expansion in
+  P3-B1A.
+
+Files DAEDALUS must inspect first:
+
+- `apps/api/src/routes/personas.ts`
+- `apps/api/src/routes/spaces.ts`
+- `apps/api/src/routes/reports.ts`
+- `apps/api/src/routes/reports.test.ts`
+- `apps/api/src/routes/spaces.test.ts`
+- `apps/web/components/studio/awakening-flow.tsx`
+- `apps/web/app/space/[slug]/page.tsx`
+- `apps/web/lib/moderation-console.ts`
+- `packages/auth/src/permissions.ts`
+- `packages/config/src/tiers.ts`
+- `packages/types/src/persona.ts`
+- `packages/types/src/forum.ts`
+
+Required first-lane tests:
+
+- Private-tier users cannot create a public persona or transition an existing
+  persona to public visibility.
+- Creator/canon/institutional eligibility follows `publicPersonas` limits and
+  admin override behavior intentionally.
+- `skipIntegrityPreflight` cannot bypass public-persona tier eligibility.
+- Owner readback reports eligibility, blockers, and exact public fields without
+  changing visibility.
+- Non-owner/authenticated persona readback, if still allowed for public
+  personas, uses the public serializer and omits owner/setup/private fields.
+- Public Space persona cards use the same public serializer and omit provider,
+  owner ids, prompts, style notes, long setup copy, and private source labels.
+- Reporter-owned report readback remains target-context-free; admin persona
+  report context remains label/visibility-only with no route hint until P3-B2.
+
+ARIADNE:
+
+- No ARIADNE rehearsal is needed before P3-B1A because the first lane is API
+  contract, owner readback, and safety copy. ARIADNE should rehearse before or
+  during P3-B2 if a public persona page or visible public copy is added.
