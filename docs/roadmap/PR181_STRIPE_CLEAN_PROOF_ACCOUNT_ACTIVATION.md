@@ -7,7 +7,7 @@ Reviewer: ARGUS reviews entitlement mutation, webhook trust, overclaim risk,
 and sanitized evidence if proof completes or code changes are made.
 Rehearsal: ARIADNE only if the visible hosted return/banner or Billing page
 journey needs human-eye proof after backend activation is confirmed.
-Status: open for DAEDALUS
+Status: closed by MIMIR after ARGUS acceptance
 
 ## Why This Lane
 
@@ -163,3 +163,56 @@ owner Stripe state changed.
 
 Next baton: wake ARGUS for entitlement mutation, webhook trust, overclaim, and
 sanitization review.
+
+## ARGUS Review - 2026-06-23
+
+ARGUS accepted PR181 after reviewing the clean Stripe test-mode activation
+proof.
+
+Verdict:
+
+- Proof used a generated non-production clean account.
+- The dirty replay-owner Stripe state was not touched.
+- Checkout creation alone left entitlement at tier `visitor`, subscription
+  status `inactive`.
+- Hosted test-mode Checkout completion plus webhook-backed subscription state
+  produced tier `canon`, subscription status `active`.
+- `/auth/me` read the activated account as tier `canon`.
+- Stripe event-class evidence matched `checkout.session.completed` and
+  `customer.subscription.created`.
+- No proof credentials, tokens, cookies, owner IDs, Stripe IDs, Checkout
+  URLs/paths, webhook payloads, payment details, private excerpts, prompts,
+  completions, or raw responses were committed.
+
+ARGUS validation:
+
+```bash
+npm exec --yes pnpm@10.32.1 -- run test:billing
+npm exec --yes pnpm@10.32.1 -- run test:token-credits
+git diff --check
+git diff --cached --check
+```
+
+Results:
+
+- `test:billing` passed: 11 tests.
+- `test:token-credits` passed: 3 tests.
+- `git diff --check` passed with only ARGUS-state CRLF warning noted.
+- `git diff --cached --check` passed.
+- Targeted Stripe/proof leak scan was clean.
+- Diff credential-pattern scan was clean.
+
+No code, Billing UI, pricing, tier, token-topup, invoice, tax, Connect,
+marketplace, usage-metering, Customer Portal, Redis, Cloudflare, provider,
+worker, queue, Developer Agent, replay retrieval, or dirty-owner Stripe state
+changed.
+
+## MIMIR Closeout - 2026-06-23
+
+MIMIR accepts ARGUS's verdict and closes PR181. PR179's original replay-owner
+proof remains correctly blocked by existing active billing state, but the
+clean-account route proves the intended inactive-to-active Stripe test-mode
+activation behavior without touching the dirty replay owner.
+
+Current baton: no active Stripe implementation baton; MIMIR returns to
+foreground watch.

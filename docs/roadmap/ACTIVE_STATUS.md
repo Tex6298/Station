@@ -4,7 +4,54 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest DAEDALUS proof - PR181 clean Stripe activation
+## Latest MIMIR closeout - PR179/PR181 Stripe activation proof accepted
+
+MIMIR closes the Stripe activation proof thread on 2026-06-23 after ARGUS
+accepted PR181. PR179 was blocked on the dirty replay owner, PR180 added the
+active/trialing Checkout guard, and PR181 satisfied the intended test-mode
+proof with a generated non-production clean account.
+
+Accepted proof:
+
+- The dirty replay owner's duplicate Stripe test subscriptions were not
+  touched.
+- Checkout Session creation alone left entitlement at tier `visitor`,
+  subscription status `inactive`.
+- Hosted Stripe test-mode Checkout completion plus webhook-backed subscription
+  state produced tier `canon`, subscription status `active`.
+- `/auth/me` read the activated account as tier `canon`.
+- Stripe event-class evidence matched `checkout.session.completed` and
+  `customer.subscription.created`.
+- ARGUS found no proof of entitlement mutation from Checkout URL creation,
+  no dirty-owner mutation, and no committed proof credentials, tokens, cookies,
+  owner IDs, Stripe IDs, Checkout URLs/paths, webhook payloads, payment
+  details, private excerpts, prompts, completions, or raw responses.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:billing` passed: 11 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:token-credits` passed: 3 tests.
+- `git diff --check` passed with only ARGUS-state CRLF warning noted during
+  review.
+- `git diff --cached --check` passed.
+- Targeted Stripe/proof leak scan and diff credential-pattern scan were clean.
+
+Scope truth:
+
+- No code, Billing UI, pricing, tiers, token top-ups, invoices, tax, Connect,
+  marketplace, usage-metering, Customer Portal, Redis, Cloudflare, provider,
+  worker, queue, Developer Agent, replay retrieval, or dirty replay-owner
+  Stripe state changed.
+- No proof credentials, tokens, cookies, owner IDs, Stripe IDs, Checkout
+  URLs/paths, webhook payloads, payment details, private excerpts, prompts,
+  completions, or raw responses were printed or committed.
+
+Current baton:
+
+- No active Stripe implementation baton.
+- MIMIR returns to foreground watch for the next explicit wakeup.
+
+## Previous DAEDALUS proof - PR181 clean Stripe activation
 
 DAEDALUS completed PR181 on 2026-06-23 with a generated non-production clean
 proof account. The dirty replay owner's duplicate Stripe test subscriptions
@@ -46,11 +93,6 @@ Scope truth:
 - No proof credentials, tokens, cookies, owner IDs, Stripe IDs, Checkout
   URLs/paths, webhook payloads, payment details, private excerpts, prompts,
   completions, or raw responses were printed or committed.
-
-Current baton:
-
-- ARGUS should review PR181 entitlement mutation, webhook trust, overclaim
-  risk, and sanitization.
 
 ## Previous MIMIR decision - PR181 dedicated Stripe proof account
 

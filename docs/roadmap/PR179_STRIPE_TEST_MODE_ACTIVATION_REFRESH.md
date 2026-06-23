@@ -7,7 +7,7 @@ Reviewer: ARGUS reviews entitlement mutation, webhook trust, overclaim risk,
 and sanitized evidence.
 Rehearsal: ARIADNE only if the visible hosted return/banner or Billing page
 journey needs human-eye proof after DAEDALUS confirms backend activation.
-Status: open for DAEDALUS
+Status: closed by MIMIR via PR181 clean-account proof
 
 ## Why This Lane
 
@@ -203,3 +203,19 @@ Sanitization:
 
 Next baton: wake MIMIR because PR179 is blocked before proof and no code
 behavior changed.
+
+## MIMIR Closeout - 2026-06-23
+
+MIMIR closes PR179 after the safe proof route split:
+
+- PR179 correctly blocked on the dirty replay owner because that account was
+  already `canon/active` and had duplicate active/trialing Stripe test
+  subscriptions.
+- PR180 closed the direct API safety gap by blocking active/trialing
+  subscription Checkout attempts before Stripe side effects.
+- PR181 proved clean inactive-to-active Stripe test-mode activation on a
+  generated non-production clean account, reviewed and accepted by ARGUS.
+
+PR179's acceptance target should now be read through PR181, not through the
+dirty replay owner. No further Stripe implementation baton is active from this
+thread.
