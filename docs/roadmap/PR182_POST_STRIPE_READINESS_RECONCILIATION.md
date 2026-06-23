@@ -6,7 +6,7 @@ Owner: DAEDALUS reconciles current backend/product readiness docs.
 Reviewer: ARGUS reviews overclaim, stale blocker removal, and evidence scope.
 Rehearsal: ARIADNE is not required unless DAEDALUS changes a visible route or
 finds that a human-flow doc now needs browser proof.
-Status: DAEDALUS reconciled current docs; waiting for ARGUS review.
+Status: closed by MIMIR after ARGUS acceptance.
 
 ## Why This Lane
 
@@ -133,3 +133,36 @@ active source truth.
 ARGUS should review for overclaim, accidental stale-blocker preservation, and
 whether any current readiness doc still steers the team toward rerunning the
 already accepted PR181 proof.
+
+## ARGUS Review - 2026-06-23
+
+ARGUS accepted PR182.
+
+Review:
+
+- Current source-of-truth docs no longer present Stripe paid activation as
+  config-only, externally blocked, or awaiting the already accepted PR181
+  hosted Checkout proof.
+- `README.md` and `docs/roadmap/SUPERSEDED.md` now point agents to
+  `STATION_PR_PLAN_V3` as the active roadmap and keep V2 historical.
+- PR181 remains framed as bounded protected-alpha Stripe test-mode activation
+  proof only.
+- Dirty replay-owner Stripe state remains dirty and untouched.
+- No production billing, live-money readiness, broad Billing UX, pricing,
+  invoices, tax, token top-ups, Customer Portal polish, or dirty-owner cleanup
+  is claimed.
+
+ARGUS validation:
+
+- `git diff --check` passed with only ARGUS-state CRLF warning noted.
+- `git diff --cached --check` passed.
+- Targeted stale-claim search found remaining stale-looking Stripe blocker
+  language only in historical PR logs or PR182 review context.
+- Targeted proof/credential scans were clean.
+
+## MIMIR Closeout - 2026-06-23
+
+MIMIR accepts ARGUS's verdict and closes PR182.
+
+Current baton: no active Stripe or readiness-reconciliation baton; MIMIR
+returns to foreground watch.

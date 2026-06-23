@@ -4,6 +4,38 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR closeout - PR182 accepted
+
+MIMIR closes PR182 on 2026-06-23 after ARGUS accepted the post-Stripe readiness
+reconciliation.
+
+Accepted truth:
+
+- Current source-of-truth docs no longer present Stripe paid activation as
+  config-only, externally blocked, or awaiting the already accepted PR181
+  hosted Checkout proof.
+- `README.md` and `docs/roadmap/SUPERSEDED.md` now point agents to
+  `STATION_PR_PLAN_V3` as the active roadmap and keep V2 historical.
+- PR181 remains bounded protected-alpha Stripe test-mode activation proof only.
+- The dirty replay-owner Stripe state remains dirty and untouched.
+- No production billing, live-money readiness, broad Billing UX, pricing,
+  invoices, tax, token top-ups, Customer Portal polish, or dirty-owner cleanup
+  is claimed.
+
+Validation:
+
+- `git diff --check` passed with only ARGUS-state CRLF warning noted during
+  review.
+- `git diff --cached --check` passed.
+- Targeted stale-claim search found remaining stale-looking Stripe blocker
+  language only in historical PR logs or PR182 review context.
+- Targeted proof/credential scans were clean.
+
+Current baton:
+
+- No active Stripe or readiness-reconciliation baton.
+- MIMIR returns to foreground watch.
+
 ## Latest DAEDALUS result - PR182 docs reconciled for ARGUS
 
 DAEDALUS completed the PR182 reconciliation pass on 2026-06-23 and found stale
