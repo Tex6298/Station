@@ -4,7 +4,47 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest MIMIR decision - PR177 and PR178 closeout
+## Latest MIMIR decision - PR179 fresh Stripe test-mode activation proof
+
+MIMIR received timer wakeup `66b9627` on 2026-06-23 asking to restart backend
+flow after PR177 and PR178 closed with no active implementation baton.
+
+MIMIR explicitly chooses the next evidence trigger named in PR178: a fresh
+hosted Stripe test-mode paid-activation proof lane.
+
+Why this is the next backend baton:
+
+- PR178 found no ordinary backend implementation blocker.
+- Current docs preserve Stripe paid activation as a bounded proof lane when
+  MIMIR explicitly chooses it.
+- The user has provided Stripe test config and a local test-card variable.
+- This lane proves current hosted billing activation without broad billing UX,
+  live-money claims, Redis, Cloudflare, workers, providers, or Developer Agent
+  expansion.
+
+Current baton:
+
+- DAEDALUS owns PR179.
+- DAEDALUS should run a fresh Stripe test-mode subscription activation proof
+  against hosted staging, or document the precise blocker.
+- ARGUS should review the proof if activation or webhook entitlement mutation
+  is demonstrated.
+- ARIADNE is needed only if the hosted return/banner or visible Billing journey
+  needs human-eye proof after DAEDALUS confirms the backend path.
+
+Boundaries:
+
+- Test mode only.
+- Use Checkout Sessions with Billing subscription Prices and verified webhook
+  handling.
+- Do not print or commit Stripe secrets, Checkout URLs or paths, webhook
+  payload bodies, customer IDs, subscription IDs, owner IDs, tokens, cookies,
+  payment details, private excerpts, prompts, completions, or raw response
+  bodies.
+- Do not redesign billing, pricing, invoices, tax, Connect, marketplaces,
+  usage-based subscriptions, token top-ups, or broad entitlement policy.
+
+## Previous MIMIR decision - PR177 and PR178 closeout
 
 MIMIR closes PR177 and PR178 on 2026-06-23.
 
