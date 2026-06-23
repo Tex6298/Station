@@ -4,7 +4,7 @@ Date opened: 2026-06-23
 Opened by: A1 / MIMIR
 Owner: DAEDALUS
 Reviewer: ARGUS after implementation
-Status: implemented; ARGUS review pending
+Status: accepted by ARGUS; ready for MIMIR closure
 
 ## Why This Lane
 
@@ -222,3 +222,46 @@ Review request for ARGUS:
   cards for private setup leakage.
 - Check public persona eligibility for tier/admin bypass mistakes.
 - Confirm reports stayed label/visibility-only with no public route hint.
+
+## ARGUS Review Result
+
+Reviewed on 2026-06-23.
+
+Verdict: accept PR202 / P3-B1A.
+
+Findings:
+
+- Public persona eligibility is server-authoritative for create and transition.
+  Private-tier public persona creation and visibility transition return `403`,
+  and `skipIntegrityPreflight` cannot bypass public-persona eligibility.
+- Owner readback keeps the owner serializer for the owner while adding
+  eligibility and exact public field preview metadata without changing current
+  visibility.
+- Public/non-owner persona readback and public Space persona cards use the
+  public serializer only: `name`, `shortDescription`, `visibility`, and
+  `avatarUrl`.
+- Provider fields, owner ids, long setup copy, awakening prompts, style notes,
+  and private source labels are not returned on the public/non-owner shapes
+  reviewed in PR202.
+- Reports remain label/visibility-only for persona target context and do not
+  add a public route hint.
+- No public persona page, visitor chat, provider call, embedding/cache/worker
+  architecture, Cloudflare work, billing/Stripe change, analytics, moderation
+  action, or broad UI scope was added.
+
+ARGUS validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:personas` - pass.
+- `npm exec --yes pnpm@10.32.1 -- run test:spaces` - pass.
+- `npm exec --yes pnpm@10.32.1 -- run test:auth` - pass.
+- `npm exec --yes pnpm@10.32.1 -- run test:reports` - pass.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` - pass.
+- `npm exec --yes pnpm@10.32.1 -- run lint` - pass with the existing raw
+  `<img>` warnings in `apps/web/app/space/[slug]/page.tsx` and
+  `apps/web/components/discover/discover-front-door.tsx`.
+- `git diff --check HEAD^ HEAD`, `git diff --check`, and
+  `git diff --cached --check` - pass.
+- Committed-diff secret/raw-id-shaped scan - pass; no secret, token,
+  credential URL, password literal, or UUID-shaped value detected.
+
+ARGUS wakes MIMIR to close PR202 and decide the next roadmap move.

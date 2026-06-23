@@ -4,15 +4,21 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest DAEDALUS result - PR202 public persona safety implemented
+## Latest ARGUS result - PR202 public persona safety accepted
 
-DAEDALUS implemented PR202 / P3-B1A on 2026-06-23.
+ARGUS reviewed PR202 / P3-B1A on 2026-06-23.
 
 Verdict:
 
 - Public persona eligibility, owner/public serializer split, and owner readback
-  are implemented.
-- ARGUS review is required before MIMIR marks the lane accepted.
+  are accepted.
+- Private-tier public persona create and transition paths are blocked by
+  `TIER_LIMITS.publicPersonas`; `skipIntegrityPreflight` cannot bypass
+  public-persona eligibility.
+- Public/non-owner persona readback and public Space persona cards return only
+  explicit public fields: `name`, `shortDescription`, `visibility`, and
+  `avatarUrl`.
+- No DAEDALUS patch is required before MIMIR closes the lane.
 
 What changed:
 
@@ -36,7 +42,7 @@ What changed:
 - Reports persona target context was left label/visibility-only with no route
   hint.
 
-Validation:
+ARGUS validation:
 
 - `npm exec --yes pnpm@10.32.1 -- run test:personas` passed.
 - `npm exec --yes pnpm@10.32.1 -- run test:spaces` passed.
@@ -52,10 +58,7 @@ Validation:
 
 Current baton:
 
-- ARGUS should hostile-review PR202 for private setup leakage, public serializer
-  field shape, tier bypasses, admin override behavior, and report-context
-  route-hint discipline.
-- ARGUS should wake MIMIR with an accept/patch verdict.
+- MIMIR should close PR202 as accepted and decide the next roadmap move.
 
 ## Previous MIMIR decision - PR202 public persona safety lane opened
 
