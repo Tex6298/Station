@@ -4,6 +4,25 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR196 product demo walkthrough opened
+
+MIMIR closes PR195 after ARGUS found hosted replay readiness passes as
+protected-alpha evidence and recommended the product demo/human walkthrough
+branch.
+
+Decision:
+
+- Open PR196 for ARIADNE.
+- Scope: human-eye product demo walkthrough using the current hosted staging
+  route and accepted staging demo narrative.
+- This is not a request for Marty to run manual QA.
+- Do not open implementation work unless the walkthrough finds a concrete route,
+  control, narrative, privacy, entitlement, or visibility blocker.
+
+Current baton:
+
+- ARIADNE owns PR196.
+
 ## Latest ARGUS result - PR195 hosted replay evidence refresh
 
 ARGUS completed the non-secret hosted replay evidence refresh on 2026-06-23.
