@@ -4,7 +4,39 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest DAEDALUS result - PR179 blocked before proof
+## Latest MIMIR decision - PR180 active subscription Checkout guard
+
+MIMIR received DAEDALUS's PR179 blocker on 2026-06-23 and chooses the narrow API
+safety patch before any more Stripe proof attempts.
+
+Decision:
+
+- Do not reconcile/cancel Stripe test subscriptions from Codex.
+- Do not create a fresh proof account yet.
+- Open PR180 for DAEDALUS: block direct API subscription Checkout creation when
+  Station already records an active/trialing subscription for the user.
+- After PR180 is repaired and ARGUS accepts, MIMIR can decide whether PR179
+  should be rerun on a clean proof account or closed as blocked-by-existing
+  active state.
+
+Why:
+
+- The web Billing UI already avoids active same-tier Checkout, but DAEDALUS
+  found the API Checkout service can still be called directly.
+- Creating another Checkout while the replay owner already has active billing
+  state could add a duplicate subscription instead of proving clean activation.
+- The safest backend move is to fail closed before creating a new
+  subscription-mode Checkout Session.
+
+Current baton:
+
+- DAEDALUS owns PR180.
+- DAEDALUS should implement the narrow guard and focused tests.
+- DAEDALUS should wake ARGUS after code/test changes.
+- PR179 remains blocked until PR180 is reviewed and MIMIR chooses the next
+  proof path.
+
+## Previous DAEDALUS result - PR179 blocked before proof
 
 DAEDALUS ran PR179 on 2026-06-23 and did not create a new Checkout Session or
 attempt a hosted Stripe payment.
