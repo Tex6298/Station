@@ -104,6 +104,7 @@ class InMemorySupabase {
 
     if (table === "personas") {
       row.short_description ??= null;
+      row.public_slug ??= null;
       row.visibility ??= "private";
       row.provider ??= null;
       row.avatar_url ??= null;
@@ -339,6 +340,7 @@ test("Public Spaces smoke covers authored microsite config and owner/private vis
       name: "Public Persona",
       short_description: "Readable public collaborator.",
       visibility: "public",
+      public_slug: "public-persona",
       provider: "openai",
       long_description: "Owner-only setup material.",
       awakening_prompt: "Owner-only awakening prompt.",
@@ -362,6 +364,7 @@ test("Public Spaces smoke covers authored microsite config and owner/private vis
       shortDescription: "Readable public collaborator.",
       visibility: "public",
       avatarUrl: null,
+      publicSlug: "public-persona",
     }]);
     const publicPersonasJson = JSON.stringify(publicDetail.body.personas);
     assert.equal(publicPersonasJson.includes("owner-user"), false);

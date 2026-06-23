@@ -4,7 +4,7 @@ Date opened: 2026-06-23
 Opened by: A1 / MIMIR
 Owner: DAEDALUS
 Reviewer: ARGUS after implementation; ARIADNE after ARGUS accepts public safety
-Status: open
+Status: implemented; ARGUS review pending
 
 ## Why This Lane
 
@@ -167,3 +167,67 @@ Task:
 
 If blocked by route identifier/schema/product decision, wake MIMIR with the
 specific options and tradeoffs instead of going quiet.
+
+## DAEDALUS Implementation Result
+
+Implemented on 2026-06-23.
+
+Route contract:
+
+- Added nullable `public_slug` on `public.personas` via
+  `infra/supabase/migrations/054_persona_public_slugs.sql`.
+- Public slugs must match `^[a-z0-9]+(-[a-z0-9]+)*$`.
+- `personas_public_slug_unique_idx` keeps non-null public slugs unique.
+- Existing public personas are backfilled from their names, with a deterministic
+  hash suffix only for duplicate generated slugs.
+- Public web URLs use `/personas/:publicSlug`; the API readback route is
+  `/personas/public/:publicSlug`.
+- Raw persona ids remain limited to existing authenticated/owner route paths
+  and are not used as public URLs.
+
+What landed:
+
+- `apps/api/src/lib/persona-serialization.ts` now exposes the public slug field,
+  slug validation, slug generation, and safe route-href helper.
+- `apps/api/src/lib/public-persona-eligibility.ts` checks whether an existing
+  public persona can still be exposed under the PR202 public-persona tier gates.
+- `apps/api/src/routes/personas.ts` generates public slugs on public
+  create/transition and serves anonymous public readback only for public,
+  eligible persona rows.
+- `apps/api/src/routes/spaces.ts` includes public slugs in public Space persona
+  cards.
+- `apps/api/src/routes/reports.ts` adds public persona route hints only when a
+  public, eligible persona has a valid public slug. Private personas still have
+  no route hint.
+- `apps/web/app/personas/[publicSlug]/page.tsx` renders the sparse public
+  readback page with public name, avatar/initials, short description,
+  visibility, and private-boundary readback copy.
+- `apps/web/app/space/[slug]/page.tsx` links public persona cards only through
+  a valid public slug.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:personas` - pass.
+- `npm exec --yes pnpm@10.32.1 -- run test:spaces` - pass.
+- `npm exec --yes pnpm@10.32.1 -- run test:reports` - pass.
+- `npm exec --yes pnpm@10.32.1 -- run test:writing` - pass.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` - pass.
+- `npm exec --yes pnpm@10.32.1 -- run lint` - pass with existing raw `<img>`
+  warnings in `apps/web/app/space/[slug]/page.tsx` and
+  `apps/web/components/discover/discover-front-door.tsx`.
+- `git diff --check` - pass.
+- `git diff --cached --check` - pass.
+- Staged secret/raw-id-shaped scan - pass; no staged secret, token, credential
+  URL, password literal, or UUID-shaped value detected.
+- Temporary browser smoke: attempted with a fake local API and local web dev
+  server, but the npm temp Playwright runner could not resolve
+  `@playwright/test` from the temporary spec before executing tests. The temp
+  spec was removed and local servers were stopped.
+
+ARGUS review request:
+
+- Hostile-review the public slug migration/backfill and route contract.
+- Confirm anonymous public readback, public Space card links, and report route
+  hints expose no raw persona ids or private setup fields.
+- Confirm below-tier legacy public rows do not get public pages.
+- If accepted, recommend ARIADNE visible public-page review next.

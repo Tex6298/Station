@@ -3,7 +3,12 @@ import { z } from "zod";
 import { requireAuth, type AuthenticatedUser } from "../middleware/require-auth";
 import { requireTier } from "../middleware/require-tier";
 import { getSupabaseAdmin } from "../lib/supabase";
-import { serializePersonaPublicFields, serializePublicPersona } from "../lib/persona-serialization";
+import {
+  serializePersonaPublicFields,
+  serializePublicPersona,
+  slugifyPublicPersonaName,
+} from "../lib/persona-serialization";
+import { ownerCanExposeExistingPublicPersonas } from "../lib/public-persona-eligibility";
 import { canCreatePersona, canCreatePublicPersona, tierLimits } from "@station/auth/permissions";
 import type { AuthUser, PublicPersonaEligibility } from "@station/types";
 import {
@@ -52,6 +57,25 @@ const handoffSchema = z.object({
 });
 
 export const personasRouter = Router();
+
+// Public readback route. This must stay before the authenticated router guard.
+personasRouter.get("/public/:publicSlug", async (req, res) => {
+  const sb = getSupabaseAdmin();
+  const { data, error } = await sb
+    .from("personas")
+    .select("name, short_description, visibility, avatar_url, public_slug, owner_user_id")
+    .eq("public_slug", req.params.publicSlug)
+    .eq("visibility", "public")
+    .maybeSingle();
+
+  if (error || !data) return res.status(404).json({ error: "Public persona not found." });
+
+  const eligible = await ownerCanExposeExistingPublicPersonas(sb, data.owner_user_id);
+  if (!eligible) return res.status(404).json({ error: "Public persona not found." });
+
+  return res.json({ persona: serializePublicPersona(data) });
+});
+
 personasRouter.use(requireAuth);
 
 function serializePersona(row: any, continuity?: any, publicEligibility?: PublicPersonaEligibility) {
@@ -137,6 +161,30 @@ async function assertPublicPersonaAllowed(res: Response, ownerUserId: string, us
     return null;
   }
   return eligibility;
+}
+
+async function publicSlugAvailable(sb: ReturnType<typeof getSupabaseAdmin>, candidate: string, personaId?: string) {
+  const { data } = await sb
+    .from("personas")
+    .select("id")
+    .eq("public_slug", candidate)
+    .maybeSingle();
+
+  return !data || data.id === personaId;
+}
+
+async function generateUniquePublicSlug(
+  sb: ReturnType<typeof getSupabaseAdmin>,
+  name: string,
+  personaId?: string
+) {
+  const base = slugifyPublicPersonaName(name);
+  for (let index = 0; index < 100; index += 1) {
+    const candidate = index === 0 ? base : `${base}-${index + 1}`;
+    if (await publicSlugAvailable(sb, candidate, personaId)) return candidate;
+  }
+
+  throw new Error("Could not generate a unique public persona slug.");
 }
 
 function serializeLayerProfile(row: any) {
@@ -415,6 +463,9 @@ personasRouter.post("/", requireTier("private"), async (req, res) => {
     const publicEligibility = await assertPublicPersonaAllowed(res, userId, authUser);
     if (!publicEligibility) return;
   }
+  const publicSlug = parsed.data.visibility === "public"
+    ? await generateUniquePublicSlug(sb, parsed.data.name)
+    : null;
 
   const { data, error } = await sb
     .from("personas")
@@ -424,6 +475,7 @@ personasRouter.post("/", requireTier("private"), async (req, res) => {
       short_description: parsed.data.shortDescription ?? null,
       long_description: parsed.data.longDescription ?? null,
       visibility: parsed.data.visibility,
+      public_slug: publicSlug,
       provider: parsed.data.provider,
       awakening_prompt: parsed.data.awakeningPrompt ?? null,
       style_notes: parsed.data.styleNotes ?? null,
@@ -459,7 +511,7 @@ personasRouter.patch("/:id", async (req, res) => {
 
   const { data: existing } = await sb
     .from("personas")
-    .select("id, name, owner_user_id, visibility")
+    .select("id, name, owner_user_id, visibility, public_slug")
     .eq("id", req.params.id)
     .single();
 
@@ -506,6 +558,15 @@ personasRouter.patch("/:id", async (req, res) => {
   if (parsed.data.provider !== undefined)         updatePayload.provider = parsed.data.provider;
   if (parsed.data.awakeningPrompt !== undefined)  updatePayload.awakening_prompt = parsed.data.awakeningPrompt;
   if (parsed.data.styleNotes !== undefined)       updatePayload.style_notes = parsed.data.styleNotes;
+  const willBePublic = parsed.data.visibility === "public" ||
+    (parsed.data.visibility === undefined && existing.visibility === "public");
+  if (willBePublic && !existing.public_slug) {
+    updatePayload.public_slug = await generateUniquePublicSlug(
+      sb,
+      parsed.data.name ?? existing.name,
+      existing.id
+    );
+  }
 
   const { data, error } = await sb
     .from("personas")

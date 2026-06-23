@@ -45,6 +45,14 @@ class ReportsSupabase {
         tier: "visitor",
         is_admin: false,
       },
+      {
+        id: "persona-owner-private-id",
+        email: "persona-owner@example.test",
+        username: "persona-owner",
+        display_name: "Persona Owner",
+        tier: "creator",
+        is_admin: false,
+      },
     ],
     moderation_reports: [],
     moderation_review_requests: [],
@@ -142,10 +150,14 @@ class QueryBuilder {
   private limitCount: number | null = null;
   private operation: "select" | "insert" | "update" = "select";
   private payload: Row | Row[] | null = null;
+  private countRequested = false;
+  private head = false;
 
   constructor(private db: ReportsSupabase, private table: string) {}
 
-  select() {
+  select(_columns = "*", options: { count?: string; head?: boolean } = {}) {
+    this.countRequested = Boolean(options.count);
+    this.head = Boolean(options.head);
     return this;
   }
 
@@ -241,7 +253,7 @@ class QueryBuilder {
         : { data: null, error: null };
     }
 
-    return { data, error: null };
+    return { data: this.head ? null : data, error: null, count: this.countRequested ? rows.length : null };
   }
 }
 
@@ -726,6 +738,7 @@ test("admin report queue includes safe target context for thread and comment rep
     short_description: "Persona safe summary.",
     long_description: "Persona long private context that must stay out.",
     visibility: "public",
+    public_slug: "public-persona",
     provider: "openai",
     awakening_prompt: "Prompt text that must stay out of admin report context.",
     style_notes: "Style notes that must stay out.",
@@ -892,10 +905,10 @@ test("admin report queue includes safe target context for thread and comment rep
       targetId: "persona-1",
       title: "Public Persona",
       visibility: "public",
-      routeHref: null,
-      routeLabel: null,
-      canOpenRoute: false,
-      unavailableReason: "Persona targets have no safe public route hint yet.",
+      routeHref: "/personas/public-persona",
+      routeLabel: "Public Persona",
+      canOpenRoute: true,
+      unavailableReason: null,
       supportedActions: [],
     });
     assert.deepEqual(byId.get(privatePersonaReport.id)?.targetContext, {

@@ -1187,6 +1187,8 @@ html, body {
   display: flex;
   gap: 0.8rem;
   padding: 1rem;
+  color: var(--space-text);
+  text-decoration: none;
 }
 
 .space-persona-card h3 {
@@ -1229,6 +1231,97 @@ html, body {
 .space-library-list time {
   color: var(--space-muted);
   font-size: 0.8rem;
+}
+
+.public-persona-page {
+  max-width: 920px;
+  margin: 0 auto;
+  padding: 3rem 1rem;
+  display: grid;
+  gap: 1rem;
+}
+
+.public-persona-header,
+.public-persona-panel {
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-radius: 8px;
+  background: rgba(15, 23, 42, 0.78);
+  color: #f8fafc;
+}
+
+.public-persona-header {
+  min-height: 260px;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 1.25rem;
+  padding: 1.4rem;
+}
+
+.public-persona-kicker,
+.public-persona-panel span {
+  color: #94a3b8;
+  font-size: 0.75rem;
+  font-weight: 760;
+  text-transform: uppercase;
+}
+
+.public-persona-header h1 {
+  margin: 0.35rem 0 0;
+  font-size: 2.4rem;
+  line-height: 1.05;
+}
+
+.public-persona-header p,
+.public-persona-panel p {
+  max-width: 680px;
+  margin: 0.75rem 0 0;
+  color: #cbd5e1;
+  line-height: 1.7;
+}
+
+.public-persona-avatar {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background-color: #111827;
+  background-position: center;
+  background-size: cover;
+  border: 1px solid rgba(148, 163, 184, 0.34);
+}
+
+.public-persona-initials {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #bae6fd;
+  font-size: 2rem;
+  font-weight: 800;
+}
+
+.public-persona-panel {
+  padding: 1.2rem;
+}
+
+.public-persona-panel strong {
+  display: block;
+  margin-top: 0.25rem;
+  font-size: 1rem;
+}
+
+.public-persona-error a {
+  color: #93c5fd;
+}
+
+@media (max-width: 640px) {
+  .public-persona-header {
+    grid-template-columns: 1fr;
+    min-height: 0;
+  }
+
+  .public-persona-header h1 {
+    font-size: 2rem;
+  }
 }
 
 .space-builder-page {

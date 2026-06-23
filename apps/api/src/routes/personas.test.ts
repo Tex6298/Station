@@ -86,6 +86,7 @@ class InMemorySupabase {
     if (table === "personas") {
       row.short_description ??= null;
       row.long_description ??= null;
+      row.public_slug ??= null;
       row.visibility ??= "private";
       row.provider ??= "platform";
       row.avatar_url ??= null;
@@ -383,6 +384,7 @@ test("owner readback reports public eligibility and exact public fields without 
     assert.deepEqual(Object.keys(ownerReadback.body.persona.publicReadback.publicFields).sort(), [
       "avatarUrl",
       "name",
+      "publicSlug",
       "shortDescription",
       "visibility",
     ]);
@@ -391,6 +393,7 @@ test("owner readback reports public eligibility and exact public fields without 
       shortDescription: "Owner-visible short card.",
       visibility: "private",
       avatarUrl: "https://example.test/avatar.png",
+      publicSlug: null,
     });
     assert.equal(db.rows("personas")[0].visibility, "private");
   } finally {
@@ -421,6 +424,7 @@ test("creator, canon, institutional, and admin-private users can create public p
 
       assert.equal(created.status, 201);
       assert.equal(created.body.persona.visibility, "public");
+      assert.match(created.body.persona.publicReadback.publicFields.publicSlug, /^[a-z0-9]+(?:-[a-z0-9]+)*$/);
       assert.equal(created.body.persona.publicReadback.eligibility.eligible, true);
       assert.deepEqual(created.body.persona.publicReadback.eligibility.blockers, []);
     }
@@ -457,6 +461,7 @@ test("non-owner public persona readback uses the public serializer only", async 
       shortDescription: "Public-safe card.",
       visibility: "public",
       avatarUrl: "https://example.test/public-avatar.png",
+      publicSlug: null,
     });
 
     const serialized = JSON.stringify(readback.body);
@@ -476,6 +481,63 @@ test("non-owner public persona readback uses the public serializer only", async 
       token: "other-token",
     });
     assert.equal(privateReadback.status, 403);
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
+
+test("public persona slug readback is anonymous, public-only, and owner-tier eligible", async () => {
+  const db = new InMemorySupabase();
+  setSupabaseAdminForTests(db.client as any);
+  const app = createPersonasApp();
+
+  try {
+    db.insertRow("personas", {
+      owner_user_id: "creator-owner",
+      name: "Public Slug Persona",
+      short_description: "Public-safe slug card.",
+      long_description: "Owner-only setup material.",
+      awakening_prompt: "Owner-only awakening prompt.",
+      style_notes: "Owner-only style notes.",
+      provider: "anthropic",
+      avatar_url: "https://example.test/public-slug-avatar.png",
+      visibility: "public",
+      public_slug: "public-slug-persona",
+    });
+    db.insertRow("personas", {
+      owner_user_id: "creator-owner",
+      name: "Private Slug Persona",
+      visibility: "private",
+      public_slug: "private-slug-persona",
+    });
+    db.insertRow("personas", {
+      owner_user_id: "private-owner",
+      name: "Legacy Ineligible Persona",
+      visibility: "public",
+      public_slug: "legacy-ineligible-persona",
+    });
+
+    const publicReadback = await requestJson(app, "GET", "/personas/public/public-slug-persona");
+    assert.equal(publicReadback.status, 200);
+    assert.deepEqual(publicReadback.body.persona, {
+      name: "Public Slug Persona",
+      shortDescription: "Public-safe slug card.",
+      visibility: "public",
+      avatarUrl: "https://example.test/public-slug-avatar.png",
+      publicSlug: "public-slug-persona",
+    });
+    const publicJson = JSON.stringify(publicReadback.body);
+    assert.equal(publicJson.includes("creator-owner"), false);
+    assert.equal(publicJson.includes("provider"), false);
+    assert.equal(publicJson.includes("longDescription"), false);
+    assert.equal(publicJson.includes("awakeningPrompt"), false);
+    assert.equal(publicJson.includes("styleNotes"), false);
+
+    const privateReadback = await requestJson(app, "GET", "/personas/public/private-slug-persona");
+    assert.equal(privateReadback.status, 404);
+
+    const ineligibleReadback = await requestJson(app, "GET", "/personas/public/legacy-ineligible-persona");
+    assert.equal(ineligibleReadback.status, 404);
   } finally {
     setSupabaseAdminForTests(null);
   }

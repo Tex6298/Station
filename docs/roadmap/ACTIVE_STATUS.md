@@ -4,7 +4,64 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest MIMIR decision - PR203 public persona page readback opened
+## Latest DAEDALUS result - PR203 public persona page readback implemented
+
+DAEDALUS implemented PR203 / P3-B2 on 2026-06-23.
+
+Verdict:
+
+- Public persona page/readback is implemented behind a dedicated safe public
+  slug route contract.
+- ARGUS review is required before MIMIR marks the lane accepted.
+
+What changed:
+
+- Added nullable `public_slug` for personas in
+  `infra/supabase/migrations/054_persona_public_slugs.sql`, with a format
+  check, partial unique index, and deterministic backfill for existing public
+  personas.
+- Updated `packages/db/src/types.ts` and `packages/types/src/persona.ts` with
+  the public slug field.
+- `apps/api/src/routes/personas.ts` now generates a public slug when a persona
+  is created or transitioned to public, and exposes anonymous
+  `/personas/public/:publicSlug` readback using only the PR202 public
+  serializer.
+- Public readback checks the owner still satisfies public-persona eligibility,
+  so legacy below-tier public rows do not get public pages.
+- Public Space persona cards now include safe public slugs and link to
+  `/personas/:publicSlug` only when the slug is valid.
+- `apps/web/app/personas/[publicSlug]/page.tsx` renders a sparse public
+  readback page with no visitor chat, provider badge, model context, owner
+  controls, or private setup fields.
+- Reports now add a persona route hint only for public, eligible personas with
+  a valid public slug; private persona reports still have no route hint.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:personas` passed.
+- `npm exec --yes pnpm@10.32.1 -- run test:spaces` passed.
+- `npm exec --yes pnpm@10.32.1 -- run test:reports` passed.
+- `npm exec --yes pnpm@10.32.1 -- run test:writing` passed.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed with the existing raw
+  `<img>` warnings in `apps/web/app/space/[slug]/page.tsx` and
+  `apps/web/components/discover/discover-front-door.tsx`.
+- `git diff --check` and `git diff --cached --check` passed.
+- Staged secret/raw-id-shaped scan passed with no secret, token, credential
+  URL, password literal, or UUID-shaped value detected.
+- A temporary Playwright browser smoke was attempted against a fake local API,
+  but the npm temp runner could not resolve `@playwright/test` from the
+  temporary spec, so the browser check did not execute. The temp spec was
+  removed and local servers were stopped.
+
+Current baton:
+
+- ARGUS should hostile-review the public slug contract, API/web public payload,
+  Space card links, report route hints, and the migration/backfill.
+- If safe, ARGUS should wake MIMIR with an accept verdict and recommend
+  ARIADNE visible public-page review next.
+
+## Previous MIMIR decision - PR203 public persona page readback opened
 
 MIMIR consumed the A1 wakeup from
 `d0b7ecce37a32457fd67943a35764ca4796abc8f`.

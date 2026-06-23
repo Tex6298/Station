@@ -263,6 +263,7 @@ export interface Database {
           short_description: string | null;
           long_description: string | null;
           avatar_url: string | null;
+          public_slug: string | null;
           visibility: Visibility;
           provider: Provider;
           awakening_prompt: string | null;
@@ -271,8 +272,9 @@ export interface Database {
           created_at: string;
           updated_at: string;
         };
-        Insert: Omit<Database["public"]["Tables"]["personas"]["Row"], "id" | "created_at" | "updated_at"> & {
+        Insert: Omit<Database["public"]["Tables"]["personas"]["Row"], "id" | "public_slug" | "created_at" | "updated_at"> & {
           id?: string;
+          public_slug?: string | null;
           created_at?: string;
           updated_at?: string;
         };

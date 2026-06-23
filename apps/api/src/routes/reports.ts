@@ -5,6 +5,8 @@ import type { Database } from "@station/db";
 import { requireAuth } from "../middleware/require-auth";
 import { requireTier } from "../middleware/require-tier";
 import { getSupabaseAdmin } from "../lib/supabase";
+import { ownerCanExposeExistingPublicPersonas } from "../lib/public-persona-eligibility";
+import { publicPersonaRouteHref } from "../lib/persona-serialization";
 import type {
   AdminModerationReviewRequestRecord,
   ModerationReportRecord,
@@ -722,7 +724,7 @@ async function loadPersonaTargetContext(
 ): Promise<ModerationReportTargetContext> {
   const { data: persona } = await (sb as any)
     .from("personas")
-    .select("id, name, visibility")
+    .select("id, name, visibility, public_slug, owner_user_id")
     .eq("id", personaId)
     .maybeSingle();
 
@@ -730,15 +732,25 @@ async function loadPersonaTargetContext(
     return unavailableTargetContext("persona", personaId, "Persona target not found.");
   }
 
+  let routeHref: string | null = null;
+  if (
+    persona.visibility === "public" &&
+    await ownerCanExposeExistingPublicPersonas(sb, persona.owner_user_id)
+  ) {
+    routeHref = publicPersonaRouteHref(persona.public_slug);
+  }
+
   return {
     targetType: "persona",
     targetId: persona.id,
     title: persona.name ?? null,
     visibility: persona.visibility ?? null,
-    routeHref: null,
-    routeLabel: null,
-    canOpenRoute: false,
-    unavailableReason: persona.visibility === "private"
+    routeHref,
+    routeLabel: routeHref ? persona.name ?? "Public persona" : null,
+    canOpenRoute: Boolean(routeHref),
+    unavailableReason: routeHref
+      ? null
+      : persona.visibility === "private"
       ? "Private persona target has no safe moderator route hint."
       : "Persona targets have no safe public route hint yet.",
     supportedActions: [],

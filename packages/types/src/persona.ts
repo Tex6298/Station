@@ -17,6 +17,7 @@ export interface PersonaPublicFields {
   shortDescription?: string | null;
   visibility: PersonaVisibility;
   avatarUrl?: string | null;
+  publicSlug?: string | null;
 }
 
 export interface PublicPersonaProfile extends Omit<PersonaPublicFields, "visibility"> {

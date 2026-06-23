@@ -7,6 +7,7 @@ import type { SpacePresentationConfig } from "@station/config/space-presentation
 import { SPACE_LAYOUT_OPTIONS, SPACE_THEME_OPTIONS } from "@station/config/space-presentation";
 import { getSession } from "@/lib/auth";
 import { apiGet } from "@/lib/api-client";
+import { publicPersonaHref } from "@/lib/public-persona-route";
 import { publicPersonaEmptyCopy, publicSpaceHomeCopy, spaceStoryStats } from "@/lib/public-story-polish";
 
 interface SpacePage {
@@ -37,6 +38,7 @@ interface Persona {
   shortDescription: string | null;
   visibility: string;
   avatarUrl?: string | null;
+  publicSlug?: string | null;
 }
 
 interface Owner {
@@ -283,15 +285,28 @@ function PersonaGrid({ personas, hasDocuments }: { personas: Persona[]; hasDocum
 
   return (
     <div className="space-persona-grid">
-      {personas.map((persona, index) => (
-        <article key={`${persona.name}-${index}`} className="space-persona-card">
-          <IdentityMark title={persona.name} imageUrl={persona.avatarUrl ?? null} />
-          <div>
-            <h3>{persona.name}</h3>
-            {persona.shortDescription && <p>{persona.shortDescription}</p>}
-          </div>
-        </article>
-      ))}
+      {personas.map((persona, index) => {
+        const href = publicPersonaHref(persona.publicSlug);
+        const content = (
+          <>
+            <IdentityMark title={persona.name} imageUrl={persona.avatarUrl ?? null} />
+            <div>
+              <h3>{persona.name}</h3>
+              {persona.shortDescription && <p>{persona.shortDescription}</p>}
+            </div>
+          </>
+        );
+
+        return href ? (
+          <Link key={`${persona.name}-${index}`} href={href} className="space-persona-card">
+            {content}
+          </Link>
+        ) : (
+          <article key={`${persona.name}-${index}`} className="space-persona-card">
+            {content}
+          </article>
+        );
+      })}
     </div>
   );
 }
