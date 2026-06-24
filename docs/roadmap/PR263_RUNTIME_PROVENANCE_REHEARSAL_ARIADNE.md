@@ -1,7 +1,7 @@
 # PR263 - Runtime Provenance Rehearsal
 
 Owner: A4 / ARIADNE
-Status: open
+Status: passed
 Opened by: A1 / MIMIR
 Date: 2026-06-24
 
@@ -98,3 +98,43 @@ Validation:
 Task:
 - Close PR262/PR263 or open the smallest DAEDALUS repair.
 ```
+
+## ARIADNE Result - 2026-06-24
+
+Verdict: PASS.
+
+Hosted freshness:
+
+- Web `/health/deployment` returned `ok:true`, `ready:true`, branch `main`,
+  service `@station/web`, and commit `bb40318`.
+- API `/health/deployment` returned `ok:true`, `ready:true`, branch `main`,
+  service `@station/api`, and commit `bb40318`.
+
+Routes/viewports checked:
+
+- Replay-owner `/studio/personas/:personaId/continuity` at desktop `1280x900`.
+- Replay-owner `/studio/personas/:personaId/continuity` at `390x844` mobile.
+
+Findings:
+
+- Runtime provenance is visible directly beneath the runtime context preview
+  and reads as owner-only readback, not a debug trace.
+- The owner can see Canon, Integrity, Continuity, Memory, and Archive groups,
+  selected counts, honest empty/thin states, and the right review target for
+  each group.
+- Runtime preview copy remains clear that Continuity records are source
+  context for recall and ordering, not system instructions.
+- The visible route did not show compiled prompts, source bodies, provider
+  payload markers, private excerpts, raw ids, URLs, bearer tokens, secrets,
+  SQL, stack traces, hosted logs, or private route bodies.
+- No visible copy implied changes to retrieval ranking, embeddings, memory
+  truth, source serialization, visibility, providers, Redis/Cloudflare,
+  schema, workers, billing, auth/session, deployment, public memory, public
+  observability, graph canvas, broad Studio, or Developer Space behavior.
+- Desktop and `390px` mobile checks found no page-level horizontal overflow,
+  clipped controls, incoherent overlap, or unreadable text.
+
+Validation:
+
+- `node --check tmp-pr263-runtime-provenance-rehearsal.spec.js`
+- `npx --yes --package @playwright/test@1.41.2 playwright test tmp-pr263-runtime-provenance-rehearsal.spec.js --reporter=line --workers=1`

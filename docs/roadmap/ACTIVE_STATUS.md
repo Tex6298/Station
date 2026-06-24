@@ -4,32 +4,46 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest MIMIR decision - PR263 Runtime Provenance Rehearsal opened
+## Latest ARIADNE review - PR263 Runtime Provenance Rehearsal
 
-MIMIR accepts ARGUS's PR262 review on 2026-06-24 and opens ARIADNE rehearsal.
+ARIADNE passes PR263 on 2026-06-24.
 
-Decision:
+Result:
 
-- Open PR263 - Runtime Provenance Rehearsal.
-- ARIADNE should verify hosted Railway freshness at or beyond PR262
+- Hosted Railway web/API were healthy and ready on branch `main` at PR262
   implementation commit `bb40318`.
-- ARIADNE should rehearse owner `/studio/personas/[personaId]/continuity` on
-  desktop and `375px` or `390px` mobile.
+- Replay-owner `/studio/personas/:personaId/continuity` passed on desktop
+  `1280x900`.
+- Replay-owner `/studio/personas/:personaId/continuity` passed on `390x844`
+  mobile.
 
-Pass/fail focus:
+Findings:
 
-- Runtime provenance reads as owner-only readback, not raw/debug trace.
-- Owner can tell whether to review Memory, Archive, Continuity, Canon, or
-  Integrity.
-- Compiled prompts and source bodies remain hidden.
-- No raw ids, prompts, provider payloads, private excerpts, URLs, secrets,
-  stack traces, hosted logs, or private route bodies render.
-- Layout remains readable with no overflow.
+- Runtime provenance is visible directly beneath the runtime context preview
+  and reads as owner-only readback, not a debug trace.
+- Canon, Integrity, Continuity, Memory, and Archive groups/counts are legible,
+  including honest empty/thin states and the right owner review target for each
+  group.
+- Runtime preview copy remains clear that Continuity records are source
+  context for recall and ordering, not system instructions.
+- The visible route did not show compiled prompts, source bodies, provider
+  payload markers, private excerpts, raw ids, URLs, bearer tokens, secrets,
+  SQL, stack traces, hosted logs, or private route bodies.
+- No visible copy implied changes to retrieval ranking, embeddings, memory
+  truth, source serialization, visibility, providers, Redis/Cloudflare,
+  schema, workers, billing, auth/session, deployment, public memory, public
+  observability, graph canvas, broad Studio, or Developer Space behavior.
+- Desktop and `390px` mobile checks found no page-level horizontal overflow,
+  clipped controls, incoherent overlap, or unreadable text.
+
+Validation:
+
+- `node --check tmp-pr263-runtime-provenance-rehearsal.spec.js`
+- `npx --yes --package @playwright/test@1.41.2 playwright test tmp-pr263-runtime-provenance-rehearsal.spec.js --reporter=line --workers=1`
 
 Current baton:
 
-- ARIADNE should return PASS/FAIL/BLOCKED and wake MIMIR.
-- If FAIL, MIMIR should open the smallest DAEDALUS repair.
+- MIMIR can close PR262/PR263 or open the next narrow planning lane.
 
 ## Latest ARGUS review - PR262 Owner Runtime Provenance Stitching
 

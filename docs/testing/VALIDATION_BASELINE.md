@@ -32,17 +32,22 @@ Memory/observability implementation lane.
 
 ## PR263 Runtime Provenance Rehearsal
 
-MIMIR opened PR263 for ARIADNE on 2026-06-24 after ARGUS accepted PR262.
+ARIADNE passed PR263 on 2026-06-24.
 
-Required rehearsal table:
+Hosted rehearsal result:
 
 | Check | Expected result | Notes |
 | --- | --- | --- |
-| Web `/health/deployment` | Pass | Hosted Railway web is healthy, ready, on `main`, and at or beyond `bb40318`. |
-| API `/health/deployment` | Pass if used | Required if sign-in or route data needs API confirmation. |
-| Owner `/studio/personas/[personaId]/continuity` desktop | Pass | Runtime provenance is visible, readable, owner-only/readback-only, and near runtime context. |
-| Owner `/studio/personas/[personaId]/continuity` 375/390 mobile | Pass | No overflow, clipped controls, cramped chips, overlap, or unreadable text. |
-| Privacy/comprehension sweep | Pass | Compiled prompts/source bodies stay hidden; owner can tell whether to review Memory, Archive, Continuity, Canon, or Integrity. |
+| Web `/health/deployment` | Pass | Hosted Railway web reported `ok:true`, `ready:true`, branch `main`, service `@station/web`, and commit `bb40318`. |
+| API `/health/deployment` | Pass | Hosted Railway API reported `ok:true`, `ready:true`, branch `main`, service `@station/api`, and commit `bb40318`. |
+| Owner `/studio/personas/:personaId/continuity` desktop | Pass | Desktop `1280x900` rendered runtime provenance as owner-only/readback-only directly beneath runtime context. |
+| Owner `/studio/personas/:personaId/continuity` 390 mobile | Pass | Mobile `390x844` had no page-level overflow, clipped controls, overlap, or unreadable text. |
+| Privacy/comprehension sweep | Pass | Compiled prompts/source bodies stayed hidden; Canon, Integrity, Continuity, Memory, and Archive groups/counts/review targets were legible; no raw ids, URLs, secret-shaped material, provider payloads, private excerpts, SQL, stack traces, hosted logs, or private route bodies rendered. |
+
+Validation:
+
+- `node --check tmp-pr263-runtime-provenance-rehearsal.spec.js`
+- `npx --yes --package @playwright/test@1.41.2 playwright test tmp-pr263-runtime-provenance-rehearsal.spec.js --reporter=line --workers=1`
 
 ## PR262 Owner Runtime Provenance Stitching Readback
 
