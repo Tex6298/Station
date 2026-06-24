@@ -7,6 +7,7 @@ export interface ChatProviderInput {
   system?: string;
   messages: ChatInputMessage[];
   model?: string;
+  maxOutputTokens?: number;
 }
 
 export interface ChatProviderResponse {

@@ -1309,25 +1309,29 @@ html, body {
   font-size: 1rem;
 }
 
-.public-persona-context-preview {
+.public-persona-context-preview,
+.public-persona-chat {
   display: grid;
   gap: 1rem;
 }
 
-.public-persona-preview-form {
+.public-persona-preview-form,
+.public-persona-chat-form {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   gap: 0.75rem;
   align-items: end;
 }
 
-.public-persona-preview-form label {
+.public-persona-preview-form label,
+.public-persona-chat-form label {
   display: grid;
   gap: 0.35rem;
   min-width: 0;
 }
 
-.public-persona-preview-form input {
+.public-persona-preview-form input,
+.public-persona-chat-form textarea {
   width: 100%;
   min-height: 40px;
   border: 1px solid rgba(148, 163, 184, 0.34);
@@ -1337,7 +1341,16 @@ html, body {
   padding: 0 0.75rem;
 }
 
-.public-persona-preview-form button {
+.public-persona-chat-form textarea {
+  min-height: 96px;
+  padding-top: 0.65rem;
+  resize: vertical;
+}
+
+.public-persona-preview-form button,
+.public-persona-chat-form button,
+.public-persona-report-button,
+.public-persona-chat-state a {
   min-height: 40px;
   border: 1px solid rgba(148, 163, 184, 0.34);
   border-radius: 8px;
@@ -1346,14 +1359,21 @@ html, body {
   cursor: pointer;
   font-weight: 800;
   padding: 0 0.9rem;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.public-persona-preview-form button:disabled {
+.public-persona-preview-form button:disabled,
+.public-persona-chat-form button:disabled,
+.public-persona-report-button:disabled {
   cursor: progress;
   opacity: 0.72;
 }
 
-.public-persona-preview-result {
+.public-persona-preview-result,
+.public-persona-chat-reply {
   display: grid;
   gap: 0.85rem;
 }
@@ -1366,6 +1386,8 @@ html, body {
 
 .public-persona-preview-counts div,
 .public-persona-preview-sources a,
+.public-persona-chat-reply,
+.public-persona-chat-sources a,
 .public-persona-preview-exclusions {
   min-width: 0;
   border: 1px solid rgba(148, 163, 184, 0.2);
@@ -1374,12 +1396,14 @@ html, body {
   padding: 0.75rem;
 }
 
-.public-persona-preview-sources {
+.public-persona-preview-sources,
+.public-persona-chat-sources {
   display: grid;
   gap: 0.6rem;
 }
 
-.public-persona-preview-sources a {
+.public-persona-preview-sources a,
+.public-persona-chat-sources a {
   display: grid;
   gap: 0.25rem;
   text-decoration: none;
@@ -1388,14 +1412,18 @@ html, body {
 .public-persona-preview-sources em,
 .public-persona-preview-sources small,
 .public-persona-preview-exclusions p,
-.public-persona-preview-error {
+.public-persona-preview-error,
+.public-persona-chat-state,
+.public-persona-chat-error,
+.public-persona-report-state {
   margin: 0;
   color: #cbd5e1;
   line-height: 1.55;
 }
 
 .public-persona-preview-sources em,
-.public-persona-preview-exclusions p {
+.public-persona-preview-exclusions p,
+.public-persona-chat-reply p {
   overflow-wrap: anywhere;
 }
 
@@ -1414,11 +1442,13 @@ html, body {
   }
 
   .public-persona-preview-form,
+  .public-persona-chat-form,
   .public-persona-preview-counts {
     grid-template-columns: 1fr;
   }
 
-  .public-persona-preview-form button {
+  .public-persona-preview-form button,
+  .public-persona-chat-form button {
     width: 100%;
   }
 }

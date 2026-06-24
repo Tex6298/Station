@@ -3,8 +3,15 @@ import type { Server } from "node:http";
 import type { AddressInfo } from "node:net";
 import test from "node:test";
 import express, { type Express } from "express";
+import type { PublicPersonaChatResponse, PublicPersonaReportConfirmation } from "@station/types/persona";
 import { setSupabaseAdminForTests } from "../lib/supabase";
 import { ownerCanExposeExistingPublicPersonas } from "../lib/public-persona-eligibility";
+import {
+  DisabledOperationalCacheProvider,
+  resetOperationalCacheProviderForTests,
+  setOperationalCacheProviderForTests,
+  type OperationalCacheProvider,
+} from "../services/operational-cache.service";
 import { personasRouter } from "./personas";
 
 process.env.NODE_ENV = "test";
@@ -19,8 +26,11 @@ class InMemorySupabase {
       { id: "canon-owner", email: "canon@example.test", tier: "canon", is_admin: false },
       { id: "institution-owner", email: "institution@example.test", tier: "institutional", is_admin: false },
       { id: "admin-private", email: "admin@example.test", tier: "private", is_admin: true },
+      { id: "visitor-user", email: "visitor@example.test", tier: "visitor", is_admin: false },
       { id: "other-user", email: "other@example.test", tier: "private", is_admin: false },
     ],
+    conversations: [],
+    conversation_messages: [],
     personas: [],
     persona_layer_profiles: [],
     persona_lifecycle_events: [],
@@ -36,6 +46,10 @@ class InMemorySupabase {
     documents: [],
     forum_categories: [],
     threads: [],
+    moderation_reports: [],
+    token_usage: [],
+    token_transactions: [],
+    topup_purchases: [],
   };
 
   private idCounters: Record<string, number> = {};
@@ -46,6 +60,7 @@ class InMemorySupabase {
     ["canon-token", { id: "canon-owner", email: "canon@example.test" }],
     ["institution-token", { id: "institution-owner", email: "institution@example.test" }],
     ["admin-token", { id: "admin-private", email: "admin@example.test" }],
+    ["visitor-token", { id: "visitor-user", email: "visitor@example.test" }],
     ["other-token", { id: "other-user", email: "other@example.test" }],
   ]);
 
@@ -59,6 +74,7 @@ class InMemorySupabase {
       },
     },
     from: (table: string) => new QueryBuilder(this, table),
+    rpc: (name: string, args: Row) => this.rpc(name, args),
   };
 
   rows(table: string) {
@@ -92,6 +108,7 @@ class InMemorySupabase {
       row.short_description ??= null;
       row.long_description ??= null;
       row.public_slug ??= null;
+      row.public_chat_enabled ??= false;
       row.visibility ??= "private";
       row.provider ??= "platform";
       row.avatar_url ??= null;
@@ -160,7 +177,87 @@ class InMemorySupabase {
       row.updated_at ??= now;
     }
 
+    if (table === "moderation_reports") {
+      row.reporter_id ??= "reporter-user";
+      row.target_type ??= "persona";
+      row.target_id ??= "target-id";
+      row.reason ??= "reason";
+      row.notes ??= null;
+      row.status ??= "open";
+      row.reviewed_by ??= null;
+      row.reviewed_at ??= null;
+      row.created_at ??= now;
+      row.updated_at ??= now;
+    }
+
+    if (table === "token_usage") {
+      row.period_start ??= "2026-06-01";
+      row.tokens_used ??= 0;
+      row.tokens_limit ??= this.tokenLimitForUser(row.user_id);
+      row.topup_tokens ??= 0;
+      row.updated_at ??= now;
+    }
+
+    if (table === "token_transactions") {
+      row.period_start ??= "2026-06-01";
+      row.transaction_type ??= "llm_call";
+      row.model_used ??= null;
+      row.chat_id ??= null;
+      row.input_tokens ??= 0;
+      row.output_tokens ??= 0;
+      row.tokens_delta ??= 0;
+      row.created_at ??= now;
+    }
+
     return row;
+  }
+
+  private rpc(name: string, args: Row) {
+    if (name === "ensure_current_token_usage") {
+      return Promise.resolve({ data: this.ensureTokenUsage(args.p_user_id), error: null });
+    }
+
+    if (name === "record_token_usage") {
+      const usage = this.ensureTokenUsage(args.p_user_id);
+      const inputTokens = Math.max(0, Number(args.p_input_tokens ?? 0));
+      const outputTokens = Math.max(0, Number(args.p_output_tokens ?? 0));
+      usage.tokens_used += inputTokens + outputTokens;
+      usage.updated_at = this.timestamp();
+      this.insertRow("token_transactions", {
+        user_id: args.p_user_id,
+        period_start: usage.period_start,
+        transaction_type: "llm_call",
+        model_used: args.p_model,
+        chat_id: args.p_chat_id ?? null,
+        input_tokens: inputTokens,
+        output_tokens: outputTokens,
+        tokens_delta: inputTokens + outputTokens,
+      });
+      return Promise.resolve({ data: clone(usage), error: null });
+    }
+
+    return Promise.resolve({ data: null, error: { message: `Unknown RPC ${name}` } });
+  }
+
+  private ensureTokenUsage(userId: string) {
+    const rows = this.rows("token_usage");
+    let usage = rows.find((row) => row.user_id === userId && row.period_start === "2026-06-01");
+    if (!usage) {
+      usage = this.insertRow("token_usage", {
+        user_id: userId,
+        period_start: "2026-06-01",
+        tokens_limit: this.tokenLimitForUser(userId),
+      });
+    }
+    return usage;
+  }
+
+  private tokenLimitForUser(userId: string) {
+    const tier = this.rows("profiles").find((profile) => profile.id === userId)?.tier ?? "visitor";
+    if (tier === "creator") return 7_500_000;
+    if (tier === "canon" || tier === "institutional") return 20_000_000;
+    if (tier === "private") return 750_000;
+    return 0;
   }
 }
 
@@ -292,6 +389,32 @@ class QueryBuilder {
     }
 
     return { data: this.head ? null : data, error: null, count };
+  }
+}
+
+class TestRateLimitProvider implements OperationalCacheProvider {
+  readonly enabled = true;
+  readonly kind = "test" as const;
+  counts = new Map<string, number>();
+  keys: string[] = [];
+
+  async getJson<T>(): Promise<T | null> {
+    return null;
+  }
+
+  async setJson() {
+    return undefined;
+  }
+
+  async increment(key: string) {
+    this.keys.push(key);
+    const next = (this.counts.get(key) ?? 0) + 1;
+    this.counts.set(key, next);
+    return next;
+  }
+
+  async deleteKeys() {
+    return 0;
   }
 }
 
@@ -431,6 +554,7 @@ test("owner readback reports public eligibility and exact public fields without 
     assert.deepEqual(Object.keys(ownerReadback.body.persona.publicReadback.publicFields).sort(), [
       "avatarUrl",
       "name",
+      "publicChat",
       "publicSlug",
       "shortDescription",
       "visibility",
@@ -441,6 +565,10 @@ test("owner readback reports public eligibility and exact public fields without 
       visibility: "private",
       avatarUrl: "https://example.test/avatar.png",
       publicSlug: null,
+      publicChat: {
+        enabled: false,
+        mode: "signed_in_alpha",
+      },
     });
     assert.equal(db.rows("personas")[0].visibility, "private");
   } finally {
@@ -543,6 +671,10 @@ test("non-owner public persona readback uses the public serializer only", async 
       visibility: "public",
       avatarUrl: "https://example.test/public-avatar.png",
       publicSlug: null,
+      publicChat: {
+        enabled: false,
+        mode: "signed_in_alpha",
+      },
     });
 
     const serialized = JSON.stringify(readback.body);
@@ -612,6 +744,10 @@ test("public persona slug readback is anonymous, public-only, and owner-tier eli
       visibility: "public",
       avatarUrl: "https://example.test/public-slug-avatar.png",
       publicSlug: "public-slug-persona",
+      publicChat: {
+        enabled: false,
+        mode: "signed_in_alpha",
+      },
     });
     const publicJson = JSON.stringify(publicReadback.body);
     assert.equal(publicJson.includes("creator-owner"), false);
@@ -628,6 +764,295 @@ test("public persona slug readback is anonymous, public-only, and owner-tier eli
 
     const rawUuidReadback = await requestJson(app, "GET", "/personas/public/550e8400-e29b-41d4-a716-446655440000");
     assert.equal(rawUuidReadback.status, 404);
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
+
+test("signed-in public persona chat alpha is owner-enabled, rate-limited, public-source-only, and owner-paid", async () => {
+  const db = new InMemorySupabase();
+  const rateLimitProvider = new TestRateLimitProvider();
+  setSupabaseAdminForTests(db.client as any);
+  setOperationalCacheProviderForTests(rateLimitProvider);
+  const app = createPersonasApp();
+  const originalFetch = globalThis.fetch;
+  const previousNvidiaKey = process.env.NVIDIA_AI_API_KEY;
+  const previousNvidiaModel = process.env.NVIDIA_MODEL;
+  process.env.NVIDIA_AI_API_KEY = "test-nvidia-key";
+  process.env.NVIDIA_MODEL = "test-public-model";
+  const providerRequests: Row[] = [];
+
+  globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
+    const url = typeof input === "string" ? input : input instanceof URL ? input.toString() : input.url;
+    if (url.includes("integrate.api.nvidia.com")) {
+      providerRequests.push(JSON.parse(String(init?.body ?? "{}")));
+      return new Response(JSON.stringify({
+        choices: [{ message: { content: "Public answer from approved sources." } }],
+        model: "test-public-model",
+      }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+    return originalFetch(input, init);
+  }) as typeof fetch;
+
+  try {
+    const publicPersona = db.insertRow("personas", {
+      owner_user_id: "creator-owner",
+      name: "Blue Lantern Guide",
+      short_description: "Public-safe guide to the blue lantern room.",
+      long_description: "Owner-only private runtime context with memory archive canon continuity integrity.",
+      awakening_prompt: "Private setup prompt with secret-shaped-value.",
+      style_notes: "Private style notes with provider settings.",
+      provider: "anthropic",
+      visibility: "public",
+      public_slug: "blue-lantern-guide",
+    });
+    const privatePersona = db.insertRow("personas", {
+      owner_user_id: "creator-owner",
+      name: "Private Lantern",
+      visibility: "private",
+      public_slug: "private-lantern",
+    });
+    db.insertRow("personas", {
+      owner_user_id: "private-owner",
+      name: "Ineligible Public Persona",
+      visibility: "public",
+      public_slug: "ineligible-public-persona",
+    });
+    const publicSpace = db.insertRow("spaces", {
+      id: "public-space",
+      slug: "field-notes",
+      title: "Field Notes",
+      is_public: true,
+    });
+    const category = db.insertRow("forum_categories", {
+      id: "category-docs",
+      slug: "documents-and-codexes",
+      title: "Documents & Codexes",
+    });
+    const publicDocument = db.insertRow("documents", {
+      id: "public-doc",
+      author_user_id: "creator-owner",
+      space_id: publicSpace.id,
+      persona_id: publicPersona.id,
+      source_persona_id: publicPersona.id,
+      title: "Blue Lantern Field Notes",
+      body: "Public document notes about the blue lantern room.",
+      status: "published",
+      visibility: "public",
+      published_at: "2026-06-23T11:00:00.000Z",
+      discussion_thread_id: "public-thread",
+    });
+    db.insertRow("documents", {
+      id: "private-doc",
+      author_user_id: "creator-owner",
+      space_id: publicSpace.id,
+      persona_id: publicPersona.id,
+      title: "Private Runtime Source",
+      body: "Private memory archive canon continuity integrity source.",
+      status: "published",
+      visibility: "private",
+    });
+    db.insertRow("threads", {
+      id: "public-thread",
+      category_id: category.id,
+      linked_document_id: publicDocument.id,
+      title: "Blue Lantern Discussion",
+      body: "Public discussion about the blue lantern source.",
+      status: "active",
+      visibility: "public",
+      is_hidden: false,
+      comment_count: 2,
+    });
+
+    const anonymousChat = await requestJson(app, "POST", "/personas/public/blue-lantern-guide/chat", {
+      body: { message: "blue lantern" },
+    });
+    assert.equal(anonymousChat.status, 401);
+
+    const disabledChat = await requestJson(app, "POST", "/personas/public/blue-lantern-guide/chat", {
+      token: "visitor-token",
+      body: { message: "blue lantern" },
+    });
+    assert.equal(disabledChat.status, 409);
+    assert.equal(disabledChat.body.code, "public_persona_chat_disabled");
+    assert.equal(providerRequests.length, 0);
+
+    const privateEnable = await requestJson(app, "PATCH", `/personas/${privatePersona.id}`, {
+      token: "creator-token",
+      body: { publicChatEnabled: true },
+    });
+    assert.equal(privateEnable.status, 409);
+    assert.equal(db.rows("personas").find((row) => row.id === privatePersona.id)?.public_chat_enabled, false);
+
+    const otherEnable = await requestJson(app, "PATCH", `/personas/${publicPersona.id}`, {
+      token: "other-token",
+      body: { publicChatEnabled: true },
+    });
+    assert.equal(otherEnable.status, 404);
+
+    const enabled = await requestJson(app, "PATCH", `/personas/${publicPersona.id}`, {
+      token: "creator-token",
+      body: { publicChatEnabled: true },
+    });
+    assert.equal(enabled.status, 200);
+    assert.equal(enabled.body.persona.publicChatEnabled, true);
+    assert.equal(enabled.body.persona.publicReadback.publicFields.publicChat.enabled, true);
+
+    const ineligibleChat = await requestJson(app, "POST", "/personas/public/ineligible-public-persona/chat", {
+      token: "visitor-token",
+      body: { message: "hello" },
+    });
+    assert.equal(ineligibleChat.status, 404);
+
+    setOperationalCacheProviderForTests(new DisabledOperationalCacheProvider("test_disabled"));
+    const failClosed = await requestJson(app, "POST", "/personas/public/blue-lantern-guide/chat", {
+      token: "visitor-token",
+      body: { message: "blue lantern" },
+    });
+    assert.equal(failClosed.status, 503);
+    assert.equal(failClosed.body.code, "public_persona_rate_limit_unavailable");
+    assert.equal(providerRequests.length, 0);
+
+    setOperationalCacheProviderForTests(rateLimitProvider);
+    const chat = await requestJson<PublicPersonaChatResponse>(app, "POST", "/personas/public/blue-lantern-guide/chat", {
+      token: "visitor-token",
+      body: { message: "What does the blue lantern source say?" },
+    });
+    assert.equal(chat.status, 200);
+    assert.deepEqual(chat.body.reply, {
+      role: "assistant",
+      content: "Public answer from approved sources.",
+    });
+    assert.equal(chat.body.publicChat.enabled, true);
+    assert.equal(chat.body.publicChat.mode, "signed_in_alpha");
+    assert.equal(chat.body.publicChat.transcriptStored, false);
+    assert.equal(chat.body.sources.some((source) => source.href === "/space/field-notes/documents/public-doc"), true);
+    assert.equal(chat.body.sources.some((source) => source.href === "/forums/documents-and-codexes/public-thread"), true);
+    assert.equal(db.rows("conversations").length, 0);
+    assert.equal(db.rows("conversation_messages").length, 0);
+    assert.equal(db.rows("token_transactions").length, 1);
+    assert.equal(db.rows("token_transactions")[0].user_id, "creator-owner");
+    assert.equal(db.rows("token_transactions")[0].chat_id, null);
+    assert.equal(db.rows("token_usage").find((row) => row.user_id === "creator-owner")?.tokens_used > 0, true);
+    assert.equal(providerRequests.length, 1);
+    assert.equal(providerRequests[0].model, "test-public-model");
+    assert.equal(providerRequests[0].max_tokens, 450);
+
+    const providerPayload = JSON.stringify(providerRequests[0]);
+    assert.match(providerPayload, /Blue Lantern Guide/);
+    assert.match(providerPayload, /Blue Lantern Field Notes/);
+    assert.match(providerPayload, /Public document notes about the blue lantern room/);
+    assert.doesNotMatch(providerPayload, /\/space|\/forums|public-doc|public-thread|creator-owner/);
+    assert.doesNotMatch(providerPayload, /owner_user_id|provider settings|secret-shaped-value|Owner-only private runtime context/);
+    assert.doesNotMatch(providerPayload, /Private Runtime Source|private-doc|persona_id|source_persona_id|linked_document_id|category_id/);
+    assert.equal(rateLimitProvider.keys.some((key) => key.includes("test-nvidia-key")), false);
+
+    const usage = db.rows("token_usage").find((row) => row.user_id === "creator-owner")!;
+    usage.tokens_used = usage.tokens_limit;
+    const quotaBlocked = await requestJson(app, "POST", "/personas/public/blue-lantern-guide/chat", {
+      token: "visitor-token",
+      body: { message: "another public question" },
+    });
+    assert.equal(quotaBlocked.status, 402);
+    assert.equal(quotaBlocked.body.code, "public_persona_quota_exceeded");
+    assert.equal(providerRequests.length, 1);
+  } finally {
+    globalThis.fetch = originalFetch;
+    if (previousNvidiaKey == null) {
+      delete process.env.NVIDIA_AI_API_KEY;
+    } else {
+      process.env.NVIDIA_AI_API_KEY = previousNvidiaKey;
+    }
+    if (previousNvidiaModel == null) {
+      delete process.env.NVIDIA_MODEL;
+    } else {
+      process.env.NVIDIA_MODEL = previousNvidiaModel;
+    }
+    setSupabaseAdminForTests(null);
+    resetOperationalCacheProviderForTests();
+  }
+});
+
+test("public persona report resolver writes server-side target and returns public-safe confirmation", async () => {
+  const db = new InMemorySupabase();
+  setSupabaseAdminForTests(db.client as any);
+  const app = createPersonasApp();
+
+  try {
+    const persona = db.insertRow("personas", {
+      owner_user_id: "creator-owner",
+      name: "Reportable Public Persona",
+      short_description: "Report-safe public profile.",
+      visibility: "public",
+      public_slug: "reportable-public-persona",
+    });
+
+    const anonymous = await requestJson(app, "POST", "/personas/public/reportable-public-persona/report", {
+      body: { reason: "public_persona_chat" },
+    });
+    assert.equal(anonymous.status, 401);
+
+    const created = await requestJson<PublicPersonaReportConfirmation>(
+      app,
+      "POST",
+      "/personas/public/reportable-public-persona/report",
+      {
+        token: "visitor-token",
+        body: {
+          reason: "public_persona_chat",
+          notes: "Public page report without prompt or response text.",
+        },
+      }
+    );
+    assert.equal(created.status, 201);
+    assert.deepEqual(created.body, {
+      report: { status: "open" },
+      duplicate: false,
+    });
+    assert.equal(db.rows("moderation_reports").length, 1);
+    assert.deepEqual(db.rows("moderation_reports")[0], {
+      id: "moderation_reports-1",
+      reporter_id: "visitor-user",
+      target_type: "persona",
+      target_id: persona.id,
+      reason: "public_persona_chat",
+      notes: "Public page report without prompt or response text.",
+      status: "open",
+      reviewed_by: null,
+      reviewed_at: null,
+      created_at: db.rows("moderation_reports")[0].created_at,
+      updated_at: db.rows("moderation_reports")[0].updated_at,
+    });
+    const publicResponse = JSON.stringify(created.body);
+    assert.equal(publicResponse.includes(persona.id), false);
+    assert.equal(publicResponse.includes("visitor-user"), false);
+    assert.equal(publicResponse.includes("targetId"), false);
+    assert.equal(publicResponse.includes("reporter"), false);
+
+    const duplicate = await requestJson<PublicPersonaReportConfirmation>(
+      app,
+      "POST",
+      "/personas/public/reportable-public-persona/report",
+      {
+        token: "visitor-token",
+        body: { reason: "public_persona_chat" },
+      }
+    );
+    assert.equal(duplicate.status, 200);
+    assert.deepEqual(duplicate.body, {
+      report: { status: "open" },
+      duplicate: true,
+    });
+    assert.equal(db.rows("moderation_reports").length, 1);
+
+    const rawUuid = await requestJson(app, "POST", "/personas/public/550e8400-e29b-41d4-a716-446655440000/report", {
+      token: "visitor-token",
+      body: { reason: "public_persona_chat" },
+    });
+    assert.equal(rawUuid.status, 404);
   } finally {
     setSupabaseAdminForTests(null);
   }

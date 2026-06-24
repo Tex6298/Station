@@ -3,7 +3,7 @@
 Date opened: 2026-06-24
 Agent: A2 / DAEDALUS
 Opened by: A1 / MIMIR
-Status: open
+Status: implemented, awaiting ARGUS review
 
 ## Frame
 
@@ -157,6 +157,61 @@ Required proof:
 - report resolver writes through server-side slug resolution without exposing
   raw persona ids to the public page;
 - public UI states do not expose private config or imply private memory.
+
+## DAEDALUS Result
+
+Implemented on 2026-06-24.
+
+What changed:
+
+- Added migration `056_public_persona_chat_alpha.sql` with
+  `personas.public_chat_enabled boolean not null default false`.
+- Added public chat/readback/report types and DB type surface for
+  `public_chat_enabled`.
+- Owner persona readback now includes `publicChatEnabled`; public readback now
+  includes `publicChat: { enabled, mode: "signed_in_alpha" }`.
+- Owner PATCH can enable public chat only when the persona is public, has a safe
+  public slug, and the owner remains eligible for public persona exposure.
+- Added signed-in `POST /personas/public/:publicSlug/chat`:
+  - resolves public slug server-side;
+  - requires `public_chat_enabled = true`;
+  - trims and bounds visitor message to 600 chars;
+  - enforces cache-backed per-visitor and per-persona public-chat rate limits
+    before quota/provider work;
+  - fails closed with `public_persona_rate_limit_unavailable` when operational
+    cache/rate-limit is disabled or unavailable;
+  - uses platform provider routing only;
+  - sends only public persona name, public short description, public source
+    labels/titles/excerpts, and the visitor message to the provider;
+  - does not send source hrefs upstream;
+  - owner-pays through existing token budget/usage RPCs with `chatId = null`;
+  - does not create conversation or conversation-message rows.
+- Added signed-in `POST /personas/public/:publicSlug/report`:
+  - resolves public slug server-side;
+  - writes existing `moderation_reports` with `target_type = persona`;
+  - returns only `{ report: { status }, duplicate }`, not raw reporter/target
+    ids or the normal report serializer.
+- Added `maxOutputTokens` to provider input and implemented it for Anthropic,
+  OpenAI-compatible, and DeepSeek provider calls.
+- Updated the public persona page with signed-out, disabled, ready, sending,
+  error, reply, and report states while preserving anonymous readback and PR206
+  context preview.
+- Updated public copy tests so chat copy remains public-source-only.
+- Updated `test:personas` to build `@station/ai` because PR208 now imports the
+  provider router from that package.
+
+Validation run by DAEDALUS:
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:personas` | Pass | 10 tests passed. New coverage proves default-disabled public chat, owner-only enablement guard, signed-in-only route, private/ineligible reject, rate-limit fail-closed before provider, provider prompt without href/raw route id/private bucket leakage, no conversation rows, owner-paid token usage, and public-safe report confirmation. |
+| `npm exec --yes pnpm@10.32.1 -- run test:reports` | Pass | 6 tests passed. Existing moderation report routes remain green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:spaces` | Pass | 1 test passed after updating the expected public persona card to include the safe `publicChat` capability. |
+| `npm exec --yes pnpm@10.32.1 -- run test:writing` | Pass | 11 tests passed, including new public chat copy guard. |
+| `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` | Pass | 2 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | Turbo typecheck passed for API and web. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass with existing warnings | Existing raw `<img>` warnings remain in `apps/web/app/space/[slug]/page.tsx` and `apps/web/components/discover/discover-front-door.tsx`. |
+| `npm exec --yes pnpm@10.32.1 -- run build` | Local environment failure after successful compile/page generation | Next compiled, linted/typechecked, generated 36 static pages, then failed while copying standalone traced files because this Windows shell rejected symlink creation under `.next\\standalone`: `EPERM: operation not permitted, symlink ... node_modules\\.pnpm\\react@18.3.1 ... apps\\web\\.next\\standalone ...`. This matches the existing Windows standalone packaging limitation already recorded for PR204 and does not indicate a PR208 compile/type error. |
 
 ## Wakeup
 

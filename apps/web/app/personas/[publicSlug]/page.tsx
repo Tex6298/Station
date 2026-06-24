@@ -3,9 +3,19 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import type { PublicPersonaContextPreview } from "@station/types/persona";
-import { apiGet } from "@/lib/api-client";
-import { publicPersonaContextPreviewCopy, publicPersonaReadbackCopy } from "@/lib/public-persona-route";
+import type {
+  PublicPersonaChatResponse,
+  PublicPersonaContextPreview,
+  PublicPersonaReportConfirmation,
+} from "@station/types/persona";
+import { apiGet, apiPost } from "@/lib/api-client";
+import { getSession } from "@/lib/auth";
+import {
+  publicPersonaChatCopy,
+  publicPersonaChatDisabledCopy,
+  publicPersonaContextPreviewCopy,
+  publicPersonaReadbackCopy,
+} from "@/lib/public-persona-route";
 
 interface PublicPersona {
   name: string;
@@ -13,6 +23,10 @@ interface PublicPersona {
   visibility: "public";
   avatarUrl?: string | null;
   publicSlug?: string | null;
+  publicChat?: {
+    enabled: boolean;
+    mode: "signed_in_alpha";
+  };
 }
 
 export default function PublicPersonaPage() {
@@ -22,6 +36,14 @@ export default function PublicPersonaPage() {
   const [previewQuery, setPreviewQuery] = useState("");
   const [previewLoading, setPreviewLoading] = useState(false);
   const [previewError, setPreviewError] = useState<string | null>(null);
+  const [token, setToken] = useState<string | null>(null);
+  const [sessionChecked, setSessionChecked] = useState(false);
+  const [chatMessage, setChatMessage] = useState("");
+  const [chatReply, setChatReply] = useState<PublicPersonaChatResponse | null>(null);
+  const [chatLoading, setChatLoading] = useState(false);
+  const [chatError, setChatError] = useState<string | null>(null);
+  const [reportState, setReportState] = useState<"idle" | "sending" | "sent" | "duplicate" | "error">("idle");
+  const [reportError, setReportError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -50,6 +72,13 @@ export default function PublicPersonaPage() {
     }
 
     loadPersona();
+    getSession()
+      .then((session) => {
+        if (!cancelled) setToken(session?.access_token ?? null);
+      })
+      .finally(() => {
+        if (!cancelled) setSessionChecked(true);
+      });
     return () => {
       cancelled = true;
     };
@@ -69,6 +98,46 @@ export default function PublicPersonaPage() {
       setPreviewError(err instanceof Error ? err.message : "Could not load public context preview.");
     } finally {
       setPreviewLoading(false);
+    }
+  }
+
+  async function sendPublicChat() {
+    if (!publicSlug || !token || !chatMessage.trim()) return;
+    setChatLoading(true);
+    setChatError(null);
+    setReportState("idle");
+    setReportError(null);
+    try {
+      const data = await apiPost<PublicPersonaChatResponse>(
+        `/personas/public/${publicSlug}/chat`,
+        { message: chatMessage.trim() },
+        token
+      );
+      setChatReply(data);
+    } catch (err) {
+      setChatError(err instanceof Error ? err.message : "Public chat is temporarily unavailable.");
+    } finally {
+      setChatLoading(false);
+    }
+  }
+
+  async function reportPublicPersona() {
+    if (!publicSlug || !token) return;
+    setReportState("sending");
+    setReportError(null);
+    try {
+      const data = await apiPost<PublicPersonaReportConfirmation>(
+        `/personas/public/${publicSlug}/report`,
+        {
+          reason: "public_persona_chat",
+          notes: "Visitor reported the public persona page or latest public chat response.",
+        },
+        token
+      );
+      setReportState(data.duplicate ? "duplicate" : "sent");
+    } catch (err) {
+      setReportState("error");
+      setReportError(err instanceof Error ? err.message : "Could not submit report.");
     }
   }
 
@@ -110,6 +179,79 @@ export default function PublicPersonaPage() {
           <strong>{persona.visibility}</strong>
         </div>
         <p>{publicPersonaReadbackCopy()}</p>
+      </section>
+
+      <section className="public-persona-panel public-persona-chat" aria-label="Public chat">
+        <div>
+          <span>Public chat</span>
+          <strong>{persona.publicChat?.enabled ? "Signed-in alpha" : "Disabled"}</strong>
+        </div>
+        <p>{persona.publicChat?.enabled ? publicPersonaChatCopy() : publicPersonaChatDisabledCopy()}</p>
+
+        {!sessionChecked && <p className="public-persona-chat-state">Checking session...</p>}
+
+        {sessionChecked && !token && (
+          <div className="public-persona-chat-state">
+            <p>Sign in to use public chat.</p>
+            <Link href={`/login?redirect=/personas/${publicSlug}`}>Sign in</Link>
+          </div>
+        )}
+
+        {sessionChecked && token && !persona.publicChat?.enabled && (
+          <p className="public-persona-chat-state">The public source preview remains available below.</p>
+        )}
+
+        {sessionChecked && token && persona.publicChat?.enabled && (
+          <form
+            className="public-persona-chat-form"
+            onSubmit={(event) => {
+              event.preventDefault();
+              void sendPublicChat();
+            }}
+          >
+            <label>
+              <span>Message</span>
+              <textarea
+                value={chatMessage}
+                maxLength={600}
+                onChange={(event) => setChatMessage(event.target.value)}
+                placeholder="Ask from public sources"
+              />
+            </label>
+            <button type="submit" disabled={chatLoading || !chatMessage.trim()}>
+              {chatLoading ? "Sending..." : "Send"}
+            </button>
+          </form>
+        )}
+
+        {chatError && <p className="public-persona-chat-error">{chatError}</p>}
+        {chatReply && (
+          <div className="public-persona-chat-reply">
+            <strong>Reply</strong>
+            <p>{chatReply.reply.content}</p>
+            <div className="public-persona-chat-sources">
+              {chatReply.sources.map((source) => (
+                <Link href={source.href} key={`${source.type}-${source.href}`}>
+                  <span>{source.label}</span>
+                  <strong>{source.title}</strong>
+                </Link>
+              ))}
+            </div>
+            {token && (
+              <button
+                className="public-persona-report-button"
+                type="button"
+                disabled={reportState === "sending"}
+                onClick={() => void reportPublicPersona()}
+              >
+                {reportState === "sending" ? "Reporting..." : "Report"}
+              </button>
+            )}
+            {reportState === "sent" && <p className="public-persona-report-state">Report submitted.</p>}
+            {reportState === "duplicate" && <p className="public-persona-report-state">Report already open.</p>}
+            {reportState === "error" && <p className="public-persona-chat-error">{reportError}</p>}
+          </div>
+        )}
       </section>
 
       <section className="public-persona-panel public-persona-context-preview" aria-label="Visitor-safe context preview">

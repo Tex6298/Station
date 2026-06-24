@@ -22,3 +22,11 @@ export function publicPersonaReadbackCopy() {
 export function publicPersonaContextPreviewCopy() {
   return "Preview which public source categories a future visitor interaction may see. This does not start chat, call a model, or use private runtime context.";
 }
+
+export function publicPersonaChatCopy() {
+  return "Signed-in public chat uses this persona's public profile, published public documents, and linked public discussions only.";
+}
+
+export function publicPersonaChatDisabledCopy() {
+  return "Public chat is not enabled for this persona.";
+}

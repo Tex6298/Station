@@ -2,6 +2,8 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import {
   publicPersonaContextPreviewCopy,
+  publicPersonaChatCopy,
+  publicPersonaChatDisabledCopy,
   publicPersonaHref,
   publicPersonaReadbackCopy,
 } from "./public-persona-route";
@@ -29,4 +31,16 @@ test("public persona context preview copy is a preview boundary, not a chat prom
   assert.match(copy, /does not start chat/);
   assert.match(copy, /private runtime context/);
   assert.doesNotMatch(copy, /ask this persona|send message|live chat|model response/i);
+});
+
+test("public persona chat copy stays public-source-only", () => {
+  const copy = publicPersonaChatCopy();
+  assert.match(copy, /public profile/);
+  assert.match(copy, /published public documents/);
+  assert.match(copy, /linked public discussions/);
+  assert.doesNotMatch(copy, /private memory|private continuity|owner setup|provider settings|token|cookie/i);
+
+  const disabled = publicPersonaChatDisabledCopy();
+  assert.match(disabled, /not enabled/);
+  assert.doesNotMatch(disabled, /provider|quota|ownerUserId|personaId|token|cookie/i);
 });

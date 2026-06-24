@@ -26,6 +26,7 @@ export class OpenAIProvider implements ChatProvider {
           ...(input.system ? [{ role: "system", content: input.system }] : []),
           ...input.messages,
         ],
+        ...(input.maxOutputTokens ? { max_tokens: input.maxOutputTokens } : {}),
       }),
     });
 

@@ -375,6 +375,10 @@ test("Public Spaces smoke covers authored microsite config and owner/private vis
       visibility: "public",
       avatarUrl: null,
       publicSlug: "public-persona",
+      publicChat: {
+        enabled: false,
+        mode: "signed_in_alpha",
+      },
     }]);
     const publicPersonasJson = JSON.stringify(publicDetail.body.personas);
     assert.equal(publicPersonasJson.includes("owner-user"), false);

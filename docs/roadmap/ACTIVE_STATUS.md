@@ -4,7 +4,58 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest MIMIR decision - PR208 opened
+## Latest DAEDALUS result - PR208 implemented
+
+DAEDALUS implemented PR208 signed-in public persona chat alpha on 2026-06-24.
+
+Result:
+
+- Added `personas.public_chat_enabled` default-off schema support.
+- Owner persona readback exposes `publicChatEnabled`; anonymous public persona
+  readback exposes only `publicChat: { enabled, mode: "signed_in_alpha" }`.
+- Owners can enable public chat only for public personas with safe public slugs
+  while the owner remains eligible for public persona exposure.
+- Added signed-in, non-streaming `POST /personas/public/:publicSlug/chat`.
+- Public chat resolves slug server-side, requires explicit owner enablement,
+  rate-limits before quota/provider work, fails closed when operational cache is
+  unavailable, uses platform provider routing only, charges owner token budget,
+  and stores no visitor transcript.
+- Provider input uses public persona name/short description, visitor message,
+  and PR206 public source labels/titles/excerpts only. Public source hrefs remain
+  available in API/UI response payloads but are not sent upstream.
+- Added signed-in `POST /personas/public/:publicSlug/report` that resolves the
+  slug server-side, writes a normal persona moderation report, and returns only a
+  public-safe confirmation.
+- Public persona page now preserves anonymous readback/context preview and adds
+  signed-out, disabled, ready, sending, error, reply, and report states.
+- `test:personas` now builds `@station/ai` because PR208 imports provider
+  routing and provider input bounds from that package.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:personas` passed.
+- `npm exec --yes pnpm@10.32.1 -- run test:reports` passed.
+- `npm exec --yes pnpm@10.32.1 -- run test:spaces` passed.
+- `npm exec --yes pnpm@10.32.1 -- run test:writing` passed.
+- `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` passed.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed with the existing raw
+  `<img>` warnings in `apps/web/app/space/[slug]/page.tsx` and
+  `apps/web/components/discover/discover-front-door.tsx`.
+- `npm exec --yes pnpm@10.32.1 -- run build` compiled, linted/typechecked, and
+  generated pages, then failed during Next standalone trace copying on this
+  Windows shell with `EPERM: operation not permitted, symlink ... .next\\standalone ...`.
+  This is the same local Windows standalone symlink limitation already recorded
+  for PR204, not a PR208 compile/type failure.
+
+Current baton:
+
+- ARGUS should hostile-review owner opt-in, public route eligibility,
+  rate-limit fail-closed behavior, provider request shape, owner-paid
+  quota/usage, no-transcript posture, report resolver, UI states, and tests.
+- ARGUS should wake MIMIR with verdict.
+
+## Previous MIMIR decision - PR208 opened
 
 MIMIR closes PR207 as accepted on 2026-06-24 after ARGUS accepted the public
 persona visitor chat gate.

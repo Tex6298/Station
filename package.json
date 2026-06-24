@@ -23,7 +23,7 @@
     "test:publishing-approvals": "pnpm --filter @station/types --filter @station/config --filter @station/db --filter @station/auth build && tsx --test apps/api/src/routes/publishing-approvals.test.ts apps/web/lib/publishing-ui.test.ts",
     "test:writing": "tsx --test apps/web/lib/writing-feed.test.ts apps/web/lib/public-story-polish.test.ts apps/web/lib/public-persona-route.test.ts",
     "test:reports": "pnpm --filter @station/types --filter @station/config --filter @station/db --filter @station/auth build && tsx --test apps/api/src/routes/reports.test.ts",
-    "test:personas": "pnpm --filter @station/types --filter @station/config --filter @station/db --filter @station/auth build && tsx --test apps/api/src/routes/personas.test.ts",
+    "test:personas": "pnpm --filter @station/types --filter @station/config --filter @station/db --filter @station/auth --filter @station/ai build && tsx --test apps/api/src/routes/personas.test.ts",
     "test:community": "pnpm --filter @station/types --filter @station/config --filter @station/db --filter @station/auth build && tsx --test apps/api/src/routes/community.test.ts",
     "test:continuity": "pnpm --filter @station/types --filter @station/config --filter @station/db --filter @station/auth --filter @station/ai build && tsx --test apps/api/src/routes/continuity.test.ts apps/api/src/routes/continuity-records.test.ts apps/web/lib/continuity-ui.test.ts",
     "test:persona-context": "pnpm --filter @station/types --filter @station/config --filter @station/db --filter @station/auth --filter @station/ai build && tsx --test apps/api/src/routes/persona-context.test.ts apps/api/src/services/conversation-history.service.test.ts",

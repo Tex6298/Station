@@ -1,5 +1,6 @@
 import type {
   PersonaPublicFields,
+  PublicPersonaChatCapability,
   PublicPersonaContextPreview,
   PublicPersonaContextSource,
   PublicPersonaProfile,
@@ -45,6 +46,13 @@ export function publicPersonaRouteHref(publicSlug: string | null | undefined) {
   return `/personas/${publicSlug}`;
 }
 
+export function publicPersonaChatCapability(row: any): PublicPersonaChatCapability {
+  return {
+    enabled: Boolean(row.public_chat_enabled),
+    mode: "signed_in_alpha",
+  };
+}
+
 export function serializePersonaPublicFields(row: any): PersonaPublicFields {
   return {
     name: row.name,
@@ -52,6 +60,7 @@ export function serializePersonaPublicFields(row: any): PersonaPublicFields {
     visibility: row.visibility,
     avatarUrl: row.avatar_url,
     publicSlug: isSafePublicPersonaSlug(row.public_slug) ? row.public_slug : null,
+    publicChat: publicPersonaChatCapability(row),
   };
 }
 

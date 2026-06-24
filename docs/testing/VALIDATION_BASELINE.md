@@ -54,6 +54,37 @@ pnpm test:developer-space-client
 pnpm test:writing
 ```
 
+## PR208 Signed-In Public Persona Chat Alpha
+
+DAEDALUS implementation validation on 2026-06-24:
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:personas` | Pass | 10 tests passed. Coverage proves public chat disabled by default, owner-only enablement guard, signed-in-only chat, private/ineligible public persona rejection, rate-limit fail-closed before provider work, provider prompt without href/raw route id/private bucket leakage, no conversation rows, owner-paid token usage, and public-safe report confirmation. |
+| `npm exec --yes pnpm@10.32.1 -- run test:reports` | Pass | 6 tests passed. Existing moderation report routes remain green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:spaces` | Pass | 1 test passed after updating the expected public persona card to include the safe `publicChat` capability. |
+| `npm exec --yes pnpm@10.32.1 -- run test:writing` | Pass | 11 tests passed, including the public chat copy guard. |
+| `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` | Pass | 2 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | Turbo typecheck passed for API and web. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass with existing warnings | Existing raw `<img>` warnings remain in `apps/web/app/space/[slug]/page.tsx` and `apps/web/components/discover/discover-front-door.tsx`. |
+| `npm exec --yes pnpm@10.32.1 -- run build` | Local environment failure after successful compile/page generation | Next compiled, linted/typechecked, generated 36 static pages, then failed while copying standalone traced files because this Windows shell rejected symlink creation under `.next\\standalone`: `EPERM: operation not permitted, symlink ... node_modules\\.pnpm\\react@18.3.1 ... apps\\web\\.next\\standalone ...`. This matches the existing Windows standalone packaging limitation recorded for PR204 and does not indicate a PR208 compile/type error. |
+
+Scope notes:
+
+- Added owner opt-in `personas.public_chat_enabled` defaulting false.
+- Added signed-in, owner-paid, non-streaming public persona chat with platform
+  provider routing only and no durable visitor transcript.
+- Public chat uses PR206 public source catalog labels/titles/excerpts only;
+  source hrefs remain in API/UI response payloads but are not sent to the
+  provider prompt.
+- Public chat fails closed when operational cache/rate-limit infrastructure is
+  disabled or unavailable.
+- Added a public persona report resolver that resolves slugs server-side and
+  returns only public-safe confirmation, not raw reporter/target ids.
+- No anonymous chat, streaming, BYOK public visitor path, private runtime
+  context, embeddings/vector retrieval, interaction-level reports, analytics,
+  billing product, or broad public page redesign was added.
+
 ## PR206 Public Persona Public Context Sources
 
 DAEDALUS implementation validation on 2026-06-24:

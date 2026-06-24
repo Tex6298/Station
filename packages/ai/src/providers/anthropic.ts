@@ -21,7 +21,7 @@ export class AnthropicProvider implements ChatProvider {
       },
       body: JSON.stringify({
         model,
-        max_tokens: 2048,
+        max_tokens: input.maxOutputTokens ?? 2048,
         ...(input.system ? { system: input.system } : {}),
         messages: input.messages
           .filter((m) => m.role !== "system")

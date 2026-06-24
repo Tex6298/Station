@@ -18,10 +18,16 @@ export interface PersonaPublicFields {
   visibility: PersonaVisibility;
   avatarUrl?: string | null;
   publicSlug?: string | null;
+  publicChat?: PublicPersonaChatCapability;
 }
 
 export interface PublicPersonaProfile extends Omit<PersonaPublicFields, "visibility"> {
   visibility: "public";
+}
+
+export interface PublicPersonaChatCapability {
+  enabled: boolean;
+  mode: "signed_in_alpha";
 }
 
 export type PublicPersonaContextSourceType =
@@ -55,6 +61,41 @@ export interface PublicPersonaContextPreview {
   };
 }
 
+export type PublicPersonaChatErrorCode =
+  | "public_persona_chat_disabled"
+  | "public_persona_auth_required"
+  | "public_persona_rate_limited"
+  | "public_persona_rate_limit_unavailable"
+  | "public_persona_quota_exceeded"
+  | "public_persona_provider_unavailable"
+  | "public_persona_provider_failed";
+
+export interface PublicPersonaChatRequest {
+  message: string;
+}
+
+export interface PublicPersonaChatResponse {
+  reply: {
+    role: "assistant";
+    content: string;
+  };
+  sources: PublicPersonaContextSource[];
+  publicChat: PublicPersonaChatCapability & {
+    transcriptStored: false;
+  };
+  rateLimit?: {
+    remaining: number | null;
+    retryAfter: number | null;
+  };
+}
+
+export interface PublicPersonaReportConfirmation {
+  report: {
+    status: "open" | "reviewing" | "resolved" | "dismissed";
+  };
+  duplicate: boolean;
+}
+
 export interface PublicPersonaEligibility {
   eligible: boolean;
   limit: number;
@@ -73,6 +114,7 @@ export interface Persona extends PersonaSummary {
   longDescription?: string | null;
   awakeningPrompt?: string | null;
   styleNotes?: string | null;
+  publicChatEnabled?: boolean;
   updatedAt?: string;
   publicReadback?: PersonaPublicReadback;
 }
