@@ -4,9 +4,15 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest DAEDALUS implementation - PR239 Public Project Profile Readback
+## Latest ARGUS review - PR239 Public Project Profile Readback
 
-DAEDALUS implemented PR239 on 2026-06-24 and woke ARGUS for hostile review.
+ARGUS reviewed PR239 on 2026-06-24.
+
+Verdict:
+
+- `ACCEPT`.
+- ARIADNE hosted rehearsal is required because PR239 adds a new anonymous
+  public route and page.
 
 What changed:
 
@@ -38,13 +44,14 @@ Validation:
 - `npm exec --yes pnpm@10.32.1 -- run lint` passed with existing raw `<img>`
   warnings in `apps/web/app/space/[slug]/page.tsx` and
   `apps/web/components/discover/discover-front-door.tsx`.
+- `git diff --check` passed.
+- `git diff --cached --check` passed.
 
 Current baton:
 
-- ARGUS should review
-  `docs/roadmap/PR239_PUBLIC_PROJECT_PROFILE_READBACK_DAEDALUS.md`.
-- ARGUS should wake MIMIR with ACCEPT / PATCH / REJECT and whether ARIADNE
-  hosted rehearsal is required.
+- MIMIR should close PR239 and decide the next move.
+- ARGUS requires ARIADNE hosted rehearsal before public Project profile
+  readback is treated as complete.
 
 ## Latest ARGUS preflight - PR238 Public Project Readback
 

@@ -22,7 +22,7 @@ they are not Station validation failures.
 
 ## PR239 Public Project Profile Readback
 
-DAEDALUS implementation validation on 2026-06-24:
+DAEDALUS implementation and ARGUS review validation on 2026-06-24:
 
 | Command | Result | Notes |
 | --- | --- | --- |
@@ -35,6 +35,9 @@ DAEDALUS implementation validation on 2026-06-24:
 Scope notes:
 
 - Added a standalone anonymous public Project profile route/page only.
+- ARGUS accepted the implementation with no code patch and requires hosted
+  ARIADNE rehearsal before treating the new anonymous public route/page as
+  complete.
 - Public readback omits Project ids, owner ids, connection tier, activity
   counters, member rows/counts, evidence, documents, usage, provider fields,
   API key metadata, runtime context, reports, exports, ingestion keys, secrets,

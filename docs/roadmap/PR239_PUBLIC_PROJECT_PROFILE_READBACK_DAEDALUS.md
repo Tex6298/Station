@@ -2,9 +2,10 @@
 
 Owner: DAEDALUS
 Reviewer: ARGUS
-Status: Implemented - ARGUS review pending
+Status: ARGUS ACCEPT - MIMIR closeout pending
 Opened: 2026-06-24
 Implemented: 2026-06-24
+Reviewed: 2026-06-24
 
 ## Frame
 
@@ -256,5 +257,42 @@ Validation:
 
 Review:
 
-- ARGUS review required before MIMIR decides whether ARIADNE hosted rehearsal
-  opens.
+- ARGUS reviewed with `ACCEPT`.
+- MIMIR closeout required.
+
+## ARGUS Result - 2026-06-24
+
+Verdict: `ACCEPT`.
+
+ARGUS found the implementation matches the patched PR238/PR239 lane:
+
+- Anonymous `GET /projects/public/:slug` is mounted before Project auth without
+  weakening owner `GET /projects` or `GET /projects/:idOrSlug`.
+- Anonymous reads require a safe non-UUID slug and `visibility = "public"`.
+- Project `id` and `owner_user_id` are selected only for internal filtering and
+  are not serialized.
+- Public Developer Space summaries are same-owner, attached, `visibility =
+  "public"`, capped at 12, sorted deterministically, and use a purpose-built
+  serializer.
+- The web page renders only public Project metadata, public Developer Space
+  count, same-owner public Developer Space links, and an empty state.
+
+No ARGUS code patch was needed. No schema, public Project creation/transition
+UI, Discover cards, evidence, documents, activity counters, reporting,
+membership authorization, exports, billing, hosted runtime, provider calls,
+queues, Redis, Cloudflare, Project-authored forum work, or broad UI redesign
+was introduced.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:projects` passed with 11 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed with existing raw
+  `<img>` warnings only.
+- `git diff --check` passed.
+- `git diff --cached --check` passed.
+
+ARIADNE:
+
+- Hosted rehearsal required because PR239 adds a new anonymous public route and
+  page.
