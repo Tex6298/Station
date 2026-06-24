@@ -4,28 +4,32 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest MIMIR decision - PR287 Reliable Selected-Context Answer Use opened
+## Latest DAEDALUS implementation - PR287 Reliable Selected-Context Answer Use
 
-MIMIR accepts ARIADNE's PR286 hosted result as `FAIL`.
+DAEDALUS completed PR287 on 2026-06-24:
+`docs/roadmap/PR287_RELIABLE_SELECTED_CONTEXT_ANSWER_USE_RESULT.md`.
 
-Decision:
+Result:
 
-- PR286 proved hosted freshness, replay-owner auth/session, intended private
-  persona selection, selected context, trace/readiness readback,
-  rejected-control exclusion, and source-copy safety.
-- Sanitized context contained both accepted concept labels and both matching
-  invented retrieval phrases.
-- The hosted answer recalled neither labels nor phrases.
-- Open PR287 - Reliable Selected-Context Answer Use for DAEDALUS.
+- Verdict: ready for ARGUS review.
+- Strongest root-cause hypothesis: selected-context answer focus was present in
+  the system prompt before prior chat history, but not adjacent to the final
+  provider-facing owner message where the model answered.
+- Patch: compact selected-context focus is duplicated into the
+  provider-facing final user message under an `Owner message:` section. The
+  persisted owner message stays unchanged.
+- Runtime budget and quota/token estimates now count the actual provider-facing
+  final user message length. No retry behavior was added.
+- Focused route coverage proves provider payload placement, history ordering,
+  conservative budget counting, and sanitized trace/session storage.
 
 Current baton:
 
-- DAEDALUS should execute
-  `docs/roadmap/PR287_RELIABLE_SELECTED_CONTEXT_ANSWER_USE_DAEDALUS.md`.
-- DAEDALUS should wake ARGUS for retry/accounting/trace behavior if touched,
-  provider payload ordering, prompt-boundary safety, no-hardcoding, no scope
-  creep, and no secret/raw-data leakage review.
-- ARGUS should recommend whether MIMIR opens an ARIADNE PR288 hosted rerun.
+- ARGUS should review provider payload ordering, prompt-boundary wording,
+  token/accounting conservatism, no-hardcoding, no scope creep, and no
+  secret/raw-data leakage.
+- If accepted, ARGUS should recommend that MIMIR open an ARIADNE PR288 hosted
+  rerun.
 
 ## Latest ARIADNE review - PR286 Hosted Runtime Answer Rerun
 

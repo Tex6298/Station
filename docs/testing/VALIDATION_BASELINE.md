@@ -32,28 +32,27 @@ Memory/observability implementation lane.
 
 ## PR287 Reliable Selected-Context Answer Use
 
-MIMIR opened PR287 for DAEDALUS on 2026-06-24 after ARIADNE completed PR286 as
-`FAIL`.
+DAEDALUS completed PR287 on 2026-06-24:
+`docs/roadmap/PR287_RELIABLE_SELECTED_CONTEXT_ANSWER_USE_RESULT.md`.
 
-Required validation:
+Result: ready for ARGUS review.
 
-| Check | Expected result | Notes |
+Validation result:
+
+| Check | Result | Notes |
 | --- | --- | --- |
-| Answer-use root cause | Pass | Identify whether provider payload placement, prior-history drift, retry need, or another answer-use boundary caused selected context to be ignored. |
-| Provider-facing payload or retry evidence | Pass | Safe tests should prove selected focus reaches the intended payload position and/or one-shot retry behavior works without raw prompt dumps. |
-| Retry/accounting/trace safety | Pass if touched | If retry is added, prove one retry maximum, private-only trigger, conservative token accounting, and sanitized trace metadata. |
-| No hardcoded replay terms | Pass | The repair must generalize and must not special-case replay persona text, hosted ids, seeded labels, or staging prompt text. |
-| Rejected-control/source-copy safety | Pass | Filtering and source-copy boundaries must remain intact. |
-| Scope | Pass | Keep retrieval, provider routing, embeddings, schema, seeds, imports, Redis, Cloudflare, queues, workers, billing, Stripe, public UI, and Studio UI out of scope unless new evidence proves prompt delivery is missing selected context. |
-| `npm exec --yes pnpm@10.32.1 -- run test:retrieval-metadata` | Pass | Required if prompt/focus behavior changes. |
-| `npm exec --yes pnpm@10.32.1 -- run test:persona-context` | Pass | Required if private context formatting or prompt input shape changes. |
-| `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass | Required if chat route behavior changes. |
-| `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` | Pass | Required to keep replay gates green. |
-| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | Required if code changes. |
-| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass with only known warnings | Do not add new lint failures. |
-| `git diff --check` | Pass | Whitespace check before review. |
-| `git diff --cached --check` | Pass | Staged whitespace check before wakeup. |
-| Added-line hygiene scan | Pass | No credentials, raw ids, raw prompts, completions, hosted logs, SQL, private source bodies, cookies, or tokens. |
+| Answer-use root cause | Pass | Strongest hypothesis is provider payload placement: focus lived in the system prompt before prior history, not beside the final provider-facing owner message. |
+| Provider-facing payload evidence | Pass | Route test captures the OpenAI BYOK payload and proves compact selected focus appears in the final provider `user` message while the original owner message remains under `Owner message:`. |
+| Retry/accounting/trace safety | Pass | No retry was added. Runtime budget and quota/token estimates use the actual provider-facing final user message length; trace/session rows store sanitized budget metadata only. |
+| No hardcoded replay terms | Pass | Product code is generic over selected Canon, Integrity, Memory, Continuity, and Archive sources; seeded replay labels appear only in synthetic test fixtures. |
+| Rejected-control/source-copy safety | Pass | Retrieval filtering and answer source-copy boundaries are unchanged. |
+| Scope | Pass | No retrieval, provider routing, embeddings, schema, seeds, imports, Redis, Cloudflare, queues, workers, billing, Stripe, public UI, or Studio UI changes. |
+| `npm exec --yes pnpm@10.32.1 -- run test:retrieval-metadata` | Pass | 12 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-context` | Pass | 8 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass | 35 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` | Pass | 2 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | 2 turbo tasks passed. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass with existing warnings | Existing raw `<img>` warnings remain in `apps/web/app/space/[slug]/page.tsx` and `apps/web/components/discover/discover-front-door.tsx`. |
 
 ## PR286 Hosted Runtime Answer Rerun Result
 

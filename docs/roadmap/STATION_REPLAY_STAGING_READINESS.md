@@ -115,6 +115,11 @@ then let staged replay reveal the next optimizations.
   answer recalled neither labels nor phrases. MIMIR opened PR287 as a narrow
   DAEDALUS repair for reliable selected-context answer use after context
   selection.
+- PR287 duplicated compact selected-context focus into the provider-facing
+  final user message while preserving the original owner message under
+  `Owner message:` and counting the actual provider payload length in
+  runtime budget/quota estimates. ARGUS should review the patch before MIMIR
+  opens an ARIADNE PR288 hosted rerun.
 - Broader known caveats still travel into staging review instead of spawning
   more local polish: static global Archive/Export shells, dashboard
   derived/static snippets, no downloadable bundles/workers, and no new private

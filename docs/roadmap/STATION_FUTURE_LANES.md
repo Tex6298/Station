@@ -110,6 +110,11 @@ hosted answer recalled none of them. PR287 opens DAEDALUS repair for reliable
 selected-context answer use after context selection, with retrieval/context
 assembly closed unless provider-prompt evidence proves selected context is
 absent.
+DAEDALUS completed PR287 by duplicating compact selected-context focus into the
+provider-facing final user message, keeping the original owner message under an
+`Owner message:` section and counting the actual provider payload length in
+runtime budget/quota estimates. ARGUS review should decide whether MIMIR opens
+an ARIADNE PR288 hosted rerun.
 
 ## Phase 2D Developer Agent closeout
 

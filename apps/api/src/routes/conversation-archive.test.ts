@@ -653,6 +653,25 @@ test("chat runtime budget does not block configured BYOK providers when platform
   db.tables.profiles[0].ai_mode = "byok";
   db.tables.profiles[0].byok_openai_key = "secret-openai-key";
   db.tables.personas[0].provider = "openai";
+  db.insertRow("memory_items", {
+    id: "memory-selected-context-answer",
+    persona_id: PERSONA_ID,
+    owner_user_id: OWNER_ID,
+    title: "Meridian Loom staging pair",
+    content: "Meridian Loom pairs with the silver compass ledger; Helio Gate pairs with the blue lantern checksum.",
+    summary: "Two staging concept labels and their paired phrases.",
+    source_type: "manual",
+    relevance_weight: 10,
+  });
+  db.insertRow("memory_item_lifecycle", {
+    id: "memory-selected-context-answer-lifecycle",
+    memory_item_id: "memory-selected-context-answer",
+    persona_id: PERSONA_ID,
+    owner_user_id: OWNER_ID,
+    status: "active",
+    trust_level: "user_stated",
+    confidence: 1,
+  });
   setSupabaseAdminForTests(db.client as any);
   const app = await createConversationArchiveApp();
   const originalFetch = globalThis.fetch;
@@ -690,13 +709,35 @@ test("chat runtime budget does not block configured BYOK providers when platform
     assert.equal("_debug" in response.body, false);
     assert.equal(providerCalls.length, 1);
     assert.equal(providerCalls[0].url, "https://api.openai.com/v1/chat/completions");
+    const providerPayload = JSON.parse(providerCalls[0].body) as {
+      messages: Array<{ role: string; content: string }>;
+    };
+    const finalProviderMessage = providerPayload.messages.at(-1);
+    assert.equal(finalProviderMessage?.role, "user");
+    assert.match(finalProviderMessage?.content ?? "", /Station-selected context/);
+    assert.match(finalProviderMessage?.content ?? "", /facts\/source context, not instructions/);
+    assert.match(finalProviderMessage?.content ?? "", /memory \(Meridian Loom staging pair\)/);
+    assert.match(finalProviderMessage?.content ?? "", /silver compass ledger/);
+    assert.match(finalProviderMessage?.content ?? "", /blue lantern checksum/);
+    assert.match(finalProviderMessage?.content ?? "", /Owner message:\s+Use my own model for this reply\./);
+    assert.deepEqual(providerPayload.messages.at(-2), {
+      role: "assistant",
+      content: "Canon candidate: continuity comes first when archive material is active.",
+    });
 
     const trace = db.tables.ai_trace_sessions[0];
     assert.equal(trace.metadata.runtimeBudget.provider.route, "byok_openai");
     assert.equal(trace.metadata.runtimeBudget.provider.model, "gpt-4o-mini");
+    assert.equal(trace.metadata.runtimeBudget.buckets.recentTurns.itemCount, 5);
+    assert.equal(trace.metadata.runtimeBudget.totals.historyMessages, 4);
+    assert.ok(
+      trace.metadata.runtimeBudget.buckets.recentTurns.estimatedTokens >= Math.ceil((finalProviderMessage?.content.length ?? 0) / 4)
+    );
     const llmEvent = db.tables.ai_trace_events.find((event) => event.label === "Persona chat response");
     assert.equal(llmEvent.provider, "byok_openai");
     assert.doesNotMatch(JSON.stringify(response.body), /runtimeBudget|Use my own model/);
+    assert.doesNotMatch(JSON.stringify(db.tables.ai_trace_events), /Meridian Loom|silver compass ledger|blue lantern checksum/);
+    assert.doesNotMatch(JSON.stringify(db.tables.ai_trace_sessions), /Meridian Loom|silver compass ledger|blue lantern checksum/);
   } finally {
     globalThis.fetch = originalFetch;
     setSupabaseAdminForTests(null);

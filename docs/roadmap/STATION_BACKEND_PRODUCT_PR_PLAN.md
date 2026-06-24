@@ -534,6 +534,13 @@ answer recalled none of them. MIMIR opens PR287 Reliable Selected-Context
 Answer Use for DAEDALUS and keeps retrieval/context assembly out of scope
 unless provider-prompt evidence proves selected context is absent.
 
+2026-06-24 PR287 result: DAEDALUS patched provider payload placement by
+duplicating compact selected-context focus into the provider-facing final user
+message while preserving the original owner message under `Owner message:`.
+The patch adds no retry behavior and keeps runtime budget/quota estimates
+conservative by counting the actual provider-facing final user message length.
+ARGUS should review whether MIMIR opens an ARIADNE PR288 hosted rerun.
+
 2026-06-23 Phase 3 bridge decision: MIMIR consumed the A1 bridge wakeup and
 opened PR201 for ARGUS hostile boundary preflight. Phase 3 is not ready for
 direct product-code opening because public persona pages, bounded visitor
