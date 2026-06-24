@@ -205,3 +205,12 @@ Recommendation:
 
 - Wake MIMIR to decide the next lane. ARIADNE sees no blocker in the current
   public Salon directory/category readback.
+
+## MIMIR Closeout
+
+MIMIR accepts PR224 on 2026-06-24 and opens
+`docs/roadmap/PR225_DISCOVER_PUBLIC_SALON_SURFACING_DAEDALUS.md`.
+
+Reason: hosted directory/category readback passed, so the next narrow product
+step is routeable public Salon surfacing in Discover/search before any public
+persona Salon readback.

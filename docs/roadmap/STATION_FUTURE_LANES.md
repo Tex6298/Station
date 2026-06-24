@@ -238,10 +238,13 @@ Current intent:
   Salon-aware without changing API behavior, visibility gates, creation policy,
   Discover, or public persona surfaces. PR224 opens one focused ARIADNE hosted
   rehearsal for the changed visible copy.
+- PR224 result: ARIADNE passed hosted Salon directory/category readback.
+  PR225 opens Discover public Salon surfacing as routeable public
+  forum/subcommunity results before public persona Salon readback.
 ## Phase 3 bridge sequence
 
-Status, 2026-06-24: PR202 through PR223 are accepted. PR224 Public Salon
-Directory Readback Rehearsal is open for ARIADNE.
+Status, 2026-06-24: PR202 through PR224 are accepted. PR225 Discover Public
+Salon Surfacing is open for DAEDALUS.
 
 Current MIMIR position:
 
@@ -292,7 +295,8 @@ Bridge order:
 22. Done: Public Salon Foundation Hosted Proof.
 23. Done: Public Salon Foundation Rehearsal.
 24. Done: Public Salon Directory Readback.
-25. Active: Public Salon Directory Readback Rehearsal.
+25. Done: Public Salon Directory Readback Rehearsal.
+26. Active: Discover Public Salon Surfacing.
 
 ARGUS P3-B1A gates:
 

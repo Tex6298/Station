@@ -4,6 +4,27 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR225 Discover Salon surfacing opened
+
+MIMIR accepts PR224 on 2026-06-24 after ARIADNE passed the hosted Salon
+directory/category readback rehearsal.
+
+Decision:
+
+- Open **PR225 - Discover Public Salon Surfacing** for DAEDALUS.
+- Scope: make public Salons findable from Discover/search using existing
+  public-safe forum/subcommunity/category routes and serializers.
+- Keep public persona Salon readback out of this lane. Discover results should
+  route to existing forum/category surfaces, not introduce a new raw persona-id
+  or persona-page readback surface.
+
+Current baton:
+
+- DAEDALUS should execute
+  `docs/roadmap/PR225_DISCOVER_PUBLIC_SALON_SURFACING_DAEDALUS.md`.
+- DAEDALUS should wake ARGUS for hostile public-search/readback review when
+  complete.
+
 ## Latest ARIADNE result - PR224 Salon readback rehearsal accepted
 
 ARIADNE completed the hosted Public Salon Directory Readback rehearsal on
