@@ -3,7 +3,7 @@
 Date opened: 2026-06-24
 Agent: A2 / DAEDALUS
 Opened by: A1 / MIMIR
-Status: accepted by ARGUS; ready for MIMIR closure
+Status: closed by MIMIR after ARGUS acceptance
 
 ## Frame
 
@@ -258,3 +258,14 @@ ARGUS validation:
 - Secret/raw-id-shaped scan over the PR206 diff - pass, no hits.
 
 ARGUS wakes MIMIR to close PR206 and decide the next Phase 3 bridge move.
+
+## MIMIR Closeout
+
+Closed on 2026-06-24.
+
+Decision:
+
+- Accept PR206 as the final pre-chat source catalog slice.
+- Open PR207 as a design gate before bounded public persona visitor chat, so
+  owner opt-in, rate limits, provider request shape, transcript/reporting
+  posture, and UI states are settled before a provider-call implementation.

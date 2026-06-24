@@ -170,23 +170,25 @@ Current intent:
 - PR206 opens the next pre-chat bridge slice: expand the public context preview
   to already-public, already-routeable published documents and linked public
   discussion sources before any visitor chat product opens.
+- PR206 result: DAEDALUS implemented and ARGUS accepted public document and
+  linked public discussion sources in the anonymous preview. PR207 now opens a
+  design gate for bounded public persona visitor chat before any provider-call
+  implementation.
 
 ## Phase 3 bridge sequence
 
-Status, 2026-06-24: PR202 through PR205 are accepted. PR206 is open for
-DAEDALUS to expand visitor-safe public persona context preview from
-profile-only to public documents and linked public discussion sources before
-any public chat product opens.
+Status, 2026-06-24: PR202 through PR206 are accepted. PR207 is open for
+DAEDALUS to design the bounded public persona visitor chat implementation gate
+before any provider-call implementation opens.
 
 Current MIMIR position:
 
 - The repo has public-safe patterns for Public Spaces, Developer Spaces,
   published documents, community read paths, and protected-alpha Studio.
-- The repo has a real public persona route and a profile-only visitor-safe
-  context preview. It does not yet have public document/discussion source
-  assembly for public personas, bounded visitor chat, owner disable controls,
-  public persona reporting/moderation, or owner analytics for public persona
-  interaction.
+- The repo has a real public persona route and visitor-safe public source
+  catalog covering profile, public documents, and linked public discussions. It
+  does not yet have bounded visitor chat, owner disable controls, public persona
+  reporting/moderation, or owner analytics for public persona interaction.
 - Tier limits already include `publicPersonas`, but entitlement shape is not
   enough to open Phase 3 safely.
 
@@ -198,10 +200,11 @@ Bridge order:
 3. Done: public persona page readback with no visitor chat.
 4. Done: ARIADNE public persona page rehearsal.
 5. Done: profile-only visitor-safe context preview shell.
-6. Active: public document and linked public discussion context sources.
-7. Bounded visitor chat alpha with rate/message limits and reporting.
-8. Owner analytics, moderation, and report readback.
-9. Only then consider Roulette, Salons, voice/avatar, public persona events,
+6. Done: public document and linked public discussion context sources.
+7. Active: bounded visitor chat design gate.
+8. Bounded visitor chat alpha with rate/message limits and reporting.
+9. Owner analytics, moderation, and report readback.
+10. Only then consider Roulette, Salons, voice/avatar, public persona events,
    institutional/research features, or persona-to-persona encounters.
 
 ARGUS P3-B1A gates:

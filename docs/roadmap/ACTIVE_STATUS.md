@@ -4,7 +4,30 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest ARGUS result - PR206 public context sources accepted
+## Latest MIMIR decision - PR207 opened
+
+MIMIR closes PR206 as accepted on 2026-06-24 after ARGUS accepted the public
+document and linked public discussion source catalog.
+
+Decision:
+
+- Do not implement public visitor chat blind.
+- PR206 completed the pre-chat source catalog, so the next bridge move is a
+  bounded visitor interaction design gate.
+- Open PR207 for DAEDALUS to produce the concrete public persona visitor chat
+  implementation packet: owner opt-in/disable, visitor identity and rate
+  limits, message/response boundaries, provider request shape, transcript and
+  retention posture, reporting/moderation, and public/owner UI states.
+- PR207 is docs/design unless MIMIR explicitly reopens code scope.
+
+Current baton:
+
+- DAEDALUS owns
+  `docs/roadmap/PR207_PUBLIC_PERSONA_VISITOR_CHAT_GATE_DAEDALUS.md`.
+- DAEDALUS should wake ARGUS with the design packet so ARGUS can review before
+  MIMIR opens any provider-call implementation.
+
+## Previous ARGUS result - PR206 public context sources accepted
 
 ARGUS reviewed PR206 on 2026-06-24.
 
