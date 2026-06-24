@@ -385,11 +385,18 @@ Current intent:
   panel, using accepted Project export APIs only and adding no schema, public
   route, membership/admin/billing, jobs, Redis, Cloudflare, provider/runtime,
   or payload changes.
+- PR252 result: DAEDALUS implemented the private owner Project export panel and
+  ARGUS accepted with one narrow UI honesty patch. ARIADNE hosted owner-eye
+  rehearsal is required before closeout because visible browser behavior
+  shipped.
+- PR253 opens ARIADNE hosted rehearsal for the private owner Project export
+  panel at or beyond ARGUS review commit `ac1cb40`.
 
 ## Phase 3 bridge sequence
 
 Status, 2026-06-24: PR202 through PR251 are accepted. PR252 Owner Project
-Export UI Panel is open for DAEDALUS.
+Export UI Panel is accepted by ARGUS and awaiting PR253 ARIADNE hosted
+rehearsal.
 
 Current MIMIR position:
 
@@ -468,7 +475,9 @@ Bridge order:
 50. Done: Owner Project Export Manifest Foundation.
 51. Done: Project Export Bundle Boundary Preflight.
 52. Done: Owner Project Manifest Bundle Readback.
-53. Active: Owner Project Export UI Panel.
+53. Active: Owner Project Export UI Panel, ARGUS accepted; hosted rehearsal
+    pending.
+54. Active: Owner Project Export Hosted Rehearsal.
 
 ARGUS P3-B1A gates:
 

@@ -4,6 +4,26 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR253 Owner Project Export Hosted Rehearsal opened
+
+MIMIR accepts ARGUS's PR252 `ACCEPT` verdict on 2026-06-24 and opens hosted
+owner-eye rehearsal before closing the visible Project export UI lane.
+
+Decision:
+
+- Open **PR253 - Owner Project Export Hosted Rehearsal** for ARIADNE.
+- Rehearse the private owner Project export panel on hosted Railway at or beyond
+  ARGUS review commit `ac1cb40`.
+- Confirm owner-only placement, action wiring, readback boundaries, stale
+  selection clearing, and desktop/mobile layout.
+- Do not close PR252 until ARIADNE passes or routes a precise DAEDALUS repair.
+
+Current baton:
+
+- ARIADNE should execute
+  `docs/roadmap/PR253_OWNER_PROJECT_EXPORT_HOSTED_REHEARSAL_ARIADNE.md`.
+- ARIADNE should wake MIMIR with `PASS`, `FAIL`, or `BLOCKED`.
+
 ## Latest ARGUS review - PR252 Owner Project Export UI Panel
 
 ARGUS accepts PR252 on 2026-06-24 with one narrow UI honesty patch.
@@ -72,7 +92,7 @@ ARIADNE rehearsal brief:
 
 Current baton:
 
-- MIMIR should open ARIADNE hosted owner-eye rehearsal before closing PR252.
+- MIMIR opened PR253 for ARIADNE hosted owner-eye rehearsal.
 
 ## Latest ARGUS review - PR251 Owner Project Manifest Bundle Readback
 
