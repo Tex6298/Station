@@ -47,6 +47,7 @@ class InMemorySupabase {
     forum_categories: [],
     threads: [],
     moderation_reports: [],
+    public_persona_interaction_counters: [],
     token_usage: [],
     token_transactions: [],
     topup_purchases: [],
@@ -190,6 +191,18 @@ class InMemorySupabase {
       row.updated_at ??= now;
     }
 
+    if (table === "public_persona_interaction_counters") {
+      row.owner_user_id ??= "creator-owner";
+      row.persona_id ??= "persona-id";
+      row.bucket_date ??= utcBucketDate();
+      row.chat_attempt_count ??= 0;
+      row.chat_success_count ??= 0;
+      row.chat_failure_count ??= 0;
+      row.report_created_count ??= 0;
+      row.created_at ??= now;
+      row.updated_at ??= now;
+    }
+
     if (table === "token_usage") {
       row.period_start ??= "2026-06-01";
       row.tokens_used ??= 0;
@@ -236,7 +249,35 @@ class InMemorySupabase {
       return Promise.resolve({ data: clone(usage), error: null });
     }
 
+    if (name === "increment_public_persona_interaction_counters") {
+      return Promise.resolve({
+        data: clone(this.incrementPublicPersonaInteractionCounters(args)),
+        error: null,
+      });
+    }
+
     return Promise.resolve({ data: null, error: { message: `Unknown RPC ${name}` } });
+  }
+
+  private incrementPublicPersonaInteractionCounters(args: Row) {
+    const bucketDate = args.p_bucket_date ?? utcBucketDate();
+    let counter = this.rows("public_persona_interaction_counters").find((row) =>
+      row.persona_id === args.p_persona_id && row.bucket_date === bucketDate
+    );
+    if (!counter) {
+      counter = this.insertRow("public_persona_interaction_counters", {
+        owner_user_id: args.p_owner_user_id,
+        persona_id: args.p_persona_id,
+        bucket_date: bucketDate,
+      });
+    }
+
+    counter.chat_attempt_count += Math.max(0, Number(args.p_chat_attempt_delta ?? 0));
+    counter.chat_success_count += Math.max(0, Number(args.p_chat_success_delta ?? 0));
+    counter.chat_failure_count += Math.max(0, Number(args.p_chat_failure_delta ?? 0));
+    counter.report_created_count += Math.max(0, Number(args.p_report_created_delta ?? 0));
+    counter.updated_at = this.timestamp();
+    return counter;
   }
 
   private ensureTokenUsage(userId: string) {
@@ -420,6 +461,12 @@ class TestRateLimitProvider implements OperationalCacheProvider {
 
 function clone<T>(value: T): T {
   return JSON.parse(JSON.stringify(value));
+}
+
+function utcBucketDate(daysAgo = 0) {
+  const now = new Date();
+  const start = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
+  return new Date(start - daysAgo * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
 }
 
 function createPersonasApp() {
@@ -959,6 +1006,15 @@ test("signed-in public persona chat alpha is owner-enabled, rate-limited, public
     assert.equal(quotaBlocked.status, 402);
     assert.equal(quotaBlocked.body.code, "public_persona_quota_exceeded");
     assert.equal(providerRequests.length, 1);
+
+    const aggregateCounters = db.rows("public_persona_interaction_counters").find((row) => row.persona_id === publicPersona.id);
+    assert.equal(aggregateCounters?.owner_user_id, "creator-owner");
+    assert.equal(aggregateCounters?.chat_attempt_count, 3);
+    assert.equal(aggregateCounters?.chat_success_count, 1);
+    assert.equal(aggregateCounters?.chat_failure_count, 2);
+    assert.equal(aggregateCounters?.report_created_count, 0);
+    assert.equal(JSON.stringify(aggregateCounters).includes("visitor-user"), false);
+    assert.equal(JSON.stringify(aggregateCounters).includes("What does the blue lantern source say?"), false);
   } finally {
     globalThis.fetch = originalFetch;
     if (previousNvidiaKey == null) {
@@ -1031,6 +1087,10 @@ test("public persona report resolver writes server-side target and returns publi
     assert.equal(publicResponse.includes("visitor-user"), false);
     assert.equal(publicResponse.includes("targetId"), false);
     assert.equal(publicResponse.includes("reporter"), false);
+    assert.equal(db.rows("public_persona_interaction_counters").length, 1);
+    assert.equal(db.rows("public_persona_interaction_counters")[0].owner_user_id, "creator-owner");
+    assert.equal(db.rows("public_persona_interaction_counters")[0].persona_id, persona.id);
+    assert.equal(db.rows("public_persona_interaction_counters")[0].report_created_count, 1);
 
     const duplicate = await requestJson<PublicPersonaReportConfirmation>(
       app,
@@ -1047,6 +1107,8 @@ test("public persona report resolver writes server-side target and returns publi
       duplicate: true,
     });
     assert.equal(db.rows("moderation_reports").length, 1);
+    assert.equal(db.rows("public_persona_interaction_counters").length, 1);
+    assert.equal(db.rows("public_persona_interaction_counters")[0].report_created_count, 1);
 
     const rawUuid = await requestJson(app, "POST", "/personas/public/550e8400-e29b-41d4-a716-446655440000/report", {
       token: "visitor-token",
@@ -1108,6 +1170,33 @@ test("owner persona readback includes safe public interaction summary only", asy
       tokens_delta: 42,
       chat_id: null,
     });
+    db.insertRow("public_persona_interaction_counters", {
+      owner_user_id: "creator-owner",
+      persona_id: persona.id,
+      bucket_date: utcBucketDate(),
+      chat_attempt_count: 5,
+      chat_success_count: 4,
+      chat_failure_count: 1,
+      report_created_count: 1,
+    });
+    db.insertRow("public_persona_interaction_counters", {
+      owner_user_id: "creator-owner",
+      persona_id: persona.id,
+      bucket_date: utcBucketDate(10),
+      chat_attempt_count: 7,
+      chat_success_count: 6,
+      chat_failure_count: 1,
+      report_created_count: 2,
+    });
+    db.insertRow("public_persona_interaction_counters", {
+      owner_user_id: "creator-owner",
+      persona_id: persona.id,
+      bucket_date: utcBucketDate(40),
+      chat_attempt_count: 99,
+      chat_success_count: 99,
+      chat_failure_count: 99,
+      report_created_count: 99,
+    });
 
     const ownerReadback = await requestJson(app, "GET", `/personas/${persona.id}`, {
       token: "creator-token",
@@ -1137,6 +1226,28 @@ test("owner persona readback includes safe public interaction summary only", asy
           dismissed: 0,
         },
       },
+      activity: {
+        aggregation: "daily_owner_persona",
+        transcriptStored: false,
+        visitorIdentityStored: false,
+        rawEventsStored: false,
+        windows: {
+          last7Days: {
+            days: 7,
+            chatAttempts: 5,
+            chatSuccesses: 4,
+            chatFailures: 1,
+            reportsCreated: 1,
+          },
+          last30Days: {
+            days: 30,
+            chatAttempts: 12,
+            chatSuccesses: 10,
+            chatFailures: 2,
+            reportsCreated: 3,
+          },
+        },
+      },
       moderation: {
         ownerCanSeeReporterIdentity: false,
         ownerCanSeeReportBodies: false,
@@ -1150,6 +1261,9 @@ test("owner persona readback includes safe public interaction summary only", asy
     assert.equal(ownerJson.includes("Reporter-only note"), false);
     assert.equal(ownerJson.includes(persona.id), false);
     assert.equal(ownerJson.includes("tokens_delta"), false);
+    assert.equal(ownerJson.includes("public_persona_interaction_counters"), false);
+    assert.equal(ownerJson.includes("chat_attempt_count"), false);
+    assert.equal(ownerJson.includes("99"), false);
 
     const publicReadback = await requestJson(app, "GET", `/personas/${persona.id}`, {
       token: "other-token",

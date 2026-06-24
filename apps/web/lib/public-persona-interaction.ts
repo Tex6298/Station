@@ -1,5 +1,9 @@
 import type { PublicPersonaInteractionReadback } from "@station/types/persona";
 
+function countLabel(count: number, noun: string) {
+  return `${count} ${noun}${count === 1 ? "" : "s"}`;
+}
+
 export function publicInteractionChatLabel(readback?: PublicPersonaInteractionReadback | null) {
   if (!readback) return "Not available";
   return readback.publicChat.enabled ? "Signed-in alpha enabled" : "Disabled";
@@ -15,6 +19,31 @@ export function publicInteractionReportSummary(readback?: PublicPersonaInteracti
   if (!readback) return "No public report summary available.";
   if (readback.reports.total === 0) return "No persona reports recorded.";
   return `${readback.reports.active} active / ${readback.reports.total} total persona reports`;
+}
+
+export function publicInteractionActivityValue(readback?: PublicPersonaInteractionReadback | null) {
+  if (!readback) return "0";
+  return String(readback.activity.windows.last7Days.chatAttempts);
+}
+
+export function publicInteractionActivitySummary(readback?: PublicPersonaInteractionReadback | null) {
+  if (!readback) return "No aggregate activity available.";
+  const last7 = readback.activity.windows.last7Days;
+  const last30 = readback.activity.windows.last30Days;
+  return `${countLabel(last7.chatAttempts, "chat")} / ${countLabel(last7.reportsCreated, "report")} in 7 days; ${countLabel(last30.chatAttempts, "chat")} in 30 days`;
+}
+
+export function publicInteractionActivityBoundaryCopy(readback?: PublicPersonaInteractionReadback | null) {
+  if (!readback) return "Aggregate counters unavailable.";
+  if (
+    readback.activity.aggregation === "daily_owner_persona" &&
+    !readback.activity.transcriptStored &&
+    !readback.activity.visitorIdentityStored &&
+    !readback.activity.rawEventsStored
+  ) {
+    return "Daily aggregate only; no visitor identity or transcript.";
+  }
+  return "Review public interaction analytics storage.";
 }
 
 export function publicInteractionTokenBoundaryCopy(readback?: PublicPersonaInteractionReadback | null) {

@@ -23,6 +23,7 @@ import type {
   PublicPersonaChatResponse,
   PublicPersonaContextSource,
   PublicPersonaEligibility,
+  PublicPersonaInteractionAggregateWindow,
   PublicPersonaInteractionReadback,
   PublicPersonaReportStatus,
   PublicPersonaReportConfirmation,
@@ -103,6 +104,7 @@ const PUBLIC_PERSONA_CONTEXT_DOCUMENT_SELECT =
   "id, title, slug, body, status, visibility, published_at, created_at, space_id, persona_id, source_persona_id, discussion_thread_id";
 const PUBLIC_PERSONA_CONTEXT_THREAD_SELECT =
   "id, title, body, status, visibility, is_hidden, comment_count, category_id, linked_document_id, created_at";
+const PUBLIC_PERSONA_INTERACTION_MAX_WINDOW_DAYS = 30;
 
 const publicContextPreviewQuerySchema = z.object({
   query: z.preprocess(
@@ -498,6 +500,66 @@ function emptyPublicPersonaReportCounts(): Record<PublicPersonaReportStatus, num
   };
 }
 
+function publicPersonaInteractionBucketDate(now = new Date()) {
+  return now.toISOString().slice(0, 10);
+}
+
+function publicPersonaInteractionDateBuckets(days: 7 | 30, now = new Date()) {
+  const start = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
+  return Array.from({ length: days }, (_, index) => {
+    const date = new Date(start - index * PUBLIC_PERSONA_CHAT_DAY_SECONDS * 1000);
+    return date.toISOString().slice(0, 10);
+  });
+}
+
+function emptyPublicPersonaAggregateWindow(days: 7 | 30): PublicPersonaInteractionAggregateWindow {
+  return {
+    days,
+    chatAttempts: 0,
+    chatSuccesses: 0,
+    chatFailures: 0,
+    reportsCreated: 0,
+  };
+}
+
+function sumPublicPersonaAggregateWindow(rows: any[], days: 7 | 30): PublicPersonaInteractionAggregateWindow {
+  const buckets = new Set(publicPersonaInteractionDateBuckets(days));
+  return rows
+    .filter((row) => buckets.has(String(row.bucket_date)))
+    .reduce((window, row) => ({
+      days,
+      chatAttempts: window.chatAttempts + Number(row.chat_attempt_count ?? 0),
+      chatSuccesses: window.chatSuccesses + Number(row.chat_success_count ?? 0),
+      chatFailures: window.chatFailures + Number(row.chat_failure_count ?? 0),
+      reportsCreated: window.reportsCreated + Number(row.report_created_count ?? 0),
+    }), emptyPublicPersonaAggregateWindow(days));
+}
+
+async function incrementPublicPersonaInteractionCounters(
+  sb: ReturnType<typeof getSupabaseAdmin>,
+  persona: { id: string; owner_user_id: string },
+  deltas: {
+    chatAttempt?: number;
+    chatSuccess?: number;
+    chatFailure?: number;
+    reportCreated?: number;
+  }
+) {
+  try {
+    await (sb as any).rpc("increment_public_persona_interaction_counters", {
+      p_owner_user_id: persona.owner_user_id,
+      p_persona_id: persona.id,
+      p_bucket_date: publicPersonaInteractionBucketDate(),
+      p_chat_attempt_delta: deltas.chatAttempt ?? 0,
+      p_chat_success_delta: deltas.chatSuccess ?? 0,
+      p_chat_failure_delta: deltas.chatFailure ?? 0,
+      p_report_created_delta: deltas.reportCreated ?? 0,
+    });
+  } catch {
+    // Analytics counters are best-effort and must never block chat or reports.
+  }
+}
+
 async function loadPublicPersonaInteractionReadback(
   sb: ReturnType<typeof getSupabaseAdmin>,
   persona: any,
@@ -505,13 +567,24 @@ async function loadPublicPersonaInteractionReadback(
   viewerIsAdmin: boolean
 ): Promise<PublicPersonaInteractionReadback> {
   const byStatus = emptyPublicPersonaReportCounts();
-  const { data: reports } = await sb
-    .from("moderation_reports")
-    .select("status")
-    .eq("target_type", "persona")
-    .eq("target_id", persona.id);
+  const counterBuckets = publicPersonaInteractionDateBuckets(PUBLIC_PERSONA_INTERACTION_MAX_WINDOW_DAYS);
+  const [reportResult, counterResult] = await Promise.all([
+    sb
+      .from("moderation_reports")
+      .select("status")
+      .eq("target_type", "persona")
+      .eq("target_id", persona.id),
+    (sb as any)
+      .from("public_persona_interaction_counters")
+      .select("bucket_date, chat_attempt_count, chat_success_count, chat_failure_count, report_created_count")
+      .eq("owner_user_id", persona.owner_user_id)
+      .eq("persona_id", persona.id)
+      .in("bucket_date", counterBuckets),
+  ]);
+  const reports = reportResult.data ?? [];
+  const counterRows = counterResult.data ?? [];
 
-  for (const report of reports ?? []) {
+  for (const report of reports) {
     if (PUBLIC_PERSONA_REPORT_STATUSES.includes(report.status as PublicPersonaReportStatus)) {
       byStatus[report.status as PublicPersonaReportStatus] += 1;
     }
@@ -548,6 +621,16 @@ async function loadPublicPersonaInteractionReadback(
       active: byStatus.open + byStatus.reviewing,
       byStatus,
     },
+    activity: {
+      aggregation: "daily_owner_persona",
+      transcriptStored: false,
+      visitorIdentityStored: false,
+      rawEventsStored: false,
+      windows: {
+        last7Days: sumPublicPersonaAggregateWindow(counterRows, 7),
+        last30Days: sumPublicPersonaAggregateWindow(counterRows, 30),
+      },
+    },
     moderation: {
       ownerCanSeeReporterIdentity: false,
       ownerCanSeeReportBodies: false,
@@ -574,8 +657,11 @@ personasRouter.post("/public/:publicSlug/chat", requireAuth, async (req, res) =>
     });
   }
 
+  await incrementPublicPersonaInteractionCounters(sb, persona, { chatAttempt: 1 });
+
   const rateLimit = await checkPublicPersonaChatRateLimit(persona, req.user!.id);
   if (!rateLimit.allowed) {
+    await incrementPublicPersonaInteractionCounters(sb, persona, { chatFailure: 1 });
     return res.status(rateLimit.status).json(rateLimit.body);
   }
 
@@ -587,6 +673,7 @@ personasRouter.post("/public/:publicSlug/chat", requireAuth, async (req, res) =>
 
   const { stationModel, chatRoute } = platformChatRouteForPublicPersona(ownerProfile?.tier);
   if (!chatRoute.configured || !chatRoute.provider) {
+    await incrementPublicPersonaInteractionCounters(sb, persona, { chatFailure: 1 });
     return res.status(503).json({
       error: "Public persona chat provider is temporarily unavailable.",
       code: "public_persona_provider_unavailable",
@@ -601,6 +688,7 @@ personasRouter.post("/public/:publicSlug/chat", requireAuth, async (req, res) =>
   try {
     await assertTokenBudgetForEstimate(persona.owner_user_id, estimatedTokens);
   } catch (error) {
+    await incrementPublicPersonaInteractionCounters(sb, persona, { chatFailure: 1 });
     if (error instanceof TokenQuotaError) {
       return res.status(402).json({
         error: "This public persona is temporarily unavailable.",
@@ -642,8 +730,10 @@ personasRouter.post("/public/:publicSlug/chat", requireAuth, async (req, res) =>
       rateLimit: rateLimit.rateLimit,
     };
 
+    await incrementPublicPersonaInteractionCounters(sb, persona, { chatSuccess: 1 });
     return res.json(response);
   } catch {
+    await incrementPublicPersonaInteractionCounters(sb, persona, { chatFailure: 1 });
     return res.status(502).json({
       error: "Public persona chat provider failed.",
       code: "public_persona_provider_failed",
@@ -690,6 +780,7 @@ personasRouter.post("/public/:publicSlug/report", requireAuth, async (req, res) 
     return res.status(500).json({ error: "Failed to create report." });
   }
 
+  await incrementPublicPersonaInteractionCounters(sb, persona, { reportCreated: 1 });
   return res.status(201).json(serializePublicPersonaReportConfirmation(data, false));
 });
 

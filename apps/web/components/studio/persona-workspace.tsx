@@ -5,6 +5,9 @@ import { usePathname } from "next/navigation";
 import type { Persona } from "@station/types/persona";
 import { activeStudioHref, studioPersonaWorkspaceTabs } from "@/lib/studio-navigation";
 import {
+  publicInteractionActivityBoundaryCopy,
+  publicInteractionActivitySummary,
+  publicInteractionActivityValue,
   publicInteractionChatLabel,
   publicInteractionReportSummary,
   publicInteractionRouteLabel,
@@ -145,6 +148,11 @@ export function PublicInteractionReadback({ persona }: { persona: PersonaWithCon
         value={String(readback?.reports.total ?? 0)}
         body={publicInteractionReportSummary(readback)}
         href={adminHref ?? undefined}
+      />
+      <InteractionCard
+        label="Aggregate activity"
+        value={publicInteractionActivityValue(readback)}
+        body={`${publicInteractionActivitySummary(readback)}. ${publicInteractionActivityBoundaryCopy(readback)}`}
       />
     </section>
   );

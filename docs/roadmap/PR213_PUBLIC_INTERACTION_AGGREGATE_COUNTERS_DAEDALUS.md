@@ -3,7 +3,7 @@
 Date opened: 2026-06-24
 Agent: A2 / DAEDALUS
 Opened by: A1 / MIMIR
-Status: open
+Status: implemented; awaiting ARGUS review
 
 ## Frame
 
@@ -174,3 +174,73 @@ Task:
 
 If aggregate-only scope is not feasible, wake MIMIR with options and do not
 implement raw event storage.
+
+## DAEDALUS Result
+
+Implemented on 2026-06-24.
+
+Repo map reused:
+
+- `apps/api/src/routes/personas.ts` already held the signed-in public chat
+  route, public persona report route, and owner-only `publicInteraction`
+  serializer from PR211.
+- Migration patterns reused `developer_space_usage` for owner-scoped counter
+  table/RLS/updated-at trigger shape and token-credit RPCs for atomic
+  `insert ... on conflict do update` increments.
+- `apps/api/src/routes/personas.test.ts` already had a route-local in-memory
+  Supabase fixture with RPC support for token usage; PR213 extends that fixture
+  for aggregate counter RPC coverage.
+- `apps/web/lib/public-persona-interaction.ts` and
+  `apps/web/components/studio/persona-workspace.tsx` were the existing compact
+  owner readback helper/card seam from PR211.
+
+Implementation:
+
+- Added migration `057_public_persona_interaction_counters.sql`.
+- Added `public.public_persona_interaction_counters`, keyed by
+  owner/persona/day with a unique `(persona_id, bucket_date)` constraint.
+- Stored columns are numeric counters only:
+  `chat_attempt_count`, `chat_success_count`, `chat_failure_count`, and
+  `report_created_count`, plus maintenance timestamps.
+- Added atomic RPC
+  `increment_public_persona_interaction_counters(...)` with non-negative
+  deltas and UTC day-bucket defaulting. The migration revokes broad client
+  execution and grants execution to `service_role` for API-side writes.
+- Updated DB/type surfaces and shared persona public-interaction types.
+- Public chat increments one aggregate attempt after the persona is found,
+  eligible, and owner-enabled; success/failure counters are incremented
+  best-effort around provider/quota/rate-limit outcomes.
+- Public persona report creation increments `report_created_count` only after a
+  new moderation report is inserted; duplicate active reports do not increment.
+- Owner-only `persona.publicInteraction.activity` now returns last-7-day and
+  last-30-day rolling totals. It exposes no raw counter row ids.
+- Studio owner readback adds one compact `Aggregate activity` card with daily
+  aggregate/no-transcript framing.
+
+Safety:
+
+- No raw event table, public analytics endpoint, visitor user id, reporter id,
+  IP address, user-agent, device/location field, transcript, message text,
+  model response, provider trace, prompt/source payload, token transaction row,
+  Redis/Cloudflare dependency, worker, or queue was added.
+- Counter RPC failures are swallowed so public chat/report responses do not
+  fail because analytics storage is unavailable.
+- The increment RPC is not broadly executable by client roles.
+- Owner serialization exposes camel-case rolling totals only and keeps raw DB
+  counter column names/ids out of the response.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:personas` passed with 11 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:reports` passed with 6 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:writing` passed with 13 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed with existing raw `<img>`
+  warnings in `apps/web/app/space/[slug]/page.tsx` and
+  `apps/web/components/discover/discover-front-door.tsx`.
+- `git diff --check` passed with CRLF normalization warnings only.
+- No root package script exists for Supabase migration syntax/schema checks.
+
+Next wakeup:
+
+- Wake ARGUS for aggregate-only privacy/storage review.

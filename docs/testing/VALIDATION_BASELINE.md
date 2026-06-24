@@ -20,6 +20,37 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR213 Public Interaction Aggregate Counters
+
+DAEDALUS implementation validation on 2026-06-24:
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:personas` | Pass | 11 tests passed. New coverage proves aggregate chat attempt/success/failure counters, owner-only rolling readback, duplicate report non-incrementing, and no visitor ids, message text, raw counter ids/columns, or token transaction rows in owner public-interaction serialization. |
+| `npm exec --yes pnpm@10.32.1 -- run test:reports` | Pass | 6 tests passed. Existing moderation report queue/reporter/admin behavior remains green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:writing` | Pass | 13 tests passed, including aggregate activity helper labels and aggregate/no-transcript copy. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass with existing warnings | Existing raw `<img>` warnings remain in `apps/web/app/space/[slug]/page.tsx` and `apps/web/components/discover/discover-front-door.tsx`. |
+| `git diff --check` | Pass with CRLF warnings | No whitespace errors; Git reported normal CRLF normalization warnings for touched files. |
+| Supabase migration syntax/schema script | Not available | Root `package.json` has no Supabase migration/schema validation script to run locally. |
+
+Scope notes:
+
+- Added `public_persona_interaction_counters` daily owner/persona aggregate
+  counters and an atomic increment RPC.
+- The migration revokes broad client execution on the increment RPC and grants
+  execution to `service_role` for API-side writes.
+- Counter rows store numeric counters only: chat attempts, chat successes, chat
+  failures, and report creations.
+- Public chat/report routes write counters best-effort; analytics failures do
+  not fail user-facing responses.
+- Owner readback exposes only last-7-day and last-30-day rolling totals and
+  explicit aggregate/no-transcript flags.
+- No raw event rows, visitor/reporter identity, transcript/message/model text,
+  IP/user-agent/device/location metadata, provider traces, token transaction
+  rows, Redis/Cloudflare dependency, worker, queue, or public analytics endpoint
+  was added.
+
 ## PR211 Public Persona Interaction Readback
 
 DAEDALUS implementation validation on 2026-06-24:

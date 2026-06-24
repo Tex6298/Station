@@ -98,6 +98,14 @@ export interface PublicPersonaReportConfirmation {
 
 export type PublicPersonaReportStatus = "open" | "reviewing" | "resolved" | "dismissed";
 
+export interface PublicPersonaInteractionAggregateWindow {
+  days: 7 | 30;
+  chatAttempts: number;
+  chatSuccesses: number;
+  chatFailures: number;
+  reportsCreated: number;
+}
+
 export interface PublicPersonaInteractionReadback {
   publicChat: PublicPersonaChatCapability & {
     ownerPaid: true;
@@ -114,6 +122,16 @@ export interface PublicPersonaInteractionReadback {
     total: number;
     active: number;
     byStatus: Record<PublicPersonaReportStatus, number>;
+  };
+  activity: {
+    aggregation: "daily_owner_persona";
+    transcriptStored: false;
+    visitorIdentityStored: false;
+    rawEventsStored: false;
+    windows: {
+      last7Days: PublicPersonaInteractionAggregateWindow;
+      last30Days: PublicPersonaInteractionAggregateWindow;
+    };
   };
   moderation: {
     ownerCanSeeReporterIdentity: false;

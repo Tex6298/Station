@@ -2,6 +2,9 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import type { PublicPersonaInteractionReadback } from "@station/types/persona";
 import {
+  publicInteractionActivityBoundaryCopy,
+  publicInteractionActivitySummary,
+  publicInteractionActivityValue,
   publicInteractionChatLabel,
   publicInteractionReportSummary,
   publicInteractionRouteLabel,
@@ -32,6 +35,28 @@ const readback: PublicPersonaInteractionReadback = {
       dismissed: 0,
     },
   },
+  activity: {
+    aggregation: "daily_owner_persona",
+    transcriptStored: false,
+    visitorIdentityStored: false,
+    rawEventsStored: false,
+    windows: {
+      last7Days: {
+        days: 7,
+        chatAttempts: 5,
+        chatSuccesses: 4,
+        chatFailures: 1,
+        reportsCreated: 1,
+      },
+      last30Days: {
+        days: 30,
+        chatAttempts: 12,
+        chatSuccesses: 10,
+        chatFailures: 2,
+        reportsCreated: 3,
+      },
+    },
+  },
   moderation: {
     ownerCanSeeReporterIdentity: false,
     ownerCanSeeReportBodies: false,
@@ -44,6 +69,9 @@ test("public interaction helper labels stay bounded to owner-safe state", () => 
   assert.equal(publicInteractionRouteLabel(readback), "Public route live");
   assert.equal(publicInteractionReportSummary(readback), "2 active / 3 total persona reports");
   assert.equal(publicInteractionTokenBoundaryCopy(readback), "Owner-paid; visitor transcript not stored.");
+  assert.equal(publicInteractionActivityValue(readback), "5");
+  assert.equal(publicInteractionActivitySummary(readback), "5 chats / 1 report in 7 days; 12 chats in 30 days");
+  assert.equal(publicInteractionActivityBoundaryCopy(readback), "Daily aggregate only; no visitor identity or transcript.");
 });
 
 test("public interaction helper handles unavailable state without inventing details", () => {
@@ -73,4 +101,5 @@ test("public interaction helper handles unavailable state without inventing deta
     active: 0,
     byStatus: { open: 0, reviewing: 0, resolved: 0, dismissed: 0 },
   } }), "No persona reports recorded.");
+  assert.equal(publicInteractionActivitySummary(null), "No aggregate activity available.");
 });

@@ -282,6 +282,30 @@ export interface Database {
         };
         Update: Partial<Database["public"]["Tables"]["personas"]["Insert"]>;
       };
+      public_persona_interaction_counters: {
+        Row: {
+          id: string;
+          owner_user_id: string;
+          persona_id: string;
+          bucket_date: string;
+          chat_attempt_count: number;
+          chat_success_count: number;
+          chat_failure_count: number;
+          report_created_count: number;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: Omit<Database["public"]["Tables"]["public_persona_interaction_counters"]["Row"], "id" | "chat_attempt_count" | "chat_success_count" | "chat_failure_count" | "report_created_count" | "created_at" | "updated_at"> & {
+          id?: string;
+          chat_attempt_count?: number;
+          chat_success_count?: number;
+          chat_failure_count?: number;
+          report_created_count?: number;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["public_persona_interaction_counters"]["Insert"]>;
+      };
       conversations: {
         Row: {
           id: string;
@@ -1408,6 +1432,18 @@ export interface Database {
       increment_thread_comment_count: {
         Args: { thread_id: string };
         Returns: void;
+      };
+      increment_public_persona_interaction_counters: {
+        Args: {
+          p_owner_user_id: string;
+          p_persona_id: string;
+          p_bucket_date?: string | null;
+          p_chat_attempt_delta?: number;
+          p_chat_success_delta?: number;
+          p_chat_failure_delta?: number;
+          p_report_created_delta?: number;
+        };
+        Returns: Database["public"]["Tables"]["public_persona_interaction_counters"]["Row"];
       };
       match_memory_items: {
         Args: {

@@ -4,6 +4,58 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest DAEDALUS result - PR213 aggregate counters implemented
+
+DAEDALUS implemented PR213 on 2026-06-24.
+
+Result:
+
+- Added `057_public_persona_interaction_counters.sql` with a daily
+  owner/persona aggregate counter table and atomic increment RPC.
+- The migration revokes broad client execution on the increment RPC and grants
+  execution to `service_role` for API-side writes.
+- The table stores only numeric daily counters for chat attempts, chat
+  successes, chat failures, and new persona report creations, plus maintenance
+  timestamps.
+- `POST /personas/public/:publicSlug/chat` now records best-effort aggregate
+  attempt/success/failure counters after the public persona is found, eligible,
+  and owner-enabled.
+- `POST /personas/public/:publicSlug/report` increments
+  `report_created_count` only after a new report insert; duplicate active
+  reports do not inflate the aggregate.
+- Owner-only `persona.publicInteraction.activity` now exposes last-7-day and
+  last-30-day rolling totals with aggregate-only flags.
+- The Studio persona home adds a compact `Aggregate activity` card using the
+  existing public-interaction card pattern.
+
+Safety:
+
+- No raw event log, visitor identity, reporter identity, transcript, message
+  text, model response, prompt/source payload, provider trace, IP address,
+  user-agent, device/location field, token transaction row, Redis/Cloudflare
+  dependency, worker, queue, public analytics endpoint, or broad UI redesign was
+  added.
+- Counter write failures are best-effort and do not fail public chat or public
+  report responses.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:personas` passed with 11 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:reports` passed with 6 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:writing` passed with 13 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed with existing raw `<img>`
+  warnings only in `apps/web/app/space/[slug]/page.tsx` and
+  `apps/web/components/discover/discover-front-door.tsx`.
+- `git diff --check` passed with CRLF normalization warnings only.
+- No root package script exists for Supabase migration syntax/schema checks.
+
+Current baton:
+
+- ARGUS should review PR213 for aggregate-only privacy boundaries, schema/RLS
+  shape, route increments, duplicate report counting, owner serialization, UI
+  copy, and tests.
+
 ## Latest MIMIR decision - PR213 aggregate counters opened
 
 MIMIR closes PR212 as accepted after ARIADNE's hosted rehearsal on 2026-06-24.
