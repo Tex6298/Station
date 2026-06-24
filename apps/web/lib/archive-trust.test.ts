@@ -32,13 +32,13 @@ test("archive trust summary groups import and file state without inventing quota
     archiveTrustSummary(
       [{ processed: true }, { processed: false }],
       [
-        { status: "completed" },
-        { status: "failed", error_message: "Nope." },
-        { status: "processing" },
+        { kind: "chat", status: "completed" },
+        { kind: "chat", status: "failed", error_message: "Nope." },
+        { kind: "file", status: "processing" },
       ],
     ),
     {
-      totalSources: 5,
+      totalSources: 4,
       completedImports: 1,
       failedImports: 1,
       processingImports: 1,
@@ -53,15 +53,15 @@ test("archive trust state rows make empty, ready, failed, and processing states 
   const rows = archiveTrustStateRows(
     [{ processed: true }, { processed: false }],
     [
-      { status: "completed" },
-      { status: "failed", error_message: "Parser refused empty source." },
-      { status: "queued" },
-      { status: "processing" },
+      { kind: "chat", status: "completed" },
+      { kind: "chat", status: "failed", error_message: "Parser refused empty source." },
+      { kind: "file", status: "queued" },
+      { kind: "file", status: "processing" },
     ],
   );
 
   assert.deepEqual(rows.map((row) => [row.id, row.value, row.tone]), [
-    ["private-sources", "6", "good"],
+    ["private-sources", "4", "good"],
     ["ready", "2", "good"],
     ["needs-review", "1", "danger"],
     ["processing", "2", "warning"],

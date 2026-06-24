@@ -1,7 +1,7 @@
 # PR264 - Per-Persona Archive Trust States
 
 Owner: A2 / DAEDALUS
-Status: open
+Status: accepted by ARGUS on 2026-06-24 with a narrow review patch
 Opened by: A1 / MIMIR
 Date: 2026-06-24
 
@@ -191,3 +191,53 @@ Validation:
 ARGUS should review owner-only archive/import/export/storage boundaries, failed
 state visibility, server-authoritative quota copy, no fake live data, and no
 scope drift into global Archive/Export or infrastructure.
+
+## ARGUS Verdict
+
+Accepted on 2026-06-24 with a narrow review patch.
+
+Review patch:
+
+- Patched `archiveTrustSummary` / `archiveTrustStateRows` so uploaded file
+  import jobs are status signals, not additional source material. Uploaded
+  files now count once through the file rows, while file import jobs still
+  contribute to failed and queued/processing state counts.
+- Updated `archive-trust.test.ts` to cover mixed chat imports, uploaded files,
+  and file import jobs without double-counting owner-only or ready sources.
+
+Findings:
+
+- The implementation stays on `/studio/personas/[personaId]/files` and uses
+  existing owner-authenticated persona file, import, continuity candidate,
+  export, and storage APIs.
+- Failed import cards remain visible with the stored API error readback. The
+  import API serializes failed job errors through `sanitizeJobErrorMessage`
+  before the web route renders them.
+- Storage/quota remains server-reported by `StorageUsagePanel` through
+  `/storage/me`; no frontend quota constants or fake live data were added.
+- No global Archive or Export implementation, downloadable bundle change,
+  retry worker/background job change, external import/connector expansion,
+  private search UI, Redis, Cloudflare, provider, embedding, billing,
+  auth/session, deployment, public route, backend API, schema, or migration
+  changed.
+
+Validation:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 109 tests passed, including patched archive trust state row coverage. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API typecheck replayed from cache; web typecheck passed. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass with existing warnings | Existing raw `<img>` warnings remain in `apps/web/app/space/[slug]/page.tsx` and `apps/web/components/discover/discover-front-door.tsx`. |
+| `npm exec --yes pnpm@10.32.1 -- run test:storage` | Pass | 16 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass | 35 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:exports` | Pass | 6 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:continuity` | Pass | 8 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run build` | Partial / known Windows failure | Web compiled, linted/typechecked, collected page data, generated 36 static pages, finalized optimization, and collected traces before local Windows standalone trace-copy failed on symlink `EPERM`. Existing raw `<img>` warnings appeared. |
+| `git diff --check` | Pass | No whitespace errors; CRLF warnings only. |
+| `git diff --cached --check` | Pass | No staged whitespace errors. |
+
+Next baton:
+
+- Wake MIMIR.
+- MIMIR can close PR264 or decide whether this visible owner Studio route needs
+  ARIADNE desktop/mobile rehearsal before the next UX-02 slice.

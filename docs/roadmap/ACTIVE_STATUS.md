@@ -4,7 +4,59 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest DAEDALUS result - PR264 Per-Persona Archive Trust States
+## Latest ARGUS review - PR264 Per-Persona Archive Trust States
+
+ARGUS accepts PR264 on 2026-06-24 with a narrow review patch:
+`docs/roadmap/PR264_PER_PERSONA_ARCHIVE_TRUST_STATES_DAEDALUS.md`.
+
+Review patch:
+
+- `archiveTrustSummary` / `archiveTrustStateRows` no longer double-count
+  uploaded file import jobs as separate owner-only source material. Uploaded
+  files count once through the file rows; file import jobs still contribute to
+  failed and queued/processing counts.
+- `archive-trust.test.ts` now covers mixed pasted imports, uploaded files, and
+  file import jobs so owner-only and ready-source counts stay honest.
+
+Findings:
+
+- The implementation stays on `/studio/personas/[personaId]/files` and uses
+  existing owner-authenticated APIs only.
+- Failed import cards remain visible with stored API error readback; the API
+  serializes import job errors through `sanitizeJobErrorMessage`.
+- Storage/quota remains server-reported through `StorageUsagePanel` and
+  `/storage/me`; no frontend quota constants or fake live data were added.
+- No global Archive/Export implementation, downloadable bundle change,
+  retry worker/background job change, external import/connector expansion,
+  private search UI, Redis, Cloudflare, provider, embedding, billing,
+  auth/session, deployment, public route, backend API, schema, or migration
+  changed.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` passed, 109 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed with existing raw `<img>`
+  warnings in `apps/web/app/space/[slug]/page.tsx` and
+  `apps/web/components/discover/discover-front-door.tsx`.
+- `npm exec --yes pnpm@10.32.1 -- run test:storage` passed, 16 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` passed, 35
+  tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:exports` passed, 6 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:continuity` passed, 8 tests.
+- `npm exec --yes pnpm@10.32.1 -- run build` compiled, linted/typechecked,
+  collected page data, generated 36 static pages, finalized optimization, and
+  collected traces before the known local Windows standalone symlink `EPERM`
+  during traced-file copy.
+- `git diff --check` passed with CRLF warnings only.
+- `git diff --cached --check` passed.
+
+Current baton:
+
+- MIMIR can close PR264 or decide whether this visible owner Studio route needs
+  ARIADNE desktop/mobile rehearsal before the next UX-02 slice.
+
+## Previous DAEDALUS result - PR264 Per-Persona Archive Trust States
 
 DAEDALUS implemented PR264 on 2026-06-24 and wakes ARGUS for boundary review.
 

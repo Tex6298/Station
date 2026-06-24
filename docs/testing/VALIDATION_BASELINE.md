@@ -33,7 +33,8 @@ Memory/observability implementation lane.
 ## PR264 Per-Persona Archive Trust States
 
 DAEDALUS implemented PR264 on 2026-06-24 after ARGUS accepted PR262 and
-ARIADNE passed PR263.
+ARIADNE passed PR263. ARGUS accepted PR264 with a narrow review patch that keeps
+uploaded file import jobs from double-counting as separate owner-only sources.
 
 Files changed:
 
@@ -52,7 +53,7 @@ Validation:
 | `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass | 35 tests passed. |
 | `npm exec --yes pnpm@10.32.1 -- run test:exports` | Pass | 6 tests passed. |
 | `npm exec --yes pnpm@10.32.1 -- run test:continuity` | Pass | 8 tests passed. |
-| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 109 tests passed, including new archive trust state rows. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 109 tests passed, including patched archive trust state rows. |
 | `npm exec --yes pnpm@10.32.1 -- run build` | Partial / known Windows failure | Web compiled, linted/typechecked, collected page data, generated 36 static pages, finalized optimization, and collected traces before local Windows standalone trace-copy failed on symlink `EPERM`. Existing raw `<img>` warnings appeared. |
 | `git diff --check` | Pass | CRLF warnings only. |
 | `git diff --cached --check` | Pass | Staged whitespace check. |
@@ -62,6 +63,10 @@ Scope notes:
 - Added per-persona Archive trust rows on
   `/studio/personas/[personaId]/files`: owner-only sources, ready for
   Continuity, needs review, and queued/processing.
+- ARGUS patched `archiveTrustSummary` / `archiveTrustStateRows` so uploaded
+  file import jobs remain status signals instead of double-counting source
+  material; uploaded files count once through file rows while file jobs still
+  count for failed and queued/processing state.
 - Used existing owner route data only: per-persona file rows and import jobs.
 - Failed import cards remain visible with exact stored error messages and safe
   next-action copy.

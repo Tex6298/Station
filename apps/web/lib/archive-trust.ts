@@ -1,6 +1,7 @@
 export type ArchiveJobTone = "info" | "good" | "warning" | "danger";
 
 export interface ArchiveImportJobLike {
+  kind?: string | null;
   status: string;
   error_message?: string | null;
 }
@@ -63,9 +64,11 @@ export function archiveFileTrustCopy(file: ArchiveFileLike) {
 }
 
 export function archiveTrustSummary(files: ArchiveFileLike[], jobs: ArchiveImportJobLike[]) {
+  const pastedImportJobs = jobs.filter((job) => job.kind !== "file");
+
   return {
-    totalSources: files.length + jobs.length,
-    completedImports: jobs.filter((job) => job.status === "completed").length,
+    totalSources: files.length + pastedImportJobs.length,
+    completedImports: pastedImportJobs.filter((job) => job.status === "completed").length,
     failedImports: jobs.filter((job) => job.status === "failed").length,
     processingImports: jobs.filter((job) => job.status === "queued" || job.status === "processing").length,
     processedFiles: files.filter((file) => file.processed).length,
