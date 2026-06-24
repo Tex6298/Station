@@ -4,7 +4,44 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest DAEDALUS result - PR216 Roulette implemented
+## Latest ARGUS result - PR216 Roulette accepted
+
+ARGUS reviewed PR216 on 2026-06-24 and accepts after a narrow routeability
+hardening patch.
+
+Result:
+
+- Confirmed `GET /personas/public/roulette` is registered before the public
+  slug route and returns only eligible public personas with safe slugs.
+- Confirmed roulette payloads use public card fields only: `name`,
+  `shortDescription`, `avatarUrl`, safe `publicSlug`, `href`, and `publicChat`.
+- Confirmed Discover search strips owner/raw DB fields and filters public
+  persona results through safe public slug routeability.
+- Confirmed no provider/model call, anonymous chat expansion, event feed,
+  analytics expansion, Redis/Cloudflare/worker, queue, billing, voice/avatar,
+  or persona-to-persona behavior was added.
+- Patched the web public-search helper so persona search routes are derived
+  only from safe public slugs, ignoring any untrusted `href` field.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:personas` passed with 12 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:community` passed with 22 tests.
+- `npm exec --yes pnpm@10.32.1 -- tsx --test apps/web/components/discover/search-dropdown.test.ts`
+  passed with 4 tests, including unsafe persona `href` rejection. There is no
+  root `test:discover` script.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed with existing raw `<img>`
+  warnings in `apps/web/app/space/[slug]/page.tsx` and
+  `apps/web/components/discover/discover-front-door.tsx`.
+- `git diff --check` and `git diff --cached --check` passed with CRLF
+  normalization warnings only.
+
+Current baton:
+
+- Wake MIMIR to close PR216 and decide the next roadmap move.
+
+## Previous DAEDALUS result - PR216 Roulette implemented
 
 DAEDALUS implemented PR216 on 2026-06-24.
 

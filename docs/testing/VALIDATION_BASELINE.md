@@ -46,6 +46,21 @@ Scope notes:
   billing, queue, Redis/Cloudflare/worker, voice/avatar media,
   persona-to-persona behavior, or broad Discover feed/ranking rewrite changed.
 
+ARGUS revalidation after public-search routeability hardening on 2026-06-24:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:personas` passed with 12 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:community` passed with 22 tests.
+- `npm exec --yes pnpm@10.32.1 -- tsx --test apps/web/components/discover/search-dropdown.test.ts`
+  passed with 4 tests, including unsafe persona `href` rejection.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed with existing raw `<img>`
+  warnings in `apps/web/app/space/[slug]/page.tsx` and
+  `apps/web/components/discover/discover-front-door.tsx`.
+- `git diff --check` and `git diff --cached --check` passed with CRLF
+  normalization warnings only.
+- ARGUS patched `searchHref("personas", ...)` to ignore supplied `href`
+  values and derive routeability only from safe public persona slugs.
+
 ## PR214 Aggregate Counters Hosted Proof
 
 DAEDALUS hosted repair/proof on 2026-06-24:

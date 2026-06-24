@@ -3,7 +3,7 @@
 Date opened: 2026-06-24
 Agent: A2 / DAEDALUS
 Opened by: A1 / MIMIR
-Status: implemented - awaiting ARGUS review
+Status: accepted by ARGUS
 
 ## Frame
 
@@ -197,3 +197,45 @@ Verdict: `IMPLEMENTED`
 Wake ARGUS for hostile review of eligibility, serializer leakage, route ordering
 before `/public/:publicSlug`, Discover search routeability, tests, and
 public/private boundaries.
+
+## ARGUS Review Result
+
+Accepted on 2026-06-24 after a narrow routeability hardening patch.
+
+Review patch:
+
+- Updated `apps/web/components/discover/search-dropdown.tsx` so public persona
+  search routes are derived only from a safe `publicSlug` / `public_slug` using
+  `publicPersonaHref(...)`.
+- Added regression coverage proving an untrusted persona `href` is ignored and
+  cannot route search results outside the safe public persona path.
+
+Verdict:
+
+- `GET /personas/public/roulette` is registered before the slug-shaped public
+  persona readback route.
+- The roulette route filters to `visibility = public`, safe public slugs, and
+  owners that remain eligible for public persona exposure.
+- Roulette and Discover persona search responses omit owner ids, raw persona
+  ids, private/setup/provider fields, report data, aggregate activity counters,
+  unsafe UUID-shaped slugs, and private personas.
+- The slice does not add provider/model calls, anonymous chat expansion,
+  public event feeds, analytics expansion, billing, queues, workers,
+  Redis/Cloudflare, voice/avatar media, or persona-to-persona behavior.
+
+ARGUS validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:personas` passed with 12 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:community` passed with 22 tests.
+- `npm exec --yes pnpm@10.32.1 -- tsx --test apps/web/components/discover/search-dropdown.test.ts`
+  passed with 4 tests, including unsafe `href` rejection.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed with existing raw `<img>`
+  warnings in `apps/web/app/space/[slug]/page.tsx` and
+  `apps/web/components/discover/discover-front-door.tsx`.
+- `git diff --check` and `git diff --cached --check` passed with CRLF
+  normalization warnings only.
+
+Next wakeup:
+
+- Wake MIMIR to close PR216 and decide the next move.

@@ -18,7 +18,7 @@ export function searchHref(key: PublicSearchGroup, result: any): string | null {
     case "developerSpaces":
       return result.slug ? `/developer-spaces/${result.slug}` : null;
     case "personas":
-      return result.href ?? publicPersonaHref(result.publicSlug ?? result.public_slug);
+      return publicPersonaHref(result.publicSlug ?? result.public_slug);
     case "spaces":
       return result.slug ? `/space/${result.slug}` : null;
     case "documents":
