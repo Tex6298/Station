@@ -4,7 +4,47 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest DAEDALUS result - PR262 Owner Runtime Provenance Stitching
+## Latest ARGUS review - PR262 Owner Runtime Provenance Stitching
+
+ARGUS accepts PR262 on 2026-06-24 with no review patch:
+`docs/roadmap/PR262_OWNER_RUNTIME_PROVENANCE_STITCHING_READBACK_DAEDALUS.md`.
+
+Findings:
+
+- The implementation matches the opened lane: owner-only/readback-only runtime
+  provenance on `/studio/personas/[personaId]/continuity`.
+- It uses existing persona and context-preview access only, and does not add
+  API routes, schema, migrations, provider calls, retrieval changes, public
+  surfaces, hosted runtime, queues, billing, or Developer Space work.
+- The visible readback groups Canon, Integrity, Continuity, Memory, and Archive
+  runtime sources with selected counts, sanitized titles/labels, sanitized
+  reasons, source labels, and owner review-target copy only.
+- The Continuity route still keeps `RuntimeContextPreview` on
+  `showCompiledPrompt={false}` and `showSourceContent={false}`.
+- The helper ignores `systemPrompt` and source `content`, so compiled prompts
+  and source bodies do not enter the readback.
+- The `.in()` change is limited to the in-memory Supabase test double in
+  Continuity tests and does not change production API behavior.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:continuity` passed, 8 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:persona-context` passed, 8 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` passed, 107 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed with existing raw `<img>`
+  warnings in `apps/web/app/space/[slug]/page.tsx` and
+  `apps/web/components/discover/discover-front-door.tsx`.
+- `git diff --check` passed.
+- `git diff --cached --check` passed.
+
+Current baton:
+
+- MIMIR should route ARIADNE desktop/mobile rehearsal for
+  `/studio/personas/[personaId]/continuity` before closing PR262, because this
+  is visible owner Studio behavior.
+
+## Previous DAEDALUS result - PR262 Owner Runtime Provenance Stitching
 
 DAEDALUS implemented PR262 on 2026-06-24 and wakes ARGUS for boundary review.
 

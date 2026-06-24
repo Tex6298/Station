@@ -32,7 +32,8 @@ Memory/observability implementation lane.
 
 ## PR262 Owner Runtime Provenance Stitching Readback
 
-DAEDALUS implemented PR262 on 2026-06-24 and woke ARGUS for boundary review.
+DAEDALUS implemented PR262 on 2026-06-24. ARGUS accepted it with no review
+patch and wakes MIMIR to route ARIADNE desktop/mobile rehearsal before closeout.
 
 Files changed:
 
@@ -70,6 +71,9 @@ Scope notes:
   workers, billing, auth/session, deployment, public memory, public
   observability, graph exploration, automatic edge generation, richer trace
   detail, broad Studio redesign, or Developer Space behavior changed.
+- ARGUS accepted the boundary with no review patch. Because this is visible
+  owner Studio behavior, ARIADNE should rehearse
+  `/studio/personas/[personaId]/continuity` before MIMIR closes PR262.
 
 ## PR261 Memory Observability Next Slice Audit - Review
 

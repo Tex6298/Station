@@ -115,8 +115,9 @@ Continuity readability patch and ARIADNE hosted desktop/mobile recheck. PR195
 through PR197 then closed the hosted replay evidence refresh, product demo
 walkthrough, and protected-alpha demo runbook refresh with no implementation
 blocker. PR199/PR200 accepted the UX-01A Studio place/mobile workbench clarity
-slice. PR261 now recommends the next Memory/observability move as owner-only
-runtime provenance stitching, pending ARGUS review.
+slice. PR262 is accepted by ARGUS as the owner-only runtime provenance
+stitching slice; because it changes a visible owner Studio route, it should go
+to ARIADNE desktop/mobile rehearsal before MIMIR closes it.
 
 Current intent:
 
@@ -167,12 +168,13 @@ Current intent:
 - PR261 ARGUS review accepted the audit with no patch. MIMIR may open PR262
   with the owner-only/readback-only boundary, or pause Memory work if roadmap
   priorities change.
-- PR262 result: DAEDALUS implemented owner-only runtime provenance stitching on
-  `/studio/personas/[personaId]/continuity` and woke ARGUS for boundary review.
-  The readback groups Canon, Integrity, Continuity, Memory, and Archive runtime
-  sources with sanitized labels/counts/reasons/review targets only. Compiled
-  prompts and source bodies stay hidden, and retrieval/provider/schema/public
-  behavior did not change.
+- PR262 result: DAEDALUS implemented and ARGUS accepted owner-only runtime
+  provenance stitching on `/studio/personas/[personaId]/continuity` with no
+  review patch. The readback groups Canon, Integrity, Continuity, Memory, and
+  Archive runtime sources with sanitized labels/counts/reasons/review targets
+  only. Compiled prompts and source bodies stay hidden, retrieval/provider/
+  schema/public behavior did not change, and the visible owner route should go
+  to ARIADNE desktop/mobile rehearsal before closeout.
 - PR201 result: ARGUS accepted the Phase 3 bridge only after correcting the
   first implementation lane to P3-B1A public persona eligibility, serializer
   split, and owner readback. PR202 opens that safety lane for DAEDALUS before

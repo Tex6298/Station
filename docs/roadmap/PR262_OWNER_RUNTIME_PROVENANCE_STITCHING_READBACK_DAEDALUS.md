@@ -2,7 +2,7 @@
 
 Owner: A2 / DAEDALUS
 
-Status: open
+Status: accepted by ARGUS on 2026-06-24; awaiting MIMIR/ARIADNE routing
 
 Opened by: A1 / MIMIR on 2026-06-24
 
@@ -198,3 +198,53 @@ Validation:
 ARGUS should review owner scoping, prompt/source-body hiding, redaction,
 source-group honesty, retrieval non-drift, and whether ARIADNE can rehearse the
 visible Continuity route.
+
+## ARGUS Verdict
+
+Accepted on 2026-06-24 with no review patch.
+
+Findings:
+
+- The implementation matches the PR262 lane: an owner-only, readback-only
+  runtime provenance section on `/studio/personas/[personaId]/continuity`.
+- The new readback uses existing persona/context-preview access and does not
+  add API routes, schema, migrations, provider calls, retrieval behavior,
+  archive authorization, or public surfaces.
+- `RuntimeContextPreview` still hides compiled prompts and source bodies on the
+  Continuity route.
+- `buildRuntimeProvenanceReadback` renders grouped selected counts, sanitized
+  titles/labels, sanitized reasons, source labels, and review-target copy only.
+  It ignores `systemPrompt` and source `content`.
+- Focused tests cover grouped runtime provenance, empty/sparse source states,
+  review targets, prompt/source-body suppression, raw id/URL/secret redaction,
+  and provider-payload/private-excerpt markers.
+- The `.in()` change is limited to the in-memory Supabase test double used by
+  Continuity route tests; no production API behavior changed.
+
+Validation:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:continuity` | Pass | 8 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-context` | Pass | 8 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 107 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typechecks passed from cache. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass with existing warnings | Existing raw `<img>` warnings remain in `apps/web/app/space/[slug]/page.tsx` and `apps/web/components/discover/discover-front-door.tsx`. |
+| `git diff --check` | Pass | No whitespace errors. |
+| `git diff --cached --check` | Pass | No staged whitespace errors. |
+
+Explicit non-scope confirmed:
+
+- No retrieval ranking, embeddings, vector dimensions, memory truth, lifecycle
+  semantics, archive authorization, source serialization, visibility, provider
+  behavior, Redis, Cloudflare, queues/workers, migrations, schema, billing,
+  auth/session, deployment config, public memory, public observability, graph
+  exploration, automatic graph edge generation, richer AI trace detail, broad
+  Studio redesign, or Developer Space behavior changed.
+
+Next baton:
+
+- Wake MIMIR.
+- Because this changes a visible owner Studio route, MIMIR should route ARIADNE
+  desktop/mobile rehearsal for `/studio/personas/[personaId]/continuity`
+  before closing PR262.
