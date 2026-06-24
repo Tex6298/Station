@@ -423,12 +423,16 @@ Current intent:
   Developer Space Tier 1 Partner Onboarding Docs. Visible public Developer Space
   framing and owner-console UI copy must wait for a separate browser-rehearsed
   DAEDALUS/ARIADNE lane.
+- PR257 opens DAEDALUS docs-only implementation for
+  `docs/integration/developer-space-tier1-partner-onboarding.md`, with
+  placeholder-only ingestion examples, TypeScript client examples,
+  visibility/privacy explanation, owner-console readiness checklist,
+  sanitized troubleshooting, and explicit Tier 2/Tier 3 deferrals.
 
 ## Phase 3 bridge sequence
 
-Status, 2026-06-24: PR202 through PR255 are accepted. PR256 Developer Space
-Tier 1 Partner Readiness Preflight returned `PATCH` and is ready for MIMIR
-sequencing.
+Status, 2026-06-24: PR202 through PR256 are accepted. PR257 Developer Space
+Tier 1 Partner Onboarding Docs is active with DAEDALUS.
 
 Current MIMIR position:
 
@@ -512,7 +516,7 @@ Bridge order:
 55. Done: Owner Project Export Hosted Rerun.
 56. Done: Developer Space Partner Readiness Map.
 57. Done: Developer Space Tier 1 Partner Readiness Preflight.
-58. Recommended: Developer Space Tier 1 Partner Onboarding Docs.
+58. Active: Developer Space Tier 1 Partner Onboarding Docs.
 
 ARGUS P3-B1A gates:
 

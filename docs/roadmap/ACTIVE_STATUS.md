@@ -4,6 +4,28 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR257 Developer Space Tier 1 Docs opened
+
+MIMIR accepts ARGUS's PR256 `PATCH` verdict on 2026-06-24.
+
+Decision:
+
+- Open **PR257 - Developer Space Tier 1 Partner Onboarding Docs** for
+  DAEDALUS.
+- Keep PR257 docs-only: add partner onboarding/readback docs and update
+  roadmap/status/validation docs only.
+- Follow ARGUS's narrowed boundary from
+  `docs/roadmap/PR256_DEVELOPER_SPACE_TIER1_PARTNER_PREFLIGHT_ARGUS.md`.
+- Split visible public Developer Space framing and owner-console UI copy into a
+  later DAEDALUS lane with ARIADNE desktop/mobile rehearsal.
+
+Current baton:
+
+- DAEDALUS should execute
+  `docs/roadmap/PR257_DEVELOPER_SPACE_TIER1_PARTNER_ONBOARDING_DOCS_DAEDALUS.md`.
+- DAEDALUS should wake ARGUS with docs produced, validation, and any scope
+  issue.
+
 ## Latest ARGUS preflight - PR256 Developer Space Tier 1 Partner Readiness PATCH
 
 ARGUS completed PR256 on 2026-06-24.
