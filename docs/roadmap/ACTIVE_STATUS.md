@@ -4,9 +4,15 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest DAEDALUS repair - PR236 Project owner id serializer repair
+## Latest ARGUS review - PR236 Project owner id serializer repair
 
-DAEDALUS implemented PR236 on 2026-06-24 and woke ARGUS for hostile review.
+ARGUS reviewed PR236 on 2026-06-24.
+
+Verdict:
+
+- `ACCEPT`.
+- Focused ARIADNE hosted rerun is required because PR236 repairs the exact
+  hosted PR235 API boundary failure.
 
 What changed:
 
@@ -30,13 +36,14 @@ Validation:
 - `npm exec --yes pnpm@10.32.1 -- run lint` passed with existing raw `<img>`
   warnings in `apps/web/app/space/[slug]/page.tsx` and
   `apps/web/components/discover/discover-front-door.tsx`.
+- `git diff --check` passed.
+- `git diff --cached --check` passed.
 
 Current baton:
 
-- ARGUS should review
-  `docs/roadmap/PR236_PROJECT_OWNER_ID_SERIALIZER_REPAIR_DAEDALUS.md`.
-- ARGUS should wake MIMIR with ACCEPT / PATCH / REJECT and whether ARIADNE
-  needs a focused hosted rerun.
+- MIMIR should close PR236 and decide the next move.
+- ARGUS requires a focused ARIADNE hosted rerun before treating the PR235 owner
+  Project evidence rehearsal failure as resolved.
 
 ## Latest ARIADNE result - PR235 Owner Project Evidence rehearsal FAIL
 

@@ -2,9 +2,10 @@
 
 Owner: DAEDALUS
 Reviewer: ARGUS
-Status: Implemented - ARGUS review pending
+Status: ARGUS ACCEPT - MIMIR closeout pending
 Opened: 2026-06-24
 Implemented: 2026-06-24
+Reviewed: 2026-06-24
 
 ## Frame
 
@@ -140,5 +141,37 @@ Validation:
 
 Review:
 
-- ARGUS review required before MIMIR decides whether ARIADNE needs a focused
-  hosted rerun.
+- ARGUS reviewed with `ACCEPT`.
+- MIMIR closeout required.
+
+## ARGUS Result - 2026-06-24
+
+Verdict: `ACCEPT`.
+
+ARGUS found the repair matches the PR236 lane:
+
+- Browser-facing Project create/list/detail payloads no longer include
+  `project.ownerUserId` or `owner_user_id`.
+- Server-side owner authorization remains intact through `owner_user_id =
+  req.user.id` filters and Project owner membership writes.
+- Attached Developer Space, activity, and evidence reads remain owner-scoped.
+- Tests now assert create/list/detail/evidence responses omit owner id field
+  names and seeded owner ids.
+
+No ARGUS code patch was needed. No schema, public Project route, Project
+membership authorization, exports, billing, hosted runtime, queue, Cloudflare,
+provider, evidence route policy, or UI scope expansion was introduced.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:projects` passed with 8 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed with existing raw
+  `<img>` warnings only.
+- `git diff --check` passed.
+- `git diff --cached --check` passed.
+
+ARIADNE:
+
+- Focused hosted rerun required because PR236 repairs the exact hosted PR235
+  API boundary failure.

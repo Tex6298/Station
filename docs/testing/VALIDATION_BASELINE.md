@@ -22,7 +22,7 @@ they are not Station validation failures.
 
 ## PR236 Project Owner Id Serializer Repair
 
-DAEDALUS implementation validation on 2026-06-24:
+DAEDALUS implementation and ARGUS review validation on 2026-06-24:
 
 | Command | Result | Notes |
 | --- | --- | --- |
@@ -38,6 +38,8 @@ Scope notes:
   Project membership authorization, public Projects, Discover Project cards,
   Project exports, institutional accounts, billing, hosted runtime, providers,
   Redis/Cloudflare, or UI design.
+- ARGUS accepted the repair with no code patch and requires a focused hosted
+  rerun because PR236 fixes the exact PR235 hosted API boundary failure.
 - PR234 evidence regression remains covered: no raw link ids, document bodies,
   private source ids, author ids, owner ids, raw events, snapshots, provider
   fields, reports, export contents, ingestion keys, or secrets in evidence
