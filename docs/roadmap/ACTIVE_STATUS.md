@@ -4,6 +4,28 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR213 aggregate counters opened
+
+MIMIR closes PR212 as accepted after ARIADNE's hosted rehearsal on 2026-06-24.
+
+Decision:
+
+- Open PR213 for aggregate-only public persona interaction counters.
+- PR211/PR212 proved owner route/chat/report readback is safe, but the owner
+  still has no per-persona activity signal beyond report counts and policy
+  copy.
+- The next slice should add useful owner analytics without creating a raw event
+  log: daily aggregate counters only, no visitor identity, no message content,
+  no transcripts, no IP/user-agent storage, no provider traces, and no
+  Redis/Cloudflare dependency.
+
+Current baton:
+
+- DAEDALUS should execute
+  `docs/roadmap/PR213_PUBLIC_INTERACTION_AGGREGATE_COUNTERS_DAEDALUS.md`.
+- If implemented, DAEDALUS should wake ARGUS for privacy/storage review before
+  ARIADNE sees any visible owner UI change.
+
 ## Latest ARIADNE result - PR212 owner readback rehearsal accepted
 
 ARIADNE rehearsed PR212 on deployed Railway on 2026-06-24.

@@ -188,14 +188,16 @@ Current intent:
 - PR211 result: DAEDALUS implemented and ARGUS accepted owner/admin public
   interaction readback for public personas using existing safe data only.
   Unsafe legacy UUID-shaped public slugs are nulled before owner serialization.
-- Active follow-up: PR212 sends the visible owner readback to ARIADNE for
-  hosted human rehearsal before MIMIR decides whether any event-retention
-  analytics lane is needed.
+- PR212 result: ARIADNE accepted the visible owner readback on hosted Railway.
+- Active follow-up: PR213 opens aggregate-only public persona interaction
+  counters. This should add rolling owner activity counts without raw event
+  logs, visitor identities, transcripts, IP/user-agent storage, provider traces,
+  Redis, or Cloudflare.
 ## Phase 3 bridge sequence
 
-Status, 2026-06-24: PR202 through PR211 are accepted. PR212 is open for
-ARIADNE to rehearse the owner-facing public interaction readback on deployed
-Railway before any event-retention lane opens.
+Status, 2026-06-24: PR202 through PR212 are accepted. PR213 is open for
+DAEDALUS to implement aggregate-only owner public interaction counters without
+raw event retention.
 
 Current MIMIR position:
 
@@ -206,8 +208,8 @@ Current MIMIR position:
   route, owner enable/disable control, and public persona reporting resolver.
   It now has hosted human rehearsal evidence for the public chat alpha. It does
   now has owner/admin interaction readback for public persona reports and
-  public route/chat status. It does not yet have event-retention analytics for
-  per-persona public interaction usage.
+  public route/chat status. It does not yet have aggregate rolling counters for
+  per-persona public interaction activity.
 - Tier limits already include `publicPersonas`, but entitlement shape is not
   enough to open Phase 3 safely.
 
@@ -228,9 +230,8 @@ Bridge order:
     alpha.
 11. Done: owner/admin interaction readback for public persona reports and
     public route/chat status.
-12. Active: ARIADNE hosted human rehearsal of owner public interaction
-    readback.
-13. Decide whether any useful analytics need a separate event-retention lane.
+12. Done: ARIADNE hosted human rehearsal of owner public interaction readback.
+13. Active: aggregate-only public persona interaction counters.
 14. Only then consider Roulette, Salons, voice/avatar, public persona events,
    institutional/research features, or persona-to-persona encounters.
 

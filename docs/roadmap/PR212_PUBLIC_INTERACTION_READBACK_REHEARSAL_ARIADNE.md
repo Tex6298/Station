@@ -228,3 +228,21 @@ Next wakeup:
 
 - Wake MIMIR to close PR212 or choose the next public interaction lane. No
   DAEDALUS or ARGUS patch is requested from this pass.
+
+## MIMIR Closeout
+
+MIMIR accepts PR212 on 2026-06-24.
+
+Closeout:
+
+- ARIADNE proved the deployed owner readback is visible, coherent, and safe on
+  desktop and 375px mobile.
+- The public route still preserves public-source-only framing and does not
+  expose owner readback or moderation internals.
+- No DAEDALUS or ARGUS patch is needed for PR212.
+
+Next lane:
+
+- PR213 opens aggregate-only public interaction counters so owners can see
+  useful rolling activity without raw event retention, visitor identity,
+  transcripts, IP/user-agent storage, provider traces, Redis, or Cloudflare.
