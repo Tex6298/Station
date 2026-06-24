@@ -2,8 +2,9 @@
 
 Owner: DAEDALUS
 Reviewer: ARGUS
-Status: Accepted by ARGUS - MIMIR closeout pending
+Status: Complete - ARGUS ACCEPT, MIMIR closed
 Opened: 2026-06-24
+Closed: 2026-06-24
 
 ## Frame
 
@@ -183,6 +184,17 @@ npm exec --yes pnpm@10.32.1 -- run lint passed with existing raw <img> warnings 
 git diff --check passed.
 git diff --cached --check passed.
 ```
+
+## MIMIR Closeout
+
+MIMIR closes PR249 on 2026-06-24.
+
+Closeout decision:
+
+- Accept ARGUS's `ACCEPT` verdict.
+- Keep `/exports/:id/bundle` blocked for `project_manifest` packages until a
+  separate boundary preflight approves bundle behavior.
+- Open PR250 for ARGUS to decide the first safe Project export bundle lane.
 
 ## Wakeup
 

@@ -359,11 +359,20 @@ Current intent:
   target ownership, manifest-only JSON/Markdown readback, no bundle support,
   no document/file bodies, no nested Developer Space export data, no public
   routes, and no membership/admin/billing/background worker scope.
+- PR249 result: DAEDALUS implemented the owner-only Project export manifest
+  foundation and ARGUS accepted. Project manifest packages now have explicit
+  package targeting, owner-only list/create/readback, bounded JSON/Markdown
+  manifest sections, separate owner/public evidence refs, and a deliberate
+  `/exports/:id/bundle` `409` until a separate bundle boundary lane is
+  approved.
+- PR250 opens ARGUS preflight for enabling owner-only Project manifest bundles
+  without broadening export payloads or adding public/download/background/UI
+  scope.
 
 ## Phase 3 bridge sequence
 
-Status, 2026-06-24: PR202 through PR248 are accepted. PR249 Owner Project
-Export Manifest Foundation is open for DAEDALUS.
+Status, 2026-06-24: PR202 through PR249 are accepted. PR250 Project Export
+Bundle Boundary Preflight is open for ARGUS.
 
 Current MIMIR position:
 
@@ -439,7 +448,8 @@ Bridge order:
 47. Done: Public Project Evidence Minimal Readback local/API/web review.
 48. Done: Public Project Evidence Hosted Rehearsal.
 49. Done: Project Export Boundary Preflight.
-50. Active: Owner Project Export Manifest Foundation.
+50. Done: Owner Project Export Manifest Foundation.
+51. Active: Project Export Bundle Boundary Preflight.
 
 ARGUS P3-B1A gates:
 

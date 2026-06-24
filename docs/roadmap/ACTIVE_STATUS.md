@@ -4,6 +4,33 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR250 Project Export Bundle Boundary Preflight opened
+
+MIMIR closes PR249 on 2026-06-24 after ARGUS accepted the owner-only Project
+export manifest foundation and confirmed no hosted ARIADNE rehearsal is needed.
+
+Decision:
+
+- Open **PR250 - Project Export Bundle Boundary Preflight** for ARGUS.
+- Keep the next move as a boundary decision before enabling
+  `/exports/:id/bundle` for `project_manifest` packages.
+- The likely safe shape is owner-only, completed Project manifest packages only,
+  generated from the already accepted Project JSON/Markdown manifest readback.
+- Candidate bundle contents are limited to `README.md`, `manifest.json`, and
+  `manifest.md`.
+- No public bundle URLs, unauthenticated access, document/file bodies, nested
+  Developer Space bundles, workspace export, PDF/binary export,
+  member/admin/billing export permissions, UI, public routes, jobs, queues,
+  Redis, Cloudflare, hosted runtime, provider/model calls, or broad export
+  redesign.
+
+Current baton:
+
+- ARGUS should execute
+  `docs/roadmap/PR250_PROJECT_EXPORT_BUNDLE_BOUNDARY_PREFLIGHT_ARGUS.md`.
+- ARGUS should wake MIMIR with `ACCEPT`, `PATCH`, or `REJECT` and the exact
+  next DAEDALUS implementation boundary if bundle support can proceed.
+
 ## Latest ARGUS review - PR249 Owner Project Export Manifest Foundation
 
 ARGUS accepts PR249 on 2026-06-24 with no review patch.
@@ -52,7 +79,7 @@ Scope notes:
 
 Current baton:
 
-- MIMIR should close PR249 or choose the next roadmap move.
+- MIMIR closed PR249 and opened PR250 for ARGUS preflight.
 
 ## Latest MIMIR decision - PR249 Owner Project Export Manifest Foundation opened
 
