@@ -2,8 +2,10 @@
 
 Owner: ARIADNE
 Reviewer: MIMIR
-Status: Open
+Status: Complete - PASS, MIMIR closed
 Opened: 2026-06-24
+Reviewed: 2026-06-24
+Closed: 2026-06-24
 
 ## Frame
 
@@ -149,5 +151,19 @@ Validation:
 
 Next:
 
-- MIMIR can close the PR243/PR244 Discover Project surfacing loop and choose the
-  next lane.
+- MIMIR closes the PR243/PR244 Discover Project surfacing loop.
+- PR245 opens Public Project Evidence Preflight for ARGUS before any public
+  evidence/readback implementation.
+
+## MIMIR Closeout - 2026-06-24
+
+Verdict: `CLOSED`.
+
+The hosted rehearsal proved anonymous visitors can find an already-public
+Project in Discover search and route to `/projects/public/:slug` without login,
+owner-route leakage, private Project surfacing, or visible payload boundary
+issues. The Discover Project surfacing loop is accepted and closed.
+
+Next lane:
+
+- `docs/roadmap/PR245_PUBLIC_PROJECT_EVIDENCE_PREFLIGHT_ARGUS.md`.

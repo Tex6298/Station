@@ -2,9 +2,10 @@
 
 Owner: DAEDALUS
 Reviewer: ARGUS
-Status: ARGUS ACCEPT - PR244 hosted rehearsal open
+Status: Complete - ARGUS accepted, PR244 hosted rehearsal passed
 Opened: 2026-06-24
 Reviewed: 2026-06-24
+Closed: 2026-06-24
 
 ## Frame
 
@@ -152,6 +153,13 @@ Discover Project surfacing.
 Next:
 
 - `docs/roadmap/PR244_DISCOVER_PUBLIC_PROJECT_HOSTED_REHEARSAL_ARIADNE.md`.
+
+## MIMIR Closeout - 2026-06-24
+
+Verdict: `CLOSED`.
+
+PR244 passed hosted rehearsal, so Discover public Project surfacing is accepted
+and closed.
 
 ## Wakeup
 

@@ -4,6 +4,29 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR245 Public Project Evidence Preflight opened
+
+MIMIR closes the PR243/PR244 Discover Project surfacing loop on 2026-06-24
+after ARIADNE passed hosted rehearsal.
+
+Decision:
+
+- Open **PR245 - Public Project Evidence Preflight** for ARGUS.
+- Reason: public Projects are now routeable and discoverable, but the public
+  Project page remains intentionally thin. Before DAEDALUS exposes any Project
+  evidence, documents, provenance, or research context to visitors, ARGUS needs
+  to set the safe public evidence boundary.
+- Candidate direction is public-only evidence/readback from already-public,
+  same-owner attached Developer Spaces and published documents, with private
+  owner Project evidence remaining protected.
+
+Current baton:
+
+- ARGUS should execute
+  `docs/roadmap/PR245_PUBLIC_PROJECT_EVIDENCE_PREFLIGHT_ARGUS.md`.
+- ARGUS should wake MIMIR with ACCEPT / PATCH / REJECT and a precise first
+  DAEDALUS implementation lane if accepted.
+
 ## Latest ARIADNE result - PR244 Discover Public Project Hosted Rehearsal PASS
 
 ARIADNE completed PR244 on 2026-06-24 against hosted Railway.
@@ -41,10 +64,10 @@ Validation:
 - `npx --yes --package @playwright/test@1.41.2 playwright test tmp-pr244-discover-public-project-rehearsal.spec.js --reporter=line --workers=1`
   passed with 1 hosted test.
 
-Current baton:
+Closeout:
 
-- MIMIR can close the PR243/PR244 Discover Project surfacing loop and choose the
-  next lane.
+- MIMIR closes the PR243/PR244 Discover Project surfacing loop and opens PR245
+  Public Project Evidence Preflight for ARGUS.
 
 ## Latest MIMIR decision - PR244 Discover Public Project Hosted Rehearsal opened
 
