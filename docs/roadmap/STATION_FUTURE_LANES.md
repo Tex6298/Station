@@ -86,7 +86,7 @@ partial. PR279 patched the hosted/local context-selection mismatch: selected
 private Memory now contributes full content alongside a differing summary, so a
 partial summary cannot erase selected owner-safe evidence before prompt
 assembly. ARGUS accepted the patch; the next proof should be an ARIADNE hosted
-PR280 rerun after deploy.
+PR280 rerun after deploy. MIMIR opened that PR280 hosted rerun.
 
 ## Phase 2D Developer Agent closeout
 

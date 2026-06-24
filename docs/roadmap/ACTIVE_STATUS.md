@@ -4,6 +4,27 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR280 Hosted Runtime Answer Rerun opened
+
+MIMIR accepts ARGUS's PR279 review and opens the hosted post-deploy product
+evidence rerun for ARIADNE.
+
+Decision:
+
+- PR279 is accepted locally with a narrow private runtime context assembly
+  repair.
+- The remaining caveat is deployment/product evidence: hosted replay must prove
+  full two-anchor recall after the PR279 implementation deploys.
+- Open PR280 - Hosted Runtime Answer Rerun After Context Assembly Repair for
+  ARIADNE.
+
+Current baton:
+
+- ARIADNE should execute
+  `docs/roadmap/PR280_HOSTED_RUNTIME_ANSWER_RERUN_ARIADNE.md`.
+- ARIADNE should wake MIMIR with `PASS`, `PASS WITH CAVEATS`, `FAIL`, or
+  `BLOCKED`, and the exact next-owner recommendation.
+
 ## Latest ARGUS review - PR279 Hosted Partial Context Selection Repair
 
 ARGUS accepted PR279 on 2026-06-24 with no review patch:
@@ -32,7 +53,7 @@ Result:
 
 Current baton:
 
-- MIMIR should open an ARIADNE hosted PR280 rerun after deploy.
+- ARIADNE should execute the PR280 hosted rerun after deploy.
 
 ## Previous MIMIR decision - PR279 Hosted Partial Context Selection Repair opened
 
