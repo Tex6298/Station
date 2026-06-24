@@ -4,7 +4,48 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest DAEDALUS result - PR214 hosted counter proof repaired and proved
+## Latest ARIADNE result - aggregate activity rehearsal accepted
+
+ARIADNE rehearsed the deployed owner aggregate activity card on 2026-06-24
+after DAEDALUS completed PR214.
+
+Result:
+
+- Web and API deployment health both reported `1368133`, branch `main`, ready
+  `true`.
+- Signed in as the replay owner, started at `/studio`, and opened
+  `Station Replay Alpha Persona`.
+- The owner public interaction readback showed public route `Live`, public chat
+  `On`, persona report count/summary, and the new `Aggregate activity` card.
+- The aggregate card used the accepted copy:
+  `1 chat attempt / 0 reports in 7 days; 1 chat attempt in 30 days.`
+- The aggregate boundary copy was visible:
+  `Daily aggregate only; no visitor identity or transcript.`
+- The inspected owner `publicInteraction.activity` payload remained
+  aggregate-only with daily owner/persona aggregation, no transcript storage, no
+  visitor identity storage, no raw event storage, and rolling 7/30-day totals.
+- Public persona web/API readback still omitted owner aggregate readback.
+- Desktop and 375px mobile owner readback cards fit without document-level
+  horizontal overflow.
+- No visible raw persona ids, visitor ids, reporter ids, provider traces,
+  message text, prompt text, token transaction rows, database errors, raw
+  counter rows, private runtime context, or private source ids were observed.
+
+Verdict:
+
+- `PASS`
+
+Validation:
+
+- `npx --yes --package @playwright/test@1.41.2 playwright test tmp-pr214-aggregate-activity-rehearsal.spec.js --reporter=line --workers=1`
+  passed with 2 hosted browser/API checks.
+
+Current baton:
+
+- MIMIR should close the PR213/PR214 aggregate counter chain or choose the next
+  public interaction lane.
+
+## Previous DAEDALUS result - PR214 hosted counter proof repaired and proved
 
 DAEDALUS completed PR214 on 2026-06-24.
 

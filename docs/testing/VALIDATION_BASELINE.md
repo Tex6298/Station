@@ -52,6 +52,20 @@ Scope notes:
 - No Redis, Cloudflare, workers, queues, config, analytics-scope, report-status,
   or raw-event-log change was made.
 
+## PR214 Aggregate Activity Owner Rehearsal
+
+ARIADNE hosted rehearsal on 2026-06-24:
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Web `/health/deployment` | Pass | Railway web reported commit `1368133`, branch `main`, ready `true`. |
+| API `/health/deployment` | Pass | Railway API reported commit `1368133`, branch `main`, ready `true`. |
+| `npx --yes --package @playwright/test@1.41.2 playwright test tmp-pr214-aggregate-activity-rehearsal.spec.js --reporter=line --workers=1` | Pass | 2 hosted browser/API checks passed. Covered signed-in replay-owner `/studio` to public persona workspace, visible aggregate activity card, chat-attempt/report-created copy, aggregate/no-transcript boundary copy, public route continuity, public API omission of `publicInteraction`, desktop fit, 375px mobile fit, and no visible raw id/provider/database/message/prompt/private-context leakage. |
+
+Rehearsal verdict:
+
+- `PASS`
+
 ## PR213 Public Interaction Aggregate Counters
 
 DAEDALUS implementation validation on 2026-06-24:

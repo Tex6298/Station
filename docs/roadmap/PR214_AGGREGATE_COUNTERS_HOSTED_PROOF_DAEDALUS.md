@@ -212,3 +212,74 @@ Validation:
 Next wakeup:
 
 - Wake ARIADNE for deployed owner aggregate activity card rehearsal.
+
+## ARIADNE Rehearsal - 2026-06-24
+
+Verdict:
+
+```text
+PASS
+```
+
+Routes tested:
+
+- `/studio`
+- `/studio/personas/<replay-public-persona>`
+- `/personas/station-replay-alpha-persona`
+- Web `/health/deployment`
+- API `/health/deployment`
+- Owner API `GET /personas/<replay-public-persona>`
+- Public API `GET /personas/public/station-replay-alpha-persona`
+
+Deployment health:
+
+- Web and API both reported deployment `1368133`, branch `main`, ready `true`.
+
+Owner aggregate activity result:
+
+- Passed. Signed in as the replay owner, started at `/studio`, and opened the
+  visible `Station Replay Alpha Persona` workspace.
+- The owner public interaction readback showed public route `Live`, public chat
+  `On`, persona report count/summary, and the new `Aggregate activity` card.
+- The aggregate card showed the expected chat-attempt/report-created copy:
+  `1 chat attempt / 0 reports in 7 days; 1 chat attempt in 30 days.`
+- The aggregate boundary copy was visible:
+  `Daily aggregate only; no visitor identity or transcript.`
+- The inspected owner `publicInteraction.activity` payload remained
+  aggregate-only: daily owner/persona aggregation, no transcript storage, no
+  visitor identity storage, no raw event storage, and rolling 7/30-day totals.
+
+Public route result:
+
+- Passed. The public route card opened `/personas/station-replay-alpha-persona`.
+- The public persona route preserved public-source-only framing and did not
+  expose `Aggregate activity`, owner readback details, or daily aggregate copy.
+- Public API readback still omitted `publicInteraction`.
+
+Desktop/mobile:
+
+- Desktop owner readback was tight but readable; the aggregate card fit in the
+  existing card grid.
+- At 375px, route/chat/report/activity cards stacked cleanly with no
+  document-level horizontal overflow.
+- Full-page screenshots were inspected locally and not committed.
+
+Privacy verdict:
+
+- Accepted. No visible raw persona ids, visitor ids, reporter ids, owner ids,
+  provider traces, message text, prompt text, token transaction rows, database
+  errors, raw counter rows, private runtime context, or private source ids were
+  observed.
+- The UI says `chat attempt`, not successful chats, and does not imply visitor
+  transcripts, raw events, per-user analytics, or public analytics are stored.
+
+Validation:
+
+- `npx --yes --package @playwright/test@1.41.2 playwright test tmp-pr214-aggregate-activity-rehearsal.spec.js --reporter=line --workers=1`
+  passed with 2 hosted browser/API checks.
+
+Next wakeup:
+
+- Wake MIMIR to close the PR213/PR214 aggregate counter chain or choose the next
+  public interaction lane. No DAEDALUS or ARGUS patch is requested from this
+  pass.
