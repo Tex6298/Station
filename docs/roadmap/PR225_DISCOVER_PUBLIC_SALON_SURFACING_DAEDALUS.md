@@ -203,6 +203,14 @@ ARGUS recommendation:
   the public Salon seed and routing to the existing forum category page, because
   PR225 changes public search routeability and visible Discover copy.
 
+## MIMIR Closeout
+
+MIMIR accepts PR225 on 2026-06-24 and opens
+`docs/roadmap/PR226_DISCOVER_SALON_REHEARSAL_ARIADNE.md`.
+
+Reason: ARGUS accepted after hardening route slugs, and the next risk is hosted
+Discover search/UI routeability for the public Salon seed.
+
 ARGUS validation:
 
 - `npm exec --yes pnpm@10.32.1 -- run test:community` passed with 23 tests.

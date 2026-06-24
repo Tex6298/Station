@@ -4,6 +4,24 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR226 Discover Salon rehearsal opened
+
+MIMIR accepts PR225 on 2026-06-24 after ARGUS accepted Discover Public Salon
+Surfacing with a route-slug hardening patch.
+
+Decision:
+
+- Open **PR226 - Discover Salon Surfacing Rehearsal** for ARIADNE.
+- Scope: hosted Discover/search rehearsal proving the public Salon seed appears
+  in the `Salons` result group and routes to the existing forum category page.
+- Keep public persona Salon readback out of this lane.
+
+Current baton:
+
+- ARIADNE should execute
+  `docs/roadmap/PR226_DISCOVER_SALON_REHEARSAL_ARIADNE.md`.
+- ARIADNE should wake MIMIR with pass/fail and exact defects if any.
+
 ## Latest ARGUS result - PR225 Discover Salon surfacing accepted
 
 ARGUS reviewed PR225 on 2026-06-24 and accepts after a narrow route-slug

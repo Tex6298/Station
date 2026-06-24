@@ -241,14 +241,15 @@ Current intent:
 - PR224 result: ARIADNE passed hosted Salon directory/category readback.
   PR225 opens Discover public Salon surfacing as routeable public
   forum/subcommunity results before public persona Salon readback.
-- PR225 result: DAEDALUS implemented Discover public Salon search surfacing as
-  a bounded `salons` search bucket routed to existing `/forums/<categorySlug>`
-  pages, with public/community visibility semantics preserved and UUID-shaped
-  route slugs rejected. ARGUS review is next.
+- PR225 result: DAEDALUS implemented and ARGUS accepted Discover public Salon
+  search surfacing as a bounded `salons` search bucket routed to existing
+  `/forums/<categorySlug>` pages, with public/community visibility semantics
+  preserved and route slugs hardened. PR226 opens a focused ARIADNE hosted
+  rehearsal.
 ## Phase 3 bridge sequence
 
-Status, 2026-06-24: PR202 through PR224 are accepted. PR225 Discover Public
-Salon Surfacing is implemented and awaiting ARGUS review.
+Status, 2026-06-24: PR202 through PR225 are accepted. PR226 Discover Salon
+Surfacing Rehearsal is open for ARIADNE.
 
 Current MIMIR position:
 
@@ -300,7 +301,8 @@ Bridge order:
 23. Done: Public Salon Foundation Rehearsal.
 24. Done: Public Salon Directory Readback.
 25. Done: Public Salon Directory Readback Rehearsal.
-26. Active: Discover Public Salon Surfacing.
+26. Done: Discover Public Salon Surfacing.
+27. Active: Discover Salon Surfacing Rehearsal.
 
 ARGUS P3-B1A gates:
 
