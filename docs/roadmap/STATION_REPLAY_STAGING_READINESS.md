@@ -108,8 +108,8 @@ then let staged replay reveal the next optimizations.
   PR285 as a narrow DAEDALUS answer-label preservation repair.
 - PR285 patched answer-label preservation by formatting Memory prompt input
   with selected source titles/labels alongside content, matching Archive and
-  Integrity behavior. ARGUS review is pending; if accepted, the next proof
-  should be an ARIADNE hosted PR286 rerun after deploy.
+  Integrity behavior. ARGUS accepted the patch; the next proof should be an
+  ARIADNE hosted PR286 rerun after deploy.
 - Broader known caveats still travel into staging review instead of spawning
   more local polish: static global Archive/Export shells, dashboard
   derived/static snippets, no downloadable bundles/workers, and no new private

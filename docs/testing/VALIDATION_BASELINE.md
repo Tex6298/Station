@@ -32,10 +32,10 @@ Memory/observability implementation lane.
 
 ## PR285 Answer Label Preservation Repair
 
-DAEDALUS completed PR285 on 2026-06-24:
+ARGUS accepted PR285 on 2026-06-24 with no review patch:
 `docs/roadmap/PR285_ANSWER_LABEL_PRESERVATION_REPAIR_RESULT.md`.
 
-Result: `PASS WITH CAVEATS`, pending ARGUS review.
+Result: `PASS WITH CAVEATS`.
 
 Validation result:
 
@@ -54,10 +54,10 @@ Validation result:
 | `npm exec --yes pnpm@10.32.1 -- run lint` | Pass with existing warnings | Existing raw `<img>` warnings remain in `apps/web/app/space/[slug]/page.tsx` and `apps/web/components/discover/discover-front-door.tsx`. |
 | `git diff --check` | Pass | Whitespace check passed. |
 | `git diff --cached --check` | Pass | Staged whitespace check passed before wakeup. |
-| Added-line hygiene scan | Pass | No credentials, raw ids, raw prompts, completions, hosted logs, SQL, private source bodies, cookies, or tokens. |
+| Added-line hygiene scan | Pass | No credential-like values, emails, credentialed URLs, UUID-shaped ids, raw prompts, or private source bodies found in the PR285 ARGUS diff. |
 
-ARGUS should review the repair. If accepted, the next useful validation is an
-ARIADNE hosted PR286 rerun after deploy.
+ARGUS accepted the repair. The next useful validation is an ARIADNE hosted
+PR286 rerun after deploy.
 
 ## PR284 Hosted Runtime Answer Rerun Result
 
