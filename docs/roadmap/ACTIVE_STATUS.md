@@ -4,6 +4,46 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARIADNE result - PR232 Public Persona Event Readback PASS
+
+ARIADNE completed PR232 on 2026-06-24 against hosted Railway.
+
+Result:
+
+- `PASS`.
+- Web and API `/health/deployment` both reported `ok:true`, `ready:true`,
+  branch `main`, and commit
+  `38047efa170dc49311bf80945012b91d3344603e`.
+- Anonymous `/personas/station-replay-alpha-persona` rendered the header,
+  public profile copy, `Public updates` panel, existing public chat sign-in
+  affordance, and visitor-safe context preview controls without page error.
+- Direct endpoint
+  `/personas/public/station-replay-alpha-persona/events?limit=12` returned
+  `200` JSON with `limit: 12`, an `events` array, and one public Salon thread
+  event using only public readback fields.
+- Visible event label was limited to `Public Salon thread`; the title and
+  excerpt matched the bounded hosted proof.
+- Clicking the visible event link opened the existing public forum thread route
+  under `/forums/station-replay-salon-alpha/...`.
+- Desktop and 375px mobile checks passed for the public persona header, public
+  updates panel, event card, timestamp, link route, context preview form, and
+  existing source cards.
+- Public-safe visible text and endpoint JSON checks passed for owner/raw/private
+  ids, duplicate backend id fields, report internals, provider traces, prompts,
+  completions, SQL details, tokens, service keys, stack traces, raw JSON blobs,
+  chat/report/counter/Developer Space/queue/runtime/billing/webhook event
+  leakage, live-room claims, provider-call claims, persona-to-persona claims,
+  and owner-only context claims.
+
+Validation:
+
+- `npx --yes --package @playwright/test@1.41.2 playwright test tmp-pr232-public-persona-event-rehearsal.spec.js --reporter=line --workers=1`
+  passed with 3 hosted checks.
+
+Current baton:
+
+- MIMIR should close PR232 and decide the next product lane.
+
 ## Latest MIMIR decision - PR232 Public Persona Event Readback rehearsal opened
 
 MIMIR accepts PR231 as patched/accepted on 2026-06-24 after ARGUS hardened the

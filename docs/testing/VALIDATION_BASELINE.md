@@ -20,6 +20,26 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR232 Public Persona Event Readback Hosted Rehearsal
+
+ARIADNE hosted rehearsal on 2026-06-24:
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Web `/health/deployment` | Pass | Railway web reported `ok:true`, `ready:true`, service `@station/web`, branch `main`, commit `38047efa170dc49311bf80945012b91d3344603e`. |
+| API `/health/deployment` | Pass | Railway API reported `ok:true`, `ready:true`, service `@station/api`, branch `main`, commit `38047efa170dc49311bf80945012b91d3344603e`. |
+| API events endpoint | Pass | Anonymous `/personas/public/station-replay-alpha-persona/events?limit=12` returned `200`, `limit:12`, an `events` array, and a public Salon thread event using only `eventType`, `label`, `title`, `href`, `occurredAt`, and `excerpt`. |
+| Event label boundary | Pass | Endpoint and visible page label stayed within the allowed public labels; hosted seed displayed `Public Salon thread`. |
+| Public persona page | Pass | Anonymous `/personas/station-replay-alpha-persona` rendered the header, public profile copy, `Public updates` / `Public sources` panel, public chat sign-in affordance, and visitor-safe context preview controls. |
+| Event link routeability | Pass | Clicking the visible event opened the existing `/forums/station-replay-salon-alpha/...` public thread route and rendered the bounded proof thread. |
+| Desktop and mobile fit | Pass | Desktop and 375px mobile checks found no document-level horizontal overflow, clipped update labels, unusable buttons, or broken event click-through. |
+| Public-safe visible/API scan | Pass | No owner/raw/private ids, duplicate backend id fields, report internals, provider traces, prompts, completions, SQL details, tokens, service keys, stack traces, raw JSON blobs, chat/report/counter/Developer Space/queue/runtime/billing/webhook event leakage, live-room claims, provider-call claims, persona-to-persona claims, or owner-only context claims appeared in the exercised page text or event JSON. |
+| `npx --yes --package @playwright/test@1.41.2 playwright test tmp-pr232-public-persona-event-rehearsal.spec.js --reporter=line --workers=1` | Pass | 3 hosted checks passed against Railway. |
+
+Rehearsal verdict:
+
+- `PASS`
+
 ## PR231 Public Persona Event Readback
 
 DAEDALUS implementation validation on 2026-06-24:
