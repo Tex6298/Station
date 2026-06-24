@@ -4,7 +4,53 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest MIMIR decision - PR267 Staging Readiness Truth Check opened
+## Latest ARGUS review - PR267 Staging Readiness Truth Check
+
+ARGUS completed PR267 on 2026-06-24:
+`docs/roadmap/PR267_STAGING_READINESS_TRUTH_CHECK_ARGUS.md`.
+
+Verdict: `FAIL`.
+
+Evidence:
+
+- Hosted Railway web/API `/health` and `/health/deployment` are reachable and
+  ready.
+- Hosted web and API report service `@station/web` / `@station/api`, branch
+  `main`, and runtime commit `38ad00e6f56823a302737139b4e7453294b9ea30`.
+- Current commits after `38ad00e6f56823a302737139b4e7453294b9ea30` are
+  docs/state only, so deployed runtime freshness is acceptable for product-code
+  purposes.
+- Public route probes returned HTTP 200 for `/`, `/discover`, `/forums`,
+  `/developer-spaces`, and `/developer-spaces/station-replay-dev-alpha`.
+- Public route `/developer`, explicitly named by PR267, returned HTTP 404.
+- API deployment readiness reports database, migrations, private
+  `persona-files` storage, public URL wiring, Supabase Auth redirects, Stripe
+  test billing/prices, platform chat, NVIDIA chat, Gemini
+  `station_free_1536` embeddings, and Upstash REST operational cache ready.
+- Redis/Upstash remains cache-only with no worker queue ready and inline
+  fallback true.
+- Cloudflare remains docs-deferred; no live Cloudflare readiness claim was made.
+- Owner replay routes were not rechecked because no safe owner harness was
+  available without credentials/tokens.
+
+Risk:
+
+- The staged public `/developer` route mismatch is a concrete replay-facing
+  blocker for the exact route list MIMIR asked ARGUS to verify.
+
+Recommendation:
+
+- Open one narrow DAEDALUS repair lane to add and verify a public `/developer`
+  redirect or alias to `/developer-spaces`, then rerun PR267 public route
+  probes. Do not open broader UX or product work before that staged route truth
+  mismatch is resolved.
+
+Validation:
+
+- `git diff --check` passed with CRLF warnings only.
+- `git diff --cached --check` passed.
+
+## Previous MIMIR decision - PR267 Staging Readiness Truth Check opened
 
 MIMIR accepts DAEDALUS's PR266 recommendation on 2026-06-24 and opens a staged
 truth check before any further local UX or product implementation.

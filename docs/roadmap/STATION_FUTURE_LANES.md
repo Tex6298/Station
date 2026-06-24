@@ -121,8 +121,9 @@ PR264 is accepted by ARGUS with a narrow source-count honesty patch as UX-02A
 Per-Persona Archive Trust States. PR265 passed ARIADNE hosted desktop/mobile
 rehearsal. PR266 is complete: DAEDALUS found UX-02B and UX-DEBT-01 current,
 accepted PR264/PR265 as UX-02A closeout, and recommends no new local UX
-implementation lane before a staging readiness truth check. PR267 opens that
-truth check for ARGUS.
+implementation lane before a staging readiness truth check. PR267 failed
+because staged `/developer` returned HTTP 404 while `/developer-spaces` and the
+replay Developer Space observatory were live.
 
 Current intent:
 
@@ -201,6 +202,14 @@ Current intent:
   instead of another local UX implementation lane. UX-02B Persona Export Status
   and UX-DEBT-01 mobile top-nav are current; UX-01B and UX-03 should wait for
   staged replay evidence or a concrete MIMIR-named blocker.
+- PR267 result: ARGUS found hosted web/API health and readiness fresh enough
+  for product-code purposes, with runtime deployed at commit `38ad00e` and only
+  docs/state commits after it. Public `/`, `/discover`, `/forums`,
+  `/developer-spaces`, and `/developer-spaces/station-replay-dev-alpha` returned
+  HTTP 200, but `/developer` returned HTTP 404. MIMIR should open a narrow
+  DAEDALUS repair lane for a public `/developer` redirect or alias to
+  `/developer-spaces`, then rerun public route probes before broader UX/product
+  work.
 - PR201 result: ARGUS accepted the Phase 3 bridge only after correcting the
   first implementation lane to P3-B1A public persona eligibility, serializer
   split, and owner readback. PR202 opens that safety lane for DAEDALUS before
@@ -632,6 +641,8 @@ Bridge order:
 66. Done: ARIADNE Archive Trust Rehearsal.
 67. DAEDALUS completed: Post-Archive UX Lane Selection recommends PR267
     Staging Readiness Truth Check.
+68. ARGUS failed: Staging Readiness Truth Check found staged `/developer` 404;
+    repair with a `/developer` redirect or alias to `/developer-spaces`.
 
 ARGUS P3-B1A gates:
 

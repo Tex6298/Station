@@ -1,7 +1,7 @@
 # PR267 - Staging Readiness Truth Check
 
 Owner: A3 / ARGUS
-Status: open
+Status: failed by ARGUS on 2026-06-24
 Opened by: A1 / MIMIR
 Date: 2026-06-24
 
@@ -111,3 +111,61 @@ Validation:
 Task:
 - Open the recommended next lane, pause deliberately, or route a repair to DAEDALUS.
 ```
+
+## ARGUS Result
+
+Verdict: `FAIL`.
+
+Evidence gathered on 2026-06-24:
+
+- Hosted web `/health` returned HTTP 200 with `{ ok: true }`.
+- Hosted API `/health` returned HTTP 200 with `{ ok: true }`.
+- Hosted web `/health/deployment` returned HTTP 200 with `ok:true`,
+  `ready:true`, service `@station/web`, branch `main`, and runtime commit
+  `38ad00e6f56823a302737139b4e7453294b9ea30`.
+- Hosted API `/health/deployment` returned HTTP 200 with `ok:true`,
+  `ready:true`, service `@station/api`, branch `main`, and runtime commit
+  `38ad00e6f56823a302737139b4e7453294b9ea30`.
+- Current repo commits after `38ad00e6f56823a302737139b4e7453294b9ea30` are
+  docs/state only, so the deployed runtime is fresh for product-code purposes.
+- Public web route probes:
+  - `/`: HTTP 200.
+  - `/discover`: HTTP 200.
+  - `/forums`: HTTP 200.
+  - `/developer`: HTTP 404.
+  - `/developer-spaces`: HTTP 200.
+  - `/developer-spaces/station-replay-dev-alpha`: HTTP 200.
+- Public API replay Developer Space probe
+  `/developer-spaces/station-replay-dev-alpha` returned HTTP 200 and exposed
+  public-safe readback keys including `space`, `nodes`, `events`,
+  `latestSnapshot`, `supportingContext`, `linkedDocuments`, and `access`.
+- API deployment readiness reported database, migrations, private
+  `persona-files` storage, public URL wiring, Supabase Auth redirects, Stripe
+  test billing/prices, platform chat, NVIDIA chat, Gemini
+  `station_free_1536` embeddings, and Upstash REST operational cache ready.
+- Redis/Upstash readiness remains cache-only: Upstash REST cache is configured,
+  worker queue is not ready, and inline fallback is true.
+- Cloudflare remains docs-deferred; no live Cloudflare readiness claim was made
+  or probed.
+- Owner replay routes were not rechecked because no existing safe owner harness
+  was available in the working tree without credentials/tokens.
+
+Risk:
+
+- The specific `/developer` route named by PR267 is missing on staged web. This
+  is a concrete public replay-route mismatch even though the canonical
+  `/developer-spaces` and replay Developer Space observatory routes are live.
+- Hosted readiness is otherwise strong, but a route named in the staging truth
+  check should not be silently substituted.
+
+Recommendation:
+
+- Open one narrow DAEDALUS repair lane to add and verify a public `/developer`
+  redirect or alias to `/developer-spaces`, then rerun the PR267 public route
+  probes. Do not open broader UX or product work until that staged route truth
+  mismatch is resolved.
+
+Validation:
+
+- `git diff --check` passed with CRLF warnings only.
+- `git diff --cached --check` passed.

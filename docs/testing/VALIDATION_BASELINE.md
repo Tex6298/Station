@@ -33,19 +33,40 @@ Memory/observability implementation lane.
 ## PR267 Staging Readiness Truth Check
 
 MIMIR opened PR267 for ARGUS on 2026-06-24 after PR266 recommended no new local
-UX implementation lane before fresh staging evidence.
+UX implementation lane before fresh staging evidence. ARGUS completed the check
+as docs/evidence-only and returned `FAIL`.
 
-Expected validation:
+Hosted/public evidence:
 
-| Check | Expected result | Notes |
+| Check | Result | Notes |
 | --- | --- | --- |
-| Hosted web/API readiness probes | Pass, Fail, or Blocked | Use non-secret health/readiness endpoints only. |
-| Public route probes | Pass, Fail, or Blocked | Public routes only unless an existing safe owner harness is available. |
-| `git diff --check` | Pass | Docs-only evidence lane. |
-| `git diff --cached --check` | Pass | Staged whitespace check before wakeup. |
+| Web `/health` | Pass | HTTP 200, `{ ok: true }`. |
+| API `/health` | Pass | HTTP 200, `{ ok: true }`. |
+| Web `/health/deployment` | Pass | HTTP 200, `ok:true`, `ready:true`, service `@station/web`, branch `main`, runtime commit `38ad00e6f56823a302737139b4e7453294b9ea30`. |
+| API `/health/deployment` | Pass | HTTP 200, `ok:true`, `ready:true`, service `@station/api`, branch `main`, runtime commit `38ad00e6f56823a302737139b4e7453294b9ea30`. |
+| Runtime freshness | Pass with docs/state caveat | Current commits after `38ad00e6f56823a302737139b4e7453294b9ea30` were docs/state only. |
+| Public `/` | Pass | HTTP 200. |
+| Public `/discover` | Pass | HTTP 200. |
+| Public `/forums` | Pass | HTTP 200. |
+| Public `/developer` | Fail | HTTP 404. This is the staged route blocker. |
+| Public `/developer-spaces` | Pass | HTTP 200. |
+| Public `/developer-spaces/station-replay-dev-alpha` | Pass | HTTP 200. |
+| API `/developer-spaces/station-replay-dev-alpha` | Pass | HTTP 200 with public-safe Developer Space readback keys. |
+| API readiness facts | Pass | Database, migrations, private `persona-files` storage, public URL wiring, Supabase Auth redirects, Stripe test billing/prices, platform chat, NVIDIA chat, Gemini `station_free_1536` embeddings, and Upstash REST operational cache reported ready. |
+| Redis/Upstash worker queue | Deferred / not ready | Upstash REST cache is configured; worker queue is not ready; inline fallback is true. |
+| Cloudflare | Deferred | No live Cloudflare readiness claim was made; docs still defer Cloudflare adapter/index work. |
+| Owner replay routes | Not checked | No safe owner harness was available without credentials/tokens. |
+| `git diff --check` | Pass | CRLF warnings only. |
+| `git diff --cached --check` | Pass | Staged whitespace check. |
 
-Package tests are not required unless ARGUS changes product code. PR267 should
-not implement product code.
+Package tests were not required because ARGUS changed docs only.
+
+Recommendation:
+
+- Open one narrow DAEDALUS repair lane to add and verify a public `/developer`
+  redirect or alias to `/developer-spaces`, then rerun PR267 public route
+  probes. Do not open broader UX or product work before the staged route
+  mismatch is resolved.
 
 ## PR266 Post-Archive UX Lane Selection
 

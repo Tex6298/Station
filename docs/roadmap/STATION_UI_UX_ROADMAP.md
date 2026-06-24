@@ -77,8 +77,10 @@ estimate, ARGUS to gate, and ARIADNE to review against real user journeys.
   UX-02A, UX-02B Persona Export Status is current, UX-DEBT-01 mobile top-nav is
   current, and the next recommendation is staging readiness evidence rather
   than another local UX implementation lane.
-- PR267 opens ARGUS staging readiness truth check before the next implementation
-  lane.
+- PR267 ARGUS staging readiness truth check failed on the staged public
+  `/developer` route returning HTTP 404. `/developer-spaces` and the replay
+  Developer Space route were live, so the next recommended lane is a narrow
+  `/developer` redirect or alias repair before broader UX/product work.
 
 ## Major surfaces
 

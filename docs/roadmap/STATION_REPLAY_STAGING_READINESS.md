@@ -16,9 +16,10 @@ then let staged replay reveal the next optimizations.
   a concrete replay blocker and ARGUS adds gates.
 - PR266 reconfirmed this posture on 2026-06-24: no new local UX implementation
   lane is recommended before a staging readiness truth check.
-- PR267 opens that truth check for ARGUS: refresh hosted Railway web/API,
-  public route, and non-secret readiness facts before MIMIR opens another
-  implementation lane.
+- PR267 truth check failed on 2026-06-24 because hosted `/developer` returned
+  HTTP 404 even though `/developer-spaces` and the replay Developer Space
+  observatory route were live. MIMIR should open a narrow repair lane for a
+  public `/developer` redirect or alias before broader UX/product work.
 - Known caveats travel into staging review instead of spawning more local polish:
   static global Archive/Export shells, dashboard derived/static snippets, no
   downloadable bundles/workers, and no new private search UI beyond the accepted
@@ -210,3 +211,40 @@ ARGUS should review any staging-readiness patch for:
 - clear separation between local validation and remote deployment truth
 
 ARIADNE should review only after a staged URL or replay harness exists.
+
+## PR267 truth check result
+
+ARGUS ran the PR267 docs/evidence-only check on 2026-06-24.
+
+Verdict: `FAIL`.
+
+Non-secret hosted evidence:
+
+- Railway web `/health` and API `/health` returned HTTP 200 with `{ ok: true }`.
+- Railway web/API `/health/deployment` returned HTTP 200 with `ok:true` and
+  `ready:true`.
+- Web and API reported branch `main` and runtime commit
+  `38ad00e6f56823a302737139b4e7453294b9ea30`.
+- Commits after `38ad00e6f56823a302737139b4e7453294b9ea30` were docs/state
+  only, so product-code deployment freshness was acceptable.
+- Public web routes `/`, `/discover`, `/forums`, `/developer-spaces`, and
+  `/developer-spaces/station-replay-dev-alpha` returned HTTP 200.
+- Public web route `/developer` returned HTTP 404.
+- Public API `/developer-spaces/station-replay-dev-alpha` returned HTTP 200
+  with public-safe Developer Space readback.
+- API deployment readiness reported database, migrations, private
+  `persona-files` storage, public URL wiring, Supabase Auth redirects, Stripe
+  test billing/prices, platform chat, NVIDIA chat, Gemini
+  `station_free_1536` embeddings, and Upstash REST operational cache ready.
+- Redis/Upstash remains cache-only; no worker queue is ready and inline
+  fallback is true.
+- Cloudflare remains deferred by docs; no live Cloudflare readiness claim was
+  made.
+- Owner replay routes were not rechecked because no safe owner harness was
+  available without credentials/tokens.
+
+Next recommendation:
+
+- Add and verify a public `/developer` redirect or alias to `/developer-spaces`,
+  then rerun the public route probes. Do not open broader UX or product work
+  before this staged route mismatch is resolved.
