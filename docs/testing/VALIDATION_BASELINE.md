@@ -22,29 +22,28 @@ they are not Station validation failures.
 
 ## PR258 Developer Space Tier 1 Visible Framing
 
-MIMIR opened PR258 for DAEDALUS on 2026-06-24.
+DAEDALUS implementation on 2026-06-24:
 
-Required validation for the visible browser lane:
-
-| Command / check | Expected result | Notes |
+| Command / check | Result | Notes |
 | --- | --- | --- |
-| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | Developer Space service/web helper behavior stays bounded. |
-| `npm exec --yes pnpm@10.32.1 -- run test:developer-space-client` | Pass | Partner ingestion/client contracts remain unchanged. |
-| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | No TypeScript drift from copy/helper changes. |
-| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass or existing warnings only | Report any pre-existing warnings separately. |
-| `git diff --check` | Pass | Whitespace check. |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 46 tests passed across Developer Space API and web helper coverage. |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-space-client` | Pass | 15 client ingestion and webhook helper tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API/web typecheck passed. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass with existing warnings | Existing raw `<img>` warnings remain in `apps/web/app/space/[slug]/page.tsx` and `apps/web/components/discover/discover-front-door.tsx`. |
+| `git diff --check` | Pass | Whitespace check passed with CRLF warnings only. |
 | `git diff --cached --check` | Pass | Staged whitespace check. |
-| Changed-file secret-shaped-material scan | Pass | Do not print secrets; report the pattern/result only. |
+| Changed-file secret-shaped-material scan | Pass | No matches in changed Developer Space web/helper files. |
 
 Scope notes:
 
-- PR258 may change existing public Developer Space framing, owner manage-console
-  copy, observatory helper copy, and focused tests only.
-- It must not change schema, migrations, API routes, serializers, packages,
-  env templates, hosted infrastructure, billing, community/forum surfaces,
-  provider execution, Redis/Cloudflare behavior, export payloads, background
-  jobs, or developer-agent capabilities.
-- Because PR258 is visible browser behavior, ARGUS review must be followed by
+- Changed existing public Developer Space framing, owner manage-console copy,
+  observatory helper copy, focused helper tests, and roadmap/status/validation
+  docs only.
+- No schema, migration, API route, serializer, package, SDK, env template,
+  hosted infrastructure, billing, community/forum surface, provider execution,
+  Redis/Cloudflare behavior, export payload, background job, or real
+  developer-agent capability changed.
+- Because PR258 is visible browser behavior, ARGUS review should be followed by
   ARIADNE desktop/mobile rehearsal before MIMIR closeout.
 
 ## PR257 Developer Space Tier 1 Partner Onboarding Docs

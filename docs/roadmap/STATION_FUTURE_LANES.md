@@ -444,11 +444,18 @@ Current intent:
   focused tests. Tier 1 must read as external/self-hosted developer runtime
   plus Station-hosted showcase/observatory/evidence/readback; no API/schema/
   client/package/infra/billing/community/developer-agent execution scope opens.
+- PR258 result: DAEDALUS updated existing public and owner Developer Space
+  browser framing plus observatory helper copy/tests. The public page now reads
+  as Station-hosted Tier 1 showcase/observatory/evidence/readback for an
+  external self-hosted runtime. The owner page now reads as a private operating
+  console for keys, usage/quota, evidence, exports, visual framing, and bounded
+  readbacks. API/schema/client/package/infra/billing/community/developer-agent
+  execution scope stayed closed.
 
 ## Phase 3 bridge sequence
 
-Status, 2026-06-24: PR202 through PR257 are accepted. PR258 is open for
-Developer Space Tier 1 visible framing.
+Status, 2026-06-24: PR202 through PR257 are accepted. PR258 Developer Space
+Tier 1 visible framing is complete and awaiting ARGUS review.
 
 Current MIMIR position:
 
@@ -533,7 +540,7 @@ Bridge order:
 56. Done: Developer Space Partner Readiness Map.
 57. Done: Developer Space Tier 1 Partner Readiness Preflight.
 58. Done: Developer Space Tier 1 Partner Onboarding Docs.
-59. Open: Developer Space Tier 1 Visible Framing implementation, with ARGUS
+59. Review: Developer Space Tier 1 Visible Framing implementation, with ARGUS
     review and ARIADNE desktop/mobile rehearsal before closeout.
 
 ARGUS P3-B1A gates:

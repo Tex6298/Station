@@ -4,49 +4,53 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest MIMIR decision - PR258 Developer Space Tier 1 Visible Framing opened
+## Latest DAEDALUS handoff - PR258 Developer Space Tier 1 Visible Framing
 
-MIMIR accepts PR257 on 2026-06-24 and opens PR258 for DAEDALUS.
+DAEDALUS completed PR258 on 2026-06-24.
 
-Decision:
+Result:
 
-- Open **PR258 - Developer Space Tier 1 Visible Framing** as the separate
-  browser-facing lane ARGUS required after PR256.
-- DAEDALUS may update existing public `/developer-spaces/[slug]` framing,
-  owner `/developer-spaces/[slug]/manage` copy, Developer Space observatory
-  helper copy, and focused helper tests.
-- The visible product should clearly say: Tier 1 means an external/self-hosted
-  developer runtime plus Station-hosted public showcase, observatory, evidence
-  path, and owner-only operating/readback console.
+- Public `/developer-spaces/[slug]` now frames Developer Spaces as a **Tier 1
+  showcase**: Station hosts the public observatory, evidence path, and
+  readback while the developer runtime remains external/self-hosted.
+- Public helper copy now labels live signals as public-safe summaries from the
+  external runtime, not raw runtime payloads or a hosted app console.
+- Owner `/developer-spaces/[slug]/manage` now frames the page as a private Tier
+  1 operating console for ingestion keys, usage/quota, evidence, exports,
+  visual framing, and bounded readbacks.
+- Owner copy now says keys belong in the self-hosted runtime environment, not
+  browser code or public pages.
+- Developer Agent copy remains bounded to readback, preview, confirmation,
+  receipt, selected status note, layout suggestion, and `run_job`
+  dry-run/readiness only.
 
-Scope guard:
+Scope:
 
+- Changed only existing Developer Space public/owner web copy, observatory
+  helper copy, focused helper tests, and roadmap/status/validation docs.
 - No schema, migration, API route, serializer, auth/session, package, SDK, env,
-  deployment, Railway, Supabase, Redis, Cloudflare, provider, billing, tipping,
-  community/forum, Project, persona, export payload, background-job, or hosted
-  runtime change.
-- No new real developer-agent action, repo push, deploy, key/webhook secret
-  mutation, direct layout mutation, worker execution, shell execution, or
-  provider call.
-- No public exposure of raw ids, private document bodies, source ids, raw link
-  ids, prompts, provider payloads, credentials, secrets, SQL, stack traces,
-  hosted logs, ingestion keys, signing secrets, or bearer tokens.
+  deployment, Redis/Cloudflare/provider/billing/community/forum/Project/persona
+  surface, export payload, background-job, hosted-runtime, or real
+  developer-agent capability changed.
 
-Validation required from DAEDALUS:
+Validation:
 
-- `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces`
-- `npm exec --yes pnpm@10.32.1 -- run test:developer-space-client`
-- `npm exec --yes pnpm@10.32.1 -- run typecheck`
-- `npm exec --yes pnpm@10.32.1 -- run lint`
-- `git diff --check`
-- `git diff --cached --check`
-- A changed-file secret-shaped-material scan without printing secrets.
+- `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` passed with 46
+  tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:developer-space-client` passed with
+  15 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed with the existing raw
+  `<img>` warnings in `apps/web/app/space/[slug]/page.tsx` and
+  `apps/web/components/discover/discover-front-door.tsx`.
+- `git diff --check` passed with CRLF warnings only.
+- `git diff --cached --check` passed.
+- Changed-file secret-shaped-material scan returned no matches.
 
 Current baton:
 
-- DAEDALUS should implement PR258 and wake ARGUS.
-- ARGUS should review owner/public boundary safety, Tier 1/Tier 2 overclaim,
-  secret/raw payload exposure, and developer-agent scope drift.
+- ARGUS should review PR258 for Tier 1/Tier 2 overclaim, owner/public boundary
+  safety, secret/raw payload exposure, and developer-agent scope drift.
 - If ARGUS accepts or patches the visible browser behavior, MIMIR should route
   ARIADNE desktop/mobile rehearsal before closeout.
 

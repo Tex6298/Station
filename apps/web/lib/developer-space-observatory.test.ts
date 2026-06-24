@@ -19,6 +19,7 @@ import {
   developerSpaceSignalStatus,
   developerSpaceStorySummary,
   developerSpaceMethodologyCopy,
+  developerSpaceTierOneFramingCopy,
   developerSpaceEvidenceRoleCopy,
   developerSpaceEvidenceRoleDescription,
   developerSpaceEvidenceEmptyCopy,
@@ -56,9 +57,9 @@ test("observatory story helpers explain current public evidence", () => {
 
   assert.equal(
     developerSpaceStorySummary(detail),
-    "This observatory is currently showing 1 tracked node, 1 public signal, a current snapshot, 1 public note."
+    "This Tier 1 observatory is showing 1 tracked node, 1 public signal, a current snapshot, 1 public note from a self-hosted project runtime."
   );
-  assert.equal(developerSpaceSignalStatus(detail), "Live signals are arriving.");
+  assert.equal(developerSpaceSignalStatus(detail), "Public-safe signals from the external runtime are arriving.");
 
   const ownerDetail = {
     ...detail,
@@ -69,7 +70,7 @@ test("observatory story helpers explain current public evidence", () => {
   } as unknown as Parameters<typeof developerSpaceStorySummary>[0];
   assert.equal(
     developerSpaceStorySummary(ownerDetail),
-    "This observatory is currently showing 1 tracked node, 1 public signal, a current snapshot, 1 public note, 1 owner-only link."
+    "This Tier 1 observatory is showing 1 tracked node, 1 public signal, a current snapshot, 1 public note, 1 owner-only link from a self-hosted project runtime."
   );
 });
 
@@ -83,9 +84,9 @@ test("observatory story helpers keep empty public spaces understandable", () => 
 
   assert.equal(
     developerSpaceStorySummary(detail),
-    "This observatory is currently showing 0 tracked nodes, 0 public signals."
+    "This Tier 1 observatory is showing 0 tracked nodes, 0 public signals from a self-hosted project runtime."
   );
-  assert.equal(developerSpaceSignalStatus(detail), "The public observatory is ready, but no project signals have arrived yet.");
+  assert.equal(developerSpaceSignalStatus(detail), "The public observatory is ready, but the external runtime has not sent project signals yet.");
 });
 
 test("owner observability helpers separate live state from metered usage", () => {
@@ -109,7 +110,7 @@ test("owner observability helpers separate live state from metered usage", () =>
 
   const current = developerSpaceOwnerCurrentState(detail);
   assert.equal(current.heading, "Current observatory state");
-  assert.equal(current.status, "Live signals are arriving.");
+  assert.equal(current.status, "Public-safe signals from the external runtime are arriving.");
   assert.deepEqual(
     current.rows.map((row) => `${row.label}:${row.value}`),
     [
@@ -369,6 +370,20 @@ test("observatory helpers keep visitor data readable and non-raw", () => {
   assert.equal(visualisationLabel("world_map"), "World map");
 });
 
+test("tier one framing copy separates self-hosted runtime from Station readback", () => {
+  const copy = developerSpaceTierOneFramingCopy();
+  const rendered = JSON.stringify(copy);
+
+  assert.equal(copy.badge, "Tier 1 showcase");
+  assert.match(copy.publicFrame, /Station hosts this public showcase/);
+  assert.match(copy.publicFrame, /runtime remains external and self-hosted/);
+  assert.match(copy.liveFrame, /not raw runtime payloads/);
+  assert.match(copy.ownerFrame, /private console manages ingestion keys/);
+  assert.match(copy.agentBoundary, /run_job dry-run\/readiness only/);
+  assert.doesNotMatch(rendered, /Station hosts the developer app/);
+  assert.doesNotMatch(rendered, /repo push|deploy pipeline|background jobs/);
+});
+
 test("observatory methodology copy stays honest about public evidence", () => {
   const withNotes = developerSpaceMethodologyCopy({
     access: "public",
@@ -382,7 +397,7 @@ test("observatory methodology copy stays honest about public evidence", () => {
   assert.match(withNotes.methodology, /1 methodology note/);
   assert.match(withNotes.methodology, /1 finding/);
   assert.match(withNotes.methodology, /1 field log/);
-  assert.match(withNotes.liveSignal, /public node, event, or snapshot records/);
+  assert.match(withNotes.liveSignal, /public-safe node, event, or snapshot summaries/);
   assert.match(withNotes.privateBoundary, /Visitors do not see ingestion keys/);
 
   const empty = developerSpaceMethodologyCopy({
@@ -610,10 +625,10 @@ test("observed runtime fixtures reject malformed and overexposed fields", () => 
 test("observed runtime readback feeds Developer Space observatory helpers without raw secrets", () => {
   const readback = normalizeObservedRuntimeFixture(fixture("observed-runtime-canonical.json"), { access: "public" });
 
-  assert.equal(developerSpaceSignalStatus(readback.detail), "Live signals are arriving.");
+  assert.equal(developerSpaceSignalStatus(readback.detail), "Public-safe signals from the external runtime are arriving.");
   assert.equal(
     developerSpaceStorySummary(readback.detail),
-    "This observatory is currently showing 2 tracked nodes, 1 public signal, a current snapshot."
+    "This Tier 1 observatory is showing 2 tracked nodes, 1 public signal, a current snapshot from a self-hosted project runtime."
   );
   assert.deepEqual(publicEntries(readback.nodes[0].metrics).map(([key]) => key), ["publicState"]);
 

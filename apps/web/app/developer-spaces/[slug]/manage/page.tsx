@@ -24,6 +24,7 @@ import {
   developerSpaceEvidenceRoleCopy,
   developerSpaceEvidenceRoleDescription,
   developerSpaceOwnerCurrentState,
+  developerSpaceTierOneFramingCopy,
   developerSpaceUsageReadback,
   formatDate,
   humaniseKey,
@@ -702,6 +703,7 @@ export default function DeveloperSpaceManagePage() {
   const selectedFutureAction = agentActionGroups.future.find((action) => action.action === agentPreview?.action)?.action as DeveloperSpaceAgentFutureAction | undefined;
   const confirmationActionLabels = new Map(agentActions.map((action) => [action.action, action.label]));
   const capabilityReceipts = agentReceipts.filter((receipt) => receipt.action === "request_capability");
+  const tierOneCopy = developerSpaceTierOneFramingCopy();
   const boundaryRows = [
     { label: "Owner only", value: agentBoundary?.ownerOnly === true ? "Yes" : "Unknown" },
     { label: "Autonomous execution", value: agentBoundary?.autonomousExecution === false ? "No" : "Unknown" },
@@ -722,10 +724,10 @@ export default function DeveloperSpaceManagePage() {
       <section className="card" style={{ display: "grid", gap: "0.8rem", padding: "1.4rem" }}>
         <div style={{ display: "flex", justifyContent: "space-between", gap: "1rem", flexWrap: "wrap" }}>
           <div>
-            <p className="pill" style={{ margin: "0 0 0.65rem", color: "#534ab7" }}>Researcher interface</p>
+            <p className="pill" style={{ margin: "0 0 0.65rem", color: "#534ab7" }}>Tier 1 operating console</p>
             <h1 style={{ margin: 0, fontSize: "1.9rem" }}>{detail.space.projectName}</h1>
             <p style={{ color: "#687078", maxWidth: 760, lineHeight: 1.6 }}>
-              Keep this page private. It manages API keys and shows raw ingestion instructions; the public observatory remains separate for visitors.
+              {tierOneCopy.ownerFrame} This page is private; public visitors see only the public observatory and evidence path.
             </p>
           </div>
           <Link className="button" href={`/developer-spaces/${detail.space.slug}`} style={{ textDecoration: "none", height: "fit-content" }}>Open observatory</Link>
@@ -743,7 +745,7 @@ export default function DeveloperSpaceManagePage() {
           <div>
             <h2 style={{ margin: "0 0 0.4rem", fontSize: "1.05rem" }}>Ingestion key</h2>
             <p style={{ margin: 0, color: "#687078", fontSize: "0.88rem", lineHeight: 1.55 }}>
-              Keys are shown once, hashed before storage, and can be rotated anytime. Put the key in your runtime environment, not in browser code.
+              Keys are shown once, hashed before storage, and can be rotated anytime. Put the key in your self-hosted runtime environment, not in browser code or public pages.
             </p>
           </div>
 
@@ -783,7 +785,7 @@ export default function DeveloperSpaceManagePage() {
               <span><strong style={{ color: "#1f2529" }}>Visibility:</strong> {detail.space.visibility}</span>
             </div>
             <p style={{ margin: 0, color: "#854f0b", fontSize: "0.82rem" }}>
-              Owner readback comes from the current detail route; it is separate from quota counters below.
+              Owner readback comes from the current detail route; it is separate from quota counters below and from the public visitor boundary.
             </p>
           </div>
 
@@ -830,7 +832,7 @@ export default function DeveloperSpaceManagePage() {
               <div>
                 <h2 style={{ margin: "0 0 0.35rem", fontSize: "1.05rem" }}>Developer Agent preview</h2>
                 <p style={{ margin: 0, color: "#687078", lineHeight: 1.55 }}>
-                  Owner-only readbacks and drafts from the typed Phase 2D action contract.
+                  {tierOneCopy.agentBoundary} No hosted runtime, repo, deploy, key, provider, worker, or billing action is opened here.
                 </p>
               </div>
               <span className="pill" style={{ color: agentRegistryLoading ? "#854f0b" : "#25633f" }}>
@@ -1299,7 +1301,7 @@ export default function DeveloperSpaceManagePage() {
             <div>
               <h2 style={{ margin: "0 0 0.35rem", fontSize: "1.05rem" }}>Visual mode</h2>
               <p style={{ margin: 0, color: "#687078", lineHeight: 1.55 }}>
-                Configure how the public observatory frames live project data.
+                Configure how Station frames public-safe summaries from the external runtime. This changes the observatory presentation only, not the runtime.
               </p>
             </div>
 
@@ -1386,7 +1388,7 @@ export default function DeveloperSpaceManagePage() {
             <div>
               <h2 style={{ margin: "0 0 0.35rem", fontSize: "1.05rem" }}>Observatory widgets</h2>
               <p style={{ margin: 0, color: "#687078", lineHeight: 1.55 }}>
-                Choose which live panels appear and reorder them inside the main canvas or side rail.
+                Choose which public readback panels appear and reorder them inside the main canvas or side rail. Widgets do not expose private fields or execute runtime work.
               </p>
             </div>
             <div style={{ display: "grid", gap: "0.55rem" }}>
@@ -1418,7 +1420,7 @@ export default function DeveloperSpaceManagePage() {
               <div>
                 <h2 style={{ margin: "0 0 0.35rem", fontSize: "1.05rem" }}>Exports</h2>
                 <p style={{ margin: 0, color: "#687078", lineHeight: 1.55 }}>
-                  Owner-only JSON/Markdown packages include nodes, events, snapshots, usage, and public-safe linked document refs.
+                  Owner-only JSON/Markdown packages include nodes, events, snapshots, usage, and public-safe linked document refs. They are private readbacks, not public downloads.
                 </p>
               </div>
               <button className="button primary" onClick={createExportPackage} disabled={exporting}>
@@ -1446,7 +1448,7 @@ export default function DeveloperSpaceManagePage() {
             <div>
               <h2 style={{ margin: "0 0 0.4rem", fontSize: "1.05rem" }}>Evidence path</h2>
               <p style={{ margin: 0, color: "#687078", lineHeight: 1.55 }}>
-                Curate the methodology, findings, field logs, and notes that make the public Developer Page readable. Drafts stay owner-only; public evidence enters the visitor path.
+                Curate the methodology, findings, field logs, and notes that make the public Developer Page readable beside external-runtime signals. Drafts stay owner-only; public evidence enters the visitor path.
               </p>
             </div>
 
@@ -1547,7 +1549,7 @@ export default function DeveloperSpaceManagePage() {
           <div className="card" style={{ display: "grid", gap: "0.75rem" }}>
             <h2 style={{ margin: 0, fontSize: "1.05rem" }}>1. Send node state updates</h2>
             <p style={{ margin: 0, color: "#687078", lineHeight: 1.55 }}>
-              Use stable external node IDs. Station upserts each node and emits a public state-update event for the observatory timeline.
+              Use stable external node IDs from your self-hosted runtime. Station upserts each node and emits a public-safe state-update event for the observatory timeline.
             </p>
             <CodeBlock code={nodeStateCurl} />
           </div>
@@ -1555,7 +1557,7 @@ export default function DeveloperSpaceManagePage() {
           <div className="card" style={{ display: "grid", gap: "0.75rem" }}>
             <h2 style={{ margin: 0, fontSize: "1.05rem" }}>2. Stream events</h2>
             <p style={{ margin: 0, color: "#687078", lineHeight: 1.55 }}>
-              Events are the visitor-facing feed. Include provenance and sourceRefs so viewers can distinguish runtime output, imports, and AI-generated material.
+              Events are the visitor-facing feed. Include provenance and sourceRefs so viewers can distinguish runtime output, imports, and AI-generated material without raw payloads.
             </p>
             <CodeBlock code={eventCurl} />
           </div>
@@ -1563,7 +1565,7 @@ export default function DeveloperSpaceManagePage() {
           <div className="card" style={{ display: "grid", gap: "0.75rem" }}>
             <h2 style={{ margin: 0, fontSize: "1.05rem" }}>3. Save periodic snapshots</h2>
             <p style={{ margin: 0, color: "#687078", lineHeight: 1.55 }}>
-              Snapshots support historical playback later. Send a compact full-state summary weekly or at the end of important runs.
+              Snapshots support historical playback later. Send compact public-safe state summaries weekly or at the end of important runs.
             </p>
             <CodeBlock code={snapshotCurl} />
           </div>

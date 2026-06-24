@@ -100,6 +100,16 @@ export function shouldShowRawDeveloperSpaceData(access: DeveloperSpaceDetail["ac
   return access === "owner";
 }
 
+export function developerSpaceTierOneFramingCopy() {
+  return {
+    badge: "Tier 1 showcase",
+    publicFrame: "Station hosts this public showcase, observatory, evidence path, and readback. The project runtime remains external and self-hosted by the developer.",
+    liveFrame: "Live signals are public-safe summaries pushed by the external runtime, not raw runtime payloads or a hosted app console.",
+    ownerFrame: "This private console manages ingestion keys, usage, evidence, exports, and bounded readbacks for the external runtime. Keep keys in the runtime environment, not browser code or public pages.",
+    agentBoundary: "Developer Agent tools here stay bounded to readback, preview, confirmation, receipt, selected status note, layout suggestion, and run_job dry-run/readiness only.",
+  };
+}
+
 export function developerSpaceStorySummary(detail: Pick<DeveloperSpaceDetail, "nodes" | "events" | "latestSnapshot" | "linkedDocuments">) {
   const pieces = [
     countLabel(detail.nodes.length, "tracked node"),
@@ -115,13 +125,13 @@ export function developerSpaceStorySummary(detail: Pick<DeveloperSpaceDetail, "n
     pieces.push(countLabel(ownerOnlyDocuments, "owner-only link"));
   }
 
-  return `This observatory is currently showing ${pieces.join(", ")}.`;
+  return `This Tier 1 observatory is showing ${pieces.join(", ")} from a self-hosted project runtime.`;
 }
 
 export function developerSpaceSignalStatus(detail: Pick<DeveloperSpaceDetail, "nodes" | "events" | "latestSnapshot">) {
-  if (detail.events.length > 0) return "Live signals are arriving.";
-  if (detail.nodes.length > 0 || detail.latestSnapshot) return "Project state is visible; event signals have not arrived yet.";
-  return "The public observatory is ready, but no project signals have arrived yet.";
+  if (detail.events.length > 0) return "Public-safe signals from the external runtime are arriving.";
+  if (detail.nodes.length > 0 || detail.latestSnapshot) return "Project state is visible from the external runtime; event signals have not arrived yet.";
+  return "The public observatory is ready, but the external runtime has not sent project signals yet.";
 }
 
 export function developerSpaceOwnerCurrentState(detail: Pick<DeveloperSpaceDetail, "nodes" | "events" | "latestSnapshot" | "linkedDocuments">) {
@@ -317,10 +327,10 @@ export function developerSpaceMethodologyCopy(detail: Pick<DeveloperSpaceDetail,
     methodology: hasNotes
       ? `Public notes include ${countLabel(methodologyCount, "methodology note")}, ${countLabel(findingCount, "finding")}, and ${countLabel(fieldLogCount, "field log")}.${ownerOnlyCopy}`
       : `No public methodology, finding, or field-log notes are attached yet; live signals and snapshots are the current public evidence.${ownerOnlyCopy}`,
-    liveSignal: "Live signals are public node, event, or snapshot records sent by the project runtime and summarised for visitors.",
+    liveSignal: "Live signals are public-safe node, event, or snapshot summaries sent by the external runtime and shaped for visitors.",
     privateBoundary: detail.access === "owner"
-      ? "Owner view may show raw event or snapshot data, but ingestion keys, credentials, private archive text, prompts, and unpublished notes stay out of the public observatory."
-      : "Visitors do not see ingestion keys, credentials, private archive text, prompts, raw owner console data, or unpublished notes.",
+      ? "Owner view may show raw event or snapshot data; the public observatory excludes ingestion keys, credentials, hosted logs, private fields, prompts, provider data, document bodies, and unpublished notes."
+      : "Visitors do not see ingestion keys, credentials, hosted logs, private fields, prompts, provider data, raw owner console data, document bodies, or unpublished notes.",
   };
 }
 
@@ -398,7 +408,7 @@ export function developerSpaceEvidenceCanRequestPublish(
 const DEFAULT_WIDGETS: DeveloperSpaceWidgetConfig[] = [
   { id: "visualisation", type: "visualisation", title: "Live visualisation", zone: "main", position: 0, visible: true },
   { id: "event_stream", type: "event_stream", title: "Event stream", zone: "main", position: 1, visible: true },
-  { id: "reading_guide", type: "reading_guide", title: "How to read this", zone: "side", position: 0, visible: true },
+  { id: "reading_guide", type: "reading_guide", title: "Tier 1 reading guide", zone: "side", position: 0, visible: true },
   { id: "project_notes", type: "project_notes", title: "Project notes", zone: "side", position: 1, visible: true },
   { id: "current_nodes", type: "current_nodes", title: "Current nodes", zone: "side", position: 2, visible: true },
   { id: "latest_snapshot", type: "latest_snapshot", title: "Latest snapshot", zone: "side", position: 3, visible: true },

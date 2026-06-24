@@ -13,6 +13,7 @@ import {
   developerSpaceSignalStatus,
   developerSpaceStorySummary,
   developerSpaceMethodologyCopy,
+  developerSpaceTierOneFramingCopy,
   formatDate,
   formatValue,
   humaniseKey,
@@ -44,12 +45,15 @@ function websocketUrl(path: string) {
 }
 
 function EmptyVisualisation() {
+  const tierOneCopy = developerSpaceTierOneFramingCopy();
   return (
     <div className="card observatory-empty">
       <div>
         <div style={{ fontSize: "1.6rem", marginBottom: "0.75rem", color: "#c4b5fd" }}>Station signal</div>
         <strong style={{ color: "#f8fafc" }}>Waiting for first live signal</strong>
-        <p style={{ margin: "0.4rem 0 0" }}>The observatory will light up when the project runtime sends node, event, or snapshot data.</p>
+        <p style={{ margin: "0.4rem 0 0" }}>
+          The observatory will light up when the external runtime sends public-safe node, event, or snapshot summaries. {tierOneCopy.liveFrame}
+        </p>
       </div>
     </div>
   );
@@ -57,10 +61,14 @@ function EmptyVisualisation() {
 
 function ObservatoryStory({ detail }: { detail: DeveloperSpaceDetail }) {
   const methodologyCopy = developerSpaceMethodologyCopy(detail);
+  const tierOneCopy = developerSpaceTierOneFramingCopy();
 
   return (
     <div className="card" style={{ display: "grid", gap: "0.65rem", background: "rgba(15, 23, 42, 0.72)" }}>
-      <div className="section-label">What is visible</div>
+      <div className="section-label">Tier 1 public readback</div>
+      <p style={{ margin: 0, color: "#dbeafe", lineHeight: 1.65, fontSize: "0.92rem" }}>
+        {tierOneCopy.publicFrame}
+      </p>
       <p style={{ margin: 0, color: "#dbeafe", lineHeight: 1.65, fontSize: "0.92rem" }}>
         {developerSpaceStorySummary(detail)}
       </p>
@@ -79,7 +87,7 @@ function ObservatoryStory({ detail }: { detail: DeveloperSpaceDetail }) {
 
 function EventTimeline({ events, showRaw }: { events: DeveloperSpaceEvent[]; showRaw: boolean }) {
   if (events.length === 0) {
-    return <div className="card" style={{ color: "#94a3b8", textAlign: "center", padding: "2rem" }}>No public events have been ingested yet.</div>;
+    return <div className="card" style={{ color: "#94a3b8", textAlign: "center", padding: "2rem" }}>No public-safe events have been ingested yet.</div>;
   }
 
   return (
@@ -275,7 +283,7 @@ function ObservatoryVisualisation({ detail }: { detail: DeveloperSpaceDetail }) 
 }
 
 function SnapshotCard({ snapshot, showRaw }: { snapshot?: DeveloperSpaceSnapshot | null; showRaw: boolean }) {
-  if (!snapshot) return <p style={{ margin: 0, color: "#94a3b8" }}>No snapshots yet.</p>;
+  if (!snapshot) return <p style={{ margin: 0, color: "#94a3b8" }}>No public-safe snapshots yet.</p>;
   const entries = publicEntries(snapshot.snapshotData, 6);
 
   return (
@@ -319,7 +327,7 @@ function EvidenceReadingPath({ documents, ownerView }: { documents: DeveloperSpa
         <p>
           {ownerView
             ? "Published evidence and owner-only drafts are ordered with status labels so the visitor boundary stays visible."
-            : "Read the public evidence in order, then use the live observatory to compare the notes with current signals."}
+            : "Read the public evidence in order, then compare it with the public-safe signals from the external runtime."}
         </p>
       </div>
 
@@ -463,6 +471,7 @@ export default function DeveloperSpacePublicPage() {
   const mainWidgets = widgetsForZone(widgets, "main");
   const sideWidgets = widgetsForZone(widgets, "side");
   const showSnapshotPanel = detail.space.visualisationType !== "timeline" || visualConfig.showSnapshots !== false;
+  const tierOneCopy = developerSpaceTierOneFramingCopy();
   const liveLabel = liveStatus === "live"
     ? lastLiveAt ? `Live ${formatDate(lastLiveAt)}` : "Live"
     : liveStatus === "connecting"
@@ -475,7 +484,8 @@ export default function DeveloperSpacePublicPage() {
         <div style={{ display: "flex", justifyContent: "space-between", gap: "1rem", flexWrap: "wrap" }}>
           <div>
             <div style={{ display: "flex", gap: "0.45rem", flexWrap: "wrap", marginBottom: "0.7rem" }}>
-              <span className="pill" style={{ color: "#c4b5fd" }}>Live observatory</span>
+              <span className="pill" style={{ color: "#c4b5fd" }}>{tierOneCopy.badge}</span>
+              <span className="pill" style={{ color: "#93c5fd" }}>Public observatory</span>
               <span className="pill" style={{ textTransform: "capitalize" }}>{detail.space.visibility}</span>
               <span className="pill" style={{ textTransform: "capitalize" }}>{visualisationLabel(detail.space.visualisationType)}</span>
               <span className="pill" style={{ color: liveStatus === "live" ? "#86efac" : "#fbbf24" }}>{liveLabel}</span>
@@ -483,6 +493,9 @@ export default function DeveloperSpacePublicPage() {
             <h1 style={{ margin: 0, fontSize: "clamp(2rem, 4vw, 3.7rem)", maxWidth: 980 }}>{detail.space.projectName}</h1>
             <p style={{ margin: "0.8rem 0 0", color: "#b7c1d6", lineHeight: 1.75, maxWidth: 880 }}>
               {detail.space.description || "This Developer Space is ready for a public project description that explains what visitors are watching and why it matters."}
+            </p>
+            <p style={{ margin: "0.6rem 0 0", color: "#94a3b8", lineHeight: 1.65, maxWidth: 880 }}>
+              {tierOneCopy.publicFrame} {tierOneCopy.liveFrame}
             </p>
           </div>
           {detail.access === "owner" ? <Link className="button" href={`/developer-spaces/${detail.space.slug}/manage`} style={{ height: "fit-content" }}>Manage</Link> : null}
@@ -549,6 +562,7 @@ function renderSideWidget(
 ) {
   if (widget.type === "reading_guide") {
     const methodologyCopy = developerSpaceMethodologyCopy(detail);
+    const tierOneCopy = developerSpaceTierOneFramingCopy();
 
     return (
       <div key={widget.id} className="card">
@@ -558,7 +572,7 @@ function renderSideWidget(
             {developerSpaceStorySummary(detail)} {developerSpaceSignalStatus(detail)}
           </p>
           <p style={{ margin: 0 }}>
-            {methodologyCopy.liveSignal} Tracked nodes are the people, systems, or places this project is watching. Snapshots are curated state summaries for visitors.
+            {methodologyCopy.liveSignal} {tierOneCopy.liveFrame} Tracked nodes are the people, systems, or places this project is watching. Snapshots are curated state summaries for visitors.
           </p>
           <p style={{ margin: 0 }}>
             {methodologyCopy.methodology}
