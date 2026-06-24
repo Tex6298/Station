@@ -4,6 +4,37 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR255 Developer Space Partner Readiness Map opened
+
+MIMIR accepts ARIADNE's PR254 `PASS` result on 2026-06-24 and closes the
+PR252/PR253/PR254 owner Project export UI loop.
+
+Decision:
+
+- Treat owner Project export manifest/list/create/readback, stored bundle
+  readback, private owner UI panel, hosted schema repair, and hosted owner-eye
+  rehearsal as accepted for protected-alpha scope.
+- Do not extend Project export into public downloads, ZIP/PDF/binary packages,
+  workspace export, background export workers, member/admin/billing export
+  permission, Redis, Cloudflare, provider/runtime calls, or broader Project
+  redesign without a new lane.
+- Open **PR255 - Developer Space Partner Readiness Map** for DAEDALUS.
+- Use `C:\Users\marty\Downloads\Station_Developer_Pages_CTO_Brief.docx`,
+  `docs/roadmap/STATION_UI_UX_ROADMAP.md`, and the current Developer Space
+  code as inputs.
+- Reconcile the evolved Developer Pages picture against current Station
+  reality before implementation. The expected near-term target is Tier 1
+  showcase/ingestion/observatory/readback readiness, not immediate Coolify,
+  Docker provisioning, repository push, job execution, key rotation, or
+  chat-native destructive tooling.
+
+Current baton:
+
+- DAEDALUS should execute
+  `docs/roadmap/PR255_DEVELOPER_SPACE_PARTNER_READINESS_MAP_DAEDALUS.md`.
+- DAEDALUS should wake ARGUS with the map, recommended first implementation
+  slice, explicit deferrals, and validation.
+
 ## Latest ARIADNE result - PR254 Owner Project Export Hosted Rerun PASS
 
 ARIADNE completed PR254 on 2026-06-24 after the hosted schema repair.

@@ -397,12 +397,20 @@ Current intent:
   pooler.
 - PR254 opens the ARIADNE hosted rerun for the same owner Project export panel
   rehearsal after hosted schema repair.
+- PR254 result: ARIADNE passed the hosted owner Project export rerun. The
+  private owner panel, package listing, create-manifest action, manifest
+  readback, bundle readback, stale-selection clearing, unrelated-route absence,
+  privacy boundaries, and desktop/mobile layout are accepted for
+  protected-alpha scope.
+- PR255 opens DAEDALUS Developer Space Partner Readiness Map. This reconciles
+  the evolved Developer Pages CTO brief with current Developer Space routes,
+  services, client package, UI, exports, Phase 2D/2E developer-agent
+  boundaries, and partner-ready gaps before any new implementation.
 
 ## Phase 3 bridge sequence
 
-Status, 2026-06-24: PR202 through PR251 are accepted. PR252 Owner Project
-Export UI Panel is accepted by ARGUS and awaiting PR254 ARIADNE hosted rerun
-after PR253 found and MIMIR repaired hosted schema drift.
+Status, 2026-06-24: PR202 through PR254 are accepted. PR255 Developer Space
+Partner Readiness Map is active with DAEDALUS.
 
 Current MIMIR position:
 
@@ -481,10 +489,10 @@ Bridge order:
 50. Done: Owner Project Export Manifest Foundation.
 51. Done: Project Export Bundle Boundary Preflight.
 52. Done: Owner Project Manifest Bundle Readback.
-53. Active: Owner Project Export UI Panel, ARGUS accepted; hosted rehearsal
-    pending.
+53. Done: Owner Project Export UI Panel.
 54. Blocked then repaired: Owner Project Export Hosted Rehearsal.
-55. Active: Owner Project Export Hosted Rerun.
+55. Done: Owner Project Export Hosted Rerun.
+56. Active: Developer Space Partner Readiness Map.
 
 ARGUS P3-B1A gates:
 
