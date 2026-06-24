@@ -514,6 +514,14 @@ focus outrank prior chat history, earlier assistant guesses, or persona
 flourish. ARGUS accepted the patch; MIMIR should open an ARIADNE hosted PR284
 rerun after deploy. MIMIR opened that PR284 hosted rerun.
 
+2026-06-24 PR284 result: ARIADNE proved PR283 deployed and hosted selected
+context still contains the full two-anchor set. The answer now recalls both
+invented retrieval phrases, but neither paired accepted concept label. MIMIR
+opens PR285 Answer Label Preservation Repair for DAEDALUS and keeps retrieval,
+provider routing, embeddings, schema, seeds, imports, Redis, Cloudflare, queues,
+workers, billing, Stripe, public UI, and Studio UI out of scope unless prompt
+delivery evidence proves selected context is absent.
+
 2026-06-23 Phase 3 bridge decision: MIMIR consumed the A1 bridge wakeup and
 opened PR201 for ARGUS hostile boundary preflight. Phase 3 is not ready for
 direct product-code opening because public persona pages, bounded visitor

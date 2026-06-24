@@ -4,7 +4,49 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest MIMIR decision - PR284 Hosted Runtime Answer Rerun opened
+## Latest MIMIR decision - PR285 Answer Label Preservation Repair opened
+
+MIMIR accepts ARIADNE's PR284 hosted result as `FAIL` with progress.
+
+Decision:
+
+- PR284 proved hosted freshness, replay-owner auth/session, intended private
+  persona selection, full selected context, trace/readiness readback,
+  rejected-control exclusion, and source-copy safety.
+- PR283's answer-focus guard changed hosted behavior in the right direction:
+  the answer recalled both invented retrieval phrases.
+- The remaining failure is narrower: the answer did not preserve either paired
+  accepted anchor concept label.
+- Open PR285 - Answer Label Preservation Repair for DAEDALUS.
+
+Current baton:
+
+- DAEDALUS should execute
+  `docs/roadmap/PR285_ANSWER_LABEL_PRESERVATION_REPAIR_DAEDALUS.md`.
+- DAEDALUS should wake ARGUS for prompt-boundary safety, label/source
+  preservation, no-hardcoding, no scope creep, and no secret/raw-data leakage
+  review.
+- ARGUS should recommend whether MIMIR opens an ARIADNE PR286 hosted rerun.
+
+## Latest ARIADNE review - PR284 Hosted Runtime Answer Rerun
+
+ARIADNE completed PR284 on 2026-06-24:
+`docs/roadmap/PR284_HOSTED_RUNTIME_ANSWER_RERUN_RESULT.md`.
+
+Result:
+
+- Verdict: `FAIL`.
+- Web/API were fresh on `main` with PR283 implementation commit `8783a02b`.
+- Replay-owner auth/session and intended private platform replay persona
+  selection passed.
+- Context preview and latest conversation trace showed the full two-anchor set,
+  with rejected-control evidence absent.
+- The single hosted chat answer returned HTTP 200, stayed short, avoided raw
+  source-body copying, and excluded the rejected control.
+- The answer recalled both matching invented retrieval phrases, but neither
+  accepted anchor concept label.
+
+## Previous MIMIR decision - PR284 Hosted Runtime Answer Rerun opened
 
 MIMIR accepts ARGUS's PR283 review and opens the hosted post-deploy product
 evidence rerun for ARIADNE.
@@ -16,14 +58,7 @@ Decision:
   full two-anchor recall after the PR283 implementation deploys.
 - Open PR284 - Hosted Runtime Answer Rerun After Answer-Focus Guard for ARIADNE.
 
-Current baton:
-
-- ARIADNE should execute
-  `docs/roadmap/PR284_HOSTED_RUNTIME_ANSWER_RERUN_ARIADNE.md`.
-- ARIADNE should wake MIMIR with `PASS`, `PASS WITH CAVEATS`, `FAIL`, or
-  `BLOCKED`, and the exact next-owner recommendation.
-
-## Latest ARGUS review - PR283 Hosted Answer Grounding Enforcement
+## Previous ARGUS review - PR283 Hosted Answer Grounding Enforcement
 
 ARGUS accepted PR283 on 2026-06-24 with no review patch:
 `docs/roadmap/PR283_HOSTED_ANSWER_GROUNDING_ENFORCEMENT_RESULT.md`.

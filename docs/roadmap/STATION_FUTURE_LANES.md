@@ -99,6 +99,12 @@ still missed the recall bar. PR283 patched hosted answer-grounding enforcement
 with a final selected-context answer-focus guard after the persona voice close.
 ARGUS accepted the patch; the next proof should be an ARIADNE hosted PR284
 rerun after deploy. MIMIR opened that PR284 hosted rerun.
+PR284 proved PR283 deployed and improved hosted answer behavior: the answer now
+recalls both invented retrieval phrases, but neither paired accepted concept
+label. PR285 opens a narrow DAEDALUS answer-label preservation repair; keep
+retrieval, provider routing, embeddings, schema, seeds, imports, Redis,
+Cloudflare, queues, workers, billing, Stripe, public UI, and Studio UI out of
+scope unless new prompt-delivery evidence proves selected context is absent.
 
 ## Phase 2D Developer Agent closeout
 

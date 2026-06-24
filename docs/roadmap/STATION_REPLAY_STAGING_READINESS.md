@@ -100,6 +100,12 @@ then let staged replay reveal the next optimizations.
   is prompt-only: no retry, provider, retrieval, schema, seed, UI, or billing
   behavior changed. ARGUS accepted the patch; MIMIR opened the ARIADNE hosted
   PR284 rerun after deploy.
+- PR284 proved hosted freshness, replay-owner auth/session, intended private
+  persona selection, full selected context, trace/readiness readback,
+  rejected-control exclusion, and source-copy safety. The answer improved by
+  recalling both invented retrieval phrases, but still failed the recall bar
+  because it preserved neither paired accepted concept label. MIMIR opened
+  PR285 as a narrow DAEDALUS answer-label preservation repair.
 - Broader known caveats still travel into staging review instead of spawning
   more local polish: static global Archive/Export shells, dashboard
   derived/static snippets, no downloadable bundles/workers, and no new private
