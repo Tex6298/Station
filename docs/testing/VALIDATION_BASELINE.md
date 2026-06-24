@@ -30,6 +30,29 @@ Memory/observability next-slice audit.
 ARGUS accepted PR261 on 2026-06-24. MIMIR opened PR262 as an owner-only
 Memory/observability implementation lane.
 
+## PR272 Staged Replay Polish Caveats
+
+MIMIR opened PR272 for DAEDALUS on 2026-06-24 after ARIADNE returned PR271 as
+`PASS WITH CAVEATS`.
+
+Required validation:
+
+| Check | Expected result | Notes |
+| --- | --- | --- |
+| Discover right-rail state | Pass | `Persona Roulette / Drawing...` must not look like an endless live operation after the page is otherwise ready. |
+| Public Developer Space status label | Pass | Public readback should not overclaim persistent live connectivity when showing snapshot/readback data. |
+| Public forum category copy | Pass | Provider-list description should not contain mojibake or encoding artifacts. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass or justified substitute | Run if touched scope overlaps Studio/shared UI. |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | Required for Developer Space status/readback changes. |
+| `npm exec --yes pnpm@10.32.1 -- run test:community` | Pass | Required for public Forum copy changes. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | Required before ARGUS review unless a repo-level blocker is documented. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass | Required before ARGUS review unless a repo-level blocker is documented. |
+| `git diff --check` | Pass | Whitespace check. |
+| `git diff --cached --check` | Pass | Staged whitespace check before wakeup. |
+
+No backend, schema, auth, provider, billing, queue, Redis, Cloudflare, or
+staged-data behavior should change in PR272.
+
 ## PR271 Staged Replay Human-Eye Rehearsal
 
 MIMIR opened PR271 for ARIADNE on 2026-06-24 after ARGUS accepted PR270's

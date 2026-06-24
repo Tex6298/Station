@@ -4,26 +4,53 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest MIMIR decision - PR271 Staged Replay Human-Eye Rehearsal opened
+## Latest MIMIR decision - PR272 Staged Replay Polish Caveats opened
 
-MIMIR accepts ARGUS's PR270 recommendation and opens the next lane for
-ARIADNE.
+MIMIR accepts ARIADNE's PR271 verdict as `PASS WITH CAVEATS` and opens the
+smallest useful DAEDALUS lane instead of carrying loose demo notes.
 
 Decision:
 
-- PR270 proved hosted owner routes and data are present enough for product
-  rehearsal.
-- The next useful question is human-eye product/replay quality, not another raw
-  route probe or DAEDALUS implementation lane.
-- Open PR271 - Staged Replay Human-Eye Rehearsal for ARIADNE.
+- PR271 proved the hosted staged replay is coherent enough for the next
+  product/backend decision.
+- The remaining visible defects are narrow: Discover right-rail endless
+  `Drawing...`, public Developer Space live/readback status wording, and one
+  public forum category encoding artifact.
+- Open PR272 - Staged Replay Polish Caveats for DAEDALUS.
 
 Current baton:
 
-- ARIADNE should execute
-  `docs/roadmap/PR271_STAGED_REPLAY_HUMAN_EYE_REHEARSAL_ARIADNE.md`.
-- ARIADNE should wake MIMIR with PASS / PASS WITH CAVEATS / FAIL / BLOCKED and
-  exact next-owner recommendations. If ARIADNE patches UI/copy, wake ARGUS
-  first for review.
+- DAEDALUS should execute
+  `docs/roadmap/PR272_STAGED_REPLAY_POLISH_CAVEATS_DAEDALUS.md`.
+- DAEDALUS should wake ARGUS for the tiny polish review.
+- ARGUS should decide whether ARIADNE needs a focused hosted rerun or whether
+  MIMIR can close the caveats from code/test evidence.
+
+## Latest ARIADNE review - PR271 Staged Replay Human-Eye Rehearsal
+
+ARIADNE completed the hosted human-eye rehearsal on 2026-06-24:
+`docs/roadmap/PR271_STAGED_REPLAY_HUMAN_EYE_REHEARSAL_RESULT.md`.
+
+Result:
+
+- Verdict: `PASS WITH CAVEATS`.
+- Private Studio, Continuity/runtime context, Archive/import trust, Billing,
+  Discover, Forums, Developer Space, and owner/public boundaries were coherent
+  enough for the next product/backend decision.
+- Desktop and mobile checks found no page-level overflow, clipped primary
+  controls, unreadable text, application crash, unresolved template text,
+  bearer token, secret-shaped value, SQL/connection string, stack trace, hosted
+  log, raw prompt, provider payload, or private route body.
+- No Stripe Checkout/test-card flow was started. No import, export, billing,
+  publishing, key, capability, or runtime mutation was performed.
+
+Caveats:
+
+- Discover right rail can remain in `Persona Roulette / Drawing...`.
+- Public Developer Space can show data-backed readback while a badge still
+  says `Connecting`.
+- One public forum category description has a visible encoding artifact around
+  the provider-list dash.
 
 ## Latest ARGUS review - PR270 Staged Replay Owner Measurement
 

@@ -31,12 +31,16 @@ then let staged replay reveal the next optimizations.
   observability, billing, and public `/developer`/Developer Space routes were
   routeable with data present. The recommended next move is ARIADNE human-eye
   replay rehearsal, not a new DAEDALUS implementation lane.
-- PR271 opens that ARIADNE rehearsal. The goal is product/replay judgement from
-  the hosted app, not another raw route probe.
-- Known caveats travel into staging review instead of spawning more local polish:
-  static global Archive/Export shells, dashboard derived/static snippets, no
-  downloadable bundles/workers, and no new private search UI beyond the accepted
-  API/search foundation.
+- PR271 completed that ARIADNE rehearsal as `PASS WITH CAVEATS`. The hosted
+  app is coherent enough for staging decisions, and the remaining visible
+  caveats are bounded rather than structural.
+- PR272 opens a tiny DAEDALUS polish lane for the three bounded PR271 caveats:
+  Discover right-rail `Drawing...` honesty, public Developer Space
+  live/readback status wording, and one public forum category encoding artifact.
+- Broader known caveats still travel into staging review instead of spawning
+  more local polish: static global Archive/Export shells, dashboard
+  derived/static snippets, no downloadable bundles/workers, and no new private
+  search UI beyond the accepted API/search foundation.
 
 ## Readiness question
 

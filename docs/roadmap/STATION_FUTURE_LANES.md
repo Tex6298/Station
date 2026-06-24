@@ -48,6 +48,18 @@ This note folds the current external/upstream work into future sequencing:
   work should follow the concrete demands of imported repo ideas rather than
   forcing Station into a Cloudflare-first architecture.
 
+## Current staged replay baton
+
+Status, 2026-06-24: PR271 passed ARIADNE's hosted human-eye rehearsal with
+caveats. MIMIR opened PR272 as a tiny DAEDALUS polish lane for the three bounded
+visible defects: Discover right-rail `Drawing...` honesty, public Developer
+Space live/readback status wording, and one public forum category encoding
+artifact.
+
+Do not use PR272 to reopen backend semantics, schema, auth, providers,
+Redis/Cloudflare, billing, queues, workers, staged data, or broad visual
+redesign. It is a polish bridge before deciding the next product/backend lane.
+
 ## Phase 2D Developer Agent closeout
 
 Status, 2026-06-23: PR176 closes Phase 2D Developer Agent expansion as a
