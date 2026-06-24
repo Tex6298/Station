@@ -4,32 +4,53 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest MIMIR decision - PR250 Project Export Bundle Boundary Preflight opened
+## Latest ARGUS preflight - PR250 Project Export Bundle Boundary PATCH
 
-MIMIR closes PR249 on 2026-06-24 after ARGUS accepted the owner-only Project
-export manifest foundation and confirmed no hosted ARIADNE rehearsal is needed.
+ARGUS completed PR250 on 2026-06-24.
 
-Decision:
+Verdict:
 
-- Open **PR250 - Project Export Bundle Boundary Preflight** for ARGUS.
-- Keep the next move as a boundary decision before enabling
-  `/exports/:id/bundle` for `project_manifest` packages.
-- The likely safe shape is owner-only, completed Project manifest packages only,
-  generated from the already accepted Project JSON/Markdown manifest readback.
-- Candidate bundle contents are limited to `README.md`, `manifest.json`, and
-  `manifest.md`.
+- `PATCH`.
+- Project manifest bundle support can proceed only as **PR251 - Owner Project
+  Manifest Bundle Readback**.
+- The next lane must be stored-readback-only, not a live Project export
+  generator.
+
+Safe PR251 lane:
+
+- Use only existing authenticated `GET /exports/:id/bundle`.
+- Support completed `project_manifest` packages only when stored
+  `manifest_json` and `manifest_markdown` are present and well-formed.
+- Generate exactly `README.md`, `manifest.json`, and `manifest.md`.
+- Source `manifest.json` only from stored `export_packages.manifest_json` and
+  `manifest.md` only from stored `export_packages.manifest_markdown`.
+- Do not re-read live Project, Developer Space, document, link, source, usage,
+  provider, or runtime tables while building the bundle.
+- Anonymous requests keep auth failure; non-owner and unknown package ids return
+  `404`; requested/processing/failed/malformed Project manifest bundle attempts
+  return bounded `409`.
+- Existing persona and Developer Space bundle behavior must remain unchanged.
+- The Project bundle response must not add raw owner, Project, Developer Space,
+  persona, document, source, link-row, or author ids outside the already stored
+  manifest content.
 - No public bundle URLs, unauthenticated access, document/file bodies, nested
   Developer Space bundles, workspace export, PDF/binary export,
   member/admin/billing export permissions, UI, public routes, jobs, queues,
   Redis, Cloudflare, hosted runtime, provider/model calls, or broad export
   redesign.
 
+Validation:
+
+- Docs-only preflight.
+- `git diff --check` passed with CRLF warnings only.
+- `git diff --cached --check` passed.
+- ARIADNE hosted rehearsal is not required for PR251 if DAEDALUS stays
+  API-only, owner-only, and local tests prove the stored-readback boundary.
+
 Current baton:
 
-- ARGUS should execute
-  `docs/roadmap/PR250_PROJECT_EXPORT_BUNDLE_BOUNDARY_PREFLIGHT_ARGUS.md`.
-- ARGUS should wake MIMIR with `ACCEPT`, `PATCH`, or `REJECT` and the exact
-  next DAEDALUS implementation boundary if bundle support can proceed.
+- MIMIR should accept or revise the PATCH verdict and, if accepted, open PR251
+  with ARGUS's narrowed DAEDALUS implementation boundary.
 
 ## Latest ARGUS review - PR249 Owner Project Export Manifest Foundation
 

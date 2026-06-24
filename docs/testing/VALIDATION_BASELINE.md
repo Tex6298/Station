@@ -20,6 +20,37 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR250 Project Export Bundle Boundary Preflight
+
+ARGUS docs-only preflight on 2026-06-24:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `git diff --check` | Pass with CRLF warnings | Whitespace check passed; Git repeated existing CRLF conversion warnings for edited docs/state files. |
+| `git diff --cached --check` | Pass | Staged whitespace check passed. |
+
+Preflight verdict:
+
+- `PATCH`.
+- Project manifest bundle support can proceed only as PR251 Owner Project
+  Manifest Bundle Readback.
+- PR251 must use only existing authenticated `GET /exports/:id/bundle`, support
+  completed `project_manifest` packages with valid stored `manifest_json` and
+  `manifest_markdown`, generate exactly `README.md`, `manifest.json`, and
+  `manifest.md`, and avoid live Project/Developer Space/document/link/source/
+  usage/provider/runtime reads.
+- Non-owner and unknown package ids must return `404`; anonymous requests keep
+  auth failure; requested/processing/failed/malformed Project manifest bundle
+  attempts must return bounded `409`.
+- The Project bundle response must not add raw owner, Project, Developer Space,
+  persona, document, source, link-row, or author ids outside the already stored
+  manifest content.
+- No public bundle URL, UI, binary/PDF/ZIP packaging, nested Developer Space
+  bundle, document/file body, member/admin/billing permission, job, queue,
+  Redis, Cloudflare, hosted runtime, provider call, or broad export redesign is
+  approved.
+- No runtime code changed in PR250.
+
 ## PR249 Owner Project Export Manifest Foundation
 
 DAEDALUS implementation and ARGUS review validation on 2026-06-24:

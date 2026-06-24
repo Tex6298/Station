@@ -368,11 +368,18 @@ Current intent:
 - PR250 opens ARGUS preflight for enabling owner-only Project manifest bundles
   without broadening export payloads or adding public/download/background/UI
   scope.
+- PR250 result: ARGUS returned `PATCH`. Project manifest bundle support can
+  proceed only as PR251 Owner Project Manifest Bundle Readback: existing
+  authenticated `/exports/:id/bundle`, completed `project_manifest` rows with
+  valid stored readback only, exactly `README.md`, `manifest.json`, and
+  `manifest.md`, no live Project/source-table regeneration, no raw owner/target
+  ids beyond the stored manifest content, and no public/download/UI/background
+  scope.
 
 ## Phase 3 bridge sequence
 
 Status, 2026-06-24: PR202 through PR249 are accepted. PR250 Project Export
-Bundle Boundary Preflight is open for ARGUS.
+Bundle Boundary Preflight returned `PATCH` and is ready for MIMIR sequencing.
 
 Current MIMIR position:
 
@@ -449,7 +456,7 @@ Bridge order:
 48. Done: Public Project Evidence Hosted Rehearsal.
 49. Done: Project Export Boundary Preflight.
 50. Done: Owner Project Export Manifest Foundation.
-51. Active: Project Export Bundle Boundary Preflight.
+51. Done: Project Export Bundle Boundary Preflight.
 
 ARGUS P3-B1A gates:
 
