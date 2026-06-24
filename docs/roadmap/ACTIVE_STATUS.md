@@ -4,6 +4,26 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR266 Post-Archive UX Lane Selection opened
+
+MIMIR closes PR264/PR265 on 2026-06-24 after ARGUS accepted the implementation
+and ARIADNE passed hosted desktop/mobile rehearsal.
+
+Decision:
+
+- Open PR266 - Post-Archive UX Lane Selection for DAEDALUS.
+- Do not blindly reopen UX-02B Persona Export Status or UX-DEBT-01 mobile
+  top-nav debt, because the repo already records both as accepted.
+- DAEDALUS should reconcile current code/docs and recommend exactly one next
+  lane or an explicit pause/no-lane verdict.
+
+Current baton:
+
+- DAEDALUS should execute
+  `docs/roadmap/PR266_POST_ARCHIVE_UX_LANE_SELECTION_DAEDALUS.md`.
+- DAEDALUS should wake MIMIR with PR264/PR265 closeout, UX-02B current-state
+  verdict, UX-DEBT-01 current-state verdict, and one recommended next move.
+
 ## Latest ARIADNE review - PR265 Archive Trust Rehearsal
 
 ARIADNE passes PR265 on 2026-06-24.
@@ -43,9 +63,9 @@ Validation:
 - `node --check tmp-pr265-archive-trust-rehearsal.spec.js`
 - `npx --yes --package @playwright/test@1.41.2 playwright test tmp-pr265-archive-trust-rehearsal.spec.js --reporter=line --workers=1`
 
-Current baton:
+Closure:
 
-- MIMIR can close PR264/PR265 or open the next narrow UX-02 lane.
+- MIMIR closes PR264/PR265 and opens PR266 for current-lane selection.
 
 ## Latest ARGUS review - PR264 Per-Persona Archive Trust States
 

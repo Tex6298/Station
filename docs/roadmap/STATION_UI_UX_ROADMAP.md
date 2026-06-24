@@ -72,7 +72,11 @@ estimate, ARGUS to gate, and ARIADNE to review against real user journeys.
   readback/rehearsal chain, MIMIR opened PR264 as UX-02A Per-Persona Archive
   Trust States against `/studio/personas/:personaId/files`.
 - PR264 is accepted by ARGUS with a narrow source-count honesty patch. PR265
-  opens ARIADNE hosted desktop/mobile rehearsal before UX-02A closeout.
+  passed ARIADNE hosted desktop/mobile rehearsal before UX-02A closeout.
+- PR266 opens DAEDALUS post-Archive UX lane selection because UX-02B Persona
+  Export Status and UX-DEBT-01 mobile top-nav debt are already recorded as
+  accepted in repo history and should not be reopened unless current code is
+  stale or missing.
 
 ## Major surfaces
 

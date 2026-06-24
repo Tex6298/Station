@@ -30,6 +30,20 @@ Memory/observability next-slice audit.
 ARGUS accepted PR261 on 2026-06-24. MIMIR opened PR262 as an owner-only
 Memory/observability implementation lane.
 
+## PR266 Post-Archive UX Lane Selection
+
+MIMIR opened PR266 for DAEDALUS on 2026-06-24 after PR265 passed.
+
+Expected validation:
+
+| Check | Expected result | Notes |
+| --- | --- | --- |
+| `git diff --check` | Pass | Docs-only lane-selection audit. |
+| `git diff --cached --check` | Pass | Staged whitespace check before wakeup. |
+
+Package tests are not required unless DAEDALUS changes product code. PR266
+should not implement product code.
+
 ## PR265 Archive Trust Rehearsal
 
 ARIADNE passed PR265 on 2026-06-24.
