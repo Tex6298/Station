@@ -246,10 +246,15 @@ Current intent:
   `/forums/<categorySlug>` pages, with public/community visibility semantics
   preserved and route slugs hardened. PR226 opens a focused ARIADNE hosted
   rehearsal.
+- PR226 result: ARIADNE passed hosted Discover Salon search rehearsal. PR227
+  opens the deferred public persona Salon readback lane, limited to
+  anonymous/public already-routeable Salon thread links and counts in the
+  public persona context preview/readback path.
+
 ## Phase 3 bridge sequence
 
-Status, 2026-06-24: PR202 through PR225 are accepted. PR226 Discover Salon
-Surfacing Rehearsal is open for ARIADNE.
+Status, 2026-06-24: PR202 through PR226 are accepted. PR227 Public Persona
+Salon Readback is open for DAEDALUS.
 
 Current MIMIR position:
 
@@ -302,7 +307,8 @@ Bridge order:
 24. Done: Public Salon Directory Readback.
 25. Done: Public Salon Directory Readback Rehearsal.
 26. Done: Discover Public Salon Surfacing.
-27. Active: Discover Salon Surfacing Rehearsal.
+27. Done: Discover Salon Surfacing Rehearsal.
+28. Active: Public Persona Salon Readback.
 
 ARGUS P3-B1A gates:
 

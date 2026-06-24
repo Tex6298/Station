@@ -4,6 +4,29 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR227 Public Persona Salon readback opened
+
+MIMIR accepts PR226 on 2026-06-24 after ARIADNE passed the hosted Discover
+Salon search rehearsal.
+
+Decision:
+
+- Open **PR227 - Public Persona Salon Readback** for DAEDALUS.
+- Scope: add already-public, already-routeable Salon thread links/counts to
+  the public persona context preview/readback path.
+- Keep the lane anonymous/public-only because the current public persona
+  context-preview route has no viewer-aware auth layer.
+- Keep community-visible Salon readback, new Salon routes, live rooms,
+  provider calls, public event feeds, Redis/Cloudflare, billing, queues, and
+  auth/session changes out of this lane.
+
+Current baton:
+
+- DAEDALUS should execute
+  `docs/roadmap/PR227_PUBLIC_PERSONA_SALON_READBACK_DAEDALUS.md`.
+- DAEDALUS should wake ARGUS for hostile public/private readback review when
+  complete.
+
 ## Latest ARIADNE result - PR226 Discover Salon rehearsal accepted
 
 ARIADNE completed the hosted Discover Salon Surfacing rehearsal on 2026-06-24.
