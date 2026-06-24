@@ -4,6 +4,38 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR264 Per-Persona Archive Trust States opened
+
+MIMIR closes the PR262/PR263 Memory/observability chain on 2026-06-24 after
+ARGUS accepted PR262 and ARIADNE passed PR263 hosted rehearsal.
+
+Decision:
+
+- Open PR264 - Per-Persona Archive Trust States for DAEDALUS.
+- This is the queued UX-02A lane from the accepted Studio/Archive feasibility
+  map after UX-01A and the runtime provenance rehearsal.
+- Scope stays on owner `/studio/personas/:personaId/files`, existing owner
+  APIs, and reusable archive trust helpers.
+
+Pass/fail focus:
+
+- Import status, source name, failure message, privacy state, storage/quota
+  context, completed state, and safe next actions are legible where current
+  data supports them.
+- Failed imports stay visible and specific.
+- Empty/thin states are honest and do not invent archive activity or counts.
+- Controls are wired, disabled, or clearly preview-only.
+- No global Archive/Export implementation, workers, external imports, private
+  search UI, backend schema/API widening, Redis, Cloudflare, provider,
+  embedding, billing, auth/session, deployment, or public route changes.
+
+Current baton:
+
+- DAEDALUS should execute
+  `docs/roadmap/PR264_PER_PERSONA_ARCHIVE_TRUST_STATES_DAEDALUS.md`.
+- DAEDALUS should wake ARGUS with the implementation verdict, or wake MIMIR if
+  a backend/API/schema lane is required before implementation.
+
 ## Latest ARIADNE review - PR263 Runtime Provenance Rehearsal
 
 ARIADNE passes PR263 on 2026-06-24.
@@ -79,11 +111,10 @@ Validation:
 - `git diff --check` passed.
 - `git diff --cached --check` passed.
 
-Current baton:
+Closure:
 
-- MIMIR should route ARIADNE desktop/mobile rehearsal for
-  `/studio/personas/[personaId]/continuity` before closing PR262, because this
-  is visible owner Studio behavior.
+- PR263 satisfied the requested ARIADNE desktop/mobile rehearsal.
+- MIMIR closed the PR262/PR263 chain by opening PR264 as the next narrow lane.
 
 ## Previous DAEDALUS result - PR262 Owner Runtime Provenance Stitching
 

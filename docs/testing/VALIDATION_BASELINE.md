@@ -30,6 +30,24 @@ Memory/observability next-slice audit.
 ARGUS accepted PR261 on 2026-06-24. MIMIR opened PR262 as an owner-only
 Memory/observability implementation lane.
 
+## PR264 Per-Persona Archive Trust States
+
+MIMIR opened PR264 for DAEDALUS on 2026-06-24 after ARGUS accepted PR262 and
+ARIADNE passed PR263.
+
+Expected validation:
+
+| Check | Expected result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | Required because owner Studio route/types may be touched. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass | New warnings on touched Studio/archive files are blockers unless ARGUS accepts a narrow reason. |
+| `npm exec --yes pnpm@10.32.1 -- run test:storage` | Pass | Storage/quota and owner archive boundaries stay server-authoritative. |
+| `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass | Archive import/readback behavior remains intact. |
+| `npm exec --yes pnpm@10.32.1 -- run test:exports` | Pass | Existing export trust/readback behavior remains intact. |
+| `npm exec --yes pnpm@10.32.1 -- run test:continuity` | Pass | Archive trust copy must not break continuity source/readback expectations. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | Touched owner Studio helper behavior remains covered. |
+| `git diff --check` and `git diff --cached --check` | Pass | Whitespace hygiene for the handoff/implementation. |
+
 ## PR263 Runtime Provenance Rehearsal
 
 ARIADNE passed PR263 on 2026-06-24.
@@ -52,7 +70,7 @@ Validation:
 ## PR262 Owner Runtime Provenance Stitching Readback
 
 DAEDALUS implemented PR262 on 2026-06-24. ARGUS accepted it with no review
-patch and wakes MIMIR to route ARIADNE desktop/mobile rehearsal before closeout.
+patch, and ARIADNE passed the follow-up PR263 desktop/mobile rehearsal.
 
 Files changed:
 

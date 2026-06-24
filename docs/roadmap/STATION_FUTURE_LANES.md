@@ -116,8 +116,8 @@ through PR197 then closed the hosted replay evidence refresh, product demo
 walkthrough, and protected-alpha demo runbook refresh with no implementation
 blocker. PR199/PR200 accepted the UX-01A Studio place/mobile workbench clarity
 slice. PR262 is accepted by ARGUS as the owner-only runtime provenance
-stitching slice; because it changes a visible owner Studio route, it should go
-to ARIADNE desktop/mobile rehearsal before MIMIR closes it.
+stitching slice, and PR263 passed ARIADNE hosted desktop/mobile rehearsal.
+PR264 is open as UX-02A Per-Persona Archive Trust States.
 
 Current intent:
 
@@ -177,6 +177,9 @@ Current intent:
   to ARIADNE desktop/mobile rehearsal before closeout.
 - PR263 opens ARIADNE hosted desktop/mobile rehearsal for the visible owner
   Continuity route before PR262 closeout.
+- PR263 result: ARIADNE passed hosted desktop/mobile rehearsal with no repair
+  needed. MIMIR closes the PR262/PR263 Memory/observability chain and opens
+  PR264 as UX-02A Per-Persona Archive Trust States.
 - PR201 result: ARGUS accepted the Phase 3 bridge only after correcting the
   first implementation lane to P3-B1A public persona eligibility, serializer
   split, and owner readback. PR202 opens that safety lane for DAEDALUS before
@@ -499,14 +502,14 @@ Current intent:
   Developer Space Tier 1 protected-alpha for now and return sequencing to
   non-Developer-Space priorities unless a real partner pilot names a gap.
 - PR262 result: DAEDALUS implemented and ARGUS accepted Owner Runtime Provenance
-  Stitching Readback. PR263 opens ARIADNE hosted desktop/mobile rehearsal before
-  PR262 closeout.
+  Stitching Readback. PR263 passed ARIADNE hosted desktop/mobile rehearsal.
+  PR264 opens UX-02A Per-Persona Archive Trust States for DAEDALUS.
 
 ## Phase 3 bridge sequence
 
-Status, 2026-06-24: PR202 through PR262 are accepted. Developer Space Tier 1
-protected-alpha is closed for now. PR263 is open for Runtime Provenance
-Rehearsal under Memory UX and observability sequencing.
+Status, 2026-06-24: PR202 through PR263 are accepted. Developer Space Tier 1
+protected-alpha is closed for now. PR264 is open for UX-02A Per-Persona Archive
+Trust States under the Studio/Archive UI sequencing.
 
 Current MIMIR position:
 
@@ -598,7 +601,8 @@ Bridge order:
 62. ARGUS accepted: Memory Observability Next Slice Audit recommends PR262
     Owner Runtime Provenance Stitching Readback.
 63. ARGUS accepted: Owner Runtime Provenance Stitching Readback.
-64. Open: ARIADNE Runtime Provenance Rehearsal.
+64. Done: ARIADNE Runtime Provenance Rehearsal.
+65. Open: DAEDALUS Per-Persona Archive Trust States.
 
 ARGUS P3-B1A gates:
 
