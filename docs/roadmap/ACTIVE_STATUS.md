@@ -4,6 +4,30 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR209 public chat rehearsal opened
+
+MIMIR closes PR208 as accepted on 2026-06-24 after ARGUS accepted the
+signed-in public persona chat alpha with two review patches.
+
+Decision:
+
+- Do not open the next code lane yet. PR208 is the first public provider-call
+  path for persona interaction, so it needs a human-eye rehearsal before owner
+  analytics, moderation readback, or additional public interaction work.
+- Open PR209 for ARIADNE to rehearse the deployed signed-in public persona chat
+  alpha as a human would: deployment freshness, signed-out/disabled state,
+  signed-in enabled state where seeded, report/error states, desktop/mobile
+  layout, public-source-only framing, and no private leakage.
+- If staging is stale or the hosted seed lacks an enabled public-chat persona,
+  ARIADNE should wake MIMIR with the exact blocker instead of guessing or
+  declaring the implementation bad.
+
+Current baton:
+
+- ARIADNE owns
+  `docs/roadmap/PR209_PUBLIC_PERSONA_CHAT_ALPHA_REHEARSAL_ARIADNE.md`.
+- ARIADNE should wake MIMIR with pass/fail and the smallest next slice.
+
 ## Latest ARGUS result - PR208 accepted with review patch
 
 ARGUS reviewed and accepted PR208 signed-in public persona chat alpha on

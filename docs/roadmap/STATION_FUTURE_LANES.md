@@ -178,21 +178,26 @@ Current intent:
   persona chat gate. PR208 opens implementation with owner opt-in default-off,
   platform provider only, fail-closed rate limits, PR206 public sources only,
   and no durable visitor transcript.
+- PR208 result: DAEDALUS implemented and ARGUS accepted the signed-in public
+  persona chat alpha with review patches for disabled signed-out copy and
+  public-safe report insert failures. PR209 opens ARIADNE human rehearsal
+  before any follow-on code lane.
 
 ## Phase 3 bridge sequence
 
-Status, 2026-06-24: PR202 through PR207 are accepted. PR208 is open for
-DAEDALUS to implement signed-in public persona chat alpha.
+Status, 2026-06-24: PR202 through PR208 are accepted. PR209 is open for
+ARIADNE to rehearse signed-in public persona chat alpha on the deployed human
+route before the next implementation lane.
 
 Current MIMIR position:
 
 - The repo has public-safe patterns for Public Spaces, Developer Spaces,
   published documents, community read paths, and protected-alpha Studio.
 - The repo has a real public persona route, visitor-safe public source catalog,
-  and an accepted signed-in visitor-chat implementation gate. It does not yet
-  have the signed-in public chat route, owner enable/disable control, public
-  persona reporting resolver, or owner analytics for public persona
-  interaction.
+  an accepted signed-in visitor-chat implementation gate, signed-in public chat
+  route, owner enable/disable control, and public persona reporting resolver.
+  It does not yet have human rehearsal evidence for the hosted public chat
+  alpha or owner analytics/moderation readback for public persona interaction.
 - Tier limits already include `publicPersonas`, but entitlement shape is not
   enough to open Phase 3 safely.
 
@@ -206,10 +211,11 @@ Bridge order:
 5. Done: profile-only visitor-safe context preview shell.
 6. Done: public document and linked public discussion context sources.
 7. Done: bounded visitor chat design gate.
-8. Active: signed-in public persona chat alpha with rate/message limits and
+8. Done: signed-in public persona chat alpha with rate/message limits and
    reporting.
-9. Owner analytics, moderation, and report readback.
-10. Only then consider Roulette, Salons, voice/avatar, public persona events,
+9. Active: ARIADNE human rehearsal of signed-in public persona chat alpha.
+10. Owner analytics, moderation, and report readback.
+11. Only then consider Roulette, Salons, voice/avatar, public persona events,
    institutional/research features, or persona-to-persona encounters.
 
 ARGUS P3-B1A gates:

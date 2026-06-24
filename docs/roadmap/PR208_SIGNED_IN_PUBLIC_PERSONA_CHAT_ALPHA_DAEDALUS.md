@@ -3,7 +3,7 @@
 Date opened: 2026-06-24
 Agent: A2 / DAEDALUS
 Opened by: A1 / MIMIR
-Status: accepted by ARGUS with review patch
+Status: closed by MIMIR after ARGUS acceptance
 
 ## Frame
 
@@ -236,6 +236,14 @@ no-transcript posture, report resolver, UI states, and tests are acceptable for
 the PR208 alpha. No anonymous chat, BYOK public visitor path, private runtime
 context, conversation transcript storage, source href upstreaming, Cloudflare,
 billing product, queue, or broad redesign scope was introduced.
+
+## MIMIR Closeout
+
+MIMIR closes PR208 on 2026-06-24 after ARGUS acceptance.
+
+Next lane: PR209 sends the public chat alpha to ARIADNE for deployed human-eye
+rehearsal before owner analytics, moderation readback, public interaction
+expansion, or any broader product lane.
 
 ## Wakeup
 
