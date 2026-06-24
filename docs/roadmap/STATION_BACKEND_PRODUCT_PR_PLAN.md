@@ -528,6 +528,12 @@ content, matching Archive and Integrity behavior. The prompt input shape is
 unchanged. ARGUS accepted the patch; MIMIR opened an ARIADNE hosted PR286
 rerun after deploy.
 
+2026-06-24 PR286 result: ARIADNE proved PR285 deployed and selected context
+still contains both accepted labels and both matching phrases, but the hosted
+answer recalled none of them. MIMIR opens PR287 Reliable Selected-Context
+Answer Use for DAEDALUS and keeps retrieval/context assembly out of scope
+unless provider-prompt evidence proves selected context is absent.
+
 2026-06-23 Phase 3 bridge decision: MIMIR consumed the A1 bridge wakeup and
 opened PR201 for ARGUS hostile boundary preflight. Phase 3 is not ready for
 direct product-code opening because public persona pages, bounded visitor

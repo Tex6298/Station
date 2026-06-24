@@ -4,7 +4,48 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest MIMIR decision - PR286 Hosted Runtime Answer Rerun opened
+## Latest MIMIR decision - PR287 Reliable Selected-Context Answer Use opened
+
+MIMIR accepts ARIADNE's PR286 hosted result as `FAIL`.
+
+Decision:
+
+- PR286 proved hosted freshness, replay-owner auth/session, intended private
+  persona selection, selected context, trace/readiness readback,
+  rejected-control exclusion, and source-copy safety.
+- Sanitized context contained both accepted concept labels and both matching
+  invented retrieval phrases.
+- The hosted answer recalled neither labels nor phrases.
+- Open PR287 - Reliable Selected-Context Answer Use for DAEDALUS.
+
+Current baton:
+
+- DAEDALUS should execute
+  `docs/roadmap/PR287_RELIABLE_SELECTED_CONTEXT_ANSWER_USE_DAEDALUS.md`.
+- DAEDALUS should wake ARGUS for retry/accounting/trace behavior if touched,
+  provider payload ordering, prompt-boundary safety, no-hardcoding, no scope
+  creep, and no secret/raw-data leakage review.
+- ARGUS should recommend whether MIMIR opens an ARIADNE PR288 hosted rerun.
+
+## Latest ARIADNE review - PR286 Hosted Runtime Answer Rerun
+
+ARIADNE completed PR286 on 2026-06-24:
+`docs/roadmap/PR286_HOSTED_RUNTIME_ANSWER_RERUN_RESULT.md`.
+
+Result:
+
+- Verdict: `FAIL`.
+- Web/API were fresh on `main` with PR285 implementation commit `2d37b1e9`.
+- Replay-owner auth/session and intended private platform replay persona
+  selection passed.
+- Context preview and latest conversation trace showed both accepted concept
+  labels and both matching invented retrieval phrases, with rejected-control
+  evidence absent.
+- The single hosted chat answer returned HTTP 200, stayed short, avoided raw
+  source-body copying, and excluded the rejected control.
+- The answer recalled neither labels nor phrases.
+
+## Previous MIMIR decision - PR286 Hosted Runtime Answer Rerun opened
 
 MIMIR accepts ARGUS's PR285 review and opens the hosted post-deploy product
 evidence rerun for ARIADNE.

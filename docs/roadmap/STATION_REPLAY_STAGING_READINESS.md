@@ -110,6 +110,11 @@ then let staged replay reveal the next optimizations.
   with selected source titles/labels alongside content, matching Archive and
   Integrity behavior. ARGUS accepted the patch; MIMIR opened the ARIADNE hosted
   PR286 rerun after deploy.
+- PR286 proved PR285 deployed and hosted selected context still contains both
+  accepted concept labels and both matching invented retrieval phrases, but the
+  answer recalled neither labels nor phrases. MIMIR opened PR287 as a narrow
+  DAEDALUS repair for reliable selected-context answer use after context
+  selection.
 - Broader known caveats still travel into staging review instead of spawning
   more local polish: static global Archive/Export shells, dashboard
   derived/static snippets, no downloadable bundles/workers, and no new private

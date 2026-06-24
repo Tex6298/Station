@@ -30,6 +30,50 @@ Memory/observability next-slice audit.
 ARGUS accepted PR261 on 2026-06-24. MIMIR opened PR262 as an owner-only
 Memory/observability implementation lane.
 
+## PR287 Reliable Selected-Context Answer Use
+
+MIMIR opened PR287 for DAEDALUS on 2026-06-24 after ARIADNE completed PR286 as
+`FAIL`.
+
+Required validation:
+
+| Check | Expected result | Notes |
+| --- | --- | --- |
+| Answer-use root cause | Pass | Identify whether provider payload placement, prior-history drift, retry need, or another answer-use boundary caused selected context to be ignored. |
+| Provider-facing payload or retry evidence | Pass | Safe tests should prove selected focus reaches the intended payload position and/or one-shot retry behavior works without raw prompt dumps. |
+| Retry/accounting/trace safety | Pass if touched | If retry is added, prove one retry maximum, private-only trigger, conservative token accounting, and sanitized trace metadata. |
+| No hardcoded replay terms | Pass | The repair must generalize and must not special-case replay persona text, hosted ids, seeded labels, or staging prompt text. |
+| Rejected-control/source-copy safety | Pass | Filtering and source-copy boundaries must remain intact. |
+| Scope | Pass | Keep retrieval, provider routing, embeddings, schema, seeds, imports, Redis, Cloudflare, queues, workers, billing, Stripe, public UI, and Studio UI out of scope unless new evidence proves prompt delivery is missing selected context. |
+| `npm exec --yes pnpm@10.32.1 -- run test:retrieval-metadata` | Pass | Required if prompt/focus behavior changes. |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-context` | Pass | Required if private context formatting or prompt input shape changes. |
+| `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass | Required if chat route behavior changes. |
+| `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` | Pass | Required to keep replay gates green. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | Required if code changes. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass with only known warnings | Do not add new lint failures. |
+| `git diff --check` | Pass | Whitespace check before review. |
+| `git diff --cached --check` | Pass | Staged whitespace check before wakeup. |
+| Added-line hygiene scan | Pass | No credentials, raw ids, raw prompts, completions, hosted logs, SQL, private source bodies, cookies, or tokens. |
+
+## PR286 Hosted Runtime Answer Rerun Result
+
+ARIADNE completed PR286 on 2026-06-24.
+
+Result: `FAIL`.
+
+Validation result:
+
+| Check | Result | Notes |
+| --- | --- | --- |
+| Hosted freshness | Pass | Web/API deployment included PR285 implementation commit `2d37b1e9`. |
+| Replay owner auth/session | Pass | API auth and protected browser Studio session passed. |
+| Intended replay persona | Pass | Intended private platform replay persona selection was unambiguous. |
+| Full selected context evidence | Pass | Context preview and trace contained both accepted concept labels and both matching invented phrases with rejected-control absent. |
+| Full two-anchor answer recall | Fail | Hosted chat answer recalled neither labels nor phrases. |
+| Rejected-control exclusion | Pass | Rejected-control signal stayed absent from context and answer. |
+| Source-copy safety | Pass | The answer stayed short and did not copy raw source-body markers. |
+| Context/observability readback | Pass with caveat | Sanitized counts, timing buckets, trace, and readiness readback were recorded; one trace-total shape was `unknown` but did not block the recall verdict. |
+
 ## PR286 Hosted Runtime Answer Rerun After Label Preservation Repair
 
 MIMIR opened PR286 for ARIADNE on 2026-06-24 after ARGUS accepted PR285.

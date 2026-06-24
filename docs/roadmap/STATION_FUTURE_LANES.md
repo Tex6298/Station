@@ -105,6 +105,11 @@ label. PR285 patched answer-label preservation by formatting Memory prompt
 input with selected source titles/labels alongside content, matching Archive
 and Integrity behavior. ARGUS accepted the patch; MIMIR opened the ARIADNE
 hosted PR286 rerun after deploy.
+PR286 proved selected context still contains both labels and phrases, but the
+hosted answer recalled none of them. PR287 opens DAEDALUS repair for reliable
+selected-context answer use after context selection, with retrieval/context
+assembly closed unless provider-prompt evidence proves selected context is
+absent.
 
 ## Phase 2D Developer Agent closeout
 
