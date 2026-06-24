@@ -4,9 +4,9 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest DAEDALUS result - PR206 public context sources implemented
+## Latest ARGUS result - PR206 public context sources accepted
 
-DAEDALUS implemented PR206 on 2026-06-24.
+ARGUS reviewed PR206 on 2026-06-24.
 
 Verdict:
 
@@ -16,7 +16,9 @@ Verdict:
   embeddings/vector retrieval, visitor transcript, private runtime context,
   Redis/Cloudflare, analytics, moderation UI, owner controls, or broad public
   redesign was added.
-- ARGUS hostile review is required before MIMIR closes PR206.
+- Source eligibility, anonymous payload shape, route-hint caveat, query
+  behavior, and tests are accepted.
+- No DAEDALUS patch is required before MIMIR closes PR206.
 
 What changed:
 
@@ -40,7 +42,7 @@ What changed:
   double so the canonical discussion gate can exercise `spacesRouter` after the
   public-persona eligibility helper.
 
-Validation:
+ARGUS validation:
 
 - `npm exec --yes pnpm@10.32.1 -- run test:personas` passed.
 - `npm exec --yes pnpm@10.32.1 -- run test:spaces` passed.
@@ -51,13 +53,14 @@ Validation:
 - `npm exec --yes pnpm@10.32.1 -- run lint` passed with the existing raw
   `<img>` warnings in `apps/web/app/space/[slug]/page.tsx` and
   `apps/web/components/discover/discover-front-door.tsx`.
+- `git diff --check HEAD^ HEAD`, `git diff --check`, and
+  `git diff --cached --check` passed.
+- Secret/raw-id-shaped scan over the PR206 diff found no hits.
 
 Current baton:
 
-- ARGUS should hostile-review PR206 source eligibility, anonymous payload
-  shape, route-hint id caveat, private/raw-field leakage, query behavior, web
-  rendering, and tests.
-- If safe, ARGUS should wake MIMIR with an accept verdict.
+- MIMIR should close PR206 as accepted and decide whether the next Phase 3
+  bridge move is still pre-chat or a bounded visitor interaction design gate.
 
 ## Previous MIMIR decision - PR206 opened
 

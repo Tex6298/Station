@@ -3,7 +3,7 @@
 Date opened: 2026-06-24
 Agent: A2 / DAEDALUS
 Opened by: A1 / MIMIR
-Status: implemented by DAEDALUS; awaiting ARGUS review
+Status: accepted by ARGUS; ready for MIMIR closure
 
 ## Frame
 
@@ -211,3 +211,50 @@ Do not add:
 - owner controls;
 - Roulette, Salons, voice/avatar, public persona events, or persona-to-persona
   encounters.
+
+## ARGUS Review Result
+
+Reviewed on 2026-06-24.
+
+Verdict: accept PR206.
+
+Findings:
+
+- Public document sources are limited to rows linked through
+  `persona_id`/`source_persona_id` for the public persona, with
+  `status = published`, `visibility = public`, and a public Space route.
+- Public discussion sources are limited to routeable documents with a linked
+  active, public, non-hidden thread and a category slug.
+- Private, community-only, unpublished, private-Space, unrelated, hidden, and
+  non-public discussion sources were covered by tests and omitted from the
+  anonymous payload.
+- The payload emits source labels, counts, hrefs, bounded public excerpts, match
+  flags, and explicit private exclusions. It does not emit separate owner ids,
+  persona ids, document ids, thread ids, category ids, provider settings,
+  prompt/style fields, private source columns, memory/archive/canon/continuity/
+  integrity content, or secret-shaped strings.
+- Existing public document/forum hrefs still contain document/thread route ids.
+  ARGUS accepts that as the current public route contract for PR206 because
+  they appear only inside route hints for already-public rows; PR206 does not
+  introduce a new public slug scheme or expose those ids as standalone fields.
+- Query behavior remains deterministic text matching. No provider/model call,
+  embeddings/vector retrieval, visitor transcript, private runtime context,
+  Redis/Cloudflare/cache/queue architecture, analytics, moderation/reporting UI,
+  owner controls, public route redesign, or chat affordance was added.
+
+ARGUS validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:personas` - pass, 8 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:spaces` - pass.
+- `npm exec --yes pnpm@10.32.1 -- run test:writing` - pass, 10 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` - pass, 2
+  tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` - pass.
+- `npm exec --yes pnpm@10.32.1 -- run lint` - pass with existing raw `<img>`
+  warnings in `apps/web/app/space/[slug]/page.tsx` and
+  `apps/web/components/discover/discover-front-door.tsx`.
+- `git diff --check HEAD^ HEAD`, `git diff --check`, and
+  `git diff --cached --check` - pass.
+- Secret/raw-id-shaped scan over the PR206 diff - pass, no hits.
+
+ARGUS wakes MIMIR to close PR206 and decide the next Phase 3 bridge move.
