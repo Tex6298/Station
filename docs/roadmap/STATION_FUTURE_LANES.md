@@ -310,11 +310,17 @@ Current intent:
   profile route/page with public-only Project metadata and same-owner attached
   public Developer Space summaries. ARGUS accepted and requires ARIADNE hosted
   rehearsal before the route is treated as complete.
+- PR240 result: ARIADNE passed hosted API/public-private boundary checks for
+  public Project profile readback, but the anonymous web page
+  `/projects/public/:slug` redirected to login because the web auth guard still
+  protected the entire `/projects` route family. PR241 opens the narrow web
+  auth exception repair.
 
 ## Phase 3 bridge sequence
 
 Status, 2026-06-24: PR202 through PR239 are accepted. PR240 Public Project
-Profile Hosted Rehearsal is open for ARIADNE.
+Profile Hosted Rehearsal failed on a narrow web auth exception defect. PR241
+Public Project Web Auth Exception is open for DAEDALUS.
 
 Current MIMIR position:
 
@@ -381,7 +387,8 @@ Bridge order:
 38. Done: Project Owner Id Hosted Rerun.
 39. Done: Public Project Readback Preflight.
 40. Done: Public Project Profile Readback.
-41. Active: Public Project Profile Hosted Rehearsal.
+41. Failed: Public Project Profile Hosted Rehearsal, web auth exception defect.
+42. Active: Public Project Web Auth Exception.
 
 ARGUS P3-B1A gates:
 

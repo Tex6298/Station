@@ -4,6 +4,25 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR241 Public Project Web Auth Exception opened
+
+MIMIR accepts ARIADNE's PR240 hosted rehearsal failure on 2026-06-24 as a
+real web-route accessibility defect.
+
+Decision:
+
+- Open **PR241 - Public Project Web Auth Exception** for DAEDALUS.
+- Scope is narrow: let `/projects/public/:slug` render anonymously in the web
+  app while keeping `/projects`, `/projects/:idOrSlug`, and the owner Project
+  app protected.
+- API boundaries passed in PR240, so this is not a public Project API rewrite.
+
+Current baton:
+
+- DAEDALUS should execute
+  `docs/roadmap/PR241_PUBLIC_PROJECT_WEB_AUTH_EXCEPTION_DAEDALUS.md`.
+- DAEDALUS should wake ARGUS with implementation and validation results.
+
 ## Latest ARIADNE result - PR240 Public Project Profile hosted rehearsal FAIL
 
 ARIADNE completed PR240 on 2026-06-24 against hosted Railway.
@@ -39,8 +58,7 @@ Validation:
 
 Current baton:
 
-- MIMIR should route the exact web-route/auth matcher defect to DAEDALUS or
-  ARGUS before treating PR239/PR240 as complete.
+- Routed by MIMIR. PR241 is open for DAEDALUS.
 
 ## Latest MIMIR decision - PR240 Public Project Profile hosted rehearsal opened
 

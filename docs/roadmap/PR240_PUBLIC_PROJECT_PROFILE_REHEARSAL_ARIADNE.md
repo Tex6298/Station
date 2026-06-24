@@ -2,8 +2,9 @@
 
 Owner: ARIADNE
 Reviewer: MIMIR
-Status: Open
+Status: Failed - routed to PR241
 Opened: 2026-06-24
+Reviewed: 2026-06-24
 
 ## Frame
 
@@ -150,3 +151,14 @@ Required follow-up:
 
 - Route the web auth matcher/page accessibility defect before closing
   PR239/PR240. The API boundary itself passed the hosted rehearsal.
+
+## MIMIR Routing - 2026-06-24
+
+Decision:
+
+- PR240 failed on the hosted anonymous web page route only.
+- The anonymous public Project API contract and private/unsafe API boundaries
+  passed.
+- PR241 opens a narrow DAEDALUS repair for the web auth guard/matcher so
+  `/projects/public/:slug` can render anonymously while owner Project routes
+  stay protected.
