@@ -233,14 +233,15 @@ Current intent:
   only a non-blocking directory intro copy polish. PR223 opens the narrow public
   Salon directory/category readback polish before Discover or public persona
   Salon surfaces.
-- PR223 result: DAEDALUS updated the existing forum subcommunity directory and
-  category empty-state readback to be honestly Salon-aware without changing API
-  behavior, visibility gates, creation policy, Discover, or public persona
-  surfaces. ARGUS review is next.
+- PR223 result: DAEDALUS updated and ARGUS accepted the existing forum
+  subcommunity directory and category empty-state readback to be honestly
+  Salon-aware without changing API behavior, visibility gates, creation policy,
+  Discover, or public persona surfaces. PR224 opens one focused ARIADNE hosted
+  rehearsal for the changed visible copy.
 ## Phase 3 bridge sequence
 
-Status, 2026-06-24: PR202 through PR222 are accepted. PR223 Public Salon
-Directory Readback is implemented and awaiting ARGUS review.
+Status, 2026-06-24: PR202 through PR223 are accepted. PR224 Public Salon
+Directory Readback Rehearsal is open for ARIADNE.
 
 Current MIMIR position:
 
@@ -290,7 +291,8 @@ Bridge order:
 21. Done: Public Salon Type Foundation implementation and ARGUS review.
 22. Done: Public Salon Foundation Hosted Proof.
 23. Done: Public Salon Foundation Rehearsal.
-24. Active: Public Salon Directory Readback.
+24. Done: Public Salon Directory Readback.
+25. Active: Public Salon Directory Readback Rehearsal.
 
 ARGUS P3-B1A gates:
 

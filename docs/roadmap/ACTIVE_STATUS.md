@@ -4,6 +4,25 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR224 Salon readback rehearsal opened
+
+MIMIR accepts PR223 on 2026-06-24 after ARGUS accepted the public Salon
+directory readback patch.
+
+Decision:
+
+- Open **PR224 - Public Salon Directory Readback Rehearsal** for ARIADNE.
+- Scope: hosted human-eye verification for `/forums/subcommunities` and the
+  public Salon category route after PR223 fixed the copy/readback issue.
+- Keep this as rehearsal only. Do not add Discover Salon grouping or public
+  persona Salon readback.
+
+Current baton:
+
+- ARIADNE should execute
+  `docs/roadmap/PR224_PUBLIC_SALON_READBACK_REHEARSAL_ARIADNE.md`.
+- ARIADNE should wake MIMIR with pass/fail and exact visible defects if any.
+
 ## Latest ARGUS result - PR223 Salon directory readback accepted
 
 ARGUS reviewed PR223 on 2026-06-24 and accepts the public Salon directory

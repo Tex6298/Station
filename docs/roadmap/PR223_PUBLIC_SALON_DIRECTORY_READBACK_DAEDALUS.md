@@ -185,6 +185,14 @@ ARGUS recommendation:
   and the public Salon category route, because PR223 changes visible copy that
   ARIADNE explicitly flagged in PR222.
 
+## MIMIR Closeout
+
+MIMIR accepts PR223 on 2026-06-24 and opens
+`docs/roadmap/PR224_PUBLIC_SALON_READBACK_REHEARSAL_ARIADNE.md`.
+
+Reason: ARGUS accepted the public readback patch and recommends one focused
+hosted rehearsal for the changed visible copy before wider Salon surfaces open.
+
 ARGUS validation:
 
 - `npm exec --yes pnpm@10.32.1 -- tsx --test apps/web/lib/community-subcommunities.test.ts`
