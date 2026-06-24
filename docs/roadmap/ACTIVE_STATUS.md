@@ -4,6 +4,57 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARIADNE result - PR254 Owner Project Export Hosted Rerun PASS
+
+ARIADNE completed PR254 on 2026-06-24 after the hosted schema repair.
+
+Verdict:
+
+- `PASS`.
+
+Hosted gate:
+
+- Web and API `/health/deployment` were healthy, ready, on branch `main`, and
+  at required commit `ac1cb40` or later.
+- Replay owner sign-in succeeded from local `.env` without printing secrets or
+  tokens.
+- Hosted `GET /exports/projects/:projectIdOrSlug` returned `200`, confirming
+  the `export_packages.project_id` schema blocker from PR253 is repaired.
+
+Hosted rehearsal:
+
+- Desktop owner Project detail showed `Project export` below the owner-only
+  `Project evidence` surface.
+- `390px` mobile showed the same panel and live controls without horizontal
+  overflow, offscreen controls, or unreadable action clusters.
+- The panel listed existing Project manifest packages through the accepted
+  owner Project export API.
+- Creating a Project manifest from the panel refreshed the owner package list
+  and opened owner-only manifest Markdown readback.
+- Completed bundle readback showed exactly `README.md`, `manifest.json`, and
+  `manifest.md`; visible bundle content stayed to README, bytes, and truncated
+  hashes.
+- Switching between manifest and bundle readback cleared stale prior details in
+  both directions.
+- The panel was absent from anonymous/public Project routes, Discover, Studio,
+  Settings, Billing, public Developer Space routes, and global navigation.
+- Visible checks showed no downloads, signed URLs, public bundle URLs,
+  ZIP/PDF/binary actions, manifest JSON dumps, file body dumps, document bodies,
+  source ids, raw link ids, secrets, SQL, stack traces, provider/runtime fields,
+  Redis, Cloudflare, jobs, billing, or member/admin copy.
+- No failed/requested/processing Project manifest package was present in hosted
+  data; local helper/API tests from PR252 cover bounded copy and disabled
+  readback for non-completed states.
+
+Validation:
+
+- `npx --yes --package @playwright/test@1.41.2 playwright test tmp-pr254-owner-project-export-rerun.spec.js --reporter=line --workers=1`
+  passed with 1 hosted rehearsal test.
+
+Current baton:
+
+- MIMIR should close PR252/PR253/PR254 and choose the next roadmap move.
+
 ## Latest MIMIR decision - PR254 Owner Project Export Hosted Rerun opened
 
 MIMIR repaired the PR253 hosted schema blocker on 2026-06-24 and opens the

@@ -20,6 +20,32 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR254 Owner Project Export Hosted Rerun
+
+ARIADNE hosted rerun on 2026-06-24:
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Web `/health/deployment` | Pass | Railway web reported `ok:true`, `ready:true`, branch `main`, and commit at or beyond required `ac1cb40`. |
+| API `/health/deployment` | Pass | Railway API reported `ok:true`, `ready:true`, branch `main`, and commit at or beyond required `ac1cb40` after a transient readiness recheck. |
+| Replay owner sign-in | Pass | Signed in from local `.env` without printing credentials or tokens. |
+| Schema repair confirmation | Pass | Hosted `GET /exports/projects/:projectIdOrSlug` returned `200`; the PR253 `export_packages.project_id` blocker did not recur. |
+| Desktop owner Project route | Pass | `Project export` rendered below `Project evidence`, listed existing packages, created a manifest, refreshed the package list, opened manifest readback, opened bundle readback, and had no horizontal overflow or offscreen controls. |
+| `390px` mobile owner Project route | Pass | The panel, create/readback controls, package cards, and action clusters remained usable without horizontal overflow. |
+| Bundle file readback | Pass | Visible file list was exactly `README.md`, `manifest.json`, and `manifest.md`; visible bundle content stayed to README, bytes, and truncated hashes. |
+| Stale-selection clearing | Pass | Opening bundle readback cleared manifest readback; opening manifest readback cleared bundle readback. |
+| Public/unrelated route absence | Pass | `Project export` was absent from anonymous/public Project routes, Discover, Studio, Settings, Billing, public Developer Space routes, and global navigation. |
+| Privacy/boundary scan | Pass | Visible checks showed no downloads, signed URLs, public bundle URLs, ZIP/PDF/binary actions, manifest JSON dumps, file body dumps, document bodies, source ids, raw link ids, secrets, SQL, stack traces, provider/runtime fields, Redis, Cloudflare, jobs, billing, or member/admin copy. |
+| Non-completed package state | Covered by local tests | No failed/requested/processing Project manifest package was present in hosted data; PR252 helper/API tests cover bounded copy and disabled readback actions. |
+| `npx --yes --package @playwright/test@1.41.2 playwright test tmp-pr254-owner-project-export-rerun.spec.js --reporter=line --workers=1` | Pass | 1 hosted rehearsal test passed against Railway. |
+
+Rehearsal verdict:
+
+- `PASS`
+- The owner Project export UI panel is accepted on hosted web/API after the
+  schema repair, without broadening public routes, downloads, bundle payload
+  visibility, billing, provider/runtime, jobs, Redis, or Cloudflare scope.
+
 ## PR253 Owner Project Export Hosted Rehearsal
 
 ARIADNE hosted rehearsal attempt on 2026-06-24:

@@ -2,8 +2,9 @@
 
 Owner: ARIADNE
 Reviewer: MIMIR
-Status: Open
+Status: Complete - PASS
 Opened: 2026-06-24
+Reviewed: 2026-06-24
 
 ## Frame
 
@@ -93,3 +94,72 @@ Task:
 - If PASS, MIMIR should close PR252/PR253/PR254 and choose the next roadmap move.
 - If FAIL or BLOCKED, MIMIR should route the precise repair or deployment blocker.
 ```
+
+## ARIADNE Result - 2026-06-24
+
+Verdict: `PASS`.
+
+Hosted gate:
+
+- Web and API `/health/deployment` were healthy, ready, on branch `main`, and
+  at required commit `ac1cb40` or later.
+- Replay owner sign-in succeeded from local `.env` without printing credentials
+  or tokens.
+- Hosted `GET /exports/projects/:projectIdOrSlug` returned `200`, confirming
+  the PR253 missing `export_packages.project_id` blocker is repaired.
+
+Desktop result:
+
+- The private owner Project route rendered `Project export` below the
+  owner-only `Project evidence` surface.
+- Existing Project manifest package cards loaded through the accepted owner
+  Project export API.
+- `Create manifest` created a fresh owner Project manifest, refreshed the
+  package list, and opened manifest Markdown readback.
+
+390px mobile result:
+
+- The panel, package cards, create action, manifest action, and bundle action
+  remained visible and usable.
+- No horizontal document overflow, offscreen controls, or unreadable action
+  clusters appeared.
+
+Action wiring result:
+
+- The browser exercised only the accepted owner export API shape:
+  `GET /exports/projects/:projectIdOrSlug`,
+  `POST /exports/projects/:projectIdOrSlug`, `GET /exports/:id`, and
+  `GET /exports/:id/bundle`.
+- Completed bundle readback exposed the exact file set `README.md`,
+  `manifest.json`, and `manifest.md`.
+- Visible bundle content was limited to README, bytes, and truncated hashes; no
+  manifest JSON dump or file body dump was visible.
+
+Privacy/boundary result:
+
+- The panel was absent from anonymous/public Project routes, Discover, Studio,
+  Settings, Billing, public Developer Space routes, and global navigation.
+- Visible checks showed no downloads, signed URLs, public bundle URLs,
+  ZIP/PDF/binary actions, document bodies, source ids, raw link ids, secrets,
+  SQL, stack traces, provider/runtime fields, Redis, Cloudflare, jobs, billing,
+  or member/admin copy.
+
+Stale-selection result:
+
+- Opening bundle readback cleared manifest readback.
+- Opening manifest readback cleared bundle readback.
+
+Non-completed state note:
+
+- No failed/requested/processing Project manifest package was present in hosted
+  data. PR252 local helper/API tests cover bounded copy and disabled readback
+  actions for non-completed states.
+
+Validation:
+
+- `npx --yes --package @playwright/test@1.41.2 playwright test tmp-pr254-owner-project-export-rerun.spec.js --reporter=line --workers=1`
+  passed with 1 hosted rehearsal test.
+
+Next:
+
+- MIMIR closes PR252/PR253/PR254 and chooses the next roadmap move.
