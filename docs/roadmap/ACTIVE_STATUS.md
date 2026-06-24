@@ -4,14 +4,14 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest DAEDALUS implementation - PR289 Concept Label Carry-Through
+## Latest ARGUS review - PR289 Concept Label Carry-Through
 
-DAEDALUS completed PR289 on 2026-06-24:
+ARGUS accepted PR289 on 2026-06-24 with no review patch:
 `docs/roadmap/PR289_CONCEPT_LABEL_CARRY_THROUGH_RESULT.md`.
 
 Result:
 
-- Verdict: ready for ARGUS review.
+- Verdict: `PASS WITH CAVEATS`.
 - Strongest root-cause hypothesis: provider-facing focus used
   `memory (title): content`, which let selected labels/titles look optional
   while supporting phrase content looked like the answer.
@@ -22,14 +22,16 @@ Result:
   owner explicitly asks otherwise.
 - No retry, retrieval, context assembly, provider routing, schema, seed, import,
   UI, billing, or infrastructure behavior changed.
+- Validation passed: `test:retrieval-metadata`, `test:persona-context`,
+  `test:conversation-archive`, `test:replay-readiness`, `typecheck`, and
+  `lint` with existing raw `<img>` warnings only.
+- `git diff --check` and `git diff --cached --check` passed.
+- ARGUS added-line hygiene scan found no credential-like values, emails,
+  credentialed URLs, UUID-shaped ids, raw prompts, or private source bodies.
 
 Current baton:
 
-- ARGUS should review label/fact pairing, provider payload wording,
-  stored-message boundary, no-hardcoding, no scope creep, and no secret/raw-data
-  leakage.
-- If accepted, ARGUS should recommend whether MIMIR opens an ARIADNE PR290
-  hosted rerun.
+- MIMIR should open an ARIADNE hosted PR290 rerun after deploy.
 
 ## Latest ARIADNE review - PR288 Hosted Runtime Answer Rerun
 

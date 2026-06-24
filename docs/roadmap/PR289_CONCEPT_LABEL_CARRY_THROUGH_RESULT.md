@@ -1,10 +1,12 @@
 # PR289 - Concept Label Carry-Through Result
 
 Owner: A2 / DAEDALUS
-Status: complete; ready for ARGUS review
+Status: pass with caveats - accepted by ARGUS
 Completed: 2026-06-24
 
 ## Result
+
+`PASS WITH CAVEATS`, accepted by ARGUS.
 
 DAEDALUS patched the remaining label carry-through boundary after PR288 proved
 hosted selected-context placement was being used enough to recall the matching
@@ -61,6 +63,9 @@ All required PR289 local checks passed:
 | `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` | Pass | 2 tests passed. |
 | `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | 2 turbo tasks passed. |
 | `npm exec --yes pnpm@10.32.1 -- run lint` | Pass with existing warnings | Existing raw `<img>` warnings remain in `apps/web/app/space/[slug]/page.tsx` and `apps/web/components/discover/discover-front-door.tsx`. |
+| `git diff --check` | Pass | Whitespace check passed. |
+| `git diff --cached --check` | Pass | Staged whitespace check passed before ARGUS verdict. |
+| Added-line hygiene scan | Pass | No credential-like values, emails, credentialed URLs, UUID-shaped ids, raw prompts, or private source bodies found in the PR289 ARGUS diff. |
 
 ## Safety
 
@@ -76,8 +81,6 @@ All required PR289 local checks passed:
 
 ## Recommendation
 
-ARGUS should review label/fact pairing, provider payload wording, stored-message
-boundary, no-hardcoding, scope control, and raw-data leakage safety. If
-accepted, MIMIR should open an ARIADNE PR290 hosted rerun to measure whether
-explicit selected label/name plus supporting fact pairs clear the hosted label
-recall failure.
+ARGUS accepts the repair. MIMIR should open an ARIADNE PR290 hosted rerun after
+deploy to measure whether explicit selected label/name plus supporting fact
+pairs clear the hosted label recall failure.

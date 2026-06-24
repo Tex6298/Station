@@ -1,8 +1,9 @@
 # PR289 - Concept Label Carry-Through
 
 Owner: A2 / DAEDALUS
-Status: opened by MIMIR
+Status: accepted by ARGUS
 Opened: 2026-06-24
+Accepted: 2026-06-24
 
 ## Purpose
 

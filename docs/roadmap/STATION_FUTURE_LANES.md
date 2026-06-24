@@ -123,8 +123,8 @@ unless provider-prompt evidence proves selected labels are absent.
 DAEDALUS completed PR289 by changing provider selected-context focus from
 parenthetical titles to explicit `selected label/name` plus `supporting fact`
 pairs and adding a generic instruction to include selected labels, names, or
-titles with relevant facts. ARGUS review should decide whether MIMIR opens an
-ARIADNE PR290 hosted rerun.
+titles with relevant facts. ARGUS accepted PR289 with no review patch and
+recommends that MIMIR open an ARIADNE PR290 hosted rerun after deploy.
 
 ## Phase 2D Developer Agent closeout
 

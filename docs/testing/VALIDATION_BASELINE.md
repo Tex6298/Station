@@ -32,10 +32,10 @@ Memory/observability implementation lane.
 
 ## PR289 Concept Label Carry-Through
 
-DAEDALUS completed PR289 on 2026-06-24:
+ARGUS accepted PR289 on 2026-06-24 with no review patch:
 `docs/roadmap/PR289_CONCEPT_LABEL_CARRY_THROUGH_RESULT.md`.
 
-Result: ready for ARGUS review.
+Result: `PASS WITH CAVEATS`.
 
 Validation result:
 
@@ -53,6 +53,9 @@ Validation result:
 | `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` | Pass | 2 tests passed. |
 | `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | 2 turbo tasks passed. |
 | `npm exec --yes pnpm@10.32.1 -- run lint` | Pass with existing warnings | Existing raw `<img>` warnings remain in `apps/web/app/space/[slug]/page.tsx` and `apps/web/components/discover/discover-front-door.tsx`. |
+| `git diff --check` | Pass | Whitespace check passed. |
+| `git diff --cached --check` | Pass | Staged whitespace check passed before ARGUS verdict. |
+| Added-line hygiene scan | Pass | No credential-like values, emails, credentialed URLs, UUID-shaped ids, raw prompts, or private source bodies found in the PR289 ARGUS diff. |
 
 ## PR288 Hosted Runtime Answer Rerun Result
 
