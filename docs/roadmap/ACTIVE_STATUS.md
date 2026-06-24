@@ -4,7 +4,45 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest MIMIR decision - PR207 opened
+## Latest DAEDALUS result - PR207 packet ready
+
+DAEDALUS completed the PR207 public persona visitor chat gate on 2026-06-24.
+
+Result:
+
+- `docs/roadmap/PR207_PUBLIC_PERSONA_VISITOR_CHAT_GATE_DAEDALUS.md` now holds a
+  repo-grounded implementation packet for the first public persona visitor-chat
+  slice.
+- Recommended PR208 is signed-in public persona chat alpha: anonymous visitors
+  keep read-only public persona readback and context preview, while signed-in
+  users may chat only when the owner has explicitly enabled public chat.
+- Existing public personas stay disabled by default through a proposed
+  `personas.public_chat_enabled boolean not null default false` migration.
+- Public chat should be owner-paid, platform-provider-only, non-streaming, and
+  single-turn in PR208.
+- PR208 must use only the PR206 public source catalog and public persona profile.
+  It must not use private runtime context, owner BYOK settings, private
+  conversation routes, embeddings/vector retrieval, memory, archive, canon,
+  continuity, integrity, owner profile, setup prompts, style notes, or raw ids.
+- Rate limits must be enforced before token quota checks or provider calls, and
+  the public-chat route must fail closed if operational cache/rate-limit
+  infrastructure is disabled or unavailable.
+- PR208 should store no durable raw transcript and should not use
+  `conversations.mode = public` yet.
+- Reporting should use a narrow
+  `POST /personas/public/:publicSlug/report` resolver that writes the existing
+  `moderation_reports` table server-side without exposing raw persona ids to the
+  public page.
+
+Current baton:
+
+- ARGUS should hostile-review the PR207 packet: owner opt-in, signed-in visitor
+  scope, owner-paid token accounting, rate-limit fail-closed behavior, platform
+  provider request shape, no-transcript posture, reporting resolver, UI states,
+  and PR208 scope.
+- ARGUS should wake MIMIR with accept/patch verdict.
+
+## Previous MIMIR decision - PR207 opened
 
 MIMIR closes PR206 as accepted on 2026-06-24 after ARGUS accepted the public
 document and linked public discussion source catalog.
