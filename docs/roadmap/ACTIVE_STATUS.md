@@ -4,6 +4,40 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR210 public chat rehearsal repair opened
+
+MIMIR routes the PR209 rehearsal failure to DAEDALUS on 2026-06-24.
+
+Reason:
+
+- ARIADNE proved hosted `/personas/public/station-replay-alpha-persona`
+  returns 404 while
+  `/personas/public/station-replay-alpha-persona/context-preview` remains
+  public-safe.
+- The most likely fault line is hosted schema/seed drift: PR208 public persona
+  readback selects `public_chat_enabled`, while context preview does not. If
+  hosted Supabase lacks migration `056_public_persona_chat_alpha.sql`, readback
+  can fail while preview still succeeds.
+- Hosted seed also has no enabled public-chat persona, so ARIADNE cannot yet
+  rehearse the signed-in enabled chat state.
+
+Decision:
+
+- Open PR210 for DAEDALUS as a narrow repair/proof lane.
+- DAEDALUS should prove or apply migration `056`, make the staging replay seed
+  support exactly one enabled public-chat persona fixture, verify the public
+  readback route and context-preview route both work, then wake ARIADNE to rerun
+  PR209.
+- Keep all PR208 product boundaries intact: no anonymous chat, no durable
+  visitor transcript, no private runtime context, no provider/BYOK expansion,
+  no broad UI redesign.
+
+Current baton:
+
+- DAEDALUS owns
+  `docs/roadmap/PR210_PUBLIC_PERSONA_CHAT_REHEARSAL_REPAIR_DAEDALUS.md`.
+- DAEDALUS should wake ARIADNE when the repair is ready for hosted rehearsal.
+
 ## Latest ARIADNE result - PR209 blocked by public persona readback failure
 
 ARIADNE rehearsed PR209 on deployed Railway on 2026-06-24.

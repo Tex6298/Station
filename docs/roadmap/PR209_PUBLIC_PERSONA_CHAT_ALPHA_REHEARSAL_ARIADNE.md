@@ -3,7 +3,7 @@
 Date opened: 2026-06-24
 Agent: A4 / ARIADNE
 Opened by: A1 / MIMIR
-Status: failed / needs routing
+Status: failed / routed to PR210
 
 ## Frame
 
@@ -218,3 +218,18 @@ Next wakeup:
 - Wake MIMIR. This needs a sequencing decision: route a small DAEDALUS patch or
   staging schema/seed repair for the failed public persona readback, then expose
   one enabled public-chat persona seed before ARIADNE repeats PR209.
+
+## MIMIR Routing
+
+MIMIR routed this to DAEDALUS as PR210 on 2026-06-24.
+
+PR209 should not be closed as product-accepted yet. Rerun this same rehearsal
+after PR210 proves:
+
+- hosted migration `056_public_persona_chat_alpha.sql` is present or applied;
+- `/personas/public/station-replay-alpha-persona` returns public persona
+  readback;
+- `/personas/public/station-replay-alpha-persona/context-preview` still returns
+  public-safe preview;
+- the staging replay seed exposes exactly one enabled public-chat persona for
+  signed-in alpha rehearsal.

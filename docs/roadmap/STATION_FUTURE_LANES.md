@@ -182,12 +182,16 @@ Current intent:
   persona chat alpha with review patches for disabled signed-out copy and
   public-safe report insert failures. PR209 opens ARIADNE human rehearsal
   before any follow-on code lane.
+- PR209 result: ARIADNE blocked the hosted rehearsal because the public persona
+  readback route returns 404 while context preview remains public-safe, and the
+  hosted seed has no enabled public-chat persona. PR210 opens a narrow
+  DAEDALUS schema/seed/readback repair before rerunning PR209.
 
 ## Phase 3 bridge sequence
 
-Status, 2026-06-24: PR202 through PR208 are accepted. PR209 is open for
-ARIADNE to rehearse signed-in public persona chat alpha on the deployed human
-route before the next implementation lane.
+Status, 2026-06-24: PR202 through PR208 are accepted. PR209 is blocked by hosted
+schema/seed/readback evidence. PR210 is open for DAEDALUS to repair the public
+persona readback rehearsal target and provide one enabled public-chat seed.
 
 Current MIMIR position:
 
@@ -213,9 +217,11 @@ Bridge order:
 7. Done: bounded visitor chat design gate.
 8. Done: signed-in public persona chat alpha with rate/message limits and
    reporting.
-9. Active: ARIADNE human rehearsal of signed-in public persona chat alpha.
-10. Owner analytics, moderation, and report readback.
-11. Only then consider Roulette, Salons, voice/avatar, public persona events,
+9. Blocked: ARIADNE human rehearsal of signed-in public persona chat alpha.
+10. Active: DAEDALUS hosted schema/seed/readback repair for PR209.
+11. Rerun PR209 with ARIADNE.
+12. Owner analytics, moderation, and report readback.
+13. Only then consider Roulette, Salons, voice/avatar, public persona events,
    institutional/research features, or persona-to-persona encounters.
 
 ARGUS P3-B1A gates:
