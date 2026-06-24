@@ -22,7 +22,7 @@ they are not Station validation failures.
 
 ## PR252 Owner Project Export UI Panel
 
-DAEDALUS implementation validation on 2026-06-24:
+DAEDALUS implementation and ARGUS review validation on 2026-06-24:
 
 | Command | Result | Notes |
 | --- | --- | --- |
@@ -37,6 +37,8 @@ Scope notes:
 
 - Added the owner Project export UI panel only to the authenticated private
   Project detail route.
+- ARGUS patched the panel to clear stale manifest/bundle readback when the
+  owner switches selections or creates a fresh manifest.
 - The panel uses existing owner-only export APIs:
   `GET /exports/projects/:projectIdOrSlug`,
   `POST /exports/projects/:projectIdOrSlug`,
@@ -47,6 +49,11 @@ Scope notes:
   navigation change was added.
 - ARIADNE hosted owner-eye rehearsal is expected after ARGUS accepts because
   this lane shipped visible browser behavior.
+
+ARGUS review verdict:
+
+- `ACCEPT` with the narrow UI honesty patch above.
+- ARIADNE hosted owner-eye rehearsal is required before MIMIR closeout.
 
 ## PR251 Owner Project Manifest Bundle Readback
 

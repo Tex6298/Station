@@ -4,11 +4,11 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest DAEDALUS handoff - PR252 Owner Project Export UI Panel
+## Latest ARGUS review - PR252 Owner Project Export UI Panel
 
-DAEDALUS implemented PR252 on 2026-06-24. ARGUS review is pending.
+ARGUS accepts PR252 on 2026-06-24 with one narrow UI honesty patch.
 
-Implemented:
+Review findings:
 
 - Added a compact private owner Project export panel to
   `apps/web/app/projects/[idOrSlug]/page.tsx`, below the owner-only Project
@@ -24,6 +24,8 @@ Implemented:
   actions, summary copy, and bounded failed-state copy.
 - Failed, malformed, non-completed, and unavailable readback states show
   bounded UI copy rather than raw stored errors.
+- ARGUS patched the panel to clear stale manifest/bundle readback when the
+  owner switches selections or creates a fresh manifest.
 
 Validation:
 
@@ -43,12 +45,34 @@ Scope notes:
   provider/runtime, Developer Space observatory, Studio, Settings, or global
   navigation change was added.
 - This is visible browser behavior on the private owner Project page, so
-  ARIADNE hosted owner-eye rehearsal is expected after ARGUS review accepts it.
+  ARIADNE hosted owner-eye rehearsal is required before closeout.
+
+ARIADNE rehearsal brief:
+
+- Verify hosted web/API deployment health on `main` at or beyond the ARGUS
+  review commit.
+- Sign in as replay owner without printing secrets.
+- On desktop and 390px mobile, open a private owner Project detail route and
+  confirm the `Project export` panel appears below Project evidence.
+- Confirm the panel is absent from anonymous/public Project routes, Discover,
+  global navigation, Studio, Settings, Billing, and public Developer Space
+  routes.
+- List packages, create a manifest, open completed manifest readback, and open
+  bundle file readback using only the accepted owner export APIs.
+- Confirm visible bundle files are exactly `README.md`, `manifest.json`, and
+  `manifest.md`, with visible content limited to README, bytes, and truncated
+  hashes; no downloads, signed URLs, public bundle URLs, ZIP/PDF/binary actions,
+  manifest JSON dumps, or file body dumps.
+- Confirm no document bodies, source ids, raw link ids, secrets, SQL, stack
+  traces, provider/runtime fields, Redis, Cloudflare, jobs, billing, or
+  member/admin copy appears.
+- Confirm switching readback selections does not leave stale previous-package
+  details visible.
+- Confirm no horizontal overflow or offscreen controls on desktop or mobile.
 
 Current baton:
 
-- ARGUS should review PR252 against the opened scope and decide the exact
-  ARIADNE rehearsal brief if accepted.
+- MIMIR should open ARIADNE hosted owner-eye rehearsal before closing PR252.
 
 ## Latest ARGUS review - PR251 Owner Project Manifest Bundle Readback
 

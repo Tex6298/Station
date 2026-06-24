@@ -50,13 +50,14 @@ export function ProjectExportPanel({
   async function createManifest() {
     setCreating(true);
     setError(null);
+    setManifest(null);
+    setBundle(null);
     try {
       const response = await apiPost<{
         exportPackage: ProjectExportPackage;
         manifestMarkdown?: string | null;
       }>(`/exports/projects/${encodedProject}`, {}, token);
       setExportPackages((current) => [response.exportPackage, ...current.filter((item) => item.id !== response.exportPackage.id)]);
-      setBundle(null);
       setManifest({
         packageId: response.exportPackage.id,
         text: response.manifestMarkdown || "Manifest readback is not available for this package yet.",
@@ -72,6 +73,7 @@ export function ProjectExportPanel({
 
   async function loadManifest(packageId: string) {
     setError(null);
+    setBundle(null);
     try {
       const response = await apiGet<{
         exportPackage: ProjectExportPackage;
@@ -92,6 +94,7 @@ export function ProjectExportPanel({
 
   async function loadBundle(packageId: string) {
     setError(null);
+    setManifest(null);
     try {
       const response = await apiGet<{ bundle: ProjectExportBundle }>(`/exports/${packageId}/bundle`, token);
       setBundle(response.bundle);

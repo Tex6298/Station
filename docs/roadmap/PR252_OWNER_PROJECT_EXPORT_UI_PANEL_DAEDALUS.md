@@ -2,7 +2,7 @@
 
 Owner: DAEDALUS
 Reviewer: ARGUS
-Status: Implemented - ARGUS review pending
+Status: Accepted by ARGUS with narrow patch - ARIADNE rehearsal pending
 Opened: 2026-06-24
 
 ## Frame
@@ -110,3 +110,87 @@ Task:
 - Decide whether ARIADNE hosted rehearsal is required; expected answer is yes if visible UI shipped.
 - Wake MIMIR with ACCEPT / FAIL / BLOCKED and the exact ARIADNE rehearsal brief if accepted.
 ```
+
+## ARGUS Review
+
+ARGUS completed hostile review on 2026-06-24.
+
+Verdict:
+
+- `ACCEPT`.
+- Accepted with one narrow UI honesty patch.
+- ARIADNE hosted owner-eye rehearsal is required before MIMIR closes PR252
+  because this lane added visible private Project browser behavior.
+
+ARGUS patch:
+
+- Clear stale manifest readback when opening bundle readback, clear stale bundle
+  readback when opening manifest readback, and clear both before creating a new
+  manifest so the panel cannot show details from a previous package underneath a
+  new selection.
+
+Review findings:
+
+- The panel is mounted only on private owner Project detail
+  `apps/web/app/projects/[idOrSlug]/page.tsx`.
+- UI wiring uses only accepted owner APIs:
+  `GET /exports/projects/:projectIdOrSlug`,
+  `POST /exports/projects/:projectIdOrSlug`, `GET /exports/:id`, and
+  `GET /exports/:id/bundle`.
+- Completed packages expose manifest and bundle readback actions; non-completed
+  and failed packages do not expose readback buttons.
+- Failed and unavailable states use bounded generic copy rather than stored
+  error messages, stack traces, SQL, env values, source ids, or raw API details.
+- Bundle UI shows the file list and README readback only; it does not add
+  downloads, signed URLs, public bundle URLs, ZIP/PDF/binary packaging, or file
+  blobs.
+- No schema, API route, public Project route, Discover surface,
+  membership/admin/billing permission, export payload, bundle behavior, jobs,
+  Redis, Cloudflare, provider/runtime, Studio, Settings, Developer Space public
+  observatory, or global navigation change was added.
+
+Validation:
+
+```text
+npm exec --yes pnpm@10.32.1 -- run test:projects passed with 16 tests.
+npm exec --yes pnpm@10.32.1 -- run test:exports passed with 6 tests.
+npm exec --yes pnpm@10.32.1 -- run typecheck passed.
+npm exec --yes pnpm@10.32.1 -- run lint passed with existing raw <img> warnings only.
+git diff --check passed with CRLF warnings only.
+git diff --cached --check passed.
+```
+
+## ARIADNE Brief
+
+If MIMIR accepts this review, open ARIADNE hosted owner-eye rehearsal with this
+scope:
+
+- Verify hosted web/API `/health/deployment` are healthy, ready, on `main`, and
+  at or beyond the ARGUS review commit.
+- Sign in as the replay owner without printing secrets, cookies, headers, or
+  tokens.
+- Visit a private owner Project detail route on desktop and 390px mobile.
+- Confirm the `Project export` panel appears below the owner-only Project
+  evidence surface and does not appear on anonymous/public Project routes,
+  Discover, global navigation, Studio, Settings, Billing, or public Developer
+  Space routes.
+- Confirm the panel lists existing Project manifest packages through
+  `GET /exports/projects/:projectIdOrSlug` only.
+- Create a Project manifest from the panel and confirm the UI uses only
+  `POST /exports/projects/:projectIdOrSlug`, then refreshes the owner package
+  list.
+- Open a completed manifest and confirm readback is owner-only Project manifest
+  Markdown with no document bodies, source ids, raw link ids, secrets, SQL,
+  stack traces, provider/runtime fields, Redis, Cloudflare, jobs, billing, or
+  member/admin copy.
+- Open completed bundle files and confirm the visible file list is exactly
+  `README.md`, `manifest.json`, and `manifest.md`; visible content is limited
+  to the README, bytes, and truncated hashes, with no download URL, signed URL,
+  public bundle URL, ZIP/PDF/binary action, or manifest JSON/file body dump.
+- Switch between manifest and bundle readback and confirm stale details from a
+  previous package do not remain visible under the new selection.
+- If a failed or non-completed package is available, confirm it shows bounded
+  status/copy and no readback buttons; otherwise rely on local helper tests for
+  failed/non-completed copy.
+- Confirm desktop and mobile layouts have no horizontal document overflow,
+  offscreen controls, or unreadable action clusters.
