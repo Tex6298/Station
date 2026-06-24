@@ -54,6 +54,10 @@ then let staged replay reveal the next optimizations.
   was safe and traceable but only partially recalled the seeded anchor set.
   MIMIR opens PR275 as a narrow DAEDALUS answer-quality triage because full
   two-anchor recall is the seeded replay acceptance bar.
+- PR275 patched the narrow retrieval-selection cause: vector Memory retrieval
+  now supplements spare requested slots with owner-scoped, lifecycle-filtered
+  lexical Memory matches. This needs ARGUS review and a hosted rerun after
+  deploy before the two-anchor recall caveat can be closed from live evidence.
 - Broader known caveats still travel into staging review instead of spawning
   more local polish: static global Archive/Export shells, dashboard
   derived/static snippets, no downloadable bundles/workers, and no new private

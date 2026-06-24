@@ -139,13 +139,27 @@ export async function searchMemoryWithTrace(options: {
       rows,
     });
 
+    const supplementedResults = filtered.results.length < limit
+      ? [
+          ...filtered.results,
+          ...await keywordSupplementalSearch({
+            supabase,
+            personaId,
+            query,
+            limit: limit - filtered.results.length,
+            ownerUserId,
+            excludeIds: new Set(filtered.results.map((row) => row.id)),
+          }),
+        ]
+      : filtered.results;
+
     return {
-      results: filtered.results,
+      results: supplementedResults,
       trace: buildMemoryTrace({
         mode: "vector",
         fallbackMode: "none",
         searched: rows.length,
-        selected: filtered.results,
+        selected: supplementedResults,
         skipped: filtered.skipped,
       }),
     };
@@ -255,6 +269,55 @@ async function keywordFallbackSearch(
       skipped,
     }),
   };
+}
+
+async function keywordSupplementalSearch(input: {
+  supabase: SupabaseClient;
+  personaId: string;
+  query: string;
+  limit: number;
+  ownerUserId?: string;
+  excludeIds: Set<string>;
+}): Promise<MemorySearchResult[]> {
+  if (input.limit <= 0) return [];
+
+  const memoryQuery = input.supabase
+    .from("memory_items")
+    .select("id, persona_id, title, content, summary, source_type, relevance_weight, archive_source_type")
+    .eq("persona_id", input.personaId)
+    .order("relevance_weight", { ascending: false })
+    .limit(KEYWORD_MEMORY_CANDIDATE_POOL);
+
+  if (input.ownerUserId) memoryQuery.eq("owner_user_id", input.ownerUserId);
+
+  const { data } = await memoryQuery;
+  if (!data) return [];
+
+  const lifecycleByMemoryId = await loadMemoryLifecycleMap(input.supabase, input.personaId, input.ownerUserId);
+  const tokens = tokenize(input.query);
+
+  return data
+    .filter((row) => {
+      if (input.excludeIds.has(row.id)) return false;
+      if (classifyMemorySkip(row, lifecycleByMemoryId.get(row.id))) return false;
+      return keywordMemoryLexicalScore(row, tokens, input.query) > 0;
+    })
+    .map((row) => {
+      const lexicalScore = keywordMemoryLexicalScore(row, tokens, input.query);
+      return {
+        id: row.id,
+        personaId: row.persona_id,
+        title: row.title,
+        content: row.content,
+        summary: row.summary,
+        sourceType: row.source_type,
+        relevanceWeight: row.relevance_weight,
+        similarity: lexicalScore / Math.max(tokens.length, 1) + Number(row.relevance_weight ?? 0) / 1000,
+        lifecycleStatus: lifecycleByMemoryId.get(row.id)?.status ?? "active",
+      };
+    })
+    .sort((a, b) => b.similarity - a.similarity || b.relevanceWeight - a.relevanceWeight)
+    .slice(0, input.limit);
 }
 
 async function loadMemoryLifecycleMap(
@@ -390,6 +453,16 @@ function keywordMemoryScore(
 ) {
   if (tokens.length === 0) return Number(row.relevance_weight ?? 0) / 100;
 
+  return keywordMemoryLexicalScore(row, tokens, query) / tokens.length + Number(row.relevance_weight ?? 0) / 1000;
+}
+
+function keywordMemoryLexicalScore(
+  row: { title?: string | null; content: string; summary?: string | null },
+  tokens: string[],
+  query: string
+) {
+  if (tokens.length === 0) return 0;
+
   const title = normalizeText(row.title ?? "");
   const summary = normalizeText(row.summary ?? "");
   const content = normalizeText(row.content);
@@ -407,7 +480,7 @@ function keywordMemoryScore(
   else if (phrase && summary.includes(phrase)) score += 3;
   else if (phrase && haystack.includes(phrase)) score += 2;
 
-  return score / tokens.length + Number(row.relevance_weight ?? 0) / 1000;
+  return score;
 }
 
 function tokenize(query: string) {

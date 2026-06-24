@@ -112,6 +112,28 @@ test("persona runtime context shares one query embedding across memory and archi
   }
 });
 
+test("vector memory search backfills exact lexical anchors when vector misses them", async () => {
+  const db = new VectorMissesLexicalSupabase();
+
+  const retrieval = await searchMemoryWithTrace({
+    supabase: db.client as any,
+    ownerUserId: "owner-1",
+    personaId: "persona-1",
+    query: "accepted synthetic staging anchors invented retrieval phrases",
+    limit: 3,
+    queryEmbedding: new Array(ACTIVE_EMBEDDING_DIMENSION).fill(0.001),
+  });
+
+  assert.equal(retrieval.trace.mode, "vector");
+  assert.equal(retrieval.trace.fallbackMode, "none");
+  assert.deepEqual(
+    retrieval.results.map((row) => row.id),
+    ["vector-memory", "lexical-anchor"]
+  );
+  assert.equal(retrieval.trace.selected.some((source) => source.id === "lexical-anchor"), true);
+  assert.equal(retrieval.trace.selected.some((source) => source.id === "rejected-control"), false);
+});
+
 test("memory search uses keyword fallback without an embedding key", async () => {
   const db = new KeywordFallbackSupabase();
 
@@ -366,6 +388,79 @@ class VectorSupabase {
   rows(table: string) {
     return this.tables[table] ?? [];
   }
+}
+
+class VectorMissesLexicalSupabase extends VectorSupabase {
+  override tables: Record<string, Row[]> = {
+    memory_items: [
+      {
+        id: "vector-memory",
+        persona_id: "persona-1",
+        owner_user_id: "owner-1",
+        title: "General vector memory",
+        content: "A plausible vector result about continuity hygiene.",
+        summary: "Vector result without the seeded replay anchors.",
+        source_type: "manual",
+        relevance_weight: 5,
+        archive_source_type: null,
+      },
+      {
+        id: "lexical-anchor",
+        persona_id: "persona-1",
+        owner_user_id: "owner-1",
+        title: "Synthetic staging anchors",
+        content:
+          "Synthetic replay chat memory binds Meridian Loom to silver compass ledger and Helio Gate to blue lantern checksum. Both phrases are invented staging anchors for measurement.",
+        summary: "Accepted synthetic staging anchors and invented retrieval phrases.",
+        source_type: "manual",
+        relevance_weight: 1,
+        archive_source_type: null,
+      },
+      {
+        id: "rejected-control",
+        persona_id: "persona-1",
+        owner_user_id: "owner-1",
+        title: "Rejected amber shortcut",
+        content: "Rejected amber staging shortcut should stay filtered out.",
+        summary: "Rejected control.",
+        source_type: "manual",
+        relevance_weight: 100,
+        archive_source_type: null,
+      },
+    ],
+    memory_item_lifecycle: [
+      lifecycleRow("vector-memory", "owner-1", "active"),
+      lifecycleRow("lexical-anchor", "owner-1", "active"),
+      lifecycleRow("rejected-control", "owner-1", "rejected"),
+    ],
+  };
+
+  override client = {
+    rpc: async (functionName: string, args: Record<string, any>) => {
+      this.rpcCalls.push({ functionName, args });
+      if (functionName === "match_memory_items") {
+        assert.equal(args.query_embedding.length, ACTIVE_EMBEDDING_DIMENSION);
+        return {
+          data: [
+            {
+              id: "vector-memory",
+              persona_id: "persona-1",
+              title: "General vector memory",
+              content: "A plausible vector result about continuity hygiene.",
+              summary: "Vector result without the seeded replay anchors.",
+              source_type: "manual",
+              relevance_weight: 5,
+              similarity: 0.98,
+            },
+          ],
+          error: null,
+        };
+      }
+
+      return { data: null, error: { message: `Unexpected RPC ${functionName}` } };
+    },
+    from: (table: string) => new QueryBuilder(this, table),
+  };
 }
 
 class QueryBuilder {

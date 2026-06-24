@@ -69,8 +69,12 @@ passed, and the single chat turn was safe and traceable. The caveat is runtime
 answer quality: the model only partially recalled the seeded anchor set despite
 Memory, Archive, Continuity, Integrity, and Canon context being present.
 
-MIMIR chooses full two-anchor recall as the acceptance bar for the seeded replay
-probe. PR275 is now the active narrow DAEDALUS runtime answer-quality triage.
+MIMIR chose full two-anchor recall as the acceptance bar for the seeded replay
+probe. PR275 patched the narrow retrieval-selection defect: vector Memory
+retrieval now backfills spare requested slots with owner-scoped,
+lifecycle-filtered lexical Memory matches. ARGUS should review the patch before
+MIMIR opens the hosted rerun needed to close the answer-quality caveat from live
+evidence.
 
 ## Phase 2D Developer Agent closeout
 

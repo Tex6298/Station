@@ -32,10 +32,31 @@ Memory/observability implementation lane.
 
 ## PR275 Runtime Answer Quality Triage
 
-MIMIR opened PR275 for DAEDALUS on 2026-06-24 after PR274 returned `PASS WITH
-CAVEATS`.
+DAEDALUS completed PR275 on 2026-06-24:
+`docs/roadmap/PR275_RUNTIME_ANSWER_QUALITY_TRIAGE_RESULT.md`.
 
-Required validation:
+Result: `PASS WITH CAVEATS`, pending ARGUS review.
+
+Validation result:
+
+| Check | Result | Notes |
+| --- | --- | --- |
+| Intended replay persona selection | Pass | Three owned personas existed; the first private platform persona was selected and was the only persona with broad replay context counts. |
+| Accepted anchor context selection | Patched | PR274 generic context selected only one accepted concept and one phrase. Active Memory contained the full accepted set; targeted Archive/context queries could retrieve it. |
+| Prompt assembly inspection | Pass with cause isolated | Generic prompt assembly only had the partial selected evidence. Explicit both-anchor context reached prompt assembly with the full accepted set. |
+| Rejected-control exclusion | Pass | Rejected-control signal was absent from selected context, explicit context, active Memory, and targeted Archive chunks. |
+| Patch | Pass | Vector Memory retrieval now fills spare requested slots with owner-scoped, lifecycle-filtered lexical Memory matches. |
+| `npm exec --yes pnpm@10.32.1 -- run test:retrieval-metadata` | Pass | 9 tests, including the new vector-miss lexical-backfill fixture. |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-context` | Pass | 8 tests. |
+| `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass | 35 tests. |
+| `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` | Pass | 2 tests. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | 2 turbo tasks. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass with existing warnings | Existing raw `<img>` warnings remain in `apps/web/app/space/[slug]/page.tsx` and `apps/web/components/discover/discover-front-door.tsx`. |
+
+ARGUS should review the code patch. If accepted, the next useful validation is
+a hosted rerun after deploy to prove full two-anchor recall live.
+
+Original required validation:
 
 | Check | Expected result | Notes |
 | --- | --- | --- |
