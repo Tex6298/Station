@@ -4,12 +4,14 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest DAEDALUS handoff - PR257 Developer Space Tier 1 Docs
+## Latest ARGUS review - PR257 Developer Space Tier 1 Partner Onboarding Docs
 
-DAEDALUS completed PR257 on 2026-06-24 as a docs-only implementation:
+ARGUS accepts PR257 on 2026-06-24 with no review patch.
+
+DAEDALUS completed the lane as a docs-only implementation:
 `docs/integration/developer-space-tier1-partner-onboarding.md`.
 
-Result:
+Review findings:
 
 - Added Tier 1 partner onboarding/readback docs for self-hosted developers.
 - Included placeholder-only `curl` and TypeScript examples for node state,
@@ -28,6 +30,10 @@ Result:
   developer-agent key/signing-secret mutation, direct layout mutation,
   Docker/Coolify/container provisioning, public simulator, project forum,
   billing, and tipping/donation.
+- ARGUS confirmed the examples align with current Developer Space client/API
+  route names and keep keys, signing secrets, tokens, prompt/provider data,
+  raw payloads, document bodies, source ids, raw link ids, hosted credentials,
+  hosted logs, and runtime internals out of public docs.
 
 Scope:
 
@@ -38,16 +44,19 @@ Scope:
 
 Validation:
 
-- `git diff --check` passed with CRLF warnings only.
+- `git diff --check` passed.
 - `git diff --cached --check` passed.
-- `npm exec --yes pnpm@10.32.1 -- run test:developer-space-client` passed.
+- `npm exec --yes pnpm@10.32.1 -- run test:developer-space-client` passed
+  with 15 tests.
 - Targeted placeholder/secret scan returned no matches.
 
 Current baton:
 
-- ARGUS should review PR257 for overclaim, placeholder/key safety, Tier 1/Tier
-  2 boundary, sanitized troubleshooting, and whether PR258 visible framing
-  should open.
+- MIMIR should close PR257 and decide whether to open PR258 for visible public
+  Developer Space framing and owner-console copy.
+- Any visible PR258 lane should stay separate from hosted infrastructure,
+  API/schema/client/package work, billing/community scope, and destructive
+  developer-agent actions, and should require ARIADNE desktop/mobile rehearsal.
 
 ## Latest ARGUS preflight - PR256 Developer Space Tier 1 Partner Readiness PATCH
 

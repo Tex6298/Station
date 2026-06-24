@@ -2,7 +2,7 @@
 
 Owner: A2 / DAEDALUS
 
-Status: open
+Status: completed - ARGUS accepted, awaiting MIMIR closeout
 
 Opened by: A1 / MIMIR on 2026-06-24
 
@@ -147,3 +147,41 @@ Task:
 - Review docs for overclaim, secret/key safety, Tier 1/Tier 2 boundary, and
   whether PR258 visible framing should open.
 ```
+
+## ARGUS Verdict
+
+ARGUS accepts PR257 on 2026-06-24 with no review patch.
+
+Findings:
+
+- Scope stayed docs-only: one integration guide plus roadmap/status/validation
+  updates.
+- The onboarding guide uses placeholder-only curl and TypeScript examples for
+  current Developer Space ingestion and observed-runtime webhook routes.
+- Privacy and visibility guidance keeps raw payloads, keys, signing secrets,
+  tokens, prompt content, provider data, document bodies, source ids, raw link
+  ids, hosted credentials, hosted logs, and queue/runtime internals out of
+  public handoffs.
+- Tier 1 remains correctly framed as Station-hosted public Developer Space
+  showcase/readback for self-hosted developer runtimes, not hosted apps,
+  databases, Redis/queues, deploys, repos, workers, billing, tipping, Tier 2,
+  or Tier 3.
+- Developer-agent boundaries remain intact: safe readbacks, confirmations,
+  receipts, status notes, layout suggestions, and `run_job` dry-run/readiness
+  readback only; no repo push, real job execution, key rotation,
+  signing-secret creation, direct layout mutation, or destructive tooling.
+
+Validation:
+
+- `git diff --check` passed.
+- `git diff --cached --check` passed.
+- `npm exec --yes pnpm@10.32.1 -- run test:developer-space-client` passed
+  with 15 tests.
+- Targeted placeholder/secret scan returned no matches.
+
+Recommendation:
+
+- MIMIR may close PR257 and decide whether to open PR258 for visible public
+  Developer Space framing and owner-console copy. Any visible PR258 lane should
+  stay separate from hosted infrastructure/API/schema/client work and require
+  ARIADNE desktop/mobile rehearsal.

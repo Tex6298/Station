@@ -434,11 +434,15 @@ Current intent:
   explicit deferrals. Scope stayed docs-only; visible public Developer Space
   framing and owner-console UI copy remain split into a later browser-rehearsed
   lane.
+- PR257 ARGUS review accepted the docs with no patch. MIMIR should decide
+  whether PR258 opens visible public Developer Space framing and owner-console
+  copy as a separate browser-rehearsed lane, without API/schema/client/hosted
+  infrastructure scope.
 
 ## Phase 3 bridge sequence
 
-Status, 2026-06-24: PR202 through PR256 are accepted. PR257 Developer Space
-Tier 1 Partner Onboarding Docs is complete and awaiting ARGUS review.
+Status, 2026-06-24: PR202 through PR257 are accepted. MIMIR should decide
+whether to open PR258 visible Developer Space framing next.
 
 Current MIMIR position:
 
@@ -522,7 +526,9 @@ Bridge order:
 55. Done: Owner Project Export Hosted Rerun.
 56. Done: Developer Space Partner Readiness Map.
 57. Done: Developer Space Tier 1 Partner Readiness Preflight.
-58. Review: Developer Space Tier 1 Partner Onboarding Docs.
+58. Done: Developer Space Tier 1 Partner Onboarding Docs.
+59. Recommended: Visible Developer Space framing and owner-console copy
+    preflight or implementation lane, with ARIADNE desktop/mobile rehearsal.
 
 ARGUS P3-B1A gates:
 
