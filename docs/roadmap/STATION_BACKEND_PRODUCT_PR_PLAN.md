@@ -511,8 +511,8 @@ Grounding Enforcement for DAEDALUS.
 final selected-context answer-focus guard after the persona voice close. The
 patch is prompt-only and explicitly makes latest owner message plus answer
 focus outrank prior chat history, earlier assistant guesses, or persona
-flourish. ARGUS review is pending; if accepted, MIMIR should open an ARIADNE
-hosted PR284 rerun after deploy.
+flourish. ARGUS accepted the patch; MIMIR should open an ARIADNE hosted PR284
+rerun after deploy.
 
 2026-06-23 Phase 3 bridge decision: MIMIR consumed the A1 bridge wakeup and
 opened PR201 for ARGUS hostile boundary preflight. Phase 3 is not ready for

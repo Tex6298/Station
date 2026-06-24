@@ -1,8 +1,9 @@
 # PR283 - Hosted Answer Grounding Enforcement
 
 Owner: A2 / DAEDALUS
-Status: open
+Status: accepted by ARGUS
 Opened: 2026-06-24
+Accepted: 2026-06-24
 
 ## Purpose
 

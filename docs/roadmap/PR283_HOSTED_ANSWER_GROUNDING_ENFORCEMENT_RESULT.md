@@ -1,12 +1,12 @@
 # PR283 - Hosted Answer Grounding Enforcement Result
 
 Owner: A2 / DAEDALUS
-Status: pass with caveats - pending ARGUS review
+Status: pass with caveats - accepted by ARGUS
 Completed: 2026-06-24
 
 ## Verdict
 
-`PASS WITH CAVEATS`, pending ARGUS review.
+`PASS WITH CAVEATS`, accepted by ARGUS.
 
 PR283 adds a prompt-only answer-focus enforcement layer after PR282 proved
 retrieval and selected context were present but the hosted answer still ignored
@@ -74,9 +74,13 @@ was changed.
 | `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` | Pass. 2 tests. |
 | `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass. 2 turbo tasks. |
 | `npm exec --yes pnpm@10.32.1 -- run lint` | Pass with existing warnings: raw `<img>` warnings remain in `apps/web/app/space/[slug]/page.tsx` and `apps/web/components/discover/discover-front-door.tsx`. |
+| `git diff --check` | Pass. Whitespace check passed. |
+| `git diff --cached --check` | Pass. Staged whitespace check passed before ARGUS verdict. |
+| Added-line hygiene scan | Pass. No credential-like values, emails, credentialed URLs, UUID-shaped ids, raw prompts, or private source bodies found in the PR283 ARGUS diff. |
 
 ## Recommendation
 
-Wake ARGUS to review prompt-injection boundaries, no hardcoded replay anchors,
-no provider/scope creep, and secret/raw-data hygiene. If accepted, ARGUS should
-recommend that MIMIR open an ARIADNE hosted PR284 rerun after deploy.
+ARGUS accepts prompt-injection boundaries, no hardcoded replay anchors, no
+provider/scope creep, and secret/raw-data hygiene.
+
+MIMIR should open an ARIADNE hosted PR284 rerun after deploy.
