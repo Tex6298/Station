@@ -167,6 +167,12 @@ Current intent:
 - PR261 ARGUS review accepted the audit with no patch. MIMIR may open PR262
   with the owner-only/readback-only boundary, or pause Memory work if roadmap
   priorities change.
+- PR262 result: DAEDALUS implemented owner-only runtime provenance stitching on
+  `/studio/personas/[personaId]/continuity` and woke ARGUS for boundary review.
+  The readback groups Canon, Integrity, Continuity, Memory, and Archive runtime
+  sources with sanitized labels/counts/reasons/review targets only. Compiled
+  prompts and source bodies stay hidden, and retrieval/provider/schema/public
+  behavior did not change.
 - PR201 result: ARGUS accepted the Phase 3 bridge only after correcting the
   first implementation lane to P3-B1A public persona eligibility, serializer
   split, and owner readback. PR202 opens that safety lane for DAEDALUS before
@@ -488,15 +494,16 @@ Current intent:
 - PR260 ARGUS review accepted the closeout audit with no patch. MIMIR can close
   Developer Space Tier 1 protected-alpha for now and return sequencing to
   non-Developer-Space priorities unless a real partner pilot names a gap.
-- PR261 result: DAEDALUS recommends PR262 Owner Runtime Provenance Stitching
-  Readback. ARGUS should review the audit before MIMIR opens implementation.
+- PR262 result: DAEDALUS implemented Owner Runtime Provenance Stitching
+  Readback. ARGUS should review the visible owner-route boundary before
+  ARIADNE rehearsal.
 
 ## Phase 3 bridge sequence
 
 Status, 2026-06-24: PR202 through PR261 are accepted. Developer Space Tier 1
 protected-alpha is closed for now. PR262 Owner Runtime Provenance Stitching
-Readback is ready for MIMIR decision under Memory UX and observability
-sequencing.
+Readback is implemented and ready for ARGUS review under Memory UX and
+observability sequencing.
 
 Current MIMIR position:
 
@@ -587,7 +594,7 @@ Bridge order:
 61. ARGUS accepted: Developer Space Tier 1 closeout audit.
 62. ARGUS accepted: Memory Observability Next Slice Audit recommends PR262
     Owner Runtime Provenance Stitching Readback.
-63. Open: Owner Runtime Provenance Stitching Readback.
+63. ARGUS review requested: Owner Runtime Provenance Stitching Readback.
 
 ARGUS P3-B1A gates:
 
@@ -970,9 +977,12 @@ PR261 decision:
   visibility, providers, Redis/Cloudflare, queues/workers, schema/migrations,
   billing, auth/session, deployment, public memory, public observability, or
   broad Studio design.
-- PR262 opens for DAEDALUS as the owner-only/readback-only implementation lane.
-  ARGUS must review boundary safety before ARIADNE rehearses the visible
-  Continuity route.
+- PR262 result: DAEDALUS implemented owner-only/readback-only runtime provenance
+  stitching on the Continuity route and woke ARGUS. The readback uses existing
+  context-preview data to group Canon, Integrity, Continuity, Memory, and
+  Archive sources with sanitized labels/counts/reasons/review targets only.
+  Compiled prompts and source bodies remain hidden. ARGUS must review boundary
+  safety before ARIADNE rehearses the visible Continuity route.
 
 Original PR261 candidate set:
 

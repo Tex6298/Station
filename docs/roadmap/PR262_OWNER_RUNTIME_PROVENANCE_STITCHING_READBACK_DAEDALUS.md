@@ -139,3 +139,62 @@ Task:
 If implementing the readback requires a new API, schema, serializer, retrieval,
 provider, or authorization change, stop and wake ARGUS with the blocker instead
 of widening scope.
+
+## DAEDALUS Implementation Result
+
+Implemented on 2026-06-24.
+
+Files changed:
+
+- `apps/web/lib/continuity-ui.ts`
+- `apps/web/lib/continuity-ui.test.ts`
+- `apps/web/app/studio/personas/[personaId]/continuity/page.tsx`
+- `apps/api/src/routes/continuity.test.ts`
+- roadmap/status/validation docs
+
+Implementation summary:
+
+- Added `buildRuntimeProvenanceReadback`, a focused Continuity UI helper that
+  groups runtime context sources into Canon, Integrity, Continuity, Memory, and
+  Archive readback groups.
+- Each group reports selected count, sanitized source title/label, sanitized
+  reason, source label, and an owner review target such as `Review in Memory`,
+  `Review in Archive`, or `Review Continuity record`.
+- Added a readback-only `Runtime provenance` section under the existing
+  Continuity route runtime preview on
+  `/studio/personas/[personaId]/continuity`.
+- The existing `RuntimeContextPreview` on the Continuity route still passes
+  `showCompiledPrompt={false}` and `showSourceContent={false}`.
+- The new readback helper ignores `systemPrompt` and source `content`; it
+  renders only labels/counts/reasons/review targets.
+- Hardened Continuity label sanitization for prompt-shaped text,
+  provider-payload/trace/private-excerpt markers, raw ids, URLs, bearer values,
+  database URLs, and token/key/password/secret-shaped values.
+- Patched the `continuity.test.ts` in-memory Supabase test double with `.in()`
+  support after current persona readback validation hit a deterministic fixture
+  gap. No production API behavior changed.
+
+Explicit non-scope preserved:
+
+- No retrieval ranking, embeddings, vector dimensions, memory truth, lifecycle
+  semantics, archive authorization, source serialization, visibility, provider
+  calls, Redis, Cloudflare, queues/workers, migrations, schema, billing,
+  auth/session, deployment config, public memory, public observability, graph
+  exploration, automatic graph edge generation, richer AI trace detail, broad
+  Studio redesign, or Developer Space work changed.
+
+Validation:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:continuity` | Pass | 8 tests passed, including new runtime provenance helper coverage and the `.in()` fixture repair. |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-context` | Pass | 8 tests passed; runtime context semantics remain green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 107 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typechecks passed. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass with existing warnings | Existing raw `<img>` warnings remain in `apps/web/app/space/[slug]/page.tsx` and `apps/web/components/discover/discover-front-door.tsx`. |
+| `git diff --check` | Pass | CRLF warnings only. |
+| `git diff --cached --check` | Pass | Staged whitespace check passed. |
+
+ARGUS should review owner scoping, prompt/source-body hiding, redaction,
+source-group honesty, retrieval non-drift, and whether ARIADNE can rehearse the
+visible Continuity route.

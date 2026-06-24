@@ -48,6 +48,23 @@ export interface RuntimeContextPreviewLike {
   sources: RuntimeContextSourceLike[];
 }
 
+export interface RuntimeProvenanceReadbackRow {
+  type: RuntimeContextSourceType;
+  title: string;
+  reason: string;
+  sourceLabel: string;
+  reviewTarget: string;
+}
+
+export interface RuntimeProvenanceReadbackGroup {
+  type: RuntimeContextSourceType;
+  label: string;
+  count: number;
+  empty: string;
+  reviewTarget: string;
+  rows: RuntimeProvenanceReadbackRow[];
+}
+
 const TYPE_LABELS: Record<ContinuityRecordType, string> = {
   memory: "Memory",
   canon: "Canon",
@@ -132,6 +149,40 @@ export function runtimeContextPreviewLabel(value: string | null | undefined, fal
   return sanitizeContinuityLabel(value) ?? fallback;
 }
 
+export function runtimeProvenanceReviewTarget(type: RuntimeContextSourceType) {
+  if (type === "canon") return "Review in Canon";
+  if (type === "integrity") return "Review Integrity Session";
+  if (type === "continuity") return "Review Continuity record";
+  if (type === "memory") return "Review in Memory";
+  return "Review in Archive";
+}
+
+export function buildRuntimeProvenanceReadback(
+  preview?: RuntimeContextPreviewLike | null,
+): RuntimeProvenanceReadbackGroup[] {
+  const context = preview ?? { counts: {}, sources: [] };
+
+  return RUNTIME_CONTEXT_SECTIONS.map((section) => {
+    const sources = runtimeContextSourcesByType(context, section.type);
+    const reviewTarget = runtimeProvenanceReviewTarget(section.type);
+
+    return {
+      type: section.type,
+      label: section.label,
+      count: context.counts[section.type] ?? sources.length,
+      empty: section.empty,
+      reviewTarget,
+      rows: sources.map((source) => ({
+        type: section.type,
+        title: runtimeContextPreviewLabel(source.title, `${section.label} source`),
+        reason: runtimeContextPreviewLabel(source.reason, "Selected for runtime context."),
+        sourceLabel: runtimeProvenanceSourceLabel(section.type, source.sourceType),
+        reviewTarget,
+      })),
+    };
+  });
+}
+
 export function sortContinuityRecords(records: ContinuityRecord[]) {
   return [...records].sort((a, b) => {
     const left = Date.parse(continuityRecordTimestamp(a) ?? "") || 0;
@@ -175,14 +226,47 @@ export function buildContinuitySourceOptions(
 
 function sanitizeContinuityLabel(value?: string | null) {
   if (!value) return null;
-  const sanitized = value
+  const trimmed = value.trim();
+  if (!trimmed) return null;
+  if (/^\s*(?:raw|private|system|user)[\s_-]?prompt\b\s*[:=]?/i.test(trimmed)) {
+    return "[redacted-prompt]";
+  }
+  if (/^\s*(?:trace[\s_-]?body|provider[\s_-]?payload|completion|private[\s_-]?archive[\s_-]?excerpt)\b\s*[:=]?/i.test(trimmed)) {
+    return "[redacted-private-source]";
+  }
+  if (
+    /^\s*(?:token|cookie|authorization|api[\s_-]?key|x[\s_-]?api[\s_-]?key|service[\s_-]?role|secret|password|webhook[\s_-]?secret|db[\s_-]?url|database[\s_-]?url)\b\s*[:=]/i
+      .test(trimmed)
+  ) {
+    return "[redacted-secret]";
+  }
+
+  const sanitized = trimmed
     .replace(/\b[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}\b/gi, "[id]")
+    .replace(/\b(?:postgres(?:ql)?|redis|mysql):\/\/\S+/gi, "[redacted-url]")
     .replace(/https?:\/\/\S+/gi, "[redacted-url]")
     .replace(SECRET_SHAPED_VALUE_PATTERN, "[redacted-secret]")
     .replace(/\b(?:bearer)\s+\S+/gi, "bearer [redacted]")
-    .replace(/\b(token|cookie|authorization|api[_-]?key|x-api-key|secret|password)\b\s*[:=]\s*\S+/gi, "$1=[redacted]");
+    .replace(
+      /\b(owner[\s_-]?user[\s_-]?id|owner[\s_-]?id|persona[\s_-]?id|trace[\s_-]?id|source[\s_-]?id|memory[\s_-]?id|link[\s_-]?id)\b\s*[:=]\s*\S+/gi,
+      "$1=[redacted]"
+    )
+    .replace(
+      /\b(token|cookie|authorization|api[\s_-]?key|x[\s_-]?api[\s_-]?key|service[\s_-]?role|secret|password|webhook[\s_-]?secret|db[\s_-]?url|database[\s_-]?url)\b\s*[:=]\s*.*?(?=\s+(?:bearer\b|\[redacted-(?:url|secret)\])|$)/gi,
+      "$1=[redacted]"
+    );
 
   return sanitized.length > 120 ? `${sanitized.slice(0, 117).trim()}...` : sanitized;
+}
+
+function runtimeProvenanceSourceLabel(type: RuntimeContextSourceType, sourceType?: string | null) {
+  const sourceLabel = sanitizeContinuityLabel(sourceType);
+  if (sourceLabel) return labelize(sourceLabel);
+  if (type === "canon") return "Canon source";
+  if (type === "integrity") return "Integrity source";
+  if (type === "continuity") return "Continuity source";
+  if (type === "memory") return "Memory source";
+  return "Archive source";
 }
 
 function formatCompactDate(value: string) {

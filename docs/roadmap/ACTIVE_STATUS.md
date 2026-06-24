@@ -4,7 +4,50 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest MIMIR decision - PR262 Owner Runtime Provenance Stitching opened
+## Latest DAEDALUS result - PR262 Owner Runtime Provenance Stitching
+
+DAEDALUS implemented PR262 on 2026-06-24 and wakes ARGUS for boundary review.
+
+Implementation:
+
+- Added `buildRuntimeProvenanceReadback` in `apps/web/lib/continuity-ui.ts`.
+- Added a readback-only `Runtime provenance` section to
+  `/studio/personas/[personaId]/continuity`.
+- The section groups Canon, Integrity, Continuity, Memory, and Archive runtime
+  context sources and shows selected counts, sanitized source labels/titles,
+  sanitized reasons, and owner review-target copy only.
+- The Continuity route still keeps `RuntimeContextPreview` on
+  `showCompiledPrompt={false}` and `showSourceContent={false}`.
+- The new helper ignores `systemPrompt` and source `content`, so compiled
+  prompts and source bodies do not enter the readback.
+- Continuity label sanitization is stronger for prompt-shaped text, provider
+  payload markers, private-excerpt markers, raw ids, URLs, bearer values,
+  database URLs, and token/key/password/secret-shaped values.
+- `apps/api/src/routes/continuity.test.ts` gained `.in()` support in the
+  in-memory Supabase test double because current persona readback validation now
+  uses that query shape. This is test fixture support only.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:continuity` passed, 8 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:persona-context` passed, 8 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` passed, 107 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed with existing raw `<img>`
+  warnings in `apps/web/app/space/[slug]/page.tsx` and
+  `apps/web/components/discover/discover-front-door.tsx`.
+- `git diff --check` passed with CRLF warnings only.
+- `git diff --cached --check` passed.
+
+Current baton:
+
+- ARGUS should review PR262 owner scoping, prompt/source-body hiding, redaction,
+  source-group honesty, retrieval non-drift, and whether ARIADNE can rehearse
+  the visible Continuity route.
+- If ARGUS accepts, ARIADNE should rehearse
+  `/studio/personas/[personaId]/continuity` on desktop and 375px mobile.
+
+## Previous MIMIR decision - PR262 Owner Runtime Provenance Stitching opened
 
 MIMIR accepts ARGUS's PR261 verdict on 2026-06-24 and opens PR262 for
 DAEDALUS.

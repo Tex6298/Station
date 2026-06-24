@@ -32,30 +32,44 @@ Memory/observability implementation lane.
 
 ## PR262 Owner Runtime Provenance Stitching Readback
 
-MIMIR opened PR262 for DAEDALUS on 2026-06-24.
+DAEDALUS implemented PR262 on 2026-06-24 and woke ARGUS for boundary review.
 
-Required validation:
+Files changed:
 
-| Command / check | Expected result | Notes |
+- `apps/web/lib/continuity-ui.ts`
+- `apps/web/lib/continuity-ui.test.ts`
+- `apps/web/app/studio/personas/[personaId]/continuity/page.tsx`
+- `apps/api/src/routes/continuity.test.ts`
+- roadmap/status/validation docs
+
+Validation:
+
+| Command / check | Result | Notes |
 | --- | --- | --- |
-| `npm exec --yes pnpm@10.32.1 -- run test:continuity` | Pass | Continuity helper/route behavior stays bounded. |
-| `npm exec --yes pnpm@10.32.1 -- run test:persona-context` | Pass or justified substitution | Runtime context semantics remain unchanged. |
-| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | Visible owner Studio route helpers remain stable. |
-| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | TypeScript stays clean. |
-| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass or existing warnings only | Report pre-existing warnings separately. |
-| `git diff --check` | Pass | Whitespace check. |
+| `npm exec --yes pnpm@10.32.1 -- run test:continuity` | Pass | 8 tests passed, including new runtime provenance helper coverage. The continuity API test double now supports `.in()` for current persona readback validation. |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-context` | Pass | 8 tests passed; runtime context semantics remain unchanged. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 107 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typechecks passed. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass with existing warnings | Existing raw `<img>` warnings remain in `apps/web/app/space/[slug]/page.tsx` and `apps/web/components/discover/discover-front-door.tsx`. |
+| `git diff --check` | Pass | CRLF warnings only. |
 | `git diff --cached --check` | Pass | Staged whitespace check. |
 
 Scope notes:
 
-- PR262 may add owner-only/readback-only runtime provenance stitching on the
-  Continuity route.
-- It must not expose source bodies, compiled prompts, raw ids, private
-  excerpts, prompts, provider payloads, URLs, secrets, or hosted logs.
-- It must not change retrieval ranking, embeddings, memory truth, source
+- Added owner-only/readback-only runtime provenance stitching on the Continuity
+  route.
+- The readback groups Canon, Integrity, Continuity, Memory, and Archive runtime
+  context sources with selected counts, sanitized source labels/titles,
+  sanitized reasons, and owner review-target copy only.
+- `RuntimeContextPreview` on the Continuity route still uses
+  `showCompiledPrompt={false}` and `showSourceContent={false}`.
+- `buildRuntimeProvenanceReadback` ignores `systemPrompt` and source `content`,
+  so compiled prompts and source bodies do not enter the new readback.
+- No retrieval ranking, embeddings, memory truth, lifecycle semantics, source
   serialization, visibility, provider behavior, Redis/Cloudflare, schema,
-  workers, billing, auth/session, deployment, public memory, or public
-  observability.
+  workers, billing, auth/session, deployment, public memory, public
+  observability, graph exploration, automatic edge generation, richer trace
+  detail, broad Studio redesign, or Developer Space behavior changed.
 
 ## PR261 Memory Observability Next Slice Audit - Review
 

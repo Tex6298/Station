@@ -9,12 +9,20 @@ import {
   type PersonaWithContinuity,
 } from "@/components/studio/persona-workspace";
 import { RuntimeContextPreview } from "@/components/studio/runtime-context-preview";
+import {
+  buildRuntimeProvenanceReadback,
+  type RuntimeContextPreviewLike,
+} from "@/lib/continuity-ui";
 import { apiGet } from "@/lib/api-client";
 import { getSession } from "@/lib/auth";
+
+const RUNTIME_PROVENANCE_QUERY = "What should this persona keep steady right now?";
 
 export default function PersonaContinuityPage() {
   const { personaId } = useParams<{ personaId: string }>();
   const [persona, setPersona] = useState<PersonaWithContinuity | null>(null);
+  const [runtimeProvenance, setRuntimeProvenance] = useState<RuntimeContextPreviewLike | null>(null);
+  const [runtimeProvenanceError, setRuntimeProvenanceError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -29,8 +37,15 @@ export default function PersonaContinuityPage() {
           setLoading(false);
           return;
         }
-        const data = await apiGet<{ persona: PersonaWithContinuity }>(`/personas/${personaId}`, session.access_token);
-        if (!cancelled) setPersona(data.persona);
+        const [data, provenance] = await Promise.all([
+          apiGet<{ persona: PersonaWithContinuity }>(`/personas/${personaId}`, session.access_token),
+          fetchRuntimeProvenance(session.access_token, personaId),
+        ]);
+        if (!cancelled) {
+          setPersona(data.persona);
+          setRuntimeProvenance(provenance.context);
+          setRuntimeProvenanceError(provenance.error);
+        }
       } catch (e) {
         if (!cancelled) setError(e instanceof Error ? e.message : "Could not load continuity.");
       } finally {
@@ -47,8 +62,13 @@ export default function PersonaContinuityPage() {
   async function refreshPersona() {
     const session = await getSession();
     if (!session) return;
-    const data = await apiGet<{ persona: PersonaWithContinuity }>(`/personas/${personaId}`, session.access_token);
+    const [data, provenance] = await Promise.all([
+      apiGet<{ persona: PersonaWithContinuity }>(`/personas/${personaId}`, session.access_token),
+      fetchRuntimeProvenance(session.access_token, personaId),
+    ]);
     setPersona(data.persona);
+    setRuntimeProvenance(provenance.context);
+    setRuntimeProvenanceError(provenance.error);
   }
 
   if (loading) return <StudioMessage>Loading continuity...</StudioMessage>;
@@ -67,8 +87,81 @@ export default function PersonaContinuityPage() {
         showCompiledPrompt={false}
         showSourceContent={false}
       />
+      <RuntimeProvenanceReadback preview={runtimeProvenance} error={runtimeProvenanceError} />
       <ContinuityTimeline personaId={persona.id} personaName={persona.name} onRecordCreated={refreshPersona} />
     </main>
+  );
+}
+
+async function fetchRuntimeProvenance(sessionToken: string, personaId: string) {
+  try {
+    const data = await apiGet<{ context: RuntimeContextPreviewLike }>(
+      `/conversations/persona/${personaId}/context-preview?query=${encodeURIComponent(RUNTIME_PROVENANCE_QUERY)}`,
+      sessionToken,
+    );
+    return { context: data.context, error: null };
+  } catch (e) {
+    return {
+      context: null,
+      error: e instanceof Error ? e.message : "Could not load runtime provenance.",
+    };
+  }
+}
+
+function RuntimeProvenanceReadback({
+  preview,
+  error,
+}: {
+  preview: RuntimeContextPreviewLike | null;
+  error: string | null;
+}) {
+  const groups = buildRuntimeProvenanceReadback(preview);
+  const selectedTotal = groups.reduce((total, group) => total + group.count, 0);
+
+  return (
+    <section className="studio-list-panel" aria-label="Runtime provenance" style={{ marginBottom: "1rem" }}>
+      <div className="studio-section-heading">
+        <div className="section-label">Runtime provenance</div>
+        <h2>Where selected context came from</h2>
+      </div>
+      <p className="studio-continuity-trust-body" style={{ margin: "0 0 1rem" }}>
+        This owner-only readback shows source groups, sanitized reasons, and the surface to review next. Source bodies and compiled prompts stay hidden here.
+      </p>
+      {error ? <div className="space-form-error">{error}</div> : null}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 220px), 1fr))", gap: "0.75rem" }}>
+        {groups.map((group) => (
+          <article key={group.type} className="studio-item-card studio-continuity-trust-card" style={{ minHeight: 180 }}>
+            <div>
+              <span>{group.label}</span>
+              <strong>{group.count}</strong>
+            </div>
+            <p className="studio-continuity-trust-label" style={{ margin: "0.35rem 0 0" }}>{group.reviewTarget}</p>
+            <div style={{ display: "grid", gap: "0.55rem", marginTop: "0.75rem" }}>
+              {group.rows.length === 0 ? (
+                <p className="studio-continuity-trust-body" style={{ margin: 0 }}>{group.empty}</p>
+              ) : (
+                group.rows.slice(0, 3).map((row) => (
+                  <div key={`${group.type}-${row.title}-${row.reason}`} className="studio-runtime-source">
+                    <div>
+                      <strong>{row.title}</strong>
+                      <span>{row.sourceLabel} / {row.reason}</span>
+                    </div>
+                  </div>
+                ))
+              )}
+              {group.rows.length > 3 ? (
+                <p className="studio-continuity-trust-body" style={{ margin: 0 }}>{group.rows.length - 3} more selected sources in this group.</p>
+              ) : null}
+            </div>
+          </article>
+        ))}
+      </div>
+      {selectedTotal === 0 && !error ? (
+        <div className="studio-empty" style={{ marginTop: "0.75rem" }}>
+          Runtime preview returned no selected provenance. Existing Continuity, Memory, and Archive material remains owner-only.
+        </div>
+      ) : null}
+    </section>
   );
 }
 
