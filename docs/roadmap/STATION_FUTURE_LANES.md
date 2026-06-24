@@ -264,11 +264,15 @@ Current intent:
   the visitor-safe context preview without private/raw-id leakage. PR230 opens
   ARGUS hostile preflight for public persona events before any event feed,
   timeline, readback, or schema work.
+- PR230 result: ARGUS accepted a first public persona events slice only as
+  derived-only public persona page readback. PR231 opens DAEDALUS implementation
+  with no event table, write path, global feed, event-level moderation,
+  chat/report/counter/provider events, or new external config.
 
 ## Phase 3 bridge sequence
 
-Status, 2026-06-24: PR202 through PR229 are accepted. PR230 Public Persona
-Events Preflight is open for ARGUS.
+Status, 2026-06-24: PR202 through PR230 are accepted. PR231 Public Persona
+Event Readback is open for DAEDALUS.
 
 Current MIMIR position:
 
@@ -325,7 +329,8 @@ Bridge order:
 28. Done: Public Persona Salon Readback.
 29. Done: Public Persona Salon Hosted Proof.
 30. Done: Public Persona Salon Human Rehearsal.
-31. Active: Public Persona Events Preflight.
+31. Done: Public Persona Events Preflight.
+32. Active: Public Persona Event Readback.
 
 ARGUS P3-B1A gates:
 

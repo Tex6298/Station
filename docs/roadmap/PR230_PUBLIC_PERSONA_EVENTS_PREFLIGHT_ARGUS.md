@@ -348,3 +348,14 @@ Open PR231 as **Public Persona Event Readback (derived-only)**:
   `test:writing` if existing public persona copy helpers are touched.
 - Require ARIADNE hosted rehearsal after implementation if the public persona
   page changes visibly.
+
+## MIMIR Closeout
+
+MIMIR accepts ARGUS's verdict on 2026-06-24.
+
+Decision:
+
+- Open PR231 as **Public Persona Event Readback (derived-only)** for DAEDALUS.
+- Preserve ARGUS's hard gates: derived public persona page readback only, no
+  event schema/write path, no global feed, no event-level moderation, and no
+  chat/report/counter/provider/private sources.

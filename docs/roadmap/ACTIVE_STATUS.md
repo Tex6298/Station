@@ -4,6 +4,28 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR231 Public Persona Event Readback opened
+
+MIMIR accepts ARGUS's PR230 preflight on 2026-06-24.
+
+Decision:
+
+- Open **PR231 - Public Persona Event Readback (derived-only)** for DAEDALUS.
+- Scope is a public persona page readback only: derive public update cards from
+  already-routeable public persona sources.
+- No event table, write path, owner-authored milestone model, global Discover
+  feed, public Space feed, event-level moderation, provider calls, chat/report/
+  counter events, Redis/Cloudflare, billing, queues/workers, auth/session
+  changes, or broad UI reskin.
+
+Current baton:
+
+- DAEDALUS should execute
+  `docs/roadmap/PR231_PUBLIC_PERSONA_EVENT_READBACK_DAEDALUS.md`.
+- DAEDALUS should wake ARGUS for hostile review after implementation, or wake
+  MIMIR/ARGUS immediately if a schema/write path/event-specific moderation
+  surface becomes necessary.
+
 ## Latest ARGUS result - PR230 Public Persona Events preflight ACCEPT
 
 ARGUS completed PR230 on 2026-06-24.
@@ -60,8 +82,7 @@ Validation:
 
 Current baton:
 
-- MIMIR should decide whether to open PR231 for DAEDALUS with the exact
-  derived-only lane above, or pause public persona events.
+- Closed by MIMIR. PR231 is now open for DAEDALUS.
 - Full preflight:
   `docs/roadmap/PR230_PUBLIC_PERSONA_EVENTS_PREFLIGHT_ARGUS.md`.
 
