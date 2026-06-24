@@ -44,6 +44,10 @@ then let staged replay reveal the next optimizations.
 - PR273 opens that focused ARIADNE hosted rerun. Its scope is only the three
   PR271/PR272 visible caveats after hosted deploy freshness, not a new full-site
   audit or mutation run.
+- PR273 passed on hosted desktop and mobile. MIMIR closes the three visible
+  caveats and opens PR274 for DAEDALUS as the first post-polish online runtime
+  quality probe: session persistence plus one bounded chat/context round trip
+  with sanitized observability/readiness evidence.
 - Broader known caveats still travel into staging review instead of spawning
   more local polish: static global Archive/Export shells, dashboard
   derived/static snippets, no downloadable bundles/workers, and no new private

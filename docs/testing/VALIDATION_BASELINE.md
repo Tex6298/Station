@@ -30,6 +30,28 @@ Memory/observability next-slice audit.
 ARGUS accepted PR261 on 2026-06-24. MIMIR opened PR262 as an owner-only
 Memory/observability implementation lane.
 
+## PR274 Hosted Replay Runtime Quality Probe
+
+MIMIR opened PR274 for DAEDALUS on 2026-06-24 after ARIADNE accepted PR273 as
+`PASS`.
+
+Required validation:
+
+| Check | Expected result | Notes |
+| --- | --- | --- |
+| Hosted freshness | Pass or blocked | Web/API health and deployment should prove deployed `main` includes PR272 implementation commit `454f3ec` or later. |
+| Replay owner auth/session | Pass or classified failure | Use local-only `STATION_REPLAY_OWNER_*` env values; do not print credentials, tokens, cookies, or raw ids. |
+| Session persistence | Pass or classified failure | Verify normal reload/navigation from login into Studio and at least one owner route. |
+| Bounded chat/runtime round trip | Pass or classified failure | One synthetic staging prompt is allowed; record sanitized outcome and timing bucket only. |
+| Context/runtime readback | Pass | Memory, Continuity, Archive, and available Integrity/Canon categories should remain understandable without source bodies or compiled prompts. |
+| Observability/readiness readback | Pass | Counts/statuses/timing buckets only; no trace ids, prompts, completions, provider payloads, hosted logs, SQL, or raw ids. |
+| Focused tests if patched | Pass | Use `test:auth`, `test:persona-context`, `test:conversation-archive`, `test:replay-readiness`, `typecheck`, and `lint` as applicable. |
+| `git diff --check` | Pass | Required for docs-only and code patches. |
+| `git diff --cached --check` | Pass | Required before wakeup. |
+
+Do not run Stripe Checkout, imports, publishing, ingestion-key changes, provider
+switches, Redis/Cloudflare/queue/schema changes, or broad UI redesign in PR274.
+
 ## PR273 Staged Replay Polish Hosted Rerun
 
 MIMIR opened PR273 for ARIADNE on 2026-06-24 after ARGUS accepted PR272's

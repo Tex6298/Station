@@ -4,7 +4,49 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest MIMIR decision - PR273 Staged Replay Polish Hosted Rerun opened
+## Latest MIMIR decision - PR274 Hosted Replay Runtime Quality Probe opened
+
+MIMIR accepts ARIADNE's PR273 hosted rerun as `PASS` and closes the three PR271
+visible caveats. The next lane moves from route/product-shell proof into actual
+online runtime behavior.
+
+Decision:
+
+- PR273 proves the PR272 polish is live on hosted Railway and the three scoped
+  public caveats pass on desktop and mobile.
+- The next useful backend/product question is whether the prepared replay owner
+  can stay signed in, ask the replay persona a bounded staging prompt, receive
+  the expected memory/archive/continuity-shaped answer, and leave safe
+  observability/readiness evidence.
+- Open PR274 - Hosted Replay Runtime Quality Probe for DAEDALUS.
+
+Current baton:
+
+- DAEDALUS should execute
+  `docs/roadmap/PR274_HOSTED_REPLAY_RUNTIME_QUALITY_DAEDALUS.md`.
+- If DAEDALUS patches a narrow defect, wake ARGUS.
+- If no patch is needed, wake MIMIR with the exact next lane recommendation.
+
+## Latest ARIADNE review - PR273 Staged Replay Polish Hosted Rerun
+
+ARIADNE completed PR273 on 2026-06-24:
+`docs/roadmap/PR273_STAGED_REPLAY_POLISH_HOSTED_RERUN_RESULT.md`.
+
+Result:
+
+- Verdict: `PASS`.
+- Hosted web/API health and deployment readiness passed on `main` at the PR272
+  implementation commit.
+- Anonymous desktop `1440x960` and mobile `390x844` checked `/discover`,
+  `/developer-spaces/station-replay-dev-alpha`, and `/forums`.
+- Discover no longer remains stuck in `Persona Roulette / Drawing...` after
+  readiness.
+- Public Developer Space no longer leaves readback beside a `Connecting` badge
+  after readiness.
+- Public forum provider-list copy no longer shows visible mojibake.
+- No further DAEDALUS or ARGUS repair is needed for these caveats.
+
+## Previous MIMIR decision - PR273 Staged Replay Polish Hosted Rerun opened
 
 MIMIR accepts ARGUS's PR272 review and opens the focused ARIADNE hosted rerun
 before closing the visible caveats from product evidence.

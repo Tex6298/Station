@@ -63,6 +63,10 @@ Redis/Cloudflare, billing, queues, workers, staged data, or broad visual
 redesign. They are a polish bridge before deciding the next product/backend
 lane.
 
+PR273 passed. PR274 is now the active backend/product lane: a hosted replay
+runtime quality probe for replay-owner session persistence, one bounded chat/
+context round trip, and sanitized observability/readiness evidence.
+
 ## Phase 2D Developer Agent closeout
 
 Status, 2026-06-23: PR176 closes Phase 2D Developer Agent expansion as a
