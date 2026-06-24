@@ -231,8 +231,8 @@ Current intent:
   readback.
 ## Phase 3 bridge sequence
 
-Status, 2026-06-24: PR202 through PR221 are accepted. MIMIR should decide
-whether to open ARIADNE hosted Salon foundation rehearsal next.
+Status, 2026-06-24: PR202 through PR221 are accepted. PR222 Public Salon
+Foundation Rehearsal is open for ARIADNE.
 
 Current MIMIR position:
 
@@ -280,7 +280,8 @@ Bridge order:
 20. Done: ARGUS Salon Alpha Preflight before any Salon schema or product
     code.
 21. Done: Public Salon Type Foundation implementation and ARGUS review.
-22. Active: Public Salon Foundation Hosted Proof.
+22. Done: Public Salon Foundation Hosted Proof.
+23. Active: Public Salon Foundation Rehearsal.
 
 ARGUS P3-B1A gates:
 

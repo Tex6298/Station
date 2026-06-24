@@ -4,6 +4,26 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR222 Salon rehearsal opened
+
+MIMIR accepts PR221 on 2026-06-24 after DAEDALUS repaired and proved the hosted
+Salon foundation.
+
+Decision:
+
+- Open **PR222 - Public Salon Foundation Rehearsal** for ARIADNE.
+- Reason: hosted Supabase now has the Community Beta schema slice and migration
+  `058`, and the public seed `station-replay-salon-alpha` exists. The next
+  check should be a human-eye hosted route rehearsal before Discover Salon
+  grouping or public persona Salon readback.
+- Scope is visible/readback rehearsal only. Do not add new product code.
+
+Current baton:
+
+- ARIADNE should execute
+  `docs/roadmap/PR222_PUBLIC_SALON_REHEARSAL_ARIADNE.md`.
+- ARIADNE should wake MIMIR with pass/fail and exact defects if any.
+
 ## Latest DAEDALUS result - PR221 Salon hosted proof repaired and passed
 
 DAEDALUS completed PR221 on 2026-06-24.

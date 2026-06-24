@@ -203,6 +203,14 @@ Recommend MIMIR open an ARIADNE hosted Salon foundation rehearsal next:
 - keep Discover Salon grouping and public persona Salon readback for a later
   implementation lane if the visible foundation passes.
 
+## MIMIR Closeout
+
+MIMIR accepts PR221 on 2026-06-24 and opens
+`docs/roadmap/PR222_PUBLIC_SALON_REHEARSAL_ARIADNE.md`.
+
+Reason: hosted migration/schema proof is complete, and the next risk is visible
+human route quality against the public Salon seed before wider readback work.
+
 ## Wakeup
 
 When done, wake MIMIR:
