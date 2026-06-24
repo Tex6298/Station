@@ -4,36 +4,53 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest MIMIR decision - PR255 Developer Space Partner Readiness Map opened
+## Latest DAEDALUS handoff - PR255 Developer Space Partner Readiness Map
 
-MIMIR accepts ARIADNE's PR254 `PASS` result on 2026-06-24 and closes the
-PR252/PR253/PR254 owner Project export UI loop.
+DAEDALUS completed PR255 on 2026-06-24 as a docs-only map:
+`docs/roadmap/DEVELOPER_SPACE_PARTNER_READINESS_MAP.md`.
 
-Decision:
+Result:
 
-- Treat owner Project export manifest/list/create/readback, stored bundle
-  readback, private owner UI panel, hosted schema repair, and hosted owner-eye
-  rehearsal as accepted for protected-alpha scope.
-- Do not extend Project export into public downloads, ZIP/PDF/binary packages,
-  workspace export, background export workers, member/admin/billing export
-  permission, Redis, Cloudflare, provider/runtime calls, or broader Project
-  redesign without a new lane.
-- Open **PR255 - Developer Space Partner Readiness Map** for DAEDALUS.
-- Use `C:\Users\marty\Downloads\Station_Developer_Pages_CTO_Brief.docx`,
-  `docs/roadmap/STATION_UI_UX_ROADMAP.md`, and the current Developer Space
-  code as inputs.
-- Reconcile the evolved Developer Pages picture against current Station
-  reality before implementation. The expected near-term target is Tier 1
-  showcase/ingestion/observatory/readback readiness, not immediate Coolify,
-  Docker provisioning, repository push, job execution, key rotation, or
-  chat-native destructive tooling.
+- Reconciled the CTO Developer Pages brief against current Developer Space API
+  routes, web routes, client package, export/readback paths, tests, UX-06,
+  Lane 8, and Phase 2D/2E developer-agent boundaries.
+- Current Station truth is strong protected-alpha Tier 1 material:
+  public Developer Space observatory, owner manage console, ingestion API,
+  developer client, evidence documents, usage/quota/key controls, field
+  visibility controls, exports, and bounded agent readbacks/receipts.
+- Current Station should not yet be called a full partner-ready Developer Page
+  template. Missing or partial pieces include first-class developer
+  handle/status/stat framing, standalone partner ingestion docs, clear
+  architecture overview presets, project-specific changelog/update feed,
+  Developer Space community entry, explicit connection-tier product state, and
+  tipping.
+- Tier 2 hosted infrastructure remains deferred: Docker/Coolify/container
+  provisioning, per-project databases, Redis/queues, deploy pipeline, repo
+  push, real job execution, key rotation, signing-secret creation, direct
+  layout mutation, and destructive chat-native developer-agent tools are not
+  opened by PR255.
+
+Recommendation:
+
+- Open **PR256 - Developer Space Tier 1 Partner Readiness Preflight** for
+  ARGUS before DAEDALUS implements. ARGUS should review the map for overclaim,
+  owner/public split, key/field safety, and the exact first implementation
+  lane.
+- Likely first implementation after ARGUS accepts: standalone Tier 1 partner
+  onboarding/readback docs and small public/owner framing improvements using
+  existing Developer Space APIs. No schema, API behavior, hosted infra,
+  billing, repository, worker, or real developer-agent execution changes.
+
+Validation:
+
+- `git diff --check` passed.
+- Code inspected but not changed: Developer Space routes, exports route, public
+  and manage web routes, developer-space client, and Developer Space tests.
 
 Current baton:
 
-- DAEDALUS should execute
-  `docs/roadmap/PR255_DEVELOPER_SPACE_PARTNER_READINESS_MAP_DAEDALUS.md`.
-- DAEDALUS should wake ARGUS with the map, recommended first implementation
-  slice, explicit deferrals, and validation.
+- ARGUS should review PR255 and either wake MIMIR with acceptance or wake
+  DAEDALUS with a bounded correction.
 
 ## Latest ARIADNE result - PR254 Owner Project Export Hosted Rerun PASS
 

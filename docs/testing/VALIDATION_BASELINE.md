@@ -20,6 +20,21 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR255 Developer Space Partner Readiness Map
+
+DAEDALUS docs-only reconciliation on 2026-06-24:
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `git diff --check` | Pass | Docs-only whitespace check for the readiness map and roadmap/status updates. |
+
+Scope notes:
+
+- No schema, API, web behavior, or test behavior changed.
+- Inspected Developer Space API routes, export routes, public/manage web routes,
+  developer-space client package, and focused Developer Space tests as evidence
+  for the map.
+
 ## PR254 Owner Project Export Hosted Rerun
 
 ARIADNE hosted rerun on 2026-06-24:

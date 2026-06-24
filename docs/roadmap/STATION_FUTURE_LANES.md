@@ -402,15 +402,22 @@ Current intent:
   readback, bundle readback, stale-selection clearing, unrelated-route absence,
   privacy boundaries, and desktop/mobile layout are accepted for
   protected-alpha scope.
-- PR255 opens DAEDALUS Developer Space Partner Readiness Map. This reconciles
-  the evolved Developer Pages CTO brief with current Developer Space routes,
-  services, client package, UI, exports, Phase 2D/2E developer-agent
-  boundaries, and partner-ready gaps before any new implementation.
+- PR255 result: DAEDALUS completed the Developer Space Partner Readiness Map in
+  `docs/roadmap/DEVELOPER_SPACE_PARTNER_READINESS_MAP.md`. Current Station has
+  strong Tier 1 protected-alpha pieces: public observatory, owner manage
+  console, ingestion API, developer client, evidence documents, usage/quota/key
+  controls, field visibility controls, exports, and bounded agent
+  readbacks/receipts. It is not yet a full partner-ready Developer Page
+  template, and it must not claim Tier 2 hosted infrastructure or destructive
+  developer-agent readiness.
+- Recommended next lane: PR256 should be an ARGUS preflight for Developer Space
+  Tier 1 partner readiness before DAEDALUS implements standalone partner
+  onboarding/readback docs or small public/owner framing improvements.
 
 ## Phase 3 bridge sequence
 
 Status, 2026-06-24: PR202 through PR254 are accepted. PR255 Developer Space
-Partner Readiness Map is active with DAEDALUS.
+Partner Readiness Map is complete and awaiting ARGUS review.
 
 Current MIMIR position:
 
@@ -492,7 +499,8 @@ Bridge order:
 53. Done: Owner Project Export UI Panel.
 54. Blocked then repaired: Owner Project Export Hosted Rehearsal.
 55. Done: Owner Project Export Hosted Rerun.
-56. Active: Developer Space Partner Readiness Map.
+56. Review: Developer Space Partner Readiness Map.
+57. Recommended: Developer Space Tier 1 Partner Readiness Preflight.
 
 ARGUS P3-B1A gates:
 
