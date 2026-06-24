@@ -22,7 +22,7 @@ they are not Station validation failures.
 
 ## PR260 Developer Space Tier 1 Closeout Audit
 
-DAEDALUS docs-only audit on 2026-06-24:
+DAEDALUS docs-only audit and ARGUS review on 2026-06-24:
 
 | Command / check | Result | Notes |
 | --- | --- | --- |
@@ -39,6 +39,10 @@ Scope notes:
   developer-agent capability, broad UI, or hosted data changed.
 - Evidence inspected: CTO brief summary from PR255, PR255 through PR259 docs,
   Developer Space route/client/test files, and current roadmap/status docs.
+- ARGUS accepted the closeout audit with no review patch and confirmed the
+  protected-alpha closeout claim does not approve Tier 2 hosted infrastructure,
+  billing/tipping, community/forum work, provider/Redis/Cloudflare work, or
+  developer-agent execution expansion.
 
 ## PR259 Developer Space Tier 1 Visible Framing Rehearsal
 

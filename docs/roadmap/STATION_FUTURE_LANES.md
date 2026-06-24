@@ -470,11 +470,14 @@ Current intent:
   Space-specific community/forum, connection-tier product state, pricing/
   tipping, Tier 2 hosted infrastructure, Tier 3 lab work, Cloudflare/Redis/
   provider questions, and developer-agent execution expansion.
+- PR260 ARGUS review accepted the closeout audit with no patch. MIMIR can close
+  Developer Space Tier 1 protected-alpha for now and return sequencing to
+  non-Developer-Space priorities unless a real partner pilot names a gap.
 
 ## Phase 3 bridge sequence
 
-Status, 2026-06-24: PR202 through PR259 are accepted. PR260 Developer Space
-Tier 1 closeout audit is complete and awaiting ARGUS review.
+Status, 2026-06-24: PR202 through PR260 are accepted. Developer Space Tier 1
+protected-alpha is ready for MIMIR closeout.
 
 Current MIMIR position:
 
@@ -562,7 +565,7 @@ Bridge order:
 59. ARGUS accepted: Developer Space Tier 1 Visible Framing implementation.
 60. Done: ARIADNE hosted desktop/mobile rehearsal for PR258 visible public and
     owner Developer Space routes.
-61. Review: Developer Space Tier 1 closeout audit.
+61. ARGUS accepted: Developer Space Tier 1 closeout audit.
 
 ARGUS P3-B1A gates:
 

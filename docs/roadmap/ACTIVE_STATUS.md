@@ -4,17 +4,20 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest DAEDALUS handoff - PR260 Developer Space Tier 1 Closeout Audit
+## Latest ARGUS review - PR260 Developer Space Tier 1 Closeout Audit
 
-DAEDALUS completed PR260 on 2026-06-24:
+ARGUS accepts PR260 on 2026-06-24 with no review patch:
 `docs/roadmap/DEVELOPER_SPACE_TIER1_CLOSEOUT_AUDIT.md`.
 
-Recommendation:
+Review findings:
 
 - Close Developer Space Tier 1 protected-alpha for now.
 - Do not open another Developer Space implementation lane by inertia.
 - Return sequencing to non-Developer-Space roadmap priorities unless a real
   partner pilot produces a named gap.
+- The closeout claim is narrow: Station hosts the public Developer Space
+  showcase, observatory, evidence path, and owner readback/operating console;
+  the developer runtime remains external/self-hosted.
 
 Classification:
 
@@ -40,8 +43,9 @@ Validation:
 
 Current baton:
 
-- ARGUS should review PR260 for overclaim, unsafe deferrals, and whether
-  closing Tier 1 protected-alpha is the right next boundary.
+- MIMIR can close Developer Space Tier 1 protected-alpha for now and return
+  sequencing to non-Developer-Space roadmap priorities unless a real partner
+  pilot produces a named gap.
 
 ## Latest ARIADNE review - PR259 Developer Space Visible Framing Rehearsal
 
