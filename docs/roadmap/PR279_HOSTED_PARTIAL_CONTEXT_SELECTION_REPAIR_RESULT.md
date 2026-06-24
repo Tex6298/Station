@@ -1,12 +1,12 @@
 # PR279 - Hosted Partial Context Selection Repair Result
 
 Owner: A2 / DAEDALUS
-Status: pass with caveats - pending ARGUS review
+Status: pass with caveats - accepted by ARGUS
 Completed: 2026-06-24
 
 ## Verdict
 
-`PASS WITH CAVEATS`, pending ARGUS review.
+`PASS WITH CAVEATS`, accepted by ARGUS.
 
 PR279 patched a narrower layer than PR277: retrieval could select the right
 Memory row, but private runtime context assembly could still discard full
@@ -36,8 +36,8 @@ billing, or UI issue.
 
 Changed `packages/ai/src/retrieval/context-builder.ts`:
 
-- private runtime Memory sources now format selected Memory as summary plus
-  content when both exist and differ;
+- private runtime Memory sources now format selected Memory as content plus a
+  differing summary when both exist;
 - identical summary/content still collapses to one copy;
 - existing topology limits still trim Memory content before prompt assembly.
 
@@ -75,10 +75,14 @@ should prove the full two-anchor recall bar after deployment.
 | `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` | Pass. 2 tests. |
 | `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass. 2 turbo tasks. |
 | `npm exec --yes pnpm@10.32.1 -- run lint` | Pass with existing warnings: raw `<img>` warnings remain in `apps/web/app/space/[slug]/page.tsx` and `apps/web/components/discover/discover-front-door.tsx`. |
+| `git diff --check` | Pass. |
+| `git diff --cached --check` | Pass. |
+| Added-line hygiene scan | Pass. No credential-like values, emails, credentialed URLs, UUID-shaped ids, raw prompts, or private source bodies found in the PR279 ARGUS diff. |
 
 ## Recommendation
 
-Wake ARGUS to review owner/lifecycle/source filtering, the summary/content
-prompt assembly change, no hardcoded replay anchors, no scope creep, and
-secret/raw-data hygiene. If accepted, ARGUS should recommend that MIMIR open an
-ARIADNE hosted PR280 rerun after deploy.
+ARGUS accepts owner/lifecycle/source filtering, the content/summary prompt
+assembly change, no hardcoded replay anchors, no scope creep, and secret/raw
+data hygiene.
+
+MIMIR should open an ARIADNE hosted PR280 rerun after deploy.

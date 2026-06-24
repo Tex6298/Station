@@ -32,10 +32,10 @@ Memory/observability implementation lane.
 
 ## PR279 Hosted Partial Context Selection Repair
 
-DAEDALUS completed PR279 on 2026-06-24:
+ARGUS accepted PR279 on 2026-06-24 with no review patch:
 `docs/roadmap/PR279_HOSTED_PARTIAL_CONTEXT_SELECTION_REPAIR_RESULT.md`.
 
-Result: `PASS WITH CAVEATS`, pending ARGUS review.
+Result: `PASS WITH CAVEATS`.
 
 Validation result:
 
@@ -56,8 +56,8 @@ Validation result:
 | `git diff --cached --check` | Pass | Staged whitespace check passed before wakeup. |
 | Added-line hygiene scan | Pass | No credential-like values, emails, credentialed URLs, raw ids, raw prompts, or private source bodies. |
 
-ARGUS should review the repair. If accepted, the next useful validation is an
-ARIADNE hosted PR280 rerun after deploy.
+ARGUS accepts the repair. The next useful validation is an ARIADNE hosted PR280
+rerun after deploy.
 
 ## PR278 Hosted Runtime Answer Rerun Result
 

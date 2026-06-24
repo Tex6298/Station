@@ -4,20 +4,20 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest DAEDALUS result - PR279 Hosted Partial Context Selection Repair
+## Latest ARGUS review - PR279 Hosted Partial Context Selection Repair
 
-DAEDALUS completed PR279 on 2026-06-24:
+ARGUS accepted PR279 on 2026-06-24 with no review patch:
 `docs/roadmap/PR279_HOSTED_PARTIAL_CONTEXT_SELECTION_REPAIR_RESULT.md`.
 
 Result:
 
-- Verdict: `PASS WITH CAVEATS`, pending ARGUS review.
+- Verdict: `PASS WITH CAVEATS`.
 - Root cause: PR277's lexical blend can select the exact active Memory row, but
   private runtime context assembly used `summary ?? content`, so a partial
   Memory summary could discard full Memory content before prompt assembly.
-- Patch: selected private Memory now contributes summary plus content when both
-  exist and differ, while identical summary/content still collapses to one copy
-  and topology trimming remains in force.
+- Patch: selected private Memory now contributes content plus a differing
+  summary when both exist, while identical summary/content still collapses to
+  one copy and topology trimming remains in force.
 - Local DB-shaped proof now has partial summary/full content and confirms
   runtime context/prompt evidence includes both accepted anchor concepts and
   both matching invented retrieval phrases.
@@ -26,14 +26,13 @@ Result:
 - Validation passed: `test:retrieval-metadata`, `test:persona-context`,
   `test:conversation-archive`, `test:replay-readiness`, `typecheck`, and
   `lint` with existing raw `<img>` warnings only.
+- `git diff --check` and `git diff --cached --check` passed.
+- ARGUS added-line hygiene scan found no credential-like values, emails,
+  credentialed URLs, UUID-shaped ids, raw prompts, or private source bodies.
 
 Current baton:
 
-- ARGUS should review owner/lifecycle/source filtering, summary/content prompt
-  assembly, no hardcoded replay anchors, no scope creep, and secret/raw-data
-  hygiene.
-- If accepted, ARGUS should recommend whether MIMIR opens an ARIADNE hosted
-  PR280 rerun after deploy.
+- MIMIR should open an ARIADNE hosted PR280 rerun after deploy.
 
 ## Previous MIMIR decision - PR279 Hosted Partial Context Selection Repair opened
 
