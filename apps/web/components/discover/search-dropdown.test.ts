@@ -9,12 +9,15 @@ import {
 test("public search groups exclude private owner buckets", () => {
   assert.deepEqual(
     PUBLIC_SEARCH_GROUPS.map(([key]) => key),
-    ["developerSpaces", "spaces", "documents", "threads"]
+    ["developerSpaces", "personas", "spaces", "documents", "threads"]
   );
 });
 
 test("public search hrefs only target supported public routes", () => {
   assert.equal(searchHref("developerSpaces", { slug: "observatory" }), "/developer-spaces/observatory");
+  assert.equal(searchHref("personas", { publicSlug: "blue-lantern" }), "/personas/blue-lantern");
+  assert.equal(searchHref("personas", { public_slug: "green-door" }), "/personas/green-door");
+  assert.equal(searchHref("personas", { publicSlug: "550e8400-e29b-41d4-a716-446655440000" }), null);
   assert.equal(searchHref("spaces", { slug: "field-notes" }), "/space/field-notes");
   assert.equal(
     searchHref("documents", { id: "doc-1", space: { slug: "field-notes" } }),
@@ -44,5 +47,18 @@ test("routeable public search items drop unrouteable public results", () => {
 test("routeable public search items ignore private owner buckets", () => {
   const keys = PUBLIC_SEARCH_GROUPS.map(([key]) => key);
 
-  assert.equal((keys as readonly string[]).includes("personas"), false);
+  assert.equal((keys as readonly string[]).includes("privateResults"), false);
+  assert.deepEqual(
+    routeablePublicSearchItems("personas", {
+      personas: [
+        { name: "Public Persona", publicSlug: "public-persona" },
+        { name: "Unsafe Persona", publicSlug: "550e8400-e29b-41d4-a716-446655440000" },
+        { name: "Missing Slug" },
+      ],
+      privateResults: {
+        memoryItems: [{ id: "private-memory" }],
+      },
+    }).map((item) => [item.result.name, item.href]),
+    [["Public Persona", "/personas/public-persona"]]
+  );
 });

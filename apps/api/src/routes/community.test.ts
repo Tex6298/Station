@@ -747,6 +747,8 @@ function persona(id: string, ownerUserId: string, name: string, visibility: stri
     long_description: null,
     avatar_url: null,
     visibility,
+    public_slug: visibility === "public" ? name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") : null,
+    public_chat_enabled: false,
     provider: "platform",
     created_at: "2026-05-25T09:00:00.000Z",
     updated_at: "2026-05-25T09:00:00.000Z",
@@ -3125,6 +3127,62 @@ test("Discover feed and search include public-safe Developer Spaces", async () =
       memberSearch.body.developerSpaces.map((space: Row) => space.id).sort(),
       [COMMUNITY_DEV_SPACE_ID, PUBLIC_DEV_SPACE_ID].sort()
     );
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
+
+test("Discover search returns routeable eligible public persona cards only", async () => {
+  const db = new CommunitySupabase();
+  setSupabaseAdminForTests(db.client as any);
+  const app = createCommunityApp();
+
+  try {
+    db.insertRow("personas", {
+      ...persona("77777777-7777-4777-8777-777777777774", MEMBER_ID, "Member Persona", "public"),
+      public_slug: "member-persona",
+    });
+    db.insertRow("personas", {
+      ...persona("77777777-7777-4777-8777-777777777775", OWNER_ID, "Unsafe UUID Persona", "public"),
+      public_slug: "550e8400-e29b-41d4-a716-446655440000",
+    });
+
+    const visitorSearch = await requestJson(app, "GET", "/discover/search?q=Persona");
+    assert.equal(visitorSearch.status, 200);
+    assert.deepEqual(
+      visitorSearch.body.personas.map((row: Row) => row.name).sort(),
+      ["Other Persona", "Public Persona"]
+    );
+
+    const publicPersona = visitorSearch.body.personas.find((row: Row) => row.name === "Public Persona");
+    assert.deepEqual(publicPersona, {
+      name: "Public Persona",
+      short_description: "Public Persona summary",
+      avatar_url: null,
+      publicSlug: "public-persona",
+      href: "/personas/public-persona",
+      publicChat: {
+        enabled: false,
+        mode: "signed_in_alpha",
+      },
+    });
+
+    const responseJson = JSON.stringify(visitorSearch.body.personas);
+    for (const forbidden of [
+      PUBLIC_PERSONA_ID,
+      OTHER_PERSONA_ID,
+      OWNER_ID,
+      OTHER_ID,
+      MEMBER_ID,
+      "owner_user_id",
+      "visibility",
+      "provider",
+      "Member Persona",
+      "Unsafe UUID Persona",
+      "550e8400-e29b-41d4-a716-446655440000",
+    ]) {
+      assert.equal(responseJson.includes(forbidden), false, `${forbidden} leaked into persona search`);
+    }
   } finally {
     setSupabaseAdminForTests(null);
   }

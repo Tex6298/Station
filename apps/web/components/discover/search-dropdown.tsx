@@ -1,9 +1,11 @@
 "use client";
 
 import Link from "next/link";
+import { publicPersonaHref } from "../../lib/public-persona-route";
 
 export const PUBLIC_SEARCH_GROUPS = [
   ["developerSpaces", "Developer Spaces"],
+  ["personas", "Public personas"],
   ["spaces", "Spaces"],
   ["documents", "Publications"],
   ["threads", "Forum"],
@@ -15,6 +17,8 @@ export function searchHref(key: PublicSearchGroup, result: any): string | null {
   switch (key) {
     case "developerSpaces":
       return result.slug ? `/developer-spaces/${result.slug}` : null;
+    case "personas":
+      return result.href ?? publicPersonaHref(result.publicSlug ?? result.public_slug);
     case "spaces":
       return result.slug ? `/space/${result.slug}` : null;
     case "documents":
@@ -58,7 +62,7 @@ export function SearchResultsDropdown({
             <div key={key} className="public-home-search-group">
               <div>{label}</div>
               {items.map(({ result, href }) => (
-                <Link key={`${key}-${result.id}`} href={href} onClick={onNavigate}>
+                <Link key={`${key}-${href}`} href={href} onClick={onNavigate}>
                   {result.name ?? result.title ?? result.projectName}
                 </Link>
               ))}

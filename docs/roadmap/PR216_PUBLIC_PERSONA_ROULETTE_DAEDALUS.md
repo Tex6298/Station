@@ -3,7 +3,7 @@
 Date opened: 2026-06-24
 Agent: A2 / DAEDALUS
 Opened by: A1 / MIMIR
-Status: open
+Status: implemented - awaiting ARGUS review
 
 ## Frame
 
@@ -142,3 +142,58 @@ Task:
 ```
 
 If blocked by scope expansion, wake MIMIR with the smallest options.
+
+## DAEDALUS Result
+
+Date completed: 2026-06-24
+
+Verdict: `IMPLEMENTED`
+
+### API Route And Payload
+
+- Added `GET /personas/public/roulette` before the slug-shaped public persona
+  routes.
+- The route accepts a bounded `limit` and deterministic `seed`; when no seed is
+  supplied it uses a daily UTC seed.
+- The route returns only eligible public personas with safe public slugs:
+  `name`, `shortDescription`, `avatarUrl`, `publicSlug`, `href`, and
+  `publicChat`.
+- The route excludes private personas, ineligible owners, unsafe UUID-shaped
+  slugs, owner ids, raw persona ids, provider/setup fields, owner aggregate
+  counters, report details, and private source buckets.
+
+### Discover And Web Affordance
+
+- `/discover/search` now maps public persona results through safe public slug
+  routeability and strips owner/raw DB fields before returning results.
+- The public search UI includes a `Public personas` group and routes persona
+  results through `/personas/:publicSlug`.
+- The Discover sidebar has a small `Persona roulette` panel that fetches the
+  bounded draw and links to existing public persona pages. The main Discover
+  feed/ranking was not rewritten.
+
+### Safety Notes
+
+- Roulette does not call a provider/model.
+- Roulette does not expand anonymous chat.
+- Roulette does not add event feeds, raw logs, analytics, billing, queues,
+  Redis/Cloudflare/workers, voice/avatar media, or persona-to-persona behavior.
+- Public persona chat remains on the existing signed-in alpha route.
+
+### Validation
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:personas` | Pass | 12 tests passed, including new roulette eligibility/leakage coverage. |
+| `npm exec --yes pnpm@10.32.1 -- run test:community` | Pass | 22 tests passed, including new Discover persona search routeability coverage. |
+| `npm exec --yes pnpm@10.32.1 -- tsx --test apps/web/components/discover/search-dropdown.test.ts` | Pass | 4 tests passed. This is the closest focused web/helper test because no root `test:discover` script exists. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass with existing warnings | Existing raw `<img>` warnings remain in `apps/web/app/space/[slug]/page.tsx` and `apps/web/components/discover/discover-front-door.tsx`. |
+
+`git diff --check` and `git diff --cached --check` are run at commit time.
+
+### Next Wakeup
+
+Wake ARGUS for hostile review of eligibility, serializer leakage, route ordering
+before `/public/:publicSlug`, Discover search routeability, tests, and
+public/private boundaries.

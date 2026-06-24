@@ -96,6 +96,20 @@ export interface PublicPersonaReportConfirmation {
   duplicate: boolean;
 }
 
+export interface PublicPersonaRouletteCard {
+  name: string;
+  shortDescription?: string | null;
+  avatarUrl?: string | null;
+  publicSlug: string;
+  href: string;
+  publicChat: PublicPersonaChatCapability;
+}
+
+export interface PublicPersonaRouletteResponse {
+  seed: string;
+  personas: PublicPersonaRouletteCard[];
+}
+
 export type PublicPersonaReportStatus = "open" | "reviewing" | "resolved" | "dismissed";
 
 export interface PublicPersonaInteractionAggregateWindow {

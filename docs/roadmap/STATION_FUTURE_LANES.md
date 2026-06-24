@@ -198,12 +198,15 @@ Current intent:
 - PR215 result: DAEDALUS recommends Public Persona Roulette as the first next
   slice: no-new-config discovery/readback only, eligible public personas,
   existing public serializers, and no provider call.
-- Active follow-up: PR216 implements the narrow Public Persona Roulette
-  discovery/readback slice and must wake ARGUS after implementation.
+- PR216 result: DAEDALUS implemented narrow Public Persona Roulette
+  discovery/readback with a bounded draw route, routeable Discover persona
+  search, and a small Discover sidebar affordance.
+- Active follow-up: ARGUS reviews PR216 eligibility, serializer leakage, route
+  ordering, Discover search routeability, tests, and public/private boundaries.
 ## Phase 3 bridge sequence
 
-Status, 2026-06-24: PR202 through PR215 are accepted. PR216 is open for
-DAEDALUS to implement narrow Public Persona Roulette discovery/readback.
+Status, 2026-06-24: PR202 through PR215 are accepted. PR216 is implemented by
+DAEDALUS and awaiting ARGUS review.
 
 Current MIMIR position:
 
@@ -244,8 +247,7 @@ Bridge order:
 16. Done: compare Roulette, Salons, voice/avatar, public persona events,
    institutional/research features, and persona-to-persona encounters before
    choosing PR216.
-17. Active: Public Persona Roulette discovery/readback, with ARGUS review after
-   implementation.
+17. Active: ARGUS review of Public Persona Roulette discovery/readback.
 
 ARGUS P3-B1A gates:
 

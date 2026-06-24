@@ -5,6 +5,12 @@ import type { DocumentVisibility, ThreadVisibility } from "@station/db";
 import { getSupabaseAdmin } from "../lib/supabase";
 import { optionalAuth } from "../middleware/require-auth";
 import { serializeDeveloperSpaceEvent } from "../services/developer-space.service";
+import {
+  isSafePublicPersonaSlug,
+  publicPersonaChatCapability,
+  publicPersonaRouteHref,
+} from "../lib/persona-serialization";
+import { ownerCanExposeExistingPublicPersonas } from "../lib/public-persona-eligibility";
 
 export const discoverRouter = Router();
 const COMMUNITY_TIERS = new Set(["private", "creator", "canon", "institutional"]);
@@ -57,6 +63,28 @@ function emptyPrivateSearchResults() {
     importJobs: [],
     archivedChats: [],
   };
+}
+
+async function publicPersonaSearchResults(
+  sb: ReturnType<typeof getSupabaseAdmin>,
+  rows: any[]
+) {
+  const results = [];
+  for (const row of rows) {
+    if (!isSafePublicPersonaSlug(row.public_slug)) continue;
+    if (!await ownerCanExposeExistingPublicPersonas(sb, row.owner_user_id)) continue;
+    const href = publicPersonaRouteHref(row.public_slug);
+    if (!href) continue;
+    results.push({
+      name: row.name,
+      short_description: row.short_description ?? null,
+      avatar_url: row.avatar_url ?? null,
+      publicSlug: row.public_slug,
+      href,
+      publicChat: publicPersonaChatCapability(row),
+    });
+  }
+  return results;
 }
 
 async function ownerPrivateSearchResults(ownerUserId: string, q: string) {
@@ -499,7 +527,7 @@ discoverRouter.get("/search", optionalAuth, async (req: Request, res: Response) 
         .limit(8)
     )),
     sb.from("spaces").select("id, slug, title, short_description, theme").eq("is_public", true).ilike("title", `%${q}%`).limit(6),
-    sb.from("personas").select("id, name, short_description, visibility").eq("visibility", "public").ilike("name", `%${q}%`).limit(6),
+    sb.from("personas").select("name, short_description, visibility, avatar_url, public_slug, owner_user_id, public_chat_enabled").eq("visibility", "public").ilike("name", `%${q}%`).limit(12),
     Promise.all(discoverableDeveloperSpaceVisibilities(req).map((visibility) =>
       sb
         .from("developer_spaces")
@@ -518,7 +546,7 @@ discoverRouter.get("/search", optionalAuth, async (req: Request, res: Response) 
       ...space,
       presentation: normalizeSpacePresentation(space.theme),
     })),
-    personas:  personas.data ?? [],
+    personas:  await publicPersonaSearchResults(sb, personas.data ?? []),
     developerSpaces: developerSpaceResults.flatMap((result) => result.data ?? []).slice(0, 8).map((space: any) => ({
       id: space.id,
       slug: space.slug,

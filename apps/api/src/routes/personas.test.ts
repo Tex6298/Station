@@ -816,6 +816,143 @@ test("public persona slug readback is anonymous, public-only, and owner-tier eli
   }
 });
 
+test("public persona roulette returns eligible public cards without private fields", async () => {
+  const db = new InMemorySupabase();
+  setSupabaseAdminForTests(db.client as any);
+  const app = createPersonasApp();
+
+  try {
+    const blue = db.insertRow("personas", {
+      owner_user_id: "creator-owner",
+      name: "Blue Lantern Guide",
+      short_description: "Public-safe guide to the blue lantern room.",
+      long_description: "Owner-only private runtime context.",
+      awakening_prompt: "Owner-only awakening prompt.",
+      style_notes: "Owner-only style notes.",
+      provider: "anthropic",
+      avatar_url: "https://example.test/blue.png",
+      visibility: "public",
+      public_slug: "blue-lantern-guide",
+      public_chat_enabled: true,
+    });
+    const green = db.insertRow("personas", {
+      owner_user_id: "canon-owner",
+      name: "Green Door Archivist",
+      short_description: "Public-safe archive index.",
+      visibility: "public",
+      public_slug: "green-door-archivist",
+    });
+    db.insertRow("personas", {
+      owner_user_id: "creator-owner",
+      name: "Private Roulette Persona",
+      short_description: "Should stay private.",
+      visibility: "private",
+      public_slug: "private-roulette-persona",
+    });
+    db.insertRow("personas", {
+      owner_user_id: "private-owner",
+      name: "Ineligible Public Persona",
+      short_description: "Private tier should not expose.",
+      visibility: "public",
+      public_slug: "ineligible-public-persona",
+    });
+    db.insertRow("personas", {
+      owner_user_id: "creator-owner",
+      name: "Unsafe UUID Persona",
+      visibility: "public",
+      public_slug: "550e8400-e29b-41d4-a716-446655440000",
+    });
+    db.insertRow("moderation_reports", {
+      reporter_id: "visitor-user",
+      target_type: "persona",
+      target_id: blue.id,
+      reason: "public_persona_chat",
+      notes: "Reporter-only note.",
+      status: "open",
+    });
+    db.insertRow("public_persona_interaction_counters", {
+      owner_user_id: "creator-owner",
+      persona_id: blue.id,
+      chat_attempt_count: 9,
+      report_created_count: 1,
+    });
+
+    const roulette = await requestJson(app, "GET", "/personas/public/roulette?limit=5&seed=alpha");
+    assert.equal(roulette.status, 200);
+    assert.equal(roulette.body.seed, "alpha");
+    assert.deepEqual(
+      roulette.body.personas
+        .map((persona: Row) => persona.name)
+        .sort(),
+      ["Blue Lantern Guide", "Green Door Archivist"]
+    );
+    assert.deepEqual(
+      roulette.body.personas
+        .map((persona: Row) => ({
+          name: persona.name,
+          shortDescription: persona.shortDescription,
+          avatarUrl: persona.avatarUrl,
+          publicSlug: persona.publicSlug,
+          href: persona.href,
+          publicChat: persona.publicChat,
+        }))
+        .sort((left: Row, right: Row) => left.name.localeCompare(right.name)),
+      [
+        {
+          name: "Blue Lantern Guide",
+          shortDescription: "Public-safe guide to the blue lantern room.",
+          avatarUrl: "https://example.test/blue.png",
+          publicSlug: "blue-lantern-guide",
+          href: "/personas/blue-lantern-guide",
+          publicChat: {
+            enabled: true,
+            mode: "signed_in_alpha",
+          },
+        },
+        {
+          name: "Green Door Archivist",
+          shortDescription: "Public-safe archive index.",
+          avatarUrl: null,
+          publicSlug: "green-door-archivist",
+          href: "/personas/green-door-archivist",
+          publicChat: {
+            enabled: false,
+            mode: "signed_in_alpha",
+          },
+        },
+      ]
+    );
+
+    const responseJson = JSON.stringify(roulette.body);
+    for (const forbidden of [
+      blue.id,
+      green.id,
+      "creator-owner",
+      "canon-owner",
+      "private-owner",
+      "visitor-user",
+      "provider",
+      "anthropic",
+      "visibility",
+      "longDescription",
+      "awakeningPrompt",
+      "styleNotes",
+      "Owner-only private runtime context",
+      "Reporter-only note",
+      "publicInteraction",
+      "report_created_count",
+      "chat_attempt_count",
+      "550e8400-e29b-41d4-a716-446655440000",
+      "Ineligible Public Persona",
+      "Private Roulette Persona",
+    ]) {
+      assert.equal(responseJson.includes(forbidden), false, `${forbidden} leaked into roulette payload`);
+    }
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
+
 test("signed-in public persona chat alpha is owner-enabled, rate-limited, public-source-only, and owner-paid", async () => {
   const db = new InMemorySupabase();
   const rateLimitProvider = new TestRateLimitProvider();

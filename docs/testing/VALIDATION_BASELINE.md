@@ -20,6 +20,32 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR216 Public Persona Roulette
+
+DAEDALUS implementation validation on 2026-06-24:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:personas` | Pass | 12 tests passed. New coverage proves roulette returns only eligible public persona cards, excludes private/ineligible/unsafe-slug personas, and omits raw ids, owner ids, provider/setup fields, report notes, aggregate counter columns, and private strings. |
+| `npm exec --yes pnpm@10.32.1 -- run test:community` | Pass | 22 tests passed. New coverage proves `/discover/search` returns routeable eligible public persona cards only and omits owner/raw fields. |
+| `npm exec --yes pnpm@10.32.1 -- tsx --test apps/web/components/discover/search-dropdown.test.ts` | Pass | 4 tests passed. This is the closest focused web/helper validation because there is no root `test:discover` script. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass with existing warnings | Existing raw `<img>` warnings remain in `apps/web/app/space/[slug]/page.tsx` and `apps/web/components/discover/discover-front-door.tsx`. |
+
+Scope notes:
+
+- Added a bounded `GET /personas/public/roulette` draw route with deterministic
+  seed support and no provider/model call.
+- The roulette payload contains only public card fields: `name`,
+  `shortDescription`, `avatarUrl`, safe `publicSlug`, `href`, and `publicChat`.
+- Discover search now maps public persona results to safe public routes and
+  strips owner/raw DB fields before response serialization.
+- The public Discover sidebar now shows a small Persona roulette panel that
+  links to existing public persona pages.
+- No anonymous chat expansion, public event feed, raw log, analytics expansion,
+  billing, queue, Redis/Cloudflare/worker, voice/avatar media,
+  persona-to-persona behavior, or broad Discover feed/ranking rewrite changed.
+
 ## PR214 Aggregate Counters Hosted Proof
 
 DAEDALUS hosted repair/proof on 2026-06-24:

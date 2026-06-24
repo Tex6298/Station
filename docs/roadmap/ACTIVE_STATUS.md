@@ -4,7 +4,43 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest MIMIR decision - PR216 Roulette implementation opened
+## Latest DAEDALUS result - PR216 Roulette implemented
+
+DAEDALUS implemented PR216 on 2026-06-24.
+
+Result:
+
+- Added `GET /personas/public/roulette` as a bounded, deterministic public
+  persona draw route registered before public slug routes.
+- The payload returns only public card fields: `name`, `shortDescription`,
+  `avatarUrl`, safe `publicSlug`, `href`, and `publicChat`.
+- Discover search now returns routeable public persona results through safe
+  public slugs and strips owner/raw DB fields.
+- The Discover sidebar now exposes a small `Persona roulette` panel linking to
+  existing public persona pages.
+- No provider calls, anonymous chat expansion, public event feed, raw event log,
+  billing, queue, Redis/Cloudflare/worker, voice/avatar, or persona-to-persona
+  behavior was added.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:personas` passed with 12 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:community` passed with 22 tests.
+- `npm exec --yes pnpm@10.32.1 -- tsx --test apps/web/components/discover/search-dropdown.test.ts`
+  passed with 4 tests. There is no root `test:discover` script.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed with existing raw `<img>`
+  warnings in `apps/web/app/space/[slug]/page.tsx` and
+  `apps/web/components/discover/discover-front-door.tsx`.
+
+Current baton:
+
+- ARGUS should review PR216 for eligibility, serializer leakage, route ordering,
+  Discover search routeability, test coverage, and public/private boundaries.
+- Full implementation record:
+  `docs/roadmap/PR216_PUBLIC_PERSONA_ROULETTE_DAEDALUS.md`.
+
+## Previous MIMIR decision - PR216 Roulette implementation opened
 
 MIMIR accepts the PR215 recommendation on 2026-06-24.
 

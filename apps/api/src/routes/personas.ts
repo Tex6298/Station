@@ -27,6 +27,7 @@ import type {
   PublicPersonaInteractionReadback,
   PublicPersonaReportStatus,
   PublicPersonaReportConfirmation,
+  PublicPersonaRouletteCard,
 } from "@station/types";
 import { enqueueLlmCall } from "../services/llm-queue.service";
 import {
@@ -100,6 +101,9 @@ const PUBLIC_PERSONA_CHAT_VISITOR_PER_DAY = 20;
 const PUBLIC_PERSONA_CHAT_GLOBAL_PER_MINUTE = 30;
 const PUBLIC_PERSONA_CHAT_GLOBAL_PER_DAY = 200;
 const PUBLIC_PERSONA_CHAT_DAY_SECONDS = 24 * 60 * 60;
+const PUBLIC_PERSONA_ROULETTE_DEFAULT_LIMIT = 3;
+const PUBLIC_PERSONA_ROULETTE_MAX_LIMIT = 8;
+const PUBLIC_PERSONA_ROULETTE_POOL_LIMIT = 80;
 const PUBLIC_PERSONA_CONTEXT_DOCUMENT_SELECT =
   "id, title, slug, body, status, visibility, published_at, created_at, space_id, persona_id, source_persona_id, discussion_thread_id";
 const PUBLIC_PERSONA_CONTEXT_THREAD_SELECT =
@@ -124,6 +128,78 @@ const publicPersonaReportSchema = z.object({
   reason: z.string().trim().min(1).max(120),
   notes: z.string().trim().max(500).optional(),
 });
+
+function firstQueryValue(value: unknown) {
+  return Array.isArray(value) ? value[0] : value;
+}
+
+function publicPersonaRouletteLimit(value: unknown) {
+  const parsed = Number.parseInt(String(firstQueryValue(value) ?? ""), 10);
+  if (!Number.isInteger(parsed)) return PUBLIC_PERSONA_ROULETTE_DEFAULT_LIMIT;
+  return Math.min(PUBLIC_PERSONA_ROULETTE_MAX_LIMIT, Math.max(1, parsed));
+}
+
+function publicPersonaRouletteSeed(value: unknown, now = new Date()) {
+  const raw = firstQueryValue(value);
+  const normalized = typeof raw === "string"
+    ? raw.trim().replace(/\s+/g, "-").slice(0, 80)
+    : "";
+  return normalized || `daily-${now.toISOString().slice(0, 10)}`;
+}
+
+function stablePublicPersonaRouletteHash(value: string) {
+  let hash = 2166136261;
+  for (let index = 0; index < value.length; index += 1) {
+    hash ^= value.charCodeAt(index);
+    hash = Math.imul(hash, 16777619);
+  }
+  return hash >>> 0;
+}
+
+function publicPersonaRouletteSortValue(row: any, seed: string) {
+  return stablePublicPersonaRouletteHash(`${seed}:${row.public_slug ?? ""}:${row.name ?? ""}`);
+}
+
+function serializePublicPersonaRouletteCard(row: any): PublicPersonaRouletteCard | null {
+  const fields = serializePersonaPublicFields(row);
+  const href = publicPersonaRouteHref(fields.publicSlug);
+  if (!fields.publicSlug || !href || !fields.publicChat) return null;
+
+  return {
+    name: fields.name,
+    shortDescription: fields.shortDescription ?? null,
+    avatarUrl: fields.avatarUrl ?? null,
+    publicSlug: fields.publicSlug,
+    href,
+    publicChat: fields.publicChat,
+  };
+}
+
+async function loadPublicPersonaRouletteRows(limit: number, seed: string) {
+  const sb = getSupabaseAdmin();
+  const { data, error } = await sb
+    .from("personas")
+    .select("id, name, short_description, visibility, avatar_url, public_slug, owner_user_id, public_chat_enabled, created_at")
+    .eq("visibility", "public")
+    .order("created_at", { ascending: false })
+    .limit(PUBLIC_PERSONA_ROULETTE_POOL_LIMIT);
+
+  if (error) throw new Error(error.message ?? "Failed to load public personas.");
+
+  const eligible = [];
+  for (const row of data ?? []) {
+    if (!isSafePublicPersonaSlug(row.public_slug)) continue;
+    if (!await ownerCanExposeExistingPublicPersonas(sb, row.owner_user_id)) continue;
+    eligible.push(row);
+  }
+
+  return eligible
+    .sort((left, right) =>
+      publicPersonaRouletteSortValue(left, seed) - publicPersonaRouletteSortValue(right, seed) ||
+      String(left.public_slug).localeCompare(String(right.public_slug))
+    )
+    .slice(0, limit);
+}
 
 async function loadEligiblePublicPersonaBySlug(publicSlug: string, select: string): Promise<any | null> {
   if (!isSafePublicPersonaSlug(publicSlug)) return null;
@@ -638,6 +714,23 @@ async function loadPublicPersonaInteractionReadback(
     },
   };
 }
+
+personasRouter.get("/public/roulette", async (req, res) => {
+  const limit = publicPersonaRouletteLimit(req.query.limit);
+  const seed = publicPersonaRouletteSeed(req.query.seed);
+
+  try {
+    const rows = await loadPublicPersonaRouletteRows(limit, seed);
+    return res.json({
+      seed,
+      personas: rows
+        .map(serializePublicPersonaRouletteCard)
+        .filter((card): card is PublicPersonaRouletteCard => Boolean(card)),
+    });
+  } catch {
+    return res.status(500).json({ error: "Failed to load public persona roulette." });
+  }
+});
 
 personasRouter.post("/public/:publicSlug/chat", requireAuth, async (req, res) => {
   const parsed = publicChatSchema.safeParse(req.body);

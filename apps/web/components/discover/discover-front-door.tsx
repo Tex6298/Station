@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import type { AuthUser } from "@station/types";
 import { apiGet } from "@/lib/api-client";
@@ -50,6 +50,18 @@ interface SidebarData {
   recentPosts: RecentPost[];
   personas: Persona[];
   stats: Stats;
+}
+
+interface PublicPersonaRouletteCard {
+  name: string;
+  shortDescription?: string | null;
+  avatarUrl?: string | null;
+  publicSlug: string;
+  href: string;
+  publicChat?: {
+    enabled: boolean;
+    mode: "signed_in_alpha";
+  };
 }
 
 function timeAgo(dateStr: string) {
@@ -185,10 +197,13 @@ function FeedCard({ item }: { item: FeedItem }) {
 
 type SidebarUser = AuthUser & { email: string; isAdmin?: boolean };
 
-function Sidebar({ sidebar, user, loading }: {
+function Sidebar({ sidebar, user, loading, roulette, rouletteLoading, onRouletteShuffle }: {
   sidebar: SidebarData | null;
   user: SidebarUser | null;
   loading: boolean;
+  roulette: PublicPersonaRouletteCard[];
+  rouletteLoading: boolean;
+  onRouletteShuffle: () => void;
 }) {
   if (loading) {
     return (
@@ -244,6 +259,38 @@ function Sidebar({ sidebar, user, loading }: {
           </div>
         </div>
       )}
+
+      <div className="discover-public-sidebar-panel">
+        <div className="section-label">Persona roulette</div>
+        {rouletteLoading ? (
+          <div className="public-home-search-status">Drawing...</div>
+        ) : roulette.length > 0 ? (
+          <div style={{ display: "grid", gap: "0.55rem" }}>
+            {roulette.map((persona) => (
+              <Link key={persona.href} href={persona.href} style={{ textDecoration: "none" }}>
+                <div style={{ fontSize: "0.82rem", color: "var(--public-home-text)", lineHeight: 1.35 }}>
+                  {persona.name}
+                </div>
+                {persona.shortDescription && (
+                  <div style={{ fontSize: "0.72rem", color: "var(--public-home-muted)", marginTop: "0.15rem", lineHeight: 1.45 }}>
+                    {persona.shortDescription.slice(0, 88)}
+                  </div>
+                )}
+              </Link>
+            ))}
+            <button
+              type="button"
+              className="public-home-secondary"
+              style={{ fontSize: "0.82rem", width: "100%", cursor: "pointer" }}
+              onClick={onRouletteShuffle}
+            >
+              Shuffle
+            </button>
+          </div>
+        ) : (
+          <div className="public-home-search-status">No public personas yet.</div>
+        )}
+      </div>
 
       {sidebar?.personas && sidebar.personas.length > 0 && (
         <div className="discover-public-sidebar-panel">
@@ -308,10 +355,26 @@ export default function DiscoverFrontDoor() {
   const [sidebar, setSidebar] = useState<SidebarData | null>(null);
   const [user, setUser] = useState<SidebarUser | null>(null);
   const [sideLoading, setSideLoading] = useState(true);
+  const [roulette, setRoulette] = useState<PublicPersonaRouletteCard[]>([]);
+  const [rouletteLoading, setRouletteLoading] = useState(true);
 
   const [search, setSearch] = useState("");
   const [searchResults, setSearchResults] = useState<any>(null);
   const [searching, setSearching] = useState(false);
+
+  const loadRoulette = useCallback(async (seed = new Date().toISOString()) => {
+    setRouletteLoading(true);
+    try {
+      const data = await apiGet<{ personas: PublicPersonaRouletteCard[] }>(
+        `/personas/public/roulette?limit=3&seed=${encodeURIComponent(seed)}`
+      );
+      setRoulette(data.personas ?? []);
+    } catch {
+      setRoulette([]);
+    } finally {
+      setRouletteLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
     setFeedLoading(true);
@@ -335,6 +398,10 @@ export default function DiscoverFrontDoor() {
       if (!token) setSideLoading(false);
     });
   }, []);
+
+  useEffect(() => {
+    void loadRoulette();
+  }, [loadRoulette]);
 
   useEffect(() => {
     if (!search.trim()) { setSearchResults(null); return; }
@@ -394,8 +461,8 @@ export default function DiscoverFrontDoor() {
               onChange={(e) => setSearch(e.target.value)}
               placeholder={
                 user
-                  ? "Search public and community-visible Station - projects, Spaces, publications, forums"
-                  : "Search public Station - projects, Spaces, publications, forums"
+                  ? "Search public and community-visible Station - personas, projects, Spaces, publications, forums"
+                  : "Search public Station - personas, projects, Spaces, publications, forums"
               }
             />
             {search && <button type="button" onClick={() => setSearch("")}>Clear</button>}
@@ -404,7 +471,7 @@ export default function DiscoverFrontDoor() {
         <p className="discover-public-helper">
           {user
             ? "Signed-in search may include community-visible results. Private Studio archive, memory, canon, import, and continuity stay out."
-            : "Public search returns routeable projects, Spaces, publications, and forum threads."}
+            : "Public search returns routeable personas, projects, Spaces, publications, and forum threads."}
         </p>
 
         {search.trim() && (
@@ -422,7 +489,7 @@ export default function DiscoverFrontDoor() {
                         {results.map(({ result: r, href }) => {
                           const title = r.name ?? r.title ?? r.projectName;
                           return (
-                            <Link key={r.id} href={href} onClick={() => setSearch("")}>
+                            <Link key={href} href={href} onClick={() => setSearch("")}>
                               {title}
                               {key === "developerSpaces" && (
                                 <span style={{ color: "#67e8f9", fontSize: "0.72rem", marginLeft: "0.45rem", textTransform: "capitalize" }}>
@@ -459,7 +526,7 @@ export default function DiscoverFrontDoor() {
                 {!PUBLIC_SEARCH_GROUPS.some(([key]) => routeablePublicSearchItems(key, searchResults).length > 0) && (
                   <div className="public-home-search-status">
                     No {user ? "public or community-visible" : "public"} results for &quot;{search}&quot;.
-                    Try a project, Space, publication, or forum topic.
+                    Try a persona, project, Space, publication, or forum topic.
                   </div>
                 )}
               </div>
@@ -513,7 +580,14 @@ export default function DiscoverFrontDoor() {
           </>
         )}
       </main>
-      <Sidebar sidebar={sidebar} user={user} loading={sideLoading} />
+      <Sidebar
+        sidebar={sidebar}
+        user={user}
+        loading={sideLoading}
+        roulette={roulette}
+        rouletteLoading={rouletteLoading}
+        onRouletteShuffle={() => void loadRoulette(`${Date.now()}`)}
+      />
       </div>
     </div>
   );
