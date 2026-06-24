@@ -210,10 +210,14 @@ Current intent:
   alpha, preceded by ARGUS hostile preflight because the slice touches
   public/community visibility, delegated moderation, membership expectations,
   persona linkage, Discover routeability, and public persona readback.
+- PR219 decision: MIMIR accepts the PR218 product shape and opens ARGUS Salon
+  Alpha Preflight before any Salon schema or product implementation. Salons
+  should begin as asynchronous subcommunity-backed forum collections unless
+  ARGUS blocks that route.
 ## Phase 3 bridge sequence
 
-Status, 2026-06-24: PR202 through PR217 are accepted. PR218 is complete and
-awaits MIMIR decision on the recommended PR219 ARGUS Salon Alpha Preflight.
+Status, 2026-06-24: PR202 through PR218 are accepted. PR219 ARGUS Salon Alpha
+Preflight is open before any Salon schema or product implementation.
 
 Current MIMIR position:
 
@@ -258,7 +262,7 @@ Bridge order:
     hardening.
 18. Done: ARIADNE hosted human rehearsal of Roulette/search routeability.
 19. Done: Public Salons feasibility/boundary gate.
-20. Recommended: ARGUS Salon Alpha Preflight before any Salon schema or product
+20. Active: ARGUS Salon Alpha Preflight before any Salon schema or product
     code.
 
 ARGUS P3-B1A gates:

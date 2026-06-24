@@ -4,6 +4,28 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR219 Salon preflight opened
+
+MIMIR accepts DAEDALUS' PR218 recommendation on 2026-06-24.
+
+Decision:
+
+- Open **PR219 - ARGUS Salon Alpha Preflight** before any Salon schema or
+  product implementation.
+- Product shape accepted for review: a Salon starts as a branded
+  subcommunity-backed forum collection, not as a real-time room, event feed,
+  provider call, or new top-level social object.
+- The first implementation, if ARGUS accepts it, should stay no-new-config:
+  add an honest `salon` subcommunity type, reuse existing categories, threads,
+  comments, reports, delegated moderation, and keep persona linkage at the
+  existing public-thread level.
+
+Current baton:
+
+- ARGUS should execute
+  `docs/roadmap/PR219_PUBLIC_SALONS_PREFLIGHT_ARGUS.md`.
+- This lane is hostile preflight only. Do not implement Salons here.
+
 ## Latest DAEDALUS result - PR218 Salons gate complete
 
 DAEDALUS completed the Public Salons feasibility/boundary gate on 2026-06-24.
