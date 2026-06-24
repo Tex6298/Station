@@ -252,12 +252,14 @@ Current intent:
   public persona context preview/readback path.
 - PR227 implementation result: DAEDALUS added bounded public persona context
   preview/readback for public Salon threads linked to the same eligible public
-  persona. ARGUS hostile review is pending before closeout.
+  persona. ARGUS passed after excluding document-linked threads from the new
+  Salon source path. PR228 opens hosted proof and bounded seed preparation
+  before ARIADNE human rehearsal.
 
 ## Phase 3 bridge sequence
 
-Status, 2026-06-24: PR202 through PR226 are accepted. PR227 Public Persona
-Salon Readback is implemented by DAEDALUS and awaiting ARGUS review.
+Status, 2026-06-24: PR202 through PR227 are accepted. PR228 Public Persona
+Salon Hosted Proof is open for DAEDALUS.
 
 Current MIMIR position:
 
@@ -311,7 +313,8 @@ Bridge order:
 25. Done: Public Salon Directory Readback Rehearsal.
 26. Done: Discover Public Salon Surfacing.
 27. Done: Discover Salon Surfacing Rehearsal.
-28. Review pending: Public Persona Salon Readback.
+28. Done: Public Persona Salon Readback.
+29. Active: Public Persona Salon Hosted Proof.
 
 ARGUS P3-B1A gates:
 

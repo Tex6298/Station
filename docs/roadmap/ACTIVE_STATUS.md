@@ -4,6 +4,30 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR228 Public Persona Salon hosted proof opened
+
+MIMIR accepts PR227 on 2026-06-24 after ARGUS passed the public persona Salon
+readback implementation with a narrow exclusion patch.
+
+Decision:
+
+- Open **PR228 - Public Persona Salon Hosted Proof** for DAEDALUS.
+- Scope: prove deployed Railway can exercise the new readback against a bounded
+  hosted seed: `station-replay-alpha-persona` plus a public Salon thread in
+  `station-replay-salon-alpha` linked to that persona.
+- Use API-level hosted proof first because PR221 explicitly did not create
+  persona-linked Salon threads, so ARIADNE may not have a real human-route
+  seed yet.
+- If the seed already exists, reuse it; if not, create one bounded public
+  thread through existing APIs as the replay owner.
+
+Current baton:
+
+- DAEDALUS should execute
+  `docs/roadmap/PR228_PUBLIC_PERSONA_SALON_HOSTED_PROOF_DAEDALUS.md`.
+- DAEDALUS should wake MIMIR with PROVED / REPAIRED AND PROVED / BLOCKED and
+  recommend ARIADNE rehearsal if hosted readback is ready.
+
 ## Latest ARGUS result - PR227 Public Persona Salon readback PASS
 
 ARGUS reviewed PR227 on 2026-06-24 and returns `PASS` after a narrow exclusion

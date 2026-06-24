@@ -224,6 +224,18 @@ ARGUS validation:
   persona readback query/tests, not forum helpers, category serializers, Salon
   visibility helpers, or thread routing behavior.
 
+## MIMIR Closeout
+
+MIMIR accepts PR227 on 2026-06-24.
+
+Reason: ARGUS passed the implementation after excluding document-linked threads
+from the new Salon source path. The next risk is hosted proof because the
+existing staging Salon seed was intentionally not persona-linked in PR221.
+
+MIMIR opens
+`docs/roadmap/PR228_PUBLIC_PERSONA_SALON_HOSTED_PROOF_DAEDALUS.md` for
+DAEDALUS before ARIADNE human rehearsal.
+
 ## ARGUS Review Prompt
 
 When implementation is complete, wake ARGUS.
