@@ -142,8 +142,10 @@ then let staged replay reveal the next optimizations.
   payloads store only sanitized counts/reason codes, and quota/token accounting
   includes the possible retry conservatively. ARGUS accepted PR291 after
   tightening the direct-factual gate so creative/style prompts do not retry
-  just because they contain a question mark. MIMIR should open an ARIADNE PR292
-  hosted rerun after deploy.
+  just because they contain a question mark. MIMIR opened PR292 as the ARIADNE
+  hosted rerun after deploy; its scope is hosted evidence for recall,
+  answer-contract/retry telemetry, rejected-control exclusion, source-copy
+  safety, and sanitized context/observability.
 - Broader known caveats still travel into staging review instead of spawning
   more local polish: static global Archive/Export shells, dashboard
   derived/static snippets, no downloadable bundles/workers, and no new private

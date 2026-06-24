@@ -135,7 +135,7 @@ one-shot retry for direct/factual private persona prompts that miss all selected
 focus. Trace payloads store only sanitized counts/reason codes, and quota/token
 accounting includes the possible retry conservatively. ARGUS accepted PR291
 after tightening the direct-factual gate so creative/style prompts do not retry
-just because they contain a question mark. MIMIR should open an ARIADNE PR292
+just because they contain a question mark. MIMIR opened the ARIADNE PR292
 hosted rerun after deploy.
 
 ## Phase 2D Developer Agent closeout

@@ -573,7 +573,7 @@ booleans/counts/reason codes, keeps provider-only selected context out of
 persisted owner messages, and conservatively accounts for the possible retry in
 quota/token estimates. ARGUS accepted PR291 after tightening the direct-factual
 gate so creative/style prompts do not retry just because they contain a question
-mark. MIMIR should open an ARIADNE PR292 hosted rerun after deploy; if that
+mark. MIMIR opened an ARIADNE PR292 hosted rerun after deploy; if that
 still fails, classify whether the remaining issue belongs to provider/model
 behavior.
 
