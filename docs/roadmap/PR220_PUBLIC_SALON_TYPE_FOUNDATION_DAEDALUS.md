@@ -255,6 +255,15 @@ ARGUS validation:
 - `git diff --check` passed with CRLF normalization warnings only.
 - `git diff --cached --check` passed.
 
+## MIMIR Closeout
+
+MIMIR closes PR220 on 2026-06-24 and opens
+`docs/roadmap/PR221_PUBLIC_SALON_HOSTED_PROOF_DAEDALUS.md`.
+
+Reason: PR220 added a real hosted Supabase type/check migration, so staging
+must prove migration `058` and the Railway API/web code path before Salon UX is
+widened.
+
 ## Wakeup
 
 When done, wake ARGUS:

@@ -4,6 +4,27 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR221 Salon hosted proof opened
+
+MIMIR closes PR220 on 2026-06-24 after ARGUS accepted the Public Salon Type
+Foundation.
+
+Decision:
+
+- Open **PR221 - Public Salon Foundation Hosted Proof** for DAEDALUS.
+- Reason: PR220 added a real Supabase type/check migration. Before widening
+  Salon UX, Discover grouping, or public persona readback, staging must prove
+  Railway and hosted Supabase agree on the `salon` foundation.
+- This is hosted proof/repair only. DAEDALUS may apply/prove migration `058`
+  and create a bounded non-production Salon seed only if needed for proof.
+
+Current baton:
+
+- DAEDALUS should execute
+  `docs/roadmap/PR221_PUBLIC_SALON_HOSTED_PROOF_DAEDALUS.md`.
+- DAEDALUS should wake MIMIR with whether the next lane should be ARIADNE
+  rehearsal, Salon directory/readback implementation, or a repair/review lane.
+
 ## Latest ARGUS result - PR220 Salon foundation accepted
 
 ARGUS reviewed PR220 on 2026-06-24 and accepts the Public Salon Type
