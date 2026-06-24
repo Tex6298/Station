@@ -31,6 +31,17 @@ DAEDALUS implementation validation on 2026-06-24:
 | `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed. |
 | `npm exec --yes pnpm@10.32.1 -- run lint` | Pass with existing warnings | Existing raw `<img>` warnings remain in `apps/web/app/space/[slug]/page.tsx` and `apps/web/components/discover/discover-front-door.tsx`. |
 
+ARGUS review validation on 2026-06-24:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:community` | Pass | Re-ran 22 API tests during hostile review. |
+| `npm exec --yes pnpm@10.32.1 -- tsx --test apps/web/lib/community-subcommunities.test.ts` | Pass | Re-ran 4 focused web helper tests. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass with existing warnings | Same existing raw `<img>` warnings in `apps/web/app/space/[slug]/page.tsx` and `apps/web/components/discover/discover-front-door.tsx`. |
+| `git diff --check` | Pass | CRLF normalization warnings only. |
+| `git diff --cached --check` | Pass | Staged ARGUS verdict docs and watcher state had no whitespace errors. |
+
 Scope notes:
 
 - Added migration `058_salon_subcommunity_type.sql` and updated DB/shared forum
@@ -42,6 +53,10 @@ Scope notes:
   rooms, provider/model calls, persona-to-persona behavior, public event feeds,
   billing, notifications, Redis/Cloudflare, workers, queues, storage buckets,
   auth/session policy, moderation-role expansion, or broad UI behavior changed.
+- ARGUS accepts PR220 with one residual gate for future lanes: public Salon
+  readback, Discover grouping, or public persona page surfaces should use safe
+  public persona slug/href fields rather than introducing a new raw persona-id
+  public surface.
 
 ## PR219 Public Salons Alpha Preflight
 

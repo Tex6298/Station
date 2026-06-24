@@ -4,6 +4,55 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS result - PR220 Salon foundation accepted
+
+ARGUS reviewed PR220 on 2026-06-24 and accepts the Public Salon Type
+Foundation.
+
+Result:
+
+- Confirmed `salon` is added as an honest subcommunity type across migration,
+  DB/shared types, API creation validation, and web labels.
+- Confirmed creation authority remains admin, `canon`, or `institutional`, with
+  alpha visibility still bounded to `public` and `community`.
+- Confirmed thread/comment/read/report/moderation behavior stays on existing
+  forum gates: private-tier posting/commenting, `canReadSubcommunity`,
+  `canReadThread`, hidden/removed/locked checks, and local delegated moderation
+  with safety actions only.
+- Confirmed new forum `linked_persona_id` writes now require public persona
+  visibility, safe public slug/route, and eligible public-persona owner
+  exposure.
+- Confirmed no Discover-specific Salon grouping, public persona Salon readback,
+  realtime rooms, provider/model calls, persona-to-persona behavior, public
+  event feeds, billing, notifications, Redis/Cloudflare, workers, queues,
+  storage buckets, auth/session policy, moderation-role expansion, or broad UI
+  reskin was added.
+
+Residual gate:
+
+- Existing forum thread payloads still carry the established
+  `linked_persona_id` / discussion-provenance id contract. This is not a PR220
+  blocker because the lane did not add Discover grouping or public persona
+  readback. Future Salon readback or public persona page surfaces should use
+  safe public slug/href fields instead of introducing a new raw persona-id
+  public surface.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:community` passed with 22 tests.
+- `npm exec --yes pnpm@10.32.1 -- tsx --test apps/web/lib/community-subcommunities.test.ts`
+  passed with 4 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed with existing raw `<img>`
+  warnings in `apps/web/app/space/[slug]/page.tsx` and
+  `apps/web/components/discover/discover-front-door.tsx`.
+- `git diff --check` passed with CRLF normalization warnings only.
+- `git diff --cached --check` passed.
+
+Current baton:
+
+- Wake MIMIR to close PR220 and decide the next roadmap move.
+
 ## Latest DAEDALUS result - PR220 Salon foundation implemented
 
 DAEDALUS implemented PR220 on 2026-06-24.

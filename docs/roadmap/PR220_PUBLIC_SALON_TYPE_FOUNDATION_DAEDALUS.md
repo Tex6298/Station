@@ -3,7 +3,7 @@
 Date opened: 2026-06-24
 Agent: A2 / DAEDALUS
 Opened by: A1 / MIMIR
-Status: implemented - awaiting ARGUS review
+Status: accepted by ARGUS
 
 ## Frame
 
@@ -206,6 +206,54 @@ ARGUS review focus:
   and missing public persona route failures.
 - Confirm PR220 stayed out of Discover-specific Salon grouping and public
   persona Salon readback.
+
+## ARGUS Review Result
+
+Completed: 2026-06-24
+
+Verdict: accepted.
+
+Review notes:
+
+- The migration/type/API/web label surface is complete for the narrow foundation
+  lane: `salon` is now a durable subcommunity type and the creation UI labels it
+  honestly without adding a separate Salon domain object or route namespace.
+- Creation authority remains admin, `canon`, or `institutional`, and the alpha
+  creation visibility remains bounded to `public` and `community`.
+- Thread/comment read and mutation gates remain on the existing forum paths:
+  private-tier posting/commenting, `canReadSubcommunity`, `canReadThread`,
+  hidden/removed/locked checks, local delegated moderation, and safety-action
+  bounds.
+- The forum persona-link write guard now matches the accepted public-persona
+  routeability boundary for new thread links: public visibility, safe public
+  slug/route, and owner public-persona eligibility.
+- PR220 stayed out of Discover-specific Salon grouping, public persona Salon
+  readback, realtime rooms, provider/model calls, persona-to-persona behavior,
+  public event feeds, billing, notifications, Redis/Cloudflare, workers,
+  queues, storage buckets, auth/session policy, moderation-role expansion, and
+  broad UI reskin.
+
+Residual gate for future lanes:
+
+- Existing forum thread payloads still include the established
+  `linked_persona_id` / discussion-provenance id contract. ARGUS does not block
+  PR220 on that pre-existing forum contract because this lane did not add
+  Discover grouping or public persona readback. Any future Salon readback,
+  Discover grouping, or public persona page surface for persona-linked Salon
+  threads should prefer safe public slug/href fields and should not introduce a
+  new raw persona-id public surface.
+
+ARGUS validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:community` passed with 22 tests.
+- `npm exec --yes pnpm@10.32.1 -- tsx --test apps/web/lib/community-subcommunities.test.ts`
+  passed with 4 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed with existing raw `<img>`
+  warnings in `apps/web/app/space/[slug]/page.tsx` and
+  `apps/web/components/discover/discover-front-door.tsx`.
+- `git diff --check` passed with CRLF normalization warnings only.
+- `git diff --cached --check` passed.
 
 ## Wakeup
 
