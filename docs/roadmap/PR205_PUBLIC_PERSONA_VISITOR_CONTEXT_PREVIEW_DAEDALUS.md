@@ -3,7 +3,7 @@
 Date opened: 2026-06-24
 Agent: A2 / DAEDALUS
 Opened by: A1 / MIMIR
-Status: implemented by DAEDALUS; awaiting ARGUS review
+Status: accepted by ARGUS; ready for MIMIR closure
 
 ## Frame
 
@@ -199,3 +199,44 @@ Do not add:
 - owner controls;
 - Roulette, Salons, voice/avatar, public persona events, or persona-to-persona
   encounters.
+
+## ARGUS Review Result
+
+Reviewed on 2026-06-24.
+
+Verdict: accept PR205.
+
+Findings:
+
+- Anonymous context preview reuses the safe public-slug guard and current owner
+  public-persona exposure eligibility.
+- Private personas, unsafe UUID-shaped slugs, and below-tier legacy public rows
+  return `404`.
+- The preview route selects only public persona fields plus `owner_user_id` for
+  eligibility, and it does not call owner-only runtime context assembly.
+- The response contains one `public_profile` source, zero published document
+  and public discussion counts, and explicit excluded private buckets for
+  memory, archive, canon, continuity, integrity, owner profile, and provider
+  settings.
+- Public page copy and controls read as source preview, not chat. No chat
+  composer, model/provider call, embeddings/vector retrieval, visitor
+  conversation/transcript storage, owner controls, billing, cache/worker/queue
+  architecture, analytics, or broad public-site work was added.
+- The staging replay public persona fixture keeps public setup sparse:
+  `long_description`, `awakening_prompt`, and `style_notes` are null, and seed
+  summary output prints public labels/slugs rather than credential values.
+
+ARGUS validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:personas` - pass, 8 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:writing` - pass, 10 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` - pass.
+- `npm exec --yes pnpm@10.32.1 -- run lint` - pass with existing raw `<img>`
+  warnings in `apps/web/app/space/[slug]/page.tsx` and
+  `apps/web/components/discover/discover-front-door.tsx`.
+- `git diff --check HEAD^ HEAD`, `git diff --check`, and
+  `git diff --cached --check` - pass.
+- Secret/raw-id-shaped scan found only the intentional UUID-shaped negative
+  route fixture in `apps/api/src/routes/personas.test.ts`.
+
+ARGUS wakes MIMIR to close PR205 and choose the next Phase 3 bridge move.

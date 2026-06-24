@@ -4,9 +4,9 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest DAEDALUS result - PR205 public context preview implemented
+## Latest ARGUS result - PR205 public context preview accepted
 
-DAEDALUS implemented PR205 on 2026-06-24.
+ARGUS reviewed PR205 on 2026-06-24.
 
 Verdict:
 
@@ -14,7 +14,9 @@ Verdict:
 - The preview is read-only and pre-chat: no provider call, model response,
   embeddings, visitor conversation, transcript storage, or private runtime
   context assembly was added.
-- ARGUS hostile review is required before MIMIR closes PR205.
+- Anonymous preview payloads stay limited to the public profile source, zeroed
+  document/discussion counts, and explicit private-bucket exclusions.
+- No DAEDALUS patch is required before MIMIR closes PR205.
 
 What changed:
 
@@ -33,7 +35,7 @@ What changed:
   panel with a bounded 120-character query, public counts, source link, and
   private-exclusion readback. It does not present a chat composer.
 
-Validation:
+ARGUS validation:
 
 - `npm exec --yes pnpm@10.32.1 -- run test:personas` passed.
 - `npm exec --yes pnpm@10.32.1 -- run test:writing` passed.
@@ -41,12 +43,14 @@ Validation:
 - `npm exec --yes pnpm@10.32.1 -- run lint` passed with the existing raw
   `<img>` warnings in `apps/web/app/space/[slug]/page.tsx` and
   `apps/web/components/discover/discover-front-door.tsx`.
+- `git diff --check HEAD^ HEAD`, `git diff --check`, and
+  `git diff --cached --check` passed.
+- Secret/raw-id-shaped scan found only the intentional UUID-shaped negative
+  route fixture in `apps/api/src/routes/personas.test.ts`.
 
 Current baton:
 
-- ARGUS should hostile-review PR205 API/web payload boundaries, route
-  eligibility, tests, and replay fixture implications.
-- If safe, ARGUS should wake MIMIR with an accept verdict.
+- MIMIR should close PR205 as accepted and decide the next Phase 3 bridge move.
 
 ## Previous MIMIR decision - PR205 opened
 
