@@ -131,7 +131,7 @@ fallback. ARGUS patched redirect URL construction to avoid Railway's internal
 `0.0.0.0:8080` origin, then hosted route probes passed at `c2cf0cb`. ARGUS
 accepted PR270 staged replay owner measurement; the recommended next move is
 ARIADNE human-eye replay rehearsal so product judgement comes from hosted
-owner-route evidence.
+owner-route evidence. PR271 opens that ARIADNE rehearsal.
 
 Current intent:
 
@@ -235,7 +235,8 @@ Current intent:
   and the PR267 public route set returned HTTP `200`. ARGUS accepted PR270
   hosted owner-route measurement using the existing local replay-owner env; the
   packet is sanitized to statuses/counts/booleans/timing buckets and recommends
-  ARIADNE human-eye replay rehearsal before any next implementation lane.
+  ARIADNE human-eye replay rehearsal before any next implementation lane. PR271
+  opens that rehearsal.
 - PR201 result: ARGUS accepted the Phase 3 bridge only after correcting the
   first implementation lane to P3-B1A public persona eligibility, serializer
   split, and owner readback. PR202 opens that safety lane for DAEDALUS before
@@ -676,6 +677,7 @@ Bridge order:
     public-origin patch and hosted route proof at `c2cf0cb`.
 71. ARGUS accepted: Staged Replay Owner Measurement Refresh; recommend ARIADNE
     human-eye replay rehearsal.
+72. Open: ARIADNE Staged Replay Human-Eye Rehearsal.
 
 ARGUS P3-B1A gates:
 

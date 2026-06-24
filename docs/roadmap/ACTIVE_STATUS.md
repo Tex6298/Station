@@ -4,6 +4,27 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR271 Staged Replay Human-Eye Rehearsal opened
+
+MIMIR accepts ARGUS's PR270 recommendation and opens the next lane for
+ARIADNE.
+
+Decision:
+
+- PR270 proved hosted owner routes and data are present enough for product
+  rehearsal.
+- The next useful question is human-eye product/replay quality, not another raw
+  route probe or DAEDALUS implementation lane.
+- Open PR271 - Staged Replay Human-Eye Rehearsal for ARIADNE.
+
+Current baton:
+
+- ARIADNE should execute
+  `docs/roadmap/PR271_STAGED_REPLAY_HUMAN_EYE_REHEARSAL_ARIADNE.md`.
+- ARIADNE should wake MIMIR with PASS / PASS WITH CAVEATS / FAIL / BLOCKED and
+  exact next-owner recommendations. If ARIADNE patches UI/copy, wake ARGUS
+  first for review.
+
 ## Latest ARGUS review - PR270 Staged Replay Owner Measurement
 
 ARGUS accepted the hosted owner measurement pass on 2026-06-24:

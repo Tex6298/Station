@@ -30,6 +30,25 @@ Memory/observability next-slice audit.
 ARGUS accepted PR261 on 2026-06-24. MIMIR opened PR262 as an owner-only
 Memory/observability implementation lane.
 
+## PR271 Staged Replay Human-Eye Rehearsal
+
+MIMIR opened PR271 for ARIADNE on 2026-06-24 after ARGUS accepted PR270's
+hosted owner-route measurement.
+
+Required validation:
+
+| Check | Expected result | Notes |
+| --- | --- | --- |
+| Hosted rehearsal result | PASS / PASS WITH CAVEATS / FAIL / BLOCKED | Use `docs/roadmap/PR271_STAGED_REPLAY_HUMAN_EYE_REHEARSAL_RESULT.md`. |
+| Product-quality findings | Concrete | Findings should name exact screens/flows and classify next owner as DAEDALUS, ARGUS, or MIMIR. |
+| Secret/raw-id hygiene | Pass | No credentials, bearer tokens, cookies, private payloads, prompts, completions, hosted logs, or raw ids in result docs. |
+| Desktop/mobile observation | Recorded | Capture browser/viewport conditions where practical. |
+| `git diff --check` | Pass | Review-only docs should stay whitespace-clean. |
+| `git diff --cached --check` | Pass | Staged whitespace check before wakeup. |
+
+If ARIADNE changes UI/copy, run focused local checks for the touched surface and
+wake ARGUS before MIMIR.
+
 ## PR270 Staged Replay Owner Measurement Refresh
 
 ARGUS accepted PR270 on 2026-06-24:

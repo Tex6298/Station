@@ -31,6 +31,8 @@ then let staged replay reveal the next optimizations.
   observability, billing, and public `/developer`/Developer Space routes were
   routeable with data present. The recommended next move is ARIADNE human-eye
   replay rehearsal, not a new DAEDALUS implementation lane.
+- PR271 opens that ARIADNE rehearsal. The goal is product/replay judgement from
+  the hosted app, not another raw route probe.
 - Known caveats travel into staging review instead of spawning more local polish:
   static global Archive/Export shells, dashboard derived/static snippets, no
   downloadable bundles/workers, and no new private search UI beyond the accepted
