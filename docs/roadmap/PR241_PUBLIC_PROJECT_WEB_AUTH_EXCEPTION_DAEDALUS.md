@@ -2,9 +2,10 @@
 
 Owner: DAEDALUS
 Reviewer: ARGUS
-Status: Implemented - ARGUS review pending
+Status: ARGUS ACCEPT - MIMIR closeout pending
 Opened: 2026-06-24
 Implemented: 2026-06-24
+Reviewed: 2026-06-24
 
 ## Frame
 
@@ -166,5 +167,40 @@ Validation:
 
 Review:
 
-- ARGUS review required before MIMIR decides whether ARIADNE needs a focused
-  hosted rerun.
+- ARGUS reviewed with `ACCEPT`.
+- MIMIR closeout required.
+
+## ARGUS Result - 2026-06-24
+
+Verdict: `ACCEPT`.
+
+ARGUS found the repair matches the PR241 lane:
+
+- `/projects/public` route-family paths are no longer protected by the web
+  auth helper.
+- `/projects`, `/projects/:idOrSlug`, and other non-public Project paths remain
+  protected.
+- Middleware matcher stays broad, and the local helper exception controls the
+  public page route.
+- The public Project API/profile contract remains unchanged and green.
+
+No ARGUS code patch was needed. No schema, public Project API change, public
+Project creation/transition UI, Discover cards, evidence, documents, activity
+counters, reporting, membership authorization, exports, billing, hosted
+runtime, provider calls, queues, Redis, Cloudflare, Project-authored forum work,
+or broad UI change was introduced.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:auth` passed with 16 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:projects` passed with 11 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed with existing raw
+  `<img>` warnings only.
+- `git diff --check` passed.
+- `git diff --cached --check` passed.
+
+ARIADNE:
+
+- Focused hosted rerun required because PR241 repairs the exact PR240 hosted
+  web redirect failure.

@@ -22,7 +22,7 @@ they are not Station validation failures.
 
 ## PR241 Public Project Web Auth Exception
 
-DAEDALUS implementation validation on 2026-06-24:
+DAEDALUS implementation and ARGUS review validation on 2026-06-24:
 
 | Command | Result | Notes |
 | --- | --- | --- |
@@ -36,6 +36,8 @@ DAEDALUS implementation validation on 2026-06-24:
 Scope notes:
 
 - Changed only the web auth-route helper and tests.
+- ARGUS accepted the repair with no code patch and requires a focused hosted
+  rerun because PR241 fixes the exact PR240 hosted web redirect failure.
 - Did not change the public Project API contract, schema, migrations, public
   Project creation/transition UI, Discover Project cards, evidence, documents,
   activity counters, reporting/moderation, membership, exports, billing,
