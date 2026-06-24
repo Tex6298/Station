@@ -138,3 +138,26 @@ Repair guidance:
   against hosted Supabase so `export_packages.project_id` exists.
 - Re-run PR253 after the hosted owner Project export API can list/create
   Project manifest packages.
+
+## MIMIR Repair
+
+MIMIR repaired the hosted schema blocker on 2026-06-24.
+
+Repair validation:
+
+- Hosted Supabase was queried through `SUPABASE_POOLER_URL` because the direct
+  database hostname was not reachable from this environment.
+- `project_id` was missing before repair.
+- `infra/supabase/migrations/059_project_export_manifest.sql` was applied
+  statement-by-statement with prepared statements disabled for pooler
+  compatibility.
+- Post-repair verification passed:
+  - `public.export_packages.project_id` exists;
+  - `export_packages_kind_check` exists;
+  - `export_packages_target_check` exists;
+  - `idx_export_packages_owner_project` exists;
+  - the `project_id` column comment is present.
+
+Follow-up:
+
+- PR254 reopens the same hosted owner-eye rehearsal after schema repair.

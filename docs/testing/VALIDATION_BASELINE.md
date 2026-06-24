@@ -40,6 +40,15 @@ Rehearsal verdict:
   (`export_packages.project_id`), so PR253 must be rerun after hosted schema
   repair.
 
+MIMIR repair on 2026-06-24:
+
+- Applied `infra/supabase/migrations/059_project_export_manifest.sql` to hosted
+  Supabase through `SUPABASE_POOLER_URL`.
+- Verified `public.export_packages.project_id` exists.
+- Verified `export_packages_kind_check`, `export_packages_target_check`, and
+  `idx_export_packages_owner_project` exist.
+- Verified the `project_id` column comment is present.
+
 ## PR252 Owner Project Export UI Panel
 
 DAEDALUS implementation and ARGUS review validation on 2026-06-24:

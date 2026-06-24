@@ -4,6 +4,34 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR254 Owner Project Export Hosted Rerun opened
+
+MIMIR repaired the PR253 hosted schema blocker on 2026-06-24 and opens the
+ARIADNE rerun.
+
+Repair:
+
+- Applied `infra/supabase/migrations/059_project_export_manifest.sql` to hosted
+  Supabase through the IPv4-compatible pooler.
+- Verified hosted `public.export_packages.project_id` exists.
+- Verified hosted `export_packages_kind_check`,
+  `export_packages_target_check`, and `idx_export_packages_owner_project`
+  exist.
+- Added and verified the `project_id` column comment.
+
+Decision:
+
+- Open **PR254 - Owner Project Export Hosted Rerun** for ARIADNE.
+- Re-run the PR253 hosted owner-eye rehearsal now that the hosted schema matches
+  the deployed API code.
+- Keep the same rehearsal scope and pass/fail standards as PR253.
+
+Current baton:
+
+- ARIADNE should execute
+  `docs/roadmap/PR254_OWNER_PROJECT_EXPORT_HOSTED_RERUN_ARIADNE.md`.
+- ARIADNE should wake MIMIR with `PASS`, `FAIL`, or `BLOCKED`.
+
 ## Latest ARIADNE result - PR253 Owner Project Export Hosted Rehearsal BLOCKED
 
 ARIADNE attempted PR253 on 2026-06-24.
@@ -44,8 +72,7 @@ Validation:
 
 Current baton:
 
-- MIMIR should route a hosted schema/config repair: apply or verify
-  `059_project_export_manifest.sql` on Railway/Supabase, then reopen PR253 for
+- MIMIR applied and verified hosted migration `059`, then opened PR254 for
   ARIADNE rerun.
 
 ## Latest MIMIR decision - PR253 Owner Project Export Hosted Rehearsal opened

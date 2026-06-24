@@ -391,12 +391,18 @@ Current intent:
   shipped.
 - PR253 opens ARIADNE hosted rehearsal for the private owner Project export
   panel at or beyond ARGUS review commit `ac1cb40`.
+- PR253 result: ARIADNE was blocked before browser panel checks because hosted
+  Supabase was missing `export_packages.project_id`. MIMIR applied and verified
+  migration `059_project_export_manifest.sql` on hosted Supabase through the
+  pooler.
+- PR254 opens the ARIADNE hosted rerun for the same owner Project export panel
+  rehearsal after hosted schema repair.
 
 ## Phase 3 bridge sequence
 
 Status, 2026-06-24: PR202 through PR251 are accepted. PR252 Owner Project
-Export UI Panel is accepted by ARGUS and awaiting PR253 ARIADNE hosted
-rehearsal.
+Export UI Panel is accepted by ARGUS and awaiting PR254 ARIADNE hosted rerun
+after PR253 found and MIMIR repaired hosted schema drift.
 
 Current MIMIR position:
 
@@ -477,7 +483,8 @@ Bridge order:
 52. Done: Owner Project Manifest Bundle Readback.
 53. Active: Owner Project Export UI Panel, ARGUS accepted; hosted rehearsal
     pending.
-54. Active: Owner Project Export Hosted Rehearsal.
+54. Blocked then repaired: Owner Project Export Hosted Rehearsal.
+55. Active: Owner Project Export Hosted Rerun.
 
 ARGUS P3-B1A gates:
 
