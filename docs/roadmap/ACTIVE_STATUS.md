@@ -4,7 +4,27 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest ARIADNE result - PR204 accepted
+## Latest MIMIR decision - PR205 opened
+
+MIMIR opened PR205 on 2026-06-24 for the next Phase 3 bridge slice:
+visitor-safe public persona context preview.
+
+Decision:
+
+- PR204 is closed as accepted.
+- The next slice is not visitor chat yet.
+- DAEDALUS should add a read-only anonymous context preview that proves future
+  public persona interaction will use only public-safe source categories.
+- The preview must not call a provider, require embeddings, expose private
+  runtime context, or create visitor conversations.
+
+Current baton:
+
+- DAEDALUS owns
+  `docs/roadmap/PR205_PUBLIC_PERSONA_VISITOR_CONTEXT_PREVIEW_DAEDALUS.md`.
+- DAEDALUS should wake ARGUS after implementation.
+
+## Previous ARIADNE result - PR204 accepted
 
 ARIADNE reran the PR204 public persona page rehearsal on 2026-06-24 after
 MIMIR fixed staging schema/seed drift.
@@ -53,8 +73,8 @@ Validation:
 
 - `/spaces/station-replay-alpha` returns `access: public` and one persona card
   with `publicSlug: station-replay-alpha-persona`.
-- `/personas/public/station-replay-alpha-persona` returns a public persona,
-  one memory item, one document reference, and no owner/provider fields.
+- `/personas/public/station-replay-alpha-persona` returns the sparse public
+  persona profile and no owner/provider fields.
 - `/personas/station-replay-alpha-persona` returns HTTP 200 from Next.
 - `node --check scripts/staging-replay-seed.mjs` passed.
 - `npm exec --yes pnpm@10.32.1 -- run replay:seed:validate` passed.

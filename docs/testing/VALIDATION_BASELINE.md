@@ -65,7 +65,7 @@ MIMIR staging seed repair on 2026-06-24:
 | Supabase staging schema | Pass after repair | Staging initially lacked `personas.public_slug`; MIMIR applied the scoped PR203 public-slug migration statements via the session pooler without printing secrets. |
 | `npm exec --yes pnpm@10.32.1 -- run replay:seed:staging` | Pass | Seed completed and created public persona fixture `station-replay-alpha-persona` with sanitized output only. |
 | `/spaces/station-replay-alpha` | Pass | Returns `access: public` and one persona card with `publicSlug: station-replay-alpha-persona`. |
-| `/personas/public/station-replay-alpha-persona` | Pass | Returns public persona readback, one memory item, one document reference, and no owner/provider fields. |
+| `/personas/public/station-replay-alpha-persona` | Pass | Returns sparse public persona profile readback and no owner/provider fields. |
 | `/personas/station-replay-alpha-persona` | Pass | Railway web returns HTTP 200 from Next. |
 | `node --check scripts/staging-replay-seed.mjs` | Pass | Seed script syntax checked. |
 | `npm exec --yes pnpm@10.32.1 -- run replay:seed:validate` | Pass | Example corpus validates with planned `personas: 2` and `publicPersonas: 1`. |

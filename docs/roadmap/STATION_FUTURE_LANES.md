@@ -163,12 +163,16 @@ Current intent:
   public-persona exposure eligibility. Follow-up review accepted the second
   repair at `c898f82`; PR204 now sends the public persona page to ARIADNE for
   visible rehearsal.
+- PR204 result: ARIADNE accepted the public persona page rehearsal on Railway
+  after MIMIR repaired staging schema/seed drift. PR205 opens visitor-safe
+  public persona context preview for DAEDALUS. This is still pre-chat: no
+  provider call, no visitor conversations, and no private runtime context.
 
 ## Phase 3 bridge sequence
 
-Status, 2026-06-23: PR202 is accepted. PR203 is implemented, repaired, and
-accepted for visible rehearsal. PR204 is open for ARIADNE to rehearse the
-public persona page on Railway staging.
+Status, 2026-06-24: PR202 and PR204 are accepted. PR205 is open for DAEDALUS to
+add visitor-safe public persona context preview before any public chat product
+opens.
 
 Current MIMIR position:
 
@@ -186,10 +190,9 @@ Bridge order:
 1. ARGUS hostile boundary preflight.
 2. Done: public persona eligibility, server-side visibility guards, serializer
    split, and owner readback.
-3. Accepted for visible rehearsal: public persona page readback with no visitor
-   chat.
-4. Active: ARIADNE public persona page rehearsal.
-5. Visitor-safe context assembly readback/preview.
+3. Done: public persona page readback with no visitor chat.
+4. Done: ARIADNE public persona page rehearsal.
+5. Active: visitor-safe context assembly readback/preview.
 6. Bounded visitor chat alpha with rate/message limits and reporting.
 7. Owner analytics, moderation, and report readback.
 8. Only then consider Roulette, Salons, voice/avatar, public persona events,

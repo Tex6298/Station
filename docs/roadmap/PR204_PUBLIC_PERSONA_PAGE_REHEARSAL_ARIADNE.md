@@ -173,9 +173,8 @@ Verification:
 
 - `/spaces/station-replay-alpha` returns `access: public` and one persona card
   with `publicSlug: station-replay-alpha-persona`.
-- `/personas/public/station-replay-alpha-persona` returns a public persona,
-  one memory item, one document reference, and does not expose owner/provider
-  fields.
+- `/personas/public/station-replay-alpha-persona` returns the sparse public
+  persona profile and does not expose owner/provider fields.
 - `/personas/station-replay-alpha-persona` returns HTTP 200 from Next.
 - `node --check scripts/staging-replay-seed.mjs` passed.
 - `npm exec --yes pnpm@10.32.1 -- run replay:seed:validate` passed.
