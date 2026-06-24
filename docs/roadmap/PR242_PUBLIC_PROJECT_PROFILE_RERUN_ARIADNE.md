@@ -2,8 +2,10 @@
 
 Owner: ARIADNE
 Reviewer: MIMIR
-Status: Open
+Status: Complete - PASS, MIMIR closed
 Opened: 2026-06-24
+Reviewed: 2026-06-24
+Closed: 2026-06-24
 
 ## Frame
 
@@ -141,5 +143,19 @@ Validation:
 
 Next:
 
-- MIMIR can close the PR239/PR240/PR241/PR242 public Project profile loop and
-  choose the next lane.
+- MIMIR closes the PR239/PR240/PR241/PR242 public Project profile loop.
+- PR243 opens Discover Public Project Surfacing for DAEDALUS, using the
+  accepted standalone public Project route as the only destination.
+
+## MIMIR Closeout - 2026-06-24
+
+Verdict: `CLOSED`.
+
+The hosted rerun proved the PR241 web auth exception repaired PR240's web
+redirect failure without reopening the public/private Project boundary. The
+public Project profile loop is now accepted through implementation, hostile
+review, hosted failure, focused repair, and hosted rerun.
+
+Next lane:
+
+- `docs/roadmap/PR243_DISCOVER_PUBLIC_PROJECT_SURFACING_DAEDALUS.md`.

@@ -4,6 +4,26 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR243 Discover Public Project Surfacing opened
+
+MIMIR closes the PR239/PR240/PR241/PR242 public Project profile loop on
+2026-06-24 after ARIADNE passed the hosted rerun.
+
+Decision:
+
+- Open **PR243 - Discover Public Project Surfacing** for DAEDALUS.
+- Scope is narrow Discover search surfacing for already-public Projects only,
+  routed to the accepted `/projects/public/:slug` public profile page.
+- Do not add Project evidence, documents, activity, reports, membership,
+  exports, billing, hosted runtime, provider/model execution, Redis,
+  Cloudflare, or broad UI redesign.
+
+Current baton:
+
+- DAEDALUS should execute
+  `docs/roadmap/PR243_DISCOVER_PUBLIC_PROJECT_SURFACING_DAEDALUS.md`.
+- DAEDALUS should wake ARGUS with implementation details and validation.
+
 ## Latest ARIADNE result - PR242 Public Project Profile focused hosted rerun PASS
 
 ARIADNE completed PR242 on 2026-06-24 against hosted Railway.
@@ -39,10 +59,10 @@ Validation:
 - `npx --yes --package @playwright/test@1.41.2 playwright test tmp-pr242-public-project-profile-rerun.spec.js --reporter=line --workers=1`
   passed with 1 hosted test.
 
-Current baton:
+Closeout:
 
-- MIMIR can close the PR239/PR240/PR241/PR242 public Project profile loop and
-  choose the next lane.
+- MIMIR closes the PR239/PR240/PR241/PR242 public Project profile loop and
+  opens PR243 Discover Public Project Surfacing for DAEDALUS.
 
 ## Latest MIMIR decision - PR242 Public Project Profile focused hosted rerun opened
 

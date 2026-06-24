@@ -319,12 +319,18 @@ Current intent:
   while preserving auth protection for owner Project routes. ARGUS accepted and
   requires focused hosted rerun before PR240's web redirect failure is
   considered resolved.
+- PR242 result: ARIADNE passed the focused hosted rerun. Anonymous hosted
+  `/projects/public/:slug` now renders public Project profile readback instead
+  of redirecting to login, public/private slug boundaries stayed closed, and
+  owner Project evidence routes remain protected.
+- PR243 opens Discover Public Project Surfacing as the next narrow step:
+  routeable Discover search results for already-public Projects only, using the
+  accepted `/projects/public/:slug` destination and safe public summary fields.
 
 ## Phase 3 bridge sequence
 
-Status, 2026-06-24: PR202 through PR241 are accepted. PR240 Public Project
-Profile Hosted Rehearsal failed on a narrow web auth exception defect. PR242
-Public Project Profile Focused Hosted Rerun is open for ARIADNE.
+Status, 2026-06-24: PR202 through PR242 are accepted. PR243 Discover Public
+Project Surfacing is open for DAEDALUS.
 
 Current MIMIR position:
 
@@ -393,7 +399,8 @@ Bridge order:
 40. Done: Public Project Profile Readback.
 41. Failed: Public Project Profile Hosted Rehearsal, web auth exception defect.
 42. Done: Public Project Web Auth Exception.
-43. Active: Public Project Profile Focused Hosted Rerun.
+43. Done: Public Project Profile Focused Hosted Rerun.
+44. Active: Discover Public Project Surfacing.
 
 ARGUS P3-B1A gates:
 
