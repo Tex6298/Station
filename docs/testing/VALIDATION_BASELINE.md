@@ -22,6 +22,30 @@ they are not Station validation failures.
 
 ## PR260 Developer Space Tier 1 Closeout Audit
 
+ARGUS accepted PR260 on 2026-06-24. MIMIR opened PR261 as a docs-only
+Memory/observability next-slice audit.
+
+## PR261 Memory Observability Next Slice Audit
+
+MIMIR opened PR261 for DAEDALUS on 2026-06-24.
+
+Required validation for the docs-only audit:
+
+| Command / check | Expected result | Notes |
+| --- | --- | --- |
+| `git diff --check` | Pass | Docs-only whitespace check. |
+| `git diff --cached --check` | Pass | Staged whitespace check. |
+
+Scope notes:
+
+- PR261 should choose the next Memory/observability lane from accepted evidence.
+- It must not change product code, schema, migrations, providers, embeddings,
+  retrieval ranking, Redis/Cloudflare roles, queues/workers, billing,
+  auth/session, env/deployment, public memory, public observability, broad UI,
+  or hosted data.
+
+## PR260 Developer Space Tier 1 Closeout Audit - Review
+
 DAEDALUS docs-only audit and ARGUS review on 2026-06-24:
 
 | Command / check | Result | Notes |

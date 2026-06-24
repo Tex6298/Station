@@ -473,11 +473,15 @@ Current intent:
 - PR260 ARGUS review accepted the closeout audit with no patch. MIMIR can close
   Developer Space Tier 1 protected-alpha for now and return sequencing to
   non-Developer-Space priorities unless a real partner pilot names a gap.
+- PR261 opens Memory Observability Next Slice Audit for DAEDALUS. The next
+  Memory/observability move should be chosen from accepted Lane 6 evidence, not
+  by inertia.
 
 ## Phase 3 bridge sequence
 
 Status, 2026-06-24: PR202 through PR260 are accepted. Developer Space Tier 1
-protected-alpha is ready for MIMIR closeout.
+protected-alpha is closed for now. PR261 is open under Memory UX and
+observability sequencing.
 
 Current MIMIR position:
 
@@ -566,6 +570,7 @@ Bridge order:
 60. Done: ARIADNE hosted desktop/mobile rehearsal for PR258 visible public and
     owner Developer Space routes.
 61. ARGUS accepted: Developer Space Tier 1 closeout audit.
+62. Open: Memory Observability Next Slice Audit.
 
 ARGUS P3-B1A gates:
 
@@ -922,6 +927,13 @@ are not treated as pending blockers. Redis/Upstash remains operational cache/
 idempotency/rate-limit/cache-only queue-state support, Cloudflare remains
 adapter/index-mirror boundary only, and MIMIR should choose the next lane from
 fresh hosted replay or product evidence.
+
+PR261 update, 2026-06-24: Developer Space Tier 1 is closed for protected-alpha
+after PR260. MIMIR opens a Memory Observability Next Slice Audit so DAEDALUS can
+choose the next narrow Memory/observability lane from accepted Lane 6 evidence:
+deeper lifecycle/handoff workflow, Memory graph exploration, richer sanitized
+trace readback, Continuity/Archive/Memory provenance stitching, hosted
+measurement/rehearsal, or no immediate slice.
 
 Inputs:
 

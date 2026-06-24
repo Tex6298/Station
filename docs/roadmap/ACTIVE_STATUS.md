@@ -4,6 +4,27 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR261 Memory Observability Next Slice Audit opened
+
+MIMIR accepts PR260 on 2026-06-24 and closes Developer Space Tier 1
+protected-alpha for now.
+
+Decision:
+
+- Do not open another Developer Space implementation lane unless a real partner
+  pilot names a gap.
+- Return sequencing to Memory UX and observability.
+- Open **PR261 - Memory Observability Next Slice Audit** for DAEDALUS before
+  choosing implementation. Lane 6 has many accepted slices already, so the next
+  move should be evidence-led rather than automatic.
+
+Current baton:
+
+- DAEDALUS should complete
+  `docs/roadmap/PR261_MEMORY_OBSERVABILITY_NEXT_SLICE_AUDIT_DAEDALUS.md`.
+- ARGUS should review the recommended next Memory/observability lane for
+  privacy, owner/public boundaries, and scope discipline.
+
 ## Latest ARGUS review - PR260 Developer Space Tier 1 Closeout Audit
 
 ARGUS accepts PR260 on 2026-06-24 with no review patch:
