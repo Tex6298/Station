@@ -30,6 +30,28 @@ Memory/observability next-slice audit.
 ARGUS accepted PR261 on 2026-06-24. MIMIR opened PR262 as an owner-only
 Memory/observability implementation lane.
 
+## PR273 Staged Replay Polish Hosted Rerun
+
+MIMIR opened PR273 for ARIADNE on 2026-06-24 after ARGUS accepted PR272's
+polish patch from code/test evidence.
+
+Required validation:
+
+| Check | Expected result | Notes |
+| --- | --- | --- |
+| Hosted freshness | Pass or blocked | Web/API health and deployment should prove deployed `main` includes PR272 implementation commit `454f3ec` or later. |
+| Public Discover right rail | Pass | Hosted `/discover` should not leave `Persona Roulette / Drawing...` as an endless post-ready state. |
+| Public Developer Space status | Pass | Hosted public Developer Space should distinguish live updates from latest readback or unavailable live updates. |
+| Public forum copy | Pass | Hosted public forum provider-list description should not contain mojibake. |
+| Desktop/mobile observation | Recorded | Use a human-eye view at practical desktop and mobile viewports. |
+| Secret/raw-id hygiene | Pass | Result docs should include sanitized observations only. |
+| `git diff --check` | Pass | Review-only docs should stay whitespace-clean. |
+| `git diff --cached --check` | Pass | Staged whitespace check before wakeup. |
+
+No hosted mutations, Stripe Checkout, imports, exports, posting, reporting,
+voting, ingestion-key changes, or private memory/archive/continuity/canon
+mutations should happen in PR273.
+
 ## PR272 Staged Replay Polish Caveats
 
 ARGUS accepted PR272 on 2026-06-24 with no review patch after ARIADNE returned

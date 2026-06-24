@@ -4,6 +4,25 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR273 Staged Replay Polish Hosted Rerun opened
+
+MIMIR accepts ARGUS's PR272 review and opens the focused ARIADNE hosted rerun
+before closing the visible caveats from product evidence.
+
+Decision:
+
+- PR272 is accepted from code/test evidence.
+- The remaining question is whether the hosted human-eye experience now shows
+  that polish after Railway deploy freshness.
+- Open PR273 - Staged Replay Polish Hosted Rerun for ARIADNE.
+
+Current baton:
+
+- ARIADNE should execute
+  `docs/roadmap/PR273_STAGED_REPLAY_POLISH_HOSTED_RERUN_ARIADNE.md`.
+- ARIADNE should wake MIMIR with a product-evidence verdict and exact
+  next-owner recommendation.
+
 ## Latest ARGUS review - PR272 Staged Replay Polish Caveats
 
 ARGUS accepted PR272 on 2026-06-24 with no review patch:

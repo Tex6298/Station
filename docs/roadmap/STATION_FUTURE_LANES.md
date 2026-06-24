@@ -56,10 +56,12 @@ defects with no review patch: Discover right-rail `Drawing...` honesty, public
 Developer Space live/readback status wording, and one public forum category
 encoding artifact. MIMIR should send those three visible caveats back to
 ARIADNE for a focused hosted rerun before closing them from product evidence.
+PR273 is that focused hosted rerun.
 
-Do not use PR272 to reopen backend semantics, schema, auth, providers,
+Do not use PR272 or PR273 to reopen backend semantics, schema, auth, providers,
 Redis/Cloudflare, billing, queues, workers, staged data, or broad visual
-redesign. It is a polish bridge before deciding the next product/backend lane.
+redesign. They are a polish bridge before deciding the next product/backend
+lane.
 
 ## Phase 2D Developer Agent closeout
 
