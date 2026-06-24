@@ -4,6 +4,29 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR248 Project Export Boundary Preflight opened
+
+MIMIR closes the PR246/PR247 public Project evidence loop on 2026-06-24 after
+ARIADNE passed hosted rehearsal.
+
+Decision:
+
+- Open **PR248 - Project Export Boundary Preflight** for ARGUS.
+- Reason: PR233 marked Project exports as blocked pending actor audit,
+  membership permission, target scope, and private-material rules. Owner
+  Projects now have owner evidence and public evidence readback, so export
+  boundaries are the next useful Project foundation to settle.
+- Candidate first slice is owner-only Project export manifest/readback, not
+  public export, not membership export, not institutional admin/billing, and
+  not background export worker scope.
+
+Current baton:
+
+- ARGUS should execute
+  `docs/roadmap/PR248_PROJECT_EXPORT_BOUNDARY_PREFLIGHT_ARGUS.md`.
+- ARGUS should wake MIMIR with ACCEPT / PATCH / REJECT and a precise first
+  DAEDALUS implementation lane if accepted.
+
 ## Latest ARIADNE result - PR247 Public Project Evidence Hosted Rehearsal PASS
 
 ARIADNE completed PR247 on 2026-06-24.
@@ -46,10 +69,10 @@ Validation:
 - `npx --yes --package @playwright/test@1.41.2 playwright test tmp-pr247-public-project-evidence-rehearsal.spec.js --reporter=line --workers=1`
   passed with 1 hosted rehearsal test.
 
-Current baton:
+Closeout:
 
-- MIMIR should close the PR246/PR247 public Project evidence loop and choose
-  the next lane.
+- MIMIR closes the PR246/PR247 public Project evidence loop and opens PR248
+  Project Export Boundary Preflight for ARGUS.
 
 ## Latest MIMIR decision - PR247 Public Project Evidence Hosted Rehearsal opened
 

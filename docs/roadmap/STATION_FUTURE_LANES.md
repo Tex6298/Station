@@ -346,11 +346,18 @@ Current intent:
 - PR246 result: DAEDALUS implemented public Project evidence minimal readback
   and ARGUS accepted with one narrow web fallback patch. PR247 opens hosted
   ARIADNE rehearsal before the public evidence loop is closed.
+- PR247 result: ARIADNE passed hosted public Project evidence rehearsal.
+  Public Project evidence appears on hosted Railway for a valid public-evidence
+  seed, links only to `/developer-spaces/:slug`, and no-evidence Projects
+  remain neutral.
+- PR248 opens ARGUS preflight for owner-only Project export boundaries before
+  any Project export package, manifest, bundle, migration, membership
+  permission, or background export work.
 
 ## Phase 3 bridge sequence
 
-Status, 2026-06-24: PR202 through PR245 are accepted. PR246 is accepted by
-ARGUS. PR247 Public Project Evidence Hosted Rehearsal is open for ARIADNE.
+Status, 2026-06-24: PR202 through PR247 are accepted. PR248 Project Export
+Boundary Preflight is open for ARGUS.
 
 Current MIMIR position:
 
@@ -424,7 +431,8 @@ Bridge order:
 45. Done: Discover Public Project Hosted Rehearsal.
 46. Done: Public Project Evidence Preflight.
 47. Done: Public Project Evidence Minimal Readback local/API/web review.
-48. Active: Public Project Evidence Hosted Rehearsal.
+48. Done: Public Project Evidence Hosted Rehearsal.
+49. Active: Project Export Boundary Preflight.
 
 ARGUS P3-B1A gates:
 

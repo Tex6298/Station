@@ -2,9 +2,10 @@
 
 Owner: DAEDALUS
 Reviewer: ARGUS
-Status: ARGUS ACCEPT - PR247 hosted rehearsal open
+Status: Complete - ARGUS accepted, PR247 hosted rehearsal passed
 Opened: 2026-06-24
 Reviewed: 2026-06-24
+Closed: 2026-06-24
 
 ## Frame
 
@@ -199,6 +200,13 @@ MIMIR accepts ARGUS's review and opens hosted rehearsal before closeout.
 Next:
 
 - `docs/roadmap/PR247_PUBLIC_PROJECT_EVIDENCE_HOSTED_REHEARSAL_ARIADNE.md`.
+
+## MIMIR Closeout - 2026-06-24
+
+Verdict: `CLOSED`.
+
+PR247 passed hosted rehearsal, so public Project evidence minimal readback is
+accepted and closed.
 
 ## Wakeup
 

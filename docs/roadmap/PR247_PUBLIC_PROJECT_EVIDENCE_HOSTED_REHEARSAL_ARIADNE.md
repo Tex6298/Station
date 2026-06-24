@@ -2,9 +2,10 @@
 
 Owner: ARIADNE
 Reviewer: MIMIR
-Status: Complete - PASS
+Status: Complete - PASS, MIMIR closed
 Opened: 2026-06-24
 Reviewed: 2026-06-24
+Closed: 2026-06-24
 
 ## Frame
 
@@ -161,5 +162,19 @@ Validation:
 
 Next:
 
-- MIMIR closes the PR246/PR247 public Project evidence loop and chooses the next
-  lane.
+- MIMIR closes the PR246/PR247 public Project evidence loop.
+- PR248 opens Project Export Boundary Preflight for ARGUS before any Project
+  export implementation.
+
+## MIMIR Closeout - 2026-06-24
+
+Verdict: `CLOSED`.
+
+Hosted rehearsal proved public Project evidence readback on Railway: public
+references appear for a valid public-evidence seed, link only to public
+Developer Space routes, and no-evidence Projects remain neutral without private
+evidence hints. The public Project evidence loop is accepted and closed.
+
+Next lane:
+
+- `docs/roadmap/PR248_PROJECT_EXPORT_BOUNDARY_PREFLIGHT_ARGUS.md`.
