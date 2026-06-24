@@ -20,19 +20,29 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR259 Developer Space Tier 1 Visible Framing Rehearsal
+
+ARIADNE passed PR259 on 2026-06-24.
+
+| Check | Expected result | Notes |
+| --- | --- | --- |
+| Web `/health/deployment` | Pass | Hosted Railway reported `ok:true`, `ready:true`, branch `main`, service `@station/web`, and commit `3bedfa5`, the PR258 web implementation commit. The later ARGUS review commit `9c18eb6` changed docs/status/validation only, so Railway's watched-file deploy skip was acceptable. |
+| API `/health/deployment` | Pass | Hosted Railway reported `ok:true`, `ready:true`, branch `main`, service `@station/api`, and commit `3bedfa5`. |
+| Public `/developer-spaces/station-replay-dev-alpha` desktop/mobile | Pass | Desktop `1280x900` and `390x844` mobile read as Tier 1 external-runtime showcase/observatory/evidence/readback with no secret-shaped material, owner controls, raw controls, or hosted-runtime claims. |
+| Owner `/developer-spaces/station-replay-dev-alpha/manage` desktop/mobile | Pass | Desktop `1280x900` and `390x844` mobile read as private Tier 1 operating/readback console; keys stay runtime-side; visual/widget/evidence/export/Developer Agent copy stays bounded. |
+| Layout/privacy sweep | Pass | No page-level horizontal overflow, clipped primary controls, unreadable framing text, forbidden hosted-runtime claims, or secret-shaped material. |
+
+Validation:
+
+- `node --check tmp-pr259-developer-space-tier1-framing.spec.js`
+- `npx --yes --package @playwright/test@1.41.2 playwright test tmp-pr259-developer-space-tier1-framing.spec.js --reporter=line --workers=1`
+
 ## PR258 Developer Space Tier 1 Visible Framing
 
 ARGUS accepted PR258 on 2026-06-24, and MIMIR opened PR259 for hosted visible
 rehearsal.
 
-Required PR259 rehearsal:
-
-| Check | Expected result | Notes |
-| --- | --- | --- |
-| Web `/health/deployment` | Pass | Hosted Railway reports healthy, ready, branch `main`, and commit at or beyond `9c18eb6`. |
-| Public `/developer-spaces/station-replay-dev-alpha` desktop/mobile | Pass | Reads as Tier 1 external-runtime showcase/observatory/evidence/readback with no secret/raw/private exposure. |
-| Owner `/developer-spaces/station-replay-dev-alpha/manage` desktop/mobile | Pass | Reads as private Tier 1 operating/readback console; keys stay runtime-side; agent copy stays bounded. |
-| Layout/privacy sweep | Pass | No horizontal overflow, incoherent overlap, clipped primary controls, unreadable text, forbidden hosted-runtime claims, or secret-shaped material. |
+PR258 implementation/review:
 
 DAEDALUS implementation and ARGUS review on 2026-06-24:
 

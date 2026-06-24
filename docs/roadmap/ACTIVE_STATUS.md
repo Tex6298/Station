@@ -4,40 +4,46 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest MIMIR decision - PR259 Developer Space Visible Framing Rehearsal opened
+## Latest ARIADNE review - PR259 Developer Space Visible Framing Rehearsal
 
-MIMIR accepts ARGUS's PR258 verdict on 2026-06-24 and opens hosted visible
-rehearsal for ARIADNE.
+ARIADNE passes PR259 on 2026-06-24.
 
-Decision:
+Result:
 
-- Open **PR259 - Developer Space Tier 1 Visible Framing Rehearsal**.
-- ARIADNE should verify hosted Railway freshness at or beyond ARGUS review
-  commit `9c18eb6`.
-- ARIADNE should rehearse public `/developer-spaces/station-replay-dev-alpha`
-  and owner `/developer-spaces/station-replay-dev-alpha/manage` on desktop and
-  `390px` mobile, signing in only for owner-route checks.
+- Public `/developer-spaces/station-replay-dev-alpha` passed on desktop
+  `1280x900` and `390x844` mobile.
+- Owner `/developer-spaces/station-replay-dev-alpha/manage` passed on desktop
+  `1280x900` and `390x844` mobile with replay-owner sign-in.
+- Hosted Railway web/API were healthy and ready on branch `main` at commit
+  `3bedfa5`, the PR258 web implementation commit. The later ARGUS review
+  commit `9c18eb6` changed docs/status/validation only, so Railway's watched
+  file deploy skip does not make the browser rehearsal stale.
 
-Pass/fail focus:
+Findings:
 
-- Public route reads as Tier 1 showcase/observatory/evidence/readback for an
-  external/self-hosted runtime.
-- Owner route reads as a private Tier 1 operating/readback console.
-- No copy implies Station-hosted partner runtime, repo push, real job
-  execution, key/webhook mutation, direct layout mutation, provider calls,
-  deploys, workers, billing, Redis/queues, Cloudflare, Docker/Coolify, or new
-  developer-agent capability.
-- No public or owner surface exposes secrets, raw payloads, private document
-  bodies, raw ids, prompts, provider payloads, SQL, stack traces, hosted logs,
-  bearer tokens, ingestion keys, signing secrets, or credentials.
-- Desktop and mobile have no horizontal overflow, incoherent overlap, clipped
-  primary controls, or unreadable text.
+- Public route reads as a Tier 1 showcase, public observatory, evidence path,
+  and readback for an external/self-hosted runtime.
+- Public live-signal copy is public-safe and does not imply Station hosts the
+  app, database, queue, repo, deploy pipeline, provider runtime, or job worker.
+- Public route did not expose owner controls, raw event/snapshot controls,
+  ingestion snippets, bearer tokens, credentials, or secret-shaped material.
+- Owner route reads as a private Tier 1 operating/readback console with keys
+  framed as runtime-environment material, not browser/public-page material.
+- Owner visual mode, widget, evidence, export, and Developer Agent copy keeps
+  the boundary narrow: public observatory framing only, owner-only exports, and
+  Developer Agent preview/readback/confirmation/receipt/status-note/layout
+  suggestion/`run_job` dry-run/readiness only.
+- Desktop and `390px` mobile checks found no page-level horizontal overflow,
+  clipped primary controls, or unreadable framing text.
+
+Validation:
+
+- `node --check tmp-pr259-developer-space-tier1-framing.spec.js`
+- `npx --yes --package @playwright/test@1.41.2 playwright test tmp-pr259-developer-space-tier1-framing.spec.js --reporter=line --workers=1`
 
 Current baton:
 
-- ARIADNE should return `PASS`, `FAIL`, or `BLOCKED` and wake MIMIR.
-- If `FAIL`, MIMIR should open the smallest DAEDALUS repair rather than
-  widening scope.
+- MIMIR can close PR258/PR259 or open the next planning lane.
 
 ## Latest ARGUS review - PR258 Developer Space Tier 1 Visible Framing
 
