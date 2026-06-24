@@ -51,6 +51,24 @@ Scope notes:
   rows, Redis/Cloudflare dependency, worker, queue, or public analytics endpoint
   was added.
 
+ARGUS revalidation after owner-scope and copy hardening on 2026-06-24:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:personas` passed with 11 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:reports` passed with 6 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:writing` passed with 13 tests,
+  including the `chat attempts` aggregate activity copy.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed with existing raw `<img>`
+  warnings in `apps/web/app/space/[slug]/page.tsx` and
+  `apps/web/components/discover/discover-front-door.tsx`.
+- `git diff --check` and `git diff --cached --check` passed with CRLF
+  normalization warnings only.
+- ARGUS patched `057_public_persona_interaction_counters.sql` so the increment
+  RPC rejects owner/persona mismatches and keeps `owner_user_id` aligned on
+  conflict.
+- ARGUS patched owner UI helper copy to label aggregate chat counts as
+  `chat attempts`, avoiding overclaim that all attempts were successful chats.
+
 ## PR211 Public Persona Interaction Readback
 
 DAEDALUS implementation validation on 2026-06-24:

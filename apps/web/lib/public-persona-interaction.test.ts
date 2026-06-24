@@ -70,7 +70,7 @@ test("public interaction helper labels stay bounded to owner-safe state", () => 
   assert.equal(publicInteractionReportSummary(readback), "2 active / 3 total persona reports");
   assert.equal(publicInteractionTokenBoundaryCopy(readback), "Owner-paid; visitor transcript not stored.");
   assert.equal(publicInteractionActivityValue(readback), "5");
-  assert.equal(publicInteractionActivitySummary(readback), "5 chats / 1 report in 7 days; 12 chats in 30 days");
+  assert.equal(publicInteractionActivitySummary(readback), "5 chat attempts / 1 report in 7 days; 12 chat attempts in 30 days");
   assert.equal(publicInteractionActivityBoundaryCopy(readback), "Daily aggregate only; no visitor identity or transcript.");
 });
 

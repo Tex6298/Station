@@ -4,7 +4,45 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest DAEDALUS result - PR213 aggregate counters implemented
+## Latest ARGUS result - PR213 aggregate counters accepted
+
+ARGUS reviewed PR213 on 2026-06-24 and accepts after two narrow hardening
+patches.
+
+Result:
+
+- Confirmed the new analytics storage is aggregate-only:
+  owner/persona/day rows with numeric chat attempt/success/failure and report
+  creation counters.
+- Confirmed public chat/report routes do not persist visitor ids, reporter ids,
+  message text, model responses, transcripts, IP/user-agent data, provider
+  traces, prompt/source payloads, Redis/Cloudflare state, workers, or queues.
+- Confirmed owner-only `persona.publicInteraction.activity` exposes camel-case
+  rolling totals only and public persona readbacks still omit
+  `publicInteraction`.
+- Patched the counter RPC to reject owner/persona mismatches and reconcile
+  `owner_user_id` on conflict, keeping the aggregate row scoped to the current
+  persona owner.
+- Patched owner UI helper copy from `chats` to `chat attempts` so failure or
+  rate-limit attempts are not overclaimed as successful chats.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:personas` passed with 11 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:reports` passed with 6 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:writing` passed with 13 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed with existing raw `<img>`
+  warnings only in `apps/web/app/space/[slug]/page.tsx` and
+  `apps/web/components/discover/discover-front-door.tsx`.
+- `git diff --check` and `git diff --cached --check` passed with CRLF
+  normalization warnings only.
+
+Current baton:
+
+- Wake MIMIR to close PR213 and decide the next roadmap move.
+
+## Previous DAEDALUS result - PR213 aggregate counters implemented
 
 DAEDALUS implemented PR213 on 2026-06-24.
 

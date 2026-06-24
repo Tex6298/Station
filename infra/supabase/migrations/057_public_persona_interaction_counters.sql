@@ -83,6 +83,15 @@ declare
   safe_chat_failure_delta bigint := greatest(0, coalesce(p_chat_failure_delta, 0));
   safe_report_created_delta bigint := greatest(0, coalesce(p_report_created_delta, 0));
 begin
+  if not exists (
+    select 1
+    from public.personas p
+    where p.id = p_persona_id
+    and p.owner_user_id = p_owner_user_id
+  ) then
+    raise exception 'Public persona counter owner/persona mismatch.' using errcode = 'P0001';
+  end if;
+
   insert into public.public_persona_interaction_counters (
     owner_user_id,
     persona_id,
@@ -102,7 +111,8 @@ begin
     safe_report_created_delta
   )
   on conflict (persona_id, bucket_date) do update
-  set chat_attempt_count = public.public_persona_interaction_counters.chat_attempt_count + excluded.chat_attempt_count,
+  set owner_user_id = excluded.owner_user_id,
+      chat_attempt_count = public.public_persona_interaction_counters.chat_attempt_count + excluded.chat_attempt_count,
       chat_success_count = public.public_persona_interaction_counters.chat_success_count + excluded.chat_success_count,
       chat_failure_count = public.public_persona_interaction_counters.chat_failure_count + excluded.chat_failure_count,
       report_created_count = public.public_persona_interaction_counters.report_created_count + excluded.report_created_count,

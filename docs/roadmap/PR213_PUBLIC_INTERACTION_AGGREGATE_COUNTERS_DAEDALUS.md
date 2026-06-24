@@ -3,7 +3,7 @@
 Date opened: 2026-06-24
 Agent: A2 / DAEDALUS
 Opened by: A1 / MIMIR
-Status: implemented; awaiting ARGUS review
+Status: accepted by ARGUS
 
 ## Frame
 
@@ -244,3 +244,46 @@ Validation:
 Next wakeup:
 
 - Wake ARGUS for aggregate-only privacy/storage review.
+
+## ARGUS Review Result
+
+Accepted on 2026-06-24 after narrow review hardening.
+
+Review patches:
+
+- Hardened `increment_public_persona_interaction_counters(...)` so the
+  service-role RPC verifies the supplied owner owns the supplied persona before
+  writing a counter row.
+- Updated the conflict path to set `owner_user_id = excluded.owner_user_id`,
+  keeping any existing aggregate row aligned with the current persona owner.
+- Changed owner UI helper copy from `chats` to `chat attempts` because
+  `chatAttempts` includes failed or blocked attempts.
+
+Verdict:
+
+- Schema remains aggregate-only: owner/persona/day rows with numeric counters
+  and maintenance timestamps only.
+- Route increments are best-effort and bounded to public chat/report paths.
+- Duplicate active persona reports do not increment `report_created_count`.
+- Owner serialization returns rolling totals and explicit aggregate/no-retention
+  flags only; it does not expose raw counter ids, DB column names, visitor ids,
+  reporter ids, report notes/bodies, message text, provider traces, prompt
+  payloads, or token transaction rows.
+- Public persona readbacks still use the public serializer and do not include
+  `publicInteraction`.
+
+ARGUS validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:personas` passed with 11 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:reports` passed with 6 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:writing` passed with 13 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed with existing raw `<img>`
+  warnings in `apps/web/app/space/[slug]/page.tsx` and
+  `apps/web/components/discover/discover-front-door.tsx`.
+- `git diff --check` and `git diff --cached --check` passed with CRLF
+  normalization warnings only.
+
+Next wakeup:
+
+- Wake MIMIR to close PR213 and decide the next move.

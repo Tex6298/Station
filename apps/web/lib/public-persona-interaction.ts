@@ -30,7 +30,7 @@ export function publicInteractionActivitySummary(readback?: PublicPersonaInterac
   if (!readback) return "No aggregate activity available.";
   const last7 = readback.activity.windows.last7Days;
   const last30 = readback.activity.windows.last30Days;
-  return `${countLabel(last7.chatAttempts, "chat")} / ${countLabel(last7.reportsCreated, "report")} in 7 days; ${countLabel(last30.chatAttempts, "chat")} in 30 days`;
+  return `${countLabel(last7.chatAttempts, "chat attempt")} / ${countLabel(last7.reportsCreated, "report")} in 7 days; ${countLabel(last30.chatAttempts, "chat attempt")} in 30 days`;
 }
 
 export function publicInteractionActivityBoundaryCopy(readback?: PublicPersonaInteractionReadback | null) {
