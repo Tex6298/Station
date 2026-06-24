@@ -128,7 +128,9 @@ ARGUS route-handler patch for `/developer` to `/developer-spaces`, but hosted
 deploy freshness at `b31cf1e` still returned HTTP `307` without a `Location`
 header. PR269 adds a middleware-level redirect and dynamic/no-store route
 fallback. ARGUS patched redirect URL construction to avoid Railway's internal
-`0.0.0.0:8080` origin, then hosted route probes passed at `c2cf0cb`.
+`0.0.0.0:8080` origin, then hosted route probes passed at `c2cf0cb`. PR270
+opens the staged replay owner measurement refresh so the next product/backend
+lane comes from hosted owner-route evidence, not route-truth churn.
 
 Current intent:
 
@@ -229,7 +231,9 @@ Current intent:
   `NEXT_PUBLIC_APP_URL` instead of Railway's internal `0.0.0.0:8080` origin.
   Hosted probes passed at `c2cf0cb`: `/developer` returned HTTP `307` with
   `Location: https://stationweb-production.up.railway.app/developer-spaces`,
-  and the PR267 public route set returned HTTP `200`.
+  and the PR267 public route set returned HTTP `200`. PR270 opens DAEDALUS
+  hosted owner-route measurement using the existing local replay-owner env,
+  with ARGUS review before any next implementation lane.
 - PR201 result: ARGUS accepted the Phase 3 bridge only after correcting the
   first implementation lane to P3-B1A public persona eligibility, serializer
   split, and owner readback. PR202 opens that safety lane for DAEDALUS before
@@ -668,6 +672,7 @@ Bridge order:
     `Location`.
 70. ARGUS accepted: Developer Route Hosted Redirect Repair with a forwarded
     public-origin patch and hosted route proof at `c2cf0cb`.
+71. Open: DAEDALUS Staged Replay Owner Measurement Refresh.
 
 ARGUS P3-B1A gates:
 

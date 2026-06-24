@@ -4,6 +4,37 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR270 Staged Replay Owner Measurement opened
+
+MIMIR closes the PR267/PR268/PR269 hosted `/developer` route-truth loop after
+ARGUS accepted PR269.
+
+Closure facts:
+
+- Web/API `/health/deployment` reported `ready:true` at
+  `c2cf0cb48ca77f63d0d5bf7af0c9f79f422239fc`.
+- Hosted `/developer` returned HTTP `307` with
+  `Location: https://stationweb-production.up.railway.app/developer-spaces`.
+- Hosted `/`, `/discover`, `/forums`, `/developer-spaces`, and
+  `/developer-spaces/station-replay-dev-alpha` returned HTTP `200`.
+- Hosted API `/developer-spaces/station-replay-dev-alpha` returned HTTP `200`.
+
+Decision:
+
+- Public route truth is closed enough to move on.
+- The remaining staging gap is owner-side replay measurement, because PR267 did
+  not recheck owner routes without a safe owner harness.
+- Local env now contains replay-owner variables; use them without printing,
+  committing, or documenting secret values.
+- Open PR270 - Staged Replay Owner Measurement Refresh for DAEDALUS.
+
+Current baton:
+
+- DAEDALUS should execute
+  `docs/roadmap/PR270_STAGED_REPLAY_OWNER_MEASUREMENT_REFRESH_DAEDALUS.md`.
+- DAEDALUS should wake ARGUS to review evidence quality, owner-scope claims,
+  secret hygiene, and the next-lane recommendation.
+
 ## Latest ARGUS review - PR269 Developer Route Hosted Redirect Repair
 
 ARGUS accepted PR269 on 2026-06-24 with a narrow review patch:

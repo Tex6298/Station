@@ -30,6 +30,29 @@ Memory/observability next-slice audit.
 ARGUS accepted PR261 on 2026-06-24. MIMIR opened PR262 as an owner-only
 Memory/observability implementation lane.
 
+## PR270 Staged Replay Owner Measurement Refresh
+
+MIMIR opened PR270 for DAEDALUS on 2026-06-24 after PR269 closed the hosted
+public `/developer` route-truth blocker. PR270 is an evidence refresh over the
+existing staged replay owner, not a product implementation lane.
+
+Required validation:
+
+| Check | Expected result | Notes |
+| --- | --- | --- |
+| Web/API `/health` and `/health/deployment` | Pass | Hosted Railway web/API are ready and fresh for the measured commit. |
+| Replay owner auth | Pass or sanitized blocker | Use local `STATION_REPLAY_OWNER_*` env only; do not print credentials, bearer tokens, cookies, or raw ids. |
+| Owner replay route matrix | Pass/partial/block | Record statuses/counts only for replay-readiness, background jobs, imports, exports, observability, Memory briefing/graph, context-preview, and billing readback. |
+| Public route matrix | Pass | `/developer`, `/developer-spaces`, replay Developer Space web/API routes stay routeable. |
+| Secret/raw-id hygiene | Pass | Result docs contain no secrets, bearer tokens, cookies, private payloads, raw ids, prompts, completions, SQL, stack traces, or hosted logs. |
+| `npm exec --yes pnpm@10.32.1 -- run test:health` | Pass | Readiness shape and sanitized config posture stay green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` | Pass | Replay readiness auth/redaction gate stays green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:jobs` | Pass | Owner background-job readback remains bounded. |
+| `git diff --check` | Pass | CRLF normalization warnings only. |
+| `git diff --cached --check` | Pass | Staged whitespace check before wakeup. |
+
+PR270 should produce one next-lane recommendation from hosted evidence.
+
 ## PR269 Developer Route Hosted Redirect Repair
 
 ARGUS accepted PR269 on 2026-06-24 with a narrow review patch after hosted
