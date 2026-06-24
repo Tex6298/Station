@@ -20,6 +20,31 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR244 Discover Public Project Hosted Rehearsal
+
+ARIADNE hosted rehearsal on 2026-06-24:
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Web `/health/deployment` | Pass | Railway web reported `ok:true`, `ready:true`, branch `main`, and commit at or beyond required `b69ca8d`. |
+| API `/health/deployment` | Pass | Railway API reported `ok:true`, `ready:true`, branch `main`, and commit at or beyond required `b69ca8d`. |
+| Replay owner sign-in | Pass | Signed in from local `.env` without printing credentials or tokens. |
+| Public Project seed | Pass | Reused `ariadne-pr240-public-profile-202606241001`; no new seed was needed. |
+| Anonymous `GET /discover/search?q=<seed-slug>` | Pass | Returned a `projects` bucket containing the seed with only `name`, `slug`, `description`, `visibility`, `href`, `type`, and `label`. |
+| Project route hint | Pass | Result was `visibility: public`, `type: project`, `label: Public Project`, and `href: /projects/public/ariadne-pr240-public-profile-202606241001`. |
+| Desktop Discover search UI | Pass | Anonymous `/discover` search found the seed in `Public Projects`, showed the public Project label, and clicked through to `/projects/public/:slug` without login redirect or owner route. |
+| Mobile Discover search UI | Pass | `375px` mobile search and click-through matched desktop, with no document-level horizontal overflow. |
+| Unsafe/private Project queries | Pass | UUID-shaped, invalid, and known private Project queries produced no routeable public Project results. |
+| Copy/leak scan | Pass | Visible/API checks showed no private ids, owner/member fields, Project evidence/docs/activity, billing/export, provider/runtime, Redis/Cloudflare, queues/workers, secrets, SQL, stack traces, or raw JSON. |
+| `npx --yes --package @playwright/test@1.41.2 playwright test tmp-pr244-discover-public-project-rehearsal.spec.js --reporter=line --workers=1` | Pass | 1 hosted rehearsal test passed against Railway. |
+
+Rehearsal verdict:
+
+- `PASS`
+- Discover now routes an already-public Project to the accepted public Project
+  profile from anonymous desktop and mobile search without broadening Project
+  scope.
+
 ## PR243 Discover Public Project Surfacing
 
 ARGUS review validation on 2026-06-24:

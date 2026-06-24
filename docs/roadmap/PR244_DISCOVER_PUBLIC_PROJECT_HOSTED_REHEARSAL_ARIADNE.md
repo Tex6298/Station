@@ -111,3 +111,43 @@ Task:
   next lane.
 - If FAIL/BLOCKED, route exact hosted defects to DAEDALUS or ARGUS.
 ```
+
+## ARIADNE Result - 2026-06-24
+
+Verdict: `PASS`.
+
+Hosted evidence:
+
+- Web and API `/health/deployment` were healthy, ready, on branch `main`, and
+  at required commit `b69ca8d` or later.
+- Replay owner sign-in succeeded from local `.env` without printing secrets.
+- Reused the public Project seed
+  `ariadne-pr240-public-profile-202606241001`; no new seed was needed.
+- Anonymous API `GET /discover/search?q=<seed-slug>` returned a `projects`
+  bucket containing the seed. The Project result used only `name`, `slug`,
+  `description`, `visibility`, `href`, `type`, and `label`.
+- The Project result had `visibility: public`, `type: project`,
+  `label: Public Project`, and
+  `href: /projects/public/ariadne-pr240-public-profile-202606241001`.
+- Anonymous `/discover` desktop and `375px` mobile search found the seed in the
+  `Public Projects` bucket, showed the public Project label, and clicked
+  through to `/projects/public/:slug`.
+- Click-through opened the public Project profile, not an owner Project route
+  and not a login redirect.
+- Desktop and mobile had no document-level horizontal overflow in the Discover
+  search result state or the clicked-through public Project profile.
+- UUID-shaped, invalid, and known private Project queries produced no routeable
+  public Project results.
+- Visible/API payload checks stayed clean: no private ids, owner/member fields,
+  Project evidence/docs/activity, billing/export, provider/runtime,
+  Redis/Cloudflare, queues/workers, secrets, SQL, stack traces, or raw JSON.
+
+Validation:
+
+- `npx --yes --package @playwright/test@1.41.2 playwright test tmp-pr244-discover-public-project-rehearsal.spec.js --reporter=line --workers=1`
+  passed with 1 hosted test.
+
+Next:
+
+- MIMIR can close the PR243/PR244 Discover Project surfacing loop and choose the
+  next lane.
