@@ -20,6 +20,29 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR242 Public Project Profile Focused Hosted Rerun
+
+ARIADNE hosted rerun on 2026-06-24:
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Web `/health/deployment` | Pass | Railway web reported `ok:true`, `ready:true`, branch `main`, and commit at or beyond required `812de73`. |
+| API `/health/deployment` | Pass | Railway API reported `ok:true`, `ready:true`, branch `main`, and commit at or beyond required `812de73`. |
+| Replay owner sign-in | Pass | Signed in from local `.env` without printing credentials or tokens. |
+| Public Project seed | Pass | Reused PR240 seed `ariadne-pr240-public-profile-202606241001`; no new seed was needed. |
+| Anonymous `GET /projects/public/:slug` | Pass | Public API returned `200` and exposed only allowed Project fields plus an empty/safe public Developer Space summary list. |
+| Anonymous web `/projects/public/[slug]` desktop/mobile | Pass | Desktop and `375px` mobile rendered the public Project profile instead of redirecting to login, with no document-level horizontal overflow. |
+| Public page copy/leak scan | Pass | Visible content stayed to public Project metadata, public Developer Spaces count, and empty public Developer Space state; no private ids, owner fields, evidence/docs/activity, provider/runtime, billing/export, Redis/Cloudflare, raw JSON, or login-form copy appeared. |
+| Public API/page unsafe identifiers | Pass | UUID-shaped, invalid, and known private Project slugs stayed closed. |
+| Signed-out owner web/API `/projects/:slug` | Pass | Owner-only API required auth; signed-out web route redirected to login without exposing Project evidence. |
+| `npx --yes --package @playwright/test@1.41.2 playwright test tmp-pr242-public-project-profile-rerun.spec.js --reporter=line --workers=1` | Pass | 1 hosted rerun test passed against Railway. |
+
+Rerun verdict:
+
+- `PASS`
+- PR241 fixed the exact PR240 hosted redirect failure while preserving the
+  owner-only Project boundary and the public Project API allowlist.
+
 ## PR241 Public Project Web Auth Exception
 
 DAEDALUS implementation and ARGUS review validation on 2026-06-24:

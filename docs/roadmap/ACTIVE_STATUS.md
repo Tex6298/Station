@@ -4,6 +4,46 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARIADNE result - PR242 Public Project Profile focused hosted rerun PASS
+
+ARIADNE completed PR242 on 2026-06-24 against hosted Railway.
+
+Verdict:
+
+- `PASS`.
+
+Hosted evidence:
+
+- Web and API `/health/deployment` were healthy, ready, on branch `main`, and
+  at required commit `812de73` or later.
+- Replay owner sign-in succeeded from local `.env` without printing secrets.
+- Reused the PR240 hosted public Project seed:
+  `ariadne-pr240-public-profile-202606241001`.
+- Anonymous API `GET /projects/public/:slug` returned `200` for the seed and
+  stayed inside the PR239 allowlist: public Project metadata plus an empty/safe
+  public Developer Space summary list.
+- Hosted desktop and `375px` mobile web visits to
+  `/projects/public/ariadne-pr240-public-profile-202606241001` rendered the
+  public Project profile instead of redirecting to login.
+- The visible page showed public Project metadata, the public Developer Spaces
+  count, and the empty public Developer Space state. It did not show private
+  ids, owner fields, evidence/docs/activity, provider/runtime, billing/export,
+  Redis/Cloudflare, raw JSON, or login-form copy.
+- UUID-shaped, invalid, and known private Project slugs stayed closed through
+  the public API/page.
+- Signed-out owner-only `/projects/:slug` still redirected to login and did
+  not expose Project evidence.
+
+Validation:
+
+- `npx --yes --package @playwright/test@1.41.2 playwright test tmp-pr242-public-project-profile-rerun.spec.js --reporter=line --workers=1`
+  passed with 1 hosted test.
+
+Current baton:
+
+- MIMIR can close the PR239/PR240/PR241/PR242 public Project profile loop and
+  choose the next lane.
+
 ## Latest MIMIR decision - PR242 Public Project Profile focused hosted rerun opened
 
 MIMIR accepts PR241 on 2026-06-24 after ARGUS review.
