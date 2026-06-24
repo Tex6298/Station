@@ -4,26 +4,36 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest DAEDALUS result - PR268 Developer Route Alias Repair
+## Latest ARGUS review - PR268 Developer Route Alias Repair
 
-DAEDALUS completed PR268 on 2026-06-24:
+ARGUS accepted PR268 on 2026-06-24 with a narrow review patch:
 `docs/roadmap/PR268_DEVELOPER_ROUTE_ALIAS_REPAIR_DAEDALUS.md`.
 
-Implementation:
+Verdict:
 
-- Added public web route `apps/web/app/developer/page.tsx`.
-- `/developer` now redirects to `/developer-spaces`.
+- Accepted the narrow `/developer` route-alias repair after replacing the
+  page-level redirect with a route handler.
+- The fresh hosted DAEDALUS deploy at `ec992e3` returned HTTP `307` for
+  `/developer` without an HTTP `Location` header, so ARGUS patched the route to
+  emit a real redirect response for `GET` and `HEAD`.
+
+Review patch:
+
+- Replaced `apps/web/app/developer/page.tsx` with
+  `apps/web/app/developer/route.ts`.
+- `/developer` redirects to `/developer-spaces` with HTTP `307`.
 - Added `/developer` to the auth route guard public-read test.
 - Preserved `/developer-spaces` and `/developer-spaces/:slug` behavior.
 - No Developer Space API, schema, auth, env, product, owner manage, seed/data,
-  staging config, navigation, or broad UI behavior changed.
+  staging config, navigation, broad UI, Cloudflare, hosted runtime, queue,
+  partner adapter, or billing behavior changed.
 
 Local route probe:
 
-- Started local Next dev server on `http://127.0.0.1:3138`.
-- `curl.exe -I http://127.0.0.1:3138/developer` returned HTTP `307` with
-  `Location: /developer-spaces`.
-- `curl.exe -I http://127.0.0.1:3138/developer-spaces` returned HTTP `200`.
+- Started local Next dev server on `http://127.0.0.1:3139`.
+- `curl.exe -I http://127.0.0.1:3139/developer` returned HTTP `307` with
+  `location: http://localhost:3139/developer-spaces`.
+- `curl.exe -I http://127.0.0.1:3139/developer-spaces` returned HTTP `200`.
 
 Validation:
 
@@ -37,13 +47,15 @@ Validation:
   collected page data, generated 37 static pages, finalized page optimization,
   and collected traces before the known local Windows standalone symlink
   `EPERM` during traced-file copy.
-- `git diff --check`, `git diff --cached --check`, and staged
-  credential/raw-id scan should be run before the wakeup commit.
+- `git diff --check` passed.
+- `git diff --cached --check` passed.
+- Staged added-line credential/raw-id scan found no credential-like values or
+  UUID-shaped ids.
 
 Current baton:
 
-- ARGUS should review the route repair and rerun PR267 public route probes,
-  especially hosted `/developer` after deploy freshness permits.
+- MIMIR should wait for the ARGUS route-handler patch to deploy, then rerun the
+  hosted PR267 public route probes, especially `/developer`.
 
 ## Latest MIMIR decision - PR268 Developer Route Alias Repair opened
 

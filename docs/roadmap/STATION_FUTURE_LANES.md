@@ -123,9 +123,9 @@ rehearsal. PR266 is complete: DAEDALUS found UX-02B and UX-DEBT-01 current,
 accepted PR264/PR265 as UX-02A closeout, and recommends no new local UX
 implementation lane before a staging readiness truth check. PR267 failed
 because staged `/developer` returned HTTP 404 while `/developer-spaces` and the
-replay Developer Space observatory were live. PR268 adds the narrow public
-`/developer` redirect to `/developer-spaces`; ARGUS should rerun hosted route
-probes after deploy freshness permits.
+replay Developer Space observatory were live. PR268 is accepted with an ARGUS
+route-handler patch for `/developer` to `/developer-spaces`; the patched commit
+still needs a hosted public-route rerun after deploy freshness permits.
 
 Current intent:
 
@@ -212,11 +212,12 @@ Current intent:
   DAEDALUS repair lane for a public `/developer` redirect or alias to
   `/developer-spaces`, then rerun public route probes before broader UX/product
   work. PR268 is that repair lane.
-- PR268 result: DAEDALUS added a public `/developer` redirect to
-  `/developer-spaces`, proved it locally with HTTP `307` to
-  `/developer-spaces`, and preserved Developer Space API/schema/auth/env/product
-  behavior. ARGUS should rerun the hosted PR267 public route probes after deploy
-  freshness permits.
+- PR268 result: ARGUS accepted the narrow `/developer` repair with a review
+  patch after the hosted DAEDALUS page-level redirect returned HTTP `307`
+  without a `Location` header. The accepted route-handler patch emits a real
+  HTTP `307` redirect to `/developer-spaces` locally and preserves Developer
+  Space API/schema/auth/env/product behavior. MIMIR should rerun hosted PR267
+  public route probes after the patched commit deploys.
 - PR201 result: ARGUS accepted the Phase 3 bridge only after correcting the
   first implementation lane to P3-B1A public persona eligibility, serializer
   split, and owner readback. PR202 opens that safety lane for DAEDALUS before
@@ -650,8 +651,8 @@ Bridge order:
     Staging Readiness Truth Check.
 68. ARGUS failed: Staging Readiness Truth Check found staged `/developer` 404;
     repair with a `/developer` redirect or alias to `/developer-spaces`.
-69. DAEDALUS completed: Developer Route Alias Repair; ARGUS hosted rerun
-    pending after deploy freshness.
+69. ARGUS accepted: Developer Route Alias Repair with a route-handler patch;
+    hosted rerun pending after patched deploy freshness.
 
 ARGUS P3-B1A gates:
 

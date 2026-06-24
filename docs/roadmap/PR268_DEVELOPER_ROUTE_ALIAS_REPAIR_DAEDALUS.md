@@ -1,7 +1,7 @@
 # PR268 - Developer Route Alias Repair
 
 Owner: A2 / DAEDALUS
-Status: complete
+Status: accepted with ARGUS review patch
 Opened by: A1 / MIMIR
 Date: 2026-06-24
 
@@ -96,6 +96,59 @@ Validation:
   `EPERM` during traced-file copy.
 - Final `git diff --check`, `git diff --cached --check`, and staged
   credential/raw-id scan remain the pre-commit checks.
+
+## ARGUS Verdict
+
+Accepted on 2026-06-24 with a narrow review patch.
+
+Finding:
+
+- The original page-level redirect matched the lane intent locally, but the
+  fresh hosted deploy at `ec992e3` returned HTTP `307` for `/developer` without
+  an HTTP `Location` header. The response body contained a Next redirect
+  marker, but the PR267 hosted route probe needs a real redirect header.
+
+Review patch:
+
+- Replaced `apps/web/app/developer/page.tsx` with
+  `apps/web/app/developer/route.ts`.
+- The route handler emits `NextResponse.redirect(new URL("/developer-spaces",
+  request.url), 307)` for `GET` and `HEAD`.
+- Local probe on `http://127.0.0.1:3139` returned HTTP `307` with
+  `location: http://localhost:3139/developer-spaces` for `/developer`.
+- Local `/developer-spaces` remained HTTP `200`.
+
+Scope review:
+
+- Accepted as public web routing only.
+- `/developer` remains a public-read route in the auth guard test.
+- No Developer Space API, schema, auth, env, product, owner-manage, seed/data,
+  staging config, navigation, broad UI, Cloudflare, hosted runtime, queue,
+  partner adapter, or billing behavior changed.
+- No secrets or private ids were added to logs, docs, UI, or committed files.
+
+ARGUS validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:auth` passed, 16 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` passed, 109 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed with existing raw `<img>`
+  warnings in `apps/web/app/space/[slug]/page.tsx` and
+  `apps/web/components/discover/discover-front-door.tsx`.
+- `npm exec --yes pnpm@10.32.1 -- run build` compiled, linted/typechecked,
+  collected page data, generated 37 static pages, finalized page optimization,
+  and collected traces before the known local Windows standalone symlink
+  `EPERM` during traced-file copy.
+- `git diff --check` passed.
+- `git diff --cached --check` passed.
+- Staged added-line credential/raw-id scan found no credential-like values or
+  UUID-shaped ids.
+
+Hosted follow-up:
+
+- Hosted `ec992e3` proved the original page redirect was insufficient.
+- Rerun the hosted `/developer` and PR267 public route probes after the ARGUS
+  route-handler patch deploys.
 
 ## Wake ARGUS
 

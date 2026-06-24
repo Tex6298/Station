@@ -19,8 +19,9 @@ then let staged replay reveal the next optimizations.
 - PR267 truth check failed on 2026-06-24 because hosted `/developer` returned
   HTTP 404 even though `/developer-spaces` and the replay Developer Space
   observatory route were live.
-- PR268 adds the public `/developer` redirect to `/developer-spaces`; ARGUS
-  should rerun hosted public route probes after deploy freshness permits.
+- PR268 is accepted with an ARGUS route-handler patch for the public
+  `/developer` redirect to `/developer-spaces`; hosted public route probes
+  should rerun after the patched commit deploys.
 - Known caveats travel into staging review instead of spawning more local polish:
   static global Archive/Export shells, dashboard derived/static snippets, no
   downloadable bundles/workers, and no new private search UI beyond the accepted
@@ -252,12 +253,16 @@ Next recommendation:
 
 ## PR268 route repair result
 
-DAEDALUS completed the narrow route-truth repair on 2026-06-24.
+ARGUS accepted the narrow route-truth repair on 2026-06-24 with a review patch.
 
-- `/developer` now redirects to `/developer-spaces`.
+- DAEDALUS's page-level redirect deployed fresh at `ec992e3`, but hosted
+  `/developer` returned HTTP `307` without a `Location` header.
+- ARGUS replaced the page-level redirect with a route handler so `/developer`
+  emits a real HTTP `307` redirect to `/developer-spaces` for `GET` and
+  `HEAD`.
 - `/developer-spaces` and `/developer-spaces/:slug` behavior is preserved.
-- Local probe on `127.0.0.1:3138` returned HTTP `307` with
-  `Location: /developer-spaces` for `/developer`, and HTTP `200` for
-  `/developer-spaces`.
-- ARGUS should rerun the PR267 hosted public route probes after deploy
-  freshness permits, especially hosted `/developer`.
+- Local probe on `127.0.0.1:3139` returned HTTP `307` with
+  `location: http://localhost:3139/developer-spaces` for `/developer`, and
+  HTTP `200` for `/developer-spaces`.
+- MIMIR should rerun the PR267 hosted public route probes after the ARGUS patch
+  deploys, especially hosted `/developer`.

@@ -32,19 +32,26 @@ Memory/observability implementation lane.
 
 ## PR268 Developer Route Alias Repair
 
-DAEDALUS completed PR268 on 2026-06-24 after PR267 failed on hosted public
-`/developer` returning HTTP 404.
+ARGUS accepted PR268 on 2026-06-24 with a narrow review patch after PR267
+failed on hosted public `/developer` returning HTTP 404.
 
 Implementation result:
 
-- Added `apps/web/app/developer/page.tsx`.
-- `/developer` redirects to `/developer-spaces`.
+- DAEDALUS added `apps/web/app/developer/page.tsx`, but the fresh hosted
+  deploy at `ec992e3` returned HTTP `307` for `/developer` without an HTTP
+  `Location` header.
+- ARGUS replaced the page-level redirect with
+  `apps/web/app/developer/route.ts`.
+- `/developer` emits a real HTTP `307` redirect to `/developer-spaces` for
+  `GET` and `HEAD`.
 - Added `/developer` to `apps/web/lib/auth-routes.test.ts` as a public-read
   route.
-- Local route probe returned HTTP `307` with `Location: /developer-spaces` for
-  `/developer`, and HTTP `200` for `/developer-spaces`.
+- Local route probe returned HTTP `307` with
+  `location: http://localhost:3139/developer-spaces` for `/developer`, and
+  HTTP `200` for `/developer-spaces`.
 - No Developer Space API/schema/auth/env/product/owner-manage/staging-config/
-  navigation behavior changed.
+  navigation, Cloudflare, hosted runtime, queue, partner adapter, or billing
+  behavior changed.
 
 Validation:
 
@@ -54,15 +61,15 @@ Validation:
 | `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 109 tests passed. |
 | `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API typecheck replayed from cache; web typecheck passed. |
 | `npm exec --yes pnpm@10.32.1 -- run lint` | Pass with existing warnings | Existing raw `<img>` warnings remain in `apps/web/app/space/[slug]/page.tsx` and `apps/web/components/discover/discover-front-door.tsx`. |
-| Local `/developer` probe | Pass | Next dev on `127.0.0.1:3138` returned HTTP `307` with `Location: /developer-spaces`. |
-| Local `/developer-spaces` probe | Pass | Next dev on `127.0.0.1:3138` returned HTTP `200`. |
+| Local `/developer` probe | Pass | Next dev on `127.0.0.1:3139` returned HTTP `307` with `location: http://localhost:3139/developer-spaces`. |
+| Local `/developer-spaces` probe | Pass | Next dev on `127.0.0.1:3139` returned HTTP `200`. |
 | `npm exec --yes pnpm@10.32.1 -- run build` | Partial / known Windows failure | Web compiled, linted/typechecked, collected page data, generated 37 static pages, finalized page optimization, and collected traces before the known local Windows standalone symlink `EPERM` during traced-file copy. |
 | `git diff --check` | Pass | CRLF normalization warnings only. |
 | `git diff --cached --check` | Pass | Staged whitespace check before wakeup. |
 | Staged credential/raw-id scan | Pass | No obvious staged credential-like values or UUID-shaped raw ids found. |
 
-ARGUS should rerun PR267 public route probes after the repair and deploy
-freshness permits, especially hosted `/developer`.
+MIMIR should rerun PR267 public route probes after the ARGUS route-handler patch
+deploys, especially hosted `/developer`.
 
 ## PR267 Staging Readiness Truth Check
 
