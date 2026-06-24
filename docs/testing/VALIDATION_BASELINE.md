@@ -32,8 +32,24 @@ Memory/observability implementation lane.
 
 ## PR272 Staged Replay Polish Caveats
 
-MIMIR opened PR272 for DAEDALUS on 2026-06-24 after ARIADNE returned PR271 as
-`PASS WITH CAVEATS`.
+DAEDALUS completed PR272 for ARGUS review on 2026-06-24 after ARIADNE returned
+PR271 as `PASS WITH CAVEATS`.
+
+Implementation result:
+
+- Discover right-rail persona roulette now uses a bounded fetch timeout and
+  explicit state copy: loading, empty, unavailable/retry, or real public
+  persona cards.
+- Public Developer Space status badge is readback-aware: existing data without
+  a confirmed live connection is labeled as latest readback or live-update
+  unavailable instead of an endless connection attempt.
+- Public forum category descriptions normalize provider-list dash mojibake at
+  display time on the forum index and category pages.
+- `test:studio-ui` now includes `apps/web/lib/discover-roulette.test.ts`.
+- `test:community` now includes `apps/web/lib/forum-copy.test.ts`.
+- No backend, schema, auth, provider, billing, queue, Redis, Cloudflare,
+  worker, staged-data, Developer Space ingestion, webhook, or external
+  side-effect behavior changed.
 
 Required validation:
 
@@ -42,16 +58,16 @@ Required validation:
 | Discover right-rail state | Pass | `Persona Roulette / Drawing...` must not look like an endless live operation after the page is otherwise ready. |
 | Public Developer Space status label | Pass | Public readback should not overclaim persistent live connectivity when showing snapshot/readback data. |
 | Public forum category copy | Pass | Provider-list description should not contain mojibake or encoding artifacts. |
-| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass or justified substitute | Run if touched scope overlaps Studio/shared UI. |
-| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | Required for Developer Space status/readback changes. |
-| `npm exec --yes pnpm@10.32.1 -- run test:community` | Pass | Required for public Forum copy changes. |
-| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | Required before ARGUS review unless a repo-level blocker is documented. |
-| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass | Required before ARGUS review unless a repo-level blocker is documented. |
-| `git diff --check` | Pass | Whitespace check. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 110 tests passed, including Discover roulette state copy. |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 47 tests passed, including readback-aware status badge copy. |
+| `npm exec --yes pnpm@10.32.1 -- run test:community` | Pass | 31 tests passed, including forum description mojibake normalization. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API typecheck replayed from cache; web typecheck passed. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass with existing warnings | Existing raw `<img>` warnings remain in `apps/web/app/space/[slug]/page.tsx` and `apps/web/components/discover/discover-front-door.tsx`. |
+| `git diff --check` | Pass | CRLF normalization warnings only for touched files. |
 | `git diff --cached --check` | Pass | Staged whitespace check before wakeup. |
 
-No backend, schema, auth, provider, billing, queue, Redis, Cloudflare, or
-staged-data behavior should change in PR272.
+ARGUS should review whether ARIADNE needs a focused hosted rerun or whether
+MIMIR can accept the PR271 caveats as closed from code/test evidence.
 
 ## PR271 Staged Replay Human-Eye Rehearsal
 

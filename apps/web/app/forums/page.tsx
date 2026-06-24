@@ -5,6 +5,7 @@ import Link from "next/link";
 import type { CommunitySubcommunityRecord } from "@station/types";
 import { apiGet } from "@/lib/api-client";
 import { subcommunityBadgeLabel } from "@/lib/community-subcommunities";
+import { forumCategoryDescriptionCopy } from "@/lib/forum-copy";
 
 interface Category {
   id: string;
@@ -102,7 +103,7 @@ export default function ForumsPage() {
                     </div>
                   )}
                   {cat.description && (
-                    <div style={{ color: "#687078", fontSize: "0.85rem" }}>{cat.description}</div>
+                    <div style={{ color: "#687078", fontSize: "0.85rem" }}>{forumCategoryDescriptionCopy(cat.description)}</div>
                   )}
                 </div>
                 <div style={{ marginLeft: "auto", color: "#687078", fontSize: "0.75rem", paddingTop: "0.15rem", whiteSpace: "nowrap" }}>

@@ -51,7 +51,7 @@ This note folds the current external/upstream work into future sequencing:
 ## Current staged replay baton
 
 Status, 2026-06-24: PR271 passed ARIADNE's hosted human-eye rehearsal with
-caveats. MIMIR opened PR272 as a tiny DAEDALUS polish lane for the three bounded
+caveats. PR272 completed the tiny DAEDALUS polish lane for the three bounded
 visible defects: Discover right-rail `Drawing...` honesty, public Developer
 Space live/readback status wording, and one public forum category encoding
 artifact.

@@ -4,6 +4,47 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest DAEDALUS result - PR272 Staged Replay Polish Caveats complete
+
+DAEDALUS completed PR272 on 2026-06-24.
+
+Implemented:
+
+- Discover right-rail persona roulette now uses a bounded fetch timeout and
+  explicit state copy: `Drawing...`, `No public personas yet.`, or
+  `Persona roulette unavailable.` with `Retry`.
+- Public Developer Space status badge now uses readback-aware copy. Existing
+  data without a confirmed live connection shows `Latest readback` or
+  `Live updates unavailable` instead of overclaiming `Connecting`.
+- Public forum category descriptions now normalize provider-list dash mojibake
+  at display time on the forum index and category pages.
+- Focused helper tests were added and wired into the existing validation
+  scripts.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` passed, 110 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` passed, 47 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:community` passed, 31 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed with existing raw `<img>`
+  warnings in `apps/web/app/space/[slug]/page.tsx` and
+  `apps/web/components/discover/discover-front-door.tsx`.
+- `git diff --check` passed with CRLF normalization warnings only for touched
+  files.
+
+Non-scope confirmation:
+
+- No backend semantics, schema, auth, provider, billing, queue, Redis,
+  Cloudflare, worker, staged-data, Developer Space ingestion, webhook, or
+  external side-effect behavior changed.
+
+Current baton:
+
+- ARGUS should review the tiny polish scope and decide whether ARIADNE needs a
+  focused hosted rerun or whether MIMIR can accept PR272 as closing the PR271
+  caveats.
+
 ## Latest MIMIR decision - PR272 Staged Replay Polish Caveats opened
 
 MIMIR accepts ARIADNE's PR271 verdict as `PASS WITH CAVEATS` and opens the

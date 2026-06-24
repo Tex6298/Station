@@ -134,6 +134,32 @@ export function developerSpaceSignalStatus(detail: Pick<DeveloperSpaceDetail, "n
   return "The public observatory is ready, but the external runtime has not sent project signals yet.";
 }
 
+export type DeveloperSpaceConnectionStatus = "connecting" | "live" | "reconnecting";
+
+export function developerSpaceConnectionBadge(
+  detail: Pick<DeveloperSpaceDetail, "nodes" | "events" | "latestSnapshot">,
+  status: DeveloperSpaceConnectionStatus,
+  lastLiveAt?: string | null
+) {
+  const hasReadback = detail.nodes.length > 0 || detail.events.length > 0 || Boolean(detail.latestSnapshot);
+  if (status === "live") {
+    return {
+      label: lastLiveAt ? `Live update ${formatDate(lastLiveAt)}` : "Live updates connected",
+      tone: "live" as const,
+    };
+  }
+  if (status === "connecting") {
+    return {
+      label: hasReadback ? "Latest readback" : "Waiting for first signal",
+      tone: hasReadback ? "readback" as const : "waiting" as const,
+    };
+  }
+  return {
+    label: hasReadback ? "Live updates unavailable" : "Connection unavailable",
+    tone: hasReadback ? "readback" as const : "waiting" as const,
+  };
+}
+
 export function developerSpaceOwnerCurrentState(detail: Pick<DeveloperSpaceDetail, "nodes" | "events" | "latestSnapshot" | "linkedDocuments">) {
   const latestTimes = [
     ...detail.nodes.map((node) => node.lastEventAt ?? node.updatedAt),

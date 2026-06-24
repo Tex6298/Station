@@ -34,9 +34,11 @@ then let staged replay reveal the next optimizations.
 - PR271 completed that ARIADNE rehearsal as `PASS WITH CAVEATS`. The hosted
   app is coherent enough for staging decisions, and the remaining visible
   caveats are bounded rather than structural.
-- PR272 opens a tiny DAEDALUS polish lane for the three bounded PR271 caveats:
-  Discover right-rail `Drawing...` honesty, public Developer Space
-  live/readback status wording, and one public forum category encoding artifact.
+- PR272 DAEDALUS completed the tiny polish lane for the three bounded PR271
+  caveats: Discover right-rail roulette now leaves endless `Drawing...`,
+  public Developer Space status labels distinguish live connection from latest
+  readback, and public forum category descriptions normalize provider-list
+  dash mojibake at display time.
 - Broader known caveats still travel into staging review instead of spawning
   more local polish: static global Archive/Export shells, dashboard
   derived/static snippets, no downloadable bundles/workers, and no new private

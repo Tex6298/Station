@@ -3,8 +3,12 @@
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import type { AuthUser } from "@station/types";
-import { apiGet } from "@/lib/api-client";
+import { apiGet, apiUrl } from "@/lib/api-client";
 import { restoreSession } from "@/lib/auth";
+import {
+  discoverRouletteStatusCopy,
+  type DiscoverRouletteStatus,
+} from "@/lib/discover-roulette";
 import {
   PUBLIC_SEARCH_GROUPS,
   routeablePublicSearchItems,
@@ -197,12 +201,12 @@ function FeedCard({ item }: { item: FeedItem }) {
 
 type SidebarUser = AuthUser & { email: string; isAdmin?: boolean };
 
-function Sidebar({ sidebar, user, loading, roulette, rouletteLoading, onRouletteShuffle }: {
+function Sidebar({ sidebar, user, loading, roulette, rouletteStatus, onRouletteShuffle }: {
   sidebar: SidebarData | null;
   user: SidebarUser | null;
   loading: boolean;
   roulette: PublicPersonaRouletteCard[];
-  rouletteLoading: boolean;
+  rouletteStatus: DiscoverRouletteStatus;
   onRouletteShuffle: () => void;
 }) {
   if (loading) {
@@ -262,9 +266,9 @@ function Sidebar({ sidebar, user, loading, roulette, rouletteLoading, onRoulette
 
       <div className="discover-public-sidebar-panel">
         <div className="section-label">Persona roulette</div>
-        {rouletteLoading ? (
-          <div className="public-home-search-status">Drawing...</div>
-        ) : roulette.length > 0 ? (
+        {rouletteStatus === "loading" ? (
+          <div className="public-home-search-status">{discoverRouletteStatusCopy(rouletteStatus)}</div>
+        ) : rouletteStatus === "ready" && roulette.length > 0 ? (
           <div style={{ display: "grid", gap: "0.55rem" }}>
             {roulette.map((persona) => (
               <Link key={persona.href} href={persona.href} style={{ textDecoration: "none" }}>
@@ -288,7 +292,19 @@ function Sidebar({ sidebar, user, loading, roulette, rouletteLoading, onRoulette
             </button>
           </div>
         ) : (
-          <div className="public-home-search-status">No public personas yet.</div>
+          <div style={{ display: "grid", gap: "0.5rem" }}>
+            <div className="public-home-search-status">{discoverRouletteStatusCopy(rouletteStatus)}</div>
+            {rouletteStatus === "unavailable" && (
+              <button
+                type="button"
+                className="public-home-secondary"
+                style={{ fontSize: "0.82rem", width: "100%", cursor: "pointer" }}
+                onClick={onRouletteShuffle}
+              >
+                Retry
+              </button>
+            )}
+          </div>
         )}
       </div>
 
@@ -345,6 +361,7 @@ function Sidebar({ sidebar, user, loading, roulette, rouletteLoading, onRoulette
 const TABS = ["new", "rising", "featured"] as const;
 type Tab = typeof TABS[number];
 const TAB_LABELS: Record<Tab, string> = { new: "New", rising: "Rising", featured: "Featured" };
+const ROULETTE_TIMEOUT_MS = 7000;
 
 export default function DiscoverFrontDoor() {
   const [tab, setTab] = useState<Tab>("new");
@@ -356,23 +373,31 @@ export default function DiscoverFrontDoor() {
   const [user, setUser] = useState<SidebarUser | null>(null);
   const [sideLoading, setSideLoading] = useState(true);
   const [roulette, setRoulette] = useState<PublicPersonaRouletteCard[]>([]);
-  const [rouletteLoading, setRouletteLoading] = useState(true);
+  const [rouletteStatus, setRouletteStatus] = useState<DiscoverRouletteStatus>("loading");
 
   const [search, setSearch] = useState("");
   const [searchResults, setSearchResults] = useState<any>(null);
   const [searching, setSearching] = useState(false);
 
   const loadRoulette = useCallback(async (seed = new Date().toISOString()) => {
-    setRouletteLoading(true);
+    setRouletteStatus("loading");
+    const controller = new AbortController();
+    const timeout = window.setTimeout(() => controller.abort(), ROULETTE_TIMEOUT_MS);
     try {
-      const data = await apiGet<{ personas: PublicPersonaRouletteCard[] }>(
-        `/personas/public/roulette?limit=3&seed=${encodeURIComponent(seed)}`
+      const response = await fetch(
+        apiUrl(`/personas/public/roulette?limit=3&seed=${encodeURIComponent(seed)}`),
+        { cache: "no-store", signal: controller.signal }
       );
-      setRoulette(data.personas ?? []);
+      if (!response.ok) throw new Error("Persona roulette unavailable.");
+      const data = await response.json() as { personas?: PublicPersonaRouletteCard[] };
+      const personas = data.personas ?? [];
+      setRoulette(personas);
+      setRouletteStatus(personas.length > 0 ? "ready" : "empty");
     } catch {
       setRoulette([]);
+      setRouletteStatus("unavailable");
     } finally {
-      setRouletteLoading(false);
+      window.clearTimeout(timeout);
     }
   }, []);
 
@@ -595,7 +620,7 @@ export default function DiscoverFrontDoor() {
         user={user}
         loading={sideLoading}
         roulette={roulette}
-        rouletteLoading={rouletteLoading}
+        rouletteStatus={rouletteStatus}
         onRouletteShuffle={() => void loadRoulette(`${Date.now()}`)}
       />
       </div>

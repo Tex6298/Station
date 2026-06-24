@@ -14,6 +14,7 @@ import {
   developerSpaceAgentReceiptEmptyCopy,
   developerSpaceAgentReceiptExecutionCopy,
   developerSpaceAgentReceiptStatusCopy,
+  developerSpaceConnectionBadge,
   developerSpaceOwnerCurrentState,
   developerSpaceUsageReadback,
   developerSpaceSignalStatus,
@@ -87,6 +88,36 @@ test("observatory story helpers keep empty public spaces understandable", () => 
     "This Tier 1 observatory is showing 0 tracked nodes, 0 public signals from a self-hosted project runtime."
   );
   assert.equal(developerSpaceSignalStatus(detail), "The public observatory is ready, but the external runtime has not sent project signals yet.");
+});
+
+test("developer space connection badge separates readback from live connection", () => {
+  const readbackDetail = {
+    nodes: [{ id: "node-1" }],
+    events: [],
+    latestSnapshot: null,
+  } as unknown as Parameters<typeof developerSpaceConnectionBadge>[0];
+  const emptyDetail = {
+    nodes: [],
+    events: [],
+    latestSnapshot: null,
+  } as unknown as Parameters<typeof developerSpaceConnectionBadge>[0];
+
+  assert.deepEqual(
+    developerSpaceConnectionBadge(readbackDetail, "connecting"),
+    { label: "Latest readback", tone: "readback" }
+  );
+  assert.deepEqual(
+    developerSpaceConnectionBadge(readbackDetail, "reconnecting"),
+    { label: "Live updates unavailable", tone: "readback" }
+  );
+  assert.deepEqual(
+    developerSpaceConnectionBadge(emptyDetail, "connecting"),
+    { label: "Waiting for first signal", tone: "waiting" }
+  );
+  assert.deepEqual(
+    developerSpaceConnectionBadge(readbackDetail, "live"),
+    { label: "Live updates connected", tone: "live" }
+  );
 });
 
 test("owner observability helpers separate live state from metered usage", () => {

@@ -15,6 +15,7 @@ import {
   canUseDelegatedModerationQueue,
   delegatedModerationPagePath,
 } from "@/lib/delegated-moderation-queue";
+import { forumCategoryDescriptionCopy } from "@/lib/forum-copy";
 
 interface Author { username: string; display_name: string | null; }
 interface CommunityProfile { trustLevel: number; reputationScore: number; }
@@ -145,7 +146,7 @@ export default function ForumCategoryPage() {
             </div>
           )}
           {category.description && (
-            <p style={{ margin: 0, color: "#687078", fontSize: "0.875rem" }}>{category.description}</p>
+            <p style={{ margin: 0, color: "#687078", fontSize: "0.875rem" }}>{forumCategoryDescriptionCopy(category.description)}</p>
           )}
         </div>
         <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap", alignItems: "center" }}>

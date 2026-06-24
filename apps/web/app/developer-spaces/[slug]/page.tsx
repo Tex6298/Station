@@ -6,6 +6,7 @@ import { useParams } from "next/navigation";
 import { apiGet, apiUrl } from "@/lib/api-client";
 import { getSession } from "@/lib/auth";
 import {
+  developerSpaceConnectionBadge,
   developerSpaceEvidenceEmptyCopy,
   developerSpaceEvidenceRoleCopy,
   developerSpaceEvidenceRoleDescription,
@@ -472,11 +473,12 @@ export default function DeveloperSpacePublicPage() {
   const sideWidgets = widgetsForZone(widgets, "side");
   const showSnapshotPanel = detail.space.visualisationType !== "timeline" || visualConfig.showSnapshots !== false;
   const tierOneCopy = developerSpaceTierOneFramingCopy();
-  const liveLabel = liveStatus === "live"
-    ? lastLiveAt ? `Live ${formatDate(lastLiveAt)}` : "Live"
-    : liveStatus === "connecting"
-      ? "Connecting"
-      : "Reconnecting";
+  const connectionBadge = developerSpaceConnectionBadge(detail, liveStatus, lastLiveAt);
+  const connectionBadgeColor = connectionBadge.tone === "live"
+    ? "#86efac"
+    : connectionBadge.tone === "readback"
+      ? "#93c5fd"
+      : "#fbbf24";
 
   return (
     <main className="container observatory-shell">
@@ -488,7 +490,7 @@ export default function DeveloperSpacePublicPage() {
               <span className="pill" style={{ color: "#93c5fd" }}>Public observatory</span>
               <span className="pill" style={{ textTransform: "capitalize" }}>{detail.space.visibility}</span>
               <span className="pill" style={{ textTransform: "capitalize" }}>{visualisationLabel(detail.space.visualisationType)}</span>
-              <span className="pill" style={{ color: liveStatus === "live" ? "#86efac" : "#fbbf24" }}>{liveLabel}</span>
+              <span className="pill" style={{ color: connectionBadgeColor }}>{connectionBadge.label}</span>
             </div>
             <h1 style={{ margin: 0, fontSize: "clamp(2rem, 4vw, 3.7rem)", maxWidth: 980 }}>{detail.space.projectName}</h1>
             <p style={{ margin: "0.8rem 0 0", color: "#b7c1d6", lineHeight: 1.75, maxWidth: 880 }}>
