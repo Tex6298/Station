@@ -9,11 +9,15 @@ import {
 test("public search groups exclude private owner buckets", () => {
   assert.deepEqual(
     PUBLIC_SEARCH_GROUPS.map(([key]) => key),
-    ["developerSpaces", "salons", "personas", "spaces", "documents", "threads"]
+    ["projects", "developerSpaces", "salons", "personas", "spaces", "documents", "threads"]
   );
 });
 
 test("public search hrefs only target supported public routes", () => {
+  assert.equal(searchHref("projects", { slug: "public-research-project" }), "/projects/public/public-research-project");
+  assert.equal(searchHref("projects", { slug: "Bad Slug" }), null);
+  assert.equal(searchHref("projects", { slug: "10000000-0000-4000-8000-000000000100" }), null);
+  assert.equal(searchHref("projects", { href: "/admin" }), null);
   assert.equal(searchHref("developerSpaces", { slug: "observatory" }), "/developer-spaces/observatory");
   assert.equal(searchHref("salons", { slug: "station-replay-salon-alpha", href: "/admin" }), "/forums/station-replay-salon-alpha");
   assert.equal(searchHref("salons", { categorySlug: "member-salon" }), "/forums/member-salon");
@@ -66,6 +70,19 @@ test("routeable public search items ignore private owner buckets", () => {
       },
     }).map((item) => [item.result.name, item.href]),
     [["Public Persona", "/personas/public-persona"]]
+  );
+});
+
+test("routeable public search items include safe Project public profile routes", () => {
+  assert.deepEqual(
+    routeablePublicSearchItems("projects", {
+      projects: [
+        { name: "Public Research Project", slug: "public-research-project", href: "/admin" },
+        { name: "Unsafe Project", slug: "10000000-0000-4000-8000-000000000100" },
+        { name: "Missing Slug" },
+      ],
+    }).map((item) => [item.result.name, item.href]),
+    [["Public Research Project", "/projects/public/public-research-project"]]
   );
 });
 

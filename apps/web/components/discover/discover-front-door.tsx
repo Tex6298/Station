@@ -496,6 +496,11 @@ export default function DiscoverFrontDoor() {
                                   {r.visualisationType?.replace("_", " ")} / {r.visibility}
                                 </span>
                               )}
+                              {key === "projects" && (
+                                <span style={{ color: "#93c5fd", fontSize: "0.72rem", marginLeft: "0.45rem" }}>
+                                  Public Project
+                                </span>
+                              )}
                               {key === "salons" && (
                                 <span style={{ color: "#86efac", fontSize: "0.72rem", marginLeft: "0.45rem", textTransform: "capitalize" }}>
                                   Salon / {r.visibility}
@@ -516,9 +521,9 @@ export default function DiscoverFrontDoor() {
                                   Discussion open
                                 </span>
                               )}
-                              {(r.short_description || r.body) && (
+                              {(r.short_description || r.description || r.body) && (
                                 <span style={{ color: "#7f8aa0", fontSize: "0.75rem", marginLeft: "0.5rem" }}>
-                                  - {(r.short_description ?? r.body ?? "").slice(0, 60)}
+                                  - {(r.short_description ?? r.description ?? r.body ?? "").slice(0, 60)}
                                 </span>
                               )}
                             </Link>

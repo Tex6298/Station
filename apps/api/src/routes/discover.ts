@@ -1,6 +1,10 @@
 import { Router, Request, Response } from "express";
 import { normalizeSpacePresentation } from "@station/config/space-presentation";
-import type { DeveloperSpaceEventVisibility, DeveloperSpaceVisibility } from "@station/types";
+import type {
+  DeveloperSpaceEventVisibility,
+  DeveloperSpaceVisibility,
+  PublicProjectSearchResult,
+} from "@station/types";
 import type { DocumentVisibility, ThreadVisibility } from "@station/db";
 import { getSupabaseAdmin } from "../lib/supabase";
 import { optionalAuth } from "../middleware/require-auth";
@@ -99,6 +103,42 @@ function publicSalonSearchResults(rows: any[]) {
       href,
     }];
   });
+}
+
+function safePublicProjectHref(slug: unknown) {
+  return typeof slug === "string" &&
+    SAFE_ROUTE_SLUG_PATTERN.test(slug) &&
+    !UUID_SHAPED_ROUTE_SLUG_PATTERN.test(slug)
+    ? `/projects/public/${slug}`
+    : null;
+}
+
+function publicProjectSearchResults(rows: any[], limit = 6): PublicProjectSearchResult[] {
+  const bySlug = new Map<string, any>();
+  for (const row of rows) {
+    if (row.visibility !== "public") continue;
+    const href = safePublicProjectHref(row.slug);
+    if (!href || bySlug.has(row.slug)) continue;
+    bySlug.set(row.slug, row);
+  }
+
+  return [...bySlug.values()]
+    .sort((a, b) => {
+      const byDate = new Date(b.updated_at ?? b.created_at ?? 0).getTime() -
+        new Date(a.updated_at ?? a.created_at ?? 0).getTime();
+      if (byDate !== 0) return byDate;
+      return String(a.name ?? "").localeCompare(String(b.name ?? ""));
+    })
+    .slice(0, limit)
+    .map((row) => ({
+      name: row.name,
+      slug: row.slug,
+      description: row.description ?? null,
+      visibility: "public",
+      href: `/projects/public/${row.slug}`,
+      type: "project",
+      label: "Public Project",
+    }));
 }
 
 async function publicPersonaSearchResults(
@@ -537,6 +577,7 @@ discoverRouter.get("/search", optionalAuth, async (req: Request, res: Response) 
       threads: [],
       spaces: [],
       personas: [],
+      projects: [],
       developerSpaces: [],
       salons: [],
       privateResults: req.user ? emptyPrivateSearchResults() : undefined,
@@ -544,7 +585,7 @@ discoverRouter.get("/search", optionalAuth, async (req: Request, res: Response) 
   }
   const sb = getSupabaseAdmin();
 
-  const [docResults, threadResults, spaces, personas, developerSpaceResults, salonResults, privateResults] = await Promise.all([
+  const [docResults, threadResults, spaces, personas, projectResults, developerSpaceResults, salonResults, privateResults] = await Promise.all([
     Promise.all(discoverableDocumentVisibilities(req).map((visibility) =>
       sb
         .from("documents")
@@ -565,6 +606,29 @@ discoverRouter.get("/search", optionalAuth, async (req: Request, res: Response) 
     )),
     sb.from("spaces").select("id, slug, title, short_description, theme").eq("is_public", true).ilike("title", `%${q}%`).limit(6),
     sb.from("personas").select("name, short_description, visibility, avatar_url, public_slug, owner_user_id, public_chat_enabled").eq("visibility", "public").ilike("name", `%${q}%`).limit(12),
+    Promise.all([
+      sb
+        .from("projects")
+        .select("name, slug, description, visibility, created_at, updated_at")
+        .eq("visibility", "public")
+        .ilike("name", `%${q}%`)
+        .order("updated_at", { ascending: false })
+        .limit(6),
+      sb
+        .from("projects")
+        .select("name, slug, description, visibility, created_at, updated_at")
+        .eq("visibility", "public")
+        .ilike("description", `%${q}%`)
+        .order("updated_at", { ascending: false })
+        .limit(6),
+      sb
+        .from("projects")
+        .select("name, slug, description, visibility, created_at, updated_at")
+        .eq("visibility", "public")
+        .ilike("slug", `%${q}%`)
+        .order("updated_at", { ascending: false })
+        .limit(6),
+    ]),
     Promise.all(discoverableDeveloperSpaceVisibilities(req).map((visibility) =>
       sb
         .from("developer_spaces")
@@ -594,6 +658,7 @@ discoverRouter.get("/search", optionalAuth, async (req: Request, res: Response) 
       presentation: normalizeSpacePresentation(space.theme),
     })),
     personas:  await publicPersonaSearchResults(sb, personas.data ?? []),
+    projects: publicProjectSearchResults(projectResults.flatMap((result) => result.data ?? [])),
     developerSpaces: developerSpaceResults.flatMap((result) => result.data ?? []).slice(0, 8).map((space: any) => ({
       id: space.id,
       slug: space.slug,

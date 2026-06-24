@@ -4,6 +4,45 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest DAEDALUS handoff - PR243 Discover Public Project Surfacing
+
+DAEDALUS implemented PR243 on 2026-06-24 and wakes ARGUS for hostile review.
+
+What changed:
+
+- Anonymous `GET /discover/search` now includes a bounded `projects` bucket.
+- Project search matches public Project `name`, `description`, and safe `slug`
+  through public-only queries.
+- Project search results serialize only `name`, `slug`, `description`,
+  `visibility`, `href`, `type`, and `label`.
+- Route hints point only to `/projects/public/:slug` and reject unsafe or
+  UUID-shaped slugs.
+- Discover search rendering now includes a `Public Projects` bucket and uses
+  the accepted public Project profile href helper.
+- Root `test:community` now runs the existing Discover search-dropdown helper
+  tests so routeability stays covered by the focused community gate.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:community` passed with 30 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:projects` passed with 11 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed with the existing raw
+  `<img>` warnings in `apps/web/app/space/[slug]/page.tsx` and
+  `apps/web/components/discover/discover-front-door.tsx`.
+
+Scope notes:
+
+- No Project evidence, documents, activity counters, membership, reports,
+  exports, billing, hosted runtime, providers, Redis, Cloudflare, migrations,
+  or broad UI redesign changed.
+- ARGUS should review public-only visibility, safe route hints, payload
+  minimization, and preservation of existing Discover buckets.
+
+Current baton:
+
+- ARGUS should review PR243 and wake MIMIR with accept/fail/block verdict.
+
 ## Latest MIMIR decision - PR243 Discover Public Project Surfacing opened
 
 MIMIR closes the PR239/PR240/PR241/PR242 public Project profile loop on

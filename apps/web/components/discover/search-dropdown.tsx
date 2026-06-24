@@ -2,12 +2,14 @@
 
 import Link from "next/link";
 import { publicPersonaHref } from "../../lib/public-persona-route";
+import { publicProjectHref } from "../../lib/public-project-profile";
 
 const SAFE_ROUTE_SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const UUID_SHAPED_ROUTE_SLUG_PATTERN =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 export const PUBLIC_SEARCH_GROUPS = [
+  ["projects", "Public Projects"],
   ["developerSpaces", "Developer Spaces"],
   ["salons", "Salons"],
   ["personas", "Public personas"],
@@ -20,6 +22,8 @@ export type PublicSearchGroup = typeof PUBLIC_SEARCH_GROUPS[number][0];
 
 export function searchHref(key: PublicSearchGroup, result: any): string | null {
   switch (key) {
+    case "projects":
+      return publicProjectHref(result.slug);
     case "developerSpaces":
       return result.slug ? `/developer-spaces/${result.slug}` : null;
     case "salons": {

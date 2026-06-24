@@ -20,6 +20,28 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR243 Discover Public Project Surfacing
+
+DAEDALUS implementation validation on 2026-06-24:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:community` | Pass | 30 tests passed. Coverage now proves anonymous Discover search returns routeable public Project cards, excludes private/community/unlisted Projects and unsafe/UUID-shaped slugs, keeps Project payloads free of ids/owner/member/evidence/document/activity/runtime/provider/Redis/Cloudflare fields, preserves existing Discover Developer Space/Salon/persona/private-result behavior, and exercises the web search-dropdown route helper. |
+| `npm exec --yes pnpm@10.32.1 -- run test:projects` | Pass | 11 tests passed. Existing public Project profile API/page helper contract remains green. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed after adding the shared public Project search result type and Discover bucket wiring. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass with existing warnings | Existing raw `<img>` warnings remain in `apps/web/app/space/[slug]/page.tsx` and `apps/web/components/discover/discover-front-door.tsx`. |
+
+Scope notes:
+
+- Added Discover search surfacing for already-public Projects only.
+- Project result payloads contain only `name`, `slug`, `description`,
+  `visibility`, `href`, `type`, and `label`.
+- Route hints point to `/projects/public/:slug` and reuse the accepted public
+  Project profile helper on the web side.
+- No Project evidence, documents, activity, reports, membership, exports,
+  billing, hosted runtime, providers, Redis, Cloudflare, migrations, or broad UI
+  redesign changed.
+
 ## PR242 Public Project Profile Focused Hosted Rerun
 
 ARIADNE hosted rerun on 2026-06-24:

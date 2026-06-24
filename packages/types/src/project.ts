@@ -56,3 +56,13 @@ export interface PublicProjectProfileResponse {
   project: PublicProjectProfile;
   developerSpaces: PublicProjectDeveloperSpaceSummary[];
 }
+
+export interface PublicProjectSearchResult {
+  name: string;
+  slug: string;
+  description?: string | null;
+  visibility: "public";
+  href: string;
+  type: "project";
+  label: "Public Project";
+}

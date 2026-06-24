@@ -53,6 +53,13 @@ const PUBLIC_DEV_SPACE_ID = "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaa1";
 const COMMUNITY_DEV_SPACE_ID = "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaa2";
 const PRIVATE_DEV_SPACE_ID = "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaa3";
 const UNLISTED_DEV_SPACE_ID = "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaa4";
+const PUBLIC_PROJECT_ID = "abababab-abab-4bab-8bab-ababababab01";
+const DESCRIPTION_PROJECT_ID = "abababab-abab-4bab-8bab-ababababab02";
+const SLUG_PROJECT_ID = "abababab-abab-4bab-8bab-ababababab03";
+const PRIVATE_PROJECT_ID = "abababab-abab-4bab-8bab-ababababab04";
+const COMMUNITY_PROJECT_ID = "abababab-abab-4bab-8bab-ababababab05";
+const UNLISTED_PROJECT_ID = "abababab-abab-4bab-8bab-ababababab06";
+const UNSAFE_PROJECT_ID = "abababab-abab-4bab-8bab-ababababab07";
 
 class CommunitySupabase {
   rpcWithoutCatch = false;
@@ -67,6 +74,7 @@ class CommunitySupabase {
       profile(CANON_ID, "canon", "canon"),
       profile(INSTITUTIONAL_ID, "institutional", "institutional"),
     ],
+    projects: [],
     spaces: [
       space(PUBLIC_SPACE_ID, "public-space", true),
       space(PRIVATE_SPACE_ID, "private-space", false),
@@ -918,6 +926,27 @@ function createCommunityApp() {
   app.use("/notifications", notificationsRouter);
   app.use("/threads", threadsRouter);
   return app;
+}
+
+function project(id: string, name: string, slug: string, visibility: string, overrides: Row = {}): Row {
+  return {
+    id,
+    owner_user_id: OWNER_ID,
+    name,
+    slug,
+    description: `${name} public summary.`,
+    visibility,
+    connection_tier: "tier_1_showcase",
+    created_at: "2026-05-25T09:25:00.000Z",
+    updated_at: "2026-05-25T09:25:00.000Z",
+    member_count: 42,
+    evidence_count: 99,
+    hosted_runtime_status: "private-runtime",
+    provider_model: "private-model",
+    redis_cache_key: "private-redis-key",
+    cloudflare_worker_name: "private-worker",
+    ...overrides,
+  };
 }
 
 async function requestJson<TBody = any>(
@@ -3583,6 +3612,85 @@ test("Discover search surfaces public Salons through safe forum category routes"
     assert.equal(memberText.includes("Private Salon"), false);
     assert.equal(memberText.includes("Paused Salon"), false);
     assert.equal(memberText.includes("Canon Salon Adjacent Lab"), false);
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
+
+test("Discover search surfaces only public Projects through safe public profile routes", async () => {
+  const db = new CommunitySupabase();
+  setSupabaseAdminForTests(db.client as any);
+  const app = createCommunityApp();
+
+  try {
+    db.insertRow("projects", project(PUBLIC_PROJECT_ID, "Meridian Research Project", "meridian-research-project", "public"));
+    db.insertRow("projects", project(DESCRIPTION_PROJECT_ID, "Quiet Public Project", "quiet-public-project", "public", {
+      description: "Meridian appears only in this public description.",
+    }));
+    db.insertRow("projects", project(SLUG_PROJECT_ID, "Slug Matched Project", "meridian-slug-project", "public", {
+      description: "Slug-only public search match.",
+    }));
+    db.insertRow("projects", project(PRIVATE_PROJECT_ID, "Meridian Private Project", "meridian-private-project", "private"));
+    db.insertRow("projects", project(COMMUNITY_PROJECT_ID, "Meridian Community Project", "meridian-community-project", "community"));
+    db.insertRow("projects", project(UNLISTED_PROJECT_ID, "Meridian Unlisted Project", "meridian-unlisted-project", "unlisted"));
+    db.insertRow("projects", project(UNSAFE_PROJECT_ID, "Meridian Unsafe Project", "550e8400-e29b-41d4-a716-446655440000", "public"));
+
+    const visitor = await requestJson(app, "GET", "/discover/search?q=Meridian");
+    assert.equal(visitor.status, 200);
+    assert.deepEqual(
+      visitor.body.projects.map((row: Row) => [row.name, row.href]).sort(),
+      [
+        ["Meridian Research Project", "/projects/public/meridian-research-project"],
+        ["Quiet Public Project", "/projects/public/quiet-public-project"],
+        ["Slug Matched Project", "/projects/public/meridian-slug-project"],
+      ].sort()
+    );
+
+    assert.deepEqual(Object.keys(visitor.body.projects[0]).sort(), [
+      "description",
+      "href",
+      "label",
+      "name",
+      "slug",
+      "type",
+      "visibility",
+    ]);
+    assert.equal(visitor.body.projects.every((row: Row) => row.type === "project"), true);
+    assert.equal(visitor.body.projects.every((row: Row) => row.label === "Public Project"), true);
+    assert.equal(visitor.body.projects.every((row: Row) => row.visibility === "public"), true);
+
+    const visitorText = JSON.stringify(visitor.body.projects);
+    for (const forbidden of [
+      PUBLIC_PROJECT_ID,
+      DESCRIPTION_PROJECT_ID,
+      SLUG_PROJECT_ID,
+      PRIVATE_PROJECT_ID,
+      COMMUNITY_PROJECT_ID,
+      UNLISTED_PROJECT_ID,
+      UNSAFE_PROJECT_ID,
+      OWNER_ID,
+      "owner_user_id",
+      "ownerUserId",
+      "member_count",
+      "memberCount",
+      "evidence_count",
+      "evidenceCount",
+      "document",
+      "activity",
+      "runtime",
+      "provider",
+      "Redis",
+      "redis",
+      "Cloudflare",
+      "cloudflare",
+      "Meridian Private Project",
+      "Meridian Community Project",
+      "Meridian Unlisted Project",
+      "Meridian Unsafe Project",
+      "550e8400-e29b-41d4-a716-446655440000",
+    ]) {
+      assert.equal(visitorText.includes(forbidden), false, `${forbidden} leaked into Project search`);
+    }
   } finally {
     setSupabaseAdminForTests(null);
   }
