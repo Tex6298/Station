@@ -193,10 +193,18 @@ test("private persona prompt prioritizes direct factual answers from selected co
   assert.match(prompt, /answer from that selected context first/);
   assert.match(prompt, /Preserve a safe user-requested shape/);
   assert.match(prompt, /Do not omit directly relevant selected names/);
+  assert.match(prompt, /Final grounding guard for the next answer/);
+  assert.match(prompt, /before prior chat history, earlier assistant guesses, or persona flourish/);
+  assert.match(prompt, /Selected-context answer focus/);
   assert.match(prompt, /Meridian Loom/);
   assert.match(prompt, /Helio Gate/);
   assert.match(prompt, /silver compass ledger/);
   assert.match(prompt, /blue lantern checksum/);
+  assert.equal(
+    prompt.indexOf("Final grounding guard for the next answer") >
+      prompt.indexOf("Maintain a stable, consistent voice"),
+    true
+  );
 });
 
 test("OpenAI provider payload preserves grounding prompt and final user message", async () => {
@@ -223,6 +231,8 @@ test("OpenAI provider payload preserves grounding prompt and final user message"
     assert.equal(body.model, "test-model");
     assert.equal(body.messages[0].role, "system");
     assert.match(body.messages[0].content, /Grounded answering rule/);
+    assert.match(body.messages[0].content, /Final grounding guard for the next answer/);
+    assert.match(body.messages[0].content, /Selected-context answer focus/);
     assert.match(body.messages[0].content, /Meridian Loom/);
     assert.match(body.messages[0].content, /Helio Gate/);
     assert.deepEqual(body.messages.at(-1), {

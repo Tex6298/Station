@@ -4,7 +4,37 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest MIMIR decision - PR283 Hosted Answer Grounding Enforcement opened
+## Latest DAEDALUS result - PR283 Hosted Answer Grounding Enforcement
+
+DAEDALUS completed PR283 on 2026-06-24:
+`docs/roadmap/PR283_HOSTED_ANSWER_GROUNDING_ENFORCEMENT_RESULT.md`.
+
+Result:
+
+- Verdict: `PASS WITH CAVEATS`, pending ARGUS review.
+- Root cause/hypothesis: prompt delivery is locally proven, but PR281's
+  grounded-answer rule could still lose priority to prior assistant history or
+  persona flourish. The route keeps the latest user message last, but prior
+  assistant turns can still sit between system prompt and latest user request.
+- Patch: private persona prompts now add a final selected-context answer-focus
+  guard after the stable-voice close, telling the model to use latest owner
+  message plus answer focus before prior chat history, earlier assistant
+  guesses, or persona flourish.
+- This is prompt-only: no retry, token-accounting, provider, retrieval, schema,
+  seed, import, UI, billing, Redis, Cloudflare, queue, or worker behavior
+  changed.
+- Validation passed: `test:retrieval-metadata`, `test:persona-context`,
+  `test:conversation-archive`, `test:replay-readiness`, `typecheck`, and
+  `lint` with existing raw `<img>` warnings only.
+
+Current baton:
+
+- ARGUS should review prompt-injection boundaries, no hardcoded replay anchors,
+  no provider/scope creep, and secret/raw-data hygiene.
+- If accepted, ARGUS should recommend whether MIMIR opens an ARIADNE hosted
+  PR284 rerun after deploy.
+
+## Previous MIMIR decision - PR283 Hosted Answer Grounding Enforcement opened
 
 MIMIR accepts ARIADNE's PR282 hosted result as `FAIL` while treating retrieval
 and context selection as proven for this probe.

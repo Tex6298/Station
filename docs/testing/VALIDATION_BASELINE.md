@@ -32,29 +32,33 @@ Memory/observability implementation lane.
 
 ## PR283 Hosted Answer Grounding Enforcement
 
-MIMIR opened PR283 for DAEDALUS on 2026-06-24 after ARIADNE's PR282 hosted
-rerun failed answer recall despite full selected context and the PR281 grounding
-rule.
+DAEDALUS completed PR283 on 2026-06-24:
+`docs/roadmap/PR283_HOSTED_ANSWER_GROUNDING_ENFORCEMENT_RESULT.md`.
 
-Required validation:
+Result: `PASS WITH CAVEATS`, pending ARGUS review.
 
-| Check | Expected result | Notes |
+Validation result:
+
+| Check | Result | Notes |
 | --- | --- | --- |
-| Prompt delivery/history classification | Pass | Determine whether prompt delivery or prior-history contamination is implicated before adding broader enforcement. |
-| Grounding enforcement | Pass | Direct factual answers should use selected context when present without hardcoded replay terms. |
-| Retry/accounting behavior | Pass if touched | If adding a retry, prove one-shot bounded behavior and safe token/accounting handling. |
-| No hardcoded replay terms | Pass | No special casing for seeded anchor strings, replay persona, hosted ids, or staging prompt text. |
-| Rejected-control/source-copy safety | Pass | Rejected-control context stays out and no raw source-body markers are encouraged in answers. |
-| Scope | Pass | No retrieval, provider, embedding, schema, seed, import, Redis, Cloudflare, queue, worker, billing, Stripe, or UI changes unless new evidence is documented first. |
-| `npm exec --yes pnpm@10.32.1 -- run test:retrieval-metadata` | Pass | Required if prompt/context fixtures touch retrieval evidence. |
-| `npm exec --yes pnpm@10.32.1 -- run test:persona-context` | Pass | Required for prompt/runtime context changes. |
-| `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass | Required for archive/context regressions. |
-| `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` | Pass | Required if readiness/observability surfaces are touched. |
-| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | Required before ARGUS review unless a repo-level blocker is documented. |
-| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass with existing warnings named | Existing raw `<img>` warnings are acceptable if unchanged. |
-| `git diff --check` | Pass | Whitespace check. |
-| `git diff --cached --check` | Pass | Staged whitespace check before wakeup. |
+| Prompt delivery/history classification | Pass | Prompt delivery is locally proven; prior-history/persona-flourish drift remains the strongest hypothesis. |
+| Grounding enforcement | Pass locally | Private persona prompts now add a final selected-context answer-focus guard after the voice close. |
+| Retry/accounting behavior | Not touched | PR283 is prompt-only; no retry or token-accounting behavior changed. |
+| No hardcoded replay terms | Pass | Product code adds generic answer-focus guidance only; no replay persona, hosted ids, seeded terms, or staging prompt text are special-cased. |
+| Rejected-control/source-copy safety | Pass | Filtering is unchanged, focus lines are facts/source context rather than instructions, and no long source-copying guidance was added. |
+| Scope | Pass | No retrieval, provider routing, embedding, schema, seed, import, Redis, Cloudflare, queue, worker, billing, Stripe, public UI, or Studio UI changes. |
+| `npm exec --yes pnpm@10.32.1 -- run test:retrieval-metadata` | Pass | 12 tests, including final grounding guard and provider payload shape. |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-context` | Pass | 8 tests. |
+| `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass | 35 tests. |
+| `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` | Pass | 2 tests. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | 2 turbo tasks. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass with existing warnings | Existing raw `<img>` warnings remain in `apps/web/app/space/[slug]/page.tsx` and `apps/web/components/discover/discover-front-door.tsx`. |
+| `git diff --check` | Pass | Whitespace check passed. |
+| `git diff --cached --check` | Pass | Staged whitespace check passed before wakeup. |
 | Added-line hygiene scan | Pass | No credential-like values, emails, credentialed URLs, raw ids, raw prompts, completions, or private source bodies. |
+
+ARGUS should review the repair. If accepted, the next useful validation is an
+ARIADNE hosted PR284 rerun after deploy.
 
 ## PR282 Hosted Runtime Answer Rerun Result
 
