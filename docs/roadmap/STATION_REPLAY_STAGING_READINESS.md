@@ -118,8 +118,9 @@ then let staged replay reveal the next optimizations.
 - PR287 duplicated compact selected-context focus into the provider-facing
   final user message while preserving the original owner message under
   `Owner message:` and counting the actual provider payload length in
-  runtime budget/quota estimates. ARGUS should review the patch before MIMIR
-  opens an ARIADNE PR288 hosted rerun.
+  runtime budget/quota estimates. ARGUS accepted the patch after adding a
+  focused stored-message boundary assertion; the next proof should be an
+  ARIADNE hosted PR288 rerun after deploy.
 - Broader known caveats still travel into staging review instead of spawning
   more local polish: static global Archive/Export shells, dashboard
   derived/static snippets, no downloadable bundles/workers, and no new private

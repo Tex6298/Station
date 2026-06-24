@@ -1,8 +1,9 @@
 # PR287 - Reliable Selected-Context Answer Use
 
 Owner: A2 / DAEDALUS
-Status: opened by MIMIR
+Status: accepted by ARGUS
 Opened: 2026-06-24
+Accepted: 2026-06-24
 
 ## Purpose
 

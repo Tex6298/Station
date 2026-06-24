@@ -32,10 +32,10 @@ Memory/observability implementation lane.
 
 ## PR287 Reliable Selected-Context Answer Use
 
-DAEDALUS completed PR287 on 2026-06-24:
+ARGUS accepted PR287 on 2026-06-24 with a narrow test patch:
 `docs/roadmap/PR287_RELIABLE_SELECTED_CONTEXT_ANSWER_USE_RESULT.md`.
 
-Result: ready for ARGUS review.
+Result: `PASS WITH CAVEATS`.
 
 Validation result:
 
@@ -43,6 +43,7 @@ Validation result:
 | --- | --- | --- |
 | Answer-use root cause | Pass | Strongest hypothesis is provider payload placement: focus lived in the system prompt before prior history, not beside the final provider-facing owner message. |
 | Provider-facing payload evidence | Pass | Route test captures the OpenAI BYOK payload and proves compact selected focus appears in the final provider `user` message while the original owner message remains under `Owner message:`. |
+| Stored message boundary | Pass | ARGUS added a regression assertion proving selected-context augmentation is provider-only and is not persisted into stored user `conversation_messages`. |
 | Retry/accounting/trace safety | Pass | No retry was added. Runtime budget and quota/token estimates use the actual provider-facing final user message length; trace/session rows store sanitized budget metadata only. |
 | No hardcoded replay terms | Pass | Product code is generic over selected Canon, Integrity, Memory, Continuity, and Archive sources; seeded replay labels appear only in synthetic test fixtures. |
 | Rejected-control/source-copy safety | Pass | Retrieval filtering and answer source-copy boundaries are unchanged. |
@@ -53,6 +54,9 @@ Validation result:
 | `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` | Pass | 2 tests passed. |
 | `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | 2 turbo tasks passed. |
 | `npm exec --yes pnpm@10.32.1 -- run lint` | Pass with existing warnings | Existing raw `<img>` warnings remain in `apps/web/app/space/[slug]/page.tsx` and `apps/web/components/discover/discover-front-door.tsx`. |
+| `git diff --check` | Pass | Whitespace check passed. |
+| `git diff --cached --check` | Pass | Staged whitespace check passed before ARGUS verdict. |
+| Added-line hygiene scan | Pass | No credential-like values, emails, credentialed URLs, UUID-shaped ids, raw prompts, or private source bodies found in the PR287 ARGUS diff. |
 
 ## PR286 Hosted Runtime Answer Rerun Result
 

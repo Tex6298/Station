@@ -724,6 +724,16 @@ test("chat runtime budget does not block configured BYOK providers when platform
       role: "assistant",
       content: "Canon candidate: continuity comes first when archive material is active.",
     });
+    assert.equal(
+      db.tables.conversation_messages.filter((row) => row.content === "Use my own model for this reply.").length,
+      1
+    );
+    assert.equal(
+      db.tables.conversation_messages.some((row) =>
+        row.role === "user" && /Station-selected context/.test(row.content)
+      ),
+      false
+    );
 
     const trace = db.tables.ai_trace_sessions[0];
     assert.equal(trace.metadata.runtimeBudget.provider.route, "byok_openai");

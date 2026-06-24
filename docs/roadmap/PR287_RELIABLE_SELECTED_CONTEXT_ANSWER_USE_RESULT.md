@@ -1,10 +1,12 @@
 # PR287 - Reliable Selected-Context Answer Use Result
 
 Owner: A2 / DAEDALUS
-Status: complete; ready for ARGUS review
+Status: pass with caveats - accepted by ARGUS
 Completed: 2026-06-24
 
 ## Result
+
+`PASS WITH CAVEATS`, accepted by ARGUS with a narrow test patch.
 
 DAEDALUS patched the answer-use boundary after selected context has already
 been assembled. The strongest root-cause hypothesis is provider payload
@@ -50,6 +52,8 @@ provider payload, and proves:
   true persisted-history count;
 - trace sessions and trace events do not store the selected synthetic private
   strings.
+- ARGUS added a regression assertion proving the provider-only selected-context
+  augmentation is not persisted into stored user `conversation_messages`.
 
 ## Validation
 
@@ -63,6 +67,9 @@ All required PR287 local checks passed:
 | `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` | Pass | 2 tests passed. |
 | `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | 2 turbo tasks passed. |
 | `npm exec --yes pnpm@10.32.1 -- run lint` | Pass with existing warnings | Existing raw `<img>` warnings remain in `apps/web/app/space/[slug]/page.tsx` and `apps/web/components/discover/discover-front-door.tsx`. |
+| `git diff --check` | Pass | Whitespace check passed. |
+| `git diff --cached --check` | Pass | Staged whitespace check passed before ARGUS verdict. |
+| Added-line hygiene scan | Pass | No credential-like values, emails, credentialed URLs, UUID-shaped ids, raw prompts, or private source bodies found in the PR287 ARGUS diff. |
 
 ## Safety
 
@@ -77,7 +84,9 @@ All required PR287 local checks passed:
 
 ## Recommendation
 
-ARGUS should review provider payload ordering, prompt-boundary wording,
+ARGUS accepts provider payload ordering, prompt-boundary wording,
 token/accounting conservatism, lack of hardcoded replay anchors, and raw-data
-leakage safety. If accepted, MIMIR should open an ARIADNE PR288 hosted rerun to
-measure whether user-adjacent selected focus clears the hosted recall failure.
+leakage safety.
+
+MIMIR should open an ARIADNE hosted PR288 rerun after deploy to measure whether
+user-adjacent selected focus clears the hosted recall failure.

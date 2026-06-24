@@ -539,7 +539,8 @@ duplicating compact selected-context focus into the provider-facing final user
 message while preserving the original owner message under `Owner message:`.
 The patch adds no retry behavior and keeps runtime budget/quota estimates
 conservative by counting the actual provider-facing final user message length.
-ARGUS should review whether MIMIR opens an ARIADNE PR288 hosted rerun.
+ARGUS accepted the patch after adding a focused stored-message boundary
+assertion; MIMIR should open an ARIADNE hosted PR288 rerun after deploy.
 
 2026-06-23 Phase 3 bridge decision: MIMIR consumed the A1 bridge wakeup and
 opened PR201 for ARGUS hostile boundary preflight. Phase 3 is not ready for

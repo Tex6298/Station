@@ -113,8 +113,9 @@ absent.
 DAEDALUS completed PR287 by duplicating compact selected-context focus into the
 provider-facing final user message, keeping the original owner message under an
 `Owner message:` section and counting the actual provider payload length in
-runtime budget/quota estimates. ARGUS review should decide whether MIMIR opens
-an ARIADNE PR288 hosted rerun.
+runtime budget/quota estimates. ARGUS accepted the patch after adding a focused
+stored-message boundary assertion; the next proof should be an ARIADNE hosted
+PR288 rerun after deploy.
 
 ## Phase 2D Developer Agent closeout
 

@@ -4,14 +4,14 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest DAEDALUS implementation - PR287 Reliable Selected-Context Answer Use
+## Latest ARGUS review - PR287 Reliable Selected-Context Answer Use
 
-DAEDALUS completed PR287 on 2026-06-24:
+ARGUS accepted PR287 on 2026-06-24 with a narrow test patch:
 `docs/roadmap/PR287_RELIABLE_SELECTED_CONTEXT_ANSWER_USE_RESULT.md`.
 
 Result:
 
-- Verdict: ready for ARGUS review.
+- Verdict: `PASS WITH CAVEATS`.
 - Strongest root-cause hypothesis: selected-context answer focus was present in
   the system prompt before prior chat history, but not adjacent to the final
   provider-facing owner message where the model answered.
@@ -22,14 +22,18 @@ Result:
   final user message length. No retry behavior was added.
 - Focused route coverage proves provider payload placement, history ordering,
   conservative budget counting, and sanitized trace/session storage.
+- ARGUS added a focused assertion proving the selected-context augmentation is
+  provider-only and is not persisted into `conversation_messages`.
+- Validation passed: `test:retrieval-metadata`, `test:persona-context`,
+  `test:conversation-archive`, `test:replay-readiness`, `typecheck`, and
+  `lint` with existing raw `<img>` warnings only.
+- `git diff --check` and `git diff --cached --check` passed.
+- ARGUS added-line hygiene scan found no credential-like values, emails,
+  credentialed URLs, UUID-shaped ids, raw prompts, or private source bodies.
 
 Current baton:
 
-- ARGUS should review provider payload ordering, prompt-boundary wording,
-  token/accounting conservatism, no-hardcoding, no scope creep, and no
-  secret/raw-data leakage.
-- If accepted, ARGUS should recommend that MIMIR open an ARIADNE PR288 hosted
-  rerun.
+- MIMIR should open an ARIADNE hosted PR288 rerun after deploy.
 
 ## Latest ARIADNE review - PR286 Hosted Runtime Answer Rerun
 
