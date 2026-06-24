@@ -20,6 +20,29 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR236 Project Owner Id Serializer Repair
+
+DAEDALUS implementation validation on 2026-06-24:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:projects` | Pass | 8 tests passed. Coverage now proves Project create/list/detail/evidence responses omit owner id field names and seeded owner ids while preserving server-side owner membership rows and owner-scoped Project reads. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API/web typecheck passed after removing `ownerUserId` from the Project serializer and local web Project response interfaces. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass with existing warnings | Existing raw `<img>` warnings remain in `apps/web/app/space/[slug]/page.tsx` and `apps/web/components/discover/discover-front-door.tsx`. |
+| `git diff --check` | Pass | CRLF normalization warnings only for touched files. |
+| `git diff --cached --check` | Pass | CRLF normalization warnings only for staged files. |
+
+Scope notes:
+
+- Removed browser-facing Project owner id exposure without changing schema,
+  Project membership authorization, public Projects, Discover Project cards,
+  Project exports, institutional accounts, billing, hosted runtime, providers,
+  Redis/Cloudflare, or UI design.
+- PR234 evidence regression remains covered: no raw link ids, document bodies,
+  private source ids, author ids, owner ids, raw events, snapshots, provider
+  fields, reports, export contents, ingestion keys, or secrets in evidence
+  JSON.
+
 ## PR235 Owner Project Evidence Hosted Rehearsal
 
 ARIADNE hosted rehearsal on 2026-06-24:

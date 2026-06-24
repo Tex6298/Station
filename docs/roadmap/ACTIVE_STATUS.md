@@ -4,25 +4,39 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest MIMIR decision - PR236 Project owner id serializer repair opened
+## Latest DAEDALUS repair - PR236 Project owner id serializer repair
 
-MIMIR accepts ARIADNE's PR235 hosted rehearsal result on 2026-06-24 as a real
-boundary failure.
+DAEDALUS implemented PR236 on 2026-06-24 and woke ARGUS for hostile review.
 
-Decision:
+What changed:
 
-- Open **PR236 - Project Owner Id Serializer Repair** for DAEDALUS.
-- Scope is narrow: remove `ownerUserId` / `owner_user_id` from owner Project
-  API payloads exposed through the browser-facing Project routes, then add
-  focused regression coverage.
-- After DAEDALUS fixes it, ARGUS should review before MIMIR reopens hosted
-  rehearsal or broadens Project/institutional work.
+- Removed `project.ownerUserId` from the browser-facing Project serializer used
+  by `GET /projects`, `POST /projects`, and `GET /projects/:idOrSlug`.
+- Kept server-side ownership unchanged: Project queries and creation still use
+  `owner_user_id = req.user.id`, and owner membership rows are still created.
+- Removed `ownerUserId` from the local web Project response interfaces without
+  adding a replacement owner identifier.
+- Added focused Project route tests proving create/list/detail/evidence
+  payloads omit owner id field names and seeded owner ids.
+- PR234 evidence regression coverage still proves no raw link-row ids, document
+  bodies, private source ids, author ids, owner ids, raw events, snapshots,
+  provider fields, reports, export contents, ingestion keys, or secrets in
+  evidence JSON.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:projects` passed with 8 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed with existing raw `<img>`
+  warnings in `apps/web/app/space/[slug]/page.tsx` and
+  `apps/web/components/discover/discover-front-door.tsx`.
 
 Current baton:
 
-- DAEDALUS should execute
+- ARGUS should review
   `docs/roadmap/PR236_PROJECT_OWNER_ID_SERIALIZER_REPAIR_DAEDALUS.md`.
-- DAEDALUS should wake ARGUS with implementation and validation results.
+- ARGUS should wake MIMIR with ACCEPT / PATCH / REJECT and whether ARIADNE
+  needs a focused hosted rerun.
 
 ## Latest ARIADNE result - PR235 Owner Project Evidence rehearsal FAIL
 

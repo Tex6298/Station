@@ -269,6 +269,12 @@ function listen(app: Express) {
   });
 }
 
+function assertNoProjectOwnerIds(value: unknown) {
+  const json = JSON.stringify(value);
+  assert.doesNotMatch(json, /"ownerUserId"|"owner_user_id"|"authorUserId"|"author_user_id"/);
+  assert.doesNotMatch(json, /owner-user|other-user/);
+}
+
 test("projects routes require auth and validate create payloads", async () => {
   const db = new InMemorySupabase();
   setSupabaseAdminForTests(db.client as any);
@@ -308,7 +314,7 @@ test("project create writes owner project and deterministic owner member row", a
   });
 
   assert.equal(created.status, 201);
-  assert.equal(created.body.project.ownerUserId, "owner-user");
+  assertNoProjectOwnerIds(created.body);
   assert.equal(created.body.project.name, "Animus Field Lab");
   assert.equal(created.body.project.slug, "animus-field-lab");
   assert.equal(created.body.project.visibility, "unlisted");
@@ -348,14 +354,17 @@ test("project list and read are scoped to the authenticated owner", async () => 
 
   const list = await requestJson<{ projects: Row[] }>(app, "GET", "/projects", { token: "owner-token" });
   assert.equal(list.status, 200);
+  assertNoProjectOwnerIds(list.body);
   assert.deepEqual(list.body.projects.map((project) => project.slug), ["owner-project"]);
 
   const bySlug = await requestJson<{ project: Row }>(app, "GET", "/projects/owner-project", { token: "owner-token" });
   assert.equal(bySlug.status, 200);
+  assertNoProjectOwnerIds(bySlug.body);
   assert.equal(bySlug.body.project.id, ownerProject.id);
 
   const byId = await requestJson<{ project: Row }>(app, "GET", `/projects/${ownerProject.id}`, { token: "owner-token" });
   assert.equal(byId.status, 200);
+  assertNoProjectOwnerIds(byId.body);
   assert.equal(byId.body.project.slug, "owner-project");
 
   const blocked = await requestJson(app, "GET", "/projects/other-project", { token: "owner-token" });
@@ -410,6 +419,7 @@ test("project read includes only owner attached Developer Space summaries", asyn
       token: "owner-token",
     });
     assert.equal(bySlug.status, 200);
+    assertNoProjectOwnerIds(bySlug.body);
     assert.equal(bySlug.body.project.id, ownerProject.id);
     assert.deepEqual(bySlug.body.developerSpaces.map((space) => space.slug), ["attached-space"]);
     assert.deepEqual(Object.keys(bySlug.body.developerSpaces[0]).sort(), [
@@ -434,6 +444,7 @@ test("project read includes only owner attached Developer Space summaries", asyn
       { token: "owner-token" }
     );
     assert.equal(byId.status, 200);
+    assertNoProjectOwnerIds(byId.body);
     assert.deepEqual(byId.body.developerSpaces.map((space) => space.slug), ["attached-space"]);
 
     const blocked = await requestJson(app, "GET", "/projects/owner-project", { token: "other-token" });
@@ -596,6 +607,7 @@ test("project read includes bounded owner-only evidence metadata from attached D
       token: "owner-token",
     });
     assert.equal(response.status, 200);
+    assertNoProjectOwnerIds(response.body);
     assert.equal(response.body.evidence.length, PROJECT_EVIDENCE_LIMIT);
     assert.deepEqual(
       response.body.evidence.slice(0, 2).map((item) => item.document.slug),
@@ -659,6 +671,7 @@ test("project read returns zero-state and owner-scoped activity aggregation", as
       token: "owner-token",
     });
     assert.equal(zero.status, 200);
+    assertNoProjectOwnerIds(zero.body);
     assert.deepEqual(zero.body.activity, {
       developerSpaces: 0,
       nodes: 0,

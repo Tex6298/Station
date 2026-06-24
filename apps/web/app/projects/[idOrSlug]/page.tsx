@@ -19,7 +19,6 @@ type ProjectConnectionTier = "tier_1_showcase" | "tier_2_hosted" | "tier_3_lab";
 
 interface ProjectSummary {
   id: string;
-  ownerUserId: string;
   name: string;
   slug: string;
   description: string | null;

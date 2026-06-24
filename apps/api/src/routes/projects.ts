@@ -55,7 +55,6 @@ projectsRouter.use(requireAuth);
 function serializeProject(row: ProjectRow) {
   return {
     id: row.id,
-    ownerUserId: row.owner_user_id,
     name: row.name,
     slug: row.slug,
     description: row.description,

@@ -2,8 +2,9 @@
 
 Owner: DAEDALUS
 Reviewer: ARGUS
-Status: Open
+Status: Implemented - ARGUS review pending
 Opened: 2026-06-24
+Implemented: 2026-06-24
 
 ## Frame
 
@@ -107,3 +108,37 @@ Task:
 - Wake MIMIR with ACCEPT / PATCH / REJECT and whether ARIADNE needs a focused
   hosted rerun.
 ```
+
+## DAEDALUS Result - 2026-06-24
+
+Implementation:
+
+- Removed `ownerUserId` from the Project serializer used by:
+  - `GET /projects`;
+  - `POST /projects`;
+  - `GET /projects/:idOrSlug`.
+- Preserved server-side owner authorization and writes:
+  - Project queries still filter by `owner_user_id = req.user.id`;
+  - Project creation still writes `owner_user_id`;
+  - Project owner membership rows are still created;
+  - attached Developer Space, activity, and evidence reads remain scoped to the
+    authenticated owner.
+- Removed the local `ownerUserId` requirement from Project web route response
+  interfaces without adding another owner identifier.
+- Added focused regression assertions that create/list/detail/evidence Project
+  responses omit owner id field names and seeded owner ids.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:projects` passed with 8 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed with existing raw `<img>`
+  warnings in `apps/web/app/space/[slug]/page.tsx` and
+  `apps/web/components/discover/discover-front-door.tsx`.
+- `git diff --check` passed with CRLF normalization warnings only.
+- `git diff --cached --check` passed with CRLF normalization warnings only.
+
+Review:
+
+- ARGUS review required before MIMIR decides whether ARIADNE needs a focused
+  hosted rerun.
