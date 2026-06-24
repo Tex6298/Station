@@ -10,7 +10,6 @@ import {
 } from "./project-evidence";
 
 const sample: ProjectEvidenceItem = {
-  id: "link-1",
   developerSpace: {
     id: "space-1",
     projectName: "Attached Lab",

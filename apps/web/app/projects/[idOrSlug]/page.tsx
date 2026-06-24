@@ -325,8 +325,14 @@ export default function ProjectDetailPage() {
             </div>
           ) : evidence.map((item) => {
             const routeLabel = projectEvidenceRouteLabel(item);
+            const evidenceKey = [
+              item.developerSpace.id,
+              item.document.id,
+              item.role,
+              item.linkedAt,
+            ].join(":");
             return (
-              <article key={item.id} className="station-card" style={{ display: "grid", gap: "0.75rem" }}>
+              <article key={evidenceKey} className="station-card" style={{ display: "grid", gap: "0.75rem" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", gap: "0.75rem", alignItems: "flex-start" }}>
                   <div style={{ minWidth: 0 }}>
                     <div className="kicker" style={{ marginBottom: "0.35rem" }}>{item.developerSpace.projectName}</div>

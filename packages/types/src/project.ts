@@ -5,7 +5,6 @@ import type {
 import type { DocumentRecord } from "./document";
 
 export interface ProjectEvidenceItem {
-  id: string;
   developerSpace: {
     id: string;
     projectName: string;

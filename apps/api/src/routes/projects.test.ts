@@ -621,6 +621,11 @@ test("project read includes bounded owner-only evidence metadata from attached D
     assert.equal(response.body.evidence[1].routeLabel, "Review draft");
 
     const evidenceJson = JSON.stringify(response.body.evidence);
+    assert.equal(
+      response.body.evidence.every((item) => !Object.prototype.hasOwnProperty.call(item, "id")),
+      true
+    );
+    assert.doesNotMatch(evidenceJson, /40000000-0000-4000-8000-00000000002[01]/);
     assert.doesNotMatch(evidenceJson, /Sensitive body text|Private draft body/);
     assert.doesNotMatch(evidenceJson, /private-source-id|private-draft-source/);
     assert.doesNotMatch(evidenceJson, /owner_user_id|ownerUserId|author_user_id|authorUserId/);

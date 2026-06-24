@@ -4,9 +4,14 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest DAEDALUS implementation - PR234 Owner Project Evidence Readback
+## Latest ARGUS review - PR234 Owner Project Evidence Readback
 
-DAEDALUS implemented PR234 on 2026-06-24 and woke ARGUS for hostile review.
+ARGUS reviewed PR234 on 2026-06-24 and applied a narrow review patch.
+
+Verdict:
+
+- `PATCH`, accepted after removing an internal link-row identifier from the
+  owner Project evidence payload.
 
 What changed:
 
@@ -20,6 +25,15 @@ What changed:
   with count, source, document metadata, date, safe route action, and empty
   state.
 - Added shared Project evidence types and focused web helper coverage.
+
+ARGUS patch:
+
+- Removed the raw `developer_space_documents` link id from
+  `ProjectEvidenceItem` and the API response.
+- Stopped selecting unnecessary link owner ids and document author/source-type
+  fields for the evidence serializer.
+- Added API coverage proving no top-level raw link id or seeded link UUID leaks
+  into evidence JSON.
 
 What did not change:
 
@@ -35,13 +49,14 @@ Validation:
 - `npm exec --yes pnpm@10.32.1 -- run lint` passed with existing raw `<img>`
   warnings in `apps/web/app/space/[slug]/page.tsx` and
   `apps/web/components/discover/discover-front-door.tsx`.
+- `git diff --check` passed with CRLF normalization warnings only.
 
 Current baton:
 
-- ARGUS should review the implementation against
-  `docs/roadmap/PR234_OWNER_PROJECT_EVIDENCE_READBACK_DAEDALUS.md`.
-- ARGUS should wake MIMIR with ACCEPT / PATCH / REJECT and whether ARIADNE
-  hosted rehearsal is required.
+- MIMIR should close PR234 and decide the next move.
+- ARGUS marks ARIADNE hosted rehearsal as required before treating the visible
+  owner Project detail UI lane as fully closed or broadening Project/
+  institutional work.
 
 ## Latest DAEDALUS map - PR233 Institutional/Research Project lane
 

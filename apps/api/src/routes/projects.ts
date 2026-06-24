@@ -24,10 +24,19 @@ type DeveloperSpaceRow = Database["public"]["Tables"]["developer_spaces"]["Row"]
 type DeveloperSpaceUsageRow = Database["public"]["Tables"]["developer_space_usage"]["Row"];
 type DeveloperSpaceDocumentRow = Database["public"]["Tables"]["developer_space_documents"]["Row"];
 type DocumentRow = Database["public"]["Tables"]["documents"]["Row"];
+type ProjectEvidenceLinkRow = Pick<
+  DeveloperSpaceDocumentRow,
+  | "developer_space_id"
+  | "document_id"
+  | "document_role"
+  | "link_visibility"
+  | "sort_order"
+  | "created_at"
+  | "updated_at"
+>;
 type ProjectEvidenceDocumentRow = Pick<
   DocumentRow,
   | "id"
-  | "author_user_id"
   | "title"
   | "slug"
   | "document_type"
@@ -37,7 +46,6 @@ type ProjectEvidenceDocumentRow = Pick<
   | "created_at"
   | "updated_at"
   | "provenance_type"
-  | "source_type"
   | "source_label"
 >;
 
@@ -100,13 +108,6 @@ function serializeProjectActivity(
   });
 }
 
-function evidenceTimestamp(link: DeveloperSpaceDocumentRow, document: Pick<
-  DocumentRow,
-  "published_at" | "updated_at" | "created_at"
->) {
-  return document.published_at ?? document.updated_at ?? link.updated_at ?? link.created_at;
-}
-
 function projectEvidenceSortTimestamp(item: ProjectEvidenceItem) {
   return item.document.publishedAt ?? item.document.updatedAt ?? item.updatedAt ?? item.linkedAt;
 }
@@ -119,7 +120,7 @@ function isOwnerDraftRouteable(document: Pick<DocumentRow, "id" | "status" | "vi
   return Boolean(document.id) && document.status === "draft" && document.visibility === "private";
 }
 
-function evidenceRoute(link: DeveloperSpaceDocumentRow, document: ProjectEvidenceDocumentRow, space: Pick<DeveloperSpaceRow, "slug">) {
+function evidenceRoute(link: ProjectEvidenceLinkRow, document: ProjectEvidenceDocumentRow, space: Pick<DeveloperSpaceRow, "slug">) {
   if (link.link_visibility === "public" && isPublicRouteableDocument(document)) {
     return {
       routeHref: `/developer-spaces/${encodeURIComponent(space.slug)}`,
@@ -141,13 +142,12 @@ function evidenceRoute(link: DeveloperSpaceDocumentRow, document: ProjectEvidenc
 }
 
 function serializeProjectEvidence(
-  link: DeveloperSpaceDocumentRow,
+  link: ProjectEvidenceLinkRow,
   document: ProjectEvidenceDocumentRow,
   space: Pick<DeveloperSpaceRow, "id" | "project_name" | "slug">
 ): ProjectEvidenceItem {
   const route = evidenceRoute(link, document, space);
   return {
-    id: link.id,
     developerSpace: {
       id: space.id,
       projectName: space.project_name,
@@ -186,7 +186,7 @@ async function loadProjectEvidence(
   const sb = getSupabaseAdmin();
   const { data: links, error: linkError } = await sb
     .from("developer_space_documents")
-    .select("id, developer_space_id, document_id, owner_user_id, document_role, link_visibility, sort_order, created_at, updated_at")
+    .select("developer_space_id, document_id, document_role, link_visibility, sort_order, created_at, updated_at")
     .eq("owner_user_id", ownerUserId)
     .in("developer_space_id", spaceIds)
     .order("updated_at", { ascending: false });
@@ -199,7 +199,7 @@ async function loadProjectEvidence(
 
   const { data: documents, error: documentError } = await sb
     .from("documents")
-    .select("id, author_user_id, title, slug, document_type, status, visibility, published_at, created_at, updated_at, provenance_type, source_type, source_label")
+    .select("id, title, slug, document_type, status, visibility, published_at, created_at, updated_at, provenance_type, source_label")
     .eq("author_user_id", ownerUserId)
     .in("id", documentIds);
 

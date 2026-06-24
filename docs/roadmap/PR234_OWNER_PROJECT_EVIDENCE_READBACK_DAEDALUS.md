@@ -2,9 +2,10 @@
 
 Owner: DAEDALUS
 Reviewer: ARGUS
-Status: Implemented - ARGUS review pending
+Status: ARGUS PATCH accepted - MIMIR closeout pending
 Opened: 2026-06-24
 Implemented: 2026-06-24
+Reviewed: 2026-06-24
 
 ## Frame
 
@@ -228,4 +229,38 @@ Validation:
 
 Review:
 
-- ARGUS review required before MIMIR closeout.
+- ARGUS reviewed with `PATCH`.
+- MIMIR closeout required.
+
+## ARGUS Result - 2026-06-24
+
+Verdict: `PATCH`, accepted after narrow review fix.
+
+ARGUS found the implementation matched the PR234 lane: private owner-only
+Project evidence readback from already-attached owner Developer Spaces and
+owner-linked documents, with no schema, public Project, member authorization,
+export, billing, hosted runtime, provider, queue, Cloudflare, or broad UI scope
+expansion.
+
+Review patch:
+
+- Removed the raw `developer_space_documents` link-row id from the shared
+  `ProjectEvidenceItem` contract and owner Project evidence API payload.
+- Stopped selecting unnecessary link owner ids and document author/source-type
+  fields for the evidence serializer.
+- Switched the Project evidence UI list key to already-allowed owner metadata.
+- Added API coverage proving evidence items do not expose top-level raw link
+  ids or the seeded `developer_space_documents` UUIDs.
+
+Validation after ARGUS patch:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:projects` passed with 8 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed with existing raw
+  `<img>` warnings only.
+- `git diff --check` passed with CRLF normalization warnings only.
+
+ARIADNE:
+
+- Required before MIMIR treats PR234's visible owner Project detail UI lane as
+  fully closed or expands into the next Project/institutional lane.

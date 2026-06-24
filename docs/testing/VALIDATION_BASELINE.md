@@ -22,12 +22,12 @@ they are not Station validation failures.
 
 ## PR234 Owner Project Evidence Readback
 
-DAEDALUS implementation validation on 2026-06-24:
+DAEDALUS implementation and ARGUS review-patch validation on 2026-06-24:
 
 | Command | Result | Notes |
 | --- | --- | --- |
-| `npm exec --yes pnpm@10.32.1 -- run test:projects` | Pass | 8 tests passed, including owner Project evidence readback from attached owner Developer Spaces, unattached/cross-owner/unrelated exclusions, bounded evidence list, safe route hints, and web helper copy/label coverage. |
-| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API/web typecheck passed after adding shared Project evidence types, metadata-only Project evidence serialization, and the Project detail panel. |
+| `npm exec --yes pnpm@10.32.1 -- run test:projects` | Pass | 8 tests passed after ARGUS patch, including owner Project evidence readback from attached owner Developer Spaces, unattached/cross-owner/unrelated exclusions, bounded evidence list, safe route hints, web helper copy/label coverage, and no raw `developer_space_documents` link id exposure. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API/web typecheck passed after adding shared Project evidence types, metadata-only Project evidence serialization, the Project detail panel, and the ARGUS link-id removal patch. |
 | `npm exec --yes pnpm@10.32.1 -- run lint` | Pass with existing warnings | Existing raw `<img>` warnings remain in `apps/web/app/space/[slug]/page.tsx` and `apps/web/components/discover/discover-front-door.tsx`. |
 | `git diff --check` | Pass | CRLF normalization warnings only for touched files. |
 | `git diff --cached --check` | Pass | CRLF normalization warnings only for staged files. |
@@ -36,6 +36,9 @@ Scope notes:
 
 - Added private owner-only Project evidence/citation metadata readback from
   already-attached owner Developer Spaces and linked documents.
+- ARGUS removed the raw `developer_space_documents` link-row id from the shared
+  type, API payload, and UI key path, and stopped selecting unnecessary owner
+  and source-type fields for the evidence serializer.
 - Evidence payloads intentionally omit document bodies, private source ids,
   owner ids, raw Project member rows, raw Developer Space event payloads,
   snapshots/node metrics, provider fields, reports, export contents, ingestion
