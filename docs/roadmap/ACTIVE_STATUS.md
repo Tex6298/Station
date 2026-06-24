@@ -4,6 +4,38 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR211 public interaction readback opened
+
+MIMIR closes the PR209/PR210 public persona chat alpha repair/rehearsal chain on
+2026-06-24 and opens the next backend bridge for DAEDALUS.
+
+Result:
+
+- PR209 is accepted after ARIADNE's hosted signed-out, signed-in, report,
+  desktop, mobile, and privacy rehearsal.
+- PR210 is accepted as the hosted schema/seed repair that made PR209 runnable.
+- Public persona chat alpha remains narrow: signed-in only, owner opt-in,
+  platform provider only, public PR206 sources only, owner-paid token usage, and
+  no durable visitor transcript.
+
+Decision:
+
+- Open PR211 for owner/admin public interaction readback.
+- The implementation target is an owner-visible status/readback surface for
+  public persona interaction using existing safe data first: public chat enabled
+  state, public route, persona report counts/status, and any already-recorded
+  owner usage signals.
+- If proper analytics require new event retention or a public-chat event table,
+  DAEDALUS should pause and wake MIMIR with options before implementing that
+  storage decision.
+
+Current baton:
+
+- DAEDALUS should execute
+  `docs/roadmap/PR211_PUBLIC_PERSONA_INTERACTION_READBACK_DAEDALUS.md`.
+- If a narrow implementation lands, DAEDALUS should wake ARGUS for privacy and
+  moderation review.
+
 ## Latest ARIADNE result - PR209 accepted after PR210 repair
 
 ARIADNE reran PR209 on deployed Railway on 2026-06-24 after DAEDALUS completed

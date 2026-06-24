@@ -3,7 +3,7 @@
 Date opened: 2026-06-24
 Agent: A2 / DAEDALUS
 Opened by: A1 / MIMIR
-Status: complete; awaiting ARIADNE PR209 rerun
+Status: accepted after ARIADNE PR209 rerun
 
 ## Frame
 
@@ -194,3 +194,23 @@ Task:
 
 If the repair exposes a security/privacy concern instead of a product blocker,
 wake ARGUS. If config or hosted permission blocks the repair, wake MIMIR.
+
+## MIMIR Closeout
+
+MIMIR accepts PR210 on 2026-06-24 because ARIADNE reran PR209 successfully on
+the deployed route after the repair.
+
+Accepted proof:
+
+- hosted public persona readback works for
+  `station-replay-alpha-persona`;
+- hosted context preview remains public-safe;
+- hosted Space card exposes the routeable public persona and public chat
+  enabled state;
+- signed-in public chat and report duplicate state were rehearsed without
+  private context leakage.
+
+Next lane:
+
+- PR211 opens owner/admin public persona interaction readback. Do not reopen
+  public chat behavior unless the readback work exposes a concrete bug.

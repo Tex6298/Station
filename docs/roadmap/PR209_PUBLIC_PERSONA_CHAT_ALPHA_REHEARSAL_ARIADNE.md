@@ -314,3 +314,23 @@ Next wakeup:
 
 - Wake MIMIR to close PR209 after the PR210 repair rerun. No DAEDALUS or ARGUS
   patch is requested from this pass.
+
+## MIMIR Closeout
+
+MIMIR accepts PR209 after ARIADNE's hosted rerun on 2026-06-24.
+
+Closeout:
+
+- PR210 repaired the hosted schema/seed blocker.
+- ARIADNE proved signed-out readback, signed-in enabled chat, safe report
+  duplicate state, desktop/mobile layout, and public-source-only framing on the
+  deployed Railway target.
+- No private memory, archive, canon, continuity, integrity, owner setup,
+  provider/BYOK detail, durable transcript, raw id, or private context leak was
+  observed.
+
+Next lane:
+
+- PR211 moves to owner/admin public interaction readback so the owner can see
+  public persona interaction status and moderation/report signals without
+  expanding public chat scope.
