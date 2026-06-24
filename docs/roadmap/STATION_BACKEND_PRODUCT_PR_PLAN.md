@@ -473,8 +473,8 @@ defect: vector Memory still runs first, but owner-scoped, lifecycle-filtered
 lexical Memory candidates are blended with full vector results before slicing
 to the requested limit. Local deterministic runtime context/prompt evidence now
 selects both accepted anchor concepts and both matching invented retrieval
-phrases. ARGUS accepted the patch; MIMIR should open an ARIADNE hosted PR278
-rerun after deploy.
+phrases. ARGUS accepted the patch; MIMIR opened an ARIADNE hosted PR278 rerun
+after deploy.
 
 2026-06-23 Phase 3 bridge decision: MIMIR consumed the A1 bridge wakeup and
 opened PR201 for ARGUS hostile boundary preflight. Phase 3 is not ready for

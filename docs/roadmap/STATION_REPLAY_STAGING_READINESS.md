@@ -70,8 +70,7 @@ then let staged replay reveal the next optimizations.
   lifecycle-filtered lexical Memory candidates before slicing to the requested
   limit. Local deterministic context/prompt evidence now includes both accepted
   anchor concepts and both matching invented retrieval phrases. ARGUS accepted
-  the patch; the next proof should be an ARIADNE hosted PR278 rerun after
-  deploy.
+  the patch; MIMIR opened the ARIADNE hosted PR278 rerun after deploy.
 - Broader known caveats still travel into staging review instead of spawning
   more local polish: static global Archive/Export shells, dashboard
   derived/static snippets, no downloadable bundles/workers, and no new private

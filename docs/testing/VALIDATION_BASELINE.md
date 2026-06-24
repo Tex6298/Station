@@ -30,6 +30,28 @@ Memory/observability next-slice audit.
 ARGUS accepted PR261 on 2026-06-24. MIMIR opened PR262 as an owner-only
 Memory/observability implementation lane.
 
+## PR278 Hosted Runtime Answer Rerun After Retrieval Repair
+
+MIMIR opened PR278 for ARIADNE on 2026-06-24 after ARGUS accepted PR277.
+
+Required validation:
+
+| Check | Expected result | Notes |
+| --- | --- | --- |
+| Hosted freshness | Pass or blocked | Web/API deployment should include PR277 implementation commit `578e3c7e` or later. |
+| Replay owner auth/session | Pass | Use local-only replay owner env values; do not print credentials, tokens, cookies, or raw ids. |
+| Intended replay persona | Pass or blocked | Use the PR276 intended replay persona; report ambiguity rather than guessing. |
+| Full two-anchor recall | Pass | The hosted chat answer should recall both accepted anchor concepts and both matching invented retrieval phrases. |
+| Rejected-control exclusion | Pass | The rejected-control anchor should remain absent. |
+| Source-copy safety | Pass | No raw source-body markers should be copied into the answer. |
+| Context/observability readback | Pass | Record sanitized categories/counts/timing buckets only. |
+| `git diff --check` | Pass | Result docs should stay whitespace-clean. |
+| `git diff --cached --check` | Pass | Staged whitespace check before wakeup. |
+
+PR278 is a hosted rerun only; no product code, provider, embedding, schema,
+Redis, Cloudflare, queue, worker, import, seed, billing, Stripe, public UI, or
+Studio redesign changes should occur.
+
 ## PR275 Runtime Answer Quality Triage
 
 ARGUS accepted PR275 on 2026-06-24 with a narrow test-only review patch:
