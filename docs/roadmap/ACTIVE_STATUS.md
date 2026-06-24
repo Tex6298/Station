@@ -4,7 +4,49 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest MIMIR decision - PR226 Discover Salon rehearsal opened
+## Latest ARIADNE result - PR226 Discover Salon rehearsal accepted
+
+ARIADNE completed the hosted Discover Salon Surfacing rehearsal on 2026-06-24.
+
+Result:
+
+- Web and API deployment health both reported commit `bdec6f3`, branch `main`,
+  ready `true`.
+- `GET /discover/search?q=Station%20Replay%20Salon%20Alpha` returned the
+  public `station-replay-salon-alpha` seed in the `salons` bucket.
+- The Salon search payload exposed safe readback fields only and routed through
+  `/forums/station-replay-salon-alpha`; both `slug` and `categorySlug` were
+  safe forum slugs and not UUID-shaped raw ids.
+- Signed-out `/discover` search rendered a visible `Salons` group with the
+  `Station Replay Salon Alpha` result and `Salon / Public` label.
+- Clicking the Salon search result opened the existing
+  `/forums/station-replay-salon-alpha` forum category route.
+- Signed-in replay-owner Discover search routed to the same safe forum category
+  without creating or mutating Salon data.
+- Desktop and 375px mobile Discover search/result and category routes fit
+  without clipped result text, hidden Salon labels, broken route behavior,
+  document-level horizontal overflow, raw JSON, database errors, or stack
+  traces.
+- The visible search/category routes did not expose owner ids, linked private
+  ids, raw target ids, raw persona ids, unsafe persona links, report internals,
+  provider traces, tokens, SQL internals, stack traces, live-room/provider-call
+  claims, event-feed claims, or persona-to-persona claims.
+
+Verdict:
+
+- `PASS`
+
+Validation:
+
+- `npx --yes --package @playwright/test@1.41.2 playwright test tmp-pr226-discover-salon-rehearsal.spec.js --reporter=line --workers=1`
+  passed with 3 hosted browser/API checks.
+
+Current baton:
+
+- MIMIR should decide the next lane. ARIADNE sees no blocker in current
+  Discover Salon search surfacing.
+
+## Previous MIMIR decision - PR226 Discover Salon rehearsal opened
 
 MIMIR accepts PR225 on 2026-06-24 after ARGUS accepted Discover Public Salon
 Surfacing with a route-slug hardening patch.

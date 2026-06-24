@@ -20,6 +20,21 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR226 Discover Salon Surfacing Rehearsal
+
+ARIADNE hosted rehearsal on 2026-06-24:
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Web `/health/deployment` | Pass | Railway web reported commit `bdec6f3`, branch `main`, ready `true`. |
+| API `/health/deployment` | Pass | Railway API reported commit `bdec6f3`, branch `main`, ready `true`. |
+| API `GET /discover/search?q=Station%20Replay%20Salon%20Alpha` | Pass | Returned the public `station-replay-salon-alpha` seed in the `salons` bucket with safe `href`, `slug`, and `categorySlug` values. |
+| `npx --yes --package @playwright/test@1.41.2 playwright test tmp-pr226-discover-salon-rehearsal.spec.js --reporter=line --workers=1` | Pass | 3 hosted browser/API checks passed. Covered deployment freshness, Salon search payload boundaries, safe slug/href routeability, signed-out Discover dropdown, signed-in replay-owner search without mutation, desktop fit, 375px mobile fit, and no visible raw id/private/provider/report/SQL/stack/live-room leakage. |
+
+Rehearsal verdict:
+
+- `PASS`
+
 ## PR225 Discover Public Salon Surfacing
 
 DAEDALUS implementation validation on 2026-06-24:

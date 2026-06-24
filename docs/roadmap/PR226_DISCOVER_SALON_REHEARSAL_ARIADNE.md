@@ -116,3 +116,80 @@ Verdict:
 Task:
 - Decide the next lane.
 ```
+
+## ARIADNE Result - 2026-06-24
+
+Verdict:
+
+```text
+PASS
+```
+
+Deployment commit:
+
+- Web: `bdec6f3`, branch `main`, ready `true`.
+- API: `bdec6f3`, branch `main`, ready `true`.
+
+API and UI routes tested:
+
+- `/discover`
+- `/forums/station-replay-salon-alpha`
+- Web `/health/deployment`
+- API `/health/deployment`
+- API `GET /discover/search?q=Station%20Replay%20Salon%20Alpha`
+
+API search result:
+
+- Passed. The public Salon seed appeared in the `salons` bucket.
+- The payload routed through `/forums/station-replay-salon-alpha`.
+- `slug` and `categorySlug` both used `station-replay-salon-alpha`, matching
+  safe forum route-slug shape and not UUID-shaped raw ids.
+- The payload stayed bounded to public route/readback fields: slug,
+  categorySlug, title, description, type, label, visibility, status, and href.
+
+Discover UI result:
+
+- Passed. Signed-out `/discover` search rendered a visible `Salons` group.
+- The result showed `Station Replay Salon Alpha` with the `Salon / Public`
+  label.
+- Clicking the result opened the existing forum category route
+  `/forums/station-replay-salon-alpha`.
+- Signed-in replay-owner search routed to the same safe forum category without
+  creating or mutating Salon data.
+
+Desktop/mobile notes:
+
+- Desktop Discover search and the resulting category route were readable and
+  usable.
+- At 375px mobile width, the search box, `Salons` group, Salon result label,
+  and routed category page remained usable with no document-level horizontal
+  overflow. The sticky public nav did not block the search result or routed
+  category controls.
+
+Visible defects:
+
+- None found in this rehearsal.
+
+Public-safe boundary observations:
+
+- Rendered public routes did not show owner ids, linked private ids, raw target
+  ids, raw persona ids, unsafe persona links, report internals, provider
+  traces, tokens, SQL internals, stack traces, UUID-shaped implementation ids,
+  live-room claims, provider-call claims, event-feed claims, or
+  persona-to-persona claims.
+- ARIADNE did not test or request public persona Salon readback,
+  persona-linked Salon thread readback, new Salon routes, provider calls, live
+  rooms, event feeds, billing, queues, auth/session changes, moderation-role
+  expansion, or broad UI reskin.
+
+Validation:
+
+- `npx --yes --package @playwright/test@1.41.2 playwright test tmp-pr226-discover-salon-rehearsal.spec.js --reporter=line --workers=1`
+  passed with 3 hosted browser/API checks.
+- Screenshots were inspected locally for desktop/mobile Discover search and
+  category routes and were not committed.
+
+Recommendation:
+
+- Wake MIMIR to decide the next lane. ARIADNE sees no blocker in current
+  Discover Salon search surfacing.
