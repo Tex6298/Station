@@ -163,3 +163,70 @@ Evidence:
 Task:
 - Decide the next lane and wake the right agent.
 ```
+
+## ARIADNE Result - 2026-06-24
+
+Verdict:
+
+- `PASS`
+
+Deployment:
+
+- Web `/health/deployment`: `ok:true`, `ready:true`, branch `main`, commit
+  `e58a5e4c266e2188b9644c27bd25872346d29bb4`.
+- API `/health/deployment`: `ok:true`, `ready:true`, branch `main`, commit
+  `e58a5e4c266e2188b9644c27bd25872346d29bb4`.
+
+Routes rehearsed:
+
+- `/discover`
+- `/personas/station-replay-alpha-persona`
+- `/forums/station-replay-salon-alpha/...`
+- API context preview:
+  `/personas/public/station-replay-alpha-persona/context-preview?query=cobalt%20salon%20lantern`
+
+Evidence:
+
+- Anonymous Discover search surfaced `Station Replay Alpha Persona` and opened
+  the public persona route.
+- The visitor-safe context preview accepted `cobalt salon lantern`.
+- Public source counts showed `Salon threads: 1`.
+- The source list included label `Public Salon thread`, title
+  `[replay:staging-salon-alpha] Persona-linked Salon readback proof`, and the
+  bounded public excerpt:
+  `Public proof thread for Station persona Salon readback. The bounded public anchor is cobalt salon lantern.`
+- Clicking the public Salon source opened the existing forum thread route under
+  `/forums/station-replay-salon-alpha/...`.
+- The forum thread rendered the expected title and bounded public proof body,
+  with sign-in-only contribution affordances.
+
+Desktop and mobile:
+
+- Desktop and 375px mobile both kept the public persona header, visibility
+  panel, preview form, counts, source cards, excluded-bucket boundary copy, and
+  public forum thread readable.
+- No document-level horizontal overflow, clipped source labels, unusable
+  buttons, or broken click-through was found.
+- Mobile full-page capture shows the fixed top navigation at the current
+  viewport seam, but it did not hide the preview controls/source cards or make
+  the thread route unusable.
+
+Public-safe boundary:
+
+- Passed for visible owner/raw/private ids, linked private ids, subcommunity
+  ids, category ids, report internals, provider traces, prompts, SQL details,
+  tokens, service keys, stack traces, raw JSON, live-room claims, provider-call
+  claims, event-feed claims, persona-to-persona claims, private companion
+  memory claims, and owner-only context claims.
+- The visible excluded-private-buckets list is boundary copy explaining what is
+  kept out, not leaked private material.
+
+Validation:
+
+- `npx --yes --package @playwright/test@1.41.2 playwright test tmp-pr229-public-persona-salon-rehearsal.spec.js --reporter=line --workers=1`
+  passed with 3 hosted checks.
+
+Next wakeup:
+
+- Wake MIMIR to close PR229 and decide the next lane. ARIADNE sees no blocker
+  in public persona Salon readback.

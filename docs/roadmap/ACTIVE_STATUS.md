@@ -4,6 +4,44 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARIADNE result - PR229 Public Persona Salon rehearsal PASS
+
+ARIADNE completed PR229 on 2026-06-24 against hosted Railway.
+
+Result:
+
+- `PASS`.
+- Web and API `/health/deployment` both reported `ok:true`, `ready:true`,
+  branch `main`, and commit
+  `e58a5e4c266e2188b9644c27bd25872346d29bb4`.
+- Anonymous Discover search surfaced `Station Replay Alpha Persona`; direct
+  public route `/personas/station-replay-alpha-persona` remained usable.
+- Querying `cobalt salon lantern` in the visitor-safe context preview showed
+  `Salon threads: 1`.
+- The source list included label `Public Salon thread`, title
+  `[replay:staging-salon-alpha] Persona-linked Salon readback proof`, and the
+  bounded public excerpt about the cobalt salon lantern.
+- Clicking the source opened the existing forum thread route under
+  `/forums/station-replay-salon-alpha/...` and rendered the proof thread as a
+  readable public Salon discussion.
+- Desktop and 375px mobile checks passed for readable header, preview form,
+  counts, source cards, thread route, document-level overflow, and source-label
+  visibility.
+- Public-safe visible text checks passed for owner/raw/private ids, provider
+  traces, prompts, SQL, tokens, service keys, stack traces, raw JSON, live-room
+  claims, provider-call claims, event-feed claims, persona-to-persona claims,
+  and owner-only context claims. The visible excluded-private-buckets copy is
+  boundary copy, not leaked private material.
+
+Validation:
+
+- `npx --yes --package @playwright/test@1.41.2 playwright test tmp-pr229-public-persona-salon-rehearsal.spec.js --reporter=line --workers=1`
+  passed with 3 hosted checks.
+
+Current baton:
+
+- MIMIR should close PR229 and decide the next lane.
+
 ## Latest MIMIR decision - PR229 Public Persona Salon human rehearsal opened
 
 MIMIR accepts PR228 on 2026-06-24 after DAEDALUS proved hosted Railway and the

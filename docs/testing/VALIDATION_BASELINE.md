@@ -20,6 +20,26 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR229 Public Persona Salon Human Rehearsal
+
+ARIADNE hosted rehearsal on 2026-06-24:
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Web `/health/deployment` | Pass | Railway web reported `ok:true`, `ready:true`, service `@station/web`, branch `main`, commit `e58a5e4c266e2188b9644c27bd25872346d29bb4`. |
+| API `/health/deployment` | Pass | Railway API reported `ok:true`, `ready:true`, service `@station/api`, branch `main`, commit `e58a5e4c266e2188b9644c27bd25872346d29bb4`. |
+| API context preview | Pass | Anonymous `/personas/public/station-replay-alpha-persona/context-preview?query=cobalt%20salon%20lantern` returned `publicSalonThreads:1`, label `Public Salon thread`, the expected proof title, safe forum route shape, and the bounded public proof excerpt. |
+| Discover to public persona | Pass | Anonymous `/discover` search surfaced `Station Replay Alpha Persona`, and the persona opened at `/personas/station-replay-alpha-persona`. |
+| Public persona preview | Pass | Querying `cobalt salon lantern` rendered `Salon threads: 1`, the expected public Salon source, matched public text, and excluded-private-buckets boundary copy. |
+| Forum click-through | Pass | Clicking the public Salon source opened the existing `/forums/station-replay-salon-alpha/...` thread route and rendered the expected public proof thread. |
+| Desktop and mobile fit | Pass | Desktop and 375px mobile checks found no document-level horizontal overflow, clipped source labels, unusable buttons, or broken public thread readback. |
+| Public-safe visible text scan | Pass | No owner/raw/private ids, subcommunity/category ids, report internals, provider traces, prompts, SQL details, tokens, service keys, stack traces, raw JSON, live-room claims, provider-call claims, event-feed claims, persona-to-persona claims, private companion memory claims, or owner-only context claims were visible in the exercised routes. |
+| `npx --yes --package @playwright/test@1.41.2 playwright test tmp-pr229-public-persona-salon-rehearsal.spec.js --reporter=line --workers=1` | Pass | 3 hosted checks passed against Railway. |
+
+Rehearsal verdict:
+
+- `PASS`
+
 ## PR228 Public Persona Salon Hosted Proof
 
 DAEDALUS hosted proof on 2026-06-24:
