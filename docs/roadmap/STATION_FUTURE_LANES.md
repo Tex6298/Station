@@ -250,11 +250,14 @@ Current intent:
   opens the deferred public persona Salon readback lane, limited to
   anonymous/public already-routeable Salon thread links and counts in the
   public persona context preview/readback path.
+- PR227 implementation result: DAEDALUS added bounded public persona context
+  preview/readback for public Salon threads linked to the same eligible public
+  persona. ARGUS hostile review is pending before closeout.
 
 ## Phase 3 bridge sequence
 
 Status, 2026-06-24: PR202 through PR226 are accepted. PR227 Public Persona
-Salon Readback is open for DAEDALUS.
+Salon Readback is implemented by DAEDALUS and awaiting ARGUS review.
 
 Current MIMIR position:
 
@@ -308,7 +311,7 @@ Bridge order:
 25. Done: Public Salon Directory Readback Rehearsal.
 26. Done: Discover Public Salon Surfacing.
 27. Done: Discover Salon Surfacing Rehearsal.
-28. Active: Public Persona Salon Readback.
+28. Review pending: Public Persona Salon Readback.
 
 ARGUS P3-B1A gates:
 

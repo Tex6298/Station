@@ -28,6 +28,7 @@ test("public persona readback copy names private boundaries without route ids", 
 test("public persona context preview copy is a preview boundary, not a chat promise", () => {
   const copy = publicPersonaContextPreviewCopy();
   assert.match(copy, /public source categories/);
+  assert.match(copy, /public Salon threads/);
   assert.match(copy, /does not start chat/);
   assert.match(copy, /private runtime context/);
   assert.doesNotMatch(copy, /ask this persona|send message|live chat|model response/i);

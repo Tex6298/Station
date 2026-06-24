@@ -298,6 +298,10 @@ export default function PublicPersonaPage() {
                 <span>Public discussions</span>
                 <strong>{preview.preview.counts.publicDiscussions}</strong>
               </div>
+              <div>
+                <span>Salon threads</span>
+                <strong>{preview.preview.counts.publicSalonThreads}</strong>
+              </div>
             </div>
 
             <div className="public-persona-preview-sources">

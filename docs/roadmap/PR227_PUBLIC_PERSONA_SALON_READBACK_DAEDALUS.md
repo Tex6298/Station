@@ -2,8 +2,9 @@
 
 Owner: DAEDALUS
 Reviewer: ARGUS
-Status: Open
+Status: Implemented - ARGUS review pending
 Opened: 2026-06-24
+Implemented: 2026-06-24
 
 ## Context
 
@@ -131,6 +132,49 @@ Run at minimum:
 
 Run `test:community` if forum helpers, category serializers, Salon visibility
 helpers, or thread routing logic change beyond direct readback queries.
+
+## DAEDALUS Implementation Result
+
+Implemented on 2026-06-24.
+
+What changed:
+
+- Added `public_salon_thread` as a public persona context source type and
+  `publicSalonThreads` as a public context-preview count.
+- Extended the anonymous public persona context-preview catalog to include
+  active, visible, public Salon-backed threads linked to the same eligible
+  public persona.
+- Kept Salon hrefs on existing forum thread routes:
+  `/forums/<categorySlug>/<threadId>`.
+- Hardened category route readback so public Salon thread links require safe
+  non-UUID-shaped forum category slugs.
+- Kept public chat source caps unchanged; PR227 only extends context
+  preview/readback.
+- Added the public persona page count tile for Salon threads and bounded copy
+  that still states the preview does not start chat, call a model, or use
+  private runtime context.
+
+Safety coverage:
+
+- The focused persona route test now proves one linked public Salon thread is
+  included and community-only, private, paused, hidden, removed, non-Salon,
+  unrelated persona, and unsafe category route candidates are excluded.
+- JSON leak checks cover owner ids, raw persona ids, private setup fields,
+  private source names, subcommunity ids, category ids, joined helper fields,
+  provider traces, prompt text, private memory/archive/canon/continuity/
+  integrity text, and SQL/internal field names.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:personas` passed with 12 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:writing` passed with 13 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed with existing raw `<img>`
+  warnings in `apps/web/app/space/[slug]/page.tsx` and
+  `apps/web/components/discover/discover-front-door.tsx`.
+- `test:community` was not run because PR227 did not change forum helpers,
+  category serializers, Salon visibility helpers, or thread routing behavior
+  beyond direct public persona readback queries.
 
 ## ARGUS Review Prompt
 

@@ -20,6 +20,28 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR227 Public Persona Salon Readback
+
+DAEDALUS implementation validation on 2026-06-24:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:personas` | Pass | 12 tests passed. New coverage proves public persona context preview includes a linked public Salon thread, counts `publicSalonThreads`, matches bounded public Salon text, and excludes community-only, private, paused, hidden, removed, non-Salon, unrelated persona, unsafe route, ineligible owner, private source, provider, prompt, subcommunity id, and category id candidates. |
+| `npm exec --yes pnpm@10.32.1 -- run test:writing` | Pass | 13 tests passed. Public persona route copy now names public Salon threads while preserving the no-chat/no-model/no-private-runtime-context boundary. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed after adding the shared `public_salon_thread` source type and `publicSalonThreads` count. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass with existing warnings | Existing raw `<img>` warnings remain in `apps/web/app/space/[slug]/page.tsx` and `apps/web/components/discover/discover-front-door.tsx`. |
+| `test:community` | Not run | PR227 did not change forum helpers, category serializers, Salon visibility helpers, or thread routing behavior beyond direct public persona readback queries. |
+
+Scope notes:
+
+- Added public persona context-preview readback for active public Salon-backed
+  threads linked to the eligible public persona.
+- Hrefs stay on existing forum thread routes and use safe non-UUID-shaped forum
+  category slugs.
+- Public chat source caps were not expanded, and no community-visible Salon
+  readback, new Salon route, live room, provider/model call, public event feed,
+  queue, billing, auth/session policy, or broad UI reskin was added.
+
 ## PR226 Discover Salon Surfacing Rehearsal
 
 ARIADNE hosted rehearsal on 2026-06-24:

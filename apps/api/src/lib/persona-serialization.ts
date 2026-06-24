@@ -143,6 +143,7 @@ export function serializePublicPersonaContextPreview(
         publicProfile: 1,
         publishedDocuments: options.counts?.publishedDocuments ?? 0,
         publicDiscussions: options.counts?.publicDiscussions ?? 0,
+        publicSalonThreads: options.counts?.publicSalonThreads ?? 0,
       },
       excludedPrivateBuckets: [...PUBLIC_PERSONA_CONTEXT_EXCLUDED_PRIVATE_BUCKETS],
     },

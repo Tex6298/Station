@@ -33,7 +33,8 @@ export interface PublicPersonaChatCapability {
 export type PublicPersonaContextSourceType =
   | "public_profile"
   | "published_document"
-  | "public_discussion";
+  | "public_discussion"
+  | "public_salon_thread";
 
 export interface PublicPersonaContextSource {
   type: PublicPersonaContextSourceType;
@@ -56,6 +57,7 @@ export interface PublicPersonaContextPreview {
       publicProfile: number;
       publishedDocuments: number;
       publicDiscussions: number;
+      publicSalonThreads: number;
     };
     excludedPrivateBuckets: string[];
   };

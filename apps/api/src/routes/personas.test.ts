@@ -45,6 +45,7 @@ class InMemorySupabase {
     spaces: [],
     documents: [],
     forum_categories: [],
+    community_subcommunities: [],
     threads: [],
     moderation_reports: [],
     public_persona_interaction_counters: [],
@@ -165,6 +166,21 @@ class InMemorySupabase {
       row.created_at ??= now;
     }
 
+    if (table === "community_subcommunities") {
+      row.category_id ??= null;
+      row.owner_user_id ??= "creator-owner";
+      row.slug ??= row.id;
+      row.title ??= row.slug;
+      row.description ??= null;
+      row.subcommunity_type ??= "salon";
+      row.visibility ??= "public";
+      row.status ??= "active";
+      row.linked_space_id ??= null;
+      row.linked_developer_space_id ??= null;
+      row.created_at ??= now;
+      row.updated_at ??= now;
+    }
+
     if (table === "threads") {
       row.title ??= "Untitled thread";
       row.body ??= "";
@@ -172,6 +188,7 @@ class InMemorySupabase {
       row.visibility ??= "public";
       row.is_hidden ??= false;
       row.linked_document_id ??= null;
+      row.linked_persona_id ??= null;
       row.category_id ??= null;
       row.comment_count ??= 0;
       row.created_at ??= now;
@@ -1480,6 +1497,90 @@ test("public persona context preview is anonymous and limited to public routeabl
       slug: "documents-and-codexes",
       title: "Documents & Codexes",
     });
+    const salonCategory = db.insertRow("forum_categories", {
+      id: "category-salon",
+      slug: "blue-lantern-salon",
+      title: "Blue Lantern Salon",
+    });
+    const communitySalonCategory = db.insertRow("forum_categories", {
+      id: "category-community-salon",
+      slug: "community-blue-lantern-salon",
+      title: "Community Blue Lantern Salon",
+    });
+    const privateSalonCategory = db.insertRow("forum_categories", {
+      id: "category-private-salon",
+      slug: "private-blue-lantern-salon",
+      title: "Private Blue Lantern Salon",
+    });
+    const pausedSalonCategory = db.insertRow("forum_categories", {
+      id: "category-paused-salon",
+      slug: "paused-blue-lantern-salon",
+      title: "Paused Blue Lantern Salon",
+    });
+    const nonSalonCategory = db.insertRow("forum_categories", {
+      id: "category-canon-circle",
+      slug: "canon-blue-lantern-circle",
+      title: "Canon Blue Lantern Circle",
+    });
+    const unsafeSalonCategory = db.insertRow("forum_categories", {
+      id: "category-unsafe-salon",
+      slug: "550e8400-e29b-41d4-a716-446655440000",
+      title: "Unsafe Salon Route",
+    });
+    db.insertRow("community_subcommunities", {
+      id: "sub-public-salon",
+      category_id: salonCategory.id,
+      slug: "blue-lantern-salon",
+      title: "Blue Lantern Salon",
+      subcommunity_type: "salon",
+      visibility: "public",
+      status: "active",
+    });
+    db.insertRow("community_subcommunities", {
+      id: "sub-community-salon",
+      category_id: communitySalonCategory.id,
+      slug: "community-blue-lantern-salon",
+      title: "Community Blue Lantern Salon",
+      subcommunity_type: "salon",
+      visibility: "community",
+      status: "active",
+    });
+    db.insertRow("community_subcommunities", {
+      id: "sub-private-salon",
+      category_id: privateSalonCategory.id,
+      slug: "private-blue-lantern-salon",
+      title: "Private Blue Lantern Salon",
+      subcommunity_type: "salon",
+      visibility: "private",
+      status: "active",
+    });
+    db.insertRow("community_subcommunities", {
+      id: "sub-paused-salon",
+      category_id: pausedSalonCategory.id,
+      slug: "paused-blue-lantern-salon",
+      title: "Paused Blue Lantern Salon",
+      subcommunity_type: "salon",
+      visibility: "public",
+      status: "paused",
+    });
+    db.insertRow("community_subcommunities", {
+      id: "sub-canon-circle",
+      category_id: nonSalonCategory.id,
+      slug: "canon-blue-lantern-circle",
+      title: "Canon Blue Lantern Circle",
+      subcommunity_type: "canon",
+      visibility: "public",
+      status: "active",
+    });
+    db.insertRow("community_subcommunities", {
+      id: "sub-unsafe-salon",
+      category_id: unsafeSalonCategory.id,
+      slug: "unsafe-blue-lantern-salon",
+      title: "Unsafe Salon Route",
+      subcommunity_type: "salon",
+      visibility: "public",
+      status: "active",
+    });
     const publicDocument = db.insertRow("documents", {
       id: "public-doc",
       author_user_id: "creator-owner",
@@ -1592,6 +1693,96 @@ test("public persona context preview is anonymous and limited to public routeabl
       visibility: "community",
       is_hidden: false,
     });
+    db.insertRow("threads", {
+      id: "public-salon-thread",
+      category_id: salonCategory.id,
+      linked_persona_id: publicPersona.id,
+      title: "Blue Lantern Salon Circle",
+      body: "Public Salon thread about the blue lantern circle.",
+      status: "active",
+      visibility: "public",
+      is_hidden: false,
+    });
+    db.insertRow("threads", {
+      id: "hidden-salon-thread",
+      category_id: salonCategory.id,
+      linked_persona_id: publicPersona.id,
+      title: "Hidden Salon Thread Must Stay Hidden",
+      body: "Hidden public Salon body.",
+      status: "active",
+      visibility: "public",
+      is_hidden: true,
+    });
+    db.insertRow("threads", {
+      id: "removed-salon-thread",
+      category_id: salonCategory.id,
+      linked_persona_id: publicPersona.id,
+      title: "Removed Salon Thread Must Stay Hidden",
+      body: "Removed public Salon body.",
+      status: "removed",
+      visibility: "public",
+      is_hidden: false,
+    });
+    db.insertRow("threads", {
+      id: "community-salon-thread",
+      category_id: communitySalonCategory.id,
+      linked_persona_id: publicPersona.id,
+      title: "Community Salon Thread Must Stay Hidden",
+      body: "Community-only Salon body.",
+      status: "active",
+      visibility: "community",
+      is_hidden: false,
+    });
+    db.insertRow("threads", {
+      id: "private-salon-thread",
+      category_id: privateSalonCategory.id,
+      linked_persona_id: publicPersona.id,
+      title: "Private Salon Thread Must Stay Hidden",
+      body: "Private Salon body.",
+      status: "active",
+      visibility: "public",
+      is_hidden: false,
+    });
+    db.insertRow("threads", {
+      id: "paused-salon-thread",
+      category_id: pausedSalonCategory.id,
+      linked_persona_id: publicPersona.id,
+      title: "Paused Salon Thread Must Stay Hidden",
+      body: "Paused Salon body.",
+      status: "active",
+      visibility: "public",
+      is_hidden: false,
+    });
+    db.insertRow("threads", {
+      id: "non-salon-thread",
+      category_id: nonSalonCategory.id,
+      linked_persona_id: publicPersona.id,
+      title: "Canon Circle Thread Must Stay Hidden",
+      body: "Non-Salon public body.",
+      status: "active",
+      visibility: "public",
+      is_hidden: false,
+    });
+    db.insertRow("threads", {
+      id: "unsafe-salon-thread",
+      category_id: unsafeSalonCategory.id,
+      linked_persona_id: publicPersona.id,
+      title: "Unsafe Salon Route Must Stay Hidden",
+      body: "Unsafe route public Salon body.",
+      status: "active",
+      visibility: "public",
+      is_hidden: false,
+    });
+    db.insertRow("threads", {
+      id: "unrelated-salon-thread",
+      category_id: salonCategory.id,
+      linked_persona_id: "other-persona",
+      title: "Unrelated Salon Thread Must Stay Hidden",
+      body: "Unrelated public Salon body.",
+      status: "active",
+      visibility: "public",
+      is_hidden: false,
+    });
     db.insertRow("personas", {
       owner_user_id: "creator-owner",
       name: "Private Context Persona",
@@ -1617,6 +1808,7 @@ test("public persona context preview is anonymous and limited to public routeabl
       publicProfile: 1,
       publishedDocuments: 2,
       publicDiscussions: 1,
+      publicSalonThreads: 1,
     });
     assert.deepEqual(preview.body.preview.sources[0], {
       type: "public_profile",
@@ -1655,6 +1847,17 @@ test("public persona context preview is anonymous and limited to public routeabl
       ),
       true
     );
+    assert.equal(
+      preview.body.preview.sources.some((source: Row) =>
+        source.type === "public_salon_thread" &&
+        source.title === "Blue Lantern Salon Circle" &&
+        source.href === "/forums/blue-lantern-salon/public-salon-thread" &&
+        source.label === "Public Salon thread" &&
+        source.excerpt === "Public Salon thread about the blue lantern circle." &&
+        source.matchesQuery === true
+      ),
+      true
+    );
     assert.deepEqual(preview.body.preview.excludedPrivateBuckets, [
       "memory",
       "archive",
@@ -1685,9 +1888,20 @@ test("public persona context preview is anonymous and limited to public routeabl
     assert.equal(previewJson.includes("Unrelated Source"), false);
     assert.equal(previewJson.includes("Hidden Thread Must Stay Hidden"), false);
     assert.equal(previewJson.includes("Community Thread Must Stay Hidden"), false);
+    assert.equal(previewJson.includes("Hidden Salon Thread Must Stay Hidden"), false);
+    assert.equal(previewJson.includes("Removed Salon Thread Must Stay Hidden"), false);
+    assert.equal(previewJson.includes("Community Salon Thread Must Stay Hidden"), false);
+    assert.equal(previewJson.includes("Private Salon Thread Must Stay Hidden"), false);
+    assert.equal(previewJson.includes("Paused Salon Thread Must Stay Hidden"), false);
+    assert.equal(previewJson.includes("Canon Circle Thread Must Stay Hidden"), false);
+    assert.equal(previewJson.includes("Unsafe Salon Route Must Stay Hidden"), false);
+    assert.equal(previewJson.includes("Unrelated Salon Thread Must Stay Hidden"), false);
+    assert.equal(previewJson.includes("sub-public-salon"), false);
+    assert.equal(previewJson.includes("category-salon"), false);
     assert.equal(previewJson.includes("persona_id"), false);
     assert.equal(previewJson.includes("source_persona_id"), false);
     assert.equal(previewJson.includes("linked_document_id"), false);
+    assert.equal(previewJson.includes("linked_persona_id"), false);
     assert.equal(previewJson.includes("category_id"), false);
 
     const privatePreview = await requestJson(app, "GET", "/personas/public/private-context-persona/context-preview?query=blue");

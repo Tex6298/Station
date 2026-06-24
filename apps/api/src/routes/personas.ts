@@ -91,6 +91,8 @@ export const personasRouter = Router();
 
 const PUBLIC_PERSONA_DOCUMENT_LIMIT = 6;
 const PUBLIC_PERSONA_DISCUSSION_LIMIT = 4;
+const PUBLIC_PERSONA_SALON_THREAD_LIMIT = 4;
+const PUBLIC_PERSONA_SALON_THREAD_PREFETCH_LIMIT = 24;
 const PUBLIC_PERSONA_CHAT_DOCUMENT_LIMIT = 3;
 const PUBLIC_PERSONA_CHAT_DISCUSSION_LIMIT = 2;
 const PUBLIC_PERSONA_CHAT_MESSAGE_MAX_LENGTH = 600;
@@ -107,8 +109,11 @@ const PUBLIC_PERSONA_ROULETTE_POOL_LIMIT = 80;
 const PUBLIC_PERSONA_CONTEXT_DOCUMENT_SELECT =
   "id, title, slug, body, status, visibility, published_at, created_at, space_id, persona_id, source_persona_id, discussion_thread_id";
 const PUBLIC_PERSONA_CONTEXT_THREAD_SELECT =
-  "id, title, body, status, visibility, is_hidden, comment_count, category_id, linked_document_id, created_at";
+  "id, title, body, status, visibility, is_hidden, comment_count, category_id, linked_document_id, linked_persona_id, created_at";
 const PUBLIC_PERSONA_INTERACTION_MAX_WINDOW_DAYS = 30;
+const SAFE_FORUM_ROUTE_SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+const UUID_SHAPED_FORUM_ROUTE_SLUG_PATTERN =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 const publicContextPreviewQuerySchema = z.object({
   query: z.preprocess(
@@ -233,6 +238,12 @@ function byId(rows: any[]) {
   return new Map(rows.filter((row) => row?.id).map((row) => [row.id, row]));
 }
 
+function isSafeForumRouteSlug(value: unknown): value is string {
+  return typeof value === "string" &&
+    SAFE_FORUM_ROUTE_SLUG_PATTERN.test(value) &&
+    !UUID_SHAPED_FORUM_ROUTE_SLUG_PATTERN.test(value);
+}
+
 async function loadPublicRouteableDocumentsForPersona(sb: ReturnType<typeof getSupabaseAdmin>, personaId: string) {
   const [direct, sourced] = await Promise.all([
     sb
@@ -306,9 +317,62 @@ async function loadPublicDiscussionSourcesForDocuments(
     .slice(0, PUBLIC_PERSONA_DISCUSSION_LIMIT);
 }
 
+async function loadPublicSalonThreadsForPersona(
+  sb: ReturnType<typeof getSupabaseAdmin>,
+  personaId: string,
+) {
+  const { data: threads } = await (sb as any)
+    .from("threads")
+    .select(PUBLIC_PERSONA_CONTEXT_THREAD_SELECT)
+    .eq("linked_persona_id", personaId)
+    .eq("status", "active")
+    .eq("visibility", "public")
+    .eq("is_hidden", false)
+    .order("created_at", { ascending: false })
+    .limit(PUBLIC_PERSONA_SALON_THREAD_PREFETCH_LIMIT);
+
+  const routeableThreads = (threads ?? []).filter((thread: any) => thread.linked_persona_id === personaId);
+  const categoryIds = Array.from(new Set<string>(
+    routeableThreads
+      .map((thread: any) => thread.category_id)
+      .filter((categoryId: unknown): categoryId is string => typeof categoryId === "string" && categoryId.length > 0)
+  ));
+  if (categoryIds.length === 0) return [];
+
+  const [{ data: categories }, { data: subcommunities, error: subcommunityError }] = await Promise.all([
+    sb
+      .from("forum_categories")
+      .select("id, slug, title")
+      .in("id", categoryIds),
+    (sb as any)
+      .from("community_subcommunities")
+      .select("id, category_id, subcommunity_type, visibility, status")
+      .in("category_id", categoryIds)
+      .eq("subcommunity_type", "salon")
+      .eq("visibility", "public")
+      .eq("status", "active"),
+  ]);
+
+  if (subcommunityError) return [];
+
+  const categoriesById = byId(categories ?? []);
+  const publicSalonCategoryIds = new Set((subcommunities ?? []).map((row: any) => row.category_id).filter(Boolean));
+
+  return routeableThreads
+    .map((thread: any) => ({ ...thread, category: categoriesById.get(thread.category_id) ?? null }))
+    .filter((thread: any) =>
+      publicSalonCategoryIds.has(thread.category_id) &&
+      isSafeForumRouteSlug(thread.category?.slug)
+    )
+    .slice(0, PUBLIC_PERSONA_SALON_THREAD_LIMIT);
+}
+
 async function buildPublicPersonaContextSources(sb: ReturnType<typeof getSupabaseAdmin>, persona: any, query: string) {
   const documents = await loadPublicRouteableDocumentsForPersona(sb, persona.id);
-  const discussionThreads = await loadPublicDiscussionSourcesForDocuments(sb, documents);
+  const [discussionThreads, salonThreads] = await Promise.all([
+    loadPublicDiscussionSourcesForDocuments(sb, documents),
+    loadPublicSalonThreadsForPersona(sb, persona.id),
+  ]);
 
   const documentSources: PublicPersonaContextSource[] = documents.map((document) => ({
     type: "published_document",
@@ -328,7 +392,16 @@ async function buildPublicPersonaContextSources(sb: ReturnType<typeof getSupabas
     matchesQuery: publicContextSourceMatchesQuery(query, thread.title, thread.body),
   }));
 
-  const sources = [...documentSources, ...discussionSources].sort((a, b) =>
+  const salonSources: PublicPersonaContextSource[] = salonThreads.map((thread) => ({
+    type: "public_salon_thread",
+    title: thread.title,
+    href: `/forums/${thread.category.slug}/${thread.id}`,
+    label: "Public Salon thread",
+    excerpt: publicContextSourceExcerpt(query, thread.body, thread.title),
+    matchesQuery: publicContextSourceMatchesQuery(query, thread.title, thread.body),
+  }));
+
+  const sources = [...documentSources, ...discussionSources, ...salonSources].sort((a, b) =>
     Number(b.matchesQuery) - Number(a.matchesQuery) || a.title.localeCompare(b.title)
   );
 
@@ -337,6 +410,7 @@ async function buildPublicPersonaContextSources(sb: ReturnType<typeof getSupabas
     counts: {
       publishedDocuments: documentSources.length,
       publicDiscussions: discussionSources.length,
+      publicSalonThreads: salonSources.length,
     },
   };
 }

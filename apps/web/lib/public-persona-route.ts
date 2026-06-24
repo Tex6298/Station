@@ -20,7 +20,7 @@ export function publicPersonaReadbackCopy() {
 }
 
 export function publicPersonaContextPreviewCopy() {
-  return "Preview which public source categories a future visitor interaction may see. This does not start chat, call a model, or use private runtime context.";
+  return "Preview which public source categories, including public Salon threads, a future visitor interaction may see. This does not start chat, call a model, or use private runtime context.";
 }
 
 export function publicPersonaChatCopy() {

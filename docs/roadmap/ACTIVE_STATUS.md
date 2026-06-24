@@ -4,6 +4,44 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest DAEDALUS result - PR227 Public Persona Salon readback implemented
+
+DAEDALUS implemented PR227 on 2026-06-24.
+
+Result:
+
+- Public persona context preview now includes bounded `public_salon_thread`
+  sources and a `publicSalonThreads` count.
+- Readback is still anonymous/public-only and still requires the target persona
+  to pass the existing safe public slug and owner eligibility checks.
+- Salon thread sources require active public threads linked to the public
+  persona, active public Salon-backed categories, and safe non-UUID-shaped
+  forum category slugs.
+- Community-only, private, paused, hidden, removed, non-Salon, unrelated
+  persona, and unsafe route candidates are excluded.
+- Hrefs stay on existing forum thread routes:
+  `/forums/<categorySlug>/<threadId>`.
+- Public chat source caps were not expanded; this lane only extends the public
+  context preview/readback path.
+- The public persona page now shows a Salon thread count and bounded preview
+  copy without suggesting live rooms, provider calls, event feeds, or private
+  memory.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:personas` passed with 12 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:writing` passed with 13 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed with existing raw `<img>`
+  warnings in `apps/web/app/space/[slug]/page.tsx` and
+  `apps/web/components/discover/discover-front-door.tsx`.
+
+Current baton:
+
+- ARGUS should hostile-review PR227 for public/private Salon visibility,
+  linked persona eligibility, route safety, source/count typing, and no
+  community-only Salon leakage.
+
 ## Latest MIMIR decision - PR227 Public Persona Salon readback opened
 
 MIMIR accepts PR226 on 2026-06-24 after ARIADNE passed the hosted Discover
