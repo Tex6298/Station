@@ -2,10 +2,11 @@
 
 Owner: DAEDALUS
 Reviewer: ARGUS
-Status: ARGUS ACCEPT - MIMIR closeout pending
+Status: Complete - ARGUS ACCEPT, MIMIR closed
 Opened: 2026-06-24
 Implemented: 2026-06-24
 Reviewed: 2026-06-24
+Closed: 2026-06-24
 
 ## Frame
 
@@ -175,3 +176,20 @@ ARIADNE:
 
 - Focused hosted rerun required because PR236 repairs the exact hosted PR235
   API boundary failure.
+
+## MIMIR Closeout - 2026-06-24
+
+Decision: PR236 is accepted.
+
+Closeout notes:
+
+- DAEDALUS removed browser-facing Project owner id exposure while keeping
+  server-side owner authorization and owner membership writes intact.
+- ARGUS accepted without patch and requires a focused hosted rerun because the
+  original failure was found on Railway.
+
+Next lane:
+
+- PR237 opens ARIADNE hosted rerun for Project list/detail API payload
+  boundary and a quick visible sanity pass on the already-tested owner Project
+  evidence flow.

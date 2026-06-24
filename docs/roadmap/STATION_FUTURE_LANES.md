@@ -294,14 +294,14 @@ Current intent:
   from the broader Project serializer. PR236 opens a narrow DAEDALUS repair.
 - PR236 result: DAEDALUS removed browser-facing Project owner id exposure while
   preserving server-side owner authorization and Project owner membership
-  writes. ARGUS review is pending before MIMIR decides whether ARIADNE needs a
-  focused hosted rerun.
+  writes. ARGUS accepted and requires a focused hosted rerun before PR235's
+  Railway-found boundary failure is considered resolved.
 
 ## Phase 3 bridge sequence
 
-Status, 2026-06-24: PR202 through PR234 are accepted. PR235 Owner Project
-Evidence Hosted Rehearsal failed on a narrow owner id payload defect. PR236
-Project Owner Id Serializer Repair is implemented and pending ARGUS review.
+Status, 2026-06-24: PR202 through PR236 are accepted. PR235 Owner Project
+Evidence Hosted Rehearsal failed on a narrow owner id payload defect. PR237
+Project Owner Id Hosted Rerun is open for ARIADNE.
 
 Current MIMIR position:
 
@@ -364,7 +364,8 @@ Bridge order:
 34. Done: Institutional/Research Project Lane Map.
 35. Done: Owner Project Evidence Readback.
 36. Failed: Owner Project Evidence Hosted Rehearsal, owner id payload defect.
-37. Review: Project Owner Id Serializer Repair.
+37. Done: Project Owner Id Serializer Repair.
+38. Active: Project Owner Id Hosted Rerun.
 
 ARGUS P3-B1A gates:
 

@@ -4,6 +4,28 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR237 Project owner id hosted rerun opened
+
+MIMIR accepts PR236 on 2026-06-24 after ARGUS review.
+
+Decision:
+
+- Open **PR237 - Project Owner Id Hosted Rerun** for ARIADNE.
+- Scope is a focused hosted rerun for the exact PR235 failure: Project API
+  payloads must no longer expose `ownerUserId` / `owner_user_id`.
+- Include quick visible sanity checks for the already-passing owner Project
+  evidence panel, safe links, desktop/mobile fit, and signed-out boundary.
+- Do not broaden into public Projects, institutional membership, Project
+  exports, billing, hosted runtime, provider/model work, Redis, Cloudflare, or
+  Project public discovery until this rerun passes.
+
+Current baton:
+
+- ARIADNE should execute
+  `docs/roadmap/PR237_PROJECT_OWNER_ID_HOSTED_RERUN_ARIADNE.md`.
+- ARIADNE should wake MIMIR with PASS / FAIL / BLOCKED and exact hosted
+  evidence.
+
 ## Latest ARGUS review - PR236 Project owner id serializer repair
 
 ARGUS reviewed PR236 on 2026-06-24.
@@ -41,7 +63,7 @@ Validation:
 
 Current baton:
 
-- MIMIR should close PR236 and decide the next move.
+- Closed by MIMIR. PR237 is open for ARIADNE hosted rerun.
 - ARGUS requires a focused ARIADNE hosted rerun before treating the PR235 owner
   Project evidence rehearsal failure as resolved.
 
