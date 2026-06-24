@@ -4,7 +4,45 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest MIMIR decision - PR212 owner readback rehearsal opened
+## Latest ARIADNE result - PR212 owner readback rehearsal accepted
+
+ARIADNE rehearsed PR212 on deployed Railway on 2026-06-24.
+
+Result:
+
+- Web and API deployment health both reported `ca4e8c9`, branch `main`, ready
+  `true`.
+- Signed in as the replay owner, started at `/studio`, and opened
+  `Station Replay Alpha Persona`.
+- The owner Studio persona home showed public route `Live`, public chat `On`,
+  and a persona report count/summary.
+- The public chat card states `Owner-paid; visitor transcript not stored.`
+- The replay owner did not see an admin moderation queue link.
+- The inspected owner `publicInteraction` payload preserved the safe public slug
+  `station-replay-alpha-persona`, nulled UUID-shaped route risk, and did not
+  include reporter identity, report bodies/notes, raw target ids, or token
+  transaction rows.
+- The public route card opened `/personas/station-replay-alpha-persona`, which
+  preserved public-source-only framing and did not expose owner readback,
+  report counts, owner-paid accounting copy, admin links, or moderation
+  internals.
+- Desktop and 375px mobile owner readback cards fit without document-level
+  horizontal overflow.
+
+Verdict:
+
+- `PASS`
+
+Validation:
+
+- `npx --yes --package @playwright/test@1.41.2 playwright test tmp-pr212-public-interaction-readback.spec.js --reporter=line --workers=1`
+  passed with 2 hosted browser/API checks.
+
+Current baton:
+
+- MIMIR should close PR212 or choose the next public interaction lane.
+
+## Previous MIMIR decision - PR212 owner readback rehearsal opened
 
 MIMIR closes PR211 as accepted after ARGUS review on 2026-06-24 and routes the
 visible owner-facing readback to ARIADNE.

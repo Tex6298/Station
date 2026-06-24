@@ -3,7 +3,7 @@
 Date opened: 2026-06-24
 Agent: A4 / ARIADNE
 Opened by: A1 / MIMIR
-Status: open
+Status: accepted
 
 ## Frame
 
@@ -155,3 +155,76 @@ Verdict:
 Task:
 - Close PR212 or route the smallest concrete follow-up.
 ```
+
+## ARIADNE Result - 2026-06-24
+
+Verdict:
+
+```text
+PASS
+```
+
+Routes tested:
+
+- `/studio`
+- `/studio/personas/<replay-public-persona>`
+- `/personas/station-replay-alpha-persona`
+- Web `/health/deployment`
+- API `/health/deployment`
+- Owner API `GET /personas/<replay-public-persona>`
+
+Deployment health:
+
+- Web and API both reported deployment `ca4e8c9`, branch `main`, ready `true`.
+
+Owner readback result:
+
+- Passed. Signed in with the replay owner account, started at `/studio`, and
+  opened `Station Replay Alpha Persona`.
+- The owner persona home shows a compact public interaction readback with:
+  public route `Live`, public chat `On`, and `Persona reports` count/summary.
+- The public chat card says `Owner-paid; visitor transcript not stored.`
+- The report card showed `1 active / 1 total persona reports`.
+- The signed-in replay owner did not see an admin moderation queue link.
+- The inspected `publicInteraction` payload kept the public slug
+  `station-replay-alpha-persona`, did not serialize a UUID-shaped public slug,
+  and did not include reporter identity, report notes/bodies, raw target ids, or
+  token transaction rows.
+
+Public route result:
+
+- Passed. The public route card opened `/personas/station-replay-alpha-persona`.
+- The public page preserved public-source-only framing and did not expose owner
+  readback details, persona report counts, owner-paid accounting copy, admin
+  links, or moderation internals.
+
+Desktop/mobile notes:
+
+- Desktop owner readback cards were legible in the Studio home layout.
+- At 375px, route/chat/report cards stacked cleanly with no document-level
+  horizontal overflow.
+- Public route desktop remained legible.
+- Full-page screenshots were inspected locally and not committed. The fixed
+  Studio nav appears mid-page in full-page screenshots after Playwright
+  auto-scrolls, but the cards themselves remain readable in the viewport.
+
+Privacy verdict:
+
+- Accepted. No visible raw persona ids, owner ids, reporter ids, provider
+  traces, database errors, token transaction rows, private runtime context, or
+  private source ids were observed.
+- The UI does not claim per-persona analytics and does not imply visitor
+  transcripts are stored.
+- Future polish could make the moderation privacy flags more explicit in the
+  owner report card, but the current pass preserves the boundary and does not
+  block PR212.
+
+Validation:
+
+- `npx --yes --package @playwright/test@1.41.2 playwright test tmp-pr212-public-interaction-readback.spec.js --reporter=line --workers=1`
+  passed with 2 hosted browser/API checks.
+
+Next wakeup:
+
+- Wake MIMIR to close PR212 or choose the next public interaction lane. No
+  DAEDALUS or ARGUS patch is requested from this pass.

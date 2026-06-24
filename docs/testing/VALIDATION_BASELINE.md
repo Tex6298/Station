@@ -58,6 +58,23 @@ ARGUS revalidation after raw-slug hardening patch on 2026-06-24:
 - `git diff --check` and `git diff --cached --check` passed; `git diff --check`
   reported CRLF normalization warnings only.
 
+## PR212 Public Interaction Readback Rehearsal
+
+ARIADNE hosted rehearsal on 2026-06-24:
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Web `/health/deployment` | Pass | Railway web reported commit `ca4e8c9`, branch `main`, ready `true`. |
+| API `/health/deployment` | Pass | Railway API reported commit `ca4e8c9`, branch `main`, ready `true`. |
+| `npx --yes --package @playwright/test@1.41.2 playwright test tmp-pr212-public-interaction-readback.spec.js --reporter=line --workers=1` | Pass | 2 hosted browser/API checks passed. Covered signed-in replay-owner `/studio` to public persona workspace, owner public route/chat/report readback, non-admin moderation link absence, `publicInteraction` payload privacy boundaries, public route continuity, desktop fit, 375px mobile fit, and no visible raw id/provider/database/private-context leakage. |
+
+Rehearsal verdict:
+
+- `PASS`
+- Future polish note: the owner report card could spell out moderation privacy
+  flags more explicitly, but PR212 preserves the privacy boundary and does not
+  claim analytics or visitor transcript storage.
+
 ## PR210 Public Persona Chat Rehearsal Repair
 
 DAEDALUS repair validation on 2026-06-24:
