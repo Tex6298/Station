@@ -20,6 +20,30 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR230 Public Persona Events Preflight
+
+ARGUS preflight on 2026-06-24:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `git diff --check` | Pass | CRLF normalization warnings only. |
+| `git diff --cached --check` | Pass | Staged docs-only preflight record and watcher state had no whitespace errors. |
+
+Verdict:
+
+- `ACCEPT` with hard gates for a derived-only public persona event readback
+  lane.
+
+Scope notes:
+
+- First implementation may derive bounded public updates from already-routeable
+  public documents, public document discussion threads, and public Salon threads
+  for an eligible public persona.
+- No public persona event table, event write path, Discover/global feed, public
+  Space feed, chat/report/counter/provider source, event-level moderation
+  surface, Cloudflare/Redis/queue/worker, billing, auth/session, or broad UI
+  work is approved by the preflight.
+
 ## PR229 Public Persona Salon Human Rehearsal
 
 ARIADNE hosted rehearsal on 2026-06-24:

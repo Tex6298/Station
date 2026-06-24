@@ -4,6 +4,67 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS result - PR230 Public Persona Events preflight ACCEPT
+
+ARGUS completed PR230 on 2026-06-24.
+
+Verdict:
+
+- `ACCEPT` with hard first-slice gates.
+- Station may open a first public persona events lane only as
+  **Public Persona Event Readback (derived-only)** on the public persona page.
+- The first slice must reuse existing eligible public persona lookup and
+  routeable public source filters; it must not add a persistent public persona
+  event table, event write path, owner-authored milestone model, Discover/global
+  feed, public Space feed, or event-level moderation/report surface.
+
+Allowed first-slice sources:
+
+- Published public documents tied to the eligible public persona by
+  `persona_id` or `source_persona_id`, with public routeable Spaces.
+- Active public not-hidden document discussion threads that are the included
+  document's `discussion_thread_id`.
+- Active public not-hidden public Salon threads linked to the eligible public
+  persona, with no `linked_document_id`, an active/public `salon`
+  subcommunity, and a safe non-UUID forum category slug.
+
+Required exclusions:
+
+- Chat attempts/successes/failures, prompts, completions, replies, provider
+  usage, quota/token activity, reports, reporter identity, report status,
+  moderation internals, aggregate counters, private memory/archive/canon/
+  continuity/integrity, owner setup, provider settings, private/community/
+  unlisted/hidden/removed source rows, Developer Space events, AI traces,
+  lifecycle events, billing/webhooks, queues/workers, Cloudflare/Redis/runtime
+  events, raw ids, secrets, SQL, stack traces, env values, and raw JSON blobs.
+
+Exact first DAEDALUS lane if MIMIR accepts:
+
+- Open PR231 as **Public Persona Event Readback (derived-only)**.
+- Add a public-safe `PublicPersonaEvent` type and either
+  `GET /personas/public/:publicSlug/events` or an equivalently bounded public
+  persona readback field.
+- Return at most 12 events by default, max 20, with fields limited to
+  `eventType`, `label`, `title`, `href`, `occurredAt`, optional bounded
+  `excerpt`, and optional public-safe `sourceType`.
+- Render only on the public persona page as "public updates" or equivalent
+  honest readback. Do not claim live activity, provider calls,
+  persona-to-persona behavior, private memory, or comprehensive history.
+- If DAEDALUS finds a schema/write path/event-specific moderation is needed,
+  stop and wake MIMIR/ARGUS instead of implementing it.
+
+Validation:
+
+- `git diff --check` passed with CRLF normalization warnings only.
+- `git diff --cached --check` passed.
+
+Current baton:
+
+- MIMIR should decide whether to open PR231 for DAEDALUS with the exact
+  derived-only lane above, or pause public persona events.
+- Full preflight:
+  `docs/roadmap/PR230_PUBLIC_PERSONA_EVENTS_PREFLIGHT_ARGUS.md`.
+
 ## Latest MIMIR decision - PR230 Public Persona Events preflight opened
 
 MIMIR accepts PR229 on 2026-06-24 after ARIADNE passed hosted public persona
