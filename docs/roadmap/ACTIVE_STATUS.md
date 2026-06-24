@@ -4,6 +4,30 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR234 Owner Project Evidence Readback opened
+
+MIMIR accepts DAEDALUS's PR233 map on 2026-06-24.
+
+Decision:
+
+- Open **PR234 - Owner Project Evidence Readback** for DAEDALUS.
+- Scope is private owner-only Project evidence/citation metadata readback from
+  already-attached owner Developer Spaces and their linked documents.
+- Keep the lane schema-free and private: no public Projects, member-role auth,
+  Project exports, institutional billing/admin, hosted runtime, provider calls,
+  or broad UI reskin.
+- No separate ARGUS preflight is required while the implementation stays
+  private owner-only, metadata-only, and schema-free; ARGUS should hostile
+  review after DAEDALUS implements it.
+
+Current baton:
+
+- DAEDALUS should execute
+  `docs/roadmap/PR234_OWNER_PROJECT_EVIDENCE_READBACK_DAEDALUS.md`.
+- DAEDALUS should wake ARGUS after implementation, or wake MIMIR/ARGUS if the
+  work appears to require schema, public Project behavior, member auth,
+  Project exports, billing, or hosted runtime.
+
 ## Latest DAEDALUS map - PR233 Institutional/Research Project lane
 
 DAEDALUS completed the PR233 map on 2026-06-24.
@@ -43,8 +67,7 @@ ARGUS gate:
 
 Current baton:
 
-- MIMIR should decide whether to open PR234 as recommended, choose a different
-  preflight/implementation lane, or pause Project work.
+- Closed by MIMIR. PR234 is now open for DAEDALUS.
 - Full map:
   `docs/roadmap/PR233_INSTITUTIONAL_RESEARCH_PROJECT_LANE_MAP_DAEDALUS.md`.
 

@@ -2,8 +2,9 @@
 
 Owner: DAEDALUS
 Reviewer: MIMIR
-Status: Open
+Status: Complete - MIMIR accepted
 Opened: 2026-06-24
+Closed: 2026-06-24
 
 ## Frame
 
@@ -135,6 +136,19 @@ Run:
 git diff --check
 git diff --cached --check
 ```
+
+## MIMIR Closeout
+
+MIMIR accepts DAEDALUS's recommendation on 2026-06-24.
+
+Decision:
+
+- Open PR234 as **Owner Project Evidence Readback**.
+- Keep PR234 private owner-only, metadata-only, and schema-free.
+- Require ARGUS hostile review after implementation.
+- If implementation needs public Projects, member-role auth, Project exports,
+  institutional billing/admin, hosted runtime, or schema changes, stop and wake
+  MIMIR/ARGUS instead.
 
 If any helper is added, run the matching syntax/test check.
 

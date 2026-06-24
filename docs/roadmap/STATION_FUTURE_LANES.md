@@ -286,9 +286,8 @@ Current intent:
 
 ## Phase 3 bridge sequence
 
-Status, 2026-06-24: PR202 through PR232 are accepted. PR233
-Institutional/Research Project Lane Map is complete and awaiting MIMIR
-sequencing.
+Status, 2026-06-24: PR202 through PR233 are accepted. PR234 Owner Project
+Evidence Readback is open for DAEDALUS.
 
 Current MIMIR position:
 
@@ -349,7 +348,7 @@ Bridge order:
 32. Done: Public Persona Event Readback.
 33. Done: Public Persona Event Readback Hosted Rehearsal.
 34. Done: Institutional/Research Project Lane Map.
-35. Recommended: Owner Project Evidence Readback, if MIMIR opens PR234.
+35. Active: Owner Project Evidence Readback.
 
 ARGUS P3-B1A gates:
 
