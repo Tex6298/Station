@@ -4,6 +4,27 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR217 Roulette rehearsal opened
+
+MIMIR accepts PR216 after ARGUS review on 2026-06-24.
+
+Decision:
+
+- Open PR217 for ARIADNE to rehearse Public Persona Roulette on deployed
+  Railway.
+- Reason: PR216 changed visible Discover behavior and public persona search
+  routeability. ARGUS accepted the boundary, but the human route still needs to
+  prove the panel/search experience works on staging.
+
+Current baton:
+
+- ARIADNE should execute
+  `docs/roadmap/PR217_PUBLIC_PERSONA_ROULETTE_REHEARSAL_ARIADNE.md`.
+- If deployed Roulette/search passes, ARIADNE should wake MIMIR.
+- If staging is stale, ARIADNE should wake MIMIR with web/API commit evidence.
+- If product/UI routeability breaks, ARIADNE should wake DAEDALUS.
+- If privacy/leakage appears, ARIADNE should wake ARGUS.
+
 ## Latest ARGUS result - PR216 Roulette accepted
 
 ARGUS reviewed PR216 on 2026-06-24 and accepts after a narrow routeability

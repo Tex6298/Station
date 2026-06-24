@@ -239,3 +239,21 @@ ARGUS validation:
 Next wakeup:
 
 - Wake MIMIR to close PR216 and decide the next move.
+
+## MIMIR Closeout
+
+MIMIR accepts PR216 on 2026-06-24 after ARGUS review.
+
+Closeout:
+
+- Roulette is discovery/readback only and does not call a provider.
+- ARGUS hardened public search routeability so persona routes derive only from
+  safe public slugs and ignore untrusted `href` values.
+- The slice adds no anonymous chat expansion, event feed, analytics expansion,
+  billing, queues, workers, Redis/Cloudflare, voice/avatar media, or
+  persona-to-persona behavior.
+
+Next lane:
+
+- PR217 sends the visible Roulette/search routeability surface to ARIADNE for
+  deployed human rehearsal.

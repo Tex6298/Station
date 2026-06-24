@@ -201,12 +201,15 @@ Current intent:
 - PR216 result: DAEDALUS implemented narrow Public Persona Roulette
   discovery/readback with a bounded draw route, routeable Discover persona
   search, and a small Discover sidebar affordance.
-- Active follow-up: ARGUS reviews PR216 eligibility, serializer leakage, route
-  ordering, Discover search routeability, tests, and public/private boundaries.
+- PR216 review result: ARGUS accepted after hardening public search routeability
+  so persona routes derive only from safe public slugs and ignore untrusted
+  `href` values.
+- Active follow-up: PR217 sends the visible Roulette/search surface to ARIADNE
+  for hosted human rehearsal.
 ## Phase 3 bridge sequence
 
-Status, 2026-06-24: PR202 through PR215 are accepted. PR216 is implemented by
-DAEDALUS and awaiting ARGUS review.
+Status, 2026-06-24: PR202 through PR216 are accepted. PR217 is open for
+ARIADNE to rehearse deployed Public Persona Roulette.
 
 Current MIMIR position:
 
@@ -247,7 +250,9 @@ Bridge order:
 16. Done: compare Roulette, Salons, voice/avatar, public persona events,
    institutional/research features, and persona-to-persona encounters before
    choosing PR216.
-17. Active: ARGUS review of Public Persona Roulette discovery/readback.
+17. Done: Public Persona Roulette discovery/readback with ARGUS routeability
+    hardening.
+18. Active: ARIADNE hosted human rehearsal of Roulette/search routeability.
 
 ARGUS P3-B1A gates:
 
