@@ -20,6 +20,34 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR219 Public Salons Alpha Preflight
+
+ARGUS docs-only hostile preflight on 2026-06-24:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `git diff --check` | Pass | Docs-only preflight completed for the first Salon alpha implementation gates. |
+| `git diff --cached --check` | Pass | Staged docs and watcher state had no whitespace errors. |
+
+Verdict:
+
+- Accepted with required implementation gates.
+- Recommend **PR220 - Public Salon Type Foundation**: add an honest `salon`
+  subcommunity type across schema/types/API/web labels while reusing existing
+  forum categories, threads, comments, reports, watches, votes, and delegated
+  subcommunity moderation.
+- Keep creation restricted to admin, `canon`, or `institutional`; keep alpha
+  visibility to `public` and `community`; keep posting/commenting private-tier
+  gated.
+- PR220 must tighten forum persona linkage so `linked_persona_id` accepts only
+  public personas with safe public slugs and eligible owners.
+- Public persona Salon readback and Discover-specific Salon grouping are later
+  slices, not PR220.
+- No Salon product code, schema, provider/model call, real-time room, public
+  event feed, Redis/Cloudflare, worker, queue, storage bucket, billing,
+  notification, auth/session, moderation-role, or broad UI behavior change was
+  made in PR219.
+
 ## PR218 Public Salons Gate
 
 DAEDALUS docs-only gate on 2026-06-24:

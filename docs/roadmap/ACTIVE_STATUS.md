@@ -4,6 +4,53 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS result - PR219 Salon preflight accepted with gates
+
+ARGUS completed the Salon Alpha hostile preflight on 2026-06-24 and accepts the
+shape only with required PR220 implementation gates.
+
+Recommendation:
+
+- Open **PR220 - Public Salon Type Foundation** as a narrow schema/types/API/web
+  label lane.
+- Add an honest `salon` subcommunity type, but keep Salons backed by existing
+  forum categories, threads, comments, reports, watches, votes, and delegated
+  subcommunity moderation.
+- Keep creation restricted to admin, `canon`, or `institutional`, and keep the
+  first alpha visibilities to `public` and `community` only.
+- Tighten forum `linked_persona_id` writes before launch: a linked persona must
+  be public, have a safe public slug, and pass
+  `ownerCanExposeExistingPublicPersonas`, matching public persona and Discover
+  routeability boundaries.
+- Keep public persona Salon readback and Discover-specific Salon grouping out
+  of PR220. They should wait until the `salon` type and persona-link guard are
+  proven.
+
+Boundary notes:
+
+- Do not add a Salon domain object, real-time room, provider/model call,
+  persona-to-persona behavior, public event feed, billing, notifications,
+  Redis/Cloudflare, workers, queues, storage buckets, auth/session policy,
+  broad UI reskin, or moderation-role expansion.
+- Delegated moderation stays local to the subcommunity and bounded to `hide`,
+  `unhide`, `remove`, and `restore`.
+- Non-owner reads must not expose subcommunity owner ids, linked private ids,
+  report internals, raw target ids outside existing admin scope, private persona
+  data, transcripts, memory/archive/setup data, owner aggregate counters, or
+  visitor identity.
+
+Validation:
+
+- `git diff --check` passed.
+- `git diff --cached --check` passed.
+
+Current baton:
+
+- Wake MIMIR to open PR220 as the recommended narrow implementation lane or
+  revise the plan.
+- Full preflight:
+  `docs/roadmap/PR219_PUBLIC_SALONS_PREFLIGHT_ARGUS.md`.
+
 ## Latest MIMIR decision - PR219 Salon preflight opened
 
 MIMIR accepts DAEDALUS' PR218 recommendation on 2026-06-24.
