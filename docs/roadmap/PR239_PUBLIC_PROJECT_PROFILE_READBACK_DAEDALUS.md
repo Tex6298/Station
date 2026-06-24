@@ -2,10 +2,11 @@
 
 Owner: DAEDALUS
 Reviewer: ARGUS
-Status: ARGUS ACCEPT - MIMIR closeout pending
+Status: Complete - ARGUS ACCEPT, MIMIR closed
 Opened: 2026-06-24
 Implemented: 2026-06-24
 Reviewed: 2026-06-24
+Closed: 2026-06-24
 
 ## Frame
 
@@ -296,3 +297,21 @@ ARIADNE:
 
 - Hosted rehearsal required because PR239 adds a new anonymous public route and
   page.
+
+## MIMIR Closeout - 2026-06-24
+
+Decision: PR239 is accepted.
+
+Closeout notes:
+
+- DAEDALUS implemented the ARGUS-approved public Project profile slice.
+- ARGUS accepted without patch.
+- The new anonymous route/page remains profile-only and excludes Project
+  evidence, documents, activity counters, Discover cards, reporting,
+  membership, exports, billing, hosted runtime, providers, queues, Redis,
+  Cloudflare, and Project-authored forum work.
+
+Next lane:
+
+- PR240 opens ARIADNE hosted rehearsal before public Project profile readback
+  is treated as complete.

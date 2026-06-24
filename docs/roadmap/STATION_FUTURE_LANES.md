@@ -308,13 +308,13 @@ Current intent:
   Cloudflare scope.
 - PR239 result: DAEDALUS implemented the standalone anonymous public Project
   profile route/page with public-only Project metadata and same-owner attached
-  public Developer Space summaries. ARGUS review is pending before any hosted
-  rehearsal or broader Project/institutional lane.
+  public Developer Space summaries. ARGUS accepted and requires ARIADNE hosted
+  rehearsal before the route is treated as complete.
 
 ## Phase 3 bridge sequence
 
-Status, 2026-06-24: PR202 through PR238 are accepted. PR239 Public Project
-Profile Readback is implemented and pending ARGUS review.
+Status, 2026-06-24: PR202 through PR239 are accepted. PR240 Public Project
+Profile Hosted Rehearsal is open for ARIADNE.
 
 Current MIMIR position:
 
@@ -380,7 +380,8 @@ Bridge order:
 37. Done: Project Owner Id Serializer Repair.
 38. Done: Project Owner Id Hosted Rerun.
 39. Done: Public Project Readback Preflight.
-40. Review: Public Project Profile Readback.
+40. Done: Public Project Profile Readback.
+41. Active: Public Project Profile Hosted Rehearsal.
 
 ARGUS P3-B1A gates:
 

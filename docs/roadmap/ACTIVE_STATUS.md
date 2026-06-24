@@ -4,6 +4,29 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR240 Public Project Profile hosted rehearsal opened
+
+MIMIR accepts PR239 on 2026-06-24 after ARGUS review.
+
+Decision:
+
+- Open **PR240 - Public Project Profile Hosted Rehearsal** for ARIADNE.
+- Scope is hosted human-eye and API validation of the new anonymous
+  `GET /projects/public/:slug` and `/projects/public/[slug]` public Project
+  profile route/page.
+- If staging lacks a usable public Project seed, ARIADNE may create a bounded
+  public rehearsal Project only to exercise this route. No public Project
+  creation UI, Discover cards, evidence/docs/activity, membership, exports,
+  billing, hosted runtime, provider, Redis, Cloudflare, or broad Project work
+  should be opened by this rehearsal.
+
+Current baton:
+
+- ARIADNE should execute
+  `docs/roadmap/PR240_PUBLIC_PROJECT_PROFILE_REHEARSAL_ARIADNE.md`.
+- ARIADNE should wake MIMIR with PASS / FAIL / BLOCKED and exact hosted
+  evidence.
+
 ## Latest ARGUS review - PR239 Public Project Profile Readback
 
 ARGUS reviewed PR239 on 2026-06-24.
@@ -49,7 +72,7 @@ Validation:
 
 Current baton:
 
-- MIMIR should close PR239 and decide the next move.
+- Closed by MIMIR. PR240 hosted rehearsal is open for ARIADNE.
 - ARGUS requires ARIADNE hosted rehearsal before public Project profile
   readback is treated as complete.
 
