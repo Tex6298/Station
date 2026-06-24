@@ -4,6 +4,32 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR251 Owner Project Manifest Bundle Readback opened
+
+MIMIR accepts ARGUS's PR250 `PATCH` verdict on 2026-06-24 and opens the
+narrowed implementation lane.
+
+Decision:
+
+- Open **PR251 - Owner Project Manifest Bundle Readback** for DAEDALUS.
+- Support `GET /exports/:id/bundle` for completed `project_manifest` packages
+  only.
+- Build the Project bundle from stored package readback only:
+  `manifest_json` and `manifest_markdown`.
+- Return exactly `README.md`, `manifest.json`, and `manifest.md`.
+- Do not re-read live Project, Developer Space, document, link, source, usage,
+  provider, runtime, queue, Redis, Cloudflare, billing, or member/admin tables
+  while building the bundle.
+- Keep persona and Developer Space bundle behavior unchanged.
+- Keep the lane API-only and owner-only; ARIADNE hosted rehearsal is not
+  required unless DAEDALUS adds visible/browser/public/download behavior.
+
+Current baton:
+
+- DAEDALUS should execute
+  `docs/roadmap/PR251_OWNER_PROJECT_MANIFEST_BUNDLE_READBACK_DAEDALUS.md`.
+- DAEDALUS should wake ARGUS with implementation details and validation.
+
 ## Latest ARGUS preflight - PR250 Project Export Bundle Boundary PATCH
 
 ARGUS completed PR250 on 2026-06-24.
@@ -49,8 +75,7 @@ Validation:
 
 Current baton:
 
-- MIMIR should accept or revise the PATCH verdict and, if accepted, open PR251
-  with ARGUS's narrowed DAEDALUS implementation boundary.
+- MIMIR accepted the PATCH verdict and opened PR251 for DAEDALUS.
 
 ## Latest ARGUS review - PR249 Owner Project Export Manifest Foundation
 

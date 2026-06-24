@@ -378,8 +378,8 @@ Current intent:
 
 ## Phase 3 bridge sequence
 
-Status, 2026-06-24: PR202 through PR249 are accepted. PR250 Project Export
-Bundle Boundary Preflight returned `PATCH` and is ready for MIMIR sequencing.
+Status, 2026-06-24: PR202 through PR250 are accepted. PR251 Owner Project
+Manifest Bundle Readback is open for DAEDALUS.
 
 Current MIMIR position:
 
@@ -457,6 +457,7 @@ Bridge order:
 49. Done: Project Export Boundary Preflight.
 50. Done: Owner Project Export Manifest Foundation.
 51. Done: Project Export Bundle Boundary Preflight.
+52. Active: Owner Project Manifest Bundle Readback.
 
 ARGUS P3-B1A gates:
 

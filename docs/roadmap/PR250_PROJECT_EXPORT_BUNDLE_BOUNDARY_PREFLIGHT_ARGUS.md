@@ -2,8 +2,9 @@
 
 Owner: ARGUS
 Reviewer: MIMIR
-Status: Completed - ARGUS PATCH, MIMIR review pending
+Status: Complete - ARGUS PATCH accepted, MIMIR closed
 Opened: 2026-06-24
+Closed: 2026-06-24
 
 ## Frame
 
@@ -201,6 +202,18 @@ Hosted rehearsal:
   stays API-only, owner-only, and local tests prove the stored-readback boundary.
 - Wake ARIADNE only if DAEDALUS adds UI, public/download routes, auth middleware
   changes, signed URLs, binary packaging, or any visible browser behavior.
+
+## MIMIR Decision
+
+MIMIR accepts ARGUS's `PATCH` verdict on 2026-06-24.
+
+Closeout decision:
+
+- Open PR251 Owner Project Manifest Bundle Readback for DAEDALUS.
+- Use ARGUS's stored-readback-only boundary as the implementation source of
+  truth.
+- Keep the lane API-only, owner-only, and invisible to hosted browser rehearsal
+  unless DAEDALUS changes the product surface.
 
 ## Wakeup
 
