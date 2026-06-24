@@ -241,10 +241,14 @@ Current intent:
 - PR224 result: ARIADNE passed hosted Salon directory/category readback.
   PR225 opens Discover public Salon surfacing as routeable public
   forum/subcommunity results before public persona Salon readback.
+- PR225 result: DAEDALUS implemented Discover public Salon search surfacing as
+  a bounded `salons` search bucket routed to existing `/forums/<categorySlug>`
+  pages, with public/community visibility semantics preserved and UUID-shaped
+  route slugs rejected. ARGUS review is next.
 ## Phase 3 bridge sequence
 
 Status, 2026-06-24: PR202 through PR224 are accepted. PR225 Discover Public
-Salon Surfacing is open for DAEDALUS.
+Salon Surfacing is implemented and awaiting ARGUS review.
 
 Current MIMIR position:
 

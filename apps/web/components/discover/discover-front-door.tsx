@@ -442,7 +442,7 @@ export default function DiscoverFrontDoor() {
             </Link>
             <Link href="/forums">
               <strong>Join the conversation</strong>
-              <span>Forum threads carry discussion, questions, and community context around public work.</span>
+              <span>Forum threads and public Salons carry discussion, questions, and community context around public work.</span>
             </Link>
             <Link href={user ? "/studio" : "/signup"}>
               <strong>{user ? "Continue in Studio" : "Create your Studio"}</strong>
@@ -461,8 +461,8 @@ export default function DiscoverFrontDoor() {
               onChange={(e) => setSearch(e.target.value)}
               placeholder={
                 user
-                  ? "Search public and community-visible Station - personas, projects, Spaces, publications, forums"
-                  : "Search public Station - personas, projects, Spaces, publications, forums"
+                  ? "Search public and community-visible Station - personas, projects, Salons, Spaces, publications, forums"
+                  : "Search public Station - personas, projects, Salons, Spaces, publications, forums"
               }
             />
             {search && <button type="button" onClick={() => setSearch("")}>Clear</button>}
@@ -471,7 +471,7 @@ export default function DiscoverFrontDoor() {
         <p className="discover-public-helper">
           {user
             ? "Signed-in search may include community-visible results. Private Studio archive, memory, canon, import, and continuity stay out."
-            : "Public search returns routeable personas, projects, Spaces, publications, and forum threads."}
+            : "Public search returns routeable personas, projects, Salons, Spaces, publications, and forum threads."}
         </p>
 
         {search.trim() && (
@@ -494,6 +494,11 @@ export default function DiscoverFrontDoor() {
                               {key === "developerSpaces" && (
                                 <span style={{ color: "#67e8f9", fontSize: "0.72rem", marginLeft: "0.45rem", textTransform: "capitalize" }}>
                                   {r.visualisationType?.replace("_", " ")} / {r.visibility}
+                                </span>
+                              )}
+                              {key === "salons" && (
+                                <span style={{ color: "#86efac", fontSize: "0.72rem", marginLeft: "0.45rem", textTransform: "capitalize" }}>
+                                  Salon / {r.visibility}
                                 </span>
                               )}
                               {key === "spaces" && r.presentation && (
@@ -526,7 +531,7 @@ export default function DiscoverFrontDoor() {
                 {!PUBLIC_SEARCH_GROUPS.some(([key]) => routeablePublicSearchItems(key, searchResults).length > 0) && (
                   <div className="public-home-search-status">
                     No {user ? "public or community-visible" : "public"} results for &quot;{search}&quot;.
-                    Try a persona, project, Space, publication, or forum topic.
+                    Try a persona, project, Salon, Space, publication, or forum topic.
                   </div>
                 )}
               </div>

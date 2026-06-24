@@ -9,12 +9,16 @@ import {
 test("public search groups exclude private owner buckets", () => {
   assert.deepEqual(
     PUBLIC_SEARCH_GROUPS.map(([key]) => key),
-    ["developerSpaces", "personas", "spaces", "documents", "threads"]
+    ["developerSpaces", "salons", "personas", "spaces", "documents", "threads"]
   );
 });
 
 test("public search hrefs only target supported public routes", () => {
   assert.equal(searchHref("developerSpaces", { slug: "observatory" }), "/developer-spaces/observatory");
+  assert.equal(searchHref("salons", { slug: "station-replay-salon-alpha", href: "/admin" }), "/forums/station-replay-salon-alpha");
+  assert.equal(searchHref("salons", { categorySlug: "member-salon" }), "/forums/member-salon");
+  assert.equal(searchHref("salons", { slug: "550e8400-e29b-41d4-a716-446655440000" }), null);
+  assert.equal(searchHref("salons", { title: "Missing slug" }), null);
   assert.equal(searchHref("personas", { publicSlug: "blue-lantern" }), "/personas/blue-lantern");
   assert.equal(searchHref("personas", { public_slug: "green-door" }), "/personas/green-door");
   assert.equal(searchHref("personas", { href: "https://example.test/unsafe", publicSlug: "blue-lantern" }), "/personas/blue-lantern");
@@ -62,5 +66,18 @@ test("routeable public search items ignore private owner buckets", () => {
       },
     }).map((item) => [item.result.name, item.href]),
     [["Public Persona", "/personas/public-persona"]]
+  );
+});
+
+test("routeable public search items include safe Salon forum routes", () => {
+  assert.deepEqual(
+    routeablePublicSearchItems("salons", {
+      salons: [
+        { title: "Station Replay Salon Alpha", slug: "station-replay-salon-alpha" },
+        { title: "Unsafe Salon", slug: "550e8400-e29b-41d4-a716-446655440000" },
+        { title: "Missing Slug" },
+      ],
+    }).map((item) => [item.result.title, item.href]),
+    [["Station Replay Salon Alpha", "/forums/station-replay-salon-alpha"]]
   );
 });

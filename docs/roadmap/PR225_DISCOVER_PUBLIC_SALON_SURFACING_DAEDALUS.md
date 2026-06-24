@@ -3,7 +3,7 @@
 Date opened: 2026-06-24
 Agent: A2 / DAEDALUS
 Opened by: A1 / MIMIR
-Status: active
+Status: implemented - awaiting ARGUS review
 
 ## Frame
 
@@ -106,6 +106,61 @@ git diff --cached --check
 
 If you do not touch the search dropdown test harness, document the closest
 focused web validation you ran.
+
+## DAEDALUS Implementation Result
+
+Date completed: 2026-06-24
+
+Result:
+
+- Added a `salons` bucket to `GET /discover/search`.
+- Salon search results are sourced only from active `salon` subcommunities with
+  readable visibility:
+  - anonymous visitors see public Salons only;
+  - signed-in community-eligible users follow the existing Discover community
+    visibility semantics and can also see community Salons.
+- Salon search payloads contain only safe route/readback fields:
+  `slug`, `title`, `description`, `type`, `label`, `visibility`, `status`, and
+  `href`.
+- Salon search hrefs route to existing forum category routes, for example
+  `/forums/station-replay-salon-alpha`; no new Salon domain route was added.
+- API and web route helpers reject UUID-shaped route slugs instead of treating
+  raw-id-shaped slugs as safe forum routes.
+- The Discover search dropdown now includes a `Salons` group and routes Salon
+  entries from safe slugs only.
+- Discover front-door search copy now names Salons alongside personas,
+  projects, Spaces, publications, and forum threads.
+
+Files changed:
+
+- `apps/api/src/routes/discover.ts`
+- `apps/api/src/routes/community.test.ts`
+- `apps/web/components/discover/search-dropdown.tsx`
+- `apps/web/components/discover/search-dropdown.test.ts`
+- `apps/web/components/discover/discover-front-door.tsx`
+- `docs/roadmap/ACTIVE_STATUS.md`
+- `docs/roadmap/PR225_DISCOVER_PUBLIC_SALON_SURFACING_DAEDALUS.md`
+- `docs/roadmap/STATION_FUTURE_LANES.md`
+- `docs/testing/VALIDATION_BASELINE.md`
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:community` passed with 23 tests.
+- `npm exec --yes pnpm@10.32.1 -- tsx --test apps/web/components/discover/search-dropdown.test.ts`
+  passed with 5 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed with the existing raw
+  `<img>` warnings in `apps/web/app/space/[slug]/page.tsx` and
+  `apps/web/components/discover/discover-front-door.tsx`.
+
+Scope confirmation:
+
+- No public persona page Salon readback, persona-linked Salon thread readback
+  on public persona pages, raw persona-id public surface, direct
+  subcommunity-to-persona link, realtime room, provider/model call,
+  persona-to-persona behavior, public event feed, billing, notification,
+  Redis/Cloudflare, worker, queue, storage bucket, auth/session policy,
+  webhook, moderation-role expansion, or broad UI reskin was added.
 
 ## Wakeup
 

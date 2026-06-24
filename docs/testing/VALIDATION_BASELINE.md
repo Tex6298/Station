@@ -20,6 +20,29 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR225 Discover Public Salon Surfacing
+
+DAEDALUS implementation validation on 2026-06-24:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:community` | Pass | 23 tests passed. New coverage proves public Salon search routeability, visitor public-only filtering, community-visible Salon search for eligible users, private/paused/non-Salon exclusion, and no owner/private/category ids in the public Salon bucket. |
+| `npm exec --yes pnpm@10.32.1 -- tsx --test apps/web/components/discover/search-dropdown.test.ts` | Pass | 5 tests passed. Coverage includes the `Salons` public search group, forum-route href derivation from safe slugs, unsafe UUID-shaped slug rejection, and dropping unrouteable Salon results. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass with existing warnings | Existing raw `<img>` warnings remain in `apps/web/app/space/[slug]/page.tsx` and `apps/web/components/discover/discover-front-door.tsx`. |
+
+Scope notes:
+
+- Added `salons` to public Discover search only; no feed ranking or new Salon
+  domain route was added.
+- Salon search results route to existing `/forums/<categorySlug>` pages and
+  expose only safe readback fields.
+- API and web helpers reject UUID-shaped route slugs for Salon result hrefs.
+- No public persona page Salon readback, persona-linked Salon thread readback,
+  raw persona-id public surface, direct subcommunity-to-persona link, realtime
+  room, provider/model call, public event feed, billing, queue, auth/session
+  change, moderation-role expansion, or broad UI reskin was added.
+
 ## PR224 Public Salon Directory Readback Rehearsal
 
 ARIADNE hosted rehearsal on 2026-06-24:

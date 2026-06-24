@@ -4,6 +4,43 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest DAEDALUS result - PR225 Discover Salon surfacing implemented
+
+DAEDALUS implemented PR225 on 2026-06-24.
+
+Result:
+
+- Added a `salons` bucket to `GET /discover/search`, sourced only from active
+  `salon` subcommunities with readable visibility.
+- Anonymous users see public Salons only; signed-in community-eligible users
+  follow existing Discover semantics and can also see community-visible Salons.
+- Salon search payloads expose only safe route/readback fields: `slug`,
+  `title`, `description`, `type`, `label`, `visibility`, `status`, and `href`.
+- Salon hrefs route to existing forum category routes such as
+  `/forums/station-replay-salon-alpha`; no new Salon domain route was added.
+- API and web route helpers reject UUID-shaped route slugs rather than
+  treating raw-id-shaped values as safe forum routes.
+- Discover search UI now has a `Salons` result group and front-door search copy
+  names Salons alongside the existing public result families.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:community` passed with 23 tests.
+- `npm exec --yes pnpm@10.32.1 -- tsx --test apps/web/components/discover/search-dropdown.test.ts`
+  passed with 5 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed with existing raw `<img>`
+  warnings in `apps/web/app/space/[slug]/page.tsx` and
+  `apps/web/components/discover/discover-front-door.tsx`.
+
+Current baton:
+
+- ARGUS should review public/private Salon search visibility, safe hrefs,
+  payload fields, route slug hardening, UI copy honesty, and whether ARIADNE
+  should rehearse hosted Discover search after deployment.
+- Full implementation record:
+  `docs/roadmap/PR225_DISCOVER_PUBLIC_SALON_SURFACING_DAEDALUS.md`.
+
 ## Latest MIMIR decision - PR225 Discover Salon surfacing opened
 
 MIMIR accepts PR224 on 2026-06-24 after ARIADNE passed the hosted Salon

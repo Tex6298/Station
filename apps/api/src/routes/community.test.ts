@@ -348,6 +348,11 @@ class CommunitySupabase {
       copy.category = category ? { id: category.id, slug: category.slug, title: category.title } : null;
     }
 
+    if (table === "community_subcommunities" && columns.includes("category:forum_categories")) {
+      const category = this.rows("forum_categories").find((candidate) => candidate.id === row.category_id);
+      copy.category = category ? { slug: category.slug, title: category.title } : null;
+    }
+
     if (table === "threads" && columns.includes("document:documents")) {
       const document = this.rows("documents").find((candidate) => candidate.id === row.linked_document_id);
       copy.document = document
@@ -3418,6 +3423,134 @@ test("Discover feed and search include public-safe Developer Spaces", async () =
       memberSearch.body.developerSpaces.map((space: Row) => space.id).sort(),
       [COMMUNITY_DEV_SPACE_ID, PUBLIC_DEV_SPACE_ID].sort()
     );
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
+
+test("Discover search surfaces public Salons through safe forum category routes", async () => {
+  const db = new CommunitySupabase();
+  setSupabaseAdminForTests(db.client as any);
+  const app = createCommunityApp();
+
+  try {
+    const publicCategory = db.insertRow("forum_categories", {
+      id: "44444444-4444-4444-8444-444444444451",
+      slug: "station-replay-salon-alpha",
+      title: "Station Replay Salon Alpha",
+    });
+    const communityCategory = db.insertRow("forum_categories", {
+      id: "44444444-4444-4444-8444-444444444452",
+      slug: "member-salon",
+      title: "Member Salon",
+    });
+    const privateCategory = db.insertRow("forum_categories", {
+      id: "44444444-4444-4444-8444-444444444453",
+      slug: "private-salon",
+      title: "Private Salon",
+    });
+    const pausedCategory = db.insertRow("forum_categories", {
+      id: "44444444-4444-4444-8444-444444444454",
+      slug: "paused-salon",
+      title: "Paused Salon",
+    });
+    const canonCategory = db.insertRow("forum_categories", {
+      id: "44444444-4444-4444-8444-444444444455",
+      slug: "canon-lab",
+      title: "Canon Lab",
+    });
+
+    db.insertRow("community_subcommunities", {
+      category_id: publicCategory.id,
+      owner_user_id: CANON_ID,
+      slug: "station-replay-salon-alpha",
+      title: "Station Replay Salon Alpha",
+      description: "Public staging Salon.",
+      subcommunity_type: "salon",
+      visibility: "public",
+    });
+    db.insertRow("community_subcommunities", {
+      category_id: communityCategory.id,
+      owner_user_id: INSTITUTIONAL_ID,
+      slug: "member-salon",
+      title: "Member Salon",
+      description: "Community-visible Salon.",
+      subcommunity_type: "salon",
+      visibility: "community",
+    });
+    db.insertRow("community_subcommunities", {
+      category_id: privateCategory.id,
+      owner_user_id: CANON_ID,
+      slug: "private-salon",
+      title: "Private Salon",
+      description: "Private Salon.",
+      subcommunity_type: "salon",
+      visibility: "private",
+    });
+    db.insertRow("community_subcommunities", {
+      category_id: pausedCategory.id,
+      owner_user_id: CANON_ID,
+      slug: "paused-salon",
+      title: "Paused Salon",
+      description: "Paused public Salon.",
+      subcommunity_type: "salon",
+      visibility: "public",
+      status: "paused",
+    });
+    db.insertRow("community_subcommunities", {
+      category_id: canonCategory.id,
+      owner_user_id: CANON_ID,
+      slug: "canon-lab",
+      title: "Canon Salon Adjacent Lab",
+      description: "Not a Salon type.",
+      subcommunity_type: "canon",
+      visibility: "public",
+    });
+
+    const visitor = await requestJson(app, "GET", "/discover/search?q=Salon");
+    assert.equal(visitor.status, 200);
+    assert.deepEqual(visitor.body.salons, [{
+      slug: "station-replay-salon-alpha",
+      title: "Station Replay Salon Alpha",
+      description: "Public staging Salon.",
+      type: "salon",
+      label: "Salon",
+      visibility: "public",
+      status: "active",
+      href: "/forums/station-replay-salon-alpha",
+    }]);
+    const visitorText = JSON.stringify(visitor.body.salons);
+    for (const forbidden of [
+      CANON_ID,
+      INSTITUTIONAL_ID,
+      privateCategory.id,
+      communityCategory.id,
+      "owner_user_id",
+      "linked_space_id",
+      "linked_developer_space_id",
+      "Private Salon",
+      "Member Salon",
+      "Paused Salon",
+      "Canon Salon Adjacent Lab",
+    ]) {
+      assert.equal(visitorText.includes(forbidden), false, `${forbidden} leaked into visitor Salon search`);
+    }
+
+    const member = await requestJson(app, "GET", "/discover/search?q=Salon", {
+      token: "member-token",
+    });
+    assert.equal(member.status, 200);
+    assert.deepEqual(
+      member.body.salons.map((row: Row) => [row.title, row.href]).sort(),
+      [
+        ["Member Salon", "/forums/member-salon"],
+        ["Station Replay Salon Alpha", "/forums/station-replay-salon-alpha"],
+      ].sort()
+    );
+    const memberText = JSON.stringify(member.body.salons);
+    assert.equal(memberText.includes("Private Salon"), false);
+    assert.equal(memberText.includes("Paused Salon"), false);
+    assert.equal(memberText.includes("Canon Salon Adjacent Lab"), false);
   } finally {
     setSupabaseAdminForTests(null);
   }

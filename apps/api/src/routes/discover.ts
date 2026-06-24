@@ -14,6 +14,9 @@ import { ownerCanExposeExistingPublicPersonas } from "../lib/public-persona-elig
 
 export const discoverRouter = Router();
 const COMMUNITY_TIERS = new Set(["private", "creator", "canon", "institutional"]);
+const SAFE_ROUTE_SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+const UUID_SHAPED_ROUTE_SLUG_PATTERN =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 function canSeeCommunityDocuments(req: Request) {
   return Boolean(req.user && COMMUNITY_TIERS.has(req.user.tier));
@@ -26,6 +29,12 @@ function discoverableDocumentVisibilities(req: Request): DocumentVisibility[] {
 }
 
 function discoverableThreadVisibilities(req: Request): ThreadVisibility[] {
+  return canSeeCommunityDocuments(req)
+    ? ["public", "community"]
+    : ["public"];
+}
+
+function discoverableSubcommunityVisibilities(req: Request) {
   return canSeeCommunityDocuments(req)
     ? ["public", "community"]
     : ["public"];
@@ -63,6 +72,32 @@ function emptyPrivateSearchResults() {
     importJobs: [],
     archivedChats: [],
   };
+}
+
+function safeForumCategoryHref(slug: unknown) {
+  return typeof slug === "string" &&
+    SAFE_ROUTE_SLUG_PATTERN.test(slug) &&
+    !UUID_SHAPED_ROUTE_SLUG_PATTERN.test(slug)
+    ? `/forums/${slug}`
+    : null;
+}
+
+function publicSalonSearchResults(rows: any[]) {
+  return rows.flatMap((row) => {
+    const categorySlug = row.category?.slug ?? row.slug;
+    const href = safeForumCategoryHref(categorySlug);
+    if (!href) return [];
+    return [{
+      slug: row.slug,
+      title: row.title,
+      description: row.description ?? null,
+      type: "salon",
+      label: "Salon",
+      visibility: row.visibility,
+      status: row.status,
+      href,
+    }];
+  });
 }
 
 async function publicPersonaSearchResults(
@@ -502,12 +537,13 @@ discoverRouter.get("/search", optionalAuth, async (req: Request, res: Response) 
       spaces: [],
       personas: [],
       developerSpaces: [],
+      salons: [],
       privateResults: req.user ? emptyPrivateSearchResults() : undefined,
     });
   }
   const sb = getSupabaseAdmin();
 
-  const [docResults, threadResults, spaces, personas, developerSpaceResults, privateResults] = await Promise.all([
+  const [docResults, threadResults, spaces, personas, developerSpaceResults, salonResults, privateResults] = await Promise.all([
     Promise.all(discoverableDocumentVisibilities(req).map((visibility) =>
       sb
         .from("documents")
@@ -536,6 +572,16 @@ discoverRouter.get("/search", optionalAuth, async (req: Request, res: Response) 
         .ilike("project_name", `%${q}%`)
         .limit(6)
     )),
+    Promise.all(discoverableSubcommunityVisibilities(req).map((visibility) =>
+      (sb as any)
+        .from("community_subcommunities")
+        .select("slug, title, description, subcommunity_type, visibility, status, category:forum_categories!category_id(slug, title)")
+        .eq("subcommunity_type", "salon")
+        .eq("status", "active")
+        .eq("visibility", visibility)
+        .ilike("title", `%${q}%`)
+        .limit(6)
+    )),
     req.user ? ownerPrivateSearchResults(req.user.id, q) : Promise.resolve(undefined),
   ]);
 
@@ -557,6 +603,7 @@ discoverRouter.get("/search", optionalAuth, async (req: Request, res: Response) 
       updatedAt: space.updated_at,
       href: `/developer-spaces/${space.slug}`,
     })),
+    salons: publicSalonSearchResults(salonResults.flatMap((result) => result.data ?? [])).slice(0, 6),
     privateResults,
   });
 });
