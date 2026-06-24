@@ -31,12 +31,26 @@ DAEDALUS implementation validation on 2026-06-24:
 | `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed. |
 | `npm exec --yes pnpm@10.32.1 -- run lint` | Pass with existing warnings | Existing raw `<img>` warnings remain in `apps/web/app/space/[slug]/page.tsx` and `apps/web/components/discover/discover-front-door.tsx`. |
 
+ARGUS review validation on 2026-06-24:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:community` | Pass | Re-ran 23 API tests after the ARGUS route-slug hardening patch. |
+| `npm exec --yes pnpm@10.32.1 -- tsx --test apps/web/components/discover/search-dropdown.test.ts` | Pass | Re-ran 5 focused search dropdown tests. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass with existing warnings | Same existing raw `<img>` warnings in `apps/web/app/space/[slug]/page.tsx` and `apps/web/components/discover/discover-front-door.tsx`. |
+| `git diff --check` | Pass | CRLF normalization warnings only. |
+| `git diff --cached --check` | Pass | Staged ARGUS patch, verdict docs, and watcher state had no whitespace errors. |
+
 Scope notes:
 
 - Added `salons` to public Discover search only; no feed ranking or new Salon
   domain route was added.
 - Salon search results route to existing `/forums/<categorySlug>` pages and
   expose only safe readback fields.
+- ARGUS patched Salon search results so `slug` and `categorySlug` both use the
+  validated forum category slug that backs `href`; unsafe or mismatched
+  subcommunity slugs do not leak into Discover routes.
 - API and web helpers reject UUID-shaped route slugs for Salon result hrefs.
 - No public persona page Salon readback, persona-linked Salon thread readback,
   raw persona-id public surface, direct subcommunity-to-persona link, realtime

@@ -3459,6 +3459,11 @@ test("Discover search surfaces public Salons through safe forum category routes"
       slug: "canon-lab",
       title: "Canon Lab",
     });
+    const mismatchCategory = db.insertRow("forum_categories", {
+      id: "44444444-4444-4444-8444-444444444456",
+      slug: "safe-mismatch-salon",
+      title: "Safe Mismatch Route",
+    });
 
     db.insertRow("community_subcommunities", {
       category_id: publicCategory.id,
@@ -3506,11 +3511,21 @@ test("Discover search surfaces public Salons through safe forum category routes"
       subcommunity_type: "canon",
       visibility: "public",
     });
+    db.insertRow("community_subcommunities", {
+      category_id: mismatchCategory.id,
+      owner_user_id: CANON_ID,
+      slug: "550e8400-e29b-41d4-a716-446655440000",
+      title: "Mismatch Route",
+      description: "Route should come from the safe category slug.",
+      subcommunity_type: "salon",
+      visibility: "public",
+    });
 
     const visitor = await requestJson(app, "GET", "/discover/search?q=Salon");
     assert.equal(visitor.status, 200);
     assert.deepEqual(visitor.body.salons, [{
       slug: "station-replay-salon-alpha",
+      categorySlug: "station-replay-salon-alpha",
       title: "Station Replay Salon Alpha",
       description: "Public staging Salon.",
       type: "salon",
@@ -3532,9 +3547,26 @@ test("Discover search surfaces public Salons through safe forum category routes"
       "Member Salon",
       "Paused Salon",
       "Canon Salon Adjacent Lab",
+      "Mismatch Route",
+      "550e8400-e29b-41d4-a716-446655440000",
     ]) {
       assert.equal(visitorText.includes(forbidden), false, `${forbidden} leaked into visitor Salon search`);
     }
+
+    const mismatch = await requestJson(app, "GET", "/discover/search?q=Mismatch");
+    assert.equal(mismatch.status, 200);
+    assert.deepEqual(mismatch.body.salons, [{
+      slug: "safe-mismatch-salon",
+      categorySlug: "safe-mismatch-salon",
+      title: "Mismatch Route",
+      description: "Route should come from the safe category slug.",
+      type: "salon",
+      label: "Salon",
+      visibility: "public",
+      status: "active",
+      href: "/forums/safe-mismatch-salon",
+    }]);
+    assert.equal(JSON.stringify(mismatch.body.salons).includes("550e8400-e29b-41d4-a716-446655440000"), false);
 
     const member = await requestJson(app, "GET", "/discover/search?q=Salon", {
       token: "member-token",

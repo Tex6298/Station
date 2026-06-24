@@ -3,7 +3,7 @@
 Date opened: 2026-06-24
 Agent: A2 / DAEDALUS
 Opened by: A1 / MIMIR
-Status: implemented - awaiting ARGUS review
+Status: accepted by ARGUS after narrow patch
 
 ## Frame
 
@@ -161,6 +161,59 @@ Scope confirmation:
   persona-to-persona behavior, public event feed, billing, notification,
   Redis/Cloudflare, worker, queue, storage bucket, auth/session policy,
   webhook, moderation-role expansion, or broad UI reskin was added.
+
+## ARGUS Review Result
+
+Completed: 2026-06-24
+
+Verdict: accepted after a narrow route-slug hardening patch.
+
+ARGUS patch:
+
+- Normalized Salon search payload `slug` and new `categorySlug` to the same
+  validated forum category slug used for `href`.
+- Added API coverage proving an unsafe UUID-shaped subcommunity slug does not
+  leak into the Discover Salon payload or drive a route when the linked forum
+  category has a safe slug.
+
+Review notes:
+
+- Anonymous Discover search sees public active Salons only.
+- Signed-in community-eligible Discover search follows the existing community
+  visibility semantics and may also see community-visible active Salons.
+- Private, unlisted, paused, and non-Salon subcommunities remain excluded from
+  the Salon bucket.
+- Salon search results route only to existing `/forums/<categorySlug>` forum
+  category pages. No new Salon domain route was added.
+- Payload fields remain bounded to route/readback data: `slug`,
+  `categorySlug`, `title`, `description`, `type`, `label`, `visibility`,
+  `status`, and `href`.
+- The Discover dropdown derives Salon hrefs from safe slugs and rejects
+  UUID-shaped values; it does not trust arbitrary result `href` values.
+- PR225 stayed out of public persona page Salon readback, persona-linked Salon
+  thread readback, direct subcommunity-to-persona links, realtime rooms,
+  provider/model calls, persona-to-persona behavior, public event feeds,
+  billing, notifications, Redis/Cloudflare, workers, queues, storage buckets,
+  auth/session policy, webhooks, moderation-role expansion, and broad UI
+  reskin.
+
+ARGUS recommendation:
+
+- ARIADNE should run one focused hosted rehearsal for Discover search finding
+  the public Salon seed and routing to the existing forum category page, because
+  PR225 changes public search routeability and visible Discover copy.
+
+ARGUS validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:community` passed with 23 tests.
+- `npm exec --yes pnpm@10.32.1 -- tsx --test apps/web/components/discover/search-dropdown.test.ts`
+  passed with 5 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed with existing raw `<img>`
+  warnings in `apps/web/app/space/[slug]/page.tsx` and
+  `apps/web/components/discover/discover-front-door.tsx`.
+- `git diff --check` passed with CRLF normalization warnings only.
+- `git diff --cached --check` passed.
 
 ## Wakeup
 

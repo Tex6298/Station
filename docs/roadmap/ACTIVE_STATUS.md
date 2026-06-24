@@ -4,6 +4,51 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS result - PR225 Discover Salon surfacing accepted
+
+ARGUS reviewed PR225 on 2026-06-24 and accepts after a narrow route-slug
+hardening patch.
+
+Result:
+
+- Confirmed `GET /discover/search` has a bounded `salons` bucket sourced only
+  from active `salon` subcommunities with readable visibility.
+- Confirmed anonymous search sees public active Salons only, while signed-in
+  community-eligible search follows existing Discover semantics and may also
+  see community-visible active Salons.
+- Confirmed private, unlisted, paused, and non-Salon subcommunities remain
+  excluded from the Salon bucket.
+- Patched Salon search payloads so `slug` and `categorySlug` are both the
+  validated forum category slug used for `href`, preventing unsafe or
+  mismatched subcommunity slugs from leaking into Discover routes.
+- Confirmed Salon results route only to existing `/forums/<categorySlug>` forum
+  category pages, and the web dropdown rejects UUID-shaped route slugs instead
+  of trusting arbitrary result `href` values.
+- Confirmed no public persona page Salon readback, persona-linked Salon thread
+  readback, raw persona-id public surface, direct subcommunity-to-persona link,
+  realtime room, provider/model call, persona-to-persona behavior, public event
+  feed, billing, notification, Redis/Cloudflare, worker, queue, storage bucket,
+  auth/session policy, webhook, moderation-role expansion, or broad UI reskin
+  was added.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:community` passed with 23 tests.
+- `npm exec --yes pnpm@10.32.1 -- tsx --test apps/web/components/discover/search-dropdown.test.ts`
+  passed with 5 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed with existing raw `<img>`
+  warnings in `apps/web/app/space/[slug]/page.tsx` and
+  `apps/web/components/discover/discover-front-door.tsx`.
+- `git diff --check` passed with CRLF normalization warnings only.
+- `git diff --cached --check` passed.
+
+Recommendation:
+
+- Wake MIMIR to close PR225 and open one focused ARIADNE hosted rehearsal for
+  Discover search finding the public Salon seed and routing to the existing
+  forum category page.
+
 ## Latest DAEDALUS result - PR225 Discover Salon surfacing implemented
 
 DAEDALUS implemented PR225 on 2026-06-24.

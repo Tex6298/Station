@@ -88,7 +88,8 @@ function publicSalonSearchResults(rows: any[]) {
     const href = safeForumCategoryHref(categorySlug);
     if (!href) return [];
     return [{
-      slug: row.slug,
+      slug: categorySlug,
+      categorySlug,
       title: row.title,
       description: row.description ?? null,
       type: "salon",
