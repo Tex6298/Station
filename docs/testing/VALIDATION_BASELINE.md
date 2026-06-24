@@ -20,6 +20,24 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR257 Developer Space Tier 1 Partner Onboarding Docs
+
+DAEDALUS docs-only implementation on 2026-06-24:
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `git diff --check` | Pass | Docs-only whitespace check; CRLF warnings only. |
+| `git diff --cached --check` | Pass | Staged whitespace check. |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-space-client` | Pass | Developer Space client ingestion and webhook helper tests remain green. |
+| Targeted placeholder/secret scan | Pass | No matches for live-key, credential, or auth-token patterns in `docs/integration/developer-space-tier1-partner-onboarding.md`. |
+
+Scope notes:
+
+- Added partner onboarding/readback docs only.
+- No schema, API route, web route, client package, package script, migration,
+  env template, generated asset, screenshot, billing copy, community UI, or
+  visible Developer Space framing changed.
+
 ## PR256 Developer Space Tier 1 Partner Readiness Preflight
 
 ARGUS docs-only preflight on 2026-06-24:

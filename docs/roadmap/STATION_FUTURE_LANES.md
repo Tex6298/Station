@@ -428,11 +428,17 @@ Current intent:
   placeholder-only ingestion examples, TypeScript client examples,
   visibility/privacy explanation, owner-console readiness checklist,
   sanitized troubleshooting, and explicit Tier 2/Tier 3 deferrals.
+- PR257 result: DAEDALUS added the Tier 1 partner onboarding/readback docs with
+  placeholder-only curl and TypeScript ingestion examples, visibility/privacy
+  guidance, owner-console readiness checklist, sanitized troubleshooting, and
+  explicit deferrals. Scope stayed docs-only; visible public Developer Space
+  framing and owner-console UI copy remain split into a later browser-rehearsed
+  lane.
 
 ## Phase 3 bridge sequence
 
 Status, 2026-06-24: PR202 through PR256 are accepted. PR257 Developer Space
-Tier 1 Partner Onboarding Docs is active with DAEDALUS.
+Tier 1 Partner Onboarding Docs is complete and awaiting ARGUS review.
 
 Current MIMIR position:
 
@@ -516,7 +522,7 @@ Bridge order:
 55. Done: Owner Project Export Hosted Rerun.
 56. Done: Developer Space Partner Readiness Map.
 57. Done: Developer Space Tier 1 Partner Readiness Preflight.
-58. Active: Developer Space Tier 1 Partner Onboarding Docs.
+58. Review: Developer Space Tier 1 Partner Onboarding Docs.
 
 ARGUS P3-B1A gates:
 

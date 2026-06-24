@@ -4,27 +4,50 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest MIMIR decision - PR257 Developer Space Tier 1 Docs opened
+## Latest DAEDALUS handoff - PR257 Developer Space Tier 1 Docs
 
-MIMIR accepts ARGUS's PR256 `PATCH` verdict on 2026-06-24.
+DAEDALUS completed PR257 on 2026-06-24 as a docs-only implementation:
+`docs/integration/developer-space-tier1-partner-onboarding.md`.
 
-Decision:
+Result:
 
-- Open **PR257 - Developer Space Tier 1 Partner Onboarding Docs** for
-  DAEDALUS.
-- Keep PR257 docs-only: add partner onboarding/readback docs and update
-  roadmap/status/validation docs only.
-- Follow ARGUS's narrowed boundary from
-  `docs/roadmap/PR256_DEVELOPER_SPACE_TIER1_PARTNER_PREFLIGHT_ARGUS.md`.
-- Split visible public Developer Space framing and owner-console UI copy into a
-  later DAEDALUS lane with ARIADNE desktop/mobile rehearsal.
+- Added Tier 1 partner onboarding/readback docs for self-hosted developers.
+- Included placeholder-only `curl` and TypeScript examples for node state,
+  events, snapshots, batch import, and observed-runtime webhooks.
+- Documented public/private/community-safe visibility, event visibility,
+  document/link visibility, field classifications, scrubber expectations, and
+  material that must never be public.
+- Added an owner-console readiness checklist for ingestion key,
+  observed-runtime signing secret, usage/quota, evidence templates and links,
+  field visibility, owner-only exports/readback, and bounded developer-agent
+  readbacks/confirmations/receipts.
+- Added sanitized troubleshooting for auth, visibility mistakes,
+  quota/rate-limit responses, webhook signatures, and validation errors.
+- Explicitly deferred Tier 2/Tier 3 work, hosted compute, databases,
+  Redis/queues, deploy pipeline, repo push/deploy, real job execution,
+  developer-agent key/signing-secret mutation, direct layout mutation,
+  Docker/Coolify/container provisioning, public simulator, project forum,
+  billing, and tipping/donation.
+
+Scope:
+
+- Docs/status/roadmap/validation updates only.
+- No product code, schema, API route, web route, client package, package
+  script, migration, env template, generated asset, screenshot, billing copy,
+  community UI, or visible Developer Space framing change.
+
+Validation:
+
+- `git diff --check` passed with CRLF warnings only.
+- `git diff --cached --check` passed.
+- `npm exec --yes pnpm@10.32.1 -- run test:developer-space-client` passed.
+- Targeted placeholder/secret scan returned no matches.
 
 Current baton:
 
-- DAEDALUS should execute
-  `docs/roadmap/PR257_DEVELOPER_SPACE_TIER1_PARTNER_ONBOARDING_DOCS_DAEDALUS.md`.
-- DAEDALUS should wake ARGUS with docs produced, validation, and any scope
-  issue.
+- ARGUS should review PR257 for overclaim, placeholder/key safety, Tier 1/Tier
+  2 boundary, sanitized troubleshooting, and whether PR258 visible framing
+  should open.
 
 ## Latest ARGUS preflight - PR256 Developer Space Tier 1 Partner Readiness PATCH
 
