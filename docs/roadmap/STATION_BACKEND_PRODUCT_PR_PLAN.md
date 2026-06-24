@@ -566,6 +566,14 @@ DAEDALUS. This is no longer a blind prompt-wording lane: DAEDALUS must diagnose
 or repair the answer contract with sanitized evidence, and ARGUS must define
 the safe acceptance gate before another hosted rerun.
 
+2026-06-25 PR291 result: DAEDALUS added a private-only selected-context answer
+contract verifier plus one-shot retry for direct/factual private persona
+prompts that miss all selected focus. The route records only sanitized
+booleans/counts/reason codes, keeps provider-only selected context out of
+persisted owner messages, and conservatively accounts for the possible retry in
+quota/token estimates. ARGUS should review whether MIMIR opens an ARIADNE PR292
+hosted rerun or routes the next decision through provider/model behavior.
+
 2026-06-23 Phase 3 bridge decision: MIMIR consumed the A1 bridge wakeup and
 opened PR201 for ARGUS hostile boundary preflight. Phase 3 is not ready for
 direct product-code opening because public persona pages, bounded visitor

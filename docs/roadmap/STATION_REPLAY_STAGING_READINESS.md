@@ -137,6 +137,11 @@ then let staged replay reveal the next optimizations.
   hosted answer recalled none. MIMIR opened PR291 as a narrow DAEDALUS
   diagnostic/repair lane for the selected-context answer contract, with ARGUS
   required to define the safe acceptance gate before another hosted rerun.
+- PR291 added a private-only answer contract verifier and one-shot retry for
+  direct/factual private persona prompts that miss all selected focus. Trace
+  payloads store only sanitized counts/reason codes, and quota/token accounting
+  includes the possible retry conservatively. ARGUS should review the patch
+  before MIMIR opens an ARIADNE PR292 hosted rerun.
 - Broader known caveats still travel into staging review instead of spawning
   more local polish: static global Archive/Export shells, dashboard
   derived/static snippets, no downloadable bundles/workers, and no new private

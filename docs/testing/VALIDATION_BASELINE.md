@@ -32,28 +32,27 @@ Memory/observability implementation lane.
 
 ## PR291 Selected-Context Answer Contract Diagnostic
 
-MIMIR opened PR291 for DAEDALUS on 2026-06-25 after ARIADNE's PR290 hosted
-rerun failed.
+DAEDALUS completed PR291 on 2026-06-25:
+`docs/roadmap/PR291_SELECTED_CONTEXT_ANSWER_CONTRACT_RESULT.md`.
 
-Required validation:
+Result: ready for ARGUS review.
 
-| Check | Expected result | Notes |
+Validation result:
+
+| Check | Result | Notes |
 | --- | --- | --- |
-| Contract diagnosis | Pass | Prove whether selected focus reaches the answer-contract point without logging raw prompts, provider payloads, completions, private source bodies, ids, cookies, or tokens. |
-| Answer-use verifier/retry safety | Pass or not touched | If added, verifier/retry must be private-only, one-shot, direct-factual, sanitized, and conservatively accounted. |
-| Label/fact preservation | Pass | Local route tests should prove labels/titles stay paired with supporting facts after the repair. |
-| Rejected-control/source-copy safety | Pass | Rejected controls remain filtered and answers must not copy raw source-body markers. |
-| No hardcoded replay terms | Pass | Product code must not special-case seeded anchors, replay persona names, hosted ids, test account details, or staging prompt wording. |
+| Contract diagnosis | Pass | Selected focus reaches the provider-facing final user message, and the route now evaluates the answer-use contract in process memory. |
+| Answer-use verifier/retry safety | Pass | Verifier/retry is private-only, direct-factual, one-shot, sanitized, and quota/token-accounted conservatively. |
+| Label/fact preservation | Pass | Focused route test proves successful retry preserves the selected label and supporting facts. |
+| Rejected-control/source-copy safety | Pass | Rejected-control filtering and source-copy boundaries are unchanged. |
+| No hardcoded replay terms | Pass | Product code is generic over selected source titles/content terms; seeded labels appear only in synthetic test fixtures. |
 | Scope | Pass | No retrieval, provider routing/model choice, embeddings, schema, seeds, imports, Redis, Cloudflare, queues, workers, billing, Stripe, public UI, or Studio UI changes. |
-| `npm exec --yes pnpm@10.32.1 -- run test:retrieval-metadata` | Pass | Required unless DAEDALUS records why untouched scope makes it unnecessary. |
-| `npm exec --yes pnpm@10.32.1 -- run test:persona-context` | Pass | Required unless DAEDALUS records why untouched scope makes it unnecessary. |
-| `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass | Required focused route coverage. |
-| `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` | Pass | Required if trace/readiness metadata is touched. |
-| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | Required. |
-| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass | Existing warnings should be named if still present. |
-| `git diff --check` | Pass | Required. |
-| `git diff --cached --check` | Pass | Required before wakeup. |
-| Added-line hygiene scan | Pass | No credentials, emails, credentialed URLs, UUID-shaped ids, raw prompts, raw completions, private source bodies, or secret-bearing env values. |
+| `npm exec --yes pnpm@10.32.1 -- run test:retrieval-metadata` | Pass | 12 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-context` | Pass | 8 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass | 36 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` | Pass | 2 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | 2 turbo tasks passed. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass with existing warnings | Existing raw `<img>` warnings remain in `apps/web/app/space/[slug]/page.tsx` and `apps/web/components/discover/discover-front-door.tsx`. |
 
 ## PR290 Hosted Runtime Answer Rerun Result
 

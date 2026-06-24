@@ -759,6 +759,139 @@ test("chat runtime budget does not block configured BYOK providers when platform
   }
 });
 
+test("chat retries once when a direct private answer ignores selected context", async () => {
+  const db = new InMemorySupabase();
+  db.tables.profiles[0].ai_mode = "byok";
+  db.tables.profiles[0].byok_openai_key = "secret-openai-key";
+  db.tables.personas[0].provider = "openai";
+  db.insertRow("memory_items", {
+    id: "memory-selected-context-retry",
+    persona_id: PERSONA_ID,
+    owner_user_id: OWNER_ID,
+    title: "Meridian Loom staging pair",
+    content: "Meridian Loom pairs with the silver compass ledger; Helio Gate pairs with the blue lantern checksum.",
+    summary: "Two staging concept labels and their paired phrases.",
+    source_type: "manual",
+    relevance_weight: 10,
+  });
+  db.insertRow("memory_item_lifecycle", {
+    id: "memory-selected-context-retry-lifecycle",
+    memory_item_id: "memory-selected-context-retry",
+    persona_id: PERSONA_ID,
+    owner_user_id: OWNER_ID,
+    status: "active",
+    trust_level: "user_stated",
+    confidence: 1,
+  });
+  setSupabaseAdminForTests(db.client as any);
+  const app = await createConversationArchiveApp();
+  const originalFetch = globalThis.fetch;
+  const providerCalls: Array<{ url: string; body: string }> = [];
+  globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
+    const url = typeof input === "string"
+      ? input
+      : input instanceof URL
+        ? input.toString()
+        : input.url;
+    if (url.startsWith("https://api.openai.com/")) {
+      providerCalls.push({ url, body: String(init?.body ?? "") });
+      const content = providerCalls.length === 1
+        ? "I can answer from general continuity, but not those details."
+        : "Meridian Loom staging pair: Meridian Loom pairs with the silver compass ledger; Helio Gate pairs with the blue lantern checksum.";
+      return new Response(JSON.stringify({
+        choices: [{ message: { content } }],
+        model: "gpt-4o-mini",
+      }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+    return originalFetch(input, init);
+  }) as typeof fetch;
+
+  try {
+    const response = await requestJson(app, "POST", `/conversations/persona/${PERSONA_ID}/chat`, {
+      token: "owner-token",
+      body: {
+        conversationId: CONVERSATION_ID,
+        content: "List the selected context pairs.",
+      },
+    });
+
+    assert.equal(response.status, 200);
+    assert.equal(
+      response.body.reply.content,
+      "Meridian Loom staging pair: Meridian Loom pairs with the silver compass ledger; Helio Gate pairs with the blue lantern checksum."
+    );
+    assert.equal(providerCalls.length, 2);
+
+    const firstPayload = JSON.parse(providerCalls[0].body) as { messages: Array<{ role: string; content: string }> };
+    const retryPayload = JSON.parse(providerCalls[1].body) as { messages: Array<{ role: string; content: string }> };
+    assert.match(firstPayload.messages.at(-1)?.content ?? "", /selected label\/name: Meridian Loom staging pair/);
+    assert.doesNotMatch(firstPayload.messages.at(-1)?.content ?? "", /Answer-contract retry/);
+    assert.match(retryPayload.messages.at(-1)?.content ?? "", /Answer-contract retry/);
+    assert.match(retryPayload.messages.at(-1)?.content ?? "", /supporting fact: Meridian Loom pairs with the silver compass ledger/);
+
+    const contractRetryEvent = db.tables.ai_trace_events.find((event) =>
+      event.label === "Selected-context answer contract retry"
+    );
+    assert.ok(contractRetryEvent);
+    assert.equal(contractRetryEvent.payload.answerContract.reasonCode, "missed_all_selected_focus");
+    assert.deepEqual(contractRetryEvent.payload.retry, {
+      attempted: true,
+      reasonCode: "missed_all_selected_focus",
+    });
+
+    const contractEvent = db.tables.ai_trace_events.find((event) =>
+      event.label === "Selected-context answer contract"
+    );
+    assert.ok(contractEvent);
+    assert.equal(contractEvent.payload.firstAnswerContract.reasonCode, "missed_all_selected_focus");
+    assert.equal(contractEvent.payload.answerContract.reasonCode, "fulfilled");
+    assert.equal(contractEvent.payload.answerContract.retryRecommended, false);
+    assert.deepEqual(contractEvent.payload.retry, {
+      attempted: true,
+      failed: false,
+      maxAttempts: 1,
+    });
+
+    const llmEvent = db.tables.ai_trace_events.find((event) => event.label === "Persona chat response");
+    assert.ok(llmEvent);
+    assert.equal(llmEvent.payload.retry.attempted, true);
+    assert.equal(llmEvent.payload.retry.failed, false);
+    assert.equal(llmEvent.payload.answerContract.reasonCode, "fulfilled");
+    assert.equal(llmEvent.input_tokens > 0, true);
+    assert.equal(llmEvent.output_tokens > 0, true);
+
+    assert.equal(
+      db.tables.conversation_messages.filter((row) => row.content === "List the selected context pairs.").length,
+      1
+    );
+    assert.equal(
+      db.tables.conversation_messages.some((row) =>
+        row.role === "user" && /Station-selected context|Answer-contract retry/.test(row.content)
+      ),
+      false
+    );
+    assert.equal(
+      db.tables.conversation_messages.some((row) => /general continuity, but not those details/.test(row.content)),
+      false
+    );
+    assert.equal(
+      db.tables.conversation_messages.filter((row) =>
+        row.content === "Meridian Loom staging pair: Meridian Loom pairs with the silver compass ledger; Helio Gate pairs with the blue lantern checksum."
+      ).length,
+      1
+    );
+
+    assert.doesNotMatch(JSON.stringify(db.tables.ai_trace_events), /Meridian Loom|silver compass ledger|blue lantern checksum/);
+    assert.doesNotMatch(JSON.stringify(db.tables.ai_trace_sessions), /Meridian Loom|silver compass ledger|blue lantern checksum/);
+  } finally {
+    globalThis.fetch = originalFetch;
+    setSupabaseAdminForTests(null);
+  }
+});
+
 test("chat provider failure traces do not store raw provider payloads", async () => {
   const db = new InMemorySupabase();
   db.tables.profiles[0].ai_mode = "byok";

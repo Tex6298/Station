@@ -130,6 +130,11 @@ PR290 proved hosted selected context still contained both labels and phrases,
 but the hosted answer recalled none. PR291 opens a DAEDALUS selected-context
 answer-contract diagnostic/repair lane with ARGUS required to gate any retry,
 verifier, accounting, or trace behavior before another hosted rerun.
+DAEDALUS completed PR291 by adding a private-only answer contract verifier and
+one-shot retry for direct/factual private persona prompts that miss all selected
+focus. Trace payloads store only sanitized counts/reason codes, and quota/token
+accounting includes the possible retry conservatively. ARGUS review should
+decide whether MIMIR opens an ARIADNE PR292 hosted rerun.
 
 ## Phase 2D Developer Agent closeout
 

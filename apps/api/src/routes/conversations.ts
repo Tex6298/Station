@@ -102,13 +102,94 @@ function chatError(status: number, code: string, classification: ChatErrorClassi
 const PROVIDER_SELECTED_CONTEXT_FOCUS_MAX_ITEMS = 8;
 const PROVIDER_SELECTED_CONTEXT_FOCUS_MAX_CHARS = 220;
 const PROVIDER_SELECTED_CONTEXT_FOCUS_MAX_TITLE_CHARS = 80;
+const ANSWER_CONTRACT_MAX_TERMS_PER_ITEM = 10;
+const ANSWER_CONTRACT_STOP_WORDS = new Set([
+  "about",
+  "after",
+  "also",
+  "before",
+  "being",
+  "context",
+  "direct",
+  "facts",
+  "from",
+  "have",
+  "into",
+  "label",
+  "message",
+  "name",
+  "owner",
+  "pair",
+  "pairs",
+  "selected",
+  "should",
+  "that",
+  "their",
+  "there",
+  "these",
+  "this",
+  "title",
+  "with",
+]);
 
-function buildProviderUserMessageContent(ownerMessage: string, runtimeContext: PersonaRuntimeContext) {
+type ProviderFocusOptions = {
+  contractRetry?: boolean;
+};
+
+type AnswerContractItem = {
+  hasLabel: boolean;
+  labelTerms: string[];
+  factTerms: string[];
+};
+
+type SelectedContextAnswerContract = {
+  schema: "station.selected_context_answer_contract.v1";
+  privatePersona: boolean;
+  directFactual: boolean;
+  applicable: boolean;
+  items: AnswerContractItem[];
+  reasonCode: AnswerContractReasonCode;
+};
+
+type AnswerContractReasonCode =
+  | "not_private_persona"
+  | "not_direct_factual"
+  | "no_selected_focus"
+  | "fulfilled"
+  | "missed_all_selected_focus"
+  | "missed_selected_labels"
+  | "missed_supporting_facts";
+
+type SelectedContextAnswerContractVerdict = {
+  schema: "station.selected_context_answer_contract.v1";
+  privatePersona: boolean;
+  directFactual: boolean;
+  applicable: boolean;
+  selectedItemCount: number;
+  selectedLabelCount: number;
+  selectedFactCount: number;
+  matchedItemCount: number;
+  matchedLabelCount: number;
+  matchedFactCount: number;
+  reasonCode: AnswerContractReasonCode;
+  retryRecommended: boolean;
+};
+
+function buildProviderUserMessageContent(
+  ownerMessage: string,
+  runtimeContext: PersonaRuntimeContext,
+  options: ProviderFocusOptions = {},
+) {
   const selectedContextFocus = buildProviderSelectedContextFocus(runtimeContext);
   if (!selectedContextFocus) return ownerMessage;
 
   return [
     selectedContextFocus,
+    ...(options.contractRetry
+      ? [
+          "Answer-contract retry: the previous answer missed the selected label/fact pairs. Use the selected label/name plus supporting fact pairs above when they answer the owner message.",
+        ]
+      : []),
     "Owner message:",
     ownerMessage,
   ].join("\n\n");
@@ -149,6 +230,163 @@ function compactProviderFocusText(value: string, maxLength: number) {
   const compact = value.replace(/[\r\n\t]+/g, " ").replace(/\s+/g, " ").trim();
   if (compact.length <= maxLength) return compact;
   return `${compact.slice(0, Math.max(0, maxLength - 3)).trim()}...`;
+}
+
+function buildSelectedContextAnswerContract(input: {
+  ownerMessage: string;
+  runtimeContext: PersonaRuntimeContext;
+  privatePersona: boolean;
+}): SelectedContextAnswerContract {
+  const items = [
+    ...answerContractItems(input.runtimeContext.canon, 1),
+    ...answerContractItems(input.runtimeContext.integrity, 1),
+    ...answerContractItems(input.runtimeContext.memory, 3),
+    ...answerContractItems(input.runtimeContext.continuity, 2),
+    ...answerContractItems(input.runtimeContext.archive, 2),
+  ].slice(0, PROVIDER_SELECTED_CONTEXT_FOCUS_MAX_ITEMS);
+  const directFactual = isDirectFactualOwnerMessage(input.ownerMessage);
+
+  if (!input.privatePersona) {
+    return {
+      schema: "station.selected_context_answer_contract.v1",
+      privatePersona: false,
+      directFactual,
+      applicable: false,
+      items,
+      reasonCode: "not_private_persona",
+    };
+  }
+
+  if (!directFactual) {
+    return {
+      schema: "station.selected_context_answer_contract.v1",
+      privatePersona: true,
+      directFactual,
+      applicable: false,
+      items,
+      reasonCode: "not_direct_factual",
+    };
+  }
+
+  if (items.length === 0) {
+    return {
+      schema: "station.selected_context_answer_contract.v1",
+      privatePersona: true,
+      directFactual,
+      applicable: false,
+      items,
+      reasonCode: "no_selected_focus",
+    };
+  }
+
+  return {
+    schema: "station.selected_context_answer_contract.v1",
+    privatePersona: true,
+    directFactual,
+    applicable: true,
+    items,
+    reasonCode: "missed_all_selected_focus",
+  };
+}
+
+function answerContractItems(sources: PersonaContextSource[], limit: number): AnswerContractItem[] {
+  return sources
+    .filter((source) => source.content.trim().length > 0)
+    .slice(0, limit)
+    .map((source) => {
+      const labelTerms = answerContractTerms(source.title ?? "");
+      const factTerms = answerContractTerms(source.content)
+        .filter((term) => !labelTerms.includes(term))
+        .slice(0, ANSWER_CONTRACT_MAX_TERMS_PER_ITEM);
+
+      return {
+        hasLabel: labelTerms.length > 0,
+        labelTerms,
+        factTerms,
+      };
+    })
+    .filter((item) => item.labelTerms.length > 0 || item.factTerms.length > 0);
+}
+
+function evaluateSelectedContextAnswerContract(
+  contract: SelectedContextAnswerContract,
+  answer: string,
+): SelectedContextAnswerContractVerdict {
+  const base = {
+    schema: contract.schema,
+    privatePersona: contract.privatePersona,
+    directFactual: contract.directFactual,
+    applicable: contract.applicable,
+    selectedItemCount: contract.items.length,
+    selectedLabelCount: contract.items.filter((item) => item.hasLabel).length,
+    selectedFactCount: contract.items.filter((item) => item.factTerms.length > 0).length,
+  };
+
+  if (!contract.applicable) {
+    return {
+      ...base,
+      matchedItemCount: 0,
+      matchedLabelCount: 0,
+      matchedFactCount: 0,
+      reasonCode: contract.reasonCode,
+      retryRecommended: false,
+    };
+  }
+
+  const answerTerms = new Set(answerContractTerms(answer, 256));
+  let matchedItemCount = 0;
+  let matchedLabelCount = 0;
+  let matchedFactCount = 0;
+
+  for (const item of contract.items) {
+    const labelMatched = item.hasLabel ? hasAnswerTermCoverage(answerTerms, item.labelTerms) : false;
+    const factMatched = item.factTerms.length > 0 ? hasAnswerTermCoverage(answerTerms, item.factTerms) : false;
+    if (labelMatched) matchedLabelCount += 1;
+    if (factMatched) matchedFactCount += 1;
+    if (item.hasLabel ? labelMatched && factMatched : factMatched) matchedItemCount += 1;
+  }
+
+  const reasonCode: AnswerContractReasonCode = matchedItemCount > 0
+    ? "fulfilled"
+    : matchedLabelCount === 0 && matchedFactCount === 0
+      ? "missed_all_selected_focus"
+      : matchedLabelCount === 0
+        ? "missed_selected_labels"
+        : "missed_supporting_facts";
+
+  return {
+    ...base,
+    matchedItemCount,
+    matchedLabelCount,
+    matchedFactCount,
+    reasonCode,
+    retryRecommended: reasonCode === "missed_all_selected_focus",
+  };
+}
+
+function hasAnswerTermCoverage(answerTerms: Set<string>, terms: string[]) {
+  if (terms.length === 0) return false;
+  const matched = terms.filter((term) => answerTerms.has(term)).length;
+  return matched >= Math.min(2, terms.length);
+}
+
+function answerContractTerms(value: string, maxTerms = ANSWER_CONTRACT_MAX_TERMS_PER_ITEM) {
+  const tokens = value
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, " ")
+    .split(/\s+/)
+    .map((token) => token.trim())
+    .filter((token) => token.length >= 4 && !ANSWER_CONTRACT_STOP_WORDS.has(token));
+
+  return [...new Set(tokens)].slice(0, maxTerms);
+}
+
+function isDirectFactualOwnerMessage(value: string) {
+  const text = value.toLowerCase();
+  return (
+    /\?/.test(text) ||
+    /\b(list|name|which|what|who|where|when|identify|recall|remember|summari[sz]e|facts?|pairs?|labels?|selected context|tell me|give me)\b/.test(text)
+  );
 }
 
 type ChatTurnStatusStage =
@@ -610,6 +848,14 @@ async function runPersonaChatTurn(input: ChatTurnInput): Promise<ChatTurnResult>
     continuity: continuityCount,
   } = runtimeContext.counts;
   const providerUserMessageContent = buildProviderUserMessageContent(content, runtimeContext);
+  const answerContract = buildSelectedContextAnswerContract({
+    ownerMessage: content,
+    runtimeContext,
+    privatePersona: persona.visibility === "private",
+  });
+  const providerRetryUserMessageContent = answerContract.applicable
+    ? buildProviderUserMessageContent(content, runtimeContext, { contractRetry: true })
+    : providerUserMessageContent;
 
   // Resolve provider
   const stationModel = selectStationModel(input.userTier);
@@ -693,14 +939,27 @@ async function runPersonaChatTurn(input: ChatTurnInput): Promise<ChatTurnResult>
     ...history,
     { role: "user" as const, content: providerUserMessageContent },
   ];
+  const retryMessages = [
+    ...history,
+    { role: "user" as const, content: providerRetryUserMessageContent },
+  ];
+  const firstAttemptTokenEstimate = estimateConversationTokens({
+    systemPrompt,
+    userMessage: providerUserMessageContent,
+    history,
+  });
+  const retryAttemptTokenEstimate = answerContract.applicable
+    ? estimateConversationTokens({
+        systemPrompt,
+        userMessage: providerRetryUserMessageContent,
+        history,
+      })
+    : 0;
+  const quotaTokenEstimate = firstAttemptTokenEstimate + retryAttemptTokenEstimate;
 
   await status("checking_quota", "Checking token budget.");
   try {
-    await assertTokenBudgetForEstimate(userId, estimateConversationTokens({
-      systemPrompt,
-      userMessage: providerUserMessageContent,
-      history,
-    }));
+    await assertTokenBudgetForEstimate(userId, quotaTokenEstimate);
   } catch (error) {
     const quota = tokenErrorResponse(error);
     if (quota) {
@@ -712,7 +971,7 @@ async function runPersonaChatTurn(input: ChatTurnInput): Promise<ChatTurnResult>
         status: "failed",
         provider: chatRoute.routeLabel,
         model: chatRoute.modelLabel,
-        inputTokens: runtimeBudget.totals.estimatedInputTokens,
+        inputTokens: quotaTokenEstimate,
         durationMs: Date.now() - traceStartedAt,
         payload: { code: quota.body.code, classification: quota.body.classification },
       });
@@ -725,6 +984,10 @@ async function runPersonaChatTurn(input: ChatTurnInput): Promise<ChatTurnResult>
   let aiResponse;
   let inputTokens = 0;
   let outputTokens = 0;
+  let answerContractVerdict: SelectedContextAnswerContractVerdict | null = null;
+  let firstAnswerContractVerdict: SelectedContextAnswerContractVerdict | null = null;
+  let retryAttempted = false;
+  let retryFailed = false;
   try {
     await status("waiting_for_provider", "Waiting for model response.");
     aiResponse = await enqueueLlmCall(provider, {
@@ -732,9 +995,65 @@ async function runPersonaChatTurn(input: ChatTurnInput): Promise<ChatTurnResult>
       messages,
       ...(chatRoute.routeLabel === "anthropic_platform" ? { model: chatRoute.modelLabel } : {}),
     });
-    inputTokens = aiResponse.usage?.inputTokens ?? estimateConversationTokens({ systemPrompt, userMessage: providerUserMessageContent, history });
+    inputTokens = aiResponse.usage?.inputTokens ?? firstAttemptTokenEstimate;
     outputTokens = aiResponse.usage?.outputTokens ?? estimateTokensFromText(aiResponse.content);
+    firstAnswerContractVerdict = evaluateSelectedContextAnswerContract(answerContract, aiResponse.content);
+    answerContractVerdict = firstAnswerContractVerdict;
+
+    if (firstAnswerContractVerdict.retryRecommended) {
+      retryAttempted = true;
+      await recordAiTraceEvent({
+        traceId: trace?.id,
+        ownerUserId: userId,
+        eventType: "tool_call",
+        label: "Selected-context answer contract retry",
+        status: "completed",
+        provider: chatRoute.routeLabel,
+        model: chatRoute.modelLabel,
+        inputTokens,
+        outputTokens,
+        durationMs: Date.now() - traceStartedAt,
+        payload: {
+          answerContract: firstAnswerContractVerdict,
+          retry: { attempted: true, reasonCode: firstAnswerContractVerdict.reasonCode },
+        },
+      });
+
+      try {
+        const retryResponse = await enqueueLlmCall(provider, {
+          system: systemPrompt,
+          messages: retryMessages,
+          ...(chatRoute.routeLabel === "anthropic_platform" ? { model: chatRoute.modelLabel } : {}),
+        });
+        inputTokens += retryResponse.usage?.inputTokens ?? retryAttemptTokenEstimate;
+        outputTokens += retryResponse.usage?.outputTokens ?? estimateTokensFromText(retryResponse.content);
+        aiResponse = retryResponse;
+        answerContractVerdict = evaluateSelectedContextAnswerContract(answerContract, aiResponse.content);
+      } catch {
+        retryFailed = true;
+      }
+    }
     const durationMs = Date.now() - traceStartedAt;
+
+    await recordAiTraceEvent({
+      traceId: trace?.id,
+      ownerUserId: userId,
+      eventType: "tool_call",
+      label: "Selected-context answer contract",
+      status: retryFailed ? "failed" : "completed",
+      provider: chatRoute.routeLabel,
+      model: chatRoute.modelLabel,
+      durationMs,
+      payload: {
+        answerContract: answerContractVerdict,
+        firstAnswerContract: firstAnswerContractVerdict,
+        retry: {
+          attempted: retryAttempted,
+          failed: retryFailed,
+          maxAttempts: 1,
+        },
+      },
+    });
 
     await recordAiTraceEvent({
       traceId: trace?.id,
@@ -747,7 +1066,15 @@ async function runPersonaChatTurn(input: ChatTurnInput): Promise<ChatTurnResult>
       inputTokens,
       outputTokens,
       durationMs,
-      payload: { runtimeBudget },
+      payload: {
+        runtimeBudget,
+        answerContract: answerContractVerdict,
+        retry: {
+          attempted: retryAttempted,
+          failed: retryFailed,
+          maxAttempts: 1,
+        },
+      },
     });
     await completeAiTrace({
       traceId: trace?.id,
