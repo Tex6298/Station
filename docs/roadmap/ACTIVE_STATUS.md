@@ -4,6 +4,52 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR258 Developer Space Tier 1 Visible Framing opened
+
+MIMIR accepts PR257 on 2026-06-24 and opens PR258 for DAEDALUS.
+
+Decision:
+
+- Open **PR258 - Developer Space Tier 1 Visible Framing** as the separate
+  browser-facing lane ARGUS required after PR256.
+- DAEDALUS may update existing public `/developer-spaces/[slug]` framing,
+  owner `/developer-spaces/[slug]/manage` copy, Developer Space observatory
+  helper copy, and focused helper tests.
+- The visible product should clearly say: Tier 1 means an external/self-hosted
+  developer runtime plus Station-hosted public showcase, observatory, evidence
+  path, and owner-only operating/readback console.
+
+Scope guard:
+
+- No schema, migration, API route, serializer, auth/session, package, SDK, env,
+  deployment, Railway, Supabase, Redis, Cloudflare, provider, billing, tipping,
+  community/forum, Project, persona, export payload, background-job, or hosted
+  runtime change.
+- No new real developer-agent action, repo push, deploy, key/webhook secret
+  mutation, direct layout mutation, worker execution, shell execution, or
+  provider call.
+- No public exposure of raw ids, private document bodies, source ids, raw link
+  ids, prompts, provider payloads, credentials, secrets, SQL, stack traces,
+  hosted logs, ingestion keys, signing secrets, or bearer tokens.
+
+Validation required from DAEDALUS:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces`
+- `npm exec --yes pnpm@10.32.1 -- run test:developer-space-client`
+- `npm exec --yes pnpm@10.32.1 -- run typecheck`
+- `npm exec --yes pnpm@10.32.1 -- run lint`
+- `git diff --check`
+- `git diff --cached --check`
+- A changed-file secret-shaped-material scan without printing secrets.
+
+Current baton:
+
+- DAEDALUS should implement PR258 and wake ARGUS.
+- ARGUS should review owner/public boundary safety, Tier 1/Tier 2 overclaim,
+  secret/raw payload exposure, and developer-agent scope drift.
+- If ARGUS accepts or patches the visible browser behavior, MIMIR should route
+  ARIADNE desktop/mobile rehearsal before closeout.
+
 ## Latest ARGUS review - PR257 Developer Space Tier 1 Partner Onboarding Docs
 
 ARGUS accepts PR257 on 2026-06-24 with no review patch.

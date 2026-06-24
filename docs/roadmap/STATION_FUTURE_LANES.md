@@ -438,11 +438,17 @@ Current intent:
   whether PR258 opens visible public Developer Space framing and owner-console
   copy as a separate browser-rehearsed lane, without API/schema/client/hosted
   infrastructure scope.
+- PR258 opens the visible Developer Space Tier 1 framing lane for DAEDALUS.
+  Scope is limited to existing public `/developer-spaces/[slug]` framing,
+  owner `/developer-spaces/[slug]/manage` copy, observatory helper copy, and
+  focused tests. Tier 1 must read as external/self-hosted developer runtime
+  plus Station-hosted showcase/observatory/evidence/readback; no API/schema/
+  client/package/infra/billing/community/developer-agent execution scope opens.
 
 ## Phase 3 bridge sequence
 
-Status, 2026-06-24: PR202 through PR257 are accepted. MIMIR should decide
-whether to open PR258 visible Developer Space framing next.
+Status, 2026-06-24: PR202 through PR257 are accepted. PR258 is open for
+Developer Space Tier 1 visible framing.
 
 Current MIMIR position:
 
@@ -527,8 +533,8 @@ Bridge order:
 56. Done: Developer Space Partner Readiness Map.
 57. Done: Developer Space Tier 1 Partner Readiness Preflight.
 58. Done: Developer Space Tier 1 Partner Onboarding Docs.
-59. Recommended: Visible Developer Space framing and owner-console copy
-    preflight or implementation lane, with ARIADNE desktop/mobile rehearsal.
+59. Open: Developer Space Tier 1 Visible Framing implementation, with ARGUS
+    review and ARIADNE desktop/mobile rehearsal before closeout.
 
 ARGUS P3-B1A gates:
 
