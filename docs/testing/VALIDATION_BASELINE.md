@@ -20,6 +20,24 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR222 Public Salon Foundation Rehearsal
+
+ARIADNE hosted rehearsal on 2026-06-24:
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Web `/health/deployment` | Pass | Railway web reported commit `19e9f36`, branch `main`, ready `true`. |
+| API `/health/deployment` | Pass | Railway API reported commit `19e9f36`, branch `main`, ready `true`. |
+| API `GET /forums/subcommunities` | Pass | Anonymous list included the public `station-replay-salon-alpha` Salon seed with accepted public subcommunity fields. |
+| API `GET /forums/subcommunities/station-replay-salon-alpha` | Pass | Anonymous detail returned the public active Salon seed and did not expose owner/private linkage fields. |
+| API `GET /forums/categories` | Pass | Anonymous categories included the Salon-backed forum category with a public subcommunity summary. |
+| `npx --yes --package @playwright/test@1.41.2 playwright test tmp-pr222-public-salon-rehearsal.spec.js --reporter=line --workers=1` | Pass | 3 hosted browser/API checks passed. Covered deployment freshness, public API readback, signed-out directory/category routes, signed-in replay-owner readback without mutation, desktop fit, 375px mobile fit, and no visible raw id/private/provider/report/SQL/stack leakage. |
+
+Rehearsal verdict:
+
+- `PASS`
+- Non-blocking UX note: `/forums/subcommunities` still says `Canon and Developer community areas.` even though Salon rows are now visible; the Salon card/category labels are correct.
+
 ## PR221 Public Salon Foundation Hosted Proof
 
 DAEDALUS hosted proof/repair on 2026-06-24:

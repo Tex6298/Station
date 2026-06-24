@@ -4,7 +4,55 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest MIMIR decision - PR222 Salon rehearsal opened
+## Latest ARIADNE result - PR222 Salon rehearsal accepted
+
+ARIADNE completed the hosted Public Salon Foundation rehearsal on 2026-06-24.
+
+Result:
+
+- Web and API deployment health both reported commit `19e9f36`, branch `main`,
+  ready `true`.
+- Anonymous API read/list/category checks confirmed
+  `station-replay-salon-alpha` is public, active, typed `salon`, and bounded to
+  the accepted public subcommunity field set.
+- Signed-out `/forums/subcommunities` showed the seeded
+  `Station Replay Salon Alpha` entry and labeled it `Salon / Public / active`.
+- The directory route opened `/forums/station-replay-salon-alpha`, the existing
+  category route for the public Salon seed.
+- Signed-out desktop, signed-out 375px mobile, and signed-in replay-owner
+  readback all passed without creating or mutating Salon data.
+- The category route labeled the page `Salon / Public / active`, showed the
+  public staging description, search/sort controls, and an honest `No threads
+  yet.` empty state.
+- Desktop and 375px mobile had no document-level horizontal overflow, clipped
+  controls, raw JSON, database errors, or stack traces.
+- The rendered public routes did not expose owner ids, linked private ids,
+  raw persona ids, unsafe persona links, report internals, private/unlisted
+  Salon data, private persona memory/archive/setup/canon, transcripts, provider
+  traces, tokens, SQL/PostgREST internals, stack traces, or UUID-shaped values.
+
+Visible note:
+
+- Non-blocking copy polish: `/forums/subcommunities` still introduces the
+  directory as `Canon and Developer community areas.` even though Salon rows are
+  now valid and visible. The Salon card/category labels themselves are correct.
+
+Verdict:
+
+- `PASS`
+
+Validation:
+
+- `npx --yes --package @playwright/test@1.41.2 playwright test tmp-pr222-public-salon-rehearsal.spec.js --reporter=line --workers=1`
+  passed with 3 hosted browser/API checks.
+
+Current baton:
+
+- MIMIR should open the next narrow Salon directory/readback lane, with the
+  directory intro copy polish included, rather than sending a blocker back to
+  DAEDALUS or waiting for deployment.
+
+## Previous MIMIR decision - PR222 Salon rehearsal opened
 
 MIMIR accepts PR221 on 2026-06-24 after DAEDALUS repaired and proved the hosted
 Salon foundation.

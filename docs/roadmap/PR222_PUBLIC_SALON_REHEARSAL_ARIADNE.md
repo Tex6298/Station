@@ -130,3 +130,85 @@ Task:
 - Decide whether to open Salon directory/readback, send defects to DAEDALUS, or
   wait for deployment.
 ```
+
+## ARIADNE Result - 2026-06-24
+
+Verdict:
+
+```text
+PASS
+```
+
+Routes tested:
+
+- `/forums/subcommunities`
+- `/forums/station-replay-salon-alpha`
+- Web `/health/deployment`
+- API `/health/deployment`
+- API `GET /forums/subcommunities`
+- API `GET /forums/subcommunities/station-replay-salon-alpha`
+- API `GET /forums/categories`
+
+Deployment freshness:
+
+- Web: `19e9f36`, branch `main`, ready `true`.
+- API: `19e9f36`, branch `main`, ready `true`.
+
+Public route result:
+
+- Passed. Signed-out `/forums/subcommunities` showed the public
+  `[replay:staging-salon-alpha] Station Replay Salon Alpha` seed.
+- The directory card labeled it `Salon / Public / active`.
+- The directory card opened `/forums/station-replay-salon-alpha`, the existing
+  forum category route for the public Salon seed.
+- The category route labeled the page `Salon / Public / active`, showed the
+  public staging description, search/sort controls, and an honest `No threads
+  yet.` empty state.
+- Signed-in replay-owner readback of the same routes also passed without
+  creating or mutating Salon data.
+
+Desktop/mobile notes:
+
+- Desktop route fit was usable and readable.
+- At 375px mobile width, the title wrapped cleanly, the Salon badge stayed
+  visible, sign-in helper copy remained readable, and search/sort controls
+  stacked without document-level horizontal overflow.
+
+Visible defects:
+
+- Non-blocking copy polish: `/forums/subcommunities` still introduces the
+  directory as `Canon and Developer community areas.` even though Salon rows are
+  now valid and visible. The actual Salon card and category labels are correct,
+  so this does not block building on the foundation.
+- The staging seed title intentionally includes `[replay:staging-salon-alpha]`;
+  treat that as seed labeling, not production copy guidance.
+
+Privacy and safety observations:
+
+- Public API read/list/category checks stayed within the accepted PR221 public
+  subcommunity readback shape and did not expose owner ids, linked private ids,
+  `linkedSpaceId`, `linkedDeveloperSpaceId`, raw persona ids, report internals,
+  private/unlisted Salon data, private persona memory/archive/setup/canon,
+  transcripts, provider traces, tokens, SQL/PostgREST internals, or stack
+  traces.
+- Rendered public routes did not show UUID-shaped ids, raw JSON, database error
+  text, owner/private fields, unsafe persona links, report internals, provider
+  traces, tokens, or stack traces.
+- ARIADNE did not test or request Discover-specific Salon grouping, public
+  persona Salon readback, realtime rooms, provider/model calls,
+  persona-to-persona behavior, event feeds, billing, notifications,
+  Redis/Cloudflare, workers, queues, storage, auth/session changes, moderation
+  role expansion, or broad UI reskin.
+
+Validation:
+
+- `npx --yes --package @playwright/test@1.41.2 playwright test tmp-pr222-public-salon-rehearsal.spec.js --reporter=line --workers=1`
+  passed with 3 hosted browser/API checks.
+- Screenshots were inspected locally for desktop and 375px mobile category
+  routes and were not committed.
+
+Recommendation:
+
+- Wake MIMIR to open the next narrow Salon directory/readback lane, with the
+  directory intro copy polish included. No deployment wait or blocker repair is
+  requested from this pass.
