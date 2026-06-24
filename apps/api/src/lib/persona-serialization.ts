@@ -1,6 +1,7 @@
 import type {
   PersonaPublicFields,
   PublicPersonaContextPreview,
+  PublicPersonaContextSource,
   PublicPersonaProfile,
 } from "@station/types";
 
@@ -77,7 +78,33 @@ function publicExcerpt(row: any, query: string) {
   return description.length > 180 ? `${description.slice(0, 177).trimEnd()}...` : description;
 }
 
-export function serializePublicPersonaContextPreview(row: any, query: string): PublicPersonaContextPreview {
+export function publicContextSourceMatchesQuery(
+  query: string,
+  ...fields: Array<string | null | undefined>
+) {
+  return fields.some((field) => includesQuery(field, query));
+}
+
+export function publicContextSourceExcerpt(
+  query: string,
+  ...fields: Array<string | null | undefined>
+) {
+  const selected = query
+    ? fields.find((field) => includesQuery(field, query))
+    : fields.find((field) => (field ?? "").trim());
+  const clean = (selected ?? "").replace(/\s+/g, " ").trim();
+  if (!clean) return null;
+  return clean.length > 180 ? `${clean.slice(0, 177).trimEnd()}...` : clean;
+}
+
+export function serializePublicPersonaContextPreview(
+  row: any,
+  query: string,
+  options: {
+    sources?: PublicPersonaContextSource[];
+    counts?: Partial<PublicPersonaContextPreview["preview"]["counts"]>;
+  } = {}
+): PublicPersonaContextPreview {
   const publicSlug = isSafePublicPersonaSlug(row.public_slug) ? row.public_slug : null;
   if (!publicSlug) {
     throw new Error("Cannot serialize public persona context preview without a safe public slug.");
@@ -101,11 +128,12 @@ export function serializePublicPersonaContextPreview(row: any, query: string): P
           excerpt: publicExcerpt(row, query),
           matchesQuery,
         },
+        ...(options.sources ?? []),
       ],
       counts: {
         publicProfile: 1,
-        publishedDocuments: 0,
-        publicDiscussions: 0,
+        publishedDocuments: options.counts?.publishedDocuments ?? 0,
+        publicDiscussions: options.counts?.publicDiscussions ?? 0,
       },
       excludedPrivateBuckets: [...PUBLIC_PERSONA_CONTEXT_EXCLUDED_PRIVATE_BUCKETS],
     },

@@ -32,6 +32,10 @@ class InMemorySupabase {
     archived_chat_transcripts: [],
     continuity_candidates: [],
     continuity_records: [],
+    spaces: [],
+    documents: [],
+    forum_categories: [],
+    threads: [],
   };
 
   private idCounters: Record<string, number> = {};
@@ -112,6 +116,48 @@ class InMemorySupabase {
       row.event_label ??= null;
       row.event_data ??= {};
       row.created_at ??= now;
+    }
+
+    if (table === "spaces") {
+      row.slug ??= row.id;
+      row.title ??= row.slug;
+      row.is_public ??= true;
+      row.created_at ??= now;
+      row.updated_at ??= now;
+    }
+
+    if (table === "documents") {
+      row.title ??= "Untitled document";
+      row.slug ??= row.id;
+      row.body ??= "";
+      row.status ??= "draft";
+      row.visibility ??= "private";
+      row.space_id ??= null;
+      row.persona_id ??= null;
+      row.source_persona_id ??= null;
+      row.discussion_thread_id ??= null;
+      row.published_at ??= null;
+      row.created_at ??= now;
+      row.updated_at ??= now;
+    }
+
+    if (table === "forum_categories") {
+      row.slug ??= row.id;
+      row.title ??= row.slug;
+      row.created_at ??= now;
+    }
+
+    if (table === "threads") {
+      row.title ??= "Untitled thread";
+      row.body ??= "";
+      row.status ??= "active";
+      row.visibility ??= "public";
+      row.is_hidden ??= false;
+      row.linked_document_id ??= null;
+      row.category_id ??= null;
+      row.comment_count ??= 0;
+      row.created_at ??= now;
+      row.updated_at ??= now;
     }
 
     return row;
@@ -587,7 +633,7 @@ test("public persona slug readback is anonymous, public-only, and owner-tier eli
   }
 });
 
-test("public persona context preview is anonymous and limited to public routeable profile sources", async () => {
+test("public persona context preview is anonymous and limited to public routeable sources", async () => {
   const db = new InMemorySupabase();
   setSupabaseAdminForTests(db.client as any);
   const app = createPersonasApp();
@@ -604,6 +650,135 @@ test("public persona context preview is anonymous and limited to public routeabl
       avatar_url: "https://example.test/public-slug-avatar.png",
       visibility: "public",
       public_slug: "blue-lantern-guide",
+    });
+    const publicSpace = db.insertRow("spaces", {
+      id: "public-space",
+      slug: "field-notes",
+      title: "Field Notes",
+      is_public: true,
+    });
+    const privateSpace = db.insertRow("spaces", {
+      id: "private-space",
+      slug: "private-field-notes",
+      title: "Private Field Notes",
+      is_public: false,
+    });
+    const category = db.insertRow("forum_categories", {
+      id: "category-docs",
+      slug: "documents-and-codexes",
+      title: "Documents & Codexes",
+    });
+    const publicDocument = db.insertRow("documents", {
+      id: "public-doc",
+      author_user_id: "creator-owner",
+      space_id: publicSpace.id,
+      persona_id: publicPersona.id,
+      source_persona_id: publicPersona.id,
+      title: "Blue Lantern Field Notes",
+      body: "Public document notes about the blue lantern room.",
+      status: "published",
+      visibility: "public",
+      published_at: "2026-06-23T11:00:00.000Z",
+      discussion_thread_id: "public-thread",
+    });
+    const publicDocumentWithHiddenThread = db.insertRow("documents", {
+      id: "public-doc-hidden-thread",
+      author_user_id: "creator-owner",
+      space_id: publicSpace.id,
+      source_persona_id: publicPersona.id,
+      title: "Second Public Field Notes",
+      body: "Public source with a hidden thread attached.",
+      status: "published",
+      visibility: "public",
+      published_at: "2026-06-23T10:00:00.000Z",
+      discussion_thread_id: "hidden-thread",
+    });
+    db.insertRow("documents", {
+      id: "private-doc",
+      author_user_id: "creator-owner",
+      space_id: publicSpace.id,
+      persona_id: publicPersona.id,
+      title: "Private Runtime Source",
+      body: "Private memory archive canon continuity integrity source.",
+      status: "published",
+      visibility: "private",
+      published_at: "2026-06-23T09:00:00.000Z",
+    });
+    db.insertRow("documents", {
+      id: "community-doc",
+      author_user_id: "creator-owner",
+      space_id: publicSpace.id,
+      persona_id: publicPersona.id,
+      title: "Community Only Source",
+      body: "Community-only source.",
+      status: "published",
+      visibility: "community",
+      published_at: "2026-06-23T09:00:00.000Z",
+    });
+    db.insertRow("documents", {
+      id: "draft-doc",
+      author_user_id: "creator-owner",
+      space_id: publicSpace.id,
+      persona_id: publicPersona.id,
+      title: "Unpublished Draft Source",
+      body: "Draft source.",
+      status: "draft",
+      visibility: "public",
+      published_at: null,
+    });
+    db.insertRow("documents", {
+      id: "private-space-doc",
+      author_user_id: "creator-owner",
+      space_id: privateSpace.id,
+      persona_id: publicPersona.id,
+      title: "Private Space Source",
+      body: "Public document row inside a private Space.",
+      status: "published",
+      visibility: "public",
+      published_at: "2026-06-23T08:00:00.000Z",
+    });
+    db.insertRow("documents", {
+      id: "unrelated-doc",
+      author_user_id: "creator-owner",
+      space_id: publicSpace.id,
+      persona_id: "other-persona",
+      title: "Unrelated Source",
+      body: "Unrelated source.",
+      status: "published",
+      visibility: "public",
+      published_at: "2026-06-23T08:00:00.000Z",
+    });
+    db.insertRow("threads", {
+      id: "public-thread",
+      category_id: category.id,
+      linked_document_id: publicDocument.id,
+      title: "Blue Lantern Discussion",
+      body: "Public discussion about the blue lantern source.",
+      status: "active",
+      visibility: "public",
+      is_hidden: false,
+      comment_count: 2,
+    });
+    db.insertRow("threads", {
+      id: "hidden-thread",
+      category_id: category.id,
+      linked_document_id: publicDocumentWithHiddenThread.id,
+      title: "Hidden Thread Must Stay Hidden",
+      body: "Hidden thread body.",
+      status: "active",
+      visibility: "public",
+      is_hidden: true,
+      comment_count: 4,
+    });
+    db.insertRow("threads", {
+      id: "community-thread",
+      category_id: category.id,
+      linked_document_id: publicDocument.id,
+      title: "Community Thread Must Stay Hidden",
+      body: "Community-only thread body.",
+      status: "active",
+      visibility: "community",
+      is_hidden: false,
     });
     db.insertRow("personas", {
       owner_user_id: "creator-owner",
@@ -628,19 +803,46 @@ test("public persona context preview is anonymous and limited to public routeabl
     assert.equal(preview.body.query, "blue lantern");
     assert.deepEqual(preview.body.preview.counts, {
       publicProfile: 1,
-      publishedDocuments: 0,
-      publicDiscussions: 0,
+      publishedDocuments: 2,
+      publicDiscussions: 1,
     });
-    assert.deepEqual(preview.body.preview.sources, [
-      {
-        type: "public_profile",
-        title: "Blue Lantern Guide",
-        href: "/personas/blue-lantern-guide",
-        label: "Public persona profile",
-        excerpt: "Public-safe guide to the blue lantern room.",
-        matchesQuery: true,
-      },
-    ]);
+    assert.deepEqual(preview.body.preview.sources[0], {
+      type: "public_profile",
+      title: "Blue Lantern Guide",
+      href: "/personas/blue-lantern-guide",
+      label: "Public persona profile",
+      excerpt: "Public-safe guide to the blue lantern room.",
+      matchesQuery: true,
+    });
+    assert.equal(
+      preview.body.preview.sources.some((source: Row) =>
+        source.type === "published_document" &&
+        source.title === "Blue Lantern Field Notes" &&
+        source.href === "/space/field-notes/documents/public-doc" &&
+        source.excerpt === "Public document notes about the blue lantern room." &&
+        source.matchesQuery === true
+      ),
+      true
+    );
+    assert.equal(
+      preview.body.preview.sources.some((source: Row) =>
+        source.type === "published_document" &&
+        source.title === "Second Public Field Notes" &&
+        source.href === "/space/field-notes/documents/public-doc-hidden-thread" &&
+        source.matchesQuery === false
+      ),
+      true
+    );
+    assert.equal(
+      preview.body.preview.sources.some((source: Row) =>
+        source.type === "public_discussion" &&
+        source.title === "Blue Lantern Discussion" &&
+        source.href === "/forums/documents-and-codexes/public-thread" &&
+        source.excerpt === "Public discussion about the blue lantern source." &&
+        source.matchesQuery === true
+      ),
+      true
+    );
     assert.deepEqual(preview.body.preview.excludedPrivateBuckets, [
       "memory",
       "archive",
@@ -664,6 +866,17 @@ test("public persona context preview is anonymous and limited to public routeabl
     assert.equal(previewJson.includes("secret-shaped-value"), false);
     assert.equal(previewJson.includes("Private setup prompt"), false);
     assert.equal(previewJson.includes("Owner-only private runtime context"), false);
+    assert.equal(previewJson.includes("Private Runtime Source"), false);
+    assert.equal(previewJson.includes("Community Only Source"), false);
+    assert.equal(previewJson.includes("Unpublished Draft Source"), false);
+    assert.equal(previewJson.includes("Private Space Source"), false);
+    assert.equal(previewJson.includes("Unrelated Source"), false);
+    assert.equal(previewJson.includes("Hidden Thread Must Stay Hidden"), false);
+    assert.equal(previewJson.includes("Community Thread Must Stay Hidden"), false);
+    assert.equal(previewJson.includes("persona_id"), false);
+    assert.equal(previewJson.includes("source_persona_id"), false);
+    assert.equal(previewJson.includes("linked_document_id"), false);
+    assert.equal(previewJson.includes("category_id"), false);
 
     const privatePreview = await requestJson(app, "GET", "/personas/public/private-context-persona/context-preview?query=blue");
     assert.equal(privatePreview.status, 404);

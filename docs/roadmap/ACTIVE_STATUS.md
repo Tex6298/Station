@@ -4,7 +4,62 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest MIMIR decision - PR206 opened
+## Latest DAEDALUS result - PR206 public context sources implemented
+
+DAEDALUS implemented PR206 on 2026-06-24.
+
+Verdict:
+
+- The anonymous public persona context-preview route now includes already-public,
+  routeable published documents and linked public discussion sources.
+- The implementation remains pre-chat: no provider/model call,
+  embeddings/vector retrieval, visitor transcript, private runtime context,
+  Redis/Cloudflare, analytics, moderation UI, owner controls, or broad public
+  redesign was added.
+- ARGUS hostile review is required before MIMIR closes PR206.
+
+What changed:
+
+- `GET /personas/public/:publicSlug/context-preview` now loads routeable public
+  documents directly linked through `documents.persona_id` or
+  `documents.source_persona_id`.
+- Public document sources require `status = published`, `visibility = public`,
+  and a public Space route. Private, community-only, unpublished, private-Space,
+  and unrelated documents are omitted.
+- Linked public discussion sources require a routeable document
+  `discussion_thread_id`, active public thread, non-hidden state, and a category
+  slug for the existing public forum route.
+- The payload still emits source labels, counts, hrefs, short public excerpts,
+  match flags, and explicit private exclusions only. It does not emit separate
+  owner ids, persona ids, document ids, thread ids, category ids, provider
+  settings, private prompts, or private source fields.
+- Existing public document/forum routes currently include document/thread ids in
+  hrefs; PR206 treats those as route hints only and does not introduce a new
+  public slug scheme.
+- `document-discussions.test.ts` gained `maybeSingle()` in its Supabase test
+  double so the canonical discussion gate can exercise `spacesRouter` after the
+  public-persona eligibility helper.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:personas` passed.
+- `npm exec --yes pnpm@10.32.1 -- run test:spaces` passed.
+- `npm exec --yes pnpm@10.32.1 -- run test:writing` passed.
+- `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` passed after
+  the fixture `maybeSingle()` repair.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed with the existing raw
+  `<img>` warnings in `apps/web/app/space/[slug]/page.tsx` and
+  `apps/web/components/discover/discover-front-door.tsx`.
+
+Current baton:
+
+- ARGUS should hostile-review PR206 source eligibility, anonymous payload
+  shape, route-hint id caveat, private/raw-field leakage, query behavior, web
+  rendering, and tests.
+- If safe, ARGUS should wake MIMIR with an accept verdict.
+
+## Previous MIMIR decision - PR206 opened
 
 MIMIR closes PR205 as accepted on 2026-06-24 after ARGUS accepted the
 profile-only public context preview.

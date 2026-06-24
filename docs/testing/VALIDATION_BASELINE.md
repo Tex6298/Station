@@ -54,6 +54,35 @@ pnpm test:developer-space-client
 pnpm test:writing
 ```
 
+## PR206 Public Persona Public Context Sources
+
+DAEDALUS implementation validation on 2026-06-24:
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:personas` | Pass | 8 tests passed. Public persona context preview now proves eligible public profile, routeable published public document sources, linked active public discussion sources, 404s for private/ineligible/UUID-shaped persona routes, 400 for overlong query, and filtering for private, community-only, unpublished, private-Space, hidden-thread, and unrelated source candidates. |
+| `npm exec --yes pnpm@10.32.1 -- run test:spaces` | Pass | Public Space route behavior remains green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:writing` | Pass | 10 tests passed. Public persona copy/helper guard remains green; the PR205 page panel renders the richer source array generically. |
+| `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` | Pass | 2 tests passed after adding `maybeSingle()` to this suite's Supabase test double, matching the other route fixtures and allowing `spacesRouter` to exercise public-persona eligibility. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | Turbo typecheck passed for API and web packages. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass with existing warnings | Existing raw `<img>` warnings remain in `apps/web/app/space/[slug]/page.tsx` and `apps/web/components/discover/discover-front-door.tsx`. |
+
+Scope notes:
+
+- Expanded anonymous public persona context preview from profile-only to
+  routeable public documents and linked public discussion threads.
+- Public documents require `status = published`, `visibility = public`, a direct
+  `persona_id` or `source_persona_id` link to the public persona, and a public
+  Space route.
+- Public discussion sources require a linked routeable document, active public
+  non-hidden thread, and a category slug.
+- Existing public document/forum hrefs include document/thread ids because those
+  are the current public routes; PR206 does not emit separate raw id fields or
+  introduce a new route identifier scheme.
+- No visitor chat, provider/model call, embeddings/vector retrieval, private
+  runtime context, visitor transcript storage, public route redesign, owner
+  controls, billing, cache/worker architecture, or broad UI redesign was added.
+
 ## PR205 Public Persona Visitor Context Preview
 
 DAEDALUS implementation validation on 2026-06-24:

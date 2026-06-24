@@ -24,7 +24,10 @@ export interface PublicPersonaProfile extends Omit<PersonaPublicFields, "visibil
   visibility: "public";
 }
 
-export type PublicPersonaContextSourceType = "public_profile";
+export type PublicPersonaContextSourceType =
+  | "public_profile"
+  | "published_document"
+  | "public_discussion";
 
 export interface PublicPersonaContextSource {
   type: PublicPersonaContextSourceType;

@@ -3,7 +3,7 @@
 Date opened: 2026-06-24
 Agent: A2 / DAEDALUS
 Opened by: A1 / MIMIR
-Status: open
+Status: implemented by DAEDALUS; awaiting ARGUS review
 
 ## Frame
 
@@ -133,6 +133,52 @@ git diff --check
 
 Adjust validation if the final implementation touches a narrower or broader
 route family, but do not skip the public/persona/discussion boundary checks.
+
+## DAEDALUS Implementation
+
+Implemented on 2026-06-24.
+
+What changed:
+
+- Expanded
+  `GET /personas/public/:publicSlug/context-preview?query=<short visitor query>`
+  from profile-only to public source catalog readback.
+- Public document sources are included only when they are directly linked to the
+  public persona through `documents.persona_id` or
+  `documents.source_persona_id`, `status = published`, `visibility = public`,
+  and a public Space route exists.
+- Public discussion sources are included only when a routeable public document
+  has `discussion_thread_id`, the linked thread is active, public, non-hidden,
+  and its forum category has a slug.
+- The response includes source labels, counts, hrefs, short public excerpts,
+  match flags, and the PR205 excluded private buckets.
+- The response does not emit separate owner ids, persona ids, document ids,
+  thread ids, category ids, provider settings, private prompts/style fields, or
+  private source columns. Current public document/forum hrefs do include
+  document/thread ids because those are the existing public routes; PR206 treats
+  them as route hints and does not create a new public slug scheme.
+- The PR205 public page panel already renders richer source rows generically, so
+  no new visible controls or chat affordances were added.
+- `document-discussions.test.ts` gained `maybeSingle()` in its in-memory
+  Supabase fixture so the required discussion gate can exercise `spacesRouter`
+  after the public-persona eligibility helper.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:personas` passed.
+- `npm exec --yes pnpm@10.32.1 -- run test:spaces` passed.
+- `npm exec --yes pnpm@10.32.1 -- run test:writing` passed.
+- `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` passed.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed with existing raw `<img>`
+  warnings in the public Space page and Discover front door.
+
+Non-scope confirmation:
+
+- No visitor chat, model/provider call, embeddings/vector retrieval,
+  Redis/Cloudflare/cache/queue architecture, analytics, moderation/reporting UI,
+  owner controls, public route redesign, Roulette, Salons, voice/avatar, public
+  persona events, or persona-to-persona encounters were added.
 
 ## Wakeup
 

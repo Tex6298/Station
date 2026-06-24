@@ -311,6 +311,10 @@ class QueryBuilder {
     return this.execute("single");
   }
 
+  maybeSingle() {
+    return this.execute("maybeSingle");
+  }
+
   then(onfulfilled: any, onrejected: any) {
     return this.execute().then(onfulfilled, onrejected);
   }
@@ -346,7 +350,7 @@ class QueryBuilder {
     return rows;
   }
 
-  private async execute(mode?: "single") {
+  private async execute(mode?: "single" | "maybeSingle") {
     let rows: Row[];
     if (
       this.operation === "select" &&
@@ -388,6 +392,12 @@ class QueryBuilder {
       return data.length === 1
         ? { data: data[0], error: null, count }
         : { data: null, error: { message: `Expected one ${this.table} row.` }, count };
+    }
+
+    if (mode === "maybeSingle") {
+      return data.length > 0
+        ? { data: data[0], error: null, count }
+        : { data: null, error: null, count };
     }
 
     return { data: this.head ? null : data, error: null, count };

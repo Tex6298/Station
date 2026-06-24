@@ -7,6 +7,8 @@ import {
   PUBLIC_PERSONA_CONTEXT_PREVIEW_QUERY_MAX_LENGTH,
   isSafePublicPersonaSlug,
   normalizePublicPersonaContextQuery,
+  publicContextSourceExcerpt,
+  publicContextSourceMatchesQuery,
   serializePersonaPublicFields,
   serializePublicPersonaContextPreview,
   serializePublicPersona,
@@ -14,7 +16,7 @@ import {
 } from "../lib/persona-serialization";
 import { ownerCanExposeExistingPublicPersonas } from "../lib/public-persona-eligibility";
 import { canCreatePersona, canCreatePublicPersona, tierLimits } from "@station/auth/permissions";
-import type { AuthUser, PublicPersonaEligibility } from "@station/types";
+import type { AuthUser, PublicPersonaContextSource, PublicPersonaEligibility } from "@station/types";
 import {
   createPersonaHandoff,
   ensurePersonaLayerProfile,
@@ -62,6 +64,13 @@ const handoffSchema = z.object({
 
 export const personasRouter = Router();
 
+const PUBLIC_PERSONA_DOCUMENT_LIMIT = 6;
+const PUBLIC_PERSONA_DISCUSSION_LIMIT = 4;
+const PUBLIC_PERSONA_CONTEXT_DOCUMENT_SELECT =
+  "id, title, slug, body, status, visibility, published_at, created_at, space_id, persona_id, source_persona_id, discussion_thread_id";
+const PUBLIC_PERSONA_CONTEXT_THREAD_SELECT =
+  "id, title, body, status, visibility, is_hidden, comment_count, category_id, linked_document_id, created_at";
+
 const publicContextPreviewQuerySchema = z.object({
   query: z.preprocess(
     (value) => Array.isArray(value) ? value[0] : value,
@@ -89,6 +98,126 @@ async function loadEligiblePublicPersonaBySlug(publicSlug: string, select: strin
   return row;
 }
 
+function uniqById(rows: any[]) {
+  const byId = new Map<string, any>();
+  for (const row of rows) {
+    if (row?.id && !byId.has(row.id)) byId.set(row.id, row);
+  }
+  return [...byId.values()];
+}
+
+function byId(rows: any[]) {
+  return new Map(rows.filter((row) => row?.id).map((row) => [row.id, row]));
+}
+
+async function loadPublicRouteableDocumentsForPersona(sb: ReturnType<typeof getSupabaseAdmin>, personaId: string) {
+  const [direct, sourced] = await Promise.all([
+    sb
+      .from("documents")
+      .select(PUBLIC_PERSONA_CONTEXT_DOCUMENT_SELECT)
+      .eq("persona_id", personaId)
+      .eq("status", "published")
+      .eq("visibility", "public")
+      .order("published_at", { ascending: false })
+      .limit(PUBLIC_PERSONA_DOCUMENT_LIMIT),
+    sb
+      .from("documents")
+      .select(PUBLIC_PERSONA_CONTEXT_DOCUMENT_SELECT)
+      .eq("source_persona_id", personaId)
+      .eq("status", "published")
+      .eq("visibility", "public")
+      .order("published_at", { ascending: false })
+      .limit(PUBLIC_PERSONA_DOCUMENT_LIMIT),
+  ]);
+
+  const documents = uniqById([...(direct.data ?? []), ...(sourced.data ?? [])])
+    .sort((a, b) => new Date(b.published_at ?? b.created_at ?? 0).getTime() - new Date(a.published_at ?? a.created_at ?? 0).getTime())
+    .slice(0, PUBLIC_PERSONA_DOCUMENT_LIMIT);
+  const spaceIds = [...new Set(documents.map((document) => document.space_id).filter(Boolean))];
+  if (spaceIds.length === 0) return [];
+
+  const { data: spaces } = await sb
+    .from("spaces")
+    .select("id, slug, title, is_public")
+    .in("id", spaceIds)
+    .eq("is_public", true);
+  const spacesById = byId(spaces ?? []);
+
+  return documents
+    .map((document) => ({ ...document, space: spacesById.get(document.space_id) ?? null }))
+    .filter((document) => document.space?.slug);
+}
+
+async function loadPublicDiscussionSourcesForDocuments(
+  sb: ReturnType<typeof getSupabaseAdmin>,
+  documents: any[],
+) {
+  const threadIds = [...new Set(documents.map((document) => document.discussion_thread_id).filter(Boolean))];
+  if (threadIds.length === 0) return [];
+
+  const { data: threads } = await sb
+    .from("threads")
+    .select(PUBLIC_PERSONA_CONTEXT_THREAD_SELECT)
+    .in("id", threadIds)
+    .eq("status", "active")
+    .eq("visibility", "public")
+    .eq("is_hidden", false)
+    .order("created_at", { ascending: false })
+    .limit(PUBLIC_PERSONA_DISCUSSION_LIMIT);
+
+  const routeableThreads = (threads ?? []).filter((thread) =>
+    documents.some((document) => document.id === thread.linked_document_id && document.discussion_thread_id === thread.id)
+  );
+  const categoryIds = [...new Set(routeableThreads.map((thread) => thread.category_id).filter(Boolean))];
+  if (categoryIds.length === 0) return [];
+
+  const { data: categories } = await sb
+    .from("forum_categories")
+    .select("id, slug, title")
+    .in("id", categoryIds);
+  const categoriesById = byId(categories ?? []);
+
+  return routeableThreads
+    .map((thread) => ({ ...thread, category: categoriesById.get(thread.category_id) ?? null }))
+    .filter((thread) => thread.category?.slug)
+    .slice(0, PUBLIC_PERSONA_DISCUSSION_LIMIT);
+}
+
+async function buildPublicPersonaContextSources(sb: ReturnType<typeof getSupabaseAdmin>, persona: any, query: string) {
+  const documents = await loadPublicRouteableDocumentsForPersona(sb, persona.id);
+  const discussionThreads = await loadPublicDiscussionSourcesForDocuments(sb, documents);
+
+  const documentSources: PublicPersonaContextSource[] = documents.map((document) => ({
+    type: "published_document",
+    title: document.title,
+    href: `/space/${document.space.slug}/documents/${document.id}`,
+    label: "Published document",
+    excerpt: publicContextSourceExcerpt(query, document.body, document.title),
+    matchesQuery: publicContextSourceMatchesQuery(query, document.title, document.body),
+  }));
+
+  const discussionSources: PublicPersonaContextSource[] = discussionThreads.map((thread) => ({
+    type: "public_discussion",
+    title: thread.title,
+    href: `/forums/${thread.category.slug}/${thread.id}`,
+    label: "Public discussion",
+    excerpt: publicContextSourceExcerpt(query, thread.body, thread.title),
+    matchesQuery: publicContextSourceMatchesQuery(query, thread.title, thread.body),
+  }));
+
+  const sources = [...documentSources, ...discussionSources].sort((a, b) =>
+    Number(b.matchesQuery) - Number(a.matchesQuery) || a.title.localeCompare(b.title)
+  );
+
+  return {
+    sources,
+    counts: {
+      publishedDocuments: documentSources.length,
+      publicDiscussions: discussionSources.length,
+    },
+  };
+}
+
 personasRouter.get("/public/:publicSlug/context-preview", async (req, res) => {
   const parsed = publicContextPreviewQuerySchema.safeParse(req.query);
   if (!parsed.success) {
@@ -97,12 +226,13 @@ personasRouter.get("/public/:publicSlug/context-preview", async (req, res) => {
 
   const data = await loadEligiblePublicPersonaBySlug(
     req.params.publicSlug,
-    "name, short_description, visibility, avatar_url, public_slug, owner_user_id"
+    "id, name, short_description, visibility, avatar_url, public_slug, owner_user_id"
   );
   if (!data) return res.status(404).json({ error: "Public persona not found." });
 
   const query = normalizePublicPersonaContextQuery(parsed.data.query);
-  return res.json(serializePublicPersonaContextPreview(data, query));
+  const catalog = await buildPublicPersonaContextSources(getSupabaseAdmin(), data, query);
+  return res.json(serializePublicPersonaContextPreview(data, query, catalog));
 });
 
 // Public readback route. This must stay before the authenticated router guard.
