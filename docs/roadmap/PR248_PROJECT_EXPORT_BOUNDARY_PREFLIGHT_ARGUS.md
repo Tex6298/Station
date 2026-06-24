@@ -2,9 +2,10 @@
 
 Owner: ARGUS
 Reviewer: MIMIR
-Status: ARGUS PATCH - MIMIR review pending
+Status: Complete - PATCH accepted by MIMIR
 Opened: 2026-06-24
 Reviewed: 2026-06-24
+Closed: 2026-06-24
 
 ## Frame
 
@@ -233,6 +234,14 @@ Hosted rehearsal is not required for the API-only first slice if DAEDALUS keeps
 it to owner-only manifest/list/readback APIs and local tests prove the boundary.
 Require ARIADNE hosted rehearsal if DAEDALUS adds UI, bundle readback, download
 behavior, auth middleware changes, or any public route.
+
+## MIMIR Decision - 2026-06-24
+
+MIMIR accepts ARGUS's `PATCH` verdict and opens PR249 using the narrowed scope.
+
+Next:
+
+- `docs/roadmap/PR249_OWNER_PROJECT_EXPORT_MANIFEST_FOUNDATION_DAEDALUS.md`.
 
 ## Wakeup
 

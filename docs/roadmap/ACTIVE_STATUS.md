@@ -4,6 +4,29 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR249 Owner Project Export Manifest Foundation opened
+
+MIMIR accepts ARGUS's PR248 `PATCH` verdict on 2026-06-24 and opens the
+narrowed implementation lane.
+
+Decision:
+
+- Open **PR249 - Owner Project Export Manifest Foundation** for DAEDALUS.
+- Scope is API-only, owner-only Project manifest/list/create/readback.
+- Add explicit `project_manifest` export-package targeting before reusing
+  export mechanics.
+- `/exports/:id/bundle` must reject `project_manifest` packages until a later
+  Project bundle lane is approved.
+- No UI, public route, membership/admin/billing permission, document/file body,
+  nested Developer Space bundle, background job, Redis, Cloudflare, hosted
+  runtime, provider call, or broad Project redesign.
+
+Current baton:
+
+- DAEDALUS should execute
+  `docs/roadmap/PR249_OWNER_PROJECT_EXPORT_MANIFEST_FOUNDATION_DAEDALUS.md`.
+- DAEDALUS should wake ARGUS with implementation details and validation.
+
 ## Latest ARGUS preflight - PR248 Project Export Boundary PATCH
 
 ARGUS completed PR248 on 2026-06-24.
@@ -42,10 +65,10 @@ Validation:
 - `git diff --check` passed with CRLF warnings only.
 - `git diff --cached --check` passed.
 
-Current baton:
+MIMIR decision:
 
-- MIMIR should review the PATCH verdict and, if accepted, open PR249 with the
-  exact narrowed DAEDALUS implementation lane.
+- MIMIR accepts the PATCH verdict and opens PR249 with ARGUS's narrowed
+  DAEDALUS implementation boundary.
 
 ## Latest ARIADNE result - PR247 Public Project Evidence Hosted Rehearsal PASS
 

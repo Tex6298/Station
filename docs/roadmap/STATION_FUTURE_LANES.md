@@ -362,8 +362,8 @@ Current intent:
 
 ## Phase 3 bridge sequence
 
-Status, 2026-06-24: PR202 through PR247 are accepted. PR248 returned an ARGUS
-PATCH verdict and awaits MIMIR review.
+Status, 2026-06-24: PR202 through PR248 are accepted. PR249 Owner Project
+Export Manifest Foundation is open for DAEDALUS.
 
 Current MIMIR position:
 
@@ -438,7 +438,8 @@ Bridge order:
 46. Done: Public Project Evidence Preflight.
 47. Done: Public Project Evidence Minimal Readback local/API/web review.
 48. Done: Public Project Evidence Hosted Rehearsal.
-49. MIMIR review: Project Export Boundary Preflight PATCH.
+49. Done: Project Export Boundary Preflight.
+50. Active: Owner Project Export Manifest Foundation.
 
 ARGUS P3-B1A gates:
 
