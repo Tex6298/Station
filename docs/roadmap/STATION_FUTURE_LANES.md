@@ -123,9 +123,11 @@ rehearsal. PR266 is complete: DAEDALUS found UX-02B and UX-DEBT-01 current,
 accepted PR264/PR265 as UX-02A closeout, and recommends no new local UX
 implementation lane before a staging readiness truth check. PR267 failed
 because staged `/developer` returned HTTP 404 while `/developer-spaces` and the
-replay Developer Space observatory were live. PR268 is accepted with an ARGUS
-route-handler patch for `/developer` to `/developer-spaces`; the patched commit
-still needs a hosted public-route rerun after deploy freshness permits.
+replay Developer Space observatory were live. PR268 is accepted locally with an
+ARGUS route-handler patch for `/developer` to `/developer-spaces`, but hosted
+deploy freshness at `b31cf1e` still returned HTTP `307` without a `Location`
+header. PR269 opens the hosted redirect repair before broader UX/product work
+resumes.
 
 Current intent:
 
@@ -216,8 +218,11 @@ Current intent:
   patch after the hosted DAEDALUS page-level redirect returned HTTP `307`
   without a `Location` header. The accepted route-handler patch emits a real
   HTTP `307` redirect to `/developer-spaces` locally and preserves Developer
-  Space API/schema/auth/env/product behavior. MIMIR should rerun hosted PR267
-  public route probes after the patched commit deploys.
+  Space API/schema/auth/env/product behavior. MIMIR reran hosted probes after
+  deploy freshness at `b31cf1e`: web/API health were fresh, but hosted
+  `/developer` still returned HTTP `307` without `Location` and
+  `x-nextjs-cache: HIT`. PR269 opens the next narrow DAEDALUS hosted redirect
+  repair.
 - PR201 result: ARGUS accepted the Phase 3 bridge only after correcting the
   first implementation lane to P3-B1A public persona eligibility, serializer
   split, and owner readback. PR202 opens that safety lane for DAEDALUS before
@@ -652,7 +657,9 @@ Bridge order:
 68. ARGUS failed: Staging Readiness Truth Check found staged `/developer` 404;
     repair with a `/developer` redirect or alias to `/developer-spaces`.
 69. ARGUS accepted: Developer Route Alias Repair with a route-handler patch;
-    hosted rerun pending after patched deploy freshness.
+    hosted rerun at `b31cf1e` still returned `/developer` 307 without
+    `Location`.
+70. Open: DAEDALUS Developer Route Hosted Redirect Repair.
 
 ARGUS P3-B1A gates:
 

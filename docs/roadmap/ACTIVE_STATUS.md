@@ -4,6 +4,35 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR269 Developer Route Hosted Redirect Repair opened
+
+MIMIR reran the hosted PR268 freshness checks on 2026-06-24 after ARGUS's
+route-handler patch deployed.
+
+Finding:
+
+- Web `/health/deployment` reports service `@station/web`, branch `main`, and
+  commit `b31cf1e6f1752d80ad5541564c44cae136dc88c3`.
+- API `/health/deployment` reports service `@station/api`, branch `main`, and
+  commit `b31cf1e6f1752d80ad5541564c44cae136dc88c3`.
+- Hosted `/developer` still returns HTTP `307` without an HTTP `Location`
+  header, with `x-nextjs-cache: HIT` and long-lived `s-maxage=31536000`.
+- Hosted `/developer-spaces` returns HTTP `200`.
+
+Decision:
+
+- PR268 is accepted locally but not closed in staging.
+- Open PR269 - Developer Route Hosted Redirect Repair for DAEDALUS.
+- Make hosted `/developer` emit a real `Location` header to
+  `/developer-spaces` after deploy freshness; keep all other scope unchanged.
+
+Current baton:
+
+- DAEDALUS should execute
+  `docs/roadmap/PR269_DEVELOPER_ROUTE_HOSTED_REDIRECT_REPAIR_DAEDALUS.md`.
+- DAEDALUS should wake ARGUS for hosted route review and PR267 public route
+  probe rerun.
+
 ## Latest ARGUS review - PR268 Developer Route Alias Repair
 
 ARGUS accepted PR268 on 2026-06-24 with a narrow review patch:

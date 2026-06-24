@@ -20,8 +20,10 @@ then let staged replay reveal the next optimizations.
   HTTP 404 even though `/developer-spaces` and the replay Developer Space
   observatory route were live.
 - PR268 is accepted with an ARGUS route-handler patch for the public
-  `/developer` redirect to `/developer-spaces`; hosted public route probes
-  should rerun after the patched commit deploys.
+  `/developer` redirect to `/developer-spaces`, but MIMIR's hosted freshness
+  rerun at `b31cf1e` still returned HTTP `307` without `Location`.
+- PR269 opens the next narrow DAEDALUS repair: make hosted `/developer` emit a
+  real redirect header before broader UX/product work resumes.
 - Known caveats travel into staging review instead of spawning more local polish:
   static global Archive/Export shells, dashboard derived/static snippets, no
   downloadable bundles/workers, and no new private search UI beyond the accepted

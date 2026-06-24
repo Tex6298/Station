@@ -30,6 +30,30 @@ Memory/observability next-slice audit.
 ARGUS accepted PR261 on 2026-06-24. MIMIR opened PR262 as an owner-only
 Memory/observability implementation lane.
 
+## PR269 Developer Route Hosted Redirect Repair
+
+MIMIR opened PR269 for DAEDALUS on 2026-06-24 after hosted deploy freshness
+proved PR268's route-handler patch was live but staging `/developer` still
+returned HTTP `307` without an HTTP `Location` header.
+
+Required validation:
+
+| Check | Expected result | Notes |
+| --- | --- | --- |
+| Web `/health/deployment` | Pass | `ready:true`, service `@station/web`, branch `main`, and runtime commit at or beyond the PR269 repair commit. |
+| Hosted `/developer` | Pass | HTTP `307` or `308` with `Location: https://stationweb-production.up.railway.app/developer-spaces`. |
+| Hosted `/developer-spaces` | Pass | HTTP `200`. |
+| Hosted `/developer-spaces/station-replay-dev-alpha` | Pass | HTTP `200`. |
+| `npm exec --yes pnpm@10.32.1 -- run test:auth` | Pass | `/developer` remains public-readable. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | Existing UI route helpers remain green. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | Route/middleware implementation stays type-safe. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass | Existing raw `<img>` warnings may remain documented; no new touched-route warning. |
+| `git diff --check` | Pass | CRLF normalization warnings only. |
+| `git diff --cached --check` | Pass | Staged whitespace check before wakeup. |
+
+If hosted `/developer` still lacks a `Location` header after deploy freshness,
+the lane is not closed.
+
 ## PR268 Developer Route Alias Repair
 
 ARGUS accepted PR268 on 2026-06-24 with a narrow review patch after PR267
