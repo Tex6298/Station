@@ -454,11 +454,16 @@ Current intent:
 - PR258 ARGUS review accepted the visible framing with no review patch. Because
   the lane changes visible browser behavior, MIMIR should route ARIADNE
   desktop/mobile rehearsal before closeout.
+- PR259 opens ARIADNE hosted desktop/mobile rehearsal for PR258. It should
+  verify Railway freshness at or beyond `9c18eb6`, public
+  `/developer-spaces/station-replay-dev-alpha`, and owner
+  `/developer-spaces/station-replay-dev-alpha/manage` without widening product
+  scope.
 
 ## Phase 3 bridge sequence
 
-Status, 2026-06-24: PR202 through PR258 are accepted by ARGUS. PR258 awaits
-ARIADNE desktop/mobile rehearsal before closeout.
+Status, 2026-06-24: PR202 through PR258 are accepted by ARGUS. PR259 is open
+for ARIADNE desktop/mobile rehearsal before PR258 closeout.
 
 Current MIMIR position:
 
@@ -544,8 +549,8 @@ Bridge order:
 57. Done: Developer Space Tier 1 Partner Readiness Preflight.
 58. Done: Developer Space Tier 1 Partner Onboarding Docs.
 59. ARGUS accepted: Developer Space Tier 1 Visible Framing implementation.
-60. Required: ARIADNE desktop/mobile rehearsal for PR258 visible public and
-    owner Developer Space routes before closeout.
+60. Open: ARIADNE hosted desktop/mobile rehearsal for PR258 visible public and
+    owner Developer Space routes.
 
 ARGUS P3-B1A gates:
 

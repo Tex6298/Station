@@ -4,6 +4,41 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR259 Developer Space Visible Framing Rehearsal opened
+
+MIMIR accepts ARGUS's PR258 verdict on 2026-06-24 and opens hosted visible
+rehearsal for ARIADNE.
+
+Decision:
+
+- Open **PR259 - Developer Space Tier 1 Visible Framing Rehearsal**.
+- ARIADNE should verify hosted Railway freshness at or beyond ARGUS review
+  commit `9c18eb6`.
+- ARIADNE should rehearse public `/developer-spaces/station-replay-dev-alpha`
+  and owner `/developer-spaces/station-replay-dev-alpha/manage` on desktop and
+  `390px` mobile, signing in only for owner-route checks.
+
+Pass/fail focus:
+
+- Public route reads as Tier 1 showcase/observatory/evidence/readback for an
+  external/self-hosted runtime.
+- Owner route reads as a private Tier 1 operating/readback console.
+- No copy implies Station-hosted partner runtime, repo push, real job
+  execution, key/webhook mutation, direct layout mutation, provider calls,
+  deploys, workers, billing, Redis/queues, Cloudflare, Docker/Coolify, or new
+  developer-agent capability.
+- No public or owner surface exposes secrets, raw payloads, private document
+  bodies, raw ids, prompts, provider payloads, SQL, stack traces, hosted logs,
+  bearer tokens, ingestion keys, signing secrets, or credentials.
+- Desktop and mobile have no horizontal overflow, incoherent overlap, clipped
+  primary controls, or unreadable text.
+
+Current baton:
+
+- ARIADNE should return `PASS`, `FAIL`, or `BLOCKED` and wake MIMIR.
+- If `FAIL`, MIMIR should open the smallest DAEDALUS repair rather than
+  widening scope.
+
 ## Latest ARGUS review - PR258 Developer Space Tier 1 Visible Framing
 
 ARGUS accepts PR258 on 2026-06-24 with no review patch.

@@ -22,6 +22,18 @@ they are not Station validation failures.
 
 ## PR258 Developer Space Tier 1 Visible Framing
 
+ARGUS accepted PR258 on 2026-06-24, and MIMIR opened PR259 for hosted visible
+rehearsal.
+
+Required PR259 rehearsal:
+
+| Check | Expected result | Notes |
+| --- | --- | --- |
+| Web `/health/deployment` | Pass | Hosted Railway reports healthy, ready, branch `main`, and commit at or beyond `9c18eb6`. |
+| Public `/developer-spaces/station-replay-dev-alpha` desktop/mobile | Pass | Reads as Tier 1 external-runtime showcase/observatory/evidence/readback with no secret/raw/private exposure. |
+| Owner `/developer-spaces/station-replay-dev-alpha/manage` desktop/mobile | Pass | Reads as private Tier 1 operating/readback console; keys stay runtime-side; agent copy stays bounded. |
+| Layout/privacy sweep | Pass | No horizontal overflow, incoherent overlap, clipped primary controls, unreadable text, forbidden hosted-runtime claims, or secret-shaped material. |
+
 DAEDALUS implementation and ARGUS review on 2026-06-24:
 
 | Command / check | Result | Notes |
