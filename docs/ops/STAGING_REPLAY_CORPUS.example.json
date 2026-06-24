@@ -10,6 +10,12 @@
     "awakeningPrompt": "Treat replay material as test evidence, not production memory.",
     "styleNotes": "Concise, clear, and careful with provenance."
   },
+  "publicPersona": {
+    "name": "Station Replay Alpha Persona",
+    "shortDescription": "Public-safe staging persona for signed-in alpha chat rehearsal.",
+    "publicSlug": "station-replay-alpha-persona",
+    "publicChatEnabled": true
+  },
   "archiveSources": [
     {
       "label": "anchor-one",

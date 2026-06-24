@@ -105,6 +105,7 @@ class InMemorySupabase {
     if (table === "personas") {
       row.short_description ??= null;
       row.public_slug ??= null;
+      row.public_chat_enabled ??= false;
       row.visibility ??= "private";
       row.provider ??= null;
       row.avatar_url ??= null;
@@ -351,6 +352,7 @@ test("Public Spaces smoke covers authored microsite config and owner/private vis
       short_description: "Readable public collaborator.",
       visibility: "public",
       public_slug: "public-persona",
+      public_chat_enabled: true,
       provider: "openai",
       long_description: "Owner-only setup material.",
       awakening_prompt: "Owner-only awakening prompt.",
@@ -376,7 +378,7 @@ test("Public Spaces smoke covers authored microsite config and owner/private vis
       avatarUrl: null,
       publicSlug: "public-persona",
       publicChat: {
-        enabled: false,
+        enabled: true,
         mode: "signed_in_alpha",
       },
     }]);

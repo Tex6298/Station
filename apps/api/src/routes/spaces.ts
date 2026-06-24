@@ -135,7 +135,7 @@ spacesRouter.get("/:slug", optionalAuth, async (req, res) => {
     )),
     sb
       .from("personas")
-      .select("name, short_description, visibility, avatar_url, public_slug")
+      .select("name, short_description, visibility, avatar_url, public_slug, public_chat_enabled")
       .eq("owner_user_id", space.owner_user_id)
       .eq("visibility", "public"),
     ownerCanExposeExistingPublicPersonas(sb, space.owner_user_id),

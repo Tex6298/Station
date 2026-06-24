@@ -127,6 +127,7 @@ async function main({ dryRun }) {
       personaName: persona.name,
       publicPersonaName: publicPersona.name,
       publicPersonaSlug: publicPersona.public_slug,
+      publicPersonaChatEnabled: Boolean(publicPersona.public_chat_enabled),
       spaceSlug: publicSurface.space.slug,
       documentSlug: publicSurface.document.slug,
       developerSpaceSlug: primaryDeveloperSpace.slug,
@@ -203,6 +204,12 @@ function validateCorpus(corpus) {
     requireObject(corpus.publicPersona, "publicPersona");
     requireString(corpus.publicPersona.name, "publicPersona.name");
     requireString(corpus.publicPersona.shortDescription, "publicPersona.shortDescription");
+    if (
+      corpus.publicPersona.publicChatEnabled !== undefined &&
+      typeof corpus.publicPersona.publicChatEnabled !== "boolean"
+    ) {
+      throw new Error("publicPersona.publicChatEnabled must be a boolean when provided.");
+    }
     if (corpus.publicPersona.publicSlug !== undefined) {
       requireSafePublicSlug(corpus.publicPersona.publicSlug, "publicPersona.publicSlug");
     }
@@ -553,6 +560,7 @@ async function ensurePublicPersonaReadback(api, ownerUserId, corpus) {
     long_description: null,
     visibility: "public",
     public_slug: input.publicSlug,
+    public_chat_enabled: input.publicChatEnabled,
     provider: "platform",
     awakening_prompt: null,
     style_notes: null,
@@ -1044,6 +1052,7 @@ function publicPersonaInput(corpus) {
     shortDescription: corpus.publicPersona?.shortDescription ??
       "Public-safe staging persona for PR204 public readback rehearsal.",
     publicSlug,
+    publicChatEnabled: corpus.publicPersona?.publicChatEnabled ?? false,
   };
 }
 
@@ -1102,6 +1111,7 @@ function printSummary({ mode, corpus, counts, labels }) {
       personaName: corpus.persona.name,
       publicPersonaName: publicPersonaInput(corpus).name,
       publicPersonaSlug: publicPersonaInput(corpus).publicSlug,
+      publicPersonaChatEnabled: publicPersonaInput(corpus).publicChatEnabled,
       spaceSlug: corpus.space.slug,
       documentSlug: corpus.space.document.slug,
       developerSpaceSlug: corpus.developerSpace.slug,
