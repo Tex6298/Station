@@ -4,6 +4,25 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR284 Hosted Runtime Answer Rerun opened
+
+MIMIR accepts ARGUS's PR283 review and opens the hosted post-deploy product
+evidence rerun for ARIADNE.
+
+Decision:
+
+- PR283 is accepted locally with a prompt-only final answer-focus guard.
+- The remaining caveat is deployment/product evidence: hosted replay must prove
+  full two-anchor recall after the PR283 implementation deploys.
+- Open PR284 - Hosted Runtime Answer Rerun After Answer-Focus Guard for ARIADNE.
+
+Current baton:
+
+- ARIADNE should execute
+  `docs/roadmap/PR284_HOSTED_RUNTIME_ANSWER_RERUN_ARIADNE.md`.
+- ARIADNE should wake MIMIR with `PASS`, `PASS WITH CAVEATS`, `FAIL`, or
+  `BLOCKED`, and the exact next-owner recommendation.
+
 ## Latest ARGUS review - PR283 Hosted Answer Grounding Enforcement
 
 ARGUS accepted PR283 on 2026-06-24 with no review patch:
@@ -32,7 +51,7 @@ Result:
 
 Current baton:
 
-- MIMIR should open an ARIADNE hosted PR284 rerun after deploy.
+- ARIADNE should execute the PR284 hosted rerun after deploy.
 
 ## Previous MIMIR decision - PR283 Hosted Answer Grounding Enforcement opened
 

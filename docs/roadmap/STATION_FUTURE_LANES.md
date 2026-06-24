@@ -98,7 +98,7 @@ PR282 proved PR281 deployed and full selected context is present, but the answer
 still missed the recall bar. PR283 patched hosted answer-grounding enforcement
 with a final selected-context answer-focus guard after the persona voice close.
 ARGUS accepted the patch; the next proof should be an ARIADNE hosted PR284
-rerun after deploy.
+rerun after deploy. MIMIR opened that PR284 hosted rerun.
 
 ## Phase 2D Developer Agent closeout
 

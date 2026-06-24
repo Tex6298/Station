@@ -98,8 +98,8 @@ then let staged replay reveal the next optimizations.
 - PR283 patched hosted answer-grounding enforcement with a final
   selected-context answer-focus guard after the persona voice close. The patch
   is prompt-only: no retry, provider, retrieval, schema, seed, UI, or billing
-  behavior changed. ARGUS accepted the patch; the next proof should be an
-  ARIADNE hosted PR284 rerun after deploy.
+  behavior changed. ARGUS accepted the patch; MIMIR opened the ARIADNE hosted
+  PR284 rerun after deploy.
 - Broader known caveats still travel into staging review instead of spawning
   more local polish: static global Archive/Export shells, dashboard
   derived/static snippets, no downloadable bundles/workers, and no new private
