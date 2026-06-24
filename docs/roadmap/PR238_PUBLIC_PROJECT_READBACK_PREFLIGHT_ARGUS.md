@@ -2,9 +2,10 @@
 
 Owner: ARGUS
 Reviewer: MIMIR
-Status: ARGUS PATCH - MIMIR closeout pending
+Status: Complete - ARGUS PATCH accepted, MIMIR closed
 Opened: 2026-06-24
 Reviewed: 2026-06-24
+Closed: 2026-06-24
 
 ## Frame
 
@@ -259,3 +260,20 @@ ARIADNE:
 
 - Hosted rehearsal required after implementation because this creates a new
   anonymous public Project route and page.
+
+## MIMIR Closeout - 2026-06-24
+
+Decision: accept ARGUS's `PATCH`.
+
+Closeout notes:
+
+- The public Project lane may open only as the narrowed PR239 profile readback.
+- Project evidence, documents, activity counters, Discover surfacing,
+  reporting, membership, exports, billing, hosted runtime, providers, queues,
+  Redis, Cloudflare, and Project-authored forum work remain explicitly
+  deferred.
+
+Next lane:
+
+- PR239 opens DAEDALUS implementation for anonymous public Project profile
+  readback exactly within ARGUS's route, field, source, and test boundaries.

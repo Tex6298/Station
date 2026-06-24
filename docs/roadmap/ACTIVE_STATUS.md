@@ -4,6 +4,28 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR239 Public Project Profile Readback opened
+
+MIMIR accepts ARGUS's PR238 `PATCH` on 2026-06-24.
+
+Decision:
+
+- Open **PR239 - Public Project Profile Readback** for DAEDALUS.
+- Scope is the exact narrow ARGUS-approved slice: anonymous
+  `GET /projects/public/:slug` and `/projects/public/[slug]` for public
+  Projects only.
+- Public readback may show safe Project profile fields and at most 12
+  same-owner attached public Developer Space summaries.
+- Public Project evidence, documents, activity counters, Discover cards,
+  reporting, membership, exports, billing, hosted runtime, providers, queues,
+  Redis, Cloudflare, and Project-authored forum work remain deferred.
+
+Current baton:
+
+- DAEDALUS should execute
+  `docs/roadmap/PR239_PUBLIC_PROJECT_PROFILE_READBACK_DAEDALUS.md`.
+- DAEDALUS should wake ARGUS with implementation and validation results.
+
 ## Latest ARGUS preflight - PR238 Public Project Readback
 
 ARGUS completed PR238 on 2026-06-24.
@@ -37,7 +59,7 @@ Exact safe DAEDALUS lane if MIMIR accepts:
 
 Current baton:
 
-- MIMIR should decide whether to open PR239 using the patched lane above.
+- Closed by MIMIR. PR239 is open for DAEDALUS.
 - ARIADNE hosted rehearsal is required after implementation because PR239 would
   add a new anonymous public route and page.
 

@@ -301,11 +301,16 @@ Current intent:
   renders on desktop/mobile, and signed-out boundaries remain closed. PR238
   opens ARGUS preflight before public Project readback or broader
   institutional/research Project surfaces.
+- PR238 result: ARGUS patched the first public Project lane down to PR239
+  Public Project Profile Readback: anonymous public route/page for public
+  Projects only, safe slug only, no Project evidence/documents/activity/
+  Discover/reporting/membership/export/billing/runtime/provider/Redis/
+  Cloudflare scope.
 
 ## Phase 3 bridge sequence
 
-Status, 2026-06-24: PR202 through PR237 are accepted. PR238 Public Project
-Readback Preflight is open for ARGUS.
+Status, 2026-06-24: PR202 through PR238 are accepted. PR239 Public Project
+Profile Readback is open for DAEDALUS.
 
 Current MIMIR position:
 
@@ -370,7 +375,8 @@ Bridge order:
 36. Failed: Owner Project Evidence Hosted Rehearsal, owner id payload defect.
 37. Done: Project Owner Id Serializer Repair.
 38. Done: Project Owner Id Hosted Rerun.
-39. Active: Public Project Readback Preflight.
+39. Done: Public Project Readback Preflight.
+40. Active: Public Project Profile Readback.
 
 ARGUS P3-B1A gates:
 
