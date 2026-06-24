@@ -23,6 +23,8 @@ import type {
   PublicPersonaChatResponse,
   PublicPersonaContextSource,
   PublicPersonaEligibility,
+  PublicPersonaEvent,
+  PublicPersonaEventsResponse,
   PublicPersonaInteractionAggregateWindow,
   PublicPersonaInteractionReadback,
   PublicPersonaReportStatus,
@@ -93,6 +95,8 @@ const PUBLIC_PERSONA_DOCUMENT_LIMIT = 6;
 const PUBLIC_PERSONA_DISCUSSION_LIMIT = 4;
 const PUBLIC_PERSONA_SALON_THREAD_LIMIT = 4;
 const PUBLIC_PERSONA_SALON_THREAD_PREFETCH_LIMIT = 24;
+const PUBLIC_PERSONA_EVENTS_DEFAULT_LIMIT = 12;
+const PUBLIC_PERSONA_EVENTS_MAX_LIMIT = 20;
 const PUBLIC_PERSONA_CHAT_DOCUMENT_LIMIT = 3;
 const PUBLIC_PERSONA_CHAT_DISCUSSION_LIMIT = 2;
 const PUBLIC_PERSONA_CHAT_MESSAGE_MAX_LENGTH = 600;
@@ -150,6 +154,12 @@ function publicPersonaRouletteSeed(value: unknown, now = new Date()) {
     ? raw.trim().replace(/\s+/g, "-").slice(0, 80)
     : "";
   return normalized || `daily-${now.toISOString().slice(0, 10)}`;
+}
+
+function publicPersonaEventsLimit(value: unknown) {
+  const parsed = Number.parseInt(String(firstQueryValue(value) ?? ""), 10);
+  if (!Number.isInteger(parsed)) return PUBLIC_PERSONA_EVENTS_DEFAULT_LIMIT;
+  return Math.min(PUBLIC_PERSONA_EVENTS_MAX_LIMIT, Math.max(1, parsed));
 }
 
 function stablePublicPersonaRouletteHash(value: string) {
@@ -416,6 +426,73 @@ async function buildPublicPersonaContextSources(sb: ReturnType<typeof getSupabas
       publicSalonThreads: salonSources.length,
     },
   };
+}
+
+function publicPersonaEventOccurredAt(value: unknown) {
+  if (typeof value !== "string" || Number.isNaN(new Date(value).getTime())) return null;
+  return value;
+}
+
+function createPublicPersonaEvent(
+  event: Omit<PublicPersonaEvent, "occurredAt"> & { occurredAt?: string | null }
+): PublicPersonaEvent | null {
+  const occurredAt = publicPersonaEventOccurredAt(event.occurredAt);
+  if (!occurredAt) return null;
+  return {
+    eventType: event.eventType,
+    label: event.label,
+    title: event.title,
+    href: event.href,
+    occurredAt,
+    ...(event.excerpt ? { excerpt: event.excerpt } : {}),
+    ...(event.sourceType ? { sourceType: event.sourceType } : {}),
+  };
+}
+
+async function buildPublicPersonaEvents(
+  sb: ReturnType<typeof getSupabaseAdmin>,
+  persona: any,
+  limit: number
+) {
+  const documents = await loadPublicRouteableDocumentsForPersona(sb, persona.id);
+  const [discussionThreads, salonThreads] = await Promise.all([
+    loadPublicDiscussionSourcesForDocuments(sb, documents),
+    loadPublicSalonThreadsForPersona(sb, persona.id),
+  ]);
+
+  const events = [
+    ...documents.map((document) => createPublicPersonaEvent({
+      eventType: "published_document",
+      label: "Published document",
+      title: document.title,
+      href: `/space/${document.space.slug}/documents/${document.id}`,
+      occurredAt: document.published_at ?? document.created_at,
+      excerpt: publicContextSourceExcerpt("", document.body, document.title),
+    })),
+    ...discussionThreads.map((thread) => createPublicPersonaEvent({
+      eventType: "public_discussion",
+      label: "Public discussion",
+      title: thread.title,
+      href: `/forums/${thread.category.slug}/${thread.id}`,
+      occurredAt: thread.created_at,
+      excerpt: publicContextSourceExcerpt("", thread.body, thread.title),
+    })),
+    ...salonThreads.map((thread) => createPublicPersonaEvent({
+      eventType: "public_salon_thread",
+      label: "Public Salon thread",
+      title: thread.title,
+      href: `/forums/${thread.category.slug}/${thread.id}`,
+      occurredAt: thread.created_at,
+      excerpt: publicContextSourceExcerpt("", thread.body, thread.title),
+    })),
+  ].filter((event): event is PublicPersonaEvent => Boolean(event));
+
+  return events
+    .sort((left, right) =>
+      new Date(right.occurredAt).getTime() - new Date(left.occurredAt).getTime() ||
+      left.title.localeCompare(right.title)
+    )
+    .slice(0, limit);
 }
 
 function capPublicChatSources(sources: PublicPersonaContextSource[]) {
@@ -952,6 +1029,28 @@ personasRouter.post("/public/:publicSlug/report", requireAuth, async (req, res) 
 
   await incrementPublicPersonaInteractionCounters(sb, persona, { reportCreated: 1 });
   return res.status(201).json(serializePublicPersonaReportConfirmation(data, false));
+});
+
+personasRouter.get("/public/:publicSlug/events", async (req, res) => {
+  const limit = publicPersonaEventsLimit(req.query.limit);
+  const data = await loadEligiblePublicPersonaBySlug(
+    req.params.publicSlug,
+    "id, name, short_description, visibility, avatar_url, public_slug, owner_user_id"
+  );
+  if (!data) return res.status(404).json({ error: "Public persona not found." });
+
+  const publicSlug = isSafePublicPersonaSlug(data.public_slug) ? data.public_slug : null;
+  if (!publicSlug) return res.status(404).json({ error: "Public persona not found." });
+
+  const response: PublicPersonaEventsResponse = {
+    persona: {
+      name: data.name,
+      publicSlug,
+    },
+    events: await buildPublicPersonaEvents(getSupabaseAdmin(), data, limit),
+    limit,
+  };
+  return res.json(response);
 });
 
 personasRouter.get("/public/:publicSlug/context-preview", async (req, res) => {

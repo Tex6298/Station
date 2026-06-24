@@ -63,6 +63,30 @@ export interface PublicPersonaContextPreview {
   };
 }
 
+export type PublicPersonaEventType =
+  | "published_document"
+  | "public_discussion"
+  | "public_salon_thread";
+
+export interface PublicPersonaEvent {
+  eventType: PublicPersonaEventType;
+  label: string;
+  title: string;
+  href: string;
+  occurredAt: string;
+  excerpt?: string | null;
+  sourceType?: string | null;
+}
+
+export interface PublicPersonaEventsResponse {
+  persona: {
+    name: string;
+    publicSlug: string;
+  };
+  events: PublicPersonaEvent[];
+  limit: number;
+}
+
 export type PublicPersonaChatErrorCode =
   | "public_persona_chat_disabled"
   | "public_persona_auth_required"

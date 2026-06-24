@@ -1310,6 +1310,7 @@ html, body {
 }
 
 .public-persona-context-preview,
+.public-persona-updates,
 .public-persona-chat {
   display: grid;
   gap: 1rem;
@@ -1386,6 +1387,7 @@ html, body {
 
 .public-persona-preview-counts div,
 .public-persona-preview-sources a,
+.public-persona-update-list a,
 .public-persona-chat-reply,
 .public-persona-chat-sources a,
 .public-persona-preview-exclusions {
@@ -1397,12 +1399,14 @@ html, body {
 }
 
 .public-persona-preview-sources,
+.public-persona-update-list,
 .public-persona-chat-sources {
   display: grid;
   gap: 0.6rem;
 }
 
 .public-persona-preview-sources a,
+.public-persona-update-list a,
 .public-persona-chat-sources a {
   display: grid;
   gap: 0.25rem;
@@ -1411,6 +1415,8 @@ html, body {
 
 .public-persona-preview-sources em,
 .public-persona-preview-sources small,
+.public-persona-update-list time,
+.public-persona-update-list em,
 .public-persona-preview-exclusions p,
 .public-persona-preview-error,
 .public-persona-chat-state,
@@ -1422,6 +1428,7 @@ html, body {
 }
 
 .public-persona-preview-sources em,
+.public-persona-update-list em,
 .public-persona-preview-exclusions p,
 .public-persona-chat-reply p {
   overflow-wrap: anywhere;

@@ -6,6 +6,7 @@ import { useParams } from "next/navigation";
 import type {
   PublicPersonaChatResponse,
   PublicPersonaContextPreview,
+  PublicPersonaEventsResponse,
   PublicPersonaReportConfirmation,
 } from "@station/types/persona";
 import { apiGet, apiPost } from "@/lib/api-client";
@@ -15,6 +16,8 @@ import {
   publicPersonaChatDisabledCopy,
   publicPersonaContextPreviewCopy,
   publicPersonaReadbackCopy,
+  publicPersonaUpdatesCopy,
+  publicPersonaUpdatesEmptyCopy,
 } from "@/lib/public-persona-route";
 
 interface PublicPersona {
@@ -33,6 +36,8 @@ export default function PublicPersonaPage() {
   const { publicSlug } = useParams<{ publicSlug: string }>();
   const [persona, setPersona] = useState<PublicPersona | null>(null);
   const [preview, setPreview] = useState<PublicPersonaContextPreview | null>(null);
+  const [events, setEvents] = useState<PublicPersonaEventsResponse | null>(null);
+  const [eventsError, setEventsError] = useState<string | null>(null);
   const [previewQuery, setPreviewQuery] = useState("");
   const [previewLoading, setPreviewLoading] = useState(false);
   const [previewError, setPreviewError] = useState<string | null>(null);
@@ -55,14 +60,23 @@ export default function PublicPersonaPage() {
       setLoading(true);
       setError(null);
       setPreviewError(null);
+      setEventsError(null);
+      setEvents(null);
       try {
-        const [data, previewData] = await Promise.all([
+        const [data, previewData, eventData] = await Promise.all([
           apiGet<{ persona: PublicPersona }>(`/personas/public/${publicSlug}`),
           apiGet<PublicPersonaContextPreview>(`/personas/public/${publicSlug}/context-preview`),
+          apiGet<PublicPersonaEventsResponse>(`/personas/public/${publicSlug}/events`).catch((err) => {
+            if (!cancelled) {
+              setEventsError(err instanceof Error ? err.message : "Could not load public updates.");
+            }
+            return null;
+          }),
         ]);
         if (!cancelled) {
           setPersona(data.persona);
           setPreview(previewData);
+          setEvents(eventData);
         }
       } catch (err) {
         if (!cancelled) setError(err instanceof Error ? err.message : "Public persona not found.");
@@ -179,6 +193,31 @@ export default function PublicPersonaPage() {
           <strong>{persona.visibility}</strong>
         </div>
         <p>{publicPersonaReadbackCopy()}</p>
+      </section>
+
+      <section className="public-persona-panel public-persona-updates" aria-label="Public updates">
+        <div>
+          <span>Public updates</span>
+          <strong>Public sources</strong>
+        </div>
+        <p>{publicPersonaUpdatesCopy()}</p>
+
+        {eventsError && <p className="public-persona-preview-error">{eventsError}</p>}
+        {events && events.events.length === 0 && (
+          <p className="public-persona-chat-state">{publicPersonaUpdatesEmptyCopy()}</p>
+        )}
+        {events && events.events.length > 0 && (
+          <div className="public-persona-update-list">
+            {events.events.map((event) => (
+              <Link href={event.href} key={`${event.eventType}-${event.href}`}>
+                <span>{event.label}</span>
+                <strong>{event.title}</strong>
+                <time dateTime={event.occurredAt}>{formatPublicPersonaEventDate(event.occurredAt)}</time>
+                {event.excerpt && <em>{event.excerpt}</em>}
+              </Link>
+            ))}
+          </div>
+        )}
       </section>
 
       <section className="public-persona-panel public-persona-chat" aria-label="Public chat">
@@ -324,6 +363,16 @@ export default function PublicPersonaPage() {
       </section>
     </main>
   );
+}
+
+function formatPublicPersonaEventDate(value: string) {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "Public source";
+  return date.toLocaleDateString(undefined, {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
 }
 
 function IdentityMark({ title, imageUrl }: { title: string; imageUrl?: string | null }) {

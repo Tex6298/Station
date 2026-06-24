@@ -2,8 +2,9 @@
 
 Owner: DAEDALUS
 Reviewer: ARGUS
-Status: Open
+Status: Implemented - ARGUS review pending
 Opened: 2026-06-24
+Implemented: 2026-06-24
 
 ## Frame
 
@@ -180,6 +181,18 @@ Also run:
 - `pnpm test:community` if forum/category/Salon helpers change;
 - `pnpm test:writing` if existing public document/public persona copy helpers
   are touched.
+
+DAEDALUS implementation validation on 2026-06-24:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:personas` | Pass | 12 tests passed. Existing hostile public persona context fixture now also proves derived event readback includes routeable public documents, document discussions, and public Salon threads while excluding private/community/unlisted/hidden/removed/paused/non-Salon/unsafe/unrelated/ineligible/raw-field candidates. |
+| `npm exec --yes pnpm@10.32.1 -- run test:writing` | Pass | 14 tests passed. New helper coverage proves the public updates copy stays derived, public-source-only, and non-live/non-provider/non-private. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed after adding shared `PublicPersonaEvent` types, the derived events route, and the public page panel. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass with existing warnings | Existing raw `<img>` warnings remain in `apps/web/app/space/[slug]/page.tsx` and `apps/web/components/discover/discover-front-door.tsx`. |
+| `git diff --check` | Pass | CRLF normalization warnings only. |
+| `git diff --cached --check` | Pass | No staged whitespace errors. |
+| `test:community` | Not run | PR231 reused existing public forum/category/Salon read filters without changing forum helpers, category serializers, Salon visibility helpers, or thread routing behavior. |
 
 ## Review Handoff
 

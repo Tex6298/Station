@@ -1941,6 +1941,115 @@ test("public persona context preview is anonymous and limited to public routeabl
     assert.equal(previewJson.includes("linked_persona_id"), false);
     assert.equal(previewJson.includes("category_id"), false);
 
+    const events = await requestJson(app, "GET", "/personas/public/blue-lantern-guide/events?limit=20");
+    assert.equal(events.status, 200);
+    assert.deepEqual(events.body.persona, {
+      name: "Blue Lantern Guide",
+      publicSlug: "blue-lantern-guide",
+    });
+    assert.equal(events.body.limit, 20);
+    assert.equal(events.body.events.length, 4);
+    assert.equal(events.body.events.some((event: Row) => event.eventType === "public_profile"), false);
+    assert.equal(
+      events.body.events.some((event: Row) =>
+        event.eventType === "published_document" &&
+        event.label === "Published document" &&
+        event.title === "Blue Lantern Field Notes" &&
+        event.href === "/space/field-notes/documents/public-doc" &&
+        event.occurredAt === "2026-06-23T11:00:00.000Z" &&
+        event.excerpt === "Public document notes about the blue lantern room." &&
+        event.sourceType === undefined
+      ),
+      true
+    );
+    assert.equal(
+      events.body.events.some((event: Row) =>
+        event.eventType === "published_document" &&
+        event.title === "Second Public Field Notes" &&
+        event.href === "/space/field-notes/documents/public-doc-hidden-thread" &&
+        event.occurredAt === "2026-06-23T10:00:00.000Z"
+      ),
+      true
+    );
+    assert.equal(
+      events.body.events.some((event: Row) =>
+        event.eventType === "public_discussion" &&
+        event.label === "Public discussion" &&
+        event.title === "Blue Lantern Discussion" &&
+        event.href === "/forums/documents-and-codexes/public-thread" &&
+        event.excerpt === "Public discussion about the blue lantern source." &&
+        event.sourceType === undefined
+      ),
+      true
+    );
+    assert.equal(
+      events.body.events.some((event: Row) =>
+        event.eventType === "public_salon_thread" &&
+        event.label === "Public Salon thread" &&
+        event.title === "Blue Lantern Salon Circle" &&
+        event.href === "/forums/blue-lantern-salon/public-salon-thread" &&
+        event.excerpt === "Public Salon thread about the blue lantern circle." &&
+        event.sourceType === undefined
+      ),
+      true
+    );
+    for (const event of events.body.events) {
+      assert.equal(typeof event.title, "string");
+      assert.equal(typeof event.href, "string");
+      assert.equal(typeof event.occurredAt, "string");
+      assert.equal(Number.isNaN(new Date(event.occurredAt).getTime()), false);
+      assert.equal(Object.prototype.hasOwnProperty.call(event, "id"), false);
+      assert.equal(Object.prototype.hasOwnProperty.call(event, "personaId"), false);
+      assert.equal(Object.prototype.hasOwnProperty.call(event, "ownerUserId"), false);
+      assert.equal(Object.prototype.hasOwnProperty.call(event, "linkedPersonaId"), false);
+      assert.equal(Object.prototype.hasOwnProperty.call(event, "linkedDocumentId"), false);
+      assert.equal(Object.prototype.hasOwnProperty.call(event, "categoryId"), false);
+    }
+
+    const limitedEvents = await requestJson(app, "GET", "/personas/public/blue-lantern-guide/events?limit=2");
+    assert.equal(limitedEvents.status, 200);
+    assert.equal(limitedEvents.body.limit, 2);
+    assert.equal(limitedEvents.body.events.length, 2);
+
+    const eventJson = JSON.stringify(events.body);
+    assert.equal(eventJson.includes(publicPersona.id), false);
+    assert.equal(eventJson.includes("creator-owner"), false);
+    assert.equal(eventJson.includes("owner_user_id"), false);
+    assert.equal(eventJson.includes("\"provider\""), false);
+    assert.equal(eventJson.includes("providerUsed"), false);
+    assert.equal(eventJson.includes("anthropic"), false);
+    assert.equal(eventJson.includes("longDescription"), false);
+    assert.equal(eventJson.includes("awakeningPrompt"), false);
+    assert.equal(eventJson.includes("styleNotes"), false);
+    assert.equal(eventJson.includes("secret-shaped-value"), false);
+    assert.equal(eventJson.includes("Private setup prompt"), false);
+    assert.equal(eventJson.includes("Owner-only private runtime context"), false);
+    assert.equal(eventJson.includes("private runtime"), false);
+    assert.equal(eventJson.includes("Private Runtime Source"), false);
+    assert.equal(eventJson.includes("Community Only Source"), false);
+    assert.equal(eventJson.includes("Unpublished Draft Source"), false);
+    assert.equal(eventJson.includes("Private Space Source"), false);
+    assert.equal(eventJson.includes("Unrelated Source"), false);
+    assert.equal(eventJson.includes("Hidden Thread Must Stay Hidden"), false);
+    assert.equal(eventJson.includes("Community Thread Must Stay Hidden"), false);
+    assert.equal(eventJson.includes("Hidden Salon Thread Must Stay Hidden"), false);
+    assert.equal(eventJson.includes("Document Linked Salon Thread Must Stay Hidden"), false);
+    assert.equal(eventJson.includes("Removed Salon Thread Must Stay Hidden"), false);
+    assert.equal(eventJson.includes("Community Salon Thread Must Stay Hidden"), false);
+    assert.equal(eventJson.includes("Private Salon Thread Must Stay Hidden"), false);
+    assert.equal(eventJson.includes("Unlisted Salon Thread Must Stay Hidden"), false);
+    assert.equal(eventJson.includes("Paused Salon Thread Must Stay Hidden"), false);
+    assert.equal(eventJson.includes("Canon Circle Thread Must Stay Hidden"), false);
+    assert.equal(eventJson.includes("Unsafe Salon Route Must Stay Hidden"), false);
+    assert.equal(eventJson.includes("Unrelated Salon Thread Must Stay Hidden"), false);
+    assert.equal(eventJson.includes("sub-public-salon"), false);
+    assert.equal(eventJson.includes("category-salon"), false);
+    assert.equal(eventJson.includes("persona_id"), false);
+    assert.equal(eventJson.includes("source_persona_id"), false);
+    assert.equal(eventJson.includes("linked_document_id"), false);
+    assert.equal(eventJson.includes("linked_persona_id"), false);
+    assert.equal(eventJson.includes("category_id"), false);
+
     const privatePreview = await requestJson(app, "GET", "/personas/public/private-context-persona/context-preview?query=blue");
     assert.equal(privatePreview.status, 404);
 
@@ -1960,6 +2069,19 @@ test("public persona context preview is anonymous and limited to public routeabl
       `/personas/public/blue-lantern-guide/context-preview?query=${"a".repeat(121)}`
     );
     assert.equal(tooLongPreview.status, 400);
+
+    const privateEvents = await requestJson(app, "GET", "/personas/public/private-context-persona/events");
+    assert.equal(privateEvents.status, 404);
+
+    const ineligibleEvents = await requestJson(app, "GET", "/personas/public/ineligible-context-persona/events");
+    assert.equal(ineligibleEvents.status, 404);
+
+    const rawUuidEvents = await requestJson(
+      app,
+      "GET",
+      "/personas/public/550e8400-e29b-41d4-a716-446655440000/events"
+    );
+    assert.equal(rawUuidEvents.status, 404);
   } finally {
     setSupabaseAdminForTests(null);
   }

@@ -20,6 +20,31 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR231 Public Persona Event Readback
+
+DAEDALUS implementation validation on 2026-06-24:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:personas` | Pass | 12 tests passed. Existing hostile public persona context fixture now also proves derived event readback includes routeable public documents, public document discussions, and public Salon threads while excluding private, community, unlisted, hidden, removed, paused, non-Salon, unsafe-slug, unrelated-persona, document-linked-Salon, private-Space, draft, ineligible-owner, unsafe-public-slug, provider/private-bucket, and raw-field candidates. |
+| `npm exec --yes pnpm@10.32.1 -- run test:writing` | Pass | 14 tests passed. New public persona route helper coverage proves the Public updates copy is derived, public-source-only, and does not claim live/provider/private/persona-to-persona behavior. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed after adding shared public event types, the derived events route, and the public persona page panel. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass with existing warnings | Existing raw `<img>` warnings remain in `apps/web/app/space/[slug]/page.tsx` and `apps/web/components/discover/discover-front-door.tsx`. |
+| `git diff --check` | Pass | CRLF normalization warnings only. |
+| `git diff --cached --check` | Pass | No staged whitespace errors. |
+| `test:community` | Not run | PR231 reused existing public forum/category/Salon read filters without changing forum helpers, category serializers, Salon visibility helpers, or thread routing behavior. |
+
+Scope notes:
+
+- Added anonymous `GET /personas/public/:publicSlug/events`, returning at most
+  12 events by default and max 20.
+- Events are derived only from already-routeable public documents, public
+  document discussions, and public Salon threads for an eligible public persona.
+- The public persona page renders the readback only as public updates/public
+  sources; no schema, write API, global feed, Space feed, event moderation,
+  provider/chat/report/counter event source, auth/session, billing, or broad UI
+  work was added.
+
 ## PR230 Public Persona Events Preflight
 
 ARGUS preflight on 2026-06-24:

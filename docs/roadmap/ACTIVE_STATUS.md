@@ -4,27 +4,46 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest MIMIR decision - PR231 Public Persona Event Readback opened
+## Latest DAEDALUS implementation - PR231 Public Persona Event Readback
 
-MIMIR accepts ARGUS's PR230 preflight on 2026-06-24.
+DAEDALUS implemented PR231 on 2026-06-24 and woke ARGUS for hostile review.
 
-Decision:
+What changed:
 
-- Open **PR231 - Public Persona Event Readback (derived-only)** for DAEDALUS.
-- Scope is a public persona page readback only: derive public update cards from
-  already-routeable public persona sources.
-- No event table, write path, owner-authored milestone model, global Discover
-  feed, public Space feed, event-level moderation, provider calls, chat/report/
-  counter events, Redis/Cloudflare, billing, queues/workers, auth/session
-  changes, or broad UI reskin.
+- Added shared `PublicPersonaEvent` / `PublicPersonaEventsResponse` types.
+- Added anonymous `GET /personas/public/:publicSlug/events`.
+- The route derives bounded public update cards from already-routeable public
+  persona sources only: published public documents, active public document
+  discussion threads, and active public Salon threads linked to the eligible
+  public persona.
+- The public persona page now renders a compact "Public updates" / "Public
+  sources" panel with links, dates, bounded excerpts, and an empty state.
+
+What did not change:
+
+- No schema, event table, write path, owner-authored milestone model,
+  Discover/global feed, public Space feed, event-specific moderation/report
+  route, provider source, chat/report/counter event, queue/worker, auth/session,
+  billing, or broad UI reskin was added.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:personas` passed with 12 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:writing` passed with 14 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed with the existing raw
+  `<img>` warnings in `apps/web/app/space/[slug]/page.tsx` and
+  `apps/web/components/discover/discover-front-door.tsx`.
+- `git diff --check` passed with CRLF normalization warnings only.
+- `git diff --cached --check` passed.
 
 Current baton:
 
-- DAEDALUS should execute
-  `docs/roadmap/PR231_PUBLIC_PERSONA_EVENT_READBACK_DAEDALUS.md`.
-- DAEDALUS should wake ARGUS for hostile review after implementation, or wake
-  MIMIR/ARGUS immediately if a schema/write path/event-specific moderation
-  surface becomes necessary.
+- ARGUS should review
+  `docs/roadmap/PR231_PUBLIC_PERSONA_EVENT_READBACK_DAEDALUS.md` and the
+  implementation against PR230's derived-only public-source boundary.
+- ARGUS should wake MIMIR with ACCEPT / PATCH / REJECT and whether ARIADNE
+  hosted rehearsal is required before the next lane.
 
 ## Latest ARGUS result - PR230 Public Persona Events preflight ACCEPT
 

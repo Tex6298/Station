@@ -23,6 +23,14 @@ export function publicPersonaContextPreviewCopy() {
   return "Preview which public source categories, including public Salon threads, a future visitor interaction may see. This does not start chat, call a model, or use private runtime context.";
 }
 
+export function publicPersonaUpdatesCopy() {
+  return "Public updates are derived from published documents, public document discussions, and public Salon threads linked to this persona. This is not live activity, provider activity, private memory, or a complete history.";
+}
+
+export function publicPersonaUpdatesEmptyCopy() {
+  return "No published documents or public discussions are available for this persona yet.";
+}
+
 export function publicPersonaChatCopy() {
   return "Signed-in public chat uses this persona's public profile, published public documents, and linked public discussions only.";
 }

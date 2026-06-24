@@ -6,6 +6,8 @@ import {
   publicPersonaChatDisabledCopy,
   publicPersonaHref,
   publicPersonaReadbackCopy,
+  publicPersonaUpdatesCopy,
+  publicPersonaUpdatesEmptyCopy,
 } from "./public-persona-route";
 
 test("public persona href only accepts safe public slugs", () => {
@@ -44,4 +46,20 @@ test("public persona chat copy stays public-source-only", () => {
   const disabled = publicPersonaChatDisabledCopy();
   assert.match(disabled, /not enabled/);
   assert.doesNotMatch(disabled, /provider|quota|ownerUserId|personaId|token|cookie/i);
+});
+
+test("public persona updates copy stays derived and public-source-only", () => {
+  const copy = publicPersonaUpdatesCopy();
+  assert.match(copy, /Public updates/);
+  assert.match(copy, /published documents/);
+  assert.match(copy, /public document discussions/);
+  assert.match(copy, /public Salon threads/);
+  assert.match(copy, /not live activity/);
+  assert.match(copy, /private memory/);
+  assert.doesNotMatch(copy, /provider calls|model calls|persona-to-persona|private continuity|owner setup|token|cookie/i);
+
+  const empty = publicPersonaUpdatesEmptyCopy();
+  assert.match(empty, /No published documents/);
+  assert.match(empty, /public discussions/);
+  assert.doesNotMatch(empty, /live|provider|private|persona-to-persona|ownerUserId|personaId|token|cookie/i);
 });
