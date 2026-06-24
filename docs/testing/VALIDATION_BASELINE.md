@@ -32,12 +32,26 @@ DAEDALUS implementation validation on 2026-06-24:
 | `npm exec --yes pnpm@10.32.1 -- run lint` | Pass with existing warnings | Existing raw `<img>` warnings remain in `apps/web/app/space/[slug]/page.tsx` and `apps/web/components/discover/discover-front-door.tsx`. |
 | `test:community` | Not run | PR227 did not change forum helpers, category serializers, Salon visibility helpers, or thread routing behavior beyond direct public persona readback queries. |
 
+ARGUS review validation on 2026-06-24:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:personas` | Pass | Re-ran 12 tests after the ARGUS exclusion patch for document-linked and unlisted Salon candidates. |
+| `npm exec --yes pnpm@10.32.1 -- run test:writing` | Pass | Re-ran 13 web/helper tests for public persona copy boundaries. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass with existing warnings | Same existing raw `<img>` warnings in `apps/web/app/space/[slug]/page.tsx` and `apps/web/components/discover/discover-front-door.tsx`. |
+| `git diff --check` | Pass | CRLF normalization warnings only. |
+| `git diff --cached --check` | Pass | Staged ARGUS patch, verdict docs, and watcher state had no whitespace errors. |
+| `test:community` | Not run | ARGUS patched only the direct public persona readback query/tests, not forum helpers, category serializers, Salon visibility helpers, or thread routing behavior. |
+
 Scope notes:
 
 - Added public persona context-preview readback for active public Salon-backed
   threads linked to the eligible public persona.
 - Hrefs stay on existing forum thread routes and use safe non-UUID-shaped forum
   category slugs.
+- ARGUS patched the readback query to exclude document-linked threads from the
+  Salon source path, and added explicit unlisted Salon exclusion coverage.
 - Public chat source caps were not expanded, and no community-visible Salon
   readback, new Salon route, live room, provider/model call, public event feed,
   queue, billing, auth/session policy, or broad UI reskin was added.

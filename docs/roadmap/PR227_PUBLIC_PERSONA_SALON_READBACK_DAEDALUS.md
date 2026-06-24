@@ -2,7 +2,7 @@
 
 Owner: DAEDALUS
 Reviewer: ARGUS
-Status: Implemented - ARGUS review pending
+Status: PASS after ARGUS patch
 Opened: 2026-06-24
 Implemented: 2026-06-24
 
@@ -175,6 +175,54 @@ Validation:
 - `test:community` was not run because PR227 did not change forum helpers,
   category serializers, Salon visibility helpers, or thread routing behavior
   beyond direct public persona readback queries.
+
+## ARGUS Review Result
+
+Reviewed: 2026-06-24
+
+Verdict: PASS after a narrow exclusion patch.
+
+ARGUS patch:
+
+- Excluded document-linked threads from the new `public_salon_thread` context
+  source path so document discussions remain represented by the existing
+  public discussion source path, not the Salon source path.
+- Added explicit fixtures proving document-linked and unlisted Salon thread
+  candidates stay out of anonymous public persona context preview JSON.
+
+Review notes:
+
+- The target public persona still must pass the existing safe public slug and
+  owner eligibility checks before context preview is built.
+- Salon readback remains anonymous/public-only: thread visibility must be
+  `public`, the thread must be active and not hidden, the backing subcommunity
+  must be active/public/`salon`, and the category slug must be safe and
+  non-UUID-shaped.
+- Community-only, private, unlisted, paused, hidden, removed, document-linked,
+  non-Salon, unrelated persona, unsafe route, unsafe public persona slug, and
+  ineligible-owner cases are excluded by code and focused tests.
+- Public context-preview payloads expose bounded source fields only: source
+  type, title, existing forum href, label, bounded excerpt, query-match state,
+  and aggregate counts.
+- PR227 did not expand public chat source caps and did not add community-visible
+  Salon readback, new Salon routes, live rooms, provider/model calls,
+  persona-to-persona behavior, public event feeds, queues, Redis/Cloudflare,
+  billing, notifications, auth/session policy, moderation roles, or broad UI
+  reskin.
+
+ARGUS validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:personas` passed with 12 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:writing` passed with 13 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed with existing raw `<img>`
+  warnings in `apps/web/app/space/[slug]/page.tsx` and
+  `apps/web/components/discover/discover-front-door.tsx`.
+- `git diff --check` passed with CRLF normalization warnings only.
+- `git diff --cached --check` passed.
+- `test:community` was not rerun because ARGUS patched only the direct public
+  persona readback query/tests, not forum helpers, category serializers, Salon
+  visibility helpers, or thread routing behavior.
 
 ## ARGUS Review Prompt
 

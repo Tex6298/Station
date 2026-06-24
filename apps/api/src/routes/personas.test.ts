@@ -1512,6 +1512,11 @@ test("public persona context preview is anonymous and limited to public routeabl
       slug: "private-blue-lantern-salon",
       title: "Private Blue Lantern Salon",
     });
+    const unlistedSalonCategory = db.insertRow("forum_categories", {
+      id: "category-unlisted-salon",
+      slug: "unlisted-blue-lantern-salon",
+      title: "Unlisted Blue Lantern Salon",
+    });
     const pausedSalonCategory = db.insertRow("forum_categories", {
       id: "category-paused-salon",
       slug: "paused-blue-lantern-salon",
@@ -1552,6 +1557,15 @@ test("public persona context preview is anonymous and limited to public routeabl
       title: "Private Blue Lantern Salon",
       subcommunity_type: "salon",
       visibility: "private",
+      status: "active",
+    });
+    db.insertRow("community_subcommunities", {
+      id: "sub-unlisted-salon",
+      category_id: unlistedSalonCategory.id,
+      slug: "unlisted-blue-lantern-salon",
+      title: "Unlisted Blue Lantern Salon",
+      subcommunity_type: "salon",
+      visibility: "unlisted",
       status: "active",
     });
     db.insertRow("community_subcommunities", {
@@ -1704,6 +1718,17 @@ test("public persona context preview is anonymous and limited to public routeabl
       is_hidden: false,
     });
     db.insertRow("threads", {
+      id: "document-linked-salon-thread",
+      category_id: salonCategory.id,
+      linked_persona_id: publicPersona.id,
+      linked_document_id: publicDocument.id,
+      title: "Document Linked Salon Thread Must Stay Hidden",
+      body: "Document-linked Salon body.",
+      status: "active",
+      visibility: "public",
+      is_hidden: false,
+    });
+    db.insertRow("threads", {
       id: "hidden-salon-thread",
       category_id: salonCategory.id,
       linked_persona_id: publicPersona.id,
@@ -1739,6 +1764,16 @@ test("public persona context preview is anonymous and limited to public routeabl
       linked_persona_id: publicPersona.id,
       title: "Private Salon Thread Must Stay Hidden",
       body: "Private Salon body.",
+      status: "active",
+      visibility: "public",
+      is_hidden: false,
+    });
+    db.insertRow("threads", {
+      id: "unlisted-salon-thread",
+      category_id: unlistedSalonCategory.id,
+      linked_persona_id: publicPersona.id,
+      title: "Unlisted Salon Thread Must Stay Hidden",
+      body: "Unlisted Salon body.",
       status: "active",
       visibility: "public",
       is_hidden: false,
@@ -1889,9 +1924,11 @@ test("public persona context preview is anonymous and limited to public routeabl
     assert.equal(previewJson.includes("Hidden Thread Must Stay Hidden"), false);
     assert.equal(previewJson.includes("Community Thread Must Stay Hidden"), false);
     assert.equal(previewJson.includes("Hidden Salon Thread Must Stay Hidden"), false);
+    assert.equal(previewJson.includes("Document Linked Salon Thread Must Stay Hidden"), false);
     assert.equal(previewJson.includes("Removed Salon Thread Must Stay Hidden"), false);
     assert.equal(previewJson.includes("Community Salon Thread Must Stay Hidden"), false);
     assert.equal(previewJson.includes("Private Salon Thread Must Stay Hidden"), false);
+    assert.equal(previewJson.includes("Unlisted Salon Thread Must Stay Hidden"), false);
     assert.equal(previewJson.includes("Paused Salon Thread Must Stay Hidden"), false);
     assert.equal(previewJson.includes("Canon Circle Thread Must Stay Hidden"), false);
     assert.equal(previewJson.includes("Unsafe Salon Route Must Stay Hidden"), false);

@@ -331,7 +331,10 @@ async function loadPublicSalonThreadsForPersona(
     .order("created_at", { ascending: false })
     .limit(PUBLIC_PERSONA_SALON_THREAD_PREFETCH_LIMIT);
 
-  const routeableThreads = (threads ?? []).filter((thread: any) => thread.linked_persona_id === personaId);
+  const routeableThreads = (threads ?? []).filter((thread: any) =>
+    thread.linked_persona_id === personaId &&
+    !thread.linked_document_id
+  );
   const categoryIds = Array.from(new Set<string>(
     routeableThreads
       .map((thread: any) => thread.category_id)

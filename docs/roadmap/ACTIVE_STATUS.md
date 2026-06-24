@@ -4,6 +4,51 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS result - PR227 Public Persona Salon readback PASS
+
+ARGUS reviewed PR227 on 2026-06-24 and returns `PASS` after a narrow exclusion
+patch.
+
+Result:
+
+- Public persona context preview now includes bounded `public_salon_thread`
+  sources and a `publicSalonThreads` count for eligible public personas.
+- The target public persona still must pass safe public slug and owner
+  eligibility checks before context preview is built.
+- Salon readback remains anonymous/public-only: included threads must be active,
+  public, not hidden, linked to the target public persona, backed by an
+  active/public/`salon` subcommunity, and routed through a safe non-UUID-shaped
+  forum category slug.
+- ARGUS patched the readback query to exclude document-linked threads from the
+  Salon source path and added focused tests proving document-linked and
+  unlisted Salon candidates stay out of anonymous preview JSON.
+- Community-only, private, unlisted, paused, hidden, removed, document-linked,
+  non-Salon, unrelated persona, unsafe route, unsafe public persona slug, and
+  ineligible-owner cases are excluded by code/tests.
+- Public chat source caps were not expanded, and no community-visible Salon
+  readback, new Salon route, live room, provider/model call,
+  persona-to-persona behavior, public event feed, Redis/Cloudflare, queue,
+  billing, notification, auth/session policy, moderation-role expansion, or
+  broad UI reskin was added.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:personas` passed with 12 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:writing` passed with 13 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed with existing raw `<img>`
+  warnings in `apps/web/app/space/[slug]/page.tsx` and
+  `apps/web/components/discover/discover-front-door.tsx`.
+- `git diff --check` passed with CRLF normalization warnings only.
+- `git diff --cached --check` passed.
+- `test:community` was not rerun because ARGUS patched only the direct public
+  persona readback query/tests, not forum helpers, category serializers, Salon
+  visibility helpers, or thread routing behavior.
+
+Current baton:
+
+- Wake MIMIR to close PR227 and decide the next roadmap move.
+
 ## Latest DAEDALUS result - PR227 Public Persona Salon readback implemented
 
 DAEDALUS implemented PR227 on 2026-06-24.
