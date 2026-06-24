@@ -4,28 +4,44 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest MIMIR decision - PR260 Developer Space Tier 1 Closeout Audit opened
+## Latest DAEDALUS handoff - PR260 Developer Space Tier 1 Closeout Audit
 
-MIMIR closes the PR258/PR259 visible-framing loop on 2026-06-24 and opens PR260
-for DAEDALUS.
+DAEDALUS completed PR260 on 2026-06-24:
+`docs/roadmap/DEVELOPER_SPACE_TIER1_CLOSEOUT_AUDIT.md`.
 
-Decision:
+Recommendation:
 
-- Treat PR258 visible framing as accepted after ARGUS review and ARIADNE hosted
-  desktop/mobile rehearsal.
-- Open **PR260 - Developer Space Tier 1 Closeout Audit** before another
-  implementation slice.
-- DAEDALUS should reconcile the CTO Developer Pages brief, PR255 through PR259,
-  current route/client/test evidence, and the remaining gaps.
-- The output should say whether Tier 1 protected-alpha is closed enough for now
-  or whether the next move is one narrow implementation lane or ARGUS preflight.
+- Close Developer Space Tier 1 protected-alpha for now.
+- Do not open another Developer Space implementation lane by inertia.
+- Return sequencing to non-Developer-Space roadmap priorities unless a real
+  partner pilot produces a named gap.
+
+Classification:
+
+- Done for protected alpha: public Tier 1 showcase framing, ingestion API,
+  developer client, live observatory/widgets, evidence roles and reading path,
+  owner manage console, owner-only exports/readback, partner onboarding docs,
+  and hosted desktop/mobile public/owner rehearsal evidence.
+- Partial but acceptable caveats: project-specific updates/changelog/feed are
+  minimal through selected status notes and draft/publish receipts; connection
+  tier is visible in docs/copy but not first-class product state.
+- Deferred: Developer Space community/forum entry, pricing/tipping, Tier 2
+  hosted compute/databases/queues/deploy/repo/job/runtime, Tier 3 lab work,
+  Cloudflare/Redis/provider dependency questions, and blocked developer-agent
+  execution actions.
+- Blockers: none for Tier 1 protected-alpha closeout.
+
+Validation:
+
+- `git diff --check` passed.
+- `git diff --cached --check` passed.
+- Evidence inspected: CTO brief summary from PR255, PR255 through PR259 docs,
+  Developer Space route/client/test files, and current roadmap/status docs.
 
 Current baton:
 
-- DAEDALUS should complete
-  `docs/roadmap/PR260_DEVELOPER_SPACE_TIER1_CLOSEOUT_AUDIT_DAEDALUS.md`.
-- ARGUS should review the classification for overclaim, unsafe deferrals, and
-  correct next-lane boundaries.
+- ARGUS should review PR260 for overclaim, unsafe deferrals, and whether
+  closing Tier 1 protected-alpha is the right next boundary.
 
 ## Latest ARIADNE review - PR259 Developer Space Visible Framing Rehearsal
 
