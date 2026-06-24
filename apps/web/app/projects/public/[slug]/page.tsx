@@ -8,7 +8,9 @@ import { apiGet } from "@/lib/api-client";
 import {
   publicProjectDeveloperSpaceCountLabel,
   publicProjectEmptyDeveloperSpacesCopy,
+  publicProjectEmptyReferencesCopy,
   publicProjectProfileCopy,
+  publicProjectReferencesCopy,
 } from "@/lib/public-project-profile";
 
 function formatDate(value: string) {
@@ -79,7 +81,7 @@ export default function PublicProjectProfilePage() {
     );
   }
 
-  const { project, developerSpaces } = profile;
+  const { project, developerSpaces, publicEvidence } = profile;
 
   return (
     <main className="station-page">
@@ -150,6 +152,45 @@ export default function PublicProjectProfilePage() {
               </div>
             </article>
           ))}
+        </section>
+
+        <section className="station-panel" style={{ display: "grid", gap: "0.9rem" }} aria-label="Public references">
+          <div>
+            <h2 style={{ margin: "0 0 0.35rem", fontSize: "1.1rem" }}>Public references</h2>
+            <p style={{ margin: 0, color: "#687078", fontSize: "0.9rem", lineHeight: 1.5 }}>
+              {publicProjectReferencesCopy()}
+            </p>
+          </div>
+          {publicEvidence.length === 0 ? (
+            <div style={{ color: "#687078", fontSize: "0.9rem" }}>
+              {publicProjectEmptyReferencesCopy()}
+            </div>
+          ) : (
+            <div style={{ display: "grid", gap: "0.65rem" }}>
+              {publicEvidence.map((item) => (
+                <article key={`${item.href}-${item.title}-${item.updatedAt}`} className="station-card" style={{ display: "grid", gap: "0.55rem" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", gap: "0.75rem", alignItems: "flex-start" }}>
+                    <h3 style={{ margin: 0, fontSize: "1rem", overflowWrap: "anywhere" }}>{item.title}</h3>
+                    <span className="pill">{item.kind.replace("_", " ")}</span>
+                  </div>
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem", color: "#687078", fontSize: "0.8rem" }}>
+                    <span>{item.sourceLabel}</span>
+                    {item.publishedAt ? (
+                      <>
+                        <span>/</span>
+                        <span>published {formatDate(item.publishedAt)}</span>
+                      </>
+                    ) : null}
+                    <span>/</span>
+                    <span>updated {formatDate(item.updatedAt)}</span>
+                  </div>
+                  <div className="station-action-row">
+                    <Link className="station-muted-button" href={item.href}>Open observatory</Link>
+                  </div>
+                </article>
+              ))}
+            </div>
+          )}
         </section>
       </div>
     </main>

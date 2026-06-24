@@ -52,9 +52,19 @@ export interface PublicProjectProfile {
   publicDeveloperSpaceCount: number;
 }
 
+export interface PublicProjectEvidenceItem {
+  title: string;
+  kind: string;
+  href: string;
+  sourceLabel: "Public Developer Space";
+  publishedAt?: string | null;
+  updatedAt: string;
+}
+
 export interface PublicProjectProfileResponse {
   project: PublicProjectProfile;
   developerSpaces: PublicProjectDeveloperSpaceSummary[];
+  publicEvidence: PublicProjectEvidenceItem[];
 }
 
 export interface PublicProjectSearchResult {

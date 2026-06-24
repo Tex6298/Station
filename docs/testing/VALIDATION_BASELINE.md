@@ -20,6 +20,27 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR246 Public Project Evidence Minimal Readback
+
+DAEDALUS implementation validation on 2026-06-24:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:projects` | Pass | 13 tests passed. Coverage now proves anonymous public Project profiles return `publicEvidence` only for same-owner attached public Developer Spaces, public link rows, and same-owner published public documents; excludes private/unlisted/community/draft/removed/wrong-owner/unattached/other-Project evidence; preserves unsafe/UUID slug closure; proves payload keys omit ids, owner/member fields, body text, source ids, raw source labels, private hints, activity, reports, exports, billing, runtime, providers, Redis, Cloudflare, queues, workers, secrets, SQL, stack traces, and raw JSON; and proves private-only evidence and no-evidence Projects both return neutral `publicEvidence: []`. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed after adding the shared public evidence type and correcting one test-only response annotation. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass with existing warnings | Existing raw `<img>` warnings remain in `apps/web/app/space/[slug]/page.tsx` and `apps/web/components/discover/discover-front-door.tsx`. |
+
+Scope notes:
+
+- Added only the narrowed public Project evidence readback slice.
+- The private owner Project evidence serializer remains separate and is not
+  reused for public visitors.
+- Public evidence cards link only to `/developer-spaces/:slug`.
+- No direct document links, body excerpts, ids, owner/member fields, private
+  evidence hints, activity, reports, exports, billing, hosted runtime,
+  providers, Redis, Cloudflare, queues, workers, migrations, or broad UI
+  redesign changed.
+
 ## PR245 Public Project Evidence Preflight
 
 ARGUS docs-only preflight on 2026-06-24:

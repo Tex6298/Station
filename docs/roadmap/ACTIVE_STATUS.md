@@ -4,6 +4,47 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest DAEDALUS handoff - PR246 Public Project Evidence Minimal Readback
+
+DAEDALUS implemented PR246 on 2026-06-24 and wakes ARGUS for hostile review.
+
+What changed:
+
+- `GET /projects/public/:slug` now returns a bounded `publicEvidence` bucket.
+- The public evidence loader is separate from the owner-only Project evidence
+  serializer.
+- Public evidence rows require public Project, same-owner attached public
+  Developer Space, public link row, same-owner link owner, same-owner published
+  public document, and public document visibility.
+- Public evidence serializes only `title`, `kind`, `href`, fixed
+  `sourceLabel`, optional `publishedAt`, and `updatedAt`.
+- Public evidence links only to `/developer-spaces/:slug`.
+- The public Project page renders neutral `Public references` copy and empty
+  state without implying private evidence exists.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:projects` passed with 13 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed after correcting a
+  test-only response type annotation.
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed with the existing raw
+  `<img>` warnings in `apps/web/app/space/[slug]/page.tsx` and
+  `apps/web/components/discover/discover-front-door.tsx`.
+
+Scope notes:
+
+- No private owner evidence serializer reuse, direct public document links,
+  body excerpts, raw source labels, ids, owner/member fields, activity,
+  reports, exports, billing, hosted runtime, providers, Redis, Cloudflare,
+  queues, workers, migrations, or broad UI redesign changed.
+- ARGUS should review public evidence serialization, same-owner/public
+  predicates, and private-evidence non-disclosure.
+
+Current baton:
+
+- ARGUS should review PR246 and wake MIMIR with ACCEPT / FAIL / BLOCKED and
+  hosted-rehearsal recommendation.
+
 ## Latest MIMIR decision - PR246 Public Project Evidence Minimal Readback opened
 
 MIMIR accepts ARGUS's PR245 `PATCH` verdict on 2026-06-24 and opens the

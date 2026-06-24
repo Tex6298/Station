@@ -16,6 +16,14 @@ export function publicProjectEmptyDeveloperSpacesCopy() {
   return "No attached public Developer Space observatories are available for this Project yet.";
 }
 
+export function publicProjectReferencesCopy() {
+  return "Public references are published public work connected through public Developer Space observatories.";
+}
+
+export function publicProjectEmptyReferencesCopy() {
+  return "No public references are available for this Project yet.";
+}
+
 export function publicProjectHref(slug: string | null | undefined) {
   if (!slug || !SAFE_PROJECT_SLUG_PATTERN.test(slug) || UUID_SHAPED_SLUG_PATTERN.test(slug)) {
     return null;

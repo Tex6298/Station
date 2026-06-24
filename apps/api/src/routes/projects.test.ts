@@ -7,6 +7,7 @@ import { setSupabaseAdminForTests } from "../lib/supabase";
 import {
   PROJECT_EVIDENCE_LIMIT,
   PUBLIC_PROJECT_DEVELOPER_SPACE_LIMIT,
+  PUBLIC_PROJECT_EVIDENCE_LIMIT,
   projectsRouter,
 } from "./projects";
 
@@ -289,6 +290,15 @@ function assertNoPublicProjectInternals(value: unknown) {
   assert.doesNotMatch(json, /raw_event|runtime|ingestion|secret|report|source_id|body|SQL|stack/i);
 }
 
+function assertNoPublicEvidenceInternals(value: unknown) {
+  const json = JSON.stringify(value);
+  assertNoProjectOwnerIds(value);
+  assert.doesNotMatch(json, /"id"|"projectId"|"project_id"|"developerSpaceId"|"developer_space_id"|"documentId"|"document_id"/);
+  assert.doesNotMatch(json, /"author_user_id"|"authorUserId"|"link_visibility"|"linkVisibility"|"sort_order"|"sortOrder"/);
+  assert.doesNotMatch(json, /body|excerpt|summary|source_id|source_type|source_label|raw|SQL|stack/i);
+  assert.doesNotMatch(json, /activity|member|role|invite|report|export|billing|runtime|provider|Redis|Cloudflare|queue|worker|secret/i);
+}
+
 test("anonymous public Project profile returns only safe public metadata and same-owner public Developer Spaces", async () => {
   const db = new InMemorySupabase();
   const publicProject = db.insertRow("projects", {
@@ -393,13 +403,15 @@ test("anonymous public Project profile returns only safe public metadata and sam
   const app = createProjectsApp();
 
   try {
-    const response = await requestJson<{ project: Row; developerSpaces: Row[] }>(
+    const response = await requestJson<{ project: Row; developerSpaces: Row[]; publicEvidence: Row[] }>(
       app,
       "GET",
       "/projects/public/public-research-project"
     );
     assert.equal(response.status, 200);
     assertNoPublicProjectInternals(response.body);
+    assert.deepEqual(Object.keys(response.body).sort(), ["developerSpaces", "project", "publicEvidence"]);
+    assert.deepEqual(response.body.publicEvidence, []);
     assert.deepEqual(Object.keys(response.body.project).sort(), [
       "createdAt",
       "description",
@@ -446,6 +458,395 @@ test("anonymous public Project profile returns only safe public metadata and sam
 
     const uuidShaped = await requestJson(app, "GET", "/projects/public/10000000-0000-4000-8000-000000000100");
     assert.equal(uuidShaped.status, 404);
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
+
+test("anonymous public Project profile returns minimal publicEvidence from public same-owner attachments only", async () => {
+  const db = new InMemorySupabase();
+  const publicProject = db.insertRow("projects", {
+    id: "10000000-0000-4000-8000-000000000120",
+    owner_user_id: "owner-user",
+    name: "Public Evidence Project",
+    slug: "public-evidence-project",
+    description: "Public project metadata.",
+    visibility: "public",
+  });
+  const otherProject = db.insertRow("projects", {
+    id: "10000000-0000-4000-8000-000000000121",
+    owner_user_id: "owner-user",
+    name: "Other Project",
+    slug: "other-project",
+    visibility: "public",
+  });
+  const publicSpace = db.insertRow("developer_spaces", {
+    id: "20000000-0000-4000-8000-000000000120",
+    owner_user_id: "owner-user",
+    project_id: publicProject.id,
+    project_name: "Public Observatory",
+    slug: "public-observatory",
+    visibility: "public",
+  });
+  const privateSpace = db.insertRow("developer_spaces", {
+    id: "20000000-0000-4000-8000-000000000121",
+    owner_user_id: "owner-user",
+    project_id: publicProject.id,
+    project_name: "Private Observatory",
+    slug: "private-observatory",
+    visibility: "private",
+  });
+  const unlistedSpace = db.insertRow("developer_spaces", {
+    id: "20000000-0000-4000-8000-000000000122",
+    owner_user_id: "owner-user",
+    project_id: publicProject.id,
+    project_name: "Unlisted Observatory",
+    slug: "unlisted-observatory",
+    visibility: "unlisted",
+  });
+  const communitySpace = db.insertRow("developer_spaces", {
+    id: "20000000-0000-4000-8000-000000000123",
+    owner_user_id: "owner-user",
+    project_id: publicProject.id,
+    project_name: "Community Observatory",
+    slug: "community-observatory",
+    visibility: "community",
+  });
+  const foreignSpace = db.insertRow("developer_spaces", {
+    id: "20000000-0000-4000-8000-000000000124",
+    owner_user_id: "other-user",
+    project_id: publicProject.id,
+    project_name: "Foreign Observatory",
+    slug: "foreign-observatory",
+    visibility: "public",
+  });
+  const unattachedSpace = db.insertRow("developer_spaces", {
+    id: "20000000-0000-4000-8000-000000000125",
+    owner_user_id: "owner-user",
+    project_id: null,
+    project_name: "Unattached Observatory",
+    slug: "unattached-observatory",
+    visibility: "public",
+  });
+  const otherProjectSpace = db.insertRow("developer_spaces", {
+    id: "20000000-0000-4000-8000-000000000126",
+    owner_user_id: "owner-user",
+    project_id: otherProject.id,
+    project_name: "Other Project Observatory",
+    slug: "other-project-observatory",
+    visibility: "public",
+  });
+
+  const primaryDocument = db.insertRow("documents", {
+    id: "30000000-0000-4000-8000-000000000120",
+    author_user_id: "owner-user",
+    title: "Public Method Note",
+    slug: "public-method-note",
+    body: "Sensitive public body should never appear in public evidence.",
+    document_type: "research",
+    status: "published",
+    visibility: "public",
+    published_at: "2026-06-20T12:00:00.000Z",
+    updated_at: "2026-06-20T12:05:00.000Z",
+    source_id: "private-source-id",
+    source_type: "archive_file",
+    source_label: "Raw private source label",
+  });
+  db.insertRow("developer_space_documents", {
+    id: "40000000-0000-4000-8000-000000000120",
+    developer_space_id: publicSpace.id,
+    document_id: primaryDocument.id,
+    owner_user_id: "owner-user",
+    document_role: "methodology",
+    link_visibility: "public",
+    sort_order: 1,
+    updated_at: "2026-06-20T12:10:00.000Z",
+  });
+
+  for (let index = 0; index < PUBLIC_PROJECT_EVIDENCE_LIMIT + 2; index += 1) {
+    const document = db.insertRow("documents", {
+      id: `30000000-0000-4000-8000-${String(220 + index).padStart(12, "0")}`,
+      author_user_id: "owner-user",
+      title: `Older public reference ${index}`,
+      slug: `older-public-reference-${index}`,
+      document_type: index % 2 === 0 ? "field_log" : "research",
+      status: "published",
+      visibility: "public",
+      published_at: `2026-06-19T${String(index % 10).padStart(2, "0")}:00:00.000Z`,
+      updated_at: `2026-06-19T${String(index % 10).padStart(2, "0")}:05:00.000Z`,
+    });
+    db.insertRow("developer_space_documents", {
+      developer_space_id: publicSpace.id,
+      document_id: document.id,
+      owner_user_id: "owner-user",
+      document_role: "finding",
+      link_visibility: "public",
+    });
+  }
+
+  for (const row of [
+    {
+      title: "Private Document Evidence",
+      status: "published",
+      visibility: "private",
+      space: publicSpace,
+      owner: "owner-user",
+      linkVisibility: "public",
+    },
+    {
+      title: "Unlisted Document Evidence",
+      status: "published",
+      visibility: "unlisted",
+      space: publicSpace,
+      owner: "owner-user",
+      linkVisibility: "public",
+    },
+    {
+      title: "Community Document Evidence",
+      status: "published",
+      visibility: "community",
+      space: publicSpace,
+      owner: "owner-user",
+      linkVisibility: "public",
+    },
+    {
+      title: "Draft Document Evidence",
+      status: "draft",
+      visibility: "public",
+      space: publicSpace,
+      owner: "owner-user",
+      linkVisibility: "public",
+    },
+    {
+      title: "Removed Document Evidence",
+      status: "removed",
+      visibility: "public",
+      space: publicSpace,
+      owner: "owner-user",
+      linkVisibility: "public",
+    },
+    {
+      title: "Private Link Evidence",
+      status: "published",
+      visibility: "public",
+      space: publicSpace,
+      owner: "owner-user",
+      linkVisibility: "owner",
+    },
+    {
+      title: "Wrong Link Owner Evidence",
+      status: "published",
+      visibility: "public",
+      space: publicSpace,
+      owner: "other-user",
+      linkVisibility: "public",
+    },
+    {
+      title: "Wrong Document Owner Evidence",
+      status: "published",
+      visibility: "public",
+      space: publicSpace,
+      owner: "owner-user",
+      documentOwner: "other-user",
+      linkVisibility: "public",
+    },
+    {
+      title: "Private Space Evidence",
+      status: "published",
+      visibility: "public",
+      space: privateSpace,
+      owner: "owner-user",
+      linkVisibility: "public",
+    },
+    {
+      title: "Unlisted Space Evidence",
+      status: "published",
+      visibility: "public",
+      space: unlistedSpace,
+      owner: "owner-user",
+      linkVisibility: "public",
+    },
+    {
+      title: "Community Space Evidence",
+      status: "published",
+      visibility: "public",
+      space: communitySpace,
+      owner: "owner-user",
+      linkVisibility: "public",
+    },
+    {
+      title: "Foreign Space Evidence",
+      status: "published",
+      visibility: "public",
+      space: foreignSpace,
+      owner: "other-user",
+      linkVisibility: "public",
+    },
+    {
+      title: "Unattached Space Evidence",
+      status: "published",
+      visibility: "public",
+      space: unattachedSpace,
+      owner: "owner-user",
+      linkVisibility: "public",
+    },
+    {
+      title: "Other Project Space Evidence",
+      status: "published",
+      visibility: "public",
+      space: otherProjectSpace,
+      owner: "owner-user",
+      linkVisibility: "public",
+    },
+  ]) {
+    const document = db.insertRow("documents", {
+      author_user_id: row.documentOwner ?? (row.title === "Foreign Space Evidence" || row.owner === "other-user" ? "other-user" : "owner-user"),
+      title: row.title,
+      slug: row.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, ""),
+      body: `${row.title} private body.`,
+      status: row.status,
+      visibility: row.visibility,
+      published_at: row.status === "published" ? "2026-06-20T10:00:00.000Z" : null,
+      source_id: `${row.title}-source-id`,
+      source_label: `${row.title} raw source label`,
+    });
+    db.insertRow("developer_space_documents", {
+      developer_space_id: row.space.id,
+      document_id: document.id,
+      owner_user_id: row.owner,
+      document_role: "note",
+      link_visibility: row.linkVisibility,
+    });
+  }
+
+  setSupabaseAdminForTests(db.client as any);
+  const app = createProjectsApp();
+
+  try {
+    const response = await requestJson<{ publicEvidence: Row[] }>(
+      app,
+      "GET",
+      "/projects/public/public-evidence-project"
+    );
+    assert.equal(response.status, 200);
+    assertNoPublicProjectInternals(response.body);
+    assertNoPublicEvidenceInternals(response.body.publicEvidence);
+    assert.equal(response.body.publicEvidence.length, PUBLIC_PROJECT_EVIDENCE_LIMIT);
+    assert.deepEqual(Object.keys(response.body.publicEvidence[0]).sort(), [
+      "href",
+      "kind",
+      "publishedAt",
+      "sourceLabel",
+      "title",
+      "updatedAt",
+    ]);
+    assert.deepEqual(response.body.publicEvidence[0], {
+      title: "Public Method Note",
+      kind: "methodology",
+      href: "/developer-spaces/public-observatory",
+      sourceLabel: "Public Developer Space",
+      publishedAt: "2026-06-20T12:00:00.000Z",
+      updatedAt: "2026-06-20T12:05:00.000Z",
+    });
+    assert.equal(
+      response.body.publicEvidence.every((item) => item.href === "/developer-spaces/public-observatory"),
+      true
+    );
+
+    const evidenceText = JSON.stringify(response.body.publicEvidence);
+    for (const forbidden of [
+      publicProject.id,
+      publicSpace.id,
+      primaryDocument.id,
+      "40000000-0000-4000-8000-000000000120",
+      "Sensitive public body",
+      "private-source-id",
+      "Raw private source label",
+      "Private Document Evidence",
+      "Unlisted Document Evidence",
+      "Community Document Evidence",
+      "Draft Document Evidence",
+      "Removed Document Evidence",
+      "Private Link Evidence",
+      "Wrong Link Owner Evidence",
+      "Wrong Document Owner Evidence",
+      "Private Space Evidence",
+      "Unlisted Space Evidence",
+      "Community Space Evidence",
+      "Foreign Space Evidence",
+      "Unattached Space Evidence",
+      "Other Project Space Evidence",
+    ]) {
+      assert.equal(evidenceText.includes(forbidden), false, `${forbidden} leaked into public evidence`);
+    }
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
+
+test("public Project private-only evidence and no-evidence states remain neutral", async () => {
+  const db = new InMemorySupabase();
+  const privateOnlyProject = db.insertRow("projects", {
+    id: "10000000-0000-4000-8000-000000000130",
+    owner_user_id: "owner-user",
+    name: "Private Only Evidence Project",
+    slug: "private-only-evidence-project",
+    visibility: "public",
+  });
+  db.insertRow("projects", {
+    id: "10000000-0000-4000-8000-000000000131",
+    owner_user_id: "owner-user",
+    name: "No Evidence Project",
+    slug: "no-evidence-project",
+    visibility: "public",
+  });
+  const publicSpace = db.insertRow("developer_spaces", {
+    owner_user_id: "owner-user",
+    project_id: privateOnlyProject.id,
+    project_name: "Public Observatory",
+    slug: "private-only-public-observatory",
+    visibility: "public",
+  });
+  const privateDraft = db.insertRow("documents", {
+    author_user_id: "owner-user",
+    title: "Private Draft Evidence",
+    slug: "private-draft-evidence",
+    body: "Private draft body should stay hidden.",
+    status: "draft",
+    visibility: "private",
+    source_id: "private-draft-source-id",
+    source_label: "Private raw source label",
+  });
+  db.insertRow("developer_space_documents", {
+    developer_space_id: publicSpace.id,
+    document_id: privateDraft.id,
+    owner_user_id: "owner-user",
+    document_role: "finding",
+    link_visibility: "owner",
+  });
+
+  setSupabaseAdminForTests(db.client as any);
+  const app = createProjectsApp();
+
+  try {
+    const privateOnly = await requestJson<{ publicEvidence: Row[] }>(
+      app,
+      "GET",
+      "/projects/public/private-only-evidence-project"
+    );
+    assert.equal(privateOnly.status, 200);
+    assert.deepEqual(privateOnly.body.publicEvidence, []);
+    assertNoPublicEvidenceInternals(privateOnly.body.publicEvidence);
+    assert.equal(JSON.stringify(privateOnly.body).includes("Private Draft Evidence"), false);
+    assert.equal(JSON.stringify(privateOnly.body).includes("Private raw source label"), false);
+
+    const none = await requestJson<{ publicEvidence: Row[] }>(
+      app,
+      "GET",
+      "/projects/public/no-evidence-project"
+    );
+    assert.equal(none.status, 200);
+    assert.deepEqual(none.body.publicEvidence, []);
   } finally {
     setSupabaseAdminForTests(null);
   }

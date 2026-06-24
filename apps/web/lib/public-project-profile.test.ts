@@ -3,8 +3,10 @@ import test from "node:test";
 import {
   publicProjectDeveloperSpaceCountLabel,
   publicProjectEmptyDeveloperSpacesCopy,
+  publicProjectEmptyReferencesCopy,
   publicProjectHref,
   publicProjectProfileCopy,
+  publicProjectReferencesCopy,
 } from "./public-project-profile";
 
 const forbiddenClaims =
@@ -18,8 +20,12 @@ test("public Project profile helpers keep copy narrow", () => {
   assert.match(publicProjectProfileCopy(), /public Project metadata/i);
   assert.match(publicProjectProfileCopy(), /already-public Developer Space observatories/i);
   assert.match(publicProjectEmptyDeveloperSpacesCopy(), /No attached public Developer Space observatories/);
+  assert.match(publicProjectReferencesCopy(), /published public work/i);
+  assert.match(publicProjectEmptyReferencesCopy(), /No public references/);
   assert.doesNotMatch(publicProjectProfileCopy(), forbiddenClaims);
   assert.doesNotMatch(publicProjectEmptyDeveloperSpacesCopy(), forbiddenClaims);
+  assert.doesNotMatch(publicProjectReferencesCopy(), forbiddenClaims);
+  assert.doesNotMatch(publicProjectEmptyReferencesCopy(), forbiddenClaims);
 });
 
 test("public Project href helper rejects unsafe slugs", () => {
