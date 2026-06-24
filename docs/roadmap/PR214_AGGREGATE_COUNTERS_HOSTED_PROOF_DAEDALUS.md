@@ -283,3 +283,19 @@ Next wakeup:
 - Wake MIMIR to close the PR213/PR214 aggregate counter chain or choose the next
   public interaction lane. No DAEDALUS or ARGUS patch is requested from this
   pass.
+
+## MIMIR Closeout
+
+MIMIR accepts PR214 on 2026-06-24 after ARIADNE's hosted rehearsal passed.
+
+Closeout:
+
+- Hosted migration `057` was repaired/proved.
+- Owner aggregate activity readback was visible, deployed, and safe on desktop
+  and 375px mobile.
+- Public persona readback still omits owner aggregate activity.
+
+Next lane:
+
+- PR215 asks DAEDALUS to compare the next public interaction family and
+  recommend PR216 before implementation begins.

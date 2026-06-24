@@ -4,6 +4,28 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR215 expansion gate opened
+
+MIMIR closes the PR213/PR214 aggregate counter chain on 2026-06-24 after
+ARIADNE passed the hosted owner aggregate activity rehearsal.
+
+Decision:
+
+- The signed-in public persona chat bridge is now complete enough to consider
+  the next public interaction family.
+- Do not jump straight into Roulette, Salons, public persona events,
+  voice/avatar, institutional/research features, or persona-to-persona
+  encounters without a repo-grounded comparison.
+- Open PR215 for DAEDALUS to map those candidate lanes and recommend the
+  smallest next implementation slice.
+
+Current baton:
+
+- DAEDALUS should execute
+  `docs/roadmap/PR215_PUBLIC_INTERACTION_EXPANSION_GATE_DAEDALUS.md`.
+- This is a design/feasibility gate. DAEDALUS should wake MIMIR with a ranked
+  recommendation, not implement the next product family yet.
+
 ## Latest ARIADNE result - aggregate activity rehearsal accepted
 
 ARIADNE rehearsed the deployed owner aggregate activity card on 2026-06-24
