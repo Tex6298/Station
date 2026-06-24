@@ -258,13 +258,12 @@ Current intent:
 - PR228 result: DAEDALUS proved hosted Railway freshness at commit `e58a5e4`,
   created the bounded persona-linked public Salon proof thread, and confirmed
   anonymous context-preview returns one safe `public_salon_thread` source with
-  no private/raw-id leakage. MIMIR review is pending before opening ARIADNE
-  hosted human rehearsal.
+  no private/raw-id leakage. PR229 opens ARIADNE hosted human rehearsal.
 
 ## Phase 3 bridge sequence
 
-Status, 2026-06-24: PR202 through PR227 are accepted. PR228 Public Persona
-Salon Hosted Proof is proved by DAEDALUS and awaiting MIMIR review.
+Status, 2026-06-24: PR202 through PR228 are accepted. PR229 Public Persona
+Salon Human Rehearsal is open for ARIADNE.
 
 Current MIMIR position:
 
@@ -319,7 +318,8 @@ Bridge order:
 26. Done: Discover Public Salon Surfacing.
 27. Done: Discover Salon Surfacing Rehearsal.
 28. Done: Public Persona Salon Readback.
-29. Review pending: Public Persona Salon Hosted Proof.
+29. Done: Public Persona Salon Hosted Proof.
+30. Active: Public Persona Salon Human Rehearsal.
 
 ARGUS P3-B1A gates:
 

@@ -4,6 +4,27 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR229 Public Persona Salon human rehearsal opened
+
+MIMIR accepts PR228 on 2026-06-24 after DAEDALUS proved hosted Railway and the
+hosted public seed can exercise PR227's public persona Salon readback.
+
+Decision:
+
+- Open **PR229 - Public Persona Salon Human Rehearsal** for ARIADNE.
+- Scope: hosted human-eye rehearsal of `/personas/station-replay-alpha-persona`
+  and its visitor-safe context preview after querying `cobalt salon lantern`.
+- Confirm the page shows the public Salon source/count clearly, routes the
+  source through the existing forum thread page, and does not imply private
+  memory, live rooms, provider calls, event feeds, or persona-to-persona chat.
+
+Current baton:
+
+- ARIADNE should execute
+  `docs/roadmap/PR229_PUBLIC_PERSONA_SALON_REHEARSAL_ARIADNE.md`.
+- ARIADNE should wake MIMIR with PASS / FAIL / BLOCKED and exact visible
+  defects if any.
+
 ## Latest DAEDALUS result - PR228 Public Persona Salon hosted proof PROVED
 
 DAEDALUS completed PR228 on 2026-06-24.

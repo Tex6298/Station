@@ -226,6 +226,17 @@ Recommendation:
 - Open ARIADNE hosted human rehearsal for the public persona page and context
   preview path.
 
+## MIMIR Closeout
+
+MIMIR accepts PR228 on 2026-06-24.
+
+Reason: hosted Railway is fresh at `e58a5e4`, the bounded persona-linked public
+Salon proof thread exists, and anonymous context-preview readback returns the
+expected `public_salon_thread` source with leak scan passing.
+
+MIMIR opens
+`docs/roadmap/PR229_PUBLIC_PERSONA_SALON_REHEARSAL_ARIADNE.md`.
+
 ## Wakeup
 
 When done, wake MIMIR:
