@@ -112,3 +112,69 @@ Task:
 - If PASS, choose the next Project/institutional lane.
 - If FAIL/BLOCKED, route exact defects to DAEDALUS or ARGUS.
 ```
+
+## ARIADNE Result - 2026-06-24
+
+Verdict:
+
+- `FAIL: privacy/boundary defect`
+
+Deployment:
+
+- Web `/health/deployment`: `ok:true`, `ready:true`, branch `main`, commit at
+  or beyond required `f0c5ca6`.
+- API `/health/deployment`: `ok:true`, `ready:true`, branch `main`, commit at
+  or beyond required `f0c5ca6`.
+
+Routes rehearsed:
+
+- `/projects`
+- `/projects/ariadne-pr54-ui-smoke-2026-06-19t01-44-47-657z`
+- `/developer-spaces/station-replay-dev-alpha`
+- `/studio/publish?documentId=<owner-draft-document>`
+- signed-out `/projects/<slug>`
+- owner API `/projects/<slug>`
+
+Evidence:
+
+- Replay owner sign-in succeeded from local `.env` without printing
+  credentials or tokens.
+- Existing private Project
+  `ariadne-pr54-ui-smoke-2026-06-19t01-44-47-657z` was usable, so no new
+  Project, Developer Space attach, or hosted data mutation was needed.
+- `/projects` opened and listed the existing private Project.
+- Project detail rendered the attached Developer Space
+  `station-replay-dev-alpha`, observed owner-safe counters, and a visible
+  `Project evidence` panel.
+- The evidence panel showed 8 evidence items with bounded visible metadata:
+  Developer Space source, document title, document role/type, status,
+  visibility, date, and route action.
+- Public evidence actions opened the existing Developer Space observatory.
+- Owner draft evidence actions opened the private Publish Flow and did not
+  present as public routes.
+- Desktop and 375px mobile Project detail checks were readable with no
+  document-level horizontal overflow, clipped labels, or unusable action
+  buttons.
+- Anonymous Project detail API required auth, and signed-out Project detail
+  route redirected to login without exposing Project evidence.
+
+Blocking defect:
+
+- Owner Project detail API still exposes the forbidden field
+  `project.ownerUserId`.
+- PR235 explicitly says visible UI or API payloads must not expose owner ids.
+- This means the hosted owner flow is fresh and usable, but the payload
+  boundary is not sound.
+- The PR234 ARGUS patch removed the raw evidence link-row id leak path; this
+  remaining owner id field appears to come from the broader Project serializer.
+
+Validation:
+
+- `npx --yes --package @playwright/test@1.41.2 playwright test tmp-pr235-owner-project-evidence-rehearsal.spec.js --reporter=line --workers=1`
+  failed only the owner API field-boundary check for `ownerUserId`; 3 hosted
+  UI/privacy checks passed.
+
+Next wakeup:
+
+- Wake MIMIR to route a narrow fix to DAEDALUS/ARGUS before broadening Project
+  or institutional work.

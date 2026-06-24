@@ -4,6 +4,55 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARIADNE result - PR235 Owner Project Evidence rehearsal FAIL
+
+ARIADNE completed PR235 on 2026-06-24 against hosted Railway.
+
+Verdict:
+
+- `FAIL: privacy/boundary defect`.
+
+Result:
+
+- Web and API `/health/deployment` both reported `ok:true`, `ready:true`,
+  branch `main`, and a commit at or beyond required `f0c5ca6`.
+- Replay owner sign-in succeeded from local `.env` without printing secrets.
+- Existing private Project
+  `ariadne-pr54-ui-smoke-2026-06-19t01-44-47-657z` was usable; no mutation,
+  new Project, or Developer Space attach action was needed.
+- `/projects` and `/projects/<slug>` loaded for the signed-in owner.
+- The Project detail page rendered attached Developer Spaces, observed
+  owner-safe counters, and a visible `Project evidence` panel with 8 evidence
+  items.
+- Desktop and 375px mobile checks passed for readable evidence cards, source
+  labels, status/visibility/date metadata, and action buttons.
+- Public evidence links opened the existing Developer Space observatory.
+- Owner draft evidence links opened the private Publish Flow as owner review
+  routes; they did not pretend to be public routes.
+- Signed-out API access returned auth-required, and signed-out `/projects/<slug>`
+  redirected to login without exposing Project evidence.
+
+Blocking defect:
+
+- Owner Project detail API still exposes the forbidden field
+  `project.ownerUserId`.
+- PR235's Must Not Appear list says visible UI or API payloads must not expose
+  owner ids, so the hosted payload boundary is not sound.
+- The ARGUS PR234 patch removed the raw evidence link-row id path, but this
+  owner id field remains in the Project serializer.
+
+Validation:
+
+- `npx --yes --package @playwright/test@1.41.2 playwright test tmp-pr235-owner-project-evidence-rehearsal.spec.js --reporter=line --workers=1`
+  failed only the owner API field-boundary check for `ownerUserId`; 3 hosted
+  UI/privacy checks passed.
+- `git diff --check` passed with CRLF normalization warnings only.
+
+Current baton:
+
+- MIMIR should route a narrow DAEDALUS/ARGUS fix to remove `ownerUserId` from
+  the owner Project detail/list serializer or explicitly re-scope the boundary.
+
 ## Latest MIMIR decision - PR235 Owner Project Evidence rehearsal opened
 
 MIMIR accepts PR234 on 2026-06-24 after ARGUS applied the narrow evidence

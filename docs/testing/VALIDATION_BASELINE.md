@@ -20,6 +20,28 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR235 Owner Project Evidence Hosted Rehearsal
+
+ARIADNE hosted rehearsal on 2026-06-24:
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Web `/health/deployment` | Pass | Railway web reported `ok:true`, `ready:true`, branch `main`, and commit at or beyond required `f0c5ca6`. |
+| API `/health/deployment` | Pass | Railway API reported `ok:true`, `ready:true`, branch `main`, and commit at or beyond required `f0c5ca6`. |
+| Replay owner sign-in | Pass | Signed in from local `.env` without printing credentials or tokens. |
+| Owner Project seed | Pass | Reused existing private Project `ariadne-pr54-ui-smoke-2026-06-19t01-44-47-657z`; no new Project or attach mutation was needed. |
+| Signed-in `/projects` flow | Pass | Owner list loaded and opened the Project detail route. |
+| Project evidence panel | Pass | Attached Developer Space rendered; `Project evidence` panel showed 8 metadata-only cards with source, title, role/type, status, visibility, date, and owner/public route actions. |
+| Evidence link routeability | Pass | Public evidence action opened the existing Developer Space observatory; owner draft action opened the private Publish Flow and did not present as a public route. |
+| Desktop and mobile fit | Pass | Desktop and 375px mobile checks found readable cards, labels, counters, and action buttons with no document-level horizontal overflow. |
+| Signed-out boundary | Pass | Anonymous Project detail API required auth, and signed-out `/projects/<slug>` redirected to login without exposing Project evidence. |
+| Owner API field boundary | Fail | Owner Project detail payload still includes forbidden field `project.ownerUserId`; PR235 says API payloads must not expose owner ids. |
+| `npx --yes --package @playwright/test@1.41.2 playwright test tmp-pr235-owner-project-evidence-rehearsal.spec.js --reporter=line --workers=1` | Fail | 1 API boundary check failed for `ownerUserId`; 3 hosted UI/privacy checks passed. |
+
+Rehearsal verdict:
+
+- `FAIL: privacy/boundary defect`
+
 ## PR234 Owner Project Evidence Readback
 
 DAEDALUS implementation and ARGUS review-patch validation on 2026-06-24:
