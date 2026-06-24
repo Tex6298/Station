@@ -272,14 +272,21 @@ ARGUS accepted the narrow route-truth repair on 2026-06-24 with a review patch.
 
 ## PR269 hosted redirect repair result
 
-DAEDALUS completed the hosted redirect repair on 2026-06-24.
+ARGUS accepted the hosted redirect repair on 2026-06-24 with a review patch.
 
 - `/developer` now redirects in middleware before route handling/cache.
 - `apps/web/app/developer/route.ts` remains as a dynamic/no-store fallback.
+- ARGUS patched redirect URL construction so hosted redirects use forwarded
+  public host/proto or `NEXT_PUBLIC_APP_URL` instead of Railway's internal
+  `0.0.0.0:8080` origin.
 - Local `/developer` returned HTTP `307` with
-  `location: http://localhost:3140/developer-spaces`.
+  `location: http://localhost:3141/developer-spaces`.
 - Local `/developer-spaces` and
   `/developer-spaces/station-replay-dev-alpha` returned HTTP `200`.
-- ARGUS should rerun hosted PR267 public route probes after deploy freshness.
-  Hosted `/developer` must return HTTP `307` or `308` with
+- Hosted web/API `/health/deployment` reported `ready:true`, branch `main`, and
+  commit `c2cf0cb48ca77f63d0d5bf7af0c9f79f422239fc`.
+- Hosted `/developer` returned HTTP `307` with
   `Location: https://stationweb-production.up.railway.app/developer-spaces`.
+- Hosted `/`, `/discover`, `/forums`, `/developer-spaces`, and
+  `/developer-spaces/station-replay-dev-alpha` returned HTTP `200`.
+- Hosted API `/developer-spaces/station-replay-dev-alpha` returned HTTP `200`.

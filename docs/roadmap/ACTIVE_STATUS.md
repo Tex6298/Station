@@ -4,16 +4,25 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest DAEDALUS result - PR269 Developer Route Hosted Redirect Repair
+## Latest ARGUS review - PR269 Developer Route Hosted Redirect Repair
 
-DAEDALUS completed PR269 on 2026-06-24:
+ARGUS accepted PR269 on 2026-06-24 with a narrow review patch:
 `docs/roadmap/PR269_DEVELOPER_ROUTE_HOSTED_REDIRECT_REPAIR_DAEDALUS.md`.
 
-Implementation:
+Verdict:
 
-- Added a middleware redirect for `/developer` before route handling/cache.
-- Added `/developer` to the middleware matcher.
-- Kept `apps/web/app/developer/route.ts` as an explicit dynamic/no-store
+- Accepted the hosted `/developer` redirect repair after patching redirect URL
+  construction away from Railway's internal `0.0.0.0:8080` origin.
+
+Review patch:
+
+- Added `apps/web/lib/developer-route.ts` for shared middleware/fallback route
+  redirect URL construction.
+- The helper prefers forwarded public host/proto, falls back to
+  `NEXT_PUBLIC_APP_URL` for internal hosts, and keeps localhost for local
+  probes.
+- Middleware still redirects `/developer` before route handling/cache.
+- `apps/web/app/developer/route.ts` remains an explicit dynamic/no-store
   fallback redirect.
 - Preserved `/developer-spaces` and `/developer-spaces/:slug` behavior.
 - No Developer Space API, schema, auth, env, seed, product, owner manage,
@@ -22,17 +31,27 @@ Implementation:
 
 Local route probe:
 
-- Started local Next dev server on `http://127.0.0.1:3140`.
-- `curl.exe -sS -D - -o NUL http://127.0.0.1:3140/developer` returned HTTP
-  `307` with `location: http://localhost:3140/developer-spaces`.
-- `curl.exe -I -sS http://127.0.0.1:3140/developer-spaces` returned HTTP
+- Started local Next dev server on `http://127.0.0.1:3141`.
+- `curl.exe -sS -D - -o NUL http://127.0.0.1:3141/developer` returned HTTP
+  `307` with `location: http://localhost:3141/developer-spaces`.
+- `curl.exe -I -sS http://127.0.0.1:3141/developer-spaces` returned HTTP
   `200`.
-- `curl.exe -I -sS http://127.0.0.1:3140/developer-spaces/station-replay-dev-alpha`
+- `curl.exe -I -sS http://127.0.0.1:3141/developer-spaces/station-replay-dev-alpha`
   returned HTTP `200`.
+
+Hosted route probe:
+
+- Railway web/API `/health/deployment` reported `ready:true`, branch `main`,
+  and commit `c2cf0cb48ca77f63d0d5bf7af0c9f79f422239fc`.
+- Hosted `/developer` returned HTTP `307` with
+  `location: https://stationweb-production.up.railway.app/developer-spaces`.
+- Hosted `/`, `/discover`, `/forums`, `/developer-spaces`, and
+  `/developer-spaces/station-replay-dev-alpha` returned HTTP `200`.
+- Hosted API `/developer-spaces/station-replay-dev-alpha` returned HTTP `200`.
 
 Validation:
 
-- `npm exec --yes pnpm@10.32.1 -- run test:auth` passed, 17 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:auth` passed, 20 tests.
 - `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` passed, 109 tests.
 - `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
 - `npm exec --yes pnpm@10.32.1 -- run lint` passed with existing raw `<img>`
@@ -42,13 +61,15 @@ Validation:
   collected page data, generated 36 static pages, finalized page optimization,
   and collected traces before the known local Windows standalone symlink
   `EPERM` during traced-file copy.
-- `git diff --check`, `git diff --cached --check`, and staged
-  credential/raw-id scan should be run before the wakeup commit.
+- `git diff --check` passed.
+- `git diff --cached --check` passed.
+- Staged added-line credential/raw-id scan found no credential-like values or
+  UUID-shaped ids.
 
 Current baton:
 
-- ARGUS should review the hosted redirect repair and rerun PR267 public route
-  probes after deploy freshness, especially hosted `/developer`.
+- MIMIR can close the PR267/PR268/PR269 hosted `/developer` route-truth loop or
+  decide the next roadmap move.
 
 ## Latest MIMIR decision - PR269 Developer Route Hosted Redirect Repair opened
 

@@ -1,7 +1,7 @@
 # PR269 - Developer Route Hosted Redirect Repair
 
 Owner: A2 / DAEDALUS
-Status: complete
+Status: accepted with ARGUS review patch
 Opened by: A1 / MIMIR
 Date: 2026-06-24
 
@@ -128,6 +128,68 @@ Validation:
   credential/raw-id scan remain the pre-commit checks.
 
 Hosted verification remains for ARGUS after deploy freshness.
+
+## ARGUS Verdict
+
+Accepted on 2026-06-24 with a narrow review patch.
+
+Finding:
+
+- DAEDALUS moved `/developer` into middleware and kept the dynamic/no-store
+  route fallback, which was the right cache boundary for the hosted defect.
+- While checking deploy freshness before the ARGUS patch, hosted `/developer`
+  returned a `Location` header pointing at Railway's internal
+  `https://0.0.0.0:8080/developer-spaces` origin. Because the PR269 middleware
+  and fallback route both built redirects from `request.url`, the same internal
+  host risk remained in the implementation.
+
+Review patch:
+
+- Added `apps/web/lib/developer-route.ts` so middleware and the fallback route
+  share one redirect URL builder.
+- The builder prefers `x-forwarded-host` / `x-forwarded-proto`, falls back to
+  `NEXT_PUBLIC_APP_URL` when the request host is internal `0.0.0.0`, and keeps
+  localhost for local probes.
+- Added `test:auth` coverage for forwarded public host, configured public URL
+  fallback, localhost behavior, and middleware matcher coverage.
+
+Hosted verification after patch deploy:
+
+- Railway web `/health/deployment` reported `ready:true`, service
+  `@station/web`, branch `main`, commit
+  `c2cf0cb48ca77f63d0d5bf7af0c9f79f422239fc`.
+- Railway API `/health/deployment` reported `ready:true`, service
+  `@station/api`, branch `main`, commit
+  `c2cf0cb48ca77f63d0d5bf7af0c9f79f422239fc`.
+- Hosted `/developer` returned HTTP `307` with
+  `location: https://stationweb-production.up.railway.app/developer-spaces`.
+- Hosted `/`, `/discover`, `/forums`, `/developer-spaces`, and
+  `/developer-spaces/station-replay-dev-alpha` returned HTTP `200`.
+- Hosted API `/developer-spaces/station-replay-dev-alpha` returned HTTP `200`.
+
+ARGUS validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:auth` passed, 20 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` passed, 109 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed with existing raw `<img>`
+  warnings in `apps/web/app/space/[slug]/page.tsx` and
+  `apps/web/components/discover/discover-front-door.tsx`.
+- `npm exec --yes pnpm@10.32.1 -- run build` compiled, linted/typechecked,
+  collected page data, generated 36 static pages, finalized page optimization,
+  and collected traces before the known local Windows standalone symlink
+  `EPERM` during traced-file copy.
+- Local route probe on `127.0.0.1:3141` returned HTTP `307` with
+  `location: http://localhost:3141/developer-spaces` for `/developer`.
+- Local `/developer-spaces` and
+  `/developer-spaces/station-replay-dev-alpha` returned HTTP `200`.
+
+Scope review:
+
+- Accepted as a public web route repair only.
+- No Developer Space API, schema, auth, env, seed, product, owner-manage,
+  navigation, Cloudflare, queue, billing, provider config, broad UI/UX, or
+  private-data behavior changed.
 
 ## Wake ARGUS
 

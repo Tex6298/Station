@@ -127,8 +127,8 @@ replay Developer Space observatory were live. PR268 is accepted locally with an
 ARGUS route-handler patch for `/developer` to `/developer-spaces`, but hosted
 deploy freshness at `b31cf1e` still returned HTTP `307` without a `Location`
 header. PR269 adds a middleware-level redirect and dynamic/no-store route
-fallback; ARGUS should rerun hosted route probes after deploy freshness before
-broader UX/product work resumes.
+fallback. ARGUS patched redirect URL construction to avoid Railway's internal
+`0.0.0.0:8080` origin, then hosted route probes passed at `c2cf0cb`.
 
 Current intent:
 
@@ -224,7 +224,12 @@ Current intent:
   `/developer` still returned HTTP `307` without `Location` and
   `x-nextjs-cache: HIT`. PR269 adds the next narrow hosted redirect repair:
   middleware intercepts `/developer` before route handling/cache, while the
-  route handler remains dynamic/no-store as a fallback.
+  route handler remains dynamic/no-store as a fallback. ARGUS patched redirect
+  URL construction so hosted redirects use forwarded public host/proto or
+  `NEXT_PUBLIC_APP_URL` instead of Railway's internal `0.0.0.0:8080` origin.
+  Hosted probes passed at `c2cf0cb`: `/developer` returned HTTP `307` with
+  `Location: https://stationweb-production.up.railway.app/developer-spaces`,
+  and the PR267 public route set returned HTTP `200`.
 - PR201 result: ARGUS accepted the Phase 3 bridge only after correcting the
   first implementation lane to P3-B1A public persona eligibility, serializer
   split, and owner readback. PR202 opens that safety lane for DAEDALUS before
@@ -661,8 +666,8 @@ Bridge order:
 69. ARGUS accepted: Developer Route Alias Repair with a route-handler patch;
     hosted rerun at `b31cf1e` still returned `/developer` 307 without
     `Location`.
-70. DAEDALUS completed: Developer Route Hosted Redirect Repair; ARGUS hosted
-    rerun pending after deploy freshness.
+70. ARGUS accepted: Developer Route Hosted Redirect Repair with a forwarded
+    public-origin patch and hosted route proof at `c2cf0cb`.
 
 ARGUS P3-B1A gates:
 
