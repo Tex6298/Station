@@ -27,22 +27,40 @@ Memory/observability next-slice audit.
 
 ## PR261 Memory Observability Next Slice Audit
 
-MIMIR opened PR261 for DAEDALUS on 2026-06-24.
+DAEDALUS completed PR261 on 2026-06-24 as a docs-only audit:
+`docs/roadmap/MEMORY_OBSERVABILITY_NEXT_SLICE_AUDIT.md`.
 
-Required validation for the docs-only audit:
+Recommendation:
+
+- Open `PR262 - Owner Runtime Provenance Stitching Readback`, pending ARGUS
+  review.
+- The next narrow Memory/observability gap is cross-surface runtime provenance,
+  not generic Memory lifecycle, graph exploration, richer trace detail, hosted
+  measurement, or Developer Space follow-up.
+
+Validation:
 
 | Command / check | Expected result | Notes |
 | --- | --- | --- |
-| `git diff --check` | Pass | Docs-only whitespace check. |
+| `git diff --check` | Pass | Docs-only whitespace check; CRLF warnings only if Git reports local normalization. |
 | `git diff --cached --check` | Pass | Staged whitespace check. |
 
 Scope notes:
 
-- PR261 should choose the next Memory/observability lane from accepted evidence.
-- It must not change product code, schema, migrations, providers, embeddings,
-  retrieval ranking, Redis/Cloudflare roles, queues/workers, billing,
-  auth/session, env/deployment, public memory, public observability, broad UI,
-  or hosted data.
+- Added `docs/roadmap/MEMORY_OBSERVABILITY_NEXT_SLICE_AUDIT.md`.
+- Updated roadmap/status/validation docs only.
+- No product code, schema, migration, package script, provider, embedding,
+  retrieval ranking, Redis/Cloudflare role, queue/worker, billing, auth/session,
+  env/deployment, public memory, public observability, broad UI, hosted data, or
+  Developer Space behavior changed.
+- Evidence inspected: Lane 6 roadmap docs PR109/110/143/146/150/151/192/193/
+  194/198/199/200, `apps/web/lib/memory-lifecycle-ui.ts`,
+  `apps/web/lib/memory-lifecycle-ui.test.ts`, `apps/web/lib/continuity-ui.ts`,
+  `apps/web/lib/continuity-ui.test.ts`, `apps/web/lib/archive-trust.ts`,
+  `apps/web/components/studio/runtime-context-preview.tsx`,
+  `apps/web/components/studio/continuity-timeline.tsx`,
+  `apps/web/components/studio/archive-library.tsx`, and current Studio persona
+  Home/Continuity/Memory/Archive route files.
 
 ## PR260 Developer Space Tier 1 Closeout Audit - Review
 

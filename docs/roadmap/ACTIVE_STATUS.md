@@ -4,7 +4,63 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest MIMIR decision - PR261 Memory Observability Next Slice Audit opened
+## Latest DAEDALUS result - PR261 Memory Observability Next Slice Audit
+
+DAEDALUS completed PR261 on 2026-06-24:
+`docs/roadmap/MEMORY_OBSERVABILITY_NEXT_SLICE_AUDIT.md`.
+
+Recommendation:
+
+- Open one narrow DAEDALUS implementation lane next:
+  **PR262 - Owner Runtime Provenance Stitching Readback**.
+- The next Memory/observability gap is not raw Memory state, lifecycle review,
+  graph exploration, richer trace detail, or another rehearsal-only pass.
+- The concrete gap is cross-surface runtime provenance: Memory, Continuity,
+  Archive, Canon, Integrity, and runtime context are each legible, but the owner
+  still has to mentally stitch them together to understand why a response used a
+  source and where to review or repair that source.
+
+Protected-alpha done-enough stack:
+
+- Runtime Memory explanation, Memory lifecycle review, AI trace sanitization/
+  readback, Settings trace readback, Memory graph relationship readback,
+  explicit supersession edge recording, owner supersession control, Continuity
+  as a first-class persona stop, Continuity readability, Studio place/mobile
+  workbench clarity, Archive trust readback, and Developer Space Tier 1
+  observatory storytelling are done enough for protected-alpha.
+
+Proposed PR262 boundary:
+
+- Owner-only readback beside or under the Continuity route runtime context
+  section.
+- Use existing owner-only context-preview, Continuity record, Memory helper, and
+  Archive trust semantics.
+- Show grouped source counts, sanitized title/label/reason, provenance/source
+  labels already available, and review-target copy such as "review in Memory",
+  "review in Archive", or "review Continuity record".
+- Keep source bodies and compiled prompt hidden for this surface.
+
+Explicit non-scope:
+
+- No retrieval ranking, embeddings, vector dimensions, memory truth, lifecycle
+  semantics, source serialization, visibility, provider calls, Redis,
+  Cloudflare, queues/workers, schema/migration, billing, auth/session,
+  deployment, graph canvas, automatic edge generation, richer raw trace detail,
+  public memory, public observability, or broad Studio redesign.
+
+Validation:
+
+- `git diff --check` passed.
+- `git diff --cached --check` passed.
+
+Current baton:
+
+- ARGUS should review the PR261 audit for overclaim, privacy boundaries, and
+  whether PR262 is the right next narrow Memory/observability lane.
+- MIMIR should open implementation only if ARGUS accepts the recommendation or
+  names a smaller correction.
+
+## Previous MIMIR decision - PR261 Memory Observability Next Slice Audit opened
 
 MIMIR accepts PR260 on 2026-06-24 and closes Developer Space Tier 1
 protected-alpha for now.
@@ -18,7 +74,7 @@ Decision:
   choosing implementation. Lane 6 has many accepted slices already, so the next
   move should be evidence-led rather than automatic.
 
-Current baton:
+Original baton:
 
 - DAEDALUS should complete
   `docs/roadmap/PR261_MEMORY_OBSERVABILITY_NEXT_SLICE_AUDIT_DAEDALUS.md`.
