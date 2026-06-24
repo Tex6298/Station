@@ -17,6 +17,8 @@ import {
 import { retrievePrivateArchive } from "../src/retrieval/archive-retrieval";
 import { assemblePersonaRuntimeContext } from "../src/retrieval/context-builder";
 import { searchMemory, searchMemoryWithTrace } from "../src/retrieval/semantic-search";
+import { buildPersonaChatPrompt } from "../src/prompts/persona-chat";
+import { OpenAIProvider } from "../src/providers/openai";
 
 type Row = Record<string, any>;
 
@@ -174,6 +176,61 @@ test("persona runtime context promotes exact lexical memory and preserves full c
     assert.equal(context.trace.selectedSources.some((source) => source.id === "archive-source-anchor"), false);
   } finally {
     embeddingFetch.restore();
+  }
+});
+
+test("private persona prompt prioritizes direct factual answers from selected context", () => {
+  const prompt = buildPersonaChatPrompt({
+    name: "Replay Persona",
+    visibility: "private",
+    memory: [
+      "Synthetic staging context binds Meridian Loom to silver compass ledger and Helio Gate to blue lantern checksum.",
+    ],
+  });
+
+  assert.match(prompt, /Grounded answering rule/);
+  assert.match(prompt, /direct factual question/);
+  assert.match(prompt, /answer from that selected context first/);
+  assert.match(prompt, /Preserve a safe user-requested shape/);
+  assert.match(prompt, /Do not omit directly relevant selected names/);
+  assert.match(prompt, /Meridian Loom/);
+  assert.match(prompt, /Helio Gate/);
+  assert.match(prompt, /silver compass ledger/);
+  assert.match(prompt, /blue lantern checksum/);
+});
+
+test("OpenAI provider payload preserves grounding prompt and final user message", async () => {
+  const prompt = buildPersonaChatPrompt({
+    name: "Replay Persona",
+    visibility: "private",
+    memory: [
+      "Synthetic staging context binds Meridian Loom to silver compass ledger and Helio Gate to blue lantern checksum.",
+    ],
+  });
+  const providerFetch = mockProviderFetch();
+
+  try {
+    const provider = new OpenAIProvider({ apiKey: "test-key", model: "test-model", baseUrl: "https://provider.test/v1" });
+    await provider.sendMessage({
+      system: prompt,
+      messages: [
+        { role: "assistant", content: "Earlier safe assistant turn." },
+        { role: "user", content: "List the two staged pairs from selected context." },
+      ],
+    });
+
+    const body = providerFetch.lastBody();
+    assert.equal(body.model, "test-model");
+    assert.equal(body.messages[0].role, "system");
+    assert.match(body.messages[0].content, /Grounded answering rule/);
+    assert.match(body.messages[0].content, /Meridian Loom/);
+    assert.match(body.messages[0].content, /Helio Gate/);
+    assert.deepEqual(body.messages.at(-1), {
+      role: "user",
+      content: "List the two staged pairs from selected context.",
+    });
+  } finally {
+    providerFetch.restore();
   }
 });
 
@@ -971,5 +1028,28 @@ function mockEmbeddingFetch(vector: number[]) {
       globalThis.fetch = originalFetch;
     },
     calls: () => callCount,
+  };
+}
+
+function mockProviderFetch() {
+  const originalFetch = globalThis.fetch;
+  let capturedBody: any = null;
+  globalThis.fetch = (async (_url: RequestInfo | URL, init?: RequestInit) => {
+    capturedBody = JSON.parse(String(init?.body ?? "{}"));
+    return {
+      ok: true,
+      json: async () => ({
+        model: capturedBody.model,
+        choices: [{ message: { content: "Grounded provider response." } }],
+      }),
+      text: async () => "",
+    };
+  }) as typeof fetch;
+
+  return {
+    restore: () => {
+      globalThis.fetch = originalFetch;
+    },
+    lastBody: () => capturedBody,
   };
 }

@@ -88,8 +88,12 @@ partial summary cannot erase selected owner-safe evidence before prompt
 assembly. ARGUS accepted the patch; the next proof should be an ARIADNE hosted
 PR280 rerun after deploy. MIMIR opened that PR280 hosted rerun.
 PR280 proved full selected context on hosted Railway but the answer still
-missed the full recall bar. PR281 is the active DAEDALUS lane for bounded
-answer grounding after selected context is available.
+missed the full recall bar. PR281 patched the bounded answer-grounding layer:
+private persona prompts with selected context now explicitly answer direct
+factual questions from selected context first, preserve safe requested shapes,
+and avoid omitting directly relevant selected names/phrases for persona-only
+style. ARGUS review is pending; if accepted, the next proof should be an
+ARIADNE hosted PR282 rerun after deploy.
 
 ## Phase 2D Developer Agent closeout
 

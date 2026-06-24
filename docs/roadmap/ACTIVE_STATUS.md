@@ -4,7 +4,35 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest MIMIR decision - PR281 Bounded Answer Grounding Repair opened
+## Latest DAEDALUS result - PR281 Bounded Answer Grounding Repair
+
+DAEDALUS completed PR281 on 2026-06-24:
+`docs/roadmap/PR281_BOUNDED_ANSWER_GROUNDING_REPAIR_RESULT.md`.
+
+Result:
+
+- Verdict: `PASS WITH CAVEATS`, pending ARGUS review.
+- Root cause/hypothesis: PR280 proved full selected context was present, so the
+  remaining defect is prompt priority after context selection. The existing
+  prompt did not explicitly instruct private persona chat to answer direct
+  factual questions from selected context when the answer is present.
+- Patch: private persona prompts with selected context now include a grounded
+  answering rule that prioritizes selected context for direct factual questions,
+  preserves safe requested shapes, and avoids long source-copying.
+- Local provider-payload proof confirms the system prompt contains the grounding
+  rule/evidence and the final user message remains last.
+- Validation passed: `test:retrieval-metadata`, `test:persona-context`,
+  `test:conversation-archive`, `test:replay-readiness`, `typecheck`, and
+  `lint` with existing raw `<img>` warnings only.
+
+Current baton:
+
+- ARGUS should review prompt-injection boundaries, no hardcoded replay anchors,
+  no provider/scope creep, and secret/raw-data hygiene.
+- If accepted, ARGUS should recommend whether MIMIR opens an ARIADNE hosted
+  PR282 rerun after deploy.
+
+## Previous MIMIR decision - PR281 Bounded Answer Grounding Repair opened
 
 MIMIR accepts ARIADNE's PR280 hosted result as `FAIL` while treating PR279's
 context assembly repair as hosted-evidence positive.

@@ -495,6 +495,13 @@ retrieval phrases, with rejected-control evidence absent. The hosted chat answer
 still recalled zero accepted concepts and zero matching phrases. MIMIR opens
 PR281 Bounded Answer Grounding Repair for DAEDALUS.
 
+2026-06-24 PR281 result: DAEDALUS patched private persona prompt grounding so
+direct factual questions answer from selected context first when the answer is
+present, preserve safe requested shapes, and avoid omitting selected names or
+phrases for persona-only style. Provider-payload tests prove the grounding
+prompt and final user message are preserved. ARGUS review is pending; if
+accepted, MIMIR should open an ARIADNE hosted PR282 rerun after deploy.
+
 2026-06-23 Phase 3 bridge decision: MIMIR consumed the A1 bridge wakeup and
 opened PR201 for ARGUS hostile boundary preflight. Phase 3 is not ready for
 direct product-code opening because public persona pages, bounded visitor

@@ -32,27 +32,32 @@ Memory/observability implementation lane.
 
 ## PR281 Bounded Answer Grounding Repair
 
-MIMIR opened PR281 for DAEDALUS on 2026-06-24 after ARIADNE's PR280 hosted
-rerun proved full selected context but failed answer recall.
+DAEDALUS completed PR281 on 2026-06-24:
+`docs/roadmap/PR281_BOUNDED_ANSWER_GROUNDING_REPAIR_RESULT.md`.
 
-Required validation:
+Result: `PASS WITH CAVEATS`, pending ARGUS review.
 
-| Check | Expected result | Notes |
+Validation result:
+
+| Check | Result | Notes |
 | --- | --- | --- |
-| Provider prompt evidence path | Pass | Prove full selected evidence reaches provider prompt locally using sanitized booleans/counts/categories, not raw prompt dumps. |
-| Grounded-answer instruction | Pass | Prompt/payload should clearly tell private persona chat to answer direct factual questions from selected context when present. |
-| No hardcoded replay terms | Pass | No special casing for seeded anchor strings, replay persona, or hosted ids. |
-| Rejected-control/source-copy safety | Pass | Rejected-control context stays out and no raw source-body markers are encouraged in answers. |
-| Scope | Pass | No retrieval, provider, embedding, schema, seed, import, Redis, Cloudflare, queue, worker, billing, Stripe, or UI changes unless new evidence is documented first. |
-| `npm exec --yes pnpm@10.32.1 -- run test:retrieval-metadata` | Pass | Required if prompt/context fixtures touch retrieval evidence. |
-| `npm exec --yes pnpm@10.32.1 -- run test:persona-context` | Pass | Required for prompt/runtime context changes. |
-| `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass | Required for archive/context regressions. |
-| `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` | Pass | Required if readiness/observability surfaces are touched. |
-| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | Required before ARGUS review unless a repo-level blocker is documented. |
-| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass with existing warnings named | Existing raw `<img>` warnings are acceptable if unchanged. |
-| `git diff --check` | Pass | Whitespace check. |
-| `git diff --cached --check` | Pass | Staged whitespace check before wakeup. |
+| Provider prompt evidence path | Pass | Local OpenAI-compatible payload test proves the system prompt contains grounding guidance/evidence and the final user message remains last. |
+| Grounded-answer instruction | Pass | Private persona prompts with selected context include an explicit grounded-answer rule for direct factual questions. |
+| No hardcoded replay terms | Pass | Product code adds generic prompt guidance only; no replay persona, hosted ids, or seeded anchor terms are special-cased. |
+| Rejected-control/source-copy safety | Pass | Filtering is unchanged, and the prompt says to use facts without copying long source passages verbatim. |
+| Scope | Pass | No retrieval, provider routing, embedding, schema, seed, import, Redis, Cloudflare, queue, worker, billing, Stripe, public UI, or Studio UI changes. |
+| `npm exec --yes pnpm@10.32.1 -- run test:retrieval-metadata` | Pass | 12 tests, including prompt grounding and provider payload shape. |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-context` | Pass | 8 tests. |
+| `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass | 35 tests. |
+| `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` | Pass | 2 tests. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | 2 turbo tasks. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass with existing warnings | Existing raw `<img>` warnings remain in `apps/web/app/space/[slug]/page.tsx` and `apps/web/components/discover/discover-front-door.tsx`. |
+| `git diff --check` | Pass | Whitespace check passed. |
+| `git diff --cached --check` | Pass | Staged whitespace check passed before wakeup. |
 | Added-line hygiene scan | Pass | No credential-like values, emails, credentialed URLs, raw ids, raw prompts, completions, or private source bodies. |
+
+ARGUS should review the repair. If accepted, the next useful validation is an
+ARIADNE hosted PR282 rerun after deploy.
 
 ## PR280 Hosted Runtime Answer Rerun Result
 

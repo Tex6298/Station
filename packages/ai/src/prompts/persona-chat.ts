@@ -91,6 +91,16 @@ export function buildPersonaChatPrompt(input: {
     );
   }
 
+  if (input.visibility === "private" && hasSelectedContext(input)) {
+    sections.push(
+      "Grounded answering rule:\n" +
+      "When the owner asks a direct factual question and the selected context above contains the answer, answer from that selected context first. " +
+      "Preserve a safe user-requested shape such as a concise list, names, pairs, or short recap. " +
+      "Do not omit directly relevant selected names, labels, or phrases just to maintain mystique or a persona-only response. " +
+      "Use the facts without copying long source passages verbatim. If the selected context does not contain the answer, say that rather than inventing."
+    );
+  }
+
   // Closing instruction
   sections.push(
     "Maintain a stable, consistent voice. " +
@@ -100,4 +110,20 @@ export function buildPersonaChatPrompt(input: {
   );
 
   return sections.join("\n\n");
+}
+
+function hasSelectedContext(input: {
+  canon?: string[];
+  integrity?: string[];
+  memory?: string[];
+  continuity?: string[];
+  archive?: string[];
+}) {
+  return Boolean(
+    input.canon?.length ||
+    input.integrity?.length ||
+    input.memory?.length ||
+    input.continuity?.length ||
+    input.archive?.length
+  );
 }

@@ -86,6 +86,12 @@ then let staged replay reveal the next optimizations.
   matching invented retrieval phrases with rejected-control absent, but the chat
   answer recalled zero accepted concepts and phrases. MIMIR opened PR281 as a
   narrow DAEDALUS bounded answer-grounding repair.
+- PR281 patched the bounded answer-grounding layer: private persona prompts
+  with selected context now explicitly answer direct factual questions from
+  selected context first, preserve safe requested answer shapes, and avoid
+  omitting directly relevant selected names/phrases for persona-only style.
+  ARGUS review is pending; if accepted, the next proof should be an ARIADNE
+  hosted PR282 rerun after deploy.
 - Broader known caveats still travel into staging review instead of spawning
   more local polish: static global Archive/Export shells, dashboard
   derived/static snippets, no downloadable bundles/workers, and no new private
