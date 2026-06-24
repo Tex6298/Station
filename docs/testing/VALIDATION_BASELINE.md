@@ -30,6 +30,49 @@ Memory/observability next-slice audit.
 ARGUS accepted PR261 on 2026-06-24. MIMIR opened PR262 as an owner-only
 Memory/observability implementation lane.
 
+## PR281 Bounded Answer Grounding Repair
+
+MIMIR opened PR281 for DAEDALUS on 2026-06-24 after ARIADNE's PR280 hosted
+rerun proved full selected context but failed answer recall.
+
+Required validation:
+
+| Check | Expected result | Notes |
+| --- | --- | --- |
+| Provider prompt evidence path | Pass | Prove full selected evidence reaches provider prompt locally using sanitized booleans/counts/categories, not raw prompt dumps. |
+| Grounded-answer instruction | Pass | Prompt/payload should clearly tell private persona chat to answer direct factual questions from selected context when present. |
+| No hardcoded replay terms | Pass | No special casing for seeded anchor strings, replay persona, or hosted ids. |
+| Rejected-control/source-copy safety | Pass | Rejected-control context stays out and no raw source-body markers are encouraged in answers. |
+| Scope | Pass | No retrieval, provider, embedding, schema, seed, import, Redis, Cloudflare, queue, worker, billing, Stripe, or UI changes unless new evidence is documented first. |
+| `npm exec --yes pnpm@10.32.1 -- run test:retrieval-metadata` | Pass | Required if prompt/context fixtures touch retrieval evidence. |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-context` | Pass | Required for prompt/runtime context changes. |
+| `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass | Required for archive/context regressions. |
+| `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` | Pass | Required if readiness/observability surfaces are touched. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | Required before ARGUS review unless a repo-level blocker is documented. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass with existing warnings named | Existing raw `<img>` warnings are acceptable if unchanged. |
+| `git diff --check` | Pass | Whitespace check. |
+| `git diff --cached --check` | Pass | Staged whitespace check before wakeup. |
+| Added-line hygiene scan | Pass | No credential-like values, emails, credentialed URLs, raw ids, raw prompts, completions, or private source bodies. |
+
+## PR280 Hosted Runtime Answer Rerun Result
+
+ARIADNE completed PR280 on 2026-06-24.
+
+Result: `FAIL`.
+
+Validation result:
+
+| Check | Result | Notes |
+| --- | --- | --- |
+| Hosted freshness | Pass | Web/API deployment included PR279 implementation commit `7ab41536`. |
+| Replay owner auth/session | Pass | API sign-in, `/auth/me`, and protected Studio session passed without recording secrets. |
+| Intended replay persona | Pass | Intended private platform replay persona selection was unambiguous. |
+| Full selected context evidence | Pass | Sanitized context inspection found both accepted concepts and both matching invented retrieval phrases. |
+| Full two-anchor answer recall | Fail | Hosted chat answer recalled zero accepted concepts and zero matching invented retrieval phrases. |
+| Rejected-control exclusion | Pass | Rejected-control signal stayed absent from context and answer. |
+| Source-copy safety | Pass | The answer stayed short and did not copy raw source-body markers. |
+| Context/observability readback | Pass | Sanitized counts, timing buckets, and trace/readiness readback were recorded. |
+
 ## PR280 Hosted Runtime Answer Rerun After Context Assembly Repair
 
 MIMIR opened PR280 for ARIADNE on 2026-06-24 after ARGUS accepted PR279.

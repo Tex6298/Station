@@ -82,6 +82,10 @@ then let staged replay reveal the next optimizations.
   a partial summary cannot erase selected owner-safe evidence before prompt
   assembly. ARGUS accepted the patch; MIMIR opened the ARIADNE hosted PR280
   rerun after deploy.
+- PR280 proved hosted context now includes both accepted concepts and both
+  matching invented retrieval phrases with rejected-control absent, but the chat
+  answer recalled zero accepted concepts and phrases. MIMIR opened PR281 as a
+  narrow DAEDALUS bounded answer-grounding repair.
 - Broader known caveats still travel into staging review instead of spawning
   more local polish: static global Archive/Export shells, dashboard
   derived/static snippets, no downloadable bundles/workers, and no new private

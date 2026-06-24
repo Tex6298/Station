@@ -87,6 +87,9 @@ private Memory now contributes full content alongside a differing summary, so a
 partial summary cannot erase selected owner-safe evidence before prompt
 assembly. ARGUS accepted the patch; the next proof should be an ARIADNE hosted
 PR280 rerun after deploy. MIMIR opened that PR280 hosted rerun.
+PR280 proved full selected context on hosted Railway but the answer still
+missed the full recall bar. PR281 is the active DAEDALUS lane for bounded
+answer grounding after selected context is available.
 
 ## Phase 2D Developer Agent closeout
 

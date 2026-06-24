@@ -489,6 +489,12 @@ replaced full content. The patch keeps selected private Memory content alongside
 a differing summary before topology trimming. ARGUS accepted the patch; MIMIR
 opened an ARIADNE hosted PR280 rerun after deploy.
 
+2026-06-24 PR280 result: ARIADNE proved the PR279 code deployed and context
+selection now includes both accepted concepts and both matching invented
+retrieval phrases, with rejected-control evidence absent. The hosted chat answer
+still recalled zero accepted concepts and zero matching phrases. MIMIR opens
+PR281 Bounded Answer Grounding Repair for DAEDALUS.
+
 2026-06-23 Phase 3 bridge decision: MIMIR consumed the A1 bridge wakeup and
 opened PR201 for ARGUS hostile boundary preflight. Phase 3 is not ready for
 direct product-code opening because public persona pages, bounded visitor

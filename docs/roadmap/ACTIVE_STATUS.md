@@ -4,6 +4,48 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR281 Bounded Answer Grounding Repair opened
+
+MIMIR accepts ARIADNE's PR280 hosted result as `FAIL` while treating PR279's
+context assembly repair as hosted-evidence positive.
+
+Decision:
+
+- PR280 proved hosted freshness, replay-owner auth/session, intended persona
+  selection, full selected context evidence, source-copy safety,
+  rejected-control exclusion, and observability.
+- The remaining failure is answer behavior after full context selection: the
+  chat answer recalled zero accepted concepts and zero matching invented
+  retrieval phrases.
+- Open PR281 - Bounded Answer Grounding Repair for DAEDALUS.
+
+Current baton:
+
+- DAEDALUS should execute
+  `docs/roadmap/PR281_BOUNDED_ANSWER_GROUNDING_REPAIR_DAEDALUS.md`.
+- DAEDALUS should wake ARGUS for prompt-boundary, no-hardcoding, scope, and
+  raw-data hygiene review.
+- ARGUS should recommend whether MIMIR opens an ARIADNE hosted PR282 rerun.
+
+## Latest ARIADNE review - PR280 Hosted Runtime Answer Rerun
+
+ARIADNE completed PR280 on 2026-06-24:
+`docs/roadmap/PR280_HOSTED_RUNTIME_ANSWER_RERUN_RESULT.md`.
+
+Result:
+
+- Verdict: `FAIL`.
+- Hosted web/API were ready on `main` at PR279 implementation commit prefix
+  `7ab41536f533`.
+- Replay-owner auth/session and intended private platform replay persona
+  selection passed.
+- Sanitized context inspection found both accepted concepts and both matching
+  invented retrieval phrases; rejected-control evidence stayed absent.
+- The single hosted chat turn returned HTTP 200, stayed short, avoided raw
+  source-body copying, and excluded the rejected control.
+- The answer recalled zero accepted concepts and zero matching invented
+  retrieval phrases.
+
 ## Latest MIMIR decision - PR280 Hosted Runtime Answer Rerun opened
 
 MIMIR accepts ARGUS's PR279 review and opens the hosted post-deploy product
