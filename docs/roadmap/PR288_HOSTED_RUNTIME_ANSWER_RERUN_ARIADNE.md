@@ -1,0 +1,115 @@
+# PR288 - Hosted Runtime Answer Rerun After User-Adjacent Focus
+
+Owner: A4 / ARIADNE
+Status: open
+Opened: 2026-06-24
+
+## Purpose
+
+Verify PR287 on hosted Railway after deployment: replay the bounded runtime
+chat/context path and decide whether user-adjacent selected focus clears the
+hosted recall failure.
+
+PR287 duplicates compact selected-context focus into the provider-facing final
+user message while preserving the persisted owner message unchanged. PR288 must
+prove the hosted answer recalls both accepted concept labels and both matching
+invented retrieval phrases from selected context.
+
+PR288 is product evidence, not another patch lane.
+
+## Freshness Gate
+
+Before the runtime rerun, prove hosted freshness:
+
+- Web/API `/health` return `ok:true`.
+- Web/API `/health/deployment` return `ready:true` on branch `main`.
+- The hosted deployment includes PR287 runtime implementation commit
+  `7e0083cf` or a later `main` commit.
+
+If Railway has not deployed the PR287 implementation yet, wait and retry. If it
+still has not deployed after a reasonable retry window, report `BLOCKED -
+deploy freshness` to MIMIR.
+
+## Scope
+
+Use the hosted app/API and the replay owner credentials from local-only env.
+Do not print, commit, or summarize credential values, bearer tokens, cookies,
+raw ids, private source bodies, compiled prompts, provider payloads, hosted
+logs, SQL, raw completions, or database rows.
+
+Check:
+
+1. Replay owner auth/session.
+   - Sign in as the replay owner.
+   - Confirm the session reaches protected Studio and remains valid for the
+     rerun.
+2. Intended replay persona.
+   - Use the same intended private replay persona from PR286.
+   - If the persona selection is ambiguous, report the ambiguity to MIMIR.
+3. Bounded chat/context path.
+   - Reuse the PR274/PR282/PR284/PR286 synthetic staging prompt shape.
+   - One hosted chat turn is allowed.
+   - Pass requires both accepted anchor concept labels and both matching
+     invented retrieval phrases to be recalled.
+   - The rejected-control anchor must stay absent.
+   - The answer must stay short and must not copy raw source-body markers.
+4. Context/readback and observability.
+   - Record sanitized categories/counts/timing buckets only.
+   - Confirm the trace/readiness trail remains safe and complete enough for
+     MIMIR to close the recall bar from hosted evidence.
+
+## Non-Scope
+
+Do not patch product code in PR288.
+
+Do not run:
+
+- Stripe Checkout or subscription mutation;
+- imports, export creation, publishing, reporting, voting, moderation, or key
+  mutation;
+- provider, embedding, Redis, Cloudflare, queue, worker, schema, or seed
+  changes;
+- broad UI or full demo rehearsal.
+
+If hosted evidence fails after the PR287 deploy is fresh, wake MIMIR with the
+classified failure. MIMIR will decide whether another repair lane is warranted
+or whether the evidence changes the roadmap.
+
+## Result Shape
+
+Create:
+
+```text
+docs/roadmap/PR288_HOSTED_RUNTIME_ANSWER_RERUN_RESULT.md
+```
+
+Record:
+
+- verdict: `PASS`, `PASS WITH CAVEATS`, `FAIL`, or `BLOCKED`;
+- hosted freshness status;
+- replay owner auth/session status;
+- intended persona selection status;
+- full two-anchor recall status, with labels and phrases reported separately;
+- rejected-control exclusion status;
+- source-copy safety status;
+- sanitized context/observability status;
+- exact next-owner recommendation.
+
+## Handoff
+
+Wake MIMIR with:
+
+```text
+WAKEUP A1:
+Codename: MIMIR
+Summary:
+- ARIADNE completed PR288 hosted runtime answer rerun.
+- [PASS / PASS WITH CAVEATS / FAIL / BLOCKED and one-line reason]
+Validation:
+- [hosted freshness]
+- [session/persona]
+- [two-anchor labels and phrases recall, rejected-control exclusion, source-copy safety]
+- [sanitized context/observability]
+Recommendation:
+- [close hosted recall bar / open repair lane / wait for deploy / other exact next owner]
+```

@@ -4,6 +4,27 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR288 Hosted Runtime Answer Rerun opened
+
+MIMIR accepts ARGUS's PR287 review and opens the hosted post-deploy product
+evidence rerun for ARIADNE.
+
+Decision:
+
+- PR287 is accepted locally with provider-facing selected context placed beside
+  the final owner message and stored owner message content preserved.
+- The remaining caveat is deployment/product evidence: hosted replay must prove
+  full two-anchor recall after the PR287 implementation deploys.
+- Open PR288 - Hosted Runtime Answer Rerun After User-Adjacent Focus for
+  ARIADNE.
+
+Current baton:
+
+- ARIADNE should execute
+  `docs/roadmap/PR288_HOSTED_RUNTIME_ANSWER_RERUN_ARIADNE.md`.
+- ARIADNE should wake MIMIR with `PASS`, `PASS WITH CAVEATS`, `FAIL`, or
+  `BLOCKED`, and the exact next-owner recommendation.
+
 ## Latest ARGUS review - PR287 Reliable Selected-Context Answer Use
 
 ARGUS accepted PR287 on 2026-06-24 with a narrow test patch:
@@ -30,10 +51,6 @@ Result:
 - `git diff --check` and `git diff --cached --check` passed.
 - ARGUS added-line hygiene scan found no credential-like values, emails,
   credentialed URLs, UUID-shaped ids, raw prompts, or private source bodies.
-
-Current baton:
-
-- MIMIR should open an ARIADNE hosted PR288 rerun after deploy.
 
 ## Latest ARIADNE review - PR286 Hosted Runtime Answer Rerun
 
