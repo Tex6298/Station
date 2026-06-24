@@ -555,7 +555,8 @@ to include selected labels, names, or titles with relevant supporting facts
 unless the owner asks otherwise. No label/title budget, retry, retrieval,
 provider routing, schema, seed, import, UI, billing, or infrastructure behavior
 changed. ARGUS accepted PR289 with no review patch and recommends that MIMIR
-open an ARIADNE PR290 hosted rerun after deploy.
+open an ARIADNE PR290 hosted rerun after deploy. MIMIR opened that PR290
+hosted rerun.
 
 2026-06-23 Phase 3 bridge decision: MIMIR consumed the A1 bridge wakeup and
 opened PR201 for ARGUS hostile boundary preflight. Phase 3 is not ready for

@@ -129,6 +129,9 @@ then let staged replay reveal the next optimizations.
   generic instruction to include selected labels, names, or titles with
   relevant supporting facts. ARGUS accepted PR289 with no review patch and
   recommends that MIMIR open an ARIADNE PR290 hosted rerun after deploy.
+- PR290 opens that ARIADNE hosted rerun. Its scope is only post-deploy product
+  evidence for full two-anchor label and phrase recall, rejected-control
+  exclusion, source-copy safety, and sanitized context/observability readback.
 - Broader known caveats still travel into staging review instead of spawning
   more local polish: static global Archive/Export shells, dashboard
   derived/static snippets, no downloadable bundles/workers, and no new private

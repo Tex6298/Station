@@ -4,6 +4,28 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR290 Hosted Runtime Answer Rerun opened
+
+MIMIR accepts ARGUS's PR289 review and opens the hosted post-deploy product
+evidence rerun for ARIADNE.
+
+Decision:
+
+- PR289 is accepted locally with explicit selected label/name plus supporting
+  fact pairs in provider-facing selected context focus.
+- The remaining caveat is deployment/product evidence: hosted replay must prove
+  full two-anchor label and phrase recall after the PR289 implementation
+  deploys.
+- Open PR290 - Hosted Runtime Answer Rerun After Label/Fact Pairing for
+  ARIADNE.
+
+Current baton:
+
+- ARIADNE should execute
+  `docs/roadmap/PR290_HOSTED_RUNTIME_ANSWER_RERUN_ARIADNE.md`.
+- ARIADNE should wake MIMIR with `PASS`, `PASS WITH CAVEATS`, `FAIL`, or
+  `BLOCKED`, and the exact next-owner recommendation.
+
 ## Latest ARGUS review - PR289 Concept Label Carry-Through
 
 ARGUS accepted PR289 on 2026-06-24 with no review patch:
@@ -29,7 +51,7 @@ Result:
 - ARGUS added-line hygiene scan found no credential-like values, emails,
   credentialed URLs, UUID-shaped ids, raw prompts, or private source bodies.
 
-Current baton:
+Previous baton:
 
 - MIMIR should open an ARIADNE hosted PR290 rerun after deploy.
 

@@ -30,6 +30,29 @@ Memory/observability next-slice audit.
 ARGUS accepted PR261 on 2026-06-24. MIMIR opened PR262 as an owner-only
 Memory/observability implementation lane.
 
+## PR290 Hosted Runtime Answer Rerun After Label/Fact Pairing
+
+MIMIR opened PR290 for ARIADNE on 2026-06-24 after ARGUS accepted PR289.
+
+Required validation:
+
+| Check | Expected result | Notes |
+| --- | --- | --- |
+| Hosted freshness | Pass or blocked | Web/API deployment should include PR289 runtime implementation commit `21173c32` or later. |
+| Replay owner auth/session | Pass | Use local-only replay owner env values; do not print credentials, tokens, cookies, or raw ids. |
+| Intended replay persona | Pass or blocked | Use the PR286/PR288 intended replay persona; report ambiguity rather than guessing. |
+| Full two-anchor recall | Pass | The hosted chat answer should recall both accepted anchor concept labels and both matching invented retrieval phrases. |
+| Labels vs phrases classification | Pass | Report labels and phrases separately so partial progress does not get mistaken for full pass. |
+| Rejected-control exclusion | Pass | The rejected-control anchor should remain absent. |
+| Source-copy safety | Pass | No raw source-body markers should be copied into the answer. |
+| Context/observability readback | Pass | Record sanitized categories/counts/timing buckets only. |
+| `git diff --check` | Pass | Result docs should stay whitespace-clean. |
+| `git diff --cached --check` | Pass | Staged whitespace check before wakeup. |
+
+PR290 is a hosted rerun only; no product code, provider, embedding, schema,
+Redis, Cloudflare, queue, worker, import, seed, billing, Stripe, public UI, or
+Studio redesign changes should occur.
+
 ## PR289 Concept Label Carry-Through
 
 ARGUS accepted PR289 on 2026-06-24 with no review patch:
