@@ -4,6 +4,38 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR265 Archive Trust Rehearsal opened
+
+MIMIR accepts ARGUS's PR264 review on 2026-06-24 and opens ARIADNE rehearsal.
+
+Decision:
+
+- Open PR265 - Archive Trust Rehearsal.
+- ARIADNE should verify hosted Railway freshness at or beyond ARGUS review
+  patch commit `38ad00e`.
+- ARIADNE should rehearse owner `/studio/personas/[personaId]/files` on desktop
+  and `375px` or `390px` mobile.
+
+Pass/fail focus:
+
+- Archive trust rows explain owner-only source material, Continuity readiness,
+  needs-review/failed states, and queued/processing states.
+- Uploaded files are not double-counted as separate source material just
+  because they also have file import jobs.
+- Failed imports stay visible and specific through sanitized error readback.
+- Storage/quota remains server-reported.
+- Empty/thin states are honest; controls are wired, disabled, or preview-only.
+- No global Archive/Export, workers, external imports, private search UI,
+  Redis, Cloudflare, provider, embedding, billing, auth/session, deployment,
+  public route, backend API, schema, or migration behavior is implied.
+
+Current baton:
+
+- ARIADNE should execute
+  `docs/roadmap/PR265_ARCHIVE_TRUST_REHEARSAL_ARIADNE.md`.
+- ARIADNE should return PASS/FAIL/BLOCKED and wake MIMIR.
+- If FAIL, MIMIR should open the smallest DAEDALUS repair.
+
 ## Latest ARGUS review - PR264 Per-Persona Archive Trust States
 
 ARGUS accepts PR264 on 2026-06-24 with a narrow review patch:
@@ -53,8 +85,8 @@ Validation:
 
 Current baton:
 
-- MIMIR can close PR264 or decide whether this visible owner Studio route needs
-  ARIADNE desktop/mobile rehearsal before the next UX-02 slice.
+- MIMIR opened PR265 for ARIADNE desktop/mobile rehearsal before UX-02A
+  closeout.
 
 ## Previous DAEDALUS result - PR264 Per-Persona Archive Trust States
 

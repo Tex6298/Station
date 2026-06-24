@@ -69,8 +69,10 @@ estimate, ARGUS to gate, and ARIADNE to review against real user journeys.
 - PR200 opens ARIADNE's visible desktop/375px review for UX-01A before MIMIR
   closes the slice or opens UX-02A/UX-01B.
 - PR200 accepted UX-01A. After PR262/PR263 closed the runtime provenance
-  readback/rehearsal chain, MIMIR opens PR264 as UX-02A Per-Persona Archive
+  readback/rehearsal chain, MIMIR opened PR264 as UX-02A Per-Persona Archive
   Trust States against `/studio/personas/:personaId/files`.
+- PR264 is accepted by ARGUS with a narrow source-count honesty patch. PR265
+  opens ARIADNE hosted desktop/mobile rehearsal before UX-02A closeout.
 
 ## Major surfaces
 

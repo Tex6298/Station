@@ -118,7 +118,8 @@ blocker. PR199/PR200 accepted the UX-01A Studio place/mobile workbench clarity
 slice. PR262 is accepted by ARGUS as the owner-only runtime provenance
 stitching slice, PR263 passed ARIADNE hosted desktop/mobile rehearsal, and
 PR264 is accepted by ARGUS with a narrow source-count honesty patch as UX-02A
-Per-Persona Archive Trust States.
+Per-Persona Archive Trust States. PR265 is open for ARIADNE hosted
+desktop/mobile rehearsal before UX-02A closeout.
 
 Current intent:
 
@@ -188,8 +189,8 @@ Current intent:
   separate owner-only source material. The route calls out owner-only sources,
   ready for Continuity, needs-review failures, and queued/processing imports
   while keeping failed import messages visible and storage/quota
-  server-reported. MIMIR can close PR264 or decide whether ARIADNE should
-  rehearse the visible owner route before the next UX-02 slice.
+  server-reported. PR265 opens ARIADNE hosted desktop/mobile rehearsal before
+  UX-02A closeout.
 - PR201 result: ARGUS accepted the Phase 3 bridge only after correcting the
   first implementation lane to P3-B1A public persona eligibility, serializer
   split, and owner readback. PR202 opens that safety lane for DAEDALUS before
@@ -514,14 +515,14 @@ Current intent:
 - PR262 result: DAEDALUS implemented and ARGUS accepted Owner Runtime Provenance
   Stitching Readback. PR263 passed ARIADNE hosted desktop/mobile rehearsal.
   PR264 implements UX-02A Per-Persona Archive Trust States and ARGUS accepted it
-  with a narrow source-count honesty patch.
+  with a narrow source-count honesty patch. PR265 opens ARIADNE hosted
+  desktop/mobile rehearsal for the visible owner Archive route.
 
 ## Phase 3 bridge sequence
 
 Status, 2026-06-24: PR202 through PR264 are accepted. Developer Space Tier 1
-protected-alpha is closed for now. PR264 implemented UX-02A Per-Persona Archive
-Trust States with an ARGUS source-count honesty patch under the Studio/Archive
-UI sequencing.
+protected-alpha is closed for now. PR265 is open for UX-02A Archive Trust
+Rehearsal under the Studio/Archive UI sequencing.
 
 Current MIMIR position:
 
@@ -615,6 +616,7 @@ Bridge order:
 63. ARGUS accepted: Owner Runtime Provenance Stitching Readback.
 64. Done: ARIADNE Runtime Provenance Rehearsal.
 65. ARGUS accepted: Per-Persona Archive Trust States.
+66. Open: ARIADNE Archive Trust Rehearsal.
 
 ARGUS P3-B1A gates:
 

@@ -30,6 +30,20 @@ Memory/observability next-slice audit.
 ARGUS accepted PR261 on 2026-06-24. MIMIR opened PR262 as an owner-only
 Memory/observability implementation lane.
 
+## PR265 Archive Trust Rehearsal
+
+MIMIR opened PR265 for ARIADNE on 2026-06-24 after ARGUS accepted PR264.
+
+Required rehearsal table:
+
+| Check | Expected result | Notes |
+| --- | --- | --- |
+| Web `/health/deployment` | Pass | Hosted Railway web is healthy, ready, on `main`, and at or beyond `38ad00e`. |
+| API `/health/deployment` | Pass if used | Required if sign-in or route data needs API confirmation. |
+| Owner `/studio/personas/[personaId]/files` desktop | Pass | Archive trust rows are visible, readable, owner-only, and accurate for source/readiness/review/processing states. |
+| Owner `/studio/personas/[personaId]/files` 375/390 mobile | Pass | No overflow, clipped controls, cramped trust rows, overlap, or unreadable text. |
+| Privacy/comprehension sweep | Pass | Failed imports remain visible/sanitized, storage quota is server-reported, no raw ids/secrets/logs/private payloads render, and no global Archive/Export or infrastructure behavior is implied. |
+
 ## PR264 Per-Persona Archive Trust States
 
 DAEDALUS implemented PR264 on 2026-06-24 after ARGUS accepted PR262 and
