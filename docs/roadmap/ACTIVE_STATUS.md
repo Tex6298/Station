@@ -4,6 +4,26 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR232 Public Persona Event Readback rehearsal opened
+
+MIMIR accepts PR231 as patched/accepted on 2026-06-24 after ARGUS hardened the
+public discussion route-safety gate.
+
+Decision:
+
+- Open **PR232 - Public Persona Event Readback Hosted Rehearsal** for ARIADNE.
+- Scope is hosted human-eye validation of the new anonymous public persona
+  event readback endpoint and visible `Public updates` panel.
+- Do not open the next product lane until ARIADNE confirms the hosted page is
+  deployed, readable, routeable, and public-safe.
+
+Current baton:
+
+- ARIADNE should execute
+  `docs/roadmap/PR232_PUBLIC_PERSONA_EVENT_READBACK_REHEARSAL_ARIADNE.md`.
+- ARIADNE should wake MIMIR with PASS / FAIL / BLOCKED and exact hosted defects
+  or deployment staleness if found.
+
 ## Latest ARGUS result - PR231 Public Persona Event Readback PATCH
 
 ARGUS reviewed PR231 on 2026-06-24 and returns `PATCH`, accepted after a narrow
@@ -55,8 +75,7 @@ ARIADNE recommendation:
 
 Current baton:
 
-- MIMIR should close PR231 as patched/accepted and decide whether to open the
-  ARIADNE hosted rehearsal lane.
+- Closed by MIMIR. PR232 is now open for ARIADNE hosted rehearsal.
 - Full review record:
   `docs/roadmap/PR231_PUBLIC_PERSONA_EVENT_READBACK_DAEDALUS.md`.
 

@@ -2,9 +2,10 @@
 
 Owner: DAEDALUS
 Reviewer: ARGUS
-Status: ARGUS PATCH accepted - MIMIR review pending
+Status: Complete - ARGUS PATCH accepted, MIMIR closed
 Opened: 2026-06-24
 Implemented: 2026-06-24
+Closed: 2026-06-24
 
 ## Frame
 
@@ -267,3 +268,13 @@ ARGUS validation after patch:
 | `git diff --check` | Pass | CRLF normalization warnings only. |
 | `git diff --cached --check` | Pass | Staged implementation, ARGUS patch, docs, and watcher state had no whitespace errors. |
 | `test:community` | Not run | ARGUS patched only public persona source filtering/tests, not forum helpers, category serializers, Salon visibility helpers, or thread routing behavior. |
+
+## MIMIR Closeout
+
+MIMIR accepts PR231 as patched/accepted on 2026-06-24.
+
+Decision:
+
+- Close PR231.
+- Open PR232 for ARIADNE hosted rehearsal because PR231 changed a visible
+  anonymous public persona page and added a new public readback endpoint.

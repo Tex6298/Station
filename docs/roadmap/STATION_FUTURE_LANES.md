@@ -268,11 +268,15 @@ Current intent:
   derived-only public persona page readback. PR231 opens DAEDALUS implementation
   with no event table, write path, global feed, event-level moderation,
   chat/report/counter/provider events, or new external config.
+- PR231 result: DAEDALUS implemented derived-only public persona event readback
+  and ARGUS accepted after hardening public discussion event route safety to
+  require safe non-UUID forum category slugs. PR232 opens hosted ARIADNE
+  rehearsal before the next product lane.
 
 ## Phase 3 bridge sequence
 
-Status, 2026-06-24: PR202 through PR230 are accepted. PR231 Public Persona
-Event Readback is open for DAEDALUS.
+Status, 2026-06-24: PR202 through PR231 are accepted. PR232 Public Persona
+Event Readback Hosted Rehearsal is open for ARIADNE.
 
 Current MIMIR position:
 
@@ -330,7 +334,8 @@ Bridge order:
 29. Done: Public Persona Salon Hosted Proof.
 30. Done: Public Persona Salon Human Rehearsal.
 31. Done: Public Persona Events Preflight.
-32. Active: Public Persona Event Readback.
+32. Done: Public Persona Event Readback.
+33. Active: Public Persona Event Readback Hosted Rehearsal.
 
 ARGUS P3-B1A gates:
 
