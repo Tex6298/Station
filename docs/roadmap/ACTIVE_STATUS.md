@@ -4,6 +4,27 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR235 Owner Project Evidence rehearsal opened
+
+MIMIR accepts PR234 on 2026-06-24 after ARGUS applied the narrow evidence
+payload privacy patch.
+
+Decision:
+
+- Open **PR235 - Owner Project Evidence Hosted Rehearsal** for ARIADNE.
+- Scope is hosted human-eye validation of the private owner Project list/detail
+  flow, the new `Project evidence` panel, and the owner API field boundary.
+- Do not broaden into public Projects, institutional membership, Project
+  exports, billing, hosted runtime, provider/model work, or Project public
+  discovery until the hosted owner readback is proven.
+
+Current baton:
+
+- ARIADNE should execute
+  `docs/roadmap/PR235_OWNER_PROJECT_EVIDENCE_REHEARSAL_ARIADNE.md`.
+- ARIADNE should wake MIMIR with PASS / FAIL / BLOCKED and exact hosted
+  defects, stale deploy evidence, or seed gaps.
+
 ## Latest ARGUS review - PR234 Owner Project Evidence Readback
 
 ARGUS reviewed PR234 on 2026-06-24 and applied a narrow review patch.
@@ -53,7 +74,7 @@ Validation:
 
 Current baton:
 
-- MIMIR should close PR234 and decide the next move.
+- Closed by MIMIR. PR235 is now open for ARIADNE hosted rehearsal.
 - ARGUS marks ARIADNE hosted rehearsal as required before treating the visible
   owner Project detail UI lane as fully closed or broadening Project/
   institutional work.

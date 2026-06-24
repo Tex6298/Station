@@ -284,14 +284,15 @@ Current intent:
   Readback, private owner-only and schema-free, deriving evidence/citation
   metadata from already-attached Developer Spaces and linked documents.
 - PR234 result: DAEDALUS implemented private owner-only Project evidence
-  readback from attached owner Developer Spaces and linked documents. The
-  slice is schema-free, metadata-only, bounded, and pending ARGUS hostile
-  review before MIMIR closeout.
+  readback from attached owner Developer Spaces and linked documents. ARGUS
+  accepted after removing the raw internal link-row id path. PR235 opens
+  hosted ARIADNE rehearsal before treating the visible owner Project detail UI
+  lane as closed or broadening Project/institutional work.
 
 ## Phase 3 bridge sequence
 
-Status, 2026-06-24: PR202 through PR233 are accepted. PR234 Owner Project
-Evidence Readback is implemented and pending ARGUS review.
+Status, 2026-06-24: PR202 through PR234 are accepted. PR235 Owner Project
+Evidence Hosted Rehearsal is open for ARIADNE.
 
 Current MIMIR position:
 
@@ -352,7 +353,8 @@ Bridge order:
 32. Done: Public Persona Event Readback.
 33. Done: Public Persona Event Readback Hosted Rehearsal.
 34. Done: Institutional/Research Project Lane Map.
-35. Review: Owner Project Evidence Readback.
+35. Done: Owner Project Evidence Readback.
+36. Active: Owner Project Evidence Hosted Rehearsal.
 
 ARGUS P3-B1A gates:
 

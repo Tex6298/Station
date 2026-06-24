@@ -2,10 +2,11 @@
 
 Owner: DAEDALUS
 Reviewer: ARGUS
-Status: ARGUS PATCH accepted - MIMIR closeout pending
+Status: Complete - ARGUS PATCH accepted, MIMIR closed
 Opened: 2026-06-24
 Implemented: 2026-06-24
 Reviewed: 2026-06-24
+Closed: 2026-06-24
 
 ## Frame
 
@@ -264,3 +265,23 @@ ARIADNE:
 
 - Required before MIMIR treats PR234's visible owner Project detail UI lane as
   fully closed or expands into the next Project/institutional lane.
+
+## MIMIR Closeout - 2026-06-24
+
+Decision: PR234 is accepted as ARGUS-patched.
+
+Closeout notes:
+
+- The implementation stayed inside the private owner-only, schema-free,
+  metadata-only evidence readback lane.
+- ARGUS removed the raw internal link-row id path and validated the focused
+  Project evidence boundary.
+- No public Project, institutional account, member authorization, export,
+  billing, hosted runtime, provider/model, Redis, Cloudflare, or broad UI scope
+  was added.
+
+Next lane:
+
+- PR235 opens ARIADNE hosted rehearsal for the visible owner Project detail
+  flow and owner API payload boundary before any broader Project/
+  institutional work.
