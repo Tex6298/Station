@@ -4,9 +4,9 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest DAEDALUS result - PR270 Staged Replay Owner Measurement complete
+## Latest ARGUS review - PR270 Staged Replay Owner Measurement
 
-DAEDALUS completed the hosted owner measurement pass on 2026-06-24:
+ARGUS accepted the hosted owner measurement pass on 2026-06-24:
 `docs/roadmap/PR270_STAGED_REPLAY_OWNER_MEASUREMENT_RESULT.md`.
 
 Result:
@@ -34,28 +34,32 @@ Result:
   provider payload bodies, trace bodies, hosted logs, raw database ids, customer
   ids, subscription ids, import ids, export ids, persona ids, or Developer
   Space ids were committed.
+- ARGUS's added-line scan found no credential-like values, email addresses,
+  credentialed URLs, or UUID-shaped ids in the PR270 diff.
+- The single historical failed background job is recorded as rehearsal context,
+  not as an implementation blocker.
 
 Validation:
 
 - `npm exec --yes pnpm@10.32.1 -- run test:health` passed, 16 tests.
 - `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` passed, 2 tests.
 - `npm exec --yes pnpm@10.32.1 -- run test:jobs` passed, 9 tests.
-- `git diff --check` passed with CRLF normalization warnings only for touched
-  docs.
+- `git diff --check` passed.
 - `git diff --cached --check` passed.
+- Added-line secret/raw-id/email/credentialed-URL scan over the PR270 diff
+  found no matches.
 - No product code changed.
 
 Recommendation:
 
-- Open ARIADNE human-eye replay rehearsal after ARGUS reviews the PR270
-  evidence. The hosted surfaces are technically green and data-backed; the next
-  useful question is product/replay quality rather than a new implementation
-  blocker.
+- Open ARIADNE human-eye replay rehearsal. The hosted surfaces are technically
+  green and data-backed; the next useful question is product/replay quality
+  rather than a new implementation blocker.
 
 Current baton:
 
-- ARGUS should review PR270 evidence quality, owner-scope claims, secret/raw-id
-  hygiene, and the ARIADNE rehearsal recommendation.
+- MIMIR should open ARIADNE human-eye replay rehearsal or choose the next
+  roadmap move from the PR270 evidence.
 
 ## Latest MIMIR decision - PR270 Staged Replay Owner Measurement opened
 

@@ -32,7 +32,7 @@ Memory/observability implementation lane.
 
 ## PR270 Staged Replay Owner Measurement Refresh
 
-DAEDALUS completed PR270 for ARGUS review on 2026-06-24:
+ARGUS accepted PR270 on 2026-06-24:
 `docs/roadmap/PR270_STAGED_REPLAY_OWNER_MEASUREMENT_RESULT.md`.
 
 PR270 is an evidence refresh over the existing staged replay owner, not a
@@ -59,6 +59,8 @@ Hosted result:
 - Evidence contains counts/statuses/booleans/timing buckets only; no secrets,
   bearer tokens, cookies, private payloads, raw ids, prompts, completions, SQL,
   stack traces, or hosted logs were committed.
+- ARGUS's added-line scan found no credential-like values, email addresses,
+  credentialed URLs, or UUID-shaped ids in the PR270 diff.
 
 Recommendation: open ARIADNE human-eye replay rehearsal after ARGUS reviews
 the evidence, because hosted owner surfaces are technically green and the next
@@ -77,10 +79,11 @@ Required validation:
 | `npm exec --yes pnpm@10.32.1 -- run test:health` | Pass | Readiness shape and sanitized config posture stay green. |
 | `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` | Pass | Replay readiness auth/redaction gate stays green. |
 | `npm exec --yes pnpm@10.32.1 -- run test:jobs` | Pass | Owner background-job readback remains bounded. |
-| `git diff --check` | Pass | CRLF normalization warnings only. |
+| `git diff --check` | Pass | Whitespace check passed. |
 | `git diff --cached --check` | Pass | Staged whitespace check before wakeup. |
+| Added-line secret/raw-id/email scan | Pass | No credential-like values, email addresses, credentialed URLs, or UUID-shaped ids found in the PR270 diff. |
 
-PR270 should produce one next-lane recommendation from hosted evidence.
+PR270 recommends ARIADNE human-eye replay rehearsal from hosted evidence.
 
 ## PR269 Developer Route Hosted Redirect Repair
 

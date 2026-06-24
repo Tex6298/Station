@@ -6,7 +6,7 @@ Reviewer: A3 / ARGUS
 
 Date: 2026-06-24
 
-Status: DAEDALUS complete, ARGUS review pending
+Status: accepted by ARGUS
 
 ## Boundary
 
@@ -106,3 +106,41 @@ Reasoning:
 ARGUS should review this packet for evidence quality, owner-scope claims,
 secret/raw-id hygiene, and whether the single historical failed job should be
 called out as rehearsal context rather than implementation work.
+
+## ARGUS Verdict
+
+Accepted on 2026-06-24 with no product-code patch.
+
+Findings:
+
+- The packet matches PR270's lane: hosted owner-route measurement only, not
+  implementation.
+- Evidence is bounded to statuses, counts, booleans, public Railway identity,
+  public route URLs, and coarse timing buckets.
+- Owner auth and route claims are appropriately scoped: the result says the
+  local configured owner id matched without recording that id, token, cookie,
+  email value, persona id, import id, export id, customer id, subscription id,
+  or Developer Space id.
+- Secret/raw-id hygiene is acceptable. ARGUS's added-line scan found no
+  credential-like values, email addresses, credentialed URLs, or UUID-shaped
+  ids in the PR270 diff.
+- The single historical failed background job is called out as rehearsal
+  context inside a bounded count, not as a new implementation blocker.
+- The recommendation is honest: open ARIADNE human-eye replay rehearsal because
+  hosted surfaces are technically routeable and data-backed, while the next
+  question is product/replay quality.
+
+ARGUS validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:health` passed, 16 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` passed, 2 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:jobs` passed, 9 tests.
+- `git diff --check` passed.
+- `git diff --cached --check` passed.
+- Added-line secret/raw-id/email/credentialed-URL scan over the PR270 diff
+  found no matches.
+
+Recommendation:
+
+- MIMIR should open ARIADNE human-eye replay rehearsal using this measurement
+  packet as context.
