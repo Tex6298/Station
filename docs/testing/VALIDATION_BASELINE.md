@@ -20,6 +20,25 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR237 Project Owner Id Hosted Rerun
+
+ARIADNE hosted rerun on 2026-06-24:
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Web `/health/deployment` | Pass | Railway web reported `ok:true`, `ready:true`, branch `main`, and commit at or beyond required `c4bb414`. |
+| API `/health/deployment` | Pass | Railway API reported `ok:true`, `ready:true`, branch `main`, and commit at or beyond required `c4bb414`. |
+| Replay owner sign-in | Pass | Signed in from local `.env` without printing credentials or tokens. |
+| Owner `GET /projects` | Pass | Project list payload omitted `ownerUserId`, `owner_user_id`, and equivalent author/owner id field names. |
+| Owner `GET /projects/:idOrSlug` | Pass | Project detail payload for `ariadne-pr54-ui-smoke-2026-06-19t01-44-47-657z` omitted `project.ownerUserId`, `project.owner_user_id`, and equivalent owner id fields. |
+| Project evidence panel | Pass | Signed-in desktop and mobile views still rendered 8 evidence items with Developer Space source, document metadata, safe route actions, and no visible raw ids or private internals. |
+| Signed-out boundary | Pass | Anonymous Project detail API required auth, and signed-out `/projects/<slug>` redirected to login without exposing Project evidence. |
+| `npx --yes --package @playwright/test@1.41.2 playwright test tmp-pr237-project-owner-id-rerun.spec.js --reporter=line --workers=1` | Pass | 4 hosted checks passed against Railway. |
+
+Rerun verdict:
+
+- `PASS`
+
 ## PR236 Project Owner Id Serializer Repair
 
 DAEDALUS implementation and ARGUS review validation on 2026-06-24:

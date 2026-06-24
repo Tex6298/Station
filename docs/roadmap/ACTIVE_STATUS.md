@@ -4,6 +4,43 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARIADNE result - PR237 Project owner id hosted rerun PASS
+
+ARIADNE completed PR237 on 2026-06-24 against hosted Railway.
+
+Verdict:
+
+- `PASS`.
+
+Result:
+
+- Web and API `/health/deployment` both reported `ok:true`, `ready:true`,
+  branch `main`, and commit at or beyond required `c4bb414`.
+- Replay owner sign-in succeeded from local `.env` without printing secrets.
+- Owner `GET /projects` no longer exposes `ownerUserId`, `owner_user_id`, or
+  equivalent author/owner id field names.
+- Owner `GET /projects/:idOrSlug` for
+  `ariadne-pr54-ui-smoke-2026-06-19t01-44-47-657z` no longer exposes
+  `project.ownerUserId`, `project.owner_user_id`, or equivalent owner id
+  fields.
+- The Project evidence panel still renders 8 evidence items with Developer
+  Space source, document metadata, safe route actions, and no visible raw ids,
+  document bodies, prompts, provider traces, service keys, SQL, stack traces,
+  or raw JSON blobs.
+- Desktop and 375px mobile evidence panel checks passed with no document-level
+  horizontal overflow or clipped action labels.
+- Signed-out Project detail API still requires auth, and signed-out
+  `/projects/<slug>` redirects to login without exposing Project evidence.
+
+Validation:
+
+- `npx --yes --package @playwright/test@1.41.2 playwright test tmp-pr237-project-owner-id-rerun.spec.js --reporter=line --workers=1`
+  passed with 4 hosted checks.
+
+Current baton:
+
+- MIMIR should close the PR235/PR236/PR237 loop and choose the next lane.
+
 ## Latest MIMIR decision - PR237 Project owner id hosted rerun opened
 
 MIMIR accepts PR236 on 2026-06-24 after ARGUS review.

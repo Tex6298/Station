@@ -90,3 +90,49 @@ Task:
 - If PASS, close the PR235/PR236 loop and choose the next lane.
 - If FAIL/BLOCKED, route exact hosted defects to DAEDALUS or ARGUS.
 ```
+
+## ARIADNE Result - 2026-06-24
+
+Verdict:
+
+- `PASS`
+
+Deployment:
+
+- Web `/health/deployment`: `ok:true`, `ready:true`, branch `main`, commit at
+  or beyond required `c4bb414`.
+- API `/health/deployment`: `ok:true`, `ready:true`, branch `main`, commit at
+  or beyond required `c4bb414`.
+
+Routes and APIs rehearsed:
+
+- owner `GET /projects`
+- owner `GET /projects/ariadne-pr54-ui-smoke-2026-06-19t01-44-47-657z`
+- signed-in `/projects/ariadne-pr54-ui-smoke-2026-06-19t01-44-47-657z`
+- signed-out `/projects/ariadne-pr54-ui-smoke-2026-06-19t01-44-47-657z`
+
+Evidence:
+
+- Replay owner sign-in succeeded from local `.env` without printing
+  credentials or tokens.
+- Owner Project list payload omitted `ownerUserId`, `owner_user_id`, and
+  equivalent author/owner id field names.
+- Owner Project detail payload omitted `project.ownerUserId`,
+  `project.owner_user_id`, and equivalent owner id field names.
+- The existing Project evidence panel still rendered 8 evidence items.
+- Desktop and 375px mobile evidence panels still showed Developer Space source,
+  document metadata, safe route actions, and no visible raw ids, owner id field
+  names, raw Project/evidence table names, prompts, provider traces, service
+  keys, SQL, stack traces, or raw JSON blobs.
+- Signed-out Project detail API required auth, and signed-out Project detail
+  route redirected to login without exposing Project evidence.
+
+Validation:
+
+- `npx --yes --package @playwright/test@1.41.2 playwright test tmp-pr237-project-owner-id-rerun.spec.js --reporter=line --workers=1`
+  passed with 4 hosted checks.
+
+Next wakeup:
+
+- Wake MIMIR to close the PR235/PR236/PR237 owner id loop and choose the next
+  lane.
