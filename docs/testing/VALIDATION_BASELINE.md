@@ -22,11 +22,12 @@ they are not Station validation failures.
 
 ## PR255 Developer Space Partner Readiness Map
 
-DAEDALUS docs-only reconciliation on 2026-06-24:
+DAEDALUS docs-only reconciliation and ARGUS review on 2026-06-24:
 
 | Command / check | Result | Notes |
 | --- | --- | --- |
-| `git diff --check` | Pass | Docs-only whitespace check for the readiness map and roadmap/status updates. |
+| `git diff --check` | Pass with CRLF warnings | Docs-only whitespace check for the readiness map and roadmap/status updates. |
+| `git diff --cached --check` | Pass | Staged whitespace check passed. |
 
 Scope notes:
 
@@ -34,6 +35,9 @@ Scope notes:
 - Inspected Developer Space API routes, export routes, public/manage web routes,
   developer-space client package, and focused Developer Space tests as evidence
   for the map.
+- ARGUS accepted the map with a wording patch that distinguishes owner-managed
+  observed-runtime signing-secret controls from blocked developer-agent
+  signing-secret creation.
 
 ## PR254 Owner Project Export Hosted Rerun
 

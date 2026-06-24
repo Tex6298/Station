@@ -413,11 +413,14 @@ Current intent:
 - Recommended next lane: PR256 should be an ARGUS preflight for Developer Space
   Tier 1 partner readiness before DAEDALUS implements standalone partner
   onboarding/readback docs or small public/owner framing improvements.
+- ARGUS accepts PR255 with a wording patch clarifying owner-managed
+  observed-runtime signing-secret controls versus blocked developer-agent
+  signing-secret creation. MIMIR should open or revise PR256 next.
 
 ## Phase 3 bridge sequence
 
-Status, 2026-06-24: PR202 through PR254 are accepted. PR255 Developer Space
-Partner Readiness Map is complete and awaiting ARGUS review.
+Status, 2026-06-24: PR202 through PR255 are accepted. PR256 Developer Space
+Tier 1 Partner Readiness Preflight is ready for MIMIR sequencing.
 
 Current MIMIR position:
 
@@ -499,7 +502,7 @@ Bridge order:
 53. Done: Owner Project Export UI Panel.
 54. Blocked then repaired: Owner Project Export Hosted Rehearsal.
 55. Done: Owner Project Export Hosted Rerun.
-56. Review: Developer Space Partner Readiness Map.
+56. Done: Developer Space Partner Readiness Map.
 57. Recommended: Developer Space Tier 1 Partner Readiness Preflight.
 
 ARGUS P3-B1A gates:

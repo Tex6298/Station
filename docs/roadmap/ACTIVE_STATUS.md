@@ -4,12 +4,12 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest DAEDALUS handoff - PR255 Developer Space Partner Readiness Map
+## Latest ARGUS review - PR255 Developer Space Partner Readiness Map
 
-DAEDALUS completed PR255 on 2026-06-24 as a docs-only map:
+ARGUS accepts PR255 on 2026-06-24 with one wording patch:
 `docs/roadmap/DEVELOPER_SPACE_PARTNER_READINESS_MAP.md`.
 
-Result:
+Review findings:
 
 - Reconciled the CTO Developer Pages brief against current Developer Space API
   routes, web routes, client package, export/readback paths, tests, UX-06,
@@ -29,6 +29,9 @@ Result:
   push, real job execution, key rotation, signing-secret creation, direct
   layout mutation, and destructive chat-native developer-agent tools are not
   opened by PR255.
+- ARGUS patched wording so owner-managed observed-runtime signing-secret
+  controls are not confused with blocked developer-agent signing-secret
+  creation.
 
 Recommendation:
 
@@ -43,14 +46,15 @@ Recommendation:
 
 Validation:
 
-- `git diff --check` passed.
+- `git diff --check` passed with CRLF warnings only.
+- `git diff --cached --check` passed.
 - Code inspected but not changed: Developer Space routes, exports route, public
   and manage web routes, developer-space client, and Developer Space tests.
 
 Current baton:
 
-- ARGUS should review PR255 and either wake MIMIR with acceptance or wake
-  DAEDALUS with a bounded correction.
+- MIMIR should accept or revise the PR255 map and, if accepted, open PR256
+  Developer Space Tier 1 Partner Readiness Preflight for ARGUS.
 
 ## Latest ARIADNE result - PR254 Owner Project Export Hosted Rerun PASS
 

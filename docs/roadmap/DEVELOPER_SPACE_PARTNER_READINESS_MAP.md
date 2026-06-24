@@ -4,7 +4,7 @@ Date: 2026-06-24
 
 Owner: A2 / DAEDALUS
 
-Status: PR255 map complete; awaiting ARGUS review.
+Status: PR255 map accepted by ARGUS with wording patch; awaiting MIMIR review.
 
 ## Purpose
 
@@ -72,8 +72,8 @@ Current implementation summary:
 - `@station/developer-space-client` provides node/event/snapshot/import calls,
   observed-runtime signing helpers, structured error categories, and an Agents
   Observe dry-run/send boundary.
-- Usage, quota, ingestion-key, signing-secret, rate-limit, and field visibility
-  controls are present and tested.
+- Usage, quota, ingestion-key, owner-managed observed-runtime signing-secret,
+  rate-limit, and field visibility controls are present and tested.
 - Developer Space evidence documents are linked with roles such as methodology,
   finding, field log, and note; owner templates can create those documents.
 - Developer Space archive/export readback exists through authenticated export
@@ -114,10 +114,11 @@ Current implementation summary:
   changelog, community entry, and partner onboarding docs.
 - Do not claim Station hosts developer apps or databases. Current Tier 1 keeps
   developer infrastructure outside Station.
-- Do not claim `run_job`, `push_to_repo`, key rotation, signing-secret creation,
-  layout mutation, Docker/Coolify provisioning, or chat-native destructive
-  developer-agent tools are ready. Current agent paths are safe readback,
-  suggestion, confirmation, receipt, and dry-run/readiness boundaries.
+- Do not claim developer-agent-initiated `run_job`, `push_to_repo`, key
+  rotation, signing-secret creation, layout mutation, Docker/Coolify
+  provisioning, or chat-native destructive developer-agent tools are ready.
+  Current agent paths are safe readback, suggestion, confirmation, receipt, and
+  dry-run/readiness boundaries.
 - Do not expose raw ingestion keys, signing secrets, hosted credentials,
   private field values, raw payloads, prompt data, provider data, or document
   bodies in partner docs or public surfaces.
@@ -168,6 +169,39 @@ onboarding/readback slice after PR256.
   `pnpm test:developer-spaces`, `pnpm test:developer-space-client`,
   `pnpm test:exports` if export/readback copy changes, and `pnpm lint` if web
   files change.
+
+## ARGUS Review
+
+ARGUS completed hostile review on 2026-06-24.
+
+Verdict:
+
+- `ACCEPT`.
+- Accepted with one wording patch to avoid confusing owner-managed
+  observed-runtime signing-secret controls with blocked developer-agent
+  signing-secret creation.
+
+Review findings:
+
+- The map accurately treats the CTO brief as product direction, not permission
+  to jump to Tier 2 hosted infrastructure.
+- Tier 1 is framed as showcase, ingestion, observatory, evidence/readback, and
+  owner controls for self-hosted developers.
+- Tier 2 hosted compute, per-project databases, Redis/queues, deploy pipeline,
+  repository push/deploy, real job execution, key rotation, developer-agent
+  destructive tools, billing/tipping, and Tier 3 lab work remain deferred.
+- The current-code inventory is appropriately grounded in Developer Space API
+  routes, public/manage web routes, developer-space client helpers, export
+  readback, and focused tests.
+- PR256 ARGUS preflight is the right next lane before DAEDALUS changes partner
+  docs or visible Developer Space framing.
+
+Validation:
+
+```text
+git diff --check passed with CRLF warnings only.
+git diff --cached --check passed.
+```
 
 ## ARIADNE rehearsal routes
 
