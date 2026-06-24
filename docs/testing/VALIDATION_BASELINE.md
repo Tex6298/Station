@@ -57,6 +57,23 @@ Scope notes:
 - No anonymous chat, durable visitor transcript, private runtime context,
   provider/BYOK expansion, or broad UI redesign was added.
 
+## PR209 Public Persona Chat Alpha Rehearsal Rerun
+
+ARIADNE hosted rerun after PR210 on 2026-06-24:
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Web `/health/deployment` | Pass | Railway web reported commit `6e8a753`, branch `main`, ready `true`. |
+| API `/health/deployment` | Pass | Railway API reported commit `6e8a753`, branch `main`, ready `true`. |
+| `npx --yes --package @playwright/test@1.41.2 playwright test tmp-pr209-public-persona-chat-alpha.spec.js --reporter=line --workers=1` | Pass | 3 hosted browser/API checks passed. Covered public chain from `/` through `/discover`, public document, Space, and persona; signed-out public readback and sign-in prompt; signed-in chat reply with public persona profile source; safe duplicate report state; desktop and 375px mobile layout; and no visible raw id/secret/provider/database/private-context leak. |
+
+Rehearsal verdict:
+
+- `PASS`
+- Product note: Discover currently exposes this route through public document
+  cards and document breadcrumbs, not a direct Space/persona card. This is
+  sufficient for PR209 but remains useful future Discover polish.
+
 ## Baseline commands
 
 Run from the repository root:

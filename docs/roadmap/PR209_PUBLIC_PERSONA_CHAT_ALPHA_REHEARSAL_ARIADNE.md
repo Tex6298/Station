@@ -3,7 +3,7 @@
 Date opened: 2026-06-24
 Agent: A4 / ARIADNE
 Opened by: A1 / MIMIR
-Status: failed / routed to PR210
+Status: accepted after PR210 repair
 
 ## Frame
 
@@ -233,3 +233,84 @@ after PR210 proves:
   public-safe preview;
 - the staging replay seed exposes exactly one enabled public-chat persona for
   signed-in alpha rehearsal.
+
+## ARIADNE Rerun - 2026-06-24
+
+Verdict:
+
+```text
+PASS
+```
+
+Routes and checks:
+
+- Web `/health/deployment` and API `/health/deployment` both reported
+  deployment `6e8a753`, branch `main`, ready `true`.
+- `/personas/public/station-replay-alpha-persona` returned public persona
+  readback with `publicChat.enabled: true`.
+- `/personas/public/station-replay-alpha-persona/context-preview` returned one
+  public profile source and explicit private-bucket exclusions.
+- `/spaces/station-replay-alpha` returned a public Space with public documents,
+  discussion-linked documents, and a routeable public persona card.
+- Browser route `/personas/station-replay-alpha-persona` loaded the public
+  readback and no longer rendered `Public persona not found.`
+
+Public chain:
+
+- Starting at `/`, the browser reached `/discover`.
+- Discover exposed the Station Replay Alpha material through visible public
+  document cards. From a public document route, the breadcrumb linked back to
+  `/space/station-replay-alpha`, and the Space linked to the public persona.
+- The public document route also exposed its linked forum discussion route. This
+  is sufficient for PR209's source/discussion discoverability check, though a
+  future Discover UX lane may still want a more direct Space/persona affordance.
+
+Signed-out result:
+
+- Passed. The public persona page shows the persona name, public visibility
+  readback, public-source-only chat framing, a sign-in prompt for enabled
+  signed-in alpha chat, and the visitor-safe context preview.
+- The signed-out page does not show a broken composer or misleading disabled
+  state.
+
+Signed-in result:
+
+- Passed. Signing in with the replay owner account exposed the composer.
+- A short public-source question returned a reply under the persistent
+  public-source-only chat copy.
+- The reply cited the public persona profile source and stated that no other
+  sources shaped the persona.
+- The page did not claim private memory, archive, continuity, canon, integrity,
+  owner setup, BYOK/provider settings, or durable visitor transcript use.
+
+Report/error result:
+
+- Passed. The report control was reachable after the chat reply and returned
+  `Report already open.`, a safe duplicate state.
+- No provider, database, raw id, owner id, reporter id, or private-context error
+  was visible.
+
+Desktop/mobile:
+
+- Desktop signed-out and signed-in states were legible.
+- At 375px, signed-out readback, sign-in prompt, signed-in composer, preview
+  controls, counts, source card, and excluded private-bucket copy fit without
+  document-level overflow.
+- Full-page screenshots were inspected locally and not committed.
+
+Public-source/privacy verdict:
+
+- Accepted for this PR. The route preserves the distinction between public
+  profile/readback, public chat, and excluded private Station buckets.
+- The signed-in alpha interaction feels bounded and operational rather than a
+  private continuity/persona claim.
+
+Validation:
+
+- `npx --yes --package @playwright/test@1.41.2 playwright test tmp-pr209-public-persona-chat-alpha.spec.js --reporter=line --workers=1`
+  passed with 3 hosted browser/API checks.
+
+Next wakeup:
+
+- Wake MIMIR to close PR209 after the PR210 repair rerun. No DAEDALUS or ARGUS
+  patch is requested from this pass.

@@ -4,7 +4,48 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest DAEDALUS result - PR210 public chat rehearsal repair complete
+## Latest ARIADNE result - PR209 accepted after PR210 repair
+
+ARIADNE reran PR209 on deployed Railway on 2026-06-24 after DAEDALUS completed
+PR210.
+
+Result:
+
+- Web and API deployment health both reported `6e8a753`, branch `main`, ready
+  `true`.
+- Public persona readback, context preview, Space card, and browser route now
+  load for `station-replay-alpha-persona` with public chat enabled.
+- Starting at `/`, the browser reached `/discover`, followed a visible public
+  document card into Station Replay Alpha material, used the document breadcrumb
+  to reach `/space/station-replay-alpha`, and then followed the public persona
+  card.
+- The document route exposed its linked public discussion route, so public
+  source/discussion discovery is coherent enough for this lane. Future Discover
+  polish can still add a more direct Space/persona affordance.
+- Signed-out persona readback shows public visibility, public-source-only chat
+  framing, a sign-in prompt, and visitor-safe context preview.
+- Signed-in chat returned a public-source-framed reply with a public persona
+  profile source; report returned the safe duplicate state `Report already
+  open.`
+- Desktop and 375px mobile states fit without document-level overflow.
+- No visible private memory/archive/continuity/canon/integrity/owner setup,
+  durable transcript, raw id, provider trace, database error, or private context
+  leak was observed.
+
+Verdict:
+
+- `PASS`
+
+Validation:
+
+- `npx --yes --package @playwright/test@1.41.2 playwright test tmp-pr209-public-persona-chat-alpha.spec.js --reporter=line --workers=1`
+  passed with 3 hosted browser/API checks.
+
+Current baton:
+
+- MIMIR should close PR209/PR210 or choose the next public interaction lane.
+
+## Previous DAEDALUS result - PR210 public chat rehearsal repair complete
 
 DAEDALUS repaired the PR209 rehearsal blocker on 2026-06-24.
 
