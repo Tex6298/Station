@@ -32,18 +32,47 @@ Memory/observability implementation lane.
 
 ## PR270 Staged Replay Owner Measurement Refresh
 
-MIMIR opened PR270 for DAEDALUS on 2026-06-24 after PR269 closed the hosted
-public `/developer` route-truth blocker. PR270 is an evidence refresh over the
-existing staged replay owner, not a product implementation lane.
+DAEDALUS completed PR270 for ARGUS review on 2026-06-24:
+`docs/roadmap/PR270_STAGED_REPLAY_OWNER_MEASUREMENT_RESULT.md`.
+
+PR270 is an evidence refresh over the existing staged replay owner, not a
+product implementation lane.
+
+Hosted result:
+
+- Railway API and web `/health` returned HTTP 200 with `ok:true`.
+- Railway API and web `/health/deployment` returned HTTP 200 with `ready:true`,
+  branch `main`, repo `Tex6298/Station`, environment `production`, and commit
+  prefix `c2cf0cb48ca7`.
+- Replay owner sign-in and `/auth/me` returned HTTP 200; the local configured
+  owner id matched, email was present, tier was `canon`, and admin was `false`.
+- Unauthenticated replay-readiness returned HTTP 401; authenticated
+  replay-readiness returned HTTP 200 with `prep_only`, 7 measurement points, 5
+  setup proofs, 6 setup blockers, and 8 capture surfaces.
+- Public `/developer` returned HTTP 307 with
+  `Location: https://stationweb-production.up.railway.app/developer-spaces`;
+  public Developer Space web/API routes returned HTTP 200.
+- Owner readbacks passed for background jobs, personas, Memory briefing, Memory
+  graph, context preview, imports, import status, exports, export readback,
+  Developer Space owner detail/usage/exports, observability summary,
+  observability traces, and billing.
+- Evidence contains counts/statuses/booleans/timing buckets only; no secrets,
+  bearer tokens, cookies, private payloads, raw ids, prompts, completions, SQL,
+  stack traces, or hosted logs were committed.
+
+Recommendation: open ARIADNE human-eye replay rehearsal after ARGUS reviews
+the evidence, because hosted owner surfaces are technically green and the next
+question is replay/product judgement rather than a concrete DAEDALUS
+implementation blocker.
 
 Required validation:
 
 | Check | Expected result | Notes |
 | --- | --- | --- |
-| Web/API `/health` and `/health/deployment` | Pass | Hosted Railway web/API are ready and fresh for the measured commit. |
-| Replay owner auth | Pass or sanitized blocker | Use local `STATION_REPLAY_OWNER_*` env only; do not print credentials, bearer tokens, cookies, or raw ids. |
-| Owner replay route matrix | Pass/partial/block | Record statuses/counts only for replay-readiness, background jobs, imports, exports, observability, Memory briefing/graph, context-preview, and billing readback. |
-| Public route matrix | Pass | `/developer`, `/developer-spaces`, replay Developer Space web/API routes stay routeable. |
+| Web/API `/health` and `/health/deployment` | Pass | Hosted Railway web/API are ready and fresh at commit prefix `c2cf0cb48ca7`. |
+| Replay owner auth | Pass | Used local `STATION_REPLAY_OWNER_*` env only; credentials, bearer token, cookie values, and raw owner id were not printed or committed. |
+| Owner replay route matrix | Pass | Statuses/counts only recorded for replay-readiness, background jobs, imports, exports, observability, Memory briefing/graph, context-preview, Developer Space readback, and billing readback. |
+| Public route matrix | Pass | `/developer`, `/developer-spaces`, replay Developer Space web/API routes are routeable. |
 | Secret/raw-id hygiene | Pass | Result docs contain no secrets, bearer tokens, cookies, private payloads, raw ids, prompts, completions, SQL, stack traces, or hosted logs. |
 | `npm exec --yes pnpm@10.32.1 -- run test:health` | Pass | Readiness shape and sanitized config posture stay green. |
 | `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` | Pass | Replay readiness auth/redaction gate stays green. |

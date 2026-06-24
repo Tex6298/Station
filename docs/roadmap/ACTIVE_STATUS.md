@@ -4,6 +4,59 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest DAEDALUS result - PR270 Staged Replay Owner Measurement complete
+
+DAEDALUS completed the hosted owner measurement pass on 2026-06-24:
+`docs/roadmap/PR270_STAGED_REPLAY_OWNER_MEASUREMENT_RESULT.md`.
+
+Result:
+
+- Railway web/API `/health` returned HTTP 200 with `ok:true`.
+- Railway web/API `/health/deployment` returned HTTP 200 with `ready:true`,
+  branch `main`, repo `Tex6298/Station`, environment `production`, and commit
+  prefix `c2cf0cb48ca7`.
+- Replay owner sign-in returned HTTP 200, `/auth/me` returned HTTP 200, the
+  configured owner id matched locally, email was present, tier was `canon`, and
+  admin was `false`.
+- Unauthenticated `/observability/replay-readiness` returned HTTP 401, while
+  authenticated `/observability/replay-readiness` returned HTTP 200 with
+  `prep_only`, 7 measurement points, 5 setup proofs, 6 setup blockers, and 8
+  capture surfaces.
+- Public `/developer` returned HTTP 307 with
+  `Location: https://stationweb-production.up.railway.app/developer-spaces`.
+- Public `/developer-spaces`, public replay Developer Space web detail, and
+  API replay Developer Space detail returned HTTP 200.
+- Owner readbacks were present for background jobs, personas, Memory briefing,
+  Memory graph, context preview, imports, import status, exports, export
+  readback, Developer Space owner detail/usage/exports, observability summary,
+  observability traces, and billing.
+- No credentials, bearer tokens, cookies, private text, prompts, completions,
+  provider payload bodies, trace bodies, hosted logs, raw database ids, customer
+  ids, subscription ids, import ids, export ids, persona ids, or Developer
+  Space ids were committed.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:health` passed, 16 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` passed, 2 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:jobs` passed, 9 tests.
+- `git diff --check` passed with CRLF normalization warnings only for touched
+  docs.
+- `git diff --cached --check` passed.
+- No product code changed.
+
+Recommendation:
+
+- Open ARIADNE human-eye replay rehearsal after ARGUS reviews the PR270
+  evidence. The hosted surfaces are technically green and data-backed; the next
+  useful question is product/replay quality rather than a new implementation
+  blocker.
+
+Current baton:
+
+- ARGUS should review PR270 evidence quality, owner-scope claims, secret/raw-id
+  hygiene, and the ARIADNE rehearsal recommendation.
+
 ## Latest MIMIR decision - PR270 Staged Replay Owner Measurement opened
 
 MIMIR closes the PR267/PR268/PR269 hosted `/developer` route-truth loop after

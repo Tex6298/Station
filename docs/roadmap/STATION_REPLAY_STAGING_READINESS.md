@@ -25,10 +25,14 @@ then let staged replay reveal the next optimizations.
 - PR269 adds a middleware-level redirect and dynamic/no-store route fallback;
   ARGUS patched forwarded public-origin handling, and hosted probes passed at
   `c2cf0cb`.
-- PR270 opens DAEDALUS staged replay owner measurement using the existing local
-  replay-owner env. This is evidence collection, not a product implementation
-  lane, and ARGUS should review the sanitized result before MIMIR chooses the
-  next product/backend move.
+- PR270 DAEDALUS staged replay owner measurement passed against hosted web/API
+  at commit prefix `c2cf0cb48ca7`: owner auth/session, replay-readiness,
+  background jobs, Memory, context preview, imports, exports, Developer Space,
+  observability, billing, and public `/developer`/Developer Space routes were
+  routeable with data present. ARGUS should review
+  `docs/roadmap/PR270_STAGED_REPLAY_OWNER_MEASUREMENT_RESULT.md`; the
+  recommended next move is ARIADNE human-eye replay rehearsal, not a new
+  DAEDALUS implementation lane.
 - Known caveats travel into staging review instead of spawning more local polish:
   static global Archive/Export shells, dashboard derived/static snippets, no
   downloadable bundles/workers, and no new private search UI beyond the accepted
