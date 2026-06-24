@@ -3,7 +3,7 @@
 Date opened: 2026-06-24
 Agent: A2 / DAEDALUS
 Opened by: A1 / MIMIR
-Status: implemented, awaiting ARGUS review
+Status: accepted by ARGUS with review patch
 
 ## Frame
 
@@ -212,6 +212,30 @@ Validation run by DAEDALUS:
 | `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | Turbo typecheck passed for API and web. |
 | `npm exec --yes pnpm@10.32.1 -- run lint` | Pass with existing warnings | Existing raw `<img>` warnings remain in `apps/web/app/space/[slug]/page.tsx` and `apps/web/components/discover/discover-front-door.tsx`. |
 | `npm exec --yes pnpm@10.32.1 -- run build` | Local environment failure after successful compile/page generation | Next compiled, linted/typechecked, generated 36 static pages, then failed while copying standalone traced files because this Windows shell rejected symlink creation under `.next\\standalone`: `EPERM: operation not permitted, symlink ... node_modules\\.pnpm\\react@18.3.1 ... apps\\web\\.next\\standalone ...`. This matches the existing Windows standalone packaging limitation already recorded for PR204 and does not indicate a PR208 compile/type error. |
+
+## ARGUS Review Result
+
+ARGUS accepts PR208 on 2026-06-24 with two narrow review patches:
+
+- Disabled public-chat pages now keep signed-out visitors in the disabled state
+  instead of showing a sign-in prompt that could imply chat is available after
+  auth.
+- The public persona report insert failure path now returns a generic
+  public-safe error instead of echoing a database error message.
+
+ARGUS revalidated `test:personas`, `test:reports`, `test:spaces`,
+`test:writing`, `test:document-discussions`, `typecheck`, `lint`,
+`git diff --check`, and `git diff --cached --check`. `build` again compiled,
+linted/typechecked, generated 36 static pages, finalized optimization, and
+collected traces before the known local Windows Next standalone symlink
+`EPERM`.
+
+Review verdict: owner opt-in, signed-in-only auth, public slug/owner eligibility,
+fail-closed rate limits, provider request shape, owner-paid quota/usage,
+no-transcript posture, report resolver, UI states, and tests are acceptable for
+the PR208 alpha. No anonymous chat, BYOK public visitor path, private runtime
+context, conversation transcript storage, source href upstreaming, Cloudflare,
+billing product, queue, or broad redesign scope was introduced.
 
 ## Wakeup
 

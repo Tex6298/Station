@@ -611,7 +611,7 @@ personasRouter.post("/public/:publicSlug/report", requireAuth, async (req, res) 
     .single();
 
   if (error || !data) {
-    return res.status(500).json({ error: error?.message ?? "Failed to create report." });
+    return res.status(500).json({ error: "Failed to create report." });
   }
 
   return res.status(201).json(serializePublicPersonaReportConfirmation(data, false));

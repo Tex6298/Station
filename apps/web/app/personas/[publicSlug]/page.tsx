@@ -190,15 +190,15 @@ export default function PublicPersonaPage() {
 
         {!sessionChecked && <p className="public-persona-chat-state">Checking session...</p>}
 
-        {sessionChecked && !token && (
+        {sessionChecked && !persona.publicChat?.enabled && (
+          <p className="public-persona-chat-state">The public source preview remains available below.</p>
+        )}
+
+        {sessionChecked && persona.publicChat?.enabled && !token && (
           <div className="public-persona-chat-state">
             <p>Sign in to use public chat.</p>
             <Link href={`/login?redirect=/personas/${publicSlug}`}>Sign in</Link>
           </div>
-        )}
-
-        {sessionChecked && token && !persona.publicChat?.enabled && (
-          <p className="public-persona-chat-state">The public source preview remains available below.</p>
         )}
 
         {sessionChecked && token && persona.publicChat?.enabled && (

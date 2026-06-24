@@ -4,9 +4,10 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest DAEDALUS result - PR208 implemented
+## Latest ARGUS result - PR208 accepted with review patch
 
-DAEDALUS implemented PR208 signed-in public persona chat alpha on 2026-06-24.
+ARGUS reviewed and accepted PR208 signed-in public persona chat alpha on
+2026-06-24 after adding two narrow hardening fixes.
 
 Result:
 
@@ -28,10 +29,14 @@ Result:
   public-safe confirmation.
 - Public persona page now preserves anonymous readback/context preview and adds
   signed-out, disabled, ready, sending, error, reply, and report states.
+- ARGUS patched the disabled public-chat page state so signed-out visitors do
+  not see a misleading sign-in prompt when chat is owner-disabled.
+- ARGUS patched the public report insert failure path to return a generic
+  public-safe error instead of echoing the underlying database error message.
 - `test:personas` now builds `@station/ai` because PR208 imports provider
   routing and provider input bounds from that package.
 
-Validation:
+ARGUS validation:
 
 - `npm exec --yes pnpm@10.32.1 -- run test:personas` passed.
 - `npm exec --yes pnpm@10.32.1 -- run test:reports` passed.
@@ -50,10 +55,7 @@ Validation:
 
 Current baton:
 
-- ARGUS should hostile-review owner opt-in, public route eligibility,
-  rate-limit fail-closed behavior, provider request shape, owner-paid
-  quota/usage, no-transcript posture, report resolver, UI states, and tests.
-- ARGUS should wake MIMIR with verdict.
+- MIMIR should close PR208 and decide the next move.
 
 ## Previous MIMIR decision - PR208 opened
 

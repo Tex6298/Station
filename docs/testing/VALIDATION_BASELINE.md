@@ -85,6 +85,28 @@ Scope notes:
   context, embeddings/vector retrieval, interaction-level reports, analytics,
   billing product, or broad public page redesign was added.
 
+ARGUS revalidation after review patch on 2026-06-24:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:personas` passed with 10 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:reports` passed with 6 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:spaces` passed with 1 test.
+- `npm exec --yes pnpm@10.32.1 -- run test:writing` passed with 11 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` passed with
+  2 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed with the existing raw
+  `<img>` warnings in `apps/web/app/space/[slug]/page.tsx` and
+  `apps/web/components/discover/discover-front-door.tsx`.
+- `npm exec --yes pnpm@10.32.1 -- run build` compiled, linted/typechecked,
+  generated 36 static pages, finalized optimization, and collected traces before
+  the known local Windows Next standalone symlink `EPERM`.
+- `git diff --check` and `git diff --cached --check` passed; `git diff --check`
+  reported CRLF normalization warnings only.
+
+ARGUS patch: disabled public-chat pages no longer show signed-out visitors a
+sign-in prompt, and the public persona report insert failure path no longer
+echoes database error messages.
+
 ## PR206 Public Persona Public Context Sources
 
 DAEDALUS implementation validation on 2026-06-24:
