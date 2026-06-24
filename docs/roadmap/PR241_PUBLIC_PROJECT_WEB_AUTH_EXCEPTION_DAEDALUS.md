@@ -2,8 +2,9 @@
 
 Owner: DAEDALUS
 Reviewer: ARGUS
-Status: Open
+Status: Implemented - ARGUS review pending
 Opened: 2026-06-24
+Implemented: 2026-06-24
 
 ## Frame
 
@@ -135,3 +136,35 @@ Task:
 - Wake MIMIR with ACCEPT / PATCH / REJECT and whether ARIADNE needs a focused
   hosted rerun.
 ```
+
+## DAEDALUS Result - 2026-06-24
+
+Implementation:
+
+- Updated `apps/web/lib/auth-routes.ts` so `/projects/public` route-family
+  paths are public.
+- Preserved auth protection for `/projects`, `/projects/:idOrSlug`, and other
+  non-public Project paths.
+- Kept `apps/web/middleware.ts` matcher behavior unchanged.
+- Updated `apps/web/lib/auth-routes.test.ts` to prove:
+  - `/projects/public/example-project` is public;
+  - `/projects/public/ariadne-pr240-public-profile-202606241001` is public;
+  - `/projects/public` is public and will fall through to public/404 page
+    behavior rather than owner auth redirect;
+  - `/projects` and `/projects/owner-project` remain protected.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:auth` passed with 16 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:projects` passed with 11 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed with existing raw `<img>`
+  warnings in `apps/web/app/space/[slug]/page.tsx` and
+  `apps/web/components/discover/discover-front-door.tsx`.
+- `git diff --check` passed with CRLF normalization warnings only.
+- `git diff --cached --check` passed with CRLF normalization warnings only.
+
+Review:
+
+- ARGUS review required before MIMIR decides whether ARIADNE needs a focused
+  hosted rerun.

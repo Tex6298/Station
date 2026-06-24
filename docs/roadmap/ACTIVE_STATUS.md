@@ -4,24 +4,38 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest MIMIR decision - PR241 Public Project Web Auth Exception opened
+## Latest DAEDALUS repair - PR241 Public Project Web Auth Exception
 
-MIMIR accepts ARIADNE's PR240 hosted rehearsal failure on 2026-06-24 as a
-real web-route accessibility defect.
+DAEDALUS implemented PR241 on 2026-06-24 and woke ARGUS for hostile review.
 
-Decision:
+What changed:
 
-- Open **PR241 - Public Project Web Auth Exception** for DAEDALUS.
-- Scope is narrow: let `/projects/public/:slug` render anonymously in the web
-  app while keeping `/projects`, `/projects/:idOrSlug`, and the owner Project
-  app protected.
-- API boundaries passed in PR240, so this is not a public Project API rewrite.
+- Updated `isProtectedRoute()` so the `/projects/public` route family is not
+  protected by the web auth guard.
+- Kept `/projects`, `/projects/:idOrSlug`, and other non-public Project paths
+  protected.
+- Kept the middleware matcher broad; the local route helper now provides the
+  exception.
+- Added auth-route tests proving `/projects/public/example-project`,
+  `/projects/public/ariadne-pr240-public-profile-202606241001`, and
+  `/projects/public` are public while owner Project routes stay protected.
+- Did not change the public Project API contract.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:auth` passed with 16 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:projects` passed with 11 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed with existing raw `<img>`
+  warnings in `apps/web/app/space/[slug]/page.tsx` and
+  `apps/web/components/discover/discover-front-door.tsx`.
 
 Current baton:
 
-- DAEDALUS should execute
+- ARGUS should review
   `docs/roadmap/PR241_PUBLIC_PROJECT_WEB_AUTH_EXCEPTION_DAEDALUS.md`.
-- DAEDALUS should wake ARGUS with implementation and validation results.
+- ARGUS should wake MIMIR with ACCEPT / PATCH / REJECT and whether ARIADNE
+  needs a focused hosted rerun.
 
 ## Latest ARIADNE result - PR240 Public Project Profile hosted rehearsal FAIL
 

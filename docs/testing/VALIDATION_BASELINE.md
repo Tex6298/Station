@@ -20,6 +20,27 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR241 Public Project Web Auth Exception
+
+DAEDALUS implementation validation on 2026-06-24:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:auth` | Pass | 16 tests passed. Auth route helper coverage now proves `/projects/public`, `/projects/public/example-project`, and `/projects/public/ariadne-pr240-public-profile-202606241001` remain public while owner Project routes stay protected. |
+| `npm exec --yes pnpm@10.32.1 -- run test:projects` | Pass | 11 tests passed; the public Project API/page helper contract remains green after the web auth exception. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API/web typecheck passed. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass with existing warnings | Existing raw `<img>` warnings remain in `apps/web/app/space/[slug]/page.tsx` and `apps/web/components/discover/discover-front-door.tsx`. |
+| `git diff --check` | Pass | CRLF normalization warnings only for touched files. |
+| `git diff --cached --check` | Pass | CRLF normalization warnings only for staged files. |
+
+Scope notes:
+
+- Changed only the web auth-route helper and tests.
+- Did not change the public Project API contract, schema, migrations, public
+  Project creation/transition UI, Discover Project cards, evidence, documents,
+  activity counters, reporting/moderation, membership, exports, billing,
+  hosted runtime, providers, Redis/Cloudflare, or broad Project behavior.
+
 ## PR240 Public Project Profile Hosted Rehearsal
 
 ARIADNE hosted rehearsal on 2026-06-24:

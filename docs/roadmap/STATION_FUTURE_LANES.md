@@ -315,12 +315,15 @@ Current intent:
   `/projects/public/:slug` redirected to login because the web auth guard still
   protected the entire `/projects` route family. PR241 opens the narrow web
   auth exception repair.
+- PR241 result: DAEDALUS added the `/projects/public` web auth-route exception
+  while preserving auth protection for owner Project routes. ARGUS review is
+  pending before MIMIR decides whether ARIADNE needs a focused hosted rerun.
 
 ## Phase 3 bridge sequence
 
 Status, 2026-06-24: PR202 through PR239 are accepted. PR240 Public Project
 Profile Hosted Rehearsal failed on a narrow web auth exception defect. PR241
-Public Project Web Auth Exception is open for DAEDALUS.
+Public Project Web Auth Exception is implemented and pending ARGUS review.
 
 Current MIMIR position:
 
@@ -388,7 +391,7 @@ Bridge order:
 39. Done: Public Project Readback Preflight.
 40. Done: Public Project Profile Readback.
 41. Failed: Public Project Profile Hosted Rehearsal, web auth exception defect.
-42. Active: Public Project Web Auth Exception.
+42. Review: Public Project Web Auth Exception.
 
 ARGUS P3-B1A gates:
 
