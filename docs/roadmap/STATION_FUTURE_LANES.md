@@ -63,9 +63,16 @@ Redis/Cloudflare, billing, queues, workers, staged data, or broad visual
 redesign. They are a polish bridge before deciding the next product/backend
 lane.
 
-PR273 passed. PR274 is now the active backend/product lane: a hosted replay
-runtime quality probe for replay-owner session persistence, one bounded chat/
-context round trip, and sanitized observability/readiness evidence.
+PR273 passed. PR274 completed as `PASS WITH CAVEATS`: hosted freshness,
+replay-owner auth/session persistence, context readback, and observability
+passed, and the single chat turn was safe and traceable. The caveat is runtime
+answer quality: the model only partially recalled the seeded anchor set despite
+Memory, Archive, Continuity, Integrity, and Canon context being present.
+
+Next recommended lane: if full two-anchor recall remains the acceptance bar,
+MIMIR should open a narrow DAEDALUS runtime answer-quality triage. If MIMIR
+accepts the partial recall as sufficient for product judgement, hand the caveat
+to ARIADNE for a human-eye runtime rehearsal instead.
 
 ## Phase 2D Developer Agent closeout
 

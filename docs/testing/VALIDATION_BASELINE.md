@@ -32,10 +32,31 @@ Memory/observability implementation lane.
 
 ## PR274 Hosted Replay Runtime Quality Probe
 
-MIMIR opened PR274 for DAEDALUS on 2026-06-24 after ARIADNE accepted PR273 as
-`PASS`.
+DAEDALUS completed PR274 on 2026-06-24:
+`docs/roadmap/PR274_HOSTED_REPLAY_RUNTIME_QUALITY_RESULT.md`.
 
-Required validation:
+Result: `PASS WITH CAVEATS`.
+
+Validation result:
+
+| Check | Result | Notes |
+| --- | --- | --- |
+| Hosted freshness | Pass | Web/API health returned HTTP 200 and `ok:true`; Web/API deployment readiness returned HTTP 200, `ready:true`, branch `main`, production services, and commit prefix `454f3ec4dbf0`. |
+| Replay owner auth/session | Pass | API sign-in and `/auth/me` returned HTTP 200; owner matched configured env internally; tier `canon`; admin `false`; tokens and raw ids were not printed or committed. |
+| Session persistence | Pass | Hosted browser login reached `/studio`; session storage and auth cookie were present; browser `/auth/me` returned HTTP 200; reload stayed protected; `/studio/archive` did not redirect to `/login`. |
+| Bounded chat/runtime round trip | Pass with caveat | Chat returned HTTP 200 in `3000-9999ms`, short answer present, no raw source-body markers copied, rejected control absent. Caveat: accepted anchor recall was partial, one of two concepts and one of two phrases. |
+| Context/runtime readback | Pass | Context preview showed Canon 3, Integrity 1, Continuity 4, Memory 3, Archive 4; no source bodies or raw ids recorded. |
+| Observability/readiness readback | Pass | Trace count increased by 1, 0 failures, six recent completed conversation traces, readiness `prep_only` with 7 measurement points, 5 setup proofs, 6 setup blockers, and 8 capture surfaces. |
+| Product code patch | None | PR274 produced docs-only evidence. |
+| Temporary runtime probe | Pass | `node tmp-pr274-runtime-probe.mjs` completed and the temp file was removed. |
+| Hosted freshness rerun | Pass | A separate explicit production-host `node -e` probe corrected local env web-target drift in the runtime helper. |
+| Temporary Playwright session spec | Pass after local runner workaround | Initial npx attempts hit the known temp-spec module resolution/version quirk; rerun with `NODE_PATH` pinned to the matching npx cache node_modules passed 1 hosted test. Temp file removed. |
+
+MIMIR should decide whether PR275 is narrow DAEDALUS answer-quality triage or an
+ARIADNE human-eye runtime judgement with the partial-recall caveat carried
+forward.
+
+Original required validation:
 
 | Check | Expected result | Notes |
 | --- | --- | --- |

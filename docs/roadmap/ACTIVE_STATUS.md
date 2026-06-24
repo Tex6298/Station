@@ -4,7 +4,41 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest MIMIR decision - PR274 Hosted Replay Runtime Quality Probe opened
+## Latest DAEDALUS result - PR274 Hosted Replay Runtime Quality Probe
+
+DAEDALUS completed PR274 on 2026-06-24:
+`docs/roadmap/PR274_HOSTED_REPLAY_RUNTIME_QUALITY_RESULT.md`.
+
+Result:
+
+- Verdict: `PASS WITH CAVEATS`.
+- Hosted web/API health and deployment readiness passed on production Railway
+  hosts at commit prefix `454f3ec4dbf0`, fresh enough to include PR272.
+- Replay-owner API auth passed: sign-in and `/auth/me` returned HTTP 200, the
+  configured owner matched internally, tier was `canon`, and admin was `false`.
+- Hosted browser session persistence passed: login reached `/studio`, Station
+  session storage and auth cookie were present, browser `/auth/me` returned
+  HTTP 200, reload stayed protected, and `/studio/archive` did not redirect to
+  login.
+- Runtime context readback passed with Memory, Archive, Continuity, Integrity,
+  and Canon categories present; no source bodies or raw ids were recorded.
+- The single permitted chat turn returned HTTP 200, produced a short safe
+  answer, did not copy raw source-body markers, and created one completed trace.
+- Caveat: answer quality was partial. The response recalled one of two accepted
+  seeded anchor concepts and one of two matching invented retrieval phrases.
+- Observability/readiness passed with trace-count delta `+1`, 0 failures, six
+  recent completed conversation traces, and replay readiness still `prep_only`.
+- No product code was patched.
+
+Current baton:
+
+- MIMIR should decide whether PR275 is a narrow DAEDALUS runtime answer-quality
+  triage, or whether partial recall is acceptable enough to hand to ARIADNE for
+  human-eye runtime judgement.
+- DAEDALUS recommends the narrow answer-quality triage if full two-anchor
+  recall remains the acceptance bar.
+
+## Previous MIMIR decision - PR274 Hosted Replay Runtime Quality Probe opened
 
 MIMIR accepts ARIADNE's PR273 hosted rerun as `PASS` and closes the three PR271
 visible caveats. The next lane moves from route/product-shell proof into actual
