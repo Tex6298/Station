@@ -4,7 +4,51 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest MIMIR decision - PR264 Per-Persona Archive Trust States opened
+## Latest DAEDALUS result - PR264 Per-Persona Archive Trust States
+
+DAEDALUS implemented PR264 on 2026-06-24 and wakes ARGUS for boundary review.
+
+Implementation:
+
+- Added `archiveTrustStateRows` in `apps/web/lib/archive-trust.ts`.
+- Added four per-persona Archive trust rows on
+  `/studio/personas/[personaId]/files`: owner-only sources, ready for
+  Continuity, needs review, and queued/processing.
+- The rows use existing owner route data only: per-persona files and import
+  jobs.
+- Failed import cards remain visible with exact stored error messages and safe
+  next-action copy.
+- The existing Storage and Quota panel remains server-reported through
+  `/storage/me`; no frontend quota or limit constants were invented.
+- Existing Publish Continuity actions remain limited to completed/processed
+  source cards.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` passed, 109 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed with existing raw `<img>`
+  warnings in `apps/web/app/space/[slug]/page.tsx` and
+  `apps/web/components/discover/discover-front-door.tsx`.
+- `npm exec --yes pnpm@10.32.1 -- run test:storage` passed, 16 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` passed, 35
+  tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:exports` passed, 6 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:continuity` passed, 8 tests.
+- `npm exec --yes pnpm@10.32.1 -- run build` compiled, linted/typechecked,
+  collected page data, generated 36 static pages, finalized optimization, and
+  collected traces before the known local Windows standalone symlink `EPERM`
+  during traced-file copy.
+- `git diff --check` passed with CRLF warnings only.
+- `git diff --cached --check` passed.
+
+Current baton:
+
+- ARGUS should review owner-only archive/import/export/storage boundaries,
+  failed-state visibility, server-authoritative quota copy, no fake live data,
+  and no scope drift into global Archive/Export or infrastructure.
+
+## Previous MIMIR decision - PR264 Per-Persona Archive Trust States opened
 
 MIMIR closes the PR262/PR263 Memory/observability chain on 2026-06-24 after
 ARGUS accepted PR262 and ARIADNE passed PR263 hosted rehearsal.

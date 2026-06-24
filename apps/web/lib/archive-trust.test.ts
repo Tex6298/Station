@@ -11,6 +11,7 @@ import {
   archiveJobTone,
   archiveJobTrustCopy,
   archiveSourceNarrative,
+  archiveTrustStateRows,
   archiveTrustSummary,
 } from "./archive-trust";
 
@@ -46,6 +47,43 @@ test("archive trust summary groups import and file state without inventing quota
   );
 
   assert.match(archiveFileTrustCopy({ processed: false }), /queued for processing/);
+});
+
+test("archive trust state rows make empty, ready, failed, and processing states explicit", () => {
+  const rows = archiveTrustStateRows(
+    [{ processed: true }, { processed: false }],
+    [
+      { status: "completed" },
+      { status: "failed", error_message: "Parser refused empty source." },
+      { status: "queued" },
+      { status: "processing" },
+    ],
+  );
+
+  assert.deepEqual(rows.map((row) => [row.id, row.value, row.tone]), [
+    ["private-sources", "6", "good"],
+    ["ready", "2", "good"],
+    ["needs-review", "1", "danger"],
+    ["processing", "2", "warning"],
+  ]);
+  assert.match(rows.find((row) => row.id === "needs-review")?.body ?? "", /failed/i);
+  assert.match(rows.find((row) => row.id === "needs-review")?.nextAction ?? "", /exact error/i);
+  assert.match(rows.find((row) => row.id === "processing")?.nextAction ?? "", /Wait/);
+});
+
+test("archive trust state rows keep empty state honest without quota invention", () => {
+  const rows = archiveTrustStateRows([], []);
+  const rendered = JSON.stringify(rows);
+
+  assert.deepEqual(rows.map((row) => [row.id, row.value, row.tone]), [
+    ["private-sources", "0", "info"],
+    ["ready", "0", "info"],
+    ["needs-review", "0", "info"],
+    ["processing", "0", "info"],
+  ]);
+  assert.match(rows[0]?.body ?? "", /No pasted or file archive sources/);
+  assert.match(rows[0]?.body ?? "", /Archived chats can still appear/);
+  assert.doesNotMatch(rendered, /limit|quota|gb|mb|percent|destroyed/i);
 });
 
 test("archive search controls build backend search routes", () => {

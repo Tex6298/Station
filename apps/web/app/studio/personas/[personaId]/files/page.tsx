@@ -11,7 +11,9 @@ import {
   archiveJobStatusLabel,
   archiveJobTone,
   archiveJobTrustCopy,
+  archiveTrustStateRows,
   archiveTrustSummary,
+  type ArchiveTrustStateRow,
 } from "@/lib/archive-trust";
 import { ArchiveExportStatus } from "@/components/studio/archive-export-status";
 import { ImportReviewInbox } from "@/components/studio/import-review-inbox";
@@ -177,6 +179,7 @@ export default function PersonaFilesPage() {
   if (!persona) return <StudioMessage tone="error">Persona not found.</StudioMessage>;
 
   const summary = archiveTrustSummary(files, jobs);
+  const stateRows = archiveTrustStateRows(files, jobs);
 
   return (
     <main className="container studio-workspace">
@@ -198,6 +201,7 @@ export default function PersonaFilesPage() {
             <TrustMetric label="Needs review" value={summary.failedImports} tone={summary.failedImports > 0 ? "danger" : "info"} />
             <TrustMetric label="Processing" value={summary.processingImports} tone={summary.processingImports > 0 ? "warning" : "info"} />
           </div>
+          <ArchiveTrustStateReadback rows={stateRows} />
         </StudioPanel>
 
         <StudioPanel>
@@ -295,6 +299,25 @@ function ImportJobCard({ job }: { job: ImportJob }) {
         />
       ) : null}
     </article>
+  );
+}
+
+function ArchiveTrustStateReadback({ rows }: { rows: ArchiveTrustStateRow[] }) {
+  return (
+    <div className="studio-item-list" style={{ marginTop: "1rem" }} aria-label="Archive state readback">
+      {rows.map((row) => (
+        <article key={row.id} className="studio-item-card archive-trust-source-card">
+          <div>
+            <span>{row.label}</span>
+            <div className="archive-trust-card-meta">
+              <StudioStatusBadge tone={row.tone}>{row.value}</StudioStatusBadge>
+            </div>
+          </div>
+          <p>{row.body}</p>
+          <div className="archive-trust-next-action">{row.nextAction}</div>
+        </article>
+      ))}
+    </div>
   );
 }
 

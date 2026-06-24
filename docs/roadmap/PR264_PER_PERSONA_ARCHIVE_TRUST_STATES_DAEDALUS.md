@@ -135,3 +135,59 @@ Blocker:
 Task:
 - Decide the smallest backend/API/schema/planning lane or reroute UX-02A.
 ```
+
+## DAEDALUS Implementation Result
+
+Implemented on 2026-06-24.
+
+Files changed:
+
+- `apps/web/lib/archive-trust.ts`
+- `apps/web/lib/archive-trust.test.ts`
+- `apps/web/app/studio/personas/[personaId]/files/page.tsx`
+- roadmap/status/validation docs
+
+Implementation summary:
+
+- Added `archiveTrustStateRows`, a pure helper that turns the existing
+  per-persona file/import state into four owner-facing trust rows:
+  owner-only sources, ready for Continuity, needs review, and queued/processing.
+- Added focused helper tests for populated and empty states, including failed
+  imports, processing imports, ready sources, honest empty copy, and no invented
+  frontend quota/limit language.
+- Rendered the helper output inside the existing
+  `/studio/personas/[personaId]/files` Archive Trust panel.
+- Kept the existing Storage and Quota panel beside the Archive Trust panel so
+  quota remains server-reported through `/storage/me`.
+- Kept existing failed import cards visible with exact error message readback
+  and safe next-action copy.
+- Kept existing Publish Continuity actions only on completed/processed source
+  cards.
+
+Explicit non-scope preserved:
+
+- No global `/studio/archive` implementation, global `/studio/export`
+  implementation, downloadable bundle change, worker/background-job change,
+  external import/connector/upload-processing expansion, private search UI,
+  Redis, Cloudflare, provider, embedding, billing, auth/session, deployment,
+  public route, backend API, schema, storage-quota constant, or fake archive
+  activity changed.
+
+Validation:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 109 tests passed, including new archive trust state rows. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API typecheck replayed from cache; web typecheck passed. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass with existing warnings | Existing raw `<img>` warnings remain in `apps/web/app/space/[slug]/page.tsx` and `apps/web/components/discover/discover-front-door.tsx`. |
+| `npm exec --yes pnpm@10.32.1 -- run test:storage` | Pass | 16 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass | 35 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:exports` | Pass | 6 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:continuity` | Pass | 8 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run build` | Partial / known Windows failure | Web compiled, linted/typechecked, collected page data, generated 36 static pages, finalized optimization, and collected traces before local Windows standalone trace-copy failed on symlink `EPERM`. Existing raw `<img>` warnings appeared. |
+| `git diff --check` | Pass | CRLF warnings only. |
+| `git diff --cached --check` | Pass | Staged whitespace check passed. |
+
+ARGUS should review owner-only archive/import/export/storage boundaries, failed
+state visibility, server-authoritative quota copy, no fake live data, and no
+scope drift into global Archive/Export or infrastructure.

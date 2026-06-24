@@ -9,6 +9,15 @@ export interface ArchiveFileLike {
   processed: boolean;
 }
 
+export interface ArchiveTrustStateRow {
+  id: "private-sources" | "ready" | "needs-review" | "processing";
+  label: string;
+  value: string;
+  tone: ArchiveJobTone;
+  body: string;
+  nextAction: string;
+}
+
 export function archiveJobTone(status: string): ArchiveJobTone {
   if (status === "completed") return "good";
   if (status === "failed") return "danger";
@@ -61,6 +70,66 @@ export function archiveTrustSummary(files: ArchiveFileLike[], jobs: ArchiveImpor
     processingImports: jobs.filter((job) => job.status === "queued" || job.status === "processing").length,
     processedFiles: files.filter((file) => file.processed).length,
   };
+}
+
+export function archiveTrustStateRows(
+  files: ArchiveFileLike[],
+  jobs: ArchiveImportJobLike[],
+): ArchiveTrustStateRow[] {
+  const summary = archiveTrustSummary(files, jobs);
+  const readySources = summary.completedImports + summary.processedFiles;
+  const empty = summary.totalSources === 0;
+
+  return [
+    {
+      id: "private-sources",
+      label: "Owner-only sources",
+      value: summary.totalSources.toString(),
+      tone: empty ? "info" : "good",
+      body: empty
+        ? "No pasted or file archive sources are attached to this persona yet. Archived chats can still appear in runtime context separately."
+        : "Pasted imports and uploaded files on this page remain private source material for this owner.",
+      nextAction: empty
+        ? "Paste source material when there is something worth preserving for this persona."
+        : "Review the status rows below before linking material into Continuity.",
+    },
+    {
+      id: "ready",
+      label: "Ready for continuity",
+      value: readySources.toString(),
+      tone: readySources > 0 ? "good" : "info",
+      body: readySources > 0
+        ? "Completed imports and processed files can be linked into Continuity when useful."
+        : "No completed pasted imports or processed files are ready to link yet.",
+      nextAction: readySources > 0
+        ? "Use the source cards to publish a Continuity marker from ready material."
+        : "Wait for processing or add a new source before linking into Continuity.",
+    },
+    {
+      id: "needs-review",
+      label: "Needs review",
+      value: summary.failedImports.toString(),
+      tone: summary.failedImports > 0 ? "danger" : "info",
+      body: summary.failedImports > 0
+        ? "One or more imports failed before Station could preserve archive memory from that source."
+        : "No failed pasted imports are waiting for review.",
+      nextAction: summary.failedImports > 0
+        ? "Open the failed source card, read the exact error, then retry or replace the source text."
+        : "Existing archive material remains safe if a future import fails.",
+    },
+    {
+      id: "processing",
+      label: "Queued or processing",
+      value: summary.processingImports.toString(),
+      tone: summary.processingImports > 0 ? "warning" : "info",
+      body: summary.processingImports > 0
+        ? "Station is still preparing one or more pasted sources as private archive material."
+        : "No pasted imports are currently queued or processing.",
+      nextAction: summary.processingImports > 0
+        ? "Wait for processing to finish before relying on the source in Continuity."
+        : "New imports will appear here while Station prepares them.",
+    },
+  ];
 }
 
 export function archiveSourceNarrative() {

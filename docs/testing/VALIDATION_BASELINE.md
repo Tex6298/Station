@@ -32,21 +32,46 @@ Memory/observability implementation lane.
 
 ## PR264 Per-Persona Archive Trust States
 
-MIMIR opened PR264 for DAEDALUS on 2026-06-24 after ARGUS accepted PR262 and
+DAEDALUS implemented PR264 on 2026-06-24 after ARGUS accepted PR262 and
 ARIADNE passed PR263.
 
-Expected validation:
+Files changed:
 
-| Check | Expected result | Notes |
+- `apps/web/lib/archive-trust.ts`
+- `apps/web/lib/archive-trust.test.ts`
+- `apps/web/app/studio/personas/[personaId]/files/page.tsx`
+- roadmap/status/validation docs
+
+Validation:
+
+| Check | Result | Notes |
 | --- | --- | --- |
-| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | Required because owner Studio route/types may be touched. |
-| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass | New warnings on touched Studio/archive files are blockers unless ARGUS accepts a narrow reason. |
-| `npm exec --yes pnpm@10.32.1 -- run test:storage` | Pass | Storage/quota and owner archive boundaries stay server-authoritative. |
-| `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass | Archive import/readback behavior remains intact. |
-| `npm exec --yes pnpm@10.32.1 -- run test:exports` | Pass | Existing export trust/readback behavior remains intact. |
-| `npm exec --yes pnpm@10.32.1 -- run test:continuity` | Pass | Archive trust copy must not break continuity source/readback expectations. |
-| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | Touched owner Studio helper behavior remains covered. |
-| `git diff --check` and `git diff --cached --check` | Pass | Whitespace hygiene for the handoff/implementation. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API typecheck replayed from cache; web typecheck passed. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass with existing warnings | Existing raw `<img>` warnings remain in `apps/web/app/space/[slug]/page.tsx` and `apps/web/components/discover/discover-front-door.tsx`. |
+| `npm exec --yes pnpm@10.32.1 -- run test:storage` | Pass | 16 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass | 35 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:exports` | Pass | 6 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:continuity` | Pass | 8 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 109 tests passed, including new archive trust state rows. |
+| `npm exec --yes pnpm@10.32.1 -- run build` | Partial / known Windows failure | Web compiled, linted/typechecked, collected page data, generated 36 static pages, finalized optimization, and collected traces before local Windows standalone trace-copy failed on symlink `EPERM`. Existing raw `<img>` warnings appeared. |
+| `git diff --check` | Pass | CRLF warnings only. |
+| `git diff --cached --check` | Pass | Staged whitespace check. |
+
+Scope notes:
+
+- Added per-persona Archive trust rows on
+  `/studio/personas/[personaId]/files`: owner-only sources, ready for
+  Continuity, needs review, and queued/processing.
+- Used existing owner route data only: per-persona file rows and import jobs.
+- Failed import cards remain visible with exact stored error messages and safe
+  next-action copy.
+- Storage/quota remains server-reported through the existing `StorageUsagePanel`
+  and `/storage/me`; no frontend quota or limit constants were invented.
+- No global Archive/Export implementation, downloadable bundle change, worker
+  or background job change, external import/connector/upload-processing
+  expansion, private search UI, Redis, Cloudflare, provider, embedding, billing,
+  auth/session, deployment, public route, backend API, schema, fake archive
+  activity, or frontend-only quota logic changed.
 
 ## PR263 Runtime Provenance Rehearsal
 
