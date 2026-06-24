@@ -2,8 +2,9 @@
 
 Owner: ARIADNE
 Reviewer: MIMIR
-Status: Open
+Status: Blocked - hosted schema missing Project export column
 Opened: 2026-06-24
+Reviewed: 2026-06-24
 
 ## Frame
 
@@ -94,3 +95,46 @@ Task:
 - If PASS, MIMIR should close PR252/PR253 and choose the next roadmap move.
 - If FAIL or BLOCKED, MIMIR should route the precise repair or deployment blocker.
 ```
+
+## ARIADNE Result - 2026-06-24
+
+Verdict: `BLOCKED`.
+
+Hosted gate:
+
+- Web and API `/health/deployment` were healthy, ready, on branch `main`, and
+  at required commit `ac1cb40` or later.
+- Replay owner sign-in succeeded from local `.env` without printing credentials
+  or tokens.
+
+Blocker:
+
+- The rehearsal could not reach the browser panel checks because hosted
+  `GET /exports/projects/:projectIdOrSlug` returned HTTP `500`.
+- Sanitized API error: `column export_packages.project_id does not exist`.
+- This points to hosted Supabase missing
+  `infra/supabase/migrations/059_project_export_manifest.sql`, while deployed
+  API code already expects the `export_packages.project_id` column.
+
+Not exercised:
+
+- Desktop Project export panel placement below owner-only Project evidence.
+- `390px` mobile Project export panel fit.
+- Existing package listing, create manifest, manifest readback, and bundle file
+  readback.
+- Stale manifest/bundle selection clearing.
+- Absence from public Project, Discover, global navigation, Studio, Settings,
+  Billing, and public Developer Space routes.
+- Privacy/boundary copy and layout checks.
+
+Validation:
+
+- `npx --yes --package @playwright/test@1.41.2 playwright test tmp-pr253-owner-project-export-rehearsal.spec.js --reporter=line --workers=1`
+  blocked on hosted owner Project export API HTTP `500`.
+
+Repair guidance:
+
+- Apply or verify `infra/supabase/migrations/059_project_export_manifest.sql`
+  against hosted Supabase so `export_packages.project_id` exists.
+- Re-run PR253 after the hosted owner Project export API can list/create
+  Project manifest packages.

@@ -20,6 +20,26 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR253 Owner Project Export Hosted Rehearsal
+
+ARIADNE hosted rehearsal attempt on 2026-06-24:
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Web `/health/deployment` | Pass | Railway web reported `ok:true`, `ready:true`, branch `main`, and commit at or beyond required `ac1cb40`. |
+| API `/health/deployment` | Pass | Railway API reported `ok:true`, `ready:true`, branch `main`, and commit at or beyond required `ac1cb40`. |
+| Replay owner sign-in | Pass | Signed in from local `.env` without printing credentials or tokens. |
+| Owner Project export list | Blocked | Hosted `GET /exports/projects/:projectIdOrSlug` returned HTTP `500`; sanitized error: `column export_packages.project_id does not exist`. |
+| `npx --yes --package @playwright/test@1.41.2 playwright test tmp-pr253-owner-project-export-rehearsal.spec.js --reporter=line --workers=1` | Blocked | The hosted owner Project export API failed before the browser could judge panel placement, package listing, create/readback actions, stale-selection clearing, unrelated-route absence, or desktop/mobile layout. |
+
+Rehearsal verdict:
+
+- `BLOCKED`
+- Hosted web/API code is fresh, but hosted Supabase is missing
+  `infra/supabase/migrations/059_project_export_manifest.sql`
+  (`export_packages.project_id`), so PR253 must be rerun after hosted schema
+  repair.
+
 ## PR252 Owner Project Export UI Panel
 
 DAEDALUS implementation and ARGUS review validation on 2026-06-24:

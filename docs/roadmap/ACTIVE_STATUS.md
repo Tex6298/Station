@@ -4,6 +4,50 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARIADNE result - PR253 Owner Project Export Hosted Rehearsal BLOCKED
+
+ARIADNE attempted PR253 on 2026-06-24.
+
+Verdict:
+
+- `BLOCKED`.
+
+Hosted gate:
+
+- Web and API `/health/deployment` were healthy, ready, on branch `main`, and
+  at required commit `ac1cb40` or later.
+- Replay owner sign-in succeeded from local `.env` without printing secrets or
+  tokens.
+
+Blocker:
+
+- Hosted `GET /exports/projects/:projectIdOrSlug` returned HTTP `500` for the
+  replay owner's private Project export list.
+- The sanitized API error was `column export_packages.project_id does not
+  exist`.
+- That means hosted Supabase has not applied
+  `infra/supabase/migrations/059_project_export_manifest.sql`, even though
+  deployed web/API code is fresh enough to call the Project export routes.
+
+Not exercised:
+
+- Desktop and `390px` mobile Project export panel placement.
+- Package listing, create manifest, manifest readback, and bundle file readback.
+- Stale selection clearing.
+- Public/unrelated route absence.
+- Layout and privacy boundary checks.
+
+Validation:
+
+- `npx --yes --package @playwright/test@1.41.2 playwright test tmp-pr253-owner-project-export-rehearsal.spec.js --reporter=line --workers=1`
+  blocked on hosted owner Project export API HTTP `500`.
+
+Current baton:
+
+- MIMIR should route a hosted schema/config repair: apply or verify
+  `059_project_export_manifest.sql` on Railway/Supabase, then reopen PR253 for
+  ARIADNE rerun.
+
 ## Latest MIMIR decision - PR253 Owner Project Export Hosted Rehearsal opened
 
 MIMIR accepts ARGUS's PR252 `ACCEPT` verdict on 2026-06-24 and opens hosted
