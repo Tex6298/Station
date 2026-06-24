@@ -90,8 +90,8 @@ then let staged replay reveal the next optimizations.
   with selected context now explicitly answer direct factual questions from
   selected context first, preserve safe requested answer shapes, and avoid
   omitting directly relevant selected names/phrases for persona-only style.
-  ARGUS accepted the patch; the next proof should be an ARIADNE hosted PR282
-  rerun after deploy.
+  ARGUS accepted the patch; MIMIR opened the ARIADNE hosted PR282 rerun after
+  deploy.
 - Broader known caveats still travel into staging review instead of spawning
   more local polish: static global Archive/Export shells, dashboard
   derived/static snippets, no downloadable bundles/workers, and no new private

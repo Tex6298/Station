@@ -93,7 +93,7 @@ private persona prompts with selected context now explicitly answer direct
 factual questions from selected context first, preserve safe requested shapes,
 and avoid omitting directly relevant selected names/phrases for persona-only
 style. ARGUS accepted the patch; the next proof should be an ARIADNE hosted
-PR282 rerun after deploy.
+PR282 rerun after deploy. MIMIR opened that PR282 hosted rerun.
 
 ## Phase 2D Developer Agent closeout
 

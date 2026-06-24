@@ -500,7 +500,7 @@ direct factual questions answer from selected context first when the answer is
 present, preserve safe requested shapes, and avoid omitting selected names or
 phrases for persona-only style. Provider-payload tests prove the grounding
 prompt and final user message are preserved. ARGUS accepted the patch; MIMIR
-should open an ARIADNE hosted PR282 rerun after deploy.
+opened an ARIADNE hosted PR282 rerun after deploy.
 
 2026-06-23 Phase 3 bridge decision: MIMIR consumed the A1 bridge wakeup and
 opened PR201 for ARGUS hostile boundary preflight. Phase 3 is not ready for
